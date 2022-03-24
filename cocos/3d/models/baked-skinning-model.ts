@@ -23,13 +23,8 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { JSB } from 'internal:constants';
-import { AnimationClip } from '../../core/animation/animation-clip';
+import type { AnimationClip } from '../../core/animation/animation-clip';
 import { Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
 import { AABB } from '../../core/geometry';
@@ -37,12 +32,13 @@ import { BufferUsageBit, MemoryUsageBit, Attribute, DescriptorSet, Buffer, Buffe
 import { INST_JOINT_ANIM_INFO, UBOSkinningAnimation, UBOSkinningTexture, UNIFORM_JOINT_TEXTURE_BINDING } from '../../core/pipeline/define';
 import { Node } from '../../core/scene-graph';
 import { IMacroPatch, Pass } from '../../core/renderer/core/pass';
-import { DataPoolManager } from '../skeletal-animation/data-pool-manager';
+import type { DataPoolManager } from '../skeletal-animation/data-pool-manager';
 import { ModelType } from '../../core/renderer/scene/model';
-import { IAnimInfo, IJointTextureHandle, jointTextureSamplerInfo } from '../skeletal-animation/skeletal-animation-utils';
+import { IAnimInfo, IJointTextureHandle } from '../skeletal-animation/skeletal-animation-utils';
 import { MorphModel } from './morph-model';
 import { legacyCC } from '../../core/global-exports';
 import { NativeAABB, NativeBakedSkinningModel } from '../../core/renderer/scene/native-scene';
+import { jointTextureSamplerInfo } from '../misc/joint-texture-sampler-info';
 
 interface IJointsInfo {
     buffer: Buffer | null;
@@ -146,7 +142,7 @@ export class BakedSkinningModel extends MorphModel {
     }
 
     private _applyNativeJointMedium () {
-        if (JSB) {
+        if (JSB && this._nativeObj) {
             const boundsInfo: NativeAABB[] = [];
             if (this._jointsMedium.boundsInfo) {
                 this._jointsMedium.boundsInfo.forEach((bound: AABB) => {
@@ -154,7 +150,7 @@ export class BakedSkinningModel extends MorphModel {
                 });
             }
             const animInfoKey = 'nativeDirty';
-            (this._nativeObj! as NativeBakedSkinningModel).setJointMedium(!!this.uploadedAnim, {
+            (this._nativeObj as NativeBakedSkinningModel).setJointMedium(!!this.uploadedAnim, {
                 boundsInfo,
                 jointTextureInfo: this._jointsMedium.jointTextureInfo.buffer,
                 animInfo: {

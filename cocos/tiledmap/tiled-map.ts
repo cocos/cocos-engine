@@ -381,6 +381,8 @@ export class TiledMap extends Component {
         // remove the layers & object groups added before
         const layers = this._layers;
         for (let i = 0, l = layers.length; i < l; i++) {
+            layers[i].node.parent?.off(NodeEventType.SIZE_CHANGED, layers[i].updateCulling, layers[i]);
+            layers[i].node.parent?.off(NodeEventType.TRANSFORM_CHANGED, layers[i].updateCulling, layers[i]);
             layers[i].node.removeFromParent();
             layers[i].node.destroy();
         }
@@ -611,7 +613,7 @@ export class TiledMap extends Component {
         texture._image = null;
     }
 
-    update (dt: number) {
+    lateUpdate (dt: number) {
         const animations = this._animations;
         const texGrids = this._texGrids;
         for (const aniGID of animations.keys()) {
@@ -629,8 +631,10 @@ export class TiledMap extends Component {
             }
             texGrids.set(aniGID, frame.grid!);
         }
-        for (const layer of this.getLayers()) {
-            if (layer.hasAnimation()) {
+        const layers = this.getLayers();
+        for (let i = 0, l = layers.length; i < l; i++) {
+            const layer = layers[i];
+            if (layer.hasAnimation() || layer.node.hasChangedFlags) {
                 layer.markForUpdateRenderData();
             }
         }

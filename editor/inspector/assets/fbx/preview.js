@@ -628,13 +628,17 @@ exports.methods = {
     },
 
     updateEventInfo() {
+        let eventInfos = [];
         const events = this.curEditClipInfo.userData.events;
-        const eventInfos = events.map((info) => {
-            return {
-                ...info,
-                x: this.$.animationTime.valueToPixel(info.frame * this.curEditClipInfo.fps),
-            };
-        });
+        if (Array.isArray(events)) {
+            eventInfos = events.map((info) => {
+                return {
+                    ...info,
+                    x: this.$.animationTime.valueToPixel(info.frame * this.curEditClipInfo.fps),
+                };
+            });
+        }
+
         this.events.update.call(this, eventInfos);
     },
 
@@ -742,6 +746,17 @@ exports.methods = {
                 clipInfo.from,
                 clipInfo.to,
             );
+
+            await Editor.Message.request(
+                'scene',
+                'execute-model-preview-animation-operation',
+                'setClipConfig',
+                {
+                    wrapMode: clipInfo.wrapMode,
+                    speed: clipInfo.speed,
+                }
+            );
+
             await this.stopAnimation();
         }
     },

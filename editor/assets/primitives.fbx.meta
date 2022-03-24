@@ -141,6 +141,22 @@
         "gltfIndex": 7
       }
     },
+    "8d883": {
+      "importer": "gltf-material",
+      "uuid": "1263d74c-8167-4928-91a6-4e2672411f47@8d883",
+      "displayName": "",
+      "id": "8d883",
+      "name": "lambert1.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
     "aae0f": {
       "importer": "gltf-scene",
       "uuid": "1263d74c-8167-4928-91a6-4e2672411f47@aae0f",
@@ -186,7 +202,9 @@
         "1263d74c-8167-4928-91a6-4e2672411f47@8abdc",
         "1263d74c-8167-4928-91a6-4e2672411f47@a804a"
       ],
-      "materials": [],
+      "materials": [
+        "1263d74c-8167-4928-91a6-4e2672411f47@8d883"
+      ],
       "scenes": [
         "1263d74c-8167-4928-91a6-4e2672411f47@aae0f"
       ],

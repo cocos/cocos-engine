@@ -29,7 +29,7 @@
  * @module particle2d
  */
 
-import { ccclass, editable, type, menu, executeInEditMode, serializable, playOnFocus, tooltip, visible, formerlySerializedAs } from 'cc.decorator';
+import { ccclass, editable, type, displayOrder, menu, executeInEditMode, serializable, playOnFocus, tooltip, visible, formerlySerializedAs } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Renderable2D } from '../2d/framework/renderable-2d';
 import { Color, Vec2 } from '../core/math';
@@ -197,6 +197,7 @@ export class ParticleSystem2D extends Renderable2D {
      * @zh 是否自定义粒子属性。
      */
     @editable
+    @displayOrder(6)
     @tooltip('i18n:particle_system.custom')
     public get custom () {
         return this._custom;
@@ -217,6 +218,7 @@ export class ParticleSystem2D extends Renderable2D {
      * @zh plist 格式的粒子配置文件。
      */
     @type(ParticleAsset)
+    @displayOrder(5)
     @tooltip('i18n:particle_system.file')
     public get file (): ParticleAsset | null {
         return this._file;
@@ -522,6 +524,7 @@ export class ParticleSystem2D extends Renderable2D {
      * @ch 查看粒子效果
      */
     @editable
+    @displayOrder(2)
     @tooltip('i18n:particle_system.preview')
     public get preview () {
         return this._preview;
@@ -693,8 +696,14 @@ export class ParticleSystem2D extends Renderable2D {
         return this._assembler;
     }
     public aspectRatio = 1;
-    // The temporary SpriteFrame object used for the renderer. Because there is no corresponding asset, it can't be serialized.
+    /**
+     * The temporary SpriteFrame object used for the renderer. Because there is no corresponding asset, it can't be serialized.
+     * @legacyPublic
+     */
     public declare _renderSpriteFrame: SpriteFrame | null;
+    /**
+     * @legacyPublic
+     */
     public declare _simulator: Simulator;
 
     /**
@@ -703,6 +712,7 @@ export class ParticleSystem2D extends Renderable2D {
      */
     @serializable
     @editable
+    @displayOrder(3)
     @tooltip('i18n:particle_system.playOnLoad')
     public playOnLoad = true;
 
@@ -712,6 +722,7 @@ export class ParticleSystem2D extends Renderable2D {
      */
     @serializable
     @editable
+    @displayOrder(4)
     @tooltip('i18n:particle_system.autoRemoveOnFinish')
     public autoRemoveOnFinish = false;
 
@@ -765,6 +776,10 @@ export class ParticleSystem2D extends Renderable2D {
 
         // reset uv data so next time simulator will refill buffer uv info when exit edit mode from prefab.
         this._simulator.uvFilled = 0;
+
+        if (this._simulator.renderData && this._assembler) {
+            this._assembler.removeData(this._simulator.renderData);
+        }
     }
 
     private initProperties () {
@@ -831,7 +846,7 @@ export class ParticleSystem2D extends Renderable2D {
     }
 
     protected _flushAssembler () {
-        const assembler = ParticleSystem2D.Assembler!.getAssembler(this);
+        const assembler = ParticleSystem2D.Assembler.getAssembler(this);
 
         if (this._assembler !== assembler) {
             this._assembler = assembler;
@@ -893,7 +908,9 @@ export class ParticleSystem2D extends Renderable2D {
         return (this.particleCount >= this.totalParticles);
     }
 
-    // PRIVATE METHODS
+    /**
+     * @legacyPublic
+     */
     public _applyFile () {
         const file = this._file;
         if (file) {
@@ -923,6 +940,9 @@ export class ParticleSystem2D extends Renderable2D {
         }
     }
 
+    /**
+     * @legacyPublic
+     */
     public _initTextureWithDictionary (dict: any) {
         if (dict.spriteFrameUuid) {
             const spriteFrameUuid = dict.spriteFrameUuid;
@@ -1004,7 +1024,9 @@ export class ParticleSystem2D extends Renderable2D {
         return true;
     }
 
-    // parsing process
+    /**
+     * @legacyPublic
+     */
     public _initWithDictionary (dict: any) {
         this.totalParticles = parseInt(dict.maxParticles || 0);
 
@@ -1117,6 +1139,9 @@ export class ParticleSystem2D extends Renderable2D {
         return true;
     }
 
+    /**
+     * @legacyPublic
+     */
     public _syncAspect () {
         if (this._renderSpriteFrame) {
             const frameRect = this._renderSpriteFrame.rect;
@@ -1124,6 +1149,9 @@ export class ParticleSystem2D extends Renderable2D {
         }
     }
 
+    /**
+     * @legacyPublic
+     */
     public _applySpriteFrame () {
         this._renderSpriteFrame = this._renderSpriteFrame || this._spriteFrame;
         if (this._renderSpriteFrame) {
@@ -1139,15 +1167,24 @@ export class ParticleSystem2D extends Renderable2D {
         }
     }
 
+    /**
+     * @legacyPublic
+     */
     public _getTexture () {
         return (this._renderSpriteFrame && this._renderSpriteFrame.texture);
     }
 
+    /**
+     * @legacyPublic
+     */
     public _updateMaterial () {
         const mat = this.getMaterialInstance(0);
         if (mat) mat.recompileShaders({ USE_LOCAL: this._positionType !== PositionType.FREE });
     }
 
+    /**
+     * @legacyPublic
+     */
     public _finishedSimulation () {
         if (EDITOR) {
             if (this._preview && this._focused && !this.active /* && !cc.engine.isPlaying */) {
@@ -1169,11 +1206,11 @@ export class ParticleSystem2D extends Renderable2D {
 
     protected _render (render: IBatcher) {
         if (this._positionType === PositionType.RELATIVE) {
-            render.commitComp(this, this._renderSpriteFrame, this._assembler!, this.node.parent);
+            render.commitComp(this, this._simulator.renderData, this._renderSpriteFrame, this._assembler, this.node.parent);
         } else if (this.positionType === PositionType.GROUPED) {
-            render.commitComp(this, this._renderSpriteFrame, this._assembler!, this.node);
+            render.commitComp(this, this._simulator.renderData, this._renderSpriteFrame, this._assembler, this.node);
         } else {
-            render.commitComp(this, this._renderSpriteFrame, this._assembler!, null);
+            render.commitComp(this, this._simulator.renderData, this._renderSpriteFrame, this._assembler, null);
         }
     }
 }

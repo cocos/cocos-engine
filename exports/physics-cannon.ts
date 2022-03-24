@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import CANNON from '@cocos/cannon';
 import '../cocos/physics/cannon/instantiate';
 

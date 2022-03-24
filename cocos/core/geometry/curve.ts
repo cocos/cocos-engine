@@ -103,9 +103,7 @@ export function evalOptCurve (t: number, coefs: Float32Array | number[]) {
  * @zh
  * 描述一条曲线，其中每个相邻关键帧采用三次hermite插值计算。
  */
-@ccclass('cc.AnimationCurve')
 export class AnimationCurve {
-    @serializable
     private _curve!: RealCurve;
 
     private static defaultKF: Keyframe[] = [{
@@ -122,7 +120,7 @@ export class AnimationCurve {
 
     /**
      * For internal usage only.
-     * @internal
+     * @legacyPublic
      */
     get _internalCurve () {
         return this._curve;
@@ -348,6 +346,10 @@ export class AnimationCurve {
         return left;
     }
 }
+
+CCClass.fastDefine('cc.AnimationCurve', AnimationCurve, {
+    _curve: null,
+});
 
 function fromLegacyWrapMode (legacyWrapMode: WrapModeMask): ExtrapolationMode {
     switch (legacyWrapMode) {

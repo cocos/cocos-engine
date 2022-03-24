@@ -744,7 +744,8 @@ export function WebGLCmdFuncResizeBuffer (device: WebGLDevice, gpuBuffer: IWebGL
     }
 }
 
-export function WebGLCmdFuncUpdateBuffer (device: WebGLDevice, gpuBuffer: IWebGLGPUBuffer, buffer: BufferSource, offset: number, size: number) {
+export function WebGLCmdFuncUpdateBuffer (device: WebGLDevice, gpuBuffer: IWebGLGPUBuffer, buffer: Readonly<BufferSource>,
+    offset: number, size: number) {
     if (gpuBuffer.usage & BufferUsageBit.UNIFORM) {
         if (ArrayBuffer.isView(buffer)) {
             gpuBuffer.vf32!.set(buffer as Float32Array, offset / Float32Array.BYTES_PER_ELEMENT);
@@ -826,7 +827,7 @@ export function WebGLCmdFuncCreateTexture (device: WebGLDevice, gpuTexture: IWeb
             errorID(9100, maxSize, device.capabilities.maxTextureSize);
         }
 
-        if (!device.extensions.WEBGL_depth_texture && FormatInfos[gpuTexture.format].hasDepth) {
+        if (!device.textureExclusive[gpuTexture.format] && (!device.extensions.WEBGL_depth_texture && FormatInfos[gpuTexture.format].hasDepth)) {
             gpuTexture.glInternalFmt = GFXFormatToWebGLInternalFormat(gpuTexture.format, gl);
             gpuTexture.glRenderbuffer = gl.createRenderbuffer();
             if (gpuTexture.size > 0) {
@@ -950,13 +951,30 @@ export function WebGLCmdFuncCreateTexture (device: WebGLDevice, gpuTexture: IWeb
 }
 
 export function WebGLCmdFuncDestroyTexture (device: WebGLDevice, gpuTexture: IWebGLGPUTexture) {
+    const { gl } = device;
     if (gpuTexture.glTexture) {
-        device.gl.deleteTexture(gpuTexture.glTexture);
+        const glTexUnits = device.stateCache.glTexUnits;
+        let texUnit = device.stateCache.texUnit;
+        gl.deleteTexture(gpuTexture.glTexture);
+        for (let i = 0; i < glTexUnits.length; i++) {
+            if (glTexUnits[i].glTexture === gpuTexture.glTexture) {
+                gl.activeTexture(gl.TEXTURE0 + i);
+                texUnit = i;
+                gl.bindTexture(gpuTexture.glTarget, null);
+                glTexUnits[i].glTexture = null;
+            }
+        }
+        device.stateCache.texUnit = texUnit;
         gpuTexture.glTexture = null;
     }
 
     if (gpuTexture.glRenderbuffer) {
-        device.gl.deleteRenderbuffer(gpuTexture.glRenderbuffer);
+        let glRenderbuffer = device.stateCache.glRenderbuffer;
+        gl.deleteRenderbuffer(gpuTexture.glRenderbuffer);
+        if (glRenderbuffer === gpuTexture.glRenderbuffer) {
+            gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+            glRenderbuffer = null;
+        }
         gpuTexture.glRenderbuffer = null;
     }
 }
@@ -1164,6 +1182,10 @@ export function WebGLCmdFuncCreateFramebuffer (device: WebGLDevice, gpuFramebuff
 export function WebGLCmdFuncDestroyFramebuffer (device: WebGLDevice, gpuFramebuffer: IWebGLGPUFramebuffer) {
     if (gpuFramebuffer.glFramebuffer) {
         device.gl.deleteFramebuffer(gpuFramebuffer.glFramebuffer);
+        if (device.stateCache.glFramebuffer === gpuFramebuffer.glFramebuffer) {
+            device.gl.bindFramebuffer(device.gl.FRAMEBUFFER, null);
+            device.stateCache.glFramebuffer = null;
+        }
         gpuFramebuffer.glFramebuffer = null;
     }
 }
@@ -1411,12 +1433,12 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
     // texture unit index mapping optimization
     const glActiveSamplers: IWebGLGPUUniformSamplerTexture[] = [];
     const glActiveSamplerLocations: WebGLUniformLocation[] = [];
-    const { bindingMappingInfo } = device;
+    const { bindingMappings } = device;
     const { texUnitCacheMap } = device.stateCache;
 
     let flexibleSetBaseOffset = 0;
     for (let i = 0; i < gpuShader.blocks.length; ++i) {
-        if (gpuShader.blocks[i].set === bindingMappingInfo.flexibleSet) {
+        if (gpuShader.blocks[i].set === bindingMappings.flexibleSet) {
             flexibleSetBaseOffset++;
         }
     }
@@ -1430,8 +1452,8 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
             glActiveSamplerLocations.push(glLoc);
         }
         if (texUnitCacheMap[sampler.name] === undefined) {
-            let binding = sampler.binding + bindingMappingInfo.samplerOffsets[sampler.set] + arrayOffset;
-            if (sampler.set === bindingMappingInfo.flexibleSet) { binding -= flexibleSetBaseOffset; }
+            let binding = sampler.binding + bindingMappings.samplerTextureOffsets[sampler.set] + arrayOffset;
+            if (sampler.set === bindingMappings.flexibleSet) { binding -= flexibleSetBaseOffset; }
             texUnitCacheMap[sampler.name] = binding % device.capabilities.maxTextureUnits;
             arrayOffset += sampler.count - 1;
         }
@@ -1517,6 +1539,10 @@ export function WebGLCmdFuncDestroyShader (device: WebGLDevice, gpuShader: IWebG
             }
         }
         gl.deleteProgram(gpuShader.glProgram);
+        if (device.stateCache.glProgram === gpuShader.glProgram) {
+            device.gl.useProgram(null);
+            device.stateCache.glProgram = null;
+        }
         gpuShader.glProgram = null;
     }
 }
@@ -1558,10 +1584,17 @@ export function WebGLCmdFuncCreateInputAssember (device: WebGLDevice, gpuInputAs
 export function WebGLCmdFuncDestroyInputAssembler (device: WebGLDevice, gpuInputAssembler: IWebGLGPUInputAssembler) {
     const it = gpuInputAssembler.glVAOs.values();
     let res = it.next();
+    const OES_vertex_array_object = device.extensions.OES_vertex_array_object!;
+    let glVAO = device.stateCache.glVAO;
     while (!res.done) {
-        device.extensions.OES_vertex_array_object!.deleteVertexArrayOES(res.value);
+        OES_vertex_array_object.deleteVertexArrayOES(res.value);
+        if (glVAO === res.value) {
+            OES_vertex_array_object.bindVertexArrayOES(null);
+            glVAO = null;
+        }
         res = it.next();
     }
+    device.stateCache.glVAO = glVAO;
     gpuInputAssembler.glVAOs.clear();
 }
 
@@ -1576,12 +1609,13 @@ const gfxStateCache: IWebGLStateCache = {
     glPrimitive: 0,
 };
 
+const realRenderArea = new Rect();
 export function WebGLCmdFuncBeginRenderPass (
     device: WebGLDevice,
     gpuRenderPass: IWebGLGPURenderPass | null,
     gpuFramebuffer: IWebGLGPUFramebuffer | null,
-    renderArea: Rect,
-    clearColors: Color[],
+    renderArea: Readonly<Rect>,
+    clearColors: Readonly<Color[]>,
     clearDepth: number,
     clearStencil: number,
 ) {
@@ -1589,34 +1623,41 @@ export function WebGLCmdFuncBeginRenderPass (
     const cache = device.stateCache;
     let clears: GLbitfield = 0;
 
+    if (gpuFramebuffer) {
+        realRenderArea.x = renderArea.x << gpuFramebuffer.lodLevel;
+        realRenderArea.y = renderArea.y << gpuFramebuffer.lodLevel;
+        realRenderArea.width = renderArea.width << gpuFramebuffer.lodLevel;
+        realRenderArea.height = renderArea.height << gpuFramebuffer.lodLevel;
+    }
+
     if (gpuFramebuffer && gpuRenderPass) {
         if (cache.glFramebuffer !== gpuFramebuffer.glFramebuffer) {
             gl.bindFramebuffer(gl.FRAMEBUFFER, gpuFramebuffer.glFramebuffer);
             cache.glFramebuffer = gpuFramebuffer.glFramebuffer;
         }
 
-        if (cache.viewport.left !== renderArea.x
-            || cache.viewport.top !== renderArea.y
-            || cache.viewport.width !== renderArea.width
-            || cache.viewport.height !== renderArea.height) {
-            gl.viewport(renderArea.x, renderArea.y, renderArea.width, renderArea.height);
+        if (cache.viewport.left !== realRenderArea.x
+            || cache.viewport.top !== realRenderArea.y
+            || cache.viewport.width !== realRenderArea.width
+            || cache.viewport.height !== realRenderArea.height) {
+            gl.viewport(realRenderArea.x, realRenderArea.y, realRenderArea.width, realRenderArea.height);
 
-            cache.viewport.left = renderArea.x;
-            cache.viewport.top = renderArea.y;
-            cache.viewport.width = renderArea.width;
-            cache.viewport.height = renderArea.height;
+            cache.viewport.left = realRenderArea.x;
+            cache.viewport.top = realRenderArea.y;
+            cache.viewport.width = realRenderArea.width;
+            cache.viewport.height = realRenderArea.height;
         }
 
-        if (cache.scissorRect.x !== renderArea.x
-            || cache.scissorRect.y !== renderArea.y
-            || cache.scissorRect.width !== renderArea.width
-            || cache.scissorRect.height !== renderArea.height) {
-            gl.scissor(renderArea.x, renderArea.y, renderArea.width, renderArea.height);
+        if (cache.scissorRect.x !== realRenderArea.x
+            || cache.scissorRect.y !== realRenderArea.y
+            || cache.scissorRect.width !== realRenderArea.width
+            || cache.scissorRect.height !== realRenderArea.height) {
+            gl.scissor(realRenderArea.x, realRenderArea.y, realRenderArea.width, realRenderArea.height);
 
-            cache.scissorRect.x = renderArea.x;
-            cache.scissorRect.y = renderArea.y;
-            cache.scissorRect.width = renderArea.width;
-            cache.scissorRect.height = renderArea.height;
+            cache.scissorRect.x = realRenderArea.x;
+            cache.scissorRect.y = realRenderArea.y;
+            cache.scissorRect.width = realRenderArea.width;
+            cache.scissorRect.height = realRenderArea.height;
         }
 
         // const invalidateAttachments: GLenum[] = [];
@@ -1744,9 +1785,9 @@ export function WebGLCmdFuncBindStates (
     device: WebGLDevice,
     gpuPipelineState: IWebGLGPUPipelineState | null,
     gpuInputAssembler: IWebGLGPUInputAssembler | null,
-    gpuDescriptorSets: IWebGLGPUDescriptorSet[],
-    dynamicOffsets: number[],
-    dynamicStates: DynamicStates,
+    gpuDescriptorSets: Readonly<IWebGLGPUDescriptorSet[]>,
+    dynamicOffsets: Readonly<number[]>,
+    dynamicStates: Readonly<DynamicStates>,
 ) {
     const { gl } = device;
     const cache = device.stateCache;
@@ -2612,9 +2653,9 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLDevice, cmdPackage: WebGLC
 
 export function WebGLCmdFuncCopyTexImagesToTexture (
     device: WebGLDevice,
-    texImages: TexImageSource[],
+    texImages: Readonly<TexImageSource[]>,
     gpuTexture: IWebGLGPUTexture,
-    regions: BufferTextureCopy[],
+    regions: Readonly<BufferTextureCopy[]>,
 ) {
     const { gl } = device;
     const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
@@ -2663,9 +2704,9 @@ export function WebGLCmdFuncCopyTexImagesToTexture (
 
 export function WebGLCmdFuncCopyBuffersToTexture (
     device: WebGLDevice,
-    buffers: ArrayBufferView[],
+    buffers: Readonly<ArrayBufferView[]>,
     gpuTexture: IWebGLGPUTexture,
-    regions: BufferTextureCopy[],
+    regions: Readonly<BufferTextureCopy[]>,
 ) {
     const { gl } = device;
     const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
@@ -2745,8 +2786,8 @@ export function WebGLCmdFuncCopyBuffersToTexture (
 export function WebGLCmdFuncCopyTextureToBuffers (
     device: WebGLDevice,
     gpuTexture: IWebGLGPUTexture,
-    buffers: ArrayBufferView[],
-    regions: BufferTextureCopy[],
+    buffers: Readonly<ArrayBufferView[]>,
+    regions: Readonly<BufferTextureCopy[]>,
 ) {
     const { gl } = device;
     const cache = device.stateCache;

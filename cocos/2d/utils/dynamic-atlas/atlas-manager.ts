@@ -3,6 +3,7 @@
  */
 
 import { EDITOR } from 'internal:constants';
+import { Filter } from '../../../core/assets/asset-enum';
 import { legacyCC } from '../../../core/global-exports';
 import { js } from '../../../core/utils/js';
 import { Atlas } from './atlas';
@@ -141,6 +142,12 @@ export class DynamicAtlasManager {
 
         if (!spriteFrame.packable) return null;
 
+        // hack for pixel game,should pack to different sampler atlas
+        const sampler = spriteFrame.texture.getSamplerInfo();
+        if (sampler.minFilter !== Filter.LINEAR || sampler.magFilter !== Filter.LINEAR || sampler.mipFilter !== Filter.NONE) {
+            return null;
+        }
+
         let atlas = this._atlases[this._atlasIndex];
         if (!atlas) {
             atlas = this.newAtlas();
@@ -230,7 +237,7 @@ export class DynamicAtlasManager {
     public packToDynamicAtlas (comp, frame) {
         if (EDITOR) return;
 
-        if (!frame._original && frame.packable) {
+        if (frame && !frame._original && frame.packable && frame.texture && frame.texture.width > 0 && frame.texture.height > 0) {
             const packedFrame = this.insertSpriteFrame(frame);
             if (packedFrame) {
                 frame._setDynamicAtlasFrame(packedFrame);

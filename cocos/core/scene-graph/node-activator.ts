@@ -28,14 +28,16 @@
  * @module scene-graph
  */
 
-import { EDITOR, DEV, TEST, SUPPORT_JIT } from 'internal:constants';
+import { EDITOR, DEV, TEST, SUPPORT_JIT, DEBUG } from 'internal:constants';
 import { CCObject, isValid } from '../data/object';
 import { array, Pool } from '../utils/js';
 import { tryCatchFunctor_EDITOR } from '../utils/misc';
 import { invokeOnEnable, createInvokeImpl, createInvokeImplJit, OneOffInvoker, LifeCycleInvoker } from './component-scheduler';
 import { legacyCC } from '../global-exports';
-import { assert, errorID } from '../platform/debug';
+import { assert, errorID, error, getError } from '../platform/debug';
 import { NodeEventType } from './node-event';
+import { assertIsTrue } from '../data/utils/asserts';
+import { Component } from '..';
 
 const MAX_POOL_SIZE = 4;
 
@@ -243,6 +245,9 @@ export default class NodeActivator {
             }
         }
         if (comp._enabled) {
+            if (DEBUG) {
+                assertIsTrue(comp.node, getError(3823, comp.uuid, comp.name));
+            }
             const deactivatedOnLoading = !comp.node._activeInHierarchy;
             if (deactivatedOnLoading) {
                 return;
@@ -377,6 +382,9 @@ if (EDITOR) {
             }
         }
         if (comp._enabled) {
+            if (DEBUG) {
+                assertIsTrue(comp.node, getError(3823, comp.uuid, comp.name));
+            }
             const deactivatedOnLoading = !comp.node._activeInHierarchy;
             if (deactivatedOnLoading) {
                 return;

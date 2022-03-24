@@ -92,6 +92,9 @@ const _constants = {
 };
 
 export class Profiler {
+    /**
+     * @legacyPublic
+     */
     public _stats: IProfilerState | null = null;
     public id = '__Profiler__';
 
@@ -116,7 +119,7 @@ export class Profiler {
     private _statsDone = false;
     private _inited = false;
 
-    private readonly _lineHeight = _constants.textureHeight / (Object.keys(_profileInfo).length + 1);
+    private _lineHeight = _constants.textureHeight / (Object.keys(_profileInfo).length + 1);
     private _wordHeight = 0;
     private _eachNumWidth = 0;
     private _totalLines = 0; // total lines to display
@@ -131,6 +134,35 @@ export class Profiler {
         }
     }
 
+    public reset () {
+        this._stats = null;
+
+        this._showFPS = false;
+
+        this._rootNode = null;
+        this._device = null;
+        this._swapchain = null;
+        this._pipeline = null!;
+        if (this._meshRenderer) {
+            this._meshRenderer.destroy();
+        }
+        this._meshRenderer = null!;
+        this.digitsData = null!;
+        this.offsetData = null!;
+        this.pass = null!;
+
+        this._canvasDone = false;
+        this._statsDone = false;
+        this._inited = false;
+
+        this._lineHeight = _constants.textureHeight / (Object.keys(_profileInfo).length + 1);
+        this._wordHeight = 0;
+        this._eachNumWidth = 0;
+        this._totalLines = 0; // total lines to display
+
+        this.lastTime = 0;   // update use time
+    }
+
     public isShowingStats () {
         return this._showFPS;
     }
@@ -141,7 +173,6 @@ export class Profiler {
                 this._rootNode.active = false;
             }
 
-            legacyCC.game.off(legacyCC.Game.EVENT_RESTART, this.generateNode, this);
             legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
             legacyCC.director.off(legacyCC.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
             legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
@@ -168,7 +199,6 @@ export class Profiler {
             this.generateStats();
             if (!EDITOR) {
                 legacyCC.game.once(legacyCC.Game.EVENT_ENGINE_INITED, this.generateNode, this);
-                legacyCC.game.on(legacyCC.Game.EVENT_RESTART, this.generateNode, this);
             } else {
                 this._inited = true;
             }

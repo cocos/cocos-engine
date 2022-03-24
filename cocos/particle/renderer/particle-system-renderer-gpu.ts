@@ -28,7 +28,7 @@ import { builtinResMgr } from '../../core/builtin';
 import { Material } from '../../core/assets';
 import { Texture2D } from '../../core';
 import { Component } from '../../core/components';
-import { AttributeName, Format, Attribute } from '../../core/gfx';
+import { AttributeName, Format, Attribute, API } from '../../core/gfx';
 import { Mat4, Vec2, Vec4, Quat, Vec3 } from '../../core/math';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { MacroRecord } from '../../core/renderer/core/pass-utils';
@@ -39,6 +39,7 @@ import { Pass } from '../../core/renderer/core/pass';
 import { packCurveRangeXYZ, packCurveRangeZ, packCurveRangeXYZW, packCurveRangeN, packCurveRangeXY } from '../animator/curve-range';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
 import { Camera } from '../../core/renderer/scene/camera';
+import { legacyCC } from '../../core/global-exports';
 
 const _tempWorldTrans = new Mat4();
 const _tempVec4 = new Vec4();
@@ -64,6 +65,7 @@ const SIZE_OVER_TIME_MODULE_ENABLE = 'SIZE_OVER_TIME_MODULE_ENABLE';
 const VELOCITY_OVER_TIME_MODULE_ENABLE = 'VELOCITY_OVER_TIME_MODULE_ENABLE';
 const FORCE_OVER_TIME_MODULE_ENABLE = 'FORCE_OVER_TIME_MODULE_ENABLE';
 const TEXTURE_ANIMATION_MODULE_ENABLE = 'TEXTURE_ANIMATION_MODULE_ENABLE';
+const USE_VK_SHADER = 'USE_VK_SHADER';
 
 const _vert_attr_name = {
     POSITION_STARTTIME: 'a_position_starttime',
@@ -205,16 +207,22 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         this._particleNum++;
     }
 
-    public updateRotation () {
-        const mat: Material | null = this._particleSystem.getMaterialInstance(0) || this._defaultMat;
-        if (!mat) {
-            return;
+    public getDefaultMaterial(): Material | null {
+        return this._defaultMat;
+    }
+
+    public updateRotation (pass: Pass | null) {
+        if (pass) {
+            this.doUpdateRotation(pass);
         }
-        const pass = mat.passes[0];
-        this.doUpdateRotation(pass);
     }
 
     private doUpdateRotation (pass) {
+        const mode = this._renderInfo!.renderMode;
+        if (mode !== RenderMode.Mesh && this._alignSpace === AlignmentSpace.View) {
+            return;
+        }
+
         if (this._alignSpace === AlignmentSpace.Local) {
             this._particleSystem.node.getRotation(_node_rot);
         } else if (this._alignSpace === AlignmentSpace.World) {
@@ -240,13 +248,10 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         pass.setUniform(this._uNodeRotHandle, _node_rot);
     }
 
-    public updateScale () {
-        const mat: Material | null = this._particleSystem.getMaterialInstance(0) || this._defaultMat;
-        if (!mat) {
-            return;
+    public updateScale (pass: Pass | null) {
+        if (pass) {
+            this.doUpdateScale(pass);
         }
-        const pass = mat.passes[0];
-        this.doUpdateScale(pass);
     }
 
     private doUpdateScale (pass) {
@@ -436,6 +441,8 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
             _tempVec4.z = textureModule.cycleCount;
             pass.setUniform(infoHandle, _tempVec4);
         }
+
+        this._defines[USE_VK_SHADER] = legacyCC.game._gfxDevice.gfxAPI === API.VULKAN;
     }
 
     public getParticleCount (): number {

@@ -71,6 +71,9 @@ const orientationMap = {
 
 export class View extends EventTarget {
     public static instance: View;
+    /**
+     * @legacyPublic
+     */
     public _designResolutionSize: Size;
 
     private _scaleX: number;
@@ -546,7 +549,7 @@ export class View extends EventTarget {
      * @en Returns device pixel ratio for retina display.
      * @zh 返回设备或浏览器像素比例。
      *
-     * @deprecated since v3.4.0, devicePixelRatio is a concept on web standard.
+     * @deprecated since v3.4.0, please use screen.devicePixelRatio instead.
      */
     public getDevicePixelRatio (): number {
         return screenAdapter.devicePixelRatio;
@@ -714,6 +717,9 @@ class ContentStrategy {
     public postApply (_view: View) {
     }
 
+    /**
+     * @legacyPublic
+     */
     public _buildResult (containerW, containerH, contentW, contentH, scaleX, scaleY): AdaptResult {
         // Makes content fit better the canvas
         if (Math.abs(containerW - contentW) < 2) {

@@ -35,6 +35,8 @@ import { Swapchain } from '../gfx';
 import { Model, Camera } from '../renderer/scene';
 import { IPipelineEvent, PipelineEventType } from './pipeline-event';
 import { PipelineSceneData } from './pipeline-scene-data';
+import { GeometryRenderer } from './geometry-renderer';
+import { geometry } from '..';
 
 nr.getPhaseID = getPhaseID;
 
@@ -62,6 +64,7 @@ export function createDefaultPipeline () {
 // ForwardPipeline
 export class ForwardPipeline extends nr.ForwardPipeline implements IPipelineEvent {
     public pipelineSceneData = new PipelineSceneData();
+    public geometryRenderer = new GeometryRenderer();
 
     constructor() {
       super();
@@ -80,6 +83,8 @@ export class ForwardPipeline extends nr.ForwardPipeline implements IPipelineEven
 
     public init () {
         this.setPipelineSharedSceneData(this.pipelineSceneData.native);
+        this.setGeometryRenderer(this.geometryRenderer.native);
+
         for (let i = 0; i < this._flows.length; i++) {
             this._flows[i].init(this);
         }
@@ -88,10 +93,12 @@ export class ForwardPipeline extends nr.ForwardPipeline implements IPipelineEven
     }
 
     public activate (swapchain: Swapchain) {
+      this.geometryRenderer.activate(legacyCC.director.root.device, this as any);
         return super.activate(swapchain) && this.pipelineSceneData.activate(legacyCC.director.root.device, this as any);
     }
 
     public render (cameras: Camera[]) {
+      this.geometryRenderer.flush();
       let nativeObjs = [];
       for (let i = 0, len = cameras.length; i < len; ++i) {
           nativeObjs.push(cameras[i].native);
@@ -105,6 +112,7 @@ export class ForwardPipeline extends nr.ForwardPipeline implements IPipelineEven
 
     public destroy () {
         this.pipelineSceneData.destroy();
+        this.geometryRenderer.destroy();
         super.destroy();
     }
 }
@@ -202,6 +210,8 @@ export class RenderQueueDesc {
 
 export class DeferredPipeline extends nr.DeferredPipeline implements IPipelineEvent {
   public pipelineSceneData = new DeferredPipelineSceneData();
+  public geometryRenderer = new GeometryRenderer();
+
   constructor() {
     super();
     this._tag = 0;
@@ -219,6 +229,8 @@ export class DeferredPipeline extends nr.DeferredPipeline implements IPipelineEv
 
   init() {
     this.setPipelineSharedSceneData(this.pipelineSceneData.native);
+    this.setGeometryRenderer(this.geometryRenderer.native);
+
     for (let i = 0; i < this._flows.length; i++) {
       this._flows[i].init(this);
     }
@@ -227,10 +239,12 @@ export class DeferredPipeline extends nr.DeferredPipeline implements IPipelineEv
   }
 
   public activate (swapchain: Swapchain) {
+    this.geometryRenderer.activate(legacyCC.director.root.device, this as any);
     return super.activate(swapchain) && this.pipelineSceneData.activate(legacyCC.director.root.device, this as any);
   }
 
   public render (cameras: Camera[]) {
+    this.geometryRenderer.flush();
     let nativeObjs = [];
     for (let i = 0, len = cameras.length; i < len; ++i) {
       nativeObjs.push(cameras[i].native);
@@ -248,6 +262,7 @@ export class DeferredPipeline extends nr.DeferredPipeline implements IPipelineEv
     this.skybox.destroy();
     this.shadows.destroy();
     this.pipelineSceneData.destroy();
+    this.geometryRenderer.destroy();
     super.destroy();
   }
 

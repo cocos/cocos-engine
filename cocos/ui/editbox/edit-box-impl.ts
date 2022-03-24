@@ -26,11 +26,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { screenAdapter } from 'pal/screen-adapter';
 import { BitmapFont } from '../../2d/assets';
 import { director } from '../../core/director';
@@ -64,13 +59,37 @@ let _currentEditBoxImpl: EditBoxImpl | null = null;
 let _domCount = 0;
 
 export class EditBoxImpl extends EditBoxImplBase {
+    /**
+     * @legacyPublic
+     */
     public _delegate: EditBox | null = null;
+    /**
+     * @legacyPublic
+     */
     public _inputMode: InputMode = -1;
+    /**
+     * @legacyPublic
+     */
     public _inputFlag: InputFlag = -1;
+    /**
+     * @legacyPublic
+     */
     public _returnType: KeyboardReturnType = -1;
+    /**
+     * @legacyPublic
+     */
     public __eventListeners: any = {};
+    /**
+     * @legacyPublic
+     */
     public __autoResize = false;
+    /**
+     * @legacyPublic
+     */
     public __orientationChanged: any;
+    /**
+     * @legacyPublic
+     */
     public _edTxt: HTMLInputElement | HTMLTextAreaElement | null = null;
     private _isTextArea = false;
 

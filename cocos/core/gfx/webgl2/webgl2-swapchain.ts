@@ -24,6 +24,7 @@
  */
 
 import { EDITOR } from 'internal:constants';
+import { systemInfo } from 'pal/system-info';
 import { warnID, warn, debug } from '../../platform/debug';
 import { macro } from '../../platform/macro';
 import { WebGL2StateCache } from './webgl2-state-cache';
@@ -32,6 +33,7 @@ import { Format, TextureInfo, TextureFlagBit, TextureType,
     TextureUsageBit, BufferTextureCopy, SwapchainInfo, SurfaceTransform } from '../base/define';
 import { Swapchain } from '../base/swapchain';
 import { IWebGL2Extensions, WebGL2DeviceManager } from './webgl2-define';
+import { OS } from '../../../../pal/system-info/enum-type';
 
 const eventWebGLContextLost = 'webglcontextlost';
 
@@ -78,7 +80,6 @@ function getExtension (gl: WebGL2RenderingContext, ext: string): any {
     for (let i = 0; i < prefixes.length; ++i) {
         const _ext = gl.getExtension(prefixes[i] + ext);
         if (_ext) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return _ext;
         }
     }
@@ -90,7 +91,6 @@ export function getExtensions (gl: WebGL2RenderingContext) {
         EXT_texture_filter_anisotropic: getExtension(gl, 'EXT_texture_filter_anisotropic'),
         EXT_color_buffer_half_float: getExtension(gl, 'EXT_color_buffer_half_float'),
         EXT_color_buffer_float: getExtension(gl, 'EXT_color_buffer_float'),
-        WEBGL_multi_draw: getExtension(gl, 'WEBGL_multi_draw'),
         WEBGL_compressed_texture_etc1: getExtension(gl, 'WEBGL_compressed_texture_etc1'),
         WEBGL_compressed_texture_etc: getExtension(gl, 'WEBGL_compressed_texture_etc'),
         WEBGL_compressed_texture_pvrtc: getExtension(gl, 'WEBGL_compressed_texture_pvrtc'),
@@ -102,8 +102,18 @@ export function getExtensions (gl: WebGL2RenderingContext) {
         WEBGL_debug_renderer_info: getExtension(gl, 'WEBGL_debug_renderer_info'),
         OES_texture_half_float_linear: getExtension(gl, 'OES_texture_half_float_linear'),
         OES_texture_float_linear: getExtension(gl, 'OES_texture_float_linear'),
+        WEBGL_multi_draw: null,
         useVAO: true,
     };
+
+    // platform-specific extension hacks
+    // eslint-disable-next-line no-lone-blocks
+    {
+        // Mobile implementation seems to have performance issues
+        if (systemInfo.os !== OS.ANDROID && systemInfo.os !== OS.IOS) {
+            res.WEBGL_multi_draw = getExtension(gl, 'WEBGL_multi_draw');
+        }
+    }
 
     return res;
 }
@@ -143,7 +153,7 @@ export class WebGL2Swapchain extends Swapchain {
     private _webGL2ContextLostHandler: ((event: Event) => void) | null = null;
     private _extensions: IWebGL2Extensions | null = null;
 
-    public initialize (info: SwapchainInfo) {
+    public initialize (info: Readonly<SwapchainInfo>) {
         this._canvas = info.windowHandle;
 
         this._webGL2ContextLostHandler = this._onWebGLContextLost.bind(this);
@@ -196,7 +206,7 @@ export class WebGL2Swapchain extends Swapchain {
             Format.RGBA8,
             2,
             2,
-            TextureFlagBit.GEN_MIPMAP,
+            TextureFlagBit.NONE,
         )) as WebGL2Texture;
 
         this.nullTexCube = WebGL2DeviceManager.instance.createTexture(new TextureInfo(
@@ -205,7 +215,7 @@ export class WebGL2Swapchain extends Swapchain {
             Format.RGBA8,
             2,
             2,
-            TextureFlagBit.GEN_MIPMAP,
+            TextureFlagBit.NONE,
             6,
         )) as WebGL2Texture;
 

@@ -36,18 +36,15 @@ import { Texture2D } from '../../assets/texture-2d';
 import { SubModel } from './submodel';
 import { Pass, IMacroPatch, BatchingSchemes } from '../core/pass';
 import { legacyCC } from '../../global-exports';
-import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { Mat4, Vec3, Vec4 } from '../../math';
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, getTypedArrayConstructor,
     BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature, SamplerInfo } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../pipeline/define';
 import { NativeBakedSkinningModel, NativeModel, NativeSkinningModel } from './native-scene';
-import { Pool } from '../../memop/pool';
 
 const m4_1 = new Mat4();
 
 const shadowMapPatches: IMacroPatch[] = [
-    { name: 'CC_ENABLE_DIR_SHADOW', value: true },
     { name: 'CC_RECEIVE_SHADOW', value: true },
 ];
 
@@ -124,6 +121,28 @@ export class Model {
 
     get isInstancingEnabled () {
         return this._instMatWorldIdx >= 0;
+    }
+
+    get shadowBias () {
+        return this._shadowBias;
+    }
+
+    set shadowBias (val) {
+        this._shadowBias = val;
+        if (JSB) {
+            this._nativeObj!.setShadowBias(val);
+        }
+    }
+
+    get shadowNormalBias () {
+        return this._shadowNormalBias;
+    }
+
+    set shadowNormalBias (val) {
+        this._shadowNormalBias = val;
+        if (JSB) {
+            this._nativeObj!.setShadowNormalBias(val);
+        }
     }
 
     get receiveShadow () {
@@ -217,6 +236,8 @@ export class Model {
 
     protected _receiveShadow = false;
     protected _castShadow = false;
+    protected _shadowBias = 0;
+    protected _shadowNormalBias = 0;
     protected _enabled = true;
     protected _visFlags = Layers.Enum.NONE;
     protected declare _nativeObj: NativeModel | NativeSkinningModel | NativeBakedSkinningModel | null;
@@ -281,6 +302,8 @@ export class Model {
             this._worldBoundBuffer.destroy();
             this._worldBoundBuffer = null;
         }
+        this._worldBounds?.destroy();
+        this._modelBounds?.destroy();
         this._worldBounds = null;
         this._modelBounds = null;
         this._subModels.length = 0;
@@ -472,7 +495,20 @@ export class Model {
                 descriptorSet.bindSampler(UNIFORM_LIGHTMAP_TEXTURE_BINDING, sampler);
                 descriptorSet.update();
             }
+
+            if (JSB) {
+                this._nativeObj!.updateLightingmap(uvParam, sampler, gfxTexture);
+            }
         }
+    }
+
+    public updateLocalShadowBias () {
+        const sv = this._localData;
+        sv[UBOLocal.LOCAL_SHADOW_BIAS + 0] = this._shadowBias;
+        sv[UBOLocal.LOCAL_SHADOW_BIAS + 1] = this._shadowNormalBias;
+        sv[UBOLocal.LOCAL_SHADOW_BIAS + 2] = 0;
+        sv[UBOLocal.LOCAL_SHADOW_BIAS + 3] = 0;
+        this._localDataUpdated = true;
     }
 
     public getMacroPatches (subModelIndex: number): IMacroPatch[] | null {

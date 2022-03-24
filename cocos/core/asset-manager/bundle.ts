@@ -398,10 +398,10 @@ export default class Bundle {
 
     /**
      * @en
-     * Loads the scene within this bundle by its name.
+     * Loads the scene asset within this bundle by its name.
      *
      * @zh
-     * 通过场景名称加载分包中的场景。
+     * 通过场景名称加载分包中的场景资源。
      *
      * @param sceneName - The name of the scene to load.
      * @param options - Some optional parameters
@@ -448,12 +448,12 @@ export default class Bundle {
 
     /**
      * @en
-     * Preloads the scene within this bundle by its name. After calling this method, you still need to finish loading
+     * Preload the scene asset within this bundle by its name. After calling this method, you still need to finish loading
      * by calling `Bundle.loadScene` or `cc.director.loadScene`.It will be totally fine to call `Bundle.loadDir` at any
      * time even if the preloading is not yet finished
      *
      * @zh
-     * 通过场景名称预加载分包中的场景.调用完后，你仍然需要通过 `Bundle.loadScene` 或 `cc.director.loadScene` 来完成加载。
+     * 通过场景名称预加载分包中的场景资源.调用完后，你仍然需要通过 `Bundle.loadScene` 或 `cc.director.loadScene` 来完成加载。
      * 就算预加载还没完成，你也可以直接调用 `Bundle.loadScene` 或 `cc.director.loadScene`。
      *
      * @param sceneName - The name of the scene to preload.
@@ -595,6 +595,9 @@ export default class Bundle {
         });
     }
 
+    /**
+     * @legacyPublic
+     */
     public _destroy () {
         this._config.destroy();
     }

@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { Game, game } from '../../core';
 import { selector } from '../framework/physics-selector';

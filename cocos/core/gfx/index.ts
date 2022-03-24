@@ -30,6 +30,7 @@
 
 import './polyfill-legacy-cc';
 import './deprecated-3.0.0';
+import './deprecated-3.5.0';
 
 export * from './base/descriptor-set';
 export * from './base/buffer';
@@ -47,5 +48,5 @@ export * from './base/render-pass';
 export * from './base/states/sampler';
 export * from './base/shader';
 export * from './base/texture';
-export * from './base/states/global-barrier';
+export * from './base/states/general-barrier';
 export * from './base/states/texture-barrier';

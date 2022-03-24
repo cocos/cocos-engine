@@ -4,8 +4,7 @@
  */
 
 import { Armature, BlendMode, Matrix } from '@cocos/dragonbones-js';
-import { Color, Mat4 } from '../core';
-import { TextureBase } from '../core/assets/texture-base';
+import { Color, Mat4, Texture2D } from '../core';
 import { CCArmatureDisplay } from './CCArmatureDisplay';
 import { CCFactory } from './CCFactory';
 import { CCSlot } from './CCSlot';
@@ -16,7 +15,6 @@ const FrameTime = 1 / 60;
 const _vertices: number[] = [];
 const _indices: number[] = [];
 let _boneInfoOffset = 0;
-let _vertexOffset = 0;
 let _indexOffset = 0;
 let _vfOffset = 0;
 let _preTexUrl: string | null = null;
@@ -28,6 +26,10 @@ let _colorOffset = 0;
 let _preColor = 0;
 let _x: number;
 let _y: number;
+// x y u v c1
+const PER_VERTEX_SIZE = 5;
+// x y z / u v / r g b a
+const EXPORT_VERTEX_SIZE = 9;
 
 export interface ArmatureInfo {
     curAnimationCache: AnimationCache | null;
@@ -60,12 +62,15 @@ export interface ArmatureFrameSegment {
     indexCount: number;
     vfCount: number;
     vertexCount: number;
-    tex: TextureBase;
+    tex: Texture2D;
     blendMode: BlendMode;
 }
 
 // Cache all frames in an animation
 export class AnimationCache {
+    public maxVertexCount = 0;
+    public maxIndexCount = 0;
+
     _privateMode = false;
     _inited = false;
     _invalid = true;
@@ -154,7 +159,7 @@ export class AnimationCache {
             // Solid update frame rate 1/60.
             armature.advanceTime(FrameTime);
             this._frameIdx++;
-            this._updateFrame(armature, this._frameIdx);
+            this.updateFrame(armature, this._frameIdx);
             this.totalTime += FrameTime;
         } while (this._needToUpdate(toFrameIdx));
 
@@ -186,11 +191,10 @@ export class AnimationCache {
         }
     }
 
-    _updateFrame (armature, index) {
+    updateFrame (armature, index) {
         _vfOffset = 0;
         _boneInfoOffset = 0;
         _indexOffset = 0;
-        _vertexOffset = 0;
         _preTexUrl = null;
         _preBlendMode = null;
         _segVCount = 0;
@@ -229,7 +233,7 @@ export class AnimationCache {
             if (_segICount > 0) {
                 const preSegInfo = segments[preSegOffset];
                 preSegInfo.indexCount = _segICount;
-                preSegInfo.vfCount = _segVCount * 5;
+                preSegInfo.vfCount = _segVCount * EXPORT_VERTEX_SIZE;
                 preSegInfo.vertexCount = _segVCount;
                 segments.length = _segOffset;
             } else {
@@ -242,18 +246,23 @@ export class AnimationCache {
 
         // Fill vertices
         let vertices = frame.vertices;
-        let uintVert = frame.uintVert;
+        const vertexCount = _vfOffset / PER_VERTEX_SIZE;
+        const copyOutVerticeSize = vertexCount * EXPORT_VERTEX_SIZE;
         if (!vertices || vertices.length < _vfOffset) {
-            vertices = frame.vertices = new Float32Array(_vfOffset);
-            uintVert = frame.uintVert = new Uint32Array(vertices.buffer);
+            vertices = frame.vertices = new Float32Array(copyOutVerticeSize);
         }
-
-        for (let i = 0, j = 0; i < _vfOffset;) {
-            vertices[i++] = _vertices[j++]; // x
-            vertices[i++] = _vertices[j++]; // y
-            vertices[i++] = _vertices[j++]; // u
-            vertices[i++] = _vertices[j++]; // v
-            uintVert[i++] = _vertices[j++]; // color
+        let colorI32 : number;
+        for (let i = 0, j = 0; i < copyOutVerticeSize;) {
+            vertices[i] = _vertices[j++]; // x
+            vertices[i + 1] = _vertices[j++]; // y
+            vertices[i + 3] = _vertices[j++]; // u
+            vertices[i + 4] = _vertices[j++]; // v
+            colorI32 = _vertices[j++];
+            vertices[i + 5] = (colorI32 & 0xff) / 255.0;
+            vertices[i + 6] = ((colorI32 >> 8) & 0xff) / 255.0;
+            vertices[i + 7] = ((colorI32 >> 16) & 0xff) / 255.0;
+            vertices[i + 8] = ((colorI32 >> 24) & 0xff) / 255.0;
+            i += EXPORT_VERTEX_SIZE;
         }
 
         // Fill indices
@@ -267,16 +276,16 @@ export class AnimationCache {
         }
 
         frame.vertices = vertices;
-        frame.uintVert = uintVert;
         frame.indices = indices;
+
+        this.maxVertexCount = vertexCount > this.maxVertexCount ? vertexCount : this.maxVertexCount;
+        this.maxIndexCount = indices.length > this.maxIndexCount ? indices.length : this.maxIndexCount;
     }
 
     _traverseArmature (armature: Armature, parentOpacity) {
         const colors = this._tempColors!;
         const segments = this._tempSegments!;
         const boneInfos = this._tempBoneInfos!;
-        const gVertices = _vertices;
-        const gIndices = _indices;
         const slots = armature._slots;
         let slotVertices: number[];
         let slotIndices: number[];
@@ -284,7 +293,7 @@ export class AnimationCache {
         let slotMatrix: Mat4;
         let slotColor: Color;
         let colorVal: number;
-        let texture: TextureBase | null;
+        let texture: Texture2D | null;
         let preSegOffset: number;
         let preSegInfo: ArmatureFrameSegment;
         const bones = armature._bones;
@@ -329,7 +338,7 @@ export class AnimationCache {
                         preSegInfo = segments[preSegOffset];
                         preSegInfo.indexCount = _segICount;
                         preSegInfo.vertexCount = _segVCount;
-                        preSegInfo.vfCount = _segVCount * 5;
+                        preSegInfo.vfCount = _segVCount * EXPORT_VERTEX_SIZE;
                     } else {
                         // Discard pre segment.
                         _segOffset--;
@@ -372,20 +381,19 @@ export class AnimationCache {
             for (let j = 0, vl = slotVertices.length; j < vl;) {
                 _x = slotVertices[j++];
                 _y = slotVertices[j++];
-                gVertices[_vfOffset++] = _x * slotMatrix.m00 + _y * slotMatrix.m04 + slotMatrix.m12;
-                gVertices[_vfOffset++] = _x * slotMatrix.m01 + _y * slotMatrix.m05 + slotMatrix.m13;
-                gVertices[_vfOffset++] = slotVertices[j++];
-                gVertices[_vfOffset++] = slotVertices[j++];
-                gVertices[_vfOffset++] = colorVal;
+                _vertices[_vfOffset++] = _x * slotMatrix.m00 + _y * slotMatrix.m04 + slotMatrix.m12;
+                _vertices[_vfOffset++] = _x * slotMatrix.m01 + _y * slotMatrix.m05 + slotMatrix.m13;
+                _vertices[_vfOffset++] = slotVertices[j++];
+                _vertices[_vfOffset++] = slotVertices[j++];
+                _vertices[_vfOffset++] = colorVal;
             }
 
             // This place must use segment vertex count to calculate vertex offset.
             // Assembler will calculate vertex offset again for different segment.
             for (let ii = 0, il = slotIndices.length; ii < il; ii++) {
-                gIndices[_indexOffset++] = _segVCount + slotIndices[ii];
+                _indices[_indexOffset++] = _segVCount + slotIndices[ii];
             }
 
-            _vertexOffset = _vfOffset / 5;
             _segICount += slotIndices.length;
             _segVCount += slotVertices.length / 4;
         }

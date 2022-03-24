@@ -32,8 +32,10 @@ import { RenderPipeline } from './render-pipeline';
 import { Light } from '../renderer/scene/light';
 import { Material } from '../assets';
 import { Pass } from '../renderer/core/pass';
-import { NativePipelineSharedSceneData } from '../renderer/scene';
+import { NativePass, NativePipelineSharedSceneData } from '../renderer/scene';
 import { PipelineEventType } from './pipeline-event';
+
+const GEOMETRY_RENDERER_TECHNIQUE_COUNT = 6;
 
 export class PipelineSceneData {
     private _init (): void {
@@ -103,6 +105,9 @@ export class PipelineSceneData {
     protected declare _device: Device;
     protected declare _pipeline: RenderPipeline;
     protected declare _nativeObj: NativePipelineSharedSceneData | null;
+    protected _geometryRendererMaterials: Material[] = [];
+    protected _geometryRendererPasses: Pass[] = [];
+    protected _geometryRendererShaders: Shader[] = [];
     protected _occlusionQueryVertexBuffer: Buffer | null = null;
     protected _occlusionQueryIndicesBuffer: Buffer | null = null;
     protected _occlusionQueryInputAssembler: InputAssembler | null = null;
@@ -120,9 +125,46 @@ export class PipelineSceneData {
         this._device = device;
         this._pipeline = pipeline;
 
+        this.initGeometryRendererMaterials();
         this.initOcclusionQuery();
 
         return true;
+    }
+
+    public initGeometryRendererMaterials () {
+        let offset = 0;
+        for (let tech = 0; tech < GEOMETRY_RENDERER_TECHNIQUE_COUNT; tech++) {
+            this._geometryRendererMaterials[tech] = new Material();
+            this._geometryRendererMaterials[tech]._uuid = `geometry-renderer-material-${tech}`;
+            this._geometryRendererMaterials[tech].initialize({ effectName: 'geometry-renderer', technique: tech });
+
+            for (let pass = 0; pass < this._geometryRendererMaterials[tech].passes.length; ++pass) {
+                this._geometryRendererPasses[offset] = this._geometryRendererMaterials[tech].passes[pass];
+                this._geometryRendererShaders[offset] = this._geometryRendererMaterials[tech].passes[pass].getShaderVariant()!;
+                offset++;
+            }
+        }
+
+        if (JSB) {
+            const nativePasses: NativePass[] = [];
+            const nativeShaders: Shader[] = [];
+
+            for (let pass = 0; pass < this._geometryRendererPasses.length; ++pass) {
+                nativePasses.push(this._geometryRendererPasses[pass].native);
+                nativeShaders.push(this._geometryRendererShaders[pass]);
+            }
+
+            this._nativeObj!.geometryRendererPasses = nativePasses;
+            this._nativeObj!.geometryRendererShaders = nativeShaders;
+        }
+    }
+
+    public get geometryRendererPasses () {
+        return this._geometryRendererPasses;
+    }
+
+    public get geometryRendererShaders () {
+        return this._geometryRendererShaders;
     }
 
     public initOcclusionQuery () {

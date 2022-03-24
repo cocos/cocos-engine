@@ -221,7 +221,7 @@ export class ScrollView extends ViewGroup {
      */
     @serializable
     @range([0, 10])
-    @displayOrder(0)
+    @displayOrder(5)
     @tooltip('i18n:scrollview.bounceDuration')
     public bounceDuration = 1;
 
@@ -235,7 +235,7 @@ export class ScrollView extends ViewGroup {
      */
     @serializable
     @range([0, 1, 0.1])
-    @displayOrder(1)
+    @displayOrder(3)
     @tooltip('i18n:scrollview.brake')
     public brake = 0.5;
 
@@ -247,7 +247,7 @@ export class ScrollView extends ViewGroup {
      * 是否允许滚动内容超过边界，并在停止触摸后回弹。
      */
     @serializable
-    @displayOrder(2)
+    @displayOrder(3)
     @tooltip('i18n:scrollview.elastic')
     public elastic = true;
 
@@ -259,7 +259,7 @@ export class ScrollView extends ViewGroup {
      * 是否开启滚动惯性。
      */
     @serializable
-    @displayOrder(3)
+    @displayOrder(2)
     @tooltip('i18n:scrollview.inertia')
     public inertia = true;
 
@@ -271,7 +271,7 @@ export class ScrollView extends ViewGroup {
      * 可滚动展示内容的节点。
      */
     @type(Node)
-    @displayOrder(4)
+    @displayOrder(5)
     @tooltip('i18n:scrollview.content')
     get content () {
         return this._content;
@@ -298,7 +298,7 @@ export class ScrollView extends ViewGroup {
      * 是否开启水平滚动。
      */
     @serializable
-    @displayOrder(5)
+    @displayOrder(0)
     @tooltip('i18n:scrollview.horizontal')
     public horizontal = true;
 
@@ -309,7 +309,7 @@ export class ScrollView extends ViewGroup {
      * 水平滚动的 ScrollBar。
      */
     @type(ScrollBar)
-    @displayOrder(6)
+    @displayOrder(0)
     @tooltip('i18n:scrollview.horizontal_bar')
     get horizontalScrollBar () {
         return this._horizontalScrollBar;
@@ -336,7 +336,7 @@ export class ScrollView extends ViewGroup {
      * 是否开启垂直滚动。
      */
     @serializable
-    @displayOrder(7)
+    @displayOrder(1)
     @tooltip('i18n:scrollview.vertical')
     public vertical = true;
 
@@ -348,7 +348,7 @@ export class ScrollView extends ViewGroup {
      * 垂直滚动的 ScrollBar。
      */
     @type(ScrollBar)
-    @displayOrder(8)
+    @displayOrder(1)
     @tooltip('i18n:scrollview.vertical_bar')
     get verticalScrollBar () {
         return this._verticalScrollBar;
@@ -1918,3 +1918,5 @@ export class ScrollView extends ViewGroup {
  * @param {Event.EventCustom} event
  * @param {ScrollView} scrollView - The ScrollView component.
  */
+
+legacyCC.ScrollView = ScrollView;

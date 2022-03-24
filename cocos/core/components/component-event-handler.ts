@@ -63,6 +63,9 @@ import { legacyCC } from '../global-exports';
  */
 @ccclass('cc.ClickEvent')
 export class EventHandler {
+    /**
+     * @legacyPublic
+     */
     get _componentName () {
         this._genCompIdIfNeeded();
 
@@ -114,6 +117,9 @@ export class EventHandler {
     @tooltip('i18n:button.click_event.component')
     public component = '';
 
+    /**
+     * @legacyPublic
+     */
     @serializable
     public _componentId = '';
 

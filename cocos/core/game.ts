@@ -38,7 +38,7 @@ import * as debug from './platform/debug';
 import { Device, DeviceInfo, Swapchain, SwapchainInfo } from './gfx';
 import { sys } from './platform/sys';
 import { macro } from './platform/macro';
-import { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
+import type { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
 import { legacyCC, VERSION } from './global-exports';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
 import { bindingMappingInfo } from './pipeline/define';
@@ -389,12 +389,27 @@ export class Game extends EventTarget {
     public collisionMatrix = [];
     public groupList: any[] = [];
 
+    /**
+     * @legacyPublic
+     */
     public _persistRootNodes = {};
 
+    /**
+     * @legacyPublic
+     */
     public _gfxDevice: Device | null = null;
+    /**
+     * @legacyPublic
+     */
     public _swapchain: Swapchain | null = null;
     // states
+    /**
+     * @legacyPublic
+     */
     public _configLoaded = false; // whether config loaded
+    /**
+     * @legacyPublic
+     */
     public _isCloning = false;    // deserializing or instantiating
     private _inited = false;
     private _engineInited = false; // whether the engine has inited
@@ -407,6 +422,7 @@ export class Game extends EventTarget {
     private _startTime = 0;
     private _deltaTime = 0.0;
     private declare _frameCB: (time: number) => void;
+    private _onEngineInitedCallback: Array<() => (Promise<void> | void)> = [];
 
     // @Methods
 
@@ -440,10 +456,19 @@ export class Game extends EventTarget {
     }
 
     /**
-     * @en Pause the game main loop. This will pause:<br>
-     * game logic execution, rendering process, event manager, background music and all audio effects.<br>
-     * This is different with `director.pause` which only pause the game logic execution.<br>
-     * @zh 暂停游戏主循环。包含：游戏逻辑，渲染，事件处理，背景音乐和所有音效。这点和只暂停游戏逻辑的 `director.pause` 不同。
+     * @en Pause the game main loop. This will pause:
+     * - game logic execution
+     * - rendering process
+     * - input event dispatching (excluding Web and Minigame platforms)
+     *
+     * This is different with `director.pause()` which only pause the game logic execution.
+     *
+     * @zh 暂停游戏主循环。包含：
+     * - 游戏逻辑
+     * - 渲染
+     * - 输入事件派发（Web 和小游戏平台除外）
+     *
+     * 这点和只暂停游戏逻辑的 `director.pause()` 不同。
      */
     public pause () {
         if (this._paused) { return; }
@@ -496,6 +521,7 @@ export class Game extends EventTarget {
             legacyCC.Object._deferredDestroy();
 
             legacyCC.director.reset();
+            legacyCC.profiler.reset();
             this.pause();
             return this._setRenderPipelineNShowSplash().then(() => {
                 this.resume();
@@ -688,6 +714,14 @@ export class Game extends EventTarget {
         return !!node._persistNode;
     }
 
+    /**
+     * TODO: Only hack for PhysX initialization, should be removed in future
+     * @internal
+     */
+    public onEngineInitedAsync (func: () => (Promise<void> | void)) {
+        this._onEngineInitedCallback.push(func);
+    }
+
     //  @Engine loading
 
     private _initEngine () {
@@ -700,6 +734,10 @@ export class Game extends EventTarget {
             this.emit(Game.EVENT_ENGINE_INITED);
             this._engineInited = true;
             if (legacyCC.internal.dynamicAtlasManager) { legacyCC.internal.dynamicAtlasManager.enabled = !macro.CLEANUP_IMAGE_CACHE; }
+        }).then(() => {
+            const initCallbackPromises = this._onEngineInitedCallback.map((func) => func()).filter(Boolean);
+            this._onEngineInitedCallback.length = 0;
+            return Promise.all(initCallbackPromises);
         });
     }
 
@@ -927,20 +965,6 @@ export class Game extends EventTarget {
     }
 
     private _setRenderPipelineNShowSplash () {
-        // The test environment does not currently support the renderer
-        if (TEST) {
-            return Promise.resolve((() => {
-                this._rendererInitialized = true;
-                this._safeEmit(Game.EVENT_RENDERER_INITED);
-                this._inited = true;
-                this._setAnimFrame();
-                this._runMainLoop();
-                this._safeEmit(Game.EVENT_GAME_INITED);
-                if (this.onStart) {
-                    this.onStart();
-                }
-            })());
-        }
         return Promise.resolve(this._setupRenderPipeline()).then(
             () => Promise.resolve(this._showSplashScreen()).then(
                 () => {

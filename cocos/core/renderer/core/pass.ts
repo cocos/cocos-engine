@@ -176,6 +176,7 @@ export class Pass {
     protected _dynamics: IPassDynamics = {};
     protected _propertyHandleMap: Record<string, number> = {};
     protected _rootBlock: ArrayBuffer | null = null;
+    protected _blocksInt: Int32Array[] = [];
     protected _blocks: Float32Array[] = [];
     protected _shaderInfo: IProgramInfo = null!;
     protected _defines: MacroRecord = {};
@@ -278,7 +279,7 @@ export class Pass {
         const binding = Pass.getBindingFromHandle(handle);
         const type = Pass.getTypeFromHandle(handle);
         const ofs = Pass.getOffsetFromHandle(handle);
-        const block = this._blocks[binding];
+        const block = this._getBlockView(type, binding);
         type2writer[type](block, value, ofs);
         this._setRootBufferDirty(true);
     }
@@ -293,7 +294,7 @@ export class Pass {
         const binding = Pass.getBindingFromHandle(handle);
         const type = Pass.getTypeFromHandle(handle);
         const ofs = Pass.getOffsetFromHandle(handle);
-        const block = this._blocks[binding];
+        const block = this._getBlockView(type, binding);
         return type2reader[type](block, out, ofs) as T;
     }
 
@@ -307,7 +308,7 @@ export class Pass {
         const binding = Pass.getBindingFromHandle(handle);
         const type = Pass.getTypeFromHandle(handle);
         const stride = GetTypeSize(type) >> 2;
-        const block = this._blocks[binding];
+        const block = this._getBlockView(type, binding);
         let ofs = Pass.getOffsetFromHandle(handle);
         for (let i = 0; i < value.length; i++, ofs += stride) {
             if (value[i] === null) { continue; }
@@ -462,7 +463,7 @@ export class Pass {
         const binding = Pass.getBindingFromHandle(handle);
         const ofs = Pass.getOffsetFromHandle(handle);
         const count = Pass.getCountFromHandle(handle);
-        const block = this._blocks[binding];
+        const block = this._getBlockView(type, binding);
         const info = this._properties[name];
         const givenDefault = info && info.value;
         const value = (givenDefault || getDefaultFromType(type)) as number[];
@@ -499,10 +500,10 @@ export class Pass {
     public resetUBOs (): void {
         for (let i = 0; i < this._shaderInfo.blocks.length; i++) {
             const u = this._shaderInfo.blocks[i];
-            const block = this._blocks[u.binding];
             let ofs = 0;
             for (let j = 0; j < u.members.length; j++) {
                 const cur = u.members[j];
+                const block = this._getBlockView(cur.type, u.binding);
                 const info = this._properties[cur.name];
                 const givenDefault = info && info.value;
                 const value = (givenDefault || getDefaultFromType(cur.type)) as number[];
@@ -695,6 +696,7 @@ export class Pass {
             // guarantees these bindings to be consecutive, starting from 0 and non-array-typed
             this._blocks[binding] = new Float32Array(this._rootBlock!, _bufferViewInfo.offset,
                 size / Float32Array.BYTES_PER_ELEMENT);
+            this._blocksInt[binding] = new Int32Array(this._blocks[binding].buffer, this._blocks[binding].byteOffset, this._blocks[binding].length);
             this._descriptorSet.bindBuffer(binding, bufferView);
         }
         // store handles
@@ -745,6 +747,10 @@ export class Pass {
         }
     }
 
+    private _getBlockView (type: Type, binding: number) {
+        return type < Type.FLOAT ? this._blocksInt[binding] : this._blocks[binding];
+    }
+
     private _setPipelineLayout (pipelineLayout: PipelineLayout) {
         this._pipelineLayout = pipelineLayout;
         if (JSB) {
@@ -771,6 +777,7 @@ export class Pass {
         this._properties = target._properties;
 
         this._blocks = target._blocks;
+        this._blocksInt = target._blocksInt;
         this._dynamics =  target._dynamics;
 
         this._shader = target._shader;
@@ -792,6 +799,7 @@ export class Pass {
     // data
     get dynamics (): IPassDynamics { return this._dynamics; }
     get blocks (): Float32Array[] { return this._blocks; }
+    get blocksInt (): Int32Array[] { return this._blocksInt; }
     get rootBufferDirty (): boolean { return this._rootBufferDirty; }
     // states
     get priority (): RenderPriority { return this._priority; }
