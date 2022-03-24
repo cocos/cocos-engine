@@ -1,8 +1,6 @@
 {
-    "category": {
-        "title": {
-            "zh": "动画",
-            "en": "Animation"
-        }
+    "title": {
+        "zh": "动画",
+        "en": "Animation"
     }
 }

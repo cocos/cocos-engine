@@ -6,6 +6,8 @@ import ps from 'path';
 
 const TAG_NAME_CC_CATEGORY = 'ccCategory';
 
+const TAG_NAME_LEGACY_PUBLIC = 'legacyPublic'.toLowerCase();
+
 const CATEGORY_CONFIG_FILE_NAME = 'category.json';
 
 interface CategoryConfig {
@@ -16,6 +18,8 @@ export function load (app: Application) {
     const engineRoot = process.cwd();
 
     app.converter.on(Converter.EVENT_CREATE_DECLARATION, onCreateReflection);
+
+    app.converter.on(Converter.EVENT_CREATE_SIGNATURE, onCreateSignature);
 
     type ReflectionId = Reflection['id'];
 
@@ -55,6 +59,15 @@ export function load (app: Application) {
     app.serializer.addSerializer(new CategoryMapSerializerComponent(app.serializer));
 
     function onCreateReflection (_context: Context, reflection: Reflection, node?: ts.Node) {
+        handleDeclarationCategory(_context, reflection, node);
+        handleTagLegacyPublic(_context, reflection, node);
+    }
+
+    function onCreateSignature (_context: Context, reflection: SignatureReflection, node?: ts.Node) {
+        handleTagLegacyPublic(_context, reflection, node);
+    }
+
+    function handleDeclarationCategory (_context: Context, reflection: Reflection, node?: ts.Node) {
         if (!node) {
             return;
         }
@@ -84,6 +97,20 @@ export function load (app: Application) {
         }
 
         setCategory(reflection.id, category.id, category.config);
+    }
+
+    function handleTagLegacyPublic (_context: Context, reflection: Reflection, node?: ts.Node) {
+        const { comment } = reflection;
+        if (!comment) {
+            return;
+        }
+
+        if (!comment.hasTag(TAG_NAME_LEGACY_PUBLIC)) {
+            return;
+        }
+
+        comment.removeTags(TAG_NAME_LEGACY_PUBLIC);
+        comment.tags.push(new CommentTag('deprecated', undefined, 'This key is reserved for internal usage.'));
     }
 
     function setCategory (reflectionId: ReflectionId, categoryId: string, categoryConfig: CategoryConfig) {

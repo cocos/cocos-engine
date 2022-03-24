@@ -164,6 +164,9 @@ using GLES3GPUTextureViewList = vector<GLES3GPUTextureView *>;
 
 class GLES3GPUSwapchain final : public Object {
 public:
+#if CC_SWAPPY_ENABLED
+    bool swappyEnabled{false};
+#endif
     EGLSurface       eglSurface{EGL_NO_SURFACE};
     EGLint           eglSwapInterval{0};
     GLuint           glFramebuffer{0};

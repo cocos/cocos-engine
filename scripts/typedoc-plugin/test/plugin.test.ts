@@ -12,6 +12,7 @@ test(`Test`, async () => {
     app.bootstrap({
         entryPoints: [ps.join(DUMMY_ENGINE_PATH, 'index.ts')],
         tsconfig: ps.join(DUMMY_ENGINE_PATH, 'tsconfig.json'),
+        plugin: ['typedoc-plugin-cc'],
     });
 
     const projectReflection = app.convert();

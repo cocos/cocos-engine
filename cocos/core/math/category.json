@@ -1,8 +1,6 @@
 {
-    "category": {
-        "title": {
-            "zh": "数学",
-            "en": "Math"
-        }
+    "title": {
+        "zh": "数学",
+        "en": "Math"
     }
 }

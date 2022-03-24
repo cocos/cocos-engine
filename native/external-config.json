@@ -4,6 +4,6 @@
         "type": "github",
         "owner": "cocos-creator",
         "name": "engine-native-external",
-        "checkout": "v3d-gfx-97"
+        "checkout": "v3d-gfx-105"
     }
 }
