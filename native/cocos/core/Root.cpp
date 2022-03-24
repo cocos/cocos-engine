@@ -62,8 +62,6 @@ Root::Root(gfx::Device *device)
 
     _cameraList.reserve(6);
     _swapchains.reserve(2);
-
-    _usesCustomPipeline = false;
 }
 
 Root::~Root() {
