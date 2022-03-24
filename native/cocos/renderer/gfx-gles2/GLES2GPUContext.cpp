@@ -294,7 +294,7 @@ void GLES2GPUContext::present(const GLES2GPUSwapchain *swapchain) {
 #if CC_SWAPPY_ENABLED
     if (swapchain->swappyEnabled) {
         //fallback to normal eglswap if swappy_swap failed
-        if(SwappyGL_swap(eglDisplay, swapchain->eglSurface)) {
+        if (SwappyGL_swap(eglDisplay, swapchain->eglSurface)) {
             return;
         }
     }

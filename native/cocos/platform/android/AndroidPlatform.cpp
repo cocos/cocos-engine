@@ -74,11 +74,11 @@ void AndroidPlatform::pollEvent() {
     _jniNativeGlue->flushTasksOnGameThread();
 }
 
-void *AndroidPlatform::getActivity() {
+void* AndroidPlatform::getActivity() {
     return _jniNativeGlue->getActivity();
 }
 
-void *AndroidPlatform::getEnv() {
+void* AndroidPlatform::getEnv() {
     return _jniNativeGlue->getEnv();
 }
 
