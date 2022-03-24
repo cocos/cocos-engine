@@ -68,7 +68,7 @@ public:
     pipeline::GlobalDSManager   *getGlobalDSManager() const override;
     gfx::DescriptorSetLayout    *getDescriptorSetLayout() const override;
     pipeline::PipelineSceneData *getPipelineSceneData() const override;
-    const ccstd::string           &getConstantMacros() const override;
+    const ccstd::string         &getConstantMacros() const override;
     scene::Model                *getProfiler() const override;
     void                         setProfiler(scene::Model *profiler) override;
 
@@ -85,7 +85,7 @@ public:
     gfx::Device*                               device{nullptr};
     gfx::Swapchain*                            swapchain{nullptr};
     MacroRecord                                macros;
-    ccstd::string                                constantMacros;
+    ccstd::string                              constantMacros;
     std::unique_ptr<pipeline::GlobalDSManager> globalDSManager;
     scene::Model*                              profiler{nullptr};
     IntrusivePtr<pipeline::PipelineSceneData>  pipelineSceneData;
