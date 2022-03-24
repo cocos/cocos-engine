@@ -118,7 +118,8 @@ public:
 
     inline bool isRendererAvailable() const { return _rendererAvailable; }
 
-    inline void setRendererAvailable(bool available) {_rendererAvailable = available;}
+    inline void setRendererAvailable(bool available) { _rendererAvailable = available; }
+
 protected:
     static Device *instance;
 
@@ -185,7 +186,7 @@ protected:
 
 private:
     ccstd::vector<Swapchain *> _swapchains; // weak reference
-    bool _rendererAvailable{false};
+    bool                       _rendererAvailable{false};
 };
 
 //////////////////////////////////////////////////////////////////////////
