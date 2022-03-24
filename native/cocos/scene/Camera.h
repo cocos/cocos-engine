@@ -41,7 +41,7 @@ namespace scene {
 class RenderScene;
 
 struct Camera final {
-    bool          isOrhto;
+    bool          isOrhto{false};
     uint32_t      width{0};
     uint32_t      height{0};
     uint32_t      nearClip{0};

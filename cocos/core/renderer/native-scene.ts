@@ -196,6 +196,7 @@ export const NativeRenderWindow: Constructor<{
 export type NativeRenderWindow = InstanceType<typeof NativeRenderWindow>;
 
 export const NativeCamera: Constructor<{
+    isOrtho: boolean;
     width: number;
     height: number;
     nearClip: number;

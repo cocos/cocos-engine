@@ -33,6 +33,12 @@
 namespace cc {
 namespace pipeline {
 
+ShadowTransformInfo::ShadowTransformInfo() {
+    _validFrustum.type     = scene::ShapeEnums::SHAPE_FRUSTUM_ACCURATE;
+    _splitFrustum.type     = scene::ShapeEnums::SHAPE_FRUSTUM_ACCURATE;
+    _lightViewFrustum.type = scene::ShapeEnums::SHAPE_FRUSTUM_ACCURATE;
+}
+
 ShadowTransformInfo::~ShadowTransformInfo() {
     _shadowObjects.clear();
 }
@@ -106,6 +112,7 @@ CSMLayerInfo::CSMLayerInfo(uint level) {
     _splitCameraFar  = 0.0F;
     _matShadowAtlas.setZero();
     _matShadowViewProjAtlas.setZero();
+    calculateAtlas(level);
 }
 
 void CSMLayerInfo::calculateAtlas(uint level) {
@@ -161,9 +168,11 @@ void CSMLayers::update(const RenderPipeline *pipeline, const scene::Camera *came
         updateFixedArea(dirLight);
     } else {
         bool isRecalculate = false;
-        for (uint i = static_cast<uint>(_layers.size()); i < _levelCount; ++i) {
-            _layers.emplace_back(new CSMLayerInfo(i));
-            isRecalculate = true;
+        for (uint i = 0; i < levelCount; ++i) {
+            if (_layers.size() <= i) {
+                _layers.emplace_back(new CSMLayerInfo(i));
+                isRecalculate = true;
+            }
         }
 
         if (dirLight->isShadowCSMValueDirty() || _levelCount != levelCount ||
@@ -215,8 +224,8 @@ void CSMLayers::splitFrustumLevels(scene::DirectionalLight *dirLight) {
         const float preNear = lambda * (nd * powf(ratio, si)) + (1.0F - lambda) * (nd + (fd - nd) * si);
         // Slightly increase the overlap to avoid fracture
         const float nextFar = preNear * 1.005F;
-        _layers.at(i)->setSplitCameraNear(preNear);
-        _layers.at(i - 1)->setSplitCameraFar(nextFar);
+        _layers[i]->setSplitCameraNear(preNear);
+        _layers[i - 1]->setSplitCameraFar(nextFar);
     }
     // numbers of level - 1
     _layers.at(level - 1)->setSplitCameraFar(fd);
@@ -225,7 +234,6 @@ void CSMLayers::splitFrustumLevels(scene::DirectionalLight *dirLight) {
 }
 
 void CSMLayers::calculateCSM(const scene::Camera *camera, scene::DirectionalLight *dirLight, const scene::Shadow *shadowInfo) {
-    const gfx::Device *device         = gfx::Device::getInstance();
     const uint         level          = static_cast<uint>(dirLight->getShadowCSMLevel());
     const float        shadowMapWidth = shadowInfo->size.x;
 
@@ -235,14 +243,17 @@ void CSMLayers::calculateCSM(const scene::Camera *camera, scene::DirectionalLigh
         const float nearClamp = layer->getSplitCameraNear();
         const float farClamp  = layer->getSplitCameraFar();
         const Mat4  mat4Trans = getCameraWorldMatrix(camera);
-        layer->getSplitFrustum().split(nearClamp, farClamp, camera->aspect, camera->fov, mat4Trans);
+        scene::Frustum splitFrustum;
+        splitFrustum.type = scene::ShapeEnums::SHAPE_FRUSTUM_ACCURATE;
+        splitFrustum.split(nearClamp, farClamp, camera->aspect, camera->fov, mat4Trans);
+        layer->setSplitFrustum(splitFrustum);
         layer->createMatrix(layer->getSplitFrustum(), dirLight, shadowMapWidth, false);
         Mat4 matShadowViewProjAtlas;
         Mat4::multiply(layer->getMatShadowAtlas(), layer->getMatShadowViewProj(), &matShadowViewProjAtlas);
         layer->setMatShadowViewProjAtlas(matShadowViewProjAtlas);
     }
 
-    if (level < 2.0F) {
+    if (level == 1) {
         _specialLayer->setShadowCameraFar(_layers[0]->getShadowCameraFar());
         _specialLayer->setMatShadowView(_layers[0]->getMatShadowView().clone());
         _specialLayer->setMatShadowProj(_layers[0]->getMatShadowProj().clone());
@@ -253,6 +264,19 @@ void CSMLayers::calculateCSM(const scene::Camera *camera, scene::DirectionalLigh
         _specialLayer->getSplitFrustum().split(0.1F, dirLight->getShadowDistance(), camera->aspect, camera->fov, mat4Trans);
         _specialLayer->createMatrix(_specialLayer->getSplitFrustum(), dirLight, shadowMapWidth, true);
     }
+}
+
+Mat4 CSMLayers::getCameraWorldMatrix(const scene::Camera* camera) {
+    const scene::Node *cameraNode = camera->node;
+    const Vec3 &position   = cameraNode->getWorldPosition();
+    const Quaternion &rotation   = cameraNode->getWorldRotation();
+
+    Mat4 out;
+    Mat4::fromRT(rotation, position, &out);
+    out.m[8] *= -1.0F;
+    out.m[9] *= -1.0F;
+    out.m[10] *= -1.0F;
+    return out;
 }
 
 } // namespace pipeline
