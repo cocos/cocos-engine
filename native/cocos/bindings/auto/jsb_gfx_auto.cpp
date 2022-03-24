@@ -21636,6 +21636,25 @@ static bool js_gfx_Device_initialize(se::State& s) // NOLINT(readability-identif
 }
 SE_BIND_FUNC(js_gfx_Device_initialize)
 
+static bool js_gfx_Device_isRendererAvailable(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_isRendererAvailable : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->isRendererAvailable();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_isRendererAvailable : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Device_isRendererAvailable)
+
 static bool js_gfx_Device_present(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
@@ -21650,6 +21669,25 @@ static bool js_gfx_Device_present(se::State& s) // NOLINT(readability-identifier
     return false;
 }
 SE_BIND_FUNC(js_gfx_Device_present)
+
+static bool js_gfx_Device_setRendererAvailable(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_setRendererAvailable : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<bool, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_setRendererAvailable : Error processing arguments");
+        cobj->setRendererAvailable(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Device_setRendererAvailable)
 
 bool js_register_gfx_Device(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -21690,7 +21728,9 @@ bool js_register_gfx_Device(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineFunction("getTextureBarrier", _SE(js_gfx_Device_getTextureBarrier));
     cls->defineFunction("hasFeature", _SE(js_gfx_Device_hasFeature));
     cls->defineFunction("initialize", _SE(js_gfx_Device_initialize));
+    cls->defineFunction("isRendererAvailable", _SE(js_gfx_Device_isRendererAvailable));
     cls->defineFunction("present", _SE(js_gfx_Device_present));
+    cls->defineFunction("setRendererAvailable", _SE(js_gfx_Device_setRendererAvailable));
     cls->install();
     JSBClassType::registerClass<cc::gfx::Device>(cls);
 
