@@ -34,10 +34,12 @@
 Game::Game() : cc::CocosApplication() {}
 
 int Game::init() {
-    createWindow(GAME_NAME, 0, 0, 800, 600,
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX || CC_PLATFORM == CC_PLATFORM_MAC_OSX
+    createWindow("My game", 800, 600,
                  cc::ISystemWindow::CC_WINDOW_SHOWN |
                      cc::ISystemWindow::CC_WINDOW_RESIZABLE |
                      cc::ISystemWindow::CC_WINDOW_INPUT_FOCUS);
+#endif
     setJsDebugIpAndPort("0.0.0.0", 6086, false);
 
     int ret = cc::CocosApplication::init();
