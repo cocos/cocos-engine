@@ -39,16 +39,24 @@ public:
 
     struct WindowInfo {
         std::string title;
-        int32_t     x{0};
-        int32_t     y{0};
-        int32_t     width{800};
-        int32_t     height{600};
-        int32_t     flags = cc::ISystemWindow::CC_WINDOW_SHOWN |
-                        cc::ISystemWindow::CC_WINDOW_RESIZABLE |
-                        cc::ISystemWindow::CC_WINDOW_INPUT_FOCUS;
+        int32_t     x{-1};
+        int32_t     y{-1};
+        int32_t     width{-1};
+        int32_t     height{-1};
+        int32_t     flags{-1};
     };
     SimpleCocosApplication() = default;
     int init() override {
+        // override default value
+        _windowInfo.x      = _windowInfo.x == -1 ? 0 : _windowInfo.x;
+        _windowInfo.y      = _windowInfo.y == -1 ? 0 : _windowInfo.y;
+        _windowInfo.width  = _windowInfo.width == -1 ? 800 : _windowInfo.width;
+        _windowInfo.height = _windowInfo.height == -1 ? 600 : _windowInfo.height;
+        _windowInfo.flags  = _windowInfo.flags == -1 ? cc::ISystemWindow::CC_WINDOW_SHOWN |
+                                                          cc::ISystemWindow::CC_WINDOW_RESIZABLE |
+                                                          cc::ISystemWindow::CC_WINDOW_INPUT_FOCUS
+                                                     : _windowInfo.flags;
+
         createWindow(_windowInfo.title.c_str(),
                      _windowInfo.x, _windowInfo.y, _windowInfo.width, _windowInfo.height, _windowInfo.flags);
 

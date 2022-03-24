@@ -31,11 +31,10 @@
 Game::Game() = default;
 
 int Game::init() {
-    _windowInfo.title  = GAME_NAME;
-    _windowInfo.x      = 0;
-    _windowInfo.y      = 0;
-    _windowInfo.width  = 800;
-    _windowInfo.height = 600;
+    _windowInfo.title = GAME_NAME;
+    // configurate window size
+    // _windowInfo.height = 600;
+    // _windowInfo.width  = 800;
 
 #if CC_DEBUG
     _debuggerInfo.enabled = true;
@@ -53,15 +52,15 @@ int Game::init() {
 }
 
 void Game::onPause() {
-    cc::SimpleCocosApplication::onPause();
+    SimpleCocosApplication::onPause();
 }
 
 void Game::onResume() {
-    cc::SimpleCocosApplication::onResume();
+    SimpleCocosApplication::onResume();
 }
 
 void Game::onClose() {
-    cc::SimpleCocosApplication::onClose();
+    SimpleCocosApplication::onClose();
 }
 
 CC_APPLICATION_MAIN(Game);
