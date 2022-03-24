@@ -57,7 +57,7 @@ public:
     NativeDep getNativeDep() const;
 
     inline const ccstd::string &getUuid() const { return _uuid; }
-    inline void               setUuid(const ccstd::string &uuid) { _uuid = uuid; }
+    inline void                 setUuid(const ccstd::string &uuid) { _uuid = uuid; }
 
     /**
      * @en

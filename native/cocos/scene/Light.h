@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include "base/std/container/string.h"
 #include "base/Ptr.h"
 #include "base/RefCounted.h"
+#include "base/std/container/string.h"
 #include "math/Vec3.h"
 
 namespace cc {
@@ -79,7 +79,7 @@ public:
     inline void      setType(LightType type) { _type = type; }
 
     inline const ccstd::string &getName() const { return _name; }
-    inline void               setName(const ccstd::string &name) { _name = name; }
+    inline void                 setName(const ccstd::string &name) { _name = name; }
 
     inline RenderScene *getScene() const { return _scene; }
 
@@ -94,7 +94,7 @@ protected:
     IntrusivePtr<Node> _node;
     float              _colorTemp{6550.F};
     LightType          _type{LightType::UNKNOWN};
-    ccstd::string        _name;
+    ccstd::string      _name;
     RenderScene *      _scene{nullptr};
     Vec3               _color{1, 1, 1};
     Vec3               _colorTemperatureRGB;

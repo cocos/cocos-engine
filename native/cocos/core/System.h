@@ -24,8 +24,8 @@
 ****************************************************************************/
 #pragma once
 
-#include "base/std/container/string.h"
 #include "base/Macros.h"
+#include "base/std/container/string.h"
 
 namespace cc {
 
@@ -67,7 +67,7 @@ public:
     virtual ~System() = default;
 
     inline const ccstd::string &getId() { return id; }
-    inline void               setId(ccstd::string &s) { id = s; }
+    inline void                 setId(ccstd::string &s) { id = s; }
 
     inline Priority getPriority() const { return _priority; }
     inline void     setPriority(Priority i) { _priority = i; }

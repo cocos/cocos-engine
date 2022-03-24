@@ -98,16 +98,16 @@ public:
     inline void flushCommands(const ccstd::vector<CommandBuffer *> &cmdBuffs);
     inline void acquire(const ccstd::vector<Swapchain *> &swapchains);
 
-    inline Queue *           getQueue() const { return _queue; }
-    inline QueryPool *       getQueryPool() const { return _queryPool; }
-    inline CommandBuffer *   getCommandBuffer() const { return _cmdBuff; }
-    inline const DeviceCaps &getCapabilities() const { return _caps; }
-    inline API               getGfxAPI() const { return _api; }
-    inline const ccstd::string &    getDeviceName() const { return _deviceName; }
-    inline const ccstd::string &    getRenderer() const { return _renderer; }
-    inline const ccstd::string &    getVendor() const { return _vendor; }
-    inline bool              hasFeature(Feature feature) const { return _features[toNumber(feature)]; }
-    inline FormatFeature     getFormatFeatures(Format format) const { return _formatFeatures[toNumber(format)]; }
+    inline Queue *              getQueue() const { return _queue; }
+    inline QueryPool *          getQueryPool() const { return _queryPool; }
+    inline CommandBuffer *      getCommandBuffer() const { return _cmdBuff; }
+    inline const DeviceCaps &   getCapabilities() const { return _caps; }
+    inline API                  getGfxAPI() const { return _api; }
+    inline const ccstd::string &getDeviceName() const { return _deviceName; }
+    inline const ccstd::string &getRenderer() const { return _renderer; }
+    inline const ccstd::string &getVendor() const { return _vendor; }
+    inline bool                 hasFeature(Feature feature) const { return _features[toNumber(feature)]; }
+    inline FormatFeature        getFormatFeatures(Format format) const { return _formatFeatures[toNumber(format)]; }
 
     inline const BindingMappingInfo &bindingMappingInfo() const { return _bindingMappingInfo; }
 
@@ -153,10 +153,10 @@ protected:
     // For context switching between threads
     virtual void bindContext(bool bound) {}
 
-    ccstd::string             _deviceName;
-    ccstd::string             _renderer;
-    ccstd::string             _vendor;
-    ccstd::string             _version;
+    ccstd::string      _deviceName;
+    ccstd::string      _renderer;
+    ccstd::string      _vendor;
+    ccstd::string      _version;
     API                _api{API::UNKNOWN};
     DeviceCaps         _caps;
     BindingMappingInfo _bindingMappingInfo;

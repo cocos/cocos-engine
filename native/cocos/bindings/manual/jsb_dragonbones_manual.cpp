@@ -355,8 +355,8 @@ static bool js_cocos2dx_dragonbones_BaseFactory_parseTextureAtlasData(se::State 
     size_t         argc = args.size();
     CC_UNUSED bool ok   = true;
     if (argc == 2) {
-        const char *arg0 = nullptr;
-        void *      arg1 = nullptr;
+        const char *  arg0 = nullptr;
+        void *        arg1 = nullptr;
         ccstd::string arg0_tmp;
         ok &= sevalue_to_native(args[0], &arg0_tmp);
         arg0 = arg0_tmp.c_str();
@@ -368,8 +368,8 @@ static bool js_cocos2dx_dragonbones_BaseFactory_parseTextureAtlasData(se::State 
         return true;
     }
     if (argc == 3) {
-        const char *arg0 = nullptr;
-        void *      arg1 = nullptr;
+        const char *  arg0 = nullptr;
+        void *        arg1 = nullptr;
         ccstd::string arg2;
         ccstd::string arg0_tmp;
         ok &= sevalue_to_native(args[0], &arg0_tmp);
@@ -384,10 +384,10 @@ static bool js_cocos2dx_dragonbones_BaseFactory_parseTextureAtlasData(se::State 
         return true;
     }
     if (argc == 4) {
-        const char *arg0 = nullptr;
-        void *      arg1 = nullptr;
+        const char *  arg0 = nullptr;
+        void *        arg1 = nullptr;
         ccstd::string arg2;
-        float       arg3 = 0;
+        float         arg3 = 0;
         ccstd::string arg0_tmp;
         ok &= sevalue_to_native(args[0], &arg0_tmp);
         arg0 = arg0_tmp.c_str();

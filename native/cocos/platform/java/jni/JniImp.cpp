@@ -44,9 +44,9 @@
 #endif
 
 #ifndef COM_AUDIOFOCUS_CLASS_NAME
-#define COM_AUDIOFOCUS_CLASS_NAME com_cocos_lib_CocosAudioFocusManager
+    #define COM_AUDIOFOCUS_CLASS_NAME com_cocos_lib_CocosAudioFocusManager
 #endif
-#define JNI_AUDIO(FUNC) JNI_METHOD1(COM_AUDIOFOCUS_CLASS_NAME,FUNC)
+#define JNI_AUDIO(FUNC) JNI_METHOD1(COM_AUDIOFOCUS_CLASS_NAME, FUNC)
 
 using namespace cc; //NOLINT
 
@@ -153,10 +153,8 @@ float *getDeviceMotionValueJNI() {
     return JniHelper::callStaticFloatArrayMethod(JCLS_SENSOR, "getDeviceMotionValue");
 }
 
-
 extern "C" {
-JNIEXPORT void JNICALL JNI_AUDIO(nativeSetAudioVolumeFactor)(JNIEnv* /*env*/, jclass/* thiz*/, jfloat volumeFactor)
-{
+JNIEXPORT void JNICALL JNI_AUDIO(nativeSetAudioVolumeFactor)(JNIEnv * /*env*/, jclass /* thiz*/, jfloat volumeFactor) {
     AudioEngine::setVolumeFactor(volumeFactor);
 }
 }

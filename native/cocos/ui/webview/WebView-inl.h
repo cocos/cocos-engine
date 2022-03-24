@@ -25,8 +25,8 @@
 ****************************************************************************/
 
 #include "WebView.h"
-#include "platform/FileUtils.h"
 #include "base/memory/Memory.h"
+#include "platform/FileUtils.h"
 
 #if CC_PLATFORM == CC_PLATFORM_MAC_IOS
     #include "WebViewImpl-ios.h"
@@ -63,7 +63,7 @@ void WebView::setJavascriptInterfaceScheme(const ccstd::string &scheme) {
     _impl->setJavascriptInterfaceScheme(scheme);
 }
 
-void WebView::loadData(const cc::Data &   data,
+void WebView::loadData(const cc::Data &     data,
                        const ccstd::string &MIMEType,
                        const ccstd::string &encoding,
                        const ccstd::string &baseURL) {
@@ -148,7 +148,7 @@ void WebView::setOnJSCallback(const ccWebViewCallback &callback) {
 }
 
 std::function<bool(WebView
-                       *              sender,
+                       *                sender,
                    const ccstd::string &url)>
 
 WebView::getOnShouldStartLoading() const {

@@ -83,7 +83,7 @@ public:
     bool initWithCallback(Scheduler *scheduler, const ccSchedulerFunc &callback, void *target, const ccstd::string &key, float seconds, unsigned int repeat, float delay);
 
     inline const ccSchedulerFunc &getCallback() const { return _callback; };
-    inline const ccstd::string &    getKey() const { return _key; };
+    inline const ccstd::string &  getKey() const { return _key; };
 
     void trigger(float dt) override;
     void cancel() override;
@@ -91,7 +91,7 @@ public:
 private:
     void *          _target   = nullptr;
     ccSchedulerFunc _callback = nullptr;
-    ccstd::string     _key;
+    ccstd::string   _key;
 };
 
 /**

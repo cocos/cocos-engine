@@ -83,7 +83,7 @@ public:
     bool validate() const override;
 
 private:
-    ccstd::vector<ccstd::string>        _joints;
+    ccstd::vector<ccstd::string>      _joints;
     ccstd::vector<Mat4>               _bindposes;
     cc::optional<ccstd::vector<Mat4>> _invBindposes;
     uint64_t                          _hash{0};

@@ -99,7 +99,7 @@ private:
     SLObjectItf         _outputMixObj;
     ICallerThreadUtils *_callerThreadUtils;
 
-    int         _id;
+    int           _id;
     ccstd::string _url;
 
     std::shared_ptr<AssetFd> _assetFd;

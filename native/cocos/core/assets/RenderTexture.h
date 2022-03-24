@@ -31,7 +31,7 @@
 namespace cc {
 
 struct IRenderTextureCreateInfo {
-    cc::optional<ccstd::string>         name;
+    cc::optional<ccstd::string>       name;
     uint32_t                          width;
     uint32_t                          height;
     cc::optional<gfx::RenderPassInfo> passInfo;

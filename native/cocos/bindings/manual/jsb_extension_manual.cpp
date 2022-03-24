@@ -41,7 +41,7 @@ static bool js_cocos2dx_extension_loadRemoteImage(se::State &s) {
     int         argc = (int)args.size();
 
     if (argc == 2) {
-        bool        ok = false;
+        bool          ok = false;
         ccstd::string url;
         ok = seval_to_std_string(args[0], &url);
         SE_PRECONDITION2(ok, false, "Converting 'url' failed!");

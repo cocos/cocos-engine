@@ -119,7 +119,7 @@ public:
 
     //cjh    public declare [editorExtrasTag]: unknown;
 
-    Flags       _objFlags{Flags::ZERO};
+    Flags         _objFlags{Flags::ZERO};
     ccstd::string _name;
 
 protected:
@@ -139,7 +139,7 @@ public:
      * ```
      */
     inline const ccstd::string &getName() const { return _name; }
-    inline void               setName(const ccstd::string &value) { _name = value; }
+    inline void                 setName(const ccstd::string &value) { _name = value; }
 
     /**
      * @en After inheriting CCObject objects, control whether you need to hide, lock, serialize, and other functions.

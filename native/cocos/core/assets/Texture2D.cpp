@@ -123,7 +123,7 @@ bool Texture2D::destroy() {
 
 ccstd::string Texture2D::description() const {
     std::stringstream ret;
-    ccstd::string       url;
+    ccstd::string     url;
     if (!_mipmaps.empty()) {
         url = _mipmaps[0]->getUrl();
     }

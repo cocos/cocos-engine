@@ -100,9 +100,9 @@ static IPropertyHandleInfo jsonToPropertyHandleInfo(const rapidjson::Value &hand
     if (handleInfoVal.IsArray()) {
         // using IPropertyHandleInfo = std::tuple<ccstd::string, uint32_t, gfx::Type>;
         ccstd::string t0;
-        uint32_t    t1 = 0;
-        gfx::Type   t2 = gfx::Type::UNKNOWN;
-        int32_t     i  = 0;
+        uint32_t      t1 = 0;
+        gfx::Type     t2 = gfx::Type::UNKNOWN;
+        int32_t       i  = 0;
 
         for (const auto &e : handleInfoVal.GetArray()) {
             switch (i) {

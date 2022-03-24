@@ -248,7 +248,7 @@ public:
     uint32_t _height{1};
 
 protected:
-    ccstd::string      _id;
+    ccstd::string    _id;
     gfx::SamplerInfo _samplerInfo;
     gfx::Sampler *   _gfxSampler{nullptr};
     gfx::Device *    _gfxDevice{nullptr};

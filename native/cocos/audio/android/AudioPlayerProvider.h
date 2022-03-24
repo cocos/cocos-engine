@@ -68,7 +68,7 @@ public:
 
 private:
     struct AudioFileInfo {
-        ccstd::string              url;
+        ccstd::string            url;
         std::shared_ptr<AssetFd> assetFd;
         off_t                    start{};
         off_t                    length;
@@ -100,7 +100,7 @@ private:
     ICallerThreadUtils *_callerThreadUtils;
 
     ccstd::unordered_map<ccstd::string, PcmData> _pcmCache;
-    std::mutex                                 _pcmCacheMutex;
+    std::mutex                                   _pcmCacheMutex;
 
     struct PreloadCallbackParam {
         PreloadCallback callback;
@@ -108,7 +108,7 @@ private:
     };
 
     ccstd::unordered_map<ccstd::string, ccstd::vector<PreloadCallbackParam>> _preloadCallbackMap;
-    std::mutex                                                             _preloadCallbackMutex;
+    std::mutex                                                               _preloadCallbackMutex;
 
     std::mutex              _preloadWaitMutex;
     std::condition_variable _preloadWaitCond;

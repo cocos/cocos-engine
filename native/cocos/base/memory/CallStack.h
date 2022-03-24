@@ -32,8 +32,8 @@
         #include <Windows.h>
     #endif
     #include <cstdint>
-    #include "base/std/container/string.h"
     #include "../Macros.h"
+    #include "base/std/container/string.h"
 
 namespace cc {
 
@@ -47,7 +47,7 @@ struct CC_DLL StackFrame {
     ccstd::string module;
     ccstd::string file;
     ccstd::string function;
-    uint32_t    line{0};
+    uint32_t      line{0};
 
     ccstd::string toString();
 };

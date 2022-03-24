@@ -67,7 +67,7 @@ void GL_APIENTRY GLES2EGLDebugProc(GLenum source, GLenum type, GLuint id, GLenum
     }
 
     ccstd::string msg = StringUtil::format("source: %s, type: %s, severity: %s, message: %s",
-                                    sourceDesc.c_str(), typeDesc.c_str(), severityDesc.c_str(), message);
+                                           sourceDesc.c_str(), typeDesc.c_str(), severityDesc.c_str(), message);
 
     if (severity == GL_DEBUG_SEVERITY_HIGH_KHR) {
         CC_LOG_ERROR(msg.c_str());

@@ -29,7 +29,7 @@
 namespace cc {
 
 namespace {
-ccstd::vector<IJointTransform *>                     stack; //cjh TODO: how to release ?
+ccstd::vector<IJointTransform *>                       stack; //cjh TODO: how to release ?
 ccstd::unordered_map<ccstd::string, IJointTransform *> pool;
 } // namespace
 
@@ -68,7 +68,7 @@ IJointTransform *getTransform(Node *node, Node *root) {
     uint32_t         i     = 0;
     while (node != root) {
         const ccstd::string &id   = node->getUuid();
-        auto               iter = pool.find(id);
+        auto                 iter = pool.find(id);
         if (iter != pool.end()) {
             joint = iter->second;
             break;

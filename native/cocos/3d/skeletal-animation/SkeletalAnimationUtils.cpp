@@ -178,10 +178,10 @@ cc::optional<IJointTextureHandle *> JointTexturePool::getDefaultPoseTexture(Skel
     }
 
     const ccstd::vector<ccstd::string> &joints    = skeleton->getJoints();
-    const ccstd::vector<Mat4> &       bindPoses = skeleton->getBindposes();
-    Float32Array                      textureBuffer;
-    bool                              buildTexture = false;
-    auto                              jointCount   = static_cast<uint32_t>(joints.size());
+    const ccstd::vector<Mat4> &         bindPoses = skeleton->getBindposes();
+    Float32Array                        textureBuffer;
+    bool                                buildTexture = false;
+    auto                                jointCount   = static_cast<uint32_t>(joints.size());
     if (!texture.has_value()) {
         uint32_t             bufSize = jointCount * 12;
         ITextureBufferHandle handle;

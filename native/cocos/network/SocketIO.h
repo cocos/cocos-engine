@@ -28,9 +28,9 @@
 #pragma once
 
 #include <functional>
-#include "base/std/container/string.h"
 #include "base/Macros.h"
 #include "base/RefMap.h"
+#include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
 
 /**
@@ -170,7 +170,7 @@ class CC_DLL SIOClient
 private:
     friend class SocketIO; // Only SocketIO class could contruct a SIOClient instance.
 
-    ccstd::string    _path, _tag;
+    ccstd::string  _path, _tag;
     bool           _connected;
     SIOClientImpl *_socket;
 

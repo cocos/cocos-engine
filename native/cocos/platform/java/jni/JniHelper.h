@@ -29,9 +29,9 @@
 
 #include <jni.h>
 #include <functional>
-#include "base/std/container/string.h"
 #include "base/Log.h"
 #include "base/Macros.h"
+#include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
 #include "math/Vec3.h"
@@ -100,7 +100,7 @@ public:
         jobject            ret        = nullptr;
         static const char *methodName = "<init>";
         cc::JniMethodInfo  t;
-        ccstd::string        signature = "(" + ccstd::string(getJNISignature(xs...)) + ")V";
+        ccstd::string      signature = "(" + ccstd::string(getJNISignature(xs...)) + ")V";
         if (cc::JniHelper::getMethodInfo(t, className.c_str(), methodName, signature.c_str())) {
             LocalRefMapType localRefs;
             ret = t.env->NewObject(t.classID, t.methodID, convert(&localRefs, &t, xs)...);
@@ -115,12 +115,12 @@ public:
     }
 
     template <typename... Ts>
-    static void callObjectVoidMethod(jobject            object,
+    static void callObjectVoidMethod(jobject              object,
                                      const ccstd::string &className,
                                      const ccstd::string &methodName,
                                      Ts... xs) {
         cc::JniMethodInfo t;
-        ccstd::string       signature = "(" + ccstd::string(getJNISignature(xs...)) + ")V";
+        ccstd::string     signature = "(" + ccstd::string(getJNISignature(xs...)) + ")V";
         if (cc::JniHelper::getMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
             t.env->CallVoidMethod(object, t.methodID, convert(&localRefs, &t, xs)...);
@@ -135,13 +135,13 @@ public:
     }
 
     template <typename... Ts>
-    static float callObjectFloatMethod(jobject            object,
+    static float callObjectFloatMethod(jobject              object,
                                        const ccstd::string &className,
                                        const ccstd::string &methodName,
                                        Ts... xs) {
         float             ret = 0.0F;
         cc::JniMethodInfo t;
-        ccstd::string       signature = "(" + ccstd::string(getJNISignature(xs...)) + ")F";
+        ccstd::string     signature = "(" + ccstd::string(getJNISignature(xs...)) + ")F";
         if (cc::JniHelper::getMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
             ret = t.env->CallFloatMethod(object, t.methodID, convert(&localRefs, &t, xs)...);
@@ -157,13 +157,13 @@ public:
     }
 
     template <typename... Ts>
-    static jbyteArray callObjectByteArrayMethod(jobject            object,
+    static jbyteArray callObjectByteArrayMethod(jobject              object,
                                                 const ccstd::string &className,
                                                 const ccstd::string &methodName,
                                                 Ts... xs) {
         jbyteArray        ret = nullptr;
         cc::JniMethodInfo t;
-        ccstd::string       signature = "(" + ccstd::string(getJNISignature(xs...)) + ")[B";
+        ccstd::string     signature = "(" + ccstd::string(getJNISignature(xs...)) + ")[B";
         if (cc::JniHelper::getMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
             ret = static_cast<jbyteArray>(t.env->CallObjectMethod(object, t.methodID, convert(&localRefs, &t, xs)...));
@@ -183,7 +183,7 @@ public:
                                      const ccstd::string &methodName,
                                      Ts... xs) {
         cc::JniMethodInfo t;
-        ccstd::string       signature = "(" + ccstd::string(getJNISignature(xs...)) + ")V";
+        ccstd::string     signature = "(" + ccstd::string(getJNISignature(xs...)) + ")V";
         if (cc::JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
             t.env->CallStaticVoidMethod(t.classID, t.methodID, convert(&localRefs, &t, xs)...);
@@ -203,7 +203,7 @@ public:
                                         Ts... xs) {
         jboolean          jret = JNI_FALSE;
         cc::JniMethodInfo t;
-        ccstd::string       signature = "(" + ccstd::string(getJNISignature(xs...)) + ")Z";
+        ccstd::string     signature = "(" + ccstd::string(getJNISignature(xs...)) + ")Z";
         if (cc::JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
             jret = t.env->CallStaticBooleanMethod(t.classID, t.methodID, convert(&localRefs, &t, xs)...);
@@ -224,7 +224,7 @@ public:
                                    Ts... xs) {
         jint              ret = 0;
         cc::JniMethodInfo t;
-        ccstd::string       signature = "(" + ccstd::string(getJNISignature(xs...)) + ")I";
+        ccstd::string     signature = "(" + ccstd::string(getJNISignature(xs...)) + ")I";
         if (cc::JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
             ret = t.env->CallStaticIntMethod(t.classID, t.methodID, convert(&localRefs, &t, xs)...);
@@ -245,7 +245,7 @@ public:
                                        Ts... xs) {
         jfloat            ret = 0.0;
         cc::JniMethodInfo t;
-        ccstd::string       signature = "(" + ccstd::string(getJNISignature(xs...)) + ")F";
+        ccstd::string     signature = "(" + ccstd::string(getJNISignature(xs...)) + ")F";
         if (cc::JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
             ret = t.env->CallStaticFloatMethod(t.classID, t.methodID, convert(&localRefs, &t, xs)...);
@@ -266,7 +266,7 @@ public:
                                              Ts... xs) {
         static float      ret[32];
         cc::JniMethodInfo t;
-        ccstd::string       signature = "(" + ccstd::string(getJNISignature(xs...)) + ")[F";
+        ccstd::string     signature = "(" + ccstd::string(getJNISignature(xs...)) + ")[F";
         if (cc::JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
             auto *          array = static_cast<jfloatArray>(t.env->CallStaticObjectMethod(t.classID, t.methodID, convert(&localRefs, &t, xs)...));
@@ -297,7 +297,7 @@ public:
                                      Ts... xs) {
         Vec3              ret;
         cc::JniMethodInfo t;
-        ccstd::string       signature = "(" + ccstd::string(getJNISignature(xs...)) + ")[F";
+        ccstd::string     signature = "(" + ccstd::string(getJNISignature(xs...)) + ")[F";
         if (cc::JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
             auto *          array = static_cast<jfloatArray>(t.env->CallStaticObjectMethod(t.classID, t.methodID, convert(&localRefs, &t, xs)...));
@@ -328,7 +328,7 @@ public:
                                          Ts... xs) {
         jdouble           ret = 0.0;
         cc::JniMethodInfo t;
-        ccstd::string       signature = "(" + ccstd::string(getJNISignature(xs...)) + ")D";
+        ccstd::string     signature = "(" + ccstd::string(getJNISignature(xs...)) + ")D";
         if (cc::JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
             ret = t.env->CallStaticDoubleMethod(t.classID, t.methodID, convert(&localRefs, &t, xs)...);
@@ -345,12 +345,12 @@ public:
 
     template <typename... Ts>
     static ccstd::string callStaticStringMethod(const ccstd::string &className,
-                                              const ccstd::string &methodName,
-                                              Ts... xs) {
+                                                const ccstd::string &methodName,
+                                                Ts... xs) {
         ccstd::string ret;
 
         cc::JniMethodInfo t;
-        ccstd::string       signature = "(" + ccstd::string(getJNISignature(xs...)) + ")Ljava/lang/String;";
+        ccstd::string     signature = "(" + ccstd::string(getJNISignature(xs...)) + ")Ljava/lang/String;";
         if (cc::JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
             auto *          jret = static_cast<jstring>(t.env->CallStaticObjectMethod(t.classID, t.methodID, convert(&localRefs, &t, xs)...));

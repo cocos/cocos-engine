@@ -78,7 +78,7 @@ public:
 
     ccstd::string _curKey;   ///< parsed key
     ccstd::string _curValue; // parsed value
-    SAXState    _state{SAX_NONE};
+    SAXState      _state{SAX_NONE};
 
     ValueMap *   _curDict;
     ValueVector *_curArray;
@@ -193,7 +193,7 @@ public:
 
     void endElement(void *ctx, const char *name) override {
         CC_UNUSED_PARAM(ctx);
-        SAXState          curState = _stateStack.empty() ? SAX_DICT : _stateStack.top();
+        SAXState            curState = _stateStack.empty() ? SAX_DICT : _stateStack.top();
         const ccstd::string sName(const_cast<char *>(name));
         if (sName == "dict") {
             _stateStack.pop();
@@ -250,7 +250,7 @@ public:
             return;
         }
 
-        SAXState          curState = _stateStack.empty() ? SAX_DICT : _stateStack.top();
+        SAXState            curState = _stateStack.empty() ? SAX_DICT : _stateStack.top();
         const ccstd::string text     = ccstd::string(const_cast<char *>(ch), len);
 
         switch (_state) {
@@ -290,7 +290,7 @@ ValueMap FileUtils::getValueMapFromData(const char *filedata, int filesize) {
 
 ValueVector FileUtils::getValueVectorFromFile(const ccstd::string &filename) {
     const ccstd::string fullPath = fullPathForFilename(filename);
-    DictMaker         tMaker;
+    DictMaker           tMaker;
     return tMaker.arrayWithContentsOfFile(fullPath);
 }
 
@@ -628,7 +628,7 @@ unsigned char *FileUtils::getFileDataFromZip(const ccstd::string &zipFilePath, c
 ccstd::string FileUtils::getPathForFilename(const ccstd::string &filename, const ccstd::string &searchPath) const {
     ccstd::string file{filename};
     ccstd::string filePath;
-    size_t      pos = filename.find_last_of('/');
+    size_t        pos = filename.find_last_of('/');
     if (pos != ccstd::string::npos) {
         filePath = filename.substr(0, pos + 1);
         file     = filename.substr(pos + 1);
@@ -981,8 +981,8 @@ bool FileUtils::createDirectory(const ccstd::string &path) {
     }
 
     // Split the path
-    size_t                     start = 0;
-    size_t                     found = path.find_first_of("/\\", start);
+    size_t                       start = 0;
+    size_t                       found = path.find_first_of("/\\", start);
     ccstd::string                subpath;
     ccstd::vector<ccstd::string> dirs;
 
@@ -1115,7 +1115,7 @@ long FileUtils::getFileSize(const ccstd::string &filepath) { //NOLINT(google-run
 
 ccstd::string FileUtils::getFileExtension(const ccstd::string &filePath) const {
     ccstd::string fileExtension;
-    size_t      pos = filePath.find_last_of('.');
+    size_t        pos = filePath.find_last_of('.');
     if (pos != ccstd::string::npos) {
         fileExtension = filePath.substr(pos, filePath.length());
 
@@ -1133,7 +1133,7 @@ void FileUtils::valueVectorCompact(ValueVector &valueVector) {
 
 ccstd::string FileUtils::getFileDir(const ccstd::string &path) {
     ccstd::string ret;
-    size_t      pos = path.rfind('/');
+    size_t        pos = path.rfind('/');
     if (pos != ccstd::string::npos) {
         ret = path.substr(0, pos);
     }

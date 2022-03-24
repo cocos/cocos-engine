@@ -25,10 +25,10 @@ THE SOFTWARE.
 
 #define LOG_TAG "PcmAudioPlayer"
 
-#include "audio/android/cutils/log.h"
 #include "audio/android/PcmAudioPlayer.h"
 #include "audio/android/AudioMixerController.h"
 #include "audio/android/ICallerThreadUtils.h"
+#include "audio/android/cutils/log.h"
 
 namespace cc {
 
@@ -43,7 +43,7 @@ PcmAudioPlayer::~PcmAudioPlayer() {
 }
 
 bool PcmAudioPlayer::prepare(const ccstd::string &url, const PcmData &decResult) {
-    _url = url;
+    _url       = url;
     _decResult = decResult;
 
     _track = new (std::nothrow) Track(_decResult);
@@ -63,7 +63,7 @@ bool PcmAudioPlayer::prepare(const ccstd::string &url, const PcmData &decResult)
     _track->onStateChanged = [this, callerThreadId](Track::State state) {
         // It maybe in sub thread
         Track::State prevState = _track->getPrevState();
-        auto func = [this, state, prevState]() {
+        auto         func      = [this, state, prevState]() {
             // It's in caller's thread
             if (state == Track::State::OVER && prevState != Track::State::STOPPED) {
                 if (_playEventCallback != nullptr) {

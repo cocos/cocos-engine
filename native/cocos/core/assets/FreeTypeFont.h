@@ -28,8 +28,8 @@
 
 #pragma once
 #include <memory>
-#include "base/std/container/string.h"
 #include "Font.h"
+#include "base/std/container/string.h"
 
 namespace cc {
 

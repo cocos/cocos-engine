@@ -100,7 +100,7 @@ ccstd::string getText(HWND hwnd) {
     GetWindowText(hwnd, str, length + 1);
 
     std::wstring_convert<std::codecvt_utf8<wchar_t>> convert;
-    ccstd::string                                      ret(convert.to_bytes(str));
+    ccstd::string                                    ret(convert.to_bytes(str));
     free(str);
 
     return ret;

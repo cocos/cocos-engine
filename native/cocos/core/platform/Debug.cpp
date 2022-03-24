@@ -60,7 +60,7 @@ LogLevel getLogLevel(DebugMode mode) {
 
 ccstd::string getTypedFormatter(DebugMode mode, uint32_t id) {
     const ccstd::string &tag = getPrefixTag(mode);
-    ccstd::string       msg;
+    ccstd::string        msg;
 #if CC_DEBUG > 0
     if (debugInfos.find(id) == debugInfos.end()) {
         msg = "unknown id";
@@ -79,7 +79,7 @@ ccstd::string getTypedFormatter(DebugMode mode, uint32_t id) {
 void printLog(DebugMode mode, const ccstd::string &fmt, cc::any *arr, int paramsLength) {
     ccstd::string        msg      = fmt;
     const ccstd::string &prefix   = getPrefixTag(mode);
-    LogLevel           logLevel = getLogLevel(mode);
+    LogLevel             logLevel = getLogLevel(mode);
 
     size_t pos;
     for (int i = 1; i <= paramsLength; i++) {

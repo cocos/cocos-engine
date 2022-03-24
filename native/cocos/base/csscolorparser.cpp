@@ -269,7 +269,7 @@ float cssHueToRgb(float m1, float m2, float h) {
 
 ccstd::vector<ccstd::string> split(const ccstd::string &s, char delim) {
     ccstd::vector<ccstd::string> elems;
-    std::stringstream          ss(s);
+    std::stringstream            ss(s);
     ccstd::string                item;
     while (std::getline(ss, item, delim)) {
         elems.push_back(item);

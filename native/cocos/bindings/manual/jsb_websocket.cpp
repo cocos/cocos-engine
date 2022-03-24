@@ -413,7 +413,7 @@ static bool webSocketClose(se::State &s) {
     } else if (argc == 2) {
         assert(args[0].isNumber());
         assert(args[1].isString());
-        int         reasonCode{0};
+        int           reasonCode{0};
         ccstd::string reasonString;
         sevalue_to_native(args[0], &reasonCode);
         sevalue_to_native(args[1], &reasonString);

@@ -71,10 +71,10 @@ public:
     using ValueTypes = ccstd::vector<ValueType>;
 
     using ReturnValue = union {
-        int          intValue;
-        int64_t      longValue;
-        float        floatValue;
-        int          boolValue;
+        int            intValue;
+        int64_t        longValue;
+        float          floatValue;
+        int            boolValue;
         ccstd::string *stringValue;
     };
 
@@ -155,9 +155,9 @@ public:
         ccstd::string _mClassName;
         ccstd::string _mMethodName;
         ccstd::string _mMethodSig;
-        int         _mArgumentsCount{0};
-        ValueTypes  _mArgumentsType;
-        ValueType   _mReturnType{ValueType::VOID};
+        int           _mArgumentsCount{0};
+        ValueTypes    _mArgumentsType;
+        ValueType     _mReturnType{ValueType::VOID};
 
         ReturnValue _mRet;
         jstring     _mRetjstring{nullptr};
@@ -196,7 +196,7 @@ JNIEXPORT jint JNICALL JNI_JSJAVABRIDGE(evalString)(JNIEnv *env, jclass /*cls*/,
 
     se::AutoHandleScope hs;
     bool                strFlag  = false;
-    ccstd::string         strValue = cc::StringUtils::getStringUTFCharsJNI(env, value, &strFlag);
+    ccstd::string       strValue = cc::StringUtils::getStringUTFCharsJNI(env, value, &strFlag);
     if (!strFlag) {
         CC_LOG_DEBUG("JavaScriptJavaBridge_evalString error, invalid string code");
         return 0;
@@ -251,7 +251,7 @@ bool JavaScriptJavaBridge::CallInfo::execute() {
             _mRetjstring = static_cast<jstring>(_mEnv->CallStaticObjectMethod(_mClassID, _mMethodID));
             if (_mRetjstring) {
                 ccstd::string strValue = cc::StringUtils::getStringUTFCharsJNI(_mEnv, _mRetjstring);
-                _mRet.stringValue    = new ccstd::string(strValue);
+                _mRet.stringValue      = new ccstd::string(strValue);
             } else {
                 _mRet.stringValue = nullptr;
             }
@@ -301,7 +301,7 @@ bool JavaScriptJavaBridge::CallInfo::executeWithArgs(jvalue *args) {
             _mRetjstring = static_cast<jstring>(_mEnv->CallStaticObjectMethodA(_mClassID, _mMethodID, args));
             if (_mRetjstring) {
                 ccstd::string strValue = cc::StringUtils::getStringUTFCharsJNI(_mEnv, _mRetjstring);
-                _mRet.stringValue    = new ccstd::string(strValue);
+                _mRet.stringValue      = new ccstd::string(strValue);
             } else {
                 _mRet.stringValue = nullptr;
             }
@@ -495,7 +495,7 @@ static bool JavaScriptJavaBridge_callStaticMethod(se::State &s) { //NOLINT(reada
     auto        argc = static_cast<int>(args.size());
 
     if (argc == 3) {
-        bool        ok = false;
+        bool          ok = false;
         ccstd::string clsName;
         ccstd::string methodName;
         ccstd::string methodSig;
@@ -526,7 +526,7 @@ static bool JavaScriptJavaBridge_callStaticMethod(se::State &s) { //NOLINT(reada
     }
 
     if (argc > 3) {
-        bool        ok = false;
+        bool          ok = false;
         ccstd::string clsName;
         ccstd::string methodName;
         ccstd::string methodSig;
@@ -649,7 +649,7 @@ static bool ScriptNativeBridge_sendToNative(se::State &s) { //NOLINT(readability
     const auto &args = s.args();
     size_t      argc = args.size();
     if (argc >= 1 && argc < 3) {
-        bool        ok = false;
+        bool          ok = false;
         ccstd::string arg0;
         ok = sevalue_to_native(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "Converting arg0 failed!");

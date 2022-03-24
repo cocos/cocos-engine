@@ -52,9 +52,9 @@ using namespace cc; //NOLINT
 
 static LegacyThreadPool *gThreadPool = nullptr;
 
-static std::shared_ptr<cc::network::Downloader>                                                 gLocalDownloader = nullptr;
+static std::shared_ptr<cc::network::Downloader>                                                     gLocalDownloader = nullptr;
 static ccstd::map<ccstd::string, std::function<void(const ccstd::string &, unsigned char *, uint)>> gLocalDownloaderHandlers;
-static uint64_t                                                                                 gLocalDownloaderTaskId = 1000000;
+static uint64_t                                                                                     gLocalDownloaderTaskId = 1000000;
 
 static cc::network::Downloader *localDownloader() {
     if (!gLocalDownloader) {
@@ -82,7 +82,7 @@ static cc::network::Downloader *localDownloader() {
         gLocalDownloader->onTaskError = [=](const cc::network::DownloadTask &task,
                                             int                              errorCode,         //NOLINT
                                             int                              errorCodeInternal, //NOLINT
-                                            const ccstd::string &              errorStr) {                      //NOLINT
+                                            const ccstd::string &            errorStr) {                    //NOLINT
             SE_REPORT_ERROR("Getting image from (%s) failed!", task.requestURL.c_str());
             gLocalDownloaderHandlers.erase(task.identifier);
         };
@@ -94,7 +94,7 @@ static void localDownloaderCreateTask(const ccstd::string &url, const std::funct
     std::stringstream ss;
     ss << "jsb_loadimage_" << (gLocalDownloaderTaskId++);
     ccstd::string key  = ss.str();
-    auto        task = localDownloader()->createDownloadDataTask(url, key);
+    auto          task = localDownloader()->createDownloadDataTask(url, key);
     gLocalDownloaderHandlers.emplace(std::make_pair(task->identifier, callback));
 }
 
@@ -420,7 +420,7 @@ static bool JSB_saveByteCode(se::State &s) { //NOLINT
     const auto &args = s.args();
     int         argc = static_cast<int>(args.size());
     SE_PRECONDITION2(argc == 2, false, "Invalid number of arguments");
-    bool        ok = true;
+    bool          ok = true;
     ccstd::string srcfile;
     ccstd::string dstfile;
     ok &= sevalue_to_native(args[0], &srcfile);
@@ -905,8 +905,8 @@ static bool JSB_zipUtils_inflateMemory(se::State &s) { //NOLINT
         size_t         arg1 = 0;
         if (args[0].isString()) {
             const ccstd::string &str = args[0].toString();
-            arg0                   = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(str.c_str()));
-            arg1                   = str.size();
+            arg0                     = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(str.c_str()));
+            arg1                     = str.size();
         } else if (args[0].isObject()) {
             se::Object *obj = args[0].toObject();
             if (obj->isArrayBuffer()) {
@@ -958,7 +958,7 @@ static bool JSB_zipUtils_inflateGZipFile(se::State &s) { //NOLINT
     size_t      argc = args.size();
     if (argc == 1) {
         SE_PRECONDITION2(args[0].isString(), false, "path is invalid!");
-        ccstd::string      arg0 = args[0].toString();
+        ccstd::string    arg0 = args[0].toString();
         unsigned char *  arg1 = nullptr;
         int32_t          len  = ZipUtils::inflateGZipFile(arg0.c_str(), &arg1);
         se::HandleObject seObj(se::Object::createArrayBufferObject(arg1, len));
@@ -981,7 +981,7 @@ static bool JSB_zipUtils_isGZipFile(se::State &s) { //NOLINT
     if (argc == 1) {
         SE_PRECONDITION2(args[0].isString(), false, "path is invalid!");
         ccstd::string arg0 = args[0].toString();
-        bool        flag = ZipUtils::isGZipFile(arg0.c_str());
+        bool          flag = ZipUtils::isGZipFile(arg0.c_str());
         s.rval().setBoolean(flag);
         return true;
     }
@@ -999,8 +999,8 @@ static bool JSB_zipUtils_isGZipBuffer(se::State &s) { //NOLINT
         size_t         arg1 = 0;
         if (args[0].isString()) {
             const ccstd::string &str = args[0].toString();
-            arg0                   = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(str.c_str()));
-            arg1                   = str.size();
+            arg0                     = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(str.c_str()));
+            arg1                     = str.size();
         } else if (args[0].isObject()) {
             se::Object *obj = args[0].toObject();
             if (obj->isArrayBuffer()) {
@@ -1030,7 +1030,7 @@ static bool JSB_zipUtils_inflateCCZFile(se::State &s) { //NOLINT
     size_t      argc = args.size();
     if (argc == 1) {
         SE_PRECONDITION2(args[0].isString(), false, "path is invalid!");
-        ccstd::string      arg0 = args[0].toString();
+        ccstd::string    arg0 = args[0].toString();
         unsigned char *  arg1 = nullptr;
         int32_t          len  = ZipUtils::inflateCCZFile(arg0.c_str(), &arg1);
         se::HandleObject seObj(se::Object::createArrayBufferObject(arg1, len));
@@ -1056,8 +1056,8 @@ static bool JSB_zipUtils_inflateCCZBuffer(se::State &s) { //NOLINT
         size_t         arg1 = 0;
         if (args[0].isString()) {
             const ccstd::string &str = args[0].toString();
-            arg0                   = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(str.c_str()));
-            arg1                   = str.size();
+            arg0                     = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(str.c_str()));
+            arg1                     = str.size();
         } else if (args[0].isObject()) {
             se::Object *obj = args[0].toObject();
             if (obj->isArrayBuffer()) {
@@ -1114,8 +1114,8 @@ static bool JSB_zipUtils_isCCZBuffer(se::State &s) { //NOLINT
         size_t         arg1 = 0;
         if (args[0].isString()) {
             const ccstd::string &str = args[0].toString();
-            arg0                   = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(str.c_str()));
-            arg1                   = str.size();
+            arg0                     = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(str.c_str()));
+            arg1                     = str.size();
         } else if (args[0].isObject()) {
             se::Object *obj = args[0].toObject();
             if (obj->isArrayBuffer()) {

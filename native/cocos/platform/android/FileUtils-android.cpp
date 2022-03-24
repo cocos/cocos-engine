@@ -186,7 +186,7 @@ FileUtils::Status FileUtilsAndroid::getContents(const ccstd::string &filename, R
     }
 
     ccstd::string relativePath;
-    size_t      position = fullPath.find(ASSETS_FOLDER_NAME);
+    size_t        position = fullPath.find(ASSETS_FOLDER_NAME);
     if (0 == position) {
         // "@assets/" is at the beginning of the path and we don't want it
         relativePath += fullPath.substr(strlen(ASSETS_FOLDER_NAME));

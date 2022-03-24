@@ -27,9 +27,9 @@
 
 #pragma once
 
-#include "base/std/container/string.h"
 #include "android/asset_manager.h"
 #include "base/Macros.h"
+#include "base/std/container/string.h"
 #include "jni.h"
 #include "platform/FileUtils.h"
 
@@ -63,7 +63,7 @@ public:
     FileUtils::Status getContents(const ccstd::string &filename, ResizableBuffer *buffer) override;
 
     ccstd::string getWritablePath() const override;
-    bool        isAbsolutePath(const ccstd::string &strPath) const override;
+    bool          isAbsolutePath(const ccstd::string &strPath) const override;
 
 private:
     bool isFileExistInternal(const ccstd::string &strFilePath) const override;

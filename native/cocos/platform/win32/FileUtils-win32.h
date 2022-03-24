@@ -30,8 +30,8 @@
 
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
 
-    #include "base/std/container/string.h"
     #include "base/Macros.h"
+    #include "base/std/container/string.h"
     #include "platform/FileUtils.h"
 
 namespace cc {
@@ -48,11 +48,11 @@ class CC_DLL FileUtilsWin32 : public FileUtils {
 
 public:
     /* override functions */
-    bool                init();
+    bool                  init();
     virtual ccstd::string getWritablePath() const override;
-    virtual bool        isAbsolutePath(const ccstd::string &strPath) const override;
+    virtual bool          isAbsolutePath(const ccstd::string &strPath) const override;
     virtual ccstd::string getSuitableFOpen(const ccstd::string &filenameUtf8) const override;
-    virtual long        getFileSize(const ccstd::string &filepath);
+    virtual long          getFileSize(const ccstd::string &filepath);
 
 protected:
     virtual bool isFileExistInternal(const ccstd::string &strFilePath) const override;

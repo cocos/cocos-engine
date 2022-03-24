@@ -31,6 +31,6 @@ namespace se {
 class Object;
 }
 
-bool register_javascript_java_bridge(se::Object *obj);                           // NOLINT(readability-identifier-naming)
-bool register_script_native_bridge(se::Object *obj);                             // NOLINT(readability-identifier-naming)
+bool register_javascript_java_bridge(se::Object *obj);                               // NOLINT(readability-identifier-naming)
+bool register_script_native_bridge(se::Object *obj);                                 // NOLINT(readability-identifier-naming)
 void callPlatformStringMethod(const ccstd::string &arg0, const ccstd::string &arg1); // NOLINT(readability-identifier-naming)

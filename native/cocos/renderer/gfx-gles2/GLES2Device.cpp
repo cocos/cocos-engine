@@ -100,7 +100,7 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
     _bindingMappings.flexibleSet = _bindingMappingInfo.setIndices.back();
 
     ccstd::string extStr = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
-    _extensions   = StringUtil::split(extStr, " ");
+    _extensions          = StringUtil::split(extStr, " ");
 
     _multithreadedCommandRecording = false;
 

@@ -61,7 +61,7 @@ static int getSystemAPILevel() {
 
 struct AudioFileIndicator {
     ccstd::string extension;
-    int         smallSizeIndicator;
+    int           smallSizeIndicator;
 };
 
 static AudioFileIndicator gAudioFileIndicator[] = {
@@ -131,7 +131,7 @@ IAudioPlayer *AudioPlayerProvider::getAudioPlayer(const ccstd::string &audioFile
 
                 std::thread::id threadId = std::this_thread::get_id();
 
-                void *      infoPtr = &info;
+                void *        infoPtr = &info;
                 ccstd::string url     = info.url;
                 preloadEffect(
                     info, [infoPtr, url, threadId, pcmData, isSucceed, isReturnFromCache, isPreloadFinished](bool succeed, PcmData data) {
@@ -310,7 +310,7 @@ AudioPlayerProvider::AudioFileInfo AudioPlayerProvider::getFileInfo(
 
     if (audioFilePath[0] != '/') {
         ccstd::string relativePath;
-        size_t      position = audioFilePath.find("@assets/");
+        size_t        position = audioFilePath.find("@assets/");
 
         if (0 == position) {
             // "@assets/" is at the beginning of the path and we don't want it
@@ -350,9 +350,9 @@ AudioPlayerProvider::AudioFileInfo AudioPlayerProvider::getFileInfo(
 
 bool AudioPlayerProvider::isSmallFile(const AudioFileInfo &info) { //NOLINT(readability-convert-member-functions-to-static)
     //REFINE: If file size is smaller than 100k, we think it's a small file. This value should be set by developers.
-    auto &      audioFileInfo = const_cast<AudioFileInfo &>(info);
-    size_t      judgeCount    = sizeof(gAudioFileIndicator) / sizeof(gAudioFileIndicator[0]);
-    size_t      pos           = audioFileInfo.url.rfind('.');
+    auto &        audioFileInfo = const_cast<AudioFileInfo &>(info);
+    size_t        judgeCount    = sizeof(gAudioFileIndicator) / sizeof(gAudioFileIndicator[0]);
+    size_t        pos           = audioFileInfo.url.rfind('.');
     ccstd::string extension;
     if (pos != ccstd::string::npos) {
         extension = audioFileInfo.url.substr(pos);
@@ -397,7 +397,7 @@ void AudioPlayerProvider::clearAllPcmCaches() {
 }
 
 PcmAudioPlayer *AudioPlayerProvider::obtainPcmAudioPlayer(const ccstd::string &url,
-                                                          const PcmData &    pcmData) {
+                                                          const PcmData &      pcmData) {
     PcmAudioPlayer *pcmPlayer = nullptr;
     if (pcmData.isValid()) {
         pcmPlayer = new (std::nothrow) PcmAudioPlayer(_mixController, _callerThreadUtils);

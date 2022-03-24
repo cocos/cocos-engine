@@ -227,7 +227,7 @@ private:
         double        doubleVal;
         bool          boolVal;
 
-        ccstd::string *        strVal;
+        ccstd::string * strVal;
         ValueVector *   vectorVal;
         ValueMap *      mapVal;
         ValueMapIntKey *intKeyMapVal;

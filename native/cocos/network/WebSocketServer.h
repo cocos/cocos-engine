@@ -39,8 +39,8 @@
     #include <list>
     #include <memory>
     #include <mutex>
-    #include "base/std/container/string.h"
     #include <thread>
+    #include "base/std/container/string.h"
     #include "base/std/container/unordered_map.h"
 
     #if CC_PLATFORM == CC_PLATFORM_OHOS
@@ -97,9 +97,9 @@ public:
     unsigned char *getData() { return _underlyingData.data() + LWS_PRE; }
 
 private:
-    ccstd::vector<unsigned char>             _underlyingData;
-    int                                      _consumed = 0;
-    bool                                     _isBinary = false;
+    ccstd::vector<unsigned char>               _underlyingData;
+    int                                        _consumed = 0;
+    bool                                       _isBinary = false;
     std::function<void(const ccstd::string &)> _callback;
 };
 
@@ -190,18 +190,18 @@ private:
 
     void onDestroyClient();
 
-    struct lws *                          _wsi = nullptr;
-    ccstd::map<ccstd::string, ccstd::string>  _headers;
-    std::list<std::shared_ptr<DataFrame>> _sendQueue;
-    std::shared_ptr<DataFrame>            _prevPkg;
-    bool                                  _closed      = false;
-    ccstd::string                           _closeReason = "close connection";
-    int                                   _closeCode   = 1000;
-    std::atomic<ReadyState>               _readyState{ReadyState::CLOSED};
+    struct lws *                             _wsi = nullptr;
+    ccstd::map<ccstd::string, ccstd::string> _headers;
+    std::list<std::shared_ptr<DataFrame>>    _sendQueue;
+    std::shared_ptr<DataFrame>               _prevPkg;
+    bool                                     _closed      = false;
+    ccstd::string                            _closeReason = "close connection";
+    int                                      _closeCode   = 1000;
+    std::atomic<ReadyState>                  _readyState{ReadyState::CLOSED};
 
     // Attention: do not reference **this** in callbacks
-    std::function<void(int, const ccstd::string &)>   _onclose;
-    std::function<void(const ccstd::string &)>        _onerror;
+    std::function<void(int, const ccstd::string &)> _onclose;
+    std::function<void(const ccstd::string &)>      _onerror;
     std::function<void(std::shared_ptr<DataFrame>)> _ontext;
     std::function<void(std::shared_ptr<DataFrame>)> _onbinary;
     std::function<void(std::shared_ptr<DataFrame>)> _ondata;
@@ -266,18 +266,18 @@ private:
     std::shared_ptr<WebSocketServerConnection> findConnection(struct lws *wsi);
     void                                       destroyContext();
 
-    ccstd::string  _host;
-    lws_context *_ctx   = nullptr;
-    uv_async_t   _async = {0};
+    ccstd::string _host;
+    lws_context * _ctx   = nullptr;
+    uv_async_t    _async = {0};
 
     mutable std::mutex                                                             _connsMtx;
     ccstd::unordered_map<struct lws *, std::shared_ptr<WebSocketServerConnection>> _conns;
 
     // Attention: do not reference **this** in callbacks
-    std::function<void(const ccstd::string &)>                        _onlistening;
-    std::function<void(const ccstd::string &)>                        _onerror;
-    std::function<void(const ccstd::string &)>                        _onclose;
-    std::function<void(const ccstd::string &)>                        _onclose_cb;
+    std::function<void(const ccstd::string &)>                      _onlistening;
+    std::function<void(const ccstd::string &)>                      _onerror;
+    std::function<void(const ccstd::string &)>                      _onclose;
+    std::function<void(const ccstd::string &)>                      _onclose_cb;
     std::function<void()>                                           _onend;
     std::function<void()>                                           _onbegin;
     std::function<void(std::shared_ptr<WebSocketServerConnection>)> _onconnection;

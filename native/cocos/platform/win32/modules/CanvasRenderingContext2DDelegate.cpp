@@ -184,8 +184,8 @@ CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measure
 }
 
 void CanvasRenderingContext2DDelegate::updateFont(const ccstd::string &fontName,
-                                                  float              fontSize,
-                                                  bool               bold,
+                                                  float                fontSize,
+                                                  bool                 bold,
                                                   bool /* italic */,
                                                   bool /* oblique */,
                                                   bool /* smallCaps */) {
@@ -193,17 +193,17 @@ void CanvasRenderingContext2DDelegate::updateFont(const ccstd::string &fontName,
         _fontName = fontName;
         _fontSize = static_cast<int>(fontSize);
         ccstd::string fontPath;
-        LOGFONTA    tFont = {0};
+        LOGFONTA      tFont = {0};
         if (!_fontName.empty()) {
             // firstly, try to create font from ttf file
             const auto &fontInfoMap = getFontFamilyNameMap();
             auto        iter        = fontInfoMap.find(_fontName);
             if (iter != fontInfoMap.end()) {
-                fontPath                = iter->second;
+                fontPath                  = iter->second;
                 ccstd::string tmpFontPath = fontPath;
-                size_t      nFindPos    = tmpFontPath.rfind("/");
-                tmpFontPath             = &tmpFontPath[nFindPos + 1];
-                nFindPos                = tmpFontPath.rfind(".");
+                size_t        nFindPos    = tmpFontPath.rfind("/");
+                tmpFontPath               = &tmpFontPath[nFindPos + 1];
+                nFindPos                  = tmpFontPath.rfind(".");
                 // IDEA: draw ttf failed if font file name not equal font face name
                 // for example: "DejaVuSansMono-Oblique" not equal "DejaVu Sans Mono"  when using DejaVuSansMono-Oblique.ttf
                 _fontName = tmpFontPath.substr(0, nFindPos);

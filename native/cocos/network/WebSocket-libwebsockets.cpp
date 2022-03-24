@@ -50,11 +50,11 @@
 #include <list>
 #include <memory> // for std::shared_ptr
 #include <mutex>
-#include "base/std/container/string.h"
 #include <thread>
 #include "application/ApplicationManager.h"
 #include "base/Scheduler.h"
 #include "base/std/container/queue.h"
+#include "base/std/container/string.h"
 #include "network/Uri.h"
 #include "network/WebSocket.h"
 
@@ -208,9 +208,9 @@ public:
     ~WebSocketImpl();
 
     bool init(const cc::network::WebSocket::Delegate &delegate,
-              const ccstd::string &                     url,
-              const ccstd::vector<ccstd::string> *      protocols  = nullptr,
-              const ccstd::string &                     caFilePath = "");
+              const ccstd::string &                   url,
+              const ccstd::vector<ccstd::string> *    protocols  = nullptr,
+              const ccstd::string &                   caFilePath = "");
 
     void                              send(const ccstd::string &message);
     void                              send(const unsigned char *binaryMsg, unsigned int len);
@@ -218,11 +218,11 @@ public:
     void                              closeAsync();
     void                              closeAsync(int code, const ccstd::string &reason);
     cc::network::WebSocket::State     getReadyState() const;
-    const ccstd::string &               getUrl() const;
-    const ccstd::string &               getProtocol() const;
+    const ccstd::string &             getUrl() const;
+    const ccstd::string &             getProtocol() const;
     cc::network::WebSocket::Delegate *getDelegate() const;
 
-    size_t      getBufferedAmount() const;
+    size_t        getBufferedAmount() const;
     ccstd::string getExtensions() const;
 
 private:
@@ -241,13 +241,13 @@ private:
     cc::network::WebSocket *      _ws;
     cc::network::WebSocket::State _readyState;
     std::mutex                    _readyStateMutex;
-    ccstd::string                   _url;
+    ccstd::string                 _url;
     ccstd::vector<char>           _receivedData;
 
     struct lws *          _wsInstance;
     struct lws_protocols *_lwsProtocols;
-    ccstd::string           _clientSupportedProtocols;
-    ccstd::string           _selectedProtocol;
+    ccstd::string         _clientSupportedProtocols;
+    ccstd::string         _selectedProtocol;
 
     std::shared_ptr<std::atomic<bool>> _isDestroyed;
     cc::network::WebSocket::Delegate * _delegate;
@@ -287,8 +287,8 @@ static std::atomic_bool                wsPolling{false};
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
 static ccstd::string getFileNameForPath(const ccstd::string &filePath) {
-    ccstd::string  fileName     = filePath;
-    const size_t lastSlashIdx = fileName.find_last_of("\\/");
+    ccstd::string fileName     = filePath;
+    const size_t  lastSlashIdx = fileName.find_last_of("\\/");
     if (ccstd::string::npos != lastSlashIdx) {
         fileName.erase(0, lastSlashIdx + 1);
     }
@@ -659,9 +659,9 @@ WebSocketImpl::~WebSocketImpl() {
 }
 
 bool WebSocketImpl::init(const cc::network::WebSocket::Delegate &delegate,
-                         const ccstd::string &                     url,
-                         const ccstd::vector<ccstd::string> *      protocols /* = nullptr*/,
-                         const ccstd::string &                     caFilePath /* = ""*/) {
+                         const ccstd::string &                   url,
+                         const ccstd::vector<ccstd::string> *    protocols /* = nullptr*/,
+                         const ccstd::string &                   caFilePath /* = ""*/) {
     _delegate   = const_cast<cc::network::WebSocket::Delegate *>(&delegate);
     _url        = url;
     _caFilePath = caFilePath;
@@ -1352,7 +1352,7 @@ WebSocket::~WebSocket() {
     delete _impl;
 }
 
-bool WebSocket::init(const Delegate &                  delegate,
+bool WebSocket::init(const Delegate &                    delegate,
                      const ccstd::string &               url,
                      const ccstd::vector<ccstd::string> *protocols /* = nullptr*/,
                      const ccstd::string &               caFilePath /* = ""*/) {

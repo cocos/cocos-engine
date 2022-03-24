@@ -27,10 +27,10 @@
 #pragma once
 
 #include <functional>
-#include "base/std/container/string.h"
 #include "base/Macros.h"
 #include "base/RefCounted.h"
 #include "base/std/container/map.h"
+#include "base/std/container/string.h"
 
 #ifndef OBJC_CLASS
     #ifdef __OBJC__
@@ -164,9 +164,9 @@ protected:
     bool _keepAspectRatioEnabled;
 
     ccstd::string _videoURL;
-    Source      _videoSource;
+    Source        _videoSource;
 
-    int                                            _videoPlayerIndex;
+    int                                              _videoPlayerIndex;
     ccstd::map<ccstd::string, ccVideoPlayerCallback> _eventCallback;
 
     void *_videoView;

@@ -237,7 +237,7 @@ bool UTF32ToUTF16(const std::u32string &utf32, std::u16string &outUtf16) { //NOL
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
 ccstd::string getStringUTFCharsJNI(JNIEnv *env, jstring srcjStr, bool *ret) {
-    ccstd::string          utf8Str;
+    ccstd::string        utf8Str;
     auto *               unicodeChar       = static_cast<const uint16_t *>(env->GetStringChars(srcjStr, nullptr));
     size_t               unicodeCharLength = env->GetStringLength(srcjStr);
     const std::u16string unicodeStr(reinterpret_cast<const char16_t *>(unicodeChar), unicodeCharLength);

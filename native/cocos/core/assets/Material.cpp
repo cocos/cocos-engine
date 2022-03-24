@@ -160,9 +160,9 @@ void Material::setProperty(const ccstd::string &name, const MaterialPropertyVari
     }
 }
 
-#define CC_MATERIAL_SETPROPERTY_IMPL(funcNameSuffix, type)                                                                   \
+#define CC_MATERIAL_SETPROPERTY_IMPL(funcNameSuffix, type)                                                                     \
     void Material::setProperty##funcNameSuffix(const ccstd::string &name, type val, index_t passIdx /* = CC_INVALID_INDEX*/) { \
-        setProperty(name, val, passIdx);                                                                                     \
+        setProperty(name, val, passIdx);                                                                                       \
     }
 
 CC_MATERIAL_SETPROPERTY_IMPL(Float32, float)
@@ -179,14 +179,14 @@ CC_MATERIAL_SETPROPERTY_IMPL(GFXTexture, gfx::Texture *)
 
 #undef CC_MATERIAL_SETPROPERTY_IMPL
 
-#define CC_MATERIAL_SETPROPERTY_ARRAY_IMPL(funcNameSuffix, type)                                                                                         \
+#define CC_MATERIAL_SETPROPERTY_ARRAY_IMPL(funcNameSuffix, type)                                                                                           \
     void Material::setProperty##funcNameSuffix##Array(const ccstd::string &name, const ccstd::vector<type> &val, index_t /*passIdx = CC_INVALID_INDEX*/) { \
-        MaterialPropertyList propertyArr;                                                                                                                \
-        propertyArr.reserve(val.size());                                                                                                                 \
-        for (const auto &e : val) {                                                                                                                      \
-            propertyArr.emplace_back(e);                                                                                                                 \
-        }                                                                                                                                                \
-        setProperty(name, propertyArr);                                                                                                                  \
+        MaterialPropertyList propertyArr;                                                                                                                  \
+        propertyArr.reserve(val.size());                                                                                                                   \
+        for (const auto &e : val) {                                                                                                                        \
+            propertyArr.emplace_back(e);                                                                                                                   \
+        }                                                                                                                                                  \
+        setProperty(name, propertyArr);                                                                                                                    \
     }
 
 CC_MATERIAL_SETPROPERTY_ARRAY_IMPL(Float32, float)

@@ -26,10 +26,10 @@
 #pragma once
 
 #include <cstdint>
-#include "base/std/container/string.h"
 #include "base/Ptr.h"
 #include "base/RefCounted.h"
 #include "base/TypeDef.h"
+#include "base/std/container/string.h"
 #include "core/ArrayBuffer.h"
 #include "core/TypedArray.h"
 #include "core/assets/EffectAsset.h"
@@ -261,16 +261,16 @@ public:
     IPassInfoFull getPassInfoFull() const;
 
     // infos
-    inline Root *                                    getRoot() const { return _root; }
-    inline gfx::Device *                             getDevice() const { return _device; }
-    inline IProgramInfo *                            getShaderInfo() const { return _shaderInfo; }
-    gfx::DescriptorSetLayout *                       getLocalSetLayout() const;
+    inline Root *                                      getRoot() const { return _root; }
+    inline gfx::Device *                               getDevice() const { return _device; }
+    inline IProgramInfo *                              getShaderInfo() const { return _shaderInfo; }
+    gfx::DescriptorSetLayout *                         getLocalSetLayout() const;
     inline const ccstd::string &                       getProgram() const { return _programName; }
     inline const Record<ccstd::string, IPropertyInfo> &getProperties() const { return _properties; }
-    inline const MacroRecord &                       getDefines() const { return _defines; }
-    inline MacroRecord &                             getDefines() { return _defines; }
-    inline index_t                                   getPassIndex() const { return _passIndex; }
-    inline index_t                                   getPropertyIndex() const { return _propertyIndex; }
+    inline const MacroRecord &                         getDefines() const { return _defines; }
+    inline MacroRecord &                               getDefines() { return _defines; }
+    inline index_t                                     getPassIndex() const { return _passIndex; }
+    inline index_t                                     getPropertyIndex() const { return _propertyIndex; }
     // data
     inline const IPassDynamics &           getDynamics() const { return _dynamics; }
     inline const ccstd::vector<IBlockRef> &getBlocks() const { return _blocks; }
@@ -317,17 +317,17 @@ protected:
     IntrusivePtr<gfx::DescriptorSet>         _descriptorSet;
     IntrusivePtr<gfx::PipelineLayout>        _pipelineLayout;
     // internal data
-    index_t                       _passIndex{0};
-    index_t                       _propertyIndex{0};
+    index_t                         _passIndex{0};
+    index_t                         _propertyIndex{0};
     ccstd::string                   _programName;
-    IPassDynamics                 _dynamics;
+    IPassDynamics                   _dynamics;
     Record<ccstd::string, uint32_t> _propertyHandleMap;
-    IntrusivePtr<ArrayBuffer>     _rootBlock;
-    ccstd::vector<IBlockRef>      _blocks; // Point to position in _rootBlock
+    IntrusivePtr<ArrayBuffer>       _rootBlock;
+    ccstd::vector<IBlockRef>        _blocks; // Point to position in _rootBlock
 
     IProgramInfo *                                           _shaderInfo; // weakref to template of ProgramLib
     MacroRecord                                              _defines;
-    Record<ccstd::string, IPropertyInfo>                       _properties;
+    Record<ccstd::string, IPropertyInfo>                     _properties;
     IntrusivePtr<gfx::Shader>                                _shader;
     gfx::BlendState                                          _blendState{};
     gfx::DepthStencilState                                   _depthStencilState{};
@@ -335,7 +335,7 @@ protected:
     pipeline::RenderPriority                                 _priority{pipeline::RenderPriority::DEFAULT};
     pipeline::RenderPassStage                                _stage{pipeline::RenderPassStage::DEFAULT};
     uint32_t                                                 _phase{0};
-    ccstd::string                                              _phaseString;
+    ccstd::string                                            _phaseString;
     gfx::PrimitiveMode                                       _primitive{gfx::PrimitiveMode::TRIANGLE_LIST};
     BatchingSchemes                                          _batchingScheme{BatchingSchemes::NONE};
     gfx::DynamicStateFlagBit                                 _dynamicStates{gfx::DynamicStateFlagBit::NONE};

@@ -27,8 +27,8 @@
 
 #include <future>
 #include <memory>
-#include "platform/java/jni/glue/MessagePipe.h"
 #include "base/std/container/string.h"
+#include "platform/java/jni/glue/MessagePipe.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     #include <android/asset_manager.h>
@@ -75,7 +75,7 @@ public:
     void setSdkVersion(int sdkVersion);
     int  getSdkVersion() const;
 
-    void        setObbPath(const ccstd::string &path);
+    void          setObbPath(const ccstd::string &path);
     ccstd::string getObbPath() const;
 
     bool isRunning() const;
@@ -118,7 +118,7 @@ private:
     bool _animating{false};
 
     std::promise<void>           _threadPromise;
-    ccstd::string                  _obbPath;
+    ccstd::string                _obbPath;
     ResourceManagerType *        _resourceManager{nullptr};
     NativeWindowType *           _window{nullptr};
     NativeWindowType *           _pendingWindow{nullptr};

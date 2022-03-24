@@ -616,7 +616,7 @@ bool ZipFile::getFileData(const ccstd::string &fileName, ResizableBuffer *buffer
 ccstd::string ZipFile::getFirstFilename() {
     auto zipFile = _data->zipFile.lock();
     if (unzGoToFirstFile(*zipFile) != UNZ_OK) return EMPTY_FILE_NAME;
-    ccstd::string   path;
+    ccstd::string path;
     unz_file_info info;
     getCurrentFileInfo(&path, &info);
     return path;
@@ -625,7 +625,7 @@ ccstd::string ZipFile::getFirstFilename() {
 ccstd::string ZipFile::getNextFilename() {
     auto zipFile = _data->zipFile.lock();
     if (unzGoToNextFile(*zipFile) != UNZ_OK) return EMPTY_FILE_NAME;
-    ccstd::string   path;
+    ccstd::string path;
     unz_file_info info;
     getCurrentFileInfo(&path, &info);
     return path;

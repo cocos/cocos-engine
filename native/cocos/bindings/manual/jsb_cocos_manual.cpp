@@ -63,9 +63,9 @@ public:
 
 private:
     cc::SAXParser _parser;
-    ccstd::string   _result;
+    ccstd::string _result;
     bool          _isStoringCharacters;
-    ccstd::string   _currentValue;
+    ccstd::string _currentValue;
 };
 
 // cc.PlistParser.getInstance()
@@ -204,7 +204,7 @@ static bool JSB_localStorageGetItem(se::State &s) { // NOLINT(readability-identi
     const auto &args = s.args();
     size_t      argc = args.size();
     if (argc == 1) {
-        bool        ok = true;
+        bool          ok = true;
         ccstd::string key;
         ok = sevalue_to_native(args[0], &key);
         SE_PRECONDITION2(ok, false, "Error processing arguments");
@@ -228,7 +228,7 @@ static bool JSB_localStorageRemoveItem(const se::State &s) { // NOLINT(readabili
     const auto &args = s.args();
     size_t      argc = args.size();
     if (argc == 1) {
-        bool        ok = true;
+        bool          ok = true;
         ccstd::string key;
         ok = sevalue_to_native(args[0], &key);
         SE_PRECONDITION2(ok, false, "Error processing arguments");
@@ -245,7 +245,7 @@ static bool JSB_localStorageSetItem(const se::State &s) { // NOLINT(readability-
     const auto &args = s.args();
     size_t      argc = args.size();
     if (argc == 2) {
-        bool        ok = true;
+        bool          ok = true;
         ccstd::string key;
         ok = sevalue_to_native(args[0], &key);
         SE_PRECONDITION2(ok, false, "Error processing arguments");
@@ -489,9 +489,9 @@ static bool js_engine_CanvasRenderingContext2D_fillText(const se::State &s) { //
     CC_UNUSED bool ok   = true;
     if (argc == 5) {
         ccstd::string arg0;
-        float       arg1 = 0;
-        float       arg2 = 0;
-        float       arg3 = 0;
+        float         arg1 = 0;
+        float         arg2 = 0;
+        float         arg3 = 0;
         ok &= sevalue_to_native(args[0], &arg0);
         ok &= sevalue_to_native(args[1], &arg1);
         ok &= sevalue_to_native(args[2], &arg2);
@@ -520,9 +520,9 @@ static bool js_engine_CanvasRenderingContext2D_strokeText(const se::State &s) { 
     bool        ok   = true;
     if (argc == 5) {
         ccstd::string arg0;
-        float       arg1 = 0;
-        float       arg2 = 0;
-        float       arg3 = 0;
+        float         arg1 = 0;
+        float         arg2 = 0;
+        float         arg3 = 0;
         ok &= sevalue_to_native(args[0], &arg0);
         ok &= sevalue_to_native(args[1], &arg1);
         ok &= sevalue_to_native(args[2], &arg2);

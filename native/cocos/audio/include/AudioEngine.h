@@ -335,7 +335,7 @@ protected:
 
     struct AudioInfo {
         const ccstd::string *filePath;
-        ProfileHelper *    profileHelper;
+        ProfileHelper *      profileHelper;
 
         float      volume;
         bool       loop;

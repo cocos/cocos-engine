@@ -301,7 +301,7 @@ private:
         struct Node *       next = nullptr;
     };
     static ccstd::unordered_map<ccstd::string, Node *> listeners;
-    static uint32_t                                  hashListenerId; //simple increment hash
+    static uint32_t                                    hashListenerId; //simple increment hash
 };
 
 } // end of namespace cc

@@ -28,8 +28,8 @@
 #ifndef __JSB_LOCALSTORAGE_H
 #define __JSB_LOCALSTORAGE_H
 
-#include "base/std/container/string.h"
 #include "base/Macros.h"
+#include "base/std/container/string.h"
 
 /**
  * @addtogroup storage

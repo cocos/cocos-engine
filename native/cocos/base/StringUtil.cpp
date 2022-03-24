@@ -28,9 +28,9 @@
 #include <algorithm>
 #include <cctype>
 #include <cstdarg>
-#include "base/std/container/string.h"
 #include "base/ZipUtils.h"
 #include "base/base64.h"
+#include "base/std/container/string.h"
 #include "memory/Memory.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
@@ -164,11 +164,11 @@ ccstd::string &StringUtil::toupper(ccstd::string &str) {
 }
 
 ccstd::string GzipedString::value() const { // NOLINT(readability-convert-member-functions-to-static)
-    uint8_t *   outGzip{nullptr};
-    uint8_t *   outBase64{nullptr};
-    auto *      input       = reinterpret_cast<unsigned char *>(const_cast<char *>(_str.c_str()));
-    auto        lenOfBase64 = base64Decode(input, static_cast<unsigned int>(_str.size()), &outBase64);
-    auto        lenofUnzip  = ZipUtils::inflateMemory(outBase64, static_cast<ssize_t>(lenOfBase64), &outGzip);
+    uint8_t *     outGzip{nullptr};
+    uint8_t *     outBase64{nullptr};
+    auto *        input       = reinterpret_cast<unsigned char *>(const_cast<char *>(_str.c_str()));
+    auto          lenOfBase64 = base64Decode(input, static_cast<unsigned int>(_str.size()), &outBase64);
+    auto          lenofUnzip  = ZipUtils::inflateMemory(outBase64, static_cast<ssize_t>(lenOfBase64), &outGzip);
     ccstd::string ret(outGzip, outGzip + lenofUnzip);
     free(outGzip);
     free(outBase64);

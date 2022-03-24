@@ -70,7 +70,7 @@ struct CCMTLGPUPipelineLayout {
 };
 
 struct CCMTLGPUUniformBlock {
-    ccstd::string           name;
+    ccstd::string    name;
     uint             set           = INVALID_BINDING;
     uint             binding       = INVALID_BINDING;
     uint             mappedBinding = INVALID_BINDING;
@@ -80,7 +80,7 @@ struct CCMTLGPUUniformBlock {
 };
 
 struct CCMTLGPUSamplerBlock {
-    ccstd::string           name;
+    ccstd::string    name;
     uint             set            = INVALID_BINDING;
     uint             binding        = INVALID_BINDING;
     uint             textureBinding = INVALID_BINDING;
@@ -92,8 +92,8 @@ struct CCMTLGPUSamplerBlock {
 
 struct CCMTLGPUSubpassAttachment {
     ccstd::string name;
-    uint   set     = INVALID_BINDING;
-    uint   binding = INVALID_BINDING;
+    uint          set     = INVALID_BINDING;
+    uint          binding = INVALID_BINDING;
 };
 
 struct CCMTLGPUShader {

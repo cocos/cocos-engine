@@ -84,10 +84,10 @@ CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measure
 }
 
 void CanvasRenderingContext2DDelegate::updateFont(const ccstd::string &fontName,
-                                                  float              fontSize,
-                                                  bool               bold,
-                                                  bool               italic,
-                                                  bool               oblique,
+                                                  float                fontSize,
+                                                  bool                 bold,
+                                                  bool                 italic,
+                                                  bool                 oblique,
                                                   bool /* smallCaps */) {
 }
 

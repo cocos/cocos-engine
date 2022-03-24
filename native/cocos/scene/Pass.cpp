@@ -109,14 +109,14 @@ void Pass::fillPipelineInfo(Pass *pass, const IPassInfoFull &info) {
 /* static */
 uint64_t Pass::getPassHash(Pass *pass) {
     const ccstd::string &shaderKey = ProgramLib::getInstance()->getKey(pass->getProgram(), pass->getDefines());
-    std::stringstream  res;
+    std::stringstream    res;
     res << shaderKey << "," << static_cast<uint32_t>(pass->_primitive) << "," << static_cast<uint32_t>(pass->_dynamicStates);
     res << serializeBlendState(pass->_blendState);
     res << serializeDepthStencilState(pass->_depthStencilState);
     res << serializeRasterizerState(pass->_rs);
 
     ccstd::string str{res.str()};
-    std::size_t seed = 666;
+    std::size_t   seed = 666;
     boost::hash_range(seed, str.begin(), str.end());
     return static_cast<uint32_t>(seed);
 }
@@ -322,12 +322,12 @@ void Pass::resetTexture(const ccstd::string &name, index_t index /* = CC_INVALID
     }
     const gfx::Type type    = Pass::getTypeFromHandle(handle);
     const uint32_t  binding = Pass::getBindingFromHandle(handle);
-    ccstd::string     texName;
+    ccstd::string   texName;
     IPropertyInfo * info = nullptr;
     auto            iter = _properties.find(name);
     if (iter != _properties.end()) {
         if (iter->second.value.has_value()) {
-            info                 = &iter->second;
+            info                   = &iter->second;
             ccstd::string *pStrVal = cc::get_if<ccstd::string>(&iter->second.value.value());
             if (pStrVal != nullptr) {
                 texName = (*pStrVal) + "-texture";
@@ -562,8 +562,8 @@ void Pass::doInit(const IPassInfoFull &info, bool /*copyDefines*/ /* = false */)
         _descriptorSet->bindBuffer(binding, bufferView);
     }
     // store handles
-    _propertyHandleMap                            = handleMap;
-    auto &                        directHandleMap = _propertyHandleMap;
+    _propertyHandleMap                              = handleMap;
+    auto &                          directHandleMap = _propertyHandleMap;
     Record<ccstd::string, uint32_t> indirectHandleMap;
     for (const auto &properties : _properties) {
         if (!properties.second.handleInfo.has_value()) {

@@ -93,8 +93,8 @@ static bool WebSocketServer_listen(se::State &s) {
         return false;
     }
 
-    WSSPTR                                   cobj     = (WSSPTR)s.nativeThisObject();
-    int                                      arg_port = 0;
+    WSSPTR                                     cobj     = (WSSPTR)s.nativeThisObject();
+    int                                        arg_port = 0;
     ccstd::string                              arg_host = "";
     std::function<void(const ccstd::string &)> arg_callback;
 
@@ -222,9 +222,9 @@ static bool WebSocketServer_onclose(se::State &s) {
         SE_REPORT_ERROR("argument type error, function expected!");
     }
 
-    WSSPTR                                   cobj = (WSSPTR)s.nativeThisObject();
+    WSSPTR                                     cobj = (WSSPTR)s.nativeThisObject();
     std::function<void(const ccstd::string &)> callback;
-    std::weak_ptr<WebSocketServer>           serverWeak = *cobj;
+    std::weak_ptr<WebSocketServer>             serverWeak = *cobj;
     s.thisObject()->setProperty("__onclose", args[0]);
 
     callback = [serverWeak](const ccstd::string &err) {
@@ -267,7 +267,7 @@ static bool WebSocketServer_close(se::State &s) {
         return false;
     }
 
-    WSSPTR                                   cobj = (WSSPTR)s.nativeThisObject();
+    WSSPTR                                     cobj = (WSSPTR)s.nativeThisObject();
     std::function<void(const ccstd::string &)> callback;
 
     if (argc == 1) {
@@ -449,9 +449,9 @@ static bool WebSocketServer_Connection_close(se::State &s) {
     }
 
     std::function<void(const ccstd::string &)> callback;
-    int                                      arg_code = -1;
+    int                                        arg_code = -1;
     ccstd::string                              arg_reason;
-    bool                                     ok;
+    bool                                       ok;
 
     if (argc >= 1) {
         ok = sevalue_to_native(args[0], &arg_code);

@@ -26,7 +26,6 @@
 #pragma once
 
 #include <cstdint>
-#include "base/std/container/string.h"
 #include "Blackboard.h"
 #include "CallbackPass.h"
 #include "DevicePass.h"
@@ -34,6 +33,7 @@
 #include "PassNodeBuilder.h"
 #include "ResourceEntry.h"
 #include "ResourceNode.h"
+#include "base/std/container/string.h"
 
 namespace cc {
 namespace framegraph {

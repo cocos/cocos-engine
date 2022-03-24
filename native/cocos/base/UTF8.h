@@ -28,8 +28,8 @@
 #pragma once
 
 #include <sstream>
-#include "base/std/container/string.h"
 #include "base/Macros.h"
+#include "base/std/container/string.h"
 #include "base/std/container/vector.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
@@ -189,7 +189,7 @@ class CC_DLL StringUTF8 {
 public:
     struct CharUTF8 {
         ccstd::string _char;
-        bool        isAnsi() { return _char.size() == 1; }
+        bool          isAnsi() { return _char.size() == 1; }
     };
     using CharUTF8Store = ccstd::vector<CharUTF8>;
 

@@ -131,8 +131,8 @@ public:
 
 private:
     struct ResourceRecord {
-        Resource *resource = nullptr;
-        ccstd::string    initStack;
+        Resource *    resource = nullptr;
+        ccstd::string initStack;
     };
 
     static ccstd::vector<ResourceRecord> resources;

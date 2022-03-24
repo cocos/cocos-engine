@@ -49,8 +49,8 @@ ISystem::Ptr ISystem::createSystemInterface() {
 }
 
 ccstd::string ISystem::getCurrentLanguageToString() {
-    LanguageType language    = getCurrentLanguage();
-    ccstd::string  languageStr = ""; // NOLINT
+    LanguageType  language    = getCurrentLanguage();
+    ccstd::string languageStr = ""; // NOLINT
     switch (language) {
         case ISystem::LanguageType::ENGLISH:
             languageStr = "en";

@@ -60,7 +60,7 @@ LogLevel Log::slogLevel = LogLevel::LEVEL_DEBUG;
 LogLevel Log::slogLevel = LogLevel::INFO;
 #endif
 
-FILE *                           Log::slogFile = nullptr;
+FILE *                             Log::slogFile = nullptr;
 const ccstd::vector<ccstd::string> LOG_LEVEL_DESCS{"FATAL", "ERROR", "WARN", "INFO", "DEBUG"};
 
 void Log::setLogFile(const ccstd::string &filename) {

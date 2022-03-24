@@ -110,7 +110,7 @@ public:
         bool ret = false;
         do {
             ccstd::string dir;
-            size_t      found = _tempFileName.find_last_of("/\\");
+            size_t        found = _tempFileName.find_last_of("/\\");
             if (found == ccstd::string::npos) {
                 _errCode         = DownloadTask::ERROR_INVALID_PARAMS;
                 _errCodeInternal = 0;
@@ -196,13 +196,13 @@ private:
     int64_t _totalBytesReceived;
 
     // error
-    int         _errCode;
-    int         _errCodeInternal;
+    int           _errCode;
+    int           _errCodeInternal;
     ccstd::string _errDescription;
 
     // for saving data
-    ccstd::string                  _fileName;
-    ccstd::string                  _tempFileName;
+    ccstd::string                _fileName;
+    ccstd::string                _tempFileName;
     ccstd::vector<unsigned char> _buf;
     FILE *                       _fp;
 
@@ -218,7 +218,7 @@ private:
         _header.reserve(384); // pre alloc header string buffer
     }
 };
-int                     DownloadTaskCURL::_sSerialId;
+int                       DownloadTaskCURL::_sSerialId;
 ccstd::set<ccstd::string> DownloadTaskCURL::_sStoragePathSet;
 
 typedef std::pair<std::shared_ptr<const DownloadTask>, DownloadTaskCURL *> TaskWrapper;

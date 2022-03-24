@@ -64,15 +64,15 @@ public:
     void initWithTypeIndex(int index);
 
     ccstd::string        toString() const;
-    virtual int        typeAsNumber() const;
+    virtual int          typeAsNumber() const;
     const ccstd::string &typeForIndex(int index) const;
 
-    void               setEndpoint(const ccstd::string &endpoint) { _endpoint = endpoint; };
+    void                 setEndpoint(const ccstd::string &endpoint) { _endpoint = endpoint; };
     const ccstd::string &getEndpoint() const { return _endpoint; };
-    void               setEvent(const ccstd::string &event) { _name = event; };
+    void                 setEvent(const ccstd::string &event) { _name = event; };
     const ccstd::string &getEvent() const { return _name; };
 
-    void                       addData(const ccstd::string &data);
+    void                         addData(const ccstd::string &data);
     ccstd::vector<ccstd::string> getData() const { return _args; };
     virtual ccstd::string        stringify() const;
 
@@ -95,7 +95,7 @@ class SocketIOPacketV10x : public SocketIOPacket {
 public:
     SocketIOPacketV10x();
     ~SocketIOPacketV10x() override;
-    int         typeAsNumber() const override;
+    int           typeAsNumber() const override;
     ccstd::string stringify() const override;
 
 private:
@@ -161,7 +161,7 @@ ccstd::string SocketIOPacket::toString() const {
 }
 int SocketIOPacket::typeAsNumber() const {
     ccstd::string::size_type num  = 0;
-    auto                   item = std::find(_types.begin(), _types.end(), _type);
+    auto                     item = std::find(_types.begin(), _types.end(), _type);
     if (item != _types.end()) {
         num = item - _types.begin();
     }
@@ -227,7 +227,7 @@ SocketIOPacketV10x::SocketIOPacketV10x() {
 
 int SocketIOPacketV10x::typeAsNumber() const {
     ccstd::vector<ccstd::string>::size_type num  = 0;
-    auto                                  item = std::find(_typesMessage.begin(), _typesMessage.end(), _type);
+    auto                                    item = std::find(_typesMessage.begin(), _typesMessage.end(), _type);
     if (item != _typesMessage.end()) { //it's a message
         num = item - _typesMessage.begin();
         num += 40;
@@ -301,9 +301,9 @@ class SIOClientImpl : public cc::RefCounted,
                       public WebSocket::Delegate {
 private:
     int                             _heartbeat, _timeout;
-    ccstd::string                     _sid;
+    ccstd::string                   _sid;
     Uri                             _uri;
-    ccstd::string                     _caFilePath;
+    ccstd::string                   _caFilePath;
     bool                            _connected;
     SocketIOPacket::SocketIOVersion _version;
 
@@ -345,9 +345,9 @@ public:
 
 //begin SIOClientImpl methods
 SIOClientImpl::SIOClientImpl(Uri uri, ccstd::string caFilePath) : _uri(std::move(uri)),
-                                                                _caFilePath(std::move(caFilePath)),
-                                                                _connected(false),
-                                                                _ws(nullptr) {
+                                                                  _caFilePath(std::move(caFilePath)),
+                                                                  _connected(false),
+                                                                  _ws(nullptr) {
 }
 
 SIOClientImpl::~SIOClientImpl() {
@@ -424,8 +424,8 @@ void SIOClientImpl::handshakeResponse(HttpClient * /*sender*/, HttpResponse *res
 
     ccstd::string res = s.str();
     ccstd::string sid;
-    int         heartbeat = 0;
-    int         timeout   = 0;
+    int           heartbeat = 0;
+    int           timeout   = 0;
 
     if (res.find('}') != ccstd::string::npos) {
         CC_LOG_INFO("SIOClientImpl::handshake() Socket.IO 1.x detected");
@@ -434,7 +434,7 @@ void SIOClientImpl::handshakeResponse(HttpClient * /*sender*/, HttpResponse *res
         //         96:0{"sid":"jzrjDlQusSUxLTd3AAAV","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":5000}2:40
         ccstd::string::size_type a;
         ccstd::string::size_type b;
-        a                = res.find('{');
+        a                  = res.find('{');
         ccstd::string temp = res.substr(a, res.size() - a);
 
         // find the sid
@@ -455,15 +455,15 @@ void SIOClientImpl::handshakeResponse(HttpClient * /*sender*/, HttpResponse *res
         b = temp.find(',');
 
         ccstd::string heartbeatStr = temp.substr(a + 1, b - a);
-        heartbeat                = atoi(heartbeatStr.c_str()) / 1000;
-        temp                     = temp.erase(0, b + 1);
+        heartbeat                  = atoi(heartbeatStr.c_str()) / 1000;
+        temp                       = temp.erase(0, b + 1);
 
         // get the timeout
         a = temp.find(':');
         b = temp.find('}');
 
         ccstd::string timeoutStr = temp.substr(a + 1, b - a);
-        timeout                = atoi(timeoutStr.c_str()) / 1000;
+        timeout                  = atoi(timeoutStr.c_str()) / 1000;
         CC_LOG_INFO("done parsing 1.x");
 
     } else {
@@ -668,8 +668,8 @@ void SIOClientImpl::onMessage(WebSocket * /*ws*/, const WebSocket::Data &data) {
     CC_LOG_INFO("SIOClientImpl::onMessage received: %s", data.bytes);
 
     ccstd::string payload = data.bytes;
-    int         control = atoi(payload.substr(0, 1).c_str());
-    payload             = payload.substr(1, payload.size() - 1);
+    int           control = atoi(payload.substr(0, 1).c_str());
+    payload               = payload.substr(1, payload.size() - 1);
 
     SIOClient *c = nullptr;
 
@@ -837,7 +837,7 @@ void SIOClientImpl::onMessage(WebSocket * /*ws*/, const WebSocket::Data &data) {
                             ccstd::string::size_type payloadSecondSlashPos = payload.substr(payloadFirstSlashPos + 1).find('\"');
 
                             ccstd::string eventname = payload.substr(payloadFirstSlashPos + 1,
-                                                                   payloadSecondSlashPos - payloadFirstSlashPos + 1);
+                                                                     payloadSecondSlashPos - payloadFirstSlashPos + 1);
 
                             CC_LOG_INFO("event name %s between %i and %i", eventname.c_str(),
                                         payloadFirstSlashPos, payloadSecondSlashPos);

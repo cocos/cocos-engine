@@ -37,7 +37,7 @@ void HttpCookie::readFile() {
         cookiesVec.clear();
 
         std::stringstream stream(inString);
-        ccstd::string       item;
+        ccstd::string     item;
         while (std::getline(stream, item, '\n')) {
             cookiesVec.push_back(item);
         }
@@ -61,8 +61,8 @@ void HttpCookie::readFile() {
                 continue;
             }
 
-            CookiesInfo                co;
-            std::stringstream          streamInfo(cookie);
+            CookiesInfo                  co;
+            std::stringstream            streamInfo(cookie);
             ccstd::vector<ccstd::string> elems;
             ccstd::string                elemsItem;
 

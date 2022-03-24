@@ -333,9 +333,9 @@ inline bool sevalue_to_native(const se::Value &from, cc::ValueMap *to, se::Objec
 
 bool sevalue_to_native(const se::Value &from, ccstd::vector<bool> *to, se::Object * /*ctx*/); // NOLINT(readability-identifier-naming)
 
-bool        sevalue_to_native(const se::Value &from, ccstd::vector<unsigned char> *to, se::Object * /*ctx*/);              // NOLINT(readability-identifier-naming)
+bool        sevalue_to_native(const se::Value &from, ccstd::vector<unsigned char> *to, se::Object * /*ctx*/);                // NOLINT(readability-identifier-naming)
 bool        sevalue_to_native(const se::Value &from, cc::variant<ccstd::vector<float>, ccstd::string> *to, se::Object *ctx); // NOLINT(readability-identifier-naming)
-inline bool sevalue_to_native(const se::Value & /*from*/, cc::monostate * /*to*/, se::Object * /*ctx*/) {                  // NOLINT(readability-identifier-naming)
+inline bool sevalue_to_native(const se::Value & /*from*/, cc::monostate * /*to*/, se::Object * /*ctx*/) {                    // NOLINT(readability-identifier-naming)
     // nothing todo
     return false;
 }
@@ -534,7 +534,7 @@ inline bool nativevalue_to_se(const se_object_ptr &from, se::Value &to, se::Obje
     return true;
 }
 bool seval_to_Map_string_key(const se::Value &v, cc::RefMap<ccstd::string, cc::middleware::Texture2D *> *ret); // NOLINT(readability-identifier-naming)
-#endif                                                                                                       //USE_MIDDLEWARE
+#endif                                                                                                         //USE_MIDDLEWARE
 
 #if USE_PHYSICS_PHYSX
 
