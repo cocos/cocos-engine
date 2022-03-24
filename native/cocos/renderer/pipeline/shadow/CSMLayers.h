@@ -39,7 +39,7 @@ class RenderPipeline;
 
 class ShadowTransformInfo {
 public:
-    ShadowTransformInfo()  = default;
+    ShadowTransformInfo();
     ~ShadowTransformInfo();
 
     inline RenderObjectList &getShadowObjects() { return _shadowObjects; }
@@ -102,7 +102,7 @@ public:
     inline void  setSplitCameraNear(float splitCameraNear) { _splitCameraNear = splitCameraNear; }
 
     inline float getSplitCameraFar() const { return _splitCameraFar; }
-    inline void  setSplitCameraFar(float splitCameraFar) { _splitCameraNear = splitCameraFar; }
+    inline void  setSplitCameraFar(float splitCameraFar) { _splitCameraFar = splitCameraFar; }
 
     inline Mat4 getMatShadowAtlas() const { return _matShadowAtlas; }
     inline void setMatShadowAtlas(const Mat4 &matShadowAtlas) { _matShadowAtlas = matShadowAtlas; }
@@ -139,10 +139,11 @@ public:
     inline ShadowTransformInfo *getSpecialLayer() const { return _specialLayer; }
 
 private:
-    void splitFrustumLevels(scene::DirectionalLight * dirLight);
-    void updateFixedArea(scene::DirectionalLight * dirLight) const;
-    void calculateCSM(const scene::Camera *camera, scene::DirectionalLight *dirLight, const scene::Shadow *shadowInfo);
-    Mat4 getCameraWorldMatrix(const scene::Camera *camera);
+    static Mat4 getCameraWorldMatrix(const scene::Camera *camera);
+
+    void        splitFrustumLevels(scene::DirectionalLight * dirLight);
+    void        updateFixedArea(scene::DirectionalLight * dirLight) const;
+    void        calculateCSM(const scene::Camera * camera, scene::DirectionalLight * dirLight, const scene::Shadow * shadowInfo);
 
     RenderObjectList _castShadowObjects;
 

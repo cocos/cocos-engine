@@ -175,8 +175,8 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, std::array
     const PipelineSceneData *            sceneData  = pipeline->getPipelineSceneData();
     const CSMLayers *                    csmLayers  = sceneData->getCSMLayers();
     scene::Shadow *const                 shadowInfo = sceneData->getSharedData()->shadow;
-    std::array<float, UBOShadow::COUNT>  &cv        = *shadowBufferView;
-    std::array<float, UBOCSM::COUNT>     &sv        = *csmBufferView;
+    std::array<float, UBOShadow::COUNT>  &sv        = *shadowBufferView;
+    std::array<float, UBOCSM::COUNT>     &cv        = *csmBufferView;
     const bool                           hFTexture  = supportsR32FloatTexture(device);
     const float                          packing    = hFTexture ? 0.0F : 1.0F;
     const float                          linear     = 0.0F;
@@ -211,20 +211,20 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, std::array
                     cv[UBOCSM::SHADOW_SPLITS_OFFSET + i] = csmLayers->getLayers()[i]->getSplitCameraFar() / mainLight->getShadowDistance();
 
                     const Mat4 &matShadowView = csmLayers->getLayers()[i]->getMatShadowView();
-                    memcpy(cv.data() + UBOCSM::MAT_SHADOW_VIEW_LEVELS_OFFSET * i, matShadowView.m, sizeof(matShadowView));
+                    memcpy(cv.data() + UBOCSM::MAT_SHADOW_VIEW_LEVELS_OFFSET + 16 * i, matShadowView.m, sizeof(matShadowView));
 
                     const Mat4 &matShadowViewProj = csmLayers->getLayers()[i]->getMatShadowViewProj();
-                    memcpy(cv.data() + UBOCSM::MAT_SHADOW_VIEW_PROJ_LEVELS_OFFSET * i, matShadowViewProj.m, sizeof(matShadowViewProj));
+                    memcpy(cv.data() + UBOCSM::MAT_SHADOW_VIEW_PROJ_LEVELS_OFFSET + 16 * i, matShadowViewProj.m, sizeof(matShadowViewProj));
 
                     const Mat4 &matShadowViewProjAtlas = csmLayers->getLayers()[i]->getMatShadowViewProjAtlas();
-                    memcpy(cv.data() + UBOCSM::MAT_SHADOW_VIEW_PROJ_ATLAS_LEVELS_OFFSET * i, matShadowViewProjAtlas.m, sizeof(matShadowViewProjAtlas));
+                    memcpy(cv.data() + UBOCSM::MAT_SHADOW_VIEW_PROJ_ATLAS_LEVELS_OFFSET + 16 * i, matShadowViewProjAtlas.m, sizeof(matShadowViewProjAtlas));
 
                     const Mat4 &matShadowProj           = csmLayers->getLayers()[i]->getMatShadowProj();
                     const float shadowProjDepthInfos[4] = {matShadowProj.m[10], matShadowProj.m[14], matShadowProj.m[11], matShadowProj.m[15]};
-                    memcpy(cv.data() + UBOCSM::SHADOW_PROJ_DEPTH_INFO_LEVELS_OFFSET * i, &shadowProjDepthInfos, sizeof(shadowProjDepthInfos));
+                    memcpy(cv.data() + UBOCSM::SHADOW_PROJ_DEPTH_INFO_LEVELS_OFFSET + 4 * i, &shadowProjDepthInfos, sizeof(shadowProjDepthInfos));
 
                     const float shadowProjInfos[4] = {matShadowProj.m[00], matShadowProj.m[05], 1.0F / matShadowProj.m[00], 1.0F / matShadowProj.m[05]};
-                    memcpy(cv.data() + UBOCSM::SHADOW_PROJ_INFO_LEVELS_OFFSET * i, &shadowProjInfos, sizeof(shadowProjInfos));
+                    memcpy(cv.data() + UBOCSM::SHADOW_PROJ_INFO_LEVELS_OFFSET + 4 * i, &shadowProjInfos, sizeof(shadowProjInfos));
                 }
 
                 if (camera->isOrhto) {
@@ -248,7 +248,7 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, std::array
                     cv[UBOCSM::DEPTH_MODE_OFFSET + 3] = 1.0F / mainLight->getShadowDistance();
                 }
 
-                cv[UBOCSM::CSM_INFO_OFFSET + 0] = mainLight->getShadowCSMDebugMode() ? 1.0F : 0.0F;
+                cv[UBOCSM::CSM_INFO_OFFSET + 0] = mainLight->isShadowCSMDebugMode() ? 1.0F : 0.0F;
                 cv[UBOCSM::CSM_INFO_OFFSET + 1] = 0.0F;
                 cv[UBOCSM::CSM_INFO_OFFSET + 2] = 0.0F;
                 cv[UBOCSM::CSM_INFO_OFFSET + 3] = 0.0F;
