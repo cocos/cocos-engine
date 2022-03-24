@@ -102,7 +102,7 @@ void Timer::update(float dt) {
 
 // TimerTargetCallback
 
-bool TimerTargetCallback::initWithCallback(Scheduler *scheduler, const ccSchedulerFunc &callback, void *target, const std::string &key, float seconds, unsigned int repeat, float delay) {
+bool TimerTargetCallback::initWithCallback(Scheduler *scheduler, const ccSchedulerFunc &callback, void *target, const ccstd::string &key, float seconds, unsigned int repeat, float delay) {
     _scheduler = scheduler;
     _target    = target;
     _callback  = callback;
@@ -144,11 +144,11 @@ void Scheduler::removeHashElement(HashTimerEntry *element) {
     }
 }
 
-void Scheduler::schedule(const ccSchedulerFunc &callback, void *target, float interval, bool paused, const std::string &key) {
+void Scheduler::schedule(const ccSchedulerFunc &callback, void *target, float interval, bool paused, const ccstd::string &key) {
     this->schedule(callback, target, interval, CC_REPEAT_FOREVER, 0.0F, paused, key);
 }
 
-void Scheduler::schedule(const ccSchedulerFunc &callback, void *target, float interval, unsigned int repeat, float delay, bool paused, const std::string &key) {
+void Scheduler::schedule(const ccSchedulerFunc &callback, void *target, float interval, unsigned int repeat, float delay, bool paused, const ccstd::string &key) {
     CCASSERT(target, "Argument target must be non-nullptr");
     CCASSERT(!key.empty(), "key should not be empty!");
 
@@ -186,7 +186,7 @@ void Scheduler::schedule(const ccSchedulerFunc &callback, void *target, float in
     element->timers.emplace_back(timer);
 }
 
-void Scheduler::unschedule(const std::string &key, void *target) {
+void Scheduler::unschedule(const ccstd::string &key, void *target) {
     // explicit handle nil arguments when removing an object
     if (target == nullptr || key.empty()) {
         return;
@@ -231,7 +231,7 @@ void Scheduler::unschedule(const std::string &key, void *target) {
     }
 }
 
-bool Scheduler::isScheduled(const std::string &key, void *target) {
+bool Scheduler::isScheduled(const ccstd::string &key, void *target) {
     CCASSERT(!key.empty(), "Argument key must not be empty");
     CCASSERT(target, "Argument target must be non-nullptr");
 

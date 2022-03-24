@@ -60,14 +60,14 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosAbilitySlice_onCreateNative(JNIEn
     JNI_NATIVE_GLUE()->setResourceManager(objResourceManager);
 
     jboolean    isCopy = false;
-    std::string assetPathClone;
+    ccstd::string assetPathClone;
     const char *assetPathStr = env->GetStringUTFChars(assetPath, &isCopy);
     assetPathClone           = assetPathStr;
     if (isCopy) {
         env->ReleaseStringUTFChars(assetPath, assetPathStr);
         assetPathStr = nullptr;
     }
-    std::string moduleName{"entry"};
+    ccstd::string moduleName{"entry"};
     const char *moduleNameStr = env->GetStringUTFChars(moduleNameJ, &isCopy);
     moduleName                = moduleNameStr;
     if (isCopy) {

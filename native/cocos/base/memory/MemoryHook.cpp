@@ -239,7 +239,7 @@ void MemoryHook::dumpMemoryLeak() {
     #endif
 }
 
-void MemoryHook::log(const std::string &msg) {
+void MemoryHook::log(const ccstd::string &msg) {
     #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     __android_log_write(ANDROID_LOG_WARN, "Cocos", msg.c_str());
     #elif CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX

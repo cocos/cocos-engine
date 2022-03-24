@@ -132,15 +132,15 @@ cc::any TextureBase::serialize(const cc::any & /*ctxForExporting*/) {
     //            this._wrapS},${this._wrapT},${
     //            this._mipFilter},${this._anisotropy}`;
     //    }
-    return std::string("");
+    return ccstd::string("");
 }
 
 void TextureBase::deserialize(const cc::any &serializedData, const cc::any & /*handle*/) {
-    const auto *pData = cc::any_cast<const std::string>(&serializedData);
+    const auto *pData = cc::any_cast<const ccstd::string>(&serializedData);
     if (pData == nullptr) {
         return;
     }
-    const std::string &data   = *pData;
+    const ccstd::string &data   = *pData;
     auto               fields = StringUtil::split(data, ",");
     fields.insert(fields.begin(), "");
 

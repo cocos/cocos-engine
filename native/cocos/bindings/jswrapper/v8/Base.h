@@ -39,7 +39,7 @@
 #include <algorithm> // for std::find
 #include <chrono>
 #include <functional>
-#include <string>
+#include "base/std/container/string.h"
 #include "../PrivateObject.h"
 #include "base/std/container/unordered_map.h"
 

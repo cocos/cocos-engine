@@ -53,12 +53,12 @@ public:
     id<MTLFunction> getSpecializedFragFunction(uint *index, int *val, uint count);
 
 #ifdef DEBUG_SHADER
-    inline const String &getVertGlslShader() const { return _vertGlslShader; }
-    inline const String &getVertMtlSahder() const { return _vertMtlShader; }
-    inline const String &getFragGlslShader() const { return _fragGlslShader; }
-    inline const String &getFragMtlSahder() const { return _fragMtlShader; }
-    inline const String &getcompGlslShader() const { return _cmptGlslShader; }
-    inline const String &getcompMtlSahder() const { return _cmptMtlShader; }
+    inline const ccstd::string &getVertGlslShader() const { return _vertGlslShader; }
+    inline const ccstd::string &getVertMtlSahder() const { return _vertMtlShader; }
+    inline const ccstd::string &getFragGlslShader() const { return _fragGlslShader; }
+    inline const ccstd::string &getFragMtlSahder() const { return _fragMtlShader; }
+    inline const ccstd::string &getcompGlslShader() const { return _cmptGlslShader; }
+    inline const ccstd::string &getcompMtlSahder() const { return _cmptMtlShader; }
 #endif
 
 protected:
@@ -89,12 +89,12 @@ protected:
 
     // For debug
 #ifdef DEBUG_SHADER
-    String _vertGlslShader;
-    String _vertMtlShader;
-    String _fragGlslShader;
-    String _fragMtlShader;
-    String _cmptGlslShader;
-    String _cmptMtlShader;
+    ccstd::string _vertGlslShader;
+    ccstd::string _vertMtlShader;
+    ccstd::string _fragGlslShader;
+    ccstd::string _fragMtlShader;
+    ccstd::string _cmptGlslShader;
+    ccstd::string _cmptMtlShader;
 #endif
 };
 

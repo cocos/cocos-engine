@@ -58,7 +58,7 @@
 #include <assert.h>
 #include <chrono>
 #include <functional>
-#include <string>
+#include "base/std/container/string.h"
 #include <unordered_map>
 #include <vector>
 #include <initializer_list>

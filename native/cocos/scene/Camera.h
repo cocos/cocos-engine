@@ -26,7 +26,7 @@
 #pragma once
 
 #include <cstdint>
-#include <string>
+#include "base/std/container/string.h"
 #include "base/Macros.h"
 #include "base/Ptr.h"
 #include "base/RefCounted.h"
@@ -115,13 +115,13 @@ enum class CameraShutter {
 };
 
 struct ICameraInfo {
-    std::string               name;
+    ccstd::string               name;
     Node *                    node{nullptr};
     CameraProjection          projection;
     cc::optional<uint32_t>    targetDisplay;
     RenderWindow *            window{nullptr};
     uint32_t                  priority{0};
-    cc::optional<std::string> pipeline;
+    cc::optional<ccstd::string> pipeline;
 };
 
 class Camera : public RefCounted {
@@ -233,7 +233,7 @@ public:
     void               setViewportInOrientedSpace(const Vec4 &val);
 
     inline RenderScene *      getScene() const { return _scene; }
-    inline const std::string &getName() const { return _name; }
+    inline const ccstd::string &getName() const { return _name; }
     inline uint32_t           getWidth() const { return _width; }
     inline uint32_t           getHeight() const { return _height; }
     inline float              getAspect() const { return _aspect; }
@@ -326,7 +326,7 @@ private:
     gfx::Device *         _device{nullptr};
     RenderScene *         _scene{nullptr};
     IntrusivePtr<Node>    _node;
-    std::string           _name;
+    ccstd::string           _name;
     bool                  _enabled{false};
     CameraProjection      _proj{CameraProjection::UNKNOWN};
     float                 _aspect{0.F};

@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <string>
+#include "base/std/container/string.h"
 #include "base/Macros.h"
 
 namespace cc {
@@ -38,9 +38,9 @@ public:
         RIGHT
     };
     struct ShowInfo {
-        std::string defaultValue;
-        std::string confirmType;
-        std::string inputType;
+        ccstd::string defaultValue;
+        ccstd::string confirmType;
+        ccstd::string inputType;
         int         maxLength   = 0;
         int         x           = 0;
         int         y           = 0;

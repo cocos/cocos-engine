@@ -27,7 +27,7 @@
 #include <math/Vec2.h>
 #include <math/Vec4.h>
 #include <array>
-#include <string>
+#include "base/std/container/string.h"
 #include "gfx-base/GFXDef-common.h"
 
 namespace cc {
@@ -89,7 +89,7 @@ public:
     void render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, pipeline::PipelineSceneData *sceneData);
     void destroy();
 
-    void addText(const std::string &text, const Vec2 &screenPos, const DebugTextInfo &info = DebugTextInfo());
+    void addText(const ccstd::string &text, const Vec2 &screenPos, const DebugTextInfo &info = DebugTextInfo());
 
 private:
     DebugRenderer()  = default;

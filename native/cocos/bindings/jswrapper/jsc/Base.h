@@ -30,7 +30,7 @@
 
 #include <chrono>
 #include <functional>
-#include <string>
+#include "base/std/container/string.h"
 #include <vector>
 #include "base/std/container/unordered_map.h"
 

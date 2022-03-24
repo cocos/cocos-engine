@@ -366,7 +366,7 @@ bool JniHelper::getMethodInfo(JniMethodInfo &methodinfo,
     return true;
 }
 
-std::string JniHelper::jstring2string(jstring jstr) {
+ccstd::string JniHelper::jstring2string(jstring jstr) {
     if (jstr == nullptr) {
         return "";
     }
@@ -376,7 +376,7 @@ std::string JniHelper::jstring2string(jstring jstr) {
         return "";
     }
 
-    std::string strValue = cc::StringUtils::getStringUTFCharsJNI(env, jstr);
+    ccstd::string strValue = cc::StringUtils::getStringUTFCharsJNI(env, jstr);
 
     return strValue;
 }
@@ -391,7 +391,7 @@ jstring JniHelper::convert(JniHelper::LocalRefMapType *localRefs, cc::JniMethodI
     return ret;
 }
 
-jstring JniHelper::convert(JniHelper::LocalRefMapType *localRefs, cc::JniMethodInfo *t, const std::string &x) {
+jstring JniHelper::convert(JniHelper::LocalRefMapType *localRefs, cc::JniMethodInfo *t, const ccstd::string &x) {
     return convert(localRefs, t, x.c_str());
 }
 
@@ -407,7 +407,7 @@ void JniHelper::deleteLocalRefs(JNIEnv *env, JniHelper::LocalRefMapType *localRe
     (*localRefs)[env].clear();
 }
 
-void JniHelper::reportError(const std::string &className, const std::string &methodName, const std::string &signature) {
+void JniHelper::reportError(const ccstd::string &className, const ccstd::string &methodName, const ccstd::string &signature) {
     LOGE("Failed to find static java method. Class name: %s, method name: %s, signature: %s ", className.c_str(), methodName.c_str(), signature.c_str());
 }
 

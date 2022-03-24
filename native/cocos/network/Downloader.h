@@ -29,7 +29,7 @@
 
 #include <functional>
 #include <memory>
-#include <string>
+#include "base/std/container/string.h"
 #include "base/Macros.h"
 #include "base/std/container/map.h"
 #include "base/std/container/vector.h"
@@ -49,10 +49,10 @@ public:
     const static int ERROR_IMPL_INTERNAL  = -3;
     const static int ERROR_ABORT          = -4;
 
-    std::string                          identifier;
-    std::string                          requestURL;
-    std::string                          storagePath;
-    ccstd::map<std::string, std::string> header;
+    ccstd::string                          identifier;
+    ccstd::string                          requestURL;
+    ccstd::string                          storagePath;
+    ccstd::map<ccstd::string, ccstd::string> header;
 
     DownloadTask();
     virtual ~DownloadTask();
@@ -65,7 +65,7 @@ private:
 struct CC_DLL DownloaderHints {
     uint32_t    countOfMaxProcessingTasks;
     uint32_t    timeoutInSeconds;
-    std::string tempFileNameSuffix;
+    ccstd::string tempFileNameSuffix;
 };
 
 class CC_DLL Downloader final {
@@ -89,7 +89,7 @@ public:
     std::function<void(const DownloadTask &task,
                        int                 errorCode,
                        int                 errorCodeInternal,
-                       const std::string & errorStr)>
+                       const ccstd::string & errorStr)>
         onTaskError;
 
     void setOnFileTaskSuccess(const std::function<void(const DownloadTask &task)> &callback) { onFileTaskSuccess = callback; };
@@ -102,13 +102,13 @@ public:
     void setOnTaskError(const std::function<void(const DownloadTask &task,
                                                  int                 errorCode,
                                                  int                 errorCodeInternal,
-                                                 const std::string & errorStr)> &callback) { onTaskError = callback; };
+                                                 const ccstd::string & errorStr)> &callback) { onTaskError = callback; };
 
-    std::shared_ptr<const DownloadTask> createDownloadDataTask(const std::string &srcUrl, const std::string &identifier = "");
+    std::shared_ptr<const DownloadTask> createDownloadDataTask(const ccstd::string &srcUrl, const ccstd::string &identifier = "");
 
-    std::shared_ptr<const DownloadTask> createDownloadFileTask(const std::string &srcUrl, const std::string &storagePath, const std::string &identifier = "");
+    std::shared_ptr<const DownloadTask> createDownloadFileTask(const ccstd::string &srcUrl, const ccstd::string &storagePath, const ccstd::string &identifier = "");
 
-    std::shared_ptr<const DownloadTask> createDownloadFileTask(const std::string &srcUrl, const std::string &storagePath, const ccstd::map<std::string, std::string> &header, const std::string &identifier = "");
+    std::shared_ptr<const DownloadTask> createDownloadFileTask(const ccstd::string &srcUrl, const ccstd::string &storagePath, const ccstd::map<ccstd::string, ccstd::string> &header, const ccstd::string &identifier = "");
 
     void abort(const DownloadTask &task);
 

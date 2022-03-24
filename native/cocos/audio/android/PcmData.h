@@ -27,7 +27,7 @@ THE SOFTWARE.
 
 #include <stdio.h>
 #include <memory>
-#include <string>
+#include "base/std/container/string.h"
 #include "base/std/container/vector.h"
 
 namespace cc {
@@ -59,7 +59,7 @@ struct PcmData {
 
     bool isValid() const;
 
-    std::string toString() const;
+    ccstd::string toString() const;
 };
 
 } // namespace cc

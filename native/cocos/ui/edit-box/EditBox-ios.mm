@@ -126,7 +126,7 @@ void getTextInputCallback() {
     }
 }
 
-void callJSFunc(const std::string &type, const std::string &text) {
+void callJSFunc(const ccstd::string &type, const ccstd::string &text) {
     getTextInputCallback();
 
     se::AutoHandleScope scope;
@@ -143,7 +143,7 @@ int getTextInputHeight() {
         return TEXT_LINE_HEIGHT;
 }
 
-void createButton(UIButton **button, ButtonHandler **buttonHandler, const CGRect &viewRect, const std::string &title) {
+void createButton(UIButton **button, ButtonHandler **buttonHandler, const CGRect &viewRect, const ccstd::string &title) {
     ButtonHandler *btnHandler = [[ButtonHandler alloc] init];
     UIButton *btn = [UIButton buttonWithType:UIButtonTypeRoundedRect];
     [btn addTarget:btnHandler
@@ -160,7 +160,7 @@ void createButton(UIButton **button, ButtonHandler **buttonHandler, const CGRect
     *buttonHandler = btnHandler;
 }
 
-void setTexFiledKeyboardType(UITextField *textField, const std::string &inputType) {
+void setTexFiledKeyboardType(UITextField *textField, const ccstd::string &inputType) {
     if (0 == inputType.compare("password")) {
         textField.secureTextEntry = TRUE;
         textField.keyboardType = UIKeyboardTypeDefault;
@@ -177,7 +177,7 @@ void setTexFiledKeyboardType(UITextField *textField, const std::string &inputTyp
     }
 }
 
-void setTextFieldReturnType(UITextField *textField, const std::string &returnType) {
+void setTextFieldReturnType(UITextField *textField, const ccstd::string &returnType) {
     if (0 == returnType.compare("done"))
         textField.returnKeyType = UIReturnKeyDone;
     else if (0 == returnType.compare("next"))
@@ -190,7 +190,7 @@ void setTextFieldReturnType(UITextField *textField, const std::string &returnTyp
         textField.returnKeyType = UIReturnKeySend;
 }
 
-NSString *getConfirmButtonTitle(const std::string &returnType) {
+NSString *getConfirmButtonTitle(const ccstd::string &returnType) {
     NSString *titleKey = [NSString stringWithUTF8String:returnType.c_str()];
     return NSLocalizedString(titleKey, nil); // get i18n string to be the title
 }
@@ -365,7 +365,7 @@ void removeKeyboardEventLisnters() {
 
 @implementation ButtonHandler
 - (IBAction)buttonTapped:(UIButton *)button {
-    const std::string text([getCurrentText() UTF8String]);
+    const ccstd::string text([getCurrentText() UTF8String]);
     callJSFunc("confirm", text);
     if (!g_confirmHold)
         cc::EditBox::complete();

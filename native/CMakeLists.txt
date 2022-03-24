@@ -332,9 +332,10 @@ cocos_source_files(
     cocos/base/std/container/map.h
     cocos/base/std/container/queue.h
     cocos/base/std/container/set.h
+    cocos/base/std/container/string.h
     cocos/base/std/container/unordered_map.h
-    cocos/base/std/container/vector.h
     cocos/base/std/container/unordered_set.h
+    cocos/base/std/container/vector.h
 )
 
 ############ application
@@ -665,7 +666,6 @@ cocos_source_files(
                  cocos/base/memory/Memory.cpp
                  cocos/base/memory/Memory.h
                  cocos/base/memory/StdAlloc.h
-                 cocos/base/memory/StlAlloc.h
                  cocos/base/memory/MemoryHook.cpp
                  cocos/base/memory/MemoryHook.h
                  cocos/base/memory/CallStack.cpp

@@ -91,7 +91,7 @@ private:
 
 static CallerThreadUtils gCallerThreadUtils;
 
-static int fdGetter(const std::string &url, off_t *start, off_t *length) {
+static int fdGetter(const ccstd::string &url, off_t *start, off_t *length) {
     int fd = -1;
     if (cc::FileUtilsAndroid::getObbFile() != nullptr) {
         int64_t startV;
@@ -197,7 +197,7 @@ void AudioEngineImpl::setAudioFocusForAllPlayers(bool isFocus) {
     }
 }
 
-int AudioEngineImpl::play2d(const std::string &filePath, bool loop, float volume) {
+int AudioEngineImpl::play2d(const ccstd::string &filePath, bool loop, float volume) {
     ALOGV("play2d, _audioPlayers.size=%d", (int)_audioPlayers.size());
     auto audioId = AudioEngine::INVALID_AUDIO_ID;
 
@@ -326,7 +326,7 @@ float AudioEngineImpl::getDuration(int audioID) {
     return 0.0F;
 }
 
-float AudioEngineImpl::getDurationFromFile(const std::string &filePath) {
+float AudioEngineImpl::getDurationFromFile(const ccstd::string &filePath) {
     if (_audioPlayerProvider != nullptr) {
         auto fullPath = FileUtils::getInstance()->fullPathForFilename(filePath);
         return _audioPlayerProvider->getDurationFromFile(fullPath);
@@ -352,13 +352,13 @@ bool AudioEngineImpl::setCurrentTime(int audioID, float time) {
     return false;
 }
 
-void AudioEngineImpl::setFinishCallback(int audioID, const std::function<void(int, const std::string &)> &callback) {
+void AudioEngineImpl::setFinishCallback(int audioID, const std::function<void(int, const ccstd::string &)> &callback) {
     _callbackMap[audioID] = callback;
 }
 
-void AudioEngineImpl::preload(const std::string &filePath, const std::function<void(bool)> &callback) {
+void AudioEngineImpl::preload(const ccstd::string &filePath, const std::function<void(bool)> &callback) {
     if (_audioPlayerProvider != nullptr) {
-        std::string fullPath = FileUtils::getInstance()->fullPathForFilename(filePath);
+        ccstd::string fullPath = FileUtils::getInstance()->fullPathForFilename(filePath);
         _audioPlayerProvider->preloadEffect(fullPath, [callback](bool succeed, const PcmData & /*data*/) {
             if (callback != nullptr) {
                 callback(succeed);
@@ -371,9 +371,9 @@ void AudioEngineImpl::preload(const std::string &filePath, const std::function<v
     }
 }
 
-void AudioEngineImpl::uncache(const std::string &filePath) {
+void AudioEngineImpl::uncache(const ccstd::string &filePath) {
     if (_audioPlayerProvider != nullptr) {
-        std::string fullPath = FileUtils::getInstance()->fullPathForFilename(filePath);
+        ccstd::string fullPath = FileUtils::getInstance()->fullPathForFilename(filePath);
         _audioPlayerProvider->clearPcmCache(fullPath);
     }
 }

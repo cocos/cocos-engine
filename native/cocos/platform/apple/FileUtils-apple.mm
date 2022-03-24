@@ -32,7 +32,7 @@
 
 #include <ftw.h>
 
-#include <string>
+#include "base/std/container/string.h"
 #include <stack>
 
 #include "platform/FileUtils.h"
@@ -58,7 +58,7 @@ static id convertCCValueToNSObject(const cc::Value &value);
 static cc::Value convertNSObjectToCCValue(id object);
 
 static void addNSObjectToCCMap(id nsKey, id nsValue, ValueMap &dict);
-static void addCCValueToNSDictionary(const std::string &key, const Value &value, NSMutableDictionary *dict);
+static void addCCValueToNSDictionary(const ccstd::string &key, const Value &value, NSMutableDictionary *dict);
 static void addNSObjectToCCVector(id item, ValueVector &array);
 static void addCCValueToNSArray(const Value &value, NSMutableArray *array);
 
@@ -170,11 +170,11 @@ static void addCCValueToNSArray(const Value &value, NSMutableArray *array) {
 static void addNSObjectToCCMap(id nsKey, id nsValue, ValueMap &dict) {
     // the key must be a string
     CCASSERT([nsKey isKindOfClass:[NSString class]], "The key should be a string!");
-    std::string key = [nsKey UTF8String];
+    ccstd::string key = [nsKey UTF8String];
     dict[key] = convertNSObjectToCCValue(nsValue);
 }
 
-static void addCCValueToNSDictionary(const std::string &key, const Value &value, NSMutableDictionary *dict) {
+static void addCCValueToNSDictionary(const ccstd::string &key, const Value &value, NSMutableDictionary *dict) {
     NSString *NSkey = [NSString stringWithCString:key.c_str() encoding:NSUTF8StringEncoding];
     [dict setObject:convertCCValueToNSObject(value) forKey:NSkey];
 }
@@ -206,7 +206,7 @@ FileUtils *FileUtils::getInstance() {
     return FileUtils::sharedFileUtils;
 }
 
-std::string FileUtilsApple::getWritablePath() const {
+ccstd::string FileUtilsApple::getWritablePath() const {
     if (_writablePath.length()) {
         return _writablePath;
     }
@@ -214,12 +214,12 @@ std::string FileUtilsApple::getWritablePath() const {
     // save to document folder
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];
-    std::string strRet = [documentsDirectory UTF8String];
+    ccstd::string strRet = [documentsDirectory UTF8String];
     strRet.append("/");
     return strRet;
 }
 
-bool FileUtilsApple::isFileExistInternal(const std::string &filePath) const {
+bool FileUtilsApple::isFileExistInternal(const ccstd::string &filePath) const {
     if (filePath.empty()) {
         return false;
     }
@@ -227,10 +227,10 @@ bool FileUtilsApple::isFileExistInternal(const std::string &filePath) const {
     bool ret = false;
 
     if (filePath[0] != '/') {
-        std::string path;
-        std::string file;
+        ccstd::string path;
+        ccstd::string file;
         size_t pos = filePath.find_last_of("/");
-        if (pos != std::string::npos) {
+        if (pos != ccstd::string::npos) {
             file = filePath.substr(pos + 1);
             path = filePath.substr(0, pos + 1);
         } else {
@@ -262,7 +262,7 @@ static int unlink_cb(const char *fpath, const struct stat *sb, int typeflag, str
     return ret;
 }
 
-bool FileUtilsApple::removeDirectory(const std::string &path) {
+bool FileUtilsApple::removeDirectory(const ccstd::string &path) {
     if (path.empty()) {
         CC_LOG_ERROR("Fail to remove directory, path is empty!");
         return false;
@@ -274,13 +274,13 @@ bool FileUtilsApple::removeDirectory(const std::string &path) {
         return true;
 }
 
-std::string FileUtilsApple::getFullPathForDirectoryAndFilename(const std::string &directory, const std::string &filename) const {
+ccstd::string FileUtilsApple::getFullPathForDirectoryAndFilename(const ccstd::string &directory, const ccstd::string &filename) const {
     if (directory[0] != '/') {
         NSString *dirStr = [NSString stringWithUTF8String:directory.c_str()];
         // The following logic is used for remove the "../" in the directory
         // Because method "pathForResource" will return nil if the directory contains "../".
         auto theIdx = directory.find("..");
-        if (theIdx != std::string::npos && theIdx > 0) {
+        if (theIdx != ccstd::string::npos && theIdx > 0) {
             NSMutableArray<NSString *> *pathComps = [NSMutableArray arrayWithArray:[dirStr pathComponents]];
             NSUInteger idx = [pathComps indexOfObject:@".."];
             while (idx != NSNotFound && idx > 0) {       // if found ".." & it's not at the beginning of the string
@@ -298,7 +298,7 @@ std::string FileUtilsApple::getFullPathForDirectoryAndFilename(const std::string
             return [fullpath UTF8String];
         }
     } else {
-        std::string fullPath = directory + filename;
+        ccstd::string fullPath = directory + filename;
         // Search path is an absolute path.
         if ([s_fileManager fileExistsAtPath:[NSString stringWithUTF8String:fullPath.c_str()]]) {
             return fullPath;
@@ -307,7 +307,7 @@ std::string FileUtilsApple::getFullPathForDirectoryAndFilename(const std::string
     return "";
 }
 
-ValueMap FileUtilsApple::getValueMapFromFile(const std::string &filename) {
+ValueMap FileUtilsApple::getValueMapFromFile(const ccstd::string &filename) {
     auto d(FileUtils::getInstance()->getDataFromFile(filename));
     return getValueMapFromData(reinterpret_cast<char *>(d.getBytes()), static_cast<int>(d.getSize()));
 }
@@ -329,11 +329,11 @@ ValueMap FileUtilsApple::getValueMapFromData(const char *filedata, int filesize)
     return ret;
 }
 
-bool FileUtilsApple::writeToFile(const ValueMap &dict, const std::string &fullPath) {
+bool FileUtilsApple::writeToFile(const ValueMap &dict, const ccstd::string &fullPath) {
     return writeValueMapToFile(dict, fullPath);
 }
 
-bool FileUtils::writeValueMapToFile(const ValueMap &dict, const std::string &fullPath) {
+bool FileUtils::writeValueMapToFile(const ValueMap &dict, const ccstd::string &fullPath) {
     valueMapCompact(const_cast<ValueMap &>(dict));
     //CC_LOG_DEBUG("iOS||Mac Dictionary %d write to file %s", dict->_ID, fullPath.c_str());
     NSMutableDictionary *nsDict = [NSMutableDictionary dictionary];
@@ -391,7 +391,7 @@ void FileUtilsApple::valueVectorCompact(ValueVector &valueVector) {
     }
 }
 
-bool FileUtils::writeValueVectorToFile(const ValueVector &vecData, const std::string &fullPath) {
+bool FileUtils::writeValueVectorToFile(const ValueVector &vecData, const ccstd::string &fullPath) {
     NSString *path = [NSString stringWithUTF8String:fullPath.c_str()];
     NSMutableArray *array = [NSMutableArray array];
 
@@ -403,13 +403,13 @@ bool FileUtils::writeValueVectorToFile(const ValueVector &vecData, const std::st
 
     return true;
 }
-ValueVector FileUtilsApple::getValueVectorFromFile(const std::string &filename) {
+ValueVector FileUtilsApple::getValueVectorFromFile(const ccstd::string &filename) {
     //    NSString* pPath = [NSString stringWithUTF8String:pFileName];
     //    NSString* pathExtension= [pPath pathExtension];
     //    pPath = [pPath stringByDeletingPathExtension];
     //    pPath = [[NSBundle mainBundle] pathForResource:pPath ofType:pathExtension];
     //    fixing cannot read data using Array::createWithContentsOfFile
-    std::string fullPath = fullPathForFilename(filename);
+    ccstd::string fullPath = fullPathForFilename(filename);
     NSString *path = [NSString stringWithUTF8String:fullPath.c_str()];
     NSArray *array = [NSArray arrayWithContentsOfFile:path];
 
@@ -422,7 +422,7 @@ ValueVector FileUtilsApple::getValueVectorFromFile(const std::string &filename) 
     return ret;
 }
 
-bool FileUtilsApple::createDirectory(const std::string &path) {
+bool FileUtilsApple::createDirectory(const ccstd::string &path) {
     CCASSERT(!path.empty(), "Invalid path");
 
     if (isDirectoryExist(path))

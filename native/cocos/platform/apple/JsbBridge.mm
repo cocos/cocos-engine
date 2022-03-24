@@ -25,10 +25,10 @@
 
 #include "JsbBridge.h"
 #import <Foundation/Foundation.h>
-#include <string>
+#include "base/std/container/string.h"
 #include "cocos/bindings/manual/JavaScriptObjCBridge.h"
 
-bool callPlatformStringMethod(const std::string &arg0, const std::string &arg1) {
+bool callPlatformStringMethod(const ccstd::string &arg0, const ccstd::string &arg1) {
     NSString  *oc_arg0 = [NSString stringWithCString:arg0.c_str() encoding:NSUTF8StringEncoding];
     NSString  *oc_arg1 = [NSString stringWithCString:arg1.c_str() encoding:NSUTF8StringEncoding];
     JsbBridge *m       = [JsbBridge sharedInstance];
@@ -76,13 +76,13 @@ static JsbBridge *instance = nil;
 }
 
 - (void)sendToScript:(NSString *)arg0 arg1:(NSString *)arg1 {
-    const std::string c_arg0{[arg0 UTF8String]};
-    const std::string c_arg1{[arg1 UTF8String]};
+    const ccstd::string c_arg0{[arg0 UTF8String]};
+    const ccstd::string c_arg1{[arg1 UTF8String]};
     callScript(c_arg0, c_arg1);
 }
 
 - (void)sendToScript:(NSString *)arg0 {
-    const std::string c_arg0{[arg0 UTF8String]};
+    const ccstd::string c_arg0{[arg0 UTF8String]};
     callScript(c_arg0, "");
 }
 

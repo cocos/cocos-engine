@@ -85,7 +85,7 @@ void Root::initialize(gfx::Swapchain *swapchain) {
     depthStencilAttachment.stencilStoreOp = gfx::StoreOp::DISCARD;
 
     scene::IRenderWindowInfo info;
-    info.title          = std::string{"rootMainWindow"};
+    info.title          = ccstd::string{"rootMainWindow"};
     info.width          = swapchain->getWidth();
     info.height         = swapchain->getHeight();
     info.renderPassInfo = renderPassInfo;
@@ -150,7 +150,7 @@ public:
     pipeline::PipelineSceneData *getPipelineSceneData() const override {
         return pipeline->getPipelineSceneData();
     }
-    const std::string &getConstantMacros() const override {
+    const ccstd::string &getConstantMacros() const override {
         return pipeline->getConstantMacros();
     }
     scene::Model *getProfiler() const override {
@@ -168,10 +168,10 @@ public:
     void onGlobalPipelineStateChanged() override {
         pipeline->onGlobalPipelineStateChanged();
     }
-    void setValue(const std::string &name, int32_t value) override {
+    void setValue(const ccstd::string &name, int32_t value) override {
         pipeline->setValue(name, value);
     }
-    void setValue(const std::string &name, bool value) override {
+    void setValue(const ccstd::string &name, bool value) override {
         pipeline->setValue(name, value);
     }
     pipeline::RenderPipeline *pipeline = nullptr;

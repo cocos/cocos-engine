@@ -23,7 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 #include <iostream>
-#include <string>
+#include "base/std/container/string.h"
 #include "JsbBridge.h"
 #include "JsbBridgeWrapper.h"
 

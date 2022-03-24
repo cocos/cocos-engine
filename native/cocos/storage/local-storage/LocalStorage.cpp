@@ -89,7 +89,7 @@ static void localStorageCreateTable() {
         printf("Error in CREATE TABLE\n");
 }
 
-void localStorageInit(const std::string &fullpath /* = "" */) {
+void localStorageInit(const ccstd::string &fullpath /* = "" */) {
     if (!_initialized) {
         int ret = 0;
 
@@ -145,7 +145,7 @@ void localStorageFree() {
 }
 
 /** sets an item in the LS */
-void localStorageSetItem(const std::string &key, const std::string &value) {
+void localStorageSetItem(const ccstd::string &key, const ccstd::string &value) {
     assert(_initialized);
     int ok = sqlite3_bind_text(_stmt_update, 1, key.c_str(), -1, SQLITE_TRANSIENT);
     ok |= sqlite3_bind_text(_stmt_update, 2, value.c_str(), -1, SQLITE_TRANSIENT);
@@ -159,7 +159,7 @@ void localStorageSetItem(const std::string &key, const std::string &value) {
 }
 
 /** gets an item from the LS */
-bool localStorageGetItem(const std::string &key, std::string *outItem) {
+bool localStorageGetItem(const ccstd::string &key, ccstd::string *outItem) {
     assert(_initialized);
     int ok = sqlite3_reset(_stmt_select);
 
@@ -179,7 +179,7 @@ bool localStorageGetItem(const std::string &key, std::string *outItem) {
 }
 
 /** removes an item from the LS */
-void localStorageRemoveItem(const std::string &key) {
+void localStorageRemoveItem(const ccstd::string &key) {
     assert(_initialized);
     int ok = sqlite3_bind_text(_stmt_remove, 1, key.c_str(), -1, SQLITE_TRANSIENT);
 
@@ -203,7 +203,7 @@ void localStorageClear() {
 }
 
 /** gets an key from the JS. */
-void localStorageGetKey(const int nIndex, std::string *outKey) {
+void localStorageGetKey(const int nIndex, ccstd::string *outKey) {
     assert(_initialized);
     if (nIndex < 0) {
         printf("Error in input localStorage index Less than zero\n");

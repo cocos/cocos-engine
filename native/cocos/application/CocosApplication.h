@@ -96,12 +96,12 @@ public:
      * @param port:Server port.
      * @param isWaitForConnect:Is Wait for connect.
      */
-    virtual void setJsDebugIpAndPort(const std::string &serverAddr, uint32_t port, bool isWaitForConnect);
+    virtual void setJsDebugIpAndPort(const ccstd::string &serverAddr, uint32_t port, bool isWaitForConnect);
     /**
      * @brief Run the js code file
      * @param filePath:Js file path.
      */
-    virtual void runJsScript(const std::string &filePath);
+    virtual void runJsScript(const ccstd::string &filePath);
     /**
      * @brief Js exception handling
      * @param location,Exception location
@@ -109,7 +109,7 @@ public:
      * @param stack,Exception stack
      */
     virtual void handleException(const char *location, const char *message, const char *stack);
-    virtual void setXXTeaKey(const std::string &key);
+    virtual void setXXTeaKey(const ccstd::string &key);
 
 private:
     void handleAppEvent(const OSEvent &ev);

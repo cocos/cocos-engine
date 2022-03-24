@@ -26,7 +26,7 @@
 
 #include <functional>
 #include <memory>
-#include <string>
+#include "base/std/container/string.h"
 #include <typeinfo>
 #include "base/std/container/unordered_map.h"
 
@@ -59,7 +59,7 @@ struct CallbackInfoBase {
     bool  _once{false};
     bool  _isCCObject{false};
 #if CC_DEBUG
-    ccstd::vector<std::string> _argTypes;
+    ccstd::vector<ccstd::string> _argTypes;
 #endif
 };
 
@@ -377,7 +377,7 @@ void CallbacksInvoker::off(const KeyType &key, void (Target::*memberFn)(Args...)
 template <typename... Args>
 void CallbacksInvoker::emit(const KeyType &key, Args &&...args) {
 #if CC_DEBUG
-    ccstd::vector<std::string> argTypes{(typeid(Args).name())...};
+    ccstd::vector<ccstd::string> argTypes{(typeid(Args).name())...};
 #endif
     auto iter = _callbackTable.find(key);
     if (iter != _callbackTable.end()) {

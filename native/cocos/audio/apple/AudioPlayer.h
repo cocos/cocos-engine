@@ -32,7 +32,7 @@
 #include <OpenAL/al.h>
 #include <condition_variable>
 #include <mutex>
-#include <string>
+#include "base/std/container/string.h"
 #include <thread>
 
 namespace cc {
@@ -61,7 +61,7 @@ protected:
 
     float                                         _volume;
     bool                                          _loop;
-    std::function<void(int, const std::string &)> _finishCallbak;
+    std::function<void(int, const ccstd::string &)> _finishCallbak;
 
     bool   _isDestroyed;
     bool   _removeByAudioEngine;

@@ -43,9 +43,9 @@ public:
 
     @serializable
     @editable*/
-    std::string text;
+    ccstd::string text;
 
-    std::string toString() const override {
+    ccstd::string toString() const override {
         return text;
     }
 

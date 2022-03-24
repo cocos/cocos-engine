@@ -176,7 +176,7 @@ size_t CCWGPUDescriptorSetLayout::hash() const {
     //     boost::hash_combine(seed, entries[i].storageTexture.access);
     // }
 
-    std::string hashStr = "";
+    ccstd::string hashStr = "";
 
     std::size_t seed = entries.size();
     for (size_t i = 0; i < entries.size(); i++) {
@@ -203,7 +203,7 @@ size_t CCWGPUDescriptorSetLayout::hash() const {
         }
     }
 
-    return std::hash<std::string>{}(hashStr);
+    return std::hash<ccstd::string>{}(hashStr);
 }
 
 void CCWGPUDescriptorSetLayout::print() const {

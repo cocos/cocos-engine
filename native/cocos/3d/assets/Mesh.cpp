@@ -1069,7 +1069,7 @@ gfx::BufferList Mesh::createVertexBuffers(gfx::Device *gfxDevice, ArrayBuffer *d
     return buffers;
 }
 
-void Mesh::initDefault(const cc::optional<std::string> &uuid) {
+void Mesh::initDefault(const cc::optional<ccstd::string> &uuid) {
     Super::initDefault(uuid);
     reset({});
 }

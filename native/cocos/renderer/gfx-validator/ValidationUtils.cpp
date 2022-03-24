@@ -38,7 +38,7 @@ namespace cc {
 
 namespace utils {
 
-String getStacktraceJS() {
+ccstd::string getStacktraceJS() {
 #ifndef CC_WGPU_WASM
     if (!gfx::DeviceValidator::allowStacktraceJS) return "";
     return se::ScriptEngine::getInstance()->getCurrentStackTrace();

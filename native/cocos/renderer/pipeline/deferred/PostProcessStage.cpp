@@ -48,7 +48,7 @@
 namespace cc {
 namespace pipeline {
 namespace {
-const String STAGE_NAME = "PostProcessStage";
+const ccstd::string STAGE_NAME = "PostProcessStage";
 }
 
 RenderStageInfo PostProcessStage::initInfo = {

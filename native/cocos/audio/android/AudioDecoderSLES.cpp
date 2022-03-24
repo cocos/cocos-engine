@@ -109,7 +109,7 @@ AudioDecoderSLES::~AudioDecoderSLES() {
     free(_pcmData);
 }
 
-bool AudioDecoderSLES::init(SLEngineItf engineItf, const std::string &url, int bufferSizeInFrames, int sampleRate, const FdGetterCallback &fdGetterCallback) {
+bool AudioDecoderSLES::init(SLEngineItf engineItf, const ccstd::string &url, int bufferSizeInFrames, int sampleRate, const FdGetterCallback &fdGetterCallback) {
     if (AudioDecoder::init(url, sampleRate)) {
         _engineItf = engineItf;
         _bufferSizeInFrames = bufferSizeInFrames;
@@ -175,7 +175,7 @@ bool AudioDecoderSLES::decodeToPcm() {
 
     if (_url[0] != '/') {
         off_t start = 0, length = 0;
-        std::string relativePath;
+        ccstd::string relativePath;
         size_t position = _url.find("@assets/");
 
         if (0 == position) {
@@ -413,7 +413,7 @@ bool AudioDecoderSLES::decodeToPcm() {
     _result.numFrames =
         _result.pcmBuffer->size() / _result.numChannels / (_result.bitsPerSample / 8);
 
-    std::string info = _result.toString();
+    ccstd::string info = _result.toString();
     ALOGI("Original audio info: %s, total size: %d", info.c_str(), (int)_result.pcmBuffer->size());
     return true;
 }

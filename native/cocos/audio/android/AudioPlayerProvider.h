@@ -52,13 +52,13 @@ public:
 
     virtual ~AudioPlayerProvider();
 
-    IAudioPlayer *getAudioPlayer(const std::string &audioFilePath);
+    IAudioPlayer *getAudioPlayer(const ccstd::string &audioFilePath);
 
     using PreloadCallback = std::function<void(bool, PcmData)>;
-    void preloadEffect(const std::string &audioFilePath, const PreloadCallback &cb);
+    void preloadEffect(const ccstd::string &audioFilePath, const PreloadCallback &cb);
 
-    float getDurationFromFile(const std::string &filePath);
-    void  clearPcmCache(const std::string &audioFilePath);
+    float getDurationFromFile(const ccstd::string &filePath);
+    void  clearPcmCache(const ccstd::string &audioFilePath);
 
     void clearAllPcmCaches();
 
@@ -68,7 +68,7 @@ public:
 
 private:
     struct AudioFileInfo {
-        std::string              url;
+        ccstd::string              url;
         std::shared_ptr<AssetFd> assetFd;
         off_t                    start{};
         off_t                    length;
@@ -81,13 +81,13 @@ private:
         }
     };
 
-    PcmAudioPlayer *obtainPcmAudioPlayer(const std::string &url, const PcmData &pcmData);
+    PcmAudioPlayer *obtainPcmAudioPlayer(const ccstd::string &url, const PcmData &pcmData);
 
     UrlAudioPlayer *createUrlAudioPlayer(const AudioFileInfo &info);
 
     void preloadEffect(const AudioFileInfo &info, const PreloadCallback &cb, bool isPreloadInPlay2d);
 
-    AudioFileInfo getFileInfo(const std::string &audioFilePath);
+    AudioFileInfo getFileInfo(const ccstd::string &audioFilePath);
 
     bool isSmallFile(const AudioFileInfo &info);
 
@@ -99,7 +99,7 @@ private:
     FdGetterCallback    _fdGetterCallback;
     ICallerThreadUtils *_callerThreadUtils;
 
-    ccstd::unordered_map<std::string, PcmData> _pcmCache;
+    ccstd::unordered_map<ccstd::string, PcmData> _pcmCache;
     std::mutex                                 _pcmCacheMutex;
 
     struct PreloadCallbackParam {
@@ -107,7 +107,7 @@ private:
         bool            isPreloadInPlay2d;
     };
 
-    ccstd::unordered_map<std::string, ccstd::vector<PreloadCallbackParam>> _preloadCallbackMap;
+    ccstd::unordered_map<ccstd::string, ccstd::vector<PreloadCallbackParam>> _preloadCallbackMap;
     std::mutex                                                             _preloadCallbackMutex;
 
     std::mutex              _preloadWaitMutex;

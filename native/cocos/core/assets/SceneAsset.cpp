@@ -37,7 +37,7 @@ bool SceneAsset::validate() const {
 
 void SceneAsset::setScene(Scene *scene) { _scene = scene; };
 
-void SceneAsset::initDefault(const cc::optional<std::string> &uuid) {
+void SceneAsset::initDefault(const cc::optional<ccstd::string> &uuid) {
     Super::initDefault(uuid);
     _scene = new Scene("New Scene");
 }

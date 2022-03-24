@@ -205,7 +205,7 @@ public:
 
 class SPVShaderInfoInstance {
 public:
-    inline void setName(String name) { info.name = name; }
+    inline void setName(ccstd::string name) { info.name = name; }
     inline void setAttributes(AttributeList attrs) { info.attributes = attrs; }
     inline void setStages(ccstd::vector<SPVShaderStageInstance> spvStages) { stages = spvStages; }
     inline void setBlocks(UniformBlockList blocks) { info.blocks = blocks; }

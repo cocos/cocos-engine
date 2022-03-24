@@ -81,21 +81,21 @@ public:
      *
      * @return the cookie filename
      */
-    const std::string &getCookieFilename();
+    const ccstd::string &getCookieFilename();
 
     /**
      * Set root certificate path for SSL verification.
      *
      * @param caFile a full path of root certificate.if it is empty, SSL verification is disabled.
      */
-    void setSSLVerification(const std::string &caFile);
+    void setSSLVerification(const ccstd::string &caFile);
 
     /**
      * Get the ssl CA filename
      *
      * @return the ssl CA filename
      */
-    const std::string &getSSLVerification();
+    const ccstd::string &getSSLVerification();
 
     /**
      * Add a get request to task queue
@@ -191,10 +191,10 @@ private: // NOLINT(readability-redundant-access-specifiers)
     RefVector<HttpResponse *> _responseQueue;
     std::mutex             _responseQueueMutex;
 
-    std::string _cookieFilename;
+    ccstd::string _cookieFilename;
     std::mutex  _cookieFileMutex;
 
-    std::string _sslCaFilename;
+    ccstd::string _sslCaFilename;
     std::mutex  _sslCaFileMutex;
 
     HttpCookie *_cookie;

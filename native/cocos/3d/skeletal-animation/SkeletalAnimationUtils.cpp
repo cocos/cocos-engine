@@ -177,7 +177,7 @@ cc::optional<IJointTextureHandle *> JointTexturePool::getDefaultPoseTexture(Skel
         texture = _textureBuffers[hash];
     }
 
-    const ccstd::vector<std::string> &joints    = skeleton->getJoints();
+    const ccstd::vector<ccstd::string> &joints    = skeleton->getJoints();
     const ccstd::vector<Mat4> &       bindPoses = skeleton->getBindposes();
     Float32Array                      textureBuffer;
     bool                              buildTexture = false;
@@ -253,7 +253,7 @@ cc::optional<IJointTextureHandle *> JointTexturePool::getDefaultPoseTexture(Skel
 //             return texture;
 //         }
 //     }
-//     const ccstd::vector<std::string> &joints    = skeleton->getJoints();
+//     const ccstd::vector<ccstd::string> &joints    = skeleton->getJoints();
 //     const ccstd::vector<Mat4> &       bindPoses = skeleton->getBindposes();
 //     // const clipData = SkelAnimDataHub.getOrExtract(clip);
 //     // const { frames } = clipData;
@@ -459,7 +459,7 @@ void JointTexturePool::releaseSkeleton(Skeleton *skeleton) {
 //     return animInfos;
 // }
 
-IAnimInfo JointAnimationInfo::getData(const std::string &nodeID) {
+IAnimInfo JointAnimationInfo::getData(const ccstd::string &nodeID) {
     if (_pool.find(nodeID) != _pool.end()) {
         return _pool[nodeID];
     }
@@ -482,7 +482,7 @@ IAnimInfo JointAnimationInfo::getData(const std::string &nodeID) {
     return info;
 }
 
-void JointAnimationInfo::destroy(const std::string &nodeID) {
+void JointAnimationInfo::destroy(const ccstd::string &nodeID) {
     if (_pool.find(nodeID) != _pool.end()) {
         CC_SAFE_DESTROY_AND_DELETE(_pool[nodeID].buffer);
         _pool.erase(nodeID);

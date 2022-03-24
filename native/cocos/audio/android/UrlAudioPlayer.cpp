@@ -239,7 +239,7 @@ bool UrlAudioPlayer::setPosition(float pos) {
     return true;
 }
 
-bool UrlAudioPlayer::prepare(const std::string &url, SLuint32 locatorType, std::shared_ptr<AssetFd> assetFd, int start,
+bool UrlAudioPlayer::prepare(const ccstd::string &url, SLuint32 locatorType, std::shared_ptr<AssetFd> assetFd, int start,
                              int length) {
     _url     = url;
     _assetFd = assetFd;

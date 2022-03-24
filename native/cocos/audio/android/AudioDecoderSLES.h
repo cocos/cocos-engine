@@ -36,7 +36,7 @@ protected:
     AudioDecoderSLES();
     virtual ~AudioDecoderSLES();
 
-    bool init(SLEngineItf engineItf, const std::string &url, int bufferSizeInFrames, int sampleRate, const FdGetterCallback &fdGetterCallback);
+    bool init(SLEngineItf engineItf, const ccstd::string &url, int bufferSizeInFrames, int sampleRate, const FdGetterCallback &fdGetterCallback);
     virtual bool decodeToPcm() override;
 
 private:

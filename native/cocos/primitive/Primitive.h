@@ -78,7 +78,7 @@ public:
      */
     //    @serializable
     //    @editable
-    Record<std::string, float> info; //cjh float?
+    Record<ccstd::string, float> info; //cjh float?
 
     explicit Primitive(PrimitiveType type = PrimitiveType::BOX);
     ~Primitive() override;

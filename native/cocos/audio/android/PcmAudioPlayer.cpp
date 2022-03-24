@@ -42,7 +42,7 @@ PcmAudioPlayer::~PcmAudioPlayer() {
     delete _track;
 }
 
-bool PcmAudioPlayer::prepare(const std::string &url, const PcmData &decResult) {
+bool PcmAudioPlayer::prepare(const ccstd::string &url, const PcmData &decResult) {
     _url = url;
     _decResult = decResult;
 

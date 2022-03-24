@@ -50,7 +50,7 @@
 #pragma once
 
 #include <cmath>
-#include <string>
+#include "base/std/container/string.h"
 
 namespace CSSColorParser {
 
@@ -72,6 +72,6 @@ inline bool operator!=(const Color &lhs, const Color &rhs) {
     return !(lhs == rhs);
 }
 
-Color parse(const std::string &cssStr);
+Color parse(const ccstd::string &cssStr);
 
 } // namespace CSSColorParser

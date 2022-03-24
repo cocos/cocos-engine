@@ -328,7 +328,7 @@ bool AudioEngineImpl::init() {
     return ret;
 }
 
-AudioCache *AudioEngineImpl::preload(const std::string &filePath, std::function<void(bool)> callback) {
+AudioCache *AudioEngineImpl::preload(const ccstd::string &filePath, std::function<void(bool)> callback) {
     AudioCache *audioCache = nullptr;
 
     auto it = _audioCaches.find(filePath);
@@ -355,7 +355,7 @@ AudioCache *AudioEngineImpl::preload(const std::string &filePath, std::function<
     return audioCache;
 }
 
-int AudioEngineImpl::play2d(const std::string &filePath, bool loop, float volume) {
+int AudioEngineImpl::play2d(const ccstd::string &filePath, bool loop, float volume) {
     if (s_ALDevice == nullptr) {
         return AudioEngine::INVALID_AUDIO_ID;
     }
@@ -538,7 +538,7 @@ float AudioEngineImpl::getDuration(int audioID) {
     }
 }
 
-float AudioEngineImpl::getDurationFromFile(const std::string &filePath) {
+float AudioEngineImpl::getDurationFromFile(const ccstd::string &filePath) {
     auto it = _audioCaches.find(filePath);
     if (it == _audioCaches.end()) {
         this->preload(filePath, nullptr);
@@ -605,7 +605,7 @@ bool AudioEngineImpl::setCurrentTime(int audioID, float time) {
     return ret;
 }
 
-void AudioEngineImpl::setFinishCallback(int audioID, const std::function<void(int, const std::string &)> &callback) {
+void AudioEngineImpl::setFinishCallback(int audioID, const std::function<void(int, const ccstd::string &)> &callback) {
     if (!checkAudioIdValid(audioID)) {
         return;
     }
@@ -635,7 +635,7 @@ void AudioEngineImpl::update(float dt) {
             _unusedSourcesPool.push_back(alSource);
         } else if (player->_ready && sourceState == AL_STOPPED) {
 
-            std::string filePath;
+            ccstd::string filePath;
             if (player->_finishCallbak) {
                 auto &audioInfo = AudioEngine::sAudioIDInfoMap[audioID];
                 filePath = *audioInfo.filePath;
@@ -670,7 +670,7 @@ void AudioEngineImpl::update(float dt) {
     }
 }
 
-void AudioEngineImpl::uncache(const std::string &filePath) {
+void AudioEngineImpl::uncache(const ccstd::string &filePath) {
     _audioCaches.erase(filePath);
 }
 

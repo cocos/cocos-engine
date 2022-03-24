@@ -46,7 +46,7 @@
 #include <functional>
 #include <list>
 #include <mutex>
-#include <string>
+#include "base/std/container/string.h"
 #include <thread>
 
 #include "base/CachedArray.h"

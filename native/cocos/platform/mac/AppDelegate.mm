@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #import "AppDelegate.h"
-#include <string>
+#include "base/std/container/string.h"
 //#import "Game.h"
 #import "ViewController.h"
 #include "cocos/bindings/event/EventDispatcher.h"

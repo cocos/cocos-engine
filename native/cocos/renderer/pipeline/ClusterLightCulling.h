@@ -33,9 +33,9 @@ namespace cc {
 namespace pipeline {
 class RenderPipeline;
 struct ShaderStrings {
-    String glsl4;
-    String glsl3;
-    String glsl1;
+    ccstd::string glsl4;
+    ccstd::string glsl3;
+    ccstd::string glsl1;
 };
 
 class ClusterLightCulling {
@@ -79,7 +79,7 @@ public:
     inline bool isInitialized() const { return _initialized; }
 
 private:
-    String &getShaderSource(ShaderStrings &sources);
+    ccstd::string &getShaderSource(ShaderStrings &sources);
 
     void initBuildingSatge();
 

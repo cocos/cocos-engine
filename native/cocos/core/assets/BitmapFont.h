@@ -45,7 +45,7 @@ public:
 
 private:
     void                 doInit(const FontFaceInfo &info) override;
-    static gfx::Texture *loadTexture(const std::string &path);
+    static gfx::Texture *loadTexture(const ccstd::string &path);
 
     friend class BitmapFont;
 };
@@ -55,7 +55,7 @@ private:
  */
 class BitmapFont : public Font {
 public:
-    explicit BitmapFont(const std::string &path);
+    explicit BitmapFont(const ccstd::string &path);
     ~BitmapFont() override         = default;
     BitmapFont(const BitmapFont &) = delete;
     BitmapFont(BitmapFont &&)      = delete;

@@ -30,7 +30,7 @@ namespace cc {
 
 namespace {
 ccstd::vector<IJointTransform *>                     stack; //cjh TODO: how to release ?
-ccstd::unordered_map<std::string, IJointTransform *> pool;
+ccstd::unordered_map<ccstd::string, IJointTransform *> pool;
 } // namespace
 
 Mat4 getWorldMatrix(IJointTransform *transform, int32_t stamp) {
@@ -67,7 +67,7 @@ IJointTransform *getTransform(Node *node, Node *root) {
     IJointTransform *joint = nullptr;
     uint32_t         i     = 0;
     while (node != root) {
-        const std::string &id   = node->getUuid();
+        const ccstd::string &id   = node->getUuid();
         auto               iter = pool.find(id);
         if (iter != pool.end()) {
             joint = iter->second;

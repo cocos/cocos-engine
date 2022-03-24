@@ -36,7 +36,7 @@ class RenderScene;
 class Scene final : public Node {
 public:
     using Super = Node;
-    explicit Scene(const std::string &name);
+    explicit Scene(const ccstd::string &name);
     Scene();
     ~Scene() override;
 
