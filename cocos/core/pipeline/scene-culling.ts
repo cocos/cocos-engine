@@ -228,7 +228,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
         if (shadows.type === ShadowType.ShadowMap) {
             // update CSM layers
             if (mainLight && mainLight.node) {
-                csmLayers.update(pipeline, camera, mainLight, shadows);
+                csmLayers.update(pipeline, camera);
             }
         }
     }

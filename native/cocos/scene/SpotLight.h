@@ -78,10 +78,12 @@ public:
     inline float          getLuminanceHDR() const { return _luminanceHDR; }
     inline float          getLuminanceLDR() const { return _luminanceLDR; }
     inline bool           getNeedUpdate() const { return _needUpdate; }
+    inline bool           isNeedUpdate() const { return _needUpdate; }
     inline float          getRange() const { return _range; }
     inline const Vec3 &   getPosition() const { return _pos; }
     inline float          getSize() const { return _size; }
     inline bool           getShadowEnabled() const { return _shadowEnabled; }
+    inline bool           isShadowEnabled() const { return _shadowEnabled; }
     inline float          getShadowPcf() const { return _shadowPcf; }
     inline float          getShadowBias() const { return _shadowBias; }
     inline float          getShadowNormalBias() const { return _shadowNormalBias; }

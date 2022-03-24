@@ -290,6 +290,7 @@ export class DirectionalLight extends Light {
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 12 } })
     @editable
     @tooltip('CSM Level ratio')
+    @range([0.0, 1.0, 0.01])
     @slide
     @type(CCFloat)
     get shadowCSMLambda () {

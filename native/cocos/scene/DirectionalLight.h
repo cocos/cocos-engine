@@ -59,11 +59,14 @@ public:
     inline void setShadowOrthoSize(float orthoSize) { _shadowOrthoSize = orthoSize; }
     inline void setShadowCSMLevel(float level) { _shadowCSMLevel = level; }
     inline void setShadowCSMValueDirty(bool dirty) { _shadowCSMValueDirty = dirty; }
+    inline void setShadowCSMLambda(float lambda) { _shadowCSMLambda = lambda; }
+    inline void setShadowCSMDebugMode(bool isDebugMode) { _shadowCSMDebugMode = isDebugMode; }
 
     inline const Vec3 & getDirection() const { return _dir; }
     inline float        getIlluminanceHDR() const { return _illuminanceHDR; }
     inline float        getIlluminanceLDR() const { return _illuminanceLDR; }
     inline bool         getShadowEnabled() const { return _shadowEnabled; }
+    inline bool         isShadowEnabled() const { return _shadowEnabled; }
     inline float        getShadowPcf() const { return _shadowPcf; }
     inline float        getShadowBias() const { return _shadowBias; }
     inline float        getShadowNormalBias() const { return _shadowNormalBias; }
@@ -71,11 +74,16 @@ public:
     inline float        getShadowDistance() const { return _shadowDistance; }
     inline float        getShadowInvisibleOcclusionRange() const { return _shadowInvisibleOcclusionRange; }
     inline bool         getShadowFixedArea() const { return _shadowFixedArea; }
+    inline bool         isShadowFixedArea() const { return _shadowFixedArea; }
     inline float        getShadowNear() const { return _shadowNear; }
     inline float        getShadowFar() const { return _shadowFar; }
     inline float        getShadowOrthoSize() const { return _shadowOrthoSize; }
     inline float        getShadowCSMLevel() const { return _shadowCSMLevel; }
     inline bool         getShadowCSMValueDirty() const { return _shadowCSMValueDirty; }
+    inline bool         isShadowCSMValueDirty() const { return _shadowCSMValueDirty; }
+    inline float        getShadowCSMLambda() const { return _shadowCSMLambda; }
+    inline bool         getShadowCSMDebugMode() const { return _shadowCSMDebugMode; }
+    inline bool         isShadowCSMDebugMode() const { return _shadowCSMDebugMode; }
 
 private:
     float _illuminanceHDR{0.F};
@@ -96,6 +104,8 @@ private:
     float _shadowOrthoSize{1.0F};
     float _shadowCSMLevel{3.0F};
     bool  _shadowCSMValueDirty{false};
+    float _shadowCSMLambda{0.35F};
+    bool  _shadowCSMDebugMode{false};
 };
 
 } // namespace scene

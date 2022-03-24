@@ -167,105 +167,177 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, float *out
     output[UBOCamera::GLOBAL_VIEW_PORT_OFFSET + 3] = sharedData->shadingScale * camera->window->getHeight() * camera->viewPort.w;
 }
 
-void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, std::array<float, UBOShadow::COUNT> *bufferView, const scene::Camera *camera) {
+void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, std::array<float, UBOShadow::COUNT> *shadowBufferView,
+                                      std::array<float, UBOCSM::COUNT> *csmBufferView, const scene::Camera *camera) {
     const scene::RenderScene *const      scene      = camera->scene;
     const scene::DirectionalLight *      mainLight  = scene->getMainLight();
     gfx::Device *                        device     = gfx::Device::getInstance();
     const PipelineSceneData *            sceneData  = pipeline->getPipelineSceneData();
+    const CSMLayers *                    csmLayers  = sceneData->getCSMLayers();
     scene::Shadow *const                 shadowInfo = sceneData->getSharedData()->shadow;
-    std::array<float, UBOShadow::COUNT> &shadowUBO  = *bufferView;
+    std::array<float, UBOShadow::COUNT>  &cv        = *shadowBufferView;
+    std::array<float, UBOCSM::COUNT>     &sv        = *csmBufferView;
     const bool                           hFTexture  = supportsR32FloatTexture(device);
+    const float                          packing    = hFTexture ? 0.0F : 1.0F;
+    const float                          linear     = 0.0F;
 
-    if (shadowInfo->enabled) {
-        if (mainLight && shadowInfo->shadowType == scene::ShadowType::SHADOWMAP) {
-            const Mat4 &matShadowView     = sceneData->getMatShadowView();
-            const Mat4 &matShadowProj     = sceneData->getMatShadowProj();
-            const Mat4 &matShadowViewProj = sceneData->getMatShadowViewProj();
+    if (shadowInfo->enabled && mainLight) {
+        if (shadowInfo->shadowType == scene::ShadowType::SHADOWMAP) {
+            if (mainLight->isShadowFixedArea() || mainLight->getShadowCSMLevel() < 2.0F) {
+            const Mat4 &matShadowView     = csmLayers->getSpecialLayer()->getMatShadowView();
+            const Mat4 &matShadowProj     = csmLayers->getSpecialLayer()->getMatShadowProj();
+            const Mat4 &matShadowViewProj = csmLayers->getSpecialLayer()->getMatShadowViewProj();
+            const float nearClamp         = mainLight->getShadowNear();
+            const float farClamp          = mainLight->getShadowFar();
 
-            float nearClamp;
-            float farClamp;
-            if (mainLight->getShadowFixedArea()) {
-                nearClamp = mainLight->getShadowNear();
-                farClamp  = mainLight->getShadowFar();
-            } else {
-                nearClamp = mainLight->getShadowNear();
-                farClamp  = sceneData->getShadowCameraFar();
-            }
-
-            memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_OFFSET, matShadowView.m, sizeof(matShadowView));
+            memcpy(sv.data() + UBOShadow::MAT_LIGHT_VIEW_OFFSET, matShadowView.m, sizeof(matShadowView));
 
             const float shadowProjDepthInfos[4] = {matShadowProj.m[10], matShadowProj.m[14], matShadowProj.m[11], matShadowProj.m[15]};
-            memcpy(shadowUBO.data() + UBOShadow::SHADOW_PROJ_DEPTH_INFO_OFFSET, &shadowProjDepthInfos, sizeof(shadowProjDepthInfos));
+            memcpy(sv.data() + UBOShadow::SHADOW_PROJ_DEPTH_INFO_OFFSET, &shadowProjDepthInfos, sizeof(shadowProjDepthInfos));
 
             const float shadowProjInfos[4] = {matShadowProj.m[00], matShadowProj.m[05], 1.0F / matShadowProj.m[00], 1.0F / matShadowProj.m[05]};
-            memcpy(shadowUBO.data() + UBOShadow::SHADOW_PROJ_INFO_OFFSET, &shadowProjInfos, sizeof(shadowProjInfos));
+            memcpy(sv.data() + UBOShadow::SHADOW_PROJ_INFO_OFFSET, &shadowProjInfos, sizeof(shadowProjInfos));
 
-            memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
+            memcpy(sv.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
 
-            const float linear             = 0.0F;
+            
             const float shadowNFLSInfos[4] = {nearClamp, farClamp, linear, 1.0F - mainLight->getShadowSaturation()};
-            memcpy(shadowUBO.data() + UBOShadow::SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET, &shadowNFLSInfos, sizeof(shadowNFLSInfos));
-
-            const float shadowWHPBInfos[4] = {shadowInfo->size.x, shadowInfo->size.y, static_cast<float>(mainLight->getShadowPcf()), mainLight->getShadowBias()};
-            memcpy(shadowUBO.data() + UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET, &shadowWHPBInfos, sizeof(shadowWHPBInfos));
-
-            const float packing            = hFTexture ? 0.0F : 1.0F;
+            memcpy(sv.data() + UBOShadow::SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET, &shadowNFLSInfos, sizeof(shadowNFLSInfos));
+            
             const float shadowLPNNInfos[4] = {0.0F, packing, mainLight->getShadowNormalBias(), 0.0F};
-            memcpy(shadowUBO.data() + UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET, &shadowLPNNInfos, sizeof(shadowLPNNInfos));
+            memcpy(sv.data() + UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET, &shadowLPNNInfos, sizeof(shadowLPNNInfos));
+            } else {
+                for (uint i = 0; i < static_cast<uint>(mainLight->getShadowCSMLevel()); ++i) {
+                    cv[UBOCSM::SHADOW_SPLITS_OFFSET + i] = csmLayers->getLayers()[i]->getSplitCameraFar() / mainLight->getShadowDistance();
+
+                    const Mat4 &matShadowView = csmLayers->getLayers()[i]->getMatShadowView();
+                    memcpy(cv.data() + UBOCSM::MAT_SHADOW_VIEW_LEVELS_OFFSET * i, matShadowView.m, sizeof(matShadowView));
+
+                    const Mat4 &matShadowViewProj = csmLayers->getLayers()[i]->getMatShadowViewProj();
+                    memcpy(cv.data() + UBOCSM::MAT_SHADOW_VIEW_PROJ_LEVELS_OFFSET * i, matShadowViewProj.m, sizeof(matShadowViewProj));
+
+                    const Mat4 &matShadowViewProjAtlas = csmLayers->getLayers()[i]->getMatShadowViewProjAtlas();
+                    memcpy(cv.data() + UBOCSM::MAT_SHADOW_VIEW_PROJ_ATLAS_LEVELS_OFFSET * i, matShadowViewProjAtlas.m, sizeof(matShadowViewProjAtlas));
+
+                    const Mat4 &matShadowProj           = csmLayers->getLayers()[i]->getMatShadowProj();
+                    const float shadowProjDepthInfos[4] = {matShadowProj.m[10], matShadowProj.m[14], matShadowProj.m[11], matShadowProj.m[15]};
+                    memcpy(cv.data() + UBOCSM::SHADOW_PROJ_DEPTH_INFO_LEVELS_OFFSET * i, &shadowProjDepthInfos, sizeof(shadowProjDepthInfos));
+
+                    const float shadowProjInfos[4] = {matShadowProj.m[00], matShadowProj.m[05], 1.0F / matShadowProj.m[00], 1.0F / matShadowProj.m[05]};
+                    memcpy(cv.data() + UBOCSM::SHADOW_PROJ_INFO_LEVELS_OFFSET * i, &shadowProjInfos, sizeof(shadowProjInfos));
+                }
+
+                if (camera->isOrhto) {
+                    cv[UBOCSM::DEPTH_MODE_OFFSET + 0] = 1.0F;
+                    cv[UBOCSM::DEPTH_MODE_OFFSET + 1] = 0.0F;
+                    if (device->getGfxAPI() == gfx::API::GLES2 ||
+                        device->getGfxAPI() == gfx::API::GLES3 ||
+                        device->getGfxAPI() == gfx::API::WEBGL ||
+                        device->getGfxAPI() == gfx::API::WEBGL2) {
+                        cv[UBOCSM::DEPTH_MODE_OFFSET + 2] = 0.5F;
+                        cv[UBOCSM::DEPTH_MODE_OFFSET + 3] = 0.5F;
+                    } else {
+                        // TODO 未知平台需要验证深度模式
+                        cv[UBOCSM::DEPTH_MODE_OFFSET + 2] = 1.0F;
+                        cv[UBOCSM::DEPTH_MODE_OFFSET + 3] = 0.0F;
+                    }
+                } else {
+                    cv[UBOCSM::DEPTH_MODE_OFFSET + 0] = 0.0F;
+                    cv[UBOCSM::DEPTH_MODE_OFFSET + 1] = 0.0F;
+                    cv[UBOCSM::DEPTH_MODE_OFFSET + 2] = 0.0F;
+                    cv[UBOCSM::DEPTH_MODE_OFFSET + 3] = 1.0F / mainLight->getShadowDistance();
+                }
+
+                cv[UBOCSM::CSM_INFO_OFFSET + 0] = mainLight->getShadowCSMDebugMode() ? 1.0F : 0.0F;
+                cv[UBOCSM::CSM_INFO_OFFSET + 1] = 0.0F;
+                cv[UBOCSM::CSM_INFO_OFFSET + 2] = 0.0F;
+                cv[UBOCSM::CSM_INFO_OFFSET + 3] = 0.0F;
+
+                const float shadowNFLSInfos[4] = {0.0F, 0.0F, linear, 1.0F - mainLight->getShadowSaturation()};
+                memcpy(sv.data() + UBOShadow::SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET, &shadowNFLSInfos, sizeof(shadowNFLSInfos));
+
+                const float shadowLPNNInfos[4] = {0.0F, packing, mainLight->getShadowNormalBias(), mainLight->getShadowCSMLevel()};
+                memcpy(sv.data() + UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET, &shadowLPNNInfos, sizeof(shadowLPNNInfos));
+            }
+            const float shadowWHPBInfos[4] = {shadowInfo->size.x, shadowInfo->size.y, mainLight->getShadowPcf(), mainLight->getShadowBias()};
+            memcpy(sv.data() + UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET, &shadowWHPBInfos, sizeof(shadowWHPBInfos));
         } else if (mainLight && shadowInfo->shadowType == scene::ShadowType::PLANAR) {
-            updateDirLight(shadowInfo, mainLight, &shadowUBO);
-            updatePlanarNormalAndDistance(shadowInfo, &shadowUBO);
+            updateDirLight(shadowInfo, mainLight, shadowBufferView);
+            updatePlanarNormalAndDistance(shadowInfo, shadowBufferView);
         }
 
         const float color[4] = {shadowInfo->color.x, shadowInfo->color.y, shadowInfo->color.z, shadowInfo->color.w};
-        memcpy(shadowUBO.data() + UBOShadow::SHADOW_COLOR_OFFSET, &color, sizeof(float) * 4);
+        memcpy(sv.data() + UBOShadow::SHADOW_COLOR_OFFSET, &color, sizeof(float) * 4);
     }
 }
 
-void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, std::array<float, UBOShadow::COUNT> *bufferView,
-                                           const scene::Light *light) {
-    const auto *sceneData  = pipeline->getPipelineSceneData();
-    const auto *shadowInfo = sceneData->getSharedData()->shadow;
-    auto *      device     = gfx::Device::getInstance();
-    auto &      shadowUBO  = *bufferView;
-    const bool  hFTexture  = supportsR32FloatTexture(device);
-    const float linear     = 0.0F;
-    const float packing    = hFTexture ? 0.0F : 1.0F;
+void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, std::array<float, UBOShadow::COUNT> *shadowBufferView,
+                                           const scene::Light *light, uint level) {
+    const auto *     sceneData  = pipeline->getPipelineSceneData();
+    const CSMLayers *csmLayers  = sceneData->getCSMLayers();
+    const auto *     shadowInfo = sceneData->getSharedData()->shadow;
+    auto *           device     = gfx::Device::getInstance();
+    auto &           shadowUBO  = *shadowBufferView;
+    const bool       hFTexture  = supportsR32FloatTexture(device);
+    const float      linear     = 0.0F;
+    const float      packing    = hFTexture ? 0.0F : 1.0F;
+
     switch (light->getType()) {
         case scene::LightType::DIRECTIONAL: {
             const auto *mainLight         = static_cast<const scene::DirectionalLight *>(light);
-            const Mat4 &matShadowView     = sceneData->getMatShadowView();
-            const Mat4 &matShadowProj     = sceneData->getMatShadowProj();
-            const Mat4 &matShadowViewProj = sceneData->getMatShadowViewProj();
+            if (shadowInfo->enabled && mainLight) {
+                if (shadowInfo->shadowType == scene::ShadowType::SHADOWMAP) {
+                    float levelCount;
+                    float nearClamp;
+                    float farClamp;
+                    Mat4  matShadowView;
+                    Mat4  matShadowProj;
+                    Mat4  matShadowViewProj;
+                    if (mainLight->isShadowFixedArea() || mainLight->getShadowCSMLevel() < 2.0F) {
+                        matShadowView     = csmLayers->getSpecialLayer()->getMatShadowView();
+                        matShadowProj     = csmLayers->getSpecialLayer()->getMatShadowProj();
+                        matShadowViewProj = csmLayers->getSpecialLayer()->getMatShadowViewProj();
+                        if (mainLight->getShadowFixedArea()) {
+                            nearClamp  = mainLight->getShadowNear();
+                            farClamp   = mainLight->getShadowFar();
+                            levelCount = 0.0F;
+                        } else {
+                            nearClamp  = 0.1F;
+                            farClamp   = csmLayers->getSpecialLayer()->getShadowCameraFar();
+                            levelCount = 1.0F;
+                        }
+                        const float shadowLPNNInfos[4] = {0.0F, packing, mainLight->getShadowNormalBias(), 0.0F};
+                        memcpy(shadowUBO.data() + UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET, &shadowLPNNInfos, sizeof(shadowLPNNInfos));
+                    } else {
+                        const CSMLayerInfo *layer = csmLayers->getLayers()[level];
+                        levelCount                = mainLight->getShadowCSMLevel();
+                        nearClamp                 = layer->getSplitCameraNear();
+                        farClamp                  = layer->getSplitCameraFar();
+                        matShadowView             = layer->getMatShadowView();
+                        matShadowProj             = layer->getMatShadowProj();
+                        matShadowViewProj         = layer->getMatShadowViewProj();
+                    }
 
-            float nearClamp;
-            float farClamp;
-            if (mainLight->getShadowFixedArea()) {
-                nearClamp = mainLight->getShadowNear();
-                farClamp  = mainLight->getShadowFar();
-            } else {
-                nearClamp = 0.1F;
-                farClamp  = sceneData->getShadowCameraFar();
+                    memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_OFFSET, matShadowView.m, sizeof(matShadowView));
+
+                    const float shadowProjDepthInfos[4] = {matShadowProj.m[10], matShadowProj.m[14], matShadowProj.m[11], matShadowProj.m[15]};
+                    memcpy(shadowUBO.data() + UBOShadow::SHADOW_PROJ_DEPTH_INFO_OFFSET, &shadowProjDepthInfos, sizeof(shadowProjDepthInfos));
+
+                    const float shadowProjInfos[4] = {matShadowProj.m[00], matShadowProj.m[05], 1.0F / matShadowProj.m[00], 1.0F / matShadowProj.m[05]};
+                    memcpy(shadowUBO.data() + UBOShadow::SHADOW_PROJ_INFO_OFFSET, &shadowProjInfos, sizeof(shadowProjInfos));
+
+                    memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
+
+                    const float shadowNFLSInfos[4] = {nearClamp, farClamp, linear, 1.0F - mainLight->getShadowSaturation()};
+                    memcpy(shadowUBO.data() + UBOShadow::SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET, &shadowNFLSInfos, sizeof(shadowNFLSInfos));
+
+                    const float shadowLPNNInfos[4] = {0.0F, packing, mainLight->getShadowNormalBias(), levelCount};
+                    memcpy(shadowUBO.data() + UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET, &shadowLPNNInfos, sizeof(shadowLPNNInfos));
+
+                    const float shadowWHPBInfos[4] = {shadowInfo->size.x, shadowInfo->size.y, static_cast<float>(mainLight->getShadowPcf()), mainLight->getShadowBias()};
+                    memcpy(shadowUBO.data() + UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET, &shadowWHPBInfos, sizeof(shadowWHPBInfos));
+                }
             }
-
-            memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_OFFSET, matShadowView.m, sizeof(matShadowView));
-
-            const float shadowProjDepthInfos[4] = {matShadowProj.m[10], matShadowProj.m[14], matShadowProj.m[11], matShadowProj.m[15]};
-            memcpy(shadowUBO.data() + UBOShadow::SHADOW_PROJ_DEPTH_INFO_OFFSET, &shadowProjDepthInfos, sizeof(shadowProjDepthInfos));
-
-            const float shadowProjInfos[4] = {matShadowProj.m[00], matShadowProj.m[05], 1.0F / matShadowProj.m[00], 1.0F / matShadowProj.m[05]};
-            memcpy(shadowUBO.data() + UBOShadow::SHADOW_PROJ_INFO_OFFSET, &shadowProjInfos, sizeof(shadowProjInfos));
-
-            memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
-
-            const float shadowNFLSInfos[4] = {nearClamp, farClamp, linear, 1.0F - mainLight->getShadowSaturation()};
-            memcpy(shadowUBO.data() + UBOShadow::SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET, &shadowNFLSInfos, sizeof(shadowNFLSInfos));
-
-            const float shadowLPNNInfos[4] = {0.0F, packing, mainLight->getShadowNormalBias(), 0.0F};
-            memcpy(shadowUBO.data() + UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET, &shadowLPNNInfos, sizeof(shadowLPNNInfos));
-
-            const float shadowWHPBInfos[4] = {shadowInfo->size.x, shadowInfo->size.y, static_cast<float>(mainLight->getShadowPcf()), mainLight->getShadowBias()};
-            memcpy(shadowUBO.data() + UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET, &shadowWHPBInfos, sizeof(shadowWHPBInfos));
         } break;
         case scene::LightType::SPOT: {
             const auto *spotLight       = static_cast<const scene::SpotLight *>(light);
@@ -352,6 +424,16 @@ void PipelineUBO::activate(gfx::Device *device, RenderPipeline *pipeline) {
     });
     descriptorSet->bindBuffer(UBOShadow::BINDING, shadowUBO);
     _ubos.push_back(shadowUBO);
+
+    auto *csmUBO = _device->createBuffer({
+        gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
+        gfx::MemoryUsageBit::DEVICE,
+        UBOCSM::SIZE,
+        UBOCSM::SIZE,
+        gfx::BufferFlagBit::NONE,
+    });
+    descriptorSet->bindBuffer(UBOCSM::BINDING, csmUBO);
+    _ubos.push_back(csmUBO);
 }
 
 void PipelineUBO::destroy() {
@@ -415,16 +497,18 @@ void PipelineUBO::updateShadowUBO(const scene::Camera *camera) {
             }
         }
     }
-    PipelineUBO::updateShadowUBOView(_pipeline, &_shadowUBO, camera);
+    updateShadowUBOView(_pipeline, &_shadowUBO,&_csmUBO, camera);
     ds->update();
     cmdBuffer->updateBuffer(ds->getBuffer(UBOShadow::BINDING), _shadowUBO.data(), UBOShadow::SIZE);
+    cmdBuffer->updateBuffer(ds->getBuffer(UBOCSM::BINDING), _csmUBO.data(), UBOCSM::SIZE);
 }
 
-void PipelineUBO::updateShadowUBOLight(gfx::DescriptorSet *globalDS, const scene::Light *light) {
+void PipelineUBO::updateShadowUBOLight(gfx::DescriptorSet *globalDS, const scene::Light *light, uint level) {
     auto *const cmdBuffer = _pipeline->getCommandBuffers()[0];
-    PipelineUBO::updateShadowUBOLightView(_pipeline, &_shadowUBO, light);
+    updateShadowUBOLightView(_pipeline, &_shadowUBO, light, level);
     globalDS->update();
     cmdBuffer->updateBuffer(globalDS->getBuffer(UBOShadow::BINDING), _shadowUBO.data(), UBOShadow::SIZE);
+    cmdBuffer->updateBuffer(globalDS->getBuffer(UBOCSM::BINDING), _csmUBO.data(), UBOCSM::SIZE);
 }
 
 void PipelineUBO::updateShadowUBORange(uint offset, const Mat4 *data) {

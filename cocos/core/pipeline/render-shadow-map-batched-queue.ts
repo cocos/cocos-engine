@@ -116,9 +116,6 @@ export class RenderShadowMapBatchedQueue {
                             if (!getShadowPassIndex(model.subModels, _shadowPassIndices)) { continue; }
                             this.add(model, _shadowPassIndices);
                         }
-
-                        this._instancedQueue.uploadBuffers(cmdBuff);
-                        this._batchedQueue.uploadBuffers(cmdBuff);
                     }
                 }
                 break;

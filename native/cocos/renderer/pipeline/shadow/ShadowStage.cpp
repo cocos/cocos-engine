@@ -65,11 +65,42 @@ void ShadowStage::render(scene::Camera *camera) {
     }
 
     auto *cmdBuffer = _pipeline->getCommandBuffers()[0];
-    _pipeline->getPipelineUBO()->updateShadowUBOLight(_globalDS, _light);
-    _additiveShadowQueue->gatherLightPasses(camera, _light, cmdBuffer);
+    _pipeline->getPipelineUBO()->updateShadowUBOLight(_globalDS, _light, _level);
+    _additiveShadowQueue->gatherLightPasses(camera, _light, cmdBuffer, _level);
 
     const auto  shadowMapSize = shadowInfo->size;
     const auto &viewport      = camera->viewPort;
+    switch (_light->getType()) {
+        case scene::LightType::DIRECTIONAL: {
+            const scene::DirectionalLight *mainLight = static_cast<const scene::DirectionalLight *>(_light);
+            if (mainLight->isShadowFixedArea() || mainLight->getShadowCSMLevel() < 2.0F) {
+                _renderArea.x      = 0;
+                _renderArea.y      = 0;
+                _renderArea.width  = static_cast<uint>(shadowMapSize.x);
+                _renderArea.height = static_cast<uint>(shadowMapSize.y);
+            } else {
+                _renderArea.x      = static_cast<int>(static_cast<float>(_level % 2u) * 0.5F * shadowMapSize.x);
+                _renderArea.y      = static_cast<int>((1 - std::floorf(static_cast<float>(_level) / 2)) * 0.5F * shadowMapSize.y);
+                _renderArea.width  = static_cast<int>(0.5F * shadowMapSize.x);
+                _renderArea.height = static_cast<int>(0.5F * shadowMapSize.y);
+            }
+            break;
+        }
+        case scene::LightType::SPOT: {
+            _renderArea.x      = 0;
+            _renderArea.y      = 0;
+            _renderArea.width  = static_cast<uint>(shadowMapSize.x);
+            _renderArea.height = static_cast<uint>(shadowMapSize.y);
+            break;
+        }
+        case scene::LightType::SPHERE: {
+            break;
+        }
+        case scene::LightType::UNKNOWN:
+            break;
+        default:
+            break;
+    }
     _renderArea.x             = static_cast<int>(viewport.x * shadowMapSize.x);
     _renderArea.y             = static_cast<int>(viewport.y * shadowMapSize.y);
     _renderArea.width         = static_cast<uint>(viewport.z * shadowMapSize.x * sharedData->shadingScale);
