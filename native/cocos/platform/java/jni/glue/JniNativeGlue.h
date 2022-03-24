@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <functional>
 #include <future>
 #include <memory>
 #include "base/Macros.h"
@@ -44,6 +45,9 @@ using NativeWindowType    = ANativeWindow;
 using ResourceManagerType = ResourceManager;
 using NativeWindowType    = NativeLayer;
 #endif
+
+using NativeActivity = void*; //jobject
+using NativeEnv      = void*; //jnienv
 
 namespace cc {
 
@@ -68,6 +72,12 @@ public:
 
     void              setWindowHandler(NativeWindowType* window);
     NativeWindowType* getWindowHandler();
+
+    void  setActivityGetter(std::function<NativeActivity(void)>);
+    void* getActivity();
+
+    void  setEnvGetter(std::function<NativeEnv(void)>);
+    void* getEnv();
 
     void                 setResourceManager(ResourceManagerType* resourceManager);
     ResourceManagerType* getResourceManager();
@@ -125,6 +135,9 @@ private:
     JniCommand                   _appState{JniCommand::JNI_CMD_UNKNOW};
     IEventDispatch*              _eventDispatcher{nullptr};
     std::unique_ptr<MessagePipe> _messagePipe{nullptr};
+
+    std::function<NativeEnv(void)>      _envGetter;
+    std::function<NativeActivity(void)> _activityGetter;
 };
 
 } // namespace cc

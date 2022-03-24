@@ -74,4 +74,12 @@ void AndroidPlatform::pollEvent() {
     _jniNativeGlue->flushTasksOnGameThread();
 }
 
+void *AndroidPlatform::getActivity() {
+    return _jniNativeGlue->getActivity();
+}
+
+void *AndroidPlatform::getEnv() {
+    return _jniNativeGlue->getEnv();
+}
+
 }; // namespace cc

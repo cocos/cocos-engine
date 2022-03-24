@@ -25,6 +25,10 @@
 
 #include "GLES2GPUObjects.h"
 
+#if CC_SWAPPY_ENABLED
+    #include "swappy/swappyGL.h"
+#endif
+
 #define FORCE_DISABLE_VALIDATION 1
 
 namespace cc {
@@ -287,6 +291,14 @@ void GLES2GPUContext::makeCurrent(const GLES2GPUSwapchain *drawSwapchain, const 
 }
 
 void GLES2GPUContext::present(const GLES2GPUSwapchain *swapchain) {
+#if CC_SWAPPY_ENABLED
+    if (swapchain->swappyEnabled) {
+        //fallback to normal eglswap if swappy_swap failed
+        if(SwappyGL_swap(eglDisplay, swapchain->eglSurface)) {
+            return;
+        }
+    }
+#endif
     if (_eglCurrentInterval != swapchain->eglSwapInterval) {
         if (!eglSwapInterval(eglDisplay, swapchain->eglSwapInterval)) {
             CC_LOG_ERROR("eglSwapInterval() - FAILED.");
