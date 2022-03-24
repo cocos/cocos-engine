@@ -1,4 +1,4 @@
-import { AnimationClip, AnimationState, Node } from '../../cocos/core';
+import { AnimationState } from '../../cocos/core/animation';
 import { CrossFade } from '../../cocos/core/animation/cross-fade';
 import { Playable } from '../../cocos/core/animation/playable';
 
