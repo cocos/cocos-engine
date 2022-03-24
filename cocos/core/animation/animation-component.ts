@@ -182,7 +182,7 @@ export class Animation extends Eventify(Component) {
     public onEnable () {
         assertIsTrue(!this._animationUpdateTaskHandle);
         this._animationUpdateTaskHandle = getGlobalAnimationManager().addUpdateTask(
-            this.doAnimationSystemUpdate,
+            this._onAnimationSystemUpdate,
             this,
         );
     }
@@ -474,11 +474,11 @@ export class Animation extends Eventify(Component) {
         this._crossFade.crossFade(state, duration);
     }
 
-    /**
-     *
-     * @internal This method only friends to skeletal animation component.
-     */
-    protected doAnimationSystemUpdate (deltaTime: number) {
+    private _playing = false;
+
+    private _blendStateBuffer = new LegacyBlendStateBuffer();
+
+    private _onAnimationSystemUpdate (deltaTime: number) {
         if (!this._playing) {
             return;
         }
@@ -495,10 +495,6 @@ export class Animation extends Eventify(Component) {
 
         this._blendStateBuffer.apply();
     }
-
-    private _playing = false;
-
-    private _blendStateBuffer = new LegacyBlendStateBuffer();
 
     private _removeStateOfAutomaticClip (clip: AnimationClip) {
         for (const name in this._nameToState) {
