@@ -257,6 +257,9 @@ void Root::resetCumulativeTime() {
 }
 
 void Root::frameMove(float deltaTime, int32_t totalFrames) {
+    if (!cc::gfx::Device::getInstance()->isRendererAvailable()) {
+        return;
+    }
     _frameTime = deltaTime;
 
     ++_frameCount;
