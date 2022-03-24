@@ -232,6 +232,7 @@ module.exports = {
                 original: '原始',
             },
             limitMaterialDumpDir: '提取的路径需要限定在项目路径范围内',
+            legacyOptions:'旧版本遗留',
             legacyFbxImporter: {
                 name: '与 1.* 版本兼容',
                 title: '此导入器是否应该与其在 Cocos Creator 1.* 之前版本的导入方式兼容。',
