@@ -30,12 +30,30 @@
 namespace cc {
 class SimpleCocosApplication : public CocosApplication {
 public:
+    struct DebuggerInfo {
+        bool        enabled{true};
+        int32_t     port{6086};
+        std::string address{"0.0.0.0"};
+        bool        pauseOnStart{false};
+    };
+
+    struct WindowInfo {
+        std::string title;
+        int32_t     x{0};
+        int32_t     y{0};
+        int32_t     width{800};
+        int32_t     height{600};
+        int32_t     flags = cc::ISystemWindow::CC_WINDOW_SHOWN |
+                        cc::ISystemWindow::CC_WINDOW_RESIZABLE |
+                        cc::ISystemWindow::CC_WINDOW_INPUT_FOCUS;
+    };
     SimpleCocosApplication() = default;
     int init() override {
-        createWindow(windowTitle.c_str(), windowX, windowY, windowWidth, windowHeight, windowFlags);
+        createWindow(_windowInfo.title.c_str(),
+                     _windowInfo.x, _windowInfo.y, _windowInfo.width, _windowInfo.height, _windowInfo.flags);
 
-        if (enableDebugger) {
-            setJsDebugIpAndPort(debugListenAddress, debugPort, debugPauseOnStart);
+        if (_debuggerInfo.enabled) {
+            setJsDebugIpAndPort(_debuggerInfo.address, _debuggerInfo.port, _debuggerInfo.pauseOnStart);
         }
 
         int ret = cc::CocosApplication::init();
@@ -43,7 +61,7 @@ public:
             return ret;
         }
 
-        setXXTeaKey(xxTeaKey);
+        setXXTeaKey(_xxTeaKey);
 
         runJsScript("jsb-adapter/jsb-builtin.js");
         runJsScript("main.js");
@@ -51,18 +69,8 @@ public:
     }
 
 protected:
-    std::string windowTitle;
-    int32_t     windowX{0};
-    int32_t     windowY{0};
-    int32_t     windowWidth{0};
-    int32_t     windowHeight{0};
-    int32_t     windowFlags = cc::ISystemWindow::CC_WINDOW_SHOWN |
-                          cc::ISystemWindow::CC_WINDOW_RESIZABLE |
-                          cc::ISystemWindow::CC_WINDOW_INPUT_FOCUS;
-    std::string xxTeaKey{""};
-    bool        enableDebugger{true};
-    int32_t     debugPort{6086};
-    std::string debugListenAddress{"0.0.0.0"};
-    bool        debugPauseOnStart{false};
+    std::string  _xxTeaKey;
+    DebuggerInfo _debuggerInfo;
+    WindowInfo   _windowInfo;
 };
 } // namespace cc

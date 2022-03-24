@@ -31,19 +31,22 @@
 Game::Game() = default;
 
 int Game::init() {
-    windowTitle  = GAME_NAME;
-    windowX      = 0;
-    windowY      = 0;
-    windowWidth  = 800;
-    windowHeight = 600;
+    _windowInfo.title  = GAME_NAME;
+    _windowInfo.x      = 0;
+    _windowInfo.y      = 0;
+    _windowInfo.width  = 800;
+    _windowInfo.height = 600;
+
 #if CC_DEBUG
-    enableDebugger = true;
+    _debuggerInfo.enabled = true;
 #else
-    enableDebugger = false;
+    _debuggerInfo.enabled = false;
 #endif
-    debugPort          = 6086;
-    debugListenAddress = "0.0.0.0";
-    debugPauseOnStart  = false;
+    _debuggerInfo.port         = 6086;
+    _debuggerInfo.address      = "0.0.0.0";
+    _debuggerInfo.pauseOnStart = false;
+
+    _xxTeaKey = "";
 
     SimpleCocosApplication::init();
     return 0;
