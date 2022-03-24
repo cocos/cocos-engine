@@ -33,6 +33,7 @@
 #include "profiler/Profiler.h"
 #include "renderer/pipeline/Define.h"
 #include "renderer/pipeline/InstancedBuffer.h"
+#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "scene/Model.h"
 #include "scene/Pass.h"
 #include "scene/RenderScene.h"
@@ -242,7 +243,7 @@ void Model::updateUBOs(uint32_t stamp) {
 
         mat4ToFloat32Array(mat4, _localData, pipeline::UBOLocal::MAT_WORLD_IT_OFFSET);
         _localBuffer->update(_localData.buffer()->getData());
-        const bool enableOcclusionQuery = pipeline::RenderPipeline::getInstance()->isOcclusionQueryEnabled();
+        const bool enableOcclusionQuery = Root::getInstance()->getPipeline()->isOcclusionQueryEnabled();
         if (enableOcclusionQuery) {
             updateWorldBoundUBOs();
         }

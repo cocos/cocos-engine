@@ -31,6 +31,7 @@
 // clang-format off
 #pragma once
 #include "cocos/base/Ptr.h"
+#include "cocos/renderer/frame-graph/FrameGraph.h"
 #include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
 #include "cocos/renderer/pipeline/custom/NativePipelineFwd.h"
 #include "cocos/renderer/pipeline/custom/RenderCompilerTypes.h"
@@ -79,12 +80,16 @@ public:
     void setValue(const std::string& name, int32_t value) override;
     void setValue(const std::string& name, bool value) override;
 
+    bool isOcclusionQueryEnabled() const override;
+
     gfx::Device*                               device{nullptr};
+    gfx::Swapchain*                            swapchain{nullptr};
     MacroRecord                                macros;
     std::string                                constantMacros;
     std::unique_ptr<pipeline::GlobalDSManager> globalDSManager;
     scene::Model*                              profiler{nullptr};
     IntrusivePtr<pipeline::PipelineSceneData>  pipelineSceneData;
+    framegraph::FrameGraph                     frameGraph;
 };
 
 } // namespace render

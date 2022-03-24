@@ -62,6 +62,8 @@ Root::Root(gfx::Device *device)
 
     _cameraList.reserve(6);
     _swapchains.reserve(2);
+
+    _usesCustomPipeline = false;
 }
 
 Root::~Root() {
@@ -173,6 +175,9 @@ public:
     }
     void setValue(const std::string &name, bool value) override {
         pipeline->setValue(name, value);
+    }
+    bool isOcclusionQueryEnabled() const override {
+        return pipeline->isOcclusionQueryEnabled();
     }
     pipeline::RenderPipeline *pipeline = nullptr;
 };

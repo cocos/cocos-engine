@@ -37,7 +37,7 @@
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "renderer/GFXDeviceManager.h"
 #include "renderer/pipeline/PipelineSceneData.h"
-#include "renderer/pipeline/RenderPipeline.h"
+#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "scene/Shadow.h"
 
 namespace cc {
@@ -197,7 +197,7 @@ void Profiler::update() {
 }
 
 void Profiler::doIntervalUpdate() {
-    const auto *pipeline  = pipeline::RenderPipeline::getInstance();
+    const auto *pipeline  = Root::getInstance()->getPipeline();
     const auto *root      = Root::getInstance();
     const auto *sceneData = pipeline->getPipelineSceneData();
     const auto *shadows   = sceneData->getShadows();

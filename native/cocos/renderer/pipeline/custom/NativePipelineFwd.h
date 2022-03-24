@@ -31,6 +31,7 @@
 // clang-format off
 #pragma once
 #include <boost/variant2/variant.hpp>
+#include "cocos/renderer/frame-graph/FrameGraph.h"
 #include "cocos/renderer/pipeline/custom/RenderCompilerFwd.h"
 #include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
 

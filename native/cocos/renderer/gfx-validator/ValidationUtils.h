@@ -173,19 +173,19 @@ void DeviceResourceTracker<Resource, Enable>::checkEmpty() {
     CCASSERT(resources.empty(), "Resource leaked");
 }
 
-//template <> struct RecordStacktrace<CommandBuffer> : std::true_type {};
-//template <> struct RecordStacktrace<Queue> : std::true_type {};
-//template <> struct RecordStacktrace<Buffer> : std::true_type {};
-//template <> struct RecordStacktrace<Texture> : std::true_type {};
-//template <> struct RecordStacktrace<Sampler> : std::true_type {};
-//template <> struct RecordStacktrace<Shader> : std::true_type {};
-//template <> struct RecordStacktrace<InputAssembler> : std::true_type {};
-//template <> struct RecordStacktrace<RenderPass> : std::true_type {};
-//template <> struct RecordStacktrace<Framebuffer> : std::true_type {};
-//template <> struct RecordStacktrace<DescriptorSet> : std::true_type {};
-//template <> struct RecordStacktrace<DescriptorSetLayout> : std::true_type {};
-//template <> struct RecordStacktrace<PipelineLayout> : std::true_type {};
-//template <> struct RecordStacktrace<PipelineState> : std::true_type {};
+template <> struct RecordStacktrace<CommandBuffer> : std::true_type {};
+template <> struct RecordStacktrace<Queue> : std::true_type {};
+template <> struct RecordStacktrace<Buffer> : std::true_type {};
+template <> struct RecordStacktrace<Texture> : std::true_type {};
+template <> struct RecordStacktrace<Sampler> : std::true_type {};
+template <> struct RecordStacktrace<Shader> : std::true_type {};
+template <> struct RecordStacktrace<InputAssembler> : std::true_type {};
+template <> struct RecordStacktrace<RenderPass> : std::true_type {};
+template <> struct RecordStacktrace<Framebuffer> : std::true_type {};
+template <> struct RecordStacktrace<DescriptorSet> : std::true_type {};
+template <> struct RecordStacktrace<DescriptorSetLayout> : std::true_type {};
+template <> struct RecordStacktrace<PipelineLayout> : std::true_type {};
+template <> struct RecordStacktrace<PipelineState> : std::true_type {};
 
 } // namespace gfx
 } // namespace cc

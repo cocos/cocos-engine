@@ -33,7 +33,7 @@
 #include "core/scene-graph/Node.h"
 #include "profiler/Profiler.h"
 #include "renderer/pipeline/PipelineSceneData.h"
-#include "renderer/pipeline/RenderPipeline.h"
+#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/DrawBatch2D.h"
@@ -41,6 +41,7 @@
 #include "scene/Octree.h"
 #include "scene/SphereLight.h"
 #include "scene/SpotLight.h"
+#include "core/Root.h"
 
 namespace cc {
 namespace scene {
@@ -49,7 +50,7 @@ RenderScene::RenderScene() = default;
 RenderScene::~RenderScene() = default;
 
 void RenderScene::activate() {
-    const auto *sceneData = pipeline::RenderPipeline::getInstance()->getPipelineSceneData();
+    const auto *sceneData = Root::getInstance()->getPipeline()->getPipelineSceneData();
     _octree               = sceneData->getOctree();
 }
 

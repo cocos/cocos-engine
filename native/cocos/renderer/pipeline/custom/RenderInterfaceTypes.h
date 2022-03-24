@@ -96,6 +96,8 @@ public:
 
     virtual void setValue(const std::string& name, int32_t value) = 0;
     virtual void setValue(const std::string& name, bool value) = 0;
+
+    virtual bool isOcclusionQueryEnabled() const = 0;
 };
 
 inline PipelineRuntime::~PipelineRuntime() noexcept = default;
