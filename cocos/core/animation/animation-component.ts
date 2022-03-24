@@ -210,6 +210,7 @@ export class Animation extends Eventify(Component) {
      */
     public play (name?: string) {
         this._hasBeenPlayed = true;
+        this._playing = true;
         if (!name) {
             if (!this._defaultClip) {
                 return;
