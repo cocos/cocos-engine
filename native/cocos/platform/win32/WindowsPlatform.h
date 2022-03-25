@@ -25,13 +25,12 @@
 
 #pragma once
 
+#include <memory>
 #include "platform/UniversalPlatform.h"
-#include "platform/win32/modules/SystemWindow.h"
 
 namespace cc {
-class SDLHelper;
-class CC_DLL WindowsPlatform : public UniversalPlatform,
-                               public SystemWindow::Delegate {
+class SystemWindow;
+class CC_DLL WindowsPlatform : public UniversalPlatform {
 public:
     WindowsPlatform();
     /**
@@ -45,16 +44,9 @@ public:
 
     int32_t loop() override;
 
-    // override from SystemWindow::Delegate
-    bool      createWindow(const char* title,
-                           int x, int y, int w,
-                           int h, int flags) override;
-    uintptr_t getWindowHandler() const override;
-
 private:
-    void                       pollEvent() override;
-    bool                       _quit{false};
-    std::unique_ptr<SDLHelper> _sdl;
+    std::shared_ptr<SystemWindow> _window{nullptr};
+    bool                          _quit{false};
 };
 
 } // namespace cc

@@ -32,6 +32,7 @@ class JniNativeGlue;
 class CC_DLL AndroidPlatform : public UniversalPlatform {
 public:
     AndroidPlatform();
+    int init() override;
     void    pollEvent() override;
     int32_t run(int argc, const char** argv) override;
     int     getSdkVersion() const override;

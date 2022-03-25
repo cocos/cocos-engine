@@ -382,7 +382,7 @@ elseif(IOS)
     )
 endif()
 
-if(WINDOWS OR LINUX)
+if(NOT USE_SERVER_MODE AND (WINDOWS OR LINUX))
 cocos_source_files(
     cocos/platform/SDLHelper.h
     cocos/platform/SDLHelper.cpp
@@ -461,19 +461,13 @@ cocos_source_files(
 cocos_source_files(
     cocos/platform/interfaces/modules/Device.cpp
     cocos/platform/interfaces/modules/Device.h
-    cocos/platform/interfaces/modules/IAccelerometer.cpp
     cocos/platform/interfaces/modules/IAccelerometer.h
-    cocos/platform/interfaces/modules/IBattery.cpp
     cocos/platform/interfaces/modules/IBattery.h
-    cocos/platform/interfaces/modules/IScreen.cpp
     cocos/platform/interfaces/modules/IScreen.h
-    cocos/platform/interfaces/modules/INetwork.cpp
     cocos/platform/interfaces/modules/INetwork.h
     cocos/platform/interfaces/modules/ISystem.cpp
     cocos/platform/interfaces/modules/ISystem.h
-    cocos/platform/interfaces/modules/ISystemWindow.cpp
     cocos/platform/interfaces/modules/ISystemWindow.h
-    cocos/platform/interfaces/modules/IVibrator.cpp
     cocos/platform/interfaces/modules/IVibrator.h
 )
 
@@ -527,8 +521,8 @@ if(USE_SERVER_MODE)
         cocos/platform/empty/modules/Screen.h
         cocos/platform/empty/modules/Network.cpp
         cocos/platform/empty/modules/Network.h
-        cocos/platform/empty/modules/Vibrate.cpp
-        cocos/platform/empty/modules/Vibrate.h
+        cocos/platform/empty/modules/Vibrator.cpp
+        cocos/platform/empty/modules/Vibrator.h
         cocos/platform/empty/modules/System.cpp
         cocos/platform/empty/modules/System.h
         cocos/platform/empty/modules/SystemWindow.cpp
@@ -629,8 +623,8 @@ elseif(LINUX)
         cocos/platform/linux/modules/Screen.h
         cocos/platform/linux/modules/Network.cpp
         cocos/platform/linux/modules/Network.h
-        cocos/platform/linux/modules/Vibrate.cpp
-        cocos/platform/linux/modules/Vibrate.h
+        cocos/platform/linux/modules/Vibrator.cpp
+        cocos/platform/linux/modules/Vibrator.h
         cocos/platform/linux/modules/System.cpp
         cocos/platform/linux/modules/System.h
         cocos/platform/linux/modules/SystemWindow.cpp
@@ -646,8 +640,8 @@ elseif(QNX)
         cocos/platform/qnx/modules/Screen.h
         cocos/platform/qnx/modules/Network.cpp
         cocos/platform/qnx/modules/Network.h
-        cocos/platform/qnx/modules/Vibrate.cpp
-        cocos/platform/qnx/modules/Vibrate.h
+        cocos/platform/qnx/modules/Vibrator.cpp
+        cocos/platform/qnx/modules/Vibrator.h
         cocos/platform/qnx/modules/System.cpp
         cocos/platform/qnx/modules/System.h
         cocos/platform/qnx/modules/SystemWindow.cpp

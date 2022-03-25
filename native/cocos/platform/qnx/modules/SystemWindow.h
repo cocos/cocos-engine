@@ -28,9 +28,7 @@
 #include <iostream>
 
 #include "platform/interfaces/modules/ISystemWindow.h"
-
-struct SDL_Window;
-struct SDL_WindowEvent;
+#include <screen/screen.h>
 
 namespace cc {
 
@@ -39,15 +37,8 @@ public:
     explicit SystemWindow();
     ~SystemWindow() override;
 
-    class Delegate {
-    public:
-        virtual ~Delegate()                              = default;
-        virtual bool      createWindow(const char* title,
-                                       int x, int y, int w,
-                                       int h, int flags) = 0;
-        virtual uintptr_t getWindowHandler() const       = 0;
-    };
-
+    bool      createWindow(const char* title, 
+                           int w, int h, int flags) override;
     bool      createWindow(const char* title,
                            int x, int y, int w,
                            int h, int flags) override;
@@ -63,6 +54,9 @@ public:
 private:
     int _width{0};
     int _height{0};
+    // std::unique_ptr<SDLHelper> _sdl;
+    screen_context_t _screenCtx{nullptr};
+    screen_window_t  _screenWin{nullptr};
 };
 
 } // namespace cc

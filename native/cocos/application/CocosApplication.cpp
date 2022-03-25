@@ -133,12 +133,18 @@ void CocosApplication::handleException(const char *location, const char *message
 void CocosApplication::setXXTeaKey(const std::string &key) {
     jsb_set_xxtea_key(key);
 }
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX  || CC_PLATFORM == CC_PLATFORM_QNX || CC_PLATFORM == CC_PLATFORM_MAC_OSX
+void CocosApplication::createWindow(const char* title, int32_t w,
+                                    int32_t h, int32_t flags) {
+    _systemWidow->createWindow(title,  w, h, flags);
+}
 
 void CocosApplication::createWindow(const char *title,
                                     int32_t x, int32_t y, int32_t w,
                                     int32_t h, int32_t flags) {
     _systemWidow->createWindow(title, x, y, w, h, flags);
 }
+#endif
 
 void CocosApplication::handleAppEvent(const OSEvent &ev) {
     const AppEvent &appEv = OSEvent::castEvent<AppEvent>(ev);

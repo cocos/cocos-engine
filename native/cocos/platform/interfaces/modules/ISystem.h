@@ -84,13 +84,7 @@ public:
      @return True if the resource located by the URL was successfully opened; otherwise false.
      */
     virtual bool openURL(const std::string& url) = 0;
-    /**
-     @brief Create default sytem interface.
-     @return sytem interface.
-     */
-    static OSInterface::Ptr createSystemInterface();
 
-private:
 };
 
 } // namespace cc

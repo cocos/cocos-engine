@@ -40,6 +40,17 @@
 
 @implementation AppDelegate
 
+- (void)createWindowPosCentered:(NSString*)title width:(int)w height:(int)h {
+    CGRect screenFrame = CGDisplayBounds(kCGDirectMainDisplay);
+    int x = 0;
+    int y = 0;
+    if(w < screenFrame.size.width)
+        x = screenFrame.origin.x + (screenFrame.size.width - w)/2;
+    if(h < screenFrame.size.height)
+        y = screenFrame.origin.y + (screenFrame.size.height - h)/2;
+    [self createWindow :title xPos:x yPos:y width:w height:h];
+}
+
 - (void)createWindow:(NSString*)title xPos:(int)x yPos:(int)y width:(int)w height:(int)h {
     _window.title = title;
     NSRect rect   = NSMakeRect(x, y, w, h);

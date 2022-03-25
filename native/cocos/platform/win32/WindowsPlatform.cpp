@@ -28,9 +28,14 @@
 #include <Windows.h>
 #include <shellapi.h>
 #include <sstream>
-#include "platform/interfaces/OSInterface.h"
-#include "platform/interfaces/modules/ISystemWindow.h"
-#include "platform/SDLHelper.h"
+
+#include "modules/Accelerometer.h"
+#include "modules/Battery.h"
+#include "modules/Network.h"
+#include "modules/Screen.h"
+#include "modules/System.h"
+#include "modules/SystemWindow.h"
+#include "modules/Vibrator.h"
 
 namespace {
 /**
@@ -73,7 +78,6 @@ void PVRFrameEnableControlWindow(bool bEnable) {
 
 namespace cc {
 WindowsPlatform::WindowsPlatform() {
-    _sdl = std::make_unique<SDLHelper>(this);
 }
 WindowsPlatform::~WindowsPlatform() {
 
@@ -83,7 +87,15 @@ WindowsPlatform::~WindowsPlatform() {
 }
 
 int32_t WindowsPlatform::init() {
-    UniversalPlatform::init();
+    registerInterface(std::make_shared<Accelerometer>());
+    registerInterface(std::make_shared<Battery>());
+    registerInterface(std::make_shared<Network>());
+    registerInterface(std::make_shared<Screen>());
+    registerInterface(std::make_shared<System>());
+    _window = std::make_shared<SystemWindow>(this);
+    registerInterface(_window);
+    registerInterface(std::make_shared<Vibrator>());
+
 #ifdef USE_WIN32_CONSOLE
     AllocConsole();
     freopen("CONIN$", "r", stdin);
@@ -93,7 +105,7 @@ int32_t WindowsPlatform::init() {
 
     PVRFrameEnableControlWindow(false);
 
-    return _sdl->init() ? 0 : -1;
+    return _window->init();
 }
 
 int32_t WindowsPlatform::loop() {
@@ -126,13 +138,13 @@ int32_t WindowsPlatform::loop() {
     onResume();
     while (!_quit) {
         desiredInterval = (LONGLONG)(1.0 / getFps() * nFreq.QuadPart);
-        pollEvent();
+        _window->pollEvent(&_quit);
         QueryPerformanceCounter(&nNow);
         actualInterval = nNow.QuadPart - nLast.QuadPart;
         if (actualInterval >= desiredInterval) {
             nLast.QuadPart = nNow.QuadPart;
             runTask();
-            _sdl->swapWindow();
+            _window->swapWindow();
         } else {
             // The precision of timer on Windows is set to highest (1ms) by 'timeBeginPeriod' from above code,
             // but it's still not precise enough. For example, if the precision of timer is 1ms,
@@ -150,21 +162,6 @@ int32_t WindowsPlatform::loop() {
 
     onDestory();
     return 0;
-}
-
-
-void WindowsPlatform::pollEvent() {
-    _sdl->pollEvent(&_quit);
-}
-
-bool WindowsPlatform::createWindow(const char *title,
-                                   int x, int y, int w,
-                                   int h, int flags) {
-    return _sdl->createWindow(title, x, y, w, h, flags);
-}
-
-uintptr_t WindowsPlatform::getWindowHandler() const {
-    return _sdl->getWindowHandler();
 }
 
 } // namespace cc
