@@ -32,7 +32,6 @@ namespace ccstd {
 using std::string;
 
 namespace pmr {
-template <class charT, class traits = std::char_traits<charT>>
-using string = std::basic_string<charT, traits, boost::container::pmr::polymorphic_allocator<charT>>;
+using string = std::basic_string<char, std::char_traits<char>, boost::container::pmr::polymorphic_allocator<char>>;
 }
 } // namespace ccstd
