@@ -13,7 +13,7 @@ exports.template = `
     <header class="header" slot="header">
         <ui-icon class="icon" color tooltip="i18n:inspector.locate_asset"></ui-icon>
         <ui-image class="image" tooltip="i18n:inspector.locate_asset"></ui-image>
-        <span class="name"></span>
+        <ui-label class="name"></ui-label>
         <ui-link value="" class="help" tooltip="i18n:inspector.menu.help_url">
             <ui-icon value="help"></ui-icon>
         </ui-link>
@@ -23,7 +23,7 @@ exports.template = `
         <ui-button class="reset tiny red transparent" tooltip="i18n:inspector.asset.reset">
             <ui-icon value="reset"></ui-icon>
         </ui-button>
-        <ui-icon class="lock" value="lock" tooltip="i18n:inspector.asset.prohibitEditInternalAsset"></ui-icon>
+        <ui-icon class="copy" value="copy" tooltip="i18n:ENGINE.inspector.cloneToEdit"></ui-icon>
     </header>
     <section class="content">
         <section class="content-header"></section>
@@ -36,7 +36,7 @@ exports.$ = {
     container: '.container',
     header: '.header',
     content: '.content',
-    lock: '.lock',
+    copy: '.copy',
     icon: '.icon',
     image: '.image',
     name: '.name',
@@ -161,6 +161,23 @@ const Elements = {
                 panel.reset();
             });
 
+            panel.$.copy.addEventListener('click', () => {
+                const result = await Editor.Dialog.select({
+                    title: 'Select Directory',
+                    path: Editor.Project.path,
+                    type: 'directory',
+                });
+                const files = result.filePaths;
+                if (!files) {
+                    return;
+                }
+                const folder = files[0];
+                if (!folder || !existsSync(folder)) {
+                    return;
+                }
+                const file = join(folder, '');
+            });
+
             panel.$.icon.addEventListener('click', (event) => {
                 event.stopPropagation();
                 panel.uuidList.forEach((uuid) => {
@@ -175,10 +192,19 @@ const Elements = {
                 return;
             }
 
-            panel.$.name.innerHTML = panel.assetList.length === 1 ? panel.asset.name : `${panel.assetList.length} selections`;
+            panel.$.name.value = panel.assetList.length === 1 ? panel.asset.name : `${panel.assetList.length} selections`;
 
-            // 处理界面显示
-            panel.$.lock.style.display = panel.asset.readonly ? 'inline-block' : 'none';
+            if (panel.asset.readonly) {
+                panel.$.name.setAttribute('tooltip', 'i18n:inspector.asset.prohibitEditInternalAsset');
+                panel.$.name.setAttribute('readonly', '');
+                panel.$.copy.style.display = 'inline-block';
+            } else {
+                panel.$.name.removeAttribute('tooltip');
+                panel.$.name.removeAttribute('readonly');
+                panel.$.copy.style.display = 'none';
+
+            }
+
             const isImage = showImage.includes(panel.asset.type);
 
             if (isImage) {

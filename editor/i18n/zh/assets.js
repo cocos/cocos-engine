@@ -3,6 +3,9 @@ module.exports = {
         confirm: '确认',
         cancel: '取消',
     },
+    inspector: {
+        cloneToEdit: '克隆出新资源并进入编辑',
+    },
     assets: {
         'label-atlas': {
             SpriteFrameTip: 'SpriteFrame',

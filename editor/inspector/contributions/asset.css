@@ -45,18 +45,22 @@
     white-space: nowrap;
 }
 
+:host > .container > .header > .name[readonly] {
+    opacity: 0.5;
+}
+
 :host > .container > .header > .help {
     display: none;
     margin-right: 10px;
 }
 
-:host > .container > .header > .lock {
+:host > .container > .header > .copy {
     display: none;
-    font-size: 12px;
+    font-size: 16px;
     color: var(--color-focus-contrast-normal);
     margin-left: 4px;
-    margin-right: 12px;
-    cursor: auto;
+    margin-right: 10px;
+    cursor: pointer;
 }
 
 :host > .container > .header > ui-button {
