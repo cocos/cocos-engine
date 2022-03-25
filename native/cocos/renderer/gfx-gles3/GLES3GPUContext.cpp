@@ -25,6 +25,10 @@
 
 #include "GLES3GPUObjects.h"
 
+#if CC_SWAPPY_ENABLED
+    #include "swappy/swappyGL.h"
+#endif
+
 #define FORCE_DISABLE_VALIDATION 1
 
 namespace cc {
@@ -295,10 +299,19 @@ void GLES3GPUContext::makeCurrent(const GLES3GPUSwapchain *drawSwapchain, const 
 }
 
 void GLES3GPUContext::present(const GLES3GPUSwapchain *swapchain) {
+#if CC_SWAPPY_ENABLED
+    if (swapchain->swappyEnabled) {
+        // fallback to normal eglswap if swappy swap failed.
+        if (SwappyGL_swap(eglDisplay, swapchain->eglSurface)) {
+            return;
+        }
+    }
+#endif
     if (_eglCurrentInterval != swapchain->eglSwapInterval) {
         if (!eglSwapInterval(eglDisplay, swapchain->eglSwapInterval)) {
             CC_LOG_ERROR("eglSwapInterval() - FAILED.");
         }
+
         _eglCurrentInterval = swapchain->eglSwapInterval;
     }
     EGL_CHECK(eglSwapBuffers(eglDisplay, swapchain->eglSurface));

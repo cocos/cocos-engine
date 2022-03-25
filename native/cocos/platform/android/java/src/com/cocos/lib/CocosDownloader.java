@@ -187,6 +187,17 @@ public class CocosDownloader {
 
                     final Request request = builder.build();
                     task = downloader._httpClient.newCall(request);
+                    if (null == task) {
+                        final String errStr = "Can't create DownloadTask for " + url;
+                        CocosHelper.runOnGameThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                downloader.nativeOnFinish(downloader._id, id, 0, errStr, null);
+                            }
+                        });
+                    } else {
+                        downloader._taskMap.put(id, task);
+                    }
                     task.enqueue(new Callback() {
                         @Override
                         public void onFailure(Call call, IOException e) {
@@ -297,18 +308,6 @@ public class CocosDownloader {
                         }
                     });
                 } while (false);
-
-                if (null == task) {
-                    final String errStr = "Can't create DownloadTask for " + url;
-                    CocosHelper.runOnGameThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            downloader.nativeOnFinish(downloader._id, id, 0, errStr, null);
-                        }
-                    });
-                } else {
-                    downloader._taskMap.put(id, task);
-                }
             }
         };
         downloader.enqueueTask(taskRunnable);

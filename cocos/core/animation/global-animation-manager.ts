@@ -1,7 +1,7 @@
-import { legacyCC } from "../global-exports";
-import type { AnimationManager } from "./animation-manager";
+import { legacyCC } from '../global-exports';
+import type { AnimationManager } from './animation-manager';
 
-export function getGlobalAnimationManager() {
+export function getGlobalAnimationManager () {
     const animationManager = legacyCC.director.getAnimationManager() as AnimationManager;
     return animationManager;
 }

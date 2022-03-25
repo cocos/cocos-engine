@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 export enum EBtSharedBodyDirty {
     BODY_RE_ADD = 1,

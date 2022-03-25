@@ -77,15 +77,14 @@ public:
         return true;
     }
     /**
-     * @briefCreate a centered window.
+     * @brief Create a centered window.
      *@param title: Window title
      *@param w: Window width
      *@param h: Window height
      *@param flags: Window flag
      */
     virtual bool      createWindow(const char* title,
-                                   int         w,
-                                   int h, int flags) {
+                                   int w, int h, int flags) {
         return true;
     }
     virtual uintptr_t getWindowHandler() const       = 0;

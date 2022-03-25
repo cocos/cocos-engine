@@ -247,7 +247,7 @@ class TerrainRenderable extends RenderableComponent {
      */
     public _updateMaterial (block: TerrainBlock, init: boolean) {
         if (this._meshData == null || this._model == null) {
-            return;
+            return false;
         }
 
         const nLayers = block.getMaxLayer();
@@ -282,7 +282,10 @@ class TerrainRenderable extends RenderableComponent {
             this._currentMaterialLayers = nLayers;
             this._model.enabled = true;
             this._model.receiveShadow = block.getTerrain().receiveShadow;
+            return true;
         }
+
+        return false;
     }
 
     /**
@@ -801,7 +804,12 @@ export class TerrainBlock {
     }
 
     public _updateMaterial (init: boolean) {
-        this._renderable._updateMaterial(this, init);
+        if (this._renderable._updateMaterial(this, init)) {
+            // Need set wrap mode clamp to border
+            if (this.lightmap !== null) {
+                this.lightmap.setWrapMode(WrapMode.CLAMP_TO_BORDER, WrapMode.CLAMP_TO_BORDER);
+            }
+        }
     }
 
     public _updateHeight () {
@@ -2403,8 +2411,8 @@ export class Terrain extends Component {
         const sampleOldWeight = (_x: number, _y: number, _xOff: number, _yOff: number, _weights: Uint8Array) => {
             const ix0 = Math.floor(_x);
             const iz0 = Math.floor(_y);
-            const ix1 = ix0 + 1;
-            const iz1 = iz0 + 1;
+            const ix1 = Math.min(ix0 + 1, oldWeightMapSize - 1);
+            const iz1 = Math.min(iz0 + 1, oldWeightMapSize - 1);
             const dx = _x - ix0;
             const dz = _y - iz0;
 

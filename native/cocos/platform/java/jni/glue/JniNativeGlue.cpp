@@ -62,6 +62,22 @@ void JniNativeGlue::setWindowHandler(NativeWindowType* window) {
     }
 }
 
+void JniNativeGlue::setActivityGetter(std::function<NativeActivity(void)> getter) {
+    _activityGetter = std::move(getter);
+}
+
+void* JniNativeGlue::getActivity() {
+    return _activityGetter ? _activityGetter() : nullptr;
+}
+
+void JniNativeGlue::setEnvGetter(std::function<NativeEnv(void)> getter) {
+    _envGetter = std::move(getter);
+}
+
+void* JniNativeGlue::getEnv() {
+    return _envGetter ? _envGetter() : nullptr;
+}
+
 void JniNativeGlue::setResourceManager(ResourceManagerType* resourceManager) {
     _resourceManager = resourceManager;
 }

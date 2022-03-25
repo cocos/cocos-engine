@@ -3,6 +3,7 @@ import './clip-motion';
 import './animation-blend-1d';
 import './animation-blend-2d';
 import './animation-blend-direct';
+import './animation-mask';
 
 import type { MotionStateStatus } from './animation-controller';
 

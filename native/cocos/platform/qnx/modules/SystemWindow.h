@@ -37,8 +37,8 @@ public:
     explicit SystemWindow();
     ~SystemWindow() override;
 
-    bool      createWindow(const char* title, int w,
-                           int h, int flags) override;
+    bool      createWindow(const char* title, 
+                           int w, int h, int flags) override;
     bool      createWindow(const char* title,
                            int x, int y, int w,
                            int h, int flags) override;

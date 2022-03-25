@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 import bulletModule, { bulletType } from '@cocos/bullet';

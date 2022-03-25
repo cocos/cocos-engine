@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { legacyCC } from '../cocos/core/global-exports';
 // has to import predefines first
 import '../predefine';

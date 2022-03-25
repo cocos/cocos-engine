@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { Quat, Vec3 } from '../../../core';
 import cylinder from '../../../primitive/cylinder';

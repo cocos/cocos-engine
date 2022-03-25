@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { EDITOR, TEST, PREVIEW, BUILD, DEBUG, JSB, DEV } from 'internal:constants';
 import { legacyCC } from '../global-exports';

@@ -44,6 +44,11 @@ elseif(MACOSX OR IOS)
     cc_set_if_undefined(CC_USE_GLES2 OFF)
 endif()
 
+set(CC_USE_GLES3 ${CC_USE_GLES3} CACHE INTERNAL "")
+set(CC_USE_GLES2 ${CC_USE_GLES2} CACHE INTERNAL "")
+set(CC_USE_VULKAN ${CC_USE_VULKAN} CACHE INTERNAL "")
+set(CC_USE_METAL ${CC_USE_METAL}  CACHE INTERNAL "")
+
 if(USE_SERVER_MODE)
     set(CC_USE_VULKAN OFF)
     set(CC_USE_GLES3 OFF)
@@ -134,6 +139,10 @@ if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/external/CMakeLists.txt)
 endif()
 
 include(${CMAKE_CURRENT_LIST_DIR}/external/CMakeLists.txt)
+
+if(ANDROID AND SWAPPY_ENABLED)
+    add_definitions(-DCC_SWAPPY_ENABLED)
+endif()
 
 ##### audio
 if(USE_AUDIO)
@@ -335,6 +344,7 @@ cocos_source_files(
     cocos/application/CocosApplication.cpp
     cocos/application/ApplicationManager.h
     cocos/application/ApplicationManager.cpp
+    cocos/application/BaseGame.h
 )
 
 ############ engine
