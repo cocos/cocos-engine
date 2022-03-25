@@ -39,6 +39,8 @@ import { warnID } from '../../core/platform/debug';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 import visibleRect from '../../core/platform/visible-rect';
 import { approx, EPSILON } from '../../core/math/utils';
+import { IMask } from '../../core/scene-graph/node-event-processor';
+import { Mask } from '../components/mask';
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();
@@ -489,7 +491,7 @@ export class UITransform extends Component {
     }
 
     private _maskTest (pointInWorldSpace: Vec2) {
-        const maskList = this.node?.eventProcessor?.maskList;
+        const maskList = this.node?.eventProcessor?.maskList as IMask[] | undefined;
         if (maskList) {
             let parent: Node | null = this.node;
             const length = maskList.length;
@@ -498,7 +500,7 @@ export class UITransform extends Component {
                 const temp = maskList[j];
                 if (i === temp.index) {
                     if (parent === temp.comp.node) {
-                        const comp = temp.comp;
+                        const comp = temp.comp as Mask;
                         if (comp && comp._enabled && !comp.isHit(pointInWorldSpace)) {
                             return false;
                         }
