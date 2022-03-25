@@ -31,10 +31,12 @@
 Game::Game() = default;
 
 int Game::init() {
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX || CC_PLATFORM == CC_PLATFORM_MAC_OSX
     _windowInfo.title = GAME_NAME;
     // configurate window size
     // _windowInfo.height = 600;
     // _windowInfo.width  = 800;
+#endif
 
 #if CC_DEBUG
     _debuggerInfo.enabled = true;

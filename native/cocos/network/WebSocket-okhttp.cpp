@@ -156,7 +156,7 @@ bool WebSocketImpl::init(const cc::network::WebSocket::Delegate &delegate, const
 
 void WebSocketImpl::send(const std::string &message) {
     if (_readyState == WebSocket::State::OPEN) {
-        JniHelper::callObjectVoidMethod(_javaSocket, sendStringID, message);
+        JniHelper::callObjectVoidMethod(_javaSocket, JAVA_CLASS_WEBSOCKET, sendStringID, message);
     } else {
         CC_LOG_ERROR("Couldn't send message since WebSocket wasn't opened!");
     }
