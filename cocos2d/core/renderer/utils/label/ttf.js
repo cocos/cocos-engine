@@ -481,7 +481,7 @@ export default class TTFAssembler extends Assembler2D {
             let scaleX = (_canvasSize.width - _canvasPadding.width) / maxLength;
             let scaleY = _canvasSize.height / totalHeight;
 
-            _fontSize = (_drawFontSize * Math.min(1, scaleX, scaleY)) | 0;
+            _fontSize = _drawFontSize * Math.min(1, scaleX, scaleY);
             _fontDesc = this._getFontDesc();
             _context.font = _fontDesc;
         }
