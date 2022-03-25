@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { ccclass, float, serializable } from 'cc.decorator';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';

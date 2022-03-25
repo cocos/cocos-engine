@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { EDITOR, JSB } from 'internal:constants';
 import type { AnimationClip } from '../../core/animation/animation-clip';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';

@@ -24,11 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { EDITOR, DEV } from 'internal:constants';
 import { screenAdapter } from 'pal/screen-adapter';
 import { Director, director } from '../core/director';

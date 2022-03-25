@@ -147,6 +147,9 @@ using GLES2GPUTextureList = vector<GLES2GPUTexture *>;
 
 class GLES2GPUSwapchain final : public Object {
 public:
+#if CC_SWAPPY_ENABLED
+    bool swappyEnabled{false};
+#endif
     EGLSurface       eglSurface{EGL_NO_SURFACE};
     EGLint           eglSwapInterval{0};
     GLuint           glFramebuffer{0};

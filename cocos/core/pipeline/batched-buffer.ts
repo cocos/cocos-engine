@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { BufferUsageBit, Format, MemoryUsageBit, Device, DescriptorSet, InputAssembler,
     InputAssemblerInfo, Attribute, Buffer, BufferInfo, Shader } from '../gfx';

@@ -24,10 +24,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 export { MeshRenderer } from './mesh-renderer';
 
 /** deprecated */
