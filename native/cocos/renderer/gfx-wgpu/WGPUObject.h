@@ -28,6 +28,7 @@
 #include <utility>
 #include "WGPUDef.h"
 #include "base/Utils.h"
+#include "base/std/container/map.h"
 #include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
 #include "gfx-base/GFXDef.h"
@@ -220,7 +221,7 @@ struct CCWGPUStateCache {
     uint32_t minAttachmentHeight = 0;
 
     ccstd::vector<CCWGPUDescriptorSetObject>    descriptorSets;
-    ccstd::unordered_map<StencilFace, CCWGPUStencilMasks> stencilMasks;
+    ccstd::map<StencilFace, CCWGPUStencilMasks> stencilMasks;
 };
 
 struct CCWGPUCommandBufferObject {
