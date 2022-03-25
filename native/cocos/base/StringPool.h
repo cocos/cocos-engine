@@ -26,6 +26,7 @@
 #pragma once
 
 #include <cstring>
+#include "boost/functional/hash.hpp"
 #include "StringHandle.h"
 #include "base/Macros.h"
 #include "base/std/container/unordered_map.h"
@@ -33,6 +34,15 @@
 #include "threading/ReadWriteLock.h"
 
 namespace cc {
+
+namespace {
+class StringHash final {
+public:
+    inline size_t operator()(const char *str) const noexcept {
+        return boost::hash_range(str, str + strlen(str));
+    }
+};
+}
 
 template <bool ThreadSafe>
 class StringPool final {
@@ -53,7 +63,7 @@ private:
     char const * doHandleToString(const StringHandle &handle) const noexcept;
     StringHandle doFind(const char *str) const noexcept;
 
-    ccstd::unordered_map<char const *, StringHandle> _stringToHandles{};
+    ccstd::unordered_map<char const *, StringHandle, StringHash> _stringToHandles{};
     ccstd::vector<char const *>                           _handleToStrings{};
     mutable ReadWriteLock                                 _readWriteLock{};
 };
