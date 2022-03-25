@@ -460,9 +460,9 @@ export class NodeEventProcessor {
             return false;
         }
 
-        pos = event.getUILocation();
+        event.getLocation(pos);
 
-        if (node._uiProps.uiTransformComp.isHit(pos)) {
+        if (node._uiProps.uiTransformComp.hitTest(pos)) {
             event.type = NodeEventType.MOUSE_DOWN;
             event.bubbles = true;
             node.dispatchEvent(event);
@@ -478,9 +478,9 @@ export class NodeEventProcessor {
             return false;
         }
 
-        pos = event.getUILocation();
+        event.getLocation(pos);
 
-        const hit = node._uiProps.uiTransformComp.isHit(pos);
+        const hit = node._uiProps.uiTransformComp.hitTest(pos);
         if (hit) {
             if (!this.previousMouseIn) {
                 // Fix issue when hover node switched, previous hovered node won't get MOUSE_LEAVE notification
@@ -514,9 +514,9 @@ export class NodeEventProcessor {
             return false;
         }
 
-        pos = event.getUILocation();
+        event.getLocation(pos);
 
-        if (node._uiProps.uiTransformComp.isHit(pos)) {
+        if (node._uiProps.uiTransformComp.hitTest(pos)) {
             event.type = NodeEventType.MOUSE_UP;
             event.bubbles = true;
             node.dispatchEvent(event);
@@ -532,9 +532,9 @@ export class NodeEventProcessor {
             return false;
         }
 
-        pos = event.getUILocation();
+        event.getLocation(pos);
 
-        if (node._uiProps.uiTransformComp.isHit(pos)) {
+        if (node._uiProps.uiTransformComp.hitTest(pos)) {
             event.type = NodeEventType.MOUSE_WHEEL;
             event.bubbles = true;
             node.dispatchEvent(event);
@@ -569,9 +569,9 @@ export class NodeEventProcessor {
             return false;
         }
 
-        event.getUILocation(pos);
+        event.getLocation(pos);
 
-        if (node._uiProps.uiTransformComp.isHit(pos)) {
+        if (node._uiProps.uiTransformComp.hitTest(pos)) {
             event.type = NodeEventType.TOUCH_START;
             event.bubbles = true;
             node.dispatchEvent(event);
@@ -599,9 +599,9 @@ export class NodeEventProcessor {
             return;
         }
 
-        event.getUILocation(pos);
+        event.getLocation(pos);
 
-        if (node._uiProps.uiTransformComp.isHit(pos)) {
+        if (node._uiProps.uiTransformComp.hitTest(pos)) {
             event.type = NodeEventType.TOUCH_END;
         } else {
             event.type = NodeEventType.TOUCH_CANCEL;
