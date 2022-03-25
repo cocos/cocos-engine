@@ -47,20 +47,20 @@ int Game::init() {
 
     _xxTeaKey = "";
 
-    SimpleCocosApplication::init();
+    BaseGame::init();
     return 0;
 }
 
 void Game::onPause() {
-    SimpleCocosApplication::onPause();
+    BaseGame::onPause();
 }
 
 void Game::onResume() {
-    SimpleCocosApplication::onResume();
+    BaseGame::onResume();
 }
 
 void Game::onClose() {
-    SimpleCocosApplication::onClose();
+    BaseGame::onClose();
 }
 
 CC_APPLICATION_MAIN(Game);

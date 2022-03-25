@@ -28,7 +28,7 @@
 #include <string>
 
 namespace cc {
-class SimpleCocosApplication : public CocosApplication {
+class BaseGame : public CocosApplication {
 public:
     struct DebuggerInfo {
         bool        enabled{true};
@@ -45,7 +45,7 @@ public:
         int32_t     height{-1};
         int32_t     flags{-1};
     };
-    SimpleCocosApplication() = default;
+    BaseGame() = default;
     int init() override {
         // override default value
         _windowInfo.x      = _windowInfo.x == -1 ? 0 : _windowInfo.x;

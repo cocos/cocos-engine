@@ -26,7 +26,7 @@
 // public headers for user application
 
 #include "application/ApplicationManager.h"
-#include "application/SimpleCocosApplication.h"
+#include "application/BaseGame.h"
 #include "bindings/event/CustomEventTypes.h"
 #include "bindings/event/EventDispatcher.h"
 #include "bindings/jswrapper/SeApi.h"
