@@ -36,7 +36,6 @@ public:
         std::string address{"0.0.0.0"};
         bool        pauseOnStart{false};
     };
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX || CC_PLATFORM == CC_PLATFORM_MAC_OSX
     struct WindowInfo {
         std::string title;
         int32_t     x{-1};
@@ -45,7 +44,6 @@ public:
         int32_t     height{-1};
         int32_t     flags{-1};
     };
-#endif
 
     BaseGame() = default;
     int init() override {
@@ -86,8 +84,6 @@ public:
 protected:
     std::string  _xxteaKey;
     DebuggerInfo _debuggerInfo;
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX || CC_PLATFORM == CC_PLATFORM_MAC_OSX
     WindowInfo   _windowInfo;
-#endif
 };
 } // namespace cc
