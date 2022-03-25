@@ -27,7 +27,7 @@
 
 import { ccclass } from 'cc.decorator';
 import { EDITOR, TEST, BUILD } from 'internal:constants';
-import { Rect, Size, Vec2 } from '../../core/math';
+import { Color, Mat4, Rect, Size, Vec2, Vec3 } from '../../core/math';
 import { Asset } from '../../core/assets/asset';
 import { TextureBase } from '../../core/assets/texture-base';
 import { legacyCC } from '../../core/global-exports';
@@ -36,11 +36,21 @@ import { Texture2D } from '../../core/assets/texture-2d';
 import { errorID, warnID } from '../../core/platform/debug';
 import { dynamicAtlasManager } from '../utils/dynamic-atlas/atlas-manager';
 import { js } from '../../core/utils/js';
+import { Mesh } from '../../3d';
+import { createMesh } from '../../3d/misc';
+import { Attribute, AttributeName, Format, PrimitiveMode } from '../../core/gfx';
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;
 const INSET_RIGHT = 2;
 const INSET_BOTTOM = 3;
+const temp_vec3 = new Vec3();
+const temp_matrix = new Mat4();
+
+enum MeshType {
+    RECT = 0,
+    POLYGON = 1, // todo
+}
 
 export interface IUV {
     u: number;
@@ -48,13 +58,13 @@ export interface IUV {
 }
 
 interface IVertices {
-    x: any;
-    y: any;
-    triangles: any;
-    nu: number[];
-    u: number[];
-    nv: number[];
-    v: number[];
+    rawPosition: Vec3[]; // 顶点的原始位置，像素值
+    positions: number[]; // 顶点的位置，受几个值影响的模型空间值
+    triangles: number[]; // IB
+    uv: number[]; // 像素值的 uv
+    nuv: number[]; // 归一化的 uv
+    minPos: Vec3;
+    maxPos: Vec3;
 }
 
 interface ISpriteFramesSerializeData {
@@ -70,6 +80,9 @@ interface ISpriteFramesSerializeData {
     vertices: IVertices;
     texture: string;
     packable: boolean;
+    pixelsToUnits: number;
+    pivot: Vec2;
+    meshType: MeshType;
 }
 
 interface ISpriteFrameOriginal {
@@ -487,6 +500,23 @@ export class SpriteFrame extends Asset {
         return this._original;
     }
 
+    // set function is only for Editor
+    get pixelsToUnits () {
+        return this._pixelsToUnits;
+    }
+
+    // set function is only for Editor
+    get pivot () {
+        return this._pivot;
+    }
+
+    get mesh () {
+        if (!this._mesh) {
+            this.createMesh();
+        }
+        return this._mesh;
+    }
+
     /**
      * @en Vertex list for the mesh type sprite frame
      * @zh 网格类型精灵帧的所有顶点列表
@@ -536,6 +566,23 @@ export class SpriteFrame extends Asset {
     } | null = null;
 
     protected _packable = true;
+
+    // 100像素1米
+    protected _pixelsToUnits = 100; // 经验值，数据组织之后看效果，由于是用户调整的，合适值即可
+
+    protected _pivot = new Vec2(0.5, 0.5); // 几种预设值？// center
+
+    // todo
+    protected _meshType = MeshType.RECT;
+    protected _extrude = 0; // when polygon type use
+    protected _customOutLine = [];// MayBe later
+    // 这里可以通过 polygon-separator 来生成多边形，期望生成的多边形为像素标准的 vertex 数组，且文件中保存此数组
+    // 即原始图片的 mesh 信息(二维 mesh 信息，需要序列化，为生成多边形mesh的基础)
+    // 除了 vertex 数组之外，还要依据条件来生成一个 mesh，即结合 上面五个条件生成的 mesh 信息，需要序列化
+    // 且在运行时，实际使用的为生成过后的 mesh（静态mesh）（编辑器中属性值变化之后更新，调整顶点/重新生成）
+
+    // Mesh api
+    protected declare _mesh: Mesh;
 
     constructor () {
         super();
@@ -1081,15 +1128,16 @@ export class SpriteFrame extends Asset {
             }
         }
 
-        const vertices = this.vertices;
-        if (vertices) {
-            vertices.nu.length = 0;
-            vertices.nv.length = 0;
-            for (let i = 0; i < vertices.u.length; i++) {
-                vertices.nu[i] = vertices.u[i] / texw;
-                vertices.nv[i] = vertices.v[i] / texh;
-            }
-        }
+        // TODO 调整归一化UV填充
+        // const vertices = this.vertices;
+        // if (vertices) {
+        //     vertices.nu.length = 0;
+        //     vertices.nv.length = 0;
+        //     for (let i = 0; i < vertices.u.length; i++) {
+        //         vertices.nu[i] = vertices.u[i] / texw;
+        //         vertices.nv[i] = vertices.v[i] / texh;
+        //     }
+        // }
 
         this._calculateSlicedUV();
     }
@@ -1166,16 +1214,17 @@ export class SpriteFrame extends Asset {
                 }
             }
 
-            let vertices;
-            if (this.vertices) {
-                vertices = {
-                    triangles: this.vertices.triangles,
-                    x: this.vertices.x,
-                    y: this.vertices.y,
-                    u: this.vertices.u,
-                    v: this.vertices.v,
-                };
-            }
+            // TODO 测试用，禁止反序列化
+            // let vertices;
+            // if (this.vertices) {
+            //     vertices = {
+            //         triangles: this.vertices.triangles,
+            //         x: this.vertices.x,
+            //         y: this.vertices.y,
+            //         u: this.vertices.u,
+            //         v: this.vertices.v,
+            //     };
+            // }
 
             const serialize = {
                 name: this._name,
@@ -1185,9 +1234,12 @@ export class SpriteFrame extends Asset {
                 originalSize,
                 rotated: this._rotated,
                 capInsets: this._capInsets,
-                vertices,
+                // vertices,
                 texture: (!ctxForExporting && texture) || undefined,
                 packable: this._packable,
+                pixelsToUnits: this._pixelsToUnits,
+                pivot: this._pivot,
+                meshType: this._meshType,
             };
 
             // 为 underfined 的数据则不在序列化文件里显示
@@ -1219,6 +1271,13 @@ export class SpriteFrame extends Asset {
         this._name = data.name;
         this._packable = !!data.packable;
 
+        this._pixelsToUnits = data.pixelsToUnits;
+        const pivot = data.pivot;
+        if (pivot) {
+            this._pivot = new Vec2(pivot.x, pivot.y);
+        }
+        this._meshType = data.meshType;
+
         const capInsets = data.capInsets;
         if (capInsets) {
             this._capInsets[INSET_LEFT] = capInsets[INSET_LEFT];
@@ -1238,26 +1297,27 @@ export class SpriteFrame extends Asset {
             this._atlasUuid = data.atlas ? data.atlas : '';
         }
 
-        this.vertices = data.vertices;
-        if (this.vertices) {
-            // initialize normal uv arrays
-            this.vertices.nu = [];
-            this.vertices.nv = [];
-        }
+        // this.vertices = data.vertices;
+        // if (this.vertices) {
+        //     // initialize normal uv arrays
+        //     this.vertices.nu = [];
+        //     this.vertices.nv = [];
+        // }
+        this._initVertices();
     }
 
     public clone (): SpriteFrame {
         const sp = new SpriteFrame();
-        const v = this.vertices;
-        sp.vertices = v ? {
-            x: v.x,
-            y: v.y,
-            triangles: v.triangles, /* need clone ? */
-            nu: v.nu?.slice(0),
-            u: v.u?.slice(0),
-            nv: v.nv?.slice(0),
-            v: v.v?.slice(0),
-        } : null as any;
+        // const v = this.vertices;
+        // sp.vertices = v ? {
+        //     x: v.x,
+        //     y: v.y,
+        //     triangles: v.triangles, /* need clone ? */
+        //     nu: v.nu?.slice(0),
+        //     u: v.u?.slice(0),
+        //     nv: v.nv?.slice(0),
+        //     v: v.v?.slice(0),
+        // } : null as any;
         sp.uv.splice(0, sp.uv.length, ...this.uv);
         sp.unbiasUV.splice(0, sp.unbiasUV.length, ...this.unbiasUV);
         sp.uvSliced.splice(0, sp.uvSliced.length, ...this.uvSliced);
@@ -1270,6 +1330,9 @@ export class SpriteFrame extends Asset {
         sp._texture = this._texture;
         sp._isFlipUVX = this._isFlipUVX;
         sp._isFlipUVY = this._isFlipUVY;
+        sp._pixelsToUnits = this._pixelsToUnits;
+        sp._pivot.set(this._pivot);
+        sp._meshType = this._meshType;
         return sp;
     }
 
@@ -1298,6 +1361,9 @@ export class SpriteFrame extends Asset {
         }
 
         this._checkPackable();
+        if (this._mesh) {
+            this.updateMesh();
+        }
     }
 
     public initDefault (uuid?: string) {
@@ -1310,6 +1376,125 @@ export class SpriteFrame extends Asset {
 
     public validate () {
         return this._texture && this._rect && this._rect.width !== 0 && this._rect.height !== 0;
+    }
+
+    // 生成顶点信息
+    // 需要在导入器中做
+    // 这儿应对，setTexture 的情况
+    // 可以先在 反序列化中调用来测试使用
+    // 最终还是要放到序列化中
+    protected _initVertices () {
+        if (!this.vertices) {
+            this.vertices = {
+                rawPosition: [],
+                positions: [],
+                triangles: [],
+                uv: [],
+                nuv: [],
+                minPos: new Vec3(),
+                maxPos: new Vec3(),
+            };
+        } else {
+            // reset
+        }
+        if (this._meshType === MeshType.POLYGON) {
+            // 使用 Bayazit 来生成顶点并赋值
+        } else { // Rect mode
+            // 默认的中心点为 0.5，0.5
+            const originalSize = this.originalSize;
+            const width = originalSize.width;
+            const height = originalSize.height;
+            const halfWidth = width / 2;
+            const halfHeight = height / 2;
+
+            // left bottom
+            temp_vec3.set(-halfWidth, -halfHeight, 0);
+            this.vertices.rawPosition.push(temp_vec3.clone());
+            this.vertices.uv.push(0);
+            this.vertices.uv.push(0);
+            this.vertices.nuv.push(0); // 0 / width
+            this.vertices.nuv.push(0); // 0 / height
+            this.vertices.minPos.set(temp_vec3);
+            // right bottom
+            temp_vec3.set(halfWidth, -halfHeight, 0);
+            this.vertices.rawPosition.push(temp_vec3.clone());
+            this.vertices.uv.push(width);
+            this.vertices.uv.push(0);
+            this.vertices.nuv.push(1); // width / width
+            this.vertices.nuv.push(0); // 0 / height
+            // left top
+            temp_vec3.set(-halfWidth, halfHeight, 0);
+            this.vertices.rawPosition.push(temp_vec3.clone());
+            this.vertices.uv.push(0);
+            this.vertices.uv.push(height);
+            this.vertices.nuv.push(0); // 0 / width
+            this.vertices.nuv.push(1); // height / height
+            // right top
+            temp_vec3.set(halfWidth, halfHeight, 0);
+            this.vertices.rawPosition.push(temp_vec3.clone());
+            this.vertices.uv.push(width);
+            this.vertices.uv.push(height);
+            this.vertices.nuv.push(1); // width / width
+            this.vertices.nuv.push(1); // height / height
+            this.vertices.maxPos.set(temp_vec3);
+
+            // UV 信息相同且位置对应
+            // 但是不能用，UI 的所有计算基于透明像素裁剪过的结果
+            this.vertices.triangles.push(0);
+            this.vertices.triangles.push(1);
+            this.vertices.triangles.push(2);
+            this.vertices.triangles.push(2);
+            this.vertices.triangles.push(1);
+            this.vertices.triangles.push(3);
+        }
+        this._updateMeshVertices();
+    }
+
+    // 综合顶点信息、单位信息、锚点、extrude 甚至 customOutline 来生成实际使用的 vertices
+    protected _updateMeshVertices () {
+        //开始生成生成 mesh 要的 Geometry 信息
+        temp_matrix.identity();
+        const temp_vec3 = new Vec3(this._pivot.x - 0.5, this._pivot.y - 0.5, 0);
+        temp_matrix.translate(temp_vec3);
+        const units = 1 / this._pixelsToUnits;
+        temp_vec3.set(units, units, 1);
+        temp_matrix.scale(temp_vec3);
+        const vertices = this.vertices!;
+
+        for (let i = 0; i < vertices.rawPosition.length; i++) {
+            const pos = vertices.rawPosition[i];
+            Vec3.transformMat4(temp_vec3, pos, temp_matrix);
+            Vec3.toArray(vertices.positions, temp_vec3, 3 * i);
+        }
+        Vec3.transformMat4(vertices.minPos, vertices.minPos, temp_matrix);
+        Vec3.transformMat4(vertices.maxPos, vertices.maxPos, temp_matrix);
+    }
+
+    protected createMesh () {
+        this._mesh = createMesh({
+            primitiveMode: PrimitiveMode.TRIANGLE_LIST,
+            positions: this.vertices!.positions,
+            uvs: this.vertices!.nuv,
+            indices: this.vertices!.triangles,
+            // colors: [
+            //     Color.WHITE.r, Color.WHITE.g, Color.WHITE.b, Color.WHITE.a,
+            //     Color.WHITE.r, Color.WHITE.g, Color.WHITE.b, Color.WHITE.a,
+            //     Color.WHITE.r, Color.WHITE.g, Color.WHITE.b, Color.WHITE.a,
+            //     Color.WHITE.r, Color.WHITE.g, Color.WHITE.b, Color.WHITE.a],
+            attributes: [
+                new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
+                new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F),
+                // new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8UI, true),
+            ],
+        });
+    }
+
+    protected updateMesh () {
+        if (this._mesh) {
+            this._mesh.destroy();
+        }
+        this._initVertices();
+        this.createMesh();
     }
 }
 
