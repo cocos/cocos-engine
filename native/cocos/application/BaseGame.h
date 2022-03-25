@@ -69,7 +69,7 @@ public:
             return ret;
         }
 
-        setXXTeaKey(_xxTeaKey);
+        setXXTeaKey(_xxteaKey);
 
         runJsScript("jsb-adapter/jsb-builtin.js");
         runJsScript("main.js");
@@ -77,7 +77,7 @@ public:
     }
 
 protected:
-    std::string  _xxTeaKey;
+    std::string  _xxteaKey;
     DebuggerInfo _debuggerInfo;
     WindowInfo   _windowInfo;
 };

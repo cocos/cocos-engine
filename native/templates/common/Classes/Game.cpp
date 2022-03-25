@@ -45,7 +45,7 @@ int Game::init() {
     _debuggerInfo.address      = "0.0.0.0";
     _debuggerInfo.pauseOnStart = false;
 
-    _xxTeaKey = "";
+    _xxteaKey = "";
 
     BaseGame::init();
     return 0;
