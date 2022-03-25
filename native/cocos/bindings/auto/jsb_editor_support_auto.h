@@ -1,6 +1,6 @@
 // clang-format off
 #pragma once
-#include "base/Config.h"
+
 #include <type_traits>
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
