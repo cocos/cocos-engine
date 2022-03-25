@@ -135,6 +135,18 @@ class BlendStateWriterInternal<P extends BlendingPropertyName> implements Runtim
 
 export type BlendStateWriter<P extends BlendingPropertyName> = Omit<BlendStateWriterInternal<P>, 'node' | 'property'>;
 
+enum TransformApplyFlag {
+    POSITION = 1,
+    ROTATION = 2,
+    SCALE = 4,
+    EULER_ANGLES = 8,
+}
+
+const TRANSFORM_APPLY_FLAGS_ALL = TransformApplyFlag.POSITION
+    | TransformApplyFlag.ROTATION
+    | TransformApplyFlag.SCALE
+    | TransformApplyFlag.EULER_ANGLES;
+
 interface PropertyBlendState<TValue> {
     /**
      * How many writer reference this property.
@@ -238,32 +250,43 @@ abstract class NodeBlendState<TVec3PropertyBlendState extends PropertyBlendState
     }
 
     public apply (node: Node) {
-        const { _properties: { position, scale, rotation, eulerAngles } } = this;
+        const {
+            _transformApplyFlags: transformApplyFlags,
+            _properties: { position, scale, rotation, eulerAngles },
+        } = this;
+
+        if (!transformApplyFlags) {
+            return;
+        }
 
         let t: Vec3 | undefined;
         let s: Vec3 | undefined;
         let r: Quat | Vec3 | undefined;
 
-        if (position) {
+        if (position && (transformApplyFlags & TransformApplyFlag.POSITION)) {
             t = position.result;
         }
 
-        if (scale) {
+        if (scale && (transformApplyFlags & TransformApplyFlag.SCALE)) {
             s = scale.result;
         }
 
-        if (eulerAngles) {
+        if (eulerAngles && (transformApplyFlags & TransformApplyFlag.EULER_ANGLES)) {
             r = eulerAngles.result;
         }
 
-        if (rotation) {
+        if (rotation && (transformApplyFlags & TransformApplyFlag.ROTATION)) {
             r = rotation.result;
         }
 
         if (r || t || s) {
             node.setRTS(r, t, s);
         }
+
+        this._transformApplyFlags = 0;
     }
+
+    protected _transformApplyFlags = 0;
 
     protected _properties: {
         position?: TVec3PropertyBlendState;
@@ -282,24 +305,28 @@ class LegacyNodeBlendState extends NodeBlendState<LegacyVec3PropertyBlendState, 
         const { _properties: { position, scale, rotation, eulerAngles } } = this;
 
         if (position && position.accumulatedWeight) {
+            this._transformApplyFlags |= TransformApplyFlag.POSITION;
             if (position.accumulatedWeight < 1.0) {
                 position.blend(node.position, 1.0 - position.accumulatedWeight);
             }
         }
 
         if (scale && scale.accumulatedWeight) {
+            this._transformApplyFlags |= TransformApplyFlag.SCALE;
             if (scale.accumulatedWeight < 1.0) {
                 scale.blend(node.scale, 1.0 - scale.accumulatedWeight);
             }
         }
 
         if (eulerAngles && eulerAngles.accumulatedWeight) {
+            this._transformApplyFlags |= TransformApplyFlag.EULER_ANGLES;
             if (eulerAngles.accumulatedWeight < 1.0) {
                 eulerAngles.blend(node.eulerAngles, 1.0 - eulerAngles.accumulatedWeight);
             }
         }
 
         if (rotation && rotation.accumulatedWeight) {
+            this._transformApplyFlags |= TransformApplyFlag.ROTATION;
             if (rotation.accumulatedWeight < 1.0) {
                 rotation.blend(node.rotation, 1.0 - rotation.accumulatedWeight);
             }
@@ -439,6 +466,9 @@ class LayeredNodeBlendState extends NodeBlendState<LayeredVec3PropertyBlendState
     }
 
     public apply (node: Node) {
+        // Layered buffer always enable all flags.
+        this._transformApplyFlags = TRANSFORM_APPLY_FLAGS_ALL;
+
         super.apply(node);
 
         const { _properties: { position, scale, rotation, eulerAngles } } = this;
