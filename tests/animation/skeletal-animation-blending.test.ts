@@ -138,6 +138,32 @@ describe('Skeletal animation blending', () => {
             revertNodesTransforms();
         });
 
+        test('All zero', () => {
+            blendBuffer.apply();
+
+            for (const {
+                node,
+                originalEulerAngles,
+                originalPosition,
+                originalRotation,
+                originalScale,
+            } of [
+                nodePosition_all,
+                nodeRotation_all,
+                nodeEulerAngles_all,
+                nodeScale_all,
+                nodeScale_1,
+                nodeScale_1_2,
+            ]) {
+                expect(Vec3.equals(node.position, originalPosition)).toBe(true);
+                expect(Vec3.equals(node.scale, originalScale)).toBe(true);
+                expect(Quat.equals(node.rotation, originalRotation)).toBe(true);
+                if (originalEulerAngles) {
+                    expect(Vec3.equals(node.eulerAngles, originalEulerAngles)).toBe(true);
+                }
+            }
+        });
+
         test('Normalized blending ', () => {
             host1.weight = 0.3;
             host2.weight = 0.5;

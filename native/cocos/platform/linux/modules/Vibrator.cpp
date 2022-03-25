@@ -23,26 +23,14 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "platform/interfaces/modules/ISystemWindow.h"
-#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-    #include "platform/win32/modules/SystemWindow.h"
-#elif (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
-    #include "platform/java/modules/SystemWindow.h"
-#elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
-    #include "platform/mac/modules/SystemWindow.h"
-#elif (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-    #include "platform/ios/modules/SystemWindow.h"
-#elif (CC_PLATFORM == CC_PLATFORM_LINUX)
-    #include "platform/linux/modules/SystemWindow.h"
-#elif (CC_PLATFORM == CC_PLATFORM_QNX)
-    #include "platform/qnx/modules/SystemWindow.h"
-#endif
+#include "platform/linux/modules/Vibrator.h"
+
+#include "base/Macros.h"
 
 namespace cc {
 
-// static
-OSInterface::Ptr ISystemWindow::createSystemWindowInterface() {
-    return std::make_shared<SystemWindow>();
+void Vibrator::vibrate(float duration) {
+    CC_UNUSED_PARAM(duration);
 }
 
 } // namespace cc

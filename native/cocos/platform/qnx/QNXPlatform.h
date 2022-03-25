@@ -25,14 +25,11 @@
 
 #pragma once
 
-#include <screen/screen.h>
 #include "platform/UniversalPlatform.h"
-#include "platform/qnx/modules/SystemWindow.h"
 
 namespace cc {
-
-class CC_DLL QnxPlatform : public UniversalPlatform,
-                           public SystemWindow::Delegate {
+class SystemWindow;
+class CC_DLL QnxPlatform : public UniversalPlatform {
 public:
     QnxPlatform();
     /**
@@ -46,22 +43,10 @@ public:
 
     int32_t loop() override;
 
-    // override from SystemWindow::Delegate
-    bool               createWindow(const char* title,
-                                    int x, int y, int w,
-                                    int h, int flags) override;
-    uintptr_t          getWindowHandler() const override;
-    struct SDL_Window* getWindow() {
-        return nullptr; //_handle;
-    }
-
 private:
     void pollEvent() override;
-    bool _inited{false};
     bool _quit{false};
-    // std::unique_ptr<SDLHelper> _sdl;
-    screen_context_t _screenCtx;
-    screen_window_t  _screenWin;
+    std::shared_ptr<SystemWindow> _window;
 };
 
 } // namespace cc

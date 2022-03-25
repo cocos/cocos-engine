@@ -23,27 +23,14 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "platform/interfaces/modules/IBattery.h"
+#include "platform/qnx/modules/Vibrator.h"
 
-#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-    #include "platform/win32/modules/Battery.h"
-#elif (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
-    #include "platform/java/modules/Battery.h"
-#elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
-    #include "platform/mac/modules/Battery.h"
-#elif (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-    #include "platform/ios/modules/Battery.h"
-#elif (CC_PLATFORM == CC_PLATFORM_LINUX)
-    #include "platform/linux/modules/Battery.h"
-#elif (CC_PLATFORM == CC_PLATFORM_QNX)
-    #include "platform/qnx/modules/Battery.h"
-#endif
+#include "base/Macros.h"
 
 namespace cc {
 
-// static
-OSInterface::Ptr IBattery::createBatteryInterface() {
-    return std::make_shared<Battery>();
+void Vibrator::vibrate(float duration) {
+    CC_UNUSED_PARAM(duration);
 }
 
 } // namespace cc

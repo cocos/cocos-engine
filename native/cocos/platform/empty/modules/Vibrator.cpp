@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,27 +23,14 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "platform/interfaces/modules/INetwork.h"
+#include "platform/empty/modules/Vibrator.h"
 
-#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-    #include "platform/win32/modules/Network.h"
-#elif (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
-    #include "platform/java/modules/Network.h"
-#elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
-    #include "platform/mac/modules/Network.h"
-#elif (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-    #include "platform/ios/modules/Network.h"
-#elif (CC_PLATFORM == CC_PLATFORM_LINUX)
-    #include "platform/linux/modules/Network.h"
-#elif (CC_PLATFORM == CC_PLATFORM_QNX)
-    #include "platform/qnx/modules/Network.h"
-#endif
+#include "base/Macros.h"
 
 namespace cc {
 
-// static
-OSInterface::Ptr INetwork::createNetworkInterface() {
-    return std::make_shared<Network>();
+void Vibrator::vibrate(float duration) {
+    CC_UNUSED_PARAM(duration);
 }
 
 } // namespace cc

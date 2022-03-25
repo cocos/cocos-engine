@@ -32,10 +32,6 @@ namespace cc {
 class CC_DLL UniversalPlatform : public BasePlatform, public IEventDispatch {
 public:
     /**
-     * @brief Implement basic platform initialization.
-     */
-    int32_t init() override;
-    /**
      * @brief Start base platform initialization.
      */
     int32_t run(int argc, const char** argv) override;

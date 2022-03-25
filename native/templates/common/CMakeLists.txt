@@ -1,9 +1,7 @@
 enable_language(C ASM)
-
-
 set(DEVELOPMENT_TEAM    ""  CACHE STRING "APPLE Developtment Team")
 set(RES_DIR             ""  CACHE STRING "Resource path")
-set(COCOS_X_PATH        ""  CACHE STRING "Path to cocos2d-x-lite/")
+set(COCOS_X_PATH        ""  CACHE STRING "Path to engine/native/")
 
 set(TARGET_OSX_VERSION "10.14" CACHE STRING "Target MacOSX version" FORCE)
 set(TARGET_IOS_VERSION "10.0"  CACHE STRING "Target iOS version" FORCE)
@@ -37,28 +35,7 @@ endif()
 
 include(${COCOS_X_PATH}/CMakeLists.txt)
 
-set(ASSET_FILES)
-macro(include_resources ARG_RES_ROOT)
-    foreach(res ${ARG_RES_ROOT})
-        set(res_list)
-        if(NOT EXISTS ${res})
-            continue()
-        endif()
-
-        if(IS_DIRECTORY ${res})
-            file(GLOB_RECURSE res_list "${res}/*")
-        else()
-            set(res_list ${res})
-        endif()
-        foreach(res ${res_list})
-            get_filename_component(res_abs ${res} ABSOLUTE)
-            file(RELATIVE_PATH res_rel ${ARG_RES_ROOT} ${res_abs})
-            get_filename_component(res_dir ${res_rel} PATH)
-            set_source_files_properties(${res_abs} PROPERTIES
-                                        MACOSX_PACKAGE_LOCATION "Resources/${res_dir}/"
-                                        HEADER_FILE_ONLY 1
-                                        )
-            list(APPEND ASSET_FILES ${res_abs})
-        endforeach()
-    endforeach()
-endmacro()
+list(APPEND CC_COMMON_SOURCES
+    ${CMAKE_CURRENT_LIST_DIR}/Classes/Game.h
+    ${CMAKE_CURRENT_LIST_DIR}/Classes/Game.cpp
+)

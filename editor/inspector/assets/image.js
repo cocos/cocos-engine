@@ -1,6 +1,5 @@
 'use strict';
 
-const { appendFileSync } = require('fs');
 const path = require('path');
 
 exports.template = `
@@ -16,6 +15,10 @@ exports.template = `
     <ui-prop>
         <ui-label slot="label" value="i18n:ENGINE.assets.image.bakeOfflineMipmaps" tooltip="i18n:ENGINE.assets.image.bakeOfflineMipmapsTip"></ui-label>
         <ui-checkbox slot="content" class="bakeOfflineMipmaps-checkbox"></ui-checkbox>
+    </ui-prop>
+    <ui-prop  class="fixATAProp">
+        <ui-label slot="label" value="i18n:ENGINE.assets.image.fixAlphaTransparencyArtifacts" tooltip="i18n:ENGINE.assets.image.fixAlphaTransparencyArtifactsTip"></ui-label>
+        <ui-checkbox slot="content" class="fixAlphaTransparencyArtifacts-checkbox"></ui-checkbox>
     </ui-prop>
     <ui-prop class="isRGBE-prop">
         <ui-label slot="label" value="i18n:ENGINE.assets.image.isRGBE" tooltip="i18n:ENGINE.assets.image.isRGBETip"></ui-label>
@@ -49,6 +52,8 @@ exports.$ = {
     container: '.asset-image',
     typeSelect: '.type-select',
     flipVerticalCheckbox: '.flipVertical-checkbox',
+    fixAlphaTransparencyArtifactsCheckbox: '.fixAlphaTransparencyArtifacts-checkbox',
+    fixATAProp: '.fixATAProp',
     isRGBEProp: '.isRGBE-prop',
     isRGBECheckbox: '.isRGBE-checkbox',
 
@@ -70,7 +75,8 @@ const Elements = {
                 panel.dispatch('change');
 
                 // There are other properties whose updates depend on its changes attribute corresponds to the edit element
-                Elements.isRGBE.update.bind(panel)();
+                Elements.isRGBE.update.call(panel);
+                Elements.fixAlphaTransparencyArtifacts.update.call(panel);
             });
         },
         update() {
@@ -124,6 +130,38 @@ const Elements = {
             const panel = this;
 
             panel.$.bakeOfflineMipmapsCheckbox.value = panel.meta.userData.bakeOfflineMipmaps;
+        },
+    },
+
+    fixAlphaTransparencyArtifacts: {
+        ready() {
+            const panel = this;
+            panel.$.fixAlphaTransparencyArtifactsCheckbox.addEventListener('change', (event) => {
+                panel.metaList.forEach((meta) => {
+                    meta.userData.fixAlphaTransparencyArtifacts = event.target.value;
+
+                });
+                panel.dispatch('change');
+            });
+        },
+        update() {
+            const panel = this;
+
+            /** @type {HTMLElement} */
+            const fixAlphaTransparencyArtifactsCheckbox = panel.$.fixAlphaTransparencyArtifactsCheckbox;
+            /** @type {HTMLElement} */
+            const fixATAProp = panel.$.fixATAProp;
+            fixAlphaTransparencyArtifactsCheckbox.value = panel.meta.userData.fixAlphaTransparencyArtifacts;
+            const bannedTypes = ['normal map'];
+            const isCapableToFixAlphaTransparencyArtifacts = !bannedTypes.includes(panel.meta.userData.type);
+            if (isCapableToFixAlphaTransparencyArtifacts) {
+                fixATAProp.style.display = 'block';
+                panel.updateInvalid(panel.$.fixAlphaTransparencyArtifactsCheckbox, 'fixAlphaTransparencyArtifacts');
+                panel.updateReadonly(panel.$.fixAlphaTransparencyArtifactsCheckbox);
+            } else {
+                fixATAProp.style.display = 'none';
+            }
+
         },
     },
     isRGBE: {
@@ -185,6 +223,9 @@ exports.ready = function() {
             element.ready.call(this);
         }
     }
+    this.$.panel.addEventListener('change', () => {
+        this.dispatch('change');
+    });
 };
 
 exports.methods = {
@@ -271,8 +312,5 @@ exports.methods = {
         this.$.panelName.setAttribute('value', this.meta.userData.type);
         this.$.panel.setAttribute('src', path.join(__dirname, `./${asset.importer}.js`));
         this.$.panel.update(assetList, metaList);
-        this.$.panel.addEventListener('change', () => {
-            this.dispatch('change');
-        });
     },
 };

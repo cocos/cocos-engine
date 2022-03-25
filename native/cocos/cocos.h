@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,14 +23,13 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "platform/linux/modules/Vibrate.h"
+// public headers for user application
 
-#include "base/Macros.h"
-
-namespace cc {
-
-void Vibrator::vibrate(float duration) {
-    CC_UNUSED_PARAM(duration);
-}
-
-} // namespace cc
+#include "application/ApplicationManager.h"
+#include "application/BaseGame.h"
+#include "bindings/event/CustomEventTypes.h"
+#include "bindings/event/EventDispatcher.h"
+#include "bindings/jswrapper/SeApi.h"
+#include "bindings/manual/jsb_classtype.h"
+#include "bindings/manual/jsb_global.h"
+#include "bindings/manual/jsb_module_register.h"
