@@ -1,7 +1,6 @@
 
 // clang-format off
 #include "cocos/bindings/auto/jsb_video_auto.h"
-#if (USE_VIDEO > 0)
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
 #include "ui/videoplayer/VideoPlayer.h"
@@ -376,5 +375,4 @@ bool register_all_video(se::Object* obj)    // NOLINT
     return true;
 }
 
-#endif //#if (USE_VIDEO > 0)
 // clang-format on
