@@ -80,18 +80,15 @@ export function getUuidFromURL (url: string): string {
  * var url = getUrlWithUuid('fcmR3XADNLgJ1ByKhqcC5Z', {isNative: true, nativeExt: '.png'});
  *
  */
-export function getUrlWithUuid (uuid: string, options: { isNative: boolean, nativeExt?: string } ): string {
+export function getUrlWithUuid (uuid: string, options: { [k: string]: any, isNative: boolean, nativeExt?: string } ): string {
     options = options || Object.create(null);
-    // @ts-ignore
+
     options!.__isNative__ = options!.isNative;
-    
     if (options.nativeExt !== null) {
-        // @ts-ignore
         options!.ext = options!.nativeExt;
     }
     
     const bundle = bundles.find((b) => !!b.getAssetInfo(uuid));
-
     if (bundle) {
         // @ts-ignore
         options!.bundle = bundle.name;
