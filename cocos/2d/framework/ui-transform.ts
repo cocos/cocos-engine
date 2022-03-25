@@ -403,7 +403,7 @@ export class UITransform extends Component {
     /**
      * Hit test with point in UI Space.
      *
-     * @param uiPoint - point in UI Space.
+     * @param uiPoint point in UI Space.
      * @deprecated since v3.5.0, please use `uiTransform.hitTest(screenPoint: Vec2)` instead.
      */
     public isHit (uiPoint: Vec2) {
@@ -451,7 +451,7 @@ export class UITransform extends Component {
     /**
      * Hit test with point in Screen Space.
      *
-     * @param screenPoint - point in Screen Space.
+     * @param screenPoint point in Screen Space.
      */
      public hitTest (screenPoint: Vec2) {
         const w = this._contentSize.width;
