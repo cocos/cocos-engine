@@ -167,8 +167,11 @@ export class Texture2D extends SimpleTexture {
         this._width = info.width;
         this._height = info.height;
         this._setGFXFormat(info.format);
-        this._setMipmapLevel(info.mipmapLevel || 1);
-        this._setMipRange(info.baseLevel || 0, info.maxLevel === undefined ? (info.mipmapLevel || 1) : info.maxLevel);
+        const mipLevels = info.mipmapLevel === undefined ? 1 : info.mipmapLevel;
+        this._setMipmapLevel(mipLevels);
+        const minLod = info.baseLevel || 0;
+        const maxLod = info.maxLevel === undefined ? (mipLevels - 1) : info.maxLevel;
+        this._setMipRange(minLod, maxLod);
         this._tryReset();
     }
 
