@@ -160,7 +160,6 @@ private:
 };
 } // namespace cc
 
-#if CC_PLATFORM != CC_PLATFORM_MAC_IOS
 #define START_PLATFORM(argc, argv)                                    \
     do {                                                              \
         cc::BasePlatform* platform = cc::BasePlatform::getPlatform(); \
@@ -170,15 +169,4 @@ private:
         }                                                             \
         return platform->run(argc, argv);                             \
     } while (0)
-#else
-#define START_PLATFORM(argc, argv)                                    \
-    do {                                                              \
-        cc::BasePlatform* platform = cc::BasePlatform::getPlatform(); \
-        if (platform->init()) {                                       \
-            CC_LOG_FATAL("Platform initialization failed");           \
-            return -1;                                                \
-        }                                                             \
-        platform->run(argc, argv);                                    \
-    } while (0)
-#endif
 

@@ -376,10 +376,6 @@ elseif(MACOSX)
     cocos_source_files(
         cocos/main/main-mac.mm
     )
-elseif(IOS)
-    #cocos_source_files(
-    #    cocos/main/main-ios.mm
-    #)
 endif()
 
 if(NOT USE_SERVER_MODE AND (WINDOWS OR LINUX))

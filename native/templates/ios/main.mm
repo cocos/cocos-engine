@@ -29,7 +29,11 @@
 #include "AppDelegate.h"
 
 int main(int argc, const char * argv[]) {
-    START_PLATFORM(argc, (const char**)argv);
+    cc::BasePlatform* platform = cc::BasePlatform::getPlatform(); 
+    if (platform->init()) { 
+        return -1;                                                
+    }                                                            
+    platform->run(argc, argv);                                    
     NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
     int retVal = UIApplicationMain(argc, (char**)argv, nil, @"AppDelegate");
     [pool release];
