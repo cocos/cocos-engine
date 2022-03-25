@@ -70,14 +70,14 @@ export interface ITexture2DCreateInfo {
     mipmapLevel?: number;
 
     /**
-     * @en The selected base mipmap level
+     * @en The maximum level of selected mipmaps
      * @zh 选择使用的最小 mipmap 层级。
      * @default 1
      */
     baseLevel?: number;
 
     /**
-     * @en The selected maximum mipmap level
+     * @en The maximum level of selected mipmaps
      * @zh 选择使用的最大 mipmap 层级。
      * @default 1
      */

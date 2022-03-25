@@ -87,22 +87,6 @@ export class SimpleTexture extends TextureBase {
     }
 
     /**
-     * @en The mipmap level of the texture
-     * @zh 贴图中的 Mipmap 层级数量
-     */
-    get baseLevel () {
-        return this._baseLevel;
-    }
-
-    /**
-     * @en The mipmap level of the texture
-     * @zh 贴图中的 Mipmap 层级数量
-     */
-    get maxLevel () {
-        return this._maxLevel;
-    }
-
-    /**
      * @en The GFX Texture resource
      * @zh 获取此贴图底层的 GFX 贴图对象。
      */
