@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -21,22 +21,15 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
-#pragma once
+****************************************************************************/
 
-#include "cocos/cocos.h"
+// public headers for user application
 
-/**
- @brief    The cocos2d Application.
- 
- The reason for implement as private inheritance is to hide some interface call by Director.
- */
-class Game : public cc::BaseGame {
-public:
-    Game();
-    int init() override;
-    //bool init() override;
-    void onPause() override;
-    void onResume() override;
-    void onClose() override;
-};
+#include "application/ApplicationManager.h"
+#include "application/BaseGame.h"
+#include "bindings/event/CustomEventTypes.h"
+#include "bindings/event/EventDispatcher.h"
+#include "bindings/jswrapper/SeApi.h"
+#include "bindings/manual/jsb_classtype.h"
+#include "bindings/manual/jsb_global.h"
+#include "bindings/manual/jsb_module_register.h"

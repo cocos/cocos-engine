@@ -27,7 +27,7 @@ ohos {
     }
     externalNativeBuild {
         path "../CMakeLists.txt"
-        arguments "-v", "-DRES_DIR=${RES_PATH}","-DCOCOS_X_PATH=${ENGINE_ROOT}","-DCOMMON_DIR=${COMMON_DIR}"
+        arguments "-v", "-DRES_DIR=${RES_PATH}"
         abiFilters "arm64-v8a"
         cppFlags "-std=c++14"
     }
