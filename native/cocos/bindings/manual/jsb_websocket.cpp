@@ -474,18 +474,18 @@ static bool webSocketGetExtensions(se::State &s) {
 }
 SE_BIND_PROP_GET(webSocketGetExtensions)
 
-    #define WEBSOCKET_DEFINE_READONLY_INT_FIELD(full_name, value)                    \
-        static bool full_name(se::State &s) {                                        \
-            const auto &args = s.args();                                             \
-            int         argc = (int)args.size();                                     \
-            if (argc == 0) {                                                         \
-                s.rval().setInt32(value);                                            \
-                return true;                                                         \
-            }                                                                        \
-            SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 0", argc); \
-            return false;                                                            \
-        }                                                                            \
-        SE_BIND_PROP_GET(full_name)
+#define WEBSOCKET_DEFINE_READONLY_INT_FIELD(full_name, value)                    \
+    static bool full_name(se::State &s) {                                        \
+        const auto &args = s.args();                                             \
+        int         argc = (int)args.size();                                     \
+        if (argc == 0) {                                                         \
+            s.rval().setInt32(value);                                            \
+            return true;                                                         \
+        }                                                                        \
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 0", argc); \
+        return false;                                                            \
+    }                                                                            \
+    SE_BIND_PROP_GET(full_name)
 
 WEBSOCKET_DEFINE_READONLY_INT_FIELD(Websocket_CONNECTING, static_cast<int>(cc::network::WebSocket::State::CONNECTING))
 WEBSOCKET_DEFINE_READONLY_INT_FIELD(Websocket_OPEN, static_cast<int>(cc::network::WebSocket::State::OPEN))
