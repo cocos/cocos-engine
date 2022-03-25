@@ -85,7 +85,7 @@ public:
     virtual pipeline::GlobalDSManager   *getGlobalDSManager() const = 0;
     virtual gfx::DescriptorSetLayout    *getDescriptorSetLayout() const = 0;
     virtual pipeline::PipelineSceneData *getPipelineSceneData() const = 0;
-    virtual const ccstd::string           &getConstantMacros() const = 0;
+    virtual const ccstd::string         &getConstantMacros() const = 0;
     virtual scene::Model                *getProfiler() const = 0;
     virtual void                         setProfiler(scene::Model *profiler) = 0;
 
@@ -96,6 +96,8 @@ public:
 
     virtual void setValue(const ccstd::string& name, int32_t value) = 0;
     virtual void setValue(const ccstd::string& name, bool value) = 0;
+
+    virtual bool isOcclusionQueryEnabled() const = 0;
 };
 
 inline PipelineRuntime::~PipelineRuntime() noexcept = default;

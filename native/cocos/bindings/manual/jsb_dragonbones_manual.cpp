@@ -24,17 +24,13 @@
 ****************************************************************************/
 
 #include "jsb_dragonbones_manual.h"
-#include "base/Config.h"
-
-#if USE_DRAGONBONES > 0
-
-    #include "cocos/bindings/auto/jsb_dragonbones_auto.h"
-    #include "cocos/bindings/auto/jsb_editor_support_auto.h"
-    #include "cocos/bindings/jswrapper/SeApi.h"
-    #include "cocos/bindings/manual/jsb_conversions.h"
-    #include "cocos/bindings/manual/jsb_global.h"
-    #include "cocos/bindings/manual/jsb_helper.h"
-    #include "cocos/editor-support/dragonbones-creator-support/CCDragonBonesHeaders.h"
+#include "cocos/bindings/auto/jsb_dragonbones_auto.h"
+#include "cocos/bindings/auto/jsb_editor_support_auto.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
+#include "cocos/bindings/manual/jsb_conversions.h"
+#include "cocos/bindings/manual/jsb_global.h"
+#include "cocos/bindings/manual/jsb_helper.h"
+#include "cocos/editor-support/dragonbones-creator-support/CCDragonBonesHeaders.h"
 
 using namespace cc;
 
@@ -523,5 +519,3 @@ bool register_all_dragonbones_manual(se::Object *obj) {
 
     return true;
 }
-
-#endif

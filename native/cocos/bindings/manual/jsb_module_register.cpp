@@ -32,8 +32,8 @@
 #include "cocos/bindings/auto/jsb_gfx_auto.h"
 #include "cocos/bindings/auto/jsb_network_auto.h"
 #include "cocos/bindings/auto/jsb_pipeline_auto.h"
-#include "cocos/bindings/auto/jsb_scene_auto.h"
 #include "cocos/bindings/auto/jsb_render_auto.h"
+#include "cocos/bindings/auto/jsb_scene_auto.h"
 #include "cocos/bindings/dop/jsb_dop.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_assets_manual.h"
@@ -50,12 +50,12 @@
 #if USE_GFX_RENDERER
 #endif
 
-#if USE_SOCKET
+#if CC_USE_SOCKET
     #include "cocos/bindings/manual/jsb_socketio.h"
     #include "cocos/bindings/manual/jsb_websocket.h"
-#endif // USE_SOCKET
+#endif // CC_USE_SOCKET
 
-#if USE_AUDIO
+#if CC_USE_AUDIO
     #include "cocos/bindings/auto/jsb_audio_auto.h"
 #endif
 
@@ -69,36 +69,36 @@
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
 
-    #if USE_VIDEO
+    #if CC_USE_VIDEO
         #include "cocos/bindings/auto/jsb_video_auto.h"
     #endif
 
-    #if USE_WEBVIEW
+    #if CC_USE_WEBVIEW
         #include "cocos/bindings/auto/jsb_webview_auto.h"
     #endif
 
 #endif // (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
 
-#if USE_SOCKET && USE_WEBSOCKET_SERVER
+#if CC_USE_SOCKET && CC_USE_WEBSOCKET_SERVER
     #include "cocos/bindings/manual/jsb_websocket_server.h"
 #endif
 
-#if USE_MIDDLEWARE
+#if CC_USE_MIDDLEWARE
     #include "cocos/bindings/auto/jsb_editor_support_auto.h"
 
-    #if USE_SPINE
+    #if CC_USE_SPINE
         #include "cocos/bindings/auto/jsb_spine_auto.h"
         #include "cocos/bindings/manual/jsb_spine_manual.h"
     #endif
 
-    #if USE_DRAGONBONES
+    #if CC_USE_DRAGONBONES
         #include "cocos/bindings/auto/jsb_dragonbones_auto.h"
         #include "cocos/bindings/manual/jsb_dragonbones_manual.h"
     #endif
 
-#endif // USE_MIDDLEWARE
+#endif // CC_USE_MIDDLEWARE
 
-#if USE_PHYSICS_PHYSX
+#if CC_USE_PHYSICS_PHYSX
     #include "cocos/bindings/auto/jsb_physics_auto.h"
 #endif
 
@@ -145,47 +145,47 @@ bool jsb_register_all_modules() {
     se->addRegisterCallback(register_script_native_bridge);
 #endif
 
-#if USE_AUDIO
+#if CC_USE_AUDIO
     se->addRegisterCallback(register_all_audio);
 #endif
 
-#if USE_SOCKET
+#if CC_USE_SOCKET
     se->addRegisterCallback(register_all_websocket);
     se->addRegisterCallback(register_all_socketio);
 #endif
 
-#if USE_MIDDLEWARE
+#if CC_USE_MIDDLEWARE
     se->addRegisterCallback(register_all_editor_support);
 
-    #if USE_SPINE
+    #if CC_USE_SPINE
     se->addRegisterCallback(register_all_spine);
     se->addRegisterCallback(register_all_spine_manual);
     #endif
 
-    #if USE_DRAGONBONES
+    #if CC_USE_DRAGONBONES
     se->addRegisterCallback(register_all_dragonbones);
     se->addRegisterCallback(register_all_dragonbones_manual);
     #endif
 
-#endif // USE_MIDDLEWARE
+#endif // CC_USE_MIDDLEWARE
 
-#if USE_PHYSICS_PHYSX
+#if CC_USE_PHYSICS_PHYSX
     se->addRegisterCallback(register_all_physics);
 #endif
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
 
-    #if USE_VIDEO
+    #if CC_USE_VIDEO
     se->addRegisterCallback(register_all_video);
     #endif
 
-    #if USE_WEBVIEW
+    #if CC_USE_WEBVIEW
     se->addRegisterCallback(register_all_webview);
     #endif
 
 #endif // (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
 
-#if USE_SOCKET && USE_WEBSOCKET_SERVER
+#if CC_USE_SOCKET && CC_USE_WEBSOCKET_SERVER
     se->addRegisterCallback(register_all_websocket_server);
 #endif
     se->addAfterCleanupHook([]() {

@@ -23,21 +23,17 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/Config.h"
+#include <atomic>
+#include <cassert>
+#include <iostream>
 
-#if (USE_SOCKET > 0) && (USE_WEBSOCKET_SERVER > 0)
+#include "cocos/application/ApplicationManager.h"
+#include "cocos/base/Log.h"
+#include "cocos/base/Scheduler.h"
+#include "cocos/network/WebSocketServer.h"
 
-    #include <atomic>
-    #include <cassert>
-    #include <iostream>
-
-    #include "cocos/application/ApplicationManager.h"
-    #include "cocos/base/Log.h"
-    #include "cocos/base/Scheduler.h"
-    #include "cocos/network/WebSocketServer.h"
-
-    #define MAX_MSG_PAYLOAD 2048
-    #define SEND_BUFF       1024
+#define MAX_MSG_PAYLOAD 2048
+#define SEND_BUFF       1024
 
 namespace {
 
@@ -97,30 +93,30 @@ void schedule_task_into_server_thread_task_queue(uv_async_t *asyn, std::function
 namespace cc {
 namespace network {
 
-    #define RUN_IN_GAMETHREAD(task)                                                   \
-        do {                                                                          \
-            CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([=]() { \
-                task;                                                                 \
-            });                                                                       \
-        } while (0)
+#define RUN_IN_GAMETHREAD(task)                                                   \
+    do {                                                                          \
+        CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([=]() { \
+            task;                                                                 \
+        });                                                                       \
+    } while (0)
 
-    #define DISPATCH_CALLBACK_IN_GAMETHREAD()                        \
-        do {                                                         \
-            data->setCallback([callback](const ccstd::string &msg) { \
-                auto wrapper = [callback, msg]() { callback(msg); }; \
-                RUN_IN_GAMETHREAD(wrapper());                        \
-            });                                                      \
-        } while (0)
+#define DISPATCH_CALLBACK_IN_GAMETHREAD()                        \
+    do {                                                         \
+        data->setCallback([callback](const ccstd::string &msg) { \
+            auto wrapper = [callback, msg]() { callback(msg); }; \
+            RUN_IN_GAMETHREAD(wrapper());                        \
+        });                                                      \
+    } while (0)
 
-    #define RUN_IN_SERVERTHREAD(task)                                    \
-        do {                                                             \
-            schedule_task_into_server_thread_task_queue(&_async, [=]() { \
-                task;                                                    \
-            });                                                          \
-        } while (0)
+#define RUN_IN_SERVERTHREAD(task)                                    \
+    do {                                                             \
+        schedule_task_into_server_thread_task_queue(&_async, [=]() { \
+            task;                                                    \
+        });                                                          \
+    } while (0)
 
-    //#define LOGE() CCLOG("WSS: %s", __FUNCTION__)
-    #define LOGE()
+//#define LOGE() CCLOG("WSS: %s", __FUNCTION__)
+#define LOGE()
 
 DataFrame::DataFrame(const ccstd::string &data) : _isBinary(false) {
     _underlyingData.resize(data.size() + LWS_PRE);
@@ -766,5 +762,3 @@ int WebSocketServer::_websocketServerCallback(struct lws *wsi, enum lws_callback
 
 } // namespace network
 } // namespace cc
-
-#endif

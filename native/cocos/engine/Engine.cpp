@@ -37,11 +37,11 @@
 #include "platform/BasePlatform.h"
 #include "platform/FileUtils.h"
 
-#if USE_AUDIO
+#if CC_USE_AUDIO
     #include "cocos/audio/include/AudioEngine.h"
 #endif
 
-#if USE_SOCKET
+#if CC_USE_SOCKET
     #include "cocos/network/WebSocket.h"
 #endif
 
@@ -49,10 +49,12 @@
 #include "application/BaseApplication.h"
 #include "base/Scheduler.h"
 #include "cocos/network/HttpClient.h"
+#include "core/Root.h"
 #include "core/assets/FreeTypeFont.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "profiler/DebugRenderer.h"
 #include "profiler/Profiler.h"
+#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 
 namespace {
 
@@ -93,11 +95,11 @@ Engine::Engine() {
 }
 
 Engine::~Engine() {
-#if USE_AUDIO
+#if CC_USE_AUDIO
     AudioEngine::end();
 #endif
 
-    pipeline::RenderPipeline::getInstance()->destroy();
+    Root::getInstance()->getPipeline()->destroy();
 
     EventDispatcher::destroy();
     se::ScriptEngine::destroyInstance();
@@ -158,10 +160,10 @@ void Engine::close() { // NOLINT
     auto *scriptEngine = se::ScriptEngine::getInstance();
 
     cc::DeferredReleasePool::clear();
-#if USE_AUDIO
+#if CC_USE_AUDIO
     cc::AudioEngine::stopAll();
 #endif
-    //#if USE_SOCKET
+    //#if CC_USE_SOCKET
     //    cc::network::WebSocket::closeAllConnections();
     //#endif
     cc::network::HttpClient::destroyInstance();
@@ -252,15 +254,15 @@ void Engine::tick() {
 int32_t Engine::restartVM() {
     cc::EventDispatcher::dispatchRestartVM();
 
-    pipeline::RenderPipeline::getInstance()->destroy();
+    Root::getInstance()->getPipeline()->destroy();
 
     auto *scriptEngine = se::ScriptEngine::getInstance();
 
     cc::DeferredReleasePool::clear();
-#if USE_AUDIO
+#if CC_USE_AUDIO
     cc::AudioEngine::stopAll();
 #endif
-    //#if USE_SOCKET
+    //#if CC_USE_SOCKET
     //    cc::network::WebSocket::closeAllConnections();
     //#endif
     cc::network::HttpClient::destroyInstance();

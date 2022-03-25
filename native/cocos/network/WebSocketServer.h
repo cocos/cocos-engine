@@ -25,28 +25,25 @@
 
 #pragma once
 
-#if (USE_SOCKET > 0) && (USE_WEBSOCKET_SERVER > 0)
-
-    // clang-format off
 // clang-format on
 
-    #include <algorithm>
-    #include <atomic>
-    #include <functional>
-    #include <list>
-    #include <memory>
-    #include <mutex>
-    #include <thread>
-    #include "base/std/container/string.h"
-    #include "base/std/container/unordered_map.h"
-    #include "base/Macros.h"
-    #include "uv.h"
+#include <algorithm>
+#include <atomic>
+#include <functional>
+#include <list>
+#include <memory>
+#include <mutex>
+#include <thread>
+#include "base/std/container/string.h"
+#include "base/std/container/unordered_map.h"
+#include "base/Macros.h"
+#include "uv.h"
 
-    #if CC_PLATFORM == CC_PLATFORM_OHOS
-        #include "libwebsockets.h"
-    #else
-        #include "websockets/libwebsockets.h"
-    #endif
+#if CC_PLATFORM == CC_PLATFORM_OHOS
+    #include "libwebsockets.h"
+#else
+    #include "websockets/libwebsockets.h"
+#endif
 
 namespace cc {
 namespace network {
@@ -296,5 +293,3 @@ public:
 };
 } // namespace network
 } // namespace cc
-
-#endif //#if (USE_SOCKET > 0) && (USE_WEBSOCKET_SERVER > 0)
