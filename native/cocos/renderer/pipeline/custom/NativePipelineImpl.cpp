@@ -23,20 +23,30 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <memory>
 #include "NativePipelineTypes.h"
 #include "cocos/renderer/gfx-base/GFXDescriptorSetLayout.h"
+#include "cocos/renderer/pipeline/Enum.h"
+#include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
+#include "cocos/renderer/pipeline/PipelineSceneData.h"
+#include "cocos/renderer/pipeline/RenderPipeline.h"
 #include "cocos/renderer/pipeline/custom/GslUtils.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/RenderWindow.h"
+#include "gfx-base/GFXDevice.h"
+#include "profiler/DebugRenderer.h"
 
 namespace cc {
 
 namespace render {
 
-NativePipeline::NativePipeline() noexcept {
-    CC_EXPECTS(true);
+NativePipeline::NativePipeline() noexcept
+: device(gfx::Device::getInstance())
+, globalDSManager(std::make_unique<pipeline::GlobalDSManager>())
+, pipelineSceneData(new pipeline::PipelineSceneData()) // NOLINT
+{
 }
 
 // NOLINTNEXTLINE
@@ -99,17 +109,171 @@ SceneTransversal *NativePipeline::createSceneTransversal(const scene::Camera *ca
     return nullptr;
 }
 
+namespace {
+    
+void generateConstantMacros(
+    gfx::Device* device, 
+    std::string& constantMacros, bool clusterEnabled) {
+    constantMacros = StringUtil::format(
+        R"(
+#define CC_DEVICE_SUPPORT_FLOAT_TEXTURE %d
+#define CC_ENABLE_CLUSTERED_LIGHT_CULLING %d
+#define CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS %d
+#define CC_DEVICE_MAX_FRAGMENT_UNIFORM_VECTORS %d
+#define CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT %d
+#define CC_PLATFORM_ANDROID_AND_WEBGL 0
+#define CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES 0
+        )",
+        hasAnyFlags(device->getFormatFeatures(gfx::Format::RGBA32F),
+            gfx::FormatFeature::RENDER_TARGET | gfx::FormatFeature::SAMPLED_TEXTURE),
+        clusterEnabled ? 1 : 0,
+        device->getCapabilities().maxVertexUniformVectors,
+        device->getCapabilities().maxFragmentUniformVectors,
+        device->hasFeature(gfx::Feature::INPUT_ATTACHMENT_BENEFIT));
+}
+
+} // namespace
+
 // NOLINTNEXTLINE
-bool NativePipeline::activate(gfx::Swapchain *swapchain) {
+bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
+    swapchain                  = swapchainIn;
+    macros["CC_PIPELINE_TYPE"] = 0;
+    globalDSManager->activate(device);
+    pipelineSceneData->activate(device);
+    cc::DebugRenderer::getInstance()->activate(device);
+
+    // generate macros here rather than construct func because _clusterEnabled
+    // switch may be changed in root.ts setRenderPipeline() function which is after
+    // pipeline construct.
+    generateConstantMacros(device, constantMacros, false);
+
     return true;
 }
 
 bool NativePipeline::destroy() noexcept {
+    if (globalDSManager) {
+        globalDSManager->destroy();
+        globalDSManager.reset();
+    }
+    if (pipelineSceneData) {
+        pipelineSceneData->destroy();
+        pipelineSceneData = {};
+    }
+
+    framegraph::FrameGraph::gc(0);
+
     return true;
 }
 
 // NOLINTNEXTLINE
 void NativePipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
+    const auto *sceneData    = pipelineSceneData.get();
+    auto* commandBuffer = device->getCommandBuffer();
+    float shadingScale = sceneData->getShadingScale();
+
+    struct RenderData2 {
+        framegraph::TextureHandle outputTex;
+    };
+
+    commandBuffer->begin();
+
+    for (const auto *camera : cameras) {
+        auto colorHandle  = framegraph::FrameGraph::stringToHandle("outputTexture");
+
+        auto forwardSetup = [&](framegraph::PassNodeBuilder &builder, RenderData2 &data) {
+            gfx::Color clearColor;
+            if (hasFlag(static_cast<gfx::ClearFlags>(camera->getClearFlag()), gfx::ClearFlagBit::COLOR)) {
+
+                clearColor.x = camera->getClearColor().x;
+                clearColor.y = camera->getClearColor().y;
+                clearColor.z = camera->getClearColor().z;
+            }
+            clearColor.w = camera->getClearColor().w;
+            // color
+            framegraph::Texture::Descriptor colorTexInfo;
+            colorTexInfo.format = sceneData->isHDR() ? gfx::Format::RGBA16F : gfx::Format::RGBA8;
+            colorTexInfo.usage  = gfx::TextureUsageBit::COLOR_ATTACHMENT;
+            colorTexInfo.width  = static_cast<uint>(static_cast<float>(camera->getWindow()->getWidth()) * shadingScale);
+            colorTexInfo.height = static_cast<uint>(static_cast<float>(camera->getWindow()->getHeight()) * shadingScale);
+            if (shadingScale != 1.F) {
+                colorTexInfo.usage |= gfx::TextureUsageBit::TRANSFER_SRC;
+            }
+
+            data.outputTex = builder.create(colorHandle, colorTexInfo);
+            framegraph::RenderTargetAttachment::Descriptor colorAttachmentInfo;
+            colorAttachmentInfo.usage      = framegraph::RenderTargetAttachment::Usage::COLOR;
+            colorAttachmentInfo.clearColor = clearColor;
+            colorAttachmentInfo.loadOp     = gfx::LoadOp::CLEAR;
+
+            colorAttachmentInfo.beginAccesses = colorAttachmentInfo.endAccesses = gfx::AccessFlagBit::COLOR_ATTACHMENT_WRITE;
+
+            data.outputTex = builder.write(data.outputTex, colorAttachmentInfo);
+            builder.writeToBlackboard(colorHandle, data.outputTex);
+
+            auto getRenderArea = [](const scene::Camera *camera) {
+                float w{static_cast<float>(camera->getWindow()->getWidth())};
+                float h{static_cast<float>(camera->getWindow()->getHeight())};
+
+                const auto &vp = camera->getViewport();
+                return gfx::Rect{
+                    static_cast<int32_t>(vp.x * w),
+                    static_cast<int32_t>(vp.y * h),
+                    static_cast<uint32_t>(vp.z * w),
+                    static_cast<uint32_t>(vp.w * h),
+                };
+            };
+
+            auto getViewport = [&shadingScale, &getRenderArea](const scene::Camera *camera) {
+                const gfx::Rect &rect = getRenderArea(camera);
+                return gfx::Viewport{
+                    static_cast<int>(static_cast<float>(rect.x) * shadingScale),
+                    static_cast<int>(static_cast<float>(rect.y) * shadingScale),
+                    static_cast<uint>(static_cast<float>(rect.width) * shadingScale),
+                    static_cast<uint>(static_cast<float>(rect.height) * shadingScale)};
+            };
+
+            auto getScissor = [&shadingScale, &getRenderArea](const scene::Camera *camera) {
+                const gfx::Rect &rect = getRenderArea(camera);
+                return gfx::Rect{
+                    static_cast<int>(static_cast<float>(rect.x) * shadingScale),
+                    static_cast<int>(static_cast<float>(rect.y) * shadingScale),
+                    static_cast<uint>(static_cast<float>(rect.width) * shadingScale),
+                    static_cast<uint>(static_cast<float>(rect.height) * shadingScale)};
+            };
+
+            builder.setViewport(getViewport(camera), getScissor(camera));
+        };
+
+        auto forwardExec = [](const RenderData2 & /*data*/,
+            const framegraph::DevicePassResourceTable &table) {
+                // do nothing
+        };
+
+        auto passHandle = framegraph::FrameGraph::stringToHandle("forwardPass");
+
+        frameGraph.addPass<RenderData2>(
+            static_cast<uint>(ForwardInsertPoint::IP_FORWARD),
+            passHandle, forwardSetup, forwardExec);
+
+        frameGraph.presentFromBlackboard(colorHandle,
+            camera->getWindow()->getFramebuffer()->getColorTextures()[0], true);
+    }
+    frameGraph.compile();
+    frameGraph.execute();
+    frameGraph.reset();
+
+    ccstd::vector<gfx::CommandBuffer *> commandBuffers(1, commandBuffer);
+    device->flushCommands(commandBuffers);
+    device->getQueue()->submit(commandBuffers);
+
+    commandBuffer->end();
+    {
+        static uint64_t           frameCount{0U};
+        static constexpr uint64_t INTERVAL_IN_SECONDS = 30;
+        if (++frameCount % (INTERVAL_IN_SECONDS * 60) == 0) {
+            framegraph::FrameGraph::gc(INTERVAL_IN_SECONDS * 60);
+        }
+    }
 }
 
 const MacroRecord &NativePipeline::getMacros() const {
@@ -142,13 +306,15 @@ void NativePipeline::setProfiler(scene::Model *profilerIn) {
 }
 
 float NativePipeline::getShadingScale() const {
-    return 0;
+    return pipelineSceneData->getShadingScale();
 }
 
 void NativePipeline::setShadingScale(float scale) {
+    pipelineSceneData->setShadingScale(scale);
 }
 
 void NativePipeline::onGlobalPipelineStateChanged() {
+    pipelineSceneData->updatePipelineSceneData();
 }
 
 void NativePipeline::setValue(const ccstd::string &name, int32_t value) {
@@ -157,6 +323,10 @@ void NativePipeline::setValue(const ccstd::string &name, int32_t value) {
 
 void NativePipeline::setValue(const ccstd::string &name, bool value) {
     macros[name] = value;
+}
+
+bool NativePipeline::isOcclusionQueryEnabled() const {
+    return false;
 }
 
 } // namespace render

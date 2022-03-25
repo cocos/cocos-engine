@@ -49,10 +49,12 @@
 #include "application/BaseApplication.h"
 #include "base/Scheduler.h"
 #include "cocos/network/HttpClient.h"
+#include "core/Root.h"
 #include "core/assets/FreeTypeFont.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "profiler/DebugRenderer.h"
 #include "profiler/Profiler.h"
+#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 
 namespace {
 
@@ -97,7 +99,7 @@ Engine::~Engine() {
     AudioEngine::end();
 #endif
 
-    pipeline::RenderPipeline::getInstance()->destroy();
+    Root::getInstance()->getPipeline()->destroy();
 
     EventDispatcher::destroy();
     se::ScriptEngine::destroyInstance();
@@ -252,7 +254,7 @@ void Engine::tick() {
 int32_t Engine::restartVM() {
     cc::EventDispatcher::dispatchRestartVM();
 
-    pipeline::RenderPipeline::getInstance()->destroy();
+    Root::getInstance()->getPipeline()->destroy();
 
     auto *scriptEngine = se::ScriptEngine::getInstance();
 

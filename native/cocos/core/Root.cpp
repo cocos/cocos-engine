@@ -174,6 +174,9 @@ public:
     void setValue(const ccstd::string &name, bool value) override {
         pipeline->setValue(name, value);
     }
+    bool isOcclusionQueryEnabled() const override {
+        return pipeline->isOcclusionQueryEnabled();
+    }
     pipeline::RenderPipeline *pipeline = nullptr;
 };
 
