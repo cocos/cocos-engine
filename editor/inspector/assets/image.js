@@ -155,11 +155,11 @@ const Elements = {
             const bannedTypes = ['normal map'];
             const isCapableToFixAlphaTransparencyArtifacts = !bannedTypes.includes(panel.meta.userData.type);
             if (isCapableToFixAlphaTransparencyArtifacts) {
-                fixATAProp.hidden = false;
+                fixATAProp.style.display = 'block';
                 panel.updateInvalid(panel.$.fixAlphaTransparencyArtifactsCheckbox, 'fixAlphaTransparencyArtifacts');
                 panel.updateReadonly(panel.$.fixAlphaTransparencyArtifactsCheckbox);
             } else {
-                fixATAProp.hidden = true;
+                fixATAProp.style.display = 'none';
             }
 
         },
@@ -179,14 +179,14 @@ const Elements = {
             const panel = this;
 
             if (panel.meta.userData.type === 'texture cube') {
-                panel.$.isRGBEProp.hidden = false;
+                panel.$.isRGBEProp.style.display = 'block';
 
                 panel.$.isRGBECheckbox.value = panel.meta.userData.isRGBE;
 
                 panel.updateInvalid(panel.$.isRGBECheckbox, 'isRGBE');
                 panel.updateReadonly(panel.$.isRGBECheckbox);
             } else {
-                panel.$.isRGBEProp.hidden = true;
+                panel.$.isRGBEProp.style.display = 'none';
             }
         },
     },
@@ -302,10 +302,10 @@ exports.methods = {
         });
 
         if (!assetList.length || !metaList.length) {
-            this.$.panelSection.hidden = true;
+            this.$.panelSection.style.display = 'none';
             return;
         } else {
-            this.$.panelSection.hidden = false;
+            this.$.panelSection.style.display = 'block';
         }
 
         const asset = assetList[0];
