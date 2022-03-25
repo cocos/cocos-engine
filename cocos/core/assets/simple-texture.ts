@@ -204,17 +204,17 @@ export class SimpleTexture extends TextureBase {
         this._mipmapLevel = value < 1 ? 1 : value;
     }
 
-    /**
-     * Set mipmap level range of this texture.
-     * @param baseLevel The base mipmap level.
-     * @param maxLevel The maximum mipmap level.
-     */
     protected _setMipRange (baseLevel: number, maxLevel: number) {
         this._baseLevel = baseLevel < 0 ? 0 : baseLevel;
         this._maxLevel = maxLevel < this._baseLevel ? this._baseLevel
             : maxLevel;
     }
 
+    /**
+     * Set mipmap level range for this texture.
+     * @param baseLevel The base mipmap level.
+     * @param maxLevel The maximum mipmap level.
+     */
     public setMipRange (baseLevel: number, maxLevel: number) {
         this._setMipRange(baseLevel, maxLevel);
 
