@@ -367,9 +367,9 @@ elseif(MACOSX)
         cocos/main/main-mac.mm
     )
 elseif(IOS)
-    cocos_source_files(
-        cocos/main/main-ios.mm
-    )
+    #cocos_source_files(
+    #    cocos/main/main-ios.mm
+    #)
 endif()
 
 if(NOT USE_SERVER_MODE AND (WINDOWS OR LINUX))
@@ -430,12 +430,9 @@ elseif(IOS)
     cocos_source_files(
         cocos/platform/ios/IOSPlatform.mm
         cocos/platform/ios/IOSPlatform.h
-        cocos/platform/ios/AppDelegate.mm
-        cocos/platform/ios/AppDelegate.h
-        cocos/platform/ios/service/SDKWrapper.m
-        cocos/platform/ios/service/SDKWrapper.h
-        cocos/platform/ios/ViewController.mm
-        cocos/platform/ios/ViewController.h
+        cocos/platform/ios/AppDelegateBridge.mm
+        cocos/platform/ios/AppDelegateBridge.h
+        cocos/platform/ios/SDKDelegate.h
     )
 endif()
 
@@ -950,10 +947,6 @@ elseif(APPLE)
             cocos/platform/mac/KeyCodeHelper.cpp
         )
     elseif(IOS)
-        cocos_source_files(
-                         cocos/platform/ios/View.h
-            NO_WERROR    cocos/platform/ios/View.mm     # CAMetalLayer bug for apple
-        )
     endif()
 elseif(LINUX)
     cocos_source_files(MODULE ccfilesystem

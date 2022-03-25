@@ -13,6 +13,7 @@ set(PROJ_COMMON_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/../common/Classes/Game.h
     ${CMAKE_CURRENT_LIST_DIR}/../common/Classes/Game.cpp
 )
+
 if (USE_PORTRAIT)
     configure_file(${CMAKE_CURRENT_LIST_DIR}/LaunchScreenBackgroundPortrait.png ${CMAKE_CURRENT_LIST_DIR}/LaunchScreenBackground.png COPYONLY)
 else()
@@ -27,6 +28,15 @@ set(UI_RESOURCES
 )
 
 list(APPEND PROJ_SOURCES
+     ${CMAKE_CURRENT_LIST_DIR}/AppDelegate.mm
+     ${CMAKE_CURRENT_LIST_DIR}/AppDelegate.h
+     ${CMAKE_CURRENT_LIST_DIR}/service/SDKWrapper.m
+     ${CMAKE_CURRENT_LIST_DIR}/service/SDKWrapper.h
+     ${CMAKE_CURRENT_LIST_DIR}/main.mm
+     ${CMAKE_CURRENT_LIST_DIR}/View.mm
+     ${CMAKE_CURRENT_LIST_DIR}/View.h
+     ${CMAKE_CURRENT_LIST_DIR}/ViewController.mm
+     ${CMAKE_CURRENT_LIST_DIR}/ViewController.h
     ${UI_RESOURCES}
 )
 

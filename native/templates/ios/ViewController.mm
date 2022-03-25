@@ -1,4 +1,6 @@
 /****************************************************************************
+ Copyright (c) 2013 cocos2d-x.org
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
@@ -23,33 +25,46 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
-NS_ASSUME_NONNULL_BEGIN
+#import "ViewController.h"
+#import "AppDelegate.h"
+#import "platform/ios/AppDelegateBridge.h"
+//#include "cocos/platform/Device.h"
 
-@protocol SDKDelegate <NSObject>
+namespace {
+//    cc::Device::Orientation _lastOrientation;
+}
 
-@optional
-- (void)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions;
-- (void)applicationDidBecomeActive:(UIApplication *)application;
-- (void)applicationWillResignActive:(UIApplication *)application;
-- (void)applicationDidEnterBackground:(UIApplication *)application;
-- (void)applicationWillEnterForeground:(UIApplication *)application;
-- (void)applicationWillTerminate:(UIApplication *)application;
-- (void)applicationDidReceiveMemoryWarning:(UIApplication *)application;
-
+@interface ViewController ()
+ 
 @end
 
-@interface                              SDKWrapper : NSObject
-@property (nonatomic, strong) NSString *name;
-+ (instancetype)shared;
-- (void)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions;
-- (void)applicationDidBecomeActive:(UIApplication *)application;
-- (void)applicationWillResignActive:(UIApplication *)application;
-- (void)applicationDidEnterBackground:(UIApplication *)application;
-- (void)applicationWillEnterForeground:(UIApplication *)application;
-- (void)applicationWillTerminate:(UIApplication *)application;
-- (void)applicationDidReceiveMemoryWarning:(UIApplication *)application;
-@end
+@implementation ViewController
 
-NS_ASSUME_NONNULL_END
+
+- (BOOL) shouldAutorotate {
+    return YES;
+}
+
+//fix not hide status on ios7
+- (BOOL)prefersStatusBarHidden {
+    return YES;
+}
+
+// Controls the application's preferred home indicator auto-hiding when this view controller is shown.
+- (BOOL)prefersHomeIndicatorAutoHidden {
+    return YES;
+}
+
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+   AppDelegate* delegate = [[UIApplication sharedApplication] delegate];
+   [delegate.appDelegateBridge viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+   float pixelRatio = [delegate.appDelegateBridge getPixelRatio];
+
+   //CAMetalLayer is available on ios8.0, ios-simulator13.0.
+   CAMetalLayer *layer = (CAMetalLayer *)self.view.layer;
+   CGSize tsize             = CGSizeMake(static_cast<int>(size.width * pixelRatio),
+                                         static_cast<int>(size.height * pixelRatio));
+   layer.drawableSize = tsize;
+}
+
+@end

@@ -1,7 +1,5 @@
 /****************************************************************************
- Copyright (c) 2010-2013 cocos2d-x.org
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,14 +23,26 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#import <UIKit/UIKit.h>
+#include <iostream>
 
-@class ViewController;
+#include "platform/BasePlatform.h"
+#include "AppDelegate.h"
 
-@interface AppDelegate : NSObject <UIApplicationDelegate> {
+int main(int argc, const char * argv[]) {
+    START_PLATFORM(argc, (const char**)argv);
+    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+    int retVal = UIApplicationMain(argc, (char**)argv, nil, @"AppDelegate");
+    [pool release];
+    return retVal;
 }
 
-@property (nonatomic, readonly) ViewController* viewController;
-int                                             runUIAppicationMain(int argc, const char** argv);
+/*
+#import <UIKit/UIKit.h>
 
-@end
+int main(int argc, char *argv[]) {
+    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+    int retVal = UIApplicationMain(argc, argv, nil, @"AppDelegate");
+    [pool release];
+    return retVal;
+}
+ */

@@ -10,7 +10,7 @@
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
-
+AppDelegateBridge
  The software or tools in this License Agreement are licensed, not sold.
  Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
@@ -23,27 +23,14 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include <iostream>
+#pragma once
 
-#include "platform/BasePlatform.h"
+#include "platform/UniversalPlatform.h"
+#import "platform/ios/SDKDelegate.h"
+#import <Foundation/Foundation.h>
 
-int main(int argc, const char * argv[]) {
-    // cc::BasePlatform* platform = cc::BasePlatform::getPlatform();
-    // if (platform->init()) {
-    //     CC_LOG_FATAL("Platform initialization failed");
-    //     return -1;
-    // }
-    // return platform->run(argc, argv);
-    START_PLATFORM(argc, (const char**)argv);
-}
-
-/*
-#import <UIKit/UIKit.h>
-
-int main(int argc, char *argv[]) {
-    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-    int retVal = UIApplicationMain(argc, argv, nil, @"AppDelegate");
-    [pool release];
-    return retVal;
-}
- */
+@interface AppDelegateBridge : NSObject<SDKDelegate>
+- (float)getPixelRatio;
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator;
+- (void)dispatchTouchEvent:(cc::TouchEvent::Type)type touches:(NSSet *)touches withEvent:(UIEvent *)event;
+@end

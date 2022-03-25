@@ -25,24 +25,25 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#import "platform/ios/AppDelegate.h"
+#import "AppDelegate.h"
 #import "ViewController.h"
-#import "platform/ios/View.h"
+#import "View.h"
 
 #include "platform/ios/IOSPlatform.h"
-#include "platform/ios/service/SDKWrapper.h"
+#import "platform/ios/AppDelegateBridge.h"
+#import "service/SDKWrapper.h"
 
 @implementation AppDelegate
-
-cc::IOSPlatform *_platform = nullptr;
-
 @synthesize window;
+@synthesize appDelegateBridge;
 
 #pragma mark -
 #pragma mark Application lifecycle
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    [[SDKWrapper shared] application:application didFinishLaunchingWithOptions:launchOptions];
+    appDelegateBridge = [[AppDelegateBridge alloc] init];
+    [[SDKWrapper shared] addSdkDelegate:appDelegateBridge];
+    
     // Add the view controller's view to the window and display.
     CGRect bounds = [[UIScreen mainScreen] bounds];
     self.window   = [[UIWindow alloc] initWithFrame:bounds];
@@ -55,11 +56,8 @@ cc::IOSPlatform *_platform = nullptr;
     [self.window setRootViewController:_viewController];
 
     [self.window makeKeyAndVisible];
-
-    _platform = dynamic_cast<cc::IOSPlatform *>(cc::BasePlatform::getPlatform());
-    CCASSERT(_platform != nullptr, "Platform pointer can't be null");
-    _platform->loop();
-
+    
+    [[SDKWrapper shared] application:application didFinishLaunchingWithOptions:launchOptions];
     return YES;
 }
 
@@ -69,7 +67,6 @@ cc::IOSPlatform *_platform = nullptr;
      Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
      */
     [[SDKWrapper shared] applicationWillResignActive:application];
-    _platform->onPause();
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
@@ -77,7 +74,6 @@ cc::IOSPlatform *_platform = nullptr;
      Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
      */
     [[SDKWrapper shared] applicationDidBecomeActive:application];
-    _platform->onResume();
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
@@ -96,14 +92,7 @@ cc::IOSPlatform *_platform = nullptr;
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
-    _platform->onClose();
-    _platform->onDestory();
-    _platform = nullptr;
     [[SDKWrapper shared] applicationWillTerminate:application];
-}
-
-- (void)dispatchEvent:(const cc::OSEvent &)ev {
-    _platform->dispatchEvent(ev);
 }
 
 #pragma mark -
@@ -111,21 +100,6 @@ cc::IOSPlatform *_platform = nullptr;
 
 - (void)applicationDidReceiveMemoryWarning:(UIApplication *)application {
     [[SDKWrapper shared] applicationDidReceiveMemoryWarning:application];
-    cc::DeviceEvent ev;
-    ev.type = cc::DeviceEvent::Type::DEVICE_MEMORY;
-    _platform->dispatchEvent(ev);
 }
-
-// We must put UIApplicationMain in the same file as AppDelegate,
-// otherwise there will be instances where AppDelegate cannot be found at runtime.
-// Reference SDL implementation
-int runUIAppicationMain(int argc, const char** argv) {
-    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-    int retVal = UIApplicationMain(argc, (char**)argv, nil, @"AppDelegate");
-    [pool release];
-    return retVal;
-}
-
-
 
 @end

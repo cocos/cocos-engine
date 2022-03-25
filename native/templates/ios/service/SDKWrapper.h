@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,35 +23,23 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "platform/ios/modules/SystemWindow.h"
+#import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import "platform/ios/SDKDelegate.h"
 
+NS_ASSUME_NONNULL_BEGIN
 
-namespace {
+@interface                              SDKWrapper : NSObject
+@property (nonatomic, strong) NSString *name;
++ (instancetype)shared;
+- (void)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions;
+- (void)applicationDidBecomeActive:(UIApplication *)application;
+- (void)applicationWillResignActive:(UIApplication *)application;
+- (void)applicationDidEnterBackground:(UIApplication *)application;
+- (void)applicationWillEnterForeground:(UIApplication *)application;
+- (void)applicationWillTerminate:(UIApplication *)application;
+- (void)applicationDidReceiveMemoryWarning:(UIApplication *)application;
+- (void)addSdkDelegate:(NSObject<SDKDelegate> *)delegate;
+@end
 
-}
-
-namespace cc {
-
-SystemWindow::~SystemWindow() = default;
-
-
-void SystemWindow::setCursorEnabled(bool value) {
-}
-
-void SystemWindow::copyTextToClipboard(const std::string& text) {
-    UIPasteboard* pasteboard = [UIPasteboard generalPasteboard];
-    pasteboard.string        = [NSString stringWithCString:text.c_str() encoding:NSUTF8StringEncoding];
-}
-
-uintptr_t SystemWindow::getWindowHandler() const {
-    return reinterpret_cast<uintptr_t>(UIApplication.sharedApplication.delegate.window.rootViewController.view);
-}
-
-SystemWindow::Size SystemWindow::getViewSize() const {
-    CGRect bounds = [[UIScreen mainScreen] bounds];
-    return Size{static_cast<float>(bounds.size.width), static_cast<float>(bounds.size.height)};
-}
-
-
-}
+NS_ASSUME_NONNULL_END

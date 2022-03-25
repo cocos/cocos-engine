@@ -23,9 +23,10 @@
  ****************************************************************************/
 #import "SDKWrapper.h"
 
+
 @interface SDKWrapper ()
 
-@property (nonatomic, strong) NSArray *serviceInstances;
+@property (nonatomic, strong) NSMutableArray *serviceInstances;
 
 @end
 
@@ -77,11 +78,15 @@ static SDKWrapper *mInstace = nil;
         }
     } @catch (NSException *e) {
     }
-    self.serviceInstances = [NSArray arrayWithArray:sdks];
+    self.serviceInstances = sdks;
 }
 
 #pragma mark -
 #pragma mark Application lifecycle
+- (void)addSdkDelegate:(NSObject<SDKDelegate> *)delegate {
+    [self.serviceInstances addObject:delegate];
+}
+
 - (void)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     for (id <SDKDelegate> sdk in self.serviceInstances) {
         if ([sdk respondsToSelector:@selector(application:didFinishLaunchingWithOptions:)]) {
