@@ -32,7 +32,7 @@
 #include "core/TypedArray.h"
 #include "core/assets/RenderingSubMesh.h"
 
-#if USE_PHYSICS_PHYSX
+#if CC_USE_PHYSICS_PHYSX
     #include "physics/spec/IShape.h"
     #include "physics/spec/IWorld.h"
 #endif
@@ -123,7 +123,7 @@ struct InputAssemblerInfo;
 } // namespace gfx
 } // namespace cc
 
-#if USE_SPINE
+#if CC_USE_SPINE
 
 namespace spine {
 class String;
@@ -516,7 +516,7 @@ inline bool nativevalue_to_se(const void_p &from, se::Value &to, se::Object * /*
 }
 
 // Spine conversions
-#if USE_SPINE
+#if CC_USE_SPINE
 
 bool sevalue_to_native(const se::Value &, spine::String *, se::Object *); // NOLINT(readability-identifier-naming)
 
@@ -528,15 +528,15 @@ bool sevalue_to_native(const se::Value &v, spine::Vector<spine::String> *ret, se
 
 #endif
 
-#if USE_MIDDLEWARE
+#if CC_USE_MIDDLEWARE
 inline bool nativevalue_to_se(const se_object_ptr &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     to.setObject(const_cast<se::Object *>(from));
     return true;
 }
 bool seval_to_Map_string_key(const se::Value &v, cc::RefMap<ccstd::string, cc::middleware::Texture2D *> *ret); // NOLINT(readability-identifier-naming)
-#endif                                                                                                         //USE_MIDDLEWARE
+#endif                                                                                                         //CC_USE_MIDDLEWARE
 
-#if USE_PHYSICS_PHYSX
+#if CC_USE_PHYSICS_PHYSX
 
 bool nativevalue_to_se(const ccstd::vector<std::shared_ptr<cc::physics::TriggerEventPair>> &from, se::Value &to, se::Object * /*ctx*/);
 bool nativevalue_to_se(const ccstd::vector<cc::physics::ContactPoint> &from, se::Value &to, se::Object * /*ctx*/);

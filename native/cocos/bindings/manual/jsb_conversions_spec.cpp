@@ -1158,7 +1158,7 @@ bool sevalue_to_native(const se::Value &from, cc::IBArray *to, se::Object * /*ct
     return true;
 }
 
-#if USE_SPINE
+#if CC_USE_SPINE
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &val, spine::String *obj, se::Object * /*unused*/) {
@@ -1196,7 +1196,7 @@ bool sevalue_to_native(const se::Value &v, spine::Vector<spine::String> *ret, se
 }
 #endif
 
-#if USE_MIDDLEWARE
+#if CC_USE_MIDDLEWARE
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool seval_to_Map_string_key(const se::Value &v, cc::RefMap<ccstd::string, cc::middleware::Texture2D *> *ret) {
     assert(ret != nullptr);
@@ -1404,7 +1404,7 @@ bool DownloadTask_to_seval(const cc::network::DownloadTask &v, se::Value *ret) {
 
     return true;
 }
-#if USE_SPINE
+#if CC_USE_SPINE
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool nativevalue_to_se(const spine::String &obj, se::Value &val, se::Object * /*unused*/) {
     val.setString(obj.buffer());
@@ -1535,7 +1535,7 @@ bool nativevalue_to_se(const cc::Mat4 &from, se::Value &to, se::Object * /*ctx*/
     return true;
 }
 
-#if USE_PHYSICS_PHYSX
+#if CC_USE_PHYSICS_PHYSX
 
 bool nativevalue_to_se(const ccstd::vector<std::shared_ptr<cc::physics::TriggerEventPair>> &from, se::Value &to, se::Object * /*ctx*/) {
     se::HandleObject array(se::Object::createArrayObject(from.size() * cc::physics::TriggerEventPair::COUNT));
@@ -1754,4 +1754,4 @@ bool nativevalue_to_se(const cc::geometry::Sphere &from, se::Value &to, se::Obje
     return true;
 }
 
-#endif //USE_PHYSICS_PHYSX
+#endif //CC_USE_PHYSICS_PHYSX
