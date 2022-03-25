@@ -71,7 +71,7 @@ struct CC_DLL DownloaderHints {
 class CC_DLL Downloader final {
 public:
     Downloader();
-    Downloader(const DownloaderHints &hints);
+    explicit Downloader(const DownloaderHints &hints);
     ~Downloader();
 
     std::function<void(const DownloadTask &                task,
