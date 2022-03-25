@@ -70,14 +70,14 @@ export interface ITexture2DCreateInfo {
     mipmapLevel?: number;
 
     /**
-     * @en The maximum level of selected mipmaps
+     * @en The selected base mipmap level
      * @zh 选择使用的最小 mipmap 层级。
      * @default 1
      */
     baseLevel?: number;
 
     /**
-     * @en The maximum level of selected mipmaps
+     * @en The selected maximum mipmap level
      * @zh 选择使用的最大 mipmap 层级。
      * @default 1
      */
@@ -168,7 +168,7 @@ export class Texture2D extends SimpleTexture {
         this._height = info.height;
         this._setGFXFormat(info.format);
         this._setMipmapLevel(info.mipmapLevel || 1);
-        this._setMipRange(info.baseLevel || 0, info.maxLevel === undefined ? (info.baseLevel || 0) : info.maxLevel);
+        this._setMipRange(info.baseLevel || 0, info.maxLevel === undefined ? (info.mipmapLevel || 1) : info.maxLevel);
         this._tryReset();
     }
 

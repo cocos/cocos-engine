@@ -206,6 +206,7 @@ export class SimpleTexture extends TextureBase {
 
     protected _setMipRange (baseLevel: number, maxLevel: number) {
         this._baseLevel = baseLevel < 0 ? 0 : baseLevel;
+        this._baseLevel = this._baseLevel < this._mipmapLevel ? this._baseLevel : this._mipmapLevel;
         this._maxLevel = maxLevel < this._baseLevel ? this._baseLevel
             : maxLevel;
     }
