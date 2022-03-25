@@ -1,7 +1,6 @@
 // clang-format off
 #pragma once
-#include "base/Config.h"
-#if (USE_AUDIO > 0)
+
 #include <type_traits>
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
@@ -55,5 +54,4 @@ SE_DECLARE_FUNC(js_audio_AudioEngine_stop);
 SE_DECLARE_FUNC(js_audio_AudioEngine_stopAll);
 SE_DECLARE_FUNC(js_audio_AudioEngine_uncache);
 SE_DECLARE_FUNC(js_audio_AudioEngine_uncacheAll);
-#endif //#if (USE_AUDIO > 0)
 // clang-format on

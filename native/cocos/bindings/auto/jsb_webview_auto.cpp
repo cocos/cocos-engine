@@ -1,7 +1,6 @@
 
 // clang-format off
 #include "cocos/bindings/auto/jsb_webview_auto.h"
-#if USE_WEBVIEW > 0
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
 #include "ui/webview/WebView.h"
@@ -711,5 +710,4 @@ bool register_all_webview(se::Object* obj)    // NOLINT
     return true;
 }
 
-#endif //#if USE_WEBVIEW > 0
 // clang-format on

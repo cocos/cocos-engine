@@ -1,7 +1,6 @@
 
 // clang-format off
 #include "cocos/bindings/auto/jsb_dragonbones_auto.h"
-#if USE_DRAGONBONES > 0
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
 #include "editor-support/dragonbones-creator-support/CCDragonBonesHeaders.h"
@@ -7148,5 +7147,4 @@ bool register_all_dragonbones(se::Object* obj)    // NOLINT
     return true;
 }
 
-#endif //#if USE_DRAGONBONES > 0
 // clang-format on
