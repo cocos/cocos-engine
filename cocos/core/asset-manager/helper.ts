@@ -84,7 +84,7 @@ export function getUrlWithUuid (uuid: string, options?: { [k: string]: any, isNa
     options = options || Object.create(null);
 
     options!.__isNative__ = options!.isNative;
-    if (options!.nativeExt !== null) {
+    if (options!.nativeExt) {
         options!.ext = options!.nativeExt;
     }
     const bundle = bundles.find((b) => !!b.getAssetInfo(uuid));
