@@ -80,7 +80,7 @@ export function getUuidFromURL (url: string): string {
  * var url = getUrlWithUuid('fcmR3XADNLgJ1ByKhqcC5Z', {isNative: true, nativeExt: '.png'});
  *
  */
-export function getUrlWithUuid (uuid: string, options?: { [k: string]: any, isNative: boolean, nativeExt?: string }): string {
+export function getUrlWithUuid (uuid: string, options?: { [k: string]: any, isNative: boolean, nativeExt?: string } | null): string {
     options = options || Object.create(null);
 
     options!.__isNative__ = options!.isNative;
