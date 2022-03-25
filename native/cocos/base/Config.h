@@ -57,7 +57,6 @@
     #define CC_FILEUTILS_APPLE_ENABLE_OBJC 1
 #endif
 
-
 #ifndef CC_ENABLE_CACHE_JSB_FUNC_RESULT
     #define CC_ENABLE_CACHE_JSB_FUNC_RESULT 1
 #endif

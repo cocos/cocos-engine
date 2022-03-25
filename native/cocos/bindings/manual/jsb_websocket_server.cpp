@@ -23,7 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-    // clang-format off
+// clang-format off
 #include "base/Macros.h"
 #include "uv.h"
 // clang-format on

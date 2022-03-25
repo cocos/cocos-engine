@@ -93,30 +93,30 @@ void schedule_task_into_server_thread_task_queue(uv_async_t *asyn, std::function
 namespace cc {
 namespace network {
 
-    #define RUN_IN_GAMETHREAD(task)                                                   \
-        do {                                                                          \
-            CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([=]() { \
-                task;                                                                 \
-            });                                                                       \
-        } while (0)
+#define RUN_IN_GAMETHREAD(task)                                                   \
+    do {                                                                          \
+        CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([=]() { \
+            task;                                                                 \
+        });                                                                       \
+    } while (0)
 
-    #define DISPATCH_CALLBACK_IN_GAMETHREAD()                        \
-        do {                                                         \
-            data->setCallback([callback](const ccstd::string &msg) { \
-                auto wrapper = [callback, msg]() { callback(msg); }; \
-                RUN_IN_GAMETHREAD(wrapper());                        \
-            });                                                      \
-        } while (0)
+#define DISPATCH_CALLBACK_IN_GAMETHREAD()                        \
+    do {                                                         \
+        data->setCallback([callback](const ccstd::string &msg) { \
+            auto wrapper = [callback, msg]() { callback(msg); }; \
+            RUN_IN_GAMETHREAD(wrapper());                        \
+        });                                                      \
+    } while (0)
 
-    #define RUN_IN_SERVERTHREAD(task)                                    \
-        do {                                                             \
-            schedule_task_into_server_thread_task_queue(&_async, [=]() { \
-                task;                                                    \
-            });                                                          \
-        } while (0)
+#define RUN_IN_SERVERTHREAD(task)                                    \
+    do {                                                             \
+        schedule_task_into_server_thread_task_queue(&_async, [=]() { \
+            task;                                                    \
+        });                                                          \
+    } while (0)
 
-    //#define LOGE() CCLOG("WSS: %s", __FUNCTION__)
-    #define LOGE()
+//#define LOGE() CCLOG("WSS: %s", __FUNCTION__)
+#define LOGE()
 
 DataFrame::DataFrame(const ccstd::string &data) : _isBinary(false) {
     _underlyingData.resize(data.size() + LWS_PRE);
