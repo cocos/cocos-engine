@@ -1,7 +1,6 @@
 // clang-format off
 #pragma once
-#include "base/Config.h"
-#if USE_WEBVIEW > 0
+
 #include <type_traits>
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
@@ -43,5 +42,4 @@ SE_DECLARE_FUNC(js_webview_WebView_setScalesPageToFit);
 SE_DECLARE_FUNC(js_webview_WebView_setVisible);
 SE_DECLARE_FUNC(js_webview_WebView_stopLoading);
 SE_DECLARE_FUNC(js_webview_WebView_create);
-#endif //#if USE_WEBVIEW > 0
 // clang-format on
