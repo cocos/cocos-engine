@@ -407,7 +407,7 @@ export class Mask extends Renderable2D {
     /**
      * Hit test with point in World Space.
      *
-     * @param worldPt - point in World Space.
+     * @param worldPt point in World Space.
      */
     public isHit (worldPt: Vec2) {
         const uiTrans = this.node._uiProps.uiTransformComp!;
