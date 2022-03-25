@@ -55,7 +55,7 @@ public:
         _windowInfo.flags  = _windowInfo.flags == -1 ? cc::ISystemWindow::CC_WINDOW_SHOWN |
                                                           cc::ISystemWindow::CC_WINDOW_RESIZABLE |
                                                           cc::ISystemWindow::CC_WINDOW_INPUT_FOCUS
-                                                     : _windowInfo.flags;
+                                                    : _windowInfo.flags;
 
         createWindow(_windowInfo.title.c_str(),
                      _windowInfo.x, _windowInfo.y, _windowInfo.width, _windowInfo.height, _windowInfo.flags);
