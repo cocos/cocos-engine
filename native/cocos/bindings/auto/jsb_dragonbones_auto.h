@@ -1,7 +1,6 @@
 // clang-format off
 #pragma once
-#include "base/Config.h"
-#if USE_DRAGONBONES > 0
+
 #include <type_traits>
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
@@ -445,5 +444,4 @@ extern se::Class * __jsb_dragonBones_CCTextureData_class; // NOLINT
 
 bool js_register_dragonBones_CCTextureData(se::Object *obj); // NOLINT
 
-#endif //#if USE_DRAGONBONES > 0
 // clang-format on

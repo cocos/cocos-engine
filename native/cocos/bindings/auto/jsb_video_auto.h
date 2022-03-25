@@ -1,7 +1,6 @@
 // clang-format off
 #pragma once
-#include "base/Config.h"
-#if (USE_VIDEO > 0)
+
 #include <type_traits>
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
@@ -32,5 +31,4 @@ SE_DECLARE_FUNC(js_video_VideoPlayer_setURL);
 SE_DECLARE_FUNC(js_video_VideoPlayer_setVisible);
 SE_DECLARE_FUNC(js_video_VideoPlayer_stop);
 SE_DECLARE_FUNC(js_video_VideoPlayer_VideoPlayer);
-#endif //#if (USE_VIDEO > 0)
 // clang-format on

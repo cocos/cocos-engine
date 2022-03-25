@@ -43,9 +43,7 @@ namespace cc {
 namespace render {
 
 NativePipeline::NativePipeline() noexcept
-: device(gfx::Device::getInstance())
-, globalDSManager(std::make_unique<pipeline::GlobalDSManager>())
-, pipelineSceneData(new pipeline::PipelineSceneData()) // NOLINT
+: device(gfx::Device::getInstance()), globalDSManager(std::make_unique<pipeline::GlobalDSManager>()), pipelineSceneData(new pipeline::PipelineSceneData()) // NOLINT
 {
 }
 
@@ -110,10 +108,10 @@ SceneTransversal *NativePipeline::createSceneTransversal(const scene::Camera *ca
 }
 
 namespace {
-    
+
 void generateConstantMacros(
-    gfx::Device* device, 
-    std::string& constantMacros, bool clusterEnabled) {
+    gfx::Device *device,
+    std::string &constantMacros, bool clusterEnabled) {
     constantMacros = StringUtil::format(
         R"(
 #define CC_DEVICE_SUPPORT_FLOAT_TEXTURE %d
@@ -125,7 +123,7 @@ void generateConstantMacros(
 #define CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES 0
         )",
         hasAnyFlags(device->getFormatFeatures(gfx::Format::RGBA32F),
-            gfx::FormatFeature::RENDER_TARGET | gfx::FormatFeature::SAMPLED_TEXTURE),
+                    gfx::FormatFeature::RENDER_TARGET | gfx::FormatFeature::SAMPLED_TEXTURE),
         clusterEnabled ? 1 : 0,
         device->getCapabilities().maxVertexUniformVectors,
         device->getCapabilities().maxFragmentUniformVectors,
@@ -167,9 +165,9 @@ bool NativePipeline::destroy() noexcept {
 
 // NOLINTNEXTLINE
 void NativePipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
-    const auto *sceneData    = pipelineSceneData.get();
-    auto* commandBuffer = device->getCommandBuffer();
-    float shadingScale = sceneData->getShadingScale();
+    const auto *sceneData     = pipelineSceneData.get();
+    auto *      commandBuffer = device->getCommandBuffer();
+    float       shadingScale  = sceneData->getShadingScale();
 
     struct RenderData2 {
         framegraph::TextureHandle outputTex;
@@ -178,12 +176,11 @@ void NativePipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
     commandBuffer->begin();
 
     for (const auto *camera : cameras) {
-        auto colorHandle  = framegraph::FrameGraph::stringToHandle("outputTexture");
+        auto colorHandle = framegraph::FrameGraph::stringToHandle("outputTexture");
 
         auto forwardSetup = [&](framegraph::PassNodeBuilder &builder, RenderData2 &data) {
             gfx::Color clearColor;
             if (hasFlag(static_cast<gfx::ClearFlags>(camera->getClearFlag()), gfx::ClearFlagBit::COLOR)) {
-
                 clearColor.x = camera->getClearColor().x;
                 clearColor.y = camera->getClearColor().y;
                 clearColor.z = camera->getClearColor().z;
@@ -245,8 +242,8 @@ void NativePipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
         };
 
         auto forwardExec = [](const RenderData2 & /*data*/,
-            const framegraph::DevicePassResourceTable &table) {
-                // do nothing
+                              const framegraph::DevicePassResourceTable &table) {
+            // do nothing
         };
 
         auto passHandle = framegraph::FrameGraph::stringToHandle("forwardPass");
@@ -256,7 +253,7 @@ void NativePipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
             passHandle, forwardSetup, forwardExec);
 
         frameGraph.presentFromBlackboard(colorHandle,
-            camera->getWindow()->getFramebuffer()->getColorTextures()[0], true);
+                                         camera->getWindow()->getFramebuffer()->getColorTextures()[0], true);
     }
     frameGraph.compile();
     frameGraph.execute();
