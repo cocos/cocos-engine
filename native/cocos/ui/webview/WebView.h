@@ -28,7 +28,6 @@
 
 #include <functional>
 
-#include "base/Config.h"
 #include "base/Data.h"
 #include "base/Macros.h"
 #include "base/RefCounted.h"

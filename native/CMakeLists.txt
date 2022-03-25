@@ -2559,8 +2559,6 @@ if(ANDROID OR IOS OR OHOS)
     endif()
     if(USE_WEBVIEW)
         cocos_source_files(
-                         cocos/ui/webview/WebViewImpl-java.h
-                         cocos/ui/webview/WebViewImpl-ios.h
                          cocos/ui/webview/WebView-inl.h
                          cocos/ui/webview/WebView.h
         )
@@ -2580,6 +2578,7 @@ if(ANDROID)
     endif()
     if(USE_WEBVIEW)
         cocos_source_files(
+                         cocos/ui/webview/WebViewImpl-java.h
                          cocos/ui/webview/WebViewImpl-android.cpp
         )
     endif()
@@ -2596,6 +2595,7 @@ elseif(OHOS)
     endif()
     if(USE_WEBVIEW)
         cocos_source_files(
+            cocos/ui/webview/WebViewImpl-java.h
             cocos/ui/webview/WebViewImpl-ohos.cpp
         )
     endif()
@@ -2618,7 +2618,9 @@ elseif(IOS)
     endif()
     if(USE_WEBVIEW)
        cocos_source_files(
+                         cocos/ui/webview/WebViewImpl-ios.h
             NO_WERROR   NO_UBUILD   cocos/ui/webview/WebViewImpl-ios.mm
+
        )
    endif()
 elseif(WIN32)
@@ -2861,19 +2863,19 @@ endif()
 ################################# cc_apply_definations ###################################
 function(cc_apply_definations target)
     target_compile_definitions(${target} PUBLIC
-        $<IF:$<BOOL:${USE_VIDEO}>,USE_VIDEO=1,USE_VIDEO=0>
-        $<IF:$<BOOL:${USE_WEBVIEW}>,USE_WEBVIEW=1,USE_WEBVIEW=0>
-        $<IF:$<BOOL:${USE_AUDIO}>,USE_AUDIO=1,USE_AUDIO=0>
-        $<IF:$<BOOL:${USE_SOCKET}>,USE_SOCKET=1,USE_SOCKET=0>
-        $<IF:$<BOOL:${USE_WEBSOCKET_SERVER}>,USE_WEBSOCKET_SERVER=1,USE_WEBSOCKET_SERVER=0>
+        $<IF:$<BOOL:${USE_VIDEO}>,CC_USE_VIDEO=1,CC_USE_VIDEO=0>
+        $<IF:$<BOOL:${USE_WEBVIEW}>,CC_USE_WEBVIEW=1,CC_USE_WEBVIEW=0>
+        $<IF:$<BOOL:${USE_AUDIO}>,CC_USE_AUDIO=1,CC_USE_AUDIO=0>
+        $<IF:$<BOOL:${USE_SOCKET}>,CC_USE_SOCKET=1,CC_USE_SOCKET=0>
+        $<IF:$<BOOL:${USE_WEBSOCKET_SERVER}>,CC_USE_WEBSOCKET_SERVER=1,CC_USE_WEBSOCKET_SERVER=0>
         $<IF:$<BOOL:${USE_EDIT_BOX}>,CC_USE_EDITBOX=1,CC_USE_EDITBOX=0>
         $<IF:$<BOOL:${USE_V8_DEBUGGER}>,USE_V8_DEBUGGER=1,USE_V8_DEBUGGER=0>
-        $<IF:$<BOOL:${USE_MIDDLEWARE}>,USE_MIDDLEWARE=1,USE_MIDDLEWARE=0>
-        $<IF:$<BOOL:${USE_SPINE}>,USE_SPINE=1,USE_SPINE=0>
-        $<IF:$<BOOL:${USE_DRAGONBONES}>,USE_DRAGONBONES=1,USE_DRAGONBONES=0>
-        $<IF:$<BOOL:${USE_JOB_SYSTEM_TBB}>,USE_JOB_SYSTEM_TBB=1,USE_JOB_SYSTEM_TBB=0>
-        $<IF:$<BOOL:${USE_JOB_SYSTEM_TASKFLOW}>,USE_JOB_SYSTEM_TASKFLOW=1,USE_JOB_SYSTEM_TASKFLOW=0>
-        $<IF:$<BOOL:${USE_PHYSICS_PHYSX}>,USE_PHYSICS_PHYSX=1,USE_PHYSICS_PHYSX=0>
+        $<IF:$<BOOL:${USE_MIDDLEWARE}>,CC_USE_MIDDLEWARE=1,CC_USE_MIDDLEWARE=0>
+        $<IF:$<BOOL:${USE_SPINE}>,CC_USE_SPINE=1,CC_USE_SPINE=0>
+        $<IF:$<BOOL:${USE_DRAGONBONES}>,CC_USE_DRAGONBONES=1,CC_USE_DRAGONBONES=0>
+        $<IF:$<BOOL:${USE_JOB_SYSTEM_TBB}>,CC_USE_JOB_SYSTEM_TBB=1,CC_USE_JOB_SYSTEM_TBB=0>
+        $<IF:$<BOOL:${USE_JOB_SYSTEM_TASKFLOW}>,CC_USE_JOB_SYSTEM_TASKFLOW=1,CC_USE_JOB_SYSTEM_TASKFLOW=0>
+        $<IF:$<BOOL:${USE_PHYSICS_PHYSX}>,CC_USE_PHYSICS_PHYSX=1,CC_USE_PHYSICS_PHYSX=0>
         $<IF:$<BOOL:${CC_EDITOR}>,CC_EDITOR=1,CC_EDITOR=0>
         $<$<BOOL:${USE_SE_JSC}>:SCRIPT_ENGINE_TYPE=3>
         $<$<BOOL:${USE_SE_SM}>:SCRIPT_ENGINE_TYPE=1>

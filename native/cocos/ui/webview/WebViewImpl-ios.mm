@@ -24,15 +24,12 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-// Webview not available on tvOS
-#if (USE_WEBVIEW > 0) && (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+#import <WebKit/WKWebView.h>
+#import <WebKit/WKUIDelegate.h>
+#import <WebKit/WKNavigationDelegate.h>
 
-    #import <WebKit/WKWebView.h>
-    #import <WebKit/WKUIDelegate.h>
-    #import <WebKit/WKNavigationDelegate.h>
-
-    #include "WebView-inl.h"
-    #include "platform/FileUtils.h"
+#include "WebView-inl.h"
+#include "platform/FileUtils.h"
 
 @interface UIWebViewWrapper : NSObject
 @property (nonatomic) std::function<bool(ccstd::string url)> shouldStartLoading;
@@ -398,5 +395,3 @@ void WebViewImpl::setBackgroundTransparent(bool isTransparent) {
     [_uiWebViewWrapper setBackgroundTransparent:isTransparent];
 }
 } //namespace cc
-
-#endif

@@ -24,25 +24,22 @@
 ****************************************************************************/
 
 #include "jsb_spine_manual.h"
-#include "base/Config.h"
 #include "platform/FileUtils.h"
 
-#if USE_SPINE > 0
+#include "base/Data.h"
+#include "cocos/bindings/auto/jsb_spine_auto.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
+#include "cocos/bindings/manual/jsb_conversions.h"
+#include "cocos/bindings/manual/jsb_global.h"
+#include "cocos/bindings/manual/jsb_helper.h"
 
-    #include "base/Data.h"
-    #include "cocos/bindings/auto/jsb_spine_auto.h"
-    #include "cocos/bindings/jswrapper/SeApi.h"
-    #include "cocos/bindings/manual/jsb_conversions.h"
-    #include "cocos/bindings/manual/jsb_global.h"
-    #include "cocos/bindings/manual/jsb_helper.h"
+#include "middleware-adapter.h"
+#include "spine-creator-support/SkeletonDataMgr.h"
+#include "spine-creator-support/SkeletonRenderer.h"
+#include "spine-creator-support/spine-cocos2dx.h"
 
-    #include "middleware-adapter.h"
-    #include "spine-creator-support/SkeletonDataMgr.h"
-    #include "spine-creator-support/SkeletonRenderer.h"
-    #include "spine-creator-support/spine-cocos2dx.h"
-
-    #include "cocos/editor-support/spine-creator-support/spine-cocos2dx.h"
-    #include "cocos/editor-support/spine/spine.h"
+#include "cocos/editor-support/spine-creator-support/spine-cocos2dx.h"
+#include "cocos/editor-support/spine/spine.h"
 
 using namespace cc;
 
@@ -255,5 +252,3 @@ bool register_all_spine_manual(se::Object *obj) {
 
     return true;
 }
-
-#endif

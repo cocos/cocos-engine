@@ -37,11 +37,11 @@
 #include "platform/BasePlatform.h"
 #include "platform/FileUtils.h"
 
-#if USE_AUDIO
+#if CC_USE_AUDIO
     #include "cocos/audio/include/AudioEngine.h"
 #endif
 
-#if USE_SOCKET
+#if CC_USE_SOCKET
     #include "cocos/network/WebSocket.h"
 #endif
 
@@ -95,7 +95,7 @@ Engine::Engine() {
 }
 
 Engine::~Engine() {
-#if USE_AUDIO
+#if CC_USE_AUDIO
     AudioEngine::end();
 #endif
 
@@ -160,10 +160,10 @@ void Engine::close() { // NOLINT
     auto *scriptEngine = se::ScriptEngine::getInstance();
 
     cc::DeferredReleasePool::clear();
-#if USE_AUDIO
+#if CC_USE_AUDIO
     cc::AudioEngine::stopAll();
 #endif
-    //#if USE_SOCKET
+    //#if CC_USE_SOCKET
     //    cc::network::WebSocket::closeAllConnections();
     //#endif
     cc::network::HttpClient::destroyInstance();
@@ -259,10 +259,10 @@ int32_t Engine::restartVM() {
     auto *scriptEngine = se::ScriptEngine::getInstance();
 
     cc::DeferredReleasePool::clear();
-#if USE_AUDIO
+#if CC_USE_AUDIO
     cc::AudioEngine::stopAll();
 #endif
-    //#if USE_SOCKET
+    //#if CC_USE_SOCKET
     //    cc::network::WebSocket::closeAllConnections();
     //#endif
     cc::network::HttpClient::destroyInstance();
