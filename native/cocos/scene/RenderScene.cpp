@@ -30,6 +30,7 @@
 #include "3d/models/BakedSkinningModel.h"
 #include "3d/models/SkinningModel.h"
 #include "base/Log.h"
+#include "core/Root.h"
 #include "core/scene-graph/Node.h"
 #include "profiler/Profiler.h"
 #include "renderer/pipeline/PipelineSceneData.h"
@@ -41,7 +42,6 @@
 #include "scene/Octree.h"
 #include "scene/SphereLight.h"
 #include "scene/SpotLight.h"
-#include "core/Root.h"
 
 namespace cc {
 namespace scene {

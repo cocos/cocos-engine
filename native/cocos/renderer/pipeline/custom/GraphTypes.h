@@ -57,16 +57,16 @@ namespace render {
 template <class... Ts>
 struct VertexOverloaded : Overloaded<Ts...> {
     VertexOverloaded(Ts... ts) // NOLINT
-        : Overloaded<Ts...>(std::move(ts)...) {}
+    : Overloaded<Ts...>(std::move(ts)...) {}
     template <class T>
-    auto operator()(T* ptr) {
+    auto operator()(T *ptr) {
         return this->Overloaded<Ts...>::operator()(*ptr);
     }
 };
 
 template <class GraphT, class... Ts>
-auto visitObject(typename GraphT::vertex_descriptor v, GraphT& g, Ts... args) {
-    return cc::visit(VertexOverloaded<Ts...>{ std::move(args)... }, value(v, g));
+auto visitObject(typename GraphT::vertex_descriptor v, GraphT &g, Ts... args) {
+    return cc::visit(VertexOverloaded<Ts...>{std::move(args)...}, value(v, g));
 }
 
 namespace impl {
@@ -464,7 +464,7 @@ protected:
     VertexIterator                                               _curr{};
     VertexIterator                                               _end{};
     boost::optional<std::pair<OutEdgeIterator, OutEdgeIterator>> _edges;
-    const Graph                                                 *_g{};
+    const Graph *                                                _g{};
 };
 
 //--------------------------------------------------------------------
@@ -485,7 +485,7 @@ struct ListEdge {
     ListEdge(VertexDescriptor s, VertexDescriptor t, T &&...args) // NOLINT
     : source(s), target(t), property(std::forward<T>(args)...) {}
 
-    EdgeProperty       &get_property() noexcept { return property; }       // NOLINT
+    EdgeProperty &      get_property() noexcept { return property; }       // NOLINT
     const EdgeProperty &get_property() const noexcept { return property; } // NOLINT
 
     VertexDescriptor source{};
@@ -522,7 +522,7 @@ struct PmrListEdge {
 
     PmrListEdge(const PmrListEdge &) = delete;
 
-    EdgeProperty       &get_property() noexcept { return property; }       // NOLINT
+    EdgeProperty &      get_property() noexcept { return property; }       // NOLINT
     const EdgeProperty &get_property() const noexcept { return property; } // NOLINT
 
     VertexDescriptor source{};
@@ -617,7 +617,7 @@ protected:
     VertexIterator                                               _curr{};
     VertexIterator                                               _end{};
     boost::optional<std::pair<OutEdgeIterator, OutEdgeIterator>> _edges;
-    const Graph                                                 *_g{};
+    const Graph *                                                _g{};
 };
 
 } // namespace impl
