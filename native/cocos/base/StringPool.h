@@ -28,17 +28,11 @@
 #include <cstring>
 #include "StringHandle.h"
 #include "base/Macros.h"
-#include "base/std/container/map.h"
+#include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
 #include "threading/ReadWriteLock.h"
 
 namespace cc {
-
-struct StringCompare final {
-    inline bool operator()(char const *lhs, char const *rhs) const noexcept {
-        return strcmp(lhs, rhs) < 0;
-    }
-};
 
 template <bool ThreadSafe>
 class StringPool final {
@@ -59,7 +53,7 @@ private:
     char const * doHandleToString(const StringHandle &handle) const noexcept;
     StringHandle doFind(const char *str) const noexcept;
 
-    ccstd::map<char const *, StringHandle, StringCompare> _stringToHandles{};
+    ccstd::unordered_map<char const *, StringHandle> _stringToHandles{};
     ccstd::vector<char const *>                           _handleToStrings{};
     mutable ReadWriteLock                                 _readWriteLock{};
 };

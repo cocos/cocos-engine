@@ -149,7 +149,7 @@ IDownloadTask *DownloaderJava::createCoTask(std::shared_ptr<const DownloadTask> 
         jstring                                         jstrURL      = methodInfo.env->NewStringUTF(task->requestURL.c_str());
         jstring                                         jstrPath     = methodInfo.env->NewStringUTF(task->storagePath.c_str());
         jobjectArray                                    jarrayHeader = methodInfo.env->NewObjectArray(task->header.size() * 2, jclassString, nullptr);
-        const ccstd::map<ccstd::string, ccstd::string> &headMap      = task->header;
+        const ccstd::unordered_map<ccstd::string, ccstd::string> &headMap      = task->header;
         int                                             index        = 0;
         for (const auto &it : headMap) {
             methodInfo.env->SetObjectArrayElement(jarrayHeader, index++, methodInfo.env->NewStringUTF(it.first.c_str()));
