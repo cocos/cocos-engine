@@ -45,9 +45,9 @@
     int x = 0;
     int y = 0;
     if(w < screenFrame.size.width)
-      x = screenFrame.origin.x + (screenFrame.size.width - w)/2;
+        x = screenFrame.origin.x + (screenFrame.size.width - w)/2;
     if(h < screenFrame.size.height)
-      y = screenFrame.origin.y + (screenFrame.size.height - h)/2;
+        y = screenFrame.origin.y + (screenFrame.size.height - h)/2;
     [self createWindow :title xPos:x yPos:y width:w height:h];
 }
 

@@ -37,11 +37,6 @@
 #include "platform/IEventDispatch.h"
 #include "platform/qnx/QnxPlatform.h"
 
-
-namespace {
-
-} // namespace
-
 namespace cc {
 SystemWindow::SystemWindow() {
 }
@@ -59,7 +54,7 @@ bool SystemWindow::createWindow(const char *title,
                                 int w, int h, int flags) {
     _width  = w;
     _height = h;
-	createWindow(title, 0, 0, w, h, flags);
+    createWindow(title, 0, 0, w, h, flags);
     return true;
 }
 
@@ -94,18 +89,18 @@ bool SystemWindow::createWindow(const char *title,
 #endif
 
     int pos[2] = {x, y}; /* size of the window on screen */
-	rc = screen_set_window_property_iv(_screenWin, SCREEN_PROPERTY_POSITION, pos);
-	if (rc) {
-		perror("screen_set_window_property_iv(SCREEN_PROPERTY_SIZE)");
-		return EXIT_FAILURE;
-	}
+    rc = screen_set_window_property_iv(_screenWin, SCREEN_PROPERTY_POSITION, pos);
+    if (rc) {
+        perror("screen_set_window_property_iv(SCREEN_PROPERTY_SIZE)");
+        return EXIT_FAILURE;
+    }
 
     int size[2] = {w, h}; /* size of the window on screen */
     rc          = screen_set_window_property_iv(_screenWin, SCREEN_PROPERTY_SIZE, size);
     if (rc) {
-		perror("screen_set_window_property_iv(SCREEN_PROPERTY_POSITION)");
-		return EXIT_FAILURE;
-	}
+        perror("screen_set_window_property_iv(SCREEN_PROPERTY_POSITION)");
+        return EXIT_FAILURE;
+    }
 
     int dpi = 0;
     screen_get_window_property_iv(_screenWin, SCREEN_PROPERTY_DPI, &dpi);

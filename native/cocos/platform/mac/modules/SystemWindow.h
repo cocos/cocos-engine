@@ -40,8 +40,7 @@ public:
                            int x, int y, int w,
                            int h, int flags) override;
     bool      createWindow(const char* title,
-                           int         w,
-                           int h, int flags) override;
+                           int w,int h, int flags) override;
     
     uintptr_t getWindowHandler() const override;
 
