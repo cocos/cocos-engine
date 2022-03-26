@@ -131,19 +131,19 @@ exports.template = `
 <ui-drag-area class="container">
     <section class="prefab" hidden missing>
         <ui-label value="Prefab"></ui-label>
-        <ui-button role="edit" tooltip="i18n:inspector.prefab.edit">
+        <ui-button role="edit" tooltip="i18n:ENGINE.prefab.edit">
             <ui-icon value="edit"></ui-icon>
         </ui-button>
-        <ui-button role="unlink" tooltip="i18n:inspector.prefab.unlink">
+        <ui-button role="unlink" tooltip="i18n:ENGINE.prefab.unlink">
             <ui-icon value="unlink"></ui-icon>
         </ui-button>
-        <ui-button role="local" tooltip="i18n:inspector.prefab.local">
+        <ui-button role="local" tooltip="i18n:ENGINE.prefab.local">
             <ui-icon value="location"></ui-icon>
         </ui-button>
-        <ui-button role="reset" tooltip="i18n:inspector.prefab.reset">
+        <ui-button role="reset" tooltip="i18n:ENGINE.prefab.reset">
             <ui-icon value="reset"></ui-icon>
         </ui-button>
-        <ui-button role="save" tooltip="i18n:inspector.prefab.save">
+        <ui-button role="save" tooltip="i18n:ENGINE.prefab.save">
             <ui-icon value="save-o"></ui-icon>
         </ui-button>
     </section>
@@ -166,8 +166,8 @@ exports.template = `
     <ui-section class="component node" expand>
         <header class="component-header" slot="header">
             <span class="name">Node</span>
-            <ui-icon class="menu" value="setting" tooltip="i18n:inspector.menu.component"></ui-icon>
-            <ui-link class="link" tooltip="i18n:inspector.menu.help_url">
+            <ui-icon class="menu" value="setting" tooltip="i18n:ENGINE.menu.component"></ui-icon>
+            <ui-link class="link" tooltip="i18n:ENGINE.menu.help_url">
                 <ui-icon value="help"></ui-icon>
             </ui-link>
         </header>
@@ -192,7 +192,7 @@ exports.template = `
 
     <footer class="footer">
         <ui-button>
-            <ui-label value="i18n:inspector.add_component"></ui-label>
+            <ui-label value="i18n:ENGINE.components.add_component"></ui-label>
         </ui-button>
     </footer>
 
@@ -717,8 +717,8 @@ const Elements = {
                     <header class="component-header" slot="header">
                         <ui-checkbox class="active"></ui-checkbox>
                         <span class="name">${component.type}${component.mountedRoot ? '+' : ''}</span>
-                        <ui-icon class="menu" value="setting" tooltip="i18n:inspector.menu.component"></ui-icon>
-                        <ui-link class="link" tooltip="i18n:inspector.menu.help_url">
+                        <ui-icon class="menu" value="setting" tooltip="i18n:ENGINE.menu.component"></ui-icon>
+                        <ui-link class="link" tooltip="i18n:ENGINE.menu.help_url">
                             <ui-icon value="help"></ui-icon>
                         </ui-link>
                     </header>
@@ -898,8 +898,8 @@ const Elements = {
                 }
                 $section.innerHTML = `
                 <span class="name">${panel.dump.removedComponents[i].name}</span>
-                <ui-icon value="reset" index="${i}" tooltip="i18n:inspector.prefab.reset"></ui-icon>
-                <ui-icon value="save-o" index="${i}" tooltip="i18n:inspector.prefab.save"></ui-icon>
+                <ui-icon value="reset" index="${i}" tooltip="i18n:ENGINE.prefab.reset"></ui-icon>
+                <ui-icon value="save-o" index="${i}" tooltip="i18n:ENGINE.prefab.save"></ui-icon>
                 `;
             }
 

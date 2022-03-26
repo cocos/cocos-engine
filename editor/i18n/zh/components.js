@@ -1,5 +1,6 @@
 module.exports = {
     components: {
+        add_component: '添加组件',
         safe_area: {
             brief_help:
                 '该组件会将所在节点的布局适配到 iPhone X 等异形屏手机的安全区域内，通常用于 UI 交互区域的顶层节点。该组件将在真机上将自动生效，在编辑器下没有效果。',

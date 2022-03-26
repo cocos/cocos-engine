@@ -4,6 +4,9 @@ module.exports = {
         cancel: 'Cancel',
     },
     assets: {
+        reset: 'Reset',
+        save: 'Save',
+        locate_asset: 'Locate in Assets Panel',
         'label-atlas': {
             SpriteFrameTip: 'SpriteFrame',
             ItemWidthTip: 'Item Width',
@@ -293,6 +296,8 @@ module.exports = {
                         title: 'Verbose output',
                     },
                 },
+                // eslint-disable-next-line max-len
+                warn: 'Warning: After optimization, the number and names of mesh resources will change, which will cause the loss of resources referenced by the components, please update them manually in time. (In addition, for prefabs pre-generated in the model resources, the resource synchronization mechanism will update them automatically)',
             },
             animationBakeRate: {
                 name: 'Animation Bake Rate',
@@ -344,5 +349,43 @@ module.exports = {
             nodeEnableTip: 'Whether enable this joint;<br>Alt + Click can toggle the children state.',
         },
         multipleWarning: 'Multi-select editing of this type of asset is not supported',
+    },
+
+    menu: {
+        node: 'Node Menu',
+        component: 'Component Menu',
+
+        remove_component: 'Remove',
+        reset_component: 'Reset',
+        move_up_component: 'Move Up',
+        move_down_component: 'Move Down',
+
+        reset_node: 'Reset',
+        reset_node_position: 'Reset Position',
+        reset_node_rotation: 'Reset Rotation',
+        reset_node_scale: 'Reset Scale ',
+
+        copy_node_value: 'Copy Node Values',
+        paste_node_value: 'Paste Node Values',
+        copy_node_world_transform: 'Copy Node World Transform',
+        paste_node_world_transform: 'Paste Node World Transform',
+
+        copy_component: 'Copy Component',
+        paste_component: 'Paste Component As New',
+        paste_component_values: 'Paste Component Values',
+
+        help_url: 'Help Document',
+        custom_script: 'Custom script',
+    },
+
+    prefab: {
+        edit: 'Edit prefab asset',
+        local: 'Location',
+        reset: 'Reset from prefab',
+        save: 'Update prefab asset',
+        link: 'Connect it to another prefab',
+        unlink: 'Disconnect node with current prefab asset',
+        lost: 'Prefab asset is not exist.',
+        exist: 'Prefab Asset',
     },
 };

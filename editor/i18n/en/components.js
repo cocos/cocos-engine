@@ -1,5 +1,6 @@
 module.exports = {
     components: {
+        add_component: 'Add Component',
         safe_area: {
             brief_help:
                 'This component is used to adjust the layout of current node to respect the safe area of a notched mobile device such as the iPhone X.' +
