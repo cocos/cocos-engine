@@ -71,7 +71,7 @@ cc::IOSPlatform *_platform = nullptr;
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
-   cc::IScreen::Orientation orientation;
+    cc::IScreen::Orientation orientation;
     // reference: https://developer.apple.com/documentation/uikit/uiinterfaceorientation?language=objc
     // UIInterfaceOrientationLandscapeRight = UIDeviceOrientationLandscapeLeft
     // UIInterfaceOrientationLandscapeLeft = UIDeviceOrientationLandscapeRight
