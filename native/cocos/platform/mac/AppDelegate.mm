@@ -40,14 +40,10 @@
 
 @implementation AppDelegate
 
-- (void)createWindowPosCentered:(NSString*)title width:(int)w height:(int)h {
+- (void)createWindowPosBottomLeft:(NSString*)title width:(int)w height:(int)h {
     CGRect screenFrame = CGDisplayBounds(kCGDirectMainDisplay);
-    int x = 0;
-    int y = 0;
-    if(w < screenFrame.size.width)
-        x = screenFrame.origin.x + (screenFrame.size.width - w)/2;
-    if(h < screenFrame.size.height)
-        y = screenFrame.origin.y + (screenFrame.size.height - h)/2;
+    int x = screenFrame.origin.x;
+    int y = screenFrame.origin.y;
     [self createWindow :title xPos:x yPos:y width:w height:h];
 }
 
