@@ -11,6 +11,7 @@ set(CC_PROJ_SOURCES)
 set(CC_ASSET_FILES)
 set(CC_COMMON_SOURCES)
 set(CC_ALL_SOURCES)
+
 include(${CC_PROJECT_DIR}/../common/CMakeLists.txt)
 set(EXECUTABLE_NAME ${APP_NAME}-mobile)
 

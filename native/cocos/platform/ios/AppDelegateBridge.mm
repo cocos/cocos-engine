@@ -1,7 +1,5 @@
 /****************************************************************************
- Copyright (c) 2013 cocos2d-x.org
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,38 +23,47 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#import "ViewController.h"
-#include "cocos/bindings/event/EventDispatcher.h"
-#include "platform/IEventDispatch.h"
+#import "platform/ios/AppDelegateBridge.h"
+#include "platform/ios/IOSPlatform.h"
 #include "platform/interfaces/modules/IScreen.h"
-#include "platform/BasePlatform.h"
 
-#import "platform/ios/AppDelegate.h"
-//#include "cocos/platform/Device.h"
-
-namespace {
-//    cc::Device::Orientation _lastOrientation;
+@implementation AppDelegateBridge
+cc::IOSPlatform *_platform = nullptr;
+- (void)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    _platform = dynamic_cast<cc::IOSPlatform *>(cc::BasePlatform::getPlatform());
+    CCASSERT(_platform != nullptr, "Platform pointer can't be null");
+    _platform->loop();
 }
 
-@interface ViewController ()
- 
-@end
-
-@implementation ViewController
-
-
-- (BOOL) shouldAutorotate {
-    return YES;
+- (void)applicationWillResignActive:(UIApplication *)application {
+    _platform->onPause();
 }
 
-//fix not hide status on ios7
-- (BOOL)prefersStatusBarHidden {
-    return YES;
+- (void)applicationDidBecomeActive:(UIApplication *)application {
+    _platform->onResume();
 }
 
-// Controls the application's preferred home indicator auto-hiding when this view controller is shown.
-- (BOOL)prefersHomeIndicatorAutoHidden {
-    return YES;
+- (void)applicationWillTerminate:(UIApplication *)application {
+    _platform->onClose();
+    _platform->onDestory();
+    _platform = nullptr;
+}
+
+- (void)dispatchEvent:(const cc::OSEvent &)ev {
+    _platform->dispatchEvent(ev);
+}
+
+- (void)applicationDidReceiveMemoryWarning:(UIApplication *)application {
+    cc::DeviceEvent ev;
+    ev.type = cc::DeviceEvent::Type::DEVICE_MEMORY;
+    _platform->dispatchEvent(ev);
+}
+
+
+- (float)getPixelRatio {
+    cc::BasePlatform* platform = cc::BasePlatform::getPlatform();
+    cc::IScreen* screenIntf = platform->getInterface<cc::IScreen>();
+    return (float)screenIntf->getDevicePixelRatio();
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
@@ -85,20 +92,27 @@ namespace {
     cc::IScreen* screenIntf = platform->getInterface<cc::IScreen>();
     ev.type           = cc::DeviceEvent::Type::DEVICE_ORIENTATION;
     ev.args[0].intVal = static_cast<int>(screenIntf->getDeviceOrientation());
-    AppDelegate* delegate = [[UIApplication sharedApplication] delegate];
-    [delegate dispatchEvent:ev];
+    _platform->dispatchEvent(ev);
 
     float pixelRatio = screenIntf->getDevicePixelRatio();
     cc::WindowEvent resizeEv;
     resizeEv.type = cc::WindowEvent::Type::RESIZED;
     resizeEv.width = size.width * pixelRatio;
     resizeEv.height = size.height * pixelRatio;
-    [delegate dispatchEvent:resizeEv];
-    //CAMetalLayer is available on ios8.0, ios-simulator13.0.
-    CAMetalLayer *layer = (CAMetalLayer *)self.view.layer;
-    CGSize tsize             = CGSizeMake(static_cast<int>(size.width * pixelRatio),
-                                         static_cast<int>(size.height * pixelRatio));
-    layer.drawableSize = tsize;
+    _platform->dispatchEvent(resizeEv);
+}
+
+- (void)dispatchTouchEvent:(cc::TouchEvent::Type)type touches:(NSSet *)touches withEvent:(UIEvent *)event {
+    cc::TouchEvent touchEvent;
+    touchEvent.type = type;
+    for (UITouch *touch in touches) {
+        touchEvent.touches.push_back({static_cast<float>([touch locationInView:[touch view]].x),
+                                      static_cast<float>([touch locationInView:[touch view]].y),
+                                      static_cast<int>((intptr_t)touch)});
+    }
+    _platform->dispatchEvent(touchEvent);
+    touchEvent.touches.clear();
 }
 
 @end
+

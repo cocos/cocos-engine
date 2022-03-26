@@ -23,35 +23,30 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "platform/ios/modules/SystemWindow.h"
+#include <iostream>
+
+#include "platform/BasePlatform.h"
+#include "AppDelegate.h"
+
+int main(int argc, const char * argv[]) {
+    cc::BasePlatform* platform = cc::BasePlatform::getPlatform(); 
+    if (platform->init()) { 
+        return -1;                                                
+    }                                                            
+    platform->run(argc, argv);                                    
+    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+    int retVal = UIApplicationMain(argc, (char**)argv, nil, @"AppDelegate");
+    [pool release];
+    return retVal;
+}
+
+/*
 #import <UIKit/UIKit.h>
 
-
-namespace {
-
+int main(int argc, char *argv[]) {
+    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+    int retVal = UIApplicationMain(argc, argv, nil, @"AppDelegate");
+    [pool release];
+    return retVal;
 }
-
-namespace cc {
-
-SystemWindow::~SystemWindow() = default;
-
-
-void SystemWindow::setCursorEnabled(bool value) {
-}
-
-void SystemWindow::copyTextToClipboard(const std::string& text) {
-    UIPasteboard* pasteboard = [UIPasteboard generalPasteboard];
-    pasteboard.string        = [NSString stringWithCString:text.c_str() encoding:NSUTF8StringEncoding];
-}
-
-uintptr_t SystemWindow::getWindowHandler() const {
-    return reinterpret_cast<uintptr_t>(UIApplication.sharedApplication.delegate.window.rootViewController.view);
-}
-
-SystemWindow::Size SystemWindow::getViewSize() const {
-    CGRect bounds = [[UIScreen mainScreen] bounds];
-    return Size{static_cast<float>(bounds.size.width), static_cast<float>(bounds.size.height)};
-}
-
-
-}
+ */
