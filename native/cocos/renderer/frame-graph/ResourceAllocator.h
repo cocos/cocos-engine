@@ -55,9 +55,9 @@ private:
     ResourceAllocator() noexcept = default;
     ~ResourceAllocator()         = default;
 
-    std::unordered_map<DescriptorType, DeviceResourcePool, gfx::Hasher<DescriptorType>> _pool{};
-    std::unordered_map<DeviceResourceType *, int64_t>                                   _ages{};
-    uint64_t                                                                            _age{0};
+    std::unordered_map<size_t, DeviceResourcePool>    _pool{};
+    std::unordered_map<DeviceResourceType *, int64_t> _ages{};
+    uint64_t                                          _age{0};
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -71,7 +71,8 @@ ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>
 
 template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType>
 DeviceResourceType *ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::alloc(const DescriptorType &desc) noexcept {
-    DeviceResourcePool &pool{_pool[desc]};
+    size_t              hash = gfx::Hasher<DescriptorType>()(desc);
+    DeviceResourcePool &pool{_pool[hash]};
 
     DeviceResourceType *resource{nullptr};
     for (DeviceResourceType *res : pool) {
