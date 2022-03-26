@@ -36,7 +36,7 @@ import { Layers } from './layers';
 import { NodeUIProperties } from './node-ui-properties';
 import { legacyCC } from '../global-exports';
 import { BaseNode, TRANSFORM_ON } from './base-node';
-import { Mat3, Mat4, Quat, Vec3 } from '../math';
+import { approx, EPSILON, Mat3, Mat4, Quat, Vec3 } from '../math';
 import { NULL_HANDLE, NodePool, NodeView, NodeHandle  } from '../renderer/core/memory-pools';
 import { NodeSpace, TransformBit } from './node-enum';
 import { NativeNode } from '../renderer/scene/native-scene';
@@ -561,7 +561,7 @@ export class Node extends BaseNode implements CustomSerializable {
             const parent = this._parent;
             if (parent) {
                 parent.updateWorldTransform();
-                if (Mat4.determinant(parent._mat) === 0) {
+                if (approx(Mat4.determinant(parent._mat), 0, EPSILON)) {
                     warnID(14200);
                     this._dirtyFlags |= TransformBit.TRS;
                     this.updateWorldTransform();
