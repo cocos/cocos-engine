@@ -40,7 +40,7 @@
 
 @implementation AppDelegate
 
-- (void)createBottomLeftWindow:(NSString*)title width:(int)w height:(int)h {
+- (void)createLeftBottomWindow:(NSString*)title width:(int)w height:(int)h {
     [self createWindow :title xPos:0 yPos:0 width:w height:h];
 }
 

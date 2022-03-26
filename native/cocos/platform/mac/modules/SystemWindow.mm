@@ -44,7 +44,7 @@ bool SystemWindow::createWindow(const char* title,
     _height               = h;
     AppDelegate *delegate = [[NSApplication sharedApplication] delegate];
     NSString *   aString  = [NSString stringWithUTF8String:title];
-    [delegate createBottomLeftWindow:aString width:w height:h];
+    [delegate createLeftBottomWindow:aString width:w height:h];
     return true;
 }
 
