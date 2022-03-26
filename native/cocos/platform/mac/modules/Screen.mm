@@ -45,7 +45,6 @@ int Screen::getDPI() const {
 
 float Screen::getDevicePixelRatio() const {
     return [[[[NSApplication sharedApplication] delegate] getWindow] backingScaleFactor];
-    ;
 }
 
 void Screen::setKeepScreenOn(bool value) {

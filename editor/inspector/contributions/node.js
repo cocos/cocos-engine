@@ -641,7 +641,7 @@ const Elements = {
             }
 
             panel.$this.setAttribute('sub-type', 'node');
-            panel.$.container.setAttribute('droppable', 'cc.Script');
+            panel.$.container.setAttribute('droppable', panel.dropConfig && Object.keys(panel.dropConfig).join());
 
             panel.$.nodePosition.render(panel.dump.position);
             panel.$.nodeRotation.render(panel.dump.rotation);
@@ -994,7 +994,8 @@ const Elements = {
                     materialPanel.setAttribute('uuid', materialUuid);
                     materialPanel.panelObject.$.container.removeAttribute('whole');
                     materialPanel.panelObject.$.container.setAttribute('cache-expand', materialUuid);
-                    materialPanel.update([materialUuid], panel.renderManager[materialPanelType]);
+                    const { section = {} } = panel.renderManager[materialPanelType];
+                    materialPanel.update([materialUuid], { section });
 
                     // 按数组顺序放置
                     if (materialPrevPanel) {

@@ -77,7 +77,7 @@ public:
         return true;
     }
     /**
-     * @brief Create a centered window.
+     * @brief Create a window displayed in the bottom left.
      *@param title: Window title
      *@param w: Window width
      *@param h: Window height
