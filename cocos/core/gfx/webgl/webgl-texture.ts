@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { FormatSurfaceSize, TextureInfo, TextureViewInfo, IsPowerOf2, ISwapchainTextureInfo, TextureUsageBit, FormatInfos, FormatInfo, TextureFlagBit } from '../base/define';
+import { FormatSurfaceSize, TextureInfo, TextureViewInfo, IsPowerOf2, ISwapchainTextureInfo, TextureUsageBit, FormatInfos } from '../base/define';
 import { Texture } from '../base/texture';
 import { WebGLCmdFuncCreateTexture, WebGLCmdFuncDestroyTexture, WebGLCmdFuncResizeTexture } from './webgl-commands';
 import { WebGLDeviceManager } from './webgl-define';
@@ -96,7 +96,7 @@ export class WebGLTexture extends Texture {
             this._viewInfo.baseLevel = 0;
             this._viewInfo.levelCount = info.levelCount;
             this._viewInfo.baseLayer = 0;
-            this._viewInfo.layerCount = info.levelCount;
+            this._viewInfo.layerCount = info.layerCount;
         } else {
             this._viewInfo.copy(viewInfo);
             this._lodLevel = viewInfo.baseLevel;
