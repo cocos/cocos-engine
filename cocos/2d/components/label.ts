@@ -848,12 +848,14 @@ export class Label extends Renderable2D {
         this.updateMaterial();
     }
 
-    // override for BYTEDANCE
+    /**
+     * @engineInternal
+     */
     public _updateBlendFunc () {
+        // override for BYTEDANCE
         if (BYTEDANCE) {
             // need to fix ttf font black border at the sdk verion lower than 2.0.0
-            // @ts-expect-error tt is BYTEDANCE keyword
-            const sysInfo = tt.getSystemInfoSync();
+            const sysInfo = minigame.getSystemInfoSync();
             if (Number.parseInt(sysInfo.SDKVersion[0]) < 2) {
                 if (this._srcBlendFactor === BlendFactor.SRC_ALPHA && !minigame.isDevTool
                     && !(this._font instanceof BitmapFont) && !this._customMaterial) {
