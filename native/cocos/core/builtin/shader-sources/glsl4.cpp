@@ -155,4 +155,4 @@ ShaderSource builtinGLSL4{
 }}
 };
 
-}
+} // namespace cc

@@ -153,4 +153,4 @@ ShaderSource builtinGLSL1{
   {"frag", GzipedString("H4sIAAAAAAAACk2OzYqDMBRG93mKb6mDiJXuQldT+gSzl5BeJZAfuTWhneK7N5rSmWXIud85YmbS5maCh6OriW7GaINapEiKH8ZPSKR7pCEmKaI3Y2BXCMRhJtbkl7+Pm3KzJe7PcMr4H7ovkSlPkT5iZDWhqvEsTx1sYJywFKg/V/9Oml1YS1FMb0+mtc2G6mNu0LVdg0PbZXZfbO+PX3yd8EljyoO+6KRYRQrmutdtKZjscMld3++YrbGqJdYX5dLZBhcBAAA=")}
 }}
 };  
-}
+} // namespace cc
