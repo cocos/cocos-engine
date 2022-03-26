@@ -36,10 +36,10 @@ exports.listeners = {
 
                 // 有子节点的时候才弹出对话框
                 panel.isDialoging = true;
-                const warnResult = await Editor.Dialog.warn(Editor.I18n.t(`inspector.node.layer.confirm_message`), {
+                const warnResult = await Editor.Dialog.warn(Editor.I18n.t(`ENGINE.components.layer.confirm_message`), {
                     buttons: [
-                        Editor.I18n.t('inspector.node.layer.change_children'),
-                        Editor.I18n.t('inspector.node.layer.change_self'),
+                        Editor.I18n.t('ENGINE.components.layer.change_children'),
+                        Editor.I18n.t('ENGINE.components.layer.change_self'),
                         'Cancel',
                     ],
                     cancel: 2,
@@ -131,19 +131,19 @@ exports.template = `
 <ui-drag-area class="container">
     <section class="prefab" hidden missing>
         <ui-label value="Prefab"></ui-label>
-        <ui-button role="edit" tooltip="i18n:inspector.prefab.edit">
+        <ui-button role="edit" tooltip="i18n:ENGINE.prefab.edit">
             <ui-icon value="edit"></ui-icon>
         </ui-button>
-        <ui-button role="unlink" tooltip="i18n:inspector.prefab.unlink">
+        <ui-button role="unlink" tooltip="i18n:ENGINE.prefab.unlink">
             <ui-icon value="unlink"></ui-icon>
         </ui-button>
-        <ui-button role="local" tooltip="i18n:inspector.prefab.local">
+        <ui-button role="local" tooltip="i18n:ENGINE.prefab.local">
             <ui-icon value="location"></ui-icon>
         </ui-button>
-        <ui-button role="reset" tooltip="i18n:inspector.prefab.reset">
+        <ui-button role="reset" tooltip="i18n:ENGINE.prefab.reset">
             <ui-icon value="reset"></ui-icon>
         </ui-button>
-        <ui-button role="save" tooltip="i18n:inspector.prefab.save">
+        <ui-button role="save" tooltip="i18n:ENGINE.prefab.save">
             <ui-icon value="save-o"></ui-icon>
         </ui-button>
     </section>
@@ -166,8 +166,8 @@ exports.template = `
     <ui-section class="component node" expand>
         <header class="component-header" slot="header">
             <span class="name">Node</span>
-            <ui-icon class="menu" value="setting" tooltip="i18n:inspector.menu.component"></ui-icon>
-            <ui-link class="link" tooltip="i18n:inspector.menu.help_url">
+            <ui-icon class="menu" value="setting" tooltip="i18n:ENGINE.menu.component"></ui-icon>
+            <ui-link class="link" tooltip="i18n:ENGINE.menu.help_url">
                 <ui-icon value="help"></ui-icon>
             </ui-link>
         </header>
@@ -192,7 +192,7 @@ exports.template = `
 
     <footer class="footer">
         <ui-button>
-            <ui-label value="i18n:inspector.add_component"></ui-label>
+            <ui-label value="i18n:ENGINE.components.add_component"></ui-label>
         </ui-button>
     </footer>
 
@@ -717,8 +717,8 @@ const Elements = {
                     <header class="component-header" slot="header">
                         <ui-checkbox class="active"></ui-checkbox>
                         <span class="name">${component.type}${component.mountedRoot ? '+' : ''}</span>
-                        <ui-icon class="menu" value="setting" tooltip="i18n:inspector.menu.component"></ui-icon>
-                        <ui-link class="link" tooltip="i18n:inspector.menu.help_url">
+                        <ui-icon class="menu" value="setting" tooltip="i18n:ENGINE.menu.component"></ui-icon>
+                        <ui-link class="link" tooltip="i18n:ENGINE.menu.help_url">
                             <ui-icon value="help"></ui-icon>
                         </ui-link>
                     </header>
@@ -898,8 +898,8 @@ const Elements = {
                 }
                 $section.innerHTML = `
                 <span class="name">${panel.dump.removedComponents[i].name}</span>
-                <ui-icon value="reset" index="${i}" tooltip="i18n:inspector.prefab.reset"></ui-icon>
-                <ui-icon value="save-o" index="${i}" tooltip="i18n:inspector.prefab.save"></ui-icon>
+                <ui-icon value="reset" index="${i}" tooltip="i18n:ENGINE.prefab.reset"></ui-icon>
+                <ui-icon value="save-o" index="${i}" tooltip="i18n:ENGINE.prefab.save"></ui-icon>
                 `;
             }
 
@@ -1088,7 +1088,7 @@ exports.methods = {
         Editor.Menu.popup({
             menu: [
                 {
-                    label: Editor.I18n.t('inspector.menu.reset_component'),
+                    label: Editor.I18n.t('ENGINE.menu.reset_component'),
                     click() {
                         Editor.Message.send('scene', 'snapshot');
 
@@ -1101,7 +1101,7 @@ exports.methods = {
                 },
                 { type: 'separator' },
                 {
-                    label: Editor.I18n.t('inspector.menu.remove_component'),
+                    label: Editor.I18n.t('ENGINE.menu.remove_component'),
                     click() {
                         Editor.Message.send('scene', 'snapshot');
                         (dump.value.uuid.values || [dump.value.uuid.value]).forEach((value) => {
@@ -1120,7 +1120,7 @@ exports.methods = {
                     },
                 },
                 {
-                    label: Editor.I18n.t('inspector.menu.move_up_component'),
+                    label: Editor.I18n.t('ENGINE.menu.move_up_component'),
                     enabled: !isMultiple && index !== 0,
                     click() {
                         Editor.Message.send('scene', 'snapshot');
@@ -1133,7 +1133,7 @@ exports.methods = {
                     },
                 },
                 {
-                    label: Editor.I18n.t('inspector.menu.move_down_component'),
+                    label: Editor.I18n.t('ENGINE.menu.move_down_component'),
                     enabled: !isMultiple && index !== total - 1,
                     click() {
                         Editor.Message.send('scene', 'snapshot');
@@ -1147,7 +1147,7 @@ exports.methods = {
                 },
                 { type: 'separator' },
                 {
-                    label: Editor.I18n.t('inspector.menu.copy_component'),
+                    label: Editor.I18n.t('ENGINE.menu.copy_component'),
                     enabled: !isMultiple,
                     async click() {
                         Editor.Clipboard.write('_dump_component_', {
@@ -1157,7 +1157,7 @@ exports.methods = {
                     },
                 },
                 {
-                    label: Editor.I18n.t('inspector.menu.paste_component_values'),
+                    label: Editor.I18n.t('ENGINE.menu.paste_component_values'),
                     enabled: !!(clipboardComponentInfo && clipboardComponentInfo.type === dump.type),
                     async click() {
                         Editor.Message.send('scene', 'snapshot');
@@ -1180,7 +1180,7 @@ exports.methods = {
                 { type: 'separator' },
                 {
                     // 这个按钮不该出现在 component 上，应该在节点上
-                    label: Editor.I18n.t('inspector.menu.paste_component'),
+                    label: Editor.I18n.t('ENGINE.menu.paste_component'),
                     enabled: !!clipboardComponentInfo,
                     async click() {
                         Editor.Message.send('scene', 'snapshot');
@@ -1226,7 +1226,7 @@ exports.methods = {
         Editor.Menu.popup({
             menu: [
                 {
-                    label: Editor.I18n.t('inspector.menu.reset_node'),
+                    label: Editor.I18n.t('ENGINE.menu.reset_node'),
                     enabled: !dump.position.readonly && !dump.rotation.readonly && !dump.scale.readonly,
                     click() {
                         Editor.Message.send('scene', 'snapshot');
@@ -1240,7 +1240,7 @@ exports.methods = {
                 },
                 { type: 'separator' },
                 {
-                    label: Editor.I18n.t('inspector.menu.copy_node_value'),
+                    label: Editor.I18n.t('ENGINE.menu.copy_node_value'),
                     enabled: !isMultiple,
                     async click() {
                         Editor.Clipboard.write('_dump_node_', {
@@ -1251,7 +1251,7 @@ exports.methods = {
                     },
                 },
                 {
-                    label: Editor.I18n.t('inspector.menu.paste_node_value'),
+                    label: Editor.I18n.t('ENGINE.menu.paste_node_value'),
                     enabled: !!clipboardNodeInfo,
                     async click() {
                         Editor.Message.send('scene', 'snapshot');
@@ -1269,7 +1269,7 @@ exports.methods = {
                 },
                 { type: 'separator' },
                 {
-                    label: Editor.I18n.t('inspector.menu.copy_node_world_transform'),
+                    label: Editor.I18n.t('ENGINE.menu.copy_node_world_transform'),
                     enabled: !isMultiple,
                     async click() {
                         const data = await Editor.Message.request('scene', 'execute-scene-script', {
@@ -1286,7 +1286,7 @@ exports.methods = {
                     },
                 },
                 {
-                    label: Editor.I18n.t('inspector.menu.paste_node_world_transform'),
+                    label: Editor.I18n.t('ENGINE.menu.paste_node_world_transform'),
                     enabled: !!clipboardNodeWorldTransform,
                     async click() {
                         Editor.Message.send('scene', 'snapshot');
@@ -1304,7 +1304,7 @@ exports.methods = {
                 },
                 { type: 'separator' },
                 {
-                    label: Editor.I18n.t('inspector.menu.paste_component'),
+                    label: Editor.I18n.t('ENGINE.menu.paste_component'),
                     enabled: !!clipboardComponentInfo,
                     async click() {
                         Editor.Message.send('scene', 'snapshot');
@@ -1335,7 +1335,7 @@ exports.methods = {
                 },
                 { type: 'separator' },
                 {
-                    label: Editor.I18n.t('inspector.menu.reset_node_position'),
+                    label: Editor.I18n.t('ENGINE.menu.reset_node_position'),
                     enabled: !dump.position.readonly && JSON.stringify(dump.position.value) !== JSON.stringify(dump.position.default),
                     click() {
                         Editor.Message.send('scene', 'snapshot');
@@ -1349,7 +1349,7 @@ exports.methods = {
                     },
                 },
                 {
-                    label: Editor.I18n.t('inspector.menu.reset_node_rotation'),
+                    label: Editor.I18n.t('ENGINE.menu.reset_node_rotation'),
                     enabled: !dump.rotation.readonly && JSON.stringify(dump.rotation.value) !== JSON.stringify(dump.rotation.default),
                     click() {
                         Editor.Message.send('scene', 'snapshot');
@@ -1363,7 +1363,7 @@ exports.methods = {
                     },
                 },
                 {
-                    label: Editor.I18n.t('inspector.menu.reset_node_scale'),
+                    label: Editor.I18n.t('ENGINE.menu.reset_node_scale'),
                     enabled: !dump.rotation.readonly && JSON.stringify(dump.scale.value) !== JSON.stringify(dump.scale.default),
                     click() {
                         Editor.Message.send('scene', 'snapshot');
