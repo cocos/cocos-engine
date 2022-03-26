@@ -335,7 +335,7 @@ void SDLHelper::pollEvent(bool *quit) {
 bool SDLHelper::createWindow(const char *title,
                              int w, int h, int flags) {
     SDL_Rect  screenRect;
-    if (SDL_GetDisplayBounds(0, &screenRect) != 0) {
+    if (SDL_GetDisplayUsableBounds(0, &screenRect) != 0) {
         return false;
     }
     int x = screenRect.x;
