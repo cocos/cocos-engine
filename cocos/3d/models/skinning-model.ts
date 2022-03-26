@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { JSB } from 'internal:constants';
 import { Material } from '../../core/assets/material';
@@ -217,6 +214,9 @@ export class SkinningModel extends MorphModel {
         return myPatches;
     }
 
+    /**
+     * @legacyPublic
+     */
     public _updateLocalDescriptors (submodelIdx: number, descriptorSet: DescriptorSet) {
         super._updateLocalDescriptors(submodelIdx, descriptorSet);
         if (JSB) {

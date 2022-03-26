@@ -25,8 +25,8 @@
 
 import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI, EDITOR, VIVO } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
-import { warnID, warn, debug } from '../../platform/debug';
 import { macro } from '../../platform/macro';
+import { warnID, warn, debug } from '../../platform/debug';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
 import { WebGLStateCache } from './webgl-state-cache';
 import { WebGLTexture } from './webgl-texture';
@@ -83,7 +83,6 @@ function getExtension (gl: WebGLRenderingContext, ext: string): any {
     for (let i = 0; i < prefixes.length; ++i) {
         const _ext = gl.getExtension(prefixes[i] + ext);
         if (_ext) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return _ext;
         }
     }
@@ -99,7 +98,6 @@ export function getExtensions (gl: WebGLRenderingContext) {
         EXT_sRGB: getExtension(gl, 'EXT_sRGB'),
         OES_vertex_array_object: getExtension(gl, 'OES_vertex_array_object'),
         EXT_color_buffer_half_float: getExtension(gl, 'EXT_color_buffer_half_float'),
-        WEBGL_multi_draw: getExtension(gl, 'WEBGL_multi_draw'),
         WEBGL_color_buffer_float: getExtension(gl, 'WEBGL_color_buffer_float'),
         WEBGL_compressed_texture_etc1: getExtension(gl, 'WEBGL_compressed_texture_etc1'),
         WEBGL_compressed_texture_etc: getExtension(gl, 'WEBGL_compressed_texture_etc'),
@@ -118,6 +116,7 @@ export function getExtensions (gl: WebGLRenderingContext) {
         OES_element_index_uint: getExtension(gl, 'OES_element_index_uint'),
         ANGLE_instanced_arrays: getExtension(gl, 'ANGLE_instanced_arrays'),
         WEBGL_debug_renderer_info: getExtension(gl, 'WEBGL_debug_renderer_info'),
+        WEBGL_multi_draw: null,
         WEBGL_compressed_texture_astc: null,
         destroyShadersImmediately: true,
         noCompressedTexSubImage2D: false,
@@ -131,6 +130,11 @@ export function getExtensions (gl: WebGLRenderingContext) {
         // iOS 14 browsers crash on getExtension('WEBGL_compressed_texture_astc')
         if (systemInfo.os !== OS.IOS || systemInfo.osMainVersion !== 14 || !systemInfo.isBrowser) {
             res.WEBGL_compressed_texture_astc = getExtension(gl, 'WEBGL_compressed_texture_astc');
+        }
+
+        // Mobile implementation seems to have performance issues
+        if (systemInfo.os !== OS.ANDROID && systemInfo.os !== OS.IOS) {
+            res.WEBGL_multi_draw = getExtension(gl, 'WEBGL_multi_draw');
         }
 
         // UC browser instancing implementation doesn't work
@@ -216,7 +220,7 @@ export class WebGLSwapchain extends Swapchain {
     private _webGLContextLostHandler: ((event: Event) => void) | null = null;
     private _extensions: IWebGLExtensions | null = null;
 
-    public initialize (info: SwapchainInfo) {
+    public initialize (info: Readonly<SwapchainInfo>) {
         this._canvas = info.windowHandle;
 
         this._webGLContextLostHandler = this._onWebGLContextLost.bind(this);

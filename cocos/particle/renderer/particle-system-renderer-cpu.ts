@@ -36,6 +36,7 @@ import { Particle, IParticleModule, PARTICLE_MODULE_ORDER } from '../particle';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
 import { Component } from '../../core';
 import { Camera } from '../../core/renderer/scene/camera';
+import { Pass } from '../../core/renderer';
 
 const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
@@ -245,18 +246,22 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._alignSpace = space;
     }
 
-    public updateRotation () {
-        const ps = this._particleSystem;
-        if (!ps) {
-            return;
-        }
-        const mat: Material | null = ps.getMaterialInstance(0) || this._defaultMat;
-        const pass = mat!.passes[0];
+    public getDefaultMaterial(): Material | null {
+        return this._defaultMat;
+    }
 
-        this.doUpdateRotation(pass);
+    public updateRotation (pass: Pass | null) {
+        if (pass) {
+            this.doUpdateRotation(pass);
+        }
     }
 
     private doUpdateRotation (pass) {
+        const mode = this._renderInfo!.renderMode;
+        if (mode !== RenderMode.Mesh && this._alignSpace === AlignmentSpace.View) {
+            return;
+        }
+
         if (this._alignSpace === AlignmentSpace.Local) {
             this._particleSystem.node.getRotation(_node_rot);
         } else if (this._alignSpace === AlignmentSpace.World) {
@@ -282,14 +287,10 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         pass.setUniform(this._uNodeRotHandle, _node_rot);
     }
 
-    public updateScale () {
-        const ps = this._particleSystem;
-        if (!ps) {
-            return;
+    public updateScale (pass: Pass | null) {
+        if (pass) {
+            this.doUpdateScale(pass);
         }
-        const mat: Material | null = ps.getMaterialInstance(0) || this._defaultMat;
-        const pass = mat!.passes[0];
-        this.doUpdateScale(pass);
     }
 
     private doUpdateScale (pass) {

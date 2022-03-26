@@ -269,8 +269,6 @@ export class Graphics extends Renderable2D {
     }
 
     public onDestroy () {
-        super.onDestroy();
-
         this._sceneGetter = null;
         if (this.model) {
             director.root!.destroyModel(this.model);
@@ -285,13 +283,13 @@ export class Graphics extends Renderable2D {
             this._graphicsUseSubMeshes.length = 0;
         }
 
-        if (!this.impl) {
-            return;
+        if (this.impl) {
+            this._isDrawing = false;
+            this.impl.clear();
+            this.impl = null;
         }
 
-        this._isDrawing = false;
-        this.impl.clear();
-        this.impl = null;
+        super.onDestroy();
     }
 
     /**
@@ -629,11 +627,11 @@ export class Graphics extends Renderable2D {
             const vb = new Float32Array(renderData.vData.buffer, 0, renderData.vertexStart * componentPerVertex);
             ia.vertexBuffers[0].update(vb);
             ia.vertexCount = renderData.vertexStart;
-            const ib = new Uint16Array(renderData.iData.buffer, 0, renderData.indicesStart);
+            const ib = new Uint16Array(renderData.iData.buffer, 0, renderData.indexStart);
             ia.indexBuffer!.update(ib);
-            ia.indexCount = renderData.indicesStart;
+            ia.indexCount = renderData.indexStart;
             renderData.lastFilledVertex = renderData.vertexStart;
-            renderData.lastFilledIndices = renderData.indicesStart;
+            renderData.lastFilledIndex = renderData.indexStart;
         }
 
         this._isNeedUploadData = false;
@@ -657,7 +655,7 @@ export class Graphics extends Renderable2D {
     }
 
     protected _flushAssembler () {
-        const assembler = Graphics.Assembler!.getAssembler(this);
+        const assembler = Graphics.Assembler.getAssembler(this);
 
         if (this._assembler !== assembler) {
             this._assembler = assembler;
@@ -672,3 +670,5 @@ export class Graphics extends Renderable2D {
         return !!this.model && this._isDrawing;
     }
 }
+
+legacyCC.Graphics = Graphics;

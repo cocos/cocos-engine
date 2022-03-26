@@ -264,10 +264,12 @@ export class LightingStage extends RenderStage {
         const pass = lightingMat.passes[0];
         const shader = pass.getShaderVariant();
 
-        for (let i = 0; i < 4; ++i) {
+        for (let i = 0; i < 3; ++i) {
             pass.descriptorSet.bindTexture(i, deferredData.gbufferRenderTargets[i]);
             pass.descriptorSet.bindSampler(i, deferredData.sampler);
         }
+        pass.descriptorSet.bindTexture(3, deferredData.outputDepth);
+        pass.descriptorSet.bindSampler(3, deferredData.sampler);
         pass.descriptorSet.update();
 
         cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);

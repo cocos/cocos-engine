@@ -72,11 +72,29 @@ enum GeometryType {
 }
 
 class GeometryVertexBuffer {
+    /**
+     * @legacyPublic
+     */
     public _maxVertices = 0;
+    /**
+     * @legacyPublic
+     */
     public _vertexCount = 0;
+    /**
+     * @legacyPublic
+     */
     public _stride = 0;
+    /**
+     * @legacyPublic
+     */
     public _vertices!: Float32Array;
+    /**
+     * @legacyPublic
+     */
     public _buffer!: Buffer;
+    /**
+     * @legacyPublic
+     */
     public _inputAssembler!: InputAssembler;
 
     public init (device: Device, maxVertices: number, stride: number, attributes: Attribute[]) {
@@ -106,8 +124,13 @@ class GeometryVertexBuffer {
     }
 
     public destroy () {
-        this._inputAssembler.destroy();
-        this._buffer.destroy();
+        if (this._inputAssembler) {
+            this._inputAssembler.destroy();
+        }
+
+        if (this._buffer) {
+            this._buffer.destroy();
+        }
     }
 }
 

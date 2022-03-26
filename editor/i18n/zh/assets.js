@@ -1,4 +1,8 @@
 module.exports = {
+    dialog: {
+        confirm: '确认',
+        cancel: '取消',
+    },
     assets: {
         'label-atlas': {
             SpriteFrameTip: 'SpriteFrame',
@@ -73,8 +77,12 @@ module.exports = {
         image: {
             type: 'Type',
             typeTip: 'Type',
+            bakeOfflineMipmaps: 'Bake Offline Mipmaps',
+            bakeOfflineMipmapsTip: 'Bake Offline Mipmaps',
             flipVertical: 'Flip Vertical',
             flipVerticalTip: 'Flip Vertical',
+            fixAlphaTransparencyArtifacts: 'Fix Alpha Transparency Artifacts',
+            fixAlphaTransparencyArtifactsTip: '为全透明像素填充相邻像素的颜色，防止纹理过滤引起的黑边问题。当使用 Alpha 透明通道时，请启用此功能。',
             isRGBE: 'Is RGBE',
             isRGBETip: 'Is RGBE',
         },
@@ -226,6 +234,7 @@ module.exports = {
                 original: '原始',
             },
             limitMaterialDumpDir: '提取的路径需要限定在项目路径范围内',
+            legacyOptions:'旧版本遗留',
             legacyFbxImporter: {
                 name: '与 1.* 版本兼容',
                 title: '此导入器是否应该与其在 Cocos Creator 1.* 之前版本的导入方式兼容。',
@@ -317,6 +326,13 @@ module.exports = {
         },
         animationGraph: {
             edit: '编辑',
+        },
+        animationMask: {
+            importSkeleton: '导入骨骼',
+            clearAllNodes: '清空',
+            clearAllNodesWarn: '确定清空所有遮罩数据吗？',
+            illegalFbx: '导入骨骼失败：此 fbx 文件不含有 prefab 子资源。',
+            nodeEnableTip: '是否启用这个节点<br>按住 Alt + 点击，可以切换自身和子孙节点的状态',
         },
         multipleWarning: '不支持此类型资源的多选编辑',
     },

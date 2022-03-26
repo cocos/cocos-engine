@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { CallbacksInvoker } from '../event/callbacks-invoker';
 import { Event, EventMouse, EventTouch } from '../../input/types';
@@ -66,6 +63,7 @@ export interface IMask {
 export enum DispatcherEventType {
     ADD_POINTER_EVENT_PROCESSOR,
     REMOVE_POINTER_EVENT_PROCESSOR,
+    MARK_LIST_DIRTY,
 }
 
 /**
@@ -81,12 +79,16 @@ export class NodeEventProcessor {
         return this._isEnabled;
     }
     public setEnabled (value: boolean, recursive = false) {
+        if (this._isEnabled === value) {
+            return;
+        }
         this._isEnabled = value;
         const node = this.node;
         const children = node.children;
         if (value) {
             this._attachMask();
         }
+        NodeEventProcessor.callbacksInvoker.emit(DispatcherEventType.MARK_LIST_DIRTY);
         if (recursive && children.length > 0) {
             for (let i = 0; i < children.length; ++i) {
                 const child = children[i];
@@ -455,9 +457,9 @@ export class NodeEventProcessor {
             return false;
         }
 
-        pos = event.getUILocation();
+        event.getLocation(pos);
 
-        if (node._uiProps.uiTransformComp.isHit(pos)) {
+        if (node._uiProps.uiTransformComp.hitTest(pos)) {
             event.type = NodeEventType.MOUSE_DOWN;
             event.bubbles = true;
             node.dispatchEvent(event);
@@ -473,9 +475,9 @@ export class NodeEventProcessor {
             return false;
         }
 
-        pos = event.getUILocation();
+        event.getLocation(pos);
 
-        const hit = node._uiProps.uiTransformComp.isHit(pos);
+        const hit = node._uiProps.uiTransformComp.hitTest(pos);
         if (hit) {
             if (!this.previousMouseIn) {
                 // Fix issue when hover node switched, previous hovered node won't get MOUSE_LEAVE notification
@@ -509,9 +511,9 @@ export class NodeEventProcessor {
             return false;
         }
 
-        pos = event.getUILocation();
+        event.getLocation(pos);
 
-        if (node._uiProps.uiTransformComp.isHit(pos)) {
+        if (node._uiProps.uiTransformComp.hitTest(pos)) {
             event.type = NodeEventType.MOUSE_UP;
             event.bubbles = true;
             node.dispatchEvent(event);
@@ -527,9 +529,9 @@ export class NodeEventProcessor {
             return false;
         }
 
-        pos = event.getUILocation();
+        event.getLocation(pos);
 
-        if (node._uiProps.uiTransformComp.isHit(pos)) {
+        if (node._uiProps.uiTransformComp.hitTest(pos)) {
             event.type = NodeEventType.MOUSE_WHEEL;
             event.bubbles = true;
             node.dispatchEvent(event);
@@ -564,9 +566,9 @@ export class NodeEventProcessor {
             return false;
         }
 
-        event.getUILocation(pos);
+        event.getLocation(pos);
 
-        if (node._uiProps.uiTransformComp.isHit(pos)) {
+        if (node._uiProps.uiTransformComp.hitTest(pos)) {
             event.type = NodeEventType.TOUCH_START;
             event.bubbles = true;
             node.dispatchEvent(event);
@@ -594,9 +596,9 @@ export class NodeEventProcessor {
             return;
         }
 
-        event.getUILocation(pos);
+        event.getLocation(pos);
 
-        if (node._uiProps.uiTransformComp.isHit(pos)) {
+        if (node._uiProps.uiTransformComp.hitTest(pos)) {
             event.type = NodeEventType.TOUCH_END;
         } else {
             event.type = NodeEventType.TOUCH_CANCEL;

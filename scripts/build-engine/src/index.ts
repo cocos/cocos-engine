@@ -173,6 +173,11 @@ namespace build {
          */
         exports: Record<string, string>;
 
+        /**
+         * The compulsory import mappings that should be applied.
+         */
+        chunkAliases: Record<string, string>;
+
         dependencyGraph?: Record<string, string[]>;
 
         hasCriticalWarns: boolean;
@@ -571,6 +576,7 @@ export default Bullet;
     }
 
     const result: build.Result = {
+        chunkAliases: {},
         exports: {},
         hasCriticalWarns: false,
     };
@@ -601,7 +607,7 @@ export default Bullet;
 
     Object.assign(result.exports, validEntryChunks);
 
-    Object.assign(result.exports, codeAssetMapping);
+    Object.assign(result.chunkAliases, codeAssetMapping);
 
     result.dependencyGraph = {};
     for (const output of rollupOutput.output) {

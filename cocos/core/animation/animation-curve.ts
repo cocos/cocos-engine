@@ -32,8 +32,8 @@ import { binarySearchEpsilon as binarySearch } from '../algorithm/binary-search'
 import { lerp, Quat } from '../math';
 import { errorID } from '../platform/debug';
 import { ValueType } from '../value-types';
-import { bezierByTime, BezierControlPoints } from './bezier';
-import * as easing from './easing';
+import { bezierByTime, BezierControlPoints } from '../curves/bezier';
+import * as easing from '../easing/easing';
 import { ILerpable, isLerpable } from './types';
 import { legacyCC } from '../global-exports';
 import type * as legacy from './legacy-clip-data';

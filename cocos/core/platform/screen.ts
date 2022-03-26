@@ -51,6 +51,17 @@ class Screen {
     }
 
     /**
+     * @en the ratio of the resolution in physical pixels to the resolution in CSS pixels for the current display device
+     * NOTE: For performance reasons, the engine will limit the maximum value of DPR on some platforms.
+     * This property returns the DPR after the engine limit.
+     * @zh 当前显示设备的物理像素分辨率与 CSS 像素分辨率之比
+     * 注意：出于性能考虑，引擎在一些平台会限制 DPR 的最高值，这个属性返回的是引擎限制后的 DPR。
+     */
+    public get devicePixelRatio () {
+        return screenAdapter.devicePixelRatio;
+    }
+
+    /**
      * @en Get and set the size of current window in physical pixels.
      * NOTE:
      * - Setting window size is only supported on Web platform for now.

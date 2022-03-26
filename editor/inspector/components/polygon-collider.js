@@ -7,7 +7,6 @@ exports.update = update;
 exports.ready = function() {
     this.elements = {
         threshold: {
-            displayOrder: 0,
             ready(element) {
                 const $input = element.querySelector('ui-num-input[slot="content"]');
                 $input.setAttribute('style', 'display: inline-block;margin-right: 10px;');

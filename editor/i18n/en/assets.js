@@ -1,4 +1,8 @@
 module.exports = {
+    dialog: {
+        confirm: 'Confirm',
+        cancel: 'Cancel',
+    },
     assets: {
         'label-atlas': {
             SpriteFrameTip: 'SpriteFrame',
@@ -73,8 +77,12 @@ module.exports = {
         image: {
             type: 'Type',
             typeTip: 'Type',
+            bakeOfflineMipmaps: 'Bake Offline Mipmaps',
+            bakeOfflineMipmapsTip: 'Bake Offline Mipmaps',
             flipVertical: 'Flip Vertical',
             flipVerticalTip: 'Flip Vertical',
+            fixAlphaTransparencyArtifacts: 'Fix Alpha Transparency Artifacts',
+            fixAlphaTransparencyArtifactsTip: 'Fill transparent pixels with color of neareast solid pixel. These filled pixels would fix the dark halos at transparent borders of textures. Please turn on this option when you use the Alpha transparency channel in textures.',
             isRGBE: 'Is RGBE',
             isRGBETip: 'Is RGBE',
         },
@@ -228,6 +236,7 @@ module.exports = {
                 original: 'Original',
             },
             limitMaterialDumpDir: 'The extracted path needs to be scoped to the project path.',
+            legacyOptions:'Legacy Options',
             legacyFbxImporter: {
                 name: 'Compatible with v1.*',
                 title: 'Whether this importer should be compatible with its behaviour prior to Cocos Creator version 1.* .',
@@ -288,7 +297,7 @@ module.exports = {
             animationBakeRate: {
                 name: 'Animation Bake Rate',
                 title: 'Specify the animation bake rate in frames per second (fps).',
-                auto: '自动',
+                auto: 'Auto',
             },
             promoteSingleRootNode: {
                 name: 'Promote single root node',
@@ -326,6 +335,13 @@ module.exports = {
         },
         animationGraph: {
             edit: 'Edit',
+        },
+        animationMask: {
+            importSkeleton: 'Import Skeleton',
+            clearAllNodes: 'Clear',
+            clearAllNodesWarn: 'Are you sure to clear all data of this Animation Mask?',
+            illegalFbx: 'Import Skeleton Failed: this fbx asset has not contained sub prefab asset.',
+            nodeEnableTip: 'Whether enable this joint;<br>Alt + Click can toggle the children state.',
         },
         multipleWarning: 'Multi-select editing of this type of asset is not supported',
     },

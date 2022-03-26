@@ -24,10 +24,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 // Some helper methods for compile instantiation code
 
@@ -476,7 +473,7 @@ class Parser {
                             return this.getObjRef(obj);
                         }
                     } else if (obj instanceof legacyCC.Component) {
-                        if (!obj.node.isChildOf(this.parent)) {
+                        if (!obj.node?.isChildOf(this.parent)) {
                             // should not clone other component if not descendant
                             return this.getObjRef(obj);
                         }

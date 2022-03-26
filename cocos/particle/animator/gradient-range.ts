@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { ccclass, type, serializable, editable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
@@ -141,6 +138,9 @@ export default class GradientRange {
         }
     }
 
+    /**
+     * @legacyPublic
+     */
     public _onBeforeSerialize (props: any): any {
         return SerializableTable[this._mode];
     }

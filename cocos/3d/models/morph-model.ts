@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { Model } from '../../core/renderer/scene/model';
 import { MorphRenderingInstance } from '../assets/morph';
@@ -43,7 +40,7 @@ export class MorphModel extends Model {
         if (this._morphRenderingInstance) {
             return this._morphRenderingInstance.requiredPatches(subModelIndex);
         } else {
-            return null;
+            return super.getMacroPatches(subModelIndex);
         }
     }
 

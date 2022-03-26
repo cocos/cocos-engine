@@ -24,10 +24,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { EDITOR, DEV } from 'internal:constants';
 import { getClassName, getset, isEmptyObject } from './js';

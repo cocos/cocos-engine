@@ -1,7 +1,7 @@
 
-import { AnimationClip, Component, Node, Vec2, Vec3, warnID } from '../../cocos/core';
-import { AnimationBlend1D, AnimationBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, __getDemoGraphs, ClipMotion, AnimationBlendDirect, VariableType } from '../../cocos/core/animation/marionette/asset-creation';
-import { LayerBlending, AnimationGraph, StateMachine, Transition, isAnimationTransition, AnimationTransition } from '../../cocos/core/animation/marionette/animation-graph';
+import { Component, lerp, Node, Vec2, Vec3, warnID } from '../../cocos/core';
+import { AnimationBlend1D, AnimationBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, ClipMotion, AnimationBlendDirect, VariableType } from '../../cocos/core/animation/marionette/asset-creation';
+import { AnimationGraph, StateMachine, Transition, isAnimationTransition, AnimationTransition, TriggerResetMode } from '../../cocos/core/animation/marionette/animation-graph';
 import { createEval } from '../../cocos/core/animation/marionette/create-eval';
 import { VariableTypeMismatchedError } from '../../cocos/core/animation/marionette/errors';
 import { AnimationGraphEval, MotionStateStatus, ClipStatus } from '../../cocos/core/animation/marionette/graph-eval';
@@ -22,15 +22,14 @@ import { AnimationController } from '../../cocos/core/animation/marionette/anima
 import { StateMachineComponent } from '../../cocos/core/animation/marionette/state-machine-component';
 import { VectorTrack } from '../../cocos/core/animation/animation';
 import 'jest-extended';
+import { assertIsTrue } from '../../cocos/core/data/utils/asserts';
+import { AnimationClip } from '../../cocos/core/animation/animation-clip';
 
 describe('NewGen Anim', () => {
-    const demoGraphs = __getDemoGraphs();
-
     test('Defaults', () => {
         const graph = new AnimationGraph();
         expect(graph.layers).toHaveLength(0);
         const layer = graph.addLayer();
-        expect(layer.blending).toBe(LayerBlending.additive);
         expect(layer.mask).toBeNull();
         expect(layer.weight).toBe(1.0);
         const layerGraph = layer.stateMachine;
@@ -38,8 +37,9 @@ describe('NewGen Anim', () => {
 
         const animState = layerGraph.addMotion();
         expect(animState.name).toBe('');
-        expect(animState.speed.variable).toBe('');
-        expect(animState.speed.value).toBe(1.0);
+        expect(animState.speed).toBe(1.0);
+        expect(animState.speedMultiplierEnabled).toBe(false);
+        expect(animState.speedMultiplier).toBe('');
         expect(animState.motion).toBeNull();
 
         testGraphDefaults(layerGraph.addSubStateMachine().stateMachine);
@@ -88,6 +88,85 @@ describe('NewGen Anim', () => {
             expect(transition.conditions).toHaveLength(0);
         }
     });
+
+    test('Variables', () => {
+        const graph = new AnimationGraph();
+
+        for (const [name, kind, type, defaultValue, nonDefaultValue] of [
+            ['f', 'float', VariableType.FLOAT, 0.0, 3.14],
+            ['i', 'integer', VariableType.INTEGER, 0, 3],
+            ['b', 'boolean', VariableType.BOOLEAN, false, true],
+        ] as const) {
+            switch (kind) {
+                case 'float':
+                    graph.addFloat(name);
+                    break;
+                case 'integer':
+                    graph.addInteger(name);
+                    break;
+                case 'boolean':
+                    graph.addBoolean(name);
+                    break;
+            }
+            const variable = graph.getVariable(name);
+            expect(variable.type).toBe(type);
+            expect(variable.value).toBe(defaultValue);
+            variable.value = nonDefaultValue;
+            expect(variable.value).toBe(nonDefaultValue);
+            
+            const name2 = `${name}-add-with-default`;
+            switch (kind) {
+                case 'float':
+                    graph.addFloat(name2, nonDefaultValue);
+                    break;
+                case 'integer':
+                    graph.addInteger(name2, nonDefaultValue);
+                    break;
+                case 'boolean':
+                    graph.addBoolean(name2, nonDefaultValue);
+                    break;
+            }
+            const variable2 = graph.getVariable(name2);
+            expect(variable2.type).toBe(type);
+            expect(variable2.value).toBe(nonDefaultValue);
+        }
+
+        {
+            graph.addTrigger('t');
+            const trigger = graph.getVariable('t');
+            expect(trigger.type).toBe(VariableType.TRIGGER);
+            expect(trigger.value).toBe(false);
+            assertIsTrue(trigger.type === VariableType.TRIGGER);
+            expect(trigger.resetMode).toBe(TriggerResetMode.AFTER_CONSUMED);
+            trigger.value = true;
+            expect(trigger.value).toBe(true);
+            trigger.resetMode = TriggerResetMode.NEXT_FRAME_OR_AFTER_CONSUMED;
+            expect(trigger.resetMode).toBe(TriggerResetMode.NEXT_FRAME_OR_AFTER_CONSUMED);
+
+            graph.addTrigger('t-with-default-specified', true);
+            const triggerWithDefault = graph.getVariable('t-with-default-specified');
+            expect(triggerWithDefault.type).toBe(VariableType.TRIGGER);
+            expect(triggerWithDefault.value).toBe(true);
+            assertIsTrue(triggerWithDefault.type === VariableType.TRIGGER);
+            expect(triggerWithDefault.resetMode).toBe(TriggerResetMode.AFTER_CONSUMED);
+
+            graph.addTrigger('t-with-default-and-reset-mode-specified', true, TriggerResetMode.NEXT_FRAME_OR_AFTER_CONSUMED);
+            const triggerWithDefaultAndResetModeSpecified = graph.getVariable('t-with-default-and-reset-mode-specified');
+            expect(triggerWithDefaultAndResetModeSpecified.type).toBe(VariableType.TRIGGER);
+            expect(triggerWithDefaultAndResetModeSpecified.value).toBe(true);
+            assertIsTrue(triggerWithDefaultAndResetModeSpecified.type === VariableType.TRIGGER);
+            expect(triggerWithDefaultAndResetModeSpecified.resetMode).toBe(TriggerResetMode.NEXT_FRAME_OR_AFTER_CONSUMED);
+        }
+
+        graph.removeVariable('f');
+        expect(Array.from(graph.variables).every(([name]) => name !== 'f')).toBeTrue();
+
+        // addVariable() replace existing variable.
+        graph.addFloat('b', 2.0);
+        const bVar = graph.getVariable('b');
+        expect(bVar.type).toBe(VariableType.FLOAT);
+        expect(bVar.value).toBe(2.0);
+    })
 
     describe('Asset transition API', () => {
         test('Connect', () => {
@@ -330,7 +409,7 @@ describe('NewGen Anim', () => {
             subStateMachine.name = 'Subgraph';
             const subgraphEntryToExit = subStateMachine.stateMachine.connect(subStateMachine.stateMachine.entryState, subStateMachine.stateMachine.exitState);
             const [subgraphEntryToExitCondition] = subgraphEntryToExit.conditions = [new TriggerCondition()];
-            animationGraph.addVariable('subgraphExitTrigger', VariableType.TRIGGER, false);
+            animationGraph.addTrigger('subgraphExitTrigger', false);
             subgraphEntryToExitCondition.trigger = 'subgraphExitTrigger';
 
             graph.connect(graph.entryState, subStateMachine);
@@ -339,7 +418,7 @@ describe('NewGen Anim', () => {
             const subgraphToNode = graph.connect(subStateMachine, node);
             const [triggerCondition] = subgraphToNode.conditions = [new TriggerCondition()];
 
-            animationGraph.addVariable('trigger', VariableType.TRIGGER);
+            animationGraph.addTrigger('trigger',);
             triggerCondition.trigger = 'trigger';
 
             const graphEval = createAnimationGraphEval(animationGraph, new Node());
@@ -780,7 +859,7 @@ describe('NewGen Anim', () => {
                 transition2.duration = 0.0;
                 transition2.exitConditionEnabled = false;
 
-                animationGraph.addVariable('theTrigger', VariableType.TRIGGER);
+                animationGraph.addTrigger('theTrigger');
 
                 const graphEval = createAnimationGraphEval(animationGraph, new Node());
                 graphEval.update(0.0);
@@ -838,7 +917,7 @@ describe('NewGen Anim', () => {
                     triggerCondition.trigger = 't';
                 }
     
-                animationGraph.addVariable('t', VariableType.TRIGGER);
+                animationGraph.addTrigger('t');
                 
                 const graphEval = createAnimationGraphEval(animationGraph, new Node());
     
@@ -879,7 +958,7 @@ describe('NewGen Anim', () => {
                     triggerCondition.trigger = 't';
                 }
     
-                animationGraph.addVariable('t', VariableType.TRIGGER);
+                animationGraph.addTrigger('t');
                 
                 const graphEval = createAnimationGraphEval(animationGraph, new Node());
     
@@ -914,7 +993,7 @@ describe('NewGen Anim', () => {
             const addTriggerCondition = (transition: Transition) => {
                 const [condition] = transition.conditions = [new TriggerCondition()];
                 condition.trigger = `trigger${nTriggers}`;
-                animationGraph.addVariable(`trigger${nTriggers}`, VariableType.TRIGGER);
+                animationGraph.addTrigger(`trigger${nTriggers}`);
                 ++nTriggers;
             };
 
@@ -954,6 +1033,61 @@ describe('NewGen Anim', () => {
             expect(triggerStates).toStrictEqual(new Array(nTriggers).fill(false));
         });
 
+        test('Automatic triggers are reset once update ends', () => {
+            const triggerName = 't';
+            const helpVarName = 'b';
+
+            const condition = new TriggerCondition();
+            condition.trigger = triggerName;
+            const helpCondition = new UnaryCondition();
+            helpCondition.operator = UnaryCondition.Operator.TRUTHY;
+            helpCondition.operand.variable = helpVarName;
+            const animationGraph = new AnimationGraph();
+            const layer = animationGraph.addLayer();
+            const graph = layer.stateMachine;
+            const sourceState = graph.addMotion();
+            sourceState.name = 'Source';
+            const targetState = graph.addMotion();
+            targetState.name = 'Target';
+            graph.connect(graph.entryState, sourceState);
+            const transition = graph.connect(sourceState, targetState, [condition, helpCondition]);
+            transition.duration = 0.0;
+            transition.exitConditionEnabled = false;
+
+            animationGraph.addTrigger(triggerName, false, TriggerResetMode.NEXT_FRAME_OR_AFTER_CONSUMED);
+            animationGraph.addBoolean(helpVarName);
+
+            // Not set, no transition happened
+            const graphEval = createAnimationGraphEval(animationGraph, new Node());
+            graphEval.update(0.0);
+            expectAnimationGraphEvalStatusLayer0(graphEval, {
+                currentNode: { __DEBUG_ID__: 'Source' },
+            });
+
+            // Triggered, but other conditions are not satisfied.
+            // Still reset since it's "automatic".
+            graphEval.setValue(triggerName, true);
+            graphEval.update(0.0);
+            expectAnimationGraphEvalStatusLayer0(graphEval, {
+                currentNode: { __DEBUG_ID__: 'Source' },
+            });
+            expect(graphEval.getValue(triggerName)).toBe(false);
+            // Let's do verify again, and toggle another condition on.
+            graphEval.setValue(helpVarName, true);
+            graphEval.update(0.0);
+            expectAnimationGraphEvalStatusLayer0(graphEval, {
+                currentNode: { __DEBUG_ID__: 'Source' },
+            });
+
+            // Triggered, and the transition happened.
+            graphEval.setValue(triggerName, true);
+            graphEval.update(0.0);
+            expectAnimationGraphEvalStatusLayer0(graphEval, {
+                currentNode: { __DEBUG_ID__: 'Target' },
+            });
+            expect(graphEval.getValue(triggerName)).toBe(false);
+        });
+
         describe(`Transition priority`, () => {
             test('Transitions to different nodes, use the first-connected and first-matched transition', () => {
                 const animationGraph = new AnimationGraph();
@@ -981,8 +1115,8 @@ describe('NewGen Anim', () => {
                 transition2Condition.operator = UnaryCondition.Operator.TRUTHY;
                 transition2Condition.operand.variable = 'switch2';
                 graph.connect(graph.entryState, animState1);
-                animationGraph.addVariable('switch1', VariableType.BOOLEAN, false);
-                animationGraph.addVariable('switch2', VariableType.BOOLEAN, false);
+                animationGraph.addBoolean('switch1', false);
+                animationGraph.addBoolean('switch2', false);
 
                 // #region Both satisfied
                 {
@@ -1116,7 +1250,7 @@ describe('NewGen Anim', () => {
             const [ triggerCondition ] = subStateMachineToAnimState.conditions = [new TriggerCondition()];
             triggerCondition.trigger = 'trigger';
 
-            animationGraph.addVariable('trigger', VariableType.TRIGGER);
+            animationGraph.addTrigger('trigger');
 
             const graphEval = createAnimationGraphEval(animationGraph, new Node());
 
@@ -1291,7 +1425,7 @@ describe('NewGen Anim', () => {
             anyTransition.exitCondition = 0.1;
             const [ triggerCondition ] = anyTransition.conditions = [new TriggerCondition()];
             triggerCondition.trigger = 'trigger';
-            graph.addVariable('trigger', VariableType.TRIGGER, true);
+            graph.addTrigger('trigger', true);
 
             const graphEval = createAnimationGraphEval(graph, new Node());
             graphEval.update(0.2);
@@ -1316,6 +1450,164 @@ describe('NewGen Anim', () => {
                     weight: 1.0,
                 },
             });
+        });
+    });
+
+    describe(`Empty state`, () => {
+        test('Single layer: Motion <-> Empty', () => {
+            const NODE_DEFAULT_VALUE = 9.0;
+            const FIRST_TIME_EMPTY_REST_TIME = 0.2;
+            const MOTION_SAMPLE_RESULT_AT = (time: number) => lerp(0.4, 0.6, time / 1.0);
+            const EMPTY_TO_MOTION_DURATION = 0.51;
+            const MOTION_TO_EMPTY_DURATION = 0.49;
+            const MOTION_EXIT_CONDITION = 0.7;
+
+            const graph = new AnimationGraph();
+            const clipMotion = createClipMotionPositionXLinear(1.0, 0.4, 0.6, 'AnimStateClip');
+            { // Entry -> Empty <-> Motion
+                const layer = graph.addLayer();
+                const topLevelStateMachine = layer.stateMachine;
+                const emptyState = topLevelStateMachine.addEmpty();
+
+                const motionState = topLevelStateMachine.addMotion();
+                motionState.motion = clipMotion;
+
+                topLevelStateMachine.connect(topLevelStateMachine.entryState, emptyState);
+
+                const emptyToMotion = topLevelStateMachine.connect(emptyState, motionState);
+                emptyToMotion.duration = EMPTY_TO_MOTION_DURATION;
+                const [ triggerCondition ] = emptyToMotion.conditions = [
+                    new TriggerCondition(),
+                ];
+                triggerCondition.trigger = 't';
+                graph.addTrigger('t', false);
+
+                const motionToEmpty = topLevelStateMachine.connect(motionState, emptyState);
+                motionToEmpty.duration = MOTION_TO_EMPTY_DURATION;
+                motionToEmpty.exitConditionEnabled = true;
+                motionToEmpty.exitCondition = MOTION_EXIT_CONDITION;
+            }
+
+            const node = new Node();
+            node.setPosition(NODE_DEFAULT_VALUE, 0.0, 0.0);
+
+            const graphEval = createAnimationGraphEval(graph, node);
+
+            const updater = new GraphUpdater(graphEval);
+
+            // Empty
+            updater.goto(FIRST_TIME_EMPTY_REST_TIME);
+            expectAnimationGraphEvalStatus(graphEval, [
+                { current: [] },
+            ]);
+            expect(node.position.x).toBeCloseTo(NODE_DEFAULT_VALUE);
+
+            // Trigger the transition.
+            graphEval.setValue('t', true);
+
+            // Start Empty -> Motion
+            updater.step(0.15);
+            expectAnimationGraphEvalStatus(graphEval, [
+                { transition: { next: { clip: clipMotion!.clip, weight: 0.15 / EMPTY_TO_MOTION_DURATION } } },
+            ]);
+            expect(node.position.x).toBeCloseTo(lerp(
+                NODE_DEFAULT_VALUE, // Default
+                MOTION_SAMPLE_RESULT_AT(0.15), // Layer 0 result
+                0.15 / EMPTY_TO_MOTION_DURATION,
+            ));
+
+            // Step for a little while
+            updater.step(0.06);
+            expectAnimationGraphEvalStatus(graphEval, [
+                { transition: { next: { clip: clipMotion!.clip, weight: 0.21 / EMPTY_TO_MOTION_DURATION } } },
+            ]);
+            expect(node.position.x).toBeCloseTo(lerp(
+                NODE_DEFAULT_VALUE, // Default
+                MOTION_SAMPLE_RESULT_AT(0.21), // Layer 0 result
+                0.21 / EMPTY_TO_MOTION_DURATION,
+            ));
+
+            // Step so the transition finished.
+            // So as here there is only motion running, with full weight.
+            updater.goto(FIRST_TIME_EMPTY_REST_TIME + EMPTY_TO_MOTION_DURATION + 0.02);
+            expectAnimationGraphEvalStatus(graphEval, [
+                { current: { clip: clipMotion!.clip, weight: 1.0 } },
+            ]);
+            expect(node.position.x).toBeCloseTo(MOTION_SAMPLE_RESULT_AT(EMPTY_TO_MOTION_DURATION + 0.02));
+
+            // Start Motion -> Empty
+            updater.goto(FIRST_TIME_EMPTY_REST_TIME + MOTION_EXIT_CONDITION + 0.15);
+            expectAnimationGraphEvalStatus(graphEval, [
+                { current: { clip: clipMotion!.clip, weight: 1.0 - 0.15 / MOTION_TO_EMPTY_DURATION } },
+            ]);
+            expect(node.position.x).toBeCloseTo(lerp(
+                MOTION_SAMPLE_RESULT_AT(MOTION_EXIT_CONDITION + 0.15), // Layer 0 result
+                NODE_DEFAULT_VALUE, // Default
+                0.15 / MOTION_TO_EMPTY_DURATION,
+            ));
+
+            // Step for a little while
+            updater.step(0.06);
+            expectAnimationGraphEvalStatus(graphEval, [
+                { current: { clip: clipMotion!.clip, weight: 1.0 - 0.21 / MOTION_TO_EMPTY_DURATION } },
+            ]);
+            expect(node.position.x).toBeCloseTo(lerp(
+                MOTION_SAMPLE_RESULT_AT(MOTION_EXIT_CONDITION + 0.21), // Layer 0 result
+                NODE_DEFAULT_VALUE, // Default
+                0.21 / MOTION_TO_EMPTY_DURATION,
+            ));
+
+            // Step so the transition finished.
+            // So as here there is only empty state, with full weight.
+            updater.goto(FIRST_TIME_EMPTY_REST_TIME + MOTION_EXIT_CONDITION + MOTION_TO_EMPTY_DURATION + 0.01);
+            expectAnimationGraphEvalStatus(graphEval, [
+                { current: [] },
+            ]);
+            expect(node.position.x).toBeCloseTo(NODE_DEFAULT_VALUE);
+        });
+
+        test('Multiple layers', () => {
+            const graph = new AnimationGraph();
+            const layer0Clip = createClipMotionPositionX(1.0, 0.6, 'AnimStateClip');
+            const layer1Clip = createClipMotionPositionX(1.0, 1.3, 'AnimStateClip');
+            {
+                const layer = graph.addLayer();
+                const topLevelStateMachine = layer.stateMachine;
+                const motionState = topLevelStateMachine.addMotion();
+                motionState.motion = layer0Clip;
+                topLevelStateMachine.connect(topLevelStateMachine.entryState, motionState);
+            }
+            {
+                const layer = graph.addLayer();
+                const topLevelStateMachine = layer.stateMachine;
+                const emptyState = topLevelStateMachine.addEmpty();
+                const motionState = topLevelStateMachine.addMotion();
+                motionState.motion = layer1Clip;
+                topLevelStateMachine.connect(topLevelStateMachine.entryState, motionState);
+                const motionToEmpty = topLevelStateMachine.connect(motionState, emptyState);
+                motionToEmpty.exitConditionEnabled = true;
+                motionToEmpty.exitCondition = 0.3;
+                motionToEmpty.duration = 0.5;
+            }
+            const node = new Node();
+
+            const graphEval = createAnimationGraphEval(graph, node);
+
+            const updater = new GraphUpdater(graphEval);
+
+            updater.goto(0.2);
+            expectAnimationGraphEvalStatus(graphEval, [
+                { current: { clip: layer0Clip!.clip, weight: 1.0 } },
+                { current: { clip: layer1Clip.clip, weight: 1.0 } },
+            ]);
+            expect(node.position.x).toBeCloseTo(1.3);
+
+            updater.goto(0.3 * 1.0 + 0.12);
+            expectAnimationGraphEvalStatus(graphEval, [
+                { current: { clip: layer0Clip!.clip, weight: 1.0 } },
+                { current: { clip: layer1Clip.clip, weight: 1.0 - 0.12 / 0.5 } },
+            ]);
+            expect(node.position.x).toBeCloseTo(1.3 * (1.0 - 0.12 / 0.5) + 0.6 * (0.12 / 0.5));
         });
     });
 
@@ -1749,7 +2041,7 @@ describe('NewGen Anim', () => {
     });
 
     describe('Animation properties', () => {
-        describe('Speed', () => {
+        describe('Speed & Speed Multiplier', () => {
             test(`Constant`, () => {
                 const graph = new AnimationGraph();
                 expect(graph.layers).toHaveLength(0);
@@ -1757,7 +2049,10 @@ describe('NewGen Anim', () => {
                 const layerGraph = layer.stateMachine;
                 const animState = layerGraph.addMotion();
                 animState.motion = createClipMotionPositionXLinear(1.0, 0.3, 1.7);
-                animState.speed.value = 1.2;
+                animState.speed = 1.2;
+                animState.speedMultiplierEnabled = false;
+                animState.speedMultiplier = 'speed';
+                graph.addFloat('speed', 0.5);
                 layerGraph.connect(layerGraph.entryState, animState);
 
                 const node = new Node();
@@ -1775,22 +2070,23 @@ describe('NewGen Anim', () => {
                 const layerGraph = layer.stateMachine;
                 const animState = layerGraph.addMotion();
                 animState.motion = createClipMotionPositionXLinear(1.0, 0.3, 1.7);
-                animState.speed.variable = 'speed';
-                animState.speed.value = 1.2;
-                graph.addVariable('speed', VariableType.FLOAT, 0.5);
+                animState.speed = 0.9;
+                animState.speedMultiplierEnabled = true;
+                animState.speedMultiplier = 'speed';
+                graph.addFloat('speed', 0.5);
                 layerGraph.connect(layerGraph.entryState, animState);
 
                 const node = new Node();
                 const animationGraphEval = createAnimationGraphEval(graph, node);
                 animationGraphEval.update(0.2);
                 expect(node.position.x).toBeCloseTo(
-                    0.3 + (1.7 - 0.3) * (0.2 * 0.5 / 1.0),
+                    0.3 + (1.7 - 0.3) * (0.2 * (0.5 * 0.9) / 1.0),
                 );
 
                 animationGraphEval.setValue('speed', 1.2);
                 animationGraphEval.update(0.2);
                 expect(node.position.x).toBeCloseTo(
-                    0.3 + (1.7 - 0.3) * ((0.2 * 0.5 + 0.2 * 1.2) / 1.0),
+                    0.3 + (1.7 - 0.3) * ((0.2 * (0.5 * 0.9) + 0.2 * (0.9 * 1.2)) / 1.0),
                 );
             });
         });
@@ -1906,14 +2202,14 @@ describe('NewGen Anim', () => {
 
     test(`Runtime variable manipulation`, () => {
         const animationGraph = new AnimationGraph();
-        animationGraph.addVariable('i0', VariableType.INTEGER, 0);
-        animationGraph.addVariable('i1', VariableType.INTEGER, 2);
-        animationGraph.addVariable('f0', VariableType.FLOAT, 0.0);
-        animationGraph.addVariable('f1', VariableType.FLOAT, 3.14);
-        animationGraph.addVariable('b0', VariableType.BOOLEAN, true);
-        animationGraph.addVariable('b1', VariableType.BOOLEAN, false);
-        animationGraph.addVariable('t0', VariableType.TRIGGER, true);
-        animationGraph.addVariable('t1', VariableType.TRIGGER, false);
+        animationGraph.addInteger('i0', 0);
+        animationGraph.addInteger('i1', 2);
+        animationGraph.addFloat('f0', 0.0);
+        animationGraph.addFloat('f1', 3.14);
+        animationGraph.addBoolean('b0', true);
+        animationGraph.addBoolean('b1', false);
+        animationGraph.addTrigger('t0', true);
+        animationGraph.addTrigger('t1', false);
         const node = new Node();
         const { newGenAnim: controller } = createAnimationGraphEval2(animationGraph, node);
         expect(Array.from(controller.getVariables()).map(
@@ -1998,7 +2294,7 @@ function getPositionFromLoopedIterations (iterations: number) {
     return iterations - Math.trunc(iterations);
 }
 
-function expectAnimationGraphEvalStatusLayer0 (graphEval: AnimationGraphEval, status: {
+interface LayerStatusExpectation {
     currentNode?: Parameters<typeof expectMotionStateStatus>[1];
     current?: Parameters<typeof expectClipStatuses>[1];
     transition?: {
@@ -2007,16 +2303,29 @@ function expectAnimationGraphEvalStatusLayer0 (graphEval: AnimationGraphEval, st
         nextNode?: Parameters<typeof expectMotionStateStatus>[1];
         next?: Parameters<typeof expectClipStatuses>[1];
     };
-}) {
+}
+
+function expectAnimationGraphEvalStatus(graphEval: AnimationGraphEval, layerStatus: LayerStatusExpectation[]) {
+    const nLayers = layerStatus.length;
+    for (let iLayer = 0; iLayer < nLayers; ++iLayer) {
+        expectAnimationGraphEvalStatusAtLayer(graphEval, iLayer, layerStatus[iLayer]);
+    }
+}
+
+function expectAnimationGraphEvalStatusLayer0 (graphEval: AnimationGraphEval, status: LayerStatusExpectation) {
+    expectAnimationGraphEvalStatusAtLayer(graphEval, 0, status);
+}
+
+function expectAnimationGraphEvalStatusAtLayer (graphEval: AnimationGraphEval, layerIndex: number, status: LayerStatusExpectation) {
     if (status.currentNode) {
-        expectMotionStateStatus(graphEval.getCurrentStateStatus(0), status.currentNode);
+        expectMotionStateStatus(graphEval.getCurrentStateStatus(layerIndex), status.currentNode);
     }
     if (status.current) {
-        const currentClipStatuses = Array.from(graphEval.getCurrentClipStatuses(0));
+        const currentClipStatuses = Array.from(graphEval.getCurrentClipStatuses(layerIndex));
         expectClipStatuses(currentClipStatuses, status.current);
     }
 
-    const currentTransition = graphEval.getCurrentTransition(0);
+    const currentTransition = graphEval.getCurrentTransition(layerIndex);
     if (!status.transition) {
         expect(currentTransition).toBeNull();
     } else {
@@ -2028,10 +2337,10 @@ function expectAnimationGraphEvalStatusLayer0 (graphEval: AnimationGraphEval, st
             expect(currentTransition.duration).toBeCloseTo(status.transition.duration, 5);
         }
         if (status.transition.nextNode) {
-            expectMotionStateStatus(graphEval.getNextStateStatus(0), status.transition.nextNode);
+            expectMotionStateStatus(graphEval.getNextStateStatus(layerIndex), status.transition.nextNode);
         }
         if (status.transition.next) {
-            expectClipStatuses(Array.from(graphEval.getNextClipStatuses(0)), status.transition.next);
+            expectClipStatuses(Array.from(graphEval.getNextClipStatuses(layerIndex)), status.transition.next);
         }
     }
 }
@@ -2093,4 +2402,23 @@ function createAnimationGraphEval2 (animationGraph: AnimationGraph, node: Node) 
         graphEval,
         newGenAnim,
     };
+}
+
+class GraphUpdater {
+    constructor (private _graphEval: AnimationGraphEval) {
+
+    }
+
+    public step(deltaTime: number) {
+        this._current += deltaTime;
+        this._graphEval.update(deltaTime);
+    }
+
+    public goto(time: number) {
+        const deltaTime = time - this._current;
+        this._current = time;
+        this._graphEval.update(deltaTime);
+    }
+
+    private _current = 0.0;
 }

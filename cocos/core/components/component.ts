@@ -95,6 +95,9 @@ class Component extends CCObject {
         return this._id;
     }
 
+    /**
+     * @legacyPublic
+     */
     @displayName('Script')
     @type(Script)
     @tooltip('i18n:INSPECTOR.component.script')
@@ -152,6 +155,8 @@ class Component extends CCObject {
      * import { log } from 'cc';
      * log(this._isOnLoadCalled > 0);
      * ```
+     *
+     * @legacyPublic
      */
     get _isOnLoadCalled () {
         return this._objFlags & IsOnLoadCalled;
@@ -171,32 +176,32 @@ class Component extends CCObject {
     public node: Node = NullNode;
 
     /**
-     * @private
+     * @legacyPublic
      */
     @serializable
     public _enabled = true;
 
     /**
-     * @private
+     * @legacyPublic
      */
     @serializable
     public __prefab: CompPrefabInfo | null = null;
 
     /**
-     * @private
+     * @legacyPublic
      */
     public _sceneGetter: null | (() => RenderScene) = null;
 
     /**
      * For internal usage.
-     * @private
+     * @legacyPublic
      */
     public _id: string = idGenerator.getNewId();
 
     // private __scriptUuid = '';
 
     /**
-     * @private
+     * @legacyPublic
      */
     public _getRenderScene (): RenderScene {
         if (this._sceneGetter) {
@@ -373,6 +378,9 @@ class Component extends CCObject {
         return false;
     }
 
+    /**
+     * @legacyPublic
+     */
     public _onPreDestroy () {
         // Schedules
         this.unscheduleAllCallbacks();
@@ -390,6 +398,9 @@ class Component extends CCObject {
         this.node._removeComponent(this);
     }
 
+    /**
+     * @legacyPublic
+     */
     public _instantiate (cloned?: Component) {
         if (!cloned) {
             cloned = legacyCC.instantiate._clone(this, this);

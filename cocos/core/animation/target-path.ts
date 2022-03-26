@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { ccclass, serializable } from 'cc.decorator';
 import { Node } from '../scene-graph/node';

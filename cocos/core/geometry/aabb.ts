@@ -329,4 +329,14 @@ export class AABB {
     public mergeFrustum (frustum: Frustum | Readonly<Frustum>) {
         return this.mergePoints(frustum.vertices);
     }
+
+    /**
+     * @en Give object back to AABB pool
+     * @zh 将对象返回到AABB对象池
+     */
+    public destroy () {
+        if (JSB) {
+            AABBPool.free(this._aabbHandle);
+        }
+    }
 }

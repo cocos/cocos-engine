@@ -1,9 +1,9 @@
 // Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
-// #define SRGBToLinear(gamma) pow(gamma, vec3(2.2))
+// #pragma define SRGBToLinear(gamma) pow(gamma, vec3(2.2))
 vec3 SRGBToLinear (vec3 gamma) {
   return gamma * gamma;
 }
 
-// #define LinearToSRGB(linear) pow(linear, vec3(0.454545))
-#define LinearToSRGB(linear) sqrt(linear)
+// #pragma define LinearToSRGB(linear) pow(linear, vec3(0.454545))
+#pragma define LinearToSRGB(linear) sqrt(linear)
