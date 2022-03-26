@@ -24,6 +24,16 @@ macro(cc_ios_before_target target_name)
     set(EXECUTABLE_NAME ${target_name})
     set(PRODUCT_NAME ${APP_NAME})
 
+    list(APPEND CC_PROJ_SOURCES
+        ${CC_PROJECT_DIR}/AppDelegate.mm
+        ${CC_PROJECT_DIR}/AppDelegate.h
+        ${CC_PROJECT_DIR}/service/SDKWrapper.m
+        ${CC_PROJECT_DIR}/service/SDKWrapper.h
+        ${CC_PROJECT_DIR}/main.mm
+        ${CC_PROJECT_DIR}/ViewController.mm
+        ${CC_PROJECT_DIR}/ViewController.h
+    )
+
     set(CC_ALL_SOURCES ${CC_PROJ_SOURCES} ${CC_ASSET_FILES} ${CC_COMMON_SOURCES})
 endmacro()
 

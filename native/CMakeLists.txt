@@ -376,10 +376,6 @@ elseif(MACOSX)
     cocos_source_files(
         cocos/main/main-mac.mm
     )
-elseif(IOS)
-    cocos_source_files(
-        cocos/main/main-ios.mm
-    )
 endif()
 
 if(NOT USE_SERVER_MODE AND (WINDOWS OR LINUX))
@@ -440,12 +436,8 @@ elseif(IOS)
     cocos_source_files(
         cocos/platform/ios/IOSPlatform.mm
         cocos/platform/ios/IOSPlatform.h
-        cocos/platform/ios/AppDelegate.mm
-        cocos/platform/ios/AppDelegate.h
-        cocos/platform/ios/service/SDKWrapper.m
-        cocos/platform/ios/service/SDKWrapper.h
-        cocos/platform/ios/ViewController.mm
-        cocos/platform/ios/ViewController.h
+        cocos/platform/ios/AppDelegateBridge.mm
+        cocos/platform/ios/AppDelegateBridge.h
     )
 endif()
 
@@ -955,8 +947,8 @@ elseif(APPLE)
     if(MACOSX)
         cocos_source_files(
             cocos/platform/mac/View.h
-            cocos/platform/mac/KeyCodeHelper.h
             cocos/platform/mac/View.mm
+            cocos/platform/mac/KeyCodeHelper.h
             cocos/platform/mac/KeyCodeHelper.cpp
         )
     elseif(IOS)

@@ -111,6 +111,8 @@ exports.methods = {
         if (!this.dirtyData.origin) {
             this.dirtyData.origin = this.dirtyData.realtime;
         }
+
+        this.canUpdatePreview = true;
     },
 
     isDirty() {
@@ -373,7 +375,9 @@ exports.update = async function(assetList, metaList) {
     }
     // set this.material.technique
     this.material = await Editor.Message.request('scene', 'query-material', this.asset.uuid);
-    await this.updatePreview();
+    if (this.canUpdatePreview) {
+        await this.updatePreview();
+    }
 
     // effect <select> tag
     this.$.effect.value = this.material.effect;
@@ -399,6 +403,7 @@ exports.update = async function(assetList, metaList) {
  * Method of initializing the panel
  */
 exports.ready = async function() {
+    this.canUpdatePreview = false;
     // Used to determine whether the material has been modified in isDirty()
     this.dirtyData = {
         uuid: '',

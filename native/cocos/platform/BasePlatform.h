@@ -169,3 +169,4 @@ private:
         }                                                             \
         return platform->run(argc, argv);                             \
     } while (0)
+
