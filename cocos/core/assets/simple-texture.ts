@@ -31,7 +31,7 @@
 import { ccclass } from 'cc.decorator';
 import { DEV } from 'internal:constants';
 import { TextureFlagBit, TextureUsageBit, API, Texture, TextureInfo, TextureViewInfo, Device, BufferTextureCopy } from '../gfx';
-import { error } from '../platform/debug';
+import { error, warn } from '../platform/debug';
 import { Filter } from './asset-enum';
 import { ImageAsset } from './image-asset';
 import { TextureBase } from './texture-base';
@@ -218,6 +218,9 @@ export class SimpleTexture extends TextureBase {
      * @param maxLevel The maximum mipmap level.
      */
     public setMipRange (baseLevel: number, maxLevel: number) {
+        if (baseLevel > maxLevel) {
+            warn('baseLevel > maxLevel?');
+        }
         this._setMipRange(baseLevel, maxLevel);
 
         const device = this._getGFXDevice();
