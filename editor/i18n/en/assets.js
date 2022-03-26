@@ -2,9 +2,11 @@ module.exports = {
     dialog: {
         confirm: 'Confirm',
         cancel: 'Cancel',
+        warn: 'Warn',
     },
     inspector: {
-        cloneToEdit: 'Clone it and go into edit',
+        cloneToEdit: 'Clone it. Use and go into edit.',
+        cloneToDirectoryIllegal: 'Please limit the saved path to the current project assets path',
     },
     assets: {
         'label-atlas': {

@@ -304,13 +304,13 @@ const Elements = {
                 // 支持多选脚本拖入
                 const { additional = [], value, type } = JSON.parse(JSON.stringify(Editor.UI.DragArea.currentDragInfo)) || {};
 
-                if (value && additional.every(v => v.value !== value)) {
+                if (value && additional.every((v) => v.value !== value)) {
                     additional.push({ value, type });
                 }
 
                 Editor.Message.send('scene', 'snapshot');
 
-                additional.forEach(o => {
+                additional.forEach((o) => {
                     const config = panel.dropConfig[o.type];
                     if (config) {
                         Editor.Message.send(config.package, config.message, o, panel.dumps, panel.uuidList);
@@ -985,11 +985,6 @@ const Elements = {
             let materialPrevPanel = null;
 
             for (const materialUuid in materialUuids) {
-                const recode = materialUuids[materialUuid];
-                if (!recode) {
-                    continue;
-                }
-
                 let materialPanel = oldChildren.find((child) => child.getAttribute('uuid') === materialUuid);
                 if (!materialPanel) {
                     // 添加新的
@@ -1378,6 +1373,29 @@ exports.methods = {
             ],
         });
     },
+    replaceAssetUuidInNodes(assetUuid, newAssetUuid) {
+        const panel = this;
+
+        const materialUuids = panel.assets['cc.Material'];
+        try {
+            for (const dumpPath in materialUuids[assetUuid]) {
+                const dumpData = materialUuids[assetUuid][dumpPath];
+                for (let i = 0; i < panel.uuidList.length; i++) {
+                    const nodeUuid = panel.uuidList[i];
+                    Editor.Message.send('scene', 'set-property', {
+                        uuid: nodeUuid,
+                        path: dumpPath,
+                        dump: {
+                            type: dumpData.type,
+                            value: { uuid: newAssetUuid },
+                        },
+                    });
+                }
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    },
 };
 
 exports.update = async function update(uuidList, renderMap, dropConfig, typeManager, renderManager) {
@@ -1409,6 +1427,9 @@ exports.ready = async function ready() {
             element.ready.call(panel);
         }
     }
+
+    this.replaceAssetUuidInNodesBind = this.replaceAssetUuidInNodes.bind(this);
+    Editor.Message.addBroadcastListener('inspector:replace-asset-uuid-in-nodes', this.replaceAssetUuidInNodesBind);
 };
 
 exports.close = async function close() {
@@ -1420,6 +1441,8 @@ exports.close = async function close() {
             element.close.call(panel);
         }
     }
+
+    Editor.Message.removeBroadcastListener('inspector:replace-asset-uuid-in-nodes', this.replaceAssetUuidInNodesBind);
 };
 
 exports.beforeClose = async function beforeClose() {

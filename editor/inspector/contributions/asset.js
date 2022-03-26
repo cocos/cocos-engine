@@ -161,21 +161,44 @@ const Elements = {
                 panel.reset();
             });
 
-            panel.$.copy.addEventListener('click', () => {
+            panel.$.copy.addEventListener('click', async () => {
+                const assetsDir = path.join(Editor.Project.path, 'assets');
                 const result = await Editor.Dialog.select({
-                    title: 'Select Directory',
-                    path: Editor.Project.path,
+                    path: assetsDir,
                     type: 'directory',
                 });
-                const files = result.filePaths;
-                if (!files) {
+
+                let filePath = result.filePaths[0];
+                if (!filePath) {
                     return;
                 }
-                const folder = files[0];
-                if (!folder || !existsSync(folder)) {
+
+                filePath = path.join(filePath, panel.asset.name);
+
+                // 必须保存在 /assets 文件夹下
+                if (!Editor.Utils.Path.contains(assetsDir, filePath)) {
+                    await Editor.Dialog.warn(Editor.I18n.t('ENGINE.dialog.warn'), {
+                        detail: Editor.I18n.t('ENGINE.inspector.cloneToDirectoryIllegal'),
+                        buttons: [Editor.I18n.t('ENGINE.dialog.confirm')],
+                    });
                     return;
                 }
-                const file = join(folder, '');
+
+                const target = await Editor.Message.request('asset-db', 'query-url', filePath);
+                if (target) {
+                    const asset = await Editor.Message.request('asset-db', 'copy-asset', panel.asset.url, target);
+                    if (asset) {
+                        const lastSelectType = Editor.Selection.getLastSelectedType();
+                        if (lastSelectType === 'asset') {
+                            // 纯资源模式下
+                            Editor.Selection.clear(lastSelectType);
+                            Editor.Selection.select(lastSelectType, asset.uuid);
+                        } else if (lastSelectType === 'node') {
+                            // 节点里使用资源的情况下，如材质
+                            Editor.Message.broadcast('inspector:replace-asset-uuid-in-nodes', panel.asset.uuid, asset.uuid);
+                        }
+                    }
+                }
             });
 
             panel.$.icon.addEventListener('click', (event) => {
@@ -202,7 +225,6 @@ const Elements = {
                 panel.$.name.removeAttribute('tooltip');
                 panel.$.name.removeAttribute('readonly');
                 panel.$.copy.style.display = 'none';
-
             }
 
             const isImage = showImage.includes(panel.asset.type);
@@ -377,7 +399,6 @@ exports.methods = {
 
         if (continueSaveMeta === false) {
             return;
-
         }
         panel.uuidList.forEach((uuid, index) => {
             const content = JSON.stringify(panel.metaList[index]);

@@ -72,10 +72,10 @@ function collectAssets(dump, assets) {
                 assets[dump.type] = {};
             }
             if (assets[dump.type][dump.value.uuid] === undefined) {
-                assets[dump.type][dump.value.uuid] = 0;
+                assets[dump.type][dump.value.uuid] = {};
             }
-            // 大于 0 是指里面多次使用
-            assets[dump.type][dump.value.uuid]++;
+            // assets[dump.type][dump.value.uuid] 的 keys length 大于 0 是指里面多次使用
+            assets[dump.type][dump.value.uuid][dump.path] = dump;
         }
     }
 }
