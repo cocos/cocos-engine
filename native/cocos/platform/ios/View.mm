@@ -24,16 +24,16 @@
 ****************************************************************************/
 
 #import "View.h"
-#import "AppDelegate.h"
 
 #include <UIKit/UIScreen.h>
 #import "platform/ios/AppDelegateBridge.h"
+#include "platform/ios/IOSPlatform.h"
 
 namespace {
 } // namespace
 
 @implementation View {
-    AppDelegate*      _delegate;
+    cc::IOSPlatform* _platform;
 }
 
 @synthesize preventTouch;
@@ -48,8 +48,20 @@ namespace {
 }
 #endif
 
+- (void)dispatchEvents:(cc::TouchEvent::Type)type withEvent:(NSSet*) touches {
+    cc::TouchEvent touchEvent;
+    touchEvent.type = type;
+    for (UITouch *touch in touches) {
+        touchEvent.touches.push_back({static_cast<float>([touch locationInView:[touch view]].x),
+                                      static_cast<float>([touch locationInView:[touch view]].y),
+                                      static_cast<int>((intptr_t)touch)});
+    }
+    CCASSERT(_platform != nullptr, "Platform point cannot be null");
+    _platform->dispatchEvent(touchEvent);
+}
+
 - (id)initWithFrame:(CGRect)frame {
-    _delegate = [[UIApplication sharedApplication] delegate];
+    _platform = reinterpret_cast<cc::IOSPlatform*>(cc::BasePlatform::getPlatform());
 #ifdef CC_USE_METAL
     if (self = [super initWithFrame:frame]) {
         self.preventTouch = FALSE;
@@ -76,29 +88,29 @@ namespace {
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
     if (self.preventTouch)
         return;
-    [_delegate.appDelegateBridge dispatchTouchEvent:
-        cc::TouchEvent::Type::BEGAN touches:touches withEvent:event];
+
+    [self dispatchEvents:cc::TouchEvent::Type::BEGAN withEvent:touches];
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
     if (self.preventTouch)
         return;
-    [_delegate.appDelegateBridge dispatchTouchEvent:
-        cc::TouchEvent::Type::MOVED touches:touches withEvent:event];
+
+    [self dispatchEvents:cc::TouchEvent::Type::MOVED withEvent:touches];
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
     if (self.preventTouch)
         return;
-    [_delegate.appDelegateBridge dispatchTouchEvent:
-        cc::TouchEvent::Type::ENDED touches:touches withEvent:event];
+
+    [self dispatchEvents:cc::TouchEvent::Type::ENDED withEvent:touches];
 }
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
     if (self.preventTouch)
         return;
-    [_delegate.appDelegateBridge dispatchTouchEvent:
-        cc::TouchEvent::Type::CANCELLED touches:touches withEvent:event];
+
+    [self dispatchEvents:cc::TouchEvent::Type::CANCELLED withEvent:touches];
 }
 
 - (void)setPreventTouchEvent:(BOOL)flag {

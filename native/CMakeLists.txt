@@ -436,6 +436,8 @@ elseif(IOS)
     cocos_source_files(
         cocos/platform/ios/IOSPlatform.mm
         cocos/platform/ios/IOSPlatform.h
+        cocos/platform/ios/View.mm
+        cocos/platform/ios/View.h
         cocos/platform/ios/AppDelegateBridge.mm
         cocos/platform/ios/AppDelegateBridge.h
         cocos/platform/ios/SDKDelegate.h

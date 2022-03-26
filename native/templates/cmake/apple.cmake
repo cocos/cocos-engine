@@ -30,8 +30,6 @@ macro(cc_ios_before_target target_name)
         ${CC_PROJECT_DIR}/service/SDKWrapper.m
         ${CC_PROJECT_DIR}/service/SDKWrapper.h
         ${CC_PROJECT_DIR}/main.mm
-        ${CC_PROJECT_DIR}/View.mm
-        ${CC_PROJECT_DIR}/View.h
         ${CC_PROJECT_DIR}/ViewController.mm
         ${CC_PROJECT_DIR}/ViewController.h
     )
