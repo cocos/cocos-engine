@@ -76,7 +76,7 @@ const Elements = {
 
                 const label = document.createElement('ui-label');
                 button.appendChild(label);
-                label.setAttribute('value', `i18n:inspector.asset.fbx.${tab}`);
+                label.setAttribute('value', `i18n:ENGINE.assets.fbx.${tab}`);
             });
 
             panel.$.tabs.value = panel.tabs.indexOf(panel.activeTab);

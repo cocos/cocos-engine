@@ -11,19 +11,19 @@ exports.style = fs.readFileSync(path.join(__dirname, './asset.css'), 'utf8');
 exports.template = `
 <ui-section whole class="container">
     <header class="header" slot="header">
-        <ui-icon class="icon" color tooltip="i18n:inspector.locate_asset"></ui-icon>
-        <ui-image class="image" tooltip="i18n:inspector.locate_asset"></ui-image>
+        <ui-icon class="icon" color tooltip="i18n:ENGINE.assets.locate_asset"></ui-icon>
+        <ui-image class="image" tooltip="i18n:ENGINE.assets.locate_asset"></ui-image>
         <span class="name"></span>
-        <ui-link value="" class="help" tooltip="i18n:inspector.menu.help_url">
+        <ui-link value="" class="help" tooltip="i18n:ENGINE.menu.help_url">
             <ui-icon value="help"></ui-icon>
         </ui-link>
-        <ui-button class="save tiny green transparent" tooltip="i18n:inspector.asset.save">
+        <ui-button class="save tiny green transparent" tooltip="i18n:ENGINE.assets.save">
             <ui-icon value="check"></ui-icon>
         </ui-button>
-        <ui-button class="reset tiny red transparent" tooltip="i18n:inspector.asset.reset">
+        <ui-button class="reset tiny red transparent" tooltip="i18n:ENGINE.assets.reset">
             <ui-icon value="reset"></ui-icon>
         </ui-button>
-        <ui-icon class="lock" value="lock" tooltip="i18n:inspector.asset.prohibitEditInternalAsset"></ui-icon>
+        <ui-icon class="lock" value="lock" tooltip="i18n:ENGINE.assets.prohibitEditInternalAsset"></ui-icon>
     </header>
     <section class="content">
         <section class="content-header"></section>
@@ -443,9 +443,9 @@ exports.beforeClose = async function beforeClose() {
         result = 1;
     } else {
         panel.isDialoging = true;
-        const message = Editor.I18n.t(`inspector.check_is_saved.assetMessage`).replace('${assetName}', panel.asset.name);
+        const message = Editor.I18n.t(`ENGINE.assets.check_is_saved.assetMessage`).replace('${assetName}', panel.asset.name);
         const warnResult = await Editor.Dialog.warn(message, {
-            buttons: [Editor.I18n.t('inspector.check_is_saved.abort'), Editor.I18n.t('inspector.check_is_saved.save'), 'Cancel'],
+            buttons: [Editor.I18n.t('ENGINE.assets.check_is_saved.abort'), Editor.I18n.t('ENGINE.assets.check_is_saved.save'), 'Cancel'],
             default: 1,
             cancel: 2,
         });
