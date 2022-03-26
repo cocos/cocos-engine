@@ -97,14 +97,6 @@ export class WebGLTexture extends Texture {
             this._viewInfo.levelCount = info.levelCount;
             this._viewInfo.baseLayer = 0;
             this._viewInfo.layerCount = info.levelCount;
-
-            // no mipmap in compressed Texture
-            const fmtInfo: FormatInfo = FormatInfos[texInfo.format];
-            const { isCompressed } = fmtInfo;
-            if (isCompressed && (texInfo.flags & TextureFlagBit.GEN_MIPMAP)) {
-                console.error(`Compressed Texture has only one level, but levelCount is set `
-                            + `to ${this._viewInfo.levelCount}.`);
-            }
         } else {
             this._viewInfo.copy(viewInfo);
             this._lodLevel = viewInfo.baseLevel;

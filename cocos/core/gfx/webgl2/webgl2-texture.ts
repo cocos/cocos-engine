@@ -101,14 +101,6 @@ export class WebGL2Texture extends Texture {
             this._viewInfo.baseLayer = 0;
             this._viewInfo.layerCount = info.layerCount;
 
-            // no mipmap in compressed Texture
-            const fmtInfo: FormatInfo = FormatInfos[texInfo.format];
-            const { isCompressed } = fmtInfo;
-            if (isCompressed && (texInfo.flags & TextureFlagBit.GEN_MIPMAP)) {
-                console.error(`Compressed Texture has only one level, but levelCount is set `
-                            + `to ${this._viewInfo.levelCount}.`);
-            }
-
             this._gpuTextureView = {
                 gpuTexture: this._gpuTexture,
                 type: this._viewInfo.type,
