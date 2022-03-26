@@ -436,8 +436,6 @@ elseif(IOS)
     cocos_source_files(
         cocos/platform/ios/IOSPlatform.mm
         cocos/platform/ios/IOSPlatform.h
-        cocos/platform/ios/View.mm
-        cocos/platform/ios/View.h
         cocos/platform/ios/AppDelegateBridge.mm
         cocos/platform/ios/AppDelegateBridge.h
         cocos/platform/ios/SDKDelegate.h
@@ -950,11 +948,15 @@ elseif(APPLE)
     if(MACOSX)
         cocos_source_files(
             cocos/platform/mac/View.h
-            cocos/platform/mac/KeyCodeHelper.h
             cocos/platform/mac/View.mm
+            cocos/platform/mac/KeyCodeHelper.h
             cocos/platform/mac/KeyCodeHelper.cpp
         )
     elseif(IOS)
+        cocos_source_files(
+                         cocos/platform/ios/View.h
+            NO_WERROR    cocos/platform/ios/View.mm     # CAMetalLayer bug for apple
+        )
     endif()
 elseif(LINUX)
     cocos_source_files(MODULE ccfilesystem
