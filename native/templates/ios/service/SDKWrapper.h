@@ -25,9 +25,20 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "platform/ios/SDKDelegate.h"
-
 NS_ASSUME_NONNULL_BEGIN
+
+@protocol SDKDelegate <NSObject>
+
+@optional
+- (void)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions;
+- (void)applicationDidBecomeActive:(UIApplication *)application;
+- (void)applicationWillResignActive:(UIApplication *)application;
+- (void)applicationDidEnterBackground:(UIApplication *)application;
+- (void)applicationWillEnterForeground:(UIApplication *)application;
+- (void)applicationWillTerminate:(UIApplication *)application;
+- (void)applicationDidReceiveMemoryWarning:(UIApplication *)application;
+
+@end
 
 @interface                              SDKWrapper : NSObject
 @property (nonatomic, strong) NSString *name;
@@ -39,7 +50,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)applicationWillEnterForeground:(UIApplication *)application;
 - (void)applicationWillTerminate:(UIApplication *)application;
 - (void)applicationDidReceiveMemoryWarning:(UIApplication *)application;
-- (void)addSdkDelegate:(NSObject<SDKDelegate> *)delegate;
 @end
 
 NS_ASSUME_NONNULL_END

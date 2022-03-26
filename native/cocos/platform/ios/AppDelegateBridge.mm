@@ -29,11 +29,10 @@
 
 @implementation AppDelegateBridge
 cc::IOSPlatform *_platform = nullptr;
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+- (void)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     _platform = dynamic_cast<cc::IOSPlatform *>(cc::BasePlatform::getPlatform());
     CCASSERT(_platform != nullptr, "Platform pointer can't be null");
     _platform->loop();
-    return YES;
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
@@ -42,9 +41,6 @@ cc::IOSPlatform *_platform = nullptr;
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     _platform->onResume();
-}
-
-- (void)applicationDidEnterBackground:(UIApplication *)application {
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {

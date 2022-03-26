@@ -26,11 +26,16 @@ AppDelegateBridge
 #pragma once
 
 #include "platform/UniversalPlatform.h"
-#import "platform/ios/SDKDelegate.h"
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
-@interface AppDelegateBridge : NSObject<SDKDelegate>
+@interface AppDelegateBridge : NSObject
 - (float)getPixelRatio;
+- (void)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions;
+- (void)applicationDidBecomeActive:(UIApplication *)application;
+- (void)applicationWillResignActive:(UIApplication *)application;
+- (void)applicationWillTerminate:(UIApplication *)application;
+- (void)applicationDidReceiveMemoryWarning:(UIApplication *)application;
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator;
 - (void)dispatchTouchEvent:(cc::TouchEvent::Type)type touches:(NSSet *)touches withEvent:(UIEvent *)event;
 @end

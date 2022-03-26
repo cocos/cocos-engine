@@ -438,7 +438,6 @@ elseif(IOS)
         cocos/platform/ios/IOSPlatform.h
         cocos/platform/ios/AppDelegateBridge.mm
         cocos/platform/ios/AppDelegateBridge.h
-        cocos/platform/ios/SDKDelegate.h
     )
 endif()
 
