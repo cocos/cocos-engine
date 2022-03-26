@@ -83,12 +83,12 @@ public:
      *@param h: Window height
      *@param flags: Window flag
      */
-    virtual bool      createWindow(const char* title,
-                                   int w, int h, int flags) {
+    virtual bool createWindow(const char* title,
+                              int w, int h, int flags) {
         return true;
     }
-    virtual uintptr_t getWindowHandler() const       = 0;
-    virtual Size      getViewSize() const            = 0;
+    virtual uintptr_t getWindowHandler() const = 0;
+    virtual Size      getViewSize() const      = 0;
     /**
      @brief enable/disable(lock) the cursor, default is enabled
      */
