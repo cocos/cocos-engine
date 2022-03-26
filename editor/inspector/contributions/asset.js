@@ -443,9 +443,9 @@ exports.beforeClose = async function beforeClose() {
         result = 1;
     } else {
         panel.isDialoging = true;
-        const message = Editor.I18n.t(`inspector.check_is_saved.assetMessage`).replace('${assetName}', panel.asset.name);
+        const message = Editor.I18n.t(`ENGINE.assets.check_is_saved.assetMessage`).replace('${assetName}', panel.asset.name);
         const warnResult = await Editor.Dialog.warn(message, {
-            buttons: [Editor.I18n.t('inspector.check_is_saved.abort'), Editor.I18n.t('inspector.check_is_saved.save'), 'Cancel'],
+            buttons: [Editor.I18n.t('ENGINE.assets.check_is_saved.abort'), Editor.I18n.t('ENGINE.assets.check_is_saved.save'), 'Cancel'],
             default: 1,
             cancel: 2,
         });

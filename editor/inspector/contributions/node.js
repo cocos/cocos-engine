@@ -36,10 +36,10 @@ exports.listeners = {
 
                 // 有子节点的时候才弹出对话框
                 panel.isDialoging = true;
-                const warnResult = await Editor.Dialog.warn(Editor.I18n.t(`inspector.node.layer.confirm_message`), {
+                const warnResult = await Editor.Dialog.warn(Editor.I18n.t(`ENGINE.components.layer.confirm_message`), {
                     buttons: [
-                        Editor.I18n.t('inspector.node.layer.change_children'),
-                        Editor.I18n.t('inspector.node.layer.change_self'),
+                        Editor.I18n.t('ENGINE.components.layer.change_children'),
+                        Editor.I18n.t('ENGINE.components.layer.change_self'),
                         'Cancel',
                     ],
                     cancel: 2,
@@ -1088,7 +1088,7 @@ exports.methods = {
         Editor.Menu.popup({
             menu: [
                 {
-                    label: Editor.I18n.t('inspector.menu.reset_component'),
+                    label: Editor.I18n.t('ENGINE.menu.reset_component'),
                     click() {
                         Editor.Message.send('scene', 'snapshot');
 
@@ -1101,7 +1101,7 @@ exports.methods = {
                 },
                 { type: 'separator' },
                 {
-                    label: Editor.I18n.t('inspector.menu.remove_component'),
+                    label: Editor.I18n.t('ENGINE.menu.remove_component'),
                     click() {
                         Editor.Message.send('scene', 'snapshot');
                         (dump.value.uuid.values || [dump.value.uuid.value]).forEach((value) => {
@@ -1120,7 +1120,7 @@ exports.methods = {
                     },
                 },
                 {
-                    label: Editor.I18n.t('inspector.menu.move_up_component'),
+                    label: Editor.I18n.t('ENGINE.menu.move_up_component'),
                     enabled: !isMultiple && index !== 0,
                     click() {
                         Editor.Message.send('scene', 'snapshot');
@@ -1133,7 +1133,7 @@ exports.methods = {
                     },
                 },
                 {
-                    label: Editor.I18n.t('inspector.menu.move_down_component'),
+                    label: Editor.I18n.t('ENGINE.menu.move_down_component'),
                     enabled: !isMultiple && index !== total - 1,
                     click() {
                         Editor.Message.send('scene', 'snapshot');
@@ -1147,7 +1147,7 @@ exports.methods = {
                 },
                 { type: 'separator' },
                 {
-                    label: Editor.I18n.t('inspector.menu.copy_component'),
+                    label: Editor.I18n.t('ENGINE.menu.copy_component'),
                     enabled: !isMultiple,
                     async click() {
                         Editor.Clipboard.write('_dump_component_', {
@@ -1157,7 +1157,7 @@ exports.methods = {
                     },
                 },
                 {
-                    label: Editor.I18n.t('inspector.menu.paste_component_values'),
+                    label: Editor.I18n.t('ENGINE.menu.paste_component_values'),
                     enabled: !!(clipboardComponentInfo && clipboardComponentInfo.type === dump.type),
                     async click() {
                         Editor.Message.send('scene', 'snapshot');
@@ -1180,7 +1180,7 @@ exports.methods = {
                 { type: 'separator' },
                 {
                     // 这个按钮不该出现在 component 上，应该在节点上
-                    label: Editor.I18n.t('inspector.menu.paste_component'),
+                    label: Editor.I18n.t('ENGINE.menu.paste_component'),
                     enabled: !!clipboardComponentInfo,
                     async click() {
                         Editor.Message.send('scene', 'snapshot');
@@ -1226,7 +1226,7 @@ exports.methods = {
         Editor.Menu.popup({
             menu: [
                 {
-                    label: Editor.I18n.t('inspector.menu.reset_node'),
+                    label: Editor.I18n.t('ENGINE.menu.reset_node'),
                     enabled: !dump.position.readonly && !dump.rotation.readonly && !dump.scale.readonly,
                     click() {
                         Editor.Message.send('scene', 'snapshot');
@@ -1240,7 +1240,7 @@ exports.methods = {
                 },
                 { type: 'separator' },
                 {
-                    label: Editor.I18n.t('inspector.menu.copy_node_value'),
+                    label: Editor.I18n.t('ENGINE.menu.copy_node_value'),
                     enabled: !isMultiple,
                     async click() {
                         Editor.Clipboard.write('_dump_node_', {
@@ -1251,7 +1251,7 @@ exports.methods = {
                     },
                 },
                 {
-                    label: Editor.I18n.t('inspector.menu.paste_node_value'),
+                    label: Editor.I18n.t('ENGINE.menu.paste_node_value'),
                     enabled: !!clipboardNodeInfo,
                     async click() {
                         Editor.Message.send('scene', 'snapshot');
@@ -1269,7 +1269,7 @@ exports.methods = {
                 },
                 { type: 'separator' },
                 {
-                    label: Editor.I18n.t('inspector.menu.copy_node_world_transform'),
+                    label: Editor.I18n.t('ENGINE.menu.copy_node_world_transform'),
                     enabled: !isMultiple,
                     async click() {
                         const data = await Editor.Message.request('scene', 'execute-scene-script', {
@@ -1286,7 +1286,7 @@ exports.methods = {
                     },
                 },
                 {
-                    label: Editor.I18n.t('inspector.menu.paste_node_world_transform'),
+                    label: Editor.I18n.t('ENGINE.menu.paste_node_world_transform'),
                     enabled: !!clipboardNodeWorldTransform,
                     async click() {
                         Editor.Message.send('scene', 'snapshot');
@@ -1304,7 +1304,7 @@ exports.methods = {
                 },
                 { type: 'separator' },
                 {
-                    label: Editor.I18n.t('inspector.menu.paste_component'),
+                    label: Editor.I18n.t('ENGINE.menu.paste_component'),
                     enabled: !!clipboardComponentInfo,
                     async click() {
                         Editor.Message.send('scene', 'snapshot');
@@ -1335,7 +1335,7 @@ exports.methods = {
                 },
                 { type: 'separator' },
                 {
-                    label: Editor.I18n.t('inspector.menu.reset_node_position'),
+                    label: Editor.I18n.t('ENGINE.menu.reset_node_position'),
                     enabled: !dump.position.readonly && JSON.stringify(dump.position.value) !== JSON.stringify(dump.position.default),
                     click() {
                         Editor.Message.send('scene', 'snapshot');
@@ -1349,7 +1349,7 @@ exports.methods = {
                     },
                 },
                 {
-                    label: Editor.I18n.t('inspector.menu.reset_node_rotation'),
+                    label: Editor.I18n.t('ENGINE.menu.reset_node_rotation'),
                     enabled: !dump.rotation.readonly && JSON.stringify(dump.rotation.value) !== JSON.stringify(dump.rotation.default),
                     click() {
                         Editor.Message.send('scene', 'snapshot');
@@ -1363,7 +1363,7 @@ exports.methods = {
                     },
                 },
                 {
-                    label: Editor.I18n.t('inspector.menu.reset_node_scale'),
+                    label: Editor.I18n.t('ENGINE.menu.reset_node_scale'),
                     enabled: !dump.rotation.readonly && JSON.stringify(dump.scale.value) !== JSON.stringify(dump.scale.default),
                     click() {
                         Editor.Message.send('scene', 'snapshot');

@@ -339,6 +339,12 @@ module.exports = {
             nodeEnableTip: '是否启用这个节点<br>按住 Alt + 点击，可以切换自身和子孙节点的状态',
         },
         multipleWarning: '不支持此类型资源的多选编辑',
+        check_is_saved: {
+            message: '修改的数据尚未保存，是否保存修改？',
+            assetMessage: '${assetName} 修改的数据尚未保存，是否保存修改？',
+            save: '保存',
+            abort: '丢弃',
+        },
     },
 
     menu: {

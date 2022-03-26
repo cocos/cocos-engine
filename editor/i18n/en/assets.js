@@ -349,6 +349,12 @@ module.exports = {
             nodeEnableTip: 'Whether enable this joint;<br>Alt + Click can toggle the children state.',
         },
         multipleWarning: 'Multi-select editing of this type of asset is not supported',
+        check_is_saved: {
+            message: 'The modified data has not been saved. Do you want to save it?',
+            assetMessage: "${assetName} is modified, it's data has not been saved. Do you want to save it?",
+            save: 'Save',
+            abort: 'Abort',
+        },
     },
 
     menu: {

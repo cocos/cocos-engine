@@ -19,5 +19,10 @@ module.exports = {
         label: {
             font_style_tooltip: "文本的样式，分别对应引擎的 isBold,isItalic,isUnderline",
         },
+        layer: {
+            confirm_message: '是否连同修改子节点的 Layer？',
+            change_children: '连同修改子节点',
+            change_self: '只修改节点自身',
+        },
     },
 };

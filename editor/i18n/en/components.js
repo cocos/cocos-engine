@@ -24,5 +24,10 @@ module.exports = {
         label: {
             font_style_tooltip: "The style of the text, corresponding to the engine's isBold,isItalic,isUnderline",
         },
+        layer: {
+            confirm_message: 'Do you want to set layer for all child objects as well?',
+            change_children: 'Yes, change children',
+            change_self: 'No, this object only',
+        },
     },
 };
