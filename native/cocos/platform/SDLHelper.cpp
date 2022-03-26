@@ -334,7 +334,13 @@ void SDLHelper::pollEvent(bool *quit) {
 
 bool SDLHelper::createWindow(const char *title,
                              int w, int h, int flags) {
-    return createWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, flags);
+    SDL_Rect  screenRect;
+    if (SDL_GetDisplayBounds(0, &screenRect) != 0) {
+        return false;
+    }
+    int x = screenRect.x;
+    int y = screenRect.y + screenRect.h - h;
+    return createWindow(title, x, y, w, h, flags);
 }
 
 bool SDLHelper::createWindow(const char *title,

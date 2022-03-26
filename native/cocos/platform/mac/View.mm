@@ -261,4 +261,8 @@
     [_delegate dispatchEvent:_mouseEvent];
 }
 
+- (BOOL)isFlipped{
+   return YES;
+}
+
 @end
