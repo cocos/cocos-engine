@@ -641,7 +641,7 @@ const Elements = {
             }
 
             panel.$this.setAttribute('sub-type', 'node');
-            panel.$.container.setAttribute('droppable', 'cc.Script');
+            panel.$.container.setAttribute('droppable', panel.dropConfig && Object.keys(panel.dropConfig).join());
 
             panel.$.nodePosition.render(panel.dump.position);
             panel.$.nodeRotation.render(panel.dump.rotation);
