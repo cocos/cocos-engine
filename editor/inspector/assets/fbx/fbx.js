@@ -20,7 +20,7 @@ exports.template = `
         <ui-label slot="label" value="i18n:ENGINE.assets.fbx.preferLocalTimeSpan.name" tooltip="i18n:ENGINE.assets.fbx.preferLocalTimeSpan.title"></ui-label>
         <ui-checkbox slot="content" class="preferLocalTimeSpan-checkbox"></ui-checkbox>
     </ui-prop>
-    <ui-section class="legacy" expand>
+    <ui-section class="legacy">
         <ui-label slot="header" value="i18n:ENGINE.assets.fbx.legacyOptions"></ui-label>
         <div class="legacy-importer">
             <ui-prop>
