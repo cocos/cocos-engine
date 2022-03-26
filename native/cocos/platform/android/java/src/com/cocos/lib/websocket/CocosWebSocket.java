@@ -31,7 +31,7 @@ import org.cocos2dx.okhttp3.WebSocketListener;
 import org.cocos2dx.okio.ByteString;
 
 @SuppressWarnings("unused")
-final class CocosWebSocket extends WebSocketListener {
+public class CocosWebSocket extends WebSocketListener {
     private final static String _TAG = "cocos-websocket";
 
     static {
