@@ -490,7 +490,6 @@ export class Animation extends Eventify(Component) {
             if (!state.isMotionless) {
                 state.update(deltaTime);
             }
-            state.update(deltaTime);
         }
 
         this._blendStateBuffer.apply();
