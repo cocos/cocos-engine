@@ -29,7 +29,6 @@
 
 #import <UIKit/UIKit.h>
 
-#import "platform/ios/AppDelegate.h"
 #include "modules/Accelerometer.h"
 #include "modules/Battery.h"
 #include "modules/Network.h"
@@ -117,7 +116,7 @@ int32_t IOSPlatform::loop() {
 }
 
 int32_t IOSPlatform::run(int argc, const char** argv) {
-    return runUIAppicationMain(argc, argv);
+    return 0;
 }
 
 void IOSPlatform::setFps(int32_t fps) {

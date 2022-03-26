@@ -1,5 +1,7 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2010-2013 cocos2d-x.org
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,27 +25,14 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include <iostream>
-
-#include "platform/BasePlatform.h"
-
-int main(int argc, const char * argv[]) {
-    // cc::BasePlatform* platform = cc::BasePlatform::getPlatform();
-    // if (platform->init()) {
-    //     CC_LOG_FATAL("Platform initialization failed");
-    //     return -1;
-    // }
-    // return platform->run(argc, argv);
-    START_PLATFORM(argc, (const char**)argv);
-}
-
-/*
 #import <UIKit/UIKit.h>
+#import "platform/ios/AppDelegateBridge.h"
 
-int main(int argc, char *argv[]) {
-    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-    int retVal = UIApplicationMain(argc, argv, nil, @"AppDelegate");
-    [pool release];
-    return retVal;
+@class ViewController;
+
+@interface AppDelegate : NSObject <UIApplicationDelegate> {
 }
- */
+
+@property (nonatomic, readonly) ViewController* viewController;
+@property (nonatomic, readonly) AppDelegateBridge* appDelegateBridge;
+@end

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -10,7 +10,7 @@
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
-
+AppDelegateBridge
  The software or tools in this License Agreement are licensed, not sold.
  Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
@@ -23,35 +23,19 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "platform/ios/modules/SystemWindow.h"
+#pragma once
+
+#include "platform/UniversalPlatform.h"
+#import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-
-namespace {
-
-}
-
-namespace cc {
-
-SystemWindow::~SystemWindow() = default;
-
-
-void SystemWindow::setCursorEnabled(bool value) {
-}
-
-void SystemWindow::copyTextToClipboard(const std::string& text) {
-    UIPasteboard* pasteboard = [UIPasteboard generalPasteboard];
-    pasteboard.string        = [NSString stringWithCString:text.c_str() encoding:NSUTF8StringEncoding];
-}
-
-uintptr_t SystemWindow::getWindowHandler() const {
-    return reinterpret_cast<uintptr_t>(UIApplication.sharedApplication.delegate.window.rootViewController.view);
-}
-
-SystemWindow::Size SystemWindow::getViewSize() const {
-    CGRect bounds = [[UIScreen mainScreen] bounds];
-    return Size{static_cast<float>(bounds.size.width), static_cast<float>(bounds.size.height)};
-}
-
-
-}
+@interface AppDelegateBridge : NSObject
+- (float)getPixelRatio;
+- (void)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions;
+- (void)applicationDidBecomeActive:(UIApplication *)application;
+- (void)applicationWillResignActive:(UIApplication *)application;
+- (void)applicationWillTerminate:(UIApplication *)application;
+- (void)applicationDidReceiveMemoryWarning:(UIApplication *)application;
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator;
+- (void)dispatchTouchEvent:(cc::TouchEvent::Type)type touches:(NSSet *)touches withEvent:(UIEvent *)event;
+@end

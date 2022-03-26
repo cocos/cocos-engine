@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2010-2013 cocos2d-x.org
+ Copyright (c) 2013 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
@@ -25,14 +25,46 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#import <UIKit/UIKit.h>
+#import "ViewController.h"
+#import "AppDelegate.h"
+#import "platform/ios/AppDelegateBridge.h"
+//#include "cocos/platform/Device.h"
 
-@class ViewController;
-
-@interface AppDelegate : NSObject <UIApplicationDelegate> {
+namespace {
+//    cc::Device::Orientation _lastOrientation;
 }
 
-@property (nonatomic, readonly) ViewController* viewController;
-int                                             runUIAppicationMain(int argc, const char** argv);
+@interface ViewController ()
+ 
+@end
+
+@implementation ViewController
+
+
+- (BOOL) shouldAutorotate {
+    return YES;
+}
+
+//fix not hide status on ios7
+- (BOOL)prefersStatusBarHidden {
+    return YES;
+}
+
+// Controls the application's preferred home indicator auto-hiding when this view controller is shown.
+- (BOOL)prefersHomeIndicatorAutoHidden {
+    return YES;
+}
+
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+   AppDelegate* delegate = [[UIApplication sharedApplication] delegate];
+   [delegate.appDelegateBridge viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+   float pixelRatio = [delegate.appDelegateBridge getPixelRatio];
+
+   //CAMetalLayer is available on ios8.0, ios-simulator13.0.
+   CAMetalLayer *layer = (CAMetalLayer *)self.view.layer;
+   CGSize tsize             = CGSizeMake(static_cast<int>(size.width * pixelRatio),
+                                         static_cast<int>(size.height * pixelRatio));
+   layer.drawableSize = tsize;
+}
 
 @end
