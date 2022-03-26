@@ -161,7 +161,8 @@ const Elements = {
                 panel.reset();
             });
 
-            panel.$.copy.addEventListener('click', async () => {
+            panel.$.copy.addEventListener('click', async (event) => {
+                event.stopPropagation();
                 const assetsDir = path.join(Editor.Project.path, 'assets');
                 const result = await Editor.Dialog.select({
                     path: assetsDir,
