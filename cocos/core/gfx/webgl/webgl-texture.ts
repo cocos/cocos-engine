@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { FormatSurfaceSize, TextureInfo, TextureViewInfo, IsPowerOf2, ISwapchainTextureInfo, TextureUsageBit, FormatInfos } from '../base/define';
+import { FormatSurfaceSize, TextureInfo, TextureViewInfo, IsPowerOf2, ISwapchainTextureInfo, TextureUsageBit, FormatInfos, FormatInfo, TextureFlagBit } from '../base/define';
 import { Texture } from '../base/texture';
 import { WebGLCmdFuncCreateTexture, WebGLCmdFuncDestroyTexture, WebGLCmdFuncResizeTexture } from './webgl-commands';
 import { WebGLDeviceManager } from './webgl-define';
@@ -97,6 +97,14 @@ export class WebGLTexture extends Texture {
             this._viewInfo.levelCount = info.levelCount;
             this._viewInfo.baseLayer = 0;
             this._viewInfo.layerCount = info.levelCount;
+
+            // no mipmap in compressed Texture
+            const fmtInfo: FormatInfo = FormatInfos[texInfo.format];
+            const { isCompressed } = fmtInfo;
+            if (isCompressed && (texInfo.flags & TextureFlagBit.GEN_MIPMAP)) {
+                console.error(`Compressed Texture has only one level, but levelCount is set `
+                            + `to ${this._viewInfo.levelCount}.`);
+            }
         } else {
             this._viewInfo.copy(viewInfo);
             this._lodLevel = viewInfo.baseLevel;
