@@ -235,7 +235,7 @@ const Elements = {
                 panel.$.header.prepend(panel.$.image);
                 panel.$.icon.remove();
             } else {
-                panel.$.icon.value = panel.asset.importer;
+                panel.$.icon.value = panel.asset.importer === '*' ? 'file' : panel.asset.importer;
                 panel.$.header.prepend(panel.$.icon);
 
                 panel.$.image.value = ''; // 清空，避免缓存
