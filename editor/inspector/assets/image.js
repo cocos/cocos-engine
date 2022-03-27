@@ -130,6 +130,9 @@ const Elements = {
             const panel = this;
 
             panel.$.bakeOfflineMipmapsCheckbox.value = panel.meta.userData.bakeOfflineMipmaps;
+
+            panel.updateInvalid(panel.$.bakeOfflineMipmapsCheckbox, 'bakeOfflineMipmaps');
+            panel.updateReadonly(panel.$.bakeOfflineMipmapsCheckbox);
         },
     },
 
