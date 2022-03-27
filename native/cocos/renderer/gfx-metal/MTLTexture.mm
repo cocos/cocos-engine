@@ -120,10 +120,11 @@ void CCMTLTexture::doInit(const TextureViewInfo &info) {
     }
     _convertedFormat = mu::convertGFXPixelFormat(_viewInfo.format);
     auto mtlTextureType = mu::toMTLTextureType(_viewInfo.type);
-    _mtlTextureView = [id<MTLTexture>(_viewInfo.texture) newTextureViewWithPixelFormat:mu::toMTLPixelFormat(_convertedFormat)
-                                                                                         textureType:mtlTextureType
-                                                                                              levels:NSMakeRange(_viewInfo.baseLevel, _viewInfo.levelCount)
-                                                                                              slices:NSMakeRange(_viewInfo.baseLayer, _viewInfo.layerCount)];
+    _mtlTextureView = [static_cast<CCMTLTexture*>(_viewInfo.texture)->_mtlTexture
+                       newTextureViewWithPixelFormat:mu::toMTLPixelFormat(_convertedFormat)
+                       textureType:mtlTextureType
+                       levels:NSMakeRange(_viewInfo.baseLevel, _viewInfo.levelCount)
+                       slices:NSMakeRange(_viewInfo.baseLayer, _viewInfo.layerCount)];
 }
 
 void CCMTLTexture::doInit(const SwapchainTextureInfo &info) {
