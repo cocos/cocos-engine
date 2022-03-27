@@ -403,9 +403,9 @@ export class Vec4 extends ValueType {
         const y = v.y;
         const z = v.z;
         const w = v.w;
-        out.x = m.m00 * x + m.m01 * y + m.m02 * z + m.m03 * w;
-        out.y = m.m04 * x + m.m05 * y + m.m06 * z + m.m07 * w;
-        out.x = m.m08 * x + m.m09 * y + m.m10 * z + m.m11 * w;
+        out.x = m.m00 * x + m.m04 * y + m.m08 * z + m.m12 * w;
+        out.y = m.m01 * x + m.m05 * y + m.m09 * z + m.m13 * w;
+        out.z = m.m02 * x + m.m06 * y + m.m10 * z + m.m14 * w;
         out.w = v.w;
         return out;
     }

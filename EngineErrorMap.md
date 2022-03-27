@@ -1201,6 +1201,10 @@ Error Texture in %s.
 
 Set same texture %s.
 
+### 3124
+
+Texture: setMipRange failed because base level is larger than max level
+
 ### 3200
 
 <!-- DEPRECATED -->
@@ -3218,3 +3222,7 @@ Graph update has been interrupted since too many transitions(greater than %s) oc
 ### 14100
 
 Pool.destroy no longer take a function as parameter, Please specify destruct function in the construction of Pool instead
+
+### 14200
+
+Can not keep world transform due to the zero scaling of parent node

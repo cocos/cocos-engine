@@ -24,12 +24,12 @@
 ****************************************************************************/
 
 #include "platform/SDLHelper.h"
-#include "base/Log.h"
-#include "platform/IEventDispatch.h"
-#include "platform/interfaces/modules/ISystemWindow.h"
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_main.h"
 #include "SDL2/SDL_syswm.h"
+#include "base/Log.h"
+#include "platform/IEventDispatch.h"
+#include "platform/interfaces/modules/ISystemWindow.h"
 
 namespace {
 std::unordered_map<int, cc::KeyCode> gKeyMap = {
@@ -334,8 +334,8 @@ void SDLHelper::pollEvent(bool *quit) {
 
 bool SDLHelper::createWindow(const char *title,
                              int w, int h, int flags) {
-    SDL_Rect  screenRect;
-    if (SDL_GetDisplayBounds(0, &screenRect) != 0) {
+    SDL_Rect screenRect;
+    if (SDL_GetDisplayUsableBounds(0, &screenRect) != 0) {
         return false;
     }
     int x = screenRect.x;

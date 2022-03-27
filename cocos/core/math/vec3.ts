@@ -434,7 +434,7 @@ export class Vec3 extends ValueType {
         const z = v.z;
         out.x = m.m00 * x + m.m04 * y + m.m08 * z + m.m12;
         out.y = m.m01 * x + m.m05 * y + m.m09 * z + m.m13;
-        out.x = m.m02 * x + m.m06 * y + m.m10 * z + m.m14;
+        out.z = m.m02 * x + m.m06 * y + m.m10 * z + m.m14;
         return out;
     }
 

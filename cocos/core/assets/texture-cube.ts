@@ -30,9 +30,9 @@
 
 import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, serializable } from 'cc.decorator';
-import { TextureType, TextureInfo } from '../gfx';
+import { TextureType, TextureInfo, TextureViewInfo } from '../gfx';
 import { ImageAsset } from './image-asset';
-import { PresumedGFXTextureInfo, SimpleTexture } from './simple-texture';
+import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } from './simple-texture';
 import { ITexture2DCreateInfo, Texture2D } from './texture-2d';
 import { legacyCC } from '../global-exports';
 import { js } from '../utils/js';
@@ -98,6 +98,8 @@ export class TextureCube extends SimpleTexture {
                 height: imageAsset.height,
                 format: imageAsset.format,
                 mipmapLevel: this._mipmaps.length,
+                baseLevel: this._baseLevel,
+                maxLevel: this._maxLevel,
             });
             this._mipmaps.forEach((mipmap, level) => {
                 _forEachFace(mipmap, (face, faceIndex) => {
@@ -109,6 +111,8 @@ export class TextureCube extends SimpleTexture {
                 width: 0,
                 height: 0,
                 mipmapLevel: this._mipmaps.length,
+                baseLevel: this._baseLevel,
+                maxLevel: this._maxLevel,
             });
         }
     }
@@ -148,6 +152,7 @@ export class TextureCube extends SimpleTexture {
      * const textureCube = TextureCube.fromTexture2DArray(textures);
      * ```
      */
+
     public static fromTexture2DArray (textures: Texture2D[], out?: TextureCube) {
         const mipmaps: ITextureCubeMipmap[] = [];
         const nMipmaps = textures.length / 6;
@@ -188,7 +193,11 @@ export class TextureCube extends SimpleTexture {
         this._width = info.width;
         this._height = info.height;
         this._setGFXFormat(info.format);
-        this._setMipmapLevel(info.mipmapLevel || 1);
+        const mipLevels = info.mipmapLevel === undefined ? 1 : info.mipmapLevel;
+        this._setMipmapLevel(mipLevels);
+        const minLod = info.baseLevel || 0;
+        const maxLod = info.maxLevel === undefined ? (mipLevels - 1) : info.maxLevel;
+        this._setMipRange(minLod, maxLod);
         this._tryReset();
     }
 
@@ -291,6 +300,15 @@ export class TextureCube extends SimpleTexture {
         texInfo.layerCount = 6;
         Object.assign(texInfo, presumed);
         return texInfo;
+    }
+
+    protected _getGfxTextureViewCreateInfo (presumed: PresumedGFXTextureViewInfo) {
+        const texViewInfo = new TextureViewInfo();
+        texViewInfo.type = TextureType.CUBE;
+        texViewInfo.baseLayer = 0;
+        texViewInfo.layerCount = 6;
+        Object.assign(texViewInfo, presumed);
+        return texViewInfo;
     }
 
     public initDefault (uuid?: string) {
