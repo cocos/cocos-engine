@@ -1201,6 +1201,10 @@ Error Texture in %s.
 
 Set same texture %s.
 
+### 3124
+
+Texture: setMipRange failed because base level is larger than max level
+
 ### 3200
 
 <!-- DEPRECATED -->
