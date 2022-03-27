@@ -2,6 +2,11 @@ module.exports = {
     dialog: {
         confirm: 'Confirm',
         cancel: 'Cancel',
+        warn: 'Warn',
+    },
+    inspector: {
+        cloneToEdit: 'Clone it. Use and go into edit.',
+        cloneToDirectoryIllegal: 'Please limit the saved path to the current project assets path',
     },
     assets: {
         reset: 'Reset',
@@ -38,8 +43,7 @@ module.exports = {
             wrapModeTTip: 'Wrap Mode T',
             faceSize: {
                 name: 'Face Size',
-                title:
-                    'Size of each cube face. If not specified, or specified as 0, the default size, which is the nearest power of two to (image.width)/4, is used.',
+                title: 'Size of each cube face. If not specified, or specified as 0, the default size, which is the nearest power of two to (image.width)/4, is used.',
             },
         },
         javascript: {
@@ -143,8 +147,8 @@ module.exports = {
             animation: 'Animation',
             modelPreview: 'Model preview',
             material: 'Material',
-            no_model_tips:'No model is available for preview',
-            drag_model_tips:'Drag a model here for preview',
+            no_model_tips: 'No model is available for preview',
+            drag_model_tips: 'Drag a model here for preview',
             fbx: 'FBX',
             GlTFUserData: {
                 normals: {
@@ -180,8 +184,7 @@ module.exports = {
                     },
                     require: {
                         name: 'Required',
-                        title:
-                            'Import tangents that are contained in the model file, or calculated if not contained and texture coordinates exist.',
+                        title: 'Import tangents that are contained in the model file, or calculated if not contained and texture coordinates exist.',
                     },
                     recalculate: {
                         name: 'Recalculate',
@@ -214,8 +217,7 @@ module.exports = {
                 },
                 materialDumpDir: {
                     name: 'Material dump directory',
-                    title:
-                        'The directory to dump the materials.\nDefault to a direct sub-folder named `Materials_${model-file-base-name}` under current path.',
+                    title: 'The directory to dump the materials.\nDefault to a direct sub-folder named `Materials_${model-file-base-name}` under current path.',
                 },
                 useVertexColors: {
                     name: 'Use vertex colors',
@@ -313,7 +315,8 @@ module.exports = {
             },
             preferLocalTimeSpan: {
                 name: 'Prefer Local Time Span',
-                title: 'When exporting FBX animations, whether prefer to use the time range recorded in FBX file. ' +
+                title:
+                    'When exporting FBX animations, whether prefer to use the time range recorded in FBX file. ' +
                     'If one is not preferred, or one is invalid for use, the time range is robustly calculated. ' +
                     'Some FBX generators may not export this information.',
             },
