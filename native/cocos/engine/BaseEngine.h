@@ -30,11 +30,20 @@
 #include "base/Scheduler.h"
 #include "base/TypeDef.h"
 #include "platform/BasePlatform.h"
+#include "core/event/CallbacksInvoker.h"
 
 namespace cc {
 
-class CC_DLL BaseEngine : public std::enable_shared_from_this<BaseEngine> {
+class CC_DLL BaseEngine : public CallbacksInvoker,
+                          public std::enable_shared_from_this<BaseEngine> {
 public:
+    enum EngineStatus {
+        ON_START,
+        ON_PAUSE,
+        ON_RESUME,
+        ON_CLOSE,
+        UNKNOWN,
+    };
     virtual ~BaseEngine();
     using Ptr = std::shared_ptr<BaseEngine>;
 

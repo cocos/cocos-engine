@@ -52,8 +52,16 @@ int CocosApplication::init() {
     if (_engine->init()) {
         return -1;
     }
-    auto callback = std::bind(&CocosApplication::handleAppEvent, this, std::placeholders::_1); // NOLINT(modernize-avoid-bind)
-    _engine->addEventCallback(OSEventType::APP_OSEVENT, callback);
+
+    _engine->on(BaseEngine::ON_RESUME, [this]() {
+        this->onResume();
+    });
+    _engine->on(BaseEngine::ON_PAUSE, [this]() {
+        this->onPause();
+    });
+    _engine->on(BaseEngine::ON_CLOSE, [this]() {
+        this->onClose();
+    });
 
     se::ScriptEngine *se = se::ScriptEngine::getInstance();
 
