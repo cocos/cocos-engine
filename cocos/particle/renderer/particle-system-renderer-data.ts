@@ -150,6 +150,17 @@ export default class ParticleSystemRenderer {
     }
 
     /**
+     * @zh 粒子使用的材质实例。
+     */
+    @type(Material)
+    public get particleMaterialInstance () {
+        if (!this._particleSystem) {
+            return null;
+        }
+        return this._particleSystem.getMaterialInstance(0) || this._particleSystem.processor.getDefaultMaterial();
+    }
+
+    /**
      * @zh 拖尾使用的材质。
      */
     @type(Material)
