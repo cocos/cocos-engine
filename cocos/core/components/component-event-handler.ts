@@ -30,7 +30,7 @@
  */
 
 import { ccclass, type, serializable, editable, tooltip } from 'cc.decorator';
-import type { Node } from '../scene-graph';
+import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
 
 /**
@@ -101,7 +101,7 @@ export class EventHandler {
      * 事件响应组件和函数所在节点
      */
     @serializable
-    @type(legacyCC.Node)
+    @type(Node)
     @serializable
     @tooltip('i18n:button.click_event.target')
     public target: Node | null = null;
