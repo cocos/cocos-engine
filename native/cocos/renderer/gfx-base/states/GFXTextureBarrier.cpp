@@ -23,9 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include "GFXTextureBarrier.h"
 #include <boost/functional/hash.hpp>
 #include "../GFXQueue.h"
-#include "GFXTextureBarrier.h"
 #include "base/Utils.h"
 
 namespace cc {

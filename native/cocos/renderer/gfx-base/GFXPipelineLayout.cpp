@@ -23,8 +23,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "GFXObject.h"
 #include "GFXPipelineLayout.h"
+#include "GFXObject.h"
 
 namespace cc {
 namespace gfx {

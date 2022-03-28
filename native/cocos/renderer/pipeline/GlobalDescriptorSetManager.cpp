@@ -39,7 +39,7 @@ namespace pipeline {
     } while (0)
 
 void GlobalDSManager::activate(gfx::Device *device) {
-    _device   = device;
+    _device = device;
 
     _linearSampler = device->getSampler({
         gfx::Filter::LINEAR,

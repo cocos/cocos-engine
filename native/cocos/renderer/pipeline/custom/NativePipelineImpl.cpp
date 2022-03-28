@@ -25,6 +25,7 @@
 
 #include <memory>
 #include "NativePipelineTypes.h"
+#include "cocos/base/StringUtil.h"
 #include "cocos/renderer/gfx-base/GFXDescriptorSetLayout.h"
 #include "cocos/renderer/pipeline/Enum.h"
 #include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
@@ -35,7 +36,6 @@
 #include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/RenderWindow.h"
-#include "cocos/base/StringUtil.h"
 #include "gfx-base/GFXDevice.h"
 #include "profiler/DebugRenderer.h"
 

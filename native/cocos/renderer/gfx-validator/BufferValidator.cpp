@@ -23,10 +23,10 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/Log.h"
 #include "BufferValidator.h"
 #include "DeviceValidator.h"
 #include "ValidationUtils.h"
+#include "base/Log.h"
 
 namespace cc {
 namespace gfx {

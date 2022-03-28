@@ -27,14 +27,14 @@
 #include "Define.h"
 #include "PipelineSceneData.h"
 #include "PipelineUBO.h"
-#include "renderer/gfx-base/GFXDevice.h"
-#include "renderer/pipeline/RenderPipeline.h"
+#include "base/StringUtil.h"
 #include "deferred/DeferredPipeline.h"
 #include "frame-graph/FrameGraph.h"
+#include "renderer/gfx-base/GFXDevice.h"
+#include "renderer/pipeline/RenderPipeline.h"
 #include "scene/Camera.h"
 #include "scene/SphereLight.h"
 #include "scene/SpotLight.h"
-#include "base/StringUtil.h"
 
 namespace cc {
 namespace pipeline {
