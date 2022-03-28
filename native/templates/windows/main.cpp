@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -26,17 +26,8 @@
 #include <iostream>
 
 #include "platform/BasePlatform.h"
-#include "AppDelegate.h"
+#include "sdl2/SDL_main.h"
 
-int main(int argc, const char * argv[]) {
-    cc::BasePlatform* platform = cc::BasePlatform::getPlatform(); 
-    if (platform->init()) { 
-        return -1;                                                
-    }                                                            
-    platform->run(argc, argv);                                    
-    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-    int retVal = UIApplicationMain(argc, (char**)argv, nil, @"AppDelegate");
-    [pool release];
-    return retVal;
+int SDL_main(int argc, char** argv) {
+    START_PLATFORM(argc, (const char**)argv);
 }
-

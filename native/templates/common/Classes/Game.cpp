@@ -63,4 +63,4 @@ void Game::onClose() {
     BaseGame::onClose();
 }
 
-CC_APPLICATION_MAIN(Game);
+CC_REGISTER_GAME(Game);

@@ -8,6 +8,11 @@ macro(cc_linux_before_target target_name)
     source_group(TREE ${CC_PROJECT_DIR} PREFIX "Source Files" FILES ${CC_PROJ_SOURCES})
     source_group(TREE ${CC_PROJECT_DIR}/../common PREFIX "Source Files" FILES ${CC_COMMON_SOURCES})
 
+    list(APPEND CC_PROJ_SOURCES
+        ${CC_PROJECT_DIR}/main.cpp
+        ${CC_UI_RESOURCES}
+    )
+	
     set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE) 
     set(CMAKE_INSTALL_RPATH "\${ORIGIN}")
     set(CC_ALL_SOURCES ${CC_PROJ_SOURCES} 
