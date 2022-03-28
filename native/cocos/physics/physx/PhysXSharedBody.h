@@ -83,22 +83,22 @@ public:
 
 private:
     static ccstd::unordered_map<Node *, PhysXSharedBody *> sharedBodesMap;
-    const uint32_t                               _mID;
-    uint8_t                                      _mRef;
-    bool                                         _mIsStatic;
-    ERigidBodyType                               _mType;
-    float                                        _mMass;
-    int                                          _mIndex;
-    physx::PxFilterData                          _mFilterData;
-    Node *                                       _mNode;
-    UActor                                       _mImpl;
-    physx::PxRigidStatic *                       _mStaticActor;
-    physx::PxRigidDynamic *                      _mDynamicActor;
-    PhysXWorld *                                 _mWrappedWorld;
-    PhysXRigidBody *                             _mWrappedBody;
-    ccstd::vector<PhysXShape *>                  _mWrappedShapes;
-    ccstd::vector<PhysXJoint *>                  _mWrappedJoints0;
-    ccstd::vector<PhysXJoint *>                  _mWrappedJoints1;
+    const uint32_t                                         _mID;
+    uint8_t                                                _mRef;
+    bool                                                   _mIsStatic;
+    ERigidBodyType                                         _mType;
+    float                                                  _mMass;
+    int                                                    _mIndex;
+    physx::PxFilterData                                    _mFilterData;
+    Node *                                                 _mNode;
+    UActor                                                 _mImpl;
+    physx::PxRigidStatic *                                 _mStaticActor;
+    physx::PxRigidDynamic *                                _mDynamicActor;
+    PhysXWorld *                                           _mWrappedWorld;
+    PhysXRigidBody *                                       _mWrappedBody;
+    ccstd::vector<PhysXShape *>                            _mWrappedShapes;
+    ccstd::vector<PhysXJoint *>                            _mWrappedJoints0;
+    ccstd::vector<PhysXJoint *>                            _mWrappedJoints1;
     PhysXSharedBody(Node *node, PhysXWorld *world, PhysXRigidBody *body);
     ~PhysXSharedBody();
     void initActor();

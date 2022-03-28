@@ -30,8 +30,8 @@
 #include <functional>
 #include <memory>
 #include "base/Macros.h"
-#include "base/std/container/unordered_map.h"
 #include "base/std/container/string.h"
+#include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
 
 namespace cc {
@@ -49,9 +49,9 @@ public:
     const static int ERROR_IMPL_INTERNAL  = -3;
     const static int ERROR_ABORT          = -4;
 
-    ccstd::string                            identifier;
-    ccstd::string                            requestURL;
-    ccstd::string                            storagePath;
+    ccstd::string                                      identifier;
+    ccstd::string                                      requestURL;
+    ccstd::string                                      storagePath;
     ccstd::unordered_map<ccstd::string, ccstd::string> header;
 
     DownloadTask();

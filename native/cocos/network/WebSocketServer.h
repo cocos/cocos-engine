@@ -34,9 +34,9 @@
 #include <memory>
 #include <mutex>
 #include <thread>
+#include "base/Macros.h"
 #include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
-#include "base/Macros.h"
 #include "uv.h"
 
 #if CC_PLATFORM == CC_PLATFORM_OHOS
@@ -184,14 +184,14 @@ private:
 
     void onDestroyClient();
 
-    struct lws *                             _wsi = nullptr;
+    struct lws *                                       _wsi = nullptr;
     ccstd::unordered_map<ccstd::string, ccstd::string> _headers;
-    std::list<std::shared_ptr<DataFrame>>    _sendQueue;
-    std::shared_ptr<DataFrame>               _prevPkg;
-    bool                                     _closed      = false;
-    ccstd::string                            _closeReason = "close connection";
-    int                                      _closeCode   = 1000;
-    std::atomic<ReadyState>                  _readyState{ReadyState::CLOSED};
+    std::list<std::shared_ptr<DataFrame>>              _sendQueue;
+    std::shared_ptr<DataFrame>                         _prevPkg;
+    bool                                               _closed      = false;
+    ccstd::string                                      _closeReason = "close connection";
+    int                                                _closeCode   = 1000;
+    std::atomic<ReadyState>                            _readyState{ReadyState::CLOSED};
 
     // Attention: do not reference **this** in callbacks
     std::function<void(int, const ccstd::string &)> _onclose;

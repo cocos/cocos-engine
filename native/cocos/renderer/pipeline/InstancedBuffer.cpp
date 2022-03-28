@@ -34,7 +34,7 @@
 namespace cc {
 namespace pipeline {
 ccstd::unordered_map<scene::Pass *, ccstd::unordered_map<uint, InstancedBuffer *>> InstancedBuffer::buffers;
-InstancedBuffer *                                              InstancedBuffer::get(scene::Pass *pass) {
+InstancedBuffer *                                                                  InstancedBuffer::get(scene::Pass *pass) {
     return InstancedBuffer::get(pass, 0);
 }
 InstancedBuffer *InstancedBuffer::get(scene::Pass *pass, uint extraKey) {
