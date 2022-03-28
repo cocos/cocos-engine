@@ -140,7 +140,7 @@ export default class ParticleSystemRenderer {
         if (!this._particleSystem) {
             return null;
         }
-        // return this._particleSystem.getMaterial(0) as Material;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this._particleSystem.getMaterialInstance(0) || this._particleSystem.processor.getDefaultMaterial();
     }
 
@@ -160,7 +160,7 @@ export default class ParticleSystemRenderer {
         if (!this._particleSystem) {
             return null;
         }
-        // return this._particleSystem.getMaterial(1) as Material;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this._particleSystem.getMaterialInstance(1) || this._particleSystem.processor.getDefaultTrailMaterial();
     }
 
