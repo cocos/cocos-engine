@@ -29,7 +29,7 @@
 #include "math/Vec2.h"
 
 #include <memory>
-#include "base/std/container/map.h"
+#include "base/std/container/unordered_map.h"
 #include "bindings/event/EventDispatcher.h"
 #include "engine/BaseEngine.h"
 
@@ -123,7 +123,7 @@ private:
     cc::Vec2                   _viewLogicalSize{0, 0};
     bool                       _needRestart{false};
 
-    ccstd::map<OSEventType, EventCb> _eventCallbacks;
+    ccstd::unordered_map<OSEventType, EventCb> _eventCallbacks;
     CC_DISALLOW_COPY_MOVE_ASSIGN(Engine);
 };
 

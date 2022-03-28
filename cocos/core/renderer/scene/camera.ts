@@ -386,6 +386,10 @@ export class Camera {
         return this._farClip;
     }
 
+    get surfaceTransform() {
+        return this._curTransform;
+    }
+
     set clearColor (val) {
         this._clearColor.x = val.x;
         this._clearColor.y = val.y;

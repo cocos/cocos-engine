@@ -26,7 +26,7 @@
 #pragma once
 
 #include "base/Macros.h"
-#include "base/std/container/map.h"
+#include "base/std/container/unordered_map.h"
 #include "gfx-base/GFXDef-common.h"
 #include "gfx-base/GFXDef.h"
 #include "gfx-gles-common/GLESCommandPool.h"
@@ -85,7 +85,7 @@ private:
     GLES3GPUStateCache *      _stateCache{nullptr};
     GLES3GPUConstantRegistry *_constantRegistry{nullptr};
 
-    ccstd::map<size_t, EGLContext> _sharedContexts;
+    ccstd::unordered_map<size_t, EGLContext> _sharedContexts;
 
     ccstd::vector<ccstd::string> _extensions;
 };

@@ -45,7 +45,7 @@ using physx::PxVec3;
 
 namespace cc {
 namespace physics {
-ccstd::map<Node *, PhysXSharedBody *> PhysXSharedBody::sharedBodesMap = ccstd::map<Node *, PhysXSharedBody *>();
+ccstd::unordered_map<Node *, PhysXSharedBody *> PhysXSharedBody::sharedBodesMap;
 
 static int idCounter = 0;
 PhysXSharedBody::PhysXSharedBody(

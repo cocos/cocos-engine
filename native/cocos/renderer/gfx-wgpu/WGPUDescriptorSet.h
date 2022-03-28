@@ -26,7 +26,7 @@
 #pragma once
 
 #include <emscripten/bind.h>
-#include "base/std/container/map.h"
+#include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
 #include "gfx-base/GFXDescriptorSet.h"
 namespace cc {
@@ -65,8 +65,8 @@ protected:
     CCWGPUBindGroupObject *_gpuBindGroupObj = nullptr;
 
     // seperate combined sampler-texture index
-    ccstd::map<uint8_t, uint8_t> _textureIdxMap;
-    ccstd::map<uint8_t, uint8_t> _samplerIdxMap;
+    ccstd::unordered_map<uint8_t, uint8_t> _textureIdxMap;
+    ccstd::unordered_map<uint8_t, uint8_t> _samplerIdxMap;
 
     // dynamic offsets, inuse ? 1 : 0;
     Pairs _dynamicOffsets;

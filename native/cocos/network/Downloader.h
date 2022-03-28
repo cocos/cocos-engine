@@ -30,8 +30,8 @@
 #include <functional>
 #include <memory>
 #include "base/Macros.h"
-#include "base/std/container/map.h"
 #include "base/std/container/string.h"
+#include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
 
 namespace cc {
@@ -49,10 +49,10 @@ public:
     const static int ERROR_IMPL_INTERNAL  = -3;
     const static int ERROR_ABORT          = -4;
 
-    ccstd::string                            identifier;
-    ccstd::string                            requestURL;
-    ccstd::string                            storagePath;
-    ccstd::map<ccstd::string, ccstd::string> header;
+    ccstd::string                                      identifier;
+    ccstd::string                                      requestURL;
+    ccstd::string                                      storagePath;
+    ccstd::unordered_map<ccstd::string, ccstd::string> header;
 
     DownloadTask();
     virtual ~DownloadTask();
@@ -71,7 +71,7 @@ struct CC_DLL DownloaderHints {
 class CC_DLL Downloader final {
 public:
     Downloader();
-    Downloader(const DownloaderHints &hints);
+    explicit Downloader(const DownloaderHints &hints);
     ~Downloader();
 
     std::function<void(const DownloadTask &                task,
@@ -108,7 +108,7 @@ public:
 
     std::shared_ptr<const DownloadTask> createDownloadFileTask(const ccstd::string &srcUrl, const ccstd::string &storagePath, const ccstd::string &identifier = "");
 
-    std::shared_ptr<const DownloadTask> createDownloadFileTask(const ccstd::string &srcUrl, const ccstd::string &storagePath, const ccstd::map<ccstd::string, ccstd::string> &header, const ccstd::string &identifier = "");
+    std::shared_ptr<const DownloadTask> createDownloadFileTask(const ccstd::string &srcUrl, const ccstd::string &storagePath, const ccstd::unordered_map<ccstd::string, ccstd::string> &header, const ccstd::string &identifier = "");
 
     void abort(const DownloadTask &task);
 

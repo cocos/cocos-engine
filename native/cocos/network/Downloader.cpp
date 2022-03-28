@@ -131,10 +131,10 @@ std::shared_ptr<const DownloadTask> Downloader::createDownloadDataTask(const ccs
     return task;
 }
 
-std::shared_ptr<const DownloadTask> Downloader::createDownloadFileTask(const ccstd::string &                           srcUrl,
-                                                                       const ccstd::string &                           storagePath,
-                                                                       const ccstd::map<ccstd::string, ccstd::string> &header,
-                                                                       const ccstd::string &                           identifier /* = ""*/) {
+std::shared_ptr<const DownloadTask> Downloader::createDownloadFileTask(const ccstd::string &                                     srcUrl,
+                                                                       const ccstd::string &                                     storagePath,
+                                                                       const ccstd::unordered_map<ccstd::string, ccstd::string> &header,
+                                                                       const ccstd::string &                                     identifier /* = ""*/) {
     auto *                              iTask = new (std::nothrow) DownloadTask();
     std::shared_ptr<const DownloadTask> task(iTask);
     do {
@@ -157,7 +157,7 @@ std::shared_ptr<const DownloadTask> Downloader::createDownloadFileTask(const ccs
 std::shared_ptr<const DownloadTask> Downloader::createDownloadFileTask(const ccstd::string &srcUrl,
                                                                        const ccstd::string &storagePath,
                                                                        const ccstd::string &identifier /* = ""*/) {
-    const ccstd::map<ccstd::string, ccstd::string> emptyHeader;
+    const ccstd::unordered_map<ccstd::string, ccstd::string> emptyHeader;
     return createDownloadFileTask(srcUrl, storagePath, emptyHeader, identifier);
 }
 

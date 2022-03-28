@@ -47,7 +47,6 @@
 #include "base/Data.h"
 #include "base/Locked.h"
 #include "base/memory/Memory.h"
-#include "base/std/container/map.h"
 #include "platform/FileUtils.h"
 
 // minizip 1.2.0 is same with other platforms

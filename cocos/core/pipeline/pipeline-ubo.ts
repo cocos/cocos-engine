@@ -141,6 +141,8 @@ export class PipelineUBO {
         Mat4.toArray(cv, camera.matViewProjInv, UBOCamera.MAT_VIEW_PROJ_INV_OFFSET);
         cv[UBOCamera.CAMERA_POS_OFFSET + 3] = this.getCombineSignY();
 
+        cv[UBOCamera.SURFACE_TRANSFORM_OFFSET] = camera.surfaceTransform;
+
         const colorTempRGB = fog.colorArray;
         cv[UBOCamera.GLOBAL_FOG_COLOR_OFFSET] = colorTempRGB.x;
         cv[UBOCamera.GLOBAL_FOG_COLOR_OFFSET + 1] = colorTempRGB.y;
