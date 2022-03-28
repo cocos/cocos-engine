@@ -23,8 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "MTLStd.h"
-
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 

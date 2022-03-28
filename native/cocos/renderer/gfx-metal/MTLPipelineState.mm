@@ -25,7 +25,6 @@
 
 #import "base/std/container/set.h"
 #import "base/Log.h"
-#import "MTLStd.h"
 #import "MTLDevice.h"
 #import "MTLGPUObjects.h"
 #import "MTLPipelineLayout.h"

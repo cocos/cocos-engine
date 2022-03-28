@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include <QuartzCore/CAMetalLayer.h>
-#include "MTLStd.h"
 #include "MTLDevice.h"
 #include "MTLRenderPass.h"
 #include "MTLUtils.h"

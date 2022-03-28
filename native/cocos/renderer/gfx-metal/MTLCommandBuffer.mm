@@ -23,8 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#import "MTLStd.h"
-
 #import <MetalPerformanceShaders/MetalPerformanceShaders.h>
 #import <QuartzCore/CAMetalLayer.h>
 #import "MTLBuffer.h"

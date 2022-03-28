@@ -23,7 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "MTLStd.h"
 #include "MTLUtils.h"
 
 #include "MTLDevice.h"

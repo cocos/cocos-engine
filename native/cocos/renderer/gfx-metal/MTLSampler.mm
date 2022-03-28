@@ -23,8 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#import "MTLStd.h"
-
 #import "MTLDevice.h"
 #import "MTLGPUObjects.h"
 #import "MTLSampler.h"
