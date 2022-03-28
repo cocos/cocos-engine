@@ -48,7 +48,7 @@ let Graphics = cc.Class({
     },
 
     properties: {
-        _lineWidth: 2,
+        _lineWidth: 4,
         _strokeColor: cc.Color.BLACK,
         _lineJoin: LineJoin.MITER,
         _lineCap: LineCap.BUTT,
