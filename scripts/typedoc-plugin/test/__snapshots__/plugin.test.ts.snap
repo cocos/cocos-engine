@@ -5,6 +5,10 @@ Object {
   "categories": undefined,
   "ccCategories": Array [
     Object {
+      "description": Object {
+        "en": "Math related.",
+        "zh": "数学相关。",
+      },
       "items": Array [
         1,
         2,
@@ -20,7 +24,10 @@ Object {
         34,
         36,
       ],
-      "title": undefined,
+      "title": Object {
+        "en": "math",
+        "zh": "数学",
+      },
     },
   ],
   "children": Array [
