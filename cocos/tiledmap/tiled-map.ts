@@ -545,8 +545,14 @@ export class TiledMap extends Component {
                     color.a *= layerInfo.opacity;
 
                     image.spriteFrame = texture!;
+                    let width = texture!.width;
+                    let height = texture!.height;
+                    if (texture!.original) {
+                        width = texture!.originalSize.width;
+                        height = texture!.originalSize.height;
+                    }
 
-                    child._uiProps.uiTransformComp!.setContentSize(texture!.width, texture!.height);
+                    child._uiProps.uiTransformComp!.setContentSize(width, height);
                     images.push(child);
                 }
 
