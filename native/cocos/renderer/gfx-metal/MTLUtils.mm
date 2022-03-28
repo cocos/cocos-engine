@@ -35,6 +35,7 @@
 #include "glslang/SPIRV/GlslangToSpv.h"
 #include "spirv_cross/spirv_msl.hpp"
 #include "TargetConditionals.h"
+#include "base/Log.h"
 
 namespace cc {
 namespace gfx {

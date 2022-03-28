@@ -30,6 +30,7 @@
 #include "MTLUtils.h"
 #include "MTLTexture.h"
 #include "MTLSwapchain.h"
+#include "base/Log.h"
 
 namespace cc {
 namespace gfx {

@@ -30,6 +30,7 @@
 #import "MTLShader.h"
 #import <Metal/MTLDevice.h>
 #import "gfx-base/SPIRVUtils.h"
+#include "base/Log.h"
 
 namespace cc {
 namespace gfx {

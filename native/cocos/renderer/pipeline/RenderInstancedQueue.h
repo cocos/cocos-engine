@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "base/CoreStd.h"
+#include "base/Macros.h"
 #include "base/std/container/unordered_set.h"
 
 namespace cc {

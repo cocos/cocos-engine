@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #import "MTLStd.h"
-
 #import "MTLBuffer.h"
 #import "MTLCommandBuffer.h"
 #import "MTLConfig.h"
@@ -47,6 +46,7 @@
 #import "cocos/bindings/event/CustomEventTypes.h"
 #import "cocos/bindings/event/EventDispatcher.h"
 #import "profiler/Profiler.h"
+#import "base/Log.h"
 
 namespace cc {
 namespace gfx {

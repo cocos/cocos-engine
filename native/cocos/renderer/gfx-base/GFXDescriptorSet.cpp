@@ -23,8 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
-
 #include "GFXDescriptorSet.h"
 #include "GFXDescriptorSetLayout.h"
 #include "GFXObject.h"

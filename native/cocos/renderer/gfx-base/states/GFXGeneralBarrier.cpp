@@ -25,8 +25,6 @@
 
 #include <boost/functional/hash.hpp>
 
-#include "base/CoreStd.h"
-
 #include "GFXGeneralBarrier.h"
 #include "base/Utils.h"
 

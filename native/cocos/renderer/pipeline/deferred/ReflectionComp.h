@@ -1,6 +1,5 @@
 #pragma once
 
-#include "base/CoreStd.h"
 #include "base/TypeDef.h"
 #include "math/Mat4.h"
 #include "math/Vec2.h"

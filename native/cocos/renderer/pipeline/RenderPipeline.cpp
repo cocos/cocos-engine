@@ -25,7 +25,7 @@
 
 #include "RenderPipeline.h"
 #include <boost/functional/hash.hpp>
-
+#include "base/StringUtil.h"
 #include "BatchedBuffer.h"
 #include "GlobalDescriptorSetManager.h"
 #include "InstancedBuffer.h"

@@ -28,6 +28,7 @@
 #include <algorithm>
 #include <thread>
 #include "taskflow/taskflow.hpp"
+#include "base/memory/Memory.h"
 
 namespace cc {
 

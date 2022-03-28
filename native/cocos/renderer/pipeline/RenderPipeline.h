@@ -26,7 +26,6 @@
 #pragma once
 
 #include "Define.h"
-#include "base/CoreStd.h"
 #include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
 #include "core/assets/Asset.h"

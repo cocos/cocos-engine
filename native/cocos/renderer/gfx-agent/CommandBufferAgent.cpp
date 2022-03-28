@@ -35,7 +35,6 @@
 #include "QueueAgent.h"
 #include "RenderPassAgent.h"
 #include "TextureAgent.h"
-#include "base/CoreStd.h"
 #include "base/Utils.h"
 #include "base/job-system/JobSystem.h"
 #include "base/threading/MessageQueue.h"

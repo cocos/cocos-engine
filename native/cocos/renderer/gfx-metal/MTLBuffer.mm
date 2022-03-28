@@ -35,6 +35,7 @@
 #include "MTLUtils.h"
 #include "MTLGPUObjects.h"
 #import "profiler/Profiler.h"
+#import "base/Log.h"
 
 namespace cc {
 namespace gfx {

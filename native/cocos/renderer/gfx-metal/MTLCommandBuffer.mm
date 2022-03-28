@@ -43,6 +43,7 @@
 #import "MTLTexture.h"
 #import "TargetConditionals.h"
 #import "profiler/Profiler.h"
+#import "base/Log.h"
 
 namespace cc {
 namespace gfx {
