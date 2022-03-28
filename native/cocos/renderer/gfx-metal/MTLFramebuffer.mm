@@ -23,8 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#import "MTLStd.h"
-
 #import "MTLFramebuffer.h"
 #import "MTLRenderPass.h"
 #import "MTLTexture.h"

@@ -23,8 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
-
 #include "SwapchainValidator.h"
 #include "ValidationUtils.h"
 #include "gfx-base/GFXDef.h"

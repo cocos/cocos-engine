@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include <boost/functional/hash.hpp>
+#include <thread>
 #include "VKStd.h"
 #include "base/std/container/map.h"
 #include "base/std/container/unordered_map.h"

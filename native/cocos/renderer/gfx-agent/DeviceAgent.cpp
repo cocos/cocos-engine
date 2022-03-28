@@ -23,7 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
+#include "base/Log.h"
 #include "base/threading/MessageQueue.h"
 #include "base/threading/ThreadSafeLinearAllocator.h"
 

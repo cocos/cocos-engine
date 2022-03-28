@@ -24,12 +24,12 @@
 ****************************************************************************/
 
 #include <QuartzCore/CAMetalLayer.h>
-#include "MTLStd.h"
 #include "MTLDevice.h"
 #include "MTLRenderPass.h"
 #include "MTLUtils.h"
 #include "MTLTexture.h"
 #include "MTLSwapchain.h"
+#include "base/Log.h"
 
 namespace cc {
 namespace gfx {

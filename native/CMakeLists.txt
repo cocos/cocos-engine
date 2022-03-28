@@ -297,7 +297,6 @@ cocos_source_files(
     cocos/base/base64.h
     cocos/base/CachedArray.h
     cocos/base/Config.h
-    cocos/base/CoreStd.h
     cocos/base/csscolorparser.cpp
     cocos/base/csscolorparser.h
     cocos/base/DeferredReleasePool.cpp
@@ -1513,8 +1512,6 @@ if(CC_USE_METAL)
                              cocos/renderer/gfx-metal/MTLSampler.mm
                              cocos/renderer/gfx-metal/MTLShader.h
                              cocos/renderer/gfx-metal/MTLShader.mm
-                             cocos/renderer/gfx-metal/MTLStd.cpp
-                             cocos/renderer/gfx-metal/MTLStd.h
                              cocos/renderer/gfx-metal/MTLTexture.h
                              cocos/renderer/gfx-metal/MTLTexture.mm
                              cocos/renderer/gfx-metal/MTLUtils.h

@@ -23,8 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
-
 #include "GFXFramebuffer.h"
 #include "GFXTexture.h"
 #include "base/Utils.h"

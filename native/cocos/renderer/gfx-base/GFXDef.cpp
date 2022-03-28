@@ -25,7 +25,6 @@
 
 #include <array>
 #include <boost/functional/hash.hpp>
-#include "base/CoreStd.h"
 #include "base/Utils.h"
 
 #include "GFXDef.h"

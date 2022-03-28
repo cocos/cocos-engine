@@ -24,9 +24,6 @@
 ****************************************************************************/
 
 #include <boost/functional/hash.hpp>
-
-#include "base/CoreStd.h"
-
 #include "../GFXQueue.h"
 #include "GFXTextureBarrier.h"
 #include "base/Utils.h"

@@ -23,8 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
-
 #include "CommandBufferValidator.h"
 #include "DeviceValidator.h"
 #include "QueueValidator.h"

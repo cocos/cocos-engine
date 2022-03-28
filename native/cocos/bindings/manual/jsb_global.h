@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "base/CoreStd.h"
 #include "bindings/jswrapper/PrivateObject.h"
 #include "jsb_global_init.h"
 

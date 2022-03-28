@@ -23,8 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "MTLStd.h"
-
 #include "MTLDescriptorSetLayout.h"
 #include "MTLGPUObjects.h"
 #include "MTLPipelineLayout.h"

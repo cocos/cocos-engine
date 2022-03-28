@@ -23,17 +23,16 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#import "MTLStd.h"
-
 #import "MTLDevice.h"
 #import "MTLGPUObjects.h"
 #import "MTLTexture.h"
 #import "MTLUtils.h"
 #import "MTLSwapchain.h"
+#import "profiler/Profiler.h"
+#include "base/Log.h"
 #import <CoreVideo/CVPixelBuffer.h>
 #import <CoreVideo/CVMetalTexture.h>
 #import <CoreVideo/CVMetalTextureCache.h>
-#import "profiler/Profiler.h"
 
 // deferred testcase 'camera'
 #define MEMLESS_ON 0

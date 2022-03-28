@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "GLES3Std.h"
-
+#include "base/StringUtil.h"
 #include "GLES3Commands.h"
 #include "GLES3Device.h"
 #include "GLES3QueryPool.h"

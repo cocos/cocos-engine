@@ -23,8 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "MTLStd.h"
-
 #include "MTLBuffer.h"
 #include "MTLGPUObjects.h"
 #include "MTLInputAssembler.h"

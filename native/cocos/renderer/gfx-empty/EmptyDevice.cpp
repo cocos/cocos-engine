@@ -23,8 +23,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
-
+#include <thread>
+#include "base/Log.h"
 #include "EmptyBuffer.h"
 #include "EmptyCommandBuffer.h"
 #include "EmptyDescriptorSet.h"

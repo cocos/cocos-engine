@@ -29,7 +29,6 @@
 #import <Metal/MTLRenderCommandEncoder.h>
 #import <Metal/MTLRenderPass.h>
 #include "MTLCommandEncoder.h"
-#include "MTLStd.h"
 #include "MTLUtils.h"
 #include "base/Macros.h"
 #include "base/std/container/unordered_map.h"

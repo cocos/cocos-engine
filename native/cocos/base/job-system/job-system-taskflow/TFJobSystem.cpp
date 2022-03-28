@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
-
+#include "base/Log.h"
 #include "TFJobGraph.h"
 #include "TFJobSystem.h"
 

@@ -35,6 +35,7 @@
 #include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/RenderWindow.h"
+#include "cocos/base/StringUtil.h"
 #include "gfx-base/GFXDevice.h"
 #include "profiler/DebugRenderer.h"
 

@@ -25,7 +25,6 @@
 
 #include "jsb_global.h"
 #include "application/ApplicationManager.h"
-#include "base/CoreStd.h"
 #include "base/DeferredReleasePool.h"
 #include "base/Scheduler.h"
 #include "base/ThreadPool.h"

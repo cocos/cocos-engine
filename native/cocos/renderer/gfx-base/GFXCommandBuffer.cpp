@@ -23,8 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
-
 #include "GFXCommandBuffer.h"
 #include "GFXObject.h"
 

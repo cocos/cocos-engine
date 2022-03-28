@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #pragma once
-#include "base/CoreStd.h"
 #include "scene/Model.h"
 
 namespace cc {
