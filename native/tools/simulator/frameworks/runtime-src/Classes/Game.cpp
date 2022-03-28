@@ -100,4 +100,4 @@ void Game::handleException(const char* location, const char* message, const char
     //TODO: nothing
 }
 
-CC_APPLICATION_MAIN(Game);
+CC_REGISTER_GAME(Game);
