@@ -43,9 +43,9 @@ import { MacroRecord } from '../../renderer';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { supportsR32FloatTexture } from '../define';
 import { OS } from '../../../../pal/system-info/enum-type';
-import { PipelineUBO } from '../pipeline-ubo';
 import { WebDescriptorHierarchy } from './web-descriptor-hierarchy';
 import { Compiler } from './compiler';
+import { PipelineUBO } from './ubos';
 
 export class WebSetter {
     constructor (data: RenderData) {
@@ -333,7 +333,7 @@ export class WebPipeline extends Pipeline {
         this._pipelineSceneData.activate(this._device);
         const descH = new WebDescriptorHierarchy();
         //descH.addEffect(new EffectAsset());
-        // this._pipelineUBO.activate(this._device, this);
+        this._pipelineUBO.activate(this._device, this);
         return true;
     }
     public destroy (): boolean {
@@ -367,6 +367,9 @@ export class WebPipeline extends Pipeline {
     }
     public set shadingScale (scale: number) {
         this._pipelineSceneData.shadingScale = scale;
+    }
+    public get device () {
+        return this._device;
     }
     public onGlobalPipelineStateChanged (): void {
         // do nothing
@@ -539,8 +542,8 @@ export class WebPipeline extends Pipeline {
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (camera.scene) {
-                // this._pipelineUBO.updateGlobalUBO(camera.window);
-                // this._pipelineUBO.updateCameraUBO(camera);
+                this._pipelineUBO.updateGlobalUBO(camera.window);
+                this._pipelineUBO.updateCameraUBO(camera);
                 this._buildShadowPasses(this, this._validLights,
                     camera.scene.mainLight,
                     this._pipelineSceneData,
@@ -662,11 +665,11 @@ export class WebPipeline extends Pipeline {
 
     private _device!: Device;
     private _globalDSManager!: GlobalDSManager;
-    // protected _pipelineUBO = new PipelineUBO();
     private readonly _macros: MacroRecord = {};
     private readonly _pipelineSceneData: PipelineSceneData = new PipelineSceneData();
     private _constantMacros = '';
     private _profiler: Model | null = null;
+    private _pipelineUBO: PipelineUBO = new PipelineUBO();
 
     private readonly _layoutGraph: LayoutGraphData = new LayoutGraphData();
     private readonly _resourceGraph: ResourceGraph = new ResourceGraph();
