@@ -16002,6 +16002,25 @@ static bool js_scene_Camera_getShutterValue(se::State& s) // NOLINT(readability-
 }
 SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getShutterValue)
 
+static bool js_scene_Camera_getSurfaceTransform(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Camera_getSurfaceTransform : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        auto result = static_cast<int>(cobj->getSurfaceTransform());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_Camera_getSurfaceTransform : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getSurfaceTransform)
+
 static bool js_scene_Camera_getViewport(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
@@ -16807,6 +16826,7 @@ bool js_register_scene_Camera(se::Object* obj) // NOLINT(readability-identifier-
     cls->defineProperty("screenScale", _SE(js_scene_Camera_getScreenScale_asGetter), _SE(js_scene_Camera_setScreenScale_asSetter));
     cls->defineProperty("visibility", _SE(js_scene_Camera_getVisibility_asGetter), _SE(js_scene_Camera_setVisibility_asSetter));
     cls->defineProperty("node", _SE(js_scene_Camera_getNode_asGetter), _SE(js_scene_Camera_setNode_asSetter));
+    cls->defineProperty("surfaceTransform", _SE(js_scene_Camera_getSurfaceTransform_asGetter), nullptr);
     cls->defineProperty("geometryRenderer", _SE(js_scene_Camera_getGeometryRenderer_asGetter), nullptr);
     cls->defineFunction("attachToScene", _SE(js_scene_Camera_attachToScene));
     cls->defineFunction("changeTargetWindow", _SE(js_scene_Camera_changeTargetWindow));
