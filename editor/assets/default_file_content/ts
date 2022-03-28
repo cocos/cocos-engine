@@ -21,8 +21,8 @@ export class <%UnderscoreCaseClassName%> extends Component {
  * <%CamelCaseClassName%>, class name in camel format, like 'NewComponent'
  * <%Author%>, Who create this file
  * <%DateTime%>, when create this file
- * <%FileBasename%>, this file name with extension
- * <%FileBasenameNoExtension%>, this file name with no-extension
+ * <%FileBasename%>, creating file name with extension
+ * <%FileBasenameNoExtension%>, creating file name without extension
  * <%URL%>, url of this file in COCOS ASSET URL format
  * <%ManualUrl%>, url of office help document, like 'https://docs.cocos.com/creator/manual/en/'
  *
