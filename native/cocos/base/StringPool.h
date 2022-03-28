@@ -36,10 +36,17 @@
 namespace cc {
 
 namespace {
-class StringHash final {
+class StringHasher final {
 public:
-    inline size_t operator()(const char *str) const noexcept {
+    size_t operator()(const char *str) const noexcept {
         return boost::hash_range(str, str + strlen(str));
+    }
+};
+
+class StringEqual final {
+public:
+    bool operator()(const char* c1, const char* c2) const noexcept{
+        return strcmp(c1, c2) == 0;
     }
 };
 }
@@ -63,7 +70,7 @@ private:
     char const * doHandleToString(const StringHandle &handle) const noexcept;
     StringHandle doFind(const char *str) const noexcept;
 
-    ccstd::unordered_map<char const *, StringHandle, StringHash> _stringToHandles{};
+    ccstd::unordered_map<char const *, StringHandle, StringHasher, StringEqual> _stringToHandles{};
     ccstd::vector<char const *>                           _handleToStrings{};
     mutable ReadWriteLock                                 _readWriteLock{};
 };
