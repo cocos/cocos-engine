@@ -23,9 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include "QueryPoolValidator.h"
 #include "CommandBufferValidator.h"
 #include "DeviceValidator.h"
-#include "QueryPoolValidator.h"
 #include "ValidationUtils.h"
 
 namespace cc {

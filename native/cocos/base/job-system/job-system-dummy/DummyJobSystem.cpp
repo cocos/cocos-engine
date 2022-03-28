@@ -23,8 +23,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "DummyJobGraph.h"
 #include "DummyJobSystem.h"
+#include "DummyJobGraph.h"
 
 namespace cc {
 

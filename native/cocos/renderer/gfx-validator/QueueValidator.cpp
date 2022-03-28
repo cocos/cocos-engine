@@ -23,9 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include "QueueValidator.h"
 #include "CommandBufferValidator.h"
 #include "DeviceValidator.h"
-#include "QueueValidator.h"
 #include "ValidationUtils.h"
 
 namespace cc {

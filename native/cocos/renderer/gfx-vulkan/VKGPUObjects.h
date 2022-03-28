@@ -27,9 +27,9 @@
 
 #include "VKStd.h"
 #include "VKUtils.h"
-#include "base/std/container/unordered_set.h"
-#include "base/Log.h"
 #include "base/CachedArray.h"
+#include "base/Log.h"
+#include "base/std/container/unordered_set.h"
 
 #define TBB_USE_EXCEPTIONS 0 // no-rtti for now
 #include "tbb/concurrent_unordered_map.h"

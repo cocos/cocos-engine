@@ -23,9 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include "GFXShader.h"
 #include "GFXDevice.h"
 #include "GFXObject.h"
-#include "GFXShader.h"
 
 namespace cc {
 namespace gfx {
