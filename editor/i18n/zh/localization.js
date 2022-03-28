@@ -877,7 +877,7 @@ module.exports = {
         },
         marionette: {
             label: "Marionette 动画系统",
-            description: "开启 Marionette 动画系统。",
+            description: "启用 Marionette 动画系统。",
         },
     },
     renderable_2d: {
