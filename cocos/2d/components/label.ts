@@ -30,8 +30,8 @@
  */
 
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, visible, multiline, type, serializable, editable } from 'cc.decorator';
-import { BYTEDANCE, EDITOR } from 'internal:constants';
-import { minigame } from 'pal/minigame';
+import { EDITOR } from 'internal:constants';
+import { Color, Vec2 } from 'cocos/core';
 import { BitmapFont, Font, SpriteFrame } from '../assets';
 import { ImageAsset, Texture2D } from '../../core/assets';
 import { ccenum } from '../../core/value-types/enum';
@@ -41,8 +41,8 @@ import { CanvasPool, ISharedLabelData, LetterRenderTexture } from '../assembler/
 import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';
 import { TextureBase } from '../../core/assets/texture-base';
 import { PixelFormat } from '../../core/assets/asset-enum';
+import { director } from '../../core/director';
 import { legacyCC } from '../../core/global-exports';
-import { BlendFactor } from '../../core/gfx';
 
 /**
  * @en Enum for horizontal text alignment.
@@ -203,6 +203,80 @@ export class Label extends Renderable2D {
      * @internal
      */
     public static _canvasPool = CanvasPool.getInstance();
+
+    @serializable
+    protected _outlineWidth = 0;
+    @displayOrder(20)
+    get outlineWidth (): number { return this._outlineWidth; }
+    set outlineWidth (value: number) {
+        if (value === this._outlineWidth) return;
+        this._outlineWidth = value;
+        this.updateRenderData();
+    }
+
+    @serializable
+    protected _outlineColor = new Color(0, 0, 0, 255);
+    @type(Color)
+    @displayOrder(21)
+    // @constget
+    get outlineColor (): Readonly<Color> {
+        return this._outlineColor;
+    }
+    set outlineColor (value: Color) {
+        if (this._outlineColor === value) {
+            return;
+        }
+
+        this._outlineColor.set(value);
+        this.updateRenderData();
+    }
+
+    @serializable
+    protected _shadowEnabled = false;
+    @displayOrder(22)
+    get shadowEnabled (): boolean { return this._shadowEnabled; }
+    set shadowEnabled (value: boolean) {
+        if (value === this._shadowEnabled) return;
+        this._shadowEnabled = value;
+        this.updateRenderData();
+    }
+
+    @serializable
+    protected _shadowOffset: Vec2 = new Vec2(2, 2);
+    @displayOrder(23)
+    get shadowOffset (): Vec2 { return this._shadowOffset; }
+    set shadowOffset (value: Vec2) {
+        if (!value || value === this._shadowOffset) return;
+        this._shadowOffset.set(value.x || 0, value.y || 0);
+        this.updateRenderData();
+    }
+
+    @serializable
+    protected _shadowBlur = 0;
+    @displayOrder(24)
+    get shadowBlur (): number { return this._shadowBlur; }
+    set shadowBlur (value: number) {
+        if (value === this._shadowBlur) return;
+        this._shadowBlur = value;
+        this.updateRenderData();
+    }
+
+    @serializable
+    protected _shadowColor = new Color(0, 0, 0, 255);
+    @type(Color)
+    @displayOrder(25)
+    // @constget
+    get shadowColor (): Readonly<Color> {
+        return this._shadowColor;
+    }
+    set shadowColor (value: Color) {
+        if (this._shadowColor === value) {
+            return;
+        }
+
+        this._shadowColor.set(value);
+        this.updateRenderData();
+    }
 
     /**
      * @en
