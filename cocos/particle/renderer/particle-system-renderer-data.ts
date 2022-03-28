@@ -140,24 +140,14 @@ export default class ParticleSystemRenderer {
         if (!this._particleSystem) {
             return null;
         }
-        return this._particleSystem.getMaterial(0) as Material;
+        // return this._particleSystem.getMaterial(0) as Material;
+        return this._particleSystem.getMaterialInstance(0) || this._particleSystem.processor.getDefaultMaterial();
     }
 
     public set particleMaterial (val: Material | null) {
         if (this._particleSystem) {
             this._particleSystem.setMaterial(val, 0);
         }
-    }
-
-    /**
-     * @zh 粒子使用的材质实例。
-     */
-    @type(Material)
-    public get particleMaterialInstance () {
-        if (!this._particleSystem) {
-            return null;
-        }
-        return this._particleSystem.getMaterialInstance(0) || this._particleSystem.processor.getDefaultMaterial();
     }
 
     /**
@@ -170,7 +160,8 @@ export default class ParticleSystemRenderer {
         if (!this._particleSystem) {
             return null;
         }
-        return this._particleSystem.getMaterial(1) as Material;
+        // return this._particleSystem.getMaterial(1) as Material;
+        return this._particleSystem.getMaterialInstance(1) || this._particleSystem.processor.getDefaultTrailMaterial();
     }
 
     public set trailMaterial (val: Material | null) {
