@@ -22,6 +22,7 @@ macro(cc_windows_before_target target_name)
         ${CC_PROJECT_DIR}/game.rc
     )
     list(APPEND CC_PROJ_SOURCES
+        ${CC_PROJECT_DIR}/main.cpp
         ${CC_PROJECT_DIR}/resource.h
         ${CC_UI_RESOURCES}
     )

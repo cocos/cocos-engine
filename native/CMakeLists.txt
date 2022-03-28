@@ -360,22 +360,6 @@ if(USE_SERVER_MODE)
     cocos_source_files(
         cocos/main/EmptyMain.cpp
     )
-elseif(WINDOWS)
-    cocos_source_files(
-        cocos/main/main-win32.cpp
-    )
-elseif(LINUX)
-    cocos_source_files(
-        cocos/main/main-linux.cpp
-    )
-elseif(QNX)
-    cocos_source_files(
-        cocos/main/main-qnx.cpp
-    )
-elseif(MACOSX)
-    cocos_source_files(
-        cocos/main/main-mac.mm
-    )
 endif()
 
 if(NOT USE_SERVER_MODE AND (WINDOWS OR LINUX))

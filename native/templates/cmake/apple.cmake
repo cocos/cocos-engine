@@ -77,6 +77,7 @@ macro(cc_mac_before_target target_name)
         ${CC_PROJECT_DIR}/Icon.icns
     )
     list(APPEND CC_PROJ_SOURCES
+        ${CC_PROJECT_DIR}/main.mm
         ${CC_UI_RESOURCES}
     )
     if(NOT CUSTOM_COPY_RESOURCE_HOOK)

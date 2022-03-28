@@ -87,7 +87,7 @@ private:
         return app->run(argc, argv);                                         \
     } while (0)
 
-#define CC_APPLICATION_MAIN(className)            \
+#define CC_REGISTER_GAME(className)               \
     int cocos_main(int argc, const char** argv) { \
         CC_START_APPLICATION(className);          \
     }
