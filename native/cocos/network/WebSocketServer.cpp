@@ -580,7 +580,7 @@ ccstd::vector<ccstd::string> WebSocketServerConnection::getProtocols() {
     return ret;
 }
 
-ccstd::map<ccstd::string, ccstd::string> WebSocketServerConnection::getHeaders() {
+ccstd::unordered_map<ccstd::string, ccstd::string> WebSocketServerConnection::getHeaders() {
     if (!_wsi) return {};
     return _headers;
 }

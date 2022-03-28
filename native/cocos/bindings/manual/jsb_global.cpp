@@ -53,7 +53,7 @@ using namespace cc; //NOLINT
 static LegacyThreadPool *gThreadPool = nullptr;
 
 static std::shared_ptr<cc::network::Downloader>                                                     gLocalDownloader = nullptr;
-static ccstd::map<ccstd::string, std::function<void(const ccstd::string &, unsigned char *, uint)>> gLocalDownloaderHandlers;
+static ccstd::unordered_map<ccstd::string, std::function<void(const ccstd::string &, unsigned char *, uint)>> gLocalDownloaderHandlers;
 static uint64_t                                                                                     gLocalDownloaderTaskId = 1000000;
 
 static cc::network::Downloader *localDownloader() {

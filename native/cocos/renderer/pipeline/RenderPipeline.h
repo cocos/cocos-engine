@@ -77,7 +77,7 @@ public:
 
     inline const RenderFlowList &                                getFlows() const { return _flows; }
     inline uint                                                  getTag() const { return _tag; }
-    inline const ccstd::map<ccstd::string, InternalBindingInst> &getGlobalBindings() const { return _globalBindings; }
+    inline const ccstd::unordered_map<ccstd::string, InternalBindingInst> &getGlobalBindings() const { return _globalBindings; }
     inline const MacroRecord &                                   getMacros() const { return _macros; }
     inline void                                                  setValue(const ccstd::string &name, int32_t value) { _macros[name] = value; }
     inline void                                                  setValue(const ccstd::string &name, bool value) { _macros[name] = value; }
@@ -132,7 +132,7 @@ protected:
     gfx::CommandBufferList                         _commandBuffers;
     gfx::QueryPoolList                             _queryPools;
     RenderFlowList                                 _flows;
-    ccstd::map<ccstd::string, InternalBindingInst> _globalBindings;
+    ccstd::unordered_map<ccstd::string, InternalBindingInst> _globalBindings;
     MacroRecord                                    _macros;
     uint                                           _tag = 0;
     ccstd::string                                  _constantMacros;

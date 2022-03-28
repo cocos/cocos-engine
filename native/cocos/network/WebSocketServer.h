@@ -25,10 +25,6 @@
 
 #pragma once
 
-// clang-format off
-#include "base/Macros.h"
-#include "base/std/container/map.h"
-#include "uv.h"
 // clang-format on
 
 #include <algorithm>
@@ -40,14 +36,14 @@
 #include <thread>
 #include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
+#include "base/Macros.h"
+#include "uv.h"
 
 #if CC_PLATFORM == CC_PLATFORM_OHOS
     #include "libwebsockets.h"
 #else
     #include "websockets/libwebsockets.h"
 #endif
-
-#include "cocos/base/Macros.h"
 
 namespace cc {
 namespace network {
@@ -134,7 +130,7 @@ public:
         return (int)_readyState;
     }
 
-    ccstd::map<ccstd::string, ccstd::string> getHeaders();
+    ccstd::unordered_map<ccstd::string, ccstd::string> getHeaders();
 
     ccstd::vector<ccstd::string> getProtocols();
 
@@ -189,7 +185,7 @@ private:
     void onDestroyClient();
 
     struct lws *                             _wsi = nullptr;
-    ccstd::map<ccstd::string, ccstd::string> _headers;
+    ccstd::unordered_map<ccstd::string, ccstd::string> _headers;
     std::list<std::shared_ptr<DataFrame>>    _sendQueue;
     std::shared_ptr<DataFrame>               _prevPkg;
     bool                                     _closed      = false;

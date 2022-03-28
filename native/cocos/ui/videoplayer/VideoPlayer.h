@@ -29,7 +29,7 @@
 #include <functional>
 #include "base/Macros.h"
 #include "base/RefCounted.h"
-#include "base/std/container/map.h"
+#include "base/std/container/unordered_map.h"
 #include "base/std/container/string.h"
 
 #ifndef OBJC_CLASS
@@ -167,7 +167,7 @@ protected:
     Source        _videoSource;
 
     int                                              _videoPlayerIndex;
-    ccstd::map<ccstd::string, ccVideoPlayerCallback> _eventCallback;
+    ccstd::unordered_map<ccstd::string, ccVideoPlayerCallback> _eventCallback;
 
     void *_videoView;
 };

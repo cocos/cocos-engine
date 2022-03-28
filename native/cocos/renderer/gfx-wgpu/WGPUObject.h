@@ -28,6 +28,8 @@
 #include <utility>
 #include "WGPUDef.h"
 #include "base/Utils.h"
+#include "base/std/container/map.h"
+#include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
 #include "gfx-base/GFXDef.h"
 
@@ -234,7 +236,7 @@ struct CCWGPUCommandBufferObject {
     WGPURenderPassDescriptor renderPassDescriptor;
     CCWGPUStateCache         stateCache;
 
-    ccstd::map<uint32_t, CCWGPUBuffer *> redundantVertexBufferMap;
+    ccstd::unordered_map<uint32_t, CCWGPUBuffer *> redundantVertexBufferMap;
 };
 
 struct CCWGPUQueryPoolObject {

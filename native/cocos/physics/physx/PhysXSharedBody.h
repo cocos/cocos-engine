@@ -26,7 +26,7 @@
 #pragma once
 
 #include "base/Macros.h"
-#include "base/std/container/map.h"
+#include "base/std/container/unordered_map.h"
 #include "core/scene-graph/Node.h"
 #include "physics/physx/PhysXInc.h"
 #include "physics/spec/IBody.h"
@@ -82,7 +82,7 @@ public:
     inline uint32_t getMask() const { return _mFilterData.word1; }
 
 private:
-    static ccstd::map<Node *, PhysXSharedBody *> sharedBodesMap;
+    static ccstd::unordered_map<Node *, PhysXSharedBody *> sharedBodesMap;
     const uint32_t                               _mID;
     uint8_t                                      _mRef;
     bool                                         _mIsStatic;
