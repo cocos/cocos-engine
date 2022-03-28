@@ -81,11 +81,11 @@ public:
 
 private:
     static ccstd::unordered_map<scene::Pass *, ccstd::unordered_map<uint, InstancedBuffer *>> buffers;
-    InstancedItemList                                                     _instances;
-    const scene::Pass *                                                   _pass             = nullptr;
-    bool                                                                  _hasPendingModels = false;
-    DynamicOffsetList                                                     _dynamicOffsets;
-    gfx::Device *                                                         _device = nullptr;
+    InstancedItemList                                                                         _instances;
+    const scene::Pass *                                                                       _pass             = nullptr;
+    bool                                                                                      _hasPendingModels = false;
+    DynamicOffsetList                                                                         _dynamicOffsets;
+    gfx::Device *                                                                             _device = nullptr;
 };
 
 } // namespace pipeline

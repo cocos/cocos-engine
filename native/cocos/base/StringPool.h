@@ -26,11 +26,11 @@
 #pragma once
 
 #include <cstring>
-#include "boost/functional/hash.hpp"
 #include "StringHandle.h"
 #include "base/Macros.h"
 #include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
+#include "boost/functional/hash.hpp"
 #include "threading/ReadWriteLock.h"
 
 namespace cc {
@@ -45,11 +45,11 @@ public:
 
 class StringEqual final {
 public:
-    bool operator()(const char* c1, const char* c2) const noexcept{
+    bool operator()(const char *c1, const char *c2) const noexcept {
         return strcmp(c1, c2) == 0;
     }
 };
-}
+} // namespace
 
 template <bool ThreadSafe>
 class StringPool final {
@@ -71,8 +71,8 @@ private:
     StringHandle doFind(const char *str) const noexcept;
 
     ccstd::unordered_map<char const *, StringHandle, StringHasher, StringEqual> _stringToHandles{};
-    ccstd::vector<char const *>                           _handleToStrings{};
-    mutable ReadWriteLock                                 _readWriteLock{};
+    ccstd::vector<char const *>                                                 _handleToStrings{};
+    mutable ReadWriteLock                                                       _readWriteLock{};
 };
 
 using ThreadSafeStringPool = StringPool<true>;

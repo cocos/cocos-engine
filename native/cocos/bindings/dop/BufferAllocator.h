@@ -46,7 +46,7 @@ private:
     static constexpr uint BUFFER_MASK = ~(1 << 30);
 
     ccstd::unordered_map<uint, se::Object *> _buffers;
-    PoolType                       _type = PoolType::UNKNOWN;
+    PoolType                                 _type = PoolType::UNKNOWN;
 };
 
 } // namespace se

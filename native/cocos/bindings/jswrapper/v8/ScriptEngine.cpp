@@ -52,7 +52,7 @@
 const unsigned int JSB_STACK_FRAME_LIMIT = 20;
 
     #ifdef CC_DEBUG
-unsigned int                        jsbInvocationCount = 0;
+unsigned int                                  jsbInvocationCount = 0;
 ccstd::unordered_map<ccstd::string, unsigned> jsbFunctionInvokedRecords;
     #endif
 

@@ -29,8 +29,8 @@
 #include <functional>
 #include "base/Macros.h"
 #include "base/RefCounted.h"
-#include "base/std/container/unordered_map.h"
 #include "base/std/container/string.h"
+#include "base/std/container/unordered_map.h"
 
 #ifndef OBJC_CLASS
     #ifdef __OBJC__
@@ -166,7 +166,7 @@ protected:
     ccstd::string _videoURL;
     Source        _videoSource;
 
-    int                                              _videoPlayerIndex;
+    int                                                        _videoPlayerIndex;
     ccstd::unordered_map<ccstd::string, ccVideoPlayerCallback> _eventCallback;
 
     void *_videoView;
