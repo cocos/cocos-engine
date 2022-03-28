@@ -28,7 +28,6 @@
 #include <Metal/MTLComputeCommandEncoder.h>
 #include <Metal/MTLComputePipeline.h>
 #include "MTLCommandEncoder.h"
-#include "MTLStd.h"
 #include "MTLUtils.h"
 #include "base/Macros.h"
 #include "math/Math.h"

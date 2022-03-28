@@ -23,10 +23,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
-
-#include <cassert>
 #include "DummyJobGraph.h"
+#include <cassert>
 
 #define DUMMY_GRAPH_NODE_CHUNK_SIZE 64
 

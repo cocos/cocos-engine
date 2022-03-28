@@ -23,7 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
 #include "base/threading/MessageQueue.h"
 #include "gfx-base/GFXDef-common.h"
 #include "math/Math.h"

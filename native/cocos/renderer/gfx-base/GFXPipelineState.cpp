@@ -23,10 +23,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
-
-#include "GFXObject.h"
 #include "GFXPipelineState.h"
+#include "GFXObject.h"
 
 namespace cc {
 namespace gfx {

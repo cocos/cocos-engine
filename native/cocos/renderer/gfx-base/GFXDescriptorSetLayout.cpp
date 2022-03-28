@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "GFXObject.h"
-#include "base/CoreStd.h"
 #include "base/Utils.h"
 
 #include "GFXDescriptorSetLayout.h"

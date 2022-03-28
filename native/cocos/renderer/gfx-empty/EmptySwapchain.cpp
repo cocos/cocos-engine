@@ -25,7 +25,6 @@
 
 #include "EmptySwapchain.h"
 #include "EmptyTexture.h"
-#include "base/CoreStd.h"
 
 namespace cc {
 namespace gfx {

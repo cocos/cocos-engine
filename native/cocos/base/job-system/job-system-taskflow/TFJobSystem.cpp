@@ -23,10 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
-
-#include "TFJobGraph.h"
 #include "TFJobSystem.h"
+#include "TFJobGraph.h"
+#include "base/Log.h"
 
 namespace cc {
 

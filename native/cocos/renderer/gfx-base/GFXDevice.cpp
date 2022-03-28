@@ -23,8 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
-
 #include "GFXDevice.h"
 #include "GFXObject.h"
 #include "base/memory/Memory.h"

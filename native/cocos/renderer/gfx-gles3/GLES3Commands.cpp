@@ -23,11 +23,11 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "GLES3Std.h"
-
 #include "GLES3Commands.h"
 #include "GLES3Device.h"
 #include "GLES3QueryPool.h"
+#include "GLES3Std.h"
+#include "base/StringUtil.h"
 #include "gfx-base/GFXDef-common.h"
 #include "gfx-gles-common/GLESCommandPool.h"
 #include "gfx-gles3/GLES3GPUObjects.h"

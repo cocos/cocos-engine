@@ -39,7 +39,7 @@ namespace pipeline {
     } while (0)
 
 void GlobalDSManager::activate(gfx::Device *device) {
-    _device   = device;
+    _device = device;
 
     _linearSampler = device->getSampler({
         gfx::Filter::LINEAR,
@@ -70,7 +70,7 @@ void GlobalDSManager::activate(gfx::Device *device) {
     _globalDescriptorSet = device->createDescriptorSet({_descriptorSetLayout});
 }
 
-void GlobalDSManager::bindBuffer(uint binding, gfx::Buffer *buffer) {
+void GlobalDSManager::bindBuffer(uint32_t binding, gfx::Buffer *buffer) {
     if (_globalDescriptorSet) {
         _globalDescriptorSet->bindBuffer(binding, buffer);
     }
@@ -80,7 +80,7 @@ void GlobalDSManager::bindBuffer(uint binding, gfx::Buffer *buffer) {
     }
 }
 
-void GlobalDSManager::bindSampler(uint binding, gfx::Sampler *sampler) {
+void GlobalDSManager::bindSampler(uint32_t binding, gfx::Sampler *sampler) {
     if (_globalDescriptorSet) {
         _globalDescriptorSet->bindSampler(binding, sampler);
     }
@@ -90,7 +90,7 @@ void GlobalDSManager::bindSampler(uint binding, gfx::Sampler *sampler) {
     }
 }
 
-void GlobalDSManager::bindTexture(uint binding, gfx::Texture *texture) {
+void GlobalDSManager::bindTexture(uint32_t binding, gfx::Texture *texture) {
     if (_globalDescriptorSet) {
         _globalDescriptorSet->bindTexture(binding, texture);
     }
@@ -110,7 +110,7 @@ void GlobalDSManager::update() {
     }
 }
 
-gfx::DescriptorSet *GlobalDSManager::getOrCreateDescriptorSet(uint idx) {
+gfx::DescriptorSet *GlobalDSManager::getOrCreateDescriptorSet(uint32_t idx) {
     // The global descriptorSet is managed by the pipeline and binds the buffer
     if (_descriptorSetMap.count(idx) <= 0 || !_descriptorSetMap.at(idx)) {
         auto *descriptorSet = _device->createDescriptorSet({_descriptorSetLayout});

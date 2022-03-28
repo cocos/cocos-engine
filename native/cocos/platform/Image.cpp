@@ -36,8 +36,8 @@
     #include "jpeg/jpeglib.h"
 #endif // CC_USE_JPEG
 
-#include "base/CoreStd.h"
 #include "base/Data.h"
+#include "base/Log.h"
 #include "base/Utils.h"
 #include "gfx-base/GFXDef.h"
 

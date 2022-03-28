@@ -23,11 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
-
+#include "TextureValidator.h"
 #include "DeviceValidator.h"
 #include "SwapchainValidator.h"
-#include "TextureValidator.h"
 #include "ValidationUtils.h"
 #include "gfx-base/GFXDef-common.h"
 

@@ -25,8 +25,8 @@
 
 #pragma once
 
+#include <array>
 #include "Define.h"
-#include "base/CoreStd.h"
 
 namespace cc {
 namespace scene {

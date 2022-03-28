@@ -25,7 +25,6 @@
 
 #include "RenderPipeline.h"
 #include <boost/functional/hash.hpp>
-
 #include "BatchedBuffer.h"
 #include "GlobalDescriptorSetManager.h"
 #include "InstancedBuffer.h"
@@ -34,6 +33,7 @@
 #include "PipelineUBO.h"
 #include "RenderFlow.h"
 #include "RenderPipeline.h"
+#include "base/StringUtil.h"
 #include "frame-graph/FrameGraph.h"
 #include "gfx-base/GFXDevice.h"
 #include "helper/Utils.h"

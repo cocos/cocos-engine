@@ -23,8 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "MTLStd.h"
-
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 
@@ -35,6 +33,7 @@
 #include "MTLUtils.h"
 #include "MTLGPUObjects.h"
 #import "profiler/Profiler.h"
+#import "base/Log.h"
 
 namespace cc {
 namespace gfx {

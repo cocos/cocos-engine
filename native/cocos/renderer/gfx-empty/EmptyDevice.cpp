@@ -23,13 +23,12 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
-
+#include "EmptyDevice.h"
+#include <thread>
 #include "EmptyBuffer.h"
 #include "EmptyCommandBuffer.h"
 #include "EmptyDescriptorSet.h"
 #include "EmptyDescriptorSetLayout.h"
-#include "EmptyDevice.h"
 #include "EmptyFramebuffer.h"
 #include "EmptyInputAssembler.h"
 #include "EmptyPipelineLayout.h"
@@ -40,6 +39,7 @@
 #include "EmptyShader.h"
 #include "EmptySwapchain.h"
 #include "EmptyTexture.h"
+#include "base/Log.h"
 
 namespace cc {
 namespace gfx {

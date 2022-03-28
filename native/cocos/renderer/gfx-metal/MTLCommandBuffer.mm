@@ -23,8 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#import "MTLStd.h"
-
 #import <MetalPerformanceShaders/MetalPerformanceShaders.h>
 #import <QuartzCore/CAMetalLayer.h>
 #import "MTLBuffer.h"
@@ -43,6 +41,7 @@
 #import "MTLTexture.h"
 #import "TargetConditionals.h"
 #import "profiler/Profiler.h"
+#import "base/Log.h"
 
 namespace cc {
 namespace gfx {

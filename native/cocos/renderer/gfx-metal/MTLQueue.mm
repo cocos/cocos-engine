@@ -23,8 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#import "MTLStd.h"
-
 #import "MTLQueue.h"
 #import "MTLDevice.h"
 #import "MTLCommandBuffer.h"

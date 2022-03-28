@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "base/CoreStd.h"
+#include "base/Log.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     #if defined(CC_STATIC)

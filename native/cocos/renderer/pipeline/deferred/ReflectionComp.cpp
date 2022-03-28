@@ -1,5 +1,7 @@
 #include "ReflectionComp.h"
 #include "../Define.h"
+#include "base/Log.h"
+#include "base/StringUtil.h"
 
 namespace cc {
 

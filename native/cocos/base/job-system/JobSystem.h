@@ -23,7 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#if CC_JOB_SYSTEM == CC_JOB_SYSTEM_TASKFLOW
+#if CC_JOB_SYSTEM_TASKFLOW
     #include "job-system-taskflow/TFJobGraph.h"
     #include "job-system-taskflow/TFJobSystem.h"
 namespace cc {
@@ -31,7 +31,7 @@ using JobToken  = TFJobToken;
 using JobGraph  = TFJobGraph;
 using JobSystem = TFJobSystem;
 } // namespace cc
-#elif CC_JOB_SYSTEM == CC_JOB_SYSTEM_TBB
+#elif CC_USE_JOB_SYSTEM_TBB
     #include "job-system-tbb/TBBJobGraph.h"
     #include "job-system-tbb/TBBJobSystem.h"
 namespace cc {
