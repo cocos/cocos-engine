@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <array>
 #include "Define.h"
 
 namespace cc {
