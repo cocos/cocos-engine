@@ -310,6 +310,8 @@ public:
     inline float getScreenScale() const { return _screenScale; }
     inline void  setScreenScale(float val) { _screenScale = val; }
 
+    inline gfx::SurfaceTransform getSurfaceTransform() const { return _curTransform; }
+
     inline pipeline::GeometryRenderer *getGeometryRenderer() const { return _geometryRenderer.get(); }
 
     void detachCamera();

@@ -425,7 +425,8 @@ struct CC_DLL UBOCamera {
     static constexpr uint                        MAT_VIEW_PROJ_OFFSET     = UBOCamera::MAT_PROJ_INV_OFFSET + 16;
     static constexpr uint                        MAT_VIEW_PROJ_INV_OFFSET = UBOCamera::MAT_VIEW_PROJ_OFFSET + 16;
     static constexpr uint                        CAMERA_POS_OFFSET        = UBOCamera::MAT_VIEW_PROJ_INV_OFFSET + 16;
-    static constexpr uint                        SCREEN_SCALE_OFFSET      = UBOCamera::CAMERA_POS_OFFSET + 4;
+    static constexpr uint                        SURFACE_TRANSFORM_OFFSET = UBOCamera::CAMERA_POS_OFFSET + 4;
+    static constexpr uint                        SCREEN_SCALE_OFFSET      = UBOCamera::SURFACE_TRANSFORM_OFFSET + 4;
     static constexpr uint                        EXPOSURE_OFFSET          = UBOCamera::SCREEN_SCALE_OFFSET + 4;
     static constexpr uint                        MAIN_LIT_DIR_OFFSET      = UBOCamera::EXPOSURE_OFFSET + 4;
     static constexpr uint                        MAIN_LIT_COLOR_OFFSET    = UBOCamera::MAIN_LIT_DIR_OFFSET + 4;

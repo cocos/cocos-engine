@@ -113,6 +113,7 @@ const gfx::UniformBlock UBOCamera::LAYOUT = {
         {"cc_matViewProj", gfx::Type::MAT4, 1},
         {"cc_matViewProjInv", gfx::Type::MAT4, 1},
         {"cc_cameraPos", gfx::Type::FLOAT4, 1},
+        {"cc_surfaceTransform", gfx::Type::FLOAT4, 1},
         {"cc_screenScale", gfx::Type::FLOAT4, 1},
         {"cc_exposure", gfx::Type::FLOAT4, 1},
         {"cc_mainLitDir", gfx::Type::FLOAT4, 1},

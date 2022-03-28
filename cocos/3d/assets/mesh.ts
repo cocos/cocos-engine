@@ -351,7 +351,7 @@ export class Mesh extends Asset {
                 const vertexBundle = this._struct.vertexBundles[i];
                 const vertexBuffer = device.createBuffer(new BufferInfo(
                     BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-                    MemoryUsageBit.DEVICE | MemoryUsageBit.HOST,
+                    MemoryUsageBit.DEVICE,
                     vertexBundle.view.length,
                     vertexBundle.view.stride,
                 ));
@@ -367,7 +367,7 @@ export class Mesh extends Asset {
                 if (indexView) {
                     indexBuffer = device.createBuffer(new BufferInfo(
                         BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-                        MemoryUsageBit.DEVICE | MemoryUsageBit.HOST,
+                        MemoryUsageBit.DEVICE,
                         indexView.length,
                         indexView.stride,
                     ));

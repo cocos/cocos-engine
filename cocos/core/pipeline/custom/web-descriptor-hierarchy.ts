@@ -348,6 +348,7 @@ export class WebDescriptorHierarchy extends DescriptorHierarchy {
             this.setUniform(cameraDB, 'cc_matViewProj', Type.MAT4, 1);
             this.setUniform(cameraDB, 'cc_matViewProjInv', Type.MAT4, 1);
             this.setUniform(cameraDB, 'cc_cameraPos', Type.FLOAT4, 1);
+            this.setUniform(cameraDB, 'cc_surfaceTransform', Type.FLOAT4, 1);
             this.setUniform(cameraDB, 'cc_screenScale', Type.FLOAT4, 1);
             this.setUniform(cameraDB, 'cc_exposure', Type.FLOAT4, 1);
             this.setUniform(cameraDB, 'cc_mainLitDir', Type.FLOAT4, 1);

@@ -230,7 +230,7 @@ void Mesh::initialize() {
 
         for (const auto &vertexBundle : _struct.vertexBundles) {
             auto *vertexBuffer = device->createBuffer({gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
-                                                       gfx::MemoryUsageBit::DEVICE | gfx::MemoryUsageBit::HOST,
+                                                       gfx::MemoryUsageBit::DEVICE,
                                                        vertexBundle.view.length,
                                                        vertexBundle.view.stride});
             vertexBuffers.emplace_back(vertexBuffer);
@@ -243,7 +243,7 @@ void Mesh::initialize() {
 
             if (indexView.has_value()) {
                 indexBuffer = device->createBuffer({gfx::BufferUsageBit::INDEX | gfx::BufferUsageBit::TRANSFER_DST,
-                                                    gfx::MemoryUsageBit::DEVICE | gfx::MemoryUsageBit::HOST,
+                                                    gfx::MemoryUsageBit::DEVICE,
                                                     indexView.value().length,
                                                     indexView.value().stride});
             }
