@@ -531,7 +531,7 @@ export class TiledMap extends Component {
                     group._init(layerInfo, mapInfo, texGrids);
                     groups.push(group);
                 } else if (layerInfo instanceof TMXImageLayerInfo) {
-                    const texture = layerInfo.sourceImage;
+                    const spriteFrame = layerInfo.sourceImage;
 
                     child.layerInfo = layerInfo;
                     child._offset = new Vec2(layerInfo.offset.x, -layerInfo.offset.y);
@@ -544,9 +544,15 @@ export class TiledMap extends Component {
                     const color = image.color as Color;
                     color.a *= layerInfo.opacity;
 
-                    image.spriteFrame = texture!;
+                    image.spriteFrame = spriteFrame!;
+                    let width = spriteFrame!.width;
+                    let height = spriteFrame!.height;
+                    if (spriteFrame!.original) {
+                        width = spriteFrame!.originalSize.width;
+                        height = spriteFrame!.originalSize.height;
+                    }
 
-                    child._uiProps.uiTransformComp!.setContentSize(texture!.width, texture!.height);
+                    child._uiProps.uiTransformComp!.setContentSize(width, height);
                     images.push(child);
                 }
 
