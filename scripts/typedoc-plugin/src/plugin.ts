@@ -11,8 +11,8 @@ const TAG_NAME_LEGACY_PUBLIC = 'legacyPublic'.toLowerCase();
 const CATEGORY_CONFIG_FILE_NAME = 'category.json';
 
 interface CategoryConfig {
-    title: string | Record<string, string>;
-    description?: string | Record<string, string>;
+    title: Record<string, string>;
+    description?: Record<string, string>;
 }
 
 export function load (app: Application) {
