@@ -414,7 +414,7 @@ export class Animation extends Eventify(Component) {
      * animation.on('play', this.onPlay, this);
      * ```
      */
-    public on<TFunction extends (...any) => void> (type: EventType, callback: TFunction, thisArg?: any, once?: boolean) {
+    public on<TFunction extends (...any) => void> (type: Animation.EventType, callback: TFunction, thisArg?: any, once?: boolean) {
         const ret = super.on(type, callback, thisArg, once);
         if (type === EventType.LASTFRAME) {
             this._syncAllowLastFrameEvent();
@@ -422,7 +422,7 @@ export class Animation extends Eventify(Component) {
         return ret;
     }
 
-    public once<TFunction extends (...any) => void> (type: EventType, callback: TFunction, thisArg?: any) {
+    public once<TFunction extends (...any) => void> (type: Animation.EventType, callback: TFunction, thisArg?: any) {
         const ret = super.once(type, callback, thisArg);
         if (type === EventType.LASTFRAME) {
             this._syncAllowLastFrameEvent();
@@ -444,7 +444,7 @@ export class Animation extends Eventify(Component) {
      * animation.off('play', this.onPlay, this);
      * ```
      */
-    public off (type: EventType, callback?: (...any) => void, thisArg?: any) {
+    public off (type: Animation.EventType, callback?: (...any) => void, thisArg?: any) {
         super.off(type, callback, thisArg);
         if (type === EventType.LASTFRAME) {
             this._syncDisallowLastFrameEvent();
@@ -531,8 +531,10 @@ export class Animation extends Eventify(Component) {
     }
 }
 
+type EventType_ = EventType;
+
 export declare namespace Animation {
-    export type EventType = EnumAlias<typeof EventType>;
+    export type EventType = EventType_;
 }
 
 function equalClips (clip1: AnimationClip | null, clip2: AnimationClip | null) {
