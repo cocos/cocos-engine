@@ -165,7 +165,7 @@ CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measure
     cairo_text_extents_t extents;
     cairo_text_extents(_cr, text.c_str(), &extents);
     return ccstd::array<float, 2>{static_cast<float>(extents.x_advance),
-                                static_cast<float>(extents.height)};
+                                  static_cast<float>(extents.height)};
 }
 
 void CanvasRenderingContext2DDelegate::updateFont(const ccstd::string &fontName,

@@ -51,8 +51,8 @@
 #include <mutex>
 #include <thread>
 #include "application/ApplicationManager.h"
-#include "base/std/container/list.h"
 #include "base/Scheduler.h"
+#include "base/std/container/list.h"
 #include "base/std/container/queue.h"
 #include "base/std/container/string.h"
 #include "network/Uri.h"
@@ -383,8 +383,8 @@ protected:
 
 public:
     ccstd::list<WsMessage *> *_subThreadWsMessageQueue;
-    std::mutex              _subThreadWsMessageQueueMutex;
-    std::thread *           _subThreadInstance{nullptr};
+    std::mutex                _subThreadWsMessageQueueMutex;
+    std::thread *             _subThreadInstance{nullptr};
 
 private:
     bool _needQuit{false};

@@ -109,7 +109,7 @@ public:
     static Frustum *copy(Frustum *out, const Frustum &f) {
         out->setType(f.getType());
         for (size_t i = 0; i < 6; ++i) { // NOLINT(modernize-loop-convert)
-            Plane::copy(out->planes[i],  *(f.planes[i]));
+            Plane::copy(out->planes[i], *(f.planes[i]));
         }
         out->vertices = f.vertices;
         return out;
@@ -134,7 +134,7 @@ public:
     }
 
     ~Frustum() override {
-        for (auto* plane : planes) {
+        for (auto *plane : planes) {
             plane->release();
         }
     }
@@ -148,13 +148,13 @@ public:
      */
     void transform(const Mat4 &);
 
-    ccstd::array<Vec3, 8>  vertices;
-    ccstd::array<Plane*, 6> planes;
-    void                 createOrtho(float width, float height, float near, float far, const Mat4 &transform);
-    void                 split(float start, float end, float aspect, float fov, const Mat4 &transform);
-    void                 updatePlanes();
-    void                 update(const Mat4 &m, const Mat4 &inv);
-    Frustum              clone() const {
+    ccstd::array<Vec3, 8>    vertices;
+    ccstd::array<Plane *, 6> planes;
+    void                     createOrtho(float width, float height, float near, float far, const Mat4 &transform);
+    void                     split(float start, float end, float aspect, float fov, const Mat4 &transform);
+    void                     updatePlanes();
+    void                     update(const Mat4 &m, const Mat4 &inv);
+    Frustum                  clone() const {
         Frustum tmp;
         copy(&tmp, *this);
         return tmp;

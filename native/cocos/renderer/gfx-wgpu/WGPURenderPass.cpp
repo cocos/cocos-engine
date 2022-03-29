@@ -77,8 +77,8 @@ public:
 
     ccstd::array<WGPURenderPassColorAttachment, CC_WGPU_MAX_ATTACHMENTS>        colors;
     ccstd::array<WGPURenderPassDepthStencilAttachment, CC_WGPU_MAX_ATTACHMENTS> depthStencils;
-    WGPURenderPassDescriptor *                                                renderPassDesc = nullptr;
-    int                                                                       sampleCount    = 1;
+    WGPURenderPassDescriptor *                                                  renderPassDesc = nullptr;
+    int                                                                         sampleCount    = 1;
 };
 
 CCWGPURenderPass::CCWGPURenderPass() : wrapper<RenderPass>(val::object()) {

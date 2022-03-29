@@ -161,7 +161,7 @@ CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measure
     XCharStruct overall;
     XQueryTextExtents(_dis, _font->fid, text.c_str(), text.length(), &direction, &font_ascent, &font_descent, &overall);
     return ccstd::array<float, 2>{static_cast<float>(overall.width),
-                                static_cast<float>(overall.ascent + overall.descent)};
+                                  static_cast<float>(overall.ascent + overall.descent)};
 }
 
 void CanvasRenderingContext2DDelegate::updateFont(const ccstd::string &fontName,

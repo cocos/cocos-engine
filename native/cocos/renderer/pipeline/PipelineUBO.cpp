@@ -56,8 +56,8 @@ namespace pipeline {
 Mat4 matShadowViewProj;
 
 void PipelineUBO::updateGlobalUBOView(const scene::Camera *camera, ccstd::array<float, UBOGlobal::COUNT> *bufferView) {
-    auto *const                          root          = Root::getInstance();
-    const gfx::Device *                  device        = gfx::Device::getInstance();
+    auto *const                            root          = Root::getInstance();
+    const gfx::Device *                    device        = gfx::Device::getInstance();
     ccstd::array<float, UBOGlobal::COUNT> &uboGlobalView = *bufferView;
 
     const auto shadingWidth  = std::floor(camera->getWindow()->getWidth());
@@ -190,13 +190,13 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, float *out
 }
 
 void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, ccstd::array<float, UBOShadow::COUNT> *bufferView, const scene::Camera *camera) {
-    const scene::RenderScene *const      scene      = camera->getScene();
-    const scene::DirectionalLight *      mainLight  = scene->getMainLight();
-    gfx::Device *                        device     = gfx::Device::getInstance();
-    const PipelineSceneData *            sceneData  = pipeline->getPipelineSceneData();
-    scene::Shadows *const                shadowInfo = sceneData->getShadows();
+    const scene::RenderScene *const        scene      = camera->getScene();
+    const scene::DirectionalLight *        mainLight  = scene->getMainLight();
+    gfx::Device *                          device     = gfx::Device::getInstance();
+    const PipelineSceneData *              sceneData  = pipeline->getPipelineSceneData();
+    scene::Shadows *const                  shadowInfo = sceneData->getShadows();
     ccstd::array<float, UBOShadow::COUNT> &shadowUBO  = *bufferView;
-    const bool                           hFTexture  = supportsR32FloatTexture(device);
+    const bool                             hFTexture  = supportsR32FloatTexture(device);
 
     if (shadowInfo->isEnabled()) {
         if (mainLight && shadowInfo->getType() == scene::ShadowType::SHADOW_MAP) {

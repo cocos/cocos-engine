@@ -365,7 +365,7 @@ private:
     // public properties of shadow
     Vec3                   _normal{0.F, 1.F, 0.F};
     Color                  _shadowColor{0, 0, 0, 76};
-    ccstd::array<float, 4>   _shadowColor4f{0.F, 0.F, 0.F, 76.F / 255.F};
+    ccstd::array<float, 4> _shadowColor4f{0.F, 0.F, 0.F, 76.F / 255.F};
     Mat4                   _matLight;
     IntrusivePtr<Material> _material{nullptr};
     IntrusivePtr<Material> _instancingMaterial{nullptr};

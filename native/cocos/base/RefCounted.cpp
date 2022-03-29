@@ -29,8 +29,8 @@
 
 #if CC_REF_LEAK_DETECTION
     #include <algorithm> // std::find
-    #include "base/std/container/list.h"
     #include "base/Log.h"
+    #include "base/std/container/list.h"
 #endif
 
 namespace cc {

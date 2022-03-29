@@ -25,11 +25,11 @@
 
 #pragma once
 
-#include "platform/interfaces/modules/canvas/ICanvasRenderingContext2D.h"
-#include "base/std/container/array.h"
 #include "base/csscolorparser.h"
+#include "base/std/container/array.h"
 #include "bindings/jswrapper/config.h"
 #include "math/Math.h"
+#include "platform/interfaces/modules/canvas/ICanvasRenderingContext2D.h"
 
 #ifdef __OBJC__
 @class CanvasRenderingContext2DDelegateImpl;

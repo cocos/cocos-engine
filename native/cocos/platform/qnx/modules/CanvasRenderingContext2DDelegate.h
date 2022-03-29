@@ -27,10 +27,10 @@
 
 #include "platform/interfaces/modules/canvas/ICanvasRenderingContext2D.h"
 
-#include "base/std/container/array.h"
 #include <cstdint>
 #include <regex>
 #include "base/csscolorparser.h"
+#include "base/std/container/array.h"
 #include "cocos/bindings/manual/jsb_platform.h"
 #include "math/Math.h"
 #include "platform/FileUtils.h"
@@ -78,13 +78,13 @@ public:
     void            updateData() override {}
 
 private:
-    static wchar_t *     utf8ToUtf16(const ccstd::string &str, int *pRetLen = nullptr);
-    void                 removeCustomFont();
-    int                  drawText(const ccstd::string &text, int x, int y);
-    Size                 sizeWithText(const wchar_t *pszText, int nLen);
-    void                 prepareBitmap(int nWidth, int nHeight);
-    void                 deleteBitmap();
-    void                 fillTextureData();
+    static wchar_t *       utf8ToUtf16(const ccstd::string &str, int *pRetLen = nullptr);
+    void                   removeCustomFont();
+    int                    drawText(const ccstd::string &text, int x, int y);
+    Size                   sizeWithText(const wchar_t *pszText, int nLen);
+    void                   prepareBitmap(int nWidth, int nHeight);
+    void                   deleteBitmap();
+    void                   fillTextureData();
     ccstd::array<float, 2> convertDrawPoint(Point point, const ccstd::string &text);
 
 public:

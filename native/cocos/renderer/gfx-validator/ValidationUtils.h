@@ -26,8 +26,8 @@
 #pragma once
 
 #include <algorithm>
-#include "base/std/container/array.h"
 #include "base/Utils.h"
+#include "base/std/container/array.h"
 #include "gfx-base/GFXDef.h"
 
 namespace cc {

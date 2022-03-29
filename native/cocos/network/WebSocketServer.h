@@ -186,7 +186,7 @@ private:
 
     struct lws *                                       _wsi = nullptr;
     ccstd::unordered_map<ccstd::string, ccstd::string> _headers;
-    ccstd::list<std::shared_ptr<DataFrame>>              _sendQueue;
+    ccstd::list<std::shared_ptr<DataFrame>>            _sendQueue;
     std::shared_ptr<DataFrame>                         _prevPkg;
     bool                                               _closed      = false;
     ccstd::string                                      _closeReason = "close connection";

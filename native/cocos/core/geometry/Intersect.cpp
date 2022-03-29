@@ -2,8 +2,8 @@
 
 #include <cmath>
 #include <limits>
-#include "base/std/container/array.h"
 #include "3d/assets/Mesh.h"
+#include "base/std/container/array.h"
 #include "core/TypedArray.h"
 #include "core/geometry/AABB.h"
 #include "core/geometry/Capsule.h"
@@ -104,8 +104,8 @@ float rayAABB(const Ray &ray, const AABB &aabb) {
 float rayOBB(const Ray &ray, const OBB &obb) {
     ccstd::array<float, 6> t;
     ccstd::array<float, 3> size   = {obb.halfExtents.x, obb.halfExtents.y, obb.halfExtents.z};
-    const auto &         center = obb.center;
-    auto const &         d      = ray.d;
+    const auto &           center = obb.center;
+    auto const &           d      = ray.d;
 
     Vec3 x = {obb.orientation.m[0], obb.orientation.m[1], obb.orientation.m[2]};
     Vec3 y = {obb.orientation.m[3], obb.orientation.m[4], obb.orientation.m[5]};
@@ -614,10 +614,10 @@ int aabbFrustum(const AABB &aabb, const Frustum &frustum) {
 // https://cesium.com/blog/2017/02/02/tighter-frustum-culling-and-why-you-may-want-to-disregard-it/
 int aabbFrustumAccurate(const AABB &aabb, const Frustum &frustum) {
     ccstd::array<Vec3, 8> tmp;
-    int                 out1       = 0;
-    int                 out2       = 0;
-    int                 result     = 0;
-    bool                intersects = false;
+    int                   out1       = 0;
+    int                   out2       = 0;
+    int                   result     = 0;
+    bool                  intersects = false;
     // 1. aabb inside/outside frustum test
     for (const auto &plane : frustum.planes) {
         result = aabbPlane(aabb, *plane);
@@ -720,10 +720,10 @@ int obbFrustum(const OBB &obb, const Frustum &frustum) {
 // https://cesium.com/blog/2017/02/02/tighter-frustum-culling-and-why-you-may-want-to-disregard-it/
 int obbFrustumAccurate(const OBB &obb, const Frustum &frustum) {
     ccstd::array<Vec3, 8> tmp  = {};
-    float               dist = 0.0F;
-    size_t              out1 = 0;
-    size_t              out2 = 0;
-    auto                dot  = [](const Vec3 &n, float x, float y, float z) -> float {
+    float                 dist = 0.0F;
+    size_t                out1 = 0;
+    size_t                out2 = 0;
+    auto                  dot  = [](const Vec3 &n, float x, float y, float z) -> float {
         return n.x * x + n.y * y + n.z * z;
     };
     int  result     = 0;
@@ -822,10 +822,10 @@ int obbWithOBB(const OBB &obb1, const OBB &obb2) {
 
 // https://github.com/diku-dk/bvh-tvcg18/blob/1fd3348c17bc8cf3da0b4ae60fdb8f2aa90a6ff0/FOUNDATION/GEOMETRY/GEOMETRY/include/overlap/geometry_overlap_obb_capsule.h
 int obbCapsule(const OBB &obb, const Capsule &capsule) {
-    Sphere              sphere{};
+    Sphere                sphere{};
     ccstd::array<Vec3, 8> v3Verts8{};
     ccstd::array<Vec3, 8> v3Axis8{};
-    auto                h = capsule.ellipseCenter0.distanceSquared(capsule.ellipseCenter1);
+    auto                  h = capsule.ellipseCenter0.distanceSquared(capsule.ellipseCenter1);
     if (h == 0.0F) {
         sphere.setRadius(capsule.radius);
         sphere.setCenter(capsule.ellipseCenter0);

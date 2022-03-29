@@ -30,12 +30,12 @@
 #include <functional>
 #include "audio/include/Export.h"
 #include "base/Macros.h"
-#include "base/std/container/vector.h"
-#include "bindings/event/CustomEventTypes.h"
-#include "bindings/event/EventDispatcher.h"
 #include "base/std/container/list.h"
 #include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
+#include "base/std/container/vector.h"
+#include "bindings/event/CustomEventTypes.h"
+#include "bindings/event/EventDispatcher.h"
 
 #ifdef ERROR
     #undef ERROR

@@ -200,7 +200,7 @@ void PostProcessStage::render(scene::Camera *camera) {
         auto *           pipeline   = _pipeline;
         gfx::RenderPass *renderPass = table.getRenderPass();
 
-        auto *                    cmdBuff       = pipeline->getCommandBuffers()[0];
+        auto *                      cmdBuff       = pipeline->getCommandBuffers()[0];
         const ccstd::array<uint, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
         cmdBuff->bindDescriptorSet(globalSet, pipeline->getDescriptorSet(), utils::toUint(globalOffsets.size()), globalOffsets.data());
 
