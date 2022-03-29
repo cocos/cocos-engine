@@ -44,7 +44,7 @@ public:
         ON_CLOSE,
         UNKNOWN,
     };
-    virtual ~BaseEngine();
+    ~BaseEngine() override;
     using Ptr = std::shared_ptr<BaseEngine>;
 
     /**
