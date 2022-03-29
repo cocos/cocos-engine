@@ -131,7 +131,7 @@ export class SkeletalAnimation extends Animation {
      * @en
      * Whether to bake animations. Default to true,<br>
      * which substantially increases performance while making all animations completely fixed.<br>
-     * Changing this property will recreate all animation states.
+     * Changing this property will stop and recreate all animation states.
      * @zh
      * 是否使用预烘焙动画，默认启用，可以大幅提高运行效时率，但所有动画效果会被彻底固定，不支持任何形式的编辑和混合。<br>
      * 修改此选项会重新创建所有动画状态。
