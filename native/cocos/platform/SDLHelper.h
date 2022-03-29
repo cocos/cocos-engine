@@ -57,7 +57,7 @@ public:
 private:
     void               dispatchSDLEvent(const SDL_Event& sdlEvent, bool* quit);
     void               dispatchWindowEvent(const SDL_WindowEvent& wevent);
-    bool               _windowCreated{false};
+    bool               _isWindowCreated{false};
     IEventDispatch*    _delegate{nullptr};
     struct SDL_Window* _handle{nullptr};
 };

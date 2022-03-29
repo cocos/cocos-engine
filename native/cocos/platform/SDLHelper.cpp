@@ -153,7 +153,7 @@ SDLHelper::~SDLHelper() {
         SDL_DestroyWindow(_handle);
         _handle = nullptr;
     }
-    if (_windowCreated) {
+    if (_isWindowCreated) {
         SDL_Quit();
     }
 }
@@ -334,6 +334,9 @@ void SDLHelper::pollEvent(bool *quit) {
 
 bool SDLHelper::createWindow(const char *title,
                              int w, int h, int flags) {
+    if (_isWindowCreated) {
+        return true;
+    }
     SDL_Rect screenRect;
     if (SDL_GetDisplayUsableBounds(0, &screenRect) != 0) {
         return false;
@@ -346,6 +349,9 @@ bool SDLHelper::createWindow(const char *title,
 bool SDLHelper::createWindow(const char *title,
                              int x, int y, int w,
                              int h, int flags) {
+    if (_isWindowCreated) {
+        return true;
+    }
     // Create window
     int sdlFlags = windowFlagsToSDLWindowFlag(flags);
     _handle      = SDL_CreateWindow(title, x, y, w, h, sdlFlags);
@@ -354,7 +360,7 @@ bool SDLHelper::createWindow(const char *title,
         CC_LOG_ERROR("Window could not be created! SDL_Error: %s\n", SDL_GetError());
         return false;
     }
-    _windowCreated = true;
+    _isWindowCreated = true;
     return true;
 }
 
