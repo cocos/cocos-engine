@@ -1,0 +1,65 @@
+name: Bug report
+description: Report a bug for Cocos
+body:
+
+- type: markdown
+  attributes:
+    value: |
+      - Read our [CONTRIBUTING.md guide](https://github.com/cocos/cocos-engine/blob/develop/docs/contribution/modules.md#reporting-bugs) 
+      - Write a descriptive issue title above.
+      - Search [open](https://github.com/cocos/cocos-engine/issues) and [closed](https://github.com/cocos/cocos-engine/issues?q=is%3Aissue+is%3Aclosed) issues to ensure it has not already been reported.
+      - Verify that you are using a [supported Cocos version](https://docs.cocos.com/creator/manual/en/).
+
+- type: input
+  attributes:
+    label: Cocos Creator version
+    description: >
+      Specify the Git commit hash if using a development or non-official build.
+      If you use a custom build, please test if your issue is reproducible in official builds too.
+    placeholder: 3.3.2, 3.4.0 
+  validations:
+    required: true
+
+- type: input
+  attributes:
+    label: System information
+    description: |
+      Specify the OS version, and when relevant hardware information.
+      For graphics-related issues, specify the GPU model, driver version, and the rendering backend (GLES2, GLES3, Vulkan).
+      For issues regarding to smart phones, specify the OS and phone model
+    placeholder: Windows Editor, iOS 15.4 build on iphone 13
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Issue description
+    description: |
+      Describe your issue briefly. What doesn't work, and how do you expect it to work instead?
+      You can include images or videos with drag and drop, and format code blocks or logs with <code>```</code> tags.
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Error Log
+    description: |
+      JavaScript output log error
+  validations:
+    required: false
+
+- type: textarea
+  attributes:
+    label: Steps to reproduce
+    description: |
+      List of steps or sample code that reproduces the issue. Having reproducible issues is a prerequisite for contributors to be able to solve them.
+      If you include a minimal reproduction project below, you can detail how to use it here.
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Minimal reproduction project
+    description: |
+      A small Cocos project which reproduces the issue. Highly recommended to speed up troubleshooting.
+      Drag and drop a ZIP archive to upload it.
