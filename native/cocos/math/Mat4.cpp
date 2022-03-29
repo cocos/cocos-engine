@@ -24,8 +24,8 @@
 
 #include <cmath>
 #include <cstring>
-#include "base/std/container/array.h"
 #include "base/Log.h"
+#include "base/std/container/array.h"
 #include "math/MathUtil.h"
 #include "math/Quaternion.h"
 
@@ -156,9 +156,9 @@ void Mat4::createOrthographicOffCenter(float left, float right, float bottom, fl
     GP_ASSERT(zFarPlane != zNearPlane);
 
     const ccstd::array<float, 4> &preTransform = PRE_TRANSFORMS[orientation];
-    const float                 lr           = 1.F / (left - right);
-    const float                 bt           = 1.F / (bottom - top) * projectionSignY;
-    const float                 nf           = 1.F / (zNearPlane - zFarPlane);
+    const float                   lr           = 1.F / (left - right);
+    const float                   bt           = 1.F / (bottom - top) * projectionSignY;
+    const float                   nf           = 1.F / (zNearPlane - zFarPlane);
 
     const float x  = -2 * lr;
     const float y  = -2 * bt;

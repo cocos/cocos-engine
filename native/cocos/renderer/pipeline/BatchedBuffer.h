@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include "base/std/container/array.h"
 #include "Define.h"
 #include "base/RefCounted.h"
+#include "base/std/container/array.h"
 #include "base/std/container/unordered_map.h"
 
 namespace cc {
@@ -39,18 +39,18 @@ class SubModel;
 namespace pipeline {
 
 struct CC_DLL BatchedItem {
-    gfx::BufferList                           vbs;
-    ccstd::vector<uint8_t *>                  vbDatas;
-    gfx::Buffer *                             indexBuffer = nullptr;
-    float *                                   indexData   = nullptr;
-    uint                                      vbCount     = 0;
-    uint                                      mergeCount  = 0;
-    gfx::InputAssembler *                     ia          = nullptr;
-    gfx::Buffer *                             ubo         = nullptr;
+    gfx::BufferList                             vbs;
+    ccstd::vector<uint8_t *>                    vbDatas;
+    gfx::Buffer *                               indexBuffer = nullptr;
+    float *                                     indexData   = nullptr;
+    uint                                        vbCount     = 0;
+    uint                                        mergeCount  = 0;
+    gfx::InputAssembler *                       ia          = nullptr;
+    gfx::Buffer *                               ubo         = nullptr;
     ccstd::array<float, UBOLocalBatched::COUNT> uboData;
-    gfx::DescriptorSet *                      descriptorSet = nullptr;
-    const scene::Pass *                       pass          = nullptr;
-    gfx::Shader *                             shader        = nullptr;
+    gfx::DescriptorSet *                        descriptorSet = nullptr;
+    const scene::Pass *                         pass          = nullptr;
+    gfx::Shader *                               shader        = nullptr;
 };
 using BatchedItemList   = ccstd::vector<BatchedItem>;
 using DynamicOffsetList = ccstd::vector<uint>;

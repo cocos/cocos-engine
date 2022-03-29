@@ -128,7 +128,7 @@ private:
     static constexpr uint MAT_PROJ_INV_OFFSET = 24;
 
     ccstd::array<float, (2 * sizeof(Vec4) + 2 * sizeof(Mat4)) / sizeof(float)> _constants{};
-    gfx::Buffer *                                                            _constantsBuffer{nullptr};
+    gfx::Buffer *                                                              _constantsBuffer{nullptr};
 
     ccstd::vector<scene::Light *> _validLights;
     ccstd::vector<float>          _lightBufferData;

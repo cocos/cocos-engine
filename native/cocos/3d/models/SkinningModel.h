@@ -69,9 +69,9 @@ private:
     static void uploadJointData(uint32_t base, const Mat4 &mat, float *dst);
     void        ensureEnoughBuffers(index_t count);
 
-    ccstd::vector<index_t>                                           _bufferIndices;
-    ccstd::vector<IntrusivePtr<gfx::Buffer>>                         _buffers;
-    ccstd::vector<JointInfo>                                         _joints;
+    ccstd::vector<index_t>                                             _bufferIndices;
+    ccstd::vector<IntrusivePtr<gfx::Buffer>>                           _buffers;
+    ccstd::vector<JointInfo>                                           _joints;
     ccstd::vector<ccstd::array<float, pipeline::UBOSkinning::COUNT> *> _dataArray;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(SkinningModel);

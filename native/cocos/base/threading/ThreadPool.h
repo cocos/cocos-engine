@@ -62,11 +62,11 @@ private:
 
     void addThread();
 
-    TaskQueue              _tasks{};
+    TaskQueue                _tasks{};
     ccstd::list<std::thread> _workers{};
-    Event                  _event{};
-    std::atomic<bool>      _running{false};
-    uint8_t                _workerCount{MAX_THREAD_COUNT};
+    Event                    _event{};
+    std::atomic<bool>        _running{false};
+    uint8_t                  _workerCount{MAX_THREAD_COUNT};
 };
 
 template <typename Function, typename... Args>

@@ -56,7 +56,7 @@ const struct lws_extension exts[] = {
     {nullptr, nullptr, nullptr}};
 
 struct AsyncTaskData {
-    std::mutex                       mtx;
+    std::mutex                         mtx;
     ccstd::list<std::function<void()>> tasks;
 };
 

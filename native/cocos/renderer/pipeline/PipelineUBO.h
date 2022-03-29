@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "base/std/container/array.h"
 #include "Define.h"
+#include "base/std/container/array.h"
 
 namespace cc {
 class Mat4;

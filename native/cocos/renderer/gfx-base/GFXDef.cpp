@@ -23,9 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/std/container/array.h"
 #include <boost/functional/hash.hpp>
 #include "base/Utils.h"
+#include "base/std/container/array.h"
 
 #include "GFXDef.h"
 #include "GFXTexture.h"

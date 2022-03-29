@@ -25,12 +25,11 @@
 
 #pragma once
 
-#include "platform/interfaces/OSInterface.h"
 #include "base/Data.h"
 #include "base/std/container/array.h"
 #include "base/std/container/string.h"
 #include "math/Geometry.h"
-
+#include "platform/interfaces/OSInterface.h"
 
 enum class CanvasTextAlign {
     LEFT,

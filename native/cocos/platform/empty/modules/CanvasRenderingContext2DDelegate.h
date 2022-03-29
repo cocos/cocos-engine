@@ -29,8 +29,8 @@
 
 #include <cstdint>
 #include <regex>
-#include "base/std/container/array.h"
 #include "base/csscolorparser.h"
+#include "base/std/container/array.h"
 #include "cocos/bindings/manual/jsb_platform.h"
 #include "math/Math.h"
 #include "platform/FileUtils.h"
