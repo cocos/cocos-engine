@@ -39,13 +39,13 @@ public:
     SDLHelper(IEventDispatch* delegate);
     ~SDLHelper();
 
-    int      init();
-    void      swapWindow();
-    bool      createWindow(const char* title,
-                           int w, int h, int flags);
-    bool      createWindow(const char* title,
-                           int x, int y, int w,
-                           int h, int flags);
+    int  init();
+    void swapWindow();
+    bool createWindow(const char* title,
+                      int w, int h, int flags);
+    bool createWindow(const char* title,
+                      int x, int y, int w,
+                      int h, int flags);
 
     void      pollEvent(bool* quit);
     uintptr_t getWindowHandler() const;
