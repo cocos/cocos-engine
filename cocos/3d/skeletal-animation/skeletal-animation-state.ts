@@ -131,7 +131,7 @@ export class SkeletalAnimationState extends AnimationState {
         }
     }
 
-    protected createEvaluator (...args: Parameters<AnimationState['createEvaluator']>): void {
+    protected _createEvaluator (...args: Parameters<AnimationState['_createEvaluator']>): void {
         assertIsNonNullable(this._parent);
         const baked = this._parent.useBakedAnimation;
         if (baked) {
@@ -140,7 +140,7 @@ export class SkeletalAnimationState extends AnimationState {
         } else {
             this._sampleCurves = super._sampleCurves;
             this.duration = this.clip.duration;
-            super.createEvaluator(...args);
+            super._createEvaluator(...args);
         }
     }
 

@@ -351,7 +351,7 @@ export class AnimationState extends Playable {
         }
 
         const pose = blendStateBuffer === null ? null : blendStateBuffer ?? getGlobalAnimationManager().blendState;
-        this.createEvaluator(
+        this._createEvaluator(
             root,
             pose,
             mask,
@@ -507,7 +507,7 @@ export class AnimationState extends Playable {
     /**
      * @internal This method only friends to skeletal animation state.
      */
-    protected createEvaluator (
+    protected _createEvaluator (
         root: Node,
         blendStateBuffer: BlendStateBuffer | null,
         mask: AnimationMask | undefined,
