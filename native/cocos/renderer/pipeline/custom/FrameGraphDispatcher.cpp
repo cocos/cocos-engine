@@ -29,9 +29,9 @@
 #include "FGDispatcherTypes.h"
 #include "LayoutGraphGraphs.h"
 #include "LayoutGraphTypes.h"
+#include "Range.h"
 #include "RenderGraphGraphs.h"
 #include "boost/lexical_cast.hpp"
-#include "Range.h"
 
 namespace cc {
 
@@ -236,7 +236,7 @@ void processComputePass(RAG &rag, const LGD &lgd, const ResourceGraph &rescGraph
     }
 }
 
-void processCopyPass(RAG &rag, const LGD &/*lgd*/, const ResourceGraph &rescGraph, AccessTable &accessRecord, uint32_t passID, const CopyPass &pass) {
+void processCopyPass(RAG &rag, const LGD & /*lgd*/, const ResourceGraph &rescGraph, AccessTable &accessRecord, uint32_t passID, const CopyPass &pass) {
     auto  vertID    = add_vertex(rag, passID);
     auto &node      = get(RAG::AccessNode, rag, vertID);
     bool  dependent = false;
