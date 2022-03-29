@@ -60,7 +60,7 @@ int Game::init() {
                      cc::ISystemWindow::CC_WINDOW_INPUT_FOCUS);
 
     auto parser = ConfigParser::getInstance();
-    setJsDebugIpAndPort("0.0.0.0", 5086, parser->isWaitForConnect());
+    setDebugIpAndPort("0.0.0.0", 5086, parser->isWaitForConnect());
 
     int ret = cc::CocosApplication::init();
     if (ret != 0) {
@@ -75,8 +75,8 @@ int Game::init() {
 
     setXXTeaKey("");
 
-    runJsScript("jsb-adapter/jsb-builtin.js");
-    runJsScript("main.js");
+    runScript("jsb-adapter/jsb-builtin.js");
+    runScript("main.js");
 
     // Runtime end
     CC_LOG_DEBUG("iShow!");
@@ -100,4 +100,4 @@ void Game::handleException(const char* location, const char* message, const char
     //TODO: nothing
 }
 
-CC_REGISTER_GAME(Game);
+CC_REGISTER_APPLICATION(Game);

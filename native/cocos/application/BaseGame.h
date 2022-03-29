@@ -66,7 +66,7 @@ public:
 #endif
 
         if (_debuggerInfo.enabled) {
-            setJsDebugIpAndPort(_debuggerInfo.address, _debuggerInfo.port, _debuggerInfo.pauseOnStart);
+            setDebugIpAndPort(_debuggerInfo.address, _debuggerInfo.port, _debuggerInfo.pauseOnStart);
         }
 
         int ret = cc::CocosApplication::init();
@@ -76,8 +76,8 @@ public:
 
         setXXTeaKey(_xxteaKey);
 
-        runJsScript("jsb-adapter/jsb-builtin.js");
-        runJsScript("main.js");
+        runScript("jsb-adapter/jsb-builtin.js");
+        runScript("main.js");
         return 0;
     }
 
