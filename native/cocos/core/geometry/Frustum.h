@@ -108,7 +108,7 @@ public:
      */
     static Frustum *copy(Frustum *out, const Frustum &f) {
         out->setType(f.getType());
-        for (size_t i = 0; i < 6; ++i) {
+        for (size_t i = 0; i < 6; ++i) { // NOLINT(modernize-loop-convert)
             Plane::copy(out->planes[i],  *(f.planes[i]));
         }
         out->vertices = f.vertices;
@@ -127,7 +127,7 @@ public:
 
     Frustum() {
         setType(ShapeEnum::SHAPE_FRUSTUM);
-        for (size_t i = 0; i < planes.size(); ++i) {
+        for (size_t i = 0; i < planes.size(); ++i) { // NOLINT(modernize-loop-convert)
             planes[i] = new Plane();
             planes[i]->addRef();
         }
