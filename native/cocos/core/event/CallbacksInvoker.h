@@ -46,7 +46,7 @@ namespace cc {
 // NOTE: CCObject is not defined in engine 3.5, so make a fake one.
 class CCObject {
 public:
-    inline bool isObjectValid() const { return true; }
+    inline bool isObjectValid() const { return true; }// NOLINT(readability-convert-member-functions-to-static)
 };
 
 bool isObjectValid(CCObject *value, bool strictMode = false);

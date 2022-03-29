@@ -29,6 +29,8 @@ namespace cc {
 
 // NOTE: CCObject is not defined in engine 3.5, so make a fake one.
 bool isObjectValid(CCObject *value, bool strictMode/* = false*/) {
+    CC_UNUSED_PARAM(value);
+    CC_UNUSED_PARAM(strictMode);
     return true;
 }
 //
