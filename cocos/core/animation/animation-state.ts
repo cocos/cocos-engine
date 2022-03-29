@@ -504,6 +504,9 @@ export class AnimationState extends Playable {
         this.emit(EventType.PAUSE, this);
     }
 
+    /**
+     * @internal This method only friends to skeletal animation state.
+     */
     protected createEvaluator (
         root: Node,
         blendStateBuffer: BlendStateBuffer | null,
