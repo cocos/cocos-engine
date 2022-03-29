@@ -331,7 +331,7 @@ export class AnimationState extends Playable {
     public initialize (root: Node, blendStateBuffer?: BlendStateBuffer | null, mask?: AnimationMask, passive?: boolean) {
         if (this._curveLoaded) { return; }
         this._curveLoaded = true;
-        this.destroyEvaluator();
+        this._destroyEvaluator();
         this._targetNode = root;
         const clip = this._clip;
 
@@ -369,7 +369,7 @@ export class AnimationState extends Playable {
                 getGlobalAnimationManager().removeAnimation(this);
             }
         }
-        this.destroyEvaluator();
+        this._destroyEvaluator();
     }
 
     /**
@@ -520,17 +520,6 @@ export class AnimationState extends Playable {
         });
     }
 
-    protected destroyEvaluator () {
-        if (this._poseOutput) {
-            this._poseOutput.destroy();
-            this._poseOutput = null;
-        }
-        if (this._clipEval) {
-            // TODO: destroy?
-            this._clipEval = undefined;
-        }
-    }
-
     protected _sampleCurves (time: number) {
         const { _poseOutput: poseOutput, _clipEval: clipEval } = this;
         if (poseOutput) {
@@ -538,6 +527,17 @@ export class AnimationState extends Playable {
         }
         if (clipEval) {
             clipEval.evaluate(time);
+        }
+    }
+
+    private _destroyEvaluator () {
+        if (this._poseOutput) {
+            this._poseOutput.destroy();
+            this._poseOutput = null;
+        }
+        if (this._clipEval) {
+            // TODO: destroy?
+            this._clipEval = undefined;
         }
     }
 
