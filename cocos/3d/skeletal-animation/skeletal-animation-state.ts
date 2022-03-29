@@ -37,6 +37,7 @@ import { AnimationState } from '../../core/animation/animation-state';
 import { SkeletalAnimation, Socket } from './skeletal-animation';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { legacyCC } from '../../core/global-exports';
+import { assertIsNonNullable } from '../../core/data/utils/asserts';
 
 const m4_1 = new Mat4();
 const m4_2 = new Mat4();
@@ -65,43 +66,19 @@ export class SkeletalAnimationState extends AnimationState {
 
     protected _parent: SkeletalAnimation | null = null;
 
-    protected _curvesInited = false;
-
     constructor (clip: AnimationClip, name = '') {
         super(clip, name);
         this._animInfoMgr = legacyCC.director.root.dataPoolManager.jointAnimationInfo;
     }
 
-    public initialize (root: Node) {
-        if (this._curveLoaded) { return; }
+    public initialize (...args: Parameters<AnimationState['initialize']>) {
+        const [root] = args;
         this._parent = root.getComponent('cc.SkeletalAnimation') as SkeletalAnimation;
-        const baked = this._parent.useBakedAnimation;
-        this._doNotCreateEval = baked;
-        super.initialize(root);
-        this._curvesInited = !baked;
         const { frames, samples } = SkelAnimDataHub.getOrExtract(this.clip);
         this._frames = frames - 1;
         this._animInfo = this._animInfoMgr.getData(root.uuid);
         this._bakedDuration = this._frames / samples; // last key
-        this.setUseBaked(baked);
-    }
-
-    /**
-     * @internal This method only friends to `SkeletalAnimation`.
-     */
-    public setUseBaked (useBaked: boolean) {
-        if (useBaked) {
-            this._sampleCurves = this._sampleCurvesBaked;
-            this.duration = this._bakedDuration;
-        } else {
-            this._sampleCurves = super._sampleCurves;
-            this.duration = this.clip.duration;
-            if (!this._curvesInited) {
-                this._curveLoaded = false;
-                super.initialize(this._targetNode!);
-                this._curvesInited = true;
-            }
-        }
+        super.initialize(...args);
     }
 
     public rebuildSocketCurves (sockets: Socket[]) {
@@ -151,6 +128,19 @@ export class SkeletalAnimationState extends AnimationState {
                 target: socket.target,
                 frames: transforms,
             });
+        }
+    }
+
+    protected createEvaluator (...args: Parameters<AnimationState['createEvaluator']>): void {
+        assertIsNonNullable(this._parent);
+        const baked = this._parent.useBakedAnimation;
+        if (baked) {
+            this._sampleCurves = this._sampleCurvesBaked;
+            this.duration = this._bakedDuration;
+        } else {
+            this._sampleCurves = super._sampleCurves;
+            this.duration = this.clip.duration;
+            super.createEvaluator(...args);
         }
     }
 

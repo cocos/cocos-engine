@@ -451,6 +451,18 @@ export class Animation extends Eventify(Component) {
         }
     }
 
+    /**
+     * @internal Friends only to skeletal animation component.
+     */
+    protected _recreateAllStates () {
+        this.stop();
+        for (const name in this._nameToState) {
+            const oldState = this._nameToState[name];
+            this._doCreateState(oldState.clip, name);
+            oldState.destroy();
+        }
+    }
+
     protected _createState (clip: AnimationClip, name?: string) {
         return new AnimationState(clip, name);
     }

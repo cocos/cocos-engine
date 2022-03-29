@@ -131,10 +131,10 @@ export class SkeletalAnimation extends Animation {
      * @en
      * Whether to bake animations. Default to true,<br>
      * which substantially increases performance while making all animations completely fixed.<br>
-     * Dynamically changing this property will take effect when playing the next animation clip.
+     * Changing this property will recreate all animation states.
      * @zh
      * 是否使用预烘焙动画，默认启用，可以大幅提高运行效时率，但所有动画效果会被彻底固定，不支持任何形式的编辑和混合。<br>
-     * 运行时动态修改此选项会在播放下一条动画片段时生效。
+     * 修改此选项会重新创建所有动画状态。
      */
     @tooltip('i18n:animation.use_baked_animation')
     get useBakedAnimation () {
@@ -142,12 +142,13 @@ export class SkeletalAnimation extends Animation {
     }
 
     set useBakedAnimation (val) {
+        if (this._useBakedAnimation === val) {
+            return;
+        }
+
         this._useBakedAnimation = val;
 
-        for (const stateName in this._nameToState) {
-            const state = this._nameToState[stateName] as SkeletalAnimationState;
-            state.setUseBaked(val);
-        }
+        this._recreateAllStates();
 
         this._users.forEach((user) => {
             user.setUseBakedAnimation(val);
