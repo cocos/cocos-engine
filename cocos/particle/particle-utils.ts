@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { instantiate } from '../core/data';
 import { CCObject } from '../core/data/object';

@@ -36,10 +36,11 @@ import { Layers } from './layers';
 import { NodeUIProperties } from './node-ui-properties';
 import { legacyCC } from '../global-exports';
 import { BaseNode, TRANSFORM_ON } from './base-node';
-import { Mat3, Mat4, Quat, Vec3 } from '../math';
+import { approx, EPSILON, Mat3, Mat4, Quat, Vec3 } from '../math';
 import { NodeSpace, TransformBit } from './node-enum';
 import { NodeEventType } from './node-event';
 import { CustomSerializable, editorExtrasTag, SerializationContext, SerializationOutput, serializeTag } from '../data';
+import { warnID } from '../platform/debug';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -502,8 +503,14 @@ export class Node extends BaseNode implements CustomSerializable {
             const parent = this._parent;
             if (parent) {
                 parent.updateWorldTransform();
-                Mat4.multiply(m4_1, Mat4.invert(m4_1, parent._mat), this._mat);
-                Mat4.toRTS(m4_1, this._lrot, this._lpos, this._lscale);
+                if (approx(Mat4.determinant(parent._mat), 0, EPSILON)) {
+                    warnID(14300);
+                    this._dirtyFlags |= TransformBit.TRS;
+                    this.updateWorldTransform();
+                } else {
+                    Mat4.multiply(m4_1, Mat4.invert(m4_1, parent._mat), this._mat);
+                    Mat4.toRTS(m4_1, this._lrot, this._lpos, this._lscale);
+                }
             } else {
                 Vec3.copy(this._lpos, this._pos);
                 Quat.copy(this._lrot, this._rot);

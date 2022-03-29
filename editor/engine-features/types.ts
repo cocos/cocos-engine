@@ -29,7 +29,9 @@ export type EngineFeature =
     | 'dragon-bones'
     | 'primitive'
     | 'profiler'
-    | 'marionette';
+    | 'marionette'
+    | 'animation'
+    | 'skeletal-animation';
 export interface ModuleRenderConfig {
     $schema?: string;
 

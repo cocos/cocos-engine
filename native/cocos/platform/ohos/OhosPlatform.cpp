@@ -25,14 +25,30 @@
 
 #include <thread>
 
-#include "platform/UniversalPlatform.h"
-#include "platform/java/jni/glue/JniNativeGlue.h"
-#include "platform/java/modules/SystemWindow.h"
 #include "platform/ohos/OhosPlatform.h"
+#include "platform/java/jni/glue/JniNativeGlue.h"
+#include "platform/java/modules/Accelerometer.h"
+#include "platform/java/modules/Battery.h"
+#include "platform/java/modules/Network.h"
+#include "platform/java/modules/SystemWindow.h"
+#include "platform/java/modules/Vibrator.h"
+#include "modules/Screen.h"
+#include "modules/System.h"
 
 namespace cc {
 OhosPlatform::OhosPlatform() {
     _jniNativeGlue = JNI_NATIVE_GLUE();
+}
+
+int OhosPlatform::init() {
+    registerInterface(std::make_shared<Accelerometer>());
+    registerInterface(std::make_shared<Battery>());
+    registerInterface(std::make_shared<Network>());
+    registerInterface(std::make_shared<Screen>());
+    registerInterface(std::make_shared<System>());
+    registerInterface(std::make_shared<SystemWindow>());
+    registerInterface(std::make_shared<Vibrator>());
+    return 0;
 }
 
 int OhosPlatform::getSdkVersion() const {

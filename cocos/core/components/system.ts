@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { ISchedulable } from '../scheduler';
 import { Enum } from '../value-types/enum';

@@ -29,40 +29,35 @@
 
 #include "platform/interfaces/modules/ISystemWindow.h"
 
-struct SDL_Window;
-struct SDL_WindowEvent;
-
 namespace cc {
-
-class SystemWindow : public ISystemWindow {
+class SDLHelper;
+class CC_DLL SystemWindow : public ISystemWindow {
 public:
-    explicit SystemWindow();
+    explicit SystemWindow(IEventDispatch* delegate);
     ~SystemWindow() override;
 
-    class Delegate {
-    public:
-        virtual ~Delegate()                              = default;
-        virtual bool      createWindow(const char *title,
-                                       int x, int y, int w,
-                                       int h, int flags) = 0;
-        virtual uintptr_t getWindowHandler() const       = 0;
-    };
+    int       init();
+    void      swapWindow();
+    void      pollEvent(bool* quit);
 
-    bool      createWindow(const char *title,
+    bool      createWindow(const char* title, 
+                           int w, int h, int flags) override;
+    bool      createWindow(const char* title,
                            int x, int y, int w,
                            int h, int flags) override;
     uintptr_t getWindowHandler() const override;
-
+    uintptr_t getDisplay() const;
     Size getViewSize() const override;
     /*
      @brief enable/disable(lock) the cursor, default is enabled
      */
     void setCursorEnabled(bool value) override;
-    void copyTextToClipboard(const ccstd::string &text) override;
+    void copyTextToClipboard(const std::string& text) override;
 
 private:
     int _width{0};
     int _height{0};
+    std::unique_ptr<SDLHelper> _sdl;
 };
 
 } // namespace cc

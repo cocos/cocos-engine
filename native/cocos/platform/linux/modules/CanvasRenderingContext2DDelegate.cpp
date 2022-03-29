@@ -24,9 +24,8 @@
 ****************************************************************************/
 
 #include "platform/linux/modules/CanvasRenderingContext2DDelegate.h"
-#include "SDL2/SDL.h"
-#include "SDL2/SDL_syswm.h"
 #include "platform/linux/LinuxPlatform.h"
+#include "platform/linux/modules/SystemWindow.h"
 
 namespace {
 #define RGB(r, g, b)     (int)((int)r | (((int)g) << 8) | (((int)b) << 16))
@@ -39,13 +38,10 @@ namespace cc {
 static const char gdefaultFontName[] = "lucidasans-24";
 
 CanvasRenderingContext2DDelegate::CanvasRenderingContext2DDelegate() {
-    SDL_SysWMinfo wmInfo;
-    SDL_VERSION(&wmInfo.version);
-    LinuxPlatform *platform = dynamic_cast<LinuxPlatform *>(BasePlatform::getPlatform());
-    CCASSERT(platform != nullptr, "Platform pointer can't be null");
-    SDL_GetWindowWMInfo(reinterpret_cast<SDL_Window *>(platform->getWindow()), &wmInfo);
-    _dis = wmInfo.info.x11.display;
-    _win = wmInfo.info.x11.window;
+    SystemWindow* window = BasePlatform::getPlatform()->getInterface<SystemWindow>();
+    CCASSERT(window != nullptr, "System window is not registered");
+    _dis = reinterpret_cast<Display*>(window->getDisplay());
+    _win = reinterpret_cast<Drawable>(window->getWindowHandler());
 }
 
 CanvasRenderingContext2DDelegate::~CanvasRenderingContext2DDelegate() {

@@ -81,6 +81,7 @@ void CanvasRenderingContext2DDelegate::strokeText(const ccstd::string &text, flo
 }
 
 CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measureText(const ccstd::string &text) {
+    return Size{0, 0};
 }
 
 void CanvasRenderingContext2DDelegate::updateFont(const ccstd::string &fontName,

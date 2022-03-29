@@ -30,8 +30,7 @@
 
 namespace cc {
 
-class EmptyPlatform : public UniversalPlatform,
-                      public SystemWindow::Delegate {
+class CC_DLL EmptyPlatform : public UniversalPlatform {
 public:
     EmptyPlatform();
     /**
@@ -44,15 +43,6 @@ public:
     int32_t init() override;
 
     int32_t loop() override;
-
-    // override from SystemWindow::Delegate
-    bool      createWindow(const char *title,
-                           int x, int y, int w,
-                           int h, int flags) override;
-    uintptr_t getWindowHandler() const override;
-
-private:
-    void pollEvent() override;
 
 private:
     bool _quit{false};

@@ -9,7 +9,6 @@ import spine from './lib/spine-core.js';
 import { FrameBoneInfo } from './skeleton-cache';
 
 const tempMat4 = new Mat4();
-const nodeScale = new Vec3();
 
 /**
  * @en Attach node tool
@@ -60,7 +59,6 @@ export class AttachUtil {
         if (!boneInfos) return;
 
         const matrixHandle = (node:Node, bone:FrameBoneInfo) => {
-            nodeScale.set(node.scale);
             const tm = tempMat4;
             tm.m00 = bone.a;
             tm.m01 = bone.c;
@@ -69,7 +67,6 @@ export class AttachUtil {
             tm.m12 = bone.worldX;
             tm.m13 = bone.worldY;
             node.matrix = tempMat4;
-            node.scale = nodeScale;
         };
 
         for (const boneIdx of socketNodes.keys()) {

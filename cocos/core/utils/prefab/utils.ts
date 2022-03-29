@@ -24,10 +24,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { EDITOR, SUPPORT_JIT } from 'internal:constants';
 import { legacyCC } from '../../global-exports';

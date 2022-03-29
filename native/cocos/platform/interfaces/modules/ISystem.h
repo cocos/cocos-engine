@@ -31,7 +31,7 @@
 
 namespace cc {
 
-class ISystem : public OSInterface {
+class CC_DLL ISystem : public OSInterface {
 public:
     ~ISystem() override;
     enum class LanguageType {
@@ -83,14 +83,7 @@ public:
      @param String with url to open.
      @return True if the resource located by the URL was successfully opened; otherwise false.
      */
-    virtual bool openURL(const ccstd::string &url) = 0;
-    /**
-     @brief Create default sytem interface.
-     @return sytem interface.
-     */
-    static OSInterface::Ptr createSystemInterface();
-
-private:
+    virtual bool openURL(const ccstd::string& url) = 0;
 };
 
 } // namespace cc

@@ -2,6 +2,7 @@ const { join } = require('path');
 
 module.exports = {
     'animation-graph': join(__dirname, './assets/animation-graph.js'),
+    'animation-mask': join(__dirname, './assets/animation-mask.js'),
     'audio-clip': join(__dirname, './assets/audio-clip.js'),
     'auto-atlas': join(__dirname, './assets/texture/auto-atlas.js'), // reuse
     'dragonbones-atlas': join(__dirname, './assets/json.js'), // reuse
@@ -28,5 +29,6 @@ module.exports = {
     texture: join(__dirname, './assets/texture/index.js'),
     typescript: join(__dirname, './assets/typescript.js'),
     unknown: join(__dirname, './assets/unknown.js'),
+    markdown: join(__dirname, './assets/markdown.js'),
     prefab: join(__dirname, './assets/prefab.js'),
 };

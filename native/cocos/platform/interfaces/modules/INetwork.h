@@ -29,7 +29,7 @@
 
 namespace cc {
 
-class INetwork : public OSInterface {
+class CC_DLL INetwork : public OSInterface {
 public:
     enum class NetworkType {
         NONE,
@@ -37,13 +37,6 @@ public:
         WWAN
     };
     virtual NetworkType getNetworkType() const = 0;
-    /**
-     @brief Create default network interface.
-     @return network interface.
-     */
-    static OSInterface::Ptr createNetworkInterface();
-
-private:
 };
 
 } // namespace cc

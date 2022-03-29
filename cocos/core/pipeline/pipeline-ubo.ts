@@ -90,7 +90,7 @@ export class PipelineUBO {
         cv[UBOCamera.EXPOSURE_OFFSET] = exposure;
         cv[UBOCamera.EXPOSURE_OFFSET + 1] = 1.0 / exposure;
         cv[UBOCamera.EXPOSURE_OFFSET + 2] = isHDR ? 1.0 : 0.0;
-        cv[UBOCamera.EXPOSURE_OFFSET + 3] = 0.0;
+        cv[UBOCamera.EXPOSURE_OFFSET + 3] = 1.0 / Camera.standardExposureValue;
 
         if (mainLight) {
             const shadowEnable = (mainLight.shadowEnabled && shadowInfo.type === ShadowType.ShadowMap) ? 1.0 : 0.0;

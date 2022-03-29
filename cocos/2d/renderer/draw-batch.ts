@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { JSB } from 'internal:constants';
 import { MeshBuffer } from './mesh-buffer';
 import { Material } from '../../core/assets/material';

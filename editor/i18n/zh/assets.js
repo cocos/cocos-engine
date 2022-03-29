@@ -1,5 +1,17 @@
 module.exports = {
+    dialog: {
+        confirm: '确认',
+        cancel: '取消',
+        warn: '警告',
+    },
+    inspector: {
+        cloneToEdit: '克隆出新资源，使用并编辑',
+        cloneToDirectoryIllegal: '保存路径请限制在当前项目 /assets 路径内',
+    },
     assets: {
+        reset: '重置',
+        save: '保存',
+        locate_asset: '资源面板上定位该资源',
         'label-atlas': {
             SpriteFrameTip: 'SpriteFrame',
             ItemWidthTip: 'Item Width',
@@ -73,8 +85,12 @@ module.exports = {
         image: {
             type: 'Type',
             typeTip: 'Type',
+            bakeOfflineMipmaps: 'Bake Offline Mipmaps',
+            bakeOfflineMipmapsTip: 'Bake Offline Mipmaps',
             flipVertical: 'Flip Vertical',
             flipVerticalTip: 'Flip Vertical',
+            fixAlphaTransparencyArtifacts: 'Fix Alpha Transparency Artifacts',
+            fixAlphaTransparencyArtifactsTip: '为全透明像素填充相邻像素的颜色，防止纹理过滤引起的黑边问题。当使用 Alpha 透明通道时，请启用此功能。',
             isRGBE: 'Is RGBE',
             isRGBETip: 'Is RGBE',
         },
@@ -226,6 +242,7 @@ module.exports = {
                 original: '原始',
             },
             limitMaterialDumpDir: '提取的路径需要限定在项目路径范围内',
+            legacyOptions:'旧版本遗留',
             legacyFbxImporter: {
                 name: '与 1.* 版本兼容',
                 title: '此导入器是否应该与其在 Cocos Creator 1.* 之前版本的导入方式兼容。',
@@ -280,6 +297,7 @@ module.exports = {
                         title: 'Verbose output',
                     },
                 },
+                warn: '警告：优化后，网格资源的数量和名称会发生改变，这将会造成组件引用的资源丢失，请及时手动更新；（另外，对于模型资源中预生成的预制体，资源同步机制会自动更新）',
             },
             animationBakeRate: {
                 name: '动画烘焙速率',
@@ -318,6 +336,57 @@ module.exports = {
         animationGraph: {
             edit: '编辑',
         },
+        animationMask: {
+            importSkeleton: '导入骨骼',
+            clearAllNodes: '清空',
+            clearAllNodesWarn: '确定清空所有遮罩数据吗？',
+            illegalFbx: '导入骨骼失败：此 fbx 文件不含有 prefab 子资源。',
+            nodeEnableTip: '是否启用这个节点<br>按住 Alt + 点击，可以切换自身和子孙节点的状态',
+        },
         multipleWarning: '不支持此类型资源的多选编辑',
+        check_is_saved: {
+            message: '修改的数据尚未保存，是否保存修改？',
+            assetMessage: '${assetName} 修改的数据尚未保存，是否保存修改？',
+            save: '保存',
+            abort: '丢弃',
+        },
+    },
+
+    menu: {
+        node: '节点菜单',
+        component: '组件菜单',
+
+        remove_component: '删除组件',
+        reset_component: '重置组件',
+        move_up_component: '向上移动',
+        move_down_component: '向下移动',
+
+        reset_node: '重置节点',
+        reset_node_position: '重置节点坐标位置',
+        reset_node_rotation: '重置节点旋转角度',
+        reset_node_scale: '重置节点缩放比例',
+
+        copy_node_value: '复制节点的值',
+        paste_node_value: '粘贴节点的值',
+        copy_node_world_transform: '复制节点世界坐标',
+        paste_node_world_transform: '粘贴节点世界坐标',
+
+        copy_component: '复制组件',
+        paste_component: '粘贴成为新组件',
+        paste_component_values: '粘贴组件的值',
+
+        help_url: '帮助文档',
+        custom_script: '自定义脚本',
+    },
+
+    prefab: {
+        edit: '编辑资源',
+        local: '定位资源',
+        reset: '从资源还原',
+        save: '更新到资源',
+        link: '关联到另一个预制件资源',
+        unlink: '取消关联当前的预制件资源',
+        lost: '对应的预制件资源已不存在',
+        exist: 'Prefab 资源',
     },
 };

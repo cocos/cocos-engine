@@ -27,6 +27,18 @@
                 }
             }
         },
+        "animation": {
+            "label": "i18n:ENGINE.features.animation.label",
+            "description": "i18n:ENGINE.features.animation.description",
+            "default": ["animation"],
+            "category": "animation"
+        },
+        "skeletal-animation": {
+            "label": "i18n:ENGINE.features.skeletal_animation.label",
+            "description": "i18n:ENGINE.features.skeletal_animation.description",
+            "default": ["skeletal-animation"],
+            "category": "animation"
+        },
         "3d": {
             "default": ["3d"],
             "label": "i18n:ENGINE.features.base_3d.label",
@@ -182,9 +194,10 @@
         },
         "marionette": {
             "default": ["marionette"],
-            "label": "Marionette 动画系统",
-            "description": "启用 Marionette 动画系统。",
-            "wechatPlugin": false
+            "label": "i18n:ENGINE.features.marionette.label",
+            "description": "i18n:ENGINE.features.marionette.description",
+            "wechatPlugin": false,
+            "category": "animation"
         }
     },
     "categories": {
@@ -195,6 +208,10 @@
         "3d": {
             "label": "i18n:ENGINE.features.categories.3d.label",
             "description": "i18n:ENGINE.features.categories.3d.description"
+        },
+        "animation": {
+            "label": "i18n:ENGINE.features.categories.animation.label",
+            "description": "i18n:ENGINE.features.categories.animation.description"
         }
     }
 }

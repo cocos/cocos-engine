@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { binarySearchEpsilon as binarySearch } from '../algorithm/binary-search';
 import { errorID } from '../platform/debug';

@@ -25,9 +25,10 @@
 
 #pragma once
 
+#include <functional>
 #include <future>
 #include <memory>
-#include "base/std/container/string.h"
+#include "base/Macros.h"
 #include "platform/java/jni/glue/MessagePipe.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
@@ -45,12 +46,15 @@ using ResourceManagerType = ResourceManager;
 using NativeWindowType    = NativeLayer;
 #endif
 
+using NativeActivity = void*; //jobject
+using NativeEnv      = void*; //jnienv
+
 namespace cc {
 
 class IEventDispatch;
 class OSEvent;
 
-class JniNativeGlue {
+class CC_DLL JniNativeGlue {
 public:
     enum class JniCommand {
         JNI_CMD_TERM_WINDOW = 0,
@@ -62,21 +66,27 @@ public:
         JNI_CMD_UNKNOW,
     };
     virtual ~JniNativeGlue();
-    static JniNativeGlue *getInstance();
+    static JniNativeGlue* getInstance();
 
-    virtual void start(int argc, const char **argv);
+    virtual void start(int argc, const char** argv);
 
-    void              setWindowHandler(NativeWindowType *window);
-    NativeWindowType *getWindowHandler();
+    void              setWindowHandler(NativeWindowType* window);
+    NativeWindowType* getWindowHandler();
 
-    void                 setResourceManager(ResourceManagerType *resourceManager);
-    ResourceManagerType *getResourceManager();
+    void  setActivityGetter(std::function<NativeActivity(void)>);
+    void* getActivity();
+
+    void  setEnvGetter(std::function<NativeEnv(void)>);
+    void* getEnv();
+
+    void                 setResourceManager(ResourceManagerType* resourceManager);
+    ResourceManagerType* getResourceManager();
 
     void setSdkVersion(int sdkVersion);
     int  getSdkVersion() const;
 
-    void          setObbPath(const ccstd::string &path);
-    ccstd::string getObbPath() const;
+    void        setObbPath(const std::string& path);
+    std::string getObbPath() const;
 
     bool isRunning() const;
     void setRunning(bool isRunning);
@@ -90,12 +100,12 @@ public:
     };
     void writeCommandAsync(JniCommand cmd);
     void writeCommandSync(JniCommand cmd);
-    int  readCommand(CommandMsg *msg);
-    int  readCommandWithTimeout(CommandMsg *cmd, int delayMS);
+    int  readCommand(CommandMsg* msg);
+    int  readCommandWithTimeout(CommandMsg* cmd, int delayMS);
 
-    void setEventDispatch(IEventDispatch *eventDispatcher);
-    void dispatchEvent(const OSEvent &ev);
-    void dispatchTouchEvent(const OSEvent &ev);
+    void setEventDispatch(IEventDispatch* eventDispatcher);
+    void dispatchEvent(const OSEvent& ev);
+    void dispatchTouchEvent(const OSEvent& ev);
 
     void onPause();
     void onResume();
@@ -118,13 +128,16 @@ private:
     bool _animating{false};
 
     std::promise<void>           _threadPromise;
-    ccstd::string                _obbPath;
-    ResourceManagerType *        _resourceManager{nullptr};
-    NativeWindowType *           _window{nullptr};
-    NativeWindowType *           _pendingWindow{nullptr};
+    std::string                  _obbPath;
+    ResourceManagerType*         _resourceManager{nullptr};
+    NativeWindowType*            _window{nullptr};
+    NativeWindowType*            _pendingWindow{nullptr};
     JniCommand                   _appState{JniCommand::JNI_CMD_UNKNOW};
-    IEventDispatch *             _eventDispatcher{nullptr};
+    IEventDispatch*              _eventDispatcher{nullptr};
     std::unique_ptr<MessagePipe> _messagePipe{nullptr};
+
+    std::function<NativeEnv(void)>      _envGetter;
+    std::function<NativeActivity(void)> _activityGetter;
 };
 
 } // namespace cc

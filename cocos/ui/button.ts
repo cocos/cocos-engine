@@ -830,7 +830,7 @@ export class Button extends Component {
             return;
         }
 
-        const hit = this.node._uiProps.uiTransformComp!.isHit(touch.getUILocation());
+        const hit = this.node._uiProps.uiTransformComp!.hitTest(touch.getLocation());
 
         if (this._transition === Transition.SCALE && this.target && this._originalScale) {
             if (hit) {

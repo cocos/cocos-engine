@@ -127,10 +127,10 @@ void SPIRVUtils::compileGLSL(ShaderStageFlagBit type, const ccstd::string &sourc
     spv::SpvBuildLogger logger;
     glslang::SpvOptions spvOptions;
     spvOptions.disableOptimizer = false;
+    spvOptions.optimizeSize     = true;
 #if CC_DEBUG > 0
     //spvOptions.validate = true;
 #else
-    spvOptions.optimizeSize   = true;
     spvOptions.stripDebugInfo = true;
 #endif
     glslang::GlslangToSpv(*_program->getIntermediate(stage), _output, &logger, &spvOptions);

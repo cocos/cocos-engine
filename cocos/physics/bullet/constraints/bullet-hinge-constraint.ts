@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 /* eslint-disable new-cap */
 import { BulletConstraint } from './bullet-constraint';

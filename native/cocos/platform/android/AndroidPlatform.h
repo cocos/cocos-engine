@@ -29,13 +29,16 @@
 
 namespace cc {
 class JniNativeGlue;
-class AndroidPlatform : public UniversalPlatform {
+class CC_DLL AndroidPlatform : public UniversalPlatform {
 public:
     AndroidPlatform();
+    int init() override;
     void    pollEvent() override;
     int32_t run(int argc, const char **argv) override;
     int     getSdkVersion() const override;
     int32_t loop() override;
+    void*   getActivity();
+    void*   getEnv();
 
 private:
     void waitWindowInitialized();

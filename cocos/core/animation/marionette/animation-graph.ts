@@ -11,7 +11,7 @@ import { InvalidTransitionError } from './errors';
 import { createEval } from './create-eval';
 import { MotionState } from './motion-state';
 import { State, outgoingsSymbol, incomingsSymbol, InteractiveState } from './state';
-import { SkeletonMask } from '../skeleton-mask';
+import { AnimationMask } from './animation-mask';
 import { EditorExtendable } from '../../data/editor-extendable';
 import { array } from '../../utils/js';
 import { move } from '../../algorithm/move';
@@ -106,6 +106,20 @@ export type { AnimationTransitionView as AnimationTransition };
 
 export function isAnimationTransition (transition: TransitionView): transition is AnimationTransitionView {
     return transition instanceof AnimationTransition;
+}
+
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}EmptyState`)
+export class EmptyState extends State {
+    public declare __brand: 'EmptyState';
+}
+
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}EmptyStateTransition`)
+export class EmptyStateTransition extends Transition {
+    /**
+     * The transition duration, in seconds.
+     */
+    @serializable
+    public duration = 0.3;
 }
 
 @ccclass('cc.animation.StateMachine')
@@ -248,6 +262,14 @@ export class StateMachine extends EditorExtendable {
     }
 
     /**
+     * Adds an empty state into this state machine.
+     * @returns The newly created empty state.
+     */
+    public addEmpty () {
+        return this._addState(new EmptyState());
+    }
+
+    /**
      * Removes specified state from this state machine.
      * @param state The state to remove.
      */
@@ -279,6 +301,14 @@ export class StateMachine extends EditorExtendable {
      * @param from Source state.
      * @param to Target state.
      * @param condition The transition condition.
+     */
+    public connect (from: EmptyState, to: State, conditions?: Condition[]): EmptyStateTransition;
+
+    /**
+     * Connect two states.
+     * @param from Source state.
+     * @param to Target state.
+     * @param condition The transition condition.
      * @throws `InvalidTransitionError` if:
      * - the target state is entry or any, or
      * - the source state is exit.
@@ -301,7 +331,9 @@ export class StateMachine extends EditorExtendable {
 
         const transition = from instanceof MotionState || from === this._anyState
             ? new AnimationTransition(from, to, conditions)
-            : new Transition(from, to, conditions);
+            : from instanceof EmptyState
+                ? new EmptyStateTransition(from, to, conditions)
+                : new Transition(from, to, conditions);
 
         own(transition, this);
         this._transitions.push(transition);
@@ -456,11 +488,6 @@ export class SubStateMachine extends InteractiveState {
     private _stateMachine: StateMachine = new StateMachine();
 }
 
-export enum LayerBlending {
-    override,
-    additive,
-}
-
 @ccclass('cc.animation.Layer')
 export class Layer implements OwnedBy<AnimationGraph> {
     [ownerSymbol]: AnimationGraph | undefined;
@@ -475,11 +502,11 @@ export class Layer implements OwnedBy<AnimationGraph> {
     public weight = 1.0;
 
     @serializable
-    public mask: SkeletonMask | null = null;
+    public mask: AnimationMask | null = null;
 
-    @serializable
-    public blending: LayerBlending = LayerBlending.additive;
-
+    /**
+     * @marked_as_engine_private
+     */
     constructor () {
         this._stateMachine = new StateMachine();
     }
@@ -489,18 +516,54 @@ export class Layer implements OwnedBy<AnimationGraph> {
     }
 }
 
-@ccclass('cc.animation.Variable')
-export class Variable {
+export enum LayerBlending {
+    override,
+    additive,
+}
+
+/**
+ * @zh 布尔类型变量的重置模式，指示在哪些情况下将变量重置为 `false`。
+ */
+export enum TriggerResetMode {
+    /**
+     * @zh 在该变量被动画过渡消耗后自动重置。
+     */
+    AFTER_CONSUMED,
+
+    /**
+     * @zh 下一帧自动重置；在该变量被动画过渡消耗后也会自动重置。
+     */
+    NEXT_FRAME_OR_AFTER_CONSUMED,
+}
+
+const TRIGGER_VARIABLE_FLAG_VALUE_START = 0;
+const TRIGGER_VARIABLE_FLAG_VALUE_MASK = 1;
+const TRIGGER_VARIABLE_FLAG_RESET_MODE_START = 1;
+const TRIGGER_VARIABLE_FLAG_RESET_MODE_MASK = 6; // 0b110
+
+// DO NOT CHANGE TO THIS VALUE. This is related to V3.5 migration.
+const TRIGGER_VARIABLE_DEFAULT_FLAGS = 0;
+
+// Let's ensure `0`'s meaning: `value: false, resetMode: TriggerSwitchMode: TriggerResetMode.AFTER_CONSUMED`
+assertIsTrue((
+    (0 << TRIGGER_VARIABLE_FLAG_VALUE_START)
+    | (TriggerResetMode.AFTER_CONSUMED << TRIGGER_VARIABLE_FLAG_RESET_MODE_START)
+) === TRIGGER_VARIABLE_DEFAULT_FLAGS);
+
+type PlainVariableType = VariableType.FLOAT | VariableType.INTEGER | VariableType.BOOLEAN;
+
+@ccclass('cc.animation.PlainVariable')
+class PlainVariable {
     // TODO: we should not specify type here but due to de-serialization limitation
     // See: https://github.com/cocos-creator/3d-tasks/issues/7909
     @serializable
-    private _type: VariableType = VariableType.FLOAT;
+    private _type: PlainVariableType = VariableType.FLOAT;
 
     // Same as `_type`
     @serializable
     private _value: Value = 0.0;
 
-    constructor (type?: VariableType) {
+    constructor (type?: PlainVariableType) {
         if (typeof type === 'undefined') {
             return;
         }
@@ -516,7 +579,6 @@ export class Variable {
             this._value = 0.0;
             break;
         case VariableType.BOOLEAN:
-        case VariableType.TRIGGER:
             this._value = false;
             break;
         }
@@ -550,9 +612,58 @@ export class Variable {
     }
 }
 
+@ccclass('cc.animation.TriggerVariable')
+class TriggerVariable implements BasicVariableDescription<VariableType.TRIGGER> {
+    get type () {
+        return VariableType.TRIGGER as const;
+    }
+
+    get value () {
+        return !!((this._flags & TRIGGER_VARIABLE_FLAG_VALUE_MASK) >> TRIGGER_VARIABLE_FLAG_VALUE_START);
+    }
+
+    set value (value) {
+        if (value) {
+            this._flags |= (1 << TRIGGER_VARIABLE_FLAG_VALUE_START);
+        } else {
+            this._flags &= ~(1 << TRIGGER_VARIABLE_FLAG_VALUE_START);
+        }
+    }
+
+    get resetMode () {
+        return ((this._flags & TRIGGER_VARIABLE_FLAG_RESET_MODE_MASK) >> TRIGGER_VARIABLE_FLAG_RESET_MODE_START);
+    }
+
+    set resetMode (value: TriggerResetMode) {
+        this._flags &= ~(TRIGGER_VARIABLE_FLAG_RESET_MODE_MASK << TRIGGER_VARIABLE_FLAG_RESET_MODE_START);
+        this._flags |= (value << TRIGGER_VARIABLE_FLAG_RESET_MODE_START);
+    }
+
+    // l -> h
+    // value(1 bits) | reset_mode(2 bits)
+    @serializable
+    private _flags = TRIGGER_VARIABLE_DEFAULT_FLAGS;
+}
+
 export interface AnimationGraphRunTime {
     readonly __brand: 'AnimationGraph';
 }
+
+interface BasicVariableDescription<TType> {
+    readonly type: TType;
+
+    value: TType extends VariableType.FLOAT ? number :
+        TType extends VariableType.INTEGER ? number :
+            TType extends VariableType.BOOLEAN ? boolean :
+                TType extends VariableType.TRIGGER ? boolean :
+                    never;
+}
+
+export type VariableDescription =
+    | BasicVariableDescription<VariableType.FLOAT>
+    | BasicVariableDescription<VariableType.INTEGER>
+    | BasicVariableDescription<VariableType.BOOLEAN>
+    | TriggerVariable;
 
 @ccclass('cc.animation.AnimationGraph')
 export class AnimationGraph extends Asset implements AnimationGraphRunTime {
@@ -562,7 +673,7 @@ export class AnimationGraph extends Asset implements AnimationGraphRunTime {
     private _layers: Layer[] = [];
 
     @serializable
-    private _variables: Record<string, Variable> = {};
+    private _variables: Record<string, VariableDescription> = {};
 
     constructor () {
         super();
@@ -581,7 +692,7 @@ export class AnimationGraph extends Asset implements AnimationGraphRunTime {
         return this._layers;
     }
 
-    get variables (): Iterable<[string, { type: VariableType, value: Value }]> {
+    get variables (): Iterable<[string, VariableDescription]> {
         return Object.entries(this._variables);
     }
 
@@ -612,11 +723,49 @@ export class AnimationGraph extends Asset implements AnimationGraphRunTime {
         move(this._layers, index, newIndex);
     }
 
-    public addVariable (name: string, type: VariableType, value?: Value) {
-        const variable = new Variable(type);
-        if (typeof value !== 'undefined') {
-            variable.value = value;
-        }
+    /**
+     * Adds a boolean variable.
+     * @param name The variable's name.
+     * @param value The variable's default value.
+     */
+    public addBoolean (name: string, value = false) {
+        const variable = new PlainVariable(VariableType.BOOLEAN);
+        variable.value = value;
+        this._variables[name] = variable as unknown as BasicVariableDescription<VariableType.BOOLEAN>;
+    }
+
+    /**
+     * Adds a floating variable.
+     * @param name The variable's name.
+     * @param value The variable's default value.
+     */
+    public addFloat (name: string, value = 0.0) {
+        const variable = new PlainVariable(VariableType.FLOAT);
+        variable.value = value;
+        this._variables[name] = variable as unknown as BasicVariableDescription<VariableType.FLOAT>;
+    }
+
+    /**
+     * Adds an integer variable.
+     * @param name The variable's name.
+     * @param value The variable's default value.
+     */
+    public addInteger (name: string, value = 0) {
+        const variable = new PlainVariable(VariableType.INTEGER);
+        variable.value = value;
+        this._variables[name] = variable as unknown as BasicVariableDescription<VariableType.INTEGER>;
+    }
+
+    /**
+     * Adds a trigger variable.
+     * @param name The variable's name.
+     * @param value The variable's default value.
+     * @param resetMode The trigger's reset mode.
+     */
+    public addTrigger (name: string, value = false, resetMode = TriggerResetMode.AFTER_CONSUMED) {
+        const variable = new TriggerVariable();
+        variable.resetMode = resetMode;
+        variable.value = value;
         this._variables[name] = variable;
     }
 
@@ -624,7 +773,7 @@ export class AnimationGraph extends Asset implements AnimationGraphRunTime {
         delete this._variables[name];
     }
 
-    public getVariable (name: string) {
-        return this._variables[name];
+    public getVariable (name: string): VariableDescription | undefined {
+        return this._variables[name] as VariableDescription | undefined;
     }
 }

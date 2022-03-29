@@ -112,16 +112,40 @@ bool operator==(const RenderPassInfo &lhs, const RenderPassInfo &rhs) {
 template <>
 size_t Hasher<FramebufferInfo>::operator()(const FramebufferInfo &info) const {
     // render pass is mostly irrelevant
-    size_t seed = 2;
-    boost::hash_combine(seed, info.colorTextures);
-    boost::hash_combine(seed, info.depthStencilTexture);
+    size_t seed = (info.colorTextures.size() + 1) * 2;
+    for (auto* colorTexture : info.colorTextures) {
+        boost::hash_combine(seed, colorTexture->getRaw());
+        boost::hash_combine(seed, colorTexture->getHash());
+    }
+
+    boost::hash_combine(seed, info.depthStencilTexture->getRaw());
+    boost::hash_combine(seed, info.depthStencilTexture->getHash());
     return seed;
 }
 
 bool operator==(const FramebufferInfo &lhs, const FramebufferInfo &rhs) {
     // render pass is mostly irrelevant
-    return lhs.colorTextures == rhs.colorTextures &&
-           lhs.depthStencilTexture == rhs.depthStencilTexture;
+    bool res = false;
+    res      = lhs.colorTextures == rhs.colorTextures;
+
+    if (res) {
+        res = lhs.depthStencilTexture == rhs.depthStencilTexture;
+    }
+
+    if (res) {
+        for (size_t i = 0; i < lhs.colorTextures.size(); ++i) {
+            res = lhs.colorTextures[i]->getRaw() == rhs.colorTextures[i]->getRaw() &&
+                  lhs.colorTextures[i]->getHash() == rhs.colorTextures[i]->getHash();
+            if (!res) {
+                break;
+            }
+        }
+        if (res) {
+            res = lhs.depthStencilTexture->getRaw() == rhs.depthStencilTexture->getRaw() &&
+                  lhs.depthStencilTexture->getHash() == rhs.depthStencilTexture->getHash();
+        }
+    }
+    return res;
 }
 
 template <>

@@ -23,13 +23,8 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
-import { EDITOR } from 'internal:constants';
-import { AnimationClip } from '../../core/animation/animation-clip';
+import { EDITOR, JSB } from 'internal:constants';
+import type { AnimationClip } from '../../core/animation/animation-clip';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { getWorldTransformUntilRoot } from '../../core/animation/transform-utils';
 import { Mesh } from '../assets/mesh';
@@ -41,7 +36,7 @@ import { Mat4, Quat, Vec3 } from '../../core/math';
 import { UBOSkinningAnimation } from '../../core/pipeline/define';
 import { Node } from '../../core/scene-graph';
 import { ITextureBufferHandle, TextureBufferPool } from '../../core/renderer/core/texture-buffer-pool';
-import { JSB } from '../../core/default-constants';
+import { jointTextureSamplerInfo } from '../misc/joint-texture-sampler-info';
 
 // change here and cc-skinning.chunk to use other skinning algorithms
 export const uploadJointData = uploadJointDataLBS;
@@ -103,14 +98,7 @@ function roundUpTextureSize (targetLength: number, formatSize: number) {
     return Math.ceil(Math.max(MINIMUM_JOINT_TEXTURE_SIZE * formatScale, targetLength) / 12) * 12;
 }
 
-export const jointTextureSamplerInfo = new SamplerInfo(
-    Filter.POINT,
-    Filter.POINT,
-    Filter.NONE,
-    Address.CLAMP,
-    Address.CLAMP,
-    Address.CLAMP,
-);
+export { jointTextureSamplerInfo };
 
 interface IInternalJointAnimInfo {
     downstream?: Mat4; // downstream default pose, if present

@@ -8,3 +8,6 @@
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
 # Add any project specific keep options here:
+-keep public class com.google.androidgamesdk.ChoreographerCallback { *; }
+-keep public class com.google.androidgamesdk.SwappyDisplayManager { *; }
+-keep public class com.google.androidgamesdk.GameSdkDeviceInfoJni { *; }
