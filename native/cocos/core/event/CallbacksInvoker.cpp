@@ -27,6 +27,12 @@
 
 namespace cc {
 
+// NOTE: CCObject is not defined in engine 3.5, so make a fake one.
+bool isObjectValid(CCObject *value, bool strictMode/* = false*/) {
+    return true;
+}
+//
+
 CallbackInfoBase::ID CallbacksInvoker::cbIDCounter{0};
 
 void CallbackList::removeByCallbackID(CallbackInfoBase::ID cbID) {

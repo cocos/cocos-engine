@@ -29,20 +29,28 @@
 #include <string>
 #include <typeinfo>
 #include <unordered_map>
-#include <vector>
 
 #include "base/Log.h"
 #include "base/Macros.h"
 #include "base/Utils.h"
+//#include "core/data/Object.h"
+//#include "core/memop/Pool.h"
 
 namespace cc {
-class CCObject {
 
-};
 #define CC_CALLBACK_INVOKE_0(__selector__, __target__, ...)                   std::function<void()>(std::bind(&__selector__, __target__, ##__VA_ARGS__)), __target__
 #define CC_CALLBACK_INVOKE_1(__selector__, __target__, Arg0, ...)             std::function<void(Arg0)>(std::bind(&__selector__, __target__, std::placeholders::_1, ##__VA_ARGS__)), __target__
 #define CC_CALLBACK_INVOKE_2(__selector__, __target__, Arg0, Arg1, ...)       std::function<void(Arg0, Arg1)>(std::bind(&__selector__, __target__, std::placeholders::_1, std::placeholders::_2, ##__VA_ARGS__)), __target__
 #define CC_CALLBACK_INVOKE_3(__selector__, __target__, Arg0, Arg1, Arg2, ...) std::function<void(Arg0, Arg1, Arg2)>(std::bind(&__selector__, __target__, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, ##__VA_ARGS__)), __target__
+
+// NOTE: CCObject is not defined in engine 3.5, so make a fake one.
+class CCObject {
+public:
+    inline bool isObjectValid() const { return true; }
+};
+
+bool isObjectValid(CCObject *value, bool strictMode = false);
+//
 
 struct CallbackInfoBase {
     using ID                   = uint32_t;
@@ -107,11 +115,11 @@ struct CallbackInfo final : public CallbackInfoBase {
 
     bool check() const override {
         // Validation
-        //if (_isCCObject) {
-        //    if (!isObjectValid(reinterpret_cast<CCObject *>(_target), true)) {
-        //        return false;
-        //    }
-        //}
+        if (_isCCObject) {
+            if (!isObjectValid(reinterpret_cast<CCObject *>(_target), true)) {
+                return false;
+            }
+        }
         return true;
     }
 
@@ -365,7 +373,7 @@ void CallbacksInvoker::off(const KeyType &key, void (Target::*memberFn)(Args...)
         auto &      list  = iter->second;
         const auto &infos = list._callbackInfos;
         size_t      i     = 0;
-        for (const auto &info : infos) {
+        for (const auto &info : infos) { // NOLINT(readability-use-anyofallof)
             if (info != nullptr && reinterpret_cast<CallbackFn>(info->getMemberFn()) == memberFn && info->_target == target) {
                 list.cancel(static_cast<int32_t>(i));
                 break;
@@ -387,7 +395,7 @@ void CallbacksInvoker::emit(const KeyType &key, Args &&...args) {
         list._isInvoking  = true;
 
         auto &infos = list._callbackInfos;
-        for (auto &i : infos) {
+        for (auto &i : infos) { // NOLINT(readability-use-anyofallof)
             auto &baseInfo = i;
             if (baseInfo == nullptr) {
                 continue;
@@ -395,7 +403,7 @@ void CallbacksInvoker::emit(const KeyType &key, Args &&...args) {
 
 #if CC_DEBUG
             CC_ASSERT(baseInfo->_argTypes.size() == argTypes.size());
-            for (size_t i = 0, len = argTypes.size(); i < len; ++i) {
+            for (size_t i = 0, len = argTypes.size(); i < len; ++i) { // NOLINT(readability-use-anyofallof)
                 if (baseInfo->_argTypes[i] != argTypes[i]) {
                     CC_LOG_ERROR("Wrong argument type! baseInfo->_argTypes[%d]=%s, argTypes[%d]=%s", i, baseInfo->_argTypes[i].c_str(), i, argTypes[i].c_str());
                     CC_ASSERT(false);
@@ -461,7 +469,7 @@ bool CallbacksInvoker::hasEventListener(const KeyType &key, void (Target::*membe
     // check any valid callback
     const auto &infos = list._callbackInfos;
 
-    for (const auto &info : infos) {
+    for (const auto &info : infos) { // NOLINT(readability-use-anyofallof)
         if (info != nullptr && info->check() && reinterpret_cast<CallbackFn>(info->getMemberFn()) == memberFn && info->_target == target) {
             return true;
         }
