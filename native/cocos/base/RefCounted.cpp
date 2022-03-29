@@ -29,7 +29,7 @@
 
 #if CC_REF_LEAK_DETECTION
     #include <algorithm> // std::find
-    #include <list>
+    #include "base/std/container/list.h"
     #include "base/Log.h"
 #endif
 
@@ -71,7 +71,7 @@ unsigned int RefCounted::getRefCount() const {
 
 #if CC_REF_LEAK_DETECTION
 
-static std::list<RefCounted *> __refAllocationList;
+static ccstd::list<RefCounted *> __refAllocationList;
 
 void RefCounted::printLeaks() {
     // Dump Ref object memory leaks
