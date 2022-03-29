@@ -1,4 +1,4 @@
-import { AnimationState } from '../../cocos/core/animation';
+import { AnimationClip, AnimationState } from '../../cocos/core/animation';
 import { CrossFade } from '../../cocos/core/animation/cross-fade';
 import { Playable } from '../../cocos/core/animation/playable';
 
@@ -98,5 +98,43 @@ describe('Cross fade', () => {
         crossFade.clear();
         expect(!state1.isPaused && !state1.isPlaying).toBe(true);
         expect(!state2.isPaused && !state2.isPlaying).toBe(true);
+        expect(state1.weight).toBeCloseTo(1.0);
+        expect(state2.weight).toBeCloseTo(1.0);
+    });
+
+    test('Bugfix cocos/3d-tasks#11781 Whenever cross fade releasing a state, its weight is restored to 1.0', () => {
+        const crossFade = new CrossFade();
+        const clipFoo = new AnimationClip();
+        clipFoo.duration = 0.5;
+        const clipBar = new AnimationClip();
+        clipBar.duration = 0.4;
+        const foo = new AnimationState(clipFoo, 'foo');
+        foo.weight = 0.64;
+        const fooInitialWeight = foo.weight;
+        const bar = new AnimationState(clipBar, 'bar');
+        bar.weight = 0.37;
+        const barInitialWeight = bar.weight;
+
+        crossFade.crossFade(foo, 0.3);
+        expect(foo.weight).toBeCloseTo(fooInitialWeight);
+        expect(bar.weight).toBeCloseTo(barInitialWeight);
+        crossFade.update(0.1);
+        expect(foo.weight).toBeCloseTo(1.0);
+        expect(bar.weight).toBeCloseTo(barInitialWeight);
+
+        crossFade.crossFade(bar, 0.3);
+        crossFade.update(0.1);
+        expect(foo.weight).toBeCloseTo(0.2 / 0.3);
+        expect(bar.weight).toBeCloseTo(0.1 / 0.3);
+        crossFade.update(0.31);
+        expect(foo.weight).toBeCloseTo(1.0);
+        expect(!foo.isPaused && !foo.isPlaying);
+        expect(bar.weight).toBeCloseTo(1.0);
+
+        crossFade.crossFade(foo, 0.0);
+        crossFade.update(0.1);
+        expect(foo.weight).toBeCloseTo(1.0);
+        expect(bar.weight).toBeCloseTo(1.0);
+        expect(!bar.isPaused && !bar.isPlaying);
     });
 });
