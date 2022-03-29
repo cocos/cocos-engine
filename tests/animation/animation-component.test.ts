@@ -1,5 +1,7 @@
+import { AnimationState } from '../../cocos/core/animation';
 import { AnimationClip } from '../../cocos/core/animation/animation-clip';
 import { Animation } from '../../cocos/core/animation/animation-component';
+import { Node } from '../../cocos/core/scene-graph';
 
 describe('Animation Component', () => {
     describe('Sync default clip into clips array(clip equivalence)', () => {
@@ -72,6 +74,19 @@ describe('Animation Component', () => {
             scheduleUpdate(component, 0.126);
             expect(state1.time).toBeCloseTo(0.126);
         });
+
+        test('Bugfix cocos/3d-tasks#11738 Destroying passive playing animation state', () => {
+            const clip = new AnimationClip();
+            const state = new AnimationState(clip);
+            state.initialize(
+                new Node(),
+                undefined, // blend buffer
+                undefined, // mask
+                true, // passive
+            );
+            state.play();
+            state.destroy();
+        })
     });
 });
 

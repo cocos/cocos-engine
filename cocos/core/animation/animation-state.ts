@@ -380,8 +380,10 @@ export class AnimationState extends Playable {
     }
 
     public destroy () {
-        if (!this.isMotionless) {
-            getGlobalAnimationManager().removeAnimation(this);
+        if (!this._passive) {
+            if (!this.isMotionless) {
+                getGlobalAnimationManager().removeAnimation(this);
+            }
         }
         if (this._poseOutput) {
             this._poseOutput.destroy();
