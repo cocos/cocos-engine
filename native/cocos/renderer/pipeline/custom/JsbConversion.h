@@ -24,10 +24,10 @@
 ****************************************************************************/
 
 #pragma once
-#include <cocos/bindings/manual/jsb_conversions.h>
-#include <cocos/renderer/pipeline/custom/Map.h>
-#include <cocos/renderer/pipeline/custom/String.h>
 #include <boost/container/vector.hpp>
+#include "base/std/container/string.h"
+#include "bindings/manual/jsb_conversions.h"
+#include "renderer/pipeline/custom/Map.h"
 
 template <typename T, typename allocator>
 inline bool nativevalue_to_se( // NOLINT(readability-identifier-naming)
@@ -45,7 +45,7 @@ inline bool nativevalue_to_se( // NOLINT(readability-identifier-naming)
 }
 
 inline bool nativevalue_to_se( // NOLINT(readability-identifier-naming)
-    const cc::PmrString& from, se::Value& to, se::Object* /*ctx*/) {
+    const ccstd::pmr::string& from, se::Value& to, se::Object* /*ctx*/) {
     to.setString(from.c_str());
     return true;
 }
@@ -87,7 +87,7 @@ bool sevalue_to_native(const se::Value& from, boost::container::vector<T, alloca
     return false;
 }
 
-inline bool sevalue_to_native(const se::Value& from, cc::PmrString* to, se::Object* /*ctx*/) { // NOLINT(readability-identifier-naming)
+inline bool sevalue_to_native(const se::Value& from, ccstd::pmr::string* to, se::Object* /*ctx*/) { // NOLINT(readability-identifier-naming)
     if (!from.isNullOrUndefined()) {
         const auto& str = from.toString();
         to->assign(str.begin(), str.end());

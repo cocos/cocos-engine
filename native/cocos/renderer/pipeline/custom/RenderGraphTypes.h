@@ -36,6 +36,7 @@
 #include <boost/graph/properties.hpp>
 #include <boost/range/irange.hpp>
 #include "cocos/base/Ptr.h"
+#include "cocos/base/std/container/string.h"
 #include "cocos/renderer/gfx-base/GFXBuffer.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/gfx-base/GFXFramebuffer.h"
@@ -47,7 +48,6 @@
 #include "cocos/renderer/pipeline/custom/Map.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphFwd.h"
-#include "cocos/renderer/pipeline/custom/String.h"
 #include "cocos/scene/Camera.h"
 
 namespace cc {
@@ -239,10 +239,10 @@ struct ResourceGraph {
     // Vertices
     boost::container::pmr::vector<Vertex> vertices;
     // Components
-    boost::container::pmr::vector<PmrString>      names;
-    boost::container::pmr::vector<ResourceDesc>   descs;
-    boost::container::pmr::vector<ResourceTraits> traits;
-    boost::container::pmr::vector<ResourceStates> states;
+    boost::container::pmr::vector<ccstd::pmr::string> names;
+    boost::container::pmr::vector<ResourceDesc>       descs;
+    boost::container::pmr::vector<ResourceTraits>     traits;
+    boost::container::pmr::vector<ResourceStates>     states;
     // PolymorphicGraph
     boost::container::pmr::vector<ManagedResource>                resources;
     boost::container::pmr::vector<IntrusivePtr<gfx::Buffer>>      buffers;
@@ -250,7 +250,7 @@ struct ResourceGraph {
     boost::container::pmr::vector<IntrusivePtr<gfx::Framebuffer>> framebuffers;
     boost::container::pmr::vector<RenderSwapchain>                swapchains;
     // UuidGraph
-    PmrUnorderedMap<PmrString, vertex_descriptor> valueIndex;
+    PmrUnorderedMap<ccstd::pmr::string, vertex_descriptor> valueIndex;
 };
 
 enum class AttachmentType {
@@ -271,7 +271,7 @@ struct RasterView {
     }
 
     RasterView(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
-    RasterView(PmrString slotNameIn, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
+    RasterView(ccstd::pmr::string slotNameIn, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
     RasterView(RasterView&& rhs, const allocator_type& alloc);
     RasterView(RasterView const& rhs, const allocator_type& alloc);
 
@@ -280,13 +280,13 @@ struct RasterView {
     RasterView& operator=(RasterView&& rhs) = default;
     RasterView& operator=(RasterView const& rhs) = default;
 
-    PmrString         slotName;
-    AccessType        accessType{AccessType::WRITE};
-    AttachmentType    attachmentType{AttachmentType::RENDER_TARGET};
-    gfx::LoadOp       loadOp{gfx::LoadOp::LOAD};
-    gfx::StoreOp      storeOp{gfx::StoreOp::STORE};
-    gfx::ClearFlagBit clearFlags{gfx::ClearFlagBit::ALL};
-    gfx::Color        clearColor;
+    ccstd::pmr::string slotName;
+    AccessType         accessType{AccessType::WRITE};
+    AttachmentType     attachmentType{AttachmentType::RENDER_TARGET};
+    gfx::LoadOp        loadOp{gfx::LoadOp::LOAD};
+    gfx::StoreOp       storeOp{gfx::StoreOp::STORE};
+    gfx::ClearFlagBit  clearFlags{gfx::ClearFlagBit::ALL};
+    gfx::Color         clearColor;
 };
 
 enum class ClearValueType {
@@ -316,11 +316,11 @@ struct ComputeView {
         return accessType != AccessType::READ;
     }
 
-    PmrString         name;
-    AccessType        accessType{AccessType::READ};
-    gfx::ClearFlagBit clearFlags{gfx::ClearFlagBit::NONE};
-    gfx::Color        clearColor;
-    ClearValueType    clearValueType{ClearValueType::FLOAT_TYPE};
+    ccstd::pmr::string name;
+    AccessType         accessType{AccessType::READ};
+    gfx::ClearFlagBit  clearFlags{gfx::ClearFlagBit::NONE};
+    gfx::Color         clearColor;
+    ClearValueType     clearValueType{ClearValueType::FLOAT_TYPE};
 };
 
 struct RasterSubpass {
@@ -338,8 +338,8 @@ struct RasterSubpass {
     RasterSubpass& operator=(RasterSubpass&& rhs) = default;
     RasterSubpass& operator=(RasterSubpass const& rhs) = default;
 
-    PmrTransparentMap<PmrString, RasterView>                                 rasterViews;
-    PmrTransparentMap<PmrString, boost::container::pmr::vector<ComputeView>> computeViews;
+    PmrTransparentMap<ccstd::pmr::string, RasterView>                                 rasterViews;
+    PmrTransparentMap<ccstd::pmr::string, boost::container::pmr::vector<ComputeView>> computeViews;
 };
 
 struct SubpassGraph {
@@ -460,8 +460,8 @@ struct SubpassGraph {
     // Vertices
     boost::container::pmr::vector<Vertex> vertices;
     // Components
-    boost::container::pmr::vector<PmrString>     names;
-    boost::container::pmr::vector<RasterSubpass> subpasses;
+    boost::container::pmr::vector<ccstd::pmr::string> names;
+    boost::container::pmr::vector<RasterSubpass>      subpasses;
 };
 
 struct RasterPass {
@@ -479,10 +479,10 @@ struct RasterPass {
     RasterPass& operator=(RasterPass&& rhs) = default;
     RasterPass& operator=(RasterPass const& rhs) = default;
 
-    bool                                                                     isValid{false};
-    PmrTransparentMap<PmrString, RasterView>                                 rasterViews;
-    PmrTransparentMap<PmrString, boost::container::pmr::vector<ComputeView>> computeViews;
-    SubpassGraph                                                             subpassGraph;
+    bool                                                                              isValid{false};
+    PmrTransparentMap<ccstd::pmr::string, RasterView>                                 rasterViews;
+    PmrTransparentMap<ccstd::pmr::string, boost::container::pmr::vector<ComputeView>> computeViews;
+    SubpassGraph                                                                      subpassGraph;
 };
 
 struct ComputePass {
@@ -500,7 +500,7 @@ struct ComputePass {
     ComputePass& operator=(ComputePass&& rhs) = default;
     ComputePass& operator=(ComputePass const& rhs) = default;
 
-    PmrTransparentMap<PmrString, boost::container::pmr::vector<ComputeView>> computeViews;
+    PmrTransparentMap<ccstd::pmr::string, boost::container::pmr::vector<ComputeView>> computeViews;
 };
 
 struct CopyPair {
@@ -510,7 +510,7 @@ struct CopyPair {
     }
 
     CopyPair(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
-    CopyPair(PmrString sourceIn, PmrString targetIn, uint32_t mipLevelsIn, uint32_t numSlicesIn, uint32_t sourceMostDetailedMipIn, uint32_t sourceFirstSliceIn, uint32_t sourcePlaneSliceIn, uint32_t targetMostDetailedMipIn, uint32_t targetFirstSliceIn, uint32_t targetPlaneSliceIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
+    CopyPair(ccstd::pmr::string sourceIn, ccstd::pmr::string targetIn, uint32_t mipLevelsIn, uint32_t numSlicesIn, uint32_t sourceMostDetailedMipIn, uint32_t sourceFirstSliceIn, uint32_t sourcePlaneSliceIn, uint32_t targetMostDetailedMipIn, uint32_t targetFirstSliceIn, uint32_t targetPlaneSliceIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
     CopyPair(CopyPair&& rhs, const allocator_type& alloc);
     CopyPair(CopyPair const& rhs, const allocator_type& alloc);
 
@@ -519,16 +519,16 @@ struct CopyPair {
     CopyPair& operator=(CopyPair&& rhs) = default;
     CopyPair& operator=(CopyPair const& rhs) = default;
 
-    PmrString source;
-    PmrString target;
-    uint32_t  mipLevels{0xFFFFFFFF};
-    uint32_t  numSlices{0xFFFFFFFF};
-    uint32_t  sourceMostDetailedMip{0};
-    uint32_t  sourceFirstSlice{0};
-    uint32_t  sourcePlaneSlice{0};
-    uint32_t  targetMostDetailedMip{0};
-    uint32_t  targetFirstSlice{0};
-    uint32_t  targetPlaneSlice{0};
+    ccstd::pmr::string source;
+    ccstd::pmr::string target;
+    uint32_t           mipLevels{0xFFFFFFFF};
+    uint32_t           numSlices{0xFFFFFFFF};
+    uint32_t           sourceMostDetailedMip{0};
+    uint32_t           sourceFirstSlice{0};
+    uint32_t           sourcePlaneSlice{0};
+    uint32_t           targetMostDetailedMip{0};
+    uint32_t           targetFirstSlice{0};
+    uint32_t           targetPlaneSlice{0};
 };
 
 struct CopyPass {
@@ -556,7 +556,7 @@ struct MovePair {
     }
 
     MovePair(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
-    MovePair(PmrString sourceIn, PmrString targetIn, uint32_t mipLevelsIn, uint32_t numSlicesIn, uint32_t targetMostDetailedMipIn, uint32_t targetFirstSliceIn, uint32_t targetPlaneSliceIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
+    MovePair(ccstd::pmr::string sourceIn, ccstd::pmr::string targetIn, uint32_t mipLevelsIn, uint32_t numSlicesIn, uint32_t targetMostDetailedMipIn, uint32_t targetFirstSliceIn, uint32_t targetPlaneSliceIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
     MovePair(MovePair&& rhs, const allocator_type& alloc);
     MovePair(MovePair const& rhs, const allocator_type& alloc);
 
@@ -565,13 +565,13 @@ struct MovePair {
     MovePair& operator=(MovePair&& rhs) = default;
     MovePair& operator=(MovePair const& rhs) = default;
 
-    PmrString source;
-    PmrString target;
-    uint32_t  mipLevels{0xFFFFFFFF};
-    uint32_t  numSlices{0xFFFFFFFF};
-    uint32_t  targetMostDetailedMip{0};
-    uint32_t  targetFirstSlice{0};
-    uint32_t  targetPlaneSlice{0};
+    ccstd::pmr::string source;
+    ccstd::pmr::string target;
+    uint32_t           mipLevels{0xFFFFFFFF};
+    uint32_t           numSlices{0xFFFFFFFF};
+    uint32_t           targetMostDetailedMip{0};
+    uint32_t           targetFirstSlice{0};
+    uint32_t           targetPlaneSlice{0};
 };
 
 struct MovePass {
@@ -607,7 +607,7 @@ struct RaytracePass {
     RaytracePass& operator=(RaytracePass&& rhs) = default;
     RaytracePass& operator=(RaytracePass const& rhs) = default;
 
-    PmrTransparentMap<PmrString, boost::container::pmr::vector<ComputeView>> computeViews;
+    PmrTransparentMap<ccstd::pmr::string, boost::container::pmr::vector<ComputeView>> computeViews;
 };
 
 struct QueueTag {};
@@ -631,7 +631,7 @@ struct SceneData {
     }
 
     SceneData(const allocator_type& alloc) noexcept; // NOLINT
-    SceneData(PmrString nameIn, const allocator_type& alloc) noexcept;
+    SceneData(ccstd::pmr::string nameIn, const allocator_type& alloc) noexcept;
     SceneData(SceneData&& rhs, const allocator_type& alloc);
     SceneData(SceneData const& rhs, const allocator_type& alloc);
 
@@ -640,9 +640,9 @@ struct SceneData {
     SceneData& operator=(SceneData&& rhs) = default;
     SceneData& operator=(SceneData const& rhs) = default;
 
-    PmrString                                name;
-    scene::Camera*                           camera{nullptr};
-    boost::container::pmr::vector<PmrString> scenes;
+    ccstd::pmr::string                                name;
+    scene::Camera*                                    camera{nullptr};
+    boost::container::pmr::vector<ccstd::pmr::string> scenes;
 };
 
 struct Dispatch {
@@ -652,7 +652,7 @@ struct Dispatch {
     }
 
     Dispatch(const allocator_type& alloc) noexcept; // NOLINT
-    Dispatch(PmrString shaderIn, uint32_t threadGroupCountXIn, uint32_t threadGroupCountYIn, uint32_t threadGroupCountZIn, const allocator_type& alloc) noexcept;
+    Dispatch(ccstd::pmr::string shaderIn, uint32_t threadGroupCountXIn, uint32_t threadGroupCountYIn, uint32_t threadGroupCountZIn, const allocator_type& alloc) noexcept;
     Dispatch(Dispatch&& rhs, const allocator_type& alloc);
     Dispatch(Dispatch const& rhs, const allocator_type& alloc);
 
@@ -661,10 +661,10 @@ struct Dispatch {
     Dispatch& operator=(Dispatch&& rhs) = default;
     Dispatch& operator=(Dispatch const& rhs) = default;
 
-    PmrString shader;
-    uint32_t  threadGroupCountX{0};
-    uint32_t  threadGroupCountY{0};
-    uint32_t  threadGroupCountZ{0};
+    ccstd::pmr::string shader;
+    uint32_t           threadGroupCountX{0};
+    uint32_t           threadGroupCountY{0};
+    uint32_t           threadGroupCountZ{0};
 };
 
 struct Blit {
@@ -674,7 +674,7 @@ struct Blit {
     }
 
     Blit(const allocator_type& alloc) noexcept; // NOLINT
-    Blit(PmrString shaderIn, const allocator_type& alloc) noexcept;
+    Blit(ccstd::pmr::string shaderIn, const allocator_type& alloc) noexcept;
     Blit(Blit&& rhs, const allocator_type& alloc);
     Blit(Blit const& rhs, const allocator_type& alloc);
 
@@ -683,7 +683,7 @@ struct Blit {
     Blit& operator=(Blit&& rhs) = default;
     Blit& operator=(Blit const& rhs) = default;
 
-    PmrString shader;
+    ccstd::pmr::string shader;
 };
 
 struct Present {
@@ -711,7 +711,7 @@ struct PresentPass {
     PresentPass& operator=(PresentPass&& rhs) = default;
     PresentPass& operator=(PresentPass const& rhs) = default;
 
-    PmrTransparentMap<PmrString, Present> presents;
+    PmrTransparentMap<ccstd::pmr::string, Present> presents;
 };
 
 struct RenderData {
@@ -925,10 +925,10 @@ struct RenderGraph {
     // Vertices
     boost::container::pmr::vector<Vertex> vertices;
     // Components
-    boost::container::pmr::vector<PmrString>  names;
-    boost::container::pmr::vector<PmrString>  layoutNodes;
-    boost::container::pmr::vector<RenderData> data;
-    boost::container::pmr::vector<bool>       valid;
+    boost::container::pmr::vector<ccstd::pmr::string> names;
+    boost::container::pmr::vector<ccstd::pmr::string> layoutNodes;
+    boost::container::pmr::vector<RenderData>         data;
+    boost::container::pmr::vector<bool>               valid;
     // PolymorphicGraph
     boost::container::pmr::vector<RasterPass>   rasterPasses;
     boost::container::pmr::vector<ComputePass>  computePasses;
@@ -941,7 +941,7 @@ struct RenderGraph {
     boost::container::pmr::vector<Blit>         blits;
     boost::container::pmr::vector<Dispatch>     dispatches;
     // Members
-    PmrUnorderedMap<PmrString, uint32_t> index;
+    PmrUnorderedMap<ccstd::pmr::string, uint32_t> index;
 };
 
 } // namespace render

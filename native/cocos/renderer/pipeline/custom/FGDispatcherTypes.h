@@ -35,11 +35,11 @@
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/range/irange.hpp>
+#include "cocos/base/std/container/string.h"
 #include "cocos/renderer/pipeline/custom/GraphTypes.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/Map.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
-#include "cocos/renderer/pipeline/custom/String.h"
 #include "gfx-base/GFXDef-common.h"
 
 namespace cc {
@@ -198,9 +198,9 @@ struct ResourceAccessGraph {
     // UuidGraph
     PmrUnorderedMap<RenderGraph::vertex_descriptor, vertex_descriptor> passIndex;
     // Members
-    boost::container::pmr::vector<PmrString>    resourceNames;
-    std::vector<RenderGraph::vertex_descriptor> presentPasses;
-    PmrUnorderedMap<PmrString, uint32_t>        resourceIndex;
+    boost::container::pmr::vector<ccstd::pmr::string> resourceNames;
+    std::vector<RenderGraph::vertex_descriptor>       presentPasses;
+    PmrUnorderedMap<ccstd::pmr::string, uint32_t>     resourceIndex;
 };
 
 struct Barrier {

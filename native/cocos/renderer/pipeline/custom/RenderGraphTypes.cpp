@@ -100,7 +100,7 @@ ResourceGraph::Vertex::Vertex(Vertex const& rhs, const allocator_type& alloc)
 RasterView::RasterView(const allocator_type& alloc) noexcept
 : slotName(alloc) {}
 
-RasterView::RasterView(PmrString slotNameIn, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, const allocator_type& alloc) noexcept
+RasterView::RasterView(ccstd::pmr::string slotNameIn, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, const allocator_type& alloc) noexcept
 : slotName(std::move(slotNameIn), alloc),
   accessType(accessTypeIn),
   attachmentType(attachmentTypeIn),
@@ -220,7 +220,7 @@ CopyPair::CopyPair(const allocator_type& alloc) noexcept
 : source(alloc),
   target(alloc) {}
 
-CopyPair::CopyPair(PmrString sourceIn, PmrString targetIn, uint32_t mipLevelsIn, uint32_t numSlicesIn, uint32_t sourceMostDetailedMipIn, uint32_t sourceFirstSliceIn, uint32_t sourcePlaneSliceIn, uint32_t targetMostDetailedMipIn, uint32_t targetFirstSliceIn, uint32_t targetPlaneSliceIn, const allocator_type& alloc) noexcept // NOLINT
+CopyPair::CopyPair(ccstd::pmr::string sourceIn, ccstd::pmr::string targetIn, uint32_t mipLevelsIn, uint32_t numSlicesIn, uint32_t sourceMostDetailedMipIn, uint32_t sourceFirstSliceIn, uint32_t sourcePlaneSliceIn, uint32_t targetMostDetailedMipIn, uint32_t targetFirstSliceIn, uint32_t targetPlaneSliceIn, const allocator_type& alloc) noexcept // NOLINT
 : source(std::move(sourceIn), alloc),
   target(std::move(targetIn), alloc),
   mipLevels(mipLevelsIn),
@@ -269,7 +269,7 @@ MovePair::MovePair(const allocator_type& alloc) noexcept
 : source(alloc),
   target(alloc) {}
 
-MovePair::MovePair(PmrString sourceIn, PmrString targetIn, uint32_t mipLevelsIn, uint32_t numSlicesIn, uint32_t targetMostDetailedMipIn, uint32_t targetFirstSliceIn, uint32_t targetPlaneSliceIn, const allocator_type& alloc) noexcept // NOLINT
+MovePair::MovePair(ccstd::pmr::string sourceIn, ccstd::pmr::string targetIn, uint32_t mipLevelsIn, uint32_t numSlicesIn, uint32_t targetMostDetailedMipIn, uint32_t targetFirstSliceIn, uint32_t targetPlaneSliceIn, const allocator_type& alloc) noexcept // NOLINT
 : source(std::move(sourceIn), alloc),
   target(std::move(targetIn), alloc),
   mipLevels(mipLevelsIn),
@@ -318,7 +318,7 @@ SceneData::SceneData(const allocator_type& alloc) noexcept
 : name(alloc),
   scenes(alloc) {}
 
-SceneData::SceneData(PmrString nameIn, const allocator_type& alloc) noexcept
+SceneData::SceneData(ccstd::pmr::string nameIn, const allocator_type& alloc) noexcept
 : name(std::move(nameIn), alloc),
   scenes(alloc) {}
 
@@ -335,7 +335,7 @@ SceneData::SceneData(SceneData const& rhs, const allocator_type& alloc)
 Dispatch::Dispatch(const allocator_type& alloc) noexcept
 : shader(alloc) {}
 
-Dispatch::Dispatch(PmrString shaderIn, uint32_t threadGroupCountXIn, uint32_t threadGroupCountYIn, uint32_t threadGroupCountZIn, const allocator_type& alloc) noexcept // NOLINT
+Dispatch::Dispatch(ccstd::pmr::string shaderIn, uint32_t threadGroupCountXIn, uint32_t threadGroupCountYIn, uint32_t threadGroupCountZIn, const allocator_type& alloc) noexcept // NOLINT
 : shader(std::move(shaderIn), alloc),
   threadGroupCountX(threadGroupCountXIn),
   threadGroupCountY(threadGroupCountYIn),
@@ -356,7 +356,7 @@ Dispatch::Dispatch(Dispatch const& rhs, const allocator_type& alloc)
 Blit::Blit(const allocator_type& alloc) noexcept
 : shader(alloc) {}
 
-Blit::Blit(PmrString shaderIn, const allocator_type& alloc) noexcept
+Blit::Blit(ccstd::pmr::string shaderIn, const allocator_type& alloc) noexcept
 : shader(std::move(shaderIn), alloc) {}
 
 Blit::Blit(Blit&& rhs, const allocator_type& alloc)
