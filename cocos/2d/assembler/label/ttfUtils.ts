@@ -36,6 +36,20 @@ import { assetManager } from '../../../core/asset-manager';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 import { BlendFactor } from '../../../core/gfx';
 
+interface IOutlineInfo {
+    width: number;
+    color: Color;
+}
+interface IShadowInfo {
+    enabled: boolean;
+    offset: Vec2;
+    blur: number;
+    color: Color;
+}
+
+const _outlineInfo: IOutlineInfo = { width: 0, color: Color.BLACK.clone() };
+const _shadowInfo: IShadowInfo = { enabled: false, offset: Vec2.ZERO.clone(), blur: 0, color: Color.BLACK.clone() };
+
 const Overflow = Label.Overflow;
 const MAX_SIZE = 2048;
 const _BASELINE_OFFSET = getBaselineOffset();
@@ -59,14 +73,6 @@ let _alpha = 1;
 let _fontFamily = '';
 let _overflow = Overflow.NONE;
 let _isWrapText = false;
-
-// outline
-let _outlineComp: LabelOutline | null = null;
-const _outlineColor = Color.BLACK.clone();
-
-// shadow
-let _shadowComp: LabelShadow | null = null;
-const _shadowColor = Color.BLACK.clone();
 
 const _canvasPadding = new Rect();
 const _contentSizeExtend = Size.ZERO.clone();
@@ -103,6 +109,9 @@ export const ttfUtils =  {
         if (!comp.renderData) { return; }
 
         if (comp.renderData.vertDirty) {
+            _outlineInfo.width = 0;
+            _shadowInfo.enabled = false;
+
             const trans = comp.node._uiProps.uiTransformComp!;
             this._updateFontFamily(comp);
             this._updateProperties(comp, trans);
@@ -182,36 +191,44 @@ export const ttfUtils =  {
             _isWrapText = comp.enableWrapText;
         }
 
+        _outlineInfo.width = comp.outlineWidth;
+        _outlineInfo.color.set(comp.outlineColor);
+        _shadowInfo.enabled = comp.shadowEnabled;
+        _shadowInfo.offset.set(comp.shadowOffset);
+        _shadowInfo.blur = comp.shadowBlur;
+        _shadowInfo.color.set(comp.shadowColor);
+
         // outline
-        _outlineComp = LabelOutline && comp.getComponent(LabelOutline);
-        _outlineComp = (_outlineComp && _outlineComp.enabled && _outlineComp.width > 0) ? _outlineComp : null;
-        if (_outlineComp) {
-            _outlineColor.set(_outlineComp.color);
+        const outlineComp = LabelOutline && comp.getComponent(LabelOutline);
+        if (outlineComp && outlineComp.enabled) {
+            _outlineInfo.width = outlineComp.width > 0 ? outlineComp.width : 0;
+            _outlineInfo.color.set(outlineComp.color);
         }
 
         // shadow
-        _shadowComp = LabelShadow && comp.getComponent(LabelShadow);
-        _shadowComp = (_shadowComp && _shadowComp.enabled) ? _shadowComp : null;
-        if (_shadowComp) {
-            _shadowColor.set(_shadowComp.color);
+        const shadowComp = LabelShadow && comp.getComponent(LabelShadow);
+        if (shadowComp && shadowComp.enabled) {
+            _shadowInfo.enabled = true;
+            _shadowInfo.offset.set(shadowComp.offset);
+            _shadowInfo.blur = shadowComp.blur;
+            _shadowInfo.color.set(shadowComp.color);
         }
 
         this._updatePaddingRect();
     },
 
     _updatePaddingRect () {
-        let top = 0; let bottom = 0; let left = 0; let right = 0;
-        let outlineWidth = 0;
-        _contentSizeExtend.width = _contentSizeExtend.height = 0;
-        if (_outlineComp) {
-            outlineWidth = _outlineComp.width;
-            top = bottom = left = right = outlineWidth;
-            _contentSizeExtend.width = _contentSizeExtend.height = outlineWidth * 2;
-        }
-        if (_shadowComp) {
-            const shadowWidth = _shadowComp.blur + outlineWidth;
-            const offsetX = _shadowComp.offset.x;
-            const offsetY = _shadowComp.offset.y;
+        const outlineWidth = _outlineInfo.width;
+        let top = outlineWidth;
+        let bottom = outlineWidth;
+        let left = outlineWidth;
+        let right = outlineWidth;
+        _contentSizeExtend.width = _contentSizeExtend.height = outlineWidth * 2;
+
+        if (_shadowInfo.enabled) {
+            const shadowWidth = _shadowInfo.blur + outlineWidth;
+            const offsetX = _shadowInfo.offset.x;
+            const offsetY = _shadowInfo.offset.y;
             left = Math.max(left, -offsetX + shadowWidth);
             right = Math.max(right, offsetX + shadowWidth);
             top = Math.max(top, offsetY + shadowWidth);
@@ -273,8 +290,10 @@ export const ttfUtils =  {
         // use round for line join to avoid sharp intersect point
         _context.lineJoin = 'round';
 
-        if (_outlineComp) {
-            _context.fillStyle = `rgba(${_outlineColor.r}, ${_outlineColor.g}, ${_outlineColor.b}, ${_invisibleAlpha})`;
+        const outlineWidth = _outlineInfo.width;
+        if (outlineWidth) {
+            const outlineColor = _outlineInfo.color;
+            _context.fillStyle = `rgba(${outlineColor.r}, ${outlineColor.g}, ${outlineColor.b}, ${_invisibleAlpha})`;
             // Notice: fillRect twice will not effect
             _context.fillRect(0, 0, _canvas.width, _canvas.height);
             // to keep the one model same as before
@@ -292,13 +311,13 @@ export const ttfUtils =  {
         // draw text and outline
         for (let i = 0; i < _splitStrings.length; ++i) {
             drawTextPosY = _startPosition.y + i * lineHeight;
-            if (_outlineComp) {
+            if (outlineWidth) {
                 _context.strokeText(_splitStrings[i], drawTextPosX, drawTextPosY);
             }
             _context.fillText(_splitStrings[i], drawTextPosX, drawTextPosY);
         }
 
-        if (_shadowComp) {
+        if (_shadowInfo.enabled) {
             _context.shadowColor = 'transparent';
         }
 
@@ -352,31 +371,37 @@ export const ttfUtils =  {
     },
 
     _setupOutline () {
-        _context!.strokeStyle = `rgba(${_outlineColor.r}, ${_outlineColor.g}, ${_outlineColor.b}, ${_outlineColor.a / 255})`;
-        _context!.lineWidth = _outlineComp!.width * 2;
+        const outlineWidth = _outlineInfo.width;
+        const outlineColor = _outlineInfo.color;
+        _context!.strokeStyle = `rgba(${outlineColor.r}, ${outlineColor.g}, ${outlineColor.b}, ${outlineColor.a / 255})`;
+        _context!.lineWidth = outlineWidth * 2;
     },
 
     _setupShadow () {
-        _context!.shadowColor = `rgba(${_shadowColor.r}, ${_shadowColor.g}, ${_shadowColor.b}, ${_shadowColor.a / 255})`;
-        _context!.shadowBlur = _shadowComp!.blur;
-        _context!.shadowOffsetX = _shadowComp!.offset.x;
-        _context!.shadowOffsetY = -_shadowComp!.offset.y;
+        const shadowColor = _shadowInfo.color;
+        const shadowOffset = _shadowInfo.offset;
+        _context!.shadowColor = `rgba(${shadowColor.r}, ${shadowColor.g}, ${shadowColor.b}, ${shadowColor.a / 255})`;
+        _context!.shadowBlur = _shadowInfo.blur;
+        _context!.shadowOffsetX = shadowOffset.x;
+        _context!.shadowOffsetY = -shadowOffset.y;
     },
 
     _drawTextEffect (startPosition: Vec2, lineHeight: number) {
-        if (!_shadowComp && !_outlineComp && !_isUnderline) return;
+        const shadowEnabled = _shadowInfo.enabled;
+        const outlineWidth = _outlineInfo.width;
+        if (!outlineWidth && !shadowEnabled && !_isUnderline) return;
 
-        const isMultiple = _splitStrings.length > 1 && _shadowComp;
+        const isMultiple = _splitStrings.length > 1 && shadowEnabled;
         const measureText = this._measureText(_context!, _fontDesc);
         let drawTextPosX = 0;
         let drawTextPosY = 0;
 
         // only one set shadow and outline
-        if (_shadowComp) {
+        if (shadowEnabled) {
             this._setupShadow();
         }
 
-        if (_outlineComp) {
+        if (outlineWidth) {
             this._setupOutline();
         }
 
@@ -386,7 +411,7 @@ export const ttfUtils =  {
             drawTextPosY = startPosition.y + i * lineHeight;
             // multiple lines need to be drawn outline and fill text
             if (isMultiple) {
-                if (_outlineComp) {
+                if (outlineWidth) {
                     _context!.strokeText(_splitStrings[i], drawTextPosX, drawTextPosY);
                 }
                 _context!.fillText(_splitStrings[i], drawTextPosX, drawTextPosY);
