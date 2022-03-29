@@ -1,4 +1,4 @@
-import { _decorator, RenderPipeline } from "cc";
+import { _decorator, Component, Node, RenderPipeline } from "cc";
 const { ccclass, property } = _decorator;
 
 @ccclass("UnderscoreCaseClassName")

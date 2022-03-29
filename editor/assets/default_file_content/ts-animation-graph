@@ -1,4 +1,4 @@
-import { _decorator, animation } from "cc";
+import { _decorator, Component, Node, animation } from "cc";
 const { ccclass, property } = _decorator;
 
 @ccclass("<%UnderscoreCaseClassName%>")
