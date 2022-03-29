@@ -451,6 +451,18 @@ export class Animation extends Eventify(Component) {
         }
     }
 
+    /**
+     * @internal Friends only to skeletal animation component.
+     */
+    protected _recreateAllStates () {
+        this.stop();
+        for (const name in this._nameToState) {
+            const oldState = this._nameToState[name];
+            this._doCreateState(oldState.clip, name);
+            oldState.destroy();
+        }
+    }
+
     protected _createState (clip: AnimationClip, name?: string) {
         return new AnimationState(clip, name);
     }
@@ -479,10 +491,6 @@ export class Animation extends Eventify(Component) {
     private _blendStateBuffer = new LegacyBlendStateBuffer();
 
     private _onAnimationSystemUpdate (deltaTime: number) {
-        if (!this._playing) {
-            return;
-        }
-
         this._crossFade.update(deltaTime);
 
         for (const name in this._nameToState) {
