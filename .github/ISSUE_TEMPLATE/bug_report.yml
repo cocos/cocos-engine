@@ -44,7 +44,7 @@ body:
   attributes:
     label: Error Log
     description: |
-      JavaScript output log error
+      JavaScript error output and stack trace.
   validations:
     required: false
 
