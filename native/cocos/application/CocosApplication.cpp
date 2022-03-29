@@ -46,14 +46,26 @@ CocosApplication::CocosApplication() {
     CCASSERT(_systemWidow != nullptr, "Invalid interface pointer");
 }
 
-CocosApplication::~CocosApplication() = default;
+CocosApplication::~CocosApplication() {
+    _engine->off(BaseEngine::ON_RESUME);
+    _engine->off(BaseEngine::ON_PAUSE);
+    _engine->off(BaseEngine::ON_CLOSE);
+}
 
 int CocosApplication::init() {
     if (_engine->init()) {
         return -1;
     }
-    auto callback = std::bind(&CocosApplication::handleAppEvent, this, std::placeholders::_1); // NOLINT(modernize-avoid-bind)
-    _engine->addEventCallback(OSEventType::APP_OSEVENT, callback);
+
+    _engine->on(BaseEngine::ON_RESUME, [this]() {
+        this->onResume();
+    });
+    _engine->on(BaseEngine::ON_PAUSE, [this]() {
+        this->onPause();
+    });
+    _engine->on(BaseEngine::ON_CLOSE, [this]() {
+        this->onClose();
+    });
 
     se::ScriptEngine *se = se::ScriptEngine::getInstance();
 
@@ -145,22 +157,5 @@ void CocosApplication::createWindow(const char *title,
     _systemWidow->createWindow(title, x, y, w, h, flags);
 }
 #endif
-
-void CocosApplication::handleAppEvent(const OSEvent &ev) {
-    const AppEvent &appEv = OSEvent::castEvent<AppEvent>(ev);
-    switch (appEv.type) {
-        case AppEvent::Type::RESUME:
-            onResume();
-            break;
-        case AppEvent::Type::PAUSE:
-            onPause();
-            break;
-        case AppEvent::Type::CLOSE:
-            onClose();
-            break;
-        default:
-            break;
-    }
-}
 
 } // namespace cc

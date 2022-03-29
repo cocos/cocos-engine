@@ -1520,6 +1520,12 @@ if(USE_PHYSICS_PHYSX)
     )
 endif()
 
+##### core
+cocos_source_files(
+    cocos/core/event/CallbacksInvoker.cpp
+    cocos/core/event/CallbacksInvoker.h
+)
+
 ##### script bindings
 ######## dop
 cocos_source_files(

@@ -123,8 +123,6 @@ public:
     virtual void setXXTeaKey(const std::string& key);
 
 private:
-    void handleAppEvent(const OSEvent& ev);
-
     ISystemWindow*  _systemWidow{nullptr};
     BaseEngine::Ptr _engine{nullptr};
 };
