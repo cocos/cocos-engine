@@ -2293,6 +2293,9 @@ let NodeDefines = {
             if ((this._eventMask & COLOR_ON) && !listeners.hasEventListener(EventType.COLOR_CHANGED)) {
                 this._eventMask &= ~COLOR_ON;
             }
+            if ((this._eventMask & OPACITY_ON) && !listeners.hasEventListener(EventType.OPACITY_CHANGED)) {
+                this._eventMask &= ~OPACITY_ON;
+            }
         }
         if (this._capturingListeners) {
             this._capturingListeners.targetOff(target);
