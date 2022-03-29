@@ -105,7 +105,7 @@ elseif(MACOSX)
         proj.ios_mac/mac/zh-Hans.lproj/MainMenu.xib
     )
     list(APPEND PROJ_SOURCES
-       # proj.ios_mac/mac/main.mm
+        proj.ios_mac/mac/main.mm
         proj.ios_mac/mac/SimulatorApp.h
         proj.ios_mac/mac/SimulatorApp.mm
        # proj.ios_mac/mac/AppDelegate.h
