@@ -12,6 +12,7 @@ const CATEGORY_CONFIG_FILE_NAME = 'category.json';
 
 interface CategoryConfig {
     title: Record<string, string>;
+    description?: Record<string, string>;
 }
 
 export function load (app: Application) {
@@ -24,9 +25,8 @@ export function load (app: Application) {
     type ReflectionId = Reflection['id'];
 
     type CategoryInfo = {
-        title: Record<string, string>;
         items: ReflectionId[];
-    };
+    } & CategoryConfig;
 
     type CategoryMap = Record<string, CategoryInfo>;
 
@@ -115,7 +115,7 @@ export function load (app: Application) {
 
     function setCategory (reflectionId: ReflectionId, categoryId: string, categoryConfig: CategoryConfig) {
         (categoryMap[categoryId] ??= {
-            title: categoryConfig.title,
+            ...categoryConfig,
             items: [],
         }).items.push(reflectionId);
     }

@@ -875,6 +875,10 @@ module.exports = {
             label: "骨骼动画",
             description: "骨骼动画支持。",
         },
+        marionette: {
+            label: "Marionette 动画系统",
+            description: "启用 Marionette 动画系统。",
+        },
     },
     renderable_2d: {
         srcBlendFactor: '指定源的混合模式，这会克隆一个新的材质对象，注意这带来的性能和内存损耗',

@@ -894,6 +894,10 @@ module.exports = {
             label: "Skeletal Animation",
             description: "Skeletal animation support.",
         },
+        marionette: {
+            label: "Marionette Animation System",
+            description: "Enable the Marionette animation system",
+        },
     },
     renderable_2d: {
         srcBlendFactor: 'Specifies the source blend mode, it will clone a new material object.',
