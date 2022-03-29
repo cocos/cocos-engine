@@ -101,6 +101,7 @@ const ROTATION_ON = 1 << 2;
 const SIZE_ON = 1 << 3;
 const ANCHOR_ON = 1 << 4;
 const COLOR_ON = 1 << 5;
+const OPACITY_ON = 1 << 6;
 
 let _cachedPool = new js.Pool();
 _cachedPool.get = function () {
@@ -392,6 +393,16 @@ var EventType = cc.Enum({
     * @static
     */
     COLOR_CHANGED: 'color-changed',
+    /**
+    * !#en The event type for opacity change events.
+    * Performance note, this event will be triggered every time corresponding properties being changed,
+    * if the event callback have heavy logic it may have great performance impact, try to avoid such scenario.
+    * !#zh 当节点透明度改变时触发的事件。
+    * 性能警告：这个事件会在每次对应的属性被修改时触发，如果事件回调损耗较高，有可能对性能有很大的负面影响，请尽量避免这种情况。
+    * @property {String} OPACITY_CHANGED
+    * @static
+    */
+     OPACITY_CHANGED: 'opacity-changed',
     /**
      * !#en The event type for new child added events.
      * !#zh 当新的子节点被添加时触发的事件。
@@ -1392,6 +1403,9 @@ let NodeDefines = {
                         this._proxy.updateOpacity();
                     }
                     this._renderFlag |= RenderFlow.FLAG_OPACITY_COLOR;
+                    if (this._eventMask & OPACITY_ON) {
+                        this.emit(EventType.OPACITY_CHANGED, value);
+                    }
                 }
             },
             range: [0, 255]
@@ -2075,6 +2089,9 @@ let NodeDefines = {
                 case EventType.COLOR_CHANGED:
                 this._eventMask |= COLOR_ON;
                 break;
+                case EventType.OPACITY_CHANGED:
+                this._eventMask |= OPACITY_ON;
+                break;
             }
             if (!this._bubblingListeners) {
                 this._bubblingListeners = new EventTarget();
@@ -2211,6 +2228,9 @@ let NodeDefines = {
                     break;
                     case EventType.COLOR_CHANGED:
                     this._eventMask &= ~COLOR_ON;
+                    break;
+                    case EventType.OPACITY_CHANGED:
+                    this._eventMask &= ~OPACITY_ON;
                     break;
                 }
             }
