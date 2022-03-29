@@ -152,10 +152,6 @@ exports.methods = {
 
             for (let i = 0; i < technique.passes.length; i++) {
                 const pass = technique.passes[i];
-                // If the propertyIndex is not equal to the current pass index, then do not render
-                if (pass.propertyIndex !== undefined && pass.propertyIndex.value !== i) {
-                    continue;
-                }
 
                 // if asset is readonly
                 if (this.asset.readonly) {
