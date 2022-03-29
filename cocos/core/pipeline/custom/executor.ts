@@ -62,13 +62,15 @@ class DeviceResource {
 class DeviceTexture extends DeviceResource {
     protected _texture: Texture | null = null;
     protected _swapchain: Swapchain | null = null;
+    protected _framebuffer: Framebuffer | null = null;
     protected _desc: ResourceDesc | null = null;
     protected _trait: ResourceTraits | null = null;
     get texture () { return this._texture; }
+    get framebuffer () { return this._framebuffer; }
     get description () { return this._desc; }
     get trait () { return this._trait; }
     get swapchain () { return this._swapchain; }
-    constructor (name: string, tex: Texture | RenderSwapchain | ManagedResource, context: ExecutorContext) {
+    constructor (name: string, tex: Texture | Framebuffer | RenderSwapchain | ManagedResource, context: ExecutorContext) {
         super(name, context);
         const resGraph = context.resourceGraph;
         const verID = resGraph.vertex(name);
@@ -76,6 +78,10 @@ class DeviceTexture extends DeviceResource {
         this._trait = resGraph.getTraits(verID);
         if (tex instanceof Texture) {
             this._texture = tex;
+            return;
+        }
+        if (tex instanceof Framebuffer) {
+            this._framebuffer = tex;
             return;
         }
         if (tex instanceof RenderSwapchain) {
@@ -168,6 +174,7 @@ class DeviceRenderPass {
         let depthTex: Texture | null = null;
         const device = context.device;
         let swapchain: Swapchain | null = null;
+        let framebuffer: Framebuffer | null = null;
         for (const [resName, rasterV] of rasterPass.rasterViews) {
             let resTex = context.deviceTextures.get(resName);
             if (rasterV.accessType === AccessType.READ || resTex) {
@@ -178,7 +185,8 @@ class DeviceRenderPass {
             const resourceVisitor = new ResourceVisitor(resName, context);
             resourceGraph.visitVertex(resourceVisitor, vertId);
             resTex = context.deviceTextures.get(resName)!;
-            swapchain = resTex.swapchain;
+            if (!swapchain) swapchain = resTex.swapchain;
+            if (!framebuffer) framebuffer = resTex.framebuffer;
             switch (rasterV.attachmentType) {
             case AttachmentType.RENDER_TARGET:
                 colorTexs.push(resTex.swapchain ? resTex.swapchain.colorTexture : resTex.texture!);
@@ -207,11 +215,11 @@ class DeviceRenderPass {
             const colorAttachment = new ColorAttachment();
             colors.push(colorAttachment);
         }
-        if (colorTexs.length === 0 && !swapchain) {
+        if (colorTexs.length === 0 && !swapchain && !framebuffer) {
             const currTex = device.createTexture(new TextureInfo());
             colorTexs.push(currTex);
         }
-        if (!depthTex && !swapchain) {
+        if (!depthTex && !swapchain && !framebuffer) {
             depthTex = device.createTexture(new TextureInfo(
                 TextureType.TEX2D,
                 TextureUsageBit.DEPTH_STENCIL_ATTACHMENT | TextureUsageBit.SAMPLED,
@@ -221,7 +229,7 @@ class DeviceRenderPass {
             ));
         }
         this._renderPass = device.createRenderPass(new RenderPassInfo(colors, depthStencilAttachment));
-        this._framebuffer = device.createFramebuffer(new FramebufferInfo(this._renderPass, colorTexs, depthTex));
+        this._framebuffer = framebuffer || device.createFramebuffer(new FramebufferInfo(this._renderPass, colorTexs, depthTex));
     }
     get context () { return this._context; }
     get renderPass () { return this._renderPass; }
@@ -462,7 +470,7 @@ class ResourceVisitor implements ResourceGraphVisitor {
         this._context = context;
         this.name = resName;
     }
-    createDeviceTex (value: Texture | ManagedResource | RenderSwapchain) {
+    createDeviceTex (value: Texture | Framebuffer | ManagedResource | RenderSwapchain) {
         const deviceTex = new DeviceTexture(this.name, value, this._context);
         this._context.deviceTextures.set(this.name, deviceTex);
     }
@@ -475,6 +483,7 @@ class ResourceVisitor implements ResourceGraphVisitor {
         this.createDeviceTex(value);
     }
     framebuffer (value: Framebuffer) {
+        this.createDeviceTex(value);
     }
     swapchain (value: RenderSwapchain) {
         this.createDeviceTex(value);

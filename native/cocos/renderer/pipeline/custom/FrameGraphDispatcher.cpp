@@ -85,7 +85,7 @@ void addAccessNode(RAG &                   rag,
                    const ResourceGraph &   rg,
                    ResourceAccessNode &    node,
                    PassType                passType,
-                   PmrString               rescName,
+                   ccstd::pmr::string      rescName,
                    gfx::ShaderStageFlagBit visibility,
                    gfx::MemoryAccessBit    access,
                    const Range &           range) {
@@ -110,7 +110,7 @@ void addAccessNode(RAG &                   rag,
     }
 }
 
-AccessVertex dependencyCheck(RAG &rag, AccessTable &accessRecord, ResourceAccessNode &node, uint32_t vertexID, PassType passType, const PmrString &rescName, gfx::ShaderStageFlagBit visibility, gfx::MemoryAccessBit access) {
+AccessVertex dependencyCheck(RAG &rag, AccessTable &accessRecord, ResourceAccessNode &node, uint32_t vertexID, PassType passType, const ccstd::pmr::string &rescName, gfx::ShaderStageFlagBit visibility, gfx::MemoryAccessBit access) {
     AccessVertex lastVertexID = 0xFFFFFFFF;
     CC_EXPECTS(rag.resourceIndex.find(rescName) != rag.resourceIndex.end());
     auto resourceID = rag.resourceIndex[rescName];
@@ -150,13 +150,13 @@ AccessVertex dependencyCheck(RAG &rag, AccessTable &accessRecord, ResourceAccess
     return lastVertexID;
 }
 
-gfx::ShaderStageFlagBit getVisibilityByDescName(const LGD &lgd, uint32_t passID, const PmrString &slotName) {
+gfx::ShaderStageFlagBit getVisibilityByDescName(const LGD &lgd, uint32_t passID, const ccstd::pmr::string &slotName) {
     auto vis = gfx::ShaderStageFlagBit::NONE;
 
     const auto &layout = get(LGD::Layout, lgd, passID);
     bool        found  = false;
 
-    auto compare = [](const PmrString &name, const uint32_t slot) {
+    auto compare = [](const ccstd::pmr::string &name, const uint32_t slot) {
         return boost::lexical_cast<uint32_t>(name) == slot;
     };
 

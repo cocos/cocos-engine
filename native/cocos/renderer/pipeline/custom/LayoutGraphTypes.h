@@ -35,13 +35,13 @@
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/range/irange.hpp>
+#include "cocos/base/std/container/string.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/pipeline/custom/GraphTypes.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphFwd.h"
 #include "cocos/renderer/pipeline/custom/Map.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
 #include "cocos/renderer/pipeline/custom/Set.h"
-#include "cocos/renderer/pipeline/custom/String.h"
 
 namespace cc {
 
@@ -72,7 +72,7 @@ struct UniformBlockDB {
     UniformBlockDB& operator=(UniformBlockDB&& rhs) = default;
     UniformBlockDB& operator=(UniformBlockDB const& rhs) = default;
 
-    PmrTransparentMap<PmrString, gfx::Uniform> values;
+    PmrTransparentMap<ccstd::pmr::string, gfx::Uniform> values;
 };
 
 struct Descriptor {
@@ -99,12 +99,12 @@ struct DescriptorBlock {
     DescriptorBlock& operator=(DescriptorBlock&& rhs) = default;
     DescriptorBlock& operator=(DescriptorBlock const& rhs) = default;
 
-    PmrTransparentMap<PmrString, Descriptor>     descriptors;
-    PmrTransparentMap<PmrString, UniformBlockDB> uniformBlocks;
-    PmrTransparentMap<gfx::Type, Descriptor>     merged;
-    uint32_t                                     capacity{0};
-    uint32_t                                     start{0};
-    uint32_t                                     count{0};
+    PmrTransparentMap<ccstd::pmr::string, Descriptor>     descriptors;
+    PmrTransparentMap<ccstd::pmr::string, UniformBlockDB> uniformBlocks;
+    PmrTransparentMap<gfx::Type, Descriptor>              merged;
+    uint32_t                                              capacity{0};
+    uint32_t                                              start{0};
+    uint32_t                                              count{0};
 };
 
 struct DescriptorBlockIndex {
@@ -181,7 +181,7 @@ struct RenderPhase {
     RenderPhase& operator=(RenderPhase&& rhs) = default;
     RenderPhase& operator=(RenderPhase const& rhs) = default;
 
-    PmrTransparentSet<PmrString> shaders;
+    PmrTransparentSet<ccstd::pmr::string> shaders;
 };
 
 struct LayoutGraph {
@@ -343,13 +343,13 @@ struct LayoutGraph {
     // Vertices
     boost::container::pmr::vector<Vertex> vertices;
     // Components
-    boost::container::pmr::vector<PmrString>    names;
-    boost::container::pmr::vector<DescriptorDB> descriptors;
+    boost::container::pmr::vector<ccstd::pmr::string> names;
+    boost::container::pmr::vector<DescriptorDB>       descriptors;
     // PolymorphicGraph
     boost::container::pmr::vector<uint32_t>    stages;
     boost::container::pmr::vector<RenderPhase> phases;
     // Path
-    PmrTransparentMap<PmrString, vertex_descriptor> pathIndex;
+    PmrTransparentMap<ccstd::pmr::string, vertex_descriptor> pathIndex;
 };
 
 struct UniformData {
@@ -507,9 +507,9 @@ struct RenderPhaseData {
     RenderPhaseData& operator=(RenderPhaseData&& rhs) = default;
     RenderPhaseData& operator=(RenderPhaseData const& rhs) = default;
 
-    PmrString                                        rootSignature;
+    ccstd::pmr::string                               rootSignature;
     boost::container::pmr::vector<ShaderProgramData> shaderPrograms;
-    PmrTransparentMap<PmrString, uint32_t>           shaderIndex;
+    PmrTransparentMap<ccstd::pmr::string, uint32_t>  shaderIndex;
 };
 
 struct LayoutGraphData {
@@ -673,14 +673,14 @@ struct LayoutGraphData {
     // Vertices
     boost::container::pmr::vector<Vertex> vertices;
     // Components
-    boost::container::pmr::vector<PmrString>          names;
+    boost::container::pmr::vector<ccstd::pmr::string> names;
     boost::container::pmr::vector<UpdateFrequency>    updateFrequencies;
     boost::container::pmr::vector<PipelineLayoutData> layouts;
     // PolymorphicGraph
     boost::container::pmr::vector<uint32_t>        stages;
     boost::container::pmr::vector<RenderPhaseData> phases;
     // Path
-    PmrTransparentMap<PmrString, vertex_descriptor> pathIndex;
+    PmrTransparentMap<ccstd::pmr::string, vertex_descriptor> pathIndex;
 };
 
 } // namespace render
