@@ -117,7 +117,7 @@ exports.listeners = {
                     dump.values[i] = dump.value;
                 }
 
-                Editor.Message.send('scene', 'reset-property', {
+                Editor.Message.send('scene', 'update-property-from-null', {
                     uuid,
                     path: dump.path,
                 });
