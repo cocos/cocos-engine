@@ -40,6 +40,10 @@ SystemWindow::~SystemWindow() = default;
 
 bool SystemWindow::createWindow(const char* title,
                                 int w, int h, int flags) {
+    if(_isWindowCreated) {
+        return true;
+    }
+    _isWindowCreated = true;
     _width                = w;
     _height               = h;
     AppDelegate *delegate = [[NSApplication sharedApplication] delegate];
@@ -51,10 +55,10 @@ bool SystemWindow::createWindow(const char* title,
 bool SystemWindow::createWindow(const char *title,
                                 int x, int y, int w,
                                 int h, int flags) {
-    if(isInit) {
+    if(_isWindowCreated) {
         return true;
     }
-    isInit = true;
+    _isWindowCreated = true;
     _width                = w;
     _height               = h;
     AppDelegate *delegate = [[NSApplication sharedApplication] delegate];
