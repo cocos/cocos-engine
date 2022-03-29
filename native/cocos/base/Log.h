@@ -60,7 +60,7 @@ private:
 };
 
 } // namespace cc
-
+#if (CC_PLATFORM != CC_PLATFORM_NX)
 #define CC_LOG_DEBUG(formats, ...) \
     if (cc::Log::slogLevel >= cc::LogLevel::LEVEL_DEBUG) cc::Log::logMessage(cc::LogType::KERNEL, cc::LogLevel::LEVEL_DEBUG, formats, ##__VA_ARGS__)
 #define CC_LOG_INFO(formats, ...) \
@@ -77,3 +77,10 @@ private:
         DO_CC_LOG_ERROR("[ERROR] file %s: line %d ", __FILE__, __LINE__); \
         DO_CC_LOG_ERROR(formats, ##__VA_ARGS__);                          \
     } while (0)
+#else
+    #define CC_LOG_FATAL(formats, ...)
+    #define CC_LOG_WARNING(formats, ...) 
+    #define CC_LOG_INFO(formats, ...)
+    #define CC_LOG_DEBUG(formats, ...)
+    #define CC_LOG_ERROR(formats, ...)
+#endif

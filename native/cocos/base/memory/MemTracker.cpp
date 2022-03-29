@@ -34,7 +34,7 @@ extern "C" {
     #include <tommyhashdyn.h>
 }
 
-    #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
+    #if (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_NX_WINDOWS)
 
         #ifndef WIN32_LEAN_AND_MEAN
             #define WIN32_LEAN_AND_MEAN
@@ -269,7 +269,7 @@ void MemTracker::DumpMemoryAllocation() {
     sprintf(tmpbuf, "calc total memory: %u\n", total);
     str += tmpbuf;
 
-    #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
+    #if (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_NX_WINDOWS)
     FILE *f = fopen("MemDump.txt", "w");
     if (f) {
         fputs(str.c_str(), f);

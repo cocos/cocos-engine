@@ -33,7 +33,7 @@
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     #include "platform/android/FileUtils-android.h"
-#elif (CC_PLATFORM == CC_PLATFORM_WINDOWS)
+#elif (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_NX_WINDOWS)
     // for import ssize_t on win32 platform
     #include "platform/StdC.h"
 #endif

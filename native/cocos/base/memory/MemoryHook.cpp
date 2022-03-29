@@ -112,7 +112,7 @@ cc_malloc_logger(uint32_t  aType,
     }
 }
 
-    #elif CC_PLATFORM == CC_PLATFORM_WINDOWS
+    #elif CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_NX_WINDOWS
         #include <Windows.h>
 
 extern "C" {
@@ -189,7 +189,7 @@ void MemoryHook::removeRecord(uint64_t address) {
 
 void MemoryHook::dumpMemoryLeak() {
     std::lock_guard<std::recursive_mutex> lock(_mutex);
-    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
+    #if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_NX_WINDOWS
     CallStack::initSym();
     #endif
 
@@ -234,7 +234,7 @@ void MemoryHook::dumpMemoryLeak() {
     endStream << "---------------------------------------------------------------------------------------------------------" << std::endl;
     log(endStream.str());
 
-    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
+    #if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_NX_WINDOWS
     CallStack::cleanupSym();
     #endif
 }
@@ -244,7 +244,7 @@ void MemoryHook::log(const std::string& msg) {
     __android_log_write(ANDROID_LOG_WARN, "Cocos", msg.c_str());
     #elif CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
     fputs(msg.c_str(), stdout);
-    #elif (CC_PLATFORM == CC_PLATFORM_WINDOWS)
+    #elif (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_NX_WINDOWS)
     OutputDebugStringA(msg.c_str());
     #endif
 }
@@ -259,7 +259,7 @@ void MemoryHook::registerAll() {
     malloc_logger          = cc_malloc_logger;
     g_new_hooker           = newHook;
     g_delete_hooker        = deleteHook;
-    #elif CC_PLATFORM == CC_PLATFORM_WINDOWS
+    #elif CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_NX_WINDOWS
     MallocHook_AddNewHook(&newHook);
     MallocHook_AddDeleteHook(&deleteHook);
     #endif
@@ -273,7 +273,7 @@ void MemoryHook::unRegisterAll() {
     malloc_logger          = g_system_malloc_logger;
     g_new_hooker           = nullptr;
     g_delete_hooker        = nullptr;
-    #elif CC_PLATFORM == CC_PLATFORM_WINDOWS
+    #elif CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_NX_WINDOWS
     MallocHook_RemoveNewHook(&newHook);
     MallocHook_RemoveDeleteHook(&deleteHook);
     #endif

@@ -64,6 +64,7 @@ public:
         IPAD,      /**< iPad */
         OHOS,      /**< Open Harmony OS> */
         QNX,       /**< QNX */
+        NX         /**< NX */
     };
     /**
      @brief Get target system type.

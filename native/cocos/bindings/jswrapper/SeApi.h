@@ -44,6 +44,10 @@
     #include "chakracore/SeApi.h"
 #endif
 
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_QUICKJS
+    #include "quickjs/SeApi.h"
+#endif
+
 #include "HandleObject.h"
 #include "MappingUtils.h"
 #include "Object.h"

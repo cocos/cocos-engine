@@ -46,6 +46,8 @@
     #include "audio/oalsoft/AudioEngine-soft.h"
 #elif CC_PLATFORM == CC_PLATFORM_TIZEN
     #include "audio/tizen/AudioEngine-tizen.h"
+#elif CC_PLATFORM == CC_PLATFORM_NX_WINDOWS || CC_PLATFORM == CC_PLATFORM_NX
+    #include "audio/nx/AudioEngine-inl.h"
 #endif
 
 #define TIME_DELAY_PRECISION 0.0001
