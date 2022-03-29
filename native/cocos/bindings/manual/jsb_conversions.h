@@ -721,15 +721,15 @@ template <typename T>
 bool sevalue_to_native(const se::Value &from, ccstd::vector<T> *to, se::Object *ctx); // NOLINT(readability-identifier-naming)
 // ccstd::vector
 template <typename T, size_t N>
-bool sevalue_to_native(const se::Value &from, std::array<T, N> *to, se::Object *ctx); // NOLINT(readability-identifier-naming)
+bool sevalue_to_native(const se::Value &from, ccstd::array<T, N> *to, se::Object *ctx); // NOLINT(readability-identifier-naming)
 
 template <typename T>
 bool sevalue_to_native(const se::Value &from, cc::IntrusivePtr<T> *to, se::Object *ctx); // NOLINT(readability-identifier-naming)
 
-//////////////////// std::array
+//////////////////// ccstd::array
 
 template <typename T, size_t CNT>
-bool sevalue_to_native(const se::Value &from, std::array<T, CNT> *to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
+bool sevalue_to_native(const se::Value &from, ccstd::array<T, CNT> *to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
     assert(from.toObject());
     se::Object *array = from.toObject();
     assert(array->isArray());
@@ -745,7 +745,7 @@ bool sevalue_to_native(const se::Value &from, std::array<T, CNT> *to, se::Object
 }
 
 template <size_t CNT>
-bool sevalue_to_native(const se::Value &from, std::array<uint8_t, CNT> *to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
+bool sevalue_to_native(const se::Value &from, ccstd::array<uint8_t, CNT> *to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
     assert(from.toObject());
     se::Object *array = from.toObject();
     assert(array->isArray() || array->isArrayBuffer() || array->isTypedArray());
@@ -1297,7 +1297,7 @@ inline bool nativevalue_to_se(const ccstd::unordered_map<K, V> &from, se::Value 
 }
 
 template <typename T, size_t N>
-inline bool nativevalue_to_se(const std::array<T, N> &from, se::Value &to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
+inline bool nativevalue_to_se(const ccstd::array<T, N> &from, se::Value &to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
     se::Object *array = se::Object::createArrayObject(N);
     se::Value   tmp;
     for (size_t i = 0; i < N; i++) {
@@ -1310,7 +1310,7 @@ inline bool nativevalue_to_se(const std::array<T, N> &from, se::Value &to, se::O
 }
 
 template <size_t N>
-inline bool nativevalue_to_se(const std::array<uint8_t, N> &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
+inline bool nativevalue_to_se(const ccstd::array<uint8_t, N> &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     se::Object *array = se::Object::createTypedArray(se::Object::TypedArrayType::UINT8, from.data(), N);
     to.setObject(array);
     array->decRef();
@@ -1318,7 +1318,7 @@ inline bool nativevalue_to_se(const std::array<uint8_t, N> &from, se::Value &to,
 }
 
 template <size_t N>
-inline bool nativevalue_to_se(const std::array<uint16_t, N> &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
+inline bool nativevalue_to_se(const ccstd::array<uint16_t, N> &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     se::Object *array = se::Object::createTypedArray(se::Object::TypedArrayType::INT16, from.data(), N * sizeof(uint16_t));
     to.setObject(array);
     array->decRef();
@@ -1326,7 +1326,7 @@ inline bool nativevalue_to_se(const std::array<uint16_t, N> &from, se::Value &to
 }
 
 template <size_t N>
-inline bool nativevalue_to_se(const std::array<float, N> &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
+inline bool nativevalue_to_se(const ccstd::array<float, N> &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     se::Object *array = se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, from.data(), N * sizeof(float));
     to.setObject(array);
     array->decRef();

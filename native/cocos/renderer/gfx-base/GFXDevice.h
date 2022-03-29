@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <array>
+#include "base/std/container/array.h"
 #include "GFXBuffer.h"
 #include "GFXCommandBuffer.h"
 #include "GFXDescriptorSet.h"
@@ -166,8 +166,8 @@ protected:
 
     bool _multithreadedCommandRecording{true};
 
-    std::array<bool, static_cast<size_t>(Feature::COUNT)>         _features;
-    std::array<FormatFeature, static_cast<size_t>(Format::COUNT)> _formatFeatures;
+    ccstd::array<bool, static_cast<size_t>(Feature::COUNT)>         _features;
+    ccstd::array<FormatFeature, static_cast<size_t>(Format::COUNT)> _formatFeatures;
 
     Queue *        _queue{nullptr};
     QueryPool *    _queryPool{nullptr};

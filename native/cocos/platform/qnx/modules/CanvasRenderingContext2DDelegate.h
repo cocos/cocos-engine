@@ -27,7 +27,7 @@
 
 #include "platform/interfaces/modules/canvas/ICanvasRenderingContext2D.h"
 
-#include <array>
+#include "base/std/container/array.h"
 #include <cstdint>
 #include <regex>
 #include "base/csscolorparser.h"
@@ -41,10 +41,10 @@ namespace cc {
 
 class CanvasRenderingContext2DDelegate : public ICanvasRenderingContext2D::Delegate {
 public:
-    using Point   = std::array<float, 2>;
-    using Vec2    = std::array<float, 2>;
-    using Size    = std::array<float, 2>;
-    using Color4F = std::array<float, 4>;
+    using Point   = ccstd::array<float, 2>;
+    using Vec2    = ccstd::array<float, 2>;
+    using Size    = ccstd::array<float, 2>;
+    using Color4F = ccstd::array<float, 4>;
 
     CanvasRenderingContext2DDelegate();
     ~CanvasRenderingContext2DDelegate() override;
@@ -85,7 +85,7 @@ private:
     void                 prepareBitmap(int nWidth, int nHeight);
     void                 deleteBitmap();
     void                 fillTextureData();
-    std::array<float, 2> convertDrawPoint(Point point, const ccstd::string &text);
+    ccstd::array<float, 2> convertDrawPoint(Point point, const ccstd::string &text);
 
 public:
     cairo_surface_t *_surface{nullptr};

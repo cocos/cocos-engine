@@ -2,7 +2,6 @@
 
 #include "base/Macros.h"
 
-#include <array>
 #include "core/assets/RenderingSubMesh.h"
 #include "core/geometry/Distance.h"
 #include "core/geometry/Enums.h"

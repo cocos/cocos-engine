@@ -34,7 +34,7 @@
     #include "Utils.h"
     #include "base/std/container/unordered_map.h"
 
-    #include <array>
+    #include "base/std/container/array.h"
     #include <memory>
     #include <sstream>
 
@@ -614,7 +614,7 @@ bool Object::call(const ValueArray &args, Object *thisObject, Value *rval /* = n
     }
     size_t argc = args.size();
 
-    std::array<v8::Local<v8::Value>, JSB_FUNC_DEFAULT_MAX_ARG_COUNT> argv;
+    ccstd::array<v8::Local<v8::Value>, JSB_FUNC_DEFAULT_MAX_ARG_COUNT> argv;
     std::unique_ptr<ccstd::vector<v8::Local<v8::Value>>>             vecArgs;
     v8::Local<v8::Value> *                                           pArgv = argv.data();
 

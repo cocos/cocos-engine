@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <array>
+#include "base/std/container/array.h"
 #include "Define.h"
 #include "base/RefCounted.h"
 #include "base/std/container/unordered_map.h"
@@ -47,7 +47,7 @@ struct CC_DLL BatchedItem {
     uint                                      mergeCount  = 0;
     gfx::InputAssembler *                     ia          = nullptr;
     gfx::Buffer *                             ubo         = nullptr;
-    std::array<float, UBOLocalBatched::COUNT> uboData;
+    ccstd::array<float, UBOLocalBatched::COUNT> uboData;
     gfx::DescriptorSet *                      descriptorSet = nullptr;
     const scene::Pass *                       pass          = nullptr;
     gfx::Shader *                             shader        = nullptr;

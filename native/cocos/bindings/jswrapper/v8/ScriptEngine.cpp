@@ -45,7 +45,7 @@
 
     #endif
 
-    #include <array>
+    #include "base/std/container/array.h"
 
     #define EXPOSE_GC "__jsb_gc__"
 
@@ -1101,7 +1101,7 @@ bool ScriptEngine::callFunction(Object *targetObj, const char *funcName, uint32_
     }
 
     SE_ASSERT(argc < 11, "Only support argument count that less than 11"); //NOLINT
-    std::array<v8::Local<v8::Value>, 10> argv;
+    ccstd::array<v8::Local<v8::Value>, 10> argv;
 
     for (size_t i = 0; i < argc; ++i) {
         internal::seToJsValue(_isolate, args[i], &argv[i]);

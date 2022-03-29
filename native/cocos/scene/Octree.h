@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <array>
+#include "base/std/container/array.h"
 #include "base/Macros.h"
 #include "base/RefCounted.h"
 #include "core/geometry/AABB.h"
@@ -151,7 +151,7 @@ private:
 
     Octree *                                      _owner{nullptr};
     OctreeNode *                                  _parent{nullptr};
-    std::array<OctreeNode *, OCTREE_CHILDREN_NUM> _children{};
+    ccstd::array<OctreeNode *, OCTREE_CHILDREN_NUM> _children{};
     ccstd::vector<Model *>                        _models;
     BBox                                          _aabb{};
     uint32_t                                      _depth{0};

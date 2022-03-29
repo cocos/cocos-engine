@@ -47,11 +47,11 @@
 #include <cerrno>
 #include <condition_variable>
 #include <csignal>
-#include <list>
 #include <memory> // for std::shared_ptr
 #include <mutex>
 #include <thread>
 #include "application/ApplicationManager.h"
+#include "base/std/container/list.h"
 #include "base/Scheduler.h"
 #include "base/std/container/queue.h"
 #include "base/std/container/string.h"
@@ -382,7 +382,7 @@ protected:
     void wsThreadEntryFunc() const;
 
 public:
-    std::list<WsMessage *> *_subThreadWsMessageQueue;
+    ccstd::list<WsMessage *> *_subThreadWsMessageQueue;
     std::mutex              _subThreadWsMessageQueueMutex;
     std::thread *           _subThreadInstance{nullptr};
 
@@ -419,7 +419,7 @@ public:
 WsThreadHelper::WsThreadHelper()
 
 {
-    _subThreadWsMessageQueue = new (std::nothrow) std::list<WsMessage *>();
+    _subThreadWsMessageQueue = new (std::nothrow) ccstd::list<WsMessage *>();
 }
 
 WsThreadHelper::~WsThreadHelper() {

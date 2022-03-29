@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <array>
+#include "base/std/container/array.h"
 #include "core/geometry/AABB.h"
 #include "core/geometry/Enums.h"
 #include "core/geometry/Plane.h"
@@ -108,7 +108,7 @@ public:
      */
     static Frustum *copy(Frustum *out, const Frustum &f) {
         out->setType(f.getType());
-        for (size_t i = 0; i < 6; ++i) {
+        for (size_t i = 0; i < 6; ++i) { // NOLINT(modernize-loop-convert)
             Plane::copy(out->planes[i],  *(f.planes[i]));
         }
         out->vertices = f.vertices;
@@ -127,7 +127,7 @@ public:
 
     Frustum() {
         setType(ShapeEnum::SHAPE_FRUSTUM);
-        for (size_t i = 0; i < planes.size(); ++i) {
+        for (size_t i = 0; i < planes.size(); ++i) { // NOLINT(modernize-loop-convert)
             planes[i] = new Plane();
             planes[i]->addRef();
         }
@@ -148,8 +148,8 @@ public:
      */
     void transform(const Mat4 &);
 
-    std::array<Vec3, 8>  vertices;
-    std::array<Plane*, 6> planes;
+    ccstd::array<Vec3, 8>  vertices;
+    ccstd::array<Plane*, 6> planes;
     void                 createOrtho(float width, float height, float near, float far, const Mat4 &transform);
     void                 split(float start, float end, float aspect, float fov, const Mat4 &transform);
     void                 updatePlanes();

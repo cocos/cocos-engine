@@ -75,8 +75,8 @@ public:
         }
     }
 
-    std::array<WGPURenderPassColorAttachment, CC_WGPU_MAX_ATTACHMENTS>        colors;
-    std::array<WGPURenderPassDepthStencilAttachment, CC_WGPU_MAX_ATTACHMENTS> depthStencils;
+    ccstd::array<WGPURenderPassColorAttachment, CC_WGPU_MAX_ATTACHMENTS>        colors;
+    ccstd::array<WGPURenderPassDepthStencilAttachment, CC_WGPU_MAX_ATTACHMENTS> depthStencils;
     WGPURenderPassDescriptor *                                                renderPassDesc = nullptr;
     int                                                                       sampleCount    = 1;
 };

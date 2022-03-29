@@ -26,7 +26,7 @@
 #pragma once
 
 #include "platform/interfaces/modules/canvas/ICanvasRenderingContext2D.h"
-
+#include "base/std/container/array.h"
 #include "base/csscolorparser.h"
 #include "bindings/jswrapper/config.h"
 #include "math/Math.h"
@@ -41,7 +41,7 @@ namespace cc {
 
 class CanvasRenderingContext2DDelegate : public ICanvasRenderingContext2D::Delegate {
 public:
-    using Size = std::array<float, 2>;
+    using Size = ccstd::array<float, 2>;
     CanvasRenderingContext2DDelegate();
     ~CanvasRenderingContext2DDelegate() override;
 

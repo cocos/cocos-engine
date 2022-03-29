@@ -23,7 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include <array>
+#include "base/std/container/array.h"
 
 #include "Define.h"
 #include "PipelineSceneData.h"
@@ -71,7 +71,7 @@ void getShadowWorldMatrix(const geometry::Sphere *sphere, const cc::Quaternion &
     Mat4::fromRT(rotation, translation, shadowWorldMat);
 }
 
-void updateSphereLight(scene::Shadows *shadowInfo, const scene::Light *light, std::array<float, UBOShadow::COUNT> *shadowUBO) {
+void updateSphereLight(scene::Shadows *shadowInfo, const scene::Light *light, ccstd::array<float, UBOShadow::COUNT> *shadowUBO) {
     const auto *node = light->getNode();
     if (!node->getChangedFlags() && !shadowInfo->isShadowMapDirty()) {
         return;
@@ -109,7 +109,7 @@ void updateSphereLight(scene::Shadows *shadowInfo, const scene::Light *light, st
     memcpy(shadowUBO->data() + UBOShadow::MAT_LIGHT_PLANE_PROJ_OFFSET, matLight.m, sizeof(matLight));
 }
 
-void updateDirLight(scene::Shadows *shadowInfo, const scene::Light *light, std::array<float, UBOShadow::COUNT> *shadowUBO) {
+void updateDirLight(scene::Shadows *shadowInfo, const scene::Light *light, ccstd::array<float, UBOShadow::COUNT> *shadowUBO) {
     const auto *     node     = light->getNode();
     const auto &     rotation = node->getWorldRotation();
     const Quaternion qt(rotation.x, rotation.y, rotation.z, rotation.w);
@@ -147,7 +147,7 @@ void updateDirLight(scene::Shadows *shadowInfo, const scene::Light *light, std::
     memcpy(shadowUBO->data() + UBOShadow::SHADOW_COLOR_OFFSET, shadowInfo->getShadowColor4f().data(), sizeof(float) * 4);
 }
 
-void updatePlanarNormalAndDistance(scene::Shadows *shadowInfo, std::array<float, UBOShadow::COUNT> *shadowUBO) {
+void updatePlanarNormalAndDistance(scene::Shadows *shadowInfo, ccstd::array<float, UBOShadow::COUNT> *shadowUBO) {
     const Vec3  normal          = shadowInfo->getNormal().getNormalized();
     const float planarNDInfo[4] = {normal.x, normal.y, normal.z, shadowInfo->getDistance()};
     memcpy(shadowUBO->data() + UBOShadow::PLANAR_NORMAL_DISTANCE_INFO_OFFSET, &planarNDInfo, sizeof(planarNDInfo));
