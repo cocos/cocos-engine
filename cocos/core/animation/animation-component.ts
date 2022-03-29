@@ -491,10 +491,6 @@ export class Animation extends Eventify(Component) {
     private _blendStateBuffer = new LegacyBlendStateBuffer();
 
     private _onAnimationSystemUpdate (deltaTime: number) {
-        if (!this._playing) {
-            return;
-        }
-
         this._crossFade.update(deltaTime);
 
         for (const name in this._nameToState) {
