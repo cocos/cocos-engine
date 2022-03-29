@@ -47,7 +47,7 @@ using RDG = RenderDependencyGraph;
 using RESG = ResourceGraph;
 
 // validation
-void checkComputeValue(const PmrTransparentMap<PmrString, boost::container::pmr::vector<ComputeView>>& values0) {
+void checkComputeValue(const PmrTransparentMap<ccstd::pmr::string, boost::container::pmr::vector<ComputeView>>& values0) {
     for (const auto& pair : values0) {
         const auto& name   = pair.first;
         const auto& values = pair.second;
@@ -125,7 +125,7 @@ void addPassNodeValue(RenderPassNode& node, PmrFlatSet<uint32_t>& values,
 
 void addPassNodeValue(RenderDependencyGraph& rdg,
                       RenderPassNode& node, PmrFlatSet<uint32_t>& values,
-                      const PmrString& valueName, AccessType type) {
+                      const ccstd::pmr::string& valueName, AccessType type) {
     auto iter = rdg.valueIndex.find(valueName);
     if (iter == rdg.valueIndex.end()) {
         rdg.valueIndex.emplace(valueName, uint32_t(rdg.valueNames.size()));

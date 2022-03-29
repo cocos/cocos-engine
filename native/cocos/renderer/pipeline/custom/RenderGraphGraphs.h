@@ -1044,15 +1044,15 @@ struct property_map<cc::render::ResourceGraph, cc::render::ResourceGraph::NameTa
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         const cc::render::ResourceGraph,
-        const container::pmr::vector<cc::PmrString>,
+        const container::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        const cc::PmrString&>;
+        const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::ResourceGraph,
-        container::pmr::vector<cc::PmrString>,
+        container::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        cc::PmrString&>;
+        ccstd::pmr::string&>;
 };
 
 // Vertex Name
@@ -1061,15 +1061,15 @@ struct property_map<cc::render::ResourceGraph, vertex_name_t> {
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         const cc::render::ResourceGraph,
-        const container::pmr::vector<cc::PmrString>,
+        const container::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        const cc::PmrString&>;
+        const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::ResourceGraph,
-        container::pmr::vector<cc::PmrString>,
+        container::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        cc::PmrString&>;
+        ccstd::pmr::string&>;
 };
 
 // Vertex Component
@@ -1193,15 +1193,15 @@ struct property_map<cc::render::SubpassGraph, cc::render::SubpassGraph::NameTag>
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         const cc::render::SubpassGraph,
-        const container::pmr::vector<cc::PmrString>,
+        const container::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        const cc::PmrString&>;
+        const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::SubpassGraph,
-        container::pmr::vector<cc::PmrString>,
+        container::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        cc::PmrString&>;
+        ccstd::pmr::string&>;
 };
 
 // Vertex Name
@@ -1210,15 +1210,15 @@ struct property_map<cc::render::SubpassGraph, vertex_name_t> {
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         const cc::render::SubpassGraph,
-        const container::pmr::vector<cc::PmrString>,
+        const container::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        const cc::PmrString&>;
+        const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::SubpassGraph,
-        container::pmr::vector<cc::PmrString>,
+        container::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        cc::PmrString&>;
+        ccstd::pmr::string&>;
 };
 
 // Vertex Component
@@ -1270,15 +1270,15 @@ struct property_map<cc::render::RenderGraph, cc::render::RenderGraph::NameTag> {
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         const cc::render::RenderGraph,
-        const container::pmr::vector<cc::PmrString>,
+        const container::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        const cc::PmrString&>;
+        const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::RenderGraph,
-        container::pmr::vector<cc::PmrString>,
+        container::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        cc::PmrString&>;
+        ccstd::pmr::string&>;
 };
 
 // Vertex Name
@@ -1287,15 +1287,15 @@ struct property_map<cc::render::RenderGraph, vertex_name_t> {
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         const cc::render::RenderGraph,
-        const container::pmr::vector<cc::PmrString>,
+        const container::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        const cc::PmrString&>;
+        const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::RenderGraph,
-        container::pmr::vector<cc::PmrString>,
+        container::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        cc::PmrString&>;
+        ccstd::pmr::string&>;
 };
 
 // Vertex Component
@@ -1304,15 +1304,15 @@ struct property_map<cc::render::RenderGraph, cc::render::RenderGraph::LayoutTag>
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         const cc::render::RenderGraph,
-        const container::pmr::vector<cc::PmrString>,
+        const container::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        const cc::PmrString&>;
+        const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::RenderGraph,
-        container::pmr::vector<cc::PmrString>,
+        container::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        cc::PmrString&>;
+        ccstd::pmr::string&>;
 };
 
 // Vertex Component
@@ -2041,7 +2041,7 @@ inline void put(
 
 // UuidGraph
 inline ResourceGraph::vertex_descriptor
-vertex(const PmrString& key, const ResourceGraph& g) {
+vertex(const ccstd::pmr::string& key, const ResourceGraph& g) {
     return g.valueIndex.at(key);
 }
 
@@ -2068,7 +2068,7 @@ findVertex(const KeyLike& key, const ResourceGraph& g) noexcept {
 }
 
 inline bool
-contains(const PmrString& key, const ResourceGraph& g) noexcept {
+contains(const ccstd::pmr::string& key, const ResourceGraph& g) noexcept {
     auto iter = g.valueIndex.find(key);
     return iter != g.valueIndex.end();
 }
@@ -2083,7 +2083,7 @@ contains(const KeyLike& key, const ResourceGraph& g) noexcept {
 // MutableGraph(Vertex)
 template <class Tag>
 inline ResourceGraph::vertex_descriptor
-add_vertex(ResourceGraph& g, Tag t, PmrString&& name) { // NOLINT
+add_vertex(ResourceGraph& g, Tag t, ccstd::pmr::string&& name) { // NOLINT
     return addVertex(
         t,
         std::forward_as_tuple(std::move(name)), // names
@@ -2189,7 +2189,7 @@ inline void put(
 
 // MutableGraph(Vertex)
 inline SubpassGraph::vertex_descriptor
-add_vertex(SubpassGraph& g, PmrString&& name) { // NOLINT
+add_vertex(SubpassGraph& g, ccstd::pmr::string&& name) { // NOLINT
     return addVertex(
         std::piecewise_construct,
         std::forward_as_tuple(std::move(name)), // names
@@ -3328,7 +3328,7 @@ inline void put(
 // MutableGraph(Vertex)
 template <class Tag>
 inline RenderGraph::vertex_descriptor
-add_vertex(RenderGraph& g, Tag t, PmrString&& name) { // NOLINT
+add_vertex(RenderGraph& g, Tag t, ccstd::pmr::string&& name) { // NOLINT
     return addVertex(
         t,
         std::forward_as_tuple(std::move(name)), // names

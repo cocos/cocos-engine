@@ -35,13 +35,13 @@
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/range/irange.hpp>
+#include "cocos/base/std/container/string.h"
 #include "cocos/renderer/pipeline/custom/GraphTypes.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/Map.h"
 #include "cocos/renderer/pipeline/custom/RenderExampleFwd.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/Set.h"
-#include "cocos/renderer/pipeline/custom/String.h"
 
 namespace cc {
 
@@ -224,8 +224,8 @@ struct RenderDependencyGraph {
     // UuidGraph
     PmrUnorderedMap<RenderGraph::vertex_descriptor, vertex_descriptor> passIndex;
     // Members
-    PmrUnorderedMap<PmrString, uint32_t>                            valueIndex;
-    boost::container::pmr::vector<PmrString>                        valueNames;
+    PmrUnorderedMap<ccstd::pmr::string, uint32_t>                   valueIndex;
+    boost::container::pmr::vector<ccstd::pmr::string>               valueNames;
     boost::container::pmr::vector<ResourceGraph::vertex_descriptor> resourceHandles;
 };
 
