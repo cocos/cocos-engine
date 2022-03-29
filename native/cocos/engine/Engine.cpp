@@ -250,7 +250,8 @@ int32_t Engine::restartVM() {
 
     scriptEngine->cleanup();
     cc::EventDispatcher::destroy();
-
+    // remove all listening events
+    offAll();
     // start
     cc::EventDispatcher::init();
     CC_CURRENT_APPLICATION()->init();

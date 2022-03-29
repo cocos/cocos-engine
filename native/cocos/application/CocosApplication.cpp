@@ -46,7 +46,11 @@ CocosApplication::CocosApplication() {
     CCASSERT(_systemWidow != nullptr, "Invalid interface pointer");
 }
 
-CocosApplication::~CocosApplication() = default;
+CocosApplication::~CocosApplication() {
+    _engine->off(BaseEngine::ON_RESUME);
+    _engine->off(BaseEngine::ON_PAUSE);
+    _engine->off(BaseEngine::ON_CLOSE);
+}
 
 int CocosApplication::init() {
     if (_engine->init()) {
@@ -153,22 +157,5 @@ void CocosApplication::createWindow(const char *title,
     _systemWidow->createWindow(title, x, y, w, h, flags);
 }
 #endif
-
-void CocosApplication::handleAppEvent(const OSEvent &ev) {
-    const AppEvent &appEv = OSEvent::castEvent<AppEvent>(ev);
-    switch (appEv.type) {
-        case AppEvent::Type::RESUME:
-            onResume();
-            break;
-        case AppEvent::Type::PAUSE:
-            onPause();
-            break;
-        case AppEvent::Type::CLOSE:
-            onClose();
-            break;
-        default:
-            break;
-    }
-}
 
 } // namespace cc
