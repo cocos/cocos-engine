@@ -207,7 +207,7 @@ bool Sphere::sphereFrustum(const Frustum &frustum) const {
 }
 
 void Sphere::mergeFrustum(const Frustum &frustum) {
-    const std::array<Vec3, 8> &vertices = frustum.vertices;
+    const ccstd::array<Vec3, 8> &vertices = frustum.vertices;
     for (size_t i = 0; i < vertices.max_size(); ++i) {
         merge(vertices[i]);
     }

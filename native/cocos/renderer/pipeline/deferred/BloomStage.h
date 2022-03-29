@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <array>
+#include "base/std/container/array.h"
 #include "../RenderStage.h"
 #include "frame-graph/Handle.h"
 #include "pipeline/Enum.h"
@@ -77,8 +77,8 @@ private:
     int                                                  _iterations   = 2;
     gfx::Sampler *                                       _sampler      = nullptr;
     gfx::Buffer *                                        _prefilterUBO = nullptr;
-    std::array<gfx::Buffer *, MAX_BLOOM_FILTER_PASS_NUM> _downsampleUBO{};
-    std::array<gfx::Buffer *, MAX_BLOOM_FILTER_PASS_NUM> _upsampleUBO{};
+    ccstd::array<gfx::Buffer *, MAX_BLOOM_FILTER_PASS_NUM> _downsampleUBO{};
+    ccstd::array<gfx::Buffer *, MAX_BLOOM_FILTER_PASS_NUM> _upsampleUBO{};
     gfx::Buffer *                                        _combineUBO = nullptr;
     framegraph::StringHandle                             _fgStrHandleBloomOut;
 };

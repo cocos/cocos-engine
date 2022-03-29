@@ -23,7 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include <array>
+#include "base/std/container/array.h"
 
 #include "Define.h"
 #include "InstancedBuffer.h"

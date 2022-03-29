@@ -25,7 +25,6 @@
 
 #include "platform/interfaces/modules/canvas/CanvasRenderingContext2D.h"
 
-#include <array>
 #include <cstdint>
 #include <regex>
 #include "base/csscolorparser.h"
@@ -46,8 +45,8 @@
     #include "platform/qnx/modules/CanvasRenderingContext2DDelegate.h"
 #endif
 
-using Vec2    = std::array<float, 2>;
-using Color4F = std::array<float, 4>;
+using Vec2    = ccstd::array<float, 2>;
+using Color4F = ccstd::array<float, 4>;
 
 namespace {
 void fillRectWithColor(uint8_t *buf, uint32_t totalWidth, uint32_t totalHeight, uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
@@ -70,7 +69,7 @@ void fillRectWithColor(uint8_t *buf, uint32_t totalWidth, uint32_t totalHeight, 
 } // namespace
 
 namespace cc {
-//using Size    = std::array<float, 2>;
+//using Size    = ccstd::array<float, 2>;
 CanvasGradient::CanvasGradient() = default;
 
 CanvasGradient::~CanvasGradient() = default;

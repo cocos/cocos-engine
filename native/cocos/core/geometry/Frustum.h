@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <array>
+#include "base/std/container/array.h"
 #include "core/geometry/AABB.h"
 #include "core/geometry/Enums.h"
 #include "core/geometry/Plane.h"
@@ -148,8 +148,8 @@ public:
      */
     void transform(const Mat4 &);
 
-    std::array<Vec3, 8>  vertices;
-    std::array<Plane*, 6> planes;
+    ccstd::array<Vec3, 8>  vertices;
+    ccstd::array<Plane*, 6> planes;
     void                 createOrtho(float width, float height, float near, float far, const Mat4 &transform);
     void                 split(float start, float end, float aspect, float fov, const Mat4 &transform);
     void                 updatePlanes();

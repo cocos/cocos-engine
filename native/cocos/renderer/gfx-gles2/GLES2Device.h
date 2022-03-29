@@ -129,7 +129,7 @@ protected:
 
     ccstd::vector<GLES2GPUSwapchain *> _swapchains;
 
-    std::array<bool, static_cast<size_t>(Format::COUNT)> _textureExclusive;
+    ccstd::array<bool, static_cast<size_t>(Format::COUNT)> _textureExclusive;
 
     GLESBindingMapping _bindingMappings;
 

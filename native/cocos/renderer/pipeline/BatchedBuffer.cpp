@@ -229,7 +229,7 @@ void BatchedBuffer::merge(const scene::SubModel *subModel, uint passIdx, const s
     descriptorSet->bindBuffer(UBOLocalBatched::BINDING, ubo);
     descriptorSet->update();
 
-    std::array<float, UBOLocalBatched::COUNT> uboData;
+    ccstd::array<float, UBOLocalBatched::COUNT> uboData;
     const auto &                              worldMatrix = model->getTransform()->getWorldMatrix();
     memcpy(uboData.data() + UBOLocalBatched::MAT_WORLDS_OFFSET, worldMatrix.m, sizeof(worldMatrix));
     BatchedItem item = {

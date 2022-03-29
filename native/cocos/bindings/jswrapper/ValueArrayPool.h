@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include <array>
+#include "base/std/container/array.h"
 #include "Value.h"
 
 namespace se {
@@ -62,7 +62,7 @@ public:
 
 private:
     void                                                initPool(uint32_t index);
-    ccstd::vector<std::array<ValueArray, MAX_ARGS + 1>> _pools;
+    ccstd::vector<ccstd::array<ValueArray, MAX_ARGS + 1>> _pools;
 };
 
 extern ValueArrayPool gValueArrayPool;

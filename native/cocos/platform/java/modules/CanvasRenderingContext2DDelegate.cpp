@@ -152,7 +152,7 @@ void CanvasRenderingContext2DDelegate::strokeText(const ccstd::string &text, flo
 
 CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measureText(const ccstd::string &text) {
     if (text.empty()) {
-        return std::array<float, 2>{0.0F, 0.0F};
+        return ccstd::array<float, 2>{0.0F, 0.0F};
     }
     float measureText1 = JniHelper::callObjectFloatMethod(_obj, JCLS_CANVASIMPL, "measureText", text);
     Size  size{measureText1, 0.0F};

@@ -23,7 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include <array>
+#include "base/std/container/array.h"
 #include <boost/functional/hash.hpp>
 #include "base/Utils.h"
 
@@ -528,7 +528,7 @@ std::pair<uint32_t, uint32_t> formatAlignment(Format format) {
     }
 }
 
-static constexpr std::array<uint32_t, static_cast<size_t>(Type::COUNT)> GFX_TYPE_SIZES = {
+static constexpr ccstd::array<uint32_t, static_cast<size_t>(Type::COUNT)> GFX_TYPE_SIZES = {
     0,  // UNKNOWN
     4,  // BOOL
     8,  // BOOL2

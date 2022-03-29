@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <array>
+#include "base/std/container/array.h"
 #include "Define.h"
 
 namespace cc {
@@ -83,7 +83,7 @@ private:
     gfx::Buffer *                                   _lightBuffer          = nullptr;
     gfx::Buffer *                                   _firstLightBufferView = nullptr;
 
-    std::array<float, UBOShadow::COUNT> _shadowUBO{};
+    ccstd::array<float, UBOShadow::COUNT> _shadowUBO{};
 
     uint  _lightBufferStride       = 0;
     uint  _lightBufferElementCount = 0;

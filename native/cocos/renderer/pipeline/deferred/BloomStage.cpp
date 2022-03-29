@@ -218,7 +218,7 @@ void BloomStage::render(scene::Camera *camera) {
         gfx::RenderPass *renderPass = table.getRenderPass();
 
         auto *                    cmdBf         = pipeline->getCommandBuffers()[0];
-        const std::array<uint, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
+        const ccstd::array<uint, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
         cmdBf->bindDescriptorSet(globalSet, pipeline->getDescriptorSet(), utils::toUint(globalOffsets.size()), globalOffsets.data());
 
         auto *              sceneData = static_cast<DeferredPipelineSceneData *>(pipeline->getPipelineSceneData());
@@ -296,7 +296,7 @@ void BloomStage::render(scene::Camera *camera) {
             gfx::RenderPass *renderPass = table.getRenderPass();
 
             auto *                    cmdBf         = pipeline->getCommandBuffers()[0];
-            const std::array<uint, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
+            const ccstd::array<uint, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
             cmdBf->bindDescriptorSet(globalSet, pipeline->getDescriptorSet(), utils::toUint(globalOffsets.size()), globalOffsets.data());
 
             auto *const         sceneData = static_cast<DeferredPipelineSceneData *>(pipeline->getPipelineSceneData());
@@ -368,7 +368,7 @@ void BloomStage::render(scene::Camera *camera) {
             gfx::RenderPass *renderPass = table.getRenderPass();
 
             auto *                    cmdBf         = pipeline->getCommandBuffers()[0];
-            const std::array<uint, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
+            const ccstd::array<uint, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
             cmdBf->bindDescriptorSet(globalSet, pipeline->getDescriptorSet(), utils::toUint(globalOffsets.size()), globalOffsets.data());
 
             auto *const         sceneData = static_cast<DeferredPipelineSceneData *>(pipeline->getPipelineSceneData());
@@ -445,7 +445,7 @@ void BloomStage::render(scene::Camera *camera) {
         gfx::RenderPass *renderPass = table.getRenderPass();
 
         auto *                    cmdBf         = pipeline->getCommandBuffers()[0];
-        const std::array<uint, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
+        const ccstd::array<uint, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
         cmdBf->bindDescriptorSet(globalSet, pipeline->getDescriptorSet(), utils::toUint(globalOffsets.size()), globalOffsets.data());
 
         auto *const         sceneData = static_cast<DeferredPipelineSceneData *>(pipeline->getPipelineSceneData());
