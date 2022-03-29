@@ -81,8 +81,6 @@ export class CrossFade {
      * @param duration 切换时间。
      */
     public crossFade (state: AnimationState | null, duration: number) {
-        this._finished = false;
-
         if (this._managedStates.length === 0) {
             // If we are cross fade from a "initial" pose,
             // we do not use the duration.
@@ -110,6 +108,9 @@ export class CrossFade {
             easeTime: 0,
             target,
         });
+
+        // Note: clear() set this to true
+        this._finished = false;
     }
 
     /**
@@ -119,6 +120,7 @@ export class CrossFade {
         for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
             const state = this._managedStates[iManagedState].state;
             if (state) {
+                state.weight = 1.0;
                 state.stop();
             }
         }
@@ -191,6 +193,7 @@ export class CrossFade {
                 --deadFading.target.reference;
                 if (deadFading.target.reference <= 0) {
                     if (deadFading.target.state) {
+                        deadFading.target.state.weight = 1.0;
                         deadFading.target.state.stop();
                     }
                     remove(this._managedStates, deadFading.target);
