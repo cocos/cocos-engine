@@ -27,10 +27,10 @@
 
 #include "platform/interfaces/modules/canvas/ICanvasRenderingContext2D.h"
 
-#include <array>
 #include <cstdint>
 #include <regex>
 #include "base/csscolorparser.h"
+#include "base/std/container/array.h"
 #include "cocos/bindings/manual/jsb_platform.h"
 #include "math/Math.h"
 #include "platform/FileUtils.h"
@@ -39,10 +39,10 @@ namespace cc {
 
 class CanvasRenderingContext2DDelegate : public ICanvasRenderingContext2D::Delegate {
 public:
-    using Point   = std::array<float, 2>;
-    using Vec2    = std::array<float, 2>;
-    using Size    = std::array<float, 2>;
-    using Color4F = std::array<float, 4>;
+    using Point   = ccstd::array<float, 2>;
+    using Vec2    = ccstd::array<float, 2>;
+    using Size    = ccstd::array<float, 2>;
+    using Color4F = ccstd::array<float, 4>;
 
     CanvasRenderingContext2DDelegate();
     ~CanvasRenderingContext2DDelegate() override;

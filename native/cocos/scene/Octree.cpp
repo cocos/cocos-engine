@@ -257,7 +257,7 @@ void OctreeNode::queryVisibilityParallelly(const Camera *camera, const geometry:
         return;
     }
 
-    std::array<std::future<ccstd::vector<Model *>>, OCTREE_CHILDREN_NUM> futures{};
+    ccstd::array<std::future<ccstd::vector<Model *>>, OCTREE_CHILDREN_NUM> futures{};
     for (auto i = 0; i < OCTREE_CHILDREN_NUM; i++) {
         if (_children[i]) {
             futures[i] = std::async(std::launch::async, [=, &frustum] {

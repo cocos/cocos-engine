@@ -795,13 +795,13 @@ static bool JSB_showInputBox(se::State &s) { //NOLINT
         if (obj->getProperty("fontSize", &tmp)) {
             SE_PRECONDITION2(tmp.isNumber(), false, "fontSize is invalid!");
             if (!tmp.isUndefined()) {
-                showInfo.fontSize = tmp.toNumber();
+                showInfo.fontSize = tmp.toDouble();
             }
         }
         if (obj->getProperty("fontColor", &tmp)) {
             SE_PRECONDITION2(tmp.isNumber(), false, "fontColor is invalid!");
             if (!tmp.isUndefined()) {
-                showInfo.fontColor = tmp.toNumber();
+                showInfo.fontColor = tmp.toDouble();
             }
         }
         if (obj->getProperty("isBold", &tmp)) {
@@ -825,25 +825,25 @@ static bool JSB_showInputBox(se::State &s) { //NOLINT
         if (obj->getProperty("underlineColor", &tmp)) {
             SE_PRECONDITION2(tmp.isNumber(), false, "underlinrColor is invalid!");
             if (!tmp.isUndefined()) {
-                showInfo.underlineColor = tmp.toNumber();
+                showInfo.underlineColor = tmp.toDouble();
             }
         }
         if (obj->getProperty("backColor", &tmp)) {
             SE_PRECONDITION2(tmp.isNumber(), false, "backColor is invalid!");
             if (!tmp.isUndefined()) {
-                showInfo.backColor = tmp.toNumber();
+                showInfo.backColor = tmp.toDouble();
             }
         }
         if (obj->getProperty("backgroundColor", &tmp)) {
             SE_PRECONDITION2(tmp.isNumber(), false, "backgroundColor is invalid!");
             if (!tmp.isUndefined()) {
-                showInfo.backgroundColor = tmp.toNumber();
+                showInfo.backgroundColor = tmp.toDouble();
             }
         }
         if (obj->getProperty("textAlignment", &tmp)) {
             SE_PRECONDITION2(tmp.isNumber(), false, "textAlignment is invalid!");
             if (!tmp.isUndefined()) {
-                showInfo.textAlignment = tmp.toNumber();
+                showInfo.textAlignment = tmp.toDouble();
             }
         }
         EditBox::show(showInfo);

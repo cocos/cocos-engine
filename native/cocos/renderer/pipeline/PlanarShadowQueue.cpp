@@ -23,7 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include <array>
+#include "base/std/container/array.h"
 
 #include "Define.h"
 #include "InstancedBuffer.h"
@@ -52,8 +52,8 @@ PlanarShadowQueue::~PlanarShadowQueue() = default;
 void PlanarShadowQueue::gatherShadowPasses(scene::Camera *camera, gfx::CommandBuffer *cmdBuffer) {
     clear();
 
-    const PipelineSceneData *sceneData = _pipeline->getPipelineSceneData();
-    const scene::Shadows *   shadowInfo   = sceneData->getShadows();
+    const PipelineSceneData *sceneData  = _pipeline->getPipelineSceneData();
+    const scene::Shadows *   shadowInfo = sceneData->getShadows();
     if (shadowInfo == nullptr || !shadowInfo->isEnabled() || shadowInfo->getType() != scene::ShadowType::PLANAR || shadowInfo->getNormal().length() < 0.000001F) {
         return;
     }

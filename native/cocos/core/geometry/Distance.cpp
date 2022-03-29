@@ -6,7 +6,7 @@
 #include "cocos/math/Mat4.h"
 
 #include <algorithm>
-#include <array>
+#include "base/std/container/array.h"
 #include "cocos/math/Utils.h"
 #include "cocos/math/Vec3.h"
 
@@ -33,12 +33,12 @@ Vec3 *ptPointAabb(Vec3 *out, const Vec3 &point, const AABB &aabb) {
 }
 
 Vec3 *ptPointObb(Vec3 *out, const Vec3 &point, const OBB &obb) {
-    std::array<Vec3, 3> u = {
+    ccstd::array<Vec3, 3> u = {
         Vec3{obb.orientation.m[0], obb.orientation.m[1], obb.orientation.m[2]},
         Vec3{obb.orientation.m[3], obb.orientation.m[4], obb.orientation.m[5]},
         Vec3{obb.orientation.m[6], obb.orientation.m[7], obb.orientation.m[8]},
     };
-    std::array<float, 3> e = {obb.halfExtents.x, obb.halfExtents.y, obb.halfExtents.z};
+    ccstd::array<float, 3> e = {obb.halfExtents.x, obb.halfExtents.y, obb.halfExtents.z};
 
     auto  d    = point - obb.center;
     float dist = 0.0F;

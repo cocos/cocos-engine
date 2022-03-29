@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <array>
+#include "base/std/container/array.h"
 #include "core/assets/Material.h"
 #include "core/geometry/Sphere.h"
 #include "math/Color.h"
@@ -278,7 +278,7 @@ public:
         _shadowColor4f[2] = static_cast<float>(color.b) / 255.F;
         _shadowColor4f[3] = static_cast<float>(color.a) / 255.F;
     }
-    inline const std::array<float, 4> &getShadowColor4f() const { return _shadowColor4f; }
+    inline const ccstd::array<float, 4> &getShadowColor4f() const { return _shadowColor4f; }
 
     /**
      * @en Shadow type.
@@ -365,7 +365,7 @@ private:
     // public properties of shadow
     Vec3                   _normal{0.F, 1.F, 0.F};
     Color                  _shadowColor{0, 0, 0, 76};
-    std::array<float, 4>   _shadowColor4f{0.F, 0.F, 0.F, 76.F / 255.F};
+    ccstd::array<float, 4> _shadowColor4f{0.F, 0.F, 0.F, 76.F / 255.F};
     Mat4                   _matLight;
     IntrusivePtr<Material> _material{nullptr};
     IntrusivePtr<Material> _instancingMaterial{nullptr};

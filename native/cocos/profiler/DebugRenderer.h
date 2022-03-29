@@ -26,7 +26,7 @@
 #pragma once
 #include <math/Vec2.h>
 #include <math/Vec4.h>
-#include <array>
+#include "base/std/container/array.h"
 #include "base/std/container/string.h"
 #include "gfx-base/GFXDef-common.h"
 
@@ -73,7 +73,7 @@ struct DebugFontInfo {
 };
 
 constexpr uint32_t DEBUG_FONT_COUNT = 4U;
-using DebugFontArray                = std::array<DebugFontInfo, DEBUG_FONT_COUNT>;
+using DebugFontArray                = ccstd::array<DebugFontInfo, DEBUG_FONT_COUNT>;
 
 class DebugRenderer {
 public:

@@ -26,17 +26,16 @@
 
 #pragma once
 
+#include <chrono>
+#include <functional>
 #include "audio/include/Export.h"
 #include "base/Macros.h"
+#include "base/std/container/list.h"
+#include "base/std/container/string.h"
+#include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
 #include "bindings/event/CustomEventTypes.h"
 #include "bindings/event/EventDispatcher.h"
-
-#include <chrono>
-#include <functional>
-#include <list>
-#include "base/std/container/string.h"
-#include "base/std/container/unordered_map.h"
 
 #ifdef ERROR
     #undef ERROR
@@ -326,7 +325,7 @@ protected:
     struct ProfileHelper {
         AudioProfile profile;
 
-        std::list<int> audioIDs;
+        ccstd::list<int> audioIDs;
 
         std::chrono::high_resolution_clock::time_point lastPlayTime;
 
@@ -356,7 +355,7 @@ protected:
     static ccstd::unordered_map<int, AudioInfo> sAudioIDInfoMap;
 
     //audio file path,audio IDs
-    static ccstd::unordered_map<ccstd::string, std::list<int>> sAudioPathIDMap;
+    static ccstd::unordered_map<ccstd::string, ccstd::list<int>> sAudioPathIDMap;
 
     //profileName,ProfileHelper
     static ccstd::unordered_map<ccstd::string, ProfileHelper> sAudioPathProfileHelperMap;

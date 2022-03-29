@@ -25,13 +25,13 @@
 
 #include "GeometryRenderer.h"
 #include <algorithm>
-#include <array>
 #include <cmath>
 #include "Define.h"
 #include "PipelineSceneData.h"
 #include "PipelineStateManager.h"
 #include "RenderPipeline.h"
 #include "base/Log.h"
+#include "base/std/container/array.h"
 #include "core/geometry/AABB.h"
 #include "core/geometry/Frustum.h"
 #include "math/Mat4.h"
@@ -128,9 +128,9 @@ private:
 };
 
 struct GeometryVertexBuffers {
-    std::array<GeometryVertexBuffer<PosColorVertex>, GEOMETRY_DEPTH_TYPE_COUNT>     lines;
-    std::array<GeometryVertexBuffer<PosColorVertex>, GEOMETRY_DEPTH_TYPE_COUNT>     dashedLines;
-    std::array<GeometryVertexBuffer<PosNormColorVertex>, GEOMETRY_DEPTH_TYPE_COUNT> triangles;
+    ccstd::array<GeometryVertexBuffer<PosColorVertex>, GEOMETRY_DEPTH_TYPE_COUNT>     lines;
+    ccstd::array<GeometryVertexBuffer<PosColorVertex>, GEOMETRY_DEPTH_TYPE_COUNT>     dashedLines;
+    ccstd::array<GeometryVertexBuffer<PosNormColorVertex>, GEOMETRY_DEPTH_TYPE_COUNT> triangles;
 };
 
 GeometryRendererInfo::GeometryRendererInfo()

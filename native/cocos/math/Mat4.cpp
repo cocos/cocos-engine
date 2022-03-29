@@ -22,10 +22,10 @@
 
 #include "math/Mat4.h"
 
-#include <array>
 #include <cmath>
 #include <cstring>
 #include "base/Log.h"
+#include "base/std/container/array.h"
 #include "math/MathUtil.h"
 #include "math/Quaternion.h"
 
@@ -33,7 +33,7 @@ NS_CC_MATH_BEGIN
 
 namespace {
 
-const std::array<std::array<float, 4>, 4> PRE_TRANSFORMS = {{
+const ccstd::array<ccstd::array<float, 4>, 4> PRE_TRANSFORMS = {{
     {{1, 0, 0, 1}},   // SurfaceTransform.IDENTITY
     {{0, 1, -1, 0}},  // SurfaceTransform.ROTATE_90
     {{-1, 0, 0, -1}}, // SurfaceTransform.ROTATE_180
@@ -120,7 +120,7 @@ void Mat4::createPerspective(float fieldOfView, float aspectRatio, float zNearPl
     const float x = isFieldOfViewY ? f / aspectRatio : f;
     const float y = (isFieldOfViewY ? f : f * aspectRatio) * projectionSignY;
 
-    const std::array<float, 4> &preTransform = PRE_TRANSFORMS[orientation];
+    const ccstd::array<float, 4> &preTransform = PRE_TRANSFORMS[orientation];
 
     dst->m[0]  = x * preTransform[0];
     dst->m[1]  = x * preTransform[1];
@@ -155,10 +155,10 @@ void Mat4::createOrthographicOffCenter(float left, float right, float bottom, fl
     GP_ASSERT(top != bottom);
     GP_ASSERT(zFarPlane != zNearPlane);
 
-    const std::array<float, 4> &preTransform = PRE_TRANSFORMS[orientation];
-    const float                 lr           = 1.F / (left - right);
-    const float                 bt           = 1.F / (bottom - top) * projectionSignY;
-    const float                 nf           = 1.F / (zNearPlane - zFarPlane);
+    const ccstd::array<float, 4> &preTransform = PRE_TRANSFORMS[orientation];
+    const float                   lr           = 1.F / (left - right);
+    const float                   bt           = 1.F / (bottom - top) * projectionSignY;
+    const float                   nf           = 1.F / (zNearPlane - zFarPlane);
 
     const float x  = -2 * lr;
     const float y  = -2 * bt;

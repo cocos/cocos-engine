@@ -34,9 +34,9 @@
     #include "Utils.h"
     #include "base/std/container/unordered_map.h"
 
-    #include <array>
     #include <memory>
     #include <sstream>
+    #include "base/std/container/array.h"
 
     #define JSB_FUNC_DEFAULT_MAX_ARG_COUNT (10)
 
@@ -614,9 +614,9 @@ bool Object::call(const ValueArray &args, Object *thisObject, Value *rval /* = n
     }
     size_t argc = args.size();
 
-    std::array<v8::Local<v8::Value>, JSB_FUNC_DEFAULT_MAX_ARG_COUNT> argv;
-    std::unique_ptr<ccstd::vector<v8::Local<v8::Value>>>             vecArgs;
-    v8::Local<v8::Value> *                                           pArgv = argv.data();
+    ccstd::array<v8::Local<v8::Value>, JSB_FUNC_DEFAULT_MAX_ARG_COUNT> argv;
+    std::unique_ptr<ccstd::vector<v8::Local<v8::Value>>>               vecArgs;
+    v8::Local<v8::Value> *                                             pArgv = argv.data();
 
     if (argc > JSB_FUNC_DEFAULT_MAX_ARG_COUNT) {
         vecArgs = std::make_unique<ccstd::vector<v8::Local<v8::Value>>>();

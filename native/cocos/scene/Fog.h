@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include <array>
 #include "base/Macros.h"
 #include "base/RefCounted.h"
+#include "base/std/container/array.h"
 #include "math/Color.h"
 
 namespace cc {

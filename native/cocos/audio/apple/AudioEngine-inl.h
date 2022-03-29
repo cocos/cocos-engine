@@ -24,15 +24,13 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef __AUDIO_ENGINE_INL_H_
-#define __AUDIO_ENGINE_INL_H_
-
-#include <list>
-#include "base/std/container/unordered_map.h"
+#pragma once
 
 #include "audio/apple/AudioCache.h"
 #include "audio/apple/AudioPlayer.h"
 #include "base/RefCounted.h"
+#include "base/std/container/list.h"
+#include "base/std/container/unordered_map.h"
 
 namespace cc {
 class Scheduler;
@@ -73,7 +71,7 @@ private:
     ALuint _alSources[MAX_AUDIOINSTANCES];
 
     //source,used
-    std::list<ALuint> _unusedSourcesPool;
+    ccstd::list<ALuint> _unusedSourcesPool;
 
     //filePath,bufferInfo
     ccstd::unordered_map<ccstd::string, AudioCache> _audioCaches;
@@ -88,4 +86,3 @@ private:
     std::weak_ptr<Scheduler> _scheduler;
 };
 } // namespace cc
-#endif // __AUDIO_ENGINE_INL_H_

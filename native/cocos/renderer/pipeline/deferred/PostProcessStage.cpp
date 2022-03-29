@@ -200,8 +200,8 @@ void PostProcessStage::render(scene::Camera *camera) {
         auto *           pipeline   = _pipeline;
         gfx::RenderPass *renderPass = table.getRenderPass();
 
-        auto *                    cmdBuff       = pipeline->getCommandBuffers()[0];
-        const std::array<uint, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
+        auto *                      cmdBuff       = pipeline->getCommandBuffers()[0];
+        const ccstd::array<uint, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
         cmdBuff->bindDescriptorSet(globalSet, pipeline->getDescriptorSet(), utils::toUint(globalOffsets.size()), globalOffsets.data());
 
         if (!pipeline->getPipelineSceneData()->getRenderObjects().empty()) {

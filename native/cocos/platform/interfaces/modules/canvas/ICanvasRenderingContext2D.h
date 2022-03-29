@@ -25,12 +25,11 @@
 
 #pragma once
 
-#include "platform/interfaces/OSInterface.h"
-
 #include "base/Data.h"
-#include "math/Geometry.h"
-
+#include "base/std/container/array.h"
 #include "base/std/container/string.h"
+#include "math/Geometry.h"
+#include "platform/interfaces/OSInterface.h"
 
 enum class CanvasTextAlign {
     LEFT,
@@ -65,7 +64,7 @@ class ICanvasRenderingContext2D : public OSInterface {
 public:
     class Delegate {
     public:
-        using Size                                                                                                                              = std::array<float, 2>;
+        using Size                                                                                                                              = ccstd::array<float, 2>;
         virtual ~Delegate()                                                                                                                     = default;
         virtual void            recreateBuffer(float w, float h)                                                                                = 0;
         virtual void            beginPath()                                                                                                     = 0;

@@ -327,7 +327,9 @@ cocos_source_files(
     cocos/base/ThreadPool.h
     cocos/base/TypeDef.h
     cocos/base/Variant.h
+    cocos/base/std/container/array.h
     cocos/base/std/container/deque.h
+    cocos/base/std/container/list.h
     cocos/base/std/container/map.h
     cocos/base/std/container/queue.h
     cocos/base/std/container/set.h

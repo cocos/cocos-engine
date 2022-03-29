@@ -199,8 +199,8 @@ static void registerLayerArr(cc::Node *node, se::Object *jsObject) {
 
 static void registerLocalPositionRotationScaleUpdated(cc::Node *node, se::Object *jsObject) {
     node->on(cc::EventTypesToJS::NODE_LOCAL_POSITION_UPDATED, [jsObject](float x, float y, float z) {
-        se::AutoHandleScope      hs;
-        std::array<se::Value, 3> args;
+        se::AutoHandleScope        hs;
+        ccstd::array<se::Value, 3> args;
         nativevalue_to_se(x, args[0]);
         nativevalue_to_se(y, args[1]);
         nativevalue_to_se(z, args[2]);
@@ -208,8 +208,8 @@ static void registerLocalPositionRotationScaleUpdated(cc::Node *node, se::Object
     });
 
     node->on(cc::EventTypesToJS::NODE_LOCAL_ROTATION_UPDATED, [jsObject](float x, float y, float z, float w) {
-        se::AutoHandleScope      hs;
-        std::array<se::Value, 4> args;
+        se::AutoHandleScope        hs;
+        ccstd::array<se::Value, 4> args;
         nativevalue_to_se(x, args[0]);
         nativevalue_to_se(y, args[1]);
         nativevalue_to_se(z, args[2]);
@@ -218,8 +218,8 @@ static void registerLocalPositionRotationScaleUpdated(cc::Node *node, se::Object
     });
 
     node->on(cc::EventTypesToJS::NODE_LOCAL_SCALE_UPDATED, [jsObject](float x, float y, float z) {
-        se::AutoHandleScope      hs;
-        std::array<se::Value, 3> args;
+        se::AutoHandleScope        hs;
+        ccstd::array<se::Value, 3> args;
         nativevalue_to_se(x, args[0]);
         nativevalue_to_se(y, args[1]);
         nativevalue_to_se(z, args[2]);
@@ -227,8 +227,8 @@ static void registerLocalPositionRotationScaleUpdated(cc::Node *node, se::Object
     });
 
     node->on(cc::EventTypesToJS::NODE_LOCAL_POSITION_ROTATION_SCALE_UPDATED, [jsObject](float px, float py, float pz, float rx, float ry, float rz, float rw, float sx, float sy, float sz) {
-        se::AutoHandleScope       hs;
-        std::array<se::Value, 10> args;
+        se::AutoHandleScope         hs;
+        ccstd::array<se::Value, 10> args;
         nativevalue_to_se(px, args[0]);
         nativevalue_to_se(py, args[1]);
         nativevalue_to_se(pz, args[2]);
@@ -871,7 +871,7 @@ static bool js_Model_registerListeners(se::State &s) // NOLINT(readability-ident
         cobj->setCalledFromJS(true);
         se::AutoHandleScope hs;
 
-        std::array<se::Value, 2> args;
+        ccstd::array<se::Value, 2> args;
         nativevalue_to_se(subModelIndex, args[0]);
         nativevalue_to_se(descriptorSet, args[1]);
         se::ScriptEngine::getInstance()->callFunction(thiz, "_updateLocalDescriptors", static_cast<uint32_t>(args.size()), args.data());
@@ -881,7 +881,7 @@ static bool js_Model_registerListeners(se::State &s) // NOLINT(readability-ident
         cobj->setCalledFromJS(true);
         se::AutoHandleScope hs;
 
-        std::array<se::Value, 2> args;
+        ccstd::array<se::Value, 2> args;
         nativevalue_to_se(attributes, args[0]);
         nativevalue_to_se(pass, args[1]);
         se::ScriptEngine::getInstance()->callFunction(thiz, "_updateInstancedAttributes", static_cast<uint32_t>(args.size()), args.data());
@@ -891,8 +891,8 @@ static bool js_Model_registerListeners(se::State &s) // NOLINT(readability-ident
         cobj->setCalledFromJS(true);
         se::AutoHandleScope hs;
 
-        se::Value                rval;
-        std::array<se::Value, 1> args;
+        se::Value                  rval;
+        ccstd::array<se::Value, 1> args;
         nativevalue_to_se(subModelIndex, args[0]);
         bool ok = se::ScriptEngine::getInstance()->callFunction(thiz, "getMacroPatches", static_cast<uint32_t>(args.size()), args.data(), &rval);
 

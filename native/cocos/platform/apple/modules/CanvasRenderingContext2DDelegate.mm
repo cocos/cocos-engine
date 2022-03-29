@@ -50,9 +50,7 @@
 
 #endif
 
-#include <array>
 #include <regex>
-
 
 @interface CanvasRenderingContext2DDelegateImpl : NSObject {
     NSFont *             _font;
@@ -76,8 +74,8 @@
 
     CanvasTextAlign      _textAlign;
     CanvasTextBaseline   _textBaseLine;
-    std::array<float, 4> _fillStyle;
-    std::array<float, 4> _strokeStyle;
+    ccstd::array<float, 4> _fillStyle;
+    ccstd::array<float, 4> _strokeStyle;
     float                _lineWidth;
     bool                 _bold;
 }

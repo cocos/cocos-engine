@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include <array>
 #include "../RenderPipeline.h"
+#include "base/std/container/array.h"
 #include "pipeline/Enum.h"
 
 namespace cc {

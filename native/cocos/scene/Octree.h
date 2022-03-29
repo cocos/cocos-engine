@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include <array>
 #include "base/Macros.h"
 #include "base/RefCounted.h"
+#include "base/std/container/array.h"
 #include "core/geometry/AABB.h"
 #include "math/Vec3.h"
 
@@ -149,13 +149,13 @@ private:
     void               queryVisibilityParallelly(const Camera *camera, const geometry::Frustum &frustum, bool isShadow, ccstd::vector<Model *> &results) const;
     void               queryVisibilitySequentially(const Camera *camera, const geometry::Frustum &frustum, bool isShadow, ccstd::vector<Model *> &results) const;
 
-    Octree *                                      _owner{nullptr};
-    OctreeNode *                                  _parent{nullptr};
-    std::array<OctreeNode *, OCTREE_CHILDREN_NUM> _children{};
-    ccstd::vector<Model *>                        _models;
-    BBox                                          _aabb{};
-    uint32_t                                      _depth{0};
-    uint32_t                                      _index{0};
+    Octree *                                        _owner{nullptr};
+    OctreeNode *                                    _parent{nullptr};
+    ccstd::array<OctreeNode *, OCTREE_CHILDREN_NUM> _children{};
+    ccstd::vector<Model *>                          _models;
+    BBox                                            _aabb{};
+    uint32_t                                        _depth{0};
+    uint32_t                                        _index{0};
 
     friend class Octree;
 };

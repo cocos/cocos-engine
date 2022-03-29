@@ -1,17 +1,12 @@
 #include "core/geometry/Intersect.h"
 
-#include <array>
 #include <cmath>
 #include <limits>
 #include "3d/assets/Mesh.h"
-#include "base/Macros.h"
+#include "base/std/container/array.h"
 #include "core/TypedArray.h"
-#include "core/assets/RenderingSubMesh.h"
 #include "core/geometry/AABB.h"
 #include "core/geometry/Capsule.h"
-#include "core/geometry/Distance.h"
-#include "core/geometry/Enums.h"
-#include "core/geometry/Frustum.h"
 #include "core/geometry/Line.h"
 #include "core/geometry/Obb.h"
 #include "core/geometry/Plane.h"
@@ -107,10 +102,10 @@ float rayAABB(const Ray &ray, const AABB &aabb) {
 }
 
 float rayOBB(const Ray &ray, const OBB &obb) {
-    std::array<float, 6> t;
-    std::array<float, 3> size   = {obb.halfExtents.x, obb.halfExtents.y, obb.halfExtents.z};
-    const auto &         center = obb.center;
-    auto const &         d      = ray.d;
+    ccstd::array<float, 6> t;
+    ccstd::array<float, 3> size   = {obb.halfExtents.x, obb.halfExtents.y, obb.halfExtents.z};
+    const auto &           center = obb.center;
+    auto const &           d      = ray.d;
 
     Vec3 x = {obb.orientation.m[0], obb.orientation.m[1], obb.orientation.m[2]};
     Vec3 y = {obb.orientation.m[3], obb.orientation.m[4], obb.orientation.m[5]};
@@ -118,10 +113,10 @@ float rayOBB(const Ray &ray, const OBB &obb) {
     Vec3 p = center - ray.o;
 
     // The cos values of the ray on the X, Y, Z
-    std::array<float, 3> f = {Vec3::dot(x, d), Vec3::dot(y, d), Vec3::dot(z, d)};
+    ccstd::array<float, 3> f = {Vec3::dot(x, d), Vec3::dot(y, d), Vec3::dot(z, d)};
 
     // The projection length of P on X, Y, Z
-    std::array<float, 3> e{Vec3::dot(x, p), Vec3::dot(y, p), Vec3::dot(z, p)};
+    ccstd::array<float, 3> e{Vec3::dot(x, p), Vec3::dot(y, p), Vec3::dot(z, p)};
 
     for (auto i = 0; i < 3; ++i) {
         if (f[i] == 0) {
@@ -495,7 +490,7 @@ bool aabbWithAABB(const AABB &aabb1, const AABB &aabb2) {
     return (aMin.x <= bMax.x && aMax.x >= bMin.x) && (aMin.y <= bMax.y && aMax.y >= bMin.y) && (aMin.z <= bMax.z && aMax.z >= bMin.z);
 }
 
-static void getAABBVertices(const Vec3 &min, const Vec3 &max, std::array<Vec3, 8> *out) {
+static void getAABBVertices(const Vec3 &min, const Vec3 &max, ccstd::array<Vec3, 8> *out) {
     *out = {
         Vec3{min.x, max.y, max.z},
         Vec3{min.x, max.y, min.z},
@@ -510,7 +505,7 @@ static void getAABBVertices(const Vec3 &min, const Vec3 &max, std::array<Vec3, 8
 
 static void getOBBVertices(const Vec3 &c, const Vec3 &e,
                            const Vec3 &a1, const Vec3 &a2, const Vec3 &a3,
-                           std::array<Vec3, 8> *out) {
+                           ccstd::array<Vec3, 8> *out) {
     *out = {Vec3{
                 c.x + a1.x * e.x + a2.x * e.y + a3.x * e.z,
                 c.y + a1.y * e.x + a2.y * e.y + a3.y * e.z,
@@ -550,7 +545,7 @@ struct Interval {
     float max;
 };
 
-static Interval getInterval(const std::array<Vec3, 8> &vertices, const Vec3 &axis) {
+static Interval getInterval(const ccstd::array<Vec3, 8> &vertices, const Vec3 &axis) {
     auto min = std::numeric_limits<float>::max();
     auto max = std::numeric_limits<float>::min();
     for (auto i = 0; i < 8; ++i) {
@@ -562,9 +557,9 @@ static Interval getInterval(const std::array<Vec3, 8> &vertices, const Vec3 &axi
 }
 
 int aabbWithOBB(const AABB &aabb, const OBB &obb) {
-    std::array<Vec3, 15> test;
-    std::array<Vec3, 8>  vertices;
-    std::array<Vec3, 8>  vertices2;
+    ccstd::array<Vec3, 15> test;
+    ccstd::array<Vec3, 8>  vertices;
+    ccstd::array<Vec3, 8>  vertices2;
     test[0] = {1, 0, 0};
     test[1] = {0, 1, 0};
     test[2] = {0, 0, 1};
@@ -618,11 +613,11 @@ int aabbFrustum(const AABB &aabb, const Frustum &frustum) {
 
 // https://cesium.com/blog/2017/02/02/tighter-frustum-culling-and-why-you-may-want-to-disregard-it/
 int aabbFrustumAccurate(const AABB &aabb, const Frustum &frustum) {
-    std::array<Vec3, 8> tmp;
-    int                 out1       = 0;
-    int                 out2       = 0;
-    int                 result     = 0;
-    bool                intersects = false;
+    ccstd::array<Vec3, 8> tmp;
+    int                   out1       = 0;
+    int                   out2       = 0;
+    int                   result     = 0;
+    bool                  intersects = false;
     // 1. aabb inside/outside frustum test
     for (const auto &plane : frustum.planes) {
         result = aabbPlane(aabb, *plane);
@@ -724,11 +719,11 @@ int obbFrustum(const OBB &obb, const Frustum &frustum) {
 
 // https://cesium.com/blog/2017/02/02/tighter-frustum-culling-and-why-you-may-want-to-disregard-it/
 int obbFrustumAccurate(const OBB &obb, const Frustum &frustum) {
-    std::array<Vec3, 8> tmp  = {};
-    float               dist = 0.0F;
-    size_t              out1 = 0;
-    size_t              out2 = 0;
-    auto                dot  = [](const Vec3 &n, float x, float y, float z) -> float {
+    ccstd::array<Vec3, 8> tmp  = {};
+    float                 dist = 0.0F;
+    size_t                out1 = 0;
+    size_t                out2 = 0;
+    auto                  dot  = [](const Vec3 &n, float x, float y, float z) -> float {
         return n.x * x + n.y * y + n.z * z;
     };
     int  result     = 0;
@@ -795,9 +790,9 @@ int obbFrustumAccurate(const OBB &obb, const Frustum &frustum) {
 }
 
 int obbWithOBB(const OBB &obb1, const OBB &obb2) {
-    std::array<Vec3, 8>  vertices;
-    std::array<Vec3, 8>  vertices2;
-    std::array<Vec3, 15> test;
+    ccstd::array<Vec3, 8>  vertices;
+    ccstd::array<Vec3, 8>  vertices2;
+    ccstd::array<Vec3, 15> test;
 
     test[0] = {obb1.orientation.m[0], obb1.orientation.m[1], obb1.orientation.m[2]};
     test[1] = {obb1.orientation.m[3], obb1.orientation.m[4], obb1.orientation.m[5]};
@@ -827,10 +822,10 @@ int obbWithOBB(const OBB &obb1, const OBB &obb2) {
 
 // https://github.com/diku-dk/bvh-tvcg18/blob/1fd3348c17bc8cf3da0b4ae60fdb8f2aa90a6ff0/FOUNDATION/GEOMETRY/GEOMETRY/include/overlap/geometry_overlap_obb_capsule.h
 int obbCapsule(const OBB &obb, const Capsule &capsule) {
-    Sphere              sphere{};
-    std::array<Vec3, 8> v3Verts8{};
-    std::array<Vec3, 8> v3Axis8{};
-    auto                h = capsule.ellipseCenter0.distanceSquared(capsule.ellipseCenter1);
+    Sphere                sphere{};
+    ccstd::array<Vec3, 8> v3Verts8{};
+    ccstd::array<Vec3, 8> v3Axis8{};
+    auto                  h = capsule.ellipseCenter0.distanceSquared(capsule.ellipseCenter1);
     if (h == 0.0F) {
         sphere.setRadius(capsule.radius);
         sphere.setCenter(capsule.ellipseCenter0);
@@ -898,7 +893,7 @@ int sphereFrustum(const Sphere &sphere, const Frustum &frustum) {
 }
 
 int sphereFrustumAccurate(const Sphere &sphere, const Frustum &frustum) {
-    const static std::array<int, 6> MAP = {1, -1, 1, -1, 1, -1};
+    const static ccstd::array<int, 6> MAP = {1, -1, 1, -1, 1, -1};
     for (auto i = 0; i < 6; i++) {
         const auto &plane = frustum.planes[i];
         const auto &n     = plane->n;

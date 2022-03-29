@@ -24,9 +24,11 @@
 ****************************************************************************/
 
 #pragma once
+
 #include <cocos/renderer/pipeline/custom/GslUtils.h>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/utility/string_view.hpp>
+#include "base/std/container/array.h"
 
 namespace cc {
 
@@ -68,8 +70,8 @@ inline void cleanPath(std::basic_string<CharT, std::char_traits<CharT>, Allocato
     }
 
     // try remove /..
-    constexpr std::array<CharT, 4> previous = {CharT('/'), CharT('.'), CharT('.'), CharT('\0')};
-    auto                           pos      = str.find(previous.data());
+    constexpr ccstd::array<CharT, 4> previous = {CharT('/'), CharT('.'), CharT('.'), CharT('\0')};
+    auto                             pos      = str.find(previous.data());
     while (pos != string_t::npos) {
         if (pos == 0) {
             // root element has not parent path

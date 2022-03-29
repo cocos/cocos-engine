@@ -55,10 +55,10 @@ namespace pipeline {
 
 Mat4 matShadowViewProj;
 
-void PipelineUBO::updateGlobalUBOView(const scene::Camera *camera, std::array<float, UBOGlobal::COUNT> *bufferView) {
-    auto *const                          root          = Root::getInstance();
-    const gfx::Device *                  device        = gfx::Device::getInstance();
-    std::array<float, UBOGlobal::COUNT> &uboGlobalView = *bufferView;
+void PipelineUBO::updateGlobalUBOView(const scene::Camera *camera, ccstd::array<float, UBOGlobal::COUNT> *bufferView) {
+    auto *const                            root          = Root::getInstance();
+    const gfx::Device *                    device        = gfx::Device::getInstance();
+    ccstd::array<float, UBOGlobal::COUNT> &uboGlobalView = *bufferView;
 
     const auto shadingWidth  = std::floor(camera->getWindow()->getWidth());
     const auto shadingHeight = std::floor(camera->getWindow()->getHeight());
@@ -189,14 +189,14 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, float *out
     output[UBOCamera::GLOBAL_VIEW_PORT_OFFSET + 3] = sceneData->getShadingScale() * static_cast<float>(camera->getWindow()->getHeight()) * camera->getViewport().w;
 }
 
-void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, std::array<float, UBOShadow::COUNT> *bufferView, const scene::Camera *camera) {
-    const scene::RenderScene *const      scene      = camera->getScene();
-    const scene::DirectionalLight *      mainLight  = scene->getMainLight();
-    gfx::Device *                        device     = gfx::Device::getInstance();
-    const PipelineSceneData *            sceneData  = pipeline->getPipelineSceneData();
-    scene::Shadows *const                shadowInfo = sceneData->getShadows();
-    std::array<float, UBOShadow::COUNT> &shadowUBO  = *bufferView;
-    const bool                           hFTexture  = supportsR32FloatTexture(device);
+void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, ccstd::array<float, UBOShadow::COUNT> *bufferView, const scene::Camera *camera) {
+    const scene::RenderScene *const        scene      = camera->getScene();
+    const scene::DirectionalLight *        mainLight  = scene->getMainLight();
+    gfx::Device *                          device     = gfx::Device::getInstance();
+    const PipelineSceneData *              sceneData  = pipeline->getPipelineSceneData();
+    scene::Shadows *const                  shadowInfo = sceneData->getShadows();
+    ccstd::array<float, UBOShadow::COUNT> &shadowUBO  = *bufferView;
+    const bool                             hFTexture  = supportsR32FloatTexture(device);
 
     if (shadowInfo->isEnabled()) {
         if (mainLight && shadowInfo->getType() == scene::ShadowType::SHADOW_MAP) {
@@ -243,7 +243,7 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, std::array
     }
 }
 
-void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, std::array<float, UBOShadow::COUNT> *bufferView,
+void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, ccstd::array<float, UBOShadow::COUNT> *bufferView,
                                            const scene::Light *light) {
     const auto *sceneData  = pipeline->getPipelineSceneData();
     const auto *shadowInfo = sceneData->getShadows();
