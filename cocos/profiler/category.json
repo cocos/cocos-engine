@@ -1,10 +1,10 @@
 {
     "title": {
-        "zh": "性能剖析",
+        "zh": "性能监控",
         "en": "Profiler"
     },
     "description": {
-        "zh": "性能剖析",
+        "zh": "性能监控",
         "en": "Profiler"
     }
 }
