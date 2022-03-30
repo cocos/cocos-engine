@@ -27,9 +27,9 @@
 
 #include <algorithm>
 #include <thread>
+#include "base/TypeDef.h"
 #include "base/memory/Memory.h"
 #include "taskflow/taskflow.hpp"
-#include "base/TypeDef.h"
 
 namespace cc {
 
