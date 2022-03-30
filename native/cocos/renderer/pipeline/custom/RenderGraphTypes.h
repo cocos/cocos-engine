@@ -30,13 +30,13 @@
  */
 // clang-format off
 #pragma once
-#include <boost/container/pmr/vector.hpp>
 #include <boost/graph/adjacency_iterator.hpp>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/range/irange.hpp>
 #include "cocos/base/Ptr.h"
 #include "cocos/base/std/container/string.h"
+#include "cocos/base/std/container/vector.h"
 #include "cocos/renderer/gfx-base/GFXBuffer.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/gfx-base/GFXFramebuffer.h"
@@ -143,14 +143,14 @@ struct ResourceGraph {
     // IncidenceGraph
     using OutEdge     = impl::StoredEdge<vertex_descriptor>;
     using out_edge_iterator = impl::OutEdgeIter<
-        boost::container::pmr::vector<OutEdge>::iterator,
+        ccstd::pmr::vector<OutEdge>::iterator,
         vertex_descriptor, edge_descriptor, int32_t>;
     using degree_size_type = uint32_t;
 
     // BidirectionalGraph
     using InEdge     = impl::StoredEdge<vertex_descriptor>;
     using in_edge_iterator = impl::InEdgeIter<
-        boost::container::pmr::vector<InEdge>::iterator,
+        ccstd::pmr::vector<InEdge>::iterator,
         vertex_descriptor, edge_descriptor, int32_t>;
 
     // AdjacencyGraph
@@ -162,17 +162,17 @@ struct ResourceGraph {
     using vertices_size_type = uint32_t;
 
     // VertexList help functions
-    inline boost::container::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
+    inline ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
         return vertices[v].outEdges;
     }
-    inline const boost::container::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
+    inline const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
         return vertices[v].outEdges;
     }
 
-    inline boost::container::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
+    inline ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
         return vertices[v].inEdges;
     }
-    inline const boost::container::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
+    inline const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
         return vertices[v].inEdges;
     }
 
@@ -184,8 +184,8 @@ struct ResourceGraph {
         return static_cast<vertex_descriptor>(vertices.size());
     }
 
-    inline boost::container::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
-        return boost::container::pmr::vector<boost::default_color_type>(vertices.size(), mr);
+    inline ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
+        return ccstd::pmr::vector<boost::default_color_type>(vertices.size(), mr);
     }
 
     // EdgeListGraph
@@ -222,9 +222,9 @@ struct ResourceGraph {
         Vertex& operator=(Vertex&& rhs) = default;
         Vertex& operator=(Vertex const& rhs) = default;
 
-        boost::container::pmr::vector<OutEdge> outEdges;
-        boost::container::pmr::vector<InEdge>  inEdges;
-        VertexHandle                           handle;
+        ccstd::pmr::vector<OutEdge> outEdges;
+        ccstd::pmr::vector<InEdge>  inEdges;
+        VertexHandle                handle;
     };
 
     struct NameTag {
@@ -237,18 +237,18 @@ struct ResourceGraph {
     } static constexpr States{}; // NOLINT
 
     // Vertices
-    boost::container::pmr::vector<Vertex> vertices;
+    ccstd::pmr::vector<Vertex> vertices;
     // Components
-    boost::container::pmr::vector<ccstd::pmr::string> names;
-    boost::container::pmr::vector<ResourceDesc>       descs;
-    boost::container::pmr::vector<ResourceTraits>     traits;
-    boost::container::pmr::vector<ResourceStates>     states;
+    ccstd::pmr::vector<ccstd::pmr::string> names;
+    ccstd::pmr::vector<ResourceDesc>       descs;
+    ccstd::pmr::vector<ResourceTraits>     traits;
+    ccstd::pmr::vector<ResourceStates>     states;
     // PolymorphicGraph
-    boost::container::pmr::vector<ManagedResource>                resources;
-    boost::container::pmr::vector<IntrusivePtr<gfx::Buffer>>      buffers;
-    boost::container::pmr::vector<IntrusivePtr<gfx::Texture>>     textures;
-    boost::container::pmr::vector<IntrusivePtr<gfx::Framebuffer>> framebuffers;
-    boost::container::pmr::vector<RenderSwapchain>                swapchains;
+    ccstd::pmr::vector<ManagedResource>                resources;
+    ccstd::pmr::vector<IntrusivePtr<gfx::Buffer>>      buffers;
+    ccstd::pmr::vector<IntrusivePtr<gfx::Texture>>     textures;
+    ccstd::pmr::vector<IntrusivePtr<gfx::Framebuffer>> framebuffers;
+    ccstd::pmr::vector<RenderSwapchain>                swapchains;
     // UuidGraph
     PmrUnorderedMap<ccstd::pmr::string, vertex_descriptor> valueIndex;
 };
@@ -338,8 +338,8 @@ struct RasterSubpass {
     RasterSubpass& operator=(RasterSubpass&& rhs) = default;
     RasterSubpass& operator=(RasterSubpass const& rhs) = default;
 
-    PmrTransparentMap<ccstd::pmr::string, RasterView>                                 rasterViews;
-    PmrTransparentMap<ccstd::pmr::string, boost::container::pmr::vector<ComputeView>> computeViews;
+    PmrTransparentMap<ccstd::pmr::string, RasterView>                      rasterViews;
+    PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> computeViews;
 };
 
 struct SubpassGraph {
@@ -380,14 +380,14 @@ struct SubpassGraph {
     // IncidenceGraph
     using OutEdge     = impl::StoredEdge<vertex_descriptor>;
     using out_edge_iterator = impl::OutEdgeIter<
-        boost::container::pmr::vector<OutEdge>::iterator,
+        ccstd::pmr::vector<OutEdge>::iterator,
         vertex_descriptor, edge_descriptor, int32_t>;
     using degree_size_type = uint32_t;
 
     // BidirectionalGraph
     using InEdge     = impl::StoredEdge<vertex_descriptor>;
     using in_edge_iterator = impl::InEdgeIter<
-        boost::container::pmr::vector<InEdge>::iterator,
+        ccstd::pmr::vector<InEdge>::iterator,
         vertex_descriptor, edge_descriptor, int32_t>;
 
     // AdjacencyGraph
@@ -399,17 +399,17 @@ struct SubpassGraph {
     using vertices_size_type = uint32_t;
 
     // VertexList help functions
-    inline boost::container::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
+    inline ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
         return vertices[v].outEdges;
     }
-    inline const boost::container::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
+    inline const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
         return vertices[v].outEdges;
     }
 
-    inline boost::container::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
+    inline ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
         return vertices[v].inEdges;
     }
-    inline const boost::container::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
+    inline const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
         return vertices[v].inEdges;
     }
 
@@ -421,8 +421,8 @@ struct SubpassGraph {
         return static_cast<vertex_descriptor>(vertices.size());
     }
 
-    inline boost::container::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
-        return boost::container::pmr::vector<boost::default_color_type>(vertices.size(), mr);
+    inline ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
+        return ccstd::pmr::vector<boost::default_color_type>(vertices.size(), mr);
     }
 
     // EdgeListGraph
@@ -448,8 +448,8 @@ struct SubpassGraph {
         Vertex& operator=(Vertex&& rhs) = default;
         Vertex& operator=(Vertex const& rhs) = default;
 
-        boost::container::pmr::vector<OutEdge> outEdges;
-        boost::container::pmr::vector<InEdge>  inEdges;
+        ccstd::pmr::vector<OutEdge> outEdges;
+        ccstd::pmr::vector<InEdge>  inEdges;
     };
 
     struct NameTag {
@@ -458,10 +458,10 @@ struct SubpassGraph {
     } static constexpr Subpass{}; // NOLINT
 
     // Vertices
-    boost::container::pmr::vector<Vertex> vertices;
+    ccstd::pmr::vector<Vertex> vertices;
     // Components
-    boost::container::pmr::vector<ccstd::pmr::string> names;
-    boost::container::pmr::vector<RasterSubpass>      subpasses;
+    ccstd::pmr::vector<ccstd::pmr::string> names;
+    ccstd::pmr::vector<RasterSubpass>      subpasses;
 };
 
 struct RasterPass {
@@ -479,10 +479,10 @@ struct RasterPass {
     RasterPass& operator=(RasterPass&& rhs) = default;
     RasterPass& operator=(RasterPass const& rhs) = default;
 
-    bool                                                                              isValid{false};
-    PmrTransparentMap<ccstd::pmr::string, RasterView>                                 rasterViews;
-    PmrTransparentMap<ccstd::pmr::string, boost::container::pmr::vector<ComputeView>> computeViews;
-    SubpassGraph                                                                      subpassGraph;
+    bool                                                                   isValid{false};
+    PmrTransparentMap<ccstd::pmr::string, RasterView>                      rasterViews;
+    PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> computeViews;
+    SubpassGraph                                                           subpassGraph;
 };
 
 struct ComputePass {
@@ -500,7 +500,7 @@ struct ComputePass {
     ComputePass& operator=(ComputePass&& rhs) = default;
     ComputePass& operator=(ComputePass const& rhs) = default;
 
-    PmrTransparentMap<ccstd::pmr::string, boost::container::pmr::vector<ComputeView>> computeViews;
+    PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> computeViews;
 };
 
 struct CopyPair {
@@ -546,7 +546,7 @@ struct CopyPass {
     CopyPass& operator=(CopyPass&& rhs) = default;
     CopyPass& operator=(CopyPass const& rhs) = default;
 
-    boost::container::pmr::vector<CopyPair> copyPairs;
+    ccstd::pmr::vector<CopyPair> copyPairs;
 };
 
 struct MovePair {
@@ -589,7 +589,7 @@ struct MovePass {
     MovePass& operator=(MovePass&& rhs) = default;
     MovePass& operator=(MovePass const& rhs) = default;
 
-    boost::container::pmr::vector<MovePair> movePairs;
+    ccstd::pmr::vector<MovePair> movePairs;
 };
 
 struct RaytracePass {
@@ -607,7 +607,7 @@ struct RaytracePass {
     RaytracePass& operator=(RaytracePass&& rhs) = default;
     RaytracePass& operator=(RaytracePass const& rhs) = default;
 
-    PmrTransparentMap<ccstd::pmr::string, boost::container::pmr::vector<ComputeView>> computeViews;
+    PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> computeViews;
 };
 
 struct QueueTag {};
@@ -640,9 +640,9 @@ struct SceneData {
     SceneData& operator=(SceneData&& rhs) = default;
     SceneData& operator=(SceneData const& rhs) = default;
 
-    ccstd::pmr::string                                name;
-    scene::Camera*                                    camera{nullptr};
-    boost::container::pmr::vector<ccstd::pmr::string> scenes;
+    ccstd::pmr::string                     name;
+    scene::Camera*                         camera{nullptr};
+    ccstd::pmr::vector<ccstd::pmr::string> scenes;
 };
 
 struct Dispatch {
@@ -728,10 +728,10 @@ struct RenderData {
     RenderData& operator=(RenderData&& rhs) = default;
     RenderData& operator=(RenderData const& rhs) = delete;
 
-    PmrUnorderedMap<uint32_t, boost::container::pmr::vector<uint8_t>> constants;
-    PmrUnorderedMap<uint32_t, std::unique_ptr<gfx::Buffer>>           buffers;
-    PmrUnorderedMap<uint32_t, std::unique_ptr<gfx::Texture>>          textures;
-    PmrUnorderedMap<uint32_t, std::unique_ptr<gfx::Sampler>>          samplers;
+    PmrUnorderedMap<uint32_t, ccstd::pmr::vector<uint8_t>>   constants;
+    PmrUnorderedMap<uint32_t, std::unique_ptr<gfx::Buffer>>  buffers;
+    PmrUnorderedMap<uint32_t, std::unique_ptr<gfx::Texture>> textures;
+    PmrUnorderedMap<uint32_t, std::unique_ptr<gfx::Sampler>> samplers;
 };
 
 struct RenderGraph {
@@ -771,14 +771,14 @@ struct RenderGraph {
     // IncidenceGraph
     using OutEdge     = impl::StoredEdge<vertex_descriptor>;
     using out_edge_iterator = impl::OutEdgeIter<
-        boost::container::pmr::vector<OutEdge>::iterator,
+        ccstd::pmr::vector<OutEdge>::iterator,
         vertex_descriptor, edge_descriptor, int32_t>;
     using degree_size_type = uint32_t;
 
     // BidirectionalGraph
     using InEdge     = impl::StoredEdge<vertex_descriptor>;
     using in_edge_iterator = impl::InEdgeIter<
-        boost::container::pmr::vector<InEdge>::iterator,
+        ccstd::pmr::vector<InEdge>::iterator,
         vertex_descriptor, edge_descriptor, int32_t>;
 
     // AdjacencyGraph
@@ -790,17 +790,17 @@ struct RenderGraph {
     using vertices_size_type = uint32_t;
 
     // VertexList help functions
-    inline boost::container::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
+    inline ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
         return vertices[v].outEdges;
     }
-    inline const boost::container::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
+    inline const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
         return vertices[v].outEdges;
     }
 
-    inline boost::container::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
+    inline ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
         return vertices[v].inEdges;
     }
-    inline const boost::container::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
+    inline const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
         return vertices[v].inEdges;
     }
 
@@ -812,8 +812,8 @@ struct RenderGraph {
         return static_cast<vertex_descriptor>(vertices.size());
     }
 
-    inline boost::container::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
-        return boost::container::pmr::vector<boost::default_color_type>(vertices.size(), mr);
+    inline ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
+        return ccstd::pmr::vector<boost::default_color_type>(vertices.size(), mr);
     }
 
     // EdgeListGraph
@@ -825,30 +825,30 @@ struct RenderGraph {
 
     using ChildEdge = impl::StoredEdge<vertex_descriptor>;
     using children_iterator  = impl::OutEdgeIter<
-        boost::container::pmr::vector<ChildEdge>::iterator,
+        ccstd::pmr::vector<ChildEdge>::iterator,
         vertex_descriptor, ownership_descriptor, int32_t>;
     using children_size_type = uint32_t;
 
     using ParentEdge = impl::StoredEdge<vertex_descriptor>;
     using parent_iterator  = impl::InEdgeIter<
-        boost::container::pmr::vector<ParentEdge>::iterator,
+        ccstd::pmr::vector<ParentEdge>::iterator,
         vertex_descriptor, ownership_descriptor, int32_t>;
 
     using ownership_iterator   = impl::OwnershipIterator<vertex_iterator, children_iterator, RenderGraph>;
     using ownerships_size_type = edges_size_type;
 
     // AddressableGraph help functions
-    inline boost::container::pmr::vector<ChildEdge>& getChildrenList(vertex_descriptor v) noexcept {
+    inline ccstd::pmr::vector<ChildEdge>& getChildrenList(vertex_descriptor v) noexcept {
         return objects[v].children;
     }
-    inline const boost::container::pmr::vector<ChildEdge>& getChildrenList(vertex_descriptor v) const noexcept {
+    inline const ccstd::pmr::vector<ChildEdge>& getChildrenList(vertex_descriptor v) const noexcept {
         return objects[v].children;
     }
 
-    inline boost::container::pmr::vector<ParentEdge>& getParentsList(vertex_descriptor v) noexcept {
+    inline ccstd::pmr::vector<ParentEdge>& getParentsList(vertex_descriptor v) noexcept {
         return objects[v].parents;
     }
-    inline const boost::container::pmr::vector<ParentEdge>& getParentsList(vertex_descriptor v) const noexcept {
+    inline const ccstd::pmr::vector<ParentEdge>& getParentsList(vertex_descriptor v) const noexcept {
         return objects[v].parents;
     }
 
@@ -887,8 +887,8 @@ struct RenderGraph {
         Object& operator=(Object&& rhs) = default;
         Object& operator=(Object const& rhs) = default;
 
-        boost::container::pmr::vector<ChildEdge>  children;
-        boost::container::pmr::vector<ParentEdge> parents;
+        ccstd::pmr::vector<ChildEdge>  children;
+        ccstd::pmr::vector<ParentEdge> parents;
     };
 
     struct Vertex {
@@ -906,9 +906,9 @@ struct RenderGraph {
         Vertex& operator=(Vertex&& rhs) = default;
         Vertex& operator=(Vertex const& rhs) = default;
 
-        boost::container::pmr::vector<OutEdge> outEdges;
-        boost::container::pmr::vector<InEdge>  inEdges;
-        VertexHandle                           handle;
+        ccstd::pmr::vector<OutEdge> outEdges;
+        ccstd::pmr::vector<InEdge>  inEdges;
+        VertexHandle                handle;
     };
 
     struct NameTag {
@@ -921,25 +921,25 @@ struct RenderGraph {
     } static constexpr Valid{}; // NOLINT
 
     // Owners
-    boost::container::pmr::vector<Object> objects;
+    ccstd::pmr::vector<Object> objects;
     // Vertices
-    boost::container::pmr::vector<Vertex> vertices;
+    ccstd::pmr::vector<Vertex> vertices;
     // Components
-    boost::container::pmr::vector<ccstd::pmr::string> names;
-    boost::container::pmr::vector<ccstd::pmr::string> layoutNodes;
-    boost::container::pmr::vector<RenderData>         data;
-    boost::container::pmr::vector<bool>               valid;
+    ccstd::pmr::vector<ccstd::pmr::string> names;
+    ccstd::pmr::vector<ccstd::pmr::string> layoutNodes;
+    ccstd::pmr::vector<RenderData>         data;
+    ccstd::pmr::vector<bool>               valid;
     // PolymorphicGraph
-    boost::container::pmr::vector<RasterPass>   rasterPasses;
-    boost::container::pmr::vector<ComputePass>  computePasses;
-    boost::container::pmr::vector<CopyPass>     copyPasses;
-    boost::container::pmr::vector<MovePass>     movePasses;
-    boost::container::pmr::vector<PresentPass>  presentPasses;
-    boost::container::pmr::vector<RaytracePass> raytracePasses;
-    boost::container::pmr::vector<RenderQueue>  renderQueues;
-    boost::container::pmr::vector<SceneData>    scenes;
-    boost::container::pmr::vector<Blit>         blits;
-    boost::container::pmr::vector<Dispatch>     dispatches;
+    ccstd::pmr::vector<RasterPass>   rasterPasses;
+    ccstd::pmr::vector<ComputePass>  computePasses;
+    ccstd::pmr::vector<CopyPass>     copyPasses;
+    ccstd::pmr::vector<MovePass>     movePasses;
+    ccstd::pmr::vector<PresentPass>  presentPasses;
+    ccstd::pmr::vector<RaytracePass> raytracePasses;
+    ccstd::pmr::vector<RenderQueue>  renderQueues;
+    ccstd::pmr::vector<SceneData>    scenes;
+    ccstd::pmr::vector<Blit>         blits;
+    ccstd::pmr::vector<Dispatch>     dispatches;
     // Members
     PmrUnorderedMap<ccstd::pmr::string, uint32_t> index;
 };

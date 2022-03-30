@@ -688,13 +688,13 @@ struct property_map<cc::render::example::RenderDependencyGraph, cc::render::exam
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::example::RenderDependencyGraph,
-        const container::pmr::vector<cc::render::example::RenderPassNode>,
+        const ccstd::pmr::vector<cc::render::example::RenderPassNode>,
         cc::render::example::RenderPassNode,
         const cc::render::example::RenderPassNode&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         cc::render::example::RenderDependencyGraph,
-        container::pmr::vector<cc::render::example::RenderPassNode>,
+        ccstd::pmr::vector<cc::render::example::RenderPassNode>,
         cc::render::example::RenderPassNode,
         cc::render::example::RenderPassNode&>;
 };
@@ -705,14 +705,14 @@ struct property_map<cc::render::example::RenderDependencyGraph, T cc::render::ex
     using const_type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         const cc::render::example::RenderDependencyGraph,
-        const container::pmr::vector<cc::render::example::RenderPassNode>,
+        const ccstd::pmr::vector<cc::render::example::RenderPassNode>,
         T,
         const T&,
         T cc::render::example::RenderPassNode::*>;
     using type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         cc::render::example::RenderDependencyGraph,
-        container::pmr::vector<cc::render::example::RenderPassNode>,
+        ccstd::pmr::vector<cc::render::example::RenderPassNode>,
         T,
         T&,
         T cc::render::example::RenderPassNode::*>;
@@ -724,13 +724,13 @@ struct property_map<cc::render::example::RenderDependencyGraph, cc::render::exam
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::example::RenderDependencyGraph,
-        const container::pmr::vector<cc::PmrFlatSet<uint32_t>>,
+        const ccstd::pmr::vector<cc::PmrFlatSet<uint32_t>>,
         cc::PmrFlatSet<uint32_t>,
         const cc::PmrFlatSet<uint32_t>&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         cc::render::example::RenderDependencyGraph,
-        container::pmr::vector<cc::PmrFlatSet<uint32_t>>,
+        ccstd::pmr::vector<cc::PmrFlatSet<uint32_t>>,
         cc::PmrFlatSet<uint32_t>,
         cc::PmrFlatSet<uint32_t>&>;
 };
@@ -741,13 +741,13 @@ struct property_map<cc::render::example::RenderDependencyGraph, cc::render::exam
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::example::RenderDependencyGraph,
-        const container::pmr::vector<cc::render::RenderGraph::vertex_descriptor>,
+        const ccstd::pmr::vector<cc::render::RenderGraph::vertex_descriptor>,
         cc::render::RenderGraph::vertex_descriptor,
         const cc::render::RenderGraph::vertex_descriptor&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         cc::render::example::RenderDependencyGraph,
-        container::pmr::vector<cc::render::RenderGraph::vertex_descriptor>,
+        ccstd::pmr::vector<cc::render::RenderGraph::vertex_descriptor>,
         cc::render::RenderGraph::vertex_descriptor,
         cc::render::RenderGraph::vertex_descriptor&>;
 };
@@ -758,13 +758,13 @@ struct property_map<cc::render::example::RenderDependencyGraph, cc::render::exam
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::example::RenderDependencyGraph,
-        const container::pmr::vector<cc::render::example::RenderPassTraits>,
+        const ccstd::pmr::vector<cc::render::example::RenderPassTraits>,
         cc::render::example::RenderPassTraits,
         const cc::render::example::RenderPassTraits&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         cc::render::example::RenderDependencyGraph,
-        container::pmr::vector<cc::render::example::RenderPassTraits>,
+        ccstd::pmr::vector<cc::render::example::RenderPassTraits>,
         cc::render::example::RenderPassTraits,
         cc::render::example::RenderPassTraits&>;
 };
@@ -775,14 +775,14 @@ struct property_map<cc::render::example::RenderDependencyGraph, T cc::render::ex
     using const_type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         const cc::render::example::RenderDependencyGraph,
-        const container::pmr::vector<cc::render::example::RenderPassTraits>,
+        const ccstd::pmr::vector<cc::render::example::RenderPassTraits>,
         T,
         const T&,
         T cc::render::example::RenderPassTraits::*>;
     using type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         cc::render::example::RenderDependencyGraph,
-        container::pmr::vector<cc::render::example::RenderPassTraits>,
+        ccstd::pmr::vector<cc::render::example::RenderPassTraits>,
         T,
         T&,
         T cc::render::example::RenderPassTraits::*>;
@@ -831,13 +831,13 @@ struct property_map<cc::render::example::RenderValueGraph, cc::render::example::
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::example::RenderValueGraph,
-        const container::pmr::vector<cc::render::example::RenderValueNode>,
+        const ccstd::pmr::vector<cc::render::example::RenderValueNode>,
         cc::render::example::RenderValueNode,
         const cc::render::example::RenderValueNode&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         cc::render::example::RenderValueGraph,
-        container::pmr::vector<cc::render::example::RenderValueNode>,
+        ccstd::pmr::vector<cc::render::example::RenderValueNode>,
         cc::render::example::RenderValueNode,
         cc::render::example::RenderValueNode&>;
 };
@@ -848,14 +848,14 @@ struct property_map<cc::render::example::RenderValueGraph, T cc::render::example
     using const_type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         const cc::render::example::RenderValueGraph,
-        const container::pmr::vector<cc::render::example::RenderValueNode>,
+        const ccstd::pmr::vector<cc::render::example::RenderValueNode>,
         T,
         const T&,
         T cc::render::example::RenderValueNode::*>;
     using type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         cc::render::example::RenderValueGraph,
-        container::pmr::vector<cc::render::example::RenderValueNode>,
+        ccstd::pmr::vector<cc::render::example::RenderValueNode>,
         T,
         T&,
         T cc::render::example::RenderValueNode::*>;
@@ -881,7 +881,7 @@ get(boost::vertex_index_t /*tag*/, RenderDependencyGraph& /*g*/) noexcept {
 }
 
 inline impl::ColorMap<RenderDependencyGraph::vertex_descriptor>
-get(boost::container::pmr::vector<boost::default_color_type>& colors, const RenderDependencyGraph& /*g*/) noexcept {
+get(ccstd::pmr::vector<boost::default_color_type>& colors, const RenderDependencyGraph& /*g*/) noexcept {
     return {colors};
 }
 
@@ -1088,7 +1088,7 @@ get(boost::vertex_index_t /*tag*/, RenderValueGraph& /*g*/) noexcept {
 }
 
 inline impl::ColorMap<RenderValueGraph::vertex_descriptor>
-get(boost::container::pmr::vector<boost::default_color_type>& colors, const RenderValueGraph& /*g*/) noexcept {
+get(ccstd::pmr::vector<boost::default_color_type>& colors, const RenderValueGraph& /*g*/) noexcept {
     return {colors};
 }
 

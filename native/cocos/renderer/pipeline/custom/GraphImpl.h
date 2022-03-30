@@ -24,14 +24,14 @@
 ****************************************************************************/
 
 #pragma once
-#include <cocos/renderer/pipeline/custom/GraphTypes.h>
-#include <cocos/renderer/pipeline/custom/GslUtils.h>
-#include <boost/container/pmr/vector.hpp>
 #include <boost/graph/adjacency_iterator.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/iterator/iterator_adaptor.hpp>
 #include <boost/variant2/variant.hpp>
 #include <functional>
+#include "base/std/container/vector.h"
+#include "renderer/pipeline/custom/GraphTypes.h"
+#include "renderer/pipeline/custom/GslUtils.h"
 
 namespace cc {
 
@@ -648,7 +648,7 @@ struct ColorMap : public boost::put_get_helper<boost::default_color_type &, Colo
     using key_type   = Key;
     using category   = boost::lvalue_property_map_tag;
 
-    ColorMap(boost::container::pmr::vector<boost::default_color_type> &vec) noexcept // NOLINT(google-explicit-constructor)
+    ColorMap(ccstd::pmr::vector<boost::default_color_type> &vec) noexcept // NOLINT(google-explicit-constructor)
     : container{&vec} {}
 
     inline reference operator[](const key_type &v) const noexcept {
@@ -658,7 +658,7 @@ struct ColorMap : public boost::put_get_helper<boost::default_color_type &, Colo
         return operator[](v);
     }
 
-    boost::container::pmr::vector<boost::default_color_type> *container{};
+    ccstd::pmr::vector<boost::default_color_type> *container{};
 };
 
 } // namespace impl
