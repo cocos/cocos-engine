@@ -65,9 +65,6 @@
 
     #if (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_NX_WINDOWS)
         #include <sqlite3/sqlite3.h>
-    #elif (CC_PLATFORM == CC_PLATFORM_NX)
-        #include "nn/nlib/oss/sqlite3.h"
-        #include "sqlite3.h"
     #else
         #include <sqlite3.h>
     #endif

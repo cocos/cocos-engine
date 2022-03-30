@@ -2087,10 +2087,12 @@ cocos_source_files(
 )
 
 #### storage
+if(NOT NX)
 cocos_source_files(
                  cocos/storage/local-storage/LocalStorage.cpp
                  cocos/storage/local-storage/LocalStorage.h
 )
+endif()
 
 if(ANDROID)
     cocos_source_files(
