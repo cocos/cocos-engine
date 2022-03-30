@@ -126,6 +126,11 @@ export class LabelOutline extends Component {
         this._updateRenderData();
     }
 
+    public onDestroy () {
+        this._enabled = false;
+        this._updateRenderData();
+    }
+
     protected _updateRenderData () {
         const label = this.node.getComponent(Label);
         if (label) {
