@@ -1413,11 +1413,6 @@ export class SpriteFrame extends Asset {
         return this._texture && this._rect && this._rect.width !== 0 && this._rect.height !== 0;
     }
 
-    // 生成顶点信息
-    // 需要在导入器中做
-    // 这儿应对，setTexture 的情况
-    // 可以先在 反序列化中调用来测试使用
-    // 最终还是要放到序列化中
     protected _initVertices () {
         if (!this.vertices) {
             this.vertices = {
