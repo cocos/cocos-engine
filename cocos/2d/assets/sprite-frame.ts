@@ -59,10 +59,19 @@ export interface IUV {
 
 interface IVertices {
     rawPosition: Vec3[]; // 顶点的原始位置，像素值
-    positions: number[]; // 顶点的位置，受几个值影响的模型空间值
+    positions: number[]; // 顶点的位置，受几个值影响的模型空间值 // 计算
     triangles: number[]; // IB
     uv: number[]; // 像素值的 uv
     nuv: number[]; // 归一化的 uv
+    minPos: Vec3;
+    maxPos: Vec3;
+}
+
+interface IVerticesSerialize { // hack for format
+    rawPosition: number[];
+    triangles: number[];
+    uv: number[];
+    nuv: number[];
     minPos: Vec3;
     maxPos: Vec3;
 }
@@ -77,7 +86,7 @@ interface ISpriteFramesSerializeData {
     originalSize: Size;
     rotated: boolean;
     capInsets: number[];
-    vertices: IVertices;
+    vertices: IVerticesSerialize;
     texture: string;
     packable: boolean;
     pixelsToUnits: number;
@@ -251,6 +260,7 @@ export class SpriteFrame extends Asset {
      * @zh uv 更新事件
      */
     public static EVENT_UV_UPDATED = 'uv_updated';
+    public static MeshType = MeshType;
 
     /**
      * @en Top border distance of sliced 9 rect.
@@ -500,15 +510,19 @@ export class SpriteFrame extends Asset {
         return this._original;
     }
 
-    // set function is only for Editor
     get pixelsToUnits () {
         return this._pixelsToUnits;
     }
-
     // set function is only for Editor
+    // set pixelsToUnits (value: number) {
+    // }
+
     get pivot () {
         return this._pivot;
     }
+    // set function is only for Editor
+    // set pivot (value: Vec2) {
+    // }
 
     get mesh () {
         if (!this._mesh) {
@@ -583,6 +597,8 @@ export class SpriteFrame extends Asset {
 
     // Mesh api
     protected declare _mesh: Mesh;
+    protected _minPos = new Vec3();
+    protected _maxPos = new Vec3();
 
     constructor () {
         super();
@@ -1214,17 +1230,22 @@ export class SpriteFrame extends Asset {
                 }
             }
 
-            // TODO 测试用，禁止反序列化
-            // let vertices;
-            // if (this.vertices) {
-            //     vertices = {
-            //         triangles: this.vertices.triangles,
-            //         x: this.vertices.x,
-            //         y: this.vertices.y,
-            //         u: this.vertices.u,
-            //         v: this.vertices.v,
-            //     };
-            // }
+            let vertices;
+            if (this.vertices) {
+                const posArray = [];
+                for (let i = 0; i < this.vertices.rawPosition.length; i++) {
+                    const pos = this.vertices.rawPosition[i];
+                    Vec3.toArray(posArray, pos, 3 * i);
+                }
+                vertices = {
+                    rawPosition: posArray,
+                    triangles: this.vertices.triangles,
+                    uv: this.vertices.uv,
+                    nuv: this.vertices.nuv,
+                    minPos: { x: this.vertices.minPos.x, y: this.vertices.minPos.y, z: this.vertices.minPos.z },
+                    maxPos: { x: this.vertices.maxPos.x, y: this.vertices.maxPos.y, z: this.vertices.maxPos.z },
+                };
+            }
 
             const serialize = {
                 name: this._name,
@@ -1234,7 +1255,7 @@ export class SpriteFrame extends Asset {
                 originalSize,
                 rotated: this._rotated,
                 capInsets: this._capInsets,
-                // vertices,
+                vertices,
                 texture: (!ctxForExporting && texture) || undefined,
                 packable: this._packable,
                 pixelsToUnits: this._pixelsToUnits,
@@ -1297,13 +1318,27 @@ export class SpriteFrame extends Asset {
             this._atlasUuid = data.atlas ? data.atlas : '';
         }
 
-        // this.vertices = data.vertices;
-        // if (this.vertices) {
-        //     // initialize normal uv arrays
-        //     this.vertices.nu = [];
-        //     this.vertices.nv = [];
-        // }
-        this._initVertices();
+        const vertices = data.vertices;
+        if (vertices) {
+            if (!this.vertices) {
+                this.vertices = {
+                    rawPosition: [],
+                    positions: [],
+                    triangles: vertices.triangles,
+                    uv: vertices.uv,
+                    nuv: vertices.nuv,
+                    minPos: new Vec3(vertices.minPos.x, vertices.minPos.y, vertices.minPos.z),
+                    maxPos: new Vec3(vertices.maxPos.x, vertices.maxPos.y, vertices.maxPos.z),
+                };
+            }
+            this.vertices.rawPosition.length = 0;
+            const rawPosition = vertices.rawPosition;
+            for (let i = 0; i < rawPosition.length; i += 3) {
+                temp_vec3.set(rawPosition[i], rawPosition[i + 1], rawPosition[i + 2]);
+                this.vertices.rawPosition.push(temp_vec3.clone());
+            }
+        }
+        this._updateMeshVertices();
     }
 
     public clone (): SpriteFrame {
@@ -1466,8 +1501,8 @@ export class SpriteFrame extends Asset {
             Vec3.transformMat4(temp_vec3, pos, temp_matrix);
             Vec3.toArray(vertices.positions, temp_vec3, 3 * i);
         }
-        Vec3.transformMat4(vertices.minPos, vertices.minPos, temp_matrix);
-        Vec3.transformMat4(vertices.maxPos, vertices.maxPos, temp_matrix);
+        Vec3.transformMat4(this._minPos, vertices.minPos, temp_matrix);
+        Vec3.transformMat4(this._maxPos, vertices.maxPos, temp_matrix);
     }
 
     protected createMesh () {
@@ -1476,6 +1511,9 @@ export class SpriteFrame extends Asset {
             positions: this.vertices!.positions,
             uvs: this.vertices!.nuv,
             indices: this.vertices!.triangles,
+            minPos: this._minPos,
+            maxPos: this._maxPos,
+
             // colors: [
             //     Color.WHITE.r, Color.WHITE.g, Color.WHITE.b, Color.WHITE.a,
             //     Color.WHITE.r, Color.WHITE.g, Color.WHITE.b, Color.WHITE.a,
