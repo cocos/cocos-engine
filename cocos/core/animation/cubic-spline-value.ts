@@ -109,30 +109,56 @@ function makeCubicSplineValueConstructor<T> (
     return CubicSplineValueClass;
 }
 
+/**
+ * @legacyPublic
+ */
 export const CubicSplineVec2Value = makeCubicSplineValueConstructor(
     'cc.CubicSplineVec2Value', Vec2, Vec2.multiplyScalar, Vec2.scaleAndAdd,
 );
 
+/**
+ * @legacyPublic
+ */
 export type CubicSplineVec2Value = ICubicSplineValue<Vec2>;
 legacyCC.CubicSplineVec2Value = CubicSplineVec2Value;
 
+/**
+ * @legacyPublic
+ */
 export const CubicSplineVec3Value = makeCubicSplineValueConstructor(
     'cc.CubicSplineVec3Value', Vec3, Vec3.multiplyScalar, Vec3.scaleAndAdd,
 );
+
+/**
+ * @legacyPublic
+ */
 export type CubicSplineVec3Value = ICubicSplineValue<Vec3>;
 legacyCC.CubicSplineVec3Value = CubicSplineVec3Value;
 
+/**
+ * @legacyPublic
+ */
 export const CubicSplineVec4Value = makeCubicSplineValueConstructor(
     'cc.CubicSplineVec4Value', Vec4, Vec4.multiplyScalar, Vec4.scaleAndAdd,
 );
+
+/**
+ * @legacyPublic
+ */
 export type CubicSplineVec4Value = ICubicSplineValue<Vec4>;
 legacyCC.CubicSplineVec4Value = CubicSplineVec4Value;
 
+/**
+ * @legacyPublic
+ */
 export const CubicSplineQuatValue = makeCubicSplineValueConstructor(
     'cc.CubicSplineQuatValue', Quat, Quat.multiplyScalar, Quat.scaleAndAdd,
 );
 legacyCC.CubicSplineQuatValue = CubicSplineQuatValue;
 
+/**
+ * @legacyPublic
+ */
 @ccclass('cc.CubicSplineNumberValue')
 export class CubicSplineNumberValue implements ICubicSplineValue<number> {
     @serializable
