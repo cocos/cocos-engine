@@ -3,6 +3,7 @@
 // common module
 
 // constant value
+#define HALF_PI      1.57079632679
 #define PI           3.14159265359
 #define INV_PI       0.31830988618
 #define PI2          6.28318530718
