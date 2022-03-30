@@ -29,11 +29,10 @@
  * @module ui
  */
 
-import { ccclass, help, executionOrder, menu } from 'cc.decorator';
+import { ccclass, help, executionOrder, menu, executeInEditMode } from 'cc.decorator';
 import { RenderableComponent } from '../../core/components/renderable-component';
 import { RenderPriority } from '../../core/pipeline/define';
 import { IBatcher } from '../renderer/i-batcher';
-import { scene } from '../../core/renderer';
 import { Stage } from '../renderer/stencil-manager';
 import { Component } from '../../core/components';
 import { legacyCC } from '../../core/global-exports';
@@ -52,6 +51,7 @@ import { legacyCC } from '../../core/global-exports';
 @help('i18n:cc.UIMeshRenderer')
 @executionOrder(110)
 @menu('UI/UIMeshRenderer')
+@executeInEditMode
 export class UIMeshRenderer extends Component {
     public get modelComponent () {
         return this._modelComponent;
