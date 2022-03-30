@@ -62,6 +62,9 @@ export declare namespace AnimationClip {
         params: string[];
     }
 
+    /**
+     * @legacyPublic
+     */
     export type { legacy as _legacy };
 }
 

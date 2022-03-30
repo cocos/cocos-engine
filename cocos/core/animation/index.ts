@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 import { ccclass } from 'cc.decorator';
 import * as animation from './animation';
 import * as easing from '../easing/easing';
@@ -43,7 +42,9 @@ export * from './animation-manager';
 export {
     AnimationState,
 } from './animation-state';
-export * from './animation-component';
+export {
+    Animation,
+} from './animation-component';
 export * from './transform-utils';
 export { animation };
 
