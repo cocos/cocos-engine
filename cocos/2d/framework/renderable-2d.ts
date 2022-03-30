@@ -268,6 +268,7 @@ export class Renderable2D extends RenderableComponent {
         this.node.on(NodeEventType.PARENT_CHANGED, this._colorDirty, this);
         this.updateMaterial();
         this._renderFlag = this._canRender();
+        this._colorDirty();
     }
 
     // For Redo, Undo
