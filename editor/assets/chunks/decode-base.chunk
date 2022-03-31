@@ -42,9 +42,14 @@ layout(location = 3) in vec4 a_tangent;
 
 #if CC_USE_SKINNING
   #if __VERSION__ > 310
-    // strictly speaking this should be u16vec4, but due to poor driver support
-    // somehow it seems we can get better results on many platforms using u32vec4
-    layout(location = 4) in u32vec4 a_joints;
+    #if !CC_PLATFORM_NX
+      // strictly speaking this should be u16vec4, but due to poor driver support
+      // somehow it seems we can get better results on many platforms using u32vec4
+      layout(location = 4) in u32vec4 a_joints;
+    #else
+      #pragma format(RGBA16UI)
+      layout(location = 4) in vec4 a_joints;
+    #endif
   #else
     #pragma format(RGBA16UI)
     layout(location = 4) in vec4 a_joints;
