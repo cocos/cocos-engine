@@ -43,7 +43,7 @@ body:
 
 - type: textarea
   attributes:
-    label: Error Log
+    label: Relevant error log output
     description: |
      Error output and stack trace.
   validations:
