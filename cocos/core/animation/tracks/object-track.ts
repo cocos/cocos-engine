@@ -5,6 +5,9 @@ import { SingleChannelTrack } from './track';
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}ObjectTrack`)
 export class ObjectTrack<T> extends SingleChannelTrack<ObjectCurve<T>> {
+    /**
+     * @internal
+     */
     protected createCurve () {
         return new ObjectCurve<T>();
     }
