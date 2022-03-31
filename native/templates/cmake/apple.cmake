@@ -61,6 +61,7 @@ macro(cc_ios_after_target target_name)
         ${CC_PROJECT_DIR}/../common/Classes
         ${CC_PROJECT_DIR}/service
     )
+    cc_common_after_target(${target_name})
 endmacro()
 
 
