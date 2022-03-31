@@ -2,11 +2,11 @@ blank_issues_enabled: false
 
 contact_links:
 
-  - name: Dcumentation feedbacks and suggestions
+  - name: Documentation feedbacks and suggestions
     url: https://github.com/cocos/cocos-docs
     about: Please report issues with documentation on the Cocos Creator documentation repository.
 
-  - name: General discusstions and feature requests
+  - name: General discussions and feature requests
     url: https://discuss.cocos2d-x.org/
     about:
       Please post on our forum if you want to ask more general questions, make suggestions and feature requests, or initiate discussions. 
