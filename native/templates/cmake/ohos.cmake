@@ -13,4 +13,5 @@ macro(cc_ohos_after_target target_name)
     target_include_directories(${target_name} PRIVATE
         ${CC_PROJECT_DIR}/../common/Classes
     )
+    cc_common_after_target(${target_name})
 endmacro()

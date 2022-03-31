@@ -120,5 +120,6 @@ macro(cc_mac_after_target target_name)
             XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS "${CC_PROJECT_DIR}/entitlements.plist"
         )
     endif()
+    cc_common_after_target(${target_name})
 
 endmacro()

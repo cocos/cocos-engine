@@ -15,4 +15,3 @@ add_executable(${EXECUTABLE_NAME}
     ${CC_ALL_SOURCES}
 )
 cc_windows_after_target(${EXECUTABLE_NAME})
-cc_common_after_target(${EXECUTABLE_NAME})
