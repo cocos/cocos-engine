@@ -37,6 +37,8 @@ namespace cc {
 
 namespace render {
 #pragma region predefine
+using PmrString = ccstd::pmr::string;
+
 using RAG              = ResourceAccessGraph;
 using LGD              = LayoutGraphData;
 using BarrierMap       = FlatMap<ResourceAccessGraph::vertex_descriptor, BarrierNode>;
@@ -135,9 +137,9 @@ void buildAccessGraph(const RenderGraph &renderGraph, const LayoutGraphData &lgd
 }
 
 struct BarrierVisitor : public boost::bfs_visitor<> {
-    using Vertex         = ResourceAccessGraph::vertex_descriptor;
-    using Edge           = ResourceAccessGraph::edge_descriptor;
-    using Graph          = ResourceAccessGraph;
+    using Vertex = ResourceAccessGraph::vertex_descriptor;
+    using Edge   = ResourceAccessGraph::edge_descriptor;
+    using Graph  = ResourceAccessGraph;
 
     explicit BarrierVisitor(const ResourceGraph &rg, BarrierMap &barriers, ExternalResMap &extMap)
     : barrierMap(barriers), resourceGraph(rg), externalMap(extMap) {
@@ -331,7 +333,7 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
             Vertex   vert        = isFrom ? from : to;
             if (externalRes) {
                 const PmrString &resName = get(ResourceGraph::Name, resourceGraph, rescID);
-                auto iter = externalMap.find(resName);
+                auto             iter    = externalMap.find(resName);
                 //first meet in this frame
                 if (externalResNames.find(resName) == externalResNames.end()) {
                     //first meet in whole program
