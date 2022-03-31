@@ -246,8 +246,11 @@ CCProgram terrain-fs %{
         s.roughness = 1.0;
       #endif
 
+      s.specularIntensity = 0.5;
+
       s.metallic = 0.0;
       #if LAYERS == 1
+        s.specularIntensity = 0.5;
         s.metallic = metallic.x;
       #elif LAYERS == 2
         s.metallic += metallic.x * w.r;
@@ -262,10 +265,12 @@ CCProgram terrain-fs %{
         s.metallic += metallic.z * w.b;
         s.metallic += metallic.w * w.a;
       #else
+        s.specularIntensity = 0.5;
         s.metallic = 0.0;
       #endif
     #else
       s.roughness = 1.0;
+      s.specularIntensity = 0.5;
       s.metallic = 0.0;
     #endif
     s.emissive = vec3(0.0, 0.0, 0.0);
