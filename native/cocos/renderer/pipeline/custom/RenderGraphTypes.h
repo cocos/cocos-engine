@@ -250,7 +250,7 @@ struct ResourceGraph {
     ccstd::pmr::vector<IntrusivePtr<gfx::Framebuffer>> framebuffers;
     ccstd::pmr::vector<RenderSwapchain>                swapchains;
     // UuidGraph
-    PmrUnorderedMap<ccstd::pmr::string, vertex_descriptor> valueIndex;
+    PmrUnorderedStringMap<ccstd::pmr::string, vertex_descriptor> valueIndex;
 };
 
 enum class AttachmentType {
@@ -941,7 +941,7 @@ struct RenderGraph {
     ccstd::pmr::vector<Blit>         blits;
     ccstd::pmr::vector<Dispatch>     dispatches;
     // Members
-    PmrUnorderedMap<ccstd::pmr::string, uint32_t> index;
+    PmrUnorderedStringMap<ccstd::pmr::string, uint32_t> index;
 };
 
 } // namespace render
