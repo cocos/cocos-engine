@@ -20,8 +20,8 @@ jobs:
           rm ./native/tools/tojs/userconf.ini
       - name: Install dependencies
         run: |
-          apt install libx11-dev -y
-          apt install ninja-build -y
+          sudo apt install libx11-dev -y
+          sudo apt install ninja-build -y
       - name: Compile
         env:
           COCOS_ENGINE_DEV: 1
