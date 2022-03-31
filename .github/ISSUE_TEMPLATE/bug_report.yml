@@ -6,18 +6,30 @@ body:
 - type: markdown
   attributes:
     value: |
-      - Read our [CONTRIBUTING.md guide](https://github.com/cocos/cocos-engine/blob/develop/docs/contribution/modules.md#reporting-bugs) 
-      - Write a descriptive issue title above.
+      **Before You Start:**
       - Search [open](https://github.com/cocos/cocos-engine/issues) and [closed](https://github.com/cocos/cocos-engine/issues?q=is%3Aissue+is%3Aclosed) issues to ensure it has not already been reported.
-      - Verify that you are using a [supported Cocos version](https://docs.cocos.com/creator/manual/en/).
+      - Verify that your issue is reproducible in the latest stable version of [Cocos Creator](https://www.cocos.com/creator).
+
+      For usage questions, please use the following resources:
+      - Read Cocos Creator [Docs](https://docs.cocos.com/creator/manual/zh/)
+      - Check our [API](https://docs.cocos.com/creator/api/en/#/)
+      - Watch our [Video Tutorials](https://www.youtube.com/cocosengine)
+      - Ask on our [forum](https://discuss.cocos2d-x.org/)
+
+- type: markdown
+  attributes:
+    value: |
+      Thanks for taking the time to fill out this form! 
+      
+      Please write a descriptive issue title above.
 
 - type: input
   attributes:
     label: Cocos Creator version
     description: >
-      Specify the Git commit hash if using a development or non-official build.
-      If you use a custom build, please test if your issue is reproducible in official builds too.
-    placeholder: 3.3.2, 3.4.0 
+      Specify the official build version of engine.
+      If you use a custom build, please test if your issue is reproducible in the official builds too.
+    placeholder: 3.4.2, 3.5.0 
   validations:
     required: true
 
