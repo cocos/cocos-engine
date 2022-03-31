@@ -24,14 +24,14 @@
 ****************************************************************************/
 
 #pragma once
-#include <boost/container/vector.hpp>
 #include "base/std/container/string.h"
+#include "base/std/container/vector.h"
 #include "bindings/manual/jsb_conversions.h"
 #include "renderer/pipeline/custom/Map.h"
 
 template <typename T, typename allocator>
 inline bool nativevalue_to_se( // NOLINT(readability-identifier-naming)
-    const boost::container::vector<T, allocator>& from,
+    const ccstd::vector<T, allocator>& from,
     se::Value& to, se::Object* ctx) {
     se::Object* array = se::Object::createArrayObject(from.size());
     se::Value tmp;
@@ -51,7 +51,7 @@ inline bool nativevalue_to_se( // NOLINT(readability-identifier-naming)
 }
 
 template <typename T, typename allocator>
-bool sevalue_to_native(const se::Value& from, boost::container::vector<T, allocator>* to, se::Object* ctx) { // NOLINT(readability-identifier-naming)
+bool sevalue_to_native(const se::Value& from, ccstd::vector<T, allocator>* to, se::Object* ctx) { // NOLINT(readability-identifier-naming)
     if (from.isNullOrUndefined()) {
         to->clear();
         return true;
@@ -83,7 +83,7 @@ bool sevalue_to_native(const se::Value& from, boost::container::vector<T, alloca
         return true;
     }
 
-    SE_LOGE("[warn] failed to convert to boost::container::vector\n");
+    SE_LOGE("[warn] failed to convert to ccstd::vector\n");
     return false;
 }
 

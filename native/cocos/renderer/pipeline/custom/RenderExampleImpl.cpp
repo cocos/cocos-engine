@@ -47,7 +47,7 @@ using RDG = RenderDependencyGraph;
 using RESG = ResourceGraph;
 
 // validation
-void checkComputeValue(const PmrTransparentMap<ccstd::pmr::string, boost::container::pmr::vector<ComputeView>>& values0) {
+void checkComputeValue(const PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>>& values0) {
     for (const auto& pair : values0) {
         const auto& name   = pair.first;
         const auto& values = pair.second;
@@ -150,7 +150,7 @@ void buildRenderDependencyGraph(const RenderGraph& rg, RenderDependencyGraph& rd
     auto startID = add_vertex(rdg, 0xFFFFFFFF);
     CC_EXPECTS(startID == 0);
 
-    auto makeAccessType = [](const boost::container::pmr::vector<ComputeView>& values) {
+    auto makeAccessType = [](const ccstd::pmr::vector<ComputeView>& values) {
         CC_EXPECTS(!values.empty());
         AccessType type = values[0].accessType;
         for (uint32_t i = 1; i != values.size(); ++i) {
