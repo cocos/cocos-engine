@@ -49,9 +49,26 @@ export function load (app: Application) {
         toObject (projectReflect: ProjectReflection, obj = {}): any & {
             ccCategories: CategoryInfo[];
         } {
+            const mergedCategoryMap: Record<string, CategoryInfo> = {};
+            for (const categoryInfo of Object.values(categoryMap)) {
+                // eslint-disable-next-line prefer-arrow-callback
+                const categoryKey = JSON.stringify(categoryInfo, function excludeItems (this, k, v) {
+                    if (this === categoryInfo && k === 'items' && v === categoryInfo.items) {
+                        return undefined;
+                    } else {
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                        return v;
+                    }
+                });
+                if (categoryKey in mergedCategoryMap) {
+                    mergedCategoryMap[categoryKey].items.push(...categoryInfo.items);
+                } else {
+                    mergedCategoryMap[categoryKey] = categoryInfo;
+                }
+            }
             return {
                 ...obj,
-                ccCategories: Object.values(categoryMap),
+                ccCategories: Object.values(mergedCategoryMap),
             };
         }
     }
