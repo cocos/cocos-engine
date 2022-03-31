@@ -127,6 +127,7 @@ exports.listeners = {
         }
     },
 };
+
 exports.template = `
 <ui-drag-area class="container">
     <section class="prefab" hidden missing>
@@ -200,6 +201,7 @@ exports.template = `
 </ui-drag-area>
 `;
 exports.style = fs.readFileSync(path.join(__dirname, './node.css'), 'utf8');
+
 exports.$ = {
     container: '.container',
 
@@ -245,6 +247,7 @@ exports.$ = {
     footer: '.footer',
     componentAdd: '.footer > ui-button',
 };
+
 const Elements = {
     panel: {
         ready() {
@@ -1003,6 +1006,13 @@ const Elements = {
                     } else {
                         panel.$.sectionAsset.prepend(materialPanel);
                     }
+
+                    materialPanel.addEventListener('focus', () => {
+                        materialPanel.setAttribute('focused', '');
+                    });
+                    materialPanel.addEventListener('blur', () => {
+                        materialPanel.removeAttribute('focused');
+                    });
                 }
                 materialPanels.push(materialPanel);
                 materialPrevPanel = materialPanel;

@@ -4,6 +4,8 @@ const path = require('path');
 
 const showImage = ['cc.ImageAsset', 'cc.SpriteFrame', 'cc.Texture2D'];
 
+exports.history = require('./asset-history/index');
+
 exports.listeners = {};
 
 exports.style = fs.readFileSync(path.join(__dirname, './asset.css'), 'utf8');
@@ -32,6 +34,7 @@ exports.template = `
     </section>
 </ui-section>
 `;
+
 exports.$ = {
     container: '.container',
     header: '.header',
@@ -48,6 +51,7 @@ exports.$ = {
     contentSection: '.content-section',
     contentFooter: '.content-footer',
 };
+
 const Elements = {
     panel: {
         ready() {
@@ -314,7 +318,14 @@ const Elements = {
         },
     },
 };
+
 exports.methods = {
+    undo() {
+        console.log('undo');
+    },
+    redo() {
+        console.log('redo');
+    },
     async isDirty() {
         const panel = this;
 
@@ -436,6 +447,7 @@ exports.methods = {
         }
     },
 };
+
 exports.update = async function update(uuidList, renderMap, dropConfig) {
     const panel = this;
 
@@ -450,6 +462,7 @@ exports.update = async function update(uuidList, renderMap, dropConfig) {
         }
     }
 };
+
 exports.ready = function ready() {
     const panel = this;
 
