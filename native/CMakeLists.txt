@@ -2215,9 +2215,9 @@ source_group(TREE ${CWD} PREFIX "Source Files" FILES ${COCOS2D_SOURCE_LIST})
 
 if(QNX)
     include(${QNX_PATH}/source.cmake)
-    qnx_source_list(qnx_SOURCE_LIST ${QNX_PATH})
-    source_group(TREE ${QNX_PATH} PREFIX "Source Files" FILES ${qnx_SOURCE_LIST}})
-    list(APPEND COCOS2D_SOURCE_LIST ${qnx_SOURCE_LIST})
+    qnx_source_list(ccqnx_SOURCE_LIST ${QNX_PATH})
+    source_group(TREE ${QNX_PATH} PREFIX "Source Files" FILES ${ccqnx_SOURCE_LIST}})
+    list(APPEND COCOS2D_SOURCE_LIST ${ccqnx_SOURCE_LIST})
 endif()
 
 add_library(cocos2d ${COCOS2D_SOURCE_LIST})
