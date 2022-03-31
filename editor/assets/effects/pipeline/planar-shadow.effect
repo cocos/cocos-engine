@@ -27,6 +27,7 @@ CCProgram planar-shadow-vs %{
   precision highp float;
   #include <input>
   #include <cc-global>
+  #include <decode-base>
   #include <cc-local-batch>
   #include <cc-shadow>
 

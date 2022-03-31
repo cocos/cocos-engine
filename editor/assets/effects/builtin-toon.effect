@@ -101,6 +101,7 @@ CCProgram toon-vs %{
   precision highp float;
   #include <input-standard>
   #include <cc-global>
+  #include <decode-base>
   #include <cc-local-batch>
   #include <shared-ubos>
   #include <cc-shadow-map-vs>
@@ -263,6 +264,7 @@ CCProgram toon-fs %{
 CCProgram shadow-caster-vs %{
   precision highp float;
   #include <input-standard>
+  #include <decode-base>
   #include <cc-local-batch>
   #include <shared-ubos>
   #include <cc-shadow>
