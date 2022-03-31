@@ -37,10 +37,7 @@ macro(cc_windows_after_target target_name)
     source_group(TREE ${CC_PROJECT_DIR} PREFIX "Source Files" FILES ${CC_PROJ_SOURCES})
     source_group(TREE ${CC_PROJECT_DIR}/../common PREFIX "Source Files" FILES ${CC_COMMON_SOURCES})
     
-    target_compile_definitions(${target_name} PRIVATE
-        GAME_NAME="${APP_NAME}"
-    )
-
+    
     target_link_libraries(${target_name} cocos2d)
     target_include_directories(${target_name} PRIVATE
         ${CC_PROJECT_DIR}/../common/Classes

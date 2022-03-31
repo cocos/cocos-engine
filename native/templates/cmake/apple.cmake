@@ -57,10 +57,6 @@ macro(cc_ios_after_target target_name)
     )
     target_link_libraries(${target_name} cocos2d)
 
-    target_compile_definitions(${target_name} PRIVATE
-        GAME_NAME="${APP_NAME}"
-    )
-
     target_include_directories(${target_name} PRIVATE
         ${CC_PROJECT_DIR}/../common/Classes
         ${CC_PROJECT_DIR}/service
@@ -101,9 +97,7 @@ endmacro()
 
 
 macro(cc_mac_after_target target_name)
-    target_compile_definitions(${target_name} PRIVATE
-        GAME_NAME="${APP_NAME}"
-    )
+    
     target_link_libraries(${target_name} cocos2d)
     target_include_directories(${target_name} PRIVATE
         ${CC_PROJECT_DIR}/../common/Classes
