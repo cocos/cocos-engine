@@ -2,18 +2,12 @@ blank_issues_enabled: false
 
 contact_links:
 
-  - name: Cocos Creator user manual
-    url: https://docs.cocos.com/creator/manual/en/
-    about: If you are not sure if a feature is supported or how to use a tool, please check our user manual.
-
-  - name: Cocos Creator API
-    url: https://docs.cocos.com/creator/api/en/#/
-    about: Please check the Cocos Creator API if you have API related problem.
-
   - name: Cocos Creator documentation repository
     url: https://github.com/cocos/cocos-docs
     about: Please report issues with documentation on the Cocos Creator documentation repository.
 
   - name: Cocos Creator forum
     url: https://discuss.cocos2d-x.org/
-    about: Please post on our forum if you want to ask more general questions or get help from our friendly community.
+    about: Please post on our forum if you want to ask more general questions, make suggestions and feature requests, or initiate discussions.
+
+    

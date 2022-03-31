@@ -13,7 +13,7 @@ body:
       - Verify that your issue is reproducible in the latest stable version of [Cocos Creator](https://www.cocos.com/creator).
 
       **For usage questions, please use the following resources:**
-      - Read Cocos Creator [Docs](https://docs.cocos.com/creator/manual/zh/)
+      - Read Cocos Creator [Docs](https://docs.cocos.com/creator/manual/en/)
       - Check our [API](https://docs.cocos.com/creator/api/en/#/)
       - Watch our [Video Tutorials](https://www.youtube.com/cocosengine)
       - Ask on our [forum](https://discuss.cocos2d-x.org/)
