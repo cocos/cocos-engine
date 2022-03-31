@@ -8,7 +8,8 @@ contact_links:
 
   - name: Cocos Creator forum
     url: https://discuss.cocos2d-x.org/
-    about: Please post on our forum if you want to ask more general questions, make suggestions and feature requests, or initiate discussions. 
-           For Chinese users, you can also visit our Chinese forum [here](https://forum.cocos.org).
+    about: |
+      Please post on our forum if you want to ask more general questions, make suggestions and feature requests, or initiate discussions. 
+      Or you can visit our Chinese forum at https://forum.cocos.org
 
     
