@@ -37,17 +37,14 @@ macro(cc_windows_after_target target_name)
     source_group(TREE ${CC_PROJECT_DIR} PREFIX "Source Files" FILES ${CC_PROJ_SOURCES})
     source_group(TREE ${CC_PROJECT_DIR}/../common PREFIX "Source Files" FILES ${CC_COMMON_SOURCES})
     
-    target_compile_definitions(${target_name} PRIVATE
-        GAME_NAME="${APP_NAME}"
-    )
-
+    
     target_link_libraries(${target_name} cocos2d)
     target_include_directories(${target_name} PRIVATE
         ${CC_PROJECT_DIR}/../common/Classes
     )
 
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${target_name})
-
+    cc_common_after_target(${target_name})
     if(EXISTS ${RES_DIR}/data/jsb-adapter)
         set(bin_dir ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR})
         add_custom_target(copy_resource ALL

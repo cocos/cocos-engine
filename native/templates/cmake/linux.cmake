@@ -32,6 +32,7 @@ macro(cc_linux_after_target target_name)
         ${CC_PROJECT_DIR}/../common/Classes
     )
 
+    
     if(EXISTS ${RES_DIR}/data/jsb-adapter)
         set(bin_dir ${CMAKE_CURRENT_BINARY_DIR})
         add_custom_target(copy_resource ALL
@@ -44,4 +45,5 @@ macro(cc_linux_after_target target_name)
         set_target_properties(copy_resource PROPERTIES FOLDER Utils)
     endif()
 
+    cc_common_after_target(${target_name})
 endmacro()

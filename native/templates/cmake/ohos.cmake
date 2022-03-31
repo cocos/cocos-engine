@@ -5,9 +5,7 @@ macro(cc_ohos_before_target target_name)
 endmacro()
 
 macro(cc_ohos_after_target target_name)
-    target_compile_definitions(${target_name} PRIVATE
-        GAME_NAME="${APP_NAME}"
-    )
+    
     target_link_libraries(${target_name}
         "-Wl,--whole-archive" cocos2d_jni "-Wl,--no-whole-archive"
         cocos2d
@@ -15,4 +13,5 @@ macro(cc_ohos_after_target target_name)
     target_include_directories(${target_name} PRIVATE
         ${CC_PROJECT_DIR}/../common/Classes
     )
+    cc_common_after_target(${target_name})
 endmacro()
