@@ -42,6 +42,7 @@
 #include "ShaderAgent.h"
 #include "SwapchainAgent.h"
 #include "TextureAgent.h"
+#include <cstring>
 
 namespace cc {
 namespace gfx {
