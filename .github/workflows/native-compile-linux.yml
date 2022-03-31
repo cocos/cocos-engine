@@ -18,6 +18,10 @@ jobs:
           python3 -m pip install PyYAML==5.4.1 Cheetah3
           python3 ./native/tools/tojs/genbindings.py
           rm ./native/tools/tojs/userconf.ini
+      - name: Install dependencies
+        run: |
+          apt install libx11-dev -y
+          apt install ninja-build -y
       - name: Compile
         env:
           COCOS_ENGINE_DEV: 1
