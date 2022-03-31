@@ -28,7 +28,6 @@
     #define GAME_NAME "CocosGame";
 #endif
 
-
 #ifndef SCRIPT_XXTEAKEY
     #define SCRIPT_XXTEAKEY "";
 #endif
