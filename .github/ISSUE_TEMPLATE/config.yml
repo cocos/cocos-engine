@@ -1,0 +1,15 @@
+blank_issues_enabled: false
+
+contact_links:
+
+  - name: Cocos Creator documentation repository
+    url: https://github.com/cocos/cocos-docs
+    about: Please report issues with documentation on the Cocos Creator documentation repository.
+
+  - name: Cocos Creator forum
+    url: https://discuss.cocos2d-x.org/
+    about:
+      Please post on our forum if you want to ask more general questions, make suggestions and feature requests, or initiate discussions. 
+      Or you can visit our Chinese forum at https://forum.cocos.org
+
+    
