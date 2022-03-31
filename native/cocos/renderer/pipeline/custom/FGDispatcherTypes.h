@@ -66,11 +66,11 @@ struct Range {
 };
 
 struct AccessStatus {
-    RenderGraph::vertex_descriptor vertID{0xFFFFFFFF};
-    gfx::ShaderStageFlagBit        visibility{gfx::ShaderStageFlagBit::NONE};
-    gfx::MemoryAccessBit           access{gfx::MemoryAccessBit::NONE};
-    PassType                       passType{PassType::RASTER};
-    Range                          range;
+    uint32_t                vertID{0xFFFFFFFF};
+    gfx::ShaderStageFlagBit visibility{gfx::ShaderStageFlagBit::NONE};
+    gfx::MemoryAccessBit    access{gfx::MemoryAccessBit::NONE};
+    PassType                passType{PassType::RASTER};
+    Range                   range;
 };
 
 struct ResourceAccessNode {

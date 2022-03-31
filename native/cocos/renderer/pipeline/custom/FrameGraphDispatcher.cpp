@@ -50,12 +50,14 @@ auto defaultVisibility = gfx::ShaderStageFlagBit::NONE;
 constexpr uint32_t expectStartID = 0;
 constexpr uint32_t invalidID     = 0xFFFFFFFF;
 
+//AccessStatus.vertID : in resourceNode it's resource ID; in barrierNode it's pass ID.
 struct ResourceTransition {
     AccessStatus lastStatus;
     AccessStatus currStatus;
 };
 
-using AccessTable = PmrFlatMap<ResourceHandle /*resourceID*/, ResourceTransition /*last-curr-status*/>;
+using AccessTable    = PmrFlatMap<ResourceHandle /*resourceID*/, ResourceTransition /*last-curr-status*/>;
+using ExternalResMap = PmrFlatMap<PmrString /*resourceName*/, ResourceTransition /*last-curr-status*/>;
 
 // for scoped enum only
 template <typename From, typename To>
@@ -76,12 +78,12 @@ void addAccessNode(RAG &rag, const ResourceGraph &rg, ResourceAccessNode &node, 
 void processRasterPass(RAG &rag, const LGD &lgd, const ResourceGraph &rescGraph, AccessTable &accessRecord, uint32_t passID, const RasterPass &pass);
 void processComputePass(RAG &rag, const LGD &lgd, const ResourceGraph &rescGraph, AccessTable &accessRecord, uint32_t passID, const ComputePass &pass);
 void processCopyPass(RAG &rag, const LGD & /*lgd*/, const ResourceGraph &rescGraph, AccessTable &accessRecord, uint32_t passID, const CopyPass &pass);
-void processMovePass(RAG &rag, const LGD &lgd, const ResourceGraph &rescGraph, AccessTable &accessRecord, uint32_t passID, const MovePass &pass);
 void processRaytracePass(RAG &rag, const LGD &lgd, const ResourceGraph &rescGraph, AccessTable &accessRecord, uint32_t passID, const RaytracePass &pass);
 void processPresentPass(RAG &rag, const LGD &lgd, const ResourceGraph &rescGraph, AccessTable &accessRecord, uint32_t passID, const PresentPass &pass);
 
 // execution order BUT NOT LOGICALLY
 bool isPassExecAdjecent(uint32_t passL, uint32_t passR) { return (passL ^ passR) == 1; }
+bool isStatusDependent(const AccessStatus &lhs, const AccessStatus &rhs);
 
 #pragma endregion predefine
 
@@ -120,9 +122,6 @@ void buildAccessGraph(const RenderGraph &renderGraph, const LayoutGraphData &lgd
             [&](const CopyPass &pass) {
                 processCopyPass(rag, lgd, rescGragh, accessRecord, passID, pass);
             },
-            [&](const MovePass &pass) {
-                processMovePass(rag, lgd, rescGragh, accessRecord, passID, pass);
-            },
             [&](const RaytracePass &pass) {
                 processRaytracePass(rag, lgd, rescGragh, accessRecord, passID, pass);
             },
@@ -139,9 +138,9 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
     using Vertex         = ResourceAccessGraph::vertex_descriptor;
     using Edge           = ResourceAccessGraph::edge_descriptor;
     using Graph          = ResourceAccessGraph;
-    using RescRecordPair = std::pair<Vertex, AccessStatus>;
 
-    explicit BarrierVisitor(const ResourceGraph &rg, BarrierMap &barriers) : barrierMap(barriers), resourceGraph(rg) {
+    explicit BarrierVisitor(const ResourceGraph &rg, BarrierMap &barriers, ExternalResMap &extMap)
+    : barrierMap(barriers), resourceGraph(rg), externalMap(extMap) {
     }
 
     void discover_vertex(Vertex u, const Graph &g) {
@@ -193,7 +192,7 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
             assert(fromIter != fromStatus.end());
             assert(toIter != toStatus.end());
 
-            if ((*fromIter).visibility == (*toIter).visibility && (*fromIter).access == (*toIter).access) {
+            if (!isStatusDependent(*fromIter, *toIter)) {
                 continue;
             }
 
@@ -213,7 +212,7 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
                         (*fromIter).range,
                     },
                     {
-                        to, // next use of resc varies between resources
+                        to,
                         isAdjacent ? (*toIter).visibility : defaultVisibility,
                         isAdjacent ? (*toIter).access : defaultAccess,
                         (*toIter).passType,
@@ -254,23 +253,26 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
             }
 
             if (dstBarrierIter == dstFrontBarriers.end()) {
-                dstFrontBarriers.emplace_back(Barrier{
-                    resourceID,
-                    {
-                        from,
-                        isAdjacent ? (*fromIter).visibility : defaultVisibility,
-                        isAdjacent ? (*fromIter).access : defaultAccess,
-                        (*fromIter).passType,
-                        (*fromIter).range,
-                    },
-                    {
-                        to, // next use of resc varies between resources
-                        (*toIter).visibility,
-                        (*toIter).access,
-                        (*toIter).passType,
-                        (*toIter).range,
-                    },
-                });
+                //if isAdjacent, full barrier already in src rear barriers.
+                if (!isAdjacent) {
+                    dstFrontBarriers.emplace_back(Barrier{
+                        resourceID,
+                        {
+                            from,
+                            defaultVisibility,
+                            defaultAccess,
+                            (*fromIter).passType,
+                            (*fromIter).range,
+                        },
+                        {
+                            to, // next use of resc varies between resources
+                            (*toIter).visibility,
+                            (*toIter).access,
+                            (*toIter).passType,
+                            (*toIter).range,
+                        },
+                    });
+                }
             } else {
                 if (isAdjacent) {
                     //adjacent, barrier should be commit at fromPass, and remove this iter from dstBarriers
@@ -328,52 +330,59 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
             bool     externalRes = get(get(ResourceGraph::Traits, resourceGraph), rescID).hasSideEffects();
             Vertex   vert        = isFrom ? from : to;
             if (externalRes) {
-                auto iter = std::find_if(externalSet.begin(), externalSet.end(), [rescID](const RescRecordPair &pair) {
-                    return pair.second.vertID == rescID;
-                });
-                //first meet external
-                if (iter == externalSet.end()) {
-                    barrierMap[vert].frontBarriers.emplace_back(Barrier{
-                        rescID,
-                        {
-                            invalidID,
-                            gfx::ShaderStageFlagBit::NONE,
-                            gfx::MemoryAccessBit::NONE,
-                            rescAccess.passType,
-                            Range{},
-                        },
-                        {
-                            rescID,
+                const PmrString &resName = get(ResourceGraph::Name, resourceGraph, rescID);
+                auto iter = externalMap.find(resName);
+                //first meet in this frame
+                if (externalResNames.find(resName) == externalResNames.end()) {
+                    //first meet in whole program
+                    if (iter == externalMap.end()) {
+                        externalMap.insert({resName,
+                                            ResourceTransition{
+                                                {
+                                                    expectStartID,
+                                                    rescAccess.visibility,
+                                                    rescAccess.access,
+                                                    rescAccess.passType,
+                                                    rescAccess.range,
+                                                },
+                                                {
+                                                    vert,
+                                                    rescAccess.visibility,
+                                                    rescAccess.access,
+                                                    rescAccess.passType,
+                                                    rescAccess.range,
+                                                },
+                                            }});
+                    } else {
+                        externalMap[resName].lastStatus = externalMap[resName].currStatus;
+                        externalMap[resName].currStatus = {
+                            vert,
                             rescAccess.visibility,
                             rescAccess.access,
                             rescAccess.passType,
                             rescAccess.range,
-                        },
-                    });
+                        };
 
-                    externalSet.insert(
-                        RescRecordPair{vert,
-                                       AccessStatus{
-                                           rescID,
-                                           rescAccess.visibility,
-                                           rescAccess.access,
-                                           rescAccess.passType,
-                                           rescAccess.range,
-                                       }});
-                } else {
-                    if ((*iter).first < vert) {
-                        //[pass: vert] is later access than in iter.
-                        externalSet.erase(iter);
-                        externalSet.insert({
-                            vert,
-                            {
+                        if (isStatusDependent(externalMap[resName].lastStatus, externalMap[resName].currStatus)) {
+                            barrierMap[vert].frontBarriers.emplace_back(Barrier{
                                 rescID,
-                                rescAccess.visibility,
-                                rescAccess.access,
-                                rescAccess.passType,
-                                rescAccess.range,
-                            },
-                        });
+                                (*iter).second.currStatus,
+                                externalMap[resName].currStatus,
+                            });
+                        }
+                    }
+                    externalResNames.insert(resName);
+                } else {
+                    if ((*iter).second.currStatus.vertID < vert) {
+                        //[pass: vert] is later access than in iter.
+                        externalMap[resName].lastStatus = externalMap[resName].currStatus;
+                        externalMap[resName].currStatus = {
+                            invalidID,
+                            rescAccess.visibility,
+                            rescAccess.access,
+                            rescAccess.passType,
+                            rescAccess.range,
+                        };
                     }
                 }
             }
@@ -386,29 +395,6 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
         for (const AccessStatus &rescAccess : toAccess.attachemntStatus) {
             barrierExternalRes(rescAccess, false);
         }
-
-        for (const RescRecordPair &pair : externalSet) {
-            const AccessStatus &status = pair.second;
-            barrierMap[pair.first].rearBarriers.emplace_back(
-                Barrier{
-                    pair.second.vertID,
-                    {
-                        pair.first,
-                        status.visibility,
-                        status.access,
-                        status.passType,
-                        status.range,
-
-                    },
-                    {
-                        invalidID,
-                        gfx::ShaderStageFlagBit::NONE,
-                        gfx::MemoryAccessBit::NONE,
-                        status.passType,
-                        Range{},
-                    },
-                });
-        }
         //---------------------------------------------------------------------------------------------------------
     }
 
@@ -419,11 +405,8 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
     BarrierMap &         barrierMap;
     const ResourceGraph &resourceGraph;
 
-    struct RescComparator {
-        bool operator()(const RescRecordPair &lhs, const RescRecordPair &rhs) const { return lhs.second.vertID < rhs.second.vertID; };
-    };
-
-    std::set<RescRecordPair, RescComparator> externalSet; // last meet
+    ExternalResMap &      externalMap;      //last frame to curr frame status transition
+    PmrFlatSet<PmrString> externalResNames; //first meet in this frame
 };
 
 void FrameGraphDispatcher::buildBarriers() const {
@@ -437,8 +420,10 @@ void FrameGraphDispatcher::buildBarriers() const {
         // : or no extra barrier needed.
         BarrierMap batchedBarriers;
 
+        static ExternalResMap externalMap;
+
         {
-            BarrierVisitor             visitor(resourceGraph, batchedBarriers);
+            BarrierVisitor             visitor(resourceGraph, batchedBarriers, externalMap);
             auto                       colors = rag.colors(scratch);
             boost::queue<AccessVertex> q;
 
@@ -454,6 +439,17 @@ void FrameGraphDispatcher::buildBarriers() const {
 #pragma endregion graphProcess
 
 #pragma region assisstantFuncDefinition
+
+bool isStatusDependent(const AccessStatus &lhs, const AccessStatus &rhs) {
+    bool res = true;
+    if (lhs.passType == rhs.passType &&
+        lhs.visibility == rhs.visibility &&
+        lhs.access == gfx::MemoryAccessBit::READ_ONLY &&
+        rhs.access == gfx::MemoryAccessBit::READ_ONLY) {
+        res = false;
+    }
+    return res;
+}
 
 void addAccessNode(RAG &rag, const ResourceGraph &rg, ResourceAccessNode &node, InputStatusTuple status, const Range &range) {
     // std::tie(passType, rescName, visibility, access) ;
@@ -653,10 +649,6 @@ void processCopyPass(RAG &rag, const LGD & /*lgd*/, const ResourceGraph &rescGra
     }
 }
 
-void processMovePass(RAG &rag, const LGD &lgd, const ResourceGraph &rescGraph, AccessTable &accessRecord, uint32_t passID, const MovePass &pass) {
-    // do nothing: all move passes should have been aliased before barrier happens.
-}
-
 void processRaytracePass(RAG &rag, const LGD &lgd, const ResourceGraph &rescGraph, AccessTable &accessRecord, uint32_t passID, const RaytracePass &pass) {
     auto  vertID    = add_vertex(rag, passID);
     auto &node      = get(RAG::AccessNode, rag, vertID);
@@ -700,7 +692,6 @@ void processPresentPass(RAG &rag, const LGD &lgd, const ResourceGraph &rescGraph
         auto res = add_edge(expectStartID, vertID, rag);
         CC_ENSURES(res.second);
     }
-    rag.presentPasses.push_back(vertID);
 }
 
 #pragma endregion assisstantFuncDefinition
