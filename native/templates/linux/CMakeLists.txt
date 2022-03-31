@@ -40,7 +40,7 @@ COMPILE_FLAGS "-pthread"
 LINK_FLAGS "-pthread -lsndio ")
 
 
-target_link_libraries(${APP_NAME} dl cocos2d)
+target_link_libraries(${APP_NAME} dl ${ENGINE_NAME})
 target_include_directories(${APP_NAME} PRIVATE
     ${RES_DIR}/assets/proj
 )

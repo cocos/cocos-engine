@@ -27,12 +27,12 @@ jobs:
           cd  $COCOS2DX_ROOT/templates/linux
           mkdir -p build-linux/proj
           touch build-linux/proj/cfg.cmake
-          echo "set(CC_USE_VULKAN OFF)" >> build-mac/proj/cfg.cmake
-          echo "set(CC_USE_GLES2 OFF)" >> build-mac/proj/cfg.cmake
-          echo "set(CC_USE_GLES3 ON)" >> build-mac/proj/cfg.cmake
-          echo "set(CC_USE_METAL OFF)" >> build-mac/proj/cfg.cmake
-          echo "set(USE_WEBSOCKET_SERVER OFF)" >> build-mac/proj/cfg.cmake
-          echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-mac/proj/cfg.cmake
+          echo "set(CC_USE_VULKAN OFF)" >> build-linux/proj/cfg.cmake
+          echo "set(CC_USE_GLES2 OFF)" >> build-linux/proj/cfg.cmake
+          echo "set(CC_USE_GLES3 ON)" >> build-linux/proj/cfg.cmake
+          echo "set(CC_USE_METAL OFF)" >> build-linux/proj/cfg.cmake
+          echo "set(USE_WEBSOCKET_SERVER OFF)" >> build-linux/proj/cfg.cmake
+          echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-linux/proj/cfg.cmake
           mkdir build-linux/assets
 
           RES_DIR=$COCOS2DX_ROOT/templates/linux/build-linux
