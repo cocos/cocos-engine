@@ -6,22 +6,20 @@ body:
 - type: markdown
   attributes:
     value: |
+      Please write a descriptive issue title above.
+      
       **Before You Start:**
       - Search [open](https://github.com/cocos/cocos-engine/issues) and [closed](https://github.com/cocos/cocos-engine/issues?q=is%3Aissue+is%3Aclosed) issues to ensure it has not already been reported.
       - Verify that your issue is reproducible in the latest stable version of [Cocos Creator](https://www.cocos.com/creator).
 
-      For usage questions, please use the following resources:
+      **For usage questions, please use the following resources:**
       - Read Cocos Creator [Docs](https://docs.cocos.com/creator/manual/zh/)
       - Check our [API](https://docs.cocos.com/creator/api/en/#/)
       - Watch our [Video Tutorials](https://www.youtube.com/cocosengine)
       - Ask on our [forum](https://discuss.cocos2d-x.org/)
 
-- type: markdown
-  attributes:
-    value: |
-      Thanks for taking the time to fill out this form! 
+      **Thanks for taking the time to fill out this form!** 
       
-      Please write a descriptive issue title above.
 
 - type: input
   attributes:
@@ -66,6 +64,7 @@ body:
     label: Steps to reproduce
     description: |
       List of steps or sample code that reproduces the issue. If you include a minimal reproduction project below, you can detail how to use it here. Clear and concise reproduction instructions are important for us to be able to triage your issue in a timely manner.
+      
       Note that you can use [Markdown](https://guides.github.com/features/mastering-markdown/) to format lists and code.
   validations:
     required: true
