@@ -6,10 +6,16 @@ import { Quat } from '../../math';
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}QuatTrack`)
 export class QuatTrack extends SingleChannelTrack<QuatCurve> {
+    /**
+     * @internal
+     */
     protected createCurve () {
         return new QuatCurve();
     }
 
+    /**
+     * @internal
+     */
     public [createEvalSymbol] () {
         return new QuatTrackEval(this.channels()[0].curve);
     }
