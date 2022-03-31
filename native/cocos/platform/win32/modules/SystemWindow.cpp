@@ -24,10 +24,9 @@
 ****************************************************************************/
 
 #include "platform/win32/modules/SystemWindow.h"
-
-#include "base/Log.h"
-// SDL headers
 #include <functional>
+#include "base/Log.h"
+#include "sdl2/SDL_clipboard.h"
 #include "bindings/event/EventDispatcher.h"
 #include "platform/IEventDispatch.h"
 #include "platform/win32/WindowsPlatform.h"

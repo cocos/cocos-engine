@@ -22,10 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-
-#include "CocosApplication.h"
-
 #include <string>
+#include "CocosApplication.h"
+#include "renderer/pipeline/GlobalDescriptorSetManager.h"
 
 namespace cc {
 class BaseGame : public CocosApplication {
@@ -47,6 +46,7 @@ public:
 
     BaseGame() = default;
     int init() override {
+        cc::pipeline::GlobalDSManager::setDescriptorSetLayout();
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX || CC_PLATFORM == CC_PLATFORM_MAC_OSX
         // override default value
         //_windowInfo.x      = _windowInfo.x == -1 ? 0 : _windowInfo.x;

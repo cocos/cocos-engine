@@ -55,7 +55,7 @@ macro(cc_ios_after_target target_name)
         XCODE_ATTRIBUTE_SKIP_INSTALL NO
         XCODE_ATTRIBUTE_INSTALL_PATH "$(LOCAL_APPS_DIR)"
     )
-    target_link_libraries(${target_name} cocos2d)
+    target_link_libraries(${target_name} ${ENGINE_NAME})
 
     target_compile_definitions(${target_name} PRIVATE
         GAME_NAME="${APP_NAME}"
@@ -104,7 +104,7 @@ macro(cc_mac_after_target target_name)
     target_compile_definitions(${target_name} PRIVATE
         GAME_NAME="${APP_NAME}"
     )
-    target_link_libraries(${target_name} cocos2d)
+    target_link_libraries(${target_name} ${ENGINE_NAME})
     target_include_directories(${target_name} PRIVATE
         ${CC_PROJECT_DIR}/../common/Classes
     )

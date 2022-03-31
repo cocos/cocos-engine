@@ -23,7 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <thread>
 #include "GLES2GPUObjects.h"
+#include "base/StringUtil.h"
 
 #if CC_SWAPPY_ENABLED
     #include "swappy/swappyGL.h"
@@ -134,7 +136,7 @@ bool GLES2GPUContext::initialize(GLES2GPUStateCache *stateCache, GLES2GPUConstan
         EGL_NONE};
 
     int               numConfig{0};
-    vector<EGLConfig> eglConfigs;
+    ccstd::vector<EGLConfig> eglConfigs;
 
     EGL_CHECK(success = eglChooseConfig(eglDisplay, defaultAttribs, nullptr, 0, &numConfig));
     if (success) {

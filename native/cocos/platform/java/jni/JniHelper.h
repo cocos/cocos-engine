@@ -156,7 +156,7 @@ public:
         return ret;
     }
 
-    template <typename... Ts
+    template <typename... Ts>
     static jlong callObjectLongMethod(jobject            object,
                                       const std::string &className,
                                       const std::string &methodName,

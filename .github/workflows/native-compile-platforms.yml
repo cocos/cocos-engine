@@ -1,9 +1,6 @@
 name: <Native> Compile
 
-on:
-  pull_request:
-    paths:
-    - 'native/**'
+on: [pull_request]
 
 jobs:
   compile_windows:

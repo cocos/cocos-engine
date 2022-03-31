@@ -24,12 +24,9 @@
 ****************************************************************************/
 
 #include "platform/empty/modules/SystemWindow.h"
-
+#include <functional>
 #include "base/Log.h"
 #include "base/Macros.h"
-
-// SDL headers
-#include <functional>
 #include "bindings/event/EventDispatcher.h"
 #include "platform/IEventDispatch.h"
 #include "platform/empty/EmptyPlatform.h"

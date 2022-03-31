@@ -10,8 +10,8 @@ macro(cc_android_after_target target_name)
         GAME_NAME="${APP_NAME}"
     )
     target_link_libraries(${target_name}
-        "-Wl,--whole-archive" cocos2d_jni "-Wl,--no-whole-archive"
-        cocos2d
+        "-Wl,--whole-archive" cocos_jni "-Wl,--no-whole-archive"
+        ${ENGINE_NAME}
     )
     target_include_directories(${target_name} PRIVATE
         ${CC_PROJECT_DIR}/../common/Classes

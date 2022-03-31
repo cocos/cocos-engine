@@ -34,7 +34,7 @@
 
 #if CC_SWAPPY_ENABLED
     #include "platform/android/AndroidPlatform.h"
-    #include "swappy/swappyVK.h"
+    #include "swappy/swappyVk.h"
     #include "swappy/swappy_common.h"
 #endif
 

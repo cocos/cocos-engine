@@ -41,7 +41,7 @@ macro(cc_windows_after_target target_name)
         GAME_NAME="${APP_NAME}"
     )
 
-    target_link_libraries(${target_name} cocos2d)
+    target_link_libraries(${target_name} ${ENGINE_NAME})
     target_include_directories(${target_name} PRIVATE
         ${CC_PROJECT_DIR}/../common/Classes
     )
