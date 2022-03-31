@@ -49,8 +49,8 @@ using ResourceHandle   = ResourceGraph::vertex_descriptor;
 auto defaultAccess     = gfx::MemoryAccessBit::NONE;
 auto defaultVisibility = gfx::ShaderStageFlagBit::NONE;
 
-constexpr uint32_t expectStartID = 0;
-constexpr uint32_t invalidID     = 0xFFFFFFFF;
+constexpr uint32_t EXPECT_START_ID = 0;
+constexpr uint32_t INVALID_ID      = 0xFFFFFFFF;
 
 //AccessStatus.vertID : in resourceNode it's resource ID; in barrierNode it's pass ID.
 struct ResourceTransition {
@@ -73,7 +73,7 @@ public:
 
 static auto toGfxAccess = GfxTypeConverter<AccessType, gfx::MemoryAccessBit>();
 
-AccessVertex            dependencyCheck(RAG &rag, AccessTable &accessRecord, ResourceAccessNode &node, AccessVertex vertexID, const InputStatusTuple &status);
+AccessVertex            dependencyCheck(RAG &rag, AccessTable &accessRecord, AccessVertex curVertID, const InputStatusTuple &status);
 gfx::ShaderStageFlagBit getVisibilityByDescName(const LGD &lgd, uint32_t passID, const PmrString &slotName);
 
 void addAccessNode(RAG &rag, const ResourceGraph &rg, ResourceAccessNode &node, InputStatusTuple status, const Range &range);
@@ -109,8 +109,8 @@ void buildAccessGraph(const RenderGraph &renderGraph, const LayoutGraphData &lgd
     rag.resourceNames.reserve(128);
     rag.resourceIndex.reserve(128);
 
-    auto startID = add_vertex(rag, invalidID);
-    CC_EXPECTS(startID == expectStartID);
+    auto startID = add_vertex(rag, INVALID_ID);
+    CC_EXPECTS(startID == EXPECT_START_ID);
 
     for (const auto passID : makeRange(vertices(renderGraph))) {
         visitObject(
@@ -341,7 +341,7 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
                         externalMap.insert({resName,
                                             ResourceTransition{
                                                 {
-                                                    expectStartID,
+                                                    EXPECT_START_ID,
                                                     rescAccess.visibility,
                                                     rescAccess.access,
                                                     rescAccess.passType,
@@ -379,7 +379,7 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
                         //[pass: vert] is later access than in iter.
                         externalMap[resName].lastStatus = externalMap[resName].currStatus;
                         externalMap[resName].currStatus = {
-                            invalidID,
+                            INVALID_ID,
                             rescAccess.visibility,
                             rescAccess.access,
                             rescAccess.passType,
@@ -431,7 +431,7 @@ void FrameGraphDispatcher::buildBarriers() const {
 
             boost::breadth_first_visit(
                 rag,
-                expectStartID,
+                EXPECT_START_ID,
                 q,
                 visitor,
                 get(colors, rag));
@@ -478,13 +478,13 @@ void addAccessNode(RAG &rag, const ResourceGraph &rg, ResourceAccessNode &node, 
     });
 }
 
-AccessVertex dependencyCheck(RAG &rag, AccessTable &accessRecord, ResourceAccessNode &node, AccessVertex curVertID, const InputStatusTuple &status) {
+AccessVertex dependencyCheck(RAG &rag, AccessTable &accessRecord, AccessVertex curVertID, const InputStatusTuple &status) {
     PassType                passType   = std::get<0>(status);
     const PmrString &       rescName   = std::get<1>(status);
     gfx::ShaderStageFlagBit visibility = std::get<2>(status);
     gfx::MemoryAccessBit    access     = std::get<3>(status);
 
-    AccessVertex lastVertID = invalidID;
+    AccessVertex lastVertID = INVALID_ID;
     CC_EXPECTS(rag.resourceIndex.find(rescName) != rag.resourceIndex.end());
     auto resourceID = rag.resourceIndex[rescName];
     auto iter       = accessRecord.find(resourceID);
@@ -498,7 +498,7 @@ AccessVertex dependencyCheck(RAG &rag, AccessTable &accessRecord, ResourceAccess
         ResourceTransition &trans = iter->second;
         if (access == gfx::MemoryAccessBit::READ_ONLY && trans.currStatus.access == gfx::MemoryAccessBit::READ_ONLY) {
             // current READ, no WRITE before in this frame, it's expected to be external.
-            bool dirtyExternalRes = trans.lastStatus.vertID == invalidID;
+            bool dirtyExternalRes = trans.lastStatus.vertID == INVALID_ID;
             if (!dirtyExternalRes) {
                 auto res = add_edge(trans.lastStatus.vertID, curVertID, rag);
                 CC_ENSURES(res.second);
@@ -560,8 +560,8 @@ void processRasterPass(RAG &rag, const LGD &lgd, const ResourceGraph &rescGraph,
         gfx::ShaderStageFlagBit visibility = getVisibilityByDescName(lgd, passID, pair.first);
         auto                    access     = toGfxAccess(rasterView.accessType);
         addAccessNode(rag, rescGraph, node, InputStatusTuple{PassType::RASTER, rasterView.slotName, visibility, access}, Range{});
-        auto lastVertId = dependencyCheck(rag, accessRecord, node, vertID, InputStatusTuple{PassType::RASTER, rasterView.slotName, visibility, access});
-        if (lastVertId != invalidID) {
+        auto lastVertId = dependencyCheck(rag, accessRecord, vertID, InputStatusTuple{PassType::RASTER, rasterView.slotName, visibility, access});
+        if (lastVertId != INVALID_ID) {
             auto res = add_edge(lastVertId, vertID, rag);
             CC_ENSURES(res.second);
             dependent = true;
@@ -573,8 +573,8 @@ void processRasterPass(RAG &rag, const LGD &lgd, const ResourceGraph &rescGraph,
         for (const auto &computeView : values) {
             auto access = toGfxAccess(computeView.accessType);
             addAccessNode(rag, rescGraph, node, InputStatusTuple{PassType::COMPUTE, computeView.name, visibility, access}, Range{});
-            auto lastVertId = dependencyCheck(rag, accessRecord, node, vertID, InputStatusTuple{PassType::COMPUTE, computeView.name, visibility, access});
-            if (lastVertId != invalidID) {
+            auto lastVertId = dependencyCheck(rag, accessRecord, vertID, InputStatusTuple{PassType::COMPUTE, computeView.name, visibility, access});
+            if (lastVertId != INVALID_ID) {
                 auto res = add_edge(lastVertId, vertID, rag);
                 CC_ENSURES(res.second);
                 dependent = true;
@@ -582,7 +582,7 @@ void processRasterPass(RAG &rag, const LGD &lgd, const ResourceGraph &rescGraph,
         }
     }
     if (!dependent) {
-        auto res = add_edge(expectStartID, vertID, rag);
+        auto res = add_edge(EXPECT_START_ID, vertID, rag);
         CC_ENSURES(res.second);
     }
 }
@@ -597,8 +597,8 @@ void processComputePass(RAG &rag, const LGD &lgd, const ResourceGraph &rescGraph
         for (const auto &computeView : values) {
             auto access = toGfxAccess(computeView.accessType);
             addAccessNode(rag, rescGraph, node, InputStatusTuple{PassType::COMPUTE, computeView.name, visibility, access}, Range{});
-            auto lastVertId = dependencyCheck(rag, accessRecord, node, vertID, InputStatusTuple{PassType::COMPUTE, computeView.name, visibility, access});
-            if (lastVertId != invalidID) {
+            auto lastVertId = dependencyCheck(rag, accessRecord, vertID, InputStatusTuple{PassType::COMPUTE, computeView.name, visibility, access});
+            if (lastVertId != INVALID_ID) {
                 auto res = add_edge(lastVertId, vertID, rag);
                 CC_ENSURES(res.second);
                 dependent = true;
@@ -606,7 +606,7 @@ void processComputePass(RAG &rag, const LGD &lgd, const ResourceGraph &rescGraph
         }
     }
     if (!dependent) {
-        auto res = add_edge(expectStartID, vertID, rag);
+        auto res = add_edge(EXPECT_START_ID, vertID, rag);
         CC_ENSURES(res.second);
     }
 }
@@ -632,21 +632,21 @@ void processCopyPass(RAG &rag, const LGD & /*lgd*/, const ResourceGraph &rescGra
         };
         addAccessNode(rag, rescGraph, node, InputStatusTuple{PassType::COPY, pair.source, defaultVisibility, gfx::MemoryAccessBit::READ_ONLY}, sourceRange);
         addAccessNode(rag, rescGraph, node, InputStatusTuple{PassType::COPY, pair.target, defaultVisibility, gfx::MemoryAccessBit::WRITE_ONLY}, targetRange);
-        uint32_t lastVertSrc = dependencyCheck(rag, accessRecord, node, vertID, InputStatusTuple{PassType::COPY, pair.source, defaultVisibility, gfx::MemoryAccessBit::READ_ONLY});
-        if (lastVertSrc != invalidID) {
+        uint32_t lastVertSrc = dependencyCheck(rag, accessRecord, vertID, InputStatusTuple{PassType::COPY, pair.source, defaultVisibility, gfx::MemoryAccessBit::READ_ONLY});
+        if (lastVertSrc != INVALID_ID) {
             auto res = add_edge(lastVertSrc, vertID, rag);
             CC_ENSURES(res.second);
             dependent = true;
         }
-        uint32_t lastVertDst = dependencyCheck(rag, accessRecord, node, vertID, InputStatusTuple{PassType::COPY, pair.source, defaultVisibility, gfx::MemoryAccessBit::WRITE_ONLY});
-        if (lastVertDst != invalidID) {
+        uint32_t lastVertDst = dependencyCheck(rag, accessRecord, vertID, InputStatusTuple{PassType::COPY, pair.source, defaultVisibility, gfx::MemoryAccessBit::WRITE_ONLY});
+        if (lastVertDst != INVALID_ID) {
             auto res = add_edge(lastVertDst, vertID, rag);
             CC_ENSURES(res.second);
             dependent = true;
         }
     }
     if (!dependent) {
-        auto res = add_edge(expectStartID, vertID, rag);
+        auto res = add_edge(EXPECT_START_ID, vertID, rag);
         CC_ENSURES(res.second);
     }
 }
@@ -661,8 +661,8 @@ void processRaytracePass(RAG &rag, const LGD &lgd, const ResourceGraph &rescGrap
         for (const auto &computeView : values) {
             auto access = toGfxAccess(computeView.accessType);
             addAccessNode(rag, rescGraph, node, InputStatusTuple{PassType::COMPUTE, computeView.name, visibility, access}, Range{});
-            auto lastVertId = dependencyCheck(rag, accessRecord, node, vertID, InputStatusTuple{PassType::COMPUTE, computeView.name, visibility, access});
-            if (lastVertId != invalidID) {
+            auto lastVertId = dependencyCheck(rag, accessRecord, vertID, InputStatusTuple{PassType::COMPUTE, computeView.name, visibility, access});
+            if (lastVertId != INVALID_ID) {
                 auto res = add_edge(lastVertId, vertID, rag);
                 CC_ENSURES(res.second);
                 dependent = true;
@@ -670,7 +670,7 @@ void processRaytracePass(RAG &rag, const LGD &lgd, const ResourceGraph &rescGrap
         }
     }
     if (!dependent) {
-        auto res = add_edge(expectStartID, vertID, rag);
+        auto res = add_edge(EXPECT_START_ID, vertID, rag);
         CC_ENSURES(res.second);
     }
 }
@@ -681,9 +681,9 @@ void processPresentPass(RAG &rag, const LGD &lgd, const ResourceGraph &rescGraph
     bool  dependent = false;
     for (const auto &pair : pass.presents) {
         gfx::ShaderStageFlagBit visibility = getVisibilityByDescName(lgd, passID, pair.first);
-        auto                    lastVertId = dependencyCheck(rag, accessRecord, node, vertID, InputStatusTuple{PassType::PRESENT, pair.first, visibility, gfx::MemoryAccessBit::WRITE_ONLY});
+        auto                    lastVertId = dependencyCheck(rag, accessRecord, vertID, InputStatusTuple{PassType::PRESENT, pair.first, visibility, gfx::MemoryAccessBit::WRITE_ONLY});
         addAccessNode(rag, rescGraph, node, InputStatusTuple{PassType::PRESENT, pair.first, defaultVisibility, gfx::MemoryAccessBit::WRITE_ONLY}, Range{});
-        if (lastVertId != invalidID) {
+        if (lastVertId != INVALID_ID) {
             auto res = add_edge(lastVertId, vertID, rag);
             CC_ENSURES(res.second);
             dependent = true;
@@ -691,7 +691,7 @@ void processPresentPass(RAG &rag, const LGD &lgd, const ResourceGraph &rescGraph
     }
     if (!dependent) {
         // LOG("~~~~~~~~~~ Found an empty pipeline! ~~~~~~~~~~");
-        auto res = add_edge(expectStartID, vertID, rag);
+        auto res = add_edge(EXPECT_START_ID, vertID, rag);
         CC_ENSURES(res.second);
     }
 }
