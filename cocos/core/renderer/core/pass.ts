@@ -615,6 +615,10 @@ export class Pass {
         }
     }
 
+    public setDescriptorSet (ds: DescriptorSet) {
+        this._descriptorSet = ds;
+    }
+
     protected _doInit (info: IPassInfoFull, copyDefines = false): void {
         this._initNative();
         this._setPriority(RenderPriority.DEFAULT);

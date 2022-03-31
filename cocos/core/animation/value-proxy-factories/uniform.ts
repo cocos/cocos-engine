@@ -33,7 +33,7 @@ import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Material } from '../../assets/material';
 import { SpriteFrame } from '../../../2d/assets/sprite-frame';
 import { TextureBase } from '../../assets/texture-base';
-import { Type } from '../../gfx';
+import { DescriptorSetInfo, Type } from '../../gfx';
 import { Pass } from '../../renderer/core/pass';
 import { getDefaultFromType } from '../../renderer/core/pass-utils';
 import { IValueProxy, IValueProxyFactory } from '../value-proxy';
@@ -118,6 +118,11 @@ export class UniformProxyFactory implements IValueProxyFactory {
                     if (!value) { value = dftTex; }
                     const texture = value.getGFXTexture();
                     if (!texture || !texture.width || !texture.height) { return; }
+                    if (!pass.descriptorSet.layout) {
+                        const _dsInfo = new DescriptorSetInfo(null!);
+                        _dsInfo.layout = pass.localSetLayout;
+                        pass.setDescriptorSet(legacyCC.game._gfxDevice.createDescriptorSet(_dsInfo));
+                    }
                     pass.bindTexture(binding, texture);
                     if (value instanceof TextureBase) {
                         pass.bindSampler(binding, legacyCC.game._gfxDevice.getSampler(value.getSamplerInfo()));
