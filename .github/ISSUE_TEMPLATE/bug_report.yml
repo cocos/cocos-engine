@@ -62,5 +62,5 @@ body:
   attributes:
     label: Minimal reproduction project
     description: |
-      A small Cocos project which reproduces the issue. Highly recommended to speed up troubleshooting.
+      A small Cocos Creator project which reproduces the issue. Highly recommended to speed up troubleshooting.
       Drag and drop a ZIP archive to upload it.
