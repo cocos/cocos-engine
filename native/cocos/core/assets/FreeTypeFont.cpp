@@ -27,11 +27,7 @@
 ****************************************************************************/
 
 #include "FreeTypeFont.h"
-#if (CC_PLATFORM == CC_PLATFORM_LINUX)
-#include <freetype2/ft2build.h>
-#else
 #include <freetype/ft2build.h>
-#endif
 #include FT_FREETYPE_H
 #include <cstdint>
 #include "base/Log.h"
