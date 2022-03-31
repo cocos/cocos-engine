@@ -53,7 +53,7 @@ body:
   attributes:
     label: Steps to reproduce
     description: |
-      List of steps or sample code that reproduces the issue. Having reproducible issues is a prerequisite for contributors to be able to solve them.
+      List of steps or sample code that reproduces the issue. If you include a minimal reproduction project below, you can detail how to use it here. Clear and concise reproduction instructions are important for us to be able to triage your issue in a timely manner.
       Note that you can use [Markdown](https://guides.github.com/features/mastering-markdown/) to format lists and code.
   validations:
     required: true
