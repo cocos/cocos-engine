@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.8)
 
 set(APP_NAME "game" CACHE STRING "Project Name")
+set(CMAKE_C_COMPILER "clang")
+set(CMAKE_CXX_COMPILER "clang++")
 project(${APP_NAME} CXX)
 
 include(${CMAKE_CURRENT_LIST_DIR}/../common/CMakeLists.txt)
@@ -10,8 +12,6 @@ set(LIB_NAME ${APP_NAME})
 set(UI_RESOURCES)
 set(PROJ_SOURCES)
 
-set(CMAKE_C_COMPILER "/usr/bin/clang")
-set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
 #set(CMAKE_SYSTEM_NAME Linux)
 
 ADD_DEFINITIONS(-DV8_COMPRESS_POINTERS)

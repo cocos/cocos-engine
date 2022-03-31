@@ -51,7 +51,7 @@ public:
         return reinterpret_cast<T *>(doAllocate(count * sizeof(T), alignment));
     }
 
-    inline ptrdiff_t allocateToOffset(size_t size, size_t alignment = 1) noexcept {
+    inline std::ptrdiff_t allocateToOffset(size_t size, size_t alignment = 1) noexcept {
         return reinterpret_cast<intptr_t>(doAllocate(size, alignment)) - reinterpret_cast<intptr_t>(_buffer);
     }
 
