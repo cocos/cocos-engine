@@ -13045,6 +13045,27 @@ static bool js_assets_SimpleTexture_mipmapLevel(se::State& s) // NOLINT(readabil
 }
 SE_BIND_FUNC_AS_PROP_GET(js_assets_SimpleTexture_mipmapLevel)
 
+static bool js_assets_SimpleTexture_setMipRange(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::SimpleTexture>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_SimpleTexture_setMipRange : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<unsigned int, false> arg0 = {};
+        HolderType<unsigned int, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_SimpleTexture_setMipRange : Error processing arguments");
+        cobj->setMipRange(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_assets_SimpleTexture_setMipRange)
+
 static bool js_assets_SimpleTexture_setMipmapLevel(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::SimpleTexture>(s);
@@ -13151,6 +13172,7 @@ bool js_register_assets_SimpleTexture(se::Object* obj) // NOLINT(readability-ide
     cls->defineProperty("mipmapLevel", _SE(js_assets_SimpleTexture_mipmapLevel_asGetter), _SE(js_assets_SimpleTexture_setMipmapLevel_asSetter));
     cls->defineFunction("assignImage", _SE(js_assets_SimpleTexture_assignImage));
     cls->defineFunction("checkTextureLoaded", _SE(js_assets_SimpleTexture_checkTextureLoaded));
+    cls->defineFunction("setMipRange", _SE(js_assets_SimpleTexture_setMipRange));
     cls->defineFunction("updateImage", _SE(js_assets_SimpleTexture_updateImage));
     cls->defineFunction("updateMipmaps", _SE(js_assets_SimpleTexture_updateMipmaps));
     cls->defineFunction("uploadData", _SE(js_assets_SimpleTexture_uploadData));
@@ -13429,6 +13451,60 @@ static bool js_assets_ITexture2DCreateInfo_set_mipmapLevel(se::State& s) // NOLI
 }
 SE_BIND_PROP_SET(js_assets_ITexture2DCreateInfo_set_mipmapLevel)
 
+static bool js_assets_ITexture2DCreateInfo_get_baseLevel(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::ITexture2DCreateInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_ITexture2DCreateInfo_get_baseLevel : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->baseLevel, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->baseLevel, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_ITexture2DCreateInfo_get_baseLevel)
+
+static bool js_assets_ITexture2DCreateInfo_set_baseLevel(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::ITexture2DCreateInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_ITexture2DCreateInfo_set_baseLevel : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->baseLevel, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_ITexture2DCreateInfo_set_baseLevel : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_ITexture2DCreateInfo_set_baseLevel)
+
+static bool js_assets_ITexture2DCreateInfo_get_maxLevel(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::ITexture2DCreateInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_ITexture2DCreateInfo_get_maxLevel : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->maxLevel, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->maxLevel, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_ITexture2DCreateInfo_get_maxLevel)
+
+static bool js_assets_ITexture2DCreateInfo_set_maxLevel(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::ITexture2DCreateInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_ITexture2DCreateInfo_set_maxLevel : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->maxLevel, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_ITexture2DCreateInfo_set_maxLevel : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_ITexture2DCreateInfo_set_maxLevel)
+
 
 template<>
 bool sevalue_to_native(const se::Value &from, cc::ITexture2DCreateInfo * to, se::Object *ctx)
@@ -13457,6 +13533,14 @@ bool sevalue_to_native(const se::Value &from, cc::ITexture2DCreateInfo * to, se:
     json->getProperty("mipmapLevel", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->mipmapLevel), ctx);
+    }
+    json->getProperty("baseLevel", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->baseLevel), ctx);
+    }
+    json->getProperty("maxLevel", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->maxLevel), ctx);
     }
     return ok;
 }
@@ -13505,6 +13589,12 @@ static bool js_assets_ITexture2DCreateInfo_constructor(se::State& s) // NOLINT(r
     if (argc > 3 && !args[3].isUndefined()) {
         ok &= sevalue_to_native(args[3], &(cobj->mipmapLevel), nullptr);
     }
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(cobj->baseLevel), nullptr);
+    }
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(cobj->maxLevel), nullptr);
+    }
 
     if(!ok) {
         delete ptr;
@@ -13530,6 +13620,8 @@ bool js_register_assets_ITexture2DCreateInfo(se::Object* obj) // NOLINT(readabil
     cls->defineProperty("height", _SE(js_assets_ITexture2DCreateInfo_get_height), _SE(js_assets_ITexture2DCreateInfo_set_height));
     cls->defineProperty("format", _SE(js_assets_ITexture2DCreateInfo_get_format), _SE(js_assets_ITexture2DCreateInfo_set_format));
     cls->defineProperty("mipmapLevel", _SE(js_assets_ITexture2DCreateInfo_get_mipmapLevel), _SE(js_assets_ITexture2DCreateInfo_set_mipmapLevel));
+    cls->defineProperty("baseLevel", _SE(js_assets_ITexture2DCreateInfo_get_baseLevel), _SE(js_assets_ITexture2DCreateInfo_set_baseLevel));
+    cls->defineProperty("maxLevel", _SE(js_assets_ITexture2DCreateInfo_get_maxLevel), _SE(js_assets_ITexture2DCreateInfo_set_maxLevel));
     cls->defineFinalizeFunction(_SE(js_cc_ITexture2DCreateInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cc::ITexture2DCreateInfo>(cls);
@@ -13584,7 +13676,39 @@ static bool js_assets_Texture2D_create(se::State& s) // NOLINT(readability-ident
         cobj->create(arg0.value(), arg1.value(), arg2.value(), arg3.value());
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
+    if (argc == 5) {
+        HolderType<unsigned int, false> arg0 = {};
+        HolderType<unsigned int, false> arg1 = {};
+        HolderType<cc::PixelFormat, false> arg2 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_Texture2D_create : Error processing arguments");
+        cobj->create(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value());
+        return true;
+    }
+    if (argc == 6) {
+        HolderType<unsigned int, false> arg0 = {};
+        HolderType<unsigned int, false> arg1 = {};
+        HolderType<cc::PixelFormat, false> arg2 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        HolderType<unsigned int, false> arg5 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_Texture2D_create : Error processing arguments");
+        cobj->create(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);
     return false;
 }
 SE_BIND_FUNC(js_assets_Texture2D_create)
@@ -13635,6 +13759,34 @@ static bool js_assets_Texture2D_getGfxTextureCreateInfo(se::State& s) // NOLINT(
     return false;
 }
 SE_BIND_FUNC(js_assets_Texture2D_getGfxTextureCreateInfo)
+
+static bool js_assets_Texture2D_getGfxTextureViewCreateInfo(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Texture2D>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_Texture2D_getGfxTextureViewCreateInfo : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 4) {
+        HolderType<cc::gfx::Texture*, false> arg0 = {};
+        HolderType<cc::gfx::Format, false> arg1 = {};
+        HolderType<unsigned int, false> arg2 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_Texture2D_getGfxTextureViewCreateInfo : Error processing arguments");
+        cc::gfx::TextureViewInfo result = cobj->getGfxTextureViewCreateInfo(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_Texture2D_getGfxTextureViewCreateInfo : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
+    return false;
+}
+SE_BIND_FUNC(js_assets_Texture2D_getGfxTextureViewCreateInfo)
 
 static bool js_assets_Texture2D_getHtmlElementObj(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -13841,6 +13993,7 @@ bool js_register_assets_Texture2D(se::Object* obj) // NOLINT(readability-identif
     cls->defineFunction("create", _SE(js_assets_Texture2D_create));
     cls->defineFunction("description", _SE(js_assets_Texture2D_description));
     cls->defineFunction("getGfxTextureCreateInfo", _SE(js_assets_Texture2D_getGfxTextureCreateInfo));
+    cls->defineFunction("getGfxTextureViewCreateInfo", _SE(js_assets_Texture2D_getGfxTextureViewCreateInfo));
     cls->defineFunction("getHtmlElementObj", _SE(js_assets_Texture2D_getHtmlElementObj));
     cls->defineFunction("getImage", _SE(js_assets_Texture2D_getImage));
     cls->defineFunction("getMipmaps", _SE(js_assets_Texture2D_getMipmaps));
@@ -14667,6 +14820,34 @@ static bool js_assets_TextureCube_getGfxTextureCreateInfo(se::State& s) // NOLIN
 }
 SE_BIND_FUNC(js_assets_TextureCube_getGfxTextureCreateInfo)
 
+static bool js_assets_TextureCube_getGfxTextureViewCreateInfo(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureCube>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureCube_getGfxTextureViewCreateInfo : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 4) {
+        HolderType<cc::gfx::Texture*, false> arg0 = {};
+        HolderType<cc::gfx::Format, false> arg1 = {};
+        HolderType<unsigned int, false> arg2 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_TextureCube_getGfxTextureViewCreateInfo : Error processing arguments");
+        cc::gfx::TextureViewInfo result = cobj->getGfxTextureViewCreateInfo(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_TextureCube_getGfxTextureViewCreateInfo : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
+    return false;
+}
+SE_BIND_FUNC(js_assets_TextureCube_getGfxTextureViewCreateInfo)
+
 static bool js_assets_TextureCube_getImage(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::TextureCube>(s);
@@ -14880,6 +15061,7 @@ bool js_register_assets_TextureCube(se::Object* obj) // NOLINT(readability-ident
 
     cls->defineProperty("isRGBE", _SE(js_assets_TextureCube_get_isRGBE), _SE(js_assets_TextureCube_set_isRGBE));
     cls->defineFunction("getGfxTextureCreateInfo", _SE(js_assets_TextureCube_getGfxTextureCreateInfo));
+    cls->defineFunction("getGfxTextureViewCreateInfo", _SE(js_assets_TextureCube_getGfxTextureViewCreateInfo));
     cls->defineFunction("getImage", _SE(js_assets_TextureCube_getImage));
     cls->defineFunction("getMipmaps", _SE(js_assets_TextureCube_getMipmaps));
     cls->defineFunction("initialize", _SE(js_assets_TextureCube_initialize));
