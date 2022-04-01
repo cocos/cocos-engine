@@ -696,7 +696,6 @@ export class RichText extends Component {
             }
         }
 
-        log(`RichText split try times = ${1000 - leftTryTimes}`);
         return partStringArr;
     }
 
