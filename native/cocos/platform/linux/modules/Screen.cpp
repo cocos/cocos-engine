@@ -24,9 +24,11 @@
 ****************************************************************************/
 
 #include "platform/linux/modules/Screen.h"
-#include <X11/Xlib.h>
 #include "base/Macros.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
+// clang-format off
+#include <X11/Xlib.h>
+// clang-format on
 
 namespace cc {
 
