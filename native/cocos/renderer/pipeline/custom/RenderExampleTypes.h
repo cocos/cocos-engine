@@ -224,7 +224,7 @@ struct RenderDependencyGraph {
     // UuidGraph
     PmrUnorderedMap<RenderGraph::vertex_descriptor, vertex_descriptor> passIndex;
     // Members
-    PmrUnorderedMap<ccstd::pmr::string, uint32_t>        valueIndex;
+    PmrUnorderedStringMap<ccstd::pmr::string, uint32_t>  valueIndex;
     ccstd::pmr::vector<ccstd::pmr::string>               valueNames;
     ccstd::pmr::vector<ResourceGraph::vertex_descriptor> resourceHandles;
 };
