@@ -58,7 +58,6 @@ const normalizeHDRColor = (color : Vec4) => {
  * @zh 场景的环境光照相关信息
  */
 @ccclass('cc.AmbientInfo')
-@help('i18n:cc.Ambient')
 export class AmbientInfo {
     @serializable
     @formerlySerializedAs('_skyColor')
@@ -219,7 +218,6 @@ legacyCC.AmbientInfo = AmbientInfo;
  * @zh 天空盒相关信息
  */
 @ccclass('cc.SkyboxInfo')
-@help('i18n:cc.Skybox')
 export class SkyboxInfo {
     @serializable
     protected _envLightingType = EnvironmentLightingType.HEMISPHERE_DIFFUSE;
@@ -388,7 +386,7 @@ export class SkyboxInfo {
      * @zh 使用的漫反射卷积图
      */
     @visible(function (this : SkyboxInfo) {
-        if (this.useIBL) {
+        if (this.useIBL && this.applyDiffuseMap) {
             return true;
         }
         return false;
@@ -434,7 +432,6 @@ legacyCC.SkyboxInfo = SkyboxInfo;
  * @en Global fog info
  */
 @ccclass('cc.FogInfo')
-@help('i18n:cc.Fog')
 export class FogInfo {
     public static FogType = FogType;
     @serializable
@@ -653,7 +650,6 @@ export class FogInfo {
  * @zh 平面阴影相关信息
  */
 @ccclass('cc.ShadowsInfo')
-@help('i18n:cc.Shadow')
 export class ShadowsInfo {
     @serializable
     protected _enabled = false;
@@ -816,7 +812,6 @@ export const DEFAULT_WORLD_MAX_POS = new Vec3(1024.0, 1024.0, 1024.0);
 export const DEFAULT_OCTREE_DEPTH = 8;
 
 @ccclass('cc.OctreeInfo')
-@help('i18n:cc.OctreeCulling')
 export class OctreeInfo {
     @serializable
     protected _enabled = false;

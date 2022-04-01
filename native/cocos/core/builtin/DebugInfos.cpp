@@ -102,6 +102,7 @@ ccstd::unordered_map<int, ccstd::string> debugInfos = {
 { 3121, "Can't find a texture format supported by the current platform! Please add a fallback format in the editor." },
 { 3122, "Error Texture in %s." },
 { 3123, "Set same texture %s." },
+{ 3124, "Texture: setMipRange failed because base level is larger than max level" },
 { 3300, "Rect width exceeds maximum margin: %s" },
 { 3301, "Rect height exceeds maximum margin: %s" },
 { 3500, "0 priority is forbidden for fixed priority since it's used for scene graph based priority." },
@@ -191,7 +192,7 @@ ccstd::unordered_map<int, ccstd::string> debugInfos = {
 { 3904, "motion path of target [%s] in prop [%s] frame [%s] is not valid" },
 { 3905, "sprite frames must be an Array." },
 { 3906, "Can't find easing type [%s]" },
-{ 3907, "animator not added or already removed" },
+{ 3907, "Animation state is not playing or already removed" },
 { 3912, "already-playing" },
 { 3920, "Current context does not allow root motion." },
 { 3921, "You provided a ill-formed track path. The last component of track path should be property key, or the setter should not be empty." },
@@ -436,6 +437,7 @@ ccstd::unordered_map<int, ccstd::string> debugInfos = {
 { 14100, "Pool.destroy no longer take a function as parameter, Please specify destruct function in the construction of Pool instead" },
 { 14200, "Can not update a static mesh." },
 { 14201, "The primitiveIndex is out of range." },
+{ 14300, "Can not keep world transform due to the zero scaling of parent node" },
 
 };
 }//namespace cc

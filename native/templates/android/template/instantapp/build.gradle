@@ -38,7 +38,7 @@ android {
         res.srcDirs "../res", 'res'
         jniLibs.srcDirs "../libs", 'libs'
         manifest.srcFile "AndroidManifest.xml"
-        assets.srcDir "${RES_PATH}/assets"
+        assets.srcDir "${RES_PATH}/data"
     }
 
     externalNativeBuild {

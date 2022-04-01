@@ -29,20 +29,14 @@
 
 namespace cc {
 
-class IBattery : public OSInterface {
+class CC_DLL IBattery : public OSInterface {
 public:
     /**
      * Gets battery level, only avaiable on iOS and Android.
      * @return 0.0 ~ 1.0
      */
     virtual float getBatteryLevel() const = 0;
-    /**
-     @brief Create default battery interface.
-     @return battery interface.
-     */
-    static OSInterface::Ptr createBatteryInterface();
 
-private:
 };
 
 } // namespace cc

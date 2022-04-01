@@ -6,9 +6,6 @@ const version = pkg.version.replace(/(^\d+\.\d+)\..*$/, (str, a) => {
 const url = 'https://docs.cocos.com/creator';
 
 module.exports = {
-    menu: {
-        custom_script: '自定义脚本',
-    },
     help: {
         cc: {
             Node: `${url}/${version}/manual/zh/concepts/scene/node-component.html`,
@@ -528,6 +525,7 @@ module.exports = {
     richtext: {
         string: '富文本的内容字符串, 你可以在里面使用 BBCode 来指定特定文本的样式',
         horizontal_align: '水平对齐方式',
+        vertical_align: '竖直对齐方式',
         font_size: '字体大小, 单位是 point',
         font: '富文本定制字体',
         font_family: '富文本定制系统字体',
@@ -748,6 +746,10 @@ module.exports = {
                 label: '3D',
                 description: '3D',
             },
+            animation: {
+                label: '动画',
+                description: '动画系统。',
+            },
         },
         core: {
             label: "核心功能",
@@ -864,6 +866,18 @@ module.exports = {
         dragon_bones: {
             label: "DragonBones",
             description: "DragonBones 支持。",
+        },
+        animation: {
+            label: "基础动画功能",
+            description: "基础动画功能支持。",
+        },
+        skeletal_animation: {
+            label: "骨骼动画",
+            description: "骨骼动画支持。",
+        },
+        marionette: {
+            label: "Marionette 动画系统",
+            description: "启用 Marionette 动画系统。",
         },
     },
     renderable_2d: {

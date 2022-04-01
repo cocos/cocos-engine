@@ -190,23 +190,41 @@ function(cc_inspect_values)
 endfunction()
 
 
-function(cc_win32_definations target)
-    target_compile_definitions(${target} PUBLIC
-        CC_STATIC
-        WIN32
-        _WIN32
-        _WINDOWS
-        NOMINMAX
-        UNICODE
-        _UNICODE
-        _USE_MATH_DEFINES
-        _CRT_SECURE_NO_WARNINGS
-        _SCL_SECURE_NO_WARNINGS
-        _USRLIBSIMSTATIC
-        SE_ENABLE_INSPECTOR
-    )
+
+
+function(cc_set_target_property target_name property value)
+    set_target_properties(${target_name} PROPERTIES CC_${property} ${value})
+endfunction()
+
+function(cc_get_target_property output target_name property)
+    get_target_property(output ${target_name} ${property})
+endfunction()
+
+function(cc_redirect_property target from_property to_property)
+    cc_get_target_property(output ${target} ${from_property})
+    if(output)
+        set_target_properties(${target_name} PROPERTIES
+            ${to_property} ${output}
+        )
+    endif()
 endfunction()
 
 
 find_program(NODE_EXECUTABLE NAMES node)
 find_program(TSC_EXECUTABLE NAMES tsc)
+
+## predefined configurations for game applications
+include(${CMAKE_CURRENT_LIST_DIR}/../templates/cmake/common.cmake)
+if(APPLE)
+    include(${CMAKE_CURRENT_LIST_DIR}/../templates/cmake/apple.cmake)
+elseif(WINDOWS)
+    include(${CMAKE_CURRENT_LIST_DIR}/../templates/cmake/windows.cmake)
+elseif(LINUX)
+    include(${CMAKE_CURRENT_LIST_DIR}/../templates/cmake/linux.cmake)
+elseif(ANDROID)
+    include(${CMAKE_CURRENT_LIST_DIR}/../templates/cmake/android.cmake)
+elseif(OHOS)
+    include(${CMAKE_CURRENT_LIST_DIR}/../templates/cmake/ohos.cmake)
+else()
+    message(FATAL_ERROR "Unhandled platform specified cmake utils!")
+endif()

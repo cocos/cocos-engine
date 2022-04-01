@@ -28,17 +28,18 @@
 #include "base/TypeDef.h"
 #include "math/Vec2.h"
 
-#include <memory>
-#include "base/std/container/unordered_map.h"
 #include "bindings/event/EventDispatcher.h"
 #include "engine/BaseEngine.h"
+
+#include <map>
+#include <memory>
 
 namespace cc {
 
 #define NANOSECONDS_PER_SECOND 1000000000
 #define NANOSECONDS_60FPS      16666667L
 
-class Engine : public BaseEngine {
+class CC_DLL Engine : public BaseEngine {
 public:
     /**
      @brief Constructor of Engine.
@@ -86,7 +87,7 @@ public:
      @param evtype:event type.
      @param cb:event callback.
      */
-    void addEventCallback(OSEventType evtype, const EventCb &cb) override;
+    void addEventCallback(OSEventType evtype, const EventCb& cb) override;
     /**
      @brief Remove Event Listening.
      @param evtype:event type.
@@ -98,7 +99,7 @@ public:
      @param evtype:event information.
      @return whether it's been handled.
      */
-    bool handleEvent(const OSEvent &ev);
+    bool handleEvent(const OSEvent& ev);
     /**
      @brief Get engine scheduler.
      */
@@ -106,12 +107,9 @@ public:
 
 private:
     void    tick();
-    bool    dispatchWindowEvent(const WindowEvent &ev);
-    bool    dispatchDeviceEvent(const DeviceEvent &ev);
-    bool    dispatchEventToApp(OSEventType type, const OSEvent &ev);
-    void    onPause();
-    void    onResume();
-    void    onClose();
+    bool    dispatchWindowEvent(const WindowEvent& ev);
+    bool    dispatchDeviceEvent(const DeviceEvent& ev);
+    bool    dispatchEventToApp(OSEventType type, const OSEvent& ev);
     int32_t restartVM();
 
     bool                       _close{false};
@@ -123,7 +121,7 @@ private:
     cc::Vec2                   _viewLogicalSize{0, 0};
     bool                       _needRestart{false};
 
-    ccstd::unordered_map<OSEventType, EventCb> _eventCallbacks;
+    std::map<OSEventType, EventCb> _eventCallbacks;
     CC_DISALLOW_COPY_MOVE_ASSIGN(Engine);
 };
 

@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { BulletShape } from './bullet-shape';
 import { PlaneCollider } from '../../../../exports/physics-framework';

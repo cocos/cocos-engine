@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { Model } from '../../core/renderer/scene/model';
 import { MorphRenderingInstance } from '../assets/morph';

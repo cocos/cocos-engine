@@ -26,6 +26,7 @@
 #include "core/assets/SimpleTexture.h"
 #include "core/assets/ImageAsset.h"
 #include "core/event/EventTypesToJS.h"
+#include "core/platform/Debug.h"
 #include "core/platform/Macro.h"
 #include "renderer/gfx-base/GFXDevice.h"
 
@@ -56,6 +57,7 @@ SimpleTexture::~SimpleTexture()= default;
 
 
 bool SimpleTexture::destroy() {
+    tryDestroyTextureView();
     tryDestroyTexture();
     return Super::destroy();
 }
@@ -114,6 +116,7 @@ void SimpleTexture::setMipmapLevel(uint32_t value) {
 }
 
 void SimpleTexture::tryReset() {
+    tryDestroyTextureView();
     tryDestroyTexture();
     if (_mipmapLevel == 0) {
         return;
@@ -123,6 +126,7 @@ void SimpleTexture::tryReset() {
         return;
     }
     createTexture(device);
+    createTextureView(device);
 }
 
 void SimpleTexture::createTexture(gfx::Device *device) {
@@ -155,6 +159,25 @@ void SimpleTexture::createTexture(gfx::Device *device) {
     notifyTextureUpdated();
 }
 
+void SimpleTexture::createTextureView(gfx::Device *device) {
+    if (!_gfxTexture) {
+        return;
+    }
+    auto textureViewCreateInfo = getGfxTextureViewCreateInfo(
+    _gfxTexture,
+    getGFXFormat(),
+    _baseLevel,
+    _maxLevel - _baseLevel + 1
+    );
+
+    //TODO(minggo)
+//    if (!textureViewCreateInfo) {
+//        return;
+//    }
+    
+    _gfxTextureView = device->createTexture(textureViewCreateInfo);
+}
+
 void SimpleTexture::tryDestroyTexture() {
     if (_gfxTexture != nullptr) {
         _gfxTexture->destroy();
@@ -162,6 +185,37 @@ void SimpleTexture::tryDestroyTexture() {
 
         notifyTextureUpdated();
     }
+}
+
+void SimpleTexture::tryDestroyTextureView() {
+    if (_gfxTextureView != nullptr) {
+        _gfxTextureView->destroy();
+        _gfxTextureView = nullptr;
+        
+        //TODO(minggo): should notify JS if the performance is low.
+    }
+}
+
+void SimpleTexture::setMipRange(uint32_t baseLevel, uint32_t maxLevel) {
+    debug::warnID(baseLevel <= maxLevel, 3124);
+    
+    setMipRangeInternal(baseLevel, maxLevel);
+    
+    auto *device = getGFXDevice();
+    if (!device) {
+        return;
+    }
+    tryDestroyTextureView();
+    createTextureView(device);
+}
+
+
+void SimpleTexture::setMipRangeInternal(uint32_t baseLevel, uint32_t maxLevel){
+    _baseLevel = baseLevel;
+    _baseLevel = _baseLevel < _mipmapLevel ? _baseLevel : _mipmapLevel - 1;
+    
+    _maxLevel = maxLevel < _baseLevel ? _baseLevel : maxLevel;
+    _maxLevel = _maxLevel < _mipmapLevel ? _maxLevel : _mipmapLevel - 1;
 }
 
 void SimpleTexture::notifyTextureUpdated() {

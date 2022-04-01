@@ -29,7 +29,7 @@
 #include "platform/interfaces/OSInterface.h"
 
 namespace cc {
-class IScreen : public OSInterface {
+class CC_DLL IScreen : public OSInterface {
 public:
     virtual int   getDPI() const              = 0;
     virtual float getDevicePixelRatio() const = 0;
@@ -62,12 +62,6 @@ public:
     virtual void setKeepScreenOn(bool keepScreenOn) = 0;
 
     virtual Vec4 getSafeAreaEdge() const = 0;
-    /**
-     @brief Create default screen interface.
-     @return screen interface.
-     */
-    static OSInterface::Ptr createScreenInterface();
 
-private:
 };
 } // namespace cc

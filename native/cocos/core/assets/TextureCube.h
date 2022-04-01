@@ -169,6 +169,7 @@ public:
     void    deserialize(const cc::any &serializedData, const cc::any &handle) override;
 
     gfx::TextureInfo getGfxTextureCreateInfo(gfx::TextureUsageBit usage, gfx::Format format, uint32_t levelCount, gfx::TextureFlagBit flags) override;
+    gfx::TextureViewInfo getGfxTextureViewCreateInfo(gfx::Texture *texture, gfx::Format format, uint32_t baseLevel, uint32_t levelCount) override;
 
     void initDefault(const cc::optional<ccstd::string> &uuid) override;
 

@@ -64,6 +64,7 @@ import { game, IGameConfig } from '../exports/base';
 import './asset-manager/init';
 import '../cocos/core/gfx/empty/empty-device';
 import '../cocos/3d/skeletal-animation/data-pool-manager';
+import '../cocos/core/animation';
 
 const canvas = document.createElement('canvas');
 const div = document.createElement('div');

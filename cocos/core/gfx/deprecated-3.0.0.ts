@@ -22,10 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { replaceProperty, removeProperty } from '../utils/x-deprecated';
 import { legacyCC } from '../global-exports';

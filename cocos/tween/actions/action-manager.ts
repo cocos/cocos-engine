@@ -25,11 +25,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import * as js from '../../core/utils/js';
 import { errorID, logID, assertID } from '../../core/platform/debug';
 import { Action } from './action';

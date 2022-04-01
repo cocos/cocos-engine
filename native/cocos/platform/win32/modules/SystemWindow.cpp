@@ -24,50 +24,58 @@
 ****************************************************************************/
 
 #include "platform/win32/modules/SystemWindow.h"
-
-#include "base/Log.h"
-// SDL headers
 #include <functional>
+#include "base/Log.h"
+#include "sdl2/SDL_clipboard.h"
 #include "bindings/event/EventDispatcher.h"
 #include "platform/IEventDispatch.h"
 #include "platform/win32/WindowsPlatform.h"
-#include "sdl2/SDL.h"
-#include "sdl2/SDL_main.h"
-#include "sdl2/SDL_syswm.h"
-
-namespace {
-
-} // namespace
+#include "platform/SDLHelper.h"
 
 namespace cc {
-SystemWindow::SystemWindow() {
+SystemWindow::SystemWindow(IEventDispatch *delegate)
+: _sdl(std::make_unique<SDLHelper>(delegate)) {
+
 }
 
 SystemWindow::~SystemWindow() {
 }
 
+int SystemWindow::init() {
+    return _sdl->init();
+}
+
+void SystemWindow::pollEvent(bool *quit) {
+    return _sdl->pollEvent(quit);
+}
+
+void SystemWindow::swapWindow() {
+    _sdl->swapWindow();
+}
+
+bool SystemWindow::createWindow(const char *title,
+                                int w, int h, int flags) {
+    _sdl->createWindow(title, w, h, flags);
+    _width  = w;
+    _height = h;
+    return true;
+}
+
 bool SystemWindow::createWindow(const char *title,
                                 int x, int y, int w,
                                 int h, int flags) {
-    // Create window
-
-    WindowsPlatform *platform = dynamic_cast<WindowsPlatform *>(BasePlatform::getPlatform());
-    CCASSERT(platform != nullptr, "Platform pointer can't be null");
-    platform->createWindow(title, x, y, w, h, flags);
+    _sdl->createWindow(title, x, y, w, h, flags);
     _width  = w;
     _height = h;
     return true;
 }
 
 uintptr_t SystemWindow::getWindowHandler() const {
-    //return _handle;
-    WindowsPlatform *platform = dynamic_cast<WindowsPlatform *>(BasePlatform::getPlatform());
-    CCASSERT(platform != nullptr, "Platform pointer can't be null");
-    return platform->getWindowHandler();
+    return _sdl->getWindowHandler();
 }
 
 void SystemWindow::setCursorEnabled(bool value) {
-    SDL_SetRelativeMouseMode(value ? SDL_FALSE : SDL_TRUE);
+    _sdl->setCursorEnabled(value);
 }
 
 void SystemWindow::copyTextToClipboard(const ccstd::string &text) {

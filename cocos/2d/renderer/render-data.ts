@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { director } from '../../core/director';
 import { Material } from '../../core/assets/material';

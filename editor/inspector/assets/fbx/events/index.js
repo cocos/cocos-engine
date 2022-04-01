@@ -79,7 +79,11 @@ exports.delEvent = function(time) {
 
 exports.updateEventInfo = function(time, eventInfos) {
     const userData = this.curEditClipInfo.userData;
-    const newEvents = userData.events.filter((item) => item.frame !== time);
+    let newEvents = [];
+    if (userData.events) {
+        newEvents = userData.events.filter((item) => item.frame !== time);
+    }
+
     newEvents.push(...eventInfos);
     userData.events = newEvents;
     this.events.eventsMap[this.curEditClipInfo.clipUUID] = newEvents;

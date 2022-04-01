@@ -30,8 +30,8 @@
 
 import { ccclass } from 'cc.decorator';
 import { DEV } from 'internal:constants';
-import { TextureFlagBit, TextureUsageBit, API, Texture, TextureInfo, Device, BufferTextureCopy } from '../gfx';
-import { error } from '../platform/debug';
+import { TextureFlagBit, TextureUsageBit, API, Texture, TextureInfo, TextureViewInfo, Device, BufferTextureCopy } from '../gfx';
+import { assertID, error } from '../platform/debug';
 import { Filter } from './asset-enum';
 import { ImageAsset } from './image-asset';
 import { TextureBase } from './texture-base';
@@ -43,6 +43,7 @@ import { fastRemoveAt } from '../utils/array';
 const _regions: BufferTextureCopy[] = [new BufferTextureCopy()];
 
 export type PresumedGFXTextureInfo = Pick<TextureInfo, 'usage' | 'flags' | 'format' | 'levelCount'>;
+export type PresumedGFXTextureViewInfo = Pick<TextureViewInfo, 'texture' | 'format' | 'baseLevel' | 'levelCount'>;
 
 function getMipLevel (width: number, height: number) {
     let size = Math.max(width, height);
@@ -68,10 +69,14 @@ function canGenerateMipmap (device: Device, w: number, h: number) {
 @ccclass('cc.SimpleTexture')
 export class SimpleTexture extends TextureBase {
     protected _gfxTexture: Texture | null = null;
+    protected _gfxTextureView: Texture | null = null;
     private _mipmapLevel = 1;
     // Cache these data to reduce JSB invoking.
     private _textureWidth = 0;
     private _textureHeight = 0;
+
+    protected _baseLevel = 0;
+    protected _maxLevel = 0;
 
     /**
      * @en The mipmap level of the texture
@@ -86,10 +91,11 @@ export class SimpleTexture extends TextureBase {
      * @zh 获取此贴图底层的 GFX 贴图对象。
      */
     public getGFXTexture () {
-        return this._gfxTexture;
+        return this._gfxTextureView;
     }
 
     public destroy () {
+        this._tryDestroyTextureView();
         this._tryDestroyTexture();
         return super.destroy();
     }
@@ -198,6 +204,32 @@ export class SimpleTexture extends TextureBase {
         this._mipmapLevel = value < 1 ? 1 : value;
     }
 
+    protected _setMipRange (baseLevel: number, maxLevel: number) {
+        this._baseLevel = baseLevel < 0 ? 0 : baseLevel;
+        this._baseLevel = this._baseLevel < this._mipmapLevel ? this._baseLevel : this._mipmapLevel - 1;
+
+        this._maxLevel = maxLevel < this._baseLevel ? this._baseLevel : maxLevel;
+        this._maxLevel = this._maxLevel < this._mipmapLevel ? this._maxLevel : this._mipmapLevel - 1;
+    }
+
+    /**
+     * Set mipmap level range for this texture.
+     * @param baseLevel The base mipmap level.
+     * @param maxLevel The maximum mipmap level.
+     */
+    public setMipRange (baseLevel: number, maxLevel: number) {
+        assertID(baseLevel <= maxLevel, 3124);
+
+        this._setMipRange(baseLevel, maxLevel);
+
+        const device = this._getGFXDevice();
+        if (!device) {
+            return;
+        }
+        this._tryDestroyTextureView();
+        this._createTextureView(device);
+    }
+
     /**
      * @en This method is overrided by derived classes to provide GFX texture info.
      * @zh 这个方法被派生类重写以提供 GFX 纹理信息。
@@ -207,7 +239,17 @@ export class SimpleTexture extends TextureBase {
         return null;
     }
 
+    /**
+     * @en This method is overrided by derived classes to provide GFX TextureViewInfo.
+     * @zh 这个方法被派生类重写以提供 GFX 纹理视图信息。
+     * @param presumed The presumed GFX TextureViewInfo.
+     */
+    protected _getGfxTextureViewCreateInfo (presumed: PresumedGFXTextureViewInfo): TextureViewInfo | null {
+        return null;
+    }
+
     protected _tryReset () {
+        this._tryDestroyTextureView();
         this._tryDestroyTexture();
         if (this._mipmapLevel === 0) {
             return;
@@ -217,6 +259,7 @@ export class SimpleTexture extends TextureBase {
             return;
         }
         this._createTexture(device);
+        this._createTextureView(device);
     }
 
     protected _createTexture (device: Device) {
@@ -244,10 +287,35 @@ export class SimpleTexture extends TextureBase {
         this._gfxTexture = texture;
     }
 
+    protected _createTextureView (device: Device) {
+        if (!this._gfxTexture) {
+            return;
+        }
+        const textureViewCreateInfo = this._getGfxTextureViewCreateInfo({
+            texture: this._gfxTexture,
+            format: this._getGFXFormat(),
+            baseLevel: this._baseLevel,
+            levelCount: this._maxLevel - this._baseLevel + 1,
+        });
+        if (!textureViewCreateInfo) {
+            return;
+        }
+
+        const textureView = device.createTexture(textureViewCreateInfo);
+        this._gfxTextureView = textureView;
+    }
+
     protected _tryDestroyTexture () {
         if (this._gfxTexture) {
             this._gfxTexture.destroy();
             this._gfxTexture = null;
+        }
+    }
+
+    protected _tryDestroyTextureView () {
+        if (this._gfxTextureView) {
+            this._gfxTextureView.destroy();
+            this._gfxTextureView = null;
         }
     }
 }

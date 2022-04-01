@@ -23,51 +23,44 @@
  THE SOFTWARE.
  ****************************************************************************/
 #include "Game.h"
-#include "cocos/application/ApplicationManager.h"
-#include "cocos/bindings/event/CustomEventTypes.h"
-#include "cocos/bindings/event/EventDispatcher.h"
-#include "cocos/bindings/jswrapper/SeApi.h"
-#include "cocos/bindings/manual/jsb_classtype.h"
-#include "cocos/bindings/manual/jsb_global.h"
-#include "cocos/bindings/manual/jsb_module_register.h"
-#include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
 
-Game::Game() : cc::CocosApplication() {}
+#ifndef GAME_NAME
+    #define GAME_NAME "CocosGame";
+#endif
+
+Game::Game() = default;
 
 int Game::init() {
-    createWindow("My game", 0, 0, 800, 600,
-                 cc::ISystemWindow::CC_WINDOW_SHOWN |
-                     cc::ISystemWindow::CC_WINDOW_RESIZABLE |
-                     cc::ISystemWindow::CC_WINDOW_INPUT_FOCUS);
-    setJsDebugIpAndPort("0.0.0.0", 6086, false);
+    _windowInfo.title = GAME_NAME;
+    // configurate window size
+    // _windowInfo.height = 600;
+    // _windowInfo.width  = 800;
 
-    int ret = cc::CocosApplication::init();
-    if (ret != 0) {
-        return ret;
-    }
+#if CC_DEBUG
+    _debuggerInfo.enabled = true;
+#else
+    _debuggerInfo.enabled = false;
+#endif
+    _debuggerInfo.port         = 6086;
+    _debuggerInfo.address      = "0.0.0.0";
+    _debuggerInfo.pauseOnStart = false;
 
-    setXXTeaKey("");
-    //TODO: Is here the correct place to invoke setDescriptorSetLayout?
-    cc::pipeline::GlobalDSManager::setDescriptorSetLayout();
-    //
+    _xxteaKey = "";
 
-    se::ScriptEngine *se = se::ScriptEngine::getInstance();
-
-    runJsScript("jsb-adapter/jsb-builtin.js");
-    runJsScript("main.js");
+    BaseGame::init();
     return 0;
 }
 
 void Game::onPause() {
-    cc::CocosApplication::onPause();
+    BaseGame::onPause();
 }
 
 void Game::onResume() {
-    cc::CocosApplication::onResume();
+    BaseGame::onResume();
 }
 
 void Game::onClose() {
-    cc::CocosApplication::onClose();
+    BaseGame::onClose();
 }
 
-CC_APPLICATION_MAIN(Game);
+CC_REGISTER_APPLICATION(Game);

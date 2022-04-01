@@ -1,5 +1,5 @@
 import { Node, Scene } from "../../cocos/core/scene-graph"
-import { Vec3 } from "../../cocos/core/math"
+import { Mat4, Quat, Vec3 } from "../../cocos/core/math"
 import { director } from "../../cocos/core";
 import { NodeEventType } from "../../cocos/core/scene-graph/node-event";
 import { NodeUIProperties } from "../../cocos/core/scene-graph/node-ui-properties";
@@ -101,5 +101,48 @@ describe(`Node`, () => {
 
         node.active = true;
         expect(node.active).toBe(true);
+    });
+
+    test('set parent and keep world transform', () => {
+        let scene = new Scene('temp');
+        let node = new Node();
+        node.parent = scene;
+        node.position = new Vec3(10, 3.5, -2.4);
+        node.eulerAngles = new Vec3(47.5, 23, -3);
+        node.scale = new Vec3(2, 0.5, 1);
+
+        let node2 = new Node();
+        node2.position = new Vec3(5, -10, 3);
+        node2.eulerAngles = new Vec3(0, 90, 45);
+        node2.scale = new Vec3(1, 1, 2);
+        node2.parent = scene;
+        const globalPosition = node2.worldPosition.clone();
+
+        node2.setParent(node, true);
+        node2.updateWorldTransform();
+        expect(node2.worldPosition.equals(globalPosition)).toBeTruthy();
+        expect(Vec3.transformMat4(new Vec3(), new Vec3(0, 0, 0), node2.worldMatrix).equals(new Vec3(5, -10, 3))).toBeTruthy();
+        expect(Mat4.multiply(new Mat4, Mat4.invert(new Mat4, node.worldMatrix), node2.worldMatrix).equals(Mat4.fromRTS(new Mat4(), node2.rotation, node2.position, node2.scale))).toBeTruthy();
+
+        node2.setParent(scene, true);
+        node2.updateWorldTransform();
+        expect(node2.worldPosition.equals(globalPosition)).toBeTruthy();
+        expect(Vec3.transformMat4(new Vec3(), new Vec3(0, 0, 0), node2.worldMatrix).equals(new Vec3(5, -10, 3))).toBeTruthy();
+        expect(node2.worldMatrix.equals(Mat4.fromRTS(new Mat4(), node2.rotation, node2.position, node2.scale))).toBeTruthy();
+        const rot = node2.rotation.clone();
+        const scale = node2.scale.clone();
+        const pos = node2.position.clone();
+        const worldMat = node2.worldMatrix.clone();
+
+        // set parent's scale to zero
+        node.scale = new Vec3(0, 2, 1);
+        node2.setParent(node, true);
+        node2.updateWorldTransform();
+        expect(node2.position.equals(pos)).toBeTruthy();
+        expect(node2.rotation.equals(rot)).toBeTruthy();
+        expect(node2.scale.equals(scale)).toBeTruthy();
+        expect(node2.worldPosition.equals(globalPosition)).toBeFalsy();
+        expect(node2.worldMatrix.equals(worldMat)).toBeFalsy();
+        expect(Mat4.determinant(node2.worldMatrix)).toBeCloseTo(0, 6);
     });
 });
