@@ -1,15 +1,11 @@
-blank_issues_enabled: false
+blank_issues_enabled: true
 
 contact_links:
 
-  - name: Documentation feedbacks and suggestions
+  - name: Documentation issue
     url: https://github.com/cocos/cocos-docs
-    about: Please report issues with documentation on the Cocos Creator documentation repository.
+    about: Please report issues with documentation on the documentation repository, not here
 
-  - name: General discussions and feature requests
+  - name: General discussions and questions
     url: https://discuss.cocos2d-x.org/
-    about:
-      Please post on our forum if you want to ask more general questions, make suggestions and feature requests, or initiate discussions. 
-      Or you can visit our Chinese forum at https://forum.cocos.org
-
-    
+    about: Please post on the forum if you want to ask questions, make suggestions and feature requests. Or you can visit the Chinese forum at https://forum.cocos.org
