@@ -31,7 +31,6 @@
 
 import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multiline, type, displayOrder, serializable } from 'cc.decorator';
 import { DEV, EDITOR } from 'internal:constants';
-import { log } from '../../core/platform/debug';
 import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
 import { EventTouch } from '../../input/types';
 import { assert, warnID } from '../../core/platform';
@@ -48,7 +47,6 @@ import { legacyCC } from '../../core/global-exports';
 import { Component } from '../../core/components';
 import { CCObject } from '../../core';
 import { NodeEventType } from '../../core/scene-graph/node-event';
-import { CylinderColliderComponent } from '../../physics/framework/deprecated';
 
 const _htmlTextParser = new HtmlTextParser();
 const RichTextChildName = 'RICHTEXT_CHILD';
