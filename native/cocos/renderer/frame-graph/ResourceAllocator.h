@@ -149,5 +149,122 @@ void ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreator
     }
 }
 
+template <typename DeviceResourceType, typename DeviceResourceCreatorType>
+class ResourceAllocator<DeviceResourceType, gfx::FramebufferInfo, DeviceResourceCreatorType> final {
+public:
+    using DeviceResourceCreator = DeviceResourceCreatorType;
+
+    ResourceAllocator(const ResourceAllocator &)     = delete;
+    ResourceAllocator(ResourceAllocator &&) noexcept = delete;
+    ResourceAllocator &operator=(const ResourceAllocator &) = delete;
+    ResourceAllocator &operator=(ResourceAllocator &&) noexcept = delete;
+
+    static ResourceAllocator &getInstance() noexcept;
+    DeviceResourceType *      alloc(const gfx::FramebufferInfo &desc) noexcept;
+    void                      free(DeviceResourceType *resource) noexcept;
+    inline void               tick() noexcept;
+    void                      gc(uint32_t unusedFrameCount) noexcept;
+
+private:
+    using DeviceResourcePool = std::vector<DeviceResourceType *>;
+
+    ResourceAllocator() noexcept = default;
+    ~ResourceAllocator()         = default;
+
+    std::unordered_map<size_t, DeviceResourcePool>    _pool{};
+    std::unordered_map<DeviceResourceType *, int64_t> _ages{};
+    uint64_t                                          _age{0};
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+template <typename DeviceResourceType, typename DeviceResourceCreatorType>
+ResourceAllocator<DeviceResourceType, gfx::FramebufferInfo, DeviceResourceCreatorType> &
+ResourceAllocator<DeviceResourceType, gfx::FramebufferInfo, DeviceResourceCreatorType>::getInstance() noexcept {
+    static ResourceAllocator instance;
+    return instance;
+}
+
+template <typename DeviceResourceType, typename DeviceResourceCreatorType>
+DeviceResourceType *ResourceAllocator<DeviceResourceType, gfx::FramebufferInfo, DeviceResourceCreatorType>::alloc(const gfx::FramebufferInfo &desc) noexcept {
+    size_t              hash = gfx::Hasher<gfx::FramebufferInfo>()(desc);
+    DeviceResourcePool &pool{_pool[hash]};
+
+    DeviceResourceType *resource{nullptr};
+    for (DeviceResourceType *res : pool) {
+        if (_ages[res] >= 0) {
+            resource = res;
+            break;
+        }
+    }
+    if (!resource) {
+        DeviceResourceCreator creator;
+        resource = creator(desc);
+        pool.push_back(resource);
+    }
+
+    _ages[resource] = -1;
+    return resource;
+}
+
+template <typename DeviceResourceType, typename DeviceResourceCreatorType>
+void ResourceAllocator<DeviceResourceType, gfx::FramebufferInfo, DeviceResourceCreatorType>::free(DeviceResourceType *const resource) noexcept {
+    CC_ASSERT(_ages.count(resource) && _ages[resource] < 0);
+    _ages[resource] = _age;
+}
+
+template <typename DeviceResourceType, typename DeviceResourceCreatorType>
+void ResourceAllocator<DeviceResourceType, gfx::FramebufferInfo, DeviceResourceCreatorType>::tick() noexcept {
+    ++_age;
+}
+
+template <typename DeviceResourceType, typename DeviceResourceCreatorType>
+void ResourceAllocator<DeviceResourceType, gfx::FramebufferInfo, DeviceResourceCreatorType>::gc(uint32_t const unusedFrameCount) noexcept {
+    for (auto &pair : _pool) {
+        DeviceResourcePool &pool = pair.second;
+
+        auto count = static_cast<int>(pool.size());
+
+        if (!count) {
+            continue;
+        }
+
+        int destroyBegin = count - 1;
+
+        for (int i = 0; i < count; ++i) {
+            int64_t ageI = _ages[pool[i]];
+            if (ageI < 0 || _age - ageI < unusedFrameCount) {
+                continue;
+            }
+
+            int j = destroyBegin;
+
+            for (; j > i; --j) {
+                int64_t ageJ = _ages[pool[j]];
+                if (ageJ < 0 || _age - ageJ < unusedFrameCount) {
+                    std::swap(pool[i], pool[j]);
+                    destroyBegin = j - 1;
+                    break;
+                }
+            }
+
+            if (i >= j) {
+                destroyBegin = i - 1;
+            }
+
+            if (i >= destroyBegin) {
+                break;
+            }
+        }
+
+        while (++destroyBegin < count) {
+            auto *resource = pool.back();
+            CC_DELETE(resource);
+            _ages.erase(resource);
+            pool.pop_back();
+        }
+    }
+}
+
 } // namespace framegraph
 } // namespace cc

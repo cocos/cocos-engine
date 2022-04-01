@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { AABB, Frustum, intersect, Sphere } from '../geometry';
 import { Model } from '../renderer/scene/model';

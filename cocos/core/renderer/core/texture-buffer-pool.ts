@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { getTypedArrayConstructor, Format, FormatInfos, TextureType, TextureUsageBit,
     TextureFlagBit, Texture, TextureInfo, Device, BufferTextureCopy } from '../../gfx';

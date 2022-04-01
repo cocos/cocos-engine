@@ -39,6 +39,10 @@ import { AnimationClip } from './animation-clip';
 import { AnimationState, EventType } from './animation-state';
 import { CrossFade } from './cross-fade';
 import { legacyCC } from '../global-exports';
+import { LegacyBlendStateBuffer } from '../../3d/skeletal-animation/skeletal-animation-blending';
+import { AnimationUpdateTaskHandle } from './animation-manager';
+import { assertIsTrue } from '../data/utils/asserts';
+import { getGlobalAnimationManager } from './global-animation-manager';
 
 /**
  * @en
@@ -154,6 +158,8 @@ export class Animation extends Eventify(Component) {
     @serializable
     protected _defaultClip: AnimationClip | null = null;
 
+    private _animationUpdateTaskHandle: AnimationUpdateTaskHandle | undefined = undefined;
+
     /**
      * Whether if `crossFade()` or `play()` has been called before this component starts.
      */
@@ -163,7 +169,7 @@ export class Animation extends Eventify(Component) {
         this.clips = this._clips;
         for (const stateName in this._nameToState) {
             const state = this._nameToState[stateName];
-            state.initialize(this.node);
+            this._initializeState(state);
         }
     }
 
@@ -174,15 +180,20 @@ export class Animation extends Eventify(Component) {
     }
 
     public onEnable () {
-        this._crossFade.resume();
+        assertIsTrue(!this._animationUpdateTaskHandle);
+        this._animationUpdateTaskHandle = getGlobalAnimationManager().addUpdateTask(
+            this._onAnimationSystemUpdate,
+            this,
+        );
     }
 
     public onDisable () {
-        this._crossFade.pause();
+        assertIsTrue(typeof this._animationUpdateTaskHandle !== 'undefined');
+        getGlobalAnimationManager().removeUpdateTask(this._animationUpdateTaskHandle);
+        this._animationUpdateTaskHandle = undefined;
     }
 
     public onDestroy () {
-        this._crossFade.stop();
         for (const name in this._nameToState) {
             const state = this._nameToState[name];
             state.destroy();
@@ -199,6 +210,7 @@ export class Animation extends Eventify(Component) {
      */
     public play (name?: string) {
         this._hasBeenPlayed = true;
+        this._playing = true;
         if (!name) {
             if (!this._defaultClip) {
                 return;
@@ -218,6 +230,7 @@ export class Animation extends Eventify(Component) {
      */
     public crossFade (name: string, duration = 0.3) {
         this._hasBeenPlayed = true;
+        this._playing = true;
         const state = this._nameToState[name];
         if (state) {
             this.doPlayOrCrossFade(state, duration);
@@ -231,6 +244,7 @@ export class Animation extends Eventify(Component) {
      * 暂停所有动画状态，并暂停所有切换。
      */
     public pause () {
+        this._playing = false;
         this._crossFade.pause();
     }
 
@@ -241,6 +255,7 @@ export class Animation extends Eventify(Component) {
      * 恢复所有动画状态，并恢复所有切换。
      */
     public resume () {
+        this._playing = true;
         this._crossFade.resume();
     }
 
@@ -251,7 +266,8 @@ export class Animation extends Eventify(Component) {
      * 停止所有动画状态，并停止所有切换。
      */
     public stop () {
-        this._crossFade.stop();
+        this._playing = false;
+        this._crossFade.clear();
     }
 
     /**
@@ -276,7 +292,7 @@ export class Animation extends Eventify(Component) {
     public getState (name: string) {
         const state = this._nameToState[name];
         if (state && !state.curveLoaded) {
-            state.initialize(this.node);
+            this._initializeState(state);
         }
         return state || null;
     }
@@ -444,7 +460,7 @@ export class Animation extends Eventify(Component) {
         state._setEventTarget(this);
         state.allowLastFrameEvent(this.hasEventListener(EventType.LASTFRAME));
         if (this.node) {
-            state.initialize(this.node);
+            this._initializeState(state);
         }
         this._nameToState[state.name] = state;
         return state;
@@ -455,8 +471,28 @@ export class Animation extends Eventify(Component) {
      * @internal This method only friends to skeletal animation component.
      */
     protected doPlayOrCrossFade (state: AnimationState, duration: number) {
-        this._crossFade.play();
         this._crossFade.crossFade(state, duration);
+    }
+
+    private _playing = false;
+
+    private _blendStateBuffer = new LegacyBlendStateBuffer();
+
+    private _onAnimationSystemUpdate (deltaTime: number) {
+        if (!this._playing) {
+            return;
+        }
+
+        this._crossFade.update(deltaTime);
+
+        for (const name in this._nameToState) {
+            const state = this._nameToState[name];
+            if (!state.isMotionless) {
+                state.update(deltaTime);
+            }
+        }
+
+        this._blendStateBuffer.apply();
     }
 
     private _removeStateOfAutomaticClip (clip: AnimationClip) {
@@ -483,6 +519,15 @@ export class Animation extends Eventify(Component) {
                 this._nameToState[stateName].allowLastFrameEvent(false);
             }
         }
+    }
+
+    private _initializeState (state: AnimationState) {
+        state.initialize(
+            this.node,
+            this._blendStateBuffer,
+            undefined, // Animation Mask
+            true, // Passive - The updating of animation state is handled by us
+        );
     }
 }
 

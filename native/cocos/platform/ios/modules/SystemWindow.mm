@@ -25,7 +25,7 @@
 
 #include "platform/ios/modules/SystemWindow.h"
 #import <UIKit/UIKit.h>
-#include "platform/ios/AppDelegate.h"
+
 
 namespace {
 
@@ -35,18 +35,11 @@ namespace cc {
 
 SystemWindow::~SystemWindow() = default;
 
-bool SystemWindow::createWindow(const char* title,
-                                int x, int y, int w,
-                                int h, int flags) {
-    _width  = w;
-    _height = h;
-    return true;
-}
 
 void SystemWindow::setCursorEnabled(bool value) {
 }
 
-void SystemWindow::copyTextToClipboard(const ccstd::string& text) {
+void SystemWindow::copyTextToClipboard(const std::string& text) {
     UIPasteboard* pasteboard = [UIPasteboard generalPasteboard];
     pasteboard.string        = [NSString stringWithCString:text.c_str() encoding:NSUTF8StringEncoding];
 }

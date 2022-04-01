@@ -95,12 +95,10 @@ BEGIN
     BEGIN
         BLOCK "040904B0"
         BEGIN
-            VALUE "FileDescription", "game Module"
             VALUE "FileVersion", "1, 0, 0, 1"
             VALUE "InternalName", "game"
             VALUE "LegalCopyright", "Copyright "
             VALUE "OriginalFilename", "game.exe"
-            VALUE "ProductName", "game Module"
             VALUE "ProductVersion", "1, 0, 0, 1"
         END
     END

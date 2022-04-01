@@ -406,12 +406,11 @@ export class Mask extends Renderable2D {
     }
 
     /**
-     * @zh
-     * 根据屏幕坐标计算点击事件。
+     * Hit test with point in World Space.
      *
-     * @param cameraPt  屏幕点转换到相机坐标系下的点。
+     * @param worldPt point in World Space.
      */
-    public isHit (cameraPt: Vec2) {
+    public isHit (worldPt: Vec2) {
         const uiTrans = this.node._uiProps.uiTransformComp!;
         const size = uiTrans.contentSize;
         const w = size.width;
@@ -420,7 +419,7 @@ export class Mask extends Renderable2D {
 
         this.node.getWorldMatrix(_worldMatrix);
         Mat4.invert(_mat4_temp, _worldMatrix);
-        Vec2.transformMat4(testPt, cameraPt, _mat4_temp);
+        Vec2.transformMat4(testPt, worldPt, _mat4_temp);
         const ap = uiTrans.anchorPoint;
         testPt.x += ap.x * w;
         testPt.y += ap.y * h;

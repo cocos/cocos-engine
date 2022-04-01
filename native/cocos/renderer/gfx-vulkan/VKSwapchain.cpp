@@ -32,6 +32,12 @@
 #include "VKTexture.h"
 #include "VKUtils.h"
 
+#if CC_SWAPPY_ENABLED
+    #include "platform/android/AndroidPlatform.h"
+    #include "swappy/swappyVk.h"
+    #include "swappy/swappy_common.h"
+#endif
+
 namespace cc {
 namespace gfx {
 
@@ -207,6 +213,22 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
     initTexture(textureInfo, _depthStencilTexture);
 
     checkSwapchainStatus();
+
+    // Android Game Frame Pacing:swappy
+#if CC_SWAPPY_ENABLED
+    auto *  platform = static_cast<AndroidPlatform *>(cc::BasePlatform::getPlatform());
+    int32_t fps      = cc::BasePlatform::getPlatform()->getFps();
+
+    uint64_t frameRefreshIntervalNS;
+    SwappyVk_initAndGetRefreshCycleDuration(static_cast<JNIEnv *>(platform->getEnv()),
+                                            static_cast<jobject>(platform->getActivity()),
+                                            gpuContext->physicalDevice,
+                                            gpuDevice->vkDevice,
+                                            _gpuSwapchain->vkSwapchain,
+                                            &frameRefreshIntervalNS);
+    SwappyVk_setSwapIntervalNS(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, fps ? 1000000000L / fps : frameRefreshIntervalNS);
+    SwappyVk_setWindow(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, static_cast<ANativeWindow *>(info.windowHandle));
+#endif
 }
 
 void CCVKSwapchain::doDestroy() {
@@ -363,6 +385,10 @@ void CCVKSwapchain::destroySwapchain(const CCVKGPUDevice *gpuDevice) {
 
         _gpuSwapchain->swapchainImages.clear();
 
+#if CC_SWAPPY_ENABLED
+        SwappyVk_destroySwapchain(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain);
+#endif
+
         vkDestroySwapchainKHR(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, nullptr);
         _gpuSwapchain->vkSwapchain = VK_NULL_HANDLE;
     }
@@ -381,10 +407,14 @@ void CCVKSwapchain::doDestroySurface() {
     _gpuSwapchain->vkSurface = VK_NULL_HANDLE;
 }
 
-void CCVKSwapchain::doCreateSurface(void * /*windowHandle*/) {
+void CCVKSwapchain::doCreateSurface(void *windowHandle) { // NOLINT
     if (!_gpuSwapchain || _gpuSwapchain->vkSurface != VK_NULL_HANDLE) return;
     createVkSurface();
     checkSwapchainStatus();
+#if CC_SWAPPY_ENABLED
+    auto *gpuDevice = CCVKDevice::getInstance()->gpuDevice();
+    SwappyVk_setWindow(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, static_cast<ANativeWindow *>(windowHandle));
+#endif
 }
 
 void CCVKSwapchain::createVkSurface() {

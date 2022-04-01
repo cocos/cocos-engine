@@ -29,7 +29,7 @@
 
 namespace cc {
 
-class System : public ISystem {
+class CC_DLL System : public ISystem {
 public:
     /**
      @brief Get target system type.

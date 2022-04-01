@@ -30,7 +30,7 @@ vec4 CCStandardShadingAdditive (StandardSurface s, vec4 shadowPos) {
     float distSqr = dot(SLU, SLU);
     float litRadius = cc_lightSizeRangeAngle[i].x;
     float litRadiusSqr = litRadius * litRadius;
-    float illum = PI * (litRadiusSqr / max(litRadiusSqr , distSqr));
+    float illum = litRadiusSqr / max(litRadiusSqr, distSqr);
     float attRadiusSqrInv = 1.0 / max(cc_lightSizeRangeAngle[i].y, 0.01);
     attRadiusSqrInv *= attRadiusSqrInv;
     float att = GetDistAtt(distSqr, attRadiusSqrInv);

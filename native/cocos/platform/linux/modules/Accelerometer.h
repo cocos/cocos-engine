@@ -29,7 +29,7 @@
 
 namespace cc {
 
-class Accelerometer : public IAccelerometer {
+class CC_DLL Accelerometer : public IAccelerometer {
 public:
     /**
      * To enable or disable accelerometer.

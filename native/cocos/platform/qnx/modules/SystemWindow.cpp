@@ -37,39 +37,90 @@
 #include "platform/IEventDispatch.h"
 #include "platform/qnx/QnxPlatform.h"
 
-namespace {
-
-} // namespace
-
 namespace cc {
 SystemWindow::SystemWindow() {
 }
 
 SystemWindow::~SystemWindow() {
+    if (_screenWin) {
+        screen_destroy_window(_screenWin);
+    }
+    if (_screenCtx) {
+        screen_destroy_context(_screenCtx);
+    }
+}
+
+bool SystemWindow::createWindow(const char *title,
+                                int w, int h, int flags) {
+    _width  = w;
+    _height = h;
+    createWindow(title, 0, 0, w, h, flags);
+    return true;
 }
 
 bool SystemWindow::createWindow(const char *title,
                                 int x, int y, int w,
                                 int h, int flags) {
-    // Create window
-
-    QnxPlatform *platform = dynamic_cast<QnxPlatform *>(BasePlatform::getPlatform());
-    CCASSERT(platform != nullptr, "Platform pointer can't be null");
-    platform->createWindow(title, x, y, w, h, flags);
+    if (_screenWin) {
+        return true;
+    }
     _width  = w;
     _height = h;
+
+    //Create the screen context
+    int rc = screen_create_context(&_screenCtx, SCREEN_APPLICATION_CONTEXT);
+    if (rc) {
+        perror("screen_create_window");
+        return EXIT_FAILURE;
+    }
+
+    //Create the screen window that will be render onto
+    rc = screen_create_window(&_screenWin, _screenCtx);
+    if (rc) {
+        perror("screen_create_window");
+        return EXIT_FAILURE;
+    }
+
+    screen_set_window_property_iv(_screenWin, SCREEN_PROPERTY_FORMAT, (const int[]){SCREEN_FORMAT_RGBX8888});
+#ifdef CC_USE_GLES3
+    screen_set_window_property_iv(_screenWin, SCREEN_PROPERTY_USAGE, (const int[]){SCREEN_USAGE_OPENGL_ES3});
+#elif  CC_USE_GLES2
+    screen_set_window_property_iv(_screenWin, SCREEN_PROPERTY_USAGE, (const int[]){SCREEN_USAGE_OPENGL_ES2});
+#endif
+
+    int pos[2] = {x, y}; /* size of the window on screen */
+    rc = screen_set_window_property_iv(_screenWin, SCREEN_PROPERTY_POSITION, pos);
+    if (rc) {
+        perror("screen_set_window_property_iv(SCREEN_PROPERTY_SIZE)");
+        return EXIT_FAILURE;
+    }
+
+    int size[2] = {w, h}; /* size of the window on screen */
+    rc          = screen_set_window_property_iv(_screenWin, SCREEN_PROPERTY_SIZE, size);
+    if (rc) {
+        perror("screen_set_window_property_iv(SCREEN_PROPERTY_POSITION)");
+        return EXIT_FAILURE;
+    }
+
+    int dpi = 0;
+    screen_get_window_property_iv(_screenWin, SCREEN_PROPERTY_DPI, &dpi);
+    fprintf(stdout, "[glError] %d\n", dpi);
+
+    rc = screen_create_window_buffers(_screenWin, 2);
+    if (rc) {
+        perror("screen_create_window_buffers");
+        return EXIT_FAILURE;
+    }
+    // return _sdl->createWindow(title, x, y, w, h, flags);
     return true;
 }
 
 uintptr_t SystemWindow::getWindowHandler() const {
-    //return _handle;
-    QnxPlatform *platform = dynamic_cast<QnxPlatform *>(BasePlatform::getPlatform());
-    CCASSERT(platform != nullptr, "Platform pointer can't be null");
-    return platform->getWindowHandler();
+    return reinterpret_cast<uintptr_t>(_screenWin);
 }
 
 void SystemWindow::setCursorEnabled(bool value) {
-    SDL_SetRelativeMouseMode(value ? SDL_FALSE : SDL_TRUE);
+    //TODO
 }
 
 void SystemWindow::copyTextToClipboard(const ccstd::string &text) {

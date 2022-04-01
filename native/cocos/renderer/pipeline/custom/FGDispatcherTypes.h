@@ -65,17 +65,16 @@ struct Range {
     uint32_t planeSlice{0xFFFFFFFF};
 };
 
-struct ResourceAccessDesc {
-    bool                    external{false};
-    uint32_t                resourceID{0xFFFFFFFF};
+struct AccessStatus {
+    uint32_t                vertID{0xFFFFFFFF};
     gfx::ShaderStageFlagBit visibility{gfx::ShaderStageFlagBit::NONE};
     gfx::MemoryAccessBit    access{gfx::MemoryAccessBit::NONE};
+    PassType                passType{PassType::RASTER};
     Range                   range;
 };
 
 struct ResourceAccessNode {
-    PassType                        passType{PassType::RASTER};
-    std::vector<ResourceAccessDesc> attachemntStatus;
+    std::vector<AccessStatus> attachemntStatus;
 };
 
 struct ResourceAccessGraph {
@@ -198,22 +197,15 @@ struct ResourceAccessGraph {
     // UuidGraph
     PmrUnorderedMap<RenderGraph::vertex_descriptor, vertex_descriptor> passIndex;
     // Members
-    ccstd::pmr::vector<ccstd::pmr::string>        resourceNames;
-    std::vector<RenderGraph::vertex_descriptor>   presentPasses;
-    PmrUnorderedMap<ccstd::pmr::string, uint32_t> resourceIndex;
+    ccstd::pmr::vector<ccstd::pmr::string>              resourceNames;
+    std::vector<RenderGraph::vertex_descriptor>         presentPasses;
+    PmrUnorderedStringMap<ccstd::pmr::string, uint32_t> resourceIndex;
 };
 
 struct Barrier {
     RenderGraph::vertex_descriptor resourceID{0xFFFFFFFF};
-    RenderGraph::vertex_descriptor from{0xFFFFFFFF};
-    RenderGraph::vertex_descriptor to{0xFFFFFFFF};
-    gfx::ShaderStageFlagBit        beginVisibility{gfx::ShaderStageFlagBit::NONE};
-    gfx::ShaderStageFlagBit        endVisibility{gfx::ShaderStageFlagBit::NONE};
-    gfx::MemoryAccessBit           beginAccess{gfx::MemoryAccessBit::NONE};
-    gfx::MemoryAccessBit           endAccess{gfx::MemoryAccessBit::NONE};
-    PassType                       passType{PassType::RASTER};
-    Range                          fromRange;
-    Range                          toRange;
+    AccessStatus                   beginStatus;
+    AccessStatus                   endStatus;
 };
 
 struct BarrierNode {

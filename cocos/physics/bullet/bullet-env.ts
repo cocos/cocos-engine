@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 // Wasm Memory Page Size is 65536
 export const pageSize = 65536; // 64KiB

@@ -38,6 +38,9 @@ import { Director, director } from '../../core/director';
 import { warnID } from '../../core/platform/debug';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 import visibleRect from '../../core/platform/visible-rect';
+import { approx, EPSILON } from '../../core/math/utils';
+import { IMask } from '../../core/scene-graph/node-event-processor';
+import { Mask } from '../components/mask';
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();
@@ -313,7 +316,7 @@ export class UITransform extends Component {
         let clone: Size;
         if (height === undefined) {
             size = size as Size;
-            if ((size.width === locContentSize.width) && (size.height === locContentSize.height)) {
+            if (approx(size.width, locContentSize.width, EPSILON) && approx(size.height, locContentSize.height, EPSILON)) {
                 return;
             }
 
@@ -324,7 +327,8 @@ export class UITransform extends Component {
             locContentSize.width = size.width;
             locContentSize.height = size.height;
         } else {
-            if ((size === locContentSize.width) && (height === locContentSize.height)) {
+            size = size as number;
+            if (approx(size, locContentSize.width, EPSILON) && approx(height, locContentSize.height, EPSILON)) {
                 return;
             }
 
@@ -332,7 +336,7 @@ export class UITransform extends Component {
                 clone = new Size(this._contentSize);
             }
 
-            locContentSize.width = size as number;
+            locContentSize.width = size;
             locContentSize.height = height;
         }
 
@@ -397,24 +401,23 @@ export class UITransform extends Component {
     }
 
     /**
-     * @zh
-     * 当前节点的点击计算。
+     * Hit test with point in UI Space.
      *
-     * @param point - 屏幕点。
+     * @param uiPoint point in UI Space.
+     * @deprecated since v3.5.0, please use `uiTransform.hitTest(screenPoint: Vec2)` instead.
      */
-    public isHit (point: Vec2) {
+    public isHit (uiPoint: Vec2) {
         const w = this._contentSize.width;
         const h = this._contentSize.height;
-        const cameraPt = _vec2a;
+        const v2WorldPt = _vec2a;
         const testPt = _vec2b;
-        const nodeEventProcessor = this.node?.eventProcessor;
 
         const cameras = this._getRenderScene().cameras;
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (!(camera.visibility & this.node.layer)) continue;
 
-            // 将一个摄像机坐标系下的点转换到世界坐标系下
+            // Convert UI Space into World Space.
             camera.node.getWorldRT(_mat4_temp);
             const m12 = _mat4_temp.m12;
             const m13 = _mat4_temp.m13;
@@ -422,53 +425,100 @@ export class UITransform extends Component {
             _mat4_temp.m12 = center.x - (_mat4_temp.m00 * m12 + _mat4_temp.m04 * m13);
             _mat4_temp.m13 = center.y - (_mat4_temp.m01 * m12 + _mat4_temp.m05 * m13);
             Mat4.invert(_mat4_temp, _mat4_temp);
-            Vec2.transformMat4(cameraPt, point, _mat4_temp);
+            Vec2.transformMat4(v2WorldPt, uiPoint, _mat4_temp);
 
+            // Convert World Space into Local Node Space.
             this.node.getWorldMatrix(_worldMatrix);
             Mat4.invert(_mat4_temp, _worldMatrix);
             if (Mat4.strictEquals(_mat4_temp, _zeroMatrix)) {
                 continue;
             }
-            Vec2.transformMat4(testPt, cameraPt, _mat4_temp);
+            Vec2.transformMat4(testPt, v2WorldPt, _mat4_temp);
             testPt.x += this._anchorPoint.x * w;
             testPt.y += this._anchorPoint.y * h;
             let hit = false;
             if (testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h) {
-                hit = true;
-                if (nodeEventProcessor && nodeEventProcessor.maskList) {
-                    const maskList = nodeEventProcessor.maskList;
-                    let parent: any = this.node;
-                    const length = maskList ? maskList.length : 0;
-                    // find mask parent, should hit test it
-                    for (let i = 0, j = 0; parent && j < length; ++i, parent = parent.parent) {
-                        const temp = maskList[j];
-                        if (i === temp.index) {
-                            if (parent === temp.comp.node) {
-                                const comp = temp.comp;
-                                if (comp && comp._enabled && !comp.isHit(cameraPt)) {
-                                    hit = false;
-                                    break;
-                                }
-
-                                j++;
-                            } else {
-                                // mask parent no longer exists
-                                maskList.length = j;
-                                break;
-                            }
-                        } else if (i > temp.index) {
-                            // mask parent no longer exists
-                            maskList.length = j;
-                            break;
-                        }
-                    }
-                }
+                hit = this._maskTest(v2WorldPt);
             }
             if (hit) {
                 return true;
             }
         }
         return false;
+    }
+
+    
+    /**
+     * Hit test with point in Screen Space.
+     *
+     * @param screenPoint point in Screen Space.
+     */
+     public hitTest (screenPoint: Vec2) {
+        const w = this._contentSize.width;
+        const h = this._contentSize.height;
+        const v3WorldPt = _vec3a;
+        const v2WorldPt = _vec2a;
+        const testPt = _vec2b;
+
+        const cameras = this._getRenderScene().cameras;
+        for (let i = 0; i < cameras.length; i++) {
+            const camera = cameras[i];
+            if (!(camera.visibility & this.node.layer)) continue;
+
+            // Convert Screen Space into World Space.
+            Vec3.set(v3WorldPt, screenPoint.x, screenPoint.y, 0);  // vec3 screen pos
+            camera.screenToWorld(v3WorldPt, v3WorldPt);
+            Vec2.set(v2WorldPt, v3WorldPt.x, v3WorldPt.y);
+
+            // Convert World Space into Local Node Space.
+            this.node.getWorldMatrix(_worldMatrix);
+            Mat4.invert(_mat4_temp, _worldMatrix);
+            if (Mat4.strictEquals(_mat4_temp, _zeroMatrix)) {
+                continue;
+            }
+            Vec2.transformMat4(testPt, v2WorldPt, _mat4_temp);
+            testPt.x += this._anchorPoint.x * w;
+            testPt.y += this._anchorPoint.y * h;
+            let hit = false;
+            if (testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h) {
+                hit = this._maskTest(v2WorldPt);
+            }
+            if (hit) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private _maskTest (pointInWorldSpace: Vec2) {
+        const maskList = this.node?.eventProcessor?.maskList as IMask[] | undefined;
+        if (maskList) {
+            let parent: Node | null = this.node;
+            const length = maskList.length;
+            // find mask parent, should hit test it
+            for (let i = 0, j = 0; parent && j < length; ++i, parent = parent.parent) {
+                const temp = maskList[j];
+                if (i === temp.index) {
+                    if (parent === temp.comp.node) {
+                        const comp = temp.comp as Mask;
+                        if (comp && comp._enabled && !comp.isHit(pointInWorldSpace)) {
+                            return false;
+                        }
+
+                        j++;
+                    } else {
+                        // mask parent no longer exists
+                        maskList.length = j;
+                        break;
+                    }
+                } else if (i > temp.index) {
+                    // mask parent no longer exists
+                    maskList.length = j;
+                    break;
+                }
+            }
+        }
+        return true;
     }
 
     /**

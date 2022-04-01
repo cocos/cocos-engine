@@ -27,7 +27,7 @@ ohos {
     }
     externalNativeBuild {
         path "../CMakeLists.txt"
-        arguments "-v", "-DRES_DIR=${RES_PATH}","-DCOCOS_X_PATH=${ENGINE_ROOT}","-DCOMMON_DIR=${COMMON_DIR}"
+        arguments "-v", "-DRES_DIR=${RES_PATH}"
         abiFilters "arm64-v8a"
         cppFlags "-std=c++14"
     }
@@ -38,7 +38,7 @@ ohos {
 
     // sync resource
     def resOutputDir ="${projectDir}/src/main/resources/rawfile"
-    def resSourceDir = "${RES_PATH}/assets"
+    def resSourceDir = "${RES_PATH}/data"
     assert file("${resSourceDir}/main.js").exists()
     assert file(resOutputDir).exists()
     task syncResourcesToRawfile(type: Sync) {

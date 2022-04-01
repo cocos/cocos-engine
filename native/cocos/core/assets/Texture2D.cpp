@@ -49,6 +49,8 @@ void Texture2D::setMipmaps(const ccstd::vector<IntrusivePtr<ImageAsset>> &value)
         info.height      = imageAsset->getHeight();
         info.format      = imageAsset->getFormat();
         info.mipmapLevel = static_cast<uint32_t>(_mipmaps.size());
+        info.baseLevel   = _baseLevel;
+        info.maxLevel    = _maxLevel;
         reset(info);
 
         for (size_t i = 0, len = _mipmaps.size(); i < len; ++i) {
@@ -60,6 +62,8 @@ void Texture2D::setMipmaps(const ccstd::vector<IntrusivePtr<ImageAsset>> &value)
         info.width       = 0;
         info.height      = 0;
         info.mipmapLevel = static_cast<uint32_t>(_mipmaps.size());
+        info.baseLevel   = _baseLevel;
+        info.maxLevel    = _maxLevel;
         reset(info);
     }
 }
@@ -76,16 +80,25 @@ void Texture2D::reset(const ITexture2DCreateInfo &info) {
     _width  = info.width;
     _height = info.height;
     setGFXFormat(info.format);
-    setMipmapLevel(info.mipmapLevel.has_value() ? info.mipmapLevel.value() : 1);
+    
+    uint32_t mipLevels = info.mipmapLevel.has_value() ? info.mipmapLevel.value() : 1;
+    setMipmapLevel(mipLevels);
+
+    uint32_t minLod = info.baseLevel.has_value() ? info.baseLevel.value() : 0;
+    uint32_t maxLod = info.maxLevel.has_value() ? info.maxLevel.value() : mipLevels - 1;
+    setMipRange(minLod, maxLod);
+
     tryReset();
 }
 
-void Texture2D::create(uint32_t width, uint32_t height, PixelFormat format /* = PixelFormat::RGBA8888*/, uint32_t mipmapLevel /* = 1*/) {
+void Texture2D::create(uint32_t width, uint32_t height, PixelFormat format /* = PixelFormat::RGBA8888*/, uint32_t mipmapLevel /* = 1*/, uint32_t baseLevel, uint32_t maxLevel) {
     reset({
         width,
         height,
         format,
         mipmapLevel,
+        baseLevel,
+        maxLevel
     });
 }
 
@@ -184,6 +197,16 @@ gfx::TextureInfo Texture2D::getGfxTextureCreateInfo(gfx::TextureUsageBit usage, 
     texInfo.levelCount = levelCount;
     texInfo.flags      = flags;
     return texInfo;
+}
+
+gfx::TextureViewInfo Texture2D::getGfxTextureViewCreateInfo(gfx::Texture *texture, gfx::Format format, uint32_t baseLevel, uint32_t levelCount) {
+    gfx::TextureViewInfo texViewInfo;
+    texViewInfo.type = gfx::TextureType::TEX2D;
+    texViewInfo.texture = texture;
+    texViewInfo.format = format;
+    texViewInfo.baseLevel = baseLevel;
+    texViewInfo.levelCount = levelCount;
+    return texViewInfo;
 }
 
 void Texture2D::initDefault(const cc::optional<ccstd::string> &uuid) {

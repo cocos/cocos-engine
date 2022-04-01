@@ -85,6 +85,8 @@ void TextureCube::setMipmaps(const ccstd::vector<ITextureCubeMipmap> &value) {
             imageAsset->getHeight(),
             imageAsset->getFormat(),
             static_cast<uint32_t>(_mipmaps.size()),
+            _baseLevel,
+            _maxLevel
         });
 
         for (size_t level = 0, len = _mipmaps.size(); level < len; ++level) {
@@ -99,6 +101,8 @@ void TextureCube::setMipmaps(const ccstd::vector<ITextureCubeMipmap> &value) {
             0,
             cc::nullopt,
             static_cast<uint32_t>(_mipmaps.size()),
+            _baseLevel,
+            _maxLevel
         });
     }
 }
@@ -115,7 +119,14 @@ void TextureCube::reset(const ITextureCubeCreateInfo &info) {
     _width  = info.width;
     _height = info.height;
     setGFXFormat(info.format);
-    setMipmapLevel(info.mipmapLevel.has_value() ? info.mipmapLevel.value() : 1);
+    
+    uint32_t mipLevels = info.mipmapLevel.has_value() ? info.mipmapLevel.value() : 1;
+    setMipmapLevel(mipLevels);
+    
+    uint32_t minLod = info.baseLevel.has_value() ? info.baseLevel.value() : 0;
+    uint32_t maxLod = info.maxLevel.has_value() ? info.maxLevel.value() : mipLevels - 1;
+    setMipRange(minLod, maxLod);
+
     tryReset();
 }
 
@@ -221,6 +232,18 @@ gfx::TextureInfo TextureCube::getGfxTextureCreateInfo(gfx::TextureUsageBit usage
     texInfo.levelCount = levelCount;
     texInfo.flags      = flags;
     return texInfo;
+}
+
+gfx::TextureViewInfo TextureCube::getGfxTextureViewCreateInfo(gfx::Texture *texture, gfx::Format format, uint32_t baseLevel, uint32_t levelCount) {
+    gfx::TextureViewInfo texViewInfo;
+    texViewInfo.type = gfx::TextureType::CUBE;
+    texViewInfo.baseLayer = 0;
+    texViewInfo.layerCount = 6;
+    texViewInfo.texture = texture;
+    texViewInfo.format = format;
+    texViewInfo.baseLevel = baseLevel;
+    texViewInfo.levelCount = levelCount;
+    return texViewInfo;
 }
 
 void TextureCube::initDefault(const cc::optional<ccstd::string> &uuid) {

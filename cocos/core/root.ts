@@ -32,7 +32,7 @@ import { builtinResMgr } from './builtin';
 import { Pool } from './memop';
 import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from './pipeline';
 import { Camera, Light, Model } from './renderer/scene';
-import { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
+import type { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
 import { LightType } from './renderer/scene/light';
 import { IRenderSceneInfo, RenderScene } from './renderer/scene/render-scene';
 import { SphereLight } from './renderer/scene/sphere-light';

@@ -1,5 +1,17 @@
 module.exports = {
+    dialog: {
+        confirm: 'Confirm',
+        cancel: 'Cancel',
+        warn: 'Warn',
+    },
+    inspector: {
+        cloneToEdit: 'Clone it. Use and go into edit.',
+        cloneToDirectoryIllegal: 'Please limit the saved path to the current project assets path',
+    },
     assets: {
+        reset: 'Reset',
+        save: 'Save',
+        locate_asset: 'Locate in Assets Panel',
         'label-atlas': {
             SpriteFrameTip: 'SpriteFrame',
             ItemWidthTip: 'Item Width',
@@ -31,8 +43,7 @@ module.exports = {
             wrapModeTTip: 'Wrap Mode T',
             faceSize: {
                 name: 'Face Size',
-                title:
-                    'Size of each cube face. If not specified, or specified as 0, the default size, which is the nearest power of two to (image.width)/4, is used.',
+                title: 'Size of each cube face. If not specified, or specified as 0, the default size, which is the nearest power of two to (image.width)/4, is used.',
             },
         },
         javascript: {
@@ -73,8 +84,12 @@ module.exports = {
         image: {
             type: 'Type',
             typeTip: 'Type',
+            bakeOfflineMipmaps: 'Bake Offline Mipmaps',
+            bakeOfflineMipmapsTip: 'Bake Offline Mipmaps',
             flipVertical: 'Flip Vertical',
             flipVerticalTip: 'Flip Vertical',
+            fixAlphaTransparencyArtifacts: 'Fix Alpha Transparency Artifacts',
+            fixAlphaTransparencyArtifactsTip: 'Fill transparent pixels with color of neareast solid pixel. These filled pixels would fix the dark halos at transparent borders of textures. Please turn on this option when you use the Alpha transparency channel in textures.',
             isRGBE: 'Is RGBE',
             isRGBETip: 'Is RGBE',
         },
@@ -132,8 +147,8 @@ module.exports = {
             animation: 'Animation',
             modelPreview: 'Model preview',
             material: 'Material',
-            no_model_tips:'No model is available for preview',
-            drag_model_tips:'Drag a model here for preview',
+            no_model_tips: 'No model is available for preview',
+            drag_model_tips: 'Drag a model here for preview',
             fbx: 'FBX',
             GlTFUserData: {
                 normals: {
@@ -169,8 +184,7 @@ module.exports = {
                     },
                     require: {
                         name: 'Required',
-                        title:
-                            'Import tangents that are contained in the model file, or calculated if not contained and texture coordinates exist.',
+                        title: 'Import tangents that are contained in the model file, or calculated if not contained and texture coordinates exist.',
                     },
                     recalculate: {
                         name: 'Recalculate',
@@ -203,8 +217,7 @@ module.exports = {
                 },
                 materialDumpDir: {
                     name: 'Material dump directory',
-                    title:
-                        'The directory to dump the materials.\nDefault to a direct sub-folder named `Materials_${model-file-base-name}` under current path.',
+                    title: 'The directory to dump the materials.\nDefault to a direct sub-folder named `Materials_${model-file-base-name}` under current path.',
                 },
                 useVertexColors: {
                     name: 'Use vertex colors',
@@ -228,6 +241,7 @@ module.exports = {
                 original: 'Original',
             },
             limitMaterialDumpDir: 'The extracted path needs to be scoped to the project path.',
+            legacyOptions:'Legacy Options',
             legacyFbxImporter: {
                 name: 'Compatible with v1.*',
                 title: 'Whether this importer should be compatible with its behaviour prior to Cocos Creator version 1.* .',
@@ -284,11 +298,13 @@ module.exports = {
                         title: 'Verbose output',
                     },
                 },
+                // eslint-disable-next-line max-len
+                warn: 'Warning: After optimization, the number and names of mesh resources will change, which will cause the loss of resources referenced by the components, please update them manually in time. (In addition, for prefabs pre-generated in the model resources, the resource synchronization mechanism will update them automatically)',
             },
             animationBakeRate: {
                 name: 'Animation Bake Rate',
                 title: 'Specify the animation bake rate in frames per second (fps).',
-                auto: '自动',
+                auto: 'Auto',
             },
             promoteSingleRootNode: {
                 name: 'Promote single root node',
@@ -299,7 +315,8 @@ module.exports = {
             },
             preferLocalTimeSpan: {
                 name: 'Prefer Local Time Span',
-                title: 'When exporting FBX animations, whether prefer to use the time range recorded in FBX file. ' +
+                title:
+                    'When exporting FBX animations, whether prefer to use the time range recorded in FBX file. ' +
                     'If one is not preferred, or one is invalid for use, the time range is robustly calculated. ' +
                     'Some FBX generators may not export this information.',
             },
@@ -327,6 +344,57 @@ module.exports = {
         animationGraph: {
             edit: 'Edit',
         },
+        animationMask: {
+            importSkeleton: 'Import Skeleton',
+            clearAllNodes: 'Clear',
+            clearAllNodesWarn: 'Are you sure to clear all data of this Animation Mask?',
+            illegalFbx: 'Import Skeleton Failed: this fbx asset has not contained sub prefab asset.',
+            nodeEnableTip: 'Whether enable this joint;<br>Alt + Click can toggle the children state.',
+        },
         multipleWarning: 'Multi-select editing of this type of asset is not supported',
+        check_is_saved: {
+            message: 'The modified data has not been saved. Do you want to save it?',
+            assetMessage: "${assetName} is modified, it's data has not been saved. Do you want to save it?",
+            save: 'Save',
+            abort: 'Abort',
+        },
+    },
+
+    menu: {
+        node: 'Node Menu',
+        component: 'Component Menu',
+
+        remove_component: 'Remove',
+        reset_component: 'Reset',
+        move_up_component: 'Move Up',
+        move_down_component: 'Move Down',
+
+        reset_node: 'Reset',
+        reset_node_position: 'Reset Position',
+        reset_node_rotation: 'Reset Rotation',
+        reset_node_scale: 'Reset Scale ',
+
+        copy_node_value: 'Copy Node Values',
+        paste_node_value: 'Paste Node Values',
+        copy_node_world_transform: 'Copy Node World Transform',
+        paste_node_world_transform: 'Paste Node World Transform',
+
+        copy_component: 'Copy Component',
+        paste_component: 'Paste Component As New',
+        paste_component_values: 'Paste Component Values',
+
+        help_url: 'Help Document',
+        custom_script: 'Custom script',
+    },
+
+    prefab: {
+        edit: 'Edit prefab asset',
+        local: 'Location',
+        reset: 'Reset from prefab',
+        save: 'Update prefab asset',
+        link: 'Connect it to another prefab',
+        unlink: 'Disconnect node with current prefab asset',
+        lost: 'Prefab asset is not exist.',
+        exist: 'Prefab Asset',
     },
 };
