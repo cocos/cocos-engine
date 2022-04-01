@@ -23,6 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <cstring>
 #include "BufferValidator.h"
 #include "DeviceValidator.h"
 #include "ValidationUtils.h"
