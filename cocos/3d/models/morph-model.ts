@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { Model } from '../../core/renderer/scene/model';
 import { MorphRenderingInstance } from '../assets/morph';
 import { Material } from '../../core/assets/material';

@@ -31,7 +31,7 @@ import { legacyCC } from '../../global-exports';
 import { Enum } from '../../value-types';
 import { ShadowsInfo } from '../../scene-graph/scene-globals';
 import { IMacroPatch } from '../core/pass';
-import { NativeShadow } from './native-scene';
+import { NativeShadow } from '../native-scene';
 import { Shader } from '../../gfx';
 
 /**

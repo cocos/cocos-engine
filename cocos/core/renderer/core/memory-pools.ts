@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { DEBUG } from 'internal:constants';
 import { NativeBufferPool } from './native-pools';
 

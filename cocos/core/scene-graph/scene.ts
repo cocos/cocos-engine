@@ -33,13 +33,13 @@ import { EDITOR, JSB, TEST } from 'internal:constants';
 import { CCObject } from '../data/object';
 import { Mat4, Quat, Vec3 } from '../math';
 import { assert, getError } from '../platform/debug';
-import { RenderScene } from '../renderer/scene/render-scene';
+import { RenderScene } from '../renderer/core/render-scene';
 import { BaseNode } from './base-node';
 import { legacyCC } from '../global-exports';
 import { Component } from '../components/component';
 import { SceneGlobals } from './scene-globals';
 import { applyTargetOverrides, expandNestedPrefabInstanceNode } from '../utils/prefab/utils';
-import { NativeScene } from '../renderer/scene/native-scene';
+import { NativeScene } from '../renderer/native-scene';
 
 /**
  * @en
