@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <algorithm>
+
 #include "base/Macros.h"
 #include "base/std/container/unordered_map.h"
 #include "gfx-base/GFXDef-common.h"
@@ -29,7 +31,6 @@
 
 #include "GLES3Std.h"
 #include "GLES3Wrangler.h"
-
 namespace cc {
 namespace gfx {
 
@@ -157,7 +158,7 @@ using GLES3GPUTextureViewList = ccstd::vector<GLES3GPUTextureView *>;
 
 struct GLES3GPUSwapchain {
 #if CC_SWAPPY_ENABLED
-    bool             swappyEnabled{false};
+    bool swappyEnabled{false};
 #endif
     EGLSurface       eglSurface{EGL_NO_SURFACE};
     EGLint           eglSwapInterval{0};

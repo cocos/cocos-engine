@@ -210,7 +210,7 @@ void Vec3::transformMat4Normal(const Vec3 &v, const Mat4 &m, Vec3 *dst) {
     float y   = v.y;
     float z   = v.z;
     float rhw = m.m[3] * x + m.m[7] * y + m.m[11] * z;
-    rhw       = rhw != 0.0F ? abs(1.0F / rhw) : 1.0F;
+    rhw       = rhw != 0.0F ? std::abs(1.0F / rhw) : 1.0F;
     dst->x    = (m.m[0] * x + m.m[4] * y + m.m[8] * z) * rhw;
     dst->y    = (m.m[1] * x + m.m[5] * y + m.m[9] * z) * rhw;
     dst->z    = (m.m[2] * x + m.m[6] * y + m.m[10] * z) * rhw;
