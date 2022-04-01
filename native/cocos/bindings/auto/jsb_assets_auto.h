@@ -521,6 +521,7 @@ bool js_register_cc_SimpleTexture(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_assets_SimpleTexture_assignImage);
 SE_DECLARE_FUNC(js_assets_SimpleTexture_checkTextureLoaded);
+SE_DECLARE_FUNC(js_assets_SimpleTexture_setMipRange);
 SE_DECLARE_FUNC(js_assets_SimpleTexture_updateImage);
 SE_DECLARE_FUNC(js_assets_SimpleTexture_updateMipmaps);
 SE_DECLARE_FUNC(js_assets_SimpleTexture_uploadData);
@@ -549,6 +550,7 @@ bool js_register_cc_Texture2D(se::Object *obj); // NOLINT
 SE_DECLARE_FUNC(js_assets_Texture2D_create);
 SE_DECLARE_FUNC(js_assets_Texture2D_description);
 SE_DECLARE_FUNC(js_assets_Texture2D_getGfxTextureCreateInfo);
+SE_DECLARE_FUNC(js_assets_Texture2D_getGfxTextureViewCreateInfo);
 SE_DECLARE_FUNC(js_assets_Texture2D_getHtmlElementObj);
 SE_DECLARE_FUNC(js_assets_Texture2D_getImage);
 SE_DECLARE_FUNC(js_assets_Texture2D_getMipmaps);
@@ -591,6 +593,7 @@ extern se::Class * __jsb_cc_TextureCube_class; // NOLINT
 bool js_register_cc_TextureCube(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_assets_TextureCube_getGfxTextureCreateInfo);
+SE_DECLARE_FUNC(js_assets_TextureCube_getGfxTextureViewCreateInfo);
 SE_DECLARE_FUNC(js_assets_TextureCube_getImage);
 SE_DECLARE_FUNC(js_assets_TextureCube_getMipmaps);
 SE_DECLARE_FUNC(js_assets_TextureCube_initialize);

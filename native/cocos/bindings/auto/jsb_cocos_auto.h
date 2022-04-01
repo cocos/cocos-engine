@@ -18,8 +18,8 @@
 bool register_all_engine(se::Object *obj);                   // NOLINT
 
 JSB_REGISTER_OBJECT_TYPE(cc::FileUtils);
-JSB_REGISTER_OBJECT_TYPE(cc::OSInterface);
 JSB_REGISTER_OBJECT_TYPE(cc::Vec2);
+JSB_REGISTER_OBJECT_TYPE(cc::OSInterface);
 JSB_REGISTER_OBJECT_TYPE(cc::ICanvasGradient);
 JSB_REGISTER_OBJECT_TYPE(cc::ICanvasRenderingContext2D);
 JSB_REGISTER_OBJECT_TYPE(cc::CanvasGradient);
@@ -71,18 +71,18 @@ SE_DECLARE_FUNC(js_engine_FileUtils_getFileDir);
 SE_DECLARE_FUNC(js_engine_FileUtils_getInstance);
 SE_DECLARE_FUNC(js_engine_FileUtils_normalizePath);
 
-extern se::Object *__jsb_cc_OSInterface_proto; // NOLINT
-extern se::Class * __jsb_cc_OSInterface_class; // NOLINT
-
-bool js_register_cc_OSInterface(se::Object *obj); // NOLINT
-
-
 extern se::Object *__jsb_cc_Vec2_proto; // NOLINT
 extern se::Class * __jsb_cc_Vec2_class; // NOLINT
 
 bool js_register_cc_Vec2(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_engine_Vec2_Vec2);
+
+extern se::Object *__jsb_cc_OSInterface_proto; // NOLINT
+extern se::Class * __jsb_cc_OSInterface_class; // NOLINT
+
+bool js_register_cc_OSInterface(se::Object *obj); // NOLINT
+
 
 extern se::Object *__jsb_cc_ICanvasGradient_proto; // NOLINT
 extern se::Class * __jsb_cc_ICanvasGradient_class; // NOLINT
