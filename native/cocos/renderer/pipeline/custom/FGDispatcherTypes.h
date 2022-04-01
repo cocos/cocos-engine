@@ -73,6 +73,11 @@ struct AccessStatus {
     Range                   range;
 };
 
+struct ResourceTransition {
+    AccessStatus lastStatus;
+    AccessStatus currStatus;
+};
+
 struct ResourceAccessNode {
     std::vector<AccessStatus> attachemntStatus;
 };
@@ -197,9 +202,9 @@ struct ResourceAccessGraph {
     // UuidGraph
     PmrUnorderedMap<RenderGraph::vertex_descriptor, vertex_descriptor> passIndex;
     // Members
-    ccstd::pmr::vector<ccstd::pmr::string>        resourceNames;
-    std::vector<RenderGraph::vertex_descriptor>   presentPasses;
-    PmrUnorderedMap<ccstd::pmr::string, uint32_t> resourceIndex;
+    ccstd::pmr::vector<ccstd::pmr::string>              resourceNames;
+    std::vector<RenderGraph::vertex_descriptor>         presentPasses;
+    PmrUnorderedStringMap<ccstd::pmr::string, uint32_t> resourceIndex;
 };
 
 struct Barrier {
@@ -214,22 +219,24 @@ struct BarrierNode {
 };
 
 struct FrameGraphDispatcher {
-    FrameGraphDispatcher(ResourceGraph& resourceGraphIn, RenderGraph& graphIn, LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn) noexcept
-    : resourceGraph(resourceGraphIn),
-      graph(graphIn),
-      layoutGraph(layoutGraphIn),
-      scratch(scratchIn) {}
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {resourceGraph.get_allocator().resource()};
+    }
+
+    FrameGraphDispatcher(ResourceGraph& resourceGraphIn, RenderGraph& graphIn, LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn, const allocator_type& alloc) noexcept;
     FrameGraphDispatcher(FrameGraphDispatcher&& rhs)      = delete;
     FrameGraphDispatcher(FrameGraphDispatcher const& rhs) = delete;
     FrameGraphDispatcher& operator=(FrameGraphDispatcher&& rhs) = delete;
     FrameGraphDispatcher& operator=(FrameGraphDispatcher const& rhs) = delete;
 
-    void buildBarriers() const;
+    void buildBarriers();
 
-    ResourceGraph&                          resourceGraph;
-    RenderGraph&                            graph;
-    LayoutGraphData&                        layoutGraph;
-    boost::container::pmr::memory_resource* scratch{nullptr};
+    ResourceGraph&                                     resourceGraph;
+    RenderGraph&                                       graph;
+    LayoutGraphData&                                   layoutGraph;
+    boost::container::pmr::memory_resource*            scratch{nullptr};
+    PmrFlatMap<ccstd::pmr::string, ResourceTransition> _externalResMap;
 };
 
 } // namespace render
