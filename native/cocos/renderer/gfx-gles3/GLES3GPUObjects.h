@@ -30,6 +30,8 @@
 #include "GLES3Std.h"
 #include "GLES3Wrangler.h"
 
+#include <algorithm>
+
 namespace cc {
 namespace gfx {
 
