@@ -31,6 +31,7 @@
 
 import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multiline, type, displayOrder, serializable } from 'cc.decorator';
 import { DEV, EDITOR } from 'internal:constants';
+import { log } from '../../core/platform/debug';
 import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
 import { EventTouch } from '../../input/types';
 import { assert, warnID } from '../../core/platform';
@@ -695,7 +696,7 @@ export class RichText extends Component {
             }
         }
 
-        console.error(`try times = ${1000 - leftTryTimes}`);
+        log(`RichText split try times = ${1000 - leftTryTimes}`);
         return partStringArr;
     }
 
