@@ -25,3 +25,17 @@ macro(cc_include_resources ARG_RES_ROOT ASSET_FILES)
     endforeach()
     set(${ASSET_FILES} ${all_files_local})
 endmacro()
+
+macro(cc_common_after_target target_name)
+    target_compile_definitions(${target_name} PRIVATE
+        GAME_NAME="${APP_NAME}"
+    )
+    if(XXTEAKEY)
+        target_compile_definitions(${target_name} PRIVATE
+            SCRIPT_XXTEAKEY="${XXTEAKEY}"
+        )
+    endif()
+endmacro()
+
+macro(cc_common_before_target target_name)
+endmacro()

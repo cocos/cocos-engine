@@ -16,4 +16,3 @@ include(${CC_PROJECT_DIR}/../common/CMakeLists.txt)
 cc_ohos_before_target(${CC_LIB_NAME})
 add_library(${CC_LIB_NAME} SHARED ${CC_ALL_SOURCES})
 cc_ohos_after_target(${CC_LIB_NAME})
-
