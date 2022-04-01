@@ -27,6 +27,7 @@
 #include "base/Macros.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 // clang-format off
+// Some macros in xlib.h conflict with v8 headers.
 #include <X11/Xlib.h>
 // clang-format on
 
