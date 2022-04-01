@@ -6,7 +6,7 @@ import { Motion, MotionEval, MotionEvalContext } from './motion';
 import type { Condition } from './condition';
 import { Asset } from '../../assets';
 import { OwnedBy, assertsOwnedBy, own, markAsDangling, ownerSymbol } from './ownership';
-import { Value } from './variable';
+import { TriggerResetMode, Value, VariableType } from './variable';
 import { InvalidTransitionError } from './errors';
 import { createEval } from './create-eval';
 import { MotionState } from './motion-state';
@@ -18,7 +18,6 @@ import { move } from '../../algorithm/move';
 import { onAfterDeserializedTag } from '../../data/deserialize-symbols';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { StateMachineComponent } from './state-machine-component';
-import { VariableType } from './parametric';
 
 export { State };
 
@@ -519,21 +518,6 @@ export class Layer implements OwnedBy<AnimationGraph> {
 export enum LayerBlending {
     override,
     additive,
-}
-
-/**
- * @zh 布尔类型变量的重置模式，指示在哪些情况下将变量重置为 `false`。
- */
-export enum TriggerResetMode {
-    /**
-     * @zh 在该变量被动画过渡消耗后自动重置。
-     */
-    AFTER_CONSUMED,
-
-    /**
-     * @zh 下一帧自动重置；在该变量被动画过渡消耗后也会自动重置。
-     */
-    NEXT_FRAME_OR_AFTER_CONSUMED,
 }
 
 const TRIGGER_VARIABLE_FLAG_VALUE_START = 0;
