@@ -2478,9 +2478,6 @@ endif()
 if(QNX)
     include(${QNX_PATH}/setup.cmake)
     qnx_set_property(cocos2d)
-    target_link_libraries(cocos2d PUBLIC
-        ${CC_EXTERNAL_LIBS}
-    )
 elseif(LINUX)
     set(LINUX_GRAPHIC_LIBS "")
     if(NOT USE_SERVER_MODE)
