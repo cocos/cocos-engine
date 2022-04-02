@@ -1,5 +1,3 @@
-import { TriggerResetMode } from "./animation-graph";
-
 export type Value = number | string | boolean;
 
 export enum VariableType {
@@ -10,6 +8,21 @@ export enum VariableType {
     TRIGGER,
 
     INTEGER,
+}
+
+/**
+ * @zh 布尔类型变量的重置模式，指示在哪些情况下将变量重置为 `false`。
+ */
+export enum TriggerResetMode {
+    /**
+     * @zh 在该变量被动画过渡消耗后自动重置。
+     */
+    AFTER_CONSUMED,
+
+    /**
+     * @zh 下一帧自动重置；在该变量被动画过渡消耗后也会自动重置。
+     */
+    NEXT_FRAME_OR_AFTER_CONSUMED,
 }
 
 export class VarInstance {

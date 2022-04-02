@@ -1418,6 +1418,15 @@ exports.methods = {
 exports.update = async function update(uuidList, renderMap, dropConfig, typeManager, renderManager) {
     const panel = this;
 
+    const enginePath = 'editor/inspector/components';
+    Object.values(renderMap).forEach(config => {
+        Object.values(config).forEach(renders => {
+            renders.sort((a, b) => {
+                return b.indexOf(enginePath) - a.indexOf(enginePath);
+            });
+        });
+    });
+
     panel.uuidList = uuidList || [];
     panel.renderMap = renderMap;
     panel.dropConfig = dropConfig;
