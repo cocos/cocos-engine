@@ -35,9 +35,7 @@
 -keep public class android.net.http.SslError
 -keep public class android.webkit.WebViewClient
 
--keep public class com.google.androidgamesdk.ChoreographerCallback { *; }
--keep public class com.google.androidgamesdk.SwappyDisplayManager { *; }
--keep public class com.google.androidgamesdk.GameSdkDeviceInfoJni { *; }
+-keep public class com.google.** { *; }
 
 -dontwarn android.webkit.WebView
 -dontwarn android.net.http.SslError
