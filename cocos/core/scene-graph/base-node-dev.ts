@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { EDITOR, DEV, TEST } from 'internal:constants';
 import { CCObject } from '../data/object';

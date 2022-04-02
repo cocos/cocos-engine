@@ -103,7 +103,7 @@ export abstract class Buffer extends GFXObject {
         super(ObjectType.BUFFER);
     }
 
-    public abstract initialize (info: BufferInfo | BufferViewInfo): void;
+    public abstract initialize (info: Readonly<BufferInfo> | Readonly<BufferViewInfo>): void;
 
     public abstract destroy (): void;
 
@@ -120,5 +120,5 @@ export abstract class Buffer extends GFXObject {
      * @param buffer The new buffer data.
      * @param size Size in bytes to be updated.
      */
-    public abstract update (buffer: BufferSource, size?: number): void;
+    public abstract update (buffer: Readonly<BufferSource>, size?: number): void;
 }

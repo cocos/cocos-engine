@@ -2,9 +2,9 @@ import { ccclass, serializable, editable, type } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
 import { Prefab } from '../../assets';
-import { CCObject } from '../../data/object';
-import { Component } from '../../components/component';
-import { Node } from '../../scene-graph/node';
+import { CCObject } from '../../data';
+import { Component } from '../../components';
+import { Node } from '../../scene-graph';
 
 function compareStringArray (array1: string[]|undefined, array2: string[]|undefined) {
     if (!array1 || !array2) {

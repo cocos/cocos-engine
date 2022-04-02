@@ -1,7 +1,7 @@
 import { ComponentPath, HierarchyPath, isPropertyPath, TargetPath } from './target-path';
 import { IValueProxyFactory } from './value-proxy';
-import * as easing from './easing';
-import { BezierControlPoints } from './bezier';
+import * as easing from '../easing/easing';
+import { BezierControlPoints } from '../curves/bezier';
 import { CompactValueTypeArray } from '../data/utils/compact-value-type-array';
 import { serializable } from '../data/decorators';
 import { AnimCurve, RatioSampler } from './animation-curve';

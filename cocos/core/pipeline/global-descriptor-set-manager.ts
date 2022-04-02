@@ -28,7 +28,6 @@
  * @module pipeline
  */
 
-import { RenderPipeline } from './render-pipeline';
 import { Device, BufferUsageBit, MemoryUsageBit, BufferInfo, Filter, Address, Sampler, DescriptorSet,
     DescriptorSetInfo, Buffer, Texture, DescriptorSetLayoutInfo, DescriptorSetLayout, SamplerInfo } from '../gfx';
 import { UBOShadow, globalDescriptorSetLayout, PipelineGlobalBindings } from './define';
@@ -81,8 +80,8 @@ export class GlobalDSManager {
         return this._globalDescriptorSet;
     }
 
-    constructor (pipeline: RenderPipeline) {
-        this._device = pipeline.device;
+    constructor (device: Device) {
+        this._device = device;
 
         this._linearSampler = this._device.getSampler(_samplerLinearInfo);
         this._pointSampler = this._device.getSampler(_samplerPointInfo);

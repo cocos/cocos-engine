@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { WebGLDevice } from '../cocos/core/gfx/webgl/webgl-device';
 import { legacyCC } from '../cocos/core/global-exports';
 

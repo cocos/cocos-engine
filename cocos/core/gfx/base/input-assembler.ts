@@ -154,7 +154,19 @@ export abstract class InputAssembler extends GFXObject {
         return this._drawInfo.firstInstance;
     }
 
-    get drawInfo (): Readonly<DrawInfo> {
+    /**
+     * @en set the draw range
+     * @zh 设置渲染范围
+     */
+    set drawInfo (info: DrawInfo) {
+        this._drawInfo = info;
+    }
+
+    /**
+     * @en get the draw range
+     * @zh 获取渲染范围
+     */
+    get drawInfo (): DrawInfo {
         return this._drawInfo;
     }
 
@@ -193,6 +205,6 @@ export abstract class InputAssembler extends GFXObject {
         return murmurhash2_32_gc(res, 666);
     }
 
-    public abstract initialize (info: InputAssemblerInfo): void;
+    public abstract initialize (info: Readonly<InputAssemblerInfo>): void;
     public abstract destroy (): void;
 }

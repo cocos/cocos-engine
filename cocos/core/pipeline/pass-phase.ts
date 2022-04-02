@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 export const getPhaseID = (() => {
     const phases: Map<string, number> = new Map<string, number>();

@@ -1,4 +1,4 @@
-import { SafeAreaEdge } from 'pal/screen-adapter';
+import { ConfigOrientation, IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
 import { Orientation } from '../enum-type';
@@ -38,7 +38,9 @@ class ScreenAdapter extends EventTarget {
     }
 
     public get resolution () {
-        return this._resolution;
+        const windowSize = this.windowSize;
+        const resolutionScale = this.resolutionScale;
+        return new Size(windowSize.width * resolutionScale, windowSize.height * resolutionScale);
     }
     public get resolutionScale () {
         return this._resolutionScale;
@@ -48,7 +50,7 @@ class ScreenAdapter extends EventTarget {
             return;
         }
         this._resolutionScale = v;
-        this._updateResolution();
+        this._cbToUpdateFrameBuffer?.();
     }
 
     public get orientation (): Orientation {
@@ -85,19 +87,23 @@ class ScreenAdapter extends EventTarget {
             right: rightEdge,
         };
     }
+    public get isProportionalToFrame (): boolean {
+        return this._isProportionalToFrame;
+    }
+    public set isProportionalToFrame (v: boolean) { }
 
     private _cbToUpdateFrameBuffer?: () => void;
-    private _resolution: Size = new Size(1, 1);  // NOTE: crash when init device if resolution is Size.ZERO on native platform.
     private _resolutionScale = 1;
+    private _isProportionalToFrame = false;
 
     constructor () {
         super();
         this._registerEvent();
     }
 
-    public init (cbToRebuildFrameBuffer: () => void) {
+    public init (options: IScreenOptions, cbToRebuildFrameBuffer: () => void) {
         this._cbToUpdateFrameBuffer = cbToRebuildFrameBuffer;
-        this._updateResolution();
+        this._cbToUpdateFrameBuffer();
     }
 
     public requestFullScreen (): Promise<void> {
@@ -120,14 +126,6 @@ class ScreenAdapter extends EventTarget {
         jsb.onOrientationChanged = (event) => {
             this.emit('orientation-change');
         };
-    }
-    private _updateResolution () {
-        const windowSize = this.windowSize;
-        // update resolution
-        this._resolution.width = windowSize.width * this.resolutionScale;
-        this._resolution.height = windowSize.height * this.resolutionScale;
-        this._cbToUpdateFrameBuffer?.();
-        this.emit('resolution-change');
     }
 }
 

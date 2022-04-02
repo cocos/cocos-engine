@@ -1,7 +1,7 @@
 exports.template = `
 <section class="asset-label-atlas">
     <div class="content">
-        <ui-prop is="asset">
+        <ui-prop ui="asset">
             <ui-label slot="label"
                 tooltip="i18n:ENGINE.assets.label-atlas.SpriteFrameTip"
                 value="i18n:ENGINE.assets.label-atlas.SpriteFrame"

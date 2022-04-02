@@ -52,9 +52,6 @@ export class TouchInputSource {
                     touchManager.releaseTouch(touchID);
                 }
                 handleTouches.push(touch);
-                if (!macro.ENABLE_MULTI_TOUCH) {
-                    break;
-                }
             }
             event.stopPropagation();
             if (event.target === this._canvas) {

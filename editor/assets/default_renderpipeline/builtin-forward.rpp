@@ -13,8 +13,7 @@
         "__id__": 3
       }
     ],
-    "renderTextures": [],
-    "materials": []
+    "renderTextures": []
   },
   {
     "__type__": "ShadowFlow",

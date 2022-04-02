@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 import { markAsWarning, replaceProperty } from '../core/utils/x-deprecated';
 import { Event, EventKeyboard, EventMouse, EventTouch, SystemEventType } from './types';
 import { SystemEvent } from './system-event';

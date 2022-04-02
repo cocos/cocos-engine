@@ -36,6 +36,7 @@ import { Particle, IParticleModule, PARTICLE_MODULE_ORDER } from '../particle';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
 import { Component } from '../../core';
 import { Camera } from '../../core/renderer/scene/camera';
+import { Pass } from '../../core/renderer';
 
 const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
@@ -245,25 +246,21 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._alignSpace = space;
     }
 
-    public updateParticles (dt: number) {
-        const ps = this._particleSystem;
-        if (!ps) {
-            return this._particles!.length;
+    public getDefaultMaterial(): Material | null {
+        return this._defaultMat;
+    }
+
+    public updateRotation (pass: Pass | null) {
+        if (pass) {
+            this.doUpdateRotation(pass);
         }
-        ps.node.getWorldMatrix(_tempWorldTrans);
-        switch (ps.scaleSpace) {
-        case Space.Local:
-            ps.node.getScale(this._node_scale);
-            break;
-        case Space.World:
-            ps.node.getWorldScale(this._node_scale);
-            break;
-        default:
-            break;
+    }
+
+    private doUpdateRotation (pass) {
+        const mode = this._renderInfo!.renderMode;
+        if (mode !== RenderMode.Mesh && this._alignSpace === AlignmentSpace.View) {
+            return;
         }
-        const mat: Material | null = ps.getMaterialInstance(0) || this._defaultMat;
-        const pass = mat!.passes[0];
-        pass.setUniform(this._uScaleHandle, this._node_scale);
 
         if (this._alignSpace === AlignmentSpace.Local) {
             this._particleSystem.node.getRotation(_node_rot);
@@ -288,6 +285,38 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             _node_rot.set(0.0, 0.0, 0.0, 1.0);
         }
         pass.setUniform(this._uNodeRotHandle, _node_rot);
+    }
+
+    public updateScale (pass: Pass | null) {
+        if (pass) {
+            this.doUpdateScale(pass);
+        }
+    }
+
+    private doUpdateScale (pass) {
+        switch (this._particleSystem.scaleSpace) {
+        case Space.Local:
+            this._particleSystem.node.getScale(this._node_scale);
+            break;
+        case Space.World:
+            this._particleSystem.node.getWorldScale(this._node_scale);
+            break;
+        default:
+            break;
+        }
+        pass.setUniform(this._uScaleHandle, this._node_scale);
+    }
+
+    public updateParticles (dt: number) {
+        const ps = this._particleSystem;
+        if (!ps) {
+            return this._particles!.length;
+        }
+        ps.node.getWorldMatrix(_tempWorldTrans);
+        const mat: Material | null = ps.getMaterialInstance(0) || this._defaultMat;
+        const pass = mat!.passes[0];
+        this.doUpdateScale(pass);
+        this.doUpdateRotation(pass);
 
         this._updateList.forEach((value: IParticleModule, key: string) => {
             value.update(ps._simulationSpace, _tempWorldTrans);

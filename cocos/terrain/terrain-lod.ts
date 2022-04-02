@@ -39,7 +39,7 @@ export class TerrainLodKey {
     public west = 0;
     public east = 0;
 
-    public compare (rk: TerrainLodKey) {
+    public equals (rk: TerrainLodKey) {
         return this.level === rk.level && this.north === rk.north && this.south === rk.south && this.west === rk.west && this.east === rk.east;
     }
 }
@@ -62,9 +62,21 @@ export class TerrainLod {
         return i * (TERRAIN_LOD_LEVELS * TERRAIN_LOD_LEVELS) + j * TERRAIN_LOD_LEVELS + k;
     }
 
+    /**
+     * @legacyPublic
+     */
     public _bodyIndexPool: TerrainIndexPool[];
+    /**
+     * @legacyPublic
+     */
     public _connecterIndexPool: TerrainIndexPool[];
+    /**
+     * @legacyPublic
+     */
     public _indexMap: TerrainIndexData[] = [];
+    /**
+     * @legacyPublic
+     */
     public _indexBuffer: Uint16Array = new Uint16Array();
 
     constructor () {
@@ -133,7 +145,7 @@ export class TerrainLod {
 
     public getIndexData (k: TerrainLodKey) {
         for (let i = 0; i < this._indexMap.length; ++i) {
-            if (this._indexMap[i].key.compare(k)) {
+            if (this._indexMap[i].key.equals(k)) {
                 return this._indexMap[i];
             }
         }

@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-import { assetManager } from '../../../core/asset-manager';
 import { mixin } from '../../../core/utils/js';
 import { Label, LabelOutline } from '../../components';
 import { bmfontUtils } from './bmfontUtils';

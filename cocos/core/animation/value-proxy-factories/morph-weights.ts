@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { ccclass, serializable } from 'cc.decorator';
 import { MeshRenderer } from '../../../3d/framework/mesh-renderer';

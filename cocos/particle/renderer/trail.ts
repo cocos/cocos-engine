@@ -199,6 +199,9 @@ export default class TrailModule {
         else this.onDisable();
     }
 
+    /**
+     * @legacyPublic
+     */
     @serializable
     public _enable = false;
 
@@ -221,6 +224,9 @@ export default class TrailModule {
     @tooltip('i18n:trailSegment.lifeTime')
     public lifeTime = new CurveRange();
 
+    /**
+     * @legacyPublic
+     */
     @serializable
     public _minParticleDistance = 0.1;
 
@@ -358,7 +364,7 @@ export default class TrailModule {
             burstCount += b.getMaxCount(ps) * Math.ceil(psTime / duration);
         }
         this._trailNum = Math.ceil(psTime * this.lifeTime.getMax() * 60 * (psRate * duration + burstCount));
-        this._trailSegments = new Pool(() => new TrailSegment(10), Math.ceil(psRate * duration));
+        this._trailSegments = new Pool(() => new TrailSegment(10), Math.ceil(psRate * duration), (obj: TrailSegment) => obj.trailElements.length = 0);
         if (this._enable) {
             this.enable = this._enable;
         }
@@ -373,6 +379,9 @@ export default class TrailModule {
         this._detachFromScene();
     }
 
+    /**
+     * @legacyPublic
+     */
     public _attachToScene () {
         if (this._trailModel) {
             if (this._trailModel.scene) {
@@ -382,6 +391,9 @@ export default class TrailModule {
         }
     }
 
+    /**
+     * @legacyPublic
+     */
     public _detachFromScene () {
         if (this._trailModel && this._trailModel.scene) {
             this._trailModel.scene.removeModel(this._trailModel);
@@ -395,7 +407,7 @@ export default class TrailModule {
             this._trailModel = null;
         }
         if (this._trailSegments) {
-            this._trailSegments.destroy((obj: TrailSegment) => { obj.trailElements.length = 0; });
+            this._trailSegments.destroy();
             this._trailSegments = null;
         }
     }
@@ -639,10 +651,10 @@ export default class TrailModule {
         const indexBuffer = device.createBuffer(new BufferInfo(
             BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            this._trailNum * 6 * Uint16Array.BYTES_PER_ELEMENT,
+            Math.max(1, this._trailNum) * 6 * Uint16Array.BYTES_PER_ELEMENT,
             Uint16Array.BYTES_PER_ELEMENT,
         ));
-        this._iBuffer = new Uint16Array(this._trailNum * 6);
+        this._iBuffer = new Uint16Array(Math.max(1, this._trailNum) * 6);
         indexBuffer.update(this._iBuffer);
 
         this._iaInfoBuffer = device.createBuffer(new BufferInfo(

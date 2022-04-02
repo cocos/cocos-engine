@@ -35,7 +35,7 @@ vec4 lpvs_main () {
     #endif
   #endif
 
-  #define INDENTIFY_NEG_QUAT 10.0
+  #pragma define INDENTIFY_NEG_QUAT 10.0
 
   #if ROTATION_OVER_TIME_MODULE_ENABLE
     vec3 rotTmp = a_texCoord2;
@@ -45,7 +45,7 @@ vec4 lpvs_main () {
         mulFactor = -1.0;
     }
     vec4 rot = vec4(rotTmp, 0.0);
-    rot.w = mulFactor * sqrt(1.0 - rot.x * rot.x - rot.y * rot.y - rot.z * rot.z);
+    rot.w = mulFactor * sqrt(abs(1.0 - rot.x * rot.x - rot.y * rot.y - rot.z * rot.z));
   #else
     #if CC_RENDER_MODE != RENDER_MODE_MESH
       #if CC_RENDER_MODE == RENDER_MODE_BILLBOARD

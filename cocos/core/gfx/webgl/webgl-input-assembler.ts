@@ -37,7 +37,7 @@ export class WebGLInputAssembler extends InputAssembler {
 
     private _gpuInputAssembler: IWebGLGPUInputAssembler | null = null;
 
-    public initialize (info: InputAssemblerInfo) {
+    public initialize (info: Readonly<InputAssemblerInfo>) {
         if (info.vertexBuffers.length === 0) {
             console.error('InputAssemblerInfo.vertexBuffers is null.');
             return;

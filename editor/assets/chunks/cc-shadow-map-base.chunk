@@ -3,9 +3,10 @@
 #include <cc-global>
 #include <cc-shadow>
 #include <packing>
+#include <cc-local>
 
 // When screenSpaceSingY and clipSpaceSignY have different signs, need to flip the uv
-#define CC_HANDLE_NDC_SAMPLE_FLIP(uv) uv = cc_cameraPos.w == 1.0 ? vec2(uv.x, 1.0 - uv.y) : uv
+#pragma define CC_HANDLE_NDC_SAMPLE_FLIP(uv) uv = cc_cameraPos.w == 1.0 ? vec2(uv.x, 1.0 - uv.y) : uv
 
 float CCGetLinearDepthFromViewSpace(vec3 viewPos) {
   float dist = length(viewPos);
@@ -17,21 +18,26 @@ float CCGetLinearDepth(vec3 worldPos) {
   return CCGetLinearDepthFromViewSpace(viewStartPos.xyz);
 }
 
+float CCGetViewSpaceDepth(float depthHS)
+{
+   return cc_shadowProjDepthInfo.y / (depthHS - cc_shadowProjDepthInfo.x);
+}
+
 #if CC_RECEIVE_SHADOW
   #pragma builtin(global)
-  layout(set = 0, binding = 3) uniform sampler2D cc_shadowMap;
+  layout(set = 0, binding = 3) uniform highp sampler2D cc_shadowMap;
 
   #pragma builtin(global)
-  layout(set = 0, binding = 5) uniform sampler2D cc_spotLightingMap;
+  layout(set = 0, binding = 5) uniform highp sampler2D cc_spotLightingMap;
 
-  vec4 ApplyShadowDepthBias_FaceNormal(vec4 shadowPos, vec3 worldNormal)
+  vec4 ApplyShadowDepthBias_FaceNormal(vec4 shadowPos, vec3 worldNormal, float normalBias)
   {
     vec4 newShadowPos = shadowPos;
-    if(cc_shadowLPNNInfo.z > 0.0001)
+    if(normalBias > 0.0001)
     {
       vec4 viewNormal = cc_matLightView * vec4(worldNormal, 0.0);
       if(viewNormal.z < 0.1)
-        newShadowPos.xy += viewNormal.xy * cc_shadowProjInfo.xy * cc_shadowLPNNInfo.z * clamp(viewNormal.z, 0.001, 0.1);
+        newShadowPos.xy += viewNormal.xy * cc_shadowProjInfo.xy * normalBias * clamp(viewNormal.z, 0.001, 0.1);
     }
     return newShadowPos;
   }
@@ -77,8 +83,8 @@ float CCGetLinearDepth(vec3 worldPos) {
     return result;
   }
   
-  float CCGetShadowFactorHard (vec4 shadowPos) {
-    vec4 clipPosNew = ApplyShadowDepthBias_Orthographic(shadowPos, cc_shadowWHPBInfo.w);
+  float CCGetShadowFactorHard (vec4 shadowPos, float bias) {
+    vec4 clipPosNew = ApplyShadowDepthBias_Orthographic(shadowPos, bias);
     vec3 clipPos = clipPosNew.xyz / clipPosNew.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
@@ -97,8 +103,8 @@ float CCGetLinearDepth(vec3 worldPos) {
     return shadow;
   }
 
-  float CCGetShadowFactorSoft (vec4 shadowPos) {
-    vec4 clipPosNew = ApplyShadowDepthBias_Orthographic(shadowPos, cc_shadowWHPBInfo.w);
+  float CCGetShadowFactorSoft (vec4 shadowPos, float bias) {
+    vec4 clipPosNew = ApplyShadowDepthBias_Orthographic(shadowPos, bias);
     vec3 clipPos = clipPosNew.xyz / clipPosNew.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
@@ -131,8 +137,8 @@ float CCGetLinearDepth(vec3 worldPos) {
     return mix(resultX, resultY, coefY);
   }
 
-  float CCGetShadowFactorSoft2X (vec4 shadowPos) {
-    vec4 clipPosNew = ApplyShadowDepthBias_Orthographic(shadowPos, cc_shadowWHPBInfo.w);
+  float CCGetShadowFactorSoft2X (vec4 shadowPos, float bias) {
+    vec4 clipPosNew = ApplyShadowDepthBias_Orthographic(shadowPos, bias);
     vec3 clipPos = clipPosNew.xyz / clipPosNew.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
@@ -193,8 +199,8 @@ float CCGetLinearDepth(vec3 worldPos) {
     return shadow * 0.25;
   }
 
-  float CCGetSpotLightShadowFactorHard (vec4 shadowPos, vec3 worldPos) {
-    vec4 clipPosNew = ApplyShadowDepthBias_Perspective(shadowPos, cc_shadowWHPBInfo.w);
+  float CCGetSpotLightShadowFactorHard (vec4 shadowPos, vec3 worldPos, float bias) {
+    vec4 clipPosNew = ApplyShadowDepthBias_Perspective(shadowPos, bias);
     vec3 clipPos = clipPosNew.xyz / clipPosNew.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
@@ -215,8 +221,8 @@ float CCGetLinearDepth(vec3 worldPos) {
     return shadow;
   }
 
-  float CCGetSpotLightShadowFactorSoft (vec4 shadowPos, vec3 worldPos) {
-    vec4 clipPosNew = ApplyShadowDepthBias_Perspective(shadowPos, cc_shadowWHPBInfo.w);
+  float CCGetSpotLightShadowFactorSoft (vec4 shadowPos, vec3 worldPos, float bias) {
+    vec4 clipPosNew = ApplyShadowDepthBias_Perspective(shadowPos, bias);
     vec3 clipPos = clipPosNew.xyz / clipPosNew.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
@@ -230,7 +236,6 @@ float CCGetLinearDepth(vec3 worldPos) {
       depth = clipPos.z;
     }
 
-    float bias = cc_shadowWHPBInfo.w;
     vec2 oneTap = 1.0 / cc_shadowWHPBInfo.xy;
     vec2 clipPos_offset = clipPos.xy + oneTap;
 
@@ -255,8 +260,8 @@ float CCGetLinearDepth(vec3 worldPos) {
     return mix(resultX, resultY, coefY);
   }
 
-  float CCGetSpotLightShadowFactorSoft2X (vec4 shadowPos, vec3 worldPos) {
-    vec4 clipPosNew = ApplyShadowDepthBias_Perspective(shadowPos, cc_shadowWHPBInfo.w);
+  float CCGetSpotLightShadowFactorSoft2X (vec4 shadowPos, vec3 worldPos, float bias) {
+    vec4 clipPosNew = ApplyShadowDepthBias_Perspective(shadowPos, bias);
     vec3 clipPos = clipPosNew.xyz / clipPosNew.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
@@ -270,7 +275,6 @@ float CCGetLinearDepth(vec3 worldPos) {
       depth = clipPos.z;
     }
 
-    float bias = cc_shadowWHPBInfo.w;
     vec2 mapSize = cc_shadowWHPBInfo.xy;
     vec2 oneTap = 1.0 / mapSize;
     float clipPos_offset_L = clipPos.x - oneTap.x;
@@ -323,27 +327,34 @@ float CCGetLinearDepth(vec3 worldPos) {
 
     return shadow * 0.25;
   }
+
+float CCSpotShadowFactorBase(vec4 shadowPos, vec3 worldPos, vec2 shadowBias)
+{
+  float pcf = cc_shadowWHPBInfo.z;
+  if (pcf > 1.9) { 
+    return CCGetSpotLightShadowFactorSoft2X(shadowPos, worldPos, shadowBias.x);
+  }else if (pcf > 0.9) { 
+    return CCGetSpotLightShadowFactorSoft(shadowPos, worldPos, shadowBias.x);
+  }else { 
+    return CCGetSpotLightShadowFactorHard(shadowPos, worldPos, shadowBias.x); 
+  }
+}
+
+float CCShadowFactorBase(vec4 shadowPos, vec3 N, vec2 shadowBias)
+{
+  float realtimeShadow = 1.0;
+  vec4 pos = ApplyShadowDepthBias_FaceNormal(shadowPos, N, shadowBias.y);
+  
+  float pcf = cc_shadowWHPBInfo.z;
+  if (pcf > 1.9) { 
+    realtimeShadow =  CCGetShadowFactorSoft2X(pos, shadowBias.x);
+  }else if (pcf > 0.9) {
+    realtimeShadow = CCGetShadowFactorSoft(pos, shadowBias.x);
+  }else { 
+    realtimeShadow = CCGetShadowFactorHard(pos, shadowBias.x); 
+  }
+  return mix(realtimeShadow, 1.0, cc_shadowNFLSInfo.w);
+}
 #endif
 
-#define CC_SPOT_SHADOW_FACTOR_BASE(realtimeShadow, shadowPos, worldPos, lightPos, normal)           \
-{                                                                                                   \
-  float pcf = cc_shadowWHPBInfo.z;                                                                  \
-  if (pcf > 1.9) realtimeShadow = CCGetSpotLightShadowFactorSoft2X(shadowPos, worldPos);            \
-  else if (pcf > 0.9) realtimeShadow = CCGetSpotLightShadowFactorSoft(shadowPos, worldPos);         \
-  else realtimeShadow = CCGetSpotLightShadowFactorHard(shadowPos, worldPos);                        \
-}                                                                                                   \
-#pragma // empty pragma trick to get rid of trailing semicolons at effect compile time
-
-#define CC_SHADOW_FACTOR_BASE(realtimeShadow, shadowPos, N, NL)                 \
-{                                                                                         \
-  vec4 pos = ApplyShadowDepthBias_FaceNormal(shadowPos, N);                               \
-  float pcf = cc_shadowWHPBInfo.z;                                                        \
-  if (pcf > 1.9) realtimeShadow = CCGetShadowFactorSoft2X(pos);                           \
-  else if (pcf > 0.9) realtimeShadow = CCGetShadowFactorSoft(pos);                        \
-  else realtimeShadow = CCGetShadowFactorHard(pos);                                       \
-  realtimeShadow = mix(realtimeShadow, 1.0, cc_shadowNFLSInfo.w);                         \
-}                                                                                         \
-#pragma // empty pragma trick to get rid of trailing semicolons at effect compile time
-
-#define CC_TRANSFER_SHADOW_BASE(pos, shadowPos) \
-shadowPos = cc_matLightViewProj * pos
+#pragma define CC_TRANSFER_SHADOW_BASE(pos, shadowPos) shadowPos = cc_matLightViewProj * pos

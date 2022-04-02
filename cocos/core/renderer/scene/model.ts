@@ -24,7 +24,6 @@
  */
 
 // Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
-import { JSB } from 'internal:constants';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Material } from '../../assets/material';
 import { RenderingSubMesh } from '../../assets/rendering-sub-mesh';
@@ -36,18 +35,14 @@ import { Texture2D } from '../../assets/texture-2d';
 import { SubModel } from './submodel';
 import { Pass, IMacroPatch, BatchingSchemes } from '../core/pass';
 import { legacyCC } from '../../global-exports';
-import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { Mat4, Vec3, Vec4 } from '../../math';
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, getTypedArrayConstructor,
     BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature, SamplerInfo } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../pipeline/define';
-import { NativeBakedSkinningModel, NativeModel, NativeSkinningModel } from './native-scene';
-import { Pool } from '../../memop/pool';
 
 const m4_1 = new Mat4();
 
 const shadowMapPatches: IMacroPatch[] = [
-    { name: 'CC_ENABLE_DIR_SHADOW', value: true },
     { name: 'CC_RECEIVE_SHADOW', value: true },
 ];
 
@@ -126,12 +121,28 @@ export class Model {
         return this._instMatWorldIdx >= 0;
     }
 
+    get shadowBias () {
+        return this._shadowBias;
+    }
+
+    set shadowBias (val) {
+        this._shadowBias = val;
+    }
+
+    get shadowNormalBias () {
+        return this._shadowNormalBias;
+    }
+
+    set shadowNormalBias (val) {
+        this._shadowNormalBias = val;
+    }
+
     get receiveShadow () {
         return this._receiveShadow;
     }
 
     set receiveShadow (val) {
-        this._setReceiveShadow(val);
+        this._receiveShadow = val;
         this.onMacroPatchesStateChanged();
     }
 
@@ -141,9 +152,6 @@ export class Model {
 
     set castShadow (val) {
         this._castShadow = val;
-        if (JSB) {
-            this._nativeObj!.setCastShadow(val);
-        }
     }
 
     get node () : Node {
@@ -152,9 +160,6 @@ export class Model {
 
     set node (n: Node) {
         this._node = n;
-        if (JSB) {
-            this._nativeObj!.setNode(n.native);
-        }
     }
 
     get transform () : Node {
@@ -163,9 +168,6 @@ export class Model {
 
     set transform (n: Node) {
         this._transform = n;
-        if (JSB) {
-            this._nativeObj!.setTransform(n.native);
-        }
     }
 
     get visFlags () : number {
@@ -174,9 +176,6 @@ export class Model {
 
     set visFlags (val: number) {
         this._visFlags = val;
-        if (JSB) {
-            this._nativeObj!.seVisFlag(val);
-        }
     }
 
     get enabled () : boolean {
@@ -185,9 +184,6 @@ export class Model {
 
     set enabled (val: boolean) {
         this._enabled = val;
-        if (JSB) {
-            this._nativeObj!.setEnabled(val);
-        }
     }
 
     public type = ModelType.DEFAULT;
@@ -213,18 +209,14 @@ export class Model {
     private _lightmap: Texture2D | null = null;
     private _lightmapUVParam: Vec4 = new Vec4();
 
-    protected _worldBoundData = new Float32Array(UBOWorldBound.COUNT);
     protected _worldBoundBuffer: Buffer | null = null;
 
     protected _receiveShadow = false;
     protected _castShadow = false;
+    protected _shadowBias = 0;
+    protected _shadowNormalBias = 0;
     protected _enabled = true;
     protected _visFlags = Layers.Enum.NONE;
-    protected declare _nativeObj: NativeModel | NativeSkinningModel | NativeBakedSkinningModel | null;
-
-    get native (): NativeModel {
-        return this._nativeObj!;
-    }
 
     /**
      * Setup a default empty model
@@ -233,46 +225,21 @@ export class Model {
         this._device = legacyCC.director.root.device;
     }
 
-    private _setReceiveShadow (val: boolean) {
-        this._receiveShadow = val;
-        if (JSB) {
-            this._nativeObj!.setReceiveShadow(val);
-        }
-    }
-
-    protected _init () {
-        if (JSB) {
-            this._nativeObj = new NativeModel();
-        }
-    }
-
     public initialize () {
         if (this._inited) {
             return;
         }
-        this._init();
-        this._setReceiveShadow(true);
+        this._receiveShadow = true;
         this.castShadow = false;
         this.enabled = true;
         this.visFlags = Layers.Enum.NONE;
         this._inited = true;
     }
 
-    private _destroySubmodel (subModel: SubModel) {
-        subModel.destroy();
-    }
-
-    private _destroy () {
-        if (JSB) {
-            this._nativeObj = null;
-        }
-    }
-
     public destroy () {
         const subModels = this._subModels;
         for (let i = 0; i < subModels.length; i++) {
-            const subModel = this._subModels[i];
-            this._destroySubmodel(subModel);
+            this._subModels[i].destroy();
         }
         if (this._localBuffer) {
             this._localBuffer.destroy();
@@ -290,12 +257,11 @@ export class Model {
         this._transform = null!;
         this._node = null!;
         this.isDynamicBatching = false;
-
-        this._destroy();
     }
 
     public attachToScene (scene: RenderScene) {
         this.scene = scene;
+        this._localDataUpdated = true;
     }
 
     public detachFromScene () {
@@ -329,30 +295,6 @@ export class Model {
         }
     }
 
-    private _applyLocalData () {
-        if (JSB) {
-            // this._nativeObj!.setLocalData(this._localData);
-        }
-    }
-
-    private _applyWorldBoundData () {
-        if (JSB) {
-            // this._nativeObj!.setWorldBoundData(this._worldBoundData);
-        }
-    }
-
-    private _applyLocalBuffer () {
-        if (JSB) {
-            this._nativeObj!.setLocalBuffer(this._localBuffer);
-        }
-    }
-
-    private _applyWorldBoundBuffer () {
-        if (JSB) {
-            this._nativeObj!.setWorldBoundBuffer(this._worldBoundBuffer);
-        }
-    }
-
     public updateUBOs (stamp: number) {
         const subModels = this._subModels;
         for (let i = 0; i < subModels.length; i++) {
@@ -372,42 +314,9 @@ export class Model {
         } else if (this._localBuffer) {
             Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
             Mat4.inverseTranspose(m4_1, worldMatrix);
-            if (!JSB) {
-                // fix precision lost of webGL on android device
-                // scale worldIT mat to around 1.0 by product its sqrt of determinant.
-                const det = Math.abs(Mat4.determinant(m4_1));
-                const factor = 1.0 / Math.sqrt(det);
-                Mat4.multiplyScalar(m4_1, m4_1, factor);
-            }
+
             Mat4.toArray(this._localData, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
             this._localBuffer.update(this._localData);
-            this._applyLocalData();
-            this._applyLocalBuffer();
-
-            this._updateWorldBoundUBOs();
-        }
-    }
-
-    private _updateWorldBoundUBOs () {
-        if (this._worldBoundBuffer) {
-            const worldBoundCenter = new Vec4(0.0, 0.0, 0.0, 0.0);
-            const worldBoundHalfExtents = new Vec4(1.0, 1.0, 1.0, 1.0);
-            const worldBounds = this._worldBounds;
-            if (worldBounds) {
-                worldBoundCenter.set(worldBounds.center.x, worldBounds.center.y, worldBounds.center.z, 0.0);
-                worldBoundHalfExtents.set(worldBounds.halfExtents.x, worldBounds.halfExtents.y, worldBounds.halfExtents.z, 1.0);
-            }
-            Vec4.toArray(this._worldBoundData, worldBoundCenter, UBOWorldBound.WORLD_BOUND_CENTER);
-            Vec4.toArray(this._worldBoundData, worldBoundHalfExtents, UBOWorldBound.WORLD_BOUND_HALF_EXTENTS);
-            this._worldBoundBuffer.update(this._worldBoundData);
-            this._applyWorldBoundData();
-            this._applyWorldBoundBuffer();
-        }
-    }
-
-    protected _updateNativeBounds () {
-        if (JSB) {
-            this._nativeObj!.setBounds(this._worldBounds!.native);
         }
     }
 
@@ -420,7 +329,6 @@ export class Model {
         if (!minPos || !maxPos) { return; }
         this._modelBounds = AABB.fromPoints(AABB.create(), minPos, maxPos);
         this._worldBounds = AABB.clone(this._modelBounds);
-        this._updateNativeBounds();
     }
 
     private _createSubModel () {
@@ -445,9 +353,6 @@ export class Model {
         this._subModels[idx].initPlanarShadowInstanceShader();
 
         this._updateAttributesAndBinding(idx);
-        if (JSB) {
-            this._nativeObj!.setSubModel(idx, this._subModels[idx].native);
-        }
     }
 
     public setSubModelMesh (idx: number, subMesh: RenderingSubMesh) {
@@ -475,6 +380,13 @@ export class Model {
         }
     }
 
+    public onGeometryChanged () {
+        const subModels = this._subModels;
+        for (let i = 0; i < subModels.length; i++) {
+            subModels[i].onGeometryChanged();
+        }
+    }
+
     public updateLightingmap (texture: Texture2D | null, uvParam: Vec4) {
         Vec4.toArray(this._localData, uvParam, UBOLocal.LIGHTINGMAP_UVPARAM);
         this._localDataUpdated = true;
@@ -498,6 +410,15 @@ export class Model {
                 descriptorSet.update();
             }
         }
+    }
+
+    public updateLocalShadowBias () {
+        const sv = this._localData;
+        sv[UBOLocal.LOCAL_SHADOW_BIAS + 0] = this._shadowBias;
+        sv[UBOLocal.LOCAL_SHADOW_BIAS + 1] = this._shadowNormalBias;
+        sv[UBOLocal.LOCAL_SHADOW_BIAS + 2] = 0;
+        sv[UBOLocal.LOCAL_SHADOW_BIAS + 3] = 0;
+        this._localDataUpdated = true;
     }
 
     public getMacroPatches (subModelIndex: number): IMacroPatch[] | null {
@@ -528,9 +449,6 @@ export class Model {
 
     private _setInstMatWorldIdx (idx: number) {
         this._instMatWorldIdx = idx;
-        if (JSB) {
-            this._nativeObj!.setInstMatWorldIdx(idx);
-        }
     }
 
     // sub-classes can override the following functions if needed
@@ -567,13 +485,9 @@ export class Model {
             attrs.views.push(typeViewArray);
             offset += info.size;
         }
-        if (pass.batchingScheme === BatchingSchemes.INSTANCING) { InstancedBuffer.get(pass).destroy(); } // instancing IA changed
+        if (pass.batchingScheme === BatchingSchemes.INSTANCING) { pass.getInstancedBuffer().destroy(); } // instancing IA changed
         this._setInstMatWorldIdx(this._getInstancedAttributeIndex(INST_MAT_WORLD));
         this._localDataUpdated = true;
-
-        if (JSB) {
-            this._nativeObj!.setInstancedAttrBlock(attrs.buffer.buffer, attrs.views, attrs.attributes);
-        }
     }
 
     protected _initLocalDescriptors (subModelIndex: number) {
@@ -584,7 +498,6 @@ export class Model {
                 UBOLocal.SIZE,
                 UBOLocal.SIZE,
             ));
-            this._applyLocalBuffer();
         }
     }
 
@@ -596,7 +509,6 @@ export class Model {
                 UBOWorldBound.SIZE,
                 UBOWorldBound.SIZE,
             ));
-            this._applyWorldBoundBuffer();
         }
     }
 

@@ -24,6 +24,7 @@
  */
 
 export * from './ambient';
+export * from './octree';
 export * from './camera';
 export * from './deprecated';
 export * from './directional-light';
@@ -35,4 +36,3 @@ export * from './skybox';
 export * from './sphere-light';
 export * from './spot-light';
 export * from './submodel';
-export * from './native-scene';
