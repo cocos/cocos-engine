@@ -27,15 +27,8 @@
 
 #pragma once
 
-#include <cstdint> // for ssize_t on android
 #include "base/Macros.h"
-#include "base/std/container/string.h" // for ssize_t on linux
 
-/**
- * @addtogroup base
- * @js NA
- * @lua NA
- */
 namespace cc {
 
 class CC_DLL Data {
