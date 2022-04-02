@@ -142,17 +142,15 @@ private:
         Device *device = CC_NEW(DeviceCtor);
 
         if (DETACH_DEVICE_THREAD) {
-            CC_DELETE(device);
             device = CC_NEW(gfx::DeviceAgent(device));
         }
 
         if (CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION) {
-            CC_DELETE(device);
             device = CC_NEW(gfx::DeviceValidator(device));
         }
 
         if (!device->initialize(info)) {
-            CC_DELETE(device);
+            CC_SAFE_DELETE(device);
             return false;
         }
 
