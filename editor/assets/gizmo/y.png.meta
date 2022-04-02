@@ -1,5 +1,5 @@
 {
-  "ver": "1.0.22",
+  "ver": "1.0.23",
   "importer": "image",
   "imported": true,
   "uuid": "7b5313d0-f1aa-4b1b-a3c8-59d523c35301",
@@ -24,7 +24,7 @@
         "anisotropy": 0,
         "isUuid": true
       },
-      "ver": "1.0.21",
+      "ver": "1.0.22",
       "imported": true,
       "files": [
         ".json"
@@ -58,7 +58,7 @@
         "imageUuidOrDatabaseUri": "7b5313d0-f1aa-4b1b-a3c8-59d523c35301@6c48a",
         "atlasUuid": ""
       },
-      "ver": "1.0.9",
+      "ver": "1.0.10",
       "imported": true,
       "files": [
         ".json"

@@ -52,10 +52,10 @@ export type MaterialProperty = number | Vec2 | Vec3 | Vec4 | Color | Mat3 | Mat4
 
 export const type2reader = {
     [Type.UNKNOWN]: (a: Float32Array, v: number, idx = 0): void => console.warn('illegal uniform handle'),
-    [Type.INT]: (a: Float32Array, v: number, idx = 0): number => a[idx],
-    [Type.INT2]: (a: Float32Array, v: IVec2Like, idx = 0): IVec2Like => Vec2.fromArray(v, a, idx),
-    [Type.INT3]: (a: Float32Array, v: IVec3Like, idx = 0): IVec3Like => Vec3.fromArray(v, a, idx),
-    [Type.INT4]: (a: Float32Array, v: IVec4Like, idx = 0): IVec4Like => Vec4.fromArray(v, a, idx),
+    [Type.INT]: (a: Int32Array, v: number, idx = 0): number => a[idx],
+    [Type.INT2]: (a: Int32Array, v: IVec2Like, idx = 0): IVec2Like => Vec2.fromArray(v, a, idx),
+    [Type.INT3]: (a: Int32Array, v: IVec3Like, idx = 0): IVec3Like => Vec3.fromArray(v, a, idx),
+    [Type.INT4]: (a: Int32Array, v: IVec4Like, idx = 0): IVec4Like => Vec4.fromArray(v, a, idx),
     [Type.FLOAT]: (a: Float32Array, v: number, idx = 0): number => a[idx],
     [Type.FLOAT2]: (a: Float32Array, v: IVec2Like, idx = 0): IVec2Like => Vec2.fromArray(v, a, idx),
     [Type.FLOAT3]: (a: Float32Array, v: IVec3Like, idx = 0): IVec3Like => Vec3.fromArray(v, a, idx),
@@ -66,10 +66,10 @@ export const type2reader = {
 
 export const type2writer = {
     [Type.UNKNOWN]: (a: Float32Array, v: number, idx = 0): void => console.warn('illegal uniform handle'),
-    [Type.INT]: (a: Float32Array, v: number, idx = 0): number => a[idx] = v,
-    [Type.INT2]: (a: Float32Array, v: IVec2Like, idx = 0): Float32Array => Vec2.toArray(a, v, idx),
-    [Type.INT3]: (a: Float32Array, v: IVec3Like, idx = 0): Float32Array => Vec3.toArray(a, v, idx),
-    [Type.INT4]: (a: Float32Array, v: IVec4Like, idx = 0): Float32Array => Vec4.toArray(a, v, idx),
+    [Type.INT]: (a: Int32Array, v: number, idx = 0): number => a[idx] = v,
+    [Type.INT2]: (a: Int32Array, v: IVec2Like, idx = 0): Int32Array => Vec2.toArray(a, v, idx),
+    [Type.INT3]: (a: Int32Array, v: IVec3Like, idx = 0): Int32Array => Vec3.toArray(a, v, idx),
+    [Type.INT4]: (a: Int32Array, v: IVec4Like, idx = 0): Int32Array => Vec4.toArray(a, v, idx),
     [Type.FLOAT]: (a: Float32Array, v: number, idx = 0): number => a[idx] = v,
     [Type.FLOAT2]: (a: Float32Array, v: IVec2Like, idx = 0): Float32Array => Vec2.toArray(a, v, idx),
     [Type.FLOAT3]: (a: Float32Array, v: IVec3Like, idx = 0): Float32Array => Vec3.toArray(a, v, idx),

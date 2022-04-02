@@ -53,6 +53,31 @@
                 "spine",
                 "dragon-bones",
             ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Build engine PhysicX",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            // "stopOnEntry": true,
+            "program": "${workspaceFolder}\\dist\\cli.js",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ],
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "--engine=../..",
+                "--build-mode=BUILD",
+                "--platform=NATIVE",
+                "--module=system",
+                "--sourcemap",
+                "--out=out",
+                "--meta-file=out/meta.json",
+                "physics-framework",
+                "physics-physx",
+            ]
         }
     ]
 }

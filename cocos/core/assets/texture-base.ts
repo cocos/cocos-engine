@@ -39,6 +39,9 @@ import { Sampler, Texture, Device, Format, SamplerInfo, Address, Filter as GFXFi
 import { legacyCC } from '../global-exports';
 import { errorID } from '../platform/debug';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
+import { ccenum } from '../value-types/enum';
+
+ccenum(Format);
 
 const idGenerator = new IDGenerator('Tex');
 /**
@@ -170,15 +173,14 @@ export class TextureBase extends Asset {
      * @param wrapR R(W) coordinate wrap mode
      */
     public setWrapMode (wrapS: WrapMode, wrapT: WrapMode, wrapR?: WrapMode) {
+        if (wrapR === undefined) wrapR = wrapS; // wrap modes should be as consistent as possible for performance
+
         this._wrapS = wrapS;
         this._samplerInfo.addressU = wrapS as unknown as Address;
         this._wrapT = wrapT;
         this._samplerInfo.addressV = wrapT as unknown as Address;
-
-        if (wrapR !== undefined) {
-            this._wrapR = wrapR;
-            this._samplerInfo.addressW = wrapR as unknown as Address;
-        }
+        this._wrapR = wrapR;
+        this._samplerInfo.addressW = wrapR as unknown as Address;
 
         if (this._gfxDevice) {
             this._gfxSampler = this._gfxDevice.getSampler(this._samplerInfo);
@@ -285,7 +287,7 @@ export class TextureBase extends Asset {
     // SERIALIZATION
 
     /**
-     * @return
+     * @legacyPublic
      */
     public _serialize (ctxForExporting: any): any {
         if (EDITOR || TEST) {
@@ -297,8 +299,7 @@ export class TextureBase extends Asset {
     }
 
     /**
-     *
-     * @param data
+     * @legacyPublic
      */
     public _deserialize (serializedData: any, handle: any) {
         const data = serializedData as string;

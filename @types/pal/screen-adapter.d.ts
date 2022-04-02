@@ -6,19 +6,39 @@ declare module 'pal/screen-adapter' {
         right: number;
     }
 
+    export type ConfigOrientation = 'auto' | 'landscape' | 'portrait';
+    export interface IScreenOptions {
+        /**
+         * Orientation options from editor builder.
+         */
+        configOrientation: ConfigOrientation;
+        /**
+         * Determine whether the game frame exact fits the screen.
+         * Now it only works on Web platform.
+         */
+        exactFitScreen: boolean,
+    }
+
     class ScreenAdapter {
         /**
          * Init the callback to rebuild frame buffer when update the resolution.
          * This method will also init the resolution.
          * This method should be called when the engine director.root is initiated.
+         * @param options
          * @param cbToRebuildFrameBuffer
          */
-        public init (cbToRebuildFrameBuffer: () => void);
+        public init (options: IScreenOptions, cbToRebuildFrameBuffer: () => void);
         /**
          * On web mobile platform, sometimes we need to rotate the game frame.
          * This field record the rotate state of game frame, which is false by default.
          */
         public isFrameRotated: boolean;
+        /**
+         * On web platform, we support to set container strategy.
+         * This field record whether we apply ProportionalToFrame strategy on container, which is false by default.
+         */
+        public get isProportionalToFrame (): boolean;
+        public set isProportionalToFrame (v: boolean);
         /**
          * In some case we don't want to handle the resize event.
          * For example, when the soft keyboard shows up, we don't want to resize the canvas.

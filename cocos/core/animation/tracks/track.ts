@@ -6,6 +6,7 @@ import { error, errorID, warn, warnID } from '../../platform';
 import { Node } from '../../scene-graph';
 import { js } from '../../utils/js';
 import { CLASS_NAME_PREFIX_ANIM, createEvalSymbol } from '../define';
+import type { AnimationMask } from '../marionette/animation-mask';
 import { PoseOutput } from '../pose-output';
 import { ComponentPath, HierarchyPath, isPropertyPath, TargetPath } from '../target-path';
 import { IValueProxyFactory } from '../value-proxy';
@@ -55,7 +56,7 @@ class TrackPath {
     }
 
     /**
-     * @internal Reserved for backward compatibility. DO NOT USE IT IN YOUR CODE.
+     * @legacyPublic Reserved for backward compatibility. DO NOT USE IT IN YOUR CODE.
      */
     public toCustomized (resolver: CustomizedTrackPathResolver) {
         this._paths.push(resolver);
@@ -253,6 +254,24 @@ export class TrackBinding {
             return binding;
         }
     }
+
+    public isMaskedOff (mask: AnimationMask) {
+        const trsPath = this.parseTrsPath();
+        if (!trsPath) {
+            return false;
+        }
+        const joints = mask.joints[Symbol.iterator]();
+        for (let jointMaskInfoIter = joints.next();
+            !jointMaskInfoIter.done;
+            jointMaskInfoIter = joints.next()) {
+            const { value: jointMaskInfo } = jointMaskInfoIter;
+            if (jointMaskInfo.path !== trsPath.node) {
+                continue;
+            }
+            return !jointMaskInfo.enabled;
+        }
+        return false;
+    }
 }
 
 function isTrsPropertyName (name: string | number): name is 'position' | 'rotation' | 'scale' | 'eulerAngles' {
@@ -270,7 +289,7 @@ export { TrackPath };
  * It's the basic unit of animation clip.
  */
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}Track`)
-export class Track {
+export abstract class Track {
     get path () {
         return this._binding.path;
     }
@@ -304,9 +323,7 @@ export class Track {
         return range;
     }
 
-    public [createEvalSymbol] (runtimeBinding: RuntimeBinding): TrackEval {
-        throw new Error(`No Impl`);
-    }
+    public abstract [createEvalSymbol] (runtimeBinding: RuntimeBinding): TrackEval;
 
     @serializable
     private _binding = new TrackBinding();

@@ -62,7 +62,7 @@ exports.template = `
                 </ui-prop>
             </ui-section>
             <div class="warn-words">
-                <ui-label value="i18n:inspector.asset.fbx.meshOptimizer.warn"></ui-label>
+                <ui-label value="i18n:ENGINE.assets.fbx.meshOptimizer.warn"></ui-label>
             </div>
         </div>
     </ui-section>
@@ -121,7 +121,7 @@ const Elements = {
             const types = ['optional', 'exclude', 'require', 'recalculate'];
             types.forEach((type, index) => {
                 optionsHtml += `<option value="${index}"
-                    title="${panel.t(`GlTFUserData.normals.${type}.title`)}" 
+                    title="${panel.t(`GlTFUserData.normals.${type}.title`)}"
                 >${panel.t(`GlTFUserData.normals.${type}.name`)}</option>`;
             });
             panel.$.normalsSelect.innerHTML = optionsHtml;
@@ -169,7 +169,7 @@ const Elements = {
             const types = ['optional', 'exclude'];
             types.forEach((type, index) => {
                 optionsHtml += `<option value="${index}"
-                    title="${panel.t(`GlTFUserData.morphNormals.${type}.title`)}" 
+                    title="${panel.t(`GlTFUserData.morphNormals.${type}.title`)}"
                 >${panel.t(`GlTFUserData.morphNormals.${type}.name`)}</option>`;
             });
             panel.$.morphNormalsSelect.innerHTML = optionsHtml;

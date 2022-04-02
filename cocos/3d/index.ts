@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import * as utils from './misc';
 import { legacyCC } from '../core/global-exports';
@@ -37,7 +34,6 @@ export * from './framework';
 
 export * from './lights';
 export * from './skinned-mesh-renderer';
-export * from './skeletal-animation';
 export {
     utils,
 };

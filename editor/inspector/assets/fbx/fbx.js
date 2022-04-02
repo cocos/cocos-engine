@@ -3,13 +3,6 @@
 exports.template = `
 <div class="container">
     <ui-prop>
-        <ui-label slot="label" value="i18n:ENGINE.assets.fbx.legacyFbxImporter.name" tooltip="i18n:ENGINE.assets.fbx.legacyFbxImporter.title"></ui-label>
-        <ui-checkbox slot="content" class="legacyFbxImporter-checkbox"></ui-checkbox>
-    </ui-prop>
-    <div class="warn-words">
-        <ui-label value="i18n:ENGINE.assets.fbx.legacyFbxImporter.warn"></ui-label>
-    </div>
-    <ui-prop>
         <ui-label slot="label" value="i18n:ENGINE.assets.fbx.animationBakeRate.name" tooltip="i18n:ENGINE.assets.fbx.animationBakeRate.title"></ui-label>
         <ui-select slot="content" class="animationBakeRate-select">
             <option value="0">0</option>
@@ -23,6 +16,22 @@ exports.template = `
         <ui-label slot="label" value="i18n:ENGINE.assets.fbx.promoteSingleRootNode.name" tooltip="i18n:ENGINE.assets.fbx.promoteSingleRootNode.title"></ui-label>
         <ui-checkbox slot="content" class="promoteSingleRootNode-checkbox"></ui-checkbox>
     </ui-prop>
+    <ui-prop>
+        <ui-label slot="label" value="i18n:ENGINE.assets.fbx.preferLocalTimeSpan.name" tooltip="i18n:ENGINE.assets.fbx.preferLocalTimeSpan.title"></ui-label>
+        <ui-checkbox slot="content" class="preferLocalTimeSpan-checkbox"></ui-checkbox>
+    </ui-prop>
+    <ui-section class="legacy">
+        <ui-label slot="header" value="i18n:ENGINE.assets.fbx.legacyOptions"></ui-label>
+        <div class="legacy-importer">
+            <ui-prop>
+                <ui-label slot="label" value="i18n:ENGINE.assets.fbx.legacyFbxImporter.name" tooltip="i18n:ENGINE.assets.fbx.legacyFbxImporter.title"></ui-label>
+                <ui-checkbox slot="content" class="legacyFbxImporter-checkbox"></ui-checkbox>
+            </ui-prop>
+            <div class="warn-words">
+                <ui-label value="i18n:ENGINE.assets.fbx.legacyFbxImporter.warn"></ui-label>
+            </div>
+        </div>
+    </ui-section>
 </div>
 `;
 
@@ -32,24 +41,42 @@ ui-section {
     margin: 4px 0;
 }
 .warn-words {
-    margin-top: 20px;
-    margin-bottom: 20px;
-    line-height: 1.7;
     color: var(--color-warn-fill);
+}
+.legacy-importer {
+    display: none;
+    margin-top: 10px;
 }
 `;
 
 exports.$ = {
     container: '.container',
+    legacy: '.legacy',
+    legacyImporter: '.legacy-importer',
     legacyFbxImporterCheckbox: '.legacyFbxImporter-checkbox',
     animationBakeRateSelect: '.animationBakeRate-select',
     promoteSingleRootNodeCheckbox: '.promoteSingleRootNode-checkbox',
+    preferLocalTimeSpanCheckbox: '.preferLocalTimeSpan-checkbox',
 };
 
 /**
  * attribute corresponds to the edit element
  */
 const Elements = {
+    legacy: {
+        async ready() {
+            const panel = this;
+
+            const legacyFbxImporter = await Editor.Profile.getProject('project', 'fbx.legacyFbxImporter.visible');
+            if (legacyFbxImporter) {
+                panel.$.legacyImporter.style.display = "block";
+            }
+
+            if (!legacyFbxImporter) {
+                panel.$.legacy.style.display = "none";
+            }
+        },
+    },
     legacyFbxImporter: {
         ready() {
             const panel = this;
@@ -105,6 +132,26 @@ const Elements = {
 
             panel.updateInvalid(panel.$.promoteSingleRootNodeCheckbox, 'fbx.promoteSingleRootNode');
             panel.updateReadonly(panel.$.promoteSingleRootNodeCheckbox);
+        },
+    },
+    preferLocalTimeSpan: {
+        ready() {
+            const panel = this;
+
+            panel.$.preferLocalTimeSpanCheckbox.addEventListener('change', panel.setProp.bind(panel, 'fbx.preferLocalTimeSpan', 'boolean'));
+        },
+        update() {
+            const panel = this;
+
+            let defaultValue = true;
+            if (panel.meta.userData.fbx) {
+                defaultValue = panel.getDefault(panel.meta.userData.fbx.preferLocalTimeSpan, defaultValue);
+            }
+
+            panel.$.preferLocalTimeSpanCheckbox.value = defaultValue;
+
+            panel.updateInvalid(panel.$.preferLocalTimeSpanCheckbox, 'fbx.preferLocalTimeSpan');
+            panel.updateReadonly(panel.$.preferLocalTimeSpanCheckbox);
         },
     },
 };

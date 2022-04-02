@@ -1,6 +1,6 @@
 import { AnimationState } from '../../cocos/core/animation/animation-state';
 import { AnimationClip } from '../../cocos/core/animation/animation-clip';
-import { SkeletonMask } from '../../cocos/core/animation/skeleton-mask';
+import { AnimationMask } from '../../cocos/core/animation/marionette/animation-mask';
 import { Node } from '../../cocos/core/scene-graph/node';
 import { HierarchyPath } from '../../cocos/core/animation/target-path';
 
@@ -97,10 +97,12 @@ interface MaskJson {
 }
 
 function createMaskFromJson (maskJson: MaskJson) {
-    const jointMaskInfos: SkeletonMask.JointMaskInfo[] = [];
+    const jointMaskInfos: AnimationMask.JointMaskInfo[] = [];
     visit(maskJson, '');
-    const mask = new SkeletonMask();
-    mask.joints = jointMaskInfos;
+    const mask = new AnimationMask();
+    for (const info of jointMaskInfos) {
+        mask.addJoint(info.path, info.enabled);
+    }
     return mask;
 
     function visit (maskJson: MaskJson, parentPath: string) {

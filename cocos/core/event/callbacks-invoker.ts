@@ -24,10 +24,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { TEST } from 'internal:constants';
 import { Pool } from '../memop';
@@ -185,7 +182,11 @@ type EventType = string | number;
  * each key is mapped to a CallbackList.
  */
 export class CallbacksInvoker<EventTypeClass extends EventType = EventType> {
+    /**
+     * @legacyPublic
+     */
     public _callbackTable: ICallbackTable = createMap(true);
+    private _offCallback?: () => void;
 
     /**
      * @zh 向一个事件名注册一个新的事件监听器，包含回调函数和调用者
@@ -308,6 +309,7 @@ export class CallbacksInvoker<EventTypeClass extends EventType = EventType> {
                 this.removeAll(key);
             }
         }
+        this._offCallback?.();
     }
 
     /**
@@ -369,6 +371,10 @@ export class CallbacksInvoker<EventTypeClass extends EventType = EventType> {
                 delete this._callbackTable[key];
             }
         }
+    }
+
+    private _registerOffCallback (cb: () => void) {
+        this._offCallback = cb;
     }
 }
 

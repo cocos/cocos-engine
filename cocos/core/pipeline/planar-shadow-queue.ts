@@ -53,9 +53,7 @@ export class PlanarShadowQueue {
         this._instancedQueue.clear();
         this._pendingModels.length = 0;
         this._castModels.length = 0;
-        if (!shadows.enabled || shadows.type !== ShadowType.Planar) { return; }
-
-        pipelineUBO.updateShadowUBO(camera);
+        if (!shadows.enabled || shadows.type !== ShadowType.Planar || shadows.normal.length() < 0.000001) { return; }
 
         const scene = camera.scene!;
         const frustum = camera.frustum;
@@ -67,7 +65,7 @@ export class PlanarShadowQueue {
             const model = models[i];
             if (model.enabled && model.node && model.castShadow) { this._castModels.push(model); }
         }
-        const instancedBuffer = InstancedBuffer.get(shadows.instancingMaterial.passes[0]);
+        const instancedBuffer = shadows.instancingMaterial.passes[0].getInstancedBuffer();
         this._instancedQueue.queue.add(instancedBuffer);
 
         for (let i = 0; i < this._castModels.length; i++) {

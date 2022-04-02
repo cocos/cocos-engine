@@ -178,6 +178,11 @@ export class ProgressBar extends Component {
         if (this._mode === Mode.FILLED) {
             value = clamp01(value);
         }
+
+        if (this._totalLength === value) {
+            return;
+        }
+
         this._totalLength = value;
         this._updateBarStatus();
     }
@@ -342,3 +347,5 @@ export class ProgressBar extends Component {
         }
     }
 }
+
+legacyCC.ProgressBar = ProgressBar;

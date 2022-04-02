@@ -173,6 +173,11 @@ namespace build {
          */
         exports: Record<string, string>;
 
+        /**
+         * The compulsory import mappings that should be applied.
+         */
+        chunkAliases: Record<string, string>;
+
         dependencyGraph?: Record<string, string[]>;
 
         hasCriticalWarns: boolean;
@@ -517,14 +522,30 @@ async function doBuild ({
 
     const bulletAsmJsModule = await nodeResolveAsync('@cocos/bullet/bullet.cocos.js');
     const wasmBinaryPath = ps.join(bulletAsmJsModule, '..', 'bullet.wasm.wasm');
-    if (ammoJsWasm === true || ammoJsWasm === 'fallback') {
-    rpVirtualOptions['@cocos/bullet'] = `
+    if (ammoJsWasm === true) {
+        rpVirtualOptions['@cocos/bullet'] = `
 import wasmBinaryURL from '${pathToAssetRefURL(wasmBinaryPath)}';
+export const bulletType = 'wasm';
 export default wasmBinaryURL;
 `;
+    } else if (ammoJsWasm === 'fallback') {
+        rpVirtualOptions['@cocos/bullet'] = `
+export async function initialize(isWasm) {
+    let ammo;
+    if (isWasm) {
+        ammo = await import('${pathToAssetRefURL(wasmBinaryPath)}');
     } else {
-    rpVirtualOptions['@cocos/bullet'] = `
+        ammo = await import('${filePathToModuleRequest(bulletAsmJsModule)}');
+    }
+    return ammo.default;
+}
+export const bulletType = 'fallback';
+export default initialize;
+        `;
+    } else {
+        rpVirtualOptions['@cocos/bullet'] = `
 import Bullet from '${filePathToModuleRequest(bulletAsmJsModule)}';
+export const bulletType = 'asmjs';
 export default Bullet;
 `;
     }
@@ -555,6 +576,7 @@ export default Bullet;
     }
 
     const result: build.Result = {
+        chunkAliases: {},
         exports: {},
         hasCriticalWarns: false,
     };
@@ -585,7 +607,7 @@ export default Bullet;
 
     Object.assign(result.exports, validEntryChunks);
 
-    Object.assign(result.exports, codeAssetMapping);
+    Object.assign(result.chunkAliases, codeAssetMapping);
 
     result.dependencyGraph = {};
     for (const output of rollupOutput.output) {

@@ -38,6 +38,8 @@ export * from './pass-phase';
 export { RenderPipeline } from './render-pipeline';
 export { RenderFlow } from './render-flow';
 export { RenderStage } from './render-stage';
+export { PipelineSceneData } from './pipeline-scene-data';
+export { GeometryRenderer } from './geometry-renderer';
 
 export { ForwardPipeline } from './forward/forward-pipeline';
 export { ForwardFlow } from './forward/forward-flow';
@@ -46,8 +48,8 @@ export { DeferredPipeline } from './deferred/deferred-pipeline';
 export { MainFlow } from './deferred/main-flow';
 export { GbufferStage } from './deferred/gbuffer-stage';
 export { LightingStage } from './deferred/lighting-stage';
-export { BloomStage } from './common/bloom-stage';
-export { PostProcessStage } from './common/postprocess-stage';
+export { BloomStage } from './deferred/bloom-stage';
+export { PostProcessStage } from './deferred/postprocess-stage';
 export { ShadowFlow } from './shadow/shadow-flow';
 export { ShadowStage } from './shadow/shadow-stage';
 

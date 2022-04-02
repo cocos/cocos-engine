@@ -119,7 +119,7 @@ export function decodeCCONBinary (bytes: Uint8Array) {
     try {
         json = JSON.parse(jsonString);
     } catch (err) {
-        throw new InvalidCCONError(err);
+        throw new InvalidCCONError(err as string);
     }
 
     const chunks: Uint8Array[] = [];

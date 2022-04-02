@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 export class NativeBufferPool {
     private _arrayBuffers: ArrayBuffer[] = [];

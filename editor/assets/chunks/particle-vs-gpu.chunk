@@ -4,24 +4,24 @@ precision mediump float;
 #include <particle-common>
 #include <cc-local>
 
-#define CURVE_MODE_FIX 1
-#define CURVE_MODE_BLEND 2
+#pragma define CURVE_MODE_FIX 1
+#pragma define CURVE_MODE_BLEND 2
 
-#define GRADIENT_MODE_FIX 1
-#define GRADIENT_MODE_BLEND 2
+#pragma define GRADIENT_MODE_FIX 1
+#pragma define GRADIENT_MODE_BLEND 2
 
-#define SIMULATE_SPACE_LOCAL 0
-#define SIMULATE_SPACE_WORLD 1
+#pragma define SIMULATE_SPACE_LOCAL 0
+#pragma define SIMULATE_SPACE_WORLD 1
 
-#define ANIMATION_MODE_WHOLE_SHEET 0
-#define ANIMATION_MODE_SINGLE_ROW 1
+#pragma define ANIMATION_MODE_WHOLE_SHEET 0
+#pragma define ANIMATION_MODE_SINGLE_ROW 1
 
-#define COLOR_OVERTIME_RAND_OFFSET 91041.
-#define FORCE_OVERTIME_RAND_OFFSET 212165.
-#define ROTATION_OVERTIME_RAND_OFFSET 125292.
-#define SIZE_OVERTIME_RAND_OFFSET 39825.
-#define TEXTURE_ANIMATION_RAND_OFFSET 90794.
-#define VELOCITY_OVERTIME_RAND_OFFSET 197866.
+#pragma define COLOR_OVERTIME_RAND_OFFSET 91041.
+#pragma define FORCE_OVERTIME_RAND_OFFSET 212165.
+#pragma define ROTATION_OVERTIME_RAND_OFFSET 125292.
+#pragma define SIZE_OVERTIME_RAND_OFFSET 39825.
+#pragma define TEXTURE_ANIMATION_RAND_OFFSET 90794.
+#pragma define VELOCITY_OVERTIME_RAND_OFFSET 197866.
 
 uniform SampleConstants {
   vec4 u_sampleInfo;
@@ -76,10 +76,22 @@ vec4 scaleAndAdd (vec4 a, vec4 b, float scale) {
   return a;
 }
 
-float pseudoRandom (float seed) {
-  seed = mod(seed, 233280.);
+// Vulkan compatible issue#9858, do not use large number (more than 100) in mod function
+float pseudoRandom(float x) {
+#if USE_VK_SHADER
+  float o = x;
+  x = mod(x - 1.0, 2.0) - 1.0;
+  float freqVar = 10.16640753482; //3.1415927*(sqrt(5.0)+1.0);
+  float y = sin(freqVar * floor(o * 0.5 - 0.5)); // some pseudorandom hash
+  float v = max(0.0, 1.0-abs(x));
+  v *= 0.7071067812; // fix sheared 'distance' measurements - but this is 1D so unsure it's even a good thing to try
+  v = y < 0.0 ? -v : v;
+  return v;
+#else
+  float seed = mod(x, 233280.);
   float q = (seed * 9301. + 49297.) / 233280.;
   return fract(q);
+#endif
 }
 
 #if COLOR_OVER_TIME_MODULE_ENABLE
@@ -142,7 +154,7 @@ float random (float seed) {
   return fract(q);
 }
 
-#define INDENTIFY_NEG_QUAT 10.0
+#pragma define INDENTIFY_NEG_QUAT 10.0
 
 vec4 toQuat(vec3 rotation) {
   vec3 rotTmp = rotation;
@@ -152,7 +164,7 @@ vec4 toQuat(vec3 rotation) {
     mulFactor = -1.0;
   }
   vec4 rot = vec4(rotTmp, 0.0);
-  rot.w = mulFactor * sqrt(1.0 - rot.x * rot.x - rot.y * rot.y - rot.z * rot.z);
+  rot.w = mulFactor * sqrt(abs(1.0 - rot.x * rot.x - rot.y * rot.y - rot.z * rot.z));
   return rot;
 }
 

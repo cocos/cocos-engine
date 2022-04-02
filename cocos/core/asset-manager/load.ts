@@ -35,10 +35,7 @@ import { cache, checkCircleReference, clear, forEach, gatherAsset, getDepends, s
 import { legacyCC } from '../global-exports';
 import { nativeDependMap, onLoadedInvokedMap } from './depend-maps';
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 interface IProgress {
     finish: number;
     total: number;
@@ -224,7 +221,7 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData) {
                         onLoadedInvokedMap.add(asset);
                     }
                 } catch (e) {
-                    error(`The asset ${uuid} is invalid for some reason, detail message: ${e.message}, stack: ${e.stack}`);
+                    error(`The asset ${uuid} is invalid for some reason, detail message: ${(e as Error).message}, stack: ${(e as Error).stack!}`);
                     if (EDITOR || PREVIEW) {
                         if (asset instanceof Asset) {
                             asset.initDefault();

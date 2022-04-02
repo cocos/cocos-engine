@@ -28,21 +28,23 @@
  * @module core
  */
 
-import { JSB } from 'internal:constants';
 import { builtinResMgr } from './builtin';
 import { Pool } from './memop';
 import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from './pipeline';
-import { Camera, Light, Model, NativeRoot } from './renderer/scene';
-import { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
+import { Camera, Light, Model } from './renderer/scene';
+import type { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
 import { LightType } from './renderer/scene/light';
 import { IRenderSceneInfo, RenderScene } from './renderer/scene/render-scene';
 import { SphereLight } from './renderer/scene/sphere-light';
 import { SpotLight } from './renderer/scene/spot-light';
-import { IBatcher } from '../2d/renderer/i-batcher';
 import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
 import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature } from './gfx';
 import { warnID } from './platform/debug';
+import { Pipeline, PipelineRuntime } from './pipeline/custom/pipeline';
+import { createCustomPipeline } from './pipeline/custom';
+import { Batcher2D } from '../2d/renderer/batcher-2d';
+import { IPipelineEvent } from './pipeline/pipeline-event';
 
 /**
  * @zh
@@ -65,32 +67,6 @@ export interface ISceneInfo {
  * Root类
  */
 export class Root {
-    private _init (): void {
-        if (JSB) {
-            this._naitveObj = new NativeRoot();
-        }
-    }
-
-    private _destroy (): void {
-        if (JSB) {
-            this._naitveObj = null;
-        }
-    }
-
-    private _setCumulativeTime (deltaTime: number): void {
-        this._cumulativeTime += deltaTime;
-        if (JSB) {
-            this._naitveObj.cumulativeTime = this._cumulativeTime;
-        }
-    }
-
-    private _setFrameTime (deltaTime: number): void {
-        this._frameTime = deltaTime;
-        if (JSB) {
-            this._naitveObj.frameTime = deltaTime;
-        }
-    }
-
     /**
      * @zh
      * GFX 设备
@@ -141,10 +117,26 @@ export class Root {
 
     /**
      * @zh
+     * 启用自定义渲染管线
+     */
+    public get usesCustomPipeline (): boolean {
+        return this._usesCustomPipeline;
+    }
+
+    /**
+     * @zh
      * 渲染管线
      */
-    public get pipeline (): RenderPipeline {
+    public get pipeline (): PipelineRuntime {
         return this._pipeline!;
+    }
+
+    /**
+     * @zh
+     * 渲染管线事件
+     */
+    public get pipelineEvent (): IPipelineEvent {
+        return this._pipelineEvent!;
     }
 
     /**
@@ -152,8 +144,8 @@ export class Root {
      * UI实例
      * 引擎内部使用，用户无需调用此接口
      */
-    public get batcher2D (): IBatcher {
-        return this._batcher as IBatcher;
+    public get batcher2D (): Batcher2D {
+        return this._batcher as Batcher2D;
     }
 
     /**
@@ -221,7 +213,13 @@ export class Root {
         return this._useDeferredPipeline;
     }
 
+    /**
+     * @legacyPublic
+     */
     public _createSceneFun: (root: Root) => RenderScene = null!;
+    /**
+     * @legacyPublic
+     */
     public _createWindowFun: (root: Root) => RenderWindow = null!;
 
     private _device: Device;
@@ -229,8 +227,12 @@ export class Root {
     private _mainWindow: RenderWindow | null = null;
     private _curWindow: RenderWindow | null = null;
     private _tempWindow: RenderWindow | null = null;
-    private _pipeline: RenderPipeline | null = null;
-    private _batcher: IBatcher | null = null;
+    private _usesCustomPipeline = false;
+    private _pipeline: PipelineRuntime | null = null;
+    private _pipelineEvent: IPipelineEvent | null = null;
+    private _classicPipeline: RenderPipeline | null = null;
+    private _customPipeline: Pipeline | null = null;
+    private _batcher: Batcher2D | null = null;
     private _dataPoolMgr: DataPoolManager;
     private _scenes: RenderScene[] = [];
     private _modelPools = new Map<Constructor<Model>, Pool<Model>>();
@@ -257,7 +259,7 @@ export class Root {
         RenderScene.registerCreateFunc(this);
         RenderWindow.registerCreateFunc(this);
 
-        this._cameraPool = new Pool(() => new Camera(this._device), 4);
+        this._cameraPool = new Pool(() => new Camera(this._device), 4, (cam) => cam.destroy());
     }
 
     /**
@@ -265,11 +267,8 @@ export class Root {
      * 初始化函数
      * @param info Root描述信息
      */
-    public initialize (info: IRootInfo): Promise<void> {
-        this._init();
-
+    public initialize (info: IRootInfo) {
         const swapchain: Swapchain = legacyCC.game._swapchain;
-
         const colorAttachment = new ColorAttachment();
         colorAttachment.format = swapchain.colorTexture.format;
         const depthStencilAttachment = new DepthStencilAttachment();
@@ -286,8 +285,6 @@ export class Root {
             swapchain,
         });
         this._curWindow = this._mainWindow;
-
-        return Promise.resolve(builtinResMgr.initBuiltinRes(this._device));
     }
 
     public destroy () {
@@ -296,6 +293,7 @@ export class Root {
         if (this._pipeline) {
             this._pipeline.destroy();
             this._pipeline = null;
+            this._pipelineEvent = null;
         }
 
         if (this._batcher) {
@@ -306,8 +304,6 @@ export class Root {
         this._curWindow = null;
         this._mainWindow = null;
         this.dataPoolManager.clear();
-
-        this._destroy();
     }
 
     /**
@@ -325,6 +321,9 @@ export class Root {
     }
 
     public setRenderPipeline (rppl: RenderPipeline): boolean {
+        //-----------------------------------------------
+        // prepare classic pipeline
+        //-----------------------------------------------
         if (rppl instanceof DeferredPipeline) {
             this._useDeferredPipeline = true;
         }
@@ -334,23 +333,42 @@ export class Root {
             rppl = createDefaultPipeline();
             isCreateDefaultPipeline = true;
         }
-        this._pipeline = rppl;
+
         // now cluster just enabled in deferred pipeline
         if (!this._useDeferredPipeline || !this.device.hasFeature(Feature.COMPUTE_SHADER)) {
             // disable cluster
-            this._pipeline.clusterEnabled = false;
+            rppl.clusterEnabled = false;
         }
-        this._pipeline.bloomEnabled = false;
+        rppl.bloomEnabled = false;
+
+        //-----------------------------------------------
+        // choose pipeline
+        //-----------------------------------------------
+        if (this.usesCustomPipeline) {
+            this._customPipeline = createCustomPipeline();
+            isCreateDefaultPipeline = true;
+            this._pipeline = this._customPipeline!;
+        } else {
+            this._classicPipeline = rppl;
+            this._pipeline = this._classicPipeline;
+            this._pipelineEvent = this._classicPipeline;
+        }
 
         if (!this._pipeline.activate(this._mainWindow!.swapchain)) {
             if (isCreateDefaultPipeline) {
                 this._pipeline.destroy();
             }
+            this._classicPipeline = null;
+            this._customPipeline = null;
             this._pipeline = null;
+            this._pipelineEvent = null;
 
             return false;
         }
 
+        //-----------------------------------------------
+        // pipeline initialization completed
+        //-----------------------------------------------
         const scene = legacyCC.director.getScene();
         if (scene) {
             scene.globals.activate();
@@ -358,8 +376,8 @@ export class Root {
 
         this.onGlobalPipelineStateChanged();
         if (!this._batcher && legacyCC.internal.Batcher2D) {
-            this._batcher = new legacyCC.internal.Batcher2D(this) as IBatcher;
-            if (!this._batcher.initialize()) {
+            this._batcher = new legacyCC.internal.Batcher2D(this);
+            if (!this._batcher!.initialize()) {
                 this.destroy();
                 return false;
             }
@@ -373,7 +391,7 @@ export class Root {
             this._scenes[i].onGlobalPipelineStateChanged();
         }
 
-        this._pipeline!.pipelineSceneData.onGlobalPipelineStateChanged();
+        this._pipeline!.onGlobalPipelineStateChanged();
     }
 
     /**
@@ -390,7 +408,7 @@ export class Root {
      * 重置累计时间
      */
     public resetCumulativeTime () {
-        this._setCumulativeTime(0);
+        this._cumulativeTime = 0;
     }
 
     /**
@@ -399,7 +417,7 @@ export class Root {
      * @param deltaTime 间隔时间
      */
     public frameMove (deltaTime: number) {
-        this._setFrameTime(deltaTime);
+        this._frameTime = deltaTime;
 
         /*
         if (this._fixedFPSFrameTime > 0) {
@@ -413,7 +431,7 @@ export class Root {
         */
 
         ++this._frameCount;
-        this._setCumulativeTime(deltaTime);
+        this._cumulativeTime += deltaTime;
         this._fpsTime += deltaTime;
         if (this._fpsTime > 1.0) {
             this._fps = this._frameCount;
@@ -423,7 +441,6 @@ export class Root {
         for (let i = 0; i < this._scenes.length; ++i) {
             this._scenes[i].removeBatches();
         }
-        if (this._batcher) this._batcher.update();
 
         const windows = this._windows;
         const cameraList: Camera[] = [];
@@ -436,7 +453,10 @@ export class Root {
             this._device.acquire([legacyCC.game._swapchain]);
             const scenes = this._scenes;
             const stamp = legacyCC.director.getTotalFrames();
-            if (this._batcher) this._batcher.uploadBuffers();
+            if (this._batcher) {
+                this._batcher.update();
+                this._batcher.uploadBuffers();
+            }
 
             for (let i = 0; i < scenes.length; i++) {
                 scenes[i].update(stamp);
@@ -530,7 +550,7 @@ export class Root {
     public createModel<T extends Model> (ModelCtor: typeof Model): T {
         let p = this._modelPools.get(ModelCtor);
         if (!p) {
-            this._modelPools.set(ModelCtor, new Pool(() => new ModelCtor(), 10));
+            this._modelPools.set(ModelCtor, new Pool(() => new ModelCtor(), 10, (obj) => obj.destroy()));
             p = this._modelPools.get(ModelCtor)!;
         }
         const model = p.alloc() as T;
@@ -542,13 +562,13 @@ export class Root {
         const p = this._modelPools.get(m.constructor as Constructor<Model>);
         if (p) {
             p.free(m);
-            m.destroy();
             if (m.scene) {
                 m.scene.removeModel(m);
             }
         } else {
             warnID(1300, m.constructor.name);
         }
+        m.destroy();
     }
 
     public createCamera (): Camera {
@@ -558,7 +578,7 @@ export class Root {
     public createLight<T extends Light> (LightCtor: new () => T): T {
         let l = this._lightPools.get(LightCtor);
         if (!l) {
-            this._lightPools.set(LightCtor, new Pool(() => new LightCtor(), 4));
+            this._lightPools.set(LightCtor, new Pool<Light>(() => new LightCtor(), 4, (obj) => obj.destroy()));
             l = this._lightPools.get(LightCtor)!;
         }
         const light = l.alloc() as T;
@@ -568,7 +588,6 @@ export class Root {
 
     public destroyLight (l: Light) {
         const p = this._lightPools.get(l.constructor as Constructor<Light>);
-        l.destroy();
         if (p) {
             p.free(l);
             if (l.scene) {
@@ -584,6 +603,7 @@ export class Root {
                 }
             }
         }
+        l.destroy();
     }
 }
 

@@ -4,14 +4,16 @@
 #if CC_USE_BAKED_ANIMATION
   #if CC_DEVICE_SUPPORT_FLOAT_TEXTURE
     void getJointDQ (float i, out vec4 Qr, out vec4 Qt, out vec3 S) {
-      CCGetJointTextureCoords(3.0, i, j, x, y, invSize);
+      highp float x, y, invSize;
+      CCGetJointTextureCoords(3.0, i, x, y, invSize);
       Qr = texture(cc_jointTexture, vec2((x + 0.5) * invSize, y));
       Qt = texture(cc_jointTexture, vec2((x + 1.5) * invSize, y));
       S = texture(cc_jointTexture, vec2((x + 2.5) * invSize, y)).xyz;
     }
   #else
     void getJointDQ (float i, out vec4 Qr, out vec4 Qt, out vec3 S) {
-      CCGetJointTextureCoords(12.0, i, j, x, y, invSize);
+      highp float x, y, invSize;
+      CCGetJointTextureCoords(12.0, i, x, y, invSize);
       Qr = vec4(
         decode32(texture(cc_jointTexture, vec2((x + 0.5) * invSize, y))),
         decode32(texture(cc_jointTexture, vec2((x + 1.5) * invSize, y))),
@@ -65,10 +67,10 @@ void CCSkin (inout vec4 position) {
   position.xyz = VectorTransformQuat(position.xyz * S, R) + T;
 }
 
-void CCSkin (inout StandardVertInput attr) {
+void CCSkin (inout vec4 position, inout vec3 normal, inout vec4 tangent) {
   vec4 R; vec3 T, S;
   skinRTS(R, T, S);
-  attr.position.xyz = VectorTransformQuat(attr.position.xyz * S, R) + T;
-  attr.normal = VectorTransformQuat(attr.normal, R);
-  attr.tangent.xyz = VectorTransformQuat(attr.tangent.xyz, R);
+  position.xyz = VectorTransformQuat(position.xyz * S, R) + T;
+  normal = VectorTransformQuat(normal, R);
+  tangent.xyz = VectorTransformQuat(tangent.xyz, R);
 }
