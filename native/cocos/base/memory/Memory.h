@@ -32,7 +32,7 @@
 #ifdef _MSC_VER
     #include <malloc.h>
 #else
-    #include <stdlib.h>
+    #include <cstdlib>
 #endif
 
 #include "base/Macros.h"
