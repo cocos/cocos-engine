@@ -3,7 +3,6 @@
 const { materialTechniquePolyfill } = require('../utils/material');
 const { setDisabled, setReadonly, setHidden, loopSetAssetDumpDataReadonly } = require('../utils/prop');
 const { join, sep, normalize } = require('path');
-const cacheDot = '._';
 
 exports.style = `
 ui-button.location { flex: none; margin-left: 6px; }
@@ -48,6 +47,19 @@ exports.$ = {
 };
 
 exports.methods = {
+    record() {
+        return JSON.stringify({
+            material: this.material,
+            cacheData:this.cacheData,
+        });
+    },
+    async restore(record) {
+        record = JSON.parse(record);
+        this.material = record.material;
+        this.cacheData = record.cacheData;
+        await this.update();
+    },
+
     async getCustomInspector() {
         const currentEffectInfo = this._effects.find((effect) => {
             return effect.name === this.material.effect;
@@ -110,6 +122,8 @@ exports.methods = {
 
         if (!this.dirtyData.origin) {
             this.dirtyData.origin = this.dirtyData.realtime;
+
+            this.dispatch('snapshot');
         }
 
         this.canUpdatePreview = true;
@@ -118,6 +132,31 @@ exports.methods = {
     isDirty() {
         const isDirty = this.dirtyData.origin !== this.dirtyData.realtime;
         return isDirty;
+    },
+
+    async update() {
+        if (this.canUpdatePreview) {
+            await this.updatePreview();
+        }
+
+        // effect <select> tag
+        this.$.effect.value = this.material.effect;
+        setDisabled(this.asset.readonly, this.$.effect);
+        // technique <select> tag
+        this.$.technique.value = this.material.technique;
+        setDisabled(this.asset.readonly, this.$.technique);
+
+        this.updateTechniqueOptions();
+        this.setDirtyData();
+        const inspector = await this.getCustomInspector();
+        if (inspector) {
+            this.updateCustomInspector(inspector);
+        } else {
+            // optimize calculate speed when edit multiple materials in node mode
+            requestIdleCallback(() => {
+                this.updatePasses();
+            });
+        }
     },
 
     /**
@@ -375,28 +414,8 @@ exports.update = async function(assetList, metaList) {
     }
     // set this.material.technique
     this.material = await Editor.Message.request('scene', 'query-material', this.asset.uuid);
-    if (this.canUpdatePreview) {
-        await this.updatePreview();
-    }
 
-    // effect <select> tag
-    this.$.effect.value = this.material.effect;
-    setDisabled(this.asset.readonly, this.$.effect);
-    // technique <select> tag
-    this.$.technique.value = this.material.technique;
-    setDisabled(this.asset.readonly, this.$.technique);
-
-    this.updateTechniqueOptions();
-    this.setDirtyData();
-    const inspector = await this.getCustomInspector();
-    if (inspector) {
-        this.updateCustomInspector(inspector);
-    } else {
-        // optimize calculate speed when edit multiple materials in node mode
-        requestIdleCallback(() => {
-            this.updatePasses();
-        });
-    }
+    await this.update();
 };
 
 /**

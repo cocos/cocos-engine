@@ -8,13 +8,13 @@ class SnapshotCommand {
     }
 
     async undo() {
-        await this.excute(this.undoData);
+        await this.execute(this.undoData);
     }
     async redo() {
-        await this.excute(this.redoData);
+        await this.execute(this.redoData);
     }
 
-    async excute(data) {}
+    async execute() {}
 }
 
 module.exports = SnapshotCommand;

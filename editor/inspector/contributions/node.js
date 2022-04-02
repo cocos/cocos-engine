@@ -1047,6 +1047,12 @@ const Elements = {
 };
 
 exports.methods = {
+    undo() {
+        Editor.Message.send('scene', 'undo');
+    },
+    redo() {
+        Editor.Message.send('scene', 'redo');
+    },
     /**
      * 获取组件帮助菜单的 url
      * @param editor

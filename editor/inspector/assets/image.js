@@ -77,6 +77,7 @@ const Elements = {
                 // There are other properties whose updates depend on its changes attribute corresponds to the edit element
                 Elements.isRGBE.update.call(panel);
                 Elements.fixAlphaTransparencyArtifacts.update.call(panel);
+                panel.updatePanel();
             });
         },
         update() {

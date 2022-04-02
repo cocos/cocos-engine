@@ -4,6 +4,15 @@ exports.template = `
 `;
 
 exports.methods = {
+    record() {
+        return JSON.stringify(this.physicsMaterial);
+    },
+    async restore(record) {
+        this.physicsMaterial = JSON.parse(record);
+        await Editor.Message.request('scene', 'change-physics-material', this.physicsMaterial);
+        this.update();
+    },
+
     updateReadonly(element) {
         if (this.asset.readonly) {
             element.setAttribute('disabled', true);
@@ -28,6 +37,29 @@ exports.methods = {
         this.dispatch('change');
     },
 
+    update() {
+        for (const key in this.physicsMaterial) {
+            const dump = this.physicsMaterial[key];
+
+            if (!dump.visible) {
+                continue;
+            }
+
+            // reuse
+            if (!this.$[key]) {
+                this.$[key] = document.createElement('ui-prop');
+                this.$[key].setAttribute('type', 'dump');
+                this.$[key].addEventListener('change-dump', this.dataChange.bind(this));
+            }
+
+            this.$.container.appendChild(this.$[key]);
+            this.updateReadonly(this.$[key]);
+            this.$[key].render(dump);
+        }
+
+        this.setDirtyData();
+    },
+
     /**
      * Detection of data changes only determines the currently selected technique
      */
@@ -36,6 +68,8 @@ exports.methods = {
 
         if (!this.dirtyData.origin) {
             this.dirtyData.origin = this.dirtyData.realtime;
+
+            this.dispatch('snapshot');
         }
     },
 
@@ -64,7 +98,7 @@ exports.update = async function(assetList, metaList) {
     this.meta = metaList[0];
 
     if (assetList.length !== 1) {
-        this.$.container.innerText = '';
+        this.$.container.innerText = Editor.I18n.t('ENGINE.assets.multipleWarning');
         return;
     }
 
@@ -75,26 +109,7 @@ exports.update = async function(assetList, metaList) {
 
     this.physicsMaterial = await this.query(this.asset.uuid);
 
-    for (const key in this.physicsMaterial) {
-        const dump = this.physicsMaterial[key];
-
-        if (!dump.visible) {
-            continue;
-        }
-
-        // reuse
-        if (!this.$[key]) {
-            this.$[key] = document.createElement('ui-prop');
-            this.$[key].setAttribute('type', 'dump');
-            this.$[key].addEventListener('change-dump', this.dataChange.bind(this));
-        }
-
-        this.$.container.appendChild(this.$[key]);
-        this.updateReadonly(this.$[key]);
-        this.$[key].render(dump);
-    }
-
-    this.setDirtyData();
+    this.update();
 };
 
 exports.close = function() {

@@ -298,6 +298,11 @@ const Elements = {
                         contentRender.__panels__[i] = document.createElement('ui-panel');
                         contentRender.__panels__[i].addEventListener('change', () => {
                             Elements.header.isDirty.call(panel);
+
+                            exports.history.snapshot(panel);
+                        });
+                        contentRender.__panels__[i].addEventListener('snapshot', () => {
+                            exports.history.snapshot(panel);
                         });
                         contentRender.appendChild(contentRender.__panels__[i]);
                     }
@@ -321,11 +326,99 @@ const Elements = {
 
 exports.methods = {
     undo() {
-        console.log('undo');
+        exports.history.undo();
     },
     redo() {
-        console.log('redo');
+        exports.history.redo();
     },
+    async record() {
+        const panel = this;
+
+        const renderData = {};
+        for (const renderName in panel.contentRenders) {
+            const { contentRender } = panel.contentRenders[renderName];
+
+            if (!Array.isArray(contentRender.__panels__)) {
+                continue;
+            }
+
+            renderData[renderName] = [];
+
+            for (let i = 0; i < contentRender.__panels__.length; i++) {
+                if (contentRender.__panels__[i].panelObject.record) {
+                    const data = await contentRender.__panels__[i].callMethod('record');
+                    renderData[renderName].push(data);
+                } else {
+                    renderData[renderName].push(null);
+                }
+            }
+        }
+
+        return {
+            uuidListStr:JSON.stringify(panel.uuidList),
+            metaListStr:JSON.stringify(panel.metaList),
+            renderDataStr:JSON.stringify(renderData),
+        };
+    },
+    restore(record) {
+        const panel = this;
+
+        try {
+            const { uuidListStr, metaListStr, renderDataStr } = record;
+
+            // uuid 数据不匹配表明不是同一个编辑对象了
+            if (JSON.stringify(panel.uuidList) !== uuidListStr) {
+                return false;
+            }
+
+            // metaList 数据不一样的对 metaList 进行更新
+            if (JSON.stringify(panel.metaList) !== metaListStr) {
+                panel.metaList = JSON.parse(metaListStr);
+
+                for (const renderName in panel.contentRenders) {
+                    const { contentRender } = panel.contentRenders[renderName];
+
+                    if (!Array.isArray(contentRender.__panels__)) {
+                        continue;
+                    }
+
+                    for (let i = 0; i < contentRender.__panels__.length; i++) {
+                        contentRender.__panels__[i].update(panel.assetList, panel.metaList);
+                    }
+                }
+            }
+
+            const renderData = JSON.parse(renderDataStr);
+            for (const renderName in panel.contentRenders) {
+                const { contentRender } = panel.contentRenders[renderName];
+
+                if (!Array.isArray(contentRender.__panels__)) {
+                    continue;
+                }
+
+                if (!Array.isArray(renderData[renderName])) {
+                    continue;
+                }
+
+                if (!renderData[renderName].length) {
+                    continue;
+                }
+
+                for (let i = 0; i < contentRender.__panels__.length; i++) {
+                    if (renderData[renderName][i] && contentRender.__panels__[i].panelObject.restore) {
+                        contentRender.__panels__[i].callMethod('restore', renderData[renderName][i]);
+                    }
+                }
+            }
+
+            Elements.header.isDirty.call(panel);
+            return true;
+        } catch (error) {
+            console.error(error);
+            return false;
+        }
+    },
+
     async isDirty() {
         const panel = this;
 
@@ -461,6 +554,8 @@ exports.update = async function update(uuidList, renderMap, dropConfig) {
             await element.update.call(panel);
         }
     }
+
+    exports.history.snapshot(panel);
 };
 
 exports.ready = function ready() {

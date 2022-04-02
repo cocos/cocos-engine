@@ -1,4 +1,4 @@
-class UndoManagerBase {
+class HistoryManagerBase {
     // 步骤控制
     undoArray = [];
     redoArray = [];
@@ -36,8 +36,6 @@ class UndoManagerBase {
     }
     reset() {}
     snapshot() {}
-    abort() {}
-    record() {}
 }
 
-module.exports = UndoManagerBase;
+module.exports = HistoryManagerBase;
