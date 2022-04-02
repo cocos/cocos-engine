@@ -90,7 +90,7 @@ class ResizableBufferAdapter<Data> : public ResizableBuffer {
 public:
     explicit ResizableBufferAdapter(BufferType *buffer) : _buffer(buffer) {}
     void resize(size_t size) override {
-        auto oldSize = static_cast<size_t>(_buffer->getSize());
+        size_t oldSize = _buffer->getSize();
         if (oldSize != size) {
             // need to take buffer ownership for outer memory control
             auto *old    = _buffer->takeBuffer();
