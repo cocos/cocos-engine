@@ -47,7 +47,6 @@ import { legacyCC } from '../../core/global-exports';
 import { Component } from '../../core/components';
 import { CCObject } from '../../core';
 import { NodeEventType } from '../../core/scene-graph/node-event';
-import { CylinderColliderComponent } from '../../physics/framework/deprecated';
 
 const _htmlTextParser = new HtmlTextParser();
 const RichTextChildName = 'RICHTEXT_CHILD';

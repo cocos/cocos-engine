@@ -129,31 +129,3 @@ markAsWarning(UITransform.prototype, 'UITransform.prototype', [
         suggest: `Please use setSiblingIndex to change index of the current node in its parent's children array.`,
     },
 ]);
-
-/**
- * Alias of [[UITransform]]
- * @deprecated Since v1.2
- */
-export { UITransform as UITransformComponent };
-legacyCC.UITransformComponent = UITransform;
-js.setClassAlias(UITransform, 'cc.UITransformComponent');
-
-/**
- * Alias of [[Renderable2D]]
- * @deprecated Since v1.2
- */
-export { Renderable2D as RenderComponent };
-/**
- * Alias of [[Renderable2D]]
- * @deprecated Since v3.0
- */
-export { Renderable2D as UIRenderable };
-js.setClassAlias(Renderable2D, 'cc.RenderComponent');
-
-/**
- * Alias of [[Canvas]]
- * @deprecated Since v1.2
- */
-export { Canvas as CanvasComponent };
-legacyCC.CanvasComponent = Canvas;
-js.setClassAlias(Canvas, 'cc.CanvasComponent');

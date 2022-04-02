@@ -175,30 +175,6 @@ export class Texture2D extends SimpleTexture {
         this._tryReset();
     }
 
-    /**
-     * @en Reset the current texture with given size, pixel format and mipmap images.
-     * After reset, the gfx resource will become invalid, you must use [[uploadData]] explicitly to upload the new mipmaps to GPU resources.
-     * @zh 将当前贴图重置为指定尺寸、像素格式以及指定 mipmap 层级。重置后，贴图的像素数据将变为未定义。
-     * mipmap 图像的数据不会自动更新到贴图中，你必须显式调用 [[uploadData]] 来上传贴图数据。
-     * @param width Pixel width
-     * @param height Pixel height
-     * @param format Pixel format
-     * @param mipmapLevel Mipmap level count
-     * @param baseLevel Mipmap base level
-     * @param maxLevel Mipmap maximum level
-     * @deprecated since v1.0 please use [[reset]] instead
-     */
-    public create (width: number, height: number, format = PixelFormat.RGBA8888, mipmapLevel = 1, baseLevel = 0, maxLevel = 0) {
-        this.reset({
-            width,
-            height,
-            format,
-            mipmapLevel,
-            baseLevel,
-            maxLevel,
-        });
-    }
-
     public toString () {
         return this._mipmaps.length !== 0 ? this._mipmaps[0].url : '';
     }

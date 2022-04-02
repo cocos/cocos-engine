@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { IUV } from '../../assets';
 import { Mat4, Vec3, Color } from '../../../core/math';
 import { IRenderData, RenderData } from '../../renderer/render-data';
@@ -62,7 +60,7 @@ export const tiled: IAssembler = {
         const contentWidth = Math.abs(uiTrans.width);
         const contentHeight = Math.abs(uiTrans.height);
 
-        const rect = frame.getRect();
+        const rect = frame.rect;
         const leftWidth = frame.insetLeft;
         const rightWidth = frame.insetRight;
         const centerWidth = rect.width - leftWidth - rightWidth;
