@@ -27,9 +27,9 @@
  * @module 2D
  */
 
-import { ccclass, editable, executeInEditMode, executionOrder, help, menu, range, serializable, type, visible } from 'cc.decorator';
+import { ccclass, executeInEditMode, executionOrder, help, menu, serializable, type, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { builtinResMgr, clamp, Color, Material, RenderableComponent, Vec2 } from '../../core';
+import { builtinResMgr, Color, Material, RenderableComponent, Vec2 } from '../../core';
 import { legacyCC } from '../../core/global-exports';
 import { Root } from '../../core/root';
 import { TransformBit } from '../../core/scene-graph/node-enum';
@@ -41,9 +41,6 @@ enum SpriteMode {
     SLICED = 1,
     TILED = 2,
 }
-
-const MAX_UINT_NUM = (1 << 15) - 1;
-const MIN_UINT_NUM = -1 << 15;
 
 @ccclass('cc.SpriteRenderer')
 @help('i18n:cc.SpriteRenderer')
@@ -78,26 +75,6 @@ export class SpriteRenderer extends RenderableComponent {
         // }
     }
 
-    @range([MIN_UINT_NUM, MAX_UINT_NUM, 1])
-    get sortLayer () {
-        return this._sortLayer;
-    }
-    set sortLayer (val) { // 不该是一个数值
-        if (val === this._sortLayer) return;
-        this._sortLayer = clamp(val, MIN_UINT_NUM, MAX_UINT_NUM);
-        this._setupSortingHash();
-    }
-
-    @range([MIN_UINT_NUM, MAX_UINT_NUM, 1])
-    get sortOrder () {
-        return this._sortOrder;
-    }
-    set sortOrder (val) {
-        if (val === this._sortOrder) return;
-        this._sortOrder = clamp(val, MIN_UINT_NUM, MAX_UINT_NUM);
-        this._setupSortingHash();
-    }
-
     get model () {
         return this._model;
     }
@@ -116,12 +93,6 @@ export class SpriteRenderer extends RenderableComponent {
     @serializable
     protected _size: Vec2 = new Vec2(); // todo for sliced & tiled
 
-    @serializable
-    protected _sortLayer = 0; // 高 16 位的半数 // 限制到有符号 16 位
-    @serializable
-    protected _sortOrder = 0; // 低 16 位 // 限制到有符号 16 位
-
-    private _sortingHash = 0; // 计算
     private _model: SpriteModel | null = null;
 
     public __preload () {
@@ -135,7 +106,6 @@ export class SpriteRenderer extends RenderableComponent {
     }
 
     public onRestore () {
-        this._setupSortingHash();
         this._updateModels();
         if (this.enabledInHierarchy) {
             this._attachToScene();
@@ -143,7 +113,6 @@ export class SpriteRenderer extends RenderableComponent {
     }
 
     public onEnable () {
-        this._setupSortingHash();
         if (!this._model) {
             this._updateModels();
         }
@@ -214,7 +183,6 @@ export class SpriteRenderer extends RenderableComponent {
             }
         }
         this._model.enabled = true;
-        this._model.sortingHash = this._sortingHash;
     }
 
     protected _getBuiltinMaterial () {
@@ -260,15 +228,6 @@ export class SpriteRenderer extends RenderableComponent {
     protected _detachFromScene () {
         if (this._model && this._model.scene) {
             this._model.scene.removeModel(this._model);
-        }
-    }
-
-    protected _setupSortingHash () {
-        this._sortingHash = (((this._sortLayer + (1 << 15)) << 16) | (this._sortOrder + (1 << 15))) >>> 0;
-        if (this._models.length > 0) {
-            for (let i = 0; i < this._models.length; i++) {
-                this._models[i].sortingHash = this._sortingHash;
-            }
         }
     }
 }

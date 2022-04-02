@@ -266,14 +266,6 @@ export class Model {
         this._enabled = val;
     }
 
-    get sortingHash () : number {
-        return this._sortingHash;
-    }
-
-    set sortingHash (val: number) {
-        this._sortingHash = val;
-    }
-
     /**
      * @en The type of the model
      * @zh 模型类型
@@ -419,8 +411,6 @@ export class Model {
      * @zh 可见性标志位
      */
     protected _visFlags = Layers.Enum.NONE;
-
-    protected _sortingHash = 2147516416; // ((0 + (1 << 15) << 16) | (0 + (1 << 15))) >>> 0
 
     /**
      * @internal
