@@ -41,6 +41,7 @@
 #include "ide-support/RuntimeJsImpl.h"
 #include "runtime/ConfigParser.h"
 #include "runtime/Runtime.h"
+#include "windows.h"
 
 using namespace std;
 Game::Game() {
@@ -53,7 +54,11 @@ Game::~Game() {
 
 int Game::init() {
     SimulatorApp::getInstance()->run();
-    createWindow("My game", 0, 0, SimulatorApp::getInstance()->getWidth(),
+    int windowWidth     = SimulatorApp::getInstance()->getWidth();
+    int windowHeight    = SimulatorApp::getInstance()->getHegith();
+    int windowPositionX = (GetSystemMetrics(SM_CXSCREEN) - windowWidth) / 2;
+    int windowPositionY = (GetSystemMetrics(SM_CYSCREEN) - windowHeight) / 2;
+    createWindow("My game", windowPositionX, windowPositionY, SimulatorApp::getInstance()->getWidth(),
                  SimulatorApp::getInstance()->getHegith(),
                  cc::ISystemWindow::CC_WINDOW_SHOWN |
                      cc::ISystemWindow::CC_WINDOW_RESIZABLE |
