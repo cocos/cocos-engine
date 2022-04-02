@@ -32,7 +32,7 @@ import { UNIFORM_ENVIRONMENT_BINDING, UNIFORM_DIFFUSEMAP_BINDING } from '../../p
 import { MaterialInstance } from '../core/material-instance';
 import { Model } from './model';
 import { legacyCC } from '../../global-exports';
-import { SkyboxInfo } from '../../scene-graph/scene-globals';
+import type { SkyboxInfo } from '../../scene-graph/scene-globals';
 import { Root } from '../../root';
 import { NaitveSkybox } from '../native-scene';
 import { GlobalDSManager } from '../../pipeline/global-descriptor-set-manager';

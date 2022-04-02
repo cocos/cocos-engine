@@ -26,7 +26,7 @@
 import { JSB } from 'internal:constants';
 import { Vec4 } from '../../math';
 import { legacyCC } from '../../global-exports';
-import { AmbientInfo } from '../../scene-graph/scene-globals';
+import type { AmbientInfo } from '../../scene-graph/scene-globals';
 import { NativeAmbient } from '../native-scene';
 
 export class Ambient {
