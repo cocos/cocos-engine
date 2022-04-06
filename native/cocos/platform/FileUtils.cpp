@@ -587,7 +587,7 @@ FileUtils::Status FileUtils::getContents(const ccstd::string &filename, Resizabl
     return Status::OK;
 }
 
-unsigned char *FileUtils::getFileDataFromZip(const ccstd::string &zipFilePath, const ccstd::string &filename, ssize_t *size) {
+unsigned char *FileUtils::getFileDataFromZip(const ccstd::string &zipFilePath, const ccstd::string &filename, uint32_t *size) {
     unsigned char *buffer = nullptr;
     unzFile        file   = nullptr;
     *size                 = 0;

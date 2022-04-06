@@ -167,10 +167,10 @@ public:
     /**
      * Get the size of request data
      *
-     * @return ssize_t the size of request data
+     * @return uint32_t the size of request data
      */
-    inline ssize_t getRequestDataSize() const {
-        return static_cast<ssize_t>(_requestData.size());
+    inline uint32_t getRequestDataSize() const {
+        return static_cast<uint32_t>(_requestData.size());
     }
 
     /**

@@ -924,13 +924,13 @@ static bool JSB_zipUtils_inflateMemory(se::State &s) { //NOLINT
         unsigned char *arg2 = nullptr;
         int32_t        len  = 0;
         if (argc == 1) {
-            len = ZipUtils::inflateMemory(arg0, static_cast<ssize_t>(arg1), &arg2);
+            len = ZipUtils::inflateMemory(arg0, static_cast<uint32_t>(arg1), &arg2);
         } else if (argc == 2) {
             SE_PRECONDITION2(args[1].isNumber(), false, "outLengthHint is invalid!");
-            int32_t outLengthHint = 0;
+            uint32_t outLengthHint = 0;
             if (!args[1].isUndefined()) {
-                outLengthHint = args[1].toInt32();
-                len           = ZipUtils::inflateMemoryWithHint(arg0, static_cast<ssize_t>(arg1), &arg2, outLengthHint);
+                outLengthHint = args[1].toUint32();
+                len           = ZipUtils::inflateMemoryWithHint(arg0, static_cast<uint32_t>(arg1), &arg2, outLengthHint);
             } else {
                 ok = false;
             }

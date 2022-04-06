@@ -241,7 +241,7 @@ public:
     Delegate *getDelegate() const;
 
 private:
-    WebSocketImpl *_impl;
+    WebSocketImpl *_impl{nullptr};
 };
 
 } // namespace network

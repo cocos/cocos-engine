@@ -102,7 +102,7 @@ void jsb_init_file_operation_delegate() { //NOLINT
             if (FileUtils::getInstance()->isFileExist(byteCodePath)) {
                 fileData = FileUtils::getInstance()->getDataFromFile(byteCodePath);
 
-                size_t   dataLen = 0;
+                uint32_t dataLen = 0;
                 uint8_t *data    = xxtea_decrypt(fileData.getBytes(), static_cast<uint32_t>(fileData.getSize()),
                                               const_cast<unsigned char *>(xxteaKey.data()),
                                               static_cast<uint32_t>(xxteaKey.size()), reinterpret_cast<uint32_t *>(&dataLen));
@@ -114,7 +114,7 @@ void jsb_init_file_operation_delegate() { //NOLINT
 
                 if (ZipUtils::isGZipBuffer(data, dataLen)) {
                     uint8_t *unpackedData;
-                    ssize_t  unpackedLen = ZipUtils::inflateMemory(data, dataLen, &unpackedData);
+                    uint32_t  unpackedLen = ZipUtils::inflateMemory(data, dataLen, &unpackedData);
 
                     if (unpackedData == nullptr) {
                         SE_REPORT_ERROR("Can't decrypt code for %s", byteCodePath.c_str());
@@ -155,7 +155,7 @@ void jsb_init_file_operation_delegate() { //NOLINT
 
                 if (ZipUtils::isGZipBuffer(data, dataLen)) {
                     uint8_t *unpackedData;
-                    ssize_t  unpackedLen = ZipUtils::inflateMemory(data, dataLen, &unpackedData);
+                    uint32_t  unpackedLen = ZipUtils::inflateMemory(data, dataLen, &unpackedData);
                     if (unpackedData == nullptr) {
                         SE_REPORT_ERROR("Can't decrypt code for %s", byteCodePath.c_str());
                         return "";

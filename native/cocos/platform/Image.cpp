@@ -243,7 +243,7 @@ using PVRv3TexHeader = struct {
 namespace {
 using tImageSource = struct {
     const unsigned char *data;
-    ssize_t              size;
+    uint32_t             size;
     int                  offset;
 };
 
@@ -287,14 +287,14 @@ bool Image::initWithImageFile(const ccstd::string &path) {
     return ret;
 }
 
-bool Image::initWithImageData(const unsigned char *data, ssize_t dataLen) {
+bool Image::initWithImageData(const unsigned char *data, uint32_t dataLen) {
     bool ret = false;
 
     do {
         CC_BREAK_IF(!data || dataLen <= 0);
 
         unsigned char *unpackedData = nullptr;
-        ssize_t        unpackedLen  = 0;
+        uint32_t       unpackedLen  = 0;
 
         //detect and unzip the compress file
         if (ZipUtils::isCCZBuffer(data, dataLen)) {
@@ -342,7 +342,7 @@ bool Image::initWithImageData(const unsigned char *data, ssize_t dataLen) {
     return ret;
 }
 
-bool Image::isPng(const unsigned char *data, ssize_t dataLen) {
+bool Image::isPng(const unsigned char *data, uint32_t dataLen) {
     if (dataLen <= 8) {
         return false;
     }
@@ -352,19 +352,19 @@ bool Image::isPng(const unsigned char *data, ssize_t dataLen) {
     return memcmp(PNG_SIGNATURE, data, sizeof(PNG_SIGNATURE)) == 0;
 }
 
-bool Image::isEtc(const unsigned char *data, ssize_t /*dataLen*/) {
+bool Image::isEtc(const unsigned char *data, uint32_t /*dataLen*/) {
     return etc1_pkm_is_valid(const_cast<etc1_byte *>(data)) != 0;
 }
 
-bool Image::isEtc2(const unsigned char *data, ssize_t /*dataLen*/) {
+bool Image::isEtc2(const unsigned char *data, uint32_t /*dataLen*/) {
     return etc2_pkm_is_valid(const_cast<etc2_byte *>(data)) != 0;
 }
 
-bool Image::isASTC(const unsigned char *data, ssize_t /*dataLen*/) {
+bool Image::isASTC(const unsigned char *data, uint32_t /*dataLen*/) {
     return astcIsValid(const_cast<astc_byte *>(data));
 }
 
-bool Image::isJpg(const unsigned char *data, ssize_t dataLen) {
+bool Image::isJpg(const unsigned char *data, uint32_t dataLen) {
     if (dataLen <= 4) {
         return false;
     }
@@ -374,7 +374,7 @@ bool Image::isJpg(const unsigned char *data, ssize_t dataLen) {
     return memcmp(data, JPG_SOI, 2) == 0;
 }
 
-bool Image::isWebp(const unsigned char *data, ssize_t dataLen) {
+bool Image::isWebp(const unsigned char *data, uint32_t dataLen) {
     if (dataLen <= 12) {
         return false;
     }
@@ -385,7 +385,7 @@ bool Image::isWebp(const unsigned char *data, ssize_t dataLen) {
     return memcmp(data, webpRiff, 4) == 0 && memcmp(static_cast<const unsigned char *>(data) + 8, webpWebp, 4) == 0;
 }
 
-bool Image::isPvr(const unsigned char *data, ssize_t dataLen) {
+bool Image::isPvr(const unsigned char *data, uint32_t dataLen) {
     if (static_cast<size_t>(dataLen) < sizeof(PVRv2TexHeader) || static_cast<size_t>(dataLen) < sizeof(PVRv3TexHeader)) {
         return false;
     }
@@ -396,7 +396,7 @@ bool Image::isPvr(const unsigned char *data, ssize_t dataLen) {
     return memcmp(&headerv2->pvrTag, G_PVR_TEX_IDENTIFIER, strlen(G_PVR_TEX_IDENTIFIER)) == 0 || CC_SWAP_INT32_BIG_TO_HOST(headerv3->version) == 0x50565203;
 }
 
-Image::Format Image::detectFormat(const unsigned char *data, ssize_t dataLen) {
+Image::Format Image::detectFormat(const unsigned char *data, uint32_t dataLen) {
     if (isPng(data, dataLen)) {
         return Format::PNG;
     }
@@ -504,7 +504,7 @@ void myErrorExit(j_common_ptr cinfo) {
 #endif // CC_USE_JPEG
 } // namespace
 
-bool Image::initWithJpgData(const unsigned char *data, ssize_t dataLen) {
+bool Image::initWithJpgData(const unsigned char *data, uint32_t dataLen) {
 #if CC_USE_JPEG
     /* these are standard libjpeg structures for reading(decompression) */
     struct jpeg_decompress_struct cinfo;
@@ -586,7 +586,7 @@ bool Image::initWithJpgData(const unsigned char *data, ssize_t dataLen) {
 #endif // CC_USE_JPEG
 }
 
-bool Image::initWithPngData(const unsigned char *data, ssize_t dataLen) {
+bool Image::initWithPngData(const unsigned char *data, uint32_t dataLen) {
 #if CC_USE_PNG
     // length of bytes to check if it is a valid png file
     #define PNGSIGSIZE 8
@@ -712,7 +712,7 @@ bool Image::initWithPngData(const unsigned char *data, ssize_t dataLen) {
 #endif //CC_USE_PNG
 }
 
-bool Image::initWithPVRv2Data(const unsigned char *data, ssize_t dataLen) {
+bool Image::initWithPVRv2Data(const unsigned char *data, uint32_t dataLen) {
     int width  = 0;
     int height = 0;
 
@@ -757,7 +757,7 @@ bool Image::initWithPVRv2Data(const unsigned char *data, ssize_t dataLen) {
     return true;
 }
 
-bool Image::initWithPVRv3Data(const unsigned char *data, ssize_t dataLen) {
+bool Image::initWithPVRv3Data(const unsigned char *data, uint32_t dataLen) {
     if (static_cast<size_t>(dataLen) < sizeof(PVRv3TexHeader)) {
         return false;
     }
@@ -800,7 +800,7 @@ bool Image::initWithPVRv3Data(const unsigned char *data, ssize_t dataLen) {
     return true;
 }
 
-bool Image::initWithETCData(const unsigned char *data, ssize_t dataLen) {
+bool Image::initWithETCData(const unsigned char *data, uint32_t dataLen) {
     const auto *header = static_cast<const etc1_byte *>(data);
 
     //check the data
@@ -823,7 +823,7 @@ bool Image::initWithETCData(const unsigned char *data, ssize_t dataLen) {
     return true;
 }
 
-bool Image::initWithETC2Data(const unsigned char *data, ssize_t dataLen) {
+bool Image::initWithETC2Data(const unsigned char *data, uint32_t dataLen) {
     const auto *header = static_cast<const etc2_byte *>(data);
 
     //check the data
@@ -852,7 +852,7 @@ bool Image::initWithETC2Data(const unsigned char *data, ssize_t dataLen) {
     return true;
 }
 
-bool Image::initWithASTCData(const unsigned char *data, ssize_t dataLen) {
+bool Image::initWithASTCData(const unsigned char *data, uint32_t dataLen) {
     const auto *header = static_cast<const astc_byte *>(data);
 
     //check the data
@@ -881,11 +881,11 @@ bool Image::initWithASTCData(const unsigned char *data, ssize_t dataLen) {
     return true;
 }
 
-bool Image::initWithPVRData(const unsigned char *data, ssize_t dataLen) {
+bool Image::initWithPVRData(const unsigned char *data, uint32_t dataLen) {
     return initWithPVRv2Data(data, dataLen) || initWithPVRv3Data(data, dataLen);
 }
 
-bool Image::initWithWebpData(const unsigned char *data, ssize_t dataLen) {
+bool Image::initWithWebpData(const unsigned char *data, uint32_t dataLen) {
 #if CC_USE_WEBP
     bool ret = false;
 
@@ -921,7 +921,7 @@ bool Image::initWithWebpData(const unsigned char *data, ssize_t dataLen) {
 #endif // CC_USE_WEBP
 }
 
-bool Image::initWithRawData(const unsigned char *data, ssize_t /*dataLen*/, int width, int height, int /*bitsPerComponent*/, bool /*preMulti*/) {
+bool Image::initWithRawData(const unsigned char *data, uint32_t /*dataLen*/, int width, int height, int /*bitsPerComponent*/, bool /*preMulti*/) {
     bool ret = false;
     do {
         CC_BREAK_IF(0 == width || 0 == height);

@@ -239,7 +239,7 @@ public:
      *  @return Upon success, a pointer to the data is returned, otherwise nullptr.
      *  @warning Recall: you are responsible for calling free() on any Non-nullptr pointer returned.
      */
-    virtual unsigned char *getFileDataFromZip(const ccstd::string &zipFilePath, const ccstd::string &filename, ssize_t *size);
+    virtual unsigned char *getFileDataFromZip(const ccstd::string &zipFilePath, const ccstd::string &filename, uint32_t *size);
 
     /** Returns the fullpath for a given filename.
 
