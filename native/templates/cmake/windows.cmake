@@ -18,6 +18,9 @@ endfunction()
 
 
 macro(cc_windows_before_target target_name)
+    if(${CMAKE_SIZEOF_VOID_P} STREQUAL "4")
+        message(FATAL_ERROR "Win32 architecture is no more supported!!!")
+    endif()
     set(CC_UI_RESOURCES
         ${CC_PROJECT_DIR}/game.rc
     )
@@ -61,18 +64,14 @@ macro(cc_windows_after_target target_name)
     endif()
 
     if(MSVC)
-        foreach(item ${WIN32_DLLS})
+        foreach(item ${WINDOWS_DLLS})
             get_filename_component(filename ${item} NAME)
             get_filename_component(abs ${item} ABSOLUTE)
             add_custom_command(TARGET ${target_name} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${abs} $<TARGET_FILE_DIR:${target_name}>/${filename}
             )
         endforeach()
-        if(${CMAKE_SIZEOF_VOID_P} STREQUAL "4")
-            target_link_options(${target_name} PRIVATE /SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE)
-        else()
-            target_link_options(${target_name} PRIVATE /SUBSYSTEM:WINDOWS)
-        endif()
+        target_link_options(${target_name} PRIVATE /SUBSYSTEM:WINDOWS)
     endif()
 
 endmacro()
