@@ -33,9 +33,7 @@ namespace cc {
 
 const Data Data::NULL_DATA;
 
-Data::Data() {
-    //    CC_LOG_INFO("In the empty constructor of Data.");
-}
+Data::Data() = default;
 
 Data::Data(Data &&other) noexcept {
     //    CC_LOG_INFO("In the move constructor of Data.");

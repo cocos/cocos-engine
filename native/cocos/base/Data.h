@@ -139,7 +139,6 @@ public:
 private:
     void move(Data &other); //NOLINT
 
-private:
     uint8_t *_bytes{nullptr};
     uint32_t _size{0};
 };
