@@ -1171,20 +1171,19 @@ static bool JSB_zipUtils_setPvrEncryptionKey(se::State &s) { //NOLINT
 }
 SE_BIND_FUNC(JSB_zipUtils_setPvrEncryptionKey)
 
-
 // TextEncoder
 static se::Class *__jsb_TextEncoder_class = nullptr;
 
-static bool js_TextEncoder_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_TextEncoder_finalize(se::State &s) // NOLINT(readability-identifier-naming)
 {
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_TextEncoder_finalize)
 
-static bool js_TextEncoder_constructor(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_TextEncoder_constructor(se::State &s) // NOLINT(readability-identifier-naming)
 {
-    const auto& args = s.args();
-    size_t argc = args.size();
+    const auto &args = s.args();
+    size_t      argc = args.size();
     if (argc > 0) {
         if (args[0].isString() && args[0].toString() != "utf-8") {
             CC_LOG_WARNING("TextEncoder only supports utf-8");
@@ -1196,18 +1195,17 @@ static bool js_TextEncoder_constructor(se::State& s) // NOLINT(readability-ident
 }
 SE_BIND_CTOR(js_TextEncoder_constructor, __jsb_TextEncoder_class, js_TextEncoder_finalize)
 
-static bool js_TextEncoder_encode(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_TextEncoder_encode(se::State &s) // NOLINT(readability-identifier-naming)
 {
-    const auto& args = s.args();
-    size_t argc = args.size();
+    const auto &args = s.args();
+    size_t      argc = args.size();
 
     if (argc == 1) {
-        const auto& arg0 = args[0];
+        const auto &arg0 = args[0];
         SE_PRECONDITION2(arg0.isString(), false, "js_TextEncoder_encode, arg0 is not a string");
-        const auto& str = arg0.toString();
+        const auto &     str = arg0.toString();
         se::HandleObject encodedUint8Array{
-            se::Object::createTypedArray(se::Object::TypedArrayType::UINT8, str.data(), str.length())
-        };
+            se::Object::createTypedArray(se::Object::TypedArrayType::UINT8, str.data(), str.length())};
 
         s.rval().setObject(encodedUint8Array);
         return true;
@@ -1221,16 +1219,16 @@ SE_BIND_FUNC(js_TextEncoder_encode)
 // TextDecoder
 static se::Class *__jsb_TextDecoder_class = nullptr;
 
-static bool js_TextDecoder_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_TextDecoder_finalize(se::State &s) // NOLINT(readability-identifier-naming)
 {
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_TextDecoder_finalize)
 
-static bool js_TextDecoder_constructor(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_TextDecoder_constructor(se::State &s) // NOLINT(readability-identifier-naming)
 {
-    const auto& args = s.args();
-    size_t argc = args.size();
+    const auto &args = s.args();
+    size_t      argc = args.size();
     if (argc > 0) {
         if (args[0].isString() && args[0].toString() != "utf-8") {
             CC_LOG_WARNING("TextDecoder only supports utf-8");
@@ -1244,21 +1242,21 @@ static bool js_TextDecoder_constructor(se::State& s) // NOLINT(readability-ident
 }
 SE_BIND_CTOR(js_TextDecoder_constructor, __jsb_TextDecoder_class, js_TextDecoder_finalize)
 
-static bool js_TextDecoder_decode(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_TextDecoder_decode(se::State &s) // NOLINT(readability-identifier-naming)
 {
-    const auto& args = s.args();
-    size_t argc = args.size();
+    const auto &args = s.args();
+    size_t      argc = args.size();
 
     if (argc == 1) {
-        const auto& arg0 = args[0];
+        const auto &arg0 = args[0];
         SE_PRECONDITION2(arg0.isObject() && arg0.toObject()->isTypedArray(), false, "js_TextDecoder_decode, arg0 is not a Uint8Array");
-        auto* uint8ArrayObj = arg0.toObject();
+        auto *   uint8ArrayObj  = arg0.toObject();
         uint8_t *uint8ArrayData = nullptr;
-        size_t length = 0;
-        bool ok = uint8ArrayObj->getTypedArrayData(&uint8ArrayData, &length);
+        size_t   length         = 0;
+        bool     ok             = uint8ArrayObj->getTypedArrayData(&uint8ArrayData, &length);
         SE_PRECONDITION2(ok, false, "js_TextDecoder_decode, get typedarray data failed!");
 
-        ccstd::string str{reinterpret_cast<const char*>(uint8ArrayData), length};
+        ccstd::string str{reinterpret_cast<const char *>(uint8ArrayData), length};
         s.rval().setString(str);
         return true;
     }
@@ -1268,8 +1266,8 @@ static bool js_TextDecoder_decode(se::State& s) // NOLINT(readability-identifier
 }
 SE_BIND_FUNC(js_TextDecoder_decode)
 
-static void jsb_register_TextEncoder(se::Object* globalObj) {
-    auto* cls = se::Class::create("TextEncoder", globalObj, nullptr, _SE(js_TextEncoder_constructor));
+static void jsb_register_TextEncoder(se::Object *globalObj) {
+    auto *cls = se::Class::create("TextEncoder", globalObj, nullptr, _SE(js_TextEncoder_constructor));
     cls->defineFunction("encode", _SE(js_TextEncoder_encode));
     cls->defineFinalizeFunction(_SE(js_TextEncoder_finalize));
     cls->install();
@@ -1280,8 +1278,8 @@ static void jsb_register_TextEncoder(se::Object* globalObj) {
     return true;
 }
 
-static void jsb_register_TextDecoder(se::Object* globalObj) {
-    auto* cls = se::Class::create("TextDecoder", globalObj, nullptr, _SE(js_TextDecoder_constructor));
+static void jsb_register_TextDecoder(se::Object *globalObj) {
+    auto *cls = se::Class::create("TextDecoder", globalObj, nullptr, _SE(js_TextDecoder_constructor));
     cls->defineFunction("decode", _SE(js_TextDecoder_decode));
     cls->defineFinalizeFunction(_SE(js_TextDecoder_finalize));
     cls->install();
