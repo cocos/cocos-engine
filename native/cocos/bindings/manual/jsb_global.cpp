@@ -1266,7 +1266,7 @@ static bool js_TextDecoder_decode(se::State &s) // NOLINT(readability-identifier
 }
 SE_BIND_FUNC(js_TextDecoder_decode)
 
-static void jsb_register_TextEncoder(se::Object *globalObj) {
+static bool jsb_register_TextEncoder(se::Object *globalObj) {
     auto *cls = se::Class::create("TextEncoder", globalObj, nullptr, _SE(js_TextEncoder_constructor));
     cls->defineFunction("encode", _SE(js_TextEncoder_encode));
     cls->defineFinalizeFunction(_SE(js_TextEncoder_finalize));
@@ -1278,7 +1278,7 @@ static void jsb_register_TextEncoder(se::Object *globalObj) {
     return true;
 }
 
-static void jsb_register_TextDecoder(se::Object *globalObj) {
+static bool jsb_register_TextDecoder(se::Object *globalObj) {
     auto *cls = se::Class::create("TextDecoder", globalObj, nullptr, _SE(js_TextDecoder_constructor));
     cls->defineFunction("decode", _SE(js_TextDecoder_decode));
     cls->defineFinalizeFunction(_SE(js_TextDecoder_finalize));
