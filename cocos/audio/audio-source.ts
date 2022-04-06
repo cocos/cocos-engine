@@ -124,6 +124,7 @@ export class AudioSource extends Component {
             this._isLoaded = true;
             // clear old player
             if (this._player) {
+                audioManager.removePlaying(this._player);
                 this._player.offEnded();
                 this._player.offInterruptionBegin();
                 this._player.offInterruptionEnd();
