@@ -11,11 +11,11 @@ CCEffect %{
         depthWrite: false
       blendState:
         targets:
-        - blend: true
-          blendSrc: src_alpha
-          blendDst: one_minus_src_alpha
-          blendSrcAlpha: src_alpha
-          blendDstAlpha: one_minus_src_alpha
+        - blend: false
+          blendSrc: one
+          blendDst: zero
+          blendSrcAlpha: one
+          blendDstAlpha: zero
 }%
 
 CCProgram post-process-vs %{
