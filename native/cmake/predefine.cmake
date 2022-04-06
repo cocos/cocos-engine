@@ -16,7 +16,7 @@ if(NX)
         message(FATAL_ERROR "Nintendo SDK not found")
         return()
     endif()
-    if(NOT IS_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../platform-nx)
+    if(NOT IS_DIRECTORY ${NX_PATH})
         message(FATAL_ERROR "platform adaptation package not found")
         return()
     endif()
@@ -182,9 +182,6 @@ function(cc_inspect_values)
         message(STATUS "OPTION ${src}:\t${opv}")
     endforeach()
 endfunction()
-
-
-
 
 function(cc_set_target_property target_name property value)
     set_target_properties(${target_name} PROPERTIES CC_${property} ${value})

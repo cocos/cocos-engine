@@ -834,7 +834,7 @@ if(NOT APPLE AND USE_SOCKET)
     cocos_source_files(
         NO_WERROR    cocos/network/WebSocket-okhttp.cpp
     )
-    else()
+    elseif(NOT NX AND NOT NX_WINDOWS)
     cocos_source_files(
         NO_WERROR    cocos/network/WebSocket-libwebsockets.cpp
     )
@@ -1461,10 +1461,6 @@ if(CC_USE_VULKAN)
                 COMPILE_FLAGS -Wno-nullability-completeness
         )
     endif()
-endif()
-
-if(NX OR NX_WINDOWS)
-    include(${CMAKE_CURRENT_LIST_DIR}/platform-nx/source.cmake)
 endif()
 
 cocos_source_files(
@@ -2302,6 +2298,15 @@ else()
     )
 endif()
 
+source_group(TREE ${CWD} PREFIX "Source Files" FILES ${COCOS2D_SOURCE_LIST})
+
+if(NX_WINDOWS OR NX)
+    include(${NX_PATH}/source.cmake)
+    nx_source_list(ccnx_SOURCE_LIST ${NX_PATH})
+    source_group(TREE ${NX_PATH} PREFIX "Source Files" FILES ${ccnx_SOURCE_LIST}})
+    list(APPEND COCOS2D_SOURCE_LIST ${ccnx_SOURCE_LIST})
+endif()
+
 add_library(cocos2d ${COCOS2D_SOURCE_LIST})
 
 if(USE_MODULES)
@@ -2607,4 +2612,4 @@ elseif(LINUX)
     )
 endif()
 
-source_group(TREE ${CWD} PREFIX "Source Files" FILES ${COCOS2D_SOURCE_LIST})
+#source_group(TREE ${CWD} PREFIX "Source Files" FILES ${COCOS2D_SOURCE_LIST})

@@ -86,7 +86,7 @@ struct lws;
 struct LwsProtocols;
 struct lws_vhost;
 
-#if (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_NX_WINDOWS)
+#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
 // log, CC_LOG_DEBUG aren't threadsafe, since we uses sub threads for parsing pcm data, threadsafe log output
 // is needed. Define the following macros (ALOGV, ALOGD, ALOGI, ALOGW, ALOGE) for threadsafe log output.
 
