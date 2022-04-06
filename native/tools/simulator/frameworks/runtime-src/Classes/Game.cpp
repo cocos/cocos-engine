@@ -35,15 +35,14 @@
     #include "SimulatorApp.h"
     #include "windows.h"
 #elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
-    #include "../proj.ios_mac/mac/SimulatorApp.h"
     #include <CoreGraphics/CGDisplayConfiguration.h>
+    #include "../proj.ios_mac/mac/SimulatorApp.h"
 #endif
 
 #include "ide-support/CodeIDESupport.h"
 #include "ide-support/RuntimeJsImpl.h"
 #include "runtime/ConfigParser.h"
 #include "runtime/Runtime.h"
-
 
 using namespace std;
 Game::Game() {
@@ -56,15 +55,15 @@ Game::~Game() {
 
 int Game::init() {
     SimulatorApp::getInstance()->run();
-    int windowWidth     = SimulatorApp::getInstance()->getWidth();
-    int windowHeight    = SimulatorApp::getInstance()->getHegith();
+    int windowWidth  = SimulatorApp::getInstance()->getWidth();
+    int windowHeight = SimulatorApp::getInstance()->getHegith();
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     int windowPositionX = (GetSystemMetrics(SM_CXSCREEN) - windowWidth) / 2;
     int windowPositionY = (GetSystemMetrics(SM_CYSCREEN) - windowHeight) / 2;
 #elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
-    auto mainDisplayId = CGMainDisplayID();
-    int windowPositionX = (CGDisplayPixelsWide(mainDisplayId) - windowWidth) / 2;
-    int windowPositionY = (CGDisplayPixelsHigh(mainDisplayId) - windowHeight) / 2;
+    auto mainDisplayId   = CGMainDisplayID();
+    int  windowPositionX = (CGDisplayPixelsWide(mainDisplayId) - windowWidth) / 2;
+    int  windowPositionY = (CGDisplayPixelsHigh(mainDisplayId) - windowHeight) / 2;
 #endif
     createWindow("My game", windowPositionX, windowPositionY, SimulatorApp::getInstance()->getWidth(),
                  SimulatorApp::getInstance()->getHegith(),
