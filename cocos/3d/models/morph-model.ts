@@ -35,21 +35,14 @@ export class MorphModel extends Model {
     private _usedMaterials = new Set<Material>();
 
     public getMacroPatches (subModelIndex: number) : IMacroPatch[] | null {
+        const superMacroPatches = super.getMacroPatches(subModelIndex);
         if (this._morphRenderingInstance) {
             const morphInstanceMacroPatches = this._morphRenderingInstance.requiredPatches(subModelIndex);
-            if (!morphInstanceMacroPatches) {
-                return morphInstanceMacroPatches;
+            if (morphInstanceMacroPatches) {
+                return morphInstanceMacroPatches.concat(superMacroPatches ?? []);
             }
-
-            const superMacroPatches = super.getMacroPatches(subModelIndex);
-            if (superMacroPatches) {
-                return morphInstanceMacroPatches.concat(superMacroPatches);
-            } else {
-                return morphInstanceMacroPatches;
-            }
-        } else {
-            return super.getMacroPatches(subModelIndex);
         }
+        return superMacroPatches;
     }
 
     public initSubModel (subModelIndex: number, subMeshData: RenderingSubMesh, material: Material) {
