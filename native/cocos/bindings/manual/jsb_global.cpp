@@ -1015,7 +1015,7 @@ static bool JSB_zipUtils_isGZipBuffer(se::State &s) { //NOLINT
             ok = false;
         }
         SE_PRECONDITION2(ok, false, "args[0] is not in type of string | ArrayBuffer | TypedArray");
-        bool flag = ZipUtils::isGZipBuffer(arg0, static_cast<ssize_t>(arg1));
+        bool flag = ZipUtils::isGZipBuffer(arg0, static_cast<uint32_t>(arg1));
         s.rval().setBoolean(flag);
         return true;
     }
@@ -1073,7 +1073,7 @@ static bool JSB_zipUtils_inflateCCZBuffer(se::State &s) { //NOLINT
         }
         SE_PRECONDITION2(ok, false, "args[0] is not in type of string | ArrayBuffer | TypedArray");
         unsigned char *  arg2 = nullptr;
-        int32_t          len  = ZipUtils::inflateCCZBuffer(arg0, static_cast<ssize_t>(arg1), &arg2);
+        int32_t          len  = ZipUtils::inflateCCZBuffer(arg0, static_cast<uint32_t>(arg1), &arg2);
         se::HandleObject seObj(se::Object::createArrayBufferObject(arg2, len));
         if (!seObj.isEmpty() && len > 0) {
             s.rval().setObject(seObj);
@@ -1130,7 +1130,7 @@ static bool JSB_zipUtils_isCCZBuffer(se::State &s) { //NOLINT
             ok = false;
         }
         SE_PRECONDITION2(ok, false, "args[0] is not in type of string | ArrayBuffer | TypedArray");
-        bool flag = ZipUtils::isCCZBuffer(arg0, static_cast<ssize_t>(arg1));
+        bool flag = ZipUtils::isCCZBuffer(arg0, static_cast<uint32_t>(arg1));
         s.rval().setBoolean(flag);
         return true;
     }

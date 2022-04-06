@@ -440,7 +440,7 @@ void XMLHttpRequest::onResponse(HttpClient * /*client*/, HttpResponse *response)
     if (_responseType == ResponseType::STRING || _responseType == ResponseType::JSON) {
         _responseText.append(buffer->data(), buffer->size());
     } else {
-        _responseData.copy(reinterpret_cast<unsigned char *>(buffer->data()), static_cast<ssize_t>(buffer->size()));
+        _responseData.copy(reinterpret_cast<unsigned char *>(buffer->data()), static_cast<uint32_t>(buffer->size()));
     }
 
     _status = statusCode;
@@ -693,7 +693,7 @@ static bool XMLHttpRequest_send(se::State &s) { //NOLINT(readability-identifier-
                 size_t   len = 0;
                 if (obj->getTypedArrayData(&ptr, &len)) {
                     Data data;
-                    data.copy(ptr, static_cast<ssize_t>(len));
+                    data.copy(ptr, static_cast<uint32_t>(len));
                     request->sendBinary(data);
                 } else {
                     SE_REPORT_ERROR("Failed to get data of TypedArray!");
@@ -704,7 +704,7 @@ static bool XMLHttpRequest_send(se::State &s) { //NOLINT(readability-identifier-
                 size_t   len = 0;
                 if (obj->getArrayBufferData(&ptr, &len)) {
                     Data data;
-                    data.copy(ptr, static_cast<ssize_t>(len));
+                    data.copy(ptr, static_cast<uint32_t>(len));
                     request->sendBinary(data);
                 } else {
                     SE_REPORT_ERROR("Failed to get data of ArrayBufferObject!");

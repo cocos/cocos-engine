@@ -632,7 +632,7 @@ void CanvasRenderingContext2DDelegate::fillData() {
 }
 
 #define CLAMP(V, HI) std::min((V), (HI))
-void CanvasRenderingContext2DDelegate::unMultiplyAlpha(unsigned char *ptr, ssize_t size) const {
+void CanvasRenderingContext2DDelegate::unMultiplyAlpha(unsigned char *ptr, uint32_t size) const {
     float alpha;
     for (int i = 0; i < size; i += 4) {
         alpha = (float)ptr[i + 3];
