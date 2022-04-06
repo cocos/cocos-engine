@@ -25,7 +25,7 @@
 
 /* eslint-disable max-len */
 import { systemInfo } from 'pal/system-info';
-import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, StoreOp, LoadOp, ClearFlagBit } from '../../gfx/index';
+import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, StoreOp, LoadOp, ClearFlagBit, DescriptorSet } from '../../gfx/index';
 import { Mat4, Quat, Vec2, Vec4 } from '../../math';
 import { QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, TaskType } from './types';
 import { AccessType, AttachmentType, Blit, ComputePass, ComputeView, CopyPair, CopyPass, Dispatch, ManagedResource, MovePair, MovePass, PresentPass, RasterPass, RasterView, RenderData, RenderGraph, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
@@ -41,11 +41,13 @@ import { assert, macro } from '../../platform';
 import { WebSceneTransversal } from './web-scene';
 import { MacroRecord } from '../../renderer';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
-import { supportsR32FloatTexture } from '../define';
+import { supportsR32FloatTexture, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
 import { OS } from '../../../../pal/system-info/enum-type';
 import { WebDescriptorHierarchy } from './web-descriptor-hierarchy';
 import { Compiler } from './compiler';
 import { PipelineUBO } from './ubos';
+import { builtinResMgr } from '../../builtin/builtin-res-mgr';
+import { Texture2D } from '../../assets/texture-2d';
 
 export class WebSetter {
     constructor (data: RenderData) {
@@ -334,6 +336,12 @@ export class WebPipeline extends Pipeline {
         const descH = new WebDescriptorHierarchy();
         //descH.addEffect(new EffectAsset());
         this._pipelineUBO.activate(this._device, this);
+        const shadowMapSampler = this._globalDSManager.pointSampler;
+        this.descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, shadowMapSampler);
+        this.descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
+        this.descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, shadowMapSampler);
+        this.descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
+        this.descriptorSet.update();
         return true;
     }
     public destroy (): boolean {
@@ -349,6 +357,9 @@ export class WebPipeline extends Pipeline {
     }
     public get descriptorSetLayout (): DescriptorSetLayout {
         return this._globalDSManager.descriptorSetLayout;
+    }
+    public get descriptorSet (): DescriptorSet {
+        return this._globalDSManager.globalDescriptorSet;
     }
     public get pipelineSceneData (): PipelineSceneData {
         return this._pipelineSceneData;
@@ -452,9 +463,9 @@ export class WebPipeline extends Pipeline {
             throw new Error('RenderGraph cannot be built without being created');
         }
         if (!this._compiler) {
-            this._compiler = new Compiler(this, this._resourceGraph, this._renderGraph, this._layoutGraph);
+            this._compiler = new Compiler(this, this._resourceGraph, this._layoutGraph);
         }
-        this._compiler.compile();
+        this._compiler.compile(this._renderGraph);
     }
 
     execute () {
@@ -544,6 +555,7 @@ export class WebPipeline extends Pipeline {
             if (camera.scene) {
                 this._pipelineUBO.updateGlobalUBO(camera.window);
                 this._pipelineUBO.updateCameraUBO(camera);
+                this._pipelineUBO.updateShadowUBO(camera);
                 this._buildShadowPasses(this, this._validLights,
                     camera.scene.mainLight,
                     this._pipelineSceneData,
