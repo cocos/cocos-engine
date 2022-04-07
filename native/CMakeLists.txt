@@ -2447,7 +2447,7 @@ if(NX_WINDOWS)
         ws2_32 userenv psapi winmm Iphlpapi
         ${CC_EXTERNAL_LIBS}
     )
-    
+
     include(${CMAKE_CURRENT_LIST_DIR}/platform-nx/setup.cmake)
     cc_win32_definations(cocos2d)
     if(USE_MODULES)
@@ -2467,15 +2467,7 @@ if(NX_WINDOWS)
     endif()
 elseif(NX)
     include(${CMAKE_CURRENT_LIST_DIR}/platform-nx/setup.cmake)
-    target_compile_definitions(cocos2d PUBLIC
-        CC_STATIC
-        NOMINMAX
-        _USE_MATH_DEFINES
-        _CRT_SECURE_NO_WARNINGS
-        _SCL_SECURE_NO_WARNINGS
-        _USRLIBSIMSTATIC
-        SE_ENABLE_INSPECTOR
-    )
+    nx_set_property(cocos2d)
 elseif(WINDOWS)
     target_link_libraries(cocos2d PUBLIC
         ws2_32 userenv psapi winmm Iphlpapi
