@@ -145,7 +145,7 @@ inline unsigned int ZipUtils::checksumPvr(const unsigned int *data, uint32_t len
 
 int ZipUtils::inflateMemoryWithHint(unsigned char *in, uint32_t inLength, unsigned char **out, uint32_t *outLength, uint32_t outLengthHint) {
     /* ret value */
-    int     err         = Z_OK;
+    int      err        = Z_OK;
     uint32_t bufferSize = outLengthHint;
     *out                = static_cast<unsigned char *>(malloc(bufferSize));
 
@@ -204,7 +204,7 @@ int ZipUtils::inflateMemoryWithHint(unsigned char *in, uint32_t inLength, unsign
 
 uint32_t ZipUtils::inflateMemoryWithHint(unsigned char *in, uint32_t inLength, unsigned char **out, uint32_t outLengthHint) {
     uint32_t outLength = 0;
-    int     err        = inflateMemoryWithHint(in, inLength, out, &outLength, outLengthHint);
+    int      err       = inflateMemoryWithHint(in, inLength, out, &outLength, outLengthHint);
 
     if (err != Z_OK || *out == nullptr) {
         if (err == Z_MEM_ERROR) {
@@ -372,7 +372,7 @@ int ZipUtils::inflateCCZBuffer(const unsigned char *buffer, uint32_t bufferLen, 
 
 #if CC_DEBUG > 0
         // decrypt
-        auto *  ints    = reinterpret_cast<unsigned int *>(const_cast<unsigned char *>(buffer) + 12);
+        auto *   ints   = reinterpret_cast<unsigned int *>(const_cast<unsigned char *>(buffer) + 12);
         uint32_t enclen = (bufferLen - 12) / 4;
 
         decodeEncodedPvr(ints, enclen);
