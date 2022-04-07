@@ -1171,6 +1171,125 @@ static bool JSB_zipUtils_setPvrEncryptionKey(se::State &s) { //NOLINT
 }
 SE_BIND_FUNC(JSB_zipUtils_setPvrEncryptionKey)
 
+// TextEncoder
+static se::Class *__jsb_TextEncoder_class = nullptr;
+
+static bool js_TextEncoder_finalize(se::State &s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_TextEncoder_finalize)
+
+static bool js_TextEncoder_constructor(se::State &s) // NOLINT(readability-identifier-naming)
+{
+    const auto &args = s.args();
+    size_t      argc = args.size();
+    if (argc > 0) {
+        if (args[0].isString() && args[0].toString() != "utf-8") {
+            CC_LOG_WARNING("TextEncoder only supports utf-8");
+        }
+    }
+    s.thisObject()->setProperty("encoding", se::Value{"utf-8"});
+    s.thisObject()->setPrivateObject(nullptr);
+    return true;
+}
+SE_BIND_CTOR(js_TextEncoder_constructor, __jsb_TextEncoder_class, js_TextEncoder_finalize)
+
+static bool js_TextEncoder_encode(se::State &s) // NOLINT(readability-identifier-naming)
+{
+    const auto &args = s.args();
+    size_t      argc = args.size();
+
+    if (argc == 1) {
+        const auto &arg0 = args[0];
+        SE_PRECONDITION2(arg0.isString(), false, "js_TextEncoder_encode, arg0 is not a string");
+        const auto &     str = arg0.toString();
+        se::HandleObject encodedUint8Array{
+            se::Object::createTypedArray(se::Object::TypedArrayType::UINT8, str.data(), str.length())};
+
+        s.rval().setObject(encodedUint8Array);
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_TextEncoder_encode)
+
+// TextDecoder
+static se::Class *__jsb_TextDecoder_class = nullptr;
+
+static bool js_TextDecoder_finalize(se::State &s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_TextDecoder_finalize)
+
+static bool js_TextDecoder_constructor(se::State &s) // NOLINT(readability-identifier-naming)
+{
+    const auto &args = s.args();
+    size_t      argc = args.size();
+    if (argc > 0) {
+        if (args[0].isString() && args[0].toString() != "utf-8") {
+            CC_LOG_WARNING("TextDecoder only supports utf-8");
+        }
+    }
+    s.thisObject()->setProperty("encoding", se::Value{"utf-8"});
+    s.thisObject()->setProperty("fatal", se::Value{false});
+    s.thisObject()->setProperty("ignoreBOM", se::Value{false});
+    s.thisObject()->setPrivateObject(nullptr); //FIXME: Don't need this line if https://github.com/cocos/3d-tasks/issues/11365 is done.
+    return true;
+}
+SE_BIND_CTOR(js_TextDecoder_constructor, __jsb_TextDecoder_class, js_TextDecoder_finalize)
+
+static bool js_TextDecoder_decode(se::State &s) // NOLINT(readability-identifier-naming)
+{
+    const auto &args = s.args();
+    size_t      argc = args.size();
+
+    if (argc == 1) {
+        const auto &arg0 = args[0];
+        SE_PRECONDITION2(arg0.isObject() && arg0.toObject()->isTypedArray(), false, "js_TextDecoder_decode, arg0 is not a Uint8Array");
+        auto *   uint8ArrayObj  = arg0.toObject();
+        uint8_t *uint8ArrayData = nullptr;
+        size_t   length         = 0;
+        bool     ok             = uint8ArrayObj->getTypedArrayData(&uint8ArrayData, &length);
+        SE_PRECONDITION2(ok, false, "js_TextDecoder_decode, get typedarray data failed!");
+
+        ccstd::string str{reinterpret_cast<const char *>(uint8ArrayData), length};
+        s.rval().setString(str);
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_TextDecoder_decode)
+
+static bool jsb_register_TextEncoder(se::Object *globalObj) {
+    auto *cls = se::Class::create("TextEncoder", globalObj, nullptr, _SE(js_TextEncoder_constructor));
+    cls->defineFunction("encode", _SE(js_TextEncoder_encode));
+    cls->defineFinalizeFunction(_SE(js_TextEncoder_finalize));
+    cls->install();
+
+    __jsb_TextEncoder_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+static bool jsb_register_TextDecoder(se::Object *globalObj) {
+    auto *cls = se::Class::create("TextDecoder", globalObj, nullptr, _SE(js_TextDecoder_constructor));
+    cls->defineFunction("decode", _SE(js_TextDecoder_decode));
+    cls->defineFinalizeFunction(_SE(js_TextDecoder_finalize));
+    cls->install();
+
+    __jsb_TextDecoder_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
 bool jsb_register_global_variables(se::Object *global) { //NOLINT
     gThreadPool = LegacyThreadPool::newFixedThreadPool(3);
 
@@ -1221,6 +1340,9 @@ bool jsb_register_global_variables(se::Object *global) { //NOLINT
     se::HandleObject performanceObj(se::Object::createPlainObject());
     performanceObj->defineFunction("now", _SE(js_performance_now));
     global->setProperty("performance", se::Value(performanceObj));
+
+    jsb_register_TextEncoder(global);
+    jsb_register_TextDecoder(global);
 
     se::ScriptEngine::getInstance()->clearException();
 
