@@ -70,7 +70,7 @@ constexpr uint32_t SPLINE_WHOLE_INDEX = 0xffffffff;
 
 class Spline final : public ShapeBase {
 public:
-    explicit Spline(SplineMode mode = SplineMode::CATMULL_ROM, const ccstd::vector<Vec3> &knots = {});
+    explicit Spline(SplineMode mode = SplineMode::CATMULL_ROM, ccstd::vector<Vec3> knots = {});
 
     Spline(const Spline &) = default;
     Spline(Spline &&)      = default;

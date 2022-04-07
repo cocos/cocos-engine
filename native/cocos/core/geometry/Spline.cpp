@@ -31,8 +31,8 @@
 namespace cc {
 namespace geometry {
 
-Spline::Spline(SplineMode mode /*= SplineMode::CATMULL_ROM*/, const ccstd::vector<Vec3> &knots /*= {}*/)
-: _mode(mode), _knots(knots) {
+Spline::Spline(SplineMode mode /*= SplineMode::CATMULL_ROM*/, ccstd::vector<Vec3> knots /*= {}*/)
+: _mode(mode), _knots(std::move(knots)) {
     setType(ShapeEnum::SHAPE_SPLINE);
 }
 
@@ -184,7 +184,7 @@ Vec3 Spline::calcCatmullRom(const Vec3 &v0, const Vec3 &v1, const Vec3 &v2, cons
     const auto t2     = t * t;
     const auto t3     = t2 * t;
     const auto result = v0 * (-0.5F * t3 + t2 - 0.5F * t) +
-                        v1 * (1.5F * t3 - 2.5F * t2 + 1.0) +
+                        v1 * (1.5F * t3 - 2.5F * t2 + 1.0F) +
                         v2 * (-1.5F * t3 + 2.0F * t2 + 0.5F * t) +
                         v3 * (0.5F * t3 - 0.5F * t2);
 
