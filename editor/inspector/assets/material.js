@@ -50,14 +50,18 @@ exports.methods = {
     record() {
         return JSON.stringify({
             material: this.material,
-            cacheData:this.cacheData,
+            cacheData: this.cacheData,
         });
     },
     async restore(record) {
         record = JSON.parse(record);
+        if (!record || typeof record !== 'object' || !record.material) {
+            return;
+        }
+
         this.material = record.material;
         this.cacheData = record.cacheData;
-        await this.update();
+        await this.updateInterface({ snapshot: false });
     },
 
     async getCustomInspector() {
@@ -113,7 +117,7 @@ exports.methods = {
     /**
      * Detection of data changes only determines the currently selected technique
      */
-    setDirtyData() {
+    setDirtyData(state) {
         this.dirtyData.realtime = JSON.stringify({
             effect: this.material.effect,
             technique: this.material.technique,
@@ -124,6 +128,8 @@ exports.methods = {
             this.dirtyData.origin = this.dirtyData.realtime;
 
             this.dispatch('snapshot');
+        } else {
+            this.dispatch('change', state);
         }
 
         this.canUpdatePreview = true;
@@ -134,7 +140,7 @@ exports.methods = {
         return isDirty;
     },
 
-    async update() {
+    async updateInterface(state) {
         if (this.canUpdatePreview) {
             await this.updatePreview();
         }
@@ -147,14 +153,16 @@ exports.methods = {
         setDisabled(this.asset.readonly, this.$.technique);
 
         this.updateTechniqueOptions();
-        this.setDirtyData();
+
         const inspector = await this.getCustomInspector();
         if (inspector) {
             this.updateCustomInspector(inspector);
+            this.setDirtyData(state);
         } else {
             // optimize calculate speed when edit multiple materials in node mode
             requestIdleCallback(() => {
                 this.updatePasses();
+                this.setDirtyData(state);
             });
         }
     },
@@ -415,7 +423,7 @@ exports.update = async function(assetList, metaList) {
     // set this.material.technique
     this.material = await Editor.Message.request('scene', 'query-material', this.asset.uuid);
 
-    await this.update();
+    await this.updateInterface();
 };
 
 /**
@@ -448,7 +456,6 @@ exports.ready = async function() {
 
         this.setDirtyData();
         this.storeCache(dump);
-        this.dispatch('change');
 
         await this.updatePreview();
     });
@@ -471,7 +478,6 @@ exports.ready = async function() {
             this.updatePasses();
         }
         this.setDirtyData();
-        this.dispatch('change');
     });
 
     this.$.location.addEventListener('change', () => {
@@ -492,7 +498,6 @@ exports.ready = async function() {
             this.updatePasses();
         }
         this.setDirtyData();
-        this.dispatch('change');
         this.updatePreview();
     });
 
@@ -501,7 +506,6 @@ exports.ready = async function() {
         this.changeInstancing(event.target.dump.value);
         this.storeCache(event.target.dump);
         this.setDirtyData();
-        this.dispatch('change');
         this.updatePreview();
     });
 
@@ -510,7 +514,6 @@ exports.ready = async function() {
         this.changeBatching(event.target.dump.value);
         this.storeCache(event.target.dump);
         this.setDirtyData();
-        this.dispatch('change');
         this.updatePreview();
     });
 
@@ -536,7 +539,6 @@ exports.ready = async function() {
     this.$.effect.innerHTML = effectOption;
     this.$.customPanel.addEventListener('change', () => {
         this.setDirtyData();
-        this.dispatch('change');
         this.updatePreview();
     });
 };

@@ -180,5 +180,5 @@
 }
 
 .section-asset > ui-panel[type="asset"][focused] {
-    box-shadow: var(--color-warn-fill) 0 0 4px;
+    box-shadow: var(--color-normal-fill-emphasis) 0 0 4px;
 }

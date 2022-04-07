@@ -1008,9 +1008,20 @@ const Elements = {
                     }
 
                     materialPanel.addEventListener('focus', () => {
-                        materialPanel.setAttribute('focused', '');
+                        const children = Array.from(materialPanel.parentElement.children);
+                        children.forEach(child => {
+                            if (child === materialPanel) {
+                                child.setAttribute('focused', '');
+                            } else {
+                                child.removeAttribute('focused');
+                            }
+                        });
                     });
                     materialPanel.addEventListener('blur', () => {
+                        if (panel.blurSleep) {
+                            return;
+                        }
+
                         materialPanel.removeAttribute('focused');
                     });
                 }
@@ -1048,11 +1059,36 @@ const Elements = {
 
 exports.methods = {
     undo() {
-        Editor.Message.send('scene', 'undo');
+        this.restore('undo');
     },
     redo() {
-        Editor.Message.send('scene', 'redo');
+        this.restore('redo');
     },
+    restore(cmd) {
+        if (!cmd) {
+            return;
+        }
+
+        const panel = this;
+
+        panel.blurSleep = true;
+
+        clearTimeout(panel.blurSleepTimeId);
+        panel.blurSleepTimeId = setTimeout(() => {
+            panel.blurSleep = false;
+        }, 1000);
+
+        const children = Array.from(panel.$.sectionAsset.children);
+        for (const materialPanel of children) {
+            if (materialPanel.hasAttribute('focused')) {
+                materialPanel.panelObject[cmd]();
+                return;
+            }
+        }
+
+        Editor.Message.send('scene', cmd);
+    },
+
     /**
      * 获取组件帮助菜单的 url
      * @param editor

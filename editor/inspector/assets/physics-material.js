@@ -8,18 +8,16 @@ exports.methods = {
         return JSON.stringify(this.physicsMaterial);
     },
     async restore(record) {
-        this.physicsMaterial = JSON.parse(record);
-        await Editor.Message.request('scene', 'change-physics-material', this.physicsMaterial);
-        this.update();
+        record = JSON.parse(record);
+        if (!record || typeof record !== 'object') {
+            return;
+        }
+
+        this.physicsMaterial = record;
+        await this.change();
+        this.updateInterface();
     },
 
-    updateReadonly(element) {
-        if (this.asset.readonly) {
-            element.setAttribute('disabled', true);
-        } else {
-            element.removeAttribute('disabled');
-        }
-    },
     async query(uuid) {
         return await Editor.Message.request('scene', 'query-physics-material', uuid);
     },
@@ -31,13 +29,13 @@ exports.methods = {
         this.dirtyData.origin = this.dirtyData.realtime;
         this.dirtyData.uuid = '';
     },
-    async dataChange() {
+    async change() {
         await Editor.Message.request('scene', 'change-physics-material', this.physicsMaterial);
         this.setDirtyData();
         this.dispatch('change');
     },
 
-    update() {
+    updateInterface() {
         for (const key in this.physicsMaterial) {
             const dump = this.physicsMaterial[key];
 
@@ -49,15 +47,21 @@ exports.methods = {
             if (!this.$[key]) {
                 this.$[key] = document.createElement('ui-prop');
                 this.$[key].setAttribute('type', 'dump');
-                this.$[key].addEventListener('change-dump', this.dataChange.bind(this));
+                this.$[key].addEventListener('change-dump', this.change.bind(this));
             }
 
             this.$.container.appendChild(this.$[key]);
             this.updateReadonly(this.$[key]);
             this.$[key].render(dump);
         }
+    },
 
-        this.setDirtyData();
+    updateReadonly(element) {
+        if (this.asset.readonly) {
+            element.setAttribute('disabled', true);
+        } else {
+            element.removeAttribute('disabled');
+        }
     },
 
     /**
@@ -109,7 +113,8 @@ exports.update = async function(assetList, metaList) {
 
     this.physicsMaterial = await this.query(this.asset.uuid);
 
-    this.update();
+    this.updateInterface();
+    this.setDirtyData();
 };
 
 exports.close = function() {

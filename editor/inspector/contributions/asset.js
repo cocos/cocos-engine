@@ -1,10 +1,9 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
+const History = require('./asset-history/index');
 
 const showImage = ['cc.ImageAsset', 'cc.SpriteFrame', 'cc.Texture2D'];
-
-exports.history = require('./asset-history/index');
 
 exports.listeners = {};
 
@@ -68,6 +67,8 @@ const Elements = {
             };
 
             Editor.Message.addBroadcastListener('asset-db:asset-change', panel.__assetChanged__);
+
+            panel.history = new History();
         },
         async update() {
             const panel = this;
@@ -149,6 +150,8 @@ const Elements = {
             const panel = this;
 
             Editor.Message.removeBroadcastListener('asset-db:asset-change', panel.__assetChanged__);
+
+            delete panel.history;
         },
     },
     header: {
@@ -296,13 +299,15 @@ const Elements = {
                     const file = list[i];
                     if (!contentRender.__panels__[i]) {
                         contentRender.__panels__[i] = document.createElement('ui-panel');
-                        contentRender.__panels__[i].addEventListener('change', () => {
+                        contentRender.__panels__[i].addEventListener('change', (state) => {
                             Elements.header.isDirty.call(panel);
 
-                            exports.history.snapshot(panel);
+                            if (!state || state.snapshot !== false) {
+                                panel.history.snapshot(panel);
+                            }
                         });
                         contentRender.__panels__[i].addEventListener('snapshot', () => {
-                            exports.history.snapshot(panel);
+                            panel.history.snapshot(panel);
                         });
                         contentRender.appendChild(contentRender.__panels__[i]);
                     }
@@ -326,10 +331,12 @@ const Elements = {
 
 exports.methods = {
     undo() {
-        exports.history.undo();
+        const panel = this;
+        panel.history.undo();
     },
     redo() {
-        exports.history.redo();
+        const panel = this;
+        panel.history.redo();
     },
     async record() {
         const panel = this;
@@ -564,7 +571,7 @@ exports.update = async function update(uuidList, renderMap, dropConfig) {
         }
     }
 
-    exports.history.snapshot(panel);
+    panel.history.snapshot(panel);
 };
 
 exports.ready = function ready() {

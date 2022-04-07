@@ -2,6 +2,9 @@ class SnapshotCommand {
     undoData;
     redoData;
 
+    panel;
+    manager;
+
     constructor(undoData, redoData) {
         this.undoData = undoData;
         this.redoData = redoData;

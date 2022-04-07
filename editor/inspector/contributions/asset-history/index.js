@@ -15,13 +15,21 @@ class AssetHistoryManager extends HistoryManagerBase {
     }
 
     async snapshot(panel) {
+        // 避免连续 change 产生大量的快照
+        clearTimeout(this.timeId);
+        this.timeId = setTimeout(() => {
+            this.record(panel);
+        }, 200);
+    }
+
+    async record(panel) {
         const record = await panel.record();
 
         if (this.lastRecord.uuidListStr === record.uuidListStr) {
             // 数据没变化
-            const metaChanged = this.lastRecord.metaListStr === record.metaListStr;
-            const renderChanged = this.lastRecord.renderDataStr === record.renderDataStr;
-            if (metaChanged && renderChanged) {
+            const metaChanged = this.lastRecord.metaListStr !== record.metaListStr;
+            const renderChanged = this.lastRecord.renderDataStr !== record.renderDataStr;
+            if (!metaChanged && !renderChanged) {
                 return;
             }
 
@@ -32,10 +40,10 @@ class AssetHistoryManager extends HistoryManagerBase {
             const redoData = Object.assign({}, this.lastRecord);
 
             const command = new AssetHistoryCommand(undoData, redoData);
+            command.panel = panel;
+            command.manager = this;
             this.push(command);
         } else {
-            this.panel = panel;
-
             Object.assign(this.lastRecord, record);
 
             this.rebase();
@@ -50,18 +58,16 @@ class AssetHistoryManager extends HistoryManagerBase {
         await super.redo();
     }
 }
-
-const assetHistoryManager = new AssetHistoryManager();
 class AssetHistoryCommand extends SnapshotCommand {
     async execute(record) {
-        if (assetHistoryManager && assetHistoryManager.panel) {
-            const success = assetHistoryManager.panel.restore(record);
+        if (this.panel) {
+            const success = this.panel.restore(record);
 
             if (success) {
-                assetHistoryManager.lastRecord = record;
+                this.manager.lastRecord = record;
             }
         }
     }
 }
 
-module.exports = assetHistoryManager;
+module.exports = AssetHistoryManager;
