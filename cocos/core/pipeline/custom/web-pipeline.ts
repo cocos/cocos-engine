@@ -576,35 +576,18 @@ export class WebPipeline extends Pipeline {
                         AccessType.READ, AttachmentType.RENDER_TARGET,
                         LoadOp.CLEAR, StoreOp.DISCARD,
                         ClearFlagBit.NONE,
-                        new Color(0, 0, 0, 0)));
+                        new Color(0, 0, 0, 1)));
                 }
                 const passView = new RasterView('_',
                     AccessType.WRITE, AttachmentType.RENDER_TARGET,
                     LoadOp.CLEAR, StoreOp.STORE,
-                    ClearFlagBit.NONE,
-                    new Color(0, 0, 0, 0));
-                if (!(camera.clearFlag & ClearFlagBit.COLOR)) {
-                    if (camera.clearFlag & SKYBOX_FLAG) {
-                        passView.loadOp = LoadOp.DISCARD;
-                    } else {
-                        passView.loadOp = LoadOp.LOAD;
-                        passView.accessType = AccessType.READ_WRITE;
-                    }
-                } else {
-                    passView.clearColor.x = camera.clearColor.x;
-                    passView.clearColor.y = camera.clearColor.y;
-                    passView.clearColor.z = camera.clearColor.z;
-                    passView.clearColor.w = camera.clearColor.w;
-                }
+                    camera.clearFlag,
+                    new Color(camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w));
                 const passDSView = new RasterView('_',
                     AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
                     LoadOp.CLEAR, StoreOp.STORE,
-                    ClearFlagBit.DEPTH_STENCIL,
+                    camera.clearFlag,
                     new Color(1, 0, 0, 0));
-                if ((camera.clearFlag & ClearFlagBit.DEPTH_STENCIL) !== ClearFlagBit.DEPTH_STENCIL) {
-                    if (!(camera.clearFlag & ClearFlagBit.DEPTH)) passDSView.loadOp = LoadOp.LOAD;
-                    if (!(camera.clearFlag & ClearFlagBit.STENCIL)) passDSView.loadOp = LoadOp.LOAD;
-                }
                 forwardPass.addRasterView(forwardPassRTName, passView);
                 forwardPass.addRasterView(forwardPassDSName, passDSView);
                 forwardPass

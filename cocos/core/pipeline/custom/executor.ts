@@ -30,20 +30,20 @@
  */
 /* eslint-disable max-len */
 import { getPhaseID, InstancedBuffer, PipelineStateManager } from '..';
-import { Buffer, Color, ColorAttachment, CommandBuffer, DepthStencilAttachment, Device, Format, Framebuffer,
-    FramebufferInfo, PipelineState, Rect, RenderPass, RenderPassInfo, Swapchain, Texture, TextureInfo,
+import { Buffer, ClearFlagBit, Color, ColorAttachment, CommandBuffer, DepthStencilAttachment, Device, Format, Framebuffer,
+    FramebufferInfo, LoadOp, PipelineState, Rect, RenderPass, RenderPassInfo, Swapchain, Texture, TextureInfo,
     TextureType, TextureUsageBit, Viewport } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 import { assert } from '../../platform';
 import { BatchingSchemes } from '../../renderer';
-import { Camera } from '../../renderer/scene/camera';
+import { Camera, SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Root } from '../../root';
 import { BatchedBuffer } from '../batched-buffer';
 import { SetIndex } from '../define';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { Pipeline, SceneVisitor } from './pipeline';
 import { AccessType, AttachmentType, Blit, ComputePass, CopyPass, Dispatch, ManagedResource, MovePass, PresentPass,
-    RasterPass, RaytracePass, RenderGraph, RenderGraphValue, RenderGraphVisitor, RenderQueue, RenderSwapchain, ResourceDesc,
+    RasterPass, RasterView, RaytracePass, RenderGraph, RenderGraphValue, RenderGraphVisitor, RenderQueue, RenderSwapchain, ResourceDesc,
     ResourceGraph, ResourceGraphVisitor, ResourceTraits, SceneData } from './render-graph';
 import { QueueHint, ResourceDimension, ResourceFlags } from './types';
 import { RenderInfo, RenderObject, WebSceneTask } from './web-scene';
@@ -176,6 +176,7 @@ class DeviceRenderPass {
         let swapchain: Swapchain | null = null;
         let framebuffer: Framebuffer | null = null;
         for (const [resName, rasterV] of rasterPass.rasterViews) {
+            this._applyRasterViewOp(rasterV);
             let resTex = context.deviceTextures.get(resName);
             if (rasterV.accessType === AccessType.READ || resTex) {
                 continue;
@@ -231,6 +232,31 @@ class DeviceRenderPass {
         this._renderPass = device.createRenderPass(new RenderPassInfo(colors, depthStencilAttachment));
         this._framebuffer = framebuffer || device.createFramebuffer(new FramebufferInfo(this._renderPass, colorTexs, depthTex));
     }
+    protected _applyRasterViewOp (rasterV: RasterView) {
+        switch (rasterV.attachmentType) {
+        case AttachmentType.RENDER_TARGET:
+            if (!(rasterV.clearFlags & 0xffffffff & ClearFlagBit.COLOR)) {
+                rasterV.clearColor.x = 0;
+                rasterV.clearColor.y = 0;
+                rasterV.clearColor.z = 0;
+                rasterV.clearColor.w = 1;
+                if (rasterV.clearFlags & SKYBOX_FLAG) {
+                    rasterV.loadOp = LoadOp.DISCARD;
+                } else {
+                    rasterV.loadOp = LoadOp.LOAD;
+                    rasterV.accessType = AccessType.READ_WRITE;
+                }
+            }
+            break;
+        case AttachmentType.DEPTH_STENCIL:
+            if ((rasterV.clearFlags & 0xffffffff & ClearFlagBit.DEPTH_STENCIL) !== ClearFlagBit.DEPTH_STENCIL) {
+                if (!(rasterV.clearFlags & ClearFlagBit.DEPTH)) rasterV.loadOp = LoadOp.LOAD;
+                if (!(rasterV.clearFlags & ClearFlagBit.STENCIL)) rasterV.loadOp = LoadOp.LOAD;
+            }
+            break;
+        default:
+        }
+    }
     get context () { return this._context; }
     get renderPass () { return this._renderPass; }
     get framebuffer () { return this._framebuffer; }
@@ -243,7 +269,8 @@ class DeviceRenderPass {
     // record common buffer
     record () {
         const cmdBuff = this._context.commandBuffer;
-        cmdBuff.beginRenderPass(this.renderPass, this.framebuffer, new Rect(),
+        const tex = this.framebuffer.colorTextures[0]!;
+        cmdBuff.beginRenderPass(this.renderPass, this.framebuffer, new Rect(0, 0, tex.width, tex.height),
             this.clearColor, this.clearDepth, this.clearStencil);
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL,
             this._context.pipeline.globalDSManager.globalDescriptorSet);
