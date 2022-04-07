@@ -2442,33 +2442,15 @@ target_include_directories(cocos2d PUBLIC
     ${CWD}/external/sources/khronos
 )
 
-if(NX_WINDOWS)
-    target_link_libraries(cocos2d PUBLIC
-        ws2_32 userenv psapi winmm Iphlpapi
-        ${CC_EXTERNAL_LIBS}
-    )
-
-    include(${CMAKE_CURRENT_LIST_DIR}/platform-nx/setup.cmake)
-    cc_win32_definations(cocos2d)
-    if(USE_MODULES)
-        cc_win32_definations(ccmath)
-        cc_win32_definations(cclog)
-        cc_win32_definations(ccunzip)
-        cc_win32_definations(ccfilesystem)
-        cc_win32_definations(ccutils)
-        cc_win32_definations(ccbindings)
-
-        target_link_libraries(ccutils PUBLIC
-            ws2_32 psapi userenv Iphlpapi
-        )
-        target_link_libraries(ccbindings PUBLIC
-            ws2_32
-        )
-    endif()
-elseif(NX)
+if(NX)
     include(${CMAKE_CURRENT_LIST_DIR}/platform-nx/setup.cmake)
     nx_set_property(cocos2d)
-elseif(WINDOWS)
+elseif(WINDOWS OR NX_WINDOWS)
+	if(NX_WINDOWS)
+		include(${CMAKE_CURRENT_LIST_DIR}/platform-nx/setup.cmake)
+		nx_set_property(cocos2d)
+	endif()
+	
     target_link_libraries(cocos2d PUBLIC
         ws2_32 userenv psapi winmm Iphlpapi
         ${CC_EXTERNAL_LIBS}
