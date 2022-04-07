@@ -52,11 +52,3 @@ replaceProperty(Camera.prototype, 'Camera.prototype', [
         newName: 'clearStencil',
     },
 ]);
-
-/**
- * Alias of [[Camera]]
- * @deprecated Since v1.2
- */
-export { Camera as CameraComponent };
-legacyCC.CameraComponent = Camera;
-js.setClassAlias(Camera, 'cc.CameraComponent');

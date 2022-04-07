@@ -120,14 +120,14 @@ export function fillTextureGrids (tileset: TMXTilesetInfo, texGrids: TiledTextur
         } else if (spFrame.rotated) {
             grid._rotated = true;
             grid._name = spFrame.name;
-            grid._rect = spFrame.getRect();
+            grid._rect = spFrame.rect;
             grid.l = spFrame.unbiasUV[0];
             grid.t = spFrame.unbiasUV[1];
             grid.r = spFrame.unbiasUV[4];
             grid.b = spFrame.unbiasUV[3];
         } else {
             grid._name = spFrame.name;
-            grid._rect = spFrame.getRect();
+            grid._rect = spFrame.rect;
             grid.l = spFrame.unbiasUV[0];
             grid.t = spFrame.unbiasUV[5];
             grid.r = spFrame.unbiasUV[2];

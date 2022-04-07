@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { ccclass, type, serializable, editable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Color } from '../../core/math';
@@ -190,7 +188,7 @@ export function packGradientRange (samples: number, gr: GradientRange) {
     }
 
     const texture = new Texture2D();
-    texture.create(samples, height, PixelFormat.RGBA8888);
+    texture.reset({ width: samples, height, format: PixelFormat.RGBA8888 });
     texture.setFilters(Filter.LINEAR, Filter.LINEAR);
     texture.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
     texture.uploadData(data);
