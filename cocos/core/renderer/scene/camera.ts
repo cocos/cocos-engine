@@ -164,7 +164,7 @@ export class Camera {
     private _visibility = CAMERA_DEFAULT_MASK;
     private _exposure = 0;
     private _clearStencil = 0;
-    private _geometryRenderer = new GeometryRenderer();
+    private _geometryRenderer = legacyCC.internal.GeometryRenderer ? new GeometryRenderer() : null;
 
     constructor (device: Device) {
         this._device = device;
@@ -174,7 +174,7 @@ export class Camera {
 
         this._aspect = this.screenScale = 1;
         this._frustum.accurate = true;
-        this._geometryRenderer.activate(device);
+        this._geometryRenderer?.activate(device);
 
         if (!correctionMatrices.length) {
             const ySign = device.capabilities.clipSpaceSignY;
@@ -231,7 +231,7 @@ export class Camera {
             this.window = null!;
         }
         this._name = null;
-        this._geometryRenderer.destroy();
+        this._geometryRenderer?.destroy();
     }
 
     public attachToScene (scene: RenderScene) {

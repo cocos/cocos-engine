@@ -1962,6 +1962,8 @@ cocos_source_files(MODULE ccgeometry
     cocos/core/geometry/Spec.h
     cocos/core/geometry/Sphere.cpp
     cocos/core/geometry/Sphere.h
+    cocos/core/geometry/Spline.cpp
+    cocos/core/geometry/Spline.h
     cocos/core/geometry/Triangle.cpp
     cocos/core/geometry/Triangle.h
 )
