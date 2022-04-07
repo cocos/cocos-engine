@@ -859,23 +859,6 @@ bool js_register_engine_FileUtils(se::Object* obj) // NOLINT(readability-identif
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_OSInterface_proto = nullptr; // NOLINT
-se::Class* __jsb_cc_OSInterface_class = nullptr;  // NOLINT
-
-bool js_register_engine_OSInterface(se::Object* obj) // NOLINT(readability-identifier-naming)
-{
-    auto* cls = se::Class::create("OSInterface", obj, nullptr, nullptr);
-
-    cls->install();
-    JSBClassType::registerClass<cc::OSInterface>(cls);
-
-    __jsb_cc_OSInterface_proto = cls->getProto();
-    __jsb_cc_OSInterface_class = cls;
-
-
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
 se::Object* __jsb_cc_Vec2_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_Vec2_class = nullptr;  // NOLINT
 
@@ -1006,6 +989,23 @@ bool js_register_engine_Vec2(se::Object* obj) // NOLINT(readability-identifier-n
 
     __jsb_cc_Vec2_proto = cls->getProto();
     __jsb_cc_Vec2_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_cc_OSInterface_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_OSInterface_class = nullptr;  // NOLINT
+
+bool js_register_engine_OSInterface(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("OSInterface", obj, nullptr, nullptr);
+
+    cls->install();
+    JSBClassType::registerClass<cc::OSInterface>(cls);
+
+    __jsb_cc_OSInterface_proto = cls->getProto();
+    __jsb_cc_OSInterface_class = cls;
 
 
     se::ScriptEngine::getInstance()->clearException();

@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { Vec3 } from '../../../core/math';
 import { Collider, PhysicsMaterial, PhysicsSystem } from '../../../../exports/physics-framework';

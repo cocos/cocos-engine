@@ -317,9 +317,11 @@ exports.getName = function(dump) {
 
     let name = dump.name || '';
 
-    name = name.replace(/^\S/, (str) => str.toUpperCase());
+    name = name.trim().replace(/^\S/, (str) => str.toUpperCase());
     name = name.replace(/_/g, (str) => ' ');
     name = name.replace(/ \S/g, (str) => ` ${str.toUpperCase()}`);
+    // 驼峰转中间空格
+    name = name.replace(/([a-z])([A-Z])/g, '$1 $2');
 
     return name.trim();
 };
@@ -383,6 +385,7 @@ exports.createTabGroup = function(dump, panel) {
     // check style
     if (!panel.$this.shadowRoot.querySelector('style#group-style')) {
         const style = document.createElement('style');
+        style.setAttribute('id', 'group-style');
         style.innerText = `
             .tab-group {
                 margin-top: 10px;
@@ -425,7 +428,7 @@ exports.appendToTabGroup = function($group, tabName) {
     $group.appendChild($content);
 
     const $label = document.createElement('ui-label');
-    $label.value = tabName;
+    $label.value = exports.getName(tabName);
 
     const $button = document.createElement('ui-button');
     $button.setAttribute('name', tabName);

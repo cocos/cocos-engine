@@ -7,6 +7,7 @@ import { serializable } from '../../data/decorators';
 import { ClipStatus } from './graph-eval';
 import { EditorExtendable } from '../../data/editor-extendable';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
+import { getMotionRuntimeID, RUNTIME_ID_ENABLED } from './graph-debug';
 
 export interface AnimationBlend extends Motion, EditorExtendable {
     [createEval] (_context: MotionEvalContext): MotionEval | null;
@@ -36,18 +37,36 @@ export class AnimationBlend extends EditorExtendable implements Motion {
 }
 
 export class AnimationBlendEval implements MotionEval {
+    public declare runtimeId?: number;
+
     private declare _childEvaluators: (MotionEval | null)[];
     private declare _weights: number[];
     private declare _inputs: number[];
 
     constructor (
         context: MotionEvalContext,
+        base: AnimationBlend,
         children: AnimationBlendItem[],
         inputs: number[],
     ) {
         this._childEvaluators = children.map((child) => child.motion?.[createEval](context) ?? null);
         this._weights = new Array(this._childEvaluators.length).fill(0);
         this._inputs = [...inputs];
+        if (RUNTIME_ID_ENABLED) {
+            this.runtimeId = getMotionRuntimeID(base);
+        }
+    }
+
+    get childCount () {
+        return this._weights.length;
+    }
+
+    public getChildWeight (childIndex: number): number {
+        return this._weights[childIndex];
+    }
+
+    public getChildMotionEval (childIndex: number) {
+        return this._childEvaluators[childIndex];
     }
 
     get duration () {

@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import CANNON from '@cocos/cannon';
 import { Quat, Vec3 } from '../../core/math';

@@ -22,10 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { removeProperty, replaceProperty } from '../utils/x-deprecated';
 import { Device } from './base/device';

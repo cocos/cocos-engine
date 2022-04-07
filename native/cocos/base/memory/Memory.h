@@ -25,32 +25,69 @@
 
 #pragma once
 
-#include "MemDef.h"
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
     #include <Availability.h>
 #endif
 
-// Global Interface Definitions
+#ifdef _MSC_VER
+    #include <malloc.h>
+#else
+    #include <cstdlib>
+#endif
 
-// Undefine these macros that are defined in cocos2d-x lite.
-// Should unify them in future.
-#undef CC_SAFE_DELETE
-#undef CC_SAFE_DELETE_ARRAY
-#undef CC_SAFE_FREE
+#include "base/Macros.h"
 
-#define CC_NEW(T)                                   new T
-#define CC_NEW_ALIGN(T, align)                      _CC_NEW_ALIGN(T, align)
-#define CC_NEW_ALIGN_ARGS(T, align, ...)            _CC_NEW_ALIGN_ARGS(T, align, ...)
-#define CC_NEW_ARRAY(T, count)                      new T[count]
-#define CC_DELETE(ptr)                              delete (ptr)
-#define CC_DELETE_ARRAY(ptr)                        delete[](ptr)
-#define CC_DELETE_ALIGN(ptr, T, align)              _CC_DELETE_ALIGN(ptr, T, align)
-#define CC_DELETE_ARRAY_ALIGN(ptr, T, count, align) _CC_DELETE_ARRAY_ALIGN(ptr, T, count, align)
+namespace cc {
+class MemoryAllocDealloc final {
+public:
+    inline static void *allocateBytesAligned(size_t alignment, size_t count) {
+#ifdef _MSC_VER
+        void *ptr = _aligned_malloc(count, alignment);
+#else
+        CCASSERT(alignment % sizeof(void *) == 0, "alignment is not multiple of sizeof(void*)");
+        void *ptr = nullptr;
+        posix_memalign(&ptr, alignment, count);
+#endif
+        return ptr;
+    }
+
+    inline static void deallocateBytesAligned(void *ptr) {
+#ifdef _MSC_VER
+        _aligned_free(ptr);
+#else
+        free(ptr);
+#endif
+    }
+};
+} // namespace cc
+
+#define CC_NEW(T)                        new T
+#define CC_NEW_ALIGN(T, align)           new (::cc::MemoryAllocDealloc::allocateBytesAligned(align, sizeof(T))) T
+#define CC_NEW_ALIGN_ARGS(T, align, ...) new (::cc::MemoryAllocDealloc::allocateBytesAligned(align, sizeof(T))) T(__VA_ARGS__)
+#define CC_NEW_ARRAY(T, count)           new T[count]
+#define CC_DELETE(ptr)                   delete (ptr)
+#define CC_DELETE_ARRAY(ptr)             delete[](ptr)
+
+#define CC_DELETE_ALIGN(ptr, T, align)                                 \
+    if (ptr) {                                                         \
+        (ptr)->~T();                                                   \
+        ::cc::MemoryAllocDealloc::deallocateBytesAligned((void *)ptr); \
+    }
+
+#define CC_DELETE_ARRAY_ALIGN(ptr, T, count, align)                    \
+    if (ptr) {                                                         \
+        for (size_t _b = 0; _b < (size_t)count; ++_b) {                \
+            (ptr)[_b].~T();                                            \
+        }                                                              \
+        ::cc::MemoryAllocDealloc::deallocateBytesAligned((void *)ptr); \
+    }
+
 #define CC_SAFE_DELETE(ptr) \
     if (ptr) {              \
         CC_DELETE(ptr);     \
         (ptr) = nullptr;    \
     }
+
 #define CC_SAFE_DELETE_ARRAY(ptr) \
     if (ptr) {                    \
         CC_DELETE_ARRAY(ptr);     \
@@ -58,10 +95,10 @@
     }
 
 #define CC_MALLOC(bytes)              malloc(bytes)
-#define CC_MALLOC_ALIGN(bytes, align) _CC_MALLOC_ALIGN(align, bytes)
+#define CC_MALLOC_ALIGN(bytes, align) ::cc::MemoryAllocDealloc::allocateBytesAligned(align, bytes)
 #define CC_REALLOC(ptr, bytes)        realloc(ptr, bytes)
 #define CC_FREE(ptr)                  free((void *)ptr)
-#define CC_FREE_ALIGN(ptr)            _CC_FREE_ALIGN(ptr)
+#define CC_FREE_ALIGN(ptr)            ::cc::MemoryAllocDealloc::deallocateBytesAligned(ptr)
 #define CC_SAFE_FREE(ptr) \
     if (ptr) {            \
         CC_FREE(ptr);     \

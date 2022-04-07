@@ -25,32 +25,12 @@
 
 #include "platform/interfaces/modules/ISystem.h"
 
-#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-    #include "platform/win32/modules/System.h"
-#elif (CC_PLATFORM == CC_PLATFORM_ANDROID)
-    #include "platform/android/modules/System.h"
-#elif (CC_PLATFORM == CC_PLATFORM_OHOS)
-    #include "platform/ohos/modules/System.h"
-#elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
-    #include "platform/mac/modules/System.h"
-#elif (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-    #include "platform/ios/modules/System.h"
-#elif (CC_PLATFORM == CC_PLATFORM_LINUX)
-    #include "platform/linux/modules/System.h"
-#elif (CC_PLATFORM == CC_PLATFORM_QNX)
-    #include "platform/qnx/modules/System.h"
-#endif
-
 namespace cc {
 ISystem::~ISystem() = default;
 
-ISystem::Ptr ISystem::createSystemInterface() {
-    return std::make_shared<System>();
-}
-
 ccstd::string ISystem::getCurrentLanguageToString() {
-    LanguageType  language    = getCurrentLanguage();
-    ccstd::string languageStr = ""; // NOLINT
+    LanguageType language    = getCurrentLanguage();
+    ccstd::string  languageStr = ""; // NOLINT
     switch (language) {
         case ISystem::LanguageType::ENGLISH:
             languageStr = "en";

@@ -26,11 +26,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { screenAdapter } from 'pal/screen-adapter';
 import { BitmapFont } from '../../2d/assets';
 import { director } from '../../core/director';

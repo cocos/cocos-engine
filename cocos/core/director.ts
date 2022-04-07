@@ -683,6 +683,7 @@ export class Director extends EventTarget {
     /**
      * @en Run main loop of director
      * @zh 运行主循环
+     * @param dt Delta time in seconds
      */
     public tick (dt: number) {
         if (!this._invalid) {

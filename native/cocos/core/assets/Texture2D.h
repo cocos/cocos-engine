@@ -68,6 +68,21 @@ struct ITexture2DCreateInfo {
      * @default 1
      */
     cc::optional<uint32_t> mipmapLevel;
+    
+    /**
+     * @en The selected base mipmap level
+     * @zh 选择使用的最小 mipmap 层级。
+     * @default 1
+     */
+    cc::optional<uint32_t> baseLevel;
+    
+    /**
+     * @en The selected maximum mipmap level
+     * @zh 选择使用的最大 mipmap 层级。
+     * @default 1
+     */
+    cc::optional<uint32_t> maxLevel;
+
 };
 
 /**
@@ -136,9 +151,12 @@ public:
      * @param height Pixel height
      * @param format Pixel format
      * @param mipmapLevel Mipmap level count
+     * @param baseLevel Mipmap base level
+     * @param maxLevel Mipmap maximum level
+
      * @deprecated since v1.0 please use [[reset]] instead
      */
-    void create(uint32_t width, uint32_t height, PixelFormat format = PixelFormat::RGBA8888, uint32_t mipmapLevel = 1);
+    void create(uint32_t width, uint32_t height, PixelFormat format = PixelFormat::RGBA8888, uint32_t mipmapLevel = 1, uint32_t baseLevel = 0, uint32_t maxLevel = 0);
 
     ccstd::string toString() const override;
 
@@ -186,6 +204,7 @@ public:
     void deserialize(const cc::any &serializedData, const cc::any &handle) override;
 
     gfx::TextureInfo getGfxTextureCreateInfo(gfx::TextureUsageBit usage, gfx::Format format, uint32_t levelCount, gfx::TextureFlagBit flags) override;
+    gfx::TextureViewInfo getGfxTextureViewCreateInfo(gfx::Texture *texture, gfx::Format format, uint32_t baseLevel, uint32_t levelCount) override;
 
     void initDefault(const cc::optional<ccstd::string> &uuid) override;
 

@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 /* eslint-disable max-len */
 /* eslint-disable no-tabs */

@@ -32,7 +32,7 @@
 namespace cc {
 class IEventDispatch;
 
-class OSInterface {
+class CC_DLL OSInterface {
 public:
     using Ptr = std::shared_ptr<OSInterface>;
     /**

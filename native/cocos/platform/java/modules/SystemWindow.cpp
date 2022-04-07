@@ -40,18 +40,6 @@ namespace {
 
 namespace cc {
 
-bool SystemWindow::createWindow(const char *title,
-                                int x, int y, int w,
-                                int h, int flags) {
-    CC_UNUSED_PARAM(title);
-    CC_UNUSED_PARAM(x);
-    CC_UNUSED_PARAM(y);
-    CC_UNUSED_PARAM(w);
-    CC_UNUSED_PARAM(h);
-    CC_UNUSED_PARAM(flags);
-    return true;
-}
-
 void SystemWindow::setCursorEnabled(bool value) {
 }
 

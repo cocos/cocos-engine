@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { ILifecycle } from './i-lifecycle';
 import { IGroupMask } from './i-group-mask';

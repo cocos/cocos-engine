@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { replaceProperty, removeProperty } from '../utils/x-deprecated';
 import { Line } from './line';

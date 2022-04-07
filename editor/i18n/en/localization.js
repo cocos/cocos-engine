@@ -6,9 +6,6 @@ const version = pkg.version.replace(/(^\d+\.\d+)\..*$/, (str, a) => {
 const url = 'https://docs.cocos.com/creator';
 
 module.exports = {
-    menu: {
-        custom_script: 'Custom script',
-    },
     help: {
         cc: {
             Node: `${url}/${version}/manual/en/concepts/scene/node-component.html`,
@@ -538,6 +535,7 @@ module.exports = {
     richtext: {
         string: 'Text of the RichText, you could use BBcode in the string',
         horizontal_align: 'Horizontal alignment',
+        vertical_align: 'Vertical alignment',
         font_size: 'Font size, in points',
         font: 'Custom TTF font of RichText',
         font_family:'Custom System font of RichText',
@@ -767,6 +765,10 @@ module.exports = {
                 label: '3D',
                 description: '3D',
             },
+            animation: {
+                label: 'Animation',
+                description: 'Animation System.',
+            },
         },
         core: {
             label: "Core",
@@ -883,6 +885,18 @@ module.exports = {
         dragon_bones: {
             label: "DragonBones",
             description: "DragonBones support.",
+        },
+        animation: {
+            label: "Basic Animation",
+            description: "Basic animation support.",
+        },
+        skeletal_animation: {
+            label: "Skeletal Animation",
+            description: "Skeletal animation support.",
+        },
+        marionette: {
+            label: "Marionette Animation System",
+            description: "Enable the Marionette animation system",
         },
     },
     renderable_2d: {

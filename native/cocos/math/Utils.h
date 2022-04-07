@@ -218,7 +218,7 @@ auto repeat(T t, T length) {
 template <typename T>
 auto pingPong(T t, T length) {
     t = repeat(t, length * 2);
-    t = length - abs(t - length);
+    t = length - std::abs(t - length);
     return t;
 }
 
@@ -252,7 +252,7 @@ Vec3ElementType maxComponent(const Vec3 &v);
  */
 template <typename F>
 auto absMax(F a, F b) {
-    return abs(a) > abs(b) ? a : b;
+    return std::abs(a) > std::abs(b) ? a : b;
 }
 
 } // namespace mathutils

@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { IContactEquation, ICollisionEvent } from '../framework';
 import { IVec3Like, Vec3, Quat } from '../../core';

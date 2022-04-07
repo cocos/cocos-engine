@@ -5,28 +5,15 @@ cmake_minimum_required(VERSION 3.8)
 option(APP_NAME "Project Name" "CocosGame")
 project(${APP_NAME} CXX)
 
-set(CMAKE_CXX_FLAGS_DEBUG  "-Werror=return-type")
+set(CC_PROJECT_DIR ${CMAKE_CURRENT_LIST_DIR})
+set(CC_LIB_NAME cocos)
+set(CC_PROJ_SOURCES)
+set(CC_COMMON_SOURCES)
+set(CC_ALL_SOURCES)
 
-set(COMMON_DIR ${CMAKE_CURRENT_LIST_DIR}/../common)
-include(${COMMON_DIR}/CMakeLists.txt)
+include(${CC_PROJECT_DIR}/../common/CMakeLists.txt)
 
-set(LIB_NAME cocos)
-
-
-set(PROJ_SOURCES
-    ${COMMON_DIR}/Classes/Game.h
-    ${COMMON_DIR}/Classes/Game.cpp
-)
-
-
-add_library(${LIB_NAME} SHARED ${PROJ_SOURCES})
-
-target_link_libraries(${LIB_NAME}
-    "-Wl,--whole-archive" cocos_jni "-Wl,--no-whole-archive"
-    ${ENGINE_NAME}
-)
-
-target_include_directories(${LIB_NAME} PRIVATE
-    ${COMMON_DIR}/Classes
-)
+cc_ohos_before_target(${CC_LIB_NAME})
+add_library(${CC_LIB_NAME} SHARED ${CC_ALL_SOURCES})
+cc_ohos_after_target(${CC_LIB_NAME})
 

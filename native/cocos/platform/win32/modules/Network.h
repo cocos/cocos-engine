@@ -29,7 +29,7 @@
 
 namespace cc {
 
-class Network : public INetwork {
+class CC_DLL Network : public INetwork {
 public:
     NetworkType getNetworkType() const override;
 };

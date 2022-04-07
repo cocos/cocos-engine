@@ -28,7 +28,7 @@
  * @module ui
  */
 
-import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, editable, serializable } from 'cc.decorator';
+import { ccclass, disallowMultiple, editable, executeInEditMode, executionOrder, help, menu, serializable, tooltip } from 'cc.decorator';
 import { Component } from '../../core/components/component';
 import { clampf } from '../../core/utils/misc';
 
@@ -46,6 +46,7 @@ import { clampf } from '../../core/utils/misc';
 @executionOrder(110)
 @menu('UI/UIOpacity')
 @executeInEditMode
+@disallowMultiple
 export class UIOpacity extends Component {
     /**
      * @en

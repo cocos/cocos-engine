@@ -52,7 +52,10 @@ gulp.task('build-source', async () => {
     });
 });
 
-gulp.task('build-h5-source', gulp.series('build-debug-infos', () => {
+gulp.task('build-h5-source', gulp.series('build-debug-infos', async () => {
+    const outDir = ps.join('bin', 'dev', 'cc');
+    await fs.ensureDir(outDir);
+    await fs.emptyDir(outDir);
     const cli = require.resolve('@cocos/build-engine/dist/cli');
     return cp.spawn('node', [
         cli,
@@ -61,7 +64,7 @@ gulp.task('build-h5-source', gulp.series('build-debug-infos', () => {
         '--build-mode=BUILD',
         '--platform=HTML5',
         '--physics=cannon',
-        '--out=./bin/dev/cc',
+        `--out=${outDir}`,
     ], {
         shell: true,
         stdio: 'inherit',
@@ -69,7 +72,10 @@ gulp.task('build-h5-source', gulp.series('build-debug-infos', () => {
     });
 }));
 
-gulp.task('build-h5-minified', gulp.series('build-debug-infos', () => {
+gulp.task('build-h5-minified', gulp.series('build-debug-infos', async () => {
+    const outDir = ps.join('bin', 'dev', 'cc-min');
+    await fs.ensureDir(outDir);
+    await fs.emptyDir(outDir);
     const cli = require.resolve('@cocos/build-engine/dist/cli');
     return cp.spawn('node', [
         cli,
@@ -80,7 +86,7 @@ gulp.task('build-h5-minified', gulp.series('build-debug-infos', () => {
         '--build-mode=BUILD',
         '--platform=HTML5',
         '--physics=cannon',
-        '--out=./bin/dev/cc-min',
+        `--out=${outDir}`,
     ], {
         shell: true,
         stdio: 'inherit',

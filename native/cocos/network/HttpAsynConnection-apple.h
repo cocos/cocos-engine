@@ -33,7 +33,7 @@
     #import <Foundation/Foundation.h>
     #import <Security/Security.h>
 /// @cond
-@interface HttpAsynConnection : NSObject<NSURLSessionDelegate> {
+@interface HttpAsynConnection : NSObject <NSURLSessionDelegate> {
     NSURLSession *session;
 }
 
