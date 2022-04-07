@@ -947,7 +947,7 @@ bool FileUtils::renameFile(const ccstd::string &oldfullpath, const ccstd::string
 
 bool FileUtils::renameFile(const ccstd::string &path, const ccstd::string &oldname, const ccstd::string &name) {
     // FileUtils not support renameFile.
-    CC_ASSERT(false]);
+    CC_ASSERT(false);
     return false;
 }
 
