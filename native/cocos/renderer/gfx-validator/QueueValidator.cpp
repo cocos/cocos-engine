@@ -42,7 +42,7 @@ QueueValidator::~QueueValidator() {
 }
 
 void QueueValidator::doInit(const QueueInfo &info) {
-    CCASSERT(!isInited(), "initializing twice?");
+    CC_ASSERT(!isInited());
     _inited = true;
 
     /////////// execute ///////////
@@ -51,7 +51,7 @@ void QueueValidator::doInit(const QueueInfo &info) {
 }
 
 void QueueValidator::doDestroy() {
-    CCASSERT(isInited(), "destroying twice?");
+    CC_ASSERT(isInited());
     _inited = false;
 
     /////////// execute ///////////
@@ -60,13 +60,14 @@ void QueueValidator::doDestroy() {
 }
 
 void QueueValidator::submit(CommandBuffer *const *cmdBuffs, uint32_t count) {
-    CCASSERT(isInited(), "alread destroyed?");
+    CC_ASSERT(isInited());
 
     if (!count) return;
     for (uint32_t i = 0U; i < count; ++i) {
         auto *cmdBuff = static_cast<CommandBufferValidator *>(cmdBuffs[i]);
-        CCASSERT(cmdBuff && cmdBuff->isInited(), "alread destroyed?");
-        CCASSERT(cmdBuff->isCommandsFlushed(), "command buffers must be flushed before submit");
+        CC_ASSERT(cmdBuff && cmdBuff->isInited());
+        // Command buffers must be flushed before submit.
+        CC_ASSERT(cmdBuff->isCommandsFlushed());
     }
 
     /////////// execute ///////////

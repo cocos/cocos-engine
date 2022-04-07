@@ -346,7 +346,7 @@ SE_BIND_FUNC(JSBCore_os)
 
 static bool JSBCore_getCurrentLanguage(se::State &s) { //NOLINT
     ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
-    CCASSERT(systemIntf != nullptr, "System interface does not exist");
+    CC_ASSERT(systemIntf != nullptr);
     ccstd::string languageStr = systemIntf->getCurrentLanguageToString();
     s.rval().setString(languageStr);
     return true;
@@ -355,7 +355,7 @@ SE_BIND_FUNC(JSBCore_getCurrentLanguage)
 
 static bool JSBCore_getCurrentLanguageCode(se::State &s) { //NOLINT
     ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
-    CCASSERT(systemIntf != nullptr, "System interface does not exist");
+    CC_ASSERT(systemIntf != nullptr);
     ccstd::string language = systemIntf->getCurrentLanguageCode();
     s.rval().setString(language);
     return true;
@@ -364,7 +364,7 @@ SE_BIND_FUNC(JSBCore_getCurrentLanguageCode)
 
 static bool JSB_getOSVersion(se::State &s) { //NOLINT
     ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
-    CCASSERT(systemIntf != nullptr, "System interface does not exist");
+    CC_ASSERT(systemIntf != nullptr);
     ccstd::string systemVersion = systemIntf->getSystemVersion();
     s.rval().setString(systemVersion);
     return true;
@@ -409,7 +409,7 @@ static bool JSB_setCursorEnabled(se::State &s) { //NOLINT
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     auto *systemWindowIntf = CC_GET_PLATFORM_INTERFACE(ISystemWindow);
-    CCASSERT(systemWindowIntf != nullptr, "System window interface does not exist");
+    CC_ASSERT(systemWindowIntf != nullptr);
     systemWindowIntf->setCursorEnabled(value);
     return true;
 }
@@ -674,7 +674,7 @@ static bool JSB_openURL(se::State &s) { //NOLINT
         ok = sevalue_to_native(args[0], &url);
         SE_PRECONDITION2(ok, false, "url is invalid!");
         ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
-        CCASSERT(systemIntf != nullptr, "System interface does not exist");
+        CC_ASSERT(systemIntf != nullptr);
         systemIntf->openURL(url);
         return true;
     }
@@ -693,7 +693,7 @@ static bool JSB_copyTextToClipboard(se::State &s) { //NOLINT
         ok = sevalue_to_native(args[0], &text);
         SE_PRECONDITION2(ok, false, "text is invalid!");
         ISystemWindow *systemWindowIntf = CC_GET_PLATFORM_INTERFACE(ISystemWindow);
-        CCASSERT(systemWindowIntf != nullptr, "System window interface does not exist");
+        CC_ASSERT(systemWindowIntf != nullptr);
         systemWindowIntf->copyTextToClipboard(text);
         return true;
     }

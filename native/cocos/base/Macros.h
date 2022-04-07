@@ -89,17 +89,6 @@ typedef SSIZE_T ssize_t;
     #define CC_DLL
 #endif
 
-#ifndef CCASSERT
-    #if CC_DEBUG > 0
-        #define CCASSERT(cond, msg) CC_ASSERT(cond)
-    // #endif
-    #else
-        #define CCASSERT(cond, msg)
-    #endif
-
-    #define GP_ASSERT(cond) CCASSERT(cond, "")
-#endif // CCASSERT
-
 /** @def CC_DEGREES_TO_RADIANS
  converts degrees to radians
  */

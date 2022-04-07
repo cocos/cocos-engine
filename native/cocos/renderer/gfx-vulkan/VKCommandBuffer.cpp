@@ -215,7 +215,7 @@ void CCVKCommandBuffer::bindPipelineState(PipelineState *pso) {
 }
 
 void CCVKCommandBuffer::bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, uint32_t dynamicOffsetCount, const uint32_t *dynamicOffsets) {
-    CCASSERT(_curGPUDescriptorSets.size() > set, "Invalid set index");
+    CC_ASSERT(_curGPUDescriptorSets.size() > set);
 
     CCVKGPUDescriptorSet *gpuDescriptorSet = static_cast<CCVKDescriptorSet *>(descriptorSet)->gpuDescriptorSet();
 
@@ -575,7 +575,7 @@ void CCVKCommandBuffer::bindDescriptorSets(VkPipelineBindPoint bindPoint) {
             _curVkDescriptorSets[i] = pipelineLayout->setLayouts[i]->defaultDescriptorSet;
         }
         uint32_t count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
-        //CCASSERT(_curDynamicOffsetCounts[i] >= count, "missing dynamic offsets?");
+        // CC_ASSERT(_curDynamicOffsetCounts[i] >= count);
         count = std::min(count, utils::toUint(_curDynamicOffsetsArray[i].size()));
         if (count > 0) memcpy(&_curDynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsetsArray[i].data(), count * sizeof(uint32_t));
     }

@@ -794,7 +794,7 @@ public:
      * @param point The point to transform and also a vector to hold the result in.
      */
     inline void transformPoint(Vec3 *point) const {
-        GP_ASSERT(point);
+        CC_ASSERT(point);
         transformVector(point->x, point->y, point->z, 1.0F, point);
     }
 
@@ -806,7 +806,7 @@ public:
      * @param dst A vector to store the transformed point in.
      */
     inline void transformPoint(const Vec3 &point, Vec3 *dst) const {
-        GP_ASSERT(dst);
+        CC_ASSERT(dst);
         transformVector(point.x, point.y, point.z, 1.0F, dst);
     }
 

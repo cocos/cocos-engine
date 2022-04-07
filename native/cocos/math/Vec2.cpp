@@ -65,14 +65,14 @@ float Vec2::angle(const Vec2 &v1, const Vec2 &v2) {
 }
 
 void Vec2::add(const Vec2 &v1, const Vec2 &v2, Vec2 *dst) {
-    GP_ASSERT(dst);
+    CC_ASSERT(dst);
 
     dst->x = v1.x + v2.x;
     dst->y = v1.y + v2.y;
 }
 
 void Vec2::clamp(const Vec2 &min, const Vec2 &max) {
-    GP_ASSERT(!(min.x > max.x || min.y > max.y));
+    CC_ASSERT(!(min.x > max.x || min.y > max.y));
 
     // Clamp the x value.
     if (x < min.x)
@@ -88,8 +88,8 @@ void Vec2::clamp(const Vec2 &min, const Vec2 &max) {
 }
 
 void Vec2::clamp(const Vec2 &v, const Vec2 &min, const Vec2 &max, Vec2 *dst) {
-    GP_ASSERT(dst);
-    GP_ASSERT(!(min.x > max.x || min.y > max.y));
+    CC_ASSERT(dst);
+    CC_ASSERT(!(min.x > max.x || min.y > max.y));
 
     // Clamp the x value.
     dst->x = v.x;
@@ -161,14 +161,14 @@ void Vec2::rotate(const Vec2 &point, float angle) {
 }
 
 void Vec2::set(const float *array) {
-    GP_ASSERT(array);
+    CC_ASSERT(array);
 
     x = array[0];
     y = array[1];
 }
 
 void Vec2::subtract(const Vec2 &v1, const Vec2 &v2, Vec2 *dst) {
-    GP_ASSERT(dst);
+    CC_ASSERT(dst);
 
     dst->x = v1.x - v2.x;
     dst->y = v1.y - v2.y;

@@ -72,7 +72,7 @@ void insertVkDynamicStates(ccstd::vector<VkDynamicState> *out, const ccstd::vect
                 out->push_back(VK_DYNAMIC_STATE_STENCIL_COMPARE_MASK);
                 break;
             default: {
-                CCASSERT(false, "Unsupported DynamicStateFlagBit, convert to VkDynamicState failed.");
+                CC_ASSERT(false);
                 break;
             }
         }

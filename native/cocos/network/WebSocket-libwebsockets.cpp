@@ -895,10 +895,10 @@ struct lws_vhost *WebSocketImpl::createVhost(struct lws_protocols *protocols, in
                                 _caFilePath          = newCaFilePath;
                                 info.ssl_ca_filepath = _caFilePath.c_str();
                             } else {
-                                CCASSERT(false, "Open new CA file failed");
+                                CC_ASSERT(false); // Open new CA file failed
                             }
                         } else {
-                            CCASSERT(false, "CA file is empty!");
+                            CC_ASSERT(false); // CA file is empty!
                         }
                     } else {
                         LOGD("CA file isn't in APK!");
@@ -906,7 +906,7 @@ struct lws_vhost *WebSocketImpl::createVhost(struct lws_protocols *protocols, in
                         info.ssl_ca_filepath = _caFilePath.c_str();
                     }
                 } else {
-                    CCASSERT(false, "CA file doesn't exist!");
+                    CC_ASSERT(false); // CA file doesn't exist!
                 }
             }
 #else

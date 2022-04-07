@@ -74,7 +74,7 @@ Size Size::operator*(float a) const {
 }
 
 Size Size::operator/(float a) const {
-    CCASSERT(a != 0, "CCSize division by 0.");
+    CC_ASSERT(a != 0);
     return Size(this->width / a, this->height / a);
 }
 
@@ -113,7 +113,7 @@ Rect &Rect::operator=(const Rect &other) {
 
 void Rect::setRect(float x, float y, float width, float height) {
     // CGRect can support width<0 or height<0
-    // CCASSERT(width >= 0.0f && height >= 0.0f, "width and height of Rect must not less than 0.");
+    // CC_ASSERT(width >= 0.0f && height >= 0.0f);
 
     origin.x = x;
     origin.y = y;
