@@ -194,13 +194,13 @@ export const simple: IAssembler = {
             t = ch - appY;
         } else {
             const frame = sprite.spriteFrame!;
-            const originSize = frame.getOriginalSize();
-            const rect = frame.getRect();
+            const originSize = frame.originalSize;
+            const rect = frame.rect;
             const ow = originSize.width;
             const oh = originSize.height;
             const rw = rect.width;
             const rh = rect.height;
-            const offset = frame.getOffset();
+            const offset = frame.offset;
             const scaleX = cw / ow;
             const scaleY = ch / oh;
             const trimLeft = offset.x + (ow - rw) / 2;

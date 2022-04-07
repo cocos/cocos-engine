@@ -630,11 +630,11 @@ export const bmfontUtils = {
     },
 
     _determineRect () {
-        const isRotated = _spriteFrame!.isRotated();
+        const isRotated = _spriteFrame!.rotated;
 
-        const originalSize = _spriteFrame!.getOriginalSize();
-        const rect = _spriteFrame!.getRect();
-        const offset = _spriteFrame!.getOffset();
+        const originalSize = _spriteFrame!.originalSize;
+        const rect = _spriteFrame!.rect;
+        const offset = _spriteFrame!.offset;
         const trimmedLeft = offset.x + (originalSize.width - rect.width) / 2;
         const trimmedTop = offset.y - (originalSize.height - rect.height) / 2;
 

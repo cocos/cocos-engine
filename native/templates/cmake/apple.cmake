@@ -55,6 +55,13 @@ macro(cc_ios_after_target target_name)
         XCODE_ATTRIBUTE_SKIP_INSTALL NO
         XCODE_ATTRIBUTE_INSTALL_PATH "$(LOCAL_APPS_DIR)"
     )
+    ## exclude arm64 arch and specify x86_64 for iphonesimulator by default, this will apply to both target.
+    set(CMAKE_XCODE_ATTRIBUTE_EXCLUDED_ARCHS[sdk=iphonesimulator*] "arm64")
+    set(CMAKE_XCODE_ATTRIBUTE_ARCHS[sdk=iphoneos*] "arm64")
+    set(CMAKE_XCODE_ATTRIBUTE_ARCHS[sdk=iphonesimulator*] "x86_64")
+    set(CMAKE_XCODE_ATTRIBUTE_VALID_ARCHS[sdk=iphoneos*] "arm64")
+    set(CMAKE_XCODE_ATTRIBUTE_VALID_ARCHS[sdk=iphonesimulator*] "x86_64")
+    
     target_link_libraries(${target_name} cocos2d)
 
     target_include_directories(${target_name} PRIVATE

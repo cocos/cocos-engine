@@ -138,7 +138,7 @@ function _calculateVertices (sprite: Sprite) {
 function _calculateUVs (spriteFrame: SpriteFrame) {
     const atlasWidth = spriteFrame.width;
     const atlasHeight = spriteFrame.height;
-    const textureRect = spriteFrame.getRect();
+    const textureRect = spriteFrame.rect;
 
     let u0 = 0;
     let u1 = 0;
@@ -146,7 +146,7 @@ function _calculateUVs (spriteFrame: SpriteFrame) {
     let v1 = 0;
     const uvs = _uvs;
 
-    if (spriteFrame.isRotated()) {
+    if (spriteFrame.rotated) {
         u0 = (textureRect.x) / atlasWidth;
         u1 = (textureRect.x + textureRect.height) / atlasWidth;
 
