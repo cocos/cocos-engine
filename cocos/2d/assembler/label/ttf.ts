@@ -29,12 +29,13 @@
  */
 
 import * as js from '../../../core/utils/js';
-import { Color } from '../../../core/math';
+import { Color, Mat4, Vec3 } from '../../../core/math';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Label } from '../../components/label';
 import { IAssembler } from '../../renderer/base';
 import { ttfUtils } from './ttfUtils';
 import { IRenderData } from '../../renderer/render-data';
+import { StaticVBChunk } from '../../renderer/static-vb-accessor';
 
 const WHITE = Color.WHITE.clone();
 
@@ -62,40 +63,12 @@ export const ttf: IAssembler = {
     },
 
     fillBuffers (comp: Label, renderer: IBatcher) {
-        const chunk = comp.renderData!.chunk;
-        const dataList: IRenderData[] = comp.renderData!.data;
-        const node = comp.node;
-
-        const vData = chunk.vb;
-        const data0 = dataList[0];
-        const data3 = dataList[1];
-        /* */
-        node.updateWorldTransform();
-        // @ts-expect-error private property access
-        const pos = node._pos; const rot = node._rot; const scale = node._scale;
-        const ax = data0.x * scale.x; const bx = data3.x * scale.x;
-        const ay = data0.y * scale.y; const by = data3.y * scale.y;
-        const qx = rot.x; const qy = rot.y; const qz = rot.z; const qw = rot.w;
-        const qxy = qx * qy; const qzw = qz * qw;
-        const qxy2 = qx * qx - qy * qy;
-        const qzw2 = qw * qw - qz * qz;
-        const cx1 = qzw2 + qxy2;
-        const cx2 = (qxy - qzw) * 2;
-        const cy1 = qzw2 - qxy2;
-        const cy2 = (qxy + qzw) * 2;
-        const x = pos.x; const y = pos.y;
-        // left bottom
-        vData[0] = cx1 * ax + cx2 * ay + x;
-        vData[1] = cy1 * ay + cy2 * ax + y;
-        // right bottom
-        vData[9] = cx1 * bx + cx2 * ay + x;
-        vData[10] = cy1 * ay + cy2 * bx + y;
-        // left top
-        vData[18] = cx1 * ax + cx2 * by + x;
-        vData[19] = cy1 * by + cy2 * ax + y;
-        // right top
-        vData[27] = cx1 * bx + cx2 * by + x;
-        vData[28] = cy1 * by + cy2 * bx + y;
+        const renderData = comp.renderData!;
+        const chunk = renderData.chunk;
+        if (comp.node.hasChangedFlags || renderData.vertDirty) {
+            this.updateWorldVerts(comp, chunk);
+            renderData.vertDirty = false;
+        }
 
         // quick version
         const bid = chunk.bufferId;
@@ -113,6 +86,40 @@ export const ttf: IAssembler = {
         // slow version
         // const chunk = renderData.chunk;
         // renderer.getBufferAccessor().appendIndices(chunk);
+    },
+
+    updateWorldVerts (comp: Label, chunk:StaticVBChunk) {
+        const dataList: IRenderData[] = comp.renderData!.data;
+        const node = comp.node;
+
+        const vData = chunk.vb;
+        const data0 = dataList[0];
+        const data3 = dataList[1];
+
+        const matrix = new Mat4();
+        node.getWorldMatrix(matrix);
+        const vec3_temp = new Vec3();
+
+        //left bottom
+        Vec3.set(vec3_temp, data0.x, data0.y, 0);
+        Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
+        vData[0] = vec3_temp.x;
+        vData[1] = vec3_temp.y;
+        //right bottom
+        Vec3.set(vec3_temp, data3.x, data0.y, 0);
+        Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
+        vData[9] = vec3_temp.x;
+        vData[10] = vec3_temp.y;
+        //left top
+        Vec3.set(vec3_temp, data0.x, data3.y, 0);
+        Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
+        vData[18] = vec3_temp.x;
+        vData[19] = vec3_temp.y;
+        //right top
+        Vec3.set(vec3_temp, data3.x, data3.y, 0);
+        Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
+        vData[27] = vec3_temp.x;
+        vData[28] = vec3_temp.y;
     },
 
     updateVertexData (comp: Label) {

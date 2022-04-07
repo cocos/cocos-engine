@@ -46,6 +46,7 @@ import { Stage } from '../renderer/stencil-manager';
 import { warnID } from '../../core/platform/debug';
 import { legacyCC } from '../../core/global-exports';
 import { NodeEventType } from '../../core/scene-graph/node-event';
+import { StaticVBChunk } from '../renderer/static-vb-accessor';
 
 // hack
 ccenum(BlendFactor);
@@ -504,6 +505,19 @@ export class Renderable2D extends RenderableComponent {
         if (this.renderData) {
             this.renderData.textureDirty = true;
         }
+    }
+
+    public fillBuffers (renderer:IBatcher) {
+        this.updateVData();
+        this.updateIData();
+    }
+
+    public updateVData () {
+
+    }
+
+    public updateIData () {
+
     }
 }
 
