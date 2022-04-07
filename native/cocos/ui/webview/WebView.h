@@ -27,7 +27,7 @@
 #pragma once
 
 #include <functional>
-
+#include "base/std/container/string.h"
 #include "base/Data.h"
 #include "base/Macros.h"
 #include "base/RefCounted.h"

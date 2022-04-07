@@ -33,19 +33,14 @@ namespace cc {
 
 const Data Data::NULL_DATA;
 
-Data::Data() : _bytes(nullptr),
-               _size(0) {
-    //    CC_LOG_INFO("In the empty constructor of Data.");
-}
+Data::Data() = default;
 
-Data::Data(Data &&other) noexcept : _bytes(nullptr),
-                                    _size(0) {
+Data::Data(Data &&other) noexcept {
     //    CC_LOG_INFO("In the move constructor of Data.");
     move(other);
 }
 
-Data::Data(const Data &other) : _bytes(nullptr),
-                                _size(0) {
+Data::Data(const Data &other) {
     //    CC_LOG_INFO("In the copy constructor of Data.");
     copy(other._bytes, other._size);
 }
@@ -83,15 +78,15 @@ bool Data::isNull() const {
     return (_bytes == nullptr || _size == 0);
 }
 
-unsigned char *Data::getBytes() const {
+uint8_t *Data::getBytes() const {
     return _bytes;
 }
 
-ssize_t Data::getSize() const {
+uint32_t Data::getSize() const {
     return _size;
 }
 
-void Data::copy(const unsigned char *bytes, ssize_t size) {
+void Data::copy(const unsigned char *bytes, uint32_t size) {
     clear();
 
     if (size > 0) {
@@ -101,13 +96,13 @@ void Data::copy(const unsigned char *bytes, ssize_t size) {
     }
 }
 
-void Data::fastSet(unsigned char *bytes, ssize_t size) {
+void Data::fastSet(unsigned char *bytes, uint32_t size) {
     free(_bytes);
     _bytes = bytes;
     _size  = size;
 }
 
-void Data::resize(ssize_t size) {
+void Data::resize(uint32_t size) {
     CC_ASSERT(size);
     if (_size == size) {
         return;
@@ -122,7 +117,7 @@ void Data::clear() {
     _size  = 0;
 }
 
-unsigned char *Data::takeBuffer(ssize_t *size) {
+uint8_t *Data::takeBuffer(uint32_t *size) {
     auto *buffer = getBytes();
     if (size) {
         *size = getSize();
