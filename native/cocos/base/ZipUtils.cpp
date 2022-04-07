@@ -576,7 +576,7 @@ unsigned char *ZipFile::getFileData(const ccstd::string &fileName, uint32_t *siz
         CCASSERT(nSize == 0 || nSize == (int)fileInfo.uncompressed_size, "the file size is wrong");
 
         if (size) {
-            *size = fileInfo.uncompressed_size;
+            *size = static_cast<uint32_t>(fileInfo.uncompressed_size);
         }
         unzCloseCurrentFile(*zipFile);
     } while (false);

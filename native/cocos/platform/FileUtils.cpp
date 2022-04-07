@@ -492,8 +492,8 @@ FileUtils::~FileUtils() = default;
 
 bool FileUtils::writeStringToFile(const ccstd::string &dataStr, const ccstd::string &fullPath) {
     Data  data;
-    char *dataP = const_cast<char *>(dataStr.data());
-    data.fastSet(reinterpret_cast<unsigned char *>(dataP), dataStr.size());
+    auto *dataP = const_cast<char *>(dataStr.data());
+    data.fastSet(reinterpret_cast<unsigned char *>(dataP), static_cast<uint32_t>(dataStr.size()));
 
     bool rv = writeDataToFile(data, fullPath);
 

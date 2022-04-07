@@ -96,7 +96,7 @@ public:
             auto *old    = _buffer->takeBuffer();
             void *buffer = realloc(old, size);
             if (buffer) {
-                _buffer->fastSet(static_cast<unsigned char *>(buffer), size);
+                _buffer->fastSet(static_cast<unsigned char *>(buffer), static_cast<uint32_t>(size));
             }
         }
     }

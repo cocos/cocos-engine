@@ -232,7 +232,7 @@
     NSUInteger     textureSize = width * height * 4;
     unsigned char *data        = (unsigned char *)malloc(sizeof(unsigned char) * textureSize);
     memset(data, 0, textureSize);
-    _imageData.fastSet(data, textureSize);
+    _imageData.fastSet(data, static_cast<uint32_t>(textureSize));
 
     if (_context != nil) {
         CGContextRelease(_context);

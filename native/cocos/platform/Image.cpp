@@ -683,7 +683,7 @@ bool Image::initWithPngData(const unsigned char *data, uint32_t dataLen) {
 
         rowbytes = png_get_rowbytes(pngPtr, infoPtr);
 
-        _dataLen = rowbytes * _height;
+        _dataLen = static_cast<uint32_t>(rowbytes * _height);
         _data    = static_cast<unsigned char *>(malloc(_dataLen * sizeof(unsigned char)));
         if (!_data) {
             if (rowPointers != nullptr) {
