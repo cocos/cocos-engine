@@ -45,18 +45,13 @@ using BarrierMap       = FlatMap<ResourceAccessGraph::vertex_descriptor, Barrier
 using AccessVertex     = ResourceAccessGraph::vertex_descriptor;
 using InputStatusTuple = std::tuple<PassType /*passType*/, PmrString /*resourceName*/, gfx::ShaderStageFlagBit /*visibility*/, gfx::MemoryAccessBit /*access*/>;
 using ResourceHandle   = ResourceGraph::vertex_descriptor;
+using ResourceNames    = PmrFlatSet<PmrString>;
 
 auto defaultAccess     = gfx::MemoryAccessBit::NONE;
 auto defaultVisibility = gfx::ShaderStageFlagBit::NONE;
 
 constexpr uint32_t EXPECT_START_ID = 0;
 constexpr uint32_t INVALID_ID      = 0xFFFFFFFF;
-
-//AccessStatus.vertID : in resourceNode it's resource ID; in barrierNode it's pass ID.
-struct ResourceTransition {
-    AccessStatus lastStatus;
-    AccessStatus currStatus;
-};
 
 using AccessTable    = PmrFlatMap<ResourceHandle /*resourceID*/, ResourceTransition /*last-curr-status*/>;
 using ExternalResMap = PmrFlatMap<PmrString /*resourceName*/, ResourceTransition /*last-curr-status*/>;
@@ -73,6 +68,7 @@ public:
 
 static auto toGfxAccess = GfxTypeConverter<AccessType, gfx::MemoryAccessBit>();
 
+//AccessStatus.vertID : in resourceNode it's resource ID; in barrierNode it's pass ID.
 AccessVertex            dependencyCheck(RAG &rag, AccessTable &accessRecord, AccessVertex curVertID, const InputStatusTuple &status);
 gfx::ShaderStageFlagBit getVisibilityByDescName(const LGD &lgd, uint32_t passID, const PmrString &slotName);
 
@@ -141,8 +137,8 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
     using Edge   = ResourceAccessGraph::edge_descriptor;
     using Graph  = ResourceAccessGraph;
 
-    explicit BarrierVisitor(const ResourceGraph &rg, BarrierMap &barriers, ExternalResMap &extMap)
-    : barrierMap(barriers), resourceGraph(rg), externalMap(extMap) {
+    explicit BarrierVisitor(const ResourceGraph &rg, BarrierMap &barriers, ExternalResMap &extMap, ResourceNames &externalNames)
+    : barrierMap(barriers), resourceGraph(rg), externalMap(extMap), externalResNames(externalNames) {
     }
 
     void discover_vertex(Vertex u, const Graph &g) {
@@ -407,11 +403,11 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
     BarrierMap &         barrierMap;
     const ResourceGraph &resourceGraph;
 
-    ExternalResMap &      externalMap;      //last frame to curr frame status transition
-    PmrFlatSet<PmrString> externalResNames; //first meet in this frame
+    ExternalResMap &externalMap;      //last frame to curr frame status transition
+    ResourceNames & externalResNames; //first meet in this frame
 };
 
-void FrameGraphDispatcher::buildBarriers() const {
+void FrameGraphDispatcher::buildBarriers() {
     {
         // record resource current in-access and out-access for every single node
         ResourceAccessGraph rag(scratch);
@@ -420,12 +416,11 @@ void FrameGraphDispatcher::buildBarriers() const {
 
         // found pass id in this map ? barriers you should commit when run into this pass
         // : or no extra barrier needed.
-        BarrierMap batchedBarriers;
-
-        static ExternalResMap externalMap;
-
+        BarrierMap    batchedBarriers;
+        ResourceNames namesSet;
         {
-            BarrierVisitor             visitor(resourceGraph, batchedBarriers, externalMap);
+            // _externalResNames records external resource between frames
+            BarrierVisitor             visitor(resourceGraph, batchedBarriers, _externalResMap, namesSet);
             auto                       colors = rag.colors(scratch);
             boost::queue<AccessVertex> q;
 
@@ -465,8 +460,6 @@ void addAccessNode(RAG &rag, const ResourceGraph &rg, ResourceAccessNode &node, 
     if (std::find(rag.resourceNames.begin(), rag.resourceNames.end(), rescName) == rag.resourceNames.end()) {
         rag.resourceIndex.emplace(rescName, rescID);
         rag.resourceNames.emplace_back(rescName);
-    } else {
-        rescID = rag.resourceIndex[rescName];
     }
 
     node.attachemntStatus.emplace_back(AccessStatus{
