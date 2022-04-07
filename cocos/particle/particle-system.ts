@@ -963,7 +963,7 @@ export class ParticleSystem extends RenderableComponent {
 
     protected onEnable () {
         legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
-        if (this.playOnAwake) {
+        if (this.playOnAwake && !EDITOR) {
             this.play();
         }
         this.processor.onEnable();
