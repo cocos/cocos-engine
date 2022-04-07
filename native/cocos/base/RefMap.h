@@ -206,7 +206,7 @@ public:
      * @param object The object to be inserted.
      */
     void insert(const K &key, V object) {
-        CCASSERT(object != nullptr, "Object is nullptr!");
+        CC_ASSERT(object != nullptr);
         object->addRef();
         erase(key);
         _data.insert(std::make_pair(key, object));
@@ -219,7 +219,7 @@ public:
      *        Member type const_iterator is a forward iterator type.
      */
     iterator erase(const_iterator position) {
-        CCASSERT(position != _data.cend(), "Invalid iterator!");
+        CC_ASSERT(position != _data.cend());
         position->second->release();
         return _data.erase(position);
     }

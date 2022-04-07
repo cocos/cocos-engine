@@ -70,7 +70,7 @@ inline void ZipUtils::decodeEncodedPvr(unsigned int *data, ssize_t len) {
 
     // check if key was set
     // make sure to call caw_setkey_part() for all 4 key parts
-    CCASSERT(ZipUtils::encryptedPvrKeyParts[0] != 0, "ZipUtils: CCZ file is encrypted but key part 0 is not set. Did you call ZipUtils::setPvrEncryptionKeyPart(...)?");
+    CC_ASSERT(ZipUtils::encryptedPvrKeyParts[0] != 0); // CCZ file is encrypted but key part 0 is not set. Call ZipUtils::setPvrEncryptionKeyPart(...)?
     CCASSERT(ZipUtils::encryptedPvrKeyParts[1] != 0, "ZipUtils: CCZ file is encrypted but key part 1 is not set. Did you call ZipUtils::setPvrEncryptionKeyPart(...)?");
     CCASSERT(ZipUtils::encryptedPvrKeyParts[2] != 0, "ZipUtils: CCZ file is encrypted but key part 2 is not set. Did you call ZipUtils::setPvrEncryptionKeyPart(...)?");
     CCASSERT(ZipUtils::encryptedPvrKeyParts[3] != 0, "ZipUtils: CCZ file is encrypted but key part 3 is not set. Did you call ZipUtils::setPvrEncryptionKeyPart(...)?");
