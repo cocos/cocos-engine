@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 #include "core/geometry/Spline.h"
+#include <cmath>
 #include "base/Log.h"
 #include "base/Macros.h"
 #include "math/Utils.h"
