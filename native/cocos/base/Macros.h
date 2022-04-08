@@ -94,7 +94,7 @@ typedef SSIZE_T ssize_t;
         #define CCASSERT(cond, msg) CC_ASSERT(cond)
     // #endif
     #else
-        #define CCASSERT(cond, msg) cond
+        #define CCASSERT(cond, msg)
     #endif
 
     #define GP_ASSERT(cond) CCASSERT(cond, "")

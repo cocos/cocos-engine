@@ -434,6 +434,7 @@ bool Object::setArrayElement(uint32_t index, const Value &data) {
 
     JSValue jsval = JS_UNDEFINED;
     internal::seToJsValue(__cx, data, &jsval);
+    JSValue oldJsVal = JS_GetPropertyUint32(__cx, _obj, index); //FIXME: for add _obj[i] ref
     JS_SetPropertyUint32(__cx, _obj, index, jsval);
     return true;
 }
