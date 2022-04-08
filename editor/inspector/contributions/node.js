@@ -98,7 +98,7 @@ exports.listeners = {
 
         panel.snapshotLock = false;
     },
-    'reset-dump'(event) {
+    'create-dump'(event) {
         const panel = this;
 
         const target = event.target;
@@ -118,6 +118,34 @@ exports.listeners = {
                 }
 
                 Editor.Message.send('scene', 'update-property-from-null', {
+                    uuid,
+                    path: dump.path,
+                });
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    },
+    'reset-dump'(event) {
+        const panel = this;
+
+        const target = event.target;
+        if (!target) {
+            return;
+        }
+
+        Editor.Message.send('scene', 'snapshot');
+
+        const dump = event.target.dump;
+
+        try {
+            for (let i = 0; i < panel.uuidList.length; i++) {
+                const uuid = panel.uuidList[i];
+                if (i > 0) {
+                    dump.values[i] = dump.value;
+                }
+
+                Editor.Message.send('scene', 'reset-property', {
                     uuid,
                     path: dump.path,
                 });
@@ -802,6 +830,10 @@ const Elements = {
 
                         $panel.shadowRoot.addEventListener('reset-dump', (event) => {
                             exports.listeners['reset-dump'].call(panel, event);
+                        });
+
+                        $panel.shadowRoot.addEventListener('create-dump', (event) => {
+                            exports.listeners['create-dump'].call(panel, event);
                         });
 
                         $section.appendChild($panel);
