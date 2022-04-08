@@ -31,19 +31,19 @@ bool isOneDimensionSegmentOverlap(float a, float b, float c, float d, float *s, 
     float abmin = std::min(a, b);
     float abmax = std::max(a, b);
     float cdmin = std::min(c, d);
-    float cdmax = std::max(d, d);
+    float cdmax = std::max(c, d);
 
     if (abmax < cdmin || cdmax < abmin) {
-        // ABmin->ABmax->CDmin->CDmax or CDmin->CDmax->ABmin->ABmax
+        // abmin->abmax->cdmin->cdmax or cdmin->cdmax->abmin->abmax
         return false;
     } else {
         if (abmin >= cdmin && abmin <= cdmax) {
-            // CDmin->ABmin->CDmax->ABmax or CDmin->ABmin->ABmax->CDmax
+            // cdmin->abmin->cdmax->abmax or cdmin->abmin->abmax->cdmax
             if (s != nullptr) *s = abmin;
             if (e != nullptr) *e = cdmax < abmax ? cdmax : abmax;
         } else if (abmax >= cdmin && abmax <= cdmax) {
             // ABmin->CDmin->ABmax->CDmax
-            if (s != nullptr) s = &cdmin;
+            if (s != nullptr) *s = cdmin;
             if (e != nullptr) *e = abmax;
         } else {
             // ABmin->CDmin->CDmax->ABmax
