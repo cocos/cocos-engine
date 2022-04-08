@@ -114,7 +114,7 @@ void jsb_init_file_operation_delegate() { //NOLINT
 
                 if (ZipUtils::isGZipBuffer(data, dataLen)) {
                     uint8_t *unpackedData;
-                    uint32_t  unpackedLen = ZipUtils::inflateMemory(data, dataLen, &unpackedData);
+                    uint32_t unpackedLen = ZipUtils::inflateMemory(data, dataLen, &unpackedData);
 
                     if (unpackedData == nullptr) {
                         SE_REPORT_ERROR("Can't decrypt code for %s", byteCodePath.c_str());
@@ -155,7 +155,7 @@ void jsb_init_file_operation_delegate() { //NOLINT
 
                 if (ZipUtils::isGZipBuffer(data, dataLen)) {
                     uint8_t *unpackedData;
-                    uint32_t  unpackedLen = ZipUtils::inflateMemory(data, dataLen, &unpackedData);
+                    uint32_t unpackedLen = ZipUtils::inflateMemory(data, dataLen, &unpackedData);
                     if (unpackedData == nullptr) {
                         SE_REPORT_ERROR("Can't decrypt code for %s", byteCodePath.c_str());
                         return "";
