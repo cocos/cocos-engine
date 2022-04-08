@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 #include "core/geometry/Spline.h"
-#include <math.h>
+#include <cmath>
 #include "base/Log.h"
 #include "base/Macros.h"
 #include "math/Utils.h"
@@ -101,7 +101,7 @@ Vec3 Spline::getPoint(float t, uint32_t index /*= SPLINE_WHOLE_INDEX*/) const {
         const auto deltaT = 1.0F / static_cast<float>(segments);
 
         index = static_cast<uint32_t>(t / deltaT);
-        t     = fmodf(t, deltaT) / deltaT;
+        t     = std::fmod(t, deltaT) / deltaT;
     }
 
     if (index >= segments) {
