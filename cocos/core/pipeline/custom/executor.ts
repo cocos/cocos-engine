@@ -176,7 +176,6 @@ class DeviceRenderPass {
         let swapchain: Swapchain | null = null;
         let framebuffer: Framebuffer | null = null;
         for (const [resName, rasterV] of rasterPass.rasterViews) {
-            this._applyRasterViewOp(rasterV);
             let resTex = context.deviceTextures.get(resName);
             if (rasterV.accessType === AccessType.READ || resTex) {
                 continue;
@@ -188,9 +187,22 @@ class DeviceRenderPass {
             resTex = context.deviceTextures.get(resName)!;
             if (!swapchain) swapchain = resTex.swapchain;
             if (!framebuffer) framebuffer = resTex.framebuffer;
+            const clearFlag = rasterV.clearFlags & 0xffffffff;
             switch (rasterV.attachmentType) {
             case AttachmentType.RENDER_TARGET:
                 colorTexs.push(resTex.swapchain ? resTex.swapchain.colorTexture : resTex.texture!);
+                if (!(clearFlag & ClearFlagBit.COLOR)) {
+                    rasterV.clearColor.x = 0;
+                    rasterV.clearColor.y = 0;
+                    rasterV.clearColor.z = 0;
+                    rasterV.clearColor.w = 1;
+                    if (clearFlag & SKYBOX_FLAG) {
+                        rasterV.loadOp = LoadOp.DISCARD;
+                    } else {
+                        rasterV.loadOp = LoadOp.LOAD;
+                        rasterV.accessType = AccessType.READ_WRITE;
+                    }
+                }
                 this._clearColor.push(rasterV.clearColor);
                 colors.push(new ColorAttachment(
                     resTex.description!.format,
@@ -201,6 +213,10 @@ class DeviceRenderPass {
                 break;
             case AttachmentType.DEPTH_STENCIL:
                 depthTex = resTex.swapchain ? resTex.swapchain.depthStencilTexture : resTex.texture!;
+                if ((clearFlag & ClearFlagBit.DEPTH_STENCIL) !== ClearFlagBit.DEPTH_STENCIL) {
+                    if (!(clearFlag & ClearFlagBit.DEPTH)) rasterV.loadOp = LoadOp.LOAD;
+                    if (!(clearFlag & ClearFlagBit.STENCIL)) rasterV.loadOp = LoadOp.LOAD;
+                }
                 this._clearDepth = rasterV.clearColor.x;
                 this._clearStencil = rasterV.clearColor.y;
                 depthStencilAttachment.format = resTex.description!.format;
@@ -231,31 +247,6 @@ class DeviceRenderPass {
         }
         this._renderPass = device.createRenderPass(new RenderPassInfo(colors, depthStencilAttachment));
         this._framebuffer = framebuffer || device.createFramebuffer(new FramebufferInfo(this._renderPass, colorTexs, depthTex));
-    }
-    protected _applyRasterViewOp (rasterV: RasterView) {
-        switch (rasterV.attachmentType) {
-        case AttachmentType.RENDER_TARGET:
-            if (!(rasterV.clearFlags & 0xffffffff & ClearFlagBit.COLOR)) {
-                rasterV.clearColor.x = 0;
-                rasterV.clearColor.y = 0;
-                rasterV.clearColor.z = 0;
-                rasterV.clearColor.w = 1;
-                if (rasterV.clearFlags & SKYBOX_FLAG) {
-                    rasterV.loadOp = LoadOp.DISCARD;
-                } else {
-                    rasterV.loadOp = LoadOp.LOAD;
-                    rasterV.accessType = AccessType.READ_WRITE;
-                }
-            }
-            break;
-        case AttachmentType.DEPTH_STENCIL:
-            if ((rasterV.clearFlags & 0xffffffff & ClearFlagBit.DEPTH_STENCIL) !== ClearFlagBit.DEPTH_STENCIL) {
-                if (!(rasterV.clearFlags & ClearFlagBit.DEPTH)) rasterV.loadOp = LoadOp.LOAD;
-                if (!(rasterV.clearFlags & ClearFlagBit.STENCIL)) rasterV.loadOp = LoadOp.LOAD;
-            }
-            break;
-        default:
-        }
     }
     get context () { return this._context; }
     get renderPass () { return this._renderPass; }
