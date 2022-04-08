@@ -82,7 +82,6 @@ void printJSBInvokeAtFrame(int n);
 
     #define SE_BIND_FUNC(funcName)                                                                         \
         JSValue funcName##Registry(JSContext *_ctx, JSValueConst _thisVal, int argc, JSValueConst *argv) { \
-            SE_LOGD("%s\n", #funcName);                                                                    \
             JsbInvokeScope(#funcName);                                                                     \
             JSValue                _jsRet = JS_UNDEFINED;                                                  \
             se::ValueArray args; \
@@ -105,7 +104,6 @@ void printJSBInvokeAtFrame(int n);
 
     #define SE_BIND_FUNC_FAST(funcName)                                                                    \
         JSValue funcName##Registry(JSContext *_ctx, JSValueConst _thisVal, int argc, JSValueConst *argv) { \
-            SE_LOGD("%s\n", #funcName);                                                                    \
             JsbInvokeScope(#funcName);                                                                     \
             se::Object *seObj = (se::Object *)se::internal::getPrivate(_thisVal);                          \
             if (seObj) {                                                                                   \
@@ -121,7 +119,6 @@ void printJSBInvokeAtFrame(int n);
 
     #define SE_BIND_FINALIZE_FUNC(funcName)                                                               \
         void funcName##Registry(JSRuntime *_rt, JSValue _thisVal) {                                       \
-            SE_LOGD("%s\n", #funcName);                                                                   \
             JsbInvokeScope(#funcName);                                                                    \
                                                                                                           \
             se::Value seThisVal;                                                                          \
@@ -140,7 +137,6 @@ void printJSBInvokeAtFrame(int n);
             if (seObj->isClearMappingInFinalizer() && nativeObj != nullptr) {                             \
                 auto iter = se::NativePtrToObjectMap::find(nativeObj);                                    \
                 if (iter != se::NativePtrToObjectMap::end()) {                                            \
-                    SE_LOGD(">>> %s, remove mapping\n", #funcName);                                       \
                     se::NativePtrToObjectMap::erase(iter);                                                \
                 } else {                                                                                  \
                     assert(false);                                                                        \
@@ -151,7 +147,6 @@ void printJSBInvokeAtFrame(int n);
 
     #define SE_BIND_CTOR(funcName, cls, finalizeCb)                                                          \
         JSValue funcName##Registry(JSContext *_ctx, JSValueConst new_target, int argc, JSValueConst *argv) { \
-            SE_LOGD("%s\n", #funcName);                                                                      \
             JsbInvokeScope(#funcName);                                                                       \
             se::ValueArray args; \
             args.resize(argc); \
@@ -175,7 +170,6 @@ void printJSBInvokeAtFrame(int n);
 
     #define SE_BIND_PROP_GET_IMPL(funcName, postFix)                                                      \
         JSValue funcName##postFix##Registry(JSContext *_ctx, JSValueConst _thizObj) {                     \
-            SE_LOGD("%s\n", #funcName);                                                                   \
             JsbInvokeScope(#funcName);                                                                    \
             JSValue _jsRet = JS_UNDEFINED;                                                                \
                                                                                                           \
@@ -198,7 +192,6 @@ void printJSBInvokeAtFrame(int n);
 
     #define SE_BIND_PROP_SET_IMPL(funcName, postFix)                                                       \
         JSValue funcName##postFix##Registry(JSContext *_ctx, JSValueConst _thizObj, JSValueConst _jsval) { \
-            SE_LOGD("%s\n", #funcName);                                                                    \
             JsbInvokeScope(#funcName);                                                                     \
                                                                                                            \
             se::Value seThisVal;                                                                           \
