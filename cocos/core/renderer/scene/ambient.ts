@@ -24,10 +24,10 @@
  */
 
 import { JSB } from 'internal:constants';
-import { Color, Vec3, Vec4 } from '../../math';
+import { Vec4 } from '../../math';
 import { legacyCC } from '../../global-exports';
-import { AmbientInfo } from '../../scene-graph/scene-globals';
-import { NativeAmbient } from './native-scene';
+import type { AmbientInfo } from '../../scene-graph/scene-globals';
+import { NativeAmbient } from '../native-scene';
 
 export class Ambient {
     public static SUN_ILLUM = 65000.0;

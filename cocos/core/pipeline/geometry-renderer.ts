@@ -29,7 +29,7 @@ import { Color } from '../math/color';
 import { Mat4 } from '../math/mat4';
 import { Vec3 } from '../math/vec3';
 import { Vec4 } from '../math/vec4';
-import { NativeGeometryRenderer } from '../renderer/scene';
+import { NativeGeometryRenderer } from '../renderer';
 import { SetIndex } from './define';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { RenderPipeline } from './render-pipeline';

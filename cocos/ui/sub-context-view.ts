@@ -29,7 +29,7 @@
  */
 
 import { ccclass, help, menu, executionOrder, requireComponent, tooltip, serializable } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
+import { EDITOR, WECHAT } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { screenAdapter } from 'pal/screen-adapter';
 import { Component } from '../core/components/component';
@@ -156,8 +156,22 @@ export class SubContextView extends Component {
     private _initSharedCanvas () {
         if (this._openDataContext) {
             const sharedCanvas = this._openDataContext.canvas;
-            sharedCanvas.width = this._designResolutionSize.width;
-            sharedCanvas.height = this._designResolutionSize.height;
+            let designWidth = this._designResolutionSize.width;
+            let designHeight = this._designResolutionSize.height;
+            if (WECHAT) {
+                // HACK: on WeChat platform, at least one side of the width and height of sharedCanvas is greater than 513
+                // When the sharedCanvas is smaller than this size, the rendering doesn't work.
+                const minimumSize = 513;
+                if (designWidth <= minimumSize && designHeight <= minimumSize) {
+                    const scaleWidth = minimumSize / designWidth;
+                    const scaleHeight = minimumSize / designHeight;
+                    const targetScale = scaleWidth < scaleHeight ? scaleWidth : scaleHeight;
+                    designWidth *= targetScale;
+                    designHeight *= targetScale;
+                }
+            }
+            sharedCanvas.width = designWidth;
+            sharedCanvas.height = designWidth;
         }
     }
 

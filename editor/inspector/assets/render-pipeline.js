@@ -91,7 +91,7 @@ const Elements = {
                 if (!$prop) {
                     $prop = document.createElement('ui-prop');
                     $prop.setAttribute('type', 'dump');
-                    $prop.addEventListener('change-dump', this.dataChange.bind(this));
+                    $prop.addEventListener('change-dump', this.change.bind(this));
 
                     $content.appendChild($prop);
                     panel.$propList[id] = $prop;
@@ -174,6 +174,25 @@ exports.close = function() {
 };
 
 exports.methods = {
+    record() {
+        return JSON.stringify(this.pipeline);
+    },
+    async restore(record) {
+        // TODO: renderPipeline 编辑机制需要重新优化，目前有点乱, undo 后的数据无法正确还原
+        // record = JSON.parse(record);
+        // if (!record || typeof record !== 'object') {
+        //     return;
+        // }
+
+        // this.pipeline = await Editor.Message.request('scene', 'change-render-pipeline', record);
+
+        // Elements.pipeline.update.call(this);
+
+        // this.setDirtyData();
+        // this.dispatch('change');
+        // await this.preview();
+    },
+
     async preview() {
         if (!this.pipeline) {
             return;
@@ -195,14 +214,13 @@ exports.methods = {
         this.dirtyData.uuid = '';
     },
 
-    async dataChange() {
+    async change() {
         this.pipeline = await Editor.Message.request('scene', 'change-render-pipeline', this.pipeline);
 
         Elements.pipeline.update.call(this);
 
         this.setDirtyData();
         this.dispatch('change');
-
         await this.preview();
     },
 
@@ -214,6 +232,8 @@ exports.methods = {
 
         if (!this.dirtyData.origin) {
             this.dirtyData.origin = this.dirtyData.realtime;
+
+            this.dispatch('snapshot');
         }
     },
 

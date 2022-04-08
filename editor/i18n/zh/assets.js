@@ -4,10 +4,12 @@ module.exports = {
         cancel: '取消',
         warn: '警告',
     },
+
     inspector: {
         cloneToEdit: '克隆出新资源，使用并编辑',
         cloneToDirectoryIllegal: '保存路径请限制在当前项目 /assets 路径内',
     },
+
     assets: {
         reset: '重置',
         save: '保存',
