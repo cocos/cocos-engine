@@ -21,7 +21,7 @@ test('Pack to DynamicAtlas', function () {
     dynamicAtlasManager.packToDynamicAtlas(sprite, spriteframe_0);
     expect(dynamicAtlasManager.atlasCount).toBe(0);
 
-    texture_0.reset({width:1, height:1});
+    texture_0.create(1, 1);
     spriteframe_0.packable = true;
     dynamicAtlasManager.packToDynamicAtlas(sprite, spriteframe_0);
     expect(dynamicAtlasManager.atlasCount).toBe(1);
@@ -39,7 +39,7 @@ test('Delete Atlas SpriteFrame', function () {
     let spriteframe_0 = new SpriteFrame();
     let texture_0 = new Texture2D();
     spriteframe_0.texture = texture_0;
-    texture_0.reset({width:1, height:1});
+    texture_0.create(1, 1);
     spriteframe_0.packable = true;
     dynamicAtlasManager.packToDynamicAtlas(sprite, spriteframe_0);
     expect(dynamicAtlasManager.atlasCount).toBe(1);

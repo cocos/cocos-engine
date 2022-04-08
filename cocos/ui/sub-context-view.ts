@@ -168,7 +168,7 @@ export class SubContextView extends Component {
             const image = this._imageAsset;
             image.reset(sharedCanvas);
             this._texture.image = image;
-            this._texture.reset({ width: sharedCanvas.width, height: sharedCanvas.height });
+            this._texture.create(sharedCanvas.width, sharedCanvas.height);
 
             this._sprite = this._content.getComponent(Sprite);
             if (!this._sprite) {
@@ -239,7 +239,7 @@ export class SubContextView extends Component {
         const sharedCanvas = this._openDataContext.canvas;
         img.reset(sharedCanvas);
         if (sharedCanvas.width > img.width || sharedCanvas.height > img.height) {
-            this._texture.reset({ width: sharedCanvas.width, height: sharedCanvas.height });
+            this._texture.create(sharedCanvas.width, sharedCanvas.height);
         }
 
         this._texture.uploadData(sharedCanvas);

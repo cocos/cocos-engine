@@ -44,6 +44,18 @@ test('global variables are sealed', async () => {
     // getMembersRecursive(cc, 'cc'); // opted out for performance reasons (we are not doing this recursively anyways)
     globalVariables = Object.getOwnPropertyNames(cc).map((name) => `cc.${name}`);
 
-    expect(globalVariables.sort().join('\n')).toMatchSnapshot()
+    const sealedGlobalVariablesFile = ps.join(__dirname, 'sealed-global-variables.json');
+    const output = false;
+    if (output) {
+        await fs.writeFile(sealedGlobalVariablesFile, JSON.stringify({
+            thisFile: {
+                stamp: new Date().toISOString(),
+            },
+            variables: globalVariables.sort(),
+        }, undefined, 4));
+    } else {
+        const sealedGlobalVariables = (await fs.readJson(sealedGlobalVariablesFile)).variables as string[];
+        expect(globalVariables.length === sealedGlobalVariables.length && globalVariables.every((v) => sealedGlobalVariables.includes(v))).toBeTruthy();
+    }
 
 }, 50000);

@@ -103,7 +103,7 @@ export const barFilled: IAssembler = {
         let quadUV5 = 0;
         let quadUV6 = 0;
         let quadUV7 = 0;
-        if (spriteFrame.rotated) {
+        if (spriteFrame.isRotated()) {
             ul = (textureRect.x) / atlasWidth;
             vb = (textureRect.y + textureRect.width) / atlasHeight;
             ur = (textureRect.x + textureRect.height) / atlasWidth;

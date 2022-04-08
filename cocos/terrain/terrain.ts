@@ -844,9 +844,7 @@ export class TerrainBlock {
 
         if (this._weightMap == null) {
             this._weightMap = new Texture2D();
-            this._weightMap.reset({ width: this._terrain.weightMapSize,
-                height: this._terrain.weightMapSize,
-                format: PixelFormat.RGBA8888 });
+            this._weightMap.create(this._terrain.weightMapSize, this._terrain.weightMapSize, PixelFormat.RGBA8888);
             this._weightMap.setFilters(Filter.LINEAR, Filter.LINEAR);
             this._weightMap.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
         }
