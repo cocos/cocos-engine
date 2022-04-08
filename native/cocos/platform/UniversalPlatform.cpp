@@ -51,7 +51,12 @@ void UniversalPlatform::dispatchEvent(const OSEvent& ev) {
     }
 }
 
-void UniversalPlatform::dispatchTouchEvent(const OSEvent& ev) {
+void UniversalPlatform::dispatchTouchEvent(const TouchEvent& ev) {
+    if (_handleTouchEventCallback) {
+        _handleTouchEventCallback(ev);
+    } else {
+        dispatchEvent(ev);
+    }
 }
 
 void UniversalPlatform::handleDefaultEvent(const OSEvent& ev) {
@@ -60,6 +65,10 @@ void UniversalPlatform::handleDefaultEvent(const OSEvent& ev) {
 
 void UniversalPlatform::setHandleEventCallback(HandleEventCallback cb) {
     _handleEventCallback = cb;
+}
+
+void UniversalPlatform::setHandleTouchEventCallback(HandleTouchEventCallback cb) {
+    _handleTouchEventCallback = cb;
 }
 
 void UniversalPlatform::setHandleDefaultEventCallback(HandleEventCallback cb) {

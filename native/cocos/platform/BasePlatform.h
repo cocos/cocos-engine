@@ -83,6 +83,12 @@ public:
     virtual void setHandleEventCallback(HandleEventCallback cb) = 0;
 
     /**
+     * @brief Set touch event handling callback function.
+     */
+    using HandleTouchEventCallback = std::function<bool(const TouchEvent&)>;
+    virtual void setHandleTouchEventCallback(HandleTouchEventCallback cb) = 0;
+
+    /**
      * @brief Set default event handling callback function.
      */
     virtual void setHandleDefaultEventCallback(HandleEventCallback cb) = 0;
