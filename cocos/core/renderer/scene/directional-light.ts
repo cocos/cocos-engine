@@ -28,7 +28,7 @@ import { legacyCC } from '../../global-exports';
 import { Vec3 } from '../../math';
 import { Ambient } from './ambient';
 import { Light, LightType } from './light';
-import { NativeDirectionalLight } from './native-scene';
+import { NativeDirectionalLight } from '../native-scene';
 import { PCFType, Shadows } from './shadows';
 
 const _forward = new Vec3(0, 0, -1);

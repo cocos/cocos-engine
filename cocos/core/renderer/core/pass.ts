@@ -44,7 +44,7 @@ import { MacroRecord, MaterialProperty, customizeType, getBindingFromHandle, get
     getOffsetFromHandle, getTypeFromHandle, type2reader, type2writer, getCountFromHandle,
 } from './pass-utils';
 import { RenderPassStage, RenderPriority } from '../../pipeline/define';
-import { NativePass } from '../scene/native-scene';
+import { NativePass } from '../native-scene';
 import { errorID } from '../../platform/debug';
 import { PassHandle, PassView, NULL_HANDLE, PassPool } from './memory-pools';
 import { InstancedBuffer } from '../../pipeline/instanced-buffer';

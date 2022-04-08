@@ -24,13 +24,13 @@
  * @module scene-graph
  */
 
-import { ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep, editable, serializable, rangeMin, tooltip, formerlySerializedAs, displayName, help } from 'cc.decorator';
-import { BAIDU, EDITOR } from 'internal:constants';
+import { ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep, editable, serializable, rangeMin, tooltip, formerlySerializedAs, displayName } from 'cc.decorator';
+import { BAIDU } from 'internal:constants';
 import { TextureCube } from '../assets/texture-cube';
-import { CCFloat, CCBoolean, CCInteger } from '../data/utils/attribute';
+import { CCFloat, CCInteger } from '../data/utils/attribute';
 import { Color, Quat, Vec3, Vec2, Vec4 } from '../math';
 import { Ambient } from '../renderer/scene/ambient';
-import { Shadows, ShadowType, PCFType, ShadowSize } from '../renderer/scene/shadows';
+import { Shadows, ShadowType, ShadowSize } from '../renderer/scene/shadows';
 import { Skybox, EnvironmentLightingType } from '../renderer/scene/skybox';
 import { Octree } from '../renderer/scene/octree';
 import { Fog, FogType } from '../renderer/scene/fog';

@@ -24,10 +24,9 @@
  */
 
 import { JSB } from 'internal:constants';
-import { legacyCC } from '../../global-exports';
 import { Vec3 } from '../../math/vec3';
-import { OctreeInfo } from '../../scene-graph/scene-globals';
-import { NativeOctree } from './native-scene';
+import type { OctreeInfo } from '../../scene-graph/scene-globals';
+import { NativeOctree } from '../native-scene';
 
 export class Octree {
     /**

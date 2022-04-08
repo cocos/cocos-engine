@@ -31,10 +31,10 @@
 import { JSB } from 'internal:constants';
 import { Mat3, Mat4, Quat, Vec3 } from '../math';
 import enums from './enums';
-import { FloatArray, IVec3, IVec3Like } from '../math/type-define';
+import { IVec3, IVec3Like } from '../math/type-define';
 import { Sphere } from './sphere';
 import { AABBHandle, AABBPool, AABBView, NULL_HANDLE } from '../renderer/core/memory-pools';
-import { NativeAABB } from '../renderer/scene/native-scene';
+import { NativeAABB } from '../renderer/native-scene';
 import { Frustum } from './frustum';
 
 const _v3_tmp = new Vec3();

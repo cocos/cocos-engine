@@ -28,7 +28,7 @@ import { AABB, Frustum } from '../../geometry';
 import { legacyCC } from '../../global-exports';
 import { Mat4, Quat, Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
-import { NativeSpotLight } from './native-scene';
+import { NativeSpotLight } from '../native-scene';
 import { PCFType } from './shadows';
 
 const _forward = new Vec3(0, 0, -1);

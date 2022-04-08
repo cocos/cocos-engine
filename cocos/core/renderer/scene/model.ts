@@ -31,7 +31,7 @@ import { RenderingSubMesh } from '../../assets/rendering-sub-mesh';
 import { AABB } from '../../geometry/aabb';
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
-import { RenderScene } from './render-scene';
+import { RenderScene } from '../core/render-scene';
 import { Texture2D } from '../../assets/texture-2d';
 import { SubModel } from './submodel';
 import { Pass, IMacroPatch, BatchingSchemes } from '../core/pass';
@@ -40,7 +40,7 @@ import { Mat4, Vec3, Vec4 } from '../../math';
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, getTypedArrayConstructor,
     BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature, SamplerInfo } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../pipeline/define';
-import { NativeBakedSkinningModel, NativeModel, NativeSkinningModel } from './native-scene';
+import { NativeBakedSkinningModel, NativeModel, NativeSkinningModel } from '../native-scene';
 
 const m4_1 = new Mat4();
 
