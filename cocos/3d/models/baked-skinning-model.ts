@@ -37,7 +37,7 @@ import { ModelType } from '../../core/renderer/scene/model';
 import { IAnimInfo, IJointTextureHandle } from '../skeletal-animation/skeletal-animation-utils';
 import { MorphModel } from './morph-model';
 import { legacyCC } from '../../core/global-exports';
-import { NativeAABB, NativeBakedSkinningModel } from '../../core/renderer/scene/native-scene';
+import { NativeAABB, NativeBakedSkinningModel } from '../../core/renderer/native-scene';
 import { jointTextureSamplerInfo } from '../misc/joint-texture-sampler-info';
 
 interface IJointsInfo {

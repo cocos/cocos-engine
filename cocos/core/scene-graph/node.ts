@@ -39,9 +39,9 @@ import { BaseNode, TRANSFORM_ON } from './base-node';
 import { approx, EPSILON, Mat3, Mat4, Quat, Vec3 } from '../math';
 import { NULL_HANDLE, NodePool, NodeView, NodeHandle  } from '../renderer/core/memory-pools';
 import { NodeSpace, TransformBit } from './node-enum';
-import { NativeNode } from '../renderer/scene/native-scene';
+import { NativeNode } from '../renderer/native-scene';
 import { NodeEventType } from './node-event';
-import { CustomSerializable, deserializeTag, editorExtrasTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
+import { CustomSerializable, editorExtrasTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
 import { warnID } from '../platform/debug';
 
 const v3_a = new Vec3();

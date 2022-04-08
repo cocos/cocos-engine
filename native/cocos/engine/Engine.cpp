@@ -250,7 +250,8 @@ int32_t Engine::restartVM() {
 
     scriptEngine->cleanup();
     cc::EventDispatcher::destroy();
-
+    // remove all listening events
+    offAll();
     // start
     cc::EventDispatcher::init();
     CC_CURRENT_APPLICATION()->init();
@@ -299,7 +300,11 @@ bool Engine::dispatchWindowEvent(const WindowEvent& ev) {
     bool isHandled = false;
     if (ev.type == WindowEvent::Type::SHOW ||
         ev.type == WindowEvent::Type::RESTORED) {
-        onResume();
+        emit(static_cast<int>(ON_RESUME));
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+        cc::EventDispatcher::dispatchRecreateWindowEvent();
+#endif
+        cc::EventDispatcher::dispatchEnterForegroundEvent();
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::SIZE_CHANGED ||
                ev.type == WindowEvent::Type::RESIZED) {
@@ -307,13 +312,19 @@ bool Engine::dispatchWindowEvent(const WindowEvent& ev) {
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::HIDDEN ||
                ev.type == WindowEvent::Type::MINIMIZED) {
-        onPause();
+        emit(static_cast<int>(ON_PAUSE));
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+        cc::EventDispatcher::dispatchDestroyWindowEvent();
+#endif
+        cc::EventDispatcher::dispatchEnterBackgroundEvent();
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::CLOSE) {
-        onClose();
+        emit(static_cast<int>(ON_CLOSE));
+        cc::EventDispatcher::dispatchCloseEvent();
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::QUIT) {
-        onClose();
+        // There is no need to process the quit message,
+        // the quit message is a custom message for the application
         isHandled = true;
     }
     return isHandled;
@@ -326,34 +337,6 @@ bool Engine::dispatchEventToApp(OSEventType type, const OSEvent& ev) {
         return true;
     }
     return false;
-}
-
-void Engine::onPause() {
-    AppEvent appEv;
-    appEv.type = AppEvent::Type::PAUSE;
-    dispatchEventToApp(OSEventType::APP_OSEVENT, appEv);
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
-    cc::EventDispatcher::dispatchDestroyWindowEvent();
-#endif
-    cc::EventDispatcher::dispatchEnterBackgroundEvent();
-}
-
-void Engine::onResume() {
-    AppEvent appEv;
-    appEv.type = AppEvent::Type::RESUME;
-    dispatchEventToApp(OSEventType::APP_OSEVENT, appEv);
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
-    cc::EventDispatcher::dispatchRecreateWindowEvent();
-#endif
-    cc::EventDispatcher::dispatchEnterForegroundEvent();
-}
-
-void Engine::onClose() {
-    AppEvent appEv;
-    appEv.type = AppEvent::Type::CLOSE;
-    dispatchEventToApp(OSEventType::APP_OSEVENT, appEv);
-
-    cc::EventDispatcher::dispatchCloseEvent();
 }
 
 } // namespace cc

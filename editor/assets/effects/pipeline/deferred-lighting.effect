@@ -94,6 +94,7 @@ CCProgram lighting-fs %{
     s.position = position;
     s.roughness = normalMap.z;
     s.normal = oct_to_float32x3(normalMap.xy);
+    s.specularIntensity = 0.5;
     s.metallic = normalMap.w;
     s.emissive = emissiveMap.xyz;
     s.occlusion = emissiveMap.w;

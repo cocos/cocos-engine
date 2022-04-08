@@ -1,5 +1,6 @@
 // Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
+#include <common>
 #include <cc-global>
 #include <cc-shadow>
 #include <packing>
@@ -33,7 +34,7 @@ float CCGetViewSpaceDepth(float depthHS)
   vec4 ApplyShadowDepthBias_FaceNormal(vec4 shadowPos, vec3 worldNormal, float normalBias)
   {
     vec4 newShadowPos = shadowPos;
-    if(normalBias > 0.0001)
+    if(normalBias > EPSILON_LOWP)
     {
       vec4 viewNormal = cc_matLightView * vec4(worldNormal, 0.0);
       if(viewNormal.z < 0.1)
@@ -58,7 +59,7 @@ float CCGetViewSpaceDepth(float depthHS)
     clipSpacePos.zw = viewSpacePos.z * cc_shadowProjDepthInfo.xz + vec2(cc_shadowProjDepthInfo.y, 0.0);
 
     // enabled linear depth?
-    if (cc_shadowNFLSInfo.z > 0.000001) {
+    if (cc_shadowNFLSInfo.z > EPSILON) {
       clipSpacePos.z = CCGetLinearDepthFromViewSpace(viewSpacePos.xyz);
       clipSpacePos.z = (clipSpacePos.z * 2.0 - 1.0) * clipSpacePos.w;
     }
@@ -93,7 +94,7 @@ float CCGetViewSpaceDepth(float depthHS)
 
     float shadow = 0.0;
     float closestDepth = 0.0;
-    if (cc_shadowLPNNInfo.y > 0.000001) {
+    if (cc_shadowLPNNInfo.y > EPSILON) {
       closestDepth = unpackRGBAToDepth(texture(cc_shadowMap, clipPos.xy));
     } else {
       closestDepth = texture(cc_shadowMap, clipPos.xy).x;
@@ -117,7 +118,7 @@ float CCGetViewSpaceDepth(float depthHS)
     vec2 clipPos_offset = clipPos.xy + oneTap;
 
     float block0, block1, block2, block3;
-    if (cc_shadowLPNNInfo.y > 0.000001) {
+    if (cc_shadowLPNNInfo.y > EPSILON) {
       block0 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x, clipPos.y))));
       block1 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos_offset.x, clipPos.y))));
       block2 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x, clipPos_offset.y))));
@@ -154,7 +155,7 @@ float CCGetViewSpaceDepth(float depthHS)
     float clipPos_offset_D = clipPos.y + oneTap.y;
 
     float block0, block1, block2, block3, block4, block5, block6, block7, block8;
-    if (cc_shadowLPNNInfo.y > 0.000001) {
+    if (cc_shadowLPNNInfo.y > EPSILON) {
       block0 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos_offset_L, clipPos_offset_U))));
       block1 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x, clipPos_offset_U))));
       block2 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos_offset_R, clipPos_offset_U))));
@@ -211,7 +212,7 @@ float CCGetViewSpaceDepth(float depthHS)
     float closestDepth = 0.0;
     float depth = clipPos.z;
 
-    if (cc_shadowLPNNInfo.y > 0.000001) {
+    if (cc_shadowLPNNInfo.y > EPSILON) {
       closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, clipPos.xy));
     } else {
       closestDepth = texture(cc_spotLightingMap, clipPos.xy).x;
@@ -230,7 +231,7 @@ float CCGetViewSpaceDepth(float depthHS)
     CC_HANDLE_NDC_SAMPLE_FLIP(clipPos.xy);
 
     float depth = 0.0;
-    if (cc_shadowNFLSInfo.z > 0.000001) {
+    if (cc_shadowNFLSInfo.z > EPSILON) {
       depth = CCGetLinearDepth(worldPos);
     } else {
       depth = clipPos.z;
@@ -240,7 +241,7 @@ float CCGetViewSpaceDepth(float depthHS)
     vec2 clipPos_offset = clipPos.xy + oneTap;
 
     float block0, block1, block2, block3;
-    if (cc_shadowLPNNInfo.y > 0.000001) {
+    if (cc_shadowLPNNInfo.y > EPSILON) {
       block0 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x, clipPos.y))));
       block1 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset.x, clipPos.y))));
       block2 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x, clipPos_offset.y))));
@@ -269,7 +270,7 @@ float CCGetViewSpaceDepth(float depthHS)
     CC_HANDLE_NDC_SAMPLE_FLIP(clipPos.xy);
 
     float depth = 0.0;
-    if (cc_shadowNFLSInfo.z > 0.000001) {
+    if (cc_shadowNFLSInfo.z > EPSILON) {
       depth = CCGetLinearDepth(worldPos);
     } else {
       depth = clipPos.z;
@@ -283,7 +284,7 @@ float CCGetViewSpaceDepth(float depthHS)
     float clipPos_offset_D = clipPos.y + oneTap.y;
 
     float block0, block1, block2, block3, block4, block5, block6, block7, block8;
-    if (cc_shadowLPNNInfo.y > 0.000001) {
+    if (cc_shadowLPNNInfo.y > EPSILON) {
       block0 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset_L, clipPos_offset_U))));
       block1 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x, clipPos_offset_U))));
       block2 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset_R, clipPos_offset_U))));

@@ -110,9 +110,6 @@ private:
     bool    dispatchWindowEvent(const WindowEvent& ev);
     bool    dispatchDeviceEvent(const DeviceEvent& ev);
     bool    dispatchEventToApp(OSEventType type, const OSEvent& ev);
-    void    onPause();
-    void    onResume();
-    void    onClose();
     int32_t restartVM();
 
     bool                       _close{false};

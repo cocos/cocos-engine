@@ -33,6 +33,9 @@ import { Node } from '../scene-graph';
 
 const m4_1 = new Mat4();
 
+/**
+ * @legacyPublic
+ */
 export function getPathFromRoot (target: Node | null, root: Node) {
     let node: Node | null = target;
     let path = '';
@@ -43,6 +46,9 @@ export function getPathFromRoot (target: Node | null, root: Node) {
     return path.slice(0, -1);
 }
 
+/**
+ * @legacyPublic
+ */
 export function getWorldTransformUntilRoot (target: Node, root: Node, outMatrix: Mat4) {
     Mat4.identity(outMatrix);
     while (target !== root) {

@@ -56,7 +56,7 @@ public:
         _windowInfo.flags  = _windowInfo.flags == -1 ? cc::ISystemWindow::CC_WINDOW_SHOWN |
                                                           cc::ISystemWindow::CC_WINDOW_RESIZABLE |
                                                           cc::ISystemWindow::CC_WINDOW_INPUT_FOCUS
-                                                     : _windowInfo.flags;
+                                                    : _windowInfo.flags;
         if (_windowInfo.x == -1 || _windowInfo.y == -1) {
             createWindow(_windowInfo.title.c_str(), _windowInfo.width, _windowInfo.height, _windowInfo.flags);
         } else {
@@ -66,7 +66,7 @@ public:
 #endif
 
         if (_debuggerInfo.enabled) {
-            setJsDebugIpAndPort(_debuggerInfo.address, _debuggerInfo.port, _debuggerInfo.pauseOnStart);
+            setDebugIpAndPort(_debuggerInfo.address, _debuggerInfo.port, _debuggerInfo.pauseOnStart);
         }
 
         int ret = cc::CocosApplication::init();
@@ -76,8 +76,8 @@ public:
 
         setXXTeaKey(_xxteaKey);
 
-        runJsScript("jsb-adapter/jsb-builtin.js");
-        runJsScript("main.js");
+        runScript("jsb-adapter/jsb-builtin.js");
+        runScript("main.js");
         return 0;
     }
 

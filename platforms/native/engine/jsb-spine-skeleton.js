@@ -778,6 +778,7 @@ const cacheManager = require('./jsb-cache-manager');
             this.skeletonData.init();
             this.setSkeletonData(this.skeletonData);
 
+            this._indexBoneSockets();
             this.attachUtil.init(this);
             this._preCacheMode = this._cacheMode;
 

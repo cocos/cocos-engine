@@ -147,15 +147,15 @@ bool AABB::contain(const cc::Vec3 &point) const {
 
 void AABB::transformExtentM4(Vec3 *out, const Vec3 &extent, const Mat4 &m4) {
     Mat3 m3Tmp;
-    m3Tmp.m[0] = abs(m4.m[0]);
-    m3Tmp.m[1] = abs(m4.m[1]);
-    m3Tmp.m[2] = abs(m4.m[2]);
-    m3Tmp.m[3] = abs(m4.m[4]);
-    m3Tmp.m[4] = abs(m4.m[5]);
-    m3Tmp.m[5] = abs(m4.m[6]);
-    m3Tmp.m[6] = abs(m4.m[8]);
-    m3Tmp.m[7] = abs(m4.m[9]);
-    m3Tmp.m[8] = abs(m4.m[10]);
+    m3Tmp.m[0] = std::abs(m4.m[0]);
+    m3Tmp.m[1] = std::abs(m4.m[1]);
+    m3Tmp.m[2] = std::abs(m4.m[2]);
+    m3Tmp.m[3] = std::abs(m4.m[4]);
+    m3Tmp.m[4] = std::abs(m4.m[5]);
+    m3Tmp.m[5] = std::abs(m4.m[6]);
+    m3Tmp.m[6] = std::abs(m4.m[8]);
+    m3Tmp.m[7] = std::abs(m4.m[9]);
+    m3Tmp.m[8] = std::abs(m4.m[10]);
     out->transformMat3(extent, m3Tmp);
 }
 

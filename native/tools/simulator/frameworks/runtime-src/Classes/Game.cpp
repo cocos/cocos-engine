@@ -33,7 +33,9 @@
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     #include "SimulatorApp.h"
+    #include "windows.h"
 #elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+    #include <CoreGraphics/CGDisplayConfiguration.h>
     #include "../proj.ios_mac/mac/SimulatorApp.h"
 #endif
 
@@ -53,14 +55,24 @@ Game::~Game() {
 
 int Game::init() {
     SimulatorApp::getInstance()->run();
-    createWindow("My game", 0, 0, SimulatorApp::getInstance()->getWidth(),
+    int windowWidth  = SimulatorApp::getInstance()->getWidth();
+    int windowHeight = SimulatorApp::getInstance()->getHegith();
+#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
+    int windowPositionX = (GetSystemMetrics(SM_CXSCREEN) - windowWidth) / 2;
+    int windowPositionY = (GetSystemMetrics(SM_CYSCREEN) - windowHeight) / 2;
+#elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+    auto mainDisplayId   = CGMainDisplayID();
+    int  windowPositionX = (CGDisplayPixelsWide(mainDisplayId) - windowWidth) / 2;
+    int  windowPositionY = (CGDisplayPixelsHigh(mainDisplayId) - windowHeight) / 2;
+#endif
+    createWindow("My game", windowPositionX, windowPositionY, SimulatorApp::getInstance()->getWidth(),
                  SimulatorApp::getInstance()->getHegith(),
                  cc::ISystemWindow::CC_WINDOW_SHOWN |
                      cc::ISystemWindow::CC_WINDOW_RESIZABLE |
                      cc::ISystemWindow::CC_WINDOW_INPUT_FOCUS);
 
     auto parser = ConfigParser::getInstance();
-    setJsDebugIpAndPort("0.0.0.0", 5086, parser->isWaitForConnect());
+    setDebugIpAndPort("0.0.0.0", 5086, parser->isWaitForConnect());
 
     int ret = cc::CocosApplication::init();
     if (ret != 0) {
@@ -75,8 +87,8 @@ int Game::init() {
 
     setXXTeaKey("");
 
-    runJsScript("jsb-adapter/jsb-builtin.js");
-    runJsScript("main.js");
+    runScript("jsb-adapter/jsb-builtin.js");
+    runScript("main.js");
 
     // Runtime end
     CC_LOG_DEBUG("iShow!");
@@ -100,4 +112,4 @@ void Game::handleException(const char* location, const char* message, const char
     //TODO: nothing
 }
 
-CC_REGISTER_GAME(Game);
+CC_REGISTER_APPLICATION(Game);

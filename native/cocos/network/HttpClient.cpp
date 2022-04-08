@@ -538,26 +538,6 @@ void HttpClient::decreaseThreadCountAndMayDeleteThis() {
     }
 }
 
-void HttpClient::setTimeoutForConnect(int value) {
-    std::lock_guard<std::mutex> lock(_timeoutForConnectMutex);
-    _timeoutForConnect = value;
-}
-
-int HttpClient::getTimeoutForConnect() {
-    std::lock_guard<std::mutex> lock(_timeoutForConnectMutex);
-    return _timeoutForConnect;
-}
-
-void HttpClient::setTimeoutForRead(int value) {
-    std::lock_guard<std::mutex> lock(_timeoutForReadMutex);
-    _timeoutForRead = value;
-}
-
-int HttpClient::getTimeoutForRead() {
-    std::lock_guard<std::mutex> lock(_timeoutForReadMutex);
-    return _timeoutForRead;
-}
-
 const std::string &HttpClient::getCookieFilename() {
     std::lock_guard<std::mutex> lock(_cookieFileMutex);
     return _cookieFilename;

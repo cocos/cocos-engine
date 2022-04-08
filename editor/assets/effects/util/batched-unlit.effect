@@ -33,6 +33,7 @@ CCProgram unlit-vs %{
   precision highp float;
   #include <input>
   #include <cc-global>
+  #include <decode-base>
   #include <cc-local-batch>
 
   // array lengths need to be determined at resource-import-time

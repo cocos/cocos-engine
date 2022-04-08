@@ -47,7 +47,6 @@ import { legacyCC } from '../../core/global-exports';
 import { Component } from '../../core/components';
 import { CCObject } from '../../core';
 import { NodeEventType } from '../../core/scene-graph/node-event';
-import { CylinderColliderComponent } from '../../physics/framework/deprecated';
 
 const _htmlTextParser = new HtmlTextParser();
 const RichTextChildName = 'RICHTEXT_CHILD';
@@ -695,7 +694,6 @@ export class RichText extends Component {
             }
         }
 
-        console.error(`try times = ${1000 - leftTryTimes}`);
         return partStringArr;
     }
 
@@ -782,8 +780,6 @@ export class RichText extends Component {
                 }
             }
         }
-        // Tolerate null parent child (upgrade issue may cause this special case)
-        children.length = 0;
 
         this._segments.length = 0;
         this._labelSegmentsCache.length = 0;

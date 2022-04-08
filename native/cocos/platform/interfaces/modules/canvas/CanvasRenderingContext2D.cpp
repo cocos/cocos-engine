@@ -125,6 +125,7 @@ void CanvasRenderingContext2D::strokeText(const std::string &text, float x, floa
 
 cc::Size CanvasRenderingContext2D::measureText(const std::string &text) {
     //SE_LOGD("CanvasRenderingContext2D::measureText: %s\n", text.c_str());
+    recreateBufferIfNeeded();
     auto s = _delegate->measureText(text);
     return cc::Size(s[0], s[1]);
 }
@@ -238,6 +239,7 @@ void CanvasRenderingContext2D::rect(float x, float y, float w, float h) {
 
 void CanvasRenderingContext2D::setFont(const std::string &font) {
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_NX_WINDOWS || CC_PLATFORM == CC_PLATFORM_NX
+    recreateBufferIfNeeded();
     if (_font != font) {
         _font = font;
 

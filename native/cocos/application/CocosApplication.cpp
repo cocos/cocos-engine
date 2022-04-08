@@ -38,22 +38,32 @@
 
 namespace cc {
 
-//const char *kDefaultWindowTitle = "cocos application demo";
-
 CocosApplication::CocosApplication() {
     _engine      = BaseEngine::createEngine();
     _systemWidow = _engine->getInterface<ISystemWindow>();
     CCASSERT(_systemWidow != nullptr, "Invalid interface pointer");
 }
 
-CocosApplication::~CocosApplication() = default;
+CocosApplication::~CocosApplication() {
+    _engine->off(BaseEngine::ON_RESUME);
+    _engine->off(BaseEngine::ON_PAUSE);
+    _engine->off(BaseEngine::ON_CLOSE);
+}
 
 int CocosApplication::init() {
     if (_engine->init()) {
         return -1;
     }
-    auto callback = std::bind(&CocosApplication::handleAppEvent, this, std::placeholders::_1); // NOLINT(modernize-avoid-bind)
-    _engine->addEventCallback(OSEventType::APP_OSEVENT, callback);
+
+    _engine->on(BaseEngine::ON_RESUME, [this]() {
+        this->onResume();
+    });
+    _engine->on(BaseEngine::ON_PAUSE, [this]() {
+        this->onPause();
+    });
+    _engine->on(BaseEngine::ON_CLOSE, [this]() {
+        this->onClose();
+    });
 
     se::ScriptEngine *se = se::ScriptEngine::getInstance();
 
@@ -114,14 +124,14 @@ void CocosApplication::onClose() {
     // TODO(cc): Handling close events
 }
 
-void CocosApplication::setJsDebugIpAndPort(const std::string &serverAddr, uint32_t port, bool isWaitForConnect) {
+void CocosApplication::setDebugIpAndPort(const std::string &serverAddr, uint32_t port, bool isWaitForConnect) {
 #if defined(CC_DEBUG) && (CC_DEBUG > 0)
     // Enable debugger here
     jsb_enable_debugger(serverAddr, port, isWaitForConnect);
 #endif
 }
 
-void CocosApplication::runJsScript(const std::string &filePath) {
+void CocosApplication::runScript(const std::string &filePath) {
     jsb_run_script(filePath);
 }
 
@@ -136,7 +146,7 @@ void CocosApplication::setXXTeaKey(const std::string &key) {
 #if CC_PLATFORM == CC_PLATFORM_NX_WINDOWS || CC_PLATFORM == CC_PLATFORM_NX || CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX || CC_PLATFORM == CC_PLATFORM_MAC_OSX
 void CocosApplication::createWindow(const char* title, int32_t w,
                                     int32_t h, int32_t flags) {
-    _systemWidow->createWindow(title,  w, h, flags);
+    _systemWidow->createWindow(title, w, h, flags);
 }
 
 void CocosApplication::createWindow(const char *title,
@@ -145,22 +155,5 @@ void CocosApplication::createWindow(const char *title,
     _systemWidow->createWindow(title, x, y, w, h, flags);
 }
 #endif
-
-void CocosApplication::handleAppEvent(const OSEvent &ev) {
-    const AppEvent &appEv = OSEvent::castEvent<AppEvent>(ev);
-    switch (appEv.type) {
-        case AppEvent::Type::RESUME:
-            onResume();
-            break;
-        case AppEvent::Type::PAUSE:
-            onPause();
-            break;
-        case AppEvent::Type::CLOSE:
-            onClose();
-            break;
-        default:
-            break;
-    }
-}
 
 } // namespace cc

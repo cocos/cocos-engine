@@ -300,13 +300,6 @@ export class AnimationState extends Playable {
     private _clipEval: ReturnType<AnimationClip['createEvaluator']> | undefined;
     private _clipEventEval: ReturnType<AnimationClip['createEventEvaluator']> | undefined;
     /**
-     * Sets if this animation state is passive.
-     * If a state is passive,
-     * the state's `update()` should be called somewhere to drive the effect of `play()`.
-     * Otherwise, the `update()` is called uniformly by main loop.
-     */
-    private _passive = false;
-    /**
      * For internal usage. Really hack...
      */
     protected _doNotCreateEval = false;
@@ -332,7 +325,7 @@ export class AnimationState extends Playable {
         return this._curveLoaded;
     }
 
-    public initialize (root: Node, blendStateBuffer?: BlendStateBuffer, mask?: AnimationMask, passive?: boolean) {
+    public initialize (root: Node, blendStateBuffer?: BlendStateBuffer, mask?: AnimationMask) {
         if (this._curveLoaded) { return; }
         this._curveLoaded = true;
         if (this._poseOutput) {
@@ -376,7 +369,6 @@ export class AnimationState extends Playable {
         if (!(EDITOR && !legacyCC.GAME_VIEW)) {
             this._clipEventEval = clip.createEventEvaluator(this._targetNode);
         }
-        this._passive = passive ?? false;
     }
 
     public destroy () {
@@ -694,15 +686,11 @@ export class AnimationState extends Playable {
     }
 
     private _onReplayOrResume () {
-        if (!this._passive) {
-            getGlobalAnimationManager().addAnimation(this);
-        }
+        getGlobalAnimationManager().addAnimation(this);
     }
 
     private _onPauseOrStop () {
-        if (!this._passive) {
-            getGlobalAnimationManager().removeAnimation(this);
-        }
+        getGlobalAnimationManager().removeAnimation(this);
     }
 }
 

@@ -30,17 +30,17 @@
  */
 
 import { ccclass, tooltip, displayName, type, serializable, disallowAnimation } from 'cc.decorator';
-import { EDITOR, TEST, DEV } from 'internal:constants';
+import { EDITOR, TEST } from 'internal:constants';
 import { Script } from '../assets/scripts';
 import { CCObject } from '../data/object';
 import IDGenerator from '../utils/id-generator';
 import { getClassName, value } from '../utils/js';
-import { RenderScene } from '../renderer/scene/render-scene';
+import { RenderScene } from '../renderer/core/render-scene';
 import { Rect } from '../math';
 import * as RF from '../data/utils/requiring-frame';
 import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
-import { errorID, warnID, assertID, error } from '../platform/debug';
+import { errorID, warnID, assertID } from '../platform/debug';
 import { CompPrefabInfo } from '../utils/prefab/prefab-info';
 
 const idGenerator = new IDGenerator('Comp');

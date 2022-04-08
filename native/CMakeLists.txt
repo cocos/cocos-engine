@@ -417,11 +417,6 @@ elseif(LINUX)
         cocos/platform/linux/LinuxPlatform.cpp
         cocos/platform/linux/LinuxPlatform.h
     )
-elseif(QNX)
-    cocos_source_files(
-        cocos/platform/qnx/QnxPlatform.cpp
-        cocos/platform/qnx/QnxPlatform.h
-    )
 elseif(ANDROID)
     cocos_source_files(
         cocos/platform/android/AndroidPlatform.cpp
@@ -497,11 +492,6 @@ elseif(MACOSX OR IOS)
     cocos_source_files(
         cocos/platform/apple/modules/CanvasRenderingContext2DDelegate.mm
         cocos/platform/apple/modules/CanvasRenderingContext2DDelegate.h
-    )
-elseif(QNX)
-    cocos_source_files(
-        cocos/platform/qnx/modules/CanvasRenderingContext2DDelegate.cpp
-        cocos/platform/qnx/modules/CanvasRenderingContext2DDelegate.h
     )
 elseif(LINUX)
     cocos_source_files(
@@ -630,23 +620,6 @@ elseif(LINUX)
         cocos/platform/linux/modules/System.h
         cocos/platform/linux/modules/SystemWindow.cpp
         cocos/platform/linux/modules/SystemWindow.h
-    )
-elseif(QNX)
-    cocos_source_files(
-        cocos/platform/qnx/modules/Accelerometer.cpp
-        cocos/platform/qnx/modules/Accelerometer.h
-        cocos/platform/qnx/modules/Battery.cpp
-        cocos/platform/qnx/modules/Battery.h
-        cocos/platform/qnx/modules/Screen.cpp
-        cocos/platform/qnx/modules/Screen.h
-        cocos/platform/qnx/modules/Network.cpp
-        cocos/platform/qnx/modules/Network.h
-        cocos/platform/qnx/modules/Vibrator.cpp
-        cocos/platform/qnx/modules/Vibrator.h
-        cocos/platform/qnx/modules/System.cpp
-        cocos/platform/qnx/modules/System.h
-        cocos/platform/qnx/modules/SystemWindow.cpp
-        cocos/platform/qnx/modules/SystemWindow.h
     )
 endif()
 
@@ -979,11 +952,6 @@ elseif(LINUX)
     cocos_source_files(MODULE ccfilesystem
         cocos/platform/linux/FileUtils-linux.cpp
         cocos/platform/linux/FileUtils-linux.h
-    )
-elseif(QNX)
-    cocos_source_files(MODULE ccfilesystem
-        cocos/platform/qnx/FileUtils-qnx.cpp
-        cocos/platform/qnx/FileUtils-qnx.h
     )
 endif()
 
@@ -1550,6 +1518,12 @@ if(USE_PHYSICS_PHYSX)
     )
 endif()
 
+##### core
+cocos_source_files(
+    cocos/core/event/CallbacksInvoker.cpp
+    cocos/core/event/CallbacksInvoker.h
+)
+
 ##### script bindings
 ######## dop
 cocos_source_files(
@@ -1961,10 +1935,6 @@ elseif(LINUX)
     cocos_source_files(
         NO_WERROR    cocos/bindings/manual/jsb_platfrom_linux.cpp
     )
-elseif(QNX)
-    cocos_source_files(
-        NO_WERROR    cocos/bindings/manual/jsb_platfrom_qnx.cpp
-    )
 endif()
 
 ############# module bindings
@@ -2179,13 +2149,7 @@ elseif(WINDOWS OR NX_WINDOWS)
             NO_WERROR    cocos/ui/edit-box/EditBox-win32.cpp
         )
     endif()
-elseif(LINUX)
-    if(USE_EDIT_BOX)
-        cocos_source_files(
-            NO_WERROR    cocos/ui/edit-box/EditBox-linux.cpp
-        )
-    endif()
-elseif(QNX)
+elseif(LINUX OR QNX)
     if(USE_EDIT_BOX)
         cocos_source_files(
             NO_WERROR    cocos/ui/edit-box/EditBox-linux.cpp
@@ -2210,7 +2174,6 @@ cocos_source_files(
 )
 
 list(APPEND COCOS2D_SOURCE_LIST ${CC_EXTERNAL_SOURCES})
-
 
 if(USE_MODULES)
     add_library(ccmath ${ccmath_SOURCE_LIST})
@@ -2299,6 +2262,13 @@ else()
 endif()
 
 source_group(TREE ${CWD} PREFIX "Source Files" FILES ${COCOS2D_SOURCE_LIST})
+
+if(QNX)
+    include(${QNX_PATH}/source.cmake)
+    qnx_source_list(ccqnx_SOURCE_LIST ${QNX_PATH})
+    source_group(TREE ${QNX_PATH} PREFIX "Source Files" FILES ${ccqnx_SOURCE_LIST}})
+    list(APPEND COCOS2D_SOURCE_LIST ${ccqnx_SOURCE_LIST})
+endif()
 
 if(NX_WINDOWS OR NX)
     include(${NX_PATH}/source.cmake)
@@ -2569,12 +2539,8 @@ if(APPLE)
 endif()
 
 if(QNX)
-    target_link_libraries(cocos2d PUBLIC
-        socket
-        ssl
-        screen
-        ${CC_EXTERNAL_LIBS}
-    )
+    include(${QNX_PATH}/setup.cmake)
+    qnx_set_property(cocos2d)
 elseif(LINUX)
     set(LINUX_GRAPHIC_LIBS "")
     if(NOT USE_SERVER_MODE)
@@ -2585,5 +2551,3 @@ elseif(LINUX)
         ${CC_EXTERNAL_LIBS}
     )
 endif()
-
-#source_group(TREE ${CWD} PREFIX "Source Files" FILES ${COCOS2D_SOURCE_LIST})

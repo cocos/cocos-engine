@@ -33,50 +33,5 @@ describe('Animation Component', () => {
             expect(component.clips[0]).toBe(clipFoo);
             expect(component.clips[1]).toBe(anotherClipFoo);
         });
-
-        test('Animation updating', () => {
-            const component = new Animation();
-            const clip1 = new AnimationClip('foo');
-            clip1.duration = 1.2;
-            const clip2 = new AnimationClip('bar');
-            clip1.duration = 1.3;
-            component.clips = [clip1, clip2];
-            const state1 = component.getState(clip1.name);
-            const state2 = component.getState(clip2.name);
-
-            component.play(clip1.name);
-            scheduleUpdate(component, 0.999);
-            expect(state1.time).toBeCloseTo(0.0); // The "perfect first frame"
-            expect(state2.time).toBeCloseTo(0.0);
-
-            scheduleUpdate(component, 0.2);
-            expect(state1.time).toBeCloseTo(0.2);
-            expect(state2.time).toBeCloseTo(0.0);
-            scheduleUpdate(component, 0.1);
-            expect(state1.time).toBeCloseTo(0.3);
-            expect(state2.time).toBeCloseTo(0.0);
-
-            component.play(clip2.name);
-            scheduleUpdate(component, 3.1415);
-            expect(state1.time).toBeCloseTo(0.3); // Not changed even stop
-            expect(state2.time).toBeCloseTo(0.0); // The "perfect first frame"
-
-            scheduleUpdate(component, 0.4);
-            expect(state1.time).toBeCloseTo(0.3);
-            expect(state2.time).toBeCloseTo(0.4);
-
-            component.play(clip1.name);
-            scheduleUpdate(component, 0.125);
-            expect(state1.time).toBeCloseTo(0.0); // Recover from stop, and the "perfect first frame"
-
-            scheduleUpdate(component, 0.126);
-            expect(state1.time).toBeCloseTo(0.126);
-        });
     });
 });
-
-function scheduleUpdate(component: Animation, deltaTime: number) {
-    // @ts-expect-error HACK
-    const update = component._onAnimationSystemUpdate;
-    update.call(component, deltaTime);
-}

@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 
 android {
+    ndkPath PROP_NDK_PATH
     compileSdkVersion PROP_COMPILE_SDK_VERSION.toInteger()
 
     defaultConfig {

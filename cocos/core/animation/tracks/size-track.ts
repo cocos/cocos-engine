@@ -23,6 +23,9 @@ export class SizeTrack extends Track {
         return this._channels;
     }
 
+    /**
+     * @internal
+     */
     public [createEvalSymbol] () {
         return new SizeTrackEval(
             maskIfEmpty(this._channels[0].curve),

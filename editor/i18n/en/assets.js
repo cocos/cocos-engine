@@ -4,10 +4,12 @@ module.exports = {
         cancel: 'Cancel',
         warn: 'Warn',
     },
+
     inspector: {
         cloneToEdit: 'Clone it. Use and go into edit.',
         cloneToDirectoryIllegal: 'Please limit the saved path to the current project assets path',
     },
+
     assets: {
         reset: 'Reset',
         save: 'Save',
