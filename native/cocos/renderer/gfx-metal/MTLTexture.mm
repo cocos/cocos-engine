@@ -220,6 +220,11 @@ const TextureInfo& CCMTLTexture::textureInfo() {
 }
 
 void CCMTLTexture::doDestroy() {
+    //decrease only non-swapchain tex and have had been inited.
+    if(!_swapchain && _mtlTexture) {
+        CCMTLDevice::getInstance()->getMemoryStatus().textureSize -= _size;
+    }
+
     if(_swapchain) {
         _swapchain = nullptr;
         _mtlTexture = nil;
@@ -235,8 +240,7 @@ void CCMTLTexture::doDestroy() {
         _mtlTexture = nil;
     }
 
-    CCMTLDevice::getInstance()->getMemoryStatus().textureSize -= _size;
-
+    
     std::function<void(void)> destroyFunc = [mtlTexure]() {
         if (mtlTexure) {
             //TODO_Zeqiang: [mac12 | ios15, ...) validate here
