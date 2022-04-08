@@ -1402,7 +1402,7 @@ exports.methods = {
 exports.update = async function update(uuidList, renderMap, dropConfig, typeManager, renderManager) {
     const panel = this;
 
-    const enginePath = 'editor/inspector/components';
+    const enginePath = path.join('editor', 'inspector', 'components');
     Object.values(renderMap).forEach(config => {
         Object.values(config).forEach(renders => {
             renders.sort((a, b) => {
