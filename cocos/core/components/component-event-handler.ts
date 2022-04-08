@@ -101,6 +101,7 @@ export class EventHandler {
      * 事件响应组件和函数所在节点
      */
     // @type(Node) should be removed for avoid circle reference error
+    // the type definition of it deal with in the file './component-event-handler.schema.ts'
     @serializable
     @tooltip('i18n:button.click_event.target')
     public target: Node | null = null;
