@@ -903,7 +903,7 @@ export class SceneGlobals {
     @editable
     public shadows = new ShadowsInfo();
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @serializable
     public _skybox = new SkyboxInfo();

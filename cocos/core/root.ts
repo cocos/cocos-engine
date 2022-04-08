@@ -223,11 +223,11 @@ export class Root {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _createSceneFun: (root: Root) => RenderScene = null!;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _createWindowFun: (root: Root) => RenderWindow = null!;
 

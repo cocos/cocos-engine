@@ -532,7 +532,7 @@ export class Camera extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _createCamera () {
         if (!this._camera) {

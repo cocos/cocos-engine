@@ -110,46 +110,46 @@ function makeCubicSplineValueConstructor<T> (
 }
 
 /**
- * @legacyPublic
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
 export const CubicSplineVec2Value = makeCubicSplineValueConstructor(
     'cc.CubicSplineVec2Value', Vec2, Vec2.multiplyScalar, Vec2.scaleAndAdd,
 );
 
 /**
- * @legacyPublic
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
 export type CubicSplineVec2Value = ICubicSplineValue<Vec2>;
 legacyCC.CubicSplineVec2Value = CubicSplineVec2Value;
 
 /**
- * @legacyPublic
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
 export const CubicSplineVec3Value = makeCubicSplineValueConstructor(
     'cc.CubicSplineVec3Value', Vec3, Vec3.multiplyScalar, Vec3.scaleAndAdd,
 );
 
 /**
- * @legacyPublic
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
 export type CubicSplineVec3Value = ICubicSplineValue<Vec3>;
 legacyCC.CubicSplineVec3Value = CubicSplineVec3Value;
 
 /**
- * @legacyPublic
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
 export const CubicSplineVec4Value = makeCubicSplineValueConstructor(
     'cc.CubicSplineVec4Value', Vec4, Vec4.multiplyScalar, Vec4.scaleAndAdd,
 );
 
 /**
- * @legacyPublic
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
 export type CubicSplineVec4Value = ICubicSplineValue<Vec4>;
 legacyCC.CubicSplineVec4Value = CubicSplineVec4Value;
 
 /**
- * @legacyPublic
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
 export const CubicSplineQuatValue = makeCubicSplineValueConstructor(
     'cc.CubicSplineQuatValue', Quat, Quat.multiplyScalar, Quat.scaleAndAdd,
@@ -157,7 +157,7 @@ export const CubicSplineQuatValue = makeCubicSplineValueConstructor(
 legacyCC.CubicSplineQuatValue = CubicSplineQuatValue;
 
 /**
- * @legacyPublic
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
 @ccclass('cc.CubicSplineNumberValue')
 export class CubicSplineNumberValue implements ICubicSplineValue<number> {

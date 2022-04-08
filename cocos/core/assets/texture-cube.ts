@@ -173,7 +173,7 @@ export class TextureCube extends SimpleTexture {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @serializable
     public _mipmaps: ITextureCubeMipmap[] = [];
@@ -237,7 +237,7 @@ export class TextureCube extends SimpleTexture {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _serialize (ctxForExporting: any): Record<string, unknown> | null {
         if (EDITOR || TEST) {
@@ -265,7 +265,7 @@ export class TextureCube extends SimpleTexture {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _deserialize (serializedData: ITextureCubeSerializeData, handle: any) {
         const data = serializedData;
