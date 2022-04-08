@@ -89,6 +89,7 @@ public:
     inline void                       clearKnots() { _knots.clear(); }
     inline uint32_t                   getKnotCount() const { return static_cast<uint32_t>(_knots.size()); }
     inline void                       addKnot(const Vec3 &knot) { _knots.push_back(knot); }
+    void                              setModeAndKnots(SplineMode mode, const ccstd::vector<Vec3> &knots);
     void                              insertKnot(uint32_t index, const Vec3 &knot);
     void                              removeKnot(uint32_t index);
     void                              setKnot(uint32_t index, const Vec3 &knot);

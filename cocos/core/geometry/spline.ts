@@ -79,7 +79,7 @@ export class Spline {
     private _mode: SplineMode = SplineMode.CATMULL_ROM;
     private _knots: Vec3[] = [];
 
-    public constructor(mode: SplineMode = SplineMode.CATMULL_ROM, knots: Vec3[] = []) {
+    private constructor(mode: SplineMode = SplineMode.CATMULL_ROM, knots: Vec3[] = []) {
         this._type = enums.SHAPE_SPLINE;
         this._mode = mode;
 
@@ -93,15 +93,17 @@ export class Spline {
     }
 
     public static clone (s: Spline) {
-        return new Spline(s.getMode(), s.getKnots());
+        return new Spline(s.mode, s.knots);
     }
 
     public static copy (out: Spline, s: Spline) {
-        out._mode = s.getMode();
-        out._knots = [];
+        out._mode = s.mode;
+        out._knots.length = 0;
 
-        for (let i = 0; i < s.getKnots().length; i++) {
-            out._knots[i] = new Vec3(s.getKnots()[i]);
+        const knots = s.knots;
+        const length = knots.length;
+        for (let i = 0; i < length; i++) {
+            out._knots[i] = new Vec3(knots[i]);
         }
 
         return out;
@@ -111,28 +113,25 @@ export class Spline {
         return this._type;
     }
 
-    public getMode () {
+    get mode () {
         return this._mode;
     }
 
-    public setMode (value) {
-        this._mode = value;
-    }
-
-    public getKnots () {
+    get knots () {
         return this._knots;
     }
 
-    public setKnots (value) {
-        this._knots = [];
+    public setModeAndKnots (mode: SplineMode, knots: Vec3[]) {
+        this._mode = mode;
+        this._knots.length = 0;
 
-        for (let i = 0; i < value.length; i++) {
-            this._knots[i] = new Vec3(value[i]);
+        for (let i = 0; i < knots.length; i++) {
+            this._knots[i] = new Vec3(knots[i]);
         }
     }
 
     public clearKnots() { 
-        this._knots = [];
+        this._knots.length = 0;
     }
 
     public getKnotCount() { 
@@ -165,7 +164,7 @@ export class Spline {
         this._knots[index].set(knot);
     }
 
-    public getKnot(index: number) {
+    public getKnot(index: number): Readonly<Vec3> {
         assertIsTrue(index < this._knots.length, "Spline: invalid index");
 
         return this._knots[index];
@@ -188,7 +187,7 @@ export class Spline {
         }
 
         if (index >= segments) {
-            return this._knots[this._knots.length - 1];
+            return new Vec3(this._knots[this._knots.length - 1]);
         }
 
         switch (this._mode) {

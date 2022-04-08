@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 #include "core/geometry/Spline.h"
-#include <cmath>
+#include <math.h>
 #include "base/Log.h"
 #include "base/Macros.h"
 #include "math/Utils.h"
@@ -50,6 +50,11 @@ Spline *Spline::copy(Spline *out, const Spline &s) {
     out->_knots = s._knots;
 
     return out;
+}
+
+void Spline::setModeAndKnots(SplineMode mode, const ccstd::vector<Vec3> &knots) {
+    _mode  = mode;
+    _knots = knots;
 }
 
 void Spline::insertKnot(uint32_t index, const Vec3 &knot) {
@@ -96,7 +101,7 @@ Vec3 Spline::getPoint(float t, uint32_t index /*= SPLINE_WHOLE_INDEX*/) const {
         const auto deltaT = 1.0F / static_cast<float>(segments);
 
         index = static_cast<uint32_t>(t / deltaT);
-        t     = std::fmodf(t, deltaT) / deltaT;
+        t     = fmodf(t, deltaT) / deltaT;
     }
 
     if (index >= segments) {

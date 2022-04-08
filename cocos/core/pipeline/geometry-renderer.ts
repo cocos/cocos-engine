@@ -913,7 +913,7 @@ export class GeometryRenderer {
         if (knotSize > 0.0 && index == 0xffffffff) {
             const crossColor = new Color(255 - color.r, 255 - color.g, 255 - color.b, color.a);
             const numKnots = spline.getKnotCount();
-            const knots = spline.getKnots();
+            const knots = spline.knots;
 
             for (let i = 0; i < numKnots; i++) {
                 this.addCross(knots[i], knotSize, crossColor, depthTest);
