@@ -41,3 +41,4 @@ export { UICoordinateTracker } from './ui-coordinate-tracker';
 export { BlockInputEvents } from './block-input-events';
 export { SubContextView } from './sub-context-view';
 export { widgetManager } from './widget-manager';
+export * from './deprecated';

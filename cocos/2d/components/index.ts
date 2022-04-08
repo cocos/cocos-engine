@@ -33,3 +33,5 @@ export { Graphics } from './graphics';
 export { UIStaticBatch } from './ui-static-batch';
 export { LabelShadow } from './label-shadow';
 export { UIOpacity } from './ui-opacity';
+
+export * from './deprecated';
