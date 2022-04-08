@@ -38,13 +38,11 @@ public:
     /**Height of the Size.*/
     float height{0.F};
 
-public:
     /**Conversion from Vec2 to Size.*/
     operator Vec2() const {
         return Vec2(width, height);
     }
 
-public:
     /**
     @{
     Constructor.
@@ -85,7 +83,6 @@ public:
     /**Width and height of the rect.*/
     Size size;
 
-public:
     Rect();
     Rect(float x, float y, float width, float height);
     Rect(const Vec2 &pos, const Size &dimension);

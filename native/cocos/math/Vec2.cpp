@@ -26,37 +26,37 @@
 
 NS_CC_MATH_BEGIN
 
-// returns true if segment A-B intersects with segment C-D. S->E is the overlap part
-bool isOneDimensionSegmentOverlap(float A, float B, float C, float D, float *S, float *E) { //NOLINT(readability-identifier-naming)
-    float ABmin = std::min(A, B);
-    float ABmax = std::max(A, B);
-    float CDmin = std::min(C, D);
-    float CDmax = std::max(C, D);
+// returns true if segment a-b intersects with segment c-d. s->e is the overlap part
+bool isOneDimensionSegmentOverlap(float a, float b, float c, float d, float *s, float *e) {
+    float abmin = std::min(a, b);
+    float abmax = std::max(a, b);
+    float cdmin = std::min(c, d);
+    float cdmax = std::max(d, d);
 
-    if (ABmax < CDmin || CDmax < ABmin) {
+    if (abmax < cdmin || cdmax < abmin) {
         // ABmin->ABmax->CDmin->CDmax or CDmin->CDmax->ABmin->ABmax
         return false;
     } else {
-        if (ABmin >= CDmin && ABmin <= CDmax) {
+        if (abmin >= cdmin && abmin <= cdmax) {
             // CDmin->ABmin->CDmax->ABmax or CDmin->ABmin->ABmax->CDmax
-            if (S != nullptr) *S = ABmin;
-            if (E != nullptr) *E = CDmax < ABmax ? CDmax : ABmax;
-        } else if (ABmax >= CDmin && ABmax <= CDmax) {
+            if (s != nullptr) *s = abmin;
+            if (e != nullptr) *e = cdmax < abmax ? cdmax : abmax;
+        } else if (abmax >= cdmin && abmax <= cdmax) {
             // ABmin->CDmin->ABmax->CDmax
-            if (S != nullptr) *S = CDmin;
-            if (E != nullptr) *E = ABmax;
+            if (s != nullptr) s = &cdmin;
+            if (e != nullptr) *e = abmax;
         } else {
             // ABmin->CDmin->CDmax->ABmax
-            if (S != nullptr) *S = CDmin;
-            if (E != nullptr) *E = CDmax;
+            if (s != nullptr) *s = cdmin;
+            if (e != nullptr) *e = cdmax;
         }
         return true;
     }
 }
 
-// cross product of 2 vector. A->B X C->D
-float crossProduct2Vector(const Vec2 &A, const Vec2 &B, const Vec2 &C, const Vec2 &D) { // //NOLINT(readability-identifier-naming)
-    return (D.y - C.y) * (B.x - A.x) - (D.x - C.x) * (B.y - A.y);
+// cross product of 2 vector. a->b X c->d
+float crossProduct2Vector(const Vec2 &a, const Vec2 &b, const Vec2 &c, const Vec2 &d) {
+    return (d.y - c.y) * (b.x - a.x) - (d.x - c.x) * (b.y - a.y);
 }
 
 float Vec2::angle(const Vec2 &v1, const Vec2 &v2) {
@@ -75,16 +75,20 @@ void Vec2::clamp(const Vec2 &min, const Vec2 &max) {
     CC_ASSERT(!(min.x > max.x || min.y > max.y));
 
     // Clamp the x value.
-    if (x < min.x)
+    if (x < min.x) {
         x = min.x;
-    if (x > max.x)
+    }
+    if (x > max.x) {
         x = max.x;
+    }
 
     // Clamp the y value.
-    if (y < min.y)
+    if (y < min.y) {
         y = min.y;
-    if (y > max.y)
+    }
+    if (y > max.y) {
         y = max.y;
+    }
 }
 
 void Vec2::clamp(const Vec2 &v, const Vec2 &min, const Vec2 &max, Vec2 *dst) {
@@ -93,17 +97,21 @@ void Vec2::clamp(const Vec2 &v, const Vec2 &min, const Vec2 &max, Vec2 *dst) {
 
     // Clamp the x value.
     dst->x = v.x;
-    if (dst->x < min.x)
+    if (dst->x < min.x) {
         dst->x = min.x;
-    if (dst->x > max.x)
+    }
+    if (dst->x > max.x) {
         dst->x = max.x;
+    }
 
     // Clamp the y value.
     dst->y = v.y;
-    if (dst->y < min.y)
+    if (dst->y < min.y) {
         dst->y = min.y;
-    if (dst->y > max.y)
+    }
+    if (dst->y > max.y) {
         dst->y = max.y;
+    }
 }
 
 float Vec2::distance(const Vec2 &v) const {
@@ -124,15 +132,17 @@ float Vec2::length() const {
 void Vec2::normalize() {
     float n = x * x + y * y;
     // Already normalized.
-    if (n == 1.0f)
+    if (n == 1.0F) {
         return;
+    }
 
     n = std::sqrt(n);
     // Too close to zero.
-    if (n < MATH_TOLERANCE)
+    if (n < MATH_TOLERANCE) {
         return;
+    }
 
-    n = 1.0f / n;
+    n = 1.0F / n;
     x *= n;
     y *= n;
 }
@@ -149,8 +159,8 @@ void Vec2::rotate(const Vec2 &point, float angle) {
 
     if (point.isZero()) {
         float tempX = x * cosAngle - y * sinAngle;
-        y = y * cosAngle + x * sinAngle;
-        x = tempX;
+        y           = y * cosAngle + x * sinAngle;
+        x           = tempX;
     } else {
         float tempX = x - point.x;
         float tempY = y - point.y;
@@ -179,17 +189,22 @@ bool Vec2::equals(const Vec2 &target) const {
 }
 
 bool Vec2::fuzzyEquals(const Vec2 &b, float var) const {
-    if (x - var <= b.x && b.x <= x + var)
-        if (y - var <= b.y && b.y <= y + var)
+    if (x - var <= b.x && b.x <= x + var) {
+        if (y - var <= b.y && b.y <= y + var) {
             return true;
+        }
+    }
+
     return false;
 }
 
 float Vec2::getAngle(const Vec2 &other) const {
-    Vec2 a2 = getNormalized();
-    Vec2 b2 = other.getNormalized();
+    Vec2  a2    = getNormalized();
+    Vec2  b2    = other.getNormalized();
     float angle = atan2f(a2.cross(b2), a2.dot(b2));
-    if (std::abs(angle) < FLT_EPSILON) return 0.f;
+    if (std::abs(angle) < FLT_EPSILON) {
+        return 0.F;
+    }
     return angle;
 }
 
