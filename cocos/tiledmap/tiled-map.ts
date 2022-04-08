@@ -305,7 +305,6 @@ export class TiledMap extends Component {
     }
 
     __preload () {
-
         if (!this._tmxFile) {
             return;
         }
