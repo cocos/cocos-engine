@@ -77,11 +77,11 @@ jobs:
           NATIVE_DIR=$COCOS2DX_ROOT/templates/android-template       
           echo "Compiling Android ... "
           cd $COCOS2DX_ROOT/templates/
+          echo "message(STATUS \"hook before ${CC_TARGET_NANE}\")" >> android/template/Pre-Sample.cmake
+          echo "message(STATUS \"hook before ${CC_TARGET_NANE}\")" >> android/template/Post-Sample.cmake
           if [ ! -d  android-template ]; then
             cp -r android/template android-template
           fi
-          echo "message(STATUS \"hook before ${CC_TARGET_NANE}\")" >> Pre-Sample.cmake
-          echo "message(STATUS \"hook before ${CC_TARGET_NANE}\")" >> Post-Sample.cmake
           cd $COCOS2DX_ROOT/templates/android/build
           mkdir -p build-android/proj
           touch build-android/proj/cfg.cmake
