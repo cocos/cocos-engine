@@ -19,6 +19,7 @@ macro(cc_linux_before_target target_name)
         ${CC_COMMON_SOURCES}
         ${CC_ASSET_FILES}
     )
+    cc_common_before_target(${target_name})
 endmacro()
 
 macro(cc_linux_after_target target_name)
