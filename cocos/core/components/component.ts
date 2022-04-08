@@ -96,7 +96,7 @@ class Component extends CCObject {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @displayName('Script')
     @type(Script)
@@ -156,7 +156,7 @@ class Component extends CCObject {
      * log(this._isOnLoadCalled > 0);
      * ```
      *
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     get _isOnLoadCalled () {
         return this._objFlags & IsOnLoadCalled;
@@ -176,32 +176,32 @@ class Component extends CCObject {
     public node: Node = NullNode;
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @serializable
     public _enabled = true;
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @serializable
     public __prefab: CompPrefabInfo | null = null;
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _sceneGetter: null | (() => RenderScene) = null;
 
     /**
      * For internal usage.
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _id: string = idGenerator.getNewId();
 
     // private __scriptUuid = '';
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _getRenderScene (): RenderScene {
         if (this._sceneGetter) {
@@ -379,7 +379,7 @@ class Component extends CCObject {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onPreDestroy () {
         // Schedules
@@ -399,7 +399,7 @@ class Component extends CCObject {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _instantiate (cloned?: Component) {
         if (!cloned) {

@@ -143,7 +143,7 @@ export class Texture2D extends SimpleTexture {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @type([ImageAsset])
     public _mipmaps: ImageAsset[] = [];
@@ -258,7 +258,7 @@ export class Texture2D extends SimpleTexture {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _serialize (ctxForExporting: any) {
         if (EDITOR || TEST) {
@@ -280,7 +280,7 @@ export class Texture2D extends SimpleTexture {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _deserialize (serializedData: any, handle: any) {
         const data = serializedData as ITexture2DSerializeData;

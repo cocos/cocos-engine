@@ -369,7 +369,7 @@ export class ComponentScheduler {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onEnabled (comp) {
         legacyCC.director.getScheduler().resumeTarget(comp);
@@ -384,7 +384,7 @@ export class ComponentScheduler {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onDisabled (comp) {
         legacyCC.director.getScheduler().pauseTarget(comp);

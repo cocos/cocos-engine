@@ -800,7 +800,7 @@ export class SpriteFrame extends Asset {
 
     /**
      * Calculate UV for sliced
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _calculateSlicedUV () {
         const rect = this._rect;
@@ -866,7 +866,7 @@ export class SpriteFrame extends Asset {
 
     /**
      * Calculate UV
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _calculateUV () {
         const rect = this._rect;
@@ -1100,7 +1100,7 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _setDynamicAtlasFrame (frame) {
         if (!frame) return;
@@ -1118,7 +1118,7 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _resetDynamicAtlasFrame () {
         if (!this._original) return;
@@ -1130,7 +1130,7 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _checkPackable () {
         const dynamicAtlas = dynamicAtlasManager;
@@ -1156,7 +1156,7 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _serialize (ctxForExporting: any): any {
         if (EDITOR || TEST) {
@@ -1202,7 +1202,7 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _deserialize (serializeData: any, handle: any) {
         const data = serializeData as ISpriteFramesSerializeData;
