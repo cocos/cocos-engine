@@ -24,17 +24,17 @@
 ****************************************************************************/
 
 #pragma once
-#include <cocos/bindings/manual/jsb_conversions.h>
-#include <cocos/renderer/pipeline/custom/Map.h>
-#include <cocos/renderer/pipeline/custom/String.h>
-#include <boost/container/vector.hpp>
+#include "base/std/container/string.h"
+#include "base/std/container/vector.h"
+#include "bindings/manual/jsb_conversions.h"
+#include "renderer/pipeline/custom/Map.h"
 
 template <typename T, typename allocator>
 inline bool nativevalue_to_se( // NOLINT(readability-identifier-naming)
-    const boost::container::vector<T, allocator>& from,
-    se::Value& to, se::Object* ctx) {
-    se::Object* array = se::Object::createArrayObject(from.size());
-    se::Value tmp;
+    const ccstd::vector<T, allocator> &from,
+    se::Value &to, se::Object *ctx) {
+    se::Object *array = se::Object::createArrayObject(from.size());
+    se::Value   tmp;
     for (size_t i = 0; i < from.size(); i++) {
         nativevalue_to_se(from[i], tmp, ctx);
         array->setArrayElement(static_cast<uint32_t>(i), tmp);
@@ -45,13 +45,13 @@ inline bool nativevalue_to_se( // NOLINT(readability-identifier-naming)
 }
 
 inline bool nativevalue_to_se( // NOLINT(readability-identifier-naming)
-    const cc::PmrString& from, se::Value& to, se::Object* /*ctx*/) {
+    const ccstd::pmr::string &from, se::Value &to, se::Object * /*ctx*/) {
     to.setString(from.c_str());
     return true;
 }
 
 template <typename T, typename allocator>
-bool sevalue_to_native(const se::Value& from, boost::container::vector<T, allocator>* to, se::Object* ctx) { // NOLINT(readability-identifier-naming)
+bool sevalue_to_native(const se::Value &from, ccstd::vector<T, allocator> *to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
     if (from.isNullOrUndefined()) {
         to->clear();
         return true;
@@ -83,13 +83,13 @@ bool sevalue_to_native(const se::Value& from, boost::container::vector<T, alloca
         return true;
     }
 
-    SE_LOGE("[warn] failed to convert to boost::container::vector\n");
+    SE_LOGE("[warn] failed to convert to ccstd::vector\n");
     return false;
 }
 
-inline bool sevalue_to_native(const se::Value& from, cc::PmrString* to, se::Object* /*ctx*/) { // NOLINT(readability-identifier-naming)
+inline bool sevalue_to_native(const se::Value &from, ccstd::pmr::string *to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     if (!from.isNullOrUndefined()) {
-        const auto& str = from.toString();
+        const auto &str = from.toString();
         to->assign(str.begin(), str.end());
     } else {
         to->clear();

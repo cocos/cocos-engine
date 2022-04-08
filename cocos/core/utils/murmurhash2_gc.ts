@@ -36,10 +36,7 @@
  * @return {number} 32-bit positive integer hash
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 const getUint8ForString = String.prototype.charCodeAt;
 function getUint8ForArray (this: Uint8Array, idx: number) { return this[idx]; }

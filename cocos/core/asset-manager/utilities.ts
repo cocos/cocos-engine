@@ -22,10 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-/**
- * @packageDocumentation
- * @hidden
- */
+
 import { EDITOR } from 'internal:constants';
 import { Asset, Prefab, SceneAsset } from '../assets';
 import { legacyCC } from '../global-exports';

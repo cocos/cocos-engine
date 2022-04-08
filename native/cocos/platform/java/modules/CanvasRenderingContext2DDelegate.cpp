@@ -152,7 +152,7 @@ void CanvasRenderingContext2DDelegate::strokeText(const ccstd::string &text, flo
 
 CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measureText(const ccstd::string &text) {
     if (text.empty()) {
-        return std::array<float, 2>{0.0F, 0.0F};
+        return ccstd::array<float, 2>{0.0F, 0.0F};
     }
     float measureText1 = JniHelper::callObjectFloatMethod(_obj, JCLS_CANVASIMPL, "measureText", text);
     Size  size{measureText1, 0.0F};
@@ -279,7 +279,7 @@ void CanvasRenderingContext2DDelegate::updateData() {
     }
 }
 
-void CanvasRenderingContext2DDelegate::unMultiplyAlpha(unsigned char *ptr, ssize_t size) { // NOLINT(readability-convert-member-functions-to-static)
+void CanvasRenderingContext2DDelegate::unMultiplyAlpha(unsigned char *ptr, uint32_t size) { // NOLINT(readability-convert-member-functions-to-static)
     // Android source data is not premultiplied alpha when API >= 19
     // please refer CanvasRenderingContext2DImpl::recreateBuffer(float w, float h)
     // in CanvasRenderingContext2DImpl.java

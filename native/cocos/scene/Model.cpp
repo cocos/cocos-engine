@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-#include <array>
+#include "base/std/container/array.h"
 
 // #include "core/Director.h"
 #include "core/Root.h"
@@ -252,11 +252,11 @@ void Model::updateUBOs(uint32_t stamp) {
 
 void Model::updateWorldBoundUBOs() {
     if (_worldBoundBuffer) {
-        std::array<float, pipeline::UBOWorldBound::COUNT> worldBoundBufferView;
-        const Vec3 &                                      center      = _worldBounds ? _worldBounds->getCenter() : Vec3{0.0F, 0.0F, 0.0F};
-        const Vec3 &                                      halfExtents = _worldBounds ? _worldBounds->getHalfExtents() : Vec3{1.0F, 1.0F, 1.0F};
-        const Vec4                                        worldBoundCenter{center.x, center.y, center.z, 0.0F};
-        const Vec4                                        worldBoundHalfExtents{halfExtents.x, halfExtents.y, halfExtents.z, 1.0F};
+        ccstd::array<float, pipeline::UBOWorldBound::COUNT> worldBoundBufferView;
+        const Vec3 &                                        center      = _worldBounds ? _worldBounds->getCenter() : Vec3{0.0F, 0.0F, 0.0F};
+        const Vec3 &                                        halfExtents = _worldBounds ? _worldBounds->getHalfExtents() : Vec3{1.0F, 1.0F, 1.0F};
+        const Vec4                                          worldBoundCenter{center.x, center.y, center.z, 0.0F};
+        const Vec4                                          worldBoundHalfExtents{halfExtents.x, halfExtents.y, halfExtents.z, 1.0F};
         memcpy(worldBoundBufferView.data() + pipeline::UBOWorldBound::WORLD_BOUND_CENTER, &worldBoundCenter.x, sizeof(Vec4));
         memcpy(worldBoundBufferView.data() + pipeline::UBOWorldBound::WORLD_BOUND_HALF_EXTENTS, &worldBoundHalfExtents.x, sizeof(Vec4));
         _worldBoundBuffer->update(worldBoundBufferView.data(), pipeline::UBOWorldBound::SIZE);

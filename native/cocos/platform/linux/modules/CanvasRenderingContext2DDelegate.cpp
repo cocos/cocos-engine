@@ -24,9 +24,8 @@
 ****************************************************************************/
 
 #include "platform/linux/modules/CanvasRenderingContext2DDelegate.h"
-#include "SDL2/SDL.h"
-#include "SDL2/SDL_syswm.h"
 #include "platform/linux/LinuxPlatform.h"
+#include "platform/linux/modules/SystemWindow.h"
 
 namespace {
 #define RGB(r, g, b)     (int)((int)r | (((int)g) << 8) | (((int)b) << 16))
@@ -39,13 +38,10 @@ namespace cc {
 static const char gdefaultFontName[] = "lucidasans-24";
 
 CanvasRenderingContext2DDelegate::CanvasRenderingContext2DDelegate() {
-    SDL_SysWMinfo wmInfo;
-    SDL_VERSION(&wmInfo.version);
-    LinuxPlatform *platform = dynamic_cast<LinuxPlatform *>(BasePlatform::getPlatform());
-    CCASSERT(platform != nullptr, "Platform pointer can't be null");
-    SDL_GetWindowWMInfo(reinterpret_cast<SDL_Window *>(platform->getWindow()), &wmInfo);
-    _dis = wmInfo.info.x11.display;
-    _win = wmInfo.info.x11.window;
+    SystemWindow* window = BasePlatform::getPlatform()->getInterface<SystemWindow>();
+    CCASSERT(window != nullptr, "System window is not registered");
+    _dis = reinterpret_cast<Display*>(window->getDisplay());
+    _win = reinterpret_cast<Drawable>(window->getWindowHandler());
 }
 
 CanvasRenderingContext2DDelegate::~CanvasRenderingContext2DDelegate() {
@@ -154,14 +150,14 @@ void CanvasRenderingContext2DDelegate::strokeText(const ccstd::string &text, flo
 
 CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measureText(const ccstd::string &text) {
     if (text.empty())
-        return std::array<float, 2>{0.0f, 0.0f};
+        return ccstd::array<float, 2>{0.0f, 0.0f};
     int         font_ascent  = 0;
     int         font_descent = 0;
     int         direction    = 0;
     XCharStruct overall;
     XQueryTextExtents(_dis, _font->fid, text.c_str(), text.length(), &direction, &font_ascent, &font_descent, &overall);
-    return std::array<float, 2>{static_cast<float>(overall.width),
-                                static_cast<float>(overall.ascent + overall.descent)};
+    return ccstd::array<float, 2>{static_cast<float>(overall.width),
+                                  static_cast<float>(overall.ascent + overall.descent)};
 }
 
 void CanvasRenderingContext2DDelegate::updateFont(const ccstd::string &fontName,
@@ -254,16 +250,16 @@ int CanvasRenderingContext2DDelegate::drawText(const ccstd::string &text, int x,
 
 CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::sizeWithText(const wchar_t *pszText, int nLen) {
     // if (text.empty())
-    //     return std::array<float, 2>{0.0f, 0.0f};
+    //     return ccstd::array<float, 2>{0.0f, 0.0f};
     // XFontStruct *fs = XLoadQueryFont(dpy, "cursor");
     // assert(fs);
     // int font_ascent = 0;
     // int font_descent = 0;
     // XCharStruct overall;
     // XQueryTextExtents(_dis, fs -> fid, text.c_str(), text.length(), nullptr, &font_ascent, &font_descent, &overall);
-    // return std::array<float, 2>{static_cast<float>(overall.lbearing),
+    // return ccstd::array<float, 2>{static_cast<float>(overall.lbearing),
     //                             static_cast<float>(overall.rbearing)};
-    return std::array<float, 2>{0.0F, 0.0F};
+    return ccstd::array<float, 2>{0.0F, 0.0F};
 }
 
 void CanvasRenderingContext2DDelegate::prepareBitmap(int nWidth, int nHeight) {
@@ -275,7 +271,7 @@ void CanvasRenderingContext2DDelegate::deleteBitmap() {
 void CanvasRenderingContext2DDelegate::fillTextureData() {
 }
 
-std::array<float, 2> CanvasRenderingContext2DDelegate::convertDrawPoint(Point point, const ccstd::string &text) {
+ccstd::array<float, 2> CanvasRenderingContext2DDelegate::convertDrawPoint(Point point, const ccstd::string &text) {
     int         font_ascent  = 0;
     int         font_descent = 0;
     int         direction    = 0;

@@ -30,18 +30,18 @@
  */
 // clang-format off
 #pragma once
-#include <boost/container/pmr/vector.hpp>
 #include <boost/graph/adjacency_iterator.hpp>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/range/irange.hpp>
+#include "cocos/base/std/container/string.h"
+#include "cocos/base/std/container/vector.h"
 #include "cocos/renderer/pipeline/custom/GraphTypes.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/Map.h"
 #include "cocos/renderer/pipeline/custom/RenderExampleFwd.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/Set.h"
-#include "cocos/renderer/pipeline/custom/String.h"
 
 namespace cc {
 
@@ -116,7 +116,7 @@ struct RenderDependencyGraph {
         PmrList<edge_type>::iterator,
         DependencyType>;
     using out_edge_iterator = impl::OutPropertyEdgeIter<
-        boost::container::pmr::vector<OutEdge>::iterator,
+        ccstd::pmr::vector<OutEdge>::iterator,
         vertex_descriptor, edge_descriptor, int32_t>;
     using degree_size_type = uint32_t;
 
@@ -126,7 +126,7 @@ struct RenderDependencyGraph {
         PmrList<edge_type>::iterator,
         DependencyType>;
     using in_edge_iterator = impl::InPropertyEdgeIter<
-        boost::container::pmr::vector<InEdge>::iterator,
+        ccstd::pmr::vector<InEdge>::iterator,
         vertex_descriptor, edge_descriptor, int32_t>;
 
     // AdjacencyGraph
@@ -138,17 +138,17 @@ struct RenderDependencyGraph {
     using vertices_size_type = uint32_t;
 
     // VertexList help functions
-    inline boost::container::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
+    inline ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
         return vertices[v].outEdges;
     }
-    inline const boost::container::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
+    inline const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
         return vertices[v].outEdges;
     }
 
-    inline boost::container::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
+    inline ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
         return vertices[v].inEdges;
     }
-    inline const boost::container::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
+    inline const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
         return vertices[v].inEdges;
     }
 
@@ -160,8 +160,8 @@ struct RenderDependencyGraph {
         return static_cast<vertex_descriptor>(vertices.size());
     }
 
-    inline boost::container::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
-        return boost::container::pmr::vector<boost::default_color_type>(vertices.size(), mr);
+    inline ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
+        return ccstd::pmr::vector<boost::default_color_type>(vertices.size(), mr);
     }
 
     // EdgeListGraph
@@ -199,8 +199,8 @@ struct RenderDependencyGraph {
         Vertex& operator=(Vertex&& rhs) = default;
         Vertex& operator=(Vertex const& rhs) = default;
 
-        boost::container::pmr::vector<OutEdge> outEdges;
-        boost::container::pmr::vector<InEdge>  inEdges;
+        ccstd::pmr::vector<OutEdge> outEdges;
+        ccstd::pmr::vector<InEdge>  inEdges;
     };
 
     struct PassTag {
@@ -213,20 +213,20 @@ struct RenderDependencyGraph {
     } static constexpr Traits{}; // NOLINT
 
     // Vertices
-    boost::container::pmr::vector<Vertex> vertices;
+    ccstd::pmr::vector<Vertex> vertices;
     // Components
-    boost::container::pmr::vector<RenderPassNode>                 passes;
-    boost::container::pmr::vector<PmrFlatSet<uint32_t>>           valueIDs;
-    boost::container::pmr::vector<RenderGraph::vertex_descriptor> passIDs;
-    boost::container::pmr::vector<RenderPassTraits>               traits;
+    ccstd::pmr::vector<RenderPassNode>                 passes;
+    ccstd::pmr::vector<PmrFlatSet<uint32_t>>           valueIDs;
+    ccstd::pmr::vector<RenderGraph::vertex_descriptor> passIDs;
+    ccstd::pmr::vector<RenderPassTraits>               traits;
     // Edges
     PmrList<edge_type> edges;
     // UuidGraph
     PmrUnorderedMap<RenderGraph::vertex_descriptor, vertex_descriptor> passIndex;
     // Members
-    PmrUnorderedMap<PmrString, uint32_t>                            valueIndex;
-    boost::container::pmr::vector<PmrString>                        valueNames;
-    boost::container::pmr::vector<ResourceGraph::vertex_descriptor> resourceHandles;
+    PmrUnorderedStringMap<ccstd::pmr::string, uint32_t>  valueIndex;
+    ccstd::pmr::vector<ccstd::pmr::string>               valueNames;
+    ccstd::pmr::vector<ResourceGraph::vertex_descriptor> resourceHandles;
 };
 
 struct RenderValueNode {
@@ -283,14 +283,14 @@ struct RenderValueGraph {
     // IncidenceGraph
     using OutEdge     = impl::StoredEdge<vertex_descriptor>;
     using out_edge_iterator = impl::OutEdgeIter<
-        boost::container::pmr::vector<OutEdge>::iterator,
+        ccstd::pmr::vector<OutEdge>::iterator,
         vertex_descriptor, edge_descriptor, int32_t>;
     using degree_size_type = uint32_t;
 
     // BidirectionalGraph
     using InEdge     = impl::StoredEdge<vertex_descriptor>;
     using in_edge_iterator = impl::InEdgeIter<
-        boost::container::pmr::vector<InEdge>::iterator,
+        ccstd::pmr::vector<InEdge>::iterator,
         vertex_descriptor, edge_descriptor, int32_t>;
 
     // AdjacencyGraph
@@ -302,17 +302,17 @@ struct RenderValueGraph {
     using vertices_size_type = uint32_t;
 
     // VertexList help functions
-    inline boost::container::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
+    inline ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
         return vertices[v].outEdges;
     }
-    inline const boost::container::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
+    inline const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
         return vertices[v].outEdges;
     }
 
-    inline boost::container::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
+    inline ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
         return vertices[v].inEdges;
     }
-    inline const boost::container::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
+    inline const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
         return vertices[v].inEdges;
     }
 
@@ -324,8 +324,8 @@ struct RenderValueGraph {
         return static_cast<vertex_descriptor>(vertices.size());
     }
 
-    inline boost::container::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
-        return boost::container::pmr::vector<boost::default_color_type>(vertices.size(), mr);
+    inline ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
+        return ccstd::pmr::vector<boost::default_color_type>(vertices.size(), mr);
     }
 
     // EdgeListGraph
@@ -351,17 +351,17 @@ struct RenderValueGraph {
         Vertex& operator=(Vertex&& rhs) = default;
         Vertex& operator=(Vertex const& rhs) = default;
 
-        boost::container::pmr::vector<OutEdge> outEdges;
-        boost::container::pmr::vector<InEdge>  inEdges;
+        ccstd::pmr::vector<OutEdge> outEdges;
+        ccstd::pmr::vector<InEdge>  inEdges;
     };
 
     struct NodeTag {
     } static constexpr Node{}; // NOLINT
 
     // Vertices
-    boost::container::pmr::vector<Vertex> vertices;
+    ccstd::pmr::vector<Vertex> vertices;
     // Components
-    boost::container::pmr::vector<RenderValueNode> nodes;
+    ccstd::pmr::vector<RenderValueNode> nodes;
     // UuidGraph
     PmrUnorderedMap<RenderValueNode, vertex_descriptor> index;
 };

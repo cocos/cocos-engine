@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { Material } from '../../core/assets/material';
 import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';

@@ -632,13 +632,17 @@ exports.methods = {
     },
 
     updateEventInfo() {
+        let eventInfos = [];
         const events = this.curEditClipInfo.userData.events;
-        const eventInfos = events.map((info) => {
-            return {
-                ...info,
-                x: this.$.animationTime.valueToPixel(info.frame * this.curEditClipInfo.fps),
-            };
-        });
+        if (Array.isArray(events)) {
+            eventInfos = events.map((info) => {
+                return {
+                    ...info,
+                    x: this.$.animationTime.valueToPixel(info.frame * this.curEditClipInfo.fps),
+                };
+            });
+        }
+
         this.events.update.call(this, eventInfos);
     },
 

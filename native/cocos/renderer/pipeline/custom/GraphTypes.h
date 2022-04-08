@@ -25,13 +25,13 @@
 
 #pragma once
 #include "cocos/base/Variant.h"
+#include "cocos/base/std/container/list.h"
 #include "cocos/base/std/container/string.h"
 #include "cocos/renderer/pipeline/custom/Overload.h"
 
 #include <boost/container/pmr/polymorphic_allocator.hpp>
 #include <boost/iterator/iterator_adaptor.hpp>
 #include <boost/optional.hpp>
-#include <list>
 #include <memory>
 #include <type_traits>
 
@@ -50,7 +50,7 @@ struct no_property;
 namespace cc {
 
 template <class T>
-using PmrList = std::list<T, boost::container::pmr::polymorphic_allocator<T>>;
+using PmrList = ccstd::list<T, boost::container::pmr::polymorphic_allocator<T>>;
 
 namespace render {
 

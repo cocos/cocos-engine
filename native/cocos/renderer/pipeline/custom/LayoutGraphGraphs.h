@@ -597,15 +597,15 @@ struct property_map<cc::render::LayoutGraph, cc::render::LayoutGraph::NameTag> {
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         const cc::render::LayoutGraph,
-        const container::pmr::vector<cc::PmrString>,
+        const ccstd::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        const cc::PmrString&>;
+        const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::LayoutGraph,
-        container::pmr::vector<cc::PmrString>,
+        ccstd::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        cc::PmrString&>;
+        ccstd::pmr::string&>;
 };
 
 // Vertex Name
@@ -614,15 +614,15 @@ struct property_map<cc::render::LayoutGraph, vertex_name_t> {
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         const cc::render::LayoutGraph,
-        const container::pmr::vector<cc::PmrString>,
+        const ccstd::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        const cc::PmrString&>;
+        const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::LayoutGraph,
-        container::pmr::vector<cc::PmrString>,
+        ccstd::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        cc::PmrString&>;
+        ccstd::pmr::string&>;
 };
 
 // Vertex Component
@@ -631,13 +631,13 @@ struct property_map<cc::render::LayoutGraph, cc::render::LayoutGraph::Descriptor
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::LayoutGraph,
-        const container::pmr::vector<cc::render::DescriptorDB>,
+        const ccstd::pmr::vector<cc::render::DescriptorDB>,
         cc::render::DescriptorDB,
         const cc::render::DescriptorDB&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         cc::render::LayoutGraph,
-        container::pmr::vector<cc::render::DescriptorDB>,
+        ccstd::pmr::vector<cc::render::DescriptorDB>,
         cc::render::DescriptorDB,
         cc::render::DescriptorDB&>;
 };
@@ -648,14 +648,14 @@ struct property_map<cc::render::LayoutGraph, T cc::render::DescriptorDB::*> {
     using const_type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         const cc::render::LayoutGraph,
-        const container::pmr::vector<cc::render::DescriptorDB>,
+        const ccstd::pmr::vector<cc::render::DescriptorDB>,
         T,
         const T&,
         T cc::render::DescriptorDB::*>;
     using type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         cc::render::LayoutGraph,
-        container::pmr::vector<cc::render::DescriptorDB>,
+        ccstd::pmr::vector<cc::render::DescriptorDB>,
         T,
         T&,
         T cc::render::DescriptorDB::*>;
@@ -674,15 +674,15 @@ struct property_map<cc::render::LayoutGraphData, cc::render::LayoutGraphData::Na
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         const cc::render::LayoutGraphData,
-        const container::pmr::vector<cc::PmrString>,
+        const ccstd::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        const cc::PmrString&>;
+        const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::LayoutGraphData,
-        container::pmr::vector<cc::PmrString>,
+        ccstd::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        cc::PmrString&>;
+        ccstd::pmr::string&>;
 };
 
 // Vertex Name
@@ -691,15 +691,15 @@ struct property_map<cc::render::LayoutGraphData, vertex_name_t> {
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         const cc::render::LayoutGraphData,
-        const container::pmr::vector<cc::PmrString>,
+        const ccstd::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        const cc::PmrString&>;
+        const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::LayoutGraphData,
-        container::pmr::vector<cc::PmrString>,
+        ccstd::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        cc::PmrString&>;
+        ccstd::pmr::string&>;
 };
 
 // Vertex Component
@@ -708,13 +708,13 @@ struct property_map<cc::render::LayoutGraphData, cc::render::LayoutGraphData::Up
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::LayoutGraphData,
-        const container::pmr::vector<cc::render::UpdateFrequency>,
+        const ccstd::pmr::vector<cc::render::UpdateFrequency>,
         cc::render::UpdateFrequency,
         const cc::render::UpdateFrequency&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         cc::render::LayoutGraphData,
-        container::pmr::vector<cc::render::UpdateFrequency>,
+        ccstd::pmr::vector<cc::render::UpdateFrequency>,
         cc::render::UpdateFrequency,
         cc::render::UpdateFrequency&>;
 };
@@ -725,13 +725,13 @@ struct property_map<cc::render::LayoutGraphData, cc::render::LayoutGraphData::La
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::LayoutGraphData,
-        const container::pmr::vector<cc::render::PipelineLayoutData>,
+        const ccstd::pmr::vector<cc::render::PipelineLayoutData>,
         cc::render::PipelineLayoutData,
         const cc::render::PipelineLayoutData&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         cc::render::LayoutGraphData,
-        container::pmr::vector<cc::render::PipelineLayoutData>,
+        ccstd::pmr::vector<cc::render::PipelineLayoutData>,
         cc::render::PipelineLayoutData,
         cc::render::PipelineLayoutData&>;
 };
@@ -742,14 +742,14 @@ struct property_map<cc::render::LayoutGraphData, T cc::render::PipelineLayoutDat
     using const_type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         const cc::render::LayoutGraphData,
-        const container::pmr::vector<cc::render::PipelineLayoutData>,
+        const ccstd::pmr::vector<cc::render::PipelineLayoutData>,
         T,
         const T&,
         T cc::render::PipelineLayoutData::*>;
     using type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         cc::render::LayoutGraphData,
-        container::pmr::vector<cc::render::PipelineLayoutData>,
+        ccstd::pmr::vector<cc::render::PipelineLayoutData>,
         T,
         T&,
         T cc::render::PipelineLayoutData::*>;
@@ -773,7 +773,7 @@ get(boost::vertex_index_t /*tag*/, LayoutGraph& /*g*/) noexcept {
 }
 
 inline impl::ColorMap<LayoutGraph::vertex_descriptor>
-get(boost::container::pmr::vector<boost::default_color_type>& colors, const LayoutGraph& /*g*/) noexcept {
+get(ccstd::pmr::vector<boost::default_color_type>& colors, const LayoutGraph& /*g*/) noexcept {
     return {colors};
 }
 
@@ -1125,11 +1125,11 @@ getPath(
     return output;
 }
 
-inline PmrString
+inline ccstd::pmr::string
 getPath(
     LayoutGraph::vertex_descriptor u0, const LayoutGraph& g,
     boost::container::pmr::memory_resource* mr, boost::string_view prefix = {}, LayoutGraph::vertex_descriptor parent = LayoutGraph::null_vertex()) {
-    PmrString output(mr);
+    ccstd::pmr::string output(mr);
     getPath(output, u0, g, prefix, parent);
     return output;
 }
@@ -1156,9 +1156,9 @@ getPath(LayoutGraph::vertex_descriptor parent, boost::string_view name, const La
     return output;
 }
 
-inline PmrString
+inline ccstd::pmr::string
 getPath(LayoutGraph::vertex_descriptor parent, boost::string_view name, const LayoutGraph& g, boost::container::pmr::memory_resource* mr) {
-    PmrString output(mr);
+    ccstd::pmr::string output(mr);
     getPath(output, parent, name, g);
     return output;
 }
@@ -1430,7 +1430,7 @@ addVertex(Tag tag, Component0&& c0, Component1&& c1, ValueT&& val, LayoutGraph& 
 // MutableGraph(Vertex)
 template <class Tag>
 inline LayoutGraph::vertex_descriptor
-add_vertex(LayoutGraph& g, Tag t, PmrString&& name, LayoutGraph::vertex_descriptor parentID = LayoutGraph::null_vertex()) { // NOLINT
+add_vertex(LayoutGraph& g, Tag t, ccstd::pmr::string&& name, LayoutGraph::vertex_descriptor parentID = LayoutGraph::null_vertex()) { // NOLINT
     return addVertex(
         t,
         std::forward_as_tuple(std::move(name)), // names
@@ -1462,7 +1462,7 @@ get(boost::vertex_index_t /*tag*/, LayoutGraphData& /*g*/) noexcept {
 }
 
 inline impl::ColorMap<LayoutGraphData::vertex_descriptor>
-get(boost::container::pmr::vector<boost::default_color_type>& colors, const LayoutGraphData& /*g*/) noexcept {
+get(ccstd::pmr::vector<boost::default_color_type>& colors, const LayoutGraphData& /*g*/) noexcept {
     return {colors};
 }
 
@@ -1825,11 +1825,11 @@ getPath(
     return output;
 }
 
-inline PmrString
+inline ccstd::pmr::string
 getPath(
     LayoutGraphData::vertex_descriptor u0, const LayoutGraphData& g,
     boost::container::pmr::memory_resource* mr, boost::string_view prefix = {}, LayoutGraphData::vertex_descriptor parent = LayoutGraphData::null_vertex()) {
-    PmrString output(mr);
+    ccstd::pmr::string output(mr);
     getPath(output, u0, g, prefix, parent);
     return output;
 }
@@ -1856,9 +1856,9 @@ getPath(LayoutGraphData::vertex_descriptor parent, boost::string_view name, cons
     return output;
 }
 
-inline PmrString
+inline ccstd::pmr::string
 getPath(LayoutGraphData::vertex_descriptor parent, boost::string_view name, const LayoutGraphData& g, boost::container::pmr::memory_resource* mr) {
-    PmrString output(mr);
+    ccstd::pmr::string output(mr);
     getPath(output, parent, name, g);
     return output;
 }
@@ -2138,7 +2138,7 @@ addVertex(Tag tag, Component0&& c0, Component1&& c1, Component2&& c2, ValueT&& v
 // MutableGraph(Vertex)
 template <class Tag>
 inline LayoutGraphData::vertex_descriptor
-add_vertex(LayoutGraphData& g, Tag t, PmrString&& name, LayoutGraphData::vertex_descriptor parentID = LayoutGraphData::null_vertex()) { // NOLINT
+add_vertex(LayoutGraphData& g, Tag t, ccstd::pmr::string&& name, LayoutGraphData::vertex_descriptor parentID = LayoutGraphData::null_vertex()) { // NOLINT
     return addVertex(
         t,
         std::forward_as_tuple(std::move(name)), // names

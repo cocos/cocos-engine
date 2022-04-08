@@ -27,13 +27,13 @@
 #include <boost/graph/depth_first_search.hpp>
 #include <boost/graph/reverse_graph.hpp>
 #include <tuple>
-#include "RenderExampleGraphs.h"
-#include "RenderGraphGraphs.h"
 #include "LayoutGraphGraphs.h"
 #include "LayoutGraphTypes.h"
 #include "RenderCommonTypes.h"
+#include "RenderExampleGraphs.h"
 #include "RenderExampleTypes.h"
 #include "RenderGraphFwd.h"
+#include "RenderGraphGraphs.h"
 
 namespace cc {
 
@@ -43,17 +43,17 @@ namespace example {
 
 namespace {
 
-using RDG = RenderDependencyGraph;
+using RDG  = RenderDependencyGraph;
 using RESG = ResourceGraph;
 
 // validation
-void checkComputeValue(const PmrTransparentMap<PmrString, boost::container::pmr::vector<ComputeView>>& values0) {
-    for (const auto& pair : values0) {
-        const auto& name   = pair.first;
-        const auto& values = pair.second;
+void checkComputeValue(const PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> &values0) {
+    for (const auto &pair : values0) {
+        const auto &name   = pair.first;
+        const auto &values = pair.second;
         bool        bWrite = false;
         int         count  = 0;
-        for (const auto& v : values) {
+        for (const auto &v : values) {
             if (v.clearFlags != gfx::ClearFlagBit::NONE) {
                 if (!v.isWrite()) {
                     throw std::invalid_argument("only write state support uav clear");
@@ -73,35 +73,35 @@ void checkComputeValue(const PmrTransparentMap<PmrString, boost::container::pmr:
 } // namespace
 
 int RenderCompiler::validate() const {
-    const auto& rg = graph;
-    const auto& lg = layoutGraph;
+    const auto &rg = graph;
+    const auto &lg = layoutGraph;
     try {
-        for (const auto& vertID : makeRange(vertices(rg))) {
+        for (const auto &vertID : makeRange(vertices(rg))) {
             visitObject(
                 vertID, rg,
-                [&](const RasterPass& pass) {
+                [&](const RasterPass &pass) {
                     checkComputeValue(pass.computeViews);
                 },
-                [&](const ComputePass& pass) {
+                [&](const ComputePass &pass) {
                     checkComputeValue(pass.computeViews);
                 },
-                [&](const auto& /*pass*/) {
+                [&](const auto & /*pass*/) {
                 });
         }
-    } catch (const std::invalid_argument&) {
+    } catch (const std::invalid_argument &) {
         return 1;
     }
 
     return 0;
 }
 
-int RenderCompiler::audit(std::ostream& oss) const { // NOLINT
+int RenderCompiler::audit(std::ostream &oss) const { // NOLINT
     return 0;
 }
 
 namespace {
 
-void addPassNodeValue(RenderPassNode& node, PmrFlatSet<uint32_t>& values,
+void addPassNodeValue(RenderPassNode &node, PmrFlatSet<uint32_t> &values,
                       const uint32_t valueID, AccessType type) {
     // add to values
     values.emplace(valueID);
@@ -123,9 +123,9 @@ void addPassNodeValue(RenderPassNode& node, PmrFlatSet<uint32_t>& values,
     }
 }
 
-void addPassNodeValue(RenderDependencyGraph& rdg,
-                      RenderPassNode& node, PmrFlatSet<uint32_t>& values,
-                      const PmrString& valueName, AccessType type) {
+void addPassNodeValue(RenderDependencyGraph &rdg,
+                      RenderPassNode &node, PmrFlatSet<uint32_t> &values,
+                      const ccstd::pmr::string &valueName, AccessType type) {
     auto iter = rdg.valueIndex.find(valueName);
     if (iter == rdg.valueIndex.end()) {
         rdg.valueIndex.emplace(valueName, uint32_t(rdg.valueNames.size()));
@@ -135,7 +135,7 @@ void addPassNodeValue(RenderDependencyGraph& rdg,
     addPassNodeValue(node, values, iter->second, type);
 }
 
-void buildRenderDependencyGraph(const RenderGraph& rg, RenderDependencyGraph& rdg) {
+void buildRenderDependencyGraph(const RenderGraph &rg, RenderDependencyGraph &rdg) {
     size_t numPasses = 1; // additional init pass is the first pass
     numPasses += rg.rasterPasses.size();
     numPasses += rg.computePasses.size();
@@ -150,11 +150,11 @@ void buildRenderDependencyGraph(const RenderGraph& rg, RenderDependencyGraph& rd
     auto startID = add_vertex(rdg, 0xFFFFFFFF);
     CC_EXPECTS(startID == 0);
 
-    auto makeAccessType = [](const boost::container::pmr::vector<ComputeView>& values) {
+    auto makeAccessType = [](const ccstd::pmr::vector<ComputeView> &values) {
         CC_EXPECTS(!values.empty());
         AccessType type = values[0].accessType;
         for (uint32_t i = 1; i != values.size(); ++i) {
-            const auto& value = values[i];
+            const auto &value = values[i];
             if (value.isRead()) {
                 if (type == AccessType::WRITE) {
                     type = AccessType::READ_WRITE;
@@ -172,102 +172,102 @@ void buildRenderDependencyGraph(const RenderGraph& rg, RenderDependencyGraph& rd
     for (const auto passID : makeRange(vertices(rg))) {
         visitObject(
             passID, rg,
-            [&](const RasterPass& pass) {
+            [&](const RasterPass &pass) {
                 auto  vertID   = add_vertex(rdg, passID);
-                auto& node     = get(RDG::Pass, rdg, vertID);
-                auto& valueIDs = get(RDG::ValueID, rdg, vertID);
-                for (const auto& pair : pass.rasterViews) {
-                    const auto& valueName = pair.first;
-                    const auto& value     = pair.second;
+                auto &node     = get(RDG::Pass, rdg, vertID);
+                auto &valueIDs = get(RDG::ValueID, rdg, vertID);
+                for (const auto &pair : pass.rasterViews) {
+                    const auto &valueName = pair.first;
+                    const auto &value     = pair.second;
                     addPassNodeValue(rdg, node, valueIDs, valueName, value.accessType);
                 }
-                for (const auto& pair : pass.computeViews) {
-                    const auto& valueName = pair.first;
-                    const auto& values    = pair.second;
+                for (const auto &pair : pass.computeViews) {
+                    const auto &valueName = pair.first;
+                    const auto &values    = pair.second;
                     addPassNodeValue(rdg, node, valueIDs, valueName, makeAccessType(values));
                 }
             },
-            [&](const ComputePass& pass) {
+            [&](const ComputePass &pass) {
                 auto  vertID   = add_vertex(rdg, passID);
-                auto& node     = get(RDG::Pass, rdg, vertID);
-                auto& valueIDs = get(RDG::ValueID, rdg, vertID);
-                for (const auto& pair : pass.computeViews) {
-                    const auto& valueName = pair.first;
-                    const auto& values    = pair.second;
+                auto &node     = get(RDG::Pass, rdg, vertID);
+                auto &valueIDs = get(RDG::ValueID, rdg, vertID);
+                for (const auto &pair : pass.computeViews) {
+                    const auto &valueName = pair.first;
+                    const auto &values    = pair.second;
                     addPassNodeValue(rdg, node, valueIDs, valueName, makeAccessType(values));
                 }
             },
-            [&](const CopyPass& pass) {
+            [&](const CopyPass &pass) {
                 auto  vertID   = add_vertex(rdg, passID);
-                auto& node     = get(RDG::Pass, rdg, vertID);
-                auto& valueIDs = get(RDG::ValueID, rdg, vertID);
+                auto &node     = get(RDG::Pass, rdg, vertID);
+                auto &valueIDs = get(RDG::ValueID, rdg, vertID);
 
-                for (const auto& pair : pass.copyPairs) {
+                for (const auto &pair : pass.copyPairs) {
                     addPassNodeValue(rdg, node, valueIDs, pair.source, AccessType::READ);
                     addPassNodeValue(rdg, node, valueIDs, pair.target, AccessType::WRITE);
                 }
             },
-            [&](const MovePass& pass) {
+            [&](const MovePass &pass) {
                 auto  vertID   = add_vertex(rdg, passID);
-                auto& node     = get(RDG::Pass, rdg, vertID);
-                auto& valueIDs = get(RDG::ValueID, rdg, vertID);
+                auto &node     = get(RDG::Pass, rdg, vertID);
+                auto &valueIDs = get(RDG::ValueID, rdg, vertID);
 
-                for (const auto& pair : pass.movePairs) {
+                for (const auto &pair : pass.movePairs) {
                     addPassNodeValue(rdg, node, valueIDs, pair.source, AccessType::READ);
                     addPassNodeValue(rdg, node, valueIDs, pair.target, AccessType::WRITE);
                 }
             },
-            [&](const RaytracePass& pass) {
+            [&](const RaytracePass &pass) {
                 auto  vertID   = add_vertex(rdg, passID);
-                auto& node     = get(RDG::Pass, rdg, vertID);
-                auto& valueIDs = get(RDG::ValueID, rdg, vertID);
-                for (const auto& pair : pass.computeViews) {
-                    const auto& valueName = pair.first;
-                    const auto& values    = pair.second;
+                auto &node     = get(RDG::Pass, rdg, vertID);
+                auto &valueIDs = get(RDG::ValueID, rdg, vertID);
+                for (const auto &pair : pass.computeViews) {
+                    const auto &valueName = pair.first;
+                    const auto &values    = pair.second;
                     addPassNodeValue(rdg, node, valueIDs, valueName, makeAccessType(values));
                 }
             },
-            [&](const PresentPass& pass) {
+            [&](const PresentPass &pass) {
                 auto  vertID   = add_vertex(rdg, passID);
-                auto& node     = get(RDG::Pass, rdg, vertID);
-                auto& valueIDs = get(RDG::ValueID, rdg, vertID);
+                auto &node     = get(RDG::Pass, rdg, vertID);
+                auto &valueIDs = get(RDG::ValueID, rdg, vertID);
 
-                for (const auto& pair : pass.presents) {
+                for (const auto &pair : pass.presents) {
                     addPassNodeValue(rdg, node, valueIDs, pair.first, AccessType::READ);
                 }
             },
-            [&](const auto& /*pass*/) {
+            [&](const auto & /*pass*/) {
                 // do nothing
             });
     }
     CC_ENSURES(num_vertices(rdg) == numPasses);
 }
 
-void buildRenderValueGraphAndInitialPass(RenderDependencyGraph& rdg, RenderValueGraph& rvg) {
+void buildRenderValueGraphAndInitialPass(RenderDependencyGraph &rdg, RenderValueGraph &rvg) {
     // add value graph nodes
     uint32_t numValues = 0;
-    for (const auto& valueIDs : rdg.valueIDs) {
+    for (const auto &valueIDs : rdg.valueIDs) {
         numValues += gsl::narrow_cast<uint32_t>(valueIDs.size());
     }
     rvg.reserve(numValues);
 
     for (const auto passID : makeRange(vertices(rdg))) {
-        const auto& valueIDs = get(RDG::ValueID, rdg, passID);
-        for (const auto& valueID : valueIDs) {
+        const auto &valueIDs = get(RDG::ValueID, rdg, passID);
+        for (const auto &valueID : valueIDs) {
             CC_EXPECTS(!contains(RenderValueNode(passID, valueID), rvg));
             addVertex(std::piecewise_construct,
-                       std::forward_as_tuple(passID, valueID), rvg);
+                      std::forward_as_tuple(passID, valueID), rvg);
         }
     }
 
     // build value graph edges
     auto initPassID = vertex(0xFFFFFFFF, rdg);
     CC_EXPECTS(initPassID == 0);
-    auto& initPass     = get(RDG::Pass, rdg, initPassID);
-    auto& initValueIDs = get(RDG::ValueID, rdg, initPassID);
+    auto &initPass     = get(RDG::Pass, rdg, initPassID);
+    auto &initValueIDs = get(RDG::ValueID, rdg, initPassID);
 
     for (uint32_t dstPassID = num_vertices(rdg); dstPassID-- > 0;) {
-        auto& dstPass = get(RDG::Pass, rdg, dstPassID);
+        auto &dstPass = get(RDG::Pass, rdg, dstPassID);
         for (const auto valueID : dstPass.inputs) {
             auto dstVertID = vertex(RenderValueNode(dstPassID, valueID), rvg);
             CC_EXPECTS(in_degree(dstVertID, rvg) == 0);
@@ -294,7 +294,7 @@ void buildRenderValueGraphAndInitialPass(RenderDependencyGraph& rdg, RenderValue
             // try finding matching value in upstream render passes
             bool found = false;
             for (uint32_t srcPassID = dstPassID; srcPassID-- > 0;) {
-                auto& srcPass = get(RDG::Pass, rdg, srcPassID);
+                auto &srcPass = get(RDG::Pass, rdg, srcPassID);
                 // value not found in source pass
                 if (!srcPass.outputs.contains(valueID)) {
                     continue;
@@ -313,14 +313,14 @@ void buildRenderValueGraphAndInitialPass(RenderDependencyGraph& rdg, RenderValue
     }
 }
 
-void buildRenderDependencyGraphResourceIndex(const ResourceGraph& resg, RenderDependencyGraph& rdg) {
+void buildRenderDependencyGraphResourceIndex(const ResourceGraph &resg, RenderDependencyGraph &rdg) {
     CC_EXPECTS(rdg.valueNames.size() == rdg.valueIndex.size());
 
     rdg.resourceHandles.resize(rdg.valueNames.size());
 
     uint32_t valueID = 0;
-    for (const auto& valueName : rdg.valueNames) {
-        auto handleID                 = vertex(valueName, resg);
+    for (const auto &valueName : rdg.valueNames) {
+        auto handleID                = vertex(valueName, resg);
         rdg.resourceHandles[valueID] = handleID;
         ++valueID;
     }
@@ -328,9 +328,9 @@ void buildRenderDependencyGraphResourceIndex(const ResourceGraph& resg, RenderDe
 
 struct CullingVisitor : boost::dfs_visitor<> {
     CullingVisitor(
-        const ResourceGraph&         resg0,
-        const RenderGraph&           rg0,
-        const RenderDependencyGraph& rdg0,
+        const ResourceGraph &        resg0,
+        const RenderGraph &          rg0,
+        const RenderDependencyGraph &rdg0,
 
         boost::property_map<RenderDependencyGraph, RenderDependencyGraph::PassTag>::const_type    passes,
         boost::property_map<RenderDependencyGraph, RenderDependencyGraph::ValueIDTag>::const_type valueIDs,
@@ -350,19 +350,19 @@ struct CullingVisitor : boost::dfs_visitor<> {
     // dfs visitor must NOT contain any state, it is copied every where
     using Graph = boost::reverse_graph<RenderDependencyGraph>;
 
-    void markVertex(Graph::edge_descriptor e, const Graph& g) const {
+    void markVertex(Graph::edge_descriptor e, const Graph &g) const {
         auto sourceID = source(e, g);
         auto targetID = target(e, g);
         auto keep     = get(traits, sourceID).keep;
         get(traits, targetID).keep |= keep;
     }
 
-    void start_vertex(Graph::vertex_descriptor u, const Graph& g) {
+    void start_vertex(Graph::vertex_descriptor u, const Graph &g) {
         // currently, do nothing
     }
 
-    void discover_vertex(Graph::vertex_descriptor u, const Graph& /*g*/) {
-        auto& keep = get(traits, u).keep;
+    void discover_vertex(Graph::vertex_descriptor u, const Graph & /*g*/) {
+        auto &keep = get(traits, u).keep;
         if (keep) {
             return;
         }
@@ -373,7 +373,7 @@ struct CullingVisitor : boost::dfs_visitor<> {
             return;
         }
 
-        const auto& pass = get(mPasses, u);
+        const auto &pass = get(mPasses, u);
         // output values has side effects
         for (const auto valueID : pass.outputs) {
             auto handleID = rdg.resourceHandles[valueID];
@@ -384,25 +384,25 @@ struct CullingVisitor : boost::dfs_visitor<> {
         }
     }
 
-    void tree_edge(Graph::edge_descriptor e, const Graph& g) { // NOLINT
+    void tree_edge(Graph::edge_descriptor e, const Graph &g) { // NOLINT
         markVertex(e, g);
     }
 
-    void back_edge(Graph::edge_descriptor e, const Graph& g) { // NOLINT
+    void back_edge(Graph::edge_descriptor e, const Graph &g) { // NOLINT
         throw std::invalid_argument("rdg is not DAG");
     }
 
-    void forward_or_cross_edge(Graph::edge_descriptor e, const Graph& g) { // NOLINT
+    void forward_or_cross_edge(Graph::edge_descriptor e, const Graph &g) { // NOLINT
         markVertex(e, g);
     }
 
-    void finish_vertex(Graph::vertex_descriptor v, const Graph& g) { // NOLINT
+    void finish_vertex(Graph::vertex_descriptor v, const Graph &g) { // NOLINT
         // currently, do nothing
     }
 
-    const ResourceGraph&         resg;
-    const RenderGraph&           rg;
-    const RenderDependencyGraph& rdg;
+    const ResourceGraph &        resg;
+    const RenderGraph &          rg;
+    const RenderDependencyGraph &rdg;
 
     boost::property_map<RenderDependencyGraph, RenderDependencyGraph::PassTag>::const_type    mPasses;
     boost::property_map<RenderDependencyGraph, RenderDependencyGraph::ValueIDTag>::const_type valueIDs;
@@ -415,8 +415,8 @@ struct CullingVisitor : boost::dfs_visitor<> {
 } // namespace
 
 int RenderCompiler::compile() {
-    auto&       rg      = graph;
-    const auto& resg    = resourceGraph;
+    auto &      rg   = graph;
+    const auto &resg = resourceGraph;
 
     try {
         // per-condition:
@@ -461,8 +461,8 @@ int RenderCompiler::compile() {
         //    d) found back-edge, rdg is not DAG, abort
         // 3. any pass is not marked as keep, is culled
         {
-            const auto& crdg  = rdg;
-            const auto& cresg = resg;
+            const auto &crdg  = rdg;
+            const auto &cresg = resg;
 
             CullingVisitor visitor(
                 resg, rg, rdg,
@@ -479,7 +479,7 @@ int RenderCompiler::compile() {
                 visitor,
                 get(colors, rdg));
         }
-    } catch (const std::invalid_argument& /*e*/) {
+    } catch (const std::invalid_argument & /*e*/) {
         return 1;
     }
 

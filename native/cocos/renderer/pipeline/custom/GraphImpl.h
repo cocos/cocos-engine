@@ -24,14 +24,14 @@
 ****************************************************************************/
 
 #pragma once
-#include <cocos/renderer/pipeline/custom/GraphTypes.h>
-#include <cocos/renderer/pipeline/custom/GslUtils.h>
-#include <boost/container/pmr/vector.hpp>
 #include <boost/graph/adjacency_iterator.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/iterator/iterator_adaptor.hpp>
 #include <boost/variant2/variant.hpp>
 #include <functional>
+#include "base/std/container/vector.h"
+#include "renderer/pipeline/custom/GraphTypes.h"
+#include "renderer/pipeline/custom/GslUtils.h"
 
 namespace cc {
 
@@ -106,7 +106,7 @@ struct VectorVertexBundleMemberPropertyMap
         return operator[](v);
     }
 
-    Graph        *graph{};
+    Graph *       graph{};
     MemberPointer memberPointer{};
 };
 
@@ -130,7 +130,7 @@ struct PointerVertexBundleMemberPropertyMap
         return operator[](v);
     }
 
-    Graph        *graph{};
+    Graph *       graph{};
     MemberPointer memberPointer{};
 };
 
@@ -175,7 +175,7 @@ struct VectorVertexComponentMemberPropertyMap
         return operator[](v);
     }
 
-    Container    *container{};
+    Container *   container{};
     MemberPointer memberPointer{};
 };
 
@@ -198,7 +198,7 @@ struct VectorVertexIteratorComponentPropertyMap
         return operator[](v);
     }
 
-    Graph           *graph{};
+    Graph *          graph{};
     ComponentPointer componentPointer{};
 };
 
@@ -221,7 +221,7 @@ struct VectorVertexIteratorComponentMemberPropertyMap
         return operator[](v);
     }
 
-    Graph           *graph{};
+    Graph *          graph{};
     ComponentPointer componentPointer{};
     MemberPointer    memberPointer{};
 };
@@ -290,7 +290,7 @@ struct EdgeBundleMemberPropertyMap
         return operator[](e);
     }
 
-    Graph        *graph{};
+    Graph *       graph{};
     MemberPointer memberPointer{};
 };
 
@@ -403,7 +403,7 @@ inline void associativeRemoveIncidenceEdgeIf(IncidenceIterator first, IncidenceI
 
 template <class Graph, class EdgeDescriptor, class EdgeProperty>
 inline void removeUndirectedEdge(Graph &g, EdgeDescriptor e, EdgeProperty &p) noexcept {
-    auto                               &outEdgeList = g.getOutEdgeList(source(e, g));
+    auto &                              outEdgeList = g.getOutEdgeList(source(e, g));
     auto                                outEdgeIter = outEdgeList.begin();
     decltype((*outEdgeIter).get_iter()) edgeIterToErase;
     for (; outEdgeIter != outEdgeList.end(); ++outEdgeIter) {
@@ -425,7 +425,7 @@ inline void removeUndirectedEdge(Graph &g, EdgeDescriptor e, EdgeProperty &p) no
 }
 
 template <class Graph, class IncidenceIterator, class IncidenceList, class Predicate>
-inline void sequenceRemoveUndirectedOutEdgeIf(Graph            &g,
+inline void sequenceRemoveUndirectedOutEdgeIf(Graph &           g,
                                               IncidenceIterator first, IncidenceIterator last, IncidenceList &el,
                                               Predicate &&pred) noexcept {
     // remove_if
@@ -462,7 +462,7 @@ inline void sequenceRemoveUndirectedOutEdgeIf(Graph            &g,
 }
 
 template <class Graph, class IncidenceIterator, class IncidenceList, class Predicate>
-inline void associativeRemoveUndirectedOutEdgeIf(Graph            &g,
+inline void associativeRemoveUndirectedOutEdgeIf(Graph &           g,
                                                  IncidenceIterator first, IncidenceIterator last, IncidenceList &el,
                                                  Predicate &&pred) noexcept {
     for (auto next = first; first != last; first = next) {
@@ -557,7 +557,7 @@ inline void removeVectorVertex(Graph &g, VertexDescriptor u, boost::bidirectiona
 }
 
 template <class Graph, class VertexDescriptor, class EdgeList>
-inline void removeVectorVertex(Graph           &g, EdgeList           &/*edges*/,
+inline void removeVectorVertex(Graph &          g, EdgeList & /*edges*/,
                                VertexDescriptor u, boost::bidirectional_tag /*tag*/) {
     g.vertices.erase(g.vertices.begin() + u);
     VertexDescriptor numV = num_vertices(g);
@@ -622,7 +622,7 @@ inline std::ptrdiff_t pathLength(typename AddressableGraph::vertex_descriptor u,
 template <class AddressableGraph, class CharT, class Allocator>
 inline void pathComposite(
     std::basic_string<CharT, std::char_traits<CharT>, Allocator> &str,
-    std::ptrdiff_t                                               &sz,
+    std::ptrdiff_t &                                              sz,
     typename AddressableGraph::vertex_descriptor u, const AddressableGraph &g,
     typename AddressableGraph::vertex_descriptor parentID = AddressableGraph::null_vertex()) noexcept {
     const auto &pmap = get(boost::vertex_name, g);
@@ -648,7 +648,7 @@ struct ColorMap : public boost::put_get_helper<boost::default_color_type &, Colo
     using key_type   = Key;
     using category   = boost::lvalue_property_map_tag;
 
-    ColorMap(boost::container::pmr::vector<boost::default_color_type> &vec) noexcept // NOLINT(google-explicit-constructor)
+    ColorMap(ccstd::pmr::vector<boost::default_color_type> &vec) noexcept // NOLINT(google-explicit-constructor)
     : container{&vec} {}
 
     inline reference operator[](const key_type &v) const noexcept {
@@ -658,7 +658,7 @@ struct ColorMap : public boost::put_get_helper<boost::default_color_type &, Colo
         return operator[](v);
     }
 
-    boost::container::pmr::vector<boost::default_color_type> *container{};
+    ccstd::pmr::vector<boost::default_color_type> *container{};
 };
 
 } // namespace impl

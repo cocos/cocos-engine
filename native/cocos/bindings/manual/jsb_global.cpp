@@ -795,13 +795,13 @@ static bool JSB_showInputBox(se::State &s) { //NOLINT
         if (obj->getProperty("fontSize", &tmp)) {
             SE_PRECONDITION2(tmp.isNumber(), false, "fontSize is invalid!");
             if (!tmp.isUndefined()) {
-                showInfo.fontSize = tmp.toNumber();
+                showInfo.fontSize = tmp.toDouble();
             }
         }
         if (obj->getProperty("fontColor", &tmp)) {
             SE_PRECONDITION2(tmp.isNumber(), false, "fontColor is invalid!");
             if (!tmp.isUndefined()) {
-                showInfo.fontColor = tmp.toNumber();
+                showInfo.fontColor = tmp.toDouble();
             }
         }
         if (obj->getProperty("isBold", &tmp)) {
@@ -825,25 +825,25 @@ static bool JSB_showInputBox(se::State &s) { //NOLINT
         if (obj->getProperty("underlineColor", &tmp)) {
             SE_PRECONDITION2(tmp.isNumber(), false, "underlinrColor is invalid!");
             if (!tmp.isUndefined()) {
-                showInfo.underlineColor = tmp.toNumber();
+                showInfo.underlineColor = tmp.toDouble();
             }
         }
         if (obj->getProperty("backColor", &tmp)) {
             SE_PRECONDITION2(tmp.isNumber(), false, "backColor is invalid!");
             if (!tmp.isUndefined()) {
-                showInfo.backColor = tmp.toNumber();
+                showInfo.backColor = tmp.toDouble();
             }
         }
         if (obj->getProperty("backgroundColor", &tmp)) {
             SE_PRECONDITION2(tmp.isNumber(), false, "backgroundColor is invalid!");
             if (!tmp.isUndefined()) {
-                showInfo.backgroundColor = tmp.toNumber();
+                showInfo.backgroundColor = tmp.toDouble();
             }
         }
         if (obj->getProperty("textAlignment", &tmp)) {
             SE_PRECONDITION2(tmp.isNumber(), false, "textAlignment is invalid!");
             if (!tmp.isUndefined()) {
-                showInfo.textAlignment = tmp.toNumber();
+                showInfo.textAlignment = tmp.toDouble();
             }
         }
         EditBox::show(showInfo);
@@ -924,13 +924,13 @@ static bool JSB_zipUtils_inflateMemory(se::State &s) { //NOLINT
         unsigned char *arg2 = nullptr;
         int32_t        len  = 0;
         if (argc == 1) {
-            len = ZipUtils::inflateMemory(arg0, static_cast<ssize_t>(arg1), &arg2);
+            len = ZipUtils::inflateMemory(arg0, static_cast<uint32_t>(arg1), &arg2);
         } else if (argc == 2) {
             SE_PRECONDITION2(args[1].isNumber(), false, "outLengthHint is invalid!");
-            int32_t outLengthHint = 0;
+            uint32_t outLengthHint = 0;
             if (!args[1].isUndefined()) {
-                outLengthHint = args[1].toInt32();
-                len           = ZipUtils::inflateMemoryWithHint(arg0, static_cast<ssize_t>(arg1), &arg2, outLengthHint);
+                outLengthHint = args[1].toUint32();
+                len           = ZipUtils::inflateMemoryWithHint(arg0, static_cast<uint32_t>(arg1), &arg2, outLengthHint);
             } else {
                 ok = false;
             }
@@ -1015,7 +1015,7 @@ static bool JSB_zipUtils_isGZipBuffer(se::State &s) { //NOLINT
             ok = false;
         }
         SE_PRECONDITION2(ok, false, "args[0] is not in type of string | ArrayBuffer | TypedArray");
-        bool flag = ZipUtils::isGZipBuffer(arg0, static_cast<ssize_t>(arg1));
+        bool flag = ZipUtils::isGZipBuffer(arg0, static_cast<uint32_t>(arg1));
         s.rval().setBoolean(flag);
         return true;
     }
@@ -1073,7 +1073,7 @@ static bool JSB_zipUtils_inflateCCZBuffer(se::State &s) { //NOLINT
         }
         SE_PRECONDITION2(ok, false, "args[0] is not in type of string | ArrayBuffer | TypedArray");
         unsigned char *  arg2 = nullptr;
-        int32_t          len  = ZipUtils::inflateCCZBuffer(arg0, static_cast<ssize_t>(arg1), &arg2);
+        int32_t          len  = ZipUtils::inflateCCZBuffer(arg0, static_cast<uint32_t>(arg1), &arg2);
         se::HandleObject seObj(se::Object::createArrayBufferObject(arg2, len));
         if (!seObj.isEmpty() && len > 0) {
             s.rval().setObject(seObj);
@@ -1130,7 +1130,7 @@ static bool JSB_zipUtils_isCCZBuffer(se::State &s) { //NOLINT
             ok = false;
         }
         SE_PRECONDITION2(ok, false, "args[0] is not in type of string | ArrayBuffer | TypedArray");
-        bool flag = ZipUtils::isCCZBuffer(arg0, static_cast<ssize_t>(arg1));
+        bool flag = ZipUtils::isCCZBuffer(arg0, static_cast<uint32_t>(arg1));
         s.rval().setBoolean(flag);
         return true;
     }
@@ -1170,6 +1170,125 @@ static bool JSB_zipUtils_setPvrEncryptionKey(se::State &s) { //NOLINT
     return false;
 }
 SE_BIND_FUNC(JSB_zipUtils_setPvrEncryptionKey)
+
+// TextEncoder
+static se::Class *__jsb_TextEncoder_class = nullptr;
+
+static bool js_TextEncoder_finalize(se::State &s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_TextEncoder_finalize)
+
+static bool js_TextEncoder_constructor(se::State &s) // NOLINT(readability-identifier-naming)
+{
+    const auto &args = s.args();
+    size_t      argc = args.size();
+    if (argc > 0) {
+        if (args[0].isString() && args[0].toString() != "utf-8") {
+            CC_LOG_WARNING("TextEncoder only supports utf-8");
+        }
+    }
+    s.thisObject()->setProperty("encoding", se::Value{"utf-8"});
+    s.thisObject()->setPrivateObject(nullptr);
+    return true;
+}
+SE_BIND_CTOR(js_TextEncoder_constructor, __jsb_TextEncoder_class, js_TextEncoder_finalize)
+
+static bool js_TextEncoder_encode(se::State &s) // NOLINT(readability-identifier-naming)
+{
+    const auto &args = s.args();
+    size_t      argc = args.size();
+
+    if (argc == 1) {
+        const auto &arg0 = args[0];
+        SE_PRECONDITION2(arg0.isString(), false, "js_TextEncoder_encode, arg0 is not a string");
+        const auto &     str = arg0.toString();
+        se::HandleObject encodedUint8Array{
+            se::Object::createTypedArray(se::Object::TypedArrayType::UINT8, str.data(), str.length())};
+
+        s.rval().setObject(encodedUint8Array);
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_TextEncoder_encode)
+
+// TextDecoder
+static se::Class *__jsb_TextDecoder_class = nullptr;
+
+static bool js_TextDecoder_finalize(se::State &s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_TextDecoder_finalize)
+
+static bool js_TextDecoder_constructor(se::State &s) // NOLINT(readability-identifier-naming)
+{
+    const auto &args = s.args();
+    size_t      argc = args.size();
+    if (argc > 0) {
+        if (args[0].isString() && args[0].toString() != "utf-8") {
+            CC_LOG_WARNING("TextDecoder only supports utf-8");
+        }
+    }
+    s.thisObject()->setProperty("encoding", se::Value{"utf-8"});
+    s.thisObject()->setProperty("fatal", se::Value{false});
+    s.thisObject()->setProperty("ignoreBOM", se::Value{false});
+    s.thisObject()->setPrivateObject(nullptr); //FIXME: Don't need this line if https://github.com/cocos/3d-tasks/issues/11365 is done.
+    return true;
+}
+SE_BIND_CTOR(js_TextDecoder_constructor, __jsb_TextDecoder_class, js_TextDecoder_finalize)
+
+static bool js_TextDecoder_decode(se::State &s) // NOLINT(readability-identifier-naming)
+{
+    const auto &args = s.args();
+    size_t      argc = args.size();
+
+    if (argc == 1) {
+        const auto &arg0 = args[0];
+        SE_PRECONDITION2(arg0.isObject() && arg0.toObject()->isTypedArray(), false, "js_TextDecoder_decode, arg0 is not a Uint8Array");
+        auto *   uint8ArrayObj  = arg0.toObject();
+        uint8_t *uint8ArrayData = nullptr;
+        size_t   length         = 0;
+        bool     ok             = uint8ArrayObj->getTypedArrayData(&uint8ArrayData, &length);
+        SE_PRECONDITION2(ok, false, "js_TextDecoder_decode, get typedarray data failed!");
+
+        ccstd::string str{reinterpret_cast<const char *>(uint8ArrayData), length};
+        s.rval().setString(str);
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_TextDecoder_decode)
+
+static bool jsb_register_TextEncoder(se::Object *globalObj) {
+    auto *cls = se::Class::create("TextEncoder", globalObj, nullptr, _SE(js_TextEncoder_constructor));
+    cls->defineFunction("encode", _SE(js_TextEncoder_encode));
+    cls->defineFinalizeFunction(_SE(js_TextEncoder_finalize));
+    cls->install();
+
+    __jsb_TextEncoder_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+static bool jsb_register_TextDecoder(se::Object *globalObj) {
+    auto *cls = se::Class::create("TextDecoder", globalObj, nullptr, _SE(js_TextDecoder_constructor));
+    cls->defineFunction("decode", _SE(js_TextDecoder_decode));
+    cls->defineFinalizeFunction(_SE(js_TextDecoder_finalize));
+    cls->install();
+
+    __jsb_TextDecoder_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
 
 bool jsb_register_global_variables(se::Object *global) { //NOLINT
     gThreadPool = LegacyThreadPool::newFixedThreadPool(3);
@@ -1221,6 +1340,9 @@ bool jsb_register_global_variables(se::Object *global) { //NOLINT
     se::HandleObject performanceObj(se::Object::createPlainObject());
     performanceObj->defineFunction("now", _SE(js_performance_now));
     global->setProperty("performance", se::Value(performanceObj));
+
+    jsb_register_TextEncoder(global);
+    jsb_register_TextDecoder(global);
 
     se::ScriptEngine::getInstance()->clearException();
 

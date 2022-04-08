@@ -31,20 +31,6 @@
 
 #include <cstdint>
 
-#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-    #include <BaseTsd.h>
-    #if !defined(__SSIZE_T) && !defined(_SSIZE_T_)
-        #define __SSIZE_T
-typedef SSIZE_T ssize_t;
-        #ifndef _SSIZE_T_
-            #define _SSIZE_T_
-        #endif
-        #ifndef _SSIZE_T_DEFINED
-            #define _SSIZE_T_DEFINED
-        #endif
-    #endif // __SSIZE_T
-#endif
-
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     #include <android/log.h>
     #define CC_ASSERT(cond)                                        \

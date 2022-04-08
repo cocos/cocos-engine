@@ -28,6 +28,7 @@
 #include <algorithm>
 #include <thread>
 #include "base/memory/Memory.h"
+#include "base/TypeDef.h"
 #include "tbb/global_control.h"
 
 namespace cc {

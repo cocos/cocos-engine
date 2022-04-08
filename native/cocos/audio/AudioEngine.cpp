@@ -59,7 +59,7 @@ const int   AudioEngine::INVALID_AUDIO_ID = -1;
 const float AudioEngine::TIME_UNKNOWN     = -1.0F;
 
 //audio file path,audio IDs
-ccstd::unordered_map<ccstd::string, std::list<int>> AudioEngine::sAudioPathIDMap;
+ccstd::unordered_map<ccstd::string, ccstd::list<int>> AudioEngine::sAudioPathIDMap;
 //profileName,ProfileHelper
 ccstd::unordered_map<ccstd::string, AudioEngine::ProfileHelper> AudioEngine::sAudioPathProfileHelperMap;
 unsigned int                                                    AudioEngine::sMaxInstances         = MAX_AUDIOINSTANCES;
@@ -406,7 +406,7 @@ void AudioEngine::uncache(const ccstd::string &filePath) {
         //@Note: For safely iterating elements from the audioID list, we need to copy the list
         // since 'AudioEngine::remove' may be invoked in 'sAudioEngineImpl->stop' synchronously.
         // If this happens, it will break the iteration, and crash will appear on some devices.
-        std::list<int> copiedIDs(audioIDsIter->second);
+        ccstd::list<int> copiedIDs(audioIDsIter->second);
 
         for (int audioID : copiedIDs) {
             sAudioEngineImpl->stop(audioID);

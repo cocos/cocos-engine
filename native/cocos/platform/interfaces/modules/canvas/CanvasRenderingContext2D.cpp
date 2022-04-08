@@ -25,7 +25,6 @@
 
 #include "platform/interfaces/modules/canvas/CanvasRenderingContext2D.h"
 
-#include <array>
 #include <cstdint>
 #include <regex>
 #include "base/csscolorparser.h"
@@ -46,8 +45,8 @@
     #include "platform/qnx/modules/CanvasRenderingContext2DDelegate.h"
 #endif
 
-using Vec2    = std::array<float, 2>;
-using Color4F = std::array<float, 4>;
+using Vec2    = ccstd::array<float, 2>;
+using Color4F = ccstd::array<float, 4>;
 
 namespace {
 void fillRectWithColor(uint8_t *buf, uint32_t totalWidth, uint32_t totalHeight, uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
@@ -70,7 +69,7 @@ void fillRectWithColor(uint8_t *buf, uint32_t totalWidth, uint32_t totalHeight, 
 } // namespace
 
 namespace cc {
-//using Size    = std::array<float, 2>;
+//using Size    = ccstd::array<float, 2>;
 CanvasGradient::CanvasGradient() = default;
 
 CanvasGradient::~CanvasGradient() = default;
@@ -94,10 +93,12 @@ CanvasRenderingContext2D::~CanvasRenderingContext2D() {
 
 void CanvasRenderingContext2D::clearRect(float x, float y, float width, float height) {
     //SE_LOGD("CanvasRenderingContext2D::clearRect: %p, %f, %f, %f, %f\n", this, x, y, width, height);
+    recreateBufferIfNeeded();
     _delegate->clearRect(x, y, width, height);
 }
 
 void CanvasRenderingContext2D::fillRect(float x, float y, float width, float height) {
+    recreateBufferIfNeeded();
     _delegate->fillRect(x, y, width, height);
 }
 
@@ -106,7 +107,7 @@ void CanvasRenderingContext2D::fillText(const ccstd::string &text, float x, floa
     if (text.empty()) {
         return;
     }
-
+    recreateBufferIfNeeded();
     _delegate->fillText(text, x, y, maxWidth);
 }
 
@@ -115,7 +116,7 @@ void CanvasRenderingContext2D::strokeText(const ccstd::string &text, float x, fl
     if (text.empty()) {
         return;
     }
-
+    recreateBufferIfNeeded();
     _delegate->strokeText(text, x, y, maxWidth);
 }
 
@@ -136,6 +137,7 @@ void CanvasRenderingContext2D::save() {
 
 void CanvasRenderingContext2D::beginPath() {
     //SE_LOGD("\n-----------begin------------------\nCanvasRenderingContext2D::beginPath\n");
+    recreateBufferIfNeeded();
     _delegate->beginPath();
 }
 
@@ -156,6 +158,7 @@ void CanvasRenderingContext2D::lineTo(float x, float y) {
 
 void CanvasRenderingContext2D::stroke() {
     //SE_LOGD("CanvasRenderingContext2D::stroke\n");
+    recreateBufferIfNeeded();
     _delegate->stroke();
 }
 
@@ -169,6 +172,7 @@ void CanvasRenderingContext2D::setCanvasBufferUpdatedCallback(const CanvasBuffer
 }
 
 void CanvasRenderingContext2D::fetchData() {
+    recreateBufferIfNeeded();
     _delegate->updateData();
     if (_canvasBufferUpdatedCB != nullptr) {
         _canvasBufferUpdatedCB(_delegate->getDataRef());
@@ -180,7 +184,6 @@ void CanvasRenderingContext2D::setWidth(float width) {
     if (math::IsEqualF(width, _width)) return;
     _width             = width;
     _isBufferSizeDirty = true;
-    recreateBufferIfNeeded();
 }
 
 void CanvasRenderingContext2D::setHeight(float height) {
@@ -188,7 +191,6 @@ void CanvasRenderingContext2D::setHeight(float height) {
     if (math::IsEqualF(height, _height)) return;
     _height            = height;
     _isBufferSizeDirty = true;
-    recreateBufferIfNeeded();
 }
 
 void CanvasRenderingContext2D::setLineWidth(float lineWidth) {
@@ -222,6 +224,7 @@ void CanvasRenderingContext2D::fill() {
 }
 
 void CanvasRenderingContext2D::rect(float x, float y, float w, float h) {
+    recreateBufferIfNeeded();
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
     // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 #elif CC_PLATFORM == CC_PLATFORM_ANDROID
@@ -404,6 +407,7 @@ void CanvasRenderingContext2D::setGlobalCompositeOperation(const ccstd::string &
 }
 
 void CanvasRenderingContext2D::fillImageData(const Data &imageData, float imageWidth, float imageHeight, float offsetX, float offsetY) {
+    recreateBufferIfNeeded();
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
 #elif CC_PLATFORM == CC_PLATFORM_ANDROID

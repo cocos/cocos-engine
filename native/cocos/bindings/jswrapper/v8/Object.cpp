@@ -34,9 +34,9 @@
     #include "Utils.h"
     #include "base/std/container/unordered_map.h"
 
-    #include <array>
     #include <memory>
     #include <sstream>
+    #include "base/std/container/array.h"
 
     #define JSB_FUNC_DEFAULT_MAX_ARG_COUNT (10)
 
@@ -564,20 +564,25 @@ void Object::setPrivateObject(PrivateObjectBase *data) {
     assert(_privateObject == nullptr);
     #if CC_DEBUG
     //assert(NativePtrToObjectMap::find(data->getRaw()) == NativePtrToObjectMap::end());
-    auto it = NativePtrToObjectMap::find(data->getRaw());
-    if (it != NativePtrToObjectMap::end()) {
-        auto *pri = it->second->getPrivateObject();
-        SE_LOGE("Already exists object %s/[%s], trying to add %s/[%s]\n", pri->getName(), typeid(*pri).name(), data->getName(), typeid(*data).name());
+    if (data != nullptr) {
+        auto it = NativePtrToObjectMap::find(data->getRaw());
+        if (it != NativePtrToObjectMap::end()) {
+            auto *pri = it->second->getPrivateObject();
+            SE_LOGE("Already exists object %s/[%s], trying to add %s/[%s]\n", pri->getName(), typeid(*pri).name(), data->getName(), typeid(*data).name());
         #if JSB_TRACK_OBJECT_CREATION
-        SE_LOGE(" previous object created at %s\n", it->second->_objectCreationStackFrame.c_str());
+            SE_LOGE(" previous object created at %s\n", it->second->_objectCreationStackFrame.c_str());
         #endif
-        assert(false);
+            assert(false);
+        }
     }
     #endif
     internal::setPrivate(__isolate, _obj, data, this, &_internalData);
-    NativePtrToObjectMap::emplace(data->getRaw(), this);
     _privateObject = data;
-    defineOwnProperty("__native_ptr__", se::Value(static_cast<uint64_t>(reinterpret_cast<uintptr_t>(data->getRaw()))), false, false, false);
+
+    if (data != nullptr) {
+        NativePtrToObjectMap::emplace(data->getRaw(), this);
+        defineOwnProperty("__native_ptr__", se::Value(static_cast<uint64_t>(reinterpret_cast<uintptr_t>(data->getRaw()))), false, false, false);
+    }
 }
 
 PrivateObjectBase *Object::getPrivateObject() const {
@@ -614,9 +619,9 @@ bool Object::call(const ValueArray &args, Object *thisObject, Value *rval /* = n
     }
     size_t argc = args.size();
 
-    std::array<v8::Local<v8::Value>, JSB_FUNC_DEFAULT_MAX_ARG_COUNT> argv;
-    std::unique_ptr<ccstd::vector<v8::Local<v8::Value>>>             vecArgs;
-    v8::Local<v8::Value> *                                           pArgv = argv.data();
+    ccstd::array<v8::Local<v8::Value>, JSB_FUNC_DEFAULT_MAX_ARG_COUNT> argv;
+    std::unique_ptr<ccstd::vector<v8::Local<v8::Value>>>               vecArgs;
+    v8::Local<v8::Value> *                                             pArgv = argv.data();
 
     if (argc > JSB_FUNC_DEFAULT_MAX_ARG_COUNT) {
         vecArgs = std::make_unique<ccstd::vector<v8::Local<v8::Value>>>();

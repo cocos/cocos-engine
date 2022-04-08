@@ -346,13 +346,13 @@ struct property_map<cc::render::ResourceAccessGraph, cc::render::ResourceAccessG
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::ResourceAccessGraph,
-        const container::pmr::vector<cc::render::RenderGraph::vertex_descriptor>,
+        const ccstd::pmr::vector<cc::render::RenderGraph::vertex_descriptor>,
         cc::render::RenderGraph::vertex_descriptor,
         const cc::render::RenderGraph::vertex_descriptor&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         cc::render::ResourceAccessGraph,
-        container::pmr::vector<cc::render::RenderGraph::vertex_descriptor>,
+        ccstd::pmr::vector<cc::render::RenderGraph::vertex_descriptor>,
         cc::render::RenderGraph::vertex_descriptor,
         cc::render::RenderGraph::vertex_descriptor&>;
 };
@@ -363,13 +363,13 @@ struct property_map<cc::render::ResourceAccessGraph, cc::render::ResourceAccessG
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::ResourceAccessGraph,
-        const container::pmr::vector<cc::render::ResourceAccessNode>,
+        const ccstd::pmr::vector<cc::render::ResourceAccessNode>,
         cc::render::ResourceAccessNode,
         const cc::render::ResourceAccessNode&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         cc::render::ResourceAccessGraph,
-        container::pmr::vector<cc::render::ResourceAccessNode>,
+        ccstd::pmr::vector<cc::render::ResourceAccessNode>,
         cc::render::ResourceAccessNode,
         cc::render::ResourceAccessNode&>;
 };
@@ -380,14 +380,14 @@ struct property_map<cc::render::ResourceAccessGraph, T cc::render::ResourceAcces
     using const_type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         const cc::render::ResourceAccessGraph,
-        const container::pmr::vector<cc::render::ResourceAccessNode>,
+        const ccstd::pmr::vector<cc::render::ResourceAccessNode>,
         T,
         const T&,
         T cc::render::ResourceAccessNode::*>;
     using type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         cc::render::ResourceAccessGraph,
-        container::pmr::vector<cc::render::ResourceAccessNode>,
+        ccstd::pmr::vector<cc::render::ResourceAccessNode>,
         T,
         T&,
         T cc::render::ResourceAccessNode::*>;
@@ -411,7 +411,7 @@ get(boost::vertex_index_t /*tag*/, ResourceAccessGraph& /*g*/) noexcept {
 }
 
 inline impl::ColorMap<ResourceAccessGraph::vertex_descriptor>
-get(boost::container::pmr::vector<boost::default_color_type>& colors, const ResourceAccessGraph& /*g*/) noexcept {
+get(ccstd::pmr::vector<boost::default_color_type>& colors, const ResourceAccessGraph& /*g*/) noexcept {
     return {colors};
 }
 

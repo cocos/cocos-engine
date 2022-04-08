@@ -1201,6 +1201,10 @@ Error Texture in %s.
 
 Set same texture %s.
 
+### 3124
+
+Texture: setMipRange failed because base level is larger than max level
+
 ### 3200
 
 <!-- DEPRECATED -->
@@ -1743,7 +1747,7 @@ Can't find easing type [%s]
 
 ### 3907
 
-animator not added or already removed
+Animation state is not playing or already removed
 
 ### 3908
 
@@ -3226,3 +3230,7 @@ Can not update a static mesh.
 ### 14201
 
 The primitiveIndex is out of range.
+
+### 14300
+
+Can not keep world transform due to the zero scaling of parent node

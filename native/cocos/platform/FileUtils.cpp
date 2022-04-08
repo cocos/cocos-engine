@@ -492,8 +492,8 @@ FileUtils::~FileUtils() = default;
 
 bool FileUtils::writeStringToFile(const ccstd::string &dataStr, const ccstd::string &fullPath) {
     Data  data;
-    char *dataP = const_cast<char *>(dataStr.data());
-    data.fastSet(reinterpret_cast<unsigned char *>(dataP), dataStr.size());
+    auto *dataP = const_cast<char *>(dataStr.data());
+    data.fastSet(reinterpret_cast<unsigned char *>(dataP), static_cast<uint32_t>(dataStr.size()));
 
     bool rv = writeDataToFile(data, fullPath);
 
@@ -587,7 +587,7 @@ FileUtils::Status FileUtils::getContents(const ccstd::string &filename, Resizabl
     return Status::OK;
 }
 
-unsigned char *FileUtils::getFileDataFromZip(const ccstd::string &zipFilePath, const ccstd::string &filename, ssize_t *size) {
+unsigned char *FileUtils::getFileDataFromZip(const ccstd::string &zipFilePath, const ccstd::string &filename, uint32_t *size) {
     unsigned char *buffer = nullptr;
     unzFile        file   = nullptr;
     *size                 = 0;

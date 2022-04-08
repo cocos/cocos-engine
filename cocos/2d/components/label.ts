@@ -30,7 +30,8 @@
  */
 
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, visible, multiline, type, serializable, editable } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
+import { BYTEDANCE, EDITOR } from 'internal:constants';
+import { minigame } from 'pal/minigame';
 import { BitmapFont, Font, SpriteFrame } from '../assets';
 import { ImageAsset, Texture2D } from '../../core/assets';
 import { ccenum } from '../../core/value-types/enum';
@@ -40,8 +41,8 @@ import { CanvasPool, ISharedLabelData, LetterRenderTexture } from '../assembler/
 import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';
 import { TextureBase } from '../../core/assets/texture-base';
 import { PixelFormat } from '../../core/assets/asset-enum';
-import { director } from '../../core/director';
 import { legacyCC } from '../../core/global-exports';
+import { BlendFactor } from '../../core/gfx';
 
 /**
  * @en Enum for horizontal text alignment.
@@ -845,6 +846,25 @@ export class Label extends Renderable2D {
             this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
         }
         this.updateMaterial();
+    }
+
+    /**
+     * @engineInternal
+     */
+    public _updateBlendFunc () {
+        // override for BYTEDANCE
+        if (BYTEDANCE) {
+            // need to fix ttf font black border at the sdk verion lower than 2.0.0
+            const sysInfo = minigame.getSystemInfoSync();
+            if (Number.parseInt(sysInfo.SDKVersion[0]) < 2) {
+                if (this._srcBlendFactor === BlendFactor.SRC_ALPHA && !minigame.isDevTool
+                    && !(this._font instanceof BitmapFont) && !this._customMaterial) {
+                    // Premultiplied alpha on runtime when sdk verion is lower than 2.0.0
+                    this._srcBlendFactor = BlendFactor.ONE;
+                }
+            }
+        }
+        super._updateBlendFunc();
     }
 }
 

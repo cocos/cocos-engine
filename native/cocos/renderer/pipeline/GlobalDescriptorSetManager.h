@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <cstdint>
 #include "base/Ptr.h"
 #include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"

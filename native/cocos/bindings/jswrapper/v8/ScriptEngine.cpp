@@ -45,7 +45,7 @@
 
     #endif
 
-    #include <array>
+    #include "base/std/container/array.h"
 
     #define EXPOSE_GC "__jsb_gc__"
 
@@ -786,7 +786,7 @@ bool ScriptEngine::isValid() const {
     return _isValid;
 }
 
-bool ScriptEngine::evalString(const char *script, ssize_t length /* = -1 */, Value *ret /* = nullptr */, const char *fileName /* = nullptr */) {
+bool ScriptEngine::evalString(const char *script, uint32_t length /* = 0 */, Value *ret /* = nullptr */, const char *fileName /* = nullptr */) {
     if (_engineThreadId != std::this_thread::get_id()) {
         // `evalString` should run in main thread
         assert(false);
@@ -794,8 +794,8 @@ bool ScriptEngine::evalString(const char *script, ssize_t length /* = -1 */, Val
     }
 
     assert(script != nullptr);
-    if (length < 0) {
-        length = static_cast<ssize_t>(strlen(script));
+    if (length == 0) {
+        length = static_cast<uint32_t>(strlen(script));
     }
 
     if (fileName == nullptr) {
@@ -1032,7 +1032,7 @@ bool ScriptEngine::runScript(const ccstd::string &path, Value *ret /* = nullptr 
     ccstd::string scriptBuffer = _fileOperationDelegate.onGetStringFromFile(path);
 
     if (!scriptBuffer.empty()) {
-        return evalString(scriptBuffer.c_str(), static_cast<ssize_t>(scriptBuffer.length()), ret, path.c_str());
+        return evalString(scriptBuffer.c_str(), static_cast<uint32_t>(scriptBuffer.length()), ret, path.c_str());
     }
 
     SE_LOGE("ScriptEngine::runScript script %s, buffer is empty!\n", path.c_str());
@@ -1101,7 +1101,7 @@ bool ScriptEngine::callFunction(Object *targetObj, const char *funcName, uint32_
     }
 
     SE_ASSERT(argc < 11, "Only support argument count that less than 11"); //NOLINT
-    std::array<v8::Local<v8::Value>, 10> argv;
+    ccstd::array<v8::Local<v8::Value>, 10> argv;
 
     for (size_t i = 0; i < argc; ++i) {
         internal::seToJsValue(_isolate, args[i], &argv[i]);

@@ -23,10 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
 import { mixin } from '../../../core/utils/js';
 import { Label, LabelOutline } from '../../components';
 import { bmfontUtils } from './bmfontUtils';

@@ -30,18 +30,18 @@
  */
 // clang-format off
 #pragma once
-#include <boost/container/pmr/vector.hpp>
 #include <boost/graph/adjacency_iterator.hpp>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/range/irange.hpp>
+#include "cocos/base/std/container/string.h"
+#include "cocos/base/std/container/vector.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/pipeline/custom/GraphTypes.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphFwd.h"
 #include "cocos/renderer/pipeline/custom/Map.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
 #include "cocos/renderer/pipeline/custom/Set.h"
-#include "cocos/renderer/pipeline/custom/String.h"
 
 namespace cc {
 
@@ -72,7 +72,7 @@ struct UniformBlockDB {
     UniformBlockDB& operator=(UniformBlockDB&& rhs) = default;
     UniformBlockDB& operator=(UniformBlockDB const& rhs) = default;
 
-    PmrTransparentMap<PmrString, gfx::Uniform> values;
+    PmrTransparentMap<ccstd::pmr::string, gfx::Uniform> values;
 };
 
 struct Descriptor {
@@ -99,12 +99,12 @@ struct DescriptorBlock {
     DescriptorBlock& operator=(DescriptorBlock&& rhs) = default;
     DescriptorBlock& operator=(DescriptorBlock const& rhs) = default;
 
-    PmrTransparentMap<PmrString, Descriptor>     descriptors;
-    PmrTransparentMap<PmrString, UniformBlockDB> uniformBlocks;
-    PmrTransparentMap<gfx::Type, Descriptor>     merged;
-    uint32_t                                     capacity{0};
-    uint32_t                                     start{0};
-    uint32_t                                     count{0};
+    PmrTransparentMap<ccstd::pmr::string, Descriptor>     descriptors;
+    PmrTransparentMap<ccstd::pmr::string, UniformBlockDB> uniformBlocks;
+    PmrTransparentMap<gfx::Type, Descriptor>              merged;
+    uint32_t                                              capacity{0};
+    uint32_t                                              start{0};
+    uint32_t                                              count{0};
 };
 
 struct DescriptorBlockIndex {
@@ -181,7 +181,7 @@ struct RenderPhase {
     RenderPhase& operator=(RenderPhase&& rhs) = default;
     RenderPhase& operator=(RenderPhase const& rhs) = default;
 
-    PmrTransparentSet<PmrString> shaders;
+    PmrTransparentSet<ccstd::pmr::string> shaders;
 };
 
 struct LayoutGraph {
@@ -222,14 +222,14 @@ struct LayoutGraph {
     // IncidenceGraph
     using OutEdge     = impl::StoredEdge<vertex_descriptor>;
     using out_edge_iterator = impl::OutEdgeIter<
-        boost::container::pmr::vector<OutEdge>::iterator,
+        ccstd::pmr::vector<OutEdge>::iterator,
         vertex_descriptor, edge_descriptor, int32_t>;
     using degree_size_type = uint32_t;
 
     // BidirectionalGraph
     using InEdge     = impl::StoredEdge<vertex_descriptor>;
     using in_edge_iterator = impl::InEdgeIter<
-        boost::container::pmr::vector<InEdge>::iterator,
+        ccstd::pmr::vector<InEdge>::iterator,
         vertex_descriptor, edge_descriptor, int32_t>;
 
     // AdjacencyGraph
@@ -241,17 +241,17 @@ struct LayoutGraph {
     using vertices_size_type = uint32_t;
 
     // VertexList help functions
-    inline boost::container::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
+    inline ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
         return vertices[v].outEdges;
     }
-    inline const boost::container::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
+    inline const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
         return vertices[v].outEdges;
     }
 
-    inline boost::container::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
+    inline ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
         return vertices[v].inEdges;
     }
-    inline const boost::container::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
+    inline const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
         return vertices[v].inEdges;
     }
 
@@ -263,8 +263,8 @@ struct LayoutGraph {
         return static_cast<vertex_descriptor>(vertices.size());
     }
 
-    inline boost::container::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
-        return boost::container::pmr::vector<boost::default_color_type>(vertices.size(), mr);
+    inline ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
+        return ccstd::pmr::vector<boost::default_color_type>(vertices.size(), mr);
     }
 
     // EdgeListGraph
@@ -276,30 +276,30 @@ struct LayoutGraph {
 
     using ChildEdge = OutEdge;
     using children_iterator  = impl::OutEdgeIter<
-        boost::container::pmr::vector<OutEdge>::iterator,
+        ccstd::pmr::vector<OutEdge>::iterator,
         vertex_descriptor, ownership_descriptor, int32_t>;
     using children_size_type = uint32_t;
 
     using ParentEdge = InEdge;
     using parent_iterator  = impl::InEdgeIter<
-        boost::container::pmr::vector<InEdge>::iterator,
+        ccstd::pmr::vector<InEdge>::iterator,
         vertex_descriptor, ownership_descriptor, int32_t>;
 
     using ownership_iterator   = impl::DirectedEdgeIterator<vertex_iterator, children_iterator, LayoutGraph>;
     using ownerships_size_type = edges_size_type;
 
     // AddressableGraph help functions
-    inline boost::container::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) noexcept {
+    inline ccstd::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) noexcept {
         return vertices[v].outEdges;
     }
-    inline const boost::container::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) const noexcept {
+    inline const ccstd::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) const noexcept {
         return vertices[v].outEdges;
     }
 
-    inline boost::container::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) noexcept {
+    inline ccstd::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) noexcept {
         return vertices[v].inEdges;
     }
-    inline const boost::container::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) const noexcept {
+    inline const ccstd::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) const noexcept {
         return vertices[v].inEdges;
     }
 
@@ -330,9 +330,9 @@ struct LayoutGraph {
         Vertex& operator=(Vertex&& rhs) = default;
         Vertex& operator=(Vertex const& rhs) = default;
 
-        boost::container::pmr::vector<OutEdge> outEdges;
-        boost::container::pmr::vector<InEdge>  inEdges;
-        VertexHandle                           handle;
+        ccstd::pmr::vector<OutEdge> outEdges;
+        ccstd::pmr::vector<InEdge>  inEdges;
+        VertexHandle                handle;
     };
 
     struct NameTag {
@@ -341,15 +341,15 @@ struct LayoutGraph {
     } static constexpr Descriptors{}; // NOLINT
 
     // Vertices
-    boost::container::pmr::vector<Vertex> vertices;
+    ccstd::pmr::vector<Vertex> vertices;
     // Components
-    boost::container::pmr::vector<PmrString>    names;
-    boost::container::pmr::vector<DescriptorDB> descriptors;
+    ccstd::pmr::vector<ccstd::pmr::string> names;
+    ccstd::pmr::vector<DescriptorDB>       descriptors;
     // PolymorphicGraph
-    boost::container::pmr::vector<uint32_t>    stages;
-    boost::container::pmr::vector<RenderPhase> phases;
+    ccstd::pmr::vector<uint32_t>    stages;
+    ccstd::pmr::vector<RenderPhase> phases;
     // Path
-    PmrTransparentMap<PmrString, vertex_descriptor> pathIndex;
+    PmrTransparentMap<ccstd::pmr::string, vertex_descriptor> pathIndex;
 };
 
 struct UniformData {
@@ -380,8 +380,8 @@ struct UniformBlockData {
     UniformBlockData& operator=(UniformBlockData&& rhs) = default;
     UniformBlockData& operator=(UniformBlockData const& rhs) = default;
 
-    uint32_t                                   bufferSize{0};
-    boost::container::pmr::vector<UniformData> uniforms;
+    uint32_t                        bufferSize{0};
+    ccstd::pmr::vector<UniformData> uniforms;
 };
 
 struct DescriptorData {
@@ -411,10 +411,10 @@ struct DescriptorBlockData {
     DescriptorBlockData& operator=(DescriptorBlockData&& rhs) = default;
     DescriptorBlockData& operator=(DescriptorBlockData const& rhs) = default;
 
-    DescriptorIndex                               type{DescriptorIndex::UNIFORM_BLOCK};
-    uint32_t                                      capacity{0};
-    boost::container::pmr::vector<DescriptorData> descriptors;
-    PmrFlatMap<uint32_t, UniformBlockData>        uniformBlocks;
+    DescriptorIndex                        type{DescriptorIndex::UNIFORM_BLOCK};
+    uint32_t                               capacity{0};
+    ccstd::pmr::vector<DescriptorData>     descriptors;
+    PmrFlatMap<uint32_t, UniformBlockData> uniformBlocks;
 };
 
 struct DescriptorTableData {
@@ -433,9 +433,9 @@ struct DescriptorTableData {
     DescriptorTableData& operator=(DescriptorTableData&& rhs) = default;
     DescriptorTableData& operator=(DescriptorTableData const& rhs) = default;
 
-    uint32_t                                           tableID{0xFFFFFFFF};
-    uint32_t                                           capacity{0};
-    boost::container::pmr::vector<DescriptorBlockData> descriptorBlocks;
+    uint32_t                                tableID{0xFFFFFFFF};
+    uint32_t                                capacity{0};
+    ccstd::pmr::vector<DescriptorBlockData> descriptorBlocks;
 };
 
 struct DescriptorSetData {
@@ -507,9 +507,9 @@ struct RenderPhaseData {
     RenderPhaseData& operator=(RenderPhaseData&& rhs) = default;
     RenderPhaseData& operator=(RenderPhaseData const& rhs) = default;
 
-    PmrString                                        rootSignature;
-    boost::container::pmr::vector<ShaderProgramData> shaderPrograms;
-    PmrTransparentMap<PmrString, uint32_t>           shaderIndex;
+    ccstd::pmr::string                              rootSignature;
+    ccstd::pmr::vector<ShaderProgramData>           shaderPrograms;
+    PmrTransparentMap<ccstd::pmr::string, uint32_t> shaderIndex;
 };
 
 struct LayoutGraphData {
@@ -550,14 +550,14 @@ struct LayoutGraphData {
     // IncidenceGraph
     using OutEdge     = impl::StoredEdge<vertex_descriptor>;
     using out_edge_iterator = impl::OutEdgeIter<
-        boost::container::pmr::vector<OutEdge>::iterator,
+        ccstd::pmr::vector<OutEdge>::iterator,
         vertex_descriptor, edge_descriptor, int32_t>;
     using degree_size_type = uint32_t;
 
     // BidirectionalGraph
     using InEdge     = impl::StoredEdge<vertex_descriptor>;
     using in_edge_iterator = impl::InEdgeIter<
-        boost::container::pmr::vector<InEdge>::iterator,
+        ccstd::pmr::vector<InEdge>::iterator,
         vertex_descriptor, edge_descriptor, int32_t>;
 
     // AdjacencyGraph
@@ -569,17 +569,17 @@ struct LayoutGraphData {
     using vertices_size_type = uint32_t;
 
     // VertexList help functions
-    inline boost::container::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
+    inline ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
         return vertices[v].outEdges;
     }
-    inline const boost::container::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
+    inline const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
         return vertices[v].outEdges;
     }
 
-    inline boost::container::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
+    inline ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
         return vertices[v].inEdges;
     }
-    inline const boost::container::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
+    inline const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
         return vertices[v].inEdges;
     }
 
@@ -591,8 +591,8 @@ struct LayoutGraphData {
         return static_cast<vertex_descriptor>(vertices.size());
     }
 
-    inline boost::container::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
-        return boost::container::pmr::vector<boost::default_color_type>(vertices.size(), mr);
+    inline ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
+        return ccstd::pmr::vector<boost::default_color_type>(vertices.size(), mr);
     }
 
     // EdgeListGraph
@@ -604,30 +604,30 @@ struct LayoutGraphData {
 
     using ChildEdge = OutEdge;
     using children_iterator  = impl::OutEdgeIter<
-        boost::container::pmr::vector<OutEdge>::iterator,
+        ccstd::pmr::vector<OutEdge>::iterator,
         vertex_descriptor, ownership_descriptor, int32_t>;
     using children_size_type = uint32_t;
 
     using ParentEdge = InEdge;
     using parent_iterator  = impl::InEdgeIter<
-        boost::container::pmr::vector<InEdge>::iterator,
+        ccstd::pmr::vector<InEdge>::iterator,
         vertex_descriptor, ownership_descriptor, int32_t>;
 
     using ownership_iterator   = impl::DirectedEdgeIterator<vertex_iterator, children_iterator, LayoutGraphData>;
     using ownerships_size_type = edges_size_type;
 
     // AddressableGraph help functions
-    inline boost::container::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) noexcept {
+    inline ccstd::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) noexcept {
         return vertices[v].outEdges;
     }
-    inline const boost::container::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) const noexcept {
+    inline const ccstd::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) const noexcept {
         return vertices[v].outEdges;
     }
 
-    inline boost::container::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) noexcept {
+    inline ccstd::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) noexcept {
         return vertices[v].inEdges;
     }
-    inline const boost::container::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) const noexcept {
+    inline const ccstd::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) const noexcept {
         return vertices[v].inEdges;
     }
 
@@ -658,9 +658,9 @@ struct LayoutGraphData {
         Vertex& operator=(Vertex&& rhs) = default;
         Vertex& operator=(Vertex const& rhs) = default;
 
-        boost::container::pmr::vector<OutEdge> outEdges;
-        boost::container::pmr::vector<InEdge>  inEdges;
-        VertexHandle                           handle;
+        ccstd::pmr::vector<OutEdge> outEdges;
+        ccstd::pmr::vector<InEdge>  inEdges;
+        VertexHandle                handle;
     };
 
     struct NameTag {
@@ -671,16 +671,16 @@ struct LayoutGraphData {
     } static constexpr Layout{}; // NOLINT
 
     // Vertices
-    boost::container::pmr::vector<Vertex> vertices;
+    ccstd::pmr::vector<Vertex> vertices;
     // Components
-    boost::container::pmr::vector<PmrString>          names;
-    boost::container::pmr::vector<UpdateFrequency>    updateFrequencies;
-    boost::container::pmr::vector<PipelineLayoutData> layouts;
+    ccstd::pmr::vector<ccstd::pmr::string> names;
+    ccstd::pmr::vector<UpdateFrequency>    updateFrequencies;
+    ccstd::pmr::vector<PipelineLayoutData> layouts;
     // PolymorphicGraph
-    boost::container::pmr::vector<uint32_t>        stages;
-    boost::container::pmr::vector<RenderPhaseData> phases;
+    ccstd::pmr::vector<uint32_t>        stages;
+    ccstd::pmr::vector<RenderPhaseData> phases;
     // Path
-    PmrTransparentMap<PmrString, vertex_descriptor> pathIndex;
+    PmrTransparentMap<ccstd::pmr::string, vertex_descriptor> pathIndex;
 };
 
 } // namespace render

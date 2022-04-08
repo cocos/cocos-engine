@@ -105,7 +105,7 @@ elseif(MACOSX)
         proj.ios_mac/mac/zh-Hans.lproj/MainMenu.xib
     )
     list(APPEND PROJ_SOURCES
-       # proj.ios_mac/mac/main.mm
+        proj.ios_mac/mac/main.mm
         proj.ios_mac/mac/SimulatorApp.h
         proj.ios_mac/mac/SimulatorApp.mm
        # proj.ios_mac/mac/AppDelegate.h
@@ -152,6 +152,9 @@ endif()
 target_link_libraries(${LIB_NAME} ${ENGINE_NAME} simulator)
 target_include_directories(${LIB_NAME} PRIVATE
     Classes
+)
+target_compile_definitions(${LIB_NAME} PRIVATE
+    GAME_NAME="${APP_NAME}"
 )
 
 source_group(TREE ${CMAKE_CURRENT_LIST_DIR} PREFIX "Source Files" FILES ${PROJ_SOURCES})

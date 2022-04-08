@@ -27,10 +27,10 @@
 
 #include "platform/interfaces/modules/canvas/ICanvasRenderingContext2D.h"
 
-#include <array>
 #include <cstdint>
 #include <regex>
 #include "base/csscolorparser.h"
+#include "base/std/container/array.h"
 #include "cocos/bindings/manual/jsb_platform.h"
 #include "math/Math.h"
 #include "platform/FileUtils.h"
@@ -39,12 +39,12 @@
 
 namespace cc {
 
-class CanvasRenderingContext2DDelegate : public ICanvasRenderingContext2D::Delegate {
+class CC_DLL CanvasRenderingContext2DDelegate : public ICanvasRenderingContext2D::Delegate {
 public:
-    using Point   = std::array<float, 2>;
-    using Vec2    = std::array<float, 2>;
-    using Size    = std::array<float, 2>;
-    using Color4F = std::array<float, 4>;
+    using Point   = ccstd::array<float, 2>;
+    using Vec2    = ccstd::array<float, 2>;
+    using Size    = ccstd::array<float, 2>;
+    using Color4F = ccstd::array<float, 4>;
 
     CanvasRenderingContext2DDelegate();
     ~CanvasRenderingContext2DDelegate() override;
@@ -78,14 +78,14 @@ public:
     void            updateData() override {}
 
 private:
-    static wchar_t *     utf8ToUtf16(const ccstd::string &str, int *pRetLen = nullptr);
-    void                 removeCustomFont();
-    int                  drawText(const ccstd::string &text, int x, int y);
-    Size                 sizeWithText(const wchar_t *pszText, int nLen);
-    void                 prepareBitmap(int nWidth, int nHeight);
-    void                 deleteBitmap();
-    void                 fillTextureData();
-    std::array<float, 2> convertDrawPoint(Point point, const ccstd::string &text);
+    static wchar_t *       utf8ToUtf16(const ccstd::string &str, int *pRetLen = nullptr);
+    void                   removeCustomFont();
+    int                    drawText(const ccstd::string &text, int x, int y);
+    Size                   sizeWithText(const wchar_t *pszText, int nLen);
+    void                   prepareBitmap(int nWidth, int nHeight);
+    void                   deleteBitmap();
+    void                   fillTextureData();
+    ccstd::array<float, 2> convertDrawPoint(Point point, const ccstd::string &text);
 
 public:
     cairo_surface_t *_surface{nullptr};

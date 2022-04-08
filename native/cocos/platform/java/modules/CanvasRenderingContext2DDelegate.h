@@ -44,13 +44,13 @@
 #ifndef JCLS_CANVASIMPL
     #define JCLS_CANVASIMPL "com/cocos/lib/CanvasRenderingContext2DImpl"
 #endif
-#include <array>
+#include "base/std/container/array.h"
 
 namespace cc {
 
 class CanvasRenderingContext2DDelegate : public ICanvasRenderingContext2D::Delegate {
 public:
-    using Size = std::array<float, 2>;
+    using Size = ccstd::array<float, 2>;
     CanvasRenderingContext2DDelegate();
     ~CanvasRenderingContext2DDelegate() override;
 
@@ -82,7 +82,7 @@ public:
     void            updateData() override;
 
 private:
-    void unMultiplyAlpha(unsigned char *ptr, ssize_t size);
+    void unMultiplyAlpha(unsigned char *ptr, uint32_t size);
 
 public:
 private:

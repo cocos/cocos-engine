@@ -173,7 +173,7 @@ void CanvasRenderingContext2DDelegate::strokeText(const ccstd::string &text, flo
 
 CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measureText(const ccstd::string &text) {
     if (text.empty())
-        return std::array<float, 2>{0.0f, 0.0f};
+        return ccstd::array<float, 2>{0.0f, 0.0f};
 
     int      bufferLen  = 0;
     wchar_t *pwszBuffer = CanvasRenderingContext2DDelegate::utf8ToUtf16(text, &bufferLen);
@@ -450,7 +450,7 @@ void CanvasRenderingContext2DDelegate::fillTextureData() {
     } while (false);
 }
 
-std::array<float, 2> CanvasRenderingContext2DDelegate::convertDrawPoint(Point point, const ccstd::string &text) {
+ccstd::array<float, 2> CanvasRenderingContext2DDelegate::convertDrawPoint(Point point, const ccstd::string &text) {
     Size textSize = measureText(text);
     if (_textAlign == CanvasTextAlign::CENTER) {
         point[0] -= textSize[0] / 2.0f;

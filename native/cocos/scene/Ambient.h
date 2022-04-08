@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include <array>
 #include "base/Macros.h"
 #include "base/RefCounted.h"
+#include "base/std/container/array.h"
 #include "math/Color.h"
 
 namespace cc {
@@ -84,9 +84,9 @@ protected:
     Vec4  _skyColorHDR{0.2F, 0.5F, 0.8F, 1.F};
     float _skyIllumHDR{0.F};
 
-    Vec4  _groundAlbedoLDR{0.2F, 0.2F, 0.2F, 1.F};
-    Vec4  _skyColorLDR{0.2F, 0.5F, 0.8F, 1.F};
-    float _skyIllumLDR{0.F};
+    Vec4    _groundAlbedoLDR{0.2F, 0.2F, 0.2F, 1.F};
+    Vec4    _skyColorLDR{0.2F, 0.5F, 0.8F, 1.F};
+    float   _skyIllumLDR{0.F};
     uint8_t _mipmapCount{1};
 
     bool _enabled{false};

@@ -3,15 +3,15 @@
 namespace {
 void transformExtentM3(cc::Vec3 *out, const cc::Vec3 &extent, const cc::Mat3 &m3) {
     cc::Mat3 m3Tmp;
-    m3Tmp.m[0] = abs(m3.m[0]);
-    m3Tmp.m[1] = abs(m3.m[1]);
-    m3Tmp.m[2] = abs(m3.m[2]);
-    m3Tmp.m[3] = abs(m3.m[3]);
-    m3Tmp.m[4] = abs(m3.m[4]);
-    m3Tmp.m[5] = abs(m3.m[5]);
-    m3Tmp.m[6] = abs(m3.m[6]);
-    m3Tmp.m[7] = abs(m3.m[7]);
-    m3Tmp.m[8] = abs(m3.m[8]);
+    m3Tmp.m[0] = std::abs(m3.m[0]);
+    m3Tmp.m[1] = std::abs(m3.m[1]);
+    m3Tmp.m[2] = std::abs(m3.m[2]);
+    m3Tmp.m[3] = std::abs(m3.m[3]);
+    m3Tmp.m[4] = std::abs(m3.m[4]);
+    m3Tmp.m[5] = std::abs(m3.m[5]);
+    m3Tmp.m[6] = std::abs(m3.m[6]);
+    m3Tmp.m[7] = std::abs(m3.m[7]);
+    m3Tmp.m[8] = std::abs(m3.m[8]);
     out->transformMat3(extent, m3Tmp);
 };
 } // namespace

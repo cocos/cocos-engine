@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 export { default as System } from './system';
 export { default as MissingScript } from './missing-script';

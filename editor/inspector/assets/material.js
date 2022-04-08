@@ -9,8 +9,7 @@ exports.style = `
 ui-button.location { flex: none; margin-left: 6px; }
 `;
 
-exports.template =
-/* html */`
+exports.template = /* html */ `
 <header class="header">
     <ui-prop>
         <ui-label slot="label">Effect</ui-label>
@@ -50,7 +49,9 @@ exports.$ = {
 
 exports.methods = {
     async getCustomInspector() {
-        const currentEffectInfo = this._effects.find(effect => { return effect.name === this.material.effect; });
+        const currentEffectInfo = this._effects.find((effect) => {
+            return effect.name === this.material.effect;
+        });
         if (currentEffectInfo && currentEffectInfo.uuid) {
             const meta = await Editor.Message.request('asset-db', 'query-asset-meta', currentEffectInfo.uuid);
             return meta && meta.userData && meta.userData.editor && meta.userData.editor.inspector;
@@ -71,8 +72,8 @@ exports.methods = {
         this.cacheData = {};
     },
     /**
-     * 
-     * @param {string} inspector 
+     *
+     * @param {string} inspector
      */
     async updateCustomInspector(inspector) {
         this.$.customPanel.hidden = false;
@@ -110,6 +111,8 @@ exports.methods = {
         if (!this.dirtyData.origin) {
             this.dirtyData.origin = this.dirtyData.realtime;
         }
+
+        this.canUpdatePreview = true;
     },
 
     isDirty() {
@@ -300,147 +303,42 @@ exports.methods = {
         Editor.Message.broadcast('material-inspector:change-dump');
     },
 
-    storeCache() {
-        if (!this.technique || !this.technique.passes) {
-            return;
-        }
+    storeCache(dump) {
+        const { name, type, value, default: defaultValue } = dump;
 
-        const excludeNames = [
-            'children',
-            'name',
-            'default',
-            'defines',
-            'propertyIndex',
-            'extends',
-            'readonly',
-            'visible',
-            'displayName',
-            'elementTypeData',
-            'isArray',
-            'isMat',
-            'enumList',
-            'bitmaskList',
-            'enumData',
-            'isEnum',
-            'isObject',
-            'switch',
-            'pipelineStates',
-            'pro',
-        ];
-
-        // Obtain an independent and clear data
-        const copyData = JSON.parse(JSON.stringify(this.technique.passes));
-
-        Object.assign(this.cacheData, getKeys(copyData, ''));
-        function getKeys(data, prev) {
-            return Object.keys(data).reduce((rt, key) => {
-                // 这些字段是基础类型或配置性的数据，不需要变动
-                if (excludeNames.includes(key)) {
-                    return rt;
-                }
-
-                const dot = prev.length ? cacheDot : '';
-                const keyPath = prev + dot + key;
-
-                if (typeof data[key] === 'object') {
-                    Object.assign(rt, getKeys(data[key], keyPath));
-                } else {
-                    if (keyPath.includes('type') || keyPath.includes('value')) {
-                        rt[keyPath] = data[key];
-                    }
-                }
-                return rt;
-            }, {});
+        if (JSON.stringify(value) === JSON.stringify(defaultValue)) {
+            delete this.cacheData[name];
+        } else {
+            this.cacheData[name] = JSON.parse(JSON.stringify({ type, value }));
         }
     },
 
     useCache() {
-        if (!this.technique || !this.technique.passes) {
-            return;
-        }
-
-        const keyPaths = Object.keys(this.cacheData).sort((a, b) => a.length - b.length);
-        let typeIndex = 0;
-
-        // First filter out data with the same field path but inconsistent types
-        loopType: for (; typeIndex < keyPaths.length; typeIndex++) {
-            const keyPath = keyPaths[typeIndex];
-
-            if (!keyPath) {
-                continue loopType;
-            }
-
-            const keys = keyPath.split(cacheDot);
-            if (keys.length === 0) {
-                deleteKeyPaths(keyPath);
-                continue loopType;
-            }
-
-            let index = 0;
-            let target = this.technique.passes;
-            let currentKey = '';
-            let currentPath = '';
-            while (index <= keys.length - 1) {
-                if (target === undefined) {
-                    deleteKeyPaths(currentPath);
-                    continue loopType;
-                }
-
-                currentKey = keys[index];
-                target = target[currentKey];
-                index += 1;
-                currentPath = keys.slice(0, index).join(cacheDot);
-
-                if (currentKey === 'type') {
-                    deleteKeyPaths(currentPath);
-                    if (this.cacheData[currentPath] !== target) {
-                        index -= 1;
-                        currentPath = keys.slice(0, index).join(cacheDot);
-                        deleteKeyPaths(currentPath);
-                    }
-                    continue loopType;
-                }
-            }
-        }
-
-        // Delete fields that are not suitable for pasting into new data
-        function deleteKeyPaths(keyPath, startIndex = typeIndex) {
-            if (!keyPath) {
+        const cacheData = this.cacheData;
+        this.technique.passes.forEach((pass, i) => {
+            if (pass.propertyIndex !== undefined && pass.propertyIndex.value !== i) {
                 return;
             }
 
-            for (; startIndex < keyPaths.length; startIndex++) {
-                if (startIndex >= 0 && keyPaths[startIndex].startsWith(keyPath)) {
-                    keyPaths.splice(startIndex, 1);
-                    startIndex--;
-                    typeIndex--;
-                }
-            }
-        }
+            updateProperty(pass.value);
+        });
 
-        loopValue: for (const keyPath of keyPaths) {
-            const keys = keyPath.split('._');
-            if (keys.length === 0) {
-                break;
-            }
+        function updateProperty(prop) {
+            for (const name in prop) {
+                if (prop[name] && typeof prop[name] === 'object') {
+                    if (name in cacheData) {
+                        const { type, value } = cacheData[name];
+                        if (prop[name].type === type && JSON.stringify(prop[name].value) !== JSON.stringify(value)) {
+                            if (value && typeof value === 'object') {
+                                prop[name].value = JSON.parse(JSON.stringify(value));
+                            } else {
+                                prop[name].value = value;
+                            }
+                        }
+                    }
 
-            let index = 0;
-            let target = this.technique.passes;
-            while (index <= keys.length - 2) {
-                if (target === undefined) {
-                    continue loopValue;
-                }
-
-                target = target[keys[index]];
-                index += 1;
-            }
-
-            const key = keys[index++];
-
-            if (target && target !== this.technique.passes) {
-                if (typeof target === 'object') {
-                    if (key in target) {
-                        target[key] = this.cacheData[keyPath];
+                    if (prop[name].childMap && typeof prop[name].childMap === 'object') {
+                        updateProperty(prop[name].childMap);
                     }
                 }
             }
@@ -448,6 +346,7 @@ exports.methods = {
 
         // Update the extracted useInstancing and useBatching
         this.updateInstancing();
+        this.updatePreview();
     },
 };
 
@@ -476,7 +375,9 @@ exports.update = async function(assetList, metaList) {
     }
     // set this.material.technique
     this.material = await Editor.Message.request('scene', 'query-material', this.asset.uuid);
-    await this.updatePreview();
+    if (this.canUpdatePreview) {
+        await this.updatePreview();
+    }
 
     // effect <select> tag
     this.$.effect.value = this.material.effect;
@@ -502,6 +403,7 @@ exports.update = async function(assetList, metaList) {
  * Method of initializing the panel
  */
 exports.ready = async function() {
+    this.canUpdatePreview = false;
     // Used to determine whether the material has been modified in isDirty()
     this.dirtyData = {
         uuid: '',
@@ -526,7 +428,7 @@ exports.ready = async function() {
         }
 
         this.setDirtyData();
-        this.storeCache();
+        this.storeCache(dump);
         this.dispatch('change');
 
         await this.updatePreview();
@@ -542,8 +444,6 @@ exports.ready = async function() {
         } else {
             this.$.technique.value = this.material.technique;
         }
-
-        this.storeCache();
 
         const inspector = await this.getCustomInspector();
         if (inspector) {
@@ -566,8 +466,6 @@ exports.ready = async function() {
     this.$.technique.addEventListener('change', async (event) => {
         this.material.technique = event.target.value;
 
-        this.storeCache();
-
         const inspector = await this.getCustomInspector();
         if (inspector) {
             this.updateCustomInspector(inspector);
@@ -576,22 +474,25 @@ exports.ready = async function() {
         }
         this.setDirtyData();
         this.dispatch('change');
+        this.updatePreview();
     });
 
     // The event is triggered when the useInstancing is modified
     this.$.useInstancing.addEventListener('change-dump', (event) => {
         this.changeInstancing(event.target.dump.value);
-        this.storeCache();
+        this.storeCache(event.target.dump);
         this.setDirtyData();
         this.dispatch('change');
+        this.updatePreview();
     });
 
     //  The event is triggered when the useBatching is modified
     this.$.useBatching.addEventListener('change-dump', (event) => {
         this.changeBatching(event.target.dump.value);
-        this.storeCache();
+        this.storeCache(event.target.dump);
         this.setDirtyData();
         this.dispatch('change');
+        this.updatePreview();
     });
 
     // When the page is initialized, all effect lists are queried and then not updated again
@@ -615,7 +516,6 @@ exports.ready = async function() {
     }
     this.$.effect.innerHTML = effectOption;
     this.$.customPanel.addEventListener('change', () => {
-        this.storeCache();
         this.setDirtyData();
         this.dispatch('change');
         this.updatePreview();

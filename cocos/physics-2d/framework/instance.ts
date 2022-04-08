@@ -1,8 +1,3 @@
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { EDITOR, DEBUG, TEST } from 'internal:constants';
 import { IRigidBody2D } from '../spec/i-rigid-body';
 import { WRAPPER } from './physics-selector';

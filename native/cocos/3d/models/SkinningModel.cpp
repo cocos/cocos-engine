@@ -24,7 +24,6 @@
  ****************************************************************************/
 #include "3d/models/SkinningModel.h"
 
-#include <array>
 #include <utility>
 
 #include "3d/assets/Mesh.h"
@@ -222,7 +221,7 @@ void SkinningModel::ensureEnoughBuffers(index_t count) {
         }
 
         if (_dataArray[i] == nullptr) {
-            _dataArray[i] = new std::array<float, pipeline::UBOSkinning::COUNT>;
+            _dataArray[i] = new ccstd::array<float, pipeline::UBOSkinning::COUNT>;
         }
     }
 }

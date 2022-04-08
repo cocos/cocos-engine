@@ -27,7 +27,7 @@
 
 #include "platform/FileUtils.h"
 namespace cc {
-class FileUtilsQNX : public FileUtils {
+class CC_DLL FileUtilsQNX : public FileUtils {
 public:
     friend class FileUtils;
     bool          isFileExistInternal(const ccstd::string &filename) const override;

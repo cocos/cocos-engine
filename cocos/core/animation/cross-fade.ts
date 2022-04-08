@@ -30,10 +30,8 @@
 
 import { clamp01 } from '../math/utils';
 import { remove } from '../utils/array';
-import { AnimationState } from './animation-state';
+import type { AnimationState } from './animation-state';
 import { Playable } from './playable';
-import { legacyCC } from '../global-exports';
-import type { AnimationManager } from './animation-manager';
 
 interface IManagedState {
     state: AnimationState | null;
@@ -46,25 +44,17 @@ interface IFading {
     easeDuration: number;
 }
 
-interface CrossFadeScheduler {
-    addCrossFade(crossFade: CrossFade): void;
-
-    removeCrossFade(crossFade: CrossFade): void;
-}
-
-export class CrossFade extends Playable {
+/**
+ * Helper class to allocate weights for animation states,
+ * according to the invocation of "cross fading".
+ */
+export class CrossFade {
     private readonly _managedStates: IManagedState[] = [];
     private readonly _fadings: IFading[] = [];
-    private _scheduled = false;
-    private declare _scheduler: CrossFadeScheduler;
-
-    constructor (scheduler?: CrossFadeScheduler) {
-        super();
-        this._scheduler = scheduler ?? legacyCC.director.getAnimationManager() as AnimationManager;
-    }
+    private _finished = true;
 
     public update (deltaTime: number) {
-        if (this.isMotionless) {
+        if (this._finished) {
             return;
         }
 
@@ -81,7 +71,7 @@ export class CrossFade extends Playable {
         }
 
         if (managedStates.length === 1 && fadings.length === 1) { // Definitely not code repetition
-            this._unscheduleThis();
+            this._finished = true;
         }
     }
 
@@ -91,6 +81,8 @@ export class CrossFade extends Playable {
      * @param duration 切换时间。
      */
     public crossFade (state: AnimationState | null, duration: number) {
+        this._finished = false;
+
         if (this._managedStates.length === 0) {
             // If we are cross fade from a "initial" pose,
             // we do not use the duration.
@@ -118,12 +110,11 @@ export class CrossFade extends Playable {
             easeTime: 0,
             target,
         });
-
-        if (!this.isMotionless) {
-            this._scheduleThis();
-        }
     }
 
+    /**
+     * Invoke `stop()` on all managed states then clear fade queue.
+     */
     public clear () {
         for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
             const state = this._managedStates[iManagedState].state;
@@ -133,47 +124,31 @@ export class CrossFade extends Playable {
         }
         this._managedStates.length = 0;
         this._fadings.length = 0;
-    }
-
-    protected onPlay () {
-        super.onPlay();
-        this._scheduleThis();
+        this._finished = true;
     }
 
     /**
-     * 停止我们淡入淡出的所有动画状态并停止淡入淡出。
+     * Invoke `pause()` on all managed states.
      */
-    protected onPause () {
-        super.onPause();
+    public pause () {
         for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
             const state = this._managedStates[iManagedState].state;
             if (state) {
                 state.pause();
             }
         }
-        this._unscheduleThis();
     }
 
     /**
-     * 恢复我们淡入淡出的所有动画状态并继续淡入淡出。
+     * Invoke `resume()` on all managed states.
      */
-    protected onResume () {
-        super.onResume();
+    public resume () {
         for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
             const state = this._managedStates[iManagedState].state;
             if (state) {
                 state.resume();
             }
         }
-        this._scheduleThis();
-    }
-
-    /**
-     * 停止所有淡入淡出的动画状态。
-     */
-    protected onStop () {
-        super.onStop();
-        this.clear();
     }
 
     private _calculateWeights (deltaTime: number) {
@@ -222,20 +197,6 @@ export class CrossFade extends Playable {
                 }
             }
             fadings.splice(deadFadingBegin);
-        }
-    }
-
-    private _scheduleThis () {
-        if (!this._scheduled) {
-            this._scheduler.addCrossFade(this);
-            this._scheduled = true;
-        }
-    }
-
-    private _unscheduleThis () {
-        if (this._scheduled) {
-            this._scheduler.removeCrossFade(this);
-            this._scheduled = false;
         }
     }
 }

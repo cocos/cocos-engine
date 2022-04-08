@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { IUV } from '../../assets';
 import { Mat4, Vec3, Color } from '../../../core/math';

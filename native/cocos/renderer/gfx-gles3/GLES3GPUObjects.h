@@ -1,8 +1,6 @@
 /****************************************************************************
  Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
-
  http://www.cocos.com
-
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
@@ -10,10 +8,8 @@
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
-
  The software or tools in this License Agreement are licensed, not sold.
  Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
-
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,6 +21,8 @@
 
 #pragma once
 
+#include <algorithm>
+
 #include "base/Macros.h"
 #include "base/std/container/unordered_map.h"
 #include "gfx-base/GFXDef-common.h"
@@ -33,7 +31,6 @@
 
 #include "GLES3Std.h"
 #include "GLES3Wrangler.h"
-
 namespace cc {
 namespace gfx {
 
@@ -160,6 +157,9 @@ struct GLES3GPUTextureView {
 using GLES3GPUTextureViewList = ccstd::vector<GLES3GPUTextureView *>;
 
 struct GLES3GPUSwapchain {
+#if CC_SWAPPY_ENABLED
+    bool swappyEnabled{false};
+#endif
     EGLSurface       eglSurface{EGL_NO_SURFACE};
     EGLint           eglSwapInterval{0};
     GLuint           glFramebuffer{0};

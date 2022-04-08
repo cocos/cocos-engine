@@ -25,14 +25,14 @@
 
 #pragma once
 
-#include <array>
 #include <iostream>
+#include "base/std/container/array.h"
 #include "math/Vec2.h"
 #include "platform/interfaces/OSInterface.h"
 
 namespace cc {
 
-class ISystemWindow : public OSInterface {
+class CC_DLL ISystemWindow : public OSInterface {
 public:
     using Size        = cc::Vec2;
     using WindowFlags = enum {
@@ -71,24 +71,30 @@ public:
      *@param h: Window height
      *@param flags: Window flag
      */
-    virtual bool      createWindow(const char *title,
-                                   int x, int y, int w,
-                                   int h, int flags) = 0;
-    virtual uintptr_t getWindowHandler() const       = 0;
-    virtual Size      getViewSize() const            = 0;
+    virtual bool createWindow(const char* title,
+                              int x, int y, int w,
+                              int h, int flags) {
+        return true;
+    }
+    /**
+     * @brief Create a window displayed in the bottom left.
+     *@param title: Window title
+     *@param w: Window width
+     *@param h: Window height
+     *@param flags: Window flag
+     */
+    virtual bool createWindow(const char* title,
+                              int w, int h, int flags) {
+        return true;
+    }
+    virtual uintptr_t getWindowHandler() const = 0;
+    virtual Size      getViewSize() const      = 0;
     /**
      @brief enable/disable(lock) the cursor, default is enabled
      */
     virtual void setCursorEnabled(bool value) = 0;
 
-    virtual void copyTextToClipboard(const ccstd::string &text) = 0;
-    /**
-     @brief Create default sytem window interface.
-     @return sytem window interface.
-     */
-    static OSInterface::Ptr createSystemWindowInterface();
-
-private:
+    virtual void copyTextToClipboard(const ccstd::string& text) = 0;
 };
 
 } // namespace cc

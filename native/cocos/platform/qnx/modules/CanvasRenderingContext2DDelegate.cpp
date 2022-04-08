@@ -161,11 +161,11 @@ void CanvasRenderingContext2DDelegate::strokeText(const ccstd::string &text, flo
 
 CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measureText(const ccstd::string &text) {
     if (text.empty())
-        return std::array<float, 2>{0.0f, 0.0f};
+        return ccstd::array<float, 2>{0.0f, 0.0f};
     cairo_text_extents_t extents;
     cairo_text_extents(_cr, text.c_str(), &extents);
-    return std::array<float, 2>{static_cast<float>(extents.x_advance),
-                                static_cast<float>(extents.height)};
+    return ccstd::array<float, 2>{static_cast<float>(extents.x_advance),
+                                  static_cast<float>(extents.height)};
 }
 
 void CanvasRenderingContext2DDelegate::updateFont(const ccstd::string &fontName,
@@ -225,7 +225,7 @@ int CanvasRenderingContext2DDelegate::drawText(const ccstd::string &text, int x,
 }
 
 CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::sizeWithText(const wchar_t *pszText, int nLen) {
-    return std::array<float, 2>{0.0F, 0.0F};
+    return ccstd::array<float, 2>{0.0F, 0.0F};
 }
 
 void CanvasRenderingContext2DDelegate::prepareBitmap(int nWidth, int nHeight) {
@@ -237,7 +237,7 @@ void CanvasRenderingContext2DDelegate::deleteBitmap() {
 void CanvasRenderingContext2DDelegate::fillTextureData() {
 }
 
-std::array<float, 2> CanvasRenderingContext2DDelegate::convertDrawPoint(Point point, const ccstd::string &text) {
+ccstd::array<float, 2> CanvasRenderingContext2DDelegate::convertDrawPoint(Point point, const ccstd::string &text) {
     int                  font_ascent  = 0;
     int                  font_descent = 0;
     int                  direction    = 0;

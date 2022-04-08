@@ -46,6 +46,11 @@ elseif(MACOSX OR IOS)
     cc_set_if_undefined(CC_USE_GLES2 OFF)
 endif()
 
+set(CC_USE_GLES3 ${CC_USE_GLES3} CACHE INTERNAL "")
+set(CC_USE_GLES2 ${CC_USE_GLES2} CACHE INTERNAL "")
+set(CC_USE_VULKAN ${CC_USE_VULKAN} CACHE INTERNAL "")
+set(CC_USE_METAL ${CC_USE_METAL}  CACHE INTERNAL "")
+
 if(USE_SERVER_MODE)
     set(CC_USE_VULKAN OFF)
     set(CC_USE_GLES3 OFF)
@@ -133,6 +138,11 @@ if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/external/CMakeLists.txt)
 endif()
 
 include(${CMAKE_CURRENT_LIST_DIR}/external/CMakeLists.txt)
+
+if(ANDROID AND SWAPPY_ENABLED)
+    add_definitions(-DCC_SWAPPY_ENABLED)
+endif()
+
 ##### audio
 if(USE_AUDIO)
     cocos_source_files(
@@ -327,7 +337,9 @@ cocos_source_files(
     cocos/base/ThreadPool.h
     cocos/base/TypeDef.h
     cocos/base/Variant.h
+    cocos/base/std/container/array.h
     cocos/base/std/container/deque.h
+    cocos/base/std/container/list.h
     cocos/base/std/container/map.h
     cocos/base/std/container/queue.h
     cocos/base/std/container/set.h
@@ -344,6 +356,7 @@ cocos_source_files(
     cocos/application/CocosApplication.cpp
     cocos/application/ApplicationManager.h
     cocos/application/ApplicationManager.cpp
+    cocos/application/BaseGame.h
 )
 
 ############ engine
@@ -359,29 +372,16 @@ if(USE_SERVER_MODE)
     cocos_source_files(
         cocos/main/EmptyMain.cpp
     )
-elseif(WINDOWS)
-    cocos_source_files(
-        cocos/main/main-win32.cpp
-    )
-elseif(LINUX)
-    cocos_source_files(
-        cocos/main/main-linux.cpp
-    )
-elseif(QNX)
-    cocos_source_files(
-        cocos/main/main-qnx.cpp
-    )
-elseif(MACOSX)
-    cocos_source_files(
-        cocos/main/main-mac.mm
-    )
-elseif(IOS)
-    cocos_source_files(
-        cocos/main/main-ios.mm
-    )
 endif()
 
-############ platformex
+if(NOT USE_SERVER_MODE AND (WINDOWS OR LINUX))
+cocos_source_files(
+    cocos/platform/SDLHelper.h
+    cocos/platform/SDLHelper.cpp
+)
+endif()
+
+############ platform
 cocos_source_files(
     cocos/platform/IEventDispatch.h
     cocos/platform/BasePlatform.cpp
@@ -432,12 +432,8 @@ elseif(IOS)
     cocos_source_files(
         cocos/platform/ios/IOSPlatform.mm
         cocos/platform/ios/IOSPlatform.h
-        cocos/platform/ios/AppDelegate.mm
-        cocos/platform/ios/AppDelegate.h
-        cocos/platform/ios/service/SDKWrapper.m
-        cocos/platform/ios/service/SDKWrapper.h
-        cocos/platform/ios/ViewController.mm
-        cocos/platform/ios/ViewController.h
+        cocos/platform/ios/AppDelegateBridge.mm
+        cocos/platform/ios/AppDelegateBridge.h
     )
 endif()
 
@@ -453,19 +449,13 @@ cocos_source_files(
 cocos_source_files(
     cocos/platform/interfaces/modules/Device.cpp
     cocos/platform/interfaces/modules/Device.h
-    cocos/platform/interfaces/modules/IAccelerometer.cpp
     cocos/platform/interfaces/modules/IAccelerometer.h
-    cocos/platform/interfaces/modules/IBattery.cpp
     cocos/platform/interfaces/modules/IBattery.h
-    cocos/platform/interfaces/modules/IScreen.cpp
     cocos/platform/interfaces/modules/IScreen.h
-    cocos/platform/interfaces/modules/INetwork.cpp
     cocos/platform/interfaces/modules/INetwork.h
     cocos/platform/interfaces/modules/ISystem.cpp
     cocos/platform/interfaces/modules/ISystem.h
-    cocos/platform/interfaces/modules/ISystemWindow.cpp
     cocos/platform/interfaces/modules/ISystemWindow.h
-    cocos/platform/interfaces/modules/IVibrator.cpp
     cocos/platform/interfaces/modules/IVibrator.h
 )
 
@@ -519,8 +509,8 @@ if(USE_SERVER_MODE)
         cocos/platform/empty/modules/Screen.h
         cocos/platform/empty/modules/Network.cpp
         cocos/platform/empty/modules/Network.h
-        cocos/platform/empty/modules/Vibrate.cpp
-        cocos/platform/empty/modules/Vibrate.h
+        cocos/platform/empty/modules/Vibrator.cpp
+        cocos/platform/empty/modules/Vibrator.h
         cocos/platform/empty/modules/System.cpp
         cocos/platform/empty/modules/System.h
         cocos/platform/empty/modules/SystemWindow.cpp
@@ -621,8 +611,8 @@ elseif(LINUX)
         cocos/platform/linux/modules/Screen.h
         cocos/platform/linux/modules/Network.cpp
         cocos/platform/linux/modules/Network.h
-        cocos/platform/linux/modules/Vibrate.cpp
-        cocos/platform/linux/modules/Vibrate.h
+        cocos/platform/linux/modules/Vibrator.cpp
+        cocos/platform/linux/modules/Vibrator.h
         cocos/platform/linux/modules/System.cpp
         cocos/platform/linux/modules/System.h
         cocos/platform/linux/modules/SystemWindow.cpp
@@ -638,8 +628,8 @@ elseif(QNX)
         cocos/platform/qnx/modules/Screen.h
         cocos/platform/qnx/modules/Network.cpp
         cocos/platform/qnx/modules/Network.h
-        cocos/platform/qnx/modules/Vibrate.cpp
-        cocos/platform/qnx/modules/Vibrate.h
+        cocos/platform/qnx/modules/Vibrator.cpp
+        cocos/platform/qnx/modules/Vibrator.h
         cocos/platform/qnx/modules/System.cpp
         cocos/platform/qnx/modules/System.h
         cocos/platform/qnx/modules/SystemWindow.cpp
@@ -661,10 +651,7 @@ cocos_source_files(MODULE ccunzip
 
 ##### memory
 cocos_source_files(
-                 cocos/base/memory/MemDef.h
-                 cocos/base/memory/Memory.cpp
                  cocos/base/memory/Memory.h
-                 cocos/base/memory/StdAlloc.h
                  cocos/base/memory/MemoryHook.cpp
                  cocos/base/memory/MemoryHook.h
                  cocos/base/memory/CallStack.cpp
@@ -820,9 +807,15 @@ if(ANDROID OR OHOS)
 endif()
 
 if(NOT APPLE AND USE_SOCKET)
+    if(ANDROID)
+    cocos_source_files(
+        NO_WERROR    cocos/network/WebSocket-okhttp.cpp
+    )
+    else()
     cocos_source_files(
         NO_WERROR    cocos/network/WebSocket-libwebsockets.cpp
     )
+    endif()
 endif()
 
 if(WINDOWS OR LINUX OR QNX)
@@ -942,8 +935,8 @@ elseif(APPLE)
     if(MACOSX)
         cocos_source_files(
             cocos/platform/mac/View.h
-            cocos/platform/mac/KeyCodeHelper.h
             cocos/platform/mac/View.mm
+            cocos/platform/mac/KeyCodeHelper.h
             cocos/platform/mac/KeyCodeHelper.cpp
         )
     elseif(IOS)
@@ -1681,7 +1674,6 @@ if(USE_PHYSICS_PHYSX)
     )
 endif()
 
-
 ##### 2d
 # cocos_source_files(
 #     cocos/2d/framework/UITransform.h
@@ -1972,7 +1964,6 @@ cocos_source_files(MODULE ccgeometry
     cocos/core/geometry/Sphere.h
     cocos/core/geometry/Triangle.cpp
     cocos/core/geometry/Triangle.h
-
 )
 
 ##### script bindings

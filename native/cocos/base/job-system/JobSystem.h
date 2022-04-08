@@ -23,7 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#if CC_JOB_SYSTEM_TASKFLOW
+#if CC_USE_JOB_SYSTEM_TASKFLOW
     #include "job-system-taskflow/TFJobGraph.h"
     #include "job-system-taskflow/TFJobSystem.h"
 namespace cc {

@@ -67,14 +67,12 @@ public:
     const_iterator cend() const { return _data.cend(); }
 
     /** Default constructor */
-    RefMap<K, V>()
-    : _data() {
+    RefMap<K, V>() {
         static_assert(std::is_convertible<V, RefCounted *>::value, "Invalid Type for cc::Map<K, V>!");
     }
 
     /** Constructor with capacity. */
-    explicit RefMap<K, V>(ssize_t capacity)
-    : _data() {
+    explicit RefMap<K, V>(uint32_t capacity) {
         static_assert(std::is_convertible<V, RefCounted *>::value, "Invalid Type for cc::Map<K, V>!");
         _data.reserve(capacity);
     }
@@ -101,28 +99,28 @@ public:
     }
 
     /** Sets capacity of the map. */
-    void reserve(ssize_t capacity) {
+    void reserve(uint32_t capacity) {
         _data.reserve(capacity);
     }
 
     /** Returns the number of buckets in the Map container. */
-    ssize_t bucketCount() const {
-        return _data.bucket_count();
+    uint32_t bucketCount() const {
+        return static_cast<uint32_t>(_data.bucket_count());
     }
 
     /** Returns the number of elements in bucket n. */
-    ssize_t bucketSize(ssize_t n) const {
-        return _data.bucket_size(n);
+    uint32_t bucketSize(uint32_t n) const {
+        return static_cast<uint32_t>(_data.bucket_size(n));
     }
 
     /** Returns the bucket number where the element with key k is located. */
-    ssize_t bucket(const K &k) const {
+    uint32_t bucket(const K &k) const {
         return _data.bucket(k);
     }
 
     /** The number of elements in the map. */
-    ssize_t size() const {
-        return _data.size();
+    uint32_t size() const {
+        return static_cast<uint32_t>(_data.size());
     }
 
     /**
@@ -141,8 +139,8 @@ public:
         if (!_data.empty()) {
             keys.reserve(_data.size());
 
-            for (auto iter = _data.cbegin(); iter != _data.cend(); ++iter) {
-                keys.push_back(iter->first);
+            for (const auto &element : _data) {
+                keys.push_back(element.first);
             }
         }
         return keys;
@@ -155,9 +153,9 @@ public:
         if (!_data.empty()) {
             keys.reserve(_data.size() / 10);
 
-            for (auto iter = _data.cbegin(); iter != _data.cend(); ++iter) {
-                if (iter->second == object) {
-                    keys.push_back(iter->first);
+            for (const auto &element : _data) {
+                if (element.second == object) {
+                    keys.push_back(element.first);
                 }
             }
         }
@@ -258,8 +256,8 @@ public:
      *  leaving it with a size of 0.
      */
     void clear() {
-        for (auto iter = _data.cbegin(); iter != _data.cend(); ++iter) {
-            iter->second->release();
+        for (const auto &element : _data) {
+            element.second->release();
         }
 
         _data.clear();
@@ -301,8 +299,8 @@ public:
 private:
     /** Retains all the objects in the map */
     void addRefForAllObjects() {
-        for (auto iter = _data.begin(); iter != _data.end(); ++iter) {
-            iter->second->addRef();
+        for (const auto &element : _data) {
+            element.second->addRef();
         }
     }
 

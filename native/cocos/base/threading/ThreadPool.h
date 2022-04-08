@@ -30,9 +30,9 @@
 #include <cstdint>
 #include <functional>
 #include <future>
-#include <list>
 #include <thread>
 #include "Event.h"
+#include "base/std/container/list.h"
 #include "concurrentqueue/concurrentqueue.h"
 
 namespace cc {
@@ -62,11 +62,11 @@ private:
 
     void addThread();
 
-    TaskQueue              _tasks{};
-    std::list<std::thread> _workers{};
-    Event                  _event{};
-    std::atomic<bool>      _running{false};
-    uint8_t                _workerCount{MAX_THREAD_COUNT};
+    TaskQueue                _tasks{};
+    ccstd::list<std::thread> _workers{};
+    Event                    _event{};
+    std::atomic<bool>        _running{false};
+    uint8_t                  _workerCount{MAX_THREAD_COUNT};
 };
 
 template <typename Function, typename... Args>

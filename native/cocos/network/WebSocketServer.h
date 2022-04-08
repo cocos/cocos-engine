@@ -30,11 +30,11 @@
 #include <algorithm>
 #include <atomic>
 #include <functional>
-#include <list>
 #include <memory>
 #include <mutex>
 #include <thread>
 #include "base/Macros.h"
+#include "base/std/container/list.h"
 #include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
 #include "uv.h"
@@ -186,7 +186,7 @@ private:
 
     struct lws *                                       _wsi = nullptr;
     ccstd::unordered_map<ccstd::string, ccstd::string> _headers;
-    std::list<std::shared_ptr<DataFrame>>              _sendQueue;
+    ccstd::list<std::shared_ptr<DataFrame>>            _sendQueue;
     std::shared_ptr<DataFrame>                         _prevPkg;
     bool                                               _closed      = false;
     ccstd::string                                      _closeReason = "close connection";

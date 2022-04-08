@@ -23,7 +23,4 @@
  THE SOFTWARE.
  */
 
-/**
- * @hidden
- */
 export * from '../cocos/video';

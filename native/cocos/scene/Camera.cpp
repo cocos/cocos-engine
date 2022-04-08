@@ -36,7 +36,7 @@ namespace cc {
 namespace scene {
 
 namespace {
-std::array<Mat4, 4> correctionMatrices;
+ccstd::array<Mat4, 4> correctionMatrices;
 
 void assignMat4(Mat4 &mat4, float m0, float m1, float m2, float m3, float m4, float m5) {
     mat4.m[0] = m0;
@@ -47,7 +47,7 @@ void assignMat4(Mat4 &mat4, float m0, float m1, float m2, float m3, float m4, fl
     mat4.m[5] = m5;
 }
 
-constexpr std::array<std::array<float, 4>, 4> PRE_TRANSFORMS = {{
+constexpr ccstd::array<ccstd::array<float, 4>, 4> PRE_TRANSFORMS = {{
     {{1, 0, 0, 1}},   // SurfaceTransform.IDENTITY
     {{0, 1, -1, 0}},  // SurfaceTransform.ROTATE_90
     {{-1, 0, 0, -1}}, // SurfaceTransform.ROTATE_180
@@ -225,13 +225,13 @@ void Camera::detachCamera() {
 
 geometry::Ray Camera::screenPointToRay(float x, float y) {
     CC_ASSERT(_node != nullptr);
-    const float                 cx           = _orientedViewport.x * static_cast<float>(_width);
-    const float                 cy           = _orientedViewport.y * static_cast<float>(_height);
-    const float                 cw           = _orientedViewport.z * static_cast<float>(_width);
-    const float                 ch           = _orientedViewport.w * static_cast<float>(_height);
-    const bool                  isProj       = _proj == CameraProjection::PERSPECTIVE;
-    const float                 ySign        = _device->getCapabilities().clipSpaceSignY;
-    const std::array<float, 4> &preTransform = PRE_TRANSFORMS[static_cast<int>(_curTransform)];
+    const float                   cx           = _orientedViewport.x * static_cast<float>(_width);
+    const float                   cy           = _orientedViewport.y * static_cast<float>(_height);
+    const float                   cw           = _orientedViewport.z * static_cast<float>(_width);
+    const float                   ch           = _orientedViewport.w * static_cast<float>(_height);
+    const bool                    isProj       = _proj == CameraProjection::PERSPECTIVE;
+    const float                   ySign        = _device->getCapabilities().clipSpaceSignY;
+    const ccstd::array<float, 4> &preTransform = PRE_TRANSFORMS[static_cast<int>(_curTransform)];
 
     Vec3 tmpVec3{
         (x - cx) / cw * 2 - 1.F,
@@ -259,13 +259,13 @@ geometry::Ray Camera::screenPointToRay(float x, float y) {
 }
 
 Vec3 Camera::screenToWorld(const Vec3 &screenPos) {
-    const float                 cx           = _orientedViewport.x * static_cast<float>(_width);
-    const float                 cy           = _orientedViewport.y * static_cast<float>(_height);
-    const float                 cw           = _orientedViewport.z * static_cast<float>(_width);
-    const float                 ch           = _orientedViewport.w * static_cast<float>(_height);
-    const float                 ySign        = _device->getCapabilities().clipSpaceSignY;
-    const std::array<float, 4> &preTransform = PRE_TRANSFORMS[static_cast<int>(_curTransform)];
-    Vec3                        out;
+    const float                   cx           = _orientedViewport.x * static_cast<float>(_width);
+    const float                   cy           = _orientedViewport.y * static_cast<float>(_height);
+    const float                   cw           = _orientedViewport.z * static_cast<float>(_width);
+    const float                   ch           = _orientedViewport.w * static_cast<float>(_height);
+    const float                   ySign        = _device->getCapabilities().clipSpaceSignY;
+    const ccstd::array<float, 4> &preTransform = PRE_TRANSFORMS[static_cast<int>(_curTransform)];
+    Vec3                          out;
 
     if (_proj == CameraProjection::PERSPECTIVE) {
         // calculate screen pos in far clip plane
@@ -302,9 +302,9 @@ Vec3 Camera::screenToWorld(const Vec3 &screenPos) {
 }
 
 Vec3 Camera::worldToScreen(const Vec3 &worldPos) {
-    const float                 ySign        = _device->getCapabilities().clipSpaceSignY;
-    const std::array<float, 4> &preTransform = PRE_TRANSFORMS[static_cast<int>(_curTransform)];
-    Vec3                        out;
+    const float                   ySign        = _device->getCapabilities().clipSpaceSignY;
+    const ccstd::array<float, 4> &preTransform = PRE_TRANSFORMS[static_cast<int>(_curTransform)];
+    Vec3                          out;
     Vec3::transformMat4(worldPos, _matViewProj, &out);
 
     out.x = out.x * preTransform[0] + out.y * preTransform[2] * ySign;

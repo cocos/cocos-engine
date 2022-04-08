@@ -25,11 +25,11 @@
 
 #pragma once
 
-#include "platform/interfaces/modules/canvas/ICanvasRenderingContext2D.h"
-
 #include "base/csscolorparser.h"
+#include "base/std/container/array.h"
 #include "bindings/jswrapper/config.h"
 #include "math/Math.h"
+#include "platform/interfaces/modules/canvas/ICanvasRenderingContext2D.h"
 
 #ifdef __OBJC__
 @class CanvasRenderingContext2DDelegateImpl;
@@ -41,7 +41,7 @@ namespace cc {
 
 class CanvasRenderingContext2DDelegate : public ICanvasRenderingContext2D::Delegate {
 public:
-    using Size = std::array<float, 2>;
+    using Size = ccstd::array<float, 2>;
     CanvasRenderingContext2DDelegate();
     ~CanvasRenderingContext2DDelegate() override;
 
@@ -74,7 +74,7 @@ public:
 
 private:
     void fillData();
-    void unMultiplyAlpha(unsigned char *ptr, ssize_t size) const;
+    void unMultiplyAlpha(unsigned char *ptr, uint32_t size) const;
 
 public:
 private:

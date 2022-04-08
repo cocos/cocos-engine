@@ -23,9 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include <array>
 #include <boost/functional/hash.hpp>
 #include "base/Utils.h"
+#include "base/std/container/array.h"
 
 #include "GFXDef.h"
 #include "GFXTexture.h"
@@ -112,16 +112,40 @@ bool operator==(const RenderPassInfo &lhs, const RenderPassInfo &rhs) {
 template <>
 size_t Hasher<FramebufferInfo>::operator()(const FramebufferInfo &info) const {
     // render pass is mostly irrelevant
-    size_t seed = 2;
-    boost::hash_combine(seed, info.colorTextures);
-    boost::hash_combine(seed, info.depthStencilTexture);
+    size_t seed = (info.colorTextures.size() + 1) * 2;
+    for (auto* colorTexture : info.colorTextures) {
+        boost::hash_combine(seed, colorTexture->getRaw());
+        boost::hash_combine(seed, colorTexture->getHash());
+    }
+
+    boost::hash_combine(seed, info.depthStencilTexture->getRaw());
+    boost::hash_combine(seed, info.depthStencilTexture->getHash());
     return seed;
 }
 
 bool operator==(const FramebufferInfo &lhs, const FramebufferInfo &rhs) {
     // render pass is mostly irrelevant
-    return lhs.colorTextures == rhs.colorTextures &&
-           lhs.depthStencilTexture == rhs.depthStencilTexture;
+    bool res = false;
+    res      = lhs.colorTextures == rhs.colorTextures;
+
+    if (res) {
+        res = lhs.depthStencilTexture == rhs.depthStencilTexture;
+    }
+
+    if (res) {
+        for (size_t i = 0; i < lhs.colorTextures.size(); ++i) {
+            res = lhs.colorTextures[i]->getRaw() == rhs.colorTextures[i]->getRaw() &&
+                  lhs.colorTextures[i]->getHash() == rhs.colorTextures[i]->getHash();
+            if (!res) {
+                break;
+            }
+        }
+        if (res) {
+            res = lhs.depthStencilTexture->getRaw() == rhs.depthStencilTexture->getRaw() &&
+                  lhs.depthStencilTexture->getHash() == rhs.depthStencilTexture->getHash();
+        }
+    }
+    return res;
 }
 
 template <>
@@ -528,7 +552,7 @@ std::pair<uint32_t, uint32_t> formatAlignment(Format format) {
     }
 }
 
-static constexpr std::array<uint32_t, static_cast<size_t>(Type::COUNT)> GFX_TYPE_SIZES = {
+static constexpr ccstd::array<uint32_t, static_cast<size_t>(Type::COUNT)> GFX_TYPE_SIZES = {
     0,  // UNKNOWN
     4,  // BOOL
     8,  // BOOL2

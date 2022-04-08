@@ -90,13 +90,13 @@ class ResizableBufferAdapter<Data> : public ResizableBuffer {
 public:
     explicit ResizableBufferAdapter(BufferType *buffer) : _buffer(buffer) {}
     void resize(size_t size) override {
-        auto oldSize = static_cast<size_t>(_buffer->getSize());
+        size_t oldSize = _buffer->getSize();
         if (oldSize != size) {
             // need to take buffer ownership for outer memory control
             auto *old    = _buffer->takeBuffer();
             void *buffer = realloc(old, size);
             if (buffer) {
-                _buffer->fastSet(static_cast<unsigned char *>(buffer), size);
+                _buffer->fastSet(static_cast<unsigned char *>(buffer), static_cast<uint32_t>(size));
             }
         }
     }
@@ -239,7 +239,7 @@ public:
      *  @return Upon success, a pointer to the data is returned, otherwise nullptr.
      *  @warning Recall: you are responsible for calling free() on any Non-nullptr pointer returned.
      */
-    virtual unsigned char *getFileDataFromZip(const ccstd::string &zipFilePath, const ccstd::string &filename, ssize_t *size);
+    virtual unsigned char *getFileDataFromZip(const ccstd::string &zipFilePath, const ccstd::string &filename, uint32_t *size);
 
     /** Returns the fullpath for a given filename.
 

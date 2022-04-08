@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { BulletShape } from './bullet-shape';
 import { Vec3, warn } from '../../../core';

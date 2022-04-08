@@ -1,7 +1,7 @@
 export interface GraphDescription {
     vars?: Array<{
         name: string;
-        value: string | boolean | number;
+        value: boolean | number;
     }>;
 
     layers: Array<LayerDescription>;

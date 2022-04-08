@@ -30,16 +30,16 @@
  */
 // clang-format off
 #pragma once
-#include <boost/container/pmr/vector.hpp>
 #include <boost/graph/adjacency_iterator.hpp>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/range/irange.hpp>
+#include "cocos/base/std/container/string.h"
+#include "cocos/base/std/container/vector.h"
 #include "cocos/renderer/pipeline/custom/GraphTypes.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/Map.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
-#include "cocos/renderer/pipeline/custom/String.h"
 #include "gfx-base/GFXDef-common.h"
 
 namespace cc {
@@ -65,17 +65,16 @@ struct Range {
     uint32_t planeSlice{0xFFFFFFFF};
 };
 
-struct ResourceAccessDesc {
-    bool                    external{false};
-    uint32_t                resourceID{0xFFFFFFFF};
+struct AccessStatus {
+    uint32_t                vertID{0xFFFFFFFF};
     gfx::ShaderStageFlagBit visibility{gfx::ShaderStageFlagBit::NONE};
     gfx::MemoryAccessBit    access{gfx::MemoryAccessBit::NONE};
+    PassType                passType{PassType::RASTER};
     Range                   range;
 };
 
 struct ResourceAccessNode {
-    PassType                        passType{PassType::RASTER};
-    std::vector<ResourceAccessDesc> attachemntStatus;
+    std::vector<AccessStatus> attachemntStatus;
 };
 
 struct ResourceAccessGraph {
@@ -113,14 +112,14 @@ struct ResourceAccessGraph {
     // IncidenceGraph
     using OutEdge     = impl::StoredEdge<vertex_descriptor>;
     using out_edge_iterator = impl::OutEdgeIter<
-        boost::container::pmr::vector<OutEdge>::iterator,
+        ccstd::pmr::vector<OutEdge>::iterator,
         vertex_descriptor, edge_descriptor, int32_t>;
     using degree_size_type = uint32_t;
 
     // BidirectionalGraph
     using InEdge     = impl::StoredEdge<vertex_descriptor>;
     using in_edge_iterator = impl::InEdgeIter<
-        boost::container::pmr::vector<InEdge>::iterator,
+        ccstd::pmr::vector<InEdge>::iterator,
         vertex_descriptor, edge_descriptor, int32_t>;
 
     // AdjacencyGraph
@@ -132,17 +131,17 @@ struct ResourceAccessGraph {
     using vertices_size_type = uint32_t;
 
     // VertexList help functions
-    inline boost::container::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
+    inline ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
         return vertices[v].outEdges;
     }
-    inline const boost::container::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
+    inline const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
         return vertices[v].outEdges;
     }
 
-    inline boost::container::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
+    inline ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
         return vertices[v].inEdges;
     }
-    inline const boost::container::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
+    inline const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
         return vertices[v].inEdges;
     }
 
@@ -154,8 +153,8 @@ struct ResourceAccessGraph {
         return static_cast<vertex_descriptor>(vertices.size());
     }
 
-    inline boost::container::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
-        return boost::container::pmr::vector<boost::default_color_type>(vertices.size(), mr);
+    inline ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
+        return ccstd::pmr::vector<boost::default_color_type>(vertices.size(), mr);
     }
 
     // EdgeListGraph
@@ -181,8 +180,8 @@ struct ResourceAccessGraph {
         Vertex& operator=(Vertex&& rhs) = default;
         Vertex& operator=(Vertex const& rhs) = default;
 
-        boost::container::pmr::vector<OutEdge> outEdges;
-        boost::container::pmr::vector<InEdge>  inEdges;
+        ccstd::pmr::vector<OutEdge> outEdges;
+        ccstd::pmr::vector<InEdge>  inEdges;
     };
 
     struct PassIDTag {
@@ -191,29 +190,22 @@ struct ResourceAccessGraph {
     } static constexpr AccessNode{}; // NOLINT
 
     // Vertices
-    boost::container::pmr::vector<Vertex> vertices;
+    ccstd::pmr::vector<Vertex> vertices;
     // Components
-    boost::container::pmr::vector<RenderGraph::vertex_descriptor> passID;
-    boost::container::pmr::vector<ResourceAccessNode>             access;
+    ccstd::pmr::vector<RenderGraph::vertex_descriptor> passID;
+    ccstd::pmr::vector<ResourceAccessNode>             access;
     // UuidGraph
     PmrUnorderedMap<RenderGraph::vertex_descriptor, vertex_descriptor> passIndex;
     // Members
-    boost::container::pmr::vector<PmrString>    resourceNames;
-    std::vector<RenderGraph::vertex_descriptor> presentPasses;
-    PmrUnorderedMap<PmrString, uint32_t>        resourceIndex;
+    ccstd::pmr::vector<ccstd::pmr::string>              resourceNames;
+    std::vector<RenderGraph::vertex_descriptor>         presentPasses;
+    PmrUnorderedStringMap<ccstd::pmr::string, uint32_t> resourceIndex;
 };
 
 struct Barrier {
     RenderGraph::vertex_descriptor resourceID{0xFFFFFFFF};
-    RenderGraph::vertex_descriptor from{0xFFFFFFFF};
-    RenderGraph::vertex_descriptor to{0xFFFFFFFF};
-    gfx::ShaderStageFlagBit        beginVisibility{gfx::ShaderStageFlagBit::NONE};
-    gfx::ShaderStageFlagBit        endVisibility{gfx::ShaderStageFlagBit::NONE};
-    gfx::MemoryAccessBit           beginAccess{gfx::MemoryAccessBit::NONE};
-    gfx::MemoryAccessBit           endAccess{gfx::MemoryAccessBit::NONE};
-    PassType                       passType{PassType::RASTER};
-    Range                          fromRange;
-    Range                          toRange;
+    AccessStatus                   beginStatus;
+    AccessStatus                   endStatus;
 };
 
 struct BarrierNode {
