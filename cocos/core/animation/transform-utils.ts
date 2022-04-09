@@ -34,7 +34,7 @@ import { Node } from '../scene-graph';
 const m4_1 = new Mat4();
 
 /**
- * @legacyPublic
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
 export function getPathFromRoot (target: Node | null, root: Node) {
     let node: Node | null = target;
@@ -47,7 +47,7 @@ export function getPathFromRoot (target: Node | null, root: Node) {
 }
 
 /**
- * @legacyPublic
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
 export function getWorldTransformUntilRoot (target: Node, root: Node, outMatrix: Mat4) {
     Mat4.identity(outMatrix);

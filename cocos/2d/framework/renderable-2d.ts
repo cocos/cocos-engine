@@ -420,7 +420,7 @@ export class Renderable2D extends RenderableComponent {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _updateBlendFunc () {
         // todo: Not only Pass[0].target[0]
