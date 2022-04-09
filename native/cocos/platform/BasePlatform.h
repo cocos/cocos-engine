@@ -155,6 +155,8 @@ public:
     }
 
 private:
+    static BasePlatform* createDefaultPlatform();
+    static BasePlatform* _currentPlatform;
     std::vector<OSInterface::Ptr> _osInterfaces;
     CC_DISABLE_COPY_AND_MOVE_SEMANTICS(BasePlatform);
 };
