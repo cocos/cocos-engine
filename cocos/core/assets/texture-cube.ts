@@ -195,7 +195,7 @@ export class TextureCube extends SimpleTexture {
         this._setGFXFormat(info.format);
         const mipLevels = info.mipmapLevel === undefined ? 1 : info.mipmapLevel;
         this._setMipmapLevel(mipLevels);
-        const minLod = info.baseLevel === undefined ? 1 : info.baseLevel;
+        const minLod = info.baseLevel === undefined ? 0 : info.baseLevel;
         const maxLod = info.maxLevel === undefined ? 1000 : info.maxLevel;
         this._setMipRange(minLod, maxLod);
         this._tryReset();
