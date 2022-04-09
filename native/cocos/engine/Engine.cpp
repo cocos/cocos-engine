@@ -287,7 +287,7 @@ bool Engine::handleEvent(const OSEvent& ev) {
     return isHandled;
 }
 
-bool Engine::handleTouchEvent(const TouchEvent& ev) {
+bool Engine::handleTouchEvent(const TouchEvent& ev) { // NOLINT(readability-convert-member-functions-to-static)
     cc::EventDispatcher::dispatchTouchEvent(ev);
     return true;
 }
