@@ -288,7 +288,7 @@ bool Engine::handleEvent(const OSEvent& ev) {
 }
 
 bool Engine::handleTouchEvent(const TouchEvent& ev) {
-    cc::EventDispatcher::dispatchTouchEvent(OSEvent::castEvent<TouchEvent>(ev));
+    cc::EventDispatcher::dispatchTouchEvent(ev);
     return true;
 }
 
