@@ -21,8 +21,8 @@
  */
 
 #include "math/Vec2.h"
-#include "math/MathUtil.h"
 #include "base/Macros.h"
+#include "math/MathUtil.h"
 
 NS_CC_MATH_BEGIN
 
@@ -268,7 +268,6 @@ bool Vec2::isLineOverlap(const Vec2 &a, const Vec2 &b,
 }
 
 bool Vec2::isSegmentOverlap(const Vec2 &a, const Vec2 &b, const Vec2 &c, const Vec2 &d, Vec2 *s, Vec2 *e) {
-
     if (isLineOverlap(a, b, c, d)) {
         return isOneDimensionSegmentOverlap(a.x, b.x, c.x, d.x, &s->x, &e->x) &&
                isOneDimensionSegmentOverlap(a.y, b.y, c.y, d.y, &s->y, &e->y);

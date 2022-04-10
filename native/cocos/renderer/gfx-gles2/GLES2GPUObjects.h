@@ -139,7 +139,7 @@ using GLES2GPUTextureList = ccstd::vector<GLES2GPUTexture *>;
 
 struct GLES2GPUSwapchain {
 #if CC_SWAPPY_ENABLED
-    bool             swappyEnabled{false};
+    bool swappyEnabled{false};
 #endif
     EGLSurface       eglSurface{EGL_NO_SURFACE};
     EGLint           eglSwapInterval{0};
