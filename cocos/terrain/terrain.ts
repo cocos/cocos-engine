@@ -1462,6 +1462,9 @@ export class Terrain extends Component {
         }
         this._blocks = [];
 
+        // reset lightmap
+        this._resetLightmap(false);
+
         // build layer buffer
         this._rebuildLayerBuffer(info);
 
