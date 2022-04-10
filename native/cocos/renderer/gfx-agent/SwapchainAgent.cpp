@@ -137,6 +137,7 @@ void SwapchainAgent::doCreateSurface(void *windowHandle) {
         {
             actor->createSurface(windowHandle);
         });
+    DeviceAgent::getInstance()->getMessageQueue()->kickAndWait();
 }
 
 } // namespace gfx

@@ -29,7 +29,7 @@ import { Color } from '../math/color';
 import { Mat4 } from '../math/mat4';
 import { Vec3 } from '../math/vec3';
 import { Vec4 } from '../math/vec4';
-import { NativeGeometryRenderer } from '../renderer/scene';
+import { NativeGeometryRenderer } from '../renderer';
 import { SetIndex } from './define';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { RenderPipeline } from './render-pipeline';
@@ -73,27 +73,27 @@ enum GeometryType {
 
 class GeometryVertexBuffer {
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _maxVertices = 0;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _vertexCount = 0;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _stride = 0;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _vertices!: Float32Array;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _buffer!: Buffer;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _inputAssembler!: InputAssembler;
 

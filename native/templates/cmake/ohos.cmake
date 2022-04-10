@@ -2,6 +2,7 @@
 
 macro(cc_ohos_before_target target_name)
     set(CC_ALL_SOURCES ${CC_COMMON_SOURCES} ${CC_PROJ_SOURCES})
+    cc_common_before_target(${target_name})
 endmacro()
 
 macro(cc_ohos_after_target target_name)

@@ -100,7 +100,7 @@ export class AnimationCache {
     public maxIndexCount = 0;
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _privateMode = false;
     protected _inited = false;

@@ -300,12 +300,9 @@ export class AnimationState extends Playable {
     private _clipEval: ReturnType<AnimationClip['createEvaluator']> | undefined;
     private _clipEventEval: ReturnType<AnimationClip['createEventEvaluator']> | undefined;
     /**
-     * Sets if this animation state is passive.
-     * If a state is passive,
-     * the state's `update()` should be called somewhere to drive the effect of `play()`.
-     * Otherwise, the `update()` is called uniformly by main loop.
+     * For internal usage. Really hack...
      */
-    private _passive = false;
+    protected _doNotCreateEval = false;
 
     constructor (clip: AnimationClip, name = '') {
         super();
@@ -328,10 +325,17 @@ export class AnimationState extends Playable {
         return this._curveLoaded;
     }
 
-    public initialize (root: Node, blendStateBuffer?: BlendStateBuffer | null, mask?: AnimationMask, passive?: boolean) {
+    public initialize (root: Node, blendStateBuffer?: BlendStateBuffer, mask?: AnimationMask) {
         if (this._curveLoaded) { return; }
         this._curveLoaded = true;
-        this._destroyEvaluator();
+        if (this._poseOutput) {
+            this._poseOutput.destroy();
+            this._poseOutput = null;
+        }
+        if (this._clipEval) {
+            // TODO: destroy?
+            this._clipEval = undefined;
+        }
         this._targetNode = root;
         const clip = this._clip;
 
@@ -350,26 +354,33 @@ export class AnimationState extends Playable {
             this.repeatCount = 1;
         }
 
-        const pose = blendStateBuffer === null ? null : blendStateBuffer ?? getGlobalAnimationManager().blendState;
-        this._createEvaluator(
-            root,
-            pose,
-            mask,
-        );
+        if (!this._doNotCreateEval) {
+            const pose = blendStateBuffer ?? getGlobalAnimationManager()?.blendState ?? null;
+            if (pose) {
+                this._poseOutput = new PoseOutput(pose);
+            }
+            this._clipEval = clip.createEvaluator({
+                target: root,
+                pose: this._poseOutput ?? undefined,
+                mask,
+            });
+        }
 
         if (!(EDITOR && !legacyCC.GAME_VIEW)) {
             this._clipEventEval = clip.createEventEvaluator(this._targetNode);
         }
-        this._passive = passive ?? false;
     }
 
     public destroy () {
-        if (!this._passive) {
-            if (!this.isMotionless) {
-                getGlobalAnimationManager().removeAnimation(this);
-            }
+        if (!this.isMotionless) {
+            getGlobalAnimationManager().removeAnimation(this);
         }
-        this._destroyEvaluator();
+        if (this._poseOutput) {
+            this._poseOutput.destroy();
+            this._poseOutput = null;
+        }
+        // TODO: destroy?
+        this._clipEval = undefined!;
     }
 
     /**
@@ -432,7 +443,7 @@ export class AnimationState extends Playable {
 
     /**
      * This method is used for internal purpose only.
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _setEventTarget (target) {
         this._target = target;
@@ -504,25 +515,6 @@ export class AnimationState extends Playable {
         this.emit(EventType.PAUSE, this);
     }
 
-    /**
-     * @internal This method only friends to skeletal animation state.
-     */
-    protected _createEvaluator (
-        root: Node,
-        blendStateBuffer: BlendStateBuffer | null,
-        mask: AnimationMask | undefined,
-    ) {
-        const { clip } = this;
-        if (blendStateBuffer) {
-            this._poseOutput = new PoseOutput(blendStateBuffer);
-        }
-        this._clipEval = clip.createEvaluator({
-            target: root,
-            pose: this._poseOutput ?? undefined,
-            mask,
-        });
-    }
-
     protected _sampleCurves (time: number) {
         const { _poseOutput: poseOutput, _clipEval: clipEval } = this;
         if (poseOutput) {
@@ -530,17 +522,6 @@ export class AnimationState extends Playable {
         }
         if (clipEval) {
             clipEval.evaluate(time);
-        }
-    }
-
-    private _destroyEvaluator () {
-        if (this._poseOutput) {
-            this._poseOutput.destroy();
-            this._poseOutput = null;
-        }
-        if (this._clipEval) {
-            // TODO: destroy?
-            this._clipEval = undefined;
         }
     }
 
@@ -705,15 +686,11 @@ export class AnimationState extends Playable {
     }
 
     private _onReplayOrResume () {
-        if (!this._passive) {
-            getGlobalAnimationManager().addAnimation(this);
-        }
+        getGlobalAnimationManager().addAnimation(this);
     }
 
     private _onPauseOrStop () {
-        if (!this._passive) {
-            getGlobalAnimationManager().removeAnimation(this);
-        }
+        getGlobalAnimationManager().removeAnimation(this);
     }
 }
 

@@ -60,35 +60,35 @@ let _domCount = 0;
 
 export class EditBoxImpl extends EditBoxImplBase {
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _delegate: EditBox | null = null;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _inputMode: InputMode = -1;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _inputFlag: InputFlag = -1;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _returnType: KeyboardReturnType = -1;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public __eventListeners: any = {};
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public __autoResize = false;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public __orientationChanged: any;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _edTxt: HTMLInputElement | HTMLTextAreaElement | null = null;
     private _isTextArea = false;

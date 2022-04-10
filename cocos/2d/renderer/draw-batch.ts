@@ -29,12 +29,12 @@ import { Material } from '../../core/assets/material';
 import { Texture, Sampler, InputAssembler, DescriptorSet, Shader } from '../../core/gfx';
 import { Node } from '../../core/scene-graph';
 import { Camera } from '../../core/renderer/scene/camera';
-import { RenderScene } from '../../core/renderer/scene/render-scene';
+import { RenderScene } from '../../core/renderer/core/render-scene';
 import { Model } from '../../core/renderer/scene/model';
 import { Layers } from '../../core/scene-graph/layers';
 import { legacyCC } from '../../core/global-exports';
 import { Pass } from '../../core/renderer/core/pass';
-import { NativeDrawBatch2D, NativePass } from '../../core/renderer/scene';
+import { NativeDrawBatch2D, NativePass } from '../../core/renderer/native-scene';
 import { IBatcher } from './i-batcher';
 
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;

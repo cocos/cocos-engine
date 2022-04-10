@@ -28,6 +28,7 @@ macro(cc_windows_before_target target_name)
     )
     cc_include_resources(${RES_DIR}/data CC_ASSET_FILES)
     set(CC_ALL_SOURCES ${CC_PROJ_SOURCES} ${CC_COMMON_SOURCES} ${CC_ASSET_FILES})
+    cc_common_before_target(${target_name})
 endmacro()
 
 

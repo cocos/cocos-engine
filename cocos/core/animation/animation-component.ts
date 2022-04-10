@@ -39,10 +39,6 @@ import { AnimationClip } from './animation-clip';
 import { AnimationState, EventType } from './animation-state';
 import { CrossFade } from './cross-fade';
 import { legacyCC } from '../global-exports';
-import { LegacyBlendStateBuffer } from '../../3d/skeletal-animation/skeletal-animation-blending';
-import { AnimationUpdateTaskHandle } from './animation-manager';
-import { assertIsTrue } from '../data/utils/asserts';
-import { getGlobalAnimationManager } from './global-animation-manager';
 import { js } from '../utils/js';
 
 /**
@@ -159,8 +155,6 @@ export class Animation extends Eventify(Component) {
     @serializable
     protected _defaultClip: AnimationClip | null = null;
 
-    private _animationUpdateTaskHandle: AnimationUpdateTaskHandle | undefined = undefined;
-
     /**
      * Whether if `crossFade()` or `play()` has been called before this component starts.
      */
@@ -170,7 +164,7 @@ export class Animation extends Eventify(Component) {
         this.clips = this._clips;
         for (const stateName in this._nameToState) {
             const state = this._nameToState[stateName];
-            this._initializeState(state);
+            state.initialize(this.node);
         }
     }
 
@@ -181,20 +175,15 @@ export class Animation extends Eventify(Component) {
     }
 
     public onEnable () {
-        assertIsTrue(!this._animationUpdateTaskHandle);
-        this._animationUpdateTaskHandle = getGlobalAnimationManager().addUpdateTask(
-            this._onAnimationSystemUpdate,
-            this,
-        );
+        this._crossFade.resume();
     }
 
     public onDisable () {
-        assertIsTrue(typeof this._animationUpdateTaskHandle !== 'undefined');
-        getGlobalAnimationManager().removeUpdateTask(this._animationUpdateTaskHandle);
-        this._animationUpdateTaskHandle = undefined;
+        this._crossFade.pause();
     }
 
     public onDestroy () {
+        this._crossFade.stop();
         for (const name in this._nameToState) {
             const state = this._nameToState[name];
             state.destroy();
@@ -211,7 +200,6 @@ export class Animation extends Eventify(Component) {
      */
     public play (name?: string) {
         this._hasBeenPlayed = true;
-        this._playing = true;
         if (!name) {
             if (!this._defaultClip) {
                 return;
@@ -231,7 +219,6 @@ export class Animation extends Eventify(Component) {
      */
     public crossFade (name: string, duration = 0.3) {
         this._hasBeenPlayed = true;
-        this._playing = true;
         const state = this._nameToState[name];
         if (state) {
             this.doPlayOrCrossFade(state, duration);
@@ -245,7 +232,6 @@ export class Animation extends Eventify(Component) {
      * 暂停所有动画状态，并暂停所有切换。
      */
     public pause () {
-        this._playing = false;
         this._crossFade.pause();
     }
 
@@ -256,7 +242,6 @@ export class Animation extends Eventify(Component) {
      * 恢复所有动画状态，并恢复所有切换。
      */
     public resume () {
-        this._playing = true;
         this._crossFade.resume();
     }
 
@@ -267,8 +252,7 @@ export class Animation extends Eventify(Component) {
      * 停止所有动画状态，并停止所有切换。
      */
     public stop () {
-        this._playing = false;
-        this._crossFade.clear();
+        this._crossFade.stop();
     }
 
     /**
@@ -282,7 +266,7 @@ export class Animation extends Eventify(Component) {
     public getState (name: string) {
         const state = this._nameToState[name];
         if (state && !state.curveLoaded) {
-            this._initializeState(state);
+            state.initialize(this.node);
         }
         return state || null;
     }
@@ -402,7 +386,7 @@ export class Animation extends Eventify(Component) {
      * animation.on('play', this.onPlay, this);
      * ```
      */
-    public on<TFunction extends (...any) => void> (type: Animation.EventType, callback: TFunction, thisArg?: any, once?: boolean) {
+    public on<TFunction extends (...any) => void> (type: EventType, callback: TFunction, thisArg?: any, once?: boolean) {
         const ret = super.on(type, callback, thisArg, once);
         if (type === EventType.LASTFRAME) {
             this._syncAllowLastFrameEvent();
@@ -410,7 +394,7 @@ export class Animation extends Eventify(Component) {
         return ret;
     }
 
-    public once<TFunction extends (...any) => void> (type: Animation.EventType, callback: TFunction, thisArg?: any) {
+    public once<TFunction extends (...any) => void> (type: EventType, callback: TFunction, thisArg?: any) {
         const ret = super.once(type, callback, thisArg);
         if (type === EventType.LASTFRAME) {
             this._syncAllowLastFrameEvent();
@@ -432,22 +416,10 @@ export class Animation extends Eventify(Component) {
      * animation.off('play', this.onPlay, this);
      * ```
      */
-    public off (type: Animation.EventType, callback?: (...any) => void, thisArg?: any) {
+    public off (type: EventType, callback?: (...any) => void, thisArg?: any) {
         super.off(type, callback, thisArg);
         if (type === EventType.LASTFRAME) {
             this._syncDisallowLastFrameEvent();
-        }
-    }
-
-    /**
-     * @internal Friends only to skeletal animation component.
-     */
-    protected _recreateAllStates () {
-        this.stop();
-        for (const name in this._nameToState) {
-            const oldState = this._nameToState[name];
-            this._doCreateState(oldState.clip, name);
-            oldState.destroy();
         }
     }
 
@@ -460,7 +432,7 @@ export class Animation extends Eventify(Component) {
         state._setEventTarget(this);
         state.allowLastFrameEvent(this.hasEventListener(EventType.LASTFRAME));
         if (this.node) {
-            this._initializeState(state);
+            state.initialize(this.node);
         }
         this._nameToState[state.name] = state;
         return state;
@@ -471,24 +443,8 @@ export class Animation extends Eventify(Component) {
      * @internal This method only friends to skeletal animation component.
      */
     protected doPlayOrCrossFade (state: AnimationState, duration: number) {
+        this._crossFade.play();
         this._crossFade.crossFade(state, duration);
-    }
-
-    private _playing = false;
-
-    private _blendStateBuffer = new LegacyBlendStateBuffer();
-
-    private _onAnimationSystemUpdate (deltaTime: number) {
-        this._crossFade.update(deltaTime);
-
-        for (const name in this._nameToState) {
-            const state = this._nameToState[name];
-            if (!state.isMotionless) {
-                state.update(deltaTime);
-            }
-        }
-
-        this._blendStateBuffer.apply();
     }
 
     private _removeStateOfAutomaticClip (clip: AnimationClip) {
@@ -515,15 +471,6 @@ export class Animation extends Eventify(Component) {
                 this._nameToState[stateName].allowLastFrameEvent(false);
             }
         }
-    }
-
-    private _initializeState (state: AnimationState) {
-        state.initialize(
-            this.node,
-            this._blendStateBuffer,
-            undefined, // Animation Mask
-            true, // Passive - The updating of animation state is handled by us
-        );
     }
 }
 

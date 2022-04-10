@@ -998,10 +998,6 @@ void SocketIO::destroyInstance() {
     CC_SAFE_DELETE(inst);
 }
 
-SIOClient *SocketIO::connect(SIODelegate &delegate, const std::string &uri) {
-    return SocketIO::connect(uri, delegate);
-}
-
 SIOClient *SocketIO::connect(const std::string &uri, SIODelegate &delegate) {
     return SocketIO::connect(uri, delegate, "");
 }

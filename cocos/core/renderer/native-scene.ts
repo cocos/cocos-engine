@@ -1,11 +1,10 @@
-import { IFlatBuffer } from '../../assets/rendering-sub-mesh';
-import { AABB } from '../../geometry/aabb';
-import { Frustum } from '../../geometry/frustum';
+import { IFlatBuffer } from '../assets/rendering-sub-mesh';
+import { Frustum } from '../geometry/frustum';
 import { Attribute, BlendState, Buffer, ClearFlags, Color as GFXColor, DepthStencilState,
-    DescriptorSet, Framebuffer, InputAssembler, RasterizerState, Sampler, Shader, Swapchain, Texture } from '../../gfx';
-import { Color, Mat4, Rect, Vec2, Vec3, Vec4 } from '../../math';
-import { RenderPriority } from '../../pipeline/define';
-import { LightType } from './light';
+    DescriptorSet, Framebuffer, InputAssembler, RasterizerState, Sampler, Shader, Swapchain, Texture } from '../gfx';
+import { Color, Mat4, Rect, Vec2, Vec3, Vec4 } from '../math';
+import { RenderPriority } from '../pipeline/define';
+import { LightType } from './scene/light';
 
 export const NativeNode: Constructor<{
     initWithData (data: TypedArray, chunk: Uint32Array, computeNodes: NativeNode[]): void;

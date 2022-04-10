@@ -79,6 +79,7 @@ void Device::destroy() {
 }
 
 void Device::destroySurface(void *windowHandle) {
+    setRendererAvailable(false);
     for (auto *swapchain : _swapchains) {
         if (swapchain->getWindowHandle() == windowHandle) {
             swapchain->destroySurface();
@@ -94,6 +95,7 @@ void Device::createSurface(void *windowHandle) {
             break;
         }
     }
+    setRendererAvailable(true);
 }
 
 Sampler *Device::getSampler(const SamplerInfo &info) {

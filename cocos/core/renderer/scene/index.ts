@@ -23,17 +23,17 @@
  THE SOFTWARE.
  */
 
-export * from './ambient';
-export * from './octree';
 export * from './camera';
-export * from './deprecated';
-export * from './directional-light';
-export * from './light';
 export * from './model';
-export * from './shadows';
-export * from './render-scene';
+export * from './submodel';
+export * from './ambient';
 export * from './skybox';
+export * from './shadows';
+export * from './fog';
+export * from './octree';
+export * from './light';
+export * from './directional-light';
 export * from './sphere-light';
 export * from './spot-light';
-export * from './submodel';
-export * from './native-scene';
+// Need to remove later
+export * from '../core/render-scene';
