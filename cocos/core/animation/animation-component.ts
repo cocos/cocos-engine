@@ -43,6 +43,7 @@ import { LegacyBlendStateBuffer } from '../../3d/skeletal-animation/skeletal-ani
 import { AnimationUpdateTaskHandle } from './animation-manager';
 import { assertIsTrue } from '../data/utils/asserts';
 import { getGlobalAnimationManager } from './global-animation-manager';
+import { js } from '../utils/js';
 
 /**
  * @en
@@ -540,3 +541,11 @@ function equalClips (clip1: AnimationClip | null, clip2: AnimationClip | null) {
 }
 
 legacyCC.Animation = Animation;
+
+/**
+ * Alias of [[Animation]]
+ * @deprecated Since v1.2
+ */
+export { Animation as AnimationComponent };
+legacyCC.AnimationComponent = Animation;
+js.setClassAlias(Animation, 'cc.AnimationComponent');

@@ -38,6 +38,7 @@ export {
 } from './animation-state';
 export {
     Animation,
+    AnimationComponent,
 } from './animation-component';
 export * from './transform-utils';
 export { animation };

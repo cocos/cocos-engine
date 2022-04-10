@@ -9,6 +9,7 @@
         "cc.AnimCurve",
         "cc.AnimationClip",
 		"cc.Animation",
+        "cc.AnimationComponent",
         "cc.AnimationManager",
         "cc.AnimationState",
         "cc.Asset",
