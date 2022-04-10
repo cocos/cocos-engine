@@ -256,7 +256,7 @@ bool XMLHttpRequest::open(const ccstd::string &method, const ccstd::string &url)
         requestType = HttpRequest::Type::DELETE;
     }
 
-    CCASSERT(requestType != HttpRequest::Type::UNKNOWN, (ccstd::string("XMLHttpRequest.open: Unknown method: ") + method).c_str());
+    CC_ASSERT(requestType != HttpRequest::Type::UNKNOWN);
 
     _httpRequest->setRequestType(requestType);
     _httpRequest->setUrl(_url);

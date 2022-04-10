@@ -149,8 +149,8 @@ void Scheduler::schedule(const ccSchedulerFunc &callback, void *target, float in
 }
 
 void Scheduler::schedule(const ccSchedulerFunc &callback, void *target, float interval, unsigned int repeat, float delay, bool paused, const ccstd::string &key) {
-    CCASSERT(target, "Argument target must be non-nullptr");
-    CCASSERT(!key.empty(), "key should not be empty!");
+    CC_ASSERT(target);
+    CC_ASSERT(!key.empty());
 
     auto            iter    = _hashForTimers.find(target);
     HashTimerEntry *element = nullptr;
@@ -164,7 +164,7 @@ void Scheduler::schedule(const ccSchedulerFunc &callback, void *target, float in
         element->paused = paused;
     } else {
         element = iter->second;
-        CCASSERT(element->paused == paused, "element's paused should be paused!");
+        CC_ASSERT(element->paused == paused);
     }
 
     if (element->timers.empty()) {
@@ -232,8 +232,8 @@ void Scheduler::unschedule(const ccstd::string &key, void *target) {
 }
 
 bool Scheduler::isScheduled(const ccstd::string &key, void *target) {
-    CCASSERT(!key.empty(), "Argument key must not be empty");
-    CCASSERT(target, "Argument target must be non-nullptr");
+    CC_ASSERT(!key.empty());
+    CC_ASSERT(target);
 
     auto iter = _hashForTimers.find(target);
     if (iter == _hashForTimers.end()) {
@@ -290,7 +290,7 @@ void Scheduler::unscheduleAllForTarget(void *target) {
 }
 
 void Scheduler::resumeTarget(void *target) {
-    CCASSERT(target != nullptr, "target can't be nullptr!");
+    CC_ASSERT(target != nullptr);
 
     // custom selectors
     auto iter = _hashForTimers.find(target);
@@ -300,7 +300,7 @@ void Scheduler::resumeTarget(void *target) {
 }
 
 void Scheduler::pauseTarget(void *target) {
-    CCASSERT(target != nullptr, "target can't be nullptr!");
+    CC_ASSERT(target != nullptr);
 
     // custom selectors
     auto iter = _hashForTimers.find(target);
@@ -310,7 +310,7 @@ void Scheduler::pauseTarget(void *target) {
 }
 
 bool Scheduler::isTargetPaused(void *target) {
-    CCASSERT(target != nullptr, "target must be non nil");
+    CC_ASSERT(target != nullptr);
 
     // Custom selectors
     auto iter = _hashForTimers.find(target);

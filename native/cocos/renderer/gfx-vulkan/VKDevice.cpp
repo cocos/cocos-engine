@@ -540,8 +540,8 @@ void CCVKDevice::doDestroy() {
             VmaStats stats;
             vmaCalculateStats(_gpuDevice->memoryAllocator, &stats);
             CC_LOG_INFO("Total device memory leaked: %d bytes.", stats.total.usedBytes);
-            CCASSERT(!_memoryStatus.bufferSize, "Buffer memory leaked");
-            CCASSERT(!_memoryStatus.textureSize, "Texture memory leaked");
+            CC_ASSERT(!_memoryStatus.bufferSize);  // Buffer memory leaked.
+            CC_ASSERT(!_memoryStatus.textureSize); // Texture memory leaked.
 
             vmaDestroyAllocator(_gpuDevice->memoryAllocator);
             _gpuDevice->memoryAllocator = VK_NULL_HANDLE;
@@ -626,7 +626,7 @@ void CCVKDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
         VkSemaphore acquireSemaphore = _gpuSemaphorePool->alloc();
         VkResult    res              = vkAcquireNextImageKHR(_gpuDevice->vkDevice, vkSwapchains[i], ~0ULL,
                                              acquireSemaphore, VK_NULL_HANDLE, &vkSwapchainIndices[i]);
-        CCASSERT(res == VK_SUCCESS || res == VK_SUBOPTIMAL_KHR, "acquire surface failed");
+        CC_ASSERT(res == VK_SUCCESS || res == VK_SUBOPTIMAL_KHR);
         gpuSwapchains[i]->curImageIndex = vkSwapchainIndices[i];
         queue->gpuQueue()->lastSignaledSemaphores.push_back(acquireSemaphore);
 
@@ -885,7 +885,7 @@ void CCVKDevice::getQueryPoolResults(QueryPool *queryPool) {
     CC_PROFILE(CCVKDeviceGetQueryPoolResults);
     auto *vkQueryPool = static_cast<CCVKQueryPool *>(queryPool);
     auto  queryCount  = static_cast<uint32_t>(vkQueryPool->_ids.size());
-    CCASSERT(queryCount <= vkQueryPool->getMaxQueryObjects(), "Too many query commands.");
+    CC_ASSERT(queryCount <= vkQueryPool->getMaxQueryObjects());
 
     const bool              bWait  = queryPool->getForceWait();
     uint32_t                width  = bWait ? 1U : 2U;
@@ -903,7 +903,7 @@ void CCVKDevice::getQueryPoolResults(QueryPool *queryPool) {
             results.data(),
             stride,
             VK_QUERY_RESULT_64_BIT | flag);
-        CCASSERT(result == VK_SUCCESS || result == VK_NOT_READY, "Unexpected error code.");
+        CC_ASSERT(result == VK_SUCCESS || result == VK_NOT_READY);
     }
 
     ccstd::unordered_map<uint32_t, uint64_t> mapResults;

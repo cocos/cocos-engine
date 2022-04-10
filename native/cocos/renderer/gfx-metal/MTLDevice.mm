@@ -179,8 +179,8 @@ void CCMTLDevice::doDestroy() {
     CCMTLTexture::deleteDefaultTexture();
     CCMTLSampler::deleteDefaultSampler();
 
-    CCASSERT(!_memoryStatus.bufferSize, "Buffer memory leaked");
-    CCASSERT(!_memoryStatus.textureSize, "Texture memory leaked");
+    CC_ASSERT(!_memoryStatus.bufferSize); // Buffer memory leaked
+    CC_ASSERT(!_memoryStatus.textureSize); // Texture memory leaked
 }
 
 void CCMTLDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
@@ -326,7 +326,7 @@ void CCMTLDevice::getQueryPoolResults(QueryPool *queryPool) {
     auto *             mtlQueryPool = static_cast<CCMTLQueryPool *>(queryPool);
     CCMTLGPUQueryPool *gpuQueryPool = mtlQueryPool->gpuQueryPool();
     auto               queryCount   = static_cast<uint32_t>(mtlQueryPool->_ids.size());
-    CCASSERT(queryCount <= mtlQueryPool->getMaxQueryObjects(), "Too many query commands.");
+    CC_ASSERT(queryCount <= mtlQueryPool->getMaxQueryObjects()); // Too many query commands.
 
     gpuQueryPool->semaphore->wait();
     uint64_t *results = queryCount > 0U ? static_cast<uint64_t *>(gpuQueryPool->visibilityResultBuffer.contents) : nullptr;

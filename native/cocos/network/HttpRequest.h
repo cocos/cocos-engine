@@ -89,19 +89,6 @@ public:
     /** Destructor. */
     ~HttpRequest() override = default;
 
-    /**
-     * Override autorelease method to avoid developers to call it.
-     * If this function was called, it would trigger assert in debug mode
-     *
-     * @return Ref* always return nullptr.
-     */
-    RefCounted *autorelease() { // NOLINT(readability-convert-member-functions-to-static)
-        CCASSERT(false,
-                 "HttpResponse is used between network thread and ui thread \
-                 therefore, autorelease is forbidden here");
-        return nullptr;
-    }
-
     // setter/getters for properties
 
     /**

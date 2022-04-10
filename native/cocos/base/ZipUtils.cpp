@@ -70,10 +70,10 @@ inline void ZipUtils::decodeEncodedPvr(unsigned int *data, uint32_t len) {
 
     // check if key was set
     // make sure to call caw_setkey_part() for all 4 key parts
-    CCASSERT(ZipUtils::encryptedPvrKeyParts[0] != 0, "ZipUtils: CCZ file is encrypted but key part 0 is not set. Did you call ZipUtils::setPvrEncryptionKeyPart(...)?");
-    CCASSERT(ZipUtils::encryptedPvrKeyParts[1] != 0, "ZipUtils: CCZ file is encrypted but key part 1 is not set. Did you call ZipUtils::setPvrEncryptionKeyPart(...)?");
-    CCASSERT(ZipUtils::encryptedPvrKeyParts[2] != 0, "ZipUtils: CCZ file is encrypted but key part 2 is not set. Did you call ZipUtils::setPvrEncryptionKeyPart(...)?");
-    CCASSERT(ZipUtils::encryptedPvrKeyParts[3] != 0, "ZipUtils: CCZ file is encrypted but key part 3 is not set. Did you call ZipUtils::setPvrEncryptionKeyPart(...)?");
+    CC_ASSERT(ZipUtils::encryptedPvrKeyParts[0] != 0); // CCZ file is encrypted but key part 0 is not set. Call ZipUtils::setPvrEncryptionKeyPart(...)?
+    CC_ASSERT(ZipUtils::encryptedPvrKeyParts[1] != 0); // CCZ file is encrypted but key part 1 is not set. Call ZipUtils::setPvrEncryptionKeyPart(...)?
+    CC_ASSERT(ZipUtils::encryptedPvrKeyParts[2] != 0); // CCZ file is encrypted but key part 2 is not set. Call ZipUtils::setPvrEncryptionKeyPart(...)?
+    CC_ASSERT(ZipUtils::encryptedPvrKeyParts[3] != 0); // CCZ file is encrypted but key part 3 is not set. Call ZipUtils::setPvrEncryptionKeyPart(...)?
 
     // create long key
     if (!ZipUtils::encryptionKeyIsValid) {
@@ -236,8 +236,8 @@ int ZipUtils::inflateGZipFile(const char *path, unsigned char **out) {
     int len;
     int offset = 0;
 
-    CCASSERT(out, "out can't be nullptr.");
-    CCASSERT(&*out, "&*out can't be nullptr.");
+    CC_ASSERT(out);
+    CC_ASSERT(&*out);
 
     gzFile inFile = gzopen(FileUtils::getInstance()->getSuitableFOpen(path).c_str(), "rb");
     if (inFile == nullptr) {
@@ -413,7 +413,7 @@ int ZipUtils::inflateCCZBuffer(const unsigned char *buffer, uint32_t bufferLen, 
 }
 
 int ZipUtils::inflateCCZFile(const char *path, unsigned char **out) {
-    CCASSERT(out, "Invalid pointer for buffer!");
+    CC_ASSERT(out);
 
     // load file into memory
     Data compressedData = FileUtils::getInstance()->getDataFromFile(path);
@@ -427,8 +427,8 @@ int ZipUtils::inflateCCZFile(const char *path, unsigned char **out) {
 }
 
 void ZipUtils::setPvrEncryptionKeyPart(int index, unsigned int value) {
-    CCASSERT(index >= 0, "key part index cannot be less than 0");
-    CCASSERT(index <= 3, "key part index cannot be greater than 3");
+    CC_ASSERT(index >= 0);
+    CC_ASSERT(index <= 3);
 
     if (ZipUtils::encryptedPvrKeyParts[index] != value) {
         ZipUtils::encryptedPvrKeyParts[index] = value;
@@ -573,7 +573,7 @@ unsigned char *ZipFile::getFileData(const ccstd::string &fileName, uint32_t *siz
 
         buffer              = static_cast<unsigned char *>(malloc(fileInfo.uncompressed_size));
         int CC_UNUSED nSize = unzReadCurrentFile(*zipFile, buffer, static_cast<unsigned int>(fileInfo.uncompressed_size));
-        CCASSERT(nSize == 0 || nSize == (int)fileInfo.uncompressed_size, "the file size is wrong");
+        CC_ASSERT(nSize == 0 || nSize == (int)fileInfo.uncompressed_size);
 
         if (size) {
             *size = static_cast<uint32_t>(fileInfo.uncompressed_size);
@@ -604,7 +604,7 @@ bool ZipFile::getFileData(const ccstd::string &fileName, ResizableBuffer *buffer
 
         buffer->resize(fileInfo.uncompressed_size);
         int CC_UNUSED nSize = unzReadCurrentFile(*zipFile, buffer->buffer(), static_cast<unsigned int>(fileInfo.uncompressed_size));
-        CCASSERT(nSize == 0 || nSize == (int)fileInfo.uncompressed_size, "the file size is wrong");
+        CC_ASSERT(nSize == 0 || nSize == (int)fileInfo.uncompressed_size);
         unzCloseCurrentFile(*zipFile);
         res = true;
     } while (false);

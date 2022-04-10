@@ -95,7 +95,7 @@ public:
         _resultType = SAX_RESULT_DICT;
         SAXParser parser;
 
-        CCASSERT(parser.init("UTF-8"), "The file format isn't UTF-8");
+        CC_ASSERT(parser.init("UTF-8"));
         parser.setDelegator(this);
 
         parser.parse(fileName);
@@ -106,7 +106,7 @@ public:
         _resultType = SAX_RESULT_DICT;
         SAXParser parser;
 
-        CCASSERT(parser.init("UTF-8"), "The file format isn't UTF-8");
+        CC_ASSERT(parser.init("UTF-8"));
         parser.setDelegator(this);
 
         parser.parse(filedata, filesize);
@@ -117,7 +117,7 @@ public:
         _resultType = SAX_RESULT_ARRAY;
         SAXParser parser;
 
-        CCASSERT(parser.init("UTF-8"), "The file format isn't UTF-8");
+        CC_ASSERT(parser.init("UTF-8"));
         parser.setDelegator(this);
 
         parser.parse(fileName);
@@ -146,7 +146,7 @@ public:
                 _curDict = &(_curArray->rbegin())->asValueMap();
             } else if (SAX_DICT == preState) {
                 // add a new dictionary into the pre dictionary
-                CCASSERT(!_dictStack.empty(), "The state is wrong!");
+                CC_ASSERT(!_dictStack.empty()); // The state is wrong.
                 ValueMap *preDict   = _dictStack.top();
                 (*preDict)[_curKey] = Value(ValueMap());
                 _curDict            = &(*preDict)[_curKey].asValueMap();
@@ -178,7 +178,7 @@ public:
                 (*_curDict)[_curKey] = Value(ValueVector());
                 _curArray            = &(*_curDict)[_curKey].asValueVector();
             } else if (preState == SAX_ARRAY) {
-                CCASSERT(!_arrayStack.empty(), "The state is wrong!");
+                CC_ASSERT(!_arrayStack.empty()); // The state is wrong!
                 ValueVector *preArray = _arrayStack.top();
                 preArray->push_back(Value(ValueVector()));
                 _curArray = &(_curArray->rbegin())->asValueVector();
@@ -261,7 +261,8 @@ public:
             case SAX_REAL:
             case SAX_STRING: {
                 if (curState == SAX_DICT) {
-                    CCASSERT(!_curKey.empty(), "key not found : <integer/real>");
+                    // "key not found : <integer/real>"
+                    CC_ASSERT(!_curKey.empty());
                 }
 
                 _curValue.append(text);
@@ -506,7 +507,7 @@ bool FileUtils::writeDataToFile(const Data &data, const ccstd::string &fullPath)
     size_t      size = 0;
     const char *mode = "wb";
 
-    CCASSERT(!fullPath.empty() && data.getSize() != 0, "Invalid parameters.");
+    CC_ASSERT(!fullPath.empty() && data.getSize() != 0);
 
     auto *fileutils = FileUtils::getInstance();
     do {
@@ -612,7 +613,7 @@ unsigned char *FileUtils::getFileDataFromZip(const ccstd::string &zipFilePath, c
 
         buffer                   = static_cast<unsigned char *>(malloc(fileInfo.uncompressed_size));
         int CC_UNUSED readedSize = unzReadCurrentFile(file, buffer, static_cast<unsigned>(fileInfo.uncompressed_size));
-        CCASSERT(readedSize == 0 || readedSize == (int)fileInfo.uncompressed_size, "the file size is wrong");
+        CC_ASSERT(readedSize == 0 || readedSize == (int)fileInfo.uncompressed_size);
 
         *size = fileInfo.uncompressed_size;
         unzCloseCurrentFile(file);
@@ -785,7 +786,7 @@ bool FileUtils::isAbsolutePath(const ccstd::string &path) const {
 }
 
 bool FileUtils::isDirectoryExist(const ccstd::string &dirPath) const {
-    CCASSERT(!dirPath.empty(), "Invalid path");
+    CC_ASSERT(!dirPath.empty());
 
     if (isAbsolutePath(dirPath)) {
         return isDirectoryExistInternal(normalizePath(dirPath));
@@ -915,42 +916,50 @@ void FileUtils::listFilesRecursively(const ccstd::string &dirPath, ccstd::vector
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS) || (CC_PLATFORM == CC_PLATFORM_WINRT)
 // windows os implement should override in platform specific FileUtiles class
 bool FileUtils::isDirectoryExistInternal(const ccstd::string &dirPath) const {
-    CCASSERT(false, "FileUtils not support isDirectoryExistInternal");
+    // FileUtils not support isDirectoryExistInternal.
+    CC_ASSERT(false);
     return false;
 }
 
 bool FileUtils::createDirectory(const ccstd::string &path) {
-    CCASSERT(false, "FileUtils not support createDirectory");
+    // FileUtils not support createDirectory.
+    CC_ASSERT(false);
     return false;
 }
 
 bool FileUtils::removeDirectory(const ccstd::string &path) {
-    CCASSERT(false, "FileUtils not support removeDirectory");
+    // FileUtils not support removeDirectory.
+    CC_ASSERT(false);
     return false;
 }
 
 bool FileUtils::removeFile(const ccstd::string &path) {
-    CCASSERT(false, "FileUtils not support removeFile");
+    // FileUtils not support removeFile.
+    CC_ASSERT(false);
     return false;
 }
 
 bool FileUtils::renameFile(const ccstd::string &oldfullpath, const ccstd::string &newfullpath) {
-    CCASSERT(false, "FileUtils not support renameFile");
+    // FileUtils not support renameFile.
+    CC_ASSERT(false);
     return false;
 }
 
 bool FileUtils::renameFile(const ccstd::string &path, const ccstd::string &oldname, const ccstd::string &name) {
-    CCASSERT(false, "FileUtils not support renameFile");
+    // FileUtils not support renameFile.
+    CC_ASSERT(false);
     return false;
 }
 
 ccstd::string FileUtils::getSuitableFOpen(const ccstd::string &filenameUtf8) const {
-    CCASSERT(false, "getSuitableFOpen should be override by platform FileUtils");
+    // getSuitableFOpen should be override by platform FileUtils
+    CC_ASSERT(false);
     return filenameUtf8;
 }
 
 long FileUtils::getFileSize(const ccstd::string &filepath) {
-    CCASSERT(false, "getFileSize should be override by platform FileUtils");
+    // getFileSize should be override by platform FileUtils
+    CC_ASSERT(false);
     return 0;
 }
 
@@ -974,7 +983,7 @@ bool FileUtils::isDirectoryExistInternal(const ccstd::string &dirPath) const {
 }
 
 bool FileUtils::createDirectory(const ccstd::string &path) {
-    CCASSERT(!path.empty(), "Invalid path");
+    CC_ASSERT(!path.empty());
 
     if (isDirectoryExist(path)) {
         return true;
@@ -1065,8 +1074,8 @@ bool FileUtils::removeFile(const ccstd::string &path) {
 }
 
 bool FileUtils::renameFile(const ccstd::string &oldfullpath, const ccstd::string &newfullpath) {
-    CCASSERT(!oldfullpath.empty(), "Invalid path");
-    CCASSERT(!newfullpath.empty(), "Invalid path");
+    CC_ASSERT(!oldfullpath.empty());
+    CC_ASSERT(!newfullpath.empty());
 
     int errorCode = rename(oldfullpath.c_str(), newfullpath.c_str());
 
@@ -1078,7 +1087,7 @@ bool FileUtils::renameFile(const ccstd::string &oldfullpath, const ccstd::string
 }
 
 bool FileUtils::renameFile(const ccstd::string &path, const ccstd::string &oldname, const ccstd::string &name) {
-    CCASSERT(!path.empty(), "Invalid path");
+    CC_ASSERT(!path.empty());
     ccstd::string oldPath = path + oldname;
     ccstd::string newPath = path + name;
 
@@ -1090,7 +1099,7 @@ ccstd::string FileUtils::getSuitableFOpen(const ccstd::string &filenameUtf8) con
 }
 
 long FileUtils::getFileSize(const ccstd::string &filepath) { //NOLINT(google-runtime-int)
-    CCASSERT(!filepath.empty(), "Invalid path");
+    CC_ASSERT(!filepath.empty());
 
     ccstd::string fullpath{filepath};
     if (!isAbsolutePath(filepath)) {

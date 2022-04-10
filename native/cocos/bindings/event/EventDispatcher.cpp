@@ -325,7 +325,7 @@ void EventDispatcher::doDispatchEvent(const char *eventName, const char *jsFunct
     if (eventName) {
         CustomEvent event;
         event.name = eventName;
-        CCASSERT(CC_GET_PLATFORM_INTERFACE(ISystemWindow) != nullptr, "System window interface does not exist");
+        CC_ASSERT(CC_GET_PLATFORM_INTERFACE(ISystemWindow) != nullptr);
         event.args->ptrVal = reinterpret_cast<void *>(CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandler());
 
         EventDispatcher::dispatchCustomEvent(event);

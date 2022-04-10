@@ -82,7 +82,7 @@ PlayerTaskServiceProtocol *PlayerWin::getTaskService()
 // services
 void PlayerWin::initServices()
 {
-    CCASSERT(_menuService == nullptr, "CAN'T INITIALIZATION SERVICES MORE THAN ONCE");
+    CC_ASSERT(_menuService == nullptr); // Can't initialize services again.
     _menuService = new PlayerMenuServiceWin(_hwnd);
     _messageBoxService = new PlayerMessageBoxServiceWin(_hwnd);
     _fileDialogService = new PlayerFileDialogServiceWin(_hwnd);

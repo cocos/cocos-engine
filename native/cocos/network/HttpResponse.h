@@ -70,18 +70,6 @@ public:
         }
     }
 
-    /**
-     * Override autorelease method to prevent developers from calling it.
-     * If this method is called , it would trigger CCASSERT.
-     * @return cc::Ref* always return nullptr.
-     */
-    cc::RefCounted *autorelease() {
-        CCASSERT(false,
-                 "HttpResponse is used between network thread and ui thread \
-                        therefore, autorelease is forbidden here");
-        return nullptr;
-    }
-
     // getters, will be called by users
 
     /**

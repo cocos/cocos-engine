@@ -591,7 +591,7 @@ void HttpClient::processResponse(HttpResponse *response, char *responseMessage) 
         HttpRequest::Type::PUT != requestType &&
         HttpRequest::Type::HEAD != requestType &&
         HttpRequest::Type::DELETE != requestType) {
-        CCASSERT(true, "CCHttpClient: unknown request type, only GET、POST、PUT、DELETE are supported");
+        CC_ASSERT(false);
         return;
     }
 

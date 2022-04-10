@@ -243,7 +243,7 @@ PlayerTaskServiceWin::~PlayerTaskServiceWin() {
 PlayerTask *PlayerTaskServiceWin::createTask(const std::string &name,
                                              const std::string &executePath,
                                              const std::string &commandLineArguments) {
-    CCASSERT(_tasks.find(name) == _tasks.end(), "Task already exists.");
+    CC_ASSERT(_tasks.find(name) == _tasks.end()); // Make sure task doesn't exist.
     PlayerTaskWin *task = PlayerTaskWin::create(name, executePath, commandLineArguments);
     _tasks.insert(name, task);
     return task;

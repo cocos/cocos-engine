@@ -39,7 +39,7 @@ static const char gdefaultFontName[] = "lucidasans-24";
 
 CanvasRenderingContext2DDelegate::CanvasRenderingContext2DDelegate() {
     SystemWindow* window = BasePlatform::getPlatform()->getInterface<SystemWindow>();
-    CCASSERT(window != nullptr, "System window is not registered");
+    CC_ASSERT(window != nullptr);
     _dis = reinterpret_cast<Display*>(window->getDisplay());
     _win = reinterpret_cast<Drawable>(window->getWindowHandler());
 }
