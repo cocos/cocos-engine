@@ -45,7 +45,7 @@ public:
      */
     void setHandleEventCallback(HandleEventCallback cb) override;
 
-     /**
+    /**
       * @brief Set the touch event handling callback.
       */
     void setHandleTouchEventCallback(HandleTouchEventCallback cb) override;
@@ -113,9 +113,9 @@ private:
 
     int32_t _fps{60};
 
-    HandleEventCallback _handleEventCallback{nullptr};
+    HandleEventCallback      _handleEventCallback{nullptr};
     HandleTouchEventCallback _handleTouchEventCallback{nullptr};
-    HandleEventCallback _handleDefaultEventCallback{nullptr};
+    HandleEventCallback      _handleDefaultEventCallback{nullptr};
 };
 
 } // namespace cc

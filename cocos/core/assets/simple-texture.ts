@@ -224,8 +224,11 @@ export class SimpleTexture extends TextureBase {
         if (!device) {
             return;
         }
+        // create a new texture view before the destruction of the previous one to bypass the bug that
+        // vulkan destroys textureview in use. This is a temporary solution, should be fixed later.
+        const textureView = this._createTextureView(device);
         this._tryDestroyTextureView();
-        this._createTextureView(device);
+        this._gfxTextureView = textureView;
     }
 
     /**
@@ -257,7 +260,7 @@ export class SimpleTexture extends TextureBase {
             return;
         }
         this._createTexture(device);
-        this._createTextureView(device);
+        this._gfxTextureView = this._createTextureView(device);
     }
 
     protected _createTexture (device: Device) {
@@ -285,9 +288,9 @@ export class SimpleTexture extends TextureBase {
         this._gfxTexture = texture;
     }
 
-    protected _createTextureView (device: Device) {
+    protected _createTextureView (device: Device) : Texture | null {
         if (!this._gfxTexture) {
-            return;
+            return null;
         }
         const maxLevel = this._maxLevel < this._mipmapLevel ? this._maxLevel : this._mipmapLevel - 1;
         const textureViewCreateInfo = this._getGfxTextureViewCreateInfo({
@@ -297,11 +300,10 @@ export class SimpleTexture extends TextureBase {
             levelCount: maxLevel - this._baseLevel + 1,
         });
         if (!textureViewCreateInfo) {
-            return;
+            return null;
         }
 
-        const textureView = device.createTexture(textureViewCreateInfo);
-        this._gfxTextureView = textureView;
+        return device.createTexture(textureViewCreateInfo);
     }
 
     protected _tryDestroyTexture () {

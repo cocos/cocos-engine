@@ -85,7 +85,7 @@ public:
     /**
      * @brief Set touch event handling callback function.
      */
-    using HandleTouchEventCallback = std::function<bool(const TouchEvent&)>;
+    using HandleTouchEventCallback                                        = std::function<bool(const TouchEvent&)>;
     virtual void setHandleTouchEventCallback(HandleTouchEventCallback cb) = 0;
 
     /**
@@ -161,6 +161,9 @@ public:
     }
 
 private:
+    static BasePlatform* createDefaultPlatform();
+
+    static BasePlatform*          _currentPlatform; // NOLINT(readability-identifier-naming)
     std::vector<OSInterface::Ptr> _osInterfaces;
     CC_DISABLE_COPY_AND_MOVE_SEMANTICS(BasePlatform);
 };
@@ -175,4 +178,3 @@ private:
         }                                                             \
         return platform->run(argc, argv);                             \
     } while (0)
-
