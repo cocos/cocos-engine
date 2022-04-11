@@ -153,19 +153,19 @@ export class Spline {
     }
 
     public removeKnot(index: number) {
-        assertIsTrue(index < this._knots.length, "Spline: invalid index");
+        assertIsTrue(index >= 0 && index < this._knots.length, "Spline: invalid index");
 
         this._knots.splice(index, 1);
     }
 
     public setKnot(index: number, knot: Vec3) {
-        assertIsTrue(index < this._knots.length, "Spline: invalid index");
+        assertIsTrue(index >= 0 && index < this._knots.length, "Spline: invalid index");
 
         this._knots[index].set(knot);
     }
 
     public getKnot(index: number): Readonly<Vec3> {
-        assertIsTrue(index < this._knots.length, "Spline: invalid index");
+        assertIsTrue(index >= 0 && index < this._knots.length, "Spline: invalid index");
 
         return this._knots[index];
     }
