@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../../config.h"
-#if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#if SE_ENABLE_INSPECTOR
 
+    #include "uv.h"
     #include "v8.h"
 
     #include <stddef.h>
@@ -54,21 +54,21 @@ void RegisterSignalHandler(int signal,
 namespace node {
 
 NODE_EXTERN v8::Local<v8::Value> ErrnoException(v8::Isolate *isolate,
-                                                int errorno,
-                                                const char *syscall = NULL,
-                                                const char *message = NULL,
-                                                const char *path = NULL);
+                                                int          errorno,
+                                                const char * syscall = NULL,
+                                                const char * message = NULL,
+                                                const char * path    = NULL);
 NODE_EXTERN v8::Local<v8::Value> UVException(v8::Isolate *isolate,
-                                             int errorno,
-                                             const char *syscall = NULL,
-                                             const char *message = NULL,
-                                             const char *path = NULL);
+                                             int          errorno,
+                                             const char * syscall = NULL,
+                                             const char * message = NULL,
+                                             const char * path    = NULL);
 NODE_EXTERN v8::Local<v8::Value> UVException(v8::Isolate *isolate,
-                                             int errorno,
-                                             const char *syscall,
-                                             const char *message,
-                                             const char *path,
-                                             const char *dest);
+                                             int          errorno,
+                                             const char * syscall,
+                                             const char * message,
+                                             const char * path,
+                                             const char * dest);
 
 typedef double async_id;
 struct async_context {
@@ -87,26 +87,26 @@ struct async_context {
  * invoking resource was created. If these values are unknown, 0 can be passed.
  * */
 
-v8::MaybeLocal<v8::Value> MakeCallback(v8::Isolate *isolate,
-                                       v8::Local<v8::Object> recv,
+v8::MaybeLocal<v8::Value> MakeCallback(v8::Isolate *           isolate,
+                                       v8::Local<v8::Object>   recv,
                                        v8::Local<v8::Function> callback,
-                                       int argc,
-                                       v8::Local<v8::Value> *argv,
-                                       async_context asyncContext);
+                                       int                     argc,
+                                       v8::Local<v8::Value> *  argv,
+                                       async_context           asyncContext);
 
-v8::MaybeLocal<v8::Value> MakeCallback(v8::Isolate *isolate,
+v8::MaybeLocal<v8::Value> MakeCallback(v8::Isolate *         isolate,
                                        v8::Local<v8::Object> recv,
-                                       const char *method,
-                                       int argc,
+                                       const char *          method,
+                                       int                   argc,
                                        v8::Local<v8::Value> *argv,
-                                       async_context asyncContext);
+                                       async_context         asyncContext);
 
-v8::MaybeLocal<v8::Value> MakeCallback(v8::Isolate *isolate,
+v8::MaybeLocal<v8::Value> MakeCallback(v8::Isolate *         isolate,
                                        v8::Local<v8::Object> recv,
                                        v8::Local<v8::String> symbol,
-                                       int argc,
+                                       int                   argc,
                                        v8::Local<v8::Value> *argv,
-                                       async_context asyncContext);
+                                       async_context         asyncContext);
 
 /*
  * These methods need to be called in a HandleScope.
@@ -116,45 +116,45 @@ v8::MaybeLocal<v8::Value> MakeCallback(v8::Isolate *isolate,
  */
 
 v8::Local<v8::Value> MakeCallback(
-    v8::Isolate *isolate,
+    v8::Isolate *         isolate,
     v8::Local<v8::Object> recv,
-    const char *method,
-    int argc,
+    const char *          method,
+    int                   argc,
     v8::Local<v8::Value> *argv);
 v8::Local<v8::Value> MakeCallback(
-    v8::Isolate *isolate,
+    v8::Isolate *         isolate,
     v8::Local<v8::Object> recv,
     v8::Local<v8::String> symbol,
-    int argc,
+    int                   argc,
     v8::Local<v8::Value> *argv);
 v8::Local<v8::Value> MakeCallback(
-    v8::Isolate *isolate,
-    v8::Local<v8::Object> recv,
+    v8::Isolate *           isolate,
+    v8::Local<v8::Object>   recv,
     v8::Local<v8::Function> callback,
-    int argc,
-    v8::Local<v8::Value> *argv);
+    int                     argc,
+    v8::Local<v8::Value> *  argv);
 
 class IsolateData;
 class Environment;
 
 NODE_EXTERN IsolateData *CreateIsolateData(v8::Isolate *isolate,
-                                           struct uv_loop_s *loop);
-NODE_EXTERN void FreeIsolateData(IsolateData *isolate_data);
+                                           uv_loop_t *  loop);
+NODE_EXTERN void         FreeIsolateData(IsolateData *isolate_data);
 
-NODE_EXTERN Environment *CreateEnvironment(IsolateData *isolate_data,
+NODE_EXTERN Environment *CreateEnvironment(IsolateData *          isolate_data,
                                            v8::Local<v8::Context> context,
-                                           int argc,
-                                           const char *const *argv,
-                                           int exec_argc,
-                                           const char *const *exec_argv);
-NODE_EXTERN void FreeEnvironment(Environment *env);
+                                           int                    argc,
+                                           const char *const *    argv,
+                                           int                    exec_argc,
+                                           const char *const *    exec_argv);
+NODE_EXTERN void         FreeEnvironment(Environment *env);
 
-void SetupProcessObject(Environment *env,
-                        int argc,
+void SetupProcessObject(Environment *      env,
+                        int                argc,
                         const char *const *argv,
-                        int exec_argc,
+                        int                exec_argc,
                         const char *const *exec_argv);
 
 } // namespace node
 
-#endif // #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#endif // #if SE_ENABLE_INSPECTOR

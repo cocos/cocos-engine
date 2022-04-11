@@ -15,6 +15,8 @@ cc_set_if_undefined(USE_SOCKET               ON)
 cc_set_if_undefined(USE_AUDIO                ON)
 cc_set_if_undefined(USE_EDIT_BOX             ON)
 cc_set_if_undefined(USE_SE_JSC               OFF)
+cc_set_if_undefined(USE_SE_NAPI              OFF)
+cc_set_if_undefined(USE_NODE_NAPI            OFF)
 cc_set_if_undefined(USE_VIDEO                ON)
 cc_set_if_undefined(USE_WEBVIEW              ON)
 cc_set_if_undefined(USE_MIDDLEWARE           ON)
@@ -68,6 +70,12 @@ if(USE_SE_JSC)
     set(USE_V8_DEBUGGER OFF)
 endif()
 
+if(USE_NODE_NAPI)
+    set(USE_SE_V8 OFF)
+    set(USE_SE_NAPI ON)
+    set(USE_V8_DEBUGGER ON)
+endif()
+
 if(NOT USE_SOCKET)
     set(USE_WEBSOCKET_SERVER OFF)
 endif()
@@ -113,6 +121,8 @@ cc_inspect_values(
     CC_USE_VULKAN
     USE_SE_V8
     USE_V8_DEBUGGER
+    USE_SE_NAPI
+    USE_NODE_NAPI
     USE_SOCKET
     USE_AUDIO
     USE_EDIT_BOX
@@ -1927,34 +1937,56 @@ if(USE_SE_V8)
                      cocos/bindings/jswrapper/v8/MissingSymbols.cpp
                      cocos/bindings/jswrapper/v8/MissingSymbols.h
     )
-    if(USE_V8_DEBUGGER)
-    cocos_source_files(MODULE ccbindings
-                     cocos/bindings/jswrapper/v8/debugger/base64.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/env.cpp
-                     cocos/bindings/jswrapper/v8/debugger/env.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/http_parser.cpp
-                     cocos/bindings/jswrapper/v8/debugger/http_parser.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/inspector_agent.cpp
-                     cocos/bindings/jswrapper/v8/debugger/inspector_agent.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/inspector_io.cpp
-                     cocos/bindings/jswrapper/v8/debugger/inspector_io.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/inspector_socket.cpp
-                     cocos/bindings/jswrapper/v8/debugger/inspector_socket.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/inspector_socket_server.cpp
-                     cocos/bindings/jswrapper/v8/debugger/inspector_socket_server.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/node.cpp
-                     cocos/bindings/jswrapper/v8/debugger/node.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/node_debug_options.cpp
-                     cocos/bindings/jswrapper/v8/debugger/node_debug_options.h
-                     cocos/bindings/jswrapper/v8/debugger/node_mutex.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/SHA1.cpp
-                     cocos/bindings/jswrapper/v8/debugger/SHA1.h
-                     cocos/bindings/jswrapper/v8/debugger/util-inl.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/util.cpp
-                     cocos/bindings/jswrapper/v8/debugger/util.h
-                     cocos/bindings/jswrapper/v8/debugger/v8_inspector_protocol_json.h
+endif()
+
+if(USE_SE_NAPI)
+cocos_source_files(MODULE ccbindings
+    cocos/bindings/jswrapper/napi/Class.cpp
+    cocos/bindings/jswrapper/napi/Class.h
+    cocos/bindings/jswrapper/napi/CommonHeader.h
+    cocos/bindings/jswrapper/napi/HelperMacros.h
+    cocos/bindings/jswrapper/napi/native_common.h
+    cocos/bindings/jswrapper/napi/Object.cpp
+    cocos/bindings/jswrapper/napi/Object.h
+    cocos/bindings/jswrapper/napi/ScriptEngine.cpp
+    cocos/bindings/jswrapper/napi/ScriptEngine.h
+    cocos/bindings/jswrapper/napi/SeApi.h
+    cocos/bindings/jswrapper/napi/Utils.cpp
+    cocos/bindings/jswrapper/napi/Utils.h
     )
-    endif()
+endif()
+
+if(USE_V8_DEBUGGER)
+if(NOT USE_NODE_NAPI) 
+    cocos_source_files(MODULE ccbindings
+                    cocos/bindings/jswrapper/v8/debugger/base64.h
+        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/env.cpp
+                    cocos/bindings/jswrapper/v8/debugger/env.h
+        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/http_parser.cpp
+                    cocos/bindings/jswrapper/v8/debugger/http_parser.h
+        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/inspector_agent.cpp
+                    cocos/bindings/jswrapper/v8/debugger/inspector_agent.h
+        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/inspector_io.cpp
+                    cocos/bindings/jswrapper/v8/debugger/inspector_io.h
+        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/inspector_socket.cpp
+                    cocos/bindings/jswrapper/v8/debugger/inspector_socket.h
+        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/inspector_socket_server.cpp
+                    cocos/bindings/jswrapper/v8/debugger/inspector_socket_server.h
+        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/node.cpp
+                    cocos/bindings/jswrapper/v8/debugger/node.h
+        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/node_debug_options.cpp
+                    cocos/bindings/jswrapper/v8/debugger/node_debug_options.h
+                    cocos/bindings/jswrapper/v8/debugger/node_mutex.h
+        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/SHA1.cpp
+                    cocos/bindings/jswrapper/v8/debugger/SHA1.h
+                    cocos/bindings/jswrapper/v8/debugger/util-inl.h
+        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/util.cpp
+                    cocos/bindings/jswrapper/v8/debugger/util.h
+                    cocos/bindings/jswrapper/v8/debugger/v8_inspector_protocol_json.h
+    )
+else()
+  add_subdirectory(${CWD}/cocos/bindings/jswrapper/v8/debugger v8-debugger)
+endif()
 endif()
 
 if(USE_SE_JSC)
@@ -2222,6 +2254,12 @@ endif()
 
 add_library(cocos2d ${COCOS2D_SOURCE_LIST})
 
+if(USE_V8_DEBUGGER AND USE_NODE_NAPI)
+    target_link_libraries(cocos2d PUBLIC
+        v8_debugger
+    )
+endif()
+
 if(USE_MODULES)
     target_link_libraries(cocos2d PUBLIC
         ccmath
@@ -2267,6 +2305,9 @@ function(cc_apply_definations target)
         $<IF:$<BOOL:${USE_JOB_SYSTEM_TASKFLOW}>,USE_JOB_SYSTEM_TASKFLOW=1,USE_JOB_SYSTEM_TASKFLOW=0>
         $<IF:$<BOOL:${USE_PHYSICS_PHYSX}>,USE_PHYSICS_PHYSX=1,USE_PHYSICS_PHYSX=0>
         $<$<BOOL:${USE_SE_JSC}>:SCRIPT_ENGINE_TYPE=3>
+        $<$<BOOL:${USE_SE_V8}>:SCRIPT_ENGINE_TYPE=2>
+        $<$<BOOL:${USE_SE_NAPI}>:SCRIPT_ENGINE_TYPE=5>
+        $<$<BOOL:${USE_NODE_NAPI}>:USE_NODE_NAPI=1>
         $<$<CONFIG:Debug>:CC_DEBUG=1>
     )
 endfunction()

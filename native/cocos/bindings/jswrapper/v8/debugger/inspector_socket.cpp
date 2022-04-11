@@ -1,6 +1,6 @@
 #include "inspector_socket.h"
 
-#if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#if SE_ENABLE_INSPECTOR
 
     #include "util.h"
 
@@ -10,6 +10,7 @@
     #include "SHA1.h"
 
     #include <string.h>
+    #include <sstream>;
     #include <vector>
 
     #define ACCEPT_KEY_LENGTH        base64_encoded_size(20)
@@ -29,30 +30,46 @@ enum ws_decode_result {
     FRAME_CLOSE,
     FRAME_ERROR
 };
-
+    #if _WIN32
+void output(const char *buff) {
+    //static WCHAR wszBuf[4096] = {0};
+    //MultiByteToWideChar(CP_UTF8, 0, buff, -1, wszBuf, sizeof(wszBuf));
+    //OutputDebugStringW(wszBuf);
+}
+    #endif
     #if DUMP_READS || DUMP_WRITES
 static void dump_hex(const char *buf, size_t len) {
     const char *ptr = buf;
     const char *end = ptr + len;
     const char *cptr;
-    char c;
-    int i;
+    char        c;
+    int         i;
+
+    std::stringstream ss;
+    char              buff[256] = {0};
 
     while (ptr < end) {
         cptr = ptr;
         for (i = 0; i < 16 && ptr < end; i++) {
-            printf("%2.2X  ", static_cast<unsigned char>(*(ptr++)));
+            memset(buff, 0, 256);
+            snprintf(buff, 256, "%2.2X  ", static_cast<unsigned char>(*(ptr++)));
+            ss << buff;
         }
         for (i = 72 - (i * 4); i > 0; i--) {
-            printf(" ");
+            ss << " ";
         }
         for (i = 0; i < 16 && cptr < end; i++) {
             c = *(cptr++);
-            printf("%c", (c > 0x19) ? c : '.');
+            memset(buff, 0, 256);
+            snprintf(buff, 256, "%c", (c > 0x19) ? c : '.');
+            ss << buff;
         }
-        printf("\n");
+        //printf("\n");
+        ss << std::endl;
     }
-    printf("\n\n");
+    ss << std::endl
+       << std::endl;
+    output(ss.str().c_str());
 }
     #endif
 
@@ -62,7 +79,7 @@ static void remove_from_beginning(std::vector<char> *buffer, size_t count) {
 
 static void dispose_inspector(uv_handle_t *handle) {
     InspectorSocket *inspector = inspector_from_stream(handle);
-    inspector_cb close =
+    inspector_cb     close =
         inspector->ws_mode ? inspector->ws_state->close_cb : nullptr;
     inspector->buffer.clear();
     delete inspector->ws_state;
@@ -91,9 +108,9 @@ struct WriteRequest {
     }
 
     InspectorSocket *const inspector;
-    std::vector<char> storage;
-    uv_write_t req;
-    uv_buf_t buf;
+    std::vector<char>      storage;
+    uv_write_t             req;
+    uv_buf_t               buf;
 };
 
 // Cleanup
@@ -102,17 +119,19 @@ static void write_request_cleanup(uv_write_t *req, int status) {
 }
 
 static int write_to_client(InspectorSocket *inspector,
-                           const char *msg,
-                           size_t len,
-                           uv_write_cb write_cb = write_request_cleanup) {
+                           const char *     msg,
+                           size_t           len,
+                           uv_write_cb      write_cb = write_request_cleanup) {
     #if DUMP_WRITES
-    printf("%s (%ld bytes):\n", __FUNCTION__, len);
+    char buff[256] = {0};
+    snprintf(buff, 256, "%s (%ld bytes):\n", __FUNCTION__, len);
+    output(buff);
     dump_hex(msg, len);
     #endif
 
     // Freed in write_request_cleanup
-    WriteRequest *wr = new WriteRequest(inspector, msg, len);
-    uv_stream_t *stream = reinterpret_cast<uv_stream_t *>(&inspector->tcp);
+    WriteRequest *wr     = new WriteRequest(inspector, msg, len);
+    uv_stream_t * stream = reinterpret_cast<uv_stream_t *>(&inspector->tcp);
     return uv_write(&wr->req, stream, &wr->buf, 1, write_cb) < 0;
 }
 
@@ -121,29 +140,29 @@ static int write_to_client(InspectorSocket *inspector,
 typedef int OpCode;
 
 const OpCode kOpCodeContinuation = 0x0;
-const OpCode kOpCodeText = 0x1;
-const OpCode kOpCodeBinary = 0x2;
-const OpCode kOpCodeClose = 0x8;
-const OpCode kOpCodePing = 0x9;
-const OpCode kOpCodePong = 0xA;
+const OpCode kOpCodeText         = 0x1;
+const OpCode kOpCodeBinary       = 0x2;
+const OpCode kOpCodeClose        = 0x8;
+const OpCode kOpCodePing         = 0x9;
+const OpCode kOpCodePong         = 0xA;
 
-const unsigned char kFinalBit = 0x80;
-const unsigned char kReserved1Bit = 0x40;
-const unsigned char kReserved2Bit = 0x20;
-const unsigned char kReserved3Bit = 0x10;
-const unsigned char kOpCodeMask = 0xF;
-const unsigned char kMaskBit = 0x80;
+const unsigned char kFinalBit          = 0x80;
+const unsigned char kReserved1Bit      = 0x40;
+const unsigned char kReserved2Bit      = 0x20;
+const unsigned char kReserved3Bit      = 0x10;
+const unsigned char kOpCodeMask        = 0xF;
+const unsigned char kMaskBit           = 0x80;
 const unsigned char kPayloadLengthMask = 0x7F;
 
-const size_t kMaxSingleBytePayloadLength = 125;
-const size_t kTwoBytePayloadLengthField = 126;
+const size_t kMaxSingleBytePayloadLength  = 125;
+const size_t kTwoBytePayloadLengthField   = 126;
 const size_t kEightBytePayloadLengthField = 127;
-const size_t kMaskingKeyWidthInBytes = 4;
+const size_t kMaskingKeyWidthInBytes      = 4;
 
 static std::vector<char> encode_frame_hybi17(const char *message,
-                                             size_t data_length) {
+                                             size_t      data_length) {
     std::vector<char> frame;
-    OpCode op_code = kOpCodeText;
+    OpCode            op_code = kOpCodeText;
     frame.push_back(kFinalBit | op_code);
     if (data_length <= kMaxSingleBytePayloadLength) {
         frame.push_back(static_cast<char>(data_length));
@@ -153,7 +172,7 @@ static std::vector<char> encode_frame_hybi17(const char *message,
         frame.push_back(data_length & 0xFF);
     } else {
         frame.push_back(kEightBytePayloadLengthField);
-        char extended_payload_length[8];
+        char   extended_payload_length[8];
         size_t remaining = data_length;
         // Fill the length into extended_payload_length in the network byte order.
         for (int i = 0; i < 8; ++i) {
@@ -169,26 +188,26 @@ static std::vector<char> encode_frame_hybi17(const char *message,
 }
 
 static ws_decode_result decode_frame_hybi17(const std::vector<char> &buffer,
-                                            bool client_frame,
-                                            int *bytes_consumed,
-                                            std::vector<char> *output,
-                                            bool *compressed) {
+                                            bool                     client_frame,
+                                            int *                    bytes_consumed,
+                                            std::vector<char> *      output,
+                                            bool *                   compressed) {
     *bytes_consumed = 0;
     if (buffer.size() < 2)
         return FRAME_INCOMPLETE;
 
     auto it = buffer.begin();
 
-    unsigned char first_byte = *it++;
+    unsigned char first_byte  = *it++;
     unsigned char second_byte = *it++;
 
-    bool final = (first_byte & kFinalBit) != 0;
+    bool final     = (first_byte & kFinalBit) != 0;
     bool reserved1 = (first_byte & kReserved1Bit) != 0;
     bool reserved2 = (first_byte & kReserved2Bit) != 0;
     bool reserved3 = (first_byte & kReserved3Bit) != 0;
-    int op_code = first_byte & kOpCodeMask;
-    bool masked = (second_byte & kMaskBit) != 0;
-    *compressed = reserved1;
+    int  op_code   = first_byte & kOpCodeMask;
+    bool masked    = (second_byte & kMaskBit) != 0;
+    *compressed    = reserved1;
     if (!final || reserved2 || reserved3)
         return FRAME_ERROR; // Only compression extension is supported.
 
@@ -232,7 +251,7 @@ static ws_decode_result decode_frame_hybi17(const std::vector<char> &buffer,
     }
 
     static const uint64_t max_payload_length = 0x7FFFFFFFFFFFFFFFull;
-    static const size_t max_length = SIZE_MAX;
+    static const size_t   max_length         = SIZE_MAX;
     if (payload_length64 > max_payload_length ||
         payload_length64 > max_length - kMaskingKeyWidthInBytes) {
         // WebSocket frame length too large.
@@ -244,12 +263,12 @@ static ws_decode_result decode_frame_hybi17(const std::vector<char> &buffer,
         return FRAME_INCOMPLETE;
 
     std::vector<char>::const_iterator masking_key = it;
-    std::vector<char>::const_iterator payload = it + kMaskingKeyWidthInBytes;
+    std::vector<char>::const_iterator payload     = it + kMaskingKeyWidthInBytes;
     for (size_t i = 0; i < payload_length; ++i) // Unmask the payload.
         output->insert(output->end(),
                        payload[i] ^ masking_key[i % kMaskingKeyWidthInBytes]);
 
-    size_t pos = it + kMaskingKeyWidthInBytes + payload_length - buffer.begin();
+    size_t pos      = it + kMaskingKeyWidthInBytes + payload_length - buffer.begin();
     *bytes_consumed = (int)pos;
     return closed ? FRAME_CLOSE : FRAME_OK;
 }
@@ -267,7 +286,7 @@ static void shutdown_complete(InspectorSocket *inspector) {
 }
 
 static void on_close_frame_written(uv_write_t *req, int status) {
-    WriteRequest *wr = WriteRequest::from_write_req(req);
+    WriteRequest *   wr        = WriteRequest::from_write_req(req);
     InspectorSocket *inspector = wr->inspector;
     delete wr;
     inspector->ws_state->close_sent = true;
@@ -288,9 +307,9 @@ static void close_frame_received(InspectorSocket *inspector) {
 }
 
 static int parse_ws_frames(InspectorSocket *inspector) {
-    int bytes_consumed = 0;
+    int               bytes_consumed = 0;
     std::vector<char> output;
-    bool compressed = false;
+    bool              compressed = false;
 
     ws_decode_result r = decode_frame_hybi17(inspector->buffer,
                                              true /* client_frame */,
@@ -306,7 +325,7 @@ static int parse_ws_frames(InspectorSocket *inspector) {
         bytes_consumed = 0;
     } else if (r == FRAME_OK && inspector->ws_state->alloc_cb && inspector->ws_state->read_cb) {
         uv_buf_t buffer;
-        size_t len = output.size();
+        size_t   len = output.size();
         inspector->ws_state->alloc_cb(
             reinterpret_cast<uv_handle_t *>(&inspector->tcp),
             len, &buffer);
@@ -333,6 +352,7 @@ static void reclaim_uv_buf(InspectorSocket *inspector, const uv_buf_t *buf,
 static void websockets_data_cb(uv_stream_t *stream, ssize_t nread,
                                const uv_buf_t *buf) {
     InspectorSocket *inspector = inspector_from_stream(stream);
+    char             buff[256] = {0};
     reclaim_uv_buf(inspector, buf, nread);
     if (nread < 0 || nread == UV_EOF) {
         inspector->connection_eof = true;
@@ -345,7 +365,8 @@ static void websockets_data_cb(uv_stream_t *stream, ssize_t nread,
         }
     } else {
     #if DUMP_READS
-        printf("%s read %ld bytes\n", __FUNCTION__, nread);
+        snprintf(buff, 256, "%s read %ld bytes\n", __FUNCTION__, nread);
+        output(buff);
         if (nread > 0) {
             dump_hex(inspector->buffer.data() + inspector->buffer.size() - nread,
                      nread);
@@ -368,8 +389,8 @@ int inspector_read_start(InspectorSocket *inspector,
     CHECK(inspector->ws_mode);
     CHECK(!inspector->shutting_down || read_cb == nullptr);
     inspector->ws_state->close_sent = false;
-    inspector->ws_state->alloc_cb = alloc_cb;
-    inspector->ws_state->read_cb = read_cb;
+    inspector->ws_state->alloc_cb   = alloc_cb;
+    inspector->ws_state->read_cb    = read_cb;
     int err =
         uv_read_start(reinterpret_cast<uv_stream_t *>(&inspector->tcp),
                       prepare_buffer,
@@ -383,20 +404,20 @@ int inspector_read_start(InspectorSocket *inspector,
 void inspector_read_stop(InspectorSocket *inspector) {
     uv_read_stop(reinterpret_cast<uv_stream_t *>(&inspector->tcp));
     inspector->ws_state->alloc_cb = nullptr;
-    inspector->ws_state->read_cb = nullptr;
+    inspector->ws_state->read_cb  = nullptr;
 }
 
 static void generate_accept_string(const std::string &client_key,
                                    char (*buffer)[ACCEPT_KEY_LENGTH]) {
     // Magic string from websockets spec.
     static const char ws_magic[] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-    std::string input(client_key + ws_magic);
+    std::string       input(client_key + ws_magic);
     //  char hash[SHA_DIGEST_LENGTH];
     //  SHA1(reinterpret_cast<const unsigned char*>(&input[0]), input.size(),
     //       reinterpret_cast<unsigned char*>(hash));
 
     se::SHA1Sum::Hash hash = {0};
-    se::SHA1Sum s;
+    se::SHA1Sum       s;
     s.update(reinterpret_cast<const unsigned char *>(&input[0]), (uint32_t)input.size());
     s.finish(hash);
 
@@ -405,9 +426,9 @@ static void generate_accept_string(const std::string &client_key,
 
 static int header_value_cb(http_parser *parser, const char *at, size_t length) {
     static const char SEC_WEBSOCKET_KEY_HEADER[] = "Sec-WebSocket-Key";
-    auto inspector = static_cast<InspectorSocket *>(parser->data);
-    auto state = inspector->http_parsing_state;
-    state->parsing_value = true;
+    auto              inspector                  = static_cast<InspectorSocket *>(parser->data);
+    auto              state                      = inspector->http_parsing_state;
+    state->parsing_value                         = true;
     if (state->current_header.size() == sizeof(SEC_WEBSOCKET_KEY_HEADER) - 1 &&
         node::StringEqualNoCaseN(state->current_header.data(),
                                  SEC_WEBSOCKET_KEY_HEADER,
@@ -419,7 +440,7 @@ static int header_value_cb(http_parser *parser, const char *at, size_t length) {
 
 static int header_field_cb(http_parser *parser, const char *at, size_t length) {
     auto inspector = static_cast<InspectorSocket *>(parser->data);
-    auto state = inspector->http_parsing_state;
+    auto state     = inspector->http_parsing_state;
     if (state->parsing_value) {
         state->parsing_value = false;
         state->current_header.clear();
@@ -430,7 +451,7 @@ static int header_field_cb(http_parser *parser, const char *at, size_t length) {
 
 static int path_cb(http_parser *parser, const char *at, size_t length) {
     auto inspector = static_cast<InspectorSocket *>(parser->data);
-    auto state = inspector->http_parsing_state;
+    auto state     = inspector->http_parsing_state;
     state->path.append(at, length);
     return 0;
 }
@@ -438,8 +459,8 @@ static int path_cb(http_parser *parser, const char *at, size_t length) {
 static void handshake_complete(InspectorSocket *inspector) {
     uv_read_stop(reinterpret_cast<uv_stream_t *>(&inspector->tcp));
     handshake_cb callback = inspector->http_parsing_state->callback;
-    inspector->ws_state = new ws_state_s();
-    inspector->ws_mode = true;
+    inspector->ws_state   = new ws_state_s();
+    inspector->ws_mode    = true;
     callback(inspector, kInspectorHandshakeUpgraded,
              inspector->http_parsing_state->path);
 }
@@ -452,7 +473,7 @@ static void cleanup_http_parsing_state(InspectorSocket *inspector) {
 static void report_handshake_failure_cb(uv_handle_t *handle) {
     dispose_inspector(handle);
     InspectorSocket *inspector = inspector_from_stream(handle);
-    handshake_cb cb = inspector->http_parsing_state->callback;
+    handshake_cb     cb        = inspector->http_parsing_state->callback;
     cleanup_http_parsing_state(inspector);
     cb(inspector, kInspectorHandshakeFailed, std::string());
 }
@@ -487,8 +508,8 @@ static void handshake_failed(InspectorSocket *inspector) {
 static void init_handshake(InspectorSocket *socket);
 
 static int message_complete_cb(http_parser *parser) {
-    InspectorSocket *inspector = static_cast<InspectorSocket *>(parser->data);
-    struct http_parsing_state_s *state = inspector->http_parsing_state;
+    InspectorSocket *            inspector = static_cast<InspectorSocket *>(parser->data);
+    struct http_parsing_state_s *state     = inspector->http_parsing_state;
     if (parser->method != HTTP_GET) {
         handshake_failed(inspector);
     } else if (!parser->upgrade) {
@@ -503,11 +524,12 @@ static int message_complete_cb(http_parser *parser) {
                                state->path)) {
         char accept_string[ACCEPT_KEY_LENGTH];
         generate_accept_string(state->ws_key, &accept_string);
-        const char accept_ws_prefix[] = "HTTP/1.1 101 Switching Protocols\r\n"
-                                        "Upgrade: websocket\r\n"
-                                        "Connection: Upgrade\r\n"
-                                        "Sec-WebSocket-Accept: ";
-        const char accept_ws_suffix[] = "\r\n\r\n";
+        const char accept_ws_prefix[] =
+            "HTTP/1.1 101 Switching Protocols\r\n"
+            "Upgrade: websocket\r\n"
+            "Connection: Upgrade\r\n"
+            "Sec-WebSocket-Accept: ";
+        const char  accept_ws_suffix[] = "\r\n\r\n";
         std::string reply(accept_ws_prefix, sizeof(accept_ws_prefix) - 1);
         reply.append(accept_string, sizeof(accept_string));
         reply.append(accept_ws_suffix, sizeof(accept_ws_suffix) - 1);
@@ -526,11 +548,15 @@ static int message_complete_cb(http_parser *parser) {
 static void data_received_cb(uv_stream_s *tcp, ssize_t nread,
                              const uv_buf_t *buf) {
     #if DUMP_READS
+    char buff[256] = {0};
     if (nread >= 0) {
-        printf("%s (%ld bytes)\n", __FUNCTION__, nread);
+        snprintf(buff, 256, "%s (%ld bytes)\n", __FUNCTION__, nread);
+        output(buff);
         dump_hex(buf->base, nread);
+
     } else {
-        printf("[%s:%d] %s\n", __FUNCTION__, __LINE__, uv_err_name(nread));
+        snprintf(buff, 256, "[%s:%d] %s\n", __FUNCTION__, __LINE__, uv_err_name(nread));
+        output(buff);
     }
     #endif
     InspectorSocket *inspector = inspector_from_stream(tcp);
@@ -538,8 +564,8 @@ static void data_received_cb(uv_stream_s *tcp, ssize_t nread,
     if (nread < 0 || nread == UV_EOF) {
         close_and_report_handshake_failure(inspector);
     } else {
-        http_parsing_state_s *state = inspector->http_parsing_state;
-        http_parser *parser = &state->parser;
+        http_parsing_state_s *state  = inspector->http_parsing_state;
+        http_parser *         parser = &state->parser;
         http_parser_execute(parser, &state->parser_settings,
                             inspector->buffer.data(), nread);
         remove_from_beginning(&inspector->buffer, nread);
@@ -560,13 +586,13 @@ static void init_handshake(InspectorSocket *socket) {
     state->path.clear();
     state->done = false;
     http_parser_init(&state->parser, HTTP_REQUEST);
-    state->parser.data = socket;
+    state->parser.data             = socket;
     http_parser_settings *settings = &state->parser_settings;
     http_parser_settings_init(settings);
-    settings->on_header_field = header_field_cb;
-    settings->on_header_value = header_value_cb;
+    settings->on_header_field     = header_field_cb;
+    settings->on_header_value     = header_value_cb;
     settings->on_message_complete = message_complete_cb;
-    settings->on_url = path_cb;
+    settings->on_url              = path_cb;
 }
 
 int inspector_accept(uv_stream_t *server, InspectorSocket *socket,
@@ -575,8 +601,8 @@ int inspector_accept(uv_stream_t *server, InspectorSocket *socket,
     CHECK_EQ(socket->http_parsing_state, nullptr);
 
     socket->http_parsing_state = new http_parsing_state_s();
-    uv_stream_t *tcp = reinterpret_cast<uv_stream_t *>(&socket->tcp);
-    int err = uv_tcp_init(server->loop, &socket->tcp);
+    uv_stream_t *tcp           = reinterpret_cast<uv_stream_t *>(&socket->tcp);
+    int          err           = uv_tcp_init(server->loop, &socket->tcp);
 
     if (err == 0) {
         err = uv_accept(server, tcp);
@@ -584,7 +610,7 @@ int inspector_accept(uv_stream_t *server, InspectorSocket *socket,
     if (err == 0) {
         init_handshake(socket);
         socket->http_parsing_state->callback = callback;
-        err = uv_read_start(tcp, prepare_buffer,
+        err                                  = uv_read_start(tcp, prepare_buffer,
                             data_received_cb);
     }
     if (err != 0) {
@@ -604,12 +630,12 @@ void inspector_write(InspectorSocket *inspector, const char *data,
 }
 
 void inspector_close(InspectorSocket *inspector,
-                     inspector_cb callback) {
+                     inspector_cb     callback) {
     // libuv throws assertions when closing stream that's already closed - we
     // need to do the same.
     CHECK(!uv_is_closing(reinterpret_cast<uv_handle_t *>(&inspector->tcp)));
     CHECK(!inspector->shutting_down);
-    inspector->shutting_down = true;
+    inspector->shutting_down      = true;
     inspector->ws_state->close_cb = callback;
     if (inspector->connection_eof) {
         close_connection(inspector);
@@ -629,14 +655,14 @@ bool inspector_is_active(const InspectorSocket *inspector) {
 
 void InspectorSocket::reinit() {
     http_parsing_state = nullptr;
-    ws_state = nullptr;
+    ws_state           = nullptr;
     buffer.clear();
-    ws_mode = false;
-    shutting_down = false;
+    ws_mode        = false;
+    shutting_down  = false;
     connection_eof = false;
 }
 
 } // namespace inspector
 } // namespace node
 
-#endif // #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#endif // #if SE_ENABLE_INSPECTOR

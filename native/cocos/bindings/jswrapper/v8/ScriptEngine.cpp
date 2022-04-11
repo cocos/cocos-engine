@@ -41,7 +41,6 @@
         #include "debugger/env.h"
         #include "debugger/inspector_agent.h"
         #include "debugger/node.h"
-
     #endif
 
     #include <sstream>

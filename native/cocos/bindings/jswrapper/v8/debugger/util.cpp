@@ -21,7 +21,7 @@
 
 #include "util.h"
 
-#if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#if SE_ENABLE_INSPECTOR
 
     //cjh #include "string_bytes.h"
     //#include "node_buffer.h"
@@ -36,9 +36,9 @@ using v8::String;
 using v8::Value;
 
 template <typename T>
-static void MakeUtf8String(Isolate *isolate,
+static void MakeUtf8String(Isolate *    isolate,
                            Local<Value> value,
-                           T *target) {
+                           T *          target) {
     Local<String> string;
     if (!value->ToString(isolate->GetCurrentContext()).ToLocal(&string))
         return;
@@ -72,7 +72,7 @@ TwoByteValue::TwoByteValue(Isolate *isolate, Local<Value> value) {
     const size_t storage = string->Length() + 1;
     AllocateSufficientStorage(storage);
 
-    const int flags = String::NO_NULL_TERMINATION;
+    const int flags  = String::NO_NULL_TERMINATION;
     const int length = string->Write(isolate, out(), 0, (int)storage, flags);
     SetLengthAndZeroTerminate(length);
 }
@@ -114,4 +114,4 @@ void DumpBacktrace(FILE *fp) {
 
 } // namespace node
 
-#endif // #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#endif // #if SE_ENABLE_INSPECTOR

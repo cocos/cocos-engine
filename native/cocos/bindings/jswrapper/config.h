@@ -31,9 +31,11 @@
 #define SCRIPT_ENGINE_V8  2
 #define SCRIPT_ENGINE_JSC 3
 //#define SCRIPT_ENGINE_CHAKRACORE     4
+#define SCRIPT_ENGINE_NAPI 5
 
 #ifndef SCRIPT_ENGINE_TYPE
-    #define SCRIPT_ENGINE_TYPE SCRIPT_ENGINE_V8
+    //#define SCRIPT_ENGINE_TYPE SCRIPT_ENGINE_V8
+    #error "SCRIPT_ENGINE_TYPE should be defined!"
 #endif
 
 #ifndef USE_V8_DEBUGGER

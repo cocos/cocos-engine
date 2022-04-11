@@ -1,6 +1,6 @@
 #include "inspector_socket_server.h"
 
-#if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#if SE_ENABLE_INSPECTOR
 
     #include "node.h"
     #include "uv.h"
@@ -11,6 +11,13 @@
     #include <set>
     #include <sstream>
 
+#ifndef SE_LOGE
+    #include <stdio.h>
+#define SE_LOGE printf
+#endif
+#ifndef SE_LOGD
+#define SE_LOGD printf
+#endif
 namespace node {
 namespace inspector {
 
@@ -689,4 +696,4 @@ void ServerSocket::SocketClosedCallback(uv_handle_t *tcp_socket) {
 } // namespace inspector
 } // namespace node
 
-#endif // #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#endif // #if SE_ENABLE_INSPECTOR

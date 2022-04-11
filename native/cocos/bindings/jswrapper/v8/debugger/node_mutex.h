@@ -1,8 +1,7 @@
 #ifndef SRC_NODE_MUTEX_H_
 #define SRC_NODE_MUTEX_H_
 
-#include "../../config.h"
-#if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#if SE_ENABLE_INSPECTOR
 
     #include "util.h"
     #include "uv.h"
@@ -16,7 +15,7 @@ class MutexBase;
 struct LibuvMutexTraits;
 
 using ConditionVariable = ConditionVariableBase<LibuvMutexTraits>;
-using Mutex = MutexBase<LibuvMutexTraits>;
+using Mutex             = MutexBase<LibuvMutexTraits>;
 
 template <typename Traits>
 class MutexBase {
@@ -78,7 +77,7 @@ private:
 };
 
 struct LibuvMutexTraits {
-    using CondT = uv_cond_t;
+    using CondT  = uv_cond_t;
     using MutexT = uv_mutex_t;
 
     static inline int cond_init(CondT *cond) {
@@ -191,6 +190,6 @@ MutexBase<Traits>::ScopedUnlock::~ScopedUnlock() {
 
 } // namespace node
 
-#endif // #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#endif // #if SE_ENABLE_INSPECTOR
 
 #endif // SRC_NODE_MUTEX_H_

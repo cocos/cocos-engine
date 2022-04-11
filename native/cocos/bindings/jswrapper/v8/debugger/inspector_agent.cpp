@@ -1,6 +1,6 @@
 #include "inspector_agent.h"
 
-#if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#if SE_ENABLE_INSPECTOR
 
     #include "env.h"
     #include "inspector_io.h"
@@ -397,6 +397,7 @@ public:
     virtual ~ChannelImpl() {}
 
     void dispatchProtocolMessage(const StringView &message) {
+        //assert(session_->canDispatchMethod(message));
         session_->dispatchProtocolMessage(message);
     }
 
@@ -815,4 +816,4 @@ void Agent::RequestIoThreadStart() {
 //cjh NODE_MODULE_CONTEXT_AWARE_BUILTIN(inspector,
 //                                  node::inspector::Agent::InitInspector);
 
-#endif // #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#endif // #if SE_ENABLE_INSPECTOR

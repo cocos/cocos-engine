@@ -40,6 +40,10 @@
     #include "jsc/SeApi.h"
 #endif
 
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_NAPI
+    #include "napi/SeApi.h"
+#endif
+
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE
     #include "chakracore/SeApi.h"
 #endif

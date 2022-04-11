@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -26,22 +26,22 @@
 
 #pragma once
 
-#include "config.h"
+#include "../config.h"
+#include "Object.h"
+namespace se {
 
-#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
-    #include "sm/Object.h"
-#endif
+namespace internal {
 
-#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
-    #include "v8/Object.h"
-#endif
+using target_value = napi_value;
+struct PrivateData {
+    void *  data;
+    Object *seObj;
+};
 
-#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_JSC
-    #include "jsc/Object.h"
-#endif
-#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_NAPI
-    #include "napi/Object.h"
-#endif
-#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE
-    #include "chakracore/Object.h"
-#endif
+bool setReturnValue(const Value &data, target_value &argv);
+void jsToSeValue(const target_value &value, Value *v);
+void jsToSeArgs(size_t argc, target_value *argv, ValueArray *outArr);
+bool seToJsValue(const Value &v, target_value *jsval);
+void seToJsArgs(napi_env env, const ValueArray &args, std::vector<target_value> *outArr);
+} // namespace internal
+} // namespace se

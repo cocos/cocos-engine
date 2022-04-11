@@ -1,12 +1,17 @@
 #include "node_debug_options.h"
 
-#if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#if SE_ENABLE_INSPECTOR
 
     #include <errno.h>
     #include <stdlib.h>
     #include <string.h>
     #include "util.h"
-
+#ifndef SE_LOGD
+#define SE_LOGD printf
+#endif
+#ifndef SE_LOGE
+#define SE_LOGE printf
+#endif
 namespace node {
 
 namespace {
@@ -21,7 +26,7 @@ inline std::string remove_brackets(const std::string &host) {
 
 int parse_and_validate_port(const std::string &port) {
     char *endptr;
-    errno = 0;
+    errno             = 0;
     const long result = strtol(port.c_str(), &endptr, 10); // NOLINT(runtime/int)
     if (errno != 0 || *endptr != '\0' ||
         (result != 0 && result < 1024) || result > 65535) {
@@ -63,7 +68,7 @@ DebugOptions::DebugOptions() : inspector_enabled_(false),
                                port_(-1) {}
 
 bool DebugOptions::ParseOption(const char *argv0, const std::string &option) {
-    bool has_argument = false;
+    bool        has_argument = false;
     std::string option_name;
     std::string argument;
 
@@ -72,7 +77,7 @@ bool DebugOptions::ParseOption(const char *argv0, const std::string &option) {
         option_name = option;
     } else {
         option_name = option.substr(0, pos);
-        argument = option.substr(pos + 1);
+        argument    = option.substr(pos + 1);
 
         if (argument.length() > 0)
             has_argument = true;
@@ -91,7 +96,7 @@ bool DebugOptions::ParseOption(const char *argv0, const std::string &option) {
         deprecated_debug_ = true;
     } else if (option_name == "--inspect-brk") {
         inspector_enabled_ = true;
-        break_first_line_ = true;
+        break_first_line_  = true;
     } else if (option_name == "--debug-brk") {
         break_first_line_ = true;
         deprecated_debug_ = true;
@@ -138,4 +143,4 @@ int DebugOptions::port() const {
 
 } // namespace node
 
-#endif // #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#endif // #if SE_ENABLE_INSPECTOR

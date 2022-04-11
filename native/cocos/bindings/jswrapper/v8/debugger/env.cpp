@@ -1,6 +1,6 @@
 #include "env.h"
 
-#if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#if SE_ENABLE_INSPECTOR
 
     #include "uv.h"
 
@@ -8,12 +8,12 @@ using namespace v8;
 
 namespace node {
 
-void Environment::Start(int argc,
+void Environment::Start(int                argc,
                         const char *const *argv,
-                        int exec_argc,
+                        int                exec_argc,
                         const char *const *exec_argv,
-                        bool start_profiler_idle_notifier) {
-    HandleScope handle_scope(isolate());
+                        bool               start_profiler_idle_notifier) {
+    HandleScope    handle_scope(isolate());
     Context::Scope context_scope(context());
 
     //        uv_check_init(event_loop(), immediate_check_handle());
@@ -114,4 +114,4 @@ void Environment::StopProfilerIdleNotifier() {
 
 } // namespace node
 
-#endif // #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#endif // #if SE_ENABLE_INSPECTOR

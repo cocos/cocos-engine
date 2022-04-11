@@ -22,8 +22,7 @@
 #ifndef SRC_UTIL_H_
 #define SRC_UTIL_H_
 
-#include "../../config.h"
-#if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#if SE_ENABLE_INSPECTOR
 
     #define NODE_WANT_INTERNALS 1 //cjh added
 
@@ -85,7 +84,7 @@ void LowMemoryNotification();
 // instruction cache pressure in calls from CHECK.
 NO_RETURN void Abort();
 NO_RETURN void Assert(const char *const (*args)[4]);
-void DumpBacktrace(FILE *fp);
+void           DumpBacktrace(FILE *fp);
 
 template <typename T>
 using remove_reference = std::remove_reference<T>;
@@ -96,8 +95,8 @@ using remove_reference = std::remove_reference<T>;
         #define NODE_DISALLOW_COPY_AND_ASSIGN(TypeName) \
             void operator=(const TypeName &) = delete;  \
             void operator=(TypeName &&) = delete;       \
-            TypeName(const TypeName &) = delete;        \
-            TypeName(TypeName &&) = delete
+            TypeName(const TypeName &)  = delete;       \
+            TypeName(TypeName &&)       = delete
 
         // Windows 8+ does not like abort() in Release mode
         #ifdef _WIN32
@@ -176,9 +175,9 @@ class ListHead {
 public:
     class Iterator {
     public:
-        inline T *operator*() const;
+        inline T *             operator*() const;
         inline const Iterator &operator++();
-        inline bool operator!=(const Iterator &that) const;
+        inline bool            operator!=(const Iterator &that) const;
 
     private:
         friend class ListHead;
@@ -188,11 +187,11 @@ public:
 
     inline ListHead() = default;
     inline ~ListHead();
-    inline void MoveBack(ListHead *that);
-    inline void PushBack(T *element);
-    inline void PushFront(T *element);
-    inline bool IsEmpty() const;
-    inline T *PopFront();
+    inline void     MoveBack(ListHead *that);
+    inline void     PushBack(T *element);
+    inline void     PushFront(T *element);
+    inline bool     IsEmpty() const;
+    inline T *      PopFront();
     inline Iterator begin() const;
     inline Iterator end() const;
 
@@ -217,14 +216,14 @@ private:
 // the interior pointer to a data member.
 template <typename Inner, typename Outer>
 inline ContainerOfHelper<Inner, Outer> ContainerOf(Inner Outer::*field,
-                                                   Inner *pointer);
+                                                   Inner *       pointer);
 
 // If persistent.IsWeak() == false, then do not call persistent.Reset()
 // while the returned Local<T> is still in scope, it will destroy the
 // reference to the object.
 template <class TypeName>
 inline v8::Local<TypeName> PersistentToLocal(
-    v8::Isolate *isolate,
+    v8::Isolate *                   isolate,
     const v8::Persistent<TypeName> &persistent);
 
 // Unchecked conversion from a non-weak Persistent<T> to Local<TLocal<T>,
@@ -238,22 +237,22 @@ inline v8::Local<TypeName> StrongPersistentToLocal(
 
 template <class TypeName>
 inline v8::Local<TypeName> WeakPersistentToLocal(
-    v8::Isolate *isolate,
+    v8::Isolate *                   isolate,
     const v8::Persistent<TypeName> &persistent);
 
 // Convenience wrapper around v8::String::NewFromOneByte().
 inline v8::Local<v8::String> OneByteString(v8::Isolate *isolate,
-                                           const char *data,
-                                           int length = -1);
+                                           const char * data,
+                                           int          length = -1);
 
 // For the people that compile with -funsigned-char.
-inline v8::Local<v8::String> OneByteString(v8::Isolate *isolate,
+inline v8::Local<v8::String> OneByteString(v8::Isolate *      isolate,
                                            const signed char *data,
-                                           int length = -1);
+                                           int                length = -1);
 
-inline v8::Local<v8::String> OneByteString(v8::Isolate *isolate,
+inline v8::Local<v8::String> OneByteString(v8::Isolate *        isolate,
                                            const unsigned char *data,
-                                           int length = -1);
+                                           int                  length = -1);
 
 inline void Wrap(v8::Local<v8::Object> object, void *pointer);
 
@@ -316,7 +315,8 @@ public:
     // Current maximum capacity of the buffer with which SetLength() can be used
     // without first calling AllocateSufficientStorage().
     size_t capacity() const {
-        return IsAllocated() ? capacity_ : IsInvalidated() ? 0 : kStackStorageSize;
+        return IsAllocated() ? capacity_ : IsInvalidated() ? 0
+                                                           : kStackStorageSize;
     }
 
     // Make sure enough space for `storage` entries is available.
@@ -327,9 +327,9 @@ public:
         CHECK(!IsInvalidated());
         if (storage > capacity()) {
             bool was_allocated = IsAllocated();
-            T *allocated_ptr = was_allocated ? buf_ : nullptr;
-            buf_ = Realloc(allocated_ptr, storage);
-            capacity_ = storage;
+            T *  allocated_ptr = was_allocated ? buf_ : nullptr;
+            buf_               = Realloc(allocated_ptr, storage);
+            capacity_          = storage;
             if (!was_allocated && length_ > 0)
                 memcpy(buf_, buf_st_, length_ * sizeof(buf_[0]));
         }
@@ -359,7 +359,7 @@ public:
     void Invalidate() {
         CHECK(!IsAllocated());
         length_ = 0;
-        buf_ = nullptr;
+        buf_    = nullptr;
     }
 
     // If the buffer is stored in the heap rather than on the stack.
@@ -376,8 +376,8 @@ public:
     // Note: This does not free the buffer.
     void Release() {
         CHECK(IsAllocated());
-        buf_ = buf_st_;
-        length_ = 0;
+        buf_      = buf_st_;
+        length_   = 0;
         capacity_ = 0;
     }
 
@@ -401,8 +401,8 @@ private:
     size_t length_;
     // capacity of the malloc'ed buf_
     size_t capacity_;
-    T *buf_;
-    T buf_st_[kStackStorageSize];
+    T *    buf_;
+    T      buf_st_[kStackStorageSize];
 };
 
 class Utf8Value : public MaybeStackBuffer<char> {
@@ -426,15 +426,15 @@ public:
                     return env->ThrowTypeError("argument should be a Buffer"); \
             } while (0)
 
-        #define SPREAD_BUFFER_ARG(val, name)                                       \
-            CHECK((val)->IsArrayBufferView());                                     \
-            v8::Local<v8::ArrayBufferView> name = (val).As<v8::ArrayBufferView>(); \
-            v8::ArrayBuffer::Contents name##_c = name->Buffer()->GetContents();    \
-            const size_t name##_offset = name->ByteOffset();                       \
-            const size_t name##_length = name->ByteLength();                       \
-            char *const name##_data =                                              \
-                static_cast<char *>(name##_c.Data()) + name##_offset;              \
-            if (name##_length > 0)                                                 \
+        #define SPREAD_BUFFER_ARG(val, name)                                                \
+            CHECK((val)->IsArrayBufferView());                                              \
+            v8::Local<v8::ArrayBufferView> name          = (val).As<v8::ArrayBufferView>(); \
+            v8::ArrayBuffer::Contents      name##_c      = name->Buffer()->GetContents();   \
+            const size_t                   name##_offset = name->ByteOffset();              \
+            const size_t                   name##_length = name->ByteLength();              \
+            char *const                    name##_data =                                    \
+                static_cast<char *>(name##_c.Data()) + name##_offset;                       \
+            if (name##_length > 0)                                                          \
                 CHECK_NE(name##_data, nullptr);
 
 } // namespace node
@@ -444,6 +444,6 @@ public:
     #define NODE_UTIL_H_INCLUDE
     #include "util-inl.h"
 
-#endif // #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#endif // #if SE_ENABLE_INSPECTOR
 
 #endif // SRC_UTIL_H_

@@ -1,6 +1,6 @@
 #include "node.h"
 
-#if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#if SE_ENABLE_INSPECTOR
 
     #include "env.h"
     #include "http_parser.h"
@@ -17,6 +17,12 @@
 
     #define NODE_VERSION "JSB2.0" //cjh added
 
+#ifndef SE_LOGD
+#define SE_LOGD printf
+#endif
+#ifndef SE_LOGE
+#define SE_LOGE printf
+#endif
 static inline const char *errno_string(int errorno) {
     #define ERRNO_CASE(e) \
         case e: return #e;
@@ -1115,4 +1121,4 @@ void SetupProcessObject(Environment *      env,
 
 } // namespace node
 
-#endif // #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#endif // #if SE_ENABLE_INSPECTOR

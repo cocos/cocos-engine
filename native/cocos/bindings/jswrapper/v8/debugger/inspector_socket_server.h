@@ -1,8 +1,7 @@
 #ifndef SRC_INSPECTOR_SOCKET_SERVER_H_
 #define SRC_INSPECTOR_SOCKET_SERVER_H_
 
-#include "../../config.h"
-#if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#if SE_ENABLE_INSPECTOR
 
     #include "inspector_agent.h"
     #include "inspector_socket.h"
@@ -12,9 +11,9 @@
     #include <string>
     #include <vector>
 
-    #if !HAVE_INSPECTOR
-        #error("This header can only be used when inspector is enabled")
-    #endif
+    //#if !HAVE_INSPECTOR
+    //    #error("This header can only be used when inspector is enabled")
+    //#endif
 
 namespace node {
 namespace inspector {
@@ -25,13 +24,13 @@ class ServerSocket;
 
 class SocketServerDelegate {
 public:
-    virtual bool StartSession(int session_id, const std::string &target_id) = 0;
-    virtual void EndSession(int session_id) = 0;
-    virtual void MessageReceived(int session_id, const std::string &message) = 0;
-    virtual std::vector<std::string> GetTargetIds() = 0;
-    virtual std::string GetTargetTitle(const std::string &id) = 0;
-    virtual std::string GetTargetUrl(const std::string &id) = 0;
-    virtual void ServerDone() = 0;
+    virtual bool                     StartSession(int session_id, const std::string &target_id)  = 0;
+    virtual void                     EndSession(int session_id)                                  = 0;
+    virtual void                     MessageReceived(int session_id, const std::string &message) = 0;
+    virtual std::vector<std::string> GetTargetIds()                                              = 0;
+    virtual std::string              GetTargetTitle(const std::string &id)                       = 0;
+    virtual std::string              GetTargetUrl(const std::string &id)                         = 0;
+    virtual void                     ServerDone()                                                = 0;
 };
 
 // HTTP Server, writes messages requested as TransportActions, and responds
@@ -41,10 +40,10 @@ class InspectorSocketServer {
 public:
     using ServerCallback = void (*)(InspectorSocketServer *);
     InspectorSocketServer(SocketServerDelegate *delegate,
-                          uv_loop_t *loop,
-                          const std::string &host,
-                          int port,
-                          FILE *out = stderr);
+                          uv_loop_t *           loop,
+                          const std::string &   host,
+                          int                   port,
+                          FILE *                out = stderr);
     // Start listening on host/port
     bool Start();
 
@@ -82,17 +81,17 @@ private:
                              kRunning,
                              kStopping,
                              kStopped };
-    uv_loop_t *loop_;
-    SocketServerDelegate *const delegate_;
-    const std::string host_;
-    int port_;
-    std::string path_;
-    std::vector<ServerSocket *> server_sockets_;
-    Closer *closer_;
+    uv_loop_t *                    loop_;
+    SocketServerDelegate *const    delegate_;
+    const std::string              host_;
+    int                            port_;
+    std::string                    path_;
+    std::vector<ServerSocket *>    server_sockets_;
+    Closer *                       closer_;
     std::map<int, SocketSession *> connected_sessions_;
-    int next_session_id_;
-    FILE *out_;
-    ServerState state_;
+    int                            next_session_id_;
+    FILE *                         out_;
+    ServerState                    state_;
 
     friend class Closer;
 };
@@ -100,6 +99,6 @@ private:
 } // namespace inspector
 } // namespace node
 
-#endif // #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#endif // #if SE_ENABLE_INSPECTOR
 
 #endif // SRC_INSPECTOR_SOCKET_SERVER_H_

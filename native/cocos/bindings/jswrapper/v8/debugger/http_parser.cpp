@@ -23,7 +23,7 @@
  */
 #include "http_parser.h"
 
-#if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#if SE_ENABLE_INSPECTOR
 
     #include <cassert>
     #include <cctype>
@@ -2406,4 +2406,4 @@ http_parser_version(void) { //NOLINT
            HTTP_PARSER_VERSION_PATCH * 0x00001;
 }
 
-#endif // #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#endif // #if SE_ENABLE_INSPECTOR

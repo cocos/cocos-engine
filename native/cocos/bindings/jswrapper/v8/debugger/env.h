@@ -1,14 +1,13 @@
 #pragma once
 
-#include "../../config.h"
-#if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#if SE_ENABLE_INSPECTOR
 
     #include "inspector_agent.h"
 
-    #include "v8.h"
-    #include "uv.h"
-    #include "util.h"
     #include "node.h"
+    #include "util.h"
+    #include "uv.h"
+    #include "v8.h"
 
 namespace node {
 
@@ -265,7 +264,7 @@ public:
     inline IsolateData(v8::Isolate *isolate, uv_loop_t *event_loop,
                        uint32_t *zero_fill_field = nullptr);
     inline uv_loop_t *event_loop() const;
-    inline uint32_t *zero_fill_field() const;
+    inline uint32_t * zero_fill_field() const;
 
     #define VP(PropertyName, StringValue) V(v8::Private, PropertyName)
     #define VS(PropertyName, StringValue) V(v8::String, PropertyName)
@@ -289,7 +288,7 @@ private:
     #undef VP
 
     uv_loop_t *const event_loop_;
-    uint32_t *const zero_fill_field_;
+    uint32_t *const  zero_fill_field_;
 
     NODE_DISALLOW_COPY_AND_ASSIGN(IsolateData);
 };
@@ -308,11 +307,11 @@ public:
     inline Environment(IsolateData *isolate_data, v8::Local<v8::Context> context);
     inline ~Environment();
 
-    void Start(int argc,
+    void Start(int                argc,
                const char *const *argv,
-               int exec_argc,
+               int                exec_argc,
                const char *const *exec_argv,
-               bool start_profiler_idle_notifier);
+               bool               start_profiler_idle_notifier);
     void AssignToContext(v8::Local<v8::Context> context);
     void CleanupHandles();
 
@@ -349,32 +348,32 @@ public:
 
     #define V(PropertyName, TypeName)                    \
         inline v8::Local<TypeName> PropertyName() const; \
-        inline void set_##PropertyName(v8::Local<TypeName> value);
+        inline void                set_##PropertyName(v8::Local<TypeName> value);
     ENVIRONMENT_STRONG_PERSISTENT_PROPERTIES(V)
     #undef V
 
     inline void ThrowError(const char *errmsg);
     inline void ThrowTypeError(const char *errmsg);
     inline void ThrowRangeError(const char *errmsg);
-    inline void ThrowErrnoException(int errorno,
+    inline void ThrowErrnoException(int         errorno,
                                     const char *syscall = nullptr,
                                     const char *message = nullptr,
-                                    const char *path = nullptr);
-    inline void ThrowUVException(int errorno,
+                                    const char *path    = nullptr);
+    inline void ThrowUVException(int         errorno,
                                  const char *syscall = nullptr,
                                  const char *message = nullptr,
-                                 const char *path = nullptr,
-                                 const char *dest = nullptr);
+                                 const char *path    = nullptr,
+                                 const char *dest    = nullptr);
 
     inline v8::Local<v8::FunctionTemplate>
-    NewFunctionTemplate(v8::FunctionCallback callback,
+    NewFunctionTemplate(v8::FunctionCallback     callback,
                         v8::Local<v8::Signature> signature =
                             v8::Local<v8::Signature>());
 
     // Convenience methods for NewFunctionTemplate().
     inline void SetMethod(v8::Local<v8::Object> that,
-                          const char *name,
-                          v8::FunctionCallback callback);
+                          const char *          name,
+                          v8::FunctionCallback  callback);
 
     class AsyncCallbackScope {
     public:
@@ -401,12 +400,11 @@ private:
     ENVIRONMENT_STRONG_PERSISTENT_PROPERTIES(V)
     #undef V
     inspector::Agent inspector_agent_;
-    size_t makecallback_cntr_;
+    size_t           makecallback_cntr_;
 };
 
 inline IsolateData::IsolateData(v8::Isolate *isolate, uv_loop_t *event_loop,
                                 uint32_t *zero_fill_field) :
-
     // Create string and private symbol properties as internalized one byte strings.
     //
     // Internalized because it makes property lookups a little faster and because
@@ -484,7 +482,7 @@ inline Environment::Environment(IsolateData *isolate_data, v8::Local<v8::Context
   makecallback_cntr_(0),
   context_(context->GetIsolate(), context) {
     // We'll be creating new objects so make sure we've entered the context.
-    v8::HandleScope handle_scope(isolate());
+    v8::HandleScope    handle_scope(isolate());
     v8::Context::Scope context_scope(context);
     set_as_external(v8::External::New(isolate(), this));
     set_binding_cache_object(v8::Object::New(isolate()));
@@ -510,13 +508,13 @@ inline Environment::~Environment() {
 }
 
 inline void Environment::SetMethod(v8::Local<v8::Object> that,
-                                   const char *name,
-                                   v8::FunctionCallback callback) {
+                                   const char *          name,
+                                   v8::FunctionCallback  callback) {
     v8::Local<v8::Function> function =
         NewFunctionTemplate(callback)->GetFunction(context()).ToLocalChecked();
     // kInternalized strings are created in the old space.
     const v8::NewStringType type = v8::NewStringType::kInternalized;
-    v8::Local<v8::String> name_string =
+    v8::Local<v8::String>   name_string =
         v8::String::NewFromUtf8(isolate(), name, type).ToLocalChecked();
     that->Set(isolate()->GetCurrentContext(), name_string, function).Check();
     function->SetName(name_string); // NODE_SET_METHOD() compatibility.
@@ -541,7 +539,7 @@ inline void Environment::ThrowError(
     isolate()->ThrowException(fun(OneByteString(isolate(), errmsg)));
 }
 
-inline void Environment::ThrowErrnoException(int errorno,
+inline void Environment::ThrowErrnoException(int         errorno,
                                              const char *syscall,
                                              const char *message,
                                              const char *path) {
@@ -549,7 +547,7 @@ inline void Environment::ThrowErrnoException(int errorno,
         ErrnoException(isolate(), errorno, syscall, message, path));
 }
 
-inline void Environment::ThrowUVException(int errorno,
+inline void Environment::ThrowUVException(int         errorno,
                                           const char *syscall,
                                           const char *message,
                                           const char *path,
@@ -559,7 +557,7 @@ inline void Environment::ThrowUVException(int errorno,
 }
 
 inline v8::Local<v8::FunctionTemplate>
-Environment::NewFunctionTemplate(v8::FunctionCallback callback,
+Environment::NewFunctionTemplate(v8::FunctionCallback     callback,
                                  v8::Local<v8::Signature> signature) {
     v8::Local<v8::External> external = as_external();
     return v8::FunctionTemplate::New(isolate(), callback, external, signature);
@@ -615,4 +613,4 @@ inline bool Environment::AsyncCallbackScope::in_makecallback() {
 
 } // namespace node
 
-#endif // #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#endif // #if SE_ENABLE_INSPECTOR
