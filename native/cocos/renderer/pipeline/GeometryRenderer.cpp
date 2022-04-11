@@ -819,7 +819,7 @@ void GeometryRenderer::addSpline(const geometry::Spline &spline, gfx::Color colo
         addLine(points[i], points[i + 1], color, depthTest);
     }
 
-    if (knotSize > 0.0F && index == 0xffffffff) {
+    if (knotSize > 0.0F && index == geometry::SPLINE_WHOLE_INDEX) {
         const gfx::Color crossColor{1.0F - color.x, 1.0F - color.y, 1.0F - color.z, color.w};
         const auto       numKnots = spline.getKnotCount();
         const auto &     knots    = spline.getKnots();
