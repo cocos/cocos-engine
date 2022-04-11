@@ -548,26 +548,32 @@ export class WebPipeline extends Pipeline {
         if (cameras.length === 0) {
             return;
         }
+        cameras.forEach((camera) => {
+            if (!this._cameras.includes(camera)) {
+                this._cameras.push(camera);
+            }
+        });
         // build graph
         this.beginFrame();
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (camera.scene) {
+                const idx = this._cameras.indexOf(camera);
                 this._buildShadowPasses(this, this._validLights,
                     camera.scene.mainLight,
                     this._pipelineSceneData,
-                    `Camera${i.toString()}`);
+                    `Camera${idx}`);
 
                 const window = camera.window;
                 const width = Math.floor(window.width);
                 const height = Math.floor(window.height);
-                const forwardPassRTName = `dsForwardPassColorCamera${i}`;
-                const forwardPassDSName = `dsForwardPassDSCamera${i}`;
+                const forwardPassRTName = `dsForwardPassColorCamera${idx}`;
+                const forwardPassDSName = `dsForwardPassDSCamera${idx}`;
                 if (!this.resourceGraph.contains(forwardPassRTName)) {
                     this.addRenderTexture(forwardPassRTName, Format.RGBA8, width, height, camera.window);
                     this.addDepthStencil(forwardPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
                 }
-                const forwardPass = this.addRasterPass(width, height, '_', `CameraForwardPass${i.toString()}`);
+                const forwardPass = this.addRasterPass(width, height, '_', `CameraForwardPass${idx}`);
                 if (this.resourceGraph.contains(this._dsShadowMap)) {
                     forwardPass.addRasterView(this._dsShadowMap, new RasterView('_',
                         AccessType.READ, AttachmentType.RENDER_TARGET,
@@ -662,6 +668,7 @@ export class WebPipeline extends Pipeline {
     private _constantMacros = '';
     private _profiler: Model | null = null;
     private _pipelineUBO: PipelineUBO = new PipelineUBO();
+    private _cameras: Camera[] = [];
 
     private readonly _layoutGraph: LayoutGraphData = new LayoutGraphData();
     private readonly _resourceGraph: ResourceGraph = new ResourceGraph();
