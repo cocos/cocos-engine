@@ -23,8 +23,8 @@
 #pragma once
 
 #include <algorithm>
-#include <functional>
 #include <cmath>
+#include <functional>
 #include "math/MathBase.h"
 
 NS_CC_MATH_BEGIN
@@ -36,7 +36,8 @@ inline float clampf(float value, float minInclusive, float maxInclusive) {
     if (minInclusive > maxInclusive) {
         std::swap(minInclusive, maxInclusive);
     }
-    return value < minInclusive ? minInclusive : value < maxInclusive ? value : maxInclusive;
+    return value < minInclusive ? minInclusive : value < maxInclusive ? value
+                                                                      : maxInclusive;
 }
 
 class Mat4;
@@ -691,6 +692,4 @@ typedef Vec2 Point;
 
 NS_CC_MATH_END
 
-
 #include "math/Vec2.inl"
-

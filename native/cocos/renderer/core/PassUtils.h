@@ -27,9 +27,9 @@
 
 #include "base/Ptr.h"
 #include "base/TypeDef.h"
+#include "base/Variant.h"
 #include "base/std/container/string.h"
 #include "base/std/container/vector.h"
-#include "base/Variant.h"
 
 #include "math/Color.h"
 #include "math/Mat3.h"
