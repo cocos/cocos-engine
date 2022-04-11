@@ -296,8 +296,7 @@ void Octree::insert(Model* model) {
         return;
     }
 
-    bool inside = isInside(model);
-    if (!inside) {
+    if (isOutside(model)) {
         CC_LOG_WARNING("Octree insert: model is outside of the scene bounding box, please modify DEFAULT_WORLD_MIN_POS and DEFAULT_WORLD_MAX_POS.");
         return;
     }
@@ -337,6 +336,13 @@ bool Octree::isInside(Model* model) const {
     BBox        modelBox = BBox(*model->getWorldBounds());
 
     return rootBox.contain(modelBox);
+}
+
+bool Octree::isOutside(Model *model) const {
+    const BBox &rootBox  = _root->getBox();
+    BBox        modelBox = BBox(*model->getWorldBounds());
+
+    return !rootBox.intersect(modelBox);
 }
 
 } // namespace scene
