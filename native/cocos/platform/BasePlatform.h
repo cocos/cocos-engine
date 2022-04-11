@@ -85,7 +85,7 @@ public:
     /**
      * @brief Set touch event handling callback function.
      */
-    using HandleTouchEventCallback = std::function<bool(const TouchEvent&)>;
+    using HandleTouchEventCallback                                        = std::function<bool(const TouchEvent&)>;
     virtual void setHandleTouchEventCallback(HandleTouchEventCallback cb) = 0;
 
     /**
@@ -175,4 +175,3 @@ private:
         }                                                             \
         return platform->run(argc, argv);                             \
     } while (0)
-
