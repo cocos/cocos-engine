@@ -77,7 +77,7 @@ void ReflectionComp::init(gfx::Device *dev, uint groupSizeX, uint groupSizeY) {
     _sampler              = _device->getSampler(samplerInfo);
 
     uint maxInvocations = _device->getCapabilities().maxComputeWorkGroupInvocations;
-    CCASSERT(_groupSizeX * _groupSizeY <= maxInvocations, "maxInvocations is too small");
+    CC_ASSERT(_groupSizeX * _groupSizeY <= maxInvocations); // maxInvocations is too small
     CC_LOG_INFO(" work group size: %dx%d", _groupSizeX, _groupSizeY);
 
     gfx::DescriptorSetLayoutInfo layoutInfo = {pipeline::localDescriptorSetLayout.bindings};

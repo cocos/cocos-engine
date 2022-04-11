@@ -283,8 +283,8 @@ ccstd::vector<StackFrame> CallStack::backtraceSymbols(const ccstd::vector<void *
     #if CC_PLATFORM == CC_PLATFORM_WINDOWS
 void CallStack::initSym() {
     _process = GetCurrentProcess();
-    if (SymInitialize(_process, NULL, TRUE) == FALSE) {
-        CCASSERT(0, "Failed to call SymInitialize.");
+    if (SymInitialize(_process, nullptr, true) == false) {
+        CC_ASSERT(false);
     }
     SymSetOptions(SYMOPT_LOAD_LINES);
 }

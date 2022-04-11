@@ -232,7 +232,7 @@
     NSUInteger     textureSize = width * height * 4;
     unsigned char *data        = (unsigned char *)malloc(sizeof(unsigned char) * textureSize);
     memset(data, 0, textureSize);
-    _imageData.fastSet(data, textureSize);
+    _imageData.fastSet(data, static_cast<uint32_t>(textureSize));
 
     if (_context != nil) {
         CGContextRelease(_context);
@@ -632,7 +632,7 @@ void CanvasRenderingContext2DDelegate::fillData() {
 }
 
 #define CLAMP(V, HI) std::min((V), (HI))
-void CanvasRenderingContext2DDelegate::unMultiplyAlpha(unsigned char *ptr, ssize_t size) const {
+void CanvasRenderingContext2DDelegate::unMultiplyAlpha(unsigned char *ptr, uint32_t size) const {
     float alpha;
     for (int i = 0; i < size; i += 4) {
         alpha = (float)ptr[i + 3];

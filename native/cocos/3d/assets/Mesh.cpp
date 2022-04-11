@@ -980,7 +980,7 @@ void Mesh::updateSubMesh(index_t primitiveIndex, const IDynamicGeometry &geometr
         auto *      dstBuffer    = _data.buffer()->getData() + bundle.view.offset;
         const auto *srcBuffer    = vertices.buffer()->getData() + vertices.byteOffset();
         auto *      vertexBuffer = subMesh->getVertexBuffers()[index];
-        CCASSERT(vertexCount <= info.maxSubMeshVertices, "Too many vertices.");
+        CC_ASSERT(vertexCount <= info.maxSubMeshVertices);
 
         if (updateSize > 0U) {
             std::memcpy(dstBuffer, srcBuffer, updateSize);
@@ -1000,7 +1000,7 @@ void Mesh::updateSubMesh(index_t primitiveIndex, const IDynamicGeometry &geometr
         const auto *srcBuffer   = (stride == sizeof(uint16_t)) ? geometry.indices16.value().buffer()->getData() + geometry.indices16.value().byteOffset()
                                                                : geometry.indices32.value().buffer()->getData() + geometry.indices32.value().byteOffset();
         auto *      indexBuffer = subMesh->getIndexBuffer();
-        CCASSERT(indexCount <= info.maxSubMeshIndices, "Too many indices.");
+        CC_ASSERT(indexCount <= info.maxSubMeshIndices);
 
         if (updateSize > 0U) {
             std::memcpy(dstBuffer, srcBuffer, updateSize);

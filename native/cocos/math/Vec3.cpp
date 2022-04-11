@@ -61,7 +61,7 @@ Vec3 Vec3::fromColor(unsigned int color) {
 }
 
 void Vec3::transformInverseRTS(const Vec3 &v, const Quaternion &r, const Vec3 &t, const Vec3 &s, Vec3 *out) {
-    GP_ASSERT(out);
+    CC_ASSERT(out);
     const float x = v.x - t.x;
     const float y = v.y - t.y;
     const float z = v.z - t.z;
@@ -84,7 +84,7 @@ float Vec3::angle(const Vec3 &v1, const Vec3 &v2) {
 }
 
 void Vec3::add(const Vec3 &v1, const Vec3 &v2, Vec3 *dst) {
-    GP_ASSERT(dst);
+    CC_ASSERT(dst);
 
     dst->x = v1.x + v2.x;
     dst->y = v1.y + v2.y;
@@ -92,7 +92,7 @@ void Vec3::add(const Vec3 &v1, const Vec3 &v2, Vec3 *dst) {
 }
 
 void Vec3::clamp(const Vec3 &min, const Vec3 &max) {
-    GP_ASSERT(!(min.x > max.x || min.y > max.y || min.z > max.z));
+    CC_ASSERT(!(min.x > max.x || min.y > max.y || min.z > max.z));
 
     // Clamp the x value.
     if (x < min.x) {
@@ -120,8 +120,8 @@ void Vec3::clamp(const Vec3 &min, const Vec3 &max) {
 }
 
 void Vec3::clamp(const Vec3 &v, const Vec3 &min, const Vec3 &max, Vec3 *dst) {
-    GP_ASSERT(dst);
-    GP_ASSERT(!(min.x > max.x || min.y > max.y || min.z > max.z));
+    CC_ASSERT(dst);
+    CC_ASSERT(!(min.x > max.x || min.y > max.y || min.z > max.z));
 
     // Clamp the x value.
     dst->x = v.x;
@@ -156,7 +156,7 @@ void Vec3::cross(const Vec3 &v) {
 }
 
 void Vec3::cross(const Vec3 &v1, const Vec3 &v2, Vec3 *dst) {
-    GP_ASSERT(dst);
+    CC_ASSERT(dst);
 
     // NOTE: This code assumes Vec3 struct members are contiguous floats in memory.
     // We might want to revisit this (and other areas of code that make this assumption)
@@ -284,7 +284,7 @@ Vec3 Vec3::getNormalized() const {
 }
 
 void Vec3::subtract(const Vec3 &v1, const Vec3 &v2, Vec3 *dst) {
-    GP_ASSERT(dst);
+    CC_ASSERT(dst);
 
     dst->x = v1.x - v2.x;
     dst->y = v1.y - v2.y;
@@ -292,7 +292,7 @@ void Vec3::subtract(const Vec3 &v1, const Vec3 &v2, Vec3 *dst) {
 }
 
 void Vec3::max(const Vec3 &v1, const Vec3 &v2, Vec3 *dst) {
-    GP_ASSERT(dst);
+    CC_ASSERT(dst);
 
     dst->x = std::fmaxf(v1.x, v2.x);
     dst->y = std::fmaxf(v1.y, v2.y);
@@ -300,7 +300,7 @@ void Vec3::max(const Vec3 &v1, const Vec3 &v2, Vec3 *dst) {
 }
 
 void Vec3::min(const Vec3 &v1, const Vec3 &v2, Vec3 *dst) {
-    GP_ASSERT(dst);
+    CC_ASSERT(dst);
 
     dst->x = std::fminf(v1.x, v2.x);
     dst->y = std::fminf(v1.y, v2.y);

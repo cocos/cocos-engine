@@ -124,7 +124,7 @@ public:
                 return intf;
             }
         }
-        CCASSERT(false, "Interface does not exist");
+        CC_ASSERT(false);
         return nullptr;
     }
 
@@ -132,7 +132,7 @@ public:
      * @brief Registration system interface.
      */
     bool registerInterface(const OSInterface::Ptr& osInterface) {
-        CCASSERT(osInterface != nullptr, "Invalid interface pointer");
+        CC_ASSERT(osInterface != nullptr);
         auto it = std::find(_osInterfaces.begin(), _osInterfaces.end(), osInterface);
         if (it != _osInterfaces.end()) {
             CC_LOG_WARNING("Duplicate registration interface");
@@ -145,7 +145,7 @@ public:
      * @brief Unregistration system interface.
      */
     void unregisterInterface(const OSInterface::Ptr& osInterface) {
-        CCASSERT(osInterface != nullptr, "Invalid interface pointer");
+        CC_ASSERT(osInterface != nullptr);
         auto it = std::find(_osInterfaces.begin(), _osInterfaces.end(), osInterface);
         if (it != _osInterfaces.end()) {
             CC_LOG_WARNING("Interface is not registrated");

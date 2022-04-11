@@ -597,7 +597,7 @@ public:
                 break;
             }
         }
-        CCASSERT(found, "wrong descriptor set layout to yield?");
+        CC_ASSERT(found); // Wrong descriptor set layout to yield?
         _fleaMarkets[backBufferIndex].push_back(set);
     }
 
@@ -695,7 +695,7 @@ public:
     void yield(CCVKGPUCommandBuffer *gpuCommandBuffer) {
         if (gpuCommandBuffer->vkCommandBuffer) {
             uint32_t hash = getHash(gpuCommandBuffer->queueFamilyIndex);
-            CCASSERT(_pools.count(hash), "wrong command pool to yield?");
+            CC_ASSERT(_pools.count(hash)); // Wrong command pool to yield?
 
             CommandBufferPool &pool = _pools[hash];
             pool.usedCommandBuffers[gpuCommandBuffer->level].push(gpuCommandBuffer->vkCommandBuffer);
@@ -758,7 +758,7 @@ public:
 
     void alloc(CCVKGPUBuffer *gpuBuffer) { alloc(gpuBuffer, 1U); }
     void alloc(CCVKGPUBuffer *gpuBuffer, uint32_t alignment) {
-        CCASSERT(gpuBuffer->size <= CHUNK_SIZE, "required size exceeds single chunk size");
+        CC_ASSERT(gpuBuffer->size <= CHUNK_SIZE);
 
         size_t       bufferCount = _pool.size();
         Buffer *     buffer      = nullptr;

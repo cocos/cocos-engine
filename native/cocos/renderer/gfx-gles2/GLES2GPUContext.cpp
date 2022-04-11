@@ -76,7 +76,7 @@ void GL_APIENTRY GLES2EGLDebugProc(GLenum source, GLenum type, GLuint id, GLenum
 
     if (severity == GL_DEBUG_SEVERITY_HIGH_KHR) {
         CC_LOG_ERROR(msg.c_str());
-        CCASSERT(DISABLE_VALIDATION_ASSERTIONS, "Validation Error");
+        CC_ASSERT(DISABLE_VALIDATION_ASSERTIONS);
     } else if (severity == GL_DEBUG_SEVERITY_MEDIUM_KHR) {
         CC_LOG_WARNING(msg.c_str());
     } else {

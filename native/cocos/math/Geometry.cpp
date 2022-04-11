@@ -35,17 +35,13 @@ namespace cc {
 
 // implementation of Size
 
-Size::Size(void) : width(0),
-                   height(0) {
-}
+Size::Size() = default;
 
 Size::Size(float w, float h) : width(w),
                                height(h) {
 }
 
-Size::Size(const Size &other) : width(other.width),
-                                height(other.height) {
-}
+Size::Size(const Size &other) = default;
 
 Size::Size(const Vec2 &point) : width(point.x),
                                 height(point.y) {
@@ -74,7 +70,7 @@ Size Size::operator*(float a) const {
 }
 
 Size Size::operator/(float a) const {
-    CCASSERT(a != 0, "CCSize division by 0.");
+    CC_ASSERT(a != 0);
     return Size(this->width / a, this->height / a);
 }
 
@@ -91,8 +87,8 @@ const Size Size::ZERO = Size(0, 0);
 
 // implementation of Rect
 
-Rect::Rect(void) {
-    setRect(0.0f, 0.0f, 0.0f, 0.0f);
+Rect::Rect() {
+    setRect(0.0F, 0.0F, 0.0F, 0.0F);
 }
 
 Rect::Rect(float x, float y, float width, float height) {
@@ -113,7 +109,7 @@ Rect &Rect::operator=(const Rect &other) {
 
 void Rect::setRect(float x, float y, float width, float height) {
     // CGRect can support width<0 or height<0
-    // CCASSERT(width >= 0.0f && height >= 0.0f, "width and height of Rect must not less than 0.");
+    // CC_ASSERT(width >= 0.0f && height >= 0.0f);
 
     origin.x = x;
     origin.y = y;
@@ -132,7 +128,7 @@ float Rect::getMaxX() const {
 }
 
 float Rect::getMidX() const {
-    return origin.x + size.width / 2.0f;
+    return origin.x + size.width / 2.0F;
 }
 
 float Rect::getMinX() const {
@@ -144,7 +140,7 @@ float Rect::getMaxY() const {
 }
 
 float Rect::getMidY() const {
-    return origin.y + size.height / 2.0f;
+    return origin.y + size.height / 2.0F;
 }
 
 float Rect::getMinY() const {

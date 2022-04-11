@@ -44,7 +44,8 @@ public:
 #ifdef _MSC_VER
         void *ptr = _aligned_malloc(count, alignment);
 #else
-        CCASSERT(alignment % sizeof(void *) == 0, "alignment is not multiple of sizeof(void*)");
+        // alignment is not multiple of sizeof(void*)
+        CC_ASSERT(alignment % sizeof(void *) == 0);
         void *ptr = nullptr;
         posix_memalign(&ptr, alignment, count);
 #endif

@@ -56,7 +56,7 @@ namespace {
                                       static_cast<float>([touch locationInView:[touch view]].y),
                                       static_cast<int>((intptr_t)touch)});
     }
-    CCASSERT(_platform != nullptr, "Platform point cannot be null");
+    CC_ASSERT(_platform != nullptr);
     _platform->dispatchEvent(touchEvent);
 }
 
