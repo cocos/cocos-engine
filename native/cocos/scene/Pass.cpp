@@ -307,7 +307,8 @@ void Pass::resetUniform(const ccstd::string &name) {
             const auto &floatArr = cc::get<ccstd::vector<float>>(value);
             auto        iter     = type2writer.find(type);
             if (iter != type2writer.end()) {
-                iter->second(block.data, floatArr.data(), static_cast<int32_t>(ofs));
+                CC_ASSERT(floatArr.size() == 2);
+                iter->second(block.data, toMaterialProperty(type, floatArr), static_cast<int32_t>(ofs));
             }
         }
     }

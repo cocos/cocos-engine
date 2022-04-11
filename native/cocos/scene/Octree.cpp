@@ -361,7 +361,7 @@ void Octree::resize(const Vec3 &minPos, const Vec3 &maxPos, uint32_t maxDepth) {
 }
 
 void Octree::insert(Model *model) {
-    CCASSERT(model, "Octree insert: model is nullptr.");
+    CC_ASSERT(model);
 
     if (!model->getWorldBounds()) {
         return;
@@ -381,7 +381,7 @@ void Octree::insert(Model *model) {
 }
 
 void Octree::remove(Model *model) {
-    CCASSERT(model, "Octree remove: model is nullptr.");
+    CC_ASSERT(model);
 
     OctreeNode *node = model->getOctreeNode();
     if (node) {

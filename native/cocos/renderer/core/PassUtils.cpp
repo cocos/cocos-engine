@@ -262,4 +262,45 @@ bool overrideMacros(MacroRecord &target, const MacroRecord &source) {
     return isDifferent;
 }
 
+MaterialProperty toMaterialProperty(gfx::Type type, const ccstd::vector<float> &vec) {
+    MaterialProperty ret;
+    size_t           size = vec.size();
+
+    switch (type) {
+        case gfx::Type::FLOAT:
+            CC_ASSERT(size >= 1);
+            ret = vec[0];
+            break;
+        case gfx::Type::FLOAT2:
+            CC_ASSERT(size >= 2);
+            ret = Vec2(vec[0], vec[1]);
+            break;
+        case gfx::Type::FLOAT3:
+            CC_ASSERT(size >= 3);
+            ret = Vec3(vec[0], vec[1], vec[2]);
+            break;
+        case gfx::Type::FLOAT4:
+            CC_ASSERT(size >= 4);
+            ret = Vec4(vec[0], vec[1], vec[2], vec[3]);
+            break;
+        case gfx::Type::MAT3:
+            CC_ASSERT(size >= 9);
+            ret = Mat3(vec.data());
+            break;
+        case gfx::Type::MAT4:
+            CC_ASSERT(size >= 16);
+            ret = Mat4(vec.data());
+            break;
+        case gfx::Type::INT:
+        case gfx::Type::INT2:
+        case gfx::Type::INT3:
+        case gfx::Type::INT4:
+        default:
+            CC_ASSERT(false);
+            break;
+    }
+
+    return ret;
+}
+
 }; // namespace cc

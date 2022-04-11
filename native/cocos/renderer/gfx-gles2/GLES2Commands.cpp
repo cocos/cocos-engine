@@ -115,7 +115,7 @@ GLenum mapGLFormat(Format format) {
         case Format::ASTC_SRGBA_12X12: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR;
 
         default: {
-            CCASSERT(false, "Unsupported Format, convert to GL format failed.");
+            CC_ASSERT(false);
             return GL_NONE;
         }
     }
@@ -167,7 +167,7 @@ GLenum mapGLType(Type type) {
         case Type::SAMPLER3D: return GL_SAMPLER_3D_OES;
         case Type::SAMPLER_CUBE: return GL_SAMPLER_CUBE;
         default: {
-            CCASSERT(false, "Unsupported Type, convert to GL type failed.");
+            CC_ASSERT(false);
             return GL_NONE;
         }
     }
@@ -195,7 +195,7 @@ Type mapType(GLenum glType) {
         case GL_SAMPLER_3D_OES: return Type::SAMPLER3D;
         case GL_SAMPLER_CUBE: return Type::SAMPLER_CUBE;
         default: {
-            CCASSERT(false, "Unsupported GL type, convert to Type failed.");
+            CC_ASSERT(false);
             return Type::UNKNOWN;
         }
     }
@@ -316,7 +316,7 @@ GLenum formatToGLType(Format format) {
             return GL_UNSIGNED_BYTE;
 
         default: {
-            CCASSERT(false, "Unsupported Format, convert to GL type failed.");
+            CC_ASSERT(false);
             return GL_NONE;
         }
     }
@@ -348,7 +348,7 @@ uint32_t glTypeSize(GLenum glType) {
         case GL_INT_SAMPLER_CUBE_MAP_ARRAY_OES:
         case GL_UNSIGNED_INT_SAMPLER_CUBE_MAP_ARRAY_OES: return 4;
         default: {
-            CCASSERT(false, "Unsupported GL type, get type size failed.");
+            CC_ASSERT(false);
             return 0;
         }
     }
@@ -473,7 +473,7 @@ void cmdFuncGLES2CreateBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer) {
         gpuBuffer->buffer   = static_cast<uint8_t *>(CC_MALLOC(gpuBuffer->size));
         gpuBuffer->glTarget = GL_NONE;
     } else {
-        CCASSERT(false, "Unsupported BufferType, create buffer failed.");
+        CC_ASSERT(false);
         gpuBuffer->glTarget = GL_NONE;
     }
 }
@@ -566,7 +566,7 @@ void cmdFuncGLES2ResizeBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer) {
         gpuBuffer->buffer   = static_cast<uint8_t *>(CC_MALLOC(gpuBuffer->size));
         gpuBuffer->glTarget = GL_NONE;
     } else {
-        CCASSERT(false, "Unsupported BufferType, resize buffer failed.");
+        CC_ASSERT(false);
         gpuBuffer->glTarget = GL_NONE;
     }
 }
@@ -620,7 +620,7 @@ void cmdFuncGLES2CreateTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture)
                 break;
             }
             default:
-                CCASSERT(false, "Unsupported TextureType, create texture failed.");
+                CC_ASSERT(false);
                 break;
         }
     } else {
@@ -700,7 +700,7 @@ void cmdFuncGLES2CreateTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture)
                 break;
             }
             default:
-                CCASSERT(false, "Unsupported TextureType, create texture failed.");
+                CC_ASSERT(false);
                 break;
         }
     }
@@ -797,7 +797,7 @@ void cmdFuncGLES2ResizeTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture)
                 break;
             }
             default:
-                CCASSERT(false, "Unsupported TextureType, resize texture failed.");
+                CC_ASSERT(false);
                 break;
         }
     } else {
@@ -818,7 +818,7 @@ void cmdFuncGLES2ResizeTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture)
                 break;
             }
             default:
-                CCASSERT(false, "Unsupported TextureType, resize texture failed.");
+                CC_ASSERT(false);
                 break;
         }
     }
@@ -877,7 +877,7 @@ void cmdFuncGLES2CreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
                 break;
             }
             default: {
-                CCASSERT(false, "Unsupported ShaderStageFlagBit");
+                CC_ASSERT(false);
                 return;
             }
         }
@@ -1396,7 +1396,7 @@ static GLES2GPUSwapchain *getSwapchainIfExists(const ccstd::vector<GLES2GPUTextu
                 ++offscreenCount;
             }
         }
-        CCASSERT(!offscreenCount || offscreenCount == count, "Partially offscreen FBO is not supported");
+        CC_ASSERT(!offscreenCount || offscreenCount == count); // Partially offscreen FBO is not supported.
     }
     return swapchain;
 }
@@ -2188,7 +2188,7 @@ void cmdFuncGLES2BindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
 
                 GLES2GPUTexture *gpuTexture = gpuDescriptor->gpuTexture;
                 GLuint           glTexture  = gpuTexture->glTexture;
-                CCASSERT(!gpuTexture->glRenderbuffer, "Can not sample renderbuffers!");
+                CC_ASSERT(!gpuTexture->glRenderbuffer); // Can not sample renderbuffers!
 
                 if (cache->glTextures[unit] != glTexture) {
                     if (cache->texUint != unit) {
@@ -2504,7 +2504,7 @@ void cmdFuncGLES2Draw(GLES2Device *device, const DrawInfo &drawInfo) {
 
 void cmdFuncGLES2UpdateBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer, const void *buffer, uint32_t offset, uint32_t size) {
     GLES2ObjectCache &gfxStateCache = device->stateCache()->gfxStateCache;
-    CCASSERT(buffer, "Buffer should not be nullptr");
+    CC_ASSERT(buffer);
     if ((hasFlag(gpuBuffer->usage, BufferUsageBit::UNIFORM)) ||
         (hasFlag(gpuBuffer->usage, BufferUsageBit::TRANSFER_SRC))) {
         memcpy(gpuBuffer->buffer + offset, buffer, size);
@@ -2543,7 +2543,7 @@ void cmdFuncGLES2UpdateBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer, co
                 break;
             }
             default:
-                CCASSERT(false, "Unsupported BufferType, update buffer failed.");
+                CC_ASSERT(false);
                 break;
         }
     }
@@ -2699,7 +2699,7 @@ void cmdFuncGLES2CopyBuffersToTexture(GLES2Device *device, const uint8_t *const 
             break;
         }
         default:
-            CCASSERT(false, "Unsupported TextureType, copy buffers to texture failed.");
+            CC_ASSERT(false);
             break;
     }
 

@@ -99,12 +99,12 @@ void CanvasRenderingContext2DDelegate::closePath() {
 }
 
 void CanvasRenderingContext2DDelegate::moveTo(float x, float y) {
-    CCASSERT(_cr != nullptr, "Cr pointer cannot be empty");
+    CC_ASSERT(_cr != nullptr);
     cairo_move_to(_cr, x, y);
 }
 
 void CanvasRenderingContext2DDelegate::lineTo(float x, float y) {
-    CCASSERT(_cr != nullptr, "Cr pointer cannot be empty");
+    CC_ASSERT(_cr != nullptr);
     cairo_line_to(_cr, x, y);
 }
 
@@ -133,7 +133,7 @@ void CanvasRenderingContext2DDelegate::fillRect(float x, float y, float w, float
     if (_bufferWidth < 1.0F || _bufferHeight < 1.0F) {
         return;
     }
-    CCASSERT(_cr != nullptr, "Cr pointer cannot be empty");
+    CC_ASSERT(_cr != nullptr);
     cairo_set_source_rgba(_cr, _fillStyle[0], _fillStyle[1], _fillStyle[2], _fillStyle[3]);
     cairo_rectangle(_cr, x, y, w, h);
     cairo_fill(_cr);

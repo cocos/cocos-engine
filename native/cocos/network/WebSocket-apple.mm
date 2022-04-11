@@ -32,7 +32,9 @@
     #error WebSocket must be compiled with ARC enabled
 #endif
 
-static ccstd::vector<cc::network::WebSocket *> *__websocketInstances = nullptr;
+namespace {
+ccstd::vector<cc::network::WebSocket *> websocketInstances;
+}
 
 @interface WebSocketImpl : NSObject <SRWebSocketDelegate> {
 }
@@ -188,38 +190,33 @@ namespace cc {
 namespace network {
 
 void WebSocket::closeAllConnections() {
-    if (__websocketInstances != nullptr) {
-        ssize_t count = __websocketInstances->size();
-        for (ssize_t i = count - 1; i >= 0; i--) {
-            WebSocket *instance = __websocketInstances->at(i);
-            instance->close();
-        }
-
-        __websocketInstances->clear();
-        delete __websocketInstances;
-        __websocketInstances = nullptr;
+    if (websocketInstances.empty()) {
+        return;
     }
+
+    for (auto iter = websocketInstances.cbegin(); iter != websocketInstances.cend(); ++iter) {
+        (*iter)->close();
+        ++iter;
+    }
+    
+    websocketInstances.clear();
 }
 
-WebSocket::WebSocket()
-: _impl(nil) {
-    if (__websocketInstances == nullptr) {
-        __websocketInstances = new (std::nothrow) ccstd::vector<WebSocket *>();
-    }
-
-    __websocketInstances->push_back(this);
+WebSocket::WebSocket() {
+    websocketInstances.push_back(this);
 }
 
 WebSocket::~WebSocket() {
     // NSLog(@"In the destructor of WebSocket-apple (%p).", this);
+    if (websocketInstances.empty()) {
+        return;
+    }
 
-    if (__websocketInstances != nullptr) {
-        auto iter = std::find(__websocketInstances->begin(), __websocketInstances->end(), this);
-        if (iter != __websocketInstances->end()) {
-            __websocketInstances->erase(iter);
-        } else {
-            NSLog(@"ERROR: WebSocket instance wasn't added to the container which saves websocket instances!");
-        }
+    auto iter = std::find(websocketInstances.begin(), websocketInstances.end(), this);
+    if (iter != websocketInstances.end()) {
+        websocketInstances.erase(iter);
+    } else {
+        NSLog(@"ERROR: WebSocket instance wasn't added to the container which saves websocket instances!");
     }
 }
 

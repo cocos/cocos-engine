@@ -232,8 +232,8 @@ void GLES3Device::doDestroy() {
     CC_SAFE_DELETE(_gpuFramebufferHub)
     CC_SAFE_DELETE(_gpuStateCache)
 
-    CCASSERT(!_memoryStatus.bufferSize, "Buffer memory leaked");
-    CCASSERT(!_memoryStatus.textureSize, "Texture memory leaked");
+    CC_ASSERT(!_memoryStatus.bufferSize);  // Buffer memory leaked
+    CC_ASSERT(!_memoryStatus.textureSize); // Texture memory leaked
 
     CC_SAFE_DESTROY_AND_DELETE(_cmdBuff)
     CC_SAFE_DESTROY_AND_DELETE(_queryPool)

@@ -33,7 +33,7 @@ PlayerProtocol *PlayerProtocol::_instance = nullptr;
 
 PlayerProtocol::PlayerProtocol()
 {
-    CCASSERT(_instance == nullptr, "CAN NOT CREATE MORE PLAYER INSTANCE");
+    CC_ASSERT(_instance == nullptr); // Can not create more player instance.
     _instance = this;
 }
 

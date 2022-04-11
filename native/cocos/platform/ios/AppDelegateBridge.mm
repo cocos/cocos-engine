@@ -31,7 +31,7 @@
 cc::IOSPlatform *_platform = nullptr;
 - (void)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     _platform = dynamic_cast<cc::IOSPlatform *>(cc::BasePlatform::getPlatform());
-    CCASSERT(_platform != nullptr, "Platform pointer can't be null");
+    CC_ASSERT(_platform != nullptr);
     _platform->loop();
 }
 

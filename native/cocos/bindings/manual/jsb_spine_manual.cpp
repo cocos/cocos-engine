@@ -115,13 +115,13 @@ static bool js_register_spine_initSkeletonData(se::State &s) {
             spine::SkeletonBinary binary(attachmentLoader);
             binary.setScale(scale);
             skeletonData = binary.readSkeletonData(cocos2dData.getBytes(), (int)cocos2dData.getSize());
-            CCASSERT(skeletonData, !binary.getError().isEmpty() ? binary.getError().buffer() : "Error reading binary skeleton data.");
+            CC_ASSERT(skeletonData); // Can use binary.getError() to get error message.
         }
     } else {
         spine::SkeletonJson json(attachmentLoader);
         json.setScale(scale);
         skeletonData = json.readSkeletonData(skeletonDataFile.c_str());
-        CCASSERT(skeletonData, !json.getError().isEmpty() ? json.getError().buffer() : "Error reading json skeleton data.");
+        CC_ASSERT(skeletonData); // Can use json.getError() to get error message.
     }
 
     if (skeletonData) {

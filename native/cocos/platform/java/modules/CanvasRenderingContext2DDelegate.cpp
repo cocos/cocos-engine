@@ -279,7 +279,7 @@ void CanvasRenderingContext2DDelegate::updateData() {
     }
 }
 
-void CanvasRenderingContext2DDelegate::unMultiplyAlpha(unsigned char *ptr, ssize_t size) { // NOLINT(readability-convert-member-functions-to-static)
+void CanvasRenderingContext2DDelegate::unMultiplyAlpha(unsigned char *ptr, uint32_t size) { // NOLINT(readability-convert-member-functions-to-static)
     // Android source data is not premultiplied alpha when API >= 19
     // please refer CanvasRenderingContext2DImpl::recreateBuffer(float w, float h)
     // in CanvasRenderingContext2DImpl.java

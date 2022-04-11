@@ -434,7 +434,7 @@ void CCMTLCommandBuffer::bindPipelineState(PipelineState *pso) {
 }
 
 void CCMTLCommandBuffer::bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) {
-    CCASSERT(set < _GPUDescriptorSets.size(), "Invalid set index");
+    CC_ASSERT(set < _GPUDescriptorSets.size());
     if (dynamicOffsetCount) {
         _dynamicOffsets[set].assign(dynamicOffsets, dynamicOffsets + dynamicOffsetCount);
         if (set < _firstDirtyDescriptorSet) {
