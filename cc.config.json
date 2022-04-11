@@ -21,6 +21,7 @@
         "intersection-2d": { "modules": [ "intersection-2d" ] },
         "primitive": { "modules": [ "primitive" ] },
         "profiler": { "modules": [ "profiler" ] },
+        "geometry-renderer": { "modules": [ "geometry-renderer" ] },
         "audio": { "modules": [ "audio" ] },
         "video": { "modules": [ "video" ] },
         "terrain": { "modules": [ "terrain" ] },

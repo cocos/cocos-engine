@@ -23,7 +23,12 @@
  THE SOFTWARE.
  */
 
+ /**
+ * @packageDocumentation
+ * @module geometry-renderer
+ */
 import { AABB } from '../geometry/aabb';
+import { Spline } from '../geometry/spline';
 import { Color } from '../math/color';
 import { Mat4 } from '../math/mat4';
 import { Vec3 } from '../math/vec3';
@@ -36,8 +41,8 @@ import { Attribute, AttributeName, Buffer, BufferInfo, BufferUsageBit,
 import { warnID } from '../platform/debug';
 import { Frustum } from '../geometry/frustum';
 import { toRadian } from '../math/utils';
-import { Camera } from '../renderer/scene/camera';
 import { PipelineSceneData } from './pipeline-scene-data';
+import { legacyCC } from '../global-exports';
 
 const _min = new Vec3();
 const _max = new Vec3();
@@ -897,6 +902,25 @@ export class GeometryRenderer {
         }
     }
 
+    public addSpline (spline: Spline, color: Color, index = 0xffffffff, knotSize = 0.5, segments = 32, depthTest = true) {
+        const numPoints = segments + 1;
+        const points = spline.getPoints(numPoints, index);
+
+        for (let i = 0; i < segments; i++) {
+            this.addLine(points[i], points[i + 1], color, depthTest);
+        }
+
+        if (knotSize > 0.0 && index == 0xffffffff) {
+            const crossColor = new Color(255 - color.r, 255 - color.g, 255 - color.b, color.a);
+            const numKnots = spline.getKnotCount();
+            const knots = spline.knots;
+
+            for (let i = 0; i < numKnots; i++) {
+                this.addCross(knots[i], knotSize, crossColor, depthTest);
+            }
+        }
+    }
+
     public addMesh (center: Vec3, vertices: Array<Vec3>, color: Color, depthTest = true, useTransform = false, transform = new Mat4()) {
         for (let i = 0; i < vertices.length; i += 3) {
             const v0 = new Vec3(center.x + vertices[i].x, center.y + vertices[i].y, center.z + vertices[i].z);
@@ -934,3 +958,5 @@ export class GeometryRenderer {
         }
     }
 }
+
+legacyCC.internal.GeometryRenderer = GeometryRenderer;

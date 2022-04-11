@@ -121,6 +121,12 @@ struct CC_DLL BBox final {
     inline bool contain(const BBox &box) const {
         return contain(box.min) && contain(box.max);
     }
+
+    inline bool intersect(const BBox &box) const {
+        return !(min.x > box.max.x || max.x < box.min.x ||
+                 min.y > box.max.y || max.y < box.min.y ||
+                 min.z > box.max.z || max.z < box.min.z);
+    }
 };
 
 /**
@@ -216,6 +222,7 @@ public:
 
 private:
     bool isInside(Model *model) const;
+    bool isOutside(Model *model) const;
 
     OctreeNode *_root{nullptr};
     uint32_t    _maxDepth{DEFAULT_OCTREE_DEPTH};

@@ -3234,3 +3234,11 @@ The primitiveIndex is out of range.
 ### 14300
 
 Can not keep world transform due to the zero scaling of parent node
+
+### 14400
+
+Spline error: less than 2 knots.
+
+### 14401
+
+Spline error: less than 4 knots or not a multiple of 4.

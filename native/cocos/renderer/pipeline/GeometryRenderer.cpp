@@ -34,6 +34,7 @@
 #include "base/std/container/array.h"
 #include "core/geometry/AABB.h"
 #include "core/geometry/Frustum.h"
+#include "core/geometry/Spline.h"
 #include "math/Mat4.h"
 #include "math/Math.h"
 #include "profiler/Profiler.h"
@@ -807,6 +808,25 @@ void GeometryRenderer::addBezier(const Vec3 &v0, const Vec3 &v1, const Vec3 &v2,
 
     for (auto i = 0U; i < segments; i++) {
         addLine(points[i], points[i + 1], color, depthTest);
+    }
+}
+
+void GeometryRenderer::addSpline(const geometry::Spline &spline, gfx::Color color, uint32_t index, float knotSize, uint32_t segments, bool depthTest) {
+    const auto numPoints = segments + 1;
+    auto       points    = spline.getPoints(numPoints, index);
+
+    for (auto i = 0U; i < segments; i++) {
+        addLine(points[i], points[i + 1], color, depthTest);
+    }
+
+    if (knotSize > 0.0F && index == geometry::SPLINE_WHOLE_INDEX) {
+        const gfx::Color crossColor{1.0F - color.x, 1.0F - color.y, 1.0F - color.z, color.w};
+        const auto       numKnots = spline.getKnotCount();
+        const auto &     knots    = spline.getKnots();
+
+        for (auto i = 0U; i < numKnots; i++) {
+            addCross(knots[i], knotSize, crossColor, depthTest);
+        }
     }
 }
 

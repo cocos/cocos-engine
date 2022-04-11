@@ -17,7 +17,8 @@ enum class ShapeEnum {
     SHAPE_FRUSTUM          = (1 << 7),
     SHAPE_FRUSTUM_ACCURATE = (1 << 8),
     SHAPE_CAPSULE          = (1 << 9),
-    SHAPE_BAD              = (1 << 10),
+    SHAPE_SPLINE           = (1 << 10),
+    SHAPE_BAD              = (1 << 11),
 };
 
 class ShapeBase : public RefCounted {

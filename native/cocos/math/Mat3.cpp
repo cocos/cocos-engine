@@ -25,11 +25,11 @@
 #include "math/Mat3.h"
 
 #include <cmath>
+#include <cstring>
 #include "base/Macros.h"
 #include "math/Math.h"
 #include "math/MathUtil.h"
 #include "math/Quaternion.h"
-#include <cstring>
 
 NS_CC_MATH_BEGIN
 
