@@ -161,6 +161,9 @@ public:
     }
 
 private:
+    static BasePlatform* createDefaultPlatform();
+
+    static BasePlatform*          _currentPlatform; // NOLINT(readability-identifier-naming)
     std::vector<OSInterface::Ptr> _osInterfaces;
     CC_DISABLE_COPY_AND_MOVE_SEMANTICS(BasePlatform);
 };
