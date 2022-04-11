@@ -14,3 +14,4 @@
 #include "Spec.h"
 #include "Sphere.h"
 #include "Triangle.h"
+#include "Spline.h"

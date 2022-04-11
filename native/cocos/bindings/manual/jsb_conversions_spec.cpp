@@ -724,6 +724,16 @@ bool sevalue_to_native(const se::Value &from, cc::geometry::Frustum *to, se::Obj
     return true;
 }
 
+// NOLINTNEXTLINE(readability-identifier-naming)
+bool sevalue_to_native(const se::Value &from, cc::geometry::Spline *to, se::Object * /*unused*/) {
+    SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Spline failed!");
+    se::Object *obj = from.toObject();
+    se::Value   tmp;
+    set_member_field<cc::geometry::SplineMode>(obj, to, "_mode", &cc::geometry::Spline::setMode, tmp);
+    set_member_field<ccstd::vector<cc::Vec3>>(obj, to, "_knots", &cc::geometry::Spline::setKnots, tmp);
+    return true;
+}
+
 ////////////////////////// scene info
 
 // NOLINTNEXTLINE(readability-identifier-naming)

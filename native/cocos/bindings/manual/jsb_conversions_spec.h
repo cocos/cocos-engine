@@ -79,6 +79,7 @@ class Sphere;
 class Triangle;
 class Plane;
 class Frustum;
+class Spline;
 } // namespace geometry
 
 namespace extension {
@@ -357,6 +358,7 @@ bool sevalue_to_native(const se::Value &from, cc::geometry::Triangle *, se::Obje
 bool sevalue_to_native(const se::Value &from, cc::geometry::Plane *to, se::Object * /*unused*/);   // NOLINT(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &from, cc::geometry::Plane **to, se::Object * /*unused*/);  // NOLINT(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &from, cc::geometry::Frustum *to, se::Object * /*unused*/); // NOLINT(readability-identifier-naming)
+bool sevalue_to_native(const se::Value &from, cc::geometry::Spline *to, se::Object * /*unused*/);  // NOLINT(readability-identifier-naming)
 
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////nativevalue to se /////////////////////////////////////

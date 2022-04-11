@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "MemoryHook.h"
+#include "CallStack.h"
 #if USE_MEMORY_LEAK_DETECTOR
 
     #include <sstream>
