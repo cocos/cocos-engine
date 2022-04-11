@@ -67,24 +67,24 @@ void Spline::insertKnot(uint32_t index, const Vec3 &knot) {
 }
 
 void Spline::removeKnot(uint32_t index) {
-    CC_ASSERT(index < static_cast<uint32_t>(_knots.size()), "Spline error: invalid index");
+    CC_ASSERT(index < static_cast<uint32_t>(_knots.size()));
 
     _knots.erase(_knots.begin() + index);
 }
 
 void Spline::setKnot(uint32_t index, const Vec3 &knot) {
-    CC_ASSERT(index < static_cast<uint32_t>(_knots.size()), "Spline error: invalid index");
+    CC_ASSERT(index < static_cast<uint32_t>(_knots.size()));
 
     _knots[index] = knot;
 }
 
 const Vec3 &Spline::getKnot(uint32_t index) const {
-    CC_ASSERT(index < static_cast<uint32_t>(_knots.size()), "Spline error: invalid index");
+    CC_ASSERT(index < static_cast<uint32_t>(_knots.size()));
 
     return _knots[index];
 }
 Vec3 &Spline::getKnot(uint32_t index) {
-    CC_ASSERT(index < static_cast<uint32_t>(_knots.size()), "Spline error: invalid index");
+    CC_ASSERT(index < static_cast<uint32_t>(_knots.size()));
 
     return _knots[index];
 }
@@ -165,7 +165,7 @@ uint32_t Spline::getSegments() const {
 
             return count / 4;
         default:
-            CC_ASSERT(false, "Spline error: invalid mode");
+            CC_ASSERT(false);
             return 0;
     }
 }
