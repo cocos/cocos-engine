@@ -13,5 +13,5 @@
 #include "Ray.h"
 #include "Spec.h"
 #include "Sphere.h"
-#include "Triangle.h"
 #include "Spline.h"
+#include "Triangle.h"
