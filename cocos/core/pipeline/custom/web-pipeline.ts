@@ -473,7 +473,7 @@ export class WebPipeline extends Pipeline {
             throw new Error('Cannot run without creating rendergraph');
         }
         if (!this._executor) {
-            this._executor = new Executor(this, this._device, this._resourceGraph);
+            this._executor = new Executor(this, this._pipelineUBO, this._device, this._resourceGraph);
         }
         this._executor.execute(this._renderGraph);
     }
@@ -548,63 +548,49 @@ export class WebPipeline extends Pipeline {
         if (cameras.length === 0) {
             return;
         }
+        cameras.forEach((camera) => {
+            if (!this._cameras.includes(camera)) {
+                this._cameras.push(camera);
+            }
+        });
         // build graph
         this.beginFrame();
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (camera.scene) {
-                this._pipelineUBO.updateGlobalUBO(camera.window);
-                this._pipelineUBO.updateCameraUBO(camera);
-                this._pipelineUBO.updateShadowUBO(camera);
+                const idx = this._cameras.indexOf(camera);
                 this._buildShadowPasses(this, this._validLights,
                     camera.scene.mainLight,
                     this._pipelineSceneData,
-                    `Camera${i.toString()}`);
+                    `Camera${idx}`);
 
                 const window = camera.window;
                 const width = Math.floor(window.width);
                 const height = Math.floor(window.height);
-                const forwardPassRTName = `dsForwardPassColorCamera${i}`;
-                const forwardPassDSName = `dsForwardPassDSCamera${i}`;
+                const forwardPassRTName = `dsForwardPassColorCamera${idx}`;
+                const forwardPassDSName = `dsForwardPassDSCamera${idx}`;
                 if (!this.resourceGraph.contains(forwardPassRTName)) {
                     this.addRenderTexture(forwardPassRTName, Format.RGBA8, width, height, camera.window);
-                    this.addRenderTarget(forwardPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
+                    this.addDepthStencil(forwardPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
                 }
-                const forwardPass = this.addRasterPass(width, height, '_', `CameraForwardPass${i.toString()}`);
+                const forwardPass = this.addRasterPass(width, height, '_', `CameraForwardPass${idx}`);
                 if (this.resourceGraph.contains(this._dsShadowMap)) {
                     forwardPass.addRasterView(this._dsShadowMap, new RasterView('_',
                         AccessType.READ, AttachmentType.RENDER_TARGET,
                         LoadOp.CLEAR, StoreOp.DISCARD,
                         ClearFlagBit.NONE,
-                        new Color(0, 0, 0, 0)));
+                        new Color(0, 0, 0, 1)));
                 }
                 const passView = new RasterView('_',
                     AccessType.WRITE, AttachmentType.RENDER_TARGET,
                     LoadOp.CLEAR, StoreOp.STORE,
-                    ClearFlagBit.NONE,
-                    new Color(0, 0, 0, 0));
-                if (!(camera.clearFlag & ClearFlagBit.COLOR)) {
-                    if (camera.clearFlag & SKYBOX_FLAG) {
-                        passView.loadOp = LoadOp.DISCARD;
-                    } else {
-                        passView.loadOp = LoadOp.LOAD;
-                        passView.accessType = AccessType.READ_WRITE;
-                    }
-                } else {
-                    passView.clearColor.x = camera.clearColor.x;
-                    passView.clearColor.y = camera.clearColor.y;
-                    passView.clearColor.z = camera.clearColor.z;
-                    passView.clearColor.w = camera.clearColor.w;
-                }
+                    camera.clearFlag,
+                    new Color(camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w));
                 const passDSView = new RasterView('_',
                     AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
                     LoadOp.CLEAR, StoreOp.STORE,
-                    ClearFlagBit.DEPTH_STENCIL,
+                    camera.clearFlag,
                     new Color(1, 0, 0, 0));
-                if ((camera.clearFlag & ClearFlagBit.DEPTH_STENCIL) !== ClearFlagBit.DEPTH_STENCIL) {
-                    if (!(camera.clearFlag & ClearFlagBit.DEPTH)) passDSView.loadOp = LoadOp.LOAD;
-                    if (!(camera.clearFlag & ClearFlagBit.STENCIL)) passDSView.loadOp = LoadOp.LOAD;
-                }
                 forwardPass.addRasterView(forwardPassRTName, passView);
                 forwardPass.addRasterView(forwardPassDSName, passDSView);
                 forwardPass
@@ -682,6 +668,7 @@ export class WebPipeline extends Pipeline {
     private _constantMacros = '';
     private _profiler: Model | null = null;
     private _pipelineUBO: PipelineUBO = new PipelineUBO();
+    private _cameras: Camera[] = [];
 
     private readonly _layoutGraph: LayoutGraphData = new LayoutGraphData();
     private readonly _resourceGraph: ResourceGraph = new ResourceGraph();

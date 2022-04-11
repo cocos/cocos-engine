@@ -30,22 +30,23 @@
  */
 /* eslint-disable max-len */
 import { getPhaseID, InstancedBuffer, PipelineStateManager } from '..';
-import { Buffer, Color, ColorAttachment, CommandBuffer, DepthStencilAttachment, Device, Format, Framebuffer,
-    FramebufferInfo, PipelineState, Rect, RenderPass, RenderPassInfo, Swapchain, Texture, TextureInfo,
+import { AccessFlagBit, Buffer, ClearFlagBit, Color, ColorAttachment, CommandBuffer, DepthStencilAttachment, Device, Format, Framebuffer,
+    FramebufferInfo, GeneralBarrierInfo, LoadOp, PipelineState, Rect, RenderPass, RenderPassInfo, StoreOp, Swapchain, Texture, TextureInfo,
     TextureType, TextureUsageBit, Viewport } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 import { assert } from '../../platform';
 import { BatchingSchemes } from '../../renderer';
-import { Camera } from '../../renderer/scene/camera';
+import { Camera, SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Root } from '../../root';
 import { BatchedBuffer } from '../batched-buffer';
 import { SetIndex } from '../define';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { Pipeline, SceneVisitor } from './pipeline';
 import { AccessType, AttachmentType, Blit, ComputePass, CopyPass, Dispatch, ManagedResource, MovePass, PresentPass,
-    RasterPass, RaytracePass, RenderGraph, RenderGraphValue, RenderGraphVisitor, RenderQueue, RenderSwapchain, ResourceDesc,
+    RasterPass, RasterView, RaytracePass, RenderGraph, RenderGraphValue, RenderGraphVisitor, RenderQueue, RenderSwapchain, ResourceDesc,
     ResourceGraph, ResourceGraphVisitor, ResourceTraits, SceneData } from './render-graph';
 import { QueueHint, ResourceDimension, ResourceFlags } from './types';
+import { PipelineUBO } from './ubos';
 import { RenderInfo, RenderObject, WebSceneTask } from './web-scene';
 import { WebSceneVisitor } from './web-scene-visitor';
 
@@ -142,6 +143,7 @@ class DeviceRenderQueue {
     clearTasks () {
         this._sceneTasks.length = 0;
     }
+    get sceneTasks () { return this._sceneTasks; }
     set queueHint (value: QueueHint) { this._hint = value; }
     get queueHint () { return this._hint; }
     get devicePass () { return this._devicePass; }
@@ -167,12 +169,18 @@ class DeviceRenderPass {
     constructor (context: ExecutorContext, rasterPass: RasterPass) {
         this._context = context;
         this._rasterPass = rasterPass;
+        const device = context.device;
         const depthStencilAttachment = new DepthStencilAttachment();
         depthStencilAttachment.format = Format.DEPTH_STENCIL;
+        depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
+        depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
+        depthStencilAttachment.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(
+            AccessFlagBit.DEPTH_STENCIL_ATTACHMENT_WRITE,
+            AccessFlagBit.DEPTH_STENCIL_ATTACHMENT_WRITE,
+        ));
         const colors: ColorAttachment[] = [];
         const colorTexs: Texture[] = [];
         let depthTex: Texture | null = null;
-        const device = context.device;
         let swapchain: Swapchain | null = null;
         let framebuffer: Framebuffer | null = null;
         for (const [resName, rasterV] of rasterPass.rasterViews) {
@@ -187,26 +195,41 @@ class DeviceRenderPass {
             resTex = context.deviceTextures.get(resName)!;
             if (!swapchain) swapchain = resTex.swapchain;
             if (!framebuffer) framebuffer = resTex.framebuffer;
+            const clearFlag = rasterV.clearFlags & 0xffffffff;
             switch (rasterV.attachmentType) {
             case AttachmentType.RENDER_TARGET:
-                colorTexs.push(resTex.swapchain ? resTex.swapchain.colorTexture : resTex.texture!);
-                this._clearColor.push(rasterV.clearColor);
-                colors.push(new ColorAttachment(
-                    resTex.description!.format,
-                    resTex.description!.sampleCount,
-                    rasterV.loadOp,
-                    rasterV.storeOp,
-                ));
+                {
+                    if (!resTex.swapchain && !resTex.framebuffer) colorTexs.push(resTex.texture!);
+                    const colorAttachment = new ColorAttachment();
+                    colorAttachment.format = resTex.description!.format;
+                    colorAttachment.sampleCount = resTex.description!.sampleCount;
+                    if (!(clearFlag & ClearFlagBit.COLOR)) {
+                        rasterV.clearColor.x = 0;
+                        rasterV.clearColor.y = 0;
+                        rasterV.clearColor.z = 0;
+                        rasterV.clearColor.w = 1;
+                        if (clearFlag & SKYBOX_FLAG) {
+                            colorAttachment.loadOp = LoadOp.DISCARD;
+                        } else {
+                            colorAttachment.loadOp = LoadOp.LOAD;
+                            colorAttachment.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(
+                                AccessFlagBit.COLOR_ATTACHMENT_WRITE,
+                                AccessFlagBit.COLOR_ATTACHMENT_WRITE,
+                            ));
+                        }
+                    }
+                    this._clearColor.push(rasterV.clearColor);
+                    colors.push(colorAttachment);
+                }
                 break;
             case AttachmentType.DEPTH_STENCIL:
-                depthTex = resTex.swapchain ? resTex.swapchain.depthStencilTexture : resTex.texture!;
+                if (!resTex.swapchain && !resTex.framebuffer) depthTex = resTex.texture!;
+                if ((clearFlag & ClearFlagBit.DEPTH_STENCIL) !== ClearFlagBit.DEPTH_STENCIL) {
+                    if (!(clearFlag & ClearFlagBit.DEPTH)) depthStencilAttachment.depthLoadOp = LoadOp.LOAD;
+                    if (!(clearFlag & ClearFlagBit.STENCIL)) depthStencilAttachment.stencilLoadOp = LoadOp.LOAD;
+                }
                 this._clearDepth = rasterV.clearColor.x;
                 this._clearStencil = rasterV.clearColor.y;
-                depthStencilAttachment.format = resTex.description!.format;
-                depthStencilAttachment.depthLoadOp = rasterV.loadOp;
-                depthStencilAttachment.depthStoreOp = rasterV.storeOp;
-                depthStencilAttachment.stencilLoadOp = rasterV.loadOp;
-                depthStencilAttachment.stencilStoreOp = rasterV.storeOp;
                 break;
             default:
             }
@@ -229,7 +252,9 @@ class DeviceRenderPass {
             ));
         }
         this._renderPass = device.createRenderPass(new RenderPassInfo(colors, depthStencilAttachment));
-        this._framebuffer = framebuffer || device.createFramebuffer(new FramebufferInfo(this._renderPass, colorTexs, depthTex));
+        this._framebuffer = framebuffer || device.createFramebuffer(new FramebufferInfo(this._renderPass,
+            swapchain ? [swapchain.colorTexture] : colorTexs,
+            swapchain ? swapchain.depthStencilTexture : depthTex));
     }
     get context () { return this._context; }
     get renderPass () { return this._renderPass; }
@@ -243,7 +268,8 @@ class DeviceRenderPass {
     // record common buffer
     record () {
         const cmdBuff = this._context.commandBuffer;
-        cmdBuff.beginRenderPass(this.renderPass, this.framebuffer, new Rect(),
+        const tex = this.framebuffer.colorTextures[0]!;
+        cmdBuff.beginRenderPass(this.renderPass, this.framebuffer, new Rect(0, 0, tex.width, tex.height),
             this.clearColor, this.clearDepth, this.clearStencil);
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL,
             this._context.pipeline.globalDSManager.globalDescriptorSet);
@@ -441,6 +467,7 @@ class DeviceSceneTask extends WebSceneTask {
 
 class ExecutorContext {
     constructor (pipeline: Pipeline,
+        ubo: PipelineUBO,
         device: Device,
         resourceGraph: ResourceGraph,
         renderGraph: RenderGraph) {
@@ -451,6 +478,7 @@ class ExecutorContext {
         this.resourceGraph = resourceGraph;
         this.renderGraph = renderGraph;
         this.root = legacyCC.director.root;
+        this.ubo = ubo;
     }
     readonly device: Device;
     readonly pipeline: Pipeline;
@@ -461,6 +489,7 @@ class ExecutorContext {
     readonly deviceTextures: Map<string, DeviceTexture> = new Map<string, DeviceTexture>();
     readonly renderGraph: RenderGraph;
     readonly root: Root;
+    readonly ubo: PipelineUBO;
 }
 
 class ResourceVisitor implements ResourceGraphVisitor {
@@ -515,6 +544,19 @@ class PassVisitor implements RenderGraphVisitor {
                 rg.visitVertex(this, queueID);
             }
         }
+        let currCamera: Camera | null = null;
+        for (const queue of this._currPass.deviceQueues) {
+            for (const task of queue.sceneTasks) {
+                if (currCamera === task.camera) {
+                    continue;
+                }
+                currCamera = task.camera;
+                const ubo = this._currPass.context.ubo;
+                ubo.updateGlobalUBO(task.camera.window);
+                ubo.updateCameraUBO(task.camera);
+                ubo.updateShadowUBO(task.camera);
+            }
+        }
         this._currPass.record();
     }
     compute (pass: ComputePass) {
@@ -555,10 +597,12 @@ class PassVisitor implements RenderGraphVisitor {
 
 export class Executor {
     constructor (pipeline: Pipeline,
+        ubo: PipelineUBO,
         device: Device,
         resourceGraph: ResourceGraph) {
         this._pipeline = pipeline;
         this._device = device;
+        this._ubo = ubo;
         this._commandBuffer = device.commandBuffer;
         this._resourceGraph = resourceGraph;
     }
@@ -566,10 +610,13 @@ export class Executor {
     execute (rg: RenderGraph) {
         const context = new ExecutorContext(
             this._pipeline,
+            this._ubo,
             this._device,
             this._resourceGraph,
             rg,
         );
+        const cmdBuff = context.commandBuffer;
+        cmdBuff.begin();
         const passVisitor = new PassVisitor(context);
         for (const vertID of rg.vertices()) {
             if (rg.numParents(vertID) === 0) {
@@ -578,9 +625,12 @@ export class Executor {
                 rg.visitVertex(passVisitor, vertID);
             }
         }
+        cmdBuff.end();
+        context.device.queue.submit([cmdBuff]);
     }
-    private readonly _pipeline: Pipeline
-    private readonly _device: Device
-    private readonly _commandBuffer: CommandBuffer
-    private readonly _resourceGraph: ResourceGraph
+    private readonly _pipeline: Pipeline;
+    private readonly _device: Device;
+    private readonly _commandBuffer: CommandBuffer;
+    private readonly _resourceGraph: ResourceGraph;
+    private readonly _ubo: PipelineUBO;
 }
