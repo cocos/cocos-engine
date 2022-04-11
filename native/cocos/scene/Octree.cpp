@@ -338,8 +338,8 @@ bool Octree::isInside(Model* model) const {
     return rootBox.contain(modelBox);
 }
 
-bool Octree::isOutside(Model *model) const {
-    const BBox &rootBox  = _root->getBox();
+bool Octree::isOutside(Model* model) const {
+    const BBox& rootBox  = _root->getBox();
     BBox        modelBox = BBox(*model->getWorldBounds());
 
     return !rootBox.intersect(modelBox);
