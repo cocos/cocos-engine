@@ -79,7 +79,7 @@ export class Spline {
     private _mode: SplineMode = SplineMode.CATMULL_ROM;
     private _knots: Vec3[] = [];
 
-    private constructor(mode: SplineMode = SplineMode.CATMULL_ROM, knots: Vec3[] = []) {
+    private constructor(mode: SplineMode = SplineMode.CATMULL_ROM, knots: Readonly<Vec3[]> = []) {
         this._type = enums.SHAPE_SPLINE;
         this._mode = mode;
 
@@ -117,7 +117,7 @@ export class Spline {
         return this._mode;
     }
 
-    get knots () {
+    get knots (): Readonly<Vec3[]> {
         return this._knots;
     }
 
