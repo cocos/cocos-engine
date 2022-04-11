@@ -349,6 +349,7 @@ SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_addPolygon);
 SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_addQuad);
 SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_addSector);
 SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_addSphere);
+SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_addSpline);
 SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_addTorus);
 SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_addTriangle);
 SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_GeometryRenderer);
