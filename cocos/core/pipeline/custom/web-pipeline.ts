@@ -473,7 +473,7 @@ export class WebPipeline extends Pipeline {
             throw new Error('Cannot run without creating rendergraph');
         }
         if (!this._executor) {
-            this._executor = new Executor(this, this._device, this._resourceGraph);
+            this._executor = new Executor(this, this._pipelineUBO, this._device, this._resourceGraph);
         }
         this._executor.execute(this._renderGraph);
     }
@@ -553,9 +553,6 @@ export class WebPipeline extends Pipeline {
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (camera.scene) {
-                this._pipelineUBO.updateGlobalUBO(camera.window);
-                this._pipelineUBO.updateCameraUBO(camera);
-                this._pipelineUBO.updateShadowUBO(camera);
                 this._buildShadowPasses(this, this._validLights,
                     camera.scene.mainLight,
                     this._pipelineSceneData,
@@ -568,7 +565,7 @@ export class WebPipeline extends Pipeline {
                 const forwardPassDSName = `dsForwardPassDSCamera${i}`;
                 if (!this.resourceGraph.contains(forwardPassRTName)) {
                     this.addRenderTexture(forwardPassRTName, Format.RGBA8, width, height, camera.window);
-                    this.addRenderTarget(forwardPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
+                    this.addDepthStencil(forwardPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
                 }
                 const forwardPass = this.addRasterPass(width, height, '_', `CameraForwardPass${i.toString()}`);
                 if (this.resourceGraph.contains(this._dsShadowMap)) {
