@@ -173,7 +173,7 @@ export class TextureCube extends SimpleTexture {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @serializable
     public _mipmaps: ITextureCubeMipmap[] = [];
@@ -195,8 +195,8 @@ export class TextureCube extends SimpleTexture {
         this._setGFXFormat(info.format);
         const mipLevels = info.mipmapLevel === undefined ? 1 : info.mipmapLevel;
         this._setMipmapLevel(mipLevels);
-        const minLod = info.baseLevel || 0;
-        const maxLod = info.maxLevel === undefined ? (mipLevels - 1) : info.maxLevel;
+        const minLod = info.baseLevel === undefined ? 0 : info.baseLevel;
+        const maxLod = info.maxLevel === undefined ? 1000 : info.maxLevel;
         this._setMipRange(minLod, maxLod);
         this._tryReset();
     }
@@ -237,7 +237,7 @@ export class TextureCube extends SimpleTexture {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _serialize (ctxForExporting: any): Record<string, unknown> | null {
         if (EDITOR || TEST) {
@@ -265,7 +265,7 @@ export class TextureCube extends SimpleTexture {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _deserialize (serializedData: ITextureCubeSerializeData, handle: any) {
         const data = serializedData;

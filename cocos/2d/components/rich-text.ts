@@ -475,6 +475,7 @@ export class RichText extends Component {
     protected _layoutDirty = true;
     protected _lineOffsetX = 0;
     protected _updateRichTextStatus: () => void;
+    protected _labelChildrenNum = 0; // only ISegment
 
     constructor () {
         super();
@@ -778,6 +779,7 @@ export class RichText extends Component {
                     segment.comp = child.getComponent(Sprite);
                     imagePool.put(segment);
                 }
+                this._labelChildrenNum--;
             }
         }
 
@@ -823,7 +825,7 @@ export class RichText extends Component {
         labelSegment.lineCount = this._lineCount;
         labelSegment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0);
         labelSegment.node.layer = this.node.layer;
-        this.node.addChild(labelSegment.node);
+        this.node.insertChild(labelSegment.node, this._labelChildrenNum++);
         this._applyTextAttribute(labelSegment);
         this._segments.push(labelSegment);
 
@@ -960,7 +962,7 @@ export class RichText extends Component {
                 segment.imageOffset = style.imageOffset;
             }
             segment.node.layer = this.node.layer;
-            this.node.addChild(segment.node);
+            this.node.insertChild(segment.node, this._labelChildrenNum++);
             this._segments.push(segment);
 
             const spriteRect = spriteFrame.rect.clone();

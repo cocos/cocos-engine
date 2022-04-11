@@ -95,11 +95,16 @@ public:
     void removeEventCallback(OSEventType evtype) override;
     /**
      @brief Event handling callback.
-     @param evtype:event type.
-     @param evtype:event information.
+     @param ev:Abstract event.
      @return whether it's been handled.
      */
     bool handleEvent(const OSEvent& ev);
+    /**
+     @brief Touch event handling callback.
+     @param ev:Touch event.
+     @return whether it's been handled.
+     */
+    bool handleTouchEvent(const TouchEvent& ev);
     /**
      @brief Get engine scheduler.
      */

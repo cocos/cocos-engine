@@ -5,9 +5,6 @@
 #include <common>
 
 #if CC_USE_BAKED_ANIMATION
-  #if USE_INSTANCING
-    in highp vec4 a_jointAnimInfo; // frameID, totalJoints, offset
-  #endif
   #pragma builtin(local)
   layout(set = 2, binding = 3) uniform CCSkinningTexture {
     highp vec4 cc_jointTextureInfo; // length, totalJoints, offset, invLength

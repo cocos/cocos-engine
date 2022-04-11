@@ -141,7 +141,7 @@ export class UIStaticBatch extends Renderable2D {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _requireDrawBatch () {
         const batch = new DrawBatch2D();
