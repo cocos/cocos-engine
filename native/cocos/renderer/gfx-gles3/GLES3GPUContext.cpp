@@ -76,7 +76,7 @@ void GL_APIENTRY GLES3EGLDebugProc(GLenum source, GLenum type, GLuint id, GLenum
 
     if (severity == GL_DEBUG_SEVERITY_HIGH_KHR) {
         CC_LOG_ERROR(msg.c_str());
-        CCASSERT(DISABLE_VALIDATION_ASSERTIONS, "Validation Error");
+        CC_ASSERT(DISABLE_VALIDATION_ASSERTIONS);
     } else if (severity == GL_DEBUG_SEVERITY_MEDIUM_KHR) {
         CC_LOG_WARNING(msg.c_str());
     } else {
@@ -135,7 +135,7 @@ bool GLES3GPUContext::initialize(GLES3GPUStateCache *stateCache, GLES3GPUConstan
         EGL_SAMPLES, sampleSize,
         EGL_NONE};
 
-    int               numConfig{0};
+    int                      numConfig{0};
     ccstd::vector<EGLConfig> eglConfigs;
 
     EGL_CHECK(success = eglChooseConfig(eglDisplay, defaultAttribs, nullptr, 0, &numConfig));

@@ -132,7 +132,7 @@ void SkeletonAnimation::update(float deltaTime) {
 }
 
 void SkeletonAnimation::setAnimationStateData(AnimationStateData *stateData) {
-    CCASSERT(stateData, "stateData cannot be null.");
+    CC_ASSERT(stateData);
 
     if (_state) {
         if (_ownsAnimationStateData) delete _state->getData();

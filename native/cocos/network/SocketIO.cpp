@@ -582,9 +582,7 @@ void SIOClientImpl::connectToEndpoint(const ccstd::string &endpoint) {
 }
 
 void SIOClientImpl::disconnectFromEndpoint(const ccstd::string &endpoint) {
-    size_t clientCount = _clients.size();
-
-    if (clientCount == 1 || endpoint == "/") {
+    if (_clients.size() == 1 || endpoint == "/") {
         CC_LOG_INFO("SIOClientImpl::disconnectFromEndpoint out of endpoints, checking for disconnect");
 
         if (_connected) {

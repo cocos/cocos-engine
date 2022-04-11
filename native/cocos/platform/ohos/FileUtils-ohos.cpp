@@ -74,7 +74,7 @@ void printRawfiles(ResourceManager *mgr, const ccstd::string &path) {
 } // namespace
 
 bool FileUtilsOHOS::initResourceManager(ResourceManager *mgr, const ccstd::string &assetPath, const ccstd::string &moduleName) {
-    CCASSERT(mgr, "ResourceManager should not be empty!");
+    CC_ASSERT(mgr);
     ohosResourceMgr = mgr;
     if (!assetPath.empty() && assetPath[assetPath.length() - 1] != '/') {
         ohosAssetPath = assetPath + "/";

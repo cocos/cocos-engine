@@ -36,7 +36,7 @@ ThreadSafeLinearAllocator::ThreadSafeLinearAllocator(size_t size, size_t alignme
     } else {
         _buffer = CC_MALLOC_ALIGN(size, alignment);
     }
-    CCASSERT(_buffer, "Out of memory");
+    CC_ASSERT(_buffer);
 }
 
 ThreadSafeLinearAllocator::~ThreadSafeLinearAllocator() {

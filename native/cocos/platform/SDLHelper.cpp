@@ -391,7 +391,7 @@ uintptr_t SDLHelper::getWindowHandler() const {
 #elif (CC_PLATFORM == CC_PLATFORM_LINUX)
     return reinterpret_cast<uintptr_t>(wmInfo.info.x11.window);
 #endif
-    CCASSERT(false, "Only valid in windows, linux");
+    CC_ASSERT(false);
     return 0;
 }
 

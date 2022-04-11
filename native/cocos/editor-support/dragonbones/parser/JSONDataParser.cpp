@@ -1126,7 +1126,7 @@ unsigned JSONDataParser::_parseZOrderFrame(const rapidjson::Value &rawData, unsi
                 }
 
                 unsigned index = originalIndex + zOrderOffset;
-                // CCASSERT(index >= 0 && index < zOrders.size(), "DragonBones::JSONDataParser index is invalid");
+                // CC_ASSERT(index >= 0 && index < zOrders.size());
 
                 if (!(index >= 0 && index < zOrders.size())) {
                     originalIndex++;

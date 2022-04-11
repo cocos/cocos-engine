@@ -157,7 +157,7 @@ DeviceResourceTracker<Resource, Enable>::push(T *resource) {
 
 template <typename Resource, typename Enable>
 void DeviceResourceTracker<Resource, Enable>::erase(Resource *resource) {
-    CCASSERT(!resources.empty(), "Deleted twice?");
+    CC_ASSERT(!resources.empty());
 
     resources.erase(std::remove_if(resources.begin(), resources.end(),
                                    [resource](const auto &record) { return record.resource == resource; }));
@@ -170,7 +170,7 @@ void DeviceResourceTracker<Resource, Enable>::checkEmpty() {
     // and look up the resource initialization stacktrace in `resources[i].initStack`.
     // Note: capturing stacktrace is a painfully time-consuming process,
     // so better to uncomment the exact type of resource that is leaking rather than toggle them all at once.
-    CCASSERT(resources.empty(), "Resource leaked");
+    CC_ASSERT(resources.empty()); // Resource leaked.
 }
 
 //template <> struct RecordStacktrace<CommandBuffer> : std::true_type {};

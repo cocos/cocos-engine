@@ -31,7 +31,7 @@
 namespace cc {
 
 void ccVertexLineToPolygon(const ccstd::vector<Vec2> &points, float stroke, unsigned int offset, unsigned int nuPoints, ccstd::vector<Vec2> *vertices) {
-    GP_ASSERT(vertices);
+    CC_ASSERT(vertices);
     nuPoints += offset;
     if (nuPoints <= 1) return;
 

@@ -169,7 +169,7 @@ static void addCCValueToNSArray(const Value &value, NSMutableArray *array) {
 
 static void addNSObjectToCCMap(id nsKey, id nsValue, ValueMap &dict) {
     // the key must be a string
-    CCASSERT([nsKey isKindOfClass:[NSString class]], "The key should be a string!");
+    CC_ASSERT([nsKey isKindOfClass:[NSString class]]);
     ccstd::string key = [nsKey UTF8String];
     dict[key] = convertNSObjectToCCValue(nsValue);
 }
@@ -423,7 +423,7 @@ ValueVector FileUtilsApple::getValueVectorFromFile(const ccstd::string &filename
 }
 
 bool FileUtilsApple::createDirectory(const ccstd::string &path) {
-    CCASSERT(!path.empty(), "Invalid path");
+    CC_ASSERT(!path.empty());
 
     if (isDirectoryExist(path))
         return true;
