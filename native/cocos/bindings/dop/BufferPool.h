@@ -48,7 +48,7 @@ public:
     T *getTypedObject(uint id) const {
         uint chunk = (_chunkMask & id) >> _entryBits;
         uint entry = _entryMask & id;
-        CCASSERT(chunk < _chunks.size() && entry < _entriesPerChunk, "BufferPool: Invalid buffer pool entry id");
+        CC_ASSERT(chunk < _chunks.size() && entry < _entriesPerChunk);
         return reinterpret_cast<T *>(_chunks[chunk] + (entry * _bytesPerEntry));
     }
 

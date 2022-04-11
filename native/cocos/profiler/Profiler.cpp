@@ -171,7 +171,7 @@ void Profiler::beginFrame() {
 }
 
 void Profiler::endFrame() {
-    CCASSERT(_current == _root, "Call stack data is not matched.");
+    CC_ASSERT(_current == _root); // Call stack data is not matched.
 
     _root->end();
     _root->onFrameEnd();

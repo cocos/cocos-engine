@@ -171,12 +171,12 @@ public:
     /**
      *  @brief Executes a utf-8 string buffer which contains JavaScript code.
      *  @param[in] script A utf-8 string buffer, if it isn't null-terminated, parameter `length` should be assigned and > 0.
-     *  @param[in] length The length of parameter `scriptStr`, it will be set to string length internally if passing < 0 and parameter `scriptStr` is null-terminated.
+     *  @param[in] length The length of parameter `scriptStr`, it will be set to string length internally if passing 0 and parameter `scriptStr` is null-terminated.
      *  @param[in] ret The se::Value that results from evaluating script. Passing nullptr if you don't care about the result.
      *  @param[in] fileName A string containing a URL for the script's source file. This is used by debuggers and when reporting exceptions. Pass NULL if you do not care to include source file information.
      *  @return true if succeed, otherwise false.
      */
-    bool evalString(const char *script, ssize_t length = -1, Value *ret = nullptr, const char *fileName = nullptr);
+    bool evalString(const char *script, uint32_t length = 0, Value *ret = nullptr, const char *fileName = nullptr);
 
     /**
      *  @brief Compile script file into v8::ScriptCompiler::CachedData and save to file.

@@ -82,7 +82,7 @@ void ClusterLightCulling::initialize(gfx::Device *dev) {
     } else {
         clusterZThreads = 1;
     }
-    CCASSERT(CLUSTERS_X_THREADS * CLUSTERS_Y_THREADS * clusterZThreads <= maxInvocations, "maxInvocations is too small");
+    CC_ASSERT(CLUSTERS_X_THREADS * CLUSTERS_Y_THREADS * clusterZThreads <= maxInvocations); // maxInvocations is too small
     CC_LOG_INFO(" work group size: %dx%dx%d", CLUSTERS_X_THREADS, CLUSTERS_Y_THREADS, clusterZThreads);
 
     _constantsBuffer = _device->createBuffer({

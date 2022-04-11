@@ -583,7 +583,7 @@ public:
         uint32_t mipLevel   = isTexture ? subres.mipLevel : 0;
 
         if (gpuTexture->swapchain) return gpuTexture->swapchain->glFramebuffer;
-        CCASSERT(gpuTexture->glTexture || gpuTexture->glRenderbuffer, "Texture already destroyed?");
+        CC_ASSERT(gpuTexture->glTexture || gpuTexture->glRenderbuffer);
 
         if (cacheMap[glResource].empty()) cacheMap[glResource].resize(gpuTexture->mipLevel);
 
@@ -610,7 +610,7 @@ public:
 
             GLenum status;
             GL_CHECK(status = glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER));
-            CCASSERT(status == GL_FRAMEBUFFER_COMPLETE, "frambuffer incomplete");
+            CC_ASSERT(status == GL_FRAMEBUFFER_COMPLETE);
 
             cacheMap[glResource][mipLevel].glFramebuffer = glFramebuffer;
         }

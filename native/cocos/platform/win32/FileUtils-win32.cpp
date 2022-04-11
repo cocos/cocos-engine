@@ -239,8 +239,8 @@ string FileUtilsWin32::getWritablePath() const {
 }
 
 bool FileUtilsWin32::renameFile(const ccstd::string &oldfullpath, const ccstd::string &newfullpath) {
-    CCASSERT(!oldfullpath.empty(), "Invalid path");
-    CCASSERT(!newfullpath.empty(), "Invalid path");
+    CC_ASSERT(!oldfullpath.empty());
+    CC_ASSERT(!newfullpath.empty());
 
     std::wstring _wNew = StringUtf8ToWideChar(newfullpath);
     std::wstring _wOld = StringUtf8ToWideChar(oldfullpath);
@@ -260,7 +260,7 @@ bool FileUtilsWin32::renameFile(const ccstd::string &oldfullpath, const ccstd::s
 }
 
 bool FileUtilsWin32::renameFile(const ccstd::string &path, const ccstd::string &oldname, const ccstd::string &name) {
-    CCASSERT(!path.empty(), "Invalid path");
+    CC_ASSERT(!path.empty());
     ccstd::string oldPath = path + oldname;
     ccstd::string newPath = path + name;
 
@@ -272,7 +272,7 @@ bool FileUtilsWin32::renameFile(const ccstd::string &path, const ccstd::string &
 }
 
 bool FileUtilsWin32::createDirectory(const ccstd::string &dirPath) {
-    CCASSERT(!dirPath.empty(), "Invalid path");
+    CC_ASSERT(!dirPath.empty());
 
     if (isDirectoryExist(dirPath))
         return true;

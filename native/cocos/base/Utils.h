@@ -120,8 +120,7 @@ template <class T>
 inline uint toUint(T value) {
     static_assert(std::is_arithmetic<T>::value, "T must be numeric");
 
-    CCASSERT(static_cast<uintmax_t>(value) <= static_cast<uintmax_t>(std::numeric_limits<uint>::max()),
-             "value is too big to be converted to uint");
+    CC_ASSERT(static_cast<uintmax_t>(value) <= static_cast<uintmax_t>(std::numeric_limits<uint>::max()));
 
     return static_cast<uint>(value);
 }

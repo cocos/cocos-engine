@@ -66,13 +66,13 @@ DeviceValidator::~DeviceValidator() {
 
 bool DeviceValidator::doInit(const DeviceInfo &info) {
     uint32_t flexibleSet{info.bindingMappingInfo.setIndices.back()};
-    CCASSERT(!info.bindingMappingInfo.maxBlockCounts[flexibleSet], "flexible set limits should be zero");
-    CCASSERT(!info.bindingMappingInfo.maxSamplerTextureCounts[flexibleSet], "flexible set limits should be zero");
-    CCASSERT(!info.bindingMappingInfo.maxSamplerCounts[flexibleSet], "flexible set limits should be zero");
-    CCASSERT(!info.bindingMappingInfo.maxTextureCounts[flexibleSet], "flexible set limits should be zero");
-    CCASSERT(!info.bindingMappingInfo.maxBufferCounts[flexibleSet], "flexible set limits should be zero");
-    CCASSERT(!info.bindingMappingInfo.maxImageCounts[flexibleSet], "flexible set limits should be zero");
-    CCASSERT(!info.bindingMappingInfo.maxSubpassInputCounts[flexibleSet], "flexible set limits should be zero");
+    CC_ASSERT(!info.bindingMappingInfo.maxBlockCounts[flexibleSet]);          // Flexible set limits should be zero.
+    CC_ASSERT(!info.bindingMappingInfo.maxSamplerTextureCounts[flexibleSet]); // Flexible set limits should be zero.
+    CC_ASSERT(!info.bindingMappingInfo.maxSamplerCounts[flexibleSet]);        // Flexible set limits should be zero.
+    CC_ASSERT(!info.bindingMappingInfo.maxTextureCounts[flexibleSet]);        // Flexible set limits should be zero.
+    CC_ASSERT(!info.bindingMappingInfo.maxBufferCounts[flexibleSet]);         // Flexible set limits should be zero.
+    CC_ASSERT(!info.bindingMappingInfo.maxImageCounts[flexibleSet]);          // Flexible set limits should be zero.
+    CC_ASSERT(!info.bindingMappingInfo.maxSubpassInputCounts[flexibleSet]);   // Flexible set limits should be zero.
 
     if (!_actor->initialize(info)) {
         return false;
@@ -269,10 +269,12 @@ Sampler *DeviceValidator::getSampler(const SamplerInfo &info) {
 
 GeneralBarrier *DeviceValidator::getGeneralBarrier(const GeneralBarrierInfo &info) {
     if (info.prevAccesses > AccessFlagBit::PRESENT) {
-        CCASSERT(math::IsPowerOfTwo(toNumber(info.prevAccesses)), "Write access should appear on its own");
+        // Write access should appear on its own.
+        CC_ASSERT(math::IsPowerOfTwo(toNumber(info.prevAccesses)));
     }
     if (info.nextAccesses > AccessFlagBit::PRESENT) {
-        CCASSERT(math::IsPowerOfTwo(toNumber(info.nextAccesses)), "Write access should appear on its own");
+        // Write access should appear on its own.
+        CC_ASSERT(math::IsPowerOfTwo(toNumber(info.nextAccesses)));
     }
 
     /////////// execute ///////////
@@ -282,10 +284,12 @@ GeneralBarrier *DeviceValidator::getGeneralBarrier(const GeneralBarrierInfo &inf
 
 TextureBarrier *DeviceValidator::getTextureBarrier(const TextureBarrierInfo &info) {
     if (info.prevAccesses > AccessFlagBit::PRESENT) {
-        CCASSERT(math::IsPowerOfTwo(toNumber(info.prevAccesses)), "Write access should appear on its own");
+        // Write access should appear on its own.
+        CC_ASSERT(math::IsPowerOfTwo(toNumber(info.prevAccesses)));
     }
     if (info.nextAccesses > AccessFlagBit::PRESENT) {
-        CCASSERT(math::IsPowerOfTwo(toNumber(info.nextAccesses)), "Write access should appear on its own");
+        // Write access should appear on its own.
+        CC_ASSERT(math::IsPowerOfTwo(toNumber(info.nextAccesses)));
     }
 
     /////////// execute ///////////

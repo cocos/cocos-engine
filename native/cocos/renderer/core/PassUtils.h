@@ -27,8 +27,9 @@
 
 #include "base/Ptr.h"
 #include "base/TypeDef.h"
+#include "base/Variant.h"
 #include "base/std/container/string.h"
-#include "cocos/base/Variant.h"
+#include "base/std/container/vector.h"
 
 #include "math/Color.h"
 #include "math/Mat3.h"
@@ -39,6 +40,7 @@
 #include "math/Vec4.h"
 
 #include "renderer/gfx-base/GFXDef.h"
+#include "renderer/gfx-base/GFXTexture.h"
 
 namespace cc {
 
@@ -106,5 +108,7 @@ const ccstd::string &       getDefaultStringFromType(gfx::Type type);
  * @param source Preprocess macros used for override
  */
 bool overrideMacros(MacroRecord &target, const MacroRecord &source);
+
+MaterialProperty toMaterialProperty(gfx::Type type, const ccstd::vector<float> &vec);
 
 } // namespace cc
