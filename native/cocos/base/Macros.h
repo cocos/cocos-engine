@@ -29,37 +29,8 @@
 
 #pragma once
 
-#include <cstdint>
-
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
-    #include <android/log.h>
-    #define CC_ASSERT(cond)                                        \
-        if (!(cond)) {                                             \
-            __android_log_print(ANDROID_LOG_ERROR,                 \
-                                "assert",                          \
-                                "%s function:%s line:%d",          \
-                                __FILE__, __FUNCTION__, __LINE__); \
-        }
-#elif (CC_PLATFORM == CC_PLATFORM_OHOS)
-    #include <hilog/log.h>
-    #define CC_ASSERT(cond)                                                      \
-        if (!(cond)) {                                                           \
-            HILOG_ERROR(LOG_APP,                                                 \
-                        "assert %{public}s function:%{public}s line:%{public}d", \
-                        __FILE__, __FUNCTION__, __LINE__);                       \
-        }
-#elif (CC_PLATFORM == CC_PLATFORM_EMSCRIPTEN)
-    #include <assert.h>
-    #include <cstdarg>
-    #include <cstddef>
-    #define CC_ASSERT(cond) \
-        if (!(cond)) {      \
-            assert(cond);   \
-        }
-#else
-    #include <assert.h>
-    #define CC_ASSERT(cond) assert(cond)
-#endif
+#include <assert.h>
+#define CC_ASSERT(cond) assert(cond)
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     #if defined(CC_STATIC)
