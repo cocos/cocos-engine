@@ -25,26 +25,25 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#if CC_PLATFORM == CC_PLATFORM_ANDROID
+#include "platform/android/FileUtils-android.h"
+#include <sys/stat.h>
+#include <cstdlib>
+#include <android/log.h>
+#include "android/asset_manager.h"
+#include "android/asset_manager_jni.h"
+#include "base/Log.h"
+#include "base/ZipUtils.h"
+#include "platform/java/jni/JniHelper.h"
+#include "platform/java/jni/JniImp.h"
 
-    #include "platform/android/FileUtils-android.h"
-    #include <sys/stat.h>
-    #include <cstdlib>
-    #include "android/asset_manager.h"
-    #include "android/asset_manager_jni.h"
-    #include "base/Log.h"
-    #include "base/ZipUtils.h"
-    #include "platform/java/jni/JniHelper.h"
-    #include "platform/java/jni/JniImp.h"
+#define LOG_TAG   "FileUtils-android.cpp"
+#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 
-    #define LOG_TAG   "FileUtils-android.cpp"
-    #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
+#define ASSETS_FOLDER_NAME "@assets/"
 
-    #define ASSETS_FOLDER_NAME "@assets/"
-
-    #ifndef JCLS_HELPER
-        #define JCLS_HELPER "com/cocos/lib/CocosHelper"
-    #endif
+#ifndef JCLS_HELPER
+    #define JCLS_HELPER "com/cocos/lib/CocosHelper"
+#endif
 
 namespace cc {
 
@@ -241,5 +240,3 @@ ccstd::string FileUtilsAndroid::getWritablePath() const {
 }
 
 } // namespace cc
-
-#endif // CC_PLATFORM == CC_PLATFORM_ANDROID
