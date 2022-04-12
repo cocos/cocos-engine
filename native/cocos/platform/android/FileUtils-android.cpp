@@ -26,9 +26,9 @@
 ****************************************************************************/
 
 #include "platform/android/FileUtils-android.h"
+#include <android/log.h>
 #include <sys/stat.h>
 #include <cstdlib>
-#include <android/log.h>
 #include "android/asset_manager.h"
 #include "android/asset_manager_jni.h"
 #include "base/Log.h"
