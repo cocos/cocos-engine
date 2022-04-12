@@ -28,13 +28,15 @@
  * @module gfx
  */
 
-import { Buffer } from './buffer';
-import { DescriptorSetLayout } from './descriptor-set-layout';
 import { Queue } from './queue';
-import { RenderPass } from './render-pass';
-import { Sampler } from './states/sampler';
-import { Swapchain } from './swapchain';
+import { Buffer } from './buffer';
 import { Texture } from './texture';
+import { Swapchain } from './swapchain';
+import { RenderPass } from './render-pass';
+import { DescriptorSetLayout } from './descriptor-set-layout';
+
+import { Sampler } from './states/sampler';
+import { GeneralBarrier } from './states/general-barrier';
 
 interface ICopyable { copy(info: ICopyable): ICopyable; }
 
@@ -70,6 +72,7 @@ export enum ObjectType {
     INPUT_ASSEMBLER,
     COMMAND_BUFFER,
     QUEUE,
+    QUERY_POOL,
     GLOBAL_BARRIER,
     TEXTURE_BARRIER,
     BUFFER_BARRIER,
@@ -88,6 +91,7 @@ export enum API {
     GLES3,
     METAL,
     VULKAN,
+    NVN,
     WEBGL,
     WEBGL2,
     WEBGPU,
@@ -101,20 +105,6 @@ export enum SurfaceTransform {
 }
 
 export enum Feature {
-    COLOR_FLOAT,
-    COLOR_HALF_FLOAT,
-    TEXTURE_FLOAT,
-    TEXTURE_HALF_FLOAT,
-    TEXTURE_FLOAT_LINEAR,
-    TEXTURE_HALF_FLOAT_LINEAR,
-    FORMAT_R11G11B10F,
-    FORMAT_SRGB,
-    FORMAT_ETC1,
-    FORMAT_ETC2,
-    FORMAT_DXT,
-    FORMAT_PVRTC,
-    FORMAT_ASTC,
-    FORMAT_RGB8,
     ELEMENT_INDEX_UINT,
     INSTANCED_ARRAYS,
     MULTIPLE_RENDER_TARGETS,
@@ -131,7 +121,7 @@ export enum Feature {
     // for subpasses with exactly 4 inout attachments the output is automatically set
     // to the last attachment (taking advantage of 'inout' property), and a separate
     // blit operation (if needed) will be added for you afterwards to transfer the
-    // rendering result to the corrent subpass output texture. This is to ameliorate
+    // rendering result to the correct subpass output texture. This is to ameliorate
     // the max number of attachment limit(4) situation for many devices, and shader
     // sources inside this kind of subpass must match this behavior.
     INPUT_ATTACHMENT_BENEFIT,
@@ -209,24 +199,24 @@ export enum Format {
     // Compressed Format
 
     // Block Compression Format, DDS (DirectDraw Surface)
-    // DXT1: 3 channels (5:6:5), 1/8 origianl size, with 0 or 1 bit of alpha
+    // DXT1: 3 channels (5:6:5), 1/8 original size, with 0 or 1 bit of alpha
     BC1,
     BC1_ALPHA,
     BC1_SRGB,
     BC1_SRGB_ALPHA,
-    // DXT3: 4 channels (5:6:5), 1/4 origianl size, with 4 bits of alpha
+    // DXT3: 4 channels (5:6:5), 1/4 original size, with 4 bits of alpha
     BC2,
     BC2_SRGB,
-    // DXT5: 4 channels (5:6:5), 1/4 origianl size, with 8 bits of alpha
+    // DXT5: 4 channels (5:6:5), 1/4 original size, with 8 bits of alpha
     BC3,
     BC3_SRGB,
-    // 1 channel (8), 1/4 origianl size
+    // 1 channel (8), 1/4 original size
     BC4,
     BC4_SNORM,
-    // 2 channels (8:8), 1/2 origianl size
+    // 2 channels (8:8), 1/2 original size
     BC5,
     BC5_SNORM,
-    // 3 channels (16:16:16), half-floating point, 1/6 origianl size
+    // 3 channels (16:16:16), half-floating point, 1/6 original size
     // UF16: unsigned float, 5 exponent bits + 11 mantissa bits
     // SF16: signed float, 1 signed bit + 5 exponent bits + 10 mantissa bits
     BC6H_UF16,
@@ -411,6 +401,15 @@ export enum TextureFlagBit {
     GENERAL_LAYOUT = 0x2, // For inout framebuffer attachments
 }
 
+export enum FormatFeatureBit {
+    NONE             = 0,
+    RENDER_TARGET    = 0x1,  // Allow usages as render pass attachments
+    SAMPLED_TEXTURE  = 0x2,  // Allow sampled reads in shaders
+    LINEAR_FILTER    = 0x4,  // Allow linear filtering when sampling in shaders or blitting
+    STORAGE_TEXTURE  = 0x8,  // Allow storage reads & writes in shaders
+    VERTEX_ATTRIBUTE = 0x10, // Allow usages as vertex input attributes
+}
+
 export enum SampleCount {
     ONE,                  // Single sample
     MULTIPLE_PERFORMANCE, // Multiple samples prioritizing performance over quality
@@ -525,49 +524,49 @@ export enum ShaderStageFlagBit {
 }
 
 export enum LoadOp {
-    LOAD,    // Load the contents from the fbo from previous
-    CLEAR,   // Clear the fbo
-    DISCARD, // Ignore writing to the fbo and keep old data
+    LOAD,    // Load the previous content from memory
+    CLEAR,   // Clear the content to a fixed value
+    DISCARD, // Discard the previous content
 }
 
 export enum StoreOp {
-    STORE,   // Write the source to the destination
-    DISCARD, // Don't write the source to the destination
+    STORE,   // Store the pending content to memory
+    DISCARD, // Discard the pending content
 }
 
-export enum AccessType {
-    NONE,
+export enum AccessFlagBit {
+    NONE = 0,
 
-    // Read access
-    INDIRECT_BUFFER,                                     // Read as an indirect buffer for drawing or dispatch
-    INDEX_BUFFER,                                        // Read as an index buffer for drawing
-    VERTEX_BUFFER,                                       // Read as a vertex buffer for drawing
-    VERTEX_SHADER_READ_UNIFORM_BUFFER,                   // Read as a uniform buffer in a vertex shader
-    VERTEX_SHADER_READ_TEXTURE,                          // Read as a sampled image/uniform texel buffer in a vertex shader
-    VERTEX_SHADER_READ_OTHER,                            // Read as any other resource in a vertex shader
-    FRAGMENT_SHADER_READ_UNIFORM_BUFFER,                 // Read as a uniform buffer in a fragment shader
-    FRAGMENT_SHADER_READ_TEXTURE,                        // Read as a sampled image/uniform texel buffer in a fragment shader
-    FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT,         // Read as an input attachment with a color format in a fragment shader
-    FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT, // Read as an input attachment with a depth/stencil format in a fragment shader
-    FRAGMENT_SHADER_READ_OTHER,                          // Read as any other resource in a fragment shader
-    COLOR_ATTACHMENT_READ,                               // Read by standard blending/logic operations or subpass load operations
-    DEPTH_STENCIL_ATTACHMENT_READ,                       // Read by depth/stencil tests or subpass load operations
-    COMPUTE_SHADER_READ_UNIFORM_BUFFER,                  // Read as a uniform buffer in a compute shader
-    COMPUTE_SHADER_READ_TEXTURE,                         // Read as a sampled image/uniform texel buffer in a compute shader
-    COMPUTE_SHADER_READ_OTHER,                           // Read as any other resource in a compute shader
-    TRANSFER_READ,                                       // Read as the source of a transfer operation
-    HOST_READ,                                           // Read on the host
-    PRESENT,                                             // Read by the presentation engine
+    // Read accesses
+    INDIRECT_BUFFER                                     = 1 << 0,  // Read as an indirect buffer for drawing or dispatch
+    INDEX_BUFFER                                        = 1 << 1,  // Read as an index buffer for drawing
+    VERTEX_BUFFER                                       = 1 << 2,  // Read as a vertex buffer for drawing
+    VERTEX_SHADER_READ_UNIFORM_BUFFER                   = 1 << 3,  // Read as a uniform buffer in a vertex shader
+    VERTEX_SHADER_READ_TEXTURE                          = 1 << 4,  // Read as a sampled image/uniform texel buffer in a vertex shader
+    VERTEX_SHADER_READ_OTHER                            = 1 << 5,  // Read as any other resource in a vertex shader
+    FRAGMENT_SHADER_READ_UNIFORM_BUFFER                 = 1 << 6,  // Read as a uniform buffer in a fragment shader
+    FRAGMENT_SHADER_READ_TEXTURE                        = 1 << 7,  // Read as a sampled image/uniform texel buffer in a fragment shader
+    FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT         = 1 << 8,  // Read as an input attachment with a color format in a fragment shader
+    FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT = 1 << 9,  // Read as an input attachment with a depth/stencil format in a fragment shader
+    FRAGMENT_SHADER_READ_OTHER                          = 1 << 10, // Read as any other resource in a fragment shader
+    COLOR_ATTACHMENT_READ                               = 1 << 11, // Read by standard blending/logic operations or subpass load operations
+    DEPTH_STENCIL_ATTACHMENT_READ                       = 1 << 12, // Read by depth/stencil tests or subpass load operations
+    COMPUTE_SHADER_READ_UNIFORM_BUFFER                  = 1 << 13, // Read as a uniform buffer in a compute shader
+    COMPUTE_SHADER_READ_TEXTURE                         = 1 << 14, // Read as a sampled image/uniform texel buffer in a compute shader
+    COMPUTE_SHADER_READ_OTHER                           = 1 << 15, // Read as any other resource in a compute shader
+    TRANSFER_READ                                       = 1 << 16, // Read as the source of a transfer operation
+    HOST_READ                                           = 1 << 17, // Read on the host
+    PRESENT                                             = 1 << 18, // Read by the presentation engine
 
-    // Write access
-    VERTEX_SHADER_WRITE,            // Written as any resource in a vertex shader
-    FRAGMENT_SHADER_WRITE,          // Written as any resource in a fragment shader
-    COLOR_ATTACHMENT_WRITE,         // Written as a color attachment during rendering, or via a subpass store op
-    DEPTH_STENCIL_ATTACHMENT_WRITE, // Written as a depth/stencil attachment during rendering, or via a subpass store op
-    COMPUTE_SHADER_WRITE,           // Written as any resource in a compute shader
-    TRANSFER_WRITE,                 // Written as the destination of a transfer operation
-    HOST_PREINITIALIZED,            // Data pre-filled by host before device access starts
-    HOST_WRITE,                     // Written on the host
+    // Write accesses
+    VERTEX_SHADER_WRITE            = 1 << 19, // Written as any resource in a vertex shader
+    FRAGMENT_SHADER_WRITE          = 1 << 20, // Written as any resource in a fragment shader
+    COLOR_ATTACHMENT_WRITE         = 1 << 21, // Written as a color attachment during rendering, or via a subpass store op
+    DEPTH_STENCIL_ATTACHMENT_WRITE = 1 << 22, // Written as a depth/stencil attachment during rendering, or via a subpass store op
+    COMPUTE_SHADER_WRITE           = 1 << 23, // Written as any resource in a compute shader
+    TRANSFER_WRITE                 = 1 << 24, // Written as the destination of a transfer operation
+    HOST_PREINITIALIZED            = 1 << 25, // Data pre-filled by host before device access starts
+    HOST_WRITE                     = 1 << 26, // Written on the host
 }
 
 export enum ResolveMode {
@@ -654,6 +653,12 @@ export enum QueueType {
     TRANSFER,
 }
 
+export enum QueryType {
+    OCCLUSION,
+    PIPELINE_STATISTICS,
+    TIMESTAMP,
+}
+
 export enum CommandBufferType {
     PRIMARY,
     SECONDARY,
@@ -674,7 +679,9 @@ export type MemoryAccess = MemoryAccessBit;
 export type MemoryUsage = MemoryUsageBit;
 export type TextureUsage = TextureUsageBit;
 export type TextureFlags = TextureFlagBit;
+export type FormatFeature = FormatFeatureBit;
 export type ShaderStageFlags = ShaderStageFlagBit;
+export type AccessFlags = AccessFlagBit;
 export type DynamicStateFlags = DynamicStateFlagBit;
 export type ClearFlags = ClearFlagBit;
 
@@ -717,7 +724,7 @@ export class DeviceCaps {
         public maxComputeWorkGroupInvocations: number = 0,
         public maxComputeWorkGroupSize: Size = new Size(),
         public maxComputeWorkGroupCount: Size = new Size(),
-        public supportQuery: number = 0,
+        public supportQuery: boolean = false,
         public clipSpaceMinZ: number = -1,
         public screenSpaceSignY: number = 1,
         public clipSpaceSignY: number = 1,
@@ -946,19 +953,44 @@ export class Color {
     }
 }
 
+/**
+ * For non-vulkan backends, to maintain compatibility and maximize
+ * descriptor cache-locality, descriptor-set-based binding numbers need
+ * to be mapped to backend-specific bindings based on maximum limit
+ * of available descriptor slots in each set.
+ *
+ * The GFX layer assumes the binding numbers for each descriptor type inside each set
+ * are guaranteed to be consecutive, so the mapping procedure is reduced
+ * to a simple shifting operation. This data structure specifies the
+ * capacity for each descriptor type in each set.
+ *
+ * The `setIndices` field defines the binding ordering between different sets.
+ * The last set index is treated as the 'flexible set', whose capacity is dynamically
+ * assigned based on the total available descriptor slots on the runtime device.
+ */
 export class BindingMappingInfo {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public bufferOffsets: number[] = [],
-        public samplerOffsets: number[] = [],
-        public flexibleSet: number = 0,
+        public maxBlockCounts: number[] = [0],
+        public maxSamplerTextureCounts: number[] = [0],
+        public maxSamplerCounts: number[] = [0],
+        public maxTextureCounts: number[] = [0],
+        public maxBufferCounts: number[] = [0],
+        public maxImageCounts: number[] = [0],
+        public maxSubpassInputCounts: number[] = [0],
+        public setIndices: number[] = [0],
     ) {}
 
     public copy (info: Readonly<BindingMappingInfo>) {
-        this.bufferOffsets = info.bufferOffsets.slice();
-        this.samplerOffsets = info.samplerOffsets.slice();
-        this.flexibleSet = info.flexibleSet;
+        this.maxBlockCounts = info.maxBlockCounts.slice();
+        this.maxSamplerTextureCounts = info.maxSamplerTextureCounts.slice();
+        this.maxSamplerCounts = info.maxSamplerCounts.slice();
+        this.maxTextureCounts = info.maxTextureCounts.slice();
+        this.maxBufferCounts = info.maxBufferCounts.slice();
+        this.maxImageCounts = info.maxImageCounts.slice();
+        this.maxSubpassInputCounts = info.maxSubpassInputCounts.slice();
+        this.setIndices = info.setIndices.slice();
         return this;
     }
 }
@@ -1002,7 +1034,7 @@ export class BufferInfo {
         public usage: BufferUsage = BufferUsageBit.NONE,
         public memUsage: MemoryUsage = MemoryUsageBit.NONE,
         public size: number = 0,
-        public stride: number = 0,
+        public stride: number = 1,
         public flags: BufferFlags = BufferFlagBit.NONE,
     ) {}
 
@@ -1435,8 +1467,7 @@ export class ColorAttachment {
         public sampleCount: SampleCount = SampleCount.ONE,
         public loadOp: LoadOp = LoadOp.CLEAR,
         public storeOp: StoreOp = StoreOp.STORE,
-        public beginAccesses: AccessType[] = [],
-        public endAccesses: AccessType[] = [AccessType.COLOR_ATTACHMENT_WRITE],
+        public barrier: GeneralBarrier = null!,
         public isGeneralLayout: boolean = false,
     ) {}
 
@@ -1445,8 +1476,7 @@ export class ColorAttachment {
         this.sampleCount = info.sampleCount;
         this.loadOp = info.loadOp;
         this.storeOp = info.storeOp;
-        this.beginAccesses = info.beginAccesses.slice();
-        this.endAccesses = info.endAccesses.slice();
+        this.barrier = info.barrier;
         this.isGeneralLayout = info.isGeneralLayout;
         return this;
     }
@@ -1462,8 +1492,7 @@ export class DepthStencilAttachment {
         public depthStoreOp: StoreOp = StoreOp.STORE,
         public stencilLoadOp: LoadOp = LoadOp.CLEAR,
         public stencilStoreOp: StoreOp = StoreOp.STORE,
-        public beginAccesses: AccessType[] = [],
-        public endAccesses: AccessType[] = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE],
+        public barrier: GeneralBarrier = null!,
         public isGeneralLayout: boolean = false,
     ) {}
 
@@ -1474,8 +1503,7 @@ export class DepthStencilAttachment {
         this.depthStoreOp = info.depthStoreOp;
         this.stencilLoadOp = info.stencilLoadOp;
         this.stencilStoreOp = info.stencilStoreOp;
-        this.beginAccesses = info.beginAccesses.slice();
-        this.endAccesses = info.endAccesses.slice();
+        this.barrier = info.barrier;
         this.isGeneralLayout = info.isGeneralLayout;
         return this;
     }
@@ -1514,15 +1542,13 @@ export class SubpassDependency {
     constructor (
         public srcSubpass: number = 0,
         public dstSubpass: number = 0,
-        public srcAccesses: AccessType[] = [],
-        public dstAccesses: AccessType[] = [],
+        public barrier: GeneralBarrier = null!,
     ) {}
 
     public copy (info: Readonly<SubpassDependency>) {
         this.srcSubpass = info.srcSubpass;
         this.dstSubpass = info.dstSubpass;
-        this.srcAccesses = info.srcAccesses.slice();
-        this.dstAccesses = info.dstAccesses.slice();
+        this.barrier = info.barrier;
         return this;
     }
 }
@@ -1546,17 +1572,17 @@ export class RenderPassInfo {
     }
 }
 
-export class GlobalBarrierInfo {
+export class GeneralBarrierInfo {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public prevAccesses: AccessType[] = [],
-        public nextAccesses: AccessType[] = [],
+        public prevAccesses: AccessFlags = AccessFlagBit.NONE,
+        public nextAccesses: AccessFlags = AccessFlagBit.NONE,
     ) {}
 
-    public copy (info: Readonly<GlobalBarrierInfo>) {
-        this.prevAccesses = info.prevAccesses.slice();
-        this.nextAccesses = info.nextAccesses.slice();
+    public copy (info: Readonly<GeneralBarrierInfo>) {
+        this.prevAccesses = info.prevAccesses;
+        this.nextAccesses = info.nextAccesses;
         return this;
     }
 }
@@ -1565,16 +1591,16 @@ export class TextureBarrierInfo {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public prevAccesses: AccessType[] = [],
-        public nextAccesses: AccessType[] = [],
+        public prevAccesses: AccessFlags = AccessFlagBit.NONE,
+        public nextAccesses: AccessFlags = AccessFlagBit.NONE,
         public discardContents: boolean = false,
         public srcQueue: Queue | null = null,
         public dstQueue: Queue | null = null,
     ) {}
 
     public copy (info: Readonly<TextureBarrierInfo>) {
-        this.prevAccesses = info.prevAccesses.slice();
-        this.nextAccesses = info.nextAccesses.slice();
+        this.prevAccesses = info.prevAccesses;
+        this.nextAccesses = info.nextAccesses;
         this.discardContents = info.discardContents;
         this.srcQueue = info.srcQueue;
         this.dstQueue = info.dstQueue;
@@ -1696,6 +1722,23 @@ export class QueueInfo {
 
     public copy (info: Readonly<QueueInfo>) {
         this.type = info.type;
+        return this;
+    }
+}
+
+export class QueryPoolInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public type: QueryType = QueryType.OCCLUSION,
+        public maxQueryObjects: number = 32767,
+        public forceWait: boolean = true,
+    ) {}
+
+    public copy (info: Readonly<QueryPoolInfo>) {
+        this.type = info.type;
+        this.maxQueryObjects = info.maxQueryObjects;
+        this.forceWait = info.forceWait;
         return this;
     }
 }

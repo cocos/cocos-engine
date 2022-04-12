@@ -30,12 +30,12 @@
  */
 
 import { ccclass, tooltip, displayName, type, serializable, disallowAnimation } from 'cc.decorator';
-import { EDITOR, TEST, DEV } from 'internal:constants';
+import { EDITOR, TEST } from 'internal:constants';
 import { Script } from '../assets/scripts';
 import { CCObject } from '../data/object';
 import IDGenerator from '../utils/id-generator';
 import { getClassName, value } from '../utils/js';
-import { RenderScene } from '../renderer/scene/render-scene';
+import { RenderScene } from '../renderer/core/render-scene';
 import { Rect } from '../math';
 import * as RF from '../data/utils/requiring-frame';
 import { Node } from '../scene-graph';
@@ -70,7 +70,12 @@ class Component extends CCObject {
         if (trimLeft >= 0) {
             className = className.slice(trimLeft + 1);
         }
-        return `${this.node.name}<${className}>`;
+
+        if (this.node) {
+            return `${this.node.name}<${className}>`;
+        } else {
+            return className;
+        }
     }
     set name (value) {
         this._name = value;
@@ -90,6 +95,9 @@ class Component extends CCObject {
         return this._id;
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     @displayName('Script')
     @type(Script)
     @tooltip('i18n:INSPECTOR.component.script')
@@ -147,6 +155,8 @@ class Component extends CCObject {
      * import { log } from 'cc';
      * log(this._isOnLoadCalled > 0);
      * ```
+     *
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     get _isOnLoadCalled () {
         return this._objFlags & IsOnLoadCalled;
@@ -166,38 +176,38 @@ class Component extends CCObject {
     public node: Node = NullNode;
 
     /**
-     * @private
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @serializable
     public _enabled = true;
 
     /**
-     * @private
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @serializable
     public __prefab: CompPrefabInfo | null = null;
 
     /**
-     * @private
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _sceneGetter: null | (() => RenderScene) = null;
 
     /**
      * For internal usage.
-     * @private
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _id: string = idGenerator.getNewId();
 
     // private __scriptUuid = '';
 
     /**
-     * @private
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _getRenderScene (): RenderScene {
         if (this._sceneGetter) {
             return this._sceneGetter();
         }
-        return this.node.scene._renderScene!;
+        return this.node.scene.renderScene!;
     }
 
     // PUBLIC
@@ -368,6 +378,9 @@ class Component extends CCObject {
         return false;
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _onPreDestroy () {
         // Schedules
         this.unscheduleAllCallbacks();
@@ -385,6 +398,9 @@ class Component extends CCObject {
         this.node._removeComponent(this);
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _instantiate (cloned?: Component) {
         if (!cloned) {
             cloned = legacyCC.instantiate._clone(this, this);
@@ -401,10 +417,10 @@ class Component extends CCObject {
 
     /**
      * @en
-     * Schedules a custom task.<br/>
+     * Use Scheduler system to schedule a custom task.<br/>
      * If the task is already scheduled, then the interval parameter will be updated without scheduling it again.
      * @zh
-     * 调度一个自定义的回调任务。<br/>
+     * 使用定时器系统调度一个自定义的回调任务。<br/>
      * 如果回调任务已调度，那么将不会重复调度它，只会更新时间间隔参数。
      * @param callback  The callback function of the task
      * @param interval  The time interval between each invocation
@@ -437,8 +453,8 @@ class Component extends CCObject {
     }
 
     /**
-     * @en Schedules a task that runs only once, with a delay of 0 or larger.
-     * @zh 调度一个只运行一次的回调任务，可以指定 0 让回调函数在下一帧立即执行或者在一定的延时之后执行。
+     * @en Use Scheduler system to schedule a task that runs only once, with a delay of 0 or larger.
+     * @zh 使用定时器系统调度一个只运行一次的回调任务，可以指定 0 让回调函数在下一帧立即执行或者在一定的延时之后执行。
      * @method scheduleOnce
      * @see [[schedule]]
      * @param callback  The callback function of the task

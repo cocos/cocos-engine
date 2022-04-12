@@ -79,8 +79,6 @@ export class TiledMap extends Component {
     _mapSize: Size = new Size(0, 0);
     _tileSize: Size = new Size(0, 0);
 
-    _preloaded = false;
-
     _mapOrientation = Orientation.ORTHO;
 
     static Orientation = Orientation;
@@ -90,6 +88,8 @@ export class TiledMap extends Component {
     static StaggerIndex = StaggerIndex;
     static TMXObjectType = TMXObjectType;
     static RenderOrder = RenderOrder;
+
+    private _isApplied = false;
 
     @serializable
     _tmxFile: TiledMapAsset | null = null;
@@ -109,9 +109,8 @@ export class TiledMap extends Component {
     set tmxAsset (value: TiledMapAsset) {
         if (this._tmxFile !== value || EDITOR) {
             this._tmxFile = value;
-            if (this._preloaded || EDITOR) {
-                this._applyFile();
-            }
+            this._applyFile();
+            this._isApplied = true;
         }
     }
 
@@ -306,13 +305,13 @@ export class TiledMap extends Component {
     }
 
     __preload () {
-        this._preloaded = true;
-
         if (!this._tmxFile) {
             return;
         }
-
-        this._applyFile();
+        if (this._isApplied === false) {
+            this._applyFile();
+            this._isApplied = true;
+        }
     }
 
     onEnable () {
@@ -381,6 +380,8 @@ export class TiledMap extends Component {
         // remove the layers & object groups added before
         const layers = this._layers;
         for (let i = 0, l = layers.length; i < l; i++) {
+            layers[i].node.parent?.off(NodeEventType.SIZE_CHANGED, layers[i].updateCulling, layers[i]);
+            layers[i].node.parent?.off(NodeEventType.TRANSFORM_CHANGED, layers[i].updateCulling, layers[i]);
             layers[i].node.removeFromParent();
             layers[i].node.destroy();
         }
@@ -529,7 +530,7 @@ export class TiledMap extends Component {
                     group._init(layerInfo, mapInfo, texGrids);
                     groups.push(group);
                 } else if (layerInfo instanceof TMXImageLayerInfo) {
-                    const texture = layerInfo.sourceImage;
+                    const spriteFrame = layerInfo.sourceImage;
 
                     child.layerInfo = layerInfo;
                     child._offset = new Vec2(layerInfo.offset.x, -layerInfo.offset.y);
@@ -542,9 +543,15 @@ export class TiledMap extends Component {
                     const color = image.color as Color;
                     color.a *= layerInfo.opacity;
 
-                    image.spriteFrame = texture!;
+                    image.spriteFrame = spriteFrame!;
+                    let width = spriteFrame!.width;
+                    let height = spriteFrame!.height;
+                    if (spriteFrame!.original) {
+                        width = spriteFrame!.originalSize.width;
+                        height = spriteFrame!.originalSize.height;
+                    }
 
-                    child._uiProps.uiTransformComp!.setContentSize(texture!.width, texture!.height);
+                    child._uiProps.uiTransformComp!.setContentSize(width, height);
                     images.push(child);
                 }
 
@@ -611,7 +618,7 @@ export class TiledMap extends Component {
         texture._image = null;
     }
 
-    update (dt: number) {
+    lateUpdate (dt: number) {
         const animations = this._animations;
         const texGrids = this._texGrids;
         for (const aniGID of animations.keys()) {
@@ -629,8 +636,10 @@ export class TiledMap extends Component {
             }
             texGrids.set(aniGID, frame.grid!);
         }
-        for (const layer of this.getLayers()) {
-            if (layer.hasAnimation()) {
+        const layers = this.getLayers();
+        for (let i = 0, l = layers.length; i < l; i++) {
+            const layer = layers[i];
+            if (layer.hasAnimation() || layer.node.hasChangedFlags) {
                 layer.markForUpdateRenderData();
             }
         }

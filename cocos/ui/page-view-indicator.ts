@@ -181,6 +181,9 @@ export class PageViewIndicator extends Component {
         this._refresh();
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _updateLayout () {
         this._layout = this.getComponent(Layout);
         if (!this._layout) {
@@ -198,6 +201,9 @@ export class PageViewIndicator extends Component {
         layout.resizeMode = Layout.ResizeMode.CONTAINER;
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _createIndicator () {
         const node = new Node();
         node.layer = this.node.layer;
@@ -209,6 +215,9 @@ export class PageViewIndicator extends Component {
         return node;
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _changedState () {
         const indicators = this._indicators;
         if (indicators.length === 0 || !this._pageView) { return; }
@@ -234,6 +243,9 @@ export class PageViewIndicator extends Component {
         }
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _refresh () {
         if (!this._pageView) { return; }
         const indicators = this._indicators;
@@ -262,3 +274,5 @@ export class PageViewIndicator extends Component {
         this._changedState();
     }
 }
+
+legacyCC.PageViewIndicator = PageViewIndicator;

@@ -72,6 +72,9 @@ export class SkinnedMeshUnit {
     @type(Material)
     public material: Material | null = null;
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     @serializable
     public _localTransform = new Mat4();
 
@@ -209,6 +212,9 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
         super.onDestroy();
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _onMaterialModified (idx: number, material: Material | null) {
         this.cookMaterials();
         super._onMaterialModified(idx, this.getMaterialInstance(idx));

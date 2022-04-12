@@ -36,11 +36,13 @@ import { Asset } from './asset';
 export class BufferAsset extends Asset {
     private _buffer: ArrayBuffer | null = null;
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     @override
     get _nativeAsset () {
         return this._buffer as ArrayBuffer;
     }
-
     set _nativeAsset (bin: ArrayBufferView | ArrayBuffer) {
         if (bin instanceof ArrayBuffer) {
             this._buffer = bin;

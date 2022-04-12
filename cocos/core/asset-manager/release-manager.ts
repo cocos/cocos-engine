@@ -22,10 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-/**
- * @packageDocumentation
- * @hidden
- */
+
 import { EDITOR, TEST } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import { isValid } from '../data/object';
@@ -128,6 +125,9 @@ class ReleaseManager {
         this._toDelete.clear();
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _addPersistNodeRef (node: Node) {
         const deps = [];
         visitNode(node, deps);
@@ -140,6 +140,9 @@ class ReleaseManager {
         this._persistNodeDeps.add(node.uuid, deps);
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _removePersistNodeRef (node: Node) {
         if (!this._persistNodeDeps.has(node.uuid)) { return; }
 
@@ -154,6 +157,9 @@ class ReleaseManager {
     }
 
     // do auto release
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _autoRelease (oldScene: Scene, newScene: Scene, persistNodes: Record<string, Node>) {
         if (oldScene) {
             const childs = dependUtil.getDeps(oldScene.uuid);

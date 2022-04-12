@@ -29,12 +29,14 @@
  */
 
 import { ccclass, displayOrder, serializable, type } from 'cc.decorator';
-import { sceneCulling } from './scene-culling';
+import { systemInfo } from 'pal/system-info';
+import { sceneCulling, validPunctualLightsCulling } from './scene-culling';
 import { Asset } from '../assets/asset';
-import { AccessType, Address, Attribute, Buffer, BufferInfo, BufferUsageBit, ClearFlagBit, ClearFlags, ColorAttachment, CommandBuffer,
-    DepthStencilAttachment, DescriptorSet, Device, Feature, Filter, Format, Framebuffer, FramebufferInfo, InputAssembler, InputAssemblerInfo,
-    LoadOp, MemoryUsageBit, Rect, RenderPass, RenderPassInfo, Sampler, SamplerInfo, StoreOp, SurfaceTransform, Swapchain, Texture, TextureInfo,
-    TextureType, TextureUsageBit, Viewport } from '../gfx';
+import { AccessFlagBit, Attribute, Buffer, BufferInfo, BufferUsageBit, ClearFlagBit, ClearFlags, ColorAttachment, CommandBuffer,
+    DepthStencilAttachment, DescriptorSet, Device, Feature, Format, FormatFeatureBit, Framebuffer, FramebufferInfo, InputAssembler,
+    InputAssemblerInfo, LoadOp, MemoryUsageBit, Rect, RenderPass, RenderPassInfo, Sampler, StoreOp, SurfaceTransform, Swapchain,
+    Texture, TextureInfo, TextureType, TextureUsageBit, Viewport, GeneralBarrierInfo,
+} from '../gfx';
 import { legacyCC } from '../global-exports';
 import { MacroRecord } from '../renderer/core/pass-utils';
 import { RenderWindow } from '../renderer/core/render-window';
@@ -42,10 +44,14 @@ import { Camera, SKYBOX_FLAG } from '../renderer/scene/camera';
 import { Model } from '../renderer/scene/model';
 import { Root } from '../root';
 import { GlobalDSManager } from './global-descriptor-set-manager';
+import { GeometryRenderer } from './geometry-renderer';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { PipelineUBO } from './pipeline-ubo';
 import { RenderFlow } from './render-flow';
 import { IPipelineEvent, PipelineEventProcessor, PipelineEventType } from './pipeline-event';
+import { decideProfilerCamera } from './pipeline-funcs';
+import { OS } from '../../../pal/system-info/enum-type';
+import { macro } from '../platform/macro';
 
 /**
  * @en Render pipeline information descriptor
@@ -57,6 +63,9 @@ export interface IRenderPipelineInfo {
 }
 
 export const MAX_BLOOM_FILTER_PASS_NUM = 6;
+
+const tmpRect = new Rect();
+const tmpViewport = new Viewport();
 
 export class BloomRenderData {
     renderPass: RenderPass = null!;
@@ -217,6 +226,10 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
         return this._profiler;
     }
 
+    get geometryRenderer () {
+        return this._geometryRenderer;
+    }
+
     set clusterEnabled (value) {
         this._clusterEnabled = value;
     }
@@ -241,6 +254,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
     protected _macros: MacroRecord = {};
     protected _constantMacros = '';
     protected _profiler: Model | null = null;
+    protected _geometryRenderer = new GeometryRenderer();
     protected declare _pipelineSceneData: PipelineSceneData;
     protected _pipelineRenderData: PipelineRenderData | null = null;
     protected _renderPasses = new Map<ClearFlags, RenderPass>();
@@ -275,7 +289,10 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
                 colorAttachment.loadOp = LoadOp.DISCARD;
             } else {
                 colorAttachment.loadOp = LoadOp.LOAD;
-                colorAttachment.beginAccesses = [AccessType.COLOR_ATTACHMENT_WRITE];
+                colorAttachment.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(
+                    AccessFlagBit.COLOR_ATTACHMENT_WRITE,
+                    AccessFlagBit.COLOR_ATTACHMENT_WRITE,
+                ));
             }
         }
 
@@ -283,17 +300,20 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
             if (!(clearFlags & ClearFlagBit.DEPTH)) depthStencilAttachment.depthLoadOp = LoadOp.LOAD;
             if (!(clearFlags & ClearFlagBit.STENCIL)) depthStencilAttachment.stencilLoadOp = LoadOp.LOAD;
         }
-        depthStencilAttachment.beginAccesses = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE];
+        depthStencilAttachment.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(
+            AccessFlagBit.DEPTH_STENCIL_ATTACHMENT_WRITE,
+            AccessFlagBit.DEPTH_STENCIL_ATTACHMENT_WRITE,
+        ));
 
         const renderPassInfo = new RenderPassInfo([colorAttachment], depthStencilAttachment);
 
         return device.createRenderPass(renderPassInfo);
     }
 
-    public getRenderPass (clearFlags: ClearFlags, swapchain: Swapchain): RenderPass {
+    public getRenderPass (clearFlags: ClearFlags, fbo: Framebuffer): RenderPass {
         let renderPass = this._renderPasses.get(clearFlags);
         if (renderPass) { return renderPass; }
-        renderPass = this.createRenderPass(clearFlags, swapchain.colorTexture.format, swapchain.depthStencilTexture.format);
+        renderPass = this.createRenderPass(clearFlags, fbo.colorTextures[0]!.format, fbo.depthStencilTexture!.format);
         this._renderPasses.set(clearFlags, renderPass);
         return renderPass;
     }
@@ -323,30 +343,36 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
      * @param camera the camera
      * @returns
      */
-    public generateRenderArea (camera: Camera, out?: Rect): Rect {
-        const res = out || new Rect();
+    public generateRenderArea (camera: Camera, out: Rect) {
         const vp = camera.viewport;
         const w = camera.window.width;
         const h = camera.window.height;
-        res.x = vp.x * w;
-        res.y = vp.y * h;
-        res.width = vp.width * w;
-        res.height = vp.height * h;
-        return res;
+        out.x = vp.x * w;
+        out.y = vp.y * h;
+        out.width = vp.width * w;
+        out.height = vp.height * h;
     }
 
     public generateViewport (camera: Camera, out?: Viewport): Viewport {
-        const rect = this.generateRenderArea(camera);
+        this.generateRenderArea(camera, tmpRect);
+        if (!out) out = tmpViewport;
         const shadingScale = this.pipelineSceneData.shadingScale;
-        const viewport = out || new Viewport(rect.x * shadingScale, rect.y * shadingScale, rect.width * shadingScale, rect.height * shadingScale);
-        return viewport;
+        out.left = tmpRect.x * shadingScale;
+        out.top = tmpRect.y * shadingScale;
+        out.width = tmpRect.width * shadingScale;
+        out.height = tmpRect.height * shadingScale;
+        return out;
     }
 
     public generateScissor (camera: Camera, out?: Rect): Rect {
-        const rect = this.generateRenderArea(camera);
+        if (!out) out = tmpRect;
+        this.generateRenderArea(camera, out);
         const shadingScale = this.pipelineSceneData.shadingScale;
-        const scissor = out || new Rect(rect.x * shadingScale, rect.y * shadingScale, rect.width * shadingScale, rect.height * shadingScale);
-        return scissor;
+        out.x *= shadingScale;
+        out.y *= shadingScale;
+        out.width *= shadingScale;
+        out.height *= shadingScale;
+        return out;
     }
 
     /**
@@ -366,6 +392,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
         this._macros.CC_USE_HDR = this._pipelineSceneData.isHDR;
         this._generateConstantMacros();
         this._pipelineSceneData.activate(this._device, this);
+        this._geometryRenderer.activate(this._device, this);
 
         for (let i = 0; i < this._flows.length; i++) {
             this._flows[i].activate(this);
@@ -388,10 +415,13 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
         this._commandBuffers[0].begin();
         this.emit(PipelineEventType.RENDER_FRAME_BEGIN, cameras);
         this._ensureEnoughSize(cameras);
+        decideProfilerCamera(cameras);
+
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (camera.scene) {
                 this.emit(PipelineEventType.RENDER_CAMERA_BEGIN, camera);
+                validPunctualLightsCulling(this, camera);
                 sceneCulling(this, camera);
                 this._pipelineUBO.updateGlobalUBO(camera.window);
                 this._pipelineUBO.updateCameraUBO(camera);
@@ -439,7 +469,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
 
     protected _destroyBloomData () {
         const bloom = this._pipelineRenderData!.bloom;
-        if (bloom === null || this.bloomEnabled === false) return;
+        if (bloom === null) return;
 
         if (bloom.prefiterTex) bloom.prefiterTex.destroy();
         if (bloom.prefilterFramebuffer) bloom.prefilterFramebuffer.destroy();
@@ -528,7 +558,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
 
         const quadVB = this._device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.DEVICE,
+            MemoryUsageBit.DEVICE | MemoryUsageBit.HOST,
             vbSize,
             vbStride,
         ));
@@ -577,16 +607,20 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
     }
 
     public updateQuadVertexData (renderArea: Rect, window: RenderWindow) {
-        if (this._lastUsedRenderArea === renderArea) {
+        const cachedArea = this._lastUsedRenderArea;
+        if (cachedArea.x === renderArea.x
+            && cachedArea.y === renderArea.y
+            && cachedArea.width === renderArea.width
+            && cachedArea.height === renderArea.height) {
             return;
         }
 
-        this._lastUsedRenderArea = renderArea;
         const offData = this._genQuadVertexData(SurfaceTransform.IDENTITY, renderArea);
         this._quadVBOffscreen!.update(offData);
-
         const onData = this._genQuadVertexData(window.swapchain && window.swapchain.surfaceTransform || SurfaceTransform.IDENTITY, renderArea);
         this._quadVBOnscreen!.update(onData);
+
+        cachedArea.copy(renderArea);
     }
 
     /**
@@ -611,22 +645,26 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
         this._commandBuffers.length = 0;
         this._pipelineUBO.destroy();
         this._pipelineSceneData?.destroy();
+        this._geometryRenderer.destroy();
 
         return super.destroy();
     }
 
     protected _generateConstantMacros () {
         let str = '';
-        str += `#define CC_DEVICE_SUPPORT_FLOAT_TEXTURE ${this.device.hasFeature(Feature.TEXTURE_FLOAT) ? 1 : 0}\n`;
+        str += `#define CC_DEVICE_SUPPORT_FLOAT_TEXTURE ${this.device.getFormatFeatures(Format.RGBA32F)
+            & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE) ? 1 : 0}\n`;
         str += `#define CC_ENABLE_CLUSTERED_LIGHT_CULLING ${this._clusterEnabled ? 1 : 0}\n`;
         str += `#define CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS ${this.device.capabilities.maxVertexUniformVectors}\n`;
         str += `#define CC_DEVICE_MAX_FRAGMENT_UNIFORM_VECTORS ${this.device.capabilities.maxFragmentUniformVectors}\n`;
         str += `#define CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT ${this.device.hasFeature(Feature.INPUT_ATTACHMENT_BENEFIT) ? 1 : 0}\n`;
+        str += `#define CC_PLATFORM_ANDROID_AND_WEBGL ${systemInfo.os === OS.ANDROID && systemInfo.isBrowser ? 1 : 0}\n`;
+        str += `#define CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES ${macro.ENABLE_WEBGL_HIGHP_STRUCT_VALUES ? 1 : 0}\n`;
         this._constantMacros = str;
     }
 
-    protected _generateBloomRenderData () {
-        if (this.bloomEnabled === false) return;
+    public generateBloomRenderData () {
+        if (this._pipelineRenderData!.bloom != null) return;
 
         const bloom = this._pipelineRenderData!.bloom = new BloomRenderData();
         const device = this.device;
@@ -636,7 +674,10 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
         colorAttachment.format = Format.RGBA8;
         colorAttachment.loadOp = LoadOp.CLEAR;
         colorAttachment.storeOp = StoreOp.STORE;
-        colorAttachment.endAccesses = [AccessType.COLOR_ATTACHMENT_WRITE];
+        colorAttachment.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(
+            AccessFlagBit.NONE,
+            AccessFlagBit.COLOR_ATTACHMENT_WRITE,
+        ));
         bloom.renderPass = device.createRenderPass(new RenderPassInfo([colorAttachment]));
 
         let curWidth = this._width;

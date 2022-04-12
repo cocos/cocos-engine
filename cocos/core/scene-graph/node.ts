@@ -36,12 +36,13 @@ import { Layers } from './layers';
 import { NodeUIProperties } from './node-ui-properties';
 import { legacyCC } from '../global-exports';
 import { BaseNode, TRANSFORM_ON } from './base-node';
-import { Mat3, Mat4, Quat, Vec3 } from '../math';
+import { approx, EPSILON, Mat3, Mat4, Quat, Vec3 } from '../math';
 import { NULL_HANDLE, NodePool, NodeView, NodeHandle  } from '../renderer/core/memory-pools';
 import { NodeSpace, TransformBit } from './node-enum';
-import { NativeNode } from '../renderer/scene/native-scene';
+import { NativeNode } from '../renderer/native-scene';
 import { NodeEventType } from './node-event';
-import { CustomSerializable, deserializeTag, editorExtrasTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
+import { CustomSerializable, editorExtrasTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
+import { warnID } from '../platform/debug';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -158,13 +159,12 @@ export class Node extends BaseNode implements CustomSerializable {
     public static TransformBit = TransformBit;
 
     /**
-     * @internal
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public static reserveContentsForAllSyncablePrefabTag = reserveContentsForAllSyncablePrefabTag;
 
-    // UI 部分的脏数据
     /**
-     * @private
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _uiProps = new NodeUIProperties(this);
 
@@ -175,6 +175,9 @@ export class Node extends BaseNode implements CustomSerializable {
     private static ClearFrame = 0;
     private static ClearRound = 1000;
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _static = false;
 
     // world transform, don't access this directly
@@ -470,6 +473,10 @@ export class Node extends BaseNode implements CustomSerializable {
         if (JSB) {
             this._nativeLayer[0] = this._layer;
         }
+        if (this._uiProps && this._uiProps.uiComp) {
+            this._uiProps.uiComp.setNodeDirty();
+            this._uiProps.uiComp.markForUpdateRenderData();
+        }
         this.emit(NodeEventType.LAYER_CHANGED, this._layer);
     }
 
@@ -545,14 +552,23 @@ export class Node extends BaseNode implements CustomSerializable {
         }
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _onSetParent (oldParent: this | null, keepWorldTransform: boolean) {
         super._onSetParent(oldParent, keepWorldTransform);
         if (keepWorldTransform) {
             const parent = this._parent;
             if (parent) {
                 parent.updateWorldTransform();
-                Mat4.multiply(m4_1, Mat4.invert(m4_1, parent._mat), this._mat);
-                Mat4.toRTS(m4_1, this._lrot, this._lpos, this._lscale);
+                if (approx(Mat4.determinant(parent._mat), 0, EPSILON)) {
+                    warnID(14200);
+                    this._dirtyFlags |= TransformBit.TRS;
+                    this.updateWorldTransform();
+                } else {
+                    Mat4.multiply(m4_1, Mat4.invert(m4_1, parent._mat), this._mat);
+                    Mat4.toRTS(m4_1, this._lrot, this._lpos, this._lscale);
+                }
             } else {
                 Vec3.copy(this._lpos, this._pos);
                 Quat.copy(this._lrot, this._rot);
@@ -569,6 +585,9 @@ export class Node extends BaseNode implements CustomSerializable {
         super._onHierarchyChangedBase(oldParent);
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
         if (JSB) {
             this._nativeLayer[0] = this._layer;
@@ -583,16 +602,28 @@ export class Node extends BaseNode implements CustomSerializable {
         }
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _onBeforeSerialize () {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this.eulerAngles; // make sure we save the correct eulerAngles
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _onPostActivated (active: boolean) {
         if (active) { // activated
             this._eventProcessor.setEnabled(true);
             // in case transform updated during deactivated period
             this.invalidateChildren(TransformBit.TRS);
+            // ALL Node renderData dirty flag will set on here
+            if (this._uiProps && this._uiProps.uiComp) {
+                this._uiProps.uiComp.setNodeDirty();
+                this._uiProps.uiComp.setTextureDirty(); // for dynamic atlas
+                this._uiProps.uiComp.markForUpdateRenderData();
+            }
         } else { // deactivated
             this._eventProcessor.setEnabled(false);
         }
@@ -638,7 +669,7 @@ export class Node extends BaseNode implements CustomSerializable {
     /**
      * @en Perform a rotation on the node
      * @zh 旋转节点
-     * @param trans The increment on position
+     * @param rot The increment on rotation
      * @param ns The operation coordinate space
      */
     public rotate (rot: Quat, ns?: NodeSpace): void {

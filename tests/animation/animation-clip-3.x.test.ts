@@ -1,5 +1,5 @@
-import { Node, RealKeyframeValue, Vec3 } from '../../cocos/core';
-import { ColorTrack, RealTrack, SizeTrack, TrackPath, VectorTrack } from '../../cocos/core/animation/animation';
+import { Color, Component, Node, Quat, RealKeyframeValue, Size, Vec3 } from '../../cocos/core';
+import { ColorTrack, ObjectTrack, QuatTrack, RealTrack, SizeTrack, TrackPath, VectorTrack } from '../../cocos/core/animation/animation';
 import { AnimationClip, searchForRootBonePathSymbol } from '../../cocos/core/animation/animation-clip';
 import { TargetPath } from '../../cocos/core/animation/target-path';
 
@@ -120,6 +120,35 @@ describe('Animation Clip', () => {
                 dummyRootJointNode.setPosition(0.0, 0.0, 0.0);
                 evaluation.evaluateRootMotion(0.5, 3.2);
                 expect(Vec3.equals(dummyRootJointNode.position, new Vec3(1.4))).toBe(true);
+            });
+        });
+
+        test('Empty track does not take effect', () => {
+            const trackAndInitValues = [
+                [new RealTrack(), 6.6, (a: number, b: number) => a === b],
+                [new ObjectTrack(), true, (a: boolean, b: boolean) => a === b],
+                [new VectorTrack(), new Vec3(6.6, 6.6, 6.6), Vec3.equals],
+                [new ColorTrack(), new Color(66, 66, 66, 66), Color.equals],
+                [new SizeTrack(), new Size(6.6, 6.6), (a: Size, b: Size) => a.equals(b)],
+                [new QuatTrack(), new Quat(6.6, 6.6, 6.6, 6.6), Quat.equals],
+            ] as const;
+
+            class TestComp extends Component {
+                public properties: unknown[] = [];
+            }
+
+            const node = new Node();
+            const component = node.addComponent(TestComp) as TestComp;
+            const clip = new AnimationClip();
+            trackAndInitValues.forEach(([track, value], index) => {
+                component.properties.push(value);
+                track.path.toComponent(TestComp).toProperty('properties').toElement(index);
+            });
+            const evaluator = clip.createEvaluator({ target: node });
+            evaluator.evaluate(0.0);
+            trackAndInitValues.forEach(([, value, equals], index) => {
+                expect((equals as (a: unknown, b: unknown) => boolean)(
+                    component.properties[index], value)).toBeTruthy();
             });
         });
     });

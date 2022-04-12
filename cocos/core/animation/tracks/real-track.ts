@@ -5,6 +5,9 @@ import { SingleChannelTrack } from './track';
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}RealTrack`)
 export class RealTrack extends SingleChannelTrack<RealCurve> {
+    /**
+     * @internal
+     */
     protected createCurve () {
         return new RealCurve();
     }

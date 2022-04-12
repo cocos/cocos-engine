@@ -106,6 +106,9 @@ export class SpriteAtlas extends Asset {
         return frames;
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _serialize (ctxForExporting: any): any {
         if (EDITOR || TEST) {
             const frames: string[] = [];
@@ -126,6 +129,9 @@ export class SpriteAtlas extends Asset {
         }
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _deserialize (serializeData: any, handle: any) {
         const data = serializeData as ISpriteAtlasSerializeData;
         this._name = data.name;

@@ -1,4 +1,4 @@
-// Effect Syntax Guide: https://github.com/cocos-creator/docs-3d/blob/master/zh/material-system/effect-syntax.md
+// Effect Syntax Guide: https://docs.cocos.com/creator/manual/zh/shader/index.html
 
 CCEffect %{
   techniques:
@@ -29,6 +29,8 @@ CCProgram unlit-fs %{
   #include <cc-fog-fs>
 
   in vec2 v_uv;
+  in vec3 v_position;
+
   uniform sampler2D mainTexture;
 
   uniform Constant {

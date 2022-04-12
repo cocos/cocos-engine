@@ -126,7 +126,6 @@ export class Mask extends Renderable2D {
      * 遮罩类型。
      */
     @type(MaskType)
-    @displayOrder(10)
     @tooltip('i18n:mask.type')
     get type () {
         return this._type;
@@ -327,7 +326,13 @@ export class Mask extends Renderable2D {
 
     public static Type = MaskType;
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _clearStencilMtl: Material | null = null;
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _clearModel: Model | null = null;
 
     @serializable
@@ -386,7 +391,6 @@ export class Mask extends Renderable2D {
     }
 
     public onDestroy () {
-        super.onDestroy();
         if (this._clearModel && this._clearModelMesh) {
             director.root!.destroyModel(this._clearModel);
             this._clearModelMesh.destroy();
@@ -397,15 +401,15 @@ export class Mask extends Renderable2D {
         }
 
         this._removeGraphics();
+        super.onDestroy();
     }
 
     /**
-     * @zh
-     * 根据屏幕坐标计算点击事件。
+     * Hit test with point in World Space.
      *
-     * @param cameraPt  屏幕点转换到相机坐标系下的点。
+     * @param worldPt point in World Space.
      */
-    public isHit (cameraPt: Vec2) {
+    public isHit (worldPt: Vec2) {
         const uiTrans = this.node._uiProps.uiTransformComp!;
         const size = uiTrans.contentSize;
         const w = size.width;
@@ -414,13 +418,13 @@ export class Mask extends Renderable2D {
 
         this.node.getWorldMatrix(_worldMatrix);
         Mat4.invert(_mat4_temp, _worldMatrix);
-        Vec2.transformMat4(testPt, cameraPt, _mat4_temp);
+        Vec2.transformMat4(testPt, worldPt, _mat4_temp);
         const ap = uiTrans.anchorPoint;
         testPt.x += ap.x * w;
         testPt.y += ap.y * h;
 
         let result = false;
-        if (this.type === MaskType.RECT || this.type === MaskType.GRAPHICS_STENCIL) {
+        if (this.type === MaskType.RECT || this.type === MaskType.GRAPHICS_STENCIL || this.type === MaskType.IMAGE_STENCIL) {
             result = testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h;
         } else if (this.type === MaskType.ELLIPSE) {
             const rx = w / 2;
@@ -438,7 +442,7 @@ export class Mask extends Renderable2D {
     }
 
     protected _render (render: IBatcher) {
-        render.commitComp(this, null, this._assembler!, null);
+        render.commitComp(this, this.renderData, null, this._assembler!, null);
     }
 
     protected _postRender (render: IBatcher) {
@@ -446,7 +450,7 @@ export class Mask extends Renderable2D {
             return;
         }
 
-        render.commitComp(this, null, this._postAssembler, null);
+        render.commitComp(this, null, null, this._postAssembler, null);
     }
 
     protected _nodeStateChange (type: TransformBit) {
@@ -464,7 +468,7 @@ export class Mask extends Renderable2D {
     }
 
     protected _flushAssembler () {
-        const assembler = Mask.Assembler!.getAssembler(this);
+        const assembler = Mask.Assembler.getAssembler(this);
         const posAssembler = Mask.PostAssembler!.getAssembler(this);
 
         if (this._assembler !== assembler) {

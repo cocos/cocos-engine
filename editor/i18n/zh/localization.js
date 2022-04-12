@@ -6,9 +6,6 @@ const version = pkg.version.replace(/(^\d+\.\d+)\..*$/, (str, a) => {
 const url = 'https://docs.cocos.com/creator';
 
 module.exports = {
-    menu: {
-        custom_script: '自定义脚本',
-    },
     help: {
         cc: {
             Node: `${url}/${version}/manual/zh/concepts/scene/node-component.html`,
@@ -21,6 +18,10 @@ module.exports = {
             Canvas: `${url}/${version}/manual/zh/ui-system/components/editor/canvas.html`,
             SkinnedMeshRenderer: `${url}/${version}/manual/zh/engine/animation/skeletal-animation.html`,
             SkinnedMeshBatchRenderer: `${url}/${version}/manual/zh/engine/animation/skeletal-animation.html`,
+            Ambient: `${url}/${version}/manual/zh/concepts/scene/light/lighttype/ambient.html`,
+            Skybox: `${url}/${version}/manual/zh/concepts/scene/skybox.html`,
+            Fog: `${url}/${version}/manual/zh/concepts/scene/fog.html`,
+            Shadow: `${url}/${version}/manual/zh/concepts/scene/light/shadow.html`,
             DirectionalLight: `${url}/${version}/manual/zh/concepts/scene/light/dir-light.html`,
             SphereLight: `${url}/${version}/manual/zh/concepts/scene/light/sphere-light.html`,
             SpotLight: `${url}/${version}/manual/zh/concepts/scene/light/spot-light.html`,
@@ -64,7 +65,52 @@ module.exports = {
             Terrain: `${url}/${version}/manual/zh/editor/terrain/`,
             TiledMap: ``,
             Spine: ``,
+            OctreeCulling: `${url}/${version}/manual/zh/advanced-topics/native-scene-culling.html`,
         },
+        assets: {
+            javascript: `${url}/${version}/manual/zh/concepts/scene/node-component.html`,
+        },
+    },
+    ambient: {
+        skyLightingColor: '天空颜色（上半球光照）',
+        groundLightingColor: '地面颜色（下半球光照）',
+        skyIllum: '环境光强度',
+    },
+    skybox: {
+        applyDiffuseMap: '勾选后，场景物体将使用更精确的漫反射图来取代默认的半球光照。',
+        enabled: '勾选后即可开启天空盒，使用设置的立方体贴图进行渲染',
+        useIBL: '勾选后，场景物体将使用设置的立方体贴图来进行环境光漫反射及镜面反射计算.',
+        useHDR: '切换高/低动态范围模式，每种模式都有自己独立的光源设定。\n高动态（HDR）模式会使用光度学灯光单位，配合相机镜头属性进行曝光计算，\n低动态（LDR）模式使用无单位光源和无曝光的镜头，更便于保留原图颜色',
+        envmap: '设置一个立方体贴图作为环境光源和天空盒，贴图类型包括十字型 HDR 贴图、经纬度图、手动创建的 CubeMap 等。目前支持 HDR/TGA/PNG 等文件格式。',
+    },
+    fog: {
+        enabled: '雾开关',
+        accurate: '切换顶点雾和像素雾。勾选该项则使用像素雾，像素雾在顶点数少面积大的物体上有更精确的雾化效果；顶点雾则有更好的性能。',
+        fogColor: '内散射颜色',
+        type: '不同的计算雾化模型，目前包括 LINEAR（线性雾）、EXP（指数雾）、EXP_SQUARED（指数平房雾）、LAYERED（层雾）。',
+        fogDensity: '该值越大雾气越浓',
+        fogStart: '雾效影响的起始位置',
+        fogEnd: '雾效影响的结束位置',
+        fogAtten: '雾化衰减系数，该值越小则雾越浓',
+        fogTop: '模型顶点在世界坐标系垂直方向上的位置，小于该位置时所有的顶点都会受到雾化效果的影响',
+        fogRange: '雾化效果从设置的 fogTop 往下所影响的范围',
+    },
+    shadow: {
+        enabled: '是否开启实时阴影',
+        planeDirection: '阴影接收平面的法线，垂直于阴影，用于调整阴影的倾斜度',
+        planeHeight: '阴影接收平面距离原点的高度',
+        saturation: '阴影饱和度，建议设置为 1.0。若需要减小方向光阴影的饱和程度，推荐通过增加环境光来实现，而不是调节该值。',
+        pcf: '开启软阴影，目前支持 HARD（硬采样）、SOFT（4 倍采样）、SOFT_2X（9 倍采样）类型',
+        bias: '增加深度偏移值（世界空间单位）可以有效消除阴影摩尔纹，但是过大的值可能造成漏光现象',
+        normalBias: '法线深度偏移值（世界空间单位），可以消除物体表面朝向平行于阳光方向的阴影摩尔纹，防止曲面出现锯齿状；但是过大的值可能会造成阴影位置偏差',
+        shadowMapSize: '阴影贴图分辨率，目前支持 Low_256x256、Medium_512x512、High_1024x1024、Ultra_2048x2048 四种精度的纹理',
+        fixedArea: '切换固定区域和 CSM 模式。固定区域是一种旧模式，我们并不推荐使用。勾选该项则开启 CSM 模式，该模式下阴影会跟随方向光节点的位置，在方向光包围盒附近分布，而非跟随相机。',
+        near: '固定区域开始值',
+        far: '固定区域结束值',
+        orthoSize: '固定区域大小，该值越大则阴影精度越低',
+        invisibleOcclusionRange: '如果有背后的潜在投射物阴影丢失，请增大该值（世界空间单位）',
+        shadowDistance: '阴影有效距离（世界空间单位），该值越大则阴影精度越低',
+        maxReceived: '产生阴影的有效光源数量',
     },
     animation: {
         default_clip: '在勾选自动播放或调用 play() 时默认播放的动画 clip。',
@@ -197,7 +243,6 @@ module.exports = {
         font_size: '文字尺寸，以 point 为单位',
         font_family: '文字字体名字',
         line_height: '文字行高，以 point 为单位',
-        spacing_x: '文本字符之间的间距，仅在使用 BMFont 位图字体时生效',
         overflow:
             '文字排版模式，包括以下三种：\n 1. CLAMP: 节点约束框之外的文字会被截断 \n 2. SHRINK: 自动根据节点约束框缩小文字\n 3. RESIZE: 根据文本内容自动更新节点的 height 属性.',
         wrap: '是否允许自动换行',
@@ -208,6 +253,7 @@ module.exports = {
         font_bold: '字体加粗',
         font_italic: '字体倾斜',
         font_underline: '字体加下划线',
+        spacing_x: '文本字符之间的间距。仅在使用 BMFont 位图字体时生效',
         underline_height: '下划线高度',
     },
     labelOutline: {
@@ -479,6 +525,7 @@ module.exports = {
     richtext: {
         string: '富文本的内容字符串, 你可以在里面使用 BBCode 来指定特定文本的样式',
         horizontal_align: '水平对齐方式',
+        vertical_align: '竖直对齐方式',
         font_size: '字体大小, 单位是 point',
         font: '富文本定制字体',
         font_family: '富文本定制系统字体',
@@ -606,7 +653,13 @@ module.exports = {
         textureAnimationModule: '贴图动画模块',
         trailModule: '粒子轨迹模块（只支持 CPU 粒子）',
         renderer: '粒子渲染模块',
-        enableCulling: '是否剔除非 enable 的模块数据',
+        renderCulling: '是否开启粒子剔除功能。开启该项将会生成一个粒子发射器包围盒，若包围盒不在摄像机的可见范围内，该粒子发射器便会被剔除。粒子发射器被剔除后的行为请参考下面的 cullingMode。',
+        cullingMode: '粒子发射器被剔除之后的行为，可设置的选项包括 pause、pause and catchup、always simulate。\n选择 pause 时，若粒子发射器包围盒不在摄像机的可见范围内，粒子暂停模拟。若恢复可见，则粒子会接着上次暂停的时间继续模拟；\n选择 pause and catchup 时，若粒子发射器包围盒不在摄像机的可见范围内，粒子暂停模拟。若恢复可见，则粒子会以当前的时间开始模拟；\n选择 always simulate 时，无论粒子发射器包围盒是否在摄像机的可见范围内，粒子都会一直模拟，只是不在摄像机的可见范围内时不进行渲染。',
+        alignSpace: '粒子对齐方向空间，可设置的选项包括：视角空间、世界空间和局部空间。\n选择视角空间时，粒子网格的旋转方向将会跟随摄像机的视角方向；\n选择世界空间时，粒子网格的方向将会使用发射器节点的世界空间旋转方向；\n选择局部空间时，粒子网格使用发射器节点的局部空间旋转方向。',
+        aabbHalfX: '设置发射器包围盒半宽',
+        aabbHalfY: '设置发射器包围盒半高',
+        aabbHalfZ: '设置发射器包围盒半长',
+        dataCulling: '是否剔除非 enable 的模块数据',
     },
     mask: {
         type: '遮罩类型',
@@ -693,6 +746,10 @@ module.exports = {
                 label: '3D',
                 description: '3D',
             },
+            animation: {
+                label: '动画',
+                description: '动画系统。',
+            },
         },
         core: {
             label: "核心功能",
@@ -716,7 +773,7 @@ module.exports = {
         },
         gpu_driven: {
             label: "GPU驱动",
-            description: "是否启用GPU驱动方案（暂时只对打包后的工程起效）",
+            description: "是否启用GPU驱动方案",
         },
         base_3d: {
             label: "基础 3D 功能",
@@ -810,6 +867,18 @@ module.exports = {
             label: "DragonBones",
             description: "DragonBones 支持。",
         },
+        animation: {
+            label: "基础动画功能",
+            description: "基础动画功能支持。",
+        },
+        skeletal_animation: {
+            label: "骨骼动画",
+            description: "骨骼动画支持。",
+        },
+        marionette: {
+            label: "Marionette 动画系统",
+            description: "启用 Marionette 动画系统。",
+        },
     },
     renderable_2d: {
         srcBlendFactor: '指定源的混合模式，这会克隆一个新的材质对象，注意这带来的性能和内存损耗',
@@ -874,5 +943,11 @@ module.exports = {
             torque: '在世界坐标系中，对刚体施加的扭转力',
             localTorque: '在本地坐标系中，对刚体施加的扭转力',
         },
+    },
+    octree_culling: {
+        enabled: '八叉树剔除开关，仅在原生平台中生效',
+        minPos: '世界包围盒最小顶点的坐标',
+        maxPos: '世界包围盒最大顶点的坐标',
+        depth: '八叉树深度',
     },
 };

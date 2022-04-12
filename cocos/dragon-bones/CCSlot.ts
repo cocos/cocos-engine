@@ -16,12 +16,31 @@ export class CCSlot extends Slot {
         return '[class dragonBones.CCSlot]';
     }
 
-    /* protected */ _localVertices: number[];
-    /* protected */ _indices: number[];
-    /* protected */ _matrix: Mat4;
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
+    _localVertices: number[];
+
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
+    _indices: number[];
+
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
+    _matrix: Mat4;
+
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _worldMatrix: Mat4;
     protected _worldMatrixDirty: boolean;
-    /* protected */ _color: Color;
+
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
+    _color: Color;
 
     constructor () {
         super();

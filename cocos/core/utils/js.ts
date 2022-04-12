@@ -93,7 +93,7 @@ export const js = {
     /**
      * @en All classes registered in the engine, indexed by name.
      * @zh 引擎中已注册的所有类型，通过名称进行索引。
-     * @private
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      * @example
      * ```
      * import { js } from 'cc';
@@ -106,6 +106,8 @@ export const js = {
      * js._registeredClassIds = builtinClassIds;
      * js._registeredClassNames = builtinClassNames;
      * ```
+     *
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     get _registeredClassNames (): typeof _nameToClass {
         return { ..._nameToClass };
@@ -117,7 +119,6 @@ export const js = {
     /**
      * @en All classes registered in the engine, indexed by ID.
      * @zh 引擎中已注册的所有类型，通过 ID 进行索引。
-     * @private
      * @example
      * ```
      * import { js } from 'cc';
@@ -130,6 +131,8 @@ export const js = {
      * js._registeredClassIds = builtinClassIds;
      * js._registeredClassNames = builtinClassNames;
      * ```
+     *
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     get _registeredClassIds (): typeof _idToClass {
         return { ..._idToClass };
@@ -138,8 +141,17 @@ export const js = {
         clear(_idToClass);
         Object.assign(_idToClass, value);
     },
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     _getClassId,
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     _setClassId,
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     _getClassById,
     obsolete,
     obsoletes,

@@ -1,8 +1,3 @@
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { legacyCC } from '../../core/global-exports';
 
 interface IPhysicsWrapperObject {

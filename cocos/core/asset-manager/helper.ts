@@ -80,12 +80,14 @@ export function getUuidFromURL (url: string): string {
  * var url = getUrlWithUuid('fcmR3XADNLgJ1ByKhqcC5Z', {isNative: true, nativeExt: '.png'});
  *
  */
-export function getUrlWithUuid (uuid: string, options?: IOptions | null): string {
+export function getUrlWithUuid (uuid: string, options?: { [k: string]: any, isNative: boolean, nativeExt?: string } | null): string {
     options = options || Object.create(null);
-    options!.__isNative__ = options!.isNative;
-    options!.ext = options!.nativeExt;
-    const bundle = bundles.find((b) => !!b.getAssetInfo(uuid));
 
+    options!.__isNative__ = options!.isNative;
+    if (options!.nativeExt) {
+        options!.ext = options!.nativeExt;
+    }
+    const bundle = bundles.find((b) => !!b.getAssetInfo(uuid));
     if (bundle) {
         options!.bundle = bundle.name;
     }

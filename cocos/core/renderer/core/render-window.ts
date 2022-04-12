@@ -30,7 +30,8 @@ import {
     RenderPassInfo, Device, TextureInfo, FramebufferInfo, Swapchain, SurfaceTransform,
 } from '../../gfx';
 import { Root } from '../../root';
-import { Camera, NativeRenderWindow } from '../scene';
+import { Camera } from '../scene';
+import { NativeRenderWindow } from '../native-scene';
 
 export interface IRenderWindowInfo {
     title?: string;

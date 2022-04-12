@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { EDITOR } from 'internal:constants';
 import { ccclass } from 'cc.decorator';
@@ -42,6 +39,7 @@ import { warnID } from '../platform/debug';
 import { SceneGlobals } from './scene-globals';
 import { SystemEventType } from '../../input/types';
 import { SystemEvent } from '../../input';
+import { NodeUIProperties } from './node-ui-properties';
 
 replaceProperty(BaseNode.prototype, 'BaseNode', [
     {
@@ -153,6 +151,47 @@ removeProperty(SceneGlobals.prototype, 'SceneGlobals.prototype', [
     {
         name: 'autoAdapt',
     },
+    {
+        name: 'fixedArea',
+    },
+    {
+        name: 'pcf',
+    },
+    {
+        name: 'bias',
+    },
+    {
+        name: 'normalBias',
+    },
+    {
+        name: 'near',
+    },
+    {
+        name: 'far',
+    },
+    {
+        name: 'shadowDistance',
+    },
+    {
+        name: 'invisibleOcclusionRange',
+    },
+    {
+        name: 'orthoSize',
+    },
+    {
+        name: 'saturation',
+    },
+]);
+
+replaceProperty(SceneGlobals.prototype, 'SceneGlobals.prototype', [
+    {
+        name: 'distance',
+        newName: 'planeHeight',
+    },
+    {
+        name: 'normal',
+        newName: 'planeDirection',
+    },
 ]);
 
 removeProperty(Node.prototype, 'Node.prototype', [
@@ -161,6 +200,13 @@ removeProperty(Node.prototype, 'Node.prototype', [
     },
     {
         name: 'removeLayer',
+    },
+]);
+
+replaceProperty(NodeUIProperties.prototype, 'NodeUIProperties', [
+    {
+        name: 'opacityDirty',
+        newName: 'colorDirty',
     },
 ]);
 

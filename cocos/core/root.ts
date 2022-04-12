@@ -32,17 +32,18 @@ import { JSB } from 'internal:constants';
 import { builtinResMgr } from './builtin';
 import { Pool } from './memop';
 import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from './pipeline';
-import { Camera, Light, Model, NativeRoot } from './renderer/scene';
-import { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
+import { Camera, Light, Model } from './renderer/scene';
+import { NativeRoot } from './renderer/native-scene';
+import type { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
 import { LightType } from './renderer/scene/light';
-import { IRenderSceneInfo, RenderScene } from './renderer/scene/render-scene';
+import { IRenderSceneInfo, RenderScene } from './renderer/core/render-scene';
 import { SphereLight } from './renderer/scene/sphere-light';
 import { SpotLight } from './renderer/scene/spot-light';
-import { IBatcher } from '../2d/renderer/i-batcher';
 import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
 import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature } from './gfx';
 import { warnID } from './platform/debug';
+import { Batcher2D } from '../2d/renderer/batcher-2d';
 
 /**
  * @zh
@@ -152,8 +153,8 @@ export class Root {
      * UI实例
      * 引擎内部使用，用户无需调用此接口
      */
-    public get batcher2D (): IBatcher {
-        return this._batcher as IBatcher;
+    public get batcher2D (): Batcher2D {
+        return this._batcher as Batcher2D;
     }
 
     /**
@@ -221,7 +222,13 @@ export class Root {
         return this._useDeferredPipeline;
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _createSceneFun: (root: Root) => RenderScene = null!;
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _createWindowFun: (root: Root) => RenderWindow = null!;
 
     private _device: Device;
@@ -230,7 +237,7 @@ export class Root {
     private _curWindow: RenderWindow | null = null;
     private _tempWindow: RenderWindow | null = null;
     private _pipeline: RenderPipeline | null = null;
-    private _batcher: IBatcher | null = null;
+    private _batcher: Batcher2D | null = null;
     private _dataPoolMgr: DataPoolManager;
     private _scenes: RenderScene[] = [];
     private _modelPools = new Map<Constructor<Model>, Pool<Model>>();
@@ -257,7 +264,7 @@ export class Root {
         RenderScene.registerCreateFunc(this);
         RenderWindow.registerCreateFunc(this);
 
-        this._cameraPool = new Pool(() => new Camera(this._device), 4);
+        this._cameraPool = new Pool(() => new Camera(this._device), 4, (cam) => cam.destroy());
     }
 
     /**
@@ -358,8 +365,8 @@ export class Root {
 
         this.onGlobalPipelineStateChanged();
         if (!this._batcher && legacyCC.internal.Batcher2D) {
-            this._batcher = new legacyCC.internal.Batcher2D(this) as IBatcher;
-            if (!this._batcher.initialize()) {
+            this._batcher = new legacyCC.internal.Batcher2D(this);
+            if (!this._batcher!.initialize()) {
                 this.destroy();
                 return false;
             }
@@ -423,7 +430,6 @@ export class Root {
         for (let i = 0; i < this._scenes.length; ++i) {
             this._scenes[i].removeBatches();
         }
-        if (this._batcher) this._batcher.update();
 
         const windows = this._windows;
         const cameraList: Camera[] = [];
@@ -436,7 +442,10 @@ export class Root {
             this._device.acquire([legacyCC.game._swapchain]);
             const scenes = this._scenes;
             const stamp = legacyCC.director.getTotalFrames();
-            if (this._batcher) this._batcher.uploadBuffers();
+            if (this._batcher) {
+                this._batcher.update();
+                this._batcher.uploadBuffers();
+            }
 
             for (let i = 0; i < scenes.length; i++) {
                 scenes[i].update(stamp);
@@ -530,7 +539,7 @@ export class Root {
     public createModel<T extends Model> (ModelCtor: typeof Model): T {
         let p = this._modelPools.get(ModelCtor);
         if (!p) {
-            this._modelPools.set(ModelCtor, new Pool(() => new ModelCtor(), 10));
+            this._modelPools.set(ModelCtor, new Pool(() => new ModelCtor(), 10, (obj) => obj.destroy()));
             p = this._modelPools.get(ModelCtor)!;
         }
         const model = p.alloc() as T;
@@ -542,13 +551,13 @@ export class Root {
         const p = this._modelPools.get(m.constructor as Constructor<Model>);
         if (p) {
             p.free(m);
-            m.destroy();
             if (m.scene) {
                 m.scene.removeModel(m);
             }
         } else {
             warnID(1300, m.constructor.name);
         }
+        m.destroy();
     }
 
     public createCamera (): Camera {
@@ -558,7 +567,7 @@ export class Root {
     public createLight<T extends Light> (LightCtor: new () => T): T {
         let l = this._lightPools.get(LightCtor);
         if (!l) {
-            this._lightPools.set(LightCtor, new Pool(() => new LightCtor(), 4));
+            this._lightPools.set(LightCtor, new Pool<Light>(() => new LightCtor(), 4, (obj) => obj.destroy()));
             l = this._lightPools.get(LightCtor)!;
         }
         const light = l.alloc() as T;
@@ -568,7 +577,6 @@ export class Root {
 
     public destroyLight (l: Light) {
         const p = this._lightPools.get(l.constructor as Constructor<Light>);
-        l.destroy();
         if (p) {
             p.free(l);
             if (l.scene) {
@@ -584,6 +592,7 @@ export class Root {
                 }
             }
         }
+        l.destroy();
     }
 }
 

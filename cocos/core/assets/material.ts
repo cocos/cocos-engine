@@ -40,6 +40,7 @@ import { MacroRecord, MaterialProperty } from '../renderer/core/pass-utils';
 import { Color } from '../math/color';
 import { warnID } from '../platform/debug';
 import { Vec4 } from '../math';
+import { SRGBToLinear } from '../pipeline/pipeline-funcs';
 
 const v4_1 = new Vec4();
 
@@ -199,14 +200,7 @@ export class Material extends Asset {
         if (!this._defines) { this._defines = []; }
         if (!this._states) { this._states = []; }
         if (!this._props) { this._props = []; }
-        if (info.technique !== undefined) { this._techIdx = info.technique; }
-        if (info.effectAsset) {
-            this._effectAsset = info.effectAsset;
-        } else if (info.effectName) {
-            this._effectAsset = EffectAsset.get(info.effectName);
-        }
-        if (info.defines) { this._prepareInfo(info.defines, this._defines); }
-        if (info.states) { this._prepareInfo(info.states, this._states); }
+        this._fillInfo(info);
         this._update();
     }
 
@@ -218,10 +212,13 @@ export class Material extends Asset {
      * @en
      * Destroy the material definitively.<br>
      * Cannot re-initialize after destroy.<br>
-     * For re-initialize purposes, call [[Material.initialize]] directly.
+     * Modifications on active materials can be acheived by<br>
+     * creating a new Material, invoke the `copy` function<br>
+     * with the desired overrides, and assigning it to the target components.
      * @zh
      * 彻底销毁材质，注意销毁后无法重新初始化。<br>
-     * 如需重新初始化材质，不必先调用 destroy。
+     * 如需修改现有材质，请创建一个新材质，<br>
+     * 调用 copy 函数传入需要的 overrides 并赋给目标组件。
      */
     public destroy () {
         this._doDestroy();
@@ -336,11 +333,12 @@ export class Material extends Asset {
     }
 
     /**
-     * @en Copy the target material.
-     * @zh 复制目标材质到当前实例。
+     * @en Copy the target material, with optional overrides.
+     * @zh 复制目标材质到当前实例，允许提供重载信息。
      * @param mat The material to be copied.
+     * @param overrides The overriding states on top of the original material.
      */
-    public copy (mat: Material) {
+    public copy (mat: Material, overrides?: IMaterialInfo) {
         this._techIdx = mat._techIdx;
         this._props.length = mat._props.length;
         for (let i = 0; i < mat._props.length; i++) {
@@ -355,7 +353,19 @@ export class Material extends Asset {
             this._states[i] = { ...mat._states[i] };
         }
         this._effectAsset = mat._effectAsset;
+        if (overrides) this._fillInfo(overrides);
         this._update();
+    }
+
+    protected _fillInfo (info: IMaterialInfo) {
+        if (info.technique !== undefined) { this._techIdx = info.technique; }
+        if (info.effectAsset) {
+            this._effectAsset = info.effectAsset;
+        } else if (info.effectName) {
+            this._effectAsset = EffectAsset.get(info.effectName);
+        }
+        if (info.defines) { this._prepareInfo(info.defines, this._defines); }
+        if (info.states) { this._prepareInfo(info.states, this._states); }
     }
 
     protected _prepareInfo (patch: Record<string, unknown> | Record<string, unknown>[], cur: Record<string, unknown>[]) {
@@ -378,10 +388,9 @@ export class Material extends Asset {
             const passInfo = tech.passes[k] as IPassInfoFull;
             const propIdx = passInfo.passIndex = k;
             const defines = passInfo.defines = this._defines[propIdx] || (this._defines[propIdx] = {});
-            const states = passInfo.stateOverrides = this._states[propIdx] || (this._states[propIdx] = {});
+            passInfo.stateOverrides = this._states[propIdx] || (this._states[propIdx] = {});
             if (passInfo.propertyIndex !== undefined) {
                 Object.assign(defines, this._defines[passInfo.propertyIndex]);
-                Object.assign(states, this._states[passInfo.propertyIndex]);
             }
             if (passInfo.embeddedMacros !== undefined) {
                 Object.assign(defines, passInfo.embeddedMacros);
@@ -426,7 +435,12 @@ export class Material extends Asset {
             if (Array.isArray(val)) {
                 pass.setUniformArray(handle, val as MaterialProperty[]);
             } else if (val !== null) {
-                if (pass.properties[name]?.linear) val = Vec4.multiply(v4_1, val as Vec4, val as Vec4);
+                if (pass.properties[name]?.linear) {
+                    const v4 = val as Vec4;
+                    SRGBToLinear(v4_1, v4);
+                    v4_1.w = v4.w;
+                    val = v4_1;
+                }
                 pass.setUniform(handle, val as MaterialProperty);
             } else {
                 pass.resetUniform(name);

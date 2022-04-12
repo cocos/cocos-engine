@@ -6,17 +6,16 @@ CCEffect %{
     - vert: post-process-vs
       frag: post-process-fs
       phase: post-process
-      embeddedMacros: { ANTIALIAS_TYPE: 0 }
       depthStencilState:
         depthTest: false
         depthWrite: false
       blendState:
         targets:
-        - blend: true
-          blendSrc: src_alpha
-          blendDst: one_minus_src_alpha
-          blendSrcAlpha: src_alpha
-          blendDstAlpha: one_minus_src_alpha
+        - blend: false
+          blendSrc: one
+          blendDst: zero
+          blendSrcAlpha: one
+          blendDstAlpha: zero
 }%
 
 CCProgram post-process-vs %{

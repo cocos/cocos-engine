@@ -35,7 +35,7 @@ import { errorID } from '../platform/debug';
 import { Node } from '../scene-graph';
 import { Scheduler } from '../scheduler';
 import { MutableForwardIterator, remove } from '../utils/array';
-import { BlendStateBuffer } from '../../3d/skeletal-animation/skeletal-animation-blending';
+import { LegacyBlendStateBuffer } from '../../3d/skeletal-animation/skeletal-animation-blending';
 import { AnimationState } from './animation-state';
 import type { CrossFade } from './cross-fade';
 import { legacyCC } from '../global-exports';
@@ -49,7 +49,7 @@ interface ISocketData {
 
 @ccclass
 export class AnimationManager extends System {
-    public get blendState () {
+    public get blendState (): LegacyBlendStateBuffer {
         return this._blendStateBuffer;
     }
 
@@ -61,7 +61,7 @@ export class AnimationManager extends System {
         thisArg: any;
         args: any[];
     }[] = [];
-    private _blendStateBuffer: BlendStateBuffer = new BlendStateBuffer();
+    private _blendStateBuffer: LegacyBlendStateBuffer = new LegacyBlendStateBuffer();
     private _sockets: ISocketData[] = [];
 
     public addCrossFade (crossFade: CrossFade) {

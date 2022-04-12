@@ -37,8 +37,8 @@ import { RenderTextureConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
 import { Format, StoreOp,
     ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp,
-    RenderPassInfo, Texture, AccessType, Framebuffer,
-    TextureInfo, TextureType, TextureUsageBit, FramebufferInfo, Swapchain } from '../../gfx';
+    RenderPassInfo, Texture, AccessFlagBit, Framebuffer,
+    TextureInfo, TextureType, TextureUsageBit, FramebufferInfo, Swapchain, GeneralBarrierInfo } from '../../gfx';
 import { UBOGlobal, UBOCamera, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
@@ -172,11 +172,6 @@ export class DeferredPipeline extends RenderPipeline {
             colorAttachment2.loadOp = LoadOp.CLEAR; // should clear color attachment
             colorAttachment2.storeOp = StoreOp.STORE;
 
-            const colorAttachment3 = new ColorAttachment();
-            colorAttachment3.format = Format.RGBA16F;
-            colorAttachment3.loadOp = LoadOp.CLEAR; // should clear color attachment
-            colorAttachment3.storeOp = StoreOp.STORE;
-
             const depthStencilAttachment = new DepthStencilAttachment();
             depthStencilAttachment.format = Format.DEPTH_STENCIL;
             depthStencilAttachment.depthLoadOp = LoadOp.CLEAR;
@@ -184,7 +179,7 @@ export class DeferredPipeline extends RenderPipeline {
             depthStencilAttachment.stencilLoadOp = LoadOp.CLEAR;
             depthStencilAttachment.stencilStoreOp = StoreOp.STORE;
             const renderPassInfo = new RenderPassInfo(
-                [colorAttachment0, colorAttachment1, colorAttachment2, colorAttachment3],
+                [colorAttachment0, colorAttachment1, colorAttachment2],
                 depthStencilAttachment,
             );
             this._gbufferRenderPass = device.createRenderPass(renderPassInfo);
@@ -195,7 +190,10 @@ export class DeferredPipeline extends RenderPipeline {
             colorAttachment.format = Format.RGBA8;
             colorAttachment.loadOp = LoadOp.CLEAR; // should clear color attachment
             colorAttachment.storeOp = StoreOp.STORE;
-            colorAttachment.endAccesses = [AccessType.COLOR_ATTACHMENT_WRITE];
+            colorAttachment.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(
+                AccessFlagBit.NONE,
+                AccessFlagBit.COLOR_ATTACHMENT_WRITE,
+            ));
 
             const depthStencilAttachment = new DepthStencilAttachment();
             depthStencilAttachment.format = Format.DEPTH_STENCIL;
@@ -203,8 +201,10 @@ export class DeferredPipeline extends RenderPipeline {
             depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
             depthStencilAttachment.stencilLoadOp = LoadOp.LOAD;
             depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
-            depthStencilAttachment.beginAccesses = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE];
-            depthStencilAttachment.endAccesses = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE];
+            colorAttachment.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(
+                AccessFlagBit.DEPTH_STENCIL_ATTACHMENT_WRITE,
+                AccessFlagBit.DEPTH_STENCIL_ATTACHMENT_WRITE,
+            ));
 
             const renderPassInfo = new RenderPassInfo([colorAttachment], depthStencilAttachment);
             this._lightingRenderPass = device.createRenderPass(renderPassInfo);
@@ -254,7 +254,7 @@ export class DeferredPipeline extends RenderPipeline {
         let newWidth = this._width;
         let newHeight = this._height;
         for (let i = 0; i < cameras.length; ++i) {
-            const window = cameras[i].window!;
+            const window = cameras[i].window;
             newWidth = Math.max(window.width, newWidth);
             newHeight = Math.max(window.height, newHeight);
         }
@@ -270,22 +270,22 @@ export class DeferredPipeline extends RenderPipeline {
         const device = this.device;
 
         const data: DeferredRenderData = this._pipelineRenderData = new DeferredRenderData();
-
-        for (let i = 0; i < 4; ++i) {
+        const sceneData = this.pipelineSceneData;
+        for (let i = 0; i < 3; ++i) {
             data.gbufferRenderTargets.push(device.createTexture(new TextureInfo(
                 TextureType.TEX2D,
                 TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-                Format.RGBA16F, // positions & normals need more precision
-                this._width,
-                this._height,
+                Format.RGBA16F, // normals need more precision
+                this._width * sceneData.shadingScale,
+                this._height * sceneData.shadingScale,
             )));
         }
         data.outputDepth = device.createTexture(new TextureInfo(
             TextureType.TEX2D,
-            TextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
+            TextureUsageBit.DEPTH_STENCIL_ATTACHMENT | TextureUsageBit.SAMPLED,
             Format.DEPTH_STENCIL,
-            this._width,
-            this._height,
+            this._width * sceneData.shadingScale,
+            this._height * sceneData.shadingScale,
         ));
 
         data.gbufferFrameBuffer = device.createFramebuffer(new FramebufferInfo(
@@ -297,14 +297,14 @@ export class DeferredPipeline extends RenderPipeline {
             TextureType.TEX2D,
             TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
             Format.RGBA16F,
-            this._width,
-            this._height,
+            this._width * sceneData.shadingScale,
+            this._height * sceneData.shadingScale,
         )));
 
         data.outputFrameBuffer = device.createFramebuffer(new FramebufferInfo(
             this._lightingRenderPass!,
             data.outputRenderTargets,
-            data.outputDepth,
+            null,
         ));
         // Listens when the attachment texture is scaled
         this.on(PipelineEventType.ATTACHMENT_SCALE_CAHNGED, (val: number) => {
@@ -313,7 +313,5 @@ export class DeferredPipeline extends RenderPipeline {
             this.applyFramebufferRatio(data.outputFrameBuffer);
         });
         data.sampler = this.globalDSManager.linearSampler;
-
-        this._generateBloomRenderData();
     }
 }

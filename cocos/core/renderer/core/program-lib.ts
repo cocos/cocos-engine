@@ -198,6 +198,16 @@ class ProgramLib {
             const tmpl = this.define(effect.shaders[i]);
             tmpl.effectName = effect.name;
         }
+        for (let i = 0; i < effect.techniques.length; i++) {
+            const tech = effect.techniques[i];
+            for (let j = 0; j < tech.passes.length; j++) {
+                const pass = tech.passes[j];
+                // grab default property declaration if there is none
+                if (pass.propertyIndex !== undefined && pass.properties === undefined) {
+                    pass.properties = tech.passes[pass.propertyIndex].properties;
+                }
+            }
+        }
     }
 
     /**

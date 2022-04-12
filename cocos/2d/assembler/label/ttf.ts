@@ -29,7 +29,7 @@
  */
 
 import * as js from '../../../core/utils/js';
-import { Color, Vec3 } from '../../../core/math';
+import { Color } from '../../../core/math';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Label } from '../../components/label';
 import { IAssembler } from '../../renderer/base';
@@ -46,11 +46,10 @@ export const ttf: IAssembler = {
     createData (comp: Label) {
         const renderData = comp.requestRenderData()!;
 
-        renderData.dataLength = 4;
-        renderData.vertexCount = 4;
-        renderData.indicesCount = 6;
+        renderData.dataLength = 2;
+        renderData.resize(4, 6);
 
-        const vData =  renderData.vData = new Float32Array(4 * 9);
+        const vData = renderData.chunk.vb;
 
         vData[3] = vData[21] = vData[22] = vData[31] = 0;
         vData[4] = vData[12] = vData[13] = vData[30] = 1;
@@ -63,28 +62,13 @@ export const ttf: IAssembler = {
     },
 
     fillBuffers (comp: Label, renderer: IBatcher) {
-        const renderData = comp.renderData!;
-        const dataList: IRenderData[] = renderData.data;
+        const chunk = comp.renderData!.chunk;
+        const dataList: IRenderData[] = comp.renderData!.data;
         const node = comp.node;
 
-        let buffer = renderer.acquireBufferBatch()!;
-        let vertexOffset = buffer.byteOffset >> 2;
-        let indicesOffset = buffer.indicesOffset;
-        let vertexId = buffer.vertexOffset;
-        const isRecreate = buffer.request();
-        if (!isRecreate) {
-            buffer = renderer.currBufferBatch!;
-            indicesOffset = 0;
-            vertexId = 0;
-            vertexOffset = 0;
-        }
-
-        // buffer data may be reallocated, need get reference after request.
-        const vBuf = buffer.vData!;
-        const iBuf = buffer.iData!;
-        const vData = renderData.vData!;
+        const vData = chunk.vb;
         const data0 = dataList[0];
-        const data3 = dataList[3];
+        const data3 = dataList[1];
         /* */
         node.updateWorldTransform();
         // @ts-expect-error private property access
@@ -113,15 +97,22 @@ export const ttf: IAssembler = {
         vData[27] = cx1 * bx + cx2 * by + x;
         vData[28] = cy1 * by + cy2 * bx + y;
 
-        vBuf.set(vData, vertexOffset);
-
-        // fill index data
-        iBuf[indicesOffset++] = vertexId;
-        iBuf[indicesOffset++] = vertexId + 1;
-        iBuf[indicesOffset++] = vertexId + 2;
-        iBuf[indicesOffset++] = vertexId + 2;
-        iBuf[indicesOffset++] = vertexId + 1;
-        iBuf[indicesOffset++] = vertexId + 3;
+        // quick version
+        const bid = chunk.bufferId;
+        const vid = chunk.vertexOffset;
+        const meshBuffer = chunk.vertexAccessor.getMeshBuffer(chunk.bufferId);
+        const ib = chunk.vertexAccessor.getIndexBuffer(bid);
+        let indexOffset = meshBuffer.indexOffset;
+        ib[indexOffset++] = vid;
+        ib[indexOffset++] = vid + 1;
+        ib[indexOffset++] = vid + 2;
+        ib[indexOffset++] = vid + 2;
+        ib[indexOffset++] = vid + 1;
+        ib[indexOffset++] = vid + 3;
+        meshBuffer.indexOffset += 6;
+        // slow version
+        // const chunk = renderData.chunk;
+        // renderer.getBufferAccessor().appendIndices(chunk);
     },
 
     updateVertexData (comp: Label) {
@@ -129,7 +120,6 @@ export const ttf: IAssembler = {
         if (!renderData) {
             return;
         }
-
         const uiTrans = comp.node._uiProps.uiTransformComp!;
         const width = uiTrans.width;
         const height = uiTrans.height;
@@ -139,21 +129,17 @@ export const ttf: IAssembler = {
         const data = renderData.data;
         data[0].x = -appX;
         data[0].y = -appY;
-        data[3].x = width - appX;
-        data[3].y = height - appY;
+        data[1].x = width - appX;
+        data[1].y = height - appY;
     },
 
-    updateUvs (comp: Label) {
+    updateUVs (comp: Label) {
         const renderData = comp.renderData;
-        if (!renderData) {
+        if (!renderData || !comp.ttfSpriteFrame) {
             return;
         }
-        const vData = renderData.vData!;
-        if (!vData || !renderData.uvDirty) {
-            return;
-        }
-
-        const uv = comp.ttfSpriteFrame!.uv;
+        const vData = renderData.chunk.vb;
+        const uv = comp.ttfSpriteFrame.uv;
         vData[3] = uv[0];
         vData[4] = uv[1];
         vData[12] = uv[2];
@@ -162,8 +148,10 @@ export const ttf: IAssembler = {
         vData[22] = uv[5];
         vData[30] = uv[6];
         vData[31] = uv[7];
+    },
 
-        renderData.uvDirty = false;
+    updateColor (comp: Label) {
+
     },
 };
 

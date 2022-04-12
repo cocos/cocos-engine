@@ -33,13 +33,13 @@ import { EDITOR, JSB, TEST } from 'internal:constants';
 import { CCObject } from '../data/object';
 import { Mat4, Quat, Vec3 } from '../math';
 import { assert, getError } from '../platform/debug';
-import { RenderScene } from '../renderer/scene/render-scene';
+import { RenderScene } from '../renderer/core/render-scene';
 import { BaseNode } from './base-node';
 import { legacyCC } from '../global-exports';
 import { Component } from '../components/component';
 import { SceneGlobals } from './scene-globals';
 import { applyTargetOverrides, expandNestedPrefabInstanceNode } from '../utils/prefab/utils';
-import { NativeScene } from '../renderer/scene/native-scene';
+import { NativeScene } from '../renderer/native-scene';
 
 /**
  * @en
@@ -75,13 +75,15 @@ export class Scene extends BaseNode {
     /**
      * @en Per-scene level rendering info
      * @zh 场景级别的渲染信息
+     *
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @serializable
     public _globals = new SceneGlobals();
 
-    public _renderScene: RenderScene | null = null;
-
     public dependAssets = null; // cache all depend assets for auto release
+
+    protected _renderScene: RenderScene | null = null;
 
     protected _inited: boolean;
 
@@ -162,8 +164,14 @@ export class Scene extends BaseNode {
         throw new Error(getError(3822));
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _onHierarchyChanged () { }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
         super._onBatchCreated(dontSyncChildPrefab);
         const len = this._children.length;
@@ -292,7 +300,12 @@ export class Scene extends BaseNode {
         }
         legacyCC.director._nodeActivator.activateNode(this, active);
         // The test environment does not currently support the renderer
-        if (!TEST) this._globals.activate();
+        if (!TEST) {
+            this._globals.activate();
+            if (this._renderScene) {
+                this._renderScene.activate();
+            }
+        }
     }
 }
 

@@ -15,11 +15,11 @@ exports.ready = function() {
         mounted: eventEditor.mounted,
     });
     this.eventEditorVm.$on('update', (frame, eventInfos) => {
-        this.events.updateEventInfo.call(this, frame, eventInfos)
+        this.events.updateEventInfo.call(this, frame, eventInfos);
     });
-}
+};
 
-exports.update = function (editInfo) {
+exports.update = function(editInfo) {
     this.eventEditorVm.events = editInfo && editInfo.events || [];
     this.eventEditorVm.frame = editInfo && editInfo.frame || 0;
-}
+};

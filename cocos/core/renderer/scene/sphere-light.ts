@@ -28,7 +28,7 @@ import { AABB } from '../../geometry';
 import { legacyCC } from '../../global-exports';
 import { Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
-import { NativeSphereLight } from './native-scene';
+import { NativeSphereLight } from '../native-scene';
 
 export class SphereLight extends Light {
     protected _init (): void {
@@ -132,7 +132,7 @@ export class SphereLight extends Light {
         const size = 0.15;
         this.size = size;
         this.range = 1.0;
-        this.luminance = 1700 / nt2lm(size);
+        this.luminanceHDR = 1700 / nt2lm(size);
         this.luminanceLDR = 1.0;
     }
 

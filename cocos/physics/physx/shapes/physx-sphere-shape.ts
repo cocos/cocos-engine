@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { absMaxComponent } from '../../../core';
 import { SphereCollider } from '../../framework';
