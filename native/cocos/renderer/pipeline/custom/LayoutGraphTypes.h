@@ -34,6 +34,7 @@
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/range/irange.hpp>
+#include "base/std/container/map.h"
 #include "cocos/base/std/container/string.h"
 #include "cocos/base/std/container/vector.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
@@ -160,7 +161,7 @@ struct DescriptorDB {
     DescriptorDB& operator=(DescriptorDB&& rhs) = default;
     DescriptorDB& operator=(DescriptorDB const& rhs) = default;
 
-    PmrMap<DescriptorBlockIndex, DescriptorBlock> blocks;
+    ccstd::pmr::map<DescriptorBlockIndex, DescriptorBlock> blocks;
 };
 
 struct RenderStageTag {};
