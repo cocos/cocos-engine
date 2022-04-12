@@ -1099,7 +1099,7 @@ bool sevalue_to_native(const se::Value &from, std::tuple<Args...> *to, se::Objec
     bool             result  = true;
     se_for_each_tuple(*to, [&](auto i, auto &param) {
         se::Value tmp;
-        from.toObject()->getArrayElement(i, &tmp);
+        from.toObject()->getArrayElement(static_cast<uint32_t>(i), &tmp);
         result &= sevalue_to_native(tmp, &param, ctx);
     });
     return result;
@@ -1508,7 +1508,7 @@ bool nativevalue_to_se(const std::tuple<ARGS...> &from, se::Value &to, se::Objec
     se_for_each_tuple(
         from, [&](auto i, auto &param) {
             ok &= nativevalue_to_se(param, tmp, ctx);
-            array->setArrayElement(i, tmp);
+            array->setArrayElement(static_cast<uint32_t>(i), tmp);
         });
     to.setObject(array);
     return ok;
