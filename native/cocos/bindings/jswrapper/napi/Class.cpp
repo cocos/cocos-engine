@@ -73,7 +73,11 @@ void Class::defineStaticProperty(const char *name, napi_callback g, napi_callbac
 }
 
 void Class::defineFunction(const char *name, napi_callback func) {
+#if USE_NODE_NAPI
+    _properties.push_back({name, nullptr, func, nullptr, nullptr, nullptr, napi_default_jsproperty, nullptr});
+#else
     _properties.push_back({name, nullptr, func, nullptr, nullptr, nullptr, napi_default_method, nullptr});
+#endif
 }
 
 void Class::defineStaticFunction(const char *name, napi_callback func) {

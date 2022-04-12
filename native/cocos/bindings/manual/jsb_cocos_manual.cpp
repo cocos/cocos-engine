@@ -383,9 +383,9 @@ static bool js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback(se::State
                     }
                 };
                 // Add an unroot to avoid the root of the copy constructor caused by the internal reference of Lambda.
-                if (jsThis.isObject()) {
-                    jsThis.toObject()->unroot();
-                }
+                //if (jsThis.isObject()) {
+                //    jsThis.toObject()->unroot();
+                //}
                 jsFunc.toObject()->unroot();
                 arg0 = lambda;
             } else {

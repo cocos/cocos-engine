@@ -28,9 +28,7 @@ public:
 #if USE_NODE_NAPI
         napi_valuetype result_type;
         if (result == nullptr) {
-            __debugbreak();
-            status = napi_get_reference_value(env, _ref, &result);
-            status = napi_typeof(env, result, &result_type);
+            napi_get_null(env, &result);
         }
 #endif
         assert(result != nullptr);
@@ -334,6 +332,7 @@ public:
 
     Class *    _getClass() const; // NOLINT(readability-identifier-naming)
     napi_value _getJSObject() const;
+    napi_value _getJSObject();
     void       _setFinalizeCallback(napi_finalize finalizeCb); // NOLINT(readability-identifier-naming)
     /**
          *  @brief Returns the string for describing current object.
@@ -349,7 +348,11 @@ private:
     static void cleanup();
 
 private:
-    ObjectRef     _objRef;
+#if USE_NODE_NAPI
+    mutable napi_ref _napiRefObj;
+#else
+    ObjectRef _objRef;
+#endif
     napi_finalize _finalizeCb  = nullptr;
     void *        _privateData = nullptr;
     napi_env      _env         = nullptr;
@@ -357,5 +360,6 @@ private:
     uint32_t      _rootCount   = 0;
 
     friend class ScriptEngine;
+    friend class Class;
 };
 }; // namespace se

@@ -17,6 +17,10 @@ Object::~Object() {
     if (__objectMap) {
         __objectMap->erase(this);
     }
+#if USE_NODE_NAPI
+    napi_status status;
+    NODE_API_CALL(status, _env, napi_delete_reference(_env, _napiRefObj));
+#endif
 }
 
 Object* Object::createObjectWithClass(Class* cls) {
@@ -31,7 +35,7 @@ bool Object::setProperty(const char* name, const Value& data) {
     napi_status         status;
     napi_value          jsVal;
     internal::seToJsValue(data, &jsVal);
-    status = napi_set_named_property(_env, _objRef.getValue(_env), name, jsVal);
+    status = napi_set_named_property(_env, _getJSObject(), name, jsVal);
     return true;
 }
 
@@ -41,13 +45,13 @@ bool Object::getProperty(const char* name, Value* d) {
     se::AutoHandleScope scope;
     Value               data;
 #if USE_NODE_NAPI
-    status = napi_get_named_property(_env, _objRef.getValue(_env), name, &jsVal);
+    status = napi_get_named_property(_env, _getJSObject(), name, &jsVal);
     if (status != napi_ok) {
         d->setUndefined();
         return false;
     }
 #else
-    NODE_API_CALL(status, _env, napi_get_named_property(_env, _objRef.getValue(_env), name, &jsVal));
+    NODE_API_CALL(status, _env, napi_get_named_property(_env, _getJSObject(), name, &jsVal));
 #endif
     internal::jsToSeValue(jsVal, &data);
     *d = data;
@@ -60,14 +64,14 @@ bool Object::getProperty(const char* name, Value* d) {
 bool Object::isArray() const {
     napi_status status;
     bool        ret = false;
-    NODE_API_CALL(status, _env, napi_is_array(_env, _objRef.getValue(_env), &ret));
+    NODE_API_CALL(status, _env, napi_is_array(_env, _getJSObject(), &ret));
     return ret;
 }
 
 bool Object::getArrayLength(uint32_t* length) const {
     napi_status status;
     uint32_t    len = 0;
-    NODE_API_CALL(status, _env, napi_get_array_length(_env, _objRef.getValue(_env), &len));
+    NODE_API_CALL(status, _env, napi_get_array_length(_env, _getJSObject(), &len));
     if (length) {
         *length = len;
     }
@@ -77,7 +81,7 @@ bool Object::getArrayLength(uint32_t* length) const {
 bool Object::getArrayElement(uint32_t index, Value* data) const {
     napi_status status;
     napi_value  val;
-    NODE_API_CALL(status, _env, napi_get_element(_env, _objRef.getValue(_env), index, &val));
+    NODE_API_CALL(status, _env, napi_get_element(_env, _getJSObject(), index, &val));
     internal::jsToSeValue(val, data);
     return true;
 }
@@ -86,14 +90,14 @@ bool Object::setArrayElement(uint32_t index, const Value& data) {
     napi_status status;
     napi_value  val;
     internal::seToJsValue(data, &val);
-    NODE_API_CALL(status, _env, napi_set_element(_env, _objRef.getValue(_env), index, val));
+    NODE_API_CALL(status, _env, napi_set_element(_env, _getJSObject(), index, val));
     return true;
 }
 
 bool Object::isTypedArray() const {
     napi_status status;
     bool        ret = false;
-    NODE_API_CALL(status, _env, napi_is_typedarray(_env, _objRef.getValue(_env), &ret));
+    NODE_API_CALL(status, _env, napi_is_typedarray(_env, _getJSObject(), &ret));
     return ret;
 }
 
@@ -104,7 +108,7 @@ Object::TypedArrayType Object::getTypedArrayType() const {
     napi_value           inputBuffer;
     size_t               byteOffset;
     size_t               length;
-    NODE_API_CALL(status, _env, napi_get_typedarray_info(_env, _objRef.getValue(_env), &type, &length, NULL, &inputBuffer, &byteOffset));
+    NODE_API_CALL(status, _env, napi_get_typedarray_info(_env, _getJSObject(), &type, &length, NULL, &inputBuffer, &byteOffset));
 
     TypedArrayType ret = TypedArrayType::NONE;
     switch (type) {
@@ -149,7 +153,7 @@ bool Object::getTypedArrayData(uint8_t** ptr, size_t* length) const {
     size_t               byteOffset;
     size_t               byteLength;
     void*                data = nullptr;
-    NODE_API_CALL(status, _env, napi_get_typedarray_info(_env, _objRef.getValue(_env), &type, &byteLength, &data, &inputBuffer, &byteOffset));
+    NODE_API_CALL(status, _env, napi_get_typedarray_info(_env, _getJSObject(), &type, &byteLength, &data, &inputBuffer, &byteOffset));
 #if USE_NODE_NAPI
     *ptr = (uint8_t*)(data);
 #else
@@ -165,7 +169,7 @@ bool Object::isArrayBuffer() const {
     se::AutoHandleScope scope;
     bool                ret = false;
     napi_status         status;
-    NODE_API_CALL(status, _env, napi_is_arraybuffer(_env, _objRef.getValue(_env), &ret));
+    NODE_API_CALL(status, _env, napi_is_arraybuffer(_env, _getJSObject(), &ret));
     return ret;
 }
 
@@ -173,7 +177,7 @@ bool Object::getArrayBufferData(uint8_t** ptr, size_t* length) const {
     se::AutoHandleScope scope;
     napi_status         status;
     size_t              len = 0;
-    NODE_API_CALL(status, _env, napi_get_arraybuffer_info(_env, _objRef.getValue(_env), reinterpret_cast<void**>(ptr), &len));
+    NODE_API_CALL(status, _env, napi_get_arraybuffer_info(_env, _getJSObject(), reinterpret_cast<void**>(ptr), &len));
     if (length) {
         *length = len;
     }
@@ -196,6 +200,9 @@ Object* Object::createTypedArray(Object::TypedArrayType type, const void* data, 
     napi_value           outputBuffer;
     void*                outputPtr = nullptr;
     NODE_API_CALL(status, ScriptEngine::getEnv(), napi_create_arraybuffer(ScriptEngine::getEnv(), byteLength, &outputPtr, &outputBuffer));
+    if (outputPtr && data && byteLength > 0) {
+        memcpy(outputPtr, data, byteLength);
+    }
     size_t sizeOfEle = 0;
     switch (type) {
         case TypedArrayType::INT8:
@@ -243,7 +250,7 @@ bool Object::isFunction() const {
     se::AutoHandleScope scope;
     napi_valuetype      valuetype0;
     napi_status         status;
-    NODE_API_CALL(status, _env, napi_typeof(_env, _objRef.getValue(_env), &valuetype0));
+    NODE_API_CALL(status, _env, napi_typeof(_env, _getJSObject(), &valuetype0));
     return (valuetype0 == napi_function);
 }
 
@@ -252,7 +259,7 @@ bool Object::defineFunction(const char* funcName, napi_callback func) {
     napi_value          fn;
     napi_status         status;
     NODE_API_CALL(status, _env, napi_create_function(_env, funcName, NAPI_AUTO_LENGTH, func, NULL, &fn));
-    NODE_API_CALL(status, _env, napi_set_named_property(_env, _objRef.getValue(_env), funcName, fn));
+    NODE_API_CALL(status, _env, napi_set_named_property(_env, _getJSObject(), funcName, fn));
     return true;
 }
 
@@ -261,7 +268,7 @@ bool Object::defineProperty(const char* name, napi_callback getter, napi_callbac
     napi_status              status;
     napi_property_descriptor properties[] = {{name, nullptr, nullptr, getter, setter, 0, napi_default, 0}};
     LOGI("get this :%p", this);
-    status = napi_define_properties(_env, _objRef.getValue(_env), sizeof(properties) / sizeof(napi_property_descriptor), properties);
+    status = napi_define_properties(_env, _getJSObject(), sizeof(properties) / sizeof(napi_property_descriptor), properties);
     if (status == napi_ok) {
         return true;
     }
@@ -317,7 +324,7 @@ bool Object::getAllKeys(std::vector<std::string>* allKeys) const {
     napi_status         status;
     napi_value          names;
 
-    NODE_API_CALL(status, _env, napi_get_property_names(_env, _objRef.getValue(_env), &names));
+    NODE_API_CALL(status, _env, napi_get_property_names(_env, _getJSObject(), &names));
     if (status != napi_ok) {
         return false;
     }
@@ -345,8 +352,14 @@ bool Object::init(napi_env env, napi_value js_object, Class* cls) {
     //assert(cls);
     _cls = cls;
     _env = env;
+#if USE_NODE_NAPI
+    napi_status status;
+    _rootCount = 0;
+    NODE_API_CALL(status, _env, napi_create_reference(_env, js_object, _rootCount, &_napiRefObj));
+    assert(_napiRefObj);
+#else
     _objRef.initWeakref(env, js_object);
-
+#endif
     if (__objectMap) {
         assert(__objectMap->find(this) == __objectMap->end());
         __objectMap->emplace(this, nullptr);
@@ -391,7 +404,7 @@ void Object::_setFinalizeCallback(napi_finalize finalizeCb) {
 
 void* Object::getPrivateData() const {
     void*       obj{nullptr};
-    napi_status status = napi_unwrap(_env, _objRef.getValue(_env), reinterpret_cast<void**>(&obj));
+    napi_status status = napi_unwrap(_env, _getJSObject(), reinterpret_cast<void**>(&obj));
     assert(status == napi_ok || status == napi_invalid_arg);
     return obj;
 }
@@ -405,11 +418,11 @@ void Object::setPrivateData(void* data) {
     _privateData = data;
 
     napi_valuetype valType;
-    NODE_API_CALL(status, ScriptEngine::getEnv(), napi_typeof(ScriptEngine::getEnv(), _objRef.getValue(_env), &valType));
+    NODE_API_CALL(status, ScriptEngine::getEnv(), napi_typeof(ScriptEngine::getEnv(), _getJSObject(), &valType));
     LOGI("this type is %d, native this:%p", valType, data);
 
     //issue https://github.com/nodejs/node/issues/23999
-    auto tmpThis = _objRef.getValue(_env);
+    auto tmpThis = _getJSObject();
     //_objRef.deleteRef();
     napi_ref result = nullptr;
     NODE_API_CALL(status, _env,
@@ -479,7 +492,7 @@ std::string Object::toString() const {
     napi_status         status;
     if (isFunction() || isArray() || isTypedArray()) {
         napi_value result;
-        NODE_API_CALL(status, _env, napi_coerce_to_string(_env, _objRef.getValue(_env), &result));
+        NODE_API_CALL(status, _env, napi_coerce_to_string(_env, _getJSObject(), &result));
         char   buffer[MAX_STRING_LEN];
         size_t result_t = 0;
         NODE_API_CALL(status, _env, napi_get_value_string_utf8(_env, result, buffer, MAX_STRING_LEN, &result_t));
@@ -492,6 +505,12 @@ std::string Object::toString() const {
     return ret;
 }
 
+#if USE_NODE_NAPI
+void Object::root() {
+    napi_status status;
+    NODE_API_CALL(status, _env, napi_reference_ref(_env, _napiRefObj, &_rootCount));
+}
+#else
 void Object::root() {
     //napi_status status;
     if (_rootCount == 0) {
@@ -501,16 +520,31 @@ void Object::root() {
     }
     ++_rootCount;
 }
+#endif
 
+#if USE_NODE_NAPI
+void Object::unroot() {
+    napi_status status;
+    #if CC_DEBUG
+    if (_rootCount == 0) {
+        SE_LOGD("Failed to unroot object %p which is not rooted before");
+        return;
+    }
+    #endif
+    NODE_API_CALL(status, _env, napi_reference_unref(_env, _napiRefObj, &_rootCount));
+}
+#else
 void Object::unroot() {
     //napi_status status;
     if (_rootCount > 0) {
         --_rootCount;
         if (_rootCount == 0) {
-            _objRef.decRef(_env);
+            _napiRefObj
+                _objRef.decRef(_env);
         }
     }
 }
+#endif
 
 bool Object::isRooted() const {
     return _rootCount > 0;
@@ -531,7 +565,25 @@ Object* Object::getObjectWithPtr(void* ptr) {
 }
 
 napi_value Object::_getJSObject() const {
+#if USE_NODE_NAPI
+    napi_status status;
+    napi_value  ret;
+    NODE_API_CALL(status, _env, napi_get_reference_value(_env, _napiRefObj, &ret));
+    return ret;
+#else
     return _objRef.getValue(_env);
+#endif
+}
+
+napi_value Object::_getJSObject() {
+#if USE_NODE_NAPI
+    napi_status status;
+    napi_value  ret;
+    NODE_API_CALL(status, _env, napi_get_reference_value(_env, _napiRefObj, &ret));
+    return ret;
+#else
+    return _objRef.getValue(_env);
+#endif
 }
 
 void Object::weakCallback(napi_env env, void* nativeObject, void* finalizeHint /*finalize_hint*/) {
@@ -613,5 +665,4 @@ Object* Object::createJSONObject(const std::string& jsonStr) {
     //not impl
     return nullptr;
 }
-
 } // namespace se
