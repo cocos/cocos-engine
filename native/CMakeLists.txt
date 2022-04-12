@@ -1971,13 +1971,13 @@ cocos_source_files(MODULE ccgeometry
 ##### script bindings
 ######## dop
 cocos_source_files(
-    NO_WERROR   NO_UBUILD   cocos/bindings/dop/BufferPool.cpp
+                NO_UBUILD   cocos/bindings/dop/BufferPool.cpp
                             cocos/bindings/dop/BufferPool.h
-    NO_WERROR   NO_UBUILD   cocos/bindings/dop/jsb_dop.cpp
+                NO_UBUILD   cocos/bindings/dop/jsb_dop.cpp
                             cocos/bindings/dop/jsb_dop.h
                             cocos/bindings/dop/PoolType.h
                             cocos/bindings/dop/BufferAllocator.h
-    NO_WERROR   NO_UBUILD   cocos/bindings/dop/BufferAllocator.cpp
+                NO_UBUILD   cocos/bindings/dop/BufferAllocator.cpp
 )
 
 ######## auto
@@ -2320,34 +2320,32 @@ endif()
 
 ######## manual
 cocos_source_files(
-    NO_WERROR    cocos/bindings/manual/jsb_classtype.cpp
-                 cocos/bindings/manual/jsb_classtype.h
-    #NO_WERROR   cocos/bindings/manual/jsb_extension_manual.cpp
-                 #cocos/bindings/manual/jsb_extension_manual.h
-    NO_WERROR    cocos/bindings/manual/jsb_cocos_manual.cpp
-                 cocos/bindings/manual/jsb_cocos_manual.h
-                 cocos/bindings/manual/jsb_conversions.h
-    NO_WERROR    cocos/bindings/manual/jsb_conversions_spec.cpp
-                 cocos/bindings/manual/jsb_conversions_spec.h
-    NO_WERROR    cocos/bindings/manual/jsb_gfx_manual.cpp
-                 cocos/bindings/manual/jsb_gfx_manual.h
-    NO_WERROR    cocos/bindings/manual/jsb_global.cpp
-                 cocos/bindings/manual/jsb_global.h
-    NO_WERROR    cocos/bindings/manual/jsb_helper.cpp
-                 cocos/bindings/manual/jsb_helper.h
-                 cocos/bindings/manual/jsb_module_register.h
-    NO_WERROR    cocos/bindings/manual/jsb_module_register.cpp
-                 cocos/bindings/manual/jsb_platform.h
-    NO_WERROR    cocos/bindings/manual/jsb_scene_manual.cpp
-                 cocos/bindings/manual/jsb_scene_manual.h
-    NO_WERROR    cocos/bindings/manual/jsb_assets_manual.cpp
-                 cocos/bindings/manual/jsb_assets_manual.h
-    NO_WERROR    cocos/bindings/manual/jsb_network_manual.cpp
-                 cocos/bindings/manual/jsb_network_manual.h
-    NO_WERROR    cocos/bindings/manual/jsb_xmlhttprequest.cpp
-                 cocos/bindings/manual/jsb_xmlhttprequest.h
-                 cocos/bindings/manual/jsb_pipeline_manual.h
-    NO_WERROR    cocos/bindings/manual/jsb_pipeline_manual.cpp
+            cocos/bindings/manual/jsb_classtype.cpp
+            cocos/bindings/manual/jsb_classtype.h
+            cocos/bindings/manual/jsb_cocos_manual.cpp
+            cocos/bindings/manual/jsb_cocos_manual.h
+            cocos/bindings/manual/jsb_conversions.h
+            cocos/bindings/manual/jsb_conversions_spec.cpp
+            cocos/bindings/manual/jsb_conversions_spec.h
+            cocos/bindings/manual/jsb_gfx_manual.cpp
+            cocos/bindings/manual/jsb_gfx_manual.h
+            cocos/bindings/manual/jsb_global.cpp
+            cocos/bindings/manual/jsb_global.h
+            cocos/bindings/manual/jsb_helper.cpp
+            cocos/bindings/manual/jsb_helper.h
+            cocos/bindings/manual/jsb_module_register.h
+            cocos/bindings/manual/jsb_module_register.cpp
+            cocos/bindings/manual/jsb_platform.h
+            cocos/bindings/manual/jsb_scene_manual.cpp
+            cocos/bindings/manual/jsb_scene_manual.h
+            cocos/bindings/manual/jsb_assets_manual.cpp
+            cocos/bindings/manual/jsb_assets_manual.h
+            cocos/bindings/manual/jsb_network_manual.cpp
+            cocos/bindings/manual/jsb_network_manual.h
+            cocos/bindings/manual/jsb_xmlhttprequest.cpp
+            cocos/bindings/manual/jsb_xmlhttprequest.h
+            cocos/bindings/manual/jsb_pipeline_manual.h
+            cocos/bindings/manual/jsb_pipeline_manual.cpp
 )
 
 if(USE_SOCKET)
