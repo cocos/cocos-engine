@@ -768,7 +768,7 @@ cocos_source_files(
 if(USE_SOCKET)
     cocos_source_files(
                      cocos/network/WebSocket.h
-        NO_WERROR    cocos/network/SocketIO.cpp
+                     cocos/network/SocketIO.cpp
                      cocos/network/SocketIO.h
     )
 endif()
@@ -776,7 +776,7 @@ endif()
 if(NOT IOS AND USE_WEBSOCKET_SERVER)
     cocos_source_files(
                      cocos/network/WebSocketServer.h
-        NO_WERROR    cocos/network/WebSocketServer.cpp
+                     cocos/network/WebSocketServer.cpp
     )
 endif()
 
@@ -2350,16 +2350,16 @@ cocos_source_files(
 
 if(USE_SOCKET)
     cocos_source_files(
-        NO_WERROR    cocos/bindings/manual/jsb_socketio.cpp
+                     cocos/bindings/manual/jsb_socketio.cpp
                      cocos/bindings/manual/jsb_socketio.h
-        NO_WERROR    cocos/bindings/manual/jsb_websocket.cpp
+                     cocos/bindings/manual/jsb_websocket.cpp
                      cocos/bindings/manual/jsb_websocket.h
     )
 endif()
 
 if(NOT IOS AND USE_WEBSOCKET_SERVER)
     cocos_source_files(
-        NO_WERROR    cocos/bindings/manual/jsb_websocket_server.cpp
+                     cocos/bindings/manual/jsb_websocket_server.cpp
                      cocos/bindings/manual/jsb_websocket_server.h
     )
 endif()
@@ -2412,10 +2412,10 @@ if(USE_SE_V8)
                      cocos/bindings/jswrapper/v8/Object.h
                      cocos/bindings/jswrapper/v8/ObjectWrap.cpp
                      cocos/bindings/jswrapper/v8/ObjectWrap.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/ScriptEngine.cpp
+                     cocos/bindings/jswrapper/v8/ScriptEngine.cpp
                      cocos/bindings/jswrapper/v8/ScriptEngine.h
                      cocos/bindings/jswrapper/v8/SeApi.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/Utils.cpp
+                     cocos/bindings/jswrapper/v8/Utils.cpp
                      cocos/bindings/jswrapper/v8/Utils.h
                      cocos/bindings/jswrapper/v8/MissingSymbols.cpp
                      cocos/bindings/jswrapper/v8/MissingSymbols.h
@@ -2510,7 +2510,7 @@ cocos_source_files(MODULE ccbindings
 )
 
 cocos_source_files(
-    NO_WERROR    cocos/bindings/manual/jsb_global_init.cpp
+                 cocos/bindings/manual/jsb_global_init.cpp
                  cocos/bindings/manual/jsb_global_init.h
 )
 
@@ -2634,13 +2634,13 @@ endif()
 ##### extensions
 
 cocos_source_files(
-    NO_WERROR    extensions/assets-manager/AssetsManagerEx.cpp
+                 extensions/assets-manager/AssetsManagerEx.cpp
                  extensions/assets-manager/AssetsManagerEx.h
-    NO_WERROR    extensions/assets-manager/AsyncTaskPool.cpp
+                 extensions/assets-manager/AsyncTaskPool.cpp
                  extensions/assets-manager/AsyncTaskPool.h
-    NO_WERROR    extensions/assets-manager/EventAssetsManagerEx.cpp
+                 extensions/assets-manager/EventAssetsManagerEx.cpp
                  extensions/assets-manager/EventAssetsManagerEx.h
-    NO_WERROR    extensions/assets-manager/Manifest.cpp
+                 extensions/assets-manager/Manifest.cpp
                  extensions/assets-manager/Manifest.h
                  extensions/cocos-ext.h
                  extensions/ExtensionExport.h
