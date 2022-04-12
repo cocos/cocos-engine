@@ -25,9 +25,11 @@
 
 #include <thread>
 
+#include "base/Log.h"
 #include "base/memory/Memory.h"
 #include "platform/android/AndroidPlatform.h"
 #include "platform/BasePlatform.h"
+#include "platform/java/jni/JniImp.h"
 #include "platform/java/jni/glue/JniNativeGlue.h"
 #include "platform/java/modules/Accelerometer.h"
 #include "platform/java/modules/Battery.h"
@@ -39,21 +41,17 @@
 #include "modules/System.h"
 #include "java/jni/log.h"
 #include "java/jni/JniHelper.h"
+#include "game-activity/native_app_glue/android_native_app_glue.h"
 
-#include "game-activity/GameActivity.cpp"
-#include "game-text-input/GameTextInput.cpp"
+
 #include "bindings/event/EventDispatcher.h"
-
-extern "C" {
-#include "game-activity/native_app_glue/android_native_app_glue.c"
-}
 
 #include "paddleboat/paddleboat.h"
 
 
-#define ABORT_GAME { ALOGE("*** GAME ABORTING."); *((volatile char*)0) = 'a'; }
+#define ABORT_GAME { CC_LOG_ERROR("*** GAME ABORTING."); *((volatile char*)0) = 'a'; }
 
-#define MY_ASSERT(cond) { if (!(cond)) { ALOGE("ASSERTION FAILED: %s", #cond); \
+#define MY_ASSERT(cond) { if (!(cond)) { CC_LOG_ERROR("ASSERTION FAILED: %s", #cond); \
    ABORT_GAME; } }
 
 #define INPUT_ACTION_COUNT 6
@@ -68,17 +66,17 @@ namespace cc {
     static uint32_t prevButtonsDown = 0;
 
     struct InputAction {
-        uint32_t buttonMask;
-        int32_t actionCode;
+        uint32_t buttonMask{0};
+        int32_t actionCode{-1};
     };
 
     static const InputAction PADDLEBOAT_ACTIONS[INPUT_ACTION_COUNT] = {
             {PADDLEBOAT_BUTTON_A,          static_cast<int>(KeyCode::ENTER)},
             {PADDLEBOAT_BUTTON_B,          static_cast<int>(KeyCode::ESCAPE)},
-            {PADDLEBOAT_BUTTON_DPAD_UP,    1003},
-            {PADDLEBOAT_BUTTON_DPAD_LEFT,  1000},
-            {PADDLEBOAT_BUTTON_DPAD_DOWN,  1004},
-            {PADDLEBOAT_BUTTON_DPAD_RIGHT, 1001}
+            {PADDLEBOAT_BUTTON_DPAD_UP,    static_cast<int>(KeyCode::DPAD_UP)},
+            {PADDLEBOAT_BUTTON_DPAD_LEFT,  static_cast<int>(KeyCode::DPAD_LEFT)},
+            {PADDLEBOAT_BUTTON_DPAD_DOWN,  static_cast<int>(KeyCode::DPAD_DOWN)},
+            {PADDLEBOAT_BUTTON_DPAD_RIGHT, static_cast<int>(KeyCode::DPAD_RIGHT)}
     };
     static bool keyState[INPUT_ACTION_COUNT] = {false};
 
@@ -91,7 +89,7 @@ namespace cc {
         explicit GameInputProxy(AndroidPlatform *platform) {
             _androidPlatform = platform;
             if (0 != platform->_app->activity->vm->AttachCurrentThread(&_jniEnv, nullptr)) {
-                LOGE("*** FATAL ERROR: Failed to attach thread to JNI.");
+                CC_LOG_FATAL("*** FATAL ERROR: Failed to attach thread to JNI.");
                 ABORT_GAME
             }
             MY_ASSERT(_jniEnv != nullptr)
@@ -116,9 +114,9 @@ namespace cc {
             Paddleboat_setControllerStatusCallback(nullptr, nullptr);
             Paddleboat_destroy(_jniEnv);
             if (_jniEnv) {
-                LOGI("Detaching current thread from JNI.");
+                CC_LOG_INFO("Detaching current thread from JNI.");
                 _androidPlatform->_app->activity->vm->DetachCurrentThread();
-                LOGI("Current thread detached from JNI.");
+                CC_LOG_INFO("Current thread detached from JNI.");
                 _jniEnv = nullptr;
             }
         }
@@ -265,6 +263,7 @@ namespace cc {
                     LOGD("NativeEngine: APP_CMD_SAVE_STATE");
                     break;
                 case APP_CMD_INIT_WINDOW: {
+                    _hasWindow = true;
                     // We have a window!
                     LOGD("NativeEngine: APP_CMD_INIT_WINDOW");
                     if (!_running) {
@@ -279,6 +278,7 @@ namespace cc {
                 }
                     break;
                 case APP_CMD_TERM_WINDOW: {
+                    _hasWindow = false;
                     // The window is going away -- kill the surface
                     LOGD("NativeEngine: APP_CMD_TERM_WINDOW");
                     cc::CustomEvent event;
@@ -307,7 +307,7 @@ namespace cc {
                 }
                     break;
                 case APP_CMD_STOP: {
-                    _androidPlatform->_isVisible = false;
+                    _isVisible = false;
                     Paddleboat_onStop(_jniEnv);
                     WindowEvent ev;
                     ev.type = WindowEvent::Type::HIDDEN;
@@ -315,7 +315,7 @@ namespace cc {
                 }
                     break;
                 case APP_CMD_START: {
-                    _androidPlatform->_isVisible = true;
+                    _isVisible = true;
                     Paddleboat_onStart(_jniEnv);
                     WindowEvent ev;
                     ev.type = WindowEvent::Type::SHOW;
@@ -358,11 +358,17 @@ namespace cc {
             }
         }
 
+        bool isAnimating() const {
+            return _isVisible && _hasWindow;
+        }
+
     private:
         AndroidPlatform *_androidPlatform{nullptr};
         JNIEnv *_jniEnv{nullptr};// JNI environment
         int32_t _gameControllerIndex{-1};// Most recently connected game controller index
         bool _running{false};
+        bool _isVisible{false};
+        bool _hasWindow{false};
     };
 
     static void handleCmdProxy(struct android_app *app, int32_t cmd) {
@@ -440,7 +446,7 @@ namespace cc {
             struct android_poll_source *source;
 
             // If not animating, block until we get an event; if animating, don't block.
-            while ((ALooper_pollAll(_isVisible ? 0 : -1, nullptr, &events, reinterpret_cast<void **>(&source))) >= 0) {
+            while ((ALooper_pollAll(_inputProxy->isAnimating() ? 0 : -1, nullptr, &events, reinterpret_cast<void **>(&source))) >= 0) {
 
                 // process event
                 if (source != nullptr) {
@@ -454,6 +460,11 @@ namespace cc {
             }
             _inputProxy->handleInput();
             runTask();
+
+            flushTasksOnGameThreadJNI();
+            if (_inputProxy->isAnimating()) {
+                flushTasksOnGameThreadAtForegroundJNI();
+            }
         }
     }
 

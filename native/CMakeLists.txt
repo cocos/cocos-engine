@@ -404,6 +404,7 @@ elseif(QNX)
     )
 elseif(ANDROID)
     cocos_source_files(
+        cocos/platform/android/GameActivityInclude.cpp
         cocos/platform/android/AndroidPlatform.cpp
         cocos/platform/android/AndroidPlatform.h
     )
@@ -875,9 +876,6 @@ if(WINDOWS)
 elseif(ANDROID)
     set(CC_JNI_SRC_FILES
         ${CWD}/cocos/platform/android/jni/JniCocosEntry.cpp
-        ${CWD}/cocos/platform/java/jni/JniCocosTouchHandler.cpp
-        ${CWD}/cocos/platform/java/jni/JniCocosKeyCodeHandler.cpp
-        ${CWD}/cocos/platform/android/jni/JniCocosSurfaceView.cpp
         ${CWD}/cocos/platform/java/jni/JniCocosOrientationHelper.cpp
         ${CWD}/cocos/platform/java/jni/JniHelper.cpp
         ${CWD}/cocos/platform/java/jni/JniHelper.h

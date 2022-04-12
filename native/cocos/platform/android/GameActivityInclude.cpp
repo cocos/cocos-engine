@@ -23,47 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#pragma once
 
-#include "platform/UniversalPlatform.h"
-
-struct android_app;
-
-namespace cc {
-    class GameInputProxy;
-
-    class CC_DLL AndroidPlatform : public UniversalPlatform {
-    public:
-        AndroidPlatform() = default;
-
-        ~AndroidPlatform() override;
-
-        int init() override;
-
-        void pollEvent() override;
-
-        int32_t run(int argc, const char **argv) override;
-
-        int getSdkVersion() const override;
-
-        int32_t loop() override;
-
-        void *getActivity();
-
-        static void *getEnv();
-
-        uintptr_t getWindowHandler() const;
-
-        int32_t getWidth() const;
-
-        int32_t getHeight() const;
-
-        void setAndroidApp(android_app *app);
-
-    private:
-        GameInputProxy *_inputProxy{nullptr};
-        android_app *_app{nullptr};
-
-        friend class GameInputProxy;
-    };
-} // namespace cc
+#include "game-activity/GameActivity.cpp"
+#include "game-text-input/GameTextInput.cpp"
+extern "C" {
+#include "game-activity/native_app_glue/android_native_app_glue.c"
+}
