@@ -85,8 +85,8 @@ void CCVKTexture::createTextureView() {
 void CCVKTexture::doDestroy() {
     if (_gpuTextureView) {
         CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuTextureView);
+        CCVKDevice::getInstance()->gpuRecycleBin()->collect(static_cast<void *>(_gpuTextureView));
         CCVKDevice::getInstance()->gpuDescriptorHub()->disengage(_gpuTextureView);
-        CC_DELETE(_gpuTextureView);
         _gpuTextureView = nullptr;
     }
 

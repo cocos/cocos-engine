@@ -1084,6 +1084,15 @@ public:
         _resources.resize(16);
     }
 
+    void collect(void *pointer) {
+        if (_resources.size() <= _count) {
+            _resources.resize(_count * 2);
+        }
+        Resource &res = _resources[_count++];
+        res.type      = RecycledType::POINTER;
+        res.pointer   = pointer;
+    }
+
     void collect(CCVKGPUTexture *gpuTexture) {
         if (_resources.size() <= _count) {
             _resources.resize(_count * 2);
@@ -1107,7 +1116,7 @@ public:
         if (_resources.size() <= _count) {
             _resources.resize(_count * 2);
         }
-        if (gpuTextureView->gpuTexture->swapchain) {
+        if (gpuTextureView->gpuTexture->swapchain && gpuTextureView->vkImageView == VK_NULL_HANDLE) {
             for (VkImageView swapchainVkImageView : gpuTextureView->swapchainVkImageViews) {
                 vkDestroyImageView(_device->vkDevice, swapchainVkImageView, nullptr);
             }
@@ -1120,7 +1129,7 @@ public:
     }
 
     void collect(CCVKGPUFramebuffer *gpuFramebuffer) {
-        if (gpuFramebuffer->swapchain) {
+        if (gpuFramebuffer->swapchain && gpuFramebuffer->vkFramebuffer == VK_NULL_HANDLE) {
             if (_device->swapchains.count(gpuFramebuffer->swapchain)) { // make sure the swapchain is still alive
                 auto &list = gpuFramebuffer->swapchain->vkSwapchainFramebufferListMap[gpuFramebuffer];
                 if (_resources.size() < _count + list.size()) {
@@ -1129,7 +1138,7 @@ public:
                 for (VkFramebuffer vkFramebuffer : list) {
                     Resource &res     = _resources[_count++];
                     res.type          = RecycledType::FRAMEBUFFER;
-                    res.vkFramebuffer = vkFramebuffer;
+                    res.vkFramebuffer = gpuFramebuffer->vkFramebuffer;
                 }
                 list.clear();
             }
@@ -1141,6 +1150,7 @@ public:
             res.type          = RecycledType::FRAMEBUFFER;
             res.vkFramebuffer = gpuFramebuffer->vkFramebuffer;
         }
+
     }
 
 #define DEFINE_RECYCLE_BIN_COLLECT_FN(_type, typeValue, expr)                  \
@@ -1167,6 +1177,7 @@ public:
 private:
     enum class RecycledType {
         UNKNOWN,
+        POINTER,
         BUFFER,
         TEXTURE,
         TEXTURE_VIEW,
@@ -1190,6 +1201,8 @@ private:
     struct Resource {
         RecycledType type = RecycledType::UNKNOWN;
         union {
+            void *pointer;
+
             // resizable resources, cannot take over directly
             // or descriptor sets won't work
             Buffer        buffer;

@@ -217,7 +217,6 @@ void cmdFuncCCVKCreateTextureView(CCVKDevice *device, CCVKGPUTextureView *gpuTex
     } else {
         return;
     }
-
     device->gpuDescriptorHub()->update(gpuTextureView);
 }
 
@@ -1466,6 +1465,9 @@ void CCVKGPURecycleBin::clear() {
     for (uint32_t i = 0U; i < _count; ++i) {
         Resource &res = _resources[i];
         switch (res.type) {
+            case RecycledType::POINTER:
+                CC_SAFE_DELETE(res.pointer);
+                break;
             case RecycledType::BUFFER:
                 if (res.buffer.vkBuffer) {
                     vmaDestroyBuffer(_device->memoryAllocator, res.buffer.vkBuffer, res.buffer.vmaAllocation);
@@ -1489,7 +1491,7 @@ void CCVKGPURecycleBin::clear() {
             case RecycledType::FRAMEBUFFER:
                 if (res.vkFramebuffer) {
                     vkDestroyFramebuffer(_device->vkDevice, res.vkFramebuffer, nullptr);
-                    res.vkFramebuffer = VK_NULL_HANDLE;
+                    res.vkFramebuffer  = VK_NULL_HANDLE;
                 }
                 break;
             case RecycledType::QUERY_POOL:
