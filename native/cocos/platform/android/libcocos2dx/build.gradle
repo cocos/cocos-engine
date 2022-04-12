@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion PROP_COMPILE_SDK_VERSION.toInteger()
-
+    ndkPath PROP_NDK_PATH
     defaultConfig {
         minSdkVersion PROP_MIN_SDK_VERSION
         targetSdkVersion PROP_TARGET_SDK_VERSION
@@ -28,8 +28,15 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    buildFeatures {
+        prefab true
+    }
 }
 
 dependencies {
+    implementation "androidx.games:games-activity:1.1.0"
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.core:core:1.5.0'
     implementation fileTree(include: ['*.jar'], dir: '../java/libs')
 }

@@ -874,8 +874,7 @@ if(WINDOWS)
     )
 elseif(ANDROID)
     set(CC_JNI_SRC_FILES
-        ${CWD}/cocos/platform/android/jni/JniCocosActivity.cpp
-        ${CWD}/cocos/platform/android/jni/JniCocosActivity.h
+        ${CWD}/cocos/platform/android/jni/JniCocosEntry.cpp
         ${CWD}/cocos/platform/java/jni/JniCocosTouchHandler.cpp
         ${CWD}/cocos/platform/java/jni/JniCocosKeyCodeHandler.cpp
         ${CWD}/cocos/platform/android/jni/JniCocosSurfaceView.cpp
@@ -884,8 +883,6 @@ elseif(ANDROID)
         ${CWD}/cocos/platform/java/jni/JniHelper.h
         ${CWD}/cocos/platform/java/jni/JniImp.cpp
         ${CWD}/cocos/platform/java/jni/JniImp.h
-        ${CWD}/cocos/platform/java/jni/glue/JniNativeGlue.cpp
-        ${CWD}/cocos/platform/java/jni/glue/JniNativeGlue.h
         ${CWD}/cocos/platform/java/jni/glue/MessagePipe.cpp
         ${CWD}/cocos/platform/java/jni/glue/MessagePipe.h
     )
@@ -2812,10 +2809,15 @@ if(ANDROID OR OHOS)
     )
     if(ANDROID)
         target_link_libraries(cocos_jni PUBLIC
+            game-activity::game-activity
             android_platform
             android
             log
         )
+        # Export GameActivity_onCreate(),
+        # Refer to: https://github.com/android-ndk/ndk/issues/381.
+        set(CMAKE_SHARED_LINKER_FLAGS
+                "${CMAKE_SHARED_LINKER_FLAGS} -u GameActivity_onCreate")
     endif()
 endif()
 
@@ -2859,7 +2861,7 @@ if(MSVC)
         ${CWD}/external/win64/libs/*.dll
         ${CWD}/external/win64/libs/msvcr/*.dll
     )
-    target_compile_options(${ENGINE_NAME} PUBLIC /MP 
+    target_compile_options(${ENGINE_NAME} PUBLIC /MP
         /bigobj
         /wd4018 # signed/unsigned mismatch
         /wd4244 # type conversion data lost
@@ -2965,8 +2967,12 @@ if(ANDROID)
 
     find_library(LIB_EGL NAMES EGL)
     find_library(LIB_GLESv2 NAMES GLESv2)
+    find_package(games-controller REQUIRED CONFIG)
+    find_package(game-activity REQUIRED CONFIG)
     target_link_libraries(${ENGINE_NAME} PUBLIC
         android
+        game-activity::game-activity
+        games-controller::paddleboat_static
         OpenSLES
         ${LIB_EGL}
         ${LIB_GLESv2}

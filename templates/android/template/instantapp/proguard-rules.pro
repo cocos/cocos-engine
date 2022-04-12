@@ -18,6 +18,8 @@
 
 # Proguard Cocos2d-x-lite for release
 -keep public class com.cocos.** { *; }
+-keep public class com.google.** { *; }
+-keep public class androidx.** { *; }
 -dontwarn com.cocos.**
 
 # Proguard Apache HTTP for release

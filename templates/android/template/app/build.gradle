@@ -86,9 +86,16 @@ android {
             // applicationIdSuffix ".debug"
         }
     }
+    buildFeatures {
+        prefab true
+    }
 }
 
 dependencies {
+    implementation "androidx.games:games-activity:1.1.0"
+    implementation "androidx.games:games-controller:1.1.0"
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.core:core:1.5.0'
     implementation fileTree(dir: '../libs', include: ['*.jar','*.aar'])
     implementation fileTree(dir: 'libs', include: ['*.jar','*.aar'])
     implementation fileTree(dir: "${COCOS_ENGINE_PATH}/cocos/platform/android/java/libs", include: ['*.jar'])
