@@ -29,6 +29,8 @@
 
 #pragma once
 
+#include <cstdint> // To include uint8_t, uint16_t and so on.
+
 #include <assert.h>
 #define CC_ASSERT(cond) assert(cond)
 
