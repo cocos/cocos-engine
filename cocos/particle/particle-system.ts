@@ -32,7 +32,7 @@
  */
 
 // eslint-disable-next-line max-len
-import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, inspector, boolean, visible } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, inspector, boolean, visible, slide, rangeStep } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { RenderableComponent } from '../core/components/renderable-component';
 import { Material } from '../core/assets/material';
@@ -318,6 +318,160 @@ export class ParticleSystem extends RenderableComponent {
     @displayOrder(16)
     @tooltip('i18n:particle_system.bursts')
     public bursts: Burst[] = [];
+
+    @type(Boolean)
+    @displayOrder(16)
+    get useNoise () {
+        return this._useNoise;
+    }
+    set useNoise (value: boolean) {
+        this._useNoise = value;
+        if (this.processor) {
+            this.processor.updateMaterialParams();
+        }
+    }
+    @serializable
+    private _useNoise = false;
+
+    @type(Boolean)
+    @displayOrder(16)
+    get noiseX () {
+        return this._noiseX;
+    }
+    set noiseX (value: boolean) {
+        this._noiseX = value;
+        if (this.processor) {
+            this.processor.updateMaterialParams();
+        }
+    }
+    @serializable
+    private _noiseX = false;
+
+    @type(Boolean)
+    @displayOrder(16)
+    get noiseY () {
+        return this._noiseY;
+    }
+    set noiseY (value: boolean) {
+        this._noiseY = value;
+        if (this.processor) {
+            this.processor.updateMaterialParams();
+        }
+    }
+    @serializable
+    private _noiseY = false;
+
+    @type(Boolean)
+    @displayOrder(16)
+    get noiseZ () {
+        return this._noiseZ;
+    }
+    set noiseZ (value: boolean) {
+        this._noiseZ = value;
+        if (this.processor) {
+            this.processor.updateMaterialParams();
+        }
+    }
+    @serializable
+    private _noiseZ = false;
+
+    @type(Number)
+    @range([0, 100])
+    @slide
+    @displayOrder(16)
+    get noiseSpeedX () {
+        return this._noiseSpeedX;
+    }
+    set noiseSpeedX (value: number) {
+        this._noiseSpeedX = value;
+        if (this.processor) {
+            this.processor.updateMaterialParams();
+        }
+    }
+    @serializable
+    private _noiseSpeedX = 0;
+
+    @type(Number)
+    @range([0, 100])
+    @displayOrder(16)
+    @slide
+    get noiseSpeedY () {
+        return this._noiseSpeedY;
+    }
+    set noiseSpeedY (value: number) {
+        this._noiseSpeedY = value;
+        if (this.processor) {
+            this.processor.updateMaterialParams();
+        }
+    }
+    @serializable
+    private _noiseSpeedY = 0;
+
+    @type(Number)
+    @range([0, 100])
+    @displayOrder(16)
+    @slide
+    get noiseSpeedZ () {
+        return this._noiseSpeedZ;
+    }
+    set noiseSpeedZ (value: number) {
+        this._noiseSpeedZ = value;
+        if (this.processor) {
+            this.processor.updateMaterialParams();
+        }
+    }
+    @serializable
+    private _noiseSpeedZ = 0;
+
+    @type(Number)
+    @range([0, 1])
+    @rangeStep(0.1)
+    @displayOrder(16)
+    @slide
+    get noiseFrequency () {
+        return this._noiseFrequency;
+    }
+    set noiseFrequency (value: number) {
+        this._noiseFrequency = value;
+        if (this.processor) {
+            this.processor.updateMaterialParams();
+        }
+    }
+    @serializable
+    private _noiseFrequency = 0;
+
+    @type(Number)
+    @range([0, 1])
+    @rangeStep(0.1)
+    @displayOrder(16)
+    @slide
+    get noiseAbs () {
+        return this._noiseAbs;
+    }
+    set noiseAbs (value: number) {
+        this._noiseAbs = value;
+        if (this.processor) {
+            this.processor.updateMaterialParams();
+        }
+    }
+    @serializable
+    private _noiseAbs = 0;
+
+    @type(Number)
+    @range([0, 10])
+    @displayOrder(16)
+    @slide
+    get noiseAmplitude () {
+        return this._noiseAmplitude;
+    }
+    set noiseAmplitude (value: number) {
+        this._noiseAmplitude = value;
+        if (this.processor) {
+            this.processor.updateMaterialParams();
+        }
+    }
+    @serializable
+    private _noiseAmplitude = 0;
 
     /**
      * @en Enable particle culling switch. Open it to enable particle culling. If enabled will generate emitter bounding box and emitters outside the frustum will be culled.

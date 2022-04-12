@@ -35,6 +35,10 @@ vec4 lpvs_main () {
     #endif
   #endif
 
+  #if CC_USE_NOISE
+    pos.xyz += getNoiseParticle(pos.xyz, uNoiseParams.w, uNoiseSpeed.xyz, uNoiseParams.x, uNoiseParams.y, uNoiseParams.z);
+  #endif
+
   #pragma define INDENTIFY_NEG_QUAT 10.0
 
   #if ROTATION_OVER_TIME_MODULE_ENABLE

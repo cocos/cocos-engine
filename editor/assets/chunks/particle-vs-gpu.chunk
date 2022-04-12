@@ -299,6 +299,10 @@ vec4 gpvs_main () {
     color = a_color;
   #endif
 
+  #if CC_USE_NOISE
+    pos.xyz += getNoiseParticle(pos.xyz, uNoiseParams.w, uNoiseSpeed.xyz, uNoiseParams.x, uNoiseParams.y, uNoiseParams.z);
+  #endif
+
   #if CC_RENDER_MODE != RENDER_MODE_MESH
     vec2 cornerOffset = vec2((vertIdx - 0.5));
 

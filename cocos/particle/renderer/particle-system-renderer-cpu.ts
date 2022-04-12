@@ -122,6 +122,10 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _uLenHandle = 0;
     private _uNodeRotHandle = 0;
     private _alignSpace = AlignmentSpace.View;
+    private _uNoiseSpeedHnd = 0;
+    private _uNoiseParamsHnd = 0;
+    private _noiseSpeed: Vec4 = new Vec4();
+    private _noiseParams: Vec4 = new Vec4();
     private _inited = false;
     private _localMat: Mat4 = new Mat4();
     private _gravity: Vec4 = new Vec4();
@@ -562,6 +566,19 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         const roationModule = this._particleSystem._rotationOvertimeModule;
         enable = roationModule && roationModule.enable;
         this._defines[ROTATION_OVER_TIME_MODULE_ENABLE] = enable;
+
+        this._uNoiseSpeedHnd = pass.getHandle('uNoiseSpeed');
+        this._uNoiseParamsHnd = pass.getHandle('uNoiseParams');
+        if (ps.useNoise) {
+            this._noiseSpeed.set(ps.noiseSpeedX, ps.noiseSpeedY, ps.noiseSpeedZ);
+            pass.setUniform(this._uNoiseSpeedHnd, this._noiseSpeed);
+            this._noiseParams.set(ps.noiseFrequency, ps.noiseAbs, ps.noiseAmplitude, ps.time);
+            pass.setUniform(this._uNoiseParamsHnd, this._noiseParams);
+        }
+        this._defines['CC_USE_NOISE'] = ps.useNoise;
+        this._defines['CC_NOISE_X'] = ps.noiseX;
+        this._defines['CC_NOISE_Y'] = ps.noiseY;
+        this._defines['CC_NOISE_Z'] = ps.noiseZ;
 
         mat.recompileShaders(this._defines);
         if (this._model) {
