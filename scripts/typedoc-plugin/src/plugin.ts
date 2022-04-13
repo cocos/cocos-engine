@@ -253,6 +253,15 @@ export function load (app: Application) {
             }
         }
 
+        if (comment.tags) {
+            for (const tag of comment.tags) {
+                const text = handleText(tag.text);
+                if (text) {
+                    tag.text = text;
+                }
+            }
+        }
+
         function handleText (text: string) {
             if (!text) {
                 return '';
