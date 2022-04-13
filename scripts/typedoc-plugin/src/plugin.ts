@@ -257,8 +257,8 @@ export function load (app: Application) {
             if (!text) {
                 return '';
             }
-            const matches = text.matchAll(/\[\[`?([\w.]+)`?\]\]/g);
-            const replaces: Array<{ index: number; length: number; reflection: Reflection }> = [];
+            const matches = text.matchAll(/\[\[`?([\w.]+)`?(?:\s*\|(.*))?\]\]/g);
+            const replaces: Array<{ index: number; length: number; reflection: Reflection; linkText?: string; }> = [];
             for (const match of matches) {
                 const full = match[0];
                 const startsWithQuote = full.startsWith('[[`');
@@ -310,6 +310,7 @@ export function load (app: Application) {
                     index: matchIndex,
                     length: match[0].length,
                     reflection: targetReflection,
+                    linkText: match[2]?.trim(),
                 });
             }
 
@@ -319,9 +320,9 @@ export function load (app: Application) {
 
             let finalText = '';
             let iLast = 0;
-            for (const { index, length, reflection } of replaces) {
+            for (const { index, length, reflection, linkText } of replaces) {
                 finalText += text.substring(iLast, index);
-                finalText += `[[${reflection.id}]]`;
+                finalText += `[[${reflection.id}${linkText ? ` | ${linkText}` : ''}]]`;
                 iLast = index + length;
             }
             if (iLast !== text.length) {

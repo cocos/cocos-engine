@@ -775,7 +775,7 @@ Property [[10]] Method: [[11]]
             Object {
               "character": 11,
               "fileName": "foo.ts",
-              "line": 6,
+              "line": 8,
             },
           ],
           "type": Object {
@@ -787,6 +787,8 @@ Property [[10]] Method: [[11]]
       ],
       "comment": Object {
         "shortText": "Test quoted [[1]]",
+        "text": "Test link text [[1 | How are you]]
+",
       },
       "decorates": undefined,
       "decorators": undefined,
@@ -825,7 +827,7 @@ Property [[10]] Method: [[11]]
         Object {
           "character": 13,
           "fileName": "foo.ts",
-          "line": 5,
+          "line": 7,
         },
       ],
       "type": undefined,
