@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { Application, Converter, Context, Reflection, Comment, CommentTag, SerializerComponent, ReflectionKind, SignatureReflection, ProjectReflection, ContainerReflection, DeclarationReflection } from 'typedoc';
+import { Application, Converter, Context, Reflection, Comment, CommentTag, SerializerComponent, ReflectionKind, SignatureReflection, ProjectReflection, ContainerReflection, DeclarationReflection, ParameterReflection } from 'typedoc';
 import ts from 'typescript';
 import fs from 'fs-extra';
 import ps from 'path';
@@ -220,9 +220,6 @@ export function load (app: Application) {
         } else if (reflection instanceof SignatureReflection) {
             declarationReflection = reflection.parent;
         }
-        if (!declarationReflection) {
-            return;
-        }
 
         // The container reflection of this reflection if it's subjected to "search in container first":
         // classes, interface, enumeration
@@ -231,12 +228,14 @@ export function load (app: Application) {
             || declarationReflection.kind === ReflectionKind.Enum
             || declarationReflection.kind === ReflectionKind.Interface;
         let containerSearchReflection: Reflection | null = null;
-        if (isSubjectedToContainerSearch(declarationReflection)) {
-            containerSearchReflection = reflection;
-        } else if (declarationReflection.parent
-            && declarationReflection.parent instanceof DeclarationReflection
-            && isSubjectedToContainerSearch(declarationReflection.parent)) {
-            containerSearchReflection = declarationReflection.parent;
+        if (declarationReflection) {
+            if (isSubjectedToContainerSearch(declarationReflection)) {
+                containerSearchReflection = reflection;
+            } else if (declarationReflection.parent
+                && declarationReflection.parent instanceof DeclarationReflection
+                && isSubjectedToContainerSearch(declarationReflection.parent)) {
+                containerSearchReflection = declarationReflection.parent;
+            }
         }
 
         {

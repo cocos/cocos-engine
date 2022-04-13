@@ -16,7 +16,7 @@ Object {
       "extendedTypes": undefined,
       "flags": Object {},
       "groups": undefined,
-      "id": 27,
+      "id": 30,
       "implementationOf": undefined,
       "implementedBy": undefined,
       "implementedTypes": undefined,
@@ -51,7 +51,7 @@ Object {
           "extendedTypes": undefined,
           "flags": Object {},
           "groups": undefined,
-          "id": 25,
+          "id": 28,
           "implementationOf": undefined,
           "implementedBy": undefined,
           "implementedTypes": undefined,
@@ -67,7 +67,7 @@ Object {
               "decorates": undefined,
               "decorators": undefined,
               "flags": Object {},
-              "id": 26,
+              "id": 29,
               "implementationOf": undefined,
               "inheritedFrom": undefined,
               "kind": 4096,
@@ -98,15 +98,15 @@ Object {
         "text": "Short text
 Class [[1]] Class [[1]]
 ClassMember [[4]]
-Enumeration [[18]]
-EnumMember [[19]]
-Variable [[28]]
-Function [[5]]
-Namespace [[24]]
-NamespaceMember [[25]]
-Interface [[21]]
-TypeAlias [[23]]
-NamespaceOverriddenByMember [[27]]
+Enumeration [[21]]
+EnumMember [[22]]
+Variable [[31]]
+Function [[8]]
+Namespace [[27]]
+NamespaceMember [[28]]
+Interface [[24]]
+TypeAlias [[26]]
+NamespaceOverriddenByMember [[30]]
 ",
       },
       "decorates": undefined,
@@ -118,13 +118,13 @@ NamespaceOverriddenByMember [[27]]
       "groups": Array [
         Object {
           "children": Array [
-            25,
+            28,
           ],
           "kind": 64,
           "title": "Functions",
         },
       ],
-      "id": 24,
+      "id": 27,
       "implementationOf": undefined,
       "implementedBy": undefined,
       "implementedTypes": undefined,
@@ -159,7 +159,7 @@ NamespaceOverriddenByMember [[27]]
           "extendedTypes": undefined,
           "flags": Object {},
           "groups": undefined,
-          "id": 20,
+          "id": 23,
           "implementationOf": undefined,
           "implementedBy": undefined,
           "implementedTypes": undefined,
@@ -188,17 +188,17 @@ NamespaceOverriddenByMember [[27]]
             "text": "Short text
 Class [[1]] Class [[1]]
 ClassMember [[4]]
-Enumeration [[18]]
-EnumMember [[19]]
-Variable [[28]]
-Function [[5]]
-Namespace [[24]]
-NamespaceMember [[25]]
-Interface [[21]]
-TypeAlias [[23]]
-NamespaceOverriddenByMember [[27]]
+Enumeration [[21]]
+EnumMember [[22]]
+Variable [[31]]
+Function [[8]]
+Namespace [[27]]
+NamespaceMember [[28]]
+Interface [[24]]
+TypeAlias [[26]]
+NamespaceOverriddenByMember [[30]]
 
-SelfMember [[19]]
+SelfMember [[22]]
 ",
           },
           "decorates": undefined,
@@ -208,7 +208,7 @@ SelfMember [[19]]
           "extendedTypes": undefined,
           "flags": Object {},
           "groups": undefined,
-          "id": 19,
+          "id": 22,
           "implementationOf": undefined,
           "implementedBy": undefined,
           "implementedTypes": undefined,
@@ -235,17 +235,17 @@ SelfMember [[19]]
         "text": "Short text
 Class [[1]] Class [[1]]
 ClassMember [[4]]
-Enumeration [[18]]
-EnumMember [[19]]
-Variable [[28]]
-Function [[5]]
-Namespace [[24]]
-NamespaceMember [[25]]
-Interface [[21]]
-TypeAlias [[23]]
-NamespaceOverriddenByMember [[27]]
+Enumeration [[21]]
+EnumMember [[22]]
+Variable [[31]]
+Function [[8]]
+Namespace [[27]]
+NamespaceMember [[28]]
+Interface [[24]]
+TypeAlias [[26]]
+NamespaceOverriddenByMember [[30]]
 
-SelfMember [[19]]
+SelfMember [[22]]
 ",
       },
       "decorates": undefined,
@@ -257,14 +257,14 @@ SelfMember [[19]]
       "groups": Array [
         Object {
           "children": Array [
-            20,
-            19,
+            23,
+            22,
           ],
           "kind": 16,
           "title": "Enumeration members",
         },
       ],
-      "id": 18,
+      "id": 21,
       "implementationOf": undefined,
       "implementedBy": undefined,
       "implementedTypes": undefined,
@@ -299,7 +299,7 @@ SelfMember [[19]]
           "extendedTypes": undefined,
           "flags": Object {},
           "groups": undefined,
-          "id": 8,
+          "id": 11,
           "implementationOf": undefined,
           "implementedBy": undefined,
           "implementedTypes": undefined,
@@ -315,7 +315,7 @@ SelfMember [[19]]
               "decorates": undefined,
               "decorators": undefined,
               "flags": Object {},
-              "id": 9,
+              "id": 12,
               "implementationOf": undefined,
               "inheritedFrom": undefined,
               "kind": 16384,
@@ -324,7 +324,7 @@ SelfMember [[19]]
               "overwrites": undefined,
               "parameters": undefined,
               "type": Object {
-                "id": 7,
+                "id": 10,
                 "name": "Bar",
                 "type": "reference",
               },
@@ -346,7 +346,7 @@ SelfMember [[19]]
           "extendedTypes": undefined,
           "flags": Object {},
           "groups": undefined,
-          "id": 17,
+          "id": 20,
           "implementationOf": undefined,
           "implementedBy": undefined,
           "implementedTypes": undefined,
@@ -378,18 +378,18 @@ SelfMember [[19]]
             "text": "Short text
 Class [[1]] Class [[1]]
 ClassMember [[4]]
-Enumeration [[18]]
-EnumMember [[19]]
-Variable [[28]]
-Function [[5]]
-Namespace [[24]]
-NamespaceMember [[25]]
-Interface [[21]]
-TypeAlias [[23]]
-NamespaceOverriddenByMember [[17]]
+Enumeration [[21]]
+EnumMember [[22]]
+Variable [[31]]
+Function [[8]]
+Namespace [[27]]
+NamespaceMember [[28]]
+Interface [[24]]
+TypeAlias [[26]]
+NamespaceOverriddenByMember [[20]]
 
 Text
-Property [[10]] Method: [[11]]
+Property [[13]] Method: [[14]]
 ",
           },
           "decorates": undefined,
@@ -399,7 +399,7 @@ Property [[10]] Method: [[11]]
           "extendedTypes": undefined,
           "flags": Object {},
           "groups": undefined,
-          "id": 10,
+          "id": 13,
           "implementationOf": undefined,
           "implementedBy": undefined,
           "implementedTypes": undefined,
@@ -440,24 +440,24 @@ Property [[10]] Method: [[11]]
                 "text": "Short text
 Class [[1]] Class [[1]]
 ClassMember [[4]]
-Enumeration [[18]]
-EnumMember [[19]]
-Variable [[28]]
-Function [[5]]
-Namespace [[24]]
-NamespaceMember [[25]]
-Interface [[21]]
-TypeAlias [[23]]
-NamespaceOverriddenByMember [[17]]
+Enumeration [[21]]
+EnumMember [[22]]
+Variable [[31]]
+Function [[8]]
+Namespace [[27]]
+NamespaceMember [[28]]
+Interface [[24]]
+TypeAlias [[26]]
+NamespaceOverriddenByMember [[20]]
 
 Text
-Property [[10]] Method: [[11]]
+Property [[13]] Method: [[14]]
 ",
               },
               "decorates": undefined,
               "decorators": undefined,
               "flags": Object {},
-              "id": 14,
+              "id": 17,
               "implementationOf": undefined,
               "inheritedFrom": undefined,
               "kind": 524288,
@@ -473,7 +473,7 @@ Property [[10]] Method: [[11]]
             },
           ],
           "groups": undefined,
-          "id": 13,
+          "id": 16,
           "implementationOf": undefined,
           "implementedBy": undefined,
           "implementedTypes": undefined,
@@ -490,24 +490,24 @@ Property [[10]] Method: [[11]]
                 "text": "Short text
 Class [[1]] Class [[1]]
 ClassMember [[4]]
-Enumeration [[18]]
-EnumMember [[19]]
-Variable [[28]]
-Function [[5]]
-Namespace [[24]]
-NamespaceMember [[25]]
-Interface [[21]]
-TypeAlias [[23]]
-NamespaceOverriddenByMember [[17]]
+Enumeration [[21]]
+EnumMember [[22]]
+Variable [[31]]
+Function [[8]]
+Namespace [[27]]
+NamespaceMember [[28]]
+Interface [[24]]
+TypeAlias [[26]]
+NamespaceOverriddenByMember [[20]]
 
 Text
-Property [[10]] Method: [[11]]
+Property [[13]] Method: [[14]]
 ",
               },
               "decorates": undefined,
               "decorators": undefined,
               "flags": Object {},
-              "id": 15,
+              "id": 18,
               "implementationOf": undefined,
               "inheritedFrom": undefined,
               "kind": 1048576,
@@ -521,7 +521,7 @@ Property [[10]] Method: [[11]]
                   "decorators": undefined,
                   "defaultValue": undefined,
                   "flags": Object {},
-                  "id": 16,
+                  "id": 19,
                   "kind": 32768,
                   "kindString": "Parameter",
                   "name": "v",
@@ -560,7 +560,7 @@ Property [[10]] Method: [[11]]
           "extendedTypes": undefined,
           "flags": Object {},
           "groups": undefined,
-          "id": 11,
+          "id": 14,
           "implementationOf": undefined,
           "implementedBy": undefined,
           "implementedTypes": undefined,
@@ -577,24 +577,24 @@ Property [[10]] Method: [[11]]
                 "text": "Short text
 Class [[1]] Class [[1]]
 ClassMember [[4]]
-Enumeration [[18]]
-EnumMember [[19]]
-Variable [[28]]
-Function [[5]]
-Namespace [[24]]
-NamespaceMember [[25]]
-Interface [[21]]
-TypeAlias [[23]]
-NamespaceOverriddenByMember [[17]]
+Enumeration [[21]]
+EnumMember [[22]]
+Variable [[31]]
+Function [[8]]
+Namespace [[27]]
+NamespaceMember [[28]]
+Interface [[24]]
+TypeAlias [[26]]
+NamespaceOverriddenByMember [[20]]
 
 Text
-Property [[10]] Method: [[11]]
+Property [[13]] Method: [[14]]
 ",
               },
               "decorates": undefined,
               "decorators": undefined,
               "flags": Object {},
-              "id": 12,
+              "id": 15,
               "implementationOf": undefined,
               "inheritedFrom": undefined,
               "kind": 4096,
@@ -625,18 +625,18 @@ Property [[10]] Method: [[11]]
         "text": "Short text
 Class [[1]] Class [[1]]
 ClassMember [[4]]
-Enumeration [[18]]
-EnumMember [[19]]
-Variable [[28]]
-Function [[5]]
-Namespace [[24]]
-NamespaceMember [[25]]
-Interface [[21]]
-TypeAlias [[23]]
-NamespaceOverriddenByMember [[17]]
+Enumeration [[21]]
+EnumMember [[22]]
+Variable [[31]]
+Function [[8]]
+Namespace [[27]]
+NamespaceMember [[28]]
+Interface [[24]]
+TypeAlias [[26]]
+NamespaceOverriddenByMember [[20]]
 
 Text
-Property [[10]] Method: [[11]]
+Property [[13]] Method: [[14]]
 ",
       },
       "decorates": undefined,
@@ -648,35 +648,35 @@ Property [[10]] Method: [[11]]
       "groups": Array [
         Object {
           "children": Array [
-            8,
+            11,
           ],
           "kind": 512,
           "title": "Constructors",
         },
         Object {
           "children": Array [
-            17,
-            10,
+            20,
+            13,
           ],
           "kind": 1024,
           "title": "Properties",
         },
         Object {
           "children": Array [
-            13,
+            16,
           ],
           "kind": 262144,
           "title": "Accessors",
         },
         Object {
           "children": Array [
-            11,
+            14,
           ],
           "kind": 2048,
           "title": "Methods",
         },
       ],
-      "id": 7,
+      "id": 10,
       "implementationOf": undefined,
       "implementedBy": undefined,
       "implementedTypes": undefined,
@@ -784,6 +784,79 @@ Property [[10]] Method: [[11]]
           },
           "typeParameter": undefined,
         },
+        Object {
+          "categories": undefined,
+          "children": undefined,
+          "comment": undefined,
+          "decorates": undefined,
+          "decorators": undefined,
+          "defaultValue": undefined,
+          "extendedBy": undefined,
+          "extendedTypes": undefined,
+          "flags": Object {
+            "isPublic": true,
+          },
+          "groups": undefined,
+          "id": 5,
+          "implementationOf": undefined,
+          "implementedBy": undefined,
+          "implementedTypes": undefined,
+          "indexSignature": undefined,
+          "inheritedFrom": undefined,
+          "kind": 2048,
+          "kindString": "Method",
+          "name": "m",
+          "overwrites": undefined,
+          "signatures": Array [
+            Object {
+              "comment": Object {},
+              "decorates": undefined,
+              "decorators": undefined,
+              "flags": Object {},
+              "id": 6,
+              "implementationOf": undefined,
+              "inheritedFrom": undefined,
+              "kind": 4096,
+              "kindString": "Call signature",
+              "name": "m",
+              "overwrites": undefined,
+              "parameters": Array [
+                Object {
+                  "comment": Object {
+                    "shortText": "Test param [[1]]
+",
+                  },
+                  "decorates": undefined,
+                  "decorators": undefined,
+                  "defaultValue": undefined,
+                  "flags": Object {},
+                  "id": 7,
+                  "kind": 32768,
+                  "kindString": "Parameter",
+                  "name": "p",
+                  "type": Object {
+                    "name": "number",
+                    "type": "intrinsic",
+                  },
+                },
+              ],
+              "type": Object {
+                "name": "void",
+                "type": "intrinsic",
+              },
+              "typeParameter": undefined,
+            },
+          ],
+          "sources": Array [
+            Object {
+              "character": 11,
+              "fileName": "foo.ts",
+              "line": 16,
+            },
+          ],
+          "type": undefined,
+          "typeParameter": undefined,
+        },
       ],
       "comment": Object {
         "shortText": "Test quoted [[1]]",
@@ -818,6 +891,13 @@ Property [[10]] Method: [[11]]
           "kind": 1024,
           "title": "Properties",
         },
+        Object {
+          "children": Array [
+            5,
+          ],
+          "kind": 2048,
+          "title": "Methods",
+        },
       ],
       "id": 1,
       "implementationOf": undefined,
@@ -851,17 +931,17 @@ Property [[10]] Method: [[11]]
             "text": "Short text
 Class [[1]] Class [[1]]
 ClassMember [[4]]
-Enumeration [[18]]
-EnumMember [[19]]
-Variable [[28]]
-Function [[5]]
-Namespace [[24]]
-NamespaceMember [[25]]
-Interface [[21]]
-TypeAlias [[23]]
-NamespaceOverriddenByMember [[27]]
+Enumeration [[21]]
+EnumMember [[22]]
+Variable [[31]]
+Function [[8]]
+Namespace [[27]]
+NamespaceMember [[28]]
+Interface [[24]]
+TypeAlias [[26]]
+NamespaceOverriddenByMember [[30]]
 
-SelfMember [[22]]
+SelfMember [[25]]
 ",
           },
           "decorates": undefined,
@@ -871,7 +951,7 @@ SelfMember [[22]]
           "extendedTypes": undefined,
           "flags": Object {},
           "groups": undefined,
-          "id": 22,
+          "id": 25,
           "implementationOf": undefined,
           "implementedBy": undefined,
           "implementedTypes": undefined,
@@ -901,17 +981,17 @@ SelfMember [[22]]
         "text": "Short text
 Class [[1]] Class [[1]]
 ClassMember [[4]]
-Enumeration [[18]]
-EnumMember [[19]]
-Variable [[28]]
-Function [[5]]
-Namespace [[24]]
-NamespaceMember [[25]]
-Interface [[21]]
-TypeAlias [[23]]
-NamespaceOverriddenByMember [[27]]
+Enumeration [[21]]
+EnumMember [[22]]
+Variable [[31]]
+Function [[8]]
+Namespace [[27]]
+NamespaceMember [[28]]
+Interface [[24]]
+TypeAlias [[26]]
+NamespaceOverriddenByMember [[30]]
 
-SelfMember [[22]]
+SelfMember [[25]]
 ",
       },
       "decorates": undefined,
@@ -923,13 +1003,13 @@ SelfMember [[22]]
       "groups": Array [
         Object {
           "children": Array [
-            22,
+            25,
           ],
           "kind": 1024,
           "title": "Properties",
         },
       ],
-      "id": 21,
+      "id": 24,
       "implementationOf": undefined,
       "implementedBy": undefined,
       "implementedTypes": undefined,
@@ -958,15 +1038,15 @@ SelfMember [[22]]
         "text": "Short text
 Class [[1]] Class [[1]]
 ClassMember [[4]]
-Enumeration [[18]]
-EnumMember [[19]]
-Variable [[28]]
-Function [[5]]
-Namespace [[24]]
-NamespaceMember [[25]]
-Interface [[21]]
-TypeAlias [[23]]
-NamespaceOverriddenByMember [[27]]
+Enumeration [[21]]
+EnumMember [[22]]
+Variable [[31]]
+Function [[8]]
+Namespace [[27]]
+NamespaceMember [[28]]
+Interface [[24]]
+TypeAlias [[26]]
+NamespaceOverriddenByMember [[30]]
 ",
       },
       "decorates": undefined,
@@ -976,7 +1056,7 @@ NamespaceOverriddenByMember [[27]]
       "extendedTypes": undefined,
       "flags": Object {},
       "groups": undefined,
-      "id": 23,
+      "id": 26,
       "implementationOf": undefined,
       "implementedBy": undefined,
       "implementedTypes": undefined,
@@ -1008,15 +1088,15 @@ NamespaceOverriddenByMember [[27]]
         "text": "Short text
 Class [[1]] Class [[1]]
 ClassMember [[4]]
-Enumeration [[18]]
-EnumMember [[19]]
-Variable [[28]]
-Function [[5]]
-Namespace [[24]]
-NamespaceMember [[25]]
-Interface [[21]]
-TypeAlias [[23]]
-NamespaceOverriddenByMember [[27]]
+Enumeration [[21]]
+EnumMember [[22]]
+Variable [[31]]
+Function [[8]]
+Namespace [[27]]
+NamespaceMember [[28]]
+Interface [[24]]
+TypeAlias [[26]]
+NamespaceOverriddenByMember [[30]]
 ",
       },
       "decorates": undefined,
@@ -1028,7 +1108,7 @@ NamespaceOverriddenByMember [[27]]
         "isConst": true,
       },
       "groups": undefined,
-      "id": 28,
+      "id": 31,
       "implementationOf": undefined,
       "implementedBy": undefined,
       "implementedTypes": undefined,
@@ -1063,7 +1143,7 @@ NamespaceOverriddenByMember [[27]]
       "extendedTypes": undefined,
       "flags": Object {},
       "groups": undefined,
-      "id": 5,
+      "id": 8,
       "implementationOf": undefined,
       "implementedBy": undefined,
       "implementedTypes": undefined,
@@ -1080,21 +1160,21 @@ NamespaceOverriddenByMember [[27]]
             "text": "Short text
 Class [[1]] Class [[1]]
 ClassMember [[4]]
-Enumeration [[18]]
-EnumMember [[19]]
-Variable [[28]]
-Function [[5]]
-Namespace [[24]]
-NamespaceMember [[25]]
-Interface [[21]]
-TypeAlias [[23]]
-NamespaceOverriddenByMember [[27]]
+Enumeration [[21]]
+EnumMember [[22]]
+Variable [[31]]
+Function [[8]]
+Namespace [[27]]
+NamespaceMember [[28]]
+Interface [[24]]
+TypeAlias [[26]]
+NamespaceOverriddenByMember [[30]]
 ",
           },
           "decorates": undefined,
           "decorators": undefined,
           "flags": Object {},
-          "id": 6,
+          "id": 9,
           "implementationOf": undefined,
           "inheritedFrom": undefined,
           "kind": 4096,
@@ -1127,22 +1207,22 @@ NamespaceOverriddenByMember [[27]]
   "groups": Array [
     Object {
       "children": Array [
+        30,
         27,
-        24,
       ],
       "kind": 4,
       "title": "Namespaces",
     },
     Object {
       "children": Array [
-        18,
+        21,
       ],
       "kind": 8,
       "title": "Enumerations",
     },
     Object {
       "children": Array [
-        7,
+        10,
         1,
       ],
       "kind": 128,
@@ -1150,28 +1230,28 @@ NamespaceOverriddenByMember [[27]]
     },
     Object {
       "children": Array [
-        21,
+        24,
       ],
       "kind": 256,
       "title": "Interfaces",
     },
     Object {
       "children": Array [
-        23,
+        26,
       ],
       "kind": 4194304,
       "title": "Type aliases",
     },
     Object {
       "children": Array [
-        28,
+        31,
       ],
       "kind": 32,
       "title": "Variables",
     },
     Object {
       "children": Array [
-        5,
+        8,
       ],
       "kind": 64,
       "title": "Functions",

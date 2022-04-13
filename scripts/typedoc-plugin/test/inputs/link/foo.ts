@@ -8,4 +8,11 @@
  */
 export class Foo {
     public member = 2;
+
+    /**
+     * 
+     * @param p Test param [[Foo]]
+     */
+    public m(p: number) {
+    }
 }
