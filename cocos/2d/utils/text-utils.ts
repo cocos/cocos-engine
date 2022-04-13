@@ -25,9 +25,8 @@
 */
 
 import { RUNTIME_BASED } from 'internal:constants';
+import { minigame } from 'pal/minigame';
 import Pool from '../../core/utils/pool';
-
-declare const ral: any;
 
 export const BASELINE_RATIO = 0.26;
 let _BASELINE_OFFSET = 0;
@@ -35,6 +34,7 @@ let _BASELINE_OFFSET = 0;
 if (RUNTIME_BASED) {
     _BASELINE_OFFSET = BASELINE_RATIO * 2 / 3;
 
+    const ral = minigame.ral!;
     const featureAlphabeticeName = ral.CANVAS_CONTEXT2D_TEXTBASELINE_ALPHABETIC.name;
     const featureAlphabeticEnable = ral.CANVAS_CONTEXT2D_TEXTBASELINE_ALPHABETIC.enable;
 
