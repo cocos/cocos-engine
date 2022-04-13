@@ -39,7 +39,6 @@
 #include "cocos/bindings/event/CustomEventTypes.h"
 #include "modules/Screen.h"
 #include "modules/System.h"
-#include "java/jni/log.h"
 #include "java/jni/JniHelper.h"
 #include "game-activity/native_app_glue/android_native_app_glue.h"
 
@@ -51,7 +50,7 @@
 
 #define ABORT_GAME { CC_LOG_ERROR("*** GAME ABORTING."); *((volatile char*)0) = 'a'; }
 
-#define MY_ASSERT(cond) { if (!(cond)) { CC_LOG_ERROR("ASSERTION FAILED: %s", #cond); \
+#define ABORT_IF(cond) { if (!(cond)) { CC_LOG_ERROR("ASSERTION FAILED: %s", #cond); \
    ABORT_GAME; } }
 
 #define INPUT_ACTION_COUNT 6
@@ -92,7 +91,7 @@ namespace cc {
                 CC_LOG_FATAL("*** FATAL ERROR: Failed to attach thread to JNI.");
                 ABORT_GAME
             }
-            MY_ASSERT(_jniEnv != nullptr)
+            ABORT_IF(_jniEnv != nullptr)
 
             Paddleboat_init(_jniEnv, platform->_app->activity->javaGameActivity);
             Paddleboat_setControllerStatusCallback(gameControllerStatusCallback, this);
@@ -260,12 +259,12 @@ namespace cc {
             switch (cmd) {
                 case APP_CMD_SAVE_STATE:
                     // The system has asked us to save our current state.
-                    LOGD("NativeEngine: APP_CMD_SAVE_STATE");
+                    CC_LOG_DEBUG("AndroidPlatform: APP_CMD_SAVE_STATE");
                     break;
                 case APP_CMD_INIT_WINDOW: {
                     _hasWindow = true;
                     // We have a window!
-                    LOGD("NativeEngine: APP_CMD_INIT_WINDOW");
+                    CC_LOG_DEBUG("AndroidPlatform: APP_CMD_INIT_WINDOW");
                     if (!_running) {
                         _running = true;
                         _androidPlatform->run(0, nullptr);
@@ -275,53 +274,53 @@ namespace cc {
                         event.args->ptrVal = reinterpret_cast<void *>(_androidPlatform->getWindowHandler());
                         _androidPlatform->dispatchEvent(event);
                     }
-                }
                     break;
+                }
                 case APP_CMD_TERM_WINDOW: {
                     _hasWindow = false;
                     // The window is going away -- kill the surface
-                    LOGD("NativeEngine: APP_CMD_TERM_WINDOW");
+                    CC_LOG_DEBUG("AndroidPlatform: APP_CMD_TERM_WINDOW");
                     cc::CustomEvent event;
                     event.name = EVENT_DESTROY_WINDOW;
                     event.args->ptrVal = reinterpret_cast<void *>(_androidPlatform->getWindowHandler());
                     _androidPlatform->dispatchEvent(event);
-                }
                     break;
+                }
                 case APP_CMD_GAINED_FOCUS:
-                    LOGD("NativeEngine: APP_CMD_GAINED_FOCUS");
+                    CC_LOG_DEBUG("AndroidPlatform: APP_CMD_GAINED_FOCUS");
                     break;
                 case APP_CMD_LOST_FOCUS:
-                    LOGD("NativeEngine: APP_CMD_LOST_FOCUS");
+                    CC_LOG_DEBUG("AndroidPlatform: APP_CMD_LOST_FOCUS");
                     break;
                 case APP_CMD_PAUSE:
-                    LOGD("NativeEngine: APP_CMD_PAUSE");
+                    CC_LOG_DEBUG("AndroidPlatform: APP_CMD_PAUSE");
                     break;
                 case APP_CMD_RESUME: {
-                    LOGD("NativeEngine: APP_CMD_RESUME");
-                }
+                    CC_LOG_DEBUG("AndroidPlatform: APP_CMD_RESUME");
                     break;
+                }
                 case APP_CMD_DESTROY: {
                     WindowEvent ev;
                     ev.type = WindowEvent::Type::CLOSE;
                     _androidPlatform->dispatchEvent(ev);
-                }
                     break;
+                }
                 case APP_CMD_STOP: {
                     _isVisible = false;
                     Paddleboat_onStop(_jniEnv);
                     WindowEvent ev;
                     ev.type = WindowEvent::Type::HIDDEN;
                     _androidPlatform->dispatchEvent(ev);
-                }
                     break;
+                }
                 case APP_CMD_START: {
                     _isVisible = true;
                     Paddleboat_onStart(_jniEnv);
                     WindowEvent ev;
                     ev.type = WindowEvent::Type::SHOW;
                     _androidPlatform->dispatchEvent(ev);
-                }
                     break;
+                }
                 case APP_CMD_WINDOW_RESIZED:
                 case APP_CMD_CONFIG_CHANGED:
                     // Window was resized or some other configuration changed.
@@ -332,20 +331,20 @@ namespace cc {
                 case APP_CMD_LOW_MEMORY: {
                     // system told us we have low memory. So if we are not visible, let's
                     // cooperate by deallocating all of our graphic resources.
-                    LOGD("NativeEngine: APP_CMD_LOW_MEMORY");
+                    CC_LOG_DEBUG("AndroidPlatform: APP_CMD_LOW_MEMORY");
                     DeviceEvent ev;
                     ev.type = DeviceEvent::Type::DEVICE_MEMORY;
                     _androidPlatform->dispatchEvent(ev);
-                }
                     break;
+                }
                 case APP_CMD_CONTENT_RECT_CHANGED:
-                    LOGD("NativeEngine: APP_CMD_CONTENT_RECT_CHANGED");
+                    CC_LOG_DEBUG("AndroidPlatform: APP_CMD_CONTENT_RECT_CHANGED");
                     break;
                 case APP_CMD_WINDOW_REDRAW_NEEDED:
-                    LOGD("NativeEngine: APP_CMD_WINDOW_REDRAW_NEEDED");
+                    CC_LOG_DEBUG("AndroidPlatform: APP_CMD_WINDOW_REDRAW_NEEDED");
                     break;
                 case APP_CMD_WINDOW_INSETS_CHANGED:
-                    LOGD("NativeEngine: APP_CMD_WINDOW_INSETS_CHANGED");
+                    CC_LOG_DEBUG("AndroidPlatform: APP_CMD_WINDOW_INSETS_CHANGED");
 //            ARect insets;
 //            // Log all the insets types
 //            for (int type = 0; type < GAMECOMMON_INSETS_TYPE_COUNT; ++type) {
@@ -353,7 +352,7 @@ namespace cc {
 //            }
                     break;
                 default:
-                    LOGD("NativeEngine: (unknown command).");
+                    CC_LOG_DEBUG("AndroidPlatform: (unknown command).");
                     break;
             }
         }
@@ -446,7 +445,8 @@ namespace cc {
             struct android_poll_source *source;
 
             // If not animating, block until we get an event; if animating, don't block.
-            while ((ALooper_pollAll(_inputProxy->isAnimating() ? 0 : -1, nullptr, &events, reinterpret_cast<void **>(&source))) >= 0) {
+            while ((ALooper_pollAll(_inputProxy->isAnimating() ? 0 : -1, nullptr, &events,
+                                    reinterpret_cast<void **>(&source))) >= 0) {
 
                 // process event
                 if (source != nullptr) {
