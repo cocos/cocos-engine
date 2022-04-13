@@ -93,13 +93,17 @@ public class CocosActivity extends Activity implements SurfaceHolder.Callback {
         onCreateNative(this, getAssets(), getAbsolutePath(getObbDir()), Build.VERSION.SDK_INT);
 
         mKeyCodeHandler = new CocosKeyCodeHandler(this);
-        mSensorHandler = new CocosSensorHandler(this);
+        if (BuildConfig.ENABLE_SENSOR_REGISTER) {
+            mSensorHandler = new CocosSensorHandler(this);
+        }
 
         setImmersiveMode();
 
         Utils.hideVirtualButton();
 
-        mOrientationHelper = new CocosOrientationHelper(this);
+        if (BuildConfig.ENABLE_ORIENTATION_REGISTER) {
+            mOrientationHelper = new CocosOrientationHelper(this);
+        }
     }
 
     private void setImmersiveMode() {
@@ -172,16 +176,24 @@ public class CocosActivity extends Activity implements SurfaceHolder.Callback {
     @Override
     protected void onPause() {
         super.onPause();
-        mSensorHandler.onPause();
-        mOrientationHelper.onPause();
+        if (BuildConfig.ENABLE_SENSOR_REGISTER) {
+            mSensorHandler.onPause();
+        }
+        if (BuildConfig.ENABLE_ORIENTATION_REGISTER) {
+            mOrientationHelper.onPause();
+        }
         onPauseNative();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mSensorHandler.onResume();
-        mOrientationHelper.onResume();
+        if (BuildConfig.ENABLE_SENSOR_REGISTER) {
+            mSensorHandler.onResume();
+        }
+        if (BuildConfig.ENABLE_ORIENTATION_REGISTER) {
+            mOrientationHelper.onResume();
+        }
         Utils.hideVirtualButton();
         onResumeNative();
         Utils.hideVirtualButton();
