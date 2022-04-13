@@ -1084,16 +1084,24 @@ public:
         _resources.resize(16);
     }
 
-    void collect(void *pointer) {
+    void collect(CCVKGPUBuffer *gpuBuffer, bool keepPtr = true) {
         if (_resources.size() <= _count) {
             _resources.resize(_count * 2);
         }
         Resource &res = _resources[_count++];
-        res.type      = RecycledType::POINTER;
-        res.pointer   = pointer;
+        res.type      = RecycledType::BUFFER;
+        res.buffer    = {gpuBuffer->vkBuffer, gpuBuffer->vmaAllocation};
+        if (!keepPtr) {
+            if (_resources.size() <= _count) {
+                _resources.resize(_count * 2);
+            }
+            Resource &res = _resources[_count++];
+            res.type      = RecycledType::GPU_BUFFER;
+            res.gpuBuffer = gpuBuffer;
+        }
     }
 
-    void collect(CCVKGPUTexture *gpuTexture) {
+    void collect(CCVKGPUTexture *gpuTexture, bool keepPtr = true) {
         if (_resources.size() <= _count) {
             _resources.resize(_count * 2);
         }
@@ -1110,9 +1118,17 @@ public:
             res.type      = RecycledType::TEXTURE;
             res.image     = {gpuTexture->vkImage, gpuTexture->vmaAllocation};
         }
+        if (!keepPtr) {
+            if (_resources.size() <= _count) {
+                _resources.resize(_count * 2);
+            }
+            Resource &res  = _resources[_count++];
+            res.type       = RecycledType::GPU_TEXTURE;
+            res.gpuTexture = gpuTexture;
+        }
     }
 
-    void collect(CCVKGPUTextureView *gpuTextureView) {
+    void collect(CCVKGPUTextureView *gpuTextureView, bool keepPtr = true) {
         if (_resources.size() <= _count) {
             _resources.resize(_count * 2);
         }
@@ -1126,9 +1142,17 @@ public:
             res.type        = RecycledType::TEXTURE_VIEW;
             res.vkImageView = gpuTextureView->vkImageView;
         }
+        if (!keepPtr) {
+            if (_resources.size() <= _count) {
+                _resources.resize(_count * 2);
+            }
+            Resource &res      = _resources[_count++];
+            res.type           = RecycledType::GPU_TEXTURE_VIEW;
+            res.gpuTextureView = gpuTextureView;
+        }
     }
 
-    void collect(CCVKGPUFramebuffer *gpuFramebuffer) {
+    void collect(CCVKGPUFramebuffer *gpuFramebuffer, bool keepPtr = true) {
         if (gpuFramebuffer->swapchain && gpuFramebuffer->vkFramebuffer == VK_NULL_HANDLE) {
             if (_device->swapchains.count(gpuFramebuffer->swapchain)) { // make sure the swapchain is still alive
                 auto &list = gpuFramebuffer->swapchain->vkSwapchainFramebufferListMap[gpuFramebuffer];
@@ -1150,7 +1174,14 @@ public:
             res.type          = RecycledType::FRAMEBUFFER;
             res.vkFramebuffer = gpuFramebuffer->vkFramebuffer;
         }
-
+        if (!keepPtr) {
+            if (_resources.size() <= _count) {
+                _resources.resize(_count * 2);
+            }
+            Resource &res      = _resources[_count++];
+            res.type           = RecycledType::GPU_FRAMEBUFFER;
+            res.gpuFramebuffer = gpuFramebuffer;
+        }
     }
 
 #define DEFINE_RECYCLE_BIN_COLLECT_FN(_type, typeValue, expr)                  \
@@ -1163,7 +1194,6 @@ public:
         expr;                                                                  \
     }
 
-    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUBuffer, RecycledType::BUFFER, (res.buffer = {gpuRes->vkBuffer, gpuRes->vmaAllocation}))
     DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPURenderPass, RecycledType::RENDER_PASS, res.gpuRenderPass = gpuRes)
     DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUSampler, RecycledType::SAMPLER, res.gpuSampler = gpuRes)
     DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUShader, RecycledType::SHADER, res.gpuShader = gpuRes)
@@ -1177,7 +1207,10 @@ public:
 private:
     enum class RecycledType {
         UNKNOWN,
-        POINTER,
+        GPU_BUFFER,
+        GPU_TEXTURE,
+        GPU_TEXTURE_VIEW,
+        GPU_FRAMEBUFFER,
         BUFFER,
         TEXTURE,
         TEXTURE_VIEW,
@@ -1201,14 +1234,17 @@ private:
     struct Resource {
         RecycledType type = RecycledType::UNKNOWN;
         union {
-            void *pointer;
-
             // resizable resources, cannot take over directly
             // or descriptor sets won't work
             Buffer        buffer;
             Image         image;
             VkImageView   vkImageView;
             VkFramebuffer vkFramebuffer;
+
+            CCVKGPUBuffer *     gpuBuffer;
+            CCVKGPUTexture *    gpuTexture;
+            CCVKGPUTextureView *gpuTextureView;
+            CCVKGPUFramebuffer *gpuFramebuffer;
 
             CCVKGPURenderPass *         gpuRenderPass;
             CCVKGPUSampler *            gpuSampler;

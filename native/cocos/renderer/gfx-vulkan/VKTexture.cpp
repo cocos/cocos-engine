@@ -84,8 +84,7 @@ void CCVKTexture::createTextureView() {
 
 void CCVKTexture::doDestroy() {
     if (_gpuTextureView) {
-        CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuTextureView);
-        CCVKDevice::getInstance()->gpuRecycleBin()->collect(static_cast<void *>(_gpuTextureView));
+        CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuTextureView, false);
         CCVKDevice::getInstance()->gpuDescriptorHub()->disengage(_gpuTextureView);
         _gpuTextureView = nullptr;
     }
@@ -95,10 +94,9 @@ void CCVKTexture::doDestroy() {
             if (!_gpuTexture->memoryless) {
                 CCVKDevice::getInstance()->getMemoryStatus().textureSize -= _size;
             }
-            CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuTexture);
+            CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuTexture, false);
             CCVKDevice::getInstance()->gpuBarrierManager()->cancel(_gpuTexture);
             CCVKDevice::getInstance()->gpuFramebufferHub()->disengage(_gpuTexture);
-            CC_DELETE(_gpuTexture);
         }
         _gpuTexture = nullptr;
     }

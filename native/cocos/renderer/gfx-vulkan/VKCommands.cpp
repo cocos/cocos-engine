@@ -1465,8 +1465,17 @@ void CCVKGPURecycleBin::clear() {
     for (uint32_t i = 0U; i < _count; ++i) {
         Resource &res = _resources[i];
         switch (res.type) {
-            case RecycledType::POINTER:
-                CC_SAFE_DELETE(res.pointer);
+            case RecycledType::GPU_BUFFER:
+                CC_SAFE_DELETE(res.gpuBuffer);
+                break;
+            case RecycledType::GPU_TEXTURE:
+                CC_SAFE_DELETE(res.gpuTexture);
+                break;
+            case RecycledType::GPU_TEXTURE_VIEW:
+                CC_SAFE_DELETE(res.gpuTextureView);
+                break;
+            case RecycledType::GPU_FRAMEBUFFER:
+                CC_SAFE_DELETE(res.gpuFramebuffer);
                 break;
             case RecycledType::BUFFER:
                 if (res.buffer.vkBuffer) {

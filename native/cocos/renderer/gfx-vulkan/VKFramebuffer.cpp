@@ -71,8 +71,7 @@ void CCVKFramebuffer::doDestroy() {
             auto *depthTex = static_cast<CCVKTexture *>(_depthStencilTexture);
             CCVKDevice::getInstance()->gpuFramebufferHub()->disengage(depthTex->gpuTexture(), _gpuFBO);
         }
-        CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuFBO);
-        CCVKDevice::getInstance()->gpuRecycleBin()->collect(static_cast<void*>(_gpuFBO));
+        CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuFBO, false);
         _gpuFBO = nullptr;
     }
 }

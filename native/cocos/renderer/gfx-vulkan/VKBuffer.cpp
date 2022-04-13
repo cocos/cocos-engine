@@ -86,8 +86,7 @@ void CCVKBuffer::doDestroy() {
     if (_gpuBuffer) {
         if (!_isBufferView) {
             CCVKDevice::getInstance()->gpuBufferHub()->erase(_gpuBuffer);
-            CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuBuffer);
-            CCVKDevice::getInstance()->gpuRecycleBin()->collect(static_cast<void *>(_gpuBuffer));
+            CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuBuffer, false);
             CCVKDevice::getInstance()->gpuBarrierManager()->cancel(_gpuBuffer);
             CCVKDevice::getInstance()->getMemoryStatus().bufferSize -= _size;
         }
