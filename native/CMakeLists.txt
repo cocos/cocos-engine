@@ -16,7 +16,6 @@ cc_set_if_undefined(USE_V8_DEBUGGER          ON)
 cc_set_if_undefined(USE_SOCKET               ON)
 cc_set_if_undefined(USE_AUDIO                ON)
 cc_set_if_undefined(USE_EDIT_BOX             ON)
-cc_set_if_undefined(USE_SE_JSC               OFF)
 cc_set_if_undefined(USE_VIDEO                ON)
 cc_set_if_undefined(USE_WEBVIEW              ON)
 cc_set_if_undefined(USE_MIDDLEWARE           ON)
@@ -63,11 +62,6 @@ if(USE_PHYSICS_PHYSX)
         set(USE_PHYSICS_PHYSX OFF)
         message(AUTHOR_WARNING "Native PhysX does not support Google Android X86")
     endif()
-endif()
-
-if(USE_SE_JSC)
-    set(USE_SE_V8 OFF)
-    set(USE_V8_DEBUGGER OFF)
 endif()
 
 if(NOT USE_SOCKET)
@@ -119,7 +113,6 @@ cc_inspect_values(
     USE_SOCKET
     USE_AUDIO
     USE_EDIT_BOX
-    USE_SE_JSC
     USE_VIDEO
     USE_WEBVIEW
     USE_MIDDLEWARE
@@ -2450,28 +2443,6 @@ if(USE_SE_V8)
     endif()
 endif()
 
-if(USE_SE_JSC)
-    cocos_source_files(MODULE ccbindings
-                     cocos/bindings/jswrapper/jsc/Class.h
-                     cocos/bindings/jswrapper/jsc/EJConvert.h
-                     cocos/bindings/jswrapper/jsc/HelperMacros.h
-        NO_WERROR    cocos/bindings/jswrapper/jsc/Utils.cpp
-                     cocos/bindings/jswrapper/jsc/EJConvertTypedArray.h
-                     cocos/bindings/jswrapper/jsc/PlatformUtils.h
-        NO_WERROR    cocos/bindings/jswrapper/jsc/EJConvertTypedArray.m
-        NO_WERROR    cocos/bindings/jswrapper/jsc/EJConvert.m
-                     cocos/bindings/jswrapper/jsc/Object.h
-        NO_WERROR    cocos/bindings/jswrapper/jsc/Object.mm
-                     cocos/bindings/jswrapper/jsc/ScriptEngine.h
-        NO_WERROR    cocos/bindings/jswrapper/jsc/ScriptEngine.mm
-        NO_WERROR    cocos/bindings/jswrapper/jsc/PlatformUtils.mm
-                     cocos/bindings/jswrapper/jsc/SeApi.h
-        NO_WERROR    cocos/bindings/jswrapper/jsc/Class.cpp
-                     cocos/bindings/jswrapper/jsc/Utils.h
-                     cocos/bindings/jswrapper/jsc/Base.h
-    )
-endif()
-
 if(USE_SE_SM)
     cocos_source_files(MODULE ccbindings
                     cocos/bindings/jswrapper/sm/Base.h
@@ -2865,7 +2836,6 @@ function(cc_apply_definations target)
         $<IF:$<BOOL:${USE_JOB_SYSTEM_TASKFLOW}>,CC_USE_JOB_SYSTEM_TASKFLOW=1,CC_USE_JOB_SYSTEM_TASKFLOW=0>
         $<IF:$<BOOL:${USE_PHYSICS_PHYSX}>,CC_USE_PHYSICS_PHYSX=1,CC_USE_PHYSICS_PHYSX=0>
         $<IF:$<BOOL:${CC_EDITOR}>,CC_EDITOR=1,CC_EDITOR=0>
-        $<$<BOOL:${USE_SE_JSC}>:SCRIPT_ENGINE_TYPE=3>
         $<$<BOOL:${USE_SE_SM}>:SCRIPT_ENGINE_TYPE=1>
         $<$<CONFIG:Debug>:CC_DEBUG=1>
     )
@@ -2942,7 +2912,7 @@ target_include_directories(${ENGINE_NAME}
         ${CWD}/cocos/platform
         ${CWD}/cocos/renderer/core
         ${CWD}/cocos/editor-support
-        $<$<BOOL:USE_SE_JSC>:${CWD}/cocos/bindings/jswrapper>
+        $<$<BOOL:USE_SE_V8>:${CWD}/cocos/bindings/jswrapper>
     PRIVATE
         ${CC_EXTERNAL_PRIVATE_INCLUDES}
 )
