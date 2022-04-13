@@ -1,0 +1,11 @@
+
+android {
+
+    buildFeatures {
+        prefab true
+    }
+}
+
+dependencies {
+    //
+}
