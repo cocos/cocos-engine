@@ -342,7 +342,7 @@ export class Director extends EventTarget {
         if (BUILD && DEBUG) {
             console.time('AttachPersist');
         }
-        const persistNodeList = Object.keys(Node.persistRootNodes).map((x) => Node.persistRootNodes[x]);
+        const persistNodeList = Object.keys(Node.persistRootNodes).map((x) => Node.persistRootNodes[x] as Node);
         for (let i = 0; i < persistNodeList.length; i++) {
             const node = persistNodeList[i];
             node.emit(Node.EventType.SCENE_CHANGED_FOR_PERSISTS, scene.renderScene);
