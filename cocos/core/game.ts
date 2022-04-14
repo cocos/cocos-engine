@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -392,6 +392,12 @@ export class Game extends EventTarget {
 
     /**
      * @legacyPublic
+     * @deprecated since v3.6, please use [[Node.persistRootNodes]] instead.
+     */
+    public _persistRootNodes = Node.persistRootNodes;
+
+    /**
+     * @legacyPublic
      */
     public _gfxDevice: Device | null = null;
     /**
@@ -508,8 +514,8 @@ export class Game extends EventTarget {
     public restart (): Promise<void> {
         const endFramePromise = new Promise<void>((resolve) => legacyCC.director.once(legacyCC.Director.EVENT_END_FRAME, () => resolve()) as void);
         return endFramePromise.then(() => {
-            for (const id in this._persistRootNodes) {
-                Node.removePersistRootNode(this._persistRootNodes[id]);
+            for (const id in Node.persistRootNodes) {
+                Node.removePersistRootNode(Node.persistRootNodes[id]);
             }
 
             // Clear scene

@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
  http://www.cocos.com
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -27,7 +27,7 @@ import {
 } from '../data/utils/decorator-jsb-utils';
 
 import { legacyCC } from '../global-exports';
-import { errorID, getError } from '../platform/debug';
+import { errorID, getError, warnID } from '../platform/debug';
 import { Component } from '../components/component';
 import { NodeEventType } from './node-event';
 import { CCObject } from '../data/object';
@@ -527,6 +527,47 @@ NodeCls.isNode = function (obj: unknown): obj is jsb.Node {
     return obj instanceof jsb.Node && (obj.constructor === jsb.Node || !(obj instanceof legacyCC.Scene));
 };
 
+NodeCls.addPersistRootNode = function (node: Node) {
+    if (!NodeCls.isNode(node) || !node.uuid) {
+        warnID(3800);
+        return;
+    }
+    const id = node.uuid;
+    if (!NodeCls._persistRootNodes[id]) {
+        const scene = legacyCC.director._scene;
+        if (legacyCC.isValid(scene)) {
+            if (!node.parent) {
+                node.parent = scene;
+            } else if (!(node.parent instanceof legacyCC.Scene)) {
+                warnID(3801);
+                return;
+            } else if (node.parent !== scene) {
+                warnID(3802);
+                return;
+            } else {
+                node._originalSceneId = scene.uuid;
+            }
+        }
+        NodeCls._persistRootNodes[id] = node;
+        node._persistNode = true;
+        legacyCC.assetManager._releaseManager._addPersistNodeRef(node);
+    }
+}
+
+NodeCls.removePersistRootNode = function (node: Node) {
+    const id = node.uuid || '';
+    if (node === NodeCls._persistRootNodes[id]) {
+        delete NodeCls._persistRootNodes[id];
+        node._persistNode = false;
+        node._originalSceneId = '';
+        legacyCC.assetManager._releaseManager._removePersistNodeRef(node);
+    }
+}
+
+NodeCls.isPersistRootNode = function (node: { _persistNode: any; }): boolean {
+    return !!node._persistNode;
+}
+
 const oldGetPosition = nodeProto.getPosition;
 const oldSetPosition = nodeProto.setPosition;
 const oldGetRotation = nodeProto.getRotation;
@@ -1012,6 +1053,14 @@ Object.defineProperty(nodeProto, 'scene', {
     enumerable: true,
     get () {
         return this._scene;
+    }
+});
+
+Object.defineProperty(NodeCls, 'persistRootNodes', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return NodeCls._persistRootNodes;
     }
 });
 

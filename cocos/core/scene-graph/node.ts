@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -165,7 +165,7 @@ export class Node extends BaseNode implements CustomSerializable {
      */
     public _uiProps = new NodeUIProperties(this);
 
-    protected static _persistRootNodes = {};
+    protected static _persistRootNodes : Record<string, Node>;
 
     /**
      * @en Counter to clear node array
@@ -1311,6 +1311,11 @@ export class Node extends BaseNode implements CustomSerializable {
     }
 
     //  @ Persist root node section
+
+    public static get persistRootNodes (): Record<string, Node> {
+        return Node._persistRootNodes;
+    }
+
     /**
      * @en
      * Add a persistent root node to the game, the persistent node won't be destroyed during scene transition.<br>

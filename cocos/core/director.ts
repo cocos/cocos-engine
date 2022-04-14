@@ -2,9 +2,9 @@
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos2d-x.org
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -342,7 +342,7 @@ export class Director extends EventTarget {
         if (BUILD && DEBUG) {
             console.time('AttachPersist');
         }
-        const persistNodeList = Object.keys(game._persistRootNodes).map((x) => game._persistRootNodes[x] as Node);
+        const persistNodeList = Object.keys(Node.persistRootNodes).map((x) => Node.persistRootNodes[x]);
         for (let i = 0; i < persistNodeList.length; i++) {
             const node = persistNodeList[i];
             node.emit(Node.EventType.SCENE_CHANGED_FOR_PERSISTS, scene.renderScene);
@@ -374,7 +374,7 @@ export class Director extends EventTarget {
             if (BUILD && DEBUG) {
                 console.time('AutoRelease');
             }
-            legacyCC.assetManager._releaseManager._autoRelease(oldScene, scene, game._persistRootNodes);
+            legacyCC.assetManager._releaseManager._autoRelease(oldScene, scene, Node.persistRootNodes);
             if (BUILD && DEBUG) {
                 console.timeEnd('AutoRelease');
             }
