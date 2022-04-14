@@ -23,7 +23,7 @@
     "clear-platform": "node ./native/utils/clear-platform.js",
     "update:native-external": "node ./native/utils/update-external.js",
     "test": "gulp test",
-    "install:typedoc-plugin": "cd ./scripts/typedoc-plugin && npm install"
+    "install:typedoc-plugin": "cd ./scripts/typedoc-plugin && npm install --only=production"
   },
   "repository": {
     "type": "git",
