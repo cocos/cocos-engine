@@ -4,6 +4,7 @@ declare module 'pal/minigame' {
         // platform related
         wx?: WeChatAPI;
         tt?: ByteDanceAPI;
+        ral?: RuntimeAPI;
 
         // system
         isDevTool: boolean;
@@ -82,6 +83,23 @@ declare module 'pal/minigame' {
         deltaY: number;
         deltaZ: number;
     }
+
+    interface ICANVAS_CONTEXT2D_TEXTBASELINE_ALPHABETIC {
+        name: string,
+        enable: number,
+    }
+    interface ICANVAS_CONTEXT2D_TEXTBASELINE_DEFAULT {
+        name: string,
+        alphabetic: number,
+    }
+
+    interface RuntimeAPI {
+        CANVAS_CONTEXT2D_TEXTBASELINE_ALPHABETIC: ICANVAS_CONTEXT2D_TEXTBASELINE_ALPHABETIC,
+        CANVAS_CONTEXT2D_TEXTBASELINE_DEFAULT: ICANVAS_CONTEXT2D_TEXTBASELINE_DEFAULT,
+        getFeaturePropertyInt(featureName: string): number;
+        setFeaturePropertyInt(featureName: string, value: number);
+    }
+
     interface ByteDanceAPI {
         getAudioContext?: () => AudioContext;
     }
