@@ -229,7 +229,7 @@ export class Canvas extends RenderRoot2D {
             }
 
             this.node.getWorldPosition(_worldPos);
-            this._cameraComponent.node.setWorldPosition(_worldPos.x, _worldPos.y, 1000);
+            this._cameraComponent.node.setWorldPosition(_worldPos.x, _worldPos.y, this._cameraComponent.node.worldPosition.z);
         }
     }
 
