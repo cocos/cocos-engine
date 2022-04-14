@@ -2413,11 +2413,11 @@ target_include_directories(cocos2d PUBLIC
 )
 
 if(NX)
-    include(${CMAKE_CURRENT_LIST_DIR}/platform-nx/setup.cmake)
+    include(${NX_PATH}/platform-nx/setup.cmake)
     nx_set_property(cocos2d)
 elseif(WINDOWS OR NX_WINDOWS)
 	if(NX_WINDOWS)
-		include(${CMAKE_CURRENT_LIST_DIR}/platform-nx/setup.cmake)
+		include(${NX_PATH}/setup.cmake)
 		nx_set_property(cocos2d)
 	endif()
 	
