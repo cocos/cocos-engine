@@ -61,7 +61,7 @@ class AssetHistoryManager extends HistoryManagerBase {
 class AssetHistoryCommand extends SnapshotCommand {
     async execute(record) {
         if (this.panel) {
-            const success = this.panel.restore(record);
+            const success = await this.panel.restore(record);
 
             if (success) {
                 this.manager.lastRecord = record;

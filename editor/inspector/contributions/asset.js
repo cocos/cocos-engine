@@ -299,15 +299,15 @@ const Elements = {
                     const file = list[i];
                     if (!contentRender.__panels__[i]) {
                         contentRender.__panels__[i] = document.createElement('ui-panel');
-                        contentRender.__panels__[i].addEventListener('change', (state) => {
+                        contentRender.__panels__[i].addEventListener('change', (event) => {
                             Elements.header.isDirty.call(panel);
 
-                            if (!state || state.snapshot !== false) {
-                                panel.history.snapshot(panel);
+                            if (!event || !event.args || !event.args[0] || event.args[0].snapshot !== false) {
+                                panel.history && panel.history.snapshot(panel);
                             }
                         });
                         contentRender.__panels__[i].addEventListener('snapshot', () => {
-                            panel.history.snapshot(panel);
+                            panel.history && panel.history.snapshot(panel);
                         });
                         contentRender.appendChild(contentRender.__panels__[i]);
                     }
@@ -332,11 +332,11 @@ const Elements = {
 exports.methods = {
     undo() {
         const panel = this;
-        panel.history.undo();
+        panel.history && panel.history.undo();
     },
     redo() {
         const panel = this;
-        panel.history.redo();
+        panel.history && panel.history.redo();
     },
     async record() {
         const panel = this;

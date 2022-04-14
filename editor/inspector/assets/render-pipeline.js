@@ -1,71 +1,23 @@
-const { setDisabled, loopSetAssetDumpDataReadonly } = require('../utils/prop');
-
 exports.template = `
-<section class="asset-render-pipeline">
-</section>
+<ui-prop type="dump" class="asset-render-pipeline">
+</ui-prop>
 `;
-
-exports.$ = {
-    container: '.asset-render-pipeline',
-};
-
-exports.update = async function(assetList, metaList) {
-    this.assetList = assetList;
-    this.metaList = metaList;
-    this.meta = this.metaList[0];
-    this.asset = this.assetList[0];
-
-    if (assetList.length !== 1) {
-        this.$.container.innerText = Editor.I18n.t('ENGINE.assets.multipleWarning');
-        return;
-    }
-
-    if (this.dirtyData.uuid !== this.asset.uuid) {
-        this.dirtyData.uuid = this.asset.uuid;
-        this.dirtyData.origin = '';
-    }
-
-    this.pipeline = await this.query(this.asset.uuid);
-
-    this.updateInterface();
-    this.setDirtyData();
-};
-
-exports.ready = function() {
-    // Used to determine whether the material has been modified in isDirty()
-    this.dirtyData = {
-        uuid: '',
-        origin: '',
-        realtime: '',
-    };
-};
-
-exports.close = function() {
-    // Used to determine whether the material has been modified in isDirty()
-    this.dirtyData = {
-        uuid: '',
-        origin: '',
-        realtime: '',
-    };
-};
 
 exports.methods = {
     record() {
         return JSON.stringify(this.pipeline);
     },
+
     async restore(record) {
-        // TODO: renderPipeline 编辑机制需要重新优化，目前有点乱, undo 后的数据无法正确还原
-        // record = JSON.parse(record);
-        // if (!record || typeof record !== 'object') {
-        //     return;
-        // }
+        record = JSON.parse(record);
+        if (!record || typeof record !== 'object') {
+            return false;
+        }
 
-        // this.pipeline = await Editor.Message.request('scene', 'change-render-pipeline', record);
+        this.pipeline = record;
+        await this.change({ snapshot: false });
 
-        // Elements.pipeline.update.call(this);
-
-        // this.setDirtyData();
-        // this.dispatch('change');
+        return true;
     },
 
     async query(uuid) {
@@ -78,36 +30,24 @@ exports.methods = {
     },
 
     reset() {
-        this.dirtyData.origin = this.dirtyData.realtime;
+        /**
+         * reset 环节只需把 uuid 清空
+         * 会重新进入 panel.update 周期，根据 uuid 为空的条件，把 this.dirtyData.origin 重新填充
+         */
         this.dirtyData.uuid = '';
     },
 
-    async change() {
-        await Editor.Message.request('scene', 'change-render-pipeline', this.pipeline);
+    async change(state) {
+        this.pipeline = await Editor.Message.request('scene', 'change-render-pipeline', this.pipeline);
 
+        this.updateInterface();
         this.setDirtyData();
-        this.dispatch('change');
+        this.dispatch('change', state);
     },
 
     updateInterface() {
-        for (const key in this.physicsMaterial) {
-            const dump = this.physicsMaterial[key];
-
-            if (!dump.visible) {
-                continue;
-            }
-
-            // reuse
-            if (!this.$[key]) {
-                this.$[key] = document.createElement('ui-prop');
-                this.$[key].setAttribute('type', 'dump');
-                this.$[key].addEventListener('change-dump', this.change.bind(this));
-            }
-
-            this.$.container.appendChild(this.$[key]);
-            this.updateReadonly(this.$[key]);
-            this.$[key].render(dump);
-        }
+        this.$.container.render(this.pipeline);
+        this.updateReadonly(this.$.container);
     },
 
     updateReadonly(element) {
@@ -136,3 +76,50 @@ exports.methods = {
         return isDirty;
     },
 };
+
+exports.$ = {
+    container: '.asset-render-pipeline',
+};
+
+exports.ready = function() {
+    this.$.container.addEventListener('change-dump', this.change.bind(this));
+
+    // Used to determine whether the material has been modified in isDirty()
+    this.dirtyData = {
+        uuid: '',
+        origin: '',
+        realtime: '',
+    };
+};
+
+exports.update = async function(assetList, metaList) {
+    this.assetList = assetList;
+    this.metaList = metaList;
+    this.meta = this.metaList[0];
+    this.asset = this.assetList[0];
+
+    if (assetList.length !== 1) {
+        this.$.container.innerText = Editor.I18n.t('ENGINE.assets.multipleWarning');
+        return;
+    }
+
+    if (this.dirtyData.uuid !== this.asset.uuid) {
+        this.dirtyData.uuid = this.asset.uuid;
+        this.dirtyData.origin = '';
+    }
+
+    this.pipeline = await this.query(this.asset.uuid);
+
+    this.updateInterface();
+    this.setDirtyData();
+};
+
+exports.close = function() {
+    // Used to determine whether the material has been modified in isDirty()
+    this.dirtyData = {
+        uuid: '',
+        origin: '',
+        realtime: '',
+    };
+};
+
