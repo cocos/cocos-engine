@@ -44,7 +44,11 @@ class AssetHistoryManager extends HistoryManagerBase {
             command.manager = this;
             this.push(command);
         } else {
-            Object.assign(this.lastRecord, record);
+            this.lastRecord = Object.assign({
+                uuidListStr: '',
+                metaListStr:'',
+                renderDataStr: '',
+            }, record);
 
             this.rebase();
         }
