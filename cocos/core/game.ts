@@ -393,11 +393,6 @@ export class Game extends EventTarget {
     /**
      * @legacyPublic
      */
-    public _persistRootNodes = {};
-
-    /**
-     * @legacyPublic
-     */
     public _gfxDevice: Device | null = null;
     /**
      * @legacyPublic
@@ -514,7 +509,7 @@ export class Game extends EventTarget {
         const endFramePromise = new Promise<void>((resolve) => legacyCC.director.once(legacyCC.Director.EVENT_END_FRAME, () => resolve()) as void);
         return endFramePromise.then(() => {
             for (const id in this._persistRootNodes) {
-                this.removePersistRootNode(this._persistRootNodes[id]);
+                Node.removePersistRootNode(this._persistRootNodes[id]);
             }
 
             // Clear scene
@@ -665,56 +660,30 @@ export class Game extends EventTarget {
      * 声明常驻根节点，该节点不会在场景切换中被销毁。<br>
      * 目标节点必须位于为层级的根节点，否则无效。
      * @param node - The node to be made persistent
+     * @deprecated since v3.6, please use [[Node.addPersistRootNode]] instead
      */
     public addPersistRootNode (node: Node) {
-        if (!legacyCC.Node.isNode(node) || !node.uuid) {
-            debug.warnID(3800);
-            return;
-        }
-        const id = node.uuid;
-        if (!this._persistRootNodes[id]) {
-            const scene = legacyCC.director._scene;
-            if (legacyCC.isValid(scene)) {
-                if (!node.parent) {
-                    node.parent = scene;
-                } else if (!(node.parent instanceof legacyCC.Scene)) {
-                    debug.warnID(3801);
-                    return;
-                } else if (node.parent !== scene) {
-                    debug.warnID(3802);
-                    return;
-                } else {
-                    node._originalSceneId = scene.uuid;
-                }
-            }
-            this._persistRootNodes[id] = node;
-            node._persistNode = true;
-            legacyCC.assetManager._releaseManager._addPersistNodeRef(node);
-        }
+        Node.addPersistRootNode(node);
     }
 
     /**
      * @en Remove a persistent root node.
      * @zh 取消常驻根节点。
      * @param node - The node to be removed from persistent node list
+     * @deprecated since v3.6, please use [[Node.removePersistRootNode]] instead
      */
     public removePersistRootNode (node: Node) {
-        const id = node.uuid || '';
-        if (node === this._persistRootNodes[id]) {
-            delete this._persistRootNodes[id];
-            node._persistNode = false;
-            node._originalSceneId = '';
-            legacyCC.assetManager._releaseManager._removePersistNodeRef(node);
-        }
+        Node.removePersistRootNode(node);
     }
 
     /**
      * @en Check whether the node is a persistent root node.
      * @zh 检查节点是否是常驻根节点。
      * @param node - The node to be checked
+     * @deprecated since v3.6, please use [[Node.isPersistRootNode]] instead
      */
     public isPersistRootNode (node: { _persistNode: any; }): boolean {
-        return !!node._persistNode;
+        return Node.isPersistRootNode(node);
     }
 
     /**

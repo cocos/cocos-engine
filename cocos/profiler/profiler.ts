@@ -293,8 +293,7 @@ export class Profiler {
         }
 
         this._rootNode = new Node('PROFILER_NODE');
-        legacyCC.game.addPersistRootNode(this._rootNode);
-
+        Node.addPersistRootNode(this._rootNode);
         const managerNode = new Node('Profiler_Root');
         managerNode.parent = this._rootNode;
 

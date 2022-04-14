@@ -1316,12 +1316,6 @@ export class BaseNode extends CCObject implements ISchedulable {
 
     protected _onHierarchyChangedBase (oldParent: this | null) {
         const newParent = this._parent;
-        if (this._persistNode && !(newParent instanceof legacyCC.Scene)) {
-            legacyCC.game.removePersistRootNode(this);
-            if (EDITOR) {
-                warnID(1623);
-            }
-        }
 
         if (EDITOR) {
             const scene = legacyCC.director.getScene() as this | null;
@@ -1354,11 +1348,6 @@ export class BaseNode extends CCObject implements ISchedulable {
         const destroyByParent: boolean = (!!parent) && ((parent._objFlags & Destroying) !== 0);
         if (!destroyByParent && EDITOR) {
             this._registerIfAttached!(false);
-        }
-
-        // remove from persist
-        if (this._persistNode) {
-            legacyCC.game.removePersistRootNode(this);
         }
 
         if (!destroyByParent) {

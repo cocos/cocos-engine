@@ -165,6 +165,8 @@ export class Node extends BaseNode implements CustomSerializable {
      */
     public _uiProps = new NodeUIProperties(this);
 
+    protected static _persistRootNodes = {};
+
     /**
      * @en Counter to clear node array
      * @zh 清除节点数组计时器
@@ -233,6 +235,11 @@ export class Node extends BaseNode implements CustomSerializable {
     }
 
     protected _onPreDestroy () {
+        // remove from persist
+        if (this._persistNode) {
+            Node.removePersistRootNode(this);
+        }
+
         const result = this._onPreDestroyBase();
         bookOfChange.free(this._hasChangedFlagsChunk, this._hasChangedFlagsOffset);
         return result;
@@ -523,7 +530,16 @@ export class Node extends BaseNode implements CustomSerializable {
     }
 
     protected _onHierarchyChanged (oldParent: this | null) {
-        this.eventProcessor.reattach();
+        this._eventProcessor.reattach();
+
+        const newParent = this._parent;
+        if (this._persistNode && !(newParent instanceof legacyCC.Scene)) {
+            Node.removePersistRootNode(this);
+            if (EDITOR) {
+                warnID(1623);
+            }
+        }
+
         super._onHierarchyChangedBase(oldParent);
     }
 
@@ -1292,6 +1308,67 @@ export class Node extends BaseNode implements CustomSerializable {
         }
 
         return result;
+    }
+
+    //  @ Persist root node section
+    /**
+     * @en
+     * Add a persistent root node to the game, the persistent node won't be destroyed during scene transition.<br>
+     * The target node must be placed in the root level of hierarchy, otherwise this API won't have any effect.
+     * @zh
+     * 声明常驻根节点，该节点不会在场景切换中被销毁。<br>
+     * 目标节点必须位于为层级的根节点，否则无效。
+     * @param node - The node to be made persistent
+     */
+    public static addPersistRootNode (node: Node) {
+        if (!Node.isNode(node) || !node.uuid) {
+            warnID(3800);
+            return;
+        }
+        const id = node.uuid;
+        if (!Node._persistRootNodes[id]) {
+            const scene = legacyCC.director._scene;
+            if (legacyCC.isValid(scene)) {
+                if (!node.parent) {
+                    node.parent = scene;
+                } else if (!(node.parent instanceof legacyCC.Scene)) {
+                    warnID(3801);
+                    return;
+                } else if (node.parent !== scene) {
+                    warnID(3802);
+                    return;
+                } else {
+                    node._originalSceneId = scene.uuid;
+                }
+            }
+            Node._persistRootNodes[id] = node;
+            node._persistNode = true;
+            legacyCC.assetManager._releaseManager._addPersistNodeRef(node);
+        }
+    }
+
+    /**
+     * @en Remove a persistent root node.
+     * @zh 取消常驻根节点。
+     * @param node - The node to be removed from persistent node list
+     */
+    public static removePersistRootNode (node: Node) {
+        const id = node.uuid || '';
+        if (node === Node._persistRootNodes[id]) {
+            delete Node._persistRootNodes[id];
+            node._persistNode = false;
+            node._originalSceneId = '';
+            legacyCC.assetManager._releaseManager._removePersistNodeRef(node);
+        }
+    }
+
+    /**
+     * @en Check whether the node is a persistent root node.
+     * @zh 检查节点是否是常驻根节点。
+     * @param node - The node to be checked
+     */
+    public static isPersistRootNode (node: { _persistNode: any; }): boolean {
+        return !!node._persistNode;
     }
 }
 

@@ -385,7 +385,7 @@ nodeProto._onEditorAttached = function (attached: boolean) {
 };
 
 nodeProto._onRemovePersistRootNode = function () {
-    legacyCC.game.removePersistRootNode(this);
+    NodeCls.removePersistRootNode(this);
 };
 
 nodeProto._onDestroyComponents = function () {
