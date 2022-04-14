@@ -1111,7 +1111,5 @@ const macro: Macro = {
 };
 
 legacyCC.macro = macro;
-
-export {macro};
+export { macro };
 export type { Macro };
-
