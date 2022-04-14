@@ -333,47 +333,53 @@ export class ParticleSystem extends RenderableComponent {
     @serializable
     private _useNoise = false;
 
-    @type(Boolean)
+    @type(Number)
+    @range([0, 10])
     @displayOrder(16)
-    get noiseX () {
-        return this._noiseX;
+    @slide
+    get strengthX () {
+        return this._strengthX;
     }
-    set noiseX (value: boolean) {
-        this._noiseX = value;
+    set strengthX (value: number) {
+        this._strengthX = value;
         if (this.processor) {
             this.processor.updateMaterialParams();
         }
     }
     @serializable
-    private _noiseX = false;
+    private _strengthX = 0;
 
-    @type(Boolean)
+    @type(Number)
+    @range([0, 10])
     @displayOrder(16)
-    get noiseY () {
-        return this._noiseY;
+    @slide
+    get strengthY () {
+        return this._strengthY;
     }
-    set noiseY (value: boolean) {
-        this._noiseY = value;
+    set strengthY (value: number) {
+        this._strengthY = value;
         if (this.processor) {
             this.processor.updateMaterialParams();
         }
     }
     @serializable
-    private _noiseY = false;
+    private _strengthY = 0;
 
-    @type(Boolean)
+    @type(Number)
+    @range([0, 10])
     @displayOrder(16)
-    get noiseZ () {
-        return this._noiseZ;
+    @slide
+    get strengthZ () {
+        return this._strengthZ;
     }
-    set noiseZ (value: boolean) {
-        this._noiseZ = value;
+    set strengthZ (value: number) {
+        this._strengthZ = value;
         if (this.processor) {
             this.processor.updateMaterialParams();
         }
     }
     @serializable
-    private _noiseZ = false;
+    private _strengthZ = 0;
 
     @type(Number)
     @range([0, 100])
@@ -445,33 +451,99 @@ export class ParticleSystem extends RenderableComponent {
     @rangeStep(0.1)
     @displayOrder(16)
     @slide
-    get noiseAbs () {
-        return this._noiseAbs;
+    get remapX () {
+        return this._remapX;
     }
-    set noiseAbs (value: number) {
-        this._noiseAbs = value;
+    set remapX (value: number) {
+        this._remapX = value;
         if (this.processor) {
             this.processor.updateMaterialParams();
         }
     }
     @serializable
-    private _noiseAbs = 0;
+    private _remapX = 0;
 
     @type(Number)
-    @range([0, 10])
+    @range([0, 1])
+    @rangeStep(0.1)
     @displayOrder(16)
     @slide
-    get noiseAmplitude () {
-        return this._noiseAmplitude;
+    get remapY () {
+        return this._remapY;
     }
-    set noiseAmplitude (value: number) {
-        this._noiseAmplitude = value;
+    set remapY (value: number) {
+        this._remapY = value;
         if (this.processor) {
             this.processor.updateMaterialParams();
         }
     }
     @serializable
-    private _noiseAmplitude = 0;
+    private _remapY = 0;
+
+    @type(Number)
+    @range([0, 1])
+    @rangeStep(0.1)
+    @displayOrder(16)
+    @slide
+    get remapZ () {
+        return this._remapZ;
+    }
+    set remapZ (value: number) {
+        this._remapZ = value;
+        if (this.processor) {
+            this.processor.updateMaterialParams();
+        }
+    }
+    @serializable
+    private _remapZ = 0;
+
+    @type(Number)
+    @range([1, 10])
+    @rangeStep(1)
+    @displayOrder(16)
+    get octaves () {
+        return this._octaves;
+    }
+    set octaves (value: number) {
+        this._octaves = value;
+        if (this.processor) {
+            this.processor.updateMaterialParams();
+        }
+    }
+    @serializable
+    private _octaves = 1;
+
+    @type(Number)
+    @range([0, 1])
+    @rangeStep(0.1)
+    @displayOrder(16)
+    get octaveMultiplier () {
+        return this._octaveMultiplier;
+    }
+    set octaveMultiplier (value: number) {
+        this._octaveMultiplier = value;
+        if (this.processor) {
+            this.processor.updateMaterialParams();
+        }
+    }
+    @serializable
+    private _octaveMultiplier = 1;
+
+    @type(Number)
+    @range([1, 4])
+    @rangeStep(0.1)
+    @displayOrder(16)
+    get octaveScale () {
+        return this._octaveScale;
+    }
+    set octaveScale (value: number) {
+        this._octaveScale = value;
+        if (this.processor) {
+            this.processor.updateMaterialParams();
+        }
+    }
+    @serializable
+    private _octaveScale = 1;
 
     /**
      * @en Enable particle culling switch. Open it to enable particle culling. If enabled will generate emitter bounding box and emitters outside the frustum will be culled.

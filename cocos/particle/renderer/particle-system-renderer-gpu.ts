@@ -125,9 +125,13 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     private _uNodeRotHandle = 0;
     private _alignSpace = AlignmentSpace.View;
     private _uNoiseSpeedHnd = 0;
-    private _uNoiseParamsHnd = 0;
+    private _uNoiseParams1Hnd = 0;
+    private _uNoiseParams2Hnd = 0;
+    private _uNoiseParams3Hnd = 0;
     private _noiseSpeed: Vec4 = new Vec4();
-    private _noiseParams: Vec4 = new Vec4();
+    private _noiseParams1: Vec4 = new Vec4();
+    private _noiseParams2: Vec4 = new Vec4();
+    private _noiseParams3: Vec4 = new Vec4();
     private _inited = false;
 
     constructor (info: any) {
@@ -450,17 +454,20 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
 
         const ps = this._particleSystem;
         this._uNoiseSpeedHnd = pass.getHandle('uNoiseSpeed');
-        this._uNoiseParamsHnd = pass.getHandle('uNoiseParams');
+        this._uNoiseParams1Hnd = pass.getHandle('uNoiseParams1');
+        this._uNoiseParams2Hnd = pass.getHandle('uNoiseParams2');
+        this._uNoiseParams3Hnd = pass.getHandle('uNoiseParams3');
         if (ps.useNoise) {
             this._noiseSpeed.set(ps.noiseSpeedX, ps.noiseSpeedY, ps.noiseSpeedZ);
             pass.setUniform(this._uNoiseSpeedHnd, this._noiseSpeed);
-            this._noiseParams.set(ps.noiseFrequency, ps.noiseAbs, ps.noiseAmplitude, ps.time);
-            pass.setUniform(this._uNoiseParamsHnd, this._noiseParams);
+            this._noiseParams1.set(ps.remapX, ps.remapY, ps.remapZ, ps.noiseFrequency);
+            pass.setUniform(this._uNoiseParams1Hnd, this._noiseParams1);
+            this._noiseParams2.set(ps.strengthX, ps.strengthY, ps.strengthZ, ps.time);
+            pass.setUniform(this._uNoiseParams2Hnd, this._noiseParams2);
+            this._noiseParams3.set(ps.octaves, ps.octaveMultiplier, ps.octaveScale);
+            pass.setUniform(this._uNoiseParams3Hnd, this._noiseParams3);
         }
         this._defines['CC_USE_NOISE'] = ps.useNoise;
-        this._defines['CC_NOISE_X'] = ps.noiseX;
-        this._defines['CC_NOISE_Y'] = ps.noiseY;
-        this._defines['CC_NOISE_Z'] = ps.noiseZ;
     }
 
     public getParticleCount (): number {

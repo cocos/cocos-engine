@@ -36,7 +36,7 @@ vec4 lpvs_main () {
   #endif
 
   #if CC_USE_NOISE
-    pos.xyz += getNoiseParticle(pos.xyz, uNoiseParams.w, uNoiseSpeed.xyz, uNoiseParams.x, uNoiseParams.y, uNoiseParams.z);
+    pos.xyz += getNoiseParticle(pos.xyz, uNoiseParams2.w, uNoiseSpeed.xyz, uNoiseParams1.w, uNoiseParams1.xyz, uNoiseParams2.xyz, uNoiseParams3.xyz);
   #endif
 
   #pragma define INDENTIFY_NEG_QUAT 10.0

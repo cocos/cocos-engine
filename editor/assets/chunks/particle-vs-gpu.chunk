@@ -300,7 +300,7 @@ vec4 gpvs_main () {
   #endif
 
   #if CC_USE_NOISE
-    pos.xyz += getNoiseParticle(pos.xyz, uNoiseParams.w, uNoiseSpeed.xyz, uNoiseParams.x, uNoiseParams.y, uNoiseParams.z);
+    pos.xyz += getNoiseParticle(pos.xyz, uNoiseParams2.w, uNoiseSpeed.xyz, uNoiseParams1.w, uNoiseParams1.xyz, uNoiseParams2.xyz, uNoiseParams3.xyz);
   #endif
 
   #if CC_RENDER_MODE != RENDER_MODE_MESH

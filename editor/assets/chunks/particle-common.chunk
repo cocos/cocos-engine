@@ -11,7 +11,9 @@ uniform Constants {
   vec4 scale;
   vec4 nodeRotation;
   vec4 uNoiseSpeed;
-  vec4 uNoiseParams;
+  vec4 uNoiseParams1;
+  vec4 uNoiseParams2;
+  vec4 uNoiseParams3;
 };
 
 #include <cc-global>
@@ -155,22 +157,21 @@ float snoise(vec3 v) {
                                 dot(p2,x2), dot(p3,x3) ) );
 }
 
-vec3 getNoiseParticle(vec3 center, float time, vec3 noiseSpeed, float noiseFrequency, float noiseAbs, float noiseAmplitude) {
+vec3 getNoiseParticle(vec3 center, float time, vec3 noiseSpeed, float noiseFrequency, vec3 noiseAbs, vec3 noiseAmplitude, vec3 octaves) {
     vec3 noiseOffset = time * noiseSpeed;
-    float noise = snoise((center + noiseOffset) * noiseFrequency);
-    float noise01 = (noise + 1.0) * 0.5;
-    float noiseRemap = mix(noise, noise01, noiseAbs);
-    float noiseX = 0.0;
-    float noiseY = 0.0;
-    float noiseZ = 0.0;
-    #if CC_NOISE_X
-      noiseX = noiseRemap * noiseAmplitude;
-    #endif
-        #if CC_NOISE_Y
-      noiseY = noiseRemap * noiseAmplitude;
-    #endif
-    #if CC_NOISE_Z
-      noiseZ = noiseRemap * noiseAmplitude;
-    #endif
-    return vec3(noiseX, noiseY, noiseZ);
+    vec3 amplitude = noiseAmplitude;
+    float frequency = noiseFrequency;
+
+    vec3 noise = vec3(0.0);
+    for (int i = 0; i < 10; ++i) {
+      if (i <= int(octaves.x)) {
+        noise += amplitude * snoise((center + noiseOffset) * frequency);
+        amplitude *= vec3(octaves.y);
+        frequency *= octaves.z;
+      }
+    }
+
+    vec3 noise01 = (noise + 1.0) * 0.5;
+    vec3 noiseRemap = mix(noise, noise01, noiseAbs);
+    return noiseRemap;
 }
