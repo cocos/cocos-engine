@@ -165,7 +165,7 @@ export class Node extends BaseNode implements CustomSerializable {
      */
     public _uiProps = new NodeUIProperties(this);
 
-    protected static _persistRootNodes : Record<string, Node> = {};
+    protected static _persistRootNodes : Record<string, Node> = 
 
     /**
      * @en Counter to clear node array
@@ -210,7 +210,6 @@ export class Node extends BaseNode implements CustomSerializable {
     protected declare _hasChangedFlagsChunk: Uint32Array; // has the transform been updated in this frame?
     protected declare _hasChangedFlagsOffset: number;
     protected declare _hasChangedFlags: Uint32Array;
-    parentNode: import("/Users/xwx/gitWork/editor-3d/resources/3d/engine/exports/base").Scene;
 
     constructor (name?: string) {
         super(name);
