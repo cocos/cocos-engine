@@ -157,9 +157,9 @@ It should work same as apples CFSwapInt32LittleToHost(..)
 #if defined(_MSC_VER)
     #define CC_COMPILER CC_COMPILER_MSVC
 #elif defined(__clang__)
-    #define CC_COMPILER         CC_COMPILER_CLANG
+    #define CC_COMPILER CC_COMPILER_CLANG
 #elif defined(__GNUC__)
-    #define CC_COMPILER         CC_COMPILER_GNUC
+    #define CC_COMPILER CC_COMPILER_GNUC
 #else
     #error "Unknown compiler. Abort!"
 #endif
