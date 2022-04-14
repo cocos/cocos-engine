@@ -34,7 +34,7 @@ CCEffect %{
         shadowCover:    { value: 0.5,   target: miscParams.x, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         emissive:       { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
         emissiveScale:  { value: [1.0, 1.0, 1.0], target: emissiveScaleAndStrenth.xyz }
-        normalStrenth:  { value: 1.0, target: emissiveScaleAndStrenth.w, editor: { parent: USE_NORMAL_MAP } }
+        normalStrenth:  { value: 1.0, target: emissiveScaleAndStrenth.w, editor: { parent: USE_NORMAL_MAP }, slide: true, range: [0, 5.0], step: 0.001 }
         normalMap:      { value: normal }
         mainTexture:    { value: white, target: baseColorMap, editor: { displayName: BaseColorMap } }
         shadeMap1:      { value: white  }
