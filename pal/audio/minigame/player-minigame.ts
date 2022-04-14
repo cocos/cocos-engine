@@ -33,6 +33,7 @@ export class OneShotAudioMinigame {
         nativeAudio.onEnded(() => {
             this._onEndCb?.();
             nativeAudio.destroy();
+            this._innerAudioContext = null;
         });
     }
     public play (): void {
