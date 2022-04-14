@@ -846,13 +846,7 @@ const KEY = {
     dpadCenter: 1005,
 };
 
-/**
- * @en
- * Predefined constants
- * @zh
- * 预定义常量。
- */
-const macro = {
+interface Macro {
     /**
      * @en
      * The image format supported by the engine defaults, and the supported formats may differ in different build platforms and device types.
@@ -861,7 +855,7 @@ const macro = {
      * 引擎默认支持的图片格式，支持的格式可能在不同的构建平台和设备类型上有所差别。
      * 目前所有平台和设备支持的格式有 ['.webp', '.jpg', '.jpeg', '.bmp', '.png']. The iOS mobile platform also supports the PVR format。
      */
-    SUPPORT_TEXTURE_FORMATS,
+    SUPPORT_TEXTURE_FORMATS: string[];
 
     /**
      * @en Key map for keyboard event
@@ -869,46 +863,46 @@ const macro = {
      * @example {@link cocos/core/platform/CCCommon/KEY.js}
      * @deprecated since v3.3 please use KeyCode instead
      */
-    KEY,
+    KEY: typeof KEY;
 
     /**
      * PI / 180
      */
-    RAD: Math.PI / 180,
+    RAD: number;
 
     /**
      * One degree
      */
-    DEG: 180 / Math.PI,
+    DEG: number;
 
     /**
      * A maximum value of number
      */
-    REPEAT_FOREVER: (Number.MAX_VALUE - 1),
+    REPEAT_FOREVER: number;
 
     /**
      * A minimal float value
      */
-    FLT_EPSILON: 0.0000001192092896,
+    FLT_EPSILON: number;
 
     // Possible device orientations
     /**
      * @en Oriented vertically
      * @zh 竖屏朝向
      */
-    ORIENTATION_PORTRAIT: 1,
+    ORIENTATION_PORTRAIT: number;
 
     /**
      * @en Oriented horizontally
      * @zh 横屏朝向
      */
-    ORIENTATION_LANDSCAPE: 2,
+    ORIENTATION_LANDSCAPE: number;
 
     /**
      * @en Oriented automatically
      * @zh 自动适配朝向
      */
-    ORIENTATION_AUTO: 3,
+    ORIENTATION_AUTO: number;
 
     /**
      * <p>
@@ -941,7 +935,7 @@ const macro = {
      * 在 3D 引擎中暂时无效。
      * @default true
      */
-    ENABLE_TILEDMAP_CULLING: true,
+    ENABLE_TILEDMAP_CULLING: boolean;
 
     /**
      * @en
@@ -963,7 +957,7 @@ const macro = {
      * 你可以修改这个值来获得你需要的效果，默认值是 5000 毫秒。
      * @default 5000
      */
-    TOUCH_TIMEOUT: 5000,
+    TOUCH_TIMEOUT: number;
 
     /**
      * @en
@@ -977,7 +971,7 @@ const macro = {
      * 仅支持 Web
      * @default false
      */
-    ENABLE_TRANSPARENT_CANVAS: false,
+    ENABLE_TRANSPARENT_CANVAS: boolean;
 
     /**
      * @en
@@ -998,7 +992,7 @@ const macro = {
      * 仅影响 WebGL 后端
      * @default true
      */
-    ENABLE_WEBGL_ANTIALIAS: true,
+    ENABLE_WEBGL_ANTIALIAS: boolean;
 
     /**
      * @en
@@ -1007,7 +1001,7 @@ const macro = {
      * 用于开启fxaa后处理抗锯齿, 默认值为false。
      * @default false
      */
-    ENABLE_ANTIALIAS_FXAA: false,
+    ENABLE_ANTIALIAS_FXAA: boolean;
 
     /**
      * @en
@@ -1016,7 +1010,7 @@ const macro = {
      * 用于开启 bloom, 默认值为false。
      * @default false
      */
-    ENABLE_BLOOM: false,
+    ENABLE_BLOOM: boolean;
 
     /**
      * @en
@@ -1034,16 +1028,16 @@ const macro = {
      * 在 3D 引擎中暂时无效。
      * @default false
      */
-    CLEANUP_IMAGE_CACHE: false,
+    CLEANUP_IMAGE_CACHE: boolean;
 
     /**
-      * @en
-      * Whether to enable multi-touch.
-      * @zh
-      * 是否开启多点触摸
-      * @default true
-      */
-    ENABLE_MULTI_TOUCH: true,
+     * @en
+     * Whether to enable multi-touch.
+     * @zh
+     * 是否开启多点触摸
+     * @default true
+     */
+    ENABLE_MULTI_TOUCH: boolean;
 
     /**
      * @en
@@ -1052,7 +1046,7 @@ const macro = {
      * Label 使用的 canvas pool 的最大大小，请根据项目同场景的 label 数量进行调整
      * @default 20
      */
-    MAX_LABEL_CANVAS_POOL_SIZE: 20,
+    MAX_LABEL_CANVAS_POOL_SIZE: number;
 
     /**
      * @en
@@ -1068,7 +1062,7 @@ const macro = {
      * 仅影响 WebGL 后端
      * @default false
      */
-    ENABLE_WEBGL_HIGHP_STRUCT_VALUES: false,
+    ENABLE_WEBGL_HIGHP_STRUCT_VALUES: boolean;
 
     /**
      * @zh Batcher2D 中内存增量的大小（KB）
@@ -1084,9 +1078,40 @@ const macro = {
      * you can user larger buffer size to increase the elements count per 2d draw batch.
      * @default 144 KB
      */
+    BATCHER2D_MEM_INCREMENT: number;
+}
+
+/**
+ * @en
+ * Predefined constants
+ * @zh
+ * 预定义常量。
+ */
+const macro: Macro = {
+    SUPPORT_TEXTURE_FORMATS,
+    KEY,
+    RAD: Math.PI / 180,
+    DEG: 180 / Math.PI,
+    REPEAT_FOREVER: (Number.MAX_VALUE - 1),
+    FLT_EPSILON: 0.0000001192092896,
+    ORIENTATION_PORTRAIT: 1,
+    ORIENTATION_LANDSCAPE: 2,
+    ORIENTATION_AUTO: 3,
+    ENABLE_TILEDMAP_CULLING: true,
+    TOUCH_TIMEOUT: 5000,
+    ENABLE_TRANSPARENT_CANVAS: false,
+    ENABLE_WEBGL_ANTIALIAS: true,
+    ENABLE_ANTIALIAS_FXAA: false,
+    ENABLE_BLOOM: false,
+    CLEANUP_IMAGE_CACHE: false,
+    ENABLE_MULTI_TOUCH: true,
+    MAX_LABEL_CANVAS_POOL_SIZE: 20,
+    ENABLE_WEBGL_HIGHP_STRUCT_VALUES: false,
     BATCHER2D_MEM_INCREMENT: 144,
 };
 
 legacyCC.macro = macro;
 
-export { macro };
+export {macro};
+export type { Macro };
+
