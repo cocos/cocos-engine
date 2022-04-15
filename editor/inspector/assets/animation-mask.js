@@ -53,7 +53,7 @@ exports.methods = {
     },
 
     updateInterface() {
-        const convertData = this.convertData(this.queryData._jointMasks.value);
+        const convertData = this.convertData(this.queryData.joints.value);
         this.flatData = convertData.flatData;
         this.$.tree.tree = convertData.treeData;
     },
