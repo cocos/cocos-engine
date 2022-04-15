@@ -15,6 +15,7 @@ export class AnimationMask extends Asset {
     }
 
     set joints (value) {
+        this.clear();
         for (const joint of value) {
             this.addJoint(joint.path, joint.enabled);
         }
