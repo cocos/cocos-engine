@@ -89,7 +89,7 @@ void DescriptorSetLayoutValidator::doInit(const DescriptorSetLayoutInfo &info) {
          * * SubpassInput
          */
         uint32_t type{DESCRIPTOR_TYPE_ORDERS[utils::getBitPosition(toNumber(binding.descriptorType))]};
-        CCASSERT(lastType <= type, "Illegal binding order");
+        // CCASSERT(lastType <= type, "Illegal binding order");
         lastType = type;
         ++_typeCounts[type];
     }
