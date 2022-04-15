@@ -258,7 +258,7 @@ void CCVKSwapchain::doResize(uint32_t width, uint32_t height, SurfaceTransform /
 }
 
 bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
-    if (_gpuSwapchain->vkSurface == VK_NULL_HANDLE) { // vkSurface will set to VK_NULL_HANDLE after call doDestroySurface
+    if (_gpuSwapchain->vkSurface == VK_NULL_HANDLE) { // vkSurface will be set to VK_NULL_HANDLE after call doDestroySurface
         return false;
     }
     auto *      gpuDevice  = CCVKDevice::getInstance()->gpuDevice();
