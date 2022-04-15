@@ -18,20 +18,21 @@ exports.template = `
 
 exports.methods = {
     record() {
-        // TODO: Mask 的编辑是指令驱动，无法纯数据还原，暂不支持 undo
-        // return JSON.stringify(this.queryData);
+        return JSON.stringify(this.queryData);
     },
 
     async restore(record) {
-        // TODO: Mask 的编辑是指令驱动，无法纯数据还原，暂不支持 undo
-        // record = JSON.parse(record);
-        // if (!record || typeof record !== 'object') {
-        //     return false;
-        // }
+        record = JSON.parse(record);
+        if (!record || typeof record !== 'object') {
+            return false;
+        }
 
-        // this.queryData = record;
-        // await this.change({ snapshot: false });
-        // return true;
+        this.queryData = await Editor.Message.request('scene', 'change-animation-mask', {
+            method: 'change-dump',
+            dump: record,
+        });
+        await this.changed({ snapshot: false });
+        return true;
     },
 
     async query(uuid) {
@@ -44,14 +45,10 @@ exports.methods = {
     reset() {
         this.dirtyData.uuid = '';
     },
-    async change(state) {
-        this.queryData = await Editor.Message.request('scene', 'change-animation-mask', {
-            method: 'change-dump',
-            dump: this.queryData,
-        });
-
+    async changed(state) {
         this.updateInterface();
         this.setDirtyData();
+
         this.dispatch('change', state);
     },
 
@@ -248,7 +245,7 @@ exports.ready = function() {
                         uuid: info.redirect.uuid,
                     });
 
-                    panel.change();
+                    panel.changed();
                 },
             },
         });
@@ -268,7 +265,7 @@ exports.ready = function() {
                 uuid: this.asset.uuid,
             });
 
-            this.change();
+            this.changed();
         }
     });
 
@@ -282,12 +279,17 @@ exports.ready = function() {
     panel.$.tree.setTemplate('left', '<ui-checkbox tooltip="i18n:ENGINE.assets.animationMask.nodeEnableTip"></ui-checkbox>');
     panel.$.tree.setTemplateInit('left', ($left) => {
         $left.$checkbox = $left.querySelector('ui-checkbox');
-        $left.$checkbox.addEventListener('click', (event) => {
+        $left.$checkbox.addEventListener('click', async (event) => {
             const key = $left.data.detail.key;
             const origin = panel.flatData[key].origin;
-            panel.jointEnableChange(key, !origin.value.enabled.value, event.altKey);
-            panel.change();
-            panel.$.tree.render();
+            panel.jointEnableChange(key, !origin.value.enabled.value, !event.altKey);
+
+            panel.queryData = await Editor.Message.request('scene', 'change-animation-mask', {
+                method: 'change-dump',
+                dump: panel.queryData,
+            });
+
+            panel.changed();
         });
     });
     panel.$.tree.setRender('left', ($left) => {
