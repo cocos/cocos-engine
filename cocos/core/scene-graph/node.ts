@@ -165,7 +165,7 @@ export class Node extends BaseNode implements CustomSerializable {
      */
     public _uiProps = new NodeUIProperties(this);
 
-    protected static _persistRootNodes : Record<string, Node> = {};
+    private static _persistRootNodes : Record<string, Node> = {};
 
     /**
      * @en Counter to clear node array

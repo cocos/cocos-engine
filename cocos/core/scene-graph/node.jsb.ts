@@ -84,6 +84,8 @@ NodeCls.TransformDirtyBit = TransformBit;
  */
 NodeCls.TransformBit = TransformBit;
 
+NodeCls._persistRootNodes = {};
+
 const nodeProto: any = jsb.Node.prototype;
 export const TRANSFORM_ON = 1 << 0;
 const Destroying = CCObject.Flags.Destroying;
