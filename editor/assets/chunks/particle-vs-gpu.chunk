@@ -184,6 +184,10 @@ vec4 gpvs_main () {
   vec4 velocity = vec4(a_dir_life.xyz, 0.);
   vec4 pos = vec4(a_position_starttime.xyz, 1.);
 
+  #if CC_USE_NOISE
+    pos.xyz += getNoiseParticle(pos.xyz, uNoiseParams2.w, uNoiseSpeed.xyz, uNoiseParams1.w, uNoiseParams1.xyz, uNoiseParams2.xyz, uNoiseParams3.xyz).xzy;
+  #endif
+
   // size
   vec3 size = a_size_uv.xyz;
   #if SIZE_OVER_TIME_MODULE_ENABLE
@@ -297,10 +301,6 @@ vec4 gpvs_main () {
     }
   #else
     color = a_color;
-  #endif
-
-  #if CC_USE_NOISE
-    pos.xyz += getNoiseParticle(pos.xyz, uNoiseParams2.w, uNoiseSpeed.xyz, uNoiseParams1.w, uNoiseParams1.xyz, uNoiseParams2.xyz, uNoiseParams3.xyz);
   #endif
 
   #if CC_RENDER_MODE != RENDER_MODE_MESH

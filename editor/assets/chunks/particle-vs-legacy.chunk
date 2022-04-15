@@ -23,6 +23,12 @@ in vec4 a_color;
 vec4 lpvs_main () {
   vec3 compScale = scale.xyz * a_texCoord1;
   vec4 pos = vec4(a_position, 1);
+  
+  #if CC_USE_NOISE
+    pos.xyz += getNoiseParticle(pos.xyz, uNoiseParams2.w, uNoiseSpeed.xyz, uNoiseParams1.w, uNoiseParams1.xyz, uNoiseParams2.xyz, uNoiseParams3.xyz).xzy;
+  #endif
+
+  
   #if CC_RENDER_MODE == RENDER_MODE_STRETCHED_BILLBOARD
     vec4 velocity = vec4(a_color1.xyz, 0);
   #endif
@@ -33,10 +39,6 @@ vec4 lpvs_main () {
     #if CC_RENDER_MODE == RENDER_MODE_STRETCHED_BILLBOARD
       velocity = cc_matWorld * velocity;
     #endif
-  #endif
-
-  #if CC_USE_NOISE
-    pos.xyz += getNoiseParticle(pos.xyz, uNoiseParams2.w, uNoiseSpeed.xyz, uNoiseParams1.w, uNoiseParams1.xyz, uNoiseParams2.xyz, uNoiseParams3.xyz);
   #endif
 
   #pragma define INDENTIFY_NEG_QUAT 10.0
