@@ -46,7 +46,6 @@ public class CocosSensorHandler implements SensorEventListener {
     private final Sensor mAccelerationIncludingGravity;
     private final Sensor mGyroscope;
     private int mSamplingPeriodUs = SensorManager.SENSOR_DELAY_GAME;
-    private boolean mHasRegisterListener = false;
 
     private static float[] sDeviceMotionValues = new float[9];
 
@@ -70,7 +69,6 @@ public class CocosSensorHandler implements SensorEventListener {
     // ===========================================================
     public void enable() {
         if (mEnableSensor) {
-            mHasRegisterListener = true;
             mSensorManager.registerListener(this, mAcceleration, mSamplingPeriodUs);
             mSensorManager.registerListener(this, mAccelerationIncludingGravity, mSamplingPeriodUs);
             mSensorManager.registerListener(this, mGyroscope, mSamplingPeriodUs);
@@ -78,7 +76,7 @@ public class CocosSensorHandler implements SensorEventListener {
     }
 
     public void disable() {
-        if (mHasRegisterListener) {
+        if (mEnableSensor) {
             this.mSensorManager.unregisterListener(this);
         }
     }
