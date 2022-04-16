@@ -50,6 +50,7 @@ void PipelineLayoutValidator::doInit(const PipelineLayoutInfo &info) {
     _inited = true;
 
     const auto &bindingMappings{DeviceValidator::getInstance()->bindingMappingInfo()};
+    // deffered pipeline issue: https://github.com/cocos/cocos-engine/pull/10701
     for (uint32_t i = 0; i < info.setLayouts.size(); ++i) {
         // auto *layout{static_cast<DescriptorSetLayoutValidator *>(info.setLayouts[i])};
         // CCASSERT(layout && layout->isInited(), "already destroyed?");
