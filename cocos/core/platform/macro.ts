@@ -849,11 +849,11 @@ const KEY = {
 interface Macro {
     /**
      * @en
-     * The image format supported by the engine defaults, and the supported formats may differ in different build platforms and device types.
-     * Currently all platform and device support ['.webp', '.jpg', '.jpeg', '.bmp', '.png'], ios mobile platform
+     * The image format supported by the engine, the actual supported formats may differ in different build platforms and device types.
+     * Currently contains ['.astc', '.pkm', '.pvr', '.webp', '.jpg', '.jpeg', '.bmp', '.png'].
      * @zh
-     * 引擎默认支持的图片格式，支持的格式可能在不同的构建平台和设备类型上有所差别。
-     * 目前所有平台和设备支持的格式有 ['.webp', '.jpg', '.jpeg', '.bmp', '.png']. The iOS mobile platform also supports the PVR format。
+     * 引擎默认支持的图片格式，实际运行时支持的格式可能在不同的构建平台和设备类型上有所差别。
+     * 目前包含的格式有 ['.astc', '.pkm', '.pvr', '.webp', '.jpg', '.jpeg', '.bmp', '.png']。
      */
     SUPPORT_TEXTURE_FORMATS: string[];
 
@@ -861,27 +861,31 @@ interface Macro {
      * @en Key map for keyboard event
      * @zh 键盘事件的按键值。
      * @example {@link cocos/core/platform/CCCommon/KEY.js}
-     * @deprecated since v3.3 please use KeyCode instead
+     * @deprecated since v3.3 please use [[KeyCode]] instead
      */
     KEY: typeof KEY;
 
     /**
-     * PI / 180
+     * @en One degree in radian
+     * @zh 单位弧度制
      */
     RAD: number;
 
     /**
-     * One degree
+     * @en One degree in angle
+     * @zh 单位角度值
      */
     DEG: number;
 
     /**
-     * A maximum value of number
+     * @en A maximum value of number representing infinity repeat times
+     * @zh 重复执行的最大值，实际取值为数字的最大值
      */
     REPEAT_FOREVER: number;
 
     /**
-     * A minimal float value
+     * @en A float value for representing a minimum error in comparison
+     * @zh 用于比较时可忽略的浮点误差值
      */
     FLT_EPSILON: number;
 
@@ -905,35 +909,15 @@ interface Macro {
     ORIENTATION_AUTO: number;
 
     /**
-     * <p>
-     *   If enabled, the texture coordinates will be calculated by using this formula: <br/>
-     *      - texCoord.left = (rect.x*2+1) / (texture.wide*2);                  <br/>
-     *      - texCoord.right = texCoord.left + (rect.width*2-2)/(texture.wide*2); <br/>
-     *                                                                                 <br/>
-     *  The same for bottom and top.                                                   <br/>
-     *                                                                                 <br/>
-     *  This formula prevents artifacts by using 99% of the texture.                   <br/>
-     *  The "correct" way to prevent artifacts is by expand the texture's border with the same color by 1 pixel<br/>
-     *                                                                                  <br/>
-     *  Affected component:                                                                 <br/>
-     *      - TMXLayer                                                       <br/>
-     *                                                                                  <br/>
-     *  Enabled by default. To disabled set it to 0. <br/>
-     *  To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
-     * </p>
-     * Currently not useful in 3D engine
-     */
-    // FIX_ARTIFACTS_BY_STRECHING_TEXEL_TMX: true,
-
-    /**
      * @en
      * Whether or not enabled tiled map auto culling. If you set the TiledMap skew or rotation,
      * then need to manually disable this, otherwise, the rendering will be wrong.
-     * Currently not useful in 3D engine
+     * Currently not used in 3D engine
      * @zh
      * 是否开启瓦片地图的自动裁减功能。瓦片地图如果设置了 skew, rotation 的话，需要手动关闭，否则渲染会出错。
      * 在 3D 引擎中暂时无效。
      * @default true
+     * @deprecated since v3.0
      */
     ENABLE_TILEDMAP_CULLING: boolean;
 
@@ -945,7 +929,8 @@ interface Macro {
      * no touch cancel event is triggered, and the touch will be considered active forever.
      * After multiple times of this action, our maximum touches number will be reached and all new touches will be ignored.
      * So this new mechanism can remove the touch that should be inactive if it's not updated during the last 5000 milliseconds.
-     * Though it might remove a real touch if it's just not moving for the last 5 seconds which is not easy with the sensibility of mobile touch screen.
+     * Though it might remove a real touch if it's just not moving for the last 5 seconds,
+     * which is not easy with the sensibility of mobile touch screen.
      * You can modify this value to have a better behavior if you find it's not enough.
      * @zh
      * 用于甄别一个触点对象是否已经失效并且可以被移除的延时时长
@@ -996,9 +981,9 @@ interface Macro {
 
     /**
      * @en
-     * Used to set fxaa post-processing anti-aliasing, the default value is false.
+     * Used to set FXAA post-processing anti-aliasing, the default value is false.
      * @zh
-     * 用于开启fxaa后处理抗锯齿, 默认值为false。
+     * 用于开启 FXAA 后处理抗锯齿, 默认值为 false。
      * @default false
      */
     ENABLE_ANTIALIAS_FXAA: boolean;
@@ -1007,7 +992,7 @@ interface Macro {
      * @en
      * Used to set bloom, the default value is false.
      * @zh
-     * 用于开启 bloom, 默认值为false。
+     * 用于开启 bloom, 默认值为 false。
      * @default false
      */
     ENABLE_BLOOM: boolean;
