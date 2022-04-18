@@ -351,7 +351,7 @@ module.exports = {
             clearAllNodes: 'Clear',
             clearAllNodesWarn: 'Are you sure to clear all data of this Animation Mask?',
             illegalFbx: 'Import Skeleton Failed: this fbx asset has not contained sub prefab asset.',
-            nodeEnableTip: 'Whether enable this joint;<br>Alt + Click only toggle the state of itself.',
+            nodeEnableTip: 'Whether to enable this joint and its descendants.;<br>Alt + Click only toggle the state of itself.',
         },
         multipleWarning: 'Multi-select editing of this type of asset is not supported',
         check_is_saved: {
