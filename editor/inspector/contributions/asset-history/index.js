@@ -44,7 +44,11 @@ class AssetHistoryManager extends HistoryManagerBase {
             command.manager = this;
             this.push(command);
         } else {
-            Object.assign(this.lastRecord, record);
+            this.lastRecord = Object.assign({
+                uuidListStr: '',
+                metaListStr:'',
+                renderDataStr: '',
+            }, record);
 
             this.rebase();
         }
@@ -61,7 +65,7 @@ class AssetHistoryManager extends HistoryManagerBase {
 class AssetHistoryCommand extends SnapshotCommand {
     async execute(record) {
         if (this.panel) {
-            const success = this.panel.restore(record);
+            const success = await this.panel.restore(record);
 
             if (success) {
                 this.manager.lastRecord = record;
