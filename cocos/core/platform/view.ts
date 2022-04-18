@@ -700,7 +700,7 @@ class ContentStrategy {
 
     /**
      * @en Function to apply this strategy
-     * The return value is {scale: [scaleX, scaleY], viewport: {new Rect]],
+     * The return value is {scale: [scaleX, scaleY], viewport: {new Rect}},
      * The target view can then apply these value to itself, it's preferred not to modify directly its private variables
      * @zh 调用策略方法
      * @return The result scale and viewport rect
