@@ -31,7 +31,7 @@ jobs:
         env:
           COCOS_ENGINE_DEV: 1
         run: |
-          cd $GITHUB_WORKSPACE/native/templates/windows
+          cd $GITHUB_WORKSPACE/templates/windows
           mkdir -p build-win64/proj
           touch build-win64/proj/cfg.cmake
           echo "set(CC_USE_GLES3 ON)" >> build-win64/proj/cfg.cmake
@@ -43,7 +43,7 @@ jobs:
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-win64/proj/cfg.cmake
           mkdir build-win64/assets
           cd build-win64
-          RES_DIR=${GITHUB_WORKSPACE//\\//}/native/templates/windows/build-win64
+          RES_DIR=${GITHUB_WORKSPACE//\\//}/templates/windows/build-win64
           COCOS_X_PATH=${GITHUB_WORKSPACE//\\//}/native
           cmake ../ -G"Visual Studio 16 2019" -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS_X_PATH -Ax64
           cmake --build . --config Release
@@ -70,13 +70,13 @@ jobs:
         run: |
           COCOS2DX_ROOT=$GITHUB_WORKSPACE/native
           ANDORID_NDK=$ANDROID_NDK_LATEST_HOME
-          NATIVE_DIR=$COCOS2DX_ROOT/templates/android-template       
+          NATIVE_DIR=$GITHUB_WORKSPACE/templates/android-template       
           echo "Compiling Android ... "
-          cd $COCOS2DX_ROOT/templates/
+          cd $GITHUB_WORKSPACE/templates/
           if [ ! -d  android-template ]; then
             cp -r android/template android-template
           fi
-          cd $COCOS2DX_ROOT/templates/android/build
+          cd $GITHUB_WORKSPACE/templates/android/build
           mkdir -p build-android/proj
           touch build-android/proj/cfg.cmake
           echo "set(CC_USE_GLES3 ON)" >> build-android/proj/cfg.cmake
@@ -87,7 +87,7 @@ jobs:
 
           mkdir -p build-android/assets
 
-          ASSET_DIR=$COCOS2DX_ROOT/templates/android/build/build-android/
+          ASSET_DIR=$GITHUB_WORKSPACE/templates/android/build/build-android/
 
           sed -i "s@^PROP_NDK_PATH.*@PROP_NDK_PATH=$ANDORID_NDK@g" gradle.properties
           sed -i "s@^APPLICATION_ID.*@APPLICATION_ID=com.cocos.android@g" gradle.properties
@@ -129,7 +129,7 @@ jobs:
           NUM_OF_CORES=`getconf _NPROCESSORS_ONLN`
           COCOS2DX_ROOT=$GITHUB_WORKSPACE/native
           echo "Compiling MacOSX ... "
-          cd  $COCOS2DX_ROOT/templates/mac
+          cd  $GITHUB_WORKSPACE/templates/mac
           mkdir -p build-mac/proj
           touch build-mac/proj/cfg.cmake
           echo "set(CC_USE_VULKAN OFF)" >> build-mac/proj/cfg.cmake
@@ -140,7 +140,7 @@ jobs:
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-mac/proj/cfg.cmake
           mkdir build-mac/assets
 
-          RES_DIR=$COCOS2DX_ROOT/templates/mac/build-mac
+          RES_DIR=$GITHUB_WORKSPACE/templates/mac/build-mac
           cd build-mac
           cmake ../ -GXcode -DCMAKE_OSX_ARCHITECTURES=x86_64 -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS2DX_ROOT
           set +e
@@ -180,7 +180,7 @@ jobs:
           NUM_OF_CORES=`getconf _NPROCESSORS_ONLN`
           COCOS2DX_ROOT=$GITHUB_WORKSPACE/native
           echo "Compiling MacOSX ... "
-          cd  $COCOS2DX_ROOT/templates/mac
+          cd  $GITHUB_WORKSPACE/templates/mac
           mkdir -p build-mac/proj
           touch build-mac/proj/cfg.cmake
           echo "set(CC_USE_VULKAN OFF)" >> build-mac/proj/cfg.cmake
@@ -191,7 +191,7 @@ jobs:
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-mac/proj/cfg.cmake
           mkdir build-mac/assets
 
-          RES_DIR=$COCOS2DX_ROOT/templates/mac/build-mac
+          RES_DIR=$GITHUB_WORKSPACE/templates/mac/build-mac
           cd build-mac
           cmake ../ -GXcode -DCMAKE_OSX_ARCHITECTURES=arm64 -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS2DX_ROOT
           set +e
@@ -235,7 +235,7 @@ jobs:
           NUM_OF_CORES=`getconf _NPROCESSORS_ONLN`
           COCOS2DX_ROOT=$GITHUB_WORKSPACE/native
           echo "Compiling iOS ... "
-          cd  $COCOS2DX_ROOT/templates/ios
+          cd  $GITHUB_WORKSPACE/templates/ios
           mkdir -p build-ios/proj
           touch build-ios/proj/cfg.cmake
           echo "set(CC_USE_GLES3 OFF)" >> build-ios/proj/cfg.cmake
@@ -249,7 +249,7 @@ jobs:
           echo "set(MACOSX_BUNDLE_GUI_IDENTIFIER com.cocos.demo.ios)" >> build-ios/proj/cfg.cmake
           mkdir build-ios/assets
           cd build-ios
-          RES_DIR=$COCOS2DX_ROOT/templates/ios/build-ios
+          RES_DIR=$GITHUB_WORKSPACE/templates/ios/build-ios
           cmake ../ -GXcode -DCMAKE_SYSTEM_NAME=iOS \
               -DCMAKE_OSX_SYSROOT=iphoneos \
               -DCMAKE_OSX_ARCHITECTURES=arm64 \
