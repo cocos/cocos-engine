@@ -458,7 +458,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         this._uNoiseParams2Hnd = pass.getHandle('uNoiseParams2');
         this._uNoiseParams3Hnd = pass.getHandle('uNoiseParams3');
         if (ps.useNoise) {
-            this._noiseSpeed.set(ps.noiseSpeedX, ps.noiseSpeedY, ps.noiseSpeedZ);
+            this._noiseSpeed.set(ps.noiseSpeedX, ps.noiseSpeedY, ps.noiseSpeedZ, ps.deltaTime);
             pass.setUniform(this._uNoiseSpeedHnd, this._noiseSpeed);
             this._noiseParams1.set(ps.remapX, ps.remapY, ps.remapZ, ps.noiseFrequency);
             pass.setUniform(this._uNoiseParams1Hnd, this._noiseParams1);

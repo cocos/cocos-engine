@@ -334,7 +334,7 @@ export class ParticleSystem extends RenderableComponent {
     private _useNoise = false;
 
     @type(Number)
-    @range([0, 10])
+    @range([0, 100])
     @displayOrder(16)
     @slide
     get strengthX () {
@@ -350,7 +350,7 @@ export class ParticleSystem extends RenderableComponent {
     private _strengthX = 0;
 
     @type(Number)
-    @range([0, 10])
+    @range([0, 100])
     @displayOrder(16)
     @slide
     get strengthY () {
@@ -366,7 +366,7 @@ export class ParticleSystem extends RenderableComponent {
     private _strengthY = 0;
 
     @type(Number)
-    @range([0, 10])
+    @range([0, 100])
     @displayOrder(16)
     @slide
     get strengthZ () {
@@ -430,7 +430,7 @@ export class ParticleSystem extends RenderableComponent {
     private _noiseSpeedZ = 0;
 
     @type(Number)
-    @range([0, 1])
+    @range([0, 100])
     @rangeStep(0.1)
     @displayOrder(16)
     @slide
@@ -939,6 +939,8 @@ export class ParticleSystem extends RenderableComponent {
     private _isCulled: boolean;
     private _isSimulating: boolean;
 
+    private _deltaTime: number;
+
     private _customData1: Vec2;
     private _customData2: Vec2;
 
@@ -982,6 +984,7 @@ export class ParticleSystem extends RenderableComponent {
         this._curPos = null;
         this._isCulled = false;
         this._isSimulating = true;
+        this._deltaTime = 0;
 
         this._customData1 = new Vec2();
         this._customData2 = new Vec2();
@@ -1245,6 +1248,7 @@ export class ParticleSystem extends RenderableComponent {
 
     protected update (dt: number) {
         const scaledDeltaTime = dt * this.simulationSpeed;
+        this._deltaTime = scaledDeltaTime;
 
         if (!this.renderCulling) {
             if (this._boundingBox) {
@@ -1589,6 +1593,10 @@ export class ParticleSystem extends RenderableComponent {
 
     get time () {
         return this._time;
+    }
+
+    get deltaTime () {
+        return this._deltaTime;
     }
 
     /**

@@ -27,7 +27,7 @@ import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../core/builtin';
 import { Material } from '../../core/assets';
 import { AttributeName, Format, Attribute } from '../../core/gfx';
-import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat } from '../../core/math';
+import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat, random } from '../../core/math';
 import { RecyclePool } from '../../core/memop';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { MacroRecord } from '../../core/renderer/core/pass-utils';
@@ -37,6 +37,7 @@ import { ParticleSystemRendererBase } from './particle-system-renderer-base';
 import { Component } from '../../core';
 import { Camera } from '../../core/renderer/scene/camera';
 import { Pass } from '../../core/renderer';
+import { ParticleNoise } from '../noise';
 
 const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
@@ -315,6 +316,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         pass.setUniform(this._uScaleHandle, this._node_scale);
     }
 
+    private noise: ParticleNoise = new ParticleNoise();
+
     public updateParticles (dt: number) {
         const ps = this._particleSystem;
         if (!ps) {
@@ -381,6 +384,22 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             Vec3.scaleAndAdd(p.position, p.position, p.ultimateVelocity, dt); // apply velocity.
             if (trailEnable) {
                 trailModule.animate(p, dt);
+            }
+
+            // Update noise
+            if (ps.useNoise) {
+                this.noise.setTime(ps.time);
+                this.noise.setSpeed(ps.noiseSpeedX, ps.noiseSpeedY, ps.noiseSpeedZ);
+                this.noise.setFrequency(ps.noiseFrequency);
+                this.noise.setAbs(ps.remapX, ps.remapY, ps.remapZ);
+                this.noise.setAmplititude(ps.strengthX, ps.strengthY, ps.strengthZ);
+                this.noise.setOctaves(ps.octaves, ps.octaveMultiplier, ps.octaveScale);
+                this.noise.setSamplePoint(p.position);
+                this.noise.getNoiseParticle();
+
+                const noisePosition: Vec3 = this.noise.getResult();
+                noisePosition.multiply3f(random(), random(), random());
+                Vec3.add(p.position, p.position, noisePosition.multiplyScalar(dt));
             }
         }
 
@@ -576,7 +595,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._uNoiseParams2Hnd = pass.getHandle('uNoiseParams2');
         this._uNoiseParams3Hnd = pass.getHandle('uNoiseParams3');
         if (ps.useNoise) {
-            this._noiseSpeed.set(ps.noiseSpeedX, ps.noiseSpeedY, ps.noiseSpeedZ);
+            this._noiseSpeed.set(ps.noiseSpeedX, ps.noiseSpeedY, ps.noiseSpeedZ, ps.deltaTime);
             pass.setUniform(this._uNoiseSpeedHnd, this._noiseSpeed);
             this._noiseParams1.set(ps.remapX, ps.remapY, ps.remapZ, ps.noiseFrequency);
             pass.setUniform(this._uNoiseParams1Hnd, this._noiseParams1);
