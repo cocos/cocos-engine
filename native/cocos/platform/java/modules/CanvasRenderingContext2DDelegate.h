@@ -82,7 +82,7 @@ public:
     void            updateData() override;
 
 private:
-    void unMultiplyAlpha(unsigned char *ptr, ssize_t size);
+    void unMultiplyAlpha(unsigned char *ptr, uint32_t size);
 
 public:
 private:

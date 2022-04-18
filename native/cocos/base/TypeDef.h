@@ -60,7 +60,7 @@ using index_t = int32_t;
     inline void operator^=(T &lhs, const T rhs) { lhs = static_cast<T>(static_cast<std::underlying_type<T>::type>(lhs) ^ static_cast<std::underlying_type<T>::type>(rhs)); }      \
     inline bool hasFlag(const T flags, const T flagToTest) {                                                                                                                      \
         using ValueType = std::underlying_type<T>::type;                                                                                                                          \
-        CCASSERT((static_cast<ValueType>(flagToTest) & (static_cast<ValueType>(flagToTest) - 1)) == 0, "More than one flag specified");                                           \
+        CC_ASSERT((static_cast<ValueType>(flagToTest) & (static_cast<ValueType>(flagToTest) - 1)) == 0);                                                                          \
         return (static_cast<ValueType>(flags) & static_cast<ValueType>(flagToTest)) != 0;                                                                                         \
     }                                                                                                                                                                             \
     inline bool hasAnyFlags(const T flags, const T flagsToTest) {                                                                                                                 \

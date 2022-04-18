@@ -203,8 +203,8 @@ void Engine::removeEventCallback(OSEventType evType) {
         return;
     }
 
-    // For debugging.
-    CCASSERT(false, "Interface does not exist");
+    // For debugging. Interface does not exist.
+    CC_ASSERT(false);
 }
 
 void Engine::tick() {

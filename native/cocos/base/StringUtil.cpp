@@ -168,7 +168,7 @@ ccstd::string GzipedString::value() const { // NOLINT(readability-convert-member
     uint8_t *     outBase64{nullptr};
     auto *        input       = reinterpret_cast<unsigned char *>(const_cast<char *>(_str.c_str()));
     auto          lenOfBase64 = base64Decode(input, static_cast<unsigned int>(_str.size()), &outBase64);
-    auto          lenofUnzip  = ZipUtils::inflateMemory(outBase64, static_cast<ssize_t>(lenOfBase64), &outGzip);
+    auto          lenofUnzip  = ZipUtils::inflateMemory(outBase64, static_cast<uint32_t>(lenOfBase64), &outGzip);
     ccstd::string ret(outGzip, outGzip + lenofUnzip);
     free(outGzip);
     free(outBase64);

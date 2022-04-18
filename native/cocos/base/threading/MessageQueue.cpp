@@ -168,7 +168,7 @@ void MessageQueue::freeChunksInFreeQueue(MessageQueue *const mainMessageQueue) n
 // NOLINTNEXTLINE(misc-no-recursion)
 uint8_t *MessageQueue::allocateImpl(uint32_t allocatedSize, uint32_t const requestSize) noexcept {
     uint32_t const alignedSize = align(requestSize, 16);
-    CCASSERT(alignedSize + SWITCH_CHUNK_MEMORY_REQUIREMENT <= MEMORY_CHUNK_SIZE, "block size exceeded");
+    CC_ASSERT(alignedSize + SWITCH_CHUNK_MEMORY_REQUIREMENT <= MEMORY_CHUNK_SIZE);
 
     uint32_t const newOffset = _writer.offset + alignedSize;
 

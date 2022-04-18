@@ -16,7 +16,6 @@ cc_set_if_undefined(USE_V8_DEBUGGER          ON)
 cc_set_if_undefined(USE_SOCKET               ON)
 cc_set_if_undefined(USE_AUDIO                ON)
 cc_set_if_undefined(USE_EDIT_BOX             ON)
-cc_set_if_undefined(USE_SE_JSC               OFF)
 cc_set_if_undefined(USE_VIDEO                ON)
 cc_set_if_undefined(USE_WEBVIEW              ON)
 cc_set_if_undefined(USE_MIDDLEWARE           ON)
@@ -63,11 +62,6 @@ if(USE_PHYSICS_PHYSX)
         set(USE_PHYSICS_PHYSX OFF)
         message(AUTHOR_WARNING "Native PhysX does not support Google Android X86")
     endif()
-endif()
-
-if(USE_SE_JSC)
-    set(USE_SE_V8 OFF)
-    set(USE_V8_DEBUGGER OFF)
 endif()
 
 if(NOT USE_SOCKET)
@@ -119,7 +113,6 @@ cc_inspect_values(
     USE_SOCKET
     USE_AUDIO
     USE_EDIT_BOX
-    USE_SE_JSC
     USE_VIDEO
     USE_WEBVIEW
     USE_MIDDLEWARE
@@ -768,7 +761,7 @@ cocos_source_files(
 if(USE_SOCKET)
     cocos_source_files(
                      cocos/network/WebSocket.h
-        NO_WERROR    cocos/network/SocketIO.cpp
+                     cocos/network/SocketIO.cpp
                      cocos/network/SocketIO.h
     )
 endif()
@@ -776,7 +769,7 @@ endif()
 if(NOT IOS AND USE_WEBSOCKET_SERVER)
     cocos_source_files(
                      cocos/network/WebSocketServer.h
-        NO_WERROR    cocos/network/WebSocketServer.cpp
+                     cocos/network/WebSocketServer.cpp
     )
 endif()
 
@@ -1962,6 +1955,8 @@ cocos_source_files(MODULE ccgeometry
     cocos/core/geometry/Spec.h
     cocos/core/geometry/Sphere.cpp
     cocos/core/geometry/Sphere.h
+    cocos/core/geometry/Spline.cpp
+    cocos/core/geometry/Spline.h
     cocos/core/geometry/Triangle.cpp
     cocos/core/geometry/Triangle.h
 )
@@ -1969,13 +1964,13 @@ cocos_source_files(MODULE ccgeometry
 ##### script bindings
 ######## dop
 cocos_source_files(
-    NO_WERROR   NO_UBUILD   cocos/bindings/dop/BufferPool.cpp
+                NO_UBUILD   cocos/bindings/dop/BufferPool.cpp
                             cocos/bindings/dop/BufferPool.h
-    NO_WERROR   NO_UBUILD   cocos/bindings/dop/jsb_dop.cpp
+                NO_UBUILD   cocos/bindings/dop/jsb_dop.cpp
                             cocos/bindings/dop/jsb_dop.h
                             cocos/bindings/dop/PoolType.h
                             cocos/bindings/dop/BufferAllocator.h
-    NO_WERROR   NO_UBUILD   cocos/bindings/dop/BufferAllocator.cpp
+                NO_UBUILD   cocos/bindings/dop/BufferAllocator.cpp
 )
 
 ######## auto
@@ -2318,48 +2313,46 @@ endif()
 
 ######## manual
 cocos_source_files(
-    NO_WERROR    cocos/bindings/manual/jsb_classtype.cpp
-                 cocos/bindings/manual/jsb_classtype.h
-    #NO_WERROR   cocos/bindings/manual/jsb_extension_manual.cpp
-                 #cocos/bindings/manual/jsb_extension_manual.h
-    NO_WERROR    cocos/bindings/manual/jsb_cocos_manual.cpp
-                 cocos/bindings/manual/jsb_cocos_manual.h
-                 cocos/bindings/manual/jsb_conversions.h
-    NO_WERROR    cocos/bindings/manual/jsb_conversions_spec.cpp
-                 cocos/bindings/manual/jsb_conversions_spec.h
-    NO_WERROR    cocos/bindings/manual/jsb_gfx_manual.cpp
-                 cocos/bindings/manual/jsb_gfx_manual.h
-    NO_WERROR    cocos/bindings/manual/jsb_global.cpp
-                 cocos/bindings/manual/jsb_global.h
-    NO_WERROR    cocos/bindings/manual/jsb_helper.cpp
-                 cocos/bindings/manual/jsb_helper.h
-                 cocos/bindings/manual/jsb_module_register.h
-    NO_WERROR    cocos/bindings/manual/jsb_module_register.cpp
-                 cocos/bindings/manual/jsb_platform.h
-    NO_WERROR    cocos/bindings/manual/jsb_scene_manual.cpp
-                 cocos/bindings/manual/jsb_scene_manual.h
-    NO_WERROR    cocos/bindings/manual/jsb_assets_manual.cpp
-                 cocos/bindings/manual/jsb_assets_manual.h
-    NO_WERROR    cocos/bindings/manual/jsb_network_manual.cpp
-                 cocos/bindings/manual/jsb_network_manual.h
-    NO_WERROR    cocos/bindings/manual/jsb_xmlhttprequest.cpp
-                 cocos/bindings/manual/jsb_xmlhttprequest.h
-                 cocos/bindings/manual/jsb_pipeline_manual.h
-    NO_WERROR    cocos/bindings/manual/jsb_pipeline_manual.cpp
+            cocos/bindings/manual/jsb_classtype.cpp
+            cocos/bindings/manual/jsb_classtype.h
+            cocos/bindings/manual/jsb_cocos_manual.cpp
+            cocos/bindings/manual/jsb_cocos_manual.h
+            cocos/bindings/manual/jsb_conversions.h
+            cocos/bindings/manual/jsb_conversions_spec.cpp
+            cocos/bindings/manual/jsb_conversions_spec.h
+            cocos/bindings/manual/jsb_gfx_manual.cpp
+            cocos/bindings/manual/jsb_gfx_manual.h
+            cocos/bindings/manual/jsb_global.cpp
+            cocos/bindings/manual/jsb_global.h
+            cocos/bindings/manual/jsb_helper.cpp
+            cocos/bindings/manual/jsb_helper.h
+            cocos/bindings/manual/jsb_module_register.h
+            cocos/bindings/manual/jsb_module_register.cpp
+            cocos/bindings/manual/jsb_platform.h
+            cocos/bindings/manual/jsb_scene_manual.cpp
+            cocos/bindings/manual/jsb_scene_manual.h
+            cocos/bindings/manual/jsb_assets_manual.cpp
+            cocos/bindings/manual/jsb_assets_manual.h
+            cocos/bindings/manual/jsb_network_manual.cpp
+            cocos/bindings/manual/jsb_network_manual.h
+            cocos/bindings/manual/jsb_xmlhttprequest.cpp
+            cocos/bindings/manual/jsb_xmlhttprequest.h
+            cocos/bindings/manual/jsb_pipeline_manual.h
+            cocos/bindings/manual/jsb_pipeline_manual.cpp
 )
 
 if(USE_SOCKET)
     cocos_source_files(
-        NO_WERROR    cocos/bindings/manual/jsb_socketio.cpp
+                     cocos/bindings/manual/jsb_socketio.cpp
                      cocos/bindings/manual/jsb_socketio.h
-        NO_WERROR    cocos/bindings/manual/jsb_websocket.cpp
+                     cocos/bindings/manual/jsb_websocket.cpp
                      cocos/bindings/manual/jsb_websocket.h
     )
 endif()
 
 if(NOT IOS AND USE_WEBSOCKET_SERVER)
     cocos_source_files(
-        NO_WERROR    cocos/bindings/manual/jsb_websocket_server.cpp
+                     cocos/bindings/manual/jsb_websocket_server.cpp
                      cocos/bindings/manual/jsb_websocket_server.h
     )
 endif()
@@ -2412,10 +2405,10 @@ if(USE_SE_V8)
                      cocos/bindings/jswrapper/v8/Object.h
                      cocos/bindings/jswrapper/v8/ObjectWrap.cpp
                      cocos/bindings/jswrapper/v8/ObjectWrap.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/ScriptEngine.cpp
+                     cocos/bindings/jswrapper/v8/ScriptEngine.cpp
                      cocos/bindings/jswrapper/v8/ScriptEngine.h
                      cocos/bindings/jswrapper/v8/SeApi.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/Utils.cpp
+                     cocos/bindings/jswrapper/v8/Utils.cpp
                      cocos/bindings/jswrapper/v8/Utils.h
                      cocos/bindings/jswrapper/v8/MissingSymbols.cpp
                      cocos/bindings/jswrapper/v8/MissingSymbols.h
@@ -2448,28 +2441,6 @@ if(USE_SE_V8)
                                 cocos/bindings/jswrapper/v8/debugger/v8_inspector_protocol_json.h
     )
     endif()
-endif()
-
-if(USE_SE_JSC)
-    cocos_source_files(MODULE ccbindings
-                     cocos/bindings/jswrapper/jsc/Class.h
-                     cocos/bindings/jswrapper/jsc/EJConvert.h
-                     cocos/bindings/jswrapper/jsc/HelperMacros.h
-        NO_WERROR    cocos/bindings/jswrapper/jsc/Utils.cpp
-                     cocos/bindings/jswrapper/jsc/EJConvertTypedArray.h
-                     cocos/bindings/jswrapper/jsc/PlatformUtils.h
-        NO_WERROR    cocos/bindings/jswrapper/jsc/EJConvertTypedArray.m
-        NO_WERROR    cocos/bindings/jswrapper/jsc/EJConvert.m
-                     cocos/bindings/jswrapper/jsc/Object.h
-        NO_WERROR    cocos/bindings/jswrapper/jsc/Object.mm
-                     cocos/bindings/jswrapper/jsc/ScriptEngine.h
-        NO_WERROR    cocos/bindings/jswrapper/jsc/ScriptEngine.mm
-        NO_WERROR    cocos/bindings/jswrapper/jsc/PlatformUtils.mm
-                     cocos/bindings/jswrapper/jsc/SeApi.h
-        NO_WERROR    cocos/bindings/jswrapper/jsc/Class.cpp
-                     cocos/bindings/jswrapper/jsc/Utils.h
-                     cocos/bindings/jswrapper/jsc/Base.h
-    )
 endif()
 
 if(USE_SE_SM)
@@ -2510,7 +2481,7 @@ cocos_source_files(MODULE ccbindings
 )
 
 cocos_source_files(
-    NO_WERROR    cocos/bindings/manual/jsb_global_init.cpp
+                 cocos/bindings/manual/jsb_global_init.cpp
                  cocos/bindings/manual/jsb_global_init.h
 )
 
@@ -2634,13 +2605,13 @@ endif()
 ##### extensions
 
 cocos_source_files(
-    NO_WERROR    extensions/assets-manager/AssetsManagerEx.cpp
+                 extensions/assets-manager/AssetsManagerEx.cpp
                  extensions/assets-manager/AssetsManagerEx.h
-    NO_WERROR    extensions/assets-manager/AsyncTaskPool.cpp
+                 extensions/assets-manager/AsyncTaskPool.cpp
                  extensions/assets-manager/AsyncTaskPool.h
-    NO_WERROR    extensions/assets-manager/EventAssetsManagerEx.cpp
+                 extensions/assets-manager/EventAssetsManagerEx.cpp
                  extensions/assets-manager/EventAssetsManagerEx.h
-    NO_WERROR    extensions/assets-manager/Manifest.cpp
+                 extensions/assets-manager/Manifest.cpp
                  extensions/assets-manager/Manifest.h
                  extensions/cocos-ext.h
                  extensions/ExtensionExport.h
@@ -2865,7 +2836,6 @@ function(cc_apply_definations target)
         $<IF:$<BOOL:${USE_JOB_SYSTEM_TASKFLOW}>,CC_USE_JOB_SYSTEM_TASKFLOW=1,CC_USE_JOB_SYSTEM_TASKFLOW=0>
         $<IF:$<BOOL:${USE_PHYSICS_PHYSX}>,CC_USE_PHYSICS_PHYSX=1,CC_USE_PHYSICS_PHYSX=0>
         $<IF:$<BOOL:${CC_EDITOR}>,CC_EDITOR=1,CC_EDITOR=0>
-        $<$<BOOL:${USE_SE_JSC}>:SCRIPT_ENGINE_TYPE=3>
         $<$<BOOL:${USE_SE_SM}>:SCRIPT_ENGINE_TYPE=1>
         $<$<CONFIG:Debug>:CC_DEBUG=1>
     )
@@ -2942,7 +2912,7 @@ target_include_directories(${ENGINE_NAME}
         ${CWD}/cocos/platform
         ${CWD}/cocos/renderer/core
         ${CWD}/cocos/editor-support
-        $<$<BOOL:USE_SE_JSC>:${CWD}/cocos/bindings/jswrapper>
+        $<$<BOOL:USE_SE_V8>:${CWD}/cocos/bindings/jswrapper>
     PRIVATE
         ${CC_EXTERNAL_PRIVATE_INCLUDES}
 )

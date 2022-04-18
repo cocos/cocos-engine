@@ -52,7 +52,7 @@ EShLanguage getShaderStage(ShaderStageFlagBit type) {
         case ShaderStageFlagBit::FRAGMENT: return EShLangFragment;
         case ShaderStageFlagBit::COMPUTE: return EShLangCompute;
         default: {
-            CCASSERT(false, "Unsupported ShaderStageFlagBit, convert to EShLanguage failed.");
+            CC_ASSERT(false);
             return EShLangVertex;
         }
     }
@@ -64,7 +64,7 @@ glslang::EShTargetClientVersion getClientVersion(int vulkanMinorVersion) {
         case 1: return glslang::EShTargetVulkan_1_1;
         case 2: return glslang::EShTargetVulkan_1_2;
         default: {
-            CCASSERT(false, "Unsupported vulkan version, convert to EShTargetClientVersion failed.");
+            CC_ASSERT(false);
             return glslang::EShTargetVulkan_1_0;
         }
     }
@@ -76,7 +76,7 @@ glslang::EShTargetLanguageVersion getTargetVersion(int vulkanMinorVersion) {
         case 1: return glslang::EShTargetSpv_1_3;
         case 2: return glslang::EShTargetSpv_1_5;
         default: {
-            CCASSERT(false, "Unsupported vulkan version, convert to EShTargetLanguageVersion failed.");
+            CC_ASSERT(false);
             return glslang::EShTargetSpv_1_0;
         }
     }

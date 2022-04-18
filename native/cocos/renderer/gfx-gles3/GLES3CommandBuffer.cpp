@@ -149,7 +149,7 @@ void GLES3CommandBuffer::bindPipelineState(PipelineState *pso) {
 }
 
 void GLES3CommandBuffer::bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, uint32_t dynamicOffsetCount, const uint32_t *dynamicOffsets) {
-    CCASSERT(_curGPUDescriptorSets.size() > set, "Invalid set index");
+    CC_ASSERT(_curGPUDescriptorSets.size() > set);
 
     GLES3GPUDescriptorSet *gpuDescriptorSet = static_cast<GLES3DescriptorSet *>(descriptorSet)->gpuDescriptorSet();
     if (_curGPUDescriptorSets[set] != gpuDescriptorSet) {
@@ -327,7 +327,7 @@ void GLES3CommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
 }
 
 void GLES3CommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t count) {
-    CCASSERT(false, "Command 'execute' must be recorded in primary command buffers.");
+    CC_ASSERT(false); // Command 'execute' must be recorded in primary command buffers.
 
     for (uint32_t i = 0; i < count; ++i) {
         auto *           cmdBuff    = static_cast<GLES3CommandBuffer *>(cmdBuffs[i]);
@@ -400,7 +400,7 @@ void GLES3CommandBuffer::bindStates() {
         cmd->dynamicOffsets.resize(_curGPUPipelineState->gpuPipelineLayout->dynamicOffsetCount);
         for (size_t i = 0U; i < _curDynamicOffsets.size(); i++) {
             size_t count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
-            //CCASSERT(_curDynamicOffsets[i].size() >= count, "missing dynamic offsets?");
+            // CC_ASSERT(_curDynamicOffsets[i].size() >= count);
             count = std::min(count, _curDynamicOffsets[i].size());
             if (count) memcpy(&cmd->dynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsets[i].data(), count * sizeof(uint32_t));
         }

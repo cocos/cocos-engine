@@ -44,7 +44,7 @@ SwapchainValidator::~SwapchainValidator() {
 }
 
 void SwapchainValidator::doInit(const SwapchainInfo &info) {
-    CCASSERT(!isInited(), "initializing twice?");
+    CC_ASSERT(!isInited());
     _inited = true;
 
     /////////// execute ///////////
@@ -75,7 +75,7 @@ void SwapchainValidator::doInit(const SwapchainInfo &info) {
 }
 
 void SwapchainValidator::doDestroy() {
-    CCASSERT(isInited(), "destroying twice?");
+    CC_ASSERT(isInited());
     _inited = false;
 
     /////////// execute ///////////
@@ -86,7 +86,7 @@ void SwapchainValidator::doDestroy() {
 }
 
 void SwapchainValidator::doResize(uint32_t width, uint32_t height, SurfaceTransform transform) {
-    CCASSERT(isInited(), "alread destroyed?");
+    CC_ASSERT(isInited());
 
     _actor->resize(width, height, transform);
 
@@ -98,13 +98,13 @@ void SwapchainValidator::doResize(uint32_t width, uint32_t height, SurfaceTransf
 }
 
 void SwapchainValidator::doDestroySurface() {
-    CCASSERT(isInited(), "alread destroyed?");
+    CC_ASSERT(isInited());
 
     _actor->destroySurface();
 }
 
 void SwapchainValidator::doCreateSurface(void *windowHandle) {
-    CCASSERT(isInited(), "alread destroyed?");
+    CC_ASSERT(isInited());
 
     _actor->createSurface(windowHandle);
 }

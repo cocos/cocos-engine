@@ -37,7 +37,7 @@ DescriptorSet::DescriptorSet()
 DescriptorSet::~DescriptorSet() = default;
 
 void DescriptorSet::initialize(const DescriptorSetInfo &info) {
-    CCASSERT(info.layout, "Invalid set layout");
+    CC_ASSERT(info.layout);
 
     _layout                  = info.layout;
     uint32_t descriptorCount = _layout->getDescriptorCount();

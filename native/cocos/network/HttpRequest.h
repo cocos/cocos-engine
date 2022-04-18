@@ -89,19 +89,6 @@ public:
     /** Destructor. */
     ~HttpRequest() override = default;
 
-    /**
-     * Override autorelease method to avoid developers to call it.
-     * If this function was called, it would trigger assert in debug mode
-     *
-     * @return Ref* always return nullptr.
-     */
-    RefCounted *autorelease() { // NOLINT(readability-convert-member-functions-to-static)
-        CCASSERT(false,
-                 "HttpResponse is used between network thread and ui thread \
-                 therefore, autorelease is forbidden here");
-        return nullptr;
-    }
-
     // setter/getters for properties
 
     /**
@@ -167,10 +154,10 @@ public:
     /**
      * Get the size of request data
      *
-     * @return ssize_t the size of request data
+     * @return uint32_t the size of request data
      */
-    inline ssize_t getRequestDataSize() const {
-        return static_cast<ssize_t>(_requestData.size());
+    inline uint32_t getRequestDataSize() const {
+        return static_cast<uint32_t>(_requestData.size());
     }
 
     /**

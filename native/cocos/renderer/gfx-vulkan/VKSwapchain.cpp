@@ -75,7 +75,7 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
                           return !_gpuSwapchain->queueFamilyPresentables[i];
                       }),
                       indices.end());
-        CCASSERT(!_gpuSwapchain->queueFamilyPresentables.empty(), "no presentable queue found!");
+        CC_ASSERT(!_gpuSwapchain->queueFamilyPresentables.empty());
         cmdFuncCCVKGetDeviceQueue(CCVKDevice::getInstance(), queue->gpuQueue());
     }
 
@@ -124,7 +124,7 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
                 case VK_FORMAT_R8G8B8A8_UNORM: colorFmt = Format::RGBA8; break;
                 case VK_FORMAT_R8G8B8A8_SRGB: colorFmt = Format::SRGB8_A8; break;
                 case VK_FORMAT_R5G6B5_UNORM_PACK16: colorFmt = Format::R5G6B5; break;
-                default: CCASSERT(0, "assumption broken: new default surface format"); break;
+                default: CC_ASSERT(false); break;
             }
         }
     }

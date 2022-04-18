@@ -361,14 +361,13 @@ void Octree::resize(const Vec3 &minPos, const Vec3 &maxPos, uint32_t maxDepth) {
 }
 
 void Octree::insert(Model *model) {
-    CCASSERT(model, "Octree insert: model is nullptr.");
+    CC_ASSERT(model);
 
     if (!model->getWorldBounds()) {
         return;
     }
 
-    bool inside = isInside(model);
-    if (!inside) {
+    if (isOutside(model)) {
         CC_LOG_WARNING("Octree insert: model is outside of the scene bounding box, please modify DEFAULT_WORLD_MIN_POS and DEFAULT_WORLD_MAX_POS.");
         return;
     }
@@ -381,7 +380,7 @@ void Octree::insert(Model *model) {
 }
 
 void Octree::remove(Model *model) {
-    CCASSERT(model, "Octree remove: model is nullptr.");
+    CC_ASSERT(model);
 
     OctreeNode *node = model->getOctreeNode();
     if (node) {
@@ -408,6 +407,13 @@ bool Octree::isInside(Model *model) const {
     BBox        modelBox = BBox(*model->getWorldBounds());
 
     return rootBox.contain(modelBox);
+}
+
+bool Octree::isOutside(Model *model) const {
+    const BBox &rootBox  = _root->getBox();
+    BBox        modelBox = BBox(*model->getWorldBounds());
+
+    return !rootBox.intersect(modelBox);
 }
 
 } // namespace scene

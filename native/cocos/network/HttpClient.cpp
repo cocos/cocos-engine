@@ -506,7 +506,7 @@ void HttpClient::processResponse(HttpResponse *response, char *responseMessage) 
             break;
 
         default:
-            CCASSERT(false, "CCHttpClient: unknown request type, only GET, POST, PUT, HEAD or DELETE is supported");
+            CC_ASSERT(false);
             break;
     }
 

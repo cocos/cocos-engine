@@ -139,7 +139,7 @@ using GLES2GPUTextureList = ccstd::vector<GLES2GPUTexture *>;
 
 struct GLES2GPUSwapchain {
 #if CC_SWAPPY_ENABLED
-    bool             swappyEnabled{false};
+    bool swappyEnabled{false};
 #endif
     EGLSurface       eglSurface{EGL_NO_SURFACE};
     EGLint           eglSwapInterval{0};
@@ -531,7 +531,7 @@ public:
 
             GLenum status;
             GL_CHECK(status = glCheckFramebufferStatus(GL_FRAMEBUFFER));
-            CCASSERT(status == GL_FRAMEBUFFER_COMPLETE, "frambuffer incomplete");
+            CC_ASSERT(status == GL_FRAMEBUFFER_COMPLETE);
 
             cacheMap[glResource].glFramebuffer = glFramebuffer;
         }

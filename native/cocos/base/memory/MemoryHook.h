@@ -28,11 +28,11 @@
 #include "../Config.h"
 #if USE_MEMORY_LEAK_DETECTOR
 
-    #include "../Macros.h"
-    #include "CallStack.h"
-    #include "base/std/container/unordered_map.h"
-
     #include <mutex>
+    #include "../Macros.h"
+    #include "base/std/container/string.h"
+    #include "base/std/container/unordered_map.h"
+    #include "base/std/container/vector.h"
 
 typedef void *(*MallocType)(size_t size);
 typedef void (*FreeType)(void *ptr);
