@@ -37,6 +37,7 @@ import { Scheduler } from '../scheduler';
 import { MutableForwardIterator, remove } from '../utils/array';
 import { LegacyBlendStateBuffer } from '../../3d/skeletal-animation/skeletal-animation-blending';
 import { AnimationState } from './animation-state';
+import type { CrossFade } from './cross-fade';
 import { legacyCC } from '../global-exports';
 import { IJointTransform, deleteTransform, getTransform, getWorldMatrix } from './skeletal-animation-utils';
 import { Socket } from '../../3d/skeletal-animation/skeletal-animation';
@@ -44,18 +45,6 @@ import { Socket } from '../../3d/skeletal-animation/skeletal-animation';
 interface ISocketData {
     target: Node;
     transform: IJointTransform;
-}
-
-/**
- * Opacity value which is guaranteed to not be null or undefined.
- */
-export interface AnimationUpdateTaskHandle {
-    readonly __brand: 'AnimationUpdateTaskHandle';
-}
-
-interface AnimationUpdateTask<T> extends AnimationUpdateTaskHandle {
-    callback: (this: T, deltaTime: number) => void;
-    thisArg: T;
 }
 
 @ccclass
@@ -66,6 +55,7 @@ export class AnimationManager extends System {
 
     public static ID = 'animation';
     private _anims = new MutableForwardIterator<AnimationState>([]);
+    private _crossFades = new MutableForwardIterator<CrossFade>([]);
     private _delayEvents: {
         fn: (...args: any[]) => void;
         thisArg: any;
@@ -73,25 +63,32 @@ export class AnimationManager extends System {
     }[] = [];
     private _blendStateBuffer: LegacyBlendStateBuffer = new LegacyBlendStateBuffer();
     private _sockets: ISocketData[] = [];
-    private _updateTasks: AnimationUpdateTask<any>[] = [];
 
-    public addUpdateTask<T> (callback: (this: T, deltaTime: number) => void, thisArg: T): AnimationUpdateTaskHandle {
-        const task = { callback, thisArg } as AnimationUpdateTask<any>;
-        this._updateTasks.push(task);
-        return task;
+    public addCrossFade (crossFade: CrossFade) {
+        const index = this._crossFades.array.indexOf(crossFade);
+        if (index === -1) {
+            this._crossFades.push(crossFade);
+        }
     }
 
-    public removeUpdateTask (handle: AnimationUpdateTaskHandle) {
-        remove(this._updateTasks, handle);
+    public removeCrossFade (crossFade: CrossFade) {
+        const index = this._crossFades.array.indexOf(crossFade);
+        if (index >= 0) {
+            this._crossFades.fastRemoveAt(index);
+        } else {
+            errorID(3907);
+        }
     }
 
     public update (dt: number) {
-        const { _updateTasks: updateTasks, _delayEvents, _sockets } = this;
+        const { _delayEvents, _crossFades: crossFadesIter, _sockets } = this;
 
-        const nUpdateTasks = updateTasks.length;
-        for (let iUpdateTask = 0; iUpdateTask < nUpdateTasks; ++iUpdateTask) {
-            const { callback, thisArg } = updateTasks[iUpdateTask];
-            callback.call(thisArg, dt);
+        { // Update cross fades
+            const crossFades = crossFadesIter.array;
+            for (crossFadesIter.i = 0; crossFadesIter.i < crossFades.length; ++crossFadesIter.i) {
+                const crossFade = crossFades[crossFadesIter.i];
+                crossFade.update(dt);
+            }
         }
 
         const iterator = this._anims;

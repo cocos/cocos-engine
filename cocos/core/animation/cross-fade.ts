@@ -30,8 +30,9 @@
 
 import { clamp01 } from '../math/utils';
 import { remove } from '../utils/array';
-import type { AnimationState } from './animation-state';
+import { AnimationState } from './animation-state';
 import { Playable } from './playable';
+import { getGlobalAnimationManager } from './global-animation-manager';
 
 interface IManagedState {
     state: AnimationState | null;
@@ -44,17 +45,25 @@ interface IFading {
     easeDuration: number;
 }
 
-/**
- * Helper class to allocate weights for animation states,
- * according to the invocation of "cross fading".
- */
-export class CrossFade {
+interface CrossFadeScheduler {
+    addCrossFade(crossFade: CrossFade): void;
+
+    removeCrossFade(crossFade: CrossFade): void;
+}
+
+export class CrossFade extends Playable {
     private readonly _managedStates: IManagedState[] = [];
     private readonly _fadings: IFading[] = [];
-    private _finished = true;
+    private _scheduled = false;
+    private declare _scheduler: CrossFadeScheduler;
+
+    constructor (scheduler?: CrossFadeScheduler) {
+        super();
+        this._scheduler = scheduler ?? getGlobalAnimationManager();
+    }
 
     public update (deltaTime: number) {
-        if (this._finished) {
+        if (this.isMotionless) {
             return;
         }
 
@@ -71,7 +80,7 @@ export class CrossFade {
         }
 
         if (managedStates.length === 1 && fadings.length === 1) { // Definitely not code repetition
-            this._finished = true;
+            this._unscheduleThis();
         }
     }
 
@@ -109,48 +118,61 @@ export class CrossFade {
             target,
         });
 
-        // Note: clear() set this to true
-        this._finished = false;
+        if (!this.isMotionless) {
+            this._scheduleThis();
+        }
     }
 
-    /**
-     * Invoke `stop()` on all managed states then clear fade queue.
-     */
     public clear () {
         for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
             const state = this._managedStates[iManagedState].state;
             if (state) {
-                state.weight = 1.0;
                 state.stop();
             }
         }
         this._managedStates.length = 0;
         this._fadings.length = 0;
-        this._finished = true;
+    }
+
+    protected onPlay () {
+        super.onPlay();
+        this._scheduleThis();
     }
 
     /**
-     * Invoke `pause()` on all managed states.
+     * 停止我们淡入淡出的所有动画状态并停止淡入淡出。
      */
-    public pause () {
+    protected onPause () {
+        super.onPause();
         for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
             const state = this._managedStates[iManagedState].state;
             if (state) {
                 state.pause();
             }
         }
+        this._unscheduleThis();
     }
 
     /**
-     * Invoke `resume()` on all managed states.
+     * 恢复我们淡入淡出的所有动画状态并继续淡入淡出。
      */
-    public resume () {
+    protected onResume () {
+        super.onResume();
         for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
             const state = this._managedStates[iManagedState].state;
             if (state) {
                 state.resume();
             }
         }
+        this._scheduleThis();
+    }
+
+    /**
+     * 停止所有淡入淡出的动画状态。
+     */
+    protected onStop () {
+        super.onStop();
+        this.clear();
     }
 
     private _calculateWeights (deltaTime: number) {
@@ -193,13 +215,26 @@ export class CrossFade {
                 --deadFading.target.reference;
                 if (deadFading.target.reference <= 0) {
                     if (deadFading.target.state) {
-                        deadFading.target.state.weight = 1.0;
                         deadFading.target.state.stop();
                     }
                     remove(this._managedStates, deadFading.target);
                 }
             }
             fadings.splice(deadFadingBegin);
+        }
+    }
+
+    private _scheduleThis () {
+        if (!this._scheduled) {
+            this._scheduler.addCrossFade(this);
+            this._scheduled = true;
+        }
+    }
+
+    private _unscheduleThis () {
+        if (this._scheduled) {
+            this._scheduler.removeCrossFade(this);
+            this._scheduled = false;
         }
     }
 }

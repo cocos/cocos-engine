@@ -140,7 +140,7 @@ export class StateMachine extends EditorExtendable {
 
     /**
      * // TODO: HACK
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public __callOnAfterDeserializeRecursive () {
         this[onAfterDeserializedTag]();
@@ -619,7 +619,9 @@ class TriggerVariable implements BasicVariableDescription<VariableType.TRIGGER> 
     }
 
     set resetMode (value: TriggerResetMode) {
-        this._flags &= ~(TRIGGER_VARIABLE_FLAG_RESET_MODE_MASK << TRIGGER_VARIABLE_FLAG_RESET_MODE_START);
+        // Clear
+        this._flags &= ~TRIGGER_VARIABLE_FLAG_RESET_MODE_MASK;
+        // Set
         this._flags |= (value << TRIGGER_VARIABLE_FLAG_RESET_MODE_START);
     }
 

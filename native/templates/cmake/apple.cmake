@@ -35,6 +35,7 @@ macro(cc_ios_before_target target_name)
     )
 
     set(CC_ALL_SOURCES ${CC_PROJ_SOURCES} ${CC_ASSET_FILES} ${CC_COMMON_SOURCES})
+    cc_common_before_target(${target_name})
 endmacro()
 
 macro(cc_ios_after_target target_name)
@@ -55,6 +56,13 @@ macro(cc_ios_after_target target_name)
         XCODE_ATTRIBUTE_SKIP_INSTALL NO
         XCODE_ATTRIBUTE_INSTALL_PATH "$(LOCAL_APPS_DIR)"
     )
+    ## exclude arm64 arch and specify x86_64 for iphonesimulator by default, this will apply to both target.
+    set(CMAKE_XCODE_ATTRIBUTE_EXCLUDED_ARCHS[sdk=iphonesimulator*] "arm64")
+    set(CMAKE_XCODE_ATTRIBUTE_ARCHS[sdk=iphoneos*] "arm64")
+    set(CMAKE_XCODE_ATTRIBUTE_ARCHS[sdk=iphonesimulator*] "x86_64")
+    set(CMAKE_XCODE_ATTRIBUTE_VALID_ARCHS[sdk=iphoneos*] "arm64")
+    set(CMAKE_XCODE_ATTRIBUTE_VALID_ARCHS[sdk=iphonesimulator*] "x86_64")
+    
     target_link_libraries(${target_name} cocos2d)
 
     target_include_directories(${target_name} PRIVATE
@@ -94,6 +102,7 @@ macro(cc_mac_before_target target_name)
     source_group(TREE ${CC_PROJECT_DIR}/../common PREFIX "Source Files" FILES ${CC_COMMON_SOURCES})
 
     set(CC_ALL_SOURCES ${CC_PROJ_SOURCES} ${CC_ASSET_FILES} ${CC_COMMON_SOURCES})
+    cc_common_before_target(${target_name})
 endmacro()
 
 

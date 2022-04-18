@@ -43,10 +43,18 @@
 #endif
 
 namespace cc {
-BasePlatform::BasePlatform()  = default;
-BasePlatform::~BasePlatform() = default;
+BasePlatform* BasePlatform::_currentPlatform = nullptr;
 
-BasePlatform* BasePlatform::getPlatform() {
+BasePlatform::BasePlatform() {
+    CCASSERT(_currentPlatform == nullptr, "The platform has been initialized, only one platform can be initialized");
+    _currentPlatform = this;
+}
+
+BasePlatform::~BasePlatform() {
+    _currentPlatform = nullptr;
+}
+
+BasePlatform* BasePlatform::createDefaultPlatform() {
 #if defined(CC_SERVER_MODE)
     static EmptyPlatform platform;
 #elif (CC_PLATFORM == CC_PLATFORM_WINDOWS)
@@ -66,4 +74,14 @@ BasePlatform* BasePlatform::getPlatform() {
 #endif
     return &platform;
 }
+
+BasePlatform* BasePlatform::getPlatform() {
+    if (_currentPlatform) {
+        return _currentPlatform;
+    }
+    createDefaultPlatform();
+    CCASSERT(_currentPlatform != nullptr, "Need to point to the current platform");
+    return _currentPlatform;
+}
+
 } // namespace cc

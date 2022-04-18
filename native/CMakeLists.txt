@@ -140,10 +140,6 @@ endif()
 
 include(${CMAKE_CURRENT_LIST_DIR}/external/CMakeLists.txt)
 
-if(ANDROID AND SWAPPY_ENABLED)
-    add_definitions(-DCC_SWAPPY_ENABLED)
-endif()
-
 ##### audio
 if(USE_AUDIO)
     cocos_source_files(
@@ -2478,9 +2474,6 @@ endif()
 if(QNX)
     include(${QNX_PATH}/setup.cmake)
     qnx_set_property(cocos2d)
-    target_link_libraries(cocos2d PUBLIC
-        ${CC_EXTERNAL_LIBS}
-    )
 elseif(LINUX)
     set(LINUX_GRAPHIC_LIBS "")
     if(NOT USE_SERVER_MODE)

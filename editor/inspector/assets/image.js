@@ -12,10 +12,10 @@ exports.template = `
         <ui-label slot="label" value="i18n:ENGINE.assets.image.flipVertical" tooltip="i18n:ENGINE.assets.image.flipVerticalTip"></ui-label>
         <ui-checkbox slot="content" class="flipVertical-checkbox"></ui-checkbox>
     </ui-prop>
-    <ui-prop>
+    <!--ui-prop>
         <ui-label slot="label" value="i18n:ENGINE.assets.image.bakeOfflineMipmaps" tooltip="i18n:ENGINE.assets.image.bakeOfflineMipmapsTip"></ui-label>
         <ui-checkbox slot="content" class="bakeOfflineMipmaps-checkbox"></ui-checkbox>
-    </ui-prop>
+    </ui-prop-->
     <ui-prop  class="fixATAProp">
         <ui-label slot="label" value="i18n:ENGINE.assets.image.fixAlphaTransparencyArtifacts" tooltip="i18n:ENGINE.assets.image.fixAlphaTransparencyArtifactsTip"></ui-label>
         <ui-checkbox slot="content" class="fixAlphaTransparencyArtifacts-checkbox"></ui-checkbox>
@@ -57,7 +57,7 @@ exports.$ = {
     isRGBEProp: '.isRGBE-prop',
     isRGBECheckbox: '.isRGBE-checkbox',
 
-    bakeOfflineMipmapsCheckbox: '.bakeOfflineMipmaps-checkbox',
+    //bakeOfflineMipmapsCheckbox: '.bakeOfflineMipmaps-checkbox',
 };
 
 /**
@@ -77,6 +77,7 @@ const Elements = {
                 // There are other properties whose updates depend on its changes attribute corresponds to the edit element
                 Elements.isRGBE.update.call(panel);
                 Elements.fixAlphaTransparencyArtifacts.update.call(panel);
+                panel.updatePanel();
             });
         },
         update() {
@@ -115,26 +116,26 @@ const Elements = {
             panel.updateReadonly(panel.$.flipVerticalCheckbox);
         },
     },
-    bakeOfflineMipmaps: {
-        ready() {
-            const panel = this;
+    // bakeOfflineMipmaps: {
+    //     ready() {
+    //         const panel = this;
 
-            panel.$.bakeOfflineMipmapsCheckbox.addEventListener('change', (event) => {
-                panel.metaList.forEach((meta) => {
-                    meta.userData.bakeOfflineMipmaps = event.target.value;
-                });
-                panel.dispatch('change');
-            });
-        },
-        update() {
-            const panel = this;
+    //         panel.$.bakeOfflineMipmapsCheckbox.addEventListener('change', (event) => {
+    //             panel.metaList.forEach((meta) => {
+    //                 meta.userData.bakeOfflineMipmaps = event.target.value;
+    //             });
+    //             panel.dispatch('change');
+    //         });
+    //     },
+    //     update() {
+    //         const panel = this;
 
-            panel.$.bakeOfflineMipmapsCheckbox.value = panel.meta.userData.bakeOfflineMipmaps;
+    //         panel.$.bakeOfflineMipmapsCheckbox.value = panel.meta.userData.bakeOfflineMipmaps;
 
-            panel.updateInvalid(panel.$.bakeOfflineMipmapsCheckbox, 'bakeOfflineMipmaps');
-            panel.updateReadonly(panel.$.bakeOfflineMipmapsCheckbox);
-        },
-    },
+    //         panel.updateInvalid(panel.$.bakeOfflineMipmapsCheckbox, 'bakeOfflineMipmaps');
+    //         panel.updateReadonly(panel.$.bakeOfflineMipmapsCheckbox);
+    //     },
+    // },
 
     fixAlphaTransparencyArtifacts: {
         ready() {

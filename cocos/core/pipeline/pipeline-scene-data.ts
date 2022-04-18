@@ -32,7 +32,7 @@ import { RenderPipeline } from './render-pipeline';
 import { Light } from '../renderer/scene/light';
 import { Material } from '../assets';
 import { Pass } from '../renderer/core/pass';
-import { NativePass, NativePipelineSharedSceneData } from '../renderer/scene';
+import { NativePass, NativePipelineSharedSceneData } from '../renderer';
 import { PipelineEventType } from './pipeline-event';
 
 const GEOMETRY_RENDERER_TECHNIQUE_COUNT = 6;

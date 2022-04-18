@@ -160,7 +160,7 @@ void JniNativeGlue::dispatchEvent(const OSEvent& ev) {
     }
 }
 
-void JniNativeGlue::dispatchTouchEvent(const OSEvent& ev) {
+void JniNativeGlue::dispatchTouchEvent(const TouchEvent& ev) {
     if (_eventDispatcher) {
         _eventDispatcher->dispatchTouchEvent(ev);
     }
