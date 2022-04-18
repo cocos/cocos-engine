@@ -68,12 +68,47 @@ jobs:
         run: |
           sudo apt install -y cmake llvm clang-tidy-11
 
-      - name: Generate Compile database
-        shell: bash
+      - name: Full Compile
         run: |
-          cd native
-          ./utils/generate_compile_commands_android.sh
+          COCOS2DX_ROOT=$GITHUB_WORKSPACE/native
+          ANDORID_NDK=$ANDROID_NDK_LATEST_HOME
+          NATIVE_DIR=$GITHUB_WORKSPACE/templates/android-template       
+          echo "Compiling Android ... "
+          cd $GITHUB_WORKSPACE/templates/
+          if [ ! -d  android-template ]; then
+            cp -r android/template android-template
+          fi
+          cd $GITHUB_WORKSPACE/templates/android/build
+          mkdir -p build-android/proj
+          touch build-android/proj/cfg.cmake
+          echo "set(CC_USE_GLES3 ON)" >> build-android/proj/cfg.cmake
+          echo "set(CC_USE_VULKAN ON)" >> build-android/proj/cfg.cmake
+          echo "set(CC_USE_GLES2 ON)" >> build-android/proj/cfg.cmake
+          echo "set(USE_WEBSOCKET_SERVER ON)" >> build-android/proj/cfg.cmake
+          echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-android/proj/cfg.cmake
+          # export compile commands 
+          echo "set(CMAKE_EXPORT_COMPILE_COMMANDS ON)" >> build-android/proj/cfg.cmake
 
+          mkdir -p build-android/assets
+
+          ASSET_DIR=$GITHUB_WORKSPACE/templates/android/build/build-android/
+
+          sed -i "s@^PROP_NDK_PATH.*@PROP_NDK_PATH=$ANDORID_NDK@g" gradle.properties
+          sed -i "s@^APPLICATION_ID.*@APPLICATION_ID=com.cocos.android@g" gradle.properties
+          sed -i "s@^RES_PATH.*@RES_PATH=$ASSET_DIR@g" gradle.properties
+          sed -i "s@^COCOS_ENGINE_PATH.*@COCOS_ENGINE_PATH=$COCOS2DX_ROOT@g" gradle.properties
+          sed -i "s@^NATIVE_DIR.*@NATIVE_DIR=$NATIVE_DIR@g" gradle.properties
+
+          # To speedup CI, compile arm64-v8a only
+          # sed -i "s@^PROP_APP_ABI.*@PROP_APP_ABI=armeabi-v7a:arm64-v8a:x86@g" gradle.properties
+          sed -i "s@^PROP_APP_ABI.*@PROP_APP_ABI=arm64-v8a@g" gradle.properties
+
+          echo "Compile Android - cmake ..."
+          echo "ANDORID_NDK ${ANDROID_NDK} or ${ANDROID_NDK_HOME}"
+          ./gradlew :CocosGame:assembleDebug --quiet
+          echo "Compile Android Debug Done!"
+          echo "Copy Compile database"
+          cp "$(find . -name compile_commands.json)" ${COCOS2DX_ROOT}/
       - name: Generate clang-fix.yaml
         shell: bash
         if: ${{ steps.listchanged.outputs.source == 'true' }}
