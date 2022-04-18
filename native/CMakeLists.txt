@@ -406,7 +406,7 @@ elseif(ANDROID)
     cocos_source_files(
         cocos/platform/android/GameActivityInclude.cpp
         cocos/platform/android/AndroidPlatform.cpp
-        cocos/platform/android/AndroidPlatform.h
+#        cocos/platform/android/AndroidPlatform.h
     )
 elseif(OHOS)
     cocos_source_files(
