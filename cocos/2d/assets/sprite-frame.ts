@@ -1431,41 +1431,51 @@ export class SpriteFrame extends Asset {
             // 使用 Bayazit 来生成顶点并赋值
         } else { // Rect mode
             // 默认的中心点为 0.5，0.5
-            const originalSize = this.originalSize;
-            const width = originalSize.width;
-            const height = originalSize.height;
+            const tex = this.texture;
+            const texw = tex.width;
+            const texh = tex.height;
+            const rect = this.rect;
+            const width = rect.width;
+            const height = rect.height;
+            const rectX = rect.x;
+            const rectY = texh - rect.y - height;
             const halfWidth = width / 2;
             const halfHeight = height / 2;
+
+            const l = texw === 0 ? 0 : rectX / texw;
+            const r = texw === 0 ? 1 : (rectX + width) / texw;
+            const t = texh === 0 ? 1 : (rectY + height) / texh;
+            const b = texh === 0 ? 0 : rect.y / texh;
 
             // left bottom
             temp_vec3.set(-halfWidth, -halfHeight, 0);
             this.vertices.rawPosition.push(temp_vec3.clone());
-            this.vertices.uv.push(0);
-            this.vertices.uv.push(0);
-            this.vertices.nuv.push(0); // 0 / width
-            this.vertices.nuv.push(0); // 0 / height
+            this.vertices.uv.push(rectX);
+            this.vertices.uv.push(rectY + height);
+            this.vertices.nuv.push(l);
+            this.vertices.nuv.push(b);
             this.vertices.minPos.set(temp_vec3);
             // right bottom
             temp_vec3.set(halfWidth, -halfHeight, 0);
             this.vertices.rawPosition.push(temp_vec3.clone());
-            this.vertices.uv.push(width);
-            this.vertices.uv.push(0);
-            this.vertices.nuv.push(1); // width / width
-            this.vertices.nuv.push(0); // 0 / height
+            this.vertices.uv.push(rectX + width);
+            this.vertices.uv.push(rectY + height);
+            this.vertices.nuv.push(r);
+            this.vertices.nuv.push(b);
             // left top
             temp_vec3.set(-halfWidth, halfHeight, 0);
             this.vertices.rawPosition.push(temp_vec3.clone());
-            this.vertices.uv.push(0);
-            this.vertices.uv.push(height);
-            this.vertices.nuv.push(0); // 0 / width
-            this.vertices.nuv.push(1); // height / height
+            this.vertices.uv.push(rectX);
+            this.vertices.uv.push(rectY);
+            this.vertices.nuv.push(l);
+            this.vertices.nuv.push(t);
             // right top
             temp_vec3.set(halfWidth, halfHeight, 0);
             this.vertices.rawPosition.push(temp_vec3.clone());
-            this.vertices.uv.push(width);
-            this.vertices.uv.push(height);
-            this.vertices.nuv.push(1); // width / width
-            this.vertices.nuv.push(1); // height / height
+            this.vertices.uv.push(rectX + width);
+            this.vertices.uv.push(rectY);
+            this.vertices.nuv.push(r);
+            this.vertices.nuv.push(t);
             this.vertices.maxPos.set(temp_vec3);
 
             // UV 信息相同且位置对应
@@ -1484,7 +1494,10 @@ export class SpriteFrame extends Asset {
     protected _updateMeshVertices () {
         //开始生成生成 mesh 要的 Geometry 信息
         temp_matrix.identity();
-        const temp_vec3 = new Vec3(this._pivot.x - 0.5, this._pivot.y - 0.5, 0);
+
+        const PosX = (this._pivot.x - 0.5) * this.rect.width;
+        const PosY = (this._pivot.y - 0.5) * this.rect.height;
+        const temp_vec3 = new Vec3(PosX, PosY, 0);
         temp_matrix.translate(temp_vec3);
         const units = 1 / this._pixelsToUnits;
         temp_vec3.set(units, units, 1);
