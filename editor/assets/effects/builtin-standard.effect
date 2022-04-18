@@ -111,8 +111,7 @@ CCProgram standard-vs %{
   #endif
 
   #if USE_NORMAL_MAP
-    out mediump vec3 v_tangent;
-    out mediump vec3 v_bitangent;
+    out mediump vec4 v_tangent;
   #endif
 
   #if HAS_SECOND_UV || USE_LIGHTMAP
@@ -145,8 +144,8 @@ CCProgram standard-vs %{
     #endif
 
     #if USE_NORMAL_MAP
-      v_tangent = normalize((matWorld * vec4(In.tangent.xyz, 0.0)).xyz);
-      v_bitangent = cross(v_normal, v_tangent) * In.tangent.w; // note the cross order
+      v_tangent.xyz = normalize((matWorld * vec4(In.tangent.xyz, 0.0)).xyz);
+      v_tangent.w = In.tangent.w;
     #endif
 
     v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
@@ -205,8 +204,7 @@ CCProgram standard-fs %{
     #pragma define-meta ALBEDO_UV options([v_uv, v_uv1])
   #endif
   #if USE_NORMAL_MAP
-    in mediump vec3 v_tangent;
-    in mediump vec3 v_bitangent;
+    in mediump vec4 v_tangent;
     uniform sampler2D normalMap;
     #pragma define-meta NORMAL_UV options([v_uv, v_uv1])
   #endif
@@ -266,9 +264,10 @@ CCProgram standard-fs %{
 
     #if USE_NORMAL_MAP
       vec3 nmmp = texture(normalMap, NORMAL_UV).xyz - vec3(0.5);
+      vec3 bitangent = cross(v_normal, v_tangent.xyz) * v_tangent.w; // note the cross order
       s.normal =
-        (nmmp.x * emissiveScaleParam.w) * normalize(v_tangent) +
-        (nmmp.y * emissiveScaleParam.w) * normalize(v_bitangent) +
+        (nmmp.x * emissiveScaleParam.w) * normalize(v_tangent.xyz) +
+        (nmmp.y * emissiveScaleParam.w) * normalize(bitangent) +
         nmmp.z * normalize(s.normal);
     #endif
 
