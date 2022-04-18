@@ -4,7 +4,7 @@
         "en": "GFX"
     },
     "description": {
-        "zh": "图形后端抽象",
-        "en": "GFX"
+        "zh": "图形后端抽象类，用于抹平不同渲染后端差异",
+        "en": "Graphical backend abstraction class for unifying different rendering backend differences"
     }
 }

@@ -4,7 +4,7 @@
         "en": "Math"
     },
     "description": {
-        "zh": "数学",
-        "en": "Math"
+        "zh": "数学库，包含各维度下的向量和矩阵运算等内容",
+        "en": "Mathematical library, including vector and matrix operations in each dimension, etc."
     }
 }

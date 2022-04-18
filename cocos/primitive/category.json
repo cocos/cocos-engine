@@ -4,7 +4,7 @@
         "en": "Primitive"
     },
     "description": {
-        "zh": "基础图元",
-        "en": "Primitive"
+        "zh": "一些可参数化的基础图元",
+        "en": "Some parametric primitive"
     }
 }
