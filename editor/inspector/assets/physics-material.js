@@ -10,29 +10,37 @@ exports.methods = {
     async restore(record) {
         record = JSON.parse(record);
         if (!record || typeof record !== 'object') {
-            return;
+            return false;
         }
 
         this.physicsMaterial = record;
-        await this.change();
-        this.updateInterface();
+        await this.change({ snapshot: false });
+        return true;
     },
 
     async query(uuid) {
         return await Editor.Message.request('scene', 'query-physics-material', uuid);
     },
+
     async apply() {
         this.reset();
         await Editor.Message.request('scene', 'apply-physics-material', this.asset.uuid, this.physicsMaterial);
     },
+
     reset() {
-        this.dirtyData.origin = this.dirtyData.realtime;
+        /**
+         * reset 环节只需把 uuid 清空
+         * 会重新进入 panel.update 周期，根据 uuid 为空的条件，把 this.dirtyData.origin 重新填充
+         */
         this.dirtyData.uuid = '';
     },
-    async change() {
-        await Editor.Message.request('scene', 'change-physics-material', this.physicsMaterial);
+
+    async change(state) {
+        this.physicsMaterial = await Editor.Message.request('scene', 'change-physics-material', this.physicsMaterial);
+
+        this.updateInterface();
         this.setDirtyData();
-        this.dispatch('change');
+        this.dispatch('change', state);
     },
 
     updateInterface() {
@@ -48,11 +56,11 @@ exports.methods = {
                 this.$[key] = document.createElement('ui-prop');
                 this.$[key].setAttribute('type', 'dump');
                 this.$[key].addEventListener('change-dump', this.change.bind(this));
+                this.$.container.appendChild(this.$[key]);
             }
 
-            this.$.container.appendChild(this.$[key]);
-            this.updateReadonly(this.$[key]);
             this.$[key].render(dump);
+            this.updateReadonly(this.$[key]);
         }
     },
 
