@@ -66,6 +66,7 @@ jobs:
           rm ./native/tools/tojs/userconf.ini
       - name: Download build-tools
         run: |
+          $ANDROID_HOME/tools/bin/sdkmanager --uninstall "build-tools;31.0.0"
           $ANDROID_HOME/tools/bin/sdkmanager --install "build-tools;31.0.0"
       - name: Compile
         env:
@@ -73,7 +74,7 @@ jobs:
         run: |
           COCOS2DX_ROOT=$GITHUB_WORKSPACE/native
           ANDORID_NDK=$ANDROID_NDK_LATEST_HOME
-          NATIVE_DIR=$GITHUB_WORKSPACE/templates/android-template       
+          NATIVE_DIR=$GITHUB_WORKSPACE/templates/android-template
           echo "Compiling Android ... "
           cd $GITHUB_WORKSPACE/templates/
           if [ ! -d  android-template ]; then
@@ -259,7 +260,7 @@ jobs:
               -DRES_DIR=$RES_DIR \
               -DCOCOS_X_PATH=$COCOS2DX_ROOT
           set +e
-          #cmake --build . --config Debug -- -quiet -jobs $NUM_OF_CORES -allowProvisioningUpdates CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO 
+          #cmake --build . --config Debug -- -quiet -jobs $NUM_OF_CORES -allowProvisioningUpdates CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
           cmake --build . --config Debug -- -quiet -jobs $NUM_OF_CORES CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
           retcode=$?
           set -e
