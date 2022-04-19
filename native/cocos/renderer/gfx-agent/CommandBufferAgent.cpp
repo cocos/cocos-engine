@@ -91,15 +91,16 @@ void CommandBufferAgent::initMessageQueue() {
     DeviceAgent *device = DeviceAgent::getInstance();
     device->_cmdBuffRefs.insert(this);
 
-    // TODO(PatriceJiang): replace with: _messageQueue = CC_NEW(MessageQueue);
-    _messageQueue = CC_NEW_ALIGN(MessageQueue, alignof(MessageQueue));
+    // TODO(PatriceJiang): replace with: _messageQueue = ccnew MessageQueue;
+    _messageQueue = ccnew_placement(CC_MALLOC_ALIGN(sizeof(MessageQueue), alignof(MessageQueue))) MessageQueue;
     if (device->_multithreaded) _messageQueue->setImmediateMode(false);
 }
 
 void CommandBufferAgent::destroyMessageQueue() {
     DeviceAgent::getInstance()->getMessageQueue()->kickAndWait();
     // TODO(PatriceJiang): replace with:  CC_SAFE_DELETE(_messageQueue);
-    CC_DELETE_ALIGN(_messageQueue, MessageQueue, alignof(MessageQueue));
+    _messageQueue->~MessageQueue();
+    CC_FREE_ALIGN(_messageQueue);
     _messageQueue = nullptr;
 
     DeviceAgent::getInstance()->_cmdBuffRefs.erase(this);

@@ -51,7 +51,7 @@ CCWGPUCommandBuffer::CCWGPUCommandBuffer() : wrapper<CommandBuffer>(val::object(
 }
 
 void CCWGPUCommandBuffer::doInit(const CommandBufferInfo &info) {
-    _gpuCommandBufferObj        = CC_NEW(CCWGPUCommandBufferObject);
+    _gpuCommandBufferObj        = ccnew CCWGPUCommandBufferObject;
     _gpuCommandBufferObj->type  = info.type;
     _gpuCommandBufferObj->queue = static_cast<CCWGPUQueue *>(info.queue);
 }
@@ -379,7 +379,7 @@ void CCWGPUCommandBuffer::bindStates() {
                         .size     = maxAttrLen,
                         .flags    = BufferFlagBit::NONE,
                     };
-                    buffer = CC_NEW(CCWGPUBuffer);
+                    buffer = ccnew CCWGPUBuffer;
                     buffer->initialize(info);
                     _gpuCommandBufferObj->redundantVertexBufferMap.insert({maxAttrLen, buffer});
                 }

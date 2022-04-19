@@ -72,12 +72,12 @@ GLES2Device::~GLES2Device() {
 }
 
 bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
-    _gpuContext             = CC_NEW(GLES2GPUContext);
-    _gpuStateCache          = CC_NEW(GLES2GPUStateCache);
-    _gpuBlitManager         = CC_NEW(GLES2GPUBlitManager);
-    _gpuFramebufferHub      = CC_NEW(GLES2GPUFramebufferHub);
-    _gpuConstantRegistry    = CC_NEW(GLES2GPUConstantRegistry);
-    _gpuFramebufferCacheMap = CC_NEW(GLES2GPUFramebufferCacheMap(_gpuStateCache));
+    _gpuContext             = ccnew GLES2GPUContext;
+    _gpuStateCache          = ccnew GLES2GPUStateCache;
+    _gpuBlitManager         = ccnew GLES2GPUBlitManager;
+    _gpuFramebufferHub      = ccnew GLES2GPUFramebufferHub;
+    _gpuConstantRegistry    = ccnew GLES2GPUConstantRegistry;
+    _gpuFramebufferCacheMap = ccnew GLES2GPUFramebufferCacheMap(_gpuStateCache);
 
     if (!_gpuContext->initialize(_gpuStateCache, _gpuConstantRegistry)) {
         destroy();
@@ -438,64 +438,64 @@ void GLES2Device::initFormatFeature() {
 }
 
 CommandBuffer *GLES2Device::createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
-    if (hasAgent || info.type == CommandBufferType::PRIMARY) return CC_NEW(GLES2PrimaryCommandBuffer);
-    return CC_NEW(GLES2CommandBuffer);
+    if (hasAgent || info.type == CommandBufferType::PRIMARY) return ccnew GLES2PrimaryCommandBuffer;
+    return ccnew GLES2CommandBuffer;
 }
 
 Queue *GLES2Device::createQueue() {
-    return CC_NEW(GLES2Queue);
+    return ccnew GLES2Queue;
 }
 
 QueryPool *GLES2Device::createQueryPool() {
-    return CC_NEW(GLES2QueryPool);
+    return ccnew GLES2QueryPool;
 }
 
 Swapchain *GLES2Device::createSwapchain() {
-    return CC_NEW(GLES2Swapchain);
+    return ccnew GLES2Swapchain;
 }
 
 Buffer *GLES2Device::createBuffer() {
-    return CC_NEW(GLES2Buffer);
+    return ccnew GLES2Buffer;
 }
 
 Texture *GLES2Device::createTexture() {
-    return CC_NEW(GLES2Texture);
+    return ccnew GLES2Texture;
 }
 
 Shader *GLES2Device::createShader() {
-    return CC_NEW(GLES2Shader);
+    return ccnew GLES2Shader;
 }
 
 InputAssembler *GLES2Device::createInputAssembler() {
-    return CC_NEW(GLES2InputAssembler);
+    return ccnew GLES2InputAssembler;
 }
 
 RenderPass *GLES2Device::createRenderPass() {
-    return CC_NEW(GLES2RenderPass);
+    return  ccnew GLES2RenderPass;
 }
 
 Framebuffer *GLES2Device::createFramebuffer() {
-    return CC_NEW(GLES2Framebuffer);
+    return ccnew GLES2Framebuffer;
 }
 
 DescriptorSet *GLES2Device::createDescriptorSet() {
-    return CC_NEW(GLES2DescriptorSet);
+    return ccnew GLES2DescriptorSet;
 }
 
 DescriptorSetLayout *GLES2Device::createDescriptorSetLayout() {
-    return CC_NEW(GLES2DescriptorSetLayout);
+    return ccnew GLES2DescriptorSetLayout;
 }
 
 PipelineLayout *GLES2Device::createPipelineLayout() {
-    return CC_NEW(GLES2PipelineLayout);
+    return ccnew GLES2PipelineLayout;
 }
 
 PipelineState *GLES2Device::createPipelineState() {
-    return CC_NEW(GLES2PipelineState);
+    return ccnew GLES2PipelineState;
 }
 
 Sampler *GLES2Device::createSampler(const SamplerInfo &info) {
-    return CC_NEW(GLES2Sampler(info));
+    return ccnew GLES2Sampler(info);
 }
 
 void GLES2Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {

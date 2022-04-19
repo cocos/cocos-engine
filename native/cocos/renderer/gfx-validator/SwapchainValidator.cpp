@@ -51,12 +51,12 @@ void SwapchainValidator::doInit(const SwapchainInfo &info) {
 
     _actor->initialize(info);
 
-    auto *colorTexture = CC_NEW(TextureValidator(_actor->getColorTexture()));
+    auto *colorTexture = ccnew TextureValidator(_actor->getColorTexture());
     colorTexture->renounceOwnership();
     _colorTexture = colorTexture;
     DeviceResourceTracker<Texture>::push(_colorTexture.get());
 
-    auto *depthStencilTexture = CC_NEW(TextureValidator(_actor->getDepthStencilTexture()));
+    auto *depthStencilTexture = ccnew TextureValidator(_actor->getDepthStencilTexture());
     depthStencilTexture->renounceOwnership();
     _depthStencilTexture = depthStencilTexture;
     DeviceResourceTracker<Texture>::push(_depthStencilTexture.get());

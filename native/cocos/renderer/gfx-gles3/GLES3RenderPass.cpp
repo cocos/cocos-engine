@@ -42,7 +42,7 @@ GLES3RenderPass::~GLES3RenderPass() {
 }
 
 void GLES3RenderPass::doInit(const RenderPassInfo & /*info*/) {
-    _gpuRenderPass                         = CC_NEW(GLES3GPURenderPass);
+    _gpuRenderPass                         = ccnew GLES3GPURenderPass;
     _gpuRenderPass->colorAttachments       = _colorAttachments;
     _gpuRenderPass->depthStencilAttachment = _depthStencilAttachment;
     _gpuRenderPass->subpasses              = _subpasses;
@@ -77,7 +77,7 @@ void GLES3RenderPass::doInit(const RenderPassInfo & /*info*/) {
 void GLES3RenderPass::doDestroy() {
     if (_gpuRenderPass) {
         cmdFuncGLES3DestroyRenderPass(GLES3Device::getInstance(), _gpuRenderPass);
-        CC_DELETE(_gpuRenderPass);
+        delete _gpuRenderPass;
         _gpuRenderPass = nullptr;
     }
 }

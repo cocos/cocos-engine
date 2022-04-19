@@ -47,8 +47,8 @@ ShadowMapBatchedQueue::ShadowMapBatchedQueue(RenderPipeline *pipeline)
 : _phaseID(getPhaseID("shadow-caster")) {
     _pipeline       = pipeline;
     _buffer         = pipeline->getDescriptorSet()->getBuffer(UBOShadow::BINDING);
-    _instancedQueue = CC_NEW(RenderInstancedQueue);
-    _batchedQueue   = CC_NEW(RenderBatchedQueue);
+    _instancedQueue = ccnew RenderInstancedQueue;
+    _batchedQueue   = ccnew RenderBatchedQueue;
 }
 
 ShadowMapBatchedQueue::~ShadowMapBatchedQueue() = default;

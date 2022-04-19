@@ -42,7 +42,7 @@ GLES2Buffer::~GLES2Buffer() {
 }
 
 void GLES2Buffer::doInit(const BufferInfo & /*info*/) {
-    _gpuBuffer           = CC_NEW(GLES2GPUBuffer);
+    _gpuBuffer           = ccnew GLES2GPUBuffer;
     _gpuBuffer->usage    = _usage;
     _gpuBuffer->memUsage = _memUsage;
     _gpuBuffer->size     = _size;
@@ -60,7 +60,7 @@ void GLES2Buffer::doInit(const BufferInfo & /*info*/) {
 
 void GLES2Buffer::doInit(const BufferViewInfo &info) {
     auto *buffer              = static_cast<GLES2Buffer *>(info.buffer);
-    _gpuBufferView            = CC_NEW(GLES2GPUBufferView);
+    _gpuBufferView            = ccnew GLES2GPUBufferView;
     _gpuBufferView->gpuBuffer = buffer->gpuBuffer();
     _gpuBufferView->range     = _size;
     _gpuBufferView->offset    = info.offset;
@@ -71,7 +71,7 @@ void GLES2Buffer::doDestroy() {
         GLES2Device::getInstance()->getMemoryStatus().bufferSize -= _size;
         CC_PROFILE_MEMORY_DEC(Buffer, _size);
         cmdFuncGLES2DestroyBuffer(GLES2Device::getInstance(), _gpuBuffer);
-        CC_DELETE(_gpuBuffer);
+        delete _gpuBuffer;
         _gpuBuffer = nullptr;
     }
 

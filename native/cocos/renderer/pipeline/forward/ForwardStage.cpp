@@ -55,9 +55,9 @@ RenderStageInfo ForwardStage::initInfo = {
 const RenderStageInfo &ForwardStage::getInitializeInfo() { return ForwardStage::initInfo; }
 
 ForwardStage::ForwardStage() {
-    _batchedQueue   = CC_NEW(RenderBatchedQueue);
-    _instancedQueue = CC_NEW(RenderInstancedQueue);
-    _uiPhase        = CC_NEW(UIPhase);
+    _batchedQueue   = ccnew RenderBatchedQueue;
+    _instancedQueue = ccnew RenderInstancedQueue;
+    _uiPhase        = ccnew UIPhase;
 }
 
 ForwardStage::~ForwardStage() = default;
@@ -76,11 +76,11 @@ void ForwardStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
         uint                  phase    = convertPhase(descriptor.stages);
         RenderQueueSortFunc   sortFunc = convertQueueSortFunc(descriptor.sortMode);
         RenderQueueCreateInfo info     = {descriptor.isTransparent, phase, sortFunc};
-        _renderQueues.emplace_back(CC_NEW(RenderQueue(_pipeline, std::move(info), true)));
+        _renderQueues.emplace_back(ccnew RenderQueue(_pipeline, std::move(info), true));
     }
 
-    _additiveLightQueue = CC_NEW(RenderAdditiveLightQueue(_pipeline));
-    _planarShadowQueue  = CC_NEW(PlanarShadowQueue(_pipeline));
+    _additiveLightQueue = ccnew RenderAdditiveLightQueue(_pipeline);
+    _planarShadowQueue  = ccnew PlanarShadowQueue(_pipeline);
     _uiPhase->activate(pipeline);
 }
 

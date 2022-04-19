@@ -61,11 +61,11 @@ bool ForwardPipeline::initialize(const RenderPipelineInfo &info) {
     RenderPipeline::initialize(info);
 
     if (_flows.empty()) {
-        auto *shadowFlow = CC_NEW(ShadowFlow);
+        auto *shadowFlow = ccnew ShadowFlow;
         shadowFlow->initialize(ShadowFlow::getInitializeInfo());
         _flows.emplace_back(shadowFlow);
 
-        auto *forwardFlow = CC_NEW(ForwardFlow);
+        auto *forwardFlow = ccnew ForwardFlow;
         forwardFlow->initialize(ForwardFlow::getInitializeInfo());
         _flows.emplace_back(forwardFlow);
     }

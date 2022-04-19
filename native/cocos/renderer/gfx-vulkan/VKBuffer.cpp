@@ -41,7 +41,7 @@ CCVKBuffer::~CCVKBuffer() {
 }
 
 void CCVKBuffer::doInit(const BufferInfo & /*info*/) {
-    _gpuBuffer           = CC_NEW(CCVKGPUBuffer);
+    _gpuBuffer           = ccnew CCVKGPUBuffer;
     _gpuBuffer->usage    = _usage;
     _gpuBuffer->memUsage = _memUsage;
     _gpuBuffer->size     = _size;
@@ -58,14 +58,14 @@ void CCVKBuffer::doInit(const BufferInfo & /*info*/) {
     CCVKDevice::getInstance()->getMemoryStatus().bufferSize += _size;
     CC_PROFILE_MEMORY_INC(Buffer, _size);
 
-    _gpuBufferView = CC_NEW(CCVKGPUBufferView);
+    _gpuBufferView = ccnew CCVKGPUBufferView;
     createBufferView();
 }
 
 void CCVKBuffer::doInit(const BufferViewInfo &info) {
     auto *buffer   = static_cast<CCVKBuffer *>(info.buffer);
     _gpuBuffer     = buffer->gpuBuffer();
-    _gpuBufferView = CC_NEW(CCVKGPUBufferView);
+    _gpuBufferView = ccnew CCVKGPUBufferView;
     createBufferView();
 }
 
@@ -81,7 +81,7 @@ void CCVKBuffer::createBufferView() {
 void CCVKBuffer::doDestroy() {
     if (_gpuBufferView) {
         CCVKDevice::getInstance()->gpuDescriptorHub()->disengage(_gpuBufferView);
-        CC_DELETE(_gpuBufferView);
+        delete _gpuBufferView;
         _gpuBufferView = nullptr;
     }
 
@@ -90,7 +90,7 @@ void CCVKBuffer::doDestroy() {
             CCVKDevice::getInstance()->gpuBufferHub()->erase(_gpuBuffer);
             CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuBuffer);
             CCVKDevice::getInstance()->gpuBarrierManager()->cancel(_gpuBuffer);
-            CC_DELETE(_gpuBuffer);
+            delete _gpuBuffer;
             CCVKDevice::getInstance()->getMemoryStatus().bufferSize -= _size;
             CC_PROFILE_MEMORY_DEC(Buffer, _size);
         }

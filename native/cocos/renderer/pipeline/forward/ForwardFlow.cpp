@@ -45,7 +45,7 @@ bool ForwardFlow::initialize(const RenderFlowInfo &info) {
     RenderFlow::initialize(info);
 
     if (_stages.empty()) {
-        auto *forwardStage = CC_NEW(ForwardStage);
+        auto *forwardStage = ccnew ForwardStage;
         forwardStage->initialize(ForwardStage::getInitializeInfo());
         _stages.emplace_back(forwardStage);
     }

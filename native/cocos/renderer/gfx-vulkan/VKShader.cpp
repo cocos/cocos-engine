@@ -41,7 +41,7 @@ CCVKShader::~CCVKShader() {
 }
 
 void CCVKShader::doInit(const ShaderInfo & /*info*/) {
-    _gpuShader             = CC_NEW(CCVKGPUShader);
+    _gpuShader             = ccnew CCVKGPUShader;
     _gpuShader->name       = _name;
     _gpuShader->attributes = _attributes;
     for (ShaderStage &stage : _stages) {

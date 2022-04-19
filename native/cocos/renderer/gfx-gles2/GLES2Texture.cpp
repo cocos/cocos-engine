@@ -43,7 +43,7 @@ GLES2Texture::~GLES2Texture() {
 }
 
 void GLES2Texture::doInit(const TextureInfo & /*info*/) {
-    _gpuTexture             = CC_NEW(GLES2GPUTexture);
+    _gpuTexture             = ccnew GLES2GPUTexture;
     _gpuTexture->type       = _info.type;
     _gpuTexture->format     = _info.format;
     _gpuTexture->usage      = _info.usage;
@@ -79,7 +79,7 @@ void GLES2Texture::doDestroy() {
             }
             cmdFuncGLES2DestroyTexture(GLES2Device::getInstance(), _gpuTexture);
             GLES2Device::getInstance()->framebufferHub()->disengage(_gpuTexture);
-            CC_DELETE(_gpuTexture);
+            delete _gpuTexture;
         }
         _gpuTexture = nullptr;
     }
@@ -107,7 +107,7 @@ void GLES2Texture::doResize(uint32_t width, uint32_t height, uint32_t size) {
 ///////////////////////////// Swapchain Specific /////////////////////////////
 
 void GLES2Texture::doInit(const SwapchainTextureInfo & /*info*/) {
-    _gpuTexture             = CC_NEW(GLES2GPUTexture);
+    _gpuTexture             = ccnew GLES2GPUTexture;
     _gpuTexture->type       = _info.type;
     _gpuTexture->format     = _info.format;
     _gpuTexture->usage      = _info.usage;

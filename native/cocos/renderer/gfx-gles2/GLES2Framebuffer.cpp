@@ -43,7 +43,7 @@ GLES2Framebuffer::~GLES2Framebuffer() {
 }
 
 void GLES2Framebuffer::doInit(const FramebufferInfo & /*info*/) {
-    _gpuFBO                = CC_NEW(GLES2GPUFramebuffer);
+    _gpuFBO                = ccnew GLES2GPUFramebuffer;
     _gpuFBO->gpuRenderPass = static_cast<GLES2RenderPass *>(_renderPass)->gpuRenderPass();
 
     _gpuFBO->gpuColorTextures.resize(_colorTextures.size());
@@ -77,7 +77,7 @@ void GLES2Framebuffer::doDestroy() {
             GLES2Device::getInstance()->framebufferHub()->disengage(depthTexture->gpuTexture(), _gpuFBO);
         }
 
-        CC_DELETE(_gpuFBO);
+        delete _gpuFBO;
         _gpuFBO = nullptr;
     }
 }

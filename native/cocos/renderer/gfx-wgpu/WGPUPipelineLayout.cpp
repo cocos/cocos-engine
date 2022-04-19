@@ -39,7 +39,7 @@ CCWGPUPipelineLayout::CCWGPUPipelineLayout() : wrapper<PipelineLayout>(val::obje
 }
 
 void CCWGPUPipelineLayout::doInit(const PipelineLayoutInfo &info) {
-    _gpuPipelineLayoutObj = CC_NEW(CCWGPUPipelineLayoutObject);
+    _gpuPipelineLayoutObj = ccnew CCWGPUPipelineLayoutObject;
 }
 
 void CCWGPUPipelineLayout::prepare(const ccstd::set<uint8_t> &setInUse) {
@@ -75,7 +75,7 @@ void CCWGPUPipelineLayout::doDestroy() {
         if (_gpuPipelineLayoutObj->wgpuPipelineLayout) {
             wgpuPipelineLayoutRelease(_gpuPipelineLayoutObj->wgpuPipelineLayout);
         }
-        CC_DELETE(_gpuPipelineLayoutObj);
+        delete _gpuPipelineLayoutObj;
     }
 }
 

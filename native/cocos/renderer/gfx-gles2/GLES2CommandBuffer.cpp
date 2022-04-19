@@ -52,8 +52,8 @@ void GLES2CommandBuffer::doInit(const CommandBufferInfo &info) {
     _type  = info.type;
     _queue = info.queue;
 
-    _cmdAllocator  = CC_NEW(GLES2GPUCommandAllocator);
-    _curCmdPackage = CC_NEW(GLES2CmdPackage);
+    _cmdAllocator  = ccnew GLES2GPUCommandAllocator;
+    _curCmdPackage = ccnew GLES2CmdPackage;
 
     size_t setCount = GLES2Device::getInstance()->bindingMappingInfo().setIndices.size();
     _curGPUDescriptorSets.resize(setCount);
@@ -105,7 +105,7 @@ void GLES2CommandBuffer::end() {
         _curCmdPackage = _freePackages.front();
         _freePackages.pop();
     } else {
-        _curCmdPackage = CC_NEW(GLES2CmdPackage);
+        _curCmdPackage = ccnew GLES2CmdPackage;
     }
 }
 

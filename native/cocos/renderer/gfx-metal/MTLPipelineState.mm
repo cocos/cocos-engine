@@ -109,9 +109,9 @@ void CCMTLPipelineState::check(CCMTLRenderPass *renderPass) {
 }
 
 bool CCMTLPipelineState::createGPUPipelineState() {
-    _GPUPipelineState = CC_NEW(CCMTLGPUPipelineState);
+    _GPUPipelineState = ccnew CCMTLGPUPipelineState;
     if (!_GPUPipelineState) {
-        CC_LOG_ERROR("CCMTLPipelineState: CC_NEW CCMTLGPUPipelineState failed.");
+        CC_LOG_ERROR("CCMTLPipelineState: new CCMTLGPUPipelineState failed.");
         return false;
     }
 

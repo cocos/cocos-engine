@@ -76,11 +76,11 @@ bool DeferredPipeline::initialize(const RenderPipelineInfo &info) {
     RenderPipeline::initialize(info);
 
     if (_flows.empty()) {
-        auto *shadowFlow = CC_NEW(ShadowFlow);
+        auto *shadowFlow = ccnew ShadowFlow;
         shadowFlow->initialize(ShadowFlow::getInitializeInfo());
         _flows.emplace_back(shadowFlow);
 
-        auto *mainFlow = CC_NEW(MainFlow);
+        auto *mainFlow = ccnew MainFlow;
         mainFlow->initialize(MainFlow::getInitializeInfo());
         _flows.emplace_back(mainFlow);
     }

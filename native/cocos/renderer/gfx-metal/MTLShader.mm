@@ -44,7 +44,7 @@ CCMTLShader::~CCMTLShader() {
 }
 
 void CCMTLShader::doInit(const ShaderInfo &info) {
-    _gpuShader = CC_NEW(CCMTLGPUShader);
+    _gpuShader = ccnew CCMTLGPUShader;
     _specializedFragFuncs = [[NSMutableDictionary alloc] init];
     
     for (const auto &stage : _stages) {

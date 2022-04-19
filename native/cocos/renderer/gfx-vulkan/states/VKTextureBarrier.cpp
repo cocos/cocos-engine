@@ -33,7 +33,7 @@ namespace gfx {
 CCVKTextureBarrier::CCVKTextureBarrier(const TextureBarrierInfo &info) : TextureBarrier(info) {
     _typedID = generateObjectID<decltype(this)>();
 
-    _gpuBarrier = CC_NEW(CCVKGPUTextureBarrier);
+    _gpuBarrier = ccnew CCVKGPUTextureBarrier;
     getAccessTypes(info.prevAccesses, _gpuBarrier->prevAccesses);
     getAccessTypes(info.nextAccesses, _gpuBarrier->nextAccesses);
 
