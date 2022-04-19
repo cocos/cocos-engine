@@ -66,8 +66,9 @@ jobs:
           rm ./native/tools/tojs/userconf.ini
       - name: Download build-tools
         run: |
-          $ANDROID_HOME/tools/bin/sdkmanager --uninstall "build-tools;31.0.0"
-          $ANDROID_HOME/tools/bin/sdkmanager --install "build-tools;31.0.0"
+
+
+          cd $ANDROID_HOME/build-tools/31.0.0 && mv d8 dx && cd lib && mv d8.jar dx.jar
       - name: Compile
         env:
           COCOS_ENGINE_DEV: 1
