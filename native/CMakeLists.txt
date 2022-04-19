@@ -404,9 +404,8 @@ elseif(QNX)
     )
 elseif(ANDROID)
     cocos_source_files(
-        cocos/platform/android/GameActivityInclude.cpp
         cocos/platform/android/AndroidPlatform.cpp
-#        cocos/platform/android/AndroidPlatform.h
+        cocos/platform/android/AndroidPlatform.h
     )
 elseif(OHOS)
     cocos_source_files(
@@ -2807,7 +2806,6 @@ if(ANDROID OR OHOS)
     )
     if(ANDROID)
         target_link_libraries(cocos_jni PUBLIC
-            game-activity::game-activity
             android_platform
             android
             log
@@ -2965,12 +2963,9 @@ if(ANDROID)
 
     find_library(LIB_EGL NAMES EGL)
     find_library(LIB_GLESv2 NAMES GLESv2)
-    find_package(games-controller REQUIRED CONFIG)
-    find_package(game-activity REQUIRED CONFIG)
     target_link_libraries(${ENGINE_NAME} PUBLIC
         android
-        game-activity::game-activity
-        games-controller::paddleboat_static
+        paddleboat_static
         OpenSLES
         ${LIB_EGL}
         ${LIB_GLESv2}

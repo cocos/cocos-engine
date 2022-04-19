@@ -45,7 +45,7 @@
 
 #include "bindings/event/EventDispatcher.h"
 
-#include "paddleboat/paddleboat.h"
+#include "paddleboat.h"
 
 
 #define ABORT_GAME { CC_LOG_ERROR("*** GAME ABORTING."); *((volatile char*)0) = 'a'; }

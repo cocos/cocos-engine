@@ -59,7 +59,6 @@ jobs:
               - exclude: 'native/cocos/bindings/manual/jsb_conversions.*'
               - exclude: 'native/cocos/bindings/jswrapper/v8/debugger/**'
               - exclude: 'native/cocos/audio/android/audio_utils/**'
-              - exclude: 'native/cocos/platform/android/GameActivityInclude.cpp'
             allChanges:
               - added|modified|deleted: '**'
             skipedDebug:

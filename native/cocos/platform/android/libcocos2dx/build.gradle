@@ -8,6 +8,7 @@ android {
         targetSdkVersion PROP_TARGET_SDK_VERSION
         versionCode 1
         versionName "1.0"
+        consumerProguardFiles 'proguard-rules.pro'
     }
 
     sourceSets.main {
@@ -31,8 +32,6 @@ android {
 }
 
 dependencies {
-    api "androidx.games:games-activity:1.1.0"
-    api "androidx.games:games-controller:1.1.0"
     api "androidx.appcompat:appcompat:1.2.0"
     api "androidx.core:core:1.5.0"
     implementation fileTree(include: ['*.jar'], dir: '../java/libs')
