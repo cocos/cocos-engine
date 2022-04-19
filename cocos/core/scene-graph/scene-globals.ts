@@ -37,6 +37,7 @@ import { Fog, FogType } from '../renderer/scene/fog';
 import { Node } from './node';
 import { legacyCC } from '../global-exports';
 import { Root } from '../root';
+import { warnID } from '../platform';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
@@ -331,7 +332,7 @@ export class SkyboxInfo {
 
             if (this.diffuseMap == null && this.envLightingType == EnvironmentLightingType.DIFFUSEMAP_WITH_REFLECTION) {
                 this.envLightingType = EnvironmentLightingType.AUTOGEN_HEMISPHERE_DIFFUSE_WITH_REFLECTION;
-                console.error("Can't find corresponding diffuse map, use hemisphere diffuse instead.");
+                warnID(15000);
             }
         }
 

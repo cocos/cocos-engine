@@ -3083,7 +3083,7 @@ Failed to allocate chunk in StaticVBAccessor, the requested buffer might be too 
 
 ### 9005
 
-BATCHER2D_MEM_INCREMENT is too large, the Max value for BATCHER2D_MEM_INCREMENT is 2303KB (smaller than 65536 * 9 * 4 / 1024 = 2304KB)
+BATCHER2D_MEM_INCREMENT is too large, the Max value for BATCHER2D_MEM_INCREMENT is 2303KB (smaller than 65536 *9* 4 / 1024 = 2304KB)
 
 ### 9006
 
@@ -3226,3 +3226,9 @@ Pool.destroy no longer take a function as parameter, Please specify destruct fun
 ### 14200
 
 Can not keep world transform due to the zero scaling of parent node
+
+<!-- Rendering algorithm reserved: 15000 - 16000 -->
+
+### 15000
+
+Can not find corresponding diffuse map for environment lighting, use hemisphere diffuse instead
