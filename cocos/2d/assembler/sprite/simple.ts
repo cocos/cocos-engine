@@ -48,7 +48,7 @@ for (let i = 0; i < 4; i++) {
 export const simple: IAssembler = {
     createData (sprite: Sprite) {
         const renderData = sprite.requestRenderData();
-        renderData.dataLength = 2;
+        renderData.dataLength = 4;
         renderData.resize(4, 6);
         return renderData;
     },
@@ -84,32 +84,20 @@ export const simple: IAssembler = {
 
         const dataList: IRenderData[] = renderData.data;
         const node = sprite.node;
-
-        const data0 = dataList[0];
-        const data3 = dataList[1];
         const matrix = node.worldMatrix;
 
-        const vec3_temp = new Vec3();
-        //left bottom
-        Vec3.set(vec3_temp, data0.x, data0.y, 0);
-        Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
-        vData[0] = vec3_temp.x;
-        vData[1] = vec3_temp.y;
-        //right bottom
-        Vec3.set(vec3_temp, data3.x, data0.y, 0);
-        Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
-        vData[9] = vec3_temp.x;
-        vData[10] = vec3_temp.y;
-        //left top
-        Vec3.set(vec3_temp, data0.x, data3.y, 0);
-        Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
-        vData[18] = vec3_temp.x;
-        vData[19] = vec3_temp.y;
-        //right top
-        Vec3.set(vec3_temp, data3.x, data3.y, 0);
-        Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
-        vData[27] = vec3_temp.x;
-        vData[28] = vec3_temp.y;
+        const stride = renderData.floatStride;
+
+        for (let i  = 0; i < dataList.length; i++) {
+            const curData = dataList[i];
+            const vec3_temp = new Vec3();
+            Vec3.set(vec3_temp, curData.x, curData.y, 0);
+            Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
+
+            let offset = i * stride;
+            vData[offset++] = vec3_temp.x;
+            vData[offset++] = vec3_temp.y;
+        }
     },
 
     fillBuffers (sprite: Sprite, renderer: IBatcher) {
@@ -188,7 +176,13 @@ export const simple: IAssembler = {
         dataList[0].y = b;
 
         dataList[1].x = r;
-        dataList[1].y = t;
+        dataList[1].y = b;
+
+        dataList[2].x = l;
+        dataList[2].y = t;
+
+        dataList[3].x = r;
+        dataList[3].y = t;
 
         renderData.vertDirty = true;
     },
