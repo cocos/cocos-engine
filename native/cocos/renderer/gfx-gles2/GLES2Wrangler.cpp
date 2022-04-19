@@ -84,13 +84,13 @@ bool gles2wOpen() {
 bool gles2wClose() {
     bool ret = true;
     if (libegl) {
-        ret &= dlclose(libegl) == 0 ? true : false;
-        libegl = NULL;
+        ret &= dlclose(libegl) == 0;
+        libegl = nullptr;
     }
 
     if (libgles) {
-        ret &= dlclose(libgles) == 0 ? true : false;
-        libgles = NULL;
+        ret &= dlclose(libgles) == 0;
+        libgles = nullptr;
     }
 
     return ret;
@@ -115,11 +115,6 @@ bool gles2wInit() {
     return true;
 }
 
-
 bool gles2wExit() {
-    if (!gles2wClose()) {
-        return false;
-    }
-
-    return true;
+    return gles2wClose();
 }

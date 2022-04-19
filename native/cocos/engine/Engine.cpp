@@ -44,6 +44,12 @@
 #if CC_USE_SOCKET
     #include "cocos/network/WebSocket.h"
 #endif
+#if CC_USE_DRAGONBONES
+    #include "editor-support/dragonbones-creator-support/ArmatureCacheMgr.h"
+#endif
+#if CC_USE_SPINE
+    #include "editor-support/spine-creator-support/SkeletonCacheMgr.h"
+#endif
 
 #include "application/ApplicationManager.h"
 #include "application/BaseApplication.h"
@@ -51,8 +57,6 @@
 #include "cocos/network/HttpClient.h"
 #include "core/Root.h"
 #include "core/assets/FreeTypeFont.h"
-#include "editor-support/dragonbones-creator-support/ArmatureCacheMgr.h"
-#include "editor-support/spine-creator-support/SkeletonCacheMgr.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "profiler/DebugRenderer.h"
 #include "profiler/Profiler.h"
@@ -102,8 +106,13 @@ Engine::~Engine() {
     AudioEngine::end();
 #endif
 
+#if CC_USE_DRAGONBONES
     dragonBones::ArmatureCacheMgr::destroyInstance();
+#endif
+
+#if CC_USE_SPINE
     spine::SkeletonCacheMgr::destroyInstance();
+#endif
     network::HttpClient::destroyInstance();
     EventDispatcher::destroy();
     ProgramLib::destroyInstance();

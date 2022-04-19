@@ -66,8 +66,8 @@ static ccstd::string removeFileExt(const ccstd::string &filePath) {
     return filePath;
 }
 
-static void walk_cb(uv_handle_t *handle, void *arg) {
-    uv_close(handle, 0);
+static void walkCb(uv_handle_t *handle, void * /*arg*/) {
+    uv_close(handle, nullptr);
 }
 
 static int selectPort(int port) {
@@ -89,7 +89,7 @@ static int selectPort(int port) {
             break;
         }
     }
-    uv_walk(&loop, walk_cb, 0);
+    uv_walk(&loop, walkCb, nullptr);
     uv_run(&loop, UV_RUN_DEFAULT);
     uv_loop_close(&loop);
     return startPort;

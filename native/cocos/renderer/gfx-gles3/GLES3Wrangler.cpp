@@ -33,7 +33,7 @@ static HMODULE libegl  = NULL;
 static HMODULE libgles = NULL;
 
 bool gles3wOpen() {
-    libegl = LoadLibraryA("libEGL.dll");
+    libegl  = LoadLibraryA("libEGL.dll");
     libgles = LoadLibraryA("libGLESv2.dll");
     return (libegl && libgles);
 }
@@ -84,13 +84,13 @@ bool gles3wOpen() {
 bool gles3wClose() {
     bool ret = true;
     if (libegl) {
-        ret &= dlclose(libegl) == 0 ? true : false;
-        libegl = NULL;
+        ret &= dlclose(libegl) == 0;
+        libegl = nullptr;
     }
 
     if (libgles) {
-        ret &= dlclose(libgles) == 0 ? true : false;
-        libgles = NULL;
+        ret &= dlclose(libgles) == 0;
+        libgles = nullptr;
     }
 
     return ret;
@@ -117,9 +117,5 @@ bool gles3wInit() {
 }
 
 bool gles3wExit() {
-    if (!gles3wClose()) {
-        return false;
-    }
-
-    return true;
+    return gles3wClose();
 }
