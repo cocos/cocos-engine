@@ -26,6 +26,7 @@
 #include "RenderFlow.h"
 #include <algorithm>
 #include "RenderStage.h"
+#include "base/memory/Memory.h"
 
 namespace cc {
 namespace pipeline {
@@ -61,8 +62,8 @@ void RenderFlow::render(scene::Camera *camera) {
 }
 
 void RenderFlow::destroy() {
-    for (auto *const stage : _stages) {
-        stage->destroy();
+    for (auto *stage : _stages) {
+        CC_SAFE_DESTROY_AND_DELETE(stage);
     }
 
     _stages.clear();

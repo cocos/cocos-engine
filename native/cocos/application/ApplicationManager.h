@@ -49,6 +49,11 @@ public:
     }
 
     /**
+     * @brief close all generated applications before being destroyed.
+     */
+    void closeAllApplications();
+
+    /**
      * @brief Release all generated applications.
      */
     void releseAllApplications();
@@ -87,6 +92,6 @@ private:
     } while (0)
 
 #define CC_REGISTER_APPLICATION(className)        \
-    int cocos_main(int argc, const char** argv) { \
+    int cocos_main(int argc, const char **argv) { \
         CC_START_APPLICATION(className);          \
     }

@@ -27,7 +27,8 @@
 
 #include "platform/interfaces/OSInterface.h"
 
-extern int  cocos_main(int argc, const char** argv); // NOLINT(readability-identifier-naming)
+extern int  cocos_main(int argc, const char **argv); // NOLINT(readability-identifier-naming)
+extern void cocos_close();                           // NOLINT(readability-identifier-naming)
 extern void cocos_destory();                         // NOLINT(readability-identifier-naming)
 
 namespace cc {
@@ -35,7 +36,7 @@ UniversalPlatform::OSType UniversalPlatform::getOSType() const {
     return getInterface<ISystem>()->getOSType();
 }
 
-void UniversalPlatform::dispatchEvent(const OSEvent& ev) {
+void UniversalPlatform::dispatchEvent(const OSEvent &ev) {
     bool isHandled = false;
     if (_handleEventCallback) {
         isHandled = (_handleEventCallback)(ev);
@@ -51,10 +52,10 @@ void UniversalPlatform::dispatchEvent(const OSEvent& ev) {
     }
 }
 
-void UniversalPlatform::dispatchTouchEvent(const OSEvent& ev) {
+void UniversalPlatform::dispatchTouchEvent(const OSEvent &ev) {
 }
 
-void UniversalPlatform::handleDefaultEvent(const OSEvent& ev) {
+void UniversalPlatform::handleDefaultEvent(const OSEvent &ev) {
     // TODO(cc) : Follow-up support
 }
 
@@ -66,7 +67,7 @@ void UniversalPlatform::setHandleDefaultEventCallback(HandleEventCallback cb) {
     _handleDefaultEventCallback = cb;
 }
 
-int32_t UniversalPlatform::run(int argc, const char** argv) {
+int32_t UniversalPlatform::run(int argc, const char **argv) {
     if (cocos_main(argc, argv) != 0) {
         return -1;
     }
@@ -77,7 +78,7 @@ int UniversalPlatform::getSdkVersion() const {
     return 0;
 }
 
-void UniversalPlatform::runInPlatformThread(const ThreadCallback& task) {
+void UniversalPlatform::runInPlatformThread(const ThreadCallback &task) {
     _mainTask = task;
 }
 
@@ -105,6 +106,7 @@ void UniversalPlatform::onResume() {
 }
 
 void UniversalPlatform::onClose() {
+    cocos_close();
 }
 
 void UniversalPlatform::onDestory() {

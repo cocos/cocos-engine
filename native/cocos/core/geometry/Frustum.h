@@ -154,11 +154,6 @@ public:
     void                     split(float start, float end, float aspect, float fov, const Mat4 &transform);
     void                     updatePlanes();
     void                     update(const Mat4 &m, const Mat4 &inv);
-    Frustum                  clone() const {
-        Frustum tmp;
-        copy(&tmp, *this);
-        return tmp;
-    }
 };
 
 } // namespace geometry

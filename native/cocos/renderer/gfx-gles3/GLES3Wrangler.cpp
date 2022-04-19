@@ -33,9 +33,24 @@ static HMODULE libegl  = NULL;
 static HMODULE libgles = NULL;
 
 bool gles3wOpen() {
-    libegl  = LoadLibraryA("libEGL.dll");
+    libegl = LoadLibraryA("libEGL.dll");
     libgles = LoadLibraryA("libGLESv2.dll");
     return (libegl && libgles);
+}
+
+bool gles3wClose() {
+    bool ret = true;
+    if (libegl) {
+        ret &= FreeLibrary(libegl) ? true : false;
+        libegl = NULL;
+    }
+
+    if (libgles) {
+        ret &= FreeLibrary(libgles) ? true : false;
+        libgles = NULL;
+    }
+
+    return ret;
 }
 
 void *gles3wLoad(const char *proc) {
@@ -46,6 +61,7 @@ void *gles3wLoad(const char *proc) {
 }
 #elif defined(__EMSCRIPTEN__)
 bool  gles3wOpen() { return true; }
+bool  gles3wClose() { return true; }
 void *gles3wLoad(const char *proc) {
     return (void *)eglGetProcAddress(proc);
 }
@@ -65,6 +81,21 @@ bool gles3wOpen() {
     return (libegl && libgles);
 }
 
+bool gles3wClose() {
+    bool ret = true;
+    if (libegl) {
+        ret &= dlclose(libegl) == 0 ? true : false;
+        libegl = NULL;
+    }
+
+    if (libgles) {
+        ret &= dlclose(libgles) == 0 ? true : false;
+        libgles = NULL;
+    }
+
+    return ret;
+}
+
 void *gles3wLoad(const char *proc) {
     void *res = nullptr;
     if (eglGetProcAddress) res = reinterpret_cast<void *>(eglGetProcAddress(proc));
@@ -81,6 +112,14 @@ bool gles3wInit() {
     eglwLoadProcs(gles3wLoad);
     gles2wLoadProcs(gles3wLoad);
     gles3wLoadProcs(gles3wLoad);
+
+    return true;
+}
+
+bool gles3wExit() {
+    if (!gles3wClose()) {
+        return false;
+    }
 
     return true;
 }

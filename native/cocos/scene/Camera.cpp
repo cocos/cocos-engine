@@ -85,6 +85,7 @@ Camera::Camera(gfx::Device *device)
 }
 
 Camera::~Camera() {
+    _geometryRenderer->destroy();
     _frustum->release();
 }
 
@@ -110,7 +111,6 @@ void Camera::destroy() {
         _window = nullptr;
     }
     _name.clear();
-    _geometryRenderer->destroy();
 }
 
 void Camera::attachToScene(RenderScene *scene) {
