@@ -18,8 +18,9 @@ Object::~Object() {
         __objectMap->erase(this);
     }
 #if USE_NODE_NAPI
-    napi_status status;
-    NODE_API_CALL(status, _env, napi_delete_reference(_env, _napiRefObj));
+    //napi_status status;
+    //NODE_API_CALL(status, _env, napi_delete_reference(_env, _napiRefObj));
+    _napiRefObj = nullptr;
 #endif
 }
 
@@ -354,8 +355,7 @@ bool Object::init(napi_env env, napi_value js_object, Class* cls) {
     _env = env;
 #if USE_NODE_NAPI
     napi_status status;
-    _rootCount = 0;
-    NODE_API_CALL(status, _env, napi_create_reference(_env, js_object, _rootCount, &_napiRefObj));
+    NODE_API_CALL(status, _env, napi_create_reference(_env, js_object, 0, &_napiRefObj));
     assert(_napiRefObj);
 #else
     _objRef.initWeakref(env, js_object);
@@ -423,16 +423,30 @@ void Object::setPrivateData(void* data) {
 
     //issue https://github.com/nodejs/node/issues/23999
     auto tmpThis = _getJSObject();
-    //_objRef.deleteRef();
+//_objRef.deleteRef();
+#if USE_NODE_NAPI
+    NODE_API_CALL(status, _env,
+                  napi_wrap(_env, tmpThis, data, weakCallback,
+                            (void*)this /* finalize_hint */, nullptr));
+#else
     napi_ref result = nullptr;
     NODE_API_CALL(status, _env,
                   napi_wrap(_env, tmpThis, data, weakCallback,
                             (void*)this /* finalize_hint */, &result));
+#endif
     //_objRef.setWeakref(_env, result);
     setProperty("__native_ptr__", se::Value(static_cast<uint64_t>(reinterpret_cast<uintptr_t>(data))));
 
     return;
 }
+
+#if USE_NODE_NAPI
+uint32_t Object::getRootCount() const {
+    uint32_t refCnt = 0;
+    napi_reference_count(_env, _napiRefObj, &refCnt);
+    return refCnt;
+}
+#endif
 
 void Object::clearPrivateData(bool clearMapping) {
     //TODO: impl
@@ -508,7 +522,7 @@ std::string Object::toString() const {
 #if USE_NODE_NAPI
 void Object::root() {
     napi_status status;
-    NODE_API_CALL(status, _env, napi_reference_ref(_env, _napiRefObj, &_rootCount));
+    NODE_API_CALL(status, _env, napi_reference_ref(_env, _napiRefObj, nullptr));
 }
 #else
 void Object::root() {
@@ -526,12 +540,12 @@ void Object::root() {
 void Object::unroot() {
     napi_status status;
     #if CC_DEBUG
-    if (_rootCount == 0) {
+    if (getRootCount() == 0) {
         SE_LOGD("Failed to unroot object %p which is not rooted before");
         return;
     }
     #endif
-    NODE_API_CALL(status, _env, napi_reference_unref(_env, _napiRefObj, &_rootCount));
+    NODE_API_CALL(status, _env, napi_reference_unref(_env, _napiRefObj, nullptr));
 }
 #else
 void Object::unroot() {
@@ -547,7 +561,7 @@ void Object::unroot() {
 #endif
 
 bool Object::isRooted() const {
-    return _rootCount > 0;
+    return getRootCount() > 0;
 }
 
 Class* Object::_getClass() const {
@@ -645,9 +659,11 @@ void Object::cleanup() {
     if (__objectMap) {
         std::vector<Object*> toReleaseObjects;
         for (const auto& e : *__objectMap) {
-            obj             = e.first;
-            cls             = obj->_getClass();
+            obj = e.first;
+            cls = obj->_getClass();
+#if !USE_NODE_NAPI
             obj->_rootCount = 0;
+#endif
 
             if (cls != nullptr && cls->getName() == "__PrivateData") {
                 toReleaseObjects.push_back(obj);

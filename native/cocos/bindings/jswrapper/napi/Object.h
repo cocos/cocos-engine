@@ -357,8 +357,11 @@ private:
     void *        _privateData = nullptr;
     napi_env      _env         = nullptr;
     Class *       _cls         = nullptr;
-    uint32_t      _rootCount   = 0;
-
+#if USE_NODE_NAPI
+    uint32_t getRootCount() const;
+#else
+    uint32_t  _rootCount = 0;
+#endif
     friend class ScriptEngine;
     friend class Class;
 };
