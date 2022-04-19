@@ -228,7 +228,12 @@ const Elements = {
             if (panel.asset.readonly) {
                 panel.$.name.setAttribute('tooltip', 'i18n:inspector.asset.prohibitEditInternalAsset');
                 panel.$.name.setAttribute('readonly', '');
-                panel.$.copy.style.display = 'inline-block';
+
+                if (panel.asset.source) {
+                    panel.$.copy.style.display = 'inline-block';
+                } else {
+                    panel.$.copy.style.display = 'none';
+                }
             } else {
                 panel.$.name.removeAttribute('tooltip');
                 panel.$.name.removeAttribute('readonly');
