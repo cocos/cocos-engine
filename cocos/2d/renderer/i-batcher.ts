@@ -4,19 +4,19 @@ import { Device } from '../../core/gfx';
 import { Attribute } from '../../core/gfx/base/define';
 import { Camera } from '../../core/renderer/scene/camera';
 import { Model } from '../../core/renderer/scene/model';
-import { Root } from '../../core/root';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { UIStaticBatch } from '../components/ui-static-batch';
-import { Renderable2D, RenderRoot2D, UIComponent } from '../framework';
+import { Renderable2D, RenderRoot2D } from '../framework';
+import { StaticVBAccessor } from './static-vb-accessor';
 import { DrawBatch2D } from './draw-batch';
-import { MeshBuffer } from './mesh-buffer';
+import { BaseRenderData } from './render-data';
+import { UIMeshRenderer } from '../components/ui-mesh-renderer';
 
 export interface IBatcher {
-    currBufferBatch: MeshBuffer | null;
+    currBufferAccessor: StaticVBAccessor;
     readonly batches: CachedArray<DrawBatch2D>;
-    acquireBufferBatch (attributes?: Attribute[]): MeshBuffer | null;
-    registerCustomBuffer (attributes: MeshBuffer | Attribute[], callback: ((...args: number[]) => void) | null) : MeshBuffer;
-    unRegisterCustomBuffer (buffer: MeshBuffer);
+    // registerCustomBuffer (attributes: MeshBuffer | Attribute[], callback: ((...args: number[]) => void) | null) : MeshBuffer;
+    // unRegisterCustomBuffer (buffer: MeshBuffer);
 
     currStaticRoot: UIStaticBatch | null;
     currIsStatic: boolean;
@@ -36,8 +36,13 @@ export interface IBatcher {
     uploadBuffers ();
     reset ();
 
-    commitComp (comp: Renderable2D, frame: TextureBase | SpriteFrame | null, assembler: any, transform: Node | null);
-    commitModel (comp: UIComponent | Renderable2D, model: Model | null, mat: Material | null);
+    switchBufferAccessor (attributes?: Attribute[]): StaticVBAccessor;
+
+    commitComp (comp: Renderable2D, renderData: BaseRenderData|null, frame: TextureBase | SpriteFrame | null, assembler: any, transform: Node | null);
+    commitModel (comp: UIMeshRenderer | Renderable2D, model: Model | null, mat: Material | null);
+
+    setupStaticBatch (staticComp: UIStaticBatch, bufferAccessor: StaticVBAccessor);
+    endStaticBatch ();
     commitStaticBatch (comp: UIStaticBatch);
 
     autoMergeBatches (renderComp?: Renderable2D);

@@ -27,7 +27,7 @@ import { InputAssemblerInfo } from '../base/define';
 import { InputAssembler } from '../base/input-assembler';
 
 export class EmptyInputAssembler extends InputAssembler {
-    public initialize (info: InputAssemblerInfo) {
+    public initialize (info: Readonly<InputAssemblerInfo>) {
         this._attributes = info.attributes;
         this._attributesHash = this.computeAttributesHash();
         this._vertexBuffers = info.vertexBuffers;

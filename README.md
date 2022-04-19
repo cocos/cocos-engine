@@ -5,33 +5,33 @@
     </a>
 </p>
 <p align="center">
-    <a href="https://github.com/cocos-creator/engine/stargazers">
-        <img src="https://img.shields.io/github/stars/cocos-creator/engine.svg?style=flat-square&colorB=4183c4"
+    <a href="https://github.com/cocos/cocos-engine/stargazers">
+        <img src="https://img.shields.io/github/stars/cocos/cocos-engine.svg?style=flat-square&colorB=4183c4"
              alt="stars">
     </a>
     <a href="https://github.com/cocos-creator/engine/network">
-        <img src="https://img.shields.io/github/forks/cocos-creator/engine.svg?style=flat-square&colorB=4183c4"
+        <img src="https://img.shields.io/github/forks/cocos/cocos-engine.svg?style=flat-square&colorB=4183c4"
              alt="forks">
     </a>
     <a href="https://github.com/cocos-creator/engine/releases">
-        <img src="https://img.shields.io/github/tag/cocos-creator/engine.svg?label=version&style=flat-square&colorB=4183c4"
+        <img src="https://img.shields.io/github/tag/cocos/cocos-engine.svg?label=version&style=flat-square&colorB=4183c4"
              alt="version">
     </a>
     <a href="./licenses/LICENSE">
         <img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square&colorB=4183c4"
              alt="license">
     </a>
-    <a href="https://twitter.com/cocos2dx">
-        <img src="https://img.shields.io/twitter/follow/cocos2dx.svg?logo=twitter&label=follow&style=flat-square&colorB=4183c4"
+    <a href="https://twitter.com/CocosEngine">
+        <img src="https://img.shields.io/twitter/follow/CocosEngine.svg?logo=twitter&label=follow&style=flat-square&colorB=4183c4"
              alt="twitter">
     </a>
 </p>
 
-# Cocos Creator
+# Engine for Cocos Creator
 
 ![image](https://user-images.githubusercontent.com/1503156/111035862-53548000-8457-11eb-8e8b-52d854caf627.png)
 
-Cocos Creator is the new generation of game development tool in Cocos family, it brings a complete set of 3D features and provides an intuitive, low cost and collaboration friendly workflow to game developers.
+Cocos Engine is the framework for Cocos Creator editor. Cocos Creator is the new generation of game development tool in Cocos family, it brings a complete set of 3D features and provides an intuitive, low cost and collaboration friendly workflow to game developers.
 
 Cocos Creator inherited many good qualities and cool features from its previous versions, such as cross-platform support including instant gaming platforms like WeChat mini game, asset management, powerful animation editing, etc. Furthermore, Cocos Creator has pushed our technology to a whole new level. Our GFX implementation is designed to adapt to the latest graphic backend APIs, it already supports WebGL 2 and can be seamlessly fall back to WebGL 1, it will support Vulkan and Metal in the native build. The material system is built on our own effect format which uses GLSL 300 and can be easily adapted to lower version on low end devices. Developers can produce high performance, extremely expressive shaders with good compatibility. Along with physical based camera and lighting, high level game graphic can be easily achieved. Our pure GPU driven skeleton animation also make sure your game runs as smooth as possible. Besides all these exciting features, Cocos Creator have builtin physics support, terrain editing support, visual effect editing, ui system, TypeScript support, instant preview etc.
 

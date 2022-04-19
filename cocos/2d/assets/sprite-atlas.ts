@@ -106,6 +106,9 @@ export class SpriteAtlas extends Asset {
         return frames;
     }
 
+    /**
+     * @legacyPublic
+     */
     public _serialize (ctxForExporting: any): any {
         if (EDITOR || TEST) {
             const frames: string[] = [];
@@ -126,6 +129,9 @@ export class SpriteAtlas extends Asset {
         }
     }
 
+    /**
+     * @legacyPublic
+     */
     public _deserialize (serializeData: any, handle: any) {
         const data = serializeData as ISpriteAtlasSerializeData;
         this._name = data.name;

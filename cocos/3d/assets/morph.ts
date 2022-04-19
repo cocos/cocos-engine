@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { AttributeName, Device, DescriptorSet } from '../../core/gfx';
 import { Mesh } from './mesh';

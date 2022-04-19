@@ -53,6 +53,9 @@ export interface IDependencies {
  *
  */
 export class DependUtil {
+    /**
+     * @legacyPublic
+     */
     public _depends: Cache<IDependencies> = new Cache<IDependencies>();
 
     public init (): void {

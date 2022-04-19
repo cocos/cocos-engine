@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { EDITOR } from 'internal:constants';
 import { Mat4 } from '../math';

@@ -48,6 +48,7 @@ import { Scheduler } from './scheduler';
 import { js } from './utils';
 import { legacyCC } from './global-exports';
 import { errorID, error, assertID, warnID } from './platform/debug';
+import { containerManager } from './memop/container-manager';
 
 // ----------------------------------------------------------------------------------------------------------------------
 
@@ -200,7 +201,13 @@ export class Director extends EventTarget {
 
     public static instance: Director;
 
+    /**
+     * @legacyPublic
+     */
     public _compScheduler: ComponentScheduler;
+    /**
+     * @legacyPublic
+     */
     public _nodeActivator: NodeActivator;
     private _invalid: boolean;
     private _paused: boolean;
@@ -338,7 +345,7 @@ export class Director extends EventTarget {
         const persistNodeList = Object.keys(game._persistRootNodes).map((x) => game._persistRootNodes[x] as Node);
         for (let i = 0; i < persistNodeList.length; i++) {
             const node = persistNodeList[i];
-            node.emit(legacyCC.Node.SCENE_CHANGED_FOR_PERSISTS, scene.renderScene);
+            node.emit(Node.EventType.SCENE_CHANGED_FOR_PERSISTS, scene.renderScene);
             const existNode = scene.uuid === node._originalSceneId && scene.getChildByUuid(node.uuid);
             if (existNode) {
                 // scene also contains the persist node, select the old one
@@ -382,7 +389,7 @@ export class Director extends EventTarget {
         if (onBeforeLoadScene) {
             onBeforeLoadScene();
         }
-        this.emit(legacyCC.Director.EVENT_BEFORE_SCENE_LAUNCH, scene);
+        this.emit(Director.EVENT_BEFORE_SCENE_LAUNCH, scene);
 
         // Run an Entity Scene
         this._scene = scene;
@@ -403,7 +410,7 @@ export class Director extends EventTarget {
         if (onLaunched) {
             onLaunched(null, scene);
         }
-        this.emit(legacyCC.Director.EVENT_AFTER_SCENE_LAUNCH, scene);
+        this.emit(Director.EVENT_AFTER_SCENE_LAUNCH, scene);
     }
 
     /**
@@ -426,7 +433,7 @@ export class Director extends EventTarget {
         scene._load();
 
         // Delay run / replace scene to the end of the frame
-        this.once(legacyCC.Director.EVENT_END_FRAME, () => {
+        this.once(Director.EVENT_END_FRAME, () => {
             this.runSceneImmediate(scene, onBeforeLoadScene, onLaunched);
         });
     }
@@ -446,7 +453,7 @@ export class Director extends EventTarget {
         }
         const bundle = legacyCC.assetManager.bundles.find((bundle) => !!bundle.getSceneInfo(sceneName));
         if (bundle) {
-            this.emit(legacyCC.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
+            this.emit(Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
             this._loadingScene = sceneName;
             console.time(`LoadScene ${sceneName}`);
             bundle.loadScene(sceneName, (err, scene) => {
@@ -470,11 +477,11 @@ export class Director extends EventTarget {
 
     /**
      * @en
-     * Pre-loads the scene to reduces loading time. You can call this method at any time you want.<br>
+     * Pre-loads the scene asset to reduces loading time. You can call this method at any time you want.<br>
      * After calling this method, you still need to launch the scene by `director.loadScene`.<br>
      * It will be totally fine to call `director.loadScene` at any time even if the preloading is not<br>
      * yet finished, the scene will be launched after loaded automatically.
-     * @zh 预加载场景，你可以在任何时候调用这个方法。
+     * @zh 预加载场景资源，你可以在任何时候调用这个方法。
      * 调用完后，你仍然需要通过 `director.loadScene` 来启动场景，因为这个方法不会执行场景加载操作。<br>
      * 就算预加载还没完成，你也可以直接调用 `director.loadScene`，加载完成后场景就会启动。
      * @param sceneName 场景名称。
@@ -676,6 +683,7 @@ export class Director extends EventTarget {
     /**
      * @en Run main loop of director
      * @zh 运行主循环
+     * @param dt Delta time in seconds
      */
     public tick (dt: number) {
         if (!this._invalid) {
@@ -714,6 +722,7 @@ export class Director extends EventTarget {
 
             Node.resetHasChangedFlags();
             Node.clearNodeArray();
+            containerManager.update(dt);
             this.emit(Director.EVENT_END_FRAME);
             this._totalFrames++;
         }
@@ -733,10 +742,7 @@ export class Director extends EventTarget {
     private _init () {
         this._root = new Root(game._gfxDevice!);
         const rootInfo = {};
-        return this._root.initialize(rootInfo).catch((error) => {
-            errorID(1217);
-            return Promise.reject(error);
-        });
+        this._root.initialize(rootInfo);
     }
 }
 

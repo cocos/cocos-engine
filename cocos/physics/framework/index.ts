@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { PhysicsSystem } from './physics-system';
 import { PhysicsMaterial } from './assets/physics-material';

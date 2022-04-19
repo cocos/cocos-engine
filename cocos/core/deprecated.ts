@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { replaceProperty, removeProperty, markAsWarning } from './utils/x-deprecated';
 import * as math from './math';

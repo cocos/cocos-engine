@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { instantiate } from '../core/data';
 import { CCObject } from '../core/data/object';
@@ -45,7 +42,7 @@ export class ParticleUtils {
             this.registeredSceneEvent = true;
         }
         if (!this.particleSystemPool.has(prefab._uuid)) {
-            this.particleSystemPool.set(prefab._uuid, new Pool<CCObject>(() => instantiate(prefab) || new Node(), 1));
+            this.particleSystemPool.set(prefab._uuid, new Pool<CCObject>(() => instantiate(prefab) || new Node(), 1, (prefab) => prefab.destroy()));
         }
         return this.particleSystemPool.get(prefab._uuid)!.alloc();
     }
@@ -72,11 +69,7 @@ export class ParticleUtils {
     private static registeredSceneEvent = false;
 
     private static onSceneUnload () {
-        this.particleSystemPool.forEach((value) => {
-            value.destroy((prefab) => {
-                prefab.destroy();
-            });
-        });
+        this.particleSystemPool.forEach((value) => value.destroy());
         this.particleSystemPool.clear();
     }
 }

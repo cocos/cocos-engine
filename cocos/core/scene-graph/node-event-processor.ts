@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { CallbacksInvoker } from '../event/callbacks-invoker';
 import { Event, EventMouse, EventTouch } from '../../input/types';
@@ -66,6 +63,7 @@ export interface IMask {
 export enum DispatcherEventType {
     ADD_POINTER_EVENT_PROCESSOR,
     REMOVE_POINTER_EVENT_PROCESSOR,
+    MARK_LIST_DIRTY,
 }
 
 /**
@@ -81,12 +79,16 @@ export class NodeEventProcessor {
         return this._isEnabled;
     }
     public setEnabled (value: boolean, recursive = false) {
+        if (this._isEnabled === value) {
+            return;
+        }
         this._isEnabled = value;
         const node = this.node;
         const children = node.children;
         if (value) {
             this._attachMask();
         }
+        NodeEventProcessor.callbacksInvoker.emit(DispatcherEventType.MARK_LIST_DIRTY);
         if (recursive && children.length > 0) {
             for (let i = 0; i < children.length; ++i) {
                 const child = children[i];
@@ -244,14 +246,36 @@ export class NodeEventProcessor {
         }
     }
 
+    /**
+     * Fix when reigster 'once' event callback, `this.off` method isn't be invoked after event is emitted.
+     * We need to inject some nodeEventProcessor's logic into the `callbacksInvoker.off` method.
+     * @returns {CallbacksInvoker<SystemEventTypeUnion>} decorated callbacks invoker
+     */
+    private _newCallbacksInvoker (): CallbacksInvoker<SystemEventTypeUnion> {
+        const callbacksInvoker = new CallbacksInvoker<SystemEventTypeUnion>();
+        // @ts-expect-error Property '_registerOffCallback' is private
+        callbacksInvoker._registerOffCallback(() => {
+            if (this.shouldHandleEventTouch && !this._hasTouchListeners()) {
+                this.shouldHandleEventTouch = false;
+            }
+            if (this.shouldHandleEventMouse && !this._hasMouseListeners()) {
+                this.shouldHandleEventMouse = false;
+            }
+            if (!this._hasPointerListeners()) {
+                NodeEventProcessor.callbacksInvoker.emit(DispatcherEventType.REMOVE_POINTER_EVENT_PROCESSOR, this);
+            }
+        });
+        return callbacksInvoker;
+    }
+
     public on (type: NodeEventType, callback: AnyFunction, target?: unknown, useCapture?: boolean) {
         this._tryEmittingAddEvent(type);
         useCapture = !!useCapture;
         let invoker: CallbacksInvoker<SystemEventTypeUnion>;
         if (useCapture) {
-            invoker = this.capturingTarget ??= new CallbacksInvoker<SystemEventTypeUnion>();
+            invoker = this.capturingTarget ??= this._newCallbacksInvoker();
         } else {
-            invoker = this.bubblingTarget ??= new CallbacksInvoker<SystemEventTypeUnion>();
+            invoker = this.bubblingTarget ??= this._newCallbacksInvoker();
         }
         invoker.on(type, callback, target);
         return callback;
@@ -262,9 +286,9 @@ export class NodeEventProcessor {
         useCapture = !!useCapture;
         let invoker: CallbacksInvoker<SystemEventTypeUnion>;
         if (useCapture) {
-            invoker = this.capturingTarget ??= new CallbacksInvoker<SystemEventTypeUnion>();
+            invoker = this.capturingTarget ??= this._newCallbacksInvoker();
         } else {
-            invoker = this.bubblingTarget ??= new CallbacksInvoker<SystemEventTypeUnion>();
+            invoker = this.bubblingTarget ??= this._newCallbacksInvoker();
         }
 
         invoker.on(type, callback, target, true);
@@ -280,17 +304,6 @@ export class NodeEventProcessor {
             invoker = this.bubblingTarget;
         }
         invoker?.off(type, callback, target);
-
-        // emit event
-        if (this.shouldHandleEventTouch && !this._hasTouchListeners()) {
-            this.shouldHandleEventTouch = false;
-        }
-        if (this.shouldHandleEventMouse && !this._hasMouseListeners()) {
-            this.shouldHandleEventMouse = false;
-        }
-        if (!this._hasPointerListeners()) {
-            NodeEventProcessor.callbacksInvoker.emit(DispatcherEventType.REMOVE_POINTER_EVENT_PROCESSOR, this);
-        }
     }
 
     public targetOff (target: unknown) {
@@ -444,9 +457,9 @@ export class NodeEventProcessor {
             return false;
         }
 
-        pos = event.getUILocation();
+        event.getLocation(pos);
 
-        if (node._uiProps.uiTransformComp.isHit(pos)) {
+        if (node._uiProps.uiTransformComp.hitTest(pos)) {
             event.type = NodeEventType.MOUSE_DOWN;
             event.bubbles = true;
             node.dispatchEvent(event);
@@ -462,9 +475,9 @@ export class NodeEventProcessor {
             return false;
         }
 
-        pos = event.getUILocation();
+        event.getLocation(pos);
 
-        const hit = node._uiProps.uiTransformComp.isHit(pos);
+        const hit = node._uiProps.uiTransformComp.hitTest(pos);
         if (hit) {
             if (!this.previousMouseIn) {
                 // Fix issue when hover node switched, previous hovered node won't get MOUSE_LEAVE notification
@@ -498,9 +511,9 @@ export class NodeEventProcessor {
             return false;
         }
 
-        pos = event.getUILocation();
+        event.getLocation(pos);
 
-        if (node._uiProps.uiTransformComp.isHit(pos)) {
+        if (node._uiProps.uiTransformComp.hitTest(pos)) {
             event.type = NodeEventType.MOUSE_UP;
             event.bubbles = true;
             node.dispatchEvent(event);
@@ -516,9 +529,9 @@ export class NodeEventProcessor {
             return false;
         }
 
-        pos = event.getUILocation();
+        event.getLocation(pos);
 
-        if (node._uiProps.uiTransformComp.isHit(pos)) {
+        if (node._uiProps.uiTransformComp.hitTest(pos)) {
             event.type = NodeEventType.MOUSE_WHEEL;
             event.bubbles = true;
             node.dispatchEvent(event);
@@ -553,9 +566,9 @@ export class NodeEventProcessor {
             return false;
         }
 
-        event.getUILocation(pos);
+        event.getLocation(pos);
 
-        if (node._uiProps.uiTransformComp.isHit(pos)) {
+        if (node._uiProps.uiTransformComp.hitTest(pos)) {
             event.type = NodeEventType.TOUCH_START;
             event.bubbles = true;
             node.dispatchEvent(event);
@@ -583,9 +596,9 @@ export class NodeEventProcessor {
             return;
         }
 
-        event.getUILocation(pos);
+        event.getLocation(pos);
 
-        if (node._uiProps.uiTransformComp.isHit(pos)) {
+        if (node._uiProps.uiTransformComp.hitTest(pos)) {
             event.type = NodeEventType.TOUCH_END;
         } else {
             event.type = NodeEventType.TOUCH_CANCEL;

@@ -58,10 +58,10 @@ export class WebGLIndirectDrawInfos {
         this.instancedDraw = false;
     }
 
-    public setDrawInfo (idx: number, info: DrawInfo) {
+    public setDrawInfo (idx: number, info: Readonly<DrawInfo>) {
         this._ensureCapacity(idx);
         this.drawByIndex = info.indexCount > 0;
-        this.instancedDraw = info.instanceCount > 1;
+        this.instancedDraw = !!info.instanceCount;
         this.drawCount = Math.max(idx + 1, this.drawCount);
 
         if (this.drawByIndex) {
@@ -100,6 +100,12 @@ export interface IWebGLGPUUniformInfo {
     offset: number;
     view: Float32Array | Int32Array;
     isDirty: boolean;
+}
+
+export interface IWebGLBindingMapping {
+    blockOffsets: number[];
+    samplerTextureOffsets: number[];
+    flexibleSet: number;
 }
 
 export interface IWebGLGPUBufferView {
@@ -164,6 +170,7 @@ export interface IWebGLGPUFramebuffer {
     isOffscreen: boolean;
     width: number;
     height: number;
+    lodLevel: number;
 }
 
 export interface IWebGLGPUSampler {

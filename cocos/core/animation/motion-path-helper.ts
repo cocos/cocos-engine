@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { binarySearchEpsilon as binarySearch } from '../algorithm/binary-search';
 import { errorID } from '../platform/debug';
@@ -94,6 +91,9 @@ export class Bezier {
      */
     public endCtrlPoint = new Vec2();
 
+    /**
+     * @legacyPublic
+     */
     public __arcLengthDivisions?: number;
 
     private cacheArcLengths?: number[];

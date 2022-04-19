@@ -30,9 +30,9 @@
 
 import { CommandBuffer, Device, Rect, RenderPass, Swapchain, Viewport } from '../gfx';
 import { IVec4Like } from '../math';
-import { Model } from '../renderer/scene';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { SetIndex } from './define';
+import { Camera, Model } from '../renderer/scene';
 
 const profilerViewport = new Viewport();
 const profilerScissor = new Rect();
@@ -67,11 +67,24 @@ export function LinearToSRGB (out: IVec4Like, linear: IVec4Like) {
     out.z = Math.sqrt(linear.z);
 }
 
-export function renderProfiler (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer, profiler: Model | null, swapchain: Swapchain | null) {
-    if (profiler && profiler.enabled && swapchain) {
+let profilerCamera: Camera | null = null;
+
+export function decideProfilerCamera (cameras: Camera[]) {
+    for (let i = cameras.length - 1; i >= 0; --i) {
+        const camera = cameras[i];
+        if (camera.window.swapchain) {
+            profilerCamera = camera;
+            return;
+        }
+    }
+    profilerCamera = null;
+}
+
+export function renderProfiler (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer, profiler: Model | null, camera: Camera) {
+    if (profiler && profiler.enabled && camera === profilerCamera) {
         const { inputAssembler, passes, shaders, descriptorSet } = profiler.subModels[0];
-        profilerViewport.width = profilerScissor.width = swapchain.width;
-        profilerViewport.height = profilerScissor.height = swapchain.height;
+        profilerViewport.width = profilerScissor.width = camera.window.width;
+        profilerViewport.height = profilerScissor.height = camera.window.height;
         const pso = PipelineStateManager.getOrCreatePipelineState(device, passes[0], shaders[0], renderPass, inputAssembler);
 
         cmdBuff.setViewport(profilerViewport);

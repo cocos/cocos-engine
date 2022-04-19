@@ -23,17 +23,13 @@
  THE SOFTWARE.
  */
 
-import { JSB } from 'internal:constants';
 import { RenderingSubMesh } from '../../assets/rendering-sub-mesh';
 import { RenderPriority, UNIFORM_REFLECTION_TEXTURE_BINDING, UNIFORM_REFLECTION_STORAGE_BINDING } from '../../pipeline/define';
 import { BatchingSchemes, IMacroPatch, Pass } from '../core/pass';
-import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, InputAssemblerInfo, Texture, TextureType, TextureUsageBit, TextureInfo,
+import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, Texture, TextureType, TextureUsageBit, TextureInfo,
     Format, Sampler, Filter, Address, Shader, SamplerInfo } from '../../gfx';
 import { legacyCC } from '../../global-exports';
-import { ForwardPipeline } from '../../pipeline';
 import { errorID } from '../../platform/debug';
-import { Shadows } from './shadows';
-import { NativePass, NativeSubModel } from './native-scene';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
 
@@ -53,45 +49,6 @@ export class SubModel {
     protected _planarShader: Shader | null = null;
     protected _reflectionTex: Texture | null = null;
     protected _reflectionSampler: Sampler | null = null;
-    protected declare _nativeObj: NativeSubModel | null;
-
-    private _destroyDescriptorSet () {
-        this._descriptorSet!.destroy();
-        if (JSB) {
-            this._nativeObj!.setDescriptorSet(null);
-        }
-        this._descriptorSet = null;
-    }
-
-    private _destroyWorldBoundDescriptorSet () {
-        this._worldBoundDescriptorSet!.destroy();
-        if (JSB) {
-            this._nativeObj!.setWorldBoundDescriptorSet(null);
-        }
-        this._worldBoundDescriptorSet = null;
-    }
-
-    private _destroyInputAssembler () {
-        this._inputAssembler!.destroy();
-        if (JSB) {
-            this._nativeObj!.setInputAssembler(null);
-        }
-        this._inputAssembler = null;
-    }
-
-    private _createDescriptorSet (descInfo: DescriptorSetInfo) {
-        this._descriptorSet = this._device!.createDescriptorSet(descInfo);
-        if (JSB) {
-            this._nativeObj!.setDescriptorSet(this._descriptorSet);
-        }
-    }
-
-    private _createWorldBoundDescriptorSet (descInfo: DescriptorSetInfo) {
-        this._worldBoundDescriptorSet = this._device!.createDescriptorSet(descInfo);
-        if (JSB) {
-            this._nativeObj!.setWorldBoundDescriptorSet(this._worldBoundDescriptorSet);
-        }
-    }
 
     set passes (passes) {
         const passLengh = passes.length;
@@ -101,13 +58,15 @@ export class SubModel {
         }
         this._passes = passes;
         this._flushPassInfo();
-        if (this._passes[0].batchingScheme === BatchingSchemes.VB_MERGING) { this.subMesh.genFlatBuffers(); }
+        if (this._passes[0].batchingScheme === BatchingSchemes.VB_MERGING) {
+            this.subMesh.genFlatBuffers();
+        }
 
         // DS layout might change too
         if (this._descriptorSet) {
-            this._destroyDescriptorSet();
+            this._descriptorSet.destroy();
             _dsInfo.layout = passes[0].localSetLayout;
-            this._createDescriptorSet(_dsInfo);
+            this._descriptorSet = this._device!.createDescriptorSet(_dsInfo);
         }
     }
 
@@ -120,10 +79,10 @@ export class SubModel {
     }
 
     set subMesh (subMesh) {
-        this._setSubMesh(subMesh);
         this._inputAssembler!.destroy();
         this._inputAssembler!.initialize(subMesh.iaInfo);
         if (this._passes![0].batchingScheme === BatchingSchemes.VB_MERGING) { this.subMesh.genFlatBuffers(); }
+        this._subMesh = subMesh;
     }
 
     get subMesh (): RenderingSubMesh {
@@ -132,9 +91,6 @@ export class SubModel {
 
     set priority (val) {
         this._priority = val;
-        if (JSB) {
-            this._nativeObj!.setPriority(val);
-        }
     }
 
     get priority (): RenderPriority {
@@ -165,49 +121,27 @@ export class SubModel {
         return this._planarShader;
     }
 
-    private _setInputAssembler (iaInfo: InputAssemblerInfo) {
-        this._inputAssembler = this._device!.createInputAssembler(iaInfo);
-        if (JSB) {
-            this._nativeObj!.setInputAssembler(this._inputAssembler);
-        }
-    }
-
-    private _setSubMesh (subMesh: RenderingSubMesh) {
-        this._subMesh = subMesh;
-        if (JSB) {
-            this._nativeObj!.setSubMeshBuffers(subMesh.flatBuffers);
-        }
-    }
-
-    get native (): NativeSubModel {
-        return this._nativeObj!;
-    }
-
-    private _init () {
-        if (JSB) {
-            this._nativeObj = new NativeSubModel();
-        }
-    }
-
     public initialize (subMesh: RenderingSubMesh, passes: Pass[], patches: IMacroPatch[] | null = null): void {
         const root = legacyCC.director.root as Root;
         this._device = root.device;
         _dsInfo.layout = passes[0].localSetLayout;
-        this._init();
-        this._setInputAssembler(subMesh.iaInfo);
-        this._createDescriptorSet(_dsInfo);
 
-        const pipeline = legacyCC.director.root.pipeline;
-        const occlusionPass = pipeline.pipelineSceneData.getOcclusionQueryPass();
+        this._inputAssembler = this._device.createInputAssembler(subMesh.iaInfo);
+        this._descriptorSet = this._device.createDescriptorSet(_dsInfo);
+
+        const pipeline = (legacyCC.director.root as Root).pipeline;
+        const occlusionPass = pipeline.pipelineSceneData.getOcclusionQueryPass()!;
         const occlusionDSInfo = new DescriptorSetInfo(null!);
         occlusionDSInfo.layout = occlusionPass.localSetLayout;
-        this._createWorldBoundDescriptorSet(occlusionDSInfo);
-        this._setSubMesh(subMesh);
+        this._worldBoundDescriptorSet = this._device.createDescriptorSet(occlusionDSInfo);
+        this._subMesh = subMesh;
         this._patches = patches;
         this._passes = passes;
 
         this._flushPassInfo();
-        if (passes[0].batchingScheme === BatchingSchemes.VB_MERGING) { this.subMesh.genFlatBuffers(); }
+        if (passes[0].batchingScheme === BatchingSchemes.VB_MERGING) {
+            this.subMesh.genFlatBuffers();
+        }
 
         this.priority = RenderPriority.DEFAULT;
 
@@ -248,46 +182,32 @@ export class SubModel {
         }
     }
 
-    private _initNativePlanarShadowShader (shadowInfo: Shadows) {
-        this._planarShader = shadowInfo.getPlanarShader(this._patches);
-        if (JSB) {
-            this._nativeObj!.setPlanarShader(this._planarShader);
-        }
-    }
-
     // This is a temporary solution
     // It should not be written in a fixed way, or modified by the user
     public initPlanarShadowShader () {
-        const pipeline = legacyCC.director.root.pipeline as  ForwardPipeline;
+        const pipeline = (legacyCC.director.root as Root).pipeline;
         const shadowInfo = pipeline.pipelineSceneData.shadows;
-        this._initNativePlanarShadowShader(shadowInfo);
-    }
-
-    private _initNativePlanarShadowInstanceShader (shadowInfo: Shadows) {
-        this._planarInstanceShader = shadowInfo.getPlanarInstanceShader(this._patches);
-        if (JSB) {
-            this._nativeObj!.setPlanarInstanceShader(this._planarInstanceShader);
-        }
+        this._planarShader = shadowInfo.getPlanarShader(this._patches);
     }
 
     // This is a temporary solution
     // It should not be written in a fixed way, or modified by the user
     public initPlanarShadowInstanceShader () {
-        const pipeline = legacyCC.director.root.pipeline as  ForwardPipeline;
+        const pipeline = (legacyCC.director.root as Root).pipeline;
         const shadowInfo = pipeline.pipelineSceneData.shadows;
-        this._initNativePlanarShadowInstanceShader(shadowInfo);
-    }
-
-    private _destroy () {
-        if (JSB) {
-            this._nativeObj = null;
-        }
+        this._planarInstanceShader = shadowInfo.getPlanarInstanceShader(this._patches);
     }
 
     public destroy (): void {
-        this._destroyDescriptorSet();
-        this._destroyWorldBoundDescriptorSet();
-        this._destroyInputAssembler();
+        this._descriptorSet!.destroy();
+        this._descriptorSet = null;
+
+        this._inputAssembler!.destroy();
+        this._inputAssembler = null;
+
+        this._worldBoundDescriptorSet!.destroy();
+        this._worldBoundDescriptorSet = null;
+
         this.priority = RenderPriority.DEFAULT;
 
         this._patches = null;
@@ -299,8 +219,6 @@ export class SubModel {
         if (this._reflectionTex) this._reflectionTex.destroy();
         this._reflectionTex = null;
         this._reflectionSampler = null;
-
-        this._destroy();
     }
 
     public update (): void {
@@ -342,6 +260,18 @@ export class SubModel {
         this._flushPassInfo();
     }
 
+    public onGeometryChanged (): void {
+        if (!this._subMesh) {
+            return;
+        }
+
+        // update draw info
+        const drawInfo = this._subMesh.drawInfo;
+        if (this._inputAssembler && drawInfo) {
+            this._inputAssembler.drawInfo.copy(drawInfo);
+        }
+    }
+
     protected _flushPassInfo (): void {
         const passes = this._passes;
         if (!passes) { return; }
@@ -350,12 +280,6 @@ export class SubModel {
         this._shaders.length = passes.length;
         for (let i = 0, len = passes.length; i < len; i++) {
             this._shaders[i] = passes[i].getShaderVariant(this.patches)!;
-        }
-
-        if (JSB) {
-            const passesNative = passes.map((_pass: Pass): NativePass => _pass.native);
-            this._nativeObj!.setPasses(passesNative);
-            this._nativeObj!.setShaders(this._shaders);
         }
     }
 }

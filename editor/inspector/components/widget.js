@@ -1186,13 +1186,18 @@ const computed = {
     },
 };
 exports.ready = function() {
+    let requestAnimationFrameId = null;
     this.resizeObserver = new window.ResizeObserver(() => {
-        const rect = this.$this.getBoundingClientRect();
-        if (rect.width > 300) {
-            this.layout = 'horizontal';
-        } else {
-            this.layout = 'vertical';
-        }
+        if (requestAnimationFrameId !== null) { return; }
+        requestAnimationFrameId = window.requestAnimationFrame(() => {
+            const rect = this.$this.getBoundingClientRect();
+            if (rect.width > 300) {
+                this.layout = 'horizontal';
+            } else {
+                this.layout = 'vertical';
+            }
+            requestAnimationFrameId = null;
+        });
     });
 
     this.resizeObserver.observe(this.$this);

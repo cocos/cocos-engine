@@ -20,6 +20,9 @@ import { legacyCC } from '../core/global-exports';
  */
 @ccclass('sp.SkeletonData')
 export class SkeletonData extends Asset {
+    /**
+     * @legacyPublic
+     */
     @serializable
     public _skeletonJson: spine.SkeletonJson | null = null;
 
@@ -94,6 +97,9 @@ export class SkeletonData extends Asset {
     @serializable
     public scale = 1;
 
+    /**
+     * @legacyPublic
+     */
     get _nativeAsset (): ArrayBuffer {
         return this._buffer!;
     }

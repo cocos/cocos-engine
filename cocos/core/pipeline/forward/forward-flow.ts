@@ -31,12 +31,12 @@
 import { ccclass } from 'cc.decorator';
 import { PIPELINE_FLOW_FORWARD } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
-import { ForwardFlowPriority } from '../common/enum';
+import { ForwardFlowPriority } from '../enum';
 import { ForwardStage } from './forward-stage';
 import { RenderPipeline } from '../render-pipeline';
 import { Camera } from '../../renderer/scene';
-import { PostProcessStage } from '../common/postprocess-stage';
-import { BloomStage } from '../common/bloom-stage';
+import { PostProcessStage } from '../deferred/postprocess-stage';
+import { BloomStage } from '../deferred/bloom-stage';
 
 /**
  * @en The forward flow in forward render pipeline
@@ -48,8 +48,6 @@ export class ForwardFlow extends RenderFlow {
      * @en The shared initialization information of forward render flow
      * @zh 共享的前向渲染流程初始化参数
      */
-    private postProcessStage: PostProcessStage | null = null;
-    private bloomStage: BloomStage | null = null;
     public static initInfo: IRenderFlowInfo = {
         name: PIPELINE_FLOW_FORWARD,
         priority: ForwardFlowPriority.FORWARD,
@@ -66,24 +64,7 @@ export class ForwardFlow extends RenderFlow {
         return true;
     }
 
-    protected _addPostStage () {
-        if (!(this._stages[this._stages.length - 1] instanceof PostProcessStage)) {
-            this.postProcessStage = new PostProcessStage();
-            this.postProcessStage.initialize(PostProcessStage.initInfo);
-            this._stages.push(this.postProcessStage);
-        }
-    }
-
-    protected _addBloomStage () {
-        this.bloomStage = new BloomStage();
-        this.bloomStage.initialize(BloomStage.initInfo);
-        this.bloomStage.enabled = false;
-        this._stages.push(this.bloomStage);
-    }
-
     public activate (pipeline: RenderPipeline) {
-        this._addBloomStage();
-        this._addPostStage();
         super.activate(pipeline);
     }
 

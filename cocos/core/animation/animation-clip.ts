@@ -52,6 +52,8 @@ import { ObjectTrack } from './tracks/object-track';
 import type { ExoticAnimation } from './exotic-animation/exotic-animation';
 import './exotic-animation/exotic-animation';
 import { array } from '../utils/js';
+import type { AnimationMask } from './marionette/animation-mask';
+import { getGlobalAnimationManager } from './global-animation-manager';
 
 export declare namespace AnimationClip {
     export interface IEvent {
@@ -139,7 +141,7 @@ export class AnimationClip extends Asset {
     /**
      * Sets if node TRS curves in this animation can be blended.
      * Normally this flag is enabled for model animation and disabled for other case.
-     * @internal This is an internal slot. Never use it in your code.
+     * @legacyPublic This is an internal slot. Never use it in your code.
      */
     @serializable
     public enableTrsBlending = false;
@@ -286,7 +288,7 @@ export class AnimationClip extends Asset {
      * Creates an event evaluator for this animation.
      * @param targetNode Target node used to fire events.
      * @returns
-     * @internal Do not use this in your code.
+     * @legacyPublic Do not use this in your code.
      */
     public createEventEvaluator (targetNode: Node) {
         return new EventEvaluator(
@@ -301,7 +303,7 @@ export class AnimationClip extends Asset {
      * Creates an evaluator for this animation.
      * @param context The context.
      * @returns The evaluator.
-     * @internal Do not use this in your code.
+     * @legacyPublic Do not use this in your code.
      */
     public createEvaluator (context: AnimationClipEvalContext) {
         const {
@@ -309,6 +311,10 @@ export class AnimationClip extends Asset {
         } = context;
 
         const binder: Binder = (binding: TrackBinding) => {
+            if (context.mask && binding.isMaskedOff(context.mask)) {
+                return undefined;
+            }
+
             const trackTarget = binding.createRuntimeBinding(
                 target,
                 this.enableTrsBlending ? context.pose : undefined,
@@ -407,7 +413,7 @@ export class AnimationClip extends Asset {
     /**
      * Convert all untyped tracks into typed ones and delete the original.
      * @param refine How to decide the type on specified path.
-     * @internal DO NOT USE THIS IN YOUR CODE.
+     * @legacyPublic DO NOT USE THIS IN YOUR CODE.
      */
     public upgradeUntypedTracks (refine: UntypedTrackRefine) {
         const newTracks: Track[] = [];
@@ -493,7 +499,6 @@ export class AnimationClip extends Asset {
     }
 
     /**
-     * @internal
      * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
      */
     public getPropertyCurves () {
@@ -514,7 +519,6 @@ export class AnimationClip extends Asset {
      * @en
      * Commit event data update.
      * You should call this function after you changed the `events` data to take effect.
-     * @internal
      * @deprecated Since V3.3. Please Assign to `this.events`.
      */
     public updateEventDatas () {
@@ -532,7 +536,7 @@ export class AnimationClip extends Asset {
 
     /**
      * Migrates legacy data into tracks.
-     * @internal This method tend to be used as internal purpose or patch.
+     * NOTE: This method tend to be used as internal purpose or patch.
      * DO NOT use it in your code since it might be removed for the future at any time.
      * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
      */
@@ -598,6 +602,9 @@ export class AnimationClip extends Asset {
         for (let iTrack = 0; iTrack < nTracks; ++iTrack) {
             const track = tracks[iTrack];
             if (rootMotionTrackExcludes.includes(track)) {
+                continue;
+            }
+            if (Array.from(track.channels()).every(({ curve }) => curve.keyFramesCount === 0)) {
                 continue;
             }
             const trackTarget = binder(track[trackBindingTag]);
@@ -778,6 +785,12 @@ export class AnimationClip extends Asset {
     }
 }
 
+type WrapMode_ = WrapMode;
+
+export declare namespace AnimationClip {
+    export type WrapMode = WrapMode_;
+}
+
 legacyCC.AnimationClip = AnimationClip;
 
 interface TrackEvalStatus {
@@ -797,6 +810,11 @@ interface AnimationClipEvalContext {
     target: unknown;
 
     /**
+     * The animation mask applied.
+     */
+    mask?: AnimationMask;
+
+    /**
      * Path to the root bone.
      */
     rootMotion?: RootMotionOptions;
@@ -809,9 +827,6 @@ interface RootMotionOptions {
 type ExoticAnimationEvaluator = ReturnType<ExoticAnimation['createEvaluator']>;
 
 class AnimationClipEvaluation {
-    /**
-     * @internal
-     */
     constructor (
         trackEvalStatuses: TrackEvalStatus[],
         exoticAnimationEvaluator: ExoticAnimationEvaluator | undefined,
@@ -1155,7 +1170,7 @@ class EventEvaluator {
 
     private _doFire (eventIndex: number, delay: boolean) {
         if (delay) {
-            legacyCC.director.getAnimationManager().pushDelayEvent(this._checkAndFire, this, [eventIndex]);
+            getGlobalAnimationManager().pushDelayEvent(this._checkAndFire, this, [eventIndex]);
         } else {
             this._checkAndFire(eventIndex);
         }

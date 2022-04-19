@@ -22,10 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-/**
- * @packageDocumentation
- * @hidden
- */
+
 import { EDITOR } from 'internal:constants';
 import { Asset, Prefab, SceneAsset } from '../assets';
 import { legacyCC } from '../global-exports';
@@ -110,7 +107,7 @@ export function getDepends (uuid: string, data: Asset | Record<string, any>, exc
             depends.push({ ...info.nativeDep });
         }
     } catch (e) {
-        error(e.message, e.stack);
+        error((e as Error).message, (e as Error).stack);
     }
 }
 

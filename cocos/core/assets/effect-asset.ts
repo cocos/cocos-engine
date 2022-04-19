@@ -31,8 +31,8 @@
 import { ccclass, serializable, editable, editorOnly } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Root } from '../root';
-import { BlendState, DepthStencilState, RasterizerState, DescriptorType,
-    DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type, SamplerInfo, Uniform, Attribute, MemoryAccess, Format } from '../gfx';
+import { BlendState, DepthStencilState, RasterizerState,
+    DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type, Uniform, MemoryAccess, Format } from '../gfx';
 import { RenderPassStage } from '../pipeline/define';
 import { MacroRecord } from '../renderer/core/pass-utils';
 import { programLib } from '../renderer/core/program-lib';
@@ -44,7 +44,8 @@ export declare namespace EffectAsset {
         type: number; // auto-extracted from shader
         handleInfo?: [string, number, number]; // auto-generated from 'target'
         samplerHash?: number; // auto-generated from 'sampler'
-        value?: number[] | string;
+        value?: number[] | string; // default value
+        linear?: boolean; // whether to convert the input to linear space first before applying
     }
     // Pass instance itself are compliant to IPassStates too
     export interface IPassStates {

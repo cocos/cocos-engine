@@ -30,7 +30,7 @@ import {
     RenderPassInfo, Device, TextureInfo, FramebufferInfo, Swapchain, SurfaceTransform,
 } from '../../gfx';
 import { Root } from '../../root';
-import { Camera, NativeRenderWindow } from '../scene';
+import { Camera } from '../scene';
 
 export interface IRenderWindowInfo {
     title?: string;
@@ -53,16 +53,18 @@ const orientationMap: Record<Orientation, SurfaceTransform> = {
  */
 export class RenderWindow {
     /**
-     * @en Get window width.
-     * @zh 窗口宽度。
+     * @en Get window width. Pre-rotated (i.e. rotationally invariant, always in identity/portrait mode) if possible.
+     * If you want to get oriented size instead, you should use [[Camera.width]] which corresponds to the current screen rotation.
+     * @zh 获取窗口宽度。如果支持交换链预变换，返回值将始终处于单位旋转（竖屏）坐标系下。如果需要获取旋转后的尺寸，请使用 [[Camera.width]]。
      */
     get width (): number {
         return this._width;
     }
 
     /**
-     * @en Get window height.
-     * @zh 窗口高度。
+     * @en Get window height. Pre-rotated (i.e. rotationally invariant, always in identity/portrait mode) if possible.
+     * If you want to get oriented size instead, you should use [[Camera.width]] which corresponds to the current screen rotation.
+     * @zh 获取窗口高度。如果支持交换链预变换，返回值将始终处于单位旋转（竖屏）坐标系下。如果需要获取旋转后的尺寸，请使用 [[Camera.height]]。
      */
     get height (): number {
         return this._height;
@@ -106,17 +108,11 @@ export class RenderWindow {
     protected _hasOnScreenAttachments = false;
     protected _hasOffScreenAttachments = false;
     protected _framebuffer: Framebuffer | null = null;
-    private declare _nativeObj: NativeRenderWindow | null;
 
-    get native () {
-        return this._nativeObj;
+    private constructor (root: Root) {
     }
 
-    private constructor (root: Root) {}
-
     public initialize (device: Device, info: IRenderWindowInfo): boolean {
-        this._init();
-
         if (info.title !== undefined) {
             this._title = info.title;
         }
@@ -130,7 +126,7 @@ export class RenderWindow {
         this._renderPass = device.createRenderPass(info.renderPassInfo);
 
         if (info.swapchain) {
-            this._setSwapchain(info.swapchain);
+            this._swapchain = info.swapchain;
             this._colorTextures.push(info.swapchain.colorTexture);
             this._depthStencilTexture = info.swapchain.depthStencilTexture;
         } else {
@@ -151,14 +147,14 @@ export class RenderWindow {
                     this._width,
                     this._height,
                 ));
+                this._hasOffScreenAttachments = true;
             }
         }
-
-        this._setFrameBuffer(device.createFramebuffer(new FramebufferInfo(
+        this._framebuffer = device.createFramebuffer(new FramebufferInfo(
             this._renderPass,
             this._colorTextures,
             this._depthStencilTexture,
-        )));
+        ));
 
         return true;
     }
@@ -183,8 +179,6 @@ export class RenderWindow {
             }
         }
         this._colorTextures.length = 0;
-
-        this._destroy();
     }
 
     /**
@@ -219,9 +213,7 @@ export class RenderWindow {
         }
 
         for (const camera of this._cameras) {
-            if (camera.isWindowSize) {
-                camera.resize(width, height);
-            }
+            camera.resize(width, height);
         }
     }
 
@@ -274,33 +266,5 @@ export class RenderWindow {
 
     public sortCameras () {
         this._cameras.sort((a: Camera, b: Camera) => a.priority - b.priority);
-    }
-
-    // ====================== Native Specific ====================== //
-
-    private _init () {
-        if (JSB) {
-            this._nativeObj = new NativeRenderWindow();
-        }
-    }
-
-    private _destroy () {
-        if (JSB) {
-            this._nativeObj = null;
-        }
-    }
-
-    private _setSwapchain (val: Swapchain) {
-        this._swapchain = val;
-        if (JSB) {
-            this._nativeObj!.swapchain = val;
-        }
-    }
-
-    private _setFrameBuffer (val: Framebuffer) {
-        this._framebuffer = val;
-        if (JSB) {
-            this._nativeObj!.frameBuffer = val;
-        }
     }
 }

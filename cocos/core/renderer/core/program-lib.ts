@@ -30,7 +30,7 @@
 
 import { EffectAsset } from '../../assets/effect-asset';
 import { SetIndex, IDescriptorSetLayoutInfo, globalDescriptorSetLayout, localDescriptorSetLayout } from '../../pipeline/define';
-import { RenderPipeline } from '../../pipeline/render-pipeline';
+import { PipelineRuntime } from '../../pipeline/custom/pipeline';
 import { genHandle, MacroRecord } from './pass-utils';
 import { legacyCC } from '../../global-exports';
 import { PipelineLayoutInfo, Device, Attribute, UniformBlock, ShaderInfo,
@@ -197,6 +197,16 @@ class ProgramLib {
         for (let i = 0; i < effect.shaders.length; i++) {
             const tmpl = this.define(effect.shaders[i]);
             tmpl.effectName = effect.name;
+        }
+        for (let i = 0; i < effect.techniques.length; i++) {
+            const tech = effect.techniques[i];
+            for (let j = 0; j < tech.passes.length; j++) {
+                const pass = tech.passes[j];
+                // grab default property declaration if there is none
+                if (pass.propertyIndex !== undefined && pass.properties === undefined) {
+                    pass.properties = tech.passes[pass.propertyIndex].properties;
+                }
+            }
         }
     }
 
@@ -428,7 +438,7 @@ class ProgramLib {
      * @param pipeline The [[RenderPipeline]] which owns the render command
      * @param key The shader cache key, if already known
      */
-    public getGFXShader (device: Device, name: string, defines: MacroRecord, pipeline: RenderPipeline, key?: string) {
+    public getGFXShader (device: Device, name: string, defines: MacroRecord, pipeline: PipelineRuntime, key?: string) {
         Object.assign(defines, pipeline.macros);
         if (!key) key = this.getKey(name, defines);
         const res = this._cache[key];

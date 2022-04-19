@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { selector } from '../framework/physics-selector';
 import { BuiltInWorld } from './builtin-world';

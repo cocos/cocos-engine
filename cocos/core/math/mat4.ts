@@ -56,7 +56,7 @@ export class Mat4 extends ValueType {
      * @en Clone a matrix and save the results to out matrix
      * @zh 获得指定矩阵的拷贝
      */
-    public static clone <Out extends IMat4Like> (a: Out) {
+    public static clone (a: IMat4Like) {
         return new Mat4(
             a.m00, a.m01, a.m02, a.m03,
             a.m04, a.m05, a.m06, a.m07,
@@ -231,7 +231,7 @@ export class Mat4 extends ValueType {
      * @en Calculates the determinant of a matrix
      * @zh 矩阵行列式
      */
-    public static determinant <Out extends IMat4Like> (a: Out): number {
+    public static determinant <InType extends IMat4Like> (a: InType): number {
         const a00 = a.m00; const a01 = a.m01; const a02 = a.m02; const a03 = a.m03;
         const a10 = a.m04; const a11 = a.m05; const a12 = a.m06; const a13 = a.m07;
         const a20 = a.m08; const a21 = a.m09; const a22 = a.m10; const a23 = a.m11;
@@ -763,7 +763,7 @@ export class Mat4 extends ValueType {
      * @en Extracts the translation from the matrix, assuming it's composed in order of scale, rotation, translation
      * @zh 提取矩阵的位移信息, 默认矩阵中的变换以 S->R->T 的顺序应用
      */
-    public static getTranslation <Out extends IMat4Like, VecLike extends IVec3Like> (out: VecLike, mat: Out) {
+    public static getTranslation <InType extends IMat4Like, VecLike extends IVec3Like> (out: VecLike, mat: InType) {
         out.x = mat.m12;
         out.y = mat.m13;
         out.z = mat.m14;
@@ -775,7 +775,7 @@ export class Mat4 extends ValueType {
      * @en Extracts the scale vector from the matrix, assuming it's composed in order of scale, rotation, translation
      * @zh 提取矩阵的缩放信息, 默认矩阵中的变换以 S->R->T 的顺序应用
      */
-    public static getScaling <Out extends IMat4Like, VecLike extends IVec3Like> (out: VecLike, mat: Out) {
+    public static getScaling <InType extends IMat4Like, VecLike extends IVec3Like> (out: VecLike, mat: InType) {
         const m00 = m3_1.m00 = mat.m00;
         const m01 = m3_1.m01 = mat.m01;
         const m02 = m3_1.m02 = mat.m02;
@@ -797,7 +797,7 @@ export class Mat4 extends ValueType {
      * @en Extracts the rotation from the matrix, assuming it's composed in order of scale, rotation, translation
      * @zh 提取矩阵的旋转信息, 默认输入矩阵不含有缩放信息，如考虑缩放应使用 `toRTS` 函数。
      */
-    public static getRotation <Out extends IMat4Like> (out: Quat, mat: Out) {
+    public static getRotation <InType extends IMat4Like> (out: Quat, mat: InType) {
         const trace = mat.m00 + mat.m05 + mat.m10;
         let S = 0;
 
@@ -834,7 +834,7 @@ export class Mat4 extends ValueType {
      * @en Extracts the scale, rotation and translation from the matrix, assuming it's composed in order of scale, rotation, translation
      * @zh 提取旋转、位移、缩放信息， 默认矩阵中的变换以 S->R->T 的顺序应用
      */
-    public static toRTS <Out extends IMat4Like, VecLike extends IVec3Like> (m: Out, q: Quat, v: VecLike, s: VecLike) {
+    public static toRTS <InType extends IMat4Like, VecLike extends IVec3Like> (m: InType, q: Quat, v: VecLike, s: VecLike) {
         s.x = Vec3.set(v3_1, m.m00, m.m01, m.m02).length();
         m3_1.m00 = m.m00 / s.x;
         m3_1.m01 = m.m01 / s.x;
@@ -1372,7 +1372,7 @@ export class Mat4 extends ValueType {
      * @en Returns whether the specified matrices are equal.
      * @zh 矩阵等价判断
      */
-    public static strictEquals <Out extends IMat4Like> (a: Out, b: Out) {
+    public static strictEquals <InType extends IMat4Like> (a: InType, b: InType) {
         return a.m00 === b.m00 && a.m01 === b.m01 && a.m02 === b.m02 && a.m03 === b.m03
             && a.m04 === b.m04 && a.m05 === b.m05 && a.m06 === b.m06 && a.m07 === b.m07
             && a.m08 === b.m08 && a.m09 === b.m09 && a.m10 === b.m10 && a.m11 === b.m11
@@ -1383,7 +1383,7 @@ export class Mat4 extends ValueType {
      * @en Returns whether the specified matrices are approximately equal.
      * @zh 排除浮点数误差的矩阵近似等价判断
      */
-    public static equals <Out extends IMat4Like> (a: Out, b: Out, epsilon = EPSILON) {
+    public static equals <InType extends IMat4Like> (a: InType, b: InType, epsilon = EPSILON) {
         // TAOCP vol.2, 3rd ed., s.4.2.4, p.213-225
         // defines a 'close enough' relationship between u and v that scales for magnitude
         return (

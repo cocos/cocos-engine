@@ -76,6 +76,7 @@ export class ParticleSystem extends RenderableComponent {
     /**
      * @zh 粒子系统能生成的最大粒子数量。
      */
+    @range([0, Number.POSITIVE_INFINITY])
     @displayOrder(1)
     @tooltip('i18n:particle_system.capacity')
     public get capacity () {
@@ -83,7 +84,7 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     public set capacity (val) {
-        this._capacity = Math.floor(val);
+        this._capacity = Math.floor(val > 0 ? val : 0);
         // @ts-expect-error private property access
         if (this.processor && this.processor._model) {
             // @ts-expect-error private property access
@@ -324,9 +325,9 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(Boolean)
     @displayOrder(27)
-    @tooltip('i18n:particle_system.enableCulling')
-    set enableCulling (value: boolean) {
-        this._enableCulling = value;
+    @tooltip('i18n:particle_system.renderCulling')
+    set renderCulling (value: boolean) {
+        this._renderCulling = value;
         if (value) {
             if (!this._boundingBox) {
                 this._boundingBox = new AABB();
@@ -335,12 +336,12 @@ export class ParticleSystem extends RenderableComponent {
         }
     }
 
-    get enableCulling () {
-        return this._enableCulling;
+    get renderCulling () {
+        return this._renderCulling;
     }
 
     @serializable
-    private _enableCulling = false;
+    private _renderCulling = false;
 
     /**
      * @en Particle culling mode option. Includes pause, pause and catchup, always simulate.
@@ -348,6 +349,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(CullingMode)
     @displayOrder(17)
+    @tooltip('i18n:particle_system.cullingMode')
     get cullingMode () {
         return this._cullingMode;
     }
@@ -367,6 +369,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(Number)
     @displayOrder(17)
+    @tooltip('i18n:particle_system.aabbHalfX')
     get aabbHalfX () {
         const res = this.getBoundingX();
         if (res) {
@@ -389,6 +392,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(Number)
     @displayOrder(17)
+    @tooltip('i18n:particle_system.aabbHalfY')
     get aabbHalfY () {
         const res = this.getBoundingY();
         if (res) {
@@ -411,6 +415,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(Number)
     @displayOrder(17)
+    @tooltip('i18n:particle_system.aabbHalfZ')
     get aabbHalfZ () {
         const res = this.getBoundingZ();
         if (res) {
@@ -426,6 +431,24 @@ export class ParticleSystem extends RenderableComponent {
 
     @serializable
     private _aabbHalfZ = 0;
+
+    /**
+     * @en Culling module data before serialize.
+     * @zh 序列化之前剔除不需要的模块数据。
+     */
+    @displayOrder(28)
+    @tooltip('i18n:particle_system.dataCulling')
+    get dataCulling () {
+        return this._dataCulling;
+    }
+
+    set dataCulling (value: boolean) {
+        this._dataCulling = value;
+    }
+
+    @serializable
+    @formerlySerializedAs('enableCulling')
+    private _dataCulling = false;
 
     @override
     @visible(false)
@@ -688,6 +711,7 @@ export class ParticleSystem extends RenderableComponent {
     private _oldPos: Vec3 | null;
     private _curPos: Vec3 | null;
     private _isCulled: boolean;
+    private _isSimulating: boolean;
 
     private _customData1: Vec2;
     private _customData2: Vec2;
@@ -731,6 +755,7 @@ export class ParticleSystem extends RenderableComponent {
         this._oldPos = null;
         this._curPos = null;
         this._isCulled = false;
+        this._isSimulating = true;
 
         this._customData1 = new Vec2();
         this._customData2 = new Vec2();
@@ -753,16 +778,25 @@ export class ParticleSystem extends RenderableComponent {
         // this._system.add(this);
     }
 
+    /**
+     * @legacyPublic
+     */
     public _onMaterialModified (index: number, material: Material) {
         if (this.processor !== null) {
             this.processor.onMaterialModified(index, material);
         }
     }
 
+    /**
+     * @legacyPublic
+     */
     public _onRebuildPSO (index: number, material: Material) {
         this.processor.onRebuildPSO(index, material);
     }
 
+    /**
+     * @legacyPublic
+     */
     public _collectModels (): scene.Model[] {
         this._models.length = 0;
         this._models.push((this.processor as any)._model);
@@ -833,6 +867,13 @@ export class ParticleSystem extends RenderableComponent {
         if (this._trailModule) {
             this._trailModule.play();
         }
+
+        if (this.processor) {
+            const model = this.processor.getModel();
+            if (model) {
+                model.enabled = this.enabledInHierarchy;
+            }
+        }
     }
 
     /**
@@ -872,6 +913,10 @@ export class ParticleSystem extends RenderableComponent {
 
         // if stop emit modify the refresh flag to true
         this._needRefresh = true;
+
+        for (const burst of this.bursts) {
+            burst.reset();
+        }
     }
 
     // remove all particles from current particle system.
@@ -883,7 +928,7 @@ export class ParticleSystem extends RenderableComponent {
             this.processor.clear();
             if (this._trailModule) this._trailModule.clear();
         }
-        this._calculateBounding(true);
+        this._calculateBounding(false);
     }
 
     /**
@@ -975,7 +1020,17 @@ export class ParticleSystem extends RenderableComponent {
     protected update (dt: number) {
         const scaledDeltaTime = dt * this.simulationSpeed;
 
-        if (this.enableCulling) {
+        if (!this.renderCulling) {
+            if (this._boundingBox) {
+                this._boundingBox = null;
+            }
+            if (this._culler) {
+                this._culler.clear();
+                this._culler.destroy();
+                this._culler = null;
+            }
+            this._isSimulating = true;
+        } else {
             if (!this._boundingBox) {
                 this._boundingBox = new AABB();
                 this._calculateBounding(false);
@@ -1022,7 +1077,7 @@ export class ParticleSystem extends RenderableComponent {
             }
             if (culled) {
                 if (this._cullingMode !== CullingMode.AlwaysSimulate) {
-                    this.pause();
+                    this._isSimulating = false;
                 }
                 if (!this._isCulled) {
                     this.processor.detachFromScene();
@@ -1042,18 +1097,13 @@ export class ParticleSystem extends RenderableComponent {
                     this._attachToScene();
                     this._isCulled = false;
                 }
-                if (!this._isPlaying) {
-                    this.play();
+                if (!this._isSimulating) {
+                    this._isSimulating = true;
                 }
             }
-        } else {
-            if (this._boundingBox) {
-                this._boundingBox = null;
-            }
-            if (this._culler) {
-                this._culler.clear();
-                this._culler.destroy();
-                this._culler = null;
+
+            if (!this._isSimulating) {
+                return;
             }
         }
 
@@ -1067,6 +1117,11 @@ export class ParticleSystem extends RenderableComponent {
             if (this.processor.updateParticles(scaledDeltaTime) === 0 && !this._isEmitting) {
                 this.stop();
             }
+        } else {
+            const mat: Material | null = this.getMaterialInstance(0) || this.processor.getDefaultMaterial();
+            const pass = mat!.passes[0];
+            this.processor.updateRotation(pass);
+            this.processor.updateScale(pass);
         }
         // update render data
         this.processor.updateRenderData();
@@ -1146,7 +1201,7 @@ export class ParticleSystem extends RenderableComponent {
             } else {
                 particle.startEuler.set(0, 0, this.startRotationZ.evaluate(loopDelta, rand));
             }
-            Vec3.set(particle.rotation, particle.startEuler.x, particle.startEuler.y, particle.startEuler.z);
+            particle.rotation.set(particle.startEuler);
 
             // apply startSize.
             if (this.startSize3D) {
@@ -1310,8 +1365,11 @@ export class ParticleSystem extends RenderableComponent {
         return this._time;
     }
 
+    /**
+     * @legacyPublic
+     */
     public _onBeforeSerialize (props) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return this.enableCulling ? props.filter((p) => !PARTICLE_MODULE_PROPERTY.includes(p) || (this[p] && this[p].enable)) : props;
+        return this.dataCulling ? props.filter((p) => !PARTICLE_MODULE_PROPERTY.includes(p) || (this[p] && this[p].enable)) : props;
     }
 }

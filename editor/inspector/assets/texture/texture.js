@@ -2,6 +2,7 @@
 
 exports.template = `
 <div class="asset-texture">
+    <!-- dont delete, for insert -->
     <div class="content">
         <ui-prop>
             <ui-label slot="label" value="i18n:ENGINE.assets.texture.anisotropy" tooltip="i18n:ENGINE.assets.texture.anisotropyTip"></ui-label>

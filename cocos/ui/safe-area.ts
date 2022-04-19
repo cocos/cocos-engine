@@ -36,6 +36,7 @@ import { UITransform } from '../2d/framework';
 import { view, sys } from '../core/platform';
 import { Widget } from './widget';
 import { widgetManager } from './widget-manager';
+import { legacyCC } from '../core/global-exports';
 
 /**
  * @en
@@ -65,12 +66,12 @@ export class SafeArea extends Component {
     public onEnable () {
         this.updateArea();
         // IDEA: need to delay the callback on Native platform ?
-        screenAdapter.on('resolution-change', this.updateArea, this);
+        screenAdapter.on('window-resize', this.updateArea, this);
         screenAdapter.on('orientation-change', this.updateArea, this);
     }
 
     public onDisable () {
-        screenAdapter.off('resolution-change', this.updateArea, this);
+        screenAdapter.off('window-resize', this.updateArea, this);
         screenAdapter.off('orientation-change', this.updateArea, this);
     }
 
@@ -119,3 +120,5 @@ export class SafeArea extends Component {
         widgetManager.add(widget);
     }
 }
+
+legacyCC.SafeArea = SafeArea;
