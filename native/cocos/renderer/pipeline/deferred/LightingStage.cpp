@@ -429,7 +429,9 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
         cmdBuff->bindDescriptorSet(globalSet, pipeline->getDescriptorSet());
         cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
         cmdBuff->draw(_inputAssembler);
-        if (_isTransparentQueueEmpty) _planarShadowQueue->recordCommandBuffer(_device, table.getRenderPass(), cmdBuff);
+        if (_isTransparentQueueEmpty) {
+            _planarShadowQueue->recordCommandBuffer(_device, table.getRenderPass(), cmdBuff, 1);
+        }
     };
 
     pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint>(DeferredInsertPoint::DIP_LIGHTING), DeferredPipeline::fgStrHandleLightingPass, lightingSetup, lightingExec);

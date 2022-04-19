@@ -205,6 +205,9 @@ void GbufferStage::render(scene::Camera *camera) {
             static_cast<uint>(pipeline->getWidth() * shadingScale),
             static_cast<uint>(pipeline->getHeight() * shadingScale),
         };
+        if (_device->getGfxAPI() == gfx::API::VULKAN) {
+            depthTexInfo.usage |= gfx::TextureUsageBit::INPUT_ATTACHMENT;
+        }
         data.depth = builder.create(DeferredPipeline::fgStrHandleOutDepthTexture, depthTexInfo);
 
         framegraph::RenderTargetAttachment::Descriptor depthInfo;
