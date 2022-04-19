@@ -707,21 +707,8 @@ let RichText = cc.Class({
             spriteComponent.spriteFrame = spriteFrame;
             spriteNode.setContentSize(spriteWidth, spriteHeight);
             spriteNode._lineCount = this._lineCount;
-
-            if (richTextElement.style.event) {
-                if (richTextElement.style.event.click) {
-                    spriteNode._clickHandler = richTextElement.style.event.click;
-                }
-                if (richTextElement.style.event.param) {
-                    spriteNode._clickParam = richTextElement.style.event.param;
-                }
-                else {
-                    spriteNode._clickParam = '';
-                }
-            }
-            else {
-                spriteNode._clickHandler = null;
-            }
+            //
+            this.registerEvent(spriteNode, richTextElement.style.event);
         }
         else {
             cc.warnID(4400);
@@ -987,21 +974,45 @@ let RichText = cc.Class({
         }
 
         force && labelComponent._forceUpdateRenderData();
+        //
+        this.registerEvent(labelNode, textStyle && textStyle.event);
+    },
 
-        if (textStyle && textStyle.event) {
-            if (textStyle.event.click) {
-                labelNode._clickHandler = textStyle.event.click;
-            }
-            if (textStyle.event.param) {
-                labelNode._clickParam = textStyle.event.param;
-            }
-            else {
-                labelNode._clickParam = '';
-            }
+    registerEvent(node, event) {
+        node._clickHandler = event ? (event.click || null) : null;
+        node._hoverHandler = event ? (event.hover || null) : null;
+        node._leaveHandler = event ? (event.leave || null) : null;
+        node._clickParam = event ? (event.param || '') : '';
+
+        if (!node._hoverHandler && node.hasEventListener(cc.Node.EventType.MOUSE_ENTER)) {
+            node.off(cc.Node.EventType.MOUSE_ENTER, this.onMouseEnter, this);
+        } else if (node._hoverHandler) {
+            node.on(cc.Node.EventType.MOUSE_ENTER, this.onMouseEnter, this);
         }
-        else {
-            labelNode._clickHandler = null;
+
+        if (!node._leaveHandler && node.hasEventListener(cc.Node.EventType.MOUSE_LEAVE)) {
+            node.off(cc.Node.EventType.MOUSE_LEAVE, this.onMouseLeave, this);
+        } else if (node._leaveHandler) {
+            node.on(cc.Node.EventType.MOUSE_LEAVE, this.onMouseLeave, this);
         }
+    },
+
+    emitEventAllComponent(event, handler) {
+        const richTextNode = this.node;
+        let components = richTextNode.getComponents(cc.Component);
+        components.forEach((component) => {
+            if (component.enabledInHierarchy && component[handler]) {
+                component[handler](event);
+            }
+        });
+    },
+
+    onMouseEnter(event) {
+        this.emitEventAllComponent(event, event.target._hoverHandler);
+    },
+
+    onMouseLeave(event) {
+        this.emitEventAllComponent(event, event.target._leaveHandler);
     },
 
     onDestroy () {
