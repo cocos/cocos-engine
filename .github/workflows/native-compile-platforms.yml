@@ -18,6 +18,7 @@ jobs:
         run: |
           choco install --forcex86 vulkan-sdk
           python -m pip install PyYAML==5.4.1 Cheetah3
+          $ANDROID_HOME/tools/bin/sdkmanager --install "build-tools;31.0.0"
       - name: Generate bindings
         shell: bash
         run: |
