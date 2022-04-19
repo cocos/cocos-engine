@@ -37,7 +37,7 @@ std::wstring StringUtf8ToWideChar(const ccstd::string &strUtf8) {
     if (!strUtf8.empty()) {
         int nNum = MultiByteToWideChar(CP_UTF8, 0, strUtf8.c_str(), -1, nullptr, 0);
         if (nNum) {
-            WCHAR *wideCharString = new WCHAR[nNum + 1];
+            WCHAR *wideCharString = ccnew WCHAR[nNum + 1];
             wideCharString[0]     = 0;
 
             nNum = MultiByteToWideChar(CP_UTF8, 0, strUtf8.c_str(), -1, wideCharString, nNum + 1);
@@ -56,7 +56,7 @@ ccstd::string StringWideCharToUtf8(const std::wstring &strWideChar) {
     if (!strWideChar.empty()) {
         int nNum = WideCharToMultiByte(CP_UTF8, 0, strWideChar.c_str(), -1, nullptr, 0, nullptr, FALSE);
         if (nNum) {
-            char *utf8String = new char[nNum + 1];
+            char *utf8String = ccnew char[nNum + 1];
             utf8String[0]    = 0;
 
             nNum = WideCharToMultiByte(CP_UTF8, 0, strWideChar.c_str(), -1, utf8String, nNum + 1, nullptr, FALSE);
@@ -77,7 +77,7 @@ ccstd::string UTF8StringToMultiByte(const ccstd::string &strUtf8) {
         std::wstring strWideChar = StringUtf8ToWideChar(strUtf8);
         int          nNum        = WideCharToMultiByte(CP_ACP, 0, strWideChar.c_str(), -1, nullptr, 0, nullptr, FALSE);
         if (nNum) {
-            char *ansiString = new char[nNum + 1];
+            char *ansiString = ccnew char[nNum + 1];
             ansiString[0]    = 0;
 
             nNum = WideCharToMultiByte(CP_ACP, 0, strWideChar.c_str(), -1, ansiString, nNum + 1, nullptr, FALSE);

@@ -25,6 +25,7 @@
 ****************************************************************************/
 
 #include "MappingUtils.h"
+#include "base/memory/Memory.h"
 
 namespace se {
 
@@ -33,7 +34,7 @@ NativePtrToObjectMap::Map *NativePtrToObjectMap::__nativePtrToObjectMap = nullpt
 
 bool NativePtrToObjectMap::init() {
     if (__nativePtrToObjectMap == nullptr)
-        __nativePtrToObjectMap = new (std::nothrow) NativePtrToObjectMap::Map();
+        __nativePtrToObjectMap = ccnew NativePtrToObjectMap::Map();
 
     return __nativePtrToObjectMap != nullptr;
 }

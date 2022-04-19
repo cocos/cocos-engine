@@ -54,10 +54,10 @@ Root *Root::getInstance() {
 Root::Root(gfx::Device *device)
 : _device(device) {
     instance        = this;
-    _eventProcessor = new CallbacksInvoker();
+    _eventProcessor = ccnew CallbacksInvoker();
     // TODO(minggo):
-    //    this._dataPoolMgr = legacyCC.internal.DataPoolManager && new legacyCC.internal.DataPoolManager(device) as DataPoolManager;
-    _cameraPool = new memop::Pool<scene::Camera>([this]() { return new scene::Camera(_device); },
+    //    this._dataPoolMgr = legacyCC.internal.DataPoolManager && ccnew legacyCC.internal.DataPoolManager(device) as DataPoolManager;
+    _cameraPool = ccnew memop::Pool<scene::Camera>([this]() { return ccnew scene::Camera(_device); },
                                                  4);
 
     _cameraList.reserve(6);
@@ -190,7 +190,7 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
 
         bool isCreateDefaultPipeline{false};
         if (!rppl) {
-            rppl = new pipeline::ForwardPipeline();
+            rppl = ccnew pipeline::ForwardPipeline();
             rppl->initialize({});
             isCreateDefaultPipeline = true;
         }
@@ -233,7 +233,7 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
     _eventProcessor->emit(EventTypesToJS::ROOT_BATCH2D_INIT, this);
     // TODO(minggo):
     //    if (!_batcher) {
-    //        _batcher = new Batcher2D(this);
+    //        _batcher = ccnew Batcher2D(this);
     //        if (!this._batcher.initialize()) {
     //            this.destroy();
     //            return false;
@@ -323,7 +323,7 @@ void Root::frameMove(float deltaTime, int32_t totalFrames) {
 }
 
 scene::RenderWindow *Root::createWindow(scene::IRenderWindowInfo &info) {
-    IntrusivePtr<scene::RenderWindow> window = new scene::RenderWindow();
+    IntrusivePtr<scene::RenderWindow> window = ccnew scene::RenderWindow();
 
     window->initialize(_device, info);
     _windows.emplace_back(window);
@@ -346,7 +346,7 @@ void Root::destroyWindows() {
 }
 
 scene::RenderScene *Root::createScene(const scene::IRenderSceneInfo &info) {
-    IntrusivePtr<scene::RenderScene> scene = new scene::RenderScene();
+    IntrusivePtr<scene::RenderScene> scene = ccnew scene::RenderScene();
     scene->initialize(info);
     _scenes.emplace_back(scene);
     return scene.get();
@@ -389,7 +389,7 @@ void Root::destroyLight(scene::Light *light) { // NOLINT(readability-convert-mem
 }
 
 scene::Camera *Root::createCamera() const {
-    return new scene::Camera(_device);
+    return ccnew scene::Camera(_device);
 }
 
 void Root::destroyScenes() {

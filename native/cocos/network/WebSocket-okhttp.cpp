@@ -254,7 +254,7 @@ void WebSocket::closeAllConnections() {
 }
 
 WebSocket::WebSocket() {
-    _impl = new (std::nothrow) WebSocketImpl(this);
+    _impl = ccnew WebSocketImpl(this);
 }
 
 WebSocket::~WebSocket() {

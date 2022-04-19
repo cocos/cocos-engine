@@ -27,7 +27,6 @@
 
 // IDEA: hack, must be included before ziputils
 #include "base/ZipUtils.h"
-#include "base/Log.h"
 
 #include <mutex>
 
@@ -38,16 +37,15 @@
 #endif
 
 #include <memory>
-#include "unzip/ioapi_mem.h"
-
 #include <zlib.h>
 #include <cassert>
 #include <cstdlib>
-
 #include "base/Data.h"
 #include "base/Locked.h"
+#include "base/Log.h"
 #include "base/memory/Memory.h"
 #include "platform/FileUtils.h"
+#include "unzip/ioapi_mem.h"
 
 // minizip 1.2.0 is same with other platforms
 #ifndef unzGoToFirstFile64
@@ -465,7 +463,7 @@ public:
 };
 
 ZipFile *ZipFile::createWithBuffer(const void *buffer, uint32_t size) {
-    auto *zip = new (std::nothrow) ZipFile();
+    auto *zip = ccnew ZipFile();
     if (zip && zip->initWithBuffer(buffer, size)) {
         return zip;
     }
@@ -474,13 +472,13 @@ ZipFile *ZipFile::createWithBuffer(const void *buffer, uint32_t size) {
 }
 
 ZipFile::ZipFile()
-: _data(new ZipFilePrivate) {
+: _data(ccnew ZipFilePrivate) {
     auto zipFile = _data->zipFile.lock();
     *zipFile     = nullptr;
 }
 
 ZipFile::ZipFile(const ccstd::string &zipFile, const ccstd::string &filter)
-: _data(new ZipFilePrivate) {
+: _data(ccnew ZipFilePrivate) {
     auto zipFileL = _data->zipFile.lock();
     *zipFileL     = unzOpen(FileUtils::getInstance()->getSuitableFOpen(zipFile).c_str());
     setFilter(filter);
@@ -647,7 +645,7 @@ bool ZipFile::initWithBuffer(const void *buffer, uint32_t size) {
     auto              zipFile    = _data->zipFile.lock();
     zlib_filefunc_def memoryFile = {nullptr};
 
-    std::unique_ptr<ourmemory_t> memfs(new (std::nothrow) ourmemory_t{static_cast<char *>(const_cast<void *>(buffer)), static_cast<uint32_t>(size), 0, 0, 0});
+    std::unique_ptr<ourmemory_t> memfs(ccnew ourmemory_t{static_cast<char *>(const_cast<void *>(buffer)), static_cast<uint32_t>(size), 0, 0, 0});
     if (!memfs) return false;
     fill_memory_filefunc(&memoryFile, memfs.get());
 

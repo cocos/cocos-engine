@@ -57,7 +57,7 @@ namespace pipeline {
     (dst)[(offset) + 3] = (src).w;
 
 DeferredPipeline::DeferredPipeline() {
-    _pipelineSceneData = new DeferredPipelineSceneData();
+    _pipelineSceneData = ccnew DeferredPipelineSceneData();
 }
 
 DeferredPipeline::~DeferredPipeline() = default;
@@ -189,7 +189,7 @@ bool DeferredPipeline::activeRenderer(gfx::Swapchain *swapchain) {
 
     if (_clusterEnabled) {
         // cluster component resource
-        _clusterComp = new ClusterLightCulling(this);
+        _clusterComp = ccnew ClusterLightCulling(this);
         _clusterComp->initialize(this->getDevice());
     }
 

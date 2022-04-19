@@ -293,7 +293,7 @@ wchar_t *CanvasRenderingContext2DDelegate::utf8ToUtf16(const ccstd::string &str,
         }
         int nLen    = static_cast<int>(str.size());
         int nBufLen = nLen + 1;
-        pwszBuffer  = new wchar_t[nBufLen];
+        pwszBuffer  = ccnew wchar_t[nBufLen];
         CC_BREAK_IF(!pwszBuffer);
         memset(pwszBuffer, 0, sizeof(wchar_t) * nBufLen);
         // str.size() not equal actuallyLen for Chinese char

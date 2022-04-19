@@ -137,7 +137,7 @@ DownloaderJava::~DownloaderJava() {
 }
 
 IDownloadTask *DownloaderJava::createCoTask(std::shared_ptr<const DownloadTask> &task) {
-    auto *coTask = new DownloadTaskAndroid;
+    auto *coTask = ccnew DownloadTaskAndroid;
     coTask->task = task;
 
     JniMethodInfo methodInfo;

@@ -148,7 +148,7 @@ float BitmapFontFace::getKerning(uint32_t prevCode, uint32_t nextCode) {
 }
 
 gfx::Texture *BitmapFontFace::loadTexture(const ccstd::string &path) {
-    auto *image   = new Image();
+    auto *image   = ccnew Image();
     bool  success = image->initWithImageFile(path);
     if (!success) {
         CC_LOG_WARNING("BitmapFontFace initWithImageFile failed, path: %s.", path.c_str());
@@ -193,7 +193,7 @@ BitmapFont::BitmapFont(const ccstd::string &path)
 }
 
 FontFace *BitmapFont::createFace(const FontFaceInfo &info) {
-    auto *face = new BitmapFontFace(this);
+    auto *face = ccnew BitmapFontFace(this);
     face->doInit(info);
 
     uint32_t fontSize = face->getFontSize();

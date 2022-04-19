@@ -79,7 +79,7 @@ bool Object::init(Class *cls, JSObject *obj) {
 }
 
 Object *Object::_createJSObject(Class *cls, JSObject *obj) {
-    Object *ret = new Object();
+    Object *ret = ccnew Object();
     if (!ret->init(cls, obj)) {
         delete ret;
         ret = nullptr;
@@ -89,7 +89,7 @@ Object *Object::_createJSObject(Class *cls, JSObject *obj) {
 }
 
 Object *Object::_createJSObjectForConstructor(Class *cls, const JS::CallArgs &args) {
-    Object *         ret = new Object();
+    Object *         ret = ccnew Object();
     JS::RootedObject obj(__cx, JS_NewObjectForConstructor(__cx, &cls->_jsCls, args));
     if (!ret->init(cls, obj)) {
         delete ret;
@@ -162,7 +162,7 @@ Object *Object::createExternalArrayBufferObject(void *contents, size_t byteLengt
         size_t                 byteLength;
     };
 
-    auto *userData         = new BackingStoreUserData();
+    auto *userData         = ccnew BackingStoreUserData();
     userData->freeFunc     = freeFunc;
     userData->freeUserData = freeUserData;
     userData->byteLength   = byteLength;

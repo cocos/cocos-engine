@@ -97,7 +97,7 @@ ResourceManager *FileUtilsOHOS::getResourceManager() {
 
 FileUtils *FileUtils::getInstance() {
     if (FileUtils::sharedFileUtils == nullptr) {
-        FileUtils::sharedFileUtils = new FileUtilsOHOS();
+        FileUtils::sharedFileUtils = ccnew FileUtilsOHOS();
         if (!FileUtils::sharedFileUtils->init()) {
             delete FileUtils::sharedFileUtils;
             FileUtils::sharedFileUtils = nullptr;

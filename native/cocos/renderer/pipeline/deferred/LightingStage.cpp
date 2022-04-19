@@ -291,7 +291,7 @@ void LightingStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
 
     // create reflection resource
     RenderQueueCreateInfo info = {true, _reflectionPhaseID, transparentCompareFn};
-    _reflectionComp            = new ReflectionComp();
+    _reflectionComp            = ccnew ReflectionComp();
     _reflectionComp->init(_device, 8, 8);
 
     _reflectionRenderQueue = ccnew RenderQueue(_pipeline, std::move(info));

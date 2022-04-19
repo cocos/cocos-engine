@@ -62,7 +62,7 @@ CCWGPUDevice *CCWGPUDevice::instance = nullptr;
 CCWGPUDevice *CCWGPUDevice::getInstance() {
     // if JS
     if (!instance) {
-        instance = new CCWGPUDevice();
+        instance = ccnew CCWGPUDevice();
     }
     // endif
     return instance;
@@ -288,7 +288,7 @@ emscripten::val CCWGPUDevice::copyTextureToBuffers(Texture *src, const BufferTex
     wgpuQueueSubmit(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuQueue, 1, &wgpuCommandBuffer);
     printf("Q submit\n");
     Semaphore      sem{0};
-    BufferMapData *bufferMapData = new BufferMapData{
+    BufferMapData *bufferMapData = ccnew BufferMapData{
         &sem,
         buffer,
         nullptr,

@@ -27,6 +27,7 @@
 #include "base/ThreadPool.h"
 #include <chrono>
 #include <memory>
+#include "base/memory/Memory.h"
 #include "platform/StdC.h"
 
 #ifdef __ANDROID__
@@ -68,7 +69,7 @@ void LegacyThreadPool::destroyDefaultThreadPool() {
 
 LegacyThreadPool *LegacyThreadPool::newCachedThreadPool(int minThreadNum, int maxThreadNum, int shrinkInterval,
                                                         int shrinkStep, int stretchStep) {
-    auto *pool = new (std::nothrow) LegacyThreadPool(minThreadNum, maxThreadNum);
+    auto *pool = ccnew LegacyThreadPool(minThreadNum, maxThreadNum);
     if (pool != nullptr) {
         pool->setFixedSize(false);
         pool->setShrinkInterval(shrinkInterval);
@@ -79,7 +80,7 @@ LegacyThreadPool *LegacyThreadPool::newCachedThreadPool(int minThreadNum, int ma
 }
 
 LegacyThreadPool *LegacyThreadPool::newFixedThreadPool(int threadNum) {
-    auto *pool = new (std::nothrow) LegacyThreadPool(threadNum, threadNum);
+    auto *pool = ccnew LegacyThreadPool(threadNum, threadNum);
     if (pool != nullptr) {
         pool->setFixedSize(true);
     }
@@ -87,7 +88,7 @@ LegacyThreadPool *LegacyThreadPool::newFixedThreadPool(int threadNum) {
 }
 
 LegacyThreadPool *LegacyThreadPool::newSingleThreadPool() {
-    auto *pool = new (std::nothrow) LegacyThreadPool(1, 1);
+    auto *pool = ccnew LegacyThreadPool(1, 1);
     if (pool != nullptr) {
         pool->setFixedSize(true);
     }
@@ -229,7 +230,7 @@ void LegacyThreadPool::pushTask(const std::function<void(int)> &runnable,
         }
     }
 
-    auto callback = new (std::nothrow) std::function<void(int)>([runnable](int tid) {
+    auto callback = ccnew std::function<void(int)>([runnable](int tid) {
         runnable(tid);
     });
 
@@ -374,7 +375,7 @@ void LegacyThreadPool::setThread(int tid) {
         }
     };
     _threads[tid].reset(
-        new (std::nothrow) std::thread(f)); // compiler may not support std::make_unique()
+        ccnew std::thread(f)); // compiler may not support std::make_unique()
 }
 
 } // namespace cc

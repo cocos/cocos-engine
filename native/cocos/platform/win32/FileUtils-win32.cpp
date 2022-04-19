@@ -74,7 +74,7 @@ static void _checkPath() {
 
 FileUtils *FileUtils::getInstance() {
     if (FileUtils::sharedFileUtils == nullptr) {
-        FileUtils::sharedFileUtils = new FileUtilsWin32();
+        FileUtils::sharedFileUtils = ccnew FileUtilsWin32();
         if (!FileUtils::sharedFileUtils->init()) {
             delete FileUtils::sharedFileUtils;
             FileUtils::sharedFileUtils = nullptr;

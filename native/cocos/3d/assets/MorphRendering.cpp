@@ -131,14 +131,14 @@ public:
     }
 
     void initialize(gfx::Device *gfxDevice, uint32_t width, uint32_t height, uint32_t pixelBytes, bool /*useFloat32Array*/, PixelFormat pixelFormat) {
-        _arrayBuffer = new ArrayBuffer(width * height * pixelBytes);
+        _arrayBuffer = ccnew ArrayBuffer(width * height * pixelBytes);
         _valueView   = Float32Array(_arrayBuffer);
 
-        auto *             imageAsset = new ImageAsset();
+        auto *             imageAsset = ccnew ImageAsset();
         IMemoryImageSource source{_arrayBuffer, false, width, height, pixelFormat};
         imageAsset->setNativeAsset(source);
 
-        _textureAsset = new Texture2D();
+        _textureAsset = ccnew Texture2D();
         _textureAsset->setFilters(Texture2D::Filter::NEAREST, Texture2D::Filter::NEAREST);
         _textureAsset->setMipFilter(Texture2D::Filter::NONE);
         _textureAsset->setWrapMode(Texture2D::WrapMode::CLAMP_TO_EDGE, Texture2D::WrapMode::CLAMP_TO_EDGE, Texture2D::WrapMode::CLAMP_TO_EDGE);
@@ -260,7 +260,7 @@ Vec4TextureFactory createVec4TextureFactory(gfx::Device *gfxDevice, uint32_t vec
     ret.width  = width;
     ret.height = height;
     ret.create = [=]() -> MorphTexture * {
-        auto *texture = new MorphTexture(); // texture will be held by IntrusivePtr in GpuMorphAttribute
+        auto *texture = ccnew MorphTexture(); // texture will be held by IntrusivePtr in GpuMorphAttribute
         texture->initialize(gfxDevice, width, height, pixelBytes, useFloat32Array, pixelFormat);
         return texture;
     };
@@ -275,7 +275,7 @@ class MorphUniforms final : public RefCounted {
 public:
     MorphUniforms(gfx::Device *gfxDevice, uint32_t targetCount) {
         _targetCount = targetCount;
-        _localBuffer = new DataView(new ArrayBuffer(pipeline::UBOMorph::SIZE));
+        _localBuffer = ccnew DataView(ccnew ArrayBuffer(pipeline::UBOMorph::SIZE));
 
         _remoteBuffer = gfxDevice->createBuffer(gfx::BufferInfo{
             gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
@@ -358,7 +358,7 @@ class CpuComputingRenderingInstance final : public SubMeshMorphRenderingInstance
 public:
     explicit CpuComputingRenderingInstance(CpuComputing *owner, uint32_t nVertices, gfx::Device *gfxDevice) {
         _owner         = owner; //NOTE: release by mesh`s destroy, it`ll call current instance`s destroy method
-        _morphUniforms = new MorphUniforms(gfxDevice, 0 /* TODO? */);
+        _morphUniforms = ccnew MorphUniforms(gfxDevice, 0 /* TODO? */);
 
         auto vec4TextureFactory = createVec4TextureFactory(gfxDevice, nVertices);
         _morphUniforms->setMorphTextureInfo(static_cast<float>(vec4TextureFactory.width), static_cast<float>(vec4TextureFactory.height));
@@ -445,7 +445,7 @@ class GpuComputingRenderingInstance final : public SubMeshMorphRenderingInstance
 public:
     explicit GpuComputingRenderingInstance(GpuComputing *owner, gfx::Device *gfxDevice) {
         _owner         = owner;
-        _morphUniforms = new MorphUniforms(gfxDevice, static_cast<uint32_t>(_owner->_subMeshMorph->targets.size()));
+        _morphUniforms = ccnew MorphUniforms(gfxDevice, static_cast<uint32_t>(_owner->_subMeshMorph->targets.size()));
         _morphUniforms->setMorphTextureInfo(static_cast<float>(_owner->_textureWidth), static_cast<float>(_owner->_textureHeight));
         _morphUniforms->setVerticesCount(_owner->_verticesCount);
         _morphUniforms->commit();
@@ -522,7 +522,7 @@ CpuComputing::CpuComputing(Mesh *mesh, uint32_t subMeshIndex, const Morph *morph
 }
 
 SubMeshMorphRenderingInstance *CpuComputing::createInstance() {
-    return new CpuComputingRenderingInstance(
+    return ccnew CpuComputingRenderingInstance(
         this,
         _attributes[0].targets[0].displacements.length() / 3,
         _gfxDevice);
@@ -587,7 +587,7 @@ GpuComputing::GpuComputing(Mesh *mesh, uint32_t subMeshIndex, const Morph *morph
 }
 
 SubMeshMorphRenderingInstance *GpuComputing::createInstance() {
-    return new GpuComputingRenderingInstance(this, _gfxDevice);
+    return ccnew GpuComputingRenderingInstance(this, _gfxDevice);
 }
 
 void GpuComputing::destroy() {
@@ -703,13 +703,13 @@ StdMorphRendering::StdMorphRendering(Mesh *mesh, gfx::Device *gfxDevice) {
         const auto &subMeshMorph = subMeshMorphHolder.value();
 
         if (PREFER_CPU_COMPUTING || subMeshMorph.targets.size() > pipeline::UBOMorph::MAX_MORPH_TARGET_COUNT) {
-            _subMeshRenderings[iSubMesh] = new CpuComputing(
+            _subMeshRenderings[iSubMesh] = ccnew CpuComputing(
                 _mesh,
                 static_cast<uint32_t>(iSubMesh),
                 &morph,
                 gfxDevice);
         } else {
-            _subMeshRenderings[iSubMesh] = new GpuComputing(
+            _subMeshRenderings[iSubMesh] = ccnew GpuComputing(
                 _mesh,
                 static_cast<uint32_t>(iSubMesh),
                 &morph,
@@ -721,7 +721,7 @@ StdMorphRendering::StdMorphRendering(Mesh *mesh, gfx::Device *gfxDevice) {
 StdMorphRendering::~StdMorphRendering() = default;
 
 MorphRenderingInstance *StdMorphRendering::createInstance() {
-    auto *ret = new StdMorphRenderingInstance(this);
+    auto *ret = ccnew StdMorphRenderingInstance(this);
     return ret;
 }
 

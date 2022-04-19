@@ -719,8 +719,8 @@ void HttpClient::networkThread() {
         }
 
         // Create a HttpResponse object, the default setting is http access failed
-        auto *response = new (std::nothrow) HttpResponse(request);
-        response->addRef(); // NOTE: RefCounted object's reference count is changed to 0 now. so needs to addRef after new.
+        auto *response = ccnew HttpResponse(request);
+        response->addRef(); // NOTE: RefCounted object's reference count is changed to 0 now. so needs to addRef after ccnew.
         processResponse(response, _responseMessage);
 
         // add response packet into queue
@@ -775,7 +775,7 @@ void HttpClient::networkThreadAlone(HttpRequest *request, HttpResponse *response
 // HttpClient implementation
 HttpClient *HttpClient::getInstance() {
     if (gHttpClient == nullptr) {
-        gHttpClient = new (std::nothrow) HttpClient();
+        gHttpClient = ccnew  HttpClient();
     }
 
     return gHttpClient;
@@ -829,7 +829,7 @@ HttpClient::HttpClient()
   _timeoutForRead(60),
   _threadCount(0),
   _cookie(nullptr),
-  _requestSentinel(new HttpRequest()) {
+  _requestSentinel(ccnew HttpRequest()) {
     CC_LOG_DEBUG("In the constructor of HttpClient!");
     increaseThreadCount();
     _scheduler = CC_CURRENT_ENGINE()->getScheduler();
@@ -880,8 +880,8 @@ void HttpClient::sendImmediate(HttpRequest *request) {
 
     request->addRef();
     // Create a HttpResponse object, the default setting is http access failed
-    auto *response = new (std::nothrow) HttpResponse(request);
-    response->addRef(); // NOTE: RefCounted object's reference count is changed to 0 now. so needs to addRef after new.
+    auto *response = ccnew HttpResponse(request);
+    response->addRef(); // NOTE: RefCounted object's reference count is changed to 0 now. so needs to addRef after ccnew.
     auto t = std::thread(&HttpClient::networkThreadAlone, this, request, response);
     t.detach();
 }

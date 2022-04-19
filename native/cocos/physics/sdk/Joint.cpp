@@ -29,7 +29,7 @@
 #define CC_PHYSICS_JOINT_DEFINITION(CLASS, WRAPPED) \
                                                     \
     CLASS::CLASS() {                                \
-        _impl.reset(new WRAPPED());                 \
+        _impl.reset(ccnew WRAPPED());               \
     }                                               \
                                                     \
     CLASS::~CLASS() {                               \

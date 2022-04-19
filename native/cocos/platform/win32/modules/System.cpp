@@ -111,7 +111,7 @@ ccstd::string System::getCurrentLanguageCode() const {
     const LCID locale_id = MAKELCID(lid, SORT_DEFAULT);
     int        length    = GetLocaleInfoA(locale_id, LOCALE_SISO639LANGNAME, nullptr, 0);
 
-    char *tempCode = new char[length];
+    char *tempCode = ccnew char[length];
     GetLocaleInfoA(locale_id, LOCALE_SISO639LANGNAME, tempCode, length);
     ccstd::string code = tempCode;
     delete tempCode;
@@ -144,7 +144,7 @@ ccstd::string System::getSystemVersion() const {
 }
 
 bool System::openURL(const ccstd::string &url) {
-    WCHAR *temp    = new WCHAR[url.size() + 1];
+    WCHAR *temp    = ccnew WCHAR[url.size() + 1];
     int    urlSize = static_cast<int>(url.size() + 1);
     MultiByteToWideChar(CP_UTF8, 0, url.c_str(), urlSize, temp, urlSize);
     HINSTANCE r = ShellExecuteW(NULL, L"open", temp, NULL, NULL, SW_SHOWNORMAL);

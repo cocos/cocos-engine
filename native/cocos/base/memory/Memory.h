@@ -63,7 +63,7 @@ public:
 } // namespace cc
 
 #define ccnew                      new (std::nothrow)
-#define ccnew_placement(placement) new (placement)
+#define ccnew_placement(...)       new (__VA_ARGS__)
 
 #define CC_SAFE_DELETE(ptr) \
     if (ptr) {              \

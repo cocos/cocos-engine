@@ -84,7 +84,7 @@ template <typename T, typename = std::enable_if_t<std::is_base_of<GLESCmd, T>::v
 class CommandPool {
 public:
     CommandPool() : _freeCmds(INITIAL_CAPACITY) {
-        _frees   = new T *[INITIAL_CAPACITY];
+        _frees   = ccnew T *[INITIAL_CAPACITY];
         _count   = INITIAL_CAPACITY;
         _freeIdx = INITIAL_CAPACITY - 1;
         for (uint32_t i = 0; i < _count; ++i) {

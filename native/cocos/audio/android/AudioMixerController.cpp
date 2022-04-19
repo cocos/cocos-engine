@@ -57,7 +57,7 @@ AudioMixerController::~AudioMixerController() {
 }
 
 bool AudioMixerController::init() {
-    _mixer = new (std::nothrow) AudioMixer(_bufferSizeInFrames, _sampleRate);
+    _mixer = ccnew (std::nothrow) AudioMixer(_bufferSizeInFrames, _sampleRate);
     return _mixer != nullptr;
 }
 

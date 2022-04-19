@@ -82,7 +82,7 @@ Value::Value(bool v)
 
 Value::Value(const char *v)
 : _type(Type::STRING) {
-    _field.strVal = new (std::nothrow) ccstd::string();
+    _field.strVal = ccnew ccstd::string();
     if (v) {
         *_field.strVal = v;
     }
@@ -90,43 +90,43 @@ Value::Value(const char *v)
 
 Value::Value(const ccstd::string &v)
 : _type(Type::STRING) {
-    _field.strVal  = new (std::nothrow) ccstd::string();
+    _field.strVal  = ccnew ccstd::string();
     *_field.strVal = v;
 }
 
 Value::Value(const ValueVector &v)
 : _type(Type::VECTOR) {
-    _field.vectorVal  = new (std::nothrow) ValueVector();
+    _field.vectorVal  = ccnew ValueVector();
     *_field.vectorVal = v;
 }
 
 Value::Value(ValueVector &&v)
 : _type(Type::VECTOR) {
-    _field.vectorVal  = new (std::nothrow) ValueVector();
+    _field.vectorVal  = ccnew ValueVector();
     *_field.vectorVal = std::move(v);
 }
 
 Value::Value(const ValueMap &v)
 : _type(Type::MAP) {
-    _field.mapVal  = new (std::nothrow) ValueMap();
+    _field.mapVal  = ccnew ValueMap();
     *_field.mapVal = v;
 }
 
 Value::Value(ValueMap &&v)
 : _type(Type::MAP) {
-    _field.mapVal  = new (std::nothrow) ValueMap();
+    _field.mapVal  = ccnew ValueMap();
     *_field.mapVal = std::move(v);
 }
 
 Value::Value(const ValueMapIntKey &v)
 : _type(Type::INT_KEY_MAP) {
-    _field.intKeyMapVal  = new (std::nothrow) ValueMapIntKey();
+    _field.intKeyMapVal  = ccnew ValueMapIntKey();
     *_field.intKeyMapVal = v;
 }
 
 Value::Value(ValueMapIntKey &&v)
 : _type(Type::INT_KEY_MAP) {
-    _field.intKeyMapVal  = new (std::nothrow) ValueMapIntKey();
+    _field.intKeyMapVal  = ccnew  ValueMapIntKey();
     *_field.intKeyMapVal = std::move(v);
 }
 
@@ -169,25 +169,25 @@ Value &Value::operator=(const Value &other) { //NOLINT(misc-no-recursion)
                 break;
             case Type::STRING:
                 if (_field.strVal == nullptr) {
-                    _field.strVal = new ccstd::string();
+                    _field.strVal = ccnew ccstd::string();
                 }
                 *_field.strVal = *other._field.strVal;
                 break;
             case Type::VECTOR:
                 if (_field.vectorVal == nullptr) {
-                    _field.vectorVal = new (std::nothrow) ValueVector();
+                    _field.vectorVal = ccnew ValueVector();
                 }
                 *_field.vectorVal = *other._field.vectorVal;
                 break;
             case Type::MAP:
                 if (_field.mapVal == nullptr) {
-                    _field.mapVal = new (std::nothrow) ValueMap();
+                    _field.mapVal = ccnew  ValueMap();
                 }
                 *_field.mapVal = *other._field.mapVal;
                 break;
             case Type::INT_KEY_MAP:
                 if (_field.intKeyMapVal == nullptr) {
-                    _field.intKeyMapVal = new (std::nothrow) ValueMapIntKey();
+                    _field.intKeyMapVal = ccnew ValueMapIntKey();
                 }
                 *_field.intKeyMapVal = *other._field.intKeyMapVal;
                 break;
@@ -809,16 +809,16 @@ void Value::reset(Type type) {
     // Allocate memory for the new value
     switch (type) {
         case Type::STRING:
-            _field.strVal = new (std::nothrow) ccstd::string();
+            _field.strVal = ccnew ccstd::string();
             break;
         case Type::VECTOR:
-            _field.vectorVal = new (std::nothrow) ValueVector();
+            _field.vectorVal = ccnew ValueVector();
             break;
         case Type::MAP:
-            _field.mapVal = new (std::nothrow) ValueMap();
+            _field.mapVal = ccnew ValueMap();
             break;
         case Type::INT_KEY_MAP:
-            _field.intKeyMapVal = new (std::nothrow) ValueMapIntKey();
+            _field.intKeyMapVal = ccnew ValueMapIntKey();
             break;
         default:
             break;

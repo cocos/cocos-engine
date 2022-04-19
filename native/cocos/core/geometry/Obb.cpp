@@ -1,4 +1,5 @@
 #include "cocos/core/geometry/Obb.h"
+#include "base/memory/Memory.h"
 
 namespace {
 void transformExtentM3(cc::Vec3 *out, const cc::Vec3 &extent, const cc::Mat3 &m3) {
@@ -25,14 +26,14 @@ OBB *OBB::create(
     float ox1, float ox2, float ox3,
     float oy1, float oy2, float oy3,
     float oz1, float oz2, float oz3) {
-    return new OBB(cx, cy, cz, hw, hh, hl,
+    return ccnew OBB(cx, cy, cz, hw, hh, hl,
                    ox1, ox2, ox3,
                    oy1, oy2, oy3,
                    oz1, oz2, oz3);
 }
 
 OBB *OBB::clone(const OBB &a) {
-    return new OBB(a.center.x, a.center.y, a.center.z,
+    return ccnew OBB(a.center.x, a.center.y, a.center.z,
                    a.halfExtents.x, a.halfExtents.y, a.halfExtents.z,
                    a.orientation.m[0], a.orientation.m[1], a.orientation.m[2],
                    a.orientation.m[3], a.orientation.m[4], a.orientation.m[5],

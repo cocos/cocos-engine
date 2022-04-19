@@ -20,7 +20,7 @@ gfx::AttributeList defAttrs = {
 
 Mesh *MeshUtils::createMesh(const IGeometry &geometry, Mesh *out /*= nullptr*/, const ICreateMeshOptions &options /*= {}*/) {
     if (!out) {
-        out = new Mesh();
+        out = ccnew Mesh();
     }
 
     out->reset(createMeshInfo(geometry, options));
@@ -167,7 +167,7 @@ Mesh::ICreateInfo MeshUtils::createMeshInfo(const IGeometry &geometry, const ICr
     BufferBlob bufferBlob;
 
     // Fill vertex buffer.
-    auto *   vertexBuffer = new ArrayBuffer(vertCount * stride);
+    auto *   vertexBuffer = ccnew ArrayBuffer(vertCount * stride);
     DataView vertexBufferView(vertexBuffer);
     for (const auto &channel : channels) {
         writeBuffer(vertexBufferView, channel.data, channel.attribute.format, channel.offset, stride);
@@ -192,7 +192,7 @@ Mesh::ICreateInfo MeshUtils::createMeshInfo(const IGeometry &geometry, const ICr
     if (geometry.indices.has_value()) {
         const ccstd::vector<uint32_t> &indices = geometry.indices.value();
         idxCount                               = static_cast<uint32_t>(indices.size());
-        indexBuffer                            = new ArrayBuffer(idxStride * idxCount);
+        indexBuffer                            = ccnew ArrayBuffer(idxStride * idxCount);
         DataView indexBufferView(indexBuffer);
         writeBuffer(indexBufferView, indices, gfx::Format::R16UI);
     }
@@ -261,7 +261,7 @@ static inline uint32_t getPadding(uint32_t length, uint32_t align) {
 
 Mesh *MeshUtils::createDynamicMesh(index_t primitiveIndex, const IDynamicGeometry &geometry, Mesh *out /*= nullptr*/, const ICreateDynamicMeshOptions &options /*= {}*/) {
     if (!out) {
-        out = new Mesh();
+        out = ccnew Mesh();
     }
 
     out->reset(MeshUtils::createDynamicMeshInfo(geometry, options));

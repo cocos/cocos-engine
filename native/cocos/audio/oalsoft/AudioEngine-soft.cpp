@@ -60,7 +60,7 @@ static void _winLog(const char *format, va_list args) {
     char *           buf            = nullptr;
 
     do {
-        buf = new (std::nothrow) char[bufferSize];
+        buf = ccnew char[bufferSize];
         if (buf == nullptr)
             return; // not enough memory
 
@@ -220,7 +220,7 @@ int AudioEngineImpl::play2d(const ccstd::string &filePath, bool loop, float volu
         return AudioEngine::INVALID_AUDIO_ID;
     }
 
-    auto player = new (std::nothrow) AudioPlayer;
+    auto player = ccnew AudioPlayer;
     if (player == nullptr) {
         return AudioEngine::INVALID_AUDIO_ID;
     }

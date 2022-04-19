@@ -48,7 +48,7 @@ namespace cc {
 void *ohosOpen(const char *path, void *user) {
     bool       isRawfile = false;
     const auto newPath   = getFU()->expandPath(path, &isRawfile);
-    auto *     ret       = new FatFd();
+    auto *     ret       = ccnew FatFd();
     if (isRawfile) {
         ret->file.rf = OpenRawFile(cc::FileUtilsOHOS::getResourceManager(), newPath.c_str());
     } else {

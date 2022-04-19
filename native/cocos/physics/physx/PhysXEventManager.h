@@ -37,7 +37,7 @@ namespace physics {
 class PhysXEventManager final {
 public:
     PhysXEventManager() {
-        _mCallback = new SimulationEventCallback(this);
+        _mCallback = ccnew SimulationEventCallback(this);
     }
 
     ~PhysXEventManager() {

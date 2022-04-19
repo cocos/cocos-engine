@@ -32,7 +32,7 @@
 #include "scene/Model.h"
 
 #ifndef JSB_ALLOC
-    #define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
+    #define JSB_ALLOC(kls, ...) ccnew kls(__VA_ARGS__)
 #endif
 
 #ifndef JSB_FREE

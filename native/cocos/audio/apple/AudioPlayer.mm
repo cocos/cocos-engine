@@ -27,11 +27,11 @@
 #define LOG_TAG "AudioPlayer"
 
 #import <Foundation/Foundation.h>
-
-#include "audio/apple/AudioPlayer.h"
 #include "audio/apple/AudioCache.h"
-#include "platform/FileUtils.h"
 #include "audio/apple/AudioDecoder.h"
+#include "audio/apple/AudioPlayer.h"
+#include "base/memory/Memory.h"
+#include "platform/FileUtils.h"
 
 #ifdef VERY_VERY_VERBOSE_LOGGING
     #define ALOGVV ALOGV
@@ -190,7 +190,7 @@ bool AudioPlayer::play2d() {
                 // To continuously stream audio from a source without interruption, buffer queuing is required.
                 alSourceQueueBuffers(_alSource, QUEUEBUFFER_NUM, _bufferIds);
                 CHECK_AL_ERROR_DEBUG();
-                _rotateBufferThread = new std::thread(&AudioPlayer::rotateBufferThread, this, _audioCache->_queBufferFrames * QUEUEBUFFER_NUM + 1);
+                _rotateBufferThread = ccnew std::thread(&AudioPlayer::rotateBufferThread, this, _audioCache->_queBufferFrames * QUEUEBUFFER_NUM + 1);
             } else {
                 alSourcei(_alSource, AL_BUFFER, _audioCache->_alBufferId);
                 CHECK_AL_ERROR_DEBUG();

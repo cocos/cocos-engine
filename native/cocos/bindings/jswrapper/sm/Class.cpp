@@ -64,7 +64,7 @@ Class::~Class() {
 }
 
 Class *Class::create(const char *className, Object *obj, Object *parentProto, JSNative ctor) {
-    Class *cls = new Class();
+    Class *cls = ccnew Class();
     if (cls != nullptr && !cls->init(className, obj, parentProto, ctor)) {
         delete cls;
         cls = nullptr;

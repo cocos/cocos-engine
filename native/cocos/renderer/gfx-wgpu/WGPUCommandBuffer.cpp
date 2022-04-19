@@ -126,7 +126,7 @@ void CCWGPUCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *f
         renderPassDesc.label       = "attachments";
 
         for (size_t i = 0; i < colorConfigs.size(); i++) {
-            WGPURenderPassColorAttachment *colorAttchments = new WGPURenderPassColorAttachment[colorConfigs.size()];
+            WGPURenderPassColorAttachment *colorAttchments = ccnew WGPURenderPassColorAttachment[colorConfigs.size()];
             WGPURenderPassColorAttachment  color           = {
                 .view          = static_cast<CCWGPUTexture *>(textures[i])->gpuTextureObject()->selfView,
                 .resolveTarget = nullptr, //TODO_Zeqiang: wgpu offscr msaa

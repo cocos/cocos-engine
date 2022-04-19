@@ -31,6 +31,7 @@
 #include <cmath>
 #include "base/Ptr.h"
 #include "base/RefCounted.h"
+#include "base/memory/Memory.h"
 
 namespace se {
 
@@ -186,12 +187,12 @@ inline void inHeap(void *ptr) {
 template <typename T>
 typename std::enable_if<std::is_base_of<cc::RefCounted, T>::value, PrivateObjectBase *>::type
 cc_tmp_new_ptr(T *cobj) {
-    return new CCSharedPtrPrivateObject<T>(cc::IntrusivePtr<T>(cobj));
+    return ccnew CCSharedPtrPrivateObject<T>(cc::IntrusivePtr<T>(cobj));
 }
 template <typename T>
 typename std::enable_if<!std::is_base_of<cc::RefCounted, T>::value, PrivateObjectBase *>::type
 cc_tmp_new_ptr(T *cobj) {
-    return new SharedPrivateObject<T>(std::shared_ptr<T>(cobj));
+    return ccnew SharedPrivateObject<T>(std::shared_ptr<T>(cobj));
 }
 
 template <typename T>
@@ -206,13 +207,13 @@ inline PrivateObjectBase *make_shared_private_object(T *cobj) { // NOLINT
 template <typename T>
 inline PrivateObjectBase *shared_private_object(std::shared_ptr<T> &&ptr) { // NOLINT
     static_assert(!std::is_base_of<cc::RefCounted, T>::value, "cc::RefCounted is not acceptable for shared_ptr");
-    return new SharedPrivateObject<T>(std::forward<std::shared_ptr<T>>(ptr));
+    return ccnew SharedPrivateObject<T>(std::forward<std::shared_ptr<T>>(ptr));
 }
 
 template <typename T>
 inline PrivateObjectBase *shared_private_object(const std::shared_ptr<T> &ptr) { // NOLINT
     static_assert(!std::is_base_of<cc::RefCounted, T>::value, "cc::RefCounted is not acceptable for shared_ptr");
-    return new SharedPrivateObject<T>(ptr);
+    return ccnew SharedPrivateObject<T>(ptr);
 }
 
 template <typename T>
@@ -222,17 +223,17 @@ inline PrivateObjectBase *rawref_private_object(T *ptr) { // NOLINT
 #if CC_DEBUG
     inHeap(ptr);
 #endif
-    return new RawRefPrivateObject<T>(ptr);
+    return ccnew RawRefPrivateObject<T>(ptr);
 }
 
 template <typename T>
 inline PrivateObjectBase *ccshared_private_object(const cc::IntrusivePtr<T> &ptr) { // NOLINT
     static_assert(std::is_base_of<cc::RefCounted, T>::value, "cc::RefCounted expected!");
-    return new CCSharedPtrPrivateObject<T>(ptr);
+    return ccnew CCSharedPtrPrivateObject<T>(ptr);
 }
 template <typename T>
 inline PrivateObjectBase *ccshared_private_object(T *cobj) { // NOLINT
     static_assert(std::is_base_of<cc::RefCounted, T>::value, "cc::RefCounted expected!");
-    return new CCSharedPtrPrivateObject<T>(cc::IntrusivePtr<T>(cobj));
+    return ccnew CCSharedPtrPrivateObject<T>(cc::IntrusivePtr<T>(cobj));
 }
 } // namespace se

@@ -60,7 +60,7 @@ void DummyGraphNode::precede(DummyGraphNode *other) {
 
 void DummyGraphNode::allocChunk() {
     assert(freeList == nullptr);
-    freeList = new (std::nothrow) DummyGraphNode[DUMMY_GRAPH_NODE_CHUNK_SIZE]();
+    freeList = ccnew DummyGraphNode[DUMMY_GRAPH_NODE_CHUNK_SIZE]();
     allocatedChunks.emplace_back(freeList);
     for (auto i = 0; i < DUMMY_GRAPH_NODE_CHUNK_SIZE - 1; i++) {
         freeList[i]._next = &freeList[i + 1];

@@ -472,7 +472,7 @@ void ScriptEngine::privateDataFinalize(PrivateObjectBase *privateObj) {
 
 ScriptEngine *ScriptEngine::getInstance() {
     if (gSriptEngineInstance == nullptr) {
-        gSriptEngineInstance = new ScriptEngine();
+        gSriptEngineInstance = ccnew ScriptEngine();
     }
 
     return gSriptEngineInstance;
@@ -504,7 +504,7 @@ ScriptEngine::ScriptEngine()
   _isErrorHandleWorking(false) {
     #if !CC_EDITOR
     if (!gSharedV8) {
-        gSharedV8 = new ScriptEngineV8Context();
+        gSharedV8 = ccnew ScriptEngineV8Context();
     }
     #endif
 }
@@ -959,7 +959,7 @@ bool ScriptEngine::runByteCodeFile(const ccstd::string &pathBc, Value *ret /* = 
     v8::ScriptOrigin     origin(_isolate, scriptPath, 0, 0, true);
 
     // restore CacheData
-    auto *                v8CacheData = new v8::ScriptCompiler::CachedData(cachedData.getBytes(), static_cast<int>(cachedData.getSize()));
+    auto *                v8CacheData = ccnew v8::ScriptCompiler::CachedData(cachedData.getBytes(), static_cast<int>(cachedData.getSize()));
     v8::Local<v8::String> dummyCode;
 
     // generate dummy code
@@ -1152,7 +1152,7 @@ v8::MaybeLocal<v8::String> ScriptEngine::VMStringPool::get(v8::Isolate *isolate,
     if (iter == _vmStringPoolMap.end()) {
         v8::MaybeLocal<v8::String> nameValue = v8::String::NewFromUtf8(isolate, name, v8::NewStringType::kNormal);
         if (!nameValue.IsEmpty()) {
-            auto *persistentName = new v8::Persistent<v8::String>();
+            auto *persistentName = ccnew v8::Persistent<v8::String>();
             persistentName->Reset(isolate, nameValue.ToLocalChecked());
             _vmStringPoolMap.emplace(name, persistentName);
             ret = v8::Local<v8::String>::New(isolate, *persistentName);

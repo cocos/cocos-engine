@@ -50,7 +50,7 @@ namespace {
 } // namespace
 
 ForwardPipeline::ForwardPipeline() {
-    _pipelineSceneData = new PipelineSceneData();
+    _pipelineSceneData = ccnew PipelineSceneData();
 }
 
 framegraph::StringHandle ForwardPipeline::fgStrHandleForwardColorTexture = framegraph::FrameGraph::stringToHandle("forwardColorTexture");

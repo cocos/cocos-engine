@@ -83,7 +83,7 @@ void CanvasGradient::addColorStop(float offset, const ccstd::string &color) {
 CanvasRenderingContext2D::CanvasRenderingContext2D(float width, float height)
 : _width(width),
   _height(height) {
-    _delegate = new CanvasRenderingContext2DDelegate();
+    _delegate = ccnew CanvasRenderingContext2DDelegate();
     //SE_LOGD("CanvasRenderingContext2D constructor: %p, width: %f, height: %f\n", this, width, height);
 }
 

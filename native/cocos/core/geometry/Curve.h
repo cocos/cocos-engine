@@ -94,7 +94,7 @@ public:
      */
     auto getKeyFrames() {
         return Array.from(this._curve.keyframes()).map(([ time, value ]) = > {
-            const legacyKeyframe      = new Keyframe();
+            const legacyKeyframe      = ccnew Keyframe();
             legacyKeyframe.time       = time;
             legacyKeyframe.value      = value.value;
             legacyKeyframe.inTangent  = value.leftTangent;
@@ -155,7 +155,7 @@ private
         if (keyFrames instanceof RealCurve) {
             this._curve = keyFrames;
         } else {
-            const curve             = new RealCurve();
+            const curve             = ccnew RealCurve();
             this._curve             = curve;
             curve.preExtrapolation  = ExtrapolationMode.LOOP;
             curve.postExtrapolation = ExtrapolationMode.CLAMP;
@@ -173,7 +173,7 @@ private
                                                                        } ]));
             }
         }
-        this.cachedKey = new OptimizedKey();
+        this.cachedKey = ccnew OptimizedKey();
     }
 
     /**
@@ -350,7 +350,7 @@ function toLegacyWrapMode(extrapolationMode
  * Same as but more effective than `new LegacyCurve()._internalCurve`.
  */
 export function constructLegacyCurveAndConvert() {
-    const curve = new RealCurve();
+    const curve = ccnew RealCurve();
     curve.assignSorted([
         [ 0.0, {interpolationMode : RealInterpolationMode.CUBIC, value : 1.0} ],
         [ 1.0, {interpolationMode : RealInterpolationMode.CUBIC, value : 1.0} ],

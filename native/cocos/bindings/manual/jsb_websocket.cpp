@@ -293,8 +293,8 @@ static bool webSocketConstructor(se::State &s) {
                 SE_PRECONDITION2(ok, false, "Error processing caFilePath");
             }
 
-            cobj           = new (std::nothrow) cc::network::WebSocket();
-            auto *delegate = new (std::nothrow) JsbWebSocketDelegate();
+            cobj           = ccnew cc::network::WebSocket();
+            auto *delegate = ccnew JsbWebSocketDelegate();
             delegate->addRef();
             if (cobj->init(*delegate, url, &protocols, caFilePath)) {
                 delegate->setJSDelegate(se::Value(obj, true));
@@ -307,8 +307,8 @@ static bool webSocketConstructor(se::State &s) {
                 return false;
             }
         } else {
-            cobj           = new (std::nothrow) cc::network::WebSocket();
-            auto *delegate = new (std::nothrow) JsbWebSocketDelegate();
+            cobj           = ccnew cc::network::WebSocket();
+            auto *delegate = ccnew JsbWebSocketDelegate();
             delegate->addRef();
             if (cobj->init(*delegate, url)) {
                 delegate->setJSDelegate(se::Value(obj, true));

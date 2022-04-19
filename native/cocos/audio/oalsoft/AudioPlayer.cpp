@@ -180,7 +180,7 @@ bool AudioPlayer::play2d() {
             if (_streamingSource) {
                 alSourceQueueBuffers(_alSource, QUEUEBUFFER_NUM, _bufferIds);
                 CHECK_AL_ERROR_DEBUG();
-                _rotateBufferThread = new std::thread(&AudioPlayer::rotateBufferThread, this,
+                _rotateBufferThread = ccnew std::thread(&AudioPlayer::rotateBufferThread, this,
                                                       _audioCache->_queBufferFrames * QUEUEBUFFER_NUM + 1);
             } else {
                 alSourcei(_alSource, AL_BUFFER, _audioCache->_alBufferId);

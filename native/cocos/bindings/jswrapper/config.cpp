@@ -37,7 +37,7 @@ static void _winLog(FILE *fp, const char *format, va_list args) {
     char *           buf            = nullptr;
 
     do {
-        buf = new (std::nothrow) char[bufferSize];
+        buf = ccnew char[bufferSize];
         if (buf == nullptr)
             return; // not enough memory
 

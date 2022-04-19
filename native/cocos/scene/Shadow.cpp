@@ -166,7 +166,7 @@ void Shadows::updatePlanarInfo() {
 }
 
 void Shadows::createInstanceMaterial() {
-    _instancingMaterial = new Material();
+    _instancingMaterial = ccnew Material();
 
     IMaterialInfo materialInfo;
     materialInfo.effectName = "planar-shadow";
@@ -176,7 +176,7 @@ void Shadows::createInstanceMaterial() {
 }
 
 void Shadows::createMaterial() {
-    _material = new Material();
+    _material = ccnew Material();
 
     IMaterialInfo materialInfo;
     materialInfo.effectName = "planar-shadow";

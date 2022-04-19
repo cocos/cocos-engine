@@ -41,7 +41,7 @@ private:
 public:
     static DummyJobSystem *getInstance() {
         if (!instance) {
-            instance = new DummyJobSystem;
+            instance = ccnew DummyJobSystem;
         }
         return instance;
     }

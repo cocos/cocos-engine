@@ -285,7 +285,7 @@ static bool SocketIO_connect(se::State &s) { // NOLINT(readability-identifier-na
             }
         }
 
-        auto *siodelegate = new (std::nothrow) JSB_SocketIODelegate();
+        auto *siodelegate = ccnew JSB_SocketIODelegate();
 
         CC_LOG_DEBUG("Calling native SocketIO.connect method");
         cc::network::SIOClient *ret = cc::network::SocketIO::connect(url, *siodelegate, caFilePath);

@@ -74,7 +74,7 @@ IJointTransform *getTransform(Node *node, Node *root) {
             break;
         }
         // TODO(): object reuse
-        joint = pool[id] = new IJointTransform{
+        joint = pool[id] = ccnew IJointTransform{
             node,
             Mat4(),
             Mat4(),
