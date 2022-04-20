@@ -336,12 +336,14 @@ export class SkyboxInfo {
             this.envmap = this._resource.envmap;
             this.diffuseMap = this._resource.diffuseMap;
 
-            if (this.diffuseMap == null && this.envLightingType == EnvironmentLightingType.DIFFUSEMAP_WITH_REFLECTION) {
-                this.envLightingType = EnvironmentLightingType.AUTOGEN_HEMISPHERE_DIFFUSE_WITH_REFLECTION;
-                warnID(15000);
-            }
-            if (this.diffuseMap.isDefault) {
-                warnID(15002);
+            if (this.envLightingType == EnvironmentLightingType.DIFFUSEMAP_WITH_REFLECTION) {
+                if (this.diffuseMap == null) {
+                    this.envLightingType = EnvironmentLightingType.AUTOGEN_HEMISPHERE_DIFFUSE_WITH_REFLECTION;
+                    warnID(15000);
+                }
+                else if (this.diffuseMap.isDefault) {
+                    warnID(15002);
+                }
             }
         }
 
