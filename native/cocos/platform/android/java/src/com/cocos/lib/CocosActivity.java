@@ -27,8 +27,6 @@ package com.cocos.lib;
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -63,7 +61,6 @@ public class CocosActivity extends GameActivity {
         getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         setTheme( R.style.Theme_AppCompat_Light_NoActionBar);
         super.onCreate(savedInstanceState);
-        getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
         GlobalObject.setActivity(this);
         CocosHelper.registerBatteryLevelReceiver(this);
