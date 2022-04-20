@@ -38,6 +38,21 @@ bool gles2wOpen() {
     return (libegl && libgles);
 }
 
+bool gles2wClose() {
+    bool ret = true;
+    if (libegl) {
+        ret &= FreeLibrary(libegl) ? true : false;
+        libegl = NULL;
+    }
+
+    if (libgles) {
+        ret &= FreeLibrary(libgles) ? true : false;
+        libgles = NULL;
+    }
+
+    return ret;
+}
+
 void *gles2wLoad(const char *proc) {
     void *res = nullptr;
     if (eglGetProcAddress) res = (void *)eglGetProcAddress(proc);
@@ -46,6 +61,7 @@ void *gles2wLoad(const char *proc) {
 }
 #elif defined(__EMSCRIPTEN__)
 bool  gles2wOpen() { return true; }
+bool  gles2wClose() { return true; }
 void *gles2wLoad(const char *proc) {
     return (void *)eglGetProcAddress(proc);
 }
@@ -65,6 +81,21 @@ bool gles2wOpen() {
     return (libegl && libgles);
 }
 
+bool gles2wClose() {
+    bool ret = true;
+    if (libegl) {
+        ret &= dlclose(libegl) == 0;
+        libegl = nullptr;
+    }
+
+    if (libgles) {
+        ret &= dlclose(libgles) == 0;
+        libgles = nullptr;
+    }
+
+    return ret;
+}
+
 void *gles2wLoad(const char *proc) {
     void *res = nullptr;
     if (eglGetProcAddress) res = reinterpret_cast<void *>(eglGetProcAddress(proc));
@@ -82,4 +113,8 @@ bool gles2wInit() {
     gles2wLoadProcs(gles2wLoad);
 
     return true;
+}
+
+bool gles2wExit() {
+    return gles2wClose();
 }

@@ -279,6 +279,8 @@ void GLES3GPUContext::destroy() {
         EGL_CHECK(eglTerminate(eglDisplay));
         eglDisplay = EGL_NO_DISPLAY;
     }
+
+    gles3wExit();
 }
 
 void GLES3GPUContext::bindContext(bool bound) {

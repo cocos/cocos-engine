@@ -24,7 +24,6 @@
  ****************************************************************************/
 
 #include "core/Root.h"
-// #include "core/Director.h"
 #include "core/event/CallbacksInvoker.h"
 #include "core/event/EventTypesToJS.h"
 #include "profiler/Profiler.h"
@@ -55,18 +54,12 @@ Root::Root(gfx::Device *device)
 : _device(device) {
     instance        = this;
     _eventProcessor = ccnew CallbacksInvoker();
-    // TODO(minggo):
-    //    this._dataPoolMgr = legacyCC.internal.DataPoolManager && ccnew legacyCC.internal.DataPoolManager(device) as DataPoolManager;
-    _cameraPool = ccnew memop::Pool<scene::Camera>([this]() { return ccnew scene::Camera(_device); },
-                                                 4);
-
     _cameraList.reserve(6);
     _swapchains.reserve(2);
 }
 
 Root::~Root() {
     instance = nullptr;
-    delete _cameraPool;
     CC_SAFE_DELETE(_eventProcessor);
 }
 

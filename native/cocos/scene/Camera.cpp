@@ -85,7 +85,7 @@ Camera::Camera(gfx::Device *device)
 }
 
 Camera::~Camera() {
-    _frustum->release();
+    destroy();
 }
 
 bool Camera::initialize(const ICameraInfo &info) {
@@ -105,12 +105,8 @@ bool Camera::initialize(const ICameraInfo &info) {
 }
 
 void Camera::destroy() {
-    if (_window) {
-        _window->detachCamera(this);
-        _window = nullptr;
-    }
-    _name.clear();
-    _geometryRenderer->destroy();
+    CC_SAFE_DESTROY_NULL(_geometryRenderer);
+    _frustum->release();
 }
 
 void Camera::attachToScene(RenderScene *scene) {
