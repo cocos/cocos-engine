@@ -3232,3 +3232,11 @@ Can not keep world transform due to the zero scaling of parent node
 ### 15000
 
 Can not find corresponding diffuse map for environment lighting, use hemisphere diffuse instead
+
+### 15001
+
+Can not find environment map, disable IBL lighting
+
+### 15002
+
+Diffuse map resource is missing, please change environment lighting type to regenerate resource
