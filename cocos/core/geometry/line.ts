@@ -43,12 +43,12 @@ export class Line {
      * create a new line
      * @zh
      * 创建一个新的 line。
-     * @param sx Start position x
-     * @param sy Start position y
-     * @param sz Start position z
-     * @param ex End position x
-     * @param ey End position y
-     * @param ez End position z
+     * @param sx @en Start position x @zh 起点的 x 坐标。
+     * @param sy @en Start position y @zh 起点的 y 坐标。
+     * @param sz @en Start position z @zh 起点的 z 坐标。
+     * @param ex @en End position x @zh 终点的 x 坐标。
+     * @param ey @en End position y @zh 终点的 y 坐标。
+     * @param ez @en End position z @zh 终点的 z 坐标。
      * @return
      */
     public static create (sx: number, sy: number, sz: number, ex: number, ey: number, ez: number) {
@@ -60,8 +60,8 @@ export class Line {
      * Creates a new Line initialized with values from an existing Line
      * @zh
      * 克隆一个新的 line。
-     * @param a The line to copy from
-     * @return The new line cloned
+     * @param a @en The line to clone from @zh 克隆的来源 Line 对象。
+     * @return @en The new line cloned @zh 克隆出的新 Line 对象
      */
     public static clone (a: Line) {
         return new Line(
@@ -75,9 +75,9 @@ export class Line {
      * Copy the values from one Line to another
      * @zh
      * 复制一个线的值到另一个。
-     * @param out The output line to store the copied data
-     * @param a The line to copy from
-     * @return The out object
+     * @param out @en The output line to store the copied data @zh 用来存储拷贝数据的 Line 对象
+     * @param a @en The line to copy from @zh 从这个 Line 对象拷贝信息。
+     * @return @en The out object @zh 会直接返回传入的 out 对象
      */
     public static copy (out: Line, a: Line) {
         Vec3.copy(out.s, a.s);
@@ -91,10 +91,10 @@ export class Line {
      * create a line from two points
      * @zh
      * 用两个点创建一个线。
-     * @param out The output line
-     * @param start The start point
-     * @param end The end point
-     * @return out The out object
+     * @param out @en The output line @zh 接受新数据的 Line 对象
+     * @param start @en The start point @zh 起点
+     * @param end @en The end point @zh 终点
+     * @return @en The out object @zh 会直接返回传入的 out 对象
      */
     public static fromPoints (out: Line, start: Vec3, end: Vec3) {
         Vec3.copy(out.s, start);
@@ -107,14 +107,14 @@ export class Line {
      * Set the components of a Vec3 to the given values
      * @zh
      * 将给定线的属性设置为给定值。
-     * @param out The output line to set properties to
-     * @param sx Start position x
-     * @param sy Start position y
-     * @param sz Start position z
-     * @param ex End position x
-     * @param ey End position y
-     * @param ez End position z
-     * @return out The out object
+     * @param out @en The output line to set properties to @zh 接受新数据的 Line 对象
+     * @param sx @en Start position x @zh 起点到 x 坐标
+     * @param sy @en Start position y @zh 起点到 y 坐标
+     * @param sz @en Start position z @zh 起点到 z 坐标
+     * @param ex @en End position x @zh 终点到 x 坐标
+     * @param ey @en End position y @zh 终点到 y 坐标
+     * @param ez @en End position z @zh 终点到 z 坐标
+     * @return @en The out object @zh 会直接返回传入的 out 对象
      */
     public static set (out: Line, sx: number, sy: number, sz: number, ex: number, ey: number, ez: number) {
         out.s.x = sx;
@@ -130,8 +130,8 @@ export class Line {
     /**
      * @en Calculate the length of the given line
      * @zh 计算线的长度。
-     * @param a The line
-     * @return The length of the given line
+     * @param a @en The line @zh 用于计算长度的线段
+     * @return @en The length of the given line @zh 线段的长度
      */
     public static len (a: Line) {
         return Vec3.distance(a.s, a.e);
@@ -162,12 +162,12 @@ export class Line {
     /**
      * @en Constructor of the line
      * @zh 构造一条线。
-     * @param sx Start position x
-     * @param sy Start position y
-     * @param sz Start position z
-     * @param ex End position x
-     * @param ey End position y
-     * @param ez End position z
+     * @param sx @en Start position x @zh 起点的 x 坐标
+     * @param sy @en Start position y @zh 起点的 y 坐标
+     * @param sz @en Start position z @zh 起点的 z 坐标
+     * @param ex @en End position x @zh 终点的 x 坐标
+     * @param ey @en End position y @zh 终点的 y 坐标
+     * @param ez @en End position z @zh 终点的 z 坐标
      */
     constructor (sx = 0, sy = 0, sz = 0, ex = 0, ey = 0, ez = -1) {
         this._type = enums.SHAPE_LINE;
@@ -178,7 +178,7 @@ export class Line {
     /**
      * @en Calculate the length of the line
      * @zh 计算线的长度。
-     * @return The length
+     * @return @en The length @zh 线段的长度
      */
     public length () {
         return Vec3.distance(this.s, this.e);

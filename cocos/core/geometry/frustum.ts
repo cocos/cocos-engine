@@ -174,7 +174,7 @@ export class Frustum {
      * Create a new frustum.
      * @zh
      * 创建一个新的截锥体。
-     * @return An empty frustum.
+     * @return @en An empty frustum. @zh 一个空截椎体
      */
     public static create (): Frustum {
         return new Frustum();
@@ -185,7 +185,8 @@ export class Frustum {
      * Clone a frustum.
      * @zh
      * 克隆一个截锥体。
-     * @return The cloned frustum
+     * @param f @en The frustum to clone from @zh 用于克隆的截锥体
+     * @return @en The cloned frustum @zh 克隆出的新截锥体
      */
     public static clone (f: Frustum): Frustum {
         return Frustum.copy(new Frustum(), f);
@@ -196,9 +197,9 @@ export class Frustum {
      * Copy the values from one frustum to another.
      * @zh
      * 从一个视锥体拷贝到另一个视锥体。
-     * @param out The result frustum
-     * @param f The frustum to copy from
-     * @return The out object
+     * @param out @en The result frustum @zh 用于存储拷贝数据的截锥体
+     * @param f @en The frustum to copy from @zh 用于克隆的截锥体
+     * @return @en The out object @zh 传入的 out 对象
      */
     public static copy (out: Frustum, f: Frustum): Frustum {
         out._type = f._type;
@@ -255,8 +256,8 @@ export class Frustum {
      * Note that the resulting planes are not normalized under normal mode.
      * @zh
      * 根据给定的变换矩阵更新截锥体信息，注意得到的平面不是在标准模式下归一化的。
-     * @param m The view-projection matrix
-     * @param inv The inverse view-projection matrix
+     * @param m @en The view-projection matrix @zh 视图投影矩阵
+     * @param inv @en The inverse view-projection matrix @zh 视图投影逆矩阵
      */
     public update (m: Mat4, inv: Mat4) {
         // RTR4, ch. 22.14.1, p. 983
@@ -302,7 +303,7 @@ export class Frustum {
      * Transform this frustum.
      * @zh
      * 变换此视锥体。
-     * @param mat The transform matrix
+     * @param mat @en The transform matrix @zh 变换矩阵
      */
     public transform (mat: Mat4) {
         if (this._type !== enums.SHAPE_FRUSTUM_ACCURATE) {
