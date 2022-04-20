@@ -4,6 +4,7 @@
 #include "application/ApplicationManager.h"
 #include "base/Scheduler.h"
 #include "base/UTF8.h"
+#include "base/memory/Memory.h"
 #include "platform/FileUtils.h"
 #include "platform/java/jni/JniHelper.h"
 
