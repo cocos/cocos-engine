@@ -41,7 +41,7 @@ import { NULL_HANDLE, NodePool, NodeView, NodeHandle  } from '../renderer/core/m
 import { NodeSpace, TransformBit } from './node-enum';
 import { NativeNode } from '../renderer/native-scene';
 import { NodeEventType } from './node-event';
-import { CustomSerializable, editorExtrasTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
+import { CustomSerializable, editorExtrasTag, SerializationContext, SerializationOutput, serializeTag } from '../data';
 import { warnID } from '../platform/debug';
 
 const v3_a = new Vec3();

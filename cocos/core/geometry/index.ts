@@ -46,4 +46,3 @@ export { Capsule } from './capsule';
 export { Frustum } from './frustum';
 export { Keyframe, AnimationCurve } from './curve';
 export * from './spec';
-export * from './deprecated-3.0.0';
