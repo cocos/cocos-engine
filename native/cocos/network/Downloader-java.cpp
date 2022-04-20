@@ -28,6 +28,7 @@
 
 #include <mutex>
 #include "application/ApplicationManager.h"
+#include "base/memory/Memory.h"
 #include "network/Downloader.h"
 #include "platform/java/jni/JniHelper.h"
 #include "platform/java/jni/JniImp.h"
