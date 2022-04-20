@@ -323,6 +323,7 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
         framegraph::TextureHandle gbuffer[3]; // read from gbuffer stage
         framegraph::TextureHandle outputTex;  // output texture
         framegraph::TextureHandle depth;
+        framegraph::TextureHandle depthStencil;
         framegraph::BufferHandle  lightBuffer;      // light storage buffer
         framegraph::BufferHandle  lightIndexBuffer; // light index storage buffer
         framegraph::BufferHandle  lightGridBuffer;  // light grid storage buffer
@@ -345,7 +346,16 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
 
         data.depth = framegraph::TextureHandle(builder.readFromBlackboard(RenderPipeline::fgStrHandleOutDepthTexture));
         data.depth = builder.read(data.depth);
-        builder.writeToBlackboard(RenderPipeline::fgStrHandleOutDepthTexture, data.depth);
+
+        framegraph::RenderTargetAttachment::Descriptor depthInfo;
+        depthInfo.usage         = framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL;
+        depthInfo.loadOp        = gfx::LoadOp::LOAD;
+        depthInfo.clearColor    = gfx::Color();
+        depthInfo.beginAccesses = gfx::AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_READ;
+        depthInfo.endAccesses   = gfx::AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_READ;
+
+        data.depthStencil       = builder.write(data.depth, depthInfo);
+        builder.writeToBlackboard(RenderPipeline::fgStrHandleOutDepthTexture, data.depthStencil);
 
         if (_pipeline->getClusterEnabled()) {
             // read cluster and light info
