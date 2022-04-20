@@ -418,7 +418,7 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
         VkSampleCountFlagBits sampleCount = VK_SAMPLE_COUNT_1_BIT;
 
         for (uint32_t input : subpassInfo.inputs) {
-            if (input == subpassInfo.inputs.size()) {
+            if (input == gpuRenderPass->colorAttachments.size()) {
                 VkImageLayout layout = gpuRenderPass->depthStencilAttachment.isGeneralLayout ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
                 attachmentReferences.push_back({VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2, nullptr, input, layout, VK_IMAGE_ASPECT_DEPTH_BIT});
             } else {
