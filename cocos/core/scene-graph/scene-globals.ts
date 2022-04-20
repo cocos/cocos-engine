@@ -336,8 +336,8 @@ export class SkyboxInfo {
             this.envmap = this._resource.envmap;
             this.diffuseMap = this._resource.diffuseMap;
 
-            if (this.envLightingType == EnvironmentLightingType.DIFFUSEMAP_WITH_REFLECTION) {
-                if (this.diffuseMap == null) {
+            if (this.envLightingType === EnvironmentLightingType.DIFFUSEMAP_WITH_REFLECTION) {
+                if (this.diffuseMap === null) {
                     this.envLightingType = EnvironmentLightingType.AUTOGEN_HEMISPHERE_DIFFUSE_WITH_REFLECTION;
                     warnID(15000);
                 }
