@@ -282,7 +282,7 @@ export class SkyboxInfo {
     @editable
     @type(EnvironmentLightingType)
     @tooltip('i18n:skybox.EnvironmentLightingType')
-    set envLightingType(val) {
+    set envLightingType (val) {
         if (!this.envmap && EnvironmentLightingType.HEMISPHERE_DIFFUSE !== val) {
             this.useIBL = false;
             this.applyDiffuseMap = false;
