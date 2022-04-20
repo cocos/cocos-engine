@@ -30,6 +30,7 @@
 #include "audio/android/AudioDecoderOgg.h"
 #include "audio/android/AudioDecoderSLES.h"
 #include "audio/android/AudioDecoderWav.h"
+#include "base/memory/Memory.h"
 #include "platform/FileUtils.h"
 
 namespace cc {

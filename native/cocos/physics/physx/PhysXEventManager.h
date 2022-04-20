@@ -27,6 +27,7 @@
 
 #include <memory>
 #include "base/Macros.h"
+#include "base/memory/memory.h"
 #include "base/std/container/vector.h"
 #include "physics/physx/PhysXInc.h"
 #include "physics/spec/IWorld.h"

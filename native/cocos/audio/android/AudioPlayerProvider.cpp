@@ -25,6 +25,10 @@ THE SOFTWARE.
 
 #define LOG_TAG "AudioPlayerProvider"
 
+#include <sys/system_properties.h>
+#include <algorithm> // for std::find_if
+#include <cstdlib>
+#include <utility>
 #include "audio/android/AudioPlayerProvider.h"
 #include "audio/android/AudioDecoder.h"
 #include "audio/android/AudioDecoderProvider.h"
@@ -34,12 +38,8 @@ THE SOFTWARE.
 #include "audio/android/PcmAudioService.h"
 #include "audio/android/UrlAudioPlayer.h"
 #include "audio/android/utils/Utils.h"
+#include "base/memory/memory.h"
 #include "base/ThreadPool.h"
-
-#include <sys/system_properties.h>
-#include <algorithm> // for std::find_if
-#include <cstdlib>
-#include <utility>
 
 namespace cc {
 

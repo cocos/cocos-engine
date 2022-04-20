@@ -33,6 +33,7 @@
 #include "android/asset_manager_jni.h"
 #include "base/Log.h"
 #include "base/ZipUtils.h"
+#include "base/memory/memory.h"
 #include "platform/java/jni/JniHelper.h"
 #include "platform/java/jni/JniImp.h"
 

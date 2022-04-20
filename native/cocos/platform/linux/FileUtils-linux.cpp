@@ -29,6 +29,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include "base/Log.h"
+#include "base/memory/memory.h"
 
 #define DECLARE_GUARD std::lock_guard<std::recursive_mutex> mutexGuard(_mutex)
 #ifndef CC_RESOURCE_FOLDER_LINUX

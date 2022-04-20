@@ -24,16 +24,16 @@
 ****************************************************************************/
 
 #include "cocos/platform/ohos/FileUtils-ohos.h"
-#include <hilog/log.h>
-#include <sys/stat.h>
 #include <cstdio>
+#include <hilog/log.h>
 #include <regex>
-#include "base/std/container/string.h"
-#include "cocos/base/Log.h"
-#include "cocos/platform/java/jni/JniHelper.h"
-
+#include <sys/stat.h>
 #include <sys/syscall.h>
 #include <unistd.h>
+#include "base/std/container/string.h"
+#include "base/memory/memory.h"
+#include "cocos/base/Log.h"
+#include "cocos/platform/java/jni/JniHelper.h"
 
 #define ASSETS_FOLDER_NAME "@assets/"
 

@@ -25,6 +25,7 @@
 
 #include "physics/physx/PhysXSharedBody.h"
 #include <cmath>
+#include "base/memory/memory.h"
 #include "physics/physx/PhysXInc.h"
 #include "physics/physx/PhysXUtils.h"
 #include "physics/physx/PhysXWorld.h"

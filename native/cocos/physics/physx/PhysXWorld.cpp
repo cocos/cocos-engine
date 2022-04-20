@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "physics/physx/PhysXWorld.h"
+#include "base/memory/memory.h"
 #include "physics/physx/PhysXFilterShader.h"
 #include "physics/physx/PhysXInc.h"
 #include "physics/physx/PhysXUtils.h"

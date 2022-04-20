@@ -23,11 +23,12 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "cocos/audio/ohos/FsCallback.h"
+#include "audio/ohos/FsCallback.h"
 
 #include <rawfile/raw_dir.h>
 #include <rawfile/raw_file.h>
-#include "cocos/platform/ohos/FileUtils-ohos.h"
+#include "platform/ohos/FileUtils-ohos.h"
+#include "base/memory/memory.h"
 
 namespace {
 inline cc::FileUtilsOHOS *getFU() {

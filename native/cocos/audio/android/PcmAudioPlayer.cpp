@@ -29,6 +29,7 @@ THE SOFTWARE.
 #include "audio/android/AudioMixerController.h"
 #include "audio/android/ICallerThreadUtils.h"
 #include "audio/android/cutils/log.h"
+#include "base/memory/memory.h"
 
 namespace cc {
 

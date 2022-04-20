@@ -29,6 +29,7 @@
 #include "audio/android/AudioResampler.h"
 //#include "audio/android/AudioResamplerSinc.h"
 #include "audio/android/AudioResamplerCubic.h"
+#include "base/memory/memory.h"
 
 //#include "AudioResamplerDyn.h"
 

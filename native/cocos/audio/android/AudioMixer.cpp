@@ -26,9 +26,9 @@
 
 #include "audio/android/audio.h"
 #include "audio/android/audio_utils/include/audio_utils/primitives.h"
-
 #include "audio/android/AudioMixerOps.h"
 #include "audio/android/AudioMixer.h"
+#include "base/memory/Memory.h"
 
 // The FCC_2 macro refers to the Fixed Channel Count of 2 for the legacy integer mixer.
 #ifndef FCC_2
