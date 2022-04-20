@@ -234,6 +234,9 @@ public class GameActivity
     onSetUpWindow();
 
     String libname = "main";
+    if (null != getIntent().getStringExtra(META_DATA_LIB_NAME)) {
+        libname = getIntent().getStringExtra(META_DATA_LIB_NAME);
+    }
     String funcname = "GameActivity_onCreate";
     ActivityInfo ai;
     try {

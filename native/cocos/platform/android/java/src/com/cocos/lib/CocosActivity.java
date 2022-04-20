@@ -25,7 +25,7 @@
 package com.cocos.lib;
 
 import android.app.Activity;
-import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.os.Bundle;
@@ -168,7 +168,8 @@ public class CocosActivity extends GameActivity {
 
     private void onLoadNativeLibraries() {
         try {
-            ActivityInfo ai = this.getPackageManager().getActivityInfo(this.getIntent().getComponent(), PackageManager.GET_META_DATA);
+            ApplicationInfo ai = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
+
             Bundle bundle = ai.metaData;
             String libName = bundle.getString("android.app.lib_name");
             if (TextUtils.isEmpty(libName)) {
@@ -176,6 +177,7 @@ public class CocosActivity extends GameActivity {
             }
             assert libName != null;
             System.loadLibrary(libName);
+            getIntent().putExtra(GameActivity.META_DATA_LIB_NAME, libName);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -17,6 +17,9 @@
         <meta-data
                 android:name="aia-compat-api-min-version"
                 android:value="1" />
+        <!-- Tell CocosNativeActivity the name of our .so -->
+        <meta-data android:name="android.app.lib_name"
+            android:value="cocos" />
 
         <activity
                 android:name="com.cocos.game.InstantActivity"
@@ -26,10 +29,6 @@
                 android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
                 android:launchMode="singleTask"
                 android:exported="true">
-
-            <!-- Tell CocosNativeActivity the name of our .so -->
-            <meta-data android:name="android.app.lib_name"
-                android:value="cocos" />
 
             <intent-filter android:order="1">
                 <action android:name="android.intent.action.VIEW" />
