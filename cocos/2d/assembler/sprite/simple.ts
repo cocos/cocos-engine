@@ -116,7 +116,7 @@ export const simple: IAssembler = {
 
         // quick version
         const bid = chunk.bufferId;
-        let vid = chunk.vertexOffset;
+        const vidOrigin = chunk.vertexOffset;
         const meshBuffer = chunk.meshBuffer;
         const ib = chunk.meshBuffer.iData;
         let indexOffset = meshBuffer.indexOffset;
@@ -125,7 +125,7 @@ export const simple: IAssembler = {
         for (let curRow = 0; curRow < renderData.vertexRow - 1; curRow++) {
             for (let curCol = 0; curCol < renderData.vertexCol - 1; curCol++) {
                 // vid is the index of the left bottom vertex in each rect.
-                vid = curRow * renderData.vertexCol + curCol;
+                const vid = vidOrigin + curRow * renderData.vertexCol + curCol;
 
                 // left bottom
                 ib[indexOffset++] = vid;
@@ -145,14 +145,6 @@ export const simple: IAssembler = {
                 meshBuffer.indexOffset += 6;
             }
         }
-
-        // ib[indexOffset++] = vid;
-        // ib[indexOffset++] = vid + 1;
-        // ib[indexOffset++] = vid + 2;
-        // ib[indexOffset++] = vid + 2;
-        // ib[indexOffset++] = vid + 1;
-        // ib[indexOffset++] = vid + 3;
-        // meshBuffer.indexOffset += 6;
 
         // slow version
         // renderer.switchBufferAccessor().appendIndices(chunk);

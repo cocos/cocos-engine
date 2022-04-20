@@ -107,21 +107,7 @@ export const sliced: IAssembler = {
         sizableWidth = sizableWidth < 0 ? 0 : sizableWidth;
         sizableHeight = sizableHeight < 0 ? 0 : sizableHeight;
 
-        // dataList[0].x = -appX;
-        // dataList[0].y = -appY;
-        // dataList[1].x = leftWidth * xScale - appX;
-        // dataList[1].y = bottomHeight * yScale - appY;
-        // dataList[2].x = dataList[1].x + sizableWidth;
-        // dataList[2].y = dataList[1].y + sizableHeight;
-        // dataList[3].x = width - appX;
-        // dataList[3].y = height - appY;
-
-        const tempList:IRenderData[] = [
-            // { x: -appX, y: -appY, z: 0, u: 0, v: 0, color: new Color() },
-            // { x: leftWidth * xScale - appX, y: bottomHeight * yScale - appY, z: 0, u: 0, v: 0, color: new Color() },
-            // { x: leftWidth * xScale - appX + sizableWidth, y: bottomHeight * yScale - appY + sizableHeight, z: 0, u: 0, v: 0, color: new Color() },
-            // { x: width - appX, y: height - appY, z: 0, u: 0, v: 0, color: new Color() },
-        ];
+        const tempList:IRenderData[] = [];
         // initialize 4 elements
         for (let i = 0; i < 4; i++) {
             tempList.push({ x: 0, y: 0, z: 0, u: 0, v: 0, color: new Color() });
@@ -157,28 +143,16 @@ export const sliced: IAssembler = {
         }
 
         const bid = chunk.bufferId;
-        let vid = chunk.vertexOffset;
+        const vidOrigin = chunk.vertexOffset;
         const meshBuffer = chunk.meshBuffer;
         const ib = chunk.meshBuffer.iData;
         let indexOffset = meshBuffer.indexOffset;
-        // for (let r = 0; r < 3; ++r) {
-        //     for (let c = 0; c < 3; ++c) {
-        //         const start = vid + r * 4 + c;
-        //         ib[indexOffset++] = start;
-        //         ib[indexOffset++] = start + 1;
-        //         ib[indexOffset++] = start + 4;
-        //         ib[indexOffset++] = start + 1;
-        //         ib[indexOffset++] = start + 5;
-        //         ib[indexOffset++] = start + 4;
-        //     }
-        // }
-        // meshBuffer.indexOffset = indexOffset;
 
         // rect count = vertex count - 1
         for (let curRow = 0; curRow < renderData.vertexRow - 1; curRow++) {
             for (let curCol = 0; curCol < renderData.vertexCol - 1; curCol++) {
                 // vid is the index of the left bottom vertex in each rect.
-                vid = curRow * renderData.vertexCol + curCol;
+                const vid = vidOrigin + curRow * renderData.vertexCol + curCol;
 
                 // left bottom
                 ib[indexOffset++] = vid;
@@ -208,21 +182,6 @@ export const sliced: IAssembler = {
         const stride = renderData.floatStride;
         const dataList: IRenderData[] = renderData.data;
         const vData = chunk.vb;
-
-        // let offset = 0;
-        // for (let row = 0; row < 4; ++row) {
-        //     const rowD = dataList[row];
-        //     for (let col = 0; col < 4; ++col) {
-        //         const colD = dataList[col];
-
-        //         Vec3.set(vec3_temp, colD.x, rowD.y, 0);
-        //         Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
-        //         offset = (row * 4 + col) * stride;
-        //         vData[offset++] = vec3_temp.x;
-        //         vData[offset++] = vec3_temp.y;
-        //         vData[offset++] = vec3_temp.z;
-        //     }
-        // }
 
         for (let i  = 0; i < dataList.length; i++) {
             const curData = dataList[i];
