@@ -205,7 +205,7 @@ void GbufferStage::render(scene::Camera *camera) {
             static_cast<uint>(pipeline->getWidth() * shadingScale),
             static_cast<uint>(pipeline->getHeight() * shadingScale),
         };
-        if (_device->getGfxAPI() == gfx::API::VULKAN) { // TODO: remove platform dependent settings
+        if (_device->getGfxAPI() == gfx::API::VULKAN) { // TODO(Zhenglong Zhou): remove platform dependent settings
             depthTexInfo.usage |= gfx::TextureUsageBit::INPUT_ATTACHMENT;
         }
         data.depth = builder.create(DeferredPipeline::fgStrHandleOutDepthTexture, depthTexInfo);
