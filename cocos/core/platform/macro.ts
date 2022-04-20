@@ -866,14 +866,14 @@ interface Macro {
     KEY: typeof KEY;
 
     /**
-     * @en One degree in radian
-     * @zh 单位弧度制
+     * @en One angle in radian, equals to PI / 180
+     * @zh 弧度制中的单位角度，等同于 PI / 180
      */
     RAD: number;
 
     /**
-     * @en One degree in angle
-     * @zh 单位角度值
+     * @en One radian in angle, equals to 180 / PI
+     * @zh 角度制中的单位弧度，等同于 180 / PI
      */
     DEG: number;
 
