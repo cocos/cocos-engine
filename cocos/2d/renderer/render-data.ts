@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { director } from '../../core/director';
 import { Material } from '../../core/assets/material';
 import { TextureBase } from '../../core/assets/texture-base';
@@ -150,6 +148,10 @@ export class RenderData extends BaseRenderData {
     get data () {
         return this._data;
     }
+
+    // There are rectRow * rectCol rectangles in this component.
+    public vertexRow = 1;
+    public vertexCol = 1;
 
     public indices: Uint16Array | null = null;
     public vertDirty = true;
