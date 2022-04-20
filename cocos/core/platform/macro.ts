@@ -963,11 +963,11 @@ interface Macro {
      * @en
      * Boolean that indicates if the canvas contains an alpha channel, default sets to false for better performance.
      * Though if you want to make your canvas background transparent and show other dom elements at the background,
-     * you can set it to true before {{game.init}}.
+     * you can set it to true before [[game.init]].
      * Web only.
      * @zh
      * 用于设置 Canvas 背景是否支持 alpha 通道，默认为 false，这样可以有更高的性能表现。
-     * 如果你希望 Canvas 背景是透明的，并显示背后的其他 DOM 元素，你可以在 {{game.init}} 之前将这个值设为 true。
+     * 如果你希望 Canvas 背景是透明的，并显示背后的其他 DOM 元素，你可以在 [[game.init]] 之前将这个值设为 true。
      * 仅支持 Web
      * @default false
      */
@@ -981,14 +981,14 @@ interface Macro {
      * device with retina display usually have good detail on graphics with or without this option,
      * you probably don't want antialias if your game style is pixel art based.
      * Also, it could have great performance impact with some browser / device using software MSAA.
-     * You can set it to true before {{game.init}}.
+     * You can set it to true before [[game.init]].
      * Only affect OpenGL ES and WebGL backend
      * @zh
      * 用于设置在创建 GL Context 时是否开启抗锯齿选项，默认值是 false。
      * 将这个选项设置为 true 会让你的游戏画面稍稍平滑一些，比如旋转硬边贴图时的锯齿。是否开启这个选项很大程度上取决于你的游戏和面向的平台。
      * 在大多数拥有 retina 级别屏幕的设备上用户往往无法区分这个选项带来的变化；如果你的游戏选择像素艺术风格，你也多半不会想开启这个选项。
      * 同时，在少部分使用软件级别抗锯齿算法的设备或浏览器上，这个选项会对性能产生比较大的影响。
-     * 你可以在 {{game.init}} 之前设置这个值，否则它不会生效。
+     * 你可以在 [[game.init]] 之前设置这个值，否则它不会生效。
      * 仅影响 WebGL 后端
      * @default true
      */
