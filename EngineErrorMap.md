@@ -3231,7 +3231,7 @@ Can not keep world transform due to the zero scaling of parent node
 
 ### 15000
 
-Can not find corresponding diffuse map for environment lighting, use hemisphere diffuse instead
+Can not find corresponding diffuse map for environment lighting, use hemisphere diffuse instead, change environment lighting type to regenerate diffuse map
 
 ### 15001
 
