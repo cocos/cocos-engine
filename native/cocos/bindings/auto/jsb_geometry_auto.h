@@ -65,7 +65,6 @@ extern se::Class * __jsb_cc_geometry_Frustum_class; // NOLINT
 
 bool js_register_cc_geometry_Frustum(se::Object *obj); // NOLINT
 
-SE_DECLARE_FUNC(js_geometry_Frustum_clone);
 SE_DECLARE_FUNC(js_geometry_Frustum_createOrtho);
 SE_DECLARE_FUNC(js_geometry_Frustum_setAccurate);
 SE_DECLARE_FUNC(js_geometry_Frustum_transform);
