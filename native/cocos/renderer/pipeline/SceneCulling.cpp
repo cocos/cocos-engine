@@ -254,7 +254,8 @@ void quantizeDirLightShadowCamera(RenderPipeline *pipeline, const scene::Camera 
         geometry::Frustum validFrustum;
         validFrustum.setType(geometry::ShapeEnum::SHAPE_FRUSTUM_ACCURATE);
         validFrustum.split(0.1F, mainLight->getShadowDistance(), camera->getAspect(), camera->getFov(), matWorldTrans);
-        geometry::Frustum lightViewFrustum = validFrustum.clone();
+        geometry::Frustum lightViewFrustum;
+        geometry::Frustum::copy(&lightViewFrustum, validFrustum);
 
         // view matrix with range back.
         Mat4 matShadowTrans;
