@@ -26,15 +26,14 @@
 
 #define LOG_TAG "AudioPlayer"
 
+#include <cstdlib>
+#include <cstring>
 #include "audio/oalsoft/AudioPlayer.h"
 #include "audio/oalsoft/AudioCache.h"
 #include "audio/oalsoft/AudioDecoder.h"
 #include "audio/oalsoft/AudioDecoderManager.h"
-
+#include "base/memory/Memory.h"
 #include "base/Log.h"
-
-#include <cstdlib>
-#include <cstring>
 
 using namespace cc; //NOLINT
 

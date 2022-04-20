@@ -45,7 +45,7 @@
 #include "audio/include/AudioEngine.h"
 #include "audio/oalsoft/AudioDecoderManager.h"
 #include "base/Scheduler.h"
-#include "base/memory/memory.h"
+#include "base/memory/Memory.h"
 #include "platform/FileUtils.h"
 
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS

@@ -35,6 +35,8 @@
     #include <cstdlib>
 #endif
 
+#include <new> // std::nothrow
+
 #include "base/Macros.h"
 
 namespace cc {

@@ -27,9 +27,10 @@
 #include <cassert>
 #include <iostream>
 
-#include "cocos/application/ApplicationManager.h"
-#include "cocos/base/Log.h"
-#include "cocos/base/Scheduler.h"
+#include "application/ApplicationManager.h"
+#include "base/Log.h"
+#include "base/Scheduler.h"
+#include "base/memory/Memory.h"
 #include "cocos/network/WebSocketServer.h"
 
 #define MAX_MSG_PAYLOAD 2048

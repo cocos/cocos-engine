@@ -51,11 +51,10 @@ WebView::~WebView() {
 }
 
 WebView *WebView::create() {
-    auto webView = ccnew (std::nothrow) WebView();
+    auto webView = ccnew WebView();
     if (webView) {
         return webView;
     }
-    CC_SAFE_DELETE(webView);
     return nullptr;
 }
 

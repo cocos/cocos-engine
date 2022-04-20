@@ -33,7 +33,7 @@
     #include "audio/ohos/AudioDecoderWav.h"
 #endif
 #include "audio/oalsoft/AudioMacros.h"
-#include "base/memory/memory.h"
+#include "base/memory/Memory.h"
 #include "platform/FileUtils.h"
 
 namespace cc {

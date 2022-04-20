@@ -23,7 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "cocos/platform/ohos/FileUtils-ohos.h"
+#include "platform/ohos/FileUtils-ohos.h"
 #include <cstdio>
 #include <hilog/log.h>
 #include <regex>
@@ -31,9 +31,9 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 #include "base/std/container/string.h"
-#include "base/memory/memory.h"
-#include "cocos/base/Log.h"
-#include "cocos/platform/java/jni/JniHelper.h"
+#include "base/memory/Memory.h"
+#include "base/Log.h"
+#include "platform/java/jni/JniHelper.h"
 
 #define ASSETS_FOLDER_NAME "@assets/"
 

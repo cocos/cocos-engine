@@ -25,10 +25,11 @@
 
 #pragma once
 
+#include "base/Macros.h"
+#include "base/TypeDef.h"
+#include "base/memory/Memory.h"
 #include "base/std/container/unordered_set.h"
 #include "base/std/container/vector.h"
-#include "cocos/base/Macros.h"
-#include "cocos/base/TypeDef.h"
 
 namespace cc {
 

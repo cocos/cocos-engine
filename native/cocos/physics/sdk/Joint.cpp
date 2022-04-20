@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "physics/sdk/Joint.h"
-#include "base/memory/memory.h"
+#include "base/memory/Memory.h"
 #include "physics/PhysicsSelector.h"
 
 #define CC_PHYSICS_JOINT_DEFINITION(CLASS, WRAPPED) \
