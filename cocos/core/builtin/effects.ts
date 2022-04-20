@@ -565,7 +565,7 @@ export const effects = [
     "shaders": [
       {
         "name": "standard|standard-vs|standard-fs",
-        "hash": 1722195234,
+        "hash": 2489015834,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 223, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 75 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_diffuseMap", "defines": ["CC_USE_DIFFUSEMAP"] }], "buffers": [], "images": [] },
@@ -729,7 +729,7 @@ export const effects = [
     "shaders": [
       {
         "name": "terrain|terrain-vs|terrain-fs",
-        "hash": 3898401117,
+        "hash": 2479239220,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 71, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 71 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_diffuseMap", "defines": ["CC_USE_DIFFUSEMAP"] }], "buffers": [], "images": [] },
@@ -739,7 +739,6 @@ export const effects = [
           { "name": "CC_USE_FOG", "type": "number", "range": [0, 4] },
           { "name": "CC_USE_ACCURATE_FOG", "type": "boolean" },
           { "name": "CC_RECEIVE_SHADOW", "type": "boolean" },
-          { "name": "USE_NORMALMAP", "type": "boolean" },
           { "name": "USE_LIGHTMAP", "type": "boolean" },
           { "name": "CC_USE_IBL", "type": "number", "range": [0, 2] },
           { "name": "CC_USE_DIFFUSEMAP", "type": "number", "range": [0, 2] },
@@ -748,6 +747,7 @@ export const effects = [
           { "name": "CC_FORWARD_ADD", "type": "boolean" },
           { "name": "CC_USE_HDR", "type": "boolean" },
           { "name": "LAYERS", "type": "number", "range": [0, 4] },
+          { "name": "USE_NORMALMAP", "type": "boolean" },
           { "name": "USE_PBR", "type": "boolean" },
           { "name": "CC_PIPELINE_TYPE", "type": "number", "range": [0, 1] },
           { "name": "CC_FORCE_FORWARD_SHADING", "type": "boolean" }
@@ -1226,7 +1226,7 @@ export const effects = [
   {
     "name": "post-process",
     "techniques": [
-      { "passes": [{ "phase": "post-process", "blendState": { "targets": [{ "blend": false, "blendSrc": 1, "blendDst": 0, "blendSrcAlpha": 1, "blendDstAlpha": 0 }] }, "program": "post-process|post-process-vs|post-process-fs", "depthStencilState": { "depthTest": false, "depthWrite": false } }] }
+      { "passes": [{ "phase": "post-process", "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendSrcAlpha": 2, "blendDstAlpha": 4 }] }, "program": "post-process|post-process-vs|post-process-fs", "depthStencilState": { "depthTest": false, "depthWrite": false } }] }
     ],
     "shaders": [
       {

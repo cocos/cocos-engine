@@ -115,8 +115,7 @@ CCProgram toon-vs %{
   #endif
 
   #if USE_NORMAL_MAP
-    out mediump vec3 v_tangent;
-    out mediump vec3 v_bitangent;
+    out mediump vec4 v_tangent;
   #endif
 
   vec4 vert () {
@@ -136,8 +135,8 @@ CCProgram toon-vs %{
 
     v_normal = (matWorldIT * vec4(In.normal, 0.0)).xyz;
     #if USE_NORMAL_MAP
-      v_tangent = normalize((matWorld * vec4(In.tangent.xyz, 0.0)).xyz);
-      v_bitangent = cross(v_normal, v_tangent) * In.tangent.w; // note the cross order
+      v_tangent.xyz = normalize((matWorld * vec4(In.tangent.xyz, 0.0)).xyz);
+      v_tangent.w = In.tangent.w;
     #endif
 
     CC_TRANSFER_SHADOW(pos);
@@ -167,8 +166,7 @@ CCProgram toon-fs %{
 
   in mediump vec3 v_normal;
   #if USE_NORMAL_MAP
-    in mediump vec3 v_tangent;
-    in mediump vec3 v_bitangent;
+    in mediump vec4 v_tangent;
     uniform sampler2D normalMap;
   #endif
 
@@ -229,9 +227,10 @@ CCProgram toon-fs %{
 
     #if USE_NORMAL_MAP
       vec3 nmmp = texture(normalMap, v_uv).xyz - vec3(0.5);
+      vec3 bitangent = cross(v_normal, v_tangent.xyz) * v_tangent.w; // note the cross order
       s.normal =
-        (nmmp.x * emissiveScaleAndStrenth.w) * normalize(v_tangent) +
-        (nmmp.y * emissiveScaleAndStrenth.w) * normalize(v_bitangent) +
+        (nmmp.x * emissiveScaleAndStrenth.w) * normalize(v_tangent.xyz) +
+        (nmmp.y * emissiveScaleAndStrenth.w) * normalize(bitangent) +
         nmmp.z * normalize(s.normal);
     #endif
 

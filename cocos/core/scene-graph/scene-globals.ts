@@ -37,6 +37,7 @@ import { Fog, FogType } from '../renderer/scene/fog';
 import { Node } from './node';
 import { legacyCC } from '../global-exports';
 import { Root } from '../root';
+import { warnID } from '../platform';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
@@ -329,8 +330,9 @@ export class SkyboxInfo {
             }
             this.diffuseMap = this._resource.diffuseMap;
 
-            if (this.diffuseMap == null) {
-                this.applyDiffuseMap = false;
+            if (this.diffuseMap == null && this.envLightingType == EnvironmentLightingType.DIFFUSEMAP_WITH_REFLECTION) {
+                this.envLightingType = EnvironmentLightingType.AUTOGEN_HEMISPHERE_DIFFUSE_WITH_REFLECTION;
+                warnID(15000);
             }
         }
 
