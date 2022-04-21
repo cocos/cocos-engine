@@ -226,10 +226,13 @@ export class Camera {
     }
 
     public destroy () {
+        this.detachFromScene();
+
         if (this._window) {
             this._window.detachCamera(this);
             this.window = null!;
         }
+
         this._name = null;
         this._geometryRenderer?.destroy();
     }
@@ -386,7 +389,7 @@ export class Camera {
         return this._farClip;
     }
 
-    get surfaceTransform() {
+    get surfaceTransform () {
         return this._curTransform;
     }
 

@@ -105,12 +105,15 @@ bool Camera::initialize(const ICameraInfo &info) {
 }
 
 void Camera::destroy() {
+    detachFromScene();
+
     if (_window) {
         _window->detachCamera(this);
         _window = nullptr;
     }
+
     _name.clear();
-    _geometryRenderer->destroy();
+    CC_SAFE_DESTROY(_geometryRenderer);
 }
 
 void Camera::attachToScene(RenderScene *scene) {
