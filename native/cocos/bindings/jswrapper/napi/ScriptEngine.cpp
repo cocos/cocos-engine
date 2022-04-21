@@ -465,20 +465,22 @@ bool ScriptEngine::start() {
 
     AutoHandleScope scope;
 
-#if SE_ENABLE_INSPECTOR
     // V8 inspector stuff, most code are taken from NodeJS.
-    uv_loop_t *new_loop = uv_loop_new();
-    _isolateData        = node::CreateIsolateData(_isolate, new_loop);
-    _debuggerEnv        = node::CreateEnvironment(_isolateData, _context.Get(_isolate), 0, nullptr, 0, nullptr);
+    if (isDebuggerEnabled()) {
+#if SE_ENABLE_INSPECTOR
+        uv_loop_t *new_loop = uv_loop_new();
+        _isolateData        = node::CreateIsolateData(_isolate, new_loop);
+        _debuggerEnv        = node::CreateEnvironment(_isolateData, _context.Get(_isolate), 0, nullptr, 0, nullptr);
 
-    node::DebugOptions options;
-    options.set_wait_for_connect(true); // the program will be hung up until debug attach if _isWaitForConnect = true
-    options.set_inspector_enabled(true);
-    options.set_port(static_cast<int>(6086));
-    options.set_host_name("0.0.0.0");
-    bool debuggerBooted = _debuggerEnv->inspector_agent()->Start(gSharedV8->platform, "", options);
-    assert(debuggerBooted);
+        node::DebugOptions options;
+        options.set_wait_for_connect(_debuggerSyncWait); // the program will be hung up until debug attach if _isWaitForConnect = true
+        options.set_inspector_enabled(true);
+        options.set_port(_debuggerPort);
+        options.set_host_name(_debuggerHost);
+        bool debuggerBooted = _debuggerEnv->inspector_agent()->Start(gSharedV8->platform, "", options);
+        assert(debuggerBooted);
 #endif
+    }
 
     for (auto cb : _permRegisterCallbackArray) {
         ok = cb(_globalObj);
@@ -579,8 +581,14 @@ bool ScriptEngine::isValid() const {
 }
 
 void ScriptEngine::enableDebugger(const std::string &serverAddr, uint32_t port, bool isWait) {
-    //not impl
+    _debuggerHost     = serverAddr;
+    _debuggerPort     = port;
+    _debuggerSyncWait = isWait;
     return;
+}
+
+bool ScriptEngine::isDebuggerEnabled() const {
+    return !_debuggerHost.empty() && _debuggerPort > 0;
 }
 
 bool ScriptEngine::saveByteCodeToFile(const std::string &path, const std::string &pathBc) {

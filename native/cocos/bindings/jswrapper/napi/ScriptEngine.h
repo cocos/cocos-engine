@@ -14,7 +14,7 @@
 namespace node {
 class IsolateData;
 class Environment;
-}
+} // namespace node
 
 using HandleScope = napi_handle_scope;
 namespace se {
@@ -248,7 +248,7 @@ public:
     /**
      * @brief for napi_new_instance, skip constructor.
      */
-    bool _needCallConstructor();
+    bool        _needCallConstructor();
     inline bool isInCleanup() {
         return false;
     }
@@ -283,5 +283,8 @@ private:
     node::IsolateData *_isolateData{nullptr};
     #endif
 #endif
+    std::string _debuggerHost;
+    int         _debuggerPort{-1};
+    bool        _debuggerSyncWait{false};
 };
 }; // namespace se
