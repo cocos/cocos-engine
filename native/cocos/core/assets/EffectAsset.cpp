@@ -137,7 +137,7 @@ EffectAsset *EffectAsset::get(const ccstd::string &name) {
 void EffectAsset::onLoaded() {
     ProgramLib::getInstance()->registerEffect(this);
     EffectAsset::registerAsset(this);
-#if (CC_EDITOR == 0)
+#if !CC_EDITOR
     if (CC_CURRENT_ENGINE()->isInited()) {
         precompile();
     } else {
