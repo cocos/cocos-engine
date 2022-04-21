@@ -509,14 +509,7 @@ ScriptEngine::ScriptEngine()
     #endif
 }
 
-ScriptEngine::~ScriptEngine() {
-    #if !CC_EDITOR
-    if (gSharedV8) {
-        delete gSharedV8;
-        gSharedV8 = nullptr;
-    }
-    #endif
-}
+ScriptEngine::~ScriptEngine() = default;
 
 bool ScriptEngine::postInit() {
     v8::HandleScope hs(_isolate);

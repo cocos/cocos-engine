@@ -29,4 +29,3 @@
 #include "../gfx-gles-common/gles2w.h"
 
 bool gles2wInit();
-bool gles2wExit();

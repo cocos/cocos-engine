@@ -57,6 +57,8 @@ Root::Root(gfx::Device *device)
     _eventProcessor = new CallbacksInvoker();
     // TODO(minggo):
     //    this._dataPoolMgr = legacyCC.internal.DataPoolManager && new legacyCC.internal.DataPoolManager(device) as DataPoolManager;
+    _cameraPool = new memop::Pool<scene::Camera>([this]() { return new scene::Camera(_device); },
+                                                 4);
 
     _cameraList.reserve(6);
     _swapchains.reserve(2);
@@ -64,6 +66,7 @@ Root::Root(gfx::Device *device)
 
 Root::~Root() {
     instance = nullptr;
+    delete _cameraPool;
     CC_SAFE_DELETE(_eventProcessor);
 }
 
