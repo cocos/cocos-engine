@@ -33,12 +33,6 @@ ApplicationManager *ApplicationManager::getInstance() {
     return &mgr;
 }
 
-void ApplicationManager::closeAllApplications() {
-    for (auto &app : _apps) {
-        app->close();
-    }
-}
-
 void ApplicationManager::releseAllApplications() {
     _apps.clear();
 }
@@ -56,12 +50,7 @@ ApplicationManager::ApplicationPtr ApplicationManager::getCurrentAppSafe() const
 }
 } // namespace cc
 
-void cocos_close() { // NOLINT(readability-identifier-naming)
-    // Called in the platform layer, because the platform layer is isolated from the application layer
-    // It is the platform layer to drive applications and reclaim resources.
-    cc::ApplicationManager::getInstance()->closeAllApplications();
-}
-
+//
 void cocos_destory() { // NOLINT(readability-identifier-naming)
     // Called in the platform layer, because the platform layer is isolated from the application layer
     // It is the platform layer to drive applications and reclaim resources.

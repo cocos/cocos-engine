@@ -126,7 +126,7 @@ void RenderPipeline::destroyQuadInputAssembler() {
 
 bool RenderPipeline::destroy() {
     for (auto *flow : _flows) {
-        CC_SAFE_DESTROY_AND_DELETE(flow);
+        flow->destroy();
     }
     _flows.clear();
 
