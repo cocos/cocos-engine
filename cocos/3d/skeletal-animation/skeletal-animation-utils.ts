@@ -199,7 +199,18 @@ export class JointTexturePool {
     public getDefaultPoseTexture (skeleton: Skeleton, mesh: Mesh, skinningRoot: Node) {
         const hash = skeleton.hash ^ 0; // may not equal to skeleton.hash
         let texture: IJointTextureHandle | null = this._textureBuffers.get(hash) || null;
-        if (texture && texture.bounds.has(mesh.hash)) { texture.refCount++; return texture; }
+        if (texture && texture.bounds.has(mesh.hash)) {
+            if (JSB) {
+                for (let i = 0; i < texture.bounds.get(mesh.hash)!.length; i++) {
+                    if (!texture.bounds.get(mesh.hash)![i].isNativeObjValid) {
+                        delete texture.bounds.get(mesh.hash)![i];
+                        texture?.bounds.get(mesh.hash)?.splice(i, 1);
+                    }
+                }
+            }
+            texture.refCount++;
+            return texture;
+        }
         const { joints, bindposes } = skeleton;
         let textureBuffer: Float32Array = null!; let buildTexture = false;
         const jointCount = joints.length;
@@ -257,7 +268,18 @@ export class JointTexturePool {
     public getSequencePoseTexture (skeleton: Skeleton, clip: AnimationClip, mesh: Mesh, skinningRoot: Node) {
         const hash = skeleton.hash ^ clip.hash;
         let texture: IJointTextureHandle | null = this._textureBuffers.get(hash) || null;
-        if (texture && texture.bounds.has(mesh.hash)) { texture.refCount++; return texture; }
+        if (texture && texture.bounds.has(mesh.hash)) {
+            if (JSB) {
+                for (let i = 0; i < texture.bounds.get(mesh.hash)!.length; i++) {
+                    if (!texture.bounds.get(mesh.hash)![i].isNativeObjValid) {
+                        delete texture.bounds.get(mesh.hash)![i];
+                        texture?.bounds.get(mesh.hash)?.splice(i, 1);
+                    }
+                }
+            }
+            texture.refCount++;
+            return texture;
+        }
         const { joints, bindposes } = skeleton;
         const clipData = SkelAnimDataHub.getOrExtract(clip);
         const { frames } = clipData;

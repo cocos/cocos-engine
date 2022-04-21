@@ -214,10 +214,14 @@ export class AABB {
     get type () {
         return this._type;
     }
-
+    get isNativeObjValid () {
+        return this._isNativeObjValid;
+    }
+    protected _isNativeObjValid = false;
     protected readonly _type: number;
     protected _aabbHandle: AABBHandle = NULL_HANDLE;
     protected declare _nativeObj: NativeAABB;
+
     constructor (px = 0, py = 0, pz = 0, hw = 1, hh = 1, hl = 1) {
         this._type = enums.SHAPE_AABB;
         if (JSB) {
@@ -229,6 +233,7 @@ export class AABB {
             this.halfExtents.set(hw, hh, hl);
             this._nativeObj = new NativeAABB();
             this._nativeObj.initWithData(AABBPool.getBuffer(this._aabbHandle));
+            this._isNativeObjValid = true;
             return;
         }
         this.center = new Vec3(px, py, pz);
@@ -337,6 +342,7 @@ export class AABB {
     public destroy () {
         if (JSB) {
             AABBPool.free(this._aabbHandle);
+            this._isNativeObjValid = false;
         }
     }
 }
