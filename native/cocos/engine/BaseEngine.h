@@ -110,7 +110,7 @@ public:
      */
     virtual SchedulerPtr getScheduler() const = 0;
 
-    virtual bool isInited() = 0;
+    virtual bool isInited() const = 0;
 };
 
 } // namespace cc

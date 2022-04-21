@@ -105,7 +105,7 @@ public:
      */
     SchedulerPtr getScheduler() const override;
 
-    bool isInited() override {return _inited;}
+    bool isInited() const override {return _inited;}
 
 private:
     void    tick();
