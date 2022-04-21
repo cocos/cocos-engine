@@ -53,7 +53,7 @@ CCMTLSwapchain::~CCMTLSwapchain() {
 }
 
 void CCMTLSwapchain::doInit(const SwapchainInfo &info) {
-    _gpuSwapchainObj = CC_NEW(CCMTLGPUSwapChainObject);
+    _gpuSwapchainObj = ccnew CCMTLGPUSwapChainObject;
 
     //----------------------acquire layer-----------------------------------
 #if CC_EDITOR	
@@ -105,8 +105,8 @@ void CCMTLSwapchain::doInit(const SwapchainInfo &info) {
     Format colorFmt        = Format::BGRA8;
     Format depthStencilFmt = Format::DEPTH_STENCIL;
 
-    _colorTexture = CC_NEW(CCMTLTexture);
-    _depthStencilTexture = CC_NEW(CCMTLTexture);
+    _colorTexture = ccnew CCMTLTexture;
+    _depthStencilTexture = ccnew CCMTLTexture;
 
     SwapchainTextureInfo textureInfo;
     textureInfo.swapchain = this;

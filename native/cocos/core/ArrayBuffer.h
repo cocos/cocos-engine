@@ -28,6 +28,7 @@
 #include "base/Macros.h"
 #include "base/Ptr.h"
 #include "base/RefCounted.h"
+#include "base/memory/Memory.h"
 #include "bindings/jswrapper/Object.h"
 
 namespace cc {
@@ -82,7 +83,7 @@ public:
         CC_ASSERT(begin < _byteLength);
         CC_ASSERT(end <= _byteLength);
         uint32_t newBufByteLength = (end - begin);
-        Ptr      buffer           = new ArrayBuffer(newBufByteLength);
+        Ptr      buffer           = ccnew ArrayBuffer(newBufByteLength);
         memcpy(buffer->getData(), _data + begin, newBufByteLength);
         return buffer;
     }

@@ -57,7 +57,7 @@ namespace pipeline {
     (dst)[(offset) + 3] = (src).w;
 
 DeferredPipeline::DeferredPipeline() {
-    _pipelineSceneData = new DeferredPipelineSceneData();
+    _pipelineSceneData = ccnew DeferredPipelineSceneData();
 }
 
 DeferredPipeline::~DeferredPipeline() = default;
@@ -76,11 +76,11 @@ bool DeferredPipeline::initialize(const RenderPipelineInfo &info) {
     RenderPipeline::initialize(info);
 
     if (_flows.empty()) {
-        auto *shadowFlow = CC_NEW(ShadowFlow);
+        auto *shadowFlow = ccnew ShadowFlow;
         shadowFlow->initialize(ShadowFlow::getInitializeInfo());
         _flows.emplace_back(shadowFlow);
 
-        auto *mainFlow = CC_NEW(MainFlow);
+        auto *mainFlow = ccnew MainFlow;
         mainFlow->initialize(MainFlow::getInitializeInfo());
         _flows.emplace_back(mainFlow);
     }
@@ -189,7 +189,7 @@ bool DeferredPipeline::activeRenderer(gfx::Swapchain *swapchain) {
 
     if (_clusterEnabled) {
         // cluster component resource
-        _clusterComp = new ClusterLightCulling(this);
+        _clusterComp = ccnew ClusterLightCulling(this);
         _clusterComp->initialize(this->getDevice());
     }
 

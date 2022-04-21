@@ -29,6 +29,7 @@
 #include "audio/android/AudioResampler.h"
 //#include "audio/android/AudioResamplerSinc.h"
 #include "audio/android/AudioResamplerCubic.h"
+#include "base/memory/Memory.h"
 
 //#include "AudioResamplerDyn.h"
 
@@ -209,25 +210,25 @@ AudioResampler *AudioResampler::create(audio_format_t format, int inChannelCount
         case LOW_QUALITY:
             ALOGV("Create linear Resampler");
             LOG_ALWAYS_FATAL_IF(format != AUDIO_FORMAT_PCM_16_BIT, "invalid pcm format");
-            resampler = new (std::nothrow) AudioResamplerOrder1(inChannelCount, sampleRate);
+            resampler = ccnew AudioResamplerOrder1(inChannelCount, sampleRate);
             break;
         case MED_QUALITY:
             ALOGV("Create cubic Resampler");
             LOG_ALWAYS_FATAL_IF(format != AUDIO_FORMAT_PCM_16_BIT, "invalid pcm format");
-            resampler = new (std::nothrow) AudioResamplerCubic(inChannelCount, sampleRate);
+            resampler = ccnew AudioResamplerCubic(inChannelCount, sampleRate);
             break;
         case HIGH_QUALITY:
             ALOGV("Create HIGH_QUALITY sinc Resampler");
             LOG_ALWAYS_FATAL_IF(format != AUDIO_FORMAT_PCM_16_BIT, "invalid pcm format");
             ALOG_ASSERT(false, "HIGH_QUALITY isn't supported");
             // Cocos2d-x only uses MED_QUALITY, so we could remove Sinc relative files
-            //        resampler = new (std::nothrow) AudioResamplerSinc(inChannelCount, sampleRate);
+            //        resampler = ccnew AudioResamplerSinc(inChannelCount, sampleRate);
             break;
         case VERY_HIGH_QUALITY:
             ALOGV("Create VERY_HIGH_QUALITY sinc Resampler = %d", quality);
             LOG_ALWAYS_FATAL_IF(format != AUDIO_FORMAT_PCM_16_BIT, "invalid pcm format");
             // Cocos2d-x only uses MED_QUALITY, so we could remove Sinc relative files
-            //        resampler = new (std::nothrow) AudioResamplerSinc(inChannelCount, sampleRate, quality);
+            //        resampler = ccnew AudioResamplerSinc(inChannelCount, sampleRate, quality);
             ALOG_ASSERT(false, "VERY_HIGH_QUALITY isn't supported");
             break;
     }

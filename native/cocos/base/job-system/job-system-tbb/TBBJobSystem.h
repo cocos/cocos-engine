@@ -39,7 +39,7 @@ class TBBJobSystem final {
 public:
     static TBBJobSystem *getInstance() {
         if (!_instance) {
-            _instance = CC_NEW(TBBJobSystem);
+            _instance = ccnew TBBJobSystem;
         }
         return _instance;
     }

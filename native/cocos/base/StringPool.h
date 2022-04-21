@@ -30,6 +30,7 @@
 #include "base/Macros.h"
 #include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
+#include "base/memory/Memory.h"
 #include "boost/functional/hash.hpp"
 #include "threading/ReadWriteLock.h"
 
@@ -120,7 +121,7 @@ inline StringHandle StringPool<ThreadSafe>::doStringToHandle(const char *str) no
 
     if (it == _stringToHandles.end()) {
         size_t const strLength = strlen(str) + 1;
-        char *const  strCache  = new char[strLength];
+        char *const  strCache  = ccnew char[strLength];
         strcpy(strCache, str);
         StringHandle name(static_cast<StringHandle::IndexType>(_handleToStrings.size()), strCache);
         _handleToStrings.emplace_back(strCache);

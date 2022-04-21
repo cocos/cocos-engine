@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "base/memory/Memory.h"
 #include "base/std/container/array.h"
 #include "core/geometry/AABB.h"
 #include "core/geometry/Enums.h"
@@ -81,13 +82,13 @@ public:
 
     /**
      * @en
-     * create a new frustum.
+     * create a ccnew frustum.
      * @zh
      * 创建一个新的截锥体。
      * @return {Frustum} frustum.
      */
     static Frustum *create() {
-        return new Frustum();
+        return ccnew Frustum();
     }
 
     /**
@@ -97,7 +98,7 @@ public:
      * 克隆一个截锥体。
      */
     static Frustum *clone(const Frustum &f) {
-        return Frustum::copy(new Frustum(), f);
+        return Frustum::copy(ccnew Frustum(), f);
     }
 
     /**
@@ -128,7 +129,7 @@ public:
     Frustum() {
         setType(ShapeEnum::SHAPE_FRUSTUM);
         for (size_t i = 0; i < planes.size(); ++i) { // NOLINT(modernize-loop-convert)
-            planes[i] = new Plane();
+            planes[i] = ccnew Plane();
             planes[i]->addRef();
         }
     }

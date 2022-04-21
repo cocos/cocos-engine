@@ -25,10 +25,11 @@
 
 #pragma once
 
+#include "base/Macros.h"
+#include "base/TypeDef.h"
+#include "base/memory/Memory.h"
 #include "base/std/container/unordered_set.h"
 #include "base/std/container/vector.h"
-#include "cocos/base/Macros.h"
-#include "cocos/base/TypeDef.h"
 
 namespace cc {
 
@@ -113,7 +114,7 @@ DummyGraphNodeTaskImpl<Fn>::DummyGraphNodeTaskImpl(Fn &&t) noexcept : _task(t) {
 template <class Fn>
 size_t DummyGraph::addNode(Fn &&fn) {
     DummyGraphNode *n = DummyGraphNode::alloc();
-    n->_callback      = new DummyGraphNodeTaskImpl<Fn>(std::forward<Fn>(fn));
+    n->_callback      = ccnew DummyGraphNodeTaskImpl<Fn>(std::forward<Fn>(fn));
     n->_generation    = _generation;
     _nodes.emplace_back(n);
     return _nodes.size() - 1;

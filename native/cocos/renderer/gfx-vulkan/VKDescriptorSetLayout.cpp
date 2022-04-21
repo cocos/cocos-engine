@@ -39,7 +39,7 @@ CCVKDescriptorSetLayout::~CCVKDescriptorSetLayout() {
 }
 
 void CCVKDescriptorSetLayout::doInit(const DescriptorSetLayoutInfo & /*info*/) {
-    _gpuDescriptorSetLayout                    = CC_NEW(CCVKGPUDescriptorSetLayout);
+    _gpuDescriptorSetLayout                    = ccnew CCVKGPUDescriptorSetLayout;
     _gpuDescriptorSetLayout->id                = generateID();
     _gpuDescriptorSetLayout->descriptorCount   = _descriptorCount;
     _gpuDescriptorSetLayout->bindingIndices    = _bindingIndices;

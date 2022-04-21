@@ -39,7 +39,7 @@ void SceneAsset::setScene(Scene *scene) { _scene = scene; };
 
 void SceneAsset::initDefault(const cc::optional<ccstd::string> &uuid) {
     Super::initDefault(uuid);
-    _scene = new Scene("New Scene");
+    _scene = ccnew Scene("New Scene");
 }
 
 } // namespace cc

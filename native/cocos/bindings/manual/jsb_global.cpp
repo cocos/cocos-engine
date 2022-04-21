@@ -500,7 +500,7 @@ uint8_t *convertI2RGBA(uint32_t length, uint8_t *src) {
 }
 
 struct ImageInfo *createImageInfo(Image *img) {
-    auto *imgInfo   = new struct ImageInfo();
+    auto *imgInfo   = ccnew struct ImageInfo();
     imgInfo->length = static_cast<uint32_t>(img->getDataLen());
     imgInfo->width  = img->getWidth();
     imgInfo->height = img->getHeight();
@@ -555,7 +555,7 @@ bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackV
     std::shared_ptr<se::Value> callbackPtr = std::make_shared<se::Value>(callbackVal);
 
     auto initImageFunc = [path, callbackPtr](const ccstd::string &fullPath, unsigned char *imageData, int imageBytes) {
-        auto *img = new (std::nothrow) Image();
+        auto *img = ccnew Image();
 
         gThreadPool->pushTask([=](int /*tid*/) {
             // NOTE: FileUtils::getInstance()->fullPathForFilename isn't a threadsafe method,

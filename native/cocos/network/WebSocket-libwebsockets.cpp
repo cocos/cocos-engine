@@ -97,7 +97,7 @@ static void _winLog(const char *format, va_list args) {
     char *           buf            = nullptr;
 
     do {
-        buf = new (std::nothrow) char[bufferSize];
+        buf = ccnew char[bufferSize];
         if (buf == nullptr)
             return; // not enough memory
 
@@ -419,7 +419,7 @@ public:
 WsThreadHelper::WsThreadHelper()
 
 {
-    _subThreadWsMessageQueue = new (std::nothrow) ccstd::list<WsMessage *>();
+    _subThreadWsMessageQueue = ccnew ccstd::list<WsMessage *>();
 }
 
 WsThreadHelper::~WsThreadHelper() {
@@ -430,7 +430,7 @@ WsThreadHelper::~WsThreadHelper() {
 
 bool WsThreadHelper::createWebSocketThread() {
     // Creates websocket thread
-    _subThreadInstance = new (std::nothrow) std::thread(&WsThreadHelper::wsThreadEntryFunc, this);
+    _subThreadInstance = ccnew std::thread(&WsThreadHelper::wsThreadEntryFunc, this);
     return true;
 }
 
@@ -610,7 +610,7 @@ WebSocketImpl::WebSocketImpl(cc::network::WebSocket *ws)
     {
         std::lock_guard<std::recursive_mutex> lk(instanceMutex);
         if (websocketInstances == nullptr) {
-            websocketInstances = new (std::nothrow) ccstd::vector<WebSocketImpl *>();
+            websocketInstances = ccnew ccstd::vector<WebSocketImpl *>();
         }
         websocketInstances->push_back(this);
     }
@@ -698,11 +698,11 @@ bool WebSocketImpl::init(const cc::network::WebSocket::Delegate &delegate,
 
     bool isWebSocketThreadCreated = true;
     if (wsHelper == nullptr) {
-        wsHelper                 = new (std::nothrow) WsThreadHelper();
+        wsHelper                 = ccnew WsThreadHelper();
         isWebSocketThreadCreated = false;
     }
 
-    auto *msg = new (std::nothrow) WsMessage();
+    auto *msg = ccnew WsMessage();
     msg->what = WS_MSG_TO_SUBTHREAD_CREATE_CONNECTION;
     msg->user = this;
     wsHelper->sendMessageToWebSocketThread(msg);
@@ -742,14 +742,14 @@ ccstd::string WebSocketImpl::getExtensions() const {
 void WebSocketImpl::send(const ccstd::string &message) {
     if (_readyState == cc::network::WebSocket::State::OPEN) {
         // In main thread
-        auto *data  = new (std::nothrow) cc::network::WebSocket::Data();
+        auto *data  = ccnew cc::network::WebSocket::Data();
         data->bytes = static_cast<char *>(malloc(message.length() + 1));
         // Make sure the last byte is '\0'
         data->bytes[message.length()] = '\0';
         strcpy(data->bytes, message.c_str());
         data->len = static_cast<ssize_t>(message.length());
 
-        auto *msg = new (std::nothrow) WsMessage();
+        auto *msg = ccnew WsMessage();
         msg->what = WS_MSG_TO_SUBTRHEAD_SENDING_STRING;
         msg->data = data;
         msg->user = this;
@@ -762,7 +762,7 @@ void WebSocketImpl::send(const ccstd::string &message) {
 void WebSocketImpl::send(const unsigned char *binaryMsg, unsigned int len) {
     if (_readyState == cc::network::WebSocket::State::OPEN) {
         // In main thread
-        auto *data = new (std::nothrow) cc::network::WebSocket::Data();
+        auto *data = ccnew cc::network::WebSocket::Data();
         if (len == 0) {
             // If data length is zero, allocate 1 byte for safe.
             data->bytes    = static_cast<char *>(malloc(1));
@@ -773,7 +773,7 @@ void WebSocketImpl::send(const unsigned char *binaryMsg, unsigned int len) {
         }
         data->len = len;
 
-        auto *msg = new (std::nothrow) WsMessage();
+        auto *msg = ccnew WsMessage();
         msg->what = WS_MSG_TO_SUBTRHEAD_SENDING_BINARY;
         msg->data = data;
         msg->user = this;
@@ -1037,7 +1037,7 @@ int WebSocketImpl::onClientWritable() {
             if (data->ext) {
                 frame = static_cast<WebSocketFrame *>(data->ext);
             } else {
-                frame        = new (std::nothrow) WebSocketFrame();
+                frame        = ccnew WebSocketFrame();
                 bool success = frame && frame->init(reinterpret_cast<unsigned char *>(data->bytes + data->issued), n);
                 if (success) {
                     data->ext = frame;
@@ -1153,7 +1153,7 @@ int WebSocketImpl::onClientReceivedData(void *in, ssize_t len) {
     //    LOGD("remainingSize: %d, isFinalFragment: %d\n", (int)remainingSize, isFinalFragment);
 
     if (remainingSize == 0 && isFinalFragment) {
-        auto *frameData = new (std::nothrow) ccstd::vector<char>(std::move(_receivedData));
+        auto *frameData = ccnew ccstd::vector<char>(std::move(_receivedData));
 
         // reset capacity of received data buffer
         _receivedData.reserve(WS_RESERVE_RECEIVE_BUFFER_SIZE);
@@ -1345,7 +1345,7 @@ void WebSocket::closeAllConnections() {
 }
 
 WebSocket::WebSocket() {
-    _impl = new (std::nothrow) WebSocketImpl(this);
+    _impl = ccnew WebSocketImpl(this);
 }
 
 WebSocket::~WebSocket() {

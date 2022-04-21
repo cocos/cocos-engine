@@ -88,7 +88,7 @@ Node::Node(const ccstd::string &name) {
         _name = name;
     }
     allNodes.push(this);
-    _eventProcessor = new NodeEventProcessor(this);
+    _eventProcessor = ccnew NodeEventProcessor(this);
 }
 
 Node::~Node() {

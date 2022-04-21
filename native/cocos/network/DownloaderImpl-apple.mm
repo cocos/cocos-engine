@@ -26,9 +26,10 @@
 
 #include "network/DownloaderImpl-apple.h"
 #import <Foundation/Foundation.h>
+#include "base/memory/Memory.h"
 #include "base/std/container/queue.h"
-#include "network/Downloader.h"
 #include "base/UTF8.h"
+#include "network/Downloader.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //  OC Classes Declaration
@@ -98,7 +99,7 @@ DownloaderApple::~DownloaderApple() {
     DLLOG("Destruct DownloaderApple %p", this);
 }
 IDownloadTask *DownloaderApple::createCoTask(std::shared_ptr<const DownloadTask> &task) {
-    DownloadTaskApple *coTask = new (std::nothrow) DownloadTaskApple();
+    DownloadTaskApple *coTask = ccnew DownloadTaskApple();
     DeclareDownloaderImplVar;
     if (task->storagePath.length()) {
         coTask->downloadTask = [impl createFileTask:task];

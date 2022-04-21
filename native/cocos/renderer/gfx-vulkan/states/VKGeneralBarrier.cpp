@@ -33,7 +33,7 @@ namespace gfx {
 CCVKGeneralBarrier::CCVKGeneralBarrier(const GeneralBarrierInfo &info) : GeneralBarrier(info) {
     _typedID = generateObjectID<decltype(this)>();
 
-    _gpuBarrier = CC_NEW(CCVKGPUGeneralBarrier);
+    _gpuBarrier = ccnew CCVKGPUGeneralBarrier;
     getAccessTypes(info.prevAccesses, _gpuBarrier->prevAccesses);
     getAccessTypes(info.nextAccesses, _gpuBarrier->nextAccesses);
 

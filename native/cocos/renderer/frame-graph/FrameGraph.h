@@ -105,7 +105,7 @@ private:
 template <typename Data, typename SetupMethod, typename ExecuteMethod>
 const CallbackPass<Data, ExecuteMethod> &FrameGraph::addPass(const PassInsertPoint insertPoint, const StringHandle &name, SetupMethod setup, ExecuteMethod &&execute) noexcept {
     static_assert(sizeof(ExecuteMethod) < 1024, "Execute() lambda is capturing too much data.");
-    auto *const     pass     = new CallbackPass<Data, ExecuteMethod>(std::forward<ExecuteMethod>(execute));
+    auto *const     pass     = ccnew CallbackPass<Data, ExecuteMethod>(std::forward<ExecuteMethod>(execute));
     PassNode &      passNode = createPassNode(insertPoint, name, pass);
     PassNodeBuilder builder(*this, passNode);
     setup(builder, pass->getData());
@@ -114,14 +114,14 @@ const CallbackPass<Data, ExecuteMethod> &FrameGraph::addPass(const PassInsertPoi
 
 template <typename DescriptorType, typename ResourceType>
 TypedHandle<ResourceType> FrameGraph::create(const StringHandle &name, const DescriptorType &desc) noexcept {
-    auto *const virtualResource = new ResourceEntry<ResourceType>(name, static_cast<ID>(_virtualResources.size()), desc);
+    auto *const virtualResource = ccnew ResourceEntry<ResourceType>(name, static_cast<ID>(_virtualResources.size()), desc);
     return TypedHandle<ResourceType>(create(virtualResource));
 }
 
 template <typename ResourceType>
 TypedHandle<ResourceType> FrameGraph::importExternal(const StringHandle &name, ResourceType &resource) noexcept {
     CC_ASSERT(resource.get());
-    auto *const virtualResource = new ResourceEntry<ResourceType>(name, static_cast<ID>(_virtualResources.size()), resource);
+    auto *const virtualResource = ccnew ResourceEntry<ResourceType>(name, static_cast<ID>(_virtualResources.size()), resource);
     return TypedHandle<ResourceType>(create(virtualResource));
 }
 

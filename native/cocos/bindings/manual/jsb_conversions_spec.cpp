@@ -1043,7 +1043,7 @@ bool sevalue_to_native(const se::Value &from, cc::ArrayBuffer *to, se::Object * 
 }
 bool sevalue_to_native(const se::Value &from, cc::ArrayBuffer **to, se::Object * /*ctx*/) {
     assert(from.isObject());
-    *to = new cc::ArrayBuffer();
+    *to = ccnew cc::ArrayBuffer();
     (*to)->addRef();
     (*to)->setJSArrayBuffer(from.toObject());
     cc::DeferredReleasePool::add(*to);

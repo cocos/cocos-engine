@@ -41,7 +41,7 @@ CCVKFramebuffer::~CCVKFramebuffer() {
 }
 
 void CCVKFramebuffer::doInit(const FramebufferInfo & /*info*/) {
-    _gpuFBO                = CC_NEW(CCVKGPUFramebuffer);
+    _gpuFBO                = ccnew CCVKGPUFramebuffer;
     _gpuFBO->gpuRenderPass = static_cast<CCVKRenderPass *>(_renderPass)->gpuRenderPass();
 
     _gpuFBO->gpuColorViews.resize(_colorTextures.size());
@@ -73,7 +73,7 @@ void CCVKFramebuffer::doDestroy() {
         }
 
         CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuFBO);
-        CC_SAFE_DELETE(_gpuFBO);
+        delete _gpuFBO;
         _gpuFBO = nullptr;
     }
 }

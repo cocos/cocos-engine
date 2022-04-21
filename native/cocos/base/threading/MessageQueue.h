@@ -253,14 +253,14 @@ T *MessageQueue::allocateAndZero(uint32_t const count) noexcept {
 
 // utility macros for the producer thread to enqueue messages
 
-#define WRITE_MESSAGE(queue, MessageName, Params)                     \
-    {                                                                 \
-        if (!queue->isImmediateMode()) {                              \
-            new (queue->allocate<MessageName>(1)) MessageName Params; \
-        } else {                                                      \
-            MessageName msg Params;                                   \
-            msg.execute();                                            \
-        }                                                             \
+#define WRITE_MESSAGE(queue, MessageName, Params)                                \
+    {                                                                            \
+        if (!queue->isImmediateMode()) {                                         \
+            ccnew_placement(queue->allocate<MessageName>(1)) MessageName Params; \
+        } else {                                                                 \
+            MessageName msg Params;                                              \
+            msg.execute();                                                       \
+        }                                                                        \
     }
 
 #define ENQUEUE_MESSAGE_0(queue, MessageName, Code)         \

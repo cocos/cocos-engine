@@ -25,12 +25,12 @@ THE SOFTWARE.
 
 #define LOG_TAG "AudioMixerController"
 
+#include <algorithm>
 #include "audio/android/AudioMixerController.h"
 #include "audio/android/AudioMixer.h"
 #include "audio/android/OpenSLHelper.h"
 #include "audio/android/Track.h"
-
-#include <algorithm>
+#include "base/memory/Memory.h"
 
 namespace cc {
 
@@ -57,7 +57,7 @@ AudioMixerController::~AudioMixerController() {
 }
 
 bool AudioMixerController::init() {
-    _mixer = new (std::nothrow) AudioMixer(_bufferSizeInFrames, _sampleRate);
+    _mixer = ccnew AudioMixer(_bufferSizeInFrames, _sampleRate);
     return _mixer != nullptr;
 }
 

@@ -348,7 +348,7 @@ ccstd::vector<IntrusivePtr<scene::Pass>> Material::createPasses() {
             continue;
         }
 
-        auto *pass = new scene::Pass(Root::getInstance());
+        auto *pass = ccnew scene::Pass(Root::getInstance());
         pass->initialize(passInfo);
         passes.emplace_back(pass);
     }

@@ -414,7 +414,7 @@ CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, Rend
     PipelineState *pipelineState = device->createPipelineState(std::move(pipelineInfo));
     pipelineMap.emplace(std::make_pair(curPass->getHash(), pipelineState));
     ((CCMTLPipelineState*)pipelineState)->check();
-    CC_DELETE(pipelineInfo.shader);
+    delete pipelineInfo.shader;
     return static_cast<CCMTLPipelineState *>(pipelineState)->getGPUPipelineState();
 }
 }
@@ -1766,14 +1766,14 @@ void mu::clearUtilResource() {
         for (auto& pass : renderPassMap) {
             //TODO: create and destroy not in the same level
             pass.second->destroy();
-            CC_DELETE(pass.second);
+            delete pass.second;
         }
         renderPassMap.clear();
     }
     if(!pipelineMap.empty()) {
         for (auto& pipeline : pipelineMap) {
             pipeline.second->destroy();
-            CC_DELETE(pipeline.second);
+            delete pipeline.second;
         }
         pipelineMap.clear();
     }

@@ -51,7 +51,7 @@ CCWGPUCommandBuffer::CCWGPUCommandBuffer() : wrapper<CommandBuffer>(val::object(
 }
 
 void CCWGPUCommandBuffer::doInit(const CommandBufferInfo &info) {
-    _gpuCommandBufferObj        = CC_NEW(CCWGPUCommandBufferObject);
+    _gpuCommandBufferObj        = ccnew CCWGPUCommandBufferObject;
     _gpuCommandBufferObj->type  = info.type;
     _gpuCommandBufferObj->queue = static_cast<CCWGPUQueue *>(info.queue);
 }
@@ -126,7 +126,7 @@ void CCWGPUCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *f
         renderPassDesc.label       = "attachments";
 
         for (size_t i = 0; i < colorConfigs.size(); i++) {
-            WGPURenderPassColorAttachment *colorAttchments = new WGPURenderPassColorAttachment[colorConfigs.size()];
+            WGPURenderPassColorAttachment *colorAttchments = ccnew WGPURenderPassColorAttachment[colorConfigs.size()];
             WGPURenderPassColorAttachment  color           = {
                 .view          = static_cast<CCWGPUTexture *>(textures[i])->gpuTextureObject()->selfView,
                 .resolveTarget = nullptr, //TODO_Zeqiang: wgpu offscr msaa
@@ -379,7 +379,7 @@ void CCWGPUCommandBuffer::bindStates() {
                         .size     = maxAttrLen,
                         .flags    = BufferFlagBit::NONE,
                     };
-                    buffer = CC_NEW(CCWGPUBuffer);
+                    buffer = ccnew CCWGPUBuffer;
                     buffer->initialize(info);
                     _gpuCommandBufferObj->redundantVertexBufferMap.insert({maxAttrLen, buffer});
                 }

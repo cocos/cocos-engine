@@ -46,7 +46,7 @@ CCWGPUDescriptorSet::CCWGPUDescriptorSet() : wrapper<DescriptorSet>(val::object(
 }
 
 void CCWGPUDescriptorSet::doInit(const DescriptorSetInfo &info) {
-    _gpuBindGroupObj = CC_NEW(CCWGPUBindGroupObject);
+    _gpuBindGroupObj = ccnew CCWGPUBindGroupObject;
 
     auto *                       dsLayout      = static_cast<CCWGPUDescriptorSetLayout *>(_layout);
     CCWGPUBindGroupLayoutObject *layoutEntries = dsLayout->gpuLayoutEntryObject();
@@ -109,7 +109,7 @@ void CCWGPUDescriptorSet::doInit(const DescriptorSetInfo &info) {
 } // namespace gfx
 
 void CCWGPUDescriptorSet::doDestroy() {
-    CC_DELETE(_gpuBindGroupObj);
+    delete _gpuBindGroupObj;
 }
 
 void CCWGPUDescriptorSet::update() {

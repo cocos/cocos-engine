@@ -42,7 +42,7 @@ CCVKInputAssembler::~CCVKInputAssembler() {
 void CCVKInputAssembler::doInit(const InputAssemblerInfo &info) {
     size_t vbCount = _vertexBuffers.size();
 
-    _gpuInputAssembler             = CC_NEW(CCVKGPUInputAssembler);
+    _gpuInputAssembler             = ccnew CCVKGPUInputAssembler;
     _gpuInputAssembler->attributes = _attributes;
     _gpuInputAssembler->gpuVertexBuffers.resize(vbCount);
 
@@ -73,7 +73,7 @@ void CCVKInputAssembler::doDestroy() {
     if (_gpuInputAssembler) {
         _gpuInputAssembler->vertexBuffers.clear();
         _gpuInputAssembler->vertexBufferOffsets.clear();
-        CC_DELETE(_gpuInputAssembler);
+        delete _gpuInputAssembler;
         _gpuInputAssembler = nullptr;
     }
 }

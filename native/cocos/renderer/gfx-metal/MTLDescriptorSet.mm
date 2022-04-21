@@ -41,7 +41,7 @@ void CCMTLDescriptorSet::doInit(const DescriptorSetInfo &info) {
     const auto descriptorCount = gpuDescriptorSetLayout->descriptorCount;
     const auto bindingCount = gpuDescriptorSetLayout->bindings.size();
 
-    _gpuDescriptorSet = CC_NEW(CCMTLGPUDescriptorSet);
+    _gpuDescriptorSet = ccnew CCMTLGPUDescriptorSet;
     _gpuDescriptorSet->descriptorIndices = &gpuDescriptorSetLayout->descriptorIndices;
     _gpuDescriptorSet->gpuDescriptors.resize(descriptorCount);
     for (auto i = 0u, k = 0u; i < bindingCount; i++) {

@@ -44,7 +44,7 @@ CCWGPUPipelineState::CCWGPUPipelineState() : wrapper<PipelineState>(val::object(
 }
 
 void CCWGPUPipelineState::doInit(const PipelineStateInfo &info) {
-    _gpuPipelineStateObj = CC_NEW(CCWGPUPipelineStateObject);
+    _gpuPipelineStateObj = ccnew CCWGPUPipelineStateObject;
 }
 
 void CCWGPUPipelineState::check(RenderPass *renderPass) {
@@ -290,7 +290,7 @@ void CCWGPUPipelineState::doDestroy() {
             wgpuComputePipelineRelease(_gpuPipelineStateObj->wgpuComputePipeline);
         }
 
-        CC_DELETE(_gpuPipelineStateObj);
+        delete _gpuPipelineStateObj;
     }
 }
 

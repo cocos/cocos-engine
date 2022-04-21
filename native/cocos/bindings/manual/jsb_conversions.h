@@ -935,7 +935,7 @@ inline bool sevalue_to_native(const se::Value &from, HolderType<T, is_reference>
             return true;
         }
         if CC_CONSTEXPR (std::is_constructible<T>::value) {
-            holder->ptr = new (&holder->inlineObject) T;
+            holder->ptr = ccnew_placement (&holder->inlineObject) T;
         } else {
             assert(false); // default construtor not provided
         }
@@ -962,8 +962,8 @@ inline typename std::enable_if<is_jsb_object_v<T>, bool>::type sevalue_to_native
         holder->data = static_cast<T *>(ptr);
         return true;
     } else {
-        // holder->ptr = new T;
-        holder->ptr = new (&holder->inlineObject) T;
+        // holder->ptr = ccnew T;
+        holder->ptr = ccnew_placement (&holder->inlineObject) T;
         return sevalue_to_native(from, holder->ptr, ctx);
     }
 }
@@ -1053,7 +1053,7 @@ bool sevalue_to_native(const se::Value &from, std::shared_ptr<T> *out, se::Objec
 template <typename T>
 inline typename std::enable_if<std::is_arithmetic<T>::value, bool>::type
 sevalue_to_native(const se::Value &from, cc::IntrusivePtr<cc::TypedArrayTemp<T>> *out, se::Object *ctx) { // NOLINT(readability-identifier-naming)
-    *out = new cc::TypedArrayTemp<T>();
+    *out = ccnew cc::TypedArrayTemp<T>();
     sevalue_to_native(from, out->get(), ctx);
     return true;
 }

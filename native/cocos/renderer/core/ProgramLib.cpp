@@ -282,7 +282,7 @@ ProgramLib *ProgramLib::instance = nullptr;
 
 ProgramLib *ProgramLib::getInstance() {
     if (!ProgramLib::instance) {
-        ProgramLib::instance = new ProgramLib();
+        ProgramLib::instance = ccnew ProgramLib();
     }
     return ProgramLib::instance;
 }

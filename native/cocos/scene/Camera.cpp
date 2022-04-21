@@ -68,11 +68,11 @@ Camera::Camera(gfx::Device *device)
     _isoValue      = Camera::ISOS[static_cast<int>(_iso)];
 
     _aspect = _screenScale = 1.F;
-    _frustum               = new geometry::Frustum();
+    _frustum               = ccnew geometry::Frustum();
     _frustum->addRef();
     _frustum->setAccurate(true);
 
-    _geometryRenderer = new pipeline::GeometryRenderer();
+    _geometryRenderer = ccnew pipeline::GeometryRenderer();
     _geometryRenderer->activate(device);
 
     if (correctionMatrices.empty()) {

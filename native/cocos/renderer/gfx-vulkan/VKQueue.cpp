@@ -42,7 +42,7 @@ CCVKQueue::~CCVKQueue() {
 }
 
 void CCVKQueue::doInit(const QueueInfo & /*info*/) {
-    _gpuQueue       = CC_NEW(CCVKGPUQueue);
+    _gpuQueue       = ccnew CCVKGPUQueue;
     _gpuQueue->type = _type;
     cmdFuncCCVKGetDeviceQueue(CCVKDevice::getInstance(), _gpuQueue);
 }
@@ -50,7 +50,7 @@ void CCVKQueue::doInit(const QueueInfo & /*info*/) {
 void CCVKQueue::doDestroy() {
     if (_gpuQueue) {
         _gpuQueue->vkQueue = VK_NULL_HANDLE;
-        CC_DELETE(_gpuQueue);
+        delete _gpuQueue;
         _gpuQueue = nullptr;
     }
 }

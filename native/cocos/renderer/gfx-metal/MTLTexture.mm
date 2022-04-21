@@ -304,7 +304,7 @@ CCMTLTexture* CCMTLTexture::getDefaultTexture() {
         info.width = 2;
         info.height = 2;
         
-        defaultTexture = new CCMTLTexture();
+        defaultTexture = ccnew CCMTLTexture();
         defaultTexture->initialize(info);
     }
     return defaultTexture;

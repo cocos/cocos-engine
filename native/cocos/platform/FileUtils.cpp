@@ -309,7 +309,7 @@ bool FileUtils::writeToFile(const ValueMap &dict, const ccstd::string &fullPath)
 }
 
 bool FileUtils::writeValueMapToFile(const ValueMap &dict, const ccstd::string &fullPath) {
-    auto *doc = new (std::nothrow) tinyxml2::XMLDocument();
+    auto *doc = ccnew tinyxml2::XMLDocument();
     if (nullptr == doc) {
         return false;
     }
@@ -346,7 +346,7 @@ bool FileUtils::writeValueMapToFile(const ValueMap &dict, const ccstd::string &f
 }
 
 bool FileUtils::writeValueVectorToFile(const ValueVector &vecData, const ccstd::string &fullPath) {
-    auto *doc = new (std::nothrow) tinyxml2::XMLDocument();
+    auto *doc = ccnew tinyxml2::XMLDocument();
     if (nullptr == doc) {
         return false;
     }

@@ -57,7 +57,7 @@ ShadowFlow::~ShadowFlow() = default;
 bool ShadowFlow::initialize(const RenderFlowInfo &info) {
     RenderFlow::initialize(info);
     if (_stages.empty()) {
-        auto *shadowStage = CC_NEW(ShadowStage);
+        auto *shadowStage = ccnew ShadowStage;
         shadowStage->initialize(ShadowStage::getInitializeInfo());
         _stages.emplace_back(shadowStage);
     }
@@ -186,7 +186,7 @@ void ShadowFlow::resizeShadowMap() {
 
         auto renderTargets = framebuffer->getColorTextures();
         for (const auto *renderTarget : renderTargets) {
-            CC_DELETE(renderTarget);
+            delete renderTarget;
         }
         renderTargets.clear();
         renderTargets.emplace_back(gfx::Device::getInstance()->createTexture({
@@ -201,7 +201,7 @@ void ShadowFlow::resizeShadowMap() {
         }
 
         auto *depth = framebuffer->getDepthStencilTexture();
-        CC_DELETE(depth);
+        delete depth;
         depth = device->createTexture({
             gfx::TextureType::TEX2D,
             gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT,
@@ -301,7 +301,7 @@ void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const scene::Li
 void ShadowFlow::destroy() {
     _renderPass = nullptr;
     for (const auto &rpPair : renderPassHashMap) {
-        CC_DELETE(rpPair.second);
+        delete rpPair.second;
     }
     renderPassHashMap.clear();
 

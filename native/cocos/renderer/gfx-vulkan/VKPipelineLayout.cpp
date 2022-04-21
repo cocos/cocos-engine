@@ -40,7 +40,7 @@ CCVKPipelineLayout::~CCVKPipelineLayout() {
 }
 
 void CCVKPipelineLayout::doInit(const PipelineLayoutInfo & /*info*/) {
-    _gpuPipelineLayout = CC_NEW(CCVKGPUPipelineLayout);
+    _gpuPipelineLayout = ccnew CCVKGPUPipelineLayout;
 
     uint32_t offset = 0U;
     for (auto *setLayout : _setLayouts) {
