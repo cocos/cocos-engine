@@ -38,6 +38,21 @@ bool gles3wOpen() {
     return (libegl && libgles);
 }
 
+bool gles3wClose() {
+    bool ret = true;
+    if (libegl) {
+        ret &= FreeLibrary(libegl) ? true : false;
+        libegl = NULL;
+    }
+
+    if (libgles) {
+        ret &= FreeLibrary(libgles) ? true : false;
+        libgles = NULL;
+    }
+
+    return ret;
+}
+
 void *gles3wLoad(const char *proc) {
     void *res = nullptr;
     if (eglGetProcAddress) res = (void *)eglGetProcAddress(proc);
@@ -46,6 +61,7 @@ void *gles3wLoad(const char *proc) {
 }
 #elif defined(__EMSCRIPTEN__)
 bool  gles3wOpen() { return true; }
+bool  gles3wClose() { return true; }
 void *gles3wLoad(const char *proc) {
     return (void *)eglGetProcAddress(proc);
 }
@@ -63,6 +79,21 @@ bool gles3wOpen() {
     libgles = dlopen("libGLESv2.so", RTLD_LAZY | RTLD_GLOBAL);
     #endif
     return (libegl && libgles);
+}
+
+bool gles3wClose() {
+    bool ret = true;
+    if (libegl) {
+        ret &= dlclose(libegl) == 0;
+        libegl = nullptr;
+    }
+
+    if (libgles) {
+        ret &= dlclose(libgles) == 0;
+        libgles = nullptr;
+    }
+
+    return ret;
 }
 
 void *gles3wLoad(const char *proc) {
@@ -83,4 +114,8 @@ bool gles3wInit() {
     gles3wLoadProcs(gles3wLoad);
 
     return true;
+}
+
+bool gles3wExit() {
+    return gles3wClose();
 }
