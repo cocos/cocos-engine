@@ -32,6 +32,7 @@
 
 #include "application/ApplicationManager.h"
 #include "base/Scheduler.h"
+#include "base/memory/Memory.h"
 #include "base/std/container/deque.h"
 #include "base/std/container/set.h"
 #include "base/std/container/vector.h"

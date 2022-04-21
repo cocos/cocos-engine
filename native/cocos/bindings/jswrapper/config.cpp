@@ -26,6 +26,7 @@
 #include "config.h"
 #include <algorithm>
 #include <cstdio>
+#include "base/memory/Memory.h"
 
 #if defined(_WIN32) && defined(_WINDOWS)
 

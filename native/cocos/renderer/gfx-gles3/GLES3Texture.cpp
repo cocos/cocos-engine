@@ -88,7 +88,7 @@ void GLES3Texture::createTextureView() {
 }
 
 void GLES3Texture::doDestroy() {
-    CC_SAFEE_DELETE(_gpuTextureView);
+    CC_SAFE_DELETE(_gpuTextureView);
     if (_gpuTexture) {
         if (!_isTextureView) {
             if (!_gpuTexture->memoryless) {
