@@ -34,8 +34,7 @@
 #define SCRIPT_ENGINE_NAPI 5
 
 #ifndef SCRIPT_ENGINE_TYPE
-    //#define SCRIPT_ENGINE_TYPE SCRIPT_ENGINE_V8
-    #error "SCRIPT_ENGINE_TYPE should be defined!"
+    #define SCRIPT_ENGINE_TYPE SCRIPT_ENGINE_V8
 #endif
 
 #ifndef USE_V8_DEBUGGER
