@@ -379,6 +379,7 @@ bool Object::call(const ValueArray& args, Object* thisObject, Value* rval) {
     internal::seToJsArgs(_env, args, &argv);
     napi_value  return_val;
     napi_status status;
+    napi_value  pending_exception;
     assert(isFunction());
     napi_value thisObj;
     if (thisObject) {
@@ -387,8 +388,12 @@ bool Object::call(const ValueArray& args, Object* thisObject, Value* rval) {
         napi_get_null(_env, &thisObj);
     }
     //CC_LOG_DEBUG("qgh object::call start %p", thisObj);
+    auto status_exception = napi_get_and_clear_last_exception(_env, &pending_exception);
     status =
         napi_call_function(_env, thisObj, _getJSObject(), argc, argv.data(), &return_val);
+    if (status != napi_ok) {
+        status_exception = napi_get_and_clear_last_exception(_env, &pending_exception);
+    }
     //CC_LOG_DEBUG("qgh object::call end thisObj %p _getJSObject  %p", thisObj, _getJSObject());
     if (rval) {
         internal::jsToSeValue(return_val, rval);
@@ -425,6 +430,7 @@ void Object::setPrivateData(void* data) {
     auto tmpThis = _getJSObject();
 //_objRef.deleteRef();
 #if USE_NODE_NAPI
+    // NOTE: napi_delete_reference
     NODE_API_CALL(status, _env,
                   napi_wrap(_env, tmpThis, data, weakCallback,
                             (void*)this /* finalize_hint */, nullptr));
@@ -449,7 +455,17 @@ uint32_t Object::getRootCount() const {
 #endif
 
 void Object::clearPrivateData(bool clearMapping) {
-    //TODO: impl
+    if (_privateData != nullptr) {
+        if (clearMapping) {
+            NativePtrToObjectMap::erase(_privateData);
+        }
+        //if (!_obj.persistent().IsEmpty()) {
+        //    internal::clearPrivate(__isolate, _obj);
+        //    setProperty("__native_ptr__", se::Value(static_cast<uint64_t>(reinterpret_cast<uintptr_t>(nullptr))));
+        //}
+        napi_remove_wrap(_env, _getJSObject(), nullptr);
+        _privateData = nullptr;
+    }
 }
 
 bool Object::attachObject(Object* obj) {
@@ -541,7 +557,7 @@ void Object::unroot() {
     napi_status status;
     #if CC_DEBUG
     if (getRootCount() == 0) {
-        SE_LOGD("Failed to unroot object %p which is not rooted before");
+        // SE_LOGD("Failed to unroot object %p which is not rooted before");
         return;
     }
     #endif
