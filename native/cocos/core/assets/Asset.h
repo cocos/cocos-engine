@@ -99,7 +99,7 @@ public:
 
     virtual void onLoaded() {}
 
-    virtual void initDefault(const cc::optional<ccstd::string> &uuid);
+    virtual void initDefault(const cc::optional<ccstd::string> &uuid = cc::nullopt);
     virtual bool validate() const { return true; }
 
     bool isDefault() const { return _isDefault; }

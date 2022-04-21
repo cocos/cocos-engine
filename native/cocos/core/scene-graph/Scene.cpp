@@ -62,7 +62,7 @@ void Scene::load() {
 }
 
 void Scene::activate(bool active /* = true */) { // NOLINT(misc-unused-parameters)
-#ifdef CC_EDITOR
+#if CC_EDITOR
     this->notifyEditorAttached(active);
 #endif
     //cjh

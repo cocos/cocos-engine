@@ -974,16 +974,19 @@ bool sevalue_to_native(const se::Value &from, cc::IPreCompileInfoValueType *to, 
     if (firstEle.isBoolean()) {
         ccstd::vector<bool> result;
         sevalue_to_native(from, &result, ctx);
+        *to = result;
         return true;
     }
     if (firstEle.isNumber()) {
-        ccstd::vector<float> result;
+        ccstd::vector<int32_t> result;
         sevalue_to_native(from, &result, ctx);
+        *to = result;
         return true;
     }
     if (firstEle.isString()) {
         ccstd::vector<ccstd::string> result;
         sevalue_to_native(from, &result, ctx);
+        *to = result;
         return true;
     }
 

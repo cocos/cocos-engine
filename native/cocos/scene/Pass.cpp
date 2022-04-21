@@ -414,8 +414,7 @@ gfx::Shader *Pass::getShaderVariant(const ccstd::vector<IMacroPatch> &patches) {
     if (patches.empty()) {
         return _shader;
     }
-
-#ifdef CC_EDITOR
+#if CC_EDITOR
     for (const auto &patch : patches) {
         std::size_t pos = patch.name.find_first_of("CC_");
         if (pos != 0) { // not startsWith CC_

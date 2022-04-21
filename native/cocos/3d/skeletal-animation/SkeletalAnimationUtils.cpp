@@ -102,7 +102,7 @@ void uploadJointDataDQS(cc::Float32Array out, uint32_t base, cc::Mat4 &mat, bool
 
 // change here and cc-skinning.chunk to use other skinning algorithms
 constexpr auto UPLOAD_JOINT_DATA = uploadJointDataLBS;
-#ifdef CC_EDITOR
+#if CC_EDITOR
 const uint32_t MINIMUM_JOINT_TEXTURE_SIZE = 2040;
 #else
 const uint32_t MINIMUM_JOINT_TEXTURE_SIZE = 480; // have to be multiples of 12
