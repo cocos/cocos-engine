@@ -140,7 +140,7 @@ void Scheduler::removeHashElement(HashTimerEntry *element) {
         element->timers.clear();
 
         _hashForTimers.erase(element->target);
-        delete element;
+        free(element);
     }
 }
 
