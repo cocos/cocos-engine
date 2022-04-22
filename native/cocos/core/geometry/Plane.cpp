@@ -1,13 +1,14 @@
 #include "cocos/core/geometry/Plane.h"
+#include "base/memory/Memory.h"
 
 namespace cc {
 namespace geometry {
 Plane *Plane::create(float nx, float ny, float nz, float d) {
-    return new Plane{nx, ny, nz, d};
+    return ccnew Plane{nx, ny, nz, d};
 }
 
 Plane *Plane::clone(const Plane &p) {
-    return new Plane{p.n.x, p.n.y, p.n.z, p.d};
+    return ccnew Plane{p.n.x, p.n.y, p.n.z, p.d};
 }
 
 Plane *Plane::copy(Plane *out, const Plane &p) {

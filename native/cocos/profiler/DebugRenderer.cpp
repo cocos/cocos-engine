@@ -175,7 +175,7 @@ public:
             }
         }
 
-        auto *batch = new DebugBatch(device, bold, italic, texture);
+        auto *batch = ccnew DebugBatch(device, bold, italic, texture);
         _batches.push_back(batch);
 
         return *batch;
@@ -208,7 +208,7 @@ DebugRendererInfo::DebugRendererInfo()
 DebugRenderer *DebugRenderer::instance = nullptr;
 DebugRenderer *DebugRenderer::getInstance() {
     if (!instance) {
-        instance = new DebugRenderer();
+        instance = ccnew DebugRenderer();
     }
 
     return instance;
@@ -229,7 +229,7 @@ void DebugRenderer::activate(gfx::Device *device, const DebugRendererInfo &info)
         {"a_texCoord", gfx::Format::RG32F},
         {"a_color", gfx::Format::RGBA32F}};
 
-    _buffer = new DebugVertexBuffer();
+    _buffer = ccnew DebugVertexBuffer();
     _buffer->init(_device, info.maxCharacters * DEBUG_VERTICES_PER_CHAR, ATTRIBUTES);
 
     const auto *window   = CC_CURRENT_ENGINE()->getInterface<ISystemWindow>();
@@ -238,7 +238,7 @@ void DebugRenderer::activate(gfx::Device *device, const DebugRendererInfo &info)
     fontSize             = fontSize < 10U ? 10U : (fontSize > 20U ? 20U : fontSize);
 
     for (auto i = 0U; i < _fonts.size(); i++) {
-        _fonts[i].font           = new FreeTypeFont(getFontPath(i));
+        _fonts[i].font           = ccnew FreeTypeFont(getFontPath(i));
         _fonts[i].face           = _fonts[i].font->createFace(FontFaceInfo(fontSize));
         _fonts[i].invTextureSize = {1.0F / _fonts[i].face->getTextureWidth(), 1.0F / _fonts[i].face->getTextureHeight()};
     }

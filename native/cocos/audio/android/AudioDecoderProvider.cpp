@@ -30,6 +30,7 @@
 #include "audio/android/AudioDecoderOgg.h"
 #include "audio/android/AudioDecoderSLES.h"
 #include "audio/android/AudioDecoderWav.h"
+#include "base/memory/Memory.h"
 #include "platform/FileUtils.h"
 
 namespace cc {
@@ -39,25 +40,25 @@ AudioDecoder *AudioDecoderProvider::createAudioDecoder(SLEngineItf engineItf, co
     ccstd::string extension = FileUtils::getInstance()->getFileExtension(url);
     ALOGV("url:%s, extension:%s", url.c_str(), extension.c_str());
     if (extension == ".ogg") {
-        decoder = new AudioDecoderOgg();
+        decoder = ccnew AudioDecoderOgg();
         if (!decoder->init(url, sampleRate)) {
             delete decoder;
             decoder = nullptr;
         }
     } else if (extension == ".mp3") {
-        decoder = new AudioDecoderMp3();
+        decoder = ccnew AudioDecoderMp3();
         if (!decoder->init(url, sampleRate)) {
             delete decoder;
             decoder = nullptr;
         }
     } else if (extension == ".wav") {
-        decoder = new AudioDecoderWav();
+        decoder = ccnew AudioDecoderWav();
         if (!decoder->init(url, sampleRate)) {
             delete decoder;
             decoder = nullptr;
         }
     } else {
-        auto slesDecoder = new AudioDecoderSLES();
+        auto slesDecoder = ccnew AudioDecoderSLES();
         if (slesDecoder->init(engineItf, url, bufferSizeInFrames, sampleRate, fdGetterCallback)) {
             decoder = slesDecoder;
         } else {

@@ -21,7 +21,7 @@ void DeferredPipelineSceneData::updatePipelineSceneData() {
 
 void DeferredPipelineSceneData::initPipelinePassInfo() {
     // builtin deferred material
-    _lightingMaterial = new Material();
+    _lightingMaterial = ccnew Material();
     _lightingMaterial->setUuid("builtin-deferred-material");
     IMaterialInfo materialInfo;
     materialInfo.effectName = "deferred-lighting";
@@ -30,7 +30,7 @@ void DeferredPipelineSceneData::initPipelinePassInfo() {
         pass->tryCompile();
     }
 
-    _bloomMaterial = new Material();
+    _bloomMaterial = ccnew Material();
     _bloomMaterial->setUuid("builtin-bloom-material");
     materialInfo.effectName = "bloom";
     _bloomMaterial->initialize(materialInfo);
@@ -38,7 +38,7 @@ void DeferredPipelineSceneData::initPipelinePassInfo() {
         pass->tryCompile();
     }
 
-    _postProcessMaterial = new Material();
+    _postProcessMaterial = ccnew Material();
     _postProcessMaterial->setUuid("builtin-post-process-material");
 #if ENABLE_ANTIALIAS_FXAA > 0
     _antiAliasing = AntiAliasing::FXAA;
@@ -59,7 +59,7 @@ void DeferredPipelineSceneData::setAntiAliasing(AntiAliasing value) {
     if (_postProcessMaterial) {
         auto &defines = (*_postProcessMaterial->getPasses())[0]->getDefines();
         defines.emplace("ANTIALIAS_TYPE", static_cast<int32_t>(value));
-        auto *        renderMat = new Material();
+        auto *        renderMat = ccnew Material();
         IMaterialInfo materialInfo;
         materialInfo.effectAsset = _postProcessMaterial->getEffectAsset();
         materialInfo.defines     = defines;

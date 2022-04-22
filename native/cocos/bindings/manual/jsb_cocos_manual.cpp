@@ -44,7 +44,7 @@ public:
     static JSPlistDelegator *getInstance() {
         static JSPlistDelegator *pInstance = nullptr;
         if (pInstance == nullptr) {
-            pInstance = new (std::nothrow) JSPlistDelegator();
+            pInstance = ccnew JSPlistDelegator();
         }
         return pInstance;
     };

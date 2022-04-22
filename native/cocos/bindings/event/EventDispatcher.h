@@ -196,7 +196,11 @@ enum class KeyCode {
     NUMPAD_6        = 10054,
     NUMPAD_7        = 10055,
     NUMPAD_8        = 10056,
-    NUMPAD_9        = 10057
+    NUMPAD_9        = 10057,
+    DPAD_UP         = 1003,
+    DPAD_LEFT       = 1000,
+    DPAD_DOWN       = 1004,
+    DPAD_RIGHT      = 1001
 };
 
 class KeyboardEvent : public OSEvent {

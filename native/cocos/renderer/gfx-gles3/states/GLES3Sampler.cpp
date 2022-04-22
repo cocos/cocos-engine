@@ -33,7 +33,7 @@ namespace gfx {
 GLES3Sampler::GLES3Sampler(const SamplerInfo &info) : Sampler(info) {
     _typedID = generateObjectID<decltype(this)>();
 
-    _gpuSampler            = CC_NEW(GLES3GPUSampler);
+    _gpuSampler            = ccnew GLES3GPUSampler;
     _gpuSampler->minFilter = _info.minFilter;
     _gpuSampler->magFilter = _info.magFilter;
     _gpuSampler->mipFilter = _info.mipFilter;
@@ -46,10 +46,7 @@ GLES3Sampler::GLES3Sampler(const SamplerInfo &info) : Sampler(info) {
 }
 
 GLES3Sampler::~GLES3Sampler() {
-    if (_gpuSampler) {
-        CC_DELETE(_gpuSampler);
-        _gpuSampler = nullptr;
-    }
+    CC_SAFE_DELETE(_gpuSampler);
 }
 
 } // namespace gfx

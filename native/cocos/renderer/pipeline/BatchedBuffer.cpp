@@ -41,7 +41,7 @@ BatchedBuffer *                                                                 
 BatchedBuffer *BatchedBuffer::get(scene::Pass *pass, uint extraKey) {
     auto &record = BatchedBuffer::buffers[pass];
     auto &buffer = record[extraKey];
-    if (buffer == nullptr) buffer = CC_NEW(BatchedBuffer(pass));
+    if (buffer == nullptr) buffer = ccnew BatchedBuffer(pass);
     return buffer;
 }
 

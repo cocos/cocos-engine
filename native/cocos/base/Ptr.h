@@ -37,13 +37,13 @@
 //   };
 //
 //   void some_function() {
-//     IntrusivePtr<MyFoo> foo = new MyFoo();
+//     IntrusivePtr<MyFoo> foo = ccnew MyFoo();
 //     foo->Method(param);
 //     // `foo` is released when this function returns
 //   }
 //
 //   void some_other_function() {
-//     IntrusivePtr<MyFoo> foo = new MyFoo();
+//     IntrusivePtr<MyFoo> foo = ccnew MyFoo();
 //     ...
 //     foo = nullptr;  // explicitly releases `foo`
 //     ...
@@ -56,7 +56,7 @@
 // references between the two objects, like so:
 //
 //   {
-//     IntrusivePtr<MyFoo> a = new MyFoo();
+//     IntrusivePtr<MyFoo> a = ccnew MyFoo();
 //     IntrusivePtr<MyFoo> b;
 //
 //     b.swap(a);
@@ -67,7 +67,7 @@
 // object, simply use the assignment operator:
 //
 //   {
-//     IntrusivePtr<MyFoo> a = new MyFoo();
+//     IntrusivePtr<MyFoo> a = ccnew MyFoo();
 //     IntrusivePtr<MyFoo> b;
 //
 //     b = a;

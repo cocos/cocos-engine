@@ -60,7 +60,7 @@ bool ShadowStage::initialize(const RenderStageInfo &info) {
 void ShadowStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     RenderStage::activate(pipeline, flow);
 
-    _additiveShadowQueue = CC_NEW(ShadowMapBatchedQueue(pipeline));
+    _additiveShadowQueue = ccnew ShadowMapBatchedQueue(pipeline);
 }
 
 void ShadowStage::render(scene::Camera *camera) {

@@ -67,7 +67,7 @@ Class::~Class() = default;
 
 /* static */
 Class *Class::create(const ccstd::string &clsName, se::Object *parent, Object *parentProto, v8::FunctionCallback ctor) {
-    auto *cls = new Class();
+    auto *cls = ccnew Class();
     if (cls != nullptr && !cls->init(clsName, parent, parentProto, ctor)) {
         delete cls;
         cls = nullptr;

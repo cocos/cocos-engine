@@ -27,6 +27,7 @@
 
 #include <memory>
 #include "base/Macros.h"
+#include "base/memory/Memory.h"
 #include "base/std/container/vector.h"
 #include "physics/physx/PhysXInc.h"
 #include "physics/spec/IWorld.h"
@@ -37,7 +38,7 @@ namespace physics {
 class PhysXEventManager final {
 public:
     PhysXEventManager() {
-        _mCallback = new SimulationEventCallback(this);
+        _mCallback = ccnew SimulationEventCallback(this);
     }
 
     ~PhysXEventManager() {

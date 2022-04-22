@@ -58,7 +58,7 @@ public:
         if (samples == SampleCount::ONE)
             samples = info.depthStencilAttachment.sampleCount;
 
-        renderPassDesc = new WGPURenderPassDescriptor;
+        renderPassDesc = ccnew WGPURenderPassDescriptor;
 
         //TODO_Zeqiang: Metal-like subpass
         renderPassDesc->colorAttachmentCount   = info.colorAttachments.size();
@@ -85,8 +85,8 @@ CCWGPURenderPass::CCWGPURenderPass() : wrapper<RenderPass>(val::object()) {
 }
 
 void CCWGPURenderPass::doInit(const RenderPassInfo &info) {
-    _renderPassObject                     = new CCWGPURenderPassObject();
-    _rpHelper                             = new CCWGPURenderPassHelper(info);
+    _renderPassObject                     = ccnew CCWGPURenderPassObject();
+    _rpHelper                             = ccnew CCWGPURenderPassHelper(info);
     _renderPassObject->wgpuRenderPassDesc = _rpHelper->renderPassDesc;
     _renderPassObject->sampleCount        = _rpHelper->sampleCount;
 }

@@ -64,13 +64,16 @@ jobs:
           python3 -m pip install PyYAML==5.4.1 Cheetah3
           python3 ./native/tools/tojs/genbindings.py
           rm ./native/tools/tojs/userconf.ini
+      - name: Download build-tools
+        run: |
+          cd $ANDROID_HOME/build-tools/31.0.0 && mv d8 dx && cd lib && mv d8.jar dx.jar
       - name: Compile
         env:
           COCOS_ENGINE_DEV: 1
         run: |
           COCOS2DX_ROOT=$GITHUB_WORKSPACE/native
           ANDORID_NDK=$ANDROID_NDK_LATEST_HOME
-          NATIVE_DIR=$GITHUB_WORKSPACE/templates/android-template       
+          NATIVE_DIR=$GITHUB_WORKSPACE/templates/android-template
           echo "Compiling Android ... "
           cd $GITHUB_WORKSPACE/templates/
           if [ ! -d  android-template ]; then
@@ -256,7 +259,7 @@ jobs:
               -DRES_DIR=$RES_DIR \
               -DCOCOS_X_PATH=$COCOS2DX_ROOT
           set +e
-          #cmake --build . --config Debug -- -quiet -jobs $NUM_OF_CORES -allowProvisioningUpdates CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO 
+          #cmake --build . --config Debug -- -quiet -jobs $NUM_OF_CORES -allowProvisioningUpdates CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
           cmake --build . --config Debug -- -quiet -jobs $NUM_OF_CORES CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
           retcode=$?
           set -e

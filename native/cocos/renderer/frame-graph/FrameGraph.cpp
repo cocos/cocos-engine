@@ -200,7 +200,7 @@ Handle FrameGraph::create(VirtualResource *const virtualResource) {
 }
 
 PassNode &FrameGraph::createPassNode(const PassInsertPoint insertPoint, const StringHandle &name, Executable *const pass) {
-    _passNodes.emplace_back(new PassNode(insertPoint, name, static_cast<ID>(_passNodes.size()), pass));
+    _passNodes.emplace_back(ccnew PassNode(insertPoint, name, static_cast<ID>(_passNodes.size()), pass));
     return *_passNodes.back();
 }
 
@@ -448,7 +448,7 @@ void FrameGraph::generateDevicePasses() {
         }
 
         if (passId != passNode->_devicePassId) {
-            _devicePasses.emplace_back(new DevicePass(*this, subpassNodes));
+            _devicePasses.emplace_back(ccnew DevicePass(*this, subpassNodes));
 
             for (PassNode *const p : subpassNodes) {
                 p->releaseTransientResources();
@@ -464,7 +464,7 @@ void FrameGraph::generateDevicePasses() {
 
     CC_ASSERT(subpassNodes.size() == 1);
 
-    _devicePasses.emplace_back(new DevicePass(*this, subpassNodes));
+    _devicePasses.emplace_back(ccnew DevicePass(*this, subpassNodes));
 
     for (PassNode *const p : subpassNodes) {
         p->releaseTransientResources();

@@ -60,7 +60,7 @@ GLES3PipelineState::~GLES3PipelineState() {
 }
 
 void GLES3PipelineState::doInit(const PipelineStateInfo & /*info*/) {
-    _gpuPipelineState                    = CC_NEW(GLES3GPUPipelineState);
+    _gpuPipelineState                    = ccnew GLES3GPUPipelineState;
     _gpuPipelineState->glPrimitive       = GLE_S3_PRIMITIVES[static_cast<int>(_primitive)];
     _gpuPipelineState->gpuShader         = static_cast<GLES3Shader *>(_shader)->gpuShader();
     _gpuPipelineState->rs                = _rasterizerState;
@@ -77,10 +77,7 @@ void GLES3PipelineState::doInit(const PipelineStateInfo & /*info*/) {
 }
 
 void GLES3PipelineState::doDestroy() {
-    if (_gpuPipelineState) {
-        CC_DELETE(_gpuPipelineState);
-        _gpuPipelineState = nullptr;
-    }
+    CC_SAFE_DELETE(_gpuPipelineState);
 }
 
 } // namespace gfx

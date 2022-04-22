@@ -132,7 +132,7 @@ public:
     template <typename T, typename = std::enable_if_t<std::is_base_of<scene::Model, T>::value>>
     T *createModel() {
         //cjh TODO: need use model pool?
-        T *model = new T();
+        T *model = ccnew T();
         model->initialize();
         return model;
     }
@@ -142,7 +142,7 @@ public:
     template <typename T, typename = std::enable_if_t<std::is_base_of<scene::Light, T>::value>>
     T *createLight() {
         //TODO(xwx): need use model pool?
-        T *light = new T();
+        T *light = ccnew T();
         light->initialize();
         return light;
     }

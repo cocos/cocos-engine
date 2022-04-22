@@ -95,7 +95,7 @@ CCVKDevice::~CCVKDevice() {
 }
 
 bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
-    _gpuContext = CC_NEW(CCVKGPUContext);
+    _gpuContext = ccnew CCVKGPUContext;
     if (!_gpuContext->initialize()) {
         CC_SAFE_DESTROY_AND_DELETE(_gpuContext)
         return false;
@@ -108,7 +108,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
 
     ///////////////////// Device Creation /////////////////////
 
-    _gpuDevice               = CC_NEW(CCVKGPUDevice);
+    _gpuDevice               = ccnew CCVKGPUDevice;
     _gpuDevice->minorVersion = _gpuContext->minorVersion;
 
     // only enable the absolute essentials
@@ -385,18 +385,18 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
 
     uint32_t backBufferCount = _gpuDevice->backBufferCount;
     for (uint32_t i = 0U; i < backBufferCount; i++) {
-        _gpuFencePools.push_back(CC_NEW(CCVKGPUFencePool(_gpuDevice)));
-        _gpuRecycleBins.push_back(CC_NEW(CCVKGPURecycleBin(_gpuDevice)));
-        _gpuStagingBufferPools.push_back(CC_NEW(CCVKGPUStagingBufferPool(_gpuDevice)));
+        _gpuFencePools.push_back(ccnew CCVKGPUFencePool(_gpuDevice));
+        _gpuRecycleBins.push_back(ccnew CCVKGPURecycleBin(_gpuDevice));
+        _gpuStagingBufferPools.push_back(ccnew CCVKGPUStagingBufferPool(_gpuDevice));
     }
 
-    _gpuBufferHub        = CC_NEW(CCVKGPUBufferHub(_gpuDevice));
-    _gpuTransportHub     = CC_NEW(CCVKGPUTransportHub(_gpuDevice, static_cast<CCVKQueue *>(_queue)->gpuQueue()));
-    _gpuDescriptorHub    = CC_NEW(CCVKGPUDescriptorHub(_gpuDevice));
-    _gpuSemaphorePool    = CC_NEW(CCVKGPUSemaphorePool(_gpuDevice));
-    _gpuBarrierManager   = CC_NEW(CCVKGPUBarrierManager(_gpuDevice));
-    _gpuFramebufferHub   = CC_NEW(CCVKGPUFramebufferHub);
-    _gpuDescriptorSetHub = CC_NEW(CCVKGPUDescriptorSetHub(_gpuDevice));
+    _gpuBufferHub        = ccnew CCVKGPUBufferHub(_gpuDevice);
+    _gpuTransportHub     = ccnew CCVKGPUTransportHub(_gpuDevice, static_cast<CCVKQueue *>(_queue)->gpuQueue());
+    _gpuDescriptorHub    = ccnew CCVKGPUDescriptorHub(_gpuDevice);
+    _gpuSemaphorePool    = ccnew CCVKGPUSemaphorePool(_gpuDevice);
+    _gpuBarrierManager   = ccnew CCVKGPUBarrierManager(_gpuDevice);
+    _gpuFramebufferHub   = ccnew CCVKGPUFramebufferHub;
+    _gpuDescriptorSetHub = ccnew CCVKGPUDescriptorSetHub(_gpuDevice);
 
     _gpuDescriptorHub->link(_gpuDescriptorSetHub);
 
@@ -558,7 +558,7 @@ void CCVKDevice::doDestroy() {
             _gpuDevice->vkDevice = VK_NULL_HANDLE;
         }
 
-        CC_DELETE(_gpuDevice);
+        delete _gpuDevice;
         _gpuDevice = nullptr;
     }
 
@@ -723,9 +723,9 @@ void CCVKDevice::waitAllFences() {
 void CCVKDevice::updateBackBufferCount(uint32_t backBufferCount) {
     if (backBufferCount <= _gpuDevice->backBufferCount) return;
     for (uint32_t i = _gpuDevice->backBufferCount; i < backBufferCount; i++) {
-        _gpuFencePools.push_back(CC_NEW(CCVKGPUFencePool(_gpuDevice)));
-        _gpuRecycleBins.push_back(CC_NEW(CCVKGPURecycleBin(_gpuDevice)));
-        _gpuStagingBufferPools.push_back(CC_NEW(CCVKGPUStagingBufferPool(_gpuDevice)));
+        _gpuFencePools.push_back(ccnew CCVKGPUFencePool(_gpuDevice));
+        _gpuRecycleBins.push_back(ccnew CCVKGPURecycleBin(_gpuDevice));
+        _gpuStagingBufferPools.push_back(ccnew CCVKGPUStagingBufferPool(_gpuDevice));
     }
     _gpuBufferHub->updateBackBufferCount(backBufferCount);
     _gpuDescriptorSetHub->updateBackBufferCount(backBufferCount);
@@ -771,71 +771,71 @@ void CCVKDevice::initFormatFeature() {
 }
 
 CommandBuffer *CCVKDevice::createCommandBuffer(const CommandBufferInfo & /*info*/, bool /*hasAgent*/) {
-    return CC_NEW(CCVKCommandBuffer);
+    return ccnew CCVKCommandBuffer;
 }
 
 Queue *CCVKDevice::createQueue() {
-    return CC_NEW(CCVKQueue);
+    return ccnew CCVKQueue;
 }
 
 QueryPool *CCVKDevice::createQueryPool() {
-    return CC_NEW(CCVKQueryPool);
+    return  ccnew CCVKQueryPool;
 }
 
 Swapchain *CCVKDevice::createSwapchain() {
-    return CC_NEW(CCVKSwapchain);
+    return ccnew CCVKSwapchain;
 }
 
 Buffer *CCVKDevice::createBuffer() {
-    return CC_NEW(CCVKBuffer);
+    return ccnew CCVKBuffer;
 }
 
 Texture *CCVKDevice::createTexture() {
-    return CC_NEW(CCVKTexture);
+    return ccnew CCVKTexture;
 }
 
 Shader *CCVKDevice::createShader() {
-    return CC_NEW(CCVKShader);
+    return ccnew CCVKShader;
 }
 
 InputAssembler *CCVKDevice::createInputAssembler() {
-    return CC_NEW(CCVKInputAssembler);
+    return ccnew CCVKInputAssembler;
 }
 
 RenderPass *CCVKDevice::createRenderPass() {
-    return CC_NEW(CCVKRenderPass);
+    return ccnew CCVKRenderPass;
 }
 
 Framebuffer *CCVKDevice::createFramebuffer() {
-    return CC_NEW(CCVKFramebuffer);
+    return ccnew CCVKFramebuffer;
 }
 
 DescriptorSet *CCVKDevice::createDescriptorSet() {
-    return CC_NEW(CCVKDescriptorSet);
+    return ccnew CCVKDescriptorSet;
 }
 
 DescriptorSetLayout *CCVKDevice::createDescriptorSetLayout() {
-    return CC_NEW(CCVKDescriptorSetLayout);
+    return ccnew CCVKDescriptorSetLayout;
 }
 
 PipelineLayout *CCVKDevice::createPipelineLayout() {
-    return CC_NEW(CCVKPipelineLayout);
+    return ccnew CCVKPipelineLayout;
 }
 
 PipelineState *CCVKDevice::createPipelineState() {
-    return CC_NEW(CCVKPipelineState);
+    return ccnew CCVKPipelineState;
 }
 
 Sampler *CCVKDevice::createSampler(const SamplerInfo &info) {
-    return CC_NEW(CCVKSampler(info));
+    return ccnew CCVKSampler(info);
 }
 
 GeneralBarrier *CCVKDevice::createGeneralBarrier(const GeneralBarrierInfo &info) {
-    return CC_NEW(CCVKGeneralBarrier(info));
+    return ccnew CCVKGeneralBarrier(info);
 }
 
 TextureBarrier *CCVKDevice::createTextureBarrier(const TextureBarrierInfo &info) {
-    return CC_NEW(CCVKTextureBarrier(info));
+    return ccnew CCVKTextureBarrier(info);
 }
 
 void CCVKDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {

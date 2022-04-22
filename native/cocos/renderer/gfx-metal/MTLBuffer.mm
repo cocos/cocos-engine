@@ -47,7 +47,7 @@ CCMTLBuffer::~CCMTLBuffer() {
 }
 
 void CCMTLBuffer::doInit(const BufferInfo &info) {
-    _gpuBuffer = CC_NEW(CCMTLGPUBuffer);
+    _gpuBuffer = ccnew CCMTLGPUBuffer;
     _gpuBuffer->count = _count;
     _gpuBuffer->mappedData = nullptr;
     _gpuBuffer->size = _size;

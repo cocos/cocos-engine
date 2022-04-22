@@ -41,7 +41,7 @@ CCWGPUTexture *defaultStorageTexture = nullptr;
 using namespace emscripten;
 
 CCWGPUTexture::CCWGPUTexture() : wrapper<Texture>(val::object()) {
-    _gpuTextureObj = CC_NEW(CCWGPUTextureObject);
+    _gpuTextureObj = ccnew CCWGPUTextureObject;
 }
 
 void CCWGPUTexture::doInit(const TextureInfo &info) {
@@ -145,7 +145,7 @@ void CCWGPUTexture::doDestroy() {
         if (_gpuTextureObj->selfView) {
             wgpuTextureViewRelease(_gpuTextureObj->selfView);
         }
-        CC_DELETE(_gpuTextureObj);
+        delete _gpuTextureObj;
     }
     _internalChanged = true;
 }
@@ -218,7 +218,7 @@ CCWGPUTexture *CCWGPUTexture::defaultCommonTexture() {
             .depth       = 1,
             .externalRes = nullptr,
         };
-        anoymous::defaultCommonTexture = CC_NEW(CCWGPUTexture);
+        anoymous::defaultCommonTexture = ccnew CCWGPUTexture;
         anoymous::defaultCommonTexture->initialize(info);
     }
 
@@ -240,7 +240,7 @@ CCWGPUTexture *CCWGPUTexture::defaultStorageTexture() {
             .depth       = 1,
             .externalRes = nullptr,
         };
-        anoymous::defaultStorageTexture = CC_NEW(CCWGPUTexture);
+        anoymous::defaultStorageTexture = ccnew CCWGPUTexture;
         anoymous::defaultStorageTexture->initialize(info);
     }
 

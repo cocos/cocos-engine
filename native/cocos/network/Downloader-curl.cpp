@@ -32,6 +32,7 @@
 
 #include "application/ApplicationManager.h"
 #include "base/Scheduler.h"
+#include "base/memory/Memory.h"
 #include "base/std/container/deque.h"
 #include "base/std/container/set.h"
 #include "base/std/container/vector.h"
@@ -667,7 +668,7 @@ DownloaderCURL::~DownloaderCURL() {
 }
 
 IDownloadTask *DownloaderCURL::createCoTask(std::shared_ptr<const DownloadTask> &task) {
-    DownloadTaskCURL *coTask = new (std::nothrow) DownloadTaskCURL;
+    DownloadTaskCURL *coTask = ccnew DownloadTaskCURL;
     coTask->init(task->storagePath, _impl->hints.tempFileNameSuffix);
 
     DLLOG("    DownloaderCURL: createTask: Id(%d)", coTask->serialId);

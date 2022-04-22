@@ -60,7 +60,7 @@ RenderStageInfo PostProcessStage::initInfo = {
 const RenderStageInfo &PostProcessStage::getInitializeInfo() { return PostProcessStage::initInfo; }
 
 PostProcessStage::PostProcessStage() {
-    _uiPhase = CC_NEW(UIPhase);
+    _uiPhase = ccnew UIPhase;
 }
 
 bool PostProcessStage::initialize(const RenderStageInfo &info) {
@@ -93,7 +93,7 @@ void PostProcessStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
         }
 
         RenderQueueCreateInfo info = {descriptor.isTransparent, phase, sortFunc};
-        _renderQueues.emplace_back(CC_NEW(RenderQueue(_pipeline, std::move(info))));
+        _renderQueues.emplace_back(ccnew RenderQueue(_pipeline, std::move(info)));
     }
 }
 

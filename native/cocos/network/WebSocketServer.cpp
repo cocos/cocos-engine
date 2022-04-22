@@ -27,9 +27,10 @@
 #include <cassert>
 #include <iostream>
 
-#include "cocos/application/ApplicationManager.h"
-#include "cocos/base/Log.h"
-#include "cocos/base/Scheduler.h"
+#include "application/ApplicationManager.h"
+#include "base/Log.h"
+#include "base/Scheduler.h"
+#include "base/memory/Memory.h"
 #include "cocos/network/WebSocketServer.h"
 
 #define MAX_MSG_PAYLOAD 2048
@@ -74,7 +75,7 @@ void flush_tasks_in_server_loop_cb(uv_async_t *asyn) {
 void init_libuv_async_handle(uv_loop_t *loop, uv_async_t *async) {
     memset(async, 0, sizeof(uv_async_t));
     uv_async_init(loop, async, flush_tasks_in_server_loop_cb);
-    async->data = new AsyncTaskData();
+    async->data = ccnew AsyncTaskData();
 }
 
 // run in game thread, dispatch runnable object into server loop

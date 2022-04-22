@@ -74,7 +74,7 @@ CCWGPUSampler *CCWGPUSampler::defaultSampler() {
             .maxAnisotropy = 0,
             .cmpFunc       = ComparisonFunc::ALWAYS,
         };
-        anoymous::defaultSampler = new CCWGPUSampler(info);
+        anoymous::defaultSampler = ccnew CCWGPUSampler(info);
     }
     return anoymous::defaultSampler;
 }

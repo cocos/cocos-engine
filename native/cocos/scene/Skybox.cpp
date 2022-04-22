@@ -238,7 +238,7 @@ void Skybox::activate() {
     bool  isRGBE = envmap != nullptr ? envmap->isRGBE : _default->isRGBE;
 
     if (!skyboxMaterial) {
-        auto *        mat = new Material();
+        auto *        mat = ccnew Material();
         MacroRecord   defines{{"USE_RGBE_CUBEMAP", isRGBE}};
         IMaterialInfo matInfo;
         matInfo.effectName = ccstd::string{"skybox"};
@@ -246,7 +246,7 @@ void Skybox::activate() {
         mat->initialize({matInfo});
         IMaterialInstanceInfo matInstInfo;
         matInstInfo.parent = mat;
-        skyboxMaterial     = new MaterialInstance(matInstInfo);
+        skyboxMaterial     = ccnew MaterialInstance(matInstInfo);
         skyboxMaterial->addRef();
         EventDispatcher::addCustomEventListener(EVENT_CLOSE, [](const CustomEvent & /*unused*/) {
             skyboxMaterial->release();

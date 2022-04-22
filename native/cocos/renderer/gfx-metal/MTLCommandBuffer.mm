@@ -63,14 +63,11 @@ CCMTLCommandBuffer::~CCMTLCommandBuffer() {
 }
 
 void CCMTLCommandBuffer::doInit(const CommandBufferInfo &info) {
-    _gpuCommandBufferObj = CC_NEW(CCMTLGPUCommandBufferObject);
+    _gpuCommandBufferObj = ccnew CCMTLGPUCommandBufferObject;
 }
 
 void CCMTLCommandBuffer::doDestroy() {
-    if(_texCopySemaphore) {
-        CC_DELETE(_texCopySemaphore);
-        _texCopySemaphore = nullptr;
-    }
+    CC_SAFE_DELETE(_texCopySemaphore);
 
     if(_commandBufferBegan) {
         if(_gpuCommandBufferObj && _gpuCommandBufferObj->mtlCommandBuffer) {
@@ -959,7 +956,7 @@ void CCMTLCommandBuffer::copyTextureToBuffers(Texture *src, uint8_t *const *buff
             stagingAddrs[i] = {stagingBuffer.mappedData, bytesPerImage};
         }
         if(!_texCopySemaphore) {
-            _texCopySemaphore = CC_NEW(CCMTLSemaphore(0));
+            _texCopySemaphore = ccnew CCMTLSemaphore(0);
         }
 
         [mtlCommandBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {

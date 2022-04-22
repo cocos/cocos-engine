@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "physics/physx/PhysXWorld.h"
+#include "base/memory/Memory.h"
 #include "physics/physx/PhysXFilterShader.h"
 #include "physics/physx/PhysXInc.h"
 #include "physics/physx/PhysXUtils.h"
@@ -68,7 +69,7 @@ PhysXWorld::PhysXWorld() {
     PxInitExtensions(*_mPhysics, pvd);
     _mDispatcher = physx::PxDefaultCpuDispatcherCreate(0);
 
-    _mEventMgr = new PhysXEventManager();
+    _mEventMgr = ccnew PhysXEventManager();
 
     physx::PxSceneDesc sceneDesc(_mPhysics->getTolerancesScale());
     sceneDesc.gravity                 = physx::PxVec3(0.0F, -10.0F, 0.0F);
@@ -155,7 +156,7 @@ uintptr_t PhysXWorld::createHeightField(HeightFieldDesc &desc) {
     const auto         rows    = desc.rows;
     const auto         columns = desc.columns;
     const physx::PxU32 counts  = rows * columns;
-    auto *             samples = new physx::PxHeightFieldSample[counts];
+    auto *             samples = ccnew physx::PxHeightFieldSample[counts];
     for (physx::PxU32 r = 0; r < rows; r++) {
         for (physx::PxU32 c = 0; c < columns; c++) {
             const auto index      = c + r * columns;

@@ -62,7 +62,7 @@ CCWGPUDevice *CCWGPUDevice::instance = nullptr;
 CCWGPUDevice *CCWGPUDevice::getInstance() {
     // if JS
     if (!instance) {
-        instance = new CCWGPUDevice();
+        instance = ccnew CCWGPUDevice();
     }
     // endif
     return instance;
@@ -79,12 +79,12 @@ CCWGPUDevice::CCWGPUDevice() : wrapper<Device>(val::object()) {
 
 CCWGPUDevice::~CCWGPUDevice() {
     instance = nullptr;
-    CC_DELETE(_gpuDeviceObj);
+    delete _gpuDeviceObj;
     delete this;
 }
 
 bool CCWGPUDevice::doInit(const DeviceInfo &info) {
-    _gpuDeviceObj             = CC_NEW(CCWGPUDeviceObject);
+    _gpuDeviceObj             = ccnew CCWGPUDeviceObject;
     _gpuDeviceObj->wgpuDevice = emscripten_webgpu_get_device();
     _gpuDeviceObj->wgpuQueue  = wgpuDeviceGetQueue(_gpuDeviceObj->wgpuDevice);
 
@@ -111,55 +111,55 @@ void CCWGPUDevice::doDestroy() {
 }
 
 Swapchain *CCWGPUDevice::createSwapchain() {
-    return new CCWGPUSwapchain(this);
+    return ccnew CCWGPUSwapchain(this);
 }
 
 Queue *CCWGPUDevice::createQueue() {
-    return CC_NEW(CCWGPUQueue);
+    return ccnew CCWGPUQueue;
 }
 
 Buffer *CCWGPUDevice::createBuffer() {
-    return CC_NEW(CCWGPUBuffer);
+    return ccnew CCWGPUBuffer;
 }
 
 Texture *CCWGPUDevice::createTexture() {
-    return CC_NEW(CCWGPUTexture);
+    return ccnew CCWGPUTexture;
 }
 
 Shader *CCWGPUDevice::createShader() {
-    return CC_NEW(CCWGPUShader);
+    return ccnew CCWGPUShader;
 }
 
 InputAssembler *CCWGPUDevice::createInputAssembler() {
-    return CC_NEW(CCWGPUInputAssembler);
+    return ccnew CCWGPUInputAssembler;
 }
 
 RenderPass *CCWGPUDevice::createRenderPass() {
-    return CC_NEW(CCWGPURenderPass);
+    return ccnew CCWGPURenderPass;
 }
 
 Framebuffer *CCWGPUDevice::createFramebuffer() {
-    return CC_NEW(CCWGPUFramebuffer);
+    return ccnew CCWGPUFramebuffer;
 }
 
 DescriptorSet *CCWGPUDevice::createDescriptorSet() {
-    return CC_NEW(CCWGPUDescriptorSet);
+    return ccnew CCWGPUDescriptorSet;
 }
 
 DescriptorSetLayout *CCWGPUDevice::createDescriptorSetLayout() {
-    return CC_NEW(CCWGPUDescriptorSetLayout);
+    return ccnew CCWGPUDescriptorSetLayout;
 }
 
 PipelineLayout *CCWGPUDevice::createPipelineLayout() {
-    return CC_NEW(CCWGPUPipelineLayout);
+    return ccnew CCWGPUPipelineLayout;
 }
 
 PipelineState *CCWGPUDevice::createPipelineState() {
-    return CC_NEW(CCWGPUPipelineState);
+    return ccnew CCWGPUPipelineState;
 }
 
 CommandBuffer *CCWGPUDevice::createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
-    return CC_NEW(CCWGPUCommandBuffer);
+    return ccnew CCWGPUCommandBuffer;
 }
 
 void CCWGPUDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {
@@ -288,7 +288,7 @@ emscripten::val CCWGPUDevice::copyTextureToBuffers(Texture *src, const BufferTex
     wgpuQueueSubmit(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuQueue, 1, &wgpuCommandBuffer);
     printf("Q submit\n");
     Semaphore      sem{0};
-    BufferMapData *bufferMapData = new BufferMapData{
+    BufferMapData *bufferMapData = ccnew BufferMapData{
         &sem,
         buffer,
         nullptr,
@@ -315,17 +315,17 @@ void CCWGPUDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
 }
 
 Shader *CCWGPUDevice::createShader(const SPVShaderInfoInstance &info) {
-    CCWGPUShader *shader = CC_NEW(CCWGPUShader);
+    CCWGPUShader *shader = ccnew CCWGPUShader;
     shader->initialize(info);
     return shader;
 }
 
 QueryPool *CCWGPUDevice::createQueryPool() {
-    return CC_NEW(CCWGPUQueryPool);
+    return ccnew CCWGPUQueryPool;
 }
 
 Sampler *CCWGPUDevice::createSampler(const SamplerInfo &info) {
-    return new CCWGPUSampler(info);
+    return ccnew CCWGPUSampler(info);
 }
 
 void CCWGPUDevice::present() {

@@ -139,7 +139,7 @@ GeometryRendererInfo::GeometryRendererInfo()
 }
 
 GeometryRenderer::GeometryRenderer() {
-    _buffers = new GeometryVertexBuffers();
+    _buffers = ccnew GeometryVertexBuffers();
 }
 
 GeometryRenderer::~GeometryRenderer() {

@@ -271,7 +271,7 @@ void LightingStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
         uint                  phase    = convertPhase(descriptor.stages);
         RenderQueueSortFunc   sortFunc = convertQueueSortFunc(descriptor.sortMode);
         RenderQueueCreateInfo info     = {descriptor.isTransparent, phase, sortFunc};
-        _renderQueues.emplace_back(CC_NEW(RenderQueue(_pipeline, std::move(info), true)));
+        _renderQueues.emplace_back(ccnew RenderQueue(_pipeline, std::move(info), true));
     }
 
     // not use cluster shading, go normal deferred render path
@@ -287,14 +287,14 @@ void LightingStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
         initLightingBuffer();
     }
 
-    _planarShadowQueue = CC_NEW(PlanarShadowQueue(_pipeline));
+    _planarShadowQueue = ccnew PlanarShadowQueue(_pipeline);
 
     // create reflection resource
     RenderQueueCreateInfo info = {true, _reflectionPhaseID, transparentCompareFn};
-    _reflectionComp            = new ReflectionComp();
+    _reflectionComp            = ccnew ReflectionComp();
     _reflectionComp->init(_device, 8, 8);
 
-    _reflectionRenderQueue = CC_NEW(RenderQueue(_pipeline, std::move(info)));
+    _reflectionRenderQueue = ccnew RenderQueue(_pipeline, std::move(info));
 
     _defaultSampler = pipeline->getGlobalDSManager()->getPointSampler();
 }

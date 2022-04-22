@@ -44,12 +44,6 @@
 #if CC_USE_SOCKET
     #include "cocos/network/WebSocket.h"
 #endif
-#if CC_USE_DRAGONBONES
-    #include "editor-support/dragonbones-creator-support/ArmatureCacheMgr.h"
-#endif
-#if CC_USE_SPINE
-    #include "editor-support/spine-creator-support/SkeletonCacheMgr.h"
-#endif
 
 #include "application/ApplicationManager.h"
 #include "application/BaseApplication.h"
@@ -106,28 +100,22 @@ Engine::~Engine() {
     AudioEngine::end();
 #endif
 
-#if CC_USE_DRAGONBONES
-    dragonBones::ArmatureCacheMgr::destroyInstance();
-#endif
+    Root::getInstance()->getPipeline()->destroy();
 
-#if CC_USE_SPINE
-    spine::SkeletonCacheMgr::destroyInstance();
-#endif
-    network::HttpClient::destroyInstance();
     EventDispatcher::destroy();
+    se::ScriptEngine::destroyInstance();
     ProgramLib::destroyInstance();
     BuiltinResMgr::destroyInstance();
-    Root::getInstance()->getPipeline()->destroy();
+    gfx::DeviceManager::destroy();
+
+    CCObject::deferredDestroy();
+
+    BasePlatform *platform = BasePlatform::getPlatform();
+    platform->setHandleEventCallback(nullptr);
+
     CC_PROFILER_DESTROY;
     DebugRenderer::destroyInstance();
     FreeTypeFontFace::destroyFreeType();
-    cc::EventDispatcher::destroy();
-    FileUtils::destroyInstance();
-
-    se::ScriptEngine::getInstance()->cleanup();
-    se::ScriptEngine::destroyInstance();
-    gfx::DeviceManager::destroy();
-    CCObject::deferredDestroy();
 }
 
 int32_t Engine::init() {
@@ -141,6 +129,8 @@ int32_t Engine::init() {
         std::bind(&Engine::handleEvent, this, std::placeholders::_1)); // NOLINT(modernize-avoid-bind)
 
     se::ScriptEngine::getInstance()->addRegisterCallback(setCanvasCallback);
+    emit(static_cast<int>(ON_START));
+    _inited = true;
     return 0;
 }
 
@@ -166,6 +156,12 @@ int Engine::restart() {
 }
 
 void Engine::close() { // NOLINT
+    if (cc::EventDispatcher::initialized()) {
+        cc::EventDispatcher::dispatchCloseEvent();
+    }
+
+    auto *scriptEngine = se::ScriptEngine::getInstance();
+
     cc::DeferredReleasePool::clear();
 #if CC_USE_AUDIO
     cc::AudioEngine::stopAll();
@@ -173,11 +169,16 @@ void Engine::close() { // NOLINT
     //#if CC_USE_SOCKET
     //    cc::network::WebSocket::closeAllConnections();
     //#endif
+    cc::network::HttpClient::destroyInstance();
+
     _scheduler->removeAllFunctionsToBePerformedInCocosThread();
     _scheduler->unscheduleAll();
 
-    BasePlatform *platform = BasePlatform::getPlatform();
-    platform->setHandleEventCallback(nullptr);
+    scriptEngine->cleanup();
+    cc::EventDispatcher::destroy();
+
+    // exit
+    exit(0);
 }
 
 uint Engine::getTotalFrames() const {

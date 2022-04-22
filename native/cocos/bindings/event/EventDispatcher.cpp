@@ -347,7 +347,7 @@ void EventDispatcher::doDispatchEvent(const char *eventName, const char *jsFunct
 }
 
 uint32_t EventDispatcher::addCustomEventListener(const ccstd::string &eventName, const CustomEventListener &listener) {
-    Node *newNode       = new Node();
+    Node *newNode       = ccnew Node();
     newNode->listener   = listener;
     newNode->listenerID = hashListenerId;
     newNode->next       = nullptr;

@@ -300,7 +300,7 @@ static bool JavaScriptObjCBridge_finalize(se::State &s) {
 SE_BIND_FINALIZE_FUNC(JavaScriptObjCBridge_finalize)
 
 static bool JavaScriptObjCBridge_constructor(se::State &s) {
-    JavaScriptObjCBridge *cobj = new (std::nothrow) JavaScriptObjCBridge();
+    JavaScriptObjCBridge *cobj = ccnew JavaScriptObjCBridge();
     s.thisObject()->setPrivateData(cobj);
     return true;
 }
@@ -419,7 +419,7 @@ static bool ScriptNativeBridge_finalize(se::State &s) { //NOLINT(readability-ide
 SE_BIND_FINALIZE_FUNC(ScriptNativeBridge_finalize)
 
 static bool ScriptNativeBridge_constructor(se::State &s) { //NOLINT(readability-identifier-naming)
-    auto *cobj = new (std::nothrow) ScriptNativeBridge();
+    auto *cobj = ccnew ScriptNativeBridge();
     s.thisObject()->setPrivateData(cobj);
     ScriptNativeBridge::bridgeCxxInstance = cobj;
     return true;

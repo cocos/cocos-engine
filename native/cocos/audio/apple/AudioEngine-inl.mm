@@ -34,10 +34,11 @@
 #endif
 
 #include "audio/include/AudioEngine.h"
-#include "platform/FileUtils.h"
 #include "application/ApplicationManager.h"
 #include "base/Scheduler.h"
 #include "base/Utils.h"
+#include "base/memory/Memory.h"
+#include "platform/FileUtils.h"
 
 using namespace cc;
 
@@ -270,14 +271,14 @@ bool AudioEngineImpl::init() {
             {
                 if (gOALBufferMap == NULL) // Position 1
                 {
-                    gOALBufferMap = new OALBufferMap ();  // Position 2
+                    gOALBufferMap = ccnew OALBufferMap ();  // Position 2
 
                     // Position Gap
 
-                    gBufferMapLock = new CAGuard("OAL:BufferMapLock"); // Position 3
-                    gDeadOALBufferMap = new OALBufferMap ();
+                    gBufferMapLock = ccnew CAGuard("OAL:BufferMapLock"); // Position 3
+                    gDeadOALBufferMap = ccnew OALBufferMap ();
 
-                    OALBuffer   *newBuffer = new OALBuffer (AL_NONE);
+                    OALBuffer   *newBuffer = ccnew OALBuffer (AL_NONE);
                     gOALBufferMap->Add(AL_NONE, &newBuffer);
                 }
             }
@@ -365,7 +366,7 @@ int AudioEngineImpl::play2d(const ccstd::string &filePath, bool loop, float volu
         return AudioEngine::INVALID_AUDIO_ID;
     }
 
-    auto player = new (std::nothrow) AudioPlayer;
+    auto *player = ccnew AudioPlayer;
     if (player == nullptr) {
         return AudioEngine::INVALID_AUDIO_ID;
     }

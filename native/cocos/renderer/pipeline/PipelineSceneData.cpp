@@ -41,11 +41,11 @@ namespace cc {
 namespace pipeline {
 
 PipelineSceneData::PipelineSceneData() {
-    _fog     = new scene::Fog(); // cjh how to delete?
-    _ambient = new scene::Ambient();
-    _skybox  = new scene::Skybox();
-    _shadow  = new scene::Shadows();
-    _octree  = new scene::Octree();
+    _fog     = ccnew scene::Fog(); // cjh how to delete?
+    _ambient = ccnew scene::Ambient();
+    _skybox  = ccnew scene::Skybox();
+    _shadow  = ccnew scene::Shadows();
+    _octree  = ccnew scene::Octree();
 }
 
 PipelineSceneData::~PipelineSceneData() {
@@ -83,7 +83,7 @@ void PipelineSceneData::initOcclusionQuery() {
     }
 
     if (!_occlusionQueryMaterial) {
-        _occlusionQueryMaterial = new Material();
+        _occlusionQueryMaterial = ccnew Material();
         _occlusionQueryMaterial->setUuid("default-occlusion-query-material");
         IMaterialInfo info;
         info.effectName = "occlusion-query";
@@ -99,7 +99,7 @@ void PipelineSceneData::initGeometryRenderer() {
     _geometryRendererShaders.reserve(GEOMETRY_RENDERER_TECHNIQUE_COUNT);
 
     for (uint32_t tech = 0; tech < GEOMETRY_RENDERER_TECHNIQUE_COUNT; tech++) {
-        _geometryRendererMaterials[tech] = new Material();
+        _geometryRendererMaterials[tech] = ccnew Material();
 
         std::stringstream ss;
         ss << "geometry-renderer-material-" << tech;
@@ -120,7 +120,7 @@ void PipelineSceneData::initGeometryRenderer() {
 
 void PipelineSceneData::initDebugRenderer() {
     if (!_debugRendererMaterial) {
-        _debugRendererMaterial = new Material();
+        _debugRendererMaterial = ccnew Material();
         _debugRendererMaterial->setUuid("default-debug-renderer-material");
         IMaterialInfo info;
         info.effectName = "debug-renderer";

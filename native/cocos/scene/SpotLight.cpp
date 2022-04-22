@@ -36,9 +36,9 @@ namespace cc {
 namespace scene {
 SpotLight::SpotLight() {
     _type = LightType::SPOT;
-    _aabb = new geometry::AABB();
+    _aabb = ccnew geometry::AABB();
     _aabb->addRef();
-    _frustum = new geometry::Frustum();
+    _frustum = ccnew geometry::Frustum();
     _frustum->addRef();
 }
 

@@ -105,6 +105,8 @@ public:
      */
     SchedulerPtr getScheduler() const override;
 
+    bool isInited() const override {return _inited;}
+
 private:
     void    tick();
     bool    dispatchWindowEvent(const WindowEvent& ev);
@@ -120,6 +122,7 @@ private:
     uint                       _totalFrames{0};
     cc::Vec2                   _viewLogicalSize{0, 0};
     bool                       _needRestart{false};
+    bool                       _inited{false};
 
     std::map<OSEventType, EventCb> _eventCallbacks;
     CC_DISALLOW_COPY_MOVE_ASSIGN(Engine);

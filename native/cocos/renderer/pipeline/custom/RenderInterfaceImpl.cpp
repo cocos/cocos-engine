@@ -31,7 +31,7 @@ namespace cc {
 namespace render {
 
 Pipeline* Factory::createPipeline() {
-    return new NativePipeline();
+    return ccnew NativePipeline();
 }
 
 DescriptorHierarchy* Factory::createDescriptorHierarchy() {

@@ -525,7 +525,7 @@ void Value::reset(Type type) {
 
         switch (type) {
             case Type::String:
-                _u._string = new ccstd::string();
+                _u._string = ccnew ccstd::string();
                 break;
             default:
                 break;

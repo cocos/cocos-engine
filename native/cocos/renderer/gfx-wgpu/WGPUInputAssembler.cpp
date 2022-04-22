@@ -34,7 +34,7 @@ CCWGPUInputAssembler::CCWGPUInputAssembler() : wrapper<InputAssembler>(val::obje
 }
 
 void CCWGPUInputAssembler::doInit(const InputAssemblerInfo &info) {
-    _gpuInputAssemblerObj = CC_NEW(CCWGPUInputAssemblerObject);
+    _gpuInputAssemblerObj = ccnew CCWGPUInputAssemblerObject;
     // // typedef struct WGPUVertexState {
     // //     WGPUChainedStruct const * nextInChain;
     // //     WGPUShaderModule module;

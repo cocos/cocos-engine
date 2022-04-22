@@ -68,11 +68,11 @@ Camera::Camera(gfx::Device *device)
     _isoValue      = Camera::ISOS[static_cast<int>(_iso)];
 
     _aspect = _screenScale = 1.F;
-    _frustum               = new geometry::Frustum();
+    _frustum               = ccnew geometry::Frustum();
     _frustum->addRef();
     _frustum->setAccurate(true);
 
-    _geometryRenderer = new pipeline::GeometryRenderer();
+    _geometryRenderer = ccnew pipeline::GeometryRenderer();
     _geometryRenderer->activate(device);
 
     if (correctionMatrices.empty()) {
@@ -85,7 +85,7 @@ Camera::Camera(gfx::Device *device)
 }
 
 Camera::~Camera() {
-    destroy();
+    _frustum->release();
 }
 
 bool Camera::initialize(const ICameraInfo &info) {
@@ -105,8 +105,12 @@ bool Camera::initialize(const ICameraInfo &info) {
 }
 
 void Camera::destroy() {
-    CC_SAFE_DESTROY_NULL(_geometryRenderer);
-    _frustum->release();
+    if (_window) {
+        _window->detachCamera(this);
+        _window = nullptr;
+    }
+    _name.clear();
+    _geometryRenderer->destroy();
 }
 
 void Camera::attachToScene(RenderScene *scene) {
@@ -138,7 +142,7 @@ void Camera::setFixedSize(uint32_t width, uint32_t height) {
 
 // Editor specific gizmo camera logic
 void Camera::syncCameraEditor(const Camera &camera) {
-#ifdef CC_EDITOR
+#if CC_EDITOR
     this->_position    = camera._position;
     this->_forward     = camera._forward;
     this->_matView     = camera._matView;

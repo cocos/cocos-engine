@@ -42,7 +42,7 @@ GLES3InputAssembler::~GLES3InputAssembler() {
 }
 
 void GLES3InputAssembler::doInit(const InputAssemblerInfo &info) {
-    _gpuInputAssembler             = CC_NEW(GLES3GPUInputAssembler);
+    _gpuInputAssembler             = ccnew GLES3GPUInputAssembler;
     _gpuInputAssembler->attributes = _attributes;
     _gpuInputAssembler->gpuVertexBuffers.resize(_vertexBuffers.size());
     for (size_t i = 0; i < _gpuInputAssembler->gpuVertexBuffers.size(); ++i) {
@@ -63,7 +63,7 @@ void GLES3InputAssembler::doInit(const InputAssemblerInfo &info) {
 void GLES3InputAssembler::doDestroy() {
     if (_gpuInputAssembler) {
         cmdFuncGLES3DestroyInputAssembler(GLES3Device::getInstance(), _gpuInputAssembler);
-        CC_DELETE(_gpuInputAssembler);
+        delete _gpuInputAssembler;
         _gpuInputAssembler = nullptr;
     }
 }

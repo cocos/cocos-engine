@@ -30,4 +30,3 @@
 #include "../gfx-gles-common/gles3w.h"
 
 bool gles3wInit();
-bool gles3wExit();

@@ -27,6 +27,7 @@
 #include <cmath>
 #include "base/Log.h"
 #include "base/Macros.h"
+#include "base/memory/Memory.h"
 #include "math/Utils.h"
 
 namespace cc {
@@ -38,11 +39,11 @@ Spline::Spline(SplineMode mode /*= SplineMode::CATMULL_ROM*/, ccstd::vector<Vec3
 }
 
 Spline *Spline::create(SplineMode mode, const ccstd::vector<Vec3> &knots /*= {}*/) {
-    return new Spline(mode, knots);
+    return ccnew Spline(mode, knots);
 }
 
 Spline *Spline::clone(const Spline &s) {
-    return new Spline(s._mode, s._knots);
+    return ccnew Spline(s._mode, s._knots);
 }
 
 Spline *Spline::copy(Spline *out, const Spline &s) {

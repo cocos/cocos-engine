@@ -51,8 +51,8 @@ GLES3CommandBuffer::~GLES3CommandBuffer() {
 }
 
 void GLES3CommandBuffer::doInit(const CommandBufferInfo & /*info*/) {
-    _cmdAllocator  = CC_NEW(GLES3GPUCommandAllocator);
-    _curCmdPackage = CC_NEW(GLES3CmdPackage);
+    _cmdAllocator  = ccnew GLES3GPUCommandAllocator;
+    _curCmdPackage = ccnew GLES3CmdPackage;
 
     size_t setCount = GLES3Device::getInstance()->bindingMappingInfo().setIndices.size();
     _curGPUDescriptorSets.resize(setCount);
@@ -105,7 +105,7 @@ void GLES3CommandBuffer::end() {
         _curCmdPackage = _freePackages.front();
         _freePackages.pop();
     } else {
-        _curCmdPackage = CC_NEW(GLES3CmdPackage);
+        _curCmdPackage = ccnew GLES3CmdPackage;
     }
 }
 

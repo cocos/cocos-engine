@@ -43,7 +43,7 @@ CCWGPUBuffer::CCWGPUBuffer() : wrapper<Buffer>(val::object()) {
 }
 
 void CCWGPUBuffer::doInit(const BufferInfo &info) {
-    _gpuBufferObject = CC_NEW(CCWGPUBufferObject);
+    _gpuBufferObject = ccnew CCWGPUBufferObject;
 
     if (hasFlag(_usage, BufferUsageBit::INDIRECT)) {
         size_t drawInfoCount = _size / sizeof(DrawInfo);
@@ -76,7 +76,7 @@ void CCWGPUBuffer::doInit(const BufferInfo &info) {
 } // namespace gfx
 
 void CCWGPUBuffer::doInit(const BufferViewInfo &info) {
-    _gpuBufferObject             = CC_NEW(CCWGPUBufferObject);
+    _gpuBufferObject             = ccnew CCWGPUBufferObject;
     _gpuBufferObject->wgpuBuffer = static_cast<CCWGPUBuffer *>(info.buffer)->gpuBufferObject()->wgpuBuffer;
     _internalChanged             = true;
 }
@@ -86,7 +86,7 @@ void CCWGPUBuffer::doDestroy() {
         if (_gpuBufferObject->wgpuBuffer) {
             wgpuBufferDestroy(_gpuBufferObject->wgpuBuffer);
         }
-        CC_DELETE(_gpuBufferObject);
+        delete _gpuBufferObject;
     }
     _internalChanged = true;
 }
@@ -216,7 +216,7 @@ CCWGPUBuffer *CCWGPUBuffer::defaultUniformBuffer() {
             .size     = 4,
             .flags    = BufferFlagBit::NONE,
         };
-        anoymous::defaultUniformBuffer = CC_NEW(CCWGPUBuffer);
+        anoymous::defaultUniformBuffer = ccnew CCWGPUBuffer;
         anoymous::defaultUniformBuffer->initialize(info);
     }
     return anoymous::defaultUniformBuffer;
@@ -230,7 +230,7 @@ CCWGPUBuffer *CCWGPUBuffer::defaultStorageBuffer() {
             .size     = 4,
             .flags    = BufferFlagBit::NONE,
         };
-        anoymous::defaultStorageBuffer = CC_NEW(CCWGPUBuffer);
+        anoymous::defaultStorageBuffer = ccnew CCWGPUBuffer;
         anoymous::defaultStorageBuffer->initialize(info);
     }
     return anoymous::defaultStorageBuffer;

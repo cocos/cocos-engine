@@ -69,9 +69,9 @@ bool DeviceAgent::doInit(const DeviceInfo &info) {
 
     _api        = _actor->getGfxAPI();
     _deviceName = _actor->getDeviceName();
-    _queue      = CC_NEW(QueueAgent(_actor->getQueue()));
-    _queryPool  = CC_NEW(QueryPoolAgent(_actor->getQueryPool()));
-    _cmdBuff    = CC_NEW(CommandBufferAgent(_actor->getCommandBuffer()));
+    _queue      = ccnew QueueAgent(_actor->getQueue());
+    _queryPool  = ccnew QueryPoolAgent(_actor->getQueryPool());
+    _cmdBuff    = ccnew CommandBufferAgent(_actor->getCommandBuffer());
     _renderer   = _actor->getRenderer();
     _vendor     = _actor->getVendor();
     _caps       = _actor->_caps;
@@ -79,8 +79,8 @@ bool DeviceAgent::doInit(const DeviceInfo &info) {
     memcpy(_formatFeatures.data(), _actor->_formatFeatures.data(), static_cast<uint32_t>(Format::COUNT) * sizeof(FormatFeatureBit));
 
     // NOTE: C++17 is required when enable alignment
-    // TODO(PatriceJiang): replace with: _mainMessageQueue = CC_NEW(MessageQueue);
-    _mainMessageQueue = CC_NEW_ALIGN(MessageQueue, alignof(MessageQueue)); //NOLINT
+    // TODO(PatriceJiang): replace with: _mainMessageQueue = ccnew MessageQueue;
+    _mainMessageQueue = ccnew_placement(CC_MALLOC_ALIGN(sizeof(MessageQueue), alignof(MessageQueue))) MessageQueue; //NOLINT
 
     static_cast<CommandBufferAgent *>(_cmdBuff)->_queue = _queue;
     static_cast<CommandBufferAgent *>(_cmdBuff)->initAgent();
@@ -101,17 +101,17 @@ void DeviceAgent::doDestroy() {
     if (_cmdBuff) {
         static_cast<CommandBufferAgent *>(_cmdBuff)->destroyAgent();
         static_cast<CommandBufferAgent *>(_cmdBuff)->_actor = nullptr;
-        CC_DELETE(_cmdBuff);
+        delete _cmdBuff;
         _cmdBuff = nullptr;
     }
     if (_queryPool) {
         static_cast<QueryPoolAgent *>(_queryPool)->_actor = nullptr;
-        CC_DELETE(_queryPool);
+        delete _queryPool;
         _queryPool = nullptr;
     }
     if (_queue) {
         static_cast<QueueAgent *>(_queue)->_actor = nullptr;
-        CC_DELETE(_queue);
+        delete _queue;
         _queue = nullptr;
     }
 
@@ -119,7 +119,8 @@ void DeviceAgent::doDestroy() {
 
     // NOTE: C++17 required when enable alignment
     // TODO(PatriceJiang): replace with: CC_SAFE_DELETE(_mainMessageQueue);
-    CC_DELETE_ALIGN(_mainMessageQueue, MessageQueue, alignof(MessageQueue)); // NOLINT
+    _mainMessageQueue->~MessageQueue();
+    CC_FREE_ALIGN(_mainMessageQueue);
     _mainMessageQueue = nullptr;
 }
 
@@ -194,72 +195,72 @@ void DeviceAgent::setMultithreaded(bool multithreaded) {
 
 CommandBuffer *DeviceAgent::createCommandBuffer(const CommandBufferInfo &info, bool /*hasAgent*/) {
     CommandBuffer *actor = _actor->createCommandBuffer(info, true);
-    return CC_NEW(CommandBufferAgent(actor));
+    return ccnew CommandBufferAgent(actor);
 }
 
 Queue *DeviceAgent::createQueue() {
     Queue *actor = _actor->createQueue();
-    return CC_NEW(QueueAgent(actor));
+    return ccnew QueueAgent(actor);
 }
 
 QueryPool *DeviceAgent::createQueryPool() {
     QueryPool *actor = _actor->createQueryPool();
-    return CC_NEW(QueryPoolAgent(actor));
+    return ccnew QueryPoolAgent(actor);
 }
 
 Swapchain *DeviceAgent::createSwapchain() {
     Swapchain *actor = _actor->createSwapchain();
-    return CC_NEW(SwapchainAgent(actor));
+    return ccnew SwapchainAgent(actor);
 }
 
 Buffer *DeviceAgent::createBuffer() {
     Buffer *actor = _actor->createBuffer();
-    return CC_NEW(BufferAgent(actor));
+    return ccnew BufferAgent(actor);
 }
 
 Texture *DeviceAgent::createTexture() {
     Texture *actor = _actor->createTexture();
-    return CC_NEW(TextureAgent(actor));
+    return ccnew TextureAgent(actor);
 }
 
 Shader *DeviceAgent::createShader() {
     Shader *actor = _actor->createShader();
-    return CC_NEW(ShaderAgent(actor));
+    return ccnew ShaderAgent(actor);
 }
 
 InputAssembler *DeviceAgent::createInputAssembler() {
     InputAssembler *actor = _actor->createInputAssembler();
-    return CC_NEW(InputAssemblerAgent(actor));
+    return ccnew InputAssemblerAgent(actor);
 }
 
 RenderPass *DeviceAgent::createRenderPass() {
     RenderPass *actor = _actor->createRenderPass();
-    return CC_NEW(RenderPassAgent(actor));
+    return ccnew RenderPassAgent(actor);
 }
 
 Framebuffer *DeviceAgent::createFramebuffer() {
     Framebuffer *actor = _actor->createFramebuffer();
-    return CC_NEW(FramebufferAgent(actor));
+    return ccnew FramebufferAgent(actor);
 }
 
 DescriptorSet *DeviceAgent::createDescriptorSet() {
     DescriptorSet *actor = _actor->createDescriptorSet();
-    return CC_NEW(DescriptorSetAgent(actor));
+    return ccnew DescriptorSetAgent(actor);
 }
 
 DescriptorSetLayout *DeviceAgent::createDescriptorSetLayout() {
     DescriptorSetLayout *actor = _actor->createDescriptorSetLayout();
-    return CC_NEW(DescriptorSetLayoutAgent(actor));
+    return ccnew DescriptorSetLayoutAgent(actor);
 }
 
 PipelineLayout *DeviceAgent::createPipelineLayout() {
     PipelineLayout *actor = _actor->createPipelineLayout();
-    return CC_NEW(PipelineLayoutAgent(actor));
+    return ccnew PipelineLayoutAgent(actor);
 }
 
 PipelineState *DeviceAgent::createPipelineState() {
     PipelineState *actor = _actor->createPipelineState();
-    return CC_NEW(PipelineStateAgent(actor));
+    return ccnew PipelineStateAgent(actor);
 }
 
 Sampler *DeviceAgent::getSampler(const SamplerInfo &info) {
@@ -288,9 +289,10 @@ void doBufferTextureCopy(const uint8_t *const *buffers, Texture *texture, const 
         totalSize += size * region.texSubres.layerCount;
     }
 
-    //TODO(PatriceJiang): in C++17 replace with:*allocator = CC_NEW(ThreadSafeLinearAllocator(totalSize));
-    auto *allocator = CC_NEW_ALIGN(ThreadSafeLinearAllocator(totalSize), alignof(ThreadSafeLinearAllocator));
-
+    //TODO(PatriceJiang): in C++17 replace with:*allocator = ccnew ThreadSafeLinearAllocator(totalSize);
+    auto *memory = CC_MALLOC_ALIGN(sizeof(ThreadSafeLinearAllocator), alignof(ThreadSafeLinearAllocator));
+    auto *allocator = ccnew_placement(memory) ThreadSafeLinearAllocator(totalSize);
+    
     auto *actorRegions = allocator->allocate<BufferTextureCopy>(count);
     memcpy(actorRegions, regions, count * sizeof(BufferTextureCopy));
 
@@ -316,8 +318,11 @@ void doBufferTextureCopy(const uint8_t *const *buffers, Texture *texture, const 
         allocator, allocator,
         {
             actor->copyBuffersToTexture(buffers, dst, regions, count);
-            // TODO(PatriceJiang): C++17 replace with:  CC_DELETE(allocator);
-            if (allocator) CC_DELETE_ALIGN(allocator, ThreadSafeLinearAllocator, alignof(ThreadSafeLinearAllocator));
+            // TODO(PatriceJiang): C++17 replace with:  delete allocator;
+        if (allocator) {
+            allocator->~ThreadSafeLinearAllocator();
+            CC_FREE_ALIGN(allocator);
+        }
         });
 }
 

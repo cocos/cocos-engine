@@ -269,10 +269,10 @@ SocketIOPacket *SocketIOPacket::createPacketWithType(const ccstd::string &type, 
     SocketIOPacket *ret;
     switch (version) {
         case SocketIOPacket::SocketIOVersion::V09X:
-            ret = new (std::nothrow) SocketIOPacket;
+            ret = ccnew SocketIOPacket;
             break;
         case SocketIOPacket::SocketIOVersion::V10X:
-            ret = new (std::nothrow) SocketIOPacketV10x;
+            ret = ccnew SocketIOPacketV10x;
             break;
     }
     ret->initWithType(type);
@@ -283,10 +283,10 @@ SocketIOPacket *SocketIOPacket::createPacketWithTypeIndex(int type, SocketIOPack
     SocketIOPacket *ret;
     switch (version) {
         case SocketIOPacket::SocketIOVersion::V09X:
-            ret = new (std::nothrow) SocketIOPacket;
+            ret = ccnew SocketIOPacket;
             break;
         case SocketIOPacket::SocketIOVersion::V10X:
-            return new (std::nothrow) SocketIOPacketV10x;
+            return ccnew SocketIOPacketV10x;
             break;
     }
     ret->initWithTypeIndex(type);
@@ -369,7 +369,7 @@ void SIOClientImpl::handshake() {
 
     pre << _uri.getAuthority() << "/socket.io/1/?EIO=2&transport=polling&b64=true";
 
-    auto *request = new (std::nothrow) HttpRequest();
+    auto *request = ccnew HttpRequest();
     request->setUrl(pre.str());
     request->setRequestType(HttpRequest::Type::GET);
 
@@ -516,7 +516,7 @@ void SIOClientImpl::openSocket() {
             break;
     }
 
-    _ws = new (std::nothrow) WebSocket();
+    _ws = ccnew WebSocket();
     if (!_ws->init(*this, s.str(), nullptr, _caFilePath)) {
         CC_SAFE_RELEASE_NULL(_ws);
     }
@@ -557,7 +557,7 @@ void SIOClientImpl::disconnect() {
 }
 
 SIOClientImpl *SIOClientImpl::create(const Uri &uri, const ccstd::string &caFilePath) {
-    auto *s = new (std::nothrow) SIOClientImpl(uri, caFilePath);
+    auto *s = ccnew SIOClientImpl(uri, caFilePath);
 
     if (s && s->init()) {
         return s;
@@ -987,7 +987,7 @@ SocketIO::~SocketIO() = default;
 
 SocketIO *SocketIO::getInstance() {
     if (nullptr == inst) {
-        inst = new (std::nothrow) SocketIO();
+        inst = ccnew SocketIO();
     }
 
     return inst;
@@ -1020,7 +1020,7 @@ SIOClient *SocketIO::connect(const ccstd::string &uri, SIODelegate &delegate, co
         //create a new socket, new client, connect
         socket = SIOClientImpl::create(uriObj, caFilePath);
 
-        c = new (std::nothrow) SIOClient(path, socket, delegate);
+        c = ccnew SIOClient(path, socket, delegate);
 
         socket->addClient(path, c);
 
@@ -1030,7 +1030,7 @@ SIOClient *SocketIO::connect(const ccstd::string &uri, SIODelegate &delegate, co
         c = socket->getClient(path);
 
         if (c == nullptr) {
-            c = new (std::nothrow) SIOClient(path, socket, delegate);
+            c = ccnew SIOClient(path, socket, delegate);
 
             socket->addClient(path, c);
 
@@ -1041,7 +1041,7 @@ SIOClient *SocketIO::connect(const ccstd::string &uri, SIODelegate &delegate, co
 
             CC_LOG_DEBUG("SocketIO: recreate a new socket, new client, connect");
             SIOClientImpl *newSocket = SIOClientImpl::create(uriObj, caFilePath);
-            auto *         newC      = new (std::nothrow) SIOClient(path, newSocket, delegate);
+            auto *         newC      = ccnew SIOClient(path, newSocket, delegate);
 
             newSocket->addClient(path, newC);
             newSocket->connect();

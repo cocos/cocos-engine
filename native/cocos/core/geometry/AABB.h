@@ -26,6 +26,7 @@
 #pragma once
 
 #include <algorithm>
+#include "base/memory/Memory.h"
 #include "base/std/container/vector.h"
 #include "core/geometry/Enums.h"
 #include "math/Mat3.h"
@@ -55,7 +56,7 @@ public:
       * @returns 返回新创建的 AABB 实例。
       */
     static AABB *create(float px, float py, float pz, float hw, float hh, float hl) {
-        return new AABB(px, py, pz, hw, hh, hl);
+        return ccnew AABB(px, py, pz, hw, hh, hl);
     }
 
     /**

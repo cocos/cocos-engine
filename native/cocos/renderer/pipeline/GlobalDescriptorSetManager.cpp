@@ -65,7 +65,7 @@ void GlobalDSManager::activate(gfx::Device *device) {
 
     if (_globalDescriptorSet) {
         _globalDescriptorSet->destroy();
-        CC_DELETE(_globalDescriptorSet);
+        delete _globalDescriptorSet;
     }
     _globalDescriptorSet = device->createDescriptorSet({_descriptorSetLayout});
 }

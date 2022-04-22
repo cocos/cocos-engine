@@ -44,7 +44,7 @@ namespace pipeline {
 
 PlanarShadowQueue::PlanarShadowQueue(RenderPipeline *pipeline)
 : _pipeline(pipeline) {
-    _instancedQueue = CC_NEW(RenderInstancedQueue);
+    _instancedQueue = ccnew RenderInstancedQueue;
 }
 
 PlanarShadowQueue::~PlanarShadowQueue() = default;

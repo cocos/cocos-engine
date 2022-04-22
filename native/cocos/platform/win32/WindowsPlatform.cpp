@@ -80,6 +80,7 @@ namespace cc {
 WindowsPlatform::WindowsPlatform() {
 }
 WindowsPlatform::~WindowsPlatform() {
+
 #ifdef USE_WIN32_CONSOLE
     FreeConsole();
 #endif
@@ -159,7 +160,6 @@ int32_t WindowsPlatform::loop() {
     if (wTimerRes != 0)
         timeEndPeriod(wTimerRes);
 
-    onClose();
     onDestory();
     return 0;
 }

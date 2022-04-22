@@ -35,6 +35,8 @@
     #include <cstdlib>
 #endif
 
+#include <new> // std::nothrow
+
 #include "base/Macros.h"
 
 namespace cc {
@@ -62,36 +64,18 @@ public:
 };
 } // namespace cc
 
-#define CC_NEW(T)                        new T
-#define CC_NEW_ALIGN(T, align)           new (::cc::MemoryAllocDealloc::allocateBytesAligned(align, sizeof(T))) T
-#define CC_NEW_ALIGN_ARGS(T, align, ...) new (::cc::MemoryAllocDealloc::allocateBytesAligned(align, sizeof(T))) T(__VA_ARGS__)
-#define CC_NEW_ARRAY(T, count)           new T[count]
-#define CC_DELETE(ptr)                   delete (ptr)
-#define CC_DELETE_ARRAY(ptr)             delete[](ptr)
-
-#define CC_DELETE_ALIGN(ptr, T, align)                                 \
-    if (ptr) {                                                         \
-        (ptr)->~T();                                                   \
-        ::cc::MemoryAllocDealloc::deallocateBytesAligned((void *)ptr); \
-    }
-
-#define CC_DELETE_ARRAY_ALIGN(ptr, T, count, align)                    \
-    if (ptr) {                                                         \
-        for (size_t _b = 0; _b < (size_t)count; ++_b) {                \
-            (ptr)[_b].~T();                                            \
-        }                                                              \
-        ::cc::MemoryAllocDealloc::deallocateBytesAligned((void *)ptr); \
-    }
+#define ccnew                      new (std::nothrow)
+#define ccnew_placement(...)       new (__VA_ARGS__)
 
 #define CC_SAFE_DELETE(ptr) \
     if (ptr) {              \
-        CC_DELETE(ptr);     \
+        delete ptr;         \
         (ptr) = nullptr;    \
     }
 
 #define CC_SAFE_DELETE_ARRAY(ptr) \
     if (ptr) {                    \
-        CC_DELETE_ARRAY(ptr);     \
+        delete[] ptr;             \
         (ptr) = nullptr;          \
     }
 
@@ -100,6 +84,7 @@ public:
 #define CC_REALLOC(ptr, bytes)        realloc(ptr, bytes)
 #define CC_FREE(ptr)                  free((void *)ptr)
 #define CC_FREE_ALIGN(ptr)            ::cc::MemoryAllocDealloc::deallocateBytesAligned(ptr)
+
 #define CC_SAFE_FREE(ptr) \
     if (ptr) {            \
         CC_FREE(ptr);     \
@@ -114,8 +99,8 @@ public:
 #define CC_SAFE_DESTROY_AND_DELETE(ptr) \
     if (ptr) {                          \
         (ptr)->destroy();               \
-        CC_DELETE(ptr);                 \
-        ptr = nullptr;                  \
+        delete ptr;                     \
+        (ptr) = nullptr;                \
     }
 
 #define CC_SAFE_DESTROY_NULL(ptr) \
