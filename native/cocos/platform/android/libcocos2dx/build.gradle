@@ -2,12 +2,13 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion PROP_COMPILE_SDK_VERSION.toInteger()
-
+    ndkPath PROP_NDK_PATH
     defaultConfig {
         minSdkVersion PROP_MIN_SDK_VERSION
         targetSdkVersion PROP_TARGET_SDK_VERSION
         versionCode 1
         versionName "1.0"
+        consumerProguardFiles 'proguard-rules.pro'
     }
 
     sourceSets.main {
@@ -31,5 +32,7 @@ android {
 }
 
 dependencies {
+    api "androidx.appcompat:appcompat:1.2.0"
+    api "androidx.core:core:1.5.0"
     implementation fileTree(include: ['*.jar'], dir: '../java/libs')
 }

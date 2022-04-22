@@ -15,7 +15,7 @@
 
         <!-- Tell CocosNativeActivity the name of our .so -->
         <meta-data android:name="android.app.lib_name"
-                   android:value="cocos" />
+            android:value="cocos" />
 
         <activity
             android:name="com.cocos.game.AppActivity"
@@ -25,6 +25,7 @@
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
             android:launchMode="singleTask"
             android:exported="true">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
