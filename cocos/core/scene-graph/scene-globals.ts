@@ -37,7 +37,7 @@ import { Fog, FogType } from '../renderer/scene/fog';
 import { Node } from './node';
 import { legacyCC } from '../global-exports';
 import { Root } from '../root';
-import { warnID } from '../platform';
+import { warnID } from '../platform/debug';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
