@@ -52,7 +52,7 @@ export class SpotLight extends Light {
     protected _luminanceHDR = 1700 / scene.nt2lm(0.15);
 
     @serializable
-    protected _luminanceLDR = 1.0;
+    protected _luminanceLDR = 1700 / scene.nt2lm(0.15) * Camera.standardExposureValue * Camera.standardLightMeterScale;
 
     @serializable
     protected _term = PhotometricTerm.LUMINOUS_FLUX;
@@ -278,11 +278,6 @@ export class SpotLight extends Light {
         this.size = this._size;
         this.range = this._range;
         this.spotAngle = this._spotAngle;
-        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
-            this._luminanceLDR = this._luminanceHDR * Camera.standardExposureValue * Camera.standardLightMeterScale;
-        } else {
-            this._luminanceHDR = this._luminanceLDR / Camera.standardExposureValue / Camera.standardLightMeterScale;
-        }
 
         if (this._light) {
             this._light.luminanceHDR = this._luminanceHDR;

@@ -122,7 +122,7 @@ export class Skybox {
 
     set useDiffuseMap (val: boolean) {
         this._useDiffuseMap = val;
-        this.setDiffuseMaps(null, null);
+        this._updatePipeline();
     }
 
     /**

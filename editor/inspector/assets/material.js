@@ -56,12 +56,15 @@ exports.methods = {
     async restore(record) {
         record = JSON.parse(record);
         if (!record || typeof record !== 'object' || !record.material) {
-            return;
+            return false;
         }
 
         this.material = record.material;
         this.cacheData = record.cacheData;
+
         await this.updateInterface({ snapshot: false });
+
+        return true;
     },
 
     async getCustomInspector() {
