@@ -11,7 +11,7 @@
     #include <stdlib.h>
     #include <string.h>
 
-    #ifdef __POSIX__
+    #ifndef _WIN32
         #include <unistd.h>
     #endif
 
@@ -349,7 +349,7 @@ static inline const char *errno_string(int errorno) {
     }
 }
 
-    #ifdef __POSIX__
+    #ifndef _WIN32
 void RegisterSignalHandler(int signal,
                            void (*handler)(int signal),
                            bool reset_handler) {

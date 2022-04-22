@@ -45,7 +45,7 @@ template <typename T, size_t N>
 char (&ArraySizeHelper(const T (&array)[N]))[N];
     #endif
 
-    #ifdef __POSIX__
+    #ifndef _WIN32
 void RegisterSignalHandler(int signal,
                            void (*handler)(int signal),
                            bool reset_handler = false);

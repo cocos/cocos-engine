@@ -16,10 +16,15 @@
     #include <unordered_map>
     #include <vector>
 
-    #ifdef __POSIX__
+    #ifndef _WIN32
         #include <unistd.h> // setuid, getuid
     #endif                  // __POSIX__
-
+#ifndef SE_LOGD
+    #define SE_LOGD printf
+#endif
+#ifndef SE_LOGE
+    #define SE_LOGE printf
+#endif
 namespace node {
 namespace inspector {
 namespace {
@@ -73,7 +78,7 @@ void StartIoInterrupt(Isolate *isolate, void *agent) {
     static_cast<Agent *>(agent)->StartIoThread(false);
 }
 
-    #ifdef __POSIX__
+    #ifndef _WIN32
 
 static void StartIoThreadWakeup(int signo) {
     uv_sem_post(&start_io_thread_semaphore);

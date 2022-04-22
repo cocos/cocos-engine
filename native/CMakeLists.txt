@@ -2308,6 +2308,7 @@ function(cc_apply_definations target)
         $<$<BOOL:${USE_SE_V8}>:SCRIPT_ENGINE_TYPE=2>
         $<$<BOOL:${USE_SE_NAPI}>:SCRIPT_ENGINE_TYPE=5>
         $<$<BOOL:${USE_NODE_NAPI}>:USE_NODE_NAPI=1>
+        $<$<AND:$<CONFIG:Debug>,$<BOOL:${USE_V8_DEBUGGER}>>:SE_ENABLE_INSPECTOR=1>
         $<$<CONFIG:Debug>:CC_DEBUG=1>
     )
 endfunction()

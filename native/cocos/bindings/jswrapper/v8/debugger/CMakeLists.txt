@@ -30,7 +30,7 @@ add_library(v8_debugger
     v8_inspector_protocol_json.h
 )
 
-target_link_libraries(v8_debugger PUBLIC v8 uv ${ZLIB})
+target_link_libraries(v8_debugger PUBLIC ${se_libs_name} uv ${ZLIB})
 target_compile_definitions(v8_debugger PUBLIC
     $<$<CONFIG:Debug>:SE_ENABLE_INSPECTOR=1>
     $<$<CONFIG:Debug>:SE_DEBUG=1>
