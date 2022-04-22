@@ -221,7 +221,7 @@ void SkinningModel::ensureEnoughBuffers(index_t count) {
         }
 
         if (_dataArray[i] == nullptr) {
-            _dataArray[i] = new ccstd::array<float, pipeline::UBOSkinning::COUNT>;
+            _dataArray[i] = ccnew ccstd::array<float, pipeline::UBOSkinning::COUNT>;
         }
     }
 }

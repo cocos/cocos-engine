@@ -262,7 +262,7 @@ void Mesh::initialize() {
                 }
             }
 
-            auto *subMesh = new RenderingSubMesh(subVBs, attributes, primitive.primitiveMode, indexBuffer);
+            auto *subMesh = ccnew RenderingSubMesh(subVBs, attributes, primitive.primitiveMode, indexBuffer);
             subMesh->setDrawInfo(gfx::DrawInfo());
             subMesh->setMesh(this);
             subMesh->setSubMeshIdx(static_cast<uint32_t>(i));
@@ -313,7 +313,7 @@ void Mesh::initialize() {
 
                 const uint8_t *ib = buffer.buffer()->getData() + idxView.offset;
 
-                //            ib = new (getIndexStrideCtor(idxView.stride))(buffer, idxView.offset, idxView.count);
+                //            ib = ccnew (getIndexStrideCtor(idxView.stride))(buffer, idxView.offset, idxView.count);
                 if (idxView.stride != dstStride) {
                     //cjh  need in c++?              ib = getIndexStrideCtor(dstStride).from(ib);
                 }
@@ -338,7 +338,7 @@ void Mesh::initialize() {
                 }
             }
 
-            auto *subMesh = new RenderingSubMesh(vbReference, gfxAttributes, prim.primitiveMode, indexBuffer);
+            auto *subMesh = ccnew RenderingSubMesh(vbReference, gfxAttributes, prim.primitiveMode, indexBuffer);
             subMesh->setMesh(this);
             subMesh->setSubMeshIdx(static_cast<uint32_t>(i));
 
@@ -385,7 +385,7 @@ Mesh::BoneSpaceBounds Mesh::getBoneSpaceBounds(Skeleton *skeleton) {
     const auto &        bindposes = skeleton->getBindposes();
     valid.reserve(bindposes.size());
     for (size_t i = 0; i < bindposes.size(); i++) {
-        bounds.emplace_back(new geometry::AABB{
+        bounds.emplace_back(ccnew geometry::AABB{
             std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(),
             -std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity()});
         valid.emplace_back(false);
@@ -542,7 +542,7 @@ bool Mesh::merge(Mesh *mesh, const Mat4 *worldMatrix /* = nullptr */, bool valid
         vertStride = bundle.view.stride;
         vertCount  = bundle.view.count + dstBundle.view.count;
 
-        auto *     vb = new ArrayBuffer(vertCount * vertStride);
+        auto *     vb = ccnew ArrayBuffer(vertCount * vertStride);
         Uint8Array vbView(vb);
 
         Uint8Array srcVBView = _data.subarray(srcOffset, srcOffset + bundle.view.length);
@@ -633,7 +633,7 @@ bool Mesh::merge(Mesh *mesh, const Mat4 *worldMatrix /* = nullptr */, bool valid
                 idxStride = 4;
             }
 
-            auto *ib = new ArrayBuffer(idxCount * idxStride);
+            auto *ib = ccnew ArrayBuffer(idxCount * idxStride);
 
             TypedArray ibView;
             TypedArray srcIBView;

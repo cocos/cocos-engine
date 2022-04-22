@@ -42,7 +42,7 @@ CCMTLQueue::~CCMTLQueue() {
 }
 
 void CCMTLQueue::doInit(const QueueInfo &info) {
-    _gpuQueueObj = CC_NEW(CCMTLGPUQueueObject);
+    _gpuQueueObj = ccnew CCMTLGPUQueueObject;
     auto device = static_cast<id<MTLDevice>>(CCMTLDevice::getInstance()->getMTLDevice());
     _gpuQueueObj->mtlCommandQueue = [device newCommandQueue];
 }

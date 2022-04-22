@@ -1,4 +1,5 @@
 #include "core/geometry/Triangle.h"
+#include "base/memory/Memory.h"
 
 namespace cc {
 namespace geometry {
@@ -6,11 +7,11 @@ namespace geometry {
 Triangle *Triangle::create(float ax, float ay, float az,
                            float bx, float by, float bz,
                            float cx, float cy, float cz) {
-    return new Triangle(ax, ay, az, bx, by, bz, cx, cy, cz);
+    return ccnew Triangle(ax, ay, az, bx, by, bz, cx, cy, cz);
 }
 
 auto Triangle::clone(const Triangle &t) -> Triangle * {
-    return new Triangle(
+    return ccnew Triangle(
         t.a.x, t.a.y, t.a.z,
         t.b.x, t.b.y, t.b.z,
         t.c.x, t.c.y, t.c.z);

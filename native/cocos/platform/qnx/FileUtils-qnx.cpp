@@ -30,6 +30,7 @@
 #include <unistd.h>
 #include <fstream>
 #include "base/Log.h"
+#include "base/memory/Memory.h"
 
 #define DECLARE_GUARD std::lock_guard<std::recursive_mutex> mutexGuard(_mutex)
 #ifndef CC_RESOURCE_FOLDER_LINUX
@@ -40,7 +41,7 @@ namespace cc {
 
 FileUtils *FileUtils::getInstance() {
     if (FileUtils::sharedFileUtils == nullptr) {
-        FileUtils::sharedFileUtils = new FileUtilsQNX();
+        FileUtils::sharedFileUtils = ccnew FileUtilsQNX();
         if (!FileUtils::sharedFileUtils->init()) {
             delete FileUtils::sharedFileUtils;
             FileUtils::sharedFileUtils = nullptr;

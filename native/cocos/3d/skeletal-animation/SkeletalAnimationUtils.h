@@ -70,7 +70,7 @@ public:
     cc::optional<ccstd::vector<IInternalJointAnimInfo>>           animInfos;
 
     static IJointTextureHandle *createJoinTextureHandle() {
-        return new IJointTextureHandle();
+        return ccnew IJointTextureHandle();
     }
 
 private:

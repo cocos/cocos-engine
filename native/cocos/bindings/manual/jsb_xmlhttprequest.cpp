@@ -222,7 +222,7 @@ XMLHttpRequest::XMLHttpRequest()
   onabort(nullptr),
   onerror(nullptr),
   ontimeout(nullptr),
-  _httpRequest(new (std::nothrow) HttpRequest()),
+  _httpRequest(ccnew HttpRequest()),
   _responseType(ResponseType::STRING),
   _readyState(ReadyState::UNSENT) {
 }
@@ -581,7 +581,7 @@ static bool XMLHttpRequest_finalize(se::State &s) { //NOLINT(readability-identif
 SE_BIND_FINALIZE_FUNC(XMLHttpRequest_finalize)
 
 static bool XMLHttpRequest_constructor(se::State &s) { //NOLINT(readability-identifier-naming, google-runtime-references)
-    auto *request = new XMLHttpRequest();
+    auto *request = ccnew XMLHttpRequest();
     s.thisObject()->setPrivateData(request);
 
     se::Value thiz(s.thisObject());

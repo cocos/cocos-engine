@@ -42,7 +42,6 @@ SubModel::SubModel() {
 }
 
 const static uint32_t  MAX_PASS_COUNT = 8;
-gfx::DescriptorSetInfo dsInfo         = gfx::DescriptorSetInfo();
 
 void SubModel::update() {
     const auto &passes = *_passes;
@@ -69,6 +68,7 @@ void SubModel::setPasses(const std::shared_ptr<ccstd::vector<IntrusivePtr<Pass>>
     // DS layout might change too
     if (_descriptorSet) {
         _descriptorSet->destroy();
+        gfx::DescriptorSetInfo dsInfo;
         dsInfo.layout  = passes[0]->getLocalSetLayout();
         _descriptorSet = _device->createDescriptorSet(dsInfo);
     }
@@ -93,9 +93,9 @@ Pass *SubModel::getPass(uint index) const {
 
 void SubModel::initialize(RenderingSubMesh *subMesh, const std::shared_ptr<ccstd::vector<IntrusivePtr<Pass>>> &pPasses, const ccstd::vector<IMacroPatch> &patches) {
     _device = Root::getInstance()->getDevice();
-    if (!pPasses->empty()) {
-        dsInfo.layout = (*pPasses)[0]->getLocalSetLayout();
-    }
+    CC_ASSERT(!pPasses->empty());
+    gfx::DescriptorSetInfo dsInfo;
+    dsInfo.layout = (*pPasses)[0]->getLocalSetLayout();
     _inputAssembler                          = _device->createInputAssembler(subMesh->getIaInfo());
     _descriptorSet                           = _device->createDescriptorSet(dsInfo);
     const auto *               pipeline      = Root::getInstance()->getPipeline();
@@ -147,7 +147,7 @@ void SubModel::initialize(RenderingSubMesh *subMesh, const std::shared_ptr<ccstd
         };
         _reflectionSampler = _device->getSampler(samplerInfo);
         _descriptorSet->bindSampler(pipeline::REFLECTIONTEXTURE::BINDING, _reflectionSampler);
-        _descriptorSet->bindTexture(pipeline::REFLECTIONTEXTURE::BINDING, _reflectionTex);
+        _descriptorSet->bindTexture(pipeline::REFLECTIONSTORAGE::BINDING, _reflectionTex);
     }
 }
 

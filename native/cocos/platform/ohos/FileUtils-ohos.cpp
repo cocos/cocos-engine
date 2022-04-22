@@ -23,17 +23,17 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "cocos/platform/ohos/FileUtils-ohos.h"
-#include <hilog/log.h>
-#include <sys/stat.h>
+#include "platform/ohos/FileUtils-ohos.h"
 #include <cstdio>
+#include <hilog/log.h>
 #include <regex>
-#include "base/std/container/string.h"
-#include "cocos/base/Log.h"
-#include "cocos/platform/java/jni/JniHelper.h"
-
+#include <sys/stat.h>
 #include <sys/syscall.h>
 #include <unistd.h>
+#include "base/std/container/string.h"
+#include "base/memory/Memory.h"
+#include "base/Log.h"
+#include "platform/java/jni/JniHelper.h"
 
 #define ASSETS_FOLDER_NAME "@assets/"
 
@@ -97,7 +97,7 @@ ResourceManager *FileUtilsOHOS::getResourceManager() {
 
 FileUtils *FileUtils::getInstance() {
     if (FileUtils::sharedFileUtils == nullptr) {
-        FileUtils::sharedFileUtils = new FileUtilsOHOS();
+        FileUtils::sharedFileUtils = ccnew FileUtilsOHOS();
         if (!FileUtils::sharedFileUtils->init()) {
             delete FileUtils::sharedFileUtils;
             FileUtils::sharedFileUtils = nullptr;

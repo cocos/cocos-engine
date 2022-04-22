@@ -150,9 +150,9 @@ protected:
     virtual PipelineLayout *     createPipelineLayout()                                            = 0;
     virtual PipelineState *      createPipelineState()                                             = 0;
 
-    virtual Sampler *       createSampler(const SamplerInfo &info) { return CC_NEW(Sampler(info)); }
-    virtual GeneralBarrier *createGeneralBarrier(const GeneralBarrierInfo &info) { return CC_NEW(GeneralBarrier(info)); }
-    virtual TextureBarrier *createTextureBarrier(const TextureBarrierInfo &info) { return CC_NEW(TextureBarrier(info)); }
+    virtual Sampler *       createSampler(const SamplerInfo &info) { return ccnew Sampler(info); }
+    virtual GeneralBarrier *createGeneralBarrier(const GeneralBarrierInfo &info) { return ccnew GeneralBarrier(info); }
+    virtual TextureBarrier *createTextureBarrier(const TextureBarrierInfo &info) { return ccnew TextureBarrier(info); }
 
     // For context switching between threads
     virtual void bindContext(bool bound) {}
@@ -313,7 +313,7 @@ void Device::acquire(const ccstd::vector<Swapchain *> &swapchains) {
 
 template <typename ExecuteMethod>
 void Device::registerOnAcquireCallback(ExecuteMethod &&execute) {
-    _onAcquire = CC_NEW(CallbackExecutable<ExecuteMethod>(std::forward<ExecuteMethod>(execute)));
+    _onAcquire = ccnew CallbackExecutable<ExecuteMethod>(std::forward<ExecuteMethod>(execute));
 }
 
 } // namespace gfx

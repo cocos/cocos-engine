@@ -80,9 +80,9 @@ bool DeviceValidator::doInit(const DeviceInfo &info) {
 
     _api        = _actor->getGfxAPI();
     _deviceName = _actor->getDeviceName();
-    _queue      = CC_NEW(QueueValidator(_actor->getQueue()));
-    _queryPool  = CC_NEW(QueryPoolValidator(_actor->getQueryPool()));
-    _cmdBuff    = CC_NEW(CommandBufferValidator(_actor->getCommandBuffer()));
+    _queue      = ccnew QueueValidator(_actor->getQueue());
+    _queryPool  = ccnew QueryPoolValidator(_actor->getQueryPool());
+    _cmdBuff    = ccnew CommandBufferValidator(_actor->getCommandBuffer());
     _renderer   = _actor->getRenderer();
     _vendor     = _actor->getVendor();
     _caps       = _actor->_caps;
@@ -107,17 +107,17 @@ void DeviceValidator::doDestroy() {
     if (_cmdBuff) {
         static_cast<CommandBufferValidator *>(_cmdBuff)->destroyValidator();
         static_cast<CommandBufferValidator *>(_cmdBuff)->_actor = nullptr;
-        CC_DELETE(_cmdBuff);
+        delete _cmdBuff;
         _cmdBuff = nullptr;
     }
     if (_queryPool) {
         static_cast<QueryPoolValidator *>(_queryPool)->_actor = nullptr;
-        CC_DELETE(_queryPool);
+        delete _queryPool;
         _queryPool = nullptr;
     }
     if (_queue) {
         static_cast<QueueValidator *>(_queue)->_actor = nullptr;
-        CC_DELETE(_queue);
+        delete _queue;
         _queue = nullptr;
     }
 
@@ -161,98 +161,98 @@ void DeviceValidator::present() {
 
 CommandBuffer *DeviceValidator::createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
     CommandBuffer *actor  = _actor->createCommandBuffer(info, hasAgent);
-    CommandBuffer *result = CC_NEW(CommandBufferValidator(actor));
+    CommandBuffer *result = ccnew CommandBufferValidator(actor);
     DeviceResourceTracker<CommandBuffer>::push(result);
     return result;
 }
 
 Queue *DeviceValidator::createQueue() {
     Queue *actor  = _actor->createQueue();
-    Queue *result = CC_NEW(QueueValidator(actor));
+    Queue *result = ccnew QueueValidator(actor);
     DeviceResourceTracker<Queue>::push(result);
     return result;
 }
 
 QueryPool *DeviceValidator::createQueryPool() {
     QueryPool *actor  = _actor->createQueryPool();
-    QueryPool *result = CC_NEW(QueryPoolValidator(actor));
+    QueryPool *result = ccnew QueryPoolValidator(actor);
     DeviceResourceTracker<QueryPool>::push(result);
     return result;
 }
 
 Swapchain *DeviceValidator::createSwapchain() {
     Swapchain *actor  = _actor->createSwapchain();
-    Swapchain *result = CC_NEW(SwapchainValidator(actor));
+    Swapchain *result = ccnew SwapchainValidator(actor);
     DeviceResourceTracker<Swapchain>::push(result);
     return result;
 }
 
 Buffer *DeviceValidator::createBuffer() {
     Buffer *actor  = _actor->createBuffer();
-    Buffer *result = CC_NEW(BufferValidator(actor));
+    Buffer *result = ccnew BufferValidator(actor);
     DeviceResourceTracker<Buffer>::push(result);
     return result;
 }
 
 Texture *DeviceValidator::createTexture() {
     Texture *actor  = _actor->createTexture();
-    Texture *result = CC_NEW(TextureValidator(actor));
+    Texture *result = ccnew TextureValidator(actor);
     DeviceResourceTracker<Texture>::push(result);
     return result;
 }
 
 Shader *DeviceValidator::createShader() {
     Shader *actor  = _actor->createShader();
-    Shader *result = CC_NEW(ShaderValidator(actor));
+    Shader *result = ccnew ShaderValidator(actor);
     DeviceResourceTracker<Shader>::push(result);
     return result;
 }
 
 InputAssembler *DeviceValidator::createInputAssembler() {
     InputAssembler *actor  = _actor->createInputAssembler();
-    InputAssembler *result = CC_NEW(InputAssemblerValidator(actor));
+    InputAssembler *result = ccnew InputAssemblerValidator(actor);
     DeviceResourceTracker<InputAssembler>::push(result);
     return result;
 }
 
 RenderPass *DeviceValidator::createRenderPass() {
     RenderPass *actor  = _actor->createRenderPass();
-    RenderPass *result = CC_NEW(RenderPassValidator(actor));
+    RenderPass *result = ccnew RenderPassValidator(actor);
     DeviceResourceTracker<RenderPass>::push(result);
     return result;
 }
 
 Framebuffer *DeviceValidator::createFramebuffer() {
     Framebuffer *actor  = _actor->createFramebuffer();
-    Framebuffer *result = CC_NEW(FramebufferValidator(actor));
+    Framebuffer *result = ccnew FramebufferValidator(actor);
     DeviceResourceTracker<Framebuffer>::push(result);
     return result;
 }
 
 DescriptorSet *DeviceValidator::createDescriptorSet() {
     DescriptorSet *actor  = _actor->createDescriptorSet();
-    DescriptorSet *result = CC_NEW(DescriptorSetValidator(actor));
+    DescriptorSet *result = ccnew DescriptorSetValidator(actor);
     DeviceResourceTracker<DescriptorSet>::push(result);
     return result;
 }
 
 DescriptorSetLayout *DeviceValidator::createDescriptorSetLayout() {
     DescriptorSetLayout *actor  = _actor->createDescriptorSetLayout();
-    DescriptorSetLayout *result = CC_NEW(DescriptorSetLayoutValidator(actor));
+    DescriptorSetLayout *result = ccnew DescriptorSetLayoutValidator(actor);
     DeviceResourceTracker<DescriptorSetLayout>::push(result);
     return result;
 }
 
 PipelineLayout *DeviceValidator::createPipelineLayout() {
     PipelineLayout *actor  = _actor->createPipelineLayout();
-    PipelineLayout *result = CC_NEW(PipelineLayoutValidator(actor));
+    PipelineLayout *result = ccnew PipelineLayoutValidator(actor);
     DeviceResourceTracker<PipelineLayout>::push(result);
     return result;
 }
 
 PipelineState *DeviceValidator::createPipelineState() {
     PipelineState *actor  = _actor->createPipelineState();
-    PipelineState *result = CC_NEW(PipelineStateValidator(actor));
+    PipelineState *result = ccnew PipelineStateValidator(actor);
     DeviceResourceTracker<PipelineState>::push(result);
     return result;
 }

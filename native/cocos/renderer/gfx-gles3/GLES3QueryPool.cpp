@@ -42,7 +42,7 @@ GLES3QueryPool::~GLES3QueryPool() {
 void GLES3QueryPool::doInit(const QueryPoolInfo & /*info*/) {
     GLES3Device *device = GLES3Device::getInstance();
     if (device->getCapabilities().supportQuery) {
-        _gpuQueryPool                  = CC_NEW(GLES3GPUQueryPool);
+        _gpuQueryPool                  = ccnew GLES3GPUQueryPool;
         _gpuQueryPool->type            = _type;
         _gpuQueryPool->maxQueryObjects = _maxQueryObjects;
         _gpuQueryPool->forceWait       = _forceWait;
@@ -55,7 +55,7 @@ void GLES3QueryPool::doInit(const QueryPoolInfo & /*info*/) {
 void GLES3QueryPool::doDestroy() {
     if (_gpuQueryPool) {
         cmdFuncGLES3DestroyQueryPool(GLES3Device::getInstance(), _gpuQueryPool);
-        CC_DELETE(_gpuQueryPool);
+        delete _gpuQueryPool;
         _gpuQueryPool = nullptr;
     }
 }

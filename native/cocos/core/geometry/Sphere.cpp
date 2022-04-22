@@ -32,11 +32,11 @@ namespace cc {
 namespace geometry {
 
 Sphere *Sphere::create(float cx, float cy, float cz, float radius) {
-    return new Sphere(cx, cy, cz, radius);
+    return ccnew Sphere(cx, cy, cz, radius);
 }
 
 Sphere *Sphere::clone(const Sphere &p) {
-    return new Sphere(p._center.x, p._center.y, p._center.z, p._radius);
+    return ccnew Sphere(p._center.x, p._center.y, p._center.z, p._radius);
 }
 
 Sphere *Sphere::copy(Sphere *out, const Sphere &p) {

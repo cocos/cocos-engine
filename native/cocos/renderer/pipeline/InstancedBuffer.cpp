@@ -40,7 +40,7 @@ InstancedBuffer *                                                               
 InstancedBuffer *InstancedBuffer::get(scene::Pass *pass, uint extraKey) {
     auto &record = buffers[pass];
     auto &buffer = record[extraKey];
-    if (buffer == nullptr) buffer = CC_NEW(InstancedBuffer(pass));
+    if (buffer == nullptr) buffer = ccnew InstancedBuffer(pass);
 
     return buffer;
 }

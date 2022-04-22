@@ -26,15 +26,14 @@
 
 #define LOG_TAG "AudioPlayer"
 
+#include <cstdlib>
+#include <cstring>
 #include "audio/oalsoft/AudioPlayer.h"
 #include "audio/oalsoft/AudioCache.h"
 #include "audio/oalsoft/AudioDecoder.h"
 #include "audio/oalsoft/AudioDecoderManager.h"
-
+#include "base/memory/Memory.h"
 #include "base/Log.h"
-
-#include <cstdlib>
-#include <cstring>
 
 using namespace cc; //NOLINT
 
@@ -180,7 +179,7 @@ bool AudioPlayer::play2d() {
             if (_streamingSource) {
                 alSourceQueueBuffers(_alSource, QUEUEBUFFER_NUM, _bufferIds);
                 CHECK_AL_ERROR_DEBUG();
-                _rotateBufferThread = new std::thread(&AudioPlayer::rotateBufferThread, this,
+                _rotateBufferThread = ccnew std::thread(&AudioPlayer::rotateBufferThread, this,
                                                       _audioCache->_queBufferFrames * QUEUEBUFFER_NUM + 1);
             } else {
                 alSourcei(_alSource, AL_BUFFER, _audioCache->_alBufferId);

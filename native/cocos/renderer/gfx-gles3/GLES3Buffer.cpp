@@ -42,7 +42,7 @@ GLES3Buffer::~GLES3Buffer() {
 }
 
 void GLES3Buffer::doInit(const BufferInfo & /*info*/) {
-    _gpuBuffer           = CC_NEW(GLES3GPUBuffer);
+    _gpuBuffer           = ccnew GLES3GPUBuffer;
     _gpuBuffer->usage    = _usage;
     _gpuBuffer->memUsage = _memUsage;
     _gpuBuffer->size     = _size;
@@ -60,7 +60,7 @@ void GLES3Buffer::doInit(const BufferInfo & /*info*/) {
 
 void GLES3Buffer::doInit(const BufferViewInfo &info) {
     auto *buffer          = static_cast<GLES3Buffer *>(info.buffer);
-    _gpuBuffer            = CC_NEW(GLES3GPUBuffer);
+    _gpuBuffer            = ccnew GLES3GPUBuffer;
     _gpuBuffer->usage     = _usage;
     _gpuBuffer->memUsage  = _memUsage;
     _gpuBuffer->size      = _size;
@@ -80,7 +80,7 @@ void GLES3Buffer::doDestroy() {
             GLES3Device::getInstance()->getMemoryStatus().bufferSize -= _size;
             CC_PROFILE_MEMORY_DEC(Buffer, _size);
         }
-        CC_DELETE(_gpuBuffer);
+        delete _gpuBuffer;
         _gpuBuffer = nullptr;
     }
 }

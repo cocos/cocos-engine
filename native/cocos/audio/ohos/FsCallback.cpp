@@ -23,11 +23,12 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "cocos/audio/ohos/FsCallback.h"
+#include "audio/ohos/FsCallback.h"
 
 #include <rawfile/raw_dir.h>
 #include <rawfile/raw_file.h>
-#include "cocos/platform/ohos/FileUtils-ohos.h"
+#include "platform/ohos/FileUtils-ohos.h"
+#include "base/memory/Memory.h"
 
 namespace {
 inline cc::FileUtilsOHOS *getFU() {
@@ -48,7 +49,7 @@ namespace cc {
 void *ohosOpen(const char *path, void *user) {
     bool       isRawfile = false;
     const auto newPath   = getFU()->expandPath(path, &isRawfile);
-    auto *     ret       = new FatFd();
+    auto *     ret       = ccnew FatFd();
     if (isRawfile) {
         ret->file.rf = OpenRawFile(cc::FileUtilsOHOS::getResourceManager(), newPath.c_str());
     } else {

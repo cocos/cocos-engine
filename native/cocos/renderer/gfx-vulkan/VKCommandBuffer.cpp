@@ -51,7 +51,7 @@ CCVKCommandBuffer::~CCVKCommandBuffer() {
 }
 
 void CCVKCommandBuffer::doInit(const CommandBufferInfo & /*info*/) {
-    _gpuCommandBuffer                   = CC_NEW(CCVKGPUCommandBuffer);
+    _gpuCommandBuffer                   = ccnew CCVKGPUCommandBuffer;
     _gpuCommandBuffer->level            = mapVkCommandBufferLevel(_type);
     _gpuCommandBuffer->queueFamilyIndex = static_cast<CCVKQueue *>(_queue)->gpuQueue()->queueFamilyIndex;
 
@@ -62,10 +62,7 @@ void CCVKCommandBuffer::doInit(const CommandBufferInfo & /*info*/) {
 }
 
 void CCVKCommandBuffer::doDestroy() {
-    if (_gpuCommandBuffer) {
-        CC_DELETE(_gpuCommandBuffer);
-        _gpuCommandBuffer = nullptr;
-    }
+    CC_SAFE_DELETE(_gpuCommandBuffer);
 }
 
 void CCVKCommandBuffer::begin(RenderPass *renderPass, uint32_t subpass, Framebuffer *frameBuffer) {

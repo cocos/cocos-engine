@@ -53,7 +53,7 @@ GLES2Swapchain::~GLES2Swapchain() {
 
 void GLES2Swapchain::doInit(const SwapchainInfo &info) {
     const auto *context = GLES2Device::getInstance()->context();
-    _gpuSwapchain       = CC_NEW(GLES2GPUSwapchain);
+    _gpuSwapchain       = ccnew GLES2GPUSwapchain;
     auto window         = reinterpret_cast<EGLNativeWindowType>(info.windowHandle); //NOLINT[readability-qualified-auto]
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS
@@ -109,8 +109,8 @@ void GLES2Swapchain::doInit(const SwapchainInfo &info) {
 
     ///////////////////// Texture Creation /////////////////////
 
-    _colorTexture        = CC_NEW(GLES2Texture);
-    _depthStencilTexture = CC_NEW(GLES2Texture);
+    _colorTexture        = ccnew GLES2Texture;
+    _depthStencilTexture = ccnew GLES2Texture;
 
     SwapchainTextureInfo textureInfo;
     textureInfo.swapchain = this;

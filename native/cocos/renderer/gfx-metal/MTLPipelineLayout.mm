@@ -39,7 +39,7 @@ CCMTLPipelineLayout::~CCMTLPipelineLayout() {
 
 void CCMTLPipelineLayout::doInit(const PipelineLayoutInfo &info) {
     const auto setCount = _setLayouts.size();
-    _gpuPipelineLayout = CC_NEW(CCMTLGPUPipelineLayout);
+    _gpuPipelineLayout = ccnew CCMTLGPUPipelineLayout;
     _gpuPipelineLayout->dynamicOffsetIndices.resize(setCount);
 
     for (size_t i = 0; i < setCount; i++) {

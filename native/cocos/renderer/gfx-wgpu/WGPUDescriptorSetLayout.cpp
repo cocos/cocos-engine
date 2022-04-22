@@ -50,7 +50,7 @@ CCWGPUDescriptorSetLayout::CCWGPUDescriptorSetLayout() : wrapper<DescriptorSetLa
 }
 
 void CCWGPUDescriptorSetLayout::doInit(const DescriptorSetLayoutInfo &info) {
-    _gpuLayoutEntryObj = CC_NEW(CCWGPUBindGroupLayoutObject);
+    _gpuLayoutEntryObj = ccnew CCWGPUBindGroupLayoutObject;
     for (size_t i = 0; i < _bindings.size(); i++) {
         if (_bindings[i].descriptorType == DescriptorType::UNKNOWN)
             continue;
@@ -304,7 +304,7 @@ void *CCWGPUDescriptorSetLayout::defaultBindGroupLayout() {
 }
 
 void CCWGPUDescriptorSetLayout::doDestroy() {
-    CC_DELETE(_gpuLayoutEntryObj);
+    delete _gpuLayoutEntryObj;
 }
 
 } // namespace gfx

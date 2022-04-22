@@ -15,12 +15,10 @@ Thumbs.db
 /lib
 /linux-build
 /samples
-/templates
 /tests
 /plugin/samples
 /tools
 /utils
-/licenses
 /simulator
 /build/build
 /cocos/bindings/proj.ios_mac/build/cocos2d_js_bindings.build

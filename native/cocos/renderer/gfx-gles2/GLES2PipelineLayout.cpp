@@ -43,7 +43,7 @@ GLES2PipelineLayout::~GLES2PipelineLayout() {
 }
 
 void GLES2PipelineLayout::doInit(const PipelineLayoutInfo & /*info*/) {
-    _gpuPipelineLayout = CC_NEW(GLES2GPUPipelineLayout);
+    _gpuPipelineLayout = ccnew GLES2GPUPipelineLayout;
 
     uint32_t offset = 0U;
     _gpuPipelineLayout->dynamicOffsetIndices.resize(_setLayouts.size());

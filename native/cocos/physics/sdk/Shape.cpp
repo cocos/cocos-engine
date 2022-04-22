@@ -24,12 +24,13 @@
 ****************************************************************************/
 
 #include "physics/sdk/Shape.h"
+#include "base/memory/Memory.h"
 #include "physics/PhysicsSelector.h"
 
 #define CC_PHYSICS_SHAPE_DEFINITION(CLASS, WRAPPED)                  \
                                                                      \
     CLASS::CLASS() {                                                 \
-        _impl.reset(new WRAPPED());                                  \
+        _impl.reset(ccnew WRAPPED());                                \
     }                                                                \
                                                                      \
     CLASS::~CLASS() {                                                \

@@ -53,7 +53,7 @@ void PhysXEventManager::SimulationEventCallback::onTrigger(physx::PxTriggerPair 
             return (pair->shapeA == self || pair->shapeA == other) && (pair->shapeB == self || pair->shapeB == other);
         });
         if (tp.status & physx::PxPairFlag::eNOTIFY_TOUCH_FOUND) {
-            if (iter == pairs.end()) pairs.push_back(std::shared_ptr<TriggerEventPair>(new TriggerEventPair{self, other}));
+            if (iter == pairs.end()) pairs.push_back(std::shared_ptr<TriggerEventPair>(ccnew TriggerEventPair{self, other}));
         } else if (tp.status & physx::PxPairFlag::eNOTIFY_TOUCH_LOST) {
             if (iter != pairs.end()) iter->get()->state = ETouchState::EXIT;
         }
@@ -81,7 +81,7 @@ void PhysXEventManager::SimulationEventCallback::onContact(const physx::PxContac
         });
 
         if (iter == pairs.end()) {
-            pairs.push_back(std::shared_ptr<ContactEventPair>(new ContactEventPair{self, other}));
+            pairs.push_back(std::shared_ptr<ContactEventPair>(ccnew ContactEventPair{self, other}));
             iter = pairs.end() - 1;
         }
 

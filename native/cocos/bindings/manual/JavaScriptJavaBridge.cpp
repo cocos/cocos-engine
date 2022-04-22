@@ -251,7 +251,7 @@ bool JavaScriptJavaBridge::CallInfo::execute() {
             _mRetjstring = static_cast<jstring>(_mEnv->CallStaticObjectMethod(_mClassID, _mMethodID));
             if (_mRetjstring) {
                 ccstd::string strValue = cc::StringUtils::getStringUTFCharsJNI(_mEnv, _mRetjstring);
-                _mRet.stringValue      = new ccstd::string(strValue);
+                _mRet.stringValue      = ccnew ccstd::string(strValue);
             } else {
                 _mRet.stringValue = nullptr;
             }
@@ -301,7 +301,7 @@ bool JavaScriptJavaBridge::CallInfo::executeWithArgs(jvalue *args) {
             _mRetjstring = static_cast<jstring>(_mEnv->CallStaticObjectMethodA(_mClassID, _mMethodID, args));
             if (_mRetjstring) {
                 ccstd::string strValue = cc::StringUtils::getStringUTFCharsJNI(_mEnv, _mRetjstring);
-                _mRet.stringValue      = new ccstd::string(strValue);
+                _mRet.stringValue      = ccnew ccstd::string(strValue);
             } else {
                 _mRet.stringValue = nullptr;
             }
@@ -484,7 +484,7 @@ static bool JavaScriptJavaBridge_finalize(se::State &s) { //NOLINT(readability-i
 SE_BIND_FINALIZE_FUNC(JavaScriptJavaBridge_finalize)
 
 static bool JavaScriptJavaBridge_constructor(se::State &s) { //NOLINT(readability-identifier-naming)
-    auto *cobj = new (std::nothrow) JavaScriptJavaBridge();
+    auto *cobj = ccnew JavaScriptJavaBridge();
     s.thisObject()->setPrivateData(cobj);
     return true;
 }
@@ -542,7 +542,7 @@ static bool JavaScriptJavaBridge_callStaticMethod(se::State &s) { //NOLINT(reada
         JavaScriptJavaBridge::CallInfo call(clsName.c_str(), methodName.c_str(), methodSig.c_str());
         if (call.isValid() && call.getArgumentsCount() == (argc - 3)) {
             int                    count = argc - 3;
-            auto *                 jargs = new jvalue[count];
+            auto *                 jargs = ccnew jvalue[count];
             ccstd::vector<jobject> toReleaseObjects;
             for (int i = 0; i < count; ++i) {
                 int index = i + 3;
@@ -693,7 +693,7 @@ static bool ScriptNativeBridge_finalize(se::State &s) { //NOLINT(readability-ide
 SE_BIND_FINALIZE_FUNC(ScriptNativeBridge_finalize)
 
 static bool ScriptNativeBridge_constructor(se::State &s) { //NOLINT(readability-identifier-naming)
-    auto *cobj = new (std::nothrow) ScriptNativeBridge();
+    auto *cobj = ccnew ScriptNativeBridge();
     s.thisObject()->setPrivateData(cobj);
     ScriptNativeBridge::bridgeCxxInstance = cobj;
     return true;

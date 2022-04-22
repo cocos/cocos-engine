@@ -269,18 +269,18 @@ void Model::createBoundingShape(const cc::optional<Vec3> &minPos, const cc::opti
     }
 
     if (!_modelBounds) {
-        _modelBounds = new geometry::AABB();
+        _modelBounds = ccnew geometry::AABB();
     }
     geometry::AABB::fromPoints(minPos.value(), maxPos.value(), _modelBounds);
 
     if (!_worldBounds) {
-        _worldBounds = new geometry::AABB();
+        _worldBounds = ccnew geometry::AABB();
     }
     geometry::AABB::fromPoints(minPos.value(), maxPos.value(), _worldBounds);
 }
 
 SubModel *Model::createSubModel() {
-    return new SubModel();
+    return ccnew SubModel();
 }
 
 void Model::initSubModel(index_t idx, cc::RenderingSubMesh *subMeshData, Material *mat) {

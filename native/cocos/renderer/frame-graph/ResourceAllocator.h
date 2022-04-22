@@ -142,7 +142,7 @@ void ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreator
 
         while (++destroyBegin < count) {
             auto *resource = pool.back();
-            CC_DELETE(resource);
+            delete resource;
             _ages.erase(resource);
             pool.pop_back();
         }
@@ -259,7 +259,7 @@ void ResourceAllocator<DeviceResourceType, gfx::FramebufferInfo, DeviceResourceC
 
         while (++destroyBegin < count) {
             auto *resource = pool.back();
-            CC_DELETE(resource);
+            delete resource;
             _ages.erase(resource);
             pool.pop_back();
         }

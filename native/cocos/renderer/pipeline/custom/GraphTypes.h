@@ -24,16 +24,17 @@
 ****************************************************************************/
 
 #pragma once
-#include "cocos/base/Variant.h"
-#include "cocos/base/std/container/list.h"
-#include "cocos/base/std/container/string.h"
-#include "cocos/renderer/pipeline/custom/Overload.h"
 
 #include <boost/container/pmr/polymorphic_allocator.hpp>
 #include <boost/iterator/iterator_adaptor.hpp>
 #include <boost/optional.hpp>
 #include <memory>
 #include <type_traits>
+#include "base/Variant.h"
+#include "base/memory/Memory.h"
+#include "base/std/container/list.h"
+#include "base/std/container/string.h"
+#include "renderer/pipeline/custom/Overload.h"
 
 namespace boost {
 
@@ -197,7 +198,7 @@ template <class VertexDescriptor, class EdgeProperty>
 class StoredEdgeWithProperty : public StoredEdge<VertexDescriptor> {
 public:
     StoredEdgeWithProperty(VertexDescriptor target, const EdgeProperty &p)
-    : StoredEdge<VertexDescriptor>(target), property(new EdgeProperty(p)) {}
+    : StoredEdge<VertexDescriptor>(target), property(ccnew EdgeProperty(p)) {}
     StoredEdgeWithProperty(VertexDescriptor target, std::unique_ptr<EdgeProperty> &&ptr)
     : StoredEdge<VertexDescriptor>(target), property(std::move(ptr)) {}
     StoredEdgeWithProperty(VertexDescriptor target) // NOLINT(google-explicit-constructor)

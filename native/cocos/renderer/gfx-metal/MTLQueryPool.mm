@@ -44,12 +44,12 @@ CCMTLQueryPool::~CCMTLQueryPool() {
 
 void CCMTLQueryPool::doInit(const QueryPoolInfo& info) {
     id<MTLDevice> mtlDevice               = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
-    _gpuQueryPool                         = CC_NEW(CCMTLGPUQueryPool);
+    _gpuQueryPool                         = ccnew CCMTLGPUQueryPool;
     _gpuQueryPool->type                   = _type;
     _gpuQueryPool->maxQueryObjects        = _maxQueryObjects;
     _gpuQueryPool->forceWait              = _forceWait;
     _gpuQueryPool->visibilityResultBuffer = [mtlDevice newBufferWithLength:_maxQueryObjects * sizeof(uint64_t) options:MTLResourceStorageModeShared];
-    _gpuQueryPool->semaphore              = CC_NEW(CCMTLSemaphore(1));
+    _gpuQueryPool->semaphore              = ccnew CCMTLSemaphore(1);
 }
 
 void CCMTLQueryPool::doDestroy() {

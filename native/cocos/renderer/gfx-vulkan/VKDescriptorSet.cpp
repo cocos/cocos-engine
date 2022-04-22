@@ -49,7 +49,7 @@ void CCVKDescriptorSet::doInit(const DescriptorSetInfo & /*info*/) {
     uint32_t                    bindingCount           = utils::toUint(gpuDescriptorSetLayout->bindings.size());
     uint32_t                    descriptorCount        = gpuDescriptorSetLayout->descriptorCount;
 
-    _gpuDescriptorSet = CC_NEW(CCVKGPUDescriptorSet);
+    _gpuDescriptorSet = ccnew CCVKGPUDescriptorSet;
     _gpuDescriptorSet->gpuDescriptors.resize(descriptorCount, {});
     _gpuDescriptorSet->layoutID = gpuDescriptorSetLayout->id;
 
@@ -184,7 +184,7 @@ void CCVKDescriptorSet::doDestroy() {
 
         CCVKDevice::getInstance()->gpuDescriptorSetHub()->erase(_gpuDescriptorSet);
 
-        CC_DELETE(_gpuDescriptorSet);
+        delete _gpuDescriptorSet;
         _gpuDescriptorSet = nullptr;
     }
 }

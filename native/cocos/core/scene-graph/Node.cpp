@@ -88,7 +88,7 @@ Node::Node(const ccstd::string &name) {
         _name = name;
     }
     allNodes.push(this);
-    _eventProcessor = new NodeEventProcessor(this);
+    _eventProcessor = ccnew NodeEventProcessor(this);
 }
 
 Node::~Node() {
@@ -135,11 +135,11 @@ void Node::onHierarchyChangedBase(Node *oldParent) { // NOLINT(misc-unused-param
     auto *scene     = dynamic_cast<Scene *>(newParent);
     if (isPersistNode() && scene == nullptr) {
         emit(EventTypesToJS::NODE_REMOVE_PERSIST_ROOT_NODE);
-#ifdef CC_EDITOR
+#if CC_EDITOR
         debug::warnID(1623);
 #endif
     }
-#ifdef CC_EDITOR
+#if CC_EDITOR
     auto *     curScene             = getScene();
     const bool inCurrentSceneBefore = oldParent && oldParent->isChildOf(curScene);
     const bool inCurrentSceneNow    = newParent && newParent->isChildOf(curScene);
@@ -395,7 +395,7 @@ bool Node::onPreDestroyBase() {
     Flags destroyingFlag = Flags::DESTROYING;
     _objFlags |= destroyingFlag;
     bool destroyByParent = (!!_parent) && (!!(_parent->_objFlags & destroyingFlag));
-#ifdef CC_EDITOR
+#if CC_EDITOR
     if (!destroyByParent) {
         this->notifyEditorAttached(false);
     }

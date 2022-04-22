@@ -24,15 +24,15 @@
 ****************************************************************************/
 
 #include "Reachability.h"
-#include "base/DeferredReleasePool.h"
-#include "base/Macros.h"
-
 #include <SystemConfiguration/SystemConfiguration.h>
 #include <arpa/inet.h>
 #include <ifaddrs.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include "base/DeferredReleasePool.h"
+#include "base/Macros.h"
+#include "base/memory/Memory.h"
 
 namespace {
 
@@ -109,7 +109,7 @@ Reachability *Reachability::createWithHostName(const ccstd::string &hostName) {
     Reachability *           returnValue  = nullptr;
     SCNetworkReachabilityRef reachability = SCNetworkReachabilityCreateWithName(nullptr, hostName.c_str());
     if (reachability != nullptr) {
-        returnValue = new (std::nothrow) Reachability();
+        returnValue = ccnew Reachability();
         returnValue->addRef();
         if (returnValue != nullptr) {
             cc::DeferredReleasePool::add(returnValue);
@@ -127,7 +127,7 @@ Reachability *Reachability::createWithAddress(const struct sockaddr *hostAddress
     Reachability *returnValue = nullptr;
 
     if (reachability != nullptr) {
-        returnValue = new (std::nothrow) Reachability();
+        returnValue = ccnew Reachability();
         returnValue->addRef();
         if (returnValue != nullptr) {
             cc::DeferredReleasePool::add(returnValue);

@@ -36,7 +36,7 @@ Scene::Scene(const ccstd::string &name)
     // _activeInHierarchy is initalized to 'false', so doesn't need to set it to false again
     //    _activeInHierarchy = false;
     _renderScene = Root::getInstance()->createScene({});
-    _globals     = new SceneGlobals();
+    _globals     = ccnew SceneGlobals();
 }
 
 Scene::Scene() : Scene("") {}
@@ -62,7 +62,7 @@ void Scene::load() {
 }
 
 void Scene::activate(bool active /* = true */) { // NOLINT(misc-unused-parameters)
-#ifdef CC_EDITOR
+#if CC_EDITOR
     this->notifyEditorAttached(active);
 #endif
     //cjh

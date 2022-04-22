@@ -23,6 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+
+#include "cocos.h"
+#include "engine/BaseEngine.h"
 #include "core/assets/EffectAsset.h"
 #include "core/Root.h"
 #include "renderer/core/ProgramLib.h"
@@ -134,9 +137,15 @@ EffectAsset *EffectAsset::get(const ccstd::string &name) {
 void EffectAsset::onLoaded() {
     ProgramLib::getInstance()->registerEffect(this);
     EffectAsset::registerAsset(this);
-    //cjh TODO:    if (!EDITOR){
-    //cjh    legacyCC.game.once(legacyCC.Game.EVENT_ENGINE_INITED, this._precompile, this);
-    // }
+#if !CC_EDITOR
+    if (CC_CURRENT_ENGINE()->isInited()) {
+        precompile();
+    } else {
+        CC_CURRENT_ENGINE()->on(BaseEngine::ON_START, [this]() {
+            this->precompile();
+        });
+    }
+#endif
 }
 
 bool EffectAsset::destroy() {
@@ -170,7 +179,6 @@ void EffectAsset::precompile() {
             continue;
         }
 
-        // TODO(minggo): do unit test
         ccstd::vector<MacroRecord> defines = EffectAsset::doCombine(ccstd::vector<MacroRecord>(), combination, combination.begin());
         for (auto &define : defines) {
             ProgramLib::getInstance()->getGFXShader(root->getDevice(), shader.name, define, root->getPipeline());
@@ -186,7 +194,7 @@ USE_TEXTURE: [true, false],
 COLOR_MODE: [0, 1, 2, 3],
 ROUGHNESS_CHANNEL: ['r', 'g', 'b'],
 };
- 
+
 // output
 
 const defines = [
@@ -231,21 +239,21 @@ ccstd::vector<MacroRecord> EffectAsset::doCombine(const ccstd::vector<MacroRecor
     return EffectAsset::doCombine(records, info, ++iter);
 }
 
-ccstd::vector<MacroRecord> EffectAsset::generateRecords(const ccstd::string &key, const IPreCompileInfoValueType &value) {
+ccstd::vector<MacroRecord> EffectAsset::generateRecords(const ccstd::string &key, const IPreCompileInfoValueType &infoValue) {
     ccstd::vector<MacroRecord> ret;
-    if (const auto *boolValues = cc::get_if<ccstd::vector<bool>>(&value)) {
+    if (const auto *boolValues = cc::get_if<ccstd::vector<bool>>(&infoValue)) {
         for (const bool value : *boolValues) {
             MacroRecord record;
             record[key] = value;
             ret.emplace_back(record);
         }
-    } else if (const auto *intValues = cc::get_if<ccstd::vector<int32_t>>(&value)) {
+    } else if (const auto *intValues = cc::get_if<ccstd::vector<int32_t>>(&infoValue)) {
         for (const int32_t value : *intValues) {
             MacroRecord record;
             record[key] = value;
             ret.emplace_back(record);
         }
-    } else if (const auto *stringValues = cc::get_if<ccstd::vector<ccstd::string>>(&value)) {
+    } else if (const auto *stringValues = cc::get_if<ccstd::vector<ccstd::string>>(&infoValue)) {
         for (const ccstd::string &value : *stringValues) {
             MacroRecord record;
             record[key] = value;
@@ -260,22 +268,22 @@ ccstd::vector<MacroRecord> EffectAsset::generateRecords(const ccstd::string &key
 
 ccstd::vector<MacroRecord> EffectAsset::insertInfoValue(const ccstd::vector<MacroRecord> &records,
                                                         const ccstd::string &             key,
-                                                        const IPreCompileInfoValueType &  value) {
+                                                        const IPreCompileInfoValueType &  infoValue) {
     ccstd::vector<MacroRecord> ret;
     for (const auto &record : records) {
-        if (const auto *boolValues = cc::get_if<ccstd::vector<bool>>(&value)) {
+        if (const auto *boolValues = cc::get_if<ccstd::vector<bool>>(&infoValue)) {
             for (const bool value : *boolValues) {
                 MacroRecord tmpRecord = record;
                 tmpRecord[key]        = value;
                 ret.emplace_back(tmpRecord);
             }
-        } else if (const auto *intValues = cc::get_if<ccstd::vector<int32_t>>(&value)) {
+        } else if (const auto *intValues = cc::get_if<ccstd::vector<int32_t>>(&infoValue)) {
             for (const int32_t value : *intValues) {
                 MacroRecord tmpRecord = record;
                 tmpRecord[key]        = value;
                 ret.emplace_back(tmpRecord);
             }
-        } else if (const auto *stringValues = cc::get_if<ccstd::vector<ccstd::string>>(&value)) {
+        } else if (const auto *stringValues = cc::get_if<ccstd::vector<ccstd::string>>(&infoValue)) {
             for (const ccstd::string &value : *stringValues) {
                 MacroRecord tmpRecord = record;
                 tmpRecord[key]        = value;

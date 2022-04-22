@@ -25,21 +25,19 @@
 
 #include "jsb_spine_manual.h"
 #include "platform/FileUtils.h"
-
 #include "base/Data.h"
-#include "cocos/bindings/auto/jsb_spine_auto.h"
-#include "cocos/bindings/jswrapper/SeApi.h"
-#include "cocos/bindings/manual/jsb_conversions.h"
-#include "cocos/bindings/manual/jsb_global.h"
-#include "cocos/bindings/manual/jsb_helper.h"
-
+#include "base/memory/Memory.h"
+#include "bindings/auto/jsb_spine_auto.h"
+#include "bindings/jswrapper/SeApi.h"
+#include "bindings/manual/jsb_conversions.h"
+#include "bindings/manual/jsb_global.h"
+#include "bindings/manual/jsb_helper.h"
+#include "editor-support/spine-creator-support/spine-cocos2dx.h"
+#include "editor-support/spine/spine.h"
 #include "middleware-adapter.h"
 #include "spine-creator-support/SkeletonDataMgr.h"
 #include "spine-creator-support/SkeletonRenderer.h"
 #include "spine-creator-support/spine-cocos2dx.h"
-
-#include "cocos/editor-support/spine-creator-support/spine-cocos2dx.h"
-#include "cocos/editor-support/spine/spine.h"
 
 using namespace cc;
 
@@ -93,12 +91,12 @@ static bool js_register_spine_initSkeletonData(se::State &s) {
     _preloadedAtlasTextures = &textures;
     spine::spAtlasPage_setCustomTextureLoader(_getPreloadedAtlasTexture);
 
-    spine::Atlas *atlas = new (__FILE__, __LINE__) spine::Atlas(atlasText.c_str(), (int)atlasText.size(), "", &textureLoader);
+    spine::Atlas *atlas = ccnew_placement(__FILE__, __LINE__) spine::Atlas(atlasText.c_str(), (int)atlasText.size(), "", &textureLoader);
 
     _preloadedAtlasTextures = nullptr;
     spine::spAtlasPage_setCustomTextureLoader(nullptr);
 
-    spine::AttachmentLoader *attachmentLoader = new (__FILE__, __LINE__) spine::Cocos2dAtlasAttachmentLoader(atlas);
+    spine::AttachmentLoader *attachmentLoader = ccnew_placement(__FILE__, __LINE__) spine::Cocos2dAtlasAttachmentLoader(atlas);
     spine::SkeletonData *    skeletonData     = nullptr;
 
     std::size_t length = skeletonDataFile.length();

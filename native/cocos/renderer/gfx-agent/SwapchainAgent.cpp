@@ -58,11 +58,11 @@ void SwapchainAgent::doInit(const SwapchainInfo &info) {
 
     DeviceAgent::getInstance()->getMessageQueue()->kickAndWait();
 
-    auto *colorTexture = CC_NEW(TextureAgent(_actor->getColorTexture()));
+    auto *colorTexture = ccnew TextureAgent(_actor->getColorTexture());
     colorTexture->renounceOwnership();
     _colorTexture = colorTexture;
 
-    auto *depthStencilTexture = CC_NEW(TextureAgent(_actor->getDepthStencilTexture()));
+    auto *depthStencilTexture = ccnew TextureAgent(_actor->getDepthStencilTexture());
     depthStencilTexture->renounceOwnership();
     _depthStencilTexture = depthStencilTexture;
 

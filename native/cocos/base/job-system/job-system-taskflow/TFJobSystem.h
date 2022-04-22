@@ -37,7 +37,7 @@ class TFJobSystem final {
 public:
     static TFJobSystem *getInstance() {
         if (!_instance) {
-            _instance = CC_NEW(TFJobSystem);
+            _instance = ccnew TFJobSystem;
         }
         return _instance;
     }

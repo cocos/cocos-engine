@@ -629,7 +629,7 @@ protected:
 
     bool onPreDestroyBase();
 
-#ifdef CC_EDITOR
+#if CC_EDITOR
     inline void notifyEditorAttached(bool attached) {
         emit(EventTypesToJS::NODE_EDITOR_ATTACHED, attached);
     }

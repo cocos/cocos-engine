@@ -31,13 +31,12 @@
 #include "platform/apple/FileUtils-apple.h"
 
 #include <ftw.h>
-
-#include "base/std/container/string.h"
 #include <stack>
-
+#include "base/Log.h"
+#include "base/memory/Memory.h"
+#include "base/std/container/string.h"
 #include "platform/FileUtils.h"
 #include "platform/SAXParser.h"
-#include "base/Log.h"
 
 namespace cc {
 
@@ -179,7 +178,7 @@ static void addCCValueToNSDictionary(const ccstd::string &key, const Value &valu
     [dict setObject:convertCCValueToNSObject(value) forKey:NSkey];
 }
 
-FileUtilsApple::FileUtilsApple() : pimpl_(new IMPL([NSBundle mainBundle])) {
+FileUtilsApple::FileUtilsApple() : pimpl_(ccnew IMPL([NSBundle mainBundle])) {
 }
 
 FileUtilsApple::~FileUtilsApple() = default;
@@ -196,7 +195,7 @@ static NSFileManager *s_fileManager = [NSFileManager defaultManager];
 
 FileUtils *FileUtils::getInstance() {
     if (FileUtils::sharedFileUtils == nullptr) {
-        FileUtils::sharedFileUtils = new (std::nothrow) FileUtilsApple();
+        FileUtils::sharedFileUtils = ccnew FileUtilsApple();
         if (!FileUtils::sharedFileUtils->init()) {
             delete FileUtils::sharedFileUtils;
             FileUtils::sharedFileUtils = nullptr;

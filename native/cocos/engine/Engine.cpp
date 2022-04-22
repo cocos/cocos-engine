@@ -129,6 +129,8 @@ int32_t Engine::init() {
         std::bind(&Engine::handleEvent, this, std::placeholders::_1)); // NOLINT(modernize-avoid-bind)
 
     se::ScriptEngine::getInstance()->addRegisterCallback(setCanvasCallback);
+    emit(static_cast<int>(ON_START));
+    _inited = true;
     return 0;
 }
 

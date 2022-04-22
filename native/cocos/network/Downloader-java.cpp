@@ -28,6 +28,7 @@
 
 #include <mutex>
 #include "application/ApplicationManager.h"
+#include "base/memory/Memory.h"
 #include "network/Downloader.h"
 #include "platform/java/jni/JniHelper.h"
 #include "platform/java/jni/JniImp.h"
@@ -137,7 +138,7 @@ DownloaderJava::~DownloaderJava() {
 }
 
 IDownloadTask *DownloaderJava::createCoTask(std::shared_ptr<const DownloadTask> &task) {
-    auto *coTask = new DownloadTaskAndroid;
+    auto *coTask = ccnew DownloadTaskAndroid;
     coTask->task = task;
 
     JniMethodInfo methodInfo;

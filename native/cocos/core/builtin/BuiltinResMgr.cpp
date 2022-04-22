@@ -120,7 +120,7 @@ BuiltinResMgr *BuiltinResMgr::instance = nullptr;
 /* static */
 BuiltinResMgr *BuiltinResMgr::getInstance() {
     if (BuiltinResMgr::instance == nullptr) {
-        BuiltinResMgr::instance = new BuiltinResMgr();
+        BuiltinResMgr::instance = ccnew BuiltinResMgr();
         BuiltinResMgr::instance->addRef();
     }
     return instance;
@@ -177,9 +177,9 @@ bool BuiltinResMgr::initBuiltinRes(gfx::Device *device) {
     initTextureCubeWithUuid("default-cube-texture", DEFAULT_IMAGE_RGBA_DATA_16X16, sizeof(DEFAULT_IMAGE_RGBA_DATA_16X16), 16, 16);
 
     //cjh TODO:    if (SpriteFrame) {
-    //        const spriteFrame = new SpriteFrame() as SpriteFrame;
+    //        const spriteFrame = ccnew SpriteFrame() as SpriteFrame;
     //        const image = imgAsset;
-    //        const texture = new Texture2D();
+    //        const texture = ccnew Texture2D();
     //        texture.image = image;
     //        spriteFrame.texture = texture;
     //        spriteFrame._uuid = 'default-spriteframe";
@@ -212,7 +212,7 @@ bool BuiltinResMgr::initBuiltinRes(gfx::Device *device) {
     rapidjson::Type type              = doc.GetType();
     auto            assetDeserializer = AssetDeserializerFactory::createAssetDeserializer(DeserializeAssetType::EFFECT);
     for (const auto &e : doc.GetArray()) {
-        IntrusivePtr<EffectAsset> effect = new EffectAsset();
+        IntrusivePtr<EffectAsset> effect = ccnew EffectAsset();
         assetDeserializer->deserialize(e, effect);
 
         index_t shaderIndex = 0;
@@ -248,7 +248,7 @@ void BuiltinResMgr::initMaterials() {
     auto &resources = _resources;
 
     // standard material
-    auto *standardMtl = new Material();
+    auto *standardMtl = ccnew Material();
     standardMtl->setUuid("standard-material");
     IMaterialInfo standardInfo;
     standardInfo.effectName = ccstd::string{"standard"};
@@ -257,7 +257,7 @@ void BuiltinResMgr::initMaterials() {
     _materialsToBeCompiled.emplace_back(standardMtl);
 
     // material indicating missing effect (yellow)
-    auto *        missingEfxMtl = new Material();
+    auto *        missingEfxMtl = ccnew Material();
     IMaterialInfo missingEfxInfo;
     missingEfxInfo.effectName = ccstd::string{"unlit"};
     missingEfxInfo.defines    = IMaterialInfo::DefinesType{
@@ -270,7 +270,7 @@ void BuiltinResMgr::initMaterials() {
     _materialsToBeCompiled.emplace_back(missingEfxMtl);
 
     // material indicating missing material (purple)
-    auto *        missingMtl = new Material();
+    auto *        missingMtl = ccnew Material();
     IMaterialInfo missingInfo;
     missingInfo.effectName = ccstd::string{"unlit"},
     missingInfo.defines    = IMaterialInfo::DefinesType{MacroRecord{
@@ -281,7 +281,7 @@ void BuiltinResMgr::initMaterials() {
     resources[missingMtl->getUuid()] = missingMtl;
     _materialsToBeCompiled.emplace_back(missingMtl);
 
-    auto *        clearStencilMtl = new Material();
+    auto *        clearStencilMtl = ccnew Material();
     IMaterialInfo clearStencilInfo;
     clearStencilInfo.effectName = ccstd::string{"clear-stencil"},
     clearStencilInfo.defines    = IMaterialInfo::DefinesType{MacroRecord{
@@ -292,7 +292,7 @@ void BuiltinResMgr::initMaterials() {
     _materialsToBeCompiled.emplace_back(clearStencilMtl);
 
     // sprite material
-    auto *spriteMtl = new Material();
+    auto *spriteMtl = ccnew Material();
     spriteMtl->setUuid("ui-base-material");
     IMaterialInfo spriteInfo;
     spriteInfo.effectName = ccstd::string{"sprite"},
@@ -302,7 +302,7 @@ void BuiltinResMgr::initMaterials() {
     _materialsToBeCompiled.emplace_back(spriteMtl);
 
     // sprite material
-    auto *spriteColorMtl = new Material();
+    auto *spriteColorMtl = ccnew Material();
     spriteColorMtl->setUuid("ui-sprite-material");
     IMaterialInfo spriteColorInfo;
     spriteColorInfo.effectName = ccstd::string{"sprite"},
@@ -312,7 +312,7 @@ void BuiltinResMgr::initMaterials() {
     _materialsToBeCompiled.emplace_back(spriteColorMtl);
 
     // sprite alpha test material
-    auto *        alphaTestMaskMtl = new Material();
+    auto *        alphaTestMaskMtl = ccnew Material();
     IMaterialInfo alphaTestMaskInfo;
     alphaTestMaskInfo.effectName = ccstd::string{"sprite"},
     alphaTestMaskInfo.defines    = IMaterialInfo::DefinesType{MacroRecord{
@@ -323,7 +323,7 @@ void BuiltinResMgr::initMaterials() {
     _materialsToBeCompiled.emplace_back(alphaTestMaskMtl);
 
     // sprite gray material
-    auto *spriteGrayMtl = new Material();
+    auto *spriteGrayMtl = ccnew Material();
     spriteGrayMtl->setUuid("ui-sprite-gray-material");
     IMaterialInfo spriteGrayInfo;
     spriteGrayInfo.effectName = ccstd::string{"sprite"},
@@ -333,7 +333,7 @@ void BuiltinResMgr::initMaterials() {
     _materialsToBeCompiled.emplace_back(spriteGrayMtl);
 
     // sprite alpha material
-    auto *spriteAlphaMtl = new Material();
+    auto *spriteAlphaMtl = ccnew Material();
     spriteAlphaMtl->setUuid("ui-sprite-alpha-sep-material");
     IMaterialInfo spriteAlphaInfo;
     spriteAlphaInfo.effectName = ccstd::string{"sprite"},
@@ -343,7 +343,7 @@ void BuiltinResMgr::initMaterials() {
     _materialsToBeCompiled.emplace_back(spriteAlphaMtl);
 
     // sprite alpha & gray material
-    auto *        spriteAlphaGrayMtl = new Material();
+    auto *        spriteAlphaGrayMtl = ccnew Material();
     IMaterialInfo spriteAlphaGrayInfo;
     spriteAlphaGrayInfo.effectName = ccstd::string{"sprite"},
     spriteAlphaGrayInfo.defines    = IMaterialInfo::DefinesType{MacroRecord{
@@ -354,7 +354,7 @@ void BuiltinResMgr::initMaterials() {
     _materialsToBeCompiled.emplace_back(spriteAlphaGrayMtl);
 
     // ui graphics material
-    auto *defaultGraphicsMtl = new Material();
+    auto *defaultGraphicsMtl = ccnew Material();
     defaultGraphicsMtl->setUuid("ui-graphics-material");
     IMaterialInfo defaultGraphicsInfo;
     defaultGraphicsInfo.effectName = ccstd::string{"graphics"};
@@ -363,7 +363,7 @@ void BuiltinResMgr::initMaterials() {
     _materialsToBeCompiled.emplace_back(defaultGraphicsMtl);
 
     // default particle material
-    auto *defaultParticleMtl = new Material();
+    auto *defaultParticleMtl = ccnew Material();
     defaultParticleMtl->setUuid("default-particle-material");
     IMaterialInfo defaultParticleInfo;
     defaultParticleInfo.effectName = ccstd::string{"particle"};
@@ -372,7 +372,7 @@ void BuiltinResMgr::initMaterials() {
     _materialsToBeCompiled.emplace_back(defaultParticleMtl);
 
     // default particle gpu material
-    auto *defaultParticleGPUMtl = new Material();
+    auto *defaultParticleGPUMtl = ccnew Material();
     defaultParticleGPUMtl->setUuid("default-particle-gpu-material");
     IMaterialInfo defaultParticleGPUInfo;
     defaultParticleGPUInfo.effectName = ccstd::string{"particle-gpu"};
@@ -381,7 +381,7 @@ void BuiltinResMgr::initMaterials() {
     _materialsToBeCompiled.emplace_back(defaultParticleGPUMtl);
 
     // default particle material
-    auto *defaultTrailMtl = new Material();
+    auto *defaultTrailMtl = ccnew Material();
     defaultTrailMtl->setUuid("default-trail-material");
     IMaterialInfo defaultTrailInfo;
     defaultTrailInfo.effectName = ccstd::string{"particle-trail"};
@@ -390,7 +390,7 @@ void BuiltinResMgr::initMaterials() {
     _materialsToBeCompiled.emplace_back(defaultTrailMtl);
 
     // default particle material
-    auto *defaultBillboardMtl = new Material();
+    auto *defaultBillboardMtl = ccnew Material();
     defaultBillboardMtl->setUuid("default-billboard-material");
     IMaterialInfo defaultBillboardInfo;
     defaultBillboardInfo.effectName = ccstd::string{"billboard"};
@@ -399,7 +399,7 @@ void BuiltinResMgr::initMaterials() {
     _materialsToBeCompiled.emplace_back(defaultBillboardMtl);
 
     // ui spine two color material
-    auto *spineTwoColorMtl = new Material();
+    auto *spineTwoColorMtl = ccnew Material();
     spineTwoColorMtl->setUuid("default-spine-material");
     IMaterialInfo spineTwoColorInfo;
     spineTwoColorInfo.effectName = ccstd::string{"spine"},
@@ -430,15 +430,15 @@ void BuiltinResMgr::initTexture2DWithUuid(const ccstd::string &uuid, const uint8
     IMemoryImageSource imageSource;
     imageSource.width      = width;
     imageSource.height     = height;
-    imageSource.data       = new (std::nothrow) ArrayBuffer(data, static_cast<uint32_t>(dataBytes));
+    imageSource.data       = ccnew ArrayBuffer(data, static_cast<uint32_t>(dataBytes));
     imageSource.compressed = false;
     imageSource.format     = PixelFormat::RGBA8888;
 
-    auto *texture = new (std::nothrow) Texture2D();
+    auto *texture = ccnew Texture2D();
     if (texture) {
         texture->setUuid(uuid);
 
-        auto *imgAsset = new (std::nothrow) ImageAsset();
+        auto *imgAsset = ccnew ImageAsset();
         imgAsset->setNativeAsset(imageSource);
         texture->setImage(imgAsset);
 
@@ -451,27 +451,27 @@ void BuiltinResMgr::initTextureCubeWithUuid(const ccstd::string &uuid, const uin
     IMemoryImageSource imageSource;
     imageSource.width      = width;
     imageSource.height     = height;
-    imageSource.data       = new (std::nothrow) ArrayBuffer(data, static_cast<uint32_t>(dataBytes));
+    imageSource.data       = ccnew ArrayBuffer(data, static_cast<uint32_t>(dataBytes));
     imageSource.compressed = false;
     imageSource.format     = PixelFormat::RGBA8888;
 
-    auto *texture = new (std::nothrow) TextureCube();
+    auto *texture = ccnew TextureCube();
     if (texture) {
         texture->setUuid(uuid);
         texture->setMipFilter(TextureCube::Filter::NEAREST);
 
         ITextureCubeMipmap mipmap;
-        mipmap.front = new ImageAsset();
+        mipmap.front = ccnew ImageAsset();
         mipmap.front->setNativeAsset(imageSource);
-        mipmap.back = new ImageAsset();
+        mipmap.back = ccnew ImageAsset();
         mipmap.back->setNativeAsset(imageSource);
-        mipmap.left = new ImageAsset();
+        mipmap.left = ccnew ImageAsset();
         mipmap.left->setNativeAsset(imageSource);
-        mipmap.right = new ImageAsset();
+        mipmap.right = ccnew ImageAsset();
         mipmap.right->setNativeAsset(imageSource);
-        mipmap.top = new ImageAsset();
+        mipmap.top = ccnew ImageAsset();
         mipmap.top->setNativeAsset(imageSource);
-        mipmap.bottom = new ImageAsset();
+        mipmap.bottom = ccnew ImageAsset();
         mipmap.bottom->setNativeAsset(imageSource);
 
         texture->setImage(mipmap);

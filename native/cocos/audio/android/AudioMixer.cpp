@@ -26,9 +26,9 @@
 
 #include "audio/android/audio.h"
 #include "audio/android/audio_utils/include/audio_utils/primitives.h"
-
 #include "audio/android/AudioMixerOps.h"
 #include "audio/android/AudioMixer.h"
+#include "base/memory/Memory.h"
 
 // The FCC_2 macro refers to the Fixed Channel Count of 2 for the legacy integer mixer.
 #ifndef FCC_2
@@ -316,7 +316,7 @@ status_t AudioMixer::track_t::prepareForDownmix() {
     //cjh    if (audio_channel_mask_get_representation(channelMask)
     //                == AUDIO_CHANNEL_REPRESENTATION_POSITION
     //            && DownmixerBufferProvider::isMultichannelCapable()) {
-    //        DownmixerBufferProvider* pDbp = new DownmixerBufferProvider(channelMask,
+    //        DownmixerBufferProvider* pDbp = ccnew DownmixerBufferProvider(channelMask,
     //                mMixerChannelMask,
     //                AUDIO_FORMAT_PCM_16_BIT /* REFINE: use mMixerInFormat, now only PCM 16 */,
     //                sampleRate, sessionId, kCopyBufferFrameCount);
@@ -331,7 +331,7 @@ status_t AudioMixer::track_t::prepareForDownmix() {
     //    }
     //
     //    // Effect downmixer does not accept the channel conversion.  Let's use our remixer.
-    //    RemixBufferProvider* pRbp = new RemixBufferProvider(channelMask,
+    //    RemixBufferProvider* pRbp = ccnew RemixBufferProvider(channelMask,
     //            mMixerChannelMask, mMixerInFormat, kCopyBufferFrameCount);
     //    // Remix always finds a conversion whereas Downmixer effect above may fail.
     //    downmixerBufferProvider = pRbp;
@@ -367,7 +367,7 @@ status_t AudioMixer::track_t::prepareForReformat() {
                                             : mMixerInFormat;
     bool requiresReconfigure = false;
     //cjh    if (mFormat != targetFormat) {
-    //        mReformatBufferProvider = new ReformatBufferProvider(
+    //        mReformatBufferProvider = ccnew ReformatBufferProvider(
     //                audio_channel_count_from_out_mask(channelMask),
     //                mFormat,
     //                targetFormat,
@@ -375,7 +375,7 @@ status_t AudioMixer::track_t::prepareForReformat() {
     //        requiresReconfigure = true;
     //    }
     //    if (targetFormat != mMixerInFormat) {
-    //        mPostDownmixReformatBufferProvider = new ReformatBufferProvider(
+    //        mPostDownmixReformatBufferProvider = ccnew ReformatBufferProvider(
     //                audio_channel_count_from_out_mask(mMixerChannelMask),
     //                targetFormat,
     //                mMixerInFormat,
@@ -785,7 +785,7 @@ bool AudioMixer::track_t::setPlaybackRate(const AudioPlaybackRate &playbackRate)
     //        // but if none exists, it is the channel count (1 for mono).
     //        const int timestretchChannelCount = downmixerBufferProvider != NULL
     //                ? mMixerChannelCount : channelCount;
-    //        mTimestretchBufferProvider = new TimestretchBufferProvider(timestretchChannelCount,
+    //        mTimestretchBufferProvider = ccnew TimestretchBufferProvider(timestretchChannelCount,
     //                mMixerInFormat, sampleRate, playbackRate);
     //        reconfigureBufferProviders();
     //    } else {
@@ -974,10 +974,10 @@ void AudioMixer::process__validate(state_t *state, int64_t pts) {
     if (countActiveTracks > 0) {
         if (resampling) {
             if (!state->outputTemp) {
-                state->outputTemp = new int32_t[MAX_NUM_CHANNELS * state->frameCount];
+                state->outputTemp = ccnew int32_t[MAX_NUM_CHANNELS * state->frameCount];
             }
             if (!state->resampleTemp) {
-                state->resampleTemp = new int32_t[MAX_NUM_CHANNELS * state->frameCount];
+                state->resampleTemp = ccnew int32_t[MAX_NUM_CHANNELS * state->frameCount];
             }
             state->hook = process__genericResampling;
         } else {

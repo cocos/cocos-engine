@@ -42,7 +42,7 @@ CCVKTexture::~CCVKTexture() {
 }
 
 void CCVKTexture::doInit(const TextureInfo & /*info*/) {
-    _gpuTexture              = CC_NEW(CCVKGPUTexture);
+    _gpuTexture              = ccnew CCVKGPUTexture;
     _gpuTexture->type        = _info.type;
     _gpuTexture->format      = _info.format;
     _gpuTexture->usage       = _info.usage;
@@ -62,14 +62,14 @@ void CCVKTexture::doInit(const TextureInfo & /*info*/) {
         CC_PROFILE_MEMORY_INC(Texture, _size);
     }
 
-    _gpuTextureView = CC_NEW(CCVKGPUTextureView);
+    _gpuTextureView = ccnew CCVKGPUTextureView;
     createTextureView();
 }
 
 void CCVKTexture::doInit(const TextureViewInfo &info) {
     _gpuTexture = static_cast<CCVKTexture *>(info.texture)->gpuTexture();
 
-    _gpuTextureView = CC_NEW(CCVKGPUTextureView);
+    _gpuTextureView = ccnew CCVKGPUTextureView;
     createTextureView();
 }
 
@@ -88,7 +88,7 @@ void CCVKTexture::doDestroy() {
     if (_gpuTextureView) {
         CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuTextureView);
         CCVKDevice::getInstance()->gpuDescriptorHub()->disengage(_gpuTextureView);
-        CC_DELETE(_gpuTextureView);
+        delete _gpuTextureView;
         _gpuTextureView = nullptr;
     }
 
@@ -101,7 +101,7 @@ void CCVKTexture::doDestroy() {
             CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuTexture);
             CCVKDevice::getInstance()->gpuBarrierManager()->cancel(_gpuTexture);
             CCVKDevice::getInstance()->gpuFramebufferHub()->disengage(_gpuTexture);
-            CC_DELETE(_gpuTexture);
+            delete _gpuTexture;
         }
         _gpuTexture = nullptr;
     }
@@ -138,7 +138,7 @@ void CCVKTexture::doResize(uint32_t width, uint32_t height, uint32_t size) {
 ///////////////////////////// Swapchain Specific /////////////////////////////
 
 void CCVKTexture::doInit(const SwapchainTextureInfo & /*info*/) {
-    _gpuTexture              = CC_NEW(CCVKGPUTexture);
+    _gpuTexture              = ccnew CCVKGPUTexture;
     _gpuTexture->type        = _info.type;
     _gpuTexture->format      = _info.format;
     _gpuTexture->usage       = _info.usage;
@@ -154,7 +154,7 @@ void CCVKTexture::doInit(const SwapchainTextureInfo & /*info*/) {
     _gpuTexture->swapchain  = static_cast<CCVKSwapchain *>(_swapchain)->gpuSwapchain();
     _gpuTexture->memoryless = true;
 
-    _gpuTextureView             = CC_NEW(CCVKGPUTextureView);
+    _gpuTextureView             = ccnew CCVKGPUTextureView;
     _gpuTextureView->gpuTexture = _gpuTexture;
     _gpuTextureView->type       = _viewInfo.type;
     _gpuTextureView->format     = _viewInfo.format;

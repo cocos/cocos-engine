@@ -73,7 +73,7 @@ CCMTLSampler::~CCMTLSampler() {
 CCMTLSampler* CCMTLSampler::getDefaultSampler() {
     if(!defaultSampler) {
         SamplerInfo info;
-        defaultSampler = new CCMTLSampler(info);
+        defaultSampler = ccnew CCMTLSampler(info);
     }
     return defaultSampler;
 }

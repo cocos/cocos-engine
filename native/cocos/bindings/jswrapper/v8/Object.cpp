@@ -169,7 +169,7 @@ Object *Object::getObjectWithPtr(void *ptr) {
 }
 
 Object *Object::_createJSObject(Class *cls, v8::Local<v8::Object> obj) { // NOLINT(readability-identifier-naming)
-    auto *ret = new Object();
+    auto *ret = ccnew Object();
     if (!ret->init(cls, obj)) {
         delete ret;
         ret = nullptr;
