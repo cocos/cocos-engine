@@ -49,12 +49,14 @@
 
 #if !defined(ANDROID_INSTANT) && defined(USE_V8_DEBUGGER) && USE_V8_DEBUGGER > 0
     #define SE_ENABLE_INSPECTOR 1
+    #ifndef SE_DEBUG
     #define SE_DEBUG            2
+    #endif
     #define HAVE_INSPECTOR      1
 #else
-    #define SE_ENABLE_INSPECTOR 0
-    #define SE_DEBUG            0
-    #define HAVE_INSPECTOR      0
+    #undef SE_ENABLE_INSPECTOR 0
+    #undef SE_DEBUG            0
+    #undef HAVE_INSPECTOR      0
 #endif
 
 #ifdef ANDROID

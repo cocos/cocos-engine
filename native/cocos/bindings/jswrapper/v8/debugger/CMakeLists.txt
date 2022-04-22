@@ -33,6 +33,6 @@ add_library(v8_debugger
 target_link_libraries(v8_debugger PUBLIC ${se_libs_name} uv ${ZLIB})
 target_compile_definitions(v8_debugger PUBLIC
     $<$<CONFIG:Debug>:SE_ENABLE_INSPECTOR=1>
-    $<$<CONFIG:Debug>:SE_DEBUG=1>
+    $<$<CONFIG:Debug>:SE_DEBUG=2>
     $<$<CONFIG:Debug>:HAVE_INSPECTOR=1>
 )

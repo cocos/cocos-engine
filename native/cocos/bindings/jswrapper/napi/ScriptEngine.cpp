@@ -596,6 +596,11 @@ bool ScriptEngine::saveByteCodeToFile(const std::string &path, const std::string
     return true;
 }
 
+void ScriptEngine::throwException(const std::string &errorMessage) {
+    napi_status status;
+    NODE_API_CALL(status, env_, napi_throw_error(_env, "js error", errorMessage.c_str()));
+}
+
 void ScriptEngine::clearException() {
     //not impl
     return;

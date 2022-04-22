@@ -1,7 +1,7 @@
 #include "Utils.h"
 #include "CommonHeader.h"
 #include "ScriptEngine.h"
-#include "class.h"
+#include "Class.h"
 
 #define MAX_STRING_LENS 1024
 
@@ -52,7 +52,7 @@ void jsToSeValue(const target_value& value, Value* v) {
 
             break;
         case napi_valuetype::napi_string:
-            NODE_API_CALL(status, ScriptEngine::getEnv(), napi_get_value_string_latin1(ScriptEngine::getEnv(), value, nullptr, 0, &len));
+            NODE_API_CALL(status, ScriptEngine::getEnv(), napi_get_value_string_utf8(ScriptEngine::getEnv(), value, nullptr, 0, &len));
             if (status == napi_ok) {
                 std::string valueStr;
 #if USE_NODE_NAPI
@@ -137,6 +137,7 @@ bool seToJsValue(const Value& v, target_value* outJsVal) {
             break;
         case Value::Type::BigInt:
 #if USE_NODE_NAPI
+           // TODO: fix 'TypeError: Cannot mix BigInt and other types, use explicit conversions' for spine & dragonbones
             NODE_API_CALL(status, ScriptEngine::getEnv(), napi_create_bigint_int64(ScriptEngine::getEnv(), v.toInt64(), outJsVal));
 #else
             NODE_API_CALL(status, ScriptEngine::getEnv(), napi_create_double(ScriptEngine::getEnv(), v.toDouble(), outJsVal));
@@ -162,6 +163,14 @@ void seToJsArgs(napi_env env, const ValueArray& args, std::vector<target_value>*
 
 bool setReturnValue(const Value& data, target_value& argv) {
     LOGI("setReturnValue");
+    #if USE_NODE_NAPI
+    napi_status status;
+    if(data.getType() == Value::Type::BigInt) {
+        // TODO: fix 'TypeError: Cannot mix BigInt and other types, use explicit conversions' for spine & dragonbones
+        NODE_API_CALL(status, ScriptEngine::getEnv(), napi_create_double(ScriptEngine::getEnv(), data.toDouble(), &argv));
+        return true;
+    }
+    #endif
     return seToJsValue(data, &argv);
 }
 } // namespace internal

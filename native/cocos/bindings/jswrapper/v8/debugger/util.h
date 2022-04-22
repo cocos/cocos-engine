@@ -105,7 +105,9 @@ using remove_reference = std::remove_reference<T>;
             #define ABORT_NO_BACKTRACE() abort()
         #endif
 
+    #ifndef ABORT
         #define ABORT() node::Abort()
+    #endif
 
         #ifdef __GNUC__
             #define LIKELY(expr)         __builtin_expect(!!(expr), 1)
@@ -120,6 +122,7 @@ using remove_reference = std::remove_reference<T>;
         #define STRINGIFY_(x) #x
         #define STRINGIFY(x)  STRINGIFY_(x)
 
+    #ifndef CHECK
         #define CHECK(expr)                                                           \
             do {                                                                      \
                 if (UNLIKELY(!(expr))) {                                              \
@@ -128,15 +131,16 @@ using remove_reference = std::remove_reference<T>;
                     node::Assert(&args);                                              \
                 }                                                                     \
             } while (0)
-
+    #endif
         #define CHECK_EQ(a, b) CHECK((a) == (b))
         #define CHECK_GE(a, b) CHECK((a) >= (b))
         #define CHECK_GT(a, b) CHECK((a) > (b))
         #define CHECK_LE(a, b) CHECK((a) <= (b))
         #define CHECK_LT(a, b) CHECK((a) < (b))
         #define CHECK_NE(a, b) CHECK((a) != (b))
-
+    #ifndef UNREACHABLE
         #define UNREACHABLE() ABORT()
+    #endif
 
         #define ASSIGN_OR_RETURN_UNWRAP(ptr, obj, ...)                                   \
             do {                                                                         \
@@ -425,7 +429,7 @@ public:
                 if (!Buffer::HasInstance(obj))                                 \
                     return env->ThrowTypeError("argument should be a Buffer"); \
             } while (0)
-
+    #ifndef SPREAD_BUFFER_ARG
         #define SPREAD_BUFFER_ARG(val, name)                                                \
             CHECK((val)->IsArrayBufferView());                                              \
             v8::Local<v8::ArrayBufferView> name          = (val).As<v8::ArrayBufferView>(); \
@@ -436,7 +440,7 @@ public:
                 static_cast<char *>(name##_c.Data()) + name##_offset;                       \
             if (name##_length > 0)                                                          \
                 CHECK_NE(name##_data, nullptr);
-
+    #endif
 } // namespace node
 
     #endif // defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS

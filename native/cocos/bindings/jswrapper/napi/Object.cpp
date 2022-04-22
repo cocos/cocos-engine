@@ -392,7 +392,8 @@ bool Object::call(const ValueArray& args, Object* thisObject, Value* rval) {
     status =
         napi_call_function(_env, thisObj, _getJSObject(), argc, argv.data(), &return_val);
     if (status != napi_ok) {
-        status_exception = napi_get_and_clear_last_exception(_env, &pending_exception);
+//        status_exception = napi_get_and_clear_last_exception(_env, &pending_exception);
+        status_exception = napi_throw(_env, pending_exception);
     }
     //CC_LOG_DEBUG("qgh object::call end thisObj %p _getJSObject  %p", thisObj, _getJSObject());
     if (rval) {
@@ -681,7 +682,7 @@ void Object::cleanup() {
             obj->_rootCount = 0;
 #endif
 
-            if (cls != nullptr && cls->getName() == "__PrivateData") {
+            if (cls != nullptr && strcmp(cls->getName(), "__PrivateData") == 0) {
                 toReleaseObjects.push_back(obj);
             }
         }
