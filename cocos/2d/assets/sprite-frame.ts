@@ -89,7 +89,7 @@ interface ISpriteFramesSerializeData {
     vertices: IVerticesSerialize;
     texture: string;
     packable: boolean;
-    pixelsToUnits: number;
+    pixelsToUnit: number;
     pivot: Vec2;
     meshType: MeshType;
 }
@@ -510,19 +510,13 @@ export class SpriteFrame extends Asset {
         return this._original;
     }
 
-    get pixelsToUnits () {
-        return this._pixelsToUnits;
+    get pixelsToUnit () {
+        return this._pixelsToUnit;
     }
-    // set function is only for Editor
-    // set pixelsToUnits (value: number) {
-    // }
 
     get pivot () {
         return this._pivot;
     }
-    // set function is only for Editor
-    // set pivot (value: Vec2) {
-    // }
 
     get mesh () {
         if (!this._mesh) {
@@ -581,10 +575,9 @@ export class SpriteFrame extends Asset {
 
     protected _packable = true;
 
-    // 100像素1米
-    protected _pixelsToUnits = 100; // 经验值，数据组织之后看效果，由于是用户调整的，合适值即可
+    protected _pixelsToUnit = 100;
 
-    protected _pivot = new Vec2(0.5, 0.5); // 几种预设值？// center
+    protected _pivot = new Vec2(0.5, 0.5); // center
 
     // todo
     protected _meshType = MeshType.RECT;
@@ -1258,7 +1251,7 @@ export class SpriteFrame extends Asset {
                 vertices,
                 texture: (!ctxForExporting && texture) || undefined,
                 packable: this._packable,
-                pixelsToUnits: this._pixelsToUnits,
+                pixelsToUnit: this._pixelsToUnit,
                 pivot: this._pivot,
                 meshType: this._meshType,
             };
@@ -1292,7 +1285,7 @@ export class SpriteFrame extends Asset {
         this._name = data.name;
         this._packable = !!data.packable;
 
-        this._pixelsToUnits = data.pixelsToUnits;
+        this._pixelsToUnit = data.pixelsToUnit;
         const pivot = data.pivot;
         if (pivot) {
             this._pivot = new Vec2(pivot.x, pivot.y);
@@ -1365,7 +1358,7 @@ export class SpriteFrame extends Asset {
         sp._texture = this._texture;
         sp._isFlipUVX = this._isFlipUVX;
         sp._isFlipUVY = this._isFlipUVY;
-        sp._pixelsToUnits = this._pixelsToUnits;
+        sp._pixelsToUnit = this._pixelsToUnit;
         sp._pivot.set(this._pivot);
         sp._meshType = this._meshType;
         return sp;
@@ -1425,12 +1418,18 @@ export class SpriteFrame extends Asset {
                 maxPos: new Vec3(),
             };
         } else {
-            // reset
+            this.vertices.rawPosition.length = 0;
+            this.vertices.positions.length = 0;
+            this.vertices.triangles.length = 0;
+            this.vertices.uv.length = 0;
+            this.vertices.nuv.length = 0;
+            this.vertices.minPos.set(0, 0, 0);
+            this.vertices.maxPos.set(0, 0, 0);
         }
         if (this._meshType === MeshType.POLYGON) {
             // 使用 Bayazit 来生成顶点并赋值
         } else { // Rect mode
-            // 默认的中心点为 0.5，0.5
+            // default center is 0.5，0.5
             const tex = this.texture;
             const texw = tex.width;
             const texh = tex.height;
@@ -1478,8 +1477,6 @@ export class SpriteFrame extends Asset {
             this.vertices.nuv.push(t);
             this.vertices.maxPos.set(temp_vec3);
 
-            // UV 信息相同且位置对应
-            // 但是不能用，UI 的所有计算基于透明像素裁剪过的结果
             this.vertices.triangles.push(0);
             this.vertices.triangles.push(1);
             this.vertices.triangles.push(2);
@@ -1495,13 +1492,13 @@ export class SpriteFrame extends Asset {
         //开始生成生成 mesh 要的 Geometry 信息
         temp_matrix.identity();
 
-        const PosX = (this._pivot.x - 0.5) * this.rect.width;
-        const PosY = (this._pivot.y - 0.5) * this.rect.height;
-        const temp_vec3 = new Vec3(PosX, PosY, 0);
-        temp_matrix.translate(temp_vec3);
-        const units = 1 / this._pixelsToUnits;
-        temp_vec3.set(units, units, 1);
+        const units = 1 / this._pixelsToUnit;
+        const temp_vec3 = new Vec3(units, units, 1);
         temp_matrix.scale(temp_vec3);
+        const PosX = -(this._pivot.x - 0.5) * this.rect.width * units;
+        const PosY = -(this._pivot.y - 0.5) * this.rect.height * units;
+        temp_vec3.set(PosX, PosY, 0);
+        temp_matrix.translate(temp_vec3);
         const vertices = this.vertices!;
 
         for (let i = 0; i < vertices.rawPosition.length; i++) {
