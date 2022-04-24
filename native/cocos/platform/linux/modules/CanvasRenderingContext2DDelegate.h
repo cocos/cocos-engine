@@ -47,7 +47,8 @@ public:
     using Vec2    = ccstd::array<float, 2>;
     using Size    = ccstd::array<float, 2>;
     using Color4F = ccstd::array<float, 4>;
-
+    using CanvasTextAlign    = ICanvasRenderingContext2D::CanvasTextAlign;
+    using CanvasTextBaseline = ICanvasRenderingContext2D::CanvasTextBaseline;
     CanvasRenderingContext2DDelegate();
     ~CanvasRenderingContext2DDelegate() override;
 
