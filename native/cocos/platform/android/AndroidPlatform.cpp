@@ -27,10 +27,28 @@
 
 #include "platform/android/AndroidPlatform.h"
 #include "platform/java/jni/glue/JniNativeGlue.h"
+#include "platform/java/modules/Accelerometer.h"
+#include "platform/java/modules/Battery.h"
+#include "platform/java/modules/Network.h"
+#include "platform/java/modules/SystemWindow.h"
+#include "platform/java/modules/Vibrator.h"
+#include "modules/Screen.h"
+#include "modules/System.h"
 
 namespace cc {
 AndroidPlatform::AndroidPlatform() {
     _jniNativeGlue = JNI_NATIVE_GLUE();
+}
+
+int AndroidPlatform::init() {
+    registerInterface(std::make_shared<Accelerometer>());
+    registerInterface(std::make_shared<Battery>());
+    registerInterface(std::make_shared<Network>());
+    registerInterface(std::make_shared<Screen>());
+    registerInterface(std::make_shared<System>());
+    registerInterface(std::make_shared<SystemWindow>());
+    registerInterface(std::make_shared<Vibrator>());
+    return 0;
 }
 
 int AndroidPlatform::getSdkVersion() const {
@@ -72,6 +90,14 @@ int32_t AndroidPlatform::loop() {
 void AndroidPlatform::pollEvent() {
     _jniNativeGlue->execCommand();
     _jniNativeGlue->flushTasksOnGameThread();
+}
+
+void* AndroidPlatform::getActivity() {
+    return _jniNativeGlue->getActivity();
+}
+
+void* AndroidPlatform::getEnv() {
+    return _jniNativeGlue->getEnv();
 }
 
 }; // namespace cc

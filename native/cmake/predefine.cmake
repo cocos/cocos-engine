@@ -54,6 +54,10 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "iOS")
     set(PLATFORM_FOLDER ios)
     set(CC_PLATFORM ${CC_PLATFORM_MAC_IOS})
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "QNX")
+    if(NOT IS_DIRECTORY ${QNX_PATH})
+        message(FATAL_ERROR "platform adaptation package not found")
+        return()
+    endif()
     set(QNX TRUE)
     set(PLATFORM_FOLDER qnx)
     set(CC_PLATFORM ${CC_PLATFORM_QNX})
@@ -178,19 +182,39 @@ function(cc_inspect_values)
 endfunction()
 
 
-function(cc_win32_definations target)
-    target_compile_definitions(${target} PUBLIC
-        CC_STATIC
-        WIN32
-        _WIN32
-        _WINDOWS
-        NOMINMAX
-        UNICODE
-        _UNICODE
-        _USE_MATH_DEFINES
-        _CRT_SECURE_NO_WARNINGS
-        _SCL_SECURE_NO_WARNINGS
-        _USRLIBSIMSTATIC
-        SE_ENABLE_INSPECTOR
-    )
+
+
+function(cc_set_target_property target_name property value)
+    set_target_properties(${target_name} PROPERTIES CC_${property} ${value})
 endfunction()
+
+function(cc_get_target_property output target_name property)
+    get_target_property(output ${target_name} ${property})
+endfunction()
+
+function(cc_redirect_property target from_property to_property)
+    cc_get_target_property(output ${target} ${from_property})
+    if(output)
+        set_target_properties(${target_name} PROPERTIES
+            ${to_property} ${output}
+        )
+    endif()
+endfunction()
+
+
+## predefined configurations for game applications
+include(${CMAKE_CURRENT_LIST_DIR}/../templates/cmake/common.cmake)
+if(APPLE)
+    include(${CMAKE_CURRENT_LIST_DIR}/../templates/cmake/apple.cmake)
+elseif(WINDOWS)
+    include(${CMAKE_CURRENT_LIST_DIR}/../templates/cmake/windows.cmake)
+elseif(LINUX)
+    include(${CMAKE_CURRENT_LIST_DIR}/../templates/cmake/linux.cmake)
+elseif(ANDROID)
+    include(${CMAKE_CURRENT_LIST_DIR}/../templates/cmake/android.cmake)
+elseif(OHOS)
+    include(${CMAKE_CURRENT_LIST_DIR}/../templates/cmake/ohos.cmake)
+elseif(QNX)
+else()
+    message(FATAL_ERROR "Unhandled platform specified cmake utils!")
+endif()

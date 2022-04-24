@@ -25,7 +25,7 @@
 
 #include "platform/ios/modules/SystemWindow.h"
 #import <UIKit/UIKit.h>
-#include "platform/ios/AppDelegate.h"
+
 
 namespace {
 
@@ -35,12 +35,6 @@ namespace cc {
 
 SystemWindow::~SystemWindow() = default;
 
-bool SystemWindow::createWindow(const char* title,
-                                int x, int y, int w,
-                                int h, int flags) {
-    _width  = w;
-    _height = h;
-}
 
 void SystemWindow::setCursorEnabled(bool value) {
 }

@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { ccclass, type, serializable, editable, formerlySerializedAs } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
@@ -168,7 +165,7 @@ export default class CurveRange  {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onBeforeSerialize (props) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return

@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 /* eslint-disable import/no-mutable-exports */
 /* eslint-disable @typescript-eslint/restrict-template-expressions */

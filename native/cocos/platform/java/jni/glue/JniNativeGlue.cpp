@@ -62,6 +62,22 @@ void JniNativeGlue::setWindowHandler(NativeWindowType* window) {
     }
 }
 
+void JniNativeGlue::setActivityGetter(std::function<NativeActivity(void)> getter) {
+    _activityGetter = std::move(getter);
+}
+
+void* JniNativeGlue::getActivity() {
+    return _activityGetter ? _activityGetter() : nullptr;
+}
+
+void JniNativeGlue::setEnvGetter(std::function<NativeEnv(void)> getter) {
+    _envGetter = std::move(getter);
+}
+
+void* JniNativeGlue::getEnv() {
+    return _envGetter ? _envGetter() : nullptr;
+}
+
 void JniNativeGlue::setResourceManager(ResourceManagerType* resourceManager) {
     _resourceManager = resourceManager;
 }
@@ -144,7 +160,7 @@ void JniNativeGlue::dispatchEvent(const OSEvent& ev) {
     }
 }
 
-void JniNativeGlue::dispatchTouchEvent(const OSEvent& ev) {
+void JniNativeGlue::dispatchTouchEvent(const TouchEvent& ev) {
     if (_eventDispatcher) {
         _eventDispatcher->dispatchTouchEvent(ev);
     }
@@ -262,6 +278,11 @@ void JniNativeGlue::engineHandleCmd(JniCommand cmd) {
 void JniNativeGlue::postExecCmd(JniCommand cmd) {
     switch (cmd) {
         case JniCommand::JNI_CMD_TERM_WINDOW: {
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+            if (_window) {
+                ANativeWindow_release(_window);
+            }
+#endif
             _window = nullptr;
         } break;
         default:

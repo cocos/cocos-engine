@@ -182,7 +182,7 @@ export class PageViewIndicator extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _updateLayout () {
         this._layout = this.getComponent(Layout);
@@ -202,7 +202,7 @@ export class PageViewIndicator extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _createIndicator () {
         const node = new Node();
@@ -216,7 +216,7 @@ export class PageViewIndicator extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _changedState () {
         const indicators = this._indicators;
@@ -244,7 +244,7 @@ export class PageViewIndicator extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _refresh () {
         if (!this._pageView) { return; }

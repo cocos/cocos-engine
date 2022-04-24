@@ -47,7 +47,7 @@ class ScreenAdapter extends EventTarget {
         const sysInfo = minigame.getSystemInfoSync();
         // NOTE: screen size info on these platforms is in physical pixel.
         // No need to multiply with DPR.
-        const dpr = ((ALIPAY && systemInfo.os === OS.ANDROID) || VIVO) ? 1 : this.devicePixelRatio;
+        const dpr = VIVO ? 1 : this.devicePixelRatio;
         let screenWidth = sysInfo.screenWidth;
         let screenHeight = sysInfo.screenHeight;
         if (ALIPAY && rotateLandscape  && screenWidth < screenHeight) {

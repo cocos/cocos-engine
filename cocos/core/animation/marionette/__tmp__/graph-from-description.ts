@@ -23,7 +23,14 @@ export function createGraphFromDescription (graphDescription: GraphDescription) 
 
     if (graphDescription.vars) {
         for (const varDesc of graphDescription.vars) {
-            graph.addVariable(varDesc.name, getVariableTypeFromValue(varDesc.value), varDesc.value);
+            switch (getVariableTypeFromValue(varDesc.value)) {
+                case VariableType.FLOAT:
+                    graph.addFloat(varDesc.name, varDesc.value as number);
+                    break;
+                case VariableType.BOOLEAN:
+                    graph.addBoolean(varDesc.name, varDesc.value as boolean);
+                    break;
+            }
         }
     }
 

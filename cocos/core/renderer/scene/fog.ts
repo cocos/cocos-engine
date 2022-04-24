@@ -27,8 +27,8 @@ import { JSB } from 'internal:constants';
 import { Enum } from '../../value-types';
 import { Color, Vec4 } from '../../math';
 import { legacyCC } from '../../global-exports';
-import { FogInfo } from '../../scene-graph/scene-globals';
-import { NativeFog } from './native-scene';
+import type { FogInfo } from '../../scene-graph/scene-globals';
+import { NativeFog } from '../native-scene';
 import { SRGBToLinear } from '../../pipeline/pipeline-funcs';
 
 const _v4 = new Vec4();

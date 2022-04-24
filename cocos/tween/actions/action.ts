@@ -25,11 +25,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { logID, errorID, Node } from '../../core';
 
 /**

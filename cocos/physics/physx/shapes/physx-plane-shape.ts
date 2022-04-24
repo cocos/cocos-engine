@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { IVec3Like, Quat, Vec3 } from '../../../core';
 import { PlaneCollider } from '../../framework';

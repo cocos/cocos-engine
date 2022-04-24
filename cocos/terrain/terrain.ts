@@ -180,27 +180,27 @@ export class TerrainLayer {
  */
 class TerrainRenderable extends RenderableComponent {
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _model: scene.Model | null = null;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _meshData: RenderingSubMesh | null = null;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _brushPass: Pass | null = null;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _brushMaterial: Material | null = null;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _currentMaterial: Material | null = null;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _currentMaterialLayers = 0;
 
@@ -215,7 +215,7 @@ class TerrainRenderable extends RenderableComponent {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _destroyModel () {
         // this._invalidMaterial();
@@ -226,7 +226,7 @@ class TerrainRenderable extends RenderableComponent {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _invalidMaterial () {
         if (this._currentMaterial == null) {
@@ -243,11 +243,11 @@ class TerrainRenderable extends RenderableComponent {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _updateMaterial (block: TerrainBlock, init: boolean) {
         if (this._meshData == null || this._model == null) {
-            return;
+            return false;
         }
 
         const nLayers = block.getMaxLayer();
@@ -282,11 +282,14 @@ class TerrainRenderable extends RenderableComponent {
             this._currentMaterialLayers = nLayers;
             this._model.enabled = true;
             this._model.receiveShadow = block.getTerrain().receiveShadow;
+            return true;
         }
+
+        return false;
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onMaterialModified (idx: number, mtl: Material|null) {
         if (this._model == null) {
@@ -801,7 +804,12 @@ export class TerrainBlock {
     }
 
     public _updateMaterial (init: boolean) {
-        this._renderable._updateMaterial(this, init);
+        if (this._renderable._updateMaterial(this, init)) {
+            // Need set wrap mode clamp to border
+            if (this.lightmap !== null) {
+                this.lightmap.setWrapMode(WrapMode.CLAMP_TO_BORDER, WrapMode.CLAMP_TO_BORDER);
+            }
+        }
     }
 
     public _updateHeight () {
@@ -861,7 +869,7 @@ export class TerrainBlock {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _updateLightmap (info: TerrainBlockLightmapInfo) {
         this._lightmapInfo = info;
@@ -869,7 +877,7 @@ export class TerrainBlock {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _updateLod () {
         const key = new TerrainLodKey();
@@ -920,7 +928,7 @@ export class TerrainBlock {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _resetLod () {
         const key = new TerrainLodKey();
@@ -939,7 +947,7 @@ export class TerrainBlock {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _updateIndexBuffer () {
         if (this._renderable._meshData === null) {
@@ -1221,7 +1229,7 @@ export class Terrain extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public get _asset () {
         return this.__asset;
@@ -1453,6 +1461,9 @@ export class Terrain extends Component {
             this._blocks[i].destroy();
         }
         this._blocks = [];
+
+        // reset lightmap
+        this._resetLightmap(false);
 
         // build layer buffer
         this._rebuildLayerBuffer(info);
@@ -1770,7 +1781,7 @@ export class Terrain extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _setNormal (i: number, j: number, n: Vec3) {
         const index = j * this.vertexCount[0] + i;
@@ -2083,7 +2094,7 @@ export class Terrain extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _getSharedIndexBuffer () {
         if (this._sharedIndexBuffer == null) {
@@ -2102,14 +2113,14 @@ export class Terrain extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _getIndexData (key: TerrainLodKey) {
         return this._lod.getIndexData(key);
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _resetLightmap (enble: boolean) {
         this._lightmapInfos.length = 0;
@@ -2121,7 +2132,7 @@ export class Terrain extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _updateLightmap (blockId: number, tex: Texture2D|null, uOff: number, vOff: number, uScale: number, vScale: number) {
         this._lightmapInfos[blockId].texture = tex;
@@ -2133,7 +2144,7 @@ export class Terrain extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _getLightmapInfo (i: number, j: number) {
         const index = j * this._blockCount[0] + i;
@@ -2141,7 +2152,7 @@ export class Terrain extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _calcNormal (x: number, z: number) {
         let flip = 1;
@@ -2176,7 +2187,7 @@ export class Terrain extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _buildNormals () {
         let index = 0;
@@ -2403,8 +2414,8 @@ export class Terrain extends Component {
         const sampleOldWeight = (_x: number, _y: number, _xOff: number, _yOff: number, _weights: Uint8Array) => {
             const ix0 = Math.floor(_x);
             const iz0 = Math.floor(_y);
-            const ix1 = ix0 + 1;
-            const iz1 = iz0 + 1;
+            const ix1 = Math.min(ix0 + 1, oldWeightMapSize - 1);
+            const iz1 = Math.min(iz0 + 1, oldWeightMapSize - 1);
             const dx = _x - ix0;
             const dz = _y - iz0;
 

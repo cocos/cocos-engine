@@ -33,9 +33,6 @@ namespace cc {
 
 class SystemWindow : public ISystemWindow {
 public:
-    bool createWindow(const char* title,
-                      int x, int y, int w,
-                      int h, int flags) override;
     /**
      @brief enable/disable(lock) the cursor, default is enabled
      */

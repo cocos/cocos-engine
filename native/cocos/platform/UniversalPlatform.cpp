@@ -27,14 +27,6 @@
 
 #include "platform/interfaces/OSInterface.h"
 
-#include "platform/interfaces/modules/IAccelerometer.h"
-#include "platform/interfaces/modules/IBattery.h"
-#include "platform/interfaces/modules/INetwork.h"
-#include "platform/interfaces/modules/IScreen.h"
-#include "platform/interfaces/modules/ISystem.h"
-#include "platform/interfaces/modules/ISystemWindow.h"
-#include "platform/interfaces/modules/IVibrator.h"
-
 extern int  cocos_main(int argc, const char** argv); // NOLINT(readability-identifier-naming)
 extern void cocos_destory();                         // NOLINT(readability-identifier-naming)
 
@@ -59,7 +51,12 @@ void UniversalPlatform::dispatchEvent(const OSEvent& ev) {
     }
 }
 
-void UniversalPlatform::dispatchTouchEvent(const OSEvent& ev) {
+void UniversalPlatform::dispatchTouchEvent(const TouchEvent& ev) {
+    if (_handleTouchEventCallback) {
+        _handleTouchEventCallback(ev);
+    } else {
+        dispatchEvent(ev);
+    }
 }
 
 void UniversalPlatform::handleDefaultEvent(const OSEvent& ev) {
@@ -70,19 +67,12 @@ void UniversalPlatform::setHandleEventCallback(HandleEventCallback cb) {
     _handleEventCallback = cb;
 }
 
-void UniversalPlatform::setHandleDefaultEventCallback(HandleEventCallback cb) {
-    _handleDefaultEventCallback = cb;
+void UniversalPlatform::setHandleTouchEventCallback(HandleTouchEventCallback cb) {
+    _handleTouchEventCallback = cb;
 }
 
-int32_t UniversalPlatform::init() {
-    registerInterface(ISystemWindow::createSystemWindowInterface());
-    registerInterface(ISystem::createSystemInterface());
-    registerInterface(INetwork::createNetworkInterface());
-    registerInterface(IScreen::createScreenInterface());
-    registerInterface(IBattery::createBatteryInterface());
-    registerInterface(IVibrator::createVibratorInterface());
-    registerInterface(IAccelerometer::createAccelerometerInterface());
-    return 0;
+void UniversalPlatform::setHandleDefaultEventCallback(HandleEventCallback cb) {
+    _handleDefaultEventCallback = cb;
 }
 
 int32_t UniversalPlatform::run(int argc, const char** argv) {

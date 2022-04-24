@@ -6,9 +6,6 @@ const version = pkg.version.replace(/(^\d+\.\d+)\..*$/, (str, a) => {
 const url = 'https://docs.cocos.com/creator';
 
 module.exports = {
-    menu: {
-        custom_script: '自定义脚本',
-    },
     help: {
         cc: {
             Node: `${url}/${version}/manual/zh/concepts/scene/node-component.html`,
@@ -877,6 +874,10 @@ module.exports = {
         skeletal_animation: {
             label: "骨骼动画",
             description: "骨骼动画支持。",
+        },
+        marionette: {
+            label: "Marionette 动画系统",
+            description: "启用 Marionette 动画系统。",
         },
     },
     renderable_2d: {

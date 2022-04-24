@@ -33,9 +33,8 @@ import { Model } from '../renderer/scene/model';
 import { SubModel } from '../renderer/scene/submodel';
 import { Layers } from '../scene-graph/layers';
 import { legacyCC } from '../global-exports';
-import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit, UniformStorageBuffer,
-    DescriptorSetLayoutBinding, Uniform, UniformBlock, UniformSamplerTexture, UniformStorageImage, Device,
-    Feature, API, FormatFeatureBit, Format,
+import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit, UniformStorageBuffer, DescriptorSetLayoutBinding,
+    Uniform, UniformBlock, UniformSamplerTexture, UniformStorageImage, Device, FormatFeatureBit, Format,
 } from '../gfx';
 
 export const PIPELINE_FLOW_MAIN = 'MainFlow';

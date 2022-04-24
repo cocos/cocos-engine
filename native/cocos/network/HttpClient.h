@@ -113,38 +113,6 @@ public:
      */
     void sendImmediate(HttpRequest *request);
 
-    /**
-     * Set the timeout value for connecting.
-     *
-     * @param value the timeout value for connecting.
-     * @deprecated Please use `HttpRequest.setTimeout` instead.
-     */
-    CC_DEPRECATED_ATTRIBUTE void setTimeoutForConnect(int value);
-
-    /**
-     * Get the timeout value for connecting.
-     *
-     * @return int the timeout value for connecting.
-     * @deprecated Please use `HttpRequest.getTimeout` instead.
-     */
-    CC_DEPRECATED_ATTRIBUTE int getTimeoutForConnect();
-
-    /**
-     * Set the timeout value for reading.
-     *
-     * @param value the timeout value for reading.
-     * @deprecated Please use `HttpRequest.setTimeout` instead.
-     */
-    CC_DEPRECATED_ATTRIBUTE void setTimeoutForRead(int value);
-
-    /**
-     * Get the timeout value for reading.
-     *
-     * @return int the timeout value for reading.
-     * @deprecated Please use `HttpRequest.setTimeout` instead.
-     */
-    CC_DEPRECATED_ATTRIBUTE int getTimeoutForRead();
-
     HttpCookie *getCookie() const { return _cookie; }
 
     std::mutex &getCookieFileMutex() { return _cookieFileMutex; }

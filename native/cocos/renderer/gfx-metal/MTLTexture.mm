@@ -120,10 +120,11 @@ void CCMTLTexture::doInit(const TextureViewInfo &info) {
     }
     _convertedFormat = mu::convertGFXPixelFormat(_viewInfo.format);
     auto mtlTextureType = mu::toMTLTextureType(_viewInfo.type);
-    _mtlTextureView = [id<MTLTexture>(_viewInfo.texture) newTextureViewWithPixelFormat:mu::toMTLPixelFormat(_convertedFormat)
-                                                                                         textureType:mtlTextureType
-                                                                                              levels:NSMakeRange(_viewInfo.baseLevel, _viewInfo.levelCount)
-                                                                                              slices:NSMakeRange(_viewInfo.baseLayer, _viewInfo.layerCount)];
+    _mtlTextureView = [static_cast<CCMTLTexture*>(_viewInfo.texture)->_mtlTexture
+                       newTextureViewWithPixelFormat:mu::toMTLPixelFormat(_convertedFormat)
+                       textureType:mtlTextureType
+                       levels:NSMakeRange(_viewInfo.baseLevel, _viewInfo.levelCount)
+                       slices:NSMakeRange(_viewInfo.baseLayer, _viewInfo.layerCount)];
 }
 
 void CCMTLTexture::doInit(const SwapchainTextureInfo &info) {
@@ -219,6 +220,11 @@ const TextureInfo& CCMTLTexture::textureInfo() {
 }
 
 void CCMTLTexture::doDestroy() {
+    //decrease only non-swapchain tex and have had been inited.
+    if(!_swapchain && _mtlTexture) {
+        CCMTLDevice::getInstance()->getMemoryStatus().textureSize -= _size;
+    }
+
     if(_swapchain) {
         _swapchain = nullptr;
         _mtlTexture = nil;
@@ -234,8 +240,7 @@ void CCMTLTexture::doDestroy() {
         _mtlTexture = nil;
     }
 
-    CCMTLDevice::getInstance()->getMemoryStatus().textureSize -= _size;
-
+    
     std::function<void(void)> destroyFunc = [mtlTexure]() {
         if (mtlTexure) {
             //TODO_Zeqiang: [mac12 | ios15, ...) validate here

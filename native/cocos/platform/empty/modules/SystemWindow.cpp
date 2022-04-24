@@ -45,24 +45,8 @@ SystemWindow::SystemWindow() {
 SystemWindow::~SystemWindow() {
 }
 
-bool SystemWindow::createWindow(const char *title,
-                                int x, int y, int w,
-                                int h, int flags) {
-    // Create window
-
-    EmptyPlatform *platform = dynamic_cast<EmptyPlatform *>(BasePlatform::getPlatform());
-    CCASSERT(platform != nullptr, "Platform pointer can't be null");
-    platform->createWindow(title, x, y, w, h, flags);
-    _width  = w;
-    _height = h;
-    return true;
-}
-
 uintptr_t SystemWindow::getWindowHandler() const {
-    //return _handle;
-    EmptyPlatform *platform = dynamic_cast<EmptyPlatform *>(BasePlatform::getPlatform());
-    CCASSERT(platform != nullptr, "Platform pointer can't be null");
-    return platform->getWindowHandler();
+    return 0;
 }
 
 void SystemWindow::setCursorEnabled(bool value) {

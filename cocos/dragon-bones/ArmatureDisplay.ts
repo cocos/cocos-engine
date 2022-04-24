@@ -438,7 +438,7 @@ export class ArmatureDisplay extends Renderable2D {
     /* protected */ _debugDraw: Graphics | null = null;
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @serializable
     public _enableBatch = false;
@@ -523,6 +523,7 @@ export class ArmatureDisplay extends Renderable2D {
         this.initFactory();
         setEnumAttr(this, '_animationIndex', this._enumAnimations);
         setEnumAttr(this, '_defaultArmatureIndex', this._enumArmatures);
+        this._useVertexOpacity = true;
     }
 
     initFactory () {

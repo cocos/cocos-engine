@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { IVec3Like } from '../../../core';
 import { PhysicsMaterial, TerrainCollider } from '../../framework';

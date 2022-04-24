@@ -71,24 +71,30 @@ public:
      *@param h: Window height
      *@param flags: Window flag
      */
-    virtual bool      createWindow(const char* title,
-                                   int x, int y, int w,
-                                   int h, int flags) = 0;
-    virtual uintptr_t getWindowHandler() const       = 0;
-    virtual Size      getViewSize() const            = 0;
+    virtual bool createWindow(const char* title,
+                              int x, int y, int w,
+                              int h, int flags) {
+        return true;
+    }
+    /**
+     * @brief Create a window displayed in the bottom left.
+     *@param title: Window title
+     *@param w: Window width
+     *@param h: Window height
+     *@param flags: Window flag
+     */
+    virtual bool createWindow(const char* title,
+                              int w, int h, int flags) {
+        return true;
+    }
+    virtual uintptr_t getWindowHandler() const = 0;
+    virtual Size      getViewSize() const      = 0;
     /**
      @brief enable/disable(lock) the cursor, default is enabled
      */
     virtual void setCursorEnabled(bool value) = 0;
 
     virtual void copyTextToClipboard(const std::string& text) = 0;
-    /**
-     @brief Create default sytem window interface.
-     @return sytem window interface.
-     */
-    static OSInterface::Ptr createSystemWindowInterface();
-
-private:
 };
 
 } // namespace cc

@@ -78,6 +78,7 @@ public:
      * @brief Processing close events.
      */
     virtual void onClose();
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX || CC_PLATFORM == CC_PLATFORM_MAC_OSX
     /**
      * @brief Create window.
      * @param title: Window title
@@ -91,19 +92,29 @@ public:
                               int32_t x, int32_t y, int32_t w,
                               int32_t h, int32_t flags);
     /**
-     * @brief Set the js debugging server Addr and port
+     * @brief Create a centered window.
+     * @param title: Window title
+     * @param w: Window width
+     * @param h: Window height
+     * @param flags: Window flag
+     */
+    virtual void createWindow(const char* title, int32_t w,
+                              int32_t h, int32_t flags);
+#endif
+    /**
+     * @brief Set the debugging server Addr and port
      * @param serverAddr:Server address.
      * @param port:Server port.
      * @param isWaitForConnect:Is Wait for connect.
      */
-    virtual void setJsDebugIpAndPort(const std::string& serverAddr, uint32_t port, bool isWaitForConnect);
+    virtual void setDebugIpAndPort(const std::string& serverAddr, uint32_t port, bool isWaitForConnect);
     /**
-     * @brief Run the js code file
-     * @param filePath:Js file path.
+     * @brief Run the script file
+     * @param filePath:script path.
      */
-    virtual void runJsScript(const std::string& filePath);
+    virtual void runScript(const std::string& filePath);
     /**
-     * @brief Js exception handling
+     * @brief Script exception handling
      * @param location,Exception location
      * @param message,Exception message
      * @param stack,Exception stack
@@ -112,8 +123,6 @@ public:
     virtual void setXXTeaKey(const std::string& key);
 
 private:
-    void handleAppEvent(const OSEvent& ev);
-
     ISystemWindow*  _systemWidow{nullptr};
     BaseEngine::Ptr _engine{nullptr};
 };

@@ -25,6 +25,7 @@
 
 #include "platform/linux/modules/CanvasRenderingContext2DDelegate.h"
 #include "platform/linux/LinuxPlatform.h"
+#include "platform/linux/modules/SystemWindow.h"
 
 namespace {
 #define RGB(r, g, b)     (int)((int)r | (((int)g) << 8) | (((int)b) << 16))
@@ -37,10 +38,10 @@ namespace cc {
 static const char gdefaultFontName[] = "lucidasans-24";
 
 CanvasRenderingContext2DDelegate::CanvasRenderingContext2DDelegate() {
-    LinuxPlatform *platform = dynamic_cast<LinuxPlatform *>(BasePlatform::getPlatform());
-    CCASSERT(platform != nullptr, "Platform pointer can't be null");
-    _dis = reinterpret_cast<Display*>(platform->getDisplay());
-    _win = reinterpret_cast<Drawable>(platform->getWindowHandler());
+    SystemWindow* window = BasePlatform::getPlatform()->getInterface<SystemWindow>();
+    CCASSERT(window != nullptr, "System window is not registered");
+    _dis = reinterpret_cast<Display*>(window->getDisplay());
+    _win = reinterpret_cast<Drawable>(window->getWindowHandler());
 }
 
 CanvasRenderingContext2DDelegate::~CanvasRenderingContext2DDelegate() {

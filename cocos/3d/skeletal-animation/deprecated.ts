@@ -23,10 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module animation
- */
 import { js } from '../../core/utils/js';
 import { legacyCC } from '../../core/global-exports';
 import { SkeletalAnimation } from './skeletal-animation';

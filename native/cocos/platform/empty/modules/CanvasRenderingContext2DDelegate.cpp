@@ -81,6 +81,7 @@ void CanvasRenderingContext2DDelegate::strokeText(const std::string &text, float
 }
 
 CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measureText(const std::string &text) {
+    return Size{0, 0};
 }
 
 void CanvasRenderingContext2DDelegate::updateFont(const std::string &fontName,

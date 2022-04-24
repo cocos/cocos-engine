@@ -38,18 +38,33 @@ SystemWindow::SystemWindow() = default;
 
 SystemWindow::~SystemWindow() = default;
 
+bool SystemWindow::createWindow(const char* title,
+                                int w, int h, int flags) {
+    if(_isWindowCreated) {
+        return true;
+    }
+    _isWindowCreated = true;
+    _width                = w;
+    _height               = h;
+    AppDelegate *delegate = [[NSApplication sharedApplication] delegate];
+    NSString *   aString  = [NSString stringWithUTF8String:title];
+    [delegate createLeftBottomWindow:aString width:w height:h];
+    return true;
+}
+
 bool SystemWindow::createWindow(const char *title,
                                 int x, int y, int w,
                                 int h, int flags) {
-    if(isInit) {
+    if(_isWindowCreated) {
         return true;
     }
-    isInit = true;
+    _isWindowCreated = true;
     _width                = w;
     _height               = h;
     AppDelegate *delegate = [[NSApplication sharedApplication] delegate];
     NSString *   aString  = [NSString stringWithUTF8String:title];
     [delegate createWindow:aString xPos:x yPos:y width:w height:h];
+    return true;
 }
 
 void SystemWindow::setCursorEnabled(bool value) {

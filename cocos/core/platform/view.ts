@@ -51,14 +51,14 @@ import { game } from '../game';
  *  - Provide interaction with the window, like resize event on web, retina display support, etc...<br/>
  *  - Manage the scale and translation of canvas related to the frame on Web<br/>
  * <br/>
- * With {{view}} as its singleton initialized by the engine, you don't need to call any constructor or create functions,<br/>
+ * With [[view]] as its singleton initialized by the engine, you don't need to call any constructor or create functions,<br/>
  * the standard way to use it is by calling:<br/>
  *  - view.methodName(); <br/>
  * @zh View 代表游戏窗口视图，它的核心功能包括：
  *  - 对所有 UI Canvas 进行设计分辨率适配。
  *  - 提供窗口视图的交互，比如监听 resize 事件，控制 retina 屏幕适配，等等。
  *  - 控制 Canvas 节点相对于外层 DOM 节点的缩放和偏移。
- * 引擎会自动初始化它的单例对象 {{view}}，所以你不需要实例化任何 View，只需要直接使用 `view.methodName();`
+ * 引擎会自动初始化它的单例对象 [[view]]，所以你不需要实例化任何 View，只需要直接使用 `view.methodName();`
  */
 
 const localWinSize = new Size();
@@ -72,7 +72,7 @@ const orientationMap = {
 export class View extends EventTarget {
     public static instance: View;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _designResolutionSize: Size;
 
@@ -381,7 +381,7 @@ export class View extends EventTarget {
     /**
      * @en Returns the current resolution policy
      * @zh 返回当前分辨率方案
-     * @see {{ResolutionPolicy}}
+     * @see [[ResolutionPolicy]]
      */
     public getResolutionPolicy (): ResolutionPolicy {
         return this._resolutionPolicy;
@@ -413,7 +413,7 @@ export class View extends EventTarget {
     /**
      * @en Sets the current resolution policy
      * @zh 设置当前分辨率模式
-     * @see {{ResolutionPolicy}}
+     * @see [[ResolutionPolicy]]
      */
     public setResolutionPolicy (resolutionPolicy: ResolutionPolicy|number) {
         this._updateResolutionPolicy(resolutionPolicy);
@@ -718,7 +718,7 @@ class ContentStrategy {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _buildResult (containerW, containerH, contentW, contentH, scaleX, scaleY): AdaptResult {
         // Makes content fit better the canvas

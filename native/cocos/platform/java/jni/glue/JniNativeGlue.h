@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <functional>
 #include <future>
 #include <memory>
 #include "base/Macros.h"
@@ -45,10 +46,14 @@ using ResourceManagerType = ResourceManager;
 using NativeWindowType    = NativeLayer;
 #endif
 
+using NativeActivity = void*; //jobject
+using NativeEnv      = void*; //jnienv
+
 namespace cc {
 
 class IEventDispatch;
 class OSEvent;
+class TouchEvent;
 
 class CC_DLL JniNativeGlue {
 public:
@@ -68,6 +73,12 @@ public:
 
     void              setWindowHandler(NativeWindowType* window);
     NativeWindowType* getWindowHandler();
+
+    void  setActivityGetter(std::function<NativeActivity(void)>);
+    void* getActivity();
+
+    void  setEnvGetter(std::function<NativeEnv(void)>);
+    void* getEnv();
 
     void                 setResourceManager(ResourceManagerType* resourceManager);
     ResourceManagerType* getResourceManager();
@@ -95,7 +106,7 @@ public:
 
     void setEventDispatch(IEventDispatch* eventDispatcher);
     void dispatchEvent(const OSEvent& ev);
-    void dispatchTouchEvent(const OSEvent& ev);
+    void dispatchTouchEvent(const TouchEvent& ev);
 
     void onPause();
     void onResume();
@@ -125,6 +136,9 @@ private:
     JniCommand                   _appState{JniCommand::JNI_CMD_UNKNOW};
     IEventDispatch*              _eventDispatcher{nullptr};
     std::unique_ptr<MessagePipe> _messagePipe{nullptr};
+
+    std::function<NativeEnv(void)>      _envGetter;
+    std::function<NativeActivity(void)> _activityGetter;
 };
 
 } // namespace cc

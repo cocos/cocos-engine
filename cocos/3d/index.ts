@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import * as utils from './misc';
 import { legacyCC } from '../core/global-exports';
 

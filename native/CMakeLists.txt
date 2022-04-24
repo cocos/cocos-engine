@@ -44,6 +44,11 @@ elseif(MACOSX OR IOS)
     cc_set_if_undefined(CC_USE_GLES2 OFF)
 endif()
 
+set(CC_USE_GLES3 ${CC_USE_GLES3} CACHE INTERNAL "")
+set(CC_USE_GLES2 ${CC_USE_GLES2} CACHE INTERNAL "")
+set(CC_USE_VULKAN ${CC_USE_VULKAN} CACHE INTERNAL "")
+set(CC_USE_METAL ${CC_USE_METAL}  CACHE INTERNAL "")
+
 if(USE_SERVER_MODE)
     set(CC_USE_VULKAN OFF)
     set(CC_USE_GLES3 OFF)
@@ -335,6 +340,7 @@ cocos_source_files(
     cocos/application/CocosApplication.cpp
     cocos/application/ApplicationManager.h
     cocos/application/ApplicationManager.cpp
+    cocos/application/BaseGame.h
 )
 
 ############ engine
@@ -350,29 +356,9 @@ if(USE_SERVER_MODE)
     cocos_source_files(
         cocos/main/EmptyMain.cpp
     )
-elseif(WINDOWS)
-    cocos_source_files(
-        cocos/main/main-win32.cpp
-    )
-elseif(LINUX)
-    cocos_source_files(
-        cocos/main/main-linux.cpp
-    )
-elseif(QNX)
-    cocos_source_files(
-        cocos/main/main-qnx.cpp
-    )
-elseif(MACOSX)
-    cocos_source_files(
-        cocos/main/main-mac.mm
-    )
-elseif(IOS)
-    cocos_source_files(
-        cocos/main/main-ios.mm
-    )
 endif()
 
-if(WINDOWS OR LINUX)
+if(NOT USE_SERVER_MODE AND (WINDOWS OR LINUX))
 cocos_source_files(
     cocos/platform/SDLHelper.h
     cocos/platform/SDLHelper.cpp
@@ -402,11 +388,6 @@ elseif(LINUX)
         cocos/platform/linux/LinuxPlatform.cpp
         cocos/platform/linux/LinuxPlatform.h
     )
-elseif(QNX)
-    cocos_source_files(
-        cocos/platform/qnx/QnxPlatform.cpp
-        cocos/platform/qnx/QnxPlatform.h
-    )
 elseif(ANDROID)
     cocos_source_files(
         cocos/platform/android/AndroidPlatform.cpp
@@ -430,12 +411,8 @@ elseif(IOS)
     cocos_source_files(
         cocos/platform/ios/IOSPlatform.mm
         cocos/platform/ios/IOSPlatform.h
-        cocos/platform/ios/AppDelegate.mm
-        cocos/platform/ios/AppDelegate.h
-        cocos/platform/ios/service/SDKWrapper.m
-        cocos/platform/ios/service/SDKWrapper.h
-        cocos/platform/ios/ViewController.mm
-        cocos/platform/ios/ViewController.h
+        cocos/platform/ios/AppDelegateBridge.mm
+        cocos/platform/ios/AppDelegateBridge.h
     )
 endif()
 
@@ -451,19 +428,13 @@ cocos_source_files(
 cocos_source_files(
     cocos/platform/interfaces/modules/Device.cpp
     cocos/platform/interfaces/modules/Device.h
-    cocos/platform/interfaces/modules/IAccelerometer.cpp
     cocos/platform/interfaces/modules/IAccelerometer.h
-    cocos/platform/interfaces/modules/IBattery.cpp
     cocos/platform/interfaces/modules/IBattery.h
-    cocos/platform/interfaces/modules/IScreen.cpp
     cocos/platform/interfaces/modules/IScreen.h
-    cocos/platform/interfaces/modules/INetwork.cpp
     cocos/platform/interfaces/modules/INetwork.h
     cocos/platform/interfaces/modules/ISystem.cpp
     cocos/platform/interfaces/modules/ISystem.h
-    cocos/platform/interfaces/modules/ISystemWindow.cpp
     cocos/platform/interfaces/modules/ISystemWindow.h
-    cocos/platform/interfaces/modules/IVibrator.cpp
     cocos/platform/interfaces/modules/IVibrator.h
 )
 
@@ -493,11 +464,6 @@ elseif(MACOSX OR IOS)
         cocos/platform/apple/modules/CanvasRenderingContext2DDelegate.mm
         cocos/platform/apple/modules/CanvasRenderingContext2DDelegate.h
     )
-elseif(QNX)
-    cocos_source_files(
-        cocos/platform/qnx/modules/CanvasRenderingContext2DDelegate.cpp
-        cocos/platform/qnx/modules/CanvasRenderingContext2DDelegate.h
-    )
 elseif(LINUX)
     cocos_source_files(
         cocos/platform/linux/modules/CanvasRenderingContext2DDelegate.cpp
@@ -517,8 +483,8 @@ if(USE_SERVER_MODE)
         cocos/platform/empty/modules/Screen.h
         cocos/platform/empty/modules/Network.cpp
         cocos/platform/empty/modules/Network.h
-        cocos/platform/empty/modules/Vibrate.cpp
-        cocos/platform/empty/modules/Vibrate.h
+        cocos/platform/empty/modules/Vibrator.cpp
+        cocos/platform/empty/modules/Vibrator.h
         cocos/platform/empty/modules/System.cpp
         cocos/platform/empty/modules/System.h
         cocos/platform/empty/modules/SystemWindow.cpp
@@ -619,29 +585,12 @@ elseif(LINUX)
         cocos/platform/linux/modules/Screen.h
         cocos/platform/linux/modules/Network.cpp
         cocos/platform/linux/modules/Network.h
-        cocos/platform/linux/modules/Vibrate.cpp
-        cocos/platform/linux/modules/Vibrate.h
+        cocos/platform/linux/modules/Vibrator.cpp
+        cocos/platform/linux/modules/Vibrator.h
         cocos/platform/linux/modules/System.cpp
         cocos/platform/linux/modules/System.h
         cocos/platform/linux/modules/SystemWindow.cpp
         cocos/platform/linux/modules/SystemWindow.h
-    )
-elseif(QNX)
-    cocos_source_files(
-        cocos/platform/qnx/modules/Accelerometer.cpp
-        cocos/platform/qnx/modules/Accelerometer.h
-        cocos/platform/qnx/modules/Battery.cpp
-        cocos/platform/qnx/modules/Battery.h
-        cocos/platform/qnx/modules/Screen.cpp
-        cocos/platform/qnx/modules/Screen.h
-        cocos/platform/qnx/modules/Network.cpp
-        cocos/platform/qnx/modules/Network.h
-        cocos/platform/qnx/modules/Vibrate.cpp
-        cocos/platform/qnx/modules/Vibrate.h
-        cocos/platform/qnx/modules/System.cpp
-        cocos/platform/qnx/modules/System.h
-        cocos/platform/qnx/modules/SystemWindow.cpp
-        cocos/platform/qnx/modules/SystemWindow.h
     )
 endif()
 
@@ -951,8 +900,8 @@ elseif(APPLE)
     if(MACOSX)
         cocos_source_files(
             cocos/platform/mac/View.h
-            cocos/platform/mac/KeyCodeHelper.h
             cocos/platform/mac/View.mm
+            cocos/platform/mac/KeyCodeHelper.h
             cocos/platform/mac/KeyCodeHelper.cpp
         )
     elseif(IOS)
@@ -965,11 +914,6 @@ elseif(LINUX)
     cocos_source_files(MODULE ccfilesystem
         cocos/platform/linux/FileUtils-linux.cpp
         cocos/platform/linux/FileUtils-linux.h
-    )
-elseif(QNX)
-    cocos_source_files(MODULE ccfilesystem
-        cocos/platform/qnx/FileUtils-qnx.cpp
-        cocos/platform/qnx/FileUtils-qnx.h
     )
 endif()
 
@@ -1542,6 +1486,12 @@ if(USE_PHYSICS_PHYSX)
     )
 endif()
 
+##### core
+cocos_source_files(
+    cocos/core/event/CallbacksInvoker.cpp
+    cocos/core/event/CallbacksInvoker.h
+)
+
 ##### script bindings
 ######## dop
 cocos_source_files(
@@ -1953,10 +1903,6 @@ elseif(LINUX)
     cocos_source_files(
         NO_WERROR    cocos/bindings/manual/jsb_platfrom_linux.cpp
     )
-elseif(QNX)
-    cocos_source_files(
-        NO_WERROR    cocos/bindings/manual/jsb_platfrom_qnx.cpp
-    )
 endif()
 
 ############# module bindings
@@ -2151,13 +2097,7 @@ elseif(WIN32)
             NO_WERROR    cocos/ui/edit-box/EditBox-win32.cpp
         )
     endif()
-elseif(LINUX)
-    if(USE_EDIT_BOX)
-        cocos_source_files(
-            NO_WERROR    cocos/ui/edit-box/EditBox-linux.cpp
-        )
-    endif()
-elseif(QNX)
+elseif(LINUX OR QNX)
     if(USE_EDIT_BOX)
         cocos_source_files(
             NO_WERROR    cocos/ui/edit-box/EditBox-linux.cpp
@@ -2182,7 +2122,6 @@ cocos_source_files(
 )
 
 list(APPEND COCOS2D_SOURCE_LIST ${CC_EXTERNAL_SOURCES})
-
 
 if(USE_MODULES)
     add_library(ccmath ${ccmath_SOURCE_LIST})
@@ -2268,6 +2207,15 @@ else()
         ${CC_UNZIP_SOURCES}
         ${CC_TINYDIR_SOURCES}
     )
+endif()
+
+source_group(TREE ${CWD} PREFIX "Source Files" FILES ${COCOS2D_SOURCE_LIST})
+
+if(QNX)
+    include(${QNX_PATH}/source.cmake)
+    qnx_source_list(ccqnx_SOURCE_LIST ${QNX_PATH})
+    source_group(TREE ${QNX_PATH} PREFIX "Source Files" FILES ${ccqnx_SOURCE_LIST}})
+    list(APPEND COCOS2D_SOURCE_LIST ${ccqnx_SOURCE_LIST})
 endif()
 
 add_library(cocos2d ${COCOS2D_SOURCE_LIST})
@@ -2526,12 +2474,8 @@ if(APPLE)
 endif()
 
 if(QNX)
-    target_link_libraries(cocos2d PUBLIC
-        socket
-        ssl
-        screen
-        ${CC_EXTERNAL_LIBS}
-    )
+    include(${QNX_PATH}/setup.cmake)
+    qnx_set_property(cocos2d)
 elseif(LINUX)
     set(LINUX_GRAPHIC_LIBS "")
     if(NOT USE_SERVER_MODE)
@@ -2542,5 +2486,3 @@ elseif(LINUX)
         ${CC_EXTERNAL_LIBS}
     )
 endif()
-
-source_group(TREE ${CWD} PREFIX "Source Files" FILES ${COCOS2D_SOURCE_LIST})

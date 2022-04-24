@@ -29,7 +29,7 @@ import { RenderPipeline, MAX_BLOOM_FILTER_PASS_NUM } from '../render-pipeline';
 import { Material } from '../../assets';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { macro } from '../../platform/macro';
-import { NativePass } from '../../renderer/scene';
+import { NativePass } from '../../renderer';
 
 // Anti-aliasing type, other types will be gradually added in the future
 export enum AntiAliasing {
