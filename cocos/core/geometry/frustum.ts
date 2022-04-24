@@ -257,8 +257,6 @@ export class Frustum {
             ${this.planes[5].toString()}`;
     }
 
-    protected _type: number;
-
     public planes: Plane[];
     public vertices: Vec3[];
 
