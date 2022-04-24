@@ -81,6 +81,7 @@ struct StandardSurface {
   float roughness;
   float metallic;
   float occlusion;
+  float specularIntensity;
 
   #if CC_RECEIVE_SHADOW
     vec2 shadowBias;
@@ -91,7 +92,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   // Calculate diffuse & specular
   vec3 diffuse = s.albedo.rgb * (1.0 - s.metallic);
  
-  vec3 specular = mix(vec3(0.04), s.albedo.rgb, s.metallic);
+  vec3 specular = mix(vec3(0.08 * s.specularIntensity), s.albedo.rgb, s.metallic);
 
   vec3 position;
   HIGHP_VALUE_FROM_STRUCT_DEFINED(position, s.position);
@@ -124,7 +125,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   finalColor *= dirlightContrib;
 
   #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
-    if (s.lightmap_test > 0.0001) {
+    if (s.lightmap_test > EPSILON_LOWP) {
       finalColor = diffuse * s.lightmap.rgb * shadow;
     }
   #endif

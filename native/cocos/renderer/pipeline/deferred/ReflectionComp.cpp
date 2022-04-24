@@ -133,15 +133,16 @@ void ReflectionComp::getReflectorShader(ShaderSources<ComputeShaderSource> &sour
             vec2 texSize;
         };
 
-        layout(set = 0, binding = 1) uniform sampler2D lightingTex;
-        layout(set = 0, binding = 2) uniform sampler2D depth;
-        layout(set = 0, binding = 3, rgba8) writeonly uniform lowp image2D reflectionTex;
-        layout(set = 0, binding = 4, std140) uniform CCLocal
+        layout(set = 0, binding = 1, std140) uniform CCLocal
         {
             mat4 cc_matWorld;
             mat4 cc_matWorldIT;
             vec4 cc_lightingMapUVParam;
         };
+
+        layout(set = 0, binding = 2) uniform sampler2D lightingTex;
+        layout(set = 0, binding = 3) uniform sampler2D depth;
+        layout(set = 0, binding = 4, rgba8) writeonly uniform lowp image2D reflectionTex;
 
         vec4 screen2WS(vec3 coord) {
             vec4 ndc = vec4(
@@ -273,21 +274,21 @@ void ReflectionComp::initReflectionRes() {
                                     {"texSize", gfx::Type::FLOAT2, 1},
                                 },
              1},
-            {0, 4, "CCLocal", {{"cc_matWorld", gfx::Type::MAT4, 1}, {"cc_matWorldIT", gfx::Type::MAT4, 1}, {"cc_lightingMapUVParam", gfx::Type::FLOAT4, 1}}, 1}};
+            {0, 1, "CCLocal", {{"cc_matWorld", gfx::Type::MAT4, 1}, {"cc_matWorldIT", gfx::Type::MAT4, 1}, {"cc_lightingMapUVParam", gfx::Type::FLOAT4, 1}}, 1}};
         shaderInfo.samplerTextures = {
-            {0, 1, "lightingTex", gfx::Type::SAMPLER2D, 1},
-            {0, 2, "depth", gfx::Type::SAMPLER2D, 1}};
+            {0, 2, "lightingTex", gfx::Type::SAMPLER2D, 1},
+            {0, 3, "depth", gfx::Type::SAMPLER2D, 1}};
         shaderInfo.images = {
-            {0, 3, "reflectionTex", gfx::Type::IMAGE2D, 1, gfx::MemoryAccessBit::WRITE_ONLY}};
+            {0, 4, "reflectionTex", gfx::Type::IMAGE2D, 1, gfx::MemoryAccessBit::WRITE_ONLY}};
         _compShader[i] = _device->createShader(shaderInfo);
     }
 
     gfx::DescriptorSetLayoutInfo dslInfo;
     dslInfo.bindings.push_back({0, gfx::DescriptorType::UNIFORM_BUFFER, 1, gfx::ShaderStageFlagBit::COMPUTE});
-    dslInfo.bindings.push_back({1, gfx::DescriptorType::SAMPLER_TEXTURE, 1, gfx::ShaderStageFlagBit::COMPUTE});
+    dslInfo.bindings.push_back({1, gfx::DescriptorType::UNIFORM_BUFFER, 1, gfx::ShaderStageFlagBit::COMPUTE});
     dslInfo.bindings.push_back({2, gfx::DescriptorType::SAMPLER_TEXTURE, 1, gfx::ShaderStageFlagBit::COMPUTE});
-    dslInfo.bindings.push_back({3, gfx::DescriptorType::STORAGE_IMAGE, 1, gfx::ShaderStageFlagBit::COMPUTE});
-    dslInfo.bindings.push_back({4, gfx::DescriptorType::UNIFORM_BUFFER, 1, gfx::ShaderStageFlagBit::COMPUTE});
+    dslInfo.bindings.push_back({3, gfx::DescriptorType::SAMPLER_TEXTURE, 1, gfx::ShaderStageFlagBit::COMPUTE});
+    dslInfo.bindings.push_back({4, gfx::DescriptorType::STORAGE_IMAGE, 1, gfx::ShaderStageFlagBit::COMPUTE});
 
     _compDescriptorSetLayout = _device->createDescriptorSetLayout(dslInfo);
     _compDescriptorSet       = _device->createDescriptorSet({_compDescriptorSetLayout});
@@ -309,13 +310,13 @@ void ReflectionComp::getDenoiseShader(ShaderSources<ComputeShaderSource> &source
         R"(
         #define CC_USE_ENVMAP %d
         layout(local_size_x = %d, local_size_y = %d, local_size_z = 1) in;
-        layout(set = 0, binding = 0) uniform sampler2D reflectionTex;
+        layout(set = 0, binding = 1) uniform sampler2D reflectionTex;
         layout(set = 1, binding = %d, rgba8) writeonly uniform lowp image2D denoiseTex;
 
         #if CC_USE_ENVMAP == 1
-          layout(set = 0, binding = 1) uniform samplerCube envMap;
-          layout(set = 0, binding = 2) uniform sampler2D depth;
-          layout(set = 0, binding = 3) uniform Constants
+          layout(set = 0, binding = 2) uniform samplerCube envMap;
+          layout(set = 0, binding = 3) uniform sampler2D depth;
+          layout(set = 0, binding = 0) uniform Constants
           {
               mat4 matView;
               mat4 matProjInv;
@@ -506,7 +507,7 @@ void ReflectionComp::initDenoiseRes() {
         if (i == 0) {
             shaderInfo.blocks          = {};
             shaderInfo.samplerTextures = {
-                {0, 0, "reflectionTex", gfx::Type::SAMPLER2D, 1}};
+                {0, 1, "reflectionTex", gfx::Type::SAMPLER2D, 1}};
         } else {
             shaderInfo.blocks = {
                 {0, 0, "Constants", {
@@ -520,9 +521,9 @@ void ReflectionComp::initDenoiseRes() {
                  1},
             };
             shaderInfo.samplerTextures = {
-                {0, 0, "reflectionTex", gfx::Type::SAMPLER2D, 1},
-                {0, 1, "envMap", gfx::Type::SAMPLER_CUBE, 1},
-                {0, 2, "depth", gfx::Type::SAMPLER2D, 1}};
+                {0, 1, "reflectionTex", gfx::Type::SAMPLER2D, 1},
+                {0, 2, "envMap", gfx::Type::SAMPLER_CUBE, 1},
+                {0, 3, "depth", gfx::Type::SAMPLER2D, 1}};
         }
 
         shaderInfo.images = {
@@ -532,11 +533,10 @@ void ReflectionComp::initDenoiseRes() {
     }
 
     gfx::DescriptorSetLayoutInfo dslInfo;
-    dslInfo.bindings.push_back({0, gfx::DescriptorType::SAMPLER_TEXTURE, 1, gfx::ShaderStageFlagBit::COMPUTE});
+    dslInfo.bindings.push_back({0, gfx::DescriptorType::UNIFORM_BUFFER, 1, gfx::ShaderStageFlagBit::COMPUTE});
     dslInfo.bindings.push_back({1, gfx::DescriptorType::SAMPLER_TEXTURE, 1, gfx::ShaderStageFlagBit::COMPUTE});
     dslInfo.bindings.push_back({2, gfx::DescriptorType::SAMPLER_TEXTURE, 1, gfx::ShaderStageFlagBit::COMPUTE});
-    dslInfo.bindings.push_back({3, gfx::DescriptorType::UNIFORM_BUFFER, 1, gfx::ShaderStageFlagBit::COMPUTE});
-    dslInfo.bindings.push_back({4, gfx::DescriptorType::UNIFORM_BUFFER, 1, gfx::ShaderStageFlagBit::COMPUTE});
+    dslInfo.bindings.push_back({3, gfx::DescriptorType::SAMPLER_TEXTURE, 1, gfx::ShaderStageFlagBit::COMPUTE});
     _compDenoiseDescriptorSetLayout = _device->createDescriptorSetLayout(dslInfo);
     _compDenoisePipelineLayout      = _device->createPipelineLayout({{_compDenoiseDescriptorSetLayout, _localDescriptorSetLayout}});
     _compDenoiseDescriptorSet       = _device->createDescriptorSet({_compDenoiseDescriptorSetLayout});

@@ -37,7 +37,7 @@ export class AnimationController extends Component {
 
     private _graphEval: AnimationGraphEval | null = null;
 
-    public start () {
+    public __preload () {
         if (this.graph) {
             this._graphEval = new AnimationGraphEval(this.graph as AnimationGraph, this.node, this);
         }

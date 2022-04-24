@@ -45,7 +45,7 @@ export class SphereLight extends Light {
     @formerlySerializedAs('_luminance')
     protected _luminanceHDR = 1700 / scene.nt2lm(0.15);
     @serializable
-    protected _luminanceLDR = 1.0;
+    protected _luminanceLDR = 1700 / scene.nt2lm(0.15) * Camera.standardExposureValue * Camera.standardLightMeterScale;
     @serializable
     protected _term = PhotometricTerm.LUMINOUS_FLUX;
     @serializable
@@ -159,11 +159,6 @@ export class SphereLight extends Light {
         super._createLight();
         this.size = this._size;
         this.range = this._range;
-        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
-            this._luminanceLDR = this._luminanceHDR * Camera.standardExposureValue * Camera.standardLightMeterScale;
-        } else {
-            this._luminanceHDR = this._luminanceLDR / Camera.standardExposureValue / Camera.standardLightMeterScale;
-        }
 
         if (this._light) {
             this._light.luminanceHDR = this._luminanceHDR;

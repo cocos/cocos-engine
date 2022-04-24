@@ -29,7 +29,7 @@
  */
 import { EDITOR } from 'internal:constants';
 import { ccclass, executeInEditMode, requireComponent, disallowMultiple, tooltip,
-    type, displayOrder, serializable, override, visible, displayName } from 'cc.decorator';
+    type, displayOrder, serializable, override, visible, displayName, disallowAnimation } from 'cc.decorator';
 import { Color } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { builtinResMgr } from '../../core/builtin';
@@ -168,6 +168,7 @@ export class Renderable2D extends RenderableComponent {
     @displayOrder(0)
     @tooltip('i18n:renderable2D.customMaterial')
     @displayName('CustomMaterial')
+    @disallowAnimation
     get customMaterial () {
         return this._customMaterial;
     }
@@ -268,6 +269,7 @@ export class Renderable2D extends RenderableComponent {
         this.node.on(NodeEventType.PARENT_CHANGED, this._colorDirty, this);
         this.updateMaterial();
         this._renderFlag = this._canRender();
+        this._colorDirty();
     }
 
     // For Redo, Undo
@@ -418,7 +420,7 @@ export class Renderable2D extends RenderableComponent {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _updateBlendFunc () {
         // todo: Not only Pass[0].target[0]

@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { ccclass, tooltip, displayOrder, type, serializable } from 'cc.decorator';
+import { ccclass, tooltip, displayOrder, type, serializable, disallowAnimation } from 'cc.decorator';
 import { Mesh } from '../../3d';
 import { Material, Texture2D } from '../../core/assets';
 import { AlignmentSpace, RenderMode, Space } from '../enum';
@@ -136,6 +136,7 @@ export default class ParticleSystemRenderer {
      */
     @type(Material)
     @displayOrder(8)
+    @disallowAnimation
     @tooltip('i18n:particleSystemRenderer.particleMaterial')
     public get particleMaterial () {
         if (!this._particleSystem) {
@@ -155,6 +156,7 @@ export default class ParticleSystemRenderer {
      */
     @type(Material)
     @displayOrder(9)
+    @disallowAnimation
     @tooltip('i18n:particleSystemRenderer.trailMaterial')
     public get trailMaterial () {
         if (!this._particleSystem) {

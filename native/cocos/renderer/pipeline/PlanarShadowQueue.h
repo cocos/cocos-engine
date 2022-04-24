@@ -49,7 +49,7 @@ public:
 
     void clear();
     void gatherShadowPasses(scene::Camera *camera, gfx::CommandBuffer *cmdBuffer);
-    void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *);
+    void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *, uint32_t subpassID = 0);
     void destroy();
 
 private:

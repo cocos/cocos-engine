@@ -28,6 +28,9 @@ export class UntypedTrack extends Track {
         return this._channels;
     }
 
+    /**
+     * @internal
+     */
     public [createEvalSymbol] (runtimeBinding: RuntimeBinding) {
         if (!runtimeBinding.getValue) {
             throw new Error(getError(3930));

@@ -89,6 +89,7 @@ void DescriptorSetLayoutValidator::doInit(const DescriptorSetLayoutInfo &info) {
          * * SubpassInput
          */
         uint32_t type{DESCRIPTOR_TYPE_ORDERS[utils::getBitPosition(toNumber(binding.descriptorType))]};
+        // deffered pipeline issue: https://github.com/cocos/cocos-engine/pull/10701
         CC_ASSERT(lastType <= type);
         lastType = type;
         ++_typeCounts[type];

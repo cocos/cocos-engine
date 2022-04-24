@@ -1,35 +1,40 @@
-import { _decorator, Component } from 'cc';
+import { _decorator, Component, Node } from 'cc';
 const { ccclass, property } = _decorator;
 
-@ccclass('<%Name%>')
-export class <%Name%> extends Component {
-    start() {}
+@ccclass('<%UnderscoreCaseClassName%>')
+export class <%UnderscoreCaseClassName%> extends Component {
+    start() {
 
-    update(deltaTime: number) { }
+    }
+
+    update(deltaTime: number) {
+        
+    }
 }
 
 /**
- * GENERATE IGNORE
- * Use the "GENERATE IGNORE" flag in comments to not generate these commented code in newly created script files.
+ * COMMENTS_GENERATE_IGNORE
+ * Use "COMMENTS_GENERATE_IGNORE" tag if you do not want later created scripts to contain these comments.
  * 
  * Predefined Variables
- * You can use predefined variables below, they can help you such as decide whether to use 'Camel Format Class Name'.
+ * You can use predefined variables below to setup your scripting preference. For example, whether to use camel case style.
  * 
- * <%Name%>, default format for class name in underscore format, like 'new_component'
- * <%UnderscoreFormatClassName%>, class name in underscore format, like 'new_component'
- * <%CamelFormatClassName%>, class name in camel format, like 'NewComponent'
+ * <%UnderscoreCaseClassName%>, class name in underscore format, like 'new_component'
+ * <%CamelCaseClassName%>, class name in camel format, like 'NewComponent'
  * <%Author%>, Who create this file
  * <%DateTime%>, when create this file
- * <%FileBasename%>, this file name with extension
- * <%FileBasenameNoExtension%>, this file name with no-extension
+ * <%FileBasename%>, creating file name with extension
+ * <%FileBasenameNoExtension%>, creating file name without extension
  * <%URL%>, url of this file in COCOS ASSET URL format
- * <%ManualUrl%>, url of office help document, like 'https://docs.cocos.com/creator/manual/en'
+ * <%ManualUrl%>, url of office help document, like 'https://docs.cocos.com/creator/manual/en/'
  *
  * 
- * Annotated Template
+ * Example:
  * 
-  export class <%Name%> extends Component {
-    // Class member could be defined like this.
+  @ccclass('<%UnderscoreCaseClassName%>')
+  export class <%UnderscoreCaseClassName%> extends Component {
+  
+    // class member could be defined like this.
     dummy = '';
 
     // Use 'property' decorator if your want the member to be serializable.
@@ -43,6 +48,7 @@ export class <%Name%> extends Component {
     update (deltaTime: number) {
         // Your update function goes here.
     }
+
   }
  *
  * Learn more about scripting: <%ManualUrl%>scripting/

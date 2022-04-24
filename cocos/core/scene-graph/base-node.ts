@@ -95,7 +95,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @zh 如果为true，则该节点是一个常驻节点，不会在场景转换期间被销毁。
      * 如果为false，节点将在加载新场景时自动销毁。默认为 false。
      * @default false
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @property
     get _persistNode (): boolean {
@@ -333,7 +333,7 @@ export class BaseNode extends CCObject implements ISchedulable {
 
     /**
      * record scene's id when set this node as persist node
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _originalSceneId = '';
 
@@ -1070,7 +1070,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * 同时您可以将事件派发到父节点或者通过调用 stopPropagation 拦截它。
      * 你也可以注册自定义事件到节点上，并通过 emit 方法触发此类事件，对于这类事件，不会发生捕获冒泡阶段，只会直接派发给注册在该节点上的监听器
      * 你可以通过在 emit 方法调用时在 type 之后传递额外的参数作为事件回调的参数列表
-     * @param type - A string representing the event type to listen for.<br>See {{#crossLink "Node/EventType/POSITION_CHANGED"}}Node Events{{/crossLink}} for all builtin events.
+     * @param type - A string representing the event type to listen for.<br>See [[Node.EventType.POSITION_CHANGED]] for all builtin events.
      * @param callback - The callback that will be invoked when the event is dispatched. The callback is ignored if it is a duplicate (the callbacks are unique).
      * @param target - The target (this object) to invoke the callback, can be null
      * @param useCapture - When set to true, the listener will be triggered at capturing phase which is ahead of the final target emit, otherwise it will be triggered during bubbling phase.
@@ -1225,7 +1225,7 @@ export class BaseNode extends CCObject implements ISchedulable {
 
     /**
      * Do remove component, only used internally.
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _removeComponent (component: Component) {
         if (!component) {
@@ -1247,7 +1247,7 @@ export class BaseNode extends CCObject implements ISchedulable {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _updateSiblingIndex () {
         for (let i = 0; i < this._children.length; ++i) {

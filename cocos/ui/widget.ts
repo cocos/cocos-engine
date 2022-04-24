@@ -727,19 +727,19 @@ export class Widget extends Component {
     public static AlignMode = AlignMode;
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _lastPos = new Vec3();
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _lastSize = new Size();
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _dirty = true;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _hadAlignOnce = false;
 
@@ -805,7 +805,7 @@ export class Widget extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _validateTargetInDEV () {
         if (!DEV) {
@@ -846,23 +846,23 @@ export class Widget extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _adjustWidgetToAllowMovingInEditor (eventType: TransformBit) {}
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _adjustWidgetToAllowResizingInEditor () {}
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _adjustWidgetToAnchorChanged () {
         this.setDirty();
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _adjustTargetToParentChanged (oldParent: Node) {
         if (oldParent) {

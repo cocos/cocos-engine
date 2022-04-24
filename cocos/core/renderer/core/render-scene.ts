@@ -24,11 +24,11 @@
  */
 import { Root } from '../../root';
 import { Node } from '../../scene-graph';
-import { Camera } from './camera';
-import { DirectionalLight } from './directional-light';
-import { Model } from './model';
-import { SphereLight } from './sphere-light';
-import { SpotLight } from './spot-light';
+import { Camera } from '../scene/camera';
+import { DirectionalLight } from '../scene/directional-light';
+import { Model } from '../scene/model';
+import { SphereLight } from '../scene/sphere-light';
+import { SpotLight } from '../scene/spot-light';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { DrawBatch2D } from '../../../2d/renderer/draw-batch';
 

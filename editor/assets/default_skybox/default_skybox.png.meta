@@ -126,6 +126,7 @@
   "userData": {
     "hasAlpha": false,
     "type": "texture cube",
-    "redirect": "6f01cf7f-81bf-4a7e-bd5d-0afc19696480@b47c0"
+    "redirect": "6f01cf7f-81bf-4a7e-bd5d-0afc19696480@b47c0",
+    "fixAlphaTransparencyArtifacts": false
   }
 }

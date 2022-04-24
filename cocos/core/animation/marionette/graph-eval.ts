@@ -1,13 +1,13 @@
 import { DEBUG } from 'internal:constants';
 import {
     AnimationGraph, Layer, StateMachine, State, isAnimationTransition,
-    SubStateMachine, EmptyState, EmptyStateTransition, TriggerResetMode,
+    SubStateMachine, EmptyState, EmptyStateTransition,
 } from './animation-graph';
 import { assertIsTrue, assertIsNonNullable } from '../../data/utils/asserts';
 import { MotionEval, MotionEvalContext } from './motion';
 import type { Node } from '../../scene-graph/node';
 import { createEval } from './create-eval';
-import { Value, VarInstance } from './variable';
+import { Value, VarInstance, TriggerResetMode } from './variable';
 import { BindContext, bindOr, validateVariableExistence, validateVariableType, VariableType } from './parametric';
 import { ConditionEval, TriggerCondition } from './condition';
 import { VariableNotDefinedError, VariableTypeMismatchedError } from './errors';
@@ -99,8 +99,8 @@ export class AnimationGraphEval {
             const { _varInstances: varInstances } = this;
             for (const varName in varInstances) {
                 const varInstance = varInstances[varName];
-                if (varInstance.type === VariableType.TRIGGER &&
-                    varInstance.resetMode === TriggerResetMode.NEXT_FRAME_OR_AFTER_CONSUMED) {
+                if (varInstance.type === VariableType.TRIGGER
+                    && varInstance.resetMode === TriggerResetMode.NEXT_FRAME_OR_AFTER_CONSUMED) {
                     varInstance.value = false;
                 }
             }
@@ -1071,7 +1071,7 @@ enum NodeKind {
 
 export class StateEval {
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public declare __DEBUG_ID__?: string;
 
