@@ -100,7 +100,6 @@ CCProgram standard-vs %{
   #endif
 
   out vec3 v_position;
-  out vec4 v_glPosition;
   out mediump vec3 v_normal;
   out vec2 v_uv;
   #if HAS_SECOND_UV
@@ -172,7 +171,6 @@ CCProgram standard-vs %{
     #endif
 
     gl_Position = cc_matProj * (cc_matView * matWorld) * In.position;
-    v_glPosition = gl_Position;
   }
 }%
 
@@ -275,7 +273,6 @@ CCProgram standard-fs %{
     #endif
 
     HIGHP_VALUE_TO_STRUCT_DEFINED(v_position, s.position);
-    HIGHP_VALUE_TO_STRUCT_DEFINED(v_glPosition, s.glPosition);
 
     vec4 pbr = pbrParams;
     #if USE_PBR_MAP
