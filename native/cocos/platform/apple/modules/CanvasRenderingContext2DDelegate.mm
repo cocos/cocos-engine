@@ -74,8 +74,8 @@
     cc::Data        _imageData;
     NSBezierPath *  _path;
 
-    CanvasTextAlign      _textAlign;
-    CanvasTextBaseline   _textBaseLine;
+    cc::ICanvasRenderingContext2D::CanvasTextAlign      _textAlign;
+    cc::ICanvasRenderingContext2D::CanvasTextBaseline   _textBaseLine;
     std::array<float, 4> _fillStyle;
     std::array<float, 4> _strokeStyle;
     float                _lineWidth;
@@ -85,8 +85,8 @@
 @property (nonatomic, strong) NSFont *             font;
 @property (nonatomic, strong) NSMutableDictionary *tokenAttributesDict;
 @property (nonatomic, strong) NSString *           fontName;
-@property (nonatomic, assign) CanvasTextAlign      textAlign;
-@property (nonatomic, assign) CanvasTextBaseline   textBaseLine;
+@property (nonatomic, assign) cc::ICanvasRenderingContext2D::CanvasTextAlign      textAlign;
+@property (nonatomic, assign) cc::ICanvasRenderingContext2D::CanvasTextBaseline   textBaseLine;
 @property (nonatomic, assign) float                lineWidth;
 
 @end
@@ -103,8 +103,8 @@
 - (id)init {
     if (self = [super init]) {
         _lineWidth    = 0;
-        _textAlign    = CanvasTextAlign::LEFT;
-        _textBaseLine = CanvasTextBaseline::BOTTOM;
+        _textAlign    = cc::ICanvasRenderingContext2D::CanvasTextAlign::LEFT;
+        _textBaseLine = cc::ICanvasRenderingContext2D::CanvasTextBaseline::BOTTOM;
         _width = _height = 0;
         _context         = nil;
         _colorSpace      = nil;
@@ -295,9 +295,9 @@
     // Need to adjust 'point' according 'text align' & 'text base line'.
     NSSize textSize = [self measureText:text];
 
-    if (_textAlign == CanvasTextAlign::CENTER) {
+    if (_textAlign == cc::ICanvasRenderingContext2D::CanvasTextAlign::CENTER) {
         point.x -= textSize.width / 2.0f;
-    } else if (_textAlign == CanvasTextAlign::RIGHT) {
+    } else if (_textAlign == cc::ICanvasRenderingContext2D::CanvasTextAlign::RIGHT) {
         point.x -= textSize.width;
     }
 
@@ -305,23 +305,23 @@
     // The origin on macOS is bottom-left by default,
     // so we need to convert y from top-left origin to bottom-left origin.
     point.y = _height - point.y;
-    if (_textBaseLine == CanvasTextBaseline::TOP) {
+    if (_textBaseLine == cc::ICanvasRenderingContext2D::CanvasTextBaseline::TOP) {
         point.y += -textSize.height;
-    } else if (_textBaseLine == CanvasTextBaseline::MIDDLE) {
+    } else if (_textBaseLine == cc::ICanvasRenderingContext2D::CanvasTextBaseline::MIDDLE) {
         point.y += -textSize.height / 2.0f;
-    } else if (_textBaseLine == CanvasTextBaseline::BOTTOM) {
+    } else if (_textBaseLine == cc::ICanvasRenderingContext2D::CanvasTextBaseline::BOTTOM) {
         // drawAtPoint default
-    } else if (_textBaseLine == CanvasTextBaseline::ALPHABETIC) {
+    } else if (_textBaseLine == cc::ICanvasRenderingContext2D::CanvasTextBaseline::ALPHABETIC) {
         point.y += _font.descender;
     }
 #else
-    if (_textBaseLine == CanvasTextBaseline::TOP) {
+    if (_textBaseLine == cc::ICanvasRenderingContext2D::CanvasTextBaseline::TOP) {
         // drawAtPoint default
-    } else if (_textBaseLine == CanvasTextBaseline::MIDDLE) {
+    } else if (_textBaseLine == cc::ICanvasRenderingContext2D::CanvasTextBaseline::MIDDLE) {
         point.y += -textSize.height / 2.0f;
-    } else if (_textBaseLine == CanvasTextBaseline::BOTTOM) {
+    } else if (_textBaseLine == cc::ICanvasRenderingContext2D::CanvasTextBaseline::BOTTOM) {
         point.y += -textSize.height;
-    } else if (_textBaseLine == CanvasTextBaseline::ALPHABETIC) {
+    } else if (_textBaseLine == cc::ICanvasRenderingContext2D::CanvasTextBaseline::ALPHABETIC) {
         point.y -= _font.ascender;
     }
 #endif
