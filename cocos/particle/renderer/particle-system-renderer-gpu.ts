@@ -571,4 +571,8 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
             this._model.updateMaterial(mat!);
         }
     }
+
+    public getNoisePreview (out: number[], width: number, height: number) {
+        
+    }
 }

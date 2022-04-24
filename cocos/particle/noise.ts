@@ -149,4 +149,15 @@ export class ParticleNoise {
 
         this.result.set(sampX * this.noiseAmplitude.x, sampY * this.noiseAmplitude.y, sampZ * this.noiseAmplitude.z);
     }
+
+    public getPreview(out: number[], width: number, height: number) {
+        for (let h = 0; h < height; ++h) {
+            for (let w = 0; w < width; ++w) {
+                const sampx = (w - width * 0.5) / width + this.noiseSpeed.x * this.dt;
+                const sampy = (h - height * 0.5) / height + this.noiseSpeed.y * this.dt;
+                const pix = this.getNoise(sampx, sampy, 0.0, this.dt, this.accSpeed, this.noiseFrequency, this.octaves);
+                out[h * width + w] = (pix + 1.0) * 0.5;
+            }
+        }
+    }
 }

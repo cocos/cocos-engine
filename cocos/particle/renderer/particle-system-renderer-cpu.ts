@@ -407,6 +407,10 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         return this._particles!.length;
     }
 
+    public getNoisePreview (out: number[], width: number, height: number) {
+        this.noise.getPreview(out, width, height);
+    }
+
     // internal function
     public updateRenderData () {
         // update vertex buffer

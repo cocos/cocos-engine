@@ -1606,4 +1606,10 @@ export class ParticleSystem extends RenderableComponent {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this.dataCulling ? props.filter((p) => !PARTICLE_MODULE_PROPERTY.includes(p) || (this[p] && this[p].enable)) : props;
     }
+
+    public getNoisePreview (out: number[], width: number, height: number) {
+        if (this.processor) {
+            this.processor.getNoisePreview(out, width, height);
+        }
+    }
 }
