@@ -176,7 +176,7 @@ export class PipelineUBO {
         const linear = 0.0;
         const packing = supportsR32FloatTexture(device) ? 0.0 : 1.0;
 
-        if (shadowInfo.enabled && mainLight) {
+        if (shadowInfo.enabled && mainLight && mainLight.shadowEnabled) {
             if (shadowInfo.type === ShadowType.ShadowMap) {
                 if (mainLight.shadowFixedArea || mainLight.shadowCSMLevel === CSMLevel.level_1) {
                     const matShadowView = csmLayers.specialLayer.matShadowView;
@@ -281,7 +281,7 @@ export class PipelineUBO {
         switch (light.type) {
         case LightType.DIRECTIONAL: {
             const mainLight = light as DirectionalLight;
-            if (shadowInfo.enabled && mainLight) {
+            if (shadowInfo.enabled && mainLight && mainLight.shadowEnabled) {
                 if (shadowInfo.type === ShadowType.ShadowMap) {
                     let near = 0.1;
                     let far = 0;
