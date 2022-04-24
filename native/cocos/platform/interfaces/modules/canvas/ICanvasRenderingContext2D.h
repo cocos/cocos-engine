@@ -31,30 +31,12 @@
 #include "math/Geometry.h"
 #include "platform/interfaces/OSInterface.h"
 
-enum class CanvasTextAlign {
-    LEFT,
-    CENTER,
-    RIGHT
-};
-
-enum class CanvasTextBaseline {
-    TOP,
-    MIDDLE,
-    BOTTOM,
-    ALPHABETIC
-};
 
 namespace cc {
 
-//class CanvasGradient {
-//public:
-//    CanvasGradient();
-//    ~CanvasGradient(); // NOLINT(performance-trivially-destructible)
-//    void addColorStop(float offset, const ccstd::string &color);
-//};
-
 class CC_DLL ICanvasGradient {
 public:
+    ICanvasGradient()                                                 = default;
     ICanvasGradient()                                                   = default;
     virtual ~ICanvasGradient()                                          = default; // NOLINT(performance-trivially-destructible)
     virtual void addColorStop(float offset, const ccstd::string &color) = 0;
@@ -62,6 +44,19 @@ public:
 
 class CC_DLL ICanvasRenderingContext2D : public OSInterface {
 public:
+    enum class CanvasTextAlign {
+        LEFT,
+        CENTER,
+        RIGHT
+    };
+
+    enum class CanvasTextBaseline {
+        TOP,
+        MIDDLE,
+        BOTTOM,
+        ALPHABETIC
+    };
+
     class Delegate {
     public:
         using Size                                                                                                                              = ccstd::array<float, 2>;

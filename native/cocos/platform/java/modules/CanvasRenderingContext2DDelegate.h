@@ -51,6 +51,9 @@ namespace cc {
 class CanvasRenderingContext2DDelegate : public ICanvasRenderingContext2D::Delegate {
 public:
     using Size = ccstd::array<float, 2>;
+    using CanvasTextAlign    = ICanvasRenderingContext2D::CanvasTextAlign;
+    using CanvasTextBaseline = ICanvasRenderingContext2D::CanvasTextBaseline;
+
     CanvasRenderingContext2DDelegate();
     ~CanvasRenderingContext2DDelegate() override;
 
