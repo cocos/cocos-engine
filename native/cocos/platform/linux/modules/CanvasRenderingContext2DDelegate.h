@@ -47,7 +47,8 @@ public:
     using Vec2    = std::array<float, 2>;
     using Size    = std::array<float, 2>;
     using Color4F = std::array<float, 4>;
-
+    using CanvasTextAlign    = ICanvasRenderingContext2D::CanvasTextAlign;
+    using CanvasTextBaseline = ICanvasRenderingContext2D::CanvasTextBaseline;
     CanvasRenderingContext2DDelegate();
     ~CanvasRenderingContext2DDelegate() override;
 
