@@ -32,27 +32,8 @@
 
 #include <string>
 
-enum class CanvasTextAlign {
-    LEFT,
-    CENTER,
-    RIGHT
-};
-
-enum class CanvasTextBaseline {
-    TOP,
-    MIDDLE,
-    BOTTOM,
-    ALPHABETIC
-};
 
 namespace cc {
-
-//class CanvasGradient {
-//public:
-//    CanvasGradient();
-//    ~CanvasGradient(); // NOLINT(performance-trivially-destructible)
-//    void addColorStop(float offset, const std::string &color);
-//};
 
 class CC_DLL ICanvasGradient {
 public:
@@ -63,6 +44,19 @@ public:
 
 class CC_DLL ICanvasRenderingContext2D : public OSInterface {
 public:
+    enum class CanvasTextAlign {
+        LEFT,
+        CENTER,
+        RIGHT
+    };
+
+    enum class CanvasTextBaseline {
+        TOP,
+        MIDDLE,
+        BOTTOM,
+        ALPHABETIC
+    };
+
     class Delegate {
     public:
         using Size                                                                                                                            = std::array<float, 2>;
