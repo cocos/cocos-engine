@@ -181,7 +181,7 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, std::array
     const float                          packing    = hFTexture ? 0.0F : 1.0F;
     const float                          linear     = 0.0F;
 
-    if (shadowInfo->enabled && mainLight) {
+    if (shadowInfo->enabled && mainLight && mainLight->isShadowEnabled()) {
         if (shadowInfo->shadowType == scene::ShadowType::SHADOWMAP) {
             if (mainLight->isShadowFixedArea() || mainLight->getShadowCSMLevel() < 2.0F) {
             const Mat4 &matShadowView     = csmLayers->getSpecialLayer()->getMatShadowView();
@@ -285,7 +285,7 @@ void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, std::
     switch (light->getType()) {
         case scene::LightType::DIRECTIONAL: {
             const auto *mainLight         = static_cast<const scene::DirectionalLight *>(light);
-            if (shadowInfo->enabled && mainLight) {
+            if (shadowInfo->enabled && mainLight && mainLight->isShadowEnabled()) {
                 if (shadowInfo->shadowType == scene::ShadowType::SHADOWMAP) {
                     float levelCount;
                     float nearClamp;
