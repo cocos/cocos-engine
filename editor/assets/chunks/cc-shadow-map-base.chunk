@@ -358,21 +358,27 @@ float CCShadowFactorBase(vec4 shadowPos, vec3 N, vec2 shadowBias)
   return mix(realtimeShadow, 1.0, cc_shadowNFLSInfo.w);
 }
 
-vec4 CCGetCSMPos(vec4 iPos, float depth) {
+vec4 CCGetCSMPos(out float isOutside, vec4 iPos, float depth) {
   if (depth < cc_shadowSplits.x)
     return cc_matLightViewProjAtlas_levels[0] * iPos;
   else if (depth < cc_shadowSplits.y)
     return cc_matLightViewProjAtlas_levels[1] * iPos;
   else if (depth < cc_shadowSplits.z)
     return cc_matLightViewProjAtlas_levels[2] * iPos;
-  else
+  else if (depth < cc_shadowSplits.w)
     return cc_matLightViewProjAtlas_levels[3] * iPos;
+  else
+    isOutside = 1.0;
+
+  return vec4(0.0);
 }
 
 float CCCSMFactorBase(vec4 iPos, float depth, vec3 N, vec2 shadowBias)
 {
+  float isOutside = 0.0;
   float realtimeShadow = 1.0;
-  vec4 shadowPos = CCGetCSMPos(iPos, depth);
+  vec4 shadowPos = CCGetCSMPos(isOutside, iPos, depth);
+  if (isOutside > 0.9) { return isOutside; }
 
   float pcf = cc_shadowWHPBInfo.z;
   if (pcf > 1.9) {
