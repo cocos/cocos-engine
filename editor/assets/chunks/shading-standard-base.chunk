@@ -77,7 +77,6 @@ struct StandardSurface {
   vec4 albedo;
   // these two need to be in the same coordinate system
   HIGHP_VALUE_STRUCT_DEFINE(vec3, position);
-  HIGHP_VALUE_STRUCT_DEFINE(vec4, glPosition);
   vec3 normal;
   // emissive
   vec3 emissive;
@@ -103,8 +102,10 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
 
   vec3 position;
   HIGHP_VALUE_FROM_STRUCT_DEFINED(position, s.position);
-  vec4 glPosition;
-  HIGHP_VALUE_FROM_STRUCT_DEFINED(glPosition, s.glPosition);
+
+  #if CC_RECEIVE_SHADOW
+    vec4 glPosition = cc_matProj * cc_matView * vec4(position.xyz, 1.0);
+  #endif
 
   vec3 N = normalize(s.normal);
   vec3 V = normalize(cc_cameraPos.xyz - position);

@@ -8,7 +8,6 @@ struct ToonSurface {
   vec4 specular;
   // these two need to be in the same coordinate system
   HIGHP_VALUE_STRUCT_DEFINE(vec3, position);
-  HIGHP_VALUE_STRUCT_DEFINE(vec4, glPosition);
   vec3 normal;
   // shading params
   vec3 shade1;
@@ -85,8 +84,10 @@ struct ToonSurface {
   vec4 CCToonShading (ToonSurface s) {
     vec3 position;
     HIGHP_VALUE_FROM_STRUCT_DEFINED(position, s.position);
-    vec4 glPosition;
-    HIGHP_VALUE_FROM_STRUCT_DEFINED(glPosition, s.glPosition);
+
+    #if CC_RECEIVE_SHADOW
+      vec4 glPosition = cc_matProj * cc_matView * vec4(position.xyz, 1.0);
+    #endif
     
     vec3 V = normalize(cc_cameraPos.xyz - position);
     vec3 N = normalize(s.normal);
@@ -125,6 +126,20 @@ struct ToonSurface {
     // TODO: no ambient, no IBL for now
 
     finalColor += s.emissive;
+
+  #if CC_RECEIVE_SHADOW
+    if (cc_csmInfo.x > 0.9) {
+      float depth = GetDepth(glPosition);
+      if (depth < cc_shadowSplits.x && cc_shadowLPNNInfo.w > 0.9)
+        finalColor.xyz *= vec3(5.0, 0.0, 0.0);
+      else if (depth < cc_shadowSplits.y && cc_shadowLPNNInfo.w > 1.9)
+        finalColor.xyz *= vec3(0.0, 5.0, 0.0);
+      else if (depth < cc_shadowSplits.z && cc_shadowLPNNInfo.w > 2.9)
+        finalColor.xyz *= vec3(0.0, 0.0, 5.0);
+      else if (cc_shadowLPNNInfo.w > 3.9)
+        finalColor.xyz *= vec3(5.0, 5.0, 0.0);
+    }
+  #endif
 
     return vec4(finalColor, s.baseColor.a);
   }
