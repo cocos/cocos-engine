@@ -39,9 +39,9 @@ import zlib from '../../../../external/compression/zlib.min';
 
 const vec3_temp = new Vec3();
 const matrix = new Mat4();
-const diagonal_vec3_temps: IRenderData[] = [];
+const tempRenderData: IRenderData[] = [];
 for (let i = 0; i < 4; i++) {
-    diagonal_vec3_temps.push({ x: 0, y: 0, z: 0, u: 0, v: 0, color: new Color() });
+    tempRenderData.push({ x: 0, y: 0, z: 0, u: 0, v: 0, color: new Color() });
 }
 
 /**
@@ -111,23 +111,23 @@ export const sliced: IAssembler = {
         sizableWidth = sizableWidth < 0 ? 0 : sizableWidth;
         sizableHeight = sizableHeight < 0 ? 0 : sizableHeight;
 
-        diagonal_vec3_temps[0].x = -appX;
-        diagonal_vec3_temps[0].y = -appY;
-        diagonal_vec3_temps[1].x = leftWidth * xScale - appX;
-        diagonal_vec3_temps[1].y = bottomHeight * yScale - appY;
-        diagonal_vec3_temps[2].x = diagonal_vec3_temps[1].x + sizableWidth;
-        diagonal_vec3_temps[2].y = diagonal_vec3_temps[1].y + sizableHeight;
-        diagonal_vec3_temps[3].x = width - appX;
-        diagonal_vec3_temps[3].y = height - appY;
+        tempRenderData[0].x = -appX;
+        tempRenderData[0].y = -appY;
+        tempRenderData[1].x = leftWidth * xScale - appX;
+        tempRenderData[1].y = bottomHeight * yScale - appY;
+        tempRenderData[2].x = tempRenderData[1].x + sizableWidth;
+        tempRenderData[2].y = tempRenderData[1].y + sizableHeight;
+        tempRenderData[3].x = width - appX;
+        tempRenderData[3].y = height - appY;
 
         for (let curRow = 0; curRow < renderData.vertexRow; curRow++) {
             for (let curCol = 0; curCol < renderData.vertexCol; curCol++) {
                 const curIndex = curRow * renderData.vertexCol + curCol;
                 if (curIndex < renderData.dataLength
-                    && curRow < diagonal_vec3_temps.length
-                    && curCol < diagonal_vec3_temps.length) {
-                    dataList[curIndex].x = diagonal_vec3_temps[curCol].x;
-                    dataList[curIndex].y = diagonal_vec3_temps[curRow].y;
+                    && curRow < tempRenderData.length
+                    && curCol < tempRenderData.length) {
+                    dataList[curIndex].x = tempRenderData[curCol].x;
+                    dataList[curIndex].y = tempRenderData[curRow].y;
                 }
             }
         }
