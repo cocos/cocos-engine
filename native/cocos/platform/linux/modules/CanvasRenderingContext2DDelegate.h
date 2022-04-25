@@ -115,8 +115,8 @@ private:
     ccstd::string      _fontName;
     int                _fontSize{0};
     Size               _textSize;
-    TextAlign    _textAlign{TextAlign::CENTER};
-    TextBaseline _textBaseLine{TextBaseline::TOP};
+    TextAlign          _textAlign{TextAlign::CENTER};
+    TextBaseline       _textBaseLine{TextBaseline::TOP};
     unsigned long      _fillStyle{0};
     unsigned long      _strokeStyle{0};
 };
