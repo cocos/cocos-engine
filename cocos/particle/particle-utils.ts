@@ -33,7 +33,7 @@ import { ParticleSystem } from './particle-system';
 export class ParticleUtils {
     /**
      * @en instantiate particle system from prefab
-     * @zh 从prefab实例化粒子系统
+     * @zh 从 prefab 实例化粒子系统
      */
     public static instantiate (prefab) {
         if (!this.registeredSceneEvent) {
