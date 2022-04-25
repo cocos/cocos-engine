@@ -883,8 +883,10 @@ class ContentStrategy {
 })();
 
 /**
- * ResolutionPolicy class is the root strategy class of scale strategy,
- * its main task is to maintain the compatibility with Cocos2d-x</p>
+ * @en ResolutionPolicy class is the root strategy class of scale strategy,
+ * its main task is to maintain the compatibility with Cocos2d-x.
+ *
+ * @zh ResolutionPolicy 类是适配策略的根策略类，它的主要任务是保持与 Cocos2d-x 的兼容性。
  */
 export class ResolutionPolicy {
     /**
