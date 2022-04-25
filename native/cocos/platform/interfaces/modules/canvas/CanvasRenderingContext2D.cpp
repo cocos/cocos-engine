@@ -359,11 +359,11 @@ void CanvasRenderingContext2D::setFont(const ccstd::string &font) {
 void CanvasRenderingContext2D::setTextAlign(const ccstd::string &textAlign) {
     //SE_LOGD("CanvasRenderingContext2D::set_textAlign: %s\n", textAlign.c_str());
     if (textAlign == "left") {
-        _delegate->setTextAlign(CanvasTextAlign::LEFT);
+        _delegate->setTextAlign(TextAlign::LEFT);
     } else if (textAlign == "center" || textAlign == "middle") {
-        _delegate->setTextAlign(CanvasTextAlign::CENTER);
+        _delegate->setTextAlign(TextAlign::CENTER);
     } else if (textAlign == "right") {
-        _delegate->setTextAlign(CanvasTextAlign::RIGHT);
+        _delegate->setTextAlign(TextAlign::RIGHT);
     } else {
         assert(false);
     }
@@ -372,14 +372,14 @@ void CanvasRenderingContext2D::setTextAlign(const ccstd::string &textAlign) {
 void CanvasRenderingContext2D::setTextBaseline(const ccstd::string &textBaseline) {
     //SE_LOGD("CanvasRenderingContext2D::set_textBaseline: %s\n", textBaseline.c_str());
     if (textBaseline == "top") {
-        _delegate->setTextBaseline(CanvasTextBaseline::TOP);
+        _delegate->setTextBaseline(TextBaseline::TOP);
     } else if (textBaseline == "middle") {
-        _delegate->setTextBaseline(CanvasTextBaseline::MIDDLE);
+        _delegate->setTextBaseline(TextBaseline::MIDDLE);
     } else if (textBaseline == "bottom") //REFINE:, how to deal with alphabetic, currently we handle it as bottom mode.
     {
-        _delegate->setTextBaseline(CanvasTextBaseline::BOTTOM);
+        _delegate->setTextBaseline(TextBaseline::BOTTOM);
     } else if (textBaseline == "alphabetic") {
-        _delegate->setTextBaseline(CanvasTextBaseline::ALPHABETIC);
+        _delegate->setTextBaseline(TextBaseline::ALPHABETIC);
     } else {
         assert(false);
     }
