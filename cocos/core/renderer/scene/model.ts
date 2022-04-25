@@ -89,9 +89,9 @@ const lightmapSamplerWithMipHash = new SamplerInfo(
 
 /**
  * @en A representation of a model instance
- * The base model class, which is the core component of [[MeshRenderer]], 
+ * The base model class, which is the core component of [[MeshRenderer]],
  * adds its own Model to the rendered scene for rendering submissions when [[MeshRenderer]] is enabled.
- * This type of object represents a rendering instance in a scene, and it can contain multiple submodels, 
+ * This type of object represents a rendering instance in a scene, and it can contain multiple submodels,
  * each of which corresponds to a material. These submodels share the same location and form a complete object.
  * Each submodel references a submesh resource, which provides vertex and index buffers for rendering.
  * @zh 代表一个模型实例
@@ -254,7 +254,7 @@ export class Model {
 
     /**
      * @en model's visibility tag
-     * Model's visibility flags, it's different from [[Node.layer]], 
+     * Model's visibility flags, it's different from [[Node.layer]],
      * but it will also be compared with [[Camera.visibility]] during culling process.
      * @zh 模型的可见性标志
      * 模型的可见性标志与 [[Node.layer]] 不同，它会在剔除阶段与 [[Camera.visibility]] 进行比较
