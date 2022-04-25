@@ -126,7 +126,7 @@ export class Model {
 
     /**
      * @en return model ubo buffer
-     * @zh 获取模型ubo缓冲
+     * @zh 获取模型 ubo 缓冲
      */
     get localBuffer () {
         return this._localBuffer;
@@ -134,7 +134,7 @@ export class Model {
 
     /**
      * @en return world bound buffer
-     * @zh 获取世界包围盒ubo缓冲
+     * @zh 获取世界包围盒 ubo 缓冲
      */
     get worldBoundBuffer () {
         return this._worldBoundBuffer;
@@ -386,19 +386,19 @@ export class Model {
 
     /**
      * @en local ubo data dirty flag
-     * @zh 本地ubo数据是否修改过
+     * @zh 本地 ubo 数据是否修改过
      */
     protected _localDataUpdated = true;
 
     /**
      * @en local ubo data
-     * @zh 本地ubo数据
+     * @zh 本地 ubo 数据
      */
     protected _localData = new Float32Array(UBOLocal.COUNT);
 
     /**
      * @en local ubo buffer
-     * @zh 本地ubo缓冲
+     * @zh 本地 ubo 缓冲
      */
     protected _localBuffer: Buffer | null = null;
 
@@ -617,7 +617,7 @@ export class Model {
 
     /**
      * @en update model's ubo
-     * @zh 更新模型的ubo
+     * @zh 更新模型的 ubo
      * @param stamp time stamp
      */
     public updateUBOs (stamp: number) {
@@ -801,7 +801,7 @@ export class Model {
 
     /**
      * @en return shader macro
-     * @zh 获取shader宏
+     * @zh 获取 shader 宏
      * @param subModelIndex sub model's index
      */
     public getMacroPatches (subModelIndex: number): IMacroPatch[] | null {
