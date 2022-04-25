@@ -401,7 +401,8 @@ export class UITransform extends Component {
     }
 
     /**
-     * Hit test with point in UI Space.
+     * @zh UI 空间中的点击测试。
+     * @en Hit test with point in UI Space.
      *
      * @param uiPoint point in UI Space.
      * @deprecated since v3.5.0, please use `uiTransform.hitTest(screenPoint: Vec2)` instead.
@@ -447,13 +448,13 @@ export class UITransform extends Component {
         return false;
     }
 
-    
     /**
-     * Hit test with point in Screen Space.
+     * @zh 屏幕空间中的点击测试。
+     * @en Hit test with point in Screen Space.
      *
      * @param screenPoint point in Screen Space.
      */
-     public hitTest (screenPoint: Vec2) {
+    public hitTest (screenPoint: Vec2) {
         const w = this._contentSize.width;
         const h = this._contentSize.height;
         const v3WorldPt = _vec3a;

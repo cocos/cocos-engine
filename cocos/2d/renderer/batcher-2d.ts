@@ -273,7 +273,8 @@ export class Batcher2D implements IBatcher {
     }
 
     /**
-     * Switch the mesh buffer for corresponding vertex layout if necessary.
+     * @zh 如果有必要，为相应的顶点布局切换网格缓冲区。
+     * @en Switch the mesh buffer for corresponding vertex layout if necessary.
      * @param attributes use VertexFormat.vfmtPosUvColor by default
      */
     public switchBufferAccessor (attributes: Attribute[] = vfmtPosUvColor) {
