@@ -400,6 +400,8 @@ exports.methods = {
         }
 
         this.requestInitCache = false;
+        this.updateInstancing();
+        this.updatePreview();
     },
 
     storeCache(dump) {
