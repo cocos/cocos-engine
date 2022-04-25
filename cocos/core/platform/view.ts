@@ -920,7 +920,7 @@ export class ResolutionPolicy {
      * aspect ratios
      *
      * @zh 该应用程序采用设计分辨率大小的高度并修改内部画布的宽度，使其适合设备的纵横比，不会发生变形，
-     * 但是您必须确保您的应用程序在不同的纵横比的设备下工作
+     * 但是您必须确保您的应用程序在不同的纵横比的设备下工作。
      */
     public static FIXED_HEIGHT = 3;
     /**
@@ -930,7 +930,7 @@ export class ResolutionPolicy {
      * aspect ratios
      *
      * @zh 该应用程序采用设计分辨率大小的宽度并修改内部画布的高度，使其适合设备的纵横比，不会发生变形
-     * 但是您必须确保您的应用程序在不同的纵横比的设备下下工作
+     * 但是您必须确保您的应用程序在不同的纵横比的设备下工作。
      */
     public static FIXED_WIDTH = 4;
     /**
