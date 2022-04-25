@@ -33,8 +33,12 @@ import { ccclass, type, serializable } from 'cc.decorator';
 import { Asset } from '../core/assets/asset';
 import { CCString, Size, TextAsset } from '../core';
 import { SpriteFrame } from '../2d/assets';
+
 /**
+ * @en
  * Class for tiled map asset handling.
+ * @zh
+ * 用于获取tiled map 资源类
  * @class TiledMapAsset
  * @extends Asset
  *
@@ -53,13 +57,20 @@ export class TiledMapAsset extends Asset {
     tsxFileNames: string[] = [];
 
     /**
-     * @zh s
+     * @en
+     * SpriteFrame Array 
+     * @zh
+     * SpriteFrame数组
      */
     @serializable
     @type([SpriteFrame])
     spriteFrames: SpriteFrame[] = [];
 
     /**
+     * @en
+     * ImageLayerSpriteFrame Array 
+     * @zh
+     * ImageLayerSpriteFrame数组
      * @property {SpriteFrame[]} imageLayerSpriteFrame
      */
     @serializable
@@ -67,6 +78,10 @@ export class TiledMapAsset extends Asset {
     imageLayerSpriteFrame: SpriteFrame[] = []
 
     /**
+     * @en
+     * Name of each object in imageLayerSpriteFrame
+     * @zh
+     * 每个imageLayerSpriteFrame名称
      * @property {String[]} imageLayerTextureNames
      */
     @serializable
@@ -74,6 +89,10 @@ export class TiledMapAsset extends Asset {
     imageLayerSpriteFrameNames: string[] = [];
 
     /**
+     * @en
+     * Name of each object in spriteFrames
+     * @zh
+     * 每个SpriteFrame名称
      * @property {String[]} spriteFrameNames
      */
     @serializable
@@ -81,6 +100,10 @@ export class TiledMapAsset extends Asset {
     spriteFrameNames: string[] = [];
 
     /**
+     * @en
+     * Size of each object in spriteFrames
+     * @zh
+     * 每个SpriteFrame的大小
      * @property {Size[]} spriteFrameSizes
      */
     @serializable

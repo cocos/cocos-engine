@@ -34,14 +34,10 @@ export { spine };
 
 /**
  * @en
- * The global time scale of Spine.
+ * The attachment type of spine. It contains three type: REGION(0), BOUNDING_BOX(1), MESH(2) and SKINNED_MESH
  * @zh
- * Spine 全局时间缩放率。
- * @example
- * sp.timeScale = 0.8;
+ * Attachment 类型枚举。类型包括REGION，BOUNDING_BOX，MESH，SKINNED_MESH
  */
-
-// The attachment type of spine. It contains three type: REGION(0), BOUNDING_BOX(1), MESH(2) and SKINNED_MESH.
 export enum ATTACHMENT_TYPE {
     REGION = 0,
     BOUNDING_BOX = 1,
