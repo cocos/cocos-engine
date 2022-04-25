@@ -20,14 +20,19 @@ import { CCArmatureDisplay } from './CCArmatureDisplay';
 */
 @ccclass('CCFactory')
 export class CCFactory extends BaseFactory implements ISchedulable {
+    static _factory: CCFactory | null = null;
+
     /**
+     * @en
+     * Get an CCFactory instance
+     * @zh
+     * 获取一个 CCFactory 实例
      * @method getInstance
      * @return {CCFactory}
      * @static
      * @example
      * let factory = CCFactory.getInstance();
     */
-    static _factory: CCFactory | null = null;
     static getInstance () {
         if (!CCFactory._factory) {
             CCFactory._factory = new CCFactory();
