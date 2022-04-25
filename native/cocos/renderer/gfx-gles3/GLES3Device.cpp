@@ -115,7 +115,8 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
 
     String fbfLevelStr = "NONE";
     // PVRVFrame has issues on their support
-#if CC_PLATFORM != CC_PLATFORM_WINDOWS
+#if 0 // CC_PLATFORM != CC_PLATFORM_WINDOWS
+    // TODO: enable fbf in the future, it is not implemented yet in gles3 backend
     if (checkExtension("framebuffer_fetch")) {
         String nonCoherent = "framebuffer_fetch_non";
 

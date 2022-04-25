@@ -29,7 +29,8 @@
  * @module particle2d
  */
 
-import { ccclass, editable, type, displayOrder, menu, executeInEditMode, serializable, playOnFocus, tooltip, visible, formerlySerializedAs } from 'cc.decorator';
+import { ccclass, editable, type, displayOrder, menu,
+    executeInEditMode, serializable, playOnFocus, tooltip, visible, formerlySerializedAs } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Renderable2D } from '../2d/framework/renderable-2d';
 import { Color, Vec2 } from '../core/math';
@@ -181,7 +182,7 @@ export class ParticleSystem2D extends Renderable2D {
     static readonly START_RADIUS_EQUAL_TO_END_RADIUS = START_RADIUS_EQUAL_TO_END_RADIUS;
 
     /**
-     * @en If set custom to true, then use custom properties insteadof read particle file.
+     * @en If set custom to true, then use custom properties instead of read particle file.
      * @zh 是否自定义粒子属性。
      */
     @editable
@@ -646,7 +647,7 @@ export class ParticleSystem2D extends Renderable2D {
     public endRadiusVar = 0;
 
     /**
-     * @en Number of degress to rotate a particle around the source pos per second. Only available in 'Radius' mode.
+     * @en Number of degrees to rotate a particle around the source pos per second. Only available in 'Radius' mode.
      * @zh 粒子每秒围绕起始点的旋转角度，只有在半径模式下可用。
      */
     @serializable
@@ -655,7 +656,7 @@ export class ParticleSystem2D extends Renderable2D {
     public rotatePerS = 0;
 
     /**
-     * @en Variation of the degress to rotate a particle around the source pos per second.
+     * @en Variation of the degrees to rotate a particle around the source pos per second.
      * @zh 粒子每秒围绕起始点的旋转角度变化范围。
      */
     @serializable
