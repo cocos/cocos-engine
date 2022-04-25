@@ -564,7 +564,7 @@ const Elements = {
             const maxNum = panel.gridConfig.mod + 1;
             for (let minNum = 1; minNum <= maxNum; minNum++) {
                 const label = document.createElement('div');
-                // 若剩余格数小于 1.5，影藏 label
+                // If the remaining cells are less than 1.5, hide the label
                 if (((panel.gridConfig.width / panel.gridConfig.spacing) % 5) >= 1.5 || minNum !== maxNum) {
                     label.setAttribute('class', 'label-item');
                     label.style.left = `${panel.gridConfig.spacing * 5 * (minNum - 1) - 6}px`;
