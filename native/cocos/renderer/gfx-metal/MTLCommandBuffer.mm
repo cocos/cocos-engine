@@ -327,16 +327,16 @@ void CCMTLCommandBuffer::updateDepthStencilState(uint32_t index, MTLRenderPassDe
     const DepthStencilAttachment& dsAttachment  = curRenderPass->getDepthStencilAttachment();
     const SubpassInfo&      subpass             = subpasses[index];
     uint32_t ds = subpass.depthStencil;
-    auto iter = std::find_if(subpass.inputs.begin(), subpass.inputs.end(), [&subpass](uint32_t index){ return index >= subpass.inputs.size(); });
-    if(iter != subpass.inputs.end()) {
-        ds = (*iter);
-    } else {
-        auto opIter = std::find_if(subpass.colors.begin(), subpass.colors.end(), [&subpass](uint32_t index){ return index >= subpass.colors.size(); });
-        if(opIter != subpass.colors.end())
-            ds = (*opIter);
-    }
     
     if (ds != INVALID_BINDING) {
+        auto iter = std::find_if(subpass.inputs.begin(), subpass.inputs.end(), [&subpass](uint32_t index){ return index >= subpass.inputs.size(); });
+        if(iter != subpass.inputs.end()) {
+            ds = (*iter);
+        } else {
+            auto opIter = std::find_if(subpass.colors.begin(), subpass.colors.end(), [&subpass](uint32_t index){ return index >= subpass.colors.size(); });
+            if(opIter != subpass.colors.end())
+                ds = (*opIter);
+        }
         const TextureList &colorTextures = curFBO->getColorTextures();
         if (ds >= colorTextures.size()) {
             auto *ccMTLTexture                 = static_cast<CCMTLTexture *>(curFBO->getDepthStencilTexture());
