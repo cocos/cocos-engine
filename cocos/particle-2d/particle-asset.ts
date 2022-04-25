@@ -35,8 +35,8 @@ import { SpriteFrame } from '../2d/assets/sprite-frame';
 import { legacyCC } from '../core/global-exports';
 
 /**
- * @en Class for particle asset handling.
- * @zh 2D粒子资产
+ * @en Class for 2D particle asset handling.
+ * @zh 2D 粒子资产
  * @class ParticleAsset
  * @extends Asset
  */
