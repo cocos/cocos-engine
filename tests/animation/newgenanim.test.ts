@@ -169,6 +169,29 @@ describe('NewGen Anim', () => {
         expect(bVar.value).toBe(2.0);
     })
 
+    test('Bugfix cocos/3d-tasks#11980: alter reset mode of trigger variable', () => {
+        const animationGraph = new AnimationGraph();
+        animationGraph.addTrigger('t');
+        const t = animationGraph.getVariable('t');
+        expect(t.type).toBe(VariableType.TRIGGER);
+        assertIsTrue(t.type === VariableType.TRIGGER);
+        expect(t.value).toBe(false);
+        expect(t.resetMode).toBe(TriggerResetMode.AFTER_CONSUMED);
+
+        t.resetMode = TriggerResetMode.NEXT_FRAME_OR_AFTER_CONSUMED;
+        expect(t.value).toBe(false);
+        expect(t.resetMode).toBe(TriggerResetMode.NEXT_FRAME_OR_AFTER_CONSUMED);
+        t.value = true;
+        expect(t.value).toBe(true);
+        expect(t.resetMode).toBe(TriggerResetMode.NEXT_FRAME_OR_AFTER_CONSUMED);
+
+        t.resetMode = TriggerResetMode.AFTER_CONSUMED;
+        expect(t.resetMode).toBe(TriggerResetMode.AFTER_CONSUMED);
+        t.value = false;
+        expect(t.value).toBe(false);
+        expect(t.resetMode).toBe(TriggerResetMode.AFTER_CONSUMED);
+    });
+
     describe('Asset transition API', () => {
         test('Connect', () => {
             const graph = new AnimationGraph();

@@ -37,6 +37,7 @@ import { Fog, FogType } from '../renderer/scene/fog';
 import { Node } from './node';
 import { legacyCC } from '../global-exports';
 import { Root } from '../root';
+import { warnID } from '../platform/debug';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
@@ -282,16 +283,24 @@ export class SkyboxInfo {
     @type(EnvironmentLightingType)
     @tooltip('i18n:skybox.EnvironmentLightingType')
     set envLightingType (val) {
-        if (EnvironmentLightingType.HEMISPHERE_DIFFUSE === val) {
+        if (!this.envmap && EnvironmentLightingType.HEMISPHERE_DIFFUSE !== val) {
             this.useIBL = false;
-        } else if (EnvironmentLightingType.AUTOGEN_HEMISPHERE_DIFFUSE_WITH_REFLECTION === val) {
-            this.useIBL = true;
             this.applyDiffuseMap = false;
-        } else if (EnvironmentLightingType.DIFFUSEMAP_WITH_REFLECTION === val) {
-            this.useIBL = true;
-            this.applyDiffuseMap = true;
+            this._envLightingType = EnvironmentLightingType.HEMISPHERE_DIFFUSE;
+            warnID(15001);
+        } else {
+            if (EnvironmentLightingType.HEMISPHERE_DIFFUSE === val) {
+                this.useIBL = false;
+                this.applyDiffuseMap = false;
+            } else if (EnvironmentLightingType.AUTOGEN_HEMISPHERE_DIFFUSE_WITH_REFLECTION === val) {
+                this.useIBL = true;
+                this.applyDiffuseMap = false;
+            } else if (EnvironmentLightingType.DIFFUSEMAP_WITH_REFLECTION === val) {
+                this.useIBL = true;
+                this.applyDiffuseMap = true;
+            }
+            this._envLightingType = val;
         }
-        this._envLightingType = val;
     }
     get envLightingType () {
         return this._envLightingType;
@@ -324,13 +333,16 @@ export class SkyboxInfo {
 
         // Switch UI to and from LDR/HDR textures depends on HDR state
         if (this._resource) {
-            if (this._resource.envmap) {
-                this.envmap = this._resource.envmap;
-            }
+            this.envmap = this._resource.envmap;
             this.diffuseMap = this._resource.diffuseMap;
 
-            if (this.diffuseMap == null) {
-                this.applyDiffuseMap = false;
+            if (this.envLightingType === EnvironmentLightingType.DIFFUSEMAP_WITH_REFLECTION) {
+                if (this.diffuseMap === null) {
+                    this.envLightingType = EnvironmentLightingType.AUTOGEN_HEMISPHERE_DIFFUSE_WITH_REFLECTION;
+                    warnID(15000);
+                } else if (this.diffuseMap.isDefault) {
+                    warnID(15002);
+                }
             }
         }
 
@@ -356,13 +368,15 @@ export class SkyboxInfo {
             this._envmapLDR = val;
         }
         if (!val) {
-            this._diffuseMapHDR = null;
-            this._diffuseMapLDR = null;
-            this._envmapHDR = null;
-            this._envmapLDR = null;
+            if (isHDR) {
+                this._diffuseMapHDR = null;
+            } else {
+                this._diffuseMapLDR = null;
+            }
             this.applyDiffuseMap = false;
             this.useIBL = false;
             this.envLightingType = EnvironmentLightingType.HEMISPHERE_DIFFUSE;
+            warnID(15001);
         }
 
         if (this._resource) {

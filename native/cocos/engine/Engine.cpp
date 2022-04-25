@@ -252,6 +252,7 @@ int32_t Engine::restartVM() {
     _scheduler->unscheduleAll();
 
     scriptEngine->cleanup();
+    cc::gfx::DeviceManager::destroy();
     cc::EventDispatcher::destroy();
     // remove all listening events
     offAll();

@@ -37,9 +37,9 @@ import { Stage } from '../renderer/stencil-manager';
 
 /**
  * @en Legacy 2D base class for rendering component, please use [[Renderable2D]] instead.
- * This component will setup [[NodeUIProperties.uiComp]] in its owner [[Node]]
+ * This component will setup NodeUIProperties.uiComp in its owner [[Node]]
  * @zh 旧的 2D 渲染组件基类，请使用 [[Renderable2D]] 替代。
- * 这个组件会设置 [[Node]] 上的 [[NodeUIProperties.uiComp]]。
+ * 这个组件会设置 [[Node]] 上的 NodeUIProperties.uiComp。
  * @deprecated since v3.4.1
  */
 @ccclass('cc.UIComponent')

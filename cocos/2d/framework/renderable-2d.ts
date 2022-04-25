@@ -106,10 +106,10 @@ export enum InstanceMaterialType {
 
 /**
  * @en Base class for 2D components which supports rendering features.
- * This component will setup [[NodeUIProperties.uiComp]] in its owner [[Node]]
+ * This component will setup NodeUIProperties.uiComp in its owner [[Node]]
  *
  * @zh 所有支持渲染的 2D 组件的基类。
- * 这个组件会设置 [[Node]] 上的 [[NodeUIProperties.uiComp]]。
+ * 这个组件会设置 [[Node]] 上的 NodeUIProperties.uiComp。
  */
 @ccclass('cc.Renderable2D')
 @requireComponent(UITransform)
