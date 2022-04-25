@@ -35,6 +35,7 @@ type BakeData = ReturnType<AnimationClip[typeof BAKE_SKELETON_CURVE_SYMBOL]>;
  * The data conversion tool for skeleton animation
  * @zh
  * 骨骼动画数据转换中心。
+ * @internal
  */
 export class SkelAnimDataHub {
     public static getOrExtract (clip: AnimationClip): BakeData {
