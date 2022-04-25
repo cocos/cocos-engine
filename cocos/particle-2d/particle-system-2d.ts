@@ -155,7 +155,7 @@ function getParticleComponents (node): ParticleSystem2D[] {
  * It is possible to customize any of the above mentioned properties in runtime. Example:
  * emitter.radialAccel = 15;
  * emitter.startSpin = 0;
- * 
+ *
  * @zh 2D粒子基础类型
  * cocos2d 同样支 Particle Designer (http://particledesigner.71squared.com/) 生成的粒子
  * 粒子设计器中的 半径模式 使用30 hz的固定发射率。由于cocos2d无法保证，
@@ -168,8 +168,8 @@ function getParticleComponents (node): ParticleSystem2D[] {
  * 可以在运行时自定义上述任何属性。例如：
  * emitter.radialAccel = 15;
  * emitter.startSpin = 0;
- * 
- * /
+ *
+ */
 @ccclass('cc.ParticleSystem2D')
 @menu('Effects/ParticleSystem2D')
 @playOnFocus

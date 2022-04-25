@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { instantiate } from '../core/data';
 import { CCObject } from '../core/data/object';
 import { Director, director } from '../core/director';
@@ -43,6 +41,7 @@ export class ParticleUtils {
             this.registeredSceneEvent = true;
         }
         if (!this.particleSystemPool.has(prefab._uuid)) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             this.particleSystemPool.set(prefab._uuid, new Pool<CCObject>(() => instantiate(prefab) || new Node(), 1, (prefab) => prefab.destroy()));
         }
         return this.particleSystemPool.get(prefab._uuid)!.alloc();
