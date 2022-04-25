@@ -154,7 +154,7 @@ module.exports = {
         use_color_temperature: '是否启用光源色温',
         color_temperature: '光源色温',
         illuminance: '光源强度',
-        luminous_power: '光通量',
+        luminous_flux: '光通量',
         luminance: '光亮度',
         term: '当前使用的光度学计量单位',
         size: '光源大小',
