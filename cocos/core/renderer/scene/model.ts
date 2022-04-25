@@ -88,45 +88,86 @@ const lightmapSamplerWithMipHash = new SamplerInfo(
 );
 
 /**
- * A representation of a model
+ * @en A representation of a model instance
+ * @zh 代表一个模型实例
  */
 export class Model {
+    /**
+     * @en return sub models
+     * @zh 获取所有子模型
+     */
     get subModels () {
         return this._subModels;
     }
 
+    /**
+     * @en is inited
+     * @zh 是否初始化
+     */
     get inited (): boolean {
         return this._inited;
     }
 
+    /**
+     * @en return world aabb
+     * @zh 获取世界空间包围盒
+     */
     get worldBounds () {
         return this._worldBounds!;
     }
 
+    /**
+     * @en return model aabb
+     * @zh 获取模型包围盒
+     */
     get modelBounds () {
         return this._modelBounds;
     }
 
+    /**
+     * @en return model ubo buffer
+     * @zh 获取模型ubo缓冲
+     */
     get localBuffer () {
         return this._localBuffer;
     }
 
+    /**
+     * @en return world bound buffer
+     * @zh 获取世界包围盒ubo缓冲
+     */
     get worldBoundBuffer () {
         return this._worldBoundBuffer;
     }
 
+    /**
+     * @en return update time stamp
+     * @zh 获取更新时间戳
+     */
     get updateStamp () {
         return this._updateStamp;
     }
 
+    /**
+     * @en is instancing enabled
+     * @zh 是否开启实例化
+     */
     get isInstancingEnabled () {
         return this._instMatWorldIdx >= 0;
     }
 
+    /**
+     * @en return shadow bias
+     * @zh 获取阴影偏移值
+     */
     get shadowBias () {
         return this._shadowBias;
     }
 
+    /**
+     * @en set shadow bias
+     * @zh 设置阴影偏移值
+     */
     set shadowBias (val) {
         this._shadowBias = val;
         if (JSB) {
@@ -134,10 +175,18 @@ export class Model {
         }
     }
 
+    /**
+     * @en return shadow normal bias
+     * @zh 获取阴影法线偏移值
+     */
     get shadowNormalBias () {
         return this._shadowNormalBias;
     }
 
+    /**
+     * @en set shadow normal bias
+     * @zh 设置阴影法线偏移值
+     */
     set shadowNormalBias (val) {
         this._shadowNormalBias = val;
         if (JSB) {
@@ -145,19 +194,35 @@ export class Model {
         }
     }
 
+    /**
+     * @en return receive shadow or not
+     * @zh 返回是否接收阴影
+     */
     get receiveShadow () {
         return this._receiveShadow;
     }
 
+    /**
+     * @en set receive shadow or not
+     * @zh 设置是否接收阴影
+     */
     set receiveShadow (val) {
         this._setReceiveShadow(val);
         this.onMacroPatchesStateChanged();
     }
 
+    /**
+     * @en return cast shadow or not
+     * @zh 返回是否投射阴影
+     */
     get castShadow () {
         return this._castShadow;
     }
 
+    /**
+     * @en set cast shadow or not
+     * @zh 设置是否投射阴影
+     */
     set castShadow (val) {
         this._castShadow = val;
         if (JSB) {
@@ -165,10 +230,18 @@ export class Model {
         }
     }
 
+    /**
+     * @en return model's node
+     * @zh 返回模型所在的节点
+     */
     get node () : Node {
         return this._node;
     }
 
+    /**
+     * @en set model's node
+     * @zh 设置模型所在的节点
+     */
     set node (n: Node) {
         this._node = n;
         if (JSB) {
@@ -176,10 +249,18 @@ export class Model {
         }
     }
 
+    /**
+     * @en return model's transform
+     * @zh 返回模型的变换
+     */
     get transform () : Node {
         return this._transform;
     }
 
+    /**
+     * @en set model's transform
+     * @zh 设置模型的变换
+     */
     set transform (n: Node) {
         this._transform = n;
         if (JSB) {
@@ -187,10 +268,18 @@ export class Model {
         }
     }
 
+    /**
+     * @en return model's visible tag
+     * @zh 返回模型的可见标志
+     */
     get visFlags () : number {
         return this._visFlags;
     }
 
+    /**
+     * @en set model's visible tag
+     * @zh 设置模型的可见标志
+     */
     set visFlags (val: number) {
         this._visFlags = val;
         if (JSB) {
@@ -198,10 +287,18 @@ export class Model {
         }
     }
 
+    /**
+     * @en is enabled
+     * @zh 返回模型是否启用
+     */
     get enabled () : boolean {
         return this._enabled;
     }
 
+    /**
+     * @en set enabled
+     * @zh 设置模型是否启用
+     */
     set enabled (val: boolean) {
         this._enabled = val;
         if (JSB) {
@@ -209,45 +306,169 @@ export class Model {
         }
     }
 
+    /**
+     * @en model type
+     * @zh 模型类型
+     */
     public type = ModelType.DEFAULT;
+
+    /**
+     * @en model's render scene
+     * @zh 模型所在的场景
+     */
     public scene: RenderScene | null = null;
+
+    /**
+     * @en is dynamic batching
+     * @zh 是否动态合批
+     */
     public isDynamicBatching = false;
+
+    /**
+     * @en instance attributes
+     * @zh 实例化属性
+     */
     public instancedAttributes: IInstancedAttributeBlock = { buffer: null!, views: [], attributes: [] };
 
+    /**
+     * @en world aabb
+     * @zh 世界空间包围盒
+     */
     protected _worldBounds: AABB | null = null;
+
+    /**
+     * @en model aabb
+     * @zh 模型空间包围盒
+     */
     protected _modelBounds: AABB | null = null;
+
+    /**
+     * @en sub models
+     * @zh 子模型
+     */
     protected _subModels: SubModel[] = [];
+
+    /**
+     * @en model's node
+     * @zh 子模型所在的节点
+     */
     protected _node: Node = null!;
+
+    /**
+     * @en model's transform
+     * @zh 子模型的变换
+     */
     protected _transform: Node = null!;
 
+    /**
+     * @en current device
+     * @zh 当前设备
+     */
     protected _device: Device;
+
+    /**
+     * @en is inited
+     * @zh 是否初始化过
+     */
     protected _inited = false;
+
+    /**
+     * @en descriptor set count
+     * @zh 描述符集合个数
+     */
     protected _descriptorSetCount = 1;
+
+    /**
+     * @en update time stamp
+     * @zh 更新时间戳
+     */
     protected _updateStamp = -1;
+
+    /**
+     * @en local ubo data dirty flag
+     * @zh 本地ubo数据是否修改过
+     */
     protected _localDataUpdated = true;
 
+    /**
+     * @en local ubo data
+     * @zh 本地ubo数据
+     */
     protected _localData = new Float32Array(UBOLocal.COUNT);
+
+    /**
+     * @en local ubo buffer
+     * @zh 本地ubo缓冲
+     */
     protected _localBuffer: Buffer | null = null;
+
+    /**
+     * @en instance matrix id
+     * @zh 实例矩阵索引
+     */
     private _instMatWorldIdx = -1;
     private _lightmap: Texture2D | null = null;
     private _lightmapUVParam: Vec4 = new Vec4();
 
+    /**
+     * @en world aabb buffer
+     * @zh 世界空间包围盒缓冲
+     */
     protected _worldBoundBuffer: Buffer | null = null;
 
+    /**
+     * @en receive shadow or not
+     * @zh 是否接收阴影
+     */
     protected _receiveShadow = false;
+
+    /**
+     * @en cast shadow or not
+     * @zh 是否投射阴影
+     */
     protected _castShadow = false;
+
+    /**
+     * @en shadow bias
+     * @zh 阴影偏移
+     */
     protected _shadowBias = 0;
+
+    /**
+     * @en shadow normal bias
+     * @zh 阴影法线偏移
+     */
     protected _shadowNormalBias = 0;
+
+    /**
+     * @en enable or not
+     * @zh 是否启用
+     */
     protected _enabled = true;
+
+    /**
+     * @en visible flag
+     * @zh 可见性标志位
+     */
     protected _visFlags = Layers.Enum.NONE;
+
+    /**
+     * @en native object
+     * @zh 原生对象
+     */
     protected declare _nativeObj: NativeModel | NativeSkinningModel | NativeBakedSkinningModel | null;
 
+    /**
+     * @en return native object
+     * @zh 返回原生对象
+     */
     get native (): NativeModel {
         return this._nativeObj!;
     }
 
     /**
-     * Setup a default empty model
+     * @en create a empty model
+     * @zh 创建一个空模型
      */
     constructor () {
         this._device = legacyCC.director.root.device;
@@ -266,6 +487,10 @@ export class Model {
         }
     }
 
+    /**
+     * @en init model
+     * @zh 初始化模型
+     */
     public initialize () {
         if (this._inited) {
             return;
@@ -288,6 +513,10 @@ export class Model {
         }
     }
 
+    /**
+     * @en destroy model
+     * @zh 销毁模型
+     */
     public destroy () {
         const subModels = this._subModels;
         for (let i = 0; i < subModels.length; i++) {
@@ -314,15 +543,27 @@ export class Model {
         this._destroy();
     }
 
+    /**
+     * @en attach model to scene
+     * @zh 添加模型到场景中
+     */
     public attachToScene (scene: RenderScene) {
         this.scene = scene;
         this._localDataUpdated = true;
     }
 
+    /**
+     * @en detach model from scene
+     * @zh 移除场景中的模型
+     */
     public detachFromScene () {
         this.scene = null;
     }
 
+    /**
+     * @en update model's transform
+     * @zh 更新模型的变换
+     */
     public updateTransform (stamp: number) {
         const node = this.transform;
         // @ts-expect-error TS2445
@@ -337,6 +578,10 @@ export class Model {
         }
     }
 
+    /**
+     * @en update model's world aabb
+     * @zh 更新模型的世界空间包围盒
+     */
     public updateWorldBound () {
         const node = this.transform;
         if (node !== null) {
@@ -368,6 +613,10 @@ export class Model {
         }
     }
 
+    /**
+     * @en update model's ubo
+     * @zh 更新模型的ubo
+     */
     public updateUBOs (stamp: number) {
         const subModels = this._subModels;
         for (let i = 0; i < subModels.length; i++) {
@@ -408,9 +657,8 @@ export class Model {
     }
 
     /**
-     * Create the bounding shape of this model
-     * @param minPos the min position of the model
-     * @param maxPos the max position of the model
+     * @en create model's aabb
+     * @zh 创建模型的包围盒
      */
     public createBoundingShape (minPos?: Vec3, maxPos?: Vec3) {
         if (!minPos || !maxPos) { return; }
@@ -423,6 +671,10 @@ export class Model {
         return new SubModel();
     }
 
+    /**
+     * @en init a sub model
+     * @zh 初始化一个子模型
+     */
     public initSubModel (idx: number, subMeshData: RenderingSubMesh, mat: Material) {
         this.initialize();
 
@@ -446,17 +698,29 @@ export class Model {
         }
     }
 
+    /**
+     * @en set a sub mesh
+     * @zh 设置一个子网格
+     */
     public setSubModelMesh (idx: number, subMesh: RenderingSubMesh) {
         if (!this._subModels[idx]) { return; }
         this._subModels[idx].subMesh = subMesh;
     }
 
+    /**
+     * @en set a sub material
+     * @zh 设置一个子材质
+     */
     public setSubModelMaterial (idx: number, mat: Material) {
         if (!this._subModels[idx]) { return; }
         this._subModels[idx].passes = mat.passes;
         this._updateAttributesAndBinding(idx);
     }
 
+    /**
+     * @en pipeline changed callback
+     * @zh 管线更新回调
+     */
     public onGlobalPipelineStateChanged () {
         const subModels = this._subModels;
         for (let i = 0; i < subModels.length; i++) {
@@ -464,6 +728,10 @@ export class Model {
         }
     }
 
+    /**
+     * @en shader macro changed callback
+     * @zh shader宏更新回调
+     */
     public onMacroPatchesStateChanged () {
         const subModels = this._subModels;
         for (let i = 0; i < subModels.length; i++) {
@@ -471,6 +739,10 @@ export class Model {
         }
     }
 
+    /**
+     * @en update light map
+     * @zh 更新光照贴图
+     */
     public updateLightingmap (texture: Texture2D | null, uvParam: Vec4) {
         Vec4.toArray(this._localData, uvParam, UBOLocal.LIGHTINGMAP_UVPARAM);
         this._localDataUpdated = true;
@@ -500,6 +772,10 @@ export class Model {
         }
     }
 
+    /**
+     * @en update shadow bias
+     * @zh 更新阴影偏移
+     */
     public updateLocalShadowBias () {
         const sv = this._localData;
         sv[UBOLocal.LOCAL_SHADOW_BIAS + 0] = this._shadowBias;
@@ -509,6 +785,10 @@ export class Model {
         this._localDataUpdated = true;
     }
 
+    /**
+     * @en return shader macro
+     * @zh 获取shader宏
+     */
     public getMacroPatches (subModelIndex: number): IMacroPatch[] | null {
         return this.receiveShadow ? shadowMapPatches : null;
     }
