@@ -36,7 +36,6 @@ namespace cc {
 
 class CC_DLL ICanvasGradient {
 public:
-    ICanvasGradient()                                                 = default;
     ICanvasGradient()                                                   = default;
     virtual ~ICanvasGradient()                                          = default; // NOLINT(performance-trivially-destructible)
     virtual void addColorStop(float offset, const ccstd::string &color) = 0;
