@@ -1,0 +1,119 @@
+<%- include(versionCheckTemplate, { version: '1.0.0' }) %>
+<% if (isUsePhysX) { %>
+const systemInfo = tt.getSystemInfoSync();
+// a hack way to load physics provide by bytedance
+if (tt.getPhysx) {
+    tt.getPhysx({
+        success (physx) {
+            if (!physx) {
+                console.error('can not use native PhysX');
+            } else {
+                console.info('physics plugin load success, version=' + physx.getVersion());
+                GameGlobal.nativePhysX = physx;
+            }
+            loadCC();
+        }, 
+        fail () {
+            loadCC();
+        }
+    });
+} else if (systemInfo.platform === 'android' && tt.getLoader && tt.getLoader()) {
+    const appid = "<%= appid %>";
+    const loader = tt.getLoader().loader;
+    loader.load('physics', appid, "token", message => {
+        if (message) {
+            console.error('[tt.loader]:' + message);
+        } else {
+            console.info('[tt.loader]: physics plugin load success, version=' + tt.getPhy().getVersion());
+            GameGlobal.nativePhysX = tt.getPhy();
+        }
+        loadCC();
+    })
+} else {
+    loadCC();
+}
+<% } %>
+
+<% if (!isUsePhysX) { %>
+loadCC();
+<% } %>
+
+function loadCC() {
+    require('./libs/wrapper/builtin/index');
+    window.DOMParser = require('./libs/common/xmldom/dom-parser').DOMParser;
+    window.__globalAdapter = {};
+    require('./libs/wrapper/unify');
+    require('./libs/wrapper/fs-utils');
+
+    // Polyfills bundle.
+    require("<%= polyfillsBundleFile %>");
+
+    // SystemJS support.
+    require("<%= systemJsBundleFile %>");
+
+    // Adapt for IOS, swap if opposite
+    if (canvas){
+        var _w = canvas.width;
+        var _h = canvas.height;
+        if (screen.width < screen.height) {
+            if (canvas.width > canvas.height) {
+                _w = canvas.height;
+                _h = canvas.width;
+            }
+        } else {
+            if (canvas.width < canvas.height) {
+                _w = canvas.height;
+                _h = canvas.width;
+            }
+        }
+        canvas.width = _w;
+        canvas.height = _h;
+    }
+
+    // Adjust initial canvas size
+    if (canvas && window.devicePixelRatio >= 2) {canvas.width *= 2; canvas.height *= 2;}
+
+    const importMap = require("<%= importMapFile%>").default;
+    System.warmup({
+        importMap,
+        importMapUrl: '<%= importMapFile%>',
+        defaultHandler: (urlNoSchema) => {
+            require('.' + urlNoSchema);
+        },
+        handlers: {
+            'plugin:': (urlNoSchema) => {
+                requirePlugin(urlNoSchema);
+            },
+        },
+    });
+
+    System.import('<%= applicationJs %>').then(({ createApplication }) => {
+        return createApplication({
+            loadJsListFile: (url) => require(url),
+            fetchWasm: (url) => url,
+        });
+    }).then((application) => {
+        return onApplicationCreated(application);
+    }).catch((err) => {
+        console.error(err);
+    });
+
+    function onApplicationCreated(application) {
+        return application.import('cc').then((cc) => {
+            require('./libs/common/engine/index.js');
+            require('./libs/wrapper/engine/index');
+            require('./libs/common/cache-manager.js');
+            // Adjust devicePixelRatio
+            cc.view._maxPixelRatio = 4;
+            // Release Image objects after uploaded gl texture
+            cc.macro.CLEANUP_IMAGE_CACHE = false;
+            return application.start({
+                findCanvas: () => {
+                    var container = document.createElement('div');
+                    return { frame: container, canvas: window.canvas, container };
+                },
+            });
+        });
+    }
+
+}

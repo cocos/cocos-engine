@@ -60,7 +60,7 @@ public:
     void destroy() override;
 
     void                               initSubModel(index_t idx, RenderingSubMesh *subMeshData, Material *mat) override;
-    ccstd::vector<scene::IMacroPatch> &getMacroPatches(index_t subModelIndex) override;
+    ccstd::vector<scene::IMacroPatch>  getMacroPatches(index_t subModelIndex) override;
     void                               updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, scene::Pass *pass) override;
 
     void bindSkeleton(Skeleton *skeleton, Node *skinningRoot, Mesh *mesh);

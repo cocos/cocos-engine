@@ -27,10 +27,9 @@
 
 namespace cc {
 
-ccstd::vector<scene::IMacroPatch> &MorphModel::getMacroPatches(index_t subModelIndex) {
+ccstd::vector<scene::IMacroPatch> MorphModel::getMacroPatches(index_t subModelIndex) {
     if (_morphRenderingInstance) {
-        _macroPatches = _morphRenderingInstance->requiredPatches(subModelIndex);
-        return _macroPatches;
+        return _morphRenderingInstance->requiredPatches(subModelIndex);
     }
     return Super::getMacroPatches(subModelIndex);
 }

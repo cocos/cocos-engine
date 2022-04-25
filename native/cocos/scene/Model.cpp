@@ -357,24 +357,21 @@ void Model::updateLightingmap(Texture2D *texture, const Vec4 &uvParam) {
     }
 }
 
-ccstd::vector<IMacroPatch> &Model::getMacroPatches(index_t subModelIndex) {
+ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
-            _eventProcessor.emit(EventTypesToJS::MODEL_GET_MACRO_PATCHES, subModelIndex, &_macroPatches);
+            ccstd::vector<IMacroPatch> macroPatches;
+            _eventProcessor.emit(EventTypesToJS::MODEL_GET_MACRO_PATCHES, subModelIndex, &macroPatches);
             _isCalledFromJS = false;
-            return _macroPatches;
+            return macroPatches;
         }
     }
 
     if (_receiveShadow) {
-        for (const auto &patch : SHADOW_MAP_PATCHES) {
-            _macroPatches.emplace_back(patch);
-        }
-    } else {
-        _macroPatches.clear();
+        return SHADOW_MAP_PATCHES;
     }
 
-    return _macroPatches;
+    return {};
 }
 
 void Model::updateAttributesAndBinding(index_t subModelIndex) {
