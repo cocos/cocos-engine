@@ -138,15 +138,15 @@ export class CCLoader {
      * @example
      * ```TypeScript
      * loader.load('a.png', function (err, tex) {
-     *     cc.log('Result should be a texture: ' + (tex instanceof cc.Texture2D));
+     *     log('Result should be a texture: ' + (tex instanceof Texture2D));
      * });
      *
      * loader.load('http://example.com/a.png', function (err, tex) {
-     *     cc.log('Should load a texture from external url: ' + (tex instanceof cc.Texture2D));
+     *     log('Should load a texture from external url: ' + (tex instanceof Texture2D));
      * });
      *
      * loader.load({url: 'http://example.com/getImageREST?file=a.png', type: 'png'}, function (err, tex) {
-     *     cc.log('Should load a texture from RESTful API by specify the type: ' + (tex instanceof cc.Texture2D));
+     *     log('Should load a texture from RESTful API by specify the type: ' + (tex instanceof Texture2D));
      * });
      * ```
      *
@@ -275,19 +275,19 @@ export class CCLoader {
      * // load the prefab (project/assets/resources/misc/character/cocos) from resources folder
      * loader.loadRes('misc/character/cocos', function (err, prefab) {
      *     if (err) {
-     *         cc.error(err.message || err);
+     *         error(err.message || err);
      *         return;
      *     }
-     *     cc.log('Result should be a prefab: ' + (prefab instanceof cc.Prefab));
+     *     log('Result should be a prefab: ' + (prefab instanceof Prefab));
      * });
      *
      * // load the sprite frame of (project/assets/resources/imgs/cocos.png) from resources folder
-     * loader.loadRes('imgs/cocos', cc.SpriteFrame, function (err, spriteFrame) {
+     * loader.loadRes('imgs/cocos', SpriteFrame, function (err, spriteFrame) {
      *     if (err) {
-     *         cc.error(err.message || err);
+     *         error(err.message || err);
      *         return;
      *     }
-     *     cc.log('Result should be a sprite frame: ' + (spriteFrame instanceof cc.SpriteFrame));
+     *     log('Result should be a sprite frame: ' + (spriteFrame instanceof SpriteFrame));
      * });
      *
      */
@@ -349,9 +349,9 @@ export class CCLoader {
      * // load the SpriteFrames from resources folder
      * let spriteFrames;
      * let urls = ['misc/characters/character_01', 'misc/weapons/weapons_01'];
-     * loader.loadResArray(urls, cc.SpriteFrame, function (err, assets) {
+     * loader.loadResArray(urls, SpriteFrame, function (err, assets) {
      *     if (err) {
-     *         cc.error(err);
+     *         error(err);
      *         return;
      *     }
      *     spriteFrames = assets;
@@ -406,7 +406,7 @@ export class CCLoader {
      * // load the texture (resources/imgs/cocos.png) and the corresponding sprite frame
      * loader.loadResDir('imgs/cocos', function (err, assets) {
      *     if (err) {
-     *         cc.error(err);
+     *         error(err);
      *         return;
      *     }
      *     let texture = assets[0];
@@ -414,7 +414,7 @@ export class CCLoader {
      * });
      *
      * // load all textures in "resources/imgs/"
-     * loader.loadResDir('imgs', cc.Texture2D, function (err, textures) {
+     * loader.loadResDir('imgs', Texture2D, function (err, textures) {
      *     let texture1 = textures[0];
      *     let texture2 = textures[1];
      * });
@@ -518,7 +518,7 @@ export class CCLoader {
      * let textures = [];
      * for (let i = 0; i < deps.length; ++i) {
      *     let item = loader.getRes(deps[i]);
-     *     if (item instanceof cc.Texture2D) {
+     *     if (item instanceof Texture2D) {
      *         textures.push(item);
      *     }
      * }
@@ -692,7 +692,7 @@ export class CCLoader {
      * @param res The asset url, it should be related path without extension to the `resources` folder.
      * @param type If type is provided, the asset for correspond type will be returned
      *
-     * @deprecated since v3.0 loader.releaseRes is deprecated, please use cc.assetManager.releaseRes instead
+     * @deprecated since v3.0 loader.releaseRes is deprecated, please use assetManager.releaseRes instead
      */
     public releaseRes (res: string, type?: Constructor<Asset>) {
         resources.release(res, type);
@@ -713,11 +713,11 @@ export class CCLoader {
     /**
      * @en Removes an completed item in pipeline.
      * It will only remove the cache in the pipeline or loader, its dependencies won't be released.
-     * cc.loader provided another method to completely cleanup the resource and its dependencies,
+     * loader provided another method to completely cleanup the resource and its dependencies,
      * please refer to [[release]]
      * @zh 移除指定的已完成 item。
      * 这将仅仅从 pipeline 或者 loader 中删除其缓存，并不会释放它所依赖的资源。
-     * cc.loader 中提供了另一种删除资源及其依赖的清理方法，请参考 [[release]]
+     * loader 中提供了另一种删除资源及其依赖的清理方法，请参考 [[release]]
      * @param id The id of the item
      * @return succeed or not
      *
@@ -817,7 +817,7 @@ export class CCLoader {
      * @method isAutoRelease
      * @param {Asset|String} asset - asset object or the raw asset's url
      * @returns {Boolean}
-     * @deprecated cc.loader.isAutoRelease is deprecated
+     * @deprecated loader.isAutoRelease is deprecated
      */
     public isAutoRelease (asset: Asset|string): boolean {
         if (typeof asset === 'object') { asset = asset._uuid; }
@@ -899,7 +899,7 @@ export const AssetLibrary = {
  * @class url
  * @static
  *
- * @deprecated since v3.0 cc.url is deprecated
+ * @deprecated since v3.0 url is deprecated
  */
 export const url = {};
 
@@ -931,7 +931,7 @@ replaceProperty(url, 'url', [
 removeProperty(AssetLibrary, 'AssetLibrary', [
     {
         name: 'getLibUrlNoExt',
-        suggest: 'AssetLibrary.getLibUrlNoExt was removed, if you want to transform url, please use cc.assetManager.utils.getUrlWithUuid instead',
+        suggest: 'AssetLibrary.getLibUrlNoExt was removed, if you want to transform url, please use assetManager.utils.getUrlWithUuid instead',
     },
     {
         name: 'queryAssetInfo',
@@ -950,7 +950,7 @@ removeProperty(loader, 'loader', [
     },
     {
         name: 'assetLoader',
-        suggest: 'cc.loader.assetLoader was removed, assetLoader and md5Pipe were merged into cc.assetManager.transformPipeline',
+        suggest: 'loader.assetLoader was removed, assetLoader and md5Pipe were merged into assetManager.transformPipeline',
     },
 ]);
 
@@ -982,7 +982,7 @@ replaceProperty(legacyCC, 'cc', [
 
 removeProperty(legacyCC, 'cc', [{
     name: 'LoadingItems',
-    suggest: getError(1400, 'cc.LoadingItems', 'cc.AssetManager.Task'),
+    suggest: getError(1400, 'LoadingItems', 'AssetManager.Task'),
 }]);
 
 replaceProperty(macro, 'macro', [
