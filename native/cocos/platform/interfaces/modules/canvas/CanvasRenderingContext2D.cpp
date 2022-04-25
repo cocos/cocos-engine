@@ -48,26 +48,6 @@
 using Vec2    = ccstd::array<float, 2>;
 using Color4F = ccstd::array<float, 4>;
 
-namespace {
-void fillRectWithColor(uint8_t *buf, uint32_t totalWidth, uint32_t totalHeight, uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
-    assert(x + width <= totalWidth);
-    assert(y + height <= totalHeight);
-
-    uint32_t y0 = y;
-    uint32_t y1 = y + height;
-    uint8_t *p;
-    for (uint32_t offsetY = y0; offsetY < y1; ++offsetY) {
-        for (uint32_t offsetX = x; offsetX < (x + width); ++offsetX) {
-            p    = buf + (totalWidth * offsetY + offsetX) * 4;
-            *p++ = r;
-            *p++ = g;
-            *p++ = b;
-            *p++ = a;
-        }
-    }
-}
-} // namespace
-
 namespace cc {
 //using Size    = ccstd::array<float, 2>;
 CanvasGradient::CanvasGradient() = default;
