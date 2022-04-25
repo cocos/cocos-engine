@@ -247,7 +247,10 @@ export class AnimationState extends Playable {
     }
 
     /**
-     * The weight.
+     * @en
+     * The weight of this animation state.
+     * @zh
+     * 此动画状态的权重。
      */
     get weight () {
         return this._weight;

@@ -37,6 +37,13 @@
  * 每个曲线值代理都关联着一个目标对象。
  */
 export interface IValueProxy {
+    /**
+     * @en
+     * Gets the value from the target.
+     * This method is used for implementing component-wise animation in certain circumstance.
+     * @zh
+     * 从目标中获取值。某些情况下可能需要这个接口来实现分量动画。
+     */
     get?: () => any;
 
     /**
