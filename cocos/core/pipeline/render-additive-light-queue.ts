@@ -205,10 +205,14 @@ export class RenderAdditiveLightQueue {
     }
 
     public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
-        this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
-        this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
-
         const globalDSManager: GlobalDSManager = this._pipeline.globalDSManager;
+        for (let i = 0; i < _lightIndices.length; ++i) {
+            const light = _lightIndices[i];
+            const descriptorSet = globalDSManager.getOrCreateDescriptorSet(light);
+            this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff, descriptorSet);
+            this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff, descriptorSet);
+        }
+
         for (let i = 0; i < this._lightPasses.length; i++) {
             const { subModel, passIdx, dynamicOffsets, lights } = this._lightPasses[i];
             const pass = subModel.passes[passIdx];
