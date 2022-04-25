@@ -354,6 +354,13 @@ exports.methods = {
     },
 
     initCache() {
+        const excludeNames = [
+            'children',
+            'defines',
+            'extends',
+            'pipelineStates',
+        ];
+
         const cacheData = this.cacheData;
         this.technique.passes.forEach((pass, i) => {
             if (pass.propertyIndex !== undefined && pass.propertyIndex.value !== i) {
@@ -365,6 +372,11 @@ exports.methods = {
 
         function cacheProperty(prop) {
             for (const name in prop) {
+                // 这些字段是基础类型或配置性的数据，不需要变动
+                if (excludeNames.includes(name)) {
+                    continue;
+                }
+
                 if (prop[name] && typeof prop[name] === 'object') {
                     if (!(name in cacheData)) {
                         const { type, value } = prop[name];
