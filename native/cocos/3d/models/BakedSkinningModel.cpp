@@ -155,8 +155,8 @@ void BakedSkinningModel::applyJointTexture(const cc::optional<IJointTextureHandl
     }
 }
 
-ccstd::vector<scene::IMacroPatch> &BakedSkinningModel::getMacroPatches(index_t subModelIndex) {
-    auto &patches = Super::getMacroPatches(subModelIndex);
+ccstd::vector<scene::IMacroPatch> BakedSkinningModel::getMacroPatches(index_t subModelIndex) {
+    auto patches = Super::getMacroPatches(subModelIndex);
     patches.reserve(patches.size() + myPatches.size());
     patches.insert(std::end(patches), std::begin(myPatches), std::end(myPatches));
     return patches;

@@ -1257,7 +1257,18 @@ inline bool nativevalue_to_se(const ccstd::vector<T> &from, se::Value &to, se::O
     se::HandleObject array(se::Object::createArrayObject(from.size()));
     se::Value        tmp;
     for (size_t i = 0; i < from.size(); i++) {
-        nativevalue_to_se(from[i], tmp, ctx);
+        // If from[i] is on stack, then should create a new object, or
+        // JS will hold a freed object.
+        if CC_CONSTEXPR (!std::is_pointer<T>::value && is_jsb_object_v<T>) {
+            auto *pFrom = ccnew T(from[i]);
+            nativevalue_to_se(pFrom, tmp, ctx);
+            tmp.toObject()->clearPrivateData();
+            tmp.toObject()->setPrivateData(pFrom);
+        }
+        else {
+            nativevalue_to_se(from[i], tmp, ctx);
+        }
+        
         array->setArrayElement(static_cast<uint32_t>(i), tmp);
     }
     to.setObject(array, true);
