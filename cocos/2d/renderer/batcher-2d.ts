@@ -274,7 +274,7 @@ export class Batcher2D implements IBatcher {
 
     /**
      * Switch the mesh buffer for corresponding vertex layout if necessary.
-     * @param attributes use [[VertexFormat.vfmtPosUvColor]] by default
+     * @param attributes use VertexFormat.vfmtPosUvColor by default
      */
     public switchBufferAccessor (attributes: Attribute[] = vfmtPosUvColor) {
         const strideBytes = attributes === vfmtPosUvColor ? 36 /* 9x4 */ : getAttributeStride(attributes);
