@@ -156,11 +156,11 @@ function getParticleComponents (node): ParticleSystem2D[] {
  * emitter.radialAccel = 15;
  * emitter.startSpin = 0;
  *
- * @zh 2D粒子基础类型
+ * @zh 2D 粒子基础类型
  * cocos2d 同样支 Particle Designer (http://particledesigner.71squared.com/) 生成的粒子
- * 粒子设计器中的 半径模式 使用30 hz的固定发射率。由于cocos2d无法保证，
- * cocos2d使用了另一种方法，但结果几乎相同。
- * cocos2d支持 Particle Designer 使用的所有变量，还有：
+ * 粒子设计器中的 半径模式 使用 30 hz 的固定发射率。由于 cocos2d 无法保证，
+ * cocos2d 使用了另一种方法，但结果几乎相同。
+ * cocos2d 支持 Particle Designer 使用的所有变量，还有：
  * -旋转粒子（使用粒子系统时支持）
  * -切向加速度（重力模式）
  * -径向加速度（重力模式）
