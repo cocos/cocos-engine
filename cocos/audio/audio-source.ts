@@ -124,6 +124,7 @@ export class AudioSource extends Component {
             this._isLoaded = true;
             // clear old player
             if (this._player) {
+                audioManager.removePlaying(this._player);
                 this._player.offEnded();
                 this._player.offInterruptionBegin();
                 this._player.offInterruptionEnd();
@@ -376,7 +377,7 @@ export class AudioSource extends Component {
      * 获取以秒为单位的音频总时长。
      */
     get duration () {
-        return this._clip?.getDuration() ?? (this._player ? this._player.currentTime : 0);
+        return this._clip?.getDuration() ?? (this._player ? this._player.duration : 0);
     }
 
     /**

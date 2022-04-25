@@ -112,14 +112,20 @@ bool operator==(const RenderPassInfo &lhs, const RenderPassInfo &rhs) {
 template <>
 size_t Hasher<FramebufferInfo>::operator()(const FramebufferInfo &info) const {
     // render pass is mostly irrelevant
-    size_t seed = (info.colorTextures.size() + 1) * 2;
+    size_t seed;
+    if (info.depthStencilTexture) {
+        seed = (info.colorTextures.size() + 1) * 3;
+        boost::hash_combine(seed, info.depthStencilTexture);
+        boost::hash_combine(seed, info.depthStencilTexture->getRaw());
+        boost::hash_combine(seed, info.depthStencilTexture->getHash());
+    } else {
+        seed = info.colorTextures.size() * 3;
+    }
     for (auto* colorTexture : info.colorTextures) {
+        boost::hash_combine(seed, colorTexture);
         boost::hash_combine(seed, colorTexture->getRaw());
         boost::hash_combine(seed, colorTexture->getHash());
     }
-
-    boost::hash_combine(seed, info.depthStencilTexture->getRaw());
-    boost::hash_combine(seed, info.depthStencilTexture->getHash());
     return seed;
 }
 

@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { EDITOR } from 'internal:constants';
 import { ccclass } from 'cc.decorator';
 import { BaseNode } from './base-node';
@@ -313,6 +311,10 @@ removeProperty(Layers.BitMask, 'Layers.BitMask', [
 const HideInHierarchy = CCObject.Flags.HideInHierarchy;
 const DontSave = CCObject.Flags.DontSave;
 
+/**
+ * @internal
+ * @deprecated since v3.5
+ */
 @ccclass('cc.PrivateNode')
 export class PrivateNode extends Node {
     constructor (name?: string) {

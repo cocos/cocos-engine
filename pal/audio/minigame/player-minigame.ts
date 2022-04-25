@@ -33,6 +33,8 @@ export class OneShotAudioMinigame {
         nativeAudio.onEnded(() => {
             this._onEndCb?.();
             nativeAudio.destroy();
+            // @ts-expect-error Type 'null' is not assignable to type 'InnerAudioContext'.
+            this._innerAudioContext = null;
         });
     }
     public play (): void {
@@ -56,11 +58,11 @@ export class AudioPlayerMinigame implements OperationQueueable {
     private _readyToHandleOnShow = false;
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _eventTarget: EventTarget = new EventTarget();
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _operationQueue: OperationInfo[] = [];
 

@@ -1,0 +1,10 @@
+{
+    "title": {
+        "zh": "资源",
+        "en": "Asset"
+    },
+    "description": {
+        "zh": "资源是游戏中的重要组成部分，Cocos Creator 支持导入大量类型的资源，并允许开发者将该资源运用在游戏中",
+        "en": "Assets are an important part of the game, and Cocos Creator supports importing a large number of types of resources and allows developers to use that resource in the game"
+    }
+}

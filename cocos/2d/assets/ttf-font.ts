@@ -41,13 +41,13 @@ import { legacyCC } from '../../core/global-exports';
 @ccclass('cc.TTFFont')
 export class TTFFont extends Font {
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @serializable
     public _fontFamily: string | null = null;
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @override
     @string
@@ -59,7 +59,7 @@ export class TTFFont extends Font {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @override
     get _nativeDep () {

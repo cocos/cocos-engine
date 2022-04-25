@@ -26,7 +26,8 @@
 import { AABB, Frustum, intersect, Sphere } from '../../geometry';
 import { legacyCC } from '../../global-exports';
 import { Mat4, Vec2, Vec3 } from '../../math';
-import { Camera, DirectionalLight, Model, RenderScene, Shadows, ShadowType, SKYBOX_FLAG, SubModel } from '../../renderer/scene';
+import { RenderScene } from '../../renderer';
+import { Camera, DirectionalLight, Model, Shadows, ShadowType, SKYBOX_FLAG, SubModel } from '../../renderer/scene';
 import { IRenderObject, IRenderPass } from '../define';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { SceneTask, SceneTransversal, SceneVisitor } from './pipeline';

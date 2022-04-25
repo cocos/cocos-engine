@@ -46,7 +46,51 @@ DevicePass::DevicePass(const FrameGraph &graph, ccstd::vector<PassNode *> const 
         append(graph, passNode, &attachments);
     }
 
-    std::sort(attachments.begin(), attachments.end(), RenderTargetAttachment::Sorter());
+    // Important Notice:
+    // here attchment index has changed.
+    // _attachments is flattened previously, and it is spliced into two parts here:
+    // colorAttachments and depthStencilAttachment
+    // As a result, the indices in subpasses are INVALIDATED.
+    // So the attachment index in subpass should be recalculated.
+    // there should be only ONE depth stencil in the entire Pass
+    auto depthIndex = gfx::INVALID_BINDING;
+    auto depthNewIndex = gfx::INVALID_BINDING;
+    for (uint32_t id = 0; id != attachments.size(); ++id) {
+        if (attachments[id].desc.usage != RenderTargetAttachment::Usage::COLOR) {
+            CC_ASSERT(depthIndex == gfx::INVALID_BINDING);
+            depthIndex = id;
+            depthNewIndex = static_cast<uint32_t>(attachments.size() - 1);
+        }
+    }
+    std::stable_sort(attachments.begin(), attachments.end(), RenderTargetAttachment::Sorter());
+
+    // update subpass index
+    for (auto &subpass : _subpasses) {
+        // reindex subpass attchment index
+        auto &info = subpass.desc;
+        for (auto &id : info.inputs) {
+            if (id == depthIndex) {
+                id = depthNewIndex;
+            } else if (id > depthIndex) {
+                --id;
+            }
+        }
+        for (auto &id : info.resolves) {
+            if (id == depthIndex) {
+                id = depthNewIndex;
+            } else if (id > depthIndex) {
+                --id;
+            }
+        }
+        for (auto &id : info.preserves) {
+            if (id == depthIndex) {
+                id = depthNewIndex;
+            } else if (id > depthIndex) {
+                --id;
+            }
+        }
+    }
+
     ccstd::vector<const gfx::Texture *> renderTargets;
 
     for (auto &attachment : attachments) {

@@ -28,6 +28,10 @@
     #define GAME_NAME "CocosGame";
 #endif
 
+#ifndef SCRIPT_XXTEAKEY
+    #define SCRIPT_XXTEAKEY "";
+#endif
+
 Game::Game() = default;
 
 int Game::init() {
@@ -45,7 +49,7 @@ int Game::init() {
     _debuggerInfo.address      = "0.0.0.0";
     _debuggerInfo.pauseOnStart = false;
 
-    _xxteaKey = "";
+    _xxteaKey = SCRIPT_XXTEAKEY;
 
     BaseGame::init();
     return 0;

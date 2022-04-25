@@ -135,13 +135,6 @@ ccstd::string System::getSystemVersion() const {
         }
     }
     return buff;
-    //OSVERSIONINFO osvi;
-    //memset(&osvi, 0, sizeof(osvi));
-    //osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-    //GetVersionEx(&osvi);
-    //char buff[256] = {0};
-    //snprintf(buff, sizeof(buff), "Windows version %d.%d.%d", osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber);
-    //return buff;
 }
 
 bool System::openURL(const ccstd::string &url) {

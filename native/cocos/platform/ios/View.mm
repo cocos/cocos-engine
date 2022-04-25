@@ -48,7 +48,7 @@ namespace {
 }
 #endif
 
-- (void)dispatchEvents:(cc::TouchEvent::Type)type withEvent:(NSSet*) touches {
+- (void)dispatchTouchEvent:(cc::TouchEvent::Type)type withEvent:(NSSet*) touches {
     cc::TouchEvent touchEvent;
     touchEvent.type = type;
     for (UITouch *touch in touches) {
@@ -57,7 +57,7 @@ namespace {
                                       static_cast<int>((intptr_t)touch)});
     }
     CC_ASSERT(_platform != nullptr);
-    _platform->dispatchEvent(touchEvent);
+    _platform->dispatchTouchEvent(touchEvent);
 }
 
 - (id)initWithFrame:(CGRect)frame {
@@ -89,28 +89,28 @@ namespace {
     if (self.preventTouch)
         return;
 
-    [self dispatchEvents:cc::TouchEvent::Type::BEGAN withEvent:touches];
+    [self dispatchTouchEvent:cc::TouchEvent::Type::BEGAN withEvent:touches];
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
     if (self.preventTouch)
         return;
 
-    [self dispatchEvents:cc::TouchEvent::Type::MOVED withEvent:touches];
+    [self dispatchTouchEvent:cc::TouchEvent::Type::MOVED withEvent:touches];
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
     if (self.preventTouch)
         return;
 
-    [self dispatchEvents:cc::TouchEvent::Type::ENDED withEvent:touches];
+    [self dispatchTouchEvent:cc::TouchEvent::Type::ENDED withEvent:touches];
 }
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
     if (self.preventTouch)
         return;
 
-    [self dispatchEvents:cc::TouchEvent::Type::CANCELLED withEvent:touches];
+    [self dispatchTouchEvent:cc::TouchEvent::Type::CANCELLED withEvent:touches];
 }
 
 - (void)setPreventTouchEvent:(BOOL)flag {

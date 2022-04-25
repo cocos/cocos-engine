@@ -234,6 +234,7 @@ void CanvasRenderingContext2D::rect(float x, float y, float w, float h) {
 }
 
 void CanvasRenderingContext2D::setFont(const ccstd::string &font) {
+    recreateBufferIfNeeded();
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
     if (_font != font) {
         _font = font;

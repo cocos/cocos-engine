@@ -38,7 +38,7 @@ import { MacroRecord } from '../../renderer/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { QueueHint, ResourceResidency, TaskType } from './types';
 import { ComputeView, CopyPair, MovePair, RasterView } from './render-graph';
-import { RenderScene } from '../../renderer/scene/render-scene';
+import { RenderScene } from '../../renderer/core/render-scene';
 import { RenderWindow } from '../../renderer/core/render-window';
 import { Model } from '../../renderer/scene';
 

@@ -32,6 +32,8 @@ jobs:
           COCOS_ENGINE_DEV: 1
         run: |
           cd $GITHUB_WORKSPACE/templates/windows
+          echo "message(STATUS \"hook before \${CC_TARGET_NAME}\")" >> Pre-Sample.cmake
+          echo "message(STATUS \"hook after \${CC_TARGET_NAME}\")" >> Post-Sample.cmake
           mkdir -p build-win64/proj
           touch build-win64/proj/cfg.cmake
           echo "set(CC_USE_GLES3 ON)" >> build-win64/proj/cfg.cmake
@@ -76,6 +78,8 @@ jobs:
           NATIVE_DIR=$GITHUB_WORKSPACE/templates/android-template
           echo "Compiling Android ... "
           cd $GITHUB_WORKSPACE/templates/
+          echo "message(STATUS \"hook before \${CC_TARGET_NAME}\")" >> android/template/Pre-Sample.cmake
+          echo "message(STATUS \"hook after \${CC_TARGET_NAME}\")" >> android/template/Post-Sample.cmake
           if [ ! -d  android-template ]; then
             cp -r android/template android-template
           fi
@@ -133,6 +137,8 @@ jobs:
           COCOS2DX_ROOT=$GITHUB_WORKSPACE/native
           echo "Compiling MacOSX ... "
           cd  $GITHUB_WORKSPACE/templates/mac
+          echo "message(STATUS \"hook before \${CC_TARGET_NAME}\")" >> Pre-Sample.cmake
+          echo "message(STATUS \"hook after \${CC_TARGET_NAME}\")" >> Post-Sample.cmake
           mkdir -p build-mac/proj
           touch build-mac/proj/cfg.cmake
           echo "set(CC_USE_VULKAN OFF)" >> build-mac/proj/cfg.cmake
@@ -239,6 +245,8 @@ jobs:
           COCOS2DX_ROOT=$GITHUB_WORKSPACE/native
           echo "Compiling iOS ... "
           cd  $GITHUB_WORKSPACE/templates/ios
+          echo "message(STATUS \"hook before \${CC_TARGET_NAME}\")" >> Pre-Sample.cmake
+          echo "message(STATUS \"hook after \${CC_TARGET_NAME}\")" >> Post-Sample.cmake
           mkdir -p build-ios/proj
           touch build-ios/proj/cfg.cmake
           echo "set(CC_USE_GLES3 OFF)" >> build-ios/proj/cfg.cmake

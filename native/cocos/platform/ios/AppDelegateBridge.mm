@@ -110,7 +110,7 @@ cc::IOSPlatform *_platform = nullptr;
                                       static_cast<float>([touch locationInView:[touch view]].y),
                                       static_cast<int>((intptr_t)touch)});
     }
-    _platform->dispatchEvent(touchEvent);
+    _platform->dispatchTouchEvent(touchEvent);
     touchEvent.touches.clear();
 }
 

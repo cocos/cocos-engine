@@ -23,12 +23,11 @@
  THE SOFTWARE.
  */
 
-
-
 // eslint-disable-next-line import/no-extraneous-dependencies
 import bulletModule, { bulletType } from '@cocos/bullet';
 import { WECHAT } from 'internal:constants';
 import { physics } from '../../../exports/physics-framework';
+import { sys } from '../../core/platform';
 import { pageSize, pageCount, importFunc } from './bullet-env';
 
 let bulletLibs: any = bulletModule;
@@ -51,6 +50,12 @@ bt.BODY_CACHE_NAME = 'body';
 export function waitForAmmoInstantiation (dirRoot: string) {
     // refer https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly
     const supported = (() => {
+        // iOS 15.4 has some wasm memory issue, can not use wasm for bullet
+        const isiOS15_4 = (sys.os === sys.OS.IOS || sys.os === sys.OS.OSX) && sys.isBrowser
+        && /(OS 15_4)|(Version\/15.4)/.test(window.navigator.userAgent);
+        if (isiOS15_4) {
+            return false;
+        }
         try {
             if (typeof WebAssembly === 'object'
                 && typeof WebAssembly.instantiate === 'function') {
