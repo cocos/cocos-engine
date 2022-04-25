@@ -43,7 +43,8 @@ public:
     using Vec2    = ccstd::array<float, 2>;
     using Size    = ccstd::array<float, 2>;
     using Color4F = ccstd::array<float, 4>;
-
+    using TextAlign    = ICanvasRenderingContext2D::TextAlign;
+    using TextBaseline = ICanvasRenderingContext2D::TextBaseline;
     CanvasRenderingContext2DDelegate();
     ~CanvasRenderingContext2DDelegate() override;
 
