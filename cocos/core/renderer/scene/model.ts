@@ -546,6 +546,7 @@ export class Model {
     /**
      * @en attach model to scene
      * @zh 添加模型到场景中
+     * @param scene destination scene
      */
     public attachToScene (scene: RenderScene) {
         this.scene = scene;
@@ -563,6 +564,7 @@ export class Model {
     /**
      * @en update model's transform
      * @zh 更新模型的变换
+     * @param stamp time stamp
      */
     public updateTransform (stamp: number) {
         const node = this.transform;
@@ -616,6 +618,7 @@ export class Model {
     /**
      * @en update model's ubo
      * @zh 更新模型的ubo
+     * @param stamp time stamp
      */
     public updateUBOs (stamp: number) {
         const subModels = this._subModels;
@@ -659,6 +662,8 @@ export class Model {
     /**
      * @en create model's aabb
      * @zh 创建模型的包围盒
+     * @param minPos min positoin of the aabb
+     * @param maxPos max positoin of the aabb
      */
     public createBoundingShape (minPos?: Vec3, maxPos?: Vec3) {
         if (!minPos || !maxPos) { return; }
@@ -674,6 +679,9 @@ export class Model {
     /**
      * @en init a sub model
      * @zh 初始化一个子模型
+     * @param idx sub model's index
+     * @param subMeshData sub mesh
+     * @param mat sub material
      */
     public initSubModel (idx: number, subMeshData: RenderingSubMesh, mat: Material) {
         this.initialize();
@@ -701,6 +709,8 @@ export class Model {
     /**
      * @en set a sub mesh
      * @zh 设置一个子网格
+     * @param idx sub model's index
+     * @param subMesh sub mesh
      */
     public setSubModelMesh (idx: number, subMesh: RenderingSubMesh) {
         if (!this._subModels[idx]) { return; }
@@ -710,6 +720,8 @@ export class Model {
     /**
      * @en set a sub material
      * @zh 设置一个子材质
+     * @param idx sub model's index
+     * @param mat sub material
      */
     public setSubModelMaterial (idx: number, mat: Material) {
         if (!this._subModels[idx]) { return; }
@@ -742,6 +754,8 @@ export class Model {
     /**
      * @en update light map
      * @zh 更新光照贴图
+     * @param texture light map
+     * @param uvParam uv coordinate
      */
     public updateLightingmap (texture: Texture2D | null, uvParam: Vec4) {
         Vec4.toArray(this._localData, uvParam, UBOLocal.LIGHTINGMAP_UVPARAM);
@@ -788,6 +802,7 @@ export class Model {
     /**
      * @en return shader macro
      * @zh 获取shader宏
+     * @param subModelIndex sub model's index
      */
     public getMacroPatches (subModelIndex: number): IMacroPatch[] | null {
         return this.receiveShadow ? shadowMapPatches : null;
