@@ -63,7 +63,7 @@ export declare namespace AnimationClip {
     }
 
     /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @internal
      */
     export type { legacy as _legacy };
 }
@@ -144,8 +144,7 @@ export class AnimationClip extends Asset {
     /**
      * Sets if node TRS curves in this animation can be blended.
      * Normally this flag is enabled for model animation and disabled for other case.
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
-     * This is an internal slot. Never use it in your code.
+     * @internal This is an internal slot. Never use it in your code.
      */
     @serializable
     public enableTrsBlending = false;
@@ -291,9 +290,7 @@ export class AnimationClip extends Asset {
     /**
      * Creates an event evaluator for this animation.
      * @param targetNode Target node used to fire events.
-     * @returns
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
-     * Do not use this in your code.
+     * @internal Do not use this in your code.
      */
     public createEventEvaluator (targetNode: Node) {
         return new EventEvaluator(
@@ -308,8 +305,7 @@ export class AnimationClip extends Asset {
      * Creates an evaluator for this animation.
      * @param context The context.
      * @returns The evaluator.
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
-     * Do not use this in your code.
+     * @internal Do not use this in your code.
      */
     public createEvaluator (context: AnimationClipEvalContext) {
         const {
@@ -419,8 +415,7 @@ export class AnimationClip extends Asset {
     /**
      * Convert all untyped tracks into typed ones and delete the original.
      * @param refine How to decide the type on specified path.
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
-     * DO NOT USE THIS IN YOUR CODE.
+     * @internal DO NOT USE THIS IN YOUR CODE.
      */
     public upgradeUntypedTracks (refine: UntypedTrackRefine) {
         const newTracks: Track[] = [];
