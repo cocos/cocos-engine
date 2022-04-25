@@ -445,6 +445,9 @@ export class RealCurve extends KeyframeCurve<RealKeyframeValue> {
         return this._values.every((frame) => approx(frame.value, firstVal, tolerance));
     }
 
+    /**
+     * @internal
+     */
     public [serializeTag] (output: SerializationOutput, context: SerializationContext) {
         if (!context.toCCON) {
             output.writeThis();
@@ -492,6 +495,9 @@ export class RealCurve extends KeyframeCurve<RealKeyframeValue> {
         }
     }
 
+    /**
+     * @internal
+     */
     public [deserializeTag] (input: SerializationInput, context: DeserializationContext) {
         if (!context.fromCCON) {
             input.readThis();

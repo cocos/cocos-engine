@@ -235,6 +235,9 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
         }
     }
 
+    /**
+     * @internal
+     */
     public [serializeTag] (output: SerializationOutput, context: SerializationContext) {
         if (!context.toCCON) {
             output.writeThis();
@@ -328,6 +331,9 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
         output.writeProperty('bytes', bytes);
     }
 
+    /**
+     * @internal
+     */
     public [deserializeTag] (input: SerializationInput, context: DeserializationContext) {
         if (!context.fromCCON) {
             input.readThis();
