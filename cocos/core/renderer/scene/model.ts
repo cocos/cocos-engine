@@ -89,7 +89,15 @@ const lightmapSamplerWithMipHash = new SamplerInfo(
 
 /**
  * @en A representation of a model instance
+ * The base model class, which is the core component of [[MeshRenderer]], 
+ * adds its own Model to the rendered scene for rendering submissions when [[MeshRenderer]] is enabled.
+ * This type of object represents a rendering instance in a scene, and it can contain multiple submodels, 
+ * each of which corresponds to a material. These submodels share the same location and form a complete object.
+ * Each submodel references a submesh resource, which provides vertex and index buffers for rendering.
  * @zh 代表一个模型实例
+ * 基础模型类，它是 [[MeshRenderer]] 的核心组成部分，在 [[MeshRenderer]] 启用时会将自己的 Model 添加到渲染场景中用于提交渲染。
+ * 此类型对象代表一个场景中的渲染实例，它可以包含多个子模型，每个子模型对应一个材质。这些子模型共享同样的位置，组成一个完整的物体。
+ * 每个子模型引用一个子网格资源，后者提供渲染所用的顶点与索引缓冲。
  */
 export class Model {
     /**
@@ -149,25 +157,21 @@ export class Model {
     }
 
     /**
-     * @en is instancing enabled
-     * @zh 是否开启实例化
+     * @en is GPU instancing enabled for the current model
+     * @zh 是否开启实例化渲染
      */
     get isInstancingEnabled () {
         return this._instMatWorldIdx >= 0;
     }
 
     /**
-     * @en return shadow bias
-     * @zh 获取阴影偏移值
+     * @en shadow bias
+     * @zh 阴影偏移值
      */
     get shadowBias () {
         return this._shadowBias;
     }
 
-    /**
-     * @en set shadow bias
-     * @zh 设置阴影偏移值
-     */
     set shadowBias (val) {
         this._shadowBias = val;
         if (JSB) {
@@ -176,17 +180,13 @@ export class Model {
     }
 
     /**
-     * @en return shadow normal bias
-     * @zh 获取阴影法线偏移值
+     * @en shadow normal bias
+     * @zh 阴影法线偏移值
      */
     get shadowNormalBias () {
         return this._shadowNormalBias;
     }
 
-    /**
-     * @en set shadow normal bias
-     * @zh 设置阴影法线偏移值
-     */
     set shadowNormalBias (val) {
         this._shadowNormalBias = val;
         if (JSB) {
@@ -195,34 +195,26 @@ export class Model {
     }
 
     /**
-     * @en return receive shadow or not
-     * @zh 返回是否接收阴影
+     * @en receive shadow or not
+     * @zh 是否接收阴影
      */
     get receiveShadow () {
         return this._receiveShadow;
     }
 
-    /**
-     * @en set receive shadow or not
-     * @zh 设置是否接收阴影
-     */
     set receiveShadow (val) {
         this._setReceiveShadow(val);
         this.onMacroPatchesStateChanged();
     }
 
     /**
-     * @en return cast shadow or not
-     * @zh 返回是否投射阴影
+     * @en cast shadow or not
+     * @zh 是否投射阴影
      */
     get castShadow () {
         return this._castShadow;
     }
 
-    /**
-     * @en set cast shadow or not
-     * @zh 设置是否投射阴影
-     */
     set castShadow (val) {
         this._castShadow = val;
         if (JSB) {
@@ -231,17 +223,13 @@ export class Model {
     }
 
     /**
-     * @en return model's node
-     * @zh 返回模型所在的节点
+     * @en model's node
+     * @zh 模型所在的节点
      */
     get node () : Node {
         return this._node;
     }
 
-    /**
-     * @en set model's node
-     * @zh 设置模型所在的节点
-     */
     set node (n: Node) {
         this._node = n;
         if (JSB) {
@@ -250,17 +238,13 @@ export class Model {
     }
 
     /**
-     * @en return model's transform
-     * @zh 返回模型的变换
+     * @en model's transform
+     * @zh 模型的变换
      */
     get transform () : Node {
         return this._transform;
     }
 
-    /**
-     * @en set model's transform
-     * @zh 设置模型的变换
-     */
     set transform (n: Node) {
         this._transform = n;
         if (JSB) {
@@ -269,17 +253,16 @@ export class Model {
     }
 
     /**
-     * @en return model's visible tag
-     * @zh 返回模型的可见标志
+     * @en model's visibility tag
+     * Model's visibility flags, it's different from [[Node.layer]], 
+     * but it will also be compared with [[Camera.visibility]] during culling process.
+     * @zh 模型的可见性标志
+     * 模型的可见性标志与 [[Node.layer]] 不同，它会在剔除阶段与 [[Camera.visibility]] 进行比较
      */
     get visFlags () : number {
         return this._visFlags;
     }
 
-    /**
-     * @en set model's visible tag
-     * @zh 设置模型的可见标志
-     */
     set visFlags (val: number) {
         this._visFlags = val;
         if (JSB) {
@@ -288,17 +271,13 @@ export class Model {
     }
 
     /**
-     * @en is enabled
-     * @zh 返回模型是否启用
+     * @en enabled
+     * @zh 模型是否启用
      */
     get enabled () : boolean {
         return this._enabled;
     }
 
-    /**
-     * @en set enabled
-     * @zh 设置模型是否启用
-     */
     set enabled (val: boolean) {
         this._enabled = val;
         if (JSB) {
@@ -453,12 +432,14 @@ export class Model {
     protected _visFlags = Layers.Enum.NONE;
 
     /**
+     * @internal
      * @en native object
      * @zh 原生对象
      */
     protected declare _nativeObj: NativeModel | NativeSkinningModel | NativeBakedSkinningModel | null;
 
     /**
+     * @internal
      * @en return native object
      * @zh 返回原生对象
      */
@@ -544,8 +525,8 @@ export class Model {
     }
 
     /**
-     * @en attach model to scene
-     * @zh 添加模型到场景中
+     * @en attach model to [[RenderScene]]
+     * @zh 添加模型到渲染场景 [[RenderScene]] 中
      * @param scene destination scene
      */
     public attachToScene (scene: RenderScene) {
@@ -707,8 +688,8 @@ export class Model {
     }
 
     /**
-     * @en set a sub mesh
-     * @zh 设置一个子网格
+     * @en set material for a given sub model
+     * @zh 为指定的子模型设置材质
      * @param idx sub model's index
      * @param subMesh sub mesh
      */
