@@ -28,19 +28,23 @@ import { TEST } from 'internal:constants';
 import { legacyCC } from '../../core/global-exports';
 
 /**
- *
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
 const eventRegx = /^(click)(\s)*=|(param)(\s)*=/;
 const imageAttrReg = /(\s)*src(\s)*=|(\s)*height(\s)*=|(\s)*width(\s)*=|(\s)*align(\s)*=|(\s)*offset(\s)*=|(\s)*click(\s)*=|(\s)*param(\s)*=/;
+
 /**
  * A utils class for parsing HTML texts. The parsed results will be an object array.
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
-
 export interface IHtmlTextParserResultObj{
     text?: string;
     style?: IHtmlTextParserStack;
 }
 
+/**
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ */
 export interface IHtmlTextParserStack{
     color?: string;
     size?: number;
@@ -58,6 +62,9 @@ export interface IHtmlTextParserStack{
     outline?: { color: string, width: number };
 }
 
+/**
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ */
 export class HtmlTextParser {
     private _specialSymbolArray: Array<[RegExp, string]> = [];
     private _stack: IHtmlTextParserStack[] = [];
