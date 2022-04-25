@@ -39,6 +39,10 @@ import zlib from '../../../../external/compression/zlib.min';
 
 const vec3_temp = new Vec3();
 const matrix = new Mat4();
+const diagonal_vec3_temps: IRenderData[] = [];
+for (let i = 0; i < 4; i++) {
+    diagonal_vec3_temps.push({ x: 0, y: 0, z: 0, u: 0, v: 0, color: new Color() });
+}
 
 /**
  * sliced 组装器
@@ -107,28 +111,23 @@ export const sliced: IAssembler = {
         sizableWidth = sizableWidth < 0 ? 0 : sizableWidth;
         sizableHeight = sizableHeight < 0 ? 0 : sizableHeight;
 
-        const tempList:IRenderData[] = [];
-        // initialize 4 elements
-        for (let i = 0; i < 4; i++) {
-            tempList.push({ x: 0, y: 0, z: 0, u: 0, v: 0, color: new Color() });
-        }
-        tempList[0].x = -appX;
-        tempList[0].y = -appY;
-        tempList[1].x = leftWidth * xScale - appX;
-        tempList[1].y = bottomHeight * yScale - appY;
-        tempList[2].x = tempList[1].x + sizableWidth;
-        tempList[2].y = tempList[1].y + sizableHeight;
-        tempList[3].x = width - appX;
-        tempList[3].y = height - appY;
+        diagonal_vec3_temps[0].x = -appX;
+        diagonal_vec3_temps[0].y = -appY;
+        diagonal_vec3_temps[1].x = leftWidth * xScale - appX;
+        diagonal_vec3_temps[1].y = bottomHeight * yScale - appY;
+        diagonal_vec3_temps[2].x = diagonal_vec3_temps[1].x + sizableWidth;
+        diagonal_vec3_temps[2].y = diagonal_vec3_temps[1].y + sizableHeight;
+        diagonal_vec3_temps[3].x = width - appX;
+        diagonal_vec3_temps[3].y = height - appY;
 
         for (let curRow = 0; curRow < renderData.vertexRow; curRow++) {
             for (let curCol = 0; curCol < renderData.vertexCol; curCol++) {
                 const curIndex = curRow * renderData.vertexCol + curCol;
                 if (curIndex < renderData.dataLength
-                    && curRow < tempList.length
-                    && curCol < tempList.length) {
-                    dataList[curIndex].x = tempList[curCol].x;
-                    dataList[curIndex].y = tempList[curRow].y;
+                    && curRow < diagonal_vec3_temps.length
+                    && curCol < diagonal_vec3_temps.length) {
+                    dataList[curIndex].x = diagonal_vec3_temps[curCol].x;
+                    dataList[curIndex].y = diagonal_vec3_temps[curRow].y;
                 }
             }
         }
@@ -185,7 +184,6 @@ export const sliced: IAssembler = {
 
         for (let i  = 0; i < dataList.length; i++) {
             const curData = dataList[i];
-            const vec3_temp = new Vec3();
             Vec3.set(vec3_temp, curData.x, curData.y, 0);
             Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
 

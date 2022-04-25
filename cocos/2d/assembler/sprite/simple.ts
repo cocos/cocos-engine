@@ -92,7 +92,7 @@ export const simple: IAssembler = {
 
         for (let i  = 0; i < dataList.length; i++) {
             const curData = dataList[i];
-            const vec3_temp = new Vec3();
+            const vec3_temp = vec3_temps[0];
             Vec3.set(vec3_temp, curData.x, curData.y, 0);
             Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
 
