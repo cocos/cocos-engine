@@ -17,7 +17,7 @@ export class CCSlot extends Slot {
     }
 
     /**
-     * @en Vertices in local coordination
+     * @en Vertices in local coordinate system.
      * @zh 局部坐标顶点数据
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
