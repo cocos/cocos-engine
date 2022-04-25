@@ -172,29 +172,29 @@ export class Director extends EventTarget {
     public static readonly EVENT_BEFORE_COMMIT = 'director_before_commit';
 
     /**
-     * The event which will be triggered before the physics process.<br/>
-     * 物理过程之前所触发的事件。
+     * @en The event which will be triggered before the physics process.<br/>
+     * @zh 物理过程之前所触发的事件。
      * @event Director.EVENT_BEFORE_PHYSICS
      */
     public static readonly EVENT_BEFORE_PHYSICS = 'director_before_physics';
 
     /**
-     * The event which will be triggered after the physics process.<br/>
-     * 物理过程之后所触发的事件。
+     * @en The event which will be triggered after the physics process.<br/>
+     * @zh 物理过程之后所触发的事件。
      * @event Director.EVENT_AFTER_PHYSICS
      */
     public static readonly EVENT_AFTER_PHYSICS = 'director_after_physics';
 
     /**
-     * The event which will be triggered at the frame begin.<br/>
-     * 一帧开始时所触发的事件。
+     * @en The event which will be triggered at the frame begin.<br/>
+     * @zh 一帧开始时所触发的事件。
      * @event Director.EVENT_BEGIN_FRAME
      */
     public static readonly EVENT_BEGIN_FRAME = 'director_begin_frame';
 
     /**
-     * The event which will be triggered at the frame end.<br/>
-     * 一帧结束之后所触发的事件。
+     * @en The event which will be triggered at the frame end.<br/>
+     * @zh 一帧结束之后所触发的事件。
      * @event Director.EVENT_END_FRAME
      */
     public static readonly EVENT_END_FRAME = 'director_end_frame';
@@ -769,6 +769,7 @@ export declare namespace Director {
 legacyCC.Director = Director;
 
 /**
- * 导演类。
+ * @en Director of the game, used to control game update loop and scene management
+ * @zh 游戏的导演，用于控制游戏更新循环与场景管理。
  */
 export const director: Director = Director.instance = legacyCC.director = new Director();

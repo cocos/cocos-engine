@@ -24,12 +24,6 @@
  */
 
 /**
- * @packageDocumentation
- * 数学库
- * @module core/math/bits
- */
-
-/**
  * Bit twiddling hacks for JavaScript.
  *
  * Author: Mikola Lysenko
@@ -38,9 +32,26 @@
  *    http://graphics.stanford.edu/~seander/bithacks.html
  */
 
-// Number of bits in an integer
+/**
+ * @en
+ * Number of bits in an integer
+ * @zh
+ * 整型类型的 bit 数
+ */
 export const INT_BITS = 32;
+/**
+ * @en
+ * The maximal signed integer number
+ * @zh
+ * 最大有符号整型数
+ */
 export const INT_MAX = 0x7fffffff;
+/**
+ * @en
+ * The minimal signed integer number
+ * @zh
+ * 最小有符号整型数
+ */
 export const INT_MIN = -1 << (INT_BITS - 1);
 
 /**

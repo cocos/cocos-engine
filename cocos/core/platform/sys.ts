@@ -59,7 +59,7 @@ export const sys = {
     /**
      * @en
      * Returns if the specified platform related feature is supported.
-     * @zn
+     * @zh
      * 返回指定的平台相关的特性是否支持。
      */
     hasFeature (feature: sys.Feature): boolean {

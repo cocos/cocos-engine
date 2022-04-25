@@ -16,6 +16,7 @@ export function getOrCreateSerializationMetadata (constructor: Function): Serial
 }
 
 /**
+ * @internal
  * For internal usage only. DO NOT USE IT IN YOUR CODES.
  */
 export interface SerializationMetadata {

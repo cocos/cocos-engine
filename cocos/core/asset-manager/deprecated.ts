@@ -831,10 +831,10 @@ export class CCLoader {
 export const loader = new CCLoader();
 
 /**
- * /**
+ * @en
+ * Used to load/unload resources in the project
+ * @zh
  * 管理项目中加载/卸载资源的资源库。
- * @class AssetLibrary
- * @static
  *
  * @deprecated since v3.0 AssetLibrary is deprecated, please backup your project and upgrade to assetManager
  */

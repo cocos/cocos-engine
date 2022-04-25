@@ -248,7 +248,10 @@ export class Mesh extends Asset {
     }
 
     /**
+     * @en
      * The index of the joint buffer of all sub meshes in the joint map buffers
+     * @zh
+     * 所有子网格中关节缓冲的索引
      */
     get jointBufferIndices () {
         if (this._jointBufferIndices) { return this._jointBufferIndices; }
