@@ -23,12 +23,10 @@ export class CCFactory extends BaseFactory implements ISchedulable {
     static _factory: CCFactory | null = null;
 
     /**
-     * @en 
+     * @en
      * Get an CCFactory instance
-     * 
      * @zh
      * 获取一个CCFactory实例
-     * 
      * @method getInstance
      * @return {CCFactory}
      * @static

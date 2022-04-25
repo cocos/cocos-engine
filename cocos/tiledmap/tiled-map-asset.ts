@@ -58,7 +58,7 @@ export class TiledMapAsset extends Asset {
 
     /**
      * @en
-     * SpriteFrame Array 
+     * SpriteFrame Array
      * @zh
      * SpriteFrame数组
      */
@@ -68,7 +68,7 @@ export class TiledMapAsset extends Asset {
 
     /**
      * @en
-     * ImageLayerSpriteFrame Array 
+     * ImageLayerSpriteFrame Array
      * @zh
      * ImageLayerSpriteFrame数组
      * @property {SpriteFrame[]} imageLayerSpriteFrame
