@@ -1,0 +1,10 @@
+{
+    "screenOrientation": "landscape",
+    "networkTimeout": {
+        "request": 5000,
+        "connectSocket": 5000,
+        "download": 500000,
+        "upload": 5000
+    },
+    "showStatusBar": false
+}

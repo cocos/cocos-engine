@@ -29,7 +29,7 @@
  */
 
 import { EDITOR } from 'internal:constants';
-import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable, visible } from 'cc.decorator';
 import { RenderTexture } from '../assets/render-texture';
 import { UITransform } from '../../2d/framework';
 import { Component } from './component';
@@ -259,6 +259,9 @@ export class Camera extends Component {
      */
     @type(FOVAxis)
     @displayOrder(7)
+    @visible(function (this: Camera) {
+        return this._projection === ProjectionType.PERSPECTIVE;
+    })
     @tooltip('i18n:camera.fov_axis')
     get fovAxis () {
         return this._fovAxis;
@@ -278,6 +281,9 @@ export class Camera extends Component {
      * @zh 相机的视角大小。
      */
     @displayOrder(8)
+    @visible(function (this: Camera) {
+        return this._projection === ProjectionType.PERSPECTIVE;
+    })
     @tooltip('i18n:camera.fov')
     get fov () {
         return this._fov;
@@ -293,6 +299,9 @@ export class Camera extends Component {
      * @zh 正交模式下的相机视角高度。
      */
     @displayOrder(9)
+    @visible(function (this: Camera) {
+        return this._projection === ProjectionType.ORTHO;
+    })
     @tooltip('i18n:camera.ortho_height')
     get orthoHeight () {
         return this._orthoHeight;
@@ -532,7 +541,7 @@ export class Camera extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _createCamera () {
         if (!this._camera) {

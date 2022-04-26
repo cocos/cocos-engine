@@ -89,8 +89,12 @@ function collectGroups(dump) {
 
     for (const name in dump.value) {
         const info = dump.value[name];
-        if (!info || !info.group) {
-            if (info.isArray) {
+        if (!info) {
+            continue;
+        }
+
+        if (!info.group) {
+            if (info.isArray && Array.isArray(info.value)) {
                 info.value.forEach((item) => {
                     collectGroups(item);
                 });

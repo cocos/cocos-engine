@@ -190,11 +190,11 @@ void CanvasRenderingContext2DDelegate::updateFont(const ccstd::string &fontName,
     } while (false);
 }
 
-void CanvasRenderingContext2DDelegate::setTextAlign(CanvasTextAlign align) {
+void CanvasRenderingContext2DDelegate::setTextAlign(TextAlign align) {
     _textAlign = align;
 }
 
-void CanvasRenderingContext2DDelegate::setTextBaseline(CanvasTextBaseline baseline) {
+void CanvasRenderingContext2DDelegate::setTextBaseline(TextBaseline baseline) {
     _textBaseLine = baseline;
 }
 
@@ -245,17 +245,17 @@ ccstd::array<float, 2> CanvasRenderingContext2DDelegate::convertDrawPoint(Point 
     cairo_text_extents(_cr, text.c_str(), &extents);
 
     int width = extents.width;
-    if (_textAlign == CanvasTextAlign::CENTER) {
+    if (_textAlign == TextAlign::CENTER) {
         point[0] -= width / 2.0f;
-    } else if (_textAlign == CanvasTextAlign::RIGHT) {
+    } else if (_textAlign == TextAlign::RIGHT) {
         point[0] -= width;
     }
 
-    if (_textBaseLine == CanvasTextBaseline::TOP) {
+    if (_textBaseLine == TextBaseline::TOP) {
         point[1] += -extents.y_bearing;
-    } else if (_textBaseLine == CanvasTextBaseline::MIDDLE) {
+    } else if (_textBaseLine == TextBaseline::MIDDLE) {
         point[1] += extents.height / 2;
-    } else if (_textBaseLine == CanvasTextBaseline::BOTTOM) {
+    } else if (_textBaseLine == TextBaseline::BOTTOM) {
         point[1] += extents.height;
     }
     if (text == ".") {

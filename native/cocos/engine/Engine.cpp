@@ -128,6 +128,9 @@ int32_t Engine::init() {
     platform->setHandleEventCallback(
         std::bind(&Engine::handleEvent, this, std::placeholders::_1)); // NOLINT(modernize-avoid-bind)
 
+    platform->setHandleTouchEventCallback(
+        std::bind(&Engine::handleTouchEvent, this, std::placeholders::_1)); // NOLINT(modernize-avoid-bind)
+
     se::ScriptEngine::getInstance()->addRegisterCallback(setCanvasCallback);
     emit(static_cast<int>(ON_START));
     _inited = true;
@@ -274,6 +277,7 @@ int32_t Engine::restartVM() {
     _scheduler->unscheduleAll();
 
     scriptEngine->cleanup();
+    cc::gfx::DeviceManager::destroy();
     cc::EventDispatcher::destroy();
     ProgramLib::destroyInstance();
     BuiltinResMgr::destroyInstance();
@@ -311,6 +315,11 @@ bool Engine::handleEvent(const OSEvent &ev) {
     }
     isHandled = dispatchEventToApp(type, ev);
     return isHandled;
+}
+
+bool Engine::handleTouchEvent(const TouchEvent& ev) { // NOLINT(readability-convert-member-functions-to-static)
+    cc::EventDispatcher::dispatchTouchEvent(ev);
+    return true;
 }
 
 Engine::SchedulerPtr Engine::getScheduler() const {

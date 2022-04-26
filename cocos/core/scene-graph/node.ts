@@ -156,12 +156,12 @@ export class Node extends BaseNode implements CustomSerializable {
     public static TransformBit = TransformBit;
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public static reserveContentsForAllSyncablePrefabTag = reserveContentsForAllSyncablePrefabTag;
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _uiProps = new NodeUIProperties(this);
 
@@ -173,7 +173,7 @@ export class Node extends BaseNode implements CustomSerializable {
     private static ClearRound = 1000;
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _static = false;
 
@@ -495,7 +495,7 @@ export class Node extends BaseNode implements CustomSerializable {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onSetParent (oldParent: this | null, keepWorldTransform: boolean) {
         super._onSetParent(oldParent, keepWorldTransform);
@@ -528,7 +528,7 @@ export class Node extends BaseNode implements CustomSerializable {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
         this.hasChangedFlags = TransformBit.TRS;
@@ -541,7 +541,7 @@ export class Node extends BaseNode implements CustomSerializable {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onBeforeSerialize () {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -549,7 +549,7 @@ export class Node extends BaseNode implements CustomSerializable {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onPostActivated (active: boolean) {
         if (active) { // activated

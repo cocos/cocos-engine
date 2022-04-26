@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { Application, Converter, Context, Reflection, Comment, CommentTag, SerializerComponent, ReflectionKind, SignatureReflection, ProjectReflection } from 'typedoc';
+import { Application, Converter, Context, Reflection, Comment, CommentTag, SerializerComponent, ReflectionKind, SignatureReflection, ProjectReflection, ContainerReflection, DeclarationReflection, ParameterReflection } from 'typedoc';
 import ts from 'typescript';
 import fs from 'fs-extra';
 import ps from 'path';
@@ -21,6 +21,39 @@ export function load (app: Application) {
     app.converter.on(Converter.EVENT_CREATE_DECLARATION, onCreateReflection);
 
     app.converter.on(Converter.EVENT_CREATE_SIGNATURE, onCreateSignature);
+
+    app.converter.on(Converter.EVENT_RESOLVE_END, (context: Context) => {
+        const visit = (reflection: Reflection, visitor: (reflection: Reflection) => void) => {
+            visitor(reflection);
+            if (reflection instanceof DeclarationReflection) {
+                for (const signature of reflection.getAllSignatures()) {
+                    visit(signature, visitor);
+                }
+            }
+            if (reflection instanceof ContainerReflection) {
+                if (reflection.children) {
+                    for (const child of reflection.children) {
+                        visit(child, visitor);
+                    }
+                }
+            } else if (reflection instanceof SignatureReflection) {
+                if (reflection.parameters) {
+                    for (const param of reflection.parameters) {
+                        visit(param, visitor);
+                    }
+                }
+                if (reflection.typeParameters) {
+                    for (const typeParameter of reflection.typeParameters) {
+                        visit(typeParameter, visitor);
+                    }
+                }
+            }
+        };
+
+        visit(context.project, (reflection) => {
+            handleLink(context, reflection);
+        });
+    });
 
     type ReflectionId = Reflection['id'];
 
@@ -49,9 +82,26 @@ export function load (app: Application) {
         toObject (projectReflect: ProjectReflection, obj = {}): any & {
             ccCategories: CategoryInfo[];
         } {
+            const mergedCategoryMap: Record<string, CategoryInfo> = {};
+            for (const categoryInfo of Object.values(categoryMap)) {
+                // eslint-disable-next-line prefer-arrow-callback
+                const categoryKey = JSON.stringify(categoryInfo, function excludeItems (this, k, v) {
+                    if (this === categoryInfo && k === 'items' && v === categoryInfo.items) {
+                        return undefined;
+                    } else {
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                        return v;
+                    }
+                });
+                if (categoryKey in mergedCategoryMap) {
+                    mergedCategoryMap[categoryKey].items.push(...categoryInfo.items);
+                } else {
+                    mergedCategoryMap[categoryKey] = categoryInfo;
+                }
+            }
             return {
                 ...obj,
-                ccCategories: Object.values(categoryMap),
+                ccCategories: Object.values(mergedCategoryMap),
             };
         }
     }
@@ -155,6 +205,168 @@ export function load (app: Application) {
             return categoryConfig;
         } catch {
             return null;
+        }
+    }
+
+    function handleLink (_context: Context, reflection: Reflection, node?: ts.Node) {
+        const comment = reflection.comment;
+        if (!comment) {
+            return;
+        }
+
+        let declarationReflection: DeclarationReflection | null = null;
+        if (reflection instanceof DeclarationReflection) {
+            declarationReflection = reflection;
+        } else if (reflection instanceof SignatureReflection) {
+            declarationReflection = reflection.parent;
+        }
+
+        // The container reflection of this reflection if it's subjected to "search in container first":
+        // classes, interface, enumeration
+        // Especially namespace member is not subjected to such search.
+        const isSubjectedToContainerSearch = (declarationReflection: DeclarationReflection) => declarationReflection.kind === ReflectionKind.Class
+            || declarationReflection.kind === ReflectionKind.Enum
+            || declarationReflection.kind === ReflectionKind.Interface;
+        let containerSearchReflection: Reflection | null = null;
+        if (declarationReflection) {
+            if (isSubjectedToContainerSearch(declarationReflection)) {
+                containerSearchReflection = reflection;
+            } else if (declarationReflection.parent
+                && declarationReflection.parent instanceof DeclarationReflection
+                && isSubjectedToContainerSearch(declarationReflection.parent)) {
+                containerSearchReflection = declarationReflection.parent;
+            }
+        }
+
+        {
+            const text = handleText(comment.text);
+            if (text) {
+                comment.text = text;
+            }
+        }
+
+        {
+            const text = handleText(comment.shortText);
+            if (text) {
+                comment.shortText = text;
+            }
+        }
+
+        if (comment.tags) {
+            for (const tag of comment.tags) {
+                const text = handleText(tag.text);
+                if (text) {
+                    tag.text = text;
+                }
+            }
+        }
+
+        function handleText (text: string) {
+            if (!text) {
+                return '';
+            }
+            const matches = text.matchAll(/\[\[`?([\w.]+)`?(?:\s*\|(.*))?\]\]/g);
+            const replaces: Array<{ index: number; length: number; reflection: Reflection; linkText?: string; }> = [];
+            for (const match of matches) {
+                const full = match[0];
+                const startsWithQuote = full.startsWith('[[`');
+                const endsWithQuote = full.endsWith('`]]');
+                if (startsWithQuote !== endsWithQuote) {
+                    _context.logger.error(`Syntax error: ${full},`
+                        + `referenced in ${!node ? '<unknown-location>' : node.getText()}`);
+                    continue;
+                }
+                const path = match[1];
+                const segments = path.split('.');
+                if (segments.length === 0) {
+                    continue;
+                }
+                const printUnableResolve = (iSegment: number) => {
+                    _context.logger.error(`Failed to resolve ${segments[iSegment]} in ${match[0]} `
+                        + `referenced in ${!node ? '<unknown-location>' : node.getText()}`);
+                };
+                let targetReflection = resolveUnqualifiedReflection(segments[0]);
+                if (!targetReflection) {
+                    printUnableResolve(0);
+                    continue;
+                }
+                if (segments.length > 1) {
+                    for (let iSegment = 1; iSegment < segments.length; ++iSegment) {
+                        if (!(targetReflection instanceof ContainerReflection)) {
+                            _context.logger.error(`${segments.slice(0, iSegment).join('.')} in ${match[0]} `
+                                + `is not a container, referenced in ${!node ? '<unknown-location>' : node.getText()}`);
+                            targetReflection = null;
+                            break;
+                        }
+                        const segment = segments[iSegment];
+                        if (!targetReflection.children) {
+                            targetReflection = null;
+                        } else {
+                            targetReflection = targetReflection.children.find((child) => child.name === segment) ?? null;
+                        }
+                        if (!targetReflection) {
+                            printUnableResolve(iSegment);
+                            break;
+                        }
+                    }
+                }
+                if (!targetReflection) {
+                    continue; // We should have diagnosis
+                }
+                const matchIndex = match.index ?? 0;
+                replaces.push({
+                    index: matchIndex,
+                    length: match[0].length,
+                    reflection: targetReflection,
+                    linkText: match[2]?.trim(),
+                });
+            }
+
+            if (replaces.length === 0) {
+                return '';
+            }
+
+            let finalText = '';
+            let iLast = 0;
+            for (const { index, length, reflection, linkText } of replaces) {
+                finalText += text.substring(iLast, index);
+                finalText += `[[${reflection.id}${linkText ? ` | ${linkText}` : ''}]]`;
+                iLast = index + length;
+            }
+            if (iLast !== text.length) {
+                finalText += text.substring(iLast);
+            }
+            return finalText;
+        }
+
+        function resolveUnqualifiedReflection (name: string) {
+            let targetReflection: Reflection | null = null;
+
+            if (containerSearchReflection && containerSearchReflection instanceof ContainerReflection && containerSearchReflection.children) {
+                const child = containerSearchReflection.children.find((child) => child.name === name);
+                if (child) {
+                    targetReflection = child;
+                }
+            }
+
+            if (!targetReflection) {
+                const searchIn = (reflection: Reflection) => {
+                    if ((reflection.kind === ReflectionKind.Namespace
+                        || reflection.kind === ReflectionKind.Module
+                        || reflection.kind === ReflectionKind.Project) && reflection instanceof ContainerReflection && reflection.children) {
+                        for (const child of reflection.children) {
+                            if (child.name === name) {
+                                return child;
+                            }
+                            searchIn(child);
+                        }
+                    }
+                    return null;
+                };
+                targetReflection = searchIn(reflection.project);
+            }
+
+            return targetReflection;
         }
     }
 }

@@ -49,19 +49,20 @@ void PipelineLayoutValidator::doInit(const PipelineLayoutInfo &info) {
     _inited = true;
 
     const auto &bindingMappings{DeviceValidator::getInstance()->bindingMappingInfo()};
-    for (uint32_t i = 0; i < info.setLayouts.size(); ++i) {
-        auto *layout{static_cast<DescriptorSetLayoutValidator *>(info.setLayouts[i])};
-        CC_ASSERT(layout && layout->isInited());
-        // check against limits specified in BindingMappingInfo
-        if (bindingMappings.setIndices.back() == i) continue; // flexible set
-        CC_ASSERT(layout->_typeCounts[0] <= bindingMappings.maxBlockCounts[i]);
-        CC_ASSERT(layout->_typeCounts[1] <= bindingMappings.maxSamplerTextureCounts[i]);
-        CC_ASSERT(layout->_typeCounts[2] <= bindingMappings.maxSamplerCounts[i]);
-        CC_ASSERT(layout->_typeCounts[3] <= bindingMappings.maxTextureCounts[i]);
-        CC_ASSERT(layout->_typeCounts[4] <= bindingMappings.maxBufferCounts[i]);
-        CC_ASSERT(layout->_typeCounts[5] <= bindingMappings.maxImageCounts[i]);
-        CC_ASSERT(layout->_typeCounts[6] <= bindingMappings.maxSubpassInputCounts[i]);
-    }
+    // deffered pipeline issue: https://github.com/cocos/cocos-engine/pull/10701
+    // for (uint32_t i = 0; i < info.setLayouts.size(); ++i) {
+    //     auto *layout{static_cast<DescriptorSetLayoutValidator *>(info.setLayouts[i])};
+    //     CC_ASSERT(layout && layout->isInited());
+    //     // check against limits specified in BindingMappingInfo
+    //     if (bindingMappings.setIndices.back() == i) continue; // flexible set
+    //     CC_ASSERT(layout->_typeCounts[0] <= bindingMappings.maxBlockCounts[i]);
+    //     CC_ASSERT(layout->_typeCounts[1] <= bindingMappings.maxSamplerTextureCounts[i]);
+    //     CC_ASSERT(layout->_typeCounts[2] <= bindingMappings.maxSamplerCounts[i]);
+    //     CC_ASSERT(layout->_typeCounts[3] <= bindingMappings.maxTextureCounts[i]);
+    //     CC_ASSERT(layout->_typeCounts[4] <= bindingMappings.maxBufferCounts[i]);
+    //     CC_ASSERT(layout->_typeCounts[5] <= bindingMappings.maxImageCounts[i]);
+    //     CC_ASSERT(layout->_typeCounts[6] <= bindingMappings.maxSubpassInputCounts[i]);
+    // }
 
     /////////// execute ///////////
 
