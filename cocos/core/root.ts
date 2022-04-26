@@ -34,7 +34,7 @@ import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from './pipel
 import { Camera, Light, Model } from './renderer/scene';
 import type { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
 import { LightType } from './renderer/scene/light';
-import { IRenderSceneInfo, RenderScene } from './renderer/scene/render-scene';
+import { IRenderSceneInfo, RenderScene } from './renderer/core/render-scene';
 import { SphereLight } from './renderer/scene/sphere-light';
 import { SpotLight } from './renderer/scene/spot-light';
 import { legacyCC } from './global-exports';
@@ -214,11 +214,11 @@ export class Root {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _createSceneFun: (root: Root) => RenderScene = null!;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _createWindowFun: (root: Root) => RenderWindow = null!;
 

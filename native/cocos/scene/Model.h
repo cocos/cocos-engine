@@ -90,7 +90,7 @@ public:
     void                                onMacroPatchesStateChanged();
     void                                onGeometryChanged();
     void                                updateLightingmap(Texture2D *texture, const Vec4 &uvParam);
-    virtual ccstd::vector<IMacroPatch> &getMacroPatches(index_t subModelIndex);
+    virtual ccstd::vector<IMacroPatch> getMacroPatches(index_t subModelIndex);
     virtual void                        updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, Pass *pass);
 
     virtual void updateTransform(uint32_t stamp);
@@ -217,8 +217,6 @@ protected:
 
     IntrusivePtr<Texture2D> _lightmap;
     Vec4                    _lightmapUVParam;
-
-    ccstd::vector<IMacroPatch> _macroPatches;
 
     // For JS
     CallbacksInvoker _eventProcessor;

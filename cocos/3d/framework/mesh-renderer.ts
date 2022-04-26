@@ -460,7 +460,7 @@ export class MeshRenderer extends RenderableComponent {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _updateLightmap (lightmap: Texture2D|null, uOff: number, vOff: number, scale: number, lum: number) {
         this.lightmapSettings.texture = lightmap;

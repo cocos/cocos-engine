@@ -53,6 +53,7 @@ namespace cc {
 
 class IEventDispatch;
 class OSEvent;
+class TouchEvent;
 
 class CC_DLL JniNativeGlue {
 public:
@@ -105,7 +106,7 @@ public:
 
     void setEventDispatch(IEventDispatch* eventDispatcher);
     void dispatchEvent(const OSEvent& ev);
-    void dispatchTouchEvent(const OSEvent& ev);
+    void dispatchTouchEvent(const TouchEvent& ev);
 
     void onPause();
     void onResume();

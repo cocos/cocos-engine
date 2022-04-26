@@ -23,13 +23,13 @@
  THE SOFTWARE.
  */
 
-import { replaceProperty, removeProperty, markAsWarning } from '../../utils/x-deprecated';
-import { RenderScene } from './render-scene';
-import { Layers } from '../../scene-graph/layers';
-import { legacyCC } from '../../global-exports';
-import { Pass } from '../core/pass';
-import { Camera } from './camera';
-import { Shadows } from './shadows';
+import { replaceProperty, removeProperty } from '../utils/x-deprecated';
+import { RenderScene } from './core/render-scene';
+import { Layers } from '../scene-graph/layers';
+import { legacyCC } from '../global-exports';
+import { Pass } from './core/pass';
+import { Camera } from './scene/camera';
+import { Shadows } from './scene/shadows';
 
 removeProperty(RenderScene.prototype, 'RenderScene.prototype', [
     { name: 'raycastUI2DNode' },

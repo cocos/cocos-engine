@@ -3,14 +3,26 @@
 // common module
 
 // constant value
-#define PI           3.14159265359
-#define INV_PI       0.31830988618
-#define PI2          6.28318530718
-#define EPSILON      1e-6
-#define LOG2         1.442695
-#define FP_MAX       65504.0
-#define FP_SCALE     0.0009765625
-#define FP_SCALE_INV 1024.0
+#define QUATER_PI         0.78539816340
+#define HALF_PI           1.57079632679
+#define PI                3.14159265359
+#define PI2               6.28318530718
+#define PI4               12.5663706144
+     
+#define INV_QUATER_PI     1.27323954474
+#define INV_HALF_PI       0.63661977237
+#define INV_PI            0.31830988618
+#define INV_PI2           0.15915494309
+#define INV_PI4           0.07957747155
+     
+#define EPSILON           1e-6
+#define EPSILON_LOWP      1e-4
+#define LOG2              1.442695
+#define EXP_VALUE         2.71828183f
+#define FP_MAX            65504.0
+#define FP_SCALE          0.0009765625
+#define FP_SCALE_INV      1024.0
+#define GRAY_VECTOR       vec3(0.299, 0.587, 0.114)
 
 // common function
 #pragma define saturate(a) clamp(a, 0.0, 1.0)

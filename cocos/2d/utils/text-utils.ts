@@ -25,12 +25,30 @@
 */
 
 import { RUNTIME_BASED } from 'internal:constants';
+import { minigame } from 'pal/minigame';
 import Pool from '../../core/utils/pool';
 
 export const BASELINE_RATIO = 0.26;
 let _BASELINE_OFFSET = 0;
+
 if (RUNTIME_BASED) {
     _BASELINE_OFFSET = BASELINE_RATIO * 2 / 3;
+
+    const ral = minigame.ral!;
+    const featureAlphabeticeName = ral.CANVAS_CONTEXT2D_TEXTBASELINE_ALPHABETIC.name;
+    const featureAlphabeticEnable = ral.CANVAS_CONTEXT2D_TEXTBASELINE_ALPHABETIC.enable;
+
+    const defaultBaselineName = ral.CANVAS_CONTEXT2D_TEXTBASELINE_DEFAULT.name;
+    const defaultIsAlphaBetic = ral.CANVAS_CONTEXT2D_TEXTBASELINE_DEFAULT.alphabetic;
+
+    if (ral.getFeaturePropertyInt(featureAlphabeticeName) === featureAlphabeticEnable) {
+        // if support alphabetic baseline, set default baseline to alphabetic
+        ral.setFeaturePropertyInt(defaultBaselineName, defaultIsAlphaBetic);
+        if (ral.getFeaturePropertyInt(defaultBaselineName) === defaultIsAlphaBetic) {
+            // if default baseline has been successfully set to alphabetic, _BASELINE_OFFSET should be 0.
+            _BASELINE_OFFSET = 0;
+        }
+    }
 }
 export const MIDDLE_RATIO = (BASELINE_RATIO + 1) / 2 - BASELINE_RATIO;
 export function getBaselineOffset () {

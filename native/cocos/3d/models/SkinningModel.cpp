@@ -170,11 +170,15 @@ void SkinningModel::initSubModel(index_t idx, RenderingSubMesh *subMeshData, Mat
     iaInfo.vertexBuffers = original;
 }
 
-ccstd::vector<scene::IMacroPatch> &SkinningModel::getMacroPatches(index_t subModelIndex) {
-    auto &patches = Super::getMacroPatches(subModelIndex);
-    patches.reserve(myPatches.size() + patches.size());
-    patches.insert(std::begin(patches), std::begin(myPatches), std::end(myPatches));
-    return patches;
+ccstd::vector<scene::IMacroPatch> SkinningModel::getMacroPatches(index_t subModelIndex) {
+    auto patches = Super::getMacroPatches(subModelIndex);
+    if (!patches.empty()) {
+        patches.reserve(myPatches.size() + patches.size());
+        patches.insert(std::begin(patches), std::begin(myPatches), std::end(myPatches));
+        return patches;
+    }
+    
+    return myPatches;
 }
 
 void SkinningModel::uploadJointData(uint32_t base, const Mat4 &mat, float *dst) {

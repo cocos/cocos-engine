@@ -173,3 +173,12 @@
 .section-asset:empty {
     display: none;
 }
+
+.section-asset > ui-panel[type="asset"] {
+    margin-bottom: 8px;
+    border-radius: 8px;
+}
+
+.section-asset > ui-panel[type="asset"][focused] {
+    box-shadow: var(--color-normal-fill-emphasis) 0 0 4px;
+}
