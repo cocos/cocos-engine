@@ -232,7 +232,7 @@ export class SimpleTexture extends TextureBase {
     }
 
     /**
-     * @en This method is overrided by derived classes to provide GFX texture info.
+     * @en This method is override by derived classes to provide GFX texture info.
      * @zh 这个方法被派生类重写以提供 GFX 纹理信息。
      * @param presumed The presumed GFX texture info.
      */

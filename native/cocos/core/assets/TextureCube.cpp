@@ -124,7 +124,7 @@ void TextureCube::reset(const ITextureCubeCreateInfo &info) {
     setMipmapLevel(mipLevels);
     
     uint32_t minLod = info.baseLevel.has_value() ? info.baseLevel.value() : 0;
-    uint32_t maxLod = info.maxLevel.has_value() ? info.maxLevel.value() : mipLevels - 1;
+    uint32_t maxLod = info.maxLevel.has_value() ? info.maxLevel.value() : 1000;
     setMipRange(minLod, maxLod);
 
     tryReset();

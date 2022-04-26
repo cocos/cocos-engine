@@ -156,7 +156,7 @@ public:
 
      * @deprecated since v1.0 please use [[reset]] instead
      */
-    void create(uint32_t width, uint32_t height, PixelFormat format = PixelFormat::RGBA8888, uint32_t mipmapLevel = 1, uint32_t baseLevel = 0, uint32_t maxLevel = 0);
+    void create(uint32_t width, uint32_t height, PixelFormat format = PixelFormat::RGBA8888, uint32_t mipmapLevel = 1, uint32_t baseLevel = 0, uint32_t maxLevel = 1000);
 
     ccstd::string toString() const override;
 
