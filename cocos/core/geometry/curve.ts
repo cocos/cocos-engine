@@ -188,7 +188,7 @@ export class AnimationCurve {
     /**
      * @en Construct a curve with key frames
      * @zh 通过关键帧构造一条曲线。
-     * @param keyFrames 关键帧。
+     * @param keyFrames @zh 关键帧 @en Key frames
      */
     constructor (keyFrames: Keyframe[] | null | RealCurve = null) {
         if (keyFrames instanceof RealCurve) {
