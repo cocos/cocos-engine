@@ -239,8 +239,8 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @en
-     * @zh
+     * @en uv update event
+     * @zh uv 更新事件
      */
     public static EVENT_UV_UPDATED = 'uv_updated';
 

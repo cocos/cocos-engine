@@ -17,27 +17,38 @@ export class CCSlot extends Slot {
     }
 
     /**
+     * @en Vertices in local coordinate system.
+     * @zh 局部坐标顶点数据
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     _localVertices: number[];
 
     /**
+     * @en Indices array of vertex data
+     * @zh 顶点数组索引
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     _indices: number[];
 
     /**
+     * @en Local transformation matrix
+     * @zh 局部坐标系变换矩阵
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     _matrix: Mat4;
 
     /**
+     * @en World transformation matrix
+     * @zh 世界坐标系变换矩阵
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _worldMatrix: Mat4;
+
     protected _worldMatrixDirty: boolean;
 
     /**
+     * @en Color setting on a slot
+     * @zh 设置在 Slot 上的颜色
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     _color: Color;

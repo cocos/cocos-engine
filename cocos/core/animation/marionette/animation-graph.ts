@@ -140,7 +140,7 @@ export class StateMachine extends EditorExtendable {
 
     /**
      * // TODO: HACK
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @internal
      */
     public __callOnAfterDeserializeRecursive () {
         this[onAfterDeserializedTag]();
