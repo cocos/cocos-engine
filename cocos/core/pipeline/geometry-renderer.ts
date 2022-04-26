@@ -312,9 +312,9 @@ export class GeometryRenderer {
 
     public empty () {
         for (let i = 0; i < GEOMETRY_DEPTH_TYPE_COUNT; i++) {
-            if (!this._buffers.lines[i].empty() ||
-                !this._buffers.dashedLines[i].empty() ||
-                !this._buffers.triangles[i].empty()) {
+            if (!this._buffers.lines[i].empty()
+                || !this._buffers.dashedLines[i].empty()
+                || !this._buffers.triangles[i].empty()) {
                 return false;
             }
         }
