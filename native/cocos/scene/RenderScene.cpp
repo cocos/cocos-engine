@@ -109,6 +109,7 @@ void RenderScene::removeCamera(Camera *camera) {
 void RenderScene::removeCameras() {
     for (const auto &camera : _cameras) {
         camera->detachFromScene();
+        CC_SAFE_DESTROY(camera);
     }
     _cameras.clear();
 }

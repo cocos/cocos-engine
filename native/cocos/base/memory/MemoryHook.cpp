@@ -190,6 +190,39 @@ void MemoryHook::removeRecord(uint64_t address) {
     _hooking = false;
 }
 
+static bool isIgnored(const StackFrame &frame) {
+    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
+    static const ccstd::vector<ccstd::string> ignoreModules = {
+        "SDL2",
+        "EGL",
+        "GLESv2",
+        "opengl32",
+        "nvoglv64",
+        "sqlite3",
+        "libuv",
+        "SogouPy"};
+
+    static const ccstd::vector<ccstd::string> ignoreFunctions = {
+        "type_info::name"};
+
+    for (auto &module : ignoreModules) {
+        if (frame.module.find(module) != ccstd::string::npos) {
+            return true;
+        }
+    }
+
+    for (auto &function : ignoreFunctions) {
+        if (frame.function.find(function) != ccstd::string::npos) {
+            return true;
+        }
+    }
+
+    return false;
+    #else
+    return false;
+    #endif
+}
+
 void MemoryHook::dumpMemoryLeak() {
     std::lock_guard<std::recursive_mutex> lock(_mutex);
     #if CC_PLATFORM == CC_PLATFORM_WINDOWS
@@ -210,8 +243,26 @@ void MemoryHook::dumpMemoryLeak() {
         log(stream.str());
     }
 
-    int i = 0;
+    uint32_t i         = 0;
+    size_t   skipSize  = 0;
+    uint32_t skipCount = 0;
+
     for (const auto &iter : _records) {
+        bool skip   = false;
+        auto frames = CallStack::backtraceSymbols(iter.second.callstack);
+        for (auto &frame : frames) {
+            if (isIgnored(frame)) {
+                skip = true;
+                break;
+            }
+        }
+
+        if (skip) {
+            skipSize += iter.second.size;
+            skipCount++;
+            continue;
+        }
+
         std::stringstream stream;
         int               k = 0;
 
@@ -219,7 +270,7 @@ void MemoryHook::dumpMemoryLeak() {
         stream << "<" << ++i << ">:"
                << "leak " << iter.second.size << " bytes at 0x" << std::hex << iter.second.address << std::dec << std::endl;
         stream << "\tcallstack:" << std::endl;
-        auto frames = CallStack::backtraceSymbols(iter.second.callstack);
+
         for (auto &frame : frames) {
             stream << "\t[" << ++k << "]:" << frame.toString() << std::endl;
         }
@@ -229,7 +280,9 @@ void MemoryHook::dumpMemoryLeak() {
 
     std::stringstream endStream;
     endStream << std::endl
-              << "Total Leak: " << _totalSize << " bytes" << std::endl;
+              << "Total leak count: " << _records.size() << " with " << _totalSize << " bytes, "
+              << "Total skip count: " << skipCount << " with " << skipSize << " bytes" << std::endl;
+
     endStream << "---------------------------------------------------------------------------------------------------------" << std::endl;
     endStream << "--------------------------------------memory leak report end---------------------------------------------" << std::endl;
     endStream << "---------------------------------------------------------------------------------------------------------" << std::endl;

@@ -99,10 +99,12 @@ void CommandBufferAgent::initMessageQueue() {
 void CommandBufferAgent::destroyMessageQueue() {
     DeviceAgent::getInstance()->getMessageQueue()->kickAndWait();
     // TODO(PatriceJiang): replace with:  CC_SAFE_DELETE(_messageQueue);
-    _messageQueue->~MessageQueue();
-    CC_FREE_ALIGN(_messageQueue);
-    _messageQueue = nullptr;
-
+    if (_messageQueue) {
+        _messageQueue->~MessageQueue();
+        CC_FREE_ALIGN(_messageQueue);
+        _messageQueue = nullptr;
+    }
+    
     DeviceAgent::getInstance()->_cmdBuffRefs.erase(this);
 }
 

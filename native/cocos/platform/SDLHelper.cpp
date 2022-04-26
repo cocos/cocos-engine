@@ -329,6 +329,9 @@ void SDLHelper::pollEvent(bool *quit) {
     int       cnt = 0;
     while ((cnt = SDL_PollEvent(&sdlEvent)) != 0) {
         dispatchSDLEvent(sdlEvent, quit);
+        if (*quit) {
+            break;
+        }
     }
 }
 
