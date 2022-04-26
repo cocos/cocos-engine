@@ -31,27 +31,8 @@
 #include "math/Geometry.h"
 #include "platform/interfaces/OSInterface.h"
 
-enum class CanvasTextAlign {
-    LEFT,
-    CENTER,
-    RIGHT
-};
-
-enum class CanvasTextBaseline {
-    TOP,
-    MIDDLE,
-    BOTTOM,
-    ALPHABETIC
-};
 
 namespace cc {
-
-//class CanvasGradient {
-//public:
-//    CanvasGradient();
-//    ~CanvasGradient(); // NOLINT(performance-trivially-destructible)
-//    void addColorStop(float offset, const ccstd::string &color);
-//};
 
 class CC_DLL ICanvasGradient {
 public:
@@ -62,6 +43,19 @@ public:
 
 class CC_DLL ICanvasRenderingContext2D : public OSInterface {
 public:
+    enum class TextAlign {
+        LEFT,
+        CENTER,
+        RIGHT
+    };
+
+    enum class TextBaseline {
+        TOP,
+        MIDDLE,
+        BOTTOM,
+        ALPHABETIC
+    };
+
     class Delegate {
     public:
         using Size                                                                                                                              = ccstd::array<float, 2>;
@@ -85,8 +79,8 @@ public:
         virtual void            strokeText(const ccstd::string &text, float /*x*/, float /*y*/, float /*maxWidth*/)                             = 0;
         virtual Size            measureText(const ccstd::string &text)                                                                          = 0;
         virtual void            updateFont(const ccstd::string &fontName, float fontSize, bool bold, bool italic, bool oblique, bool smallCaps) = 0;
-        virtual void            setTextAlign(CanvasTextAlign align)                                                                             = 0;
-        virtual void            setTextBaseline(CanvasTextBaseline baseline)                                                                    = 0;
+        virtual void            setTextAlign(TextAlign align)                                                                                   = 0;
+        virtual void            setTextBaseline(TextBaseline baseline)                                                                          = 0;
         virtual void            setFillStyle(float r, float g, float b, float a)                                                                = 0;
         virtual void            setStrokeStyle(float r, float g, float b, float a)                                                              = 0;
         virtual void            setLineWidth(float lineWidth)                                                                                   = 0;

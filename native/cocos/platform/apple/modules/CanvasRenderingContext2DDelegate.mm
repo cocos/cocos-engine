@@ -72,8 +72,8 @@
     cc::Data        _imageData;
     NSBezierPath *  _path;
 
-    CanvasTextAlign      _textAlign;
-    CanvasTextBaseline   _textBaseLine;
+    cc::ICanvasRenderingContext2D::TextAlign      _textAlign;
+    cc::ICanvasRenderingContext2D::TextBaseline   _textBaseLine;
     ccstd::array<float, 4> _fillStyle;
     ccstd::array<float, 4> _strokeStyle;
     float                _lineWidth;
@@ -83,8 +83,8 @@
 @property (nonatomic, strong) NSFont *             font;
 @property (nonatomic, strong) NSMutableDictionary *tokenAttributesDict;
 @property (nonatomic, strong) NSString *           fontName;
-@property (nonatomic, assign) CanvasTextAlign      textAlign;
-@property (nonatomic, assign) CanvasTextBaseline   textBaseLine;
+@property (nonatomic, assign) cc::ICanvasRenderingContext2D::TextAlign      textAlign;
+@property (nonatomic, assign) cc::ICanvasRenderingContext2D::TextBaseline   textBaseLine;
 @property (nonatomic, assign) float                lineWidth;
 
 @end
@@ -101,8 +101,8 @@
 - (id)init {
     if (self = [super init]) {
         _lineWidth    = 0;
-        _textAlign    = CanvasTextAlign::LEFT;
-        _textBaseLine = CanvasTextBaseline::BOTTOM;
+        _textAlign    = cc::ICanvasRenderingContext2D::TextAlign::LEFT;
+        _textBaseLine = cc::ICanvasRenderingContext2D::TextBaseline::BOTTOM;
         _width = _height = 0;
         _context         = nil;
         _colorSpace      = nil;
@@ -293,9 +293,9 @@
     // Need to adjust 'point' according 'text align' & 'text base line'.
     NSSize textSize = [self measureText:text];
 
-    if (_textAlign == CanvasTextAlign::CENTER) {
+    if (_textAlign == cc::ICanvasRenderingContext2D::TextAlign::CENTER) {
         point.x -= textSize.width / 2.0f;
-    } else if (_textAlign == CanvasTextAlign::RIGHT) {
+    } else if (_textAlign == cc::ICanvasRenderingContext2D::TextAlign::RIGHT) {
         point.x -= textSize.width;
     }
 
@@ -303,23 +303,23 @@
     // The origin on macOS is bottom-left by default,
     // so we need to convert y from top-left origin to bottom-left origin.
     point.y = _height - point.y;
-    if (_textBaseLine == CanvasTextBaseline::TOP) {
+    if (_textBaseLine == cc::ICanvasRenderingContext2D::TextBaseline::TOP) {
         point.y += -textSize.height;
-    } else if (_textBaseLine == CanvasTextBaseline::MIDDLE) {
+    } else if (_textBaseLine == cc::ICanvasRenderingContext2D::TextBaseline::MIDDLE) {
         point.y += -textSize.height / 2.0f;
-    } else if (_textBaseLine == CanvasTextBaseline::BOTTOM) {
+    } else if (_textBaseLine == cc::ICanvasRenderingContext2D::TextBaseline::BOTTOM) {
         // drawAtPoint default
-    } else if (_textBaseLine == CanvasTextBaseline::ALPHABETIC) {
+    } else if (_textBaseLine == cc::ICanvasRenderingContext2D::TextBaseline::ALPHABETIC) {
         point.y += _font.descender;
     }
 #else
-    if (_textBaseLine == CanvasTextBaseline::TOP) {
+    if (_textBaseLine == cc::ICanvasRenderingContext2D::TextBaseline::TOP) {
         // drawAtPoint default
-    } else if (_textBaseLine == CanvasTextBaseline::MIDDLE) {
+    } else if (_textBaseLine == cc::ICanvasRenderingContext2D::TextBaseline::MIDDLE) {
         point.y += -textSize.height / 2.0f;
-    } else if (_textBaseLine == CanvasTextBaseline::BOTTOM) {
+    } else if (_textBaseLine == cc::ICanvasRenderingContext2D::TextBaseline::BOTTOM) {
         point.y += -textSize.height;
-    } else if (_textBaseLine == CanvasTextBaseline::ALPHABETIC) {
+    } else if (_textBaseLine == cc::ICanvasRenderingContext2D::TextBaseline::ALPHABETIC) {
         point.y -= _font.ascender;
     }
 #endif
@@ -605,11 +605,11 @@ void CanvasRenderingContext2DDelegate::updateFont(const ccstd::string &fontName,
     [_impl updateFontWithName:[NSString stringWithUTF8String:fontName.c_str()] fontSize:gfloatFontSize bold:bold];
 }
 
-void CanvasRenderingContext2DDelegate::setTextAlign(CanvasTextAlign align) {
+void CanvasRenderingContext2DDelegate::setTextAlign(TextAlign align) {
     _impl.textAlign = align;
 }
 
-void CanvasRenderingContext2DDelegate::setTextBaseline(CanvasTextBaseline baseline) {
+void CanvasRenderingContext2DDelegate::setTextBaseline(TextBaseline baseline) {
     _impl.textBaseLine = baseline;
 }
 
