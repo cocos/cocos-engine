@@ -74,6 +74,7 @@ public:
     void flushFromJSB(uint32_t type, uint32_t index, void *vb, uint32_t vertexCount);
     void render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff);
     void destroy();
+    bool empty() const;
 
     void addDashedLine(const Vec3 &v0, const Vec3 &v1, gfx::Color color, bool depthTest = true);
     void addLine(const Vec3 &v0, const Vec3 &v1, gfx::Color color, bool depthTest = true);

@@ -288,6 +288,18 @@ void GeometryRenderer::destroy() {
     }
 }
 
+bool GeometryRenderer::empty() const {
+    for (auto i = 0U; i < GEOMETRY_DEPTH_TYPE_COUNT; i++) {
+        if (!_buffers->lines[i].empty() ||
+            !_buffers->dashedLines[i].empty() ||
+            !_buffers->triangles[i].empty()) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 void GeometryRenderer::update() {
     for (auto i = 0U; i < GEOMETRY_DEPTH_TYPE_COUNT; i++) {
         _buffers->lines[i].update();
