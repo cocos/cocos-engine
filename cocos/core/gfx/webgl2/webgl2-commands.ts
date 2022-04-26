@@ -1085,8 +1085,11 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
         gpuTexture.glTarget = gl.TEXTURE_2D_ARRAY;
 
         const maxSize = Math.max(w, h);
-        if (maxSize > device.capabilities.maxTextureSize || l > device.capabilities.maxArrayTextureLayers) {
+        if (maxSize > device.capabilities.maxTextureSize) {
             errorID(9100, maxSize, device.capabilities.maxTextureSize);
+        }
+        if (l > device.capabilities.maxArrayTextureLayers) {
+            errorID(9100, l, device.capabilities.maxArrayTextureLayers);
         }
 
         gpuTexture.glTexture = gl.createTexture();
@@ -1115,9 +1118,9 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
     case TextureType.TEX3D: {
         gpuTexture.glTarget = gl.TEXTURE_3D;
 
-        const maxSize = Math.max(w, h);
-        if (maxSize > device.capabilities.maxTextureSize) {
-            errorID(9100, maxSize, device.capabilities.maxTextureSize);
+        const maxSize = Math.max(Math.max(w, h), d);
+        if (maxSize > device.capabilities.max3DTextureSize) {
+            errorID(9100, maxSize, device.capabilities.max3DTextureSize);
         }
 
         gpuTexture.glTexture = gl.createTexture();
@@ -1268,8 +1271,11 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
         gpuTexture.glTarget = gl.TEXTURE_2D_ARRAY;
 
         const maxSize = Math.max(w, h);
-        if (maxSize > device.capabilities.maxCubeMapTextureSize) {
+        if (maxSize > device.capabilities.maxTextureSize) {
             errorID(9100, maxSize, device.capabilities.maxTextureSize);
+        }
+        if (l > device.capabilities.maxArrayTextureLayers) {
+            errorID(9100, l, device.capabilities.maxArrayTextureLayers);
         }
 
         gpuTexture.glTexture = gl.createTexture();
@@ -1298,9 +1304,9 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
     case TextureType.TEX3D: {
         gpuTexture.glTarget = gl.TEXTURE_3D;
 
-        const maxSize = Math.max(w, h);
-        if (maxSize > device.capabilities.maxCubeMapTextureSize) {
-            errorID(9100, maxSize, device.capabilities.maxTextureSize);
+        const maxSize = Math.max(Math.max(w, h), d);
+        if (maxSize > device.capabilities.max3DTextureSize) {
+            errorID(9100, maxSize, device.capabilities.max3DTextureSize);
         }
 
         gpuTexture.glTexture = gl.createTexture();

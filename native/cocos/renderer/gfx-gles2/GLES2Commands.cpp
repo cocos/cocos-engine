@@ -878,6 +878,8 @@ void cmdFuncGLES2ResizeTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture)
             }
             case TextureType::TEX2D_ARRAY: {
                 gpuTexture->glTarget = GL_TEXTURE_2D_ARRAY;
+                CC_ASSERT((std::max(std::max(gpuTexture->width, gpuTexture->height), gpuTexture->arrayLayer) <= device->getCapabilities().max3DTextureSize)
+                    && "cmdFuncGLES2CreateTexture: texture2DArray's dimension is too large");
                 if (gpuTexture->size > 0) {
                     GLuint &glTexture = device->stateCache()->glTextures[device->stateCache()->texUint];
                     if (gpuTexture->glTexture != glTexture) {
