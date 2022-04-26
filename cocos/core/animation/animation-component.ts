@@ -306,7 +306,10 @@ export class Animation extends Eventify(Component) {
     }
 
     /**
+     * @zh
      * 添加一个动画剪辑到 `this.clips`中并以此剪辑创建动画状态。
+     * @en
+     * Adds an animation clip into this component and creates a animation state for this clip.
      * @param clip The animation clip
      * @param name The animation state name, if absent, the default clip's name will be used
      * @returns The created animation state

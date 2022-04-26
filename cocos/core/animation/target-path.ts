@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { ccclass, serializable } from 'cc.decorator';
 import { Node } from '../scene-graph/node';
 import { warn, warnID } from '../platform/debug';
@@ -33,7 +31,12 @@ export type PropertyPath = string | number;
 
 export interface ICustomTargetPath {
     /**
+     * @en
+     * Gets next target from current target.
      * If errors are encountered, `null` should be returned.
+     * @zh
+     * 从当前目标中获取下一个目标。
+     * 若错误发生，应返回 `null`。
      * @param target
      */
     get(target: any): any;
