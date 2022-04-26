@@ -155,7 +155,6 @@ enum class Feature : uint32_t {
     INSTANCED_ARRAYS,
     MULTIPLE_RENDER_TARGETS,
     BLEND_MINMAX,
-    MEMORY_ALIASING,
     COMPUTE_SHADER,
     // This flag indicates whether the device can benefit from subpass-style usages.
     // Specifically, this only differs on the GLES backends: the Framebuffer Fetch
@@ -803,6 +802,8 @@ struct DeviceCaps {
     uint32_t maxUniformBlockSize{0};
     uint32_t maxTextureSize{0};
     uint32_t maxCubeMapTextureSize{0};
+    uint32_t maxArrayTextureLayers{0};
+    uint32_t max3DTextureSize{0};
     uint32_t uboOffsetAlignment{1};
 
     uint32_t maxComputeSharedMemorySize{0};

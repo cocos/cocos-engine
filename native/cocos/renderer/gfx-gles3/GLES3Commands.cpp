@@ -873,6 +873,38 @@ void cmdFuncGLES3CreateTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture)
                 }
                 break;
             }
+            case TextureType::TEX2D_ARRAY: {
+                gpuTexture->glTarget = GL_TEXTURE_2D_ARRAY;
+                GL_CHECK(glGenTextures(1, &gpuTexture->glTexture));
+                if (gpuTexture->size > 0) {
+                    GLuint &glTexture = device->stateCache()->glTextures[device->stateCache()->texUint];
+                    if (gpuTexture->glTexture != glTexture) {
+                        GL_CHECK(glBindTexture(GL_TEXTURE_2D_ARRAY, gpuTexture->glTexture));
+                        glTexture = gpuTexture->glTexture;
+                    }
+                    uint32_t w = gpuTexture->width;
+                    uint32_t h = gpuTexture->height;
+                    uint32_t d = gpuTexture->arrayLayer;
+                    GL_CHECK(glTexStorage3D(GL_TEXTURE_2D_ARRAY, gpuTexture->mipLevel, gpuTexture->glInternalFmt, w, h, d));
+                }
+                break;
+            }
+            case TextureType::TEX3D: {
+                gpuTexture->glTarget = GL_TEXTURE_3D;
+                GL_CHECK(glGenTextures(1, &gpuTexture->glTexture));
+                if (gpuTexture->size > 0) {
+                    GLuint &glTexture = device->stateCache()->glTextures[device->stateCache()->texUint];
+                    if (gpuTexture->glTexture != glTexture) {
+                        GL_CHECK(glBindTexture(GL_TEXTURE_3D, gpuTexture->glTexture));
+                        glTexture = gpuTexture->glTexture;
+                    }
+                    uint32_t w = gpuTexture->width;
+                    uint32_t h = gpuTexture->height;
+                    uint32_t d = gpuTexture->depth;
+                    GL_CHECK(glTexStorage3D(GL_TEXTURE_3D, gpuTexture->mipLevel, gpuTexture->glInternalFmt, w, h, d));
+                }
+                break;
+            }
             case TextureType::CUBE: {
                 gpuTexture->glTarget = GL_TEXTURE_CUBE_MAP;
                 GL_CHECK(glGenTextures(1, &gpuTexture->glTexture));
@@ -2866,7 +2898,7 @@ void cmdFuncGLES3CopyBuffersToTexture(GLES3Device *device, const uint8_t *const 
                                                            region.texOffset.x,
                                                            region.texOffset.y,
                                                            z,
-                                                           w, h, d,
+                                                           w, h, 1,
                                                            gpuTexture->glFormat,
                                                            memSize,
                                                            (GLvoid *)buff));
@@ -2876,7 +2908,7 @@ void cmdFuncGLES3CopyBuffersToTexture(GLES3Device *device, const uint8_t *const 
                                                  region.texOffset.x,
                                                  region.texOffset.y,
                                                  z,
-                                                 w, h, d,
+                                                 w, h, 1,
                                                  gpuTexture->glFormat,
                                                  gpuTexture->glType,
                                                  (GLvoid *)buff));
@@ -2896,7 +2928,7 @@ void cmdFuncGLES3CopyBuffersToTexture(GLES3Device *device, const uint8_t *const 
                 d                               = region.texExtent.depth;
                 const uint8_t *buff             = buffers[n++];
                 if (isCompressed) {
-                    auto memSize = static_cast<GLsizei>(formatSize(gpuTexture->format, w, h, 1));
+                    auto memSize = static_cast<GLsizei>(formatSize(gpuTexture->format, w, h, d));
                     GL_CHECK(glCompressedTexSubImage3D(GL_TEXTURE_3D,
                                                        region.texSubres.mipLevel,
                                                        region.texOffset.x,
