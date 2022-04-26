@@ -1,10 +1,12 @@
 /**
  * Tag to visit editor extras of an object. Never concern about its value please.
+ * @internal
  */
 export const editorExtrasTag = '__editorExtras__';
 
 /**
  * Engine classes with this kind of signatures are integrated with editor extendability.
+ * @internal
  */
 export interface EditorExtendableObject {
     /**

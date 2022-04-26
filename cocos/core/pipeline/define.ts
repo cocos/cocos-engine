@@ -288,7 +288,7 @@ globalDescriptorSetLayout.bindings[UBOShadow.BINDING] = UBOShadow.DESCRIPTOR;
 
 /**
  * @en The sampler for Main light shadow map
- * @zn 主光源阴影纹理采样器
+ * @zh 主光源阴影纹理采样器
  */
 const UNIFORM_SHADOWMAP_NAME = 'cc_shadowMap';
 export const UNIFORM_SHADOWMAP_BINDING = PipelineGlobalBindings.SAMPLER_SHADOWMAP;
@@ -313,7 +313,7 @@ globalDescriptorSetLayout.bindings[UNIFORM_DIFFUSEMAP_BINDING] = UNIFORM_DIFFUSE
 
 /**
  * @en The sampler for spot light shadow map
- * @zn 聚光灯阴影纹理采样器
+ * @zh 聚光灯阴影纹理采样器
  */
 const UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_NAME = 'cc_spotLightingMap';
 export const UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING = PipelineGlobalBindings.SAMPLER_SPOT_LIGHTING_MAP;

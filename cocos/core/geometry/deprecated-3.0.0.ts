@@ -151,8 +151,12 @@ function deprecatedClassMessage (oldClassName: string, newClassName) {
 }
 
 /**
+ * @en
  * Alias of [[Line]]
- * @deprecated Since v3.0
+ * @zh
+ * [[Line]] 别名类
+ *
+ * @deprecated Since v3.0, please use Line instead
  */
 export class line extends Line {
     constructor () {
@@ -162,8 +166,13 @@ export class line extends Line {
 }
 
 /**
+ * @en
  * Alias of [[Plane]]
- * @deprecated Since v3.0
+ *
+ * @zh
+ * [[Plane]] 别名类
+ *
+ * @deprecated Since v3.0, please use Plane instead
  */
 export class plane extends Plane {
     constructor () {
@@ -173,8 +182,11 @@ export class plane extends Plane {
 }
 
 /**
+ * @en
  * Alias of [[Ray]]
- * @deprecated Since v3.0
+ * @zh
+ * [[Ray]] 别名类
+ * @deprecated Since v3.0, please use Ray instead
  */
 export class ray extends Ray {
     constructor () {
@@ -184,8 +196,12 @@ export class ray extends Ray {
 }
 
 /**
+ * @en
  * Alias of [[Triangle]]
- * @deprecated Since v3.0
+ *
+ * @zh
+ * [[Triangle]] 别名类
+ * @deprecated Since v3.0, please use Triangle instead
  */
 export class triangle extends Triangle {
     constructor () {
@@ -195,8 +211,12 @@ export class triangle extends Triangle {
 }
 
 /**
+ * @en
  * Alias of [[Sphere]]
- * @deprecated Since v3.0
+ *
+ * @zh
+ * [[Sphere]] 别名类
+ * @deprecated Since v3.0, please use Sphere instead
  */
 export class sphere extends Sphere {
     constructor () {
@@ -206,8 +226,12 @@ export class sphere extends Sphere {
 }
 
 /**
+ * @en
  * Alias of [[AABB]]
- * @deprecated Since v3.0
+ *
+ * @zh
+ * [[AABB]] 别名类
+ * @deprecated Since v3.0, please use AABB instead
  */
 export class aabb extends AABB {
     constructor () {
@@ -217,8 +241,12 @@ export class aabb extends AABB {
 }
 
 /**
+ * @en
  * Alias of [[OBB]]
- * @deprecated Since v3.0
+ *
+ * @zh
+ * [[OBB]] 别名类
+ * @deprecated Since v3.0, please use OBB instead
  */
 export class obb extends OBB {
     constructor () {
@@ -228,8 +256,12 @@ export class obb extends OBB {
 }
 
 /**
+ * @en
  * Alias of [[Capsule]]
- * @deprecated Since v3.0
+ *
+ * @zh
+ * [[Capsule]] 别名类
+ * @deprecated Since v3.0, please use Capsule instead
  */
 export class capsule extends Capsule {
     constructor () {
@@ -239,8 +271,12 @@ export class capsule extends Capsule {
 }
 
 /**
+ * @en
  * Alias of [[Frustum]]
- * @deprecated Since v3.0
+ *
+ * @zh
+ * [[Frustum]] 别名类
+ * @deprecated Since v3.0, please use Frustum instead
  */
 export class frustum extends Frustum {
     constructor () {

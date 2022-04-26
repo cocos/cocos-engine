@@ -134,37 +134,56 @@ export interface IGameConfig {
     scenes?: ISceneInfo[];
 
     /**
+     * @internal
      * For internal use.
      */
     jsList?: string[];
 
     /**
+     * @en
      * Render pipeline resources
+     * @zh
+     * Render pipeline 资源
      */
     renderPipeline?: string;
 
     /**
+     * @en
      * Asset Manager initialization options
+     * @zh
+     * 资源管理器初始化设置
      */
     assetOptions?: IAssetManagerOptions;
 
     /**
+     * @en
      * GPU instancing options
+     * @zh
+     * GPU instancing 选项
      */
     customJointTextureLayouts?: ICustomJointTextureLayout[];
 
     /**
+     * @en
      * Physics system config
+     * @zh
+     * 物理系统设置
      */
     physics?: IPhysicsConfig;
 
     /**
+     * @en
      * User layers config
+     * @zh
+     * 用户层级设置
      */
     layers?: LayerItem[];
 
     /**
+     * @en
      * The adapter stores various platform-related objects.
+     * @zh
+     * 平台相关选项
      */
     adapter?: {
         canvas: HTMLCanvasElement,
@@ -174,13 +193,19 @@ export interface IGameConfig {
     };
 
     /**
+     * @en
      * The orientation from the builder configuration.
      * Available value can be 'auto', 'landscape', 'portrait'.
+     * @zh
+     * 屏幕旋转方向，可选 “自动”，“横屏”，“竖屏”
      */
     orientation?: ConfigOrientation;
     /**
+     * @en
      * Determine whether the game frame exact fits the screen.
      * Now it only works on Web platform.
+     * @zh
+     * 是否让游戏外框对齐到屏幕上，目前只在 web 平台生效
      */
     exactFitScreen: boolean,
 }

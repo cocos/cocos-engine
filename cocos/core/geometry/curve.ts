@@ -120,7 +120,7 @@ export class AnimationCurve {
 
     /**
      * For internal usage only.
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @internal
      */
     get _internalCurve () {
         return this._curve;
@@ -186,8 +186,9 @@ export class AnimationCurve {
     private cachedKey: OptimizedKey;
 
     /**
-     * 构造函数。
-     * @param keyFrames 关键帧。
+     * @en Construct a curve with key frames
+     * @zh 通过关键帧构造一条曲线。
+     * @param keyFrames @zh 关键帧 @en Key frames
      */
     constructor (keyFrames: Keyframe[] | null | RealCurve = null) {
         if (keyFrames instanceof RealCurve) {

@@ -104,7 +104,7 @@ export function getUrlWithUuid (uuid: string, options?: { [k: string]: any, isNa
  *
  * @method isScene
  * @param {*} asset - asset
- * @returns {boolean} - whether or not type is cc.SceneAsset
+ * @returns {boolean} - whether or not type is SceneAsset
  *
  */
 export function isScene (asset) {

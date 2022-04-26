@@ -225,6 +225,7 @@ export class OBB {
     }
 
     /**
+     * @en
      * Transform this shape
      * @zh
      * 将 out 根据这个 obb 的数据进行变换。
