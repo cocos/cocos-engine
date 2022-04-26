@@ -72,6 +72,9 @@ export class RatioSampler {
 legacyCC.RatioSampler = RatioSampler;
 
 /**
+ * @en
+ * Animation curve.
+ * @zh
  * 动画曲线。
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
@@ -236,7 +239,10 @@ export class EventInfo {
 }
 
 /**
+ * @en
  * 采样动画曲线。
+ * @zh
+ * Samples an animation curve.
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  * @param curve 动画曲线。
  * @param sampler 采样器。
@@ -263,7 +269,10 @@ export function sampleAnimationCurve (curve: AnimCurve, sampler: RatioSampler, r
 legacyCC.sampleAnimationCurve = sampleAnimationCurve;
 
 /**
+ * @en
  * Compute a new ratio by curve type.
+ * @zh
+ * 根据曲线类型计算新的比例。
  * @param ratio - The origin ratio
  * @param type - If it's Array, then ratio will be computed with bezierByTime.
  * If it's string, then ratio will be computed with cc.easing function
