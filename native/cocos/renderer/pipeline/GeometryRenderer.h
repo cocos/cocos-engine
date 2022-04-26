@@ -75,6 +75,7 @@ public:
     void activate(gfx::Device *device, const GeometryRendererInfo &info = GeometryRendererInfo());
     void render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, PipelineSceneData *sceneData);
     void destroy();
+    bool empty() const;
 
     void addDashedLine(const Vec3 &v0, const Vec3 &v1, gfx::Color color, bool depthTest = true);
     void addLine(const Vec3 &v0, const Vec3 &v1, gfx::Color color, bool depthTest = true);
