@@ -140,9 +140,7 @@ export abstract class SceneTask {
 }
 
 export abstract class SceneTransversal {
-    public abstract preRenderPass(visitor: SceneVisitor): SceneTask;
     public abstract transverse(visitor: SceneVisitor): SceneTask;
-    public abstract postRenderPass(visitor: SceneVisitor): SceneTask;
 }
 
 export abstract class Pipeline extends PipelineRuntime {
