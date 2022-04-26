@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
- /**
+/**
  * @packageDocumentation
  * @module geometry-renderer
  */
@@ -106,12 +106,12 @@ class GeometryVertexBuffer {
         this._vertexCount = 0;
         this._stride = stride;
         this._vertices = new Float32Array(maxVertices * stride / Float32Array.BYTES_PER_ELEMENT);
-        this._buffer = device.createBuffer(new BufferInfo(BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST, 
+        this._buffer = device.createBuffer(new BufferInfo(BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.DEVICE, maxVertices * stride, stride));
         this._inputAssembler = device.createInputAssembler(new InputAssemblerInfo(attributes, [this._buffer], null));
     }
 
-    public getCount() { return Math.min(this._vertexCount, this._maxVertices); }
+    public getCount () { return Math.min(this._vertexCount, this._maxVertices); }
     public empty (): boolean { return this._vertexCount === 0; }
     public reset () { this._vertexCount = 0; }
 
@@ -922,7 +922,7 @@ export class GeometryRenderer {
             this.addLine(points[i], points[i + 1], color, depthTest);
         }
 
-        if (knotSize > 0.0 && index == 0xffffffff) {
+        if (knotSize > 0.0 && index === 0xffffffff) {
             const crossColor = new Color(255 - color.r, 255 - color.g, 255 - color.b, color.a);
             const numKnots = spline.getKnotCount();
             const knots = spline.knots;
