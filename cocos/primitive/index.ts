@@ -23,13 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @en A basic module for creating vertex data for 3D objects.
- * @zh 一个创建 3D 物体顶点数据的基础模块。
- * @packageDocumentation
- * @module 3d/primitive
- */
-
 export * from './utils';
 export * from './define';
 export { default as box } from './box';
