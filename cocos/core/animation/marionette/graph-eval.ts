@@ -167,6 +167,12 @@ export class AnimationGraphEval {
     private _hasAutoTrigger = false;
 }
 
+/**
+ * @en
+ * Runtime status of a transition.
+ * @zh
+ * 过渡的运行状态。
+ */
 export interface TransitionStatus {
     /**
      * @en
@@ -185,6 +191,12 @@ export interface TransitionStatus {
     time: number;
 }
 
+/**
+ * @en
+ * Runtime clip status of a motion state.
+ * @zh
+ * 动作状态中包含的剪辑的运行状态。
+ */
 export interface ClipStatus {
     /**
      * @en
@@ -203,6 +215,12 @@ export interface ClipStatus {
     weight: number;
 }
 
+/**
+ * @en
+ * Runtime status of a motion state.
+ * @zh
+ * 动作状态的运行状态。
+ */
 export interface MotionStateStatus {
     /**
      * For testing.
