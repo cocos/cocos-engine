@@ -1,3 +1,9 @@
+/**
+ * @en
+ * Represents variable's value.
+ * @zh
+ * 表示变量的值。
+ */
 export type Value = number | string | boolean;
 
 /**
