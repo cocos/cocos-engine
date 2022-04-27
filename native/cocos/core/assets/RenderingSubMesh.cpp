@@ -64,7 +64,9 @@ RenderingSubMesh::RenderingSubMesh(const gfx::BufferList &   vertexBuffers,
     _iaInfo.indirectBuffer = indirectBuffer;
 }
 
-RenderingSubMesh::~RenderingSubMesh() = default;
+RenderingSubMesh::~RenderingSubMesh() {
+    destroy();
+}
 
 const IGeometricInfo &RenderingSubMesh::getGeometricInfo() {
     if (_geometricInfo.has_value()) {

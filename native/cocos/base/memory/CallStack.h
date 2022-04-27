@@ -38,7 +38,7 @@
 
 namespace cc {
 
-    #define MAX_STACK_FRAMES  32
+    #define MAX_STACK_FRAMES  64
     #define MAX_SYMBOL_LENGTH 255
 
 /**

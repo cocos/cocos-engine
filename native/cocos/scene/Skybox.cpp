@@ -24,7 +24,6 @@
  ****************************************************************************/
 
 #include "scene/Skybox.h"
-#include "3d/assets/Mesh.h"
 #include "3d/misc/CreateMesh.h"
 #include "cocos/bindings/event/CustomEventTypes.h"
 #include "cocos/bindings/event/EventDispatcher.h"
@@ -43,7 +42,6 @@
 #include "scene/Model.h"
 
 namespace {
-cc::Mesh *    skyboxMesh{nullptr}; // TODO(cjh): How to release ?
 cc::Material *skyboxMaterial{nullptr};
 } // namespace
 namespace cc {
@@ -275,17 +273,18 @@ void Skybox::activate() {
     }
 
     if (_enabled) {
-        if (!skyboxMesh) {
+        if (!_mesh) {
             IBoxOptions options;
             options.width  = 2;
             options.height = 2;
             options.length = 2;
-            skyboxMesh     = MeshUtils::createMesh(
+
+            _mesh = MeshUtils::createMesh(
                 createGeometry(
                     PrimitiveType::BOX,
                     PrimitiveOptions{options}));
         }
-        _model->initSubModel(0, skyboxMesh->getRenderingSubMeshes()[0], skyboxMaterial);
+        _model->initSubModel(0, _mesh->getRenderingSubMeshes()[0], skyboxMaterial);
     }
 
     if (!getEnvmap()) {

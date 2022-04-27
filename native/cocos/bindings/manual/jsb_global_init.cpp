@@ -69,11 +69,12 @@ static ccstd::string removeFileExt(const ccstd::string &filePath) {
 static int selectPort(int port) {
     struct sockaddr_in addr;
     static uv_tcp_t    server;
-    uv_loop_t *        loop      = uv_loop_new();
-    int                tryTimes  = 200;
-    int                startPort = port;
+    uv_loop_t          loop;
+    uv_loop_init(&loop);
+    int tryTimes  = 200;
+    int startPort = port;
     while (tryTimes-- > 0) {
-        uv_tcp_init(loop, &server);
+        uv_tcp_init(&loop, &server);
         uv_ip4_addr("0.0.0.0", startPort, &addr);
         uv_tcp_bind(&server, reinterpret_cast<const struct sockaddr *>(&addr), 0);
         int r = uv_listen(reinterpret_cast<uv_stream_t *>(&server), 5, nullptr);
@@ -85,7 +86,7 @@ static int selectPort(int port) {
             break;
         }
     }
-    uv_loop_close(loop);
+    uv_loop_close(&loop);
     return startPort;
 }
 

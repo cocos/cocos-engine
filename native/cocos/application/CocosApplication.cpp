@@ -121,7 +121,7 @@ void CocosApplication::onResume() {
 }
 
 void CocosApplication::onClose() {
-    // TODO(cc): Handling close events
+    close();
 }
 
 void CocosApplication::setDebugIpAndPort(const ccstd::string &serverAddr, uint32_t port, bool isWaitForConnect) {

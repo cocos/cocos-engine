@@ -25,12 +25,15 @@
 
 #pragma once
 
+#include "3d/assets/Mesh.h"
 #include "base/Macros.h"
 #include "base/Ptr.h"
 #include "base/RefCounted.h"
 #include "core/Root.h"
 #include "core/assets/TextureCube.h"
+
 namespace cc {
+
 namespace pipeline {
 class GlobalDSManager;
 }
@@ -274,6 +277,7 @@ private:
     IntrusivePtr<TextureCube>  _diffuseMapHDR;
     pipeline::GlobalDSManager *_globalDSManager{nullptr};
     IntrusivePtr<Model>        _model;
+    IntrusivePtr<Mesh>         _mesh;
     IntrusivePtr<TextureCube>  _default;
     bool                       _enabled{false};
     bool                       _useIBL{false};
