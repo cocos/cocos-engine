@@ -530,7 +530,7 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
         _pipeline->getGeometryRenderer()->render(table.getRenderPass(), cmdBuff);
     };
 
-    if (!_isTransparentQueueEmpty) {
+    if (!_isTransparentQueueEmpty || !_pipeline->getGeometryRenderer()->empty()) {
         pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint>(DeferredInsertPoint::DIP_TRANSPARENT),
                                                       DeferredPipeline::fgStrHandleTransparentPass, transparentSetup, transparentExec);
     }
