@@ -145,13 +145,25 @@ export class Animation extends Eventify(Component) {
     @tooltip('i18n:animation.play_on_load')
     public playOnLoad = false;
 
+    /**
+     * @internal
+     */
     protected _crossFade = new CrossFade();
 
+    /**
+     * @internal
+     */
     protected _nameToState: Record<string, AnimationState> = createMap(true);
 
+    /**
+     * @internal
+     */
     @type([AnimationClip])
     protected _clips: (AnimationClip | null)[] = [];
 
+    /**
+     * @internal
+     */
     @serializable
     protected _defaultClip: AnimationClip | null = null;
 
@@ -426,10 +438,16 @@ export class Animation extends Eventify(Component) {
         }
     }
 
+    /**
+     * @internal
+     */
     protected _createState (clip: AnimationClip, name?: string) {
         return new AnimationState(clip, name);
     }
 
+    /**
+     * @internal
+     */
     protected _doCreateState (clip: AnimationClip, name: string) {
         const state = this._createState(clip, name);
         state._setEventTarget(this);
@@ -442,7 +460,6 @@ export class Animation extends Eventify(Component) {
     }
 
     /**
-     *
      * @internal This method only friends to skeletal animation component.
      */
     protected doPlayOrCrossFade (state: AnimationState, duration: number) {

@@ -532,7 +532,6 @@ export class AnimationClip extends Asset {
     }
 
     /**
-     * @protected
      * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
      */
     get eventGroups (): readonly IAnimationEventGroup[] {
