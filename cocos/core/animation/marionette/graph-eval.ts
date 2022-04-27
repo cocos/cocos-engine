@@ -169,24 +169,36 @@ export class AnimationGraphEval {
 
 export interface TransitionStatus {
     /**
+     * @en
      * The duration of the transition.
+     * @zh
+     * 过渡的周期。
      */
     duration: number;
 
     /**
+     * @en
      * The progress of the transition.
+     * @zh
+     * 过渡的进度。
      */
     time: number;
 }
 
 export interface ClipStatus {
     /**
+     * @en
      * The clip object.
+     * @zh
+     * 剪辑对象。
      */
     clip: AnimationClip;
 
     /**
+     * @en
      * The clip's weight.
+     * @zh
+     * 剪辑的权重。
      */
     weight: number;
 }
@@ -200,7 +212,10 @@ export interface MotionStateStatus {
     __DEBUG_ID__?: string;
 
     /**
+     * @en
      * The normalized time of the state.
+     * @zh
+     * 状态的规范化进度。
      */
     progress: number;
 }
