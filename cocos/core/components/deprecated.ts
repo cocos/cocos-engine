@@ -30,6 +30,7 @@ import { Camera } from './camera-component';
 import { replaceProperty } from '../utils/x-deprecated';
 import { legacyCC } from '../global-exports';
 import { js } from '../utils/js';
+import { Renderer } from './renderable-component';
 
 replaceProperty(Camera, 'Camera', [
     {
@@ -60,3 +61,11 @@ replaceProperty(Camera.prototype, 'Camera.prototype', [
 export { Camera as CameraComponent };
 legacyCC.CameraComponent = Camera;
 js.setClassAlias(Camera, 'cc.CameraComponent');
+
+/**
+ * Alias of [[Renderer]]
+ * @deprecated Since v3.6
+ */
+export { Renderer as RenderableComponent };
+legacyCC.RenderableComponent = Renderer;
+js.setClassAlias(Renderer, 'cc.RenderableComponent');

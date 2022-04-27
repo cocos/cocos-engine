@@ -41,11 +41,10 @@ import { IBatcher } from '../renderer/i-batcher';
 import { Node } from '../../core/scene-graph';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { UITransform } from './ui-transform';
-import { RenderableComponent } from '../../core/components/renderable-component';
 import { Stage } from '../renderer/stencil-manager';
-import { warnID } from '../../core/platform/debug';
 import { legacyCC } from '../../core/global-exports';
 import { NodeEventType } from '../../core/scene-graph/node-event';
+import { BaseRenderer } from '../../core';
 
 // hack
 ccenum(BlendFactor);
@@ -111,11 +110,11 @@ export enum InstanceMaterialType {
  * @zh 所有支持渲染的 2D 组件的基类。
  * 这个组件会设置 [[Node]] 上的 [[NodeUIProperties.uiComp]]。
  */
-@ccclass('cc.Renderable2D')
+@ccclass('cc.UIRenderer')
 @requireComponent(UITransform)
 @disallowMultiple
 @executeInEditMode
-export class Renderable2D extends RenderableComponent {
+export class UIRenderer extends BaseRenderer {
     /**
      * @en The blend factor enums
      * @zh 混合模式枚举类型
@@ -453,7 +452,7 @@ export class Renderable2D extends RenderableComponent {
 
         for (let i = 0; i < this.node.children.length; ++i) {
             const child = this.node.children[i];
-            const renderComp = child.getComponent(Renderable2D);
+            const renderComp = child.getComponent(UIRenderer);
             if (renderComp) {
                 renderComp.markForUpdateRenderData();
             }
@@ -509,4 +508,4 @@ export class Renderable2D extends RenderableComponent {
     }
 }
 
-legacyCC.internal.Renderable2D = Renderable2D;
+legacyCC.internal.UIRenderer = UIRenderer;

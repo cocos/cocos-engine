@@ -31,7 +31,7 @@
 
 import { ccclass, executeInEditMode, serializable, playOnFocus, menu, help, editable, type } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { Renderable2D } from '../2d/framework';
+import { UIRenderer } from '../2d/framework';
 import { Texture2D } from '../core/assets/texture-2d';
 import { IBatcher } from '../2d/renderer/i-batcher';
 import { Vec2 } from '../core';
@@ -74,7 +74,7 @@ class Point {
 @playOnFocus
 @menu('Effects/MotionStreak')
 @help('i18n:COMPONENT.help_url.motionStreak')
-export class MotionStreak extends Renderable2D {
+export class MotionStreak extends UIRenderer {
     public static Point = Point;
 
     /**
