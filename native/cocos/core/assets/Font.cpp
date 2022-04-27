@@ -26,6 +26,7 @@
 #include "Font.h"
 #include <algorithm>
 #include <boost/functional/hash.hpp>
+#include <cctype>
 #include "base/Data.h"
 #include "base/Log.h"
 #include "base/Macros.h"
@@ -34,7 +35,6 @@
 #include "math/Math.h"
 #include "platform/FileUtils.h"
 #include "profiler/Profiler.h"
-#include <cctype>
 
 namespace cc {
 
