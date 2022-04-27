@@ -24,10 +24,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
+
 
 import { ccclass } from 'cc.decorator';
 import { Asset } from '../../core/assets';

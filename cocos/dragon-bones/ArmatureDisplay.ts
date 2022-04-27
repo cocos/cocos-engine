@@ -1,7 +1,4 @@
-/**
- * @packageDocumentation
- * @module dragonBones
- */
+
 
 import { EDITOR } from 'internal:constants';
 import { Armature, Bone, EventObject } from '@cocos/dragonbones-js';

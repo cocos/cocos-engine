@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module particle
- */
+
 
 import { ccclass, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
 import { pseudoRandom, Quat, Vec3 } from '../../core/math';

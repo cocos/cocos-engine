@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module core
- */
-
 import { MeshRenderer } from '../framework/mesh-renderer';
 import { Mesh } from '../assets/mesh';
 import { Mat4 } from '../../core/math/mat4';

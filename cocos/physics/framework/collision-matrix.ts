@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module physics
- */
+
 
 import { PhysicsGroup } from './physics-enum';
 

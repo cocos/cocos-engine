@@ -24,10 +24,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
+
 
 import { ccclass, serializable, editable } from '../core/data/decorators';
 import { Asset } from '../core/assets/asset';

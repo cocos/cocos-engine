@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
+
 
 import { ccclass, override } from 'cc.decorator';
 import { legacyCC } from '../global-exports';

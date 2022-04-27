@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module geometry
- */
+
 
 import { EPSILON, Mat3, Vec3, Mat4 } from '../math';
 import { AABB } from './aabb';

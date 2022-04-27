@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module gfx
- */
+
 
 import { DescriptorSetLayout } from './descriptor-set-layout';
 import { GFXObject, ObjectType, PipelineLayoutInfo } from './define';

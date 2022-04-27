@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module gfx
- */
+
 
 import { CommandBuffer } from './command-buffer';
 import { GFXObject, ObjectType, QueueType, QueueInfo } from './define';

@@ -24,10 +24,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module tiledmap
- */
+
 
 /**
  * @en TiledTile can control the specified map tile.

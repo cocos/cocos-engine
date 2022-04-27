@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module scene-graph
- */
-
 import { BitMask, Enum } from '../value-types';
 import { legacyCC } from '../global-exports';
 import { log2 } from '../math/bits';

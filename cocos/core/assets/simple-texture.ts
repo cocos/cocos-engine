@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module asset
- */
+
 
 import { ccclass } from 'cc.decorator';
 import { DEV } from 'internal:constants';

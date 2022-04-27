@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module particle
- */
+
 
 import { ccclass, help, executeInEditMode, menu, tooltip, type, serializable } from 'cc.decorator';
 import { builtinResMgr } from '../core/builtin';

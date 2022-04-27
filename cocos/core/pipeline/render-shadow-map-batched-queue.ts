@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module pipeline
- */
+
 
 import { SubModel } from '../renderer/scene/submodel';
 import { SetIndex } from './define';

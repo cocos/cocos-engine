@@ -1,7 +1,4 @@
-/**
- * @packageDocumentation
- * @module dragonBones
- */
+
 
 import { Armature, Matrix } from '@cocos/dragonbones-js';
 import { Node, Mat4, Vec3 } from '../core';

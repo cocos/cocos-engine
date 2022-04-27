@@ -1,9 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 
-/**
- * @packageDocumentation
- * @module dragonBones
- */
+
 
 import { EDITOR } from 'internal:constants';
 import { BinaryDataParser, DragonBonesData } from '@cocos/dragonbones-js';

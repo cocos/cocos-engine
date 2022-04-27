@@ -1,7 +1,4 @@
-/**
- * @packageDocumentation
- * @module spine
- */
+
 
 import { ccenum } from '../core';
 import spine from './lib/spine-core';

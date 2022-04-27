@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module tween
- */
-
 import { EDITOR } from 'internal:constants';
 import { System, Director, director } from '../core';
 import { ActionManager } from './actions/action-manager';

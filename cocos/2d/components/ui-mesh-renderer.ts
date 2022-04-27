@@ -24,10 +24,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
+
 
 import { ccclass, help, executionOrder, menu, executeInEditMode } from 'cc.decorator';
 import { RenderableComponent } from '../../core/components/renderable-component';

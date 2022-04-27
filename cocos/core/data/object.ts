@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core/data
- */
+
 
 import { SUPPORT_JIT, EDITOR, TEST } from 'internal:constants';
 import * as js from '../utils/js';

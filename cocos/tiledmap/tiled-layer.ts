@@ -25,10 +25,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module tiledmap
- */
+
 
 import { ccclass } from 'cc.decorator';
 

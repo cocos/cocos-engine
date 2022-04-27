@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module pipeline.forward
- */
+
 
 import { ccclass } from 'cc.decorator';
 import { Color, Rect, Framebuffer, DescriptorSet } from '../../gfx';

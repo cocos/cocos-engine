@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module event
- */
+
 
 import { CallbacksInvoker } from './callbacks-invoker';
 import { createMap } from '../utils/js';

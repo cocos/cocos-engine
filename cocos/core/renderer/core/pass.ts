@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module material
- */
+
 
 import { EDITOR, JSB } from 'internal:constants';
 import { Root } from '../../root';

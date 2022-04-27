@@ -1,7 +1,4 @@
-/**
- * @packageDocumentation
- * @module dragonBones
- */
+
 
 import { BaseObject, TextureAtlasData, TextureData } from '@cocos/dragonbones-js';
 import { Size, Vec2 } from '../core';

@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module terrain
- */
+
 import { ccclass, serializable } from 'cc.decorator';
 import { Asset, Texture2D } from '../core/assets';
 import { legacyCC } from '../core/global-exports';

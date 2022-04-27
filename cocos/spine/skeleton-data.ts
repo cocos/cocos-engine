@@ -1,7 +1,4 @@
-/**
- * @packageDocumentation
- * @module spine
- */
+
 
 import { EDITOR } from 'internal:constants';
 import { Asset, CCString, Enum, Node, Texture2D, errorID } from '../core';

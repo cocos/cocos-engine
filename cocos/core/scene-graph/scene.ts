@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module scene-graph
- */
+
 
 import { ccclass, serializable, editable } from 'cc.decorator';
 import { EDITOR, JSB, TEST } from 'internal:constants';

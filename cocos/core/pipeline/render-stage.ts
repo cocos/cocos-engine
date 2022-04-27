@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module pipeline
- */
+
 
 import { ccclass, displayOrder, serializable } from 'cc.decorator';
 import { legacyCC } from '../global-exports';

@@ -25,10 +25,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core/math
- */
+
 
 import { Mat4 } from './mat4';
 import { Rect } from './rect';

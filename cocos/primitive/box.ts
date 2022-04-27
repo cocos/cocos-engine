@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module 3d/primitive
- */
+
 
 import { Vec3 } from '../core/math';
 import { IGeometry, IGeometryOptions } from './define';
