@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module memop
- */
+
 
 import { warnID } from '../platform/debug';
 import { ScalableContainer } from './scalable-container';

@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
+
 
 import { ccclass, disallowMultiple, executeInEditMode,
     executionOrder, menu, requireComponent } from 'cc.decorator';

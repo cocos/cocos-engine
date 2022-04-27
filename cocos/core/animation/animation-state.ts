@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module animation
- */
+
 
 import { EDITOR } from 'internal:constants';
 import { Node } from '../scene-graph/node';

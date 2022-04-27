@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
+
 
 import { InputAssembler, Device, Attribute } from '../../core/gfx';
 import { MeshBuffer } from './mesh-buffer';

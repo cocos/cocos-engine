@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module decorator
- */
+
 
 import { EDITOR, TEST } from 'internal:constants';
 import { emptyDecorator, LegacyPropertyDecorator } from './utils';

@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module asset-manager
- */
+
 import Cache from './cache';
 
 /**

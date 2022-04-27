@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module physics
- */
+
 
 import { EDITOR } from 'internal:constants';
 import { Vec3 } from '../../core/math';

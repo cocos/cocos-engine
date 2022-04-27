@@ -25,10 +25,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core
- */
+
 
 import { legacyCC } from '../global-exports';
 

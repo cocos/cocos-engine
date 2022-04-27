@@ -25,10 +25,7 @@
 
 // @ts-check
 
-/**
- * @packageDocumentation
- * @module physics
- */
+
 
 import { ccclass, editable, serializable } from 'cc.decorator';
 import { Asset } from '../../../core/assets/asset';

@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module 3d/primitive
- */
+
 
 import cylinder, { ICylinderOptions } from './cylinder';
 import { IGeometry } from './define';

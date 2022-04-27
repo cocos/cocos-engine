@@ -26,10 +26,7 @@
 
 // Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
-/**
- * @packageDocumentation
- * @module particle
- */
+
 
 // eslint-disable-next-line max-len
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, inspector, boolean, visible } from 'cc.decorator';

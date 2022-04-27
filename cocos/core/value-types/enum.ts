@@ -24,10 +24,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core/value-types
- */
+
 
 import { EDITOR, TEST, DEV } from 'internal:constants';
 import { value } from '../utils/js';

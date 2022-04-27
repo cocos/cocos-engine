@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module pipeline
- */
+
 
 import { Pass } from '../renderer/core/pass';
 import { Model } from '../renderer/scene/model';

@@ -24,11 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module component
- */
-
 import { ccclass, help, menu, executionOrder, tooltip, type, serializable } from 'cc.decorator';
 import { Component } from '../core/components/component';
 import { EventHandler } from '../core/components/component-event-handler';

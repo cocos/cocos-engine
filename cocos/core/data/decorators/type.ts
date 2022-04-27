@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module decorator
- */
+
 
 import { LegacyPropertyDecorator } from './utils';
 import { property } from './property';

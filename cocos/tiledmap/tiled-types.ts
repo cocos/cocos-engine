@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module tiledmap
- */
+
 
 import { Color, Rect, Size, Texture2D, Vec2 } from '../core';
 import { SpriteFrame } from '../2d/assets';

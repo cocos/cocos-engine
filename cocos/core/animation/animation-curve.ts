@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module animation
- */
+
 
 import { binarySearchEpsilon as binarySearch } from '../algorithm/binary-search';
 import { lerp, Quat } from '../math';

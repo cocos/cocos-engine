@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
+
 
 import { legacyCC } from '../global-exports';
 import { mapBuffer } from '../../3d/misc/buffer';

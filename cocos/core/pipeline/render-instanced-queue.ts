@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module pipeline
- */
+
 
 import { InstancedBuffer } from './instanced-buffer';
 import { Device, RenderPass, PipelineState, CommandBuffer } from '../gfx';

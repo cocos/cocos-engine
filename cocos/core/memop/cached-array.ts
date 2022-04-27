@@ -25,10 +25,7 @@
 
 import { ScalableContainer } from './scalable-container';
 
-/**
- * @packageDocumentation
- * @module memop
- */
+
 
 /**
  * @en

@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module asset
- */
+
 
 import { Address, Filter as GFXFilter, Format } from '../gfx';
 
