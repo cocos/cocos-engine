@@ -242,31 +242,7 @@ bool register_all_spine_manual(se::Object *obj) {
             // the same address.
             iter->second->setClearMappingInFinalizer(false);
             se::NativePtrToObjectMap::erase(iter);
-        } else {
-            return;
-        }
-
-        auto cleanup = [seObj]() {
-            auto se = se::ScriptEngine::getInstance();
-            if (!se->isValid() || se->isInCleanup())
-                return;
-
-            se::AutoHandleScope hs;
-            se->clearException();
-
-            // The mapping of native object & se::Object was cleared in above code.
-            // The private data (native object) may be a different object associated with other se::Object.
-            // Therefore, don't clear the mapping again.
-            seObj->clearPrivateData(false);
-            seObj->unroot();
-            seObj->decRef();
-        };
-
-        if (!se::ScriptEngine::getInstance()->isGarbageCollecting()) {
-            cleanup();
-        } else {
-            CleanupTask::pushTaskToAutoReleasePool(cleanup);
-        }
+        } 
     });
 
     se::ScriptEngine::getInstance()->addBeforeCleanupHook([]() {
