@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { ccclass, serializable } from 'cc.decorator';
 import { Asset } from '../assets/asset';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
@@ -51,6 +49,7 @@ import './exotic-animation/exotic-animation';
 import { array } from '../utils/js';
 import type { AnimationMask } from './marionette/animation-mask';
 import { getGlobalAnimationManager } from './global-animation-manager';
+import { Subregion } from './subregion/subregion';
 
 export declare namespace AnimationClip {
     export interface IEvent {
@@ -83,6 +82,11 @@ interface SkeletonAnimationBakeInfo {
 }
 
 export const exoticAnimationTag = Symbol('ExoticAnimation');
+
+export const subRegionsCountTag = Symbol('[[SubregionsCount]]');
+export const getSubregionsTag = Symbol('[[GetSubregions]]');
+export const addSubRegionTag = Symbol('[[AddSubRegion]]');
+export const removeSubRegionTag = Symbol('[[RemoveSubRegion]]');
 
 /**
  * @zh 动画剪辑表示一段使用动画编辑器编辑的关键帧动画或是外部美术工具生产的骨骼动画。
@@ -571,6 +575,37 @@ export class AnimationClip extends Asset {
 
     // #endregion
 
+    /**
+     * @internal
+     */
+    get [subRegionsCountTag] () {
+        return this._subregions.length;
+    }
+
+    /**
+     * @internal
+     */
+    public [getSubregionsTag] (): Iterable<Subregion> {
+        return this._subregions;
+    }
+
+    /**
+     * @internal
+     */
+    public [addSubRegionTag] (subregion: Subregion) {
+        this._subregions.push(subregion);
+    }
+
+    /**
+     * @internal
+     */
+    public [removeSubRegionTag] (subregion: Subregion) {
+        const iSubRegion = this._subregions.indexOf(subregion);
+        if (iSubRegion >= 0) {
+            this._subregions.splice(iSubRegion, 1);
+        }
+    }
+
     @serializable
     private _duration = 0;
 
@@ -591,6 +626,9 @@ export class AnimationClip extends Asset {
 
     @serializable
     private _events: AnimationClip.IEvent[] = [];
+
+    @serializable
+    private _subregions: Subregion[] = [];
 
     private _runtimeEvents: {
         ratios: number[];

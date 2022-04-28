@@ -23,7 +23,9 @@
  THE SOFTWARE.
  */
 
-
+import './subregion/subregion';
+import './subregion/animation-clip-subregion';
+import './subregion/particle-system-subregion';
 
 export * from './target-path';
 export * from './value-proxy';
