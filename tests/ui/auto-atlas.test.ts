@@ -25,10 +25,7 @@ test('Pack to DynamicAtlas', function () {
     spriteframe_0.packable = true;
     dynamicAtlasManager.packToDynamicAtlas(sprite, spriteframe_0);
     expect(dynamicAtlasManager.atlasCount).toBe(1);
-
-    let atlas = dynamicAtlasManager._atlases[0];
-    expect(atlas._innerSpriteFrames.length).toBe(1);
-
+    expect(spriteframe_0.original !== null);
 });
 
 test('Delete Atlas SpriteFrame', function () {
@@ -43,17 +40,15 @@ test('Delete Atlas SpriteFrame', function () {
     spriteframe_0.packable = true;
     dynamicAtlasManager.packToDynamicAtlas(sprite, spriteframe_0);
     expect(dynamicAtlasManager.atlasCount).toBe(1);
-
-    let atlas = dynamicAtlasManager._atlases[0];
-    expect(atlas._innerSpriteFrames.length).toBe(1);
+    expect(spriteframe_0.original !== null);
 
     dynamicAtlasManager.deleteAtlasSpriteFrame(spriteframe_0);
     spriteframe_0._resetDynamicAtlasFrame();
     expect(dynamicAtlasManager.atlasCount).toBe(0);
+    expect(spriteframe_0.original === null);
 
     dynamicAtlasManager.packToDynamicAtlas(sprite, spriteframe_0);
     expect(dynamicAtlasManager.atlasCount).toBe(1);
-    atlas = dynamicAtlasManager._atlases[0];
-    expect(atlas._innerSpriteFrames.length).toBe(1);
+    expect(spriteframe_0.original !== null);
 
 });
