@@ -2,6 +2,10 @@ import { ccclass } from 'cc.decorator';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import type { AnimationController, MotionStateStatus } from './animation-controller';
 
+/**
+ * @en State machine component.
+ * @zh 状态机组件。
+ */
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}StateMachineComponent`)
 export class StateMachineComponent {
     /**
