@@ -41,6 +41,7 @@ Checks: >
     -readability-implicit-bool-cast,
     -readability-magic-numbers,
     -bugprone-branch-clone,
+    -misc-static-assert,
 
 CheckOptions:
     - { key: readability-identifier-naming.NamespaceCase,          value: lower_case }

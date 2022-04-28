@@ -214,11 +214,11 @@ void CanvasRenderingContext2DDelegate::updateFont(const ccstd::string &fontName,
     } while (false);
 }
 
-void CanvasRenderingContext2DDelegate::setTextAlign(CanvasTextAlign align) {
+void CanvasRenderingContext2DDelegate::setTextAlign(TextAlign align) {
     _textAlign = align;
 }
 
-void CanvasRenderingContext2DDelegate::setTextBaseline(CanvasTextBaseline baseline) {
+void CanvasRenderingContext2DDelegate::setTextBaseline(TextBaseline baseline) {
     _textBaseLine = baseline;
 }
 
@@ -278,19 +278,19 @@ ccstd::array<float, 2> CanvasRenderingContext2DDelegate::convertDrawPoint(Point 
     XCharStruct overall;
     XQueryTextExtents(_dis, _font->fid, text.c_str(), text.length(), &direction, &font_ascent, &font_descent, &overall);
     int width = overall.width;
-    if (_textAlign == CanvasTextAlign::CENTER) {
+    if (_textAlign == TextAlign::CENTER) {
         point[0] -= width / 2.0f;
-    } else if (_textAlign == CanvasTextAlign::RIGHT) {
+    } else if (_textAlign == TextAlign::RIGHT) {
         point[0] -= width;
     }
 
-    if (_textBaseLine == CanvasTextBaseline::TOP) {
+    if (_textBaseLine == TextBaseline::TOP) {
         point[1] += overall.ascent;
-    } else if (_textBaseLine == CanvasTextBaseline::MIDDLE) {
+    } else if (_textBaseLine == TextBaseline::MIDDLE) {
         point[1] += (overall.descent - overall.ascent) / 2 - overall.descent;
-    } else if (_textBaseLine == CanvasTextBaseline::BOTTOM) {
+    } else if (_textBaseLine == TextBaseline::BOTTOM) {
         point[1] += -overall.descent;
-    } else if (_textBaseLine == CanvasTextBaseline::ALPHABETIC) {
+    } else if (_textBaseLine == TextBaseline::ALPHABETIC) {
         //point[1] -= overall.ascent;
         // X11 The default way of drawing text
     }

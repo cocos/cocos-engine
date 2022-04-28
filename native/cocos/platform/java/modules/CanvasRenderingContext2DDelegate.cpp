@@ -171,11 +171,11 @@ void CanvasRenderingContext2DDelegate::setLineJoin(const ccstd::string &lineJoin
     JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setLineJoin", lineJoin);
 }
 
-void CanvasRenderingContext2DDelegate::setTextAlign(CanvasTextAlign align) {
+void CanvasRenderingContext2DDelegate::setTextAlign(TextAlign align) {
     JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setTextAlign", static_cast<int>(align));
 }
 
-void CanvasRenderingContext2DDelegate::setTextBaseline(CanvasTextBaseline baseline) {
+void CanvasRenderingContext2DDelegate::setTextBaseline(TextBaseline baseline) {
     JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setTextBaseline", static_cast<int>(baseline));
 }
 

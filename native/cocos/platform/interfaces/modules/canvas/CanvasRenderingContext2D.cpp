@@ -48,26 +48,6 @@
 using Vec2    = ccstd::array<float, 2>;
 using Color4F = ccstd::array<float, 4>;
 
-namespace {
-void fillRectWithColor(uint8_t *buf, uint32_t totalWidth, uint32_t totalHeight, uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
-    assert(x + width <= totalWidth);
-    assert(y + height <= totalHeight);
-
-    uint32_t y0 = y;
-    uint32_t y1 = y + height;
-    uint8_t *p;
-    for (uint32_t offsetY = y0; offsetY < y1; ++offsetY) {
-        for (uint32_t offsetX = x; offsetX < (x + width); ++offsetX) {
-            p    = buf + (totalWidth * offsetY + offsetX) * 4;
-            *p++ = r;
-            *p++ = g;
-            *p++ = b;
-            *p++ = a;
-        }
-    }
-}
-} // namespace
-
 namespace cc {
 //using Size    = ccstd::array<float, 2>;
 CanvasGradient::CanvasGradient() = default;
@@ -360,11 +340,11 @@ void CanvasRenderingContext2D::setFont(const ccstd::string &font) {
 void CanvasRenderingContext2D::setTextAlign(const ccstd::string &textAlign) {
     //SE_LOGD("CanvasRenderingContext2D::set_textAlign: %s\n", textAlign.c_str());
     if (textAlign == "left") {
-        _delegate->setTextAlign(CanvasTextAlign::LEFT);
+        _delegate->setTextAlign(TextAlign::LEFT);
     } else if (textAlign == "center" || textAlign == "middle") {
-        _delegate->setTextAlign(CanvasTextAlign::CENTER);
+        _delegate->setTextAlign(TextAlign::CENTER);
     } else if (textAlign == "right") {
-        _delegate->setTextAlign(CanvasTextAlign::RIGHT);
+        _delegate->setTextAlign(TextAlign::RIGHT);
     } else {
         assert(false);
     }
@@ -373,14 +353,14 @@ void CanvasRenderingContext2D::setTextAlign(const ccstd::string &textAlign) {
 void CanvasRenderingContext2D::setTextBaseline(const ccstd::string &textBaseline) {
     //SE_LOGD("CanvasRenderingContext2D::set_textBaseline: %s\n", textBaseline.c_str());
     if (textBaseline == "top") {
-        _delegate->setTextBaseline(CanvasTextBaseline::TOP);
+        _delegate->setTextBaseline(TextBaseline::TOP);
     } else if (textBaseline == "middle") {
-        _delegate->setTextBaseline(CanvasTextBaseline::MIDDLE);
+        _delegate->setTextBaseline(TextBaseline::MIDDLE);
     } else if (textBaseline == "bottom") //REFINE:, how to deal with alphabetic, currently we handle it as bottom mode.
     {
-        _delegate->setTextBaseline(CanvasTextBaseline::BOTTOM);
+        _delegate->setTextBaseline(TextBaseline::BOTTOM);
     } else if (textBaseline == "alphabetic") {
-        _delegate->setTextBaseline(CanvasTextBaseline::ALPHABETIC);
+        _delegate->setTextBaseline(TextBaseline::ALPHABETIC);
     } else {
         assert(false);
     }

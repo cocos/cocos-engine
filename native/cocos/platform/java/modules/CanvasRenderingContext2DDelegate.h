@@ -51,6 +51,9 @@ namespace cc {
 class CanvasRenderingContext2DDelegate : public ICanvasRenderingContext2D::Delegate {
 public:
     using Size = ccstd::array<float, 2>;
+    using TextAlign    = ICanvasRenderingContext2D::TextAlign;
+    using TextBaseline = ICanvasRenderingContext2D::TextBaseline;
+
     CanvasRenderingContext2DDelegate();
     ~CanvasRenderingContext2DDelegate() override;
 
@@ -72,8 +75,8 @@ public:
     void            strokeText(const ccstd::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) override;
     Size            measureText(const ccstd::string &text) override;
     void            updateFont(const ccstd::string &fontName, float fontSize, bool bold, bool italic, bool oblique, bool smallCaps) override;
-    void            setTextAlign(CanvasTextAlign align) override;
-    void            setTextBaseline(CanvasTextBaseline baseline) override;
+    void            setTextAlign(TextAlign align) override;
+    void            setTextBaseline(TextBaseline baseline) override;
     void            setFillStyle(float r, float g, float b, float a) override;
     void            setStrokeStyle(float r, float g, float b, float a) override;
     void            setLineWidth(float lineWidth) override;
