@@ -198,7 +198,7 @@ void SimpleTexture::tryDestroyTextureView() {
 }
 
 void SimpleTexture::setMipRange(uint32_t baseLevel, uint32_t maxLevel) {
-    debug::warnID(baseLevel <= maxLevel, 3124);
+    debug::assertID(baseLevel <= maxLevel, 3124);
     
     setMipRangeInternal(baseLevel, maxLevel);
     
