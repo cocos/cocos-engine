@@ -352,5 +352,6 @@ SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_addSphere);
 SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_addSpline);
 SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_addTorus);
 SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_addTriangle);
+SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_empty);
 SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_GeometryRenderer);
 // clang-format on

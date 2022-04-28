@@ -704,25 +704,6 @@ bool js_register_geometry_Plane(se::Object* obj) // NOLINT(readability-identifie
 se::Object* __jsb_cc_geometry_Frustum_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_geometry_Frustum_class = nullptr;  // NOLINT
 
-static bool js_geometry_Frustum_clone(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::geometry::Frustum>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Frustum_clone : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::geometry::Frustum result = cobj->clone();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_geometry_Frustum_clone : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_geometry_Frustum_clone)
-
 static bool js_geometry_Frustum_createOrtho(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::geometry::Frustum>(s);
@@ -972,7 +953,6 @@ bool js_register_geometry_Frustum(se::Object* obj) // NOLINT(readability-identif
 
     cls->defineProperty("vertices", _SE(js_geometry_Frustum_get_vertices), _SE(js_geometry_Frustum_set_vertices));
     cls->defineProperty("planes", _SE(js_geometry_Frustum_get_planes), _SE(js_geometry_Frustum_set_planes));
-    cls->defineFunction("clone", _SE(js_geometry_Frustum_clone));
     cls->defineFunction("createOrtho", _SE(js_geometry_Frustum_createOrtho));
     cls->defineFunction("setAccurate", _SE(js_geometry_Frustum_setAccurate));
     cls->defineFunction("transform", _SE(js_geometry_Frustum_transform));

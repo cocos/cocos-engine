@@ -117,7 +117,6 @@ private:
  */
 #if CC_USE_PROFILER
     #define CC_PROFILER                           cc::Profiler::getInstance()
-    #define CC_PROFILER_DESTROY                   cc::Profiler::destroyInstance()
     #define CC_PROFILER_SET_ENABLE(option, b)     CC_PROFILER->setEnable(option, (b))
     #define CC_PROFILER_IS_ENABLED(option)        CC_PROFILER->isEnabled(option)
     #define CC_PROFILER_UPDATE                    CC_PROFILER->update()
@@ -153,7 +152,6 @@ private:
         }
 #else
     #define CC_PROFILER
-    #define CC_PROFILER_DESTROY
     #define CC_PROFILER_SET_ENABLE(option, b)
     #define CC_PROFILER_IS_ENABLED(option) false
     #define CC_PROFILER_UPDATE
