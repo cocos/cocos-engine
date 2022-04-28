@@ -26,12 +26,12 @@
 #pragma once
 
 #include <atomic>
-#include <cassert>
 #include <cstdint>
 #include <functional>
 #include <future>
 #include <thread>
 #include "Event.h"
+#include "base/Macros.h"
 #include "base/std/container/list.h"
 #include "concurrentqueue/concurrentqueue.h"
 
@@ -71,14 +71,14 @@ private:
 
 template <typename Function, typename... Args>
 auto ThreadPool::dispatchTask(Function &&func, Args &&...args) -> std::future<decltype(func(std::forward<Args>(args)...))> {
-    assert(_running);
+    CC_ASSERT(_running);
 
     using ReturnType   = decltype(func(std::forward<Args>(args)...));
     auto       task    = std::make_shared<std::packaged_task<ReturnType()>>(std::bind(std::forward<Function>(func), std::forward<Args>(args)...));
     bool const succeed = _tasks.enqueue([task]() {
         (*task)();
     });
-    assert(succeed);
+    CC_ASSERT(succeed);
     _event.signal();
     return task->get_future();
 }

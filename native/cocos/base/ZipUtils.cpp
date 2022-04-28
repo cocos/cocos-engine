@@ -38,7 +38,6 @@
 
 #include <memory>
 #include <zlib.h>
-#include <cassert>
 #include <cstdlib>
 #include "base/Data.h"
 #include "base/Locked.h"

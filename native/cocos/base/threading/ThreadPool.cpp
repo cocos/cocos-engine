@@ -60,7 +60,7 @@ void ThreadPool::stop() {
 }
 
 void ThreadPool::addThread() {
-    assert(_workers.size() < MAX_THREAD_COUNT);
+    CC_ASSERT(_workers.size() < MAX_THREAD_COUNT);
 
     auto workerLoop = [this]() {
         while (_running) {

@@ -189,7 +189,7 @@ void JSPlistDelegator::textHandler(void * /*unused*/, const char *ch, int len) {
 static bool register_plist_parser(se::Object * /*obj*/) { // NOLINT(readability-identifier-naming)
     se::Value v;
     __jsbObj->getProperty("PlistParser", &v);
-    assert(v.isObject());
+    CC_ASSERT(v.isObject());
     v.toObject()->defineFunction("getInstance", _SE(js_PlistParser_getInstance));
 
     __jsb_cc_SAXParser_proto->defineFunction("parse", _SE(js_PlistParser_parse));

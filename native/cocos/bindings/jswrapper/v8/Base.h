@@ -34,7 +34,6 @@
 
 #include "v8.h"
 
-#include <assert.h>
 #include <string.h>  // Resolves that memset, memcpy aren't found while APP_PLATFORM >= 22 on Android
 #include <algorithm> // for std::find
 #include <chrono>

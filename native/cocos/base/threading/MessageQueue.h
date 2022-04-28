@@ -230,7 +230,7 @@ template <typename T>
 std::enable_if_t<!std::is_base_of<Message, T>::value, T *>
 MessageQueue::allocate(uint32_t const count) noexcept {
     uint32_t const requestSize = sizeof(T) * count;
-    assert(requestSize);
+    CC_ASSERT(requestSize);
     uint32_t       allocatedSize   = 0;
     uint8_t *const allocatedMemory = allocateImpl(allocatedSize, requestSize);
     _writer.lastMessage->_next     = reinterpret_cast<Message *>(_writer.currentMemoryChunk + _writer.offset);

@@ -351,7 +351,7 @@ SIOClientImpl::SIOClientImpl(Uri uri, ccstd::string caFilePath) : _uri(std::move
 }
 
 SIOClientImpl::~SIOClientImpl() {
-    assert(!_connected);
+    CC_ASSERT(!_connected);
 
     CC_SAFE_RELEASE(_ws);
 }
@@ -906,7 +906,7 @@ SIOClient::SIOClient(ccstd::string path, SIOClientImpl *impl, SocketIO::SIODeleg
 }
 
 SIOClient::~SIOClient() {
-    assert(!_connected);
+    CC_ASSERT(!_connected);
 }
 
 void SIOClient::onOpen() {

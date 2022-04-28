@@ -106,7 +106,7 @@ public:
 
         if (it != _eventRegistry.end()) {
             const se::ValueArray &cbStruct = it->second;
-            assert(cbStruct.size() == 2);
+            CC_ASSERT(cbStruct.size() == 2);
             const se::Value &callback = cbStruct[0];
             const se::Value &target   = cbStruct[1];
             if (callback.isObject() && callback.toObject()->isFunction() && target.isObject()) {
@@ -122,8 +122,8 @@ public:
     }
 
     void addEvent(const ccstd::string &eventName, const se::Value &callback, const se::Value &target) {
-        assert(callback.isObject() && callback.toObject()->isFunction());
-        assert(target.isObject());
+        CC_ASSERT(callback.isObject() && callback.toObject()->isFunction());
+        CC_ASSERT(target.isObject());
         _eventRegistry[eventName].clear();
         _eventRegistry[eventName].push_back(callback);
         _eventRegistry[eventName].push_back(target);
