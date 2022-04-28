@@ -20,7 +20,6 @@ set -x
 function download_external()
 {
     pushd $COCOS2DX_ROOT
-    #python download-deps.py -r=yes
     cd $COCOS2DX_ROOT/external
     external_version=`grep version config.json  |awk -F'"' '{print $4}'`
     external_repo_name=`grep name config.json  |awk -F'"' '{print $4}'`

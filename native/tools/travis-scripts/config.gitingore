@@ -31,7 +31,6 @@ Thumbs.db
 /setup.py
 /auto-build-src.bat
 /auto-build.bat
-/download-deps.py
 /gulpfile.js
 /package.json
 /README.md
