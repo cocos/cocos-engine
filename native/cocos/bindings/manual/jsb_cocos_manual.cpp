@@ -74,7 +74,7 @@ static bool js_PlistParser_getInstance(se::State &s) { // NOLINT(readability-ide
     cc::SAXParser *   parser    = delegator->getParser();
 
     if (parser) {
-        native_ptr_to_rooted_seval<cc::SAXParser>(parser, __jsb_cc_SAXParser_class, &s.rval());
+        native_ptr_to_seval<cc::SAXParser>(parser, __jsb_cc_SAXParser_class, &s.rval());
         return true;
     }
     return false;

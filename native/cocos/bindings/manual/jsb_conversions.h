@@ -443,40 +443,6 @@ bool native_ptr_to_seval(T *vp, se::Class *cls, se::Value *ret, bool *isReturnCa
 }
 
 template <typename T>
-bool native_ptr_to_rooted_seval( // NOLINT(readability-identifier-naming)
-    typename std::enable_if<!std::is_base_of<cc::RefCounted, T>::value, T>::type *v,
-    se::Class *cls, se::Value *ret, bool *isReturnCachedValue = nullptr) {
-    assert(ret != nullptr);
-    if (v == nullptr) {
-        ret->setNull();
-        return true;
-    }
-
-    se::Object *obj  = nullptr;
-    auto        iter = se::NativePtrToObjectMap::find(v);
-    if (iter == se::NativePtrToObjectMap::end()) { // If we couldn't find native object in map, then the native object is created from native code. e.g. TMXLayer::getTileAt
-        assert(cls != nullptr);
-        obj = se::Object::createObjectWithClass(cls);
-        obj->root();
-        obj->setPrivateObject(se::rawref_private_object(v));
-        if (isReturnCachedValue != nullptr) {
-            *isReturnCachedValue = false;
-        }
-        // CC_LOG_DEBUGWARN("WARNING: non-Ref type: (%s) isn't catched, se::Object:%p, native: %p", typeid(*v).name(), obj, v);
-    } else {
-        obj = iter->second;
-        assert(obj->isRooted());
-        if (isReturnCachedValue != nullptr) {
-            *isReturnCachedValue = true;
-        }
-        // CC_LOG_DEBUG("return cached object: %s, se::Object:%p, native: %p", typeid(*v).name(), obj, v);
-    }
-
-    ret->setObject(obj);
-    return true;
-}
-
-template <typename T>
 bool native_ptr_to_seval(T *vp, se::Value *ret, bool *isReturnCachedValue = nullptr) { // NOLINT(readability-identifier-naming)
     using DecayT = typename std::decay<typename std::remove_const<T>::type>::type;
     auto *v      = const_cast<DecayT *>(vp);
@@ -1404,7 +1370,7 @@ bool nativevalue_to_se(const spine::Vector<T *> &v, se::Value &ret, se::Object *
     auto size = static_cast<uint32_t>(tmpv.size());
     for (uint32_t i = 0; i < size; ++i) {
         se::Value tmp;
-        ok = native_ptr_to_rooted_seval<T>(tmpv[i], &tmp);
+        ok = native_ptr_to_seval<T>(tmpv[i], &tmp);
         if (!ok || !obj->setArrayElement(i, tmp)) {
             ok = false;
             ret.setUndefined();
