@@ -3,6 +3,7 @@
 BasedOnStyle:                         Google
 
 AccessModifierOffset:                 -4
+AlignConsecutiveMacros:               true
 AllowShortCaseLabelsOnASingleLine:    true
 ColumnLimit:                          0
 ConstructorInitializerIndentWidth:    0
