@@ -28,8 +28,8 @@
 
 namespace {
 void fillRectWithColor(uint8_t *buf, uint32_t totalWidth, uint32_t totalHeight, uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
-    assert(x + width <= totalWidth);
-    assert(y + height <= totalHeight);
+    CC_ASSERT(x + width <= totalWidth);
+    CC_ASSERT(y + height <= totalHeight);
 
     uint32_t y0 = y;
     uint32_t y1 = y + height;

@@ -193,7 +193,7 @@ uint8_t *MessageQueue::allocateImpl(uint32_t allocatedSize, uint32_t const reque
     if (_immediateMode) {
         pushMessages();
         pullMessages();
-        assert(_reader.newMessageCount == 2);
+        CC_ASSERT(_reader.newMessageCount == 2);
         executeMessages();
         executeMessages();
     }
@@ -244,7 +244,7 @@ Message *MessageQueue::readMessage() noexcept {
     Message *const msg  = _reader.lastMessage->getNext();
     _reader.lastMessage = msg;
     --_reader.newMessageCount;
-    assert(msg);
+    CC_ASSERT(msg);
     return msg;
 }
 

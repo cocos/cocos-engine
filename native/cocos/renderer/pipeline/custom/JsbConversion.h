@@ -57,7 +57,7 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<T, allocator> *to, s
         return true;
     }
 
-    assert(from.toObject());
+    CC_ASSERT(from.toObject());
     se::Object *array = from.toObject();
 
     if (array->isArray()) {
@@ -75,7 +75,7 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<T, allocator> *to, s
     }
 
     if (array->isTypedArray()) {
-        assert(std::is_arithmetic<T>::value);
+        CC_ASSERT(std::is_arithmetic<T>::value);
         uint8_t *data    = nullptr;
         size_t   dataLen = 0;
         array->getTypedArrayData(&data, &dataLen);

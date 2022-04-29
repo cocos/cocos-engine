@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include <atomic>
-#include <cassert>
 #include <iostream>
 
 #include "application/ApplicationManager.h"

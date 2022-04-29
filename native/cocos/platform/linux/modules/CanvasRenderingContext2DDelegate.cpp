@@ -252,7 +252,7 @@ CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::sizeWit
     // if (text.empty())
     //     return ccstd::array<float, 2>{0.0f, 0.0f};
     // XFontStruct *fs = XLoadQueryFont(dpy, "cursor");
-    // assert(fs);
+    // CC_ASSERT(fs);
     // int font_ascent = 0;
     // int font_descent = 0;
     // XCharStruct overall;

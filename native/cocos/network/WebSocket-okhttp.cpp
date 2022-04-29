@@ -1,5 +1,4 @@
 #include <atomic>
-#include <cassert>
 #include "WebSocket.h"
 #include "application/ApplicationManager.h"
 #include "base/Scheduler.h"

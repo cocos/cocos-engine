@@ -187,8 +187,8 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
             auto           toIter         = std::find_if(toStatus.begin(), toStatus.end(), findAccessByID);
 
             // can't happen
-            assert(fromIter != fromStatus.end());
-            assert(toIter != toStatus.end());
+            CC_ASSERT(fromIter != fromStatus.end());
+            CC_ASSERT(toIter != toStatus.end());
 
             if (!isStatusDependent(*fromIter, *toIter)) {
                 continue;
@@ -244,7 +244,7 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
                                                         [resourceID](const Barrier &barrier) {
                                                             return resourceID == barrier.resourceID;
                                                         });
-                        assert(siblingIter != barrierMap[siblingPass].rearBarriers.end());
+                        CC_ASSERT(siblingIter != barrierMap[siblingPass].rearBarriers.end());
                         barrierMap[siblingPass].rearBarriers.erase(siblingIter);
                     }
                 }
@@ -314,7 +314,7 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
                                                         [resourceID](const Barrier &barrier) {
                                                             return resourceID == barrier.resourceID;
                                                         });
-                        assert(siblingIter != barrierMap[siblingPass].frontBarriers.end());
+                        CC_ASSERT(siblingIter != barrierMap[siblingPass].frontBarriers.end());
                         barrierMap[siblingPass].frontBarriers.erase(siblingIter);
                     }
                 }

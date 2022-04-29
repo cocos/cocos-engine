@@ -48,7 +48,7 @@ void Scene::setSceneGlobals(SceneGlobals *globals) { _globals = globals; }
 void Scene::load() {
     if (!_inited) {
         //cjh        if (TEST) {
-        //            assert(!_activeInHierarchy, 'Should deactivate ActionManager by default');
+        //            CC_ASSERT(!_activeInHierarchy, 'Should deactivate ActionManager by default');
         //        }
         // expandNestedPrefabInstanceNode(this); // TODO(xwx): expandNestedPrefabInstanceNode not implement yet
         // applyTargetOverrides(this); // TODO(xwx): applyTargetOverrides not implement yet

@@ -240,18 +240,18 @@ public:
 
             se::Value tmpVal;
             _jsTypedArray->getProperty("buffer", &tmpVal);
-            assert(tmpVal.isObject());
-            assert(tmpVal.toObject()->isArrayBuffer());
+            CC_ASSERT(tmpVal.isObject());
+            CC_ASSERT(tmpVal.toObject()->isArrayBuffer());
 
             _buffer = ccnew ArrayBuffer();
             _buffer->setJSArrayBuffer(tmpVal.toObject());
 
             _jsTypedArray->getProperty("byteOffset", &tmpVal);
-            assert(tmpVal.isNumber());
+            CC_ASSERT(tmpVal.isNumber());
             _byteOffset = tmpVal.toUint32();
 
             _jsTypedArray->getProperty("byteLength", &tmpVal);
-            assert(tmpVal.isNumber());
+            CC_ASSERT(tmpVal.isNumber());
             _byteLength = tmpVal.toUint32();
 
             _byteEndPos = _buffer->byteLength();

@@ -35,6 +35,7 @@
 #include "../ValueArrayPool.h"
 #include "../config.h"
 #include "base/Log.h"
+#include "base/Macros.h"
 #include "base/std/container/string.h"
 
 //#define RECORD_JSB_INVOKING
@@ -226,7 +227,7 @@ void printJSBInvokeAtFrame(int n);
             do {                                                                                          \
                 if (!(cond)) {                                                                            \
                     SE_LOGE("ASSERT (" __FILE__ ", " SE_QUOTEME(__LINE__) "): " fmt "\n", ##__VA_ARGS__); \
-                    assert(false);                                                                        \
+                    CC_ASSERT(false);                                                                     \
                 }                                                                                         \
             } while (false)
 
