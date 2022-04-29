@@ -242,16 +242,6 @@ export class Skybox {
         this._envmapHDR = envmapHDR;
         this._envmapLDR = envmapLDR;
 
-        const root = legacyCC.director.root as Root;
-        const isHDR = root.pipeline.pipelineSceneData.isHDR;
-        if (isHDR) {
-            if (envmapHDR) {
-                root.pipeline.pipelineSceneData.ambient.mipmapCount = envmapHDR.mipmapLevel;
-            }
-        } else if (envmapLDR) {
-            root.pipeline.pipelineSceneData.ambient.mipmapCount = envmapLDR.mipmapLevel;
-        }
-
         this._updateGlobalBinding();
         this._updatePipeline();
     }
