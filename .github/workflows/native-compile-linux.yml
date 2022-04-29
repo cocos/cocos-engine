@@ -11,7 +11,7 @@ jobs:
       - name: Download external libraries
         shell: bash
         run: |
-          EXT_VERSION=`grep version native/external-config.json  |awk -F'"' '{print $4}'`
+          EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
       - name: Generate bindings
         run: |
@@ -27,7 +27,7 @@ jobs:
         env:
           COCOS_ENGINE_DEV: 1
         run: |
-          COCOS2DX_ROOT=$GITHUB_WORKSPACE/native
+          NATIVE_ROOT=$GITHUB_WORKSPACE/native
           echo "Compiling Linux ... "
           cd  $GITHUB_WORKSPACE/templates/linux
           mkdir -p build-linux/proj
@@ -43,6 +43,6 @@ jobs:
 
           RES_DIR=$GITHUB_WORKSPACE/templates/linux/build-linux
           cd build-linux
-          cmake ../ -GNinja -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS2DX_ROOT
+          cmake ../ -GNinja -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$NATIVE_ROOT
           set +e
           cmake --build . 
