@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include <cassert>
 #include <memory>
 #include <type_traits>
 #include <cmath>
@@ -58,7 +57,7 @@ public:
     virtual const char *getName() const = 0;
     virtual void *      getRaw() const  = 0;
     virtual void        allowDestroyInGC() const {
-        assert(false);
+        CC_ASSERT(false);
     }
     virtual void tryAllowDestroyInGC() const {}
 
@@ -149,7 +148,7 @@ public:
     }
 
     void *getRaw() const override {
-        //assert(_validate);
+        //CC_ASSERT(_validate);
         return _ptr;
     }
 
@@ -164,12 +163,12 @@ inline std::shared_ptr<T> TypedPrivateObject<T>::share() {
     if (isSharedPtr()) {
         return reinterpret_cast<SharedPrivateObject<T> *>(this)->getData();
     }
-    assert(false);
+    CC_ASSERT(false);
     return std::shared_ptr<T>(nullptr);
 }
 template <typename T>
 inline cc::IntrusivePtr<T> &TypedPrivateObject<T>::ccShared() {
-    assert(isCCShared());
+    CC_ASSERT(isCCShared());
     return reinterpret_cast<CCSharedPtrPrivateObject<T> *>(this)->_ptr;
 }
 
@@ -180,7 +179,7 @@ inline void inHeap(void *ptr) {
     auto             anchor = reinterpret_cast<intptr_t>(&a);
     auto             p      = reinterpret_cast<intptr_t>(ptr);
     // must be in heaps
-    assert(abs(anchor - p) > r);
+    CC_ASSERT(abs(anchor - p) > r);
 }
 #endif
 

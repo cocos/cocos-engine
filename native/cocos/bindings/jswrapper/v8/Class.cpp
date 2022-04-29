@@ -229,7 +229,7 @@ bool Class::defineStaticProperty(const char *name, v8::AccessorNameGetterCallbac
 }
 
 bool Class::defineFinalizeFunction(V8FinalizeFunc finalizeFunc) {
-    assert(finalizeFunc != nullptr);
+    CC_ASSERT(finalizeFunc != nullptr);
     _finalizeFunc = finalizeFunc;
     return true;
 }
@@ -249,7 +249,7 @@ bool Class::defineFinalizeFunction(V8FinalizeFunc finalizeFunc) {
 
 v8::Local<v8::Object> Class::_createJSObjectWithClass(Class *cls) { //NOLINT
     v8::MaybeLocal<v8::Object> ret = cls->_ctorTemplate.Get(__isolate)->InstanceTemplate()->NewInstance(__isolate->GetCurrentContext());
-    assert(!ret.IsEmpty());
+    CC_ASSERT(!ret.IsEmpty());
     return ret.ToLocalChecked();
 }
 

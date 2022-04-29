@@ -26,7 +26,6 @@
 ****************************************************************************/
 
 #include "Image.h"
-#include <cassert>
 #include <cctype>
 #include <cstring>
 #include "base/Config.h" // CC_USE_JPEG, CC_USE_WEBP

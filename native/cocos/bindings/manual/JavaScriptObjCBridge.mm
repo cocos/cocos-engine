@@ -336,7 +336,7 @@ SE_BIND_FUNC(JavaScriptObjCBridge_callStaticMethod)
 
 static bool ScriptNativeBridge_getCallback(se::State &s){
     ScriptNativeBridge *cobj = (ScriptNativeBridge *)s.nativeThisObject();
-    assert(cobj == ScriptNativeBridge::bridgeCxxInstance);
+    CC_ASSERT(cobj == ScriptNativeBridge::bridgeCxxInstance);
     s.rval() = cobj->jsCb;
     SE_HOLD_RETURN_VALUE(cobj->jsCb, s.thisObject(), s.rval());
     return true;
@@ -345,7 +345,7 @@ SE_BIND_PROP_GET(ScriptNativeBridge_getCallback)
 
 static bool ScriptNativeBridge_setCallback(se::State &s){ //NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<ScriptNativeBridge *>(s.nativeThisObject());
-    assert(cobj == ScriptNativeBridge::bridgeCxxInstance);
+    CC_ASSERT(cobj == ScriptNativeBridge::bridgeCxxInstance);
     const auto &args = s.args();
     se::Value jsFunc = args[0];
     cobj->jsCb = jsFunc;
@@ -354,7 +354,7 @@ static bool ScriptNativeBridge_setCallback(se::State &s){ //NOLINT(readability-i
         cobj->setCallback(nullptr);
     }
     else{
-        assert(jsFunc.isObject() && jsFunc.toObject()->isFunction());
+        CC_ASSERT(jsFunc.isObject() && jsFunc.toObject()->isFunction());
         s.thisObject()->attachObject(jsFunc.toObject());
         cobj->setCallback([jsFunc](const ccstd::string& arg0, const ccstd::string& arg1){
             se::AutoHandleScope hs;
@@ -411,7 +411,7 @@ se::Class *__jsb_ScriptNativeBridge_class = nullptr; // NOLINT
 
 static bool ScriptNativeBridge_finalize(se::State &s) { //NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<ScriptNativeBridge *>(s.nativeThisObject());
-    assert(cobj == ScriptNativeBridge::bridgeCxxInstance);
+    CC_ASSERT(cobj == ScriptNativeBridge::bridgeCxxInstance);
     delete cobj;
     ScriptNativeBridge::bridgeCxxInstance = nullptr;
     return true;

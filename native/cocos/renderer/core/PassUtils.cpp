@@ -168,7 +168,7 @@ const ccstd::unordered_map<gfx::Type, GFXTypeWriterCallback> type2writer = {
              a[idx + 1]       = vec4.y;
              a[idx + 2]       = vec4.z;
          } else {
-             assert(false);
+             CC_ASSERT(false);
          }
      }},
     {gfx::Type::FLOAT4, [](float *a, const MaterialProperty &v, index_t idx) {
@@ -192,7 +192,7 @@ const ccstd::unordered_map<gfx::Type, GFXTypeWriterCallback> type2writer = {
              a[idx + 2]       = quat.z;
              a[idx + 3]       = quat.w;
          } else {
-             assert(false);
+             CC_ASSERT(false);
          }
      }},
     {gfx::Type::MAT3, [](float *a, const MaterialProperty &v, index_t idx) {

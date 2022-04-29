@@ -29,8 +29,6 @@ THE SOFTWARE.
 #include "audio/android/tinysndfile.h"
 #include "platform/FileUtils.h"
 
-#include <cassert>
-
 namespace cc {
 
 AudioDecoderWav::AudioDecoderWav() {
@@ -82,7 +80,7 @@ bool AudioDecoderWav::decodeToPcm() {
         size_t     bufSize    = sizeof(int16_t) * info.frames * info.channels;
         auto *     buf        = static_cast<unsigned char *>(malloc(bufSize));
         sf_count_t readFrames = sf_readf_short(handle, reinterpret_cast<int16_t *>(buf), info.frames);
-        assert(readFrames == info.frames);
+        CC_ASSERT(readFrames == info.frames);
 
         _result.pcmBuffer->insert(_result.pcmBuffer->end(), buf, buf + bufSize);
         _result.numChannels   = info.channels;

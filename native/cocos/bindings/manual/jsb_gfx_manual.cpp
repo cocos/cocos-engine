@@ -64,7 +64,7 @@ bool js_gfx_Device_copyBuffersToTexture(se::State &s) { // NOLINT(readability-id
                             ok = obj->getTypedArrayData(&ptr, &dataLength);
                             SE_PRECONDITION2(ok, false, "getTypedArrayData failed!");
                         } else {
-                            assert(false);
+                            CC_ASSERT(false);
                         }
                     } else {
                         ptr = reinterpret_cast<uint8_t *>(value.asPtr()); // NOLINT(performance-no-int-to-ptr) script engine bad API design
@@ -118,7 +118,7 @@ bool js_gfx_Device_copyTextureToBuffers(se::State &s) { // NOLINT(readability-id
                             ok = obj->getTypedArrayData(&ptr, &dataLength);
                             SE_PRECONDITION2(ok, false, "getTypedArrayData failed!");
                         } else {
-                            assert(false);
+                            CC_ASSERT(false);
                         }
                     } else {
                         ptr = reinterpret_cast<uint8_t *>(value.asPtr()); // NOLINT(performance-no-int-to-ptr) script engine bad API design
@@ -358,7 +358,7 @@ static bool js_gfx_CommandBuffer_execute(se::State &s) { // NOLINT(readability-i
         ok &= sevalue_to_native(args[1], &count);
 
         se::Object *jsarr = args[0].toObject();
-        assert(jsarr->isArray());
+        CC_ASSERT(jsarr->isArray());
         uint32_t len = 0;
         ok &= jsarr->getArrayLength(&len);
         if (len < count) {
@@ -455,7 +455,7 @@ static bool js_gfx_CommandBuffer_copyBuffersToTexture(se::State &s) { // NOLINT(
                         ok = obj->getTypedArrayData(&ptr, &dataLength);
                         SE_PRECONDITION2(ok, false, "getTypedArrayData failed!");
                     } else {
-                        assert(false);
+                        CC_ASSERT(false);
                     }
                     arg0[i] = ptr;
                 }

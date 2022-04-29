@@ -207,7 +207,7 @@ bool AudioPlayer::play2d() {
 
         ALint state;
         alGetSourcei(_alSource, AL_SOURCE_STATE, &state);
-        assert(state == AL_PLAYING);
+        CC_ASSERT(state == AL_PLAYING);
         _ready = true;
         ret = true;
     } while (false);

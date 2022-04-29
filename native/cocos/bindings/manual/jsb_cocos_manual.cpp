@@ -32,7 +32,7 @@
 
 #include "storage/local-storage/LocalStorage.h"
 
-extern se::Object *__jsb_cc_FileUtils_proto; // NOLINT(readability-redundant-declaration)
+extern se::Object *__jsb_cc_FileUtils_proto; // NOLINT(readability-redundant-declaration, readability-identifier-naming)
 
 static bool jsb_ccx_empty_func(const se::State & /*s*/) { // NOLINT(readability-identifier-naming)
     return true;
@@ -74,7 +74,8 @@ static bool js_PlistParser_getInstance(se::State &s) { // NOLINT(readability-ide
     cc::SAXParser *   parser    = delegator->getParser();
 
     if (parser) {
-        native_ptr_to_rooted_seval<cc::SAXParser>(parser, __jsb_cc_SAXParser_class, &s.rval());
+        native_ptr_to_seval<cc::SAXParser>(parser, __jsb_cc_SAXParser_class, &s.rval());
+        s.rval().toObject()->root();
         return true;
     }
     return false;
@@ -188,7 +189,7 @@ void JSPlistDelegator::textHandler(void * /*unused*/, const char *ch, int len) {
 static bool register_plist_parser(se::Object * /*obj*/) { // NOLINT(readability-identifier-naming)
     se::Value v;
     __jsbObj->getProperty("PlistParser", &v);
-    assert(v.isObject());
+    CC_ASSERT(v.isObject());
     v.toObject()->defineFunction("getInstance", _SE(js_PlistParser_getInstance));
 
     __jsb_cc_SAXParser_proto->defineFunction("parse", _SE(js_PlistParser_parse));
@@ -678,10 +679,10 @@ static bool js_engine_Color_get_val(se::State &s) // NOLINT(readability-identifi
 
     CC_UNUSED bool ok = true;
     se::Value      jsret;
-    uint32_t       r   = static_cast<uint32_t>(cobj->r);
-    uint32_t       g   = static_cast<uint32_t>(cobj->g);
-    uint32_t       b   = static_cast<uint32_t>(cobj->b);
-    uint32_t       a   = static_cast<uint32_t>(cobj->a);
+    auto           r   = static_cast<uint32_t>(cobj->r);
+    auto           g   = static_cast<uint32_t>(cobj->g);
+    auto           b   = static_cast<uint32_t>(cobj->b);
+    auto           a   = static_cast<uint32_t>(cobj->a);
     uint32_t       val = (a << 24) + (b << 16) + (g << 8) + r;
     ok &= nativevalue_to_se(val, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
@@ -715,7 +716,7 @@ static bool register_engine_Color_manual(se::Object * /*obj*/) { // NOLINT(reada
     return true;
 }
 
-bool register_all_cocos_manual(se::Object *obj) {
+bool register_all_cocos_manual(se::Object *obj) { // NOLINT(readability-identifier-naming)
     register_plist_parser(obj);
     register_sys_localStorage(obj);
     register_device(obj);

@@ -24,8 +24,7 @@
 ****************************************************************************/
 
 #include "AABB.h"
-
-#include <cassert>
+#include "base/Macros.h"
 #include "cocos/core/geometry/Enums.h"
 #include "cocos/core/geometry/Sphere.h"
 

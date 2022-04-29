@@ -194,7 +194,7 @@ static bool WebSocketServer_onconnection(se::State &s) {
             if (ptr) {
                 se::Object *sobj = (se::Object *)ptr->getData();
                 sobj->unroot();
-                assert(obj == sobj);
+                CC_ASSERT(obj == sobj);
             }
         });
         se::ValueArray args;
@@ -416,12 +416,12 @@ static bool WebSocketServer_Connection_send(se::State &s) {
                 ok = dataObj->getTypedArrayData(&ptr, &length);
                 SE_PRECONDITION2(ok, false, "getTypedArrayData failed!");
             } else {
-                assert(false);
+                CC_ASSERT(false);
             }
 
             (*cobj)->sendBinaryAsync(ptr, (unsigned int)length, callback);
         } else {
-            assert(false);
+            CC_ASSERT(false);
         }
 
         return true;

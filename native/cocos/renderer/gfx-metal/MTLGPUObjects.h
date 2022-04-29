@@ -201,10 +201,8 @@ public:
         if (!buffer) {
             uint mbNeeds = mu::roundUp(gpuBuffer->size, MegaBytesToBytes);
             mbNeeds      = cc::utils::nextPOT(mbNeeds);
-#ifdef CC_DEBUG
-            float realNeeds = gpuBuffer->size / static_cast<float>(MegaBytesToBytes);
-            assert(mbNeeds > realNeeds);
-#endif
+            CC_ASSERT(mbNeeds > gpuBuffer->size / static_cast<float>(MegaBytesToBytes));
+
             _pool.resize(bufferCount + 1);
             buffer = &_pool.back();
             if (_tripleEnabled) {

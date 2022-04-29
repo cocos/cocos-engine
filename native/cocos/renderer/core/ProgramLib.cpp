@@ -554,7 +554,7 @@ IProgramInfo *ProgramLib::getTemplate(const ccstd::string &name) {
 
 ITemplateInfo *ProgramLib::getTemplateInfo(const ccstd::string &name) {
     auto it = _templates.find(name);
-    assert(it != _templates.end());
+    CC_ASSERT(it != _templates.end());
     auto hash   = it->second.hash;
     auto itInfo = _templateInfos.find(hash);
     return itInfo != _templateInfos.end() ? &itInfo->second : nullptr;
@@ -567,7 +567,7 @@ ITemplateInfo *ProgramLib::getTemplateInfo(const ccstd::string &name) {
  */
 gfx::DescriptorSetLayout *ProgramLib::getDescriptorSetLayout(gfx::Device *device, const ccstd::string &name, bool isLocal) {
     auto itTmpl = _templates.find(name);
-    assert(itTmpl != _templates.end());
+    CC_ASSERT(itTmpl != _templates.end());
     const auto &tmpl      = itTmpl->second;
     auto        itTplInfo = _templateInfos.find(tmpl.hash);
     if (itTplInfo == _templateInfos.end()) {
@@ -588,7 +588,7 @@ gfx::DescriptorSetLayout *ProgramLib::getDescriptorSetLayout(gfx::Device *device
 
 ccstd::string ProgramLib::getKey(const ccstd::string &name, const MacroRecord &defines) {
     auto itTpl = _templates.find(name);
-    assert(itTpl != _templates.end());
+    CC_ASSERT(itTpl != _templates.end());
     auto &tmpl     = itTpl->second;
     auto &tmplDefs = tmpl.defines;
     if (tmpl.uber) {
@@ -668,11 +668,11 @@ gfx::Shader *ProgramLib::getGFXShader(gfx::Device *device, const ccstd::string &
     }
 
     auto itTpl = _templates.find(name);
-    assert(itTpl != _templates.end());
+    CC_ASSERT(itTpl != _templates.end());
 
     const auto &tmpl      = itTpl->second;
     const auto  itTplInfo = _templateInfos.find(tmpl.hash);
-    assert(itTplInfo != _templateInfos.end());
+    CC_ASSERT(itTplInfo != _templateInfos.end());
     auto &tmplInfo = itTplInfo->second;
 
     if (!tmplInfo.pipelineLayout) {

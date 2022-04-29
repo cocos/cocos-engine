@@ -429,12 +429,12 @@ uint32_t Value::toUint32() const {
 }
 
 int64_t Value::toInt64() const {
-    assert(isBigInt() || isNumber());
+    CC_ASSERT(isBigInt() || isNumber());
     return _type == Type::BigInt ? _u._bigint : CONVERT_TO_TYPE(int64_t);
 }
 
 uint64_t Value::toUint64() const {
-    assert(isBigInt() || isNumber());
+    CC_ASSERT(isBigInt() || isNumber());
     return _type == Type::BigInt ? static_cast<uint64_t>(_u._bigint) : CONVERT_TO_TYPE(uint64_t);
 }
 
@@ -443,7 +443,7 @@ float Value::toFloat() const {
 }
 
 double Value::toDouble() const {
-    assert(_type == Type::Number || _type == Type::Boolean || _type == Type::BigInt || _type == Type::String);
+    CC_ASSERT(_type == Type::Number || _type == Type::Boolean || _type == Type::BigInt || _type == Type::String);
     if (LIKELY(_type == Type::Number)) {
         return _u._number;
     }
@@ -460,12 +460,12 @@ double Value::toDouble() const {
 }
 
 bool Value::toBoolean() const {
-    assert(_type == Type::Boolean);
+    CC_ASSERT(_type == Type::Boolean);
     return _u._boolean;
 }
 
 const ccstd::string &Value::toString() const {
-    assert(_type == Type::String);
+    CC_ASSERT(_type == Type::String);
     return *_u._string;
 }
 
@@ -488,7 +488,7 @@ ccstd::string Value::toStringForce() const {
     } else if (_type == Type::Undefined) {
         ss << "undefined";
     } else {
-        assert(false);
+        CC_ASSERT(false);
         ss << "[[BadValueType]]";
     }
     return ss.str();

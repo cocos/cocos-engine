@@ -95,7 +95,7 @@ void jsb_init_file_operation_delegate() { //NOLINT
     static se::ScriptEngine::FileOperationDelegate delegate;
     if (!delegate.isValid()) {
         delegate.onGetDataFromFile = [](const ccstd::string &path, const std::function<void(const uint8_t *, size_t)> &readCallback) -> void {
-            assert(!path.empty());
+            CC_ASSERT(!path.empty());
 
             Data fileData;
 
@@ -138,7 +138,7 @@ void jsb_init_file_operation_delegate() { //NOLINT
         };
 
         delegate.onGetStringFromFile = [](const ccstd::string &path) -> ccstd::string {
-            assert(!path.empty());
+            CC_ASSERT(!path.empty());
 
             ccstd::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
             if (FileUtils::getInstance()->isFileExist(byteCodePath)) {
@@ -181,7 +181,7 @@ void jsb_init_file_operation_delegate() { //NOLINT
         };
 
         delegate.onGetFullPath = [](const ccstd::string &path) -> ccstd::string {
-            assert(!path.empty());
+            CC_ASSERT(!path.empty());
             ccstd::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
             if (FileUtils::getInstance()->isFileExist(byteCodePath)) {
                 return FileUtils::getInstance()->fullPathForFilename(byteCodePath);
@@ -190,11 +190,11 @@ void jsb_init_file_operation_delegate() { //NOLINT
         };
 
         delegate.onCheckFileExist = [](const ccstd::string &path) -> bool {
-            assert(!path.empty());
+            CC_ASSERT(!path.empty());
             return FileUtils::getInstance()->isFileExist(path);
         };
 
-        assert(delegate.isValid());
+        CC_ASSERT(delegate.isValid());
 
         se::ScriptEngine::getInstance()->setFileOperationDelegate(delegate);
     }

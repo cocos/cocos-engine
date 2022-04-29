@@ -433,7 +433,7 @@
     if (rect.size.width < 1 || rect.size.height < 1)
         return;
     //REFINE:
-    //    assert(rect.origin.x == 0 && rect.origin.y == 0);
+    //    CC_ASSERT(rect.origin.x == 0 && rect.origin.y == 0);
     memset((void *)_imageData.getBytes(), 0x00, _imageData.getSize());
 }
 

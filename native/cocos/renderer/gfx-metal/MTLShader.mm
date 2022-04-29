@@ -163,7 +163,7 @@ bool CCMTLShader::createMTLFunction(const ShaderStage &stage) {
             //delayed instance and pretend tobe specialized function.
             _gpuShader->specializeColor = false;
             _gpuShader->shaderSrc = [shader retain];
-            assert(_gpuShader->shaderSrc != nil);
+            CC_ASSERT(_gpuShader->shaderSrc != nil);
             return true;
         }
     } else {
