@@ -56,10 +56,16 @@ class InstantiatedParticleSystemSubRegion extends InstantiatedSubRegionPlayer {
     }
 
     /**
-     * Stops the particle system no matter current time.
-     * @param _time Ignored.
+     * Pause the particle system no matter current time.
      */
-    public stop (_time: number): void {
+    public pause (): void {
+        this._particleSystem.pause();
+    }
+
+    /**
+     * Stops the particle system.
+     */
+    public stop (): void {
         this._particleSystem.stop();
     }
 

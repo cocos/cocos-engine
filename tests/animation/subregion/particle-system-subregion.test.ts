@@ -19,8 +19,7 @@ test('Particle system subregion test', () => {
         player.path = 'Non-existing node';
 
         const warnWatcher = captureWarns();
-        const host = new SubRegionHostMock(rootNode, subregion);
-        expect(host.wellInstantiated).toBe(false);
+        const host = new SubRegionHostMock(rootNode, subregion, 1.3);
         expect(warnWatcher.captured).toHaveLength(1);
         expect(warnWatcher.captured[0][0]).toMatch(/Non-existing node/);
         warnWatcher.stop();
@@ -32,8 +31,7 @@ test('Particle system subregion test', () => {
         player.path = 'Does Not Include a Particle System';
 
         const warnWatcher = captureWarns();
-        const host = new SubRegionHostMock(rootNode, subregion);
-        expect(host.wellInstantiated).toBe(false);
+        const host = new SubRegionHostMock(rootNode, subregion, 1.3);
         expect(warnWatcher.captured).toHaveLength(1);
         expect(warnWatcher.captured[0][0]).toMatch(/Does Not Include a Particle System/);
         warnWatcher.stop();
@@ -43,7 +41,10 @@ test('Particle system subregion test', () => {
         const subregion = new Subregion();
         const player = subregion.player = new ParticleSystemSubRegionPlayer();
         player.path = 'Particle System Node';
-        const host = new SubRegionHostMock(rootNode, subregion);
-        expect(host.wellInstantiated).toBe(true);
+        const warnWatcher = captureWarns();
+        const host = new SubRegionHostMock(rootNode, subregion, 1.3);
+        expect(host.randomAccessible).toBe(false);
+        expect(warnWatcher.captured).toHaveLength(0);
+        warnWatcher.stop();
     }
 });

@@ -33,7 +33,7 @@ import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { SkelAnimDataHub } from '../../3d/skeletal-animation/skeletal-animation-data-hub';
 import { WrapMode as AnimationWrapMode, WrapMode, WrapModeMask } from './types';
 import { legacyCC } from '../global-exports';
-import { Mat4, Quat, Vec3 } from '../math';
+import { approx, clamp, Mat4, Quat, Vec3 } from '../math';
 import { Node } from '../scene-graph/node';
 import { assertIsTrue } from '../data/utils/asserts';
 import type { PoseOutput } from './pose-output';
@@ -49,7 +49,7 @@ import './exotic-animation/exotic-animation';
 import { array } from '../utils/js';
 import type { AnimationMask } from './marionette/animation-mask';
 import { getGlobalAnimationManager } from './global-animation-manager';
-import { Subregion } from './subregion/subregion';
+import { InstantiatedSubRegionPlayer, Subregion } from './subregion/subregion';
 
 export declare namespace AnimationClip {
     export interface IEvent {
@@ -682,10 +682,17 @@ export class AnimationClip extends Asset {
             exoticAnimationEvaluator = this._exoticAnimation.createEvaluator(binder);
         }
 
+        let subregionEvaluation: SubregionEvaluation | undefined;
+        const { _subregions: subregions } = this;
+        if (this._subregions.length !== 0) {
+            subregionEvaluation = new SubregionEvaluation(subregions, target as Node);
+        }
+
         const evaluation = new AnimationClipEvaluation(
             trackEvalStatues,
             exoticAnimationEvaluator,
             rootMotionEvaluation,
+            subregionEvaluation,
         );
 
         return evaluation;
@@ -886,15 +893,167 @@ interface RootMotionOptions {
 
 type ExoticAnimationEvaluator = ReturnType<ExoticAnimation['createEvaluator']>;
 
+class SubregionEvaluation {
+    constructor (subregions: ReadonlyArray<Subregion>, rootNode: Node) {
+        this._subregions = subregions;
+        this._subregionEvaluationInfos = subregions.map(
+            (subregion): SubregionEvaluation['_subregionEvaluationInfos'][0] => {
+                const { player } = subregion;
+                if (!player) {
+                    return null;
+                }
+                const instantiatedPlayer = player.instantiate(rootNode);
+                if (!instantiatedPlayer) {
+                    return null;
+                }
+                return {
+                    instantiatedPlayer,
+                    entered: false,
+                    hostPauseTime: 0.0,
+                };
+            },
+        );
+    }
+
+    public evaluate (time: number) {
+        const {
+            _subregions: subregions,
+            _subregionEvaluationInfos: subregionEvaluationInfos,
+        } = this;
+        const nSubregions = subregions.length;
+        for (let iSubRegion = 0; iSubRegion < nSubregions; ++iSubRegion) {
+            const subregionEvaluationInfo = subregionEvaluationInfos[iSubRegion];
+            if (!subregionEvaluationInfo) {
+                continue;
+            }
+            const { entered, instantiatedPlayer } = subregionEvaluationInfo;
+            const { begin, end } = subregions[iSubRegion];
+            const withinSubregion = time >= begin && time <= end;
+            if (withinSubregion) {
+                if (!entered) {
+                    instantiatedPlayer.play(time - begin);
+                    subregionEvaluationInfo.entered = true;
+                }
+            } else if (entered) {
+                instantiatedPlayer.stop();
+                subregionEvaluationInfo.entered = false;
+            }
+        }
+    }
+
+    public notifyHostSpeedChanged (speed: number) {
+        // Transmit the speed to subregions that want a reconciled speed.
+        const {
+            _subregions: subregions,
+            _subregionEvaluationInfos: subregionEvaluationInfos,
+        } = this;
+        const nSubregions = subregions.length;
+        for (let iSubRegion = 0; iSubRegion < nSubregions; ++iSubRegion) {
+            const subregionEvaluationInfo = subregionEvaluationInfos[iSubRegion];
+            if (!subregionEvaluationInfo) {
+                continue;
+            }
+            const { instantiatedPlayer } = subregionEvaluationInfo;
+            const { reconciledSpeed } = subregions[iSubRegion];
+            if (reconciledSpeed) {
+                instantiatedPlayer.setSpeed(speed);
+            }
+        }
+    }
+
+    public notifyHostPlay (time: number) {
+        // Host has switched to "playing", this can be happened when:
+        // - Previous state is "stopped": we must have stopped all subregions.
+        // - Is pausing: we need to resume all subregions.
+        const {
+            _subregions: subregions,
+            _subregionEvaluationInfos: subregionEvaluationInfos,
+        } = this;
+        const nSubregions = subregions.length;
+        for (let iSubRegion = 0; iSubRegion < nSubregions; ++iSubRegion) {
+            const subregionEvaluationInfo = subregionEvaluationInfos[iSubRegion];
+            if (!subregionEvaluationInfo) {
+                continue;
+            }
+            const { begin, end } = subregions[iSubRegion];
+            const { instantiatedPlayer, entered } = subregionEvaluationInfo;
+            if (entered) {
+                const { hostPauseTime } = subregionEvaluationInfo;
+                // We can resume the subregion
+                // only if the pause/play happened at the same time
+                // or the subregion supports random access.
+                // Otherwise we have to say goodbye to that subregion.
+                if (instantiatedPlayer.randomAccess || approx(hostPauseTime, time, 1e-5)) {
+                    const startTime = clamp(time, begin, end);
+                    instantiatedPlayer.play(startTime - begin);
+                } else {
+                    instantiatedPlayer.stop();
+                }
+            }
+        }
+    }
+
+    public notifyHostPause (time: number) {
+        // Host is paused, simply transmit this to subregions.
+        const {
+            _subregions: subregions,
+            _subregionEvaluationInfos: subregionEvaluationInfos,
+        } = this;
+        const nSubregions = subregions.length;
+        for (let iSubRegion = 0; iSubRegion < nSubregions; ++iSubRegion) {
+            const subregionEvaluationInfo = subregionEvaluationInfos[iSubRegion];
+            if (!subregionEvaluationInfo) {
+                continue;
+            }
+            const { instantiatedPlayer, entered } = subregionEvaluationInfo;
+            if (entered) {
+                instantiatedPlayer.pause();
+                subregionEvaluationInfo.hostPauseTime = time;
+            }
+        }
+    }
+
+    public notifyHostStop () {
+        // Now that host is stopped, we stop all subregions' playing
+        // regardless of their progresses.
+        const {
+            _subregions: subregions,
+            _subregionEvaluationInfos: subregionEvaluationInfos,
+        } = this;
+        const nSubregions = subregions.length;
+        for (let iSubRegion = 0; iSubRegion < nSubregions; ++iSubRegion) {
+            const subregionEvaluationInfo = subregionEvaluationInfos[iSubRegion];
+            if (!subregionEvaluationInfo) {
+                continue;
+            }
+            const { instantiatedPlayer, entered } = subregionEvaluationInfo;
+            if (entered) {
+                subregionEvaluationInfo.entered = false;
+                instantiatedPlayer.stop();
+            }
+        }
+    }
+
+    private declare _subregions: ReadonlyArray<Subregion>;
+
+    private declare _subregionEvaluationInfos: Array<null | {
+        instantiatedPlayer: InstantiatedSubRegionPlayer;
+        entered: boolean;
+        hostPauseTime: number;
+    }>;
+}
+
 class AnimationClipEvaluation {
     constructor (
         trackEvalStatuses: TrackEvalStatus[],
         exoticAnimationEvaluator: ExoticAnimationEvaluator | undefined,
         rootMotionEvaluation: RootMotionEvaluation | undefined,
+        subregionEvaluation: SubregionEvaluation | undefined,
     ) {
         this._trackEvalStatues = trackEvalStatuses;
         this._exoticAnimationEvaluator = exoticAnimationEvaluator;
         this._rootMotionEvaluation = rootMotionEvaluation;
+        this._subregionEvaluation = subregionEvaluation;
     }
 
     /**
@@ -905,6 +1064,7 @@ class AnimationClipEvaluation {
         const {
             _trackEvalStatues: trackEvalStatuses,
             _exoticAnimationEvaluator: exoticAnimationEvaluator,
+            _subregionEvaluation: subregionEvaluation,
         } = this;
 
         const nTrackEvalStatuses = trackEvalStatuses.length;
@@ -917,6 +1077,36 @@ class AnimationClipEvaluation {
         if (exoticAnimationEvaluator) {
             exoticAnimationEvaluator.evaluate(time);
         }
+
+        if (subregionEvaluation) {
+            subregionEvaluation.evaluate(time);
+        }
+    }
+
+    public notifyHostSpeedChanged (value: number) {
+        this._subregionEvaluation?.notifyHostSpeedChanged(value);
+    }
+
+    /**
+     * Notifies that the host has ran into **playing** state.
+     * @param time The time where host ran into playing state.
+     */
+    public notifyHostPlay (time: number) {
+        this._subregionEvaluation?.notifyHostPlay(time);
+    }
+
+    /**
+     * Notifies that the host has ran into **pause** state.
+     */
+    public notifyHostPause (time: number) {
+        this._subregionEvaluation?.notifyHostPause(time);
+    }
+
+    /**
+     * Notifies that the host has ran into **stopped** state.
+     */
+    public notifyHostStop () {
+        this._subregionEvaluation?.notifyHostStop();
     }
 
     /**
@@ -934,6 +1124,7 @@ class AnimationClipEvaluation {
     private _exoticAnimationEvaluator: ExoticAnimationEvaluator | undefined;
     private _trackEvalStatues:TrackEvalStatus[] = [];
     private _rootMotionEvaluation: RootMotionEvaluation | undefined = undefined;
+    private _subregionEvaluation: SubregionEvaluation | undefined = undefined;
 }
 
 class BoneTransform {

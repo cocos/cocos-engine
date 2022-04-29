@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { EDITOR } from 'internal:constants';
 import { Node } from '../scene-graph/node';
 import { AnimationClip } from './animation-clip';
@@ -218,7 +216,14 @@ export class AnimationState extends Playable {
      * @zh 播放速率。
      * @default: 1.0
      */
-    public speed = 1.0;
+    get speed () {
+        return this._speed;
+    }
+
+    set speed (value) {
+        this._speed = value;
+        this._clipEval?.notifyHostSpeedChanged(value);
+    }
 
     /**
      * @en The current accumulated time of this animation in seconds.
@@ -273,6 +278,7 @@ export class AnimationState extends Playable {
     protected _curveLoaded = false;
 
     private _clip: AnimationClip;
+    private _speed = 1.0;
     private _useSimpleProcess = false;
     private _target: Node | null = null;
     private _wrapMode = WrapMode.Normal;
@@ -496,6 +502,7 @@ export class AnimationState extends Playable {
         this._delayTime = this._delay;
         this._onReplayOrResume();
         this.emit(EventType.PLAY, this);
+        this._clipEval?.notifyHostPlay(this.current);
     }
 
     protected onStop () {
@@ -503,16 +510,19 @@ export class AnimationState extends Playable {
             this._onPauseOrStop();
         }
         this.emit(EventType.STOP, this);
+        this._clipEval?.notifyHostStop();
     }
 
     protected onResume () {
         this._onReplayOrResume();
         this.emit(EventType.RESUME, this);
+        this._clipEval?.notifyHostPlay(this.current);
     }
 
     protected onPause () {
         this._onPauseOrStop();
         this.emit(EventType.PAUSE, this);
+        this._clipEval?.notifyHostPause(this.current);
     }
 
     /**

@@ -46,18 +46,24 @@ class InstantiatedAnimationClipSubRegionPlayer extends InstantiatedSubRegionPlay
     }
 
     /**
-     * Plays the particle system from the beginning no matter current time.
+     * Plays the animation state at specified time.
      */
     public play (time: number): void {
+        this._animationState.play(); // Note play() rewinds the time to 0
         this._animationState.time = time;
-        this._animationState.play();
     }
 
     /**
-     * Stops the animation state no matter current time.
-     * @param _time Ignored.
+     * Pause the animation state.
      */
-    public stop (_time: number): void {
+    public pause (): void {
+        this._animationState.pause();
+    }
+
+    /**
+     * Stops the animation state.
+     */
+    public stop (): void {
         this._animationState.stop();
     }
 

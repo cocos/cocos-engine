@@ -55,6 +55,13 @@ export abstract class SubRegionPlayer {
 
 export abstract class InstantiatedSubRegionPlayer {
     /**
+     * 可以随意调整此播放器到任何时间。
+     */
+    public get randomAccess () {
+        return this._randomAccess;
+    }
+
+    /**
      * 销毁此播放器。
      */
     public abstract destroy (): void;
@@ -66,14 +73,23 @@ export abstract class InstantiatedSubRegionPlayer {
     public abstract play(time: number): void;
 
     /**
-     * 在结束播放此子区域时触发，或所在动画本身停止播放时触发。
-     * @param time Current time on the subregion, relative to subregion's start。
+     * 在暂停此子区域的播放时触发。
      */
-    public abstract stop(time: number): void;
+    public abstract pause(): void;
+
+    /**
+     * 在结束播放此子区域时触发，或所在动画本身停止播放时触发。
+     */
+    public abstract stop(): void;
 
     /**
      * 如果子区域的 [[`Subregion.reconciledSpeed`]] 为 `true`，则在宿主的播放速度改变时触发。
      * @param speed The speed.
      */
     public abstract setSpeed(speed: number): void;
+
+    /**
+     * @internal
+     */
+    protected _randomAccess = false;
 }
