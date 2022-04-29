@@ -38,10 +38,21 @@ jest.mock(
 jest.mock('../cocos/core/platform/debug', () => {
     const result = {
         __esModule: true, // Use it when dealing with esModules
-        ...jest.requireActual('../cocos/core/platform/debug'),
+        ...jest.requireActual('../cocos/core/platform/debug')
     };
-    if (result.warnID) {
-        result.warnID = jest.fn();
+    const { feed } = require('./utils/log-capture');
+    for (const logMethodName of ['warn', 'error', 'warnID', 'errorID']) {
+        if (result[logMethodName]) {
+            const log = result[logMethodName];
+            result[logMethodName] = jest.fn((...args: unknown[]) => {
+                if (feed(logMethodName, ...args)) {
+                    // TODO: this is an old behaviour to shut some warns
+                    if (logMethodName !== 'warnID') {
+                        log.call(result, ...args);
+                    }
+                }
+            });
+        }
     }
     return result;
 });
