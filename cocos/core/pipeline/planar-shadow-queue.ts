@@ -53,7 +53,7 @@ export class PlanarShadowQueue {
         this._instancedQueue.clear();
         this._pendingModels.length = 0;
         this._castModels.length = 0;
-        if (!shadows.enabled || shadows.type !== ShadowType.Planar) { return; }
+        if (!shadows.enabled || shadows.type !== ShadowType.Planar || shadows.normal.length() < 0.000001) { return; }
 
         const scene = camera.scene!;
         const frustum = camera.frustum;

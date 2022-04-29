@@ -364,11 +364,11 @@ export class EditBox extends Component {
     public editingReturn: ComponentEventHandler[] = [];
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _impl: EditBoxImplBase | null = null;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _background: Sprite | null = null;
 
@@ -472,7 +472,7 @@ export class EditBox extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _editBoxEditingDidBegan () {
         ComponentEventHandler.emitEvents(this.editingDidBegan, this);
@@ -480,7 +480,7 @@ export class EditBox extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _editBoxEditingDidEnded () {
         ComponentEventHandler.emitEvents(this.editingDidEnded, this);
@@ -488,7 +488,7 @@ export class EditBox extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _editBoxTextChanged (text: string) {
         text = this._updateLabelStringStyle(text, true);
@@ -498,7 +498,7 @@ export class EditBox extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _editBoxEditingReturn () {
         ComponentEventHandler.emitEvents(this.editingReturn, this);
@@ -506,7 +506,7 @@ export class EditBox extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _showLabels () {
         this._isLabelVisible = true;
@@ -514,7 +514,7 @@ export class EditBox extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _hideLabels () {
         this._isLabelVisible = false;
@@ -577,6 +577,7 @@ export class EditBox extends Component {
             let node = this.node.getChildByName('TEXT_LABEL');
             if (!node) {
                 node = new Node('TEXT_LABEL');
+                node.layer = this.node.layer;
             }
             textLabel = node.getComponent(Label);
             if (!textLabel) {
@@ -607,6 +608,7 @@ export class EditBox extends Component {
             let node = this.node.getChildByName('PLACEHOLDER_LABEL');
             if (!node) {
                 node = new Node('PLACEHOLDER_LABEL');
+                node.layer = this.node.layer;
             }
             placeholderLabel = node.getComponent(Label);
             if (!placeholderLabel) {
@@ -619,7 +621,6 @@ export class EditBox extends Component {
         // update
         const transform = this._placeholderLabel!.node._uiProps.uiTransformComp;
         transform!.setAnchorPoint(0, 1);
-        placeholderLabel.overflow = Label.Overflow.CLAMP;
         if (this._inputMode === InputMode.ANY) {
             placeholderLabel.verticalAlign = VerticalTextAlignment.TOP;
             placeholderLabel.enableWrapText = true;
@@ -764,6 +765,8 @@ export class EditBox extends Component {
         if (backgroundNode) {
             backgroundNode._uiProps.uiTransformComp!.setContentSize(trans.contentSize);
         }
+
+        this._syncSize();
     }
 }
 
@@ -828,3 +831,5 @@ if (typeof window === 'object' && typeof document === 'object' && !MINIGAME && !
  * ```
  * @return {Boolean} whether it is the first time the destroy being called
  */
+
+legacyCC.internal.EditBox = EditBox;

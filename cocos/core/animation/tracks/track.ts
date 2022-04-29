@@ -6,6 +6,7 @@ import { error, errorID, warn, warnID } from '../../platform';
 import { Node } from '../../scene-graph';
 import { js } from '../../utils/js';
 import { CLASS_NAME_PREFIX_ANIM, createEvalSymbol } from '../define';
+import type { AnimationMask } from '../marionette/animation-mask';
 import { PoseOutput } from '../pose-output';
 import { ComponentPath, HierarchyPath, isPropertyPath, TargetPath } from '../target-path';
 import { IValueProxyFactory } from '../value-proxy';
@@ -55,7 +56,8 @@ class TrackPath {
     }
 
     /**
-     * @legacyPublic Reserved for backward compatibility. DO NOT USE IT IN YOUR CODE.
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future. Reserved for backward compatibility.
+     * DO NOT USE IT IN YOUR CODE.
      */
     public toCustomized (resolver: CustomizedTrackPathResolver) {
         this._paths.push(resolver);
@@ -114,6 +116,9 @@ class TrackPath {
         return this[normalizedFollowTag](object, beginIndex, endIndex);
     }
 
+    /**
+     * @internal
+     */
     public [parseTrsPathTag] () {
         const { _paths: paths } = this;
         const nPaths = paths.length;
@@ -157,6 +162,9 @@ class TrackPath {
         return { node: nodePath, property: prs };
     }
 
+    /**
+     * @internal
+     */
     public [normalizedFollowTag] (root: unknown, beginIndex: number, endIndex: number) {
         const { _paths: paths } = this;
         let result = root;
@@ -253,6 +261,24 @@ export class TrackBinding {
             return binding;
         }
     }
+
+    public isMaskedOff (mask: AnimationMask) {
+        const trsPath = this.parseTrsPath();
+        if (!trsPath) {
+            return false;
+        }
+        const joints = mask.joints[Symbol.iterator]();
+        for (let jointMaskInfoIter = joints.next();
+            !jointMaskInfoIter.done;
+            jointMaskInfoIter = joints.next()) {
+            const { value: jointMaskInfo } = jointMaskInfoIter;
+            if (jointMaskInfo.path !== trsPath.node) {
+                continue;
+            }
+            return !jointMaskInfo.enabled;
+        }
+        return false;
+    }
 }
 
 function isTrsPropertyName (name: string | number): name is 'position' | 'rotation' | 'scale' | 'eulerAngles' {
@@ -287,6 +313,9 @@ export abstract class Track {
         this._binding.proxy = value;
     }
 
+    /**
+     * @internal
+     */
     get [trackBindingTag] () {
         return this._binding;
     }
@@ -304,6 +333,9 @@ export abstract class Track {
         return range;
     }
 
+    /**
+     * @internal
+     */
     public abstract [createEvalSymbol] (runtimeBinding: RuntimeBinding): TrackEval;
 
     @serializable
@@ -358,10 +390,16 @@ export abstract class SingleChannelTrack<TCurve extends Curve> extends Track {
         return [this._channel];
     }
 
+    /**
+     * @internal
+     */
     protected createCurve (): TCurve {
         throw new Error(`Not impl`);
     }
 
+    /**
+     * @internal
+     */
     public [createEvalSymbol] (_runtimeBinding: RuntimeBinding): TrackEval {
         const { curve } = this._channel;
         return new SingleChannelTrackEval(curve);

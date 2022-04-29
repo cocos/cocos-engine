@@ -6,9 +6,6 @@ const version = pkg.version.replace(/(^\d+\.\d+)\..*$/, (str, a) => {
 const url = 'https://docs.cocos.com/creator';
 
 module.exports = {
-    menu: {
-        custom_script: '自定义脚本',
-    },
     help: {
         cc: {
             Node: `${url}/${version}/manual/zh/concepts/scene/node-component.html`,
@@ -100,8 +97,8 @@ module.exports = {
     },
     shadow: {
         enabled: '是否开启实时阴影',
-        normal: '阴影接收平面的法线，垂直于阴影，用于调整阴影的倾斜度',
-        distance: '阴影接收平面与原点的距离',
+        planeDirection: '阴影接收平面的法线，垂直于阴影，用于调整阴影的倾斜度',
+        planeHeight: '阴影接收平面距离原点的高度',
         saturation: '阴影饱和度，建议设置为 1.0。若需要减小方向光阴影的饱和程度，推荐通过增加环境光来实现，而不是调节该值。',
         pcf: '开启软阴影，目前支持 HARD（硬采样）、SOFT（4 倍采样）、SOFT_2X（9 倍采样）类型',
         bias: '增加深度偏移值（世界空间单位）可以有效消除阴影摩尔纹，但是过大的值可能造成漏光现象',
@@ -113,6 +110,7 @@ module.exports = {
         orthoSize: '固定区域大小，该值越大则阴影精度越低',
         invisibleOcclusionRange: '如果有背后的潜在投射物阴影丢失，请增大该值（世界空间单位）',
         shadowDistance: '阴影有效距离（世界空间单位），该值越大则阴影精度越低',
+        maxReceived: '产生阴影的有效光源数量',
     },
     animation: {
         default_clip: '在勾选自动播放或调用 play() 时默认播放的动画 clip。',
@@ -527,6 +525,7 @@ module.exports = {
     richtext: {
         string: '富文本的内容字符串, 你可以在里面使用 BBCode 来指定特定文本的样式',
         horizontal_align: '水平对齐方式',
+        vertical_align: '竖直对齐方式',
         font_size: '字体大小, 单位是 point',
         font: '富文本定制字体',
         font_family: '富文本定制系统字体',
@@ -747,6 +746,10 @@ module.exports = {
                 label: '3D',
                 description: '3D',
             },
+            animation: {
+                label: '动画',
+                description: '动画系统。',
+            },
         },
         core: {
             label: "核心功能",
@@ -863,6 +866,18 @@ module.exports = {
         dragon_bones: {
             label: "DragonBones",
             description: "DragonBones 支持。",
+        },
+        animation: {
+            label: "基础动画功能",
+            description: "基础动画功能支持。",
+        },
+        skeletal_animation: {
+            label: "骨骼动画",
+            description: "骨骼动画支持。",
+        },
+        marionette: {
+            label: "Marionette 动画系统",
+            description: "启用 Marionette 动画系统。",
         },
     },
     renderable_2d: {

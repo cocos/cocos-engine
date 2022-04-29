@@ -58,6 +58,9 @@
                 "3d": {
                     "$ref": "#/definitions/Item"
                 },
+                "animation": {
+                    "$ref": "#/definitions/Item"
+                },
                 "audio": {
                     "$ref": "#/definitions/Item"
                 },
@@ -116,6 +119,9 @@
                     "$ref": "#/definitions/Item"
                 },
                 "profiler": {
+                    "$ref": "#/definitions/Item"
+                },
+                "skeletal-animation": {
                     "$ref": "#/definitions/Item"
                 },
                 "spine": {
@@ -193,6 +199,9 @@
                 "3d": {
                     "$ref": "#/definitions/BaseItem"
                 },
+                "animation": {
+                    "$ref": "#/definitions/BaseItem"
+                },
                 "audio": {
                     "$ref": "#/definitions/BaseItem"
                 },
@@ -251,6 +260,9 @@
                     "$ref": "#/definitions/BaseItem"
                 },
                 "profiler": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "skeletal-animation": {
                     "$ref": "#/definitions/BaseItem"
                 },
                 "spine": {

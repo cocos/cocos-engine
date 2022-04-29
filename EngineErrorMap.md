@@ -40,18 +40,15 @@ cocos2d : getActionByTag(tag = %s): Action not found
 
 ### 1006
 
-<!-- DEPRECATED -->
 [Action step]. override me
 
 ### 1007
 
-<!-- DEPRECATED -->
 [Action update]. override me
 
 ### 1008
 
-<!-- DEPRECATED -->
-cocos2d: FiniteTimeAction#reverse: Implement me
+[Action reverse]. override me
 
 ### 1009
 
@@ -621,6 +618,7 @@ Invalid index in MultiplexLayer switchTo message
 cc.Layer.addLayer(): layer should be non-null
 
 ### 2104
+
 Layer collision. The name of layer (%s) is collided with the name or value of some layer
 
 ### 2200
@@ -1203,6 +1201,10 @@ Error Texture in %s.
 
 Set same texture %s.
 
+### 3124
+
+Texture: setMipRange failed because base level is larger than max level
+
 ### 3200
 
 <!-- DEPRECATED -->
@@ -1745,7 +1747,7 @@ Can't find easing type [%s]
 
 ### 3907
 
-animator not added or already removed
+Animation state is not playing or already removed
 
 ### 3908
 
@@ -2889,6 +2891,14 @@ saveToFile isn't supported on Cocos2d-Html5
 
 newCCImage isn't supported on Cocos2d-Html5
 
+### 7606
+
+GFXTexture is null
+
+### 7607
+
+readPixels buffer size smaller than %d
+
 ### 7700
 
 On the web is always keep the aspect ratio
@@ -3059,6 +3069,26 @@ Stencil manager does not support level bigger than %d in this device.
 
 Stencil manager is already empty, cannot pop any mask
 
+### 9002
+
+Failed to request any buffer from a mesh buffer without accessor
+
+### 9003
+
+The internal state of LinearBufferAccessor have severe issue and irreversible, please check the reason
+
+### 9004
+
+Failed to allocate chunk in StaticVBAccessor, the requested buffer might be too large: %d bytes
+
+### 9005
+
+BATCHER2D_MEM_INCREMENT is too large, the Max value for BATCHER2D_MEM_INCREMENT is 2303KB (smaller than 65536 * 9 * 4 / 1024 = 2304KB)
+
+### 9006
+
+QuadRenderData is removed, please use MeshRenderData instead.
+
 ### 9100
 
 texture size exceeds current device limits %d/%d
@@ -3192,3 +3222,36 @@ Graph update has been interrupted since too many transitions(greater than %s) oc
 ### 14100
 
 Pool.destroy no longer take a function as parameter, Please specify destruct function in the construction of Pool instead
+
+### 14200
+
+Can not update a static mesh.
+
+### 14201
+
+The primitiveIndex is out of range.
+
+### 14300
+
+Can not keep world transform due to the zero scaling of parent node
+
+### 14400
+
+Spline error: less than 2 knots.
+
+### 14401
+
+Spline error: less than 4 knots or not a multiple of 4.
+
+<!-- Rendering algorithm reserved: 15000 - 16000 -->
+
+### 15000
+
+Can not find corresponding diffuse map for environment lighting, use hemisphere diffuse instead, change environment lighting type to regenerate diffuse map
+
+### 15001
+
+Can not find environment map, disable IBL lighting
+### 15002
+
+Diffuse map resource is missing, please change environment lighting type to regenerate resource

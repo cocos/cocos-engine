@@ -66,6 +66,7 @@ CCProgram camera-texture-vs %{
   precision highp float;
   #include <input>
   #include <cc-global>
+  #include <decode-base>
   #include <cc-local-batch>
   #include <input>
 
@@ -108,7 +109,7 @@ CCProgram camera-texture-fs %{
   #include <output>
 
   #if USE_ALPHA_TEST
-    #pragma define ALPHA_TEST_CHANNEL options([a, r, g, b])
+    #pragma define-meta ALPHA_TEST_CHANNEL options([a, r, g, b])
   #endif
 
   #if USE_TEXTURE

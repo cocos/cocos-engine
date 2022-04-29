@@ -33,7 +33,6 @@ import { IAssembler, IAssemblerManager } from '../2d/renderer/base';
 import { ParticleSystem2D } from './particle-system-2d';
 import { MeshRenderData } from '../2d/renderer/render-data';
 import { IBatcher } from '../2d/renderer/i-batcher';
-import { PositionType } from './define';
 import { legacyCC } from '../core/global-exports';
 
 export const ParticleAssembler: IAssembler = {
@@ -47,43 +46,6 @@ export const ParticleAssembler: IAssembler = {
     updateRenderData () {
     },
     fillBuffers (comp: ParticleSystem2D, renderer: IBatcher) {
-        if (comp === null) {
-            return;
-        }
-
-        const renderData = comp._simulator.renderData;
-        if (renderData.vertexCount === 0 || renderData.indicesCount === 0) {
-            return;
-        }
-
-        let buffer = renderer.acquireBufferBatch()!;
-        let vertexOffset = buffer.byteOffset >> 2;
-        let indicesOffset = buffer.indicesOffset;
-        let vertexId = buffer.vertexOffset;
-        const isRecreate = buffer.request(renderData.vertexCount, renderData.indicesCount);
-        if (!isRecreate) {
-            buffer = renderer.currBufferBatch!;
-            vertexOffset = 0;
-            indicesOffset = 0;
-            vertexId = 0;
-        }
-
-        // buffer data may be realloc, need get reference after request.
-        const vBuf = buffer.vData!;
-        const iBuf = buffer.iData!;
-
-        const vData = renderData.vData;
-        const iData = renderData.iData as number[];
-
-        const vLen = renderData.vertexCount * 9;
-        for (let i = 0; i < vLen; i++) {
-            vBuf[vertexOffset++] = vData[i];
-        }
-
-        const iLen = renderData.indicesCount;
-        for (let i = 0; i < iLen; i++) {
-            iBuf[indicesOffset++] = iData[i] + vertexId;
-        }
     },
 };
 

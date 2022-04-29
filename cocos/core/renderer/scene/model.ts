@@ -30,7 +30,7 @@ import { RenderingSubMesh } from '../../assets/rendering-sub-mesh';
 import { AABB } from '../../geometry/aabb';
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
-import { RenderScene } from './render-scene';
+import { RenderScene } from '../core/render-scene';
 import { Texture2D } from '../../assets/texture-2d';
 import { SubModel } from './submodel';
 import { Pass, IMacroPatch, BatchingSchemes } from '../core/pass';
@@ -43,7 +43,6 @@ import { INST_MAT_WORLD, UBOLocal, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDI
 const m4_1 = new Mat4();
 
 const shadowMapPatches: IMacroPatch[] = [
-    { name: 'CC_ENABLE_DIR_SHADOW', value: true },
     { name: 'CC_RECEIVE_SHADOW', value: true },
 ];
 
@@ -122,6 +121,22 @@ export class Model {
         return this._instMatWorldIdx >= 0;
     }
 
+    get shadowBias () {
+        return this._shadowBias;
+    }
+
+    set shadowBias (val) {
+        this._shadowBias = val;
+    }
+
+    get shadowNormalBias () {
+        return this._shadowNormalBias;
+    }
+
+    set shadowNormalBias (val) {
+        this._shadowNormalBias = val;
+    }
+
     get receiveShadow () {
         return this._receiveShadow;
     }
@@ -198,6 +213,8 @@ export class Model {
 
     protected _receiveShadow = false;
     protected _castShadow = false;
+    protected _shadowBias = 0;
+    protected _shadowNormalBias = 0;
     protected _enabled = true;
     protected _visFlags = Layers.Enum.NONE;
 
@@ -363,6 +380,13 @@ export class Model {
         }
     }
 
+    public onGeometryChanged () {
+        const subModels = this._subModels;
+        for (let i = 0; i < subModels.length; i++) {
+            subModels[i].onGeometryChanged();
+        }
+    }
+
     public updateLightingmap (texture: Texture2D | null, uvParam: Vec4) {
         Vec4.toArray(this._localData, uvParam, UBOLocal.LIGHTINGMAP_UVPARAM);
         this._localDataUpdated = true;
@@ -386,6 +410,15 @@ export class Model {
                 descriptorSet.update();
             }
         }
+    }
+
+    public updateLocalShadowBias () {
+        const sv = this._localData;
+        sv[UBOLocal.LOCAL_SHADOW_BIAS + 0] = this._shadowBias;
+        sv[UBOLocal.LOCAL_SHADOW_BIAS + 1] = this._shadowNormalBias;
+        sv[UBOLocal.LOCAL_SHADOW_BIAS + 2] = 0;
+        sv[UBOLocal.LOCAL_SHADOW_BIAS + 3] = 0;
+        this._localDataUpdated = true;
     }
 
     public getMacroPatches (subModelIndex: number): IMacroPatch[] | null {

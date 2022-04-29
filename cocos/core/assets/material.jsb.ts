@@ -82,6 +82,7 @@ interface IMaterialInfo {
 
 type MaterialPropertyFull = MaterialProperty | TextureBase | Texture | null;
 
+declare const jsb: any;
 const matProto: any = jsb.Material.prototype;
 
 type setProperyCB = (name: string, val: MaterialPropertyFull | MaterialPropertyFull[], passIdx?: number) => void;
@@ -156,7 +157,7 @@ matProto.getProperty = function (name: string, passIdx?: number) {
     const val = this._getProperty(name, passIdx);
     if (Array.isArray(val)) {
         const first = val[0];
-        const arr = []; // cjh TODO: optimize temporary gc objects being created
+        const arr: any[] = []; // cjh TODO: optimize temporary gc objects being created
         if (first instanceof Vec2) {
             for (let i = 0, len = val.length; i < len; ++i) {
                 const e = val[i];
@@ -236,6 +237,7 @@ matProto.getProperty = function (name: string, passIdx?: number) {
     return ret || val;
 };
 
+// @ts-ignore
 export type Material = jsb.Material;
 export const Material = jsb.Material;
 legacyCC.Material = Material;
@@ -301,6 +303,7 @@ materialProto._ctor = function () {
     // _initializerDefineProperty(_this, "_defines", _descriptor3$7, _assertThisInitialized(_this));
     // _initializerDefineProperty(_this, "_states", _descriptor4$6, _assertThisInitialized(_this));
     // _initializerDefineProperty(_this, "_props", _descriptor5$4, _assertThisInitialized(_this));
+    this._isCtorCalled = true;
 };
 
 const oldOnLoaded = materialProto.onLoaded;
@@ -317,6 +320,13 @@ Object.defineProperty(materialProto, 'passes', {
     enumerable: true,
     configurable: true,
     get () {
+        if (!this._isCtorCalled) {
+            // Builtin materials are created in cpp, the _passes property is not updated when access it in JS.
+            // So we need to invoke getPasses() to sync _passes property.
+            this._ctor();
+            this._passes = this.getPasses();
+        }
+
         return this._passes;
     },
 });

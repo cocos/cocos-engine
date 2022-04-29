@@ -407,8 +407,8 @@ export class TiledLayer extends Renderable2D {
 
     onDisable () {
         super.onDisable();
-        this.node.parent!.off(NodeEventType.SIZE_CHANGED, this.updateCulling, this);
-        this.node.parent!.off(NodeEventType.TRANSFORM_CHANGED, this.updateCulling, this);
+        this.node.parent?.off(NodeEventType.SIZE_CHANGED, this.updateCulling, this);
+        this.node.parent?.off(NodeEventType.TRANSFORM_CHANGED, this.updateCulling, this);
         this.node.off(NodeEventType.SIZE_CHANGED, this.updateCulling, this);
         this.node.off(NodeEventType.TRANSFORM_CHANGED, this.updateCulling, this);
         this.node.off(NodeEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
@@ -422,10 +422,6 @@ export class TiledLayer extends Renderable2D {
         this._leftDownToCenterY = trans.height * trans.anchorY * scale.y;
         this._cullingDirty = true;
         this.markForUpdateRenderData();
-    }
-
-    onDestroy () {
-        super.onDestroy();
     }
 
     /**
@@ -1007,10 +1003,16 @@ export class TiledLayer extends Renderable2D {
         // record max rect, when viewPort is bigger than layer, can make it smaller
         if (rightTop.row < cullingRow) {
             rightTop.row = cullingRow;
+            if (layerOrientation === Orientation.ISO) {
+                rightTop.row += 1;
+            }
         }
 
         if (rightTop.col < cullingCol) {
             rightTop.col = cullingCol;
+            if (layerOrientation === Orientation.ISO) {
+                rightTop.col += 1;
+            }
         }
 
         // _offset is whole layer offset
@@ -1380,14 +1382,14 @@ export class TiledLayer extends Renderable2D {
         }
         if (arr.length > 0) {
             const last = arr[arr.length - 1];
-            if (last.renderData && last.renderData.byteCount === 0) {
+            if (last.renderData && last.renderData.vertexCount === 0) {
                 return last as TiledMeshData;
             }
         }
 
-        const renderData = new MeshRenderData();
+        const renderData = MeshRenderData.add();
         const comb = { renderData, texture: null };
-        Object.defineProperty(renderData, 'material', { get: () => this.getRenderMaterial(0) });
+        renderData.material = this.getRenderMaterial(0);
         this._meshRenderDataArray.push(comb);
         return comb;
     }
@@ -1397,9 +1399,10 @@ export class TiledLayer extends Renderable2D {
             this._meshRenderDataArray = [];
         }
         const arr = this._meshRenderDataArray as any[];
-        while (arr.length > 0 && arr[arr.length - 1].renderData && arr[arr.length - 1].renderData.byteCount === 0) {
-            arr.pop();
-        }
+        // TODO temporary fix for shield node test case
+        // while (arr.length > 0 && arr[arr.length - 1].renderData && arr[arr.length - 1].renderData.vertexCount === 0) {
+        // arr.pop();
+        // }
         if (arr.length > 0) {
             if (arr[arr.length - 1].subNodes && arr[arr.length - 1].subNodes.length === 0) {
                 return arr[arr.length - 1] as TiledSubNodeData;
@@ -1414,13 +1417,17 @@ export class TiledLayer extends Renderable2D {
 
     public destroyRenderData () {
         if (this._meshRenderDataArray) {
-            this._meshRenderDataArray.forEach((rd) => { if ((rd as TiledMeshData).renderData) (rd as TiledMeshData).renderData.reset(); });
+            this._meshRenderDataArray.forEach((rd) => {
+                const renderData = (rd as TiledMeshData).renderData;
+                if (renderData) MeshRenderData.remove(renderData);
+            });
             this._meshRenderDataArray.length = 0;
         }
+        super.destroyRenderData();
     }
 
     protected _flushAssembler () {
-        const assembler = TiledLayer.Assembler!.getAssembler(this);
+        const assembler = TiledLayer.Assembler.getAssembler(this);
         if (this._assembler !== assembler) {
             this._assembler = assembler;
         }
@@ -1434,7 +1441,7 @@ export class TiledLayer extends Renderable2D {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _meshRenderDataArrayIdx = 0;
     protected _render (ui: IBatcher) {
@@ -1449,7 +1456,7 @@ export class TiledLayer extends Renderable2D {
                     });
                 } else if ((m as TiledMeshData).texture) {
                     // NOTE: 由于 commitComp 只支持单张纹理, 故分多次提交
-                    ui.commitComp(this, (m as TiledMeshData).texture, this._assembler, null);
+                    ui.commitComp(this, (m as TiledMeshData).renderData, (m as TiledMeshData).texture, this._assembler, null);
                 }
             }
             this.node._static = true;

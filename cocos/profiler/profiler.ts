@@ -38,7 +38,7 @@ import { Pass } from '../core/renderer';
 import { preTransforms } from '../core/math/mat4';
 import { JSB } from '../core/default-constants';
 import { Root } from '../core/root';
-import { RenderPipeline } from '../core';
+import { PipelineRuntime } from '../core/pipeline/custom/pipeline';
 
 const _characters = '0123456789. ';
 
@@ -94,7 +94,7 @@ const _constants = {
 
 export class Profiler {
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _stats: IProfilerState | null = null;
     public id = '__Profiler__';
@@ -104,7 +104,7 @@ export class Profiler {
     private _rootNode: Node | null = null;
     private _device: Device | null = null;
     private _swapchain: Swapchain | null = null;
-    private _pipeline: RenderPipeline = null!;
+    private _pipeline: PipelineRuntime = null!;
     private _meshRenderer: MeshRenderer = null!;
     private readonly _canvas: HTMLCanvasElement | null = null;
     private readonly _ctx: CanvasRenderingContext2D | null = null;

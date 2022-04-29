@@ -104,8 +104,8 @@ export class Color extends ValueType {
         out.r = parseInt(hexString.substr(0, 2), 16) || 0;
         out.g = parseInt(hexString.substr(2, 2), 16) || 0;
         out.b = parseInt(hexString.substr(4, 2), 16) || 0;
-        out.a = parseInt(hexString.substr(6, 2), 16);
-        out.a = !Number.isNaN(out.a) ? out.a : 255;
+        const a = parseInt(hexString.substr(6, 2), 16);
+        out.a = !Number.isNaN(a) ? a : 255;
         out._val = ((out.a << 24) >>> 0) + (out.b << 16) + (out.g << 8) + out.r;
         return out;
     }
@@ -303,7 +303,7 @@ export class Color extends ValueType {
     set w (value) { this.a = value * 255; }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _val = 0;
 
@@ -654,7 +654,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _set_r_unsafe (red) {
         this._val = ((this._val & 0xffffff00) | red) >>> 0;
@@ -662,7 +662,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _set_g_unsafe (green) {
         this._val = ((this._val & 0xffff00ff) | (green << 8)) >>> 0;
@@ -670,7 +670,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _set_b_unsafe (blue) {
         this._val = ((this._val & 0xff00ffff) | (blue << 16)) >>> 0;
@@ -678,7 +678,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _set_a_unsafe (alpha) {
         this._val = ((this._val & 0x00ffffff) | (alpha << 24)) >>> 0;

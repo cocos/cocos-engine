@@ -1,14 +1,15 @@
 [
   {
     "__type__": "cc.Prefab",
-    "_name": "",
+    "_name": "Cone",
     "_objFlags": 0,
     "_native": "",
     "data": {
       "__id__": 1
     },
     "optimizationPolicy": 0,
-    "asyncLoadAssets": false
+    "asyncLoadAssets": false,
+    "persistent": false
   },
   {
     "__type__": "cc.Node",

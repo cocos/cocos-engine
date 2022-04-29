@@ -6,9 +6,6 @@ const version = pkg.version.replace(/(^\d+\.\d+)\..*$/, (str, a) => {
 const url = 'https://docs.cocos.com/creator';
 
 module.exports = {
-    menu: {
-        custom_script: 'Custom script',
-    },
     help: {
         cc: {
             Node: `${url}/${version}/manual/en/concepts/scene/node-component.html`,
@@ -100,8 +97,8 @@ module.exports = {
     },
     shadow: {
         enabled: 'Enable or disable real time shadows.',
-        normal: 'The normal of the plane which receives shadow.',
-        distance: 'The distance from coordinate origin to the receiving plane.',
+        planeDirection: 'The normal vector of the plane which receives shadow.',
+        planeHeight: 'The height from the origin of the plane which receives shadow.',
         saturation: 'Shadow saturation. This value should be 1.0, we recommend that you\'d rather increase ambient lighting than modify this value. ',
         pcf: 'Enable soft shadows.',
         bias: 'Bias value (world space unit) that can avoid moire artifacts with shadows. The more the value, the more the light leakage.',
@@ -113,6 +110,7 @@ module.exports = {
         orthoSize: 'Fix area size, the larger value, the lower precision of shadows.',
         invisibleOcclusionRange: 'If some shadow near the camera is missing, increase this value (world space unit) to fix it.',
         shadowDistance: 'Shadows do not appear beyond this distance (world space unit).',
+        maxReceived: 'Number of the effective light sources that produce shadows.',
     },
     animation: {
         default_clip: 'When checking, the default animation clip is automatically played.',
@@ -537,6 +535,7 @@ module.exports = {
     richtext: {
         string: 'Text of the RichText, you could use BBcode in the string',
         horizontal_align: 'Horizontal alignment',
+        vertical_align: 'Vertical alignment',
         font_size: 'Font size, in points',
         font: 'Custom TTF font of RichText',
         font_family:'Custom System font of RichText',
@@ -766,6 +765,10 @@ module.exports = {
                 label: '3D',
                 description: '3D',
             },
+            animation: {
+                label: 'Animation',
+                description: 'Animation System.',
+            },
         },
         core: {
             label: "Core",
@@ -871,6 +874,10 @@ module.exports = {
             label: "Running Stats",
             description: "Include various components and tools used to audit and display rendering stats.",
         },
+        geometry_renderer: {
+            label: "Geometry Renderer",
+            description: "Used to render various geometries for debugging or use in editor.",
+        },
         tiled_map: {
             label: "Tiled Map",
             description: "Tiled map support.",
@@ -882,6 +889,18 @@ module.exports = {
         dragon_bones: {
             label: "DragonBones",
             description: "DragonBones support.",
+        },
+        animation: {
+            label: "Basic Animation",
+            description: "Basic animation support.",
+        },
+        skeletal_animation: {
+            label: "Skeletal Animation",
+            description: "Skeletal animation support.",
+        },
+        marionette: {
+            label: "Marionette Animation System",
+            description: "Enable the Marionette animation system",
         },
     },
     renderable_2d: {

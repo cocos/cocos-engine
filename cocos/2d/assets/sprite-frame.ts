@@ -31,11 +31,9 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { EDITOR, TEST, BUILD, UI_GPU_DRIVEN } from 'internal:constants';
+import { EDITOR, TEST, BUILD } from 'internal:constants';
 import { Rect, Size, Vec2 } from '../../core/math';
-import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { Asset } from '../../core/assets/asset';
-import { RenderTexture } from '../../core/assets/render-texture';
 import { TextureBase } from '../../core/assets/texture-base';
 import { legacyCC } from '../../core/global-exports';
 import { ImageAsset, ImageSource } from '../../core/assets/image-asset';
@@ -239,6 +237,12 @@ export class SpriteFrame extends Asset {
         spf.texture = tex;
         return spf;
     }
+
+    /**
+     * @en
+     * @zh
+     */
+    public static EVENT_UV_UPDATED = 'uv_updated';
 
     /**
      * @en Top border distance of sliced 9 rect.
@@ -499,11 +503,6 @@ export class SpriteFrame extends Asset {
      * @zh 矩形的顶点 UV
      */
     public uv: number[] = [];
-    public uvHash = 0;
-
-    // macro.UI_GPU_DRIVEN
-    public declare tillingOffset: number[];
-    public declare slicedData: number[];
 
     public unbiasUV:number[] = [];
 
@@ -545,10 +544,6 @@ export class SpriteFrame extends Asset {
 
     constructor () {
         super();
-        if (UI_GPU_DRIVEN) {
-            this.tillingOffset = [];
-            this.slicedData = [];
-        }
 
         if (EDITOR) {
             // Atlas asset uuid
@@ -805,12 +800,9 @@ export class SpriteFrame extends Asset {
 
     /**
      * Calculate UV for sliced
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _calculateSlicedUV () {
-        if (UI_GPU_DRIVEN) {
-            this._calculateSlicedData();
-        }
         const rect = this._rect;
         // const texture = this._getCalculateTarget()!;
         const tex = this.texture;
@@ -866,11 +858,15 @@ export class SpriteFrame extends Asset {
                 }
             }
         }
+
+        // UV update event for components to update uv buffer
+        // CalculateUV will trigger _calculateSlicedUV so it's enough to emit here
+        this.emit(SpriteFrame.EVENT_UV_UPDATED, this);
     }
 
     /**
      * Calculate UV
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _calculateUV () {
         const rect = this._rect;
@@ -1090,12 +1086,6 @@ export class SpriteFrame extends Asset {
             }
         }
 
-        let uvHashStr = '';
-        for (let i = 0; i < uv.length; i++) {
-            uvHashStr += uv[i];
-        }
-        this.uvHash = murmurhash2_32_gc(uvHashStr, 666);
-
         const vertices = this.vertices;
         if (vertices) {
             vertices.nu.length = 0;
@@ -1107,13 +1097,10 @@ export class SpriteFrame extends Asset {
         }
 
         this._calculateSlicedUV();
-        if (UI_GPU_DRIVEN) {
-            this._calculateTillingOffset();
-        }
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _setDynamicAtlasFrame (frame) {
         if (!frame) return;
@@ -1131,7 +1118,7 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _resetDynamicAtlasFrame () {
         if (!this._original) return;
@@ -1143,7 +1130,7 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _checkPackable () {
         const dynamicAtlas = dynamicAtlasManager;
@@ -1169,7 +1156,7 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _serialize (ctxForExporting: any): any {
         if (EDITOR || TEST) {
@@ -1215,7 +1202,7 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _deserialize (serializeData: any, handle: any) {
         const data = serializeData as ISpriteFramesSerializeData;
@@ -1277,7 +1264,6 @@ export class SpriteFrame extends Asset {
             v: v.v?.slice(0),
         } : null as any;
         sp.uv.splice(0, sp.uv.length, ...this.uv);
-        sp.uvHash = this.uvHash;
         sp.unbiasUV.splice(0, sp.unbiasUV.length, ...this.unbiasUV);
         sp.uvSliced.splice(0, sp.uvSliced.length, ...this.uvSliced);
         sp._rect.set(this._rect);
@@ -1329,43 +1315,6 @@ export class SpriteFrame extends Asset {
 
     public validate () {
         return this._texture && this._rect && this._rect.width !== 0 && this._rect.height !== 0;
-    }
-
-    // macro.UI_GPU_DRIVEN
-    private _calculateTillingOffset () {
-        if (this._rotated) {
-            this.tillingOffset[0] = (this.uv[4] - this.uv[0]);//r-l
-            this.tillingOffset[1] = (this.uv[3] - this.uv[5]);//b-t
-            this.tillingOffset[2] = (this.uv[0]);//l
-            this.tillingOffset[3] = (this.uv[5]);//t
-            this.tillingOffset[0] = -this.tillingOffset[0];// For rotation
-        } else {
-            this.tillingOffset[0] = (this.uv[2] - this.uv[0]);//r-l
-            this.tillingOffset[1] = (this.uv[1] - this.uv[5]);//b-t
-            this.tillingOffset[2] = (this.uv[4]);//l
-            this.tillingOffset[3] = (this.uv[5]);//t
-        }
-    }
-
-    // macro.UI_GPU_DRIVEN
-    private _calculateSlicedData () {
-        const rect = this._rect;
-
-        const leftWidth = this._capInsets[INSET_LEFT];
-        const rightWidth = this._capInsets[INSET_RIGHT];
-        const centerWidth = rect.width - leftWidth - rightWidth;
-        const topHeight = this._capInsets[INSET_TOP];
-        const bottomHeight = this._capInsets[INSET_BOTTOM];
-        const centerHeight = rect.height - topHeight - bottomHeight;
-
-        const uvSliced = this.slicedData;
-        uvSliced.length = 0;
-
-        // In the algorithm in the shader, it is always for the renderable region (i.e. after trim, for the sliced point)
-        uvSliced[0] = leftWidth / rect.width;
-        uvSliced[1] = topHeight / rect.height;
-        uvSliced[2] = (leftWidth + centerWidth) / rect.width;
-        uvSliced[3] = (topHeight + centerHeight) / rect.height;
     }
 }
 

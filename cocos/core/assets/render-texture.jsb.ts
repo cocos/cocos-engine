@@ -30,6 +30,7 @@ import {
 } from '../data/utils/decorator-jsb-utils';
 import { legacyCC } from '../global-exports';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
+import { EDITOR, TEST } from '../default-constants';
 
 declare const jsb: any;
 const renderTextureProto: any = jsb.RenderTexture.prototype;
@@ -95,12 +96,19 @@ renderTextureProto._deserialize = function (serializedData: any, handle: any) {
 };
 
 const oldReadPixels = renderTextureProto.readPixels;
-renderTextureProto.readPixels = function readPixels (x: number, y: number, width: number, height: number) {
+renderTextureProto.readPixels = function readPixels (x: number, y: number, width: number, height: number, buffer?: Uint8Array) {
     x = x || 0;
     y = y || 0;
     width = width || this.width;
     height = width || this.height;
-    return oldReadPixels.call(this, x, y, width, height);
+
+
+    let tmpBuffer = oldReadPixels.call(this, x, y, width, height);
+    if (tmpBuffer.length == 0) {
+        return null;
+    }
+    buffer = tmpBuffer;
+    return buffer;
 };
 
 clsDecorator(RenderTexture);

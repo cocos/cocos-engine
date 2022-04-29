@@ -171,9 +171,8 @@ export class ForwardStage extends RenderStage {
         }
         pipeline.generateRenderArea(camera, this._renderArea);
 
-        const swapchain = camera.window.swapchain;
         const framebuffer = camera.window.framebuffer;
-        const renderPass = swapchain ? pipeline.getRenderPass(camera.clearFlag & this._clearFlag, swapchain) : framebuffer.renderPass;
+        const renderPass = pipeline.getRenderPass(camera.clearFlag & this._clearFlag, framebuffer);
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
@@ -186,7 +185,7 @@ export class ForwardStage extends RenderStage {
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
         this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._renderQueues[1].recordCommandBuffer(device, renderPass, cmdBuff);
-        this._pipeline.geometryRenderer.render(renderPass, cmdBuff);
+        camera.geometryRenderer?.render(renderPass, cmdBuff, pipeline.pipelineSceneData);
         this._uiPhase.render(camera, renderPass);
         renderProfiler(device, renderPass, cmdBuff, pipeline.profiler, camera);
         cmdBuff.endRenderPass();

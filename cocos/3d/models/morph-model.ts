@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { Model } from '../../core/renderer/scene/model';
 import { MorphRenderingInstance } from '../assets/morph';
 import { Material } from '../../core/assets/material';
@@ -40,11 +35,14 @@ export class MorphModel extends Model {
     private _usedMaterials = new Set<Material>();
 
     public getMacroPatches (subModelIndex: number) : IMacroPatch[] | null {
+        const superMacroPatches = super.getMacroPatches(subModelIndex);
         if (this._morphRenderingInstance) {
-            return this._morphRenderingInstance.requiredPatches(subModelIndex);
-        } else {
-            return null;
+            const morphInstanceMacroPatches = this._morphRenderingInstance.requiredPatches(subModelIndex);
+            if (morphInstanceMacroPatches) {
+                return morphInstanceMacroPatches.concat(superMacroPatches ?? []);
+            }
         }
+        return superMacroPatches;
     }
 
     public initSubModel (subModelIndex: number, subMeshData: RenderingSubMesh, material: Material) {

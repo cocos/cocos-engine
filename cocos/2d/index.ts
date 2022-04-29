@@ -23,28 +23,14 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import {
-    barFilled,
-    bmfont,
     CanvasPool,
-    graphics,
     graphicsAssembler,
     labelAssembler,
-    letter,
-    mask,
-    maskEnd,
-    radialFilled,
-    simple,
-    sliced,
     spriteAssembler,
-    ttf,
     earcut,
 } from './assembler';
+import { RenderData, MeshRenderData } from './renderer/render-data';
 import { MeshBuffer } from './renderer/mesh-buffer';
 import { StencilManager } from './renderer/stencil-manager';
 import { legacyCC } from '../core/global-exports';
@@ -55,6 +41,7 @@ import './renderer/batcher-2d';
 export * from './assets';
 export * from './framework';
 export * from './components';
+export * from './renderer/render-data';
 export * from './renderer/base';
 export * from './renderer/deprecated';
 export * from './utils';
@@ -63,17 +50,7 @@ export {
     MeshBuffer,
     StencilManager,
     CanvasPool,
-    // barFilled,
-    // radialFilled,
-    // simple,
-    // sliced,
-    // ttf,
-    // bmfont,
-    // letter,
-    // mask,
-    // maskEnd,
     spriteAssembler,
-    // graphics,
     labelAssembler,
     graphicsAssembler,
     earcut,
@@ -81,17 +58,9 @@ export {
 
 legacyCC.UI = {
     MeshBuffer,
-    // barFilled,
-    // radialFilled,
-    // simple,
-    // sliced,
-    // ttf,
-    // bmfont,
-    // letter,
-    // mask,
-    // maskEnd,
-    // graphics,
     spriteAssembler,
     graphicsAssembler,
     labelAssembler,
+    RenderData,
+    MeshRenderData,
 };

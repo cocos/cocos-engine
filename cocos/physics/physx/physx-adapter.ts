@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 /* eslint-disable import/no-mutable-exports */
 /* eslint-disable no-console */
@@ -56,7 +53,7 @@ const USE_BYTEDANCE = BYTEDANCE && globalThis.nativePhysX;
 const USE_EXTERNAL_PHYSX = !!globalThis.PHYSX;
 
 // Init physx libs when engine init.
-game.once(Game.EVENT_ENGINE_INITED, InitPhysXLibs);
+game.onEngineInitedAsync(InitPhysXLibs);
 
 function InitPhysXLibs () {
     if (USE_BYTEDANCE) {
@@ -68,7 +65,7 @@ function InitPhysXLibs () {
         initConfigAndCacheObject(PX);
     } else {
         if (!EDITOR && !TEST) console.info('[PHYSICS]:', 'Use PhysX js or wasm Libs.');
-        initPhysXWithJsModule();
+        return initPhysXWithJsModule();
     }
 }
 
@@ -76,7 +73,7 @@ function initPhysXWithJsModule () {
     // If external PHYSX not given, then try to use internal PhysX libs.
     globalThis.PhysX = globalThis.PHYSX ? globalThis.PHYSX : PhysX;
     if (globalThis.PhysX != null) {
-        globalThis.PhysX().then((Instance: any) => {
+        return globalThis.PhysX().then((Instance: any) => {
             if (!EDITOR && !TEST) console.info('[PHYSICS]:', `${USE_EXTERNAL_PHYSX ? 'External' : 'Internal'} PhysX libs loaded.`);
             initAdaptWrapper(Instance);
             initConfigAndCacheObject(Instance);

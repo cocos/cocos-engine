@@ -37,9 +37,10 @@ import { legacyCC } from '../global-exports';
 import { ccenum } from '../value-types/enum';
 import { assertIsNonNullable, assertIsTrue } from '../data/utils/asserts';
 import { debug } from '../platform/debug';
-import { SkeletonMask } from './skeleton-mask';
+import { AnimationMask } from './marionette/animation-mask';
 import { PoseOutput } from './pose-output';
 import { BlendStateBuffer } from '../../3d/skeletal-animation/skeletal-animation-blending';
+import { getGlobalAnimationManager } from './global-animation-manager';
 
 /**
  * @en The event type supported by Animation
@@ -295,7 +296,7 @@ export class AnimationState extends Playable {
     private _playbackDuration = 0.0;
     private _invDuration = 1.0;
     private _poseOutput: PoseOutput | null = null;
-    private _weight = 0.0;
+    private _weight = 1.0;
     private _clipEval: ReturnType<AnimationClip['createEvaluator']> | undefined;
     private _clipEventEval: ReturnType<AnimationClip['createEventEvaluator']> | undefined;
     /**
@@ -324,7 +325,7 @@ export class AnimationState extends Playable {
         return this._curveLoaded;
     }
 
-    public initialize (root: Node, blendStateBuffer?: BlendStateBuffer, mask?: SkeletonMask) {
+    public initialize (root: Node, blendStateBuffer?: BlendStateBuffer, mask?: AnimationMask) {
         if (this._curveLoaded) { return; }
         this._curveLoaded = true;
         if (this._poseOutput) {
@@ -354,13 +355,14 @@ export class AnimationState extends Playable {
         }
 
         if (!this._doNotCreateEval) {
-            const pose = blendStateBuffer ?? legacyCC.director.getAnimationManager()?.blendState ?? null;
+            const pose = blendStateBuffer ?? getGlobalAnimationManager()?.blendState ?? null;
             if (pose) {
                 this._poseOutput = new PoseOutput(pose);
             }
             this._clipEval = clip.createEvaluator({
                 target: root,
                 pose: this._poseOutput ?? undefined,
+                mask,
             });
         }
 
@@ -371,7 +373,7 @@ export class AnimationState extends Playable {
 
     public destroy () {
         if (!this.isMotionless) {
-            legacyCC.director.getAnimationManager().removeAnimation(this);
+            getGlobalAnimationManager().removeAnimation(this);
         }
         if (this._poseOutput) {
             this._poseOutput.destroy();
@@ -386,7 +388,7 @@ export class AnimationState extends Playable {
      * To process animation events, use `Animation` instead.
      */
     public emit (...args: any[]) {
-        legacyCC.director.getAnimationManager().pushDelayEvent(this._emit, this, args);
+        getGlobalAnimationManager().pushDelayEvent(this._emit, this, args);
     }
 
     /**
@@ -441,7 +443,7 @@ export class AnimationState extends Playable {
 
     /**
      * This method is used for internal purpose only.
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _setEventTarget (target) {
         this._target = target;
@@ -684,11 +686,11 @@ export class AnimationState extends Playable {
     }
 
     private _onReplayOrResume () {
-        legacyCC.director.getAnimationManager().addAnimation(this);
+        getGlobalAnimationManager().addAnimation(this);
     }
 
     private _onPauseOrStop () {
-        legacyCC.director.getAnimationManager().removeAnimation(this);
+        getGlobalAnimationManager().removeAnimation(this);
     }
 }
 

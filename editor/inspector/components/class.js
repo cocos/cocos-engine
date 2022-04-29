@@ -35,8 +35,7 @@ exports.methods = {
             $group.querySelectorAll('.tab-content').forEach((child) => {
                 if (child.getAttribute('name') === tabName) {
                     child.style.display = 'block';
-                }
-                else {
+                } else {
                     child.style.display = 'none';
                 }
             });
@@ -58,8 +57,10 @@ exports.methods = {
         $content.setAttribute('class', 'tab-content');
         $content.setAttribute('name', tabName);
         $group.appendChild($content);
+
         const $label = document.createElement('ui-label');
-        $label.value = tabName;
+        $label.value = this.getName(tabName);
+
         const $button = document.createElement('ui-button');
         $button.setAttribute('name', tabName);
         $button.appendChild($label);
@@ -68,16 +69,25 @@ exports.methods = {
     appendChildByDisplayOrder(parent, newChild, displayOrder = 0) {
         const children = Array.from(parent.children);
         const child = children.find((child) => {
-            if (child.dump && child.dump.displayOrder > displayOrder) {
+            if (child.dump && child.displayOrder > displayOrder) {
                 return child;
             }
+            return null;
         });
         if (child) {
             child.before(newChild);
-        }
-        else {
+        } else {
             parent.appendChild(newChild);
         }
+    },
+    getName(name) {
+        name = name.trim().replace(/^\S/, (str) => str.toUpperCase());
+        name = name.replace(/_/g, ' ');
+        name = name.replace(/ \S/g, (str) => ` ${str.toUpperCase()}`);
+        // 驼峰转中间空格
+        name = name.replace(/([a-z])([A-Z])/g, '$1 $2');
+
+        return name.trim();
     },
 };
 /**
@@ -89,11 +99,13 @@ async function update(dump) {
     const $section = $panel.$.section;
     const oldPropList = Object.keys($panel.$propList);
     const newPropList = [];
-    for (const key in dump.value) {
+
+    Object.keys(dump.value).forEach((key, index) => {
         const info = dump.value[key];
         if (!info.visible) {
-            continue;
+            return;
         }
+
         if (dump.values) {
             info.values = dump.values.map((value) => {
                 return value[key].value;
@@ -106,6 +118,9 @@ async function update(dump) {
             $prop = document.createElement('ui-prop');
             $prop.setAttribute('type', 'dump');
             $panel.$propList[id] = $prop;
+
+            $prop.displayOrder = info.displayOrder === undefined ? index : Number(info.displayOrder);
+
             if (info.group && dump.groups) {
                 const key = info.group.id || 'default';
                 const name = info.group.name;
@@ -122,17 +137,16 @@ async function update(dump) {
                         $panel.appendToTabGroup($panel.$groups[key], name);
                     }
                 }
-                $panel.appendChildByDisplayOrder($panel.$groups[key].tabs[name], $prop, info.displayOrder);
+                $panel.appendChildByDisplayOrder($panel.$groups[key].tabs[name], $prop, $prop.displayOrder);
+            } else {
+                $panel.appendChildByDisplayOrder($section, $prop, $prop.displayOrder);
             }
-            else {
-                $panel.appendChildByDisplayOrder($section, $prop, info.displayOrder);
-            }
-        }
-        else if (!$prop.isConnected || !$prop.parentElement) {
-            $panel.appendChildByDisplayOrder($section, $prop, info.displayOrder);
+        } else if (!$prop.isConnected || !$prop.parentElement) {
+            $panel.appendChildByDisplayOrder($section, $prop, $prop.displayOrder);
         }
         $prop.render(info);
-    }
+    });
+
     for (const id of oldPropList) {
         if (!newPropList.includes(id)) {
             const $prop = $panel.$propList[id];

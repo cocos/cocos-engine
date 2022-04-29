@@ -38,7 +38,7 @@ import * as debug from './platform/debug';
 import { Device, DeviceInfo, Swapchain, SwapchainInfo } from './gfx';
 import { sys } from './platform/sys';
 import { macro } from './platform/macro';
-import { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
+import type { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
 import { legacyCC, VERSION } from './global-exports';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
 import { bindingMappingInfo } from './pipeline/define';
@@ -50,6 +50,7 @@ import { Layers } from './scene-graph';
 import { log2 } from './math/bits';
 import { garbageCollectionManager } from './data/garbage-collection';
 import { screen } from './platform/screen';
+import { builtinResMgr } from './builtin/builtin-res-mgr';
 
 interface ISceneInfo {
     url: string;
@@ -390,25 +391,25 @@ export class Game extends EventTarget {
     public groupList: any[] = [];
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _persistRootNodes = {};
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _gfxDevice: Device | null = null;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _swapchain: Swapchain | null = null;
     // states
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _configLoaded = false; // whether config loaded
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _isCloning = false;    // deserializing or instantiating
     private _inited = false;
@@ -422,6 +423,7 @@ export class Game extends EventTarget {
     private _startTime = 0;
     private _deltaTime = 0.0;
     private declare _frameCB: (time: number) => void;
+    private _onEngineInitedCallback: Array<() => (Promise<void> | void)> = [];
 
     // @Methods
 
@@ -641,15 +643,17 @@ export class Game extends EventTarget {
         }
         garbageCollectionManager.init();
 
-        return Promise.resolve(initPromise).then(() => this._setRenderPipelineNShowSplash()).then(() => {
-            if (!HTML5) {
-                // @ts-expect-error access private method.
-                screen._init({
-                    configOrientation: 'auto',
-                    exactFitScreen: true,
-                });
-            }
-        });
+        return Promise.resolve(initPromise)
+            .then(() => Promise.resolve(builtinResMgr.initBuiltinRes(this._gfxDevice!)))
+            .then(() => this._setRenderPipelineNShowSplash()).then(() => {
+                if (!HTML5) {
+                    // @ts-expect-error access private method.
+                    screen._init({
+                        configOrientation: 'auto',
+                        exactFitScreen: true,
+                    });
+                }
+            });
     }
 
     //  @ Persist root node section
@@ -713,6 +717,14 @@ export class Game extends EventTarget {
         return !!node._persistNode;
     }
 
+    /**
+     * TODO: Only hack for PhysX initialization, should be removed in future
+     * @internal
+     */
+    public onEngineInitedAsync (func: () => (Promise<void> | void)) {
+        this._onEngineInitedCallback.push(func);
+    }
+
     //  @Engine loading
 
     private _initEngine () {
@@ -725,6 +737,10 @@ export class Game extends EventTarget {
             this.emit(Game.EVENT_ENGINE_INITED);
             this._engineInited = true;
             if (legacyCC.internal.dynamicAtlasManager) { legacyCC.internal.dynamicAtlasManager.enabled = !macro.CLEANUP_IMAGE_CACHE; }
+        }).then(() => {
+            const initCallbackPromises = this._onEngineInitedCallback.map((func) => func()).filter(Boolean);
+            this._onEngineInitedCallback.length = 0;
+            return Promise.all(initCallbackPromises);
         });
     }
 
@@ -952,20 +968,6 @@ export class Game extends EventTarget {
     }
 
     private _setRenderPipelineNShowSplash () {
-        // The test environment does not currently support the renderer
-        if (TEST) {
-            return Promise.resolve((() => {
-                this._rendererInitialized = true;
-                this._safeEmit(Game.EVENT_RENDERER_INITED);
-                this._inited = true;
-                this._setAnimFrame();
-                this._runMainLoop();
-                this._safeEmit(Game.EVENT_GAME_INITED);
-                if (this.onStart) {
-                    this.onStart();
-                }
-            })());
-        }
         return Promise.resolve(this._setupRenderPipeline()).then(
             () => Promise.resolve(this._showSplashScreen()).then(
                 () => {

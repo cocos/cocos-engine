@@ -1,6 +1,7 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
+const History = require('./asset-history/index');
 
 const showImage = ['cc.ImageAsset', 'cc.SpriteFrame', 'cc.Texture2D'];
 
@@ -11,19 +12,19 @@ exports.style = fs.readFileSync(path.join(__dirname, './asset.css'), 'utf8');
 exports.template = `
 <ui-section whole class="container">
     <header class="header" slot="header">
-        <ui-icon class="icon" color tooltip="i18n:inspector.locate_asset"></ui-icon>
-        <ui-image class="image" tooltip="i18n:inspector.locate_asset"></ui-image>
-        <span class="name"></span>
-        <ui-link value="" class="help" tooltip="i18n:inspector.menu.help_url">
+        <ui-icon class="icon" color tooltip="i18n:ENGINE.assets.locate_asset"></ui-icon>
+        <ui-image class="image" tooltip="i18n:ENGINE.assets.locate_asset"></ui-image>
+        <ui-label class="name"></ui-label>
+        <ui-link value="" class="help" tooltip="i18n:ENGINE.menu.help_url">
             <ui-icon value="help"></ui-icon>
         </ui-link>
-        <ui-button class="save tiny green transparent" tooltip="i18n:inspector.asset.save">
+        <ui-button class="save tiny green transparent" tooltip="i18n:ENGINE.assets.save">
             <ui-icon value="check"></ui-icon>
         </ui-button>
-        <ui-button class="reset tiny red transparent" tooltip="i18n:inspector.asset.reset">
+        <ui-button class="reset tiny red transparent" tooltip="i18n:ENGINE.assets.reset">
             <ui-icon value="reset"></ui-icon>
         </ui-button>
-        <ui-icon class="lock" value="lock" tooltip="i18n:inspector.asset.prohibitEditInternalAsset"></ui-icon>
+        <ui-icon class="copy" value="copy" tooltip="i18n:ENGINE.inspector.cloneToEdit"></ui-icon>
     </header>
     <section class="content">
         <section class="content-header"></section>
@@ -32,11 +33,12 @@ exports.template = `
     </section>
 </ui-section>
 `;
+
 exports.$ = {
     container: '.container',
     header: '.header',
     content: '.content',
-    lock: '.lock',
+    copy: '.copy',
     icon: '.icon',
     image: '.image',
     name: '.name',
@@ -48,6 +50,7 @@ exports.$ = {
     contentSection: '.content-section',
     contentFooter: '.content-footer',
 };
+
 const Elements = {
     panel: {
         ready() {
@@ -64,6 +67,8 @@ const Elements = {
             };
 
             Editor.Message.addBroadcastListener('asset-db:asset-change', panel.__assetChanged__);
+
+            panel.history = new History();
         },
         async update() {
             const panel = this;
@@ -145,6 +150,8 @@ const Elements = {
             const panel = this;
 
             Editor.Message.removeBroadcastListener('asset-db:asset-change', panel.__assetChanged__);
+
+            delete panel.history;
         },
     },
     header: {
@@ -161,6 +168,47 @@ const Elements = {
                 panel.reset();
             });
 
+            panel.$.copy.addEventListener('click', async (event) => {
+                event.stopPropagation();
+                const assetsDir = path.join(Editor.Project.path, 'assets');
+                const result = await Editor.Dialog.select({
+                    path: assetsDir,
+                    type: 'directory',
+                });
+
+                let filePath = result.filePaths[0];
+                if (!filePath) {
+                    return;
+                }
+
+                filePath = path.join(filePath, panel.asset.name);
+
+                // 必须保存在 /assets 文件夹下
+                if (!Editor.Utils.Path.contains(assetsDir, filePath)) {
+                    await Editor.Dialog.warn(Editor.I18n.t('ENGINE.dialog.warn'), {
+                        detail: Editor.I18n.t('ENGINE.inspector.cloneToDirectoryIllegal'),
+                        buttons: [Editor.I18n.t('ENGINE.dialog.confirm')],
+                    });
+                    return;
+                }
+
+                const target = await Editor.Message.request('asset-db', 'query-url', filePath);
+                if (target) {
+                    const asset = await Editor.Message.request('asset-db', 'copy-asset', panel.asset.url, target);
+                    if (asset) {
+                        const lastSelectType = Editor.Selection.getLastSelectedType();
+                        if (lastSelectType === 'asset') {
+                            // 纯资源模式下
+                            Editor.Selection.clear(lastSelectType);
+                            Editor.Selection.select(lastSelectType, asset.uuid);
+                        } else if (lastSelectType === 'node') {
+                            // 节点里使用资源的情况下，如材质
+                            Editor.Message.broadcast('inspector:replace-asset-uuid-in-nodes', panel.asset.uuid, asset.uuid);
+                        }
+                    }
+                }
+            });
+
             panel.$.icon.addEventListener('click', (event) => {
                 event.stopPropagation();
                 panel.uuidList.forEach((uuid) => {
@@ -175,10 +223,23 @@ const Elements = {
                 return;
             }
 
-            panel.$.name.innerHTML = panel.assetList.length === 1 ? panel.asset.name : `${panel.assetList.length} selections`;
+            panel.$.name.value = panel.assetList.length === 1 ? panel.asset.name : `${panel.assetList.length} selections`;
 
-            // 处理界面显示
-            panel.$.lock.style.display = panel.asset.readonly ? 'inline-block' : 'none';
+            if (panel.asset.readonly) {
+                panel.$.name.setAttribute('tooltip', 'i18n:inspector.asset.prohibitEditInternalAsset');
+                panel.$.name.setAttribute('readonly', '');
+
+                if (panel.asset.source) {
+                    panel.$.copy.style.display = 'inline-block';
+                } else {
+                    panel.$.copy.style.display = 'none';
+                }
+            } else {
+                panel.$.name.removeAttribute('tooltip');
+                panel.$.name.removeAttribute('readonly');
+                panel.$.copy.style.display = 'none';
+            }
+
             const isImage = showImage.includes(panel.asset.type);
 
             if (isImage) {
@@ -186,7 +247,7 @@ const Elements = {
                 panel.$.header.prepend(panel.$.image);
                 panel.$.icon.remove();
             } else {
-                panel.$.icon.value = panel.asset.importer;
+                panel.$.icon.value = panel.asset.importer === '*' ? 'file' : panel.asset.importer;
                 panel.$.header.prepend(panel.$.icon);
 
                 panel.$.image.value = ''; // 清空，避免缓存
@@ -243,8 +304,15 @@ const Elements = {
                     const file = list[i];
                     if (!contentRender.__panels__[i]) {
                         contentRender.__panels__[i] = document.createElement('ui-panel');
-                        contentRender.__panels__[i].addEventListener('change', () => {
+                        contentRender.__panels__[i].addEventListener('change', (event) => {
                             Elements.header.isDirty.call(panel);
+
+                            if (!event || !event.args || !event.args[0] || event.args[0].snapshot !== false) {
+                                panel.history && panel.history.snapshot(panel);
+                            }
+                        });
+                        contentRender.__panels__[i].addEventListener('snapshot', () => {
+                            panel.history && panel.history.snapshot(panel);
                         });
                         contentRender.appendChild(contentRender.__panels__[i]);
                     }
@@ -265,7 +333,104 @@ const Elements = {
         },
     },
 };
+
 exports.methods = {
+    undo() {
+        const panel = this;
+        panel.history && panel.history.undo();
+    },
+    redo() {
+        const panel = this;
+        panel.history && panel.history.redo();
+    },
+    async record() {
+        const panel = this;
+
+        const renderData = {};
+        for (const renderName in panel.contentRenders) {
+            const { contentRender } = panel.contentRenders[renderName];
+
+            if (!Array.isArray(contentRender.__panels__)) {
+                continue;
+            }
+
+            renderData[renderName] = [];
+
+            for (let i = 0; i < contentRender.__panels__.length; i++) {
+                if (contentRender.__panels__[i].panelObject.record) {
+                    const data = await contentRender.__panels__[i].callMethod('record');
+                    renderData[renderName].push(data);
+                } else {
+                    renderData[renderName].push(null);
+                }
+            }
+        }
+
+        return {
+            uuidListStr:JSON.stringify(panel.uuidList),
+            metaListStr:JSON.stringify(panel.metaList),
+            renderDataStr:JSON.stringify(renderData),
+        };
+    },
+    restore(record) {
+        const panel = this;
+
+        try {
+            const { uuidListStr, metaListStr, renderDataStr } = record;
+
+            // uuid 数据不匹配表明不是同一个编辑对象了
+            if (JSON.stringify(panel.uuidList) !== uuidListStr) {
+                return false;
+            }
+
+            // metaList 数据不一样的对 metaList 进行更新
+            if (JSON.stringify(panel.metaList) !== metaListStr) {
+                panel.metaList = JSON.parse(metaListStr);
+
+                for (const renderName in panel.contentRenders) {
+                    const { contentRender } = panel.contentRenders[renderName];
+
+                    if (!Array.isArray(contentRender.__panels__)) {
+                        continue;
+                    }
+
+                    for (let i = 0; i < contentRender.__panels__.length; i++) {
+                        contentRender.__panels__[i].update(panel.assetList, panel.metaList);
+                    }
+                }
+            }
+
+            const renderData = JSON.parse(renderDataStr);
+            for (const renderName in panel.contentRenders) {
+                const { contentRender } = panel.contentRenders[renderName];
+
+                if (!Array.isArray(contentRender.__panels__)) {
+                    continue;
+                }
+
+                if (!Array.isArray(renderData[renderName])) {
+                    continue;
+                }
+
+                if (!renderData[renderName].length) {
+                    continue;
+                }
+
+                for (let i = 0; i < contentRender.__panels__.length; i++) {
+                    if (renderData[renderName][i] && contentRender.__panels__[i].panelObject.restore) {
+                        contentRender.__panels__[i].callMethod('restore', renderData[renderName][i]);
+                    }
+                }
+            }
+
+            Elements.header.isDirty.call(panel);
+            return true;
+        } catch (error) {
+            console.error(error);
+            return false;
+        }
+    },
+
     async isDirty() {
         const panel = this;
 
@@ -388,11 +553,22 @@ exports.methods = {
         }
     },
 };
-exports.update = async function update(uuidList, renderMap) {
+
+exports.update = async function update(uuidList, renderMap, dropConfig) {
     const panel = this;
+
+    const enginePath = path.join('editor', 'inspector', 'assets');
+    Object.values(renderMap).forEach(config => {
+        Object.values(config).forEach(renders => {
+            renders.sort((a, b) => {
+                return b.indexOf(enginePath) - a.indexOf(enginePath);
+            });
+        });
+    });
 
     panel.uuidList = uuidList || [];
     panel.renderMap = renderMap;
+    panel.dropConfig = dropConfig;
 
     for (const prop in Elements) {
         const element = Elements[prop];
@@ -400,7 +576,10 @@ exports.update = async function update(uuidList, renderMap) {
             await element.update.call(panel);
         }
     }
+
+    panel.history.snapshot(panel);
 };
+
 exports.ready = function ready() {
     const panel = this;
 
@@ -442,9 +621,9 @@ exports.beforeClose = async function beforeClose() {
         result = 1;
     } else {
         panel.isDialoging = true;
-        const message = Editor.I18n.t(`inspector.check_is_saved.assetMessage`).replace('${assetName}', panel.asset.name);
+        const message = Editor.I18n.t(`ENGINE.assets.check_is_saved.assetMessage`).replace('${assetName}', panel.asset.name);
         const warnResult = await Editor.Dialog.warn(message, {
-            buttons: [Editor.I18n.t('inspector.check_is_saved.abort'), Editor.I18n.t('inspector.check_is_saved.save'), 'Cancel'],
+            buttons: [Editor.I18n.t('ENGINE.assets.check_is_saved.abort'), Editor.I18n.t('ENGINE.assets.check_is_saved.save'), 'Cancel'],
             default: 1,
             cancel: 2,
         });

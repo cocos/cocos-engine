@@ -77,7 +77,7 @@ export class AudioSource extends Component {
     private _operationsBeforeLoading: string[] = [];
     private _isLoaded = false;
 
-    private _lastSetClip?: AudioClip;
+    private _lastSetClip: AudioClip | null = null;
     /**
      * @en
      * The default AudioClip to be played for this audio source.
@@ -99,7 +99,11 @@ export class AudioSource extends Component {
     private _syncPlayer () {
         const clip = this._clip;
         this._isLoaded = false;
-        if (!clip || this._lastSetClip === clip) {
+        if (this._lastSetClip === clip) {
+            return;
+        }
+        if (!clip) {
+            this._lastSetClip = null;
             return;
         }
         if (!clip._nativeAsset) {
@@ -114,11 +118,13 @@ export class AudioSource extends Component {
                 // In case the developers set AudioSource.clip concurrently,
                 // we should choose the last one player of AudioClip set to AudioSource.clip
                 // instead of the last loaded one.
+                player.destroy();
                 return;
             }
             this._isLoaded = true;
             // clear old player
             if (this._player) {
+                audioManager.removePlaying(this._player);
                 this._player.offEnded();
                 this._player.offInterruptionBegin();
                 this._player.offInterruptionEnd();
@@ -219,6 +225,7 @@ export class AudioSource extends Component {
     public onDestroy () {
         this.stop();
         this._player?.destroy();
+        this._player = null;
     }
 
     private _getRootNode (): Node | null | undefined {
@@ -370,7 +377,7 @@ export class AudioSource extends Component {
      * 获取以秒为单位的音频总时长。
      */
     get duration () {
-        return this._clip?.getDuration() ?? (this._player ? this._player.currentTime : 0);
+        return this._clip?.getDuration() ?? (this._player ? this._player.duration : 0);
     }
 
     /**

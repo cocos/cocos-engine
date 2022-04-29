@@ -87,8 +87,8 @@ type LoadCompleteCallback<T> = (error: Error | null, asset: T) => void;
 type LoadDirCompleteCallback<T> = (error: Error | null, asset: T[], urls: string[]) => void;
 
 /**
- * @en Loader for resource loading process. The engine automatically initialize its singleton object {{loader}}.
- * @zh 资源加载管理器，引擎会自动创建一个单例对象 {{loader}}。
+ * @en Loader for resource loading process. The engine automatically initialize its singleton object [[loader]].
+ * @zh 资源加载管理器，引擎会自动创建一个单例对象 [[loader]]。
  *
  * @class loader
  * @static
@@ -97,8 +97,8 @@ type LoadDirCompleteCallback<T> = (error: Error | null, asset: T[], urls: string
 export class CCLoader {
     /**
      * @en The default progression callback during the loading process,
-     * if no progression callback is passed to {{load}} function, then this default callback will be used.
-     * @zh Loader 默认的进度回调函数，如果在调用 {{load}} 函数时没有指定进度回调函数的话，会调用默认进度回调函数。
+     * if no progression callback is passed to [[load]] function, then this default callback will be used.
+     * @zh Loader 默认的进度回调函数，如果在调用 [[load]] 函数时没有指定进度回调函数的话，会调用默认进度回调函数。
      *
      * @deprecated since v3.0, loader.onProgress is deprecated, please transfer onProgress to API as a parameter
      */
@@ -107,13 +107,13 @@ export class CCLoader {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _autoReleaseSetting: Record<string, boolean> = Object.create(null);
     private _parseLoadResArgs = parseLoadResArgs;
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public get _cache (): Record<string, Asset> {
         if (assets instanceof Cache) {
@@ -631,7 +631,7 @@ export class CCLoader {
      * Release the content of an asset or an array of assets by uuid.<br>
      * This method will not only remove the cache of the asset in loader, but also clean up its content.<br>
      * For example, if you release a texture, the texture asset and its gl texture data will be freed up.<br>
-     * In complexe project, you can use this function with [[getDependsRecursively]] to free up memory in critical circumstances.<br>
+     * In complex project, you can use this function with [[getDependsRecursively]] to free up memory in critical circumstances.<br>
      * Notice, this method may cause the texture to be unusable, if there are still other nodes use the same texture, they may turn to black
      * and report gl errors.<br>
      * @zh
@@ -676,8 +676,8 @@ export class CCLoader {
     }
 
     /**
-     * @en Release the asset by its object. Refer to {{release}} for detailed informations.
-     * @zh 通过资源对象自身来释放资源。详细信息请参考 {{release}}
+     * @en Release the asset by its object. Refer to [[release]] for detailed informations.
+     * @zh 通过资源对象自身来释放资源。详细信息请参考 [[release]]
      * @param asset The asset to be released
      *
      * @deprecated since v3.0 loader.releaseAsset is deprecated, please use assetManager.releaseAsset instead
@@ -687,8 +687,8 @@ export class CCLoader {
     }
 
     /**
-     * @en Release the asset loaded by {{loadRes}}. Refer to {{release}} for detailed informations.
-     * @zh 释放通过 {{loadRes}} 加载的资源。详细信息请参考 {{release}}
+     * @en Release the asset loaded by [[loadRes]]. Refer to [[release]] for detailed informations.
+     * @zh 释放通过 [[loadRes]] 加载的资源。详细信息请参考 [[release]]
      * @param res The asset url, it should be related path without extension to the `resources` folder.
      * @param type If type is provided, the asset for correspond type will be returned
      *
@@ -700,8 +700,8 @@ export class CCLoader {
 
     /**
      *
-     * @en Resource all assets. Refer to {{release}} for detailed informations.
-     * @zh 释放所有资源。详细信息请参考 {{release}}
+     * @en Resource all assets. Refer to [[release]] for detailed informations.
+     * @zh 释放所有资源。详细信息请参考 [[release]]
      *
      * @deprecated since v3.0 loader.releaseAll is deprecated, please use assetManager.releaseAll instead
      */
@@ -714,10 +714,10 @@ export class CCLoader {
      * @en Removes an completed item in pipeline.
      * It will only remove the cache in the pipeline or loader, its dependencies won't be released.
      * cc.loader provided another method to completely cleanup the resource and its dependencies,
-     * please refer to {{Loader.release}}
+     * please refer to [[release]]
      * @zh 移除指定的已完成 item。
      * 这将仅仅从 pipeline 或者 loader 中删除其缓存，并不会释放它所依赖的资源。
-     * cc.loader 中提供了另一种删除资源及其依赖的清理方法，请参考 {{Loader.release}}
+     * cc.loader 中提供了另一种删除资源及其依赖的清理方法，请参考 [[release]]
      * @param id The id of the item
      * @return succeed or not
      *
@@ -736,14 +736,14 @@ export class CCLoader {
      * will not be affected by that option, remain not released by default.<br>
      * Use this API to change the default behavior on a single asset, to force preserve or release specified asset when scene switching.<br>
      * <br>
-     * See: {{setAutoReleaseRecursively}}, {{isAutoRelease}}
+     * See: [[setAutoReleaseRecursively]], [[isAutoRelease]]
      * @zh
      * 设置当场景切换时是否自动释放资源。<br>
      * 默认情况下，当加载新场景时，旧场景的资源根据旧场景是否勾选“Auto Release Assets”，将会被释放或者保留。<br>
      * 而使用 `loader.loadRes` 或 `loader.loadResDir` 动态加载的资源，则不受场景设置的影响，默认不自动释放。<br>
      * 使用这个 API 可以在单个资源上改变这个默认行为，强制在切换场景时保留或者释放指定资源。<br>
      * <br>
-     * 参考：{{setAutoReleaseRecursively}}，{{isAutoRelease}}
+     * 参考：[[setAutoReleaseRecursively]]，[[isAutoRelease]]
      *
      * @example
      * ```typescript
@@ -774,14 +774,14 @@ export class CCLoader {
      * Use this API to change the default behavior on the specified asset and its recursively referenced assets,
      * to force preserve or release specified asset when scene switching.<br>
      * <br>
-     * See: {{setAutoRelease}}, {{isAutoRelease}}
+     * See: [[setAutoRelease]], [[isAutoRelease]]
      * @zh
      * 设置当场景切换时是否自动释放资源及资源引用的其它资源。<br>
      * 默认情况下，当加载新场景时，旧场景的资源根据旧场景是否勾选“Auto Release Assets”，将会被释放或者保留。<br>
      * 而使用 `loader.loadRes` 或 `loader.loadResDir` 动态加载的资源，则不受场景设置的影响，默认不自动释放。<br>
      * 使用这个 API 可以在指定资源及资源递归引用到的所有资源上改变这个默认行为，强制在切换场景时保留或者释放指定资源。<br>
      * <br>
-     * 参考：{{setAutoRelease}}，{{isAutoRelease}}
+     * 参考：[[setAutoRelease]]，[[isAutoRelease]]
      *
      * @example
      * ```typescript
@@ -809,10 +809,10 @@ export class CCLoader {
     /**
      * @en Returns whether the asset is configured as auto released, despite how "Auto Release Assets" property is set on scene asset.<br>
      * <br>
-     * See: {{setAutoRelease}}, {{setAutoReleaseRecursively}}
+     * See: [[setAutoRelease]], [[setAutoReleaseRecursively]]
      * @zh 返回指定的资源是否有被设置为自动释放，不论场景的“Auto Release Assets”如何设置。<br>
      * <br>
-     * 参考：{{setAutoRelease}}，{{setAutoReleaseRecursively}}
+     * 参考：[[setAutoRelease]]，[[setAutoReleaseRecursively]]
      *
      * @method isAutoRelease
      * @param {Asset|String} asset - asset object or the raw asset's url

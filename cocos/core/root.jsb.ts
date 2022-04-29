@@ -1,10 +1,9 @@
 import { Pool } from './memop';
 import { warnID } from './platform';
-import { IBatcher } from '../2d/renderer/i-batcher';
+import { Batcher2D } from '../2d/renderer/batcher-2d';
 import legacyCC from '../../predefine';
 import { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
 import { Device } from './gfx';
-import { builtinResMgr } from './builtin';
 
 declare const nr: any;
 declare const jsb: any;
@@ -31,7 +30,7 @@ const rootProto: any = Root.prototype;
 Object.defineProperty(rootProto, 'batcher2D', {
     configurable: true,
     enumerable: true,
-    get(): IBatcher {
+    get(): Batcher2D {
         return this._batcher;
     },
 });
@@ -44,13 +43,23 @@ Object.defineProperty(rootProto, 'dataPoolManager', {
     },
 });
 
-Object.defineProperty(rootProto, 'pipeline', {
+Object.defineProperty(rootProto, 'pipelineEvent', {
     configurable: true,
     enumerable: true,
     get () {
-        return this._pipeline;
+        return this._pipelineEvent;
     }
 });
+
+class DummyPipelineEvent {
+    on (type: any, callback: any, target?: any, once?: boolean) {}
+    once (type: any, callback: any, target?: any) {}
+    off (type: any, callback?: any, target?: any) {}
+    emit (type: any, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {}
+    targetOff (typeOrTarget: any) {}
+    removeAll (typeOrTarget: any) {}
+    hasEventListener (type: any, callback?: any, target?: any): boolean { return false; }
+}
 
 rootProto._ctor = function (device: Device) {
     this._device = device;
@@ -58,14 +67,13 @@ rootProto._ctor = function (device: Device) {
     this._modelPools = new Map();
     this._lightPools = new Map();
     this._batcher = null;
-    this._pipeline = null;
+    this._pipelineEvent = new DummyPipelineEvent();
     this._registerListeners();
 };
 
 rootProto.initialize = function (info: IRootInfo) {
     // TODO:
     this._initialize(legacyCC.game._swapchain);
-    return Promise.resolve(builtinResMgr.initBuiltinRes(this._device));
 };
 
 rootProto.createModel = function (ModelCtor) {
@@ -125,8 +133,8 @@ rootProto.destroyLight = function (l) {
 
 rootProto._onBatch2DInit = function () {
     if (!this._batcher && legacyCC.internal.Batcher2D) {
-        this._batcher = new legacyCC.internal.Batcher2D(this) as IBatcher;
-        if (!this._batcher.initialize()) {
+        this._batcher = new legacyCC.internal.Batcher2D(this);
+        if (!this._batcher!.initialize()) {
             this.destroy();
             return false;
         }
@@ -147,7 +155,6 @@ rootProto._onBatch2DReset = function () {
 
 rootProto._onDirectorBeforeCommit = function () {
     legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_COMMIT);
-    this._pipeline.geometryRenderer.flush();
 };
 
 const oldFrameMove = rootProto.frameMove;
@@ -157,12 +164,14 @@ rootProto.frameMove = function (deltaTime: number) {
 
 const oldSetPipeline = rootProto.setRenderPipeline;
 rootProto.setRenderPipeline = function (pipeline) {
-    if (!pipeline) {
-        // pipeline should not be created in C++, ._ctor need to be triggered
-        pipeline = new nr.ForwardPipeline();
-        pipeline.init();
+    if (this.usesCustomPipeline()) {
+        return oldSetPipeline.call(this, null);
+    } else {
+        if (!pipeline) {
+            // pipeline should not be created in C++, ._ctor need to be triggered
+            pipeline = new nr.ForwardPipeline();
+            pipeline.init();
+        }
+        return oldSetPipeline.call(this, pipeline);
     }
-    this._pipeline = pipeline;
-    this._pipeline.geometryRenderer.activate(this._device, this._pipeline);
-    return oldSetPipeline.call(this, pipeline);
 }

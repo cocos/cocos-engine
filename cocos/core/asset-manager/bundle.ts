@@ -398,10 +398,10 @@ export default class Bundle {
 
     /**
      * @en
-     * Loads the scene within this bundle by its name.
+     * Loads the scene asset within this bundle by its name.
      *
      * @zh
-     * 通过场景名称加载分包中的场景。
+     * 通过场景名称加载分包中的场景资源。
      *
      * @param sceneName - The name of the scene to load.
      * @param options - Some optional parameters
@@ -448,12 +448,12 @@ export default class Bundle {
 
     /**
      * @en
-     * Preloads the scene within this bundle by its name. After calling this method, you still need to finish loading
+     * Preload the scene asset within this bundle by its name. After calling this method, you still need to finish loading
      * by calling `Bundle.loadScene` or `cc.director.loadScene`.It will be totally fine to call `Bundle.loadDir` at any
      * time even if the preloading is not yet finished
      *
      * @zh
-     * 通过场景名称预加载分包中的场景.调用完后，你仍然需要通过 `Bundle.loadScene` 或 `cc.director.loadScene` 来完成加载。
+     * 通过场景名称预加载分包中的场景资源.调用完后，你仍然需要通过 `Bundle.loadScene` 或 `cc.director.loadScene` 来完成加载。
      * 就算预加载还没完成，你也可以直接调用 `Bundle.loadScene` 或 `cc.director.loadScene`。
      *
      * @param sceneName - The name of the scene to preload.
@@ -495,14 +495,14 @@ export default class Bundle {
     /**
      * @en
      * Get cached asset within this bundle by path and type. <br>
-     * After you load asset with {{#crossLink "Bundle/load:method"}}{{/crossLink}} or {{#crossLink "Bundle/loadDir:method"}}{{/crossLink}},
+     * After you load asset with [[load]] or [[loadDir]],
      * you can acquire them by passing the path to this API.
      *
      * NOTE：The `path` and `type` parameters passed need to be the same as those passed to `Bundle.load`,
      * otherwise it may return some other resources with the same name!
      *
      * @zh
-     * 通过路径与类型获取已缓存资源。在你使用 {{#crossLink "Bundle/load:method"}}{{/crossLink}} 或者 {{#crossLink "Bundle/loadDir:method"}}{{/crossLink}} 之后，
+     * 通过路径与类型获取已缓存资源。在你使用 [[load]] 或者 [[loadDir]] 之后，
      * 你能通过传路径通过这个 API 获取到这些资源。
      *
      * 注意：传入的 path 与 type 参数需要与 `Bundle.load` 加载资源时传入的参数一致，否则可能会获取到其他同名资源
@@ -525,15 +525,15 @@ export default class Bundle {
 
     /**
      * @en
-     * Release the asset loaded by {{#crossLink "Bundle/load:method"}}{{/crossLink}} or {{#crossLink "Bundle/loadDir:method"}}{{/crossLink}}
-     * and it's dependencies. Refer to {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}} for detailed informations.
+     * Release the asset loaded by [[load]] or [[loadDir]]
+     * and it's dependencies. Refer to [[AssetManager.releaseAsset]] for detailed informations.
      *
      * NOTE：The `path` and `type` parameters passed need to be the same as those passed to `Bundle.load`,
      * otherwise it may release some other resources with the same name!
      *
      * @zh
-     * 释放通过 {{#crossLink "Bundle/load:method"}}{{/crossLink}} 或者 {{#crossLink "Bundle/loadDir:method"}}{{/crossLink}} 加载的资源。
-     * 详细信息请参考 {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}}
+     * 释放通过 [[load]] 或者 [[loadDir]] 加载的资源。
+     * 详细信息请参考 [[AssetManager.releaseAsset]]
      *
      * 注意：传入的 path 与 type 参数需要与 `Bundle.load` 加载资源时传入的参数一致，否则可能会释放到其他同名资源
      *
@@ -554,10 +554,10 @@ export default class Bundle {
 
     /**
      * @en
-     * Release all unused assets within this bundle. Refer to {{#crossLink "AssetManager/releaseAll:method"}}{{/crossLink}} for detailed informations.
+     * Release all unused assets within this bundle. Refer to [[AssetManager.releaseAll]] for detailed informations.
      *
      * @zh
-     * 释放此包中的所有没有用到的资源。详细信息请参考 {{#crossLink "AssetManager/releaseAll:method"}}{{/crossLink}}
+     * 释放此包中的所有没有用到的资源。详细信息请参考 [[AssetManager.releaseAll]]
      *
      * @private
      *
@@ -577,10 +577,10 @@ export default class Bundle {
 
     /**
      * @en
-     * Release all assets within this bundle. Refer to {{#crossLink "AssetManager/releaseAll:method"}}{{/crossLink}} for detailed informations.
+     * Release all assets within this bundle. Refer to [[AssetManager.releaseAll]] for detailed information.
      *
      * @zh
-     * 释放此包中的所有资源。详细信息请参考 {{#crossLink "AssetManager/releaseAll:method"}}{{/crossLink}}
+     * 释放此包中的所有资源。详细信息请参考 [[AssetManager.releaseAll]]
      *
      * @example
      * // release all asset within bundle1
@@ -596,7 +596,7 @@ export default class Bundle {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _destroy () {
         this._config.destroy();

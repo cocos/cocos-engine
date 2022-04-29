@@ -200,7 +200,7 @@ export class Rect extends ValueType {
     }
 
     /**
-     * @en Returns a new {{Vec2}} object representing the position of the rectangle
+     * @en Returns a new [[Vec2]] object representing the position of the rectangle
      * @zh 获取或设置矩形的 x 和 y 坐标。
      */
     get origin () {
@@ -213,7 +213,7 @@ export class Rect extends ValueType {
     }
 
     /**
-     * @en Returns a new {{Size}} object represents the width and height of the rectangle
+     * @en Returns a new [[Size]] object represents the width and height of the rectangle
      * @zh 获取或设置矩形的尺寸。
      */
     get size () {

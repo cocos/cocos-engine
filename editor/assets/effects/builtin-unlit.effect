@@ -66,6 +66,7 @@ CCProgram unlit-vs %{
   precision highp float;
   #include <input>
   #include <cc-global>
+  #include <decode-base>
   #include <cc-local-batch>
   #include <input>
   #include <cc-fog-vs>
@@ -111,7 +112,7 @@ CCProgram unlit-fs %{
   #include <cc-fog-fs>
 
   #if USE_ALPHA_TEST
-    #pragma define ALPHA_TEST_CHANNEL options([a, r, g, b])
+    #pragma define-meta ALPHA_TEST_CHANNEL options([a, r, g, b])
   #endif
 
   #if USE_TEXTURE

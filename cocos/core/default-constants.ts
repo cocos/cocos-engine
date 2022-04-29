@@ -49,7 +49,7 @@ export const DEV = tryDefineGlobal('CC_DEV', true); // (CC_EDITOR && !CC_BUILD) 
 export const DEBUG = tryDefineGlobal('CC_DEBUG', true); // CC_DEV || Debug Build
 export const JSB = tryDefineGlobal('CC_JSB', defined('jsb'));
 export const NATIVE = JSB;
-export const HTML5 = true;
+export const HTML5 = !(EDITOR && NATIVE);
 // @ts-expect-error: 'wx' is wechat namespace.
 export const WECHAT = tryDefineGlobal('CC_WECHAT', !!(defined('wx') && (wx.getSystemInfoSync || wx.getSharedCanvas)));
 export const MINIGAME = tryDefineGlobal('CC_MINIGAME', false);
@@ -65,4 +65,3 @@ export const VIVO = tryDefineGlobal('CC_VIVO', false);
 // @ts-expect-error: 'loadRuntime' exits only in runtime environment.
 export const SUPPORT_JIT = tryDefineGlobal('CC_SUPPORT_JIT', (typeof loadRuntime === 'function'));
 export const SERVER_MODE = false;
-export const UI_GPU_DRIVEN = false;

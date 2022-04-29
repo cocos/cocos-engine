@@ -186,7 +186,7 @@ export class MotionStreak extends Renderable2D {
     }
 
     protected _flushAssembler () {
-        const assembler = MotionStreak.Assembler!.getAssembler(this);
+        const assembler = MotionStreak.Assembler.getAssembler(this);
 
         if (this._assembler !== assembler) {
             this._assembler = assembler;
@@ -230,9 +230,9 @@ export class MotionStreak extends Renderable2D {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _render (render: IBatcher) {
-        render.commitComp(this, this._texture, this._assembler, null);
+        render.commitComp(this, this.renderData, this._texture, this._assembler, null);
     }
 }

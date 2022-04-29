@@ -146,6 +146,7 @@ export class OneShotAudioWeb {
         clearTimeout(this._currentTimer);
         audioBufferManager.tryReleasingCache(this._url);
         this._bufferSourceNode.stop();
+        this._bufferSourceNode.buffer = null;
     }
 }
 
@@ -161,11 +162,11 @@ export class AudioPlayerWeb implements OperationQueueable {
     private _audioTimer: AudioTimer;
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _eventTarget: EventTarget = new EventTarget();
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _operationQueue: OperationInfo[] = [];
 
@@ -341,7 +342,10 @@ export class AudioPlayerWeb implements OperationQueueable {
 
     private _stopSourceNode () {
         try {
-            this._sourceNode?.stop();
+            if (this._sourceNode) {
+                this._sourceNode.stop();
+                this._sourceNode.buffer = null;
+            }
         } catch (e) {
             // sourceNode can't be stopped twice, especially on Safari.
         }

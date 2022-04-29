@@ -52,6 +52,7 @@ export const bmfont: IAssembler = {
         const node = comp.node;
         tempColor.set(comp.color);
         tempColor.a = node._uiProps.opacity * 255;
+        // Fill All
         fillMeshVertices3D(node, renderer, comp.renderData!, tempColor);
     },
 
@@ -64,8 +65,7 @@ export const bmfont: IAssembler = {
         const dataOffset = renderData.dataLength;
 
         renderData.dataLength += 4;
-        renderData.vertexCount = renderData.dataLength;
-        renderData.indicesCount = renderData.dataLength / 2 * 3;
+        renderData.resize(renderData.dataLength, renderData.dataLength / 2 * 3);
 
         const dataList = renderData.data;
         const texW = spriteFrame.width;
@@ -116,6 +116,10 @@ export const bmfont: IAssembler = {
         dataList[dataOffset + 2].y = y;
         dataList[dataOffset + 3].x = x + rectWidth * scale;
         dataList[dataOffset + 3].y = y;
+    },
+
+    updateColor (comp: Label) {
+
     },
 };
 

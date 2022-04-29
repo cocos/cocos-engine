@@ -64,7 +64,7 @@ import { legacyCC } from '../global-exports';
 @ccclass('cc.ClickEvent')
 export class EventHandler {
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     get _componentName () {
         this._genCompIdIfNeeded();
@@ -100,8 +100,8 @@ export class EventHandler {
      * @zh
      * 事件响应组件和函数所在节点
      */
-    @serializable
-    @type(legacyCC.Node)
+    // @type(Node) should be removed for avoid circle reference error
+    // the type definition of it deal with in the file './component-event-handler.schema.ts'
     @serializable
     @tooltip('i18n:button.click_event.target')
     public target: Node | null = null;
@@ -118,7 +118,7 @@ export class EventHandler {
     public component = '';
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @serializable
     public _componentId = '';

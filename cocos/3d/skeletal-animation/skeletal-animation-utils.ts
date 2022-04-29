@@ -23,32 +23,27 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
-import { EDITOR } from 'internal:constants';
-import { AnimationClip } from '../../core/animation/animation-clip';
+import { EDITOR, JSB } from 'internal:constants';
+import type { AnimationClip } from '../../core/animation/animation-clip';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { getWorldTransformUntilRoot } from '../../core/animation/transform-utils';
 import { Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
 import { AABB } from '../../core/geometry';
 import { Address, BufferUsageBit, Filter, Format, FormatInfos,
-    MemoryUsageBit, Feature, Device, Buffer, BufferInfo, Sampler, SamplerInfo } from '../../core/gfx';
+    MemoryUsageBit, Feature, Device, Buffer, BufferInfo, Sampler, SamplerInfo, FormatFeatureBit } from '../../core/gfx';
 import { Mat4, Quat, Vec3 } from '../../core/math';
 import { UBOSkinningAnimation } from '../../core/pipeline/define';
 import { Node } from '../../core/scene-graph';
 import { ITextureBufferHandle, TextureBufferPool } from '../../core/renderer/core/texture-buffer-pool';
-import { JSB } from '../../core/default-constants';
+import { jointTextureSamplerInfo } from '../misc/joint-texture-sampler-info';
 
 // change here and cc-skinning.chunk to use other skinning algorithms
 export const uploadJointData = uploadJointDataLBS;
 export const MINIMUM_JOINT_TEXTURE_SIZE = EDITOR ? 2040 : 480; // have to be multiples of 12
 
 export function selectJointsMediumFormat (device: Device): Format {
-    if (device.hasFeature(Feature.TEXTURE_FLOAT)) {
+    if (device.getFormatFeatures(Format.RGBA32F) & FormatFeatureBit.SAMPLED_TEXTURE) {
         return Format.RGBA32F;
     }
     return Format.RGBA8;
@@ -103,14 +98,7 @@ function roundUpTextureSize (targetLength: number, formatSize: number) {
     return Math.ceil(Math.max(MINIMUM_JOINT_TEXTURE_SIZE * formatScale, targetLength) / 12) * 12;
 }
 
-export const jointTextureSamplerInfo = new SamplerInfo(
-    Filter.POINT,
-    Filter.POINT,
-    Filter.NONE,
-    Address.CLAMP,
-    Address.CLAMP,
-    Address.CLAMP,
-);
+export { jointTextureSamplerInfo };
 
 interface IInternalJointAnimInfo {
     downstream?: Mat4; // downstream default pose, if present
@@ -459,6 +447,7 @@ export interface IAnimInfo {
     data: Float32Array;
     dirty: boolean;
     dirtyForJSB: Uint8Array;
+    currentClip: AnimationClip | null;
 }
 
 export class JointAnimationInfo {
@@ -481,7 +470,7 @@ export class JointAnimationInfo {
         ));
         const data = new Float32Array([0, 0, 0, 0]);
         buffer.update(data);
-        const info = { buffer, data, dirty: false, dirtyForJSB: new Uint8Array([0]) };
+        const info = { buffer, data, dirty: false, dirtyForJSB: new Uint8Array([0]), currentClip: null };
 
         this._pool.set(nodeID, info);
         return info;
@@ -495,7 +484,8 @@ export class JointAnimationInfo {
     }
 
     public switchClip (info: IAnimInfo, clip: AnimationClip | null) {
-        info.data[0] = 0;
+        info.currentClip = clip;
+        info.data[0] = -1;
         info.buffer.update(info.data);
         info.dirty = false;
         if (JSB) {

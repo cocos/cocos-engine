@@ -47,6 +47,7 @@ import {
 } from '../utils/prefab/utils';
 import { getClassByName, isChildClassOf } from '../utils/js-typed';
 import { syncNodeValues } from "../utils/jsb-utils";
+import { BaseNode } from "./base-node.jsb";
 
 declare const jsb: any;
 
@@ -88,13 +89,7 @@ export const TRANSFORM_ON = 1 << 0;
 const Destroying = CCObject.Flags.Destroying;
 
 // For optimize getPosition, getRotation, getScale
-export const _tempFloatArray = new Float32Array([
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0
-]);
+export const _tempFloatArray = new Float32Array(jsb.createExternalArrayBuffer(20 * 4));
 //
 
 Node._setTempFloatArray(_tempFloatArray.buffer);
@@ -1174,23 +1169,23 @@ nodeProto._instantiate = function (cloned: Node, isSyncedNode: boolean) {
 const _class2$u = Node;
 
 // cjh FIXME: replace object.ts with object.jsb.ts
-_applyDecoratedDescriptor(_class2$u.prototype, '_name', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return '';
-    },
-});
+// _applyDecoratedDescriptor(_class2$u.prototype, '_name', [serializable], {
+//     configurable: true,
+//     enumerable: true,
+//     writable: true,
+//     initializer: function initializer () {
+//         return '';
+//     },
+// });
 
-_applyDecoratedDescriptor(_class2$u.prototype, '_objFlags', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return 0;
-    },
-});
+// _applyDecoratedDescriptor(_class2$u.prototype, '_objFlags', [serializable], {
+//     configurable: true,
+//     enumerable: true,
+//     writable: true,
+//     initializer: function initializer () {
+//         return 0;
+//     },
+// });
 //
 
 const _descriptor$o = _applyDecoratedDescriptor(_class2$u.prototype, '_parent', [serializable], {
@@ -1292,6 +1287,7 @@ _applyDecoratedDescriptor(_class2$v.prototype, 'layer', [editable], Object.getOw
 
 //
 nodeProto._ctor = function (name?: string) {
+    BaseNode.prototype._ctor.apply(this, arguments);
     this.__nativeRefs = {};
     this.__jsb_ref_id = undefined;
     this._iN$t = null;
@@ -1300,8 +1296,9 @@ nodeProto._ctor = function (name?: string) {
     this._components = [];
     this._eventProcessor = new legacyCC.NodeEventProcessor(this);
     this._uiProps = new NodeUIProperties(this);
-    this._activeInHierarchyArr = new Uint8Array([0]);
-    this._layerArr = new Uint32Array([Layers.Enum.DEFAULT]);
+    this._activeInHierarchyArr = new Uint8Array(jsb.createExternalArrayBuffer(1));
+    this._layerArr = new Uint32Array(jsb.createExternalArrayBuffer(4));
+    this._layerArr[0] = Layers.Enum.DEFAULT;
     this._scene = null;
     this._prefab = null;
     // record scene's id when set this node as persist node

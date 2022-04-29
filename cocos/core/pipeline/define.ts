@@ -33,8 +33,9 @@ import { Model } from '../renderer/scene/model';
 import { SubModel } from '../renderer/scene/submodel';
 import { Layers } from '../scene-graph/layers';
 import { legacyCC } from '../global-exports';
-import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit, UniformStorageBuffer,
-    DescriptorSetLayoutBinding, Uniform, UniformBlock, UniformSamplerTexture, UniformStorageImage, Device, Feature, API } from '../gfx';
+import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit, UniformStorageBuffer, DescriptorSetLayoutBinding,
+    Uniform, UniformBlock, UniformSamplerTexture, UniformStorageImage, Device, FormatFeatureBit, Format,
+} from '../gfx';
 
 export const PIPELINE_FLOW_MAIN = 'MainFlow';
 export const PIPELINE_FLOW_FORWARD = 'ForwardFlow';
@@ -143,12 +144,14 @@ export enum ModelLocalBindings {
     SAMPLER_LIGHTMAP,
     SAMPLER_SPRITE,
     SAMPLER_REFLECTION,
+
     STORAGE_REFLECTION,
 
     COUNT,
 }
 const LOCAL_UBO_COUNT = ModelLocalBindings.SAMPLER_JOINTS;
-const LOCAL_SAMPLER_COUNT = ModelLocalBindings.COUNT - LOCAL_UBO_COUNT;
+const LOCAL_SAMPLER_COUNT = ModelLocalBindings.STORAGE_REFLECTION - LOCAL_UBO_COUNT;
+const LOCAL_STORAGE_IMAGE_COUNT = ModelLocalBindings.COUNT - LOCAL_UBO_COUNT - LOCAL_SAMPLER_COUNT;
 
 export enum SetIndex {
     GLOBAL,
@@ -156,10 +159,16 @@ export enum SetIndex {
     LOCAL,
 }
 // parameters passed to GFX Device
-export const bindingMappingInfo = new BindingMappingInfo();
-bindingMappingInfo.bufferOffsets = [0, GLOBAL_UBO_COUNT + LOCAL_UBO_COUNT, GLOBAL_UBO_COUNT];
-bindingMappingInfo.samplerOffsets = [-GLOBAL_UBO_COUNT, GLOBAL_SAMPLER_COUNT + LOCAL_SAMPLER_COUNT, GLOBAL_SAMPLER_COUNT - LOCAL_UBO_COUNT];
-bindingMappingInfo.flexibleSet = 1;
+export const bindingMappingInfo = new BindingMappingInfo(
+    [GLOBAL_UBO_COUNT, 0, LOCAL_UBO_COUNT],         // Uniform Buffer Counts
+    [GLOBAL_SAMPLER_COUNT, 0, LOCAL_SAMPLER_COUNT], // Combined Sampler Texture Counts
+    [0, 0, 0],                                      // Sampler Counts
+    [0, 0, 0],                                      // Texture Counts
+    [0, 0, 0],                                      // Storage Buffer Counts
+    [0, 0, LOCAL_STORAGE_IMAGE_COUNT],              // Storage Image Counts
+    [0, 0, 0],                                      // Subpass Input Counts
+    [0, 2, 1],                                      // Set Order Indices
+);
 
 /**
  * @en The global uniform buffer object
@@ -196,7 +205,8 @@ export class UBOCamera {
     public static readonly MAT_VIEW_PROJ_OFFSET = UBOCamera.MAT_PROJ_INV_OFFSET + 16;
     public static readonly MAT_VIEW_PROJ_INV_OFFSET = UBOCamera.MAT_VIEW_PROJ_OFFSET + 16;
     public static readonly CAMERA_POS_OFFSET = UBOCamera.MAT_VIEW_PROJ_INV_OFFSET + 16;
-    public static readonly SCREEN_SCALE_OFFSET = UBOCamera.CAMERA_POS_OFFSET + 4;
+    public static readonly SURFACE_TRANSFORM_OFFSET = UBOCamera.CAMERA_POS_OFFSET + 4;
+    public static readonly SCREEN_SCALE_OFFSET = UBOCamera.SURFACE_TRANSFORM_OFFSET + 4;
     public static readonly EXPOSURE_OFFSET = UBOCamera.SCREEN_SCALE_OFFSET + 4;
     public static readonly MAIN_LIT_DIR_OFFSET = UBOCamera.EXPOSURE_OFFSET + 4;
     public static readonly MAIN_LIT_COLOR_OFFSET = UBOCamera.MAIN_LIT_DIR_OFFSET + 4;
@@ -221,6 +231,7 @@ export class UBOCamera {
         new Uniform('cc_matViewProj', Type.MAT4, 1),
         new Uniform('cc_matViewProjInv', Type.MAT4, 1),
         new Uniform('cc_cameraPos', Type.FLOAT4, 1),
+        new Uniform('cc_surfaceTransform', Type.FLOAT4, 1),
         new Uniform('cc_screenScale', Type.FLOAT4, 1),
         new Uniform('cc_exposure', Type.FLOAT4, 1),
         new Uniform('cc_mainLitDir', Type.FLOAT4, 1),
@@ -252,7 +263,8 @@ export class UBOShadow {
     public static readonly SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET = UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 4;
     public static readonly SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET = UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 4;
     public static readonly SHADOW_COLOR_OFFSET = UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 4;
-    public static readonly COUNT: number = UBOShadow.SHADOW_COLOR_OFFSET + 4;
+    public static readonly PLANAR_NORMAL_DISTANCE_INFO_OFFSET = UBOShadow.SHADOW_COLOR_OFFSET + 4;
+    public static readonly COUNT: number = UBOShadow.PLANAR_NORMAL_DISTANCE_INFO_OFFSET + 4;
     public static readonly SIZE = UBOShadow.COUNT * 4;
     public static readonly NAME = 'CCShadow';
     public static readonly BINDING = PipelineGlobalBindings.UBO_SHADOW;
@@ -268,6 +280,7 @@ export class UBOShadow {
         new Uniform('cc_shadowWHPBInfo', Type.FLOAT4, 1),
         new Uniform('cc_shadowLPNNInfo', Type.FLOAT4, 1),
         new Uniform('cc_shadowColor', Type.FLOAT4, 1),
+        new Uniform('cc_planarNDInfo', Type.FLOAT4, 1),
     ], 1);
 }
 globalDescriptorSetLayout.layouts[UBOShadow.NAME] = UBOShadow.LAYOUT;
@@ -319,7 +332,8 @@ export class UBOLocal {
     public static readonly MAT_WORLD_OFFSET = 0;
     public static readonly MAT_WORLD_IT_OFFSET = UBOLocal.MAT_WORLD_OFFSET + 16;
     public static readonly LIGHTINGMAP_UVPARAM = UBOLocal.MAT_WORLD_IT_OFFSET + 16;
-    public static readonly COUNT = UBOLocal.LIGHTINGMAP_UVPARAM + 4;
+    public static readonly LOCAL_SHADOW_BIAS = UBOLocal.LIGHTINGMAP_UVPARAM + 4;
+    public static readonly COUNT = UBOLocal.LOCAL_SHADOW_BIAS + 4;
     public static readonly SIZE = UBOLocal.COUNT * 4;
 
     public static readonly NAME = 'CCLocal';
@@ -329,6 +343,7 @@ export class UBOLocal {
         new Uniform('cc_matWorld', Type.MAT4, 1),
         new Uniform('cc_matWorldIT', Type.MAT4, 1),
         new Uniform('cc_lightingMapUVParam', Type.FLOAT4, 1),
+        new Uniform('cc_localShadowBias', Type.FLOAT4, 1),
     ], 1);
 }
 localDescriptorSetLayout.layouts[UBOLocal.NAME] = UBOLocal.LAYOUT;
@@ -591,23 +606,21 @@ export const CAMERA_EDITOR_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, 
 export const MODEL_ALWAYS_MASK = Layers.Enum.ALL;
 
 /**
- * @en Does the device support half float texture? (for both color attachment and sampling)
- * @zh 当前设备是否支持半浮点贴图？（颜色输出和采样）
+ * @en Does the device support single-channeled half float texture? (for both color attachment and sampling)
+ * @zh 当前设备是否支持单通道半浮点贴图？（颜色输出和采样）
  */
-export function supportsHalfFloatTexture (device: Device) {
-    return device.hasFeature(Feature.COLOR_HALF_FLOAT)
-     && device.hasFeature(Feature.TEXTURE_HALF_FLOAT)
-     && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
+export function supportsR16HalfFloatTexture (device: Device) {
+    return (device.getFormatFeatures(Format.R16F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))
+        === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE);
 }
 
 /**
- * @en Does the device support half float texture? (for both color attachment and sampling)
- * @zh 当前设备是否支持半浮点贴图？（颜色输出和采样）
+ * @en Does the device support single-channeled float texture? (for both color attachment and sampling)
+ * @zh 当前设备是否支持单通道浮点贴图？（颜色输出和采样）
  */
-export function supportsFloatTexture (device: Device) {
-    return device.hasFeature(Feature.COLOR_FLOAT)
-     && device.hasFeature(Feature.TEXTURE_FLOAT)
-     && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
+export function supportsR32FloatTexture (device: Device) {
+    return (device.getFormatFeatures(Format.R32F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))
+        === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE);
 }
 
 /* eslint-enable max-len */

@@ -28,8 +28,8 @@ declare const nr: any;
 import { getPhaseID } from './pass-phase';
 import { setClassName } from '../../core/utils/js';
 import { PipelineEventType } from './pipeline-event';
-import { GeometryRenderer } from './geometry-renderer';
-
+import * as pipeline from './define';
+export { pipeline };
 nr.getPhaseID = getPhaseID;
 
 export const RenderPipeline = nr.RenderPipeline;
@@ -48,7 +48,8 @@ export const LightingStage = nr.LightingStage;
 export const PostProcessStage = nr.PostProcessStage;
 export const GbufferStage = nr.GbufferStage;
 export const BloomStage = nr.BloomStage;
-export { PipelineEventProcessor, PipelineEventType } from './pipeline-event';
+export const GeometryRenderer = nr.GeometryRenderer;
+export { PipelineEventType } from './pipeline-event';
 
 let getOrCreatePipelineState = nr.PipelineStateManager.getOrCreatePipelineState;
 nr.PipelineStateManager.getOrCreatePipelineState = function(device, pass, shader, renderPass, ia) {
@@ -60,26 +61,15 @@ const forwardPipelineProto = ForwardPipeline.prototype;
 forwardPipelineProto._ctor = function() {
     this._tag = 0;
     this._flows = [];
-    // noinspection JSConstantReassignment
-    this.geometryRenderer = new GeometryRenderer();
 };
 
 forwardPipelineProto.init = function () {
-      this.setGeometryRenderer(this.geometryRenderer.native);
       for (let i = 0; i < this._flows.length; i++) {
           this._flows[i].init(this);
       }
       const info = new nr.RenderPipelineInfo(this._tag, this._flows);
       this.initialize(info);
 };
-
-forwardPipelineProto.on = function(type: PipelineEventType, callback: any, target?: any, once?: boolean){}
-forwardPipelineProto.once = function(type: PipelineEventType, callback: any, target?: any) {}
-forwardPipelineProto.off = function(type: PipelineEventType, callback?: any, target?: any) {}
-forwardPipelineProto.emit = function(type: PipelineEventType, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {}
-forwardPipelineProto.targetOff = function(typeOrTarget: any): void {}
-forwardPipelineProto.removeAll = function(typeOrTarget: any): void {}
-forwardPipelineProto.hasEventListener = function(type: PipelineEventType, callback?: any, target?: any): boolean { return false; }
 
 const oldForwardOnLoaded = forwardPipelineProto.onLoaded;
 // hook to invoke init after deserialization
@@ -172,23 +162,13 @@ deferredPipelineProto._ctor = function() {
     this._flows = [];
     this.renderTextures = [];
     this.materials = [];
-    // noinspection JSConstantReassignment
-    this.geometryRenderer = new GeometryRenderer();
 }
-deferredPipelineProto.on = function(type: PipelineEventType, callback: any, target?: any, once?: boolean){}
-deferredPipelineProto.once = function(type: PipelineEventType, callback: any, target?: any) {}
-deferredPipelineProto.off = function(type: PipelineEventType, callback?: any, target?: any) {}
-deferredPipelineProto.emit = function(type: PipelineEventType, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {}
-deferredPipelineProto.targetOff = function(typeOrTarget: any): void {}
-deferredPipelineProto.removeAll = function(typeOrTarget: any): void {}
-deferredPipelineProto.hasEventListener = function(type: PipelineEventType, callback?: any, target?: any): boolean { return false; }
 
 const oldDeferredOnLoaded = deferredPipelineProto.onLoaded;
 // hook to invoke init after deserialization
 deferredPipelineProto.onLoaded = function () {
     if (oldDeferredOnLoaded) oldDeferredOnLoaded.call(this);
 
-    this.setGeometryRenderer(this.geometryRenderer.native);
     for (let i = 0; i < this._flows.length; i++) {
         this._flows[i].init(this);
     }

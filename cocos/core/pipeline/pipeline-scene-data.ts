@@ -27,9 +27,7 @@ import { Octree } from '../renderer/scene/octree';
 import { IRenderObject } from './define';
 import { Device, Framebuffer, InputAssembler, InputAssemblerInfo, Buffer, BufferInfo,
     BufferUsageBit, MemoryUsageBit, Attribute, Format, Shader } from '../gfx';
-import { RenderPipeline } from './render-pipeline';
 import { Light } from '../renderer/scene/light';
-import { PipelineEventType } from './pipeline-event';
 import { Material } from '../assets';
 import { Pass } from '../renderer/core/pass';
 
@@ -53,10 +51,7 @@ export class PipelineSceneData {
     }
 
     public set shadingScale (val: number) {
-        if (this._shadingScale !== val) {
-            this._shadingScale = val;
-            this._pipeline.emit(PipelineEventType.ATTACHMENT_SCALE_CAHNGED, val);
-        }
+        this._shadingScale = val;
     }
 
     public fog: Fog = new Fog();
@@ -80,7 +75,6 @@ export class PipelineSceneData {
     public dirShadowObjects: IRenderObject[] = [];
     public shadowFrameBufferMap: Map<Light, Framebuffer> = new Map();
     protected declare _device: Device;
-    protected declare _pipeline: RenderPipeline;
     protected _geometryRendererMaterials: Material[] = [];
     protected _geometryRendererPasses: Pass[] = [];
     protected _geometryRendererShaders: Shader[] = [];
@@ -93,12 +87,11 @@ export class PipelineSceneData {
     protected _shadingScale = 1.0;
 
     constructor () {
-        this.shadingScale = 1.0;
+        this._shadingScale = 1.0;
     }
 
-    public activate (device: Device, pipeline: RenderPipeline) {
+    public activate (device: Device) {
         this._device = device;
-        this._pipeline = pipeline;
 
         this.initGeometryRendererMaterials();
         this.initOcclusionQuery();
@@ -151,7 +144,7 @@ export class PipelineSceneData {
         return null;
     }
 
-    public onGlobalPipelineStateChanged () {
+    public updatePipelineSceneData () {
     }
 
     public destroy () {

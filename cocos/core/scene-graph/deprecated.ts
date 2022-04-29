@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { EDITOR } from 'internal:constants';
 import { ccclass } from 'cc.decorator';
 import { BaseNode } from './base-node';
@@ -43,6 +38,7 @@ import { SceneGlobals } from './scene-globals';
 import { JSB } from '../default-constants';
 import { SystemEventType } from '../../input/types';
 import { SystemEvent } from '../../input';
+import { NodeUIProperties } from './node-ui-properties';
 
 if (JSB) {
     replaceProperty(Node.prototype, 'Node', [
@@ -166,6 +162,47 @@ removeProperty(SceneGlobals.prototype, 'SceneGlobals.prototype', [
     {
         name: 'autoAdapt',
     },
+    {
+        name: 'fixedArea',
+    },
+    {
+        name: 'pcf',
+    },
+    {
+        name: 'bias',
+    },
+    {
+        name: 'normalBias',
+    },
+    {
+        name: 'near',
+    },
+    {
+        name: 'far',
+    },
+    {
+        name: 'shadowDistance',
+    },
+    {
+        name: 'invisibleOcclusionRange',
+    },
+    {
+        name: 'orthoSize',
+    },
+    {
+        name: 'saturation',
+    },
+]);
+
+replaceProperty(SceneGlobals.prototype, 'SceneGlobals.prototype', [
+    {
+        name: 'distance',
+        newName: 'planeHeight',
+    },
+    {
+        name: 'normal',
+        newName: 'planeDirection',
+    },
 ]);
 
 removeProperty(Node.prototype, 'Node.prototype', [
@@ -174,6 +211,13 @@ removeProperty(Node.prototype, 'Node.prototype', [
     },
     {
         name: 'removeLayer',
+    },
+]);
+
+replaceProperty(NodeUIProperties.prototype, 'NodeUIProperties', [
+    {
+        name: 'opacityDirty',
+        newName: 'colorDirty',
     },
 ]);
 
@@ -267,6 +311,10 @@ removeProperty(Layers.BitMask, 'Layers.BitMask', [
 const HideInHierarchy = CCObject.Flags.HideInHierarchy;
 const DontSave = CCObject.Flags.DontSave;
 
+/**
+ * @internal
+ * @deprecated since v3.5
+ */
 @ccclass('cc.PrivateNode')
 export class PrivateNode extends Node {
     constructor (name?: string) {

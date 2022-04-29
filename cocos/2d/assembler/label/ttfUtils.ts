@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { SpriteFrame } from '../../assets';
 import { Texture2D } from '../../../core/assets';
 import { fragmentText, safeMeasureText, getBaselineOffset, BASELINE_RATIO } from '../../utils/text-utils';
@@ -40,6 +35,7 @@ import { legacyCC } from '../../../core/global-exports';
 import { assetManager } from '../../../core/asset-manager';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 import { BlendFactor } from '../../../core/gfx';
+import { WrapMode } from '../../../core/assets/asset-enum';
 
 const Overflow = Label.Overflow;
 const MAX_SIZE = 2048;
@@ -114,14 +110,13 @@ export const ttfUtils =  {
             this._calculateLabelFont();
             this._updateLabelDimensions();
             this._updateTexture(comp);
-            this.updateOpacity(comp);
             this._calDynamicAtlas(comp);
 
             comp.actualFontSize = _fontSize;
             trans.setContentSize(_canvasSize);
 
             this.updateVertexData(comp);
-            this.updateUvs(comp);
+            this.updateUVs(comp);
 
             comp.markForUpdateRenderData(false);
 
@@ -139,19 +134,7 @@ export const ttfUtils =  {
     updateVertexData (comp: Label) {
     },
 
-    updateUvs (comp: Label) {
-    },
-
-    updateOpacity (comp: Label) {
-        const vData = comp.renderData!.vData;
-
-        let colorOffset = 5;
-        const colorA = comp.node._uiProps.opacity;
-        for (let i = 0; i < 4; i++) {
-            vData![colorOffset + 3] = colorA;
-
-            colorOffset += 9;
-        }
+    updateUVs (comp: Label) {
     },
 
     _updateFontFamily (comp: Label) {
@@ -348,6 +331,7 @@ export const ttfUtils =  {
                     mipmapLevel: 1,
                 });
                 tex.uploadData(_canvas);
+                tex.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
                 if (_texture instanceof SpriteFrame) {
                     _texture.rect = new Rect(0, 0, _canvas.width, _canvas.height);
                     _texture._calculateUV();
@@ -363,10 +347,10 @@ export const ttfUtils =  {
     },
 
     _calDynamicAtlas (comp: Label) {
-        if (comp.cacheMode !== Label.CacheMode.BITMAP) return;
+        if (comp.cacheMode !== Label.CacheMode.BITMAP || !_canvas || _canvas.width <= 0 || _canvas.height <= 0) return;
         const frame = comp.ttfSpriteFrame!;
         dynamicAtlasManager.packToDynamicAtlas(comp, frame);
-        comp.renderData!.uvDirty = true;
+        // TODO update material and uv
     },
 
     _setupOutline () {

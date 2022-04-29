@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { Buffer } from './base/buffer';
 import { CommandBuffer } from './base/command-buffer';
@@ -43,7 +40,7 @@ import { RenderPass } from './base/render-pass';
 import { Sampler } from './base/states/sampler';
 import { Shader } from './base/shader';
 import { Texture } from './base/texture';
-import { GlobalBarrier } from './base/states/global-barrier';
+import { GeneralBarrier } from './base/states/general-barrier';
 import { TextureBarrier } from './base/states/texture-barrier';
 import { legacyCC } from '../global-exports';
 import * as defines from './base/define';
@@ -64,7 +61,7 @@ const polyfills: Record<string, unknown> = {
     PipelineState,
     CommandBuffer,
     Queue,
-    GlobalBarrier,
+    GeneralBarrier,
     TextureBarrier,
 
     RasterizerState,

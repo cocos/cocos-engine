@@ -31,7 +31,7 @@
 // @ts-check
 import { ccclass, override } from 'cc.decorator';
 import { EDITOR, MINIGAME, ALIPAY, XIAOMI, JSB, TEST, BAIDU } from 'internal:constants';
-import { Device, Feature } from '../gfx';
+import { Device, Feature, Format, FormatFeatureBit } from '../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
 import { legacyCC } from '../global-exports';
@@ -83,7 +83,7 @@ function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElem
 @ccclass('cc.ImageAsset')
 export class ImageAsset extends Asset {
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @override
     get _nativeAsset () {
@@ -218,7 +218,7 @@ export class ImageAsset extends Asset {
     // SERIALIZATION
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     // eslint-disable-next-line consistent-return
     public _serialize () {
@@ -247,7 +247,7 @@ export class ImageAsset extends Asset {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _deserialize (data: any) {
         let fmtStr = '';
@@ -275,15 +275,15 @@ export class ImageAsset extends Asset {
             if (index !== -1 && index < preferedExtensionIndex) {
                 const fmt = extFormat[1] ? parseInt(extFormat[1]) : this._format;
                 // check whether or not support compressed texture
-                if (tmpExt === '.astc' && (!device || !device.hasFeature(Feature.FORMAT_ASTC))) {
+                if (tmpExt === '.astc' && (!device || !(device.getFormatFeatures(Format.ASTC_RGBA_4X4) & FormatFeatureBit.SAMPLED_TEXTURE))) {
                     continue;
-                } else if (tmpExt === '.pvr' && (!device || !device.hasFeature(Feature.FORMAT_PVRTC))) {
+                } else if (tmpExt === '.pvr' && (!device || !(device.getFormatFeatures(Format.PVRTC_RGBA4) & FormatFeatureBit.SAMPLED_TEXTURE))) {
                     continue;
                 } else if ((fmt === PixelFormat.RGB_ETC1 || fmt === PixelFormat.RGBA_ETC1)
-                    && (!device || !device.hasFeature(Feature.FORMAT_ETC1))) {
+                    && (!device || !(device.getFormatFeatures(Format.ETC_RGB8) & FormatFeatureBit.SAMPLED_TEXTURE))) {
                     continue;
                 } else if ((fmt === PixelFormat.RGB_ETC2 || fmt === PixelFormat.RGBA_ETC2)
-                    && (!device || !device.hasFeature(Feature.FORMAT_ETC2))) {
+                    && (!device || !(device.getFormatFeatures(Format.ETC2_RGB8) & FormatFeatureBit.SAMPLED_TEXTURE))) {
                     continue;
                 } else if (tmpExt === '.webp' && !legacyCC.sys.hasFeature(legacyCC.sys.Feature.WEBP)) {
                     continue;

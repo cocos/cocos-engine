@@ -23,20 +23,21 @@
  THE SOFTWARE.
  */
 
-import { ccclass, tooltip, displayOrder, type, serializable } from 'cc.decorator';
+import { ccclass, tooltip, displayOrder, type, serializable, disallowAnimation } from 'cc.decorator';
 import { Mesh } from '../../3d';
 import { Material, Texture2D } from '../../core/assets';
 import { AlignmentSpace, RenderMode, Space } from '../enum';
 import ParticleSystemRendererCPU from './particle-system-renderer-cpu';
 import ParticleSystemRendererGPU from './particle-system-renderer-gpu';
 import { director } from '../../core/director';
-import { Device, Feature } from '../../core/gfx';
+import { Device, Feature, Format, FormatFeatureBit } from '../../core/gfx';
 import { legacyCC } from '../../core/global-exports';
 import { errorID } from '../../core';
 
 function isSupportGPUParticle () {
     const device: Device = director.root!.device;
-    if (device.capabilities.maxVertexTextureUnits >= 8 && device.hasFeature(Feature.TEXTURE_FLOAT)) {
+    if (device.capabilities.maxVertexTextureUnits >= 8 && (device.getFormatFeatures(Format.RGBA32F)
+        & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))) {
         return true;
     }
 
@@ -135,6 +136,7 @@ export default class ParticleSystemRenderer {
      */
     @type(Material)
     @displayOrder(8)
+    @disallowAnimation
     @tooltip('i18n:particleSystemRenderer.particleMaterial')
     public get particleMaterial () {
         if (!this._particleSystem) {
@@ -154,6 +156,7 @@ export default class ParticleSystemRenderer {
      */
     @type(Material)
     @displayOrder(9)
+    @disallowAnimation
     @tooltip('i18n:particleSystemRenderer.trailMaterial')
     public get trailMaterial () {
         if (!this._particleSystem) {
@@ -257,6 +260,7 @@ export default class ParticleSystemRenderer {
             this._particleSystem.processor = null!;
         }
         this._particleSystem.processor = this._useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
+        this._particleSystem.processor.updateAlignSpace(this.alignSpace);
         this._particleSystem.processor.onInit(this._particleSystem);
         this._particleSystem.processor.onEnable();
         this._particleSystem.bindModule();

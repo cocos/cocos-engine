@@ -23,18 +23,13 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { JSB } from 'internal:constants';
 import { MeshBuffer } from './mesh-buffer';
 import { Material } from '../../core/assets/material';
 import { Texture, Sampler, InputAssembler, DescriptorSet, Shader } from '../../core/gfx';
 import { Node } from '../../core/scene-graph';
 import { Camera } from '../../core/renderer/scene/camera';
-import { RenderScene } from '../../core/renderer/scene/render-scene';
+import { RenderScene } from '../../core/renderer/core/render-scene';
 import { Model } from '../../core/renderer/scene/model';
 import { Layers } from '../../core/scene-graph/layers';
 import { legacyCC } from '../../core/global-exports';
@@ -126,6 +121,8 @@ export class DrawBatch2D {
         this.camera = null;
         this.texture = null;
         this.sampler = null;
+        this.textureHash = 0;
+        this.samplerHash = 0;
         this.model = null;
         this.isStatic = false;
         this.useLocalData = null;
