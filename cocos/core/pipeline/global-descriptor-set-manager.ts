@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module pipeline
- */
+
 
 import { RenderPipeline } from './render-pipeline';
 import { Device, BufferUsageBit, MemoryUsageBit, BufferInfo, Filter, Address, Sampler, DescriptorSet,

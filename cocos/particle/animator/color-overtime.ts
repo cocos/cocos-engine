@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module particle
- */
+
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { pseudoRandom } from '../../core/math';

@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module pipeline
- */
+
 
 import { CommandBuffer, Device, Rect, RenderPass, Swapchain, Viewport } from '../gfx';
 import { IVec4Like } from '../math';

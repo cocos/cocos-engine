@@ -24,10 +24,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core/math
- */
+
 
 import { CCClass } from '../data/class';
 import { Mat4 } from './mat4.jsb';

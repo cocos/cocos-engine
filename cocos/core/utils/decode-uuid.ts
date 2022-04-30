@@ -24,10 +24,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core
- */
+
 
 import { TEST } from 'internal:constants';
 import { BASE64_VALUES } from './misc';

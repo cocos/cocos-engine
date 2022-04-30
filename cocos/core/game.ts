@@ -23,10 +23,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-/**
- * @packageDocumentation
- * @module core
- */
+
 
 import { EDITOR, HTML5, JSB, PREVIEW, RUNTIME_BASED, TEST } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';

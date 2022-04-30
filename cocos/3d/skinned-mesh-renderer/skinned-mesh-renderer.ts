@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module model
- */
-
 import {
     ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type,
 } from 'cc.decorator';

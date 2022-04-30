@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module geometry
- */
+
 
 import { Mat4, Quat, Vec3 } from '../math';
 import enums from './enums';

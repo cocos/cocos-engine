@@ -25,11 +25,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
-
 import { ccclass } from 'cc.decorator';
 import { EDITOR, TEST, BUILD } from 'internal:constants';
 import { Rect, Size, Vec2 } from '../../core/math';

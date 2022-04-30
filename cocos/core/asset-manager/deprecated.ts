@@ -22,10 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-/**
- * @packageDocumentation
- * @module loader
- */
+
 import { BUILD, DEBUG } from 'internal:constants';
 import { Asset } from '../assets';
 import { director } from '../director';

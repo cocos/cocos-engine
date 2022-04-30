@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module event
- */
+
 
 import { EventTarget } from './event-target';
 

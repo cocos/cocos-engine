@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module animation
- */
+
 
 /**
  * @en

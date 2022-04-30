@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module core/math
- */
+
 
 import { ValueType } from '../value-types';
 import { IVec3Like } from './type-define';

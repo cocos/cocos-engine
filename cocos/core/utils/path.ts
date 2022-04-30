@@ -24,10 +24,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core
- */
+
 
 import { systemInfo } from 'pal/system-info';
 import { OS } from '../../../pal/system-info/enum-type';

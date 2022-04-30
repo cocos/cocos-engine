@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module geometry
- */
+
 
 import { JSB } from 'internal:constants';
 import { Mat3, Mat4, Quat, Vec3 } from '../math';

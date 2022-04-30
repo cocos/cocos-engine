@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module material
- */
+
 
 import { EffectAsset } from '../../assets/effect-asset';
 import { SetIndex, IDescriptorSetLayoutInfo, globalDescriptorSetLayout, localDescriptorSetLayout } from '../../pipeline/define';

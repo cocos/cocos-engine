@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core/math
- */
+
 
 import { CCClass } from '../data/class';
 import { Mat3 } from './mat3.jsb';

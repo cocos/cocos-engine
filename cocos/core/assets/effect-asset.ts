@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module material
- */
+
 
 import { ccclass, serializable, editable, editorOnly } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';

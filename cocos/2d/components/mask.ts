@@ -24,10 +24,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
+
 
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, visible, override, serializable, range, slide } from 'cc.decorator';
 import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';

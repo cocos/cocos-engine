@@ -24,10 +24,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core/math
- */
+
 
 import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';

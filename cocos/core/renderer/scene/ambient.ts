@@ -121,14 +121,6 @@ export class Ambient {
         }
     }
 
-    get mipmapCount (): number {
-        return this._mipmapCount;
-    }
-
-    set mipmapCount (count : number) {
-        this._mipmapCount = count;
-    }
-
     protected _groundAlbedoHDR = new Vec4(0.2, 0.2, 0.2, 1.0);
     protected _skyColorHDR = new Vec4(0.2, 0.5, 0.8, 1.0);
     protected _skyIllumHDR = 0;
@@ -136,8 +128,6 @@ export class Ambient {
     protected _groundAlbedoLDR = new Vec4(0.2, 0.2, 0.2, 1.0);
     protected _skyColorLDR = new Vec4(0.2, 0.5, 0.8, 1.0);
     protected _skyIllumLDR = 0;
-
-    protected _mipmapCount = 1;
 
     protected _enabled = false;
     protected declare _nativeObj: NativeAmbient | null;

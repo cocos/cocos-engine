@@ -1,7 +1,4 @@
-/**
- * @packageDocumentation
- * @module spine
- */
+
 
 import { Mat4, Vec3, Node } from '../core';
 import { Skeleton } from './skeleton';

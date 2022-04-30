@@ -27,10 +27,7 @@
 
 /* spell-checker:words COORD, Quesada, INITED, Renerer */
 
-/**
- * @packageDocumentation
- * @module core
- */
+
 
 import { DEBUG, EDITOR, BUILD, TEST } from 'internal:constants';
 import { SceneAsset } from './assets';

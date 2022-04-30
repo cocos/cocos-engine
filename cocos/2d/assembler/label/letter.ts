@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui-assembler
- */
-
 import { addon } from '../../../core/utils/js';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Label } from '../../components/label';

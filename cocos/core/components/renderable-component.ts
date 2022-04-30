@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module model
- */
+
 
 import { EDITOR } from 'internal:constants';
 import {

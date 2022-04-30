@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module geometry
- */
+
 
 import { CCClass } from '../data/class';
 import { clamp, inverseLerp, pingPong, repeat } from '../math/utils';

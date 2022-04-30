@@ -24,10 +24,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module particle2d
- */
+
 
 import { ccclass, editable, type, displayOrder, menu,
     executeInEditMode, serializable, playOnFocus, tooltip, visible, formerlySerializedAs } from 'cc.decorator';

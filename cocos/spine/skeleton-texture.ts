@@ -1,7 +1,4 @@
-/**
- * @packageDocumentation
- * @module spine
- */
+
 
 import { Material, Texture2D } from '../core';
 import { Filter, WrapMode } from '../core/assets/asset-enum';

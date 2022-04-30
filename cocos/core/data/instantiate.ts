@@ -24,10 +24,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core/data
- */
+
 
 import { DEV } from 'internal:constants';
 import { isDomNode } from '../utils/misc';

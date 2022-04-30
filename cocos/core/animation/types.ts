@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module animation
- */
+
 
 import { ccenum } from '../value-types/enum';
 

@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module terrain
- */
+
 import { ccclass, disallowMultiple, executeInEditMode, help, visible, type, serializable, editable, disallowAnimation } from 'cc.decorator';
 import { JSB } from 'internal:constants';
 import { builtinResMgr } from '../core/builtin';

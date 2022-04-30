@@ -24,10 +24,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
+
 
 import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, serializable, editable } from 'cc.decorator';

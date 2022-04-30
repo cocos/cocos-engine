@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module core
- */
+
 
 import { Camera } from '../components/camera-component';
 import { Vec3 } from '../math';

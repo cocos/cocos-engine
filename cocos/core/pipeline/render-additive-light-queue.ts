@@ -23,10 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module pipeline
- */
 
 import { BatchingSchemes, Pass } from '../renderer/core/pass';
 import { RenderPipeline } from './render-pipeline';

@@ -32,10 +32,7 @@ const _uuidRegex = /.*[/\\][0-9a-fA-F]{2}[/\\]([0-9a-fA-F-@]{8,}).*/;
 
 export { default as decodeUuid } from '../utils/decode-uuid';
 
-/**
- * @packageDocumentation
- * @module asset-manager
- */
+
 
 /**
  * @en

@@ -22,10 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-/**
- * @packageDocumentation
- * @module asset-manager
- */
+
 import { BUILD, EDITOR } from 'internal:constants';
 import { sys } from '../platform/sys';
 import { js, path } from '../utils';
