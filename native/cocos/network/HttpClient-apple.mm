@@ -50,7 +50,6 @@ void HttpClient::networkThread() {
     increaseThreadCount();
 
     while (true) @autoreleasepool {
-
             HttpRequest *request;
 
             // step 1: send http request if the requestQueue isn't empty
@@ -340,7 +339,7 @@ HttpClient::HttpClient()
     _requestSentinel = ccnew HttpRequest();
     _requestSentinel->addRef();
     memset(_responseMessage, 0, sizeof(char) * RESPONSE_BUFFER_SIZE);
-      _scheduler = CC_CURRENT_ENGINE()->getScheduler();
+    _scheduler = CC_CURRENT_ENGINE()->getScheduler();
     increaseThreadCount();
 }
 

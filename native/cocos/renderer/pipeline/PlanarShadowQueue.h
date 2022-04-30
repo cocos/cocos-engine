@@ -53,8 +53,8 @@ public:
     void destroy();
 
 private:
-    RenderPipeline *                    _pipeline       = nullptr;
-    RenderInstancedQueue *              _instancedQueue = nullptr;
+    RenderPipeline *_pipeline = nullptr;
+    RenderInstancedQueue *_instancedQueue = nullptr;
     ccstd::vector<const scene::Model *> _castModels;
     ccstd::vector<const scene::Model *> _pendingModels;
 };

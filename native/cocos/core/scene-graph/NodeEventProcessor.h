@@ -57,8 +57,8 @@ public:
     ~NodeEventProcessor();
 
     inline Node *getNode() { return _node; }
-    void         reattach();
-    void         destroy();
+    void reattach();
+    void destroy();
 
     /**
      * @zh
@@ -130,7 +130,7 @@ public:
      * @param args - The  arguments to be passed to the callback
      */
     template <typename... Args>
-    void emit(const CallbacksInvoker::KeyType &type, Args &&...args);
+    void emit(const CallbacksInvoker::KeyType &type, Args &&... args);
 
     void targetOff(const CallbacksInvoker::KeyType &target);
 
@@ -190,7 +190,7 @@ private:
 };
 
 template <typename... Args>
-void NodeEventProcessor::emit(const CallbacksInvoker::KeyType &type, Args &&...args) {
+void NodeEventProcessor::emit(const CallbacksInvoker::KeyType &type, Args &&... args) {
     if (_bubblingTargets != nullptr) {
         _bubblingTargets->emit(type, std::forward<Args>(args)...);
     }

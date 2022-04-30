@@ -41,23 +41,23 @@ public:
     void initialize(const RenderPassInfo &info);
     void destroy();
 
-    inline const ColorAttachmentList &   getColorAttachments() const { return _colorAttachments; }
+    inline const ColorAttachmentList &getColorAttachments() const { return _colorAttachments; }
     inline const DepthStencilAttachment &getDepthStencilAttachment() const { return _depthStencilAttachment; }
-    inline const SubpassInfoList &       getSubpasses() const { return _subpasses; }
-    inline const SubpassDependencyList & getDependencies() const { return _dependencies; }
-    inline size_t                        getHash() const { return _hash; }
+    inline const SubpassInfoList &getSubpasses() const { return _subpasses; }
+    inline const SubpassDependencyList &getDependencies() const { return _dependencies; }
+    inline size_t getHash() const { return _hash; }
 
 protected:
     size_t computeHash();
 
     virtual void doInit(const RenderPassInfo &info) = 0;
-    virtual void doDestroy()                        = 0;
+    virtual void doDestroy() = 0;
 
-    ColorAttachmentList    _colorAttachments;
+    ColorAttachmentList _colorAttachments;
     DepthStencilAttachment _depthStencilAttachment;
-    SubpassInfoList        _subpasses;
-    SubpassDependencyList  _dependencies;
-    size_t                 _hash = 0;
+    SubpassInfoList _subpasses;
+    SubpassDependencyList _dependencies;
+    size_t _hash = 0;
 };
 
 } // namespace gfx

@@ -17,7 +17,7 @@ Plane *Plane::copy(Plane *out, const Plane &p) {
     return out;
 }
 
-Plane *Plane::fromPoints(Plane *     out,
+Plane *Plane::fromPoints(Plane *out,
                          const Vec3 &a,
                          const Vec3 &b,
                          const Vec3 &c) {
@@ -35,7 +35,7 @@ Plane *Plane::fromNormalAndPoint(Plane *out, const Vec3 &normal, const Vec3 &poi
 
 Plane *Plane::normalize(Plane *out, const Plane &a) {
     const auto len = a.n.length();
-    out->n         = a.n.getNormalized();
+    out->n = a.n.getNormalized();
     if (len > 0) {
         out->d = a.d / len;
     }
@@ -50,7 +50,7 @@ Plane *Plane::set(Plane *out, float nx, float ny, float nz, float d) {
 
 Plane::Plane(float nx, float ny, float nz, float d) {
     setType(ShapeEnum::SHAPE_PLANE);
-    n       = {nx, ny, nz};
+    n = {nx, ny, nz};
     this->d = d;
 }
 

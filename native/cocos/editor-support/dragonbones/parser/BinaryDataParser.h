@@ -30,8 +30,7 @@ DRAGONBONES_NAMESPACE_BEGIN
 /**
  * @internal
  */
-class BinaryDataParser : public JSONDataParser
-{
+class BinaryDataParser : public JSONDataParser {
     DRAGONBONES_DISALLOW_COPY_AND_ASSIGN(BinaryDataParser)
 
 private:
@@ -53,16 +52,14 @@ protected:
     virtual void _parseArray(const rapidjson::Value& rawData) override;
 
 public:
-    BinaryDataParser() :
-        _binaryOffset(0),
-        _binary(nullptr),
-        _intArray(nullptr),
-        _floatArray(nullptr),
-        _frameIntArray(nullptr),
-        _frameFloatArray(nullptr),
-        _frameArray(nullptr),
-        _timelineArray(nullptr)
-    {}
+    BinaryDataParser() : _binaryOffset(0),
+                         _binary(nullptr),
+                         _intArray(nullptr),
+                         _floatArray(nullptr),
+                         _frameIntArray(nullptr),
+                         _frameFloatArray(nullptr),
+                         _frameArray(nullptr),
+                         _timelineArray(nullptr) {}
     virtual ~BinaryDataParser() {}
 
     virtual DragonBonesData* parseDragonBonesData(const char* rawData, float scale = 1.0f) override;

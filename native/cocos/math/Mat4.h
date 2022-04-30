@@ -93,7 +93,7 @@ public:
 #ifdef __SSE__
     union {
         __m128 col[4];
-        float  m[16];
+        float m[16];
     };
 #else
     float m[16];

@@ -38,9 +38,8 @@ MiddlewareManager::MiddlewareManager() : _renderInfo(se::Object::TypedArrayType:
 MiddlewareManager::~MiddlewareManager() {
     for (auto it : _mbMap) {
         auto *buffer = it.second;
-        
-            delete buffer;
-        
+
+        delete buffer;
     }
     _mbMap.clear();
 }

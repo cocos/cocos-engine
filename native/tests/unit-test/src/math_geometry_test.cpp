@@ -88,4 +88,3 @@ TEST(mathGeometryTest, test7) {
     size.setSize(230, 190);
     ExpectEq(rect.size.equals(size), true);
 }
-

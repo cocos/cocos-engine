@@ -36,12 +36,12 @@ namespace pipeline {
 
 class CC_DLL PipelineStateManager {
 public:
-    static gfx::PipelineState *getOrCreatePipelineState(const scene::Pass *  pass,
-                                                        gfx::Shader *        shader,
+    static gfx::PipelineState *getOrCreatePipelineState(const scene::Pass *pass,
+                                                        gfx::Shader *shader,
                                                         gfx::InputAssembler *inputAssembler,
-                                                        gfx::RenderPass *    renderPass,
-                                                        uint                 subpass = 0);
-    static void                destroyAll();
+                                                        gfx::RenderPass *renderPass,
+                                                        uint subpass = 0);
+    static void destroyAll();
 
 private:
     static ccstd::unordered_map<size_t, IntrusivePtr<gfx::PipelineState>> psoHashMap;

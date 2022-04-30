@@ -44,7 +44,7 @@ public:
     MorphRenderingInstance *createInstance() override;
 
 private:
-    Mesh *                                             _mesh{nullptr};
+    Mesh *_mesh{nullptr};
     ccstd::vector<IntrusivePtr<SubMeshMorphRendering>> _subMeshRenderings;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(StdMorphRendering);

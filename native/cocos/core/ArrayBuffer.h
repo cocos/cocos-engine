@@ -83,14 +83,14 @@ public:
         CC_ASSERT(begin < _byteLength);
         CC_ASSERT(end <= _byteLength);
         uint32_t newBufByteLength = (end - begin);
-        Ptr      buffer           = ccnew ArrayBuffer(newBufByteLength);
+        Ptr buffer = ccnew ArrayBuffer(newBufByteLength);
         memcpy(buffer->getData(), _data + begin, newBufByteLength);
         return buffer;
     }
 
     // Just use it to copy data. Use TypedArray to get/set data.
     inline const uint8_t *getData() const { return _data; }
-    inline uint8_t *      getData() { return _data; }
+    inline uint8_t *getData() { return _data; }
 
     inline void reset(const uint8_t *data, uint32_t length) {
         if (_jsArrayBuffer != nullptr) {
@@ -104,8 +104,8 @@ public:
 
 private:
     se::Object *_jsArrayBuffer{nullptr};
-    uint8_t *   _data{nullptr};
-    uint32_t    _byteLength{0};
+    uint8_t *_data{nullptr};
+    uint32_t _byteLength{0};
 
     template <class T>
     friend class TypedArrayTemp;

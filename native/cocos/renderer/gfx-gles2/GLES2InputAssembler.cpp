@@ -42,11 +42,11 @@ GLES2InputAssembler::~GLES2InputAssembler() {
 }
 
 void GLES2InputAssembler::doInit(const InputAssemblerInfo &info) {
-    _gpuInputAssembler             = ccnew GLES2GPUInputAssembler;
+    _gpuInputAssembler = ccnew GLES2GPUInputAssembler;
     _gpuInputAssembler->attributes = _attributes;
     _gpuInputAssembler->gpuVertexBuffers.resize(_vertexBuffers.size());
     for (size_t i = 0; i < _gpuInputAssembler->gpuVertexBuffers.size(); ++i) {
-        auto *vb                                = static_cast<GLES2Buffer *>(_vertexBuffers[i]);
+        auto *vb = static_cast<GLES2Buffer *>(_vertexBuffers[i]);
         _gpuInputAssembler->gpuVertexBuffers[i] = vb->gpuBuffer();
     }
     if (info.indexBuffer) {

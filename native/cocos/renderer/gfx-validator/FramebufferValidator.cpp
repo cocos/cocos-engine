@@ -58,7 +58,7 @@ void FramebufferValidator::doInit(const FramebufferInfo &info) {
 
     for (uint32_t i = 0U; i < info.colorTextures.size(); ++i) {
         const auto &desc = info.renderPass->getColorAttachments()[i];
-        const auto *tex  = info.colorTextures[i];
+        const auto *tex = info.colorTextures[i];
         CC_ASSERT(tex && static_cast<const TextureValidator *>(tex)->isInited());
         CC_ASSERT(hasAnyFlags(tex->getInfo().usage, TextureUsageBit::COLOR_ATTACHMENT | TextureUsageBit::DEPTH_STENCIL_ATTACHMENT));
         CC_ASSERT(tex->getFormat() == desc.format);

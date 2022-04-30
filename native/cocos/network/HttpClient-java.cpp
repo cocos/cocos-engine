@@ -46,18 +46,18 @@ namespace cc {
 
 namespace network {
 
-using HttpRequestHeaders     = ccstd::vector<ccstd::string>;
+using HttpRequestHeaders = ccstd::vector<ccstd::string>;
 using HttpRequestHeadersIter = HttpRequestHeaders::iterator;
-using HttpCookies            = ccstd::vector<ccstd::string>;
-using HttpCookiesIter        = HttpCookies::iterator;
+using HttpCookies = ccstd::vector<ccstd::string>;
+using HttpCookiesIter = HttpCookies::iterator;
 
 static HttpClient *gHttpClient = nullptr; // pointer to singleton
 
 struct CookiesInfo {
     ccstd::string domain;
-    bool          tailmatch;
+    bool tailmatch;
     ccstd::string path;
-    bool          secure;
+    bool secure;
     ccstd::string key;
     ccstd::string value;
     ccstd::string expires;
@@ -138,7 +138,7 @@ public:
     }
 
     int connect() { // NOLINT
-        int           suc = 0;
+        int suc = 0;
         JniMethodInfo methodInfo;
         if (JniHelper::getStaticMethodInfo(methodInfo,
                                            JCLS_HTTPCLIENT,
@@ -169,7 +169,7 @@ public:
     }
 
     int getResponseCode() { // NOLINT
-        int           responseCode = 0;
+        int responseCode = 0;
         JniMethodInfo methodInfo;
         if (JniHelper::getStaticMethodInfo(methodInfo,
                                            JCLS_HTTPCLIENT,
@@ -186,7 +186,7 @@ public:
     }
 
     char *getResponseMessage() { // NOLINT
-        char *        message = nullptr;
+        char *message = nullptr;
         JniMethodInfo methodInfo;
         if (JniHelper::getStaticMethodInfo(methodInfo,
                                            JCLS_HTTPCLIENT,
@@ -213,8 +213,8 @@ public:
                                            "sendRequest",
                                            "(Ljava/net/HttpURLConnection;[B)V")) {
             jbyteArray bytearray;
-            ssize_t    dataSize = request->getRequestDataSize();
-            bytearray           = methodInfo.env->NewByteArray(dataSize);
+            ssize_t dataSize = request->getRequestDataSize();
+            bytearray = methodInfo.env->NewByteArray(dataSize);
             methodInfo.env->SetByteArrayRegion(bytearray, 0, dataSize, reinterpret_cast<const jbyte *>(request->getRequestData()));
             methodInfo.env->CallStaticVoidMethod(
                 methodInfo.classID, methodInfo.methodID, _httpURLConnection, bytearray);
@@ -248,7 +248,7 @@ public:
     }
 
     char *getResponseHeaders() { // NOLINT
-        char *        headers = nullptr;
+        char *headers = nullptr;
         JniMethodInfo methodInfo;
         if (JniHelper::getStaticMethodInfo(methodInfo,
                                            JCLS_HTTPCLIENT,
@@ -273,7 +273,7 @@ public:
             return nullptr;
         }
 
-        char *        content = nullptr;
+        char *content = nullptr;
         JniMethodInfo methodInfo;
         if (JniHelper::getStaticMethodInfo(methodInfo,
                                            JCLS_HTTPCLIENT,
@@ -295,14 +295,14 @@ public:
     }
 
     char *getResponseHeaderByKey(const char *key) {
-        char *        value = nullptr;
+        char *value = nullptr;
         JniMethodInfo methodInfo;
         if (JniHelper::getStaticMethodInfo(methodInfo,
                                            JCLS_HTTPCLIENT,
                                            "getResponseHeaderByKey",
                                            "(Ljava/net/HttpURLConnection;Ljava/lang/String;)Ljava/lang/String;")) {
             jstring jstrKey = methodInfo.env->NewStringUTF(key);
-            jobject jObj    = methodInfo.env->CallStaticObjectMethod(
+            jobject jObj = methodInfo.env->CallStaticObjectMethod(
                 methodInfo.classID, methodInfo.methodID, _httpURLConnection, jstrKey);
             value = getBufferFromJString(static_cast<jstring>(jObj), methodInfo.env);
             ccDeleteLocalRef(methodInfo.env, jstrKey);
@@ -318,14 +318,14 @@ public:
     }
 
     int getResponseHeaderByKeyInt(const char *key) {
-        int           contentLength = 0;
+        int contentLength = 0;
         JniMethodInfo methodInfo;
         if (JniHelper::getStaticMethodInfo(methodInfo,
                                            JCLS_HTTPCLIENT,
                                            "getResponseHeaderByKeyInt",
                                            "(Ljava/net/HttpURLConnection;Ljava/lang/String;)I")) {
             jstring jstrKey = methodInfo.env->NewStringUTF(key);
-            contentLength   = methodInfo.env->CallStaticIntMethod(
+            contentLength = methodInfo.env->CallStaticIntMethod(
                 methodInfo.classID, methodInfo.methodID, _httpURLConnection, jstrKey);
             ccDeleteLocalRef(methodInfo.env, jstrKey);
             ccDeleteLocalRef(methodInfo.env, methodInfo.classID);
@@ -337,7 +337,7 @@ public:
     }
 
     char *getResponseHeaderByIdx(int idx) {
-        char *        header = nullptr;
+        char *header = nullptr;
         JniMethodInfo methodInfo;
         if (JniHelper::getStaticMethodInfo(methodInfo,
                                            JCLS_HTTPCLIENT,
@@ -376,9 +376,9 @@ private:
                                            JCLS_HTTPCLIENT,
                                            "createHttpURLConnection",
                                            "(Ljava/lang/String;)Ljava/net/HttpURLConnection;")) {
-            _url               = url;
-            jstring jurl       = methodInfo.env->NewStringUTF(url.c_str());
-            jobject jObj       = methodInfo.env->CallStaticObjectMethod(methodInfo.classID, methodInfo.methodID, jurl);
+            _url = url;
+            jstring jurl = methodInfo.env->NewStringUTF(url.c_str());
+            jobject jObj = methodInfo.env->CallStaticObjectMethod(methodInfo.classID, methodInfo.methodID, jurl);
             _httpURLConnection = methodInfo.env->NewGlobalRef(jObj);
             ccDeleteLocalRef(methodInfo.env, jurl);
             ccDeleteLocalRef(methodInfo.env, jObj);
@@ -423,7 +423,7 @@ private:
         cookiesVec.clear();
 
         std::stringstream stream(cookiesInfo);
-        ccstd::string     item;
+        ccstd::string item;
         while (std::getline(stream, item, '\n')) {
             cookiesVec.push_back(item);
         }
@@ -444,9 +444,9 @@ private:
                 continue;
             }
 
-            CookiesInfo                  co;
-            std::stringstream            streamInfo(cookies);
-            ccstd::string                item;
+            CookiesInfo co;
+            std::stringstream streamInfo(cookies);
+            ccstd::string item;
             ccstd::vector<ccstd::string> elems;
 
             while (std::getline(streamInfo, item, '\t')) {
@@ -458,16 +458,16 @@ private:
                 co.domain = co.domain.substr(1);
             }
             co.tailmatch = strcmp("TRUE", elems.at(1).c_str()) != 0;
-            co.path      = elems.at(2);
-            co.secure    = strcmp("TRUE", elems.at(3).c_str()) != 0;
-            co.expires   = elems.at(4);
-            co.key       = elems.at(5);
-            co.value     = elems.at(6);
+            co.path = elems.at(2);
+            co.secure = strcmp("TRUE", elems.at(3).c_str()) != 0;
+            co.expires = elems.at(4);
+            co.key = elems.at(5);
+            co.value = elems.at(6);
             cookiesInfoVec.push_back(co);
         }
 
         ccstd::string sendCookiesInfo;
-        int           cookiesCount = 0;
+        int cookiesCount = 0;
         for (auto &cookieInfo : cookiesInfoVec) {
             if (_url.find(cookieInfo.domain) != ccstd::string::npos) {
                 ccstd::string keyValue = cookieInfo.key;
@@ -544,8 +544,8 @@ private:
             return nullptr;
         }
         ccstd::string strValue = cc::StringUtils::getStringUTFCharsJNI(env, jstr);
-        size_t        size     = strValue.size() + 1;
-        char *        retVal   = static_cast<char *>(malloc(size));
+        size_t size = strValue.size() + 1;
+        char *retVal = static_cast<char *>(malloc(size));
         if (retVal == nullptr) {
             return nullptr;
         }
@@ -559,7 +559,7 @@ private:
             return 0;
         }
 
-        int   len = env->GetArrayLength(jba);
+        int len = env->GetArrayLength(jba);
         auto *str = static_cast<jbyte *>(malloc(sizeof(jbyte) * len));
         env->GetByteArrayRegion(jba, 0, len, str);
 
@@ -572,18 +572,18 @@ private:
     }
 
 private: // NOLINT(readability-redundant-access-specifiers)
-    HttpClient *  _client;
-    jobject       _httpURLConnection;
+    HttpClient *_client;
+    jobject _httpURLConnection;
     ccstd::string _requestmethod;
     ccstd::string _responseCookies;
     ccstd::string _cookieFileName;
     ccstd::string _url;
-    int           _contentLength;
+    int _contentLength;
 };
 
 // Process Response
 void HttpClient::processResponse(HttpResponse *response, char *responseMessage) {
-    auto *            request     = response->getHttpRequest();
+    auto *request = response->getHttpRequest();
     HttpRequest::Type requestType = request->getRequestType();
 
     if (HttpRequest::Type::GET != requestType &&
@@ -596,7 +596,7 @@ void HttpClient::processResponse(HttpResponse *response, char *responseMessage) 
     }
 
     int64_t responseCode = -1;
-    int     retValue     = 0;
+    int retValue = 0;
 
     HttpURLConnection urlConnection(this);
     if (!urlConnection.init(request)) {
@@ -665,8 +665,8 @@ void HttpClient::processResponse(HttpResponse *response, char *responseMessage) 
     free(cookiesInfo);
 
     //content len
-    int   contentLength = urlConnection.getResponseHeaderByKeyInt("Content-Length");
-    char *contentInfo   = urlConnection.getResponseContent(response);
+    int contentLength = urlConnection.getResponseHeaderByKeyInt("Content-Length");
+    char *contentInfo = urlConnection.getResponseContent(response);
     if (nullptr != contentInfo) {
         auto *recvBuffer = static_cast<ccstd::vector<char> *>(response->getResponseData());
         recvBuffer->clear();
@@ -775,7 +775,7 @@ void HttpClient::networkThreadAlone(HttpRequest *request, HttpResponse *response
 // HttpClient implementation
 HttpClient *HttpClient::getInstance() {
     if (gHttpClient == nullptr) {
-        gHttpClient = ccnew  HttpClient();
+        gHttpClient = ccnew HttpClient();
     }
 
     return gHttpClient;
@@ -789,7 +789,7 @@ void HttpClient::destroyInstance() {
 
     CC_LOG_DEBUG("HttpClient::destroyInstance ...");
 
-    auto *thiz  = gHttpClient;
+    auto *thiz = gHttpClient;
     gHttpClient = nullptr;
 
     if (auto sche = thiz->_scheduler.lock()) {
@@ -902,7 +902,7 @@ void HttpClient::dispatchResponseCallbacks() {
     _responseQueueMutex.unlock();
 
     if (response) {
-        HttpRequest *                request  = response->getHttpRequest();
+        HttpRequest *request = response->getHttpRequest();
         const ccHttpRequestCallback &callback = request->getResponseCallback();
 
         if (callback != nullptr) {

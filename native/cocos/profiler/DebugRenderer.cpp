@@ -45,8 +45,8 @@
 
 namespace cc {
 
-constexpr uint32_t DEBUG_FONT_SIZE         = 10U;
-constexpr uint32_t DEBUG_MAX_CHARACTERS    = 10000U;
+constexpr uint32_t DEBUG_FONT_SIZE = 10U;
+constexpr uint32_t DEBUG_MAX_CHARACTERS = 10000U;
 constexpr uint32_t DEBUG_VERTICES_PER_CHAR = 6U;
 
 inline uint32_t getFontIndex(bool bold, bool italic) {
@@ -82,8 +82,8 @@ struct DebugVertex {
     DebugVertex(const Vec2 &pos, const Vec2 &tuv, gfx::Color clr)
     : position(pos), uv(tuv), color(clr) {}
 
-    Vec2       position;
-    Vec2       uv;
+    Vec2 position;
+    Vec2 uv;
     gfx::Color color;
 };
 
@@ -94,7 +94,7 @@ struct DebugBatch {
         info.bindings.push_back({0, gfx::DescriptorType::SAMPLER_TEXTURE, 1, gfx::ShaderStageFlagBit::FRAGMENT});
 
         descriptorSetLayout = device->createDescriptorSetLayout(info);
-        descriptorSet       = device->createDescriptorSet({descriptorSetLayout});
+        descriptorSet = device->createDescriptorSet({descriptorSetLayout});
 
         auto *sampler = device->getSampler({
             gfx::Filter::LINEAR,
@@ -119,11 +119,11 @@ struct DebugBatch {
         return bold == b && italic == i && texture == tex;
     }
 
-    std::vector<DebugVertex>  vertices;
-    bool                      bold{false};
-    bool                      italic{false};
-    gfx::Texture *            texture{nullptr};
-    gfx::DescriptorSet *      descriptorSet{nullptr};
+    std::vector<DebugVertex> vertices;
+    bool bold{false};
+    bool italic{false};
+    gfx::Texture *texture{nullptr};
+    gfx::DescriptorSet *descriptorSet{nullptr};
     gfx::DescriptorSetLayout *descriptorSetLayout{nullptr};
 };
 
@@ -131,7 +131,7 @@ class DebugVertexBuffer {
 public:
     inline void init(gfx::Device *device, uint32_t maxVertices, const gfx::AttributeList &attributes) {
         _maxVertices = maxVertices;
-        _buffer      = device->createBuffer({gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
+        _buffer = device->createBuffer({gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
                                         gfx::MemoryUsageBit::DEVICE,
                                         static_cast<uint32_t>(_maxVertices * sizeof(DebugVertex)),
                                         static_cast<uint32_t>(sizeof(DebugVertex))});
@@ -154,7 +154,7 @@ public:
         }
 
         const auto count = std::min(static_cast<uint32_t>(vertices.size()), _maxVertices);
-        const auto size  = static_cast<uint32_t>(count * sizeof(DebugVertex));
+        const auto size = static_cast<uint32_t>(count * sizeof(DebugVertex));
         _buffer->update(&vertices[0], size);
     }
 
@@ -193,10 +193,10 @@ public:
     }
 
 private:
-    uint32_t                  _maxVertices{0U};
+    uint32_t _maxVertices{0U};
     std::vector<DebugBatch *> _batches;
-    gfx::Buffer *             _buffer{nullptr};
-    gfx::InputAssembler *     _inputAssembler{nullptr};
+    gfx::Buffer *_buffer{nullptr};
+    gfx::InputAssembler *_inputAssembler{nullptr};
 
     friend class DebugRenderer;
 };
@@ -232,14 +232,14 @@ void DebugRenderer::activate(gfx::Device *device, const DebugRendererInfo &info)
     _buffer = ccnew DebugVertexBuffer();
     _buffer->init(_device, info.maxCharacters * DEBUG_VERTICES_PER_CHAR, ATTRIBUTES);
 
-    const auto *window   = CC_CURRENT_ENGINE()->getInterface<ISystemWindow>();
-    const auto  width    = window->getViewSize().x * Device::getDevicePixelRatio();
-    auto        fontSize = static_cast<uint32_t>(width / 800.0F * info.fontSize);
-    fontSize             = fontSize < 10U ? 10U : (fontSize > 20U ? 20U : fontSize);
+    const auto *window = CC_CURRENT_ENGINE()->getInterface<ISystemWindow>();
+    const auto width = window->getViewSize().x * Device::getDevicePixelRatio();
+    auto fontSize = static_cast<uint32_t>(width / 800.0F * info.fontSize);
+    fontSize = fontSize < 10U ? 10U : (fontSize > 20U ? 20U : fontSize);
 
     for (auto i = 0U; i < _fonts.size(); i++) {
-        _fonts[i].font           = ccnew FreeTypeFont(getFontPath(i));
-        _fonts[i].face           = _fonts[i].font->createFace(FontFaceInfo(fontSize));
+        _fonts[i].font = ccnew FreeTypeFont(getFontPath(i));
+        _fonts[i].face = _fonts[i].font->createFace(FontFaceInfo(fontSize));
         _fonts[i].invTextureSize = {1.0F / _fonts[i].face->getTextureWidth(), 1.0F / _fonts[i].face->getTextureHeight()};
     }
 }
@@ -252,7 +252,7 @@ void DebugRenderer::render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdB
 
     _buffer->update();
 
-    const auto &pass   = sceneData->getDebugRendererPass();
+    const auto &pass = sceneData->getDebugRendererPass();
     const auto &shader = sceneData->getDebugRendererShader();
 
     auto *pso = pipeline::PipelineStateManager::getOrCreatePipelineState(pass, shader, _buffer->_inputAssembler, renderPass);
@@ -289,24 +289,24 @@ void DebugRenderer::destroy() {
 }
 
 void DebugRenderer::addText(const ccstd::string &text, const Vec2 &screenPos, const DebugTextInfo &info) {
-    uint32_t index    = getFontIndex(info.bold, info.italic);
-    auto &   fontInfo = _fonts[index];
-    auto *   face     = fontInfo.face;
+    uint32_t index = getFontIndex(info.bold, info.italic);
+    auto &fontInfo = _fonts[index];
+    auto *face = fontInfo.face;
 
     if (!_buffer || !face || text.empty()) {
         return;
     }
 
     std::u32string unicodeText;
-    bool           success = StringUtils::UTF8ToUTF32(text, unicodeText);
+    bool success = StringUtils::UTF8ToUTF32(text, unicodeText);
     if (!success) {
         return;
     }
 
-    auto        offsetX        = screenPos.x;
-    auto        offsetY        = screenPos.y;
-    const auto  scale          = info.scale;
-    const auto  lineHeight     = face->getLineHeight() * scale;
+    auto offsetX = screenPos.x;
+    auto offsetY = screenPos.y;
+    const auto scale = info.scale;
+    const auto lineHeight = face->getLineHeight() * scale;
     const auto &invTextureSize = fontInfo.invTextureSize;
 
     for (char32_t code : unicodeText) {
@@ -360,8 +360,8 @@ void DebugRenderer::addText(const ccstd::string &text, const Vec2 &screenPos, co
 }
 
 uint32_t DebugRenderer::getLineHeight(bool bold, bool italic) {
-    uint32_t index    = getFontIndex(bold, italic);
-    auto &   fontInfo = _fonts[index];
+    uint32_t index = getFontIndex(bold, italic);
+    auto &fontInfo = _fonts[index];
 
     if (fontInfo.face) {
         return fontInfo.face->getLineHeight();

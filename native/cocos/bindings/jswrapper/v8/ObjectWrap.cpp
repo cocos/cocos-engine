@@ -136,7 +136,7 @@ void ObjectWrap::unref() {
 /*static*/
 void ObjectWrap::weakCallback(const v8::WeakCallbackInfo<Object> &data) {
     Object *seObj = data.GetParameter();
-    ObjectWrap *wrap  = &seObj->_getWrap();
+    ObjectWrap *wrap = &seObj->_getWrap();
 
     CC_ASSERT(wrap->_refs == 0);
     wrap->_handle.Reset();

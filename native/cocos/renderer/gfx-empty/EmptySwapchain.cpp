@@ -30,14 +30,14 @@ namespace cc {
 namespace gfx {
 
 void EmptySwapchain::doInit(const SwapchainInfo &info) {
-    _colorTexture        = ccnew EmptyTexture;
+    _colorTexture = ccnew EmptyTexture;
     _depthStencilTexture = ccnew EmptyTexture;
 
     SwapchainTextureInfo textureInfo;
     textureInfo.swapchain = this;
-    textureInfo.format    = Format::RGBA8;
-    textureInfo.width     = info.width;
-    textureInfo.height    = info.height;
+    textureInfo.format = Format::RGBA8;
+    textureInfo.width = info.width;
+    textureInfo.height = info.height;
     initTexture(textureInfo, _colorTexture);
 
     textureInfo.format = Format::DEPTH_STENCIL;

@@ -406,7 +406,6 @@ private:
 
 inline IsolateData::IsolateData(v8::Isolate *isolate, uv_loop_t *event_loop,
                                 uint32_t *zero_fill_field) :
-
     // Create string and private symbol properties as internalized one byte strings.
     //
     // Internalized because it makes property lookups a little faster and because

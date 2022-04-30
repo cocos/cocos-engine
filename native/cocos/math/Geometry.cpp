@@ -75,7 +75,7 @@ Size Size::operator/(float a) const {
 }
 
 void Size::setSize(float w, float h) {
-    this->width  = w;
+    this->width = w;
     this->height = h;
 }
 
@@ -114,7 +114,7 @@ void Rect::setRect(float x, float y, float width, float height) {
     origin.x = x;
     origin.y = y;
 
-    size.width  = width;
+    size.width = width;
     size.height = height;
 }
 
@@ -203,9 +203,9 @@ void Rect::merge(const Rect &rect) {
 }
 
 Rect Rect::unionWithRect(const Rect &rect) const {
-    float thisLeftX   = origin.x;
-    float thisRightX  = origin.x + size.width;
-    float thisTopY    = origin.y + size.height;
+    float thisLeftX = origin.x;
+    float thisRightX = origin.x + size.width;
+    float thisTopY = origin.y + size.height;
     float thisBottomY = origin.y;
 
     if (thisRightX < thisLeftX) {
@@ -216,9 +216,9 @@ Rect Rect::unionWithRect(const Rect &rect) const {
         std::swap(thisTopY, thisBottomY); // This rect has negative height
     }
 
-    float otherLeftX   = rect.origin.x;
-    float otherRightX  = rect.origin.x + rect.size.width;
-    float otherTopY    = rect.origin.y + rect.size.height;
+    float otherLeftX = rect.origin.x;
+    float otherRightX = rect.origin.x + rect.size.width;
+    float otherTopY = rect.origin.y + rect.size.height;
     float otherBottomY = rect.origin.y;
 
     if (otherRightX < otherLeftX) {
@@ -229,9 +229,9 @@ Rect Rect::unionWithRect(const Rect &rect) const {
         std::swap(otherTopY, otherBottomY); // Other rect has negative height
     }
 
-    float combinedLeftX   = std::min(thisLeftX, otherLeftX);
-    float combinedRightX  = std::max(thisRightX, otherRightX);
-    float combinedTopY    = std::max(thisTopY, otherTopY);
+    float combinedLeftX = std::min(thisLeftX, otherLeftX);
+    float combinedRightX = std::max(thisRightX, otherRightX);
+    float combinedTopY = std::max(thisTopY, otherTopY);
     float combinedBottomY = std::min(thisBottomY, otherBottomY);
 
     return Rect(combinedLeftX, combinedBottomY, combinedRightX - combinedLeftX, combinedTopY - combinedBottomY);

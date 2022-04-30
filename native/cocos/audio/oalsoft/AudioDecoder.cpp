@@ -52,7 +52,7 @@ bool AudioDecoder::isOpened() const {
 }
 
 uint32_t AudioDecoder::readFixedFrames(uint32_t framesToRead, char *pcmBuf) {
-    uint32_t framesRead     = 0;
+    uint32_t framesRead = 0;
     uint32_t framesReadOnce = 0;
     do {
         framesReadOnce = read(framesToRead - framesRead, pcmBuf + framesRead * _bytesPerFrame);

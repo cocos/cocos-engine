@@ -85,18 +85,18 @@ void SkinningModel::bindSkeleton(Skeleton *skeleton, Node *skinningRoot, Mesh *m
 
     if (!skeleton || !skinningRoot || !mesh) return;
     setTransform(skinningRoot);
-    auto        boneSpaceBounds = mesh->getBoneSpaceBounds(skeleton);
-    const auto &jointMaps       = mesh->getStruct().jointMaps;
+    auto boneSpaceBounds = mesh->getBoneSpaceBounds(skeleton);
+    const auto &jointMaps = mesh->getStruct().jointMaps;
     ensureEnoughBuffers((jointMaps.has_value() && !jointMaps->empty()) ? static_cast<int32_t>(jointMaps->size()) : 1);
     _bufferIndices = mesh->getJointBufferIndices();
 
     for (index_t index = 0; index < skeleton->getJoints().size(); ++index) {
-        geometry::AABB *bound  = boneSpaceBounds[index];
-        auto *          target = skinningRoot->getChildByPath(skeleton->getJoints()[index]);
+        geometry::AABB *bound = boneSpaceBounds[index];
+        auto *target = skinningRoot->getChildByPath(skeleton->getJoints()[index]);
         if (!bound || !target) continue;
 
-        auto *                 transform = cc::getTransform(target, skinningRoot);
-        const Mat4 &           bindPose  = skeleton->getBindposes()[index];
+        auto *transform = cc::getTransform(target, skinningRoot);
+        const Mat4 &bindPose = skeleton->getBindposes()[index];
         ccstd::vector<index_t> indices;
         ccstd::vector<index_t> buffers;
         if (!jointMaps.has_value()) {
@@ -107,12 +107,12 @@ void SkinningModel::bindSkeleton(Skeleton *skeleton, Node *skinningRoot, Mesh *m
         }
 
         JointInfo jointInfo;
-        jointInfo.bound     = bound;
-        jointInfo.target    = target;
-        jointInfo.bindpose  = bindPose;
+        jointInfo.bound = bound;
+        jointInfo.target = target;
+        jointInfo.bindpose = bindPose;
         jointInfo.transform = transform;
-        jointInfo.buffers   = std::move(buffers);
-        jointInfo.indices   = std::move(indices);
+        jointInfo.buffers = std::move(buffers);
+        jointInfo.indices = std::move(indices);
         _joints.emplace_back(std::move(jointInfo));
     }
 }
@@ -123,15 +123,15 @@ void SkinningModel::updateTransform(uint32_t stamp) {
         root->updateWorldTransform();
         _localDataUpdated = true;
     }
-    Vec3           v3Min{INFINITY, INFINITY, INFINITY};
-    Vec3           v3Max{-INFINITY, -INFINITY, -INFINITY};
+    Vec3 v3Min{INFINITY, INFINITY, INFINITY};
+    Vec3 v3Max{-INFINITY, -INFINITY, -INFINITY};
     geometry::AABB ab1;
-    Vec3           v31;
-    Vec3           v32;
+    Vec3 v31;
+    Vec3 v32;
     for (JointInfo &jointInfo : _joints) {
-        const auto *bound       = jointInfo.bound;
-        auto *      transform   = jointInfo.transform;
-        Mat4        worldMatrix = cc::getWorldMatrix(transform, static_cast<int32_t>(stamp));
+        const auto *bound = jointInfo.bound;
+        auto *transform = jointInfo.transform;
+        Mat4 worldMatrix = cc::getWorldMatrix(transform, static_cast<int32_t>(stamp));
         jointInfo.bound->transform(worldMatrix, &ab1);
         ab1.getBoundary(&v31, &v32);
         Vec3::min(v3Min, v31, &v3Min);
@@ -146,7 +146,7 @@ void SkinningModel::updateTransform(uint32_t stamp) {
 void SkinningModel::updateUBOs(uint32_t stamp) {
     Super::updateUBOs(stamp);
     uint32_t bIdx = 0;
-    Mat4     mat4;
+    Mat4 mat4;
     for (const JointInfo &jointInfo : _joints) {
         Mat4::multiply(jointInfo.transform->world, jointInfo.bindpose, &mat4);
         for (uint32_t buffer : jointInfo.buffers) {
@@ -164,7 +164,7 @@ void SkinningModel::updateUBOs(uint32_t stamp) {
 
 void SkinningModel::initSubModel(index_t idx, RenderingSubMesh *subMeshData, Material *mat) {
     const auto &original = subMeshData->getVertexBuffers();
-    auto &      iaInfo   = subMeshData->getIaInfo();
+    auto &iaInfo = subMeshData->getIaInfo();
     iaInfo.vertexBuffers = subMeshData->getJointMappedBuffers();
     Super::initSubModel(idx, subMeshData, mat);
     iaInfo.vertexBuffers = original;
@@ -177,14 +177,14 @@ ccstd::vector<scene::IMacroPatch> SkinningModel::getMacroPatches(index_t subMode
         patches.insert(std::begin(patches), std::begin(myPatches), std::end(myPatches));
         return patches;
     }
-    
+
     return myPatches;
 }
 
 void SkinningModel::uploadJointData(uint32_t base, const Mat4 &mat, float *dst) {
     memcpy(reinterpret_cast<void *>(dst + base), mat.m, sizeof(float) * 12);
-    dst[base + 3]  = mat.m[12];
-    dst[base + 7]  = mat.m[13];
+    dst[base + 3] = mat.m[12];
+    dst[base + 7] = mat.m[13];
     dst[base + 11] = mat.m[14];
 }
 

@@ -39,8 +39,8 @@ CCWGPUQueue::CCWGPUQueue() : wrapper<Queue>(val::object()) {
 }
 
 void CCWGPUQueue::doInit(const QueueInfo &info) {
-    _gpuQueueObject            = ccnew CCWGPUQueueObject;
-    _gpuQueueObject->type      = info.type;
+    _gpuQueueObject = ccnew CCWGPUQueueObject;
+    _gpuQueueObject->type = info.type;
     _gpuQueueObject->wgpuQueue = wgpuDeviceGetQueue(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice);
 }
 

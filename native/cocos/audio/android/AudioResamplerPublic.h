@@ -63,7 +63,7 @@ namespace cc {
 //Determines the current algorithm used for stretching
 enum AudioTimestretchStretchMode : int32_t {
     AUDIO_TIMESTRETCH_STRETCH_DEFAULT = 0,
-    AUDIO_TIMESTRETCH_STRETCH_SPEECH  = 1,
+    AUDIO_TIMESTRETCH_STRETCH_SPEECH = 1,
     //REFINE: add more stretch modes/algorithms
 };
 
@@ -79,15 +79,15 @@ enum AudioTimestretchStretchMode : int32_t {
 // FALLBACK_FAIL:  will stop program execution and log a fatal error
 enum AudioTimestretchFallbackMode : int32_t {
     AUDIO_TIMESTRETCH_FALLBACK_CUT_REPEAT = -1,
-    AUDIO_TIMESTRETCH_FALLBACK_DEFAULT    = 0,
-    AUDIO_TIMESTRETCH_FALLBACK_MUTE       = 1,
-    AUDIO_TIMESTRETCH_FALLBACK_FAIL       = 2,
+    AUDIO_TIMESTRETCH_FALLBACK_DEFAULT = 0,
+    AUDIO_TIMESTRETCH_FALLBACK_MUTE = 1,
+    AUDIO_TIMESTRETCH_FALLBACK_FAIL = 2,
 };
 
 struct AudioPlaybackRate {
-    float                             mSpeed;
-    float                             mPitch;
-    enum AudioTimestretchStretchMode  mStretchMode;
+    float mSpeed;
+    float mPitch;
+    enum AudioTimestretchStretchMode mStretchMode;
     enum AudioTimestretchFallbackMode mFallbackMode;
 };
 

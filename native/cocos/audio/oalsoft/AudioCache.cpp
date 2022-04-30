@@ -57,7 +57,7 @@ AudioCache::AudioCache()
 : _format(-1), _sampleRate(0), _duration(0.0F), _totalFrames(0), _framesRead(0), _alBufferId(INVALID_AL_BUFFER_ID), _pcmData(nullptr), _queBufferFrames(0), _state(State::INITIAL), _isDestroyed(std::make_shared<bool>(false)), _id(++gIdIndex), _isLoadingFinished(false), _isSkipReadDataTask(false) {
     ALOGVV("AudioCache() %p, id=%u", this, _id);
     for (int i = 0; i < QUEUEBUFFER_NUM; ++i) {
-        _queBuffers[i]    = nullptr;
+        _queBuffers[i] = nullptr;
         _queBufferSize[i] = 0;
     }
 }
@@ -113,22 +113,22 @@ void AudioCache::readDataTask(unsigned int selfId) {
         }
 
         const uint32_t originalTotalFrames = decoder->getTotalFrames();
-        const uint32_t bytesPerFrame       = decoder->getBytesPerFrame();
-        const uint32_t sampleRate          = decoder->getSampleRate();
-        const uint32_t channelCount        = decoder->getChannelCount();
+        const uint32_t bytesPerFrame = decoder->getBytesPerFrame();
+        const uint32_t sampleRate = decoder->getSampleRate();
+        const uint32_t channelCount = decoder->getChannelCount();
 
-        uint32_t totalFrames     = originalTotalFrames;
-        uint32_t dataSize        = totalFrames * bytesPerFrame;
+        uint32_t totalFrames = originalTotalFrames;
+        uint32_t dataSize = totalFrames * bytesPerFrame;
         uint32_t remainingFrames = totalFrames;
-        uint32_t adjustFrames    = 0;
+        uint32_t adjustFrames = 0;
 
-        _format      = channelCount > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
-        _sampleRate  = static_cast<ALsizei>(sampleRate);
-        _duration    = 1.0F * totalFrames / sampleRate;
+        _format = channelCount > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
+        _sampleRate = static_cast<ALsizei>(sampleRate);
+        _duration = 1.0F * totalFrames / sampleRate;
         _totalFrames = totalFrames;
 
         if (dataSize <= PCMDATA_CACHEMAXSIZE) {
-            uint32_t       framesRead       = 0;
+            uint32_t framesRead = 0;
             const uint32_t framesToReadOnce = std::min(totalFrames, static_cast<uint32_t>(sampleRate * QUEUEBUFFER_TIME_STEP * QUEUEBUFFER_NUM));
 
             ccstd::vector<char> adjustFrameBuf;
@@ -225,7 +225,7 @@ void AudioCache::readDataTask(unsigned int selfId) {
             const uint32_t queBufferBytes = _queBufferFrames * bytesPerFrame;
 
             for (int index = 0; index < QUEUEBUFFER_NUM; ++index) {
-                _queBuffers[index]    = static_cast<char *>(malloc(queBufferBytes));
+                _queBuffers[index] = static_cast<char *>(malloc(queBufferBytes));
                 _queBufferSize[index] = queBufferBytes;
 
                 decoder->readFixedFrames(_queBufferFrames, _queBuffers[index]);

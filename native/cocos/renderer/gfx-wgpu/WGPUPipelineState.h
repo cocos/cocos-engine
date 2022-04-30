@@ -52,8 +52,8 @@ protected:
 
     CCWGPUPipelineStateObject *_gpuPipelineStateObj = nullptr;
 
-    void *_ppl         = nullptr;
-    bool  _forceUpdate = false;
+    void *_ppl = nullptr;
+    bool _forceUpdate = false;
 };
 
 } // namespace gfx

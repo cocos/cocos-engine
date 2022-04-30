@@ -45,78 +45,76 @@ class Skeleton;
 class Event;
 
 class SP_API Animation : public SpineObject {
-	friend class AnimationState;
+    friend class AnimationState;
 
-	friend class TrackEntry;
+    friend class TrackEntry;
 
-	friend class AnimationStateData;
+    friend class AnimationStateData;
 
-	friend class AttachmentTimeline;
+    friend class AttachmentTimeline;
 
-	friend class ColorTimeline;
+    friend class ColorTimeline;
 
-	friend class DeformTimeline;
+    friend class DeformTimeline;
 
-	friend class DrawOrderTimeline;
+    friend class DrawOrderTimeline;
 
-	friend class EventTimeline;
+    friend class EventTimeline;
 
-	friend class IkConstraintTimeline;
+    friend class IkConstraintTimeline;
 
-	friend class PathConstraintMixTimeline;
+    friend class PathConstraintMixTimeline;
 
-	friend class PathConstraintPositionTimeline;
+    friend class PathConstraintPositionTimeline;
 
-	friend class PathConstraintSpacingTimeline;
+    friend class PathConstraintSpacingTimeline;
 
-	friend class RotateTimeline;
+    friend class RotateTimeline;
 
-	friend class ScaleTimeline;
+    friend class ScaleTimeline;
 
-	friend class ShearTimeline;
+    friend class ShearTimeline;
 
-	friend class TransformConstraintTimeline;
+    friend class TransformConstraintTimeline;
 
-	friend class TranslateTimeline;
+    friend class TranslateTimeline;
 
-	friend class TwoColorTimeline;
+    friend class TwoColorTimeline;
 
 public:
-	Animation(const String &name, Vector<Timeline *> &timelines, float duration);
+    Animation(const String &name, Vector<Timeline *> &timelines, float duration);
 
-	~Animation();
+    ~Animation();
 
-	/// Applies all the animation's timelines to the specified skeleton.
-	/// See also Timeline::apply(Skeleton&, float, float, Vector, float, MixPose, MixDirection)
-	void apply(Skeleton &skeleton, float lastTime, float time, bool loop, Vector<Event *> *pEvents, float alpha,
-		MixBlend blend, MixDirection direction);
+    /// Applies all the animation's timelines to the specified skeleton.
+    /// See also Timeline::apply(Skeleton&, float, float, Vector, float, MixPose, MixDirection)
+    void apply(Skeleton &skeleton, float lastTime, float time, bool loop, Vector<Event *> *pEvents, float alpha,
+               MixBlend blend, MixDirection direction);
 
-	const String &getName();
+    const String &getName();
 
-	Vector<Timeline *> &getTimelines();
+    Vector<Timeline *> &getTimelines();
 
-	bool hasTimeline(int id);
+    bool hasTimeline(int id);
 
-	float getDuration();
+    float getDuration();
 
-	void setDuration(float inValue);
-
-
+    void setDuration(float inValue);
 
 private:
-	Vector<Timeline *> _timelines;
-	HashMap<int, bool> _timelineIds;
-	float _duration;
-	String _name;
+    Vector<Timeline *> _timelines;
+    HashMap<int, bool> _timelineIds;
+    float _duration;
+    String _name;
 
-	/// @param target After the first and before the last entry.
-	static int binarySearch(Vector<float> &values, float target, int step);
+    /// @param target After the first and before the last entry.
+    static int binarySearch(Vector<float> &values, float target, int step);
 
-	/// @param target After the first and before the last entry.
-	static int binarySearch(Vector<float> &values, float target);
+    /// @param target After the first and before the last entry.
+    static int binarySearch(Vector<float> &values, float target);
 
-	static int linearSearch(Vector<float> &values, float target, int step);
+    static int linearSearch(Vector<float> &values, float target, int step);
 };
-}
+} // namespace spine
 
 #endif /* Spine_Animation_h */

@@ -32,11 +32,11 @@ float sign(float v) {
 }
 
 IGeometry cylinder(float radiusTop, float radiusBottom, float height, const cc::optional<ICylinderOptions> &opts) {
-    const float    halfHeight     = height * 0.5F;
+    const float halfHeight = height * 0.5F;
     const uint32_t radialSegments = opts.has_value() ? opts->radialSegments : 32;
     const uint32_t heightSegments = opts.has_value() ? opts->heightSegments : 1;
-    const bool     capped         = opts.has_value() ? opts->capped : true;
-    const float    arc            = opts.has_value() ? opts->arc : math::PI_2;
+    const bool capped = opts.has_value() ? opts->capped : true;
+    const float arc = opts.has_value() ? opts->arc : math::PI_2;
 
     uint32_t cntCap = 0;
     if (capped) {
@@ -62,15 +62,15 @@ IGeometry cylinder(float radiusTop, float radiusBottom, float height, const cc::
     }
 
     ccstd::vector<uint32_t> indices(indexCount);
-    ccstd::vector<float>    positions(vertCount * 3);
-    ccstd::vector<float>    normals(vertCount * 3);
-    ccstd::vector<float>    uvs(vertCount * 2);
-    const float             maxRadius = std::max(radiusTop, radiusBottom);
-    const Vec3              minPos(-maxRadius, -halfHeight, -maxRadius);
-    const Vec3              maxPos(maxRadius, halfHeight, maxRadius);
-    const float             boundingRadius = sqrt(maxRadius * maxRadius + halfHeight * halfHeight);
+    ccstd::vector<float> positions(vertCount * 3);
+    ccstd::vector<float> normals(vertCount * 3);
+    ccstd::vector<float> uvs(vertCount * 2);
+    const float maxRadius = std::max(radiusTop, radiusBottom);
+    const Vec3 minPos(-maxRadius, -halfHeight, -maxRadius);
+    const Vec3 maxPos(maxRadius, halfHeight, maxRadius);
+    const float boundingRadius = sqrt(maxRadius * maxRadius + halfHeight * halfHeight);
 
-    uint32_t index       = 0;
+    uint32_t index = 0;
     uint32_t indexOffset = 0;
 
     // =======================
@@ -86,20 +86,20 @@ IGeometry cylinder(float radiusTop, float radiusBottom, float height, const cc::
         // generate positions, normals and uvs
         for (uint32_t y = 0; y <= heightSegments; y++) {
             ccstd::vector<uint32_t> indexRow;
-            const float             v = static_cast<float>(y) / static_cast<float>(heightSegments);
+            const float v = static_cast<float>(y) / static_cast<float>(heightSegments);
 
             // calculate the radius of the current row
             const float radius = v * r + radiusBottom;
 
             for (uint32_t x = 0; x <= radialSegments; ++x) {
-                const float u     = static_cast<float>(x) / static_cast<float>(radialSegments);
+                const float u = static_cast<float>(x) / static_cast<float>(radialSegments);
                 const float theta = u * arc;
 
                 const float sinTheta = sin(theta);
                 const float cosTheta = cos(theta);
 
                 // vertex
-                positions[3 * index]     = radius * sinTheta;
+                positions[3 * index] = radius * sinTheta;
                 positions[3 * index + 1] = v * height - halfHeight;
                 positions[3 * index + 2] = radius * cosTheta;
 
@@ -107,12 +107,12 @@ IGeometry cylinder(float radiusTop, float radiusBottom, float height, const cc::
                 Vec3 temp1(sinTheta, -slope, cosTheta);
                 temp1.normalize();
 
-                normals[3 * index]     = temp1.x;
+                normals[3 * index] = temp1.x;
                 normals[3 * index + 1] = temp1.y;
                 normals[3 * index + 2] = temp1.z;
 
                 // uv
-                uvs[2 * index]     = fmod((1 - u) * 2.0F, 1.0F);
+                uvs[2 * index] = fmod((1 - u) * 2.0F, 1.0F);
                 uvs[2 * index + 1] = v;
 
                 // save index of vertex in respective row
@@ -156,7 +156,7 @@ IGeometry cylinder(float radiusTop, float radiusBottom, float height, const cc::
 
     auto generateCap = [&](bool top) {
         const float radius = top ? radiusTop : radiusBottom;
-        const float sign   = top ? 1 : -1;
+        const float sign = top ? 1 : -1;
 
         // save the index of the first center vertex
         const uint32_t centerIndexStart = index;
@@ -167,17 +167,17 @@ IGeometry cylinder(float radiusTop, float radiusBottom, float height, const cc::
 
         for (uint32_t x = 1; x <= radialSegments; ++x) {
             // vertex
-            positions[3 * index]     = 0;
+            positions[3 * index] = 0;
             positions[3 * index + 1] = halfHeight * sign;
             positions[3 * index + 2] = 0;
 
             // // normal
-            normals[3 * index]     = 0;
+            normals[3 * index] = 0;
             normals[3 * index + 1] = sign;
             normals[3 * index + 2] = 0;
 
             // uv
-            uvs[2 * index]     = 0.5;
+            uvs[2 * index] = 0.5;
             uvs[2 * index + 1] = 0.5;
 
             // increase index
@@ -190,24 +190,24 @@ IGeometry cylinder(float radiusTop, float radiusBottom, float height, const cc::
         // now we generate the surrounding positions, normals and uvs
 
         for (uint32_t x = 0; x <= radialSegments; ++x) {
-            const float u     = static_cast<float>(x) / static_cast<float>(radialSegments);
+            const float u = static_cast<float>(x) / static_cast<float>(radialSegments);
             const float theta = u * arc;
 
             const float cosTheta = cos(theta);
             const float sinTheta = sin(theta);
 
             // vertex
-            positions[3 * index]     = radius * sinTheta;
+            positions[3 * index] = radius * sinTheta;
             positions[3 * index + 1] = halfHeight * sign;
             positions[3 * index + 2] = radius * cosTheta;
 
             // normal
-            normals[3 * index]     = 0;
+            normals[3 * index] = 0;
             normals[3 * index + 1] = sign;
             normals[3 * index + 2] = 0;
 
             // uv
-            uvs[2 * index]     = 0.5F - (sinTheta * 0.5F * sign);
+            uvs[2 * index] = 0.5F - (sinTheta * 0.5F * sign);
             uvs[2 * index + 1] = 0.5F + (cosTheta * 0.5F);
 
             // increase index
@@ -253,13 +253,13 @@ IGeometry cylinder(float radiusTop, float radiusBottom, float height, const cc::
     }
 
     IGeometry info;
-    info.positions      = positions;
-    info.normals        = normals;
-    info.uvs            = uvs;
+    info.positions = positions;
+    info.normals = normals;
+    info.uvs = uvs;
     info.boundingRadius = boundingRadius;
-    info.minPos         = minPos;
-    info.maxPos         = maxPos;
-    info.indices        = indices;
+    info.minPos = minPos;
+    info.maxPos = maxPos;
+    info.indices = indices;
     return info;
 }
 

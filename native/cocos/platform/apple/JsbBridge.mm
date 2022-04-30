@@ -29,9 +29,9 @@
 #include "cocos/bindings/manual/JavaScriptObjCBridge.h"
 
 bool callPlatformStringMethod(const ccstd::string &arg0, const ccstd::string &arg1) {
-    NSString  *oc_arg0 = [NSString stringWithCString:arg0.c_str() encoding:NSUTF8StringEncoding];
-    NSString  *oc_arg1 = [NSString stringWithCString:arg1.c_str() encoding:NSUTF8StringEncoding];
-    JsbBridge *m       = [JsbBridge sharedInstance];
+    NSString *oc_arg0 = [NSString stringWithCString:arg0.c_str() encoding:NSUTF8StringEncoding];
+    NSString *oc_arg1 = [NSString stringWithCString:arg1.c_str() encoding:NSUTF8StringEncoding];
+    JsbBridge *m = [JsbBridge sharedInstance];
     [m callByScript:oc_arg0 arg1:oc_arg1];
     return true;
 }

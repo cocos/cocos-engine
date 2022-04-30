@@ -77,25 +77,25 @@ protected:
 
     CCVKGPUCommandBuffer *_gpuCommandBuffer = nullptr;
 
-    CCVKGPUPipelineState *                 _curGPUPipelineState = nullptr;
-    ccstd::vector<CCVKGPUDescriptorSet *>  _curGPUDescriptorSets;
-    ccstd::vector<VkDescriptorSet>         _curVkDescriptorSets;
-    ccstd::vector<uint32_t>                _curDynamicOffsets;
+    CCVKGPUPipelineState *_curGPUPipelineState = nullptr;
+    ccstd::vector<CCVKGPUDescriptorSet *> _curGPUDescriptorSets;
+    ccstd::vector<VkDescriptorSet> _curVkDescriptorSets;
+    ccstd::vector<uint32_t> _curDynamicOffsets;
     ccstd::vector<ccstd::vector<uint32_t>> _curDynamicOffsetsArray;
-    uint32_t                               _firstDirtyDescriptorSet = UINT_MAX;
+    uint32_t _firstDirtyDescriptorSet = UINT_MAX;
 
     CCVKGPUInputAssembler *_curGPUInputAssember = nullptr;
-    CCVKGPUFramebuffer *   _curGPUFBO           = nullptr;
-    CCVKGPURenderPass *    _curGPURenderPass    = nullptr;
+    CCVKGPUFramebuffer *_curGPUFBO = nullptr;
+    CCVKGPURenderPass *_curGPURenderPass = nullptr;
 
     bool _secondaryRP = false;
 
     DynamicStates _curDynamicStates;
 
     // temp storage
-    ccstd::vector<VkImageBlit>          _blitRegions;
+    ccstd::vector<VkImageBlit> _blitRegions;
     ccstd::vector<VkImageMemoryBarrier> _imageMemoryBarriers;
-    ccstd::vector<VkCommandBuffer>      _vkCommandBuffers;
+    ccstd::vector<VkCommandBuffer> _vkCommandBuffers;
 
     ccstd::queue<VkCommandBuffer> _pendingQueue;
 };

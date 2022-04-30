@@ -38,33 +38,33 @@ CCWGPUShader::CCWGPUShader() : wrapper<Shader>(val::object()) {
 }
 
 void CCWGPUShader::initialize(const SPVShaderInfoInstance &spvInfo) {
-    _gpuShaderObject       = ccnew CCWGPUShaderObject;
+    _gpuShaderObject = ccnew CCWGPUShaderObject;
     const ShaderInfo &info = spvInfo.info;
 
-    _name            = info.name;
-    _stages          = info.stages;
-    _attributes      = info.attributes;
-    _blocks          = info.blocks;
-    _buffers         = info.buffers;
+    _name = info.name;
+    _stages = info.stages;
+    _attributes = info.attributes;
+    _blocks = info.blocks;
+    _buffers = info.buffers;
     _samplerTextures = info.samplerTextures;
-    _samplers        = info.samplers;
-    _textures        = info.textures;
-    _images          = info.images;
-    _subpassInputs   = info.subpassInputs;
+    _samplers = info.samplers;
+    _textures = info.textures;
+    _images = info.images;
+    _subpassInputs = info.subpassInputs;
 
     _gpuShaderObject->name = info.name;
     for (size_t i = 0; i < spvInfo.stages.size(); i++) {
-        const auto &stage   = spvInfo.stages[i];
-        auto *      spvData = spvInfo.stages[i].spv.data();
-        size_t      size    = spvInfo.stages[i].spv.size();
+        const auto &stage = spvInfo.stages[i];
+        auto *spvData = spvInfo.stages[i].spv.data();
+        size_t size = spvInfo.stages[i].spv.size();
 
         WGPUShaderModuleSPIRVDescriptor spv = {};
-        spv.chain.sType                     = WGPUSType_ShaderModuleSPIRVDescriptor;
-        spv.codeSize                        = size;
-        spv.code                            = spvData;
-        WGPUShaderModuleDescriptor desc     = {};
-        desc.nextInChain                    = reinterpret_cast<WGPUChainedStruct *>(&spv);
-        desc.label                          = nullptr;
+        spv.chain.sType = WGPUSType_ShaderModuleSPIRVDescriptor;
+        spv.codeSize = size;
+        spv.code = spvData;
+        WGPUShaderModuleDescriptor desc = {};
+        desc.nextInChain = reinterpret_cast<WGPUChainedStruct *>(&spv);
+        desc.label = nullptr;
         if (stage.stage == ShaderStageFlagBit::VERTEX) {
             _gpuShaderObject->wgpuShaderVertexModule = wgpuDeviceCreateShaderModule(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &desc);
         } else if (stage.stage == ShaderStageFlagBit::FRAGMENT) {

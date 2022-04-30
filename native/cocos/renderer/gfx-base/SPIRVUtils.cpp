@@ -77,9 +77,9 @@ glslang::EShTargetLanguageVersion getTargetVersion(int vulkanMinorVersion) {
 
 // https://www.khronos.org/registry/spir-v/specs/1.0/SPIRV.pdf
 struct Id {
-    uint32_t  opcode{0};
-    uint32_t  typeId{0};
-    uint32_t  storageClass{0};
+    uint32_t opcode{0};
+    uint32_t typeId{0};
+    uint32_t storageClass{0};
     uint32_t *pLocation{nullptr};
 };
 } // namespace
@@ -90,8 +90,8 @@ void SPIRVUtils::initialize(int vulkanMinorVersion) {
     glslang::InitializeProcess();
 
     _clientInputSemanticsVersion = 100 + vulkanMinorVersion * 10;
-    _clientVersion               = getClientVersion(vulkanMinorVersion);
-    _targetVersion               = getTargetVersion(vulkanMinorVersion);
+    _clientVersion = getClientVersion(vulkanMinorVersion);
+    _targetVersion = getTargetVersion(vulkanMinorVersion);
 }
 
 void SPIRVUtils::destroy() {
@@ -100,7 +100,7 @@ void SPIRVUtils::destroy() {
 }
 
 void SPIRVUtils::compileGLSL(ShaderStageFlagBit type, const ccstd::string &source) {
-    EShLanguage stage  = getShaderStage(type);
+    EShLanguage stage = getShaderStage(type);
     const char *string = source.c_str();
 
     _shader = std::make_unique<glslang::TShader>(stage);
@@ -127,7 +127,7 @@ void SPIRVUtils::compileGLSL(ShaderStageFlagBit type, const ccstd::string &sourc
     spv::SpvBuildLogger logger;
     glslang::SpvOptions spvOptions;
     spvOptions.disableOptimizer = false;
-    spvOptions.optimizeSize     = true;
+    spvOptions.optimizeSize = true;
 #if CC_DEBUG > 0
     //spvOptions.validate = true;
 #else
@@ -137,12 +137,12 @@ void SPIRVUtils::compileGLSL(ShaderStageFlagBit type, const ccstd::string &sourc
 }
 
 void SPIRVUtils::compressInputLocations(gfx::AttributeList &attributes) {
-    static ccstd::vector<Id>       ids;
+    static ccstd::vector<Id> ids;
     static ccstd::vector<uint32_t> activeLocations;
     static ccstd::vector<uint32_t> newLocations;
 
-    uint32_t *code     = _output.data();
-    uint32_t  codeSize = utils::toUint(_output.size());
+    uint32_t *code = _output.data();
+    uint32_t codeSize = utils::toUint(_output.size());
 
     CC_ASSERT(code[0] == SpvMagicNumber);
 
@@ -151,7 +151,7 @@ void SPIRVUtils::compressInputLocations(gfx::AttributeList &attributes) {
 
     uint32_t *insn = code + 5;
     while (insn != code + codeSize) {
-        auto opcode    = static_cast<uint16_t>(insn[0]);
+        auto opcode = static_cast<uint16_t>(insn[0]);
         auto wordCount = static_cast<uint16_t>(insn[0] >> 16);
 
         switch (opcode) {
@@ -175,8 +175,8 @@ void SPIRVUtils::compressInputLocations(gfx::AttributeList &attributes) {
                 CC_ASSERT(id < idBound);
 
                 CC_ASSERT(ids[id].opcode == 0);
-                ids[id].opcode       = opcode;
-                ids[id].typeId       = insn[1];
+                ids[id].opcode = opcode;
+                ids[id].typeId = insn[1];
                 ids[id].storageClass = insn[3];
             } break;
         }
@@ -192,7 +192,7 @@ void SPIRVUtils::compressInputLocations(gfx::AttributeList &attributes) {
         activeLocations.push_back(_program->getPipeInput(i).getType()->getQualifier().layoutLocation);
     }
 
-    uint32_t location       = 0;
+    uint32_t location = 0;
     uint32_t unusedLocation = activeCount;
     newLocations.assign(attributes.size(), UINT_MAX);
 
@@ -212,7 +212,7 @@ void SPIRVUtils::compressInputLocations(gfx::AttributeList &attributes) {
             for (size_t i = 0; i < attributes.size(); ++i) {
                 if (attributes[i].location == oldLocation) {
                     newLocations[i] = *id.pLocation;
-                    found           = true;
+                    found = true;
                     break;
                 }
             }

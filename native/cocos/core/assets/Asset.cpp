@@ -57,7 +57,7 @@ ccstd::string Asset::getNativeUrl() const {
     }
     return _nativeUrl;
 }
-Asset::Asset()  = default;
+Asset::Asset() = default;
 Asset::~Asset() = default;
 
 NativeDep Asset::getNativeDep() const {

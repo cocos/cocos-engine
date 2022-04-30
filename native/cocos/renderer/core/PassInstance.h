@@ -78,7 +78,7 @@ private:
     IntrusivePtr<scene::Pass> _parent;
     // Weak reference.
     MaterialInstance *_owner{nullptr};
-    bool              _dontNotify{false};
+    bool _dontNotify{false};
 };
 
 } // namespace cc

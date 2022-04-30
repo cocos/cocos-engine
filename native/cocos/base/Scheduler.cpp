@@ -37,25 +37,25 @@
 
 namespace {
 constexpr unsigned CC_REPEAT_FOREVER{UINT_MAX - 1};
-constexpr int      MAX_FUNC_TO_PERFORM{30};
-constexpr int      INITIAL_TIMER_COUND{10};
+constexpr int MAX_FUNC_TO_PERFORM{30};
+constexpr int INITIAL_TIMER_COUND{10};
 } // namespace
 
 namespace cc {
 // implementation Timer
 
 void Timer::setupTimerWithInterval(float seconds, unsigned int repeat, float delay) {
-    _elapsed    = -1;
-    _interval   = seconds;
-    _delay      = delay;
-    _useDelay   = _delay > 0.0F;
-    _repeat     = repeat;
+    _elapsed = -1;
+    _interval = seconds;
+    _delay = delay;
+    _useDelay = _delay > 0.0F;
+    _repeat = repeat;
     _runForever = _repeat == CC_REPEAT_FOREVER;
 }
 
 void Timer::update(float dt) {
     if (_elapsed == -1) {
-        _elapsed       = 0;
+        _elapsed = 0;
         _timesExecuted = 0;
         return;
     }
@@ -105,9 +105,9 @@ void Timer::update(float dt) {
 
 bool TimerTargetCallback::initWithCallback(Scheduler *scheduler, const ccSchedulerFunc &callback, void *target, const ccstd::string &key, float seconds, unsigned int repeat, float delay) {
     _scheduler = scheduler;
-    _target    = target;
-    _callback  = callback;
-    _key       = key;
+    _target = target;
+    _callback = callback;
+    _key = key;
     setupTimerWithInterval(seconds, repeat, delay);
     return true;
 }
@@ -153,10 +153,10 @@ void Scheduler::schedule(const ccSchedulerFunc &callback, void *target, float in
     CC_ASSERT(target);
     CC_ASSERT(!key.empty());
 
-    auto            iter    = _hashForTimers.find(target);
+    auto iter = _hashForTimers.find(target);
     HashTimerEntry *element = nullptr;
     if (iter == _hashForTimers.end()) {
-        element         = ccnew HashTimerEntry();
+        element = ccnew HashTimerEntry();
         element->target = target;
 
         _hashForTimers[target] = element;
@@ -196,8 +196,8 @@ void Scheduler::unschedule(const ccstd::string &key, void *target) {
     auto iter = _hashForTimers.find(target);
     if (iter != _hashForTimers.end()) {
         HashTimerEntry *element = iter->second;
-        int             i       = 0;
-        auto &          timers  = element->timers;
+        int i = 0;
+        auto &timers = element->timers;
 
         for (auto *t : timers) {
             auto *timer = dynamic_cast<TimerTargetCallback *>(t);
@@ -270,7 +270,7 @@ void Scheduler::unscheduleAllForTarget(void *target) {
     auto iter = _hashForTimers.find(target);
     if (iter != _hashForTimers.end()) {
         HashTimerEntry *element = iter->second;
-        auto &          timers  = element->timers;
+        auto &timers = element->timers;
         if (std::find(timers.begin(), timers.end(), element->currentTimer) != timers.end() &&
             (!element->currentTimerSalvaged)) {
             element->currentTimer->addRef();
@@ -340,14 +340,14 @@ void Scheduler::update(float dt) {
     // Iterate over all the custom selectors
     HashTimerEntry *elt = nullptr;
     for (auto iter = _hashForTimers.begin(); iter != _hashForTimers.end();) {
-        elt                    = iter->second;
-        _currentTarget         = elt;
+        elt = iter->second;
+        _currentTarget = elt;
         _currentTargetSalvaged = false;
 
         if (!_currentTarget->paused) {
             // The 'timers' array may change while inside this loop
             for (elt->timerIndex = 0; elt->timerIndex < static_cast<int>(elt->timers.size()); ++(elt->timerIndex)) {
-                elt->currentTimer         = elt->timers.at(elt->timerIndex);
+                elt->currentTimer = elt->timers.at(elt->timerIndex);
                 elt->currentTimerSalvaged = false;
 
                 elt->currentTimer->update(dt);
@@ -376,7 +376,7 @@ void Scheduler::update(float dt) {
     }
 
     _updateHashLocked = false;
-    _currentTarget    = nullptr;
+    _currentTarget = nullptr;
 
     //
     // Functions allocated from another thread

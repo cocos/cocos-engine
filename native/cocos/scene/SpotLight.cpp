@@ -50,7 +50,7 @@ SpotLight::~SpotLight() {
 void SpotLight::initialize() {
     Light::initialize();
 
-    _size   = 0.15F;
+    _size = 0.15F;
     _aspect = 1.0F;
     setLuminance(1700 / Light::nt2lm(_size));
     setLuminanceLDR(1.F);

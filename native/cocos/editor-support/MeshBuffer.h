@@ -86,10 +86,10 @@ private:
 
     ccstd::vector<IOTypedArray *> _ibArr;
     ccstd::vector<IOTypedArray *> _vbArr;
-    std::size_t                   _bufferPos = 0;
-    IOBuffer                      _vb;
-    IOBuffer                      _ib;
-    int                           _vertexFormat = 0;
+    std::size_t _bufferPos = 0;
+    IOBuffer _vb;
+    IOBuffer _ib;
+    int _vertexFormat = 0;
 };
 
 MIDDLEWARE_END

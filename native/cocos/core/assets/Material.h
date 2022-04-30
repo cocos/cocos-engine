@@ -94,7 +94,7 @@ public:
      * @zh 获取一个材质的哈希值
      * @param material
      */
-    static uint64_t      getHashForMaterial(Material *material);
+    static uint64_t getHashForMaterial(Material *material);
     inline static double getHashForMaterialForJS(Material *material) {
         return static_cast<double>(getHashForMaterial(material));
     }
@@ -340,7 +340,7 @@ protected:
             auto *pPatchArray = cc::get_if<ccstd::vector<T2>>(&patch);
             if (pPatchArray != nullptr) {
                 const auto &patchArray = *pPatchArray;
-                size_t      len        = patchArray.size();
+                size_t len = patchArray.size();
                 cur.resize(len);
 
                 for (size_t i = 0; i < len; ++i) {

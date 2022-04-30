@@ -332,17 +332,17 @@ public:
         VMStringPool();
         ~VMStringPool();
         v8::MaybeLocal<v8::String> get(v8::Isolate *isolate, const char *name);
-        void                       clear();
+        void clear();
 
     private:
         ccstd::unordered_map<ccstd::string, v8::Persistent<v8::String> *> _vmStringPoolMap;
     };
 
-    inline VMStringPool &  _getStringPool() { return _stringPool; }         // NOLINT(readability-identifier-naming)
-    void                   _retainScriptObject(void *owner, void *target);  // NOLINT(readability-identifier-naming)
-    void                   _releaseScriptObject(void *owner, void *target); // NOLINT(readability-identifier-naming)
-    v8::Local<v8::Context> _getContext() const;                             // NOLINT(readability-identifier-naming)
-    void                   _setGarbageCollecting(bool isGarbageCollecting); // NOLINT(readability-identifier-naming)
+    inline VMStringPool &_getStringPool() { return _stringPool; } // NOLINT(readability-identifier-naming)
+    void _retainScriptObject(void *owner, void *target);          // NOLINT(readability-identifier-naming)
+    void _releaseScriptObject(void *owner, void *target);         // NOLINT(readability-identifier-naming)
+    v8::Local<v8::Context> _getContext() const;                   // NOLINT(readability-identifier-naming)
+    void _setGarbageCollecting(bool isGarbageCollecting);         // NOLINT(readability-identifier-naming)
 
     //
 private:
@@ -375,24 +375,24 @@ private:
     ccstd::vector<std::tuple<std::unique_ptr<v8::Persistent<v8::Promise>>, ccstd::vector<PromiseExceptionMsg>>> _promiseArray;
 
     std::chrono::steady_clock::time_point _startTime;
-    ccstd::vector<RegisterCallback>       _registerCallbackArray;
-    ccstd::vector<RegisterCallback>       _permRegisterCallbackArray;
-    ccstd::vector<std::function<void()>>  _beforeInitHookArray;
-    ccstd::vector<std::function<void()>>  _afterInitHookArray;
-    ccstd::vector<std::function<void()>>  _beforeCleanupHookArray;
-    ccstd::vector<std::function<void()>>  _afterCleanupHookArray;
+    ccstd::vector<RegisterCallback> _registerCallbackArray;
+    ccstd::vector<RegisterCallback> _permRegisterCallbackArray;
+    ccstd::vector<std::function<void()>> _beforeInitHookArray;
+    ccstd::vector<std::function<void()>> _afterInitHookArray;
+    ccstd::vector<std::function<void()>> _beforeCleanupHookArray;
+    ccstd::vector<std::function<void()>> _afterCleanupHookArray;
 
     v8::Persistent<v8::Context> _context;
 
-    v8::Isolate *    _isolate;
+    v8::Isolate *_isolate;
     v8::HandleScope *_handleScope;
-    Object *         _globalObj;
-    Value            _gcFuncValue;
-    Object *         _gcFunc = nullptr;
+    Object *_globalObj;
+    Value _gcFuncValue;
+    Object *_gcFunc = nullptr;
 
     FileOperationDelegate _fileOperationDelegate;
-    ExceptionCallback     _nativeExceptionCallback = nullptr;
-    ExceptionCallback     _jsExceptionCallback     = nullptr;
+    ExceptionCallback _nativeExceptionCallback = nullptr;
+    ExceptionCallback _jsExceptionCallback = nullptr;
 
     #if SE_ENABLE_INSPECTOR
     node::Environment *_env;
@@ -401,10 +401,10 @@ private:
     VMStringPool _stringPool;
 
     std::thread::id _engineThreadId;
-    ccstd::string   _lastStackTrace;
-    ccstd::string   _debuggerServerAddr;
-    uint32_t        _debuggerServerPort;
-    bool            _isWaitForConnect;
+    ccstd::string _lastStackTrace;
+    ccstd::string _debuggerServerAddr;
+    uint32_t _debuggerServerPort;
+    bool _isWaitForConnect;
 
     uint32_t _vmId;
 

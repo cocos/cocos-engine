@@ -60,7 +60,7 @@ LogLevel Log::slogLevel = LogLevel::LEVEL_DEBUG;
 LogLevel Log::slogLevel = LogLevel::INFO;
 #endif
 
-FILE *                             Log::slogFile = nullptr;
+FILE *Log::slogFile = nullptr;
 const ccstd::vector<ccstd::string> LOG_LEVEL_DESCS{"FATAL", "ERROR", "WARN", "INFO", "DEBUG"};
 
 void Log::setLogFile(const ccstd::string &filename) {
@@ -76,9 +76,9 @@ void Log::setLogFile(const ccstd::string &filename) {
         msg += "------------------------------------------------------\n";
 
         struct tm *tm_time;
-        time_t     ct_time;
+        time_t ct_time;
         time(&ct_time);
-        tm_time              = localtime(&ct_time);
+        tm_time = localtime(&ct_time);
         char dateBuffer[256] = {0};
         snprintf(dateBuffer, sizeof(dateBuffer), "LOG DATE: %04d-%02d-%02d %02d:%02d:%02d\n",
                  tm_time->tm_year + 1900,
@@ -106,13 +106,13 @@ void Log::close() {
 }
 
 void Log::logMessage(LogType type, LogLevel level, const char *formats, ...) {
-    char  buff[4096];
-    char *p    = buff;
+    char buff[4096];
+    char *p = buff;
     char *last = buff + sizeof(buff) - 3;
 
 #if defined(LOG_USE_TIMESTAMP)
     struct tm *tmTime;
-    time_t     ctTime;
+    time_t ctTime;
     time(&ctTime);
     tmTime = localtime(&ctTime);
 
@@ -126,7 +126,7 @@ void Log::logMessage(LogType type, LogLevel level, const char *formats, ...) {
     // p += StringUtil::vprintf(p, last, formats, args);
 
     std::ptrdiff_t count = (last - p);
-    int            ret   = vsnprintf(p, count, formats, args);
+    int ret = vsnprintf(p, count, formats, args);
     if (ret >= count - 1) {
         p += (count - 1);
     } else if (ret >= 0) {
@@ -136,7 +136,7 @@ void Log::logMessage(LogType type, LogLevel level, const char *formats, ...) {
     va_end(args);
 
     *p++ = '\n';
-    *p   = 0;
+    *p = 0;
 
     if (slogFile) {
         fputs(buff, slogFile);

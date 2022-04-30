@@ -78,16 +78,16 @@ protected:
 
     virtual void bindStates();
 
-    GLES2GPUCommandAllocator *      _cmdAllocator  = nullptr;
-    GLES2CmdPackage *               _curCmdPackage = nullptr;
+    GLES2GPUCommandAllocator *_cmdAllocator = nullptr;
+    GLES2CmdPackage *_curCmdPackage = nullptr;
     ccstd::queue<GLES2CmdPackage *> _pendingPackages, _freePackages;
 
-    uint32_t                               _curSubpassIdx       = 0U;
-    GLES2GPUPipelineState *                _curGPUPipelineState = nullptr;
+    uint32_t _curSubpassIdx = 0U;
+    GLES2GPUPipelineState *_curGPUPipelineState = nullptr;
     ccstd::vector<GLES2GPUDescriptorSet *> _curGPUDescriptorSets;
     ccstd::vector<ccstd::vector<uint32_t>> _curDynamicOffsets;
-    GLES2GPUInputAssembler *               _curGPUInputAssember = nullptr;
-    DynamicStates                          _curDynamicStates;
+    GLES2GPUInputAssembler *_curGPUInputAssember = nullptr;
+    DynamicStates _curDynamicStates;
 
     bool _isStateInvalid = false;
 };

@@ -68,10 +68,10 @@ void Data::move(Data &other) {
     clear();
 
     _bytes = other._bytes;
-    _size  = other._size;
+    _size = other._size;
 
     other._bytes = nullptr;
-    other._size  = 0;
+    other._size = 0;
 }
 
 bool Data::isNull() const {
@@ -90,7 +90,7 @@ void Data::copy(const unsigned char *bytes, uint32_t size) {
     clear();
 
     if (size > 0) {
-        _size  = size;
+        _size = size;
         _bytes = static_cast<unsigned char *>(malloc(sizeof(unsigned char) * _size));
         memcpy(_bytes, bytes, _size);
     }
@@ -99,7 +99,7 @@ void Data::copy(const unsigned char *bytes, uint32_t size) {
 void Data::fastSet(unsigned char *bytes, uint32_t size) {
     free(_bytes);
     _bytes = bytes;
-    _size  = size;
+    _size = size;
 }
 
 void Data::resize(uint32_t size) {
@@ -107,14 +107,14 @@ void Data::resize(uint32_t size) {
     if (_size == size) {
         return;
     }
-    _size  = size;
+    _size = size;
     _bytes = static_cast<unsigned char *>(realloc(_bytes, sizeof(unsigned char) * _size));
 }
 
 void Data::clear() {
     free(_bytes);
     _bytes = nullptr;
-    _size  = 0;
+    _size = 0;
 }
 
 uint8_t *Data::takeBuffer(uint32_t *size) {
@@ -124,7 +124,7 @@ uint8_t *Data::takeBuffer(uint32_t *size) {
     }
 
     _bytes = nullptr;
-    _size  = 0;
+    _size = 0;
     return buffer;
 }
 

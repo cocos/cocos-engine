@@ -33,7 +33,7 @@ namespace gfx {
 GLES3GeneralBarrier::GLES3GeneralBarrier(const GeneralBarrierInfo &info) : GeneralBarrier(info) {
     _typedID = generateObjectID<decltype(this)>();
 
-    _gpuBarrier               = ccnew GLES3GPUGeneralBarrier;
+    _gpuBarrier = ccnew GLES3GPUGeneralBarrier;
     _gpuBarrier->prevAccesses = info.prevAccesses;
     _gpuBarrier->nextAccesses = info.nextAccesses;
 

@@ -36,8 +36,7 @@ DRAGONBONES_NAMESPACE_BEGIN
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class Point
-{
+class Point {
 public:
     static Point helpPointA;
     static Point helpPointB;
@@ -72,10 +71,8 @@ public:
      */
     float y;
 
-    Point():
-        x(0.0f),
-        y(0.0f)
-    {}
+    Point() : x(0.0f),
+              y(0.0f) {}
     /**
      * - Creates a new point. If you pass no parameters to this method, a point is created at (0,0).
      * @param x - The horizontal coordinate.
@@ -90,14 +87,12 @@ public:
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    Point(const Point& value)
-    {
+    Point(const Point& value) {
         operator=(value);
     }
     ~Point() {}
 
-    inline void operator=(const Point& value)
-    {
+    inline void operator=(const Point& value) {
         x = value.x;
         y = value.y;
     }
@@ -105,8 +100,7 @@ public:
     /**
      * @private
      */
-    inline void clear()
-    {
+    inline void clear() {
         x = y = 0.0f;
     }
 

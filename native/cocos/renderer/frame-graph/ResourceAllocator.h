@@ -38,26 +38,26 @@ class ResourceAllocator final {
 public:
     using DeviceResourceCreator = DeviceResourceCreatorType;
 
-    ResourceAllocator(const ResourceAllocator &)     = delete;
+    ResourceAllocator(const ResourceAllocator &) = delete;
     ResourceAllocator(ResourceAllocator &&) noexcept = delete;
     ResourceAllocator &operator=(const ResourceAllocator &) = delete;
     ResourceAllocator &operator=(ResourceAllocator &&) noexcept = delete;
 
     static ResourceAllocator &getInstance() noexcept;
-    DeviceResourceType *      alloc(const DescriptorType &desc) noexcept;
-    void                      free(DeviceResourceType *resource) noexcept;
-    inline void               tick() noexcept;
-    void                      gc(uint32_t unusedFrameCount) noexcept;
+    DeviceResourceType *alloc(const DescriptorType &desc) noexcept;
+    void free(DeviceResourceType *resource) noexcept;
+    inline void tick() noexcept;
+    void gc(uint32_t unusedFrameCount) noexcept;
 
 private:
     using DeviceResourcePool = ccstd::vector<DeviceResourceType *>;
 
     ResourceAllocator() noexcept = default;
-    ~ResourceAllocator()         = default;
+    ~ResourceAllocator() = default;
 
     ccstd::unordered_map<DescriptorType, DeviceResourcePool, gfx::Hasher<DescriptorType>> _pool{};
-    ccstd::unordered_map<DeviceResourceType *, int64_t>                                   _ages{};
-    uint64_t                                                                              _age{0};
+    ccstd::unordered_map<DeviceResourceType *, int64_t> _ages{};
+    uint64_t _age{0};
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -154,26 +154,26 @@ class ResourceAllocator<DeviceResourceType, gfx::FramebufferInfo, DeviceResource
 public:
     using DeviceResourceCreator = DeviceResourceCreatorType;
 
-    ResourceAllocator(const ResourceAllocator &)     = delete;
+    ResourceAllocator(const ResourceAllocator &) = delete;
     ResourceAllocator(ResourceAllocator &&) noexcept = delete;
     ResourceAllocator &operator=(const ResourceAllocator &) = delete;
     ResourceAllocator &operator=(ResourceAllocator &&) noexcept = delete;
 
     static ResourceAllocator &getInstance() noexcept;
-    DeviceResourceType *      alloc(const gfx::FramebufferInfo &desc) noexcept;
-    void                      free(DeviceResourceType *resource) noexcept;
-    inline void               tick() noexcept;
-    void                      gc(uint32_t unusedFrameCount) noexcept;
+    DeviceResourceType *alloc(const gfx::FramebufferInfo &desc) noexcept;
+    void free(DeviceResourceType *resource) noexcept;
+    inline void tick() noexcept;
+    void gc(uint32_t unusedFrameCount) noexcept;
 
 private:
     using DeviceResourcePool = std::vector<DeviceResourceType *>;
 
     ResourceAllocator() noexcept = default;
-    ~ResourceAllocator()         = default;
+    ~ResourceAllocator() = default;
 
-    std::unordered_map<size_t, DeviceResourcePool>    _pool{};
+    std::unordered_map<size_t, DeviceResourcePool> _pool{};
     std::unordered_map<DeviceResourceType *, int64_t> _ages{};
-    uint64_t                                          _age{0};
+    uint64_t _age{0};
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -187,7 +187,7 @@ ResourceAllocator<DeviceResourceType, gfx::FramebufferInfo, DeviceResourceCreato
 
 template <typename DeviceResourceType, typename DeviceResourceCreatorType>
 DeviceResourceType *ResourceAllocator<DeviceResourceType, gfx::FramebufferInfo, DeviceResourceCreatorType>::alloc(const gfx::FramebufferInfo &desc) noexcept {
-    size_t              hash = gfx::Hasher<gfx::FramebufferInfo>()(desc);
+    size_t hash = gfx::Hasher<gfx::FramebufferInfo>()(desc);
     DeviceResourcePool &pool{_pool[hash]};
 
     DeviceResourceType *resource{nullptr};

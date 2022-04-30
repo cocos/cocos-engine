@@ -297,8 +297,8 @@ public:
 
     // Private API used in wrapper
     JSContext *_getContext() { return _cx; }
-    void       _setGarbageCollecting(bool isGarbageCollecting);
-    void       _debugProcessInput(const std::string &str);
+    void _setGarbageCollecting(bool isGarbageCollecting);
+    void _debugProcessInput(const std::string &str);
     //
 private:
     ScriptEngine();
@@ -318,8 +318,8 @@ private:
 
     FileOperationDelegate _fileOperationDelegate;
 
-    ccstd::vector<RegisterCallback>       _registerCallbackArray;
-    ccstd::vector<RegisterCallback>       _permRegisterCallbackArray;
+    ccstd::vector<RegisterCallback> _registerCallbackArray;
+    ccstd::vector<RegisterCallback> _permRegisterCallbackArray;
     std::chrono::steady_clock::time_point _startTime;
 
     ccstd::vector<std::function<void()>> _beforeInitHookArray;
@@ -333,7 +333,7 @@ private:
     std::unordered_map<std::string, JS::PersistentRootedScript *> _filenameScriptMap;
 
     std::string _debuggerServerAddr;
-    uint32_t    _debuggerServerPort;
+    uint32_t _debuggerServerPort;
 
     uint32_t _vmId;
 

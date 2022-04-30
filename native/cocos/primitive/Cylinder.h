@@ -38,8 +38,8 @@ namespace cc {
 struct ICylinderOptions : public IGeometryOptions {
     uint32_t radialSegments{32};
     uint32_t heightSegments{1};
-    bool     capped{true};
-    float    arc{math::PI_2};
+    bool capped{true};
+    float arc{math::PI_2};
 };
 
 /**

@@ -33,7 +33,7 @@
 }
 
 static JsbBridgeWrapper* instance = nil;
-static ICallback         cb       = ^void(NSString* _event, NSString* _arg) {
+static ICallback cb = ^void(NSString* _event, NSString* _arg) {
     [[JsbBridgeWrapper sharedInstance] triggerEvent:_event arg:_arg];
 };
 + (instancetype)sharedInstance {
@@ -72,7 +72,7 @@ static ICallback         cb       = ^void(NSString* _event, NSString* _arg) {
         listener(arg);
     }
 }
-- (void)removeAllListenersForEvent:(NSString *)eventName {
+- (void)removeAllListenersForEvent:(NSString*)eventName {
     if (![cbDictionnary objectForKey:eventName]) {
         return;
     }
@@ -99,7 +99,7 @@ static ICallback         cb       = ^void(NSString* _event, NSString* _arg) {
     [jb sendToScript:eventName];
 }
 - (id)init {
-    self          = [super init];
+    self = [super init];
     cbDictionnary = [NSMutableDictionary new];
     jb = [JsbBridge sharedInstance];
     [jb setCallback:cb];
@@ -113,4 +113,3 @@ static ICallback         cb       = ^void(NSString* _event, NSString* _arg) {
     [super dealloc];
 }
 @end
-

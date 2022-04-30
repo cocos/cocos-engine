@@ -42,12 +42,12 @@ GLES3Buffer::~GLES3Buffer() {
 }
 
 void GLES3Buffer::doInit(const BufferInfo & /*info*/) {
-    _gpuBuffer           = ccnew GLES3GPUBuffer;
-    _gpuBuffer->usage    = _usage;
+    _gpuBuffer = ccnew GLES3GPUBuffer;
+    _gpuBuffer->usage = _usage;
     _gpuBuffer->memUsage = _memUsage;
-    _gpuBuffer->size     = _size;
-    _gpuBuffer->stride   = _stride;
-    _gpuBuffer->count    = _count;
+    _gpuBuffer->size = _size;
+    _gpuBuffer->stride = _stride;
+    _gpuBuffer->count = _count;
 
     if (hasFlag(_usage, BufferUsageBit::INDIRECT)) {
         _gpuBuffer->indirects.resize(_count);
@@ -59,17 +59,17 @@ void GLES3Buffer::doInit(const BufferInfo & /*info*/) {
 }
 
 void GLES3Buffer::doInit(const BufferViewInfo &info) {
-    auto *buffer          = static_cast<GLES3Buffer *>(info.buffer);
-    _gpuBuffer            = ccnew GLES3GPUBuffer;
-    _gpuBuffer->usage     = _usage;
-    _gpuBuffer->memUsage  = _memUsage;
-    _gpuBuffer->size      = _size;
-    _gpuBuffer->stride    = _stride;
-    _gpuBuffer->count     = _count;
-    _gpuBuffer->glTarget  = buffer->_gpuBuffer->glTarget;
-    _gpuBuffer->glBuffer  = buffer->_gpuBuffer->glBuffer;
-    _gpuBuffer->glOffset  = info.offset;
-    _gpuBuffer->buffer    = buffer->_gpuBuffer->buffer;
+    auto *buffer = static_cast<GLES3Buffer *>(info.buffer);
+    _gpuBuffer = ccnew GLES3GPUBuffer;
+    _gpuBuffer->usage = _usage;
+    _gpuBuffer->memUsage = _memUsage;
+    _gpuBuffer->size = _size;
+    _gpuBuffer->stride = _stride;
+    _gpuBuffer->count = _count;
+    _gpuBuffer->glTarget = buffer->_gpuBuffer->glTarget;
+    _gpuBuffer->glBuffer = buffer->_gpuBuffer->glBuffer;
+    _gpuBuffer->glOffset = info.offset;
+    _gpuBuffer->buffer = buffer->_gpuBuffer->buffer;
     _gpuBuffer->indirects = buffer->_gpuBuffer->indirects;
 }
 
@@ -89,7 +89,7 @@ void GLES3Buffer::doResize(uint32_t size, uint32_t count) {
     GLES3Device::getInstance()->getMemoryStatus().bufferSize -= _size;
     CC_PROFILE_MEMORY_DEC(Buffer, _size);
 
-    _gpuBuffer->size  = size;
+    _gpuBuffer->size = size;
     _gpuBuffer->count = count;
     cmdFuncGLES3ResizeBuffer(GLES3Device::getInstance(), _gpuBuffer);
 

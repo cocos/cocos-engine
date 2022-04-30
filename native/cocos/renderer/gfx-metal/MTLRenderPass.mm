@@ -42,12 +42,12 @@ CCMTLRenderPass::~CCMTLRenderPass() {
     destroy();
 }
 
-void CCMTLRenderPass::doInit(const RenderPassInfo &info) {
+void CCMTLRenderPass::doInit(const RenderPassInfo& info) {
     _renderTargetSizes.resize(_colorAttachments.size());
     _mtlRenderPassDescriptor = [[MTLRenderPassDescriptor alloc] init];
 
     uint i = 0;
-    for (const auto &colorAttachment : _colorAttachments) {
+    for (const auto& colorAttachment : _colorAttachments) {
         _mtlRenderPassDescriptor.colorAttachments[i].loadAction = mu::toMTLLoadAction(colorAttachment.loadOp);
         _mtlRenderPassDescriptor.colorAttachments[i].storeAction = mu::toMTLStoreAction(colorAttachment.storeOp);
 
@@ -79,7 +79,7 @@ void CCMTLRenderPass::setColorAttachment(size_t slot, CCMTLTexture* cctex, int l
     }
 
     id<MTLTexture> texture = nil;
-    if(cctex->swapChain()) {
+    if (cctex->swapChain()) {
         auto* swapchain = static_cast<CCMTLSwapchain*>(cctex->swapChain());
         texture = swapchain->colorTexture()->getMTLTexture();
     } else {
@@ -96,9 +96,9 @@ void CCMTLRenderPass::setDepthStencilAttachment(CCMTLTexture* cctex, int level) 
         CC_LOG_ERROR("CCMTLRenderPass: MTLRenderPassDescriptor should not be nullptr.");
         return;
     }
-    
+
     id<MTLTexture> texture = nil;
-    if(cctex->swapChain()) {
+    if (cctex->swapChain()) {
         auto* swapchain = static_cast<CCMTLSwapchain*>(cctex->swapChain());
         texture = swapchain->depthStencilTexture()->getMTLTexture();
     } else {
@@ -107,7 +107,7 @@ void CCMTLRenderPass::setDepthStencilAttachment(CCMTLTexture* cctex, int level) 
 
     _mtlRenderPassDescriptor.depthAttachment.texture = texture;
     _mtlRenderPassDescriptor.depthAttachment.level = level;
-    if(cctex->getFormat() == Format::DEPTH_STENCIL) {
+    if (cctex->getFormat() == Format::DEPTH_STENCIL) {
         _mtlRenderPassDescriptor.stencilAttachment.texture = texture;
         _mtlRenderPassDescriptor.stencilAttachment.level = level;
     }

@@ -39,7 +39,7 @@ public:
     CCVKTexture();
     ~CCVKTexture() override;
 
-    inline CCVKGPUTexture *    gpuTexture() const { return _gpuTexture; }
+    inline CCVKGPUTexture *gpuTexture() const { return _gpuTexture; }
     inline CCVKGPUTextureView *gpuTextureView() const { return _gpuTextureView; }
 
 protected:
@@ -53,7 +53,7 @@ protected:
 
     void createTextureView();
 
-    CCVKGPUTexture *    _gpuTexture     = nullptr;
+    CCVKGPUTexture *_gpuTexture = nullptr;
     CCVKGPUTextureView *_gpuTextureView = nullptr;
 };
 

@@ -40,7 +40,7 @@ namespace internal {
 
 struct PrivateData {
     PrivateObjectBase *data{nullptr};
-    Object *           seObj{nullptr};
+    Object *seObj{nullptr};
 };
 
 void jsToSeArgs(const v8::FunctionCallbackInfo<v8::Value> &_v8args, ValueArray &outArr);
@@ -51,10 +51,10 @@ void seToJsValue(v8::Isolate *isolate, const Value &v, v8::Local<v8::Value> *out
 void setReturnValue(const Value &data, const v8::FunctionCallbackInfo<v8::Value> &argv);
 void setReturnValue(const Value &data, const v8::PropertyCallbackInfo<v8::Value> &argv);
 
-bool  hasPrivate(v8::Isolate *isolate, v8::Local<v8::Value> value);
-void  setPrivate(v8::Isolate *isolate, ObjectWrap &wrap, PrivateObjectBase *data, Object *obj, PrivateData **outInternalData);
+bool hasPrivate(v8::Isolate *isolate, v8::Local<v8::Value> value);
+void setPrivate(v8::Isolate *isolate, ObjectWrap &wrap, PrivateObjectBase *data, Object *obj, PrivateData **outInternalData);
 void *getPrivate(v8::Isolate *isolate, v8::Local<v8::Value> value, uint32_t index = 0);
-void  clearPrivate(v8::Isolate *isolate, ObjectWrap &wrap);
+void clearPrivate(v8::Isolate *isolate, ObjectWrap &wrap);
 
 } // namespace internal
 } // namespace se
