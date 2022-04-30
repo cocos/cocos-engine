@@ -105,7 +105,7 @@ namespace {
 
 template <typename T>
 bool std_vector_T_to_seval(const ccstd::vector<T> &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    assert(ret != nullptr);
+    CC_ASSERT(ret != nullptr);
     se::HandleObject obj(se::Object::createArrayObject(v.size()));
     bool             ok = true;
 
@@ -144,7 +144,7 @@ bool size_to_seval(size_t v, se::Value *ret) { // NOLINT(readability-identifier-
 }
 
 bool Vec2_to_seval(const cc::Vec2 &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    assert(ret != nullptr);
+    CC_ASSERT(ret != nullptr);
     se::HandleObject obj(se::Object::createPlainObject());
     obj->setProperty("x", se::Value(v.x));
     obj->setProperty("y", se::Value(v.y));
@@ -154,7 +154,7 @@ bool Vec2_to_seval(const cc::Vec2 &v, se::Value *ret) { // NOLINT(readability-id
 }
 
 bool Vec3_to_seval(const cc::Vec3 &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    assert(ret != nullptr);
+    CC_ASSERT(ret != nullptr);
     se::HandleObject obj(se::Object::createPlainObject());
     obj->setProperty("x", se::Value(v.x));
     obj->setProperty("y", se::Value(v.y));
@@ -165,7 +165,7 @@ bool Vec3_to_seval(const cc::Vec3 &v, se::Value *ret) { // NOLINT(readability-id
 }
 
 bool Vec4_to_seval(const cc::Vec4 &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    assert(ret != nullptr);
+    CC_ASSERT(ret != nullptr);
     se::HandleObject obj(se::Object::createPlainObject());
     obj->setProperty("x", se::Value(v.x));
     obj->setProperty("y", se::Value(v.y));
@@ -177,7 +177,7 @@ bool Vec4_to_seval(const cc::Vec4 &v, se::Value *ret) { // NOLINT(readability-id
 }
 
 bool Quaternion_to_seval(const cc::Quaternion &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    assert(ret != nullptr);
+    CC_ASSERT(ret != nullptr);
     se::HandleObject obj(se::Object::createPlainObject());
     obj->setProperty("x", se::Value(v.x));
     obj->setProperty("y", se::Value(v.y));
@@ -189,7 +189,7 @@ bool Quaternion_to_seval(const cc::Quaternion &v, se::Value *ret) { // NOLINT(re
 }
 
 bool Mat4_to_seval(const cc::Mat4 &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    assert(ret != nullptr);
+    CC_ASSERT(ret != nullptr);
     se::HandleObject obj(se::Object::createArrayObject(16));
 
     for (uint8_t i = 0; i < 16; ++i) {
@@ -201,7 +201,7 @@ bool Mat4_to_seval(const cc::Mat4 &v, se::Value *ret) { // NOLINT(readability-id
 }
 
 bool Size_to_seval(const cc::Size &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    assert(ret != nullptr);
+    CC_ASSERT(ret != nullptr);
     se::HandleObject obj(se::Object::createPlainObject());
     obj->setProperty("width", se::Value(v.width));
     obj->setProperty("height", se::Value(v.height));
@@ -210,7 +210,7 @@ bool Size_to_seval(const cc::Size &v, se::Value *ret) { // NOLINT(readability-id
 }
 
 bool Rect_to_seval(const cc::Rect &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    assert(ret != nullptr);
+    CC_ASSERT(ret != nullptr);
     se::HandleObject obj(se::Object::createPlainObject());
     obj->setProperty("x", se::Value(v.origin.x));
     obj->setProperty("y", se::Value(v.origin.y));
@@ -296,7 +296,7 @@ void toMat(const float *data, int num, se::Value *ret) {
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool seval_to_ccvalue(const se::Value &v, cc::Value *ret) { // NOLINT
-    assert(ret != nullptr);
+    CC_ASSERT(ret != nullptr);
     bool ok = true;
     if (v.isObject()) {
         se::Object *jsobj = v.toObject();
@@ -330,7 +330,7 @@ bool seval_to_ccvalue(const se::Value &v, cc::Value *ret) { // NOLINT
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool seval_to_ccvaluemap(const se::Value &v, cc::ValueMap *ret) { // NOLINT
-    assert(ret != nullptr);
+    CC_ASSERT(ret != nullptr);
 
     if (v.isNullOrUndefined()) {
         ret->clear();
@@ -362,7 +362,7 @@ bool seval_to_ccvaluemap(const se::Value &v, cc::ValueMap *ret) { // NOLINT
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool seval_to_ccvaluemapintkey(const se::Value &v, cc::ValueMapIntKey *ret) {
-    assert(ret != nullptr);
+    CC_ASSERT(ret != nullptr);
     if (v.isNullOrUndefined()) {
         ret->clear();
         return true;
@@ -401,7 +401,7 @@ bool seval_to_ccvaluemapintkey(const se::Value &v, cc::ValueMapIntKey *ret) {
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool seval_to_ccvaluevector(const se::Value &v, cc::ValueVector *ret) { // NOLINT
-    assert(ret != nullptr);
+    CC_ASSERT(ret != nullptr);
 
     SE_PRECONDITION3(v.isObject(), false, ret->clear());
 
@@ -441,7 +441,7 @@ bool sevals_variadic_to_ccvaluevector(const se::ValueArray &args, cc::ValueVecto
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool seval_to_Data(const se::Value &v, cc::Data *ret) {
-    assert(ret != nullptr);
+    CC_ASSERT(ret != nullptr);
     SE_PRECONDITION2(v.isObject() && v.toObject()->isTypedArray(), false, "Convert parameter to Data failed!");
     uint8_t *ptr    = nullptr;
     size_t   length = 0;
@@ -458,7 +458,7 @@ bool seval_to_Data(const se::Value &v, cc::Data *ret) {
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool seval_to_DownloaderHints(const se::Value &v, cc::network::DownloaderHints *ret) {
     const static cc::network::DownloaderHints ZERO{0, 0, ""};
-    assert(ret != nullptr);
+    CC_ASSERT(ret != nullptr);
     SE_PRECONDITION2(v.isObject(), false, "Convert parameter to DownloaderHints failed!");
     se::Value   tmp;
     se::Object *obj = v.toObject();
@@ -974,16 +974,19 @@ bool sevalue_to_native(const se::Value &from, cc::IPreCompileInfoValueType *to, 
     if (firstEle.isBoolean()) {
         ccstd::vector<bool> result;
         sevalue_to_native(from, &result, ctx);
+        *to = result;
         return true;
     }
     if (firstEle.isNumber()) {
-        ccstd::vector<float> result;
+        ccstd::vector<int32_t> result;
         sevalue_to_native(from, &result, ctx);
+        *to = result;
         return true;
     }
     if (firstEle.isString()) {
         ccstd::vector<ccstd::string> result;
         sevalue_to_native(from, &result, ctx);
+        *to = result;
         return true;
     }
 
@@ -1037,13 +1040,13 @@ bool sevalue_to_native(const se::Value &from, cc::variant<cc::monostate, cc::Mat
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &from, cc::ArrayBuffer *to, se::Object * /*ctx*/) {
-    assert(from.isObject());
+    CC_ASSERT(from.isObject());
     to->setJSArrayBuffer(from.toObject());
     return true;
 }
 bool sevalue_to_native(const se::Value &from, cc::ArrayBuffer **to, se::Object * /*ctx*/) {
-    assert(from.isObject());
-    *to = new cc::ArrayBuffer();
+    CC_ASSERT(from.isObject());
+    *to = ccnew cc::ArrayBuffer();
     (*to)->addRef();
     (*to)->setJSArrayBuffer(from.toObject());
     cc::DeferredReleasePool::add(*to);
@@ -1076,7 +1079,7 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<unsigned char> *to, 
         return true;
     }
 
-    assert(from.isObject());
+    CC_ASSERT(from.isObject());
     se::Object *in = from.toObject();
 
     if (in->isTypedArray()) {
@@ -1178,9 +1181,9 @@ bool sevalue_to_native(const se::Value &val, spine::String *obj, se::Object * /*
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &v, spine::Vector<spine::String> *ret, se::Object * /*unused*/) {
-    assert(v.isObject());
+    CC_ASSERT(v.isObject());
     se::Object *obj = v.toObject();
-    assert(obj->isArray());
+    CC_ASSERT(obj->isArray());
 
     bool     ok  = true;
     uint32_t len = 0;
@@ -1209,8 +1212,8 @@ bool sevalue_to_native(const se::Value &v, spine::Vector<spine::String> *ret, se
 #if CC_USE_MIDDLEWARE
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool seval_to_Map_string_key(const se::Value &v, cc::RefMap<ccstd::string, cc::middleware::Texture2D *> *ret) {
-    assert(ret != nullptr);
-    assert(v.isObject());
+    CC_ASSERT(ret != nullptr);
+    CC_ASSERT(v.isObject());
     se::Object *obj = v.toObject();
 
     ccstd::vector<ccstd::string> allKeys;
@@ -1249,7 +1252,7 @@ bool seval_to_Map_string_key(const se::Value &v, cc::RefMap<ccstd::string, cc::m
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool ccvalue_to_seval(const cc::Value &v, se::Value *ret) { // NOLINT
-    assert(ret != nullptr);
+    CC_ASSERT(ret != nullptr);
     bool ok = true;
     switch (v.getType()) {
         case cc::Value::Type::NONE:
@@ -1291,7 +1294,7 @@ bool ccvalue_to_seval(const cc::Value &v, se::Value *ret) { // NOLINT
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool ccvaluemap_to_seval(const cc::ValueMap &v, se::Value *ret) { // NOLINT
-    assert(ret != nullptr);
+    CC_ASSERT(ret != nullptr);
 
     se::HandleObject obj(se::Object::createPlainObject());
     bool             ok = true;
@@ -1321,7 +1324,7 @@ bool ccvaluemap_to_seval(const cc::ValueMap &v, se::Value *ret) { // NOLINT
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool ccvaluemapintkey_to_seval(const cc::ValueMapIntKey &v, se::Value *ret) { // NOLINT
-    assert(ret != nullptr);
+    CC_ASSERT(ret != nullptr);
 
     se::HandleObject obj(se::Object::createPlainObject());
     bool             ok = true;
@@ -1353,7 +1356,7 @@ bool ccvaluemapintkey_to_seval(const cc::ValueMapIntKey &v, se::Value *ret) { //
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool ccvaluevector_to_seval(const cc::ValueVector &v, se::Value *ret) { // NOLINT
-    assert(ret != nullptr);
+    CC_ASSERT(ret != nullptr);
     se::HandleObject obj(se::Object::createArrayObject(v.size()));
     bool             ok = true;
 
@@ -1378,7 +1381,7 @@ bool ccvaluevector_to_seval(const cc::ValueVector &v, se::Value *ret) { // NOLIN
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool ManifestAsset_to_seval(const cc::extension::ManifestAsset &v, se::Value *ret) {
-    assert(ret != nullptr);
+    CC_ASSERT(ret != nullptr);
     se::HandleObject obj(se::Object::createPlainObject());
     obj->setProperty("md5", se::Value(v.md5));
     obj->setProperty("path", se::Value(v.path));
@@ -1392,7 +1395,7 @@ bool ManifestAsset_to_seval(const cc::extension::ManifestAsset &v, se::Value *re
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool Data_to_seval(const cc::Data &v, se::Value *ret) {
-    assert(ret != nullptr);
+    CC_ASSERT(ret != nullptr);
     if (v.isNull()) {
         ret->setNull();
     } else {
@@ -1404,7 +1407,7 @@ bool Data_to_seval(const cc::Data &v, se::Value *ret) {
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool DownloadTask_to_seval(const cc::network::DownloadTask &v, se::Value *ret) {
-    assert(ret != nullptr);
+    CC_ASSERT(ret != nullptr);
 
     se::HandleObject obj(se::Object::createPlainObject());
     obj->setProperty("identifier", se::Value(v.identifier));
@@ -1611,7 +1614,7 @@ bool nativevalue_to_se(const cc::physics::RaycastResult &from, se::Value &to, se
 }
 
 bool sevalue_to_native(const se::Value &from, cc::physics::ConvexDesc *to, se::Object *ctx) {
-    assert(from.isObject());
+    CC_ASSERT(from.isObject());
     se::Object *json = from.toObject();
     auto *      data = static_cast<cc::physics::ConvexDesc *>(json->getPrivateData());
     if (data) {
@@ -1647,7 +1650,7 @@ bool sevalue_to_native(const se::Value &from, cc::physics::TrimeshDesc *to, se::
         return false;
     }
 
-    assert(from.isObject());
+    CC_ASSERT(from.isObject());
     se::Object *json = from.toObject();
     auto *      data = static_cast<cc::physics::TrimeshDesc *>(json->getPrivateData());
     if (data) {
@@ -1682,7 +1685,7 @@ bool sevalue_to_native(const se::Value &from, cc::physics::TrimeshDesc *to, se::
 }
 
 bool sevalue_to_native(const se::Value &from, cc::physics::HeightFieldDesc *to, se::Object *ctx) {
-    assert(from.isObject());
+    CC_ASSERT(from.isObject());
     se::Object *json = from.toObject();
     auto *      data = static_cast<cc::physics::HeightFieldDesc *>(json->getPrivateData());
     if (data) {
@@ -1717,7 +1720,7 @@ bool sevalue_to_native(const se::Value &from, cc::physics::HeightFieldDesc *to, 
 }
 
 bool sevalue_to_native(const se::Value &from, cc::physics::RaycastOptions *to, se::Object *ctx) {
-    assert(from.isObject());
+    CC_ASSERT(from.isObject());
     se::Object *json = from.toObject();
     auto *      data = static_cast<cc::physics::RaycastOptions *>(json->getPrivateData());
     if (data) {

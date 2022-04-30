@@ -200,7 +200,7 @@ export default class TrailModule {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @serializable
     public _enable = false;
@@ -225,7 +225,7 @@ export default class TrailModule {
     public lifeTime = new CurveRange();
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @serializable
     public _minParticleDistance = 0.1;
@@ -380,7 +380,7 @@ export default class TrailModule {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _attachToScene () {
         if (this._trailModel) {
@@ -392,7 +392,7 @@ export default class TrailModule {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _detachFromScene () {
         if (this._trailModel && this._trailModel.scene) {

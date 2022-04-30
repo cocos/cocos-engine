@@ -269,18 +269,18 @@ void Model::createBoundingShape(const cc::optional<Vec3> &minPos, const cc::opti
     }
 
     if (!_modelBounds) {
-        _modelBounds = new geometry::AABB();
+        _modelBounds = ccnew geometry::AABB();
     }
     geometry::AABB::fromPoints(minPos.value(), maxPos.value(), _modelBounds);
 
     if (!_worldBounds) {
-        _worldBounds = new geometry::AABB();
+        _worldBounds = ccnew geometry::AABB();
     }
     geometry::AABB::fromPoints(minPos.value(), maxPos.value(), _worldBounds);
 }
 
 SubModel *Model::createSubModel() {
-    return new SubModel();
+    return ccnew SubModel();
 }
 
 void Model::initSubModel(index_t idx, cc::RenderingSubMesh *subMeshData, Material *mat) {
@@ -357,24 +357,21 @@ void Model::updateLightingmap(Texture2D *texture, const Vec4 &uvParam) {
     }
 }
 
-ccstd::vector<IMacroPatch> &Model::getMacroPatches(index_t subModelIndex) {
+ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
-            _eventProcessor.emit(EventTypesToJS::MODEL_GET_MACRO_PATCHES, subModelIndex, &_macroPatches);
+            ccstd::vector<IMacroPatch> macroPatches;
+            _eventProcessor.emit(EventTypesToJS::MODEL_GET_MACRO_PATCHES, subModelIndex, &macroPatches);
             _isCalledFromJS = false;
-            return _macroPatches;
+            return macroPatches;
         }
     }
 
     if (_receiveShadow) {
-        for (const auto &patch : SHADOW_MAP_PATCHES) {
-            _macroPatches.emplace_back(patch);
-        }
-    } else {
-        _macroPatches.clear();
+        return SHADOW_MAP_PATCHES;
     }
 
-    return _macroPatches;
+    return {};
 }
 
 void Model::updateAttributesAndBinding(index_t subModelIndex) {

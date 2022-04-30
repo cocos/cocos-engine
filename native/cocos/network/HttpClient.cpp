@@ -101,8 +101,8 @@ void HttpClient::networkThread() {
         // step 2: libcurl sync access
 
         // Create a HttpResponse object, the default setting is http access failed
-        HttpResponse *response = new (std::nothrow) HttpResponse(request);
-        response->addRef(); // NOTE: RefCounted object's reference count is changed to 0 now. so needs to addRef after new.
+        HttpResponse *response = ccnew HttpResponse(request);
+        response->addRef(); // NOTE: RefCounted object's reference count is changed to 0 now. so needs to addRef after ccnew.
 
         processResponse(response, _responseMessage);
 
@@ -307,7 +307,7 @@ static int processDeleteTask(HttpClient *client, HttpRequest *request, write_cal
 // HttpClient implementation
 HttpClient *HttpClient::getInstance() {
     if (_httpClient == nullptr) {
-        _httpClient = new (std::nothrow) HttpClient();
+        _httpClient = ccnew HttpClient();
     }
 
     return _httpClient;
@@ -361,7 +361,7 @@ HttpClient::HttpClient()
   _timeoutForRead(60),
   _threadCount(0),
   _cookie(nullptr),
-  _requestSentinel(new HttpRequest()) {
+  _requestSentinel(ccnew HttpRequest()) {
     CC_LOG_DEBUG("In the constructor of HttpClient!");
     memset(_responseMessage, 0, RESPONSE_BUFFER_SIZE * sizeof(char));
     _scheduler = CC_CURRENT_ENGINE()->getScheduler();
@@ -413,8 +413,8 @@ void HttpClient::sendImmediate(HttpRequest *request) {
 
     request->addRef();
     // Create a HttpResponse object, the default setting is http access failed
-    HttpResponse *response = new (std::nothrow) HttpResponse(request);
-    response->addRef(); // NOTE: RefCounted object's reference count is changed to 0 now. so needs to addRef after new.
+    HttpResponse *response = ccnew HttpResponse(request);
+    response->addRef(); // NOTE: RefCounted object's reference count is changed to 0 now. so needs to addRef after ccnew.
 
     auto t = std::thread(&HttpClient::networkThreadAlone, this, request, response);
     t.detach();
@@ -538,26 +538,6 @@ void HttpClient::decreaseThreadCountAndMayDeleteThis() {
     if (needDeleteThis) {
         delete this;
     }
-}
-
-void HttpClient::setTimeoutForConnect(int value) {
-    std::lock_guard<std::mutex> lock(_timeoutForConnectMutex);
-    _timeoutForConnect = value;
-}
-
-int HttpClient::getTimeoutForConnect() {
-    std::lock_guard<std::mutex> lock(_timeoutForConnectMutex);
-    return _timeoutForConnect;
-}
-
-void HttpClient::setTimeoutForRead(int value) {
-    std::lock_guard<std::mutex> lock(_timeoutForReadMutex);
-    _timeoutForRead = value;
-}
-
-int HttpClient::getTimeoutForRead() {
-    std::lock_guard<std::mutex> lock(_timeoutForReadMutex);
-    return _timeoutForRead;
 }
 
 const ccstd::string &HttpClient::getCookieFilename() {

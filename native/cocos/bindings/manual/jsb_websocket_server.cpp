@@ -63,7 +63,7 @@ static bool WebSocketServer_constructor(se::State &s) {
     int         argc = (int)args.size();
     if (argc == 0) {
         se::Object *obj  = s.thisObject();
-        WSSPTR      cobj = new std::shared_ptr<WebSocketServer>(new WebSocketServer());
+        WSSPTR      cobj = ccnew std::shared_ptr<WebSocketServer>(ccnew WebSocketServer());
         obj->setPrivateData(cobj);
         (*cobj)->setData(obj);
 
@@ -182,7 +182,7 @@ static bool WebSocketServer_onconnection(se::State &s) {
         }
 
         se::Object *obj = se::Object::createObjectWithClass(__jsb_WebSocketServer_Connection_class);
-        WSCONNPTR   prv = new std::shared_ptr<WebSocketServerConnection>(conn);
+        WSCONNPTR   prv = ccnew std::shared_ptr<WebSocketServerConnection>(conn);
         // a connection is dead only if no reference & closed!
         obj->root();
         obj->setPrivateData(prv);
@@ -194,7 +194,7 @@ static bool WebSocketServer_onconnection(se::State &s) {
             if (ptr) {
                 se::Object *sobj = (se::Object *)ptr->getData();
                 sobj->unroot();
-                assert(obj == sobj);
+                CC_ASSERT(obj == sobj);
             }
         });
         se::ValueArray args;
@@ -416,12 +416,12 @@ static bool WebSocketServer_Connection_send(se::State &s) {
                 ok = dataObj->getTypedArrayData(&ptr, &length);
                 SE_PRECONDITION2(ok, false, "getTypedArrayData failed!");
             } else {
-                assert(false);
+                CC_ASSERT(false);
             }
 
             (*cobj)->sendBinaryAsync(ptr, (unsigned int)length, callback);
         } else {
-            assert(false);
+            CC_ASSERT(false);
         }
 
         return true;

@@ -42,7 +42,7 @@ GLES3PipelineLayout::~GLES3PipelineLayout() {
 }
 
 void GLES3PipelineLayout::doInit(const PipelineLayoutInfo & /*info*/) {
-    _gpuPipelineLayout = CC_NEW(GLES3GPUPipelineLayout);
+    _gpuPipelineLayout = ccnew GLES3GPUPipelineLayout;
 
     uint32_t offset = 0U;
     _gpuPipelineLayout->dynamicOffsetIndices.resize(_setLayouts.size());
@@ -67,10 +67,7 @@ void GLES3PipelineLayout::doInit(const PipelineLayoutInfo & /*info*/) {
 }
 
 void GLES3PipelineLayout::doDestroy() {
-    if (_gpuPipelineLayout) {
-        CC_DELETE(_gpuPipelineLayout);
-        _gpuPipelineLayout = nullptr;
-    }
+    CC_SAFE_DELETE(_gpuPipelineLayout);
 }
 
 } // namespace gfx

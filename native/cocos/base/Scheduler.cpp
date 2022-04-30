@@ -33,6 +33,7 @@
 #include <climits>
 #include "base/Log.h"
 #include "base/Macros.h"
+#include "base/memory/Memory.h"
 
 namespace {
 constexpr unsigned CC_REPEAT_FOREVER{UINT_MAX - 1};
@@ -140,7 +141,7 @@ void Scheduler::removeHashElement(HashTimerEntry *element) {
         element->timers.clear();
 
         _hashForTimers.erase(element->target);
-        free(element);
+        delete element;
     }
 }
 
@@ -155,7 +156,7 @@ void Scheduler::schedule(const ccSchedulerFunc &callback, void *target, float in
     auto            iter    = _hashForTimers.find(target);
     HashTimerEntry *element = nullptr;
     if (iter == _hashForTimers.end()) {
-        element         = new HashTimerEntry();
+        element         = ccnew HashTimerEntry();
         element->target = target;
 
         _hashForTimers[target] = element;
@@ -180,7 +181,7 @@ void Scheduler::schedule(const ccSchedulerFunc &callback, void *target, float in
         }
     }
 
-    auto *timer = new (std::nothrow) TimerTargetCallback();
+    auto *timer = ccnew TimerTargetCallback();
     timer->addRef();
     timer->initWithCallback(this, callback, target, key, interval, repeat, delay);
     element->timers.emplace_back(timer);

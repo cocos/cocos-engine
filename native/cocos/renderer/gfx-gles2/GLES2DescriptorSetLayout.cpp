@@ -40,7 +40,7 @@ GLES2DescriptorSetLayout::~GLES2DescriptorSetLayout() {
 }
 
 void GLES2DescriptorSetLayout::doInit(const DescriptorSetLayoutInfo & /*info*/) {
-    _gpuDescriptorSetLayout                    = CC_NEW(GLES2GPUDescriptorSetLayout);
+    _gpuDescriptorSetLayout                    = ccnew GLES2GPUDescriptorSetLayout;
     _gpuDescriptorSetLayout->descriptorCount   = _descriptorCount;
     _gpuDescriptorSetLayout->bindingIndices    = _bindingIndices;
     _gpuDescriptorSetLayout->descriptorIndices = _descriptorIndices;
@@ -56,10 +56,7 @@ void GLES2DescriptorSetLayout::doInit(const DescriptorSetLayoutInfo & /*info*/) 
 }
 
 void GLES2DescriptorSetLayout::doDestroy() {
-    if (_gpuDescriptorSetLayout) {
-        CC_DELETE(_gpuDescriptorSetLayout);
-        _gpuDescriptorSetLayout = nullptr;
-    }
+    CC_SAFE_DELETE(_gpuDescriptorSetLayout);
 }
 
 } // namespace gfx

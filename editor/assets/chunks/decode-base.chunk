@@ -1,5 +1,8 @@
 // Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
+#pragma define-meta USE_INSTANCING editor(elevated: true)
+#pragma define-meta USE_BATCHING editor(elevated: true)
+
 #include <common>
 
 struct StandardVertInput {
@@ -13,7 +16,24 @@ layout(location = 1) in vec3 a_normal;
 layout(location = 2) in vec2 a_texCoord;
 layout(location = 3) in vec4 a_tangent;
 
+#if CC_USE_SKINNING
+  #if __VERSION__ > 310
+    // strictly speaking this should be u16vec4, but due to poor driver support
+    // somehow it seems we can get better results on many platforms using u32vec4
+    layout(location = 4) in u32vec4 a_joints;
+  #else
+    #pragma format(RGBA16UI)
+    layout(location = 4) in vec4 a_joints;
+  #endif
+
+  layout(location = 5) in vec4 a_weights;
+#endif
+
+
 #if USE_INSTANCING
+  #if CC_USE_BAKED_ANIMATION
+    in highp vec4 a_jointAnimInfo; // frameID, totalJoints, offset
+  #endif
   in vec4 a_matWorld0;
   in vec4 a_matWorld1;
   in vec4 a_matWorld2;
@@ -38,17 +58,4 @@ layout(location = 3) in vec4 a_tangent;
       return gl_VertexIndex; // vulkan convension
     }
   #endif
-#endif
-
-#if CC_USE_SKINNING
-  #if __VERSION__ > 310
-    // strictly speaking this should be u16vec4, but due to poor driver support
-    // somehow it seems we can get better results on many platforms using u32vec4
-    layout(location = 4) in u32vec4 a_joints;
-  #else
-    #pragma format(RGBA16UI)
-    layout(location = 4) in vec4 a_joints;
-  #endif
-
-  layout(location = 5) in vec4 a_weights;
 #endif

@@ -26,7 +26,7 @@
 ****************************************************************************/
 
 #include <memory>
-
+#include "base/memory/Memory.h"
 #include "network/Downloader.h"
 
 // include platform specific implement class
@@ -66,7 +66,7 @@ Downloader::Downloader() {
             6,
             45,
             ".tmp"};
-    new (this) Downloader(hints);
+    ccnew_placement(this) Downloader(hints);
 }
 
 Downloader::Downloader(const DownloaderHints &hints) {
@@ -113,7 +113,7 @@ Downloader::~Downloader() {
 }
 
 std::shared_ptr<const DownloadTask> Downloader::createDownloadDataTask(const ccstd::string &srcUrl, const ccstd::string &identifier /* = ""*/) {
-    auto *                              iTask = new (std::nothrow) DownloadTask();
+    auto *                              iTask = ccnew DownloadTask();
     std::shared_ptr<const DownloadTask> task(iTask);
     do {
         iTask->requestURL = srcUrl;
@@ -135,7 +135,7 @@ std::shared_ptr<const DownloadTask> Downloader::createDownloadFileTask(const ccs
                                                                        const ccstd::string &                                     storagePath,
                                                                        const ccstd::unordered_map<ccstd::string, ccstd::string> &header,
                                                                        const ccstd::string &                                     identifier /* = ""*/) {
-    auto *                              iTask = new (std::nothrow) DownloadTask();
+    auto *                              iTask = ccnew DownloadTask();
     std::shared_ptr<const DownloadTask> task(iTask);
     do {
         iTask->requestURL  = srcUrl;

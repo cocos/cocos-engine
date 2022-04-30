@@ -38,7 +38,7 @@ CCWGPUShader::CCWGPUShader() : wrapper<Shader>(val::object()) {
 }
 
 void CCWGPUShader::initialize(const SPVShaderInfoInstance &spvInfo) {
-    _gpuShaderObject       = CC_NEW(CCWGPUShaderObject);
+    _gpuShaderObject       = ccnew CCWGPUShaderObject;
     const ShaderInfo &info = spvInfo.info;
 
     _name            = info.name;
@@ -91,7 +91,7 @@ void CCWGPUShader::doDestroy() {
         if (_gpuShaderObject->wgpuShaderComputeModule) {
             wgpuShaderModuleRelease(_gpuShaderObject->wgpuShaderComputeModule);
         }
-        CC_DELETE(_gpuShaderObject);
+        delete _gpuShaderObject;
     }
 }
 

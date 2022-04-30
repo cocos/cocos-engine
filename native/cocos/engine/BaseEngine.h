@@ -109,6 +109,8 @@ public:
      @brief Get engine scheduler.
      */
     virtual SchedulerPtr getScheduler() const = 0;
+
+    virtual bool isInited() const = 0;
 };
 
 } // namespace cc

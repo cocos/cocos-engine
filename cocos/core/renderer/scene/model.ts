@@ -30,7 +30,7 @@ import { RenderingSubMesh } from '../../assets/rendering-sub-mesh';
 import { AABB } from '../../geometry/aabb';
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
-import { RenderScene } from './render-scene';
+import { RenderScene } from '../core/render-scene';
 import { Texture2D } from '../../assets/texture-2d';
 import { SubModel } from './submodel';
 import { Pass, IMacroPatch, BatchingSchemes } from '../core/pass';

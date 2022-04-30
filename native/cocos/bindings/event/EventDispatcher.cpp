@@ -138,7 +138,7 @@ void EventDispatcher::dispatchTouchEvent(const TouchEvent &touchEvent) {
             eventName = "onTouchCancel";
             break;
         default:
-            assert(false);
+            CC_ASSERT(false);
             break;
     }
 
@@ -189,7 +189,7 @@ void EventDispatcher::dispatchMouseEvent(const MouseEvent &mouseEvent) {
             jsFunctionName = "onMouseWheel";
             break;
         default:
-            assert(false);
+            CC_ASSERT(false);
             break;
     }
 
@@ -215,7 +215,7 @@ void EventDispatcher::dispatchKeyboardEvent(const KeyboardEvent &keyboardEvent) 
             eventName = "onKeyUp";
             break;
         default:
-            assert(false);
+            CC_ASSERT(false);
             break;
     }
 
@@ -271,7 +271,7 @@ void EventDispatcher::dispatchOrientationChangeEvent(int orientation) {
     }
 
     se::AutoHandleScope scope;
-    assert(inited);
+    CC_ASSERT(inited);
 
     if (jsOrientationEventObj == nullptr) {
         jsOrientationEventObj = se::Object::createPlainObject();
@@ -337,7 +337,7 @@ void EventDispatcher::doDispatchEvent(const char *eventName, const char *jsFunct
     }
 
     se::AutoHandleScope scope;
-    assert(inited);
+    CC_ASSERT(inited);
 
     se::Value func;
     __jsbObj->getProperty(jsFunctionName, &func);
@@ -347,7 +347,7 @@ void EventDispatcher::doDispatchEvent(const char *eventName, const char *jsFunct
 }
 
 uint32_t EventDispatcher::addCustomEventListener(const ccstd::string &eventName, const CustomEventListener &listener) {
-    Node *newNode       = new Node();
+    Node *newNode       = ccnew Node();
     newNode->listener   = listener;
     newNode->listenerID = hashListenerId;
     newNode->next       = nullptr;
@@ -357,7 +357,7 @@ uint32_t EventDispatcher::addCustomEventListener(const ccstd::string &eventName,
         listeners.emplace(eventName, newNode);
     } else {
         Node *node = iter->second;
-        assert(node != nullptr);
+        CC_ASSERT(node != nullptr);
         Node *prev = nullptr;
         while (node != nullptr) {
             prev = node;

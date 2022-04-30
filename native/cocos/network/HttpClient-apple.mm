@@ -68,7 +68,7 @@ void HttpClient::networkThread() {
             }
 
             // Create a HttpResponse object, the default setting is http access failed
-            HttpResponse *response = new (std::nothrow) HttpResponse(request);
+            HttpResponse *response = ccnew HttpResponse(request);
             response->addRef();
 
             processResponse(response, _responseMessage);
@@ -274,7 +274,7 @@ static int processTask(HttpClient *client, HttpRequest *request, NSString *reque
 // HttpClient implementation
 HttpClient *HttpClient::getInstance() {
     if (_httpClient == nullptr) {
-        _httpClient = new (std::nothrow) HttpClient();
+        _httpClient = ccnew HttpClient();
     }
 
     return _httpClient;
@@ -319,7 +319,7 @@ void HttpClient::enableCookies(const char *cookieFile) {
     _cookieFileMutex.unlock();
 
     if (nullptr == _cookie) {
-        _cookie = new (std::nothrow) HttpCookie;
+        _cookie = ccnew HttpCookie;
     }
     _cookie->setCookieFileName(_cookieFilename);
     _cookie->readFile();
@@ -337,7 +337,7 @@ HttpClient::HttpClient()
   _threadCount(0),
   _cookie(nullptr) {
     CC_LOG_DEBUG("In the constructor of HttpClient!");
-    _requestSentinel = new HttpRequest();
+    _requestSentinel = ccnew HttpRequest();
     _requestSentinel->addRef();
     memset(_responseMessage, 0, sizeof(char) * RESPONSE_BUFFER_SIZE);
       _scheduler = CC_CURRENT_ENGINE()->getScheduler();
@@ -393,8 +393,8 @@ void HttpClient::sendImmediate(HttpRequest *request) {
 
     request->addRef();
     // Create a HttpResponse object, the default setting is http access failed
-    HttpResponse *response = new (std::nothrow) HttpResponse(request);
-    response->addRef(); // NOTE: RefCounted object's reference count is changed to 0 now. so needs to addRef after new.
+    HttpResponse *response = ccnew HttpResponse(request);
+    response->addRef(); // NOTE: RefCounted object's reference count is changed to 0 now. so needs to addRef after ccnew.
 
     auto t = std::thread(&HttpClient::networkThreadAlone, this, request, response);
     t.detach();
@@ -497,26 +497,6 @@ void HttpClient::decreaseThreadCountAndMayDeleteThis() {
     if (needDeleteThis) {
         delete this;
     }
-}
-
-void HttpClient::setTimeoutForConnect(int value) {
-    std::lock_guard<std::mutex> lock(_timeoutForConnectMutex);
-    _timeoutForConnect = value;
-}
-
-int HttpClient::getTimeoutForConnect() {
-    std::lock_guard<std::mutex> lock(_timeoutForConnectMutex);
-    return _timeoutForConnect;
-}
-
-void HttpClient::setTimeoutForRead(int value) {
-    std::lock_guard<std::mutex> lock(_timeoutForReadMutex);
-    _timeoutForRead = value;
-}
-
-int HttpClient::getTimeoutForRead() {
-    std::lock_guard<std::mutex> lock(_timeoutForReadMutex);
-    return _timeoutForRead;
 }
 
 const ccstd::string &HttpClient::getCookieFilename() {

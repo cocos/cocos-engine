@@ -137,7 +137,7 @@ void MessageQueue::terminateConsumerThread() noexcept {
 
     ReaderContext *const pR = &_reader;
 
-    new (allocate<TerminateConsumerThreadMessage>(1)) TerminateConsumerThreadMessage(pEvent, pR);
+    ccnew_placement (allocate<TerminateConsumerThreadMessage>(1)) TerminateConsumerThreadMessage(pEvent, pR);
 
     kick();
     event.wait();
@@ -180,7 +180,7 @@ uint8_t *MessageQueue::allocateImpl(uint32_t allocatedSize, uint32_t const reque
     }
     uint8_t *const newChunk      = MessageQueue::MemoryAllocator::getInstance().request();
     auto *const    switchMessage = reinterpret_cast<MemoryChunkSwitchMessage *>(_writer.currentMemoryChunk + _writer.offset);
-    new (switchMessage) MemoryChunkSwitchMessage(this, newChunk, _writer.currentMemoryChunk);
+    ccnew_placement (switchMessage) MemoryChunkSwitchMessage(this, newChunk, _writer.currentMemoryChunk);
     switchMessage->_next = reinterpret_cast<Message *>(newChunk); // point to start position
     _writer.lastMessage  = switchMessage;
     ++_writer.pendingMessageCount;
@@ -188,12 +188,12 @@ uint8_t *MessageQueue::allocateImpl(uint32_t allocatedSize, uint32_t const reque
     _writer.offset             = 0;
 
     DummyMessage *const head = allocate<DummyMessage>(1);
-    new (head) DummyMessage;
+    ccnew_placement (head) DummyMessage;
 
     if (_immediateMode) {
         pushMessages();
         pullMessages();
-        assert(_reader.newMessageCount == 2);
+        CC_ASSERT(_reader.newMessageCount == 2);
         executeMessages();
         executeMessages();
     }
@@ -244,7 +244,7 @@ Message *MessageQueue::readMessage() noexcept {
     Message *const msg  = _reader.lastMessage->getNext();
     _reader.lastMessage = msg;
     --_reader.newMessageCount;
-    assert(msg);
+    CC_ASSERT(msg);
     return msg;
 }
 

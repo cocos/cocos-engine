@@ -1,0 +1,105 @@
+function __initApp () {  // init app
+require('./libs/wrapper/builtin/index');
+const firstScreen = require('./first-screen');
+window.DOMParser = require('./libs/common/xmldom/dom-parser').DOMParser;
+window.__globalAdapter = {};
+require('./libs/wrapper/unify');
+require('./libs/wrapper/fs-utils');
+
+<%- include(cocosTemplate, {}) %>
+
+// Adapt for IOS, swap if opposite
+if (canvas){
+    var _w = canvas.width;
+    var _h = canvas.height;
+    if (screen.width < screen.height) {
+        if (canvas.width > canvas.height) {
+            _w = canvas.height;
+            _h = canvas.width;
+        }
+    } else {
+        if (canvas.width < canvas.height) {
+            _w = canvas.height;
+            _h = canvas.width;
+        }
+    }
+    canvas.width = _w;
+    canvas.height = _h;
+}
+// Adjust initial canvas size
+if (canvas && window.devicePixelRatio >= 2) {canvas.width *= 2; canvas.height *= 2;}
+
+const importMap = require("<%= importMapFile%>").default;
+System.warmup({
+    importMap,
+    importMapUrl: '<%= importMapFile%>',
+    defaultHandler: (urlNoSchema) => {
+        require('.' + urlNoSchema);
+    },
+    handlers: {
+        'plugin:': (urlNoSchema) => {
+            requirePlugin(urlNoSchema);
+        },
+    },
+});
+
+/**
+ * Fetch WebAssembly binaries.
+ * 
+ * Whereas WeChat expects the argument passed to `WebAssembly.instantiate`
+ * to be file path and the path should be relative from project's root dir,
+ * we do the path conversion and directly return the converted path.
+ * 
+ * @param path The path to `.wasm` file **relative from engine's out dir**(no leading `./`).
+ * See 'assetURLFormat' field of build engine options.
+ */
+function fetchWasm(path) {
+    const engineDir = '<%-engineDir%>'; // Relative from project out
+    return `${engineDir}/${path}`;
+}
+firstScreen.start('<%= alpha %>', '<%= antialias %>', '<%= useWebgl2 %>').then(() => {
+    return System.import('<%= applicationJs %>');
+}).then((module) => {
+    return firstScreen.setProgress(0.2).then(() => Promise.resolve(module));
+}).then(({ createApplication }) => {
+    return createApplication({
+        loadJsListFile: (url) => require(url),
+        fetchWasm,
+    });
+}).then((application) => {
+    return firstScreen.setProgress(0.4).then(() => Promise.resolve(application));
+}).then((application) => {
+    return onApplicationCreated(application);
+}).catch((err) => {
+    console.error(err);
+});
+
+function onApplicationCreated(application) {
+    return application.import('cc').then((module) => {
+        return firstScreen.setProgress(0.6).then(() => Promise.resolve(module));
+    }).then((cc) => {
+        require('./libs/common/engine/index.js');
+        require('./libs/wrapper/engine/index');
+        require('./libs/common/cache-manager.js');
+        // Adjust devicePixelRatio
+        cc.view._maxPixelRatio = 4;
+        // Release Image objects after uploaded gl texture
+        cc.macro.CLEANUP_IMAGE_CACHE = false;
+        return firstScreen.end().then(() => application.start({
+            findCanvas: () => {
+                var container = document.createElement('div');
+                return { frame: container, canvas: window.canvas, container };
+            },
+        }));
+    });
+}
+
+}  // init app
+
+// NOTE: on WeChat Android end, we can only get the correct screen size at the second tick of game.
+var sysInfo = wx.getSystemInfoSync();
+if (sysInfo.platform.toLocaleLowerCase() === 'android') {
+    GameGlobal.requestAnimationFrame (__initApp);
+} else {
+    __initApp();
+}

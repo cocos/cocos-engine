@@ -30,6 +30,7 @@
 #include <thread>
 #include "base/Log.h"
 #include "base/Utils.h"
+#include "base/memory/Memory.h"
 #include "base/std/container/queue.h"
 #include "platform/FileUtils.h"
 
@@ -169,7 +170,7 @@ void AudioEngine::end() {
 
 bool AudioEngine::lazyInit() {
     if (sAudioEngineImpl == nullptr) {
-        sAudioEngineImpl = new (std::nothrow) AudioEngineImpl();
+        sAudioEngineImpl = ccnew AudioEngineImpl();
         if (!sAudioEngineImpl || !sAudioEngineImpl->init()) {
             delete sAudioEngineImpl;
             sAudioEngineImpl = nullptr;
@@ -181,7 +182,7 @@ bool AudioEngine::lazyInit() {
 
 #if (CC_PLATFORM != CC_PLATFORM_ANDROID)
     if (sAudioEngineImpl && sThreadPool == nullptr) {
-        sThreadPool = new (std::nothrow) AudioEngineThreadPool();
+        sThreadPool = ccnew AudioEngineThreadPool();
     }
 #endif
 
@@ -530,7 +531,7 @@ AudioProfile *AudioEngine::getProfile(int audioID) {
 
 AudioProfile *AudioEngine::getDefaultProfile() {
     if (sDefaultProfileHelper == nullptr) {
-        sDefaultProfileHelper = new (std::nothrow) ProfileHelper();
+        sDefaultProfileHelper = ccnew ProfileHelper();
     }
 
     return &sDefaultProfileHelper->profile;

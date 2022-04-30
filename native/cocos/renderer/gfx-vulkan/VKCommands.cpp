@@ -47,7 +47,7 @@ constexpr bool ENABLE_LAZY_ALLOCATION = true;
 CCVKGPUCommandBufferPool *CCVKGPUDevice::getCommandBufferPool() {
     static thread_local size_t threadID = std::hash<std::thread::id>{}(std::this_thread::get_id());
     if (!_commandBufferPools.count(threadID)) {
-        _commandBufferPools[threadID] = CC_NEW(CCVKGPUCommandBufferPool(this));
+        _commandBufferPools[threadID] = ccnew CCVKGPUCommandBufferPool(this);
     }
     return _commandBufferPools[threadID];
 }
@@ -421,8 +421,13 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
         VkSampleCountFlagBits sampleCount = VK_SAMPLE_COUNT_1_BIT;
 
         for (uint32_t input : subpassInfo.inputs) {
-            VkImageLayout layout = gpuRenderPass->colorAttachments[input].isGeneralLayout ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            attachmentReferences.push_back({VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2, nullptr, input, layout, VK_IMAGE_ASPECT_COLOR_BIT});
+            if (input == gpuRenderPass->colorAttachments.size()) {
+                VkImageLayout layout = gpuRenderPass->depthStencilAttachment.isGeneralLayout ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+                attachmentReferences.push_back({VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2, nullptr, input, layout, VK_IMAGE_ASPECT_DEPTH_BIT});
+            } else {
+                VkImageLayout layout = gpuRenderPass->colorAttachments[input].isGeneralLayout ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                attachmentReferences.push_back({VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2, nullptr, input, layout, VK_IMAGE_ASPECT_COLOR_BIT});
+            }
         }
         for (uint32_t color : subpassInfo.colors) {
             const ColorAttachment &         desc       = gpuRenderPass->colorAttachments[color];
@@ -1498,49 +1503,49 @@ void CCVKGPURecycleBin::clear() {
             case RecycledType::QUERY_POOL:
                 if (res.gpuQueryPool) {
                     cmdFuncCCVKDestroyQueryPool(_device, res.gpuQueryPool);
-                    CC_DELETE(res.gpuQueryPool);
+                    delete res.gpuQueryPool;
                     res.gpuQueryPool = nullptr;
                 }
                 break;
             case RecycledType::RENDER_PASS:
                 if (res.gpuRenderPass) {
                     cmdFuncCCVKDestroyRenderPass(_device, res.gpuRenderPass);
-                    CC_DELETE(res.gpuRenderPass);
+                    delete res.gpuRenderPass;
                     res.gpuRenderPass = nullptr;
                 }
                 break;
             case RecycledType::SAMPLER:
                 if (res.gpuSampler) {
                     cmdFuncCCVKDestroySampler(_device, res.gpuSampler);
-                    CC_DELETE(res.gpuSampler);
+                    delete res.gpuSampler;
                     res.gpuSampler = nullptr;
                 }
                 break;
             case RecycledType::SHADER:
                 if (res.gpuShader) {
                     cmdFuncCCVKDestroyShader(_device, res.gpuShader);
-                    CC_DELETE(res.gpuShader);
+                    delete res.gpuShader;
                     res.gpuShader = nullptr;
                 }
                 break;
             case RecycledType::DESCRIPTOR_SET_LAYOUT:
                 if (res.gpuDescriptorSetLayout) {
                     cmdFuncCCVKDestroyDescriptorSetLayout(_device, res.gpuDescriptorSetLayout);
-                    CC_DELETE(res.gpuDescriptorSetLayout);
+                    delete res.gpuDescriptorSetLayout;
                     res.gpuDescriptorSetLayout = nullptr;
                 }
                 break;
             case RecycledType::PIPELINE_LAYOUT:
                 if (res.gpuPipelineLayout) {
                     cmdFuncCCVKDestroyPipelineLayout(_device, res.gpuPipelineLayout);
-                    CC_DELETE(res.gpuPipelineLayout);
+                    delete res.gpuPipelineLayout;
                     res.gpuPipelineLayout = nullptr;
                 }
                 break;
             case RecycledType::PIPELINE_STATE:
                 if (res.gpuPipelineState) {
                     cmdFuncCCVKDestroyPipelineState(_device, res.gpuPipelineState);
-                    CC_DELETE(res.gpuPipelineState);
+                    delete res.gpuPipelineState;
                     res.gpuPipelineState = nullptr;
                 }
                 break;

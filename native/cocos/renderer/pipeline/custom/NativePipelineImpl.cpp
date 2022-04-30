@@ -44,7 +44,7 @@ namespace cc {
 namespace render {
 
 NativePipeline::NativePipeline() noexcept
-: device(gfx::Device::getInstance()), globalDSManager(std::make_unique<pipeline::GlobalDSManager>()), pipelineSceneData(new pipeline::PipelineSceneData()) // NOLINT
+: device(gfx::Device::getInstance()), globalDSManager(std::make_unique<pipeline::GlobalDSManager>()), pipelineSceneData(ccnew pipeline::PipelineSceneData()) // NOLINT
 {
 }
 

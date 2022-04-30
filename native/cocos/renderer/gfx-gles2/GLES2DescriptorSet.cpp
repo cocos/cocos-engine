@@ -52,7 +52,7 @@ void GLES2DescriptorSet::doInit(const DescriptorSetInfo & /*info*/) {
     _textures.resize(descriptorCount);
     _samplers.resize(descriptorCount);
 
-    _gpuDescriptorSet = CC_NEW(GLES2GPUDescriptorSet);
+    _gpuDescriptorSet = ccnew GLES2GPUDescriptorSet;
     _gpuDescriptorSet->gpuDescriptors.resize(descriptorCount);
     for (size_t i = 0U, k = 0U; i < bindingCount; i++) {
         const DescriptorSetLayoutBinding &binding = gpuDescriptorSetLayout->bindings[i];
@@ -65,10 +65,7 @@ void GLES2DescriptorSet::doInit(const DescriptorSetInfo & /*info*/) {
 }
 
 void GLES2DescriptorSet::doDestroy() {
-    if (_gpuDescriptorSet) {
-        CC_DELETE(_gpuDescriptorSet);
-        _gpuDescriptorSet = nullptr;
-    }
+    CC_SAFE_DELETE(_gpuDescriptorSet);
 }
 
 void GLES2DescriptorSet::update() {

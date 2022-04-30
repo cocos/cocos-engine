@@ -25,14 +25,14 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
-    #include "platform/win32/FileUtils-win32.h"
-    #include <Shlobj.h>
-    #include <cstdlib>
-    #include <regex>
-    #include <sstream>
-    #include "base/Log.h"
-    #include "platform/win32/Utils-win32.h"
+#include "platform/win32/FileUtils-win32.h"
+#include <Shlobj.h>
+#include <cstdlib>
+#include <regex>
+#include <sstream>
+#include "base/Log.h"
+#include "base/memory/Memory.h"
+#include "platform/win32/Utils-win32.h"
 
 using namespace std;
 
@@ -74,7 +74,7 @@ static void _checkPath() {
 
 FileUtils *FileUtils::getInstance() {
     if (FileUtils::sharedFileUtils == nullptr) {
-        FileUtils::sharedFileUtils = new FileUtilsWin32();
+        FileUtils::sharedFileUtils = ccnew FileUtilsWin32();
         if (!FileUtils::sharedFileUtils->init()) {
             delete FileUtils::sharedFileUtils;
             FileUtils::sharedFileUtils = nullptr;
@@ -363,5 +363,3 @@ bool FileUtilsWin32::removeDirectory(const ccstd::string &dirPath) {
 }
 
 } // namespace cc
-
-#endif // CC_PLATFORM == CC_PLATFORM_WINDOWS

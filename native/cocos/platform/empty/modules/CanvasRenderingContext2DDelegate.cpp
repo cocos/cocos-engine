@@ -92,10 +92,10 @@ void CanvasRenderingContext2DDelegate::updateFont(const ccstd::string &fontName,
                                                   bool /* smallCaps */) {
 }
 
-void CanvasRenderingContext2DDelegate::setTextAlign(CanvasTextAlign align) {
+void CanvasRenderingContext2DDelegate::setTextAlign(TextAlign align) {
 }
 
-void CanvasRenderingContext2DDelegate::setTextBaseline(CanvasTextBaseline baseline) {
+void CanvasRenderingContext2DDelegate::setTextBaseline(TextBaseline baseline) {
     _textBaseLine = baseline;
 }
 

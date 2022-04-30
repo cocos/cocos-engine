@@ -25,8 +25,9 @@
 
 #pragma once
 
-#include "cocos/base/Macros.h"
-#include "cocos/base/TypeDef.h"
+#include "base/Macros.h"
+#include "base/TypeDef.h"
+#include "base/memory/Memory.h"
 
 namespace cc {
 
@@ -41,7 +42,7 @@ private:
 public:
     static DummyJobSystem *getInstance() {
         if (!instance) {
-            instance = new DummyJobSystem;
+            instance = ccnew DummyJobSystem;
         }
         return instance;
     }

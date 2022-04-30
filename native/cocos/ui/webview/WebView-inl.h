@@ -39,7 +39,7 @@ static_assert(false, "WebView only supported on iOS & Android");
 namespace cc {
 
 WebView::WebView()
-: _impl(new WebViewImpl(this)),
+: _impl(ccnew WebViewImpl(this)),
   _onJSCallback(nullptr),
   _onShouldStartLoading(nullptr),
   _onDidFinishLoading(nullptr),
@@ -51,11 +51,10 @@ WebView::~WebView() {
 }
 
 WebView *WebView::create() {
-    auto webView = new (std::nothrow) WebView();
+    auto webView = ccnew WebView();
     if (webView) {
         return webView;
     }
-    CC_SAFE_DELETE(webView);
     return nullptr;
 }
 

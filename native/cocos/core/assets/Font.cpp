@@ -26,6 +26,7 @@
 #include "Font.h"
 #include <algorithm>
 #include <boost/functional/hash.hpp>
+#include <cctype>
 #include "base/Data.h"
 #include "base/Log.h"
 #include "base/Macros.h"

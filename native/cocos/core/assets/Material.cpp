@@ -103,12 +103,12 @@ void Material::doDestroy() {
 }
 
 void Material::recompileShaders(const MacroRecord & /*overrides*/, index_t /*passIdx*/) {
-    assert(false);
+    CC_ASSERT(false);
     CC_LOG_WARNING("Shaders in material asset '%s' cannot be modified at runtime, please instantiate the material first.", _name.c_str());
 }
 
 void Material::overridePipelineStates(const PassOverrides & /*overrides*/, index_t /*passIdx*/) {
-    assert(false);
+    CC_ASSERT(false);
     CC_LOG_WARNING("Pipeline states in material asset '%s' cannot be modified at runtime, please instantiate the material first.", _name.c_str());
 }
 
@@ -348,7 +348,7 @@ ccstd::vector<IntrusivePtr<scene::Pass>> Material::createPasses() {
             continue;
         }
 
-        auto *pass = new scene::Pass(Root::getInstance());
+        auto *pass = ccnew scene::Pass(Root::getInstance());
         pass->initialize(passInfo);
         passes.emplace_back(pass);
     }

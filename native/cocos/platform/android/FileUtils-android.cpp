@@ -33,6 +33,7 @@
 #include "android/asset_manager_jni.h"
 #include "base/Log.h"
 #include "base/ZipUtils.h"
+#include "base/memory/Memory.h"
 #include "platform/java/jni/JniHelper.h"
 #include "platform/java/jni/JniImp.h"
 
@@ -61,7 +62,7 @@ void FileUtilsAndroid::setassetmanager(AAssetManager *a) {
 
 FileUtils *FileUtils::getInstance() {
     if (FileUtils::sharedFileUtils == nullptr) {
-        FileUtils::sharedFileUtils = new FileUtilsAndroid();
+        FileUtils::sharedFileUtils = ccnew FileUtilsAndroid();
         if (!FileUtils::sharedFileUtils->init()) {
             delete FileUtils::sharedFileUtils;
             FileUtils::sharedFileUtils = nullptr;
@@ -85,7 +86,7 @@ bool FileUtilsAndroid::init() {
 
     ccstd::string assetsPath(getObbFilePathJNI());
     if (assetsPath.find("/obb/") != ccstd::string::npos) {
-        obbfile = new ZipFile(assetsPath);
+        obbfile = ccnew ZipFile(assetsPath);
     }
 
     return FileUtils::init();

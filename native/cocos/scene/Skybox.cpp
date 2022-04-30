@@ -24,12 +24,12 @@
  ****************************************************************************/
 
 #include "scene/Skybox.h"
-#include "3d/assets/Mesh.h"
 #include "3d/misc/CreateMesh.h"
 #include "cocos/bindings/event/CustomEventTypes.h"
 #include "cocos/bindings/event/EventDispatcher.h"
 #include "core/Root.h"
 #include "core/builtin/BuiltinResMgr.h"
+#include "core/platform/Debug.h"
 #include "core/scene-graph/SceneGlobals.h"
 #include "pipeline/GlobalDescriptorSetManager.h"
 #include "primitive/Primitive.h"
@@ -42,7 +42,6 @@
 #include "scene/Model.h"
 
 namespace {
-cc::Mesh *    skyboxMesh{nullptr}; // TODO(cjh): How to release ?
 cc::Material *skyboxMaterial{nullptr};
 } // namespace
 namespace cc {
@@ -70,16 +69,24 @@ void SkyboxInfo::setApplyDiffuseMap(bool val) const {
     }
 }
 void SkyboxInfo::setEnvLightingType(EnvironmentLightingType val) {
-    if (EnvironmentLightingType::HEMISPHERE_DIFFUSE == val) {
+    if (!getEnvmap() && EnvironmentLightingType::HEMISPHERE_DIFFUSE != val) {
         setUseIBL(false);
-    } else if (EnvironmentLightingType::AUTOGEN_HEMISPHERE_DIFFUSE_WITH_REFLECTION == val) {
-        setUseIBL(true);
         setApplyDiffuseMap(false);
-    } else if (EnvironmentLightingType::DIFFUSEMAP_WITH_REFLECTION == val) {
-        setUseIBL(true);
-        setApplyDiffuseMap(true);
+        _envLightingType = EnvironmentLightingType::HEMISPHERE_DIFFUSE;
+        debug::warnID(15001);
+    } else {
+        if (EnvironmentLightingType::HEMISPHERE_DIFFUSE == val) {
+            setUseIBL(false);
+            setApplyDiffuseMap(false);
+        } else if (EnvironmentLightingType::DIFFUSEMAP_WITH_REFLECTION == val) {
+            setUseIBL(true);
+            setApplyDiffuseMap(false);
+        } else if (EnvironmentLightingType::DIFFUSEMAP_WITH_REFLECTION == val) {
+            setUseIBL(true);
+            setApplyDiffuseMap(true);
+        }
+        _envLightingType = val;
     }
-    _envLightingType = val;
 }
 void SkyboxInfo::setUseHDR(bool val) {
     Root::getInstance()->getPipeline()->getPipelineSceneData()->setHDR(val);
@@ -90,8 +97,14 @@ void SkyboxInfo::setUseHDR(bool val) {
         setEnvmap(_resource->getEnvmap());
         setDiffuseMap(_resource->getDiffuseMap());
 
-        if (getDiffuseMap() == nullptr) {
-            setApplyDiffuseMap(false);
+        if (_envLightingType == EnvironmentLightingType::DIFFUSEMAP_WITH_REFLECTION) {
+            auto *diffuseMap = getDiffuseMap();
+            if (!diffuseMap) {
+                _envLightingType = EnvironmentLightingType::AUTOGEN_HEMISPHERE_DIFFUSE_WITH_REFLECTION;
+                debug::warnID(15000);
+            } else if (diffuseMap->isDefault()) {
+                debug::warnID(15002);
+            }
         }
     }
 
@@ -113,11 +126,16 @@ void SkyboxInfo::setEnvmap(TextureCube *val) {
         _envmapLDR = val;
     }
 
-    if (!_envmapHDR) {
-        _diffuseMapHDR = nullptr;
+    if (!val) {
+        if (isHDR) {
+            _diffuseMapHDR = nullptr;
+        } else {
+            _diffuseMapLDR = nullptr;
+        }
         setApplyDiffuseMap(false);
         setUseIBL(false);
         setEnvLightingType(EnvironmentLightingType::HEMISPHERE_DIFFUSE);
+        debug::warnID(15001);
     }
 
     if (_resource) {
@@ -238,15 +256,15 @@ void Skybox::activate() {
     bool  isRGBE = envmap != nullptr ? envmap->isRGBE : _default->isRGBE;
 
     if (!skyboxMaterial) {
-        auto *        mat = new Material();
-        MacroRecord   defines{{"USE_RGBE_CUBEMAP", isRGBE}};
-        IMaterialInfo matInfo;
+        auto *mat = ccnew Material();
+        MacroRecord       defines{{"USE_RGBE_CUBEMAP", isRGBE}};
+        IMaterialInfo     matInfo;
         matInfo.effectName = ccstd::string{"skybox"};
         matInfo.defines    = IMaterialInfo::DefinesType{defines};
         mat->initialize({matInfo});
         IMaterialInstanceInfo matInstInfo;
         matInstInfo.parent = mat;
-        skyboxMaterial     = new MaterialInstance(matInstInfo);
+        skyboxMaterial     = ccnew MaterialInstance(matInstInfo);
         skyboxMaterial->addRef();
         EventDispatcher::addCustomEventListener(EVENT_CLOSE, [](const CustomEvent & /*unused*/) {
             skyboxMaterial->release();
@@ -255,17 +273,18 @@ void Skybox::activate() {
     }
 
     if (_enabled) {
-        if (!skyboxMesh) {
+        if (!_mesh) {
             IBoxOptions options;
             options.width  = 2;
             options.height = 2;
             options.length = 2;
-            skyboxMesh     = MeshUtils::createMesh(
+
+            _mesh = MeshUtils::createMesh(
                 createGeometry(
                     PrimitiveType::BOX,
                     PrimitiveOptions{options}));
         }
-        _model->initSubModel(0, skyboxMesh->getRenderingSubMeshes()[0], skyboxMaterial);
+        _model->initSubModel(0, _mesh->getRenderingSubMeshes()[0], skyboxMaterial);
     }
 
     if (!getEnvmap()) {

@@ -81,7 +81,7 @@ void CCWGPUSwapchain::doInit(const SwapchainInfo &info) {
 
     CCWGPUDeviceObject *gpuDeviceObj = device->gpuDeviceObject();
     WGPUSwapChain       swapChain    = wgpuDeviceCreateSwapChain(gpuDeviceObj->wgpuDevice, surface, &swapChainDesc);
-    _gpuSwapchainObj                 = CC_NEW(CCWGPUSwapchainObject);
+    _gpuSwapchainObj                 = ccnew CCWGPUSwapchainObject;
     _gpuSwapchainObj->wgpuSwapChain  = swapChain;
     _gpuSwapchainObj->wgpuSurface    = surface;
 
@@ -92,10 +92,10 @@ void CCWGPUSwapchain::doInit(const SwapchainInfo &info) {
         .height    = info.height,
     };
 
-    _colorTexture = _gpuSwapchainObj->swapchainColor = CC_NEW(CCWGPUTexture);
+    _colorTexture = _gpuSwapchainObj->swapchainColor = ccnew CCWGPUTexture;
     initTexture(textureInfo, _gpuSwapchainObj->swapchainColor);
     textureInfo.format   = Format::DEPTH_STENCIL;
-    _depthStencilTexture = _gpuSwapchainObj->swapchainDepthStencil = CC_NEW(CCWGPUTexture);
+    _depthStencilTexture = _gpuSwapchainObj->swapchainDepthStencil = ccnew CCWGPUTexture;
     initTexture(textureInfo, _gpuSwapchainObj->swapchainDepthStencil);
 
     // TODO: wgpuInstance
@@ -109,9 +109,9 @@ void CCWGPUSwapchain::doDestroy() {
 
     CCWGPUDevice::getInstance()->unRegisterSwapchain(this);
 
-    CC_DELETE(_gpuSwapchainObj->swapchainColor);
-    CC_DELETE(_gpuSwapchainObj->swapchainDepthStencil);
-    CC_DELETE(_gpuSwapchainObj);
+    delete _gpuSwapchainObj->swapchainColor;
+    delete _gpuSwapchainObj->swapchainDepthStencil;
+    delete _gpuSwapchainObj;
 }
 
 void CCWGPUSwapchain::doResize(uint32_t width, uint32_t height, SurfaceTransform transform) {

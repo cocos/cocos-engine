@@ -271,7 +271,7 @@ void LightingStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
         uint                  phase    = convertPhase(descriptor.stages);
         RenderQueueSortFunc   sortFunc = convertQueueSortFunc(descriptor.sortMode);
         RenderQueueCreateInfo info     = {descriptor.isTransparent, phase, sortFunc};
-        _renderQueues.emplace_back(CC_NEW(RenderQueue(_pipeline, std::move(info), true)));
+        _renderQueues.emplace_back(ccnew RenderQueue(_pipeline, std::move(info), true));
     }
 
     // not use cluster shading, go normal deferred render path
@@ -287,14 +287,14 @@ void LightingStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
         initLightingBuffer();
     }
 
-    _planarShadowQueue = CC_NEW(PlanarShadowQueue(_pipeline));
+    _planarShadowQueue = ccnew PlanarShadowQueue(_pipeline);
 
     // create reflection resource
     RenderQueueCreateInfo info = {true, _reflectionPhaseID, transparentCompareFn};
-    _reflectionComp            = new ReflectionComp();
+    _reflectionComp            = ccnew ReflectionComp();
     _reflectionComp->init(_device, 8, 8);
 
-    _reflectionRenderQueue = CC_NEW(RenderQueue(_pipeline, std::move(info)));
+    _reflectionRenderQueue = ccnew RenderQueue(_pipeline, std::move(info));
 
     _defaultSampler = pipeline->getGlobalDSManager()->getPointSampler();
 }
@@ -322,6 +322,7 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
         framegraph::TextureHandle gbuffer[3]; // read from gbuffer stage
         framegraph::TextureHandle outputTex;  // output texture
         framegraph::TextureHandle depth;
+        framegraph::TextureHandle depthStencil;
         framegraph::BufferHandle  lightBuffer;      // light storage buffer
         framegraph::BufferHandle  lightIndexBuffer; // light index storage buffer
         framegraph::BufferHandle  lightGridBuffer;  // light grid storage buffer
@@ -344,7 +345,16 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
 
         data.depth = framegraph::TextureHandle(builder.readFromBlackboard(RenderPipeline::fgStrHandleOutDepthTexture));
         data.depth = builder.read(data.depth);
-        builder.writeToBlackboard(RenderPipeline::fgStrHandleOutDepthTexture, data.depth);
+
+        framegraph::RenderTargetAttachment::Descriptor depthInfo;
+        depthInfo.usage         = framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL;
+        depthInfo.loadOp        = gfx::LoadOp::LOAD;
+        depthInfo.clearColor    = gfx::Color();
+        depthInfo.beginAccesses = gfx::AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_READ;
+        depthInfo.endAccesses   = gfx::AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_READ;
+
+        data.depthStencil       = builder.write(data.depth, depthInfo);
+        builder.writeToBlackboard(RenderPipeline::fgStrHandleOutDepthTexture, data.depthStencil);
 
         if (_pipeline->isClusterEnabled()) {
             // read cluster and light info
@@ -428,7 +438,9 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
         cmdBuff->bindDescriptorSet(globalSet, pipeline->getDescriptorSet());
         cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
         cmdBuff->draw(_inputAssembler);
-        if (_isTransparentQueueEmpty) _planarShadowQueue->recordCommandBuffer(_device, table.getRenderPass(), cmdBuff);
+        if (_isTransparentQueueEmpty) {
+            _planarShadowQueue->recordCommandBuffer(_device, table.getRenderPass(), cmdBuff, 1);
+        }
     };
 
     pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint>(DeferredInsertPoint::DIP_LIGHTING), DeferredPipeline::fgStrHandleLightingPass, lightingSetup, lightingExec);
@@ -517,7 +529,7 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
         camera->getGeometryRenderer()->render(table.getRenderPass(), cmdBuff, pipeline->getPipelineSceneData());
     };
 
-    if (!_isTransparentQueueEmpty) {
+    if (!_isTransparentQueueEmpty || !camera->getGeometryRenderer()->empty()) {
         pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint>(DeferredInsertPoint::DIP_TRANSPARENT),
                                                       DeferredPipeline::fgStrHandleTransparentPass, transparentSetup, transparentExec);
     }

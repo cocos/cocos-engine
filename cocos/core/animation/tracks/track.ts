@@ -56,7 +56,8 @@ class TrackPath {
     }
 
     /**
-     * @legacyPublic Reserved for backward compatibility. DO NOT USE IT IN YOUR CODE.
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future. Reserved for backward compatibility.
+     * DO NOT USE IT IN YOUR CODE.
      */
     public toCustomized (resolver: CustomizedTrackPathResolver) {
         this._paths.push(resolver);
@@ -115,6 +116,9 @@ class TrackPath {
         return this[normalizedFollowTag](object, beginIndex, endIndex);
     }
 
+    /**
+     * @internal
+     */
     public [parseTrsPathTag] () {
         const { _paths: paths } = this;
         const nPaths = paths.length;
@@ -158,6 +162,9 @@ class TrackPath {
         return { node: nodePath, property: prs };
     }
 
+    /**
+     * @internal
+     */
     public [normalizedFollowTag] (root: unknown, beginIndex: number, endIndex: number) {
         const { _paths: paths } = this;
         let result = root;
@@ -306,6 +313,9 @@ export abstract class Track {
         this._binding.proxy = value;
     }
 
+    /**
+     * @internal
+     */
     get [trackBindingTag] () {
         return this._binding;
     }
@@ -323,6 +333,9 @@ export abstract class Track {
         return range;
     }
 
+    /**
+     * @internal
+     */
     public abstract [createEvalSymbol] (runtimeBinding: RuntimeBinding): TrackEval;
 
     @serializable
@@ -377,10 +390,16 @@ export abstract class SingleChannelTrack<TCurve extends Curve> extends Track {
         return [this._channel];
     }
 
+    /**
+     * @internal
+     */
     protected createCurve (): TCurve {
         throw new Error(`Not impl`);
     }
 
+    /**
+     * @internal
+     */
     public [createEvalSymbol] (_runtimeBinding: RuntimeBinding): TrackEval {
         const { curve } = this._channel;
         return new SingleChannelTrackEval(curve);

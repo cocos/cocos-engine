@@ -139,7 +139,7 @@ GeometryRendererInfo::GeometryRendererInfo()
 }
 
 GeometryRenderer::GeometryRenderer() {
-    _buffers = new GeometryVertexBuffers();
+    _buffers = ccnew GeometryVertexBuffers();
 }
 
 GeometryRenderer::~GeometryRenderer() {
@@ -254,6 +254,18 @@ void GeometryRenderer::destroy() {
         _buffers->dashedLines[i].destroy();
         _buffers->triangles[i].destroy();
     }
+}
+
+bool GeometryRenderer::empty() const {
+    for (auto i = 0U; i < GEOMETRY_DEPTH_TYPE_COUNT; i++) {
+        if (!_buffers->lines[i].empty() ||
+            !_buffers->dashedLines[i].empty() ||
+            !_buffers->triangles[i].empty()) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 void GeometryRenderer::update() {

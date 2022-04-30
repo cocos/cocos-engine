@@ -31,6 +31,9 @@ export class VectorTrack extends Track {
         return this._channels;
     }
 
+    /**
+     * @internal
+     */
     public [createEvalSymbol] () {
         switch (this._nComponents) {
         default:

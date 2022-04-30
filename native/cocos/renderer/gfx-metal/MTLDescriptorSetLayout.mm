@@ -38,7 +38,7 @@ CCMTLDescriptorSetLayout::~CCMTLDescriptorSetLayout () {
 }
 
 void CCMTLDescriptorSetLayout::doInit(const DescriptorSetLayoutInfo &info) {
-    _gpuDescriptorSetLayout = CC_NEW(CCMTLGPUDescriptorSetLayout);
+    _gpuDescriptorSetLayout = ccnew CCMTLGPUDescriptorSetLayout;
 
     _gpuDescriptorSetLayout->descriptorCount   = _descriptorCount;
     _gpuDescriptorSetLayout->descriptorIndices = _descriptorIndices;

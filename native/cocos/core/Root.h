@@ -132,7 +132,7 @@ public:
     template <typename T, typename = std::enable_if_t<std::is_base_of<scene::Model, T>::value>>
     T *createModel() {
         //cjh TODO: need use model pool?
-        T *model = new T();
+        T *model = ccnew T();
         model->initialize();
         return model;
     }
@@ -142,7 +142,7 @@ public:
     template <typename T, typename = std::enable_if_t<std::is_base_of<scene::Light, T>::value>>
     T *createLight() {
         //TODO(xwx): need use model pool?
-        T *light = new T();
+        T *light = ccnew T();
         light->initialize();
         return light;
     }
@@ -260,7 +260,6 @@ private:
     scene::DrawBatch2D *                             _batcher2D{nullptr};
     //    IntrusivePtr<DataPoolManager>                  _dataPoolMgr;
     ccstd::vector<IntrusivePtr<scene::RenderScene>> _scenes;
-    memop::Pool<scene::Camera> *                    _cameraPool{nullptr};
     float                                           _cumulativeTime{0.F};
     float                                           _frameTime{0.F};
     float                                           _fpsTime{0.F};

@@ -53,7 +53,7 @@ CCVKSwapchain::~CCVKSwapchain() {
 void CCVKSwapchain::doInit(const SwapchainInfo &info) {
     auto *      gpuDevice  = CCVKDevice::getInstance()->gpuDevice();
     const auto *gpuContext = CCVKDevice::getInstance()->gpuContext();
-    _gpuSwapchain          = CC_NEW(CCVKGPUSwapchain);
+    _gpuSwapchain          = ccnew CCVKGPUSwapchain;
     gpuDevice->swapchains.insert(_gpuSwapchain);
 
     createVkSurface();
@@ -199,8 +199,8 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
 
     ///////////////////// Texture Creation /////////////////////
 
-    _colorTexture        = CC_NEW(CCVKTexture);
-    _depthStencilTexture = CC_NEW(CCVKTexture);
+    _colorTexture        = ccnew CCVKTexture;
+    _depthStencilTexture = ccnew CCVKTexture;
 
     SwapchainTextureInfo textureInfo;
     textureInfo.swapchain = this;
@@ -258,6 +258,9 @@ void CCVKSwapchain::doResize(uint32_t width, uint32_t height, SurfaceTransform /
 }
 
 bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
+    if (_gpuSwapchain->vkSurface == VK_NULL_HANDLE) { // vkSurface will be set to VK_NULL_HANDLE after call doDestroySurface
+        return false;
+    }
     auto *      gpuDevice  = CCVKDevice::getInstance()->gpuDevice();
     const auto *gpuContext = CCVKDevice::getInstance()->gpuContext();
 

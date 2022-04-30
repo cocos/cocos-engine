@@ -219,7 +219,7 @@ public:
         }
 
         bool ok = v8::V8::Initialize();
-        assert(ok);
+        CC_ASSERT(ok);
     }
 
     ~ScriptEngineV8Context() {
@@ -275,7 +275,7 @@ void ScriptEngine::onMessageCallback(v8::Local<v8::Message> message, v8::Local<v
     v8::Local<v8::String> msg  = message->Get();
     Value                 msgVal;
     internal::jsToSeValue(v8::Isolate::GetCurrent(), msg, &msgVal);
-    assert(msgVal.isString());
+    CC_ASSERT(msgVal.isString());
     v8::ScriptOrigin origin = message->GetScriptOrigin();
     Value            resouceNameVal;
     internal::jsToSeValue(v8::Isolate::GetCurrent(), origin.ResourceName(), &resouceNameVal);
@@ -463,7 +463,7 @@ void ScriptEngine::privateDataFinalize(PrivateObjectBase *privateObj) {
 
     Object::nativeObjectFinalizeHook(p->seObj);
 
-    assert(p->seObj->getRefCount() == 1);
+    CC_ASSERT(p->seObj->getRefCount() == 1);
 
     p->seObj->decRef();
 
@@ -472,7 +472,7 @@ void ScriptEngine::privateDataFinalize(PrivateObjectBase *privateObj) {
 
 ScriptEngine *ScriptEngine::getInstance() {
     if (gSriptEngineInstance == nullptr) {
-        gSriptEngineInstance = new ScriptEngine();
+        gSriptEngineInstance = ccnew ScriptEngine();
     }
 
     return gSriptEngineInstance;
@@ -504,12 +504,19 @@ ScriptEngine::ScriptEngine()
   _isErrorHandleWorking(false) {
     #if !CC_EDITOR
     if (!gSharedV8) {
-        gSharedV8 = new ScriptEngineV8Context();
+        gSharedV8 = ccnew ScriptEngineV8Context();
     }
     #endif
 }
 
-ScriptEngine::~ScriptEngine() = default;
+ScriptEngine::~ScriptEngine() {
+    #if !CC_EDITOR
+    if (gSharedV8) {
+        delete gSharedV8;
+        gSharedV8 = nullptr;
+    }
+    #endif
+}
 
 bool ScriptEngine::postInit() {
     v8::HandleScope hs(_isolate);
@@ -697,7 +704,7 @@ void ScriptEngine::addAfterCleanupHook(const std::function<void()> &hook) {
 }
 
 void ScriptEngine::addRegisterCallback(RegisterCallback cb) {
-    assert(std::find(_registerCallbackArray.begin(), _registerCallbackArray.end(), cb) == _registerCallbackArray.end());
+    CC_ASSERT(std::find(_registerCallbackArray.begin(), _registerCallbackArray.end(), cb) == _registerCallbackArray.end());
     _registerCallbackArray.push_back(cb);
 }
 
@@ -714,7 +721,7 @@ bool ScriptEngine::callRegisteredCallback() {
 
     for (auto cb : _permRegisterCallbackArray) {
         ok = cb(_globalObj);
-        assert(ok);
+        CC_ASSERT(ok);
         if (!ok) {
             break;
         }
@@ -722,7 +729,7 @@ bool ScriptEngine::callRegisteredCallback() {
 
     for (auto cb : _registerCallbackArray) {
         ok = cb(_globalObj);
-        assert(ok);
+        CC_ASSERT(ok);
         if (!ok) {
             break;
         }
@@ -752,7 +759,7 @@ bool ScriptEngine::start() {
         options.set_port(static_cast<int>(_debuggerServerPort));
         options.set_host_name(_debuggerServerAddr);
         bool ok = _env->inspector_agent()->Start(gSharedV8->platform, "", options);
-        assert(ok);
+        CC_ASSERT(ok);
     #endif
     }
 
@@ -789,11 +796,11 @@ bool ScriptEngine::isValid() const {
 bool ScriptEngine::evalString(const char *script, uint32_t length /* = 0 */, Value *ret /* = nullptr */, const char *fileName /* = nullptr */) {
     if (_engineThreadId != std::this_thread::get_id()) {
         // `evalString` should run in main thread
-        assert(false);
+        CC_ASSERT(false);
         return false;
     }
 
-    assert(script != nullptr);
+    CC_ASSERT(script != nullptr);
     if (length == 0) {
         length = static_cast<uint32_t>(strlen(script));
     }
@@ -959,7 +966,7 @@ bool ScriptEngine::runByteCodeFile(const ccstd::string &pathBc, Value *ret /* = 
     v8::ScriptOrigin     origin(_isolate, scriptPath, 0, 0, true);
 
     // restore CacheData
-    auto *                v8CacheData = new v8::ScriptCompiler::CachedData(cachedData.getBytes(), static_cast<int>(cachedData.getSize()));
+    auto *                v8CacheData = ccnew v8::ScriptCompiler::CachedData(cachedData.getBytes(), static_cast<int>(cachedData.getSize()));
     v8::Local<v8::String> dummyCode;
 
     // generate dummy code
@@ -972,7 +979,7 @@ bool ScriptEngine::runByteCodeFile(const ccstd::string &pathBc, Value *ret /* = 
         codeBuffer[filesize]     = '\0';
         dummyCode                = v8::String::NewFromUtf8(_isolate, codeBuffer.data(), v8::NewStringType::kNormal, filesize).ToLocalChecked();
 
-        assert(dummyCode->Length() == filesize);
+        CC_ASSERT(dummyCode->Length() == filesize);
     }
 
     v8::ScriptCompiler::Source source(dummyCode, origin, v8CacheData);
@@ -1014,8 +1021,8 @@ bool ScriptEngine::runByteCodeFile(const ccstd::string &pathBc, Value *ret /* = 
 }
 
 bool ScriptEngine::runScript(const ccstd::string &path, Value *ret /* = nullptr */) {
-    assert(!path.empty());
-    assert(_fileOperationDelegate.isValid());
+    CC_ASSERT(!path.empty());
+    CC_ASSERT(_fileOperationDelegate.isValid());
 
     if (!cc::FileUtils::getInstance()->isFileExist(path)) {
         std::stringstream ss;
@@ -1111,7 +1118,7 @@ bool ScriptEngine::callFunction(Object *targetObj, const char *funcName, uint32_
     v8::TryCatch tryCatch(_isolate);
     #endif
 
-    assert(!funcVal.IsEmpty());
+    CC_ASSERT(!funcVal.IsEmpty());
     if (!funcVal.ToLocalChecked()->IsFunction()) {
         v8::String::Utf8Value funcStr(_isolate, funcVal.ToLocalChecked());
         SE_REPORT_ERROR("%s is not a function: %s", funcName, *funcStr);
@@ -1152,7 +1159,7 @@ v8::MaybeLocal<v8::String> ScriptEngine::VMStringPool::get(v8::Isolate *isolate,
     if (iter == _vmStringPoolMap.end()) {
         v8::MaybeLocal<v8::String> nameValue = v8::String::NewFromUtf8(isolate, name, v8::NewStringType::kNormal);
         if (!nameValue.IsEmpty()) {
-            auto *persistentName = new v8::Persistent<v8::String>();
+            auto *persistentName = ccnew v8::Persistent<v8::String>();
             persistentName->Reset(isolate, nameValue.ToLocalChecked());
             _vmStringPoolMap.emplace(name, persistentName);
             ret = v8::Local<v8::String>::New(isolate, *persistentName);

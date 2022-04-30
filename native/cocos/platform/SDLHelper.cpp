@@ -279,21 +279,21 @@ void SDLHelper::dispatchSDLEvent(const SDL_Event &sdlEvent, bool *quit) {
             const SDL_TouchFingerEvent &event = sdlEvent.tfinger;
             touch.type                        = TouchEvent::Type::ENDED;
             touch.touches                     = {TouchInfo(event.x, event.y, (int)event.fingerId)};
-            _delegate->dispatchEvent(touch);
+            _delegate->dispatchTouchEvent(touch);
             break;
         }
         case SDL_FINGERDOWN: {
             const SDL_TouchFingerEvent &event = sdlEvent.tfinger;
             touch.type                        = TouchEvent::Type::BEGAN;
             touch.touches                     = {TouchInfo(event.x, event.y, (int)event.fingerId)};
-            _delegate->dispatchEvent(touch);
+            _delegate->dispatchTouchEvent(touch);
             break;
         }
         case SDL_FINGERMOTION: {
             const SDL_TouchFingerEvent &event = sdlEvent.tfinger;
             touch.type                        = TouchEvent::Type::MOVED;
             touch.touches                     = {TouchInfo(event.x, event.y, (int)event.fingerId)};
-            _delegate->dispatchEvent(touch);
+            _delegate->dispatchTouchEvent(touch);
             break;
         }
         case SDL_KEYDOWN: {
@@ -329,6 +329,9 @@ void SDLHelper::pollEvent(bool *quit) {
     int       cnt = 0;
     while ((cnt = SDL_PollEvent(&sdlEvent)) != 0) {
         dispatchSDLEvent(sdlEvent, quit);
+        if (*quit) {
+            break;
+        }
     }
 }
 

@@ -34,7 +34,7 @@ public:
     template <typename T>
     static void registerClass(se::Class *cls) {
         const char *typeName = typeid(T).name();
-        assert(jsbClassTypeMap.find(typeName) == jsbClassTypeMap.end());
+        CC_ASSERT(jsbClassTypeMap.find(typeName) == jsbClassTypeMap.end());
         jsbClassTypeMap.emplace(typeName, cls);
     }
 

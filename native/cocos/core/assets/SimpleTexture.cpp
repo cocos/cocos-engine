@@ -126,7 +126,7 @@ void SimpleTexture::tryReset() {
         return;
     }
     createTexture(device);
-    createTextureView(device);
+    _gfxTextureView = createTextureView(device);
 }
 
 void SimpleTexture::createTexture(gfx::Device *device) {
@@ -159,15 +159,16 @@ void SimpleTexture::createTexture(gfx::Device *device) {
     notifyTextureUpdated();
 }
 
-void SimpleTexture::createTextureView(gfx::Device *device) {
+gfx::Texture *SimpleTexture::createTextureView(gfx::Device *device) {
     if (!_gfxTexture) {
-        return;
+        return nullptr;
     }
+    const uint32_t maxLevel = _maxLevel < _mipmapLevel ? _maxLevel : _mipmapLevel - 1;
     auto textureViewCreateInfo = getGfxTextureViewCreateInfo(
     _gfxTexture,
     getGFXFormat(),
     _baseLevel,
-    _maxLevel - _baseLevel + 1
+    maxLevel - _baseLevel + 1
     );
 
     //TODO(minggo)
@@ -175,7 +176,7 @@ void SimpleTexture::createTextureView(gfx::Device *device) {
 //        return;
 //    }
     
-    _gfxTextureView = device->createTexture(textureViewCreateInfo);
+    return device->createTexture(textureViewCreateInfo);
 }
 
 void SimpleTexture::tryDestroyTexture() {
@@ -197,7 +198,7 @@ void SimpleTexture::tryDestroyTextureView() {
 }
 
 void SimpleTexture::setMipRange(uint32_t baseLevel, uint32_t maxLevel) {
-    debug::warnID(baseLevel <= maxLevel, 3124);
+    debug::assertID(baseLevel <= maxLevel, 3124);
     
     setMipRangeInternal(baseLevel, maxLevel);
     
@@ -205,17 +206,17 @@ void SimpleTexture::setMipRange(uint32_t baseLevel, uint32_t maxLevel) {
     if (!device) {
         return;
     }
+    // create a new texture view before the destruction of the previous one to bypass the bug that
+    // vulkan destroys textureview in use. This is a temporary solution, should be fixed later.
+    gfx::Texture *textureView = createTextureView(device);
     tryDestroyTextureView();
-    createTextureView(device);
+    _gfxTextureView = textureView;
 }
 
 
 void SimpleTexture::setMipRangeInternal(uint32_t baseLevel, uint32_t maxLevel){
-    _baseLevel = baseLevel;
-    _baseLevel = _baseLevel < _mipmapLevel ? _baseLevel : _mipmapLevel - 1;
-    
-    _maxLevel = maxLevel < _baseLevel ? _baseLevel : maxLevel;
-    _maxLevel = _maxLevel < _mipmapLevel ? _maxLevel : _mipmapLevel - 1;
+    _baseLevel = baseLevel < 1 ? 0 : baseLevel;
+    _maxLevel  = _maxLevel < 1 ? 0 : maxLevel;
 }
 
 void SimpleTexture::notifyTextureUpdated() {

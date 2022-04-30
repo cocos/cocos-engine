@@ -59,8 +59,8 @@ RenderPipeline::RenderPipeline()
 : _device(gfx::Device::getInstance()) {
     RenderPipeline::instance = this;
 
-    _globalDSManager = new GlobalDSManager();
-    _pipelineUBO     = new PipelineUBO();
+    _globalDSManager = ccnew GlobalDSManager();
+    _pipelineUBO     = ccnew PipelineUBO();
 }
 
 RenderPipeline::~RenderPipeline() {
@@ -126,7 +126,7 @@ void RenderPipeline::destroyQuadInputAssembler() {
 
 bool RenderPipeline::destroy() {
     for (auto *flow : _flows) {
-        flow->destroy();
+        CC_SAFE_DESTROY_AND_DELETE(flow);
     }
     _flows.clear();
 

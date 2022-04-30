@@ -43,3 +43,4 @@ scripts/runtime-web-adapter
 native/external/
 
 scripts/typedoc-plugin/lib/
+!templates/**/*

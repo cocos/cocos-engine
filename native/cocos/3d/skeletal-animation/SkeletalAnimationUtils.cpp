@@ -102,7 +102,7 @@ void uploadJointDataDQS(cc::Float32Array out, uint32_t base, cc::Mat4 &mat, bool
 
 // change here and cc-skinning.chunk to use other skinning algorithms
 constexpr auto UPLOAD_JOINT_DATA = uploadJointDataLBS;
-#ifdef CC_EDITOR
+#if CC_EDITOR
 const uint32_t MINIMUM_JOINT_TEXTURE_SIZE = 2040;
 #else
 const uint32_t MINIMUM_JOINT_TEXTURE_SIZE = 480; // have to be multiples of 12
@@ -140,12 +140,12 @@ JointTexturePool::JointTexturePool(gfx::Device *device) {
     const auto &format = selectJointsMediumFormat(_device);
     _formatSize        = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size;
     _pixelsPerJoint    = 48 / _formatSize;
-    _pool              = new TextureBufferPool(device);
+    _pool              = ccnew TextureBufferPool(device);
     ITextureBufferPoolInfo poolInfo;
     poolInfo.format    = format;
     poolInfo.roundUpFn = roundUpType{roundUpTextureSize};
     _pool->initialize(poolInfo);
-    _customPool = new TextureBufferPool(device);
+    _customPool = ccnew TextureBufferPool(device);
     ITextureBufferPoolInfo customPoolInfo;
     customPoolInfo.format    = format;
     customPoolInfo.roundUpFn = roundUpType{roundUpTextureSize};
@@ -409,7 +409,7 @@ void JointTexturePool::releaseSkeleton(Skeleton *skeleton) {
 //             animPath = animPath.substring(0, idx);
 //             source = clipData.joints[animPath];
 //             if (animNode) {
-//                 if (!downstream) { downstream = new Mat4(); }
+//                 if (!downstream) { downstream = ccnew Mat4(); }
 //                 Mat4.fromRTS(m4_1, animNode.rotation, animNode.position, animNode.scale);
 //                 Mat4.multiply(downstream, m4_1, downstream);
 //                 animNode = animNode.parent;
@@ -446,7 +446,7 @@ void JointTexturePool::releaseSkeleton(Skeleton *skeleton) {
 //             for (let t = 0; t < jointCount; t++) {
 //                 if (joints[t] === correctionPath) {
 //                     bindposeIdx = t;
-//                     bindposeCorrection = new Mat4();
+//                     bindposeCorrection = ccnew Mat4();
 //                     Mat4.multiply(bindposeCorrection, bindposes[t], skeleton.inverseBindposes[j]);
 //                     break;
 //                 }

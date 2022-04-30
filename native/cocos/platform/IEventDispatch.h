@@ -42,7 +42,7 @@ public:
     /**
      * Dispatch touch event interface.
      */
-    virtual void dispatchTouchEvent(const OSEvent &ev) = 0;
+    virtual void dispatchTouchEvent(const TouchEvent& ev) = 0;
 };
 
 } // namespace cc

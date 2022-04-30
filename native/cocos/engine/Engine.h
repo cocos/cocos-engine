@@ -95,15 +95,22 @@ public:
     void removeEventCallback(OSEventType evtype) override;
     /**
      @brief Event handling callback.
-     @param evtype:event type.
-     @param evtype:event information.
+     @param ev:Abstract event.
      @return whether it's been handled.
      */
     bool handleEvent(const OSEvent& ev);
     /**
+     @brief Touch event handling callback.
+     @param ev:Touch event.
+     @return whether it's been handled.
+     */
+    bool handleTouchEvent(const TouchEvent& ev);
+    /**
      @brief Get engine scheduler.
      */
     SchedulerPtr getScheduler() const override;
+
+    bool isInited() const override {return _inited;}
 
 private:
     void    tick();
@@ -120,6 +127,7 @@ private:
     uint                       _totalFrames{0};
     cc::Vec2                   _viewLogicalSize{0, 0};
     bool                       _needRestart{false};
+    bool                       _inited{false};
 
     std::map<OSEventType, EventCb> _eventCallbacks;
     CC_DISALLOW_COPY_MOVE_ASSIGN(Engine);

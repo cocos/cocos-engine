@@ -62,10 +62,6 @@ CCProgram terrain-vs %{
 
   out highp vec3 v_position;
   out mediump vec3 v_normal;
-  #if USE_NORMALMAP
-    out mediump vec3 v_tangent;
-    out mediump vec3 v_binormal;
-  #endif
   out mediump vec2 uvw;
   out mediump vec2 uv0;
   out mediump vec2 uv1;
@@ -106,14 +102,6 @@ CCProgram terrain-vs %{
       v_shadowBias = vec2(0.0, 0.0);
     #endif
 
-    #if USE_NORMALMAP
-      v_tangent = vec3(1.0, 0.0, 0.0);
-      v_binormal = vec3(0.0, 0.0, 1.0);
-
-      v_binormal = cross(v_tangent, a_normal);
-      v_tangent = cross(a_normal, v_binormal);
-    #endif
-
     CC_TRANSFER_SHADOW(vec4(worldPos, 1.0));
 
     gl_Position = pos;
@@ -135,11 +123,6 @@ CCProgram terrain-fs %{
 
   #if CC_RECEIVE_SHADOW
     in vec2 v_shadowBias;
-  #endif
-
-  #if USE_NORMALMAP
-    in mediump vec3 v_tangent;
-    in mediump vec3 v_binormal;
   #endif
 
   in mediump vec2 uvw;
@@ -211,10 +194,16 @@ CCProgram terrain-fs %{
         baseNormal = texture(normalMap0, uv0);
       #endif
 
+      vec3 tangent = vec3(1.0, 0.0, 0.0);
+      vec3 binormal = vec3(0.0, 0.0, 1.0);
+
+      binormal = cross(tangent, v_normal);
+      tangent = cross(v_normal, binormal);
+
       vec3 nmmp = baseNormal.xyz - vec3(0.5);
       s.normal =
-        nmmp.x * normalize(v_tangent) +
-        nmmp.y * normalize(v_binormal) +
+        nmmp.x * normalize(tangent) +
+        nmmp.y * normalize(binormal) +
         nmmp.z * normalize(v_normal);
     #else
       s.normal = v_normal;
@@ -246,8 +235,11 @@ CCProgram terrain-fs %{
         s.roughness = 1.0;
       #endif
 
+      s.specularIntensity = 0.5;
+
       s.metallic = 0.0;
       #if LAYERS == 1
+        s.specularIntensity = 0.5;
         s.metallic = metallic.x;
       #elif LAYERS == 2
         s.metallic += metallic.x * w.r;
@@ -262,10 +254,12 @@ CCProgram terrain-fs %{
         s.metallic += metallic.z * w.b;
         s.metallic += metallic.w * w.a;
       #else
+        s.specularIntensity = 0.5;
         s.metallic = 0.0;
       #endif
     #else
       s.roughness = 1.0;
+      s.specularIntensity = 0.5;
       s.metallic = 0.0;
     #endif
     s.emissive = vec3(0.0, 0.0, 0.0);

@@ -36,11 +36,11 @@
 namespace cc {
 
 SceneGlobals::SceneGlobals() {
-    _ambientInfo = new scene::AmbientInfo();
-    _shadowInfo  = new scene::ShadowsInfo();
-    _skyboxInfo  = new scene::SkyboxInfo();
-    _fogInfo     = new scene::FogInfo();
-    _octreeInfo  = new scene::OctreeInfo();
+    _ambientInfo = ccnew scene::AmbientInfo();
+    _shadowInfo  = ccnew scene::ShadowsInfo();
+    _skyboxInfo  = ccnew scene::SkyboxInfo();
+    _fogInfo     = ccnew scene::FogInfo();
+    _octreeInfo  = ccnew scene::OctreeInfo();
 }
 
 void SceneGlobals::activate() {

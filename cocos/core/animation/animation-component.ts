@@ -39,10 +39,7 @@ import { AnimationClip } from './animation-clip';
 import { AnimationState, EventType } from './animation-state';
 import { CrossFade } from './cross-fade';
 import { legacyCC } from '../global-exports';
-import { LegacyBlendStateBuffer } from '../../3d/skeletal-animation/skeletal-animation-blending';
-import { AnimationUpdateTaskHandle } from './animation-manager';
-import { assertIsTrue } from '../data/utils/asserts';
-import { getGlobalAnimationManager } from './global-animation-manager';
+import { js } from '../utils/js';
 
 /**
  * @en
@@ -158,8 +155,6 @@ export class Animation extends Eventify(Component) {
     @serializable
     protected _defaultClip: AnimationClip | null = null;
 
-    private _animationUpdateTaskHandle: AnimationUpdateTaskHandle | undefined = undefined;
-
     /**
      * Whether if `crossFade()` or `play()` has been called before this component starts.
      */
@@ -169,7 +164,7 @@ export class Animation extends Eventify(Component) {
         this.clips = this._clips;
         for (const stateName in this._nameToState) {
             const state = this._nameToState[stateName];
-            this._initializeState(state);
+            state.initialize(this.node);
         }
     }
 
@@ -180,20 +175,15 @@ export class Animation extends Eventify(Component) {
     }
 
     public onEnable () {
-        assertIsTrue(!this._animationUpdateTaskHandle);
-        this._animationUpdateTaskHandle = getGlobalAnimationManager().addUpdateTask(
-            this._onAnimationSystemUpdate,
-            this,
-        );
+        this._crossFade.resume();
     }
 
     public onDisable () {
-        assertIsTrue(typeof this._animationUpdateTaskHandle !== 'undefined');
-        getGlobalAnimationManager().removeUpdateTask(this._animationUpdateTaskHandle);
-        this._animationUpdateTaskHandle = undefined;
+        this._crossFade.pause();
     }
 
     public onDestroy () {
+        this._crossFade.stop();
         for (const name in this._nameToState) {
             const state = this._nameToState[name];
             state.destroy();
@@ -210,7 +200,6 @@ export class Animation extends Eventify(Component) {
      */
     public play (name?: string) {
         this._hasBeenPlayed = true;
-        this._playing = true;
         if (!name) {
             if (!this._defaultClip) {
                 return;
@@ -230,7 +219,6 @@ export class Animation extends Eventify(Component) {
      */
     public crossFade (name: string, duration = 0.3) {
         this._hasBeenPlayed = true;
-        this._playing = true;
         const state = this._nameToState[name];
         if (state) {
             this.doPlayOrCrossFade(state, duration);
@@ -244,7 +232,6 @@ export class Animation extends Eventify(Component) {
      * 暂停所有动画状态，并暂停所有切换。
      */
     public pause () {
-        this._playing = false;
         this._crossFade.pause();
     }
 
@@ -255,7 +242,6 @@ export class Animation extends Eventify(Component) {
      * 恢复所有动画状态，并恢复所有切换。
      */
     public resume () {
-        this._playing = true;
         this._crossFade.resume();
     }
 
@@ -266,19 +252,7 @@ export class Animation extends Eventify(Component) {
      * 停止所有动画状态，并停止所有切换。
      */
     public stop () {
-        this._playing = false;
-        this._crossFade.clear();
-    }
-
-    /**
-     * @en
-     * Get specified animation state.
-     * @zh
-     * 获取指定的动画状态。
-     * @deprecated please use [[getState]]
-     */
-    public getAnimationState (name: string) {
-        return this.getState(name);
+        this._crossFade.stop();
     }
 
     /**
@@ -292,7 +266,7 @@ export class Animation extends Eventify(Component) {
     public getState (name: string) {
         const state = this._nameToState[name];
         if (state && !state.curveLoaded) {
-            this._initializeState(state);
+            state.initialize(this.node);
         }
         return state || null;
     }
@@ -333,7 +307,6 @@ export class Animation extends Eventify(Component) {
 
     /**
      * 添加一个动画剪辑到 `this.clips`中并以此剪辑创建动画状态。
-     * @deprecated please use [[createState]]
      * @param clip The animation clip
      * @param name The animation state name, if absent, the default clip's name will be used
      * @returns The created animation state
@@ -355,7 +328,6 @@ export class Animation extends Eventify(Component) {
      * 从动画列表中移除指定的动画剪辑，<br/>
      * 如果依赖于 clip 的 AnimationState 正在播放或者 clip 是 defaultClip 的话，默认是不会删除 clip 的。<br/>
      * 但是如果 force 参数为 true，则会强制停止该动画，然后移除该动画剪辑和相关的动画。这时候如果 clip 是 defaultClip，defaultClip 将会被重置为 null。<br/>
-     * @deprecated please use [[removeState]]
      * @param force - If force is true, then will always remove the clip and any animation states based on it.
      */
     public removeClip (clip: AnimationClip, force?: boolean) {
@@ -460,7 +432,7 @@ export class Animation extends Eventify(Component) {
         state._setEventTarget(this);
         state.allowLastFrameEvent(this.hasEventListener(EventType.LASTFRAME));
         if (this.node) {
-            this._initializeState(state);
+            state.initialize(this.node);
         }
         this._nameToState[state.name] = state;
         return state;
@@ -471,28 +443,8 @@ export class Animation extends Eventify(Component) {
      * @internal This method only friends to skeletal animation component.
      */
     protected doPlayOrCrossFade (state: AnimationState, duration: number) {
+        this._crossFade.play();
         this._crossFade.crossFade(state, duration);
-    }
-
-    private _playing = false;
-
-    private _blendStateBuffer = new LegacyBlendStateBuffer();
-
-    private _onAnimationSystemUpdate (deltaTime: number) {
-        if (!this._playing) {
-            return;
-        }
-
-        this._crossFade.update(deltaTime);
-
-        for (const name in this._nameToState) {
-            const state = this._nameToState[name];
-            if (!state.isMotionless) {
-                state.update(deltaTime);
-            }
-        }
-
-        this._blendStateBuffer.apply();
     }
 
     private _removeStateOfAutomaticClip (clip: AnimationClip) {
@@ -520,19 +472,12 @@ export class Animation extends Eventify(Component) {
             }
         }
     }
-
-    private _initializeState (state: AnimationState) {
-        state.initialize(
-            this.node,
-            this._blendStateBuffer,
-            undefined, // Animation Mask
-            true, // Passive - The updating of animation state is handled by us
-        );
-    }
 }
 
+type EventType_ = EventType;
+
 export declare namespace Animation {
-    export type EventType = EnumAlias<typeof EventType>;
+    export type EventType = EventType_;
 }
 
 function equalClips (clip1: AnimationClip | null, clip2: AnimationClip | null) {
@@ -543,3 +488,11 @@ function equalClips (clip1: AnimationClip | null, clip2: AnimationClip | null) {
 }
 
 legacyCC.Animation = Animation;
+
+/**
+ * Alias of [[Animation]]
+ * @deprecated Since v1.2
+ */
+export { Animation as AnimationComponent };
+legacyCC.AnimationComponent = Animation;
+js.setClassAlias(Animation, 'cc.AnimationComponent');

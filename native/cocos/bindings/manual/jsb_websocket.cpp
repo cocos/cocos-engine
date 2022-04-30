@@ -229,7 +229,7 @@ void JsbWebSocketDelegate::onError(cc::network::WebSocket *ws, const cc::network
 }
 
 void JsbWebSocketDelegate::setJSDelegate(const se::Value &jsDelegate) {
-    assert(jsDelegate.isObject());
+    CC_ASSERT(jsDelegate.isObject());
     _JSDelegate = jsDelegate;
 }
 
@@ -293,8 +293,8 @@ static bool webSocketConstructor(se::State &s) {
                 SE_PRECONDITION2(ok, false, "Error processing caFilePath");
             }
 
-            cobj           = new (std::nothrow) cc::network::WebSocket();
-            auto *delegate = new (std::nothrow) JsbWebSocketDelegate();
+            cobj           = ccnew cc::network::WebSocket();
+            auto *delegate = ccnew JsbWebSocketDelegate();
             delegate->addRef();
             if (cobj->init(*delegate, url, &protocols, caFilePath)) {
                 delegate->setJSDelegate(se::Value(obj, true));
@@ -307,8 +307,8 @@ static bool webSocketConstructor(se::State &s) {
                 return false;
             }
         } else {
-            cobj           = new (std::nothrow) cc::network::WebSocket();
-            auto *delegate = new (std::nothrow) JsbWebSocketDelegate();
+            cobj           = ccnew cc::network::WebSocket();
+            auto *delegate = ccnew JsbWebSocketDelegate();
             delegate->addRef();
             if (cobj->init(*delegate, url)) {
                 delegate->setJSDelegate(se::Value(obj, true));
@@ -374,12 +374,12 @@ static bool webSocketSend(const se::State &s) {
                 ok = dataObj->getTypedArrayData(&ptr, &length);
                 SE_PRECONDITION2(ok, false, "getTypedArrayData failed!");
             } else {
-                assert(false);
+                CC_ASSERT(false);
             }
 
             cobj->send(ptr, static_cast<unsigned int>(length));
         } else {
-            assert(false);
+            CC_ASSERT(false);
         }
 
         return true;
@@ -406,18 +406,18 @@ static bool webSocketClose(se::State &s) {
             sevalue_to_native(args[0], &reason);
             cobj->closeAsync(1005, reason);
         } else {
-            assert(false);
+            CC_ASSERT(false);
         }
     } else if (argc == 2) {
-        assert(args[0].isNumber());
-        assert(args[1].isString());
+        CC_ASSERT(args[0].isNumber());
+        CC_ASSERT(args[1].isString());
         int           reasonCode{0};
         ccstd::string reasonString;
         sevalue_to_native(args[0], &reasonCode);
         sevalue_to_native(args[1], &reasonString);
         cobj->closeAsync(reasonCode, reasonString);
     } else {
-        assert(false);
+        CC_ASSERT(false);
     }
     // Attach current WebSocket instance to global object to prevent WebSocket instance
     // being garbage collected after "ws.close(); ws = null;"

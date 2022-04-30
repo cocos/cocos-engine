@@ -230,7 +230,7 @@ template <typename T>
 std::enable_if_t<!std::is_base_of<Message, T>::value, T *>
 MessageQueue::allocate(uint32_t const count) noexcept {
     uint32_t const requestSize = sizeof(T) * count;
-    assert(requestSize);
+    CC_ASSERT(requestSize);
     uint32_t       allocatedSize   = 0;
     uint8_t *const allocatedMemory = allocateImpl(allocatedSize, requestSize);
     _writer.lastMessage->_next     = reinterpret_cast<Message *>(_writer.currentMemoryChunk + _writer.offset);
@@ -253,14 +253,14 @@ T *MessageQueue::allocateAndZero(uint32_t const count) noexcept {
 
 // utility macros for the producer thread to enqueue messages
 
-#define WRITE_MESSAGE(queue, MessageName, Params)                     \
-    {                                                                 \
-        if (!queue->isImmediateMode()) {                              \
-            new (queue->allocate<MessageName>(1)) MessageName Params; \
-        } else {                                                      \
-            MessageName msg Params;                                   \
-            msg.execute();                                            \
-        }                                                             \
+#define WRITE_MESSAGE(queue, MessageName, Params)                                \
+    {                                                                            \
+        if (!queue->isImmediateMode()) {                                         \
+            ccnew_placement(queue->allocate<MessageName>(1)) MessageName Params; \
+        } else {                                                                 \
+            MessageName msg Params;                                              \
+            msg.execute();                                                       \
+        }                                                                        \
     }
 
 #define ENQUEUE_MESSAGE_0(queue, MessageName, Code)         \

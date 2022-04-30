@@ -29,6 +29,7 @@ THE SOFTWARE.
 #include "audio/android/AudioMixerController.h"
 #include "audio/android/ICallerThreadUtils.h"
 #include "audio/android/cutils/log.h"
+#include "base/memory/Memory.h"
 
 namespace cc {
 
@@ -46,7 +47,7 @@ bool PcmAudioPlayer::prepare(const ccstd::string &url, const PcmData &decResult)
     _url       = url;
     _decResult = decResult;
 
-    _track = new (std::nothrow) Track(_decResult);
+    _track = ccnew Track(_decResult);
 
     std::thread::id callerThreadId = _callerThreadUtils->getCallerThreadId();
 

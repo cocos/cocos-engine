@@ -32,7 +32,7 @@
 #include "scene/Model.h"
 
 #ifndef JSB_ALLOC
-    #define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
+    #define JSB_ALLOC(kls, ...) ccnew kls(__VA_ARGS__)
 #endif
 
 #ifndef JSB_FREE
@@ -380,7 +380,7 @@ static bool js_scene_Node_registerOnSiblingOrderChanged(se::State &s) // NOLINT(
 SE_BIND_FUNC(js_scene_Node_registerOnSiblingOrderChanged) // NOLINT(readability-identifier-naming)
 
 static bool scene_Vec3_to_seval(const cc::Vec3 &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    assert(ret != nullptr);
+    CC_ASSERT(ret != nullptr);
     if (!nodeVec3CacheObj) {
         nodeVec3CacheObj = se::Object::createPlainObject();
         nodeVec3CacheObj->root();
@@ -395,7 +395,7 @@ static bool scene_Vec3_to_seval(const cc::Vec3 &v, se::Value *ret) { // NOLINT(r
 }
 
 static bool scene_Quaternion_to_seval(const cc::Quaternion &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    assert(ret != nullptr);
+    CC_ASSERT(ret != nullptr);
     if (!nodeQuatCacheObj) {
         nodeQuatCacheObj = se::Object::createPlainObject();
         nodeQuatCacheObj->root();
@@ -411,7 +411,7 @@ static bool scene_Quaternion_to_seval(const cc::Quaternion &v, se::Value *ret) {
 }
 
 static bool scene_Mat4_to_seval(const cc::Mat4 &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    assert(ret != nullptr);
+    CC_ASSERT(ret != nullptr);
     if (!nodeMat4CacheObj) {
         nodeMat4CacheObj = se::Object::createPlainObject();
         nodeMat4CacheObj->root();

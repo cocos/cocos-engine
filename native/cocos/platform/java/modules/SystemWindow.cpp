@@ -29,6 +29,11 @@
 #include <unistd.h>
 #include <functional>
 #include <thread>
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+#include "android/AndroidPlatform.h"
+#endif
+
+#include "BasePlatform.h"
 #include "base/Log.h"
 #include "base/Macros.h"
 #include "platform/java/jni/JniImp.h"
@@ -48,13 +53,26 @@ void SystemWindow::copyTextToClipboard(const ccstd::string &text) {
 }
 
 uintptr_t SystemWindow::getWindowHandler() const {
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    auto *platform = dynamic_cast<AndroidPlatform *>(BasePlatform::getPlatform());
+    CC_ASSERT(platform != nullptr);
+    return platform->getWindowHandler();
+#else
     return reinterpret_cast<uintptr_t>(
         JNI_NATIVE_GLUE()->getWindowHandler());
+#endif
 }
 
 SystemWindow::Size SystemWindow::getViewSize() const {
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    auto *platform = dynamic_cast<AndroidPlatform *>(BasePlatform::getPlatform());
+    CC_ASSERT(platform != nullptr);
+    return Size{static_cast<float>(platform->getWidth()),
+                static_cast<float>(platform->getHeight())};
+#else
     return Size{static_cast<float>(JNI_NATIVE_GLUE()->getWidth()),
                 static_cast<float>(JNI_NATIVE_GLUE()->getHeight())};
+#endif
 }
 
 } // namespace cc

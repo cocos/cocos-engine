@@ -169,7 +169,7 @@ Object *Object::getObjectWithPtr(void *ptr) {
 }
 
 Object *Object::_createJSObject(Class *cls, v8::Local<v8::Object> obj) { // NOLINT(readability-identifier-naming)
-    auto *ret = new Object();
+    auto *ret = ccnew Object();
     if (!ret->init(cls, obj)) {
         delete ret;
         ret = nullptr;
@@ -257,7 +257,7 @@ Object *Object::createTypedArray(TypedArrayType type, const void *data, size_t b
             arr = v8::Float64Array::New(jsobj, 0, byteLength / 8);
             break;
         default:
-            assert(false); // Should never go here.
+            CC_ASSERT(false); // Should never go here.
             break;
     }
 
@@ -288,7 +288,7 @@ Object *Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *ob
     }
 
     v8::Local<v8::Object> typedArray;
-    assert(obj->isArrayBuffer());
+    CC_ASSERT(obj->isArrayBuffer());
     v8::Local<v8::ArrayBuffer> jsobj = obj->_getJSObject().As<v8::ArrayBuffer>();
     switch (type) {
         case TypedArrayType::INT8:
@@ -316,7 +316,7 @@ Object *Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *ob
             typedArray = v8::Float64Array::New(jsobj, offset, byteLength / 8);
             break;
         default:
-            assert(false); // Should never go here.
+            CC_ASSERT(false); // Should never go here.
             break;
     }
 
@@ -349,7 +349,7 @@ bool Object::init(Class *cls, v8::Local<v8::Object> obj) {
     _obj.setFinalizeCallback(nativeObjectFinalizeHook);
 
     if (__objectMap) {
-        assert(__objectMap->find(this) == __objectMap->end());
+        CC_ASSERT(__objectMap->find(this) == __objectMap->end());
         __objectMap->emplace(this, nullptr);
     }
 
@@ -363,7 +363,7 @@ bool Object::init(Class *cls, v8::Local<v8::Object> obj) {
 }
 
 bool Object::getProperty(const char *name, Value *data, bool cachePropertyName) {
-    assert(data != nullptr);
+    CC_ASSERT(data != nullptr);
     data->setUndefined();
 
     v8::HandleScope handleScope(__isolate);
@@ -531,7 +531,7 @@ Object::TypedArrayType Object::getTypedArrayType() const {
 }
 
 bool Object::getTypedArrayData(uint8_t **ptr, size_t *length) const {
-    assert(isTypedArray());
+    CC_ASSERT(isTypedArray());
     v8::Local<v8::Object>     obj          = const_cast<Object *>(this)->_obj.handle(__isolate);
     v8::Local<v8::TypedArray> arr          = v8::Local<v8::TypedArray>::Cast(obj);
     const auto &              backingStore = arr->Buffer()->GetBackingStore();
@@ -548,7 +548,7 @@ bool Object::isArrayBuffer() const {
 }
 
 bool Object::getArrayBufferData(uint8_t **ptr, size_t *length) const {
-    assert(isArrayBuffer());
+    CC_ASSERT(isArrayBuffer());
     v8::Local<v8::Object>      obj          = const_cast<Object *>(this)->_obj.handle(__isolate);
     v8::Local<v8::ArrayBuffer> arrBuf       = v8::Local<v8::ArrayBuffer>::Cast(obj);
     const auto &               backingStore = arrBuf->GetBackingStore();
@@ -561,9 +561,9 @@ bool Object::getArrayBufferData(uint8_t **ptr, size_t *length) const {
 }
 
 void Object::setPrivateObject(PrivateObjectBase *data) {
-    assert(_privateObject == nullptr);
+    CC_ASSERT(_privateObject == nullptr);
     #if CC_DEBUG
-    //assert(NativePtrToObjectMap::find(data->getRaw()) == NativePtrToObjectMap::end());
+    //CC_ASSERT(NativePtrToObjectMap::find(data->getRaw()) == NativePtrToObjectMap::end());
     if (data != nullptr) {
         auto it = NativePtrToObjectMap::find(data->getRaw());
         if (it != NativePtrToObjectMap::end()) {
@@ -572,7 +572,7 @@ void Object::setPrivateObject(PrivateObjectBase *data) {
         #if JSB_TRACK_OBJECT_CREATION
             SE_LOGE(" previous object created at %s\n", it->second->_objectCreationStackFrame.c_str());
         #endif
-            assert(false);
+            CC_ASSERT(false);
         }
     }
     #endif
@@ -669,7 +669,7 @@ bool Object::call(const ValueArray &args, Object *thisObject, Value *rval /* = n
     SE_REPORT_ERROR("Invoking function (%p) failed!", this);
     se::ScriptEngine::getInstance()->clearException();
 
-    //        assert(false);
+    //        CC_ASSERT(false);
 
     return false;
 }
@@ -698,8 +698,8 @@ bool Object::isArray() const {
 }
 
 bool Object::getArrayLength(uint32_t *length) const {
-    assert(isArray());
-    assert(length != nullptr);
+    CC_ASSERT(isArray());
+    CC_ASSERT(length != nullptr);
     auto *thiz = const_cast<Object *>(this);
 
     v8::MaybeLocal<v8::String> lengthStr = ScriptEngine::getInstance()->_getStringPool().get(__isolate, "length");
@@ -729,8 +729,8 @@ bool Object::getArrayLength(uint32_t *length) const {
 }
 
 bool Object::getArrayElement(uint32_t index, Value *data) const {
-    assert(isArray());
-    assert(data != nullptr);
+    CC_ASSERT(isArray());
+    CC_ASSERT(data != nullptr);
     auto *                    thiz   = const_cast<Object *>(this);
     v8::MaybeLocal<v8::Value> result = thiz->_obj.handle(__isolate)->Get(__isolate->GetCurrentContext(), index);
 
@@ -743,7 +743,7 @@ bool Object::getArrayElement(uint32_t index, Value *data) const {
 }
 
 bool Object::setArrayElement(uint32_t index, const Value &data) {
-    assert(isArray());
+    CC_ASSERT(isArray());
 
     v8::Local<v8::Value> jsval;
     internal::seToJsValue(__isolate, data, &jsval);
@@ -753,7 +753,7 @@ bool Object::setArrayElement(uint32_t index, const Value &data) {
 }
 
 bool Object::getAllKeys(ccstd::vector<ccstd::string> *allKeys) const {
-    assert(allKeys != nullptr);
+    CC_ASSERT(allKeys != nullptr);
     auto *                    thiz    = const_cast<Object *>(this);
     v8::Local<v8::Context>    context = __isolate->GetCurrentContext();
     v8::MaybeLocal<v8::Array> keys    = thiz->_obj.handle(__isolate)->GetOwnPropertyNames(context);
@@ -788,7 +788,7 @@ Class *Object::_getClass() const { // NOLINT(readability-identifier-naming)
 }
 
 void Object::_setFinalizeCallback(V8FinalizeFunc finalizeCb) { // NOLINT(readability-identifier-naming)
-    assert(finalizeCb != nullptr);
+    CC_ASSERT(finalizeCb != nullptr);
     _finalizeCb = finalizeCb;
 }
 
@@ -818,7 +818,7 @@ bool Object::strictEquals(Object *o) const {
 }
 
 bool Object::attachObject(Object *obj) {
-    assert(obj);
+    CC_ASSERT(obj);
 
     Object *global = ScriptEngine::getInstance()->getGlobalObject();
     Value   jsbVal;
@@ -841,7 +841,7 @@ bool Object::attachObject(Object *obj) {
 }
 
 bool Object::detachObject(Object *obj) {
-    assert(obj);
+    CC_ASSERT(obj);
 
     Object *global = ScriptEngine::getInstance()->getGlobalObject();
     Value   jsbVal;

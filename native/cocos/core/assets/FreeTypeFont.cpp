@@ -140,7 +140,7 @@ FTLibrary *FreeTypeFontFace::library = nullptr;
 FreeTypeFontFace::FreeTypeFontFace(Font *font)
 : FontFace(font) {
     if (!library) {
-        library = new FTLibrary();
+        library = ccnew FTLibrary();
     }
 }
 
@@ -304,7 +304,7 @@ FreeTypeFont::FreeTypeFont(const ccstd::string &path)
 }
 
 FontFace *FreeTypeFont::createFace(const FontFaceInfo &info) {
-    auto *face = new FreeTypeFontFace(this);
+    auto *face = ccnew FreeTypeFontFace(this);
     face->doInit(info);
 
     uint32_t fontSize = face->getFontSize();

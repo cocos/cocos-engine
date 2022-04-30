@@ -132,10 +132,6 @@ endif()
 
 include(${CMAKE_CURRENT_LIST_DIR}/external/CMakeLists.txt)
 
-if(ANDROID AND SWAPPY_ENABLED)
-    add_definitions(-DCC_SWAPPY_ENABLED)
-endif()
-
 ##### audio
 if(USE_AUDIO)
     cocos_source_files(
@@ -397,11 +393,6 @@ elseif(LINUX)
         cocos/platform/linux/LinuxPlatform.cpp
         cocos/platform/linux/LinuxPlatform.h
     )
-elseif(QNX)
-    cocos_source_files(
-        cocos/platform/qnx/QnxPlatform.cpp
-        cocos/platform/qnx/QnxPlatform.h
-    )
 elseif(ANDROID)
     cocos_source_files(
         cocos/platform/android/AndroidPlatform.cpp
@@ -477,11 +468,6 @@ elseif(MACOSX OR IOS)
     cocos_source_files(
         cocos/platform/apple/modules/CanvasRenderingContext2DDelegate.mm
         cocos/platform/apple/modules/CanvasRenderingContext2DDelegate.h
-    )
-elseif(QNX)
-    cocos_source_files(
-        cocos/platform/qnx/modules/CanvasRenderingContext2DDelegate.cpp
-        cocos/platform/qnx/modules/CanvasRenderingContext2DDelegate.h
     )
 elseif(LINUX)
     cocos_source_files(
@@ -610,23 +596,6 @@ elseif(LINUX)
         cocos/platform/linux/modules/System.h
         cocos/platform/linux/modules/SystemWindow.cpp
         cocos/platform/linux/modules/SystemWindow.h
-    )
-elseif(QNX)
-    cocos_source_files(
-        cocos/platform/qnx/modules/Accelerometer.cpp
-        cocos/platform/qnx/modules/Accelerometer.h
-        cocos/platform/qnx/modules/Battery.cpp
-        cocos/platform/qnx/modules/Battery.h
-        cocos/platform/qnx/modules/Screen.cpp
-        cocos/platform/qnx/modules/Screen.h
-        cocos/platform/qnx/modules/Network.cpp
-        cocos/platform/qnx/modules/Network.h
-        cocos/platform/qnx/modules/Vibrator.cpp
-        cocos/platform/qnx/modules/Vibrator.h
-        cocos/platform/qnx/modules/System.cpp
-        cocos/platform/qnx/modules/System.h
-        cocos/platform/qnx/modules/SystemWindow.cpp
-        cocos/platform/qnx/modules/SystemWindow.h
     )
 endif()
 
@@ -865,8 +834,6 @@ if(WINDOWS)
     cocos_source_files(
                      cocos/platform/win32/compat
                      cocos/platform/win32/compat/stdint.h
-                     cocos/platform/win32/inet_pton_mingw.cpp
-                     cocos/platform/win32/inet_pton_mingw.h
     )
     cocos_source_files(MODULE ccfilesystem
         cocos/platform/win32/FileUtils-win32.cpp
@@ -874,18 +841,12 @@ if(WINDOWS)
     )
 elseif(ANDROID)
     set(CC_JNI_SRC_FILES
-        ${CWD}/cocos/platform/android/jni/JniCocosActivity.cpp
-        ${CWD}/cocos/platform/android/jni/JniCocosActivity.h
-        ${CWD}/cocos/platform/java/jni/JniCocosTouchHandler.cpp
-        ${CWD}/cocos/platform/java/jni/JniCocosKeyCodeHandler.cpp
-        ${CWD}/cocos/platform/android/jni/JniCocosSurfaceView.cpp
+        ${CWD}/cocos/platform/android/jni/JniCocosEntry.cpp
         ${CWD}/cocos/platform/java/jni/JniCocosOrientationHelper.cpp
         ${CWD}/cocos/platform/java/jni/JniHelper.cpp
         ${CWD}/cocos/platform/java/jni/JniHelper.h
         ${CWD}/cocos/platform/java/jni/JniImp.cpp
         ${CWD}/cocos/platform/java/jni/JniImp.h
-        ${CWD}/cocos/platform/java/jni/glue/JniNativeGlue.cpp
-        ${CWD}/cocos/platform/java/jni/glue/JniNativeGlue.h
         ${CWD}/cocos/platform/java/jni/glue/MessagePipe.cpp
         ${CWD}/cocos/platform/java/jni/glue/MessagePipe.h
     )
@@ -942,11 +903,6 @@ elseif(LINUX)
     cocos_source_files(MODULE ccfilesystem
         cocos/platform/linux/FileUtils-linux.cpp
         cocos/platform/linux/FileUtils-linux.h
-    )
-elseif(QNX)
-    cocos_source_files(MODULE ccfilesystem
-        cocos/platform/qnx/FileUtils-qnx.cpp
-        cocos/platform/qnx/FileUtils-qnx.h
     )
 endif()
 
@@ -2387,10 +2343,6 @@ elseif(LINUX)
     cocos_source_files(
         NO_WERROR    cocos/bindings/manual/jsb_platfrom_linux.cpp
     )
-elseif(QNX)
-    cocos_source_files(
-        NO_WERROR    cocos/bindings/manual/jsb_platfrom_qnx.cpp
-    )
 endif()
 
 ############# module bindings
@@ -2492,12 +2444,12 @@ cocos_source_files(
 )
 
 #### storage
-cocos_source_files(
-                 cocos/storage/local-storage/LocalStorage.cpp
-                 cocos/storage/local-storage/LocalStorage.h
-)
-
-if(ANDROID)
+if(NOT ANDROID)
+    cocos_source_files(
+                     cocos/storage/local-storage/LocalStorage.cpp
+                     cocos/storage/local-storage/LocalStorage.h
+    )
+else()
     cocos_source_files(
                      cocos/storage/local-storage/LocalStorage-android.cpp
     )
@@ -2588,13 +2540,7 @@ elseif(WIN32)
             NO_WERROR    cocos/ui/edit-box/EditBox-win32.cpp
         )
     endif()
-elseif(LINUX)
-    if(USE_EDIT_BOX)
-        cocos_source_files(
-            NO_WERROR    cocos/ui/edit-box/EditBox-linux.cpp
-        )
-    endif()
-elseif(QNX)
+elseif(LINUX OR QNX)
     if(USE_EDIT_BOX)
         cocos_source_files(
             NO_WERROR    cocos/ui/edit-box/EditBox-linux.cpp
@@ -2619,7 +2565,6 @@ cocos_source_files(
 )
 
 list(APPEND COCOS_SOURCE_LIST ${CC_EXTERNAL_SOURCES})
-
 
 ### generate source files
 
@@ -2788,6 +2733,15 @@ else()
     )
 endif()
 
+source_group(TREE ${CWD} PREFIX "Source Files" FILES ${COCOS_SOURCE_LIST})
+
+if(QNX)
+    include(${QNX_PATH}/source.cmake)
+    qnx_source_list(ccqnx_SOURCE_LIST ${QNX_PATH})
+    source_group(TREE ${QNX_PATH} PREFIX "Source Files" FILES ${ccqnx_SOURCE_LIST}})
+    list(APPEND COCOS_SOURCE_LIST ${ccqnx_SOURCE_LIST})
+endif()
+
 add_library(${ENGINE_NAME} ${COCOS_SOURCE_LIST})
 
 if(USE_MODULES)
@@ -2816,6 +2770,10 @@ if(ANDROID OR OHOS)
             android
             log
         )
+        # Export GameActivity_onCreate(),
+        # Refer to: https://github.com/android-ndk/ndk/issues/381.
+        set(CMAKE_SHARED_LINKER_FLAGS
+                "${CMAKE_SHARED_LINKER_FLAGS} -u GameActivity_onCreate")
     endif()
 endif()
 
@@ -2859,7 +2817,7 @@ if(MSVC)
         ${CWD}/external/win64/libs/*.dll
         ${CWD}/external/win64/libs/msvcr/*.dll
     )
-    target_compile_options(${ENGINE_NAME} PUBLIC /MP 
+    target_compile_options(${ENGINE_NAME} PUBLIC /MP
         /bigobj
         /wd4018 # signed/unsigned mismatch
         /wd4244 # type conversion data lost
@@ -2967,6 +2925,7 @@ if(ANDROID)
     find_library(LIB_GLESv2 NAMES GLESv2)
     target_link_libraries(${ENGINE_NAME} PUBLIC
         android
+        paddleboat_static
         OpenSLES
         ${LIB_EGL}
         ${LIB_GLESv2}
@@ -3053,12 +3012,7 @@ if(APPLE)
 endif()
 
 if(QNX)
-    target_link_libraries(${ENGINE_NAME} PUBLIC
-        socket
-        ssl
-        screen
-        ${CC_EXTERNAL_LIBS}
-    )
+    include(${QNX_PATH}/setup.cmake)
 elseif(LINUX)
     set(LINUX_GRAPHIC_LIBS "")
     if(NOT USE_SERVER_MODE)
@@ -3069,5 +3023,4 @@ elseif(LINUX)
         ${CC_EXTERNAL_LIBS}
     )
 endif()
-
 source_group(TREE ${CWD} PREFIX "Source Files" FILES ${COCOS_SOURCE_LIST})

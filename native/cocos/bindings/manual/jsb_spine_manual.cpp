@@ -25,28 +25,26 @@
 
 #include "jsb_spine_manual.h"
 #include "platform/FileUtils.h"
-
 #include "base/Data.h"
-#include "cocos/bindings/auto/jsb_spine_auto.h"
-#include "cocos/bindings/jswrapper/SeApi.h"
-#include "cocos/bindings/manual/jsb_conversions.h"
-#include "cocos/bindings/manual/jsb_global.h"
-#include "cocos/bindings/manual/jsb_helper.h"
-
+#include "base/memory/Memory.h"
+#include "bindings/auto/jsb_spine_auto.h"
+#include "bindings/jswrapper/SeApi.h"
+#include "bindings/manual/jsb_conversions.h"
+#include "bindings/manual/jsb_global.h"
+#include "bindings/manual/jsb_helper.h"
+#include "editor-support/spine-creator-support/spine-cocos2dx.h"
+#include "editor-support/spine/spine.h"
 #include "middleware-adapter.h"
 #include "spine-creator-support/SkeletonDataMgr.h"
 #include "spine-creator-support/SkeletonRenderer.h"
 #include "spine-creator-support/spine-cocos2dx.h"
-
-#include "cocos/editor-support/spine-creator-support/spine-cocos2dx.h"
-#include "cocos/editor-support/spine/spine.h"
 
 using namespace cc;
 
 static spine::Cocos2dTextureLoader                         textureLoader;
 static cc::RefMap<ccstd::string, middleware::Texture2D *> *_preloadedAtlasTextures = nullptr;
 static middleware::Texture2D *                             _getPreloadedAtlasTexture(const char *path) {
-    assert(_preloadedAtlasTextures);
+    CC_ASSERT(_preloadedAtlasTextures);
     auto it = _preloadedAtlasTextures->find(path);
     return it != _preloadedAtlasTextures->end() ? it->second : nullptr;
 }
@@ -93,12 +91,12 @@ static bool js_register_spine_initSkeletonData(se::State &s) {
     _preloadedAtlasTextures = &textures;
     spine::spAtlasPage_setCustomTextureLoader(_getPreloadedAtlasTexture);
 
-    spine::Atlas *atlas = new (__FILE__, __LINE__) spine::Atlas(atlasText.c_str(), (int)atlasText.size(), "", &textureLoader);
+    spine::Atlas *atlas = ccnew_placement(__FILE__, __LINE__) spine::Atlas(atlasText.c_str(), (int)atlasText.size(), "", &textureLoader);
 
     _preloadedAtlasTextures = nullptr;
     spine::spAtlasPage_setCustomTextureLoader(nullptr);
 
-    spine::AttachmentLoader *attachmentLoader = new (__FILE__, __LINE__) spine::Cocos2dAtlasAttachmentLoader(atlas);
+    spine::AttachmentLoader *attachmentLoader = ccnew_placement(__FILE__, __LINE__) spine::Cocos2dAtlasAttachmentLoader(atlas);
     spine::SkeletonData *    skeletonData     = nullptr;
 
     std::size_t length = skeletonDataFile.length();
@@ -244,31 +242,7 @@ bool register_all_spine_manual(se::Object *obj) {
             // the same address.
             iter->second->setClearMappingInFinalizer(false);
             se::NativePtrToObjectMap::erase(iter);
-        } else {
-            return;
-        }
-
-        auto cleanup = [seObj]() {
-            auto se = se::ScriptEngine::getInstance();
-            if (!se->isValid() || se->isInCleanup())
-                return;
-
-            se::AutoHandleScope hs;
-            se->clearException();
-
-            // The mapping of native object & se::Object was cleared in above code.
-            // The private data (native object) may be a different object associated with other se::Object.
-            // Therefore, don't clear the mapping again.
-            seObj->clearPrivateData(false);
-            seObj->unroot();
-            seObj->decRef();
-        };
-
-        if (!se::ScriptEngine::getInstance()->isGarbageCollecting()) {
-            cleanup();
-        } else {
-            CleanupTask::pushTaskToAutoReleasePool(cleanup);
-        }
+        } 
     });
 
     se::ScriptEngine::getInstance()->addBeforeCleanupHook([]() {

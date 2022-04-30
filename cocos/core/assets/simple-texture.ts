@@ -76,7 +76,7 @@ export class SimpleTexture extends TextureBase {
     private _textureHeight = 0;
 
     protected _baseLevel = 0;
-    protected _maxLevel = 0;
+    protected _maxLevel = 1000;
 
     /**
      * @en The mipmap level of the texture
@@ -205,15 +205,13 @@ export class SimpleTexture extends TextureBase {
     }
 
     protected _setMipRange (baseLevel: number, maxLevel: number) {
-        this._baseLevel = baseLevel < 0 ? 0 : baseLevel;
-        this._baseLevel = this._baseLevel < this._mipmapLevel ? this._baseLevel : this._mipmapLevel - 1;
-
-        this._maxLevel = maxLevel < this._baseLevel ? this._baseLevel : maxLevel;
-        this._maxLevel = this._maxLevel < this._mipmapLevel ? this._maxLevel : this._mipmapLevel - 1;
+        this._baseLevel = baseLevel < 1 ? 0 : baseLevel;
+        this._maxLevel = maxLevel < 1 ? 0 : maxLevel;
     }
 
     /**
-     * Set mipmap level range for this texture.
+     * @en Set mipmap level range for this texture.
+     * @zh 设置当前贴图的 mipmap 范围。
      * @param baseLevel The base mipmap level.
      * @param maxLevel The maximum mipmap level.
      */
@@ -226,12 +224,15 @@ export class SimpleTexture extends TextureBase {
         if (!device) {
             return;
         }
+        // create a new texture view before the destruction of the previous one to bypass the bug that
+        // vulkan destroys textureview in use. This is a temporary solution, should be fixed later.
+        const textureView = this._createTextureView(device);
         this._tryDestroyTextureView();
-        this._createTextureView(device);
+        this._gfxTextureView = textureView;
     }
 
     /**
-     * @en This method is overrided by derived classes to provide GFX texture info.
+     * @en This method is override by derived classes to provide GFX texture info.
      * @zh 这个方法被派生类重写以提供 GFX 纹理信息。
      * @param presumed The presumed GFX texture info.
      */
@@ -259,7 +260,7 @@ export class SimpleTexture extends TextureBase {
             return;
         }
         this._createTexture(device);
-        this._createTextureView(device);
+        this._gfxTextureView = this._createTextureView(device);
     }
 
     protected _createTexture (device: Device) {
@@ -287,22 +288,22 @@ export class SimpleTexture extends TextureBase {
         this._gfxTexture = texture;
     }
 
-    protected _createTextureView (device: Device) {
+    protected _createTextureView (device: Device) : Texture | null {
         if (!this._gfxTexture) {
-            return;
+            return null;
         }
+        const maxLevel = this._maxLevel < this._mipmapLevel ? this._maxLevel : this._mipmapLevel - 1;
         const textureViewCreateInfo = this._getGfxTextureViewCreateInfo({
             texture: this._gfxTexture,
             format: this._getGFXFormat(),
             baseLevel: this._baseLevel,
-            levelCount: this._maxLevel - this._baseLevel + 1,
+            levelCount: maxLevel - this._baseLevel + 1,
         });
         if (!textureViewCreateInfo) {
-            return;
+            return null;
         }
 
-        const textureView = device.createTexture(textureViewCreateInfo);
-        this._gfxTextureView = textureView;
+        return device.createTexture(textureViewCreateInfo);
     }
 
     protected _tryDestroyTexture () {

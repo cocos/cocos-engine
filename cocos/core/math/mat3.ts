@@ -726,7 +726,7 @@ export class Mat3 extends ValueType {
      * @param other Specified matrix
      * @return this
      */
-    public set (other: Mat3);
+    public set (other: Mat3): Mat3;
 
     /**
      * @en Set the matrix with values of all elements
@@ -735,7 +735,7 @@ export class Mat3 extends ValueType {
      */
     public set (m00?: number, m01?: number, m02?: number,
         m03?: number, m04?: number, m05?: number,
-        m06?: number, m07?: number, m08?: number);
+        m06?: number, m07?: number, m08?: number): Mat3;
 
     public set (m00: number | Mat3 = 1, m01 = 0, m02 = 0,
         m03 = 0, m04 = 1, m05 = 0,

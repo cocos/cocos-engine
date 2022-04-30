@@ -126,7 +126,7 @@ BBox OctreeNode::getChildBox(uint32_t index) const {
 OctreeNode *OctreeNode::getOrCreateChild(uint32_t index) {
     if (!_children[index]) {
         BBox  childBox = getChildBox(index);
-        auto *child = _children[index] = new OctreeNode(_owner, this);
+        auto *child = _children[index] = ccnew OctreeNode(_owner, this);
         child->setBox(childBox);
         child->setDepth(_depth + 1);
         child->setIndex(index);
@@ -299,7 +299,7 @@ void OctreeNode::queryVisibilitySequentially(const Camera *camera, const geometr
  * Octree class
  */
 Octree::Octree() {
-    _root = new OctreeNode(this, nullptr);
+    _root = ccnew OctreeNode(this, nullptr);
 }
 
 Octree::~Octree() {
@@ -347,7 +347,7 @@ void Octree::resize(const Vec3 &minPos, const Vec3 &maxPos, uint32_t maxDepth) {
     _root->gatherModels(models);
 
     delete _root;
-    _root = new OctreeNode(this, nullptr);
+    _root = ccnew OctreeNode(this, nullptr);
     _root->setBox(BBox{minPos - expand, maxPos});
     _root->setDepth(0);
     _root->setIndex(0);

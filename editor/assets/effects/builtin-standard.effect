@@ -14,10 +14,10 @@ CCEffect %{
         occlusion:            { value: 1.0, target: pbrParams.x, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         roughness:            { value: 0.8, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         metallic:             { value: 0.6, target: pbrParams.z, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
-        SpecularIntensity:    { value: 0.5, target: pbrParams.w, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
+        specularIntensity:    { value: 0.5, target: pbrParams.w, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
         emissive:             { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
         emissiveScale:        { value: [1.0, 1.0, 1.0], target: emissiveScaleParam.xyz }
-        normalStrenth:        { value: 1.0, target: emissiveScaleParam.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
+        normalStrength:       { value: 1.0, target: emissiveScaleParam.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
         mainTexture:          { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
         normalMap:            { value: normal }
         pbrMap:               { value: grey }
@@ -88,6 +88,7 @@ CCProgram standard-vs %{
   precision highp float;
   #include <input-standard>
   #include <cc-global>
+  #include <decode-base>
   #include <cc-local-batch>
   #include <shared-ubos>
   #include <cc-fog-vs>
@@ -95,21 +96,22 @@ CCProgram standard-vs %{
 
   #if USE_VERTEX_COLOR
     in vec4 a_color;
-    out vec4 v_color;
+    out lowp vec4 v_color;
   #endif
 
   out vec3 v_position;
-  out vec3 v_normal;
+  out mediump vec3 v_normal;
   out vec2 v_uv;
-  out vec2 v_uv1;
+  #if HAS_SECOND_UV
+    out mediump vec2 v_uv1;
+  #endif
 
   #if CC_RECEIVE_SHADOW
-    out vec2 v_shadowBias;
+    out mediump vec2 v_shadowBias;
   #endif
 
   #if USE_NORMAL_MAP
-    out vec3 v_tangent;
-    out vec3 v_bitangent;
+    out mediump vec4 v_tangent;
   #endif
 
   #if HAS_SECOND_UV || USE_LIGHTMAP
@@ -142,8 +144,8 @@ CCProgram standard-vs %{
     #endif
 
     #if USE_NORMAL_MAP
-      v_tangent = normalize((matWorld * vec4(In.tangent.xyz, 0.0)).xyz);
-      v_bitangent = cross(v_normal, v_tangent) * In.tangent.w; // note the cross order
+      v_tangent.xyz = normalize((matWorld * vec4(In.tangent.xyz, 0.0)).xyz);
+      v_tangent.w = In.tangent.w;
     #endif
 
     v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
@@ -184,15 +186,17 @@ CCProgram standard-fs %{
 
   in vec3 v_position;
   in vec2 v_uv;
-  in vec2 v_uv1;
-  in vec3 v_normal;
+  #if HAS_SECOND_UV
+    in mediump vec2 v_uv1;
+  #endif
+  in mediump vec3 v_normal;
 
   #if CC_RECEIVE_SHADOW
-    in vec2 v_shadowBias;
+    in mediump vec2 v_shadowBias;
   #endif
 
   #if USE_VERTEX_COLOR
-    in vec4 v_color;
+    in lowp vec4 v_color;
   #endif
 
   #if USE_ALBEDO_MAP
@@ -200,8 +204,7 @@ CCProgram standard-fs %{
     #pragma define-meta ALBEDO_UV options([v_uv, v_uv1])
   #endif
   #if USE_NORMAL_MAP
-    in vec3 v_tangent;
-    in vec3 v_bitangent;
+    in mediump vec4 v_tangent;
     uniform sampler2D normalMap;
     #pragma define-meta NORMAL_UV options([v_uv, v_uv1])
   #endif
@@ -261,9 +264,10 @@ CCProgram standard-fs %{
 
     #if USE_NORMAL_MAP
       vec3 nmmp = texture(normalMap, NORMAL_UV).xyz - vec3(0.5);
+      vec3 bitangent = cross(v_normal, v_tangent.xyz) * v_tangent.w; // note the cross order
       s.normal =
-        (nmmp.x * emissiveScaleParam.w) * normalize(v_tangent) +
-        (nmmp.y * emissiveScaleParam.w) * normalize(v_bitangent) +
+        (nmmp.x * emissiveScaleParam.w) * normalize(v_tangent.xyz) +
+        (nmmp.y * emissiveScaleParam.w) * normalize(bitangent) +
         nmmp.z * normalize(s.normal);
     #endif
 
@@ -287,6 +291,7 @@ CCProgram standard-fs %{
     #endif
     s.occlusion = pbr.x;
     s.roughness = pbr.y;
+    s.specularIntensity = 0.5;
     s.metallic = pbr.z;
 
     s.emissive = emissive.rgb * emissiveScaleParam.xyz;
@@ -301,6 +306,7 @@ CCProgram standard-fs %{
 CCProgram shadow-caster-vs %{
   precision highp float;
   #include <input-standard>
+  #include <decode-base>
   #include <cc-local-batch>
   #include <shared-ubos>
   #include <cc-shadow>
@@ -310,7 +316,9 @@ CCProgram shadow-caster-vs %{
   #endif
 
   out vec2 v_uv;
-  out vec2 v_uv1;
+  #if HAS_SECOND_UV
+    out vec2 v_uv1;
+  #endif
   out vec4 v_worldPos;
 
   out float v_clip_depth;
@@ -343,7 +351,9 @@ CCProgram shadow-caster-fs %{
   #include <cc-shadow-map-base>
 
   in vec2 v_uv;
-  in vec2 v_uv1;
+  #if HAS_SECOND_UV
+    in vec2 v_uv1;
+  #endif
   in vec4 v_worldPos;
   in float v_clip_depth;
 

@@ -155,20 +155,20 @@ export class AssetManager {
 
     /**
      * @en
-     * The collection of bundle which is already loaded, you can remove cache with {{#crossLink "AssetManager/removeBundle:method"}}{{/crossLink}}
+     * The collection of bundle which is already loaded, you can remove cache with [[removeBundle]]
      *
      * @zh
-     * 已加载 bundle 的集合， 你能通过 {{#crossLink "AssetManager/removeBundle:method"}}{{/crossLink}} 来移除缓存
+     * 已加载 bundle 的集合， 你能通过 [[removeBundle]] 来移除缓存
      *
      */
     public bundles: ICache<Bundle> = bundles;
 
     /**
      * @en
-     * The collection of asset which is already loaded, you can remove cache with {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}}
+     * The collection of asset which is already loaded, you can remove cache with [[releaseAsset]]
      *
      * @zh
-     * 已加载资源的集合， 你能通过 {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}} 来移除缓存
+     * 已加载资源的集合， 你能通过 [[releaseAsset]] 来移除缓存
      */
     public assets: ICache<Asset> = assets;
 
@@ -370,10 +370,10 @@ export class AssetManager {
     /**
      * @en
      * Remove this bundle. NOTE: The asset within this bundle will not be released automatically,
-     * you can call {{#crossLink "Bundle/releaseAll:method"}}{{/crossLink}} manually before remove it if you need
+     * you can call [[Bundle.releaseAll]] manually before remove it if you need
      *
      * @zh
-     * 移除此包, 注意：这个包内的资源不会自动释放, 如果需要的话你可以在摧毁之前手动调用 {{#crossLink "Bundle/releaseAll:method"}}{{/crossLink}} 进行释放
+     * 移除此包, 注意：这个包内的资源不会自动释放, 如果需要的话你可以在摧毁之前手动调用 [[Bundle.releaseAll]] 进行释放
      *
      * @param bundle - The bundle to be removed
      *
@@ -617,10 +617,10 @@ export class AssetManager {
 
     /**
      * @en
-     * Release all unused assets. Refer to {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}} for detailed information.
+     * Release all unused assets. Refer to [[releaseAsset]] for detailed information.
      *
      * @zh
-     * 释放所有没有用到的资源。详细信息请参考 {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}}
+     * 释放所有没有用到的资源。详细信息请参考 [[releaseAsset]]
      *
      * @engineInternal
      *
@@ -633,10 +633,10 @@ export class AssetManager {
 
     /**
      * @en
-     * Release all assets. Refer to {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}} for detailed information.
+     * Release all assets. Refer to [[releaseAsset]] for detailed information.
      *
      * @zh
-     * 释放所有资源。详细信息请参考 {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}}
+     * 释放所有资源。详细信息请参考 [[releaseAsset]]
      *
      */
     public releaseAll () {

@@ -25,6 +25,7 @@
 
 #include "platform/win32/modules/System.h"
 #include <Windows.h>
+#include "base/memory/Memory.h"
 
 namespace cc {
 using OSType = System::OSType;
@@ -111,7 +112,7 @@ ccstd::string System::getCurrentLanguageCode() const {
     const LCID locale_id = MAKELCID(lid, SORT_DEFAULT);
     int        length    = GetLocaleInfoA(locale_id, LOCALE_SISO639LANGNAME, nullptr, 0);
 
-    char *tempCode = new char[length];
+    char *tempCode = ccnew char[length];
     GetLocaleInfoA(locale_id, LOCALE_SISO639LANGNAME, tempCode, length);
     ccstd::string code = tempCode;
     delete tempCode;
@@ -134,17 +135,10 @@ ccstd::string System::getSystemVersion() const {
         }
     }
     return buff;
-    //OSVERSIONINFO osvi;
-    //memset(&osvi, 0, sizeof(osvi));
-    //osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-    //GetVersionEx(&osvi);
-    //char buff[256] = {0};
-    //snprintf(buff, sizeof(buff), "Windows version %d.%d.%d", osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber);
-    //return buff;
 }
 
 bool System::openURL(const ccstd::string &url) {
-    WCHAR *temp    = new WCHAR[url.size() + 1];
+    WCHAR *temp    = ccnew WCHAR[url.size() + 1];
     int    urlSize = static_cast<int>(url.size() + 1);
     MultiByteToWideChar(CP_UTF8, 0, url.c_str(), urlSize, temp, urlSize);
     HINSTANCE r = ShellExecuteW(NULL, L"open", temp, NULL, NULL, SW_SHOWNORMAL);

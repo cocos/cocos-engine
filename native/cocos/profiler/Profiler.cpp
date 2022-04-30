@@ -83,7 +83,7 @@ ProfilerBlock *ProfilerBlock::getOrCreateChild(const ccstd::string &name) {
         }
     }
 
-    auto *child = new ProfilerBlock(this, name);
+    auto *child = ccnew ProfilerBlock(this, name);
     _children.push_back(child);
 
     return child;
@@ -124,7 +124,7 @@ struct ProfilerBlockDepth {
 Profiler *Profiler::instance = nullptr;
 Profiler *Profiler::getInstance() {
     if (!instance) {
-        instance = new Profiler();
+        instance = ccnew Profiler();
     }
 
     return instance;
@@ -139,7 +139,7 @@ void Profiler::destroyInstance() {
 
 Profiler::Profiler() {
     _mainThreadId = std::this_thread::get_id();
-    _root         = new ProfilerBlock(nullptr, "MainThread");
+    _root         = ccnew ProfilerBlock(nullptr, "MainThread");
     _current      = _root;
 }
 

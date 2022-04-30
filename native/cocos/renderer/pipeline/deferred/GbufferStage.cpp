@@ -52,8 +52,8 @@ RenderStageInfo GbufferStage::initInfo = {
 const RenderStageInfo &GbufferStage::getInitializeInfo() { return GbufferStage::initInfo; }
 
 GbufferStage::GbufferStage() {
-    _batchedQueue   = CC_NEW(RenderBatchedQueue);
-    _instancedQueue = CC_NEW(RenderInstancedQueue);
+    _batchedQueue   = ccnew RenderBatchedQueue;
+    _instancedQueue = ccnew RenderInstancedQueue;
 }
 
 GbufferStage::~GbufferStage() = default;
@@ -72,9 +72,9 @@ void GbufferStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
         uint                  phase    = convertPhase(descriptor.stages);
         RenderQueueSortFunc   sortFunc = convertQueueSortFunc(descriptor.sortMode);
         RenderQueueCreateInfo info     = {descriptor.isTransparent, phase, sortFunc};
-        _renderQueues.emplace_back(CC_NEW(RenderQueue(_pipeline, std::move(info), true)));
+        _renderQueues.emplace_back(ccnew RenderQueue(_pipeline, std::move(info), true));
     }
-    _planarShadowQueue = CC_NEW(PlanarShadowQueue(_pipeline));
+    _planarShadowQueue = ccnew PlanarShadowQueue(_pipeline);
 }
 
 void GbufferStage::destroy() {
@@ -207,6 +207,9 @@ void GbufferStage::render(scene::Camera *camera) {
             static_cast<uint>(static_cast<float>(pipeline->getWidth()) * shadingScale),
             static_cast<uint>(static_cast<float>(pipeline->getHeight()) * shadingScale),
         };
+        if (_device->getGfxAPI() == gfx::API::VULKAN) { // TODO(Zhenglong Zhou): remove platform dependent settings
+            depthTexInfo.usage |= gfx::TextureUsageBit::INPUT_ATTACHMENT;
+        }
         data.depth = builder.create(DeferredPipeline::fgStrHandleOutDepthTexture, depthTexInfo);
 
         framegraph::RenderTargetAttachment::Descriptor depthInfo;

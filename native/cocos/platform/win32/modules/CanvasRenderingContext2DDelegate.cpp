@@ -28,8 +28,8 @@
 
 namespace {
 void fillRectWithColor(uint8_t *buf, uint32_t totalWidth, uint32_t totalHeight, uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
-    assert(x + width <= totalWidth);
-    assert(y + height <= totalHeight);
+    CC_ASSERT(x + width <= totalWidth);
+    CC_ASSERT(y + height <= totalHeight);
 
     uint32_t y0 = y;
     uint32_t y1 = y + height;
@@ -260,11 +260,11 @@ void CanvasRenderingContext2DDelegate::updateFont(const ccstd::string &fontName,
     } while (false);
 }
 
-void CanvasRenderingContext2DDelegate::setTextAlign(CanvasTextAlign align) {
+void CanvasRenderingContext2DDelegate::setTextAlign(TextAlign align) {
     _textAlign = align;
 }
 
-void CanvasRenderingContext2DDelegate::setTextBaseline(CanvasTextBaseline baseline) {
+void CanvasRenderingContext2DDelegate::setTextBaseline(TextBaseline baseline) {
     _textBaseLine = baseline;
 }
 
@@ -293,7 +293,7 @@ wchar_t *CanvasRenderingContext2DDelegate::utf8ToUtf16(const ccstd::string &str,
         }
         int nLen    = static_cast<int>(str.size());
         int nBufLen = nLen + 1;
-        pwszBuffer  = new wchar_t[nBufLen];
+        pwszBuffer  = ccnew wchar_t[nBufLen];
         CC_BREAK_IF(!pwszBuffer);
         memset(pwszBuffer, 0, sizeof(wchar_t) * nBufLen);
         // str.size() not equal actuallyLen for Chinese char
@@ -452,21 +452,21 @@ void CanvasRenderingContext2DDelegate::fillTextureData() {
 
 ccstd::array<float, 2> CanvasRenderingContext2DDelegate::convertDrawPoint(Point point, const ccstd::string &text) {
     Size textSize = measureText(text);
-    if (_textAlign == CanvasTextAlign::CENTER) {
+    if (_textAlign == TextAlign::CENTER) {
         point[0] -= textSize[0] / 2.0f;
-    } else if (_textAlign == CanvasTextAlign::RIGHT) {
+    } else if (_textAlign == TextAlign::RIGHT) {
         point[0] -= textSize[0];
     }
 
-    if (_textBaseLine == CanvasTextBaseline::TOP) {
+    if (_textBaseLine == TextBaseline::TOP) {
         // DrawText default
         GetTextMetrics(_DC, &_tm);
         point[1] += -_tm.tmInternalLeading;
-    } else if (_textBaseLine == CanvasTextBaseline::MIDDLE) {
+    } else if (_textBaseLine == TextBaseline::MIDDLE) {
         point[1] += -textSize[1] / 2.0f;
-    } else if (_textBaseLine == CanvasTextBaseline::BOTTOM) {
+    } else if (_textBaseLine == TextBaseline::BOTTOM) {
         point[1] += -textSize[1];
-    } else if (_textBaseLine == CanvasTextBaseline::ALPHABETIC) {
+    } else if (_textBaseLine == TextBaseline::ALPHABETIC) {
         GetTextMetrics(_DC, &_tm);
         point[1] -= _tm.tmAscent;
     }

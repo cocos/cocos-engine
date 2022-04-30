@@ -72,11 +72,11 @@ GLES3Device::~GLES3Device() {
 }
 
 bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
-    _gpuContext             = CC_NEW(GLES3GPUContext);
-    _gpuStateCache          = CC_NEW(GLES3GPUStateCache);
-    _gpuFramebufferHub      = CC_NEW(GLES3GPUFramebufferHub);
-    _gpuConstantRegistry    = CC_NEW(GLES3GPUConstantRegistry);
-    _gpuFramebufferCacheMap = CC_NEW(GLES3GPUFramebufferCacheMap(_gpuStateCache));
+    _gpuContext             = ccnew GLES3GPUContext;
+    _gpuStateCache          = ccnew GLES3GPUStateCache;
+    _gpuFramebufferHub      = ccnew GLES3GPUFramebufferHub;
+    _gpuConstantRegistry    = ccnew GLES3GPUConstantRegistry;
+    _gpuFramebufferCacheMap = ccnew GLES3GPUFramebufferCacheMap(_gpuStateCache);
 
     if (!_gpuContext->initialize(_gpuStateCache, _gpuConstantRegistry)) {
         destroy();
@@ -116,7 +116,8 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
 
     ccstd::string fbfLevelStr = "NONE";
     // PVRVFrame has issues on their support
-#if CC_PLATFORM != CC_PLATFORM_WINDOWS
+#if 0 // CC_PLATFORM != CC_PLATFORM_WINDOWS
+    // TODO: enable fbf in the future, it is not implemented yet in gles3 backend
     if (checkExtension("framebuffer_fetch")) {
         ccstd::string nonCoherent = "framebuffer_fetch_non";
 
@@ -476,68 +477,68 @@ void GLES3Device::initFormatFeature() {
 }
 
 CommandBuffer *GLES3Device::createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
-    if (hasAgent || info.type == CommandBufferType::PRIMARY) return CC_NEW(GLES3PrimaryCommandBuffer);
-    return CC_NEW(GLES3CommandBuffer);
+    if (hasAgent || info.type == CommandBufferType::PRIMARY) return ccnew GLES3PrimaryCommandBuffer;
+    return ccnew GLES3CommandBuffer;
 }
 
 Queue *GLES3Device::createQueue() {
-    return CC_NEW(GLES3Queue);
+    return ccnew GLES3Queue;
 }
 
 QueryPool *GLES3Device::createQueryPool() {
-    return CC_NEW(GLES3QueryPool);
+    return ccnew GLES3QueryPool;
 }
 
 Swapchain *GLES3Device::createSwapchain() {
-    return CC_NEW(GLES3Swapchain);
+    return ccnew GLES3Swapchain;
 }
 
 Buffer *GLES3Device::createBuffer() {
-    return CC_NEW(GLES3Buffer);
+    return ccnew GLES3Buffer;
 }
 
 Texture *GLES3Device::createTexture() {
-    return CC_NEW(GLES3Texture);
+    return ccnew GLES3Texture;
 }
 
 Shader *GLES3Device::createShader() {
-    return CC_NEW(GLES3Shader);
+    return ccnew GLES3Shader;
 }
 
 InputAssembler *GLES3Device::createInputAssembler() {
-    return CC_NEW(GLES3InputAssembler);
+    return ccnew GLES3InputAssembler;
 }
 
 RenderPass *GLES3Device::createRenderPass() {
-    return CC_NEW(GLES3RenderPass);
+    return ccnew GLES3RenderPass;
 }
 
 Framebuffer *GLES3Device::createFramebuffer() {
-    return CC_NEW(GLES3Framebuffer);
+    return ccnew GLES3Framebuffer;
 }
 
 DescriptorSet *GLES3Device::createDescriptorSet() {
-    return CC_NEW(GLES3DescriptorSet);
+    return ccnew GLES3DescriptorSet;
 }
 
 DescriptorSetLayout *GLES3Device::createDescriptorSetLayout() {
-    return CC_NEW(GLES3DescriptorSetLayout);
+    return ccnew GLES3DescriptorSetLayout;
 }
 
 PipelineLayout *GLES3Device::createPipelineLayout() {
-    return CC_NEW(GLES3PipelineLayout);
+    return ccnew GLES3PipelineLayout;
 }
 
 PipelineState *GLES3Device::createPipelineState() {
-    return CC_NEW(GLES3PipelineState);
+    return ccnew GLES3PipelineState;
 }
 
 Sampler *GLES3Device::createSampler(const SamplerInfo &info) {
-    return CC_NEW(GLES3Sampler(info));
+    return ccnew GLES3Sampler(info);
 }
 
 GeneralBarrier *GLES3Device::createGeneralBarrier(const GeneralBarrierInfo &info) {
-    return CC_NEW(GLES3GeneralBarrier(info));
+    return ccnew GLES3GeneralBarrier(info);
 }
 
 void GLES3Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {

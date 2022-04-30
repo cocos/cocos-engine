@@ -53,8 +53,8 @@ namespace cc {
 namespace pipeline {
 
 RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline) : _pipeline(pipeline),
-                                                                               _instancedQueue(CC_NEW(RenderInstancedQueue)),
-                                                                               _batchedQueue(CC_NEW(RenderBatchedQueue)) {
+                                                                               _instancedQueue(ccnew RenderInstancedQueue),
+                                                                               _batchedQueue(ccnew RenderBatchedQueue) {
     auto *     device        = gfx::Device::getInstance();
     const auto alignment     = device->getCapabilities().uboOffsetAlignment;
     _lightBufferStride       = ((UBOForwardLight::SIZE + alignment - 1) / alignment) * alignment;

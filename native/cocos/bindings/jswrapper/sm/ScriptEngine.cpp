@@ -259,7 +259,7 @@ AutoHandleScope::~AutoHandleScope() {
 
 ScriptEngine *ScriptEngine::getInstance() {
     if (__instance == nullptr) {
-        __instance = new ScriptEngine();
+        __instance = ccnew ScriptEngine();
     }
 
     return __instance;
@@ -882,7 +882,7 @@ bool ScriptEngine::compileScript(const std::string &path, JS::MutableHandleScrip
     //                    if (appended && result == JS::TranscodeResult::TranscodeResult_Ok)
     //                    {
     //                        compileSucceed = true;
-    //                        _filenameScriptMap[byteCodePath] = new (std::nothrow) JS::PersistentRootedScript(_cx, script.get());
+    //                        _filenameScriptMap[byteCodePath] = ccnew JS::PersistentRootedScript(_cx, script.get());
     //                    }
     //                    assert(compileSucceed);
     //                }
@@ -910,7 +910,7 @@ bool ScriptEngine::compileScript(const std::string &path, JS::MutableHandleScrip
                 compileSucceed = true;
                 script.set(compiledScript);
                 std::string fullPath         = _fileOperationDelegate.onGetFullPath(path);
-                _filenameScriptMap[fullPath] = new (std::nothrow) JS::PersistentRootedScript(_cx, script.get());
+                _filenameScriptMap[fullPath] = ccnew JS::PersistentRootedScript(_cx, script.get());
             }
             assert(compileSucceed);
         }

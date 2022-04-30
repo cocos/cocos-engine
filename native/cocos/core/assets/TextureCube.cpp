@@ -66,7 +66,7 @@ TextureCube *TextureCube::fromTexture2DArray(const ccstd::vector<Texture2D *> &t
 
         mipmaps.emplace_back(mipmap);
     }
-    auto *out = new TextureCube();
+    auto *out = ccnew TextureCube();
     out->setMipmaps(mipmaps);
     return out;
 }
@@ -124,7 +124,7 @@ void TextureCube::reset(const ITextureCubeCreateInfo &info) {
     setMipmapLevel(mipLevels);
     
     uint32_t minLod = info.baseLevel.has_value() ? info.baseLevel.value() : 0;
-    uint32_t maxLod = info.maxLevel.has_value() ? info.maxLevel.value() : mipLevels - 1;
+    uint32_t maxLod = info.maxLevel.has_value() ? info.maxLevel.value() : 1000;
     setMipRange(minLod, maxLod);
 
     tryReset();
@@ -201,12 +201,12 @@ void TextureCube::deserialize(const cc::any &serializedData, const cc::any &hand
     for (size_t i = 0; i < data->mipmaps.size(); ++i) {
         // Prevent resource load failed
         ITextureCubeMipmap mipmap;
-        mipmap.front  = new ImageAsset(),
-        mipmap.back   = new ImageAsset(),
-        mipmap.left   = new ImageAsset(),
-        mipmap.right  = new ImageAsset(),
-        mipmap.top    = new ImageAsset(),
-        mipmap.bottom = new ImageAsset();
+        mipmap.front  = ccnew ImageAsset(),
+        mipmap.back   = ccnew ImageAsset(),
+        mipmap.left   = ccnew ImageAsset(),
+        mipmap.right  = ccnew ImageAsset(),
+        mipmap.top    = ccnew ImageAsset(),
+        mipmap.bottom = ccnew ImageAsset();
         _mipmaps[i]   = mipmap;
         //        auto* mipmap = data->mipmaps[i];
 
@@ -249,7 +249,7 @@ gfx::TextureViewInfo TextureCube::getGfxTextureViewCreateInfo(gfx::Texture *text
 void TextureCube::initDefault(const cc::optional<ccstd::string> &uuid) {
     Super::initDefault(uuid);
 
-    auto *imageAsset = new ImageAsset();
+    auto *imageAsset = ccnew ImageAsset();
     imageAsset->initDefault(cc::nullopt);
 
     ITextureCubeMipmap mipmap;

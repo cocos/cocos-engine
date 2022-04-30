@@ -25,6 +25,10 @@ THE SOFTWARE.
 
 #define LOG_TAG "AudioPlayerProvider"
 
+#include <sys/system_properties.h>
+#include <algorithm> // for std::find_if
+#include <cstdlib>
+#include <utility>
 #include "audio/android/AudioPlayerProvider.h"
 #include "audio/android/AudioDecoder.h"
 #include "audio/android/AudioDecoderProvider.h"
@@ -34,12 +38,8 @@ THE SOFTWARE.
 #include "audio/android/PcmAudioService.h"
 #include "audio/android/UrlAudioPlayer.h"
 #include "audio/android/utils/Utils.h"
+#include "base/memory/Memory.h"
 #include "base/ThreadPool.h"
-
-#include <sys/system_properties.h>
-#include <algorithm> // for std::find_if
-#include <cstdlib>
-#include <utility>
 
 namespace cc {
 
@@ -77,9 +77,9 @@ AudioPlayerProvider::AudioPlayerProvider(SLEngineItf engineItf, SLObjectItf outp
 : _engineItf(engineItf), _outputMixObject(outputMixObject), _deviceSampleRate(deviceSampleRate), _bufferSizeInFrames(bufferSizeInFrames), _fdGetterCallback(fdGetterCallback), _callerThreadUtils(callerThreadUtils), _pcmAudioService(nullptr), _mixController(nullptr), _threadPool(LegacyThreadPool::newCachedThreadPool(1, 8, 5, 2, 2)) {
     ALOGI("deviceSampleRate: %d, bufferSizeInFrames: %d", _deviceSampleRate, _bufferSizeInFrames);
     if (getSystemAPILevel() >= 17) {
-        _mixController = new (std::nothrow) AudioMixerController(_bufferSizeInFrames, _deviceSampleRate, 2);
+        _mixController = ccnew AudioMixerController(_bufferSizeInFrames, _deviceSampleRate, 2);
         _mixController->init();
-        _pcmAudioService = new (std::nothrow) PcmAudioService(engineItf, outputMixObject);
+        _pcmAudioService = ccnew PcmAudioService(engineItf, outputMixObject);
         _pcmAudioService->init(_mixController, 2, deviceSampleRate, bufferSizeInFrames * 2);
     }
 
@@ -400,7 +400,7 @@ PcmAudioPlayer *AudioPlayerProvider::obtainPcmAudioPlayer(const ccstd::string &u
                                                           const PcmData &      pcmData) {
     PcmAudioPlayer *pcmPlayer = nullptr;
     if (pcmData.isValid()) {
-        pcmPlayer = new (std::nothrow) PcmAudioPlayer(_mixController, _callerThreadUtils);
+        pcmPlayer = ccnew PcmAudioPlayer(_mixController, _callerThreadUtils);
         if (pcmPlayer != nullptr) {
             pcmPlayer->prepare(url, pcmData);
         }
@@ -418,7 +418,7 @@ UrlAudioPlayer *AudioPlayerProvider::createUrlAudioPlayer(
     }
 
     SLuint32 locatorType = info.assetFd->getFd() > 0 ? SL_DATALOCATOR_ANDROIDFD : SL_DATALOCATOR_URI;
-    auto     urlPlayer   = new (std::nothrow) UrlAudioPlayer(_engineItf, _outputMixObject, _callerThreadUtils);
+    auto     urlPlayer   = ccnew UrlAudioPlayer(_engineItf, _outputMixObject, _callerThreadUtils);
     bool     ret         = urlPlayer->prepare(info.url, locatorType, info.assetFd, info.start, info.length);
     if (!ret) {
         SL_SAFE_DELETE(urlPlayer);

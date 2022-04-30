@@ -45,7 +45,8 @@ public:
     using Vec2    = ccstd::array<float, 2>;
     using Size    = ccstd::array<float, 2>;
     using Color4F = ccstd::array<float, 4>;
-
+    using TextAlign    = ICanvasRenderingContext2D::TextAlign;
+    using TextBaseline = ICanvasRenderingContext2D::TextBaseline;
     CanvasRenderingContext2DDelegate();
     ~CanvasRenderingContext2DDelegate() override;
 
@@ -63,8 +64,8 @@ public:
     void            strokeText(const ccstd::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) const;
     Size            measureText(const ccstd::string &text) override;
     void            updateFont(const ccstd::string &fontName, float fontSize, bool bold, bool italic, bool oblique, bool smallCaps) override;
-    void            setTextAlign(CanvasTextAlign align) override;
-    void            setTextBaseline(CanvasTextBaseline baseline) override;
+    void            setTextAlign(TextAlign align) override;
+    void            setTextBaseline(TextBaseline baseline) override;
     void            setFillStyle(float r, float g, float b, float a) override;
     void            setStrokeStyle(float r, float g, float b, float a) override;
     void            setLineWidth(float lineWidth) override;
@@ -106,8 +107,8 @@ private:
     ccstd::string      _fontName;
     int                _fontSize{0};
     Size               _textSize;
-    CanvasTextAlign    _textAlign{CanvasTextAlign::CENTER};
-    CanvasTextBaseline _textBaseLine{CanvasTextBaseline::TOP};
+    TextAlign          _textAlign{TextAlign::CENTER};
+    TextBaseline       _textBaseLine{TextBaseline::TOP};
     Color4F            _fillStyle;
     Color4F            _strokeStyle;
 

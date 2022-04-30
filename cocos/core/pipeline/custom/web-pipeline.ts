@@ -31,7 +31,7 @@ import { QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, TaskTyp
 import { AccessType, AttachmentType, Blit, ComputePass, ComputeView, CopyPair, CopyPass, Dispatch, ManagedResource, MovePair, MovePass, PresentPass, RasterPass, RasterView, RenderData, RenderGraph, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, MovePassBuilder, Pipeline, RasterPassBuilder, RasterQueueBuilder, SceneTask, SceneTransversal, SceneVisitor, Setter } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { Model, RenderScene, Camera, SKYBOX_FLAG, Light, LightType, ShadowType, DirectionalLight, Shadows } from '../../renderer/scene';
+import { Model, Camera, SKYBOX_FLAG, Light, LightType, ShadowType, DirectionalLight, Shadows } from '../../renderer/scene';
 import { legacyCC } from '../../global-exports';
 import { LayoutGraphData } from './layout-graph';
 import { Executor } from './executor';
@@ -39,7 +39,7 @@ import { WebImplExample } from './web-pipeline-impl';
 import { RenderWindow } from '../../renderer/core/render-window';
 import { assert, macro } from '../../platform';
 import { WebSceneTransversal } from './web-scene';
-import { MacroRecord } from '../../renderer';
+import { MacroRecord, RenderScene } from '../../renderer';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { supportsR32FloatTexture, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
 import { OS } from '../../../../pal/system-info/enum-type';
@@ -495,7 +495,7 @@ export class WebPipeline extends Pipeline {
                 LoadOp.CLEAR, StoreOp.STORE,
                 ClearFlagBit.COLOR,
                 new Color(0, 0, 0, 0)));
-            const queue = pass.addQueue(QueueHint.NONE);
+            const queue = pass.addQueue(QueueHint.RENDER_OPAQUE);
             queue.addScene(`${passName}_shadowScene`);
             // setCameraValues(queue, camera, light, shadows);
         }
@@ -640,7 +640,7 @@ export class WebPipeline extends Pipeline {
         this._renderGraph!.addVertex<RenderGraphValue.Present>(RenderGraphValue.Present, pass, '', '', new RenderData(), false);
     }
     createSceneTransversal (camera: Camera, scene: RenderScene): SceneTransversal {
-        return new WebSceneTransversal(camera);
+        return new WebSceneTransversal(camera, this.pipelineSceneData);
     }
     get renderGraph () {
         return this._renderGraph;

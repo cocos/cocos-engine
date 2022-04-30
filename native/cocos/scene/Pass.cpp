@@ -245,7 +245,7 @@ pipeline::InstancedBuffer *Pass::getInstancedBuffer(int32_t extraKey) {
     if (iter != _instancedBuffers.end()) {
         return iter->second.get();
     }
-    auto *instancedBuffer       = new pipeline::InstancedBuffer(this);
+    auto *instancedBuffer       = ccnew pipeline::InstancedBuffer(this);
     _instancedBuffers[extraKey] = instancedBuffer;
     return instancedBuffer;
 }
@@ -255,7 +255,7 @@ pipeline::BatchedBuffer *Pass::getBatchedBuffer(int32_t extraKey) {
     if (iter != _batchedBuffers.end()) {
         return iter->second.get();
     }
-    auto *batchedBuffers      = new pipeline::BatchedBuffer(this);
+    auto *batchedBuffers      = ccnew pipeline::BatchedBuffer(this);
     _batchedBuffers[extraKey] = batchedBuffers;
     return batchedBuffers;
 }
@@ -414,8 +414,7 @@ gfx::Shader *Pass::getShaderVariant(const ccstd::vector<IMacroPatch> &patches) {
     if (patches.empty()) {
         return _shader;
     }
-
-#ifdef CC_EDITOR
+#if CC_EDITOR
     for (const auto &patch : patches) {
         std::size_t pos = patch.name.find_first_of("CC_");
         if (pos != 0) { // not startsWith CC_
@@ -535,7 +534,7 @@ void Pass::doInit(const IPassInfoFull &info, bool /*copyDefines*/ /* = false */)
         // https://bugs.chromium.org/p/chromium/issues/detail?id=988988
         bufferInfo.size = static_cast<int32_t>(std::ceil(static_cast<float>(totalSize) / 16.F)) * 16;
         _rootBuffer     = device->createBuffer(bufferInfo);
-        _rootBlock      = new ArrayBuffer(totalSize);
+        _rootBlock      = ccnew ArrayBuffer(totalSize);
     }
 
     gfx::BufferViewInfo bufferViewInfo;

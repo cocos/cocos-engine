@@ -53,7 +53,7 @@ GLES3Swapchain::~GLES3Swapchain() {
 
 void GLES3Swapchain::doInit(const SwapchainInfo &info) {
     const auto *context = GLES3Device::getInstance()->context();
-    _gpuSwapchain       = CC_NEW(GLES3GPUSwapchain);
+    _gpuSwapchain       = ccnew GLES3GPUSwapchain;
 #if CC_PLATFORM == CC_PLATFORM_LINUX
     auto window = reinterpret_cast<EGLNativeWindowType>(info.windowHandle);
 #else
@@ -113,8 +113,8 @@ void GLES3Swapchain::doInit(const SwapchainInfo &info) {
 
     ///////////////////// Texture Creation /////////////////////
 
-    _colorTexture        = CC_NEW(GLES3Texture);
-    _depthStencilTexture = CC_NEW(GLES3Texture);
+    _colorTexture        = ccnew GLES3Texture;
+    _depthStencilTexture = ccnew GLES3Texture;
 
     SwapchainTextureInfo textureInfo;
     textureInfo.swapchain = this;

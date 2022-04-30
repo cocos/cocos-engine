@@ -33,7 +33,7 @@ namespace gfx {
 GLES2Sampler::GLES2Sampler(const SamplerInfo &info) : Sampler(info) {
     _typedID = generateObjectID<decltype(this)>();
 
-    _gpuSampler            = CC_NEW(GLES2GPUSampler);
+    _gpuSampler            = ccnew GLES2GPUSampler;
     _gpuSampler->minFilter = _info.minFilter;
     _gpuSampler->magFilter = _info.magFilter;
     _gpuSampler->mipFilter = _info.mipFilter;
@@ -47,7 +47,7 @@ GLES2Sampler::GLES2Sampler(const SamplerInfo &info) : Sampler(info) {
 GLES2Sampler::~GLES2Sampler() {
     if (_gpuSampler) {
         cmdFuncGLES2DestroySampler(GLES2Device::getInstance(), _gpuSampler);
-        CC_DELETE(_gpuSampler);
+        delete _gpuSampler;
         _gpuSampler = nullptr;
     }
 }

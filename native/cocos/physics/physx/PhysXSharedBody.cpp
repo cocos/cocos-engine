@@ -25,6 +25,7 @@
 
 #include "physics/physx/PhysXSharedBody.h"
 #include <cmath>
+#include "base/memory/Memory.h"
 #include "physics/physx/PhysXInc.h"
 #include "physics/physx/PhysXUtils.h"
 #include "physics/physx/PhysXWorld.h"
@@ -71,7 +72,7 @@ PhysXSharedBody *PhysXSharedBody::getSharedBody(const Node *node, PhysXWorld *co
     if (iter != sharedBodesMap.end()) {
         newSB = iter->second;
     } else {
-        newSB                     = new PhysXSharedBody(const_cast<Node *>(node), world, body);
+        newSB                     = ccnew PhysXSharedBody(const_cast<Node *>(node), world, body);
         newSB->_mFilterData.word0 = 1;
         newSB->_mFilterData.word1 = world->getMaskByIndex(0);
         sharedBodesMap.insert(std::pair<Node *, PhysXSharedBody *>(const_cast<Node *>(node), newSB));

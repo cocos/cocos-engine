@@ -44,7 +44,7 @@ CCMTLShader::~CCMTLShader() {
 }
 
 void CCMTLShader::doInit(const ShaderInfo &info) {
-    _gpuShader = CC_NEW(CCMTLGPUShader);
+    _gpuShader = ccnew CCMTLGPUShader;
     _specializedFragFuncs = [[NSMutableDictionary alloc] init];
     
     for (const auto &stage : _stages) {
@@ -163,7 +163,7 @@ bool CCMTLShader::createMTLFunction(const ShaderStage &stage) {
             //delayed instance and pretend tobe specialized function.
             _gpuShader->specializeColor = false;
             _gpuShader->shaderSrc = [shader retain];
-            assert(_gpuShader->shaderSrc != nil);
+            CC_ASSERT(_gpuShader->shaderSrc != nil);
             return true;
         }
     } else {

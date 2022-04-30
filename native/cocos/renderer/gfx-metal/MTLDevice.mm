@@ -73,8 +73,8 @@ CCMTLDevice::~CCMTLDevice() {
 }
 
 bool CCMTLDevice::doInit(const DeviceInfo &info) {
-    _gpuDeviceObj      = CC_NEW(CCMTLGPUDeviceObject);
-    _inFlightSemaphore = CC_NEW(CCMTLSemaphore(MAX_FRAMES_IN_FLIGHT));
+    _gpuDeviceObj      = ccnew CCMTLGPUDeviceObject;
+    _inFlightSemaphore = ccnew CCMTLSemaphore(MAX_FRAMES_IN_FLIGHT);
     _currentFrameIndex = 0;
 
     id<MTLDevice> mtlDevice = MTLCreateSystemDefaultDevice();
@@ -97,7 +97,7 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
     _isSamplerDescriptorCompareFunctionSupported        = mu::isSamplerDescriptorCompareFunctionSupported(gpuFamily);
 
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
-        _gpuStagingBufferPools[i] = CC_NEW(CCMTLGPUStagingBufferPool(mtlDevice));
+        _gpuStagingBufferPools[i] = ccnew CCMTLGPUStagingBufferPool(mtlDevice);
     }
 
     initFormatFeatures(gpuFamily);
@@ -154,7 +154,7 @@ void CCMTLDevice::doDestroy() {
     //        _memoryAlarmListenerId = 0;
     //    }
 
-    CC_DELETE(_gpuDeviceObj);
+    CC_SAFE_DELETE(_gpuDeviceObj);
     
     CC_SAFE_DESTROY_AND_DELETE(_queryPool)
     CC_SAFE_DESTROY_AND_DELETE(_queue);
@@ -247,63 +247,63 @@ void CCMTLDevice::onPresentCompleted() {
 }
 
 Queue *CCMTLDevice::createQueue() {
-    return CC_NEW(CCMTLQueue);
+    return ccnew CCMTLQueue;
 }
 
 QueryPool *CCMTLDevice::createQueryPool() {
-    return CC_NEW(CCMTLQueryPool);
+    return ccnew CCMTLQueryPool;
 }
 
 CommandBuffer *CCMTLDevice::createCommandBuffer(const CommandBufferInfo &info, bool /*hasAgent*/) {
-    return CC_NEW(CCMTLCommandBuffer);
+    return ccnew CCMTLCommandBuffer;
 }
 
 Buffer *CCMTLDevice::createBuffer() {
-    return CC_NEW(CCMTLBuffer);
+    return ccnew CCMTLBuffer;
 }
 
 Texture *CCMTLDevice::createTexture() {
-    return CC_NEW(CCMTLTexture);
+    return ccnew CCMTLTexture;
 }
 
 Shader *CCMTLDevice::createShader() {
-    return CC_NEW(CCMTLShader);
+    return ccnew CCMTLShader;
 }
 
 InputAssembler *CCMTLDevice::createInputAssembler() {
-    return CC_NEW(CCMTLInputAssembler);
+    return ccnew CCMTLInputAssembler;
 }
 
 RenderPass *CCMTLDevice::createRenderPass() {
-    return CC_NEW(CCMTLRenderPass);
+    return ccnew CCMTLRenderPass;
 }
 
 Framebuffer *CCMTLDevice::createFramebuffer() {
-    return CC_NEW(CCMTLFramebuffer);
+    return ccnew CCMTLFramebuffer;
 }
 
 DescriptorSet *CCMTLDevice::createDescriptorSet() {
-    return CC_NEW(CCMTLDescriptorSet);
+    return ccnew CCMTLDescriptorSet;
 }
 
 DescriptorSetLayout *CCMTLDevice::createDescriptorSetLayout() {
-    return CC_NEW(CCMTLDescriptorSetLayout);
+    return ccnew CCMTLDescriptorSetLayout;
 }
 
 PipelineLayout *CCMTLDevice::createPipelineLayout() {
-    return CC_NEW(CCMTLPipelineLayout);
+    return ccnew CCMTLPipelineLayout;
 }
 
 PipelineState *CCMTLDevice::createPipelineState() {
-    return CC_NEW(CCMTLPipelineState);
+    return ccnew CCMTLPipelineState;
 }
 
 Sampler *CCMTLDevice::createSampler(const SamplerInfo &info) {
-    return new CCMTLSampler(info);
+    return ccnew CCMTLSampler(info);
 }
 
 Swapchain *CCMTLDevice::createSwapchain() {
-    return new CCMTLSwapchain();
+    return ccnew CCMTLSwapchain;
 }
 
 void CCMTLDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {

@@ -125,8 +125,8 @@ ccstd::unordered_map<ccstd::string, se::Value> gModuleCache;
 static bool require(se::State &s) { //NOLINT
     const auto &args = s.args();
     int         argc = static_cast<int>(args.size());
-    assert(argc >= 1);
-    assert(args[0].isString());
+    CC_ASSERT(argc >= 1);
+    CC_ASSERT(args[0].isString());
 
     return jsb_run_script(args[0].toString(), &s.rval());
 }
@@ -134,10 +134,10 @@ SE_BIND_FUNC(require)
 
 static bool doModuleRequire(const ccstd::string &path, se::Value *ret, const ccstd::string &prevScriptFileDir) { //NOLINT
     se::AutoHandleScope hs;
-    assert(!path.empty());
+    CC_ASSERT(!path.empty());
 
     const auto &fileOperationDelegate = se::ScriptEngine::getInstance()->getFileOperationDelegate();
-    assert(fileOperationDelegate.isValid());
+    CC_ASSERT(fileOperationDelegate.isValid());
 
     ccstd::string fullPath;
 
@@ -227,21 +227,21 @@ static bool doModuleRequire(const ccstd::string &path, se::Value *ret, const ccs
         } else {
             gModuleCache[fullPath] = se::Value::Undefined;
         }
-        assert(succeed);
+        CC_ASSERT(succeed);
         return succeed;
     }
 
     SE_LOGE("doModuleRequire %s, buffer is empty!\n", path.c_str());
-    assert(false);
+    CC_ASSERT(false);
     return false;
 }
 
 static bool moduleRequire(se::State &s) { //NOLINT
     const auto &args = s.args();
     int         argc = static_cast<int>(args.size());
-    assert(argc >= 2);
-    assert(args[0].isString());
-    assert(args[1].isString());
+    CC_ASSERT(argc >= 2);
+    CC_ASSERT(args[0].isString());
+    CC_ASSERT(args[1].isString());
 
     return doModuleRequire(args[0].toString(), &s.rval(), args[1].toString());
 }
@@ -275,7 +275,7 @@ static bool jsc_dumpNativePtrToSeObjectMap(se::State &s) { //NOLINT
 
     for (const auto &e : se::NativePtrToObjectMap::instance()) {
         se::Object *jsobj = e.second;
-        assert(jsobj->_getClass() != nullptr);
+        CC_ASSERT(jsobj->_getClass() != nullptr);
         NamePtrStruct tmp;
         tmp.name = jsobj->_getClass()->getName();
         tmp.ptr  = e.first;
@@ -305,7 +305,7 @@ static bool jsc_dumpNativePtrToSeObjectMap(se::State &s) { //NOLINT
 SE_BIND_FUNC(jsc_dumpNativePtrToSeObjectMap)
 
 static bool jsc_dumpRoot(se::State &s) { //NOLINT
-    assert(false);
+    CC_ASSERT(false);
     return true;
 }
 SE_BIND_FUNC(jsc_dumpRoot)
@@ -432,8 +432,8 @@ static bool JSB_saveByteCode(se::State &s) { //NOLINT
 SE_BIND_FUNC(JSB_saveByteCode)
 
 static bool getOrCreatePlainObject_r(const char *name, se::Object *parent, se::Object **outObj) { //NOLINT
-    assert(parent != nullptr);
-    assert(outObj != nullptr);
+    CC_ASSERT(parent != nullptr);
+    CC_ASSERT(outObj != nullptr);
     se::Value tmp;
 
     if (parent->getProperty(name, &tmp) && tmp.isObject()) {
@@ -500,7 +500,7 @@ uint8_t *convertI2RGBA(uint32_t length, uint8_t *src) {
 }
 
 struct ImageInfo *createImageInfo(Image *img) {
-    auto *imgInfo   = new struct ImageInfo();
+    auto *imgInfo   = ccnew struct ImageInfo();
     imgInfo->length = static_cast<uint32_t>(img->getDataLen());
     imgInfo->width  = img->getWidth();
     imgInfo->height = img->getHeight();
@@ -555,7 +555,7 @@ bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackV
     std::shared_ptr<se::Value> callbackPtr = std::make_shared<se::Value>(callbackVal);
 
     auto initImageFunc = [path, callbackPtr](const ccstd::string &fullPath, unsigned char *imageData, int imageBytes) {
-        auto *img = new (std::nothrow) Image();
+        auto *img = ccnew Image();
 
         gThreadPool->pushTask([=](int /*tid*/) {
             // NOTE: FileUtils::getInstance()->fullPathForFilename isn't a threadsafe method,
@@ -640,8 +640,8 @@ static bool js_loadImage(se::State &s) { //NOLINT
         SE_PRECONDITION2(ok, false, "js_loadImage : Error processing arguments");
 
         se::Value callbackVal = args[1];
-        assert(callbackVal.isObject());
-        assert(callbackVal.toObject()->isFunction());
+        CC_ASSERT(callbackVal.isObject());
+        CC_ASSERT(callbackVal.toObject()->isFunction());
 
         return jsb_global_load_image(path, callbackVal);
     }

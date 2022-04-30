@@ -85,7 +85,7 @@ void Texture2D::reset(const ITexture2DCreateInfo &info) {
     setMipmapLevel(mipLevels);
 
     uint32_t minLod = info.baseLevel.has_value() ? info.baseLevel.value() : 0;
-    uint32_t maxLod = info.maxLevel.has_value() ? info.maxLevel.value() : mipLevels - 1;
+    uint32_t maxLod = info.maxLevel.has_value() ? info.maxLevel.value() : 1000;
     setMipRange(minLod, maxLod);
 
     tryReset();
@@ -178,7 +178,7 @@ void Texture2D::deserialize(const cc::any &serializedData, const cc::any &handle
     _mipmaps.resize(data->mipmaps.size());
     for (size_t i = 0; i < data->mipmaps.size(); ++i) {
         // Prevent resource load failed
-        _mipmaps[i] = new ImageAsset();
+        _mipmaps[i] = ccnew ImageAsset();
         if (data->mipmaps[i].empty()) {
             continue;
         }
@@ -211,7 +211,7 @@ gfx::TextureViewInfo Texture2D::getGfxTextureViewCreateInfo(gfx::Texture *textur
 
 void Texture2D::initDefault(const cc::optional<ccstd::string> &uuid) {
     Super::initDefault(uuid);
-    auto *imageAsset = new ImageAsset();
+    auto *imageAsset = ccnew ImageAsset();
     imageAsset->initDefault(cc::nullopt);
     setImage(imageAsset);
 }

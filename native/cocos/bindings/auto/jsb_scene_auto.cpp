@@ -6547,7 +6547,7 @@ static bool js_scene_Model_getMacroPatches(se::State& s) // NOLINT(readability-i
         HolderType<int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_scene_Model_getMacroPatches : Error processing arguments");
-        std::vector<cc::scene::IMacroPatch>& result = cobj->getMacroPatches(arg0.value());
+        std::vector<cc::scene::IMacroPatch> result = cobj->getMacroPatches(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_scene_Model_getMacroPatches : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());

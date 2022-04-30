@@ -178,7 +178,7 @@ public:
         CC_ASSERT(start < (_byteLength / BYTES_PER_ELEMENT));
         CC_ASSERT(end <= (_byteLength / BYTES_PER_ELEMENT));
         uint32_t newBufByteLength = (end - start) * BYTES_PER_ELEMENT;
-        auto *   buffer           = new ArrayBuffer(newBufByteLength);
+        auto *   buffer           = ccnew ArrayBuffer(newBufByteLength);
         memcpy(buffer->getData(), _buffer->getData() + start * BYTES_PER_ELEMENT + _byteOffset, newBufByteLength);
         return TypedArrayTemp(buffer);
     }
@@ -213,7 +213,7 @@ public:
             _jsTypedArray = nullptr;
         }
         const uint32_t byteLength = length * BYTES_PER_ELEMENT;
-        _buffer                   = new ArrayBuffer(byteLength);
+        _buffer                   = ccnew ArrayBuffer(byteLength);
         _byteLength               = _buffer->byteLength();
         _byteOffset               = 0;
         _byteEndPos               = byteLength;
@@ -240,18 +240,18 @@ public:
 
             se::Value tmpVal;
             _jsTypedArray->getProperty("buffer", &tmpVal);
-            assert(tmpVal.isObject());
-            assert(tmpVal.toObject()->isArrayBuffer());
+            CC_ASSERT(tmpVal.isObject());
+            CC_ASSERT(tmpVal.toObject()->isArrayBuffer());
 
-            _buffer = new ArrayBuffer();
+            _buffer = ccnew ArrayBuffer();
             _buffer->setJSArrayBuffer(tmpVal.toObject());
 
             _jsTypedArray->getProperty("byteOffset", &tmpVal);
-            assert(tmpVal.isNumber());
+            CC_ASSERT(tmpVal.isNumber());
             _byteOffset = tmpVal.toUint32();
 
             _jsTypedArray->getProperty("byteLength", &tmpVal);
-            assert(tmpVal.isNumber());
+            CC_ASSERT(tmpVal.isNumber());
             _byteLength = tmpVal.toUint32();
 
             _byteEndPos = _buffer->byteLength();

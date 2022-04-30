@@ -211,7 +211,5 @@ export type Skybox = jsb.Skybox;
 legacyCC.Skybox = Skybox;
 
 export * from './model';
-
-export * from './render-scene';
 export * from './submodel';
 export * from './camera';

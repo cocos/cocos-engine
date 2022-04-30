@@ -40,6 +40,7 @@
 #include "base/Log.h"
 #include "base/Scheduler.h"
 #include "base/UTF8.h"
+#include "base/memory/Memory.h"
 #include "platform/android/FileUtils-android.h"
 #include "platform/java/jni/JniHelper.h"
 #include "platform/java/jni/JniImp.h"
@@ -50,8 +51,8 @@
 #include "audio/android/UrlAudioPlayer.h"
 #include "audio/android/cutils/log.h"
 
-#include "cocos/bindings/event/CustomEventTypes.h"
-#include "cocos/bindings/event/EventDispatcher.h"
+#include "bindings/event/CustomEventTypes.h"
+#include "bindings/event/EventDispatcher.h"
 
 using namespace cc; //NOLINT
 
@@ -183,7 +184,7 @@ bool AudioEngineImpl::init() {
             break;
         }
 
-        _audioPlayerProvider = new AudioPlayerProvider(_engineEngine, _outputMixObject, outputSampleRate, bufferSizeInFrames, fdGetter, &gCallerThreadUtils);
+        _audioPlayerProvider = ccnew AudioPlayerProvider(_engineEngine, _outputMixObject, outputSampleRate, bufferSizeInFrames, fdGetter, &gCallerThreadUtils);
 
         ret = true;
     } while (false);
