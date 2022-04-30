@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { InstancedBuffer } from './instanced-buffer';
 import { Device, RenderPass, PipelineState, CommandBuffer, DescriptorSet } from '../gfx';
 import { PipelineStateManager } from './pipeline-state-manager';
