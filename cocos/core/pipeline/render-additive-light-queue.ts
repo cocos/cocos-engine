@@ -27,6 +27,7 @@
  * @packageDocumentation
  * @module pipeline
  */
+
 import { BatchingSchemes, Pass } from '../renderer/core/pass';
 import { RenderPipeline } from './render-pipeline';
 import { Model } from '../renderer/scene/model';
@@ -206,7 +207,7 @@ export class RenderAdditiveLightQueue {
 
     public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
         const globalDSManager: GlobalDSManager = this._pipeline.globalDSManager;
-        for (let i = 0; i < _lightIndices.length; ++i) {
+        for (let i = 0; i < _lightIndices.length; i++) {
             const light = _lightIndices[i];
             const descriptorSet = globalDSManager.getOrCreateDescriptorSet(light);
             this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff, descriptorSet);

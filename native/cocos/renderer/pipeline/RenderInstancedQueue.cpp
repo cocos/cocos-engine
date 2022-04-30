@@ -26,7 +26,10 @@
 #include "RenderInstancedQueue.h"
 #include "InstancedBuffer.h"
 #include "PipelineStateManager.h"
+#include "gfx-base/GFXDevice.h"
+#include "gfx-base/GFXRenderPass.h"
 #include "gfx-base/GFXCommandBuffer.h"
+#include "gfx-base/GFXDescriptorSet.h"
 
 namespace cc {
 namespace pipeline {
@@ -46,23 +49,24 @@ void RenderInstancedQueue::uploadBuffers(gfx::CommandBuffer *cmdBuffer) {
     }
 }
 
-void RenderInstancedQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) {
-    for (auto *instanceBuffer : _queues) {
+void RenderInstancedQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer, gfx::DescriptorSet *ds, uint offset) {
+    for (const InstancedBuffer *instanceBuffer : _queues) {
         if (!instanceBuffer->hasPendingModels()) continue;
 
-        const auto &instances = instanceBuffer->getInstances();
-        const auto *pass      = instanceBuffer->getPass();
+        const InstancedItemList &instances = instanceBuffer->getInstances();
+        const scene::Pass *      pass      = instanceBuffer->getPass();
         cmdBuffer->bindDescriptorSet(materialSet, pass->getDescriptorSet());
         gfx::PipelineState *lastPSO = nullptr;
-        for (const auto &instance : instances) {
+        for (const InstancedItem &instance : instances) {
             if (!instance.count) {
                 continue;
             }
-            auto *pso = PipelineStateManager::getOrCreatePipelineState(pass, instance.shader, instance.ia, renderPass);
+            gfx::PipelineState *pso = PipelineStateManager::getOrCreatePipelineState(pass, instance.shader, instance.ia, renderPass);
             if (lastPSO != pso) {
                 cmdBuffer->bindPipelineState(pso);
                 lastPSO = pso;
             }
+            if (ds) cmdBuffer->bindDescriptorSet(globalSet, ds, 1, &offset);
             cmdBuffer->bindDescriptorSet(localSet, instance.descriptorSet, instanceBuffer->dynamicOffsets());
             cmdBuffer->bindInputAssembler(instance.ia);
             cmdBuffer->draw(instance.ia);
