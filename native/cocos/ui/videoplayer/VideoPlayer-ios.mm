@@ -49,10 +49,11 @@ typedef NS_ENUM(NSInteger, PlayerbackState) {
 
 @property (assign, nonatomic) AVPlayerViewController *playerController;
 
-- (void)setFrame:(int)left:(int)top
+- (void)setFrame:(int)left
+                :(int)top
                 :(int)width
                 :(int)height;
-- (void)setURL:(int)videoSource:(ccstd::string &)videoUrl;
+- (void)setURL:(int)videoSource :(ccstd::string &)videoUrl;
 - (void)play;
 - (void)pause;
 - (void)resume;
@@ -110,7 +111,8 @@ typedef NS_ENUM(NSInteger, PlayerbackState) {
     [super dealloc];
 }
 
-- (void)setFrame:(int)left:(int)top
+- (void)setFrame:(int)left
+                :(int)top
                 :(int)width
                 :(int)height {
     if (_left == left && _width == width && _top == top && _height == height)
@@ -136,7 +138,7 @@ typedef NS_ENUM(NSInteger, PlayerbackState) {
     return (self.playerController.player && self.playerController.player.rate != 0);
 }
 
-- (void)setURL:(int)videoSource:(ccstd::string &)videoUrl {
+- (void)setURL:(int)videoSource :(ccstd::string &)videoUrl {
     [self cleanup];
     [self initPlayerController];
 
@@ -260,6 +262,7 @@ typedef NS_ENUM(NSInteger, PlayerbackState) {
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object
                         change:(NSDictionary *)change
                        context:(void *)context {
+
     auto player = self.playerController.player;
     if (object == player && [keyPath isEqualToString:@"status"]) {
         if (player.status == AVPlayerStatusReadyToPlay) {
