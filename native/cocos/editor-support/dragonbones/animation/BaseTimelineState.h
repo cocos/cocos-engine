@@ -30,16 +30,14 @@ DRAGONBONES_NAMESPACE_BEGIN
 /**
  * @internal
  */
-class TimelineState : public BaseObject
-{
+class TimelineState : public BaseObject {
     ABSTRACT_CLASS(TimelineState)
 
 protected:
     /**
      * @internal
      */
-    enum class TweenState
-    {
+    enum class TweenState {
         None = 0,
         Once = 1,
         Always = 2
@@ -91,16 +89,13 @@ public:
 /**
  * @internal
  */
-class TweenTimelineState : public TimelineState
-{
+class TweenTimelineState : public TimelineState {
     ABSTRACT_CLASS(TweenTimelineState)
 
 private:
-    inline static float _getEasingValue(TweenType tweenType, float progress, float easing)
-    {
+    inline static float _getEasingValue(TweenType tweenType, float progress, float easing) {
         auto value = progress;
-        switch (tweenType)
-        {
+        switch (tweenType) {
             case TweenType::QuadIn:
                 value = std::pow(progress, 2.0f);
                 break;
@@ -119,14 +114,10 @@ private:
         return (value - progress) * easing + progress;
     }
 
-    inline static float _getEasingCurveValue(float progress, const int16_t* samples, unsigned count, unsigned offset)
-    {
-        if (progress <= 0.0f) 
-        {
+    inline static float _getEasingCurveValue(float progress, const int16_t* samples, unsigned count, unsigned offset) {
+        if (progress <= 0.0f) {
             return 0.0f;
-        }
-        else if (progress >= 1.0f) 
-        {
+        } else if (progress >= 1.0f) {
             return 1.0f;
         }
 
@@ -154,8 +145,7 @@ protected:
 /**
  * @internal
  */
-class BoneTimelineState : public TweenTimelineState
-{
+class BoneTimelineState : public TweenTimelineState {
     ABSTRACT_CLASS(BoneTimelineState)
 
 public:
@@ -171,8 +161,7 @@ public:
 /**
  * @internal
  */
-class SlotTimelineState : public TweenTimelineState
-{
+class SlotTimelineState : public TweenTimelineState {
     ABSTRACT_CLASS(SlotTimelineState)
 
 public:
@@ -184,8 +173,7 @@ protected:
 /**
  * @internal
  */
-class ConstraintTimelineState : public TweenTimelineState
-{
+class ConstraintTimelineState : public TweenTimelineState {
     ABSTRACT_CLASS(ConstraintTimelineState)
 
 public:

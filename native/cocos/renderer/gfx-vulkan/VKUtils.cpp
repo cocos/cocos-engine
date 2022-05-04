@@ -244,7 +244,7 @@ VkImageUsageFlagBits mapVkImageUsageFlagBits(TextureUsage usage) {
 
 VkImageAspectFlags mapVkImageAspectFlags(Format format) {
     VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    const FormatInfo & info       = GFX_FORMAT_INFOS[toNumber(format)];
+    const FormatInfo &info = GFX_FORMAT_INFOS[toNumber(format)];
     if (info.hasDepth) aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
     if (info.hasStencil) aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
     return aspectMask;

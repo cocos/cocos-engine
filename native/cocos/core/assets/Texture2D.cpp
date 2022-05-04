@@ -32,7 +32,7 @@
 
 namespace cc {
 
-Texture2D::Texture2D()  = default;
+Texture2D::Texture2D() = default;
 Texture2D::~Texture2D() = default;
 
 void Texture2D::syncMipmapsForJS(const ccstd::vector<IntrusivePtr<ImageAsset>> &value) {
@@ -43,14 +43,14 @@ void Texture2D::setMipmaps(const ccstd::vector<IntrusivePtr<ImageAsset>> &value)
     _mipmaps = value;
     setMipmapLevel(static_cast<uint32_t>(_mipmaps.size()));
     if (!_mipmaps.empty()) {
-        ImageAsset *         imageAsset = _mipmaps[0];
+        ImageAsset *imageAsset = _mipmaps[0];
         ITexture2DCreateInfo info;
-        info.width       = imageAsset->getWidth();
-        info.height      = imageAsset->getHeight();
-        info.format      = imageAsset->getFormat();
+        info.width = imageAsset->getWidth();
+        info.height = imageAsset->getHeight();
+        info.format = imageAsset->getFormat();
         info.mipmapLevel = static_cast<uint32_t>(_mipmaps.size());
-        info.baseLevel   = _baseLevel;
-        info.maxLevel    = _maxLevel;
+        info.baseLevel = _baseLevel;
+        info.maxLevel = _maxLevel;
         reset(info);
 
         for (size_t i = 0, len = _mipmaps.size(); i < len; ++i) {
@@ -59,11 +59,11 @@ void Texture2D::setMipmaps(const ccstd::vector<IntrusivePtr<ImageAsset>> &value)
 
     } else {
         ITexture2DCreateInfo info;
-        info.width       = 0;
-        info.height      = 0;
+        info.width = 0;
+        info.height = 0;
         info.mipmapLevel = static_cast<uint32_t>(_mipmaps.size());
-        info.baseLevel   = _baseLevel;
-        info.maxLevel    = _maxLevel;
+        info.baseLevel = _baseLevel;
+        info.maxLevel = _maxLevel;
         reset(info);
     }
 }
@@ -77,10 +77,10 @@ void Texture2D::onLoaded() {
 }
 
 void Texture2D::reset(const ITexture2DCreateInfo &info) {
-    _width  = info.width;
+    _width = info.width;
     _height = info.height;
     setGFXFormat(info.format);
-    
+
     uint32_t mipLevels = info.mipmapLevel.has_value() ? info.mipmapLevel.value() : 1;
     setMipmapLevel(mipLevels);
 
@@ -92,14 +92,12 @@ void Texture2D::reset(const ITexture2DCreateInfo &info) {
 }
 
 void Texture2D::create(uint32_t width, uint32_t height, PixelFormat format /* = PixelFormat::RGBA8888*/, uint32_t mipmapLevel /* = 1*/, uint32_t baseLevel, uint32_t maxLevel) {
-    reset({
-        width,
-        height,
-        format,
-        mipmapLevel,
-        baseLevel,
-        maxLevel
-    });
+    reset({width,
+           height,
+           format,
+           mipmapLevel,
+           baseLevel,
+           maxLevel});
 }
 
 ccstd::string Texture2D::toString() const {
@@ -136,7 +134,7 @@ bool Texture2D::destroy() {
 
 ccstd::string Texture2D::description() const {
     std::stringstream ret;
-    ccstd::string     url;
+    ccstd::string url;
     if (!_mipmaps.empty()) {
         url = _mipmaps[0]->getUrl();
     }
@@ -189,13 +187,13 @@ void Texture2D::deserialize(const cc::any &serializedData, const cc::any &handle
 
 gfx::TextureInfo Texture2D::getGfxTextureCreateInfo(gfx::TextureUsageBit usage, gfx::Format format, uint32_t levelCount, gfx::TextureFlagBit flags) {
     gfx::TextureInfo texInfo;
-    texInfo.type       = gfx::TextureType::TEX2D;
-    texInfo.width      = _width;
-    texInfo.height     = _height;
-    texInfo.usage      = usage;
-    texInfo.format     = format;
+    texInfo.type = gfx::TextureType::TEX2D;
+    texInfo.width = _width;
+    texInfo.height = _height;
+    texInfo.usage = usage;
+    texInfo.format = format;
     texInfo.levelCount = levelCount;
-    texInfo.flags      = flags;
+    texInfo.flags = flags;
     return texInfo;
 }
 

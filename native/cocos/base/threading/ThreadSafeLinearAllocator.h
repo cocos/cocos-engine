@@ -42,7 +42,7 @@ public:
     explicit ThreadSafeLinearAllocator(size_t size, size_t alignment = 1) noexcept;
     ~ThreadSafeLinearAllocator();
     ThreadSafeLinearAllocator(ThreadSafeLinearAllocator const &) = delete;
-    ThreadSafeLinearAllocator(ThreadSafeLinearAllocator &&)      = delete;
+    ThreadSafeLinearAllocator(ThreadSafeLinearAllocator &&) = delete;
     ThreadSafeLinearAllocator &operator=(ThreadSafeLinearAllocator const &) = delete;
     ThreadSafeLinearAllocator &operator=(ThreadSafeLinearAllocator &&) = delete;
 
@@ -55,7 +55,7 @@ public:
         return reinterpret_cast<intptr_t>(doAllocate(size, alignment)) - reinterpret_cast<intptr_t>(_buffer);
     }
 
-    inline void * getBuffer() const noexcept { return _buffer; }
+    inline void *getBuffer() const noexcept { return _buffer; }
     inline size_t getCapacity() const noexcept { return _capacity; }
     inline size_t getUsedSize() const noexcept { return _usedSize.load(std::memory_order_relaxed); }
     inline size_t getBalance() const noexcept { return getCapacity() - getUsedSize(); }
@@ -65,9 +65,9 @@ public:
 private:
     void *doAllocate(size_t size, size_t alignment) noexcept;
 
-    void *              _buffer{nullptr};
-    size_t              _capacity{0};
-    size_t              _alignment{1};
+    void *_buffer{nullptr};
+    size_t _capacity{0};
+    size_t _alignment{1};
     std::atomic<size_t> _usedSize{0};
 };
 

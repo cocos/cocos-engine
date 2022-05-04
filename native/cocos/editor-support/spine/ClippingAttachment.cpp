@@ -28,7 +28,7 @@
  *****************************************************************************/
 
 #ifdef SPINE_UE4
-#include "SpinePluginPrivatePCH.h"
+    #include "SpinePluginPrivatePCH.h"
 #endif
 
 #include <spine/ClippingAttachment.h>
@@ -43,16 +43,16 @@ ClippingAttachment::ClippingAttachment(const String &name) : VertexAttachment(na
 }
 
 SlotData *ClippingAttachment::getEndSlot() {
-	return _endSlot;
+    return _endSlot;
 }
 
 void ClippingAttachment::setEndSlot(SlotData *inValue) {
-	_endSlot = inValue;
+    _endSlot = inValue;
 }
 
-Attachment* ClippingAttachment::copy() {
-	ClippingAttachment* copy = new (__FILE__, __LINE__) ClippingAttachment(getName());
-	copyTo(copy);
-	copy->_endSlot = _endSlot;
-	return copy;
+Attachment *ClippingAttachment::copy() {
+    ClippingAttachment *copy = new (__FILE__, __LINE__) ClippingAttachment(getName());
+    copyTo(copy);
+    copy->_endSlot = _endSlot;
+    return copy;
 }

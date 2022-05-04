@@ -41,8 +41,8 @@ size_t Framebuffer::computeHash(const FramebufferInfo &info) {
 }
 
 void Framebuffer::initialize(const FramebufferInfo &info) {
-    _renderPass          = info.renderPass;
-    _colorTextures       = info.colorTextures;
+    _renderPass = info.renderPass;
+    _colorTextures = info.colorTextures;
     _depthStencilTexture = info.depthStencilTexture;
 
     doInit(info);

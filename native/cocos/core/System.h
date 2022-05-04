@@ -37,9 +37,9 @@ struct ISchedulable {
 };
 
 enum struct Priority : uint32_t {
-    LOW       = 0,
-    MEDIUM    = 100,
-    HIGH      = 200,
+    LOW = 0,
+    MEDIUM = 100,
+    HIGH = 200,
     SCHEDULER = UINT32_MAX,
 };
 
@@ -48,7 +48,7 @@ private:
     /* data */
 protected:
     Priority _priority{Priority::LOW};
-    bool     _executeInEditMode{false};
+    bool _executeInEditMode{false};
 
 public:
     /**
@@ -63,14 +63,14 @@ public:
         return 0;
     }
 
-    System()          = default;
+    System() = default;
     virtual ~System() = default;
 
     inline const ccstd::string &getId() { return id; }
-    inline void                 setId(ccstd::string &s) { id = s; }
+    inline void setId(ccstd::string &s) { id = s; }
 
     inline Priority getPriority() const { return _priority; }
-    inline void     setPriority(Priority i) { _priority = i; }
+    inline void setPriority(Priority i) { _priority = i; }
 
     inline bool getExecuteInEditMode() const { return _executeInEditMode; }
     inline void setExecuteInEditMode(bool b) { _executeInEditMode = b; }

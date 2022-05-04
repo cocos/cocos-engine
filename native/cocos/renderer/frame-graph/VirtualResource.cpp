@@ -37,7 +37,7 @@ VirtualResource::VirtualResource(const StringHandle name, ID const id, bool cons
 
 void VirtualResource::updateLifetime(PassNode *const passNode) noexcept {
     _firstUsePass = _firstUsePass ? _firstUsePass : passNode;
-    _lastUsePass  = passNode;
+    _lastUsePass = passNode;
 }
 
 } // namespace framegraph

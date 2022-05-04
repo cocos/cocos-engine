@@ -503,10 +503,11 @@ static int message_complete_cb(http_parser *parser) {
                                state->path)) {
         char accept_string[ACCEPT_KEY_LENGTH];
         generate_accept_string(state->ws_key, &accept_string);
-        const char accept_ws_prefix[] = "HTTP/1.1 101 Switching Protocols\r\n"
-                                        "Upgrade: websocket\r\n"
-                                        "Connection: Upgrade\r\n"
-                                        "Sec-WebSocket-Accept: ";
+        const char accept_ws_prefix[] =
+            "HTTP/1.1 101 Switching Protocols\r\n"
+            "Upgrade: websocket\r\n"
+            "Connection: Upgrade\r\n"
+            "Sec-WebSocket-Accept: ";
         const char accept_ws_suffix[] = "\r\n\r\n";
         std::string reply(accept_ws_prefix, sizeof(accept_ws_prefix) - 1);
         reply.append(accept_string, sizeof(accept_string));

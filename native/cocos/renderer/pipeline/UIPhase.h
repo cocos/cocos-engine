@@ -45,7 +45,7 @@ public:
 
 protected:
     RenderPipeline *_pipeline = nullptr;
-    uint            _phaseID  = 0;
+    uint _phaseID = 0;
 };
 
 } // namespace pipeline

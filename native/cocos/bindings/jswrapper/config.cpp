@@ -34,8 +34,8 @@
 
 static void _winLog(FILE *fp, const char *format, va_list args) {
     static const int MAX_LOG_LENGTH = 16 * 1024;
-    int              bufferSize     = MAX_LOG_LENGTH;
-    char *           buf            = nullptr;
+    int bufferSize = MAX_LOG_LENGTH;
+    char *buf = nullptr;
 
     do {
         buf = ccnew char[bufferSize];
@@ -52,10 +52,10 @@ static void _winLog(FILE *fp, const char *format, va_list args) {
 
     } while (true);
 
-    int   pos                         = 0;
-    auto  len                         = static_cast<int>(strlen(buf));
-    char  tempBuf[MAX_LOG_LENGTH + 1] = {0};
-    WCHAR wszBuf[MAX_LOG_LENGTH + 1]  = {0};
+    int pos = 0;
+    auto len = static_cast<int>(strlen(buf));
+    char tempBuf[MAX_LOG_LENGTH + 1] = {0};
+    WCHAR wszBuf[MAX_LOG_LENGTH + 1] = {0};
 
     do {
         std::copy(buf + pos, buf + pos + MAX_LOG_LENGTH, tempBuf);

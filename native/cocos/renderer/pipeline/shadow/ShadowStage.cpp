@@ -39,7 +39,7 @@
 namespace cc {
 namespace pipeline {
 
-ShadowStage::ShadowStage()  = default;
+ShadowStage::ShadowStage() = default;
 ShadowStage::~ShadowStage() = default;
 
 RenderStageInfo ShadowStage::initInfo = {
@@ -65,7 +65,7 @@ void ShadowStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
 
 void ShadowStage::render(scene::Camera *camera) {
     CC_PROFILE(ShadowStageRender);
-    const auto *sceneData  = _pipeline->getPipelineSceneData();
+    const auto *sceneData = _pipeline->getPipelineSceneData();
     const auto *shadowInfo = sceneData->getShadows();
 
     if (!_light || !_framebuffer) {
@@ -77,13 +77,13 @@ void ShadowStage::render(scene::Camera *camera) {
     _additiveShadowQueue->gatherLightPasses(camera, _light, cmdBuffer);
 
     const auto &shadowMapSize = shadowInfo->getSize();
-    const auto &viewport      = camera->getViewport();
-    _renderArea.x             = static_cast<int>(viewport.x * shadowMapSize.x);
-    _renderArea.y             = static_cast<int>(viewport.y * shadowMapSize.y);
-    _renderArea.width         = static_cast<uint>(viewport.z * shadowMapSize.x * sceneData->getShadingScale());
-    _renderArea.height        = static_cast<uint>(viewport.w * shadowMapSize.y * sceneData->getShadingScale());
+    const auto &viewport = camera->getViewport();
+    _renderArea.x = static_cast<int>(viewport.x * shadowMapSize.x);
+    _renderArea.y = static_cast<int>(viewport.y * shadowMapSize.y);
+    _renderArea.width = static_cast<uint>(viewport.z * shadowMapSize.x * sceneData->getShadingScale());
+    _renderArea.height = static_cast<uint>(viewport.w * shadowMapSize.y * sceneData->getShadingScale());
 
-    _clearColors[0]  = {1.0F, 1.0F, 1.0F, 1.0F};
+    _clearColors[0] = {1.0F, 1.0F, 1.0F, 1.0F};
     auto *renderPass = _framebuffer->getRenderPass();
 
     cmdBuffer->beginRenderPass(renderPass, _framebuffer, _renderArea,
@@ -98,8 +98,8 @@ void ShadowStage::render(scene::Camera *camera) {
 
 void ShadowStage::destroy() {
     _framebuffer = nullptr;
-    _globalDS    = nullptr;
-    _light       = nullptr;
+    _globalDS = nullptr;
+    _light = nullptr;
 
     CC_SAFE_DESTROY_AND_DELETE(_additiveShadowQueue);
 
@@ -113,7 +113,7 @@ void ShadowStage::clearFramebuffer(scene::Camera *camera) {
 
     auto *cmdBuffer = _pipeline->getCommandBuffers()[0];
 
-    _clearColors[0]  = {1.0F, 1.0F, 1.0F, 1.0F};
+    _clearColors[0] = {1.0F, 1.0F, 1.0F, 1.0F};
     auto *renderPass = _framebuffer->getRenderPass();
 
     cmdBuffer->beginRenderPass(renderPass, _framebuffer, _renderArea,

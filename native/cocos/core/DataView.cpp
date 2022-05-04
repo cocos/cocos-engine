@@ -75,7 +75,7 @@ void DataView::assign(ArrayBuffer *buffer, uint32_t byteOffset) {
 void DataView::assign(ArrayBuffer *buffer, uint32_t byteOffset, uint32_t byteLength) {
     CC_ASSERT(buffer != nullptr);
     CC_ASSERT(byteLength > 0);
-    _buffer     = buffer;
+    _buffer = buffer;
     _byteOffset = byteOffset;
     _byteEndPos = byteLength + byteOffset;
     CC_ASSERT(_byteEndPos <= buffer->_byteLength);

@@ -42,12 +42,12 @@ class Asset;
 class BuiltinResMgr final : public RefCounted {
 public:
     static BuiltinResMgr *getInstance();
-    static void           destroyInstance();
+    static void destroyInstance();
 
-    bool        initBuiltinRes(gfx::Device *device);
+    bool initBuiltinRes(gfx::Device *device);
     inline bool isInitialized() const { return _isInitialized; }
 
-    void   addAsset(const ccstd::string &uuid, Asset *asset);
+    void addAsset(const ccstd::string &uuid, Asset *asset);
     Asset *getAsset(const ccstd::string &uuid);
 
     template <typename T, typename Enabled = std::enable_if_t<std::is_base_of<Asset, T>::value>>
@@ -56,7 +56,7 @@ public:
     }
 
 private:
-    explicit BuiltinResMgr()  = default;
+    explicit BuiltinResMgr() = default;
     ~BuiltinResMgr() override = default;
 
     void initMaterials();
@@ -66,10 +66,10 @@ private:
 
     static BuiltinResMgr *instance;
 
-    gfx::Device *                              _device{nullptr};
+    gfx::Device *_device{nullptr};
     Record<ccstd::string, IntrusivePtr<Asset>> _resources;
-    ccstd::vector<IntrusivePtr<Material>>      _materialsToBeCompiled;
-    bool                                       _isInitialized{false};
+    ccstd::vector<IntrusivePtr<Material>> _materialsToBeCompiled;
+    bool _isInitialized{false};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(BuiltinResMgr);
 };

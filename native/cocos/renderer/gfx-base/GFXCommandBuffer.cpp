@@ -36,7 +36,7 @@ CommandBuffer::CommandBuffer()
 CommandBuffer::~CommandBuffer() = default;
 
 void CommandBuffer::initialize(const CommandBufferInfo &info) {
-    _type  = info.type;
+    _type = info.type;
     _queue = info.queue;
 
     doInit(info);
@@ -45,7 +45,7 @@ void CommandBuffer::initialize(const CommandBufferInfo &info) {
 void CommandBuffer::destroy() {
     doDestroy();
 
-    _type  = CommandBufferType::PRIMARY;
+    _type = CommandBufferType::PRIMARY;
     _queue = nullptr;
 }
 

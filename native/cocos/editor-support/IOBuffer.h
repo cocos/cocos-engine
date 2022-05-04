@@ -44,7 +44,7 @@ class IOBuffer {
 public:
     explicit IOBuffer(std::size_t defaultSize) {
         _bufferSize = defaultSize;
-        _buffer     = new uint8_t[_bufferSize];
+        _buffer = new uint8_t[_bufferSize];
     }
 
     IOBuffer() = default;
@@ -62,7 +62,7 @@ public:
             return;
         }
         auto *buffer = reinterpret_cast<uint32_t *>(_buffer + pos);
-        *buffer      = val;
+        *buffer = val;
     }
 
     inline void writeFloat32(std::size_t pos, float val) {
@@ -71,7 +71,7 @@ public:
             return;
         }
         auto *buffer = reinterpret_cast<float *>(_buffer + pos);
-        *buffer      = val;
+        *buffer = val;
     }
 
     inline void writeBytes(const char *bytes, std::size_t bytesLen) {
@@ -89,7 +89,7 @@ public:
             return;
         }
         auto *buffer = reinterpret_cast<uint32_t *>(_buffer + _curPos);
-        *buffer      = val;
+        *buffer = val;
         _curPos += sizeof(val);
     }
 
@@ -99,7 +99,7 @@ public:
             return;
         }
         auto *buffer = reinterpret_cast<float *>(_buffer + _curPos);
-        *buffer      = val;
+        *buffer = val;
         _curPos += sizeof(val);
     }
 
@@ -109,7 +109,7 @@ public:
             return;
         }
         auto *buffer = reinterpret_cast<uint16_t *>(_buffer + _curPos);
-        *buffer      = val;
+        *buffer = val;
         _curPos += sizeof(val);
     }
 
@@ -138,7 +138,7 @@ public:
     }
 
     inline void reset() {
-        _curPos  = 0;
+        _curPos = 0;
         _readPos = 0;
     }
 
@@ -180,7 +180,7 @@ public:
 
     inline int checkSpace(std::size_t needSize, bool needCopy = false) {
         auto needLen = _curPos + needSize;
-        auto isFull  = 0;
+        auto isFull = 0;
         if (_maxSize > 0 && needLen > _maxSize) {
             isFull = 1;
             if (_fullCallback) {
@@ -222,13 +222,13 @@ public:
     virtual void resize(std::size_t newLen, bool needCopy);
 
 protected:
-    uint8_t *      _buffer         = nullptr;
-    std::size_t    _bufferSize     = 0;
-    std::size_t    _curPos         = 0;
-    std::size_t    _readPos        = 0;
-    bool           _outRange       = false;
-    std::size_t    _maxSize        = 0;
-    fullCallback   _fullCallback   = nullptr;
+    uint8_t *_buffer = nullptr;
+    std::size_t _bufferSize = 0;
+    std::size_t _curPos = 0;
+    std::size_t _readPos = 0;
+    bool _outRange = false;
+    std::size_t _maxSize = 0;
+    fullCallback _fullCallback = nullptr;
     resizeCallback _resizeCallback = nullptr;
 };
 

@@ -30,11 +30,11 @@ IGeometry quad(cc::optional<IGeometryOptions> options) {
         options = IGeometryOptions();
     }
     IGeometry result;
-    result.positions      = ccstd::vector<float>{-0.5, -0.5, 0, -0.5, 0.5, 0, 0.5, 0.5, 0, 0.5, -0.5, 0};
+    result.positions = ccstd::vector<float>{-0.5, -0.5, 0, -0.5, 0.5, 0, 0.5, 0.5, 0, 0.5, -0.5, 0};
     result.boundingRadius = sqrt(0.5 * 0.5 + 0.5 * 0.5);
-    result.minPos         = Vec3(-0.5, -0.5, 0);
-    result.maxPos         = Vec3(0.5, 0.5, 0);
-    result.indices        = ccstd::vector<uint32_t>{0, 3, 1, 3, 2, 1};
+    result.minPos = Vec3(-0.5, -0.5, 0);
+    result.maxPos = Vec3(0.5, 0.5, 0);
+    result.indices = ccstd::vector<uint32_t>{0, 3, 1, 3, 2, 1};
     if (options->includeNormal) {
         result.normals = ccstd::vector<float>{
             0, 0, 1,

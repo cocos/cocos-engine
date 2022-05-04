@@ -38,52 +38,52 @@ class Camera;
 class Model;
 class Octree;
 
-constexpr int OCTREE_CHILDREN_NUM    = 8;
-constexpr int DEFAULT_OCTREE_DEPTH   = 8;
-const Vec3    DEFAULT_WORLD_MIN_POS  = {-1024.0F, -1024.0F, -1024.0F};
-const Vec3    DEFAULT_WORLD_MAX_POS  = {1024.0F, 1024.0F, 1024.0F};
-const float   OCTREE_BOX_EXPAND_SIZE = 10.0F;
-constexpr int USE_MULTI_THRESHOLD    = 1024; // use parallel culling if greater than this value
+constexpr int OCTREE_CHILDREN_NUM = 8;
+constexpr int DEFAULT_OCTREE_DEPTH = 8;
+const Vec3 DEFAULT_WORLD_MIN_POS = {-1024.0F, -1024.0F, -1024.0F};
+const Vec3 DEFAULT_WORLD_MAX_POS = {1024.0F, 1024.0F, 1024.0F};
+const float OCTREE_BOX_EXPAND_SIZE = 10.0F;
+constexpr int USE_MULTI_THRESHOLD = 1024; // use parallel culling if greater than this value
 
 class CC_DLL OctreeInfo final : public RefCounted {
 public:
-    OctreeInfo()           = default;
+    OctreeInfo() = default;
     ~OctreeInfo() override = default;
     /**
      * @en Whether activate octree
      * @zh 是否启用八叉树加速剔除？
      */
-    void        setEnabled(bool val);
+    void setEnabled(bool val);
     inline bool isEnabled() const { return _enabled; }
 
     /**
      * @en min pos of scene bounding box
      * @zh 场景包围盒最小值
      */
-    void               setMinPos(const Vec3 &val);
+    void setMinPos(const Vec3 &val);
     inline const Vec3 &getMinPos() const { return _minPos; }
 
     /**
      * @en max pos of scene bounding box
      * @zh 场景包围盒最大值
      */
-    void               setMaxPos(const Vec3 &val);
+    void setMaxPos(const Vec3 &val);
     inline const Vec3 &getMaxPos() const { return _maxPos; }
 
     /**
      * @en depth of octree
      * @zh 八叉树深度
      */
-    void            setDepth(uint32_t val);
+    void setDepth(uint32_t val);
     inline uint32_t getDepth() const { return _depth; }
 
     void activate(Octree *resource);
 
     // JS deserialization require the properties to be public
     // private:
-    bool     _enabled{false};
-    Vec3     _minPos{DEFAULT_WORLD_MIN_POS};
-    Vec3     _maxPos{DEFAULT_WORLD_MAX_POS};
+    bool _enabled{false};
+    Vec3 _minPos{DEFAULT_WORLD_MIN_POS};
+    Vec3 _maxPos{DEFAULT_WORLD_MAX_POS};
     uint32_t _depth{DEFAULT_OCTREE_DEPTH};
 
     Octree *_resource{nullptr};
@@ -141,27 +141,27 @@ private:
     inline void setDepth(uint32_t depth) { _depth = depth; }
     inline void setIndex(uint32_t index) { _index = index; }
 
-    inline Octree *    getOwner() const { return _owner; }
+    inline Octree *getOwner() const { return _owner; }
     inline const BBox &getBox() const { return _aabb; }
-    BBox               getChildBox(uint32_t index) const;
-    OctreeNode *       getOrCreateChild(uint32_t index);
-    void               deleteChild(uint32_t index);
-    void               insert(Model *model);
-    void               add(Model *model);
-    void               remove(Model *model);
-    void               onRemoved();
-    void               gatherModels(ccstd::vector<Model *> &results) const;
-    void               doQueryVisibility(const Camera *camera, const geometry::Frustum &frustum, bool isShadow, ccstd::vector<Model *> &results) const;
-    void               queryVisibilityParallelly(const Camera *camera, const geometry::Frustum &frustum, bool isShadow, ccstd::vector<Model *> &results) const;
-    void               queryVisibilitySequentially(const Camera *camera, const geometry::Frustum &frustum, bool isShadow, ccstd::vector<Model *> &results) const;
+    BBox getChildBox(uint32_t index) const;
+    OctreeNode *getOrCreateChild(uint32_t index);
+    void deleteChild(uint32_t index);
+    void insert(Model *model);
+    void add(Model *model);
+    void remove(Model *model);
+    void onRemoved();
+    void gatherModels(ccstd::vector<Model *> &results) const;
+    void doQueryVisibility(const Camera *camera, const geometry::Frustum &frustum, bool isShadow, ccstd::vector<Model *> &results) const;
+    void queryVisibilityParallelly(const Camera *camera, const geometry::Frustum &frustum, bool isShadow, ccstd::vector<Model *> &results) const;
+    void queryVisibilitySequentially(const Camera *camera, const geometry::Frustum &frustum, bool isShadow, ccstd::vector<Model *> &results) const;
 
-    Octree *                                        _owner{nullptr};
-    OctreeNode *                                    _parent{nullptr};
+    Octree *_owner{nullptr};
+    OctreeNode *_parent{nullptr};
     ccstd::array<OctreeNode *, OCTREE_CHILDREN_NUM> _children{};
-    ccstd::vector<Model *>                          _models;
-    BBox                                            _aabb{};
-    uint32_t                                        _depth{0};
-    uint32_t                                        _index{0};
+    ccstd::vector<Model *> _models;
+    BBox _aabb{};
+    uint32_t _depth{0};
+    uint32_t _index{0};
 
     friend class Octree;
 };
@@ -180,21 +180,21 @@ public:
      * @en Whether activate octree
      * @zh 是否启用八叉树加速剔除？
      */
-    void        setEnabled(bool val);
+    void setEnabled(bool val);
     inline bool isEnabled() const { return _enabled; }
 
     /**
      * @en min pos of scene bounding box
      * @zh 场景包围盒最小值
      */
-    void               setMinPos(const Vec3 &val);
+    void setMinPos(const Vec3 &val);
     inline const Vec3 &getMinPos() const { return _minPos; }
 
     /**
      * @en max pos of scene bounding box
      * @zh 场景包围盒最大值
      */
-    void               setMaxPos(const Vec3 &val);
+    void setMaxPos(const Vec3 &val);
     inline const Vec3 &getMaxPos() const { return _maxPos; }
 
     // reinsert all models in the tree when you change the aabb or max depth in editor
@@ -225,8 +225,8 @@ private:
     bool isOutside(Model *model) const;
 
     OctreeNode *_root{nullptr};
-    uint32_t    _maxDepth{DEFAULT_OCTREE_DEPTH};
-    uint32_t    _totalCount{0};
+    uint32_t _maxDepth{DEFAULT_OCTREE_DEPTH};
+    uint32_t _totalCount{0};
 
     bool _enabled{false};
     Vec3 _minPos;

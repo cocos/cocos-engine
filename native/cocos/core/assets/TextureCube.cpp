@@ -50,18 +50,18 @@ void forEachFace(const ITextureCubeMipmap &mipmap, const ForEachFaceCallback &ca
 
 /* static */
 TextureCube *TextureCube::fromTexture2DArray(const ccstd::vector<Texture2D *> &textures) {
-    size_t                            nMipmaps = textures.size() / 6;
+    size_t nMipmaps = textures.size() / 6;
     ccstd::vector<ITextureCubeMipmap> mipmaps;
     mipmaps.reserve(nMipmaps);
     for (size_t i = 0; i < nMipmaps; i++) {
         size_t x = i * 6;
 
         ITextureCubeMipmap mipmap;
-        mipmap.front  = textures[x + static_cast<uint32_t>(FaceIndex::FRONT)]->getImage(),
-        mipmap.back   = textures[x + static_cast<uint32_t>(FaceIndex::BACK)]->getImage(),
-        mipmap.left   = textures[x + static_cast<uint32_t>(FaceIndex::LEFT)]->getImage(),
-        mipmap.right  = textures[x + static_cast<uint32_t>(FaceIndex::RIGHT)]->getImage(),
-        mipmap.top    = textures[x + static_cast<uint32_t>(FaceIndex::TOP)]->getImage(),
+        mipmap.front = textures[x + static_cast<uint32_t>(FaceIndex::FRONT)]->getImage(),
+        mipmap.back = textures[x + static_cast<uint32_t>(FaceIndex::BACK)]->getImage(),
+        mipmap.left = textures[x + static_cast<uint32_t>(FaceIndex::LEFT)]->getImage(),
+        mipmap.right = textures[x + static_cast<uint32_t>(FaceIndex::RIGHT)]->getImage(),
+        mipmap.top = textures[x + static_cast<uint32_t>(FaceIndex::TOP)]->getImage(),
         mipmap.bottom = textures[x + static_cast<uint32_t>(FaceIndex::BOTTOM)]->getImage(),
 
         mipmaps.emplace_back(mipmap);
@@ -80,14 +80,12 @@ void TextureCube::setMipmaps(const ccstd::vector<ITextureCubeMipmap> &value) {
     setMipmapLevel(static_cast<uint32_t>(_mipmaps.size()));
     if (!_mipmaps.empty()) {
         ImageAsset *imageAsset = _mipmaps[0].front;
-        reset({
-            imageAsset->getWidth(),
-            imageAsset->getHeight(),
-            imageAsset->getFormat(),
-            static_cast<uint32_t>(_mipmaps.size()),
-            _baseLevel,
-            _maxLevel
-        });
+        reset({imageAsset->getWidth(),
+               imageAsset->getHeight(),
+               imageAsset->getFormat(),
+               static_cast<uint32_t>(_mipmaps.size()),
+               _baseLevel,
+               _maxLevel});
 
         for (size_t level = 0, len = _mipmaps.size(); level < len; ++level) {
             forEachFace(_mipmaps[level], [this, level](ImageAsset *face, TextureCube::FaceIndex faceIndex) {
@@ -96,14 +94,12 @@ void TextureCube::setMipmaps(const ccstd::vector<ITextureCubeMipmap> &value) {
         }
 
     } else {
-        reset({
-            0,
-            0,
-            cc::nullopt,
-            static_cast<uint32_t>(_mipmaps.size()),
-            _baseLevel,
-            _maxLevel
-        });
+        reset({0,
+               0,
+               cc::nullopt,
+               static_cast<uint32_t>(_mipmaps.size()),
+               _baseLevel,
+               _maxLevel});
     }
 }
 
@@ -116,13 +112,13 @@ void TextureCube::setImage(const ITextureCubeMipmap &value) {
     _mipmaps.emplace_back(value);
 }
 void TextureCube::reset(const ITextureCubeCreateInfo &info) {
-    _width  = info.width;
+    _width = info.width;
     _height = info.height;
     setGFXFormat(info.format);
-    
+
     uint32_t mipLevels = info.mipmapLevel.has_value() ? info.mipmapLevel.value() : 1;
     setMipmapLevel(mipLevels);
-    
+
     uint32_t minLod = info.baseLevel.has_value() ? info.baseLevel.value() : 0;
     uint32_t maxLod = info.maxLevel.has_value() ? info.maxLevel.value() : 1000;
     setMipRange(minLod, maxLod);
@@ -201,13 +197,13 @@ void TextureCube::deserialize(const cc::any &serializedData, const cc::any &hand
     for (size_t i = 0; i < data->mipmaps.size(); ++i) {
         // Prevent resource load failed
         ITextureCubeMipmap mipmap;
-        mipmap.front  = ccnew ImageAsset(),
-        mipmap.back   = ccnew ImageAsset(),
-        mipmap.left   = ccnew ImageAsset(),
-        mipmap.right  = ccnew ImageAsset(),
-        mipmap.top    = ccnew ImageAsset(),
+        mipmap.front = ccnew ImageAsset(),
+        mipmap.back = ccnew ImageAsset(),
+        mipmap.left = ccnew ImageAsset(),
+        mipmap.right = ccnew ImageAsset(),
+        mipmap.top = ccnew ImageAsset(),
         mipmap.bottom = ccnew ImageAsset();
-        _mipmaps[i]   = mipmap;
+        _mipmaps[i] = mipmap;
         //        auto* mipmap = data->mipmaps[i];
 
         //cjh TODO: what's handle.result??        const imageAssetClassId = js._getClassId(ImageAsset);
@@ -223,14 +219,14 @@ void TextureCube::deserialize(const cc::any &serializedData, const cc::any &hand
 
 gfx::TextureInfo TextureCube::getGfxTextureCreateInfo(gfx::TextureUsageBit usage, gfx::Format format, uint32_t levelCount, gfx::TextureFlagBit flags) {
     gfx::TextureInfo texInfo;
-    texInfo.type       = gfx::TextureType::CUBE;
-    texInfo.width      = _width;
-    texInfo.height     = _height;
+    texInfo.type = gfx::TextureType::CUBE;
+    texInfo.width = _width;
+    texInfo.height = _height;
     texInfo.layerCount = 6;
-    texInfo.usage      = usage;
-    texInfo.format     = format;
+    texInfo.usage = usage;
+    texInfo.format = format;
     texInfo.levelCount = levelCount;
-    texInfo.flags      = flags;
+    texInfo.flags = flags;
     return texInfo;
 }
 
@@ -254,12 +250,12 @@ void TextureCube::initDefault(const cc::optional<ccstd::string> &uuid) {
 
     ITextureCubeMipmap mipmap;
 
-    mipmap.front  = imageAsset;
-    mipmap.back   = imageAsset;
-    mipmap.top    = imageAsset;
+    mipmap.front = imageAsset;
+    mipmap.back = imageAsset;
+    mipmap.top = imageAsset;
     mipmap.bottom = imageAsset;
-    mipmap.left   = imageAsset;
-    mipmap.right  = imageAsset;
+    mipmap.left = imageAsset;
+    mipmap.right = imageAsset;
 
     setMipmaps({mipmap});
 }

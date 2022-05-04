@@ -23,7 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-
 #include "cocos.h"
 #include "engine/BaseEngine.h"
 #include "core/assets/EffectAsset.h"
@@ -37,14 +36,14 @@ IPassStates::IPassStates(const IPassInfoFull &o) {
 }
 
 IPassStates &IPassStates::operator=(const IPassInfoFull &o) {
-    priority          = o.priority;
-    primitive         = o.primitive;
-    stage             = o.stage;
-    rasterizerState   = o.rasterizerState;
+    priority = o.priority;
+    primitive = o.primitive;
+    stage = o.stage;
+    rasterizerState = o.rasterizerState;
     depthStencilState = o.depthStencilState;
-    blendState        = o.blendState;
-    dynamicStates     = o.dynamicStates;
-    phase             = o.phase;
+    blendState = o.blendState;
+    dynamicStates = o.dynamicStates;
+    phase = o.phase;
     return *this;
 }
 
@@ -156,10 +155,10 @@ bool EffectAsset::destroy() {
 void EffectAsset::initDefault(const cc::optional<ccstd::string> &uuid) {
     Super::initDefault(uuid);
     const auto *effect = EffectAsset::get("unlit");
-    _name              = "unlit";
-    _shaders           = effect->_shaders;
-    _combinations      = effect->_combinations;
-    _techniques        = effect->_techniques; //NOTE: it will copy effect->_techniques to _techniques and _techniques will kept by SE_HOLD_RETURN_VALUE
+    _name = "unlit";
+    _shaders = effect->_shaders;
+    _combinations = effect->_combinations;
+    _techniques = effect->_techniques; //NOTE: it will copy effect->_techniques to _techniques and _techniques will kept by SE_HOLD_RETURN_VALUE
 }
 
 bool EffectAsset::validate() const {
@@ -227,7 +226,7 @@ ccstd::vector<MacroRecord> EffectAsset::doCombine(const ccstd::vector<MacroRecor
     }
 
     const IPreCompileInfoValueType &values = iter->second;
-    const ccstd::string &           key    = iter->first;
+    const ccstd::string &key = iter->first;
 
     ccstd::vector<MacroRecord> records;
     if (cur.empty()) {
@@ -267,26 +266,26 @@ ccstd::vector<MacroRecord> EffectAsset::generateRecords(const ccstd::string &key
 }
 
 ccstd::vector<MacroRecord> EffectAsset::insertInfoValue(const ccstd::vector<MacroRecord> &records,
-                                                        const ccstd::string &             key,
-                                                        const IPreCompileInfoValueType &  infoValue) {
+                                                        const ccstd::string &key,
+                                                        const IPreCompileInfoValueType &infoValue) {
     ccstd::vector<MacroRecord> ret;
     for (const auto &record : records) {
         if (const auto *boolValues = cc::get_if<ccstd::vector<bool>>(&infoValue)) {
             for (const bool value : *boolValues) {
                 MacroRecord tmpRecord = record;
-                tmpRecord[key]        = value;
+                tmpRecord[key] = value;
                 ret.emplace_back(tmpRecord);
             }
         } else if (const auto *intValues = cc::get_if<ccstd::vector<int32_t>>(&infoValue)) {
             for (const int32_t value : *intValues) {
                 MacroRecord tmpRecord = record;
-                tmpRecord[key]        = value;
+                tmpRecord[key] = value;
                 ret.emplace_back(tmpRecord);
             }
         } else if (const auto *stringValues = cc::get_if<ccstd::vector<ccstd::string>>(&infoValue)) {
             for (const ccstd::string &value : *stringValues) {
                 MacroRecord tmpRecord = record;
-                tmpRecord[key]        = value;
+                tmpRecord[key] = value;
                 ret.emplace_back(tmpRecord);
             }
         } else {

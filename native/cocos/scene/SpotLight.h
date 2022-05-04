@@ -43,11 +43,11 @@ public:
     inline const Vec3 &getPosition() const { return _pos; }
 
     inline float getSize() const { return _size; }
-    inline void  setSize(float size) { _size = size; }
+    inline void setSize(float size) { _size = size; }
 
     inline float getRange() const { return _range; }
-    inline void  setRange(float range) {
-        _range      = range;
+    inline void setRange(float range) {
+        _range = range;
         _needUpdate = true;
     }
 
@@ -55,30 +55,30 @@ public:
     inline void setLuminanceLDR(float value) { _luminanceLDR = value; }
 
     float getLuminance() const;
-    void  setLuminance(float value);
+    void setLuminance(float value);
 
     inline const Vec3 &getDirection() const { return _dir; }
 
     inline float getSpotAngle() const { return _spotAngle; }
-    inline void  setSpotAngle(float val) {
-        _angle      = val;
-        _spotAngle  = cos(val * 0.5F);
+    inline void setSpotAngle(float val) {
+        _angle = val;
+        _spotAngle = cos(val * 0.5F);
         _needUpdate = true;
     }
 
     inline float getAngle() const { return _angle; }
 
     inline float getAspect() const { return _aspect; }
-    inline void  setAspect(float aspect) {
-        _aspect     = aspect;
+    inline void setAspect(float aspect) {
+        _aspect = aspect;
         _needUpdate = true;
     }
 
     inline const geometry::AABB &getAABB() const { return *_aabb; }
 
     inline const geometry::Frustum &getFrustum() const { return *_frustum; }
-    inline float                    getLuminanceHDR() const { return _luminanceHDR; }
-    inline float                    getLuminanceLDR() const { return _luminanceLDR; }
+    inline float getLuminanceHDR() const { return _luminanceHDR; }
+    inline float getLuminanceLDR() const { return _luminanceLDR; }
 
     inline void setFrustum(const geometry::Frustum &frustum) { *_frustum = frustum; }
 
@@ -86,26 +86,26 @@ public:
     inline bool isShadowEnabled() const { return _shadowEnabled; }
 
     inline float getShadowPcf() const { return _shadowPcf; }
-    inline void  setShadowPcf(float pcf) { _shadowPcf = pcf; }
+    inline void setShadowPcf(float pcf) { _shadowPcf = pcf; }
 
-    inline void  setShadowBias(float bias) { _shadowBias = bias; }
+    inline void setShadowBias(float bias) { _shadowBias = bias; }
     inline float getShadowBias() const { return _shadowBias; }
 
-    inline void  setShadowNormalBias(float normalBias) { _shadowNormalBias = normalBias; }
+    inline void setShadowNormalBias(float normalBias) { _shadowNormalBias = normalBias; }
     inline float getShadowNormalBias() const { return _shadowNormalBias; }
 
 private:
-    bool               _needUpdate{false};
-    float              _luminanceHDR{0.F};
-    float              _luminanceLDR{0.F};
-    float              _range{0.F};
-    float              _size{0.F};
-    float              _angle{0.F};
-    float              _spotAngle{0.F};
-    float              _aspect{0.F};
-    Vec3               _dir;
-    Vec3               _pos;
-    geometry::AABB *   _aabb{nullptr};
+    bool _needUpdate{false};
+    float _luminanceHDR{0.F};
+    float _luminanceLDR{0.F};
+    float _range{0.F};
+    float _size{0.F};
+    float _angle{0.F};
+    float _spotAngle{0.F};
+    float _aspect{0.F};
+    Vec3 _dir;
+    Vec3 _pos;
+    geometry::AABB *_aabb{nullptr};
     geometry::Frustum *_frustum{nullptr};
 
     // shadow info

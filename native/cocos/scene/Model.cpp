@@ -106,7 +106,7 @@ const cc::gfx::SamplerInfo LIGHTMAP_SAMPLER_WITH_MIP_HASH{
 };
 
 const ccstd::vector<cc::scene::IMacroPatch> SHADOW_MAP_PATCHES{{"CC_RECEIVE_SHADOW", true}};
-const ccstd::string                         INST_MAT_WORLD = "a_matWorld0";
+const ccstd::string INST_MAT_WORLD = "a_matWorld0";
 } // namespace
 
 namespace cc {
@@ -121,10 +121,10 @@ Model::~Model() = default;
 void Model::initialize() {
     if (_inited) return;
     _receiveShadow = true;
-    _castShadow    = false;
-    _enabled       = true;
-    _visFlags      = Layers::Enum::NONE;
-    _inited        = true;
+    _castShadow = false;
+    _enabled = true;
+    _visFlags = Layers::Enum::NONE;
+    _inited = true;
     _localData.reset(pipeline::UBOLocal::COUNT);
 }
 
@@ -137,18 +137,18 @@ void Model::destroy() {
     CC_SAFE_DESTROY_NULL(_localBuffer);
     CC_SAFE_DESTROY_NULL(_worldBoundBuffer);
 
-    _worldBounds       = nullptr;
-    _modelBounds       = nullptr;
-    _inited            = false;
-    _localDataUpdated  = true;
-    _transform         = nullptr;
-    _node              = nullptr;
+    _worldBounds = nullptr;
+    _modelBounds = nullptr;
+    _inited = false;
+    _localDataUpdated = true;
+    _transform = nullptr;
+    _node = nullptr;
     _isDynamicBatching = false;
 }
 
 void Model::uploadMat4AsVec4x3(const Mat4 &mat, Float32Array &v1, Float32Array &v2, Float32Array &v3) {
     uint32_t copyBytes = sizeof(float) * 3;
-    auto *   buffer    = const_cast<uint8_t *>(v1.buffer()->getData());
+    auto *buffer = const_cast<uint8_t *>(v1.buffer()->getData());
 
     uint8_t *dst = buffer + v1.byteOffset();
     memcpy(dst, mat.m, copyBytes);
@@ -208,7 +208,7 @@ void Model::updateWorldBoundsForJSSkinningModel(const Vec3 &min, const Vec3 &max
 }
 
 void Model::updateWorldBoundsForJSBakedSkinningModel(geometry::AABB *aabb) {
-    _worldBounds->center      = aabb->center;
+    _worldBounds->center = aabb->center;
     _worldBounds->halfExtents = aabb->halfExtents;
 }
 
@@ -232,8 +232,8 @@ void Model::updateUBOs(uint32_t stamp) {
     _localDataUpdated = false;
     getTransform()->updateWorldTransform();
     const auto &worldMatrix = getTransform()->getWorldMatrix();
-    Mat4        mat4;
-    int         idx = _instMatWorldIdx;
+    Mat4 mat4;
+    int idx = _instMatWorldIdx;
     if (idx >= 0) {
         ccstd::vector<TypedArray> &attrs = getInstancedAttributeBlock()->views;
         uploadMat4AsVec4x3(worldMatrix, cc::get<Float32Array>(attrs[idx]), cc::get<Float32Array>(attrs[idx + 1]), cc::get<Float32Array>(attrs[idx + 2]));
@@ -253,10 +253,10 @@ void Model::updateUBOs(uint32_t stamp) {
 void Model::updateWorldBoundUBOs() {
     if (_worldBoundBuffer) {
         ccstd::array<float, pipeline::UBOWorldBound::COUNT> worldBoundBufferView;
-        const Vec3 &                                        center      = _worldBounds ? _worldBounds->getCenter() : Vec3{0.0F, 0.0F, 0.0F};
-        const Vec3 &                                        halfExtents = _worldBounds ? _worldBounds->getHalfExtents() : Vec3{1.0F, 1.0F, 1.0F};
-        const Vec4                                          worldBoundCenter{center.x, center.y, center.z, 0.0F};
-        const Vec4                                          worldBoundHalfExtents{halfExtents.x, halfExtents.y, halfExtents.z, 1.0F};
+        const Vec3 &center = _worldBounds ? _worldBounds->getCenter() : Vec3{0.0F, 0.0F, 0.0F};
+        const Vec3 &halfExtents = _worldBounds ? _worldBounds->getHalfExtents() : Vec3{1.0F, 1.0F, 1.0F};
+        const Vec4 worldBoundCenter{center.x, center.y, center.z, 0.0F};
+        const Vec4 worldBoundHalfExtents{halfExtents.x, halfExtents.y, halfExtents.z, 1.0F};
         memcpy(worldBoundBufferView.data() + pipeline::UBOWorldBound::WORLD_BOUND_CENTER, &worldBoundCenter.x, sizeof(Vec4));
         memcpy(worldBoundBufferView.data() + pipeline::UBOWorldBound::WORLD_BOUND_HALF_EXTENTS, &worldBoundHalfExtents.x, sizeof(Vec4));
         _worldBoundBuffer->update(worldBoundBufferView.data(), pipeline::UBOWorldBound::SIZE);
@@ -292,7 +292,7 @@ void Model::initSubModel(index_t idx, cc::RenderingSubMesh *subMeshData, Materia
 
     if (_subModels[idx] == nullptr) {
         _subModels[idx] = createSubModel();
-        isNewSubModel   = true;
+        isNewSubModel = true;
     } else {
         CC_SAFE_DESTROY(_subModels[idx]);
     }
@@ -337,8 +337,8 @@ void Model::onGeometryChanged() {
 void Model::updateLightingmap(Texture2D *texture, const Vec4 &uvParam) {
     vec4ToFloat32Array(uvParam, _localData, pipeline::UBOLocal::LIGHTINGMAP_UVPARAM); //TODO(xwx): toArray not implemented in Math
     _localDataUpdated = true;
-    _lightmap         = texture;
-    _lightmapUVParam  = uvParam;
+    _lightmap = texture;
+    _lightmapUVParam = uvParam;
 
     if (texture == nullptr) {
         texture = BuiltinResMgr::getInstance()->get<Texture2D>(ccstd::string("empty-texture"));
@@ -414,7 +414,7 @@ void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attri
         if (!attribute.isInstanced) continue;
         size += gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attribute.format)].size;
     }
-    auto &attrs  = _instanceAttributeBlock;
+    auto &attrs = _instanceAttributeBlock;
     attrs.buffer = Uint8Array(size);
     attrs.views.clear();
     attrs.attributes.clear();
@@ -423,14 +423,14 @@ void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attri
     for (const gfx::Attribute &attribute : attributes) {
         if (!attribute.isInstanced) continue;
         gfx::Attribute attr;
-        attr.format       = attribute.format;
-        attr.name         = attribute.name;
+        attr.format = attribute.format;
+        attr.name = attribute.name;
         attr.isNormalized = attribute.isNormalized;
-        attr.location     = attribute.location;
+        attr.location = attribute.location;
         attrs.attributes.emplace_back(attr);
-        const auto &info          = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attribute.format)];
-        auto *      buffer        = attrs.buffer.buffer();
-        auto        typeViewArray = getTypedArrayConstructor(info, buffer, offset, info.count);
+        const auto &info = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attribute.format)];
+        auto *buffer = attrs.buffer.buffer();
+        auto typeViewArray = getTypedArrayConstructor(info, buffer, offset, info.count);
         attrs.views.emplace_back(typeViewArray);
         offset += info.size;
     }
@@ -499,7 +499,7 @@ void Model::updateLocalShadowBias() {
     _localData[pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 1] = _shadowNormalBias;
     _localData[pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 2] = 0;
     _localData[pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 3] = 0;
-    _localDataUpdated                                     = true;
+    _localDataUpdated = true;
 }
 
 } // namespace scene

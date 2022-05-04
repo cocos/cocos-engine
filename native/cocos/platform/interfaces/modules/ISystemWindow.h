@@ -34,32 +34,32 @@ namespace cc {
 
 class CC_DLL ISystemWindow : public OSInterface {
 public:
-    using Size        = cc::Vec2;
+    using Size = cc::Vec2;
     using WindowFlags = enum {
         /* !!! FIXME: change this to name = (1<<x). */
-        CC_WINDOW_FULLSCREEN         = 0x00000001, /**< fullscreen window */
-        CC_WINDOW_OPENGL             = 0x00000002, /**< window usable with OpenGL context */
-        CC_WINDOW_SHOWN              = 0x00000004, /**< window is visible */
-        CC_WINDOW_HIDDEN             = 0x00000008, /**< window is not visible */
-        CC_WINDOW_BORDERLESS         = 0x00000010, /**< no window decoration */
-        CC_WINDOW_RESIZABLE          = 0x00000020, /**< window can be resized */
-        CC_WINDOW_MINIMIZED          = 0x00000040, /**< window is minimized */
-        CC_WINDOW_MAXIMIZED          = 0x00000080, /**< window is maximized */
-        CC_WINDOW_INPUT_GRABBED      = 0x00000100, /**< window has grabbed input focus */
-        CC_WINDOW_INPUT_FOCUS        = 0x00000200, /**< window has input focus */
-        CC_WINDOW_MOUSE_FOCUS        = 0x00000400, /**< window has mouse focus */
+        CC_WINDOW_FULLSCREEN = 0x00000001,    /**< fullscreen window */
+        CC_WINDOW_OPENGL = 0x00000002,        /**< window usable with OpenGL context */
+        CC_WINDOW_SHOWN = 0x00000004,         /**< window is visible */
+        CC_WINDOW_HIDDEN = 0x00000008,        /**< window is not visible */
+        CC_WINDOW_BORDERLESS = 0x00000010,    /**< no window decoration */
+        CC_WINDOW_RESIZABLE = 0x00000020,     /**< window can be resized */
+        CC_WINDOW_MINIMIZED = 0x00000040,     /**< window is minimized */
+        CC_WINDOW_MAXIMIZED = 0x00000080,     /**< window is maximized */
+        CC_WINDOW_INPUT_GRABBED = 0x00000100, /**< window has grabbed input focus */
+        CC_WINDOW_INPUT_FOCUS = 0x00000200,   /**< window has input focus */
+        CC_WINDOW_MOUSE_FOCUS = 0x00000400,   /**< window has mouse focus */
         CC_WINDOW_FULLSCREEN_DESKTOP = (CC_WINDOW_FULLSCREEN | 0x00001000),
-        CC_WINDOW_FOREIGN            = 0x00000800, /**< window not created by SDL */
-        CC_WINDOW_ALLOW_HIGHDPI      = 0x00002000, /**< window should be created in high-DPI mode if supported.
+        CC_WINDOW_FOREIGN = 0x00000800,       /**< window not created by SDL */
+        CC_WINDOW_ALLOW_HIGHDPI = 0x00002000, /**< window should be created in high-DPI mode if supported.
                                                      On macOS NSHighResolutionCapable must be set true in the
                                                      application's Info.plist for this to have any effect. */
-        CC_WINDOW_MOUSE_CAPTURE      = 0x00004000, /**< window has mouse captured (unrelated to INPUT_GRABBED) */
-        CC_WINDOW_ALWAYS_ON_TOP      = 0x00008000, /**< window should always be above others */
-        CC_WINDOW_SKIP_TASKBAR       = 0x00010000, /**< window should not be added to the taskbar */
-        CC_WINDOW_UTILITY            = 0x00020000, /**< window should be treated as a utility window */
-        CC_WINDOW_TOOLTIP            = 0x00040000, /**< window should be treated as a tooltip */
-        CC_WINDOW_POPUP_MENU         = 0x00080000, /**< window should be treated as a popup menu */
-        CC_WINDOW_VULKAN             = 0x10000000  /**< window usable for Vulkan surface */
+        CC_WINDOW_MOUSE_CAPTURE = 0x00004000, /**< window has mouse captured (unrelated to INPUT_GRABBED) */
+        CC_WINDOW_ALWAYS_ON_TOP = 0x00008000, /**< window should always be above others */
+        CC_WINDOW_SKIP_TASKBAR = 0x00010000,  /**< window should not be added to the taskbar */
+        CC_WINDOW_UTILITY = 0x00020000,       /**< window should be treated as a utility window */
+        CC_WINDOW_TOOLTIP = 0x00040000,       /**< window should be treated as a tooltip */
+        CC_WINDOW_POPUP_MENU = 0x00080000,    /**< window should be treated as a popup menu */
+        CC_WINDOW_VULKAN = 0x10000000         /**< window usable for Vulkan surface */
     };
 
     /**
@@ -88,7 +88,7 @@ public:
         return true;
     }
     virtual uintptr_t getWindowHandler() const = 0;
-    virtual Size      getViewSize() const      = 0;
+    virtual Size getViewSize() const = 0;
     /**
      @brief enable/disable(lock) the cursor, default is enabled
      */

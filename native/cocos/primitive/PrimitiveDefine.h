@@ -57,7 +57,7 @@ struct IGeometryOptions {
 };
 
 struct CustomAttribute {
-    gfx::Attribute       attr;
+    gfx::Attribute attr;
     ccstd::vector<float> values;
 };
 
@@ -175,7 +175,7 @@ struct IGeometry {
 
 struct DynamicCustomAttribute {
     gfx::Attribute attr;
-    Float32Array   values;
+    Float32Array values;
 };
 
 /**

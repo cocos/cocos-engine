@@ -77,14 +77,14 @@ ccstd::string StackFrame::toString() {
 
 struct ThreadStack {
     void *stack[MAX_STACK_FRAMES];
-    int   current;
-    int   overflow;
+    int current;
+    int overflow;
 };
 
 extern "C" {
 
-static pthread_once_t s_once           = PTHREAD_ONCE_INIT;
-static pthread_key_t  s_threadStackKey = 0;
+static pthread_once_t s_once = PTHREAD_ONCE_INIT;
+static pthread_key_t s_threadStackKey = 0;
 
 static void __attribute__((no_instrument_function))
 init_once(void) {
@@ -98,8 +98,8 @@ getThreadStack() {
         return ptr;
     }
 
-    ptr           = (ThreadStack *)calloc(1, sizeof(ThreadStack));
-    ptr->current  = 0;
+    ptr = (ThreadStack *)calloc(1, sizeof(ThreadStack));
+    ptr->current = 0;
     ptr->overflow = 0;
     pthread_setspecific(s_threadStackKey, ptr);
     return ptr;
@@ -111,7 +111,7 @@ __cyg_profile_func_enter(void *this_fn, void *call_site) {
     ThreadStack *ptr = getThreadStack();
     if (ptr->current < MAX_STACK_FRAMES) {
         ptr->stack[ptr->current++] = this_fn;
-        ptr->overflow              = 0;
+        ptr->overflow = 0;
     } else {
         ptr->overflow++;
     }
@@ -162,7 +162,7 @@ ccstd::vector<void *> CallStack::backtrace() {
     callstack.reserve(MAX_STACK_FRAMES);
 
     void *array[MAX_STACK_FRAMES];
-    int   count = ::backtrace(array, MAX_STACK_FRAMES);
+    int count = ::backtrace(array, MAX_STACK_FRAMES);
     for (auto i = 0; i < count; i++) {
         callstack.push_back(array[i]);
     }
@@ -173,7 +173,7 @@ ccstd::vector<void *> CallStack::backtrace() {
     callstack.reserve(MAX_STACK_FRAMES);
 
     void *array[MAX_STACK_FRAMES];
-    int   count = CaptureStackBackTrace(0, MAX_STACK_FRAMES, array, NULL);
+    int count = CaptureStackBackTrace(0, MAX_STACK_FRAMES, array, NULL);
     for (auto i = 0; i < count; i++) {
         callstack.push_back(array[i]);
     }
@@ -187,9 +187,9 @@ ccstd::vector<void *> CallStack::backtrace() {
 ccstd::vector<StackFrame> CallStack::backtraceSymbols(const ccstd::vector<void *> &callstack) {
     #if CC_PLATFORM == CC_PLATFORM_ANDROID
     ccstd::vector<StackFrame> frames;
-    size_t                    size = callstack.size();
+    size_t size = callstack.size();
     for (size_t i = 0; i < size; i++) {
-        Dl_info    info;
+        Dl_info info;
         StackFrame frame;
         if (dladdr(callstack[i], &info)) {
             if (info.dli_fname && strlen(info.dli_fname) > 0) {
@@ -218,7 +218,7 @@ ccstd::vector<StackFrame> CallStack::backtraceSymbols(const ccstd::vector<void *
     }
 
     ccstd::vector<StackFrame> frames;
-    char **                   strs = ::backtrace_symbols(&callstack[0], size);
+    char **strs = ::backtrace_symbols(&callstack[0], size);
     for (size_t i = 0; i < size; i++) {
         StackFrame frame;
         frame.file = strs[i];
@@ -239,9 +239,9 @@ ccstd::vector<StackFrame> CallStack::backtraceSymbols(const ccstd::vector<void *
     size_t size = callstack.size();
     for (size_t i = 0; i < size; i++) {
         StackFrame frame;
-        PTR_DWORD  address = reinterpret_cast<PTR_DWORD>(callstack[i]);
+        PTR_DWORD address = reinterpret_cast<PTR_DWORD>(callstack[i]);
 
-        char      moduelName[MAX_PATH];
+        char moduelName[MAX_PATH];
         #if _WIN64
         PTR_DWORD moduleBase = SymGetModuleBase64(_process, address);
         #else
@@ -251,11 +251,11 @@ ccstd::vector<StackFrame> CallStack::backtraceSymbols(const ccstd::vector<void *
             frame.module = basename(moduelName);
         }
 
-        DWORD64      offset                                                = 0;
-        char         symbolBuffer[sizeof(SYMBOL_INFO) + MAX_SYMBOL_LENGTH] = {0};
-        PSYMBOL_INFO symbol                                                = (PSYMBOL_INFO)symbolBuffer;
-        symbol->SizeOfStruct                                               = sizeof(SYMBOL_INFO);
-        symbol->MaxNameLen                                                 = MAX_SYMBOL_LENGTH - 1;
+        DWORD64 offset = 0;
+        char symbolBuffer[sizeof(SYMBOL_INFO) + MAX_SYMBOL_LENGTH] = {0};
+        PSYMBOL_INFO symbol = (PSYMBOL_INFO)symbolBuffer;
+        symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+        symbol->MaxNameLen = MAX_SYMBOL_LENGTH - 1;
 
         if (SymFromAddr(_process, address, &offset, symbol)) {
             frame.function = symbol->Name;
@@ -263,7 +263,7 @@ ccstd::vector<StackFrame> CallStack::backtraceSymbols(const ccstd::vector<void *
 
         IMAGEHLP_LINE line;
         line.SizeOfStruct = sizeof(IMAGEHLP_LINE);
-        DWORD offset_ln   = 0;
+        DWORD offset_ln = 0;
 
         if (SymGetLineFromAddr(_process, address, &offset_ln, &line)) {
             frame.file = line.FileName;

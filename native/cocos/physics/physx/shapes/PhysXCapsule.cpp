@@ -66,29 +66,29 @@ void PhysXCapsule::updateScale() {
 
 void PhysXCapsule::updateGeometry() {
     auto *node = getSharedBody().getNode();
-    auto &geo  = getPxGeometry<physx::PxCapsuleGeometry>();
-    float rs   = 1.F;
-    float hs   = 1.F;
+    auto &geo = getPxGeometry<physx::PxCapsuleGeometry>();
+    float rs = 1.F;
+    float hs = 1.F;
     node->updateWorldTransform();
     switch (_mDirection) {
         case EAxisDirection::X_AXIS:
-            hs         = physx::PxAbs(node->getWorldScale().x);
-            rs         = pxAbsMax(node->getWorldScale().y, node->getWorldScale().z);
+            hs = physx::PxAbs(node->getWorldScale().x);
+            rs = pxAbsMax(node->getWorldScale().y, node->getWorldScale().z);
             _mRotation = physx::PxQuat{physx::PxIdentity};
             break;
         case EAxisDirection::Z_AXIS:
-            hs         = physx::PxAbs(node->getWorldScale().z);
-            rs         = pxAbsMax(node->getWorldScale().x, node->getWorldScale().y);
+            hs = physx::PxAbs(node->getWorldScale().z);
+            rs = pxAbsMax(node->getWorldScale().x, node->getWorldScale().y);
             _mRotation = physx::PxQuat(physx::PxPiDivTwo, physx::PxVec3{0.F, 1.F, 0.F});
             break;
         case EAxisDirection::Y_AXIS:
         default:
-            hs         = physx::PxAbs(node->getWorldScale().y);
-            rs         = pxAbsMax(node->getWorldScale().x, node->getWorldScale().z);
+            hs = physx::PxAbs(node->getWorldScale().y);
+            rs = pxAbsMax(node->getWorldScale().x, node->getWorldScale().z);
             _mRotation = physx::PxQuat(physx::PxPiDivTwo, physx::PxVec3{0.F, 0.F, 1.F});
             break;
     }
-    geo.radius     = physx::PxMax(physx::PxAbs(_mRadius * rs), PX_NORMALIZATION_EPSILON);
+    geo.radius = physx::PxMax(physx::PxAbs(_mRadius * rs), PX_NORMALIZATION_EPSILON);
     geo.halfHeight = physx::PxMax(physx::PxAbs(_mCylinderHeight / 2 * hs), PX_NORMALIZATION_EPSILON);
 }
 

@@ -53,7 +53,7 @@ public:
 
     virtual ValueMap getValueMapFromFile(const ccstd::string &filename) override;
     virtual ValueMap getValueMapFromData(const char *filedata, int filesize) override;
-    virtual bool     writeToFile(const ValueMap &dict, const ccstd::string &fullPath) override;
+    virtual bool writeToFile(const ValueMap &dict, const ccstd::string &fullPath) override;
 
     virtual ValueVector getValueVectorFromFile(const ccstd::string &filename) override;
 #if CC_FILEUTILS_APPLE_ENABLE_OBJC

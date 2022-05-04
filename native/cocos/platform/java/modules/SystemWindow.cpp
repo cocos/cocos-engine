@@ -30,7 +30,7 @@
 #include <functional>
 #include <thread>
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
-#include "android/AndroidPlatform.h"
+    #include "android/AndroidPlatform.h"
 #endif
 
 #include "BasePlatform.h"

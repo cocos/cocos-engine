@@ -42,12 +42,12 @@ CCVKInputAssembler::~CCVKInputAssembler() {
 void CCVKInputAssembler::doInit(const InputAssemblerInfo &info) {
     size_t vbCount = _vertexBuffers.size();
 
-    _gpuInputAssembler             = ccnew CCVKGPUInputAssembler;
+    _gpuInputAssembler = ccnew CCVKGPUInputAssembler;
     _gpuInputAssembler->attributes = _attributes;
     _gpuInputAssembler->gpuVertexBuffers.resize(vbCount);
 
     for (size_t i = 0U; i < vbCount; ++i) {
-        auto *vb                                = static_cast<CCVKBuffer *>(_vertexBuffers[i]);
+        auto *vb = static_cast<CCVKBuffer *>(_vertexBuffers[i]);
         _gpuInputAssembler->gpuVertexBuffers[i] = vb->gpuBufferView();
     }
 
@@ -64,7 +64,7 @@ void CCVKInputAssembler::doInit(const InputAssemblerInfo &info) {
 
     CCVKGPUDevice *gpuDevice = CCVKDevice::getInstance()->gpuDevice();
     for (size_t i = 0U; i < vbCount; i++) {
-        _gpuInputAssembler->vertexBuffers[i]       = _gpuInputAssembler->gpuVertexBuffers[i]->gpuBuffer->vkBuffer;
+        _gpuInputAssembler->vertexBuffers[i] = _gpuInputAssembler->gpuVertexBuffers[i]->gpuBuffer->vkBuffer;
         _gpuInputAssembler->vertexBufferOffsets[i] = _gpuInputAssembler->gpuVertexBuffers[i]->getStartOffset(gpuDevice->curBackBufferIndex);
     }
 }

@@ -205,7 +205,7 @@ public:
     ~Mesh() override;
 
     cc::any getNativeAsset() const override;
-    void    setNativeAsset(const cc::any &obj) override;
+    void setNativeAsset(const cc::any &obj) override;
 
     void setAssetData(cc::ArrayBuffer *data) {
         _data = Uint8Array(data);
@@ -431,8 +431,8 @@ public:
     IntrusivePtr<MorphRendering> morphRendering;
 
 private:
-    IStruct    _struct;
-    uint64_t   _hash{0};
+    IStruct _struct;
+    uint64_t _hash{0};
     Uint8Array _data;
 
     bool _initialized{false};

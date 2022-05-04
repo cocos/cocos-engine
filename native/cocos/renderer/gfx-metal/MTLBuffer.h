@@ -42,7 +42,7 @@ public:
     explicit CCMTLBuffer();
     ~CCMTLBuffer();
     CCMTLBuffer(const CCMTLBuffer &) = delete;
-    CCMTLBuffer(CCMTLBuffer &&)      = delete;
+    CCMTLBuffer(CCMTLBuffer &&) = delete;
     CCMTLBuffer &operator=(const CCMTLBuffer &) = default;
     CCMTLBuffer &operator=(CCMTLBuffer &&) = delete;
 
@@ -52,9 +52,9 @@ public:
 
     id<MTLBuffer> getMTLBuffer() const;
 
-    inline CCMTLGPUBuffer *    gpuBuffer() { return _gpuBuffer; }
-    inline MTLIndexType        getIndexType() const { return _indexType; }
-    inline bool                isDrawIndirectByIndex() const { return _isDrawIndirectByIndex; }
+    inline CCMTLGPUBuffer *gpuBuffer() { return _gpuBuffer; }
+    inline MTLIndexType getIndexType() const { return _indexType; }
+    inline bool isDrawIndirectByIndex() const { return _isDrawIndirectByIndex; }
     inline const DrawInfoList &getDrawInfos() const { return _drawInfos; }
 
 protected:
@@ -66,15 +66,15 @@ protected:
     bool createMTLBuffer(uint size, MemoryUsage usage);
     void updateMTLBuffer(const void *buffer, uint offset, uint size);
 
-    MTLIndexType       _indexType               = MTLIndexTypeUInt16;
-    MTLResourceOptions _mtlResourceOptions      = MTLResourceStorageModePrivate;
-    bool               _isIndirectDrawSupported = false;
-    uint               _bufferViewOffset        = 0;
+    MTLIndexType _indexType = MTLIndexTypeUInt16;
+    MTLResourceOptions _mtlResourceOptions = MTLResourceStorageModePrivate;
+    bool _isIndirectDrawSupported = false;
+    uint _bufferViewOffset = 0;
 
-    bool                                                     _isDrawIndirectByIndex = false;
+    bool _isDrawIndirectByIndex = false;
     ccstd::vector<MTLDrawIndexedPrimitivesIndirectArguments> _indexedPrimitivesIndirectArguments;
-    ccstd::vector<MTLDrawPrimitivesIndirectArguments>        _primitiveIndirectArguments;
-    DrawInfoList                                             _drawInfos;
+    ccstd::vector<MTLDrawPrimitivesIndirectArguments> _primitiveIndirectArguments;
+    DrawInfoList _drawInfos;
 
     CCMTLGPUBuffer *_gpuBuffer = nullptr;
 };

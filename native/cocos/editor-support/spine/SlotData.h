@@ -39,75 +39,75 @@ namespace spine {
 class BoneData;
 
 class SP_API SlotData : public SpineObject {
-	friend class SkeletonBinary;
+    friend class SkeletonBinary;
 
-	friend class SkeletonJson;
+    friend class SkeletonJson;
 
-	friend class AttachmentTimeline;
+    friend class AttachmentTimeline;
 
-	friend class ColorTimeline;
+    friend class ColorTimeline;
 
-	friend class DeformTimeline;
+    friend class DeformTimeline;
 
-	friend class DrawOrderTimeline;
+    friend class DrawOrderTimeline;
 
-	friend class EventTimeline;
+    friend class EventTimeline;
 
-	friend class IkConstraintTimeline;
+    friend class IkConstraintTimeline;
 
-	friend class PathConstraintMixTimeline;
+    friend class PathConstraintMixTimeline;
 
-	friend class PathConstraintPositionTimeline;
+    friend class PathConstraintPositionTimeline;
 
-	friend class PathConstraintSpacingTimeline;
+    friend class PathConstraintSpacingTimeline;
 
-	friend class ScaleTimeline;
+    friend class ScaleTimeline;
 
-	friend class ShearTimeline;
+    friend class ShearTimeline;
 
-	friend class TransformConstraintTimeline;
+    friend class TransformConstraintTimeline;
 
-	friend class TranslateTimeline;
+    friend class TranslateTimeline;
 
-	friend class TwoColorTimeline;
+    friend class TwoColorTimeline;
 
 public:
-	SlotData(int index, const String &name, BoneData &boneData);
+    SlotData(int index, const String &name, BoneData &boneData);
 
-	int getIndex();
+    int getIndex();
 
-	const String &getName();
+    const String &getName();
 
-	BoneData &getBoneData();
+    BoneData &getBoneData();
 
-	Color &getColor();
+    Color &getColor();
 
-	Color &getDarkColor();
+    Color &getDarkColor();
 
-	bool hasDarkColor();
+    bool hasDarkColor();
 
-	void setHasDarkColor(bool inValue);
+    void setHasDarkColor(bool inValue);
 
-	/// May be empty.
-	const String &getAttachmentName();
+    /// May be empty.
+    const String &getAttachmentName();
 
-	void setAttachmentName(const String &inValue);
+    void setAttachmentName(const String &inValue);
 
-	BlendMode getBlendMode();
+    BlendMode getBlendMode();
 
-	void setBlendMode(BlendMode inValue);
+    void setBlendMode(BlendMode inValue);
 
 private:
-	const int _index;
-	String _name;
-	BoneData &_boneData;
-	Color _color;
-	Color _darkColor;
+    const int _index;
+    String _name;
+    BoneData &_boneData;
+    Color _color;
+    Color _darkColor;
 
-	bool _hasDarkColor;
-	String _attachmentName;
-	BlendMode _blendMode;
+    bool _hasDarkColor;
+    String _attachmentName;
+    BlendMode _blendMode;
 };
-}
+} // namespace spine
 
 #endif /* Spine_SlotData_h */

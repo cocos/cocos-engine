@@ -40,10 +40,10 @@ class Image;
  */
 struct IMemoryImageSource {
     ArrayBuffer::Ptr data;
-    bool             compressed{false};
-    uint32_t         width{0};
-    uint32_t         height{0};
-    PixelFormat      format{PixelFormat::RGBA8888};
+    bool compressed{false};
+    uint32_t width{0};
+    uint32_t height{0};
+    PixelFormat format{PixelFormat::RGBA8888};
 };
 
 /**
@@ -106,13 +106,13 @@ public:
     inline void setUrl(const ccstd::string &url) { _url = url; }
 
 private:
-    uint32_t         _width{0};
-    uint32_t         _height{0};
-    PixelFormat      _format{PixelFormat::RGBA8888};
-    uint8_t *        _data{nullptr};
-    bool             _needFreeData{false}; // Should free data if the data is assigned in C++.
-    ArrayBuffer::Ptr _arrayBuffer;         //minggo: hold the data from ImageSource.
-    ccstd::string    _url;
+    uint32_t _width{0};
+    uint32_t _height{0};
+    PixelFormat _format{PixelFormat::RGBA8888};
+    uint8_t *_data{nullptr};
+    bool _needFreeData{false};     // Should free data if the data is assigned in C++.
+    ArrayBuffer::Ptr _arrayBuffer; //minggo: hold the data from ImageSource.
+    ccstd::string _url;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(ImageAsset);
 };

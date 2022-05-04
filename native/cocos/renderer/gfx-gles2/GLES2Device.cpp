@@ -61,7 +61,7 @@ GLES2Device *GLES2Device::getInstance() {
 }
 
 GLES2Device::GLES2Device() {
-    _api        = API::GLES2;
+    _api = API::GLES2;
     _deviceName = "GLES2";
 
     GLES2Device::instance = this;
@@ -72,11 +72,11 @@ GLES2Device::~GLES2Device() {
 }
 
 bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
-    _gpuContext             = ccnew GLES2GPUContext;
-    _gpuStateCache          = ccnew GLES2GPUStateCache;
-    _gpuBlitManager         = ccnew GLES2GPUBlitManager;
-    _gpuFramebufferHub      = ccnew GLES2GPUFramebufferHub;
-    _gpuConstantRegistry    = ccnew GLES2GPUConstantRegistry;
+    _gpuContext = ccnew GLES2GPUContext;
+    _gpuStateCache = ccnew GLES2GPUStateCache;
+    _gpuBlitManager = ccnew GLES2GPUBlitManager;
+    _gpuFramebufferHub = ccnew GLES2GPUFramebufferHub;
+    _gpuConstantRegistry = ccnew GLES2GPUConstantRegistry;
     _gpuFramebufferCacheMap = ccnew GLES2GPUFramebufferCacheMap(_gpuStateCache);
 
     if (!_gpuContext->initialize(_gpuStateCache, _gpuConstantRegistry)) {
@@ -90,7 +90,7 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
         uint32_t curSet{_bindingMappingInfo.setIndices[i]};
         uint32_t prevSet{i ? _bindingMappingInfo.setIndices[i - 1] : curSet};
         // accumulate the per set offset according to the specified capacity
-        _bindingMappings.blockOffsets[curSet]          = i ? static_cast<int32_t>(_bindingMappingInfo.maxBlockCounts[prevSet]) + _bindingMappings.blockOffsets[prevSet] : 0;
+        _bindingMappings.blockOffsets[curSet] = i ? static_cast<int32_t>(_bindingMappingInfo.maxBlockCounts[prevSet]) + _bindingMappings.blockOffsets[prevSet] : 0;
         _bindingMappings.samplerTextureOffsets[curSet] = i ? static_cast<int32_t>(_bindingMappingInfo.maxSamplerTextureCounts[prevSet]) + _bindingMappings.samplerTextureOffsets[prevSet] : 0;
     }
     for (uint32_t curSet : _bindingMappingInfo.setIndices) {
@@ -100,7 +100,7 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
     _bindingMappings.flexibleSet = _bindingMappingInfo.setIndices.back();
 
     ccstd::string extStr = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
-    _extensions          = StringUtil::split(extStr, " ");
+    _extensions = StringUtil::split(extStr, " ");
 
     _multithreadedCommandRecording = false;
 
@@ -119,9 +119,9 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
         _features[toNumber(Feature::BLEND_MINMAX)] = true;
     }
 
-    _gpuConstantRegistry->useVAO                = checkExtension("vertex_array_object");
-    _gpuConstantRegistry->useDrawInstanced      = checkExtension("draw_instanced");
-    _gpuConstantRegistry->useInstancedArrays    = checkExtension("instanced_arrays");
+    _gpuConstantRegistry->useVAO = checkExtension("vertex_array_object");
+    _gpuConstantRegistry->useDrawInstanced = checkExtension("draw_instanced");
+    _gpuConstantRegistry->useInstancedArrays = checkExtension("instanced_arrays");
     _gpuConstantRegistry->useDiscardFramebuffer = checkExtension("discard_framebuffer");
 
     _features[toNumber(Feature::INSTANCED_ARRAYS)] = _gpuConstantRegistry->useInstancedArrays;
@@ -139,16 +139,16 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
         if (it != _extensions.end()) {
             if (*it == CC_TOSTR(GL_EXT_shader_framebuffer_fetch_non_coherent)) {
                 _gpuConstantRegistry->mFBF = FBFSupportLevel::NON_COHERENT_EXT;
-                fbfLevelStr                = "NON_COHERENT_EXT";
+                fbfLevelStr = "NON_COHERENT_EXT";
             } else if (*it == CC_TOSTR(GL_QCOM_shader_framebuffer_fetch_noncoherent)) {
                 _gpuConstantRegistry->mFBF = FBFSupportLevel::NON_COHERENT_QCOM;
-                fbfLevelStr                = "NON_COHERENT_QCOM";
+                fbfLevelStr = "NON_COHERENT_QCOM";
                 GL_CHECK(glEnable(GL_FRAMEBUFFER_FETCH_NONCOHERENT_QCOM));
             }
         } else if (checkExtension(CC_TOSTR(GL_EXT_shader_framebuffer_fetch))) {
             // we only care about EXT_shader_framebuffer_fetch, the ARM version does not support MRT
             _gpuConstantRegistry->mFBF = FBFSupportLevel::COHERENT;
-            fbfLevelStr                = "COHERENT";
+            fbfLevelStr = "COHERENT";
         }
         _features[toNumber(Feature::INPUT_ATTACHMENT_BENEFIT)] = _gpuConstantRegistry->mFBF != FBFSupportLevel::NONE;
     }
@@ -178,8 +178,8 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
     }
 
     _renderer = reinterpret_cast<const char *>(glGetString(GL_RENDERER));
-    _vendor   = reinterpret_cast<const char *>(glGetString(GL_VENDOR));
-    _version  = reinterpret_cast<const char *>(glGetString(GL_VERSION));
+    _vendor = reinterpret_cast<const char *>(glGetString(GL_VENDOR));
+    _version = reinterpret_cast<const char *>(glGetString(GL_VERSION));
 
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, reinterpret_cast<GLint *>(&_caps.maxVertexAttributes));
     glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, reinterpret_cast<GLint *>(&_caps.maxVertexUniformVectors));
@@ -191,15 +191,15 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
 
     QueueInfo queueInfo;
     queueInfo.type = QueueType::GRAPHICS;
-    _queue         = createQueue(queueInfo);
+    _queue = createQueue(queueInfo);
 
     QueryPoolInfo queryPoolInfo{QueryType::OCCLUSION, DEFAULT_MAX_QUERY_OBJECTS, true};
     _queryPool = createQueryPool(queryPoolInfo);
 
     CommandBufferInfo cmdBuffInfo;
-    cmdBuffInfo.type  = CommandBufferType::PRIMARY;
+    cmdBuffInfo.type = CommandBufferType::PRIMARY;
     cmdBuffInfo.queue = _queue;
-    _cmdBuff          = createCommandBuffer(cmdBuffInfo);
+    _cmdBuff = createCommandBuffer(cmdBuffInfo);
 
     _gpuStateCache->initialize(_caps.maxTextureUnits, _caps.maxVertexAttributes);
     _gpuBlitManager->initialize();
@@ -244,7 +244,7 @@ void GLES2Device::acquire(Swapchain *const *swapchains, uint32_t count) {
 
 void GLES2Device::present() {
     CC_PROFILE(GLES2DevicePresent);
-    auto *queue   = static_cast<GLES2Queue *>(_queue);
+    auto *queue = static_cast<GLES2Queue *>(_queue);
     _numDrawCalls = queue->_numDrawCalls;
     _numInstances = queue->_numInstances;
     _numTriangles = queue->_numTriangles;
@@ -269,15 +269,15 @@ void GLES2Device::initFormatFeature() {
     const FormatFeature completeFeature = FormatFeature::RENDER_TARGET | FormatFeature::SAMPLED_TEXTURE | FormatFeature::LINEAR_FILTER;
 
     // builtin formatFeatures
-    _formatFeatures[toNumber(Format::RGB8)]     = completeFeature;
-    _formatFeatures[toNumber(Format::R5G6B5)]   = completeFeature;
+    _formatFeatures[toNumber(Format::RGB8)] = completeFeature;
+    _formatFeatures[toNumber(Format::R5G6B5)] = completeFeature;
     _textureExclusive[toNumber(Format::R5G6B5)] = false;
 
-    _formatFeatures[toNumber(Format::RGBA8)]   = completeFeature;
-    _formatFeatures[toNumber(Format::RGBA4)]   = completeFeature;
+    _formatFeatures[toNumber(Format::RGBA8)] = completeFeature;
+    _formatFeatures[toNumber(Format::RGBA4)] = completeFeature;
     _textureExclusive[toNumber(Format::RGBA4)] = false;
 
-    _formatFeatures[toNumber(Format::RGB5A1)]   = completeFeature;
+    _formatFeatures[toNumber(Format::RGB5A1)] = completeFeature;
     _textureExclusive[toNumber(Format::RGB5A1)] = false;
 
     _formatFeatures[toNumber(Format::R8)] |= FormatFeature::VERTEX_ATTRIBUTE;
@@ -471,7 +471,7 @@ InputAssembler *GLES2Device::createInputAssembler() {
 }
 
 RenderPass *GLES2Device::createRenderPass() {
-    return  ccnew GLES2RenderPass;
+    return ccnew GLES2RenderPass;
 }
 
 Framebuffer *GLES2Device::createFramebuffer() {

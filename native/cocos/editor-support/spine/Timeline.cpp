@@ -28,7 +28,7 @@
  *****************************************************************************/
 
 #ifdef SPINE_UE4
-#include "SpinePluginPrivatePCH.h"
+    #include "SpinePluginPrivatePCH.h"
 #endif
 
 #include <spine/Timeline.h>
@@ -45,4 +45,4 @@ Timeline::Timeline() {
 Timeline::~Timeline() {
 }
 
-}
+} // namespace spine

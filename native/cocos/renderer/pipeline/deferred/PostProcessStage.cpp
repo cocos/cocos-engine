@@ -116,11 +116,11 @@ void PostProcessStage::render(scene::Camera *camera) {
         _clearColors[0].z = camera->getClearColor().z;
     }
     _clearColors[0].w = camera->getClearColor().w;
-    _renderArea       = RenderPipeline::getRenderArea(camera);
-    _inputAssembler   = _pipeline->getIAByRenderArea(_renderArea);
-    auto *pipeline    = _pipeline;
+    _renderArea = RenderPipeline::getRenderArea(camera);
+    _inputAssembler = _pipeline->getIAByRenderArea(_renderArea);
+    auto *pipeline = _pipeline;
     float shadingScale{_pipeline->getPipelineSceneData()->getShadingScale()};
-    auto  postSetup = [&](framegraph::PassNodeBuilder &builder, RenderData &data) {
+    auto postSetup = [&](framegraph::PassNodeBuilder &builder, RenderData &data) {
         if (pipeline->isBloomEnabled()) {
             data.outColorTex = framegraph::TextureHandle(builder.readFromBlackboard(RenderPipeline::fgStrHandleBloomOutTexture));
         } else {
@@ -130,8 +130,8 @@ void PostProcessStage::render(scene::Camera *camera) {
         if (!data.outColorTex.isValid()) {
             framegraph::Texture::Descriptor colorTexInfo;
             colorTexInfo.format = gfx::Format::RGBA16F;
-            colorTexInfo.usage  = gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED;
-            colorTexInfo.width  = static_cast<uint>(static_cast<float>(pipeline->getWidth()) * shadingScale);
+            colorTexInfo.usage = gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED;
+            colorTexInfo.width = static_cast<uint>(static_cast<float>(pipeline->getWidth()) * shadingScale);
             colorTexInfo.height = static_cast<uint>(static_cast<float>(pipeline->getHeight()) * shadingScale);
 
             data.outColorTex = builder.create(RenderPipeline::fgStrHandleOutColorTexture, colorTexInfo);
@@ -141,9 +141,9 @@ void PostProcessStage::render(scene::Camera *camera) {
         builder.writeToBlackboard(RenderPipeline::fgStrHandleOutColorTexture, data.outColorTex);
 
         framegraph::RenderTargetAttachment::Descriptor colorAttachmentInfo;
-        colorAttachmentInfo.usage      = framegraph::RenderTargetAttachment::Usage::COLOR;
+        colorAttachmentInfo.usage = framegraph::RenderTargetAttachment::Usage::COLOR;
         colorAttachmentInfo.clearColor = _clearColors[0];
-        colorAttachmentInfo.loadOp     = gfx::LoadOp::CLEAR;
+        colorAttachmentInfo.loadOp = gfx::LoadOp::CLEAR;
 
         auto clearFlags = static_cast<gfx::ClearFlagBit>(camera->getClearFlag());
         if (!hasFlag(clearFlags, gfx::ClearFlagBit::COLOR)) {
@@ -156,8 +156,8 @@ void PostProcessStage::render(scene::Camera *camera) {
 
         colorAttachmentInfo.beginAccesses = colorAttachmentInfo.endAccesses =
             camera->getWindow()->getSwapchain()
-                 ? gfx::AccessFlagBit::COLOR_ATTACHMENT_WRITE
-                 : gfx::AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE;
+                ? gfx::AccessFlagBit::COLOR_ATTACHMENT_WRITE
+                : gfx::AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE;
 
         gfx::TextureInfo textureInfo = {
             gfx::TextureType::TEX2D,
@@ -175,8 +175,8 @@ void PostProcessStage::render(scene::Camera *camera) {
 
         // depth
         framegraph::RenderTargetAttachment::Descriptor depthAttachmentInfo;
-        depthAttachmentInfo.usage         = framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL;
-        depthAttachmentInfo.loadOp        = gfx::LoadOp::CLEAR;
+        depthAttachmentInfo.usage = framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL;
+        depthAttachmentInfo.loadOp = gfx::LoadOp::CLEAR;
         depthAttachmentInfo.beginAccesses = depthAttachmentInfo.endAccesses = gfx::AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE;
 
         data.depth = framegraph::TextureHandle(builder.readFromBlackboard(RenderPipeline::fgStrHandleOutDepthTexture));
@@ -197,23 +197,23 @@ void PostProcessStage::render(scene::Camera *camera) {
     };
 
     auto postExec = [this, camera](RenderData const &data, const framegraph::DevicePassResourceTable &table) {
-        auto *           pipeline   = _pipeline;
+        auto *pipeline = _pipeline;
         gfx::RenderPass *renderPass = table.getRenderPass();
 
-        auto *                      cmdBuff       = pipeline->getCommandBuffers()[0];
+        auto *cmdBuff = pipeline->getCommandBuffers()[0];
         const ccstd::array<uint, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
         cmdBuff->bindDescriptorSet(globalSet, pipeline->getDescriptorSet(), utils::toUint(globalOffsets.size()), globalOffsets.data());
 
         if (!pipeline->getPipelineSceneData()->getRenderObjects().empty()) {
             // post process
-            auto *const  sceneData = static_cast<DeferredPipelineSceneData *>(pipeline->getPipelineSceneData());
-            scene::Pass *pv        = sceneData->getPostPass();
-            gfx::Shader *sd        = sceneData->getPostPassShader();
-            float        shadingScale{sceneData->getShadingScale()};
+            auto *const sceneData = static_cast<DeferredPipelineSceneData *>(pipeline->getPipelineSceneData());
+            scene::Pass *pv = sceneData->getPostPass();
+            gfx::Shader *sd = sceneData->getPostPassShader();
+            float shadingScale{sceneData->getShadingScale()};
             // get pso and draw quad
-            gfx::PipelineState *       pso      = PipelineStateManager::getOrCreatePipelineState(pv, sd, _inputAssembler, renderPass);
+            gfx::PipelineState *pso = PipelineStateManager::getOrCreatePipelineState(pv, sd, _inputAssembler, renderPass);
             pipeline::GlobalDSManager *globalDS = pipeline->getGlobalDSManager();
-            gfx::Sampler *             sampler  = shadingScale < 1.F ? globalDS->getPointSampler() : globalDS->getLinearSampler();
+            gfx::Sampler *sampler = shadingScale < 1.F ? globalDS->getPointSampler() : globalDS->getLinearSampler();
 
             pv->getDescriptorSet()->bindTexture(0, table.getRead(data.outColorTex));
             pv->getDescriptorSet()->bindSampler(0, sampler);

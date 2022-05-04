@@ -86,7 +86,7 @@ public:
     static void onJsCallback(int viewTag, const ccstd::string &message);
 
 private:
-    int      _viewTag;
+    int _viewTag;
     WebView *_webView;
 };
 

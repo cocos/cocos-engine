@@ -32,9 +32,9 @@ using sf_count_t = int;
 
 using SF_INFO = struct {
     sf_count_t frames;
-    int        samplerate;
-    int        channels;
-    int        format;
+    int samplerate;
+    int channels;
+    int format;
 };
 
 // opaque to clients

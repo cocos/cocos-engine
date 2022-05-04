@@ -36,14 +36,14 @@ namespace physics {
 
 enum class ETouchState : uint8_t {
     ENTER = 0,
-    STAY  = 1,
-    EXIT  = 2,
+    STAY = 1,
+    EXIT = 2,
 };
 
 struct TriggerEventPair {
-    uintptr_t                shapeA;
-    uintptr_t                shapeB;
-    ETouchState              state;
+    uintptr_t shapeA;
+    uintptr_t shapeB;
+    ETouchState state;
     static constexpr uint8_t COUNT = 3;
     TriggerEventPair(const uintptr_t a, const uintptr_t b)
     : shapeA(a),
@@ -52,21 +52,21 @@ struct TriggerEventPair {
 };
 
 struct ContactPoint {
-    Vec3                     position;
-    float                    separation;
-    Vec3                     normal;
-    uint32_t                 internalFaceIndex0;
-    Vec3                     impulse;
-    uint32_t                 internalFaceIndex1;
+    Vec3 position;
+    float separation;
+    Vec3 normal;
+    uint32_t internalFaceIndex0;
+    Vec3 impulse;
+    uint32_t internalFaceIndex1;
     static constexpr uint8_t COUNT = 12;
 };
 
 struct ContactEventPair {
-    uintptr_t                   shapeA;
-    uintptr_t                   shapeB;
-    ETouchState                 state;
+    uintptr_t shapeA;
+    uintptr_t shapeB;
+    ETouchState state;
     ccstd::vector<ContactPoint> contacts;
-    static constexpr uint8_t    COUNT = 4;
+    static constexpr uint8_t COUNT = 4;
     ContactEventPair(const uintptr_t a, const uintptr_t b)
     : shapeA(a),
       shapeB(b),
@@ -74,35 +74,35 @@ struct ContactEventPair {
 };
 
 struct ConvexDesc {
-    void *   positions;
+    void *positions;
     uint32_t positionLength;
 };
 
 struct TrimeshDesc : ConvexDesc {
-    void *   triangles;
+    void *triangles;
     uint32_t triangleLength;
-    bool     isU16;
+    bool isU16;
 };
 
 struct HeightFieldDesc {
     uint32_t rows;
     uint32_t columns;
-    void *   samples;
+    void *samples;
 };
 
 struct RaycastOptions {
-    Vec3     origin;
-    float    distance;
-    Vec3     unitDir;
+    Vec3 origin;
+    float distance;
+    Vec3 unitDir;
     uint32_t mask;
-    bool     queryTrigger;
+    bool queryTrigger;
 };
 
 struct RaycastResult {
     uintptr_t shape{0};
-    Vec3      hitPoint;
-    float     distance;
-    Vec3      hitNormal;
+    Vec3 hitPoint;
+    float distance;
+    Vec3 hitNormal;
     RaycastResult() = default;
 };
 
@@ -110,25 +110,25 @@ class IPhysicsWorld {
 public:
     virtual ~IPhysicsWorld() = default;
     ;
-    virtual void                                              setGravity(float x, float y, float z)      = 0;
-    virtual void                                              setAllowSleep(bool v)                      = 0;
-    virtual void                                              step(float s)                              = 0;
-    virtual void                                              emitEvents()                               = 0;
-    virtual void                                              syncSceneToPhysics()                       = 0;
-    virtual void                                              syncSceneWithCheck()                       = 0;
-    virtual void                                              destroy()                                  = 0;
-    virtual void                                              setCollisionMatrix(uint32_t i, uint32_t m) = 0;
-    virtual ccstd::vector<std::shared_ptr<TriggerEventPair>> &getTriggerEventPairs()                     = 0;
-    virtual ccstd::vector<std::shared_ptr<ContactEventPair>> &getContactEventPairs()                     = 0;
-    virtual bool                                              raycast(RaycastOptions &opt)               = 0;
-    virtual bool                                              raycastClosest(RaycastOptions &opt)        = 0;
-    virtual ccstd::vector<RaycastResult> &                    raycastResult()                            = 0;
-    virtual RaycastResult &                                   raycastClosestResult()                     = 0;
-    virtual uintptr_t                                         createConvex(ConvexDesc &desc)             = 0;
-    virtual uintptr_t                                         createTrimesh(TrimeshDesc &desc)           = 0;
-    virtual uintptr_t                                         createHeightField(HeightFieldDesc &desc)   = 0;
-    virtual uintptr_t                                         createMaterial(uint16_t id, float f, float df, float r,
-                                                                             uint8_t m0, uint8_t m1)     = 0;
+    virtual void setGravity(float x, float y, float z) = 0;
+    virtual void setAllowSleep(bool v) = 0;
+    virtual void step(float s) = 0;
+    virtual void emitEvents() = 0;
+    virtual void syncSceneToPhysics() = 0;
+    virtual void syncSceneWithCheck() = 0;
+    virtual void destroy() = 0;
+    virtual void setCollisionMatrix(uint32_t i, uint32_t m) = 0;
+    virtual ccstd::vector<std::shared_ptr<TriggerEventPair>> &getTriggerEventPairs() = 0;
+    virtual ccstd::vector<std::shared_ptr<ContactEventPair>> &getContactEventPairs() = 0;
+    virtual bool raycast(RaycastOptions &opt) = 0;
+    virtual bool raycastClosest(RaycastOptions &opt) = 0;
+    virtual ccstd::vector<RaycastResult> &raycastResult() = 0;
+    virtual RaycastResult &raycastClosestResult() = 0;
+    virtual uintptr_t createConvex(ConvexDesc &desc) = 0;
+    virtual uintptr_t createTrimesh(TrimeshDesc &desc) = 0;
+    virtual uintptr_t createHeightField(HeightFieldDesc &desc) = 0;
+    virtual uintptr_t createMaterial(uint16_t id, float f, float df, float r,
+                                     uint8_t m0, uint8_t m1) = 0;
 };
 
 } // namespace physics

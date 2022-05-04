@@ -218,7 +218,7 @@ It should work same as apples CFSwapInt32LittleToHost(..)
 
 #define CC_DISALLOW_COPY_MOVE_ASSIGN(TypeName) \
     TypeName(const TypeName &) = delete;       \
-    TypeName(TypeName &&)      = delete;       \
+    TypeName(TypeName &&) = delete;            \
     CC_DISALLOW_ASSIGN(TypeName)
 
 #if (CC_COMPILER == CC_COMPILER_MSVC)

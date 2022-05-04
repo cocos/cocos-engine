@@ -28,7 +28,7 @@
 #include "platform/java/jni/JniImp.h"
 
 namespace cc {
-CommonSystem::CommonSystem()  = default;
+CommonSystem::CommonSystem() = default;
 CommonSystem::~CommonSystem() = default;
 
 ccstd::string CommonSystem::getDeviceModel() const {
@@ -36,9 +36,9 @@ ccstd::string CommonSystem::getDeviceModel() const {
 }
 
 CommonSystem::LanguageType CommonSystem::getCurrentLanguage() const {
-    ccstd::string languageName  = getCurrentLanguageJNI();
-    const char *  pLanguageName = languageName.c_str();
-    LanguageType  ret           = LanguageType::ENGLISH;
+    ccstd::string languageName = getCurrentLanguageJNI();
+    const char *pLanguageName = languageName.c_str();
+    LanguageType ret = LanguageType::ENGLISH;
 
     if (0 == strcmp("zh", pLanguageName)) {
         ret = LanguageType::CHINESE;

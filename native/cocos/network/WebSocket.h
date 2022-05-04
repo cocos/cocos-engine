@@ -87,10 +87,10 @@ public:
      */
     struct Data {
         Data() = default;
-        char *   bytes{nullptr};
+        char *bytes{nullptr};
         uint32_t len{0}, issued{0};
-        bool     isBinary{false};
-        void *   ext{nullptr};
+        bool isBinary{false};
+        void *ext{nullptr};
         uint32_t getRemain() const { return std::max(static_cast<uint32_t>(0), len - issued); }
     };
 
@@ -166,10 +166,10 @@ public:
      *  @return true: Success, false: Failure.
      *  @lua NA
      */
-    bool init(const Delegate &                    delegate,
-              const ccstd::string &               url,
-              const ccstd::vector<ccstd::string> *protocols  = nullptr,
-              const ccstd::string &               caFilePath = "");
+    bool init(const Delegate &delegate,
+              const ccstd::string &url,
+              const ccstd::vector<ccstd::string> *protocols = nullptr,
+              const ccstd::string &caFilePath = "");
 
     /**
      *  @brief Sends string data to websocket server.

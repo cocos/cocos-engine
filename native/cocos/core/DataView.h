@@ -44,13 +44,13 @@ public:
     void assign(ArrayBuffer *buffer, uint32_t byteOffset);
     void assign(ArrayBuffer *buffer, uint32_t byteOffset, uint32_t byteLength);
 
-    uint8_t  getUint8(uint32_t offset) const;
+    uint8_t getUint8(uint32_t offset) const;
     uint16_t getUint16(uint32_t offset) const;
     uint32_t getUint32(uint32_t offset) const;
-    int8_t   getInt8(uint32_t offset) const;
-    int16_t  getInt16(uint32_t offset) const;
-    int32_t  getInt32(uint32_t offset) const;
-    float    getFloat32(uint32_t offset) const;
+    int8_t getInt8(uint32_t offset) const;
+    int16_t getInt16(uint32_t offset) const;
+    int32_t getInt32(uint32_t offset) const;
+    float getFloat32(uint32_t offset) const;
 
     void setUint8(uint32_t offset, uint8_t value);
     void setUint16(uint32_t offset, uint16_t value);
@@ -61,30 +61,30 @@ public:
     void setFloat32(uint32_t offset, float value);
 
     inline const ArrayBuffer *buffer() const { return _buffer; }
-    inline ArrayBuffer *      buffer() { return _buffer; }
-    inline uint32_t           byteOffset() const { return _byteOffset; }
-    inline uint32_t           byteLength() const {
+    inline ArrayBuffer *buffer() { return _buffer; }
+    inline uint32_t byteOffset() const { return _byteOffset; }
+    inline uint32_t byteLength() const {
         return _byteEndPos - _byteOffset;
     }
 
-    using Int32Reader   = int32_t (DataView::*)(uint32_t) const;
-    using UInt32Reader  = uint32_t (DataView::*)(uint32_t) const;
-    using Int16Reader   = int16_t (DataView::*)(uint32_t) const;
-    using UInt16Reader  = uint16_t (DataView::*)(uint32_t) const;
-    using Int8Reader    = int8_t (DataView::*)(uint32_t) const;
-    using UInt8Reader   = uint8_t (DataView::*)(uint32_t) const;
+    using Int32Reader = int32_t (DataView::*)(uint32_t) const;
+    using UInt32Reader = uint32_t (DataView::*)(uint32_t) const;
+    using Int16Reader = int16_t (DataView::*)(uint32_t) const;
+    using UInt16Reader = uint16_t (DataView::*)(uint32_t) const;
+    using Int8Reader = int8_t (DataView::*)(uint32_t) const;
+    using UInt8Reader = uint8_t (DataView::*)(uint32_t) const;
     using ReaderVariant = cc::variant<Int32Reader, UInt32Reader, Int16Reader, UInt16Reader, Int8Reader, UInt8Reader>;
     static ccstd::unordered_map<ccstd::string, ReaderVariant> intReaderMap;
-    int32_t                                                   readInt(ReaderVariant &readerVariant, uint32_t offset);
+    int32_t readInt(ReaderVariant &readerVariant, uint32_t offset);
 
     using IntWritter = void (DataView::*)(uint32_t, uint32_t);
     static ccstd::unordered_map<ccstd::string, IntWritter> intWritterMap;
 
 private:
     ArrayBuffer::Ptr _buffer;
-    uint8_t *        _data{nullptr};
-    uint32_t         _byteOffset{0};
-    uint32_t         _byteEndPos{0};
+    uint8_t *_data{nullptr};
+    uint32_t _byteOffset{0};
+    uint32_t _byteEndPos{0};
 };
 
 } // namespace cc

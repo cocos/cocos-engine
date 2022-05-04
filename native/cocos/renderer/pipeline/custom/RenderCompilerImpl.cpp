@@ -30,8 +30,8 @@ namespace cc {
 namespace render {
 
 int RenderCompiler::compile() {
-    auto&       rg      = graph;
-    const auto& resg    = resourceGraph;
+    auto& rg = graph;
+    const auto& resg = resourceGraph;
 
     return 0;
 }

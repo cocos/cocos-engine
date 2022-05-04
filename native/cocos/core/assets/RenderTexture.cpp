@@ -50,12 +50,12 @@ gfx::RenderPassInfo getDefaultRenderPassInfo(gfx::Device *device) {
 }
 } // namespace
 
-RenderTexture::RenderTexture()  = default;
+RenderTexture::RenderTexture() = default;
 RenderTexture::~RenderTexture() = default;
 
 void RenderTexture::initialize(const IRenderTextureCreateInfo &info) {
-    _name   = info.name.has_value() ? info.name.value() : "";
-    _width  = info.width;
+    _name = info.name.has_value() ? info.name.value() : "";
+    _width = info.width;
     _height = info.height;
     initWindow(info);
 }
@@ -73,7 +73,7 @@ bool RenderTexture::destroy() {
 }
 
 void RenderTexture::resize(uint32_t width, uint32_t height) {
-    _width  = std::floor(clampf(static_cast<float>(width), 1.F, 2048.F));
+    _width = std::floor(clampf(static_cast<float>(width), 1.F, 2048.F));
     _height = std::floor(clampf(static_cast<float>(height), 1.F, 2048.F));
     if (_window != nullptr) {
         _window->resize(_width, _height);
@@ -93,9 +93,9 @@ void RenderTexture::initWindow() {
     auto *device{Root::getInstance()->getDevice()};
 
     cc::scene::IRenderWindowInfo windowInfo;
-    windowInfo.title          = _name;
-    windowInfo.width          = _width;
-    windowInfo.height         = _height;
+    windowInfo.title = _name;
+    windowInfo.width = _width;
+    windowInfo.height = _height;
     windowInfo.renderPassInfo = getDefaultRenderPassInfo(device);
 
     if (_window != nullptr) {
@@ -110,8 +110,8 @@ void RenderTexture::initWindow(const IRenderTextureCreateInfo &info) {
     auto *device{Root::getInstance()->getDevice()};
 
     cc::scene::IRenderWindowInfo windowInfo;
-    windowInfo.title  = _name;
-    windowInfo.width  = _width;
+    windowInfo.title = _name;
+    windowInfo.width = _width;
     windowInfo.height = _height;
     if (info.passInfo.has_value()) {
         windowInfo.renderPassInfo = info.passInfo.value();
@@ -129,7 +129,7 @@ void RenderTexture::initWindow(const IRenderTextureCreateInfo &info) {
 
 void RenderTexture::initDefault(const cc::optional<ccstd::string> &uuid) {
     Super::initDefault(uuid);
-    _width  = 1;
+    _width = 1;
     _height = 1;
     initWindow();
 }
@@ -148,9 +148,9 @@ ccstd::vector<uint8_t> RenderTexture::readPixels(uint32_t x, uint32_t y, uint32_
     auto *gfxDevice = getGFXDevice();
 
     gfx::BufferTextureCopy region0{};
-    region0.texOffset.x      = static_cast<int32_t>(x);
-    region0.texOffset.y      = static_cast<int32_t>(y);
-    region0.texExtent.width  = width;
+    region0.texOffset.x = static_cast<int32_t>(x);
+    region0.texOffset.y = static_cast<int32_t>(y);
+    region0.texExtent.width = width;
     region0.texExtent.height = height;
 
     ccstd::vector<uint8_t> buffer;

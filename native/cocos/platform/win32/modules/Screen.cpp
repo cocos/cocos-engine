@@ -35,8 +35,8 @@ int Screen::getDPI() const {
     static int dpi = -1;
     if (dpi == -1) {
         HDC hScreenDC = GetDC(nullptr);
-        int PixelsX   = GetDeviceCaps(hScreenDC, HORZRES);
-        int MMX       = GetDeviceCaps(hScreenDC, HORZSIZE);
+        int PixelsX = GetDeviceCaps(hScreenDC, HORZRES);
+        int MMX = GetDeviceCaps(hScreenDC, HORZSIZE);
         ReleaseDC(nullptr, hScreenDC);
         dpi = static_cast<int>(254.0f * PixelsX / MMX / 10);
     }
@@ -61,15 +61,15 @@ Vec4 Screen::getSafeAreaEdge() const {
 
 bool Screen::isDisplayStats() {
     se::AutoHandleScope hs;
-    se::Value           ret;
-    char                commandBuf[100] = "cc.profiler.isShowingStats();";
+    se::Value ret;
+    char commandBuf[100] = "cc.profiler.isShowingStats();";
     se::ScriptEngine::getInstance()->evalString(commandBuf, 100, &ret);
     return ret.toBoolean();
 }
 
 void Screen::setDisplayStats(bool isShow) {
     se::AutoHandleScope hs;
-    char                commandBuf[100] = {0};
+    char commandBuf[100] = {0};
     sprintf(commandBuf, isShow ? "cc.profiler.showStats();" : "cc.profiler.hideStats();");
     se::ScriptEngine::getInstance()->evalString(commandBuf);
 }

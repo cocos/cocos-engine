@@ -135,7 +135,7 @@ void JniNativeGlue::writeCommandAsync(JniCommand cmd) {
 
 void JniNativeGlue::writeCommandSync(JniCommand cmd) {
     std::promise<void> fu;
-    CommandMsg         msg{.cmd = cmd, .callback = [&fu]() {
+    CommandMsg msg{.cmd = cmd, .callback = [&fu]() {
                        fu.set_value();
                    }};
     _messagePipe->writeCommand(&msg, sizeof(msg));
@@ -190,7 +190,7 @@ void JniNativeGlue::onLowMemory() {
 
 void JniNativeGlue::execCommand() {
     static CommandMsg msg;
-    static bool       runInLowRate{false};
+    static bool runInLowRate{false};
     runInLowRate = !_animating || JniCommand::JNI_CMD_PAUSE == _appState;
 
     if (readCommandWithTimeout(&msg, runInLowRate ? 50 : 0) > 0) {
@@ -208,7 +208,7 @@ void JniNativeGlue::preExecCmd(JniCommand cmd) {
         case JniCommand::JNI_CMD_INIT_WINDOW: {
             LOGV("JNI_CMD_INIT_WINDOW");
             _animating = true;
-            _window    = _pendingWindow;
+            _window = _pendingWindow;
         } break;
         case JniCommand::JNI_CMD_TERM_WINDOW:
             LOGV("JNI_CMD_TERM_WINDOW");
@@ -237,13 +237,13 @@ void JniNativeGlue::engineHandleCmd(JniCommand cmd) {
                 return;
             }
             cc::CustomEvent event;
-            event.name         = EVENT_RECREATE_WINDOW;
+            event.name = EVENT_RECREATE_WINDOW;
             event.args->ptrVal = reinterpret_cast<void*>(getWindowHandler());
             dispatchEvent(event);
         } break;
         case JniCommand::JNI_CMD_TERM_WINDOW: {
             cc::CustomEvent event;
-            event.name         = EVENT_DESTROY_WINDOW;
+            event.name = EVENT_DESTROY_WINDOW;
             event.args->ptrVal = reinterpret_cast<void*>(getWindowHandler());
             dispatchEvent(event);
         } break;
@@ -296,7 +296,7 @@ int32_t JniNativeGlue::getWidth() const {
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
         width = ANativeWindow_getWidth(_window);
 #elif (CC_PLATFORM == CC_PLATFORM_OHOS)
-        width  = NativeLayerHandle(_window, NativeLayerOps::GET_WIDTH);
+        width = NativeLayerHandle(_window, NativeLayerOps::GET_WIDTH);
 #endif
     }
     return width;

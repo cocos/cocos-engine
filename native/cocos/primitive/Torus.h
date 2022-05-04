@@ -34,7 +34,7 @@ namespace cc {
 struct ITorusOptions {
     uint32_t radialSegments{32};
     uint32_t tubularSegments{32};
-    float    arc{math::PI_2};
+    float arc{math::PI_2};
 };
 
 /**

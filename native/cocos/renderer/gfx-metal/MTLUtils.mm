@@ -40,8 +40,8 @@ namespace cc {
 namespace gfx {
 namespace {
 
-ccstd::unordered_map<size_t, PipelineState*> pipelineMap;
-ccstd::unordered_map<size_t, RenderPass*> renderPassMap;
+ccstd::unordered_map<size_t, PipelineState *> pipelineMap;
+ccstd::unordered_map<size_t, RenderPass *> renderPassMap;
 
 EShLanguage getShaderStage(ShaderStageFlagBit type) {
     switch (type) {
@@ -81,8 +81,6 @@ glslang::EShTargetLanguageVersion getTargetVersion(int vulkanMinorVersion) {
         }
     }
 }
-
-
 
 //See more details at https://developer.apple.com/documentation/metal/mtlfeatureset
 enum class GPUFamily {
@@ -314,58 +312,58 @@ bool isASTCFormat(Format format) {
     }
 }
 
-gfx::Shader *createShader(CCMTLDevice *device, CCMTLRenderPass* renderPass) {
+gfx::Shader *createShader(CCMTLDevice *device, CCMTLRenderPass *renderPass) {
     ccstd::string vs = R"(
             layout(location = 0) in vec2 a_position;
             void main() {
                 gl_Position = vec4(a_position, 1.0, 1.0);
             }
     )";
-//    ccstd::string fs = R"(
-//            precision mediump float;
-//            layout(set = 0, binding = 0) uniform Color {
-//                vec4 u_color;
-//            };
-//            layout(location = 0) out vec4 o_color;
-//
-//            void main() {
-//                o_color = u_color;
-//            }
-//    )";
-    
+    //    ccstd::string fs = R"(
+    //            precision mediump float;
+    //            layout(set = 0, binding = 0) uniform Color {
+    //                vec4 u_color;
+    //            };
+    //            layout(location = 0) out vec4 o_color;
+    //
+    //            void main() {
+    //                o_color = u_color;
+    //            }
+    //    )";
+
     ccstd::string fs = R"(
             precision mediump float;
             layout(set = 0, binding = 0) uniform Color {
                 vec4 u_color;
             };
     )";
-    
+
     //TODO_Zeqiang: gather info in framegraph.
-    if(renderPass->getSubpasses().empty()) {
+    if (renderPass->getSubpasses().empty()) {
         for (size_t i = 0; i < renderPass->getColorAttachments().size(); ++i) {
             fs += "\n layout(location = " + std::to_string(i) + ") out vec4 o_color" + std::to_string(i) + ";";
         }
-        
+
         fs += "\nvoid main() {\n    o_color0 = u_color;\n";
-        
+
         for (size_t i = 1; i < renderPass->getColorAttachments().size(); ++i) {
             fs += "    o_color" + std::to_string(i) + " = vec4(0.0);\n";
         }
     } else {
-        const auto& subpasses = renderPass->getSubpasses();
+        const auto &subpasses = renderPass->getSubpasses();
         for (size_t i = 0; i < subpasses[renderPass->getCurrentSubpassIndex()].colors.size(); ++i) {
             fs += "\n layout(location = " + std::to_string(i) + ") out vec4 o_color" + std::to_string(i) + ";";
         }
-        
+
         fs += "\nvoid main() {\n    o_color0 = u_color;\n";
-        
+
         for (size_t i = 1; i < subpasses[renderPass->getCurrentSubpassIndex()].colors.size(); ++i) {
             fs += "    o_color" + std::to_string(i) + " = vec4(0.0);\n";
         }
     }
-    
+
     fs += "}";
-    
+
     gfx::ShaderStageList shaderStageList;
     gfx::ShaderStage vertexShaderStage;
     vertexShaderStage.stage = gfx::ShaderStageFlagBit::VERTEX;
@@ -390,10 +388,10 @@ gfx::Shader *createShader(CCMTLDevice *device, CCMTLRenderPass* renderPass) {
     return device->createShader(shaderInfo);
 }
 
-CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, RenderPass * curPass) {
+CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, RenderPass *curPass) {
     size_t rpHash = curPass->getHash();
     const auto iter = pipelineMap.find(rpHash);
-    if(iter != pipelineMap.end()) {
+    if (iter != pipelineMap.end()) {
         auto *ccMtlPiplineState = static_cast<CCMTLPipelineState *>(iter->second);
         return ccMtlPiplineState->getGPUPipelineState();
     }
@@ -401,23 +399,23 @@ CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, Rend
     gfx::Attribute position = {"a_position", gfx::Format::RG32F, false, 0, false};
     gfx::PipelineStateInfo pipelineInfo;
     pipelineInfo.primitive = gfx::PrimitiveMode::TRIANGLE_LIST;
-    pipelineInfo.shader = createShader(device, static_cast<CCMTLRenderPass*>(curPass));
+    pipelineInfo.shader = createShader(device, static_cast<CCMTLRenderPass *>(curPass));
     pipelineInfo.inputState = {{position}};
     pipelineInfo.renderPass = curPass;
 
     DepthStencilState dsState;
-    dsState.depthWrite  = 0;
-    dsState.depthTest   = 1;
-    dsState.depthFunc   = ComparisonFunc::LESS_EQUAL;
+    dsState.depthWrite = 0;
+    dsState.depthTest = 1;
+    dsState.depthFunc = ComparisonFunc::LESS_EQUAL;
     pipelineInfo.depthStencilState = dsState;
 
     PipelineState *pipelineState = device->createPipelineState(std::move(pipelineInfo));
     pipelineMap.emplace(std::make_pair(curPass->getHash(), pipelineState));
-    ((CCMTLPipelineState*)pipelineState)->check();
+    ((CCMTLPipelineState *)pipelineState)->check();
     delete pipelineInfo.shader;
     return static_cast<CCMTLPipelineState *>(pipelineState)->getGPUPipelineState();
 }
-}
+} // namespace
 
 MTLResourceOptions mu::toMTLResourceOption(MemoryUsage usage) {
     if (usage & MemoryUsage::HOST && usage & MemoryUsage::DEVICE)
@@ -854,10 +852,11 @@ NSUInteger mu::toMTLSampleCount(SampleCount count) {
         case SampleCount::ONE: return 1;
         case SampleCount::MULTIPLE_PERFORMANCE: return 2;
         case SampleCount::MULTIPLE_BALANCE: return 4;
-        case SampleCount::MULTIPLE_QUALITY: return 8;
-//        case SampleCount::X16: return 16;
-//        case SampleCount::X32: return 32;
-//        case SampleCount::X64: return 64;
+        case SampleCount::MULTIPLE_QUALITY:
+            return 8;
+            //        case SampleCount::X16: return 16;
+            //        case SampleCount::X32: return 32;
+            //        case SampleCount::X64: return 64;
     }
 }
 
@@ -912,7 +911,7 @@ MTLSamplerMipFilter mu::toMTLSamplerMipFilter(Filter filter) {
 
 bool mu::isImageBlockSupported() {
     //implicit imageblocks
-    if(!mu::isFramebufferFetchSupported()) {
+    if (!mu::isFramebufferFetchSupported()) {
         return false;
     }
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS) //|| TARGET_CPU_ARM64
@@ -931,9 +930,9 @@ bool mu::isFramebufferFetchSupported() {
 }
 
 ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
-                     ShaderStageFlagBit shaderType,
-                     CCMTLGPUShader *gpuShader) {
-    CCMTLDevice* device = CCMTLDevice::getInstance();
+                            ShaderStageFlagBit shaderType,
+                            CCMTLGPUShader *gpuShader) {
+    CCMTLDevice *device = CCMTLDevice::getInstance();
     spirv_cross::CompilerMSL msl(ir, word_count);
 
     // The SPIR-V is now parsed, and we can perform reflection on it.
@@ -954,7 +953,7 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
 #endif
     options.emulate_subgroups = true;
     options.pad_fragment_output_components = true;
-    if(isFramebufferFetchSupported()) {
+    if (isFramebufferFetchSupported()) {
         options.use_framebuffer_fetch_subpasses = true;
 #if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
         options.set_msl_version(2, 3, 0);
@@ -1002,7 +1001,7 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
         if (binding >= maxBufferBindingIndex) {
             CC_LOG_ERROR("Implementation limits: %s binding at %d, should not use more than %d entries in the buffer argument table", ubo.name.c_str(), binding, maxBufferBindingIndex);
         }
-        
+
         uint fakeHash = set * 128 + binding;
         if (gpuShader->blocks.find(fakeHash) == gpuShader->blocks.end()) {
             auto mappedBinding = gpuShader->bufferIndex;
@@ -1028,7 +1027,7 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
         CC_LOG_ERROR("Implementation limits: Should not use more than %d entries in the sampler state argument table", device->getMaximumSamplerUnits());
         return "";
     }
-    
+
     // avoid conflict index with input attachments.
     const uint8_t rtOffsets = executionModel == spv::ExecutionModelFragment ? resources.subpass_inputs.size() : 0;
     for (const auto &sampler : resources.sampled_images) {
@@ -1057,10 +1056,10 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
         }
     }
 
-    if(executionModel == spv::ExecutionModelFragment) {
+    if (executionModel == spv::ExecutionModelFragment) {
         gpuShader->outputs.resize(resources.stage_outputs.size());
-        for(size_t i = 0; i < resources.stage_outputs.size(); i++) {
-            const auto& stageOutput = resources.stage_outputs[i];
+        for (size_t i = 0; i < resources.stage_outputs.size(); i++) {
+            const auto &stageOutput = resources.stage_outputs[i];
             auto set = msl.get_decoration(stageOutput.id, spv::DecorationDescriptorSet);
             auto attachmentIndex = static_cast<uint32_t>(i);
             msl.set_decoration(stageOutput.id, spv::DecorationLocation, attachmentIndex);
@@ -1069,14 +1068,14 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
             gpuShader->outputs[i].binding = attachmentIndex;
         }
 
-        if(!resources.subpass_inputs.empty()) {
+        if (!resources.subpass_inputs.empty()) {
             gpuShader->inputs.resize(resources.subpass_inputs.size());
-            for(size_t i = 0; i < resources.subpass_inputs.size(); i++) {
-                const auto& attachment = resources.subpass_inputs[i];
+            for (size_t i = 0; i < resources.subpass_inputs.size(); i++) {
+                const auto &attachment = resources.subpass_inputs[i];
                 gpuShader->inputs[i].name = attachment.name;
                 auto set = msl.get_decoration(attachment.id, spv::DecorationDescriptorSet);
                 auto index = msl.get_decoration(attachment.id, spv::DecorationInputAttachmentIndex);
-                msl.set_decoration(attachment.id, spv::DecorationBinding,index);
+                msl.set_decoration(attachment.id, spv::DecorationBinding, index);
                 gpuShader->inputs[i].binding = index;
                 gpuShader->inputs[i].set = set;
             }
@@ -1085,11 +1084,11 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
 
     // Compile to MSL, ready to give to metal driver.
     ccstd::string output = msl.compile();
-    if(executionModel == spv::ExecutionModelFragment) {
+    if (executionModel == spv::ExecutionModelFragment) {
         // add custom function constant to achieve delay binding for color attachment.
         auto customCodingPos = output.find("using namespace metal;");
         int32_t maxIndex = static_cast<int32_t>(resources.stage_outputs.size() - 1);
-        for(int i = maxIndex; i >=0; --i) {
+        for (int i = maxIndex; i >= 0; --i) {
             ccstd::string indexStr = std::to_string(i);
             output.insert(customCodingPos, "\nconstant int indexOffset" + indexStr + " [[function_constant(" + indexStr + ")]];\n");
             output.replace(output.find("color(" + indexStr + ")"), 8, "color(indexOffset" + indexStr + ")");
@@ -1485,47 +1484,47 @@ bool mu::isIndirectCommandBufferSupported(MTLFeatureSet featureSet) {
 }
 bool mu::isDepthStencilFormatSupported(id<MTLDevice> device, Format format, uint family) {
     return true;
-//    GPUFamily gpuFamily = static_cast<GPUFamily>(family);
-//    switch (format) {
-//        case Format::D16:
-//            switch (gpuFamily) {
-//                case GPUFamily::Apple1:
-//                case GPUFamily::Apple2:
-//                case GPUFamily::Apple3:
-//                case GPUFamily::Apple4:
-//                case GPUFamily::Apple5:
-//                case GPUFamily::Apple6:
-//                case GPUFamily::Mac1:
-//                case GPUFamily::Mac2:
-//                    return true;
-//            }
-//        case Format::D32F:
-//        case Format::D32F_S8:
-//            switch (gpuFamily) {
-//                case GPUFamily::Apple1:
-//                case GPUFamily::Apple2:
-//                case GPUFamily::Apple3:
-//                case GPUFamily::Apple4:
-//                case GPUFamily::Apple5:
-//                case GPUFamily::Apple6:
-//#ifdef TARGET_OS_SIMULATOR
-//                    return true;
-//#else
-//                    return false;
-//#endif
-//                case GPUFamily::Mac1:
-//                case GPUFamily::Mac2:
-//                    return true;
-//            }
-//        case Format::D24S8:
-//#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
-//            return [device isDepth24Stencil8PixelFormatSupported];
-//#else
-//            return false;
-//#endif
-//        default:
-//            return false;
-//    }
+    //    GPUFamily gpuFamily = static_cast<GPUFamily>(family);
+    //    switch (format) {
+    //        case Format::D16:
+    //            switch (gpuFamily) {
+    //                case GPUFamily::Apple1:
+    //                case GPUFamily::Apple2:
+    //                case GPUFamily::Apple3:
+    //                case GPUFamily::Apple4:
+    //                case GPUFamily::Apple5:
+    //                case GPUFamily::Apple6:
+    //                case GPUFamily::Mac1:
+    //                case GPUFamily::Mac2:
+    //                    return true;
+    //            }
+    //        case Format::D32F:
+    //        case Format::D32F_S8:
+    //            switch (gpuFamily) {
+    //                case GPUFamily::Apple1:
+    //                case GPUFamily::Apple2:
+    //                case GPUFamily::Apple3:
+    //                case GPUFamily::Apple4:
+    //                case GPUFamily::Apple5:
+    //                case GPUFamily::Apple6:
+    //#ifdef TARGET_OS_SIMULATOR
+    //                    return true;
+    //#else
+    //                    return false;
+    //#endif
+    //                case GPUFamily::Mac1:
+    //                case GPUFamily::Mac2:
+    //                    return true;
+    //            }
+    //        case Format::D24S8:
+    //#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+    //            return [device isDepth24Stencil8PixelFormatSupported];
+    //#else
+    //            return false;
+    //#endif
+    //        default:
+    //            return false;
+    //    }
 }
 
 bool mu::isIndirectDrawSupported(uint family) {
@@ -1758,20 +1757,19 @@ void mu::clearRenderArea(CCMTLDevice *device, id<MTLRenderCommandEncoder> render
     [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangle
                       vertexStart:0
                       vertexCount:count];
-
 }
 
 void mu::clearUtilResource() {
-    if(!renderPassMap.empty()) {
-        for (auto& pass : renderPassMap) {
+    if (!renderPassMap.empty()) {
+        for (auto &pass : renderPassMap) {
             //TODO: create and destroy not in the same level
             pass.second->destroy();
             delete pass.second;
         }
         renderPassMap.clear();
     }
-    if(!pipelineMap.empty()) {
-        for (auto& pipeline : pipelineMap) {
+    if (!pipelineMap.empty()) {
+        for (auto &pipeline : pipelineMap) {
             pipeline.second->destroy();
             delete pipeline.second;
         }

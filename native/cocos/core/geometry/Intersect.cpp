@@ -44,8 +44,8 @@ float rayTriangle(const Ray &ray, const Triangle &triangle, bool doubleSided) {
         return 0;
     }
     float invDet = 1.0F / det;
-    auto  ao     = ray.o - triangle.a;
-    auto  u      = Vec3::dot(ao, pvec) * invDet;
+    auto ao = ray.o - triangle.a;
+    auto u = Vec3::dot(ao, pvec) * invDet;
     if (u < 0 || u > 1) {
         return 0;
     }
@@ -61,11 +61,11 @@ float rayTriangle(const Ray &ray, const Triangle &triangle, bool doubleSided) {
 
 float raySphere(const Ray &ray, const Sphere &sphere) {
     auto rSq = sphere.getRadius() * sphere.getRadius();
-    auto e   = sphere.getCenter() - ray.o;
+    auto e = sphere.getCenter() - ray.o;
     auto eSq = e.lengthSquared();
 
     auto aLength = Vec3::dot(e, ray.d); // assume ray direction already normalized
-    auto fSq     = rSq - (eSq - aLength * aLength);
+    auto fSq = rSq - (eSq - aLength * aLength);
     if (fSq < 0) {
         return 0;
     }
@@ -76,19 +76,19 @@ float raySphere(const Ray &ray, const Sphere &sphere) {
 }
 
 float rayAABB2(const Ray &ray, const Vec3 &min, const Vec3 &max) {
-    const auto &o    = ray.o;
-    auto        d    = ray.d;
-    auto        ix   = 1.0F / d.x;
-    auto        iy   = 1.0F / d.y;
-    auto        iz   = 1.0F / d.z;
-    auto        tx1  = (min.x - o.x) * ix;
-    auto        tx2  = (max.x - o.x) * ix;
-    auto        ty1  = (min.y - o.y) * iy;
-    auto        ty2  = (max.y - o.y) * iy;
-    auto        tz1  = (min.z - o.z) * iz;
-    auto        tz2  = (max.z - o.z) * iz;
-    auto        tmin = std::max(std::max(std::min(tx1, tx2), std::min(ty1, ty2)), std::min(tz1, tz2));
-    auto        tmax = std::min(std::min(std::max(tx1, tx2), std::max(ty1, ty2)), std::max(tz1, tz2));
+    const auto &o = ray.o;
+    auto d = ray.d;
+    auto ix = 1.0F / d.x;
+    auto iy = 1.0F / d.y;
+    auto iz = 1.0F / d.z;
+    auto tx1 = (min.x - o.x) * ix;
+    auto tx2 = (max.x - o.x) * ix;
+    auto ty1 = (min.y - o.y) * iy;
+    auto ty2 = (max.y - o.y) * iy;
+    auto tz1 = (min.z - o.z) * iz;
+    auto tz2 = (max.z - o.z) * iz;
+    auto tmin = std::max(std::max(std::min(tx1, tx2), std::min(ty1, ty2)), std::min(tz1, tz2));
+    auto tmax = std::min(std::min(std::max(tx1, tx2), std::max(ty1, ty2)), std::max(tz1, tz2));
     if (tmax < 0 || tmin > tmax) {
         return 0;
     }
@@ -103,9 +103,9 @@ float rayAABB(const Ray &ray, const AABB &aabb) {
 
 float rayOBB(const Ray &ray, const OBB &obb) {
     ccstd::array<float, 6> t;
-    ccstd::array<float, 3> size   = {obb.halfExtents.x, obb.halfExtents.y, obb.halfExtents.z};
-    const auto &           center = obb.center;
-    auto const &           d      = ray.d;
+    ccstd::array<float, 3> size = {obb.halfExtents.x, obb.halfExtents.y, obb.halfExtents.z};
+    const auto &center = obb.center;
+    auto const &d = ray.d;
 
     Vec3 x = {obb.orientation.m[0], obb.orientation.m[1], obb.orientation.m[2]};
     Vec3 y = {obb.orientation.m[3], obb.orientation.m[4], obb.orientation.m[5]};
@@ -141,11 +141,11 @@ float rayOBB(const Ray &ray, const OBB &obb) {
 
 float rayCapsule(const Ray &ray, const Capsule &capsule) {
     Sphere sphere;
-    auto   radiusSqr = capsule.radius * capsule.radius;
-    auto   vRayNorm  = ray.d.getNormalized();
-    auto   aa        = capsule.ellipseCenter0;
-    auto   bb        = capsule.ellipseCenter1;
-    auto   ba        = bb - aa;
+    auto radiusSqr = capsule.radius * capsule.radius;
+    auto vRayNorm = ray.d.getNormalized();
+    auto aa = capsule.ellipseCenter0;
+    auto bb = capsule.ellipseCenter1;
+    auto ba = bb - aa;
     if (ba == Vec3::ZERO) {
         sphere.setRadius(capsule.radius);
         sphere.setCenter(capsule.ellipseCenter0);
@@ -170,9 +170,9 @@ float rayCapsule(const Ray &ray, const Capsule &capsule) {
     Vec3 OAxBA; //NOLINT(readability-identifier-naming)
     Vec3::cross(oa, ba, &OAxBA);
     auto ab2 = ba.lengthSquared();
-    auto b   = 2.0F * Vec3::dot(VxBA, OAxBA);
-    auto c   = OAxBA.lengthSquared() - (radiusSqr * ab2);
-    auto d   = b * b - 4 * a * c;
+    auto b = 2.0F * Vec3::dot(VxBA, OAxBA);
+    auto c = OAxBA.lengthSquared() - (radiusSqr * ab2);
+    auto d = b * b - 4 * a * c;
 
     if (d < 0) {
         return 0;
@@ -190,9 +190,9 @@ float rayCapsule(const Ray &ray, const Capsule &capsule) {
         return raySphere(ray, sphere);
     }
     // Limit intersection between the bounds of the cylinder's end caps.
-    auto iPos    = ray.o + vRayNorm * t;
+    auto iPos = ray.o + vRayNorm * t;
     auto iPosLen = iPos - aa;
-    auto tLimit  = Vec3::dot(iPosLen, ba) / ab2;
+    auto tLimit = Vec3::dot(iPosLen, ba) / ab2;
 
     if (tLimit >= 0 && tLimit <= 1) {
         return t;
@@ -219,7 +219,7 @@ void fillResult(float *minDis, ERaycastMode m, float d, float i0, float i1, floa
                 if (r->empty()) {
                     r->emplace_back(IRaySubMeshResult{d, static_cast<uint32_t>(i0 / 3), static_cast<uint32_t>(i1 / 3), static_cast<uint32_t>(i2 / 3)});
                 } else {
-                    (*r)[0].distance     = d;
+                    (*r)[0].distance = d;
                     (*r)[0].vertexIndex0 = static_cast<uint32_t>(i0 / 3);
                     (*r)[0].vertexIndex1 = static_cast<uint32_t>(i1 / 3);
                     (*r)[0].vertexIndex2 = static_cast<uint32_t>(i2 / 3);
@@ -234,33 +234,33 @@ void fillResult(float *minDis, ERaycastMode m, float d, float i0, float i1, floa
 
 float narrowphase(float *minDis, const Float32Array &vb, const IBArray &ib, gfx::PrimitiveMode pm, const Ray &ray, IRaySubMeshOptions *opt) {
     Triangle tri;
-    auto     ibSize = cc::visit([](auto &arr) { return arr.length(); }, ib);
+    auto ibSize = cc::visit([](auto &arr) { return arr.length(); }, ib);
     return cc::visit([&](auto &ib) {
         if (pm == gfx::PrimitiveMode::TRIANGLE_LIST) {
             auto cnt = ibSize;
             for (auto j = 0; j < cnt; j += 3) {
-                auto i0   = ib[j] * 3;
-                auto i1   = ib[j + 1] * 3;
-                auto i2   = ib[j + 2] * 3;
-                tri.a     = {vb[i0], vb[i0 + 1], vb[i0 + 2]};
-                tri.b     = {vb[i1], vb[i1 + 1], vb[i1 + 2]};
-                tri.c     = {vb[i2], vb[i2 + 1], vb[i2 + 2]};
+                auto i0 = ib[j] * 3;
+                auto i1 = ib[j + 1] * 3;
+                auto i2 = ib[j + 2] * 3;
+                tri.a = {vb[i0], vb[i0 + 1], vb[i0 + 2]};
+                tri.b = {vb[i1], vb[i1 + 1], vb[i1 + 2]};
+                tri.c = {vb[i2], vb[i2 + 1], vb[i2 + 2]};
                 auto dist = rayTriangle(ray, tri, opt->doubleSided);
                 if (dist == 0.0F || dist > opt->distance) continue;
                 fillResult(minDis, opt->mode, dist, static_cast<float>(i0), static_cast<float>(i1), static_cast<float>(i2), opt->result);
                 if (opt->mode == ERaycastMode::ANY) return dist;
             }
         } else if (pm == gfx::PrimitiveMode::TRIANGLE_STRIP) {
-            auto    cnt = ibSize - 2;
+            auto cnt = ibSize - 2;
             int32_t rev = 0;
             for (auto j = 0; j < cnt; j += 1) {
-                auto i0   = ib[j - rev] * 3;
-                auto i1   = ib[j + rev + 1] * 3;
-                auto i2   = ib[j + 2] * 3;
-                tri.a     = {vb[i0], vb[i0 + 1], vb[i0 + 2]};
-                tri.b     = {vb[i1], vb[i1 + 1], vb[i1 + 2]};
-                tri.c     = {vb[i2], vb[i2 + 1], vb[i2 + 2]};
-                rev       = ~rev;
+                auto i0 = ib[j - rev] * 3;
+                auto i1 = ib[j + rev + 1] * 3;
+                auto i2 = ib[j + 2] * 3;
+                tri.a = {vb[i0], vb[i0 + 1], vb[i0 + 2]};
+                tri.b = {vb[i1], vb[i1 + 1], vb[i1 + 2]};
+                tri.c = {vb[i2], vb[i2 + 1], vb[i2 + 2]};
+                rev = ~rev;
                 auto dist = rayTriangle(ray, tri, opt->doubleSided);
                 if (dist == 0.0F || dist > opt->distance) continue;
                 fillResult(minDis, opt->mode, dist, static_cast<float>(i0), static_cast<float>(i1), static_cast<float>(i2), opt->result);
@@ -268,13 +268,13 @@ float narrowphase(float *minDis, const Float32Array &vb, const IBArray &ib, gfx:
             }
         } else if (pm == gfx::PrimitiveMode::TRIANGLE_FAN) {
             auto cnt = ibSize - 1;
-            auto i0  = ib[0] * 3;
-            tri.a    = {vb[i0], vb[i0 + 1], vb[i0 + 2]};
+            auto i0 = ib[0] * 3;
+            tri.a = {vb[i0], vb[i0 + 1], vb[i0 + 2]};
             for (auto j = 1; j < cnt; j += 1) {
-                auto i1   = ib[j] * 3;
-                auto i2   = ib[j + 1] * 3;
-                tri.b     = {vb[i1], vb[i1 + 1], vb[i1 + 2]};
-                tri.c     = {vb[i2], vb[i2 + 1], vb[i2 + 2]};
+                auto i1 = ib[j] * 3;
+                auto i2 = ib[j + 1] * 3;
+                tri.b = {vb[i1], vb[i1 + 1], vb[i1 + 2]};
+                tri.c = {vb[i2], vb[i2 + 1], vb[i2 + 2]};
                 auto dist = rayTriangle(ray, tri, opt->doubleSided);
                 if (dist == 0.0 || dist > opt->distance) continue;
                 fillResult(minDis, opt->mode, dist, static_cast<float>(i0), static_cast<float>(i1), static_cast<float>(i2), opt->result);
@@ -288,19 +288,19 @@ float narrowphase(float *minDis, const Float32Array &vb, const IBArray &ib, gfx:
 } // namespace
 
 float raySubMesh(const Ray &ray, const RenderingSubMesh &submesh, IRaySubMeshOptions *options) {
-    Triangle           tri;
+    Triangle tri;
     IRaySubMeshOptions deOpt;
-    deOpt.mode        = ERaycastMode::ANY;
-    deOpt.distance    = FLT_MAX;
+    deOpt.mode = ERaycastMode::ANY;
+    deOpt.distance = FLT_MAX;
     deOpt.doubleSided = false;
-    float minDis      = 0.0F;
-    auto &mesh        = const_cast<RenderingSubMesh &>(submesh);
+    float minDis = 0.0F;
+    auto &mesh = const_cast<RenderingSubMesh &>(submesh);
     if (mesh.getGeometricInfo().positions.empty()) return minDis;
     IRaySubMeshOptions *opt = options ? options : &deOpt;
-    auto                min = mesh.getGeometricInfo().boundingBox.min;
-    auto                max = mesh.getGeometricInfo().boundingBox.max;
+    auto min = mesh.getGeometricInfo().boundingBox.min;
+    auto max = mesh.getGeometricInfo().boundingBox.max;
     if (rayAABB2(ray, min, max) != 0.0F) {
-        const auto &pm   = mesh.getPrimitiveMode();
+        const auto &pm = mesh.getPrimitiveMode();
         const auto &info = mesh.getGeometricInfo();
         narrowphase(&minDis, info.positions, info.indices.value(), pm, ray, opt);
     }
@@ -308,19 +308,19 @@ float raySubMesh(const Ray &ray, const RenderingSubMesh &submesh, IRaySubMeshOpt
 }
 
 float rayMesh(const Ray &ray, const Mesh &mesh, IRayMeshOptions *option) {
-    float           minDis = 0.0F;
+    float minDis = 0.0F;
     IRayMeshOptions deOpt;
-    deOpt.distance          = std::numeric_limits<float>::max();
-    deOpt.doubleSided       = false;
-    deOpt.mode              = ERaycastMode::ANY;
-    IRayMeshOptions *opt    = option ? option : &deOpt;
-    auto             length = mesh.getSubMeshCount();
-    auto             min    = mesh.getStruct().minPosition;
-    auto             max    = mesh.getStruct().maxPosition;
+    deOpt.distance = std::numeric_limits<float>::max();
+    deOpt.doubleSided = false;
+    deOpt.mode = ERaycastMode::ANY;
+    IRayMeshOptions *opt = option ? option : &deOpt;
+    auto length = mesh.getSubMeshCount();
+    auto min = mesh.getStruct().minPosition;
+    auto max = mesh.getStruct().maxPosition;
     if (min.has_value() && max.has_value() && rayAABB2(ray, min.value(), max.value()) == 0.0F) return minDis;
     for (uint32_t i = 0; i < length; i++) {
-        const auto &sm  = const_cast<Mesh &>(mesh).getRenderingSubMeshes()[i];
-        float       dis = raySubMesh(ray, *sm, opt);
+        const auto &sm = const_cast<Mesh &>(mesh).getRenderingSubMeshes()[i];
+        float dis = raySubMesh(ray, *sm, opt);
         if (dis != 0.0F) {
             if (opt->mode == ERaycastMode::CLOSEST) {
                 if (minDis == 0.0F || minDis > dis) {
@@ -352,14 +352,14 @@ float rayMesh(const Ray &ray, const Mesh &mesh, IRayMeshOptions *option) {
 }
 
 float rayModel(const Ray &ray, const scene::Model &model, IRayModelOptions *option) {
-    float            minDis = 0.0F;
+    float minDis = 0.0F;
     IRayModelOptions deOpt;
-    deOpt.distance    = std::numeric_limits<float>::max();
+    deOpt.distance = std::numeric_limits<float>::max();
     deOpt.doubleSided = false;
-    deOpt.mode        = ERaycastMode::ANY;
+    deOpt.mode = ERaycastMode::ANY;
 
     IRayModelOptions *opt = option ? option : &deOpt;
-    const auto *      wb  = model.getWorldBounds();
+    const auto *wb = model.getWorldBounds();
     if (wb && rayAABB(ray, *wb) == 0.0F) {
         return minDis;
     }
@@ -372,7 +372,7 @@ float rayModel(const Ray &ray, const scene::Model &model, IRayModelOptions *opti
     const auto &subModels = model.getSubModels();
     for (auto i = 0; i < subModels.size(); i++) {
         const auto &subMesh = subModels[i]->getSubMesh();
-        float       dis     = raySubMesh(modelRay, *subMesh, opt);
+        float dis = raySubMesh(modelRay, *subMesh, opt);
         if (dis != 0.0F) {
             if (opt->mode == ERaycastMode::CLOSEST) {
                 if (minDis == 0.0F || minDis > dis) {
@@ -405,7 +405,7 @@ float rayModel(const Ray &ray, const scene::Model &model, IRayModelOptions *opti
 
 float linePlane(const Line &line, const Plane &plane) {
     auto ab = line.e - line.s;
-    auto t  = (plane.d - Vec3::dot(line.s, plane.n)) / Vec3::dot(ab, plane.n);
+    auto t = (plane.d - Vec3::dot(line.s, plane.n)) / Vec3::dot(ab, plane.n);
     return (t < 0 || t > 1) ? 0 : t;
 }
 
@@ -424,7 +424,7 @@ int lineTriangle(const Line &line, const Triangle &triangle, Vec3 *outPt) {
     }
 
     auto ap = line.s - triangle.a;
-    auto t  = Vec3::dot(ap, n);
+    auto t = Vec3::dot(ap, n);
     if (t < 0 || t > det) {
         return 0;
     }
@@ -550,16 +550,16 @@ static Interval getInterval(const ccstd::array<Vec3, 8> &vertices, const Vec3 &a
     auto max = std::numeric_limits<float>::min();
     for (auto i = 0; i < 8; ++i) {
         auto projection = Vec3::dot(axis, vertices[i]);
-        min             = std::min(projection, min);
-        max             = std::max(projection, max);
+        min = std::min(projection, min);
+        max = std::max(projection, max);
     }
     return Interval{min, max};
 }
 
 int aabbWithOBB(const AABB &aabb, const OBB &obb) {
     ccstd::array<Vec3, 15> test;
-    ccstd::array<Vec3, 8>  vertices;
-    ccstd::array<Vec3, 8>  vertices2;
+    ccstd::array<Vec3, 8> vertices;
+    ccstd::array<Vec3, 8> vertices2;
     test[0] = {1, 0, 0};
     test[1] = {0, 1, 0};
     test[2] = {0, 0, 1};
@@ -590,7 +590,7 @@ int aabbWithOBB(const AABB &aabb, const OBB &obb) {
 }
 
 int aabbPlane(const AABB &aabb, const Plane &plane) {
-    auto r   = aabb.getHalfExtents().x * std::abs(plane.n.x) + aabb.getHalfExtents().y * std::abs(plane.n.y) + aabb.getHalfExtents().z * std::abs(plane.n.z);
+    auto r = aabb.getHalfExtents().x * std::abs(plane.n.x) + aabb.getHalfExtents().y * std::abs(plane.n.y) + aabb.getHalfExtents().z * std::abs(plane.n.z);
     auto dot = Vec3::dot(plane.n, aabb.getCenter());
     if (dot + r < plane.d) {
         return -1;
@@ -614,10 +614,10 @@ int aabbFrustum(const AABB &aabb, const Frustum &frustum) {
 // https://cesium.com/blog/2017/02/02/tighter-frustum-culling-and-why-you-may-want-to-disregard-it/
 int aabbFrustumAccurate(const AABB &aabb, const Frustum &frustum) {
     ccstd::array<Vec3, 8> tmp;
-    int                   out1       = 0;
-    int                   out2       = 0;
-    int                   result     = 0;
-    bool                  intersects = false;
+    int out1 = 0;
+    int out2 = 0;
+    int result = 0;
+    bool intersects = false;
     // 1. aabb inside/outside frustum test
     for (const auto &plane : frustum.planes) {
         result = aabbPlane(aabb, *plane);
@@ -719,14 +719,14 @@ int obbFrustum(const OBB &obb, const Frustum &frustum) {
 
 // https://cesium.com/blog/2017/02/02/tighter-frustum-culling-and-why-you-may-want-to-disregard-it/
 int obbFrustumAccurate(const OBB &obb, const Frustum &frustum) {
-    ccstd::array<Vec3, 8> tmp  = {};
-    float                 dist = 0.0F;
-    size_t                out1 = 0;
-    size_t                out2 = 0;
-    auto                  dot  = [](const Vec3 &n, float x, float y, float z) -> float {
+    ccstd::array<Vec3, 8> tmp = {};
+    float dist = 0.0F;
+    size_t out1 = 0;
+    size_t out2 = 0;
+    auto dot = [](const Vec3 &n, float x, float y, float z) -> float {
         return n.x * x + n.y * y + n.z * z;
     };
-    int  result     = 0;
+    int result = 0;
     auto intersects = false;
     // 1. obb inside/outside frustum test
     for (const auto &plane : frustum.planes) {
@@ -790,8 +790,8 @@ int obbFrustumAccurate(const OBB &obb, const Frustum &frustum) {
 }
 
 int obbWithOBB(const OBB &obb1, const OBB &obb2) {
-    ccstd::array<Vec3, 8>  vertices;
-    ccstd::array<Vec3, 8>  vertices2;
+    ccstd::array<Vec3, 8> vertices;
+    ccstd::array<Vec3, 8> vertices2;
     ccstd::array<Vec3, 15> test;
 
     test[0] = {obb1.orientation.m[0], obb1.orientation.m[1], obb1.orientation.m[2]};
@@ -822,10 +822,10 @@ int obbWithOBB(const OBB &obb1, const OBB &obb2) {
 
 // https://github.com/diku-dk/bvh-tvcg18/blob/1fd3348c17bc8cf3da0b4ae60fdb8f2aa90a6ff0/FOUNDATION/GEOMETRY/GEOMETRY/include/overlap/geometry_overlap_obb_capsule.h
 int obbCapsule(const OBB &obb, const Capsule &capsule) {
-    Sphere                sphere{};
+    Sphere sphere{};
     ccstd::array<Vec3, 8> v3Verts8{};
     ccstd::array<Vec3, 8> v3Axis8{};
-    auto                  h = capsule.ellipseCenter0.distanceSquared(capsule.ellipseCenter1);
+    auto h = capsule.ellipseCenter0.distanceSquared(capsule.ellipseCenter1);
     if (h == 0.0F) {
         sphere.setRadius(capsule.radius);
         sphere.setCenter(capsule.ellipseCenter0);
@@ -858,9 +858,9 @@ int obbCapsule(const OBB &obb, const Capsule &capsule) {
     Vec3::cross(a2, bb, &axes[7]);
 
     for (auto i = 0; i < 8; ++i) {
-        auto a    = getInterval(v3Verts8, axes[i]);
-        auto d0   = Vec3::dot(axes[i], capsule.ellipseCenter0);
-        auto d1   = Vec3::dot(axes[i], capsule.ellipseCenter1);
+        auto a = getInterval(v3Verts8, axes[i]);
+        auto d0 = Vec3::dot(axes[i], capsule.ellipseCenter0);
+        auto d1 = Vec3::dot(axes[i], capsule.ellipseCenter1);
         auto dMin = std::min(d0, d1) - capsule.radius;
         auto dMax = std::max(d0, d1) + capsule.radius;
         if (dMin > a.max || a.min > dMax) {
@@ -872,7 +872,7 @@ int obbCapsule(const OBB &obb, const Capsule &capsule) {
 
 int spherePlane(const Sphere &sphere, const Plane &plane) {
     auto dot = Vec3::dot(plane.n, sphere.getCenter());
-    auto r   = sphere.getRadius() * plane.n.length();
+    auto r = sphere.getRadius() * plane.n.length();
     if (dot + r < plane.d) {
         return -1;
     }
@@ -896,11 +896,11 @@ int sphereFrustumAccurate(const Sphere &sphere, const Frustum &frustum) {
     const static ccstd::array<int, 6> MAP = {1, -1, 1, -1, 1, -1};
     for (auto i = 0; i < 6; i++) {
         const auto &plane = frustum.planes[i];
-        const auto &n     = plane->n;
-        const auto &d     = plane->d;
-        auto        r     = sphere.getRadius();
-        const auto &c     = sphere.getCenter();
-        auto        dot   = Vec3::dot(n, c);
+        const auto &n = plane->n;
+        const auto &d = plane->d;
+        auto r = sphere.getRadius();
+        const auto &c = sphere.getCenter();
+        auto dot = Vec3::dot(n, c);
         // frustum plane normal points to the inside
         if (dot + r < d) {
             return 0; // completely outside
@@ -942,15 +942,15 @@ bool sphereOBB(const Sphere &sphere, const OBB &obb) {
 }
 
 bool sphereCapsule(const Sphere &sphere, const Capsule &capsule) {
-    auto r        = sphere.getRadius() + capsule.radius;
+    auto r = sphere.getRadius() + capsule.radius;
     auto squaredR = r * r;
-    auto h        = capsule.ellipseCenter0.distanceSquared(capsule.ellipseCenter1);
+    auto h = capsule.ellipseCenter0.distanceSquared(capsule.ellipseCenter1);
     if (h == 0.0F) {
         return sphere.getCenter().distanceSquared(capsule.center) < squaredR;
     }
     auto v3Tmp0 = sphere.getCenter() - capsule.ellipseCenter0;
     auto v3Tmp1 = capsule.ellipseCenter1 - capsule.ellipseCenter0;
-    auto t      = Vec3::dot(v3Tmp0, v3Tmp1) / h;
+    auto t = Vec3::dot(v3Tmp0, v3Tmp1) / h;
     if (t < 0) {
         return sphere.getCenter().distanceSquared(capsule.ellipseCenter0) < squaredR;
     }
@@ -962,15 +962,15 @@ bool sphereCapsule(const Sphere &sphere, const Capsule &capsule) {
 }
 
 bool capsuleWithCapsule(const Capsule &capsuleA, const Capsule &capsuleB) {
-    auto  u  = capsuleA.ellipseCenter1 - capsuleA.ellipseCenter0;
-    auto  v  = capsuleB.ellipseCenter1 - capsuleB.ellipseCenter0;
-    auto  w  = capsuleA.ellipseCenter0 - capsuleB.ellipseCenter0;
-    auto  a  = Vec3::dot(u, u); // always >= 0
-    auto  b  = Vec3::dot(u, v);
-    auto  c  = Vec3::dot(v, v); // always >= 0
-    auto  d  = Vec3::dot(u, w);
-    auto  e  = Vec3::dot(v, w);
-    auto  dd = a * c - b * b; // always >= 0
+    auto u = capsuleA.ellipseCenter1 - capsuleA.ellipseCenter0;
+    auto v = capsuleB.ellipseCenter1 - capsuleB.ellipseCenter0;
+    auto w = capsuleA.ellipseCenter0 - capsuleB.ellipseCenter0;
+    auto a = Vec3::dot(u, u); // always >= 0
+    auto b = Vec3::dot(u, v);
+    auto c = Vec3::dot(v, v); // always >= 0
+    auto d = Vec3::dot(u, w);
+    auto e = Vec3::dot(v, w);
+    auto dd = a * c - b * b; // always >= 0
     float sN;
     float sD = dd; // sc = sN / sD, default sD = dd >= 0
     float tN;
@@ -1024,9 +1024,9 @@ bool capsuleWithCapsule(const Capsule &capsuleA, const Capsule &capsuleB) {
     auto tc = (std::abs(tN) < math::EPSILON ? 0.0F : tN / tD);
 
     // get the difference of the two closest points
-    auto dP     = w;
-    dP          = dP + u * sc;
-    dP          = dP - v * tc;
+    auto dP = w;
+    dP = dP + u * sc;
+    dP = dP - v * tc;
     auto radius = capsuleA.radius + capsuleB.radius;
     return dP.lengthSquared() < radius * radius;
 }

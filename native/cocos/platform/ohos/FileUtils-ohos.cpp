@@ -44,7 +44,7 @@
 namespace cc {
 
 ResourceManager *FileUtilsOHOS::ohosResourceMgr = {};
-ccstd::string    FileUtilsOHOS::ohosAssetPath   = {};
+ccstd::string FileUtilsOHOS::ohosAssetPath = {};
 
 namespace {
 
@@ -61,9 +61,9 @@ void printRawfiles(ResourceManager *mgr, const ccstd::string &path) {
     if (dir) {
         auto fileCnt = GetRawFileCount(dir);
         for (auto i = 0; i < fileCnt; i++) {
-            ccstd::string subFile  = GetRawFileName(dir, i);
-            auto          newPath  = path + "/" + subFile; // NOLINT
-            auto          debugPtr = newPath.c_str();
+            ccstd::string subFile = GetRawFileName(dir, i);
+            auto newPath = path + "/" + subFile; // NOLINT
+            auto debugPtr = newPath.c_str();
             HILOG_ERROR(LOG_APP, " find path %{public}s", newPath.c_str());
             printRawfiles(mgr, newPath);
         }
@@ -127,7 +127,7 @@ FileUtils::Status FileUtilsOHOS::getContents(const ccstd::string &filename, Resi
     }
 
     ccstd::string relativePath;
-    size_t        position = fullPath.find(ASSETS_FOLDER_NAME);
+    size_t position = fullPath.find(ASSETS_FOLDER_NAME);
     if (0 == position) {
         // "@assets/" is at the beginning of the path and we don't want it
         relativePath = rawfilePrefix + fullPath.substr(strlen(ASSETS_FOLDER_NAME));
@@ -179,7 +179,7 @@ ccstd::string FileUtilsOHOS::getWritablePath() const {
 
 bool FileUtilsOHOS::isFileExistInternal(const ccstd::string &strFilePath) const {
     if (strFilePath.empty()) return false;
-    auto filePath  = strFilePath;
+    auto filePath = strFilePath;
     auto fileFound = false;
 
     if (strFilePath[0] == '/') { // absolute path
@@ -239,14 +239,14 @@ ccstd::string FileUtilsOHOS::expandPath(const ccstd::string &input, bool *isRawF
 }
 
 std::pair<int, std::function<void()>> FileUtilsOHOS::getFd(const ccstd::string &path) const {
-    bool       isRawFile = false;
-    const auto fullpath  = expandPath(path, &isRawFile);
+    bool isRawFile = false;
+    const auto fullpath = expandPath(path, &isRawFile);
     if (isRawFile) {
         RawFile *rf = OpenRawFile(ohosResourceMgr, fullpath.c_str());
         // FIXME: try reuse file
-        const auto bufSize   = GetRawFileSize(rf);
-        auto       fileCache = ccstd::vector<char>(bufSize);
-        auto *     buf       = fileCache.data();
+        const auto bufSize = GetRawFileSize(rf);
+        auto fileCache = ccstd::vector<char>(bufSize);
+        auto *buf = fileCache.data();
         // Fill buffer
         const auto readBytes = ReadRawFile(rf, buf, bufSize);
         assert(readBytes == bufSize); // read failure ?

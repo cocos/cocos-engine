@@ -37,11 +37,11 @@ public:
     static size_t computeHash(const TextureBarrierInfo &info);
 
     inline const TextureBarrierInfo &getInfo() const { return _info; }
-    inline const size_t &            getHash() const { return _hash; }
+    inline const size_t &getHash() const { return _hash; }
 
 protected:
     TextureBarrierInfo _info;
-    size_t             _hash{0U};
+    size_t _hash{0U};
 };
 
 } // namespace gfx

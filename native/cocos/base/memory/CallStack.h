@@ -48,7 +48,7 @@ struct CC_DLL StackFrame {
     ccstd::string module;
     ccstd::string file;
     ccstd::string function;
-    uint32_t      line{0};
+    uint32_t line{0};
 
     ccstd::string toString();
 };
@@ -60,7 +60,7 @@ class CC_DLL CallStack {
 public:
     static ccstd::string basename(const ccstd::string &path);
 
-    static ccstd::vector<void *>     backtrace();
+    static ccstd::vector<void *> backtrace();
     static ccstd::vector<StackFrame> backtraceSymbols(const ccstd::vector<void *> &callstack);
 
     #if CC_PLATFORM == CC_PLATFORM_WINDOWS

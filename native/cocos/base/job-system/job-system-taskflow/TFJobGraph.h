@@ -57,11 +57,11 @@ public:
 private:
     tf::Executor *_executor = nullptr;
 
-    tf::Taskflow           _flow;
+    tf::Taskflow _flow;
     ccstd::deque<tf::Task> _tasks; // existing tasks cannot be invalidated
 
     std::future<void> _future;
-    bool              _pending = false;
+    bool _pending = false;
 };
 
 template <typename Function>

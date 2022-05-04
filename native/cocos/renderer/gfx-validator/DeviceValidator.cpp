@@ -49,7 +49,7 @@ namespace cc {
 namespace gfx {
 
 DeviceValidator *DeviceValidator::instance = nullptr;
-bool             DeviceValidator::allowStacktraceJS{true};
+bool DeviceValidator::allowStacktraceJS{true};
 
 DeviceValidator *DeviceValidator::getInstance() {
     return DeviceValidator::instance;
@@ -78,19 +78,19 @@ bool DeviceValidator::doInit(const DeviceInfo &info) {
         return false;
     }
 
-    _api        = _actor->getGfxAPI();
+    _api = _actor->getGfxAPI();
     _deviceName = _actor->getDeviceName();
-    _queue      = ccnew QueueValidator(_actor->getQueue());
-    _queryPool  = ccnew QueryPoolValidator(_actor->getQueryPool());
-    _cmdBuff    = ccnew CommandBufferValidator(_actor->getCommandBuffer());
-    _renderer   = _actor->getRenderer();
-    _vendor     = _actor->getVendor();
-    _caps       = _actor->_caps;
+    _queue = ccnew QueueValidator(_actor->getQueue());
+    _queryPool = ccnew QueryPoolValidator(_actor->getQueryPool());
+    _cmdBuff = ccnew CommandBufferValidator(_actor->getCommandBuffer());
+    _renderer = _actor->getRenderer();
+    _vendor = _actor->getVendor();
+    _caps = _actor->_caps;
     memcpy(_features.data(), _actor->_features.data(), static_cast<uint32_t>(Feature::COUNT) * sizeof(bool));
     memcpy(_formatFeatures.data(), _actor->_formatFeatures.data(), static_cast<uint32_t>(Format::COUNT) * sizeof(FormatFeatureBit));
 
-    static_cast<QueueValidator *>(_queue)->_inited          = true;
-    static_cast<QueryPoolValidator *>(_queryPool)->_inited  = true;
+    static_cast<QueueValidator *>(_queue)->_inited = true;
+    static_cast<QueryPoolValidator *>(_queryPool)->_inited = true;
     static_cast<CommandBufferValidator *>(_cmdBuff)->_queue = _queue;
     static_cast<CommandBufferValidator *>(_cmdBuff)->initValidator();
 
@@ -145,7 +145,7 @@ void DeviceValidator::acquire(Swapchain *const *swapchains, uint32_t count) {
     swapchainActors.resize(count);
 
     for (uint32_t i = 0U; i < count; ++i) {
-        auto *swapchain    = static_cast<SwapchainValidator *>(swapchains[i]);
+        auto *swapchain = static_cast<SwapchainValidator *>(swapchains[i]);
         swapchainActors[i] = swapchain->getActor();
     }
 
@@ -160,98 +160,98 @@ void DeviceValidator::present() {
 }
 
 CommandBuffer *DeviceValidator::createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
-    CommandBuffer *actor  = _actor->createCommandBuffer(info, hasAgent);
+    CommandBuffer *actor = _actor->createCommandBuffer(info, hasAgent);
     CommandBuffer *result = ccnew CommandBufferValidator(actor);
     DeviceResourceTracker<CommandBuffer>::push(result);
     return result;
 }
 
 Queue *DeviceValidator::createQueue() {
-    Queue *actor  = _actor->createQueue();
+    Queue *actor = _actor->createQueue();
     Queue *result = ccnew QueueValidator(actor);
     DeviceResourceTracker<Queue>::push(result);
     return result;
 }
 
 QueryPool *DeviceValidator::createQueryPool() {
-    QueryPool *actor  = _actor->createQueryPool();
+    QueryPool *actor = _actor->createQueryPool();
     QueryPool *result = ccnew QueryPoolValidator(actor);
     DeviceResourceTracker<QueryPool>::push(result);
     return result;
 }
 
 Swapchain *DeviceValidator::createSwapchain() {
-    Swapchain *actor  = _actor->createSwapchain();
+    Swapchain *actor = _actor->createSwapchain();
     Swapchain *result = ccnew SwapchainValidator(actor);
     DeviceResourceTracker<Swapchain>::push(result);
     return result;
 }
 
 Buffer *DeviceValidator::createBuffer() {
-    Buffer *actor  = _actor->createBuffer();
+    Buffer *actor = _actor->createBuffer();
     Buffer *result = ccnew BufferValidator(actor);
     DeviceResourceTracker<Buffer>::push(result);
     return result;
 }
 
 Texture *DeviceValidator::createTexture() {
-    Texture *actor  = _actor->createTexture();
+    Texture *actor = _actor->createTexture();
     Texture *result = ccnew TextureValidator(actor);
     DeviceResourceTracker<Texture>::push(result);
     return result;
 }
 
 Shader *DeviceValidator::createShader() {
-    Shader *actor  = _actor->createShader();
+    Shader *actor = _actor->createShader();
     Shader *result = ccnew ShaderValidator(actor);
     DeviceResourceTracker<Shader>::push(result);
     return result;
 }
 
 InputAssembler *DeviceValidator::createInputAssembler() {
-    InputAssembler *actor  = _actor->createInputAssembler();
+    InputAssembler *actor = _actor->createInputAssembler();
     InputAssembler *result = ccnew InputAssemblerValidator(actor);
     DeviceResourceTracker<InputAssembler>::push(result);
     return result;
 }
 
 RenderPass *DeviceValidator::createRenderPass() {
-    RenderPass *actor  = _actor->createRenderPass();
+    RenderPass *actor = _actor->createRenderPass();
     RenderPass *result = ccnew RenderPassValidator(actor);
     DeviceResourceTracker<RenderPass>::push(result);
     return result;
 }
 
 Framebuffer *DeviceValidator::createFramebuffer() {
-    Framebuffer *actor  = _actor->createFramebuffer();
+    Framebuffer *actor = _actor->createFramebuffer();
     Framebuffer *result = ccnew FramebufferValidator(actor);
     DeviceResourceTracker<Framebuffer>::push(result);
     return result;
 }
 
 DescriptorSet *DeviceValidator::createDescriptorSet() {
-    DescriptorSet *actor  = _actor->createDescriptorSet();
+    DescriptorSet *actor = _actor->createDescriptorSet();
     DescriptorSet *result = ccnew DescriptorSetValidator(actor);
     DeviceResourceTracker<DescriptorSet>::push(result);
     return result;
 }
 
 DescriptorSetLayout *DeviceValidator::createDescriptorSetLayout() {
-    DescriptorSetLayout *actor  = _actor->createDescriptorSetLayout();
+    DescriptorSetLayout *actor = _actor->createDescriptorSetLayout();
     DescriptorSetLayout *result = ccnew DescriptorSetLayoutValidator(actor);
     DeviceResourceTracker<DescriptorSetLayout>::push(result);
     return result;
 }
 
 PipelineLayout *DeviceValidator::createPipelineLayout() {
-    PipelineLayout *actor  = _actor->createPipelineLayout();
+    PipelineLayout *actor = _actor->createPipelineLayout();
     PipelineLayout *result = ccnew PipelineLayoutValidator(actor);
     DeviceResourceTracker<PipelineLayout>::push(result);
     return result;
 }
 
 PipelineState *DeviceValidator::createPipelineState() {
-    PipelineState *actor  = _actor->createPipelineState();
+    PipelineState *actor = _actor->createPipelineState();
     PipelineState *result = ccnew PipelineStateValidator(actor);
     DeviceResourceTracker<PipelineState>::push(result);
     return result;
@@ -323,9 +323,9 @@ void DeviceValidator::flushCommands(CommandBuffer *const *cmdBuffs, uint32_t cou
     cmdBuffActors.resize(count);
 
     for (uint32_t i = 0U; i < count; ++i) {
-        auto *cmdBuff             = static_cast<CommandBufferValidator *>(cmdBuffs[i]);
+        auto *cmdBuff = static_cast<CommandBufferValidator *>(cmdBuffs[i]);
         cmdBuff->_commandsFlushed = true;
-        cmdBuffActors[i]          = cmdBuff->getActor();
+        cmdBuffActors[i] = cmdBuff->getActor();
     }
 
     _actor->flushCommands(cmdBuffActors.data(), count);
@@ -336,8 +336,8 @@ void DeviceValidator::getQueryPoolResults(QueryPool *queryPool) {
 
     _actor->getQueryPoolResults(actorQueryPool);
 
-    auto *                      actorQueryPoolValidator = static_cast<QueryPoolValidator *>(actorQueryPool);
-    auto *                      queryPoolValidator      = static_cast<QueryPoolValidator *>(queryPool);
+    auto *actorQueryPoolValidator = static_cast<QueryPoolValidator *>(actorQueryPool);
+    auto *queryPoolValidator = static_cast<QueryPoolValidator *>(queryPool);
     std::lock_guard<std::mutex> lock(actorQueryPoolValidator->_mutex);
     queryPoolValidator->_results = actorQueryPoolValidator->_results;
 }

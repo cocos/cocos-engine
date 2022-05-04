@@ -41,10 +41,10 @@ struct DeferredRenderData;
 class DeferredPipeline;
 
 struct RenderElem {
-    RenderObject        renderObject;
+    RenderObject renderObject;
     gfx::DescriptorSet *set;
-    uint                modelIndex;
-    uint                passIndex;
+    uint modelIndex;
+    uint passIndex;
 };
 
 class CC_DLL LightingStage : public RenderStage {
@@ -69,31 +69,31 @@ private:
     void putTransparentObj2Queue();
 
     static RenderStageInfo initInfo;
-    PlanarShadowQueue *    _planarShadowQueue{nullptr};
-    uint                   _phaseID{0};
+    PlanarShadowQueue *_planarShadowQueue{nullptr};
+    uint _phaseID{0};
 
-    gfx::Buffer *             _deferredLitsBufs{nullptr};
-    gfx::Buffer *             _deferredLitsBufView{nullptr};
-    ccstd::vector<float>      _lightBufferData;
-    uint                      _lightBufferStride{0};
-    uint                      _lightBufferElementCount{0};
-    bool                      _isTransparentQueueEmpty{true};
-    float                     _lightMeterScale{10000.0};
-    gfx::DescriptorSet *      _descriptorSet{nullptr};
+    gfx::Buffer *_deferredLitsBufs{nullptr};
+    gfx::Buffer *_deferredLitsBufView{nullptr};
+    ccstd::vector<float> _lightBufferData;
+    uint _lightBufferStride{0};
+    uint _lightBufferElementCount{0};
+    bool _isTransparentQueueEmpty{true};
+    float _lightMeterScale{10000.0};
+    gfx::DescriptorSet *_descriptorSet{nullptr};
     gfx::DescriptorSetLayout *_descLayout{nullptr};
-    uint                      _maxDeferredLights{UBODeferredLight::LIGHTS_PER_PASS};
+    uint _maxDeferredLights{UBODeferredLight::LIGHTS_PER_PASS};
 
     ReflectionComp *_reflectionComp{nullptr};
-    RenderQueue *   _reflectionRenderQueue{nullptr};
-    uint            _reflectionPhaseID{0};
+    RenderQueue *_reflectionRenderQueue{nullptr};
+    uint _reflectionPhaseID{0};
 
     ccstd::vector<RenderElem> _reflectionElems;
-    uint                      _denoiseIndex = 0; // use to get corrrect texture string handle
+    uint _denoiseIndex = 0; // use to get corrrect texture string handle
 
     gfx::Sampler *_defaultSampler{nullptr};
 
     // SSPR texture size
-    uint _ssprTexWidth  = 0;
+    uint _ssprTexWidth = 0;
     uint _ssprTexHeight = 0;
     Mat4 _matViewProj;
 };

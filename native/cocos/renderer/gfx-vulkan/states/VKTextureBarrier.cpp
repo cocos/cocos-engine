@@ -38,22 +38,22 @@ CCVKTextureBarrier::CCVKTextureBarrier(const TextureBarrierInfo &info) : Texture
     getAccessTypes(info.nextAccesses, _gpuBarrier->nextAccesses);
 
     _gpuBarrier->barrier.prevAccessCount = utils::toUint(_gpuBarrier->prevAccesses.size());
-    _gpuBarrier->barrier.pPrevAccesses   = _gpuBarrier->prevAccesses.data();
+    _gpuBarrier->barrier.pPrevAccesses = _gpuBarrier->prevAccesses.data();
     _gpuBarrier->barrier.nextAccessCount = utils::toUint(_gpuBarrier->nextAccesses.size());
-    _gpuBarrier->barrier.pNextAccesses   = _gpuBarrier->nextAccesses.data();
+    _gpuBarrier->barrier.pNextAccesses = _gpuBarrier->nextAccesses.data();
 
     _gpuBarrier->barrier.prevLayout = _gpuBarrier->barrier.nextLayout = THSVS_IMAGE_LAYOUT_OPTIMAL;
-    _gpuBarrier->barrier.discardContents                              = !!info.discardContents;
-    _gpuBarrier->barrier.subresourceRange.baseMipLevel                = 0U;
-    _gpuBarrier->barrier.subresourceRange.levelCount                  = VK_REMAINING_MIP_LEVELS;
-    _gpuBarrier->barrier.subresourceRange.baseArrayLayer              = 0U;
-    _gpuBarrier->barrier.subresourceRange.layerCount                  = VK_REMAINING_ARRAY_LAYERS;
-    _gpuBarrier->barrier.srcQueueFamilyIndex                          = info.srcQueue
-                                                                            ? static_cast<CCVKQueue *>(info.srcQueue)->gpuQueue()->queueFamilyIndex
-                                                                            : VK_QUEUE_FAMILY_IGNORED;
-    _gpuBarrier->barrier.dstQueueFamilyIndex                          = info.dstQueue
-                                                                            ? static_cast<CCVKQueue *>(info.dstQueue)->gpuQueue()->queueFamilyIndex
-                                                                            : VK_QUEUE_FAMILY_IGNORED;
+    _gpuBarrier->barrier.discardContents = !!info.discardContents;
+    _gpuBarrier->barrier.subresourceRange.baseMipLevel = 0U;
+    _gpuBarrier->barrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
+    _gpuBarrier->barrier.subresourceRange.baseArrayLayer = 0U;
+    _gpuBarrier->barrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
+    _gpuBarrier->barrier.srcQueueFamilyIndex = info.srcQueue
+                                                   ? static_cast<CCVKQueue *>(info.srcQueue)->gpuQueue()->queueFamilyIndex
+                                                   : VK_QUEUE_FAMILY_IGNORED;
+    _gpuBarrier->barrier.dstQueueFamilyIndex = info.dstQueue
+                                                   ? static_cast<CCVKQueue *>(info.dstQueue)->gpuQueue()->queueFamilyIndex
+                                                   : VK_QUEUE_FAMILY_IGNORED;
 
     thsvsGetVulkanImageMemoryBarrier(_gpuBarrier->barrier, &_gpuBarrier->srcStageMask, &_gpuBarrier->dstStageMask, &_gpuBarrier->vkBarrier);
 }

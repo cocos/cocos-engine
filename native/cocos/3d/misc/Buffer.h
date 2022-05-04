@@ -33,17 +33,17 @@ namespace cc {
 
 // default params behaviors just like on an plain, compact Float32Array
 template <typename T>
-void writeBuffer(DataView &              target,
+void writeBuffer(DataView &target,
                  const ccstd::vector<T> &data,
-                 const gfx::Format &     format = gfx::Format::R32F,
-                 uint32_t                offset = 0,
-                 uint32_t                stride = 0) {
+                 const gfx::Format &format = gfx::Format::R32F,
+                 uint32_t offset = 0,
+                 uint32_t stride = 0) {
     const gfx::FormatInfo &info = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(format)];
     if (stride == 0) {
         stride = info.size;
     }
     const uint32_t componentBytesLength = info.size / info.count;
-    const auto     nSeg                 = static_cast<uint32_t>(floor(data.size() / info.count));
+    const auto nSeg = static_cast<uint32_t>(floor(data.size() / info.count));
 
     const uint32_t bytes = info.size / info.count * 8;
 
@@ -112,15 +112,15 @@ void writeBuffer(DataView &              target,
     }
 }
 
-using DataVariant       = cc::variant<int32_t, float>;
+using DataVariant = cc::variant<int32_t, float>;
 using MapBufferCallback = std::function<DataVariant(const DataVariant &cur, uint32_t idx, const DataView &view)>;
 
-DataView mapBuffer(DataView &                target,
-                   const MapBufferCallback & callback,
+DataView mapBuffer(DataView &target,
+                   const MapBufferCallback &callback,
                    cc::optional<gfx::Format> aFormat,
-                   cc::optional<uint32_t>    aOffset,
-                   cc::optional<uint32_t>    aLength,
-                   cc::optional<uint32_t>    aStride,
-                   DataView *                out);
+                   cc::optional<uint32_t> aOffset,
+                   cc::optional<uint32_t> aLength,
+                   cc::optional<uint32_t> aStride,
+                   DataView *out);
 
 } // namespace cc

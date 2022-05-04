@@ -74,7 +74,7 @@ void CommandBufferValidator::doInit(const CommandBufferInfo &info) {
     /////////// execute ///////////
 
     CommandBufferInfo actorInfo = info;
-    actorInfo.queue             = static_cast<QueueValidator *>(info.queue)->getActor();
+    actorInfo.queue = static_cast<QueueValidator *>(info.queue)->getActor();
 
     _actor->initialize(actorInfo);
 }
@@ -100,14 +100,14 @@ void CommandBufferValidator::begin(RenderPass *renderPass, uint32_t subpass, Fra
 
     // secondary command buffers enter the render pass right here
     _insideRenderPass = !!renderPass;
-    _commandsFlushed  = false;
+    _commandsFlushed = false;
 
     _recorder.clear();
     _curStates.descriptorSets.assign(_curStates.descriptorSets.size(), nullptr);
 
     /////////// execute ///////////
 
-    RenderPass * renderPassActor  = renderPass ? static_cast<RenderPassValidator *>(renderPass)->getActor() : nullptr;
+    RenderPass *renderPassActor = renderPass ? static_cast<RenderPassValidator *>(renderPass)->getActor() : nullptr;
     Framebuffer *framebufferActor = framebuffer ? static_cast<FramebufferValidator *>(framebuffer)->getActor() : nullptr;
 
     _actor->begin(renderPassActor, subpass, framebufferActor);
@@ -137,7 +137,7 @@ void CommandBufferValidator::beginRenderPass(RenderPass *renderPass, Framebuffer
 
     for (size_t i = 0; i < renderPass->getColorAttachments().size(); ++i) {
         const auto &desc = renderPass->getColorAttachments()[i];
-        const auto *tex  = fbo->getColorTextures()[i];
+        const auto *tex = fbo->getColorTextures()[i];
         CC_ASSERT(tex->getFormat() == desc.format);
     }
     if (fbo->getDepthStencilTexture()) {
@@ -145,14 +145,14 @@ void CommandBufferValidator::beginRenderPass(RenderPass *renderPass, Framebuffer
     }
 
     _insideRenderPass = true;
-    _curSubpass       = 0U;
+    _curSubpass = 0U;
 
-    _curStates.renderPass   = renderPass;
-    _curStates.framebuffer  = fbo;
-    _curStates.renderArea   = renderArea;
-    _curStates.clearDepth   = depth;
+    _curStates.renderPass = renderPass;
+    _curStates.framebuffer = fbo;
+    _curStates.renderArea = renderArea;
+    _curStates.clearDepth = depth;
     _curStates.clearStencil = stencil;
-    size_t clearColorCount  = renderPass->getColorAttachments().size();
+    size_t clearColorCount = renderPass->getColorAttachments().size();
     if (clearColorCount) {
         _curStates.clearColors.assign(colors, colors + clearColorCount);
     }
@@ -174,7 +174,7 @@ void CommandBufferValidator::beginRenderPass(RenderPass *renderPass, Framebuffer
         }
     }
 
-    RenderPass * renderPassActor  = static_cast<RenderPassValidator *>(renderPass)->getActor();
+    RenderPass *renderPassActor = static_cast<RenderPassValidator *>(renderPass)->getActor();
     Framebuffer *framebufferActor = static_cast<FramebufferValidator *>(fbo)->getActor();
 
     _actor->beginRenderPass(renderPassActor, framebufferActor, renderArea, colors, depth, stencil, actorSecondaryCBs, secondaryCBCount);
@@ -301,8 +301,8 @@ void CommandBufferValidator::setDepthBias(float constant, float clamp, float slo
     CC_ASSERT(isInited());
 
     _curStates.depthBiasConstant = constant;
-    _curStates.depthBiasClamp    = clamp;
-    _curStates.depthBiasSlope    = slope;
+    _curStates.depthBiasClamp = clamp;
+    _curStates.depthBiasSlope = slope;
 
     /////////// execute ///////////
 
@@ -349,11 +349,11 @@ void CommandBufferValidator::setStencilCompareMask(StencilFace face, uint32_t re
     CC_ASSERT(isInited());
 
     if (hasFlag(face, StencilFace::FRONT)) {
-        _curStates.stencilStatesFront.reference   = ref;
+        _curStates.stencilStatesFront.reference = ref;
         _curStates.stencilStatesFront.compareMask = mask;
     }
     if (hasFlag(face, StencilFace::BACK)) {
-        _curStates.stencilStatesBack.reference   = ref;
+        _curStates.stencilStatesBack.reference = ref;
         _curStates.stencilStatesBack.compareMask = mask;
     }
 
@@ -375,7 +375,7 @@ void CommandBufferValidator::draw(const DrawInfo &info) {
     const auto &psoLayouts = _curStates.pipelineState->getPipelineLayout()->getSetLayouts();
     for (size_t i = 0; i < psoLayouts.size(); ++i) {
         if (!_curStates.descriptorSets[i]) continue; // there may be inactive sets
-        const auto &dsBindings  = _curStates.descriptorSets[i]->getLayout()->getBindings();
+        const auto &dsBindings = _curStates.descriptorSets[i]->getLayout()->getBindings();
         const auto &psoBindings = psoLayouts[i]->getBindings();
         CC_ASSERT(psoBindings.size() == dsBindings.size());
     }

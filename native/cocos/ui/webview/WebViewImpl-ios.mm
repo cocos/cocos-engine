@@ -222,7 +222,7 @@
     [self.uiWebView setBackgroundColor:isTransparent ? [UIColor clearColor] : [UIColor whiteColor]];
 }
 
-    #pragma mark - WKNavigationDelegate
+#pragma mark - WKNavigationDelegate
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
     NSString *url = [[navigationAction request].URL.absoluteString stringByRemovingPercentEncoding];
     NSString *scheme = [navigationAction request].URL.scheme;
@@ -259,7 +259,7 @@
     }
 }
 
-    #pragma WKUIDelegate
+#pragma WKUIDelegate
 
 // Implement js alert function.
 - (void)webView:(WKWebView *)webView runJavaScriptAlertPanelWithMessage:(NSString *)message initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)())completionHandler {
@@ -324,7 +324,6 @@ void WebViewImpl::loadData(const Data &data,
                            const ccstd::string &MIMEType,
                            const ccstd::string &encoding,
                            const ccstd::string &baseURL) {
-
     ccstd::string dataString(reinterpret_cast<char *>(data.getBytes()), static_cast<unsigned int>(data.getSize()));
     [_uiWebViewWrapper loadData:dataString MIMEType:MIMEType textEncodingName:encoding baseURL:baseURL];
 }

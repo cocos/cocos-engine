@@ -57,7 +57,7 @@ public:
      @brief Dispatch touch event.
      @param type : Touch event
      */
-    void dispatchTouchEvent(const TouchEvent& ev);
+    void dispatchTouchEvent(const TouchEvent &ev);
 
 protected:
     IEventDispatch *_evDispatchInterface{nullptr};

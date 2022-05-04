@@ -46,27 +46,27 @@ public:
     }
 
     struct SimulationEventCallback : public physx::PxSimulationEventCallback {
-        void               onConstraintBreak(physx::PxConstraintInfo * /*constraints*/, physx::PxU32 /*count*/) override{};
-        void               onWake(physx::PxActor ** /*actors*/, physx::PxU32 /*count*/) override{};
-        void               onSleep(physx::PxActor ** /*actors*/, physx::PxU32 /*count*/) override{};
-        void               onTrigger(physx::PxTriggerPair * /*pairs*/, physx::PxU32 /*count*/) override;
-        void               onContact(const physx::PxContactPairHeader & /*pairHeader*/, const physx::PxContactPair * /*pairs*/, physx::PxU32 /*nbPairs*/) override;
-        void               onAdvance(const physx::PxRigidBody *const * /*bodyBuffer*/, const physx::PxTransform * /*poseBuffer*/, const physx::PxU32 /*count*/) override{};
+        void onConstraintBreak(physx::PxConstraintInfo * /*constraints*/, physx::PxU32 /*count*/) override{};
+        void onWake(physx::PxActor ** /*actors*/, physx::PxU32 /*count*/) override{};
+        void onSleep(physx::PxActor ** /*actors*/, physx::PxU32 /*count*/) override{};
+        void onTrigger(physx::PxTriggerPair * /*pairs*/, physx::PxU32 /*count*/) override;
+        void onContact(const physx::PxContactPairHeader & /*pairHeader*/, const physx::PxContactPair * /*pairs*/, physx::PxU32 /*nbPairs*/) override;
+        void onAdvance(const physx::PxRigidBody *const * /*bodyBuffer*/, const physx::PxTransform * /*poseBuffer*/, const physx::PxU32 /*count*/) override{};
         PhysXEventManager *mManager;
 
     public:
         explicit SimulationEventCallback(PhysXEventManager *m) : mManager(m) {}
     };
 
-    inline SimulationEventCallback &                         getEventCallback() { return *_mCallback; }
+    inline SimulationEventCallback &getEventCallback() { return *_mCallback; }
     inline ccstd::vector<std::shared_ptr<TriggerEventPair>> &getTriggerPairs() { return _mTriggerPairs; }
     inline ccstd::vector<std::shared_ptr<ContactEventPair>> &getConatctPairs() { return _mConatctPairs; }
-    void                                                     refreshPairs();
+    void refreshPairs();
 
 private:
     ccstd::vector<std::shared_ptr<TriggerEventPair>> _mTriggerPairs;
     ccstd::vector<std::shared_ptr<ContactEventPair>> _mConatctPairs;
-    SimulationEventCallback *                        _mCallback;
+    SimulationEventCallback *_mCallback;
 };
 
 } // namespace physics
