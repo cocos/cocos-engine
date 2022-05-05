@@ -60,9 +60,26 @@ public:
 
     void setAndroidApp(android_app *app);
 
+    void reuseGameThread();
+
+    void awake();
+
+    bool isInited() { return _inputProxy != nullptr; }
+
+    using ReuseFuncCallback = void(void *);
+
+    void setReuseFunction(ReuseFuncCallback *func, android_app *app) {
+        _reuseFuncCallback = func;
+        _pendingApp = app;
+    }
+
 private:
+    ReuseFuncCallback *_reuseFuncCallback{nullptr};
+    android_app *_pendingApp{nullptr};
     GameInputProxy *_inputProxy{nullptr};
     android_app *_app{nullptr};
+    std::mutex _recycleMutex;
+    std::condition_variable _recycleGameThread;
 
     friend class GameInputProxy;
 };

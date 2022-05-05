@@ -32,6 +32,24 @@
 
 extern "C" {
 
+void try_game_thread_loop() {
+    auto *platform = cc::BasePlatform::getPlatform();
+    auto *androidPlatform = static_cast<cc::AndroidPlatform *>(platform);
+    androidPlatform->reuseGameThread();
+}
+
+bool perform_in_game_thread(struct android_app *app, void func(void *)) {
+    auto *platform = cc::BasePlatform::getPlatform();
+    auto *androidPlatform = static_cast<cc::AndroidPlatform *>(platform);
+    if (!androidPlatform->isInited()) {
+        return false;
+    }
+    androidPlatform->setReuseFunction(func, app);
+    androidPlatform->awake();
+
+    return true;
+}
+
 void android_main(struct android_app *app) {
     cc::FileUtilsAndroid::setassetmanager(app->activity->assetManager);
 

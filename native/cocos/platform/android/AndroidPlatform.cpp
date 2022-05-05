@@ -27,8 +27,13 @@
 
 #include "base/Log.h"
 #include "base/memory/Memory.h"
-#include "platform/android/AndroidPlatform.h"
+#include "cocos/bindings/event/CustomEventTypes.h"
+#include "game-activity/native_app_glue/android_native_app_glue.h"
+#include "java/jni/JniHelper.h"
+#include "modules/Screen.h"
+#include "modules/System.h"
 #include "platform/BasePlatform.h"
+#include "platform/android/AndroidPlatform.h"
 #include "platform/java/jni/JniImp.h"
 #include "platform/java/jni/glue/JniNativeGlue.h"
 #include "platform/java/modules/Accelerometer.h"
@@ -36,11 +41,6 @@
 #include "platform/java/modules/Network.h"
 #include "platform/java/modules/SystemWindow.h"
 #include "platform/java/modules/Vibrator.h"
-#include "cocos/bindings/event/CustomEventTypes.h"
-#include "modules/Screen.h"
-#include "modules/System.h"
-#include "java/jni/JniHelper.h"
-#include "game-activity/native_app_glue/android_native_app_glue.h"
 
 #include "bindings/event/EventDispatcher.h"
 
@@ -305,9 +305,15 @@ public:
                 break;
             }
             case APP_CMD_DESTROY: {
-                WindowEvent ev;
-                ev.type = WindowEvent::Type::CLOSE;
-                _androidPlatform->dispatchEvent(ev);
+                if (_recheckDestroy) {
+                    _recheckDestroy = false;
+                } else {
+                    _recheckDestroy = true;
+                    WindowEvent ev;
+                    ev.type = WindowEvent::Type::CLOSE;
+                    _androidPlatform->dispatchEvent(ev);
+                    //TODO: maybe need to notify user to kill application
+                }
                 break;
             }
             case APP_CMD_STOP: {
@@ -326,7 +332,14 @@ public:
                 _androidPlatform->dispatchEvent(ev);
                 break;
             }
-            case APP_CMD_WINDOW_RESIZED:
+            case APP_CMD_WINDOW_RESIZED: {
+                cc::WindowEvent ev;
+                ev.type = cc::WindowEvent::Type::SIZE_CHANGED;
+                ev.width = ANativeWindow_getWidth(_androidPlatform->_app->window);
+                ev.height = ANativeWindow_getHeight(_androidPlatform->_app->window);
+                _androidPlatform->dispatchEvent(ev);
+                break;
+            }
             case APP_CMD_CONFIG_CHANGED:
                 // Window was resized or some other configuration changed.
                 // Note: we don't handle this event because we check the surface dimensions
@@ -366,6 +379,10 @@ public:
         return _isVisible && _hasWindow;
     }
 
+    void setRunning(bool running) {
+        _running = running;
+    }
+
 private:
     AndroidPlatform *_androidPlatform{nullptr};
     JNIEnv *_jniEnv{nullptr};         // JNI environment
@@ -373,6 +390,7 @@ private:
     bool _running{false};
     bool _isVisible{false};
     bool _hasWindow{false};
+    bool _recheckDestroy{true};
 };
 
 static void handleCmdProxy(struct android_app *app, int32_t cmd) {
@@ -414,14 +432,20 @@ AndroidPlatform::~AndroidPlatform() {
 }
 
 int AndroidPlatform::init() {
+    bool isRunning = _inputProxy != nullptr;
+    if (!_inputProxy) {
+        registerInterface(std::make_shared<Accelerometer>());
+        registerInterface(std::make_shared<Battery>());
+        registerInterface(std::make_shared<Network>());
+        registerInterface(std::make_shared<Screen>());
+        registerInterface(std::make_shared<System>());
+        registerInterface(std::make_shared<SystemWindow>());
+        registerInterface(std::make_shared<Vibrator>());
+    } else {
+        CC_SAFE_DELETE(_inputProxy);
+    }
     _inputProxy = new GameInputProxy(this);
-    registerInterface(std::make_shared<Accelerometer>());
-    registerInterface(std::make_shared<Battery>());
-    registerInterface(std::make_shared<Network>());
-    registerInterface(std::make_shared<Screen>());
-    registerInterface(std::make_shared<System>());
-    registerInterface(std::make_shared<SystemWindow>());
-    registerInterface(std::make_shared<Vibrator>());
+    _inputProxy->setRunning(isRunning);
 
     return 0;
 }
@@ -441,6 +465,32 @@ uintptr_t AndroidPlatform::getWindowHandler() const {
     return reinterpret_cast<uintptr_t>(_app->window);
 }
 
+void AndroidPlatform::reuseGameThread() {
+    while (!_reuseFuncCallback) {
+        auto now = std::chrono::system_clock::now();
+        std::chrono::duration<int> duration(3);
+
+        std::unique_lock<std::mutex> lk(_recycleMutex);
+        if (_recycleGameThread.wait_until(lk, now + duration) == std::cv_status::timeout) {
+            int8_t cmd = APP_CMD_DESTROY; // User really want to destroy activity!
+            write(_app->msgwrite, &cmd, sizeof(cmd));
+            return;
+        }
+        break;
+    }
+    if (_reuseFuncCallback) {
+        _app = _pendingApp;
+        _pendingApp = nullptr;
+        auto *callback = _reuseFuncCallback;
+        _reuseFuncCallback = nullptr;
+        callback(_app);
+    }
+}
+
+void AndroidPlatform::awake() {
+    _recycleGameThread.notify_one();
+}
+
 int32_t AndroidPlatform::loop() {
     _app->userData = _inputProxy;
     _app->onAppCmd = handleCmdProxy;
@@ -457,7 +507,6 @@ int32_t AndroidPlatform::loop() {
                 source->process(_app, source);
             }
 
-            // are we exiting?
             if (_app->destroyRequested) {
                 return 0;
             }
