@@ -60,7 +60,7 @@ namespace CSSColorParser {
 // http://www.w3.org/TR/css3-color/
 struct NamedColor {
     const char *name;
-    Color       color;
+    Color color;
 };
 
 const ccstd::vector<NamedColor> NAMED_COLORS = {
@@ -216,14 +216,12 @@ const ccstd::vector<NamedColor> NAMED_COLORS = {
 template <typename T>
 uint8_t clampCssByte(T i) {         // Clamp to integer 0 .. 255.
     i = static_cast<T>(::round(i)); // Seems to be what Chrome does (vs truncation).
-    return static_cast<uint8_t>(i < 0 ? 0 : i > 255 ? 255
-                                                    : i);
+    return static_cast<uint8_t>(i < 0 ? 0 : i > 255 ? 255 : i);
 }
 
 template <typename T>
 float clampCssFloat(T f) { // Clamp to float 0.0 .. 1.0.
-    return f < 0 ? 0 : f > 1 ? 1
-                             : float(f);
+    return f < 0 ? 0 : f > 1 ? 1 : float(f);
 }
 
 float parseFloat(const ccstd::string &str) {
@@ -269,8 +267,8 @@ float cssHueToRgb(float m1, float m2, float h) {
 
 ccstd::vector<ccstd::string> split(const ccstd::string &s, char delim) {
     ccstd::vector<ccstd::string> elems;
-    std::stringstream            ss(s);
-    ccstd::string                item;
+    std::stringstream ss(s);
+    ccstd::string item;
     while (std::getline(ss, item, delim)) {
         elems.push_back(item);
     }
@@ -324,7 +322,7 @@ Color parse(const ccstd::string &cssStr) {
     size_t op = str.find_first_of('(');
     size_t ep = str.find_first_of(')');
     if (op != ccstd::string::npos && ep + 1 == str.length()) {
-        const ccstd::string                fname = str.substr(0, op);
+        const ccstd::string fname = str.substr(0, op);
         const ccstd::vector<ccstd::string> params =
             split(str.substr(op + 1, ep - (op + 1)), ',');
 

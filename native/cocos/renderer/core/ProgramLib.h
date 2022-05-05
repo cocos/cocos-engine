@@ -47,30 +47,30 @@ class PipelineRuntime;
 
 struct IDefineRecord : public IDefineInfo {
     std::function<int32_t(const MacroValue &)> map{nullptr};
-    int32_t                                    offset{0};
+    int32_t offset{0};
 };
 struct IMacroInfo {
     ccstd::string name;
     ccstd::string value;
-    bool          isDefault{false};
+    bool isDefault{false};
 };
 
 struct ITemplateInfo {
-    ccstd::vector<gfx::Attribute>                  gfxAttributes;
-    gfx::ShaderInfo                                shaderInfo;
-    ccstd::vector<int32_t>                         blockSizes;
-    RefVector<gfx::DescriptorSetLayout *>          setLayouts;
-    IntrusivePtr<gfx::PipelineLayout>              pipelineLayout;
-    Record<ccstd::string, uint32_t>                handleMap;
+    ccstd::vector<gfx::Attribute> gfxAttributes;
+    gfx::ShaderInfo shaderInfo;
+    ccstd::vector<int32_t> blockSizes;
+    RefVector<gfx::DescriptorSetLayout *> setLayouts;
+    IntrusivePtr<gfx::PipelineLayout> pipelineLayout;
+    Record<ccstd::string, uint32_t> handleMap;
     ccstd::vector<gfx::DescriptorSetLayoutBinding> bindings;
-    int32_t                                        samplerStartBinding{-1};
+    int32_t samplerStartBinding{-1};
 };
 
 struct IProgramInfo : public IShaderInfo {
-    ccstd::string                effectName;
+    ccstd::string effectName;
     ccstd::vector<IDefineRecord> defines;
-    ccstd::string                constantMacros;
-    bool                         uber{false}; // macro number exceeds default limits, will fallback to string hash
+    ccstd::string constantMacros;
+    bool uber{false}; // macro number exceeds default limits, will fallback to string hash
 
     void copyFrom(const IShaderInfo &o);
 };
@@ -84,7 +84,7 @@ const char *getDeviceShaderVersion(const gfx::Device *device);
 class ProgramLib final {
 public:
     static ProgramLib *getInstance();
-    static void        destroyInstance();
+    static void destroyInstance();
 
     void registerEffect(EffectAsset *effect);
 
@@ -160,10 +160,10 @@ private:
     ProgramLib();
     ~ProgramLib();
 
-    static ProgramLib *                              instance;
-    Record<ccstd::string, IProgramInfo>              _templates; // per shader
+    static ProgramLib *instance;
+    Record<ccstd::string, IProgramInfo> _templates; // per shader
     Record<ccstd::string, IntrusivePtr<gfx::Shader>> _cache;
-    Record<uint64_t, ITemplateInfo>                  _templateInfos;
+    Record<uint64_t, ITemplateInfo> _templateInfos;
 };
 
 } // namespace cc

@@ -43,26 +43,26 @@ struct PSOInfo;
 #endif
 
 struct CC_DLL InstancedItem {
-    uint                 count         = 0;
-    uint                 capacity      = 0;
-    gfx::Buffer *        vb            = nullptr;
-    uint8_t *            data          = nullptr;
-    gfx::InputAssembler *ia            = nullptr;
-    uint                 stride        = 0;
-    gfx::Shader *        shader        = nullptr;
-    gfx::DescriptorSet * descriptorSet = nullptr;
-    gfx::Texture *       lightingMap   = nullptr;
+    uint count = 0;
+    uint capacity = 0;
+    gfx::Buffer *vb = nullptr;
+    uint8_t *data = nullptr;
+    gfx::InputAssembler *ia = nullptr;
+    uint stride = 0;
+    gfx::Shader *shader = nullptr;
+    gfx::DescriptorSet *descriptorSet = nullptr;
+    gfx::Texture *lightingMap = nullptr;
 };
 using InstancedItemList = ccstd::vector<InstancedItem>;
 using DynamicOffsetList = ccstd::vector<uint>;
 
 class InstancedBuffer : public RefCounted {
 public:
-    static constexpr uint   INITIAL_CAPACITY = 32;
-    static constexpr uint   MAX_CAPACITY     = 1024;
+    static constexpr uint INITIAL_CAPACITY = 32;
+    static constexpr uint MAX_CAPACITY = 1024;
     static InstancedBuffer *get(scene::Pass *pass);
     static InstancedBuffer *get(scene::Pass *, uint extraKey);
-    static void             destroyInstancedBuffer();
+    static void destroyInstancedBuffer();
 
     explicit InstancedBuffer(const scene::Pass *pass);
     ~InstancedBuffer() override;
@@ -75,17 +75,17 @@ public:
     void setDynamicOffset(uint idx, uint value);
 
     inline const InstancedItemList &getInstances() const { return _instances; }
-    inline const scene::Pass *      getPass() const { return _pass; }
-    inline bool                     hasPendingModels() const { return _hasPendingModels; }
+    inline const scene::Pass *getPass() const { return _pass; }
+    inline bool hasPendingModels() const { return _hasPendingModels; }
     inline const DynamicOffsetList &dynamicOffsets() const { return _dynamicOffsets; }
 
 private:
     static ccstd::unordered_map<scene::Pass *, ccstd::unordered_map<uint, InstancedBuffer *>> buffers;
-    InstancedItemList                                                                         _instances;
-    const scene::Pass *                                                                       _pass             = nullptr;
-    bool                                                                                      _hasPendingModels = false;
-    DynamicOffsetList                                                                         _dynamicOffsets;
-    gfx::Device *                                                                             _device = nullptr;
+    InstancedItemList _instances;
+    const scene::Pass *_pass = nullptr;
+    bool _hasPendingModels = false;
+    DynamicOffsetList _dynamicOffsets;
+    gfx::Device *_device = nullptr;
 };
 
 } // namespace pipeline

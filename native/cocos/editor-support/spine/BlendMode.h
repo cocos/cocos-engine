@@ -32,10 +32,10 @@
 
 namespace spine {
 enum BlendMode {
-	BlendMode_Normal = 0,
-	BlendMode_Additive,
-	BlendMode_Multiply,
-	BlendMode_Screen
+    BlendMode_Normal = 0,
+    BlendMode_Additive,
+    BlendMode_Multiply,
+    BlendMode_Screen
 };
 }
 

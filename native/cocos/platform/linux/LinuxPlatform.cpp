@@ -62,7 +62,7 @@ int32_t LinuxPlatform::init() {
 }
 
 static long getCurrentMillSecond() {
-    long           lLastTime;
+    long lLastTime;
     struct timeval stCurrentTime;
 
     gettimeofday(&stCurrentTime, NULL);
@@ -71,14 +71,14 @@ static long getCurrentMillSecond() {
 }
 
 int32_t LinuxPlatform::loop() {
-    long lastTime        = 0L;
-    long curTime         = 0L;
+    long lastTime = 0L;
+    long curTime = 0L;
     long desiredInterval = 0L;
-    long actualInterval  = 0L;
+    long actualInterval = 0L;
     onResume();
     while (!_quit) {
-        curTime         = getCurrentMillSecond();
-		desiredInterval = static_cast<long>(1000.0 / getFps());
+        curTime = getCurrentMillSecond();
+        desiredInterval = static_cast<long>(1000.0 / getFps());
         _window->pollEvent(&_quit);
         actualInterval = curTime - lastTime;
         if (actualInterval >= desiredInterval) {

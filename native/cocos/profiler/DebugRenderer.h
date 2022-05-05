@@ -58,32 +58,32 @@ struct DebugTextInfo {
     DebugTextInfo() = default;
 
     gfx::Color color{1.0F, 1.0F, 1.0F, 1.0F};
-    bool       bold{false};
-    bool       italic{false};
-    bool       shadow{false};
-    uint32_t   shadowThickness{1U};
+    bool bold{false};
+    bool italic{false};
+    bool shadow{false};
+    uint32_t shadowThickness{1U};
     gfx::Color shadowColor{0.0F, 0.0F, 0.0F, 1.0F};
-    float      scale{1.0F};
+    float scale{1.0F};
 };
 
 struct DebugFontInfo {
-    Font *    font{nullptr};
+    Font *font{nullptr};
     FontFace *face{nullptr};
-    Vec2      invTextureSize{0.0F, 0.0F};
+    Vec2 invTextureSize{0.0F, 0.0F};
 };
 
 constexpr uint32_t DEBUG_FONT_COUNT = 4U;
-using DebugFontArray                = ccstd::array<DebugFontInfo, DEBUG_FONT_COUNT>;
+using DebugFontArray = ccstd::array<DebugFontInfo, DEBUG_FONT_COUNT>;
 
 class DebugRenderer {
 public:
     DebugRenderer(const DebugRenderer &) = delete;
-    DebugRenderer(DebugRenderer &&)      = delete;
+    DebugRenderer(DebugRenderer &&) = delete;
     DebugRenderer &operator=(const DebugRenderer &) = delete;
     DebugRenderer &operator=(DebugRenderer &&) = delete;
 
     static DebugRenderer *getInstance();
-    static void           destroyInstance();
+    static void destroyInstance();
 
     void activate(gfx::Device *device, const DebugRendererInfo &info = DebugRendererInfo());
     void render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, pipeline::PipelineSceneData *sceneData);
@@ -92,16 +92,16 @@ public:
     void addText(const ccstd::string &text, const Vec2 &screenPos, const DebugTextInfo &info = DebugTextInfo());
 
 private:
-    DebugRenderer()  = default;
+    DebugRenderer() = default;
     ~DebugRenderer() = default;
 
     static void addQuad(DebugBatch &batch, const Vec4 &rect, const Vec4 &uv, gfx::Color color);
-    uint32_t    getLineHeight(bool bold = false, bool italic = false);
+    uint32_t getLineHeight(bool bold = false, bool italic = false);
 
     static DebugRenderer *instance;
-    gfx::Device *         _device{nullptr};
-    DebugVertexBuffer *   _buffer{nullptr};
-    DebugFontArray        _fonts;
+    gfx::Device *_device{nullptr};
+    DebugVertexBuffer *_buffer{nullptr};
+    DebugFontArray _fonts;
 
     friend class Profiler;
 };

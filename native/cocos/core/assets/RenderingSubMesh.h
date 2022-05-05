@@ -71,8 +71,8 @@ struct IGeometricInfo {
  * @zh 扁平化顶点缓冲区
  */
 struct IFlatBuffer {
-    uint32_t   stride{0};
-    uint32_t   count{0};
+    uint32_t stride{0};
+    uint32_t count{0};
     Uint8Array buffer;
 };
 
@@ -85,20 +85,20 @@ class Buffer;
  */
 class RenderingSubMesh final : public Asset {
 public:
-    RenderingSubMesh(const gfx::BufferList &   vertexBuffers,
+    RenderingSubMesh(const gfx::BufferList &vertexBuffers,
                      const gfx::AttributeList &attributes,
-                     gfx::PrimitiveMode        primitiveMode);
+                     gfx::PrimitiveMode primitiveMode);
 
-    RenderingSubMesh(const gfx::BufferList &   vertexBuffers,
+    RenderingSubMesh(const gfx::BufferList &vertexBuffers,
                      const gfx::AttributeList &attributes,
-                     gfx::PrimitiveMode        primitiveMode,
-                     gfx::Buffer *             indexBuffer);
+                     gfx::PrimitiveMode primitiveMode,
+                     gfx::Buffer *indexBuffer);
 
-    RenderingSubMesh(const gfx::BufferList &   vertexBuffers,
+    RenderingSubMesh(const gfx::BufferList &vertexBuffers,
                      const gfx::AttributeList &attributes,
-                     gfx::PrimitiveMode        primitiveMode,
-                     gfx::Buffer *             indexBuffer,
-                     gfx::Buffer *             indirectBuffer);
+                     gfx::PrimitiveMode primitiveMode,
+                     gfx::Buffer *indexBuffer,
+                     gfx::Buffer *indirectBuffer);
 
     ~RenderingSubMesh() override;
 
@@ -149,14 +149,14 @@ public:
      * @zh 扁平化的顶点缓冲区。
      */
     inline const ccstd::vector<IFlatBuffer> &getFlatBuffers() const { return _flatBuffers; }
-    inline void                              setFlatBuffers(const ccstd::vector<IFlatBuffer> &flatBuffers) { _flatBuffers = flatBuffers; }
+    inline void setFlatBuffers(const ccstd::vector<IFlatBuffer> &flatBuffers) { _flatBuffers = flatBuffers; }
 
     void genFlatBuffers();
 
     inline const gfx::InputAssemblerInfo &getIaInfo() const { return _iaInfo; }
-    inline gfx::InputAssemblerInfo &      getIaInfo() { return _iaInfo; }
+    inline gfx::InputAssemblerInfo &getIaInfo() { return _iaInfo; }
 
-    inline void                         setDrawInfo(const gfx::DrawInfo &info) { _drawInfo = info; }
+    inline void setDrawInfo(const gfx::DrawInfo &info) { _drawInfo = info; }
     inline cc::optional<gfx::DrawInfo> &getDrawInfo() { return _drawInfo; }
 
     /**
@@ -176,17 +176,17 @@ public:
      */
     void enableVertexIdChannel(gfx::Device *device);
 
-    inline void  setMesh(Mesh *mesh) { _mesh = mesh; }
+    inline void setMesh(Mesh *mesh) { _mesh = mesh; }
     inline Mesh *getMesh() const { return _mesh; }
 
-    inline void                          setSubMeshIdx(uint32_t idx) { _subMeshIdx = idx; }
+    inline void setSubMeshIdx(uint32_t idx) { _subMeshIdx = idx; }
     inline const cc::optional<uint32_t> &getSubMeshIdx() const { return _subMeshIdx; }
 
 private:
     gfx::Buffer *allocVertexIdBuffer(gfx::Device *device);
 
     // Mesh will includes RenderingSubMesh, so use Mesh* here.
-    Mesh *                 _mesh{nullptr};
+    Mesh *_mesh{nullptr};
     cc::optional<uint32_t> _subMeshIdx;
 
     ccstd::vector<IFlatBuffer> _flatBuffers;

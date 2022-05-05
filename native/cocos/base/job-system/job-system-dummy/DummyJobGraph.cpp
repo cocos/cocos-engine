@@ -31,7 +31,7 @@
 namespace cc {
 
 namespace {
-DummyGraphNode *                freeList{nullptr};
+DummyGraphNode *freeList{nullptr};
 ccstd::vector<DummyGraphNode *> allocatedChunks;
 } // namespace
 
@@ -72,7 +72,7 @@ DummyGraphNode *DummyGraphNode::alloc() {
     if (freeList == nullptr) {
         DummyGraphNode::allocChunk();
     }
-    auto *p  = freeList;
+    auto *p = freeList;
     freeList = freeList->_next;
     p->reset();
     return p;
@@ -80,7 +80,7 @@ DummyGraphNode *DummyGraphNode::alloc() {
 
 void DummyGraphNode::free(DummyGraphNode *node) {
     node->_next = freeList;
-    freeList    = node;
+    freeList = node;
 }
 
 void DummyGraphNode::freeAll() {

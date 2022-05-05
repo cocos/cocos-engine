@@ -53,8 +53,7 @@ DRAGONBONES_NAMESPACE_BEGIN
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class Slot : public TransformObject
-{
+class Slot : public TransformObject {
 public:
     /**
      * - Displays the animated state or mixed group name controlled by the object, set to null to be controlled by all animation states.
@@ -142,12 +141,10 @@ protected:
     Bone* _parent;
 
 public:
-    Slot() :
-        _deformVertices(nullptr),
-        _rawDisplay(nullptr),
-        _meshDisplay(nullptr)
-    {}
-    virtual ~Slot() {};
+    Slot() : _deformVertices(nullptr),
+             _rawDisplay(nullptr),
+             _meshDisplay(nullptr) {}
+    virtual ~Slot(){};
 
 protected:
     virtual void _onClear() override;
@@ -267,8 +264,7 @@ public:
         float xA, float yA, float xB, float yB,
         Point* intersectionPointA = nullptr,
         Point* intersectionPointB = nullptr,
-        Point* normalRadians = nullptr
-    );
+        Point* normalRadians = nullptr);
     /**
      * - Forces the slot to update the state of the display object in the next frame.
      * @version DragonBones 4.5
@@ -279,8 +275,7 @@ public:
      * @version DragonBones 4.5
      * @language zh_CN
      */
-    inline void invalidUpdate()
-    {
+    inline void invalidUpdate() {
         _displayDirty = true;
         _transformDirty = true;
     }
@@ -296,8 +291,7 @@ public:
      * @version DragonBones 5.6
      * @language zh_CN
      */
-    inline bool getVisible() const
-    {
+    inline bool getVisible() const {
         return _visible;
     }
     void setVisible(bool value);
@@ -325,8 +319,7 @@ public:
      * @version DragonBones 4.5
      * @language zh_CN
      */
-    inline int getDisplayIndex() const
-    {
+    inline int getDisplayIndex() const {
         return _displayIndex;
     }
     void setDisplayIndex(int value);
@@ -343,8 +336,7 @@ public:
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    inline const std::string& getName() const
-    {
+    inline const std::string& getName() const {
         return _slotData->name;
     }
     /**
@@ -357,16 +349,14 @@ public:
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    inline std::vector<std::pair<void*, DisplayType>> getDisplayList() const
-    {
+    inline std::vector<std::pair<void*, DisplayType>> getDisplayList() const {
         return _displayList;
     }
     void setDisplayList(const std::vector<std::pair<void*, DisplayType>>& value);
     /**
      * @private
      */
-    inline const std::vector<DisplayData*>* getRawDisplayDatas() const 
-    {
+    inline const std::vector<DisplayData*>* getRawDisplayDatas() const {
         return _rawDisplayDatas;
     }
     void setRawDisplayDatas(const std::vector<DisplayData*>* value);
@@ -382,8 +372,7 @@ public:
      * @version DragonBones 4.5
      * @language zh_CN
      */
-    const SlotData* getSlotData() const
-    {
+    const SlotData* getSlotData() const {
         return _slotData;
     }
     /**
@@ -396,22 +385,19 @@ public:
      * @version DragonBones 5.0
      * @language zh_CN
      */
-    inline BoundingBoxData* getBoundingBoxData() const
-    {
+    inline BoundingBoxData* getBoundingBoxData() const {
         return _boundingBoxData;
     }
     /**
      * @private
      */
-    inline void* getRawDisplay() const
-    {
+    inline void* getRawDisplay() const {
         return _rawDisplay;
     }
     /**
      * @private
      */
-    inline void* getMeshDisplay() const
-    {
+    inline void* getMeshDisplay() const {
         return _meshDisplay;
     }
     /**
@@ -436,8 +422,7 @@ public:
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    inline void* getDisplay() const
-    {
+    inline void* getDisplay() const {
         return _display;
     }
     /**
@@ -482,8 +467,7 @@ public:
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    inline Armature* getChildArmature() const
-    {
+    inline Armature* getChildArmature() const {
         return _childArmature;
     }
     void setChildArmature(Armature* value);
@@ -497,8 +481,7 @@ public:
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    inline Bone* getParent() const
-    {
+    inline Bone* getParent() const {
         return _parent;
     }
 };

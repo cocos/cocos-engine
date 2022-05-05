@@ -35,70 +35,67 @@
 #include <assert.h>
 // dragonBones assert
 #define DRAGONBONES_ASSERT(cond, msg) \
-do { \
-    assert(cond); \
-} while (0)
+    do {                              \
+        assert(cond);                 \
+    } while (0)
 
 // namespace dragonBones {}
 #define DRAGONBONES_NAMESPACE_BEGIN namespace dragonBones {
-#define DRAGONBONES_NAMESPACE_END }
+#define DRAGONBONES_NAMESPACE_END   }
 
 // using dragonBones namespace
 #define DRAGONBONES_USING_NAME_SPACE using namespace dragonBones
 
 #define ABSTRACT_CLASS(CLASS) \
-public:\
-    CLASS(){}\
+public:                       \
+    CLASS() {}                \
     virtual ~CLASS(){};
 
-#define BIND_CLASS_TYPE(CLASS) \
-public:\
-    static std::size_t getTypeIndex()\
-    {\
-        static const auto typeIndex = typeid(CLASS).hash_code();\
-        return typeIndex;\
-    }\
-    virtual std::size_t getClassTypeIndex() const override\
-    {\
-        return CLASS::getTypeIndex();\
-    }\
+#define BIND_CLASS_TYPE(CLASS)                                   \
+public:                                                          \
+    static std::size_t getTypeIndex() {                          \
+        static const auto typeIndex = typeid(CLASS).hash_code(); \
+        return typeIndex;                                        \
+    }                                                            \
+    virtual std::size_t getClassTypeIndex() const override {     \
+        return CLASS::getTypeIndex();                            \
+    }
 
-#define BIND_CLASS_TYPE_A(CLASS) \
-public:\
-    static std::size_t getTypeIndex()\
-    {\
-        static const auto typeIndex = typeid(CLASS).hash_code();\
-        return typeIndex;\
-    }\
-    virtual std::size_t getClassTypeIndex() const override\
-    {\
-        return CLASS::getTypeIndex();\
-    }\
-public:\
-    CLASS(){_onClear();}\
-    ~CLASS(){_onClear();}\
-private:\
-    CLASS(const CLASS&);\
+#define BIND_CLASS_TYPE_A(CLASS)                                 \
+public:                                                          \
+    static std::size_t getTypeIndex() {                          \
+        static const auto typeIndex = typeid(CLASS).hash_code(); \
+        return typeIndex;                                        \
+    }                                                            \
+    virtual std::size_t getClassTypeIndex() const override {     \
+        return CLASS::getTypeIndex();                            \
+    }                                                            \
+                                                                 \
+public:                                                          \
+    CLASS() { _onClear(); }                                      \
+    ~CLASS() { _onClear(); }                                     \
+                                                                 \
+private:                                                         \
+    CLASS(const CLASS&);                                         \
     void operator=(const CLASS&)
 
-#define BIND_CLASS_TYPE_B(CLASS) \
-public:\
-    static std::size_t getTypeIndex()\
-    {\
-        static const auto typeIndex = typeid(CLASS).hash_code();\
-        return typeIndex;\
-    }\
-    virtual std::size_t getClassTypeIndex() const override\
-    {\
-        return CLASS::getTypeIndex();\
-    }\
-private:\
-    CLASS(const CLASS&);\
+#define BIND_CLASS_TYPE_B(CLASS)                                 \
+public:                                                          \
+    static std::size_t getTypeIndex() {                          \
+        static const auto typeIndex = typeid(CLASS).hash_code(); \
+        return typeIndex;                                        \
+    }                                                            \
+    virtual std::size_t getClassTypeIndex() const override {     \
+        return CLASS::getTypeIndex();                            \
+    }                                                            \
+                                                                 \
+private:                                                         \
+    CLASS(const CLASS&);                                         \
     void operator=(const CLASS&)
 
 #define DRAGONBONES_DISALLOW_COPY_AND_ASSIGN(CLASS) \
-private:\
-    CLASS(const CLASS&);\
+private:                                            \
+    CLASS(const CLASS&);                            \
     void operator=(const CLASS&);
 
 DRAGONBONES_NAMESPACE_BEGIN
@@ -106,8 +103,7 @@ DRAGONBONES_NAMESPACE_BEGIN
 /**
  * @internal
  */
-enum class BinaryOffset
-{
+enum class BinaryOffset {
     WeigthBoneCount = 0,
     WeigthFloatOffset = 1,
     WeigthBoneIndices = 2,
@@ -140,8 +136,7 @@ enum class BinaryOffset
 /**
  * @internal
  */
-enum class ArmatureType
-{
+enum class ArmatureType {
     Armature = 0,
     MovieClip = 1,
     Stage = 2
@@ -166,10 +161,9 @@ enum class OffsetMode {
 /**
  * @private
  */
-enum class DisplayType 
-{
-    Image = 0, 
-    Armature = 1, 
+enum class DisplayType {
+    Image = 0,
+    Armature = 1,
     Mesh = 2,
     BoundingBox = 3,
     Path = 4
@@ -185,8 +179,7 @@ enum class DisplayType
  * @version DragonBones 5.0
  * @language zh_CN
  */
-enum class BoundingBoxType
-{
+enum class BoundingBoxType {
     Rectangle = 0,
     Ellipse = 1,
     Polygon = 2
@@ -204,8 +197,7 @@ enum class ActionType {
 /**
  * @internal
  */
-enum class BlendMode 
-{
+enum class BlendMode {
     Normal = 0,
     Add = 1,
     Alpha = 2,
@@ -324,8 +316,7 @@ enum class AnimationFadeOutMode {
     Single
 };
 
-enum class TextureFormat
-{
+enum class TextureFormat {
     DEFAULT,
     RGBA8888,
     BGRA8888,
@@ -336,37 +327,31 @@ enum class TextureFormat
 };
 
 template <class T>
-std::string to_string(const T& value)
-{
+std::string to_string(const T& value) {
     std::ostringstream stream;
     stream << value;
     return stream.str();
 }
 
-template<class T>
-inline int indexOf(const std::vector<T>& vector, const T& value)
-{
-    for (std::size_t i = 0, l = vector.size(); i < l; ++i)
-    {
-        if (vector[i] == value)
-        {
-            return (int) i;
+template <class T>
+inline int indexOf(const std::vector<T>& vector, const T& value) {
+    for (std::size_t i = 0, l = vector.size(); i < l; ++i) {
+        if (vector[i] == value) {
+            return (int)i;
         }
     }
-    
+
     return -1;
 }
 
-template<class T>
-inline T* mapFind(const std::map<std::string, T*>& map, const std::string& key)
-{
+template <class T>
+inline T* mapFind(const std::map<std::string, T*>& map, const std::string& key) {
     auto iterator = map.find(key);
     return (iterator != map.end()) ? iterator->second : nullptr;
 }
 
-template<class T>
-inline T* mapFindB(std::map<std::string, T>& map, const std::string& key)
-{
+template <class T>
+inline T* mapFindB(std::map<std::string, T>& map, const std::string& key) {
     auto iterator = map.find(key);
     return (iterator != map.end()) ? &iterator->second : nullptr;
 }
@@ -447,8 +432,7 @@ class BuildArmaturePackage;
 /**
  * @private
  */
-class DragonBones 
-{
+class DragonBones {
     DRAGONBONES_DISALLOW_COPY_AND_ASSIGN(DragonBones)
 
 public:
@@ -459,9 +443,9 @@ public:
     static bool debugDraw;
     static bool webAssembly;
     static bool checkInPool;
-    
+
 private:
-    std::map<BaseObject*,bool> _objectsMap;
+    std::map<BaseObject*, bool> _objectsMap;
     std::vector<EventObject*> _events;
     WorldClock* _clock;
     IEventDispatcher* _eventManager;
@@ -469,15 +453,14 @@ private:
 public:
     DragonBones(IEventDispatcher* eventManager);
     virtual ~DragonBones();
-    
+
     void advanceTime(float passedTime);
     void render();
     void bufferEvent(EventObject* value);
     void bufferObject(BaseObject* object);
-    
+
     WorldClock* getClock();
-    IEventDispatcher* getEventManager() const
-    {
+    IEventDispatcher* getEventManager() const {
         return _eventManager;
     }
 };

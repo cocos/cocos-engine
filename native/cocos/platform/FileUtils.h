@@ -42,9 +42,9 @@ namespace cc {
 
 class ResizableBuffer {
 public:
-    ~ResizableBuffer()                = default;
-    virtual void  resize(size_t size) = 0;
-    virtual void *buffer() const      = 0;
+    ~ResizableBuffer() = default;
+    virtual void resize(size_t size) = 0;
+    virtual void *buffer() const = 0;
 };
 
 template <typename T>
@@ -93,7 +93,7 @@ public:
         size_t oldSize = _buffer->getSize();
         if (oldSize != size) {
             // need to take buffer ownership for outer memory control
-            auto *old    = _buffer->takeBuffer();
+            auto *old = _buffer->takeBuffer();
             void *buffer = realloc(old, size);
             if (buffer) {
                 _buffer->fastSet(static_cast<unsigned char *>(buffer), static_cast<uint32_t>(size));
@@ -157,13 +157,13 @@ public:
     virtual Data getDataFromFile(const ccstd::string &filename);
 
     enum class Status {
-        OK                 = 0,
-        NOT_EXISTS         = 1, // File not exists
-        OPEN_FAILED        = 2, // Open file failed.
-        READ_FAILED        = 3, // Read failed
-        NOT_INITIALIZED    = 4, // FileUtils is not initializes
-        TOO_LARGE          = 5, // The file is too large (great than 2^32-1)
-        OBTAIN_SIZE_FAILED = 6  // Failed to obtain the file size.
+        OK = 0,
+        NOT_EXISTS = 1,        // File not exists
+        OPEN_FAILED = 2,       // Open file failed.
+        READ_FAILED = 3,       // Read failed
+        NOT_INITIALIZED = 4,   // FileUtils is not initializes
+        TOO_LARGE = 5,         // The file is too large (great than 2^32-1)
+        OBTAIN_SIZE_FAILED = 6 // Failed to obtain the file size.
     };
 
     /**

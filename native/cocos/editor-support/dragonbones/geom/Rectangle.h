@@ -44,8 +44,7 @@ DRAGONBONES_NAMESPACE_BEGIN
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class Rectangle
-{
+class Rectangle {
 public:
     /**
      * - The x coordinate of the top-left corner of the rectangle.
@@ -100,23 +99,19 @@ public:
      */
     float height;
 
-    Rectangle():
-        x(0.0f),
-        y(0.0f),
-        width(0.0f),
-        height(0.0f)
-    {}
+    Rectangle() : x(0.0f),
+                  y(0.0f),
+                  width(0.0f),
+                  height(0.0f) {}
     /**
      * @private
      */
-    Rectangle(const Rectangle& value)
-    {
+    Rectangle(const Rectangle& value) {
         operator=(value);
     }
     ~Rectangle() {}
 
-    inline void operator=(const Rectangle& value)
-    {
+    inline void operator=(const Rectangle& value) {
         x = value.x;
         y = value.y;
         width = value.width;
@@ -126,8 +121,7 @@ public:
     /**
      * @private
      */
-    void clear()
-    {
+    void clear() {
         x = y = 0.0f;
         width = height = 0.0f;
     }

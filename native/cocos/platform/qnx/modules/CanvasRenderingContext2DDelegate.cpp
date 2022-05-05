@@ -41,7 +41,7 @@ void fillRectWithColor(uint8_t *buf, uint32_t totalWidth, uint32_t totalHeight, 
     uint8_t *p;
     for (uint32_t offsetY = y0; offsetY < y1; ++offsetY) {
         for (uint32_t offsetX = x; offsetX < (x + width); ++offsetX) {
-            p    = buf + (totalWidth * offsetY + offsetX) * 4;
+            p = buf + (totalWidth * offsetY + offsetX) * 4;
             *p++ = r;
             *p++ = g;
             *p++ = b;
@@ -54,7 +54,7 @@ void fillRectWithColor(uint8_t *buf, uint32_t totalWidth, uint32_t totalHeight, 
 namespace cc {
 //static const char gdefaultFontName[] = "-*-helvetica-medium-o-*-*-24-*-*-*-*-*-iso8859-*";
 //static const char gdefaultFontName[] = "lucidasanstypewriter-bold-24";
-static const char gdefaultFontName[]  = "lucidasans-24";
+static const char gdefaultFontName[] = "lucidasans-24";
 static const char gdefaultFontName1[] = "lucidasans";
 
 CanvasRenderingContext2DDelegate::CanvasRenderingContext2DDelegate() {
@@ -72,13 +72,13 @@ CanvasRenderingContext2DDelegate::~CanvasRenderingContext2DDelegate() {
 }
 
 void CanvasRenderingContext2DDelegate::recreateBuffer(float w, float h) {
-    _bufferWidth  = w;
+    _bufferWidth = w;
     _bufferHeight = h;
     if (_bufferWidth < 1.0F || _bufferHeight < 1.0F) {
         return;
     }
-    auto  textureSize = static_cast<int>(_bufferWidth * _bufferHeight * 4);
-    auto *data        = static_cast<int8_t *>(malloc(sizeof(int8_t) * textureSize));
+    auto textureSize = static_cast<int>(_bufferWidth * _bufferHeight * 4);
+    auto *data = static_cast<int8_t *>(malloc(sizeof(int8_t) * textureSize));
     memset(data, 0x00, textureSize);
     _imageData.fastSet((unsigned char *)data, textureSize);
 
@@ -89,7 +89,7 @@ void CanvasRenderingContext2DDelegate::recreateBuffer(float w, float h) {
         cairo_surface_destroy(_surface);
     }
     _surface = cairo_image_surface_create_for_data((unsigned char *)data, CAIRO_FORMAT_ARGB32, _bufferWidth, _bufferHeight, _bufferWidth * 4);
-    _cr      = cairo_create(_surface);
+    _cr = cairo_create(_surface);
 }
 
 void CanvasRenderingContext2DDelegate::beginPath() {
@@ -169,16 +169,16 @@ CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measure
 }
 
 void CanvasRenderingContext2DDelegate::updateFont(const ccstd::string &fontName,
-                                                  float                fontSize,
-                                                  bool                 bold,
-                                                  bool                 italic,
-                                                  bool                 oblique,
+                                                  float fontSize,
+                                                  bool bold,
+                                                  bool italic,
+                                                  bool oblique,
                                                   bool /* smallCaps */) {
     do {
-        _fontName                      = fontName;
-        _fontSize                      = static_cast<int>(fontSize);
+        _fontName = fontName;
+        _fontSize = static_cast<int>(fontSize);
         cairo_font_weight_t fontWeight = bold ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL;
-        cairo_font_slant_t  fontSlant  = CAIRO_FONT_SLANT_NORMAL;
+        cairo_font_slant_t fontSlant = CAIRO_FONT_SLANT_NORMAL;
         if (italic) {
             fontSlant = CAIRO_FONT_SLANT_ITALIC;
         } else if (oblique) {
@@ -238,9 +238,9 @@ void CanvasRenderingContext2DDelegate::fillTextureData() {
 }
 
 ccstd::array<float, 2> CanvasRenderingContext2DDelegate::convertDrawPoint(Point point, const ccstd::string &text) {
-    int                  font_ascent  = 0;
-    int                  font_descent = 0;
-    int                  direction    = 0;
+    int font_ascent = 0;
+    int font_descent = 0;
+    int direction = 0;
     cairo_text_extents_t extents;
     cairo_text_extents(_cr, text.c_str(), &extents);
 

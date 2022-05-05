@@ -48,7 +48,7 @@
 using namespace cc; //NOLINT
 
 se::Object *__jsbObj = nullptr; //NOLINT
-se::Object *__glObj  = nullptr; //NOLINT
+se::Object *__glObj = nullptr;  //NOLINT
 
 static std::basic_string<unsigned char> xxteaKey;
 
@@ -68,10 +68,10 @@ static ccstd::string removeFileExt(const ccstd::string &filePath) {
 
 static int selectPort(int port) {
     struct sockaddr_in addr;
-    static uv_tcp_t    server;
-    uv_loop_t          loop;
+    static uv_tcp_t server;
+    uv_loop_t loop;
     uv_loop_init(&loop);
-    int tryTimes  = 200;
+    int tryTimes = 200;
     int startPort = port;
     while (tryTimes-- > 0) {
         uv_tcp_init(&loop, &server);
@@ -104,7 +104,7 @@ void jsb_init_file_operation_delegate() { //NOLINT
                 fileData = FileUtils::getInstance()->getDataFromFile(byteCodePath);
 
                 uint32_t dataLen = 0;
-                uint8_t *data    = xxtea_decrypt(fileData.getBytes(), static_cast<uint32_t>(fileData.getSize()),
+                uint8_t *data = xxtea_decrypt(fileData.getBytes(), static_cast<uint32_t>(fileData.getSize()),
                                               const_cast<unsigned char *>(xxteaKey.data()),
                                               static_cast<uint32_t>(xxteaKey.size()), reinterpret_cast<uint32_t *>(&dataLen));
 

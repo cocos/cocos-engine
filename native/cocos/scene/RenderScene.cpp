@@ -51,7 +51,7 @@ RenderScene::~RenderScene() = default;
 
 void RenderScene::activate() {
     const auto *sceneData = Root::getInstance()->getPipeline()->getPipelineSceneData();
-    _octree               = sceneData->getOctree();
+    _octree = sceneData->getOctree();
 }
 
 bool RenderScene::initialize(const IRenderSceneInfo &info) {

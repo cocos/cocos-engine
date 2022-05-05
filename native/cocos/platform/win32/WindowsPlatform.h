@@ -46,7 +46,7 @@ public:
 
 private:
     std::shared_ptr<SystemWindow> _window{nullptr};
-    bool                          _quit{false};
+    bool _quit{false};
 };
 
 } // namespace cc

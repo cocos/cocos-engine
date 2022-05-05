@@ -85,7 +85,7 @@ public:
     /**
      * @brief Set touch event handling callback function.
      */
-    using HandleTouchEventCallback                                        = std::function<bool(const TouchEvent&)>;
+    using HandleTouchEventCallback = std::function<bool(const TouchEvent &)>;
     virtual void setHandleTouchEventCallback(HandleTouchEventCallback cb) = 0;
 
     /**
@@ -107,7 +107,7 @@ public:
      * @param task : Tasks running in platform threads
      * @param fps : Task call frequency
      */
-    using ThreadCallback                                         = std::function<void(void)>;
+    using ThreadCallback = std::function<void(void)>;
     virtual void runInPlatformThread(const ThreadCallback &task) = 0;
     /**
      * @brief Get task call frequency.
@@ -161,9 +161,9 @@ public:
     }
 
 private:
-    static BasePlatform* createDefaultPlatform();
+    static BasePlatform *createDefaultPlatform();
 
-    static BasePlatform*          _currentPlatform; // NOLINT(readability-identifier-naming)
+    static BasePlatform *_currentPlatform; // NOLINT(readability-identifier-naming)
     std::vector<OSInterface::Ptr> _osInterfaces;
     CC_DISALLOW_COPY_MOVE_ASSIGN(BasePlatform);
 };

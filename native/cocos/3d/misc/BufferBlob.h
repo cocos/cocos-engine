@@ -42,7 +42,7 @@ public:
 
 private:
     ccstd::vector<cc::variant<ArrayBuffer::Ptr, uint32_t>> _arrayBufferOrPaddings;
-    uint32_t                                               _length{0};
+    uint32_t _length{0};
 };
 
 } // namespace cc

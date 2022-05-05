@@ -57,7 +57,7 @@ struct VertexIdChannel {
 struct NativeDep {
     ccstd::string uuid;
     ccstd::string ext;
-    bool          __isNative__{false}; // NOLINT(bugprone-reserved-identifier)
+    bool __isNative__{false}; // NOLINT(bugprone-reserved-identifier)
 
     explicit NativeDep() = default;
 

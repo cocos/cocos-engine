@@ -68,7 +68,7 @@ Sphere *Sphere::mergePoint(Sphere *out, const Sphere &s, const Vec3 &point) {
     }
 
     auto offset = point - s._center;
-    auto dist   = offset.length();
+    auto dist = offset.length();
 
     if (dist > s._radius) {
         auto half = (dist - s._radius) * 0.5F;
@@ -105,22 +105,22 @@ Sphere::Sphere(float cx, float cy, float cz, float radius) {
 
 void Sphere::getBoundary(Vec3 *minPos, Vec3 *maxPos) const {
     Vec3 half = {_radius, _radius, _radius};
-    *minPos   = _center - half;
-    *maxPos   = _center + half;
+    *minPos = _center - half;
+    *maxPos = _center + half;
 }
 
 void Sphere::transform(const Mat4 &m,
                        const Vec3 & /*pos*/,
                        const Quaternion & /*rot*/,
                        const Vec3 &scale,
-                       Sphere *    out) const {
+                       Sphere *out) const {
     Vec3::transformMat4(_center, m, &out->_center);
     out->_radius = _radius * mathutils::maxComponent(scale);
 }
 
 int Sphere::interset(const Plane &plane) const {
     const float dot = plane.n.dot(_center);
-    const float r   = _radius * plane.n.length();
+    const float r = _radius * plane.n.length();
     if (dot + r < plane.d) {
         return -1;
     }
@@ -134,7 +134,7 @@ int Sphere::interset(const Plane &plane) const {
 
 bool Sphere::interset(const Frustum &frustum) const {
     const auto &planes = frustum.planes;
-    const auto *self   = this;
+    const auto *self = this;
     return std::all_of(planes.begin(),
                        planes.end(),
                        // frustum plane normal points to the inside
@@ -148,7 +148,7 @@ void Sphere::mergePoint(const Vec3 &point) {
         return;
     }
 
-    auto offset   = point - _center;
+    auto offset = point - _center;
     auto distance = offset.length();
 
     if (distance > _radius) {
@@ -170,7 +170,7 @@ void Sphere::define(const AABB &aabb) {
 
     // Calculate sphere
     const cc::Vec3 offset = maxPos - _center;
-    const float    dist   = offset.length();
+    const float dist = offset.length();
 
     const float half = dist * 0.5F;
     _radius += dist * 0.5F;
@@ -187,7 +187,7 @@ void Sphere::mergeAABB(const AABB *aabb) {
 
 int Sphere::spherePlane(const Plane &plane) {
     const auto dot = cc::Vec3::dot(plane.n, _center);
-    const auto r   = _radius * plane.n.length();
+    const auto r = _radius * plane.n.length();
     if (dot + r < plane.d) {
         return -1;
     }
@@ -199,7 +199,7 @@ int Sphere::spherePlane(const Plane &plane) {
 
 bool Sphere::sphereFrustum(const Frustum &frustum) const {
     const auto &planes = frustum.planes;
-    const auto *self   = this;
+    const auto *self = this;
     return std::all_of(planes.begin(),
                        planes.end(),
                        // frustum plane normal points to the inside

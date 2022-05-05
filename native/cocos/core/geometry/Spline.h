@@ -73,8 +73,8 @@ public:
     explicit Spline(SplineMode mode = SplineMode::CATMULL_ROM, ccstd::vector<Vec3> knots = {});
 
     Spline(const Spline &) = default;
-    Spline(Spline &&)      = default;
-    ~Spline() override     = default;
+    Spline(Spline &&) = default;
+    ~Spline() override = default;
     Spline &operator=(const Spline &) = default;
     Spline &operator=(Spline &&) = default;
 
@@ -82,19 +82,19 @@ public:
     static Spline *clone(const Spline &s);
     static Spline *copy(Spline *out, const Spline &s);
 
-    inline void                       setMode(SplineMode mode) { _mode = mode; }
-    inline SplineMode                 getMode() const { return _mode; }
-    inline void                       setKnots(const ccstd::vector<Vec3> &knots) { _knots = knots; }
+    inline void setMode(SplineMode mode) { _mode = mode; }
+    inline SplineMode getMode() const { return _mode; }
+    inline void setKnots(const ccstd::vector<Vec3> &knots) { _knots = knots; }
     inline const ccstd::vector<Vec3> &getKnots() const { return _knots; }
-    inline void                       clearKnots() { _knots.clear(); }
-    inline uint32_t                   getKnotCount() const { return static_cast<uint32_t>(_knots.size()); }
-    inline void                       addKnot(const Vec3 &knot) { _knots.push_back(knot); }
-    void                              setModeAndKnots(SplineMode mode, const ccstd::vector<Vec3> &knots);
-    void                              insertKnot(uint32_t index, const Vec3 &knot);
-    void                              removeKnot(uint32_t index);
-    void                              setKnot(uint32_t index, const Vec3 &knot);
-    const Vec3 &                      getKnot(uint32_t index) const;
-    Vec3 &                            getKnot(uint32_t index);
+    inline void clearKnots() { _knots.clear(); }
+    inline uint32_t getKnotCount() const { return static_cast<uint32_t>(_knots.size()); }
+    inline void addKnot(const Vec3 &knot) { _knots.push_back(knot); }
+    void setModeAndKnots(SplineMode mode, const ccstd::vector<Vec3> &knots);
+    void insertKnot(uint32_t index, const Vec3 &knot);
+    void removeKnot(uint32_t index);
+    void setKnot(uint32_t index, const Vec3 &knot);
+    const Vec3 &getKnot(uint32_t index) const;
+    Vec3 &getKnot(uint32_t index);
 
     // get a point at t with repect to the `index` segment of curve or the whole curve.
     Vec3 getPoint(float t, uint32_t index = SPLINE_WHOLE_INDEX) const;
@@ -103,12 +103,12 @@ public:
     ccstd::vector<Vec3> getPoints(uint32_t num, uint32_t index = SPLINE_WHOLE_INDEX) const;
 
 private:
-    uint32_t    getSegments() const;
+    uint32_t getSegments() const;
     static Vec3 calcLinear(const Vec3 &v0, const Vec3 &v1, float t);
     static Vec3 calcBezier(const Vec3 &v0, const Vec3 &v1, const Vec3 &v2, const Vec3 &v3, float t);
     static Vec3 calcCatmullRom(const Vec3 &v0, const Vec3 &v1, const Vec3 &v2, const Vec3 &v3, float t);
 
-    SplineMode          _mode{SplineMode::CATMULL_ROM};
+    SplineMode _mode{SplineMode::CATMULL_ROM};
     ccstd::vector<Vec3> _knots; // control points of the curve.
 };
 

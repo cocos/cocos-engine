@@ -527,8 +527,9 @@ static inline bool setVolumeRampVariables(float newVolume, int32_t ramp,
     if (ramp != 0) {
         // when the ramp completes, *pPrevVolume is set to *pSetVolume, so there
         // is no computational mismatch; hence equality is checked here.
-        ALOGD_IF(*pPrevVolume != *pSetVolume, "previous float ramp hasn't finished,"
-                                              " prev:%f  set_to:%f",
+        ALOGD_IF(*pPrevVolume != *pSetVolume,
+                 "previous float ramp hasn't finished,"
+                 " prev:%f  set_to:%f",
                  *pPrevVolume, *pSetVolume);
         const float inc = (newVolume - *pPrevVolume) / ramp; // could be inf, nan, subnormal
         const float maxv = max(newVolume, *pPrevVolume);     // could be inf, cannot be nan, subnormal
@@ -558,8 +559,9 @@ static inline bool setVolumeRampVariables(float newVolume, int32_t ramp,
         // integer volume is U4.12 (to use 16 bit multiplies), but ramping uses U4.28.
         // when the ramp completes, *pIntPrevVolume is set to *pIntSetVolume << 16, so there
         // is no computational mismatch; hence equality is checked here.
-        ALOGD_IF(*pIntPrevVolume != *pIntSetVolume << 16, "previous int ramp hasn't finished,"
-                                                          " prev:%d  set_to:%d",
+        ALOGD_IF(*pIntPrevVolume != *pIntSetVolume << 16,
+                 "previous int ramp hasn't finished,"
+                 " prev:%d  set_to:%d",
                  *pIntPrevVolume, *pIntSetVolume << 16);
         const int32_t inc = ((intVolume << 16) - *pIntPrevVolume) / ramp;
 
@@ -591,7 +593,6 @@ void AudioMixer::setParameter(int name, int target, int param, void *value) {
     int32_t *valueBuf = reinterpret_cast<int32_t *>(value);
 
     switch (target) {
-
         case TRACK:
             switch (param) {
                 case CHANNEL_MASK: {
@@ -715,12 +716,13 @@ void AudioMixer::setParameter(int name, int target, int param, void *value) {
                              "bad parameters speed %f, pitch %f", playbackRate->mSpeed,
                              playbackRate->mPitch);
                     if (track.setPlaybackRate(*playbackRate)) {
-                        ALOGV("setParameter(TIMESTRETCH, PLAYBACK_RATE, STRETCH_MODE, FALLBACK_MODE "
-                              "%f %f %d %d",
-                              playbackRate->mSpeed,
-                              playbackRate->mPitch,
-                              playbackRate->mStretchMode,
-                              playbackRate->mFallbackMode);
+                        ALOGV(
+                            "setParameter(TIMESTRETCH, PLAYBACK_RATE, STRETCH_MODE, FALLBACK_MODE "
+                            "%f %f %d %d",
+                            playbackRate->mSpeed,
+                            playbackRate->mPitch,
+                            playbackRate->mStretchMode,
+                            playbackRate->mFallbackMode);
                         // invalidateState(1 << name);
                     }
                 } break;
@@ -757,9 +759,10 @@ bool AudioMixer::track_t::setResampler(uint32_t trackSampleRate, uint32_t devSam
                 const int resamplerChannelCount = false /*downmixerBufferProvider != NULL*/
                                                       ? mMixerChannelCount
                                                       : channelCount;
-                ALOGVV("Creating resampler:"
-                       " format(%#x) channels(%d) devSampleRate(%u) quality(%d)\n",
-                       mMixerInFormat, resamplerChannelCount, devSampleRate, quality);
+                ALOGVV(
+                    "Creating resampler:"
+                    " format(%#x) channels(%d) devSampleRate(%u) quality(%d)\n",
+                    mMixerInFormat, resamplerChannelCount, devSampleRate, quality);
                 resampler = AudioResampler::create(
                     mMixerInFormat,
                     resamplerChannelCount,
@@ -1008,10 +1011,11 @@ void AudioMixer::process__validate(state_t *state, int64_t pts) {
         }
     }
 
-    ALOGV("mixer configuration change: %d activeTracks (%08x) "
-          "all16BitsStereoNoResample=%d, resampling=%d, volumeRamp=%d",
-          countActiveTracks, state->enabledTracks,
-          all16BitsStereoNoResample, resampling, volumeRamp);
+    ALOGV(
+        "mixer configuration change: %d activeTracks (%08x) "
+        "all16BitsStereoNoResample=%d, resampling=%d, volumeRamp=%d",
+        countActiveTracks, state->enabledTracks,
+        all16BitsStereoNoResample, resampling, volumeRamp);
 
     state->hook(state, pts);
 
@@ -1521,7 +1525,6 @@ void AudioMixer::process__genericResampling(state_t *state, int64_t pts) {
                 t.resampler->setPTS(pts);
                 t.hook(&t, outTemp, numFrames, state->resampleTemp, aux);
             } else {
-
                 size_t outFrames = 0;
 
                 while (outFrames < numFrames) {
@@ -1808,8 +1811,9 @@ void AudioMixer::process_NoResampleOneTrack(state_t *state, int64_t pts) {
         // been enabled for mixing.
         if (in == NULL || (((uintptr_t)in) & 3)) {
             memset(out, 0, numFrames * channels * audio_bytes_per_sample(t->mMixerFormat));
-            ALOGE_IF((((uintptr_t)in) & 3), "process_NoResampleOneTrack: bus error: "
-                                            "buffer %p track %p, channels %d, needs %#x",
+            ALOGE_IF((((uintptr_t)in) & 3),
+                     "process_NoResampleOneTrack: bus error: "
+                     "buffer %p track %p, channels %d, needs %#x",
                      in, t, t->channelCount, t->needs);
             return;
         }

@@ -38,34 +38,34 @@ using ID = uint16_t;
 class VirtualResource {
 public:
     VirtualResource(StringHandle name, ID id, bool imported) noexcept;
-    VirtualResource() noexcept                   = delete;
-    virtual ~VirtualResource()                   = default;
-    VirtualResource(const VirtualResource &)     = delete;
+    VirtualResource() noexcept = delete;
+    virtual ~VirtualResource() = default;
+    VirtualResource(const VirtualResource &) = delete;
     VirtualResource(VirtualResource &&) noexcept = delete;
     VirtualResource &operator=(const VirtualResource &) = delete;
     VirtualResource &operator=(VirtualResource &&) noexcept = delete;
 
     virtual void request() noexcept = 0;
     virtual void release() noexcept = 0;
-    bool         isImported() const noexcept { return _imported; }
-    void         updateLifetime(PassNode *passNode) noexcept;
-    void         newVersion() noexcept { ++_version; }
+    bool isImported() const noexcept { return _imported; }
+    void updateLifetime(PassNode *passNode) noexcept;
+    void newVersion() noexcept { ++_version; }
 
     virtual gfx::GFXObject *getDeviceResource() const noexcept = 0;
 
 private:
-    PassNode *         _firstUsePass{nullptr};
-    PassNode *         _lastUsePass{nullptr};
+    PassNode *_firstUsePass{nullptr};
+    PassNode *_lastUsePass{nullptr};
     const StringHandle _name;
-    uint32_t           _refCount{0};
-    uint16_t           _writerCount{0};
-    ID                 _id{0};
-    uint8_t            _version{0};
-    bool const         _imported{false};
-    bool               _neverLoaded{true};
-    bool               _neverStored{true};
-    bool               _memoryless{false};
-    bool               _memorylessMSAA{false};
+    uint32_t _refCount{0};
+    uint16_t _writerCount{0};
+    ID _id{0};
+    uint8_t _version{0};
+    bool const _imported{false};
+    bool _neverLoaded{true};
+    bool _neverStored{true};
+    bool _memoryless{false};
+    bool _memorylessMSAA{false};
 
     friend class FrameGraph;
 };

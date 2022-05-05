@@ -35,8 +35,8 @@ namespace gfx {
 
 QueryPoolAgent::QueryPoolAgent(QueryPool *actor)
 : Agent<QueryPool>(actor) {
-    _typedID         = actor->getTypedID();
-    _type            = actor->getType();
+    _typedID = actor->getTypedID();
+    _type = actor->getType();
     _maxQueryObjects = actor->getMaxQueryObjects();
 }
 

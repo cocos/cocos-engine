@@ -30,13 +30,13 @@
 namespace cc {
 namespace physics {
 
-constexpr physx::PxU32 QUERY_FILTER         = 1 << 0;
-constexpr physx::PxU32 QUERY_CHECK_TRIGGER  = 1 << 1;
-constexpr physx::PxU32 QUERY_SINGLE_HIT     = 1 << 2;
+constexpr physx::PxU32 QUERY_FILTER = 1 << 0;
+constexpr physx::PxU32 QUERY_CHECK_TRIGGER = 1 << 1;
+constexpr physx::PxU32 QUERY_SINGLE_HIT = 1 << 2;
 constexpr physx::PxU32 DETECT_TRIGGER_EVENT = 1 << 3;
 constexpr physx::PxU32 DETECT_CONTACT_EVENT = 1 << 4;
 constexpr physx::PxU32 DETECT_CONTACT_POINT = 1 << 5;
-constexpr physx::PxU32 DETECT_CONTACT_CCD   = 1 << 6;
+constexpr physx::PxU32 DETECT_CONTACT_CCD = 1 << 6;
 
 physx::PxFilterFlags simpleFilterShader(
     physx::PxFilterObjectAttributes attributes0, physx::PxFilterData fd0,

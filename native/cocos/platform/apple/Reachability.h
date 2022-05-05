@@ -79,8 +79,8 @@ private:
 
     static void onReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *info);
 
-    ReachabilityCallback     _callback;
-    void *                   _userData;
+    ReachabilityCallback _callback;
+    void *_userData;
     SCNetworkReachabilityRef _reachabilityRef;
 };
 

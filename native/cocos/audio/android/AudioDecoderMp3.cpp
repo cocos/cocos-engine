@@ -44,24 +44,24 @@ bool AudioDecoderMp3::decodeToPcm() {
     }
 
     mp3_callbacks callbacks;
-    callbacks.read  = AudioDecoder::fileRead;
-    callbacks.seek  = AudioDecoder::fileSeek;
+    callbacks.read = AudioDecoder::fileRead;
+    callbacks.seek = AudioDecoder::fileSeek;
     callbacks.close = AudioDecoder::fileClose;
-    callbacks.tell  = AudioDecoder::fileTell;
+    callbacks.tell = AudioDecoder::fileTell;
 
     int numChannels = 0;
-    int sampleRate  = 0;
-    int numFrames   = 0;
+    int sampleRate = 0;
+    int numFrames = 0;
 
     if (EXIT_SUCCESS == decodeMP3(&callbacks, this, *_result.pcmBuffer, &numChannels, &sampleRate, &numFrames) && numChannels > 0 && sampleRate > 0 && numFrames > 0) {
-        _result.numChannels   = numChannels;
-        _result.sampleRate    = sampleRate;
+        _result.numChannels = numChannels;
+        _result.sampleRate = sampleRate;
         _result.bitsPerSample = SL_PCMSAMPLEFORMAT_FIXED_16;
         _result.containerSize = SL_PCMSAMPLEFORMAT_FIXED_16;
-        _result.channelMask   = numChannels == 1 ? SL_SPEAKER_FRONT_CENTER : (SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT);
-        _result.endianness    = SL_BYTEORDER_LITTLEENDIAN;
-        _result.numFrames     = numFrames;
-        _result.duration      = 1.0f * numFrames / sampleRate;
+        _result.channelMask = numChannels == 1 ? SL_SPEAKER_FRONT_CENTER : (SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT);
+        _result.endianness = SL_BYTEORDER_LITTLEENDIAN;
+        _result.numFrames = numFrames;
+        _result.duration = 1.0f * numFrames / sampleRate;
 
         ccstd::string info = _result.toString();
         ALOGI("Original audio info: %s, total size: %d", info.c_str(), (int)_result.pcmBuffer->size());

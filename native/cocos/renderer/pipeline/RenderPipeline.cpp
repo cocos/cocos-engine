@@ -60,7 +60,7 @@ RenderPipeline::RenderPipeline()
     RenderPipeline::instance = this;
 
     _globalDSManager = ccnew GlobalDSManager();
-    _pipelineUBO     = ccnew PipelineUBO();
+    _pipelineUBO = ccnew PipelineUBO();
 }
 
 RenderPipeline::~RenderPipeline() {
@@ -69,7 +69,7 @@ RenderPipeline::~RenderPipeline() {
 
 bool RenderPipeline::initialize(const RenderPipelineInfo &info) {
     _flows = info.flows;
-    _tag   = info.tag;
+    _tag = info.tag;
     return true;
 }
 
@@ -156,7 +156,7 @@ bool RenderPipeline::destroy() {
 
 gfx::Color RenderPipeline::getClearcolor(scene::Camera *camera) const {
     auto *const sceneData = getPipelineSceneData();
-    gfx::Color  clearColor{0.0F, 0.0F, 0.0F, 1.0F};
+    gfx::Color clearColor{0.0F, 0.0F, 0.0F, 1.0F};
     if (static_cast<uint32_t>(camera->getClearFlag()) & static_cast<uint32_t>(gfx::ClearFlagBit::COLOR)) {
         clearColor = camera->getClearColor();
     }
@@ -186,7 +186,7 @@ gfx::InputAssembler *RenderPipeline::getIAByRenderArea(const gfx::Rect &renderAr
         return iter->second;
     }
 
-    gfx::Buffer *        vb = nullptr;
+    gfx::Buffer *vb = nullptr;
     gfx::InputAssembler *ia = nullptr;
     createQuadInputAssembler(_quadIB, &vb, &ia);
     _quadVB.push_back(vb);
@@ -200,7 +200,7 @@ gfx::InputAssembler *RenderPipeline::getIAByRenderArea(const gfx::Rect &renderAr
 bool RenderPipeline::createQuadInputAssembler(gfx::Buffer *quadIB, gfx::Buffer **quadVB, gfx::InputAssembler **quadIA) {
     // step 1 create vertex buffer
     uint vbStride = sizeof(float) * 4;
-    uint vbSize   = vbStride * 4;
+    uint vbSize = vbStride * 4;
 
     if (*quadVB == nullptr) {
         *quadVB = _device->createBuffer({gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
@@ -213,19 +213,19 @@ bool RenderPipeline::createQuadInputAssembler(gfx::Buffer *quadIB, gfx::Buffer *
     info.attributes.push_back({"a_texCoord", gfx::Format::RG32F});
     info.vertexBuffers.push_back(*quadVB);
     info.indexBuffer = quadIB;
-    *quadIA          = _device->createInputAssembler(info);
+    *quadIA = _device->createInputAssembler(info);
     return (*quadIA) != nullptr;
 }
 
 void RenderPipeline::ensureEnoughSize(const ccstd::vector<scene::Camera *> &cameras) {
     for (auto *camera : cameras) {
-        _width  = std::max(camera->getWindow()->getWidth(), _width);
+        _width = std::max(camera->getWindow()->getWidth(), _width);
         _height = std::max(camera->getWindow()->getHeight(), _height);
     }
 }
 
 gfx::Viewport RenderPipeline::getViewport(scene::Camera *camera) {
-    auto             scale{_pipelineSceneData->getShadingScale()};
+    auto scale{_pipelineSceneData->getShadingScale()};
     const gfx::Rect &rect = getRenderArea(camera);
     return {
         static_cast<int>(static_cast<float>(rect.x) * scale),
@@ -235,7 +235,7 @@ gfx::Viewport RenderPipeline::getViewport(scene::Camera *camera) {
 }
 
 gfx::Rect RenderPipeline::getScissor(scene::Camera *camera) {
-    auto             scale{_pipelineSceneData->getShadingScale()};
+    auto scale{_pipelineSceneData->getShadingScale()};
     const gfx::Rect &rect = getRenderArea(camera);
     return {
         static_cast<int>(static_cast<float>(rect.x) * scale),
@@ -273,7 +273,7 @@ void RenderPipeline::genQuadVertexData(const Vec4 &viewport, float *vbData) {
     if (_device->getCapabilities().screenSpaceSignY > 0) {
         std::swap(minY, maxY);
     }
-    int n       = 0;
+    int n = 0;
     vbData[n++] = -1.0F;
     vbData[n++] = -1.0F;
     vbData[n++] = minX; // uv
@@ -323,7 +323,7 @@ RenderStage *RenderPipeline::getRenderstageByName(const ccstd::string &name) con
 }
 
 bool RenderPipeline::isOccluded(const scene::Camera *camera, const scene::SubModel *subModel) {
-    auto *model      = subModel->getOwner();
+    auto *model = subModel->getOwner();
     auto *worldBound = model->getWorldBounds();
 
     // assume visible if there is no worldBound.
@@ -347,7 +347,7 @@ bool RenderPipeline::isOccluded(const scene::Camera *camera, const scene::SubMod
 }
 
 void RenderPipeline::framegraphGC() {
-    static uint64_t           frameCount{0U};
+    static uint64_t frameCount{0U};
     static constexpr uint32_t INTERVAL_IN_SECONDS = 30;
     if (++frameCount % (INTERVAL_IN_SECONDS * 60) == 0) {
         framegraph::FrameGraph::gc(INTERVAL_IN_SECONDS * 60);

@@ -72,20 +72,20 @@ using SAXResult = enum {
 
 class DictMaker : public SAXDelegator {
 public:
-    SAXResult   _resultType{SAX_RESULT_NONE};
-    ValueMap    _rootDict;
+    SAXResult _resultType{SAX_RESULT_NONE};
+    ValueMap _rootDict;
     ValueVector _rootArray;
 
     ccstd::string _curKey;   ///< parsed key
     ccstd::string _curValue; // parsed value
-    SAXState      _state{SAX_NONE};
+    SAXState _state{SAX_NONE};
 
-    ValueMap *   _curDict;
+    ValueMap *_curDict;
     ValueVector *_curArray;
 
-    std::stack<ValueMap *>    _dictStack;
+    std::stack<ValueMap *> _dictStack;
     std::stack<ValueVector *> _arrayStack;
-    std::stack<SAXState>      _stateStack;
+    std::stack<SAXState> _stateStack;
 
     DictMaker() = default;
 
@@ -147,9 +147,9 @@ public:
             } else if (SAX_DICT == preState) {
                 // add a new dictionary into the pre dictionary
                 CC_ASSERT(!_dictStack.empty()); // The state is wrong.
-                ValueMap *preDict   = _dictStack.top();
+                ValueMap *preDict = _dictStack.top();
                 (*preDict)[_curKey] = Value(ValueMap());
-                _curDict            = &(*preDict)[_curKey].asValueMap();
+                _curDict = &(*preDict)[_curKey].asValueMap();
             }
 
             // record the dict state
@@ -176,7 +176,7 @@ public:
 
             if (preState == SAX_DICT) {
                 (*_curDict)[_curKey] = Value(ValueVector());
-                _curArray            = &(*_curDict)[_curKey].asValueVector();
+                _curArray = &(*_curDict)[_curKey].asValueVector();
             } else if (preState == SAX_ARRAY) {
                 CC_ASSERT(!_arrayStack.empty()); // The state is wrong!
                 ValueVector *preArray = _arrayStack.top();
@@ -193,7 +193,7 @@ public:
 
     void endElement(void *ctx, const char *name) override {
         CC_UNUSED_PARAM(ctx);
-        SAXState            curState = _stateStack.empty() ? SAX_DICT : _stateStack.top();
+        SAXState curState = _stateStack.empty() ? SAX_DICT : _stateStack.top();
         const ccstd::string sName(const_cast<char *>(name));
         if (sName == "dict") {
             _stateStack.pop();
@@ -250,8 +250,8 @@ public:
             return;
         }
 
-        SAXState            curState = _stateStack.empty() ? SAX_DICT : _stateStack.top();
-        const ccstd::string text     = ccstd::string(const_cast<char *>(ch), len);
+        SAXState curState = _stateStack.empty() ? SAX_DICT : _stateStack.top();
+        const ccstd::string text = ccstd::string(const_cast<char *>(ch), len);
 
         switch (_state) {
             case SAX_KEY:
@@ -291,7 +291,7 @@ ValueMap FileUtils::getValueMapFromData(const char *filedata, int filesize) {
 
 ValueVector FileUtils::getValueVectorFromFile(const ccstd::string &filename) {
     const ccstd::string fullPath = fullPathForFilename(filename);
-    DictMaker           tMaker;
+    DictMaker tMaker;
     return tMaker.arrayWithContentsOfFile(fullPath);
 }
 
@@ -388,24 +388,24 @@ bool FileUtils::writeValueVectorToFile(const ValueVector &vecData, const ccstd::
 static tinyxml2::XMLElement *generateElementForObject(const Value &value, tinyxml2::XMLDocument *doc) { // NOLINT(misc-no-recursion)
     // object is String
     if (value.getType() == Value::Type::STRING) {
-        tinyxml2::XMLElement *node    = doc->NewElement("string");
-        tinyxml2::XMLText *   content = doc->NewText(value.asString().c_str());
+        tinyxml2::XMLElement *node = doc->NewElement("string");
+        tinyxml2::XMLText *content = doc->NewText(value.asString().c_str());
         node->LinkEndChild(content);
         return node;
     }
 
     // object is integer
     if (value.getType() == Value::Type::INTEGER) {
-        tinyxml2::XMLElement *node    = doc->NewElement("integer");
-        tinyxml2::XMLText *   content = doc->NewText(value.asString().c_str());
+        tinyxml2::XMLElement *node = doc->NewElement("integer");
+        tinyxml2::XMLText *content = doc->NewText(value.asString().c_str());
         node->LinkEndChild(content);
         return node;
     }
 
     // object is real
     if (value.getType() == Value::Type::FLOAT || value.getType() == Value::Type::DOUBLE) {
-        tinyxml2::XMLElement *node    = doc->NewElement("real");
-        tinyxml2::XMLText *   content = doc->NewText(value.asString().c_str());
+        tinyxml2::XMLElement *node = doc->NewElement("real");
+        tinyxml2::XMLText *content = doc->NewText(value.asString().c_str());
         node->LinkEndChild(content);
         return node;
     }
@@ -468,10 +468,10 @@ static tinyxml2::XMLElement *generateElementForArray(const ValueVector &array, t
 #else
 
 /* The subclass FileUtilsApple should override these two method. */
-ValueMap    FileUtils::getValueMapFromFile(const ccstd::string &filename) { return ValueMap(); }
-ValueMap    FileUtils::getValueMapFromData(const char *filedata, int filesize) { return ValueMap(); }
+ValueMap FileUtils::getValueMapFromFile(const ccstd::string &filename) { return ValueMap(); }
+ValueMap FileUtils::getValueMapFromData(const char *filedata, int filesize) { return ValueMap(); }
 ValueVector FileUtils::getValueVectorFromFile(const ccstd::string &filename) { return ValueVector(); }
-bool        FileUtils::writeToFile(const ValueMap &dict, const ccstd::string &fullPath) { return false; }
+bool FileUtils::writeToFile(const ValueMap &dict, const ccstd::string &fullPath) { return false; }
 
 #endif /* (CC_PLATFORM != CC_PLATFORM_MAC_IOS) && (CC_PLATFORM != CC_PLATFORM_MAC_OSX) */
 
@@ -492,7 +492,7 @@ FileUtils::FileUtils() = default;
 FileUtils::~FileUtils() = default;
 
 bool FileUtils::writeStringToFile(const ccstd::string &dataStr, const ccstd::string &fullPath) {
-    Data  data;
+    Data data;
     auto *dataP = const_cast<char *>(dataStr.data());
     data.fastSet(reinterpret_cast<unsigned char *>(dataP), static_cast<uint32_t>(dataStr.size()));
 
@@ -504,7 +504,7 @@ bool FileUtils::writeStringToFile(const ccstd::string &dataStr, const ccstd::str
 }
 
 bool FileUtils::writeDataToFile(const Data &data, const ccstd::string &fullPath) {
-    size_t      size = 0;
+    size_t size = 0;
     const char *mode = "wb";
 
     CC_ASSERT(!fullPath.empty() && data.getSize() != 0);
@@ -590,8 +590,8 @@ FileUtils::Status FileUtils::getContents(const ccstd::string &filename, Resizabl
 
 unsigned char *FileUtils::getFileDataFromZip(const ccstd::string &zipFilePath, const ccstd::string &filename, uint32_t *size) {
     unsigned char *buffer = nullptr;
-    unzFile        file   = nullptr;
-    *size                 = 0;
+    unzFile file = nullptr;
+    *size = 0;
 
     do {
         CC_BREAK_IF(zipFilePath.empty());
@@ -603,7 +603,7 @@ unsigned char *FileUtils::getFileDataFromZip(const ccstd::string &zipFilePath, c
         int ret = unzLocateFile(file, filename.c_str(), nullptr);
         CC_BREAK_IF(UNZ_OK != ret);
 
-        char          filePathA[260];
+        char filePathA[260];
         unz_file_info fileInfo;
         ret = unzGetCurrentFileInfo(file, &fileInfo, filePathA, sizeof(filePathA), nullptr, 0, nullptr, 0);
         CC_BREAK_IF(UNZ_OK != ret);
@@ -611,7 +611,7 @@ unsigned char *FileUtils::getFileDataFromZip(const ccstd::string &zipFilePath, c
         ret = unzOpenCurrentFile(file);
         CC_BREAK_IF(UNZ_OK != ret);
 
-        buffer                   = static_cast<unsigned char *>(malloc(fileInfo.uncompressed_size));
+        buffer = static_cast<unsigned char *>(malloc(fileInfo.uncompressed_size));
         int CC_UNUSED readedSize = unzReadCurrentFile(file, buffer, static_cast<unsigned>(fileInfo.uncompressed_size));
         CC_ASSERT(readedSize == 0 || readedSize == (int)fileInfo.uncompressed_size);
 
@@ -629,10 +629,10 @@ unsigned char *FileUtils::getFileDataFromZip(const ccstd::string &zipFilePath, c
 ccstd::string FileUtils::getPathForFilename(const ccstd::string &filename, const ccstd::string &searchPath) const {
     ccstd::string file{filename};
     ccstd::string filePath;
-    size_t        pos = filename.find_last_of('/');
+    size_t pos = filename.find_last_of('/');
     if (pos != ccstd::string::npos) {
         filePath = filename.substr(0, pos + 1);
-        file     = filename.substr(pos + 1);
+        file = filename.substr(pos + 1);
     }
 
     // searchPath + file_path
@@ -710,7 +710,7 @@ void FileUtils::setDefaultResourceRootPath(const ccstd::string &path) {
 
 void FileUtils::setSearchPaths(const ccstd::vector<ccstd::string> &searchPaths) {
     bool existDefaultRootPath = false;
-    _originalSearchPaths      = searchPaths;
+    _originalSearchPaths = searchPaths;
 
     _fullPathCache.clear();
     _searchPathArray.clear();
@@ -811,7 +811,7 @@ bool FileUtils::isDirectoryExist(const ccstd::string &dirPath) const {
 }
 
 ccstd::vector<ccstd::string> FileUtils::listFiles(const ccstd::string &dirPath) const {
-    ccstd::string                fullpath = fullPathForFilename(dirPath);
+    ccstd::string fullpath = fullPathForFilename(dirPath);
     ccstd::vector<ccstd::string> files;
     if (isDirectoryExist(fullpath)) {
         tinydir_dir dir;
@@ -835,7 +835,7 @@ ccstd::vector<ccstd::string> FileUtils::listFiles(const ccstd::string &dirPath) 
 
 #ifdef UNICODE
                 std::wstring path = file.path;
-                length            = WideCharToMultiByte(CP_UTF8, 0, &path[0], (int)path.size(), NULL, 0, NULL, NULL);
+                length = WideCharToMultiByte(CP_UTF8, 0, &path[0], (int)path.size(), NULL, 0, NULL, NULL);
                 ccstd::string filepath;
                 if (length > 0) {
                     filepath.resize(length);
@@ -884,7 +884,7 @@ void FileUtils::listFilesRecursively(const ccstd::string &dirPath, ccstd::vector
 
 #ifdef UNICODE
                 std::wstring path = file.path;
-                length            = WideCharToMultiByte(CP_UTF8, 0, &path[0], (int)path.size(), NULL, 0, NULL, NULL);
+                length = WideCharToMultiByte(CP_UTF8, 0, &path[0], (int)path.size(), NULL, 0, NULL, NULL);
                 ccstd::string filepath;
                 if (length > 0) {
                     filepath.resize(length);
@@ -990,9 +990,9 @@ bool FileUtils::createDirectory(const ccstd::string &path) {
     }
 
     // Split the path
-    size_t                       start = 0;
-    size_t                       found = path.find_first_of("/\\", start);
-    ccstd::string                subpath;
+    size_t start = 0;
+    size_t found = path.find_first_of("/\\", start);
+    ccstd::string subpath;
     ccstd::vector<ccstd::string> dirs;
 
     if (found != ccstd::string::npos) {
@@ -1124,7 +1124,7 @@ long FileUtils::getFileSize(const ccstd::string &filepath) { //NOLINT(google-run
 
 ccstd::string FileUtils::getFileExtension(const ccstd::string &filePath) const {
     ccstd::string fileExtension;
-    size_t        pos = filePath.find_last_of('.');
+    size_t pos = filePath.find_last_of('.');
     if (pos != ccstd::string::npos) {
         fileExtension = filePath.substr(pos, filePath.length());
 
@@ -1142,7 +1142,7 @@ void FileUtils::valueVectorCompact(ValueVector &valueVector) {
 
 ccstd::string FileUtils::getFileDir(const ccstd::string &path) {
     ccstd::string ret;
-    size_t        pos = path.rfind('/');
+    size_t pos = path.rfind('/');
     if (pos != ccstd::string::npos) {
         ret = path.substr(0, pos);
     }

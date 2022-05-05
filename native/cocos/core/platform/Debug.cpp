@@ -27,8 +27,8 @@ THE SOFTWARE.
 
 namespace cc {
 namespace debug {
-const ccstd::string CONSOLE_LOG   = "log";
-const ccstd::string CONSOLE_WARN  = "warn";
+const ccstd::string CONSOLE_LOG = "log";
+const ccstd::string CONSOLE_WARN = "warn";
 const ccstd::string CONSOLE_ERROR = "error";
 const ccstd::string CONSOLE_ASSET = "assert";
 
@@ -60,7 +60,7 @@ LogLevel getLogLevel(DebugMode mode) {
 
 ccstd::string getTypedFormatter(DebugMode mode, uint32_t id) {
     const ccstd::string &tag = getPrefixTag(mode);
-    ccstd::string        msg;
+    ccstd::string msg;
 #if CC_DEBUG > 0
     if (debugInfos.find(id) == debugInfos.end()) {
         msg = "unknown id";
@@ -77,13 +77,13 @@ ccstd::string getTypedFormatter(DebugMode mode, uint32_t id) {
 }
 
 void printLog(DebugMode mode, const ccstd::string &fmt, cc::any *arr, int paramsLength) {
-    ccstd::string        msg      = fmt;
-    const ccstd::string &prefix   = getPrefixTag(mode);
-    LogLevel             logLevel = getLogLevel(mode);
+    ccstd::string msg = fmt;
+    const ccstd::string &prefix = getPrefixTag(mode);
+    LogLevel logLevel = getLogLevel(mode);
 
     size_t pos;
     for (int i = 1; i <= paramsLength; i++) {
-        pos                = msg.find('%');
+        pos = msg.find('%');
         bool needToReplace = false;
         if (pos != ccstd::string::npos && pos != (msg.length() - 1) && (msg[pos + 1] == 'd' || msg[pos + 1] == 's' || msg[pos + 1] == 'f')) {
             needToReplace = true;

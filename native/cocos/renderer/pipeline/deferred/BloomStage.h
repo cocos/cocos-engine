@@ -37,8 +37,8 @@ namespace pipeline {
 
 struct CC_DLL UBOBloom {
     static constexpr uint TEXTURE_SIZE_OFFSET = 0;
-    static constexpr uint COUNT               = UBOBloom::TEXTURE_SIZE_OFFSET + 4;
-    static constexpr uint SIZE                = UBOBloom::COUNT * 4;
+    static constexpr uint COUNT = UBOBloom::TEXTURE_SIZE_OFFSET + 4;
+    static constexpr uint SIZE = UBOBloom::COUNT * 4;
 };
 
 class CC_DLL BloomStage : public RenderStage {
@@ -47,23 +47,23 @@ public:
     ~BloomStage() override = default;
 
     static const RenderStageInfo &getInitializeInfo();
-    bool                          initialize(const RenderStageInfo &info) override;
-    void                          activate(RenderPipeline *pipeline, RenderFlow *flow) override;
-    void                          destroy() override;
-    void                          render(scene::Camera *camera) override;
+    bool initialize(const RenderStageInfo &info) override;
+    void activate(RenderPipeline *pipeline, RenderFlow *flow) override;
+    void destroy() override;
+    void render(scene::Camera *camera) override;
 
-    gfx::Buffer * getPrefilterUBO() { return _prefilterUBO; }
-    auto &        getDownsampleUBO() { return _downsampleUBO; }
-    auto &        getUpsampleUBO() { return _upsampleUBO; }
-    gfx::Buffer * getCombineUBO() { return _combineUBO; }
+    gfx::Buffer *getPrefilterUBO() { return _prefilterUBO; }
+    auto &getDownsampleUBO() { return _downsampleUBO; }
+    auto &getUpsampleUBO() { return _upsampleUBO; }
+    gfx::Buffer *getCombineUBO() { return _combineUBO; }
     gfx::Sampler *getSampler() const { return _sampler; }
 
     inline float getThreshold() const { return _threshold; }
-    inline void  setThreshold(float value) { _threshold = value; }
+    inline void setThreshold(float value) { _threshold = value; }
     inline float getIntensity() const { return _intensity; }
-    inline void  setIntensity(float value) { _intensity = value; }
-    inline int   getIterations() const { return _iterations; }
-    inline void  setIterations(int value) {
+    inline void setIntensity(float value) { _intensity = value; }
+    inline int getIterations() const { return _iterations; }
+    inline void setIterations(int value) {
         _iterations = std::max(1, std::min(value, MAX_BLOOM_FILTER_PASS_NUM));
     }
 
@@ -72,15 +72,15 @@ private:
 
     static RenderStageInfo initInfo;
 
-    float                                                  _threshold    = 1.0F;
-    float                                                  _intensity    = 0.8F;
-    int                                                    _iterations   = 2;
-    gfx::Sampler *                                         _sampler      = nullptr;
-    gfx::Buffer *                                          _prefilterUBO = nullptr;
+    float _threshold = 1.0F;
+    float _intensity = 0.8F;
+    int _iterations = 2;
+    gfx::Sampler *_sampler = nullptr;
+    gfx::Buffer *_prefilterUBO = nullptr;
     ccstd::array<gfx::Buffer *, MAX_BLOOM_FILTER_PASS_NUM> _downsampleUBO{};
     ccstd::array<gfx::Buffer *, MAX_BLOOM_FILTER_PASS_NUM> _upsampleUBO{};
-    gfx::Buffer *                                          _combineUBO = nullptr;
-    framegraph::StringHandle                               _fgStrHandleBloomOut;
+    gfx::Buffer *_combineUBO = nullptr;
+    framegraph::StringHandle _fgStrHandleBloomOut;
 };
 } // namespace pipeline
 } // namespace cc

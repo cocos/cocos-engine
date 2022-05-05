@@ -30,7 +30,6 @@
 #include "cocos/bindings/event/EventDispatcher.h"
 #include "platform/mac/MacPlatform.h"
 
-
 @interface AppDelegate () {
     NSWindow* _window;
     //    Game*     _game;
@@ -41,13 +40,13 @@
 @implementation AppDelegate
 
 - (void)createLeftBottomWindow:(NSString*)title width:(int)w height:(int)h {
-    [self createWindow :title xPos:0 yPos:0 width:w height:h];
+    [self createWindow:title xPos:0 yPos:0 width:w height:h];
 }
 
 - (void)createWindow:(NSString*)title xPos:(int)x yPos:(int)y width:(int)w height:(int)h {
     _window.title = title;
-    NSRect rect   = NSMakeRect(x, y, w, h);
-    _window       = [[NSWindow alloc] initWithContentRect:rect
+    NSRect rect = NSMakeRect(x, y, w, h);
+    _window = [[NSWindow alloc] initWithContentRect:rect
                                           styleMask:NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable
                                             backing:NSBackingStoreBuffered
                                               defer:NO];
@@ -56,8 +55,8 @@
         return;
     }
     ViewController* viewController = [[ViewController alloc] initWithSize:rect];
-    _window.contentViewController  = viewController;
-    _window.contentView            = viewController.view;
+    _window.contentViewController = viewController;
+    _window.contentView = viewController.view;
     [_window.contentView setWantsBestResolutionOpenGLSurface:YES];
     [_window makeKeyAndOrderFront:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self

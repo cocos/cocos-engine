@@ -193,7 +193,7 @@ bool BuiltinResMgr::initBuiltinRes(gfx::Device *device) {
     }
     //
     const ShaderSource *shaderSources = nullptr;
-    const auto          iter          = ShaderSourceAssembly::get().find(shaderVersionKey);
+    const auto iter = ShaderSourceAssembly::get().find(shaderVersionKey);
     if (iter != ShaderSourceAssembly::get().cend()) {
         shaderSources = iter->second;
     }
@@ -208,9 +208,9 @@ bool BuiltinResMgr::initBuiltinRes(gfx::Device *device) {
     rapidjson::Document doc;
     doc.Parse(BUILTIN_EFFECTS.value().c_str());
 
-    index_t         effectIndex       = 0;
-    rapidjson::Type type              = doc.GetType();
-    auto            assetDeserializer = AssetDeserializerFactory::createAssetDeserializer(DeserializeAssetType::EFFECT);
+    index_t effectIndex = 0;
+    rapidjson::Type type = doc.GetType();
+    auto assetDeserializer = AssetDeserializerFactory::createAssetDeserializer(DeserializeAssetType::EFFECT);
     for (const auto &e : doc.GetArray()) {
         IntrusivePtr<EffectAsset> effect = ccnew EffectAsset();
         assetDeserializer->deserialize(e, effect);
@@ -257,10 +257,10 @@ void BuiltinResMgr::initMaterials() {
     _materialsToBeCompiled.emplace_back(standardMtl);
 
     // material indicating missing effect (yellow)
-    auto *        missingEfxMtl = ccnew Material();
+    auto *missingEfxMtl = ccnew Material();
     IMaterialInfo missingEfxInfo;
     missingEfxInfo.effectName = ccstd::string{"unlit"};
-    missingEfxInfo.defines    = IMaterialInfo::DefinesType{
+    missingEfxInfo.defines = IMaterialInfo::DefinesType{
         MacroRecord{
             {"USE_COLOR", true}}};
     missingEfxMtl->setUuid("missing-effect-material");
@@ -270,10 +270,10 @@ void BuiltinResMgr::initMaterials() {
     _materialsToBeCompiled.emplace_back(missingEfxMtl);
 
     // material indicating missing material (purple)
-    auto *        missingMtl = ccnew Material();
+    auto *missingMtl = ccnew Material();
     IMaterialInfo missingInfo;
     missingInfo.effectName = ccstd::string{"unlit"},
-    missingInfo.defines    = IMaterialInfo::DefinesType{MacroRecord{
+    missingInfo.defines = IMaterialInfo::DefinesType{MacroRecord{
         {"USE_COLOR", true}}};
     missingMtl->setUuid("missing-material");
     missingMtl->initialize(missingInfo);
@@ -281,10 +281,10 @@ void BuiltinResMgr::initMaterials() {
     resources[missingMtl->getUuid()] = missingMtl;
     _materialsToBeCompiled.emplace_back(missingMtl);
 
-    auto *        clearStencilMtl = ccnew Material();
+    auto *clearStencilMtl = ccnew Material();
     IMaterialInfo clearStencilInfo;
     clearStencilInfo.effectName = ccstd::string{"clear-stencil"},
-    clearStencilInfo.defines    = IMaterialInfo::DefinesType{MacroRecord{
+    clearStencilInfo.defines = IMaterialInfo::DefinesType{MacroRecord{
         {"USE_TEXTURE", false}}};
     clearStencilMtl->setUuid("default-clear-stencil");
     clearStencilMtl->initialize(clearStencilInfo);
@@ -296,7 +296,7 @@ void BuiltinResMgr::initMaterials() {
     spriteMtl->setUuid("ui-base-material");
     IMaterialInfo spriteInfo;
     spriteInfo.effectName = ccstd::string{"sprite"},
-    spriteInfo.defines    = IMaterialInfo::DefinesType{MacroRecord{{"USE_TEXTURE", false}}};
+    spriteInfo.defines = IMaterialInfo::DefinesType{MacroRecord{{"USE_TEXTURE", false}}};
     spriteMtl->initialize(spriteInfo);
     resources[spriteMtl->getUuid()] = spriteMtl;
     _materialsToBeCompiled.emplace_back(spriteMtl);
@@ -306,16 +306,16 @@ void BuiltinResMgr::initMaterials() {
     spriteColorMtl->setUuid("ui-sprite-material");
     IMaterialInfo spriteColorInfo;
     spriteColorInfo.effectName = ccstd::string{"sprite"},
-    spriteColorInfo.defines    = IMaterialInfo::DefinesType{MacroRecord{{"USE_TEXTURE", true}, {"CC_USE_EMBEDDED_ALPHA", false}, {"IS_GRAY", false}}};
+    spriteColorInfo.defines = IMaterialInfo::DefinesType{MacroRecord{{"USE_TEXTURE", true}, {"CC_USE_EMBEDDED_ALPHA", false}, {"IS_GRAY", false}}};
     spriteColorMtl->initialize(spriteColorInfo);
     resources[spriteColorMtl->getUuid()] = spriteColorMtl;
     _materialsToBeCompiled.emplace_back(spriteColorMtl);
 
     // sprite alpha test material
-    auto *        alphaTestMaskMtl = ccnew Material();
+    auto *alphaTestMaskMtl = ccnew Material();
     IMaterialInfo alphaTestMaskInfo;
     alphaTestMaskInfo.effectName = ccstd::string{"sprite"},
-    alphaTestMaskInfo.defines    = IMaterialInfo::DefinesType{MacroRecord{
+    alphaTestMaskInfo.defines = IMaterialInfo::DefinesType{MacroRecord{
         {"USE_TEXTURE", true}, {"USE_ALPHA_TEST", true}, {"CC_USE_EMBEDDED_ALPHA", false}, {"IS_GRAY", false}}};
     alphaTestMaskMtl->setUuid("ui-alpha-test-material");
     alphaTestMaskMtl->initialize(alphaTestMaskInfo);
@@ -327,7 +327,7 @@ void BuiltinResMgr::initMaterials() {
     spriteGrayMtl->setUuid("ui-sprite-gray-material");
     IMaterialInfo spriteGrayInfo;
     spriteGrayInfo.effectName = ccstd::string{"sprite"},
-    spriteGrayInfo.defines    = IMaterialInfo::DefinesType{MacroRecord{{"USE_TEXTURE", true}, {"CC_USE_EMBEDDED_ALPHA", false}, {"IS_GRAY", true}}};
+    spriteGrayInfo.defines = IMaterialInfo::DefinesType{MacroRecord{{"USE_TEXTURE", true}, {"CC_USE_EMBEDDED_ALPHA", false}, {"IS_GRAY", true}}};
     spriteGrayMtl->initialize(spriteGrayInfo);
     resources[spriteGrayMtl->getUuid()] = spriteGrayMtl;
     _materialsToBeCompiled.emplace_back(spriteGrayMtl);
@@ -337,16 +337,16 @@ void BuiltinResMgr::initMaterials() {
     spriteAlphaMtl->setUuid("ui-sprite-alpha-sep-material");
     IMaterialInfo spriteAlphaInfo;
     spriteAlphaInfo.effectName = ccstd::string{"sprite"},
-    spriteAlphaInfo.defines    = IMaterialInfo::DefinesType{MacroRecord{{"USE_TEXTURE", true}, {"CC_USE_EMBEDDED_ALPHA", true}, {"IS_GRAY", false}}};
+    spriteAlphaInfo.defines = IMaterialInfo::DefinesType{MacroRecord{{"USE_TEXTURE", true}, {"CC_USE_EMBEDDED_ALPHA", true}, {"IS_GRAY", false}}};
     spriteAlphaMtl->initialize(spriteAlphaInfo);
     resources[spriteAlphaMtl->getUuid()] = spriteAlphaMtl;
     _materialsToBeCompiled.emplace_back(spriteAlphaMtl);
 
     // sprite alpha & gray material
-    auto *        spriteAlphaGrayMtl = ccnew Material();
+    auto *spriteAlphaGrayMtl = ccnew Material();
     IMaterialInfo spriteAlphaGrayInfo;
     spriteAlphaGrayInfo.effectName = ccstd::string{"sprite"},
-    spriteAlphaGrayInfo.defines    = IMaterialInfo::DefinesType{MacroRecord{
+    spriteAlphaGrayInfo.defines = IMaterialInfo::DefinesType{MacroRecord{
         {"USE_TEXTURE", true}, {"CC_USE_EMBEDDED_ALPHA", true}, {"IS_GRAY", true}}};
     spriteAlphaGrayMtl->setUuid("ui-sprite-gray-alpha-sep-material");
     spriteAlphaGrayMtl->initialize(spriteAlphaGrayInfo);
@@ -403,7 +403,7 @@ void BuiltinResMgr::initMaterials() {
     spineTwoColorMtl->setUuid("default-spine-material");
     IMaterialInfo spineTwoColorInfo;
     spineTwoColorInfo.effectName = ccstd::string{"spine"},
-    spineTwoColorInfo.defines    = IMaterialInfo::DefinesType{MacroRecord{
+    spineTwoColorInfo.defines = IMaterialInfo::DefinesType{MacroRecord{
         {"USE_TEXTURE", true},
         {"CC_USE_EMBEDDED_ALPHA", false},
         {"IS_GRAY", false},
@@ -428,11 +428,11 @@ void BuiltinResMgr::tryCompileAllPasses() {
 
 void BuiltinResMgr::initTexture2DWithUuid(const ccstd::string &uuid, const uint8_t *data, size_t dataBytes, uint32_t width, uint32_t height) {
     IMemoryImageSource imageSource;
-    imageSource.width      = width;
-    imageSource.height     = height;
-    imageSource.data       = ccnew ArrayBuffer(data, static_cast<uint32_t>(dataBytes));
+    imageSource.width = width;
+    imageSource.height = height;
+    imageSource.data = ccnew ArrayBuffer(data, static_cast<uint32_t>(dataBytes));
     imageSource.compressed = false;
-    imageSource.format     = PixelFormat::RGBA8888;
+    imageSource.format = PixelFormat::RGBA8888;
 
     auto *texture = ccnew Texture2D();
     if (texture) {
@@ -449,11 +449,11 @@ void BuiltinResMgr::initTexture2DWithUuid(const ccstd::string &uuid, const uint8
 
 void BuiltinResMgr::initTextureCubeWithUuid(const ccstd::string &uuid, const uint8_t *data, size_t dataBytes, uint32_t width, uint32_t height) {
     IMemoryImageSource imageSource;
-    imageSource.width      = width;
-    imageSource.height     = height;
-    imageSource.data       = ccnew ArrayBuffer(data, static_cast<uint32_t>(dataBytes));
+    imageSource.width = width;
+    imageSource.height = height;
+    imageSource.data = ccnew ArrayBuffer(data, static_cast<uint32_t>(dataBytes));
     imageSource.compressed = false;
-    imageSource.format     = PixelFormat::RGBA8888;
+    imageSource.format = PixelFormat::RGBA8888;
 
     auto *texture = ccnew TextureCube();
     if (texture) {

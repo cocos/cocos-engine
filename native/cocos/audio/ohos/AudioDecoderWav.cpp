@@ -32,11 +32,11 @@
 
 namespace {
 snd_callbacks wavCallbacks = {
-    .open  = cc::ohosOpen,
-    .read  = cc::ohosRead,
-    .seek  = cc::ohosSeek,
+    .open = cc::ohosOpen,
+    .read = cc::ohosRead,
+    .seek = cc::ohosSeek,
     .close = cc::ohosClose,
-    .tell  = cc::ohosTell,
+    .tell = cc::ohosTell,
 };
 }
 
@@ -52,13 +52,13 @@ AudioDecoderWav::~AudioDecoderWav() {
 
 bool AudioDecoderWav::open(const char *path) {
     _sndHandle = sf_open_read(path, &_sndInfo, &wavCallbacks, this);
-    _isOpened  = (_sndHandle != nullptr) && _sndInfo.frames > 0;
+    _isOpened = (_sndHandle != nullptr) && _sndInfo.frames > 0;
     if (!_isOpened) return false;
 
-    _channelCount  = _sndInfo.channels;
-    _sampleRate    = _sndInfo.samplerate;
+    _channelCount = _sndInfo.channels;
+    _sampleRate = _sndInfo.samplerate;
     _bytesPerFrame = 2 * _channelCount; // short
-    _totalFrames   = _sndInfo.frames;
+    _totalFrames = _sndInfo.frames;
     return true;
 }
 
@@ -71,8 +71,8 @@ void AudioDecoderWav::close() {
 }
 
 uint32_t AudioDecoderWav::read(uint32_t framesToRead, char *pcmBuf) {
-    auto *output       = reinterpret_cast<int16_t *>(pcmBuf);
-    auto  actualFrames = sf_readf_short(_sndHandle, output, framesToRead);
+    auto *output = reinterpret_cast<int16_t *>(pcmBuf);
+    auto actualFrames = sf_readf_short(_sndHandle, output, framesToRead);
     return actualFrames;
 }
 

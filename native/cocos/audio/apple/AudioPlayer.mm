@@ -112,7 +112,8 @@ void AudioPlayer::destroy() {
                         std::this_thread::sleep_for(std::chrono::milliseconds(2));
                         alGetSourcei(_alSource, AL_BUFFERS_PROCESSED, &bufferProcessed);
                     }
-                    alSourceUnqueueBuffers(_alSource, QUEUEBUFFER_NUM, _bufferIds); CHECK_AL_ERROR_DEBUG();
+                    alSourceUnqueueBuffers(_alSource, QUEUEBUFFER_NUM, _bufferIds);
+                    CHECK_AL_ERROR_DEBUG();
                 }
                 ALOGVV("UnqueueBuffers Before alSourceStop");
 #endif
@@ -328,7 +329,6 @@ bool AudioPlayer::setLoop(bool loop) {
 
 bool AudioPlayer::setTime(float time) {
     if (!_isDestroyed && time >= 0.0f && time < _audioCache->_duration) {
-
         _currTime = time;
         _timeDirty = true;
 

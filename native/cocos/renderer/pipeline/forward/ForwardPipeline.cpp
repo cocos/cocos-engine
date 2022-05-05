@@ -55,7 +55,7 @@ ForwardPipeline::ForwardPipeline() {
 
 framegraph::StringHandle ForwardPipeline::fgStrHandleForwardColorTexture = framegraph::FrameGraph::stringToHandle("forwardColorTexture");
 framegraph::StringHandle ForwardPipeline::fgStrHandleForwardDepthTexture = framegraph::FrameGraph::stringToHandle("forwardDepthTexture");
-framegraph::StringHandle ForwardPipeline::fgStrHandleForwardPass         = framegraph::FrameGraph::stringToHandle("forwardPass");
+framegraph::StringHandle ForwardPipeline::fgStrHandleForwardPass = framegraph::FrameGraph::stringToHandle("forwardPass");
 
 bool ForwardPipeline::initialize(const RenderPipelineInfo &info) {
     RenderPipeline::initialize(info);
@@ -91,7 +91,7 @@ bool ForwardPipeline::activate(gfx::Swapchain *swapchain) {
 
 void ForwardPipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
     CC_PROFILE(ForwardPipelineRender);
-    auto *     device               = gfx::Device::getInstance();
+    auto *device = gfx::Device::getInstance();
     const bool enableOcclusionQuery = isOcclusionQueryEnabled();
     if (enableOcclusionQuery) {
         device->getQueryPoolResults(_queryPools[0]);
@@ -143,12 +143,12 @@ bool ForwardPipeline::activeRenderer(gfx::Swapchain *swapchain) {
     _descriptorSet->update();
 
     // update global defines when all states initialized.
-    _macros["CC_USE_HDR"]               = static_cast<bool>(_pipelineSceneData->isHDR());
+    _macros["CC_USE_HDR"] = static_cast<bool>(_pipelineSceneData->isHDR());
     _macros["CC_SUPPORT_FLOAT_TEXTURE"] = hasAnyFlags(_device->getFormatFeatures(gfx::Format::RGBA32F), gfx::FormatFeature::RENDER_TARGET | gfx::FormatFeature::SAMPLED_TEXTURE);
 
     // step 2 create index buffer
     uint ibStride = 4;
-    uint ibSize   = ibStride * 6;
+    uint ibSize = ibStride * 6;
     if (_quadIB == nullptr) {
         _quadIB = _device->createBuffer({gfx::BufferUsageBit::INDEX | gfx::BufferUsageBit::TRANSFER_DST,
                                          gfx::MemoryUsageBit::DEVICE, ibSize, ibStride});
@@ -161,7 +161,7 @@ bool ForwardPipeline::activeRenderer(gfx::Swapchain *swapchain) {
     uint ibData[] = {0, 1, 2, 1, 3, 2};
     _quadIB->update(ibData, sizeof(ibData));
 
-    _width  = swapchain->getWidth();
+    _width = swapchain->getWidth();
     _height = swapchain->getHeight();
     return true;
 }

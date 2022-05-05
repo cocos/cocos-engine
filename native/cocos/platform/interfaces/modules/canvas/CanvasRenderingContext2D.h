@@ -46,11 +46,11 @@ public:
     void clearRect(float x, float y, float width, float height) override;
     void fillRect(float x, float y, float width, float height) override;
 
-    void             fillText(const ccstd::string &text, float x, float y, float maxWidth) override;
-    void             strokeText(const ccstd::string &text, float x, float y, float maxWidth) override;
-    Size             measureText(const ccstd::string &text) override;
+    void fillText(const ccstd::string &text, float x, float y, float maxWidth) override;
+    void strokeText(const ccstd::string &text, float x, float y, float maxWidth) override;
+    Size measureText(const ccstd::string &text) override;
     ICanvasGradient *createLinearGradient(float x0, float y0, float x1, float y1) override;
-    void             save() override;
+    void save() override;
     // Paths
     void beginPath() override;
     void closePath() override;
@@ -93,17 +93,17 @@ private:
     void recreateBufferIfNeeded() override;
 
 public:
-    float _width  = 0.0F;
+    float _width = 0.0F;
     float _height = 0.0F;
 
     // Line styles
-    float         _lineWidth = 1.0F;
-    ccstd::string _lineJoin  = "miter";
-    ccstd::string _lineCap   = "butt";
+    float _lineWidth = 1.0F;
+    ccstd::string _lineJoin = "miter";
+    ccstd::string _lineCap = "butt";
 
     // Text styles
-    ccstd::string _font         = "10px sans-serif";
-    ccstd::string _textAlign    = "start";
+    ccstd::string _font = "10px sans-serif";
+    ccstd::string _textAlign = "start";
     ccstd::string _textBaseline = "alphabetic";
 
     // Fill and stroke styles

@@ -39,7 +39,6 @@
 #import <Metal/MTLDevice.h>
 #import <Metal/MTLVertexDescriptor.h>
 
-
 namespace cc {
 namespace gfx {
 
@@ -59,9 +58,9 @@ void CCMTLPipelineState::doDestroy() {
     CC_SAFE_DELETE(_GPUPipelineState);
 
     id<MTLRenderPipelineState> renderPipelineState = _mtlRenderPipelineState;
-    _mtlRenderPipelineState                        = nil;
-    id<MTLDepthStencilState> depthStencilState     = _mtlDepthStencilState;
-    _mtlDepthStencilState                          = nil;
+    _mtlRenderPipelineState = nil;
+    id<MTLDepthStencilState> depthStencilState = _mtlDepthStencilState;
+    _mtlDepthStencilState = nil;
 
     std::function<void(void)> destroyFunc = [=]() {
         if (renderPipelineState) {
@@ -83,15 +82,15 @@ bool CCMTLPipelineState::initRenderPipeline() {
         return false;
     }
 
-    _GPUPipelineState->mtlDepthStencilState   = _mtlDepthStencilState;
+    _GPUPipelineState->mtlDepthStencilState = _mtlDepthStencilState;
     _GPUPipelineState->mtlRenderPipelineState = _mtlRenderPipelineState;
-    _GPUPipelineState->cullMode               = static_cast<MTLCullMode>(mu::toMTLCullMode(_rasterizerState.cullMode));
-    _GPUPipelineState->fillMode               = static_cast<MTLTriangleFillMode>(mu::toMTLTriangleFillMode(_rasterizerState.polygonMode));
-    _GPUPipelineState->depthClipMode          = static_cast<MTLDepthClipMode>(mu::toMTLDepthClipMode(_rasterizerState.isDepthClip != 0));
-    _GPUPipelineState->winding                = static_cast<MTLWinding>(mu::toMTLWinding(_rasterizerState.isFrontFaceCCW != 0));
-    _GPUPipelineState->stencilRefFront        = _depthStencilState.stencilRefFront;
-    _GPUPipelineState->stencilRefBack         = _depthStencilState.stencilRefBack;
-    _GPUPipelineState->primitiveType          = mu::toMTLPrimitiveType(_primitive);
+    _GPUPipelineState->cullMode = static_cast<MTLCullMode>(mu::toMTLCullMode(_rasterizerState.cullMode));
+    _GPUPipelineState->fillMode = static_cast<MTLTriangleFillMode>(mu::toMTLTriangleFillMode(_rasterizerState.polygonMode));
+    _GPUPipelineState->depthClipMode = static_cast<MTLDepthClipMode>(mu::toMTLDepthClipMode(_rasterizerState.isDepthClip != 0));
+    _GPUPipelineState->winding = static_cast<MTLWinding>(mu::toMTLWinding(_rasterizerState.isFrontFaceCCW != 0));
+    _GPUPipelineState->stencilRefFront = _depthStencilState.stencilRefFront;
+    _GPUPipelineState->stencilRefBack = _depthStencilState.stencilRefBack;
+    _GPUPipelineState->primitiveType = mu::toMTLPrimitiveType(_primitive);
     if (_pipelineLayout)
         _GPUPipelineState->gpuPipelineLayout = static_cast<CCMTLPipelineLayout *>(_pipelineLayout)->gpuPipelineLayout();
     _GPUPipelineState->gpuShader = static_cast<CCMTLShader *>(_shader)->gpuShader();
@@ -124,7 +123,7 @@ bool CCMTLPipelineState::createGPUPipelineState() {
             return false;
         }
         _GPUPipelineState->mtlComputePipelineState = _mtlComputePipeline;
-        _GPUPipelineState->gpuShader               = static_cast<CCMTLShader *>(_shader)->gpuShader();
+        _GPUPipelineState->gpuShader = static_cast<CCMTLShader *>(_shader)->gpuShader();
         if (_pipelineLayout)
             _GPUPipelineState->gpuPipelineLayout = static_cast<CCMTLPipelineLayout *>(_pipelineLayout)->gpuPipelineLayout();
     }
@@ -135,7 +134,7 @@ bool CCMTLPipelineState::createGPUPipelineState() {
 bool CCMTLPipelineState::createMTLComputePipelineState() {
     //create with function
     id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
-    NSError *     err;
+    NSError *err;
     _mtlComputePipeline = [mtlDevice newComputePipelineStateWithFunction:((CCMTLShader *)_shader)->getComputeMTLFunction()
                                                                    error:&err];
     if (!_mtlComputePipeline) {
@@ -160,29 +159,29 @@ bool CCMTLPipelineState::createMTLDepthStencilState() {
         descriptor.depthCompareFunction = mu::toMTLCompareFunction(_depthStencilState.depthFunc);
 
     if (_depthStencilState.stencilTestFront) {
-        descriptor.frontFaceStencil.stencilCompareFunction    = mu::toMTLCompareFunction(_depthStencilState.stencilFuncFront);
-        descriptor.frontFaceStencil.readMask                  = _depthStencilState.stencilReadMaskFront;
-        descriptor.frontFaceStencil.writeMask                 = _depthStencilState.stencilWriteMaskFront;
-        descriptor.frontFaceStencil.stencilFailureOperation   = mu::toMTLStencilOperation(_depthStencilState.stencilFailOpFront);
-        descriptor.frontFaceStencil.depthFailureOperation     = mu::toMTLStencilOperation(_depthStencilState.stencilZFailOpFront);
+        descriptor.frontFaceStencil.stencilCompareFunction = mu::toMTLCompareFunction(_depthStencilState.stencilFuncFront);
+        descriptor.frontFaceStencil.readMask = _depthStencilState.stencilReadMaskFront;
+        descriptor.frontFaceStencil.writeMask = _depthStencilState.stencilWriteMaskFront;
+        descriptor.frontFaceStencil.stencilFailureOperation = mu::toMTLStencilOperation(_depthStencilState.stencilFailOpFront);
+        descriptor.frontFaceStencil.depthFailureOperation = mu::toMTLStencilOperation(_depthStencilState.stencilZFailOpFront);
         descriptor.frontFaceStencil.depthStencilPassOperation = mu::toMTLStencilOperation(_depthStencilState.stencilPassOpFront);
     } else {
         descriptor.frontFaceStencil = nil;
     }
 
     if (_depthStencilState.stencilTestBack) {
-        descriptor.backFaceStencil.stencilCompareFunction    = mu::toMTLCompareFunction(_depthStencilState.stencilFuncBack);
-        descriptor.backFaceStencil.readMask                  = _depthStencilState.stencilReadMaskBack;
-        descriptor.backFaceStencil.writeMask                 = _depthStencilState.stencilWriteMaskBack;
-        descriptor.backFaceStencil.stencilFailureOperation   = mu::toMTLStencilOperation(_depthStencilState.stencilFailOpBack);
-        descriptor.backFaceStencil.depthFailureOperation     = mu::toMTLStencilOperation(_depthStencilState.stencilZFailOpBack);
+        descriptor.backFaceStencil.stencilCompareFunction = mu::toMTLCompareFunction(_depthStencilState.stencilFuncBack);
+        descriptor.backFaceStencil.readMask = _depthStencilState.stencilReadMaskBack;
+        descriptor.backFaceStencil.writeMask = _depthStencilState.stencilWriteMaskBack;
+        descriptor.backFaceStencil.stencilFailureOperation = mu::toMTLStencilOperation(_depthStencilState.stencilFailOpBack);
+        descriptor.backFaceStencil.depthFailureOperation = mu::toMTLStencilOperation(_depthStencilState.stencilZFailOpBack);
         descriptor.backFaceStencil.depthStencilPassOperation = mu::toMTLStencilOperation(_depthStencilState.stencilPassOpBack);
     } else {
         descriptor.backFaceStencil = nil;
     }
 
     id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
-    _mtlDepthStencilState   = [mtlDevice newDepthStencilStateWithDescriptor:descriptor];
+    _mtlDepthStencilState = [mtlDevice newDepthStencilStateWithDescriptor:descriptor];
     [descriptor release];
 
     if (!_mtlDepthStencilState) {
@@ -193,7 +192,7 @@ bool CCMTLPipelineState::createMTLDepthStencilState() {
 }
 
 bool CCMTLPipelineState::createMTLRenderPipelineState() {
-    bool                         ret        = true;
+    bool ret = true;
     MTLRenderPipelineDescriptor *descriptor = [[MTLRenderPipelineDescriptor alloc] init];
     if (descriptor == nil) {
         CC_LOG_ERROR("CCMTLPipelineState: MTLRenderPipelineDescriptor could not be allocated.");
@@ -210,21 +209,21 @@ bool CCMTLPipelineState::createMTLRenderPipelineState() {
 
 //TODO: reconstruction
 void CCMTLPipelineState::setVertexDescriptor(MTLRenderPipelineDescriptor *descriptor) {
-    auto                                                                                                  activeAttributes = static_cast<CCMTLShader *>(_shader)->getAttributes();
-    ccstd::vector<std::tuple<int /**vertexBufferBindingIndex*/, uint /**stream*/>>                               layouts;
+    auto activeAttributes = static_cast<CCMTLShader *>(_shader)->getAttributes();
+    ccstd::vector<std::tuple<int /**vertexBufferBindingIndex*/, uint /**stream*/>> layouts;
     ccstd::unordered_map<int /**vertexBufferBindingIndex*/, std::tuple<uint /**stride*/, bool /**isInstanced*/>> map;
-    ccstd::vector<uint>                                                                                     streamOffsets(CCMTLDevice::getInstance()->getCapabilities().maxVertexAttributes, 0u);
-    ccstd::vector<bool>                                                                                          activeAttribIdx(activeAttributes.size(), false);
+    ccstd::vector<uint> streamOffsets(CCMTLDevice::getInstance()->getCapabilities().maxVertexAttributes, 0u);
+    ccstd::vector<bool> activeAttribIdx(activeAttributes.size(), false);
     for (const auto &inputAttrib : _inputState.attributes) {
         auto bufferIndex = static_cast<CCMTLShader *>(_shader)->getAvailableBufferBindingIndex(ShaderStageFlagBit::VERTEX, inputAttrib.stream);
 
         for (auto i = 0; i < activeAttributes.size(); i++) {
             const auto &activeAttribute = activeAttributes[i];
             if (inputAttrib.name == activeAttribute.name) {
-                descriptor.vertexDescriptor.attributes[activeAttribute.location].format      = mu::toMTLVertexFormat(inputAttrib.format, inputAttrib.isNormalized);
-                descriptor.vertexDescriptor.attributes[activeAttribute.location].offset      = streamOffsets[inputAttrib.stream];
+                descriptor.vertexDescriptor.attributes[activeAttribute.location].format = mu::toMTLVertexFormat(inputAttrib.format, inputAttrib.isNormalized);
+                descriptor.vertexDescriptor.attributes[activeAttribute.location].offset = streamOffsets[inputAttrib.stream];
                 descriptor.vertexDescriptor.attributes[activeAttribute.location].bufferIndex = bufferIndex;
-                auto tuple                                                                   = std::make_tuple(bufferIndex, inputAttrib.stream);
+                auto tuple = std::make_tuple(bufferIndex, inputAttrib.stream);
                 if (std::find(layouts.begin(), layouts.end(), tuple) == layouts.end())
                     layouts.emplace_back(tuple);
                 activeAttribIdx[i] = true;
@@ -238,19 +237,19 @@ void CCMTLPipelineState::setVertexDescriptor(MTLRenderPipelineDescriptor *descri
     for (auto i = 0; i < activeAttribIdx.size(); i++) {
         if (activeAttribIdx[i]) continue;
 
-        const auto &dummy                                                  = activeAttributes[i];
-        descriptor.vertexDescriptor.attributes[dummy.location].format      = MTLVertexFormatFloat;
-        descriptor.vertexDescriptor.attributes[dummy.location].offset      = 0;
+        const auto &dummy = activeAttributes[i];
+        descriptor.vertexDescriptor.attributes[dummy.location].format = MTLVertexFormatFloat;
+        descriptor.vertexDescriptor.attributes[dummy.location].offset = 0;
         descriptor.vertexDescriptor.attributes[dummy.location].bufferIndex = static_cast<CCMTLShader *>(_shader)->getAvailableBufferBindingIndex(ShaderStageFlagBit::VERTEX, dummy.stream);
         CC_LOG_WARNING("Attribute %s is missing, add a dummy data for it.", dummy.name.c_str());
     }
 
     // layouts
     for (const auto &layout : layouts) {
-        auto index                                              = std::get<0>(layout);
-        descriptor.vertexDescriptor.layouts[index].stride       = std::get<0>(map[index]);
+        auto index = std::get<0>(layout);
+        descriptor.vertexDescriptor.layouts[index].stride = std::get<0>(map[index]);
         descriptor.vertexDescriptor.layouts[index].stepFunction = std::get<1>(map[index]) ? MTLVertexStepFunctionPerInstance : MTLVertexStepFunctionPerVertex;
-        descriptor.vertexDescriptor.layouts[index].stepRate     = 1;
+        descriptor.vertexDescriptor.layouts[index].stepRate = 1;
         //to improve performance: https://developer.apple.com/documentation/metal/mtlpipelinebufferdescriptor?language=objc
         if (@available(iOS 11.0, macOS 10.13, *)) {
             descriptor.vertexBuffers[index].mutability = MTLMutabilityImmutable;
@@ -261,20 +260,20 @@ void CCMTLPipelineState::setVertexDescriptor(MTLRenderPipelineDescriptor *descri
 }
 
 void CCMTLPipelineState::setMTLFunctionsAndFormats(MTLRenderPipelineDescriptor *descriptor) {
-    const SubpassInfoList &    subpasses        = _renderPass->getSubpasses();
+    const SubpassInfoList &subpasses = _renderPass->getSubpasses();
     const ColorAttachmentList &colorAttachments = _renderPass->getColorAttachments();
-    const auto &               ccShader         = static_cast<CCMTLShader *>(_shader);
+    const auto &ccShader = static_cast<CCMTLShader *>(_shader);
 
     ccstd::vector<uint32_t> bindingIndices;
-    ccstd::vector<int>      bindingOffsets;
+    ccstd::vector<int> bindingOffsets;
 
     const CCMTLGPUShader *gpuShader = ccShader->gpuShader();
-    uint32_t              outputNum = static_cast<uint32_t>(gpuShader->outputs.size());
+    uint32_t outputNum = static_cast<uint32_t>(gpuShader->outputs.size());
     bindingIndices.reserve(outputNum);
     bindingOffsets.reserve(outputNum);
-    MTLPixelFormat     mtlPixelFormat;
+    MTLPixelFormat mtlPixelFormat;
     ccstd::set<uint32_t> inputs;
-    uint32_t           depthStencilTexIndex = INVALID_BINDING;
+    uint32_t depthStencilTexIndex = INVALID_BINDING;
     if (!subpasses.empty()) {
         for (size_t passIndex = 0; passIndex < subpasses.size(); ++passIndex) {
             const SubpassInfo &subpass = subpasses[passIndex];
@@ -282,19 +281,19 @@ void CCMTLPipelineState::setMTLFunctionsAndFormats(MTLRenderPipelineDescriptor *
                 uint32_t input = subpass.inputs[i];
                 if (inputs.find(input) == inputs.end()) {
                     inputs.insert(input);
-                    mtlPixelFormat                                 = mu::toMTLPixelFormat(colorAttachments[input].format);
+                    mtlPixelFormat = mu::toMTLPixelFormat(colorAttachments[input].format);
                     descriptor.colorAttachments[input].pixelFormat = mtlPixelFormat;
                 }
             }
 
             for (size_t i = 0; i < subpass.colors.size(); ++i) {
-                uint32_t output                                 = subpass.colors[i];
-                mtlPixelFormat                                  = mu::toMTLPixelFormat(colorAttachments[output].format);
+                uint32_t output = subpass.colors[i];
+                mtlPixelFormat = mu::toMTLPixelFormat(colorAttachments[output].format);
                 descriptor.colorAttachments[output].pixelFormat = mtlPixelFormat;
             }
             depthStencilTexIndex = subpass.depthStencil;
         }
-        const uint32_t     curIndex   = static_cast<CCMTLRenderPass *>(_renderPass)->getCurrentSubpassIndex();
+        const uint32_t curIndex = static_cast<CCMTLRenderPass *>(_renderPass)->getCurrentSubpassIndex();
         const SubpassInfo &curSubpass = subpasses[curIndex];
         for (size_t i = 0; i < curSubpass.colors.size(); ++i) {
             bindingIndices.emplace_back(i);
@@ -302,7 +301,7 @@ void CCMTLPipelineState::setMTLFunctionsAndFormats(MTLRenderPipelineDescriptor *
         }
     } else {
         for (size_t i = 0; i < colorAttachments.size(); ++i) {
-            mtlPixelFormat                             = mu::toMTLPixelFormat(colorAttachments[i].format);
+            mtlPixelFormat = mu::toMTLPixelFormat(colorAttachments[i].format);
             descriptor.colorAttachments[i].pixelFormat = mtlPixelFormat;
             bindingIndices.emplace_back(i);
             bindingOffsets.emplace_back(i);
@@ -311,18 +310,18 @@ void CCMTLPipelineState::setMTLFunctionsAndFormats(MTLRenderPipelineDescriptor *
     }
 
     SampleCount sample = SampleCount::ONE;
-    Format      depthStencilFormat;
+    Format depthStencilFormat;
     if (depthStencilTexIndex != INVALID_BINDING && depthStencilTexIndex < _renderPass->getColorAttachments().size()) {
-        sample             = _renderPass->getColorAttachments()[depthStencilTexIndex].sampleCount;
+        sample = _renderPass->getColorAttachments()[depthStencilTexIndex].sampleCount;
         depthStencilFormat = _renderPass->getColorAttachments()[depthStencilTexIndex].format;
     } else {
-        sample             = _renderPass->getDepthStencilAttachment().sampleCount;
+        sample = _renderPass->getDepthStencilAttachment().sampleCount;
         depthStencilFormat = _renderPass->getDepthStencilAttachment().format;
     }
     descriptor.sampleCount = mu::toMTLSampleCount(sample);
 
-    auto *ccMTLShader           = static_cast<CCMTLShader *>(_shader);
-    descriptor.vertexFunction   = ccMTLShader->getVertMTLFunction();
+    auto *ccMTLShader = static_cast<CCMTLShader *>(_shader);
+    descriptor.vertexFunction = ccMTLShader->getVertMTLFunction();
     descriptor.fragmentFunction = ccMTLShader->getSpecializedFragFunction(bindingIndices.data(), bindingOffsets.data(), static_cast<uint32_t>(bindingIndices.size()));
 
     mtlPixelFormat = mu::toMTLPixelFormat(depthStencilFormat);
@@ -344,17 +343,17 @@ void CCMTLPipelineState::setBlendStates(MTLRenderPipelineDescriptor *descriptor)
     int i = 0;
     for (const auto blendTarget : _blendState.targets) {
         MTLRenderPipelineColorAttachmentDescriptor *colorDescriptor = descriptor.colorAttachments[i];
-        colorDescriptor.writeMask                                   = mu::toMTLColorWriteMask(blendTarget.blendColorMask);
-        colorDescriptor.blendingEnabled                             = blendTarget.blend != 0;
+        colorDescriptor.writeMask = mu::toMTLColorWriteMask(blendTarget.blendColorMask);
+        colorDescriptor.blendingEnabled = blendTarget.blend != 0;
         if (!blendTarget.blend)
             continue;
 
-        colorDescriptor.sourceRGBBlendFactor        = mu::toMTLBlendFactor(blendTarget.blendSrc);
-        colorDescriptor.destinationRGBBlendFactor   = mu::toMTLBlendFactor(blendTarget.blendDst);
-        colorDescriptor.rgbBlendOperation           = mu::toMTLBlendOperation(blendTarget.blendEq);
-        colorDescriptor.sourceAlphaBlendFactor      = mu::toMTLBlendFactor(blendTarget.blendSrcAlpha);
+        colorDescriptor.sourceRGBBlendFactor = mu::toMTLBlendFactor(blendTarget.blendSrc);
+        colorDescriptor.destinationRGBBlendFactor = mu::toMTLBlendFactor(blendTarget.blendDst);
+        colorDescriptor.rgbBlendOperation = mu::toMTLBlendOperation(blendTarget.blendEq);
+        colorDescriptor.sourceAlphaBlendFactor = mu::toMTLBlendFactor(blendTarget.blendSrcAlpha);
         colorDescriptor.destinationAlphaBlendFactor = mu::toMTLBlendFactor(blendTarget.blendDstAlpha);
-        colorDescriptor.alphaBlendOperation         = mu::toMTLBlendOperation(blendTarget.blendAlphaEq);
+        colorDescriptor.alphaBlendOperation = mu::toMTLBlendOperation(blendTarget.blendAlphaEq);
 
         ++i;
     }
@@ -362,7 +361,7 @@ void CCMTLPipelineState::setBlendStates(MTLRenderPipelineDescriptor *descriptor)
 
 bool CCMTLPipelineState::createMTLRenderPipeline(MTLRenderPipelineDescriptor *descriptor) {
     id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
-    NSError *     nsError   = nil;
+    NSError *nsError = nil;
     _mtlRenderPipelineState = [mtlDevice newRenderPipelineStateWithDescriptor:descriptor error:&nsError];
     if (!_mtlRenderPipelineState) {
         CC_LOG_ERROR("Failed to create MTLRenderPipelineState: %s", [nsError.localizedDescription UTF8String]);

@@ -37,8 +37,8 @@ gfx::GFXObject *DevicePassResourceTable::get(const ResourceDictionary &from, Han
     return it == from.cend() ? nullptr : it->second;
 }
 
-void DevicePassResourceTable::extract(const FrameGraph &                         graph,
-                                      const PassNode *                           passNode,
+void DevicePassResourceTable::extract(const FrameGraph &graph,
+                                      const PassNode *passNode,
                                       ccstd::vector<const gfx::Texture *> const &renderTargets) noexcept {
     do {
         extract(graph, passNode->_reads, _reads, false, renderTargets);
@@ -48,10 +48,10 @@ void DevicePassResourceTable::extract(const FrameGraph &                        
     } while (passNode);
 }
 
-void DevicePassResourceTable::extract(const FrameGraph &                         graph,
-                                      ccstd::vector<Handle> const &              from,
-                                      ResourceDictionary &                       to,
-                                      bool                                       ignoreRenderTarget,
+void DevicePassResourceTable::extract(const FrameGraph &graph,
+                                      ccstd::vector<Handle> const &from,
+                                      ResourceDictionary &to,
+                                      bool ignoreRenderTarget,
                                       ccstd::vector<const gfx::Texture *> const &renderTargets) noexcept {
     std::for_each(from.cbegin(), from.cend(), [&](const Handle handle) {
         if (to.find(handle) != to.cend()) {

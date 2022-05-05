@@ -56,7 +56,7 @@ uint32_t getComponentByteLength(gfx::Format format) {
 using DataReaderCallback = std::function<TypedArrayElementType(uint32_t)>;
 
 DataReaderCallback getReader(const DataView &dataView, gfx::Format format) {
-    const auto &   info   = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(format)];
+    const auto &info = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(format)];
     const uint32_t stride = info.size / info.count;
 
     switch (info.type) {
@@ -113,7 +113,7 @@ DataReaderCallback getReader(const DataView &dataView, gfx::Format format) {
 using DataWritterCallback = std::function<void(uint32_t, TypedArrayElementType)>;
 
 DataWritterCallback getWriter(DataView &dataView, gfx::Format format) {
-    const auto &   info   = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(format)];
+    const auto &info = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(format)];
     const uint32_t stride = info.size / info.count;
 
     switch (info.type) {
@@ -225,7 +225,7 @@ void Mesh::initialize() {
     _initialized = true;
 
     if (_struct.dynamic.has_value()) {
-        auto *          device = gfx::Device::getInstance();
+        auto *device = gfx::Device::getInstance();
         gfx::BufferList vertexBuffers;
 
         for (const auto &vertexBundle : _struct.vertexBundles) {
@@ -237,8 +237,8 @@ void Mesh::initialize() {
         }
 
         for (auto i = 0U; i < _struct.primitives.size(); i++) {
-            const auto & primitive   = _struct.primitives[i];
-            const auto & indexView   = primitive.indexView;
+            const auto &primitive = _struct.primitives[i];
+            const auto &indexView = primitive.indexView;
             gfx::Buffer *indexBuffer = nullptr;
 
             if (indexView.has_value()) {
@@ -274,10 +274,10 @@ void Mesh::initialize() {
             return;
         }
 
-        auto &                                        buffer        = _data;
-        gfx::Device *                                 gfxDevice     = gfx::Device::getInstance();
-        auto                                          vertexBuffers = createVertexBuffers(gfxDevice, buffer.buffer());
-        gfx::BufferList                               indexBuffers;
+        auto &buffer = _data;
+        gfx::Device *gfxDevice = gfx::Device::getInstance();
+        auto vertexBuffers = createVertexBuffers(gfxDevice, buffer.buffer());
+        gfx::BufferList indexBuffers;
         ccstd::vector<IntrusivePtr<RenderingSubMesh>> subMeshes;
 
         for (size_t i = 0; i < _struct.primitives.size(); i++) {
@@ -291,7 +291,7 @@ void Mesh::initialize() {
                 const auto &idxView = prim.indexView.value();
 
                 uint32_t dstStride = idxView.stride;
-                uint32_t dstSize   = idxView.length;
+                uint32_t dstSize = idxView.length;
                 if (dstStride == 4 && !gfxDevice->hasFeature(gfx::Feature::ELEMENT_INDEX_UINT)) {
                     uint32_t vertexCount = _struct.vertexBundles[prim.vertexBundelIndices[0]].view.count;
                     if (vertexCount >= 65536) {
@@ -328,9 +328,9 @@ void Mesh::initialize() {
 
             gfx::AttributeList gfxAttributes;
             if (!prim.vertexBundelIndices.empty()) {
-                uint32_t                  idx          = prim.vertexBundelIndices[0];
-                const IVertexBundle &     vertexBundle = _struct.vertexBundles[idx];
-                const gfx::AttributeList &attrs        = vertexBundle.attributes;
+                uint32_t idx = prim.vertexBundelIndices[0];
+                const IVertexBundle &vertexBundle = _struct.vertexBundles[idx];
+                const gfx::AttributeList &attrs = vertexBundle.attributes;
                 gfxAttributes.resize(attrs.size());
                 for (size_t j = 0; j < attrs.size(); ++j) {
                     const auto &attr = attrs[j];
@@ -370,8 +370,8 @@ void Mesh::assign(const IStruct &structInfo, const Uint8Array &data) {
 void Mesh::reset(ICreateInfo &&info) {
     destroyRenderingMesh();
     _struct = std::move(info.structInfo);
-    _data   = std::move(info.data);
-    _hash   = 0;
+    _data = std::move(info.data);
+    _hash = 0;
 }
 
 Mesh::BoneSpaceBounds Mesh::getBoneSpaceBounds(Skeleton *skeleton) {
@@ -379,10 +379,10 @@ Mesh::BoneSpaceBounds Mesh::getBoneSpaceBounds(Skeleton *skeleton) {
     if (iter != _boneSpaceBounds.end()) {
         return iter->second;
     }
-    Vec3                v32;
-    BoneSpaceBounds &   bounds = _boneSpaceBounds[skeleton->getHash()];
+    Vec3 v32;
+    BoneSpaceBounds &bounds = _boneSpaceBounds[skeleton->getHash()];
     ccstd::vector<bool> valid;
-    const auto &        bindposes = skeleton->getBindposes();
+    const auto &bindposes = skeleton->getBindposes();
     valid.reserve(bindposes.size());
     for (size_t i = 0; i < bindposes.size(); i++) {
         bounds.emplace_back(ccnew geometry::AABB{
@@ -392,8 +392,8 @@ Mesh::BoneSpaceBounds Mesh::getBoneSpaceBounds(Skeleton *skeleton) {
     }
     const auto &primitives = _struct.primitives;
     for (index_t p = 0; p < primitives.size(); p++) {
-        const auto joints    = readAttribute(p, gfx::ATTR_NAME_JOINTS);
-        const auto weights   = readAttribute(p, gfx::ATTR_NAME_WEIGHTS);
+        const auto joints = readAttribute(p, gfx::ATTR_NAME_JOINTS);
+        const auto weights = readAttribute(p, gfx::ATTR_NAME_WEIGHTS);
         const auto positions = readAttribute(p, gfx::ATTR_NAME_POSITION);
         if (joints.index() == 0 || weights.index() == 0 || positions.index() == 0) {
             continue;
@@ -409,8 +409,8 @@ Mesh::BoneSpaceBounds Mesh::getBoneSpaceBounds(Skeleton *skeleton) {
                 getTypedArrayValue<float>(positions, 3 * i + 2)};
 
             for (uint32_t j = 0; j < 4; ++j) {
-                const uint32_t idx   = 4 * i + j;
-                const auto     joint = getTypedArrayValue<int32_t>(joints, idx);
+                const uint32_t idx = 4 * i + j;
+                const auto joint = getTypedArrayValue<int32_t>(joints, idx);
 
                 if (std::fabs(getTypedArrayValue<float>(weights, idx)) < FLT_EPSILON || joint >= bindposes.size()) {
                     continue;
@@ -418,7 +418,7 @@ Mesh::BoneSpaceBounds Mesh::getBoneSpaceBounds(Skeleton *skeleton) {
 
                 Vec3::transformMat4(v31, bindposes[joint], &v32);
                 valid[joint] = true;
-                auto &b      = bounds[joint];
+                auto &b = bounds[joint];
                 Vec3::min(b->center, v32, &b->center);
                 Vec3::max(b->halfExtents, v32, &b->halfExtents);
             }
@@ -442,14 +442,14 @@ bool Mesh::merge(Mesh *mesh, const Mat4 *worldMatrix /* = nullptr */, bool valid
         }
     }
 
-    Vec3           vec3Temp;
-    Quaternion     rotate;
+    Vec3 vec3Temp;
+    Quaternion rotate;
     geometry::AABB boundingBox;
     if (worldMatrix != nullptr) {
         worldMatrix->getRotation(&rotate);
     }
     if (!_initialized) {
-        auto       structInfo = mesh->_struct; //NOTE: Need copy struct, so don't use referece
+        auto structInfo = mesh->_struct; //NOTE: Need copy struct, so don't use referece
         Uint8Array data{mesh->_data.slice()};
         if (worldMatrix != nullptr) {
             if (structInfo.maxPosition.has_value() && structInfo.minPosition.has_value()) {
@@ -481,7 +481,7 @@ bool Mesh::merge(Mesh *mesh, const Mat4 *worldMatrix /* = nullptr */, bool valid
 
                         const uint32_t vertexCount = vtxBdl.view.count;
 
-                        const uint32_t vertexStride            = vtxBdl.view.stride;
+                        const uint32_t vertexStride = vtxBdl.view.stride;
                         const uint32_t attrComponentByteLength = getComponentByteLength(format);
                         for (uint32_t vtxIdx = 0; vtxIdx < vertexCount; vtxIdx++) {
                             const uint32_t xOffset = vtxIdx * vertexStride;
@@ -516,15 +516,15 @@ bool Mesh::merge(Mesh *mesh, const Mat4 *worldMatrix /* = nullptr */, bool valid
     BufferBlob bufferBlob;
 
     // merge vertex buffer
-    uint32_t vertCount  = 0;
+    uint32_t vertCount = 0;
     uint32_t vertStride = 0;
-    uint32_t srcOffset  = 0;
-    uint32_t dstOffset  = 0;
+    uint32_t srcOffset = 0;
+    uint32_t dstOffset = 0;
 
     uint32_t srcAttrOffset = 0;
-    uint32_t srcVBOffset   = 0;
-    uint32_t dstVBOffset   = 0;
-    uint32_t attrSize      = 0;
+    uint32_t srcVBOffset = 0;
+    uint32_t dstVBOffset = 0;
+    uint32_t attrSize = 0;
 
     bool hasAttr = false;
 
@@ -534,15 +534,15 @@ bool Mesh::merge(Mesh *mesh, const Mat4 *worldMatrix /* = nullptr */, bool valid
     for (size_t i = 0; i < _struct.vertexBundles.size(); ++i) {
         Uint8Array dstAttrView;
 
-        const auto &bundle    = _struct.vertexBundles[i];
-        auto &      dstBundle = mesh->_struct.vertexBundles[i];
+        const auto &bundle = _struct.vertexBundles[i];
+        auto &dstBundle = mesh->_struct.vertexBundles[i];
 
-        srcOffset  = bundle.view.offset;
-        dstOffset  = dstBundle.view.offset;
+        srcOffset = bundle.view.offset;
+        dstOffset = dstBundle.view.offset;
         vertStride = bundle.view.stride;
-        vertCount  = bundle.view.count + dstBundle.view.count;
+        vertCount = bundle.view.count + dstBundle.view.count;
 
-        auto *     vb = ccnew ArrayBuffer(vertCount * vertStride);
+        auto *vb = ccnew ArrayBuffer(vertCount * vertStride);
         Uint8Array vbView(vb);
 
         Uint8Array srcVBView = _data.subarray(srcOffset, srcOffset + bundle.view.length);
@@ -555,7 +555,7 @@ bool Mesh::merge(Mesh *mesh, const Mat4 *worldMatrix /* = nullptr */, bool valid
         srcAttrOffset = 0;
         for (const auto &attr : bundle.attributes) {
             dstVBOffset = 0;
-            hasAttr     = false;
+            hasAttr = false;
             for (const auto &dstAttr : dstBundle.attributes) {
                 if (attr.name == dstAttr.name && attr.format == dstAttr.format) {
                     hasAttr = true;
@@ -564,7 +564,7 @@ bool Mesh::merge(Mesh *mesh, const Mat4 *worldMatrix /* = nullptr */, bool valid
                 dstVBOffset += gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(dstAttr.format)].size;
             }
             if (hasAttr) {
-                attrSize    = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attr.format)].size;
+                attrSize = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attr.format)].size;
                 srcVBOffset = bundle.view.length + srcAttrOffset;
                 for (uint32_t v = 0; v < dstBundle.view.count; ++v) {
                     dstAttrView = dstVBView.subarray(dstVBOffset, dstVBOffset + attrSize);
@@ -589,29 +589,29 @@ bool Mesh::merge(Mesh *mesh, const Mat4 *worldMatrix /* = nullptr */, bool valid
             srcAttrOffset += gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attr.format)].size;
         }
 
-        auto &vertexBundle       = vertexBundles[i];
-        vertexBundle.attributes  = bundle.attributes,
+        auto &vertexBundle = vertexBundles[i];
+        vertexBundle.attributes = bundle.attributes,
         vertexBundle.view.offset = bufferBlob.getLength();
         vertexBundle.view.length = vb->byteLength();
-        vertexBundle.view.count  = vertCount;
+        vertexBundle.view.count = vertCount;
         vertexBundle.view.stride = vertStride;
 
         bufferBlob.addBuffer(vb);
     }
 
     // merge index buffer
-    uint32_t idxCount       = 0;
-    uint32_t idxStride      = 2;
+    uint32_t idxCount = 0;
+    uint32_t idxStride = 2;
     uint32_t vertBatchCount = 0;
 
     ccstd::vector<Mesh::ISubMesh> primitives;
     primitives.resize(_struct.primitives.size());
 
     for (size_t i = 0; i < _struct.primitives.size(); ++i) {
-        const auto &prim    = _struct.primitives[i];
-        auto &      dstPrim = mesh->_struct.primitives[i];
+        const auto &prim = _struct.primitives[i];
+        auto &dstPrim = mesh->_struct.primitives[i];
 
-        primitives[i].primitiveMode       = prim.primitiveMode;
+        primitives[i].primitiveMode = prim.primitiveMode;
         primitives[i].vertexBundelIndices = prim.vertexBundelIndices;
 
         for (const uint32_t bundleIdx : prim.vertexBundelIndices) {
@@ -705,10 +705,10 @@ bool Mesh::merge(Mesh *mesh, const Mat4 *worldMatrix /* = nullptr */, bool valid
             dstOffset += dstPrim.indexView.value().length;
 
             IBufferView indexView;
-            indexView.offset        = bufferBlob.getLength();
-            indexView.length        = ib->byteLength();
-            indexView.count         = idxCount;
-            indexView.stride        = idxStride;
+            indexView.offset = bufferBlob.getLength();
+            indexView.length = ib->byteLength();
+            indexView.count = idxCount;
+            indexView.stride = idxStride;
             primitives[i].indexView = indexView;
 
             bufferBlob.setNextAlignment(idxStride);
@@ -719,9 +719,9 @@ bool Mesh::merge(Mesh *mesh, const Mat4 *worldMatrix /* = nullptr */, bool valid
     // Create mesh struct.
     Mesh::IStruct meshStruct;
     meshStruct.vertexBundles = vertexBundles;
-    meshStruct.primitives    = primitives;
-    meshStruct.minPosition   = _struct.minPosition;
-    meshStruct.maxPosition   = _struct.maxPosition;
+    meshStruct.primitives = primitives;
+    meshStruct.minPosition = _struct.minPosition;
+    meshStruct.maxPosition = _struct.maxPosition;
 
     if (meshStruct.minPosition && mesh->_struct.minPosition && meshStruct.maxPosition && mesh->_struct.maxPosition) {
         if (worldMatrix != nullptr) {
@@ -764,8 +764,8 @@ bool Mesh::validateMergingMesh(Mesh *mesh) {
     }
 
     for (size_t i = 0; i < _struct.vertexBundles.size(); ++i) {
-        const auto &bundle    = _struct.vertexBundles[i];
-        auto &      dstBundle = mesh->_struct.vertexBundles[i];
+        const auto &bundle = _struct.vertexBundles[i];
+        auto &dstBundle = mesh->_struct.vertexBundles[i];
 
         if (bundle.attributes.size() != dstBundle.attributes.size()) {
             return false;
@@ -782,8 +782,8 @@ bool Mesh::validateMergingMesh(Mesh *mesh) {
         return false;
     }
     for (size_t i = 0; i < _struct.primitives.size(); ++i) {
-        const auto &prim    = _struct.primitives[i];
-        auto &      dstPrim = mesh->_struct.primitives[i];
+        const auto &prim = _struct.primitives[i];
+        auto &dstPrim = mesh->_struct.primitives[i];
         if (prim.vertexBundelIndices.size() != dstPrim.vertexBundelIndices.size()) {
             return false;
         }
@@ -811,8 +811,8 @@ bool Mesh::validateMergingMesh(Mesh *mesh) {
 TypedArray Mesh::readAttribute(index_t primitiveIndex, const char *attributeName) {
     TypedArray result;
     accessAttribute(primitiveIndex, attributeName, [&](const IVertexBundle &vertexBundle, uint32_t iAttribute) {
-        const uint32_t    vertexCount = vertexBundle.view.count;
-        const gfx::Format format      = vertexBundle.attributes[iAttribute].format;
+        const uint32_t vertexCount = vertexBundle.view.count;
+        const gfx::Format format = vertexBundle.attributes[iAttribute].format;
         if (vertexCount == 0) {
             return;
         }
@@ -827,8 +827,8 @@ TypedArray Mesh::readAttribute(index_t primitiveIndex, const char *attributeName
         }
 
         const uint32_t componentCount = formatInfo.count;
-        result                        = createTypedArrayWithGFXFormat(format, vertexCount * componentCount);
-        const uint32_t inputStride    = vertexBundle.view.stride;
+        result = createTypedArrayWithGFXFormat(format, vertexCount * componentCount);
+        const uint32_t inputStride = vertexBundle.view.stride;
         for (uint32_t iVertex = 0; iVertex < vertexCount; ++iVertex) {
             for (uint32_t iComponent = 0; iComponent < componentCount; ++iComponent) {
                 TypedArrayElementType element = reader(inputStride * iVertex + getTypedArrayBytesPerElement(result) * iComponent);
@@ -867,13 +867,13 @@ bool Mesh::copyAttribute(index_t primitiveIndex, const char *attributeName, Arra
 
         const uint32_t componentCount = formatInfo.count;
 
-        const uint32_t inputStride               = vertexBundle.view.stride;
-        const uint32_t inputComponentByteLength  = getComponentByteLength(format);
-        const uint32_t outputStride              = stride;
+        const uint32_t inputStride = vertexBundle.view.stride;
+        const uint32_t inputComponentByteLength = getComponentByteLength(format);
+        const uint32_t outputStride = stride;
         const uint32_t outputComponentByteLength = inputComponentByteLength;
         for (uint32_t iVertex = 0; iVertex < vertexCount; ++iVertex) {
             for (uint32_t iComponent = 0; iComponent < componentCount; ++iComponent) {
-                const uint32_t inputOffset  = inputStride * iVertex + inputComponentByteLength * iComponent;
+                const uint32_t inputOffset = inputStride * iVertex + inputComponentByteLength * iComponent;
                 const uint32_t outputOffset = outputStride * iVertex + outputComponentByteLength * iComponent;
                 writer(outputOffset, reader(inputOffset));
             }
@@ -891,10 +891,10 @@ IBArray Mesh::readIndices(index_t primitiveIndex) {
     if (!primitive.indexView.has_value()) {
         return {};
     }
-    const uint32_t stride     = primitive.indexView.value().stride;
-    const uint32_t count      = primitive.indexView.value().count;
+    const uint32_t stride = primitive.indexView.value().stride;
+    const uint32_t count = primitive.indexView.value().count;
     const uint32_t byteOffset = primitive.indexView.value().offset;
-    IBArray        ret;
+    IBArray ret;
     if (stride == 1) {
         ret = Uint8Array(_data.buffer(), byteOffset, count);
     } else if (stride == 2) {
@@ -915,12 +915,12 @@ bool Mesh::copyIndices(index_t primitiveIndex, TypedArray &outputArray) {
         return false;
     }
 
-    const uint32_t    indexCount  = primitive.indexView.value().count;
+    const uint32_t indexCount = primitive.indexView.value().count;
     const gfx::Format indexFormat = primitive.indexView.value().stride == 1 ? gfx::Format::R8UI
                                                                             : (primitive.indexView.value().stride == 2 ? gfx::Format::R16UI
                                                                                                                        : gfx::Format::R32UI);
-    DataView          view(_data.buffer());
-    auto              reader = getReader(view, indexFormat);
+    DataView view(_data.buffer());
+    auto reader = getReader(view, indexFormat);
     for (uint32_t i = 0; i < indexCount; ++i) {
         TypedArrayElementType element = reader(primitive.indexView.value().offset + gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(indexFormat)].size * i);
         setTypedArrayValue(outputArray, i, element);
@@ -964,22 +964,22 @@ void Mesh::updateSubMesh(index_t primitiveIndex, const IDynamicGeometry &geometr
         }
     }
 
-    auto &dynamic   = _struct.dynamic.value();
-    auto &info      = dynamic.info;
+    auto &dynamic = _struct.dynamic.value();
+    auto &info = dynamic.info;
     auto &primitive = _struct.primitives[primitiveIndex];
-    auto &subMesh   = _renderingSubMeshes[primitiveIndex];
-    auto &drawInfo  = subMesh->getDrawInfo().value();
+    auto &subMesh = _renderingSubMeshes[primitiveIndex];
+    auto &drawInfo = subMesh->getDrawInfo().value();
 
     // update _data & buffer
     for (auto index = 0U; index < buffers.size(); index++) {
-        const auto &vertices     = *buffers[index];
-        auto &      bundle       = _struct.vertexBundles[primitive.vertexBundelIndices[index]];
-        const auto  stride       = bundle.view.stride;
-        const auto  vertexCount  = vertices.byteLength() / stride;
-        const auto  updateSize   = vertices.byteLength();
-        auto *      dstBuffer    = _data.buffer()->getData() + bundle.view.offset;
-        const auto *srcBuffer    = vertices.buffer()->getData() + vertices.byteOffset();
-        auto *      vertexBuffer = subMesh->getVertexBuffers()[index];
+        const auto &vertices = *buffers[index];
+        auto &bundle = _struct.vertexBundles[primitive.vertexBundelIndices[index]];
+        const auto stride = bundle.view.stride;
+        const auto vertexCount = vertices.byteLength() / stride;
+        const auto updateSize = vertices.byteLength();
+        auto *dstBuffer = _data.buffer()->getData() + bundle.view.offset;
+        const auto *srcBuffer = vertices.buffer()->getData() + vertices.byteOffset();
+        auto *vertexBuffer = subMesh->getVertexBuffers()[index];
         CC_ASSERT(vertexCount <= info.maxSubMeshVertices);
 
         if (updateSize > 0U) {
@@ -987,19 +987,19 @@ void Mesh::updateSubMesh(index_t primitiveIndex, const IDynamicGeometry &geometr
             vertexBuffer->update(srcBuffer, updateSize);
         }
 
-        bundle.view.count    = vertexCount;
+        bundle.view.count = vertexCount;
         drawInfo.vertexCount = vertexCount;
     }
 
     if (primitive.indexView.has_value()) {
-        auto &      indexView   = primitive.indexView.value();
-        const auto &stride      = indexView.stride;
-        const auto  indexCount  = (stride == sizeof(uint16_t)) ? geometry.indices16.value().length() : geometry.indices32.value().length();
-        const auto  updateSize  = indexCount * stride;
-        auto *      dstBuffer   = _data.buffer()->getData() + indexView.offset;
-        const auto *srcBuffer   = (stride == sizeof(uint16_t)) ? geometry.indices16.value().buffer()->getData() + geometry.indices16.value().byteOffset()
-                                                               : geometry.indices32.value().buffer()->getData() + geometry.indices32.value().byteOffset();
-        auto *      indexBuffer = subMesh->getIndexBuffer();
+        auto &indexView = primitive.indexView.value();
+        const auto &stride = indexView.stride;
+        const auto indexCount = (stride == sizeof(uint16_t)) ? geometry.indices16.value().length() : geometry.indices32.value().length();
+        const auto updateSize = indexCount * stride;
+        auto *dstBuffer = _data.buffer()->getData() + indexView.offset;
+        const auto *srcBuffer = (stride == sizeof(uint16_t)) ? geometry.indices16.value().buffer()->getData() + geometry.indices16.value().byteOffset()
+                                                             : geometry.indices32.value().buffer()->getData() + geometry.indices32.value().byteOffset();
+        auto *indexBuffer = subMesh->getIndexBuffer();
         CC_ASSERT(indexCount <= info.maxSubMeshIndices);
 
         if (updateSize > 0U) {
@@ -1007,7 +1007,7 @@ void Mesh::updateSubMesh(index_t primitiveIndex, const IDynamicGeometry &geometr
             indexBuffer->update(srcBuffer, updateSize);
         }
 
-        indexView.count     = indexCount;
+        indexView.count = indexCount;
         drawInfo.indexCount = indexCount;
     }
 
@@ -1045,7 +1045,7 @@ void Mesh::accessAttribute(index_t primitiveIndex, const char *attributeName, co
     auto &primitive = _struct.primitives[primitiveIndex];
     for (const auto &vertexBundleIndex : primitive.vertexBundelIndices) {
         const auto &vertexBundle = _struct.vertexBundles[vertexBundleIndex];
-        auto        iter         = std::find_if(vertexBundle.attributes.begin(), vertexBundle.attributes.end(), [&](const auto &a) -> bool { return a.name == attributeName; });
+        auto iter = std::find_if(vertexBundle.attributes.begin(), vertexBundle.attributes.end(), [&](const auto &a) -> bool { return a.name == attributeName; });
         if (iter == vertexBundle.attributes.end()) {
             continue;
         }
@@ -1079,7 +1079,7 @@ bool Mesh::validate() const {
 }
 
 TypedArray Mesh::createTypedArrayWithGFXFormat(gfx::Format format, uint32_t count) {
-    const auto &   info   = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(format)];
+    const auto &info = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(format)];
     const uint32_t stride = info.size / info.count;
 
     switch (info.type) {

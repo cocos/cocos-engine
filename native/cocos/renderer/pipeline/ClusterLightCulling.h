@@ -100,38 +100,38 @@ private:
         return false;
     }
 
-    gfx::Device *   _device{nullptr};
-    scene::Camera * _camera{nullptr};
+    gfx::Device *_device{nullptr};
+    scene::Camera *_camera{nullptr};
     RenderPipeline *_pipeline{nullptr};
 
-    gfx::Shader *             _buildingShader{nullptr};
+    gfx::Shader *_buildingShader{nullptr};
     gfx::DescriptorSetLayout *_buildingDescriptorSetLayout{nullptr};
-    gfx::PipelineLayout *     _buildingPipelineLayout{nullptr};
-    gfx::PipelineState *      _buildingPipelineState{nullptr};
-    gfx::DescriptorSet *      _buildingDescriptorSet{nullptr};
+    gfx::PipelineLayout *_buildingPipelineLayout{nullptr};
+    gfx::PipelineState *_buildingPipelineState{nullptr};
+    gfx::DescriptorSet *_buildingDescriptorSet{nullptr};
 
-    gfx::Shader *             _resetCounterShader{nullptr};
+    gfx::Shader *_resetCounterShader{nullptr};
     gfx::DescriptorSetLayout *_resetCounterDescriptorSetLayout{nullptr};
-    gfx::PipelineLayout *     _resetCounterPipelineLayout{nullptr};
-    gfx::PipelineState *      _resetCounterPipelineState{nullptr};
-    gfx::DescriptorSet *      _resetCounterDescriptorSet{nullptr};
+    gfx::PipelineLayout *_resetCounterPipelineLayout{nullptr};
+    gfx::PipelineState *_resetCounterPipelineState{nullptr};
+    gfx::DescriptorSet *_resetCounterDescriptorSet{nullptr};
 
-    gfx::Shader *             _cullingShader{nullptr};
+    gfx::Shader *_cullingShader{nullptr};
     gfx::DescriptorSetLayout *_cullingDescriptorSetLayout{nullptr};
-    gfx::PipelineLayout *     _cullingPipelineLayout{nullptr};
-    gfx::PipelineState *      _cullingPipelineState{nullptr};
-    gfx::DescriptorSet *      _cullingDescriptorSet{nullptr};
+    gfx::PipelineLayout *_cullingPipelineLayout{nullptr};
+    gfx::PipelineState *_cullingPipelineState{nullptr};
+    gfx::DescriptorSet *_cullingDescriptorSet{nullptr};
 
-    static constexpr uint NEAR_FAR_OFFSET     = 0;
-    static constexpr uint VIEW_PORT_OFFSET    = 4;
-    static constexpr uint MAT_VIEW_OFFSET     = 8;
+    static constexpr uint NEAR_FAR_OFFSET = 0;
+    static constexpr uint VIEW_PORT_OFFSET = 4;
+    static constexpr uint MAT_VIEW_OFFSET = 8;
     static constexpr uint MAT_PROJ_INV_OFFSET = 24;
 
     ccstd::array<float, (2 * sizeof(Vec4) + 2 * sizeof(Mat4)) / sizeof(float)> _constants{};
-    gfx::Buffer *                                                              _constantsBuffer{nullptr};
+    gfx::Buffer *_constantsBuffer{nullptr};
 
     ccstd::vector<scene::Light *> _validLights;
-    ccstd::vector<float>          _lightBufferData;
+    ccstd::vector<float> _lightBufferData;
 
     gfx::GeneralBarrier *_resetBarrier{nullptr};
 
@@ -139,13 +139,13 @@ private:
     gfx::DispatchInfo _resetDispatchInfo;
     gfx::DispatchInfo _cullingDispatchInfo;
 
-    bool  _lightBufferResized{false};
-    uint  _lightBufferStride{0};
-    uint  _lightBufferCount{0};
+    bool _lightBufferResized{false};
+    uint _lightBufferStride{0};
+    uint _lightBufferCount{0};
     float _lightMeterScale{10000.0F};
 
     // only rebuild clusters when camera project matrix changed
-    bool                _rebuildClusters{false};
+    bool _rebuildClusters{false};
     ccstd::vector<Mat4> _oldCamProjMats;
 
     bool _initialized{false};

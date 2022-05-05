@@ -125,8 +125,8 @@ void jsToSeValue(v8::Isolate *isolate, v8::Local<v8::Value> jsval, Value *v) {
         v8::MaybeLocal<v8::Object> jsObj = jsval->ToObject(isolate->GetCurrentContext());
         if (!jsObj.IsEmpty()) {
             PrivateObjectBase *privateObject = static_cast<PrivateObjectBase *>(internal::getPrivate(isolate, jsObj.ToLocalChecked(), 0));
-            void *             nativePtr     = privateObject ? privateObject->getRaw() : nullptr;
-            Object *           obj           = nullptr;
+            void *nativePtr = privateObject ? privateObject->getRaw() : nullptr;
+            Object *obj = nullptr;
             if (nativePtr != nullptr) {
                 obj = Object::getObjectWithPtr(nativePtr);
             }
@@ -180,7 +180,7 @@ bool hasPrivate(v8::Isolate * /*isolate*/, v8::Local<v8::Value> value) {
 
 void setPrivate(v8::Isolate *isolate, ObjectWrap &wrap, PrivateObjectBase *data, Object *thizObj, PrivateData **outInternalData) {
     v8::Local<v8::Object> obj = wrap.handle(isolate);
-    int                   c   = obj->InternalFieldCount();
+    int c = obj->InternalFieldCount();
     CC_ASSERT(c > 1);
     if (c > 1) {
         wrap.wrap(data, 0);
@@ -193,8 +193,8 @@ void setPrivate(v8::Isolate *isolate, ObjectWrap &wrap, PrivateObjectBase *data,
 }
 
 void *getPrivate(v8::Isolate *isolate, v8::Local<v8::Value> value, uint32_t index /* = 0*/) {
-    v8::Local<v8::Context>     context = isolate->GetCurrentContext();
-    v8::MaybeLocal<v8::Object> obj     = value->ToObject(context);
+    v8::Local<v8::Context> context = isolate->GetCurrentContext();
+    v8::MaybeLocal<v8::Object> obj = value->ToObject(context);
     if (obj.IsEmpty()) {
         return nullptr;
     }
@@ -205,7 +205,7 @@ void *getPrivate(v8::Isolate *isolate, v8::Local<v8::Value> value, uint32_t inde
     }
 
     v8::Local<v8::Object> objChecked = obj.ToLocalChecked();
-    int                   c          = objChecked->InternalFieldCount();
+    int c = objChecked->InternalFieldCount();
     if (c > 1) {
         void *nativeObj = nullptr;
         if (index >= 0 && index < 2) {
@@ -220,7 +220,7 @@ void *getPrivate(v8::Isolate *isolate, v8::Local<v8::Value> value, uint32_t inde
 
 void clearPrivate(v8::Isolate *isolate, ObjectWrap &wrap) {
     v8::Local<v8::Object> obj = wrap.handle(isolate);
-    int                   c   = obj->InternalFieldCount();
+    int c = obj->InternalFieldCount();
     if (c > 1) {
         wrap.wrap(nullptr, 0);
         wrap.wrap(nullptr, 1);

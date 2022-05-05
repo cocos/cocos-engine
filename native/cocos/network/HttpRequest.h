@@ -248,14 +248,14 @@ public:
 
 protected:
     // properties
-    Type                         _requestType{Type::UNKNOWN}; /// kHttpRequestGet, kHttpRequestPost or other enums
-    ccstd::string                _url;                        /// target url that this request is sent to
-    ccstd::vector<char>          _requestData;                /// used for POST
-    ccstd::string                _tag;                        /// user defined tag, to identify different requests in response callback
-    ccHttpRequestCallback        _callback;                   /// C++11 style callbacks
-    void *                       _userData{nullptr};          /// You can add your customed data here
-    ccstd::vector<ccstd::string> _headers;                    /// custom http headers
-    float                        _timeoutInSeconds{10.F};
+    Type _requestType{Type::UNKNOWN};      /// kHttpRequestGet, kHttpRequestPost or other enums
+    ccstd::string _url;                    /// target url that this request is sent to
+    ccstd::vector<char> _requestData;      /// used for POST
+    ccstd::string _tag;                    /// user defined tag, to identify different requests in response callback
+    ccHttpRequestCallback _callback;       /// C++11 style callbacks
+    void *_userData{nullptr};              /// You can add your customed data here
+    ccstd::vector<ccstd::string> _headers; /// custom http headers
+    float _timeoutInSeconds{10.F};
 };
 
 } // namespace network

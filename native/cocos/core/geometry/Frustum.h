@@ -55,9 +55,9 @@ public:
      * @return @en The out object @zh 返回正交视锥体.
      */
     static void createOrtho(Frustum *out, float width,
-                            float       height,
-                            float       near,
-                            float       far,
+                            float height,
+                            float near,
+                            float far,
                             const Mat4 &transform);
     /**
      * @en Create a frustum from an AABB box.
@@ -121,7 +121,7 @@ public:
         out->vertices = f.vertices;
         return out;
     }
-    
+
     /**
      * @en
      * Set whether to use accurate intersection testing function on this frustum.
@@ -155,12 +155,12 @@ public:
      */
     void transform(const Mat4 &);
 
-    ccstd::array<Vec3, 8>    vertices;
+    ccstd::array<Vec3, 8> vertices;
     ccstd::array<Plane *, 6> planes;
-    void                     createOrtho(float width, float height, float near, float far, const Mat4 &transform);
-    void                     split(float start, float end, float aspect, float fov, const Mat4 &transform);
-    void                     updatePlanes();
-    void                     update(const Mat4 &m, const Mat4 &inv);
+    void createOrtho(float width, float height, float near, float far, const Mat4 &transform);
+    void split(float start, float end, float aspect, float fov, const Mat4 &transform);
+    void updatePlanes();
+    void update(const Mat4 &m, const Mat4 &inv);
 };
 
 } // namespace geometry

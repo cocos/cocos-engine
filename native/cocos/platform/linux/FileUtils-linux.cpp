@@ -52,20 +52,20 @@ FileUtils *FileUtils::getInstance() {
 
 bool FileUtilsLinux::init() {
     // get application path
-    char    fullpath[256] = {0};
-    ssize_t length        = readlink("/proc/self/exe", fullpath, sizeof(fullpath) - 1);
+    char fullpath[256] = {0};
+    ssize_t length = readlink("/proc/self/exe", fullpath, sizeof(fullpath) - 1);
 
     if (length <= 0) {
         return false;
     }
 
-    fullpath[length]      = '\0';
+    fullpath[length] = '\0';
     ccstd::string appPath = fullpath;
-    _defaultResRootPath   = appPath.substr(0, appPath.find_last_of('/'));
+    _defaultResRootPath = appPath.substr(0, appPath.find_last_of('/'));
     _defaultResRootPath.append(CC_RESOURCE_FOLDER_LINUX);
 
     // Set writable path to $XDG_CONFIG_HOME or ~/.config/<app name>/ if $XDG_CONFIG_HOME not exists.
-    const char *  xdg_config_path = getenv("XDG_CONFIG_HOME");
+    const char *xdg_config_path = getenv("XDG_CONFIG_HOME");
     ccstd::string xdgConfigPath;
     if (xdg_config_path == nullptr) {
         xdgConfigPath = getenv("HOME");

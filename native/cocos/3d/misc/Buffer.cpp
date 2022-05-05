@@ -40,7 +40,7 @@ Record<gfx::FormatType, ccstd::string> typeMap{
 
 ccstd::string getDataViewType(const gfx::FormatInfo &info) {
     ccstd::string type;
-    auto          iter = typeMap.find(info.type);
+    auto iter = typeMap.find(info.type);
     if (iter != typeMap.end()) {
         type = iter->second;
     } else {
@@ -53,20 +53,20 @@ ccstd::string getDataViewType(const gfx::FormatInfo &info) {
 
 } // namespace
 
-using DataVariant       = cc::variant<int32_t, float>;
+using DataVariant = cc::variant<int32_t, float>;
 using MapBufferCallback = std::function<DataVariant(const DataVariant &cur, uint32_t idx, const DataView &view)>;
 
-DataView mapBuffer(DataView &                target,
-                   const MapBufferCallback & callback,
+DataView mapBuffer(DataView &target,
+                   const MapBufferCallback &callback,
                    cc::optional<gfx::Format> aFormat,
-                   cc::optional<uint32_t>    aOffset,
-                   cc::optional<uint32_t>    aLength,
-                   cc::optional<uint32_t>    aStride,
-                   DataView *                out) {
+                   cc::optional<uint32_t> aOffset,
+                   cc::optional<uint32_t> aLength,
+                   cc::optional<uint32_t> aStride,
+                   DataView *out) {
     gfx::Format format = aFormat.has_value() ? aFormat.value() : gfx::Format::R32F;
-    uint32_t    offset = aOffset.has_value() ? aOffset.value() : 0;
-    uint32_t    length = aLength.has_value() ? aLength.value() : target.byteLength() - offset;
-    uint32_t    stride = aStride.has_value() ? aStride.value() : 0;
+    uint32_t offset = aOffset.has_value() ? aOffset.value() : 0;
+    uint32_t length = aLength.has_value() ? aLength.value() : target.byteLength() - offset;
+    uint32_t stride = aStride.has_value() ? aStride.value() : 0;
 
     DataView dataView;
     if (out == nullptr) {
@@ -82,7 +82,7 @@ DataView mapBuffer(DataView &                target,
     static const ccstd::string SET_PREFIX{"set"};
     static const ccstd::string GET_PREFIX{"get"};
 
-    bool                 isFloat    = info.type == gfx::FormatType::FLOAT || info.type == gfx::FormatType::UFLOAT;
+    bool isFloat = info.type == gfx::FormatType::FLOAT || info.type == gfx::FormatType::UFLOAT;
     DataView::IntWritter intWritter = nullptr;
     if (!isFloat) {
         intWritter = DataView::intWritterMap[SET_PREFIX + getDataViewType(info)];
@@ -94,7 +94,7 @@ DataView mapBuffer(DataView &                target,
     }
 
     const uint32_t componentBytesLength = info.size / info.count;
-    const uint32_t nSeg                 = floor(length / stride);
+    const uint32_t nSeg = floor(length / stride);
 
     for (uint32_t iSeg = 0; iSeg < nSeg; ++iSeg) {
         const uint32_t x = offset + stride * iSeg;

@@ -41,11 +41,11 @@ namespace cc {
 namespace pipeline {
 
 PipelineSceneData::PipelineSceneData() {
-    _fog     = ccnew scene::Fog(); // cjh how to delete?
+    _fog = ccnew scene::Fog(); // cjh how to delete?
     _ambient = ccnew scene::Ambient();
-    _skybox  = ccnew scene::Skybox();
-    _shadow  = ccnew scene::Shadows();
-    _octree  = ccnew scene::Octree();
+    _skybox = ccnew scene::Skybox();
+    _shadow = ccnew scene::Shadows();
+    _octree = ccnew scene::Octree();
 }
 
 PipelineSceneData::~PipelineSceneData() {
@@ -88,7 +88,7 @@ void PipelineSceneData::initOcclusionQuery() {
         IMaterialInfo info;
         info.effectName = "occlusion-query";
         _occlusionQueryMaterial->initialize(info);
-        _occlusionQueryPass   = (*_occlusionQueryMaterial->getPasses())[0];
+        _occlusionQueryPass = (*_occlusionQueryMaterial->getPasses())[0];
         _occlusionQueryShader = _occlusionQueryPass->getShaderVariant();
     }
 }
@@ -107,7 +107,7 @@ void PipelineSceneData::initGeometryRenderer() {
 
         IMaterialInfo materialInfo;
         materialInfo.effectName = "geometry-renderer";
-        materialInfo.technique  = tech;
+        materialInfo.technique = tech;
         _geometryRendererMaterials[tech]->initialize(materialInfo);
 
         const auto &passes = _geometryRendererMaterials[tech]->getPasses().get();
@@ -125,7 +125,7 @@ void PipelineSceneData::initDebugRenderer() {
         IMaterialInfo info;
         info.effectName = "debug-renderer";
         _debugRendererMaterial->initialize(info);
-        _debugRendererPass   = (*_debugRendererMaterial->getPasses())[0];
+        _debugRendererPass = (*_debugRendererMaterial->getPasses())[0];
         _debugRendererShader = _debugRendererPass->getShaderVariant();
     }
 }
@@ -142,8 +142,8 @@ scene::Pass *PipelineSceneData::getOcclusionQueryPass() {
 gfx::InputAssembler *PipelineSceneData::createOcclusionQueryIA() {
     // create vertex buffer
     const float vertices[] = {-1, -1, -1, 1, -1, -1, -1, 1, -1, 1, 1, -1, -1, -1, 1, 1, -1, 1, -1, 1, 1, 1, 1, 1};
-    uint32_t    vbStride   = sizeof(float) * 3;
-    uint32_t    vbSize     = vbStride * 8;
+    uint32_t vbStride = sizeof(float) * 3;
+    uint32_t vbSize = vbStride * 8;
 
     _occlusionQueryVertexBuffer = _device->createBuffer(gfx::BufferInfo{
         gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
@@ -151,9 +151,9 @@ gfx::InputAssembler *PipelineSceneData::createOcclusionQueryIA() {
     _occlusionQueryVertexBuffer->update(vertices);
 
     // create index buffer
-    const uint16_t indices[]     = {0, 2, 1, 1, 2, 3, 4, 5, 6, 5, 7, 6, 1, 3, 7, 1, 7, 5, 0, 4, 6, 0, 6, 2, 0, 1, 5, 0, 5, 4, 2, 6, 7, 2, 7, 3};
-    uint32_t       ibStride      = sizeof(uint16_t);
-    uint32_t       ibSize        = ibStride * 36;
+    const uint16_t indices[] = {0, 2, 1, 1, 2, 3, 4, 5, 6, 5, 7, 6, 1, 3, 7, 1, 7, 5, 0, 4, 6, 0, 6, 2, 0, 1, 5, 0, 5, 4, 2, 6, 7, 2, 7, 3};
+    uint32_t ibStride = sizeof(uint16_t);
+    uint32_t ibSize = ibStride * 36;
     _occlusionQueryIndicesBuffer = _device->createBuffer(gfx::BufferInfo{
         gfx::BufferUsageBit::INDEX | gfx::BufferUsageBit::TRANSFER_DST,
         gfx::MemoryUsageBit::DEVICE, ibSize, ibStride});

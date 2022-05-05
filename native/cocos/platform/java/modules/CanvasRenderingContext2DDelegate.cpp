@@ -40,7 +40,7 @@ namespace {
 namespace cc {
 CanvasRenderingContext2DDelegate::CanvasRenderingContext2DDelegate() {
     jobject obj = JniHelper::newObject(JCLS_CANVASIMPL);
-    _obj        = JniHelper::getEnv()->NewGlobalRef(obj);
+    _obj = JniHelper::getEnv()->NewGlobalRef(obj);
     ccDeleteLocalRef(JniHelper::getEnv(), obj);
 }
 
@@ -49,7 +49,7 @@ CanvasRenderingContext2DDelegate::~CanvasRenderingContext2DDelegate() {
 }
 
 void CanvasRenderingContext2DDelegate::recreateBuffer(float w, float h) {
-    _bufferWidth  = w;
+    _bufferWidth = w;
     _bufferHeight = h;
     if (_bufferWidth < 1.0F || _bufferHeight < 1.0F) {
         return;
@@ -155,7 +155,7 @@ CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measure
         return ccstd::array<float, 2>{0.0F, 0.0F};
     }
     float measureText1 = JniHelper::callObjectFloatMethod(_obj, JCLS_CANVASIMPL, "measureText", text);
-    Size  size{measureText1, 0.0F};
+    Size size{measureText1, 0.0F};
     return size;
 }
 
@@ -209,7 +209,7 @@ void CanvasRenderingContext2DDelegate::fillImageData(const Data &imageData, floa
 }
 
 void CanvasRenderingContext2DDelegate::updateData() {
-    jobject       bmpObj = nullptr;
+    jobject bmpObj = nullptr;
     JniMethodInfo methodInfo;
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     if (JniHelper::getMethodInfo(methodInfo, JCLS_CANVASIMPL, "getBitmap", "()Landroid/graphics/Bitmap;")) {
@@ -246,7 +246,7 @@ void CanvasRenderingContext2DDelegate::updateData() {
         uint32_t size = bmpInfo.stride * bmpInfo.height;
 #else
         OhosPixelMapInfo bmpInfo;
-        void *           pixelData = nullptr;
+        void *pixelData = nullptr;
         if (GetImageInfo(env, bmpObj, bmpInfo) ==
                 OHOS_IMAGE_RESULT_SUCCESS &&
             bmpInfo.width > 0 &&
@@ -290,7 +290,7 @@ void CanvasRenderingContext2DDelegate::unMultiplyAlpha(unsigned char *ptr, uint3
     for (int i = 0; i < size; i += 4) {
         alpha = static_cast<float>(ptr[i + 3]);
         if (alpha > 0) {
-            ptr[i]     = CLAMP((int)((float)ptr[i] / alpha * 255), 255);
+            ptr[i] = CLAMP((int)((float)ptr[i] / alpha * 255), 255);
             ptr[i + 1] = CLAMP((int)((float)ptr[i + 1] / alpha * 255), 255);
             ptr[i + 2] = CLAMP((int)((float)ptr[i + 2] / alpha * 255), 255);
         }

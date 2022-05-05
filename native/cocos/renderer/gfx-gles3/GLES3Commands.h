@@ -35,34 +35,34 @@ class GLES3QueryPool;
 
 class GLES3CmdBeginRenderPass final : public GLESCmd {
 public:
-    GLES3GPURenderPass * gpuRenderPass = nullptr;
-    GLES3GPUFramebuffer *gpuFBO        = nullptr;
-    Rect                 renderArea;
-    Color                clearColors[MAX_ATTACHMENTS];
-    float                clearDepth   = 1.0F;
-    uint32_t             clearStencil = 0U;
-    uint32_t             subpassIdx   = 0U;
+    GLES3GPURenderPass *gpuRenderPass = nullptr;
+    GLES3GPUFramebuffer *gpuFBO = nullptr;
+    Rect renderArea;
+    Color clearColors[MAX_ATTACHMENTS];
+    float clearDepth = 1.0F;
+    uint32_t clearStencil = 0U;
+    uint32_t subpassIdx = 0U;
 
     GLES3CmdBeginRenderPass() : GLESCmd(GLESCmdType::BEGIN_RENDER_PASS) {}
 
     void clear() override {
         gpuRenderPass = nullptr;
-        gpuFBO        = nullptr;
+        gpuFBO = nullptr;
     }
 };
 
 class GLES3CmdBindStates final : public GLESCmd {
 public:
-    GLES3GPUPipelineState *                gpuPipelineState  = nullptr;
-    GLES3GPUInputAssembler *               gpuInputAssembler = nullptr;
+    GLES3GPUPipelineState *gpuPipelineState = nullptr;
+    GLES3GPUInputAssembler *gpuInputAssembler = nullptr;
     ccstd::vector<GLES3GPUDescriptorSet *> gpuDescriptorSets;
-    ccstd::vector<uint32_t>                dynamicOffsets;
-    DynamicStates                          dynamicStates;
+    ccstd::vector<uint32_t> dynamicOffsets;
+    DynamicStates dynamicStates;
 
     GLES3CmdBindStates() : GLESCmd(GLESCmdType::BIND_STATES) {}
 
     void clear() override {
-        gpuPipelineState  = nullptr;
+        gpuPipelineState = nullptr;
         gpuInputAssembler = nullptr;
         gpuDescriptorSets.clear();
         dynamicOffsets.clear();
@@ -90,12 +90,12 @@ public:
 
 class GLES3CmdBarrier final : public GLESCmd {
 public:
-    GLbitfield barriers         = 0U;
+    GLbitfield barriers = 0U;
     GLbitfield barriersByRegion = 0U;
 
     GLES3CmdBarrier() : GLESCmd(GLESCmdType::BARRIER) {}
     void clear() override {
-        barriers         = 0U;
+        barriers = 0U;
         barriersByRegion = 0U;
     }
 };
@@ -103,50 +103,50 @@ public:
 class GLES3CmdUpdateBuffer final : public GLESCmd {
 public:
     GLES3GPUBuffer *gpuBuffer = nullptr;
-    const uint8_t * buffer    = nullptr;
-    uint32_t        size      = 0;
-    uint32_t        offset    = 0;
+    const uint8_t *buffer = nullptr;
+    uint32_t size = 0;
+    uint32_t offset = 0;
 
     GLES3CmdUpdateBuffer() : GLESCmd(GLESCmdType::UPDATE_BUFFER) {}
 
     void clear() override {
         gpuBuffer = nullptr;
-        buffer    = nullptr;
+        buffer = nullptr;
     }
 };
 
 class GLES3CmdCopyBufferToTexture final : public GLESCmd {
 public:
-    GLES3GPUTexture *        gpuTexture = nullptr;
-    const BufferTextureCopy *regions    = nullptr;
-    uint32_t                 count      = 0U;
-    const uint8_t *const *   buffers    = nullptr;
+    GLES3GPUTexture *gpuTexture = nullptr;
+    const BufferTextureCopy *regions = nullptr;
+    uint32_t count = 0U;
+    const uint8_t *const *buffers = nullptr;
 
     GLES3CmdCopyBufferToTexture() : GLESCmd(GLESCmdType::COPY_BUFFER_TO_TEXTURE) {}
 
     void clear() override {
         gpuTexture = nullptr;
-        regions    = nullptr;
-        count      = 0U;
-        buffers    = nullptr;
+        regions = nullptr;
+        count = 0U;
+        buffers = nullptr;
     }
 };
 
 class GLES3CmdBlitTexture final : public GLESCmd {
 public:
-    GLES3GPUTexture *  gpuTextureSrc = nullptr;
-    GLES3GPUTexture *  gpuTextureDst = nullptr;
-    const TextureBlit *regions       = nullptr;
-    uint32_t           count         = 0U;
-    Filter             filter        = Filter::POINT;
+    GLES3GPUTexture *gpuTextureSrc = nullptr;
+    GLES3GPUTexture *gpuTextureDst = nullptr;
+    const TextureBlit *regions = nullptr;
+    uint32_t count = 0U;
+    Filter filter = Filter::POINT;
 
     GLES3CmdBlitTexture() : GLESCmd(GLESCmdType::BLIT_TEXTURE) {}
 
     void clear() override {
         gpuTextureSrc = nullptr;
         gpuTextureDst = nullptr;
-        regions       = nullptr;
-        count         = 0U;
+        regions = nullptr;
+        count = 0U;
     }
 };
 
@@ -160,42 +160,42 @@ enum class GLES3QueryType : uint8_t {
 class GLES3CmdQuery final : public GLESCmd {
 public:
     GLES3QueryPool *queryPool = nullptr;
-    GLES3QueryType  type      = GLES3QueryType::BEGIN;
-    uint32_t        id        = 0U;
+    GLES3QueryType type = GLES3QueryType::BEGIN;
+    uint32_t id = 0U;
 
     GLES3CmdQuery() : GLESCmd(GLESCmdType::QUERY) {}
 
     void clear() override {
         queryPool = nullptr;
-        type      = GLES3QueryType::BEGIN;
-        id        = 0U;
+        type = GLES3QueryType::BEGIN;
+        id = 0U;
     }
 };
 
 struct GLES3CmdPackage {
-    CachedArray<GLESCmdType>                   cmds;
-    CachedArray<GLES3CmdBeginRenderPass *>     beginRenderPassCmds;
-    CachedArray<GLES3CmdBindStates *>          bindStatesCmds;
-    CachedArray<GLES3CmdDraw *>                drawCmds;
-    CachedArray<GLES3CmdDispatch *>            dispatchCmds;
-    CachedArray<GLES3CmdBarrier *>             barrierCmds;
-    CachedArray<GLES3CmdUpdateBuffer *>        updateBufferCmds;
+    CachedArray<GLESCmdType> cmds;
+    CachedArray<GLES3CmdBeginRenderPass *> beginRenderPassCmds;
+    CachedArray<GLES3CmdBindStates *> bindStatesCmds;
+    CachedArray<GLES3CmdDraw *> drawCmds;
+    CachedArray<GLES3CmdDispatch *> dispatchCmds;
+    CachedArray<GLES3CmdBarrier *> barrierCmds;
+    CachedArray<GLES3CmdUpdateBuffer *> updateBufferCmds;
     CachedArray<GLES3CmdCopyBufferToTexture *> copyBufferToTextureCmds;
-    CachedArray<GLES3CmdBlitTexture *>         blitTextureCmds;
-    CachedArray<GLES3CmdQuery *>               queryCmds;
+    CachedArray<GLES3CmdBlitTexture *> blitTextureCmds;
+    CachedArray<GLES3CmdQuery *> queryCmds;
 };
 
 class GLES3GPUCommandAllocator final {
 public:
-    CommandPool<GLES3CmdBeginRenderPass>     beginRenderPassCmdPool;
-    CommandPool<GLES3CmdBindStates>          bindStatesCmdPool;
-    CommandPool<GLES3CmdDraw>                drawCmdPool;
-    CommandPool<GLES3CmdDispatch>            dispatchCmdPool;
-    CommandPool<GLES3CmdBarrier>             barrierCmdPool;
-    CommandPool<GLES3CmdUpdateBuffer>        updateBufferCmdPool;
+    CommandPool<GLES3CmdBeginRenderPass> beginRenderPassCmdPool;
+    CommandPool<GLES3CmdBindStates> bindStatesCmdPool;
+    CommandPool<GLES3CmdDraw> drawCmdPool;
+    CommandPool<GLES3CmdDispatch> dispatchCmdPool;
+    CommandPool<GLES3CmdBarrier> barrierCmdPool;
+    CommandPool<GLES3CmdUpdateBuffer> updateBufferCmdPool;
     CommandPool<GLES3CmdCopyBufferToTexture> copyBufferToTextureCmdPool;
-    CommandPool<GLES3CmdBlitTexture>         blitTextureCmdPool;
-    CommandPool<GLES3CmdQuery>               queryCmdPool;
+    CommandPool<GLES3CmdBlitTexture> blitTextureCmdPool;
+    CommandPool<GLES3CmdQuery> queryCmdPool;
 
     void clearCmds(GLES3CmdPackage *cmdPackage) {
         if (cmdPackage->beginRenderPassCmds.size()) {
@@ -263,47 +263,47 @@ void cmdFuncGLES3PrepareSamplerInfo(GLES3Device *device, GLES3GPUSampler *gpuSam
 void cmdFuncGLES3Query(GLES3Device *device, GLES3QueryPool *query, GLES3QueryType type, uint32_t id);
 
 void cmdFuncGLES3BeginRenderPass(GLES3Device *device, uint32_t subpassIdx,
-                                 GLES3GPURenderPass * gpuRenderPass  = nullptr,
+                                 GLES3GPURenderPass *gpuRenderPass = nullptr,
                                  GLES3GPUFramebuffer *gpuFramebuffer = nullptr,
-                                 const Rect *         renderArea     = nullptr,
-                                 const Color *        clearColors    = nullptr,
-                                 float                clearDepth     = 1.F,
-                                 uint32_t             clearStencil   = 0);
+                                 const Rect *renderArea = nullptr,
+                                 const Color *clearColors = nullptr,
+                                 float clearDepth = 1.F,
+                                 uint32_t clearStencil = 0);
 
 void cmdFuncGLES3EndRenderPass(GLES3Device *device);
 
-void cmdFuncGLES3BindState(GLES3Device *                       device,
-                           GLES3GPUPipelineState *             gpuPipelineState,
-                           GLES3GPUInputAssembler *            gpuInputAssembler,
+void cmdFuncGLES3BindState(GLES3Device *device,
+                           GLES3GPUPipelineState *gpuPipelineState,
+                           GLES3GPUInputAssembler *gpuInputAssembler,
                            const GLES3GPUDescriptorSet *const *gpuDescriptorSets,
-                           const uint32_t *                    dynamicOffsets = nullptr,
-                           const DynamicStates *               dynamicStates  = nullptr);
+                           const uint32_t *dynamicOffsets = nullptr,
+                           const DynamicStates *dynamicStates = nullptr);
 
 void cmdFuncGLES3Draw(GLES3Device *device, const DrawInfo &drawInfo);
 
-void cmdFuncGLES3UpdateBuffer(GLES3Device *   device,
+void cmdFuncGLES3UpdateBuffer(GLES3Device *device,
                               GLES3GPUBuffer *gpuBuffer,
-                              const void *    buffer,
-                              uint32_t        offset,
-                              uint32_t        size);
+                              const void *buffer,
+                              uint32_t offset,
+                              uint32_t size);
 
-void cmdFuncGLES3CopyBuffersToTexture(GLES3Device *            device,
-                                      const uint8_t *const *   buffers,
-                                      GLES3GPUTexture *        gpuTexture,
+void cmdFuncGLES3CopyBuffersToTexture(GLES3Device *device,
+                                      const uint8_t *const *buffers,
+                                      GLES3GPUTexture *gpuTexture,
                                       const BufferTextureCopy *regions,
-                                      uint32_t                 count);
-void cmdFuncGLES3CopyTextureToBuffers(GLES3Device *            device,
-                                      GLES3GPUTexture *        gpuTexture,
-                                      uint8_t *const *         buffers,
+                                      uint32_t count);
+void cmdFuncGLES3CopyTextureToBuffers(GLES3Device *device,
+                                      GLES3GPUTexture *gpuTexture,
+                                      uint8_t *const *buffers,
                                       const BufferTextureCopy *regions,
-                                      uint32_t                 count);
+                                      uint32_t count);
 
-void cmdFuncGLES3BlitTexture(GLES3Device *      device,
-                             GLES3GPUTexture *  gpuTextureSrc,
-                             GLES3GPUTexture *  gpuTextureDst,
+void cmdFuncGLES3BlitTexture(GLES3Device *device,
+                             GLES3GPUTexture *gpuTextureSrc,
+                             GLES3GPUTexture *gpuTextureDst,
                              const TextureBlit *regions,
-                             uint32_t           count,
-                             Filter             filter);
+                             uint32_t count,
+                             Filter filter);
 
 void cmdFuncGLES3ExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage);
 

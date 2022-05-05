@@ -37,8 +37,7 @@ DRAGONBONES_NAMESPACE_BEGIN
  * @version DragonBones 4.5
  * @language zh_CN
  */
-class EventObject : public BaseObject
-{
+class EventObject : public BaseObject {
     BIND_CLASS_TYPE_A(EventObject);
 
 public:

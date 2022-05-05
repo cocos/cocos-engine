@@ -28,21 +28,21 @@
 #include "base/std/container/string.h"
 
 extern ccstd::string getObbFilePathJNI();
-extern int           getObbAssetFileDescriptorJNI(const ccstd::string &path, int64_t *startOffset, int64_t *size);
+extern int getObbAssetFileDescriptorJNI(const ccstd::string &path, int64_t *startOffset, int64_t *size);
 extern ccstd::string getCurrentLanguageJNI();
 extern ccstd::string getCurrentLanguageCodeJNI();
 extern ccstd::string getSystemVersionJNI();
-extern bool          openURLJNI(const ccstd::string &url);
-extern void          copyTextToClipboardJNI(const ccstd::string &text);
+extern bool openURLJNI(const ccstd::string &url);
+extern void copyTextToClipboardJNI(const ccstd::string &text);
 extern ccstd::string getDeviceModelJNI();
-extern int           getDPIJNI();
-extern void          setVibrateJNI(float duration);
-extern int           getNetworkTypeJNI();
-extern float *       getSafeAreaEdgeJNI();
-extern int           getDeviceRotationJNI();
-extern float         getBatteryLevelJNI();
-extern void          flushTasksOnGameThreadJNI();
-extern void          flushTasksOnGameThreadAtForegroundJNI();
-extern void          setAccelerometerEnabledJNI(bool isEnabled);
-extern void          setAccelerometerIntervalJNI(float interval);
-extern float *       getDeviceMotionValueJNI();
+extern int getDPIJNI();
+extern void setVibrateJNI(float duration);
+extern int getNetworkTypeJNI();
+extern float *getSafeAreaEdgeJNI();
+extern int getDeviceRotationJNI();
+extern float getBatteryLevelJNI();
+extern void flushTasksOnGameThreadJNI();
+extern void flushTasksOnGameThreadAtForegroundJNI();
+extern void setAccelerometerEnabledJNI(bool isEnabled);
+extern void setAccelerometerIntervalJNI(float interval);
+extern float *getDeviceMotionValueJNI();

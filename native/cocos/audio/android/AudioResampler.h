@@ -43,10 +43,10 @@ public:
     // certain fixed rate conversions. Sample rate cannot be
     // changed dynamically.
     enum src_quality {
-        DEFAULT_QUALITY   = 0,
-        LOW_QUALITY       = 1,
-        MED_QUALITY       = 2,
-        HIGH_QUALITY      = 3,
+        DEFAULT_QUALITY = 0,
+        LOW_QUALITY = 1,
+        MED_QUALITY = 2,
+        HIGH_QUALITY = 3,
         VERY_HIGH_QUALITY = 4,
     };
 
@@ -82,7 +82,7 @@ public:
     virtual size_t resample(int32_t *out, size_t outFrameCount,
                             AudioBufferProvider *provider) = 0;
 
-    virtual void   reset();
+    virtual void reset();
     virtual size_t getUnreleasedFrames() const { return mInputIndex; }
 
     // called from destructor, so must not be virtual
@@ -106,20 +106,20 @@ protected:
 
     int64_t calculateOutputPTS(int outputFrameIndex);
 
-    const int32_t               mChannelCount;
-    const int32_t               mSampleRate;
-    int32_t                     mInSampleRate;
+    const int32_t mChannelCount;
+    const int32_t mSampleRate;
+    int32_t mInSampleRate;
     AudioBufferProvider::Buffer mBuffer;
     union {
-        int16_t  mVolume[2];
+        int16_t mVolume[2];
         uint32_t mVolumeRL;
     };
-    int16_t  mTargetVolume[2];
-    size_t   mInputIndex;
-    int32_t  mPhaseIncrement;
+    int16_t mTargetVolume[2];
+    size_t mInputIndex;
+    int32_t mPhaseIncrement;
     uint32_t mPhaseFraction;
     uint64_t mLocalTimeFreq;
-    int64_t  mPTS;
+    int64_t mPTS;
 
     // returns the inFrameCount required to generate outFrameCount frames.
     //

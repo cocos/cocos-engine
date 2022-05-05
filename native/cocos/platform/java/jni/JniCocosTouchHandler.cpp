@@ -52,12 +52,12 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionUp(JNIEn
 
 //NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionMove(JNIEnv *env, jobject obj,
-                                                                             jintArray   ids,
+                                                                             jintArray ids,
                                                                              jfloatArray xs,
                                                                              jfloatArray ys) {
     touchEvent.type = cc::TouchEvent::Type::MOVED;
-    int    size     = env->GetArrayLength(ids);
-    jint   id[size];
+    int size = env->GetArrayLength(ids);
+    jint id[size];
     jfloat x[size];
     jfloat y[size];
 
@@ -74,12 +74,12 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionMove(JNI
 
 //NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionCancel(JNIEnv *env, jobject obj,
-                                                                               jintArray   ids,
+                                                                               jintArray ids,
                                                                                jfloatArray xs,
                                                                                jfloatArray ys) {
     touchEvent.type = cc::TouchEvent::Type::CANCELLED;
-    int    size     = env->GetArrayLength(ids);
-    jint   id[size];
+    int size = env->GetArrayLength(ids);
+    jint id[size];
     jfloat x[size];
     jfloat y[size];
 

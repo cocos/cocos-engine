@@ -35,12 +35,12 @@
 
 namespace spine {
 static CustomTextureLoader customTextureLoader = nullptr;
-void                       spAtlasPage_setCustomTextureLoader(CustomTextureLoader texLoader) {
+void spAtlasPage_setCustomTextureLoader(CustomTextureLoader texLoader) {
     customTextureLoader = texLoader;
 }
 
 static SpineObjectDisposeCallback spineObjectDisposeCallback = nullptr;
-void                              setSpineObjectDisposeCallback(SpineObjectDisposeCallback callback) {
+void setSpineObjectDisposeCallback(SpineObjectDisposeCallback callback) {
     spineObjectDisposeCallback = callback;
 }
 } // namespace spine
@@ -56,9 +56,9 @@ static void deleteAttachmentVertices(void *vertices) {
 static uint16_t quadTriangles[6] = {0, 1, 2, 2, 3, 0};
 
 static void setAttachmentVertices(RegionAttachment *attachment) {
-    auto *       region             = static_cast<AtlasRegion *>(attachment->getRendererObject());
-    auto *       attachmentVertices = new AttachmentVertices(static_cast<Texture2D *>(region->page->getRendererObject()), 4, quadTriangles, 6);
-    V2F_T2F_C4F *vertices           = attachmentVertices->_triangles->verts;
+    auto *region = static_cast<AtlasRegion *>(attachment->getRendererObject());
+    auto *attachmentVertices = new AttachmentVertices(static_cast<Texture2D *>(region->page->getRendererObject()), 4, quadTriangles, 6);
+    V2F_T2F_C4F *vertices = attachmentVertices->_triangles->verts;
     for (int i = 0, ii = 0; i < 4; ++i, ii += 2) {
         vertices[i].texCoord.u = attachment->getUVs()[ii];
         vertices[i].texCoord.v = attachment->getUVs()[ii + 1];
@@ -67,10 +67,10 @@ static void setAttachmentVertices(RegionAttachment *attachment) {
 }
 
 static void setAttachmentVertices(MeshAttachment *attachment) {
-    auto *       region             = static_cast<AtlasRegion *>(attachment->getRendererObject());
-    auto *       attachmentVertices = new AttachmentVertices(static_cast<Texture2D *>(region->page->getRendererObject()),
+    auto *region = static_cast<AtlasRegion *>(attachment->getRendererObject());
+    auto *attachmentVertices = new AttachmentVertices(static_cast<Texture2D *>(region->page->getRendererObject()),
                                                       static_cast<int32_t>(attachment->getWorldVerticesLength() >> 1), attachment->getTriangles().buffer(), static_cast<int32_t>(attachment->getTriangles().size()));
-    V2F_T2F_C4F *vertices           = attachmentVertices->_triangles->verts;
+    V2F_T2F_C4F *vertices = attachmentVertices->_triangles->verts;
     for (size_t i = 0, ii = 0, nn = attachment->getWorldVerticesLength(); ii < nn; ++i, ii += 2) {
         vertices[i].texCoord.u = attachment->getUVs()[ii];
         vertices[i].texCoord.v = attachment->getUVs()[ii + 1];
@@ -99,7 +99,7 @@ uint32_t filter(TextureFilter filter) {
     return static_cast<uint32_t>(filter);
 }
 
-Cocos2dTextureLoader::Cocos2dTextureLoader()  = default;
+Cocos2dTextureLoader::Cocos2dTextureLoader() = default;
 Cocos2dTextureLoader::~Cocos2dTextureLoader() = default;
 
 void Cocos2dTextureLoader::load(AtlasPage &page, const spine::String &path) {
@@ -116,7 +116,7 @@ void Cocos2dTextureLoader::load(AtlasPage &page, const spine::String &path) {
         texture->setTexParameters(textureParams);
 
         page.setRendererObject(texture);
-        page.width  = texture->getPixelsWide();
+        page.width = texture->getPixelsWide();
         page.height = texture->getPixelsHigh();
     }
 }
@@ -132,7 +132,7 @@ Cocos2dExtension::Cocos2dExtension() = default;
 Cocos2dExtension::~Cocos2dExtension() = default;
 
 char *Cocos2dExtension::_readFile(const spine::String &path, int *length) {
-    *length   = 0;
+    *length = 0;
     Data data = FileUtils::getInstance()->getDataFromFile(FileUtils::getInstance()->fullPathForFilename(path.buffer()));
     if (data.isNull()) return nullptr;
 

@@ -65,14 +65,14 @@ void GLES3PrimaryCommandBuffer::end() {
 void GLES3PrimaryCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint32_t stencil, CommandBuffer *const * /*secondaryCBs*/, uint32_t /*secondaryCBCount*/) {
     _curSubpassIdx = 0U;
 
-    GLES3GPURenderPass * gpuRenderPass  = static_cast<GLES3RenderPass *>(renderPass)->gpuRenderPass();
+    GLES3GPURenderPass *gpuRenderPass = static_cast<GLES3RenderPass *>(renderPass)->gpuRenderPass();
     GLES3GPUFramebuffer *gpuFramebuffer = static_cast<GLES3Framebuffer *>(fbo)->gpuFBO();
 
     cmdFuncGLES3BeginRenderPass(GLES3Device::getInstance(), _curSubpassIdx, gpuRenderPass, gpuFramebuffer,
                                 &renderArea, colors, depth, stencil);
 
     _curDynamicStates.viewport = {renderArea.x, renderArea.y, renderArea.width, renderArea.height};
-    _curDynamicStates.scissor  = renderArea;
+    _curDynamicStates.scissor = renderArea;
 }
 
 void GLES3PrimaryCommandBuffer::endRenderPass() {
@@ -199,7 +199,7 @@ void GLES3PrimaryCommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t
 void GLES3PrimaryCommandBuffer::bindStates() {
     if (_curGPUPipelineState) {
         ccstd::vector<uint32_t> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
-        ccstd::vector<uint32_t> &dynamicOffsets       = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsets;
+        ccstd::vector<uint32_t> &dynamicOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsets;
         for (size_t i = 0U, len = dynamicOffsetOffsets.size() - 1; i < len; i++) {
             size_t count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
             // CC_ASSERT(_curDynamicOffsets[i].size() >= count);

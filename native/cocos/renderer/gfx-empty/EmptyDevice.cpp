@@ -61,19 +61,19 @@ EmptyDevice::~EmptyDevice() {
 bool EmptyDevice::doInit(const DeviceInfo & /*info*/) {
     QueueInfo queueInfo;
     queueInfo.type = QueueType::GRAPHICS;
-    _queue         = createQueue(queueInfo);
+    _queue = createQueue(queueInfo);
 
     QueryPoolInfo queryPoolInfo{QueryType::OCCLUSION, DEFAULT_MAX_QUERY_OBJECTS, true};
     _queryPool = createQueryPool(queryPoolInfo);
 
     CommandBufferInfo cmdBuffInfo;
-    cmdBuffInfo.type  = CommandBufferType::PRIMARY;
+    cmdBuffInfo.type = CommandBufferType::PRIMARY;
     cmdBuffInfo.queue = _queue;
-    _cmdBuff          = createCommandBuffer(cmdBuffInfo);
+    _cmdBuff = createCommandBuffer(cmdBuffInfo);
 
     _formatFeatures.fill(static_cast<FormatFeature>(-1)); // allow all usages for all formats
     _formatFeatures[toNumber(Format::UNKNOWN)] = FormatFeature::NONE;
-    _formatFeatures[toNumber(Format::COUNT)]   = FormatFeature::NONE;
+    _formatFeatures[toNumber(Format::COUNT)] = FormatFeature::NONE;
 
     CC_LOG_INFO("Empty device initialized.");
 

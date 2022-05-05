@@ -46,10 +46,10 @@ namespace cc {
 
 class TextureBase;
 
-constexpr uint32_t TYPE_MASK    = 0xfc000000; //  6 bits => 64 types
+constexpr uint32_t TYPE_MASK = 0xfc000000;    //  6 bits => 64 types
 constexpr uint32_t BINDING_MASK = 0x03f00000; //  6 bits => 64 bindings
-constexpr uint32_t COUNT_MASK   = 0x000ff000; //  8 bits => 256 vectors
-constexpr uint32_t OFFSET_MASK  = 0x00000fff; // 12 bits => 1024 vectors
+constexpr uint32_t COUNT_MASK = 0x000ff000;   //  8 bits => 256 vectors
+constexpr uint32_t OFFSET_MASK = 0x00000fff;  // 12 bits => 1024 vectors
 
 constexpr uint32_t genHandle(uint32_t binding, gfx::Type type, uint32_t count, uint32_t offset = 0) {
     return ((static_cast<uint32_t>(type) << 26) & TYPE_MASK) |
@@ -59,10 +59,10 @@ constexpr uint32_t genHandle(uint32_t binding, gfx::Type type, uint32_t count, u
 }
 
 constexpr gfx::Type getTypeFromHandle(uint32_t handle) { return static_cast<gfx::Type>((handle & TYPE_MASK) >> 26); }
-constexpr uint32_t  getBindingFromHandle(uint32_t handle) { return (handle & BINDING_MASK) >> 20; }
-constexpr uint32_t  getCountFromHandle(uint32_t handle) { return (handle & COUNT_MASK) >> 12; }
-constexpr uint32_t  getOffsetFromHandle(uint32_t handle) { return (handle & OFFSET_MASK); }
-constexpr uint32_t  customizeType(uint32_t handle, gfx::Type type) {
+constexpr uint32_t getBindingFromHandle(uint32_t handle) { return (handle & BINDING_MASK) >> 20; }
+constexpr uint32_t getCountFromHandle(uint32_t handle) { return (handle & COUNT_MASK) >> 12; }
+constexpr uint32_t getOffsetFromHandle(uint32_t handle) { return (handle & OFFSET_MASK); }
+constexpr uint32_t customizeType(uint32_t handle, gfx::Type type) {
     return (handle & ~TYPE_MASK) | ((static_cast<uint32_t>(type) << 26) & TYPE_MASK);
 }
 
@@ -95,7 +95,7 @@ extern const ccstd::unordered_map<gfx::Type, GFXTypeWriterCallback> type2writer;
  * @param type The type of the uniform
  */
 const ccstd::vector<float> &getDefaultFloatArrayFromType(gfx::Type type);
-const ccstd::string &       getDefaultStringFromType(gfx::Type type);
+const ccstd::string &getDefaultStringFromType(gfx::Type type);
 
 /**
  * @en Combination of preprocess macros

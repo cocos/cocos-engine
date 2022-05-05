@@ -110,24 +110,24 @@ public:
      */
     SchedulerPtr getScheduler() const override;
 
-    bool isInited() const override {return _inited;}
+    bool isInited() const override { return _inited; }
 
 private:
-    void    tick();
-    bool    dispatchWindowEvent(const WindowEvent& ev);
-    bool    dispatchDeviceEvent(const DeviceEvent& ev);
-    bool    dispatchEventToApp(OSEventType type, const OSEvent& ev);
+    void tick();
+    bool dispatchWindowEvent(const WindowEvent& ev);
+    bool dispatchDeviceEvent(const DeviceEvent& ev);
+    bool dispatchEventToApp(OSEventType type, const OSEvent& ev);
     int32_t restartVM();
 
-    bool                       _close{false};
-    bool                       _pause{false};
-    bool                       _resune{false};
+    bool _close{false};
+    bool _pause{false};
+    bool _resune{false};
     std::shared_ptr<Scheduler> _scheduler{nullptr};
-    int64_t                    _prefererredNanosecondsPerFrame{NANOSECONDS_60FPS};
-    uint                       _totalFrames{0};
-    cc::Vec2                   _viewLogicalSize{0, 0};
-    bool                       _needRestart{false};
-    bool                       _inited{false};
+    int64_t _prefererredNanosecondsPerFrame{NANOSECONDS_60FPS};
+    uint _totalFrames{0};
+    cc::Vec2 _viewLogicalSize{0, 0};
+    bool _needRestart{false};
+    bool _inited{false};
 
     std::map<OSEventType, EventCb> _eventCallbacks;
     CC_DISALLOW_COPY_MOVE_ASSIGN(Engine);

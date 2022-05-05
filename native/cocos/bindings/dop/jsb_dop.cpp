@@ -48,10 +48,10 @@ SE_DECLARE_FINALIZE_FUNC(jsb_BufferPool_finalize)
 
 static bool jsb_BufferPool_constructor(se::State &s) { // NOLINT
     const auto &args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 3) {
-        uint poolType      = 0;
-        uint entryBits     = 0;
+        uint poolType = 0;
+        uint entryBits = 0;
         uint bytesPerEntry = 0;
 
         bool ok = true;
@@ -100,7 +100,7 @@ SE_DECLARE_FINALIZE_FUNC(jsb_BufferAllocator_finalize)
 
 static bool jsb_BufferAllocator_constructor(se::State &s) { // NOLINT
     const auto &args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 1) {
         uint type = 0;
 
@@ -124,7 +124,7 @@ static bool jsb_BufferAllocator_alloc(se::State &s) { // NOLINT
     SE_PRECONDITION2(bufferAllocator, false, "jsb_Array_alloc : Invalid Native Object");
 
     const auto &args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 2) {
         uint index = 0;
         sevalue_to_native(args[0], &index);
@@ -144,7 +144,7 @@ static bool jsb_BufferAllocator_free(se::State &s) { // NOLINT
     SE_PRECONDITION2(bufferAllocator, false, "jsb_Array_alloc : Invalid Native Object");
 
     const auto &args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 1) {
         uint index = 0;
         sevalue_to_native(args[0], &index);

@@ -42,7 +42,7 @@ void OSInterface::dispatchEvent(const OSEvent &ev) {
     }
 }
 
-void OSInterface::dispatchTouchEvent(const TouchEvent& ev) {
+void OSInterface::dispatchTouchEvent(const TouchEvent &ev) {
     if (_evDispatchInterface) {
         _evDispatchInterface->dispatchTouchEvent(ev);
     }

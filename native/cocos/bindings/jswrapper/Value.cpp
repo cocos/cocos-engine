@@ -60,7 +60,7 @@ inline
 
 ValueArray EmptyValueArray; // NOLINT(readability-identifier-naming)
 
-Value Value::Null      = Value(Type::Null);      //NOLINT(readability-identifier-naming)
+Value Value::Null = Value(Type::Null);           //NOLINT(readability-identifier-naming)
 Value Value::Undefined = Value(Type::Undefined); //NOLINT(readability-identifier-naming)
 
 Value::Value()
@@ -244,9 +244,9 @@ Value &Value::operator=(Value &&v) noexcept {
                     }
                     _u._object->decRef();
                 }
-                _u._object        = v._u._object;
-                _autoRootUnroot   = v._autoRootUnroot;
-                v._u._object      = nullptr; // Reset to nullptr here to avoid 'release' operation in v.reset(Type::Undefined) since it's a move operation here.
+                _u._object = v._u._object;
+                _autoRootUnroot = v._autoRootUnroot;
+                v._u._object = nullptr; // Reset to nullptr here to avoid 'release' operation in v.reset(Type::Undefined) since it's a move operation here.
                 v._autoRootUnroot = false;
             } break;
             default:
@@ -390,7 +390,7 @@ void Value::setObject(Object *object, bool autoRootUnroot /* = false*/) {
             }
             _u._object->decRef();
         }
-        _u._object      = object;
+        _u._object = object;
         _autoRootUnroot = autoRootUnroot;
     } else {
         _autoRootUnroot = autoRootUnroot;

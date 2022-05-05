@@ -37,13 +37,13 @@ namespace pipeline {
 class RenderPipeline;
 class CC_DLL PipelineUBO final {
 public:
-    static void    updateGlobalUBOView(const scene::Camera *camera, ccstd::array<float, UBOGlobal::COUNT> *bufferView);
-    static void    updateCameraUBOView(const RenderPipeline *pipeline, float *output, const scene::Camera *camera);
-    static void    updateShadowUBOView(const RenderPipeline *pipeline, ccstd::array<float, UBOShadow::COUNT> *bufferView, const scene::Camera *camera);
-    static void    updateShadowUBOLightView(const RenderPipeline *pipeline, ccstd::array<float, UBOShadow::COUNT> *bufferView, const scene::Light *light);
+    static void updateGlobalUBOView(const scene::Camera *camera, ccstd::array<float, UBOGlobal::COUNT> *bufferView);
+    static void updateCameraUBOView(const RenderPipeline *pipeline, float *output, const scene::Camera *camera);
+    static void updateShadowUBOView(const RenderPipeline *pipeline, ccstd::array<float, UBOShadow::COUNT> *bufferView, const scene::Camera *camera);
+    static void updateShadowUBOLightView(const RenderPipeline *pipeline, ccstd::array<float, UBOShadow::COUNT> *bufferView, const scene::Light *light);
     static uint8_t getCombineSignY();
 
-    PipelineUBO()  = default;
+    PipelineUBO() = default;
     ~PipelineUBO() = default;
     void activate(gfx::Device *device, RenderPipeline *pipeline);
     void destroy();
@@ -59,17 +59,17 @@ public:
 
 private:
     RenderPipeline *_pipeline = nullptr;
-    gfx::Device *   _device   = nullptr;
+    gfx::Device *_device = nullptr;
 
     ccstd::array<float, UBOGlobal::COUNT> _globalUBO;
     ccstd::array<float, UBOShadow::COUNT> _shadowUBO;
 
     ccstd::vector<gfx::Buffer *> _ubos;
-    void                         initCombineSignY();
-    ccstd::vector<float>         _cameraUBOs;
-    gfx::Buffer *                _cameraBuffer{nullptr};
-    uint                         _currentCameraUBOOffset{0};
-    uint                         _alignedCameraUBOSize{0};
+    void initCombineSignY();
+    ccstd::vector<float> _cameraUBOs;
+    gfx::Buffer *_cameraBuffer{nullptr};
+    uint _currentCameraUBOOffset{0};
+    uint _alignedCameraUBOSize{0};
 };
 
 } // namespace pipeline

@@ -41,9 +41,9 @@ PhysXRigidBody::PhysXRigidBody() : _mEnabled(false),
                                    _mGroup(1) {}
 
 void PhysXRigidBody::initialize(Node *node, ERigidBodyType t, uint32_t g) {
-    _mGroup         = g;
+    _mGroup = g;
     PhysXWorld &ins = PhysXWorld::getInstance();
-    _mSharedBody    = ins.getSharedBody(node, this);
+    _mSharedBody = ins.getSharedBody(node, this);
     getSharedBody().reference(true);
     getSharedBody().setType(t);
 }
@@ -197,10 +197,10 @@ void PhysXRigidBody::applyLocalForce(float x, float y, float z, float rx, float 
     if (!getSharedBody().isInWorld() || getSharedBody().isStaticOrKinematic()) return;
     const PxVec3 force{x, y, z};
     if (force.isZero()) return;
-    auto *            body       = getSharedBody().getImpl().rigidDynamic;
-    const PxTransform bodyPose   = body->getGlobalPose();
-    const PxVec3      worldForce = bodyPose.rotate(force);
-    const PxVec3      worldPos   = bodyPose.rotate(PxVec3{rx, ry, rz});
+    auto *body = getSharedBody().getImpl().rigidDynamic;
+    const PxTransform bodyPose = body->getGlobalPose();
+    const PxVec3 worldForce = bodyPose.rotate(force);
+    const PxVec3 worldPos = bodyPose.rotate(PxVec3{rx, ry, rz});
     body->addForce(worldForce, PxForceMode::eFORCE, true);
     const PxVec3 torque = worldPos.cross(worldForce);
     if (!torque.isZero()) body->addTorque(torque, PxForceMode::eFORCE, true);
@@ -210,7 +210,7 @@ void PhysXRigidBody::applyImpulse(float x, float y, float z, float rx, float ry,
     if (!getSharedBody().isInWorld() || getSharedBody().isStaticOrKinematic()) return;
     const PxVec3 impulse{x, y, z};
     if (impulse.isZero()) return;
-    auto *       body   = getSharedBody().getImpl().rigidDynamic;
+    auto *body = getSharedBody().getImpl().rigidDynamic;
     const PxVec3 torque = (PxVec3{rx, ry, rz}).cross(impulse);
     body->addForce(impulse, PxForceMode::eIMPULSE, true);
     if (!torque.isZero()) body->addTorque(torque, PxForceMode::eIMPULSE, true);
@@ -220,10 +220,10 @@ void PhysXRigidBody::applyLocalImpulse(float x, float y, float z, float rx, floa
     if (!getSharedBody().isInWorld() || getSharedBody().isStaticOrKinematic()) return;
     const PxVec3 impulse{x, y, z};
     if (impulse.isZero()) return;
-    auto *            body         = getSharedBody().getImpl().rigidDynamic;
-    const PxTransform bodyPose     = body->getGlobalPose();
-    const PxVec3      worldImpulse = bodyPose.rotate(impulse);
-    const PxVec3      worldPos     = bodyPose.rotate(PxVec3{rx, ry, rz});
+    auto *body = getSharedBody().getImpl().rigidDynamic;
+    const PxTransform bodyPose = body->getGlobalPose();
+    const PxVec3 worldImpulse = bodyPose.rotate(impulse);
+    const PxVec3 worldPos = bodyPose.rotate(PxVec3{rx, ry, rz});
     body->addForce(worldImpulse, PxForceMode::eIMPULSE, true);
     const PxVec3 torque = worldPos.cross(worldImpulse);
     if (!torque.isZero()) body->addTorque(torque, PxForceMode::eIMPULSE, true);
@@ -240,7 +240,7 @@ void PhysXRigidBody::applyLocalTorque(float x, float y, float z) {
     if (!getSharedBody().isInWorld() || getSharedBody().isStaticOrKinematic()) return;
     PxVec3 torque{x, y, z};
     if (torque.isZero()) return;
-    auto *            body     = getSharedBody().getImpl().rigidDynamic;
+    auto *body = getSharedBody().getImpl().rigidDynamic;
     const PxTransform bodyPose = body->getGlobalPose();
     body->addTorque(bodyPose.rotate(PxVec3{x, y, z}), PxForceMode::eFORCE, true);
 }
