@@ -168,7 +168,7 @@ export class SkeletalAnimation extends Animation {
         const comps = this.node.getComponentsInChildren(SkinnedMeshRenderer);
         for (let i = 0; i < comps.length; ++i) {
             const comp = comps[i];
-            if (comp.skinningRoot === this.node) {
+            if (comp.skinningRoot === this.node && comp.node.activeInHierarchy) {
                 this.notifySkinnedMeshAdded(comp);
             }
         }
