@@ -57,12 +57,11 @@ public:
                                                           cc::ISystemWindow::CC_WINDOW_RESIZABLE |
                                                           cc::ISystemWindow::CC_WINDOW_INPUT_FOCUS
                                                     : _windowInfo.flags;
-        if (_windowInfo.x == -1 || _windowInfo.y == -1) {
-            createWindow(_windowInfo.title.c_str(), _windowInfo.width, _windowInfo.height, _windowInfo.flags);
-        } else {
-            createWindow(_windowInfo.title.c_str(),
-                         _windowInfo.x, _windowInfo.y, _windowInfo.width, _windowInfo.height, _windowInfo.flags);
+        if (!isDesktopWindowCreated) {
+                createWindow(_windowInfo.title.c_str(), _windowInfo.width, _windowInfo.height, _windowInfo.flags);
+                isDesktopWindowCreated = true;
         }
+        
 #endif
 
         if (_debuggerInfo.enabled) {
@@ -75,18 +74,9 @@ public:
         }
 
         setXXTeaKey(_xxteaKey);
-        registerListeners();
         runScript("jsb-adapter/jsb-builtin.js");
         runScript("main.js");
         return 0;
-    }
-    void registerListeners() {
-        EventDispatcher::addCustomEventListener("event_resize", [&](const CustomEvent& event) {
-            //TODO: get width and height
-            //_windowInfo.width = event.args
-            _windowInfo.width  = event.args[1].longVal;
-            _windowInfo.height = event.args[2].longVal;
-        });
     }
 
 protected:
@@ -94,5 +84,7 @@ protected:
     DebuggerInfo _debuggerInfo;
     WindowInfo   _windowInfo;
 
+private:
+    bool         isDesktopWindowCreated { false };
 };
 } // namespace cc

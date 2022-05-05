@@ -287,7 +287,6 @@ void EventDispatcher::dispatchResizeEvent(int width, int height) {
     if (!se::ScriptEngine::getInstance()->isValid()) {
         return;
     }
-    assert(inited);
 
     se::Value func;
     __jsbObj->getProperty(jsFunctionName, &func);
