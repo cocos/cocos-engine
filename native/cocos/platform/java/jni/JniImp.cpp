@@ -155,6 +155,8 @@ float *getDeviceMotionValueJNI() {
 
 extern "C" {
 JNIEXPORT void JNICALL JNI_AUDIO(nativeSetAudioVolumeFactor)(JNIEnv * /*env*/, jclass /* thiz*/, jfloat volumeFactor) {
+#if CC_USE_AUDIO
     AudioEngine::setVolumeFactor(volumeFactor);
+#endif
 }
 }
