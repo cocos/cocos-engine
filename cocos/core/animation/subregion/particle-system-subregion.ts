@@ -39,7 +39,7 @@ export class ParticleSystemSubRegionPlayer extends SubRegionPlayer {
 
 class InstantiatedParticleSystemSubRegion extends InstantiatedSubRegionPlayer {
     constructor (particleSystem: ParticleSystem) {
-        super();
+        super(false);
         this._particleSystem = particleSystem;
     }
 

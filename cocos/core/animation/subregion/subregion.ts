@@ -54,6 +54,10 @@ export abstract class SubRegionPlayer {
 }
 
 export abstract class InstantiatedSubRegionPlayer {
+    constructor (randomAccess: boolean) {
+        this._randomAccess = randomAccess;
+    }
+
     /**
      * 可以随意调整此播放器到任何时间。
      */
@@ -88,8 +92,5 @@ export abstract class InstantiatedSubRegionPlayer {
      */
     public abstract setSpeed(speed: number): void;
 
-    /**
-     * @internal
-     */
-    protected _randomAccess = false;
+    private declare _randomAccess: boolean;
 }

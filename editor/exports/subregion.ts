@@ -7,7 +7,7 @@ export {
 
 export { Subregion } from '../../cocos/core/animation/subregion/subregion';
 
-export type { Su } from '../../cocos/core/animation/subregion/subregion';
+export type { SubRegionPlayer } from '../../cocos/core/animation/subregion/subregion';
 
 export { ParticleSystemSubRegionPlayer } from '../../cocos/core/animation/subregion/particle-system-subregion';
 

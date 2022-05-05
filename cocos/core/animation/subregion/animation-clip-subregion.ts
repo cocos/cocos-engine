@@ -37,7 +37,7 @@ export class AnimationClipSubRegionPlayer extends SubRegionPlayer {
 
 class InstantiatedAnimationClipSubRegionPlayer extends InstantiatedSubRegionPlayer {
     constructor (animationState: AnimationState) {
-        super();
+        super(true);
         this._animationState = animationState;
     }
 
