@@ -294,10 +294,10 @@ export class Graphics extends Renderable2D {
      * @zh
      * 移动路径起点到坐标(x, y)。
      *
-     * @param x @en Moves the x-axis start point.
-     *          @zh 移动坐标 x 轴起点。
-     * @param y @en Moves the y-axis start point.
-     *          @zh 移动坐标 y 轴起点。
+     * @param x @en The x-axis coordinate of the target position.
+     *          @zh 目标位置的 X 轴坐标。
+     * @param y @en The y-axis coordinate of the target position.
+     *          @zh 目标位置的 y 轴坐标。
      */
     public moveTo (x: number, y: number) {
         if (!this.impl) {
@@ -314,10 +314,10 @@ export class Graphics extends Renderable2D {
      * @zh
      * 绘制直线路径。
      *
-     * @param x @en The x-axis coordinate of the path.
-     *          @zh 绘制路径 x 轴坐标。
-     * @param y @en The y-axis coordinate of the path.
-     *          @zh 绘制路径 y 轴坐标。
+     * @param x @en The x-axis coordinate of the target position.
+     *          @zh 目标位置的 x 轴坐标。
+     * @param y @en The x-axis coordinate of the target position.
+     *          @zh 目标位置的 y 轴坐标。
      */
     public lineTo (x: number, y: number) {
         if (!this.impl) {
@@ -393,9 +393,9 @@ export class Graphics extends Renderable2D {
      *           @zh 中心控制点的坐标 y 轴。
      * @param r @en Angle in Radian.
      *          @zh 圆弧弧度。
-     * @param startAngle @en The starting point of radian, measured clockwise from the positive x-axis.
+     * @param startAngle @en The starting angle in radian, measured clockwise from the positive x-axis.
      *                   @zh 弧度起点，从正 x 轴顺时针方向测量。
-     * @param endAngle @en End point of radian, measured clockwise from the positive x-axis.
+     * @param endAngle @en The ending angle in radian, measured clockwise from the positive x-axis.
      *                 @zh 弧度终点，从正 x 轴顺时针方向测量。
      * @param counterclockwise @en If true, draws counterclockwise between the two angles. Default is clockwise.
      *                         @zh 如果为真，在两个角度之间逆时针绘制。默认顺时针。
@@ -461,13 +461,13 @@ export class Graphics extends Renderable2D {
      * @zh
      * 绘制矩形路径。
      *
-     * @param x @en The coordinate of the starting x-axis of the rectangle.
+     * @param x @en The x-axis coordinate of the top left point of the rectangle.
      *          @zh 矩形起始 x 轴坐标。
-     * @param y @en The coordinate of the starting y-axis of the rectangle.
+     * @param y @en The y-axis coordinate of the top left point of the rectangle.
      *          @zh 矩形起始 y 轴坐标。
-     * @param w @en Rectangle width.
+     * @param w @en The width of the rectangle.
      *          @zh 矩形宽度。
-     * @param h @en Rectangle height.
+     * @param h @en The height of the rectangle.
      *          @zh 矩形高度。
      */
     public rect (x: number, y: number, w: number, h: number) {
@@ -485,13 +485,13 @@ export class Graphics extends Renderable2D {
      * @zh
      * 绘制圆角矩形路径。
      *
-     * @param x @en The coordinate of the starting x-axis of the rectangle.
+     * @param x @en The x-axis coordinate of the top left point of the rectangle.
      *          @zh 矩形起始 x 轴坐标。
-     * @param y @en The coordinate of the starting y-axis of the rectangle.
+     * @param y @en The y-axis coordinate of the top left point of the rectangle.
      *          @zh 矩形起始 y 轴坐标。
-     * @param w @en Rectangle width.
+     * @param w @en The width of the rectangle.
      *          @zh 矩形宽度。
-     * @param h @en Rectangle height.
+     * @param h @en The height of the rectangle.
      *          @zh 矩形高度。
      * @param r @en Radius of rectangular rounded corners.
      *          @zh 矩形圆角半径。
@@ -511,13 +511,13 @@ export class Graphics extends Renderable2D {
      * @zh
      * 绘制填充矩形。
      *
-     * @param x @en The coordinate of the starting x-axis of the rectangle.
+     * @param x @en The x-axis coordinate of the top left point of the rectangle.
      *          @zh 矩形起始 x 轴坐标。
-     * @param y @en The coordinate of the starting y-axis of the rectangle.
+     * @param y @en The y-axis coordinate of the top left point of the rectangle.
      *          @zh 矩形起始 y 轴坐标。
-     * @param w @en Rectangle width.
+     * @param w @en The width of the rectangle.
      *          @zh 矩形宽度。
-     * @param h @en Rectangle height.
+     * @param h @en The height of the rectangle.
      *          @zh 矩形高度。
      */
     public fillRect (x, y, w, h) {
