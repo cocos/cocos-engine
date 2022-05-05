@@ -53,7 +53,7 @@ void Java_com_cocos_lib_CocosVideoHelper_nativeExecuteVideoCallback(JNIEnv *env,
 
 int createVideoWidgetJNI() {
     JniMethodInfo t;
-    int           ret = -1;
+    int ret = -1;
     if (JniHelper::getStaticMethodInfo(t, VIDEO_HELPER_CLASS_NAME.c_str(), "createVideoWidget", "()I")) {
         ret = t.env->CallStaticIntMethod(t.classID, t.methodID);
 
@@ -72,7 +72,7 @@ VideoPlayer::VideoPlayer()
   _fullScreenEnabled(false),
   _fullScreenDirty(false),
   _keepAspectRatioEnabled(false) {
-    _videoPlayerIndex                   = createVideoWidgetJNI();
+    _videoPlayerIndex = createVideoWidgetJNI();
     sAllVideoPlayers[_videoPlayerIndex] = this;
 
     #if CC_VIDEOPLAYER_DEBUG_DRAW
@@ -88,10 +88,10 @@ VideoPlayer::~VideoPlayer() {
 
 void VideoPlayer::setURL(const ccstd::string &videoUrl) {
     if (videoUrl.find("://") == ccstd::string::npos) {
-        _videoURL    = FileUtils::getInstance()->fullPathForFilename(videoUrl);
+        _videoURL = FileUtils::getInstance()->fullPathForFilename(videoUrl);
         _videoSource = VideoPlayer::Source::FILENAME;
     } else {
-        _videoURL    = videoUrl;
+        _videoURL = videoUrl;
         _videoSource = VideoPlayer::Source::URL;
     }
 

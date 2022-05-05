@@ -9,7 +9,7 @@ namespace cc {
 void MutableForwardIteratorTest() {
     using namespace cc;
 
-    ccstd::vector<int>          myarr{1, 2, 3, 43, 4, 5};
+    ccstd::vector<int> myarr{1, 2, 3, 43, 4, 5};
     MutableForwardIterator<int> iter{myarr};
 
     iter.fastRemoveAt(2);

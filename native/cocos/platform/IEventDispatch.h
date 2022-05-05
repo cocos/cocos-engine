@@ -38,7 +38,7 @@ public:
     /**
      * Dispatch event interface.
      */
-    virtual void dispatchEvent(const OSEvent &ev) = 0;
+    virtual void dispatchEvent(const OSEvent& ev) = 0;
     /**
      * Dispatch touch event interface.
      */

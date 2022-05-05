@@ -140,8 +140,8 @@ public:
                       float cx = 0, float cy = 1, float cz = 0);
 
     Triangle(const Triangle &) = default;
-    Triangle(Triangle &&)      = default;
-    ~Triangle() override       = default;
+    Triangle(Triangle &&) = default;
+    ~Triangle() override = default;
     Triangle &operator=(const Triangle &) = default;
     Triangle &operator=(Triangle &&) = default;
 

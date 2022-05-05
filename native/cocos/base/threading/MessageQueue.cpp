@@ -30,7 +30,7 @@
 namespace cc {
 
 namespace {
-uint32_t constexpr MEMORY_CHUNK_POOL_CAPACITY      = 64;
+uint32_t constexpr MEMORY_CHUNK_POOL_CAPACITY = 64;
 uint32_t constexpr SWITCH_CHUNK_MEMORY_REQUIREMENT = sizeof(MemoryChunkSwitchMessage) + utils::ALIGN_TO<sizeof(DummyMessage), 16>;
 } // namespace
 
@@ -105,7 +105,7 @@ void MessageQueue::kick() noexcept {
 }
 
 void MessageQueue::kickAndWait() noexcept {
-    EventSem        event;
+    EventSem event;
     EventSem *const pEvent = &event;
 
     ENQUEUE_MESSAGE_1(this, WaitUntilFinish,
@@ -122,7 +122,7 @@ void MessageQueue::runConsumerThread() noexcept {
     if (_immediateMode || _workerAttached) return;
 
     _reader.terminateConsumerThread = false;
-    _reader.flushingFinished        = false;
+    _reader.flushingFinished = false;
 
     std::thread consumerThread(&MessageQueue::consumerThreadLoop, this);
     consumerThread.detach();
@@ -132,12 +132,12 @@ void MessageQueue::runConsumerThread() noexcept {
 void MessageQueue::terminateConsumerThread() noexcept {
     if (_immediateMode || !_workerAttached) return;
 
-    EventSem        event;
+    EventSem event;
     EventSem *const pEvent = &event;
 
     ReaderContext *const pR = &_reader;
 
-    ccnew_placement (allocate<TerminateConsumerThreadMessage>(1)) TerminateConsumerThreadMessage(pEvent, pR);
+    ccnew_placement(allocate<TerminateConsumerThreadMessage>(1)) TerminateConsumerThreadMessage(pEvent, pR);
 
     kick();
     event.wait();
@@ -175,25 +175,25 @@ uint8_t *MessageQueue::allocateImpl(uint32_t allocatedSize, uint32_t const reque
     // newOffset contains the DummyMessage
     if (newOffset + sizeof(MemoryChunkSwitchMessage) <= MEMORY_CHUNK_SIZE) {
         uint8_t *const allocatedMemory = _writer.currentMemoryChunk + _writer.offset;
-        _writer.offset                 = newOffset;
+        _writer.offset = newOffset;
         return allocatedMemory;
     }
-    uint8_t *const newChunk      = MessageQueue::MemoryAllocator::getInstance().request();
-    auto *const    switchMessage = reinterpret_cast<MemoryChunkSwitchMessage *>(_writer.currentMemoryChunk + _writer.offset);
-    ccnew_placement (switchMessage) MemoryChunkSwitchMessage(this, newChunk, _writer.currentMemoryChunk);
+    uint8_t *const newChunk = MessageQueue::MemoryAllocator::getInstance().request();
+    auto *const switchMessage = reinterpret_cast<MemoryChunkSwitchMessage *>(_writer.currentMemoryChunk + _writer.offset);
+    ccnew_placement(switchMessage) MemoryChunkSwitchMessage(this, newChunk, _writer.currentMemoryChunk);
     switchMessage->_next = reinterpret_cast<Message *>(newChunk); // point to start position
-    _writer.lastMessage  = switchMessage;
+    _writer.lastMessage = switchMessage;
     ++_writer.pendingMessageCount;
     _writer.currentMemoryChunk = newChunk;
-    _writer.offset             = 0;
+    _writer.offset = 0;
 
     DummyMessage *const head = allocate<DummyMessage>(1);
-    ccnew_placement (head) DummyMessage;
+    ccnew_placement(head) DummyMessage;
 
     if (_immediateMode) {
         pushMessages();
         pullMessages();
-        assert(_reader.newMessageCount == 2);
+        CC_ASSERT(_reader.newMessageCount == 2);
         executeMessages();
         executeMessages();
     }
@@ -241,10 +241,10 @@ Message *MessageQueue::readMessage() noexcept {
         }
     }
 
-    Message *const msg  = _reader.lastMessage->getNext();
+    Message *const msg = _reader.lastMessage->getNext();
     _reader.lastMessage = msg;
     --_reader.newMessageCount;
-    assert(msg);
+    CC_ASSERT(msg);
     return msg;
 }
 
@@ -287,7 +287,7 @@ TerminateConsumerThreadMessage::TerminateConsumerThreadMessage(EventSem *const p
 
 void TerminateConsumerThreadMessage::execute() noexcept {
     _reader->terminateConsumerThread = true;
-    _reader->flushingFinished        = true;
+    _reader->flushingFinished = true;
     _event->signal();
 }
 

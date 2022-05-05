@@ -187,34 +187,38 @@ void printLog(DebugMode mode, const ccstd::string &fmt, cc::any *arr, int params
 
 template <typename... Args>
 void logID(uint32_t id, Args... optionalParams) {
-    ccstd::string msg   = getTypedFormatter(DebugMode::VERBOSE, id);
-    int           size  = sizeof...(optionalParams);
-    cc::any       arr[] = {0, unpackParams(optionalParams)...};
+    ccstd::string msg = getTypedFormatter(DebugMode::VERBOSE, id);
+    int size = sizeof...(optionalParams);
+    cc::any arr[] = {0, unpackParams(optionalParams)...};
     printLog(DebugMode::VERBOSE, msg, arr, size);
 }
 
 template <typename... Args>
 void warnID(uint32_t id, Args... optionalParams) {
-    ccstd::string msg   = getTypedFormatter(DebugMode::WARN, id);
-    int           size  = sizeof...(optionalParams);
-    cc::any       arr[] = {0, unpackParams(optionalParams)...};
+    ccstd::string msg = getTypedFormatter(DebugMode::WARN, id);
+    int size = sizeof...(optionalParams);
+    cc::any arr[] = {0, unpackParams(optionalParams)...};
     printLog(DebugMode::WARN, msg, arr, size);
 }
 
 template <typename... Args>
 void errorID(uint32_t id, Args... optionalParams) {
-    ccstd::string msg   = getTypedFormatter(DebugMode::ERROR_MODE, id);
-    int           size  = sizeof...(optionalParams);
-    cc::any       arr[] = {0, unpackParams(optionalParams)...};
+    ccstd::string msg = getTypedFormatter(DebugMode::ERROR_MODE, id);
+    int size = sizeof...(optionalParams);
+    cc::any arr[] = {0, unpackParams(optionalParams)...};
     printLog(DebugMode::ERROR_MODE, msg, arr, size);
 }
 
 template <typename... Args>
-void assertID(uint32_t id, Args... optionalParams) {
-    ccstd::string msg   = getTypedFormatter(DebugMode::INFO, id);
-    int           size  = sizeof...(optionalParams);
-    cc::any       arr[] = {0, unpackParams(optionalParams)...};
+void assertID(bool condition, uint32_t id, Args... optionalParams) {
+    if (condition) {
+        return;
+    }
+    ccstd::string msg = getTypedFormatter(DebugMode::INFO, id);
+    int size = sizeof...(optionalParams);
+    cc::any arr[] = {0, unpackParams(optionalParams)...};
     printLog(DebugMode::INFO, msg, arr, size);
+    CC_ASSERT(false);
 }
 
 void _throw(); // NOLINT // throw is a reserved word

@@ -98,8 +98,8 @@ OctreeNode::~OctreeNode() {
 }
 
 BBox OctreeNode::getChildBox(uint32_t index) const {
-    cc::Vec3       min    = _aabb.min;
-    cc::Vec3       max    = _aabb.max;
+    cc::Vec3 min = _aabb.min;
+    cc::Vec3 max = _aabb.max;
     const cc::Vec3 center = _aabb.getCenter();
 
     if (index & 0x1) {
@@ -125,7 +125,7 @@ BBox OctreeNode::getChildBox(uint32_t index) const {
 
 OctreeNode *OctreeNode::getOrCreateChild(uint32_t index) {
     if (!_children[index]) {
-        BBox  childBox = getChildBox(index);
+        BBox childBox = getChildBox(index);
         auto *child = _children[index] = ccnew OctreeNode(_owner, this);
         child->setBox(childBox);
         child->setDepth(_depth + 1);
@@ -145,9 +145,9 @@ void OctreeNode::deleteChild(uint32_t index) {
 void OctreeNode::insert(Model *model) { // NOLINT(misc-no-recursion)
     bool split = false;
     if (_depth < _owner->getMaxDepth() - 1) {
-        BBox            modelBox(*model->getWorldBounds());
+        BBox modelBox(*model->getWorldBounds());
         const cc::Vec3 &modelCenter = modelBox.getCenter();
-        const cc::Vec3 &nodeCenter  = _aabb.getCenter();
+        const cc::Vec3 &nodeCenter = _aabb.getCenter();
 
         uint32_t index = modelCenter.x < nodeCenter.x ? 0 : 1;
         index += modelCenter.y < nodeCenter.y ? 0 : 2;
@@ -308,8 +308,8 @@ Octree::~Octree() {
 
 void Octree::initialize(const OctreeInfo &info) {
     const Vec3 expand{OCTREE_BOX_EXPAND_SIZE, OCTREE_BOX_EXPAND_SIZE, OCTREE_BOX_EXPAND_SIZE};
-    _minPos   = info.getMinPos();
-    _maxPos   = info.getMaxPos();
+    _minPos = info.getMinPos();
+    _maxPos = info.getMaxPos();
     _maxDepth = std::max(info.getDepth(), 1U);
     setEnabled(info.isEnabled());
     _root->setBox(BBox{_minPos - expand, _maxPos});
@@ -338,7 +338,7 @@ void Octree::setMaxDepth(uint32_t val) {
 
 void Octree::resize(const Vec3 &minPos, const Vec3 &maxPos, uint32_t maxDepth) {
     const Vec3 expand{OCTREE_BOX_EXPAND_SIZE, OCTREE_BOX_EXPAND_SIZE, OCTREE_BOX_EXPAND_SIZE};
-    BBox       rootBox = _root->getBox();
+    BBox rootBox = _root->getBox();
     if ((minPos - expand) == rootBox.min && maxPos == rootBox.max && maxDepth == _maxDepth) {
         return;
     }
@@ -403,15 +403,15 @@ void Octree::queryVisibility(Camera *camera, const geometry::Frustum &frustum, b
 }
 
 bool Octree::isInside(Model *model) const {
-    const BBox &rootBox  = _root->getBox();
-    BBox        modelBox = BBox(*model->getWorldBounds());
+    const BBox &rootBox = _root->getBox();
+    BBox modelBox = BBox(*model->getWorldBounds());
 
     return rootBox.contain(modelBox);
 }
 
 bool Octree::isOutside(Model *model) const {
-    const BBox &rootBox  = _root->getBox();
-    BBox        modelBox = BBox(*model->getWorldBounds());
+    const BBox &rootBox = _root->getBox();
+    BBox modelBox = BBox(*model->getWorldBounds());
 
     return !rootBox.intersect(modelBox);
 }

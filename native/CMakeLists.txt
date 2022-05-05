@@ -834,8 +834,6 @@ if(WINDOWS)
     cocos_source_files(
                      cocos/platform/win32/compat
                      cocos/platform/win32/compat/stdint.h
-                     cocos/platform/win32/inet_pton_mingw.cpp
-                     cocos/platform/win32/inet_pton_mingw.h
     )
     cocos_source_files(MODULE ccfilesystem
         cocos/platform/win32/FileUtils-win32.cpp
@@ -2446,12 +2444,12 @@ cocos_source_files(
 )
 
 #### storage
-cocos_source_files(
-                 cocos/storage/local-storage/LocalStorage.cpp
-                 cocos/storage/local-storage/LocalStorage.h
-)
-
-if(ANDROID)
+if(NOT ANDROID)
+    cocos_source_files(
+                     cocos/storage/local-storage/LocalStorage.cpp
+                     cocos/storage/local-storage/LocalStorage.h
+    )
+else()
     cocos_source_files(
                      cocos/storage/local-storage/LocalStorage-android.cpp
     )

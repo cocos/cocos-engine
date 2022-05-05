@@ -37,25 +37,25 @@ inline cc::FileUtilsOHOS *getFU() {
 
 struct FatFd {
     union {
-        FILE *   fp;
+        FILE *fp;
         RawFile *rf;
     } file;
     void *user;
-    bool  isRawFile;
+    bool isRawFile;
 };
 } // namespace
 
 namespace cc {
 void *ohosOpen(const char *path, void *user) {
-    bool       isRawfile = false;
-    const auto newPath   = getFU()->expandPath(path, &isRawfile);
-    auto *     ret       = ccnew FatFd();
+    bool isRawfile = false;
+    const auto newPath = getFU()->expandPath(path, &isRawfile);
+    auto *ret = ccnew FatFd();
     if (isRawfile) {
         ret->file.rf = OpenRawFile(cc::FileUtilsOHOS::getResourceManager(), newPath.c_str());
     } else {
         ret->file.fp = fopen(newPath.c_str(), "rb");
     }
-    ret->user      = user;
+    ret->user = user;
     ret->isRawFile = isRawfile;
     return ret;
 }
@@ -78,7 +78,7 @@ int ohosSeek(void *datasource, long offset, int whence) { //NOLINT(google-runtim
 
 int ohosClose(void *datasource) {
     auto *fatFd = static_cast<FatFd *>(datasource);
-    int   code  = 0;
+    int code = 0;
     if (fatFd->isRawFile) {
         CloseRawFile(fatFd->file.rf);
         code = 0;

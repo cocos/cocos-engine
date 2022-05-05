@@ -157,20 +157,20 @@ public:
 private:
     bool doParse(const ccstd::string &str);
 
-    bool                                                   _isValid;
-    bool                                                   _isSecure;
-    ccstd::string                                          _scheme;
-    ccstd::string                                          _username;
-    ccstd::string                                          _password;
-    ccstd::string                                          _host;
-    ccstd::string                                          _hostName;
-    bool                                                   _hasAuthority;
-    uint16_t                                               _port;
-    ccstd::string                                          _authority;
-    ccstd::string                                          _pathEtc;
-    ccstd::string                                          _path;
-    ccstd::string                                          _query;
-    ccstd::string                                          _fragment;
+    bool _isValid;
+    bool _isSecure;
+    ccstd::string _scheme;
+    ccstd::string _username;
+    ccstd::string _password;
+    ccstd::string _host;
+    ccstd::string _hostName;
+    bool _hasAuthority;
+    uint16_t _port;
+    ccstd::string _authority;
+    ccstd::string _pathEtc;
+    ccstd::string _path;
+    ccstd::string _query;
+    ccstd::string _fragment;
     ccstd::vector<std::pair<ccstd::string, ccstd::string>> _queryParams;
 };
 

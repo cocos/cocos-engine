@@ -30,7 +30,6 @@
 #include "platform/java/jni/JniHelper.h"
 #include "game-activity/native_app_glue/android_native_app_glue.h"
 
-
 extern "C" {
 
 void android_main(struct android_app *app) {
@@ -43,10 +42,8 @@ void android_main(struct android_app *app) {
     platform->loop();
 }
 
-
 //NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onCreateNative(JNIEnv *env, jobject obj, jobject activity) {
     cc::JniHelper::init(env, activity);
 }
-
 }

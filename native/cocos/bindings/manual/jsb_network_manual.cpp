@@ -34,9 +34,9 @@ static bool js_cocos2dx_network_Downloader_createDownloadFileTask(se::State &s) 
     auto *cobj = static_cast<cc::network::Downloader *>(s.nativeThisObject());
     SE_PRECONDITION2(cobj, false,
                      "js_network_Downloader_createDownloadFileTask : Invalid Native Object");
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 2) {
         ccstd::string arg0;
         ccstd::string arg1;
@@ -82,9 +82,9 @@ SE_BIND_FUNC(js_cocos2dx_network_Downloader_createDownloadFileTask)
 static bool js_network_Downloader_setOnFileTaskSuccess(se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<cc::network::Downloader *>(s.nativeThisObject());
     SE_PRECONDITION2(cobj, false, "js_network_Downloader_setOnFileTaskSuccess : Invalid Native Object");
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         std::function<void(const cc::network::DownloadTask &)> arg0;
         do {
@@ -93,7 +93,7 @@ static bool js_network_Downloader_setOnFileTaskSuccess(se::State &s) { // NOLINT
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
                 auto *thisObj = s.thisObject();
-                auto  lambda  = [=](const cc::network::DownloadTask &larg0) -> void {
+                auto lambda = [=](const cc::network::DownloadTask &larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
 
@@ -101,9 +101,9 @@ static bool js_network_Downloader_setOnFileTaskSuccess(se::State &s) { // NOLINT
                     se::ValueArray args;
                     args.resize(1);
                     ok &= DownloadTask_to_seval(larg0, &args[0]);
-                    se::Value   rval;
+                    se::Value rval;
                     se::Object *funcObj = jsFunc.toObject();
-                    bool        succeed = funcObj->call(args, thisObj, &rval);
+                    bool succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
                         se::ScriptEngine::getInstance()->clearException();
                     }
@@ -128,9 +128,9 @@ SE_BIND_FUNC(js_network_Downloader_setOnFileTaskSuccess) // NOLINT(readability-i
 static bool js_network_Downloader_setOnTaskError(se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<cc::network::Downloader *>(s.nativeThisObject());
     SE_PRECONDITION2(cobj, false, "js_network_Downloader_setOnTaskError : Invalid Native Object");
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         std::function<void(const cc::network::DownloadTask &, int, int, const ccstd::string &)> arg0;
         do {
@@ -139,7 +139,7 @@ static bool js_network_Downloader_setOnTaskError(se::State &s) { // NOLINT(reada
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
                 auto *thisObj = s.thisObject();
-                auto  lambda  = [=](const cc::network::DownloadTask &larg0, int larg1, int larg2, const ccstd::string &larg3) -> void {
+                auto lambda = [=](const cc::network::DownloadTask &larg0, int larg1, int larg2, const ccstd::string &larg3) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
 
@@ -150,9 +150,9 @@ static bool js_network_Downloader_setOnTaskError(se::State &s) { // NOLINT(reada
                     ok &= nativevalue_to_se(larg1, args[1]);
                     ok &= nativevalue_to_se(larg2, args[2]);
                     ok &= nativevalue_to_se(larg3, args[3]);
-                    se::Value   rval;
+                    se::Value rval;
                     se::Object *funcObj = jsFunc.toObject();
-                    bool        succeed = funcObj->call(args, thisObj, &rval);
+                    bool succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
                         se::ScriptEngine::getInstance()->clearException();
                     }

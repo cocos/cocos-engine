@@ -41,11 +41,11 @@ namespace se {
 
 namespace {
 //        ccstd::unordered_map<ccstd::string, Class *> __clsMap;
-v8::Isolate *          __isolate = nullptr; // NOLINT
-ccstd::vector<Class *> __allClasses;        // NOLINT
+v8::Isolate *__isolate = nullptr;    // NOLINT
+ccstd::vector<Class *> __allClasses; // NOLINT
 
 void invalidConstructor(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    v8::Local<v8::Object> thisObj         = args.This();
+    v8::Local<v8::Object> thisObj = args.This();
     v8::Local<v8::String> constructorName = thisObj->GetConstructorName();
     v8::String::Utf8Value strConstructorName{args.GetIsolate(), constructorName};
     SE_ASSERT(false, "%s 's constructor is not public!", *strConstructorName); // NOLINT(misc-static-assert)
@@ -77,8 +77,8 @@ Class *Class::create(const ccstd::string &clsName, se::Object *parent, Object *p
 
 Class *Class::create(const std::initializer_list<const char *> &classPath, se::Object *parent, Object *parentProto, v8::FunctionCallback ctor) {
     se::AutoHandleScope scope;
-    se::Object *        currentParent = parent;
-    se::Value           tmp;
+    se::Object *currentParent = parent;
+    se::Value tmp;
     for (auto i = 0; i < classPath.size() - 1; i++) {
         bool ok = currentParent->getProperty(*(classPath.begin() + i), &tmp);
         CC_ASSERT(ok); // class or namespace in path is not defined
@@ -149,14 +149,14 @@ bool Class::install() {
         _ctorTemplate.Get(__isolate)->Inherit(_parentProto->_getClass()->_ctorTemplate.Get(__isolate));
     }
 
-    v8::Local<v8::Context>       context = __isolate->GetCurrentContext();
-    v8::MaybeLocal<v8::Function> ctor    = _ctorTemplate.Get(__isolate)->GetFunction(context);
+    v8::Local<v8::Context> context = __isolate->GetCurrentContext();
+    v8::MaybeLocal<v8::Function> ctor = _ctorTemplate.Get(__isolate)->GetFunction(context);
     if (ctor.IsEmpty()) {
         return false;
     }
 
-    v8::Local<v8::Function>    ctorChecked = ctor.ToLocalChecked();
-    v8::MaybeLocal<v8::String> name        = v8::String::NewFromUtf8(__isolate, _name.c_str(), v8::NewStringType::kNormal);
+    v8::Local<v8::Function> ctorChecked = ctor.ToLocalChecked();
+    v8::MaybeLocal<v8::String> name = v8::String::NewFromUtf8(__isolate, _name.c_str(), v8::NewStringType::kNormal);
     if (name.IsEmpty()) {
         return false;
     }
@@ -229,7 +229,7 @@ bool Class::defineStaticProperty(const char *name, v8::AccessorNameGetterCallbac
 }
 
 bool Class::defineFinalizeFunction(V8FinalizeFunc finalizeFunc) {
-    assert(finalizeFunc != nullptr);
+    CC_ASSERT(finalizeFunc != nullptr);
     _finalizeFunc = finalizeFunc;
     return true;
 }
@@ -249,7 +249,7 @@ bool Class::defineFinalizeFunction(V8FinalizeFunc finalizeFunc) {
 
 v8::Local<v8::Object> Class::_createJSObjectWithClass(Class *cls) { //NOLINT
     v8::MaybeLocal<v8::Object> ret = cls->_ctorTemplate.Get(__isolate)->InstanceTemplate()->NewInstance(__isolate->GetCurrentContext());
-    assert(!ret.IsEmpty());
+    CC_ASSERT(!ret.IsEmpty());
     return ret.ToLocalChecked();
 }
 

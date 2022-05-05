@@ -334,11 +334,11 @@ protected:
 
     struct AudioInfo {
         const ccstd::string *filePath;
-        ProfileHelper *      profileHelper;
+        ProfileHelper *profileHelper;
 
-        float      volume;
-        bool       loop;
-        float      duration;
+        float volume;
+        bool loop;
+        float duration;
         AudioState state;
 
         AudioInfo();
@@ -372,9 +372,9 @@ protected:
     static bool sIsEnabled;
 
 private:
-    static float              sVolumeFactor;
-    static uint32_t           sOnPauseListenerID;
-    static uint32_t           sOnResumeListenerID;
+    static float sVolumeFactor;
+    static uint32_t sOnPauseListenerID;
+    static uint32_t sOnResumeListenerID;
     static ccstd::vector<int> sBreakAudioID;
 
     static void onEnterBackground(const CustomEvent &);

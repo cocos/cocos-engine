@@ -46,10 +46,10 @@ public:
     bool empty() { return _queue.empty(); }
 
 private:
-    RenderPipeline *      _pipeline = nullptr;
-    RenderPassList        _queue;
+    RenderPipeline *_pipeline = nullptr;
+    RenderPassList _queue;
     RenderQueueCreateInfo _passDesc;
-    bool                  _useOcclusionQuery{false};
+    bool _useOcclusionQuery{false};
 };
 
 } // namespace pipeline

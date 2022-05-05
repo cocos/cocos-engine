@@ -86,14 +86,14 @@ ccstd::string mapDefine(const IDefineInfo &info, const cc::optional<MacroRecord:
 ccstd::vector<IMacroInfo> prepareDefines(const MacroRecord &records, const ccstd::vector<IDefineRecord> &defList) {
     ccstd::vector<IMacroInfo> macros{};
     for (const auto &tmp : defList) {
-        const auto &name      = tmp.name;
-        auto        it        = records.find(name);
-        auto        value     = mapDefine(tmp, it == records.end() ? cc::nullopt : cc::optional<MacroValue>(it->second));
-        bool        isDefault = it == records.end() || (cc::holds_alternative<ccstd::string>(it->second) && cc::get<ccstd::string>(it->second) == "0");
+        const auto &name = tmp.name;
+        auto it = records.find(name);
+        auto value = mapDefine(tmp, it == records.end() ? cc::nullopt : cc::optional<MacroValue>(it->second));
+        bool isDefault = it == records.end() || (cc::holds_alternative<ccstd::string>(it->second) && cc::get<ccstd::string>(it->second) == "0");
         macros.emplace_back();
-        auto &info     = macros.back();
-        info.name      = name;
-        info.value     = value;
+        auto &info = macros.back();
+        info.name = name;
+        info.value = value;
         info.isDefault = isDefault;
     }
     return macros;
@@ -123,8 +123,8 @@ void insertBuiltinBindings(const IProgramInfo &tmpl, ITemplateInfo &tmplInfo, co
             CC_LOG_WARNING("builtin UBO '%s' not available !", b.name.c_str());
             continue;
         }
-        const auto &info         = infoIt->second;
-        const auto  bindingsIter = std::find_if(source.bindings.begin(), source.bindings.end(), [&info](const auto &bd) -> bool { return bd.binding == info.binding; });
+        const auto &info = infoIt->second;
+        const auto bindingsIter = std::find_if(source.bindings.begin(), source.bindings.end(), [&info](const auto &bd) -> bool { return bd.binding == info.binding; });
         if (bindingsIter == source.bindings.end()) {
             CC_LOG_WARNING("builtin UBO '%s' not available !", b.name.c_str());
             continue;
@@ -146,8 +146,8 @@ void insertBuiltinBindings(const IProgramInfo &tmpl, ITemplateInfo &tmplInfo, co
             CC_LOG_WARNING("builtin samplerTexture '%s' not available !", s.name.c_str());
             continue;
         }
-        const auto &info    = infoIt->second;
-        const auto  binding = std::find_if(source.bindings.begin(), source.bindings.end(), [&info](const auto &bd) {
+        const auto &info = infoIt->second;
+        const auto binding = std::find_if(source.bindings.begin(), source.bindings.end(), [&info](const auto &bd) {
             return bd.binding == info.binding;
         });
         if (binding == source.bindings.end() || !(binding->descriptorType & gfx::DESCRIPTOR_SAMPLER_TYPE)) {
@@ -181,7 +181,7 @@ auto genHandles(const IProgramInfo &tmpl) {
     // block member handles
     for (const auto &block : tmpl.blocks) {
         const auto members = block.members;
-        uint32_t   offset  = 0;
+        uint32_t offset = 0;
         for (const auto &uniform : members) {
             handleMap[uniform.name] = genHandle(block.binding,
                                                 uniform.type,
@@ -214,8 +214,8 @@ bool dependencyCheck(const ccstd::vector<ccstd::string> &dependencies, const Mac
 
 ccstd::vector<gfx::Attribute> getActiveAttributes(const IProgramInfo &tmpl, const ITemplateInfo &tmplInfo, const MacroRecord &defines) {
     ccstd::vector<gfx::Attribute> out{};
-    const auto &                  attributes    = tmpl.attributes;
-    const auto &                  gfxAttributes = tmplInfo.gfxAttributes;
+    const auto &attributes = tmpl.attributes;
+    const auto &gfxAttributes = tmplInfo.gfxAttributes;
     for (auto i = 0; i < attributes.size(); i++) {
         if (!dependencyCheck(attributes[i].defines, defines)) {
             continue;
@@ -244,31 +244,31 @@ const char *getDeviceShaderVersion(const gfx::Device *device) {
 static void copyDefines(const ccstd::vector<IDefineInfo> &from, ccstd::vector<IDefineRecord> &to) {
     to.resize(from.size());
     for (size_t i = 0, len = from.size(); i < len; ++i) {
-        to[i].name       = from[i].name;
-        to[i].type       = from[i].type;
-        to[i].range      = from[i].range;
-        to[i].options    = from[i].options;
+        to[i].name = from[i].name;
+        to[i].type = from[i].type;
+        to[i].range = from[i].range;
+        to[i].options = from[i].options;
         to[i].defaultVal = from[i].defaultVal;
     }
 }
 
 // IProgramInfo
 void IProgramInfo::copyFrom(const IShaderInfo &o) {
-    name     = o.name;
-    hash     = o.hash;
-    glsl4    = o.glsl4;
-    glsl3    = o.glsl3;
-    glsl1    = o.glsl1;
+    name = o.name;
+    hash = o.hash;
+    glsl4 = o.glsl4;
+    glsl3 = o.glsl3;
+    glsl1 = o.glsl1;
     builtins = o.builtins;
     copyDefines(o.defines, defines);
-    blocks          = o.blocks;
+    blocks = o.blocks;
     samplerTextures = o.samplerTextures;
-    attributes      = o.attributes;
-    samplers        = o.samplers;
-    textures        = o.textures;
-    buffers         = o.buffers;
-    images          = o.images;
-    subpassInputs   = o.subpassInputs;
+    attributes = o.attributes;
+    samplers = o.samplers;
+    textures = o.textures;
+    buffers = o.buffers;
+    images = o.images;
+    subpassInputs = o.subpassInputs;
 }
 
 ProgramLib::ProgramLib() = default;
@@ -296,7 +296,7 @@ void ProgramLib::destroyInstance() {
 
 void ProgramLib::registerEffect(EffectAsset *effect) {
     for (auto &shader : effect->_shaders) {
-        auto *tmpl       = define(shader);
+        auto *tmpl = define(shader);
         tmpl->effectName = effect->getName();
     }
 
@@ -325,8 +325,8 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
         int32_t cnt = 1;
         if (def.type == "number") {
             auto &range = def.range.value();
-            cnt         = getBitCount(range[1] - range[0] + 1); // inclusive on both ends
-            def.map     = [=](const MacroValue &value) -> int32_t {
+            cnt = getBitCount(range[1] - range[0] + 1); // inclusive on both ends
+            def.map = [=](const MacroValue &value) -> int32_t {
                 if (cc::holds_alternative<int32_t>(value)) {
                     return cc::get<int32_t>(value) - range[0];
                 }
@@ -337,7 +337,7 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
                 return 0;
             };
         } else if (def.type == "string") {
-            cnt     = getBitCount(static_cast<int32_t>(def.options.value().size()));
+            cnt = getBitCount(static_cast<int32_t>(def.options.value().size()));
             def.map = [=](const MacroValue &value) -> int32_t {
                 const auto *pValue = cc::get_if<ccstd::string>(&value);
                 if (pValue != nullptr) {
@@ -383,16 +383,16 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
         ITemplateInfo tmplInfo{};
         // cache material-specific descriptor set layout
         tmplInfo.samplerStartBinding = static_cast<int32_t>(tmpl.blocks.size());
-        tmplInfo.bindings            = {};
-        tmplInfo.blockSizes          = {};
+        tmplInfo.bindings = {};
+        tmplInfo.blockSizes = {};
         for (const auto &block : tmpl.blocks) {
             tmplInfo.blockSizes.emplace_back(getSize(block));
             tmplInfo.bindings.emplace_back();
-            auto &bindingsInfo          = tmplInfo.bindings.back();
-            bindingsInfo.binding        = static_cast<uint>(block.binding);
+            auto &bindingsInfo = tmplInfo.bindings.back();
+            bindingsInfo.binding = static_cast<uint>(block.binding);
             bindingsInfo.descriptorType = gfx::DescriptorType::UNIFORM_BUFFER;
-            bindingsInfo.count          = 1;
-            bindingsInfo.stageFlags     = block.stageFlags;
+            bindingsInfo.count = 1;
+            bindingsInfo.stageFlags = block.stageFlags;
             ccstd::vector<gfx::Uniform> uniforms;
             {
                 // construct uniforms
@@ -400,34 +400,34 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
                 for (const auto &member : block.members) {
                     uniforms.emplace_back();
                     auto &info = uniforms.back();
-                    info.name  = member.name;
-                    info.type  = member.type;
+                    info.name = member.name;
+                    info.type = member.type;
                     info.count = member.count;
                 }
             }
             tmplInfo.shaderInfo.blocks.emplace_back();
-            auto &blocksInfo   = tmplInfo.shaderInfo.blocks.back();
-            blocksInfo.set     = static_cast<uint>(pipeline::SetIndex::MATERIAL);
+            auto &blocksInfo = tmplInfo.shaderInfo.blocks.back();
+            blocksInfo.set = static_cast<uint>(pipeline::SetIndex::MATERIAL);
             blocksInfo.binding = static_cast<uint>(block.binding);
-            blocksInfo.name    = block.name;
+            blocksInfo.name = block.name;
             blocksInfo.members = uniforms;
-            blocksInfo.count   = 1; // effect compiler guarantees block count = 1
+            blocksInfo.count = 1; // effect compiler guarantees block count = 1
         }
         for (const auto &samplerTexture : tmpl.samplerTextures) {
             tmplInfo.bindings.emplace_back();
-            auto &descriptorLayoutBindingInfo          = tmplInfo.bindings.back();
-            descriptorLayoutBindingInfo.binding        = static_cast<uint>(samplerTexture.binding);
+            auto &descriptorLayoutBindingInfo = tmplInfo.bindings.back();
+            descriptorLayoutBindingInfo.binding = static_cast<uint>(samplerTexture.binding);
             descriptorLayoutBindingInfo.descriptorType = gfx::DescriptorType::SAMPLER_TEXTURE;
-            descriptorLayoutBindingInfo.count          = samplerTexture.count;
-            descriptorLayoutBindingInfo.stageFlags     = samplerTexture.stageFlags;
+            descriptorLayoutBindingInfo.count = samplerTexture.count;
+            descriptorLayoutBindingInfo.stageFlags = samplerTexture.stageFlags;
 
             tmplInfo.shaderInfo.samplerTextures.emplace_back();
-            auto &samplerTextureInfo   = tmplInfo.shaderInfo.samplerTextures.back();
-            samplerTextureInfo.set     = static_cast<uint>(pipeline::SetIndex::MATERIAL);
+            auto &samplerTextureInfo = tmplInfo.shaderInfo.samplerTextures.back();
+            samplerTextureInfo.set = static_cast<uint>(pipeline::SetIndex::MATERIAL);
             samplerTextureInfo.binding = static_cast<uint>(samplerTexture.binding);
-            samplerTextureInfo.name    = samplerTexture.name;
-            samplerTextureInfo.type    = samplerTexture.type;
-            samplerTextureInfo.count   = samplerTexture.count;
+            samplerTextureInfo.name = samplerTexture.name;
+            samplerTextureInfo.type = samplerTexture.type;
+            samplerTextureInfo.count = samplerTexture.count;
         }
 
         for (const auto &sampler : tmpl.samplers) {
@@ -509,26 +509,26 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
         tmplInfo.gfxAttributes = {};
         for (auto &attr : tmpl.attributes) {
             tmplInfo.gfxAttributes.emplace_back();
-            auto &info        = tmplInfo.gfxAttributes.back();
-            info.name         = attr.name;
-            info.format       = attr.format;
+            auto &info = tmplInfo.gfxAttributes.back();
+            info.name = attr.name;
+            info.format = attr.format;
             info.isNormalized = attr.isNormalized;
-            info.stream       = 0;
-            info.isInstanced  = attr.isInstanced;
-            info.location     = attr.location;
+            info.stream = 0;
+            info.isInstanced = attr.isInstanced;
+            info.location = attr.location;
         }
         insertBuiltinBindings(tmpl, tmplInfo, pipeline::localDescriptorSetLayout, "locals", nullptr);
 
         tmplInfo.shaderInfo.stages.emplace_back();
-        auto &vertexShaderInfo  = tmplInfo.shaderInfo.stages.back();
-        vertexShaderInfo.stage  = gfx::ShaderStageFlagBit::VERTEX;
+        auto &vertexShaderInfo = tmplInfo.shaderInfo.stages.back();
+        vertexShaderInfo.stage = gfx::ShaderStageFlagBit::VERTEX;
         vertexShaderInfo.source = "";
         tmplInfo.shaderInfo.stages.emplace_back();
-        auto &fragmentShaderInfo  = tmplInfo.shaderInfo.stages.back();
-        fragmentShaderInfo.stage  = gfx::ShaderStageFlagBit::FRAGMENT;
+        auto &fragmentShaderInfo = tmplInfo.shaderInfo.stages.back();
+        fragmentShaderInfo.stage = gfx::ShaderStageFlagBit::FRAGMENT;
         fragmentShaderInfo.source = "";
-        tmplInfo.handleMap        = genHandles(tmpl);
-        tmplInfo.setLayouts       = {};
+        tmplInfo.handleMap = genHandles(tmpl);
+        tmplInfo.setLayouts = {};
 
         _templateInfos[tmpl.hash] = tmplInfo;
     }
@@ -554,8 +554,8 @@ IProgramInfo *ProgramLib::getTemplate(const ccstd::string &name) {
 
 ITemplateInfo *ProgramLib::getTemplateInfo(const ccstd::string &name) {
     auto it = _templates.find(name);
-    assert(it != _templates.end());
-    auto hash   = it->second.hash;
+    CC_ASSERT(it != _templates.end());
+    auto hash = it->second.hash;
     auto itInfo = _templateInfos.find(hash);
     return itInfo != _templateInfos.end() ? &itInfo->second : nullptr;
 }
@@ -567,9 +567,9 @@ ITemplateInfo *ProgramLib::getTemplateInfo(const ccstd::string &name) {
  */
 gfx::DescriptorSetLayout *ProgramLib::getDescriptorSetLayout(gfx::Device *device, const ccstd::string &name, bool isLocal) {
     auto itTmpl = _templates.find(name);
-    assert(itTmpl != _templates.end());
-    const auto &tmpl      = itTmpl->second;
-    auto        itTplInfo = _templateInfos.find(tmpl.hash);
+    CC_ASSERT(itTmpl != _templates.end());
+    const auto &tmpl = itTmpl->second;
+    auto itTplInfo = _templateInfos.find(tmpl.hash);
     if (itTplInfo == _templateInfos.end()) {
         return nullptr;
     }
@@ -588,8 +588,8 @@ gfx::DescriptorSetLayout *ProgramLib::getDescriptorSetLayout(gfx::Device *device
 
 ccstd::string ProgramLib::getKey(const ccstd::string &name, const MacroRecord &defines) {
     auto itTpl = _templates.find(name);
-    assert(itTpl != _templates.end());
-    auto &tmpl     = itTpl->second;
+    CC_ASSERT(itTpl != _templates.end());
+    auto &tmpl = itTpl->second;
     auto &tmplDefs = tmpl.defines;
     if (tmpl.uber) {
         std::stringstream key;
@@ -598,24 +598,24 @@ ccstd::string ProgramLib::getKey(const ccstd::string &name, const MacroRecord &d
             if (itDef == defines.end() || !tmplDef.map) {
                 continue;
             }
-            const auto &value  = itDef->second;
-            auto        mapped = tmplDef.map(value);
-            auto        offset = tmplDef.offset;
+            const auto &value = itDef->second;
+            auto mapped = tmplDef.map(value);
+            auto offset = tmplDef.offset;
             key << offset << mapped << "|";
         }
         ccstd::string ret{key.str() + std::to_string(tmpl.hash)};
         return ret;
     }
-    uint32_t          key = 0;
+    uint32_t key = 0;
     std::stringstream ss;
     for (auto &tmplDef : tmplDefs) {
         auto itDef = defines.find(tmplDef.name);
         if (itDef == defines.end() || !tmplDef.map) {
             continue;
         }
-        const auto &value  = itDef->second;
-        auto        mapped = tmplDef.map(value);
-        auto        offset = tmplDef.offset;
+        const auto &value = itDef->second;
+        auto mapped = tmplDef.map(value);
+        auto offset = tmplDef.offset;
         key |= (mapped << offset);
     }
     ss << std::hex << key << "|" << std::to_string(tmpl.hash);
@@ -668,11 +668,11 @@ gfx::Shader *ProgramLib::getGFXShader(gfx::Device *device, const ccstd::string &
     }
 
     auto itTpl = _templates.find(name);
-    assert(itTpl != _templates.end());
+    CC_ASSERT(itTpl != _templates.end());
 
-    const auto &tmpl      = itTpl->second;
-    const auto  itTplInfo = _templateInfos.find(tmpl.hash);
-    assert(itTplInfo != _templateInfos.end());
+    const auto &tmpl = itTpl->second;
+    const auto itTplInfo = _templateInfos.find(tmpl.hash);
+    CC_ASSERT(itTplInfo != _templateInfos.end());
     auto &tmplInfo = itTplInfo->second;
 
     if (!tmplInfo.pipelineLayout) {
@@ -683,15 +683,15 @@ gfx::Shader *ProgramLib::getGFXShader(gfx::Device *device, const ccstd::string &
     }
 
     ccstd::vector<IMacroInfo> macroArray = prepareDefines(defines, tmpl.defines);
-    std::stringstream         ss;
+    std::stringstream ss;
     ss << std::endl;
     for (const auto &m : macroArray) {
         ss << "#define " << m.name << " " << m.value << std::endl;
     }
     auto prefix = pipeline->getConstantMacros() + tmpl.constantMacros + ss.str();
 
-    const IShaderSource *src                 = &tmpl.glsl3;
-    const auto *         deviceShaderVersion = getDeviceShaderVersion(device);
+    const IShaderSource *src = &tmpl.glsl3;
+    const auto *deviceShaderVersion = getDeviceShaderVersion(device);
     if (deviceShaderVersion) {
         src = tmpl.getSource(deviceShaderVersion);
     } else {
@@ -706,7 +706,7 @@ gfx::Shader *ProgramLib::getGFXShader(gfx::Device *device, const ccstd::string &
     tmplInfo.shaderInfo.name = getShaderInstanceName(name, macroArray);
 
     auto *shader = device->createShader(tmplInfo.shaderInfo);
-    _cache[key]  = shader;
+    _cache[key] = shader;
     CC_LOG_DEBUG("ProgramLib::_cache[%s]=%p, defines: %d", key.c_str(), shader, defines.size());
     return shader;
 }

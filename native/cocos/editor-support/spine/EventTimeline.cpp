@@ -28,7 +28,7 @@
  *****************************************************************************/
 
 #ifdef SPINE_UE4
-#include "SpinePluginPrivatePCH.h"
+    #include "SpinePluginPrivatePCH.h"
 #endif
 
 #include <spine/EventTimeline.h>
@@ -50,58 +50,57 @@ using namespace spine;
 RTTI_IMPL(EventTimeline, Timeline)
 
 EventTimeline::EventTimeline(int frameCount) : Timeline() {
-	_frames.setSize(frameCount, 0);
-	_events.setSize(frameCount, NULL);
+    _frames.setSize(frameCount, 0);
+    _events.setSize(frameCount, NULL);
 }
 
 EventTimeline::~EventTimeline() {
-	ContainerUtil::cleanUpVectorOfPointers(_events);
+    ContainerUtil::cleanUpVectorOfPointers(_events);
 }
 
 void EventTimeline::apply(Skeleton &skeleton, float lastTime, float time, Vector<Event *> *pEvents, float alpha,
-	MixBlend blend, MixDirection direction
-) {
-	if (pEvents == NULL) return;
+                          MixBlend blend, MixDirection direction) {
+    if (pEvents == NULL) return;
 
-	Vector<Event *> &events = *pEvents;
+    Vector<Event *> &events = *pEvents;
 
-	size_t frameCount = _frames.size();
+    size_t frameCount = _frames.size();
 
-	if (lastTime > time) {
-		// Fire events after last time for looped animations.
-		apply(skeleton, lastTime, FLT_MAX, pEvents, alpha, blend, direction);
-		lastTime = -1.0f;
-	} else if (lastTime >= _frames[frameCount - 1]) {
-		// Last time is after last frame.
-		return;
-	}
+    if (lastTime > time) {
+        // Fire events after last time for looped animations.
+        apply(skeleton, lastTime, FLT_MAX, pEvents, alpha, blend, direction);
+        lastTime = -1.0f;
+    } else if (lastTime >= _frames[frameCount - 1]) {
+        // Last time is after last frame.
+        return;
+    }
 
-	if (time < _frames[0]) return; // Time is before first frame.
+    if (time < _frames[0]) return; // Time is before first frame.
 
-	int frame;
-	if (lastTime < _frames[0]) {
-		frame = 0;
-	} else {
-		frame = Animation::binarySearch(_frames, lastTime);
-		float frameTime = _frames[frame];
-		while (frame > 0) {
-			// Fire multiple events with the same frame.
-			if (_frames[frame - 1] != frameTime) break;
-			frame--;
-		}
-	}
+    int frame;
+    if (lastTime < _frames[0]) {
+        frame = 0;
+    } else {
+        frame = Animation::binarySearch(_frames, lastTime);
+        float frameTime = _frames[frame];
+        while (frame > 0) {
+            // Fire multiple events with the same frame.
+            if (_frames[frame - 1] != frameTime) break;
+            frame--;
+        }
+    }
 
-	for (; (size_t)frame < frameCount && time >= _frames[frame]; ++frame)
-		events.add(_events[frame]);
+    for (; (size_t)frame < frameCount && time >= _frames[frame]; ++frame)
+        events.add(_events[frame]);
 }
 
 int EventTimeline::getPropertyId() {
-	return ((int) TimelineType_Event << 24);
+    return ((int)TimelineType_Event << 24);
 }
 
 void EventTimeline::setFrame(size_t frameIndex, Event *event) {
-	_frames[frameIndex] = event->getTime();
-	_events[frameIndex] = event;
+    _frames[frameIndex] = event->getTime();
+    _events[frameIndex] = event;
 }
 
 Vector<float> EventTimeline::getFrames() { return _frames; }

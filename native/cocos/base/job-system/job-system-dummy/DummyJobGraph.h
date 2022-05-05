@@ -38,9 +38,9 @@ class DummyJobSystem;
 class DummyGraphNode;
 class DummyGraph final {
 public:
-    DummyGraph()                   = default;
+    DummyGraph() = default;
     DummyGraph(const DummyGraph &) = delete;
-    DummyGraph(DummyGraph &&)      = delete;
+    DummyGraph(DummyGraph &&) = delete;
     DummyGraph &operator=(const DummyGraph &) = delete;
     DummyGraph &operator=(DummyGraph &&) = delete;
     ~DummyGraph();
@@ -56,14 +56,14 @@ public:
 private:
     bool excuted(DummyGraphNode *n) const;
 
-    int                             _generation{0};
+    int _generation{0};
     ccstd::vector<DummyGraphNode *> _nodes;
 };
 
 class DummyGraphNodeTaskItf {
 public:
     virtual ~DummyGraphNodeTaskItf() = default;
-    virtual void execute()           = 0;
+    virtual void execute() = 0;
 };
 
 template <class Fn>
@@ -71,10 +71,10 @@ class DummyGraphNodeTaskImpl final : public DummyGraphNodeTaskItf {
 public:
     explicit DummyGraphNodeTaskImpl(Fn &&t) noexcept;
     DummyGraphNodeTaskImpl(const DummyGraphNodeTaskImpl &) = delete;
-    DummyGraphNodeTaskImpl(DummyGraphNodeTaskImpl &&)      = delete;
+    DummyGraphNodeTaskImpl(DummyGraphNodeTaskImpl &&) = delete;
     DummyGraphNodeTaskImpl &operator=(const DummyGraphNodeTaskImpl &) = delete;
     DummyGraphNodeTaskImpl &operator=(DummyGraphNodeTaskImpl &&) = delete;
-    ~DummyGraphNodeTaskImpl() override                           = default;
+    ~DummyGraphNodeTaskImpl() override = default;
     inline void execute() override { _task(); }
 
 private:
@@ -83,28 +83,28 @@ private:
 
 class DummyGraphNode final {
 public:
-    DummyGraphNode()                       = default;
+    DummyGraphNode() = default;
     DummyGraphNode(const DummyGraphNode &) = delete;
-    DummyGraphNode(DummyGraphNode &&)      = delete;
+    DummyGraphNode(DummyGraphNode &&) = delete;
     DummyGraphNode &operator=(const DummyGraphNode &) = delete;
     DummyGraphNode &operator=(DummyGraphNode &&) = delete;
     ~DummyGraphNode();
 
 private:
-    static void            allocChunk();
+    static void allocChunk();
     static DummyGraphNode *alloc();
-    static void            free(DummyGraphNode *n);
-    static void            freeAll();
+    static void free(DummyGraphNode *n);
+    static void freeAll();
 
     void succeed(DummyGraphNode *other);
     void precede(DummyGraphNode *other);
     void reset();
 
-    DummyGraphNodeTaskItf *                _callback{nullptr};
+    DummyGraphNodeTaskItf *_callback{nullptr};
     ccstd::unordered_set<DummyGraphNode *> _successors{};
     ccstd::unordered_set<DummyGraphNode *> _predecessors{};
-    DummyGraphNode *                       _next{nullptr};
-    int                                    _generation{0};
+    DummyGraphNode *_next{nullptr};
+    int _generation{0};
     friend class DummyGraph;
 };
 
@@ -114,8 +114,8 @@ DummyGraphNodeTaskImpl<Fn>::DummyGraphNodeTaskImpl(Fn &&t) noexcept : _task(t) {
 template <class Fn>
 size_t DummyGraph::addNode(Fn &&fn) {
     DummyGraphNode *n = DummyGraphNode::alloc();
-    n->_callback      = ccnew DummyGraphNodeTaskImpl<Fn>(std::forward<Fn>(fn));
-    n->_generation    = _generation;
+    n->_callback = ccnew DummyGraphNodeTaskImpl<Fn>(std::forward<Fn>(fn));
+    n->_generation = _generation;
     _nodes.emplace_back(n);
     return _nodes.size() - 1;
 }
@@ -126,10 +126,10 @@ class DummyJobGraph final {
 public:
     explicit DummyJobGraph(DummyJobSystem * /*system*/) noexcept {}
     DummyJobGraph(const DummyJobGraph &) = delete;
-    DummyJobGraph(DummyJobGraph &&)      = delete;
+    DummyJobGraph(DummyJobGraph &&) = delete;
     DummyJobGraph &operator=(const DummyJobGraph &) = delete;
     DummyJobGraph &operator=(DummyJobGraph &&) = delete;
-    ~DummyJobGraph() noexcept                  = default;
+    ~DummyJobGraph() noexcept = default;
 
     template <typename Function>
     uint createJob(Function &&func) noexcept;

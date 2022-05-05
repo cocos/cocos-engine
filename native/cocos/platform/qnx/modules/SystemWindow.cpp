@@ -52,7 +52,7 @@ SystemWindow::~SystemWindow() {
 
 bool SystemWindow::createWindow(const char *title,
                                 int w, int h, int flags) {
-    _width  = w;
+    _width = w;
     _height = h;
     createWindow(title, 0, 0, w, h, flags);
     return true;
@@ -64,7 +64,7 @@ bool SystemWindow::createWindow(const char *title,
     if (_screenWin) {
         return true;
     }
-    _width  = w;
+    _width = w;
     _height = h;
 
     //Create the screen context
@@ -84,7 +84,7 @@ bool SystemWindow::createWindow(const char *title,
     screen_set_window_property_iv(_screenWin, SCREEN_PROPERTY_FORMAT, (const int[]){SCREEN_FORMAT_RGBX8888});
 #ifdef CC_USE_GLES3
     screen_set_window_property_iv(_screenWin, SCREEN_PROPERTY_USAGE, (const int[]){SCREEN_USAGE_OPENGL_ES3});
-#elif  CC_USE_GLES2
+#elif CC_USE_GLES2
     screen_set_window_property_iv(_screenWin, SCREEN_PROPERTY_USAGE, (const int[]){SCREEN_USAGE_OPENGL_ES2});
 #endif
 
@@ -96,7 +96,7 @@ bool SystemWindow::createWindow(const char *title,
     }
 
     int size[2] = {w, h}; /* size of the window on screen */
-    rc          = screen_set_window_property_iv(_screenWin, SCREEN_PROPERTY_SIZE, size);
+    rc = screen_set_window_property_iv(_screenWin, SCREEN_PROPERTY_SIZE, size);
     if (rc) {
         perror("screen_set_window_property_iv(SCREEN_PROPERTY_POSITION)");
         return EXIT_FAILURE;

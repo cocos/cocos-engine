@@ -61,7 +61,7 @@ public:
     /**
      * @brief Implement dispatch touch event interface.
      */
-    void dispatchTouchEvent(const TouchEvent& ev) override;
+    void dispatchTouchEvent(const TouchEvent &ev) override;
     /**
      * @brief Implement handle default event interface.
      */
@@ -113,9 +113,9 @@ private:
 
     int32_t _fps{60};
 
-    HandleEventCallback      _handleEventCallback{nullptr};
+    HandleEventCallback _handleEventCallback{nullptr};
     HandleTouchEventCallback _handleTouchEventCallback{nullptr};
-    HandleEventCallback      _handleDefaultEventCallback{nullptr};
+    HandleEventCallback _handleDefaultEventCallback{nullptr};
 };
 
 } // namespace cc

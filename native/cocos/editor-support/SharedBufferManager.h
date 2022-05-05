@@ -58,8 +58,8 @@ private:
     void afterCleanupHandle();
 
     se::Object::TypedArrayType _arrayType;
-    IOTypedArray *             _buffer         = nullptr;
-    resizeCallback             _resizeCallback = nullptr;
+    IOTypedArray *_buffer = nullptr;
+    resizeCallback _resizeCallback = nullptr;
 };
 
 MIDDLEWARE_END

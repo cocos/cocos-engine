@@ -38,8 +38,7 @@ DRAGONBONES_NAMESPACE_BEGIN
  * @version DragonBones 4.5
  * @language zh_CN
  */
-class IEventDispatcher
-{
+class IEventDispatcher {
     ABSTRACT_CLASS(IEventDispatcher)
 
 public:
@@ -89,7 +88,7 @@ public:
      * @version DragonBones 4.5
      * @language zh_CN
      */
-    virtual void addDBEventListener(const std::string& type, const std::function<void(EventObject*)> & listener) = 0;
+    virtual void addDBEventListener(const std::string& type, const std::function<void(EventObject*)>& listener) = 0;
     /**
      * - Removes a listener from the object.
      * @param type - Event type.

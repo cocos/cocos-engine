@@ -33,7 +33,7 @@ class Asset;
 
 class IAssetDeserializer {
 public:
-    virtual ~IAssetDeserializer()                                                  = default;
+    virtual ~IAssetDeserializer() = default;
     virtual void deserialize(const rapidjson::Value &serializedData, Asset *asset) = 0;
 };
 

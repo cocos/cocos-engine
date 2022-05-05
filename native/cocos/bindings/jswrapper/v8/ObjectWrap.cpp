@@ -56,13 +56,13 @@ ObjectWrap::~ObjectWrap() {
     if (persistent().IsEmpty()) {
         return;
     }
-    //cjh            assert(persistent().IsNearDeath());
+    //cjh            CC_ASSERT(persistent().IsNearDeath());
     persistent().ClearWeak();
     persistent().Reset();
 }
 
 bool ObjectWrap::init(v8::Local<v8::Object> handle, Object *parent, bool registerWeak) {
-    assert(persistent().IsEmpty());
+    CC_ASSERT(persistent().IsEmpty());
     _parent = parent;
     _registerWeak = registerWeak;
     persistent().Reset(v8::Isolate::GetCurrent(), handle);
@@ -78,14 +78,14 @@ void ObjectWrap::setFinalizeCallback(FinalizeFunc finalizeCb) {
 
 /*static*/
 void *ObjectWrap::unwrap(v8::Local<v8::Object> handle, uint32_t fieldIndex) {
-    assert(!handle.IsEmpty());
-    assert(handle->InternalFieldCount() > 1);
-    assert(fieldIndex >= 0 && fieldIndex < 2);
+    CC_ASSERT(!handle.IsEmpty());
+    CC_ASSERT(handle->InternalFieldCount() > 1);
+    CC_ASSERT(fieldIndex >= 0 && fieldIndex < 2);
     return handle->GetAlignedPointerFromInternalField(static_cast<int>(fieldIndex));
 }
 void ObjectWrap::wrap(void *nativeObj, uint32_t fieldIndex) {
-    assert(handle()->InternalFieldCount() > 1);
-    assert(fieldIndex >= 0 && fieldIndex < 2);
+    CC_ASSERT(handle()->InternalFieldCount() > 1);
+    CC_ASSERT(fieldIndex >= 0 && fieldIndex < 2);
     handle()->SetAlignedPointerInInternalField(static_cast<int>(fieldIndex), nativeObj);
 }
 
@@ -119,15 +119,15 @@ void ObjectWrap::makeWeak() {
 }
 
 void ObjectWrap::ref() {
-    assert(!persistent().IsEmpty());
+    CC_ASSERT(!persistent().IsEmpty());
     persistent().ClearWeak();
     _refs++;
 }
 
 void ObjectWrap::unref() {
-    assert(!persistent().IsEmpty());
-    assert(!persistent().IsWeak());
-    assert(_refs > 0);
+    CC_ASSERT(!persistent().IsEmpty());
+    CC_ASSERT(!persistent().IsWeak());
+    CC_ASSERT(_refs > 0);
     if (--_refs == 0 && _registerWeak) {
         makeWeak();
     }
@@ -136,14 +136,14 @@ void ObjectWrap::unref() {
 /*static*/
 void ObjectWrap::weakCallback(const v8::WeakCallbackInfo<Object> &data) {
     Object *seObj = data.GetParameter();
-    ObjectWrap *wrap  = &seObj->_getWrap();
+    ObjectWrap *wrap = &seObj->_getWrap();
 
-    assert(wrap->_refs == 0);
+    CC_ASSERT(wrap->_refs == 0);
     wrap->_handle.Reset();
     if (wrap->_finalizeCb != nullptr) {
         wrap->_finalizeCb(seObj);
     } else {
-        assert(false);
+        CC_ASSERT(false);
     }
 }
 

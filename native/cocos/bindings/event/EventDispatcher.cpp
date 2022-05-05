@@ -31,21 +31,21 @@
 #include "cocos/platform/interfaces/modules/ISystemWindow.h"
 
 namespace {
-se::Value                   tickVal;
-se::ValueArray              tickArgsValArr(1);
+se::Value tickVal;
+se::ValueArray tickArgsValArr(1);
 ccstd::vector<se::Object *> jsTouchObjPool;
-se::Object *                jsTouchObjArray       = nullptr;
-se::Object *                jsMouseEventObj       = nullptr;
-se::Object *                jsKeyboardEventObj    = nullptr;
-se::Object *                jsResizeEventObj      = nullptr;
-se::Object *                jsOrientationEventObj = nullptr;
-bool                        inited                = false;
+se::Object *jsTouchObjArray = nullptr;
+se::Object *jsMouseEventObj = nullptr;
+se::Object *jsKeyboardEventObj = nullptr;
+se::Object *jsResizeEventObj = nullptr;
+se::Object *jsOrientationEventObj = nullptr;
+bool inited = false;
 } // namespace
 
 namespace cc {
 
 ccstd::unordered_map<ccstd::string, EventDispatcher::Node *> EventDispatcher::listeners;
-uint32_t                                                     EventDispatcher::hashListenerId = 1;
+uint32_t EventDispatcher::hashListenerId = 1;
 
 bool EventDispatcher::initialized() {
     return inited && se::ScriptEngine::getInstance()->isValid();
@@ -110,7 +110,7 @@ void EventDispatcher::dispatchTouchEvent(const TouchEvent &touchEvent) {
     }
 
     uint32_t touchIndex = 0;
-    int      poolIndex  = 0;
+    int poolIndex = 0;
     for (const auto &touch : touchEvent.touches) {
         se::Object *jsTouch = jsTouchObjPool.at(poolIndex++);
         jsTouch->setProperty("identifier", se::Value(touch.index));
@@ -138,7 +138,7 @@ void EventDispatcher::dispatchTouchEvent(const TouchEvent &touchEvent) {
             eventName = "onTouchCancel";
             break;
         default:
-            assert(false);
+            CC_ASSERT(false);
             break;
     }
 
@@ -154,8 +154,8 @@ void EventDispatcher::dispatchMouseEvent(const MouseEvent &mouseEvent) {
         jsMouseEventObj->root();
     }
 
-    const auto &           xVal = se::Value(mouseEvent.x);
-    const auto &           yVal = se::Value(mouseEvent.y);
+    const auto &xVal = se::Value(mouseEvent.x);
+    const auto &yVal = se::Value(mouseEvent.y);
     const MouseEvent::Type type = mouseEvent.type;
 
     if (type == MouseEvent::Type::WHEEL) {
@@ -169,27 +169,27 @@ void EventDispatcher::dispatchMouseEvent(const MouseEvent &mouseEvent) {
         jsMouseEventObj->setProperty("y", yVal);
     }
 
-    const char *eventName      = nullptr;
+    const char *eventName = nullptr;
     const char *jsFunctionName = nullptr;
     switch (type) {
         case MouseEvent::Type::DOWN:
-            eventName      = EVENT_MOUSE_DOWN;
+            eventName = EVENT_MOUSE_DOWN;
             jsFunctionName = "onMouseDown";
             break;
         case MouseEvent::Type::MOVE:
-            eventName      = EVENT_MOUSE_MOVE;
+            eventName = EVENT_MOUSE_MOVE;
             jsFunctionName = "onMouseMove";
             break;
         case MouseEvent::Type::UP:
-            eventName      = EVENT_MOUSE_UP;
+            eventName = EVENT_MOUSE_UP;
             jsFunctionName = "onMouseUp";
             break;
         case MouseEvent::Type::WHEEL:
-            eventName      = EVENT_MOUSE_WHEEL;
+            eventName = EVENT_MOUSE_WHEEL;
             jsFunctionName = "onMouseWheel";
             break;
         default:
-            assert(false);
+            CC_ASSERT(false);
             break;
     }
 
@@ -215,7 +215,7 @@ void EventDispatcher::dispatchKeyboardEvent(const KeyboardEvent &keyboardEvent) 
             eventName = "onKeyUp";
             break;
         default:
-            assert(false);
+            CC_ASSERT(false);
             break;
     }
 
@@ -271,7 +271,7 @@ void EventDispatcher::dispatchOrientationChangeEvent(int orientation) {
     }
 
     se::AutoHandleScope scope;
-    assert(inited);
+    CC_ASSERT(inited);
 
     if (jsOrientationEventObj == nullptr) {
         jsOrientationEventObj = se::Object::createPlainObject();
@@ -337,7 +337,7 @@ void EventDispatcher::doDispatchEvent(const char *eventName, const char *jsFunct
     }
 
     se::AutoHandleScope scope;
-    assert(inited);
+    CC_ASSERT(inited);
 
     se::Value func;
     __jsbObj->getProperty(jsFunctionName, &func);
@@ -347,17 +347,17 @@ void EventDispatcher::doDispatchEvent(const char *eventName, const char *jsFunct
 }
 
 uint32_t EventDispatcher::addCustomEventListener(const ccstd::string &eventName, const CustomEventListener &listener) {
-    Node *newNode       = ccnew Node();
-    newNode->listener   = listener;
+    Node *newNode = ccnew Node();
+    newNode->listener = listener;
     newNode->listenerID = hashListenerId;
-    newNode->next       = nullptr;
+    newNode->next = nullptr;
 
     auto iter = listeners.find(eventName);
     if (iter == listeners.end()) {
         listeners.emplace(eventName, newNode);
     } else {
         Node *node = iter->second;
-        assert(node != nullptr);
+        CC_ASSERT(node != nullptr);
         Node *prev = nullptr;
         while (node != nullptr) {
             prev = node;

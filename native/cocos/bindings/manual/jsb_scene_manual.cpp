@@ -42,7 +42,7 @@
 static se::Object *nodeVec3CacheObj{nullptr};
 static se::Object *nodeQuatCacheObj{nullptr};
 static se::Object *nodeMat4CacheObj{nullptr};
-static float *     tempFloatArray{nullptr};
+static float *tempFloatArray{nullptr};
 
 static bool js_root_registerListeners(se::State &s) // NOLINT(readability-identifier-naming)
 {
@@ -52,8 +52,8 @@ static bool js_root_registerListeners(se::State &s) // NOLINT(readability-identi
 #define DISPATCH_EVENT_TO_JS_ARGS_0(eventType, jsFuncName)                                                         \
     cobj->getEventProcessor()->on(eventType, [](cc::Root *rootObj) {                                               \
         se::AutoHandleScope hs;                                                                                    \
-        se::Value           rootVal;                                                                               \
-        bool                ok = nativevalue_to_se(rootObj, rootVal);                                              \
+        se::Value rootVal;                                                                                         \
+        bool ok = nativevalue_to_se(rootObj, rootVal);                                                             \
         SE_PRECONDITION2_FUNCNAME_VOID(ok, #jsFuncName, "js_root_registerListeners : Error processing arguments"); \
         if (rootVal.isObject()) {                                                                                  \
             se::ScriptEngine::getInstance()->callFunction(rootVal.toObject(), #jsFuncName, 0, nullptr);            \
@@ -75,7 +75,7 @@ static void registerOnTransformChanged(cc::Node *node, se::Object *jsObject) {
         cc::NodeEventType::TRANSFORM_CHANGED,
         [jsObject](cc::TransformBit transformBit) {
             se::AutoHandleScope hs;
-            se::Value           arg0;
+            se::Value arg0;
             nativevalue_to_se(transformBit, arg0);
             se::ScriptEngine::getInstance()->callFunction(jsObject, "_onTransformChanged", 1, &arg0);
         });
@@ -86,7 +86,7 @@ static void registerOnParentChanged(cc::Node *node, se::Object *jsObject) {
         cc::NodeEventType::PARENT_CHANGED,
         [jsObject](cc::Node *oldParent) {
             se::AutoHandleScope hs;
-            se::Value           arg0;
+            se::Value arg0;
             nativevalue_to_se(oldParent, arg0);
             se::ScriptEngine::getInstance()->callFunction(jsObject, "_onParentChanged", 1, &arg0);
         });
@@ -97,7 +97,7 @@ static void registerOnLayerChanged(cc::Node *node, se::Object *jsObject) {
         cc::NodeEventType::LAYER_CHANGED,
         [jsObject](uint32_t layer) {
             se::AutoHandleScope hs;
-            se::Value           arg0;
+            se::Value arg0;
             nativevalue_to_se(layer, arg0);
             se::ScriptEngine::getInstance()->callFunction(jsObject, "_onLayerChanged", 1, &arg0);
         });
@@ -108,7 +108,7 @@ static void registerOnChildRemoved(cc::Node *node, se::Object *jsObject) {
         cc::NodeEventType::CHILD_REMOVED,
         [jsObject](cc::Node *child) {
             se::AutoHandleScope hs;
-            se::Value           arg0;
+            se::Value arg0;
             nativevalue_to_se(child, arg0);
             se::ScriptEngine::getInstance()->callFunction(jsObject, "_onChildRemoved", 1, &arg0);
         });
@@ -119,7 +119,7 @@ static void registerOnChildAdded(cc::Node *node, se::Object *jsObject) {
         cc::NodeEventType::CHILD_ADDED,
         [jsObject](cc::Node *child) {
             se::AutoHandleScope hs;
-            se::Value           arg0;
+            se::Value arg0;
             nativevalue_to_se(child, arg0);
             se::ScriptEngine::getInstance()->callFunction(jsObject, "_onChildAdded", 1, &arg0);
         });
@@ -140,7 +140,7 @@ static void registerOnActiveNode(cc::Node *node, se::Object *jsObject) {
         cc::EventTypesToJS::NODE_ACTIVE_NODE,
         [jsObject](bool shouldActiveNow) {
             se::AutoHandleScope hs;
-            se::Value           arg0;
+            se::Value arg0;
             nativevalue_to_se(shouldActiveNow, arg0);
             se::ScriptEngine::getInstance()->callFunction(jsObject, "_onActiveNode", 1, &arg0);
         },
@@ -153,7 +153,7 @@ static void registerOnBatchCreated(cc::Node *node, se::Object *jsObject) {
         cc::EventTypesToJS::NODE_ON_BATCH_CREATED,
         [jsObject](bool dontChildPrefab) {
             se::AutoHandleScope hs;
-            se::Value           arg0;
+            se::Value arg0;
             nativevalue_to_se(dontChildPrefab, arg0);
             se::ScriptEngine::getInstance()->callFunction(jsObject, "_onBatchCreated", 1, &arg0);
         },
@@ -169,37 +169,37 @@ static void registerOnUiTransformDirty(cc::Node *node, se::Object *jsObject) {
     SE_PRECONDITION2_VOID(uiTransformDirtyVal.isObject() && uiTransformDirtyVal.toObject()->isTypedArray() && uiTransformDirtyVal.toObject()->getTypedArrayType() == se::Object::TypedArrayType::UINT32,
                           "_uiTransformDirtyVal is not a TypedArray");
     uint8_t *pDirty{nullptr};
-    size_t   dirtyArrBytes{0};
-    bool     ok = uiTransformDirtyVal.toObject()->getTypedArrayData(&pDirty, &dirtyArrBytes);
+    size_t dirtyArrBytes{0};
+    bool ok = uiTransformDirtyVal.toObject()->getTypedArrayData(&pDirty, &dirtyArrBytes);
     CC_ASSERT(ok && pDirty != nullptr && dirtyArrBytes == 4);
     node->setUIPropsTransformDirtyPtr(reinterpret_cast<uint32_t *>(pDirty));
 }
 
 static void registerActiveInHierarchyArr(cc::Node *node, se::Object *jsObject) {
     se::Value activeInHierarchyArrVal;
-    bool      ok = jsObject->getProperty("_activeInHierarchyArr", &activeInHierarchyArrVal);
+    bool ok = jsObject->getProperty("_activeInHierarchyArr", &activeInHierarchyArrVal);
     CC_ASSERT(ok && activeInHierarchyArrVal.isObject() && activeInHierarchyArrVal.toObject()->isTypedArray() && activeInHierarchyArrVal.toObject()->getTypedArrayType() == se::Object::TypedArrayType::UINT8);
 
     uint8_t *pActiveInHierarchyArrData = nullptr;
-    ok                                 = activeInHierarchyArrVal.toObject()->getTypedArrayData(&pActiveInHierarchyArrData, nullptr);
+    ok = activeInHierarchyArrVal.toObject()->getTypedArrayData(&pActiveInHierarchyArrData, nullptr);
     CC_ASSERT(ok);
     node->setActiveInHierarchyPtr(pActiveInHierarchyArrData);
 }
 
 static void registerLayerArr(cc::Node *node, se::Object *jsObject) {
     se::Value layerArrVal;
-    bool      ok = jsObject->getProperty("_layerArr", &layerArrVal);
+    bool ok = jsObject->getProperty("_layerArr", &layerArrVal);
     CC_ASSERT(ok && layerArrVal.isObject() && layerArrVal.toObject()->isTypedArray() && layerArrVal.toObject()->getTypedArrayType() == se::Object::TypedArrayType::UINT32);
 
     uint8_t *pLayerArrValData = nullptr;
-    ok                        = layerArrVal.toObject()->getTypedArrayData(&pLayerArrValData, nullptr);
+    ok = layerArrVal.toObject()->getTypedArrayData(&pLayerArrValData, nullptr);
     CC_ASSERT(ok);
     node->setLayerPtr(reinterpret_cast<uint32_t *>(pLayerArrValData));
 }
 
 static void registerLocalPositionRotationScaleUpdated(cc::Node *node, se::Object *jsObject) {
     node->on(cc::EventTypesToJS::NODE_LOCAL_POSITION_UPDATED, [jsObject](float x, float y, float z) {
-        se::AutoHandleScope        hs;
+        se::AutoHandleScope hs;
         ccstd::array<se::Value, 3> args;
         nativevalue_to_se(x, args[0]);
         nativevalue_to_se(y, args[1]);
@@ -208,7 +208,7 @@ static void registerLocalPositionRotationScaleUpdated(cc::Node *node, se::Object
     });
 
     node->on(cc::EventTypesToJS::NODE_LOCAL_ROTATION_UPDATED, [jsObject](float x, float y, float z, float w) {
-        se::AutoHandleScope        hs;
+        se::AutoHandleScope hs;
         ccstd::array<se::Value, 4> args;
         nativevalue_to_se(x, args[0]);
         nativevalue_to_se(y, args[1]);
@@ -218,7 +218,7 @@ static void registerLocalPositionRotationScaleUpdated(cc::Node *node, se::Object
     });
 
     node->on(cc::EventTypesToJS::NODE_LOCAL_SCALE_UPDATED, [jsObject](float x, float y, float z) {
-        se::AutoHandleScope        hs;
+        se::AutoHandleScope hs;
         ccstd::array<se::Value, 3> args;
         nativevalue_to_se(x, args[0]);
         nativevalue_to_se(y, args[1]);
@@ -227,7 +227,7 @@ static void registerLocalPositionRotationScaleUpdated(cc::Node *node, se::Object
     });
 
     node->on(cc::EventTypesToJS::NODE_LOCAL_POSITION_ROTATION_SCALE_UPDATED, [jsObject](float px, float py, float pz, float rx, float ry, float rz, float rw, float sx, float sy, float sz) {
-        se::AutoHandleScope         hs;
+        se::AutoHandleScope hs;
         ccstd::array<se::Value, 10> args;
         nativevalue_to_se(px, args[0]);
         nativevalue_to_se(py, args[1]);
@@ -276,28 +276,28 @@ static bool js_scene_Node_registerListeners(se::State &s) // NOLINT(readability-
         cc::NodeEventType::NODE_DESTROYED,
         [](cc::Node *node) {
             se::AutoHandleScope hs;
-            se::Value           nodeVal;
+            se::Value nodeVal;
             nativevalue_to_se(node, nodeVal);
             se::ScriptEngine::getInstance()->callFunction(nodeVal.toObject(), "_onNodeDestroyed", 1, &nodeVal);
         });
 
     cobj->onSiblingIndexChanged = [jsObject](index_t newIndex) {
         se::AutoHandleScope hs;
-        se::Value           arg0;
+        se::Value arg0;
         nativevalue_to_se(newIndex, arg0);
         se::ScriptEngine::getInstance()->callFunction(jsObject, "_onSiblingIndexChanged", 1, &arg0);
     };
 
     cobj->on(cc::EventTypesToJS::NODE_SCENE_UPDATED, [jsObject](cc::Scene *scene) {
         se::AutoHandleScope hs;
-        se::Value           arg0;
+        se::Value arg0;
         nativevalue_to_se(scene, arg0);
         se::ScriptEngine::getInstance()->callFunction(jsObject, "_onSceneUpdated", 1, &arg0);
     });
 
     cobj->on(cc::EventTypesToJS::NODE_EDITOR_ATTACHED, [jsObject](bool attached) {
         se::AutoHandleScope hs;
-        se::Value           arg0;
+        se::Value arg0;
         nativevalue_to_se(attached, arg0);
         se::ScriptEngine::getInstance()->callFunction(jsObject, "_onEditorAttached", 1, &arg0);
     });
@@ -380,7 +380,7 @@ static bool js_scene_Node_registerOnSiblingOrderChanged(se::State &s) // NOLINT(
 SE_BIND_FUNC(js_scene_Node_registerOnSiblingOrderChanged) // NOLINT(readability-identifier-naming)
 
 static bool scene_Vec3_to_seval(const cc::Vec3 &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    assert(ret != nullptr);
+    CC_ASSERT(ret != nullptr);
     if (!nodeVec3CacheObj) {
         nodeVec3CacheObj = se::Object::createPlainObject();
         nodeVec3CacheObj->root();
@@ -395,7 +395,7 @@ static bool scene_Vec3_to_seval(const cc::Vec3 &v, se::Value *ret) { // NOLINT(r
 }
 
 static bool scene_Quaternion_to_seval(const cc::Quaternion &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    assert(ret != nullptr);
+    CC_ASSERT(ret != nullptr);
     if (!nodeQuatCacheObj) {
         nodeQuatCacheObj = se::Object::createPlainObject();
         nodeQuatCacheObj->root();
@@ -411,7 +411,7 @@ static bool scene_Quaternion_to_seval(const cc::Quaternion &v, se::Value *ret) {
 }
 
 static bool scene_Mat4_to_seval(const cc::Mat4 &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    assert(ret != nullptr);
+    CC_ASSERT(ret != nullptr);
     if (!nodeMat4CacheObj) {
         nodeMat4CacheObj = se::Object::createPlainObject();
         nodeMat4CacheObj->root();
@@ -430,22 +430,22 @@ static bool scene_Mat4_to_seval(const cc::Mat4 &v, se::Value *ret) { // NOLINT(r
 
 static bool js_scene_Camera_screenPointToRay(void *nativeObject) // NOLINT(readability-identifier-naming)
 {
-    auto *            cobj = reinterpret_cast<cc::scene::Camera *>(nativeObject);
-    cc::geometry::Ray ray  = cobj->screenPointToRay(tempFloatArray[0], tempFloatArray[1]);
-    tempFloatArray[0]      = ray.o.x;
-    tempFloatArray[1]      = ray.o.y;
-    tempFloatArray[2]      = ray.o.z;
-    tempFloatArray[3]      = ray.d.x;
-    tempFloatArray[4]      = ray.d.y;
-    tempFloatArray[5]      = ray.d.z;
+    auto *cobj = reinterpret_cast<cc::scene::Camera *>(nativeObject);
+    cc::geometry::Ray ray = cobj->screenPointToRay(tempFloatArray[0], tempFloatArray[1]);
+    tempFloatArray[0] = ray.o.x;
+    tempFloatArray[1] = ray.o.y;
+    tempFloatArray[2] = ray.o.z;
+    tempFloatArray[3] = ray.d.x;
+    tempFloatArray[4] = ray.d.y;
+    tempFloatArray[5] = ray.d.z;
     return true;
 }
 SE_BIND_FUNC_FAST(js_scene_Camera_screenPointToRay)
 
 static bool js_scene_Camera_screenToWorld(void *nativeObject) // NOLINT(readability-identifier-naming)
 {
-    auto *   cobj     = reinterpret_cast<cc::scene::Camera *>(nativeObject);
-    cc::Vec3 ret      = cobj->screenToWorld(cc::Vec3{tempFloatArray[0], tempFloatArray[1], tempFloatArray[2]});
+    auto *cobj = reinterpret_cast<cc::scene::Camera *>(nativeObject);
+    cc::Vec3 ret = cobj->screenToWorld(cc::Vec3{tempFloatArray[0], tempFloatArray[1], tempFloatArray[2]});
     tempFloatArray[0] = ret.x;
     tempFloatArray[1] = ret.y;
     tempFloatArray[2] = ret.z;
@@ -455,8 +455,8 @@ SE_BIND_FUNC_FAST(js_scene_Camera_screenToWorld)
 
 static bool js_scene_Camera_worldToScreen(void *nativeObject) // NOLINT(readability-identifier-naming)
 {
-    auto *   cobj     = reinterpret_cast<cc::scene::Camera *>(nativeObject);
-    cc::Vec3 ret      = cobj->worldToScreen(cc::Vec3{tempFloatArray[0], tempFloatArray[1], tempFloatArray[2]});
+    auto *cobj = reinterpret_cast<cc::scene::Camera *>(nativeObject);
+    cc::Vec3 ret = cobj->worldToScreen(cc::Vec3{tempFloatArray[0], tempFloatArray[1], tempFloatArray[2]});
     tempFloatArray[0] = ret.x;
     tempFloatArray[1] = ret.y;
     tempFloatArray[2] = ret.z;
@@ -478,20 +478,20 @@ SE_BIND_FUNC_FAST(js_scene_Camera_worldMatrixToScreen)
 
 static bool js_scene_Node_getPosition(void *nativeObj) // NOLINT(readability-identifier-naming)
 {
-    auto *          cobj   = reinterpret_cast<cc::Node *>(nativeObj);
+    auto *cobj = reinterpret_cast<cc::Node *>(nativeObj);
     const cc::Vec3 &result = cobj->getPosition();
-    tempFloatArray[0]      = result.x;
-    tempFloatArray[1]      = result.y;
-    tempFloatArray[2]      = result.z;
+    tempFloatArray[0] = result.x;
+    tempFloatArray[1] = result.y;
+    tempFloatArray[2] = result.z;
     return true;
 }
 SE_BIND_FUNC_FAST(js_scene_Node_getPosition)
 
 static bool js_scene_Node_setTempFloatArray(se::State &s) // NOLINT(readability-identifier-naming)
 {
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         uint8_t *buffer = nullptr;
         args[0].toObject()->getArrayBufferData(&buffer, nullptr);
@@ -507,9 +507,9 @@ static bool js_scene_Node_getRight(se::State &s) // NOLINT(readability-identifie
 {
     auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Node_getRight : Invalid Native Object");
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         cc::Vec3 result = cobj->getRight();
         ok &= scene_Vec3_to_seval(result, &s.rval());
@@ -526,9 +526,9 @@ static bool js_scene_Node_getRotation(se::State &s) // NOLINT(readability-identi
 {
     auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Node_getRotation : Invalid Native Object");
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         const cc::Quaternion &result = cobj->getRotation();
         ok &= scene_Quaternion_to_seval(result, &s.rval());
@@ -545,9 +545,9 @@ static bool js_scene_Node_getScale(se::State &s) // NOLINT(readability-identifie
 {
     auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Node_getScale : Invalid Native Object");
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         const cc::Vec3 &result = cobj->getScale();
         ok &= scene_Vec3_to_seval(result, &s.rval());
@@ -563,7 +563,7 @@ SE_BIND_FUNC(js_scene_Node_getScale)
 static bool js_scene_Node_setPosition(void *s) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = reinterpret_cast<cc::Node *>(s);
-    auto  argc = static_cast<size_t>(tempFloatArray[0]);
+    auto argc = static_cast<size_t>(tempFloatArray[0]);
     if (argc == 2) {
         cobj->setPositionInternal(tempFloatArray[1], tempFloatArray[2], true);
 
@@ -593,7 +593,7 @@ SE_BIND_FUNC_FAST(js_scene_Node_setRotationFromEuler)
 static bool js_scene_Node_setScale(void *s) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = reinterpret_cast<cc::Node *>(s);
-    auto  argc = static_cast<size_t>(tempFloatArray[0]);
+    auto argc = static_cast<size_t>(tempFloatArray[0]);
     if (argc == 2) {
         cobj->setScaleInternal(tempFloatArray[1], tempFloatArray[2], true);
 
@@ -606,20 +606,20 @@ SE_BIND_FUNC_FAST(js_scene_Node_setScale)
 
 static bool js_scene_Node_setRTS(void *s) // NOLINT(readability-identifier-naming)
 {
-    auto *         cobj = reinterpret_cast<cc::Node *>(s);
+    auto *cobj = reinterpret_cast<cc::Node *>(s);
     cc::Quaternion qt;
-    auto           rotSize = static_cast<int32_t>(tempFloatArray[0]);
+    auto rotSize = static_cast<int32_t>(tempFloatArray[0]);
     if (rotSize > 0) {
         qt.set(tempFloatArray[1], tempFloatArray[2], tempFloatArray[3], tempFloatArray[4]);
     }
 
-    auto     posSize = static_cast<int32_t>(tempFloatArray[5]);
+    auto posSize = static_cast<int32_t>(tempFloatArray[5]);
     cc::Vec3 pos;
     if (posSize > 0) {
         pos.set(tempFloatArray[6], tempFloatArray[7], tempFloatArray[8]);
     }
 
-    auto     scaleSize = static_cast<int32_t>(tempFloatArray[9]);
+    auto scaleSize = static_cast<int32_t>(tempFloatArray[9]);
     cc::Vec3 scale;
     if (scaleSize > 0) {
         scale.set(tempFloatArray[10], tempFloatArray[11], tempFloatArray[12]);
@@ -632,7 +632,7 @@ SE_BIND_FUNC_FAST(js_scene_Node_setRTS)
 static bool js_scene_Node_rotateForJS(void *s) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = reinterpret_cast<cc::Node *>(s);
-    auto  argc = static_cast<size_t>(tempFloatArray[0]);
+    auto argc = static_cast<size_t>(tempFloatArray[0]);
     if (argc == 4) {
         cobj->rotateForJS(tempFloatArray[1], tempFloatArray[2], tempFloatArray[3], tempFloatArray[4]);
     } else {
@@ -640,7 +640,7 @@ static bool js_scene_Node_rotateForJS(void *s) // NOLINT(readability-identifier-
         cobj->rotateForJS(tempFloatArray[1], tempFloatArray[2], tempFloatArray[3], tempFloatArray[4], size == 0 ? cc::NodeSpace::LOCAL : static_cast<cc::NodeSpace>(static_cast<int>(std::roundf(tempFloatArray[5]))));
     }
 
-    const auto &lrot  = cobj->getRotation();
+    const auto &lrot = cobj->getRotation();
     tempFloatArray[0] = lrot.x;
     tempFloatArray[1] = lrot.y;
     tempFloatArray[2] = lrot.z;
@@ -653,9 +653,9 @@ static bool js_scene_Node_getUp(se::State &s) // NOLINT(readability-identifier-n
 {
     auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Node_getUp : Invalid Native Object");
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         cc::Vec3 result = cobj->getUp();
         ok &= scene_Vec3_to_seval(result, &s.rval());
@@ -670,7 +670,7 @@ SE_BIND_FUNC(js_scene_Node_getUp)
 
 static bool js_scene_Node_getWorldMatrix(void *nativeObject) // NOLINT(readability-identifier-naming)
 {
-    auto *          cobj   = reinterpret_cast<cc::Node *>(nativeObject);
+    auto *cobj = reinterpret_cast<cc::Node *>(nativeObject);
     const cc::Mat4 &result = cobj->getWorldMatrix();
     memcpy(tempFloatArray, result.m, sizeof(result.m));
     return true;
@@ -681,9 +681,9 @@ static bool js_scene_Node_getWorldPosition(se::State &s) // NOLINT(readability-i
 {
     auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Node_getWorldPosition : Invalid Native Object");
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         const cc::Vec3 &result = cobj->getWorldPosition();
         ok &= scene_Vec3_to_seval(result, &s.rval());
@@ -700,9 +700,9 @@ static bool js_scene_Node_getWorldRS(se::State &s) // NOLINT(readability-identif
 {
     auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Node_getWorldRS : Invalid Native Object");
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         cc::Mat4 result = cobj->getWorldRS();
         ok &= scene_Mat4_to_seval(result, &s.rval());
@@ -719,9 +719,9 @@ static bool js_scene_Node_getWorldRT(se::State &s) // NOLINT(readability-identif
 {
     auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Node_getWorldRT : Invalid Native Object");
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         cc::Mat4 result = cobj->getWorldRT();
         ok &= scene_Mat4_to_seval(result, &s.rval());
@@ -738,9 +738,9 @@ static bool js_scene_Node_getWorldRotation(se::State &s) // NOLINT(readability-i
 {
     auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Node_getWorldRotation : Invalid Native Object");
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         const cc::Quaternion &result = cobj->getWorldRotation();
         ok &= scene_Quaternion_to_seval(result, &s.rval());
@@ -757,9 +757,9 @@ static bool js_scene_Node_getWorldScale(se::State &s) // NOLINT(readability-iden
 {
     auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Node_getWorldScale : Invalid Native Object");
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         const cc::Vec3 &result = cobj->getWorldScale();
         ok &= scene_Vec3_to_seval(result, &s.rval());
@@ -776,9 +776,9 @@ static bool js_scene_Node_getEulerAngles(se::State &s) // NOLINT(readability-ide
 {
     auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Node_getEulerAngles : Invalid Native Object");
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         const cc::Vec3 &result = cobj->getEulerAngles();
         ok &= scene_Vec3_to_seval(result, &s.rval());
@@ -795,9 +795,9 @@ static bool js_scene_Node_getForward(se::State &s) // NOLINT(readability-identif
 {
     auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Node_getForward : Invalid Native Object");
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         cc::Vec3 result = cobj->getForward();
         ok &= scene_Vec3_to_seval(result, &s.rval());
@@ -821,11 +821,11 @@ static bool js_scene_Pass_blocks_getter(se::State &s) { // NOLINT(readability-id
         return true;
     }
 
-    const auto &   blocks        = cobj->getBlocks();
+    const auto &blocks = cobj->getBlocks();
     const uint8_t *blockDataBase = cobj->getRootBlock()->getData();
 
     se::HandleObject jsBlocks{se::Object::createArrayObject(blocks.size())};
-    int32_t          i = 0;
+    int32_t i = 0;
     for (const auto &block : blocks) {
         se::HandleObject jsBlock{
             se::Object::createTypedArrayWithBuffer(
@@ -858,7 +858,7 @@ static bool js_Model_registerListeners(se::State &s) // NOLINT(readability-ident
     cobj->getEventProcessor().on(eventType, [=](uint32_t stamp) {                       \
         cobj->setCalledFromJS(true);                                                    \
         se::AutoHandleScope hs;                                                         \
-        se::Value           stampVal{stamp};                                            \
+        se::Value stampVal{stamp};                                                      \
         se::ScriptEngine::getInstance()->callFunction(thiz, #jsFuncName, 1, &stampVal); \
     })
 
@@ -891,7 +891,7 @@ static bool js_Model_registerListeners(se::State &s) // NOLINT(readability-ident
         cobj->setCalledFromJS(true);
         se::AutoHandleScope hs;
 
-        se::Value                  rval;
+        se::Value rval;
         ccstd::array<se::Value, 1> args;
         nativevalue_to_se(subModelIndex, args[0]);
         bool ok = se::ScriptEngine::getInstance()->callFunction(thiz, "getMacroPatches", static_cast<uint32_t>(args.size()), args.data(), &rval);
@@ -911,8 +911,8 @@ static bool js_assets_MaterialInstance_registerListeners(se::State &s) // NOLINT
     SE_PRECONDITION2(cobj, false, "js_assets_MaterialInstance_registerListeners : Invalid Native Object");
     cobj->setRebuildPSOCallback([](index_t /*index*/, cc::Material *material) {
         se::AutoHandleScope hs;
-        se::Value           matVal;
-        bool                ok = nativevalue_to_se(material, matVal);
+        se::Value matVal;
+        bool ok = nativevalue_to_se(material, matVal);
         if (!ok) {
             return;
         }

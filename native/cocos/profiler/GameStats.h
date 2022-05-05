@@ -29,6 +29,7 @@
 #include <mutex>
 #include <sstream>
 #include <utility>
+#include <algorithm>
 #include "base/StringUtil.h"
 #include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
@@ -69,8 +70,8 @@ struct TimeCounter {
 
     inline void onFrameBegin() {
         // reset current frame
-        max   = 0U;
-        time  = 0U;
+        max = 0U;
+        time = 0U;
         count = 0U;
     }
 
@@ -89,18 +90,18 @@ struct TimeCounter {
 
     inline void onIntervalUpdate() {
         // update display data
-        frameMaxDisplay   = intervalMax;
-        frameTimeDisplay  = framesOfInterval ? intervalTime / framesOfInterval : 0U;
+        frameMaxDisplay = intervalMax;
+        frameTimeDisplay = framesOfInterval ? intervalTime / framesOfInterval : 0U;
         frameCountDisplay = framesOfInterval ? intervalCount / framesOfInterval : 0U;
 
-        totalMaxDisplay   = totalMax;
-        totalTimeDisplay  = totalTime;
+        totalMaxDisplay = totalMax;
+        totalTimeDisplay = totalTime;
         totalCountDisplay = totalCount;
 
         // reset interval data
-        intervalMax      = 0U;
-        intervalTime     = 0U;
-        intervalCount    = 0U;
+        intervalMax = 0U;
+        intervalTime = 0U;
+        intervalCount = 0U;
         framesOfInterval = 0U;
     }
 };
@@ -111,9 +112,9 @@ struct MemoryCounter {
     uint64_t totalMax{0U}; // max memory during whole time
 
     inline void operator=(uint64_t value) {
-        total    = value;
+        total = value;
         totalMax = std::max(totalMax, total);
-        count    = 1;
+        count = 1;
     }
 
     inline void operator+=(uint64_t value) {
@@ -134,7 +135,7 @@ struct ObjectCounter {
     uint32_t totalMax{0U};  // max count during whole time
 
     inline void operator=(uint32_t value) {
-        total    = value;
+        total = value;
         totalMax = std::max(totalMax, total);
     }
 
@@ -158,19 +159,19 @@ struct ObjectCounter {
 
 // assume update in main thread only.
 struct CoreStats {
-    uint32_t      fps{0U};
-    float         frameTime{0.0F};
+    uint32_t fps{0U};
+    float frameTime{0.0F};
     ccstd::string gfx;
-    bool          multiThread{true};
-    bool          occlusionQuery{false};
-    bool          shadowMap{false};
-    uint32_t      screenWidth{0U};
-    uint32_t      screenHeight{0U};
+    bool multiThread{true};
+    bool occlusionQuery{false};
+    bool shadowMap{false};
+    uint32_t screenWidth{0U};
+    uint32_t screenHeight{0U};
 };
 
 struct MemoryStats {
     // memory stats
-    std::mutex                                         mutex;
+    std::mutex mutex;
     ccstd::unordered_map<ccstd::string, MemoryCounter> memories;
 
     inline void update(const ccstd::string &name, uint64_t value) {

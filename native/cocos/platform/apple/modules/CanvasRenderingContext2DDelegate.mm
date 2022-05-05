@@ -28,7 +28,6 @@
 #include "base/csscolorparser.h"
 #include "math/Math.h"
 
-
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_platform.h"
 
@@ -53,13 +52,13 @@
 #include <regex>
 
 @interface CanvasRenderingContext2DDelegateImpl : NSObject {
-    NSFont *             _font;
+    NSFont *_font;
     NSMutableDictionary *_tokenAttributesDict;
-    NSString *           _fontName;
-    CGFloat              _fontSize;
-    CGFloat              _width;
-    CGFloat              _height;
-    CGContextRef         _context;
+    NSString *_fontName;
+    CGFloat _fontSize;
+    CGFloat _width;
+    CGFloat _height;
+    CGContextRef _context;
 
 #if CC_PLATFORM == CC_PLATFORM_MAC_OSX
     NSGraphicsContext *_currentGraphicsContext;
@@ -69,47 +68,47 @@
 #endif
 
     CGColorSpaceRef _colorSpace;
-    cc::Data        _imageData;
-    NSBezierPath *  _path;
+    cc::Data _imageData;
+    NSBezierPath *_path;
 
-    cc::ICanvasRenderingContext2D::TextAlign      _textAlign;
-    cc::ICanvasRenderingContext2D::TextBaseline   _textBaseLine;
+    cc::ICanvasRenderingContext2D::TextAlign _textAlign;
+    cc::ICanvasRenderingContext2D::TextBaseline _textBaseLine;
     ccstd::array<float, 4> _fillStyle;
     ccstd::array<float, 4> _strokeStyle;
-    float                _lineWidth;
-    bool                 _bold;
+    float _lineWidth;
+    bool _bold;
 }
 
-@property (nonatomic, strong) NSFont *             font;
+@property (nonatomic, strong) NSFont *font;
 @property (nonatomic, strong) NSMutableDictionary *tokenAttributesDict;
-@property (nonatomic, strong) NSString *           fontName;
-@property (nonatomic, assign) cc::ICanvasRenderingContext2D::TextAlign      textAlign;
-@property (nonatomic, assign) cc::ICanvasRenderingContext2D::TextBaseline   textBaseLine;
-@property (nonatomic, assign) float                lineWidth;
+@property (nonatomic, strong) NSString *fontName;
+@property (nonatomic, assign) cc::ICanvasRenderingContext2D::TextAlign textAlign;
+@property (nonatomic, assign) cc::ICanvasRenderingContext2D::TextBaseline textBaseLine;
+@property (nonatomic, assign) float lineWidth;
 
 @end
 
 @implementation CanvasRenderingContext2DDelegateImpl
 
-@synthesize font                = _font;
+@synthesize font = _font;
 @synthesize tokenAttributesDict = _tokenAttributesDict;
-@synthesize fontName            = _fontName;
-@synthesize textAlign           = _textAlign;
-@synthesize textBaseLine        = _textBaseLine;
-@synthesize lineWidth           = _lineWidth;
+@synthesize fontName = _fontName;
+@synthesize textAlign = _textAlign;
+@synthesize textBaseLine = _textBaseLine;
+@synthesize lineWidth = _lineWidth;
 
 - (id)init {
     if (self = [super init]) {
-        _lineWidth    = 0;
-        _textAlign    = cc::ICanvasRenderingContext2D::TextAlign::LEFT;
+        _lineWidth = 0;
+        _textAlign = cc::ICanvasRenderingContext2D::TextAlign::LEFT;
         _textBaseLine = cc::ICanvasRenderingContext2D::TextBaseline::BOTTOM;
         _width = _height = 0;
-        _context         = nil;
-        _colorSpace      = nil;
+        _context = nil;
+        _colorSpace = nil;
 
 #if CC_PLATFORM == CC_PLATFORM_MAC_OSX
         _currentGraphicsContext = nil;
-        _oldGraphicsContext     = nil;
+        _oldGraphicsContext = nil;
 #endif
         _path = [NSBezierPath bezierPath];
         [_path retain];
@@ -120,9 +119,9 @@
 }
 
 - (void)dealloc {
-    self.font                = nil;
+    self.font = nil;
     self.tokenAttributesDict = nil;
-    self.fontName            = nil;
+    self.fontName = nil;
     CGColorSpaceRelease(_colorSpace);
     // release the context
     CGContextRelease(_context);
@@ -151,7 +150,7 @@
 
     if (font == nil) {
         const auto &familyMap = getFontFamilyNameMap();
-        auto        iter      = familyMap.find([_fontName UTF8String]);
+        auto iter = familyMap.find([_fontName UTF8String]);
         if (iter != familyMap.end()) {
             font = [[NSFontManager sharedFontManager]
                 fontWithFamily:[NSString stringWithUTF8String:iter->second.c_str()]
@@ -204,13 +203,13 @@
 
 - (void)updateFontWithName:(NSString *)fontName fontSize:(CGFloat)fontSize bold:(bool)bold {
     _fontSize = fontSize;
-    _bold     = bold;
+    _bold = bold;
 
     self.fontName = fontName;
-    self.font     = [self _createSystemFont];
+    self.font = [self _createSystemFont];
 
     NSMutableParagraphStyle *paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
-    paragraphStyle.lineBreakMode            = NSLineBreakByTruncatingTail;
+    paragraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
     [paragraphStyle setAlignment:NSTextAlignmentCenter];
 
     // color
@@ -228,9 +227,9 @@
 
 - (void)recreateBufferWithWidth:(NSInteger)width height:(NSInteger)height {
     _width = width = width > 0 ? width : 1;
-    _height = height           = height > 0 ? height : 1;
-    NSUInteger     textureSize = width * height * 4;
-    unsigned char *data        = (unsigned char *)malloc(sizeof(unsigned char) * textureSize);
+    _height = height = height > 0 ? height : 1;
+    NSUInteger textureSize = width * height * 4;
+    unsigned char *data = (unsigned char *)malloc(sizeof(unsigned char) * textureSize);
     memset(data, 0, textureSize);
     _imageData.fastSet(data, static_cast<uint32_t>(textureSize));
 
@@ -248,7 +247,7 @@
 
     // draw text
     _colorSpace = CGColorSpaceCreateDeviceRGB();
-    _context    = CGBitmapContextCreate(data,
+    _context = CGBitmapContextCreate(data,
                                      width,
                                      height,
                                      8,
@@ -277,12 +276,12 @@
                                                                                 attributes:_tokenAttributesDict] autorelease];
 
     NSSize textRect = NSZeroSize;
-    textRect.width  = CGFLOAT_MAX;
+    textRect.width = CGFLOAT_MAX;
     textRect.height = CGFLOAT_MAX;
 
     NSSize dim = [stringWithAttributes boundingRectWithSize:textRect options:(NSStringDrawingOptions)(NSStringDrawingUsesLineFragmentOrigin)context:nil].size;
 
-    dim.width  = ceilf(dim.width);
+    dim.width = ceilf(dim.width);
     dim.height = ceilf(dim.height);
 
     return dim;
@@ -334,7 +333,7 @@
     NSPoint drawPoint = [self convertDrawPoint:NSMakePoint(x, y) text:text];
 
     NSMutableParagraphStyle *paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
-    paragraphStyle.lineBreakMode            = NSLineBreakByTruncatingTail;
+    paragraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
 
     [_tokenAttributesDict removeObjectForKey:NSStrokeColorAttributeName];
 
@@ -367,7 +366,7 @@
     NSPoint drawPoint = [self convertDrawPoint:NSMakePoint(x, y) text:text];
 
     NSMutableParagraphStyle *paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
-    paragraphStyle.lineBreakMode            = NSLineBreakByTruncatingTail;
+    paragraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
 
     [_tokenAttributesDict removeObjectForKey:NSForegroundColorAttributeName];
 
@@ -422,9 +421,9 @@
     if (_imageData.isNull())
         return;
 
-    rect.origin.x    = floor(rect.origin.x);
-    rect.origin.y    = floor(rect.origin.y);
-    rect.size.width  = floor(rect.size.width);
+    rect.origin.x = floor(rect.origin.x);
+    rect.origin.y = floor(rect.origin.y);
+    rect.size.width = floor(rect.size.width);
     rect.size.height = floor(rect.size.height);
 
     if (rect.origin.x < 0) rect.origin.x = 0;
@@ -433,7 +432,7 @@
     if (rect.size.width < 1 || rect.size.height < 1)
         return;
     //REFINE:
-    //    assert(rect.origin.x == 0 && rect.origin.y == 0);
+    //    CC_ASSERT(rect.origin.x == 0 && rect.origin.y == 0);
     memset((void *)_imageData.getBytes(), 0x00, _imageData.getSize());
 }
 
@@ -637,7 +636,7 @@ void CanvasRenderingContext2DDelegate::unMultiplyAlpha(unsigned char *ptr, uint3
     for (int i = 0; i < size; i += 4) {
         alpha = (float)ptr[i + 3];
         if (alpha > 0) {
-            ptr[i]     = CLAMP((int)((float)ptr[i] / alpha * 255), 255);
+            ptr[i] = CLAMP((int)((float)ptr[i] / alpha * 255), 255);
             ptr[i + 1] = CLAMP((int)((float)ptr[i + 1] / alpha * 255), 255);
             ptr[i + 2] = CLAMP((int)((float)ptr[i + 2] / alpha * 255), 255);
         }

@@ -27,17 +27,17 @@
 
 namespace cc {
 IGeometry torus(float radius, float tube, const cc::optional<ITorusOptions> &opts) {
-    const uint32_t radialSegments  = opts.has_value() ? opts->radialSegments : 32;
+    const uint32_t radialSegments = opts.has_value() ? opts->radialSegments : 32;
     const uint32_t tubularSegments = opts.has_value() ? opts->tubularSegments : 32;
-    const float    arc             = opts.has_value() ? opts->arc : math::PI_2;
+    const float arc = opts.has_value() ? opts->arc : math::PI_2;
 
-    ccstd::vector<float>    positions;
-    ccstd::vector<float>    normals;
-    ccstd::vector<float>    uvs;
+    ccstd::vector<float> positions;
+    ccstd::vector<float> normals;
+    ccstd::vector<float> uvs;
     ccstd::vector<uint32_t> indices;
-    const Vec3              minPos(-radius - tube, -tube, -radius - tube);
-    const Vec3              maxPos(radius + tube, tube, radius + tube);
-    const float             boundingRadius = radius + tube;
+    const Vec3 minPos(-radius - tube, -tube, -radius - tube);
+    const Vec3 maxPos(radius + tube, tube, radius + tube);
+    const float boundingRadius = radius + tube;
 
     for (uint32_t j = 0; j <= radialSegments; j++) {
         for (uint32_t i = 0; i <= tubularSegments; i++) {
@@ -69,10 +69,10 @@ IGeometry torus(float radius, float tube, const cc::optional<ITorusOptions> &opt
 
             if ((i < tubularSegments) && (j < radialSegments)) {
                 const uint32_t seg1 = tubularSegments + 1;
-                const uint32_t a    = seg1 * j + i;
-                const uint32_t b    = seg1 * (j + 1) + i;
-                const uint32_t c    = seg1 * (j + 1) + i + 1;
-                const uint32_t d    = seg1 * j + i + 1;
+                const uint32_t a = seg1 * j + i;
+                const uint32_t b = seg1 * (j + 1) + i;
+                const uint32_t c = seg1 * (j + 1) + i + 1;
+                const uint32_t d = seg1 * j + i + 1;
 
                 indices.emplace_back(a);
                 indices.emplace_back(d);
@@ -86,13 +86,13 @@ IGeometry torus(float radius, float tube, const cc::optional<ITorusOptions> &opt
     }
 
     IGeometry info;
-    info.positions      = positions;
-    info.normals        = normals;
-    info.uvs            = uvs;
+    info.positions = positions;
+    info.normals = normals;
+    info.uvs = uvs;
     info.boundingRadius = boundingRadius;
-    info.minPos         = minPos;
-    info.maxPos         = maxPos;
-    info.indices        = indices;
+    info.minPos = minPos;
+    info.maxPos = maxPos;
+    info.indices = indices;
     return info;
 }
 

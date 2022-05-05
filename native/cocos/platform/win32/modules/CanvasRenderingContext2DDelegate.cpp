@@ -28,15 +28,15 @@
 
 namespace {
 void fillRectWithColor(uint8_t *buf, uint32_t totalWidth, uint32_t totalHeight, uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
-    assert(x + width <= totalWidth);
-    assert(y + height <= totalHeight);
+    CC_ASSERT(x + width <= totalWidth);
+    CC_ASSERT(y + height <= totalHeight);
 
     uint32_t y0 = y;
     uint32_t y1 = y + height;
     uint8_t *p;
     for (uint32_t offsetY = y0; offsetY < y1; ++offsetY) {
         for (uint32_t offsetX = x; offsetX < (x + width); ++offsetX) {
-            p    = buf + (totalWidth * offsetY + offsetX) * 4;
+            p = buf + (totalWidth * offsetY + offsetX) * 4;
             *p++ = r;
             *p++ = g;
             *p++ = b;
@@ -49,7 +49,7 @@ void fillRectWithColor(uint8_t *buf, uint32_t totalWidth, uint32_t totalHeight, 
 namespace cc {
 CanvasRenderingContext2DDelegate::CanvasRenderingContext2DDelegate() {
     HDC hdc = GetDC(_wnd);
-    _DC     = CreateCompatibleDC(hdc);
+    _DC = CreateCompatibleDC(hdc);
     ReleaseDC(_wnd, hdc);
 }
 
@@ -61,15 +61,15 @@ CanvasRenderingContext2DDelegate::~CanvasRenderingContext2DDelegate() {
 }
 
 void CanvasRenderingContext2DDelegate::recreateBuffer(float w, float h) {
-    _bufferWidth  = w;
+    _bufferWidth = w;
     _bufferHeight = h;
     if (_bufferWidth < 1.0F || _bufferHeight < 1.0F) {
         deleteBitmap();
         return;
     }
 
-    auto  textureSize = static_cast<int>(_bufferWidth * _bufferHeight * 4);
-    auto *data        = static_cast<uint8_t *>(malloc(sizeof(uint8_t) * textureSize));
+    auto textureSize = static_cast<int>(_bufferWidth * _bufferHeight * 4);
+    auto *data = static_cast<uint8_t *>(malloc(sizeof(uint8_t) * textureSize));
     memset(data, 0x00, textureSize);
     _imageData.fastSet(data, textureSize);
 
@@ -158,7 +158,7 @@ void CanvasRenderingContext2DDelegate::fillText(const ccstd::string &text, float
         return;
     }
 
-    SIZE  textSize    = {0, 0};
+    SIZE textSize = {0, 0};
     Point offsetPoint = convertDrawPoint(Point{x, y}, text);
 
     drawText(text, (int)offsetPoint[0], (int)offsetPoint[1]);
@@ -175,17 +175,17 @@ CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measure
     if (text.empty())
         return ccstd::array<float, 2>{0.0f, 0.0f};
 
-    int      bufferLen  = 0;
+    int bufferLen = 0;
     wchar_t *pwszBuffer = CanvasRenderingContext2DDelegate::utf8ToUtf16(text, &bufferLen);
-    Size     size       = sizeWithText(pwszBuffer, bufferLen);
+    Size size = sizeWithText(pwszBuffer, bufferLen);
     //SE_LOGD("CanvasRenderingContext2DImpl::measureText: %s, %d, %d\n", text.c_str(), size.cx, size.cy);
     CC_SAFE_DELETE_ARRAY(pwszBuffer);
     return size;
 }
 
 void CanvasRenderingContext2DDelegate::updateFont(const ccstd::string &fontName,
-                                                  float                fontSize,
-                                                  bool                 bold,
+                                                  float fontSize,
+                                                  bool bold,
                                                   bool /* italic */,
                                                   bool /* oblique */,
                                                   bool /* smallCaps */) {
@@ -193,17 +193,17 @@ void CanvasRenderingContext2DDelegate::updateFont(const ccstd::string &fontName,
         _fontName = fontName;
         _fontSize = static_cast<int>(fontSize);
         ccstd::string fontPath;
-        LOGFONTA      tFont = {0};
+        LOGFONTA tFont = {0};
         if (!_fontName.empty()) {
             // firstly, try to create font from ttf file
             const auto &fontInfoMap = getFontFamilyNameMap();
-            auto        iter        = fontInfoMap.find(_fontName);
+            auto iter = fontInfoMap.find(_fontName);
             if (iter != fontInfoMap.end()) {
-                fontPath                  = iter->second;
+                fontPath = iter->second;
                 ccstd::string tmpFontPath = fontPath;
-                size_t        nFindPos    = tmpFontPath.rfind("/");
-                tmpFontPath               = &tmpFontPath[nFindPos + 1];
-                nFindPos                  = tmpFontPath.rfind(".");
+                size_t nFindPos = tmpFontPath.rfind("/");
+                tmpFontPath = &tmpFontPath[nFindPos + 1];
+                nFindPos = tmpFontPath.rfind(".");
                 // IDEA: draw ttf failed if font file name not equal font face name
                 // for example: "DejaVuSansMono-Oblique" not equal "DejaVu Sans Mono"  when using DejaVuSansMono-Oblique.ttf
                 _fontName = tmpFontPath.substr(0, nFindPos);
@@ -236,7 +236,7 @@ void CanvasRenderingContext2DDelegate::updateFont(const ccstd::string &fontName,
         removeCustomFont();
 
         if (!fontPath.empty()) {
-            _curFontPath        = fontPath;
+            _curFontPath = fontPath;
             wchar_t *pwszBuffer = utf8ToUtf16(_curFontPath);
             if (pwszBuffer) {
                 if (AddFontResource(pwszBuffer)) {
@@ -291,9 +291,9 @@ wchar_t *CanvasRenderingContext2DDelegate::utf8ToUtf16(const ccstd::string &str,
         if (str.empty()) {
             break;
         }
-        int nLen    = static_cast<int>(str.size());
+        int nLen = static_cast<int>(str.size());
         int nBufLen = nLen + 1;
-        pwszBuffer  = ccnew wchar_t[nBufLen];
+        pwszBuffer = ccnew wchar_t[nBufLen];
         CC_BREAK_IF(!pwszBuffer);
         memset(pwszBuffer, 0, sizeof(wchar_t) * nBufLen);
         // str.size() not equal actuallyLen for Chinese char
@@ -326,7 +326,7 @@ void CanvasRenderingContext2DDelegate::removeCustomFont() {
 
 // x, y offset value
 int CanvasRenderingContext2DDelegate::drawText(const ccstd::string &text, int x, int y) {
-    int      nRet       = 0;
+    int nRet = 0;
     wchar_t *pwszBuffer = nullptr;
     do {
         CC_BREAK_IF(text.empty());
@@ -334,7 +334,7 @@ int CanvasRenderingContext2DDelegate::drawText(const ccstd::string &text, int x,
         DWORD dwFmt = DT_SINGLELINE | DT_NOPREFIX;
 
         int bufferLen = 0;
-        pwszBuffer    = utf8ToUtf16(text, &bufferLen);
+        pwszBuffer = utf8ToUtf16(text, &bufferLen);
 
         Size newSize = sizeWithText(pwszBuffer, bufferLen);
 
@@ -342,7 +342,7 @@ int CanvasRenderingContext2DDelegate::drawText(const ccstd::string &text, int x,
 
         RECT rcText = {0};
 
-        rcText.right  = static_cast<int>(newSize[0]);
+        rcText.right = static_cast<int>(newSize[0]);
         rcText.bottom = static_cast<int>(newSize[1]);
 
         LONG offsetX = x;
@@ -369,7 +369,7 @@ CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::sizeWit
     do {
         CC_BREAK_IF(!pszText || nLen <= 0);
 
-        RECT  rc        = {0, 0, 0, 0};
+        RECT rc = {0, 0, 0, 0};
         DWORD dwCalcFmt = DT_CALCRECT | DT_NOPREFIX;
 
         // measure text size
@@ -401,7 +401,7 @@ void CanvasRenderingContext2DDelegate::deleteBitmap() {
 
 void CanvasRenderingContext2DDelegate::fillTextureData() {
     do {
-        auto  dataLen = static_cast<int>(_bufferWidth * _bufferHeight * 4);
+        auto dataLen = static_cast<int>(_bufferWidth * _bufferHeight * 4);
         auto *dataBuf = static_cast<unsigned char *>(malloc(sizeof(unsigned char) * dataLen));
         CC_BREAK_IF(!dataBuf);
         unsigned char *imageBuf = _imageData.getBytes();
@@ -410,8 +410,8 @@ void CanvasRenderingContext2DDelegate::fillTextureData() {
         struct
         {
             BITMAPINFOHEADER bmiHeader;
-            int              mask[4];
-        } bi                = {0};
+            int mask[4];
+        } bi = {0};
         bi.bmiHeader.biSize = sizeof(bi.bmiHeader);
         CC_BREAK_IF(!GetDIBits(_DC, _bmp, 0, 0,
                                nullptr, (LPBITMAPINFO)&bi, DIB_RGB_COLORS));
@@ -421,14 +421,14 @@ void CanvasRenderingContext2DDelegate::fillTextureData() {
         GetDIBits(_DC, _bmp, 0, static_cast<UINT>(_bufferHeight), dataBuf,
                   (LPBITMAPINFO)&bi, DIB_RGB_COLORS);
 
-        uint8_t   r            = static_cast<uint8_t>(round(_fillStyle[0] * 255));
-        uint8_t   g            = static_cast<uint8_t>(round(_fillStyle[1] * 255));
-        uint8_t   b            = static_cast<uint8_t>(round(_fillStyle[2] * 255));
-        COLORREF  textColor    = (b << 16 | g << 8 | r) & 0x00ffffff;
-        COLORREF *pPixel       = nullptr;
-        COLORREF *pImage       = nullptr;
-        int       bufferHeight = static_cast<int>(_bufferHeight);
-        int       bufferWidth  = static_cast<int>(_bufferWidth);
+        uint8_t r = static_cast<uint8_t>(round(_fillStyle[0] * 255));
+        uint8_t g = static_cast<uint8_t>(round(_fillStyle[1] * 255));
+        uint8_t b = static_cast<uint8_t>(round(_fillStyle[2] * 255));
+        COLORREF textColor = (b << 16 | g << 8 | r) & 0x00ffffff;
+        COLORREF *pPixel = nullptr;
+        COLORREF *pImage = nullptr;
+        int bufferHeight = static_cast<int>(_bufferHeight);
+        int bufferWidth = static_cast<int>(_bufferWidth);
         for (int y = 0; y < bufferHeight; ++y) {
             pPixel = (COLORREF *)dataBuf + y * bufferWidth;
             pImage = (COLORREF *)imageBuf + y * bufferWidth;

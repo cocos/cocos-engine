@@ -1,5 +1,4 @@
 #include <atomic>
-#include <cassert>
 #include "WebSocket.h"
 #include "application/ApplicationManager.h"
 #include "base/Scheduler.h"
@@ -43,13 +42,13 @@ using cc::JniHelper;
 using cc::network::WebSocket;
 class WebSocketImpl final {
 public:
-    static const char *                                 connectID;
-    static const char *                                 removeHandlerID;
-    static const char *                                 sendBinaryID;
-    static const char *                                 sendStringID;
-    static const char *                                 closeID;
-    static const char *                                 getBufferedAmountID;
-    static std::atomic_int64_t                          idGenerator;
+    static const char *connectID;
+    static const char *removeHandlerID;
+    static const char *sendBinaryID;
+    static const char *sendStringID;
+    static const char *closeID;
+    static const char *getBufferedAmountID;
+    static std::atomic_int64_t idGenerator;
     static std::unordered_map<int64_t, WebSocketImpl *> allConnections;
 
     static void closeAllConnections();
@@ -58,21 +57,21 @@ public:
     ~WebSocketImpl();
 
     bool init(const cc::network::WebSocket::Delegate &delegate,
-              const std::string &                     url,
-              const std::vector<std::string> *        protocols  = nullptr,
-              const std::string &                     caFilePath = "");
+              const std::string &url,
+              const std::vector<std::string> *protocols = nullptr,
+              const std::string &caFilePath = "");
 
-    void                              send(const std::string &message);
-    void                              send(const unsigned char *binaryMsg, unsigned int len);
-    void                              close();
-    void                              closeAsync();
-    void                              closeAsync(int code, const std::string &reason);
-    cc::network::WebSocket::State     getReadyState() const { return _readyState; }
-    const std::string &               getUrl() const { return _url; }
-    const std::string &               getProtocol() const { return _protocolString; }
+    void send(const std::string &message);
+    void send(const unsigned char *binaryMsg, unsigned int len);
+    void close();
+    void closeAsync();
+    void closeAsync(int code, const std::string &reason);
+    cc::network::WebSocket::State getReadyState() const { return _readyState; }
+    const std::string &getUrl() const { return _url; }
+    const std::string &getProtocol() const { return _protocolString; }
     cc::network::WebSocket::Delegate *getDelegate() const { return _delegate; }
 
-    size_t      getBufferedAmount() const;
+    size_t getBufferedAmount() const;
     std::string getExtensions() const { return _extensions; }
 
     void onOpen(const std::string &protocol, const std::string &headers);
@@ -82,25 +81,25 @@ public:
     void onBinaryMessage(const uint8_t *buf, size_t len);
 
 private:
-    WebSocket *                                  _socket{nullptr};
-    WebSocket::Delegate *                        _delegate{nullptr};
-    jobject                                      _javaSocket{nullptr};
-    int64_t                                      _identifier{0};
-    std::string                                  _protocolString;
-    std::string                                  _selectedProtocol;
-    std::string                                  _url;
-    std::string                                  _extensions;
-    WebSocket::State                             _readyState{WebSocket::State::CONNECTING};
+    WebSocket *_socket{nullptr};
+    WebSocket::Delegate *_delegate{nullptr};
+    jobject _javaSocket{nullptr};
+    int64_t _identifier{0};
+    std::string _protocolString;
+    std::string _selectedProtocol;
+    std::string _url;
+    std::string _extensions;
+    WebSocket::State _readyState{WebSocket::State::CONNECTING};
     std::unordered_map<std::string, std::string> _headerMap{};
 };
 
-const char *                                 WebSocketImpl::connectID           = "_connect";
-const char *                                 WebSocketImpl::removeHandlerID     = "_removeHander";
-const char *                                 WebSocketImpl::sendBinaryID        = "_send";
-const char *                                 WebSocketImpl::sendStringID        = "_send";
-const char *                                 WebSocketImpl::closeID             = "_close";
-const char *                                 WebSocketImpl::getBufferedAmountID = "_getBufferedAmountID";
-std::atomic_int64_t                          WebSocketImpl::idGenerator{0};
+const char *WebSocketImpl::connectID = "_connect";
+const char *WebSocketImpl::removeHandlerID = "_removeHander";
+const char *WebSocketImpl::sendBinaryID = "_send";
+const char *WebSocketImpl::sendStringID = "_send";
+const char *WebSocketImpl::closeID = "_close";
+const char *WebSocketImpl::getBufferedAmountID = "_getBufferedAmountID";
+std::atomic_int64_t WebSocketImpl::idGenerator{0};
 std::unordered_map<int64_t, WebSocketImpl *> WebSocketImpl::allConnections{};
 
 void WebSocketImpl::closeAllConnections() {
@@ -124,20 +123,20 @@ WebSocketImpl::~WebSocketImpl() {
 
 bool WebSocketImpl::init(const cc::network::WebSocket::Delegate &delegate, const std::string &url,
                          const std::vector<std::string> *protocols, const std::string &caFilePath) {
-    auto *                   env               = JniHelper::getEnv();
-    auto                     handler           = static_cast<int64_t>(reinterpret_cast<uintptr_t>(this));
-    bool                     tcpNoDelay        = false;
-    bool                     perMessageDeflate = true;
-    int64_t                  timeout           = 60 * 60 * 1000 /*ms*/; //TODO(PatriceJiang): set timeout
-    std::vector<std::string> headers;                                   //TODO(PatriceJiang): allow set headers
-    _url      = url;
+    auto *env = JniHelper::getEnv();
+    auto handler = static_cast<int64_t>(reinterpret_cast<uintptr_t>(this));
+    bool tcpNoDelay = false;
+    bool perMessageDeflate = true;
+    int64_t timeout = 60 * 60 * 1000 /*ms*/; //TODO(PatriceJiang): set timeout
+    std::vector<std::string> headers;        //TODO(PatriceJiang): allow set headers
+    _url = url;
     _delegate = const_cast<WebSocket::Delegate *>(&delegate);
     if (protocols != nullptr && !protocols->empty()) {
         // protocol should add to Request Header as part of the original handshake for key
         // Sec-WebSocket-Protocol, use ',' to separate more than one.
         // https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers
         std::string item;
-        auto        it = protocols->begin();
+        auto it = protocols->begin();
         while (it != protocols->end()) {
             item = *it++;
             _protocolString.append(item);
@@ -148,7 +147,7 @@ bool WebSocketImpl::init(const cc::network::WebSocket::Delegate &delegate, const
     }
     // header
     jobject jObj = JniHelper::newObject(JAVA_CLASS_WEBSOCKET, _identifier, handler, headers, tcpNoDelay, perMessageDeflate, timeout);
-    _javaSocket  = env->NewGlobalRef(jObj);
+    _javaSocket = env->NewGlobalRef(jObj);
     JniHelper::callObjectVoidMethod(jObj, JAVA_CLASS_WEBSOCKET, connectID, url, _protocolString, caFilePath);
     env->DeleteLocalRef(jObj);
     _readyState = WebSocket::State::CONNECTING;
@@ -233,16 +232,16 @@ void WebSocketImpl::onError(int code, const std::string & /*reason*/) {
 
 void WebSocketImpl::onBinaryMessage(const uint8_t *buf, size_t len) {
     WebSocket::Data data;
-    data.bytes    = reinterpret_cast<char *>(const_cast<uint8_t *>(buf));
-    data.len      = static_cast<ssize_t>(len);
+    data.bytes = reinterpret_cast<char *>(const_cast<uint8_t *>(buf));
+    data.len = static_cast<ssize_t>(len);
     data.isBinary = true;
     _delegate->onMessage(_socket, data);
 }
 
 void WebSocketImpl::onStringMessage(const std::string &message) {
     WebSocket::Data data;
-    data.bytes    = const_cast<char *>(message.c_str());
-    data.len      = static_cast<ssize_t>(message.length());
+    data.bytes = const_cast<char *>(message.c_str());
+    data.len = static_cast<ssize_t>(message.length());
     data.isBinary = false;
     _delegate->onMessage(_socket, data);
 }
@@ -262,10 +261,10 @@ WebSocket::~WebSocket() {
     delete _impl;
 }
 
-bool WebSocket::init(const Delegate &                delegate,
-                     const std::string &             url,
+bool WebSocket::init(const Delegate &delegate,
+                     const std::string &url,
                      const std::vector<std::string> *protocols /* = nullptr*/,
-                     const std::string &             caFilePath /* = ""*/) {
+                     const std::string &caFilePath /* = ""*/) {
     return _impl->init(delegate, url, protocols, caFilePath);
 }
 
@@ -341,8 +340,8 @@ JNI_PATH(nativeOnStringMessage)(JNIEnv * /*env*/,
                                 jstring msg,
                                 jlong /*identifier*/,
                                 jlong handler) {
-    auto *      wsOkHttp3 = HANDLE_TO_WS_OKHTTP3(handler); // NOLINT(performance-no-int-to-ptr)
-    std::string msgStr    = JniHelper::jstring2string(msg);
+    auto *wsOkHttp3 = HANDLE_TO_WS_OKHTTP3(handler); // NOLINT(performance-no-int-to-ptr)
+    std::string msgStr = JniHelper::jstring2string(msg);
     RUN_IN_GAMETHREAD(wsOkHttp3->onStringMessage(msgStr));
 }
 
@@ -352,13 +351,13 @@ JNI_PATH(nativeOnBinaryMessage)(JNIEnv *env,
                                 jbyteArray msg,
                                 jlong /*identifier*/,
                                 jlong handler) {
-    auto *  wsOkHttp3 = HANDLE_TO_WS_OKHTTP3(handler); // NOLINT(performance-no-int-to-ptr)
+    auto *wsOkHttp3 = HANDLE_TO_WS_OKHTTP3(handler); // NOLINT(performance-no-int-to-ptr)
     jobject strongRef = env->NewGlobalRef(msg);
     RUN_IN_GAMETHREAD(do {
-        auto *   env    = JniHelper::getEnv();
-        auto     len    = env->GetArrayLength(static_cast<jbyteArray>(strongRef));
+        auto *env = JniHelper::getEnv();
+        auto len = env->GetArrayLength(static_cast<jbyteArray>(strongRef));
         jboolean isCopy = JNI_FALSE;
-        jbyte *  array  = env->GetByteArrayElements(static_cast<jbyteArray>(strongRef), &isCopy);
+        jbyte *array = env->GetByteArrayElements(static_cast<jbyteArray>(strongRef), &isCopy);
         wsOkHttp3->onBinaryMessage(reinterpret_cast<uint8_t *>(array), len);
         env->DeleteGlobalRef(strongRef);
     } while (false));
@@ -371,9 +370,9 @@ JNI_PATH(nativeOnOpen)(JNIEnv * /*env*/,
                        jstring header,
                        jlong /*identifier*/,
                        jlong handler) {
-    auto *wsOkHttp3   = HANDLE_TO_WS_OKHTTP3(handler); // NOLINT(performance-no-int-to-ptr)
-    auto  protocolStr = JniHelper::jstring2string(protocol);
-    auto  headerStr   = JniHelper::jstring2string(header);
+    auto *wsOkHttp3 = HANDLE_TO_WS_OKHTTP3(handler); // NOLINT(performance-no-int-to-ptr)
+    auto protocolStr = JniHelper::jstring2string(protocol);
+    auto headerStr = JniHelper::jstring2string(header);
     RUN_IN_GAMETHREAD(wsOkHttp3->onOpen(protocolStr, headerStr));
 }
 
@@ -394,9 +393,9 @@ JNI_PATH(nativeOnError)(JNIEnv * /*env*/,
                         jstring reason,
                         jlong /*identifier*/,
                         jlong handler) {
-    auto *wsOkHttp3    = HANDLE_TO_WS_OKHTTP3(handler); // NOLINT(performance-no-int-to-ptr)
-    int   unknownError = static_cast<int>(cc::network::WebSocket::ErrorCode::UNKNOWN);
-    auto  errorReason  = JniHelper::jstring2string(reason);
+    auto *wsOkHttp3 = HANDLE_TO_WS_OKHTTP3(handler); // NOLINT(performance-no-int-to-ptr)
+    int unknownError = static_cast<int>(cc::network::WebSocket::ErrorCode::UNKNOWN);
+    auto errorReason = JniHelper::jstring2string(reason);
     RUN_IN_GAMETHREAD(wsOkHttp3->onError(unknownError, errorReason));
 }
 

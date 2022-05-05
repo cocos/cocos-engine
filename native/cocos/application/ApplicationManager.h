@@ -32,7 +32,7 @@
 namespace cc {
 class CC_DLL ApplicationManager {
 public:
-    static ApplicationManager *getInstance();
+    static ApplicationManager* getInstance();
 
     using ApplicationPtr = std::shared_ptr<BaseApplication>;
 
@@ -64,7 +64,7 @@ public:
 
 private:
     std::weak_ptr<BaseApplication> _currentApp;
-    ccstd::vector<ApplicationPtr>  _apps;
+    ccstd::vector<ApplicationPtr> _apps;
 };
 } // namespace cc
 

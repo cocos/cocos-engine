@@ -40,11 +40,11 @@ GLES2DescriptorSetLayout::~GLES2DescriptorSetLayout() {
 }
 
 void GLES2DescriptorSetLayout::doInit(const DescriptorSetLayoutInfo & /*info*/) {
-    _gpuDescriptorSetLayout                    = ccnew GLES2GPUDescriptorSetLayout;
-    _gpuDescriptorSetLayout->descriptorCount   = _descriptorCount;
-    _gpuDescriptorSetLayout->bindingIndices    = _bindingIndices;
+    _gpuDescriptorSetLayout = ccnew GLES2GPUDescriptorSetLayout;
+    _gpuDescriptorSetLayout->descriptorCount = _descriptorCount;
+    _gpuDescriptorSetLayout->bindingIndices = _bindingIndices;
     _gpuDescriptorSetLayout->descriptorIndices = _descriptorIndices;
-    _gpuDescriptorSetLayout->bindings          = _bindings;
+    _gpuDescriptorSetLayout->bindings = _bindings;
 
     for (auto &binding : _bindings) {
         if (hasAnyFlags(binding.descriptorType, DESCRIPTOR_DYNAMIC_TYPE)) {

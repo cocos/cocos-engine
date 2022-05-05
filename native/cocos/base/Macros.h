@@ -31,7 +31,7 @@
 
 #include <cstdint> // To include uint8_t, uint16_t and so on.
 
-#include <assert.h>
+#include <cassert>
 #define CC_ASSERT(cond) assert(cond)
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
@@ -218,7 +218,7 @@ It should work same as apples CFSwapInt32LittleToHost(..)
 
 #define CC_DISALLOW_COPY_MOVE_ASSIGN(TypeName) \
     TypeName(const TypeName &) = delete;       \
-    TypeName(TypeName &&)      = delete;       \
+    TypeName(TypeName &&) = delete;            \
     CC_DISALLOW_ASSIGN(TypeName)
 
 #if (CC_COMPILER == CC_COMPILER_MSVC)

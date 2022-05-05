@@ -46,8 +46,8 @@ public:
     void render(scene::Camera *camera) override;
 
 private:
-    UIPhase * _uiPhase = nullptr;
-    uint      _phaseID = 0;
+    UIPhase *_uiPhase = nullptr;
+    uint _phaseID = 0;
 
     static RenderStageInfo initInfo;
 };

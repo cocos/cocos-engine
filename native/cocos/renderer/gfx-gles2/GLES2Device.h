@@ -70,11 +70,11 @@ public:
 
     inline const GLESBindingMapping &bindingMappings() const { return _bindingMappings; }
 
-    inline GLES2GPUContext *            context() const { return _gpuContext; }
-    inline GLES2GPUStateCache *         stateCache() const { return _gpuStateCache; }
-    inline GLES2GPUBlitManager *        blitManager() const { return _gpuBlitManager; }
-    inline GLES2GPUFramebufferHub *     framebufferHub() const { return _gpuFramebufferHub; }
-    inline GLES2GPUConstantRegistry *   constantRegistry() const { return _gpuConstantRegistry; }
+    inline GLES2GPUContext *context() const { return _gpuContext; }
+    inline GLES2GPUStateCache *stateCache() const { return _gpuStateCache; }
+    inline GLES2GPUBlitManager *blitManager() const { return _gpuBlitManager; }
+    inline GLES2GPUFramebufferHub *framebufferHub() const { return _gpuFramebufferHub; }
+    inline GLES2GPUConstantRegistry *constantRegistry() const { return _gpuConstantRegistry; }
     inline GLES2GPUFramebufferCacheMap *framebufferCacheMap() const { return _gpuFramebufferCacheMap; }
 
     inline bool checkExtension(const ccstd::string &extension) const {
@@ -93,22 +93,22 @@ protected:
 
     GLES2Device();
 
-    bool                 doInit(const DeviceInfo &info) override;
-    void                 doDestroy() override;
-    CommandBuffer *      createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
-    Queue *              createQueue() override;
-    QueryPool *          createQueryPool() override;
-    Swapchain *          createSwapchain() override;
-    Buffer *             createBuffer() override;
-    Texture *            createTexture() override;
-    Shader *             createShader() override;
-    InputAssembler *     createInputAssembler() override;
-    RenderPass *         createRenderPass() override;
-    Framebuffer *        createFramebuffer() override;
-    DescriptorSet *      createDescriptorSet() override;
+    bool doInit(const DeviceInfo &info) override;
+    void doDestroy() override;
+    CommandBuffer *createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
+    Queue *createQueue() override;
+    QueryPool *createQueryPool() override;
+    Swapchain *createSwapchain() override;
+    Buffer *createBuffer() override;
+    Texture *createTexture() override;
+    Shader *createShader() override;
+    InputAssembler *createInputAssembler() override;
+    RenderPass *createRenderPass() override;
+    Framebuffer *createFramebuffer() override;
+    DescriptorSet *createDescriptorSet() override;
     DescriptorSetLayout *createDescriptorSetLayout() override;
-    PipelineLayout *     createPipelineLayout() override;
-    PipelineState *      createPipelineState() override;
+    PipelineLayout *createPipelineLayout() override;
+    PipelineState *createPipelineState() override;
 
     Sampler *createSampler(const SamplerInfo &info) override;
 
@@ -120,11 +120,11 @@ protected:
 
     void initFormatFeature();
 
-    GLES2GPUContext *            _gpuContext{nullptr};
-    GLES2GPUStateCache *         _gpuStateCache{nullptr};
-    GLES2GPUBlitManager *        _gpuBlitManager{nullptr};
-    GLES2GPUFramebufferHub *     _gpuFramebufferHub{nullptr};
-    GLES2GPUConstantRegistry *   _gpuConstantRegistry{nullptr};
+    GLES2GPUContext *_gpuContext{nullptr};
+    GLES2GPUStateCache *_gpuStateCache{nullptr};
+    GLES2GPUBlitManager *_gpuBlitManager{nullptr};
+    GLES2GPUFramebufferHub *_gpuFramebufferHub{nullptr};
+    GLES2GPUConstantRegistry *_gpuConstantRegistry{nullptr};
     GLES2GPUFramebufferCacheMap *_gpuFramebufferCacheMap{nullptr};
 
     ccstd::vector<GLES2GPUSwapchain *> _swapchains;

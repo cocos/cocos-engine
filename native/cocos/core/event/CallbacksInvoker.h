@@ -44,20 +44,20 @@ namespace cc {
 #define CC_CALLBACK_INVOKE_3(__selector__, __target__, Arg0, Arg1, Arg2, ...) std::function<void(Arg0, Arg1, Arg2)>(std::bind(&__selector__, __target__, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, ##__VA_ARGS__)), __target__
 
 struct CallbackInfoBase {
-    using ID                   = uint32_t;
+    using ID = uint32_t;
     using FakeCallbackMemberFn = void (CCObject::*)();
 
-    CallbackInfoBase()          = default;
+    CallbackInfoBase() = default;
     virtual ~CallbackInfoBase() = default;
 
-    virtual bool                 check() const       = 0;
-    virtual void                 reset()             = 0;
+    virtual bool check() const = 0;
+    virtual void reset() = 0;
     virtual FakeCallbackMemberFn getMemberFn() const = 0;
 
     void *_target{nullptr};
-    ID    _id{0};
-    bool  _once{false};
-    bool  _isCCObject{false};
+    ID _id{0};
+    bool _once{false};
+    bool _isCCObject{false};
 #if CC_DEBUG
     ccstd::vector<ccstd::string> _argTypes;
 #endif
@@ -65,17 +65,17 @@ struct CallbackInfoBase {
 
 template <typename... Args>
 struct CallbackInfo final : public CallbackInfoBase {
-    using CallbackFn       = std::function<void(Args...)>;
+    using CallbackFn = std::function<void(Args...)>;
     using CallbackMemberFn = void (CCObject::*)(Args...);
 
-    CallbackFn       _callback{nullptr};
+    CallbackFn _callback{nullptr};
     CallbackMemberFn _memberFn{nullptr};
 
     template <typename Target>
     void set(CallbackFn &&callback, Target *target, bool once) {
-        _callback   = std::forward<CallbackFn>(callback);
-        _target     = target;
-        _once       = once;
+        _callback = std::forward<CallbackFn>(callback);
+        _target = target;
+        _once = once;
         _isCCObject = std::is_base_of<CCObject, Target>::value;
 #if CC_DEBUG
         _argTypes = {(typeid(Args).name())...};
@@ -84,9 +84,9 @@ struct CallbackInfo final : public CallbackInfoBase {
 
     template <typename Target, typename = std::enable_if_t<std::is_base_of<CCObject, Target>::value>>
     void set(CallbackMemberFn memberFn, Target *target, bool once) {
-        _memberFn   = memberFn;
-        _target     = target;
-        _once       = once;
+        _memberFn = memberFn;
+        _target = target;
+        _once = once;
         _isCCObject = true;
 #if CC_DEBUG
         _argTypes = {(typeid(Args).name())...};
@@ -94,10 +94,10 @@ struct CallbackInfo final : public CallbackInfoBase {
     }
 
     void reset() override {
-        _callback   = nullptr;
-        _memberFn   = nullptr;
-        _target     = nullptr;
-        _once       = false;
+        _callback = nullptr;
+        _memberFn = nullptr;
+        _target = nullptr;
+        _once = false;
         _isCCObject = false;
 #if CC_DEBUG
         _argTypes.clear();
@@ -126,8 +126,8 @@ struct CallbackInfo final : public CallbackInfoBase {
 class CallbackList final {
 public:
     ccstd::vector<std::shared_ptr<CallbackInfoBase>> _callbackInfos;
-    bool                                             _isInvoking{false};
-    bool                                             _containCanceled{false};
+    bool _isInvoking{false};
+    bool _containCanceled{false};
 
     /**
      * @zh 从列表中移除与指定目标相同回调函数的事件。
@@ -177,8 +177,8 @@ public:
  */
 class CallbacksInvoker {
 public:
-    using KeyType               = uint32_t;
-    CallbacksInvoker()          = default;
+    using KeyType = uint32_t;
+    CallbacksInvoker() = default;
     virtual ~CallbacksInvoker() = default;
     /**
      * @zh 向一个事件名注册一个新的事件监听器，包含回调函数和调用者
@@ -262,7 +262,7 @@ public:
      * @param args - The  arguments to be passed to the callback
      */
     template <typename... Args>
-    void emit(const KeyType &key, Args &&...args);
+    void emit(const KeyType &key, Args &&... args);
 
     template <typename T>
     struct FunctionTraits
@@ -286,16 +286,16 @@ public:
 
 private:
     ccstd::unordered_map<KeyType, CallbackList> _callbackTable;
-    static CallbackInfoBase::ID                 cbIDCounter;
+    static CallbackInfoBase::ID cbIDCounter;
 };
 
 template <typename Target, typename... Args>
 void CallbacksInvoker::on(const KeyType &key, void (Target::*memberFn)(Args...), Target *target, bool once) {
     static_assert(std::is_base_of<CCObject, Target>::value, "Target must be the subclass of CCObject");
-    using CallbackInfoType    = CallbackInfo<Args...>;
-    auto &list                = _callbackTable[key];
-    auto  info                = std::make_shared<CallbackInfoType>();
-    info->_id                 = ++cbIDCounter;
+    using CallbackInfoType = CallbackInfo<Args...>;
+    auto &list = _callbackTable[key];
+    auto info = std::make_shared<CallbackInfoType>();
+    info->_id = ++cbIDCounter;
     CallbackInfoBase::ID cbID = info->_id;
     info->set(static_cast<typename CallbackInfoType::CallbackMemberFn>(memberFn), target, once);
     list._callbackInfos.emplace_back(std::move(info));
@@ -303,9 +303,9 @@ void CallbacksInvoker::on(const KeyType &key, void (Target::*memberFn)(Args...),
 
 template <typename Target, typename... Args>
 void CallbacksInvoker::on(const KeyType &key, std::function<void(Args...)> &&callback, Target *target, CallbackInfoBase::ID &outCallbackID, bool once) {
-    auto &list                = _callbackTable[key];
-    auto  info                = std::make_shared<CallbackInfo<Args...>>();
-    info->_id                 = ++cbIDCounter;
+    auto &list = _callbackTable[key];
+    auto info = std::make_shared<CallbackInfo<Args...>>();
+    info->_id = ++cbIDCounter;
     CallbackInfoBase::ID cbID = info->_id;
     info->set(std::forward<std::function<void(Args...)>>(callback), target, once);
     list._callbackInfos.emplace_back(std::move(info));
@@ -359,11 +359,11 @@ template <typename Target, typename... Args>
 void CallbacksInvoker::off(const KeyType &key, void (Target::*memberFn)(Args...), Target *target) {
     static_assert(std::is_base_of<CCObject, Target>::value, "Target must be the subclass of CCObject");
     using CallbackFn = void (CCObject::*)(Args...);
-    auto iter        = _callbackTable.find(key);
+    auto iter = _callbackTable.find(key);
     if (iter != _callbackTable.end()) {
-        auto &      list  = iter->second;
+        auto &list = iter->second;
         const auto &infos = list._callbackInfos;
-        size_t      i     = 0;
+        size_t i = 0;
         for (const auto &info : infos) {
             if (info != nullptr && reinterpret_cast<CallbackFn>(info->getMemberFn()) == memberFn && info->_target == target) {
                 list.cancel(static_cast<int32_t>(i));
@@ -375,15 +375,15 @@ void CallbacksInvoker::off(const KeyType &key, void (Target::*memberFn)(Args...)
 }
 
 template <typename... Args>
-void CallbacksInvoker::emit(const KeyType &key, Args &&...args) {
+void CallbacksInvoker::emit(const KeyType &key, Args &&... args) {
 #if CC_DEBUG
     ccstd::vector<ccstd::string> argTypes{(typeid(Args).name())...};
 #endif
     auto iter = _callbackTable.find(key);
     if (iter != _callbackTable.end()) {
-        auto &list        = iter->second;
-        bool  rootInvoker = !list._isInvoking;
-        list._isInvoking  = true;
+        auto &list = iter->second;
+        bool rootInvoker = !list._isInvoking;
+        list._isInvoking = true;
 
         auto &infos = list._callbackInfos;
         for (auto &i : infos) {
@@ -402,11 +402,11 @@ void CallbacksInvoker::emit(const KeyType &key, Args &&...args) {
             }
 #endif
             using CallbackInfoType = CallbackInfo<Args...>;
-            auto info              = std::static_pointer_cast<CallbackInfoType>(i);
+            auto info = std::static_pointer_cast<CallbackInfoType>(i);
             if (info != nullptr) {
                 if (info->_memberFn != nullptr && info->_target != nullptr) {
-                    auto  memberFn = info->_memberFn;
-                    auto *target   = reinterpret_cast<CCObject *>(info->_target);
+                    auto memberFn = info->_memberFn;
+                    auto *target = reinterpret_cast<CCObject *>(info->_target);
 
                     // Pre off once callbacks to avoid influence on logic in callback
                     if (info->_once) {
@@ -420,8 +420,8 @@ void CallbacksInvoker::emit(const KeyType &key, Args &&...args) {
                         (target->*memberFn)(std::forward<Args>(args)...);
                     }
                 } else {
-                    const auto &         callback = info->_callback;
-                    CallbackInfoBase::ID cbID     = info->_id;
+                    const auto &callback = info->_callback;
+                    CallbackInfoBase::ID cbID = info->_id;
                     // Pre off once callbacks to avoid influence on logic in callback
                     if (info->_once) {
                         off(key, cbID);
@@ -451,7 +451,7 @@ void CallbacksInvoker::emit(const KeyType &key, Args &&...args) {
 template <typename Target, typename... Args>
 bool CallbacksInvoker::hasEventListener(const KeyType &key, void (Target::*memberFn)(Args...), Target *target) const {
     using CallbackFn = void (CCObject::*)(Args...);
-    auto iter        = _callbackTable.find(key);
+    auto iter = _callbackTable.find(key);
     if (iter == _callbackTable.end()) {
         return false;
     }

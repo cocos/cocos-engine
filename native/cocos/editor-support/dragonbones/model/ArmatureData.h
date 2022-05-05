@@ -40,8 +40,7 @@ DRAGONBONES_NAMESPACE_BEGIN
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class ArmatureData : public BaseObject
-{
+class ArmatureData : public BaseObject {
     BIND_CLASS_TYPE_B(ArmatureData);
 
 public:
@@ -164,19 +163,16 @@ public:
      * @private
      */
     DragonBonesData* parent;
-    ArmatureData() :
-        canvas(nullptr),
-        userData(nullptr)
-    {
+    ArmatureData() : canvas(nullptr),
+                     userData(nullptr) {
         _onClear();
     }
-    ~ArmatureData()
-    {
+    ~ArmatureData() {
         _onClear();
     }
 
 protected:
-virtual void _onClear() override;
+    virtual void _onClear() override;
 
 public:
     /**
@@ -231,8 +227,7 @@ public:
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    inline BoneData* getBone(const std::string& boneName) const
-    {
+    inline BoneData* getBone(const std::string& boneName) const {
         return mapFind<BoneData>(bones, boneName);
     }
     /**
@@ -247,15 +242,13 @@ public:
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    inline SlotData* getSlot(const std::string& slotName) const
-    {
+    inline SlotData* getSlot(const std::string& slotName) const {
         return mapFind<SlotData>(slots, slotName);
     }
     /**
      * @private
      */
-    inline ConstraintData* getConstraint(const std::string& constraintName) const
-    {
+    inline ConstraintData* getConstraint(const std::string& constraintName) const {
         return mapFind<ConstraintData>(constraints, constraintName);
     }
     /**
@@ -270,8 +263,7 @@ public:
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    inline SkinData* getSkin(const std::string& skinName) const
-    {
+    inline SkinData* getSkin(const std::string& skinName) const {
         return mapFind(skins, skinName);
     }
     /**
@@ -290,8 +282,7 @@ public:
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    inline AnimationData* getAnimation(const std::string& animationName) const
-    {
+    inline AnimationData* getAnimation(const std::string& animationName) const {
         return mapFind(animations, animationName);
     }
 
@@ -328,8 +319,7 @@ public: // For WebAssembly.
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class BoneData : public BaseObject 
-{
+class BoneData : public BaseObject {
     BIND_CLASS_TYPE_B(BoneData);
 
 public:
@@ -390,13 +380,10 @@ public:
      * @language zh_CN
      */
     BoneData* parent;
-    BoneData() :
-        userData(nullptr)
-    {
+    BoneData() : userData(nullptr) {
         _onClear();
     }
-    ~BoneData()
-    {
+    ~BoneData() {
         _onClear();
     }
 
@@ -422,8 +409,7 @@ public: // For WebAssembly.
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class SlotData : public BaseObject
-{
+class SlotData : public BaseObject {
     BIND_CLASS_TYPE_B(SlotData);
 
 public:
@@ -479,14 +465,11 @@ public:
      * @language zh_CN
      */
     BoneData* parent;
-    SlotData() :
-        color(nullptr),
-        userData(nullptr)
-    {
+    SlotData() : color(nullptr),
+                 userData(nullptr) {
         _onClear();
     }
-    ~SlotData()
-    {
+    ~SlotData() {
         _onClear();
     }
 

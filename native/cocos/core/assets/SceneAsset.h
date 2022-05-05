@@ -43,7 +43,7 @@ public:
     bool validate() const override;
 
     inline Scene *getScene() const { return _scene.get(); }
-    void          setScene(Scene *scene);
+    void setScene(Scene *scene);
 
 private:
     /**

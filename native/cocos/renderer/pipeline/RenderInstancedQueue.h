@@ -42,7 +42,7 @@ class InstancedBuffer;
 
 class CC_DLL RenderInstancedQueue final {
 public:
-    RenderInstancedQueue()  = default;
+    RenderInstancedQueue() = default;
     ~RenderInstancedQueue() = default;
 
     void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer);

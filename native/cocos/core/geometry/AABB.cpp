@@ -24,8 +24,7 @@
 ****************************************************************************/
 
 #include "AABB.h"
-
-#include <cassert>
+#include "base/Macros.h"
 #include "cocos/core/geometry/Enums.h"
 #include "cocos/core/geometry/Sphere.h"
 
@@ -124,7 +123,7 @@ int AABB::aabbPlane(const Plane &plane) const {
 
 bool AABB::aabbFrustum(const Frustum &frustum) const {
     const auto &planes = frustum.planes;
-    const auto *self   = this;
+    const auto *self = this;
     return std::all_of(planes.begin(),
                        planes.end(),
                        // frustum plane normal points to the inside

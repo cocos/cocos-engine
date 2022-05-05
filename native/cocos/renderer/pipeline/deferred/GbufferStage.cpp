@@ -52,7 +52,7 @@ RenderStageInfo GbufferStage::initInfo = {
 const RenderStageInfo &GbufferStage::getInitializeInfo() { return GbufferStage::initInfo; }
 
 GbufferStage::GbufferStage() {
-    _batchedQueue   = ccnew RenderBatchedQueue;
+    _batchedQueue = ccnew RenderBatchedQueue;
     _instancedQueue = ccnew RenderInstancedQueue;
 }
 
@@ -61,7 +61,7 @@ GbufferStage::~GbufferStage() = default;
 bool GbufferStage::initialize(const RenderStageInfo &info) {
     RenderStage::initialize(info);
     _renderQueueDescriptors = info.renderQueues;
-    _phaseID                = getPhaseID("default");
+    _phaseID = getPhaseID("default");
     return true;
 }
 
@@ -69,9 +69,9 @@ void GbufferStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     RenderStage::activate(pipeline, flow);
 
     for (const auto &descriptor : _renderQueueDescriptors) {
-        uint                  phase    = convertPhase(descriptor.stages);
-        RenderQueueSortFunc   sortFunc = convertQueueSortFunc(descriptor.sortMode);
-        RenderQueueCreateInfo info     = {descriptor.isTransparent, phase, sortFunc};
+        uint phase = convertPhase(descriptor.stages);
+        RenderQueueSortFunc sortFunc = convertQueueSortFunc(descriptor.sortMode);
+        RenderQueueCreateInfo info = {descriptor.isTransparent, phase, sortFunc};
         _renderQueues.emplace_back(ccnew RenderQueue(_pipeline, std::move(info), true));
     }
     _planarShadowQueue = ccnew PlanarShadowQueue(_pipeline);
@@ -93,17 +93,17 @@ void GbufferStage::dispenseRenderObject2Queues() {
         queue->clear();
     }
 
-    uint   subModelIdx = 0;
-    uint   passIdx     = 0;
-    size_t k           = 0;
+    uint subModelIdx = 0;
+    uint passIdx = 0;
+    size_t k = 0;
     for (auto ro : renderObjects) {
-        const auto *const model         = ro.model;
-        const auto &      subModels     = model->getSubModels();
-        auto              subModelCount = subModels.size();
+        const auto *const model = ro.model;
+        const auto &subModels = model->getSubModels();
+        auto subModelCount = subModels.size();
         for (subModelIdx = 0; subModelIdx < subModelCount; ++subModelIdx) {
-            const auto &subModel  = subModels[subModelIdx];
-            const auto &passes    = subModel->getPasses();
-            auto        passCount = passes.size();
+            const auto &subModel = subModels[subModelIdx];
+            const auto &passes = subModel->getPasses();
+            auto passCount = passes.size();
             for (passIdx = 0; passIdx < passCount; ++passIdx) {
                 const auto &pass = passes[passIdx];
                 if (pass->getPhase() != _phaseID) continue;
@@ -189,11 +189,11 @@ void GbufferStage::render(scene::Camera *camera) {
         gfx::Color clearColor{0.0, 0.0, 0.0, 0.0};
 
         framegraph::RenderTargetAttachment::Descriptor colorInfo;
-        colorInfo.usage         = framegraph::RenderTargetAttachment::Usage::COLOR;
-        colorInfo.loadOp        = gfx::LoadOp::CLEAR;
-        colorInfo.clearColor    = clearColor;
+        colorInfo.usage = framegraph::RenderTargetAttachment::Usage::COLOR;
+        colorInfo.loadOp = gfx::LoadOp::CLEAR;
+        colorInfo.clearColor = clearColor;
         colorInfo.beginAccesses = gfx::AccessFlagBit::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT;
-        colorInfo.endAccesses   = gfx::AccessFlagBit::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT;
+        colorInfo.endAccesses = gfx::AccessFlagBit::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT;
         for (int i = 0; i < DeferredPipeline::GBUFFER_COUNT; ++i) {
             data.gbuffer[i] = builder.write(data.gbuffer[i], colorInfo);
             builder.writeToBlackboard(DeferredPipeline::fgStrHandleGbufferTexture[i], data.gbuffer[i]);
@@ -213,12 +213,12 @@ void GbufferStage::render(scene::Camera *camera) {
         data.depth = builder.create(DeferredPipeline::fgStrHandleOutDepthTexture, depthTexInfo);
 
         framegraph::RenderTargetAttachment::Descriptor depthInfo;
-        depthInfo.usage        = framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL;
-        depthInfo.loadOp       = gfx::LoadOp::CLEAR;
-        depthInfo.clearDepth   = camera->getClearDepth();
+        depthInfo.usage = framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL;
+        depthInfo.loadOp = gfx::LoadOp::CLEAR;
+        depthInfo.clearDepth = camera->getClearDepth();
         depthInfo.clearStencil = camera->getClearStencil();
-        depthInfo.endAccesses  = gfx::AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE;
-        data.depth             = builder.write(data.depth, depthInfo);
+        depthInfo.endAccesses = gfx::AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE;
+        data.depth = builder.write(data.depth, depthInfo);
         builder.writeToBlackboard(DeferredPipeline::fgStrHandleOutDepthTexture, data.depth);
 
         // viewport setup

@@ -45,7 +45,7 @@
 #define JNI_DOWNLOADER(FUNC) JNI_METHOD1(ORG_DOWNLOADER_CLASS_NAME, FUNC)
 
 ccstd::unordered_map<int, cc::network::DownloaderJava *> sDownloaderMap;
-std::mutex                                               sDownloaderMutex;
+std::mutex sDownloaderMutex;
 
 static void insertDownloaderJava(int id, cc::network::DownloaderJava *downloaderPtr) {
     std::lock_guard<std::mutex> guard(sDownloaderMutex);
@@ -62,7 +62,7 @@ static void eraseDownloaderJava(int id) {
  */
 static cc::network::DownloaderJava *findDownloaderJava(int id) {
     std::lock_guard<std::mutex> guard(sDownloaderMutex);
-    auto                        iter = sDownloaderMap.find(id);
+    auto iter = sDownloaderMap.find(id);
     if (sDownloaderMap.end() == iter) {
         return nullptr;
     }
@@ -72,7 +72,7 @@ static cc::network::DownloaderJava *findDownloaderJava(int id) {
 namespace cc {
 namespace network {
 
-static int sTaskCounter       = 0;
+static int sTaskCounter = 0;
 static int sDownloaderCounter = 0;
 
 struct DownloadTaskAndroid : public IDownloadTask {
@@ -84,7 +84,7 @@ struct DownloadTaskAndroid : public IDownloadTask {
         DLLOG("Destruct DownloadTaskAndroid: %p", this);
     }
 
-    int                                 id;
+    int id;
     std::shared_ptr<const DownloadTask> task; // reference to DownloadTask, when task finish, release
 };
 
@@ -146,12 +146,12 @@ IDownloadTask *DownloaderJava::createCoTask(std::shared_ptr<const DownloadTask> 
                                        JCLS_DOWNLOADER,
                                        "createTask",
                                        "(" JARG_DOWNLOADER "I" JARG_STR JARG_STR "[" JARG_STR ")V")) {
-        jclass                                                    jclassString = methodInfo.env->FindClass("java/lang/String");
-        jstring                                                   jstrURL      = methodInfo.env->NewStringUTF(task->requestURL.c_str());
-        jstring                                                   jstrPath     = methodInfo.env->NewStringUTF(task->storagePath.c_str());
-        jobjectArray                                              jarrayHeader = methodInfo.env->NewObjectArray(task->header.size() * 2, jclassString, nullptr);
-        const ccstd::unordered_map<ccstd::string, ccstd::string> &headMap      = task->header;
-        int                                                       index        = 0;
+        jclass jclassString = methodInfo.env->FindClass("java/lang/String");
+        jstring jstrURL = methodInfo.env->NewStringUTF(task->requestURL.c_str());
+        jstring jstrPath = methodInfo.env->NewStringUTF(task->storagePath.c_str());
+        jobjectArray jarrayHeader = methodInfo.env->NewObjectArray(task->header.size() * 2, jclassString, nullptr);
+        const ccstd::unordered_map<ccstd::string, ccstd::string> &headMap = task->header;
+        int index = 0;
         for (const auto &it : headMap) {
             methodInfo.env->SetObjectArrayElement(jarrayHeader, index++, methodInfo.env->NewStringUTF(it.first.c_str()));
             methodInfo.env->SetObjectArrayElement(jarrayHeader, index++, methodInfo.env->NewStringUTF(it.second.c_str()));
@@ -214,7 +214,7 @@ void DownloaderJava::onProcessImpl(int taskId, int64_t dl, int64_t dlNow, int64_
         DLLOG("DownloaderJava::onProgress can't find task with id: %d", taskId);
         return;
     }
-    DownloadTaskAndroid *                   coTask = iter->second;
+    DownloadTaskAndroid *coTask = iter->second;
     std::function<int64_t(void *, int64_t)> transferDataToBuffer;
     onTaskProgress(*coTask->task, dl, dlNow, dlTotal, transferDataToBuffer);
 }
@@ -227,7 +227,7 @@ void DownloaderJava::onFinishImpl(int taskId, int errCode, const char *errStr, c
         return;
     }
     DownloadTaskAndroid *coTask = iter->second;
-    ccstd::string        str    = (errStr ? errStr : "");
+    ccstd::string str = (errStr ? errStr : "");
     _taskMap.erase(iter);
     onTaskFinish(*coTask->task,
                  errStr ? DownloadTask::ERROR_IMPL_INTERNAL : DownloadTask::ERROR_NO_ERROR,
@@ -256,11 +256,11 @@ JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnProgress)(JNIEnv * /*env*/, jclass
 }
 
 JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnFinish)(JNIEnv *env, jclass /*clazz*/, jint id, jint taskId, jint errCode, jstring errStr, jbyteArray data) {
-    ccstd::string          errStrTmp;
+    ccstd::string errStrTmp;
     ccstd::vector<uint8_t> dataTmp;
     if (errStr) {
         const char *nativeErrStr = env->GetStringUTFChars(errStr, JNI_FALSE);
-        errStrTmp                = nativeErrStr;
+        errStrTmp = nativeErrStr;
         env->ReleaseStringUTFChars(errStr, nativeErrStr);
     }
     if (data && env->GetArrayLength(data) > 0) {

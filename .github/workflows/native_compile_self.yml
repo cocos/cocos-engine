@@ -15,7 +15,7 @@ jobs:
       - name: Download external libraries
         shell: bash
         run: |
-          EXT_VERSION=`grep version native/external-config.json  |awk -F'"' '{print $4}'`
+          EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
 
       - name: Generate bindings
@@ -30,7 +30,7 @@ jobs:
         env:
           COCOS_ENGINE_DEV: 1
         run: |
-          COCOS2DX_ROOT=$GITHUB_WORKSPACE/native
+          NATIVE_ROOT=$GITHUB_WORKSPACE/native
           ANDORID_NDK='/home/tools/android-sdk-linux/ndk-bundle'
           ANDROID_NDK_HOME='/home/tools/android-sdk-linux/ndk-bundle'
           ANDROID_SDK_ROOT='/home/tools/android-sdk-linux'
@@ -54,7 +54,7 @@ jobs:
           sed -i "s@^PROP_NDK_PATH.*@PROP_NDK_PATH=$ANDORID_NDK@g" gradle.properties
           sed -i "s@^APPLICATION_ID.*@APPLICATION_ID=com.cocos.android@g" gradle.properties
           sed -i "s@^RES_PATH.*@RES_PATH=$ASSET_DIR@g" gradle.properties
-          sed -i "s@^COCOS_ENGINE_PATH.*@COCOS_ENGINE_PATH=$COCOS2DX_ROOT@g" gradle.properties
+          sed -i "s@^COCOS_ENGINE_PATH.*@COCOS_ENGINE_PATH=$NATIVE_ROOT@g" gradle.properties
           sed -i "s@^NATIVE_DIR.*@NATIVE_DIR=$NATIVE_DIR@g" gradle.properties
           # To speedup CI, compile arm64-v8a only
           # sed -i "s@^PROP_APP_ABI.*@PROP_APP_ABI=armeabi-v7a:arm64-v8a:x86@g" gradle.properties
@@ -73,7 +73,7 @@ jobs:
       - name: Download external libraries
         shell: bash
         run: |
-          EXT_VERSION=`grep version  native/external-config.json  |awk -F'"' '{print $4}'`
+          EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
 
       - name: Generate bindings

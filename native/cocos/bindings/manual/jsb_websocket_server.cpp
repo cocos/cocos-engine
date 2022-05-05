@@ -37,10 +37,10 @@
 using namespace cc;
 using namespace cc::network;
 
-se::Class *__jsb_WebSocketServer_class            = nullptr;
+se::Class *__jsb_WebSocketServer_class = nullptr;
 se::Class *__jsb_WebSocketServer_Connection_class = nullptr;
 
-typedef std::shared_ptr<WebSocketServer> *          WSSPTR;
+typedef std::shared_ptr<WebSocketServer> *WSSPTR;
 typedef std::shared_ptr<WebSocketServerConnection> *WSCONNPTR;
 
 static int __sendIndex = 1;
@@ -60,10 +60,10 @@ SE_BIND_FINALIZE_FUNC(WebSocketServer_finalize)
 
 static bool WebSocketServer_constructor(se::State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int argc = (int)args.size();
     if (argc == 0) {
-        se::Object *obj  = s.thisObject();
-        WSSPTR      cobj = ccnew std::shared_ptr<WebSocketServer>(ccnew WebSocketServer());
+        se::Object *obj = s.thisObject();
+        WSSPTR cobj = ccnew std::shared_ptr<WebSocketServer>(ccnew WebSocketServer());
         obj->setPrivateData(cobj);
         (*cobj)->setData(obj);
 
@@ -85,15 +85,15 @@ SE_BIND_CTOR(WebSocketServer_constructor, __jsb_WebSocketServer_class, WebSocket
 
 static bool WebSocketServer_listen(se::State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int argc = (int)args.size();
     if (argc == 0) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 1,2,3", argc);
         return false;
     }
 
-    WSSPTR                                     cobj     = (WSSPTR)s.nativeThisObject();
-    int                                        arg_port = 0;
-    ccstd::string                              arg_host = "";
+    WSSPTR cobj = (WSSPTR)s.nativeThisObject();
+    int arg_port = 0;
+    ccstd::string arg_host = "";
     std::function<void(const ccstd::string &)> arg_callback;
 
     bool ok;
@@ -118,7 +118,7 @@ static bool WebSocketServer_listen(se::State &s) {
         if (funObj) {
             s.thisObject()->setProperty("__onlisten", se::Value(funObj));
             std::weak_ptr<WebSocketServer> serverWeak = *cobj;
-            arg_callback                              = [serverWeak](const ccstd::string &err) {
+            arg_callback = [serverWeak](const ccstd::string &err) {
                 se::AutoHandleScope hs;
 
                 auto serverPtr = serverWeak.lock();
@@ -154,7 +154,7 @@ SE_BIND_FUNC(WebSocketServer_listen)
 
 static bool WebSocketServer_onconnection(se::State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int argc = (int)args.size();
     if (!(argc == 1 && args[0].isObject() && args[0].toObject()->isFunction())) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 1 & function", argc);
         return false;
@@ -182,7 +182,7 @@ static bool WebSocketServer_onconnection(se::State &s) {
         }
 
         se::Object *obj = se::Object::createObjectWithClass(__jsb_WebSocketServer_Connection_class);
-        WSCONNPTR   prv = ccnew std::shared_ptr<WebSocketServerConnection>(conn);
+        WSCONNPTR prv = ccnew std::shared_ptr<WebSocketServerConnection>(conn);
         // a connection is dead only if no reference & closed!
         obj->root();
         obj->setPrivateData(prv);
@@ -194,7 +194,7 @@ static bool WebSocketServer_onconnection(se::State &s) {
             if (ptr) {
                 se::Object *sobj = (se::Object *)ptr->getData();
                 sobj->unroot();
-                assert(obj == sobj);
+                CC_ASSERT(obj == sobj);
             }
         });
         se::ValueArray args;
@@ -211,7 +211,7 @@ SE_BIND_PROP_SET(WebSocketServer_onconnection)
 
 static bool WebSocketServer_onclose(se::State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int argc = (int)args.size();
     if (argc != 1) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 1", argc);
         return false;
@@ -220,9 +220,9 @@ static bool WebSocketServer_onclose(se::State &s) {
         SE_REPORT_ERROR("argument type error, function expected!");
     }
 
-    WSSPTR                                     cobj = (WSSPTR)s.nativeThisObject();
+    WSSPTR cobj = (WSSPTR)s.nativeThisObject();
     std::function<void(const ccstd::string &)> callback;
-    std::weak_ptr<WebSocketServer>             serverWeak = *cobj;
+    std::weak_ptr<WebSocketServer> serverWeak = *cobj;
     s.thisObject()->setProperty("__onclose", args[0]);
 
     callback = [serverWeak](const ccstd::string &err) {
@@ -259,13 +259,13 @@ SE_BIND_PROP_SET(WebSocketServer_onclose)
 
 static bool WebSocketServer_close(se::State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int argc = (int)args.size();
     if (argc > 1) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 0, 1", argc);
         return false;
     }
 
-    WSSPTR                                     cobj = (WSSPTR)s.nativeThisObject();
+    WSSPTR cobj = (WSSPTR)s.nativeThisObject();
     std::function<void(const ccstd::string &)> callback;
 
     if (argc == 1) {
@@ -314,15 +314,15 @@ SE_BIND_FUNC(WebSocketServer_close)
 
 static bool WebSocketServer_connections(se::State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int argc = (int)args.size();
 
     if (argc == 0) {
-        WSSPTR      cobj  = (WSSPTR)s.nativeThisObject();
-        auto        conns = cobj->get()->getConnections();
-        se::Object *ret   = se::Object::createArrayObject(conns.size());
+        WSSPTR cobj = (WSSPTR)s.nativeThisObject();
+        auto conns = cobj->get()->getConnections();
+        se::Object *ret = se::Object::createArrayObject(conns.size());
         for (size_t i = 0; i < conns.size(); i++) {
             std::shared_ptr<WebSocketServerConnection> &con = conns[i];
-            se::Object *                                obj = (se::Object *)con->getData();
+            se::Object *obj = (se::Object *)con->getData();
             ret->setArrayElement(i, se::Value(obj));
         }
         s.rval().setObject(ret);
@@ -342,7 +342,7 @@ SE_BIND_FINALIZE_FUNC(WebSocketServer_Connection_finalize)
 
 static bool WebSocketServer_Connection_constructor(se::State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int argc = (int)args.size();
     if (argc == 0) {
         se::Object *obj = s.thisObject();
         //private data should be set when connected
@@ -356,7 +356,7 @@ SE_BIND_CTOR(WebSocketServer_Connection_constructor, __jsb_WebSocketServer_Conne
 
 static bool WebSocketServer_Connection_send(se::State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int argc = (int)args.size();
 
     WSCONNPTR cobj = (WSCONNPTR)s.nativeThisObject();
 
@@ -374,7 +374,7 @@ static bool WebSocketServer_Connection_send(se::State &s) {
 
             callback = [callbackId, connWeak](const ccstd::string &err) {
                 se::AutoHandleScope hs;
-                auto                conn = connWeak.lock();
+                auto conn = connWeak.lock();
                 if (!conn) {
                     return;
                 }
@@ -407,8 +407,8 @@ static bool WebSocketServer_Connection_send(se::State &s) {
             (*cobj)->sendTextAsync(data, callback);
         } else if (args[0].isObject()) {
             se::Object *dataObj = args[0].toObject();
-            uint8_t *   ptr     = nullptr;
-            size_t      length  = 0;
+            uint8_t *ptr = nullptr;
+            size_t length = 0;
             if (dataObj->isArrayBuffer()) {
                 ok = dataObj->getArrayBufferData(&ptr, &length);
                 SE_PRECONDITION2(ok, false, "getArrayBufferData failed!");
@@ -416,12 +416,12 @@ static bool WebSocketServer_Connection_send(se::State &s) {
                 ok = dataObj->getTypedArrayData(&ptr, &length);
                 SE_PRECONDITION2(ok, false, "getTypedArrayData failed!");
             } else {
-                assert(false);
+                CC_ASSERT(false);
             }
 
             (*cobj)->sendBinaryAsync(ptr, (unsigned int)length, callback);
         } else {
-            assert(false);
+            CC_ASSERT(false);
         }
 
         return true;
@@ -433,7 +433,7 @@ SE_BIND_FUNC(WebSocketServer_Connection_send)
 
 static bool WebSocketServer_Connection_close(se::State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int argc = (int)args.size();
     if (argc > 1) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 0, 1", argc);
         return false;
@@ -447,9 +447,9 @@ static bool WebSocketServer_Connection_close(se::State &s) {
     }
 
     std::function<void(const ccstd::string &)> callback;
-    int                                        arg_code = -1;
-    ccstd::string                              arg_reason;
-    bool                                       ok;
+    int arg_code = -1;
+    ccstd::string arg_reason;
+    bool ok;
 
     if (argc >= 1) {
         ok = sevalue_to_native(args[0], &arg_code);
@@ -474,7 +474,7 @@ SE_BIND_FUNC(WebSocketServer_Connection_close)
 
 static bool WebSocketServer_Connection_onconnect(se::State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int argc = (int)args.size();
     if (!(argc == 1 && args[0].isObject() && args[0].toObject()->isFunction())) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 1 & function", argc);
         return false;
@@ -492,7 +492,7 @@ static bool WebSocketServer_Connection_onconnect(se::State &s) {
 
     cobj->get()->setOnConnect([connWeak]() {
         se::AutoHandleScope hs;
-        auto                conn = connWeak.lock();
+        auto conn = connWeak.lock();
         if (!conn) {
             return;
         }
@@ -506,7 +506,7 @@ static bool WebSocketServer_Connection_onconnect(se::State &s) {
             return;
         }
         se::ValueArray args;
-        bool           success = callback.toObject()->call(args, sobj, nullptr);
+        bool success = callback.toObject()->call(args, sobj, nullptr);
         ;
         if (!success) {
             se::ScriptEngine::getInstance()->clearException();
@@ -518,7 +518,7 @@ SE_BIND_PROP_SET(WebSocketServer_Connection_onconnect)
 
 static bool WebSocketServer_Connection_onerror(se::State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int argc = (int)args.size();
     if (!(argc == 1 && args[0].isObject() && args[0].toObject()->isFunction())) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 1 & function", argc);
         return false;
@@ -535,7 +535,7 @@ static bool WebSocketServer_Connection_onerror(se::State &s) {
 
     cobj->get()->setOnError([connWeak](const ccstd::string &err) {
         se::AutoHandleScope hs;
-        auto                conn = connWeak.lock();
+        auto conn = connWeak.lock();
         if (!conn) {
             return;
         }
@@ -564,7 +564,7 @@ SE_BIND_PROP_SET(WebSocketServer_Connection_onerror)
 
 static bool WebSocketServer_Connection_onclose(se::State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int argc = (int)args.size();
     if (!(argc == 1 && args[0].isObject() && args[0].toObject()->isFunction())) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 1 & function", argc);
         return false;
@@ -613,7 +613,7 @@ SE_BIND_PROP_SET(WebSocketServer_Connection_onclose)
 
 static bool WebSocketServer_Connection_ontext(se::State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int argc = (int)args.size();
     if (!(argc == 1 && args[0].isObject() && args[0].toObject()->isFunction())) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 1 & function", argc);
         return false;
@@ -659,7 +659,7 @@ SE_BIND_PROP_SET(WebSocketServer_Connection_ontext)
 
 static bool WebSocketServer_Connection_onbinary(se::State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int argc = (int)args.size();
     if (!(argc == 1 && args[0].isObject() && args[0].toObject()->isFunction())) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 1 & function", argc);
         return false;
@@ -676,7 +676,7 @@ static bool WebSocketServer_Connection_onbinary(se::State &s) {
 
     cobj->get()->setOnBinary([connWeak](const std::shared_ptr<DataFrame> text) {
         se::AutoHandleScope hs;
-        auto                conn = connWeak.lock();
+        auto conn = connWeak.lock();
         if (!conn) {
             return;
         }
@@ -691,7 +691,7 @@ static bool WebSocketServer_Connection_onbinary(se::State &s) {
         }
 
         se::ValueArray args;
-        se::Object *   buffer = se::Object::createArrayBufferObject(text->getData(), text->size());
+        se::Object *buffer = se::Object::createArrayBufferObject(text->getData(), text->size());
         args.push_back(se::Value(buffer));
         bool success = callback.toObject()->call(args, sobj, nullptr);
         ;
@@ -705,7 +705,7 @@ SE_BIND_PROP_SET(WebSocketServer_Connection_onbinary)
 
 static bool WebSocketServer_Connection_ondata(se::State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int argc = (int)args.size();
     if (!(argc == 1 && args[0].isObject() && args[0].toObject()->isFunction())) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 1 & function", argc);
         return false;
@@ -756,12 +756,12 @@ SE_BIND_PROP_SET(WebSocketServer_Connection_ondata)
 
 static bool WebSocketServer_Connection_headers(se::State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int argc = (int)args.size();
 
     if (argc == 0) {
-        WSCONNPTR   cobj    = (WSCONNPTR)s.nativeThisObject();
-        auto        headers = cobj->get()->getHeaders();
-        se::Object *ret     = se::Object::createPlainObject();
+        WSCONNPTR cobj = (WSCONNPTR)s.nativeThisObject();
+        auto headers = cobj->get()->getHeaders();
+        se::Object *ret = se::Object::createPlainObject();
         for (auto &itr : headers) {
             ret->setProperty(itr.first.c_str(), se::Value(itr.second));
         }
@@ -775,12 +775,12 @@ SE_BIND_PROP_GET(WebSocketServer_Connection_headers)
 
 static bool WebSocketServer_Connection_protocols(se::State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int argc = (int)args.size();
 
     if (argc == 0) {
-        WSCONNPTR   cobj      = (WSCONNPTR)s.nativeThisObject();
-        auto        protocols = cobj->get()->getProtocols();
-        se::Object *ret       = se::Object::createArrayObject(protocols.size());
+        WSCONNPTR cobj = (WSCONNPTR)s.nativeThisObject();
+        auto protocols = cobj->get()->getProtocols();
+        se::Object *ret = se::Object::createArrayObject(protocols.size());
         for (size_t i = 0; i < protocols.size(); i++) {
             ret->setArrayElement(i, se::Value(protocols[i]));
         }
@@ -794,11 +794,11 @@ SE_BIND_PROP_GET(WebSocketServer_Connection_protocols)
 
 static bool WebSocketServer_Connection_protocol(se::State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int argc = (int)args.size();
 
     if (argc == 0) {
-        WSCONNPTR cobj      = (WSCONNPTR)s.nativeThisObject();
-        auto      protocols = cobj->get()->getProtocols();
+        WSCONNPTR cobj = (WSCONNPTR)s.nativeThisObject();
+        auto protocols = cobj->get()->getProtocols();
         if (protocols.size() > 0) {
             s.rval().setString(protocols[0]);
         } else {
@@ -813,11 +813,11 @@ SE_BIND_PROP_GET(WebSocketServer_Connection_protocol)
 
 static bool WebSocketServer_Connection_readyState(se::State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int argc = (int)args.size();
 
     if (argc == 0) {
-        WSCONNPTR cobj  = (WSCONNPTR)s.nativeThisObject();
-        auto      state = cobj->get()->getReadyState();
+        WSCONNPTR cobj = (WSCONNPTR)s.nativeThisObject();
+        auto state = cobj->get()->getReadyState();
         s.rval().setInt32(state);
         return true;
     }

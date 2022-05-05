@@ -58,7 +58,7 @@ protected:
     void doCreateSurface(void *windowHandle) override;
 
     CCWGPUSwapchainObject *_gpuSwapchainObj = nullptr;
-    CCWGPUDevice *         _device          = nullptr;
+    CCWGPUDevice *_device = nullptr;
 };
 
 } // namespace gfx

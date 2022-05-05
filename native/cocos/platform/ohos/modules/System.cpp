@@ -26,7 +26,7 @@
 #include "platform/ohos/modules/System.h"
 
 namespace cc {
-System::System()  = default;
+System::System() = default;
 System::~System() = default;
 
 System::OSType System::getOSType() const {

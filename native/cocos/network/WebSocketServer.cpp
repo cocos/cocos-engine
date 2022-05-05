@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include <atomic>
-#include <cassert>
 #include <iostream>
 
 #include "application/ApplicationManager.h"
@@ -57,13 +56,13 @@ const struct lws_extension exts[] = {
     {nullptr, nullptr, nullptr}};
 
 struct AsyncTaskData {
-    std::mutex                         mtx;
+    std::mutex mtx;
     ccstd::list<std::function<void()>> tasks;
 };
 
 // run in server thread loop
 void flush_tasks_in_server_loop_cb(uv_async_t *asyn) {
-    AsyncTaskData *             data = (AsyncTaskData *)asyn->data;
+    AsyncTaskData *data = (AsyncTaskData *)asyn->data;
     std::lock_guard<std::mutex> guard(data->mtx);
     while (!data->tasks.empty()) {
         // fetch task, run task
@@ -212,16 +211,16 @@ void WebSocketServer::listen(std::shared_ptr<WebSocketServer> server, int port, 
 
     struct lws_context_creation_info info;
     memset(&info, 0, sizeof(info));
-    info.port                 = port;
-    info.iface                = server->_host.empty() ? nullptr : server->_host.c_str();
-    info.protocols            = protocols;
-    info.gid                  = -1;
-    info.uid                  = -1;
-    info.extensions           = exts;
-    info.options              = LWS_SERVER_OPTION_VALIDATE_UTF8 | LWS_SERVER_OPTION_LIBUV | LWS_SERVER_OPTION_SKIP_SERVER_CANONICAL_NAME;
-    info.timeout_secs         = 60; //
+    info.port = port;
+    info.iface = server->_host.empty() ? nullptr : server->_host.c_str();
+    info.protocols = protocols;
+    info.gid = -1;
+    info.uid = -1;
+    info.extensions = exts;
+    info.options = LWS_SERVER_OPTION_VALIDATE_UTF8 | LWS_SERVER_OPTION_LIBUV | LWS_SERVER_OPTION_SKIP_SERVER_CANONICAL_NAME;
+    info.timeout_secs = 60; //
     info.max_http_header_pool = 1;
-    info.user                 = server.get();
+    info.user = server.get();
 
     server->_ctx = lws_create_context(&info);
 
@@ -271,7 +270,7 @@ void WebSocketServer::listenAsync(std::shared_ptr<WebSocketServer> &server, int 
 }
 
 ccstd::vector<std::shared_ptr<WebSocketServerConnection>> WebSocketServer::getConnections() const {
-    std::lock_guard<std::mutex>                               guard(_connsMtx);
+    std::lock_guard<std::mutex> guard(_connsMtx);
     ccstd::vector<std::shared_ptr<WebSocketServerConnection>> ret;
     for (auto itr : _conns) {
         ret.emplace_back(itr.second);
@@ -312,13 +311,13 @@ void WebSocketServer::onCloseClient(struct lws *wsi) {
 
 void WebSocketServer::onCloseClientInit(struct lws *wsi, void *in, int len) {
     int16_t code;
-    char *  msg = nullptr;
+    char *msg = nullptr;
 
     std::shared_ptr<WebSocketServerConnection> conn = findConnection(wsi);
 
     if (conn && len > 2) {
         code = ntohs(*(int16_t *)in);
-        msg  = (char *)in + sizeof(code);
+        msg = (char *)in + sizeof(code);
         ccstd::string cp(msg, len - sizeof(code));
         conn->onClientCloseInit(code, cp);
     } else {
@@ -353,7 +352,7 @@ std::shared_ptr<WebSocketServerConnection> WebSocketServer::findConnection(struc
     std::shared_ptr<WebSocketServerConnection> conn;
     {
         std::lock_guard<std::mutex> guard(_connsMtx);
-        auto                        itr = _conns.find(wsi);
+        auto itr = _conns.find(wsi);
         if (itr != _conns.end()) {
             conn = itr->second;
         }
@@ -413,9 +412,9 @@ void WebSocketServerConnection::sendBinaryAsync(const void *in, size_t len, std:
 
 bool WebSocketServerConnection::close(int code, ccstd::string message) {
     if (!_wsi) return false;
-    _readyState  = ReadyState::CLOSING;
+    _readyState = ReadyState::CLOSING;
     _closeReason = message;
-    _closeCode   = code;
+    _closeCode = code;
     onClientCloseInit();
     //trigger callback to return -1 which indicates connection closed
     lws_callback_on_writable(_wsi);
@@ -432,7 +431,7 @@ void WebSocketServerConnection::onConnected() {
 }
 
 void WebSocketServerConnection::onDataReceive(void *in, int len) {
-    bool isFinal  = (bool)lws_is_final_fragment(_wsi);
+    bool isFinal = (bool)lws_is_final_fragment(_wsi);
     bool isBinary = (bool)lws_frame_is_binary(_wsi);
 
     if (!_prevPkg) {
@@ -464,10 +463,10 @@ int WebSocketServerConnection::onDrainData() {
         return -1;
     }
     if (_readyState != ReadyState::OPEN) return 0;
-    unsigned char *p          = nullptr;
-    int            send_len   = 0;
-    int            finish_len = 0;
-    int            flags      = 0;
+    unsigned char *p = nullptr;
+    int send_len = 0;
+    int finish_len = 0;
+    int flags = 0;
 
     ccstd::vector<char> buff(SEND_BUFF + LWS_PRE);
 
@@ -522,12 +521,12 @@ void WebSocketServerConnection::onHTTP() {
 
     _headers.clear();
 
-    int                 n = 0, len;
+    int n = 0, len;
     ccstd::vector<char> buf(256);
-    const char *        c;
+    const char *c;
     do {
         lws_token_indexes idx = static_cast<lws_token_indexes>(n);
-        c                     = (const char *)lws_token_to_string(idx);
+        c = (const char *)lws_token_to_string(idx);
         if (!c) {
             n++;
             break;
@@ -547,7 +546,7 @@ void WebSocketServerConnection::onHTTP() {
 }
 
 void WebSocketServerConnection::onClientCloseInit(int code, const ccstd::string &msg) {
-    _closeCode   = code;
+    _closeCode = code;
     _closeReason = msg;
 }
 
@@ -588,9 +587,9 @@ ccstd::unordered_map<ccstd::string, ccstd::string> WebSocketServerConnection::ge
 
 int WebSocketServer::_websocketServerCallback(struct lws *wsi, enum lws_callback_reasons reason,
                                               void *user, void *in, size_t len) {
-    int              ret    = 0;
+    int ret = 0;
     WebSocketServer *server = nullptr;
-    lws_context *    ctx    = nullptr;
+    lws_context *ctx = nullptr;
 
     if (wsi)
         ctx = lws_get_context(wsi);

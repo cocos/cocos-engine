@@ -59,8 +59,8 @@ void BufferValidator::doInit(const BufferInfo &info) {
     CC_ASSERT(info.size);
     CC_ASSERT(info.size / info.stride * info.stride == info.size);
 
-    _initStack        = utils::getStacktraceJS();
-    _creationFrame    = DeviceValidator::getInstance()->currentFrame();
+    _initStack = utils::getStacktraceJS();
+    _creationFrame = DeviceValidator::getInstance()->currentFrame();
     _totalUpdateTimes = 0U;
 
     if (hasFlag(info.usage, BufferUsageBit::VERTEX) && !info.stride) {
@@ -91,7 +91,7 @@ void BufferValidator::doInit(const BufferViewInfo &info) {
     /////////// execute ///////////
 
     BufferViewInfo actorInfo = info;
-    actorInfo.buffer         = static_cast<BufferValidator *>(info.buffer)->getActor();
+    actorInfo.buffer = static_cast<BufferValidator *>(info.buffer)->getActor();
 
     _actor->initialize(actorInfo);
 }
@@ -128,9 +128,9 @@ void BufferValidator::update(const void *buffer, uint32_t size) {
     CC_ASSERT(buffer);
 
     if (hasFlag(_usage, BufferUsageBit::INDIRECT)) {
-        const auto * drawInfo      = static_cast<const DrawInfo *>(buffer);
+        const auto *drawInfo = static_cast<const DrawInfo *>(buffer);
         const size_t drawInfoCount = size / sizeof(DrawInfo);
-        const bool   isIndexed     = drawInfoCount > 0 && drawInfo->indexCount > 0;
+        const bool isIndexed = drawInfoCount > 0 && drawInfo->indexCount > 0;
         for (size_t i = 1U; i < drawInfoCount; ++i) {
             if ((++drawInfo)->indexCount > 0 != isIndexed) {
                 // Inconsistent indirect draw infos on using index buffer.

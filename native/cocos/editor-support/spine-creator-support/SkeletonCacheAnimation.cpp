@@ -40,7 +40,7 @@ USING_NS_MW; // NOLINT(google-build-using-namespace)
 
 using namespace cc;      // NOLINT(google-build-using-namespace)
 using namespace cc::gfx; // NOLINT(google-build-using-namespace)
-static const std::string TECH_STAGE  = "opaque";
+static const std::string TECH_STAGE = "opaque";
 static const std::string TEXTURE_KEY = "texture";
 
 namespace spine {
@@ -113,7 +113,7 @@ void SkeletonCacheAnimation::update(float dt) {
         _accTime += dt;
         if (_accTime > _headAnimation->delay) {
             std::string name = _headAnimation->animationName;
-            bool        loop = _headAnimation->loop;
+            bool loop = _headAnimation->loop;
             delete _headAnimation;
             _headAnimation = nullptr;
             setAnimation(name, loop);
@@ -140,8 +140,8 @@ void SkeletonCacheAnimation::update(float dt) {
         _playCount++;
         _accTime = 0.0F;
         if (_playTimes > 0 && _playCount >= _playTimes) {
-            frameIdx       = finalFrameIndex;
-            _playCount     = 0;
+            frameIdx = finalFrameIndex;
+            _playCount = 0;
             _isAniComplete = true;
         } else {
             frameIdx = 0;
@@ -162,7 +162,7 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
     if (!frameData) return;
 
     const auto &segments = frameData->getSegments();
-    const auto &colors   = frameData->getColors();
+    const auto &colors = frameData->getColors();
     if (segments.empty() || colors.empty()) return;
 
     auto *mgr = MiddlewareManager::getInstance();
@@ -171,11 +171,11 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
     _sharedBufferOffset->reset();
     _sharedBufferOffset->clear();
 
-    auto *renderMgr  = mgr->getRenderInfoMgr();
+    auto *renderMgr = mgr->getRenderInfoMgr();
     auto *renderInfo = renderMgr->getBuffer();
     if (!renderInfo) return;
 
-    auto *attachMgr  = mgr->getAttachInfoMgr();
+    auto *attachMgr = mgr->getAttachInfoMgr();
     auto *attachInfo = attachMgr->getBuffer();
     if (!attachInfo) return;
 
@@ -192,12 +192,12 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
     // material len
     renderInfo->writeUint32(segments.size());
 
-    auto                    vertexFormat = _useTint ? VF_XYZUVCC : VF_XYZUVC;
-    middleware::MeshBuffer *mb           = mgr->getMeshBuffer(vertexFormat);
-    middleware::IOBuffer &  vb           = mb->getVB();
-    middleware::IOBuffer &  ib           = mb->getIB();
-    const auto &            srcVB        = frameData->vb;
-    const auto &            srcIB        = frameData->ib;
+    auto vertexFormat = _useTint ? VF_XYZUVCC : VF_XYZUVC;
+    middleware::MeshBuffer *mb = mgr->getMeshBuffer(vertexFormat);
+    middleware::IOBuffer &vb = mb->getVB();
+    middleware::IOBuffer &ib = mb->getIB();
+    const auto &srcVB = frameData->vb;
+    const auto &srcIB = frameData->ib;
 
     // vertex size int bytes with one color
     int vbs1 = sizeof(V2F_T2F_C4F);
@@ -208,41 +208,41 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
     // vertex size in floats with two color
     int vs2 = static_cast<int32_t>(vbs2 / sizeof(float));
 
-    int vs  = _useTint ? vs2 : vs1;
+    int vs = _useTint ? vs2 : vs1;
     int vbs = _useTint ? vbs2 : vbs1;
 
-    auto *          paramsBuffer = _paramsBuffer->getBuffer();
+    auto *paramsBuffer = _paramsBuffer->getBuffer();
     const cc::Mat4 &nodeWorldMat = *reinterpret_cast<cc::Mat4 *>(&paramsBuffer[4]);
 
-    int                       colorOffset = 0;
-    SkeletonCache::ColorData *nowColor    = colors[colorOffset++];
-    auto                      maxVFOffset = nowColor->vertexFloatOffset;
+    int colorOffset = 0;
+    SkeletonCache::ColorData *nowColor = colors[colorOffset++];
+    auto maxVFOffset = nowColor->vertexFloatOffset;
 
-    Color4F       finalColor;
-    Color4F       darkColor;
-    float         tempR                = 0.0F;
-    float         tempG                = 0.0F;
-    float         tempB                = 0.0F;
-    float         tempA                = 0.0F;
-    float         multiplier           = 1.0F;
-    int           srcVertexBytesOffset = 0;
-    int           srcVertexBytes       = 0;
-    int           vertexBytes          = 0;
-    int           vertexFloats         = 0;
-    int           tintBytes            = 0;
-    int           srcIndexBytesOffset  = 0;
-    int           indexBytes           = 0;
-    int           curTextureIndex      = 0;
-    double        effectHash           = 0;
-    int           blendMode            = 0;
-    int           dstVertexOffset      = 0;
-    int           dstIndexOffset       = 0;
-    float *       dstVertexBuffer      = nullptr;
-    unsigned int *dstColorBuffer       = nullptr;
-    uint16_t *    dstIndexBuffer       = nullptr;
-    bool          needColor            = false;
-    int           curBlendSrc          = -1;
-    int           curBlendDst          = -1;
+    Color4F finalColor;
+    Color4F darkColor;
+    float tempR = 0.0F;
+    float tempG = 0.0F;
+    float tempB = 0.0F;
+    float tempA = 0.0F;
+    float multiplier = 1.0F;
+    int srcVertexBytesOffset = 0;
+    int srcVertexBytes = 0;
+    int vertexBytes = 0;
+    int vertexFloats = 0;
+    int tintBytes = 0;
+    int srcIndexBytesOffset = 0;
+    int indexBytes = 0;
+    int curTextureIndex = 0;
+    double effectHash = 0;
+    int blendMode = 0;
+    int dstVertexOffset = 0;
+    int dstIndexOffset = 0;
+    float *dstVertexBuffer = nullptr;
+    unsigned int *dstColorBuffer = nullptr;
+    uint16_t *dstIndexBuffer = nullptr;
+    bool needColor = false;
+    int curBlendSrc = -1;
+    int curBlendDst = -1;
 
     if (abs(_nodeColor.r - 1.0F) > 0.0001F ||
         abs(_nodeColor.g - 1.0F) > 0.0001F ||
@@ -253,11 +253,11 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
     }
 
     auto handleColor = [&](SkeletonCache::ColorData *colorData) {
-        tempA      = colorData->finalColor.a * _nodeColor.a;
+        tempA = colorData->finalColor.a * _nodeColor.a;
         multiplier = _premultipliedAlpha ? tempA / 255 : 1;
-        tempR      = _nodeColor.r * multiplier;
-        tempG      = _nodeColor.g * multiplier;
-        tempB      = _nodeColor.b * multiplier;
+        tempR = _nodeColor.r * multiplier;
+        tempG = _nodeColor.g * multiplier;
+        tempB = _nodeColor.b * multiplier;
 
         finalColor.a = tempA / 255.0f;
         finalColor.r = (colorData->finalColor.r * tempR) / 255.0f;
@@ -275,11 +275,11 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
     for (auto *segment : segments) {
         srcVertexBytes = static_cast<int32_t>(segment->vertexFloatCount * sizeof(float));
         if (!_useTint) {
-            tintBytes    = static_cast<int32_t>(segment->vertexFloatCount / vs2 * sizeof(float));
-            vertexBytes  = srcVertexBytes - tintBytes;
+            tintBytes = static_cast<int32_t>(segment->vertexFloatCount / vs2 * sizeof(float));
+            vertexBytes = srcVertexBytes - tintBytes;
             vertexFloats = static_cast<int32_t>(vertexBytes / sizeof(float));
         } else {
-            vertexBytes  = srcVertexBytes;
+            vertexBytes = srcVertexBytes;
             vertexFloats = segment->vertexFloatCount;
         }
 
@@ -316,7 +316,7 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
         vb.checkSpace(vertexBytes, true);
         dstVertexOffset = static_cast<int>(vb.getCurPos()) / vbs;
         dstVertexBuffer = reinterpret_cast<float *>(vb.getCurBuffer());
-        dstColorBuffer  = reinterpret_cast<unsigned int *>(vb.getCurBuffer());
+        dstColorBuffer = reinterpret_cast<unsigned int *>(vb.getCurBuffer());
         if (!_useTint) {
             char *srcBuffer = reinterpret_cast<char *>(srcVB.getBuffer()) + srcVertexBytesOffset;
             for (std::size_t srcBufferIdx = 0; srcBufferIdx < srcVertexBytes; srcBufferIdx += vbs2) {
@@ -388,7 +388,7 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
 
     if (_useAttach) {
         const auto &bonesData = frameData->getBones();
-        auto        boneCount = frameData->getBoneCount();
+        auto boneCount = frameData->getBoneCount();
 
         for (std::size_t i = 0, n = boneCount; i < n; i++) {
             auto *bone = bonesData[i];
@@ -499,20 +499,20 @@ void SkeletonCacheAnimation::setAttachEnabled(bool enabled) {
 }
 
 void SkeletonCacheAnimation::setAnimation(const std::string &name, bool loop) {
-    _playTimes     = loop ? 0 : 1;
+    _playTimes = loop ? 0 : 1;
     _animationName = name;
     _animationData = _skeletonCache->buildAnimationData(_animationName);
     _isAniComplete = false;
-    _accTime       = 0.0F;
-    _playCount     = 0;
+    _accTime = 0.0F;
+    _playCount = 0;
     _curFrameIndex = 0;
 }
 
 void SkeletonCacheAnimation::addAnimation(const std::string &name, bool loop, float delay) {
-    auto *aniInfo          = new AniQueueData();
+    auto *aniInfo = new AniQueueData();
     aniInfo->animationName = name;
-    aniInfo->loop          = loop;
-    aniInfo->delay         = delay;
+    aniInfo->loop = loop;
+    aniInfo->delay = delay;
     _animationQueue.push(aniInfo);
 }
 

@@ -39,8 +39,7 @@ DRAGONBONES_NAMESPACE_BEGIN
 /**
  * @internal
  */
-class DataParser
-{
+class DataParser {
     ABSTRACT_CLASS(DataParser)
 
 protected:

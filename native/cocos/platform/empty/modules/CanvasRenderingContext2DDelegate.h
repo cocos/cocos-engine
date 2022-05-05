@@ -39,42 +39,42 @@ namespace cc {
 
 class CC_DLL CanvasRenderingContext2DDelegate : public ICanvasRenderingContext2D::Delegate {
 public:
-    using Point   = ccstd::array<float, 2>;
-    using Vec2    = ccstd::array<float, 2>;
-    using Size    = ccstd::array<float, 2>;
+    using Point = ccstd::array<float, 2>;
+    using Vec2 = ccstd::array<float, 2>;
+    using Size = ccstd::array<float, 2>;
     using Color4F = ccstd::array<float, 4>;
-    using TextAlign    = ICanvasRenderingContext2D::TextAlign;
+    using TextAlign = ICanvasRenderingContext2D::TextAlign;
     using TextBaseline = ICanvasRenderingContext2D::TextBaseline;
     CanvasRenderingContext2DDelegate();
     ~CanvasRenderingContext2DDelegate() override;
 
-    void            recreateBuffer(float w, float h) override;
-    void            beginPath() override;
-    void            closePath() override;
-    void            moveTo(float x, float y) override;
-    void            lineTo(float x, float y) override;
-    void            stroke() override;
-    void            saveContext() override;
-    void            restoreContext() override;
-    void            clearRect(float /*x*/, float /*y*/, float w, float h) override;
-    void            fillRect(float x, float y, float w, float h) override;
-    void            fillText(const ccstd::string &text, float x, float y, float /*maxWidth*/) override;
-    void            strokeText(const ccstd::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) const;
-    Size            measureText(const ccstd::string &text) override;
-    void            updateFont(const ccstd::string &fontName, float fontSize, bool bold, bool italic, bool oblique, bool smallCaps) override;
-    void            setTextAlign(TextAlign align) override;
-    void            setTextBaseline(TextBaseline baseline) override;
-    void            setFillStyle(float r, float g, float b, float a) override;
-    void            setStrokeStyle(float r, float g, float b, float a) override;
-    void            setLineWidth(float lineWidth) override;
+    void recreateBuffer(float w, float h) override;
+    void beginPath() override;
+    void closePath() override;
+    void moveTo(float x, float y) override;
+    void lineTo(float x, float y) override;
+    void stroke() override;
+    void saveContext() override;
+    void restoreContext() override;
+    void clearRect(float /*x*/, float /*y*/, float w, float h) override;
+    void fillRect(float x, float y, float w, float h) override;
+    void fillText(const ccstd::string &text, float x, float y, float /*maxWidth*/) override;
+    void strokeText(const ccstd::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) const;
+    Size measureText(const ccstd::string &text) override;
+    void updateFont(const ccstd::string &fontName, float fontSize, bool bold, bool italic, bool oblique, bool smallCaps) override;
+    void setTextAlign(TextAlign align) override;
+    void setTextBaseline(TextBaseline baseline) override;
+    void setFillStyle(float r, float g, float b, float a) override;
+    void setStrokeStyle(float r, float g, float b, float a) override;
+    void setLineWidth(float lineWidth) override;
     const cc::Data &getDataRef() const override;
-    void            fill() override;
-    void            setLineCap(const ccstd::string &lineCap) override;
-    void            setLineJoin(const ccstd::string &lineCap) override;
-    void            fillImageData(const Data &imageData, float imageWidth, float imageHeight, float offsetX, float offsetY) override;
-    void            strokeText(const ccstd::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) override;
-    void            rect(float x, float y, float w, float h) override;
-    void            updateData() override {}
+    void fill() override;
+    void setLineCap(const ccstd::string &lineCap) override;
+    void setLineJoin(const ccstd::string &lineCap) override;
+    void fillImageData(const Data &imageData, float imageWidth, float imageHeight, float offsetX, float offsetY) override;
+    void strokeText(const ccstd::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) override;
+    void rect(float x, float y, float w, float h) override;
+    void updateData() override {}
 
 private:
     int32_t _x{0};
@@ -82,20 +82,20 @@ private:
     int32_t _lineCap{0};
     int32_t _lineJoin{0};
 
-    cc::Data      _imageData;
+    cc::Data _imageData;
     ccstd::string _curFontPath;
-    int           _savedDC{0};
-    float         _lineWidth{0.0F};
-    float         _bufferWidth{0.0F};
-    float         _bufferHeight{0.0F};
+    int _savedDC{0};
+    float _lineWidth{0.0F};
+    float _bufferWidth{0.0F};
+    float _bufferHeight{0.0F};
 
-    ccstd::string      _fontName;
-    int                _fontSize{0};
-    Size               _textSize;
-    TextAlign          _textAlign{TextAlign::CENTER};
-    TextBaseline       _textBaseLine{TextBaseline::TOP};
-    unsigned long      _fillStyle{0};
-    unsigned long      _strokeStyle{0};
+    ccstd::string _fontName;
+    int _fontSize{0};
+    Size _textSize;
+    TextAlign _textAlign{TextAlign::CENTER};
+    TextBaseline _textBaseLine{TextBaseline::TOP};
+    unsigned long _fillStyle{0};
+    unsigned long _strokeStyle{0};
 };
 
 } // namespace cc

@@ -41,17 +41,17 @@
 
 using namespace cc;
 
-static spine::Cocos2dTextureLoader                         textureLoader;
+static spine::Cocos2dTextureLoader textureLoader;
 static cc::RefMap<ccstd::string, middleware::Texture2D *> *_preloadedAtlasTextures = nullptr;
-static middleware::Texture2D *                             _getPreloadedAtlasTexture(const char *path) {
-    assert(_preloadedAtlasTextures);
+static middleware::Texture2D *_getPreloadedAtlasTexture(const char *path) {
+    CC_ASSERT(_preloadedAtlasTextures);
     auto it = _preloadedAtlasTextures->find(path);
     return it != _preloadedAtlasTextures->end() ? it->second : nullptr;
 }
 
 static bool js_register_spine_initSkeletonData(se::State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int argc = (int)args.size();
     if (argc != 5) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 5);
         return false;
@@ -62,7 +62,7 @@ static bool js_register_spine_initSkeletonData(se::State &s) {
     ok = sevalue_to_native(args[0], &uuid);
     SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid uuid content!");
 
-    auto mgr             = spine::SkeletonDataMgr::getInstance();
+    auto mgr = spine::SkeletonDataMgr::getInstance();
     bool hasSkeletonData = mgr->hasSkeletonData(uuid);
     if (hasSkeletonData) {
         spine::SkeletonData *skeletonData = mgr->retainByUUID(uuid);
@@ -83,7 +83,7 @@ static bool js_register_spine_initSkeletonData(se::State &s) {
     SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid textures!");
 
     float scale = 1.0f;
-    ok          = sevalue_to_native(args[4], &scale);
+    ok = sevalue_to_native(args[4], &scale);
     SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid scale!");
 
     // create atlas from preloaded texture
@@ -97,16 +97,16 @@ static bool js_register_spine_initSkeletonData(se::State &s) {
     spine::spAtlasPage_setCustomTextureLoader(nullptr);
 
     spine::AttachmentLoader *attachmentLoader = ccnew_placement(__FILE__, __LINE__) spine::Cocos2dAtlasAttachmentLoader(atlas);
-    spine::SkeletonData *    skeletonData     = nullptr;
+    spine::SkeletonData *skeletonData = nullptr;
 
     std::size_t length = skeletonDataFile.length();
-    auto        binPos = skeletonDataFile.find(".skel", length - 5);
+    auto binPos = skeletonDataFile.find(".skel", length - 5);
     if (binPos == ccstd::string::npos) binPos = skeletonDataFile.find(".bin", length - 4);
 
     if (binPos != ccstd::string::npos) {
         auto fileUtils = cc::FileUtils::getInstance();
         if (fileUtils->isFileExist(skeletonDataFile)) {
-            cc::Data   cocos2dData;
+            cc::Data cocos2dData;
             const auto fullpath = fileUtils->fullPathForFilename(skeletonDataFile);
             fileUtils->getContents(fullpath, &cocos2dData);
 
@@ -145,7 +145,7 @@ SE_BIND_FUNC(js_register_spine_initSkeletonData)
 
 static bool js_register_spine_disposeSkeletonData(se::State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int argc = (int)args.size();
     if (argc != 1) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 5);
         return false;
@@ -156,7 +156,7 @@ static bool js_register_spine_disposeSkeletonData(se::State &s) {
     ok = sevalue_to_native(args[0], &uuid);
     SE_PRECONDITION2(ok, false, "js_register_spine_disposeSkeletonData: Invalid uuid content!");
 
-    auto mgr             = spine::SkeletonDataMgr::getInstance();
+    auto mgr = spine::SkeletonDataMgr::getInstance();
     bool hasSkeletonData = mgr->hasSkeletonData(uuid);
     if (!hasSkeletonData) return true;
     mgr->releaseByUUID(uuid);
@@ -167,7 +167,7 @@ SE_BIND_FUNC(js_register_spine_disposeSkeletonData)
 static bool js_register_spine_initSkeletonRenderer(se::State &s) {
     // renderer, jsonPath, atlasText, textures, scale
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int argc = (int)args.size();
     if (argc != 2) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 5);
         return false;
@@ -175,14 +175,14 @@ static bool js_register_spine_initSkeletonRenderer(se::State &s) {
     bool ok = false;
 
     spine::SkeletonRenderer *node = nullptr;
-    ok                            = seval_to_native_ptr(args[0], &node);
+    ok = seval_to_native_ptr(args[0], &node);
     SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Converting SpineRenderer failed!");
 
     ccstd::string uuid;
     ok = sevalue_to_native(args[1], &uuid);
     SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid uuid content!");
 
-    auto mgr             = spine::SkeletonDataMgr::getInstance();
+    auto mgr = spine::SkeletonDataMgr::getInstance();
     bool hasSkeletonData = mgr->hasSkeletonData(uuid);
     if (hasSkeletonData) {
         node->initWithUUID(uuid);
@@ -193,7 +193,7 @@ SE_BIND_FUNC(js_register_spine_initSkeletonRenderer)
 
 static bool js_register_spine_retainSkeletonData(se::State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int argc = (int)args.size();
     if (argc != 1) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 1);
         return false;
@@ -204,7 +204,7 @@ static bool js_register_spine_retainSkeletonData(se::State &s) {
     ok = sevalue_to_native(args[0], &uuid);
     SE_PRECONDITION2(ok, false, "js_register_spine_hasSkeletonData: Invalid uuid content!");
 
-    auto mgr             = spine::SkeletonDataMgr::getInstance();
+    auto mgr = spine::SkeletonDataMgr::getInstance();
     bool hasSkeletonData = mgr->hasSkeletonData(uuid);
     if (hasSkeletonData) {
         spine::SkeletonData *skeletonData = mgr->retainByUUID(uuid);
@@ -232,7 +232,7 @@ bool register_all_spine_manual(se::Object *obj) {
     spine::setSpineObjectDisposeCallback([](void *spineObj) {
         // Support Native Spine fo Creator V3.0
         se::Object *seObj = nullptr;
-        auto        iter  = se::NativePtrToObjectMap::find(spineObj);
+        auto iter = se::NativePtrToObjectMap::find(spineObj);
         if (iter != se::NativePtrToObjectMap::end()) {
             // Save se::Object pointer for being used in cleanup method.
             seObj = iter->second;
@@ -242,30 +242,6 @@ bool register_all_spine_manual(se::Object *obj) {
             // the same address.
             iter->second->setClearMappingInFinalizer(false);
             se::NativePtrToObjectMap::erase(iter);
-        } else {
-            return;
-        }
-
-        auto cleanup = [seObj]() {
-            auto se = se::ScriptEngine::getInstance();
-            if (!se->isValid() || se->isInCleanup())
-                return;
-
-            se::AutoHandleScope hs;
-            se->clearException();
-
-            // The mapping of native object & se::Object was cleared in above code.
-            // The private data (native object) may be a different object associated with other se::Object.
-            // Therefore, don't clear the mapping again.
-            seObj->clearPrivateData(false);
-            seObj->unroot();
-            seObj->decRef();
-        };
-
-        if (!se::ScriptEngine::getInstance()->isGarbageCollecting()) {
-            cleanup();
-        } else {
-            CleanupTask::pushTaskToAutoReleasePool(cleanup);
         }
     });
 

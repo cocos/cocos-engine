@@ -33,14 +33,14 @@ CCMTLDescriptorSetLayout::CCMTLDescriptorSetLayout() : DescriptorSetLayout() {
     _typedID = generateObjectID<decltype(this)>();
 }
 
-CCMTLDescriptorSetLayout::~CCMTLDescriptorSetLayout () {
+CCMTLDescriptorSetLayout::~CCMTLDescriptorSetLayout() {
     destroy();
 }
 
 void CCMTLDescriptorSetLayout::doInit(const DescriptorSetLayoutInfo &info) {
     _gpuDescriptorSetLayout = ccnew CCMTLGPUDescriptorSetLayout;
 
-    _gpuDescriptorSetLayout->descriptorCount   = _descriptorCount;
+    _gpuDescriptorSetLayout->descriptorCount = _descriptorCount;
     _gpuDescriptorSetLayout->descriptorIndices = _descriptorIndices;
     _gpuDescriptorSetLayout->bindingIndices = _bindingIndices;
     _gpuDescriptorSetLayout->bindings = _bindings;

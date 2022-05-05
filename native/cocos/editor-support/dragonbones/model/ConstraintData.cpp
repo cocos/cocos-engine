@@ -6,8 +6,7 @@
 
 DRAGONBONES_NAMESPACE_BEGIN
 
-void ConstraintData::_onClear()
-{
+void ConstraintData::_onClear() {
     order = 0;
     name = "";
     target = nullptr;
@@ -15,8 +14,7 @@ void ConstraintData::_onClear()
     bone = nullptr;
 }
 
-void IKConstraintData::_onClear()
-{
+void IKConstraintData::_onClear() {
     ConstraintData::_onClear();
 
     scaleEnabled = false;

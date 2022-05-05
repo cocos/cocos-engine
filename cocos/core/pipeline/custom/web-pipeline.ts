@@ -495,7 +495,7 @@ export class WebPipeline extends Pipeline {
                 LoadOp.CLEAR, StoreOp.STORE,
                 ClearFlagBit.COLOR,
                 new Color(0, 0, 0, 0)));
-            const queue = pass.addQueue(QueueHint.NONE);
+            const queue = pass.addQueue(QueueHint.RENDER_OPAQUE);
             queue.addScene(`${passName}_shadowScene`);
             // setCameraValues(queue, camera, light, shadows);
         }
@@ -640,7 +640,7 @@ export class WebPipeline extends Pipeline {
         this._renderGraph!.addVertex<RenderGraphValue.Present>(RenderGraphValue.Present, pass, '', '', new RenderData(), false);
     }
     createSceneTransversal (camera: Camera, scene: RenderScene): SceneTransversal {
-        return new WebSceneTransversal(camera);
+        return new WebSceneTransversal(camera, this.pipelineSceneData);
     }
     get renderGraph () {
         return this._renderGraph;

@@ -67,14 +67,14 @@ bool DeviceAgent::doInit(const DeviceInfo &info) {
         return false;
     }
 
-    _api        = _actor->getGfxAPI();
+    _api = _actor->getGfxAPI();
     _deviceName = _actor->getDeviceName();
-    _queue      = ccnew QueueAgent(_actor->getQueue());
-    _queryPool  = ccnew QueryPoolAgent(_actor->getQueryPool());
-    _cmdBuff    = ccnew CommandBufferAgent(_actor->getCommandBuffer());
-    _renderer   = _actor->getRenderer();
-    _vendor     = _actor->getVendor();
-    _caps       = _actor->_caps;
+    _queue = ccnew QueueAgent(_actor->getQueue());
+    _queryPool = ccnew QueryPoolAgent(_actor->getQueryPool());
+    _cmdBuff = ccnew CommandBufferAgent(_actor->getCommandBuffer());
+    _renderer = _actor->getRenderer();
+    _vendor = _actor->getVendor();
+    _caps = _actor->_caps;
     memcpy(_features.data(), _actor->_features.data(), static_cast<uint32_t>(Feature::COUNT) * sizeof(bool));
     memcpy(_formatFeatures.data(), _actor->_formatFeatures.data(), static_cast<uint32_t>(Format::COUNT) * sizeof(FormatFeatureBit));
 
@@ -292,7 +292,7 @@ void doBufferTextureCopy(const uint8_t *const *buffers, Texture *texture, const 
     //TODO(PatriceJiang): in C++17 replace with:*allocator = ccnew ThreadSafeLinearAllocator(totalSize);
     auto *memory = CC_MALLOC_ALIGN(sizeof(ThreadSafeLinearAllocator), alignof(ThreadSafeLinearAllocator));
     auto *allocator = ccnew_placement(memory) ThreadSafeLinearAllocator(totalSize);
-    
+
     auto *actorRegions = allocator->allocate<BufferTextureCopy>(count);
     memcpy(actorRegions, regions, count * sizeof(BufferTextureCopy));
 
@@ -319,10 +319,10 @@ void doBufferTextureCopy(const uint8_t *const *buffers, Texture *texture, const 
         {
             actor->copyBuffersToTexture(buffers, dst, regions, count);
             // TODO(PatriceJiang): C++17 replace with:  delete allocator;
-        if (allocator) {
-            allocator->~ThreadSafeLinearAllocator();
-            CC_FREE_ALIGN(allocator);
-        }
+            if (allocator) {
+                allocator->~ThreadSafeLinearAllocator();
+                CC_FREE_ALIGN(allocator);
+            }
         });
 }
 
@@ -382,8 +382,8 @@ void DeviceAgent::getQueryPoolResults(QueryPool *queryPool) {
             actor->getQueryPoolResults(queryPool);
         });
 
-    auto *                      actorQueryPoolAgent = static_cast<QueryPoolAgent *>(actorQueryPool);
-    auto *                      queryPoolAgent      = static_cast<QueryPoolAgent *>(queryPool);
+    auto *actorQueryPoolAgent = static_cast<QueryPoolAgent *>(actorQueryPool);
+    auto *queryPoolAgent = static_cast<QueryPoolAgent *>(queryPool);
     std::lock_guard<std::mutex> lock(actorQueryPoolAgent->_mutex);
     queryPoolAgent->_results = actorQueryPoolAgent->_results;
 }

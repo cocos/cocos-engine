@@ -34,7 +34,7 @@ inline bool nativevalue_to_se( // NOLINT(readability-identifier-naming)
     const ccstd::vector<T, allocator> &from,
     se::Value &to, se::Object *ctx) {
     se::Object *array = se::Object::createArrayObject(from.size());
-    se::Value   tmp;
+    se::Value tmp;
     for (size_t i = 0; i < from.size(); i++) {
         nativevalue_to_se(from[i], tmp, ctx);
         array->setArrayElement(static_cast<uint32_t>(i), tmp);
@@ -57,7 +57,7 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<T, allocator> *to, s
         return true;
     }
 
-    assert(from.toObject());
+    CC_ASSERT(from.toObject());
     se::Object *array = from.toObject();
 
     if (array->isArray()) {
@@ -75,9 +75,9 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<T, allocator> *to, s
     }
 
     if (array->isTypedArray()) {
-        assert(std::is_arithmetic<T>::value);
-        uint8_t *data    = nullptr;
-        size_t   dataLen = 0;
+        CC_ASSERT(std::is_arithmetic<T>::value);
+        uint8_t *data = nullptr;
+        size_t dataLen = 0;
         array->getTypedArrayData(&data, &dataLen);
         to->assign(reinterpret_cast<T *>(data), reinterpret_cast<T *>(data + dataLen));
         return true;

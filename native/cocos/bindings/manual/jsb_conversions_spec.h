@@ -240,7 +240,7 @@ inline bool sevalue_to_native(const se::Value &from, double *to, se::Object * /*
 }
 
 //inline bool sevalue_to_native(const se::Value & /*from*/, void * /*to*/, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-//    assert(false);                                                                               // void not supported
+//    CC_ASSERT(false);                                                                               // void not supported
 //    return false;
 //}
 
@@ -278,7 +278,7 @@ inline bool sevalue_to_native(const se::Value &from, ccstd::vector<se::Value> *t
         to->clear();
         return true;
     }
-    assert(from.isObject() && from.toObject()->isArray());
+    CC_ASSERT(from.isObject() && from.toObject()->isArray());
     auto *array = from.toObject();
     to->clear();
     uint32_t size;
@@ -293,7 +293,7 @@ inline bool sevalue_to_native(const se::Value &from, ccstd::vector<se::Value> *t
 
 //////////////////  cc::any
 inline bool sevalue_to_native(const se::Value & /*from*/, cc::any * /*to*/, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-    assert(false);
+    CC_ASSERT(false);
     SE_LOGE("Can not convert any to specific types");
     return false;
 }
@@ -303,13 +303,13 @@ bool sevalue_to_native(const se::Value &from, cc::TypedArray *to, se::Object * /
 bool sevalue_to_native(const se::Value &from, cc::IBArray *to, se::Object * /*ctx*/); // NOLINT(readability-identifier-naming)
 
 //bool sevalue_to_native(const se::Value &from, cc::gfx::Context **to, se::Object*) {// NOLINT(readability-identifier-naming)
-//    assert(from.isObject());
+//    CC_ASSERT(from.isObject());
 //    *to = (cc::gfx::Context*)from.toObject()->getPrivateData();
 //    return true;
 //}
 
 inline bool sevalue_to_native(const se::Value &from, void **to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-    assert(to != nullptr);
+    CC_ASSERT(to != nullptr);
     if (from.isNumber() || from.isBigInt()) {
         // NOLINTNEXTLINE(performance-no-int-to-ptr)
         *to = reinterpret_cast<void *>(from.toUint64());
@@ -334,9 +334,9 @@ inline bool sevalue_to_native(const se::Value &from, cc::ValueMap *to, se::Objec
 
 bool sevalue_to_native(const se::Value &from, ccstd::vector<bool> *to, se::Object * /*ctx*/); // NOLINT(readability-identifier-naming)
 
-bool        sevalue_to_native(const se::Value &from, ccstd::vector<unsigned char> *to, se::Object * /*ctx*/);                // NOLINT(readability-identifier-naming)
-bool        sevalue_to_native(const se::Value &from, cc::variant<ccstd::vector<float>, ccstd::string> *to, se::Object *ctx); // NOLINT(readability-identifier-naming)
-inline bool sevalue_to_native(const se::Value & /*from*/, cc::monostate * /*to*/, se::Object * /*ctx*/) {                    // NOLINT(readability-identifier-naming)
+bool sevalue_to_native(const se::Value &from, ccstd::vector<unsigned char> *to, se::Object * /*ctx*/);                // NOLINT(readability-identifier-naming)
+bool sevalue_to_native(const se::Value &from, cc::variant<ccstd::vector<float>, ccstd::string> *to, se::Object *ctx); // NOLINT(readability-identifier-naming)
+inline bool sevalue_to_native(const se::Value & /*from*/, cc::monostate * /*to*/, se::Object * /*ctx*/) {             // NOLINT(readability-identifier-naming)
     // nothing todo
     return false;
 }
@@ -501,7 +501,7 @@ inline bool nativevalue_to_se(const cc::monostate & /*from*/, se::Value &to, se:
 }
 
 inline bool nativevalue_to_se(const cc::any &from, se::Value &to, se::Object *ctx) { //NOLINT
-    assert(false);
+    CC_ASSERT(false);
     SE_LOGE("should not convert cc::any");
     return true;
 }

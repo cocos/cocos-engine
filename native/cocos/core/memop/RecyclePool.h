@@ -54,8 +54,8 @@ public:
     RecyclePool(const std::function<T *()> &fn, uint32_t size);
 
     RecyclePool(const RecyclePool &) = delete;
-    RecyclePool(RecyclePool &&)      = delete;
-    ~RecyclePool()                   = default;
+    RecyclePool(RecyclePool &&) = delete;
+    ~RecyclePool() = default;
     RecyclePool &operator=(const RecyclePool &) = delete;
     RecyclePool &operator=(RecyclePool &&) = delete;
 
@@ -99,7 +99,7 @@ public:
     void removeAt(uint32_t idx);
 
 private:
-    uint32_t           _count{0};
+    uint32_t _count{0};
     ccstd::vector<T *> _data;
 };
 

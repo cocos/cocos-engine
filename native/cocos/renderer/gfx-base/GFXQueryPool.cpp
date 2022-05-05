@@ -35,9 +35,9 @@ QueryPool::QueryPool()
 QueryPool::~QueryPool() = default;
 
 void QueryPool::initialize(const QueryPoolInfo &info) {
-    _type            = info.type;
+    _type = info.type;
     _maxQueryObjects = info.maxQueryObjects;
-    _forceWait       = info.forceWait;
+    _forceWait = info.forceWait;
 
     doInit(info);
 }
@@ -45,7 +45,7 @@ void QueryPool::initialize(const QueryPoolInfo &info) {
 void QueryPool::destroy() {
     doDestroy();
 
-    _type            = QueryType::OCCLUSION;
+    _type = QueryType::OCCLUSION;
     _maxQueryObjects = 0;
 }
 

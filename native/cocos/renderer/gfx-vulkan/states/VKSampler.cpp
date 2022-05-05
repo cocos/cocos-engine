@@ -33,15 +33,15 @@ namespace gfx {
 CCVKSampler::CCVKSampler(const SamplerInfo &info) : Sampler(info) {
     _typedID = generateObjectID<decltype(this)>();
 
-    _gpuSampler                = ccnew CCVKGPUSampler;
-    _gpuSampler->minFilter     = _info.minFilter;
-    _gpuSampler->magFilter     = _info.magFilter;
-    _gpuSampler->mipFilter     = _info.mipFilter;
-    _gpuSampler->addressU      = _info.addressU;
-    _gpuSampler->addressV      = _info.addressV;
-    _gpuSampler->addressW      = _info.addressW;
+    _gpuSampler = ccnew CCVKGPUSampler;
+    _gpuSampler->minFilter = _info.minFilter;
+    _gpuSampler->magFilter = _info.magFilter;
+    _gpuSampler->mipFilter = _info.mipFilter;
+    _gpuSampler->addressU = _info.addressU;
+    _gpuSampler->addressV = _info.addressV;
+    _gpuSampler->addressW = _info.addressW;
     _gpuSampler->maxAnisotropy = _info.maxAnisotropy;
-    _gpuSampler->cmpFunc       = _info.cmpFunc;
+    _gpuSampler->cmpFunc = _info.cmpFunc;
 
     cmdFuncCCVKCreateSampler(CCVKDevice::getInstance(), _gpuSampler);
 }

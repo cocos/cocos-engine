@@ -71,10 +71,10 @@ public:
     using ValueTypes = ccstd::vector<ValueType>;
 
     using ReturnValue = union {
-        int            intValue;
-        int64_t        longValue;
-        float          floatValue;
-        int            boolValue;
+        int intValue;
+        int64_t longValue;
+        float floatValue;
+        int boolValue;
         ccstd::string *stringValue;
     };
 
@@ -150,24 +150,24 @@ public:
 
     private:
         bool _mValid{false};
-        int  _mError{JSJ_ERR_OK};
+        int _mError{JSJ_ERR_OK};
 
         ccstd::string _mClassName;
         ccstd::string _mMethodName;
         ccstd::string _mMethodSig;
-        int           _mArgumentsCount{0};
-        ValueTypes    _mArgumentsType;
-        ValueType     _mReturnType{ValueType::VOID};
+        int _mArgumentsCount{0};
+        ValueTypes _mArgumentsType;
+        ValueType _mReturnType{ValueType::VOID};
 
         ReturnValue _mRet;
-        jstring     _mRetjstring{nullptr};
+        jstring _mRetjstring{nullptr};
 
-        JNIEnv *  _mEnv{nullptr};
-        jclass    _mClassID{nullptr};
+        JNIEnv *_mEnv{nullptr};
+        jclass _mClassID{nullptr};
         jmethodID _mMethodID{nullptr};
 
-        bool      validateMethodSig();
-        bool      getMethodInfo();
+        bool validateMethodSig();
+        bool getMethodInfo();
         ValueType checkType(const ccstd::string &sig, size_t *pos);
     };
 
@@ -176,12 +176,12 @@ public:
 using JsCallback = std::function<void(const ccstd::string &, const ccstd::string &)>;
 class ScriptNativeBridge {
 public:
-    void        callByNative(const ccstd::string &arg0, const ccstd::string &arg1);
+    void callByNative(const ccstd::string &arg0, const ccstd::string &arg1);
     inline void setCallback(const JsCallback &cb) {
         _callback = cb;
     }
     static ScriptNativeBridge *bridgeCxxInstance;
-    se::Value                  jsCb;
+    se::Value jsCb;
 
 private:
     JsCallback _callback{nullptr}; // NOLINT(readability-identifier-naming)
@@ -195,8 +195,8 @@ JNIEXPORT jint JNICALL JNI_JSJAVABRIDGE(evalString)(JNIEnv *env, jclass /*cls*/,
     }
 
     se::AutoHandleScope hs;
-    bool                strFlag  = false;
-    ccstd::string       strValue = cc::StringUtils::getStringUTFCharsJNI(env, value, &strFlag);
+    bool strFlag = false;
+    ccstd::string strValue = cc::StringUtils::getStringUTFCharsJNI(env, value, &strFlag);
     if (!strFlag) {
         CC_LOG_DEBUG("JavaScriptJavaBridge_evalString error, invalid string code");
         return 0;
@@ -251,7 +251,7 @@ bool JavaScriptJavaBridge::CallInfo::execute() {
             _mRetjstring = static_cast<jstring>(_mEnv->CallStaticObjectMethod(_mClassID, _mMethodID));
             if (_mRetjstring) {
                 ccstd::string strValue = cc::StringUtils::getStringUTFCharsJNI(_mEnv, _mRetjstring);
-                _mRet.stringValue      = ccnew ccstd::string(strValue);
+                _mRet.stringValue = ccnew ccstd::string(strValue);
             } else {
                 _mRet.stringValue = nullptr;
             }
@@ -301,7 +301,7 @@ bool JavaScriptJavaBridge::CallInfo::executeWithArgs(jvalue *args) {
             _mRetjstring = static_cast<jstring>(_mEnv->CallStaticObjectMethodA(_mClassID, _mMethodID, args));
             if (_mRetjstring) {
                 ccstd::string strValue = cc::StringUtils::getStringUTFCharsJNI(_mEnv, _mRetjstring);
-                _mRet.stringValue      = ccnew ccstd::string(strValue);
+                _mRet.stringValue = ccnew ccstd::string(strValue);
             } else {
                 _mRet.stringValue = nullptr;
             }
@@ -392,10 +392,10 @@ JavaScriptJavaBridge::ValueType JavaScriptJavaBridge::CallInfo::checkType(const 
 
 bool JavaScriptJavaBridge::CallInfo::getMethodInfo() {
     _mMethodID = nullptr;
-    _mEnv      = nullptr;
+    _mEnv = nullptr;
 
     JavaVM *jvm = cc::JniHelper::getJavaVM();
-    jint    ret = jvm->GetEnv(reinterpret_cast<void **>(&_mEnv), JNI_VERSION_1_4);
+    jint ret = jvm->GetEnv(reinterpret_cast<void **>(&_mEnv), JNI_VERSION_1_4);
     switch (ret) {
         case JNI_OK:
             break;
@@ -419,7 +419,7 @@ bool JavaScriptJavaBridge::CallInfo::getMethodInfo() {
             return false;
     }
     jstring jstrClassName = _mEnv->NewStringUTF(_mClassName.c_str());
-    _mClassID             = static_cast<jclass>(_mEnv->CallObjectMethod(cc::JniHelper::classloader,
+    _mClassID = static_cast<jclass>(_mEnv->CallObjectMethod(cc::JniHelper::classloader,
                                                             cc::JniHelper::loadclassMethodMethodId,
                                                             jstrClassName));
 
@@ -447,7 +447,7 @@ bool JavaScriptJavaBridge::CallInfo::getMethodInfo() {
 }
 
 bool JavaScriptJavaBridge::convertReturnValue(ReturnValue retValue, ValueType type, se::Value *ret) {
-    assert(ret != nullptr);
+    CC_ASSERT(ret != nullptr);
     switch (type) {
         case JavaScriptJavaBridge::ValueType::INTEGER:
             ret->setInt32(retValue.intValue);
@@ -492,10 +492,10 @@ SE_BIND_CTOR(JavaScriptJavaBridge_constructor, __jsb_JavaScriptJavaBridge_class,
 
 static bool JavaScriptJavaBridge_callStaticMethod(se::State &s) { //NOLINT(readability-identifier-naming)
     const auto &args = s.args();
-    auto        argc = static_cast<int>(args.size());
+    auto argc = static_cast<int>(args.size());
 
     if (argc == 3) {
-        bool          ok = false;
+        bool ok = false;
         ccstd::string clsName;
         ccstd::string methodName;
         ccstd::string methodSig;
@@ -510,7 +510,7 @@ static bool JavaScriptJavaBridge_callStaticMethod(se::State &s) { //NOLINT(reada
 
         JavaScriptJavaBridge::CallInfo call(clsName.c_str(), methodName.c_str(), methodSig.c_str());
         if (call.isValid()) {
-            ok            = call.execute();
+            ok = call.execute();
             int errorCode = call.getErrorCode();
             if (!ok || errorCode < 0) {
                 call.tryThrowJSException();
@@ -526,7 +526,7 @@ static bool JavaScriptJavaBridge_callStaticMethod(se::State &s) { //NOLINT(reada
     }
 
     if (argc > 3) {
-        bool          ok = false;
+        bool ok = false;
         ccstd::string clsName;
         ccstd::string methodName;
         ccstd::string methodSig;
@@ -541,8 +541,8 @@ static bool JavaScriptJavaBridge_callStaticMethod(se::State &s) { //NOLINT(reada
 
         JavaScriptJavaBridge::CallInfo call(clsName.c_str(), methodName.c_str(), methodSig.c_str());
         if (call.isValid() && call.getArgumentsCount() == (argc - 3)) {
-            int                    count = argc - 3;
-            auto *                 jargs = ccnew jvalue[count];
+            int count = argc - 3;
+            auto *jargs = ccnew jvalue[count];
             ccstd::vector<jobject> toReleaseObjects;
             for (int i = 0; i < count; ++i) {
                 int index = i + 3;
@@ -613,7 +613,7 @@ SE_BIND_FUNC(JavaScriptJavaBridge_callStaticMethod)
 
 static bool ScriptNativeBridge_getCallback(se::State &s) { //NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<ScriptNativeBridge *>(s.nativeThisObject());
-    assert(cobj == ScriptNativeBridge::bridgeCxxInstance);
+    CC_ASSERT(cobj == ScriptNativeBridge::bridgeCxxInstance);
     s.rval() = cobj->jsCb;
     SE_HOLD_RETURN_VALUE(cobj->jsCb, s.thisObject(), s.rval());
     return true;
@@ -622,18 +622,18 @@ SE_BIND_PROP_GET(ScriptNativeBridge_getCallback)
 
 static bool ScriptNativeBridge_setCallback(se::State &s) { //NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<ScriptNativeBridge *>(s.nativeThisObject());
-    assert(cobj == ScriptNativeBridge::bridgeCxxInstance);
-    const auto &args   = s.args();
-    se::Value   jsFunc = args[0];
-    cobj->jsCb         = jsFunc;
+    CC_ASSERT(cobj == ScriptNativeBridge::bridgeCxxInstance);
+    const auto &args = s.args();
+    se::Value jsFunc = args[0];
+    cobj->jsCb = jsFunc;
     if (jsFunc.isNullOrUndefined()) {
         cobj->setCallback(nullptr);
     } else {
-        assert(jsFunc.isObject() && jsFunc.toObject()->isFunction());
+        CC_ASSERT(jsFunc.isObject() && jsFunc.toObject()->isFunction());
         s.thisObject()->attachObject(jsFunc.toObject());
         cobj->setCallback([jsFunc](const ccstd::string &arg0, const ccstd::string &arg1) {
             se::AutoHandleScope hs;
-            se::ValueArray      args;
+            se::ValueArray args;
             args.push_back(se::Value(arg0));
             if (!arg1.empty()) {
                 args.push_back(se::Value(arg1));
@@ -647,9 +647,9 @@ SE_BIND_PROP_SET(ScriptNativeBridge_setCallback)
 
 static bool ScriptNativeBridge_sendToNative(se::State &s) { //NOLINT(readability-identifier-naming)
     const auto &args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc >= 1 && argc < 3) {
-        bool          ok = false;
+        bool ok = false;
         ccstd::string arg0;
         ok = sevalue_to_native(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "Converting arg0 failed!");
@@ -685,7 +685,7 @@ se::Class *__jsb_ScriptNativeBridge_class = nullptr; // NOLINT
 
 static bool ScriptNativeBridge_finalize(se::State &s) { //NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<ScriptNativeBridge *>(s.nativeThisObject());
-    assert(cobj == ScriptNativeBridge::bridgeCxxInstance);
+    CC_ASSERT(cobj == ScriptNativeBridge::bridgeCxxInstance);
     delete cobj;
     ScriptNativeBridge::bridgeCxxInstance = nullptr;
     return true;

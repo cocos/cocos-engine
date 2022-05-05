@@ -57,43 +57,43 @@ constexpr size_t MAX_COLORATTACHMENTS = 16u;
 
 struct CCMTLGPUDescriptorSetLayout {
     DescriptorSetLayoutBindingList bindings;
-    ccstd::vector<uint>            dynamicBindings;
-    ccstd::vector<uint>            descriptorIndices;
-    ccstd::vector<uint>            bindingIndices;
-    uint                           descriptorCount = 0;
+    ccstd::vector<uint> dynamicBindings;
+    ccstd::vector<uint> descriptorIndices;
+    ccstd::vector<uint> bindingIndices;
+    uint descriptorCount = 0;
 };
 typedef ccstd::vector<CCMTLGPUDescriptorSetLayout *> MTLGPUDescriptorSetLayoutList;
 
 struct CCMTLGPUPipelineLayout {
-    MTLGPUDescriptorSetLayoutList     setLayouts;
+    MTLGPUDescriptorSetLayoutList setLayouts;
     ccstd::vector<ccstd::vector<int>> dynamicOffsetIndices;
 };
 
 struct CCMTLGPUUniformBlock {
-    ccstd::string    name;
-    uint             set           = INVALID_BINDING;
-    uint             binding       = INVALID_BINDING;
-    uint             mappedBinding = INVALID_BINDING;
-    ShaderStageFlags stages        = ShaderStageFlagBit::NONE;
-    size_t           size          = 0;
-    uint             count         = 0;
+    ccstd::string name;
+    uint set = INVALID_BINDING;
+    uint binding = INVALID_BINDING;
+    uint mappedBinding = INVALID_BINDING;
+    ShaderStageFlags stages = ShaderStageFlagBit::NONE;
+    size_t size = 0;
+    uint count = 0;
 };
 
 struct CCMTLGPUSamplerBlock {
-    ccstd::string    name;
-    uint             set            = INVALID_BINDING;
-    uint             binding        = INVALID_BINDING;
-    uint             textureBinding = INVALID_BINDING;
-    uint             samplerBinding = INVALID_BINDING;
-    ShaderStageFlags stages         = ShaderStageFlagBit::NONE;
-    Type             type           = Type::UNKNOWN;
-    uint             count          = 0;
+    ccstd::string name;
+    uint set = INVALID_BINDING;
+    uint binding = INVALID_BINDING;
+    uint textureBinding = INVALID_BINDING;
+    uint samplerBinding = INVALID_BINDING;
+    ShaderStageFlags stages = ShaderStageFlagBit::NONE;
+    Type type = Type::UNKNOWN;
+    uint count = 0;
 };
 
 struct CCMTLGPUSubpassAttachment {
     ccstd::string name;
-    uint          set     = INVALID_BINDING;
-    uint          binding = INVALID_BINDING;
+    uint set = INVALID_BINDING;
+    uint binding = INVALID_BINDING;
 };
 
 struct CCMTLGPUShader {
@@ -103,64 +103,64 @@ struct CCMTLGPUShader {
     ccstd::vector<CCMTLGPUSubpassAttachment> inputs;
     ccstd::vector<CCMTLGPUSubpassAttachment> outputs;
 
-    NSString *shaderSrc       = nil;
-    bool      specializeColor = true;
+    NSString *shaderSrc = nil;
+    bool specializeColor = true;
 
-    uint32_t bufferIndex  = 0;
+    uint32_t bufferIndex = 0;
     uint32_t samplerIndex = 0;
 };
 
 struct CCMTLGPUPipelineState {
-    MTLCullMode                                                                    cullMode;
-    MTLWinding                                                                     winding;
-    MTLTriangleFillMode                                                            fillMode;
-    MTLDepthClipMode                                                               depthClipMode;
-    MTLPrimitiveType                                                               primitiveType;
-    id<MTLRenderPipelineState>                                                     mtlRenderPipelineState  = nil;
-    id<MTLDepthStencilState>                                                       mtlDepthStencilState    = nil;
-    id<MTLComputePipelineState>                                                    mtlComputePipelineState = nil;
-    uint                                                                           stencilRefFront         = 0;
-    uint                                                                           stencilRefBack          = 0;
+    MTLCullMode cullMode;
+    MTLWinding winding;
+    MTLTriangleFillMode fillMode;
+    MTLDepthClipMode depthClipMode;
+    MTLPrimitiveType primitiveType;
+    id<MTLRenderPipelineState> mtlRenderPipelineState = nil;
+    id<MTLDepthStencilState> mtlDepthStencilState = nil;
+    id<MTLComputePipelineState> mtlComputePipelineState = nil;
+    uint stencilRefFront = 0;
+    uint stencilRefBack = 0;
     ccstd::vector<std::tuple<int /**vertexBufferBindingIndex*/, uint /**stream*/>> vertexBufferBindingInfo;
-    const CCMTLGPUPipelineLayout *                                                 gpuPipelineLayout = nullptr;
-    const CCMTLGPUShader *                                                         gpuShader         = nullptr;
+    const CCMTLGPUPipelineLayout *gpuPipelineLayout = nullptr;
+    const CCMTLGPUShader *gpuShader = nullptr;
 };
 
 struct CCMTLGPUBuffer {
-    uint          stride      = 0;
-    uint          count       = 0;
-    uint          size        = 0;
-    uint          startOffset = 0;
-    uint8_t *     mappedData  = nullptr;
-    id<MTLBuffer> mtlBuffer   = nil;
+    uint stride = 0;
+    uint count = 0;
+    uint size = 0;
+    uint startOffset = 0;
+    uint8_t *mappedData = nullptr;
+    id<MTLBuffer> mtlBuffer = nil;
 };
 
 struct CCMTLGPUTextureObject {
-    TextureInfo    info;
+    TextureInfo info;
     id<MTLTexture> mtlTexture;
 };
 
 struct CCMTLGPUTextureViewObject {
     TextureViewInfo viewInfo;
-    id<MTLTexture>  mtlTextureView;
+    id<MTLTexture> mtlTextureView;
 };
 
 struct CCMTLGPUInputAssembler {
-    id<MTLBuffer>                mtlIndexBuffer    = nil;
-    id<MTLBuffer>                mtlIndirectBuffer = nil;
+    id<MTLBuffer> mtlIndexBuffer = nil;
+    id<MTLBuffer> mtlIndirectBuffer = nil;
     ccstd::vector<id<MTLBuffer>> mtlVertexBufers;
 };
 
 struct CCMTLGPUDescriptor {
-    DescriptorType type    = DescriptorType::UNKNOWN;
-    CCMTLBuffer *  buffer  = nullptr;
-    CCMTLTexture * texture = nullptr;
-    CCMTLSampler * sampler = nullptr;
+    DescriptorType type = DescriptorType::UNKNOWN;
+    CCMTLBuffer *buffer = nullptr;
+    CCMTLTexture *texture = nullptr;
+    CCMTLSampler *sampler = nullptr;
 };
 typedef ccstd::vector<CCMTLGPUDescriptor> MTLGPUDescriptorList;
 
 struct CCMTLGPUDescriptorSet {
-    MTLGPUDescriptorList       gpuDescriptors;
+    MTLGPUDescriptorList gpuDescriptors;
     const ccstd::vector<uint> *descriptorIndices = nullptr;
 };
 
@@ -186,13 +186,13 @@ public:
     }
 
     inline void alloc(CCMTLGPUBuffer *gpuBuffer) { alloc(gpuBuffer, 1); }
-    void        alloc(CCMTLGPUBuffer *gpuBuffer, uint alignment) {
-        size_t  bufferCount = _pool.size();
-        Buffer *buffer      = nullptr;
-        uint    offset      = 0;
+    void alloc(CCMTLGPUBuffer *gpuBuffer, uint alignment) {
+        size_t bufferCount = _pool.size();
+        Buffer *buffer = nullptr;
+        uint offset = 0;
         for (size_t idx = 0; idx < bufferCount; idx++) {
             auto *cur = &_pool[idx];
-            offset    = mu::alignUp(cur->curOffset, alignment);
+            offset = mu::alignUp(cur->curOffset, alignment);
             if (gpuBuffer->size + offset <= [cur->mtlBuffer length]) {
                 buffer = cur;
                 break;
@@ -200,17 +200,15 @@ public:
         }
         if (!buffer) {
             uint mbNeeds = mu::roundUp(gpuBuffer->size, MegaBytesToBytes);
-            mbNeeds      = cc::utils::nextPOT(mbNeeds);
-#ifdef CC_DEBUG
-            float realNeeds = gpuBuffer->size / static_cast<float>(MegaBytesToBytes);
-            assert(mbNeeds > realNeeds);
-#endif
+            mbNeeds = cc::utils::nextPOT(mbNeeds);
+            CC_ASSERT(mbNeeds > gpuBuffer->size / static_cast<float>(MegaBytesToBytes));
+
             _pool.resize(bufferCount + 1);
             buffer = &_pool.back();
             if (_tripleEnabled) {
                 for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
                     // Create a new buffer with enough capacity to store one instance of the dynamic buffer data
-                    id<MTLBuffer> dataBuffer      = [_device newBufferWithLength:mbNeeds * MegaBytesToBytes options:MTLResourceStorageModeShared];
+                    id<MTLBuffer> dataBuffer = [_device newBufferWithLength:mbNeeds * MegaBytesToBytes options:MTLResourceStorageModeShared];
                     buffer->dynamicDataBuffers[i] = dataBuffer;
                 }
                 buffer->mtlBuffer = buffer->dynamicDataBuffers[0];
@@ -218,24 +216,24 @@ public:
                 buffer->mtlBuffer = [_device newBufferWithLength:mbNeeds * MegaBytesToBytes options:MTLResourceStorageModeShared];
             }
             buffer->mappedData = (uint8_t *)buffer->mtlBuffer.contents;
-            offset             = 0;
+            offset = 0;
         }
-        gpuBuffer->mtlBuffer   = buffer->mtlBuffer;
+        gpuBuffer->mtlBuffer = buffer->mtlBuffer;
         gpuBuffer->startOffset = offset;
-        gpuBuffer->mappedData  = buffer->mappedData + offset;
-        buffer->curOffset      = offset + gpuBuffer->size;
+        gpuBuffer->mappedData = buffer->mappedData + offset;
+        buffer->curOffset = offset + gpuBuffer->size;
     }
 
     void updateInflightBuffer() {
         if (_tripleEnabled) {
             _inflightIndex = ((_inflightIndex + 1) % MAX_FRAMES_IN_FLIGHT);
 
-            size_t  bufferCount = _pool.size();
-            Buffer *buffer      = nullptr;
+            size_t bufferCount = _pool.size();
+            Buffer *buffer = nullptr;
             for (size_t idx = 0; idx < bufferCount; idx++) {
-                buffer                        = &_pool[idx];
+                buffer = &_pool[idx];
                 id<MTLBuffer> prevFrameBuffer = buffer->mtlBuffer;
-                buffer->mtlBuffer             = buffer->dynamicDataBuffers[_inflightIndex];
+                buffer->mtlBuffer = buffer->dynamicDataBuffers[_inflightIndex];
                 memcpy((uint8_t *)buffer->mtlBuffer.contents, prevFrameBuffer.contents, buffer->curOffset);
                 buffer->mappedData = (uint8_t *)buffer->mtlBuffer.contents;
             }
@@ -261,25 +259,25 @@ public:
 
 protected:
     struct Buffer {
-        id<MTLBuffer>                mtlBuffer = nil;
+        id<MTLBuffer> mtlBuffer = nil;
         ccstd::vector<id<MTLBuffer>> dynamicDataBuffers{MAX_FRAMES_IN_FLIGHT};
-        uint8_t *                    mappedData = nullptr;
-        uint                         curOffset  = 0;
+        uint8_t *mappedData = nullptr;
+        uint curOffset = 0;
     };
 
-    bool                  _tripleEnabled = false;
-    uint                  _inflightIndex = 0;
-    id<MTLDevice>         _device        = nil;
+    bool _tripleEnabled = false;
+    uint _inflightIndex = 0;
+    id<MTLDevice> _device = nil;
     ccstd::vector<Buffer> _pool;
 };
 
 struct CCMTLGPUBufferImageCopy {
-    NSUInteger sourceBytesPerRow   = 0;
+    NSUInteger sourceBytesPerRow = 0;
     NSUInteger sourceBytesPerImage = 0;
-    MTLSize    sourceSize          = {0, 0, 0};
-    NSUInteger destinationSlice    = 0;
-    NSUInteger destinationLevel    = 0;
-    MTLOrigin  destinationOrigin   = {0, 0, 0};
+    MTLSize sourceSize = {0, 0, 0};
+    NSUInteger destinationSlice = 0;
+    NSUInteger destinationLevel = 0;
+    MTLOrigin destinationOrigin = {0, 0, 0};
 };
 
 //destroy GPU resource only, delete the owner object mannually.
@@ -326,39 +324,39 @@ public:
 protected:
     //avoid cross-reference with CCMTLDevice
     std::function<uint8_t(void)> _getFrameIndex;
-    ccstd::queue<GCFunc>         _releaseQueue[MAX_FRAMES_IN_FLIGHT];
+    ccstd::queue<GCFunc> _releaseQueue[MAX_FRAMES_IN_FLIGHT];
 };
 
 struct CCMTLGPUSwapChainObject {
     id<CAMetalDrawable> currentDrawable = nil;
-    CAMetalLayer *      mtlLayer        = nullptr;
+    CAMetalLayer *mtlLayer = nullptr;
 };
 
 struct CCMTLGPUQueueObject {
     id<MTLCommandQueue> mtlCommandQueue = nil;
-    uint                numDrawCalls    = 0;
-    uint                numInstances    = 0;
-    uint                numTriangles    = 0;
+    uint numDrawCalls = 0;
+    uint numInstances = 0;
+    uint numTriangles = 0;
 };
 
 struct CCMTLGPUCommandBufferObject {
-    CCMTLRenderPass *    renderPass       = nullptr;
-    CCMTLFramebuffer *   fbo              = nullptr;
-    CCMTLInputAssembler *inputAssembler   = nullptr;
-    CCMTLPipelineState * pipelineState    = nullptr;
+    CCMTLRenderPass *renderPass = nullptr;
+    CCMTLFramebuffer *fbo = nullptr;
+    CCMTLInputAssembler *inputAssembler = nullptr;
+    CCMTLPipelineState *pipelineState = nullptr;
     id<MTLCommandBuffer> mtlCommandBuffer = nil;
-    bool                 isSecondary      = false;
+    bool isSecondary = false;
 };
 
 struct CCMTLGPUDeviceObject {
 };
 
 struct CCMTLGPUQueryPool {
-    QueryType       type                   = QueryType::OCCLUSION;
-    uint32_t        maxQueryObjects        = 0;
-    bool            forceWait              = true;
-    id<MTLBuffer>   visibilityResultBuffer = nil;
-    CCMTLSemaphore *semaphore              = nullptr;
+    QueryType type = QueryType::OCCLUSION;
+    uint32_t maxQueryObjects = 0;
+    bool forceWait = true;
+    id<MTLBuffer> visibilityResultBuffer = nil;
+    CCMTLSemaphore *semaphore = nullptr;
 };
 
 } // namespace gfx

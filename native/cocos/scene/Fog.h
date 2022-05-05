@@ -66,14 +66,14 @@ enum class FogType {
      * @readonly
      */
     LAYERED = 3,
-    NONE    = 4
+    NONE = 4
 };
 
 class FogInfo;
 
 class Fog final {
 public:
-    Fog()  = default;
+    Fog() = default;
     ~Fog() = default;
 
     void initialize(const FogInfo &fogInfo);
@@ -109,7 +109,7 @@ public:
      * @zh 全局雾颜色
      * @en Global fog color
      */
-    void                setFogColor(const Color &val);
+    void setFogColor(const Color &val);
     inline const Color &getFogColor() const { return _fogColor; }
 
     /**
@@ -124,7 +124,7 @@ public:
      * - 3:Layered fog
      */
     inline FogType getType() const { return _type; }
-    inline void    setType(FogType val) {
+    inline void setType(FogType val) {
         _type = _enabled ? val : FogType::NONE;
         if (_enabled) {
             updatePipeline();
@@ -136,28 +136,28 @@ public:
      * @en Global fog density
      */
     inline float getFogDensity() const { return _fogDensity; }
-    inline void  setFogDensity(float val) { _fogDensity = val; }
+    inline void setFogDensity(float val) { _fogDensity = val; }
 
     /**
      * @zh 雾效起始位置，只适用于线性雾
      * @en Global fog start position, only for linear fog
      */
     inline float getFogStart() const { return _fogStart; }
-    inline void  setFogStart(float val) { _fogStart = val; }
+    inline void setFogStart(float val) { _fogStart = val; }
 
     /**
      * @zh 雾效结束位置，只适用于线性雾
      * @en Global fog end position, only for linear fog
      */
     float getFogEnd() const { return _fogEnd; }
-    void  setFogEnd(float val) { _fogEnd = val; }
+    void setFogEnd(float val) { _fogEnd = val; }
 
     /**
      * @zh 雾效衰减
      * @en Global fog attenuation
      */
     inline float getFogAtten() const { return _fogAtten; }
-    inline void  setFogAtten(float val) { _fogAtten = val; }
+    inline void setFogAtten(float val) { _fogAtten = val; }
 
     /**
      * @zh 雾效顶部范围，只适用于层级雾
@@ -172,37 +172,37 @@ public:
      * @en Global fog range, only for layered fog
      */
     inline float getFogRange() const { return _fogRange; }
-    inline void  setfogRange(float val) { _fogRange = val; }
+    inline void setfogRange(float val) { _fogRange = val; }
 
     const Vec4 &getColorArray() const { return _colorArray; }
 
 private:
     void updatePipeline();
 
-    Color   _fogColor{200, 200, 200, 255};
-    Vec4    _colorArray{0.2F, 0.2F, 0.2F, 1.0F};
-    bool    _enabled{false};
-    bool    _accurate{false};
+    Color _fogColor{200, 200, 200, 255};
+    Vec4 _colorArray{0.2F, 0.2F, 0.2F, 1.0F};
+    bool _enabled{false};
+    bool _accurate{false};
     FogType _type{FogType::LINEAR};
-    float   _fogDensity{0.3F};
-    float   _fogStart{0.5F};
-    float   _fogEnd{300.F};
-    float   _fogAtten{5.F};
-    float   _fogTop{1.5F};
-    float   _fogRange{1.2F};
+    float _fogDensity{0.3F};
+    float _fogStart{0.5F};
+    float _fogEnd{300.F};
+    float _fogAtten{5.F};
+    float _fogTop{1.5F};
+    float _fogRange{1.2F};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(Fog);
 };
 
 class FogInfo : public RefCounted {
 public:
-    FogInfo()           = default;
+    FogInfo() = default;
     ~FogInfo() override = default;
     /**
      * @zh 是否启用全局雾效
      * @en Enable global fog
      */
-    void        setEnabled(bool val) const;
+    void setEnabled(bool val) const;
     inline bool isEnabled() const { return _isEnabled; }
 
     /**
@@ -229,7 +229,7 @@ public:
      */
     // @editable
     // @tooltip('i18n:fog.fogColor')
-    void                setFogColor(const Color &val);
+    void setFogColor(const Color &val);
     inline const Color &getFogColor() const { return _fogColor; }
 
     /**
@@ -239,7 +239,7 @@ public:
     // @editable
     // @type(FogType)
     // @tooltip('i18n:fog.type')
-    void           setType(FogType val);
+    void setType(FogType val);
     inline FogType getType() const { return _type; }
 
     /**
@@ -255,7 +255,7 @@ public:
     // @slide
     // @displayOrder(3)
     // @tooltip('i18n:fog.fogDensity')
-    void         setFogDensity(float val);
+    void setFogDensity(float val);
     inline float getFogDensity() const { return _fogDensity; }
 
     // /**
@@ -267,7 +267,7 @@ public:
     // @rangeStep(0.01)
     // @displayOrder(4)
     // @tooltip('i18n:fog.fogStart')
-    void         setFogStart(float val);
+    void setFogStart(float val);
     inline float getFogStart() const { return _fogStart; }
 
     // /**
@@ -279,7 +279,7 @@ public:
     // @rangeStep(0.01)
     // @displayOrder(5)
     // @tooltip('i18n:fog.fogEnd')
-    void         setFogEnd(float val);
+    void setFogEnd(float val);
     inline float getFogEnd() const { return _fogEnd; }
 
     /**
@@ -292,7 +292,7 @@ public:
     // @rangeStep(0.01)
     // @displayOrder(6)
     // @tooltip('i18n:fog.fogAtten')
-    void         setFogAtten(float val);
+    void setFogAtten(float val);
     inline float getFogAtten() const { return _fogAtten; }
 
     /**
@@ -304,7 +304,7 @@ public:
     // @rangeStep(0.01)
     // @displayOrder(7)
     // @tooltip('i18n:fog.fogTop')
-    void         setFogTop(float val);
+    void setFogTop(float val);
     inline float getFogTop() const { return _fogTop; }
 
     /**
@@ -316,7 +316,7 @@ public:
     // @rangeStep(0.01)
     // @displayOrder(8)
     // @tooltip('i18n:fog.fogRange')
-    void         setFogRange(float val);
+    void setFogRange(float val);
     inline float getFogRange() const { return _fogRange; }
 
     void activate(Fog *resource);

@@ -112,12 +112,12 @@ void Mat3::transpose() {
     float a01 = m[1];
     float a02 = m[2];
     float a12 = m[5];
-    m[1]      = m[3];
-    m[2]      = m[6];
-    m[3]      = a01;
-    m[5]      = m[7];
-    m[6]      = a02;
-    m[7]      = a12;
+    m[1] = m[3];
+    m[2] = m[6];
+    m[3] = a01;
+    m[5] = m[7];
+    m[6] = a02;
+    m[7] = a12;
 }
 
 void Mat3::transpose(const Mat3 &mat, Mat3 *out) {
@@ -151,7 +151,7 @@ void Mat3::inverse() {
     // Calculate the determinant
     float det = a00 * b01 + a01 * b11 + a02 * b21;
 
-    det  = 1.0F / det;
+    det = 1.0F / det;
     m[0] = b01 * det;
     m[1] = (-a22 * a01 + a02 * a21) * det;
     m[2] = (a12 * a01 - a02 * a11) * det;
@@ -236,8 +236,8 @@ void Mat3::translate(const Mat3 &mat, const Vec2 &vec, Mat3 *out) {
     float a20 = mat.m[6];
     float a21 = mat.m[7];
     float a22 = mat.m[8];
-    float x   = vec.x;
-    float y   = vec.y;
+    float x = vec.x;
+    float y = vec.y;
 
     out->m[0] = a00;
     out->m[1] = a01;
@@ -359,10 +359,10 @@ void Mat3::fromScaling(const Vec2 &vec, Mat3 *out) {
 
 void Mat3::fromQuat(const Quaternion &quat, Mat3 *out) {
     CC_ASSERT(out);
-    float x  = quat.x;
-    float y  = quat.y;
-    float z  = quat.z;
-    float w  = quat.w;
+    float x = quat.x;
+    float y = quat.y;
+    float z = quat.z;
+    float w = quat.w;
     float x2 = x + x;
     float y2 = y + y;
     float z2 = z + z;

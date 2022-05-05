@@ -44,7 +44,7 @@ void jsToSeArgs(const v8::FunctionCallbackInfo<v8::Value> &v8args, ValueArray &o
 }
 
 void seToJsArgs(v8::Isolate *isolate, const ValueArray &args, v8::Local<v8::Value> *outArr) {
-    assert(outArr != nullptr);
+    CC_ASSERT(outArr != nullptr);
     uint32_t i = 0;
     for (const auto &data : args) {
         v8::Local<v8::Value> &jsval = outArr[i];
@@ -54,7 +54,7 @@ void seToJsArgs(v8::Isolate *isolate, const ValueArray &args, v8::Local<v8::Valu
 }
 
 void seToJsValue(v8::Isolate *isolate, const Value &v, v8::Local<v8::Value> *outJsVal) {
-    assert(outJsVal != nullptr);
+    CC_ASSERT(outJsVal != nullptr);
     switch (v.getType()) {
         case Value::Type::Number:
             *outJsVal = v8::Number::New(isolate, v.toDouble());
@@ -83,13 +83,13 @@ void seToJsValue(v8::Isolate *isolate, const Value &v, v8::Local<v8::Value> *out
             *outJsVal = v8::BigInt::New(isolate, v.toInt64());
             break;
         default:
-            assert(false);
+            CC_ASSERT(false);
             break;
     }
 }
 
 void jsToSeValue(v8::Isolate *isolate, v8::Local<v8::Value> jsval, Value *v) {
-    assert(v != nullptr);
+    CC_ASSERT(v != nullptr);
     v8::HandleScope handleScope(isolate);
 
     if (jsval->IsUndefined()) {
@@ -125,8 +125,8 @@ void jsToSeValue(v8::Isolate *isolate, v8::Local<v8::Value> jsval, Value *v) {
         v8::MaybeLocal<v8::Object> jsObj = jsval->ToObject(isolate->GetCurrentContext());
         if (!jsObj.IsEmpty()) {
             PrivateObjectBase *privateObject = static_cast<PrivateObjectBase *>(internal::getPrivate(isolate, jsObj.ToLocalChecked(), 0));
-            void *             nativePtr     = privateObject ? privateObject->getRaw() : nullptr;
-            Object *           obj           = nullptr;
+            void *nativePtr = privateObject ? privateObject->getRaw() : nullptr;
+            Object *obj = nullptr;
             if (nativePtr != nullptr) {
                 obj = Object::getObjectWithPtr(nativePtr);
             }
@@ -156,7 +156,7 @@ void setReturnValueTemplate(const Value &data, const T &argv) {
         argv.GetReturnValue().Set(v8::Number::New(argv.GetIsolate(), static_cast<double>(data.toInt64())));
     } else if (data.getType() == Value::Type::String) {
         v8::MaybeLocal<v8::String> value = v8::String::NewFromUtf8(argv.GetIsolate(), data.toString().c_str(), v8::NewStringType::kNormal);
-        assert(!value.IsEmpty());
+        CC_ASSERT(!value.IsEmpty());
         argv.GetReturnValue().Set(value.ToLocalChecked());
     } else if (data.getType() == Value::Type::Boolean) {
         argv.GetReturnValue().Set(v8::Boolean::New(argv.GetIsolate(), data.toBoolean()));
@@ -180,8 +180,8 @@ bool hasPrivate(v8::Isolate * /*isolate*/, v8::Local<v8::Value> value) {
 
 void setPrivate(v8::Isolate *isolate, ObjectWrap &wrap, PrivateObjectBase *data, Object *thizObj, PrivateData **outInternalData) {
     v8::Local<v8::Object> obj = wrap.handle(isolate);
-    int                   c   = obj->InternalFieldCount();
-    assert(c > 1);
+    int c = obj->InternalFieldCount();
+    CC_ASSERT(c > 1);
     if (c > 1) {
         wrap.wrap(data, 0);
         wrap.wrap(thizObj, 1);
@@ -193,19 +193,19 @@ void setPrivate(v8::Isolate *isolate, ObjectWrap &wrap, PrivateObjectBase *data,
 }
 
 void *getPrivate(v8::Isolate *isolate, v8::Local<v8::Value> value, uint32_t index /* = 0*/) {
-    v8::Local<v8::Context>     context = isolate->GetCurrentContext();
-    v8::MaybeLocal<v8::Object> obj     = value->ToObject(context);
+    v8::Local<v8::Context> context = isolate->GetCurrentContext();
+    v8::MaybeLocal<v8::Object> obj = value->ToObject(context);
     if (obj.IsEmpty()) {
         return nullptr;
     }
 
-    assert(index >= 0 && index < 2);
+    CC_ASSERT(index >= 0 && index < 2);
     if (index > 1) {
         return nullptr;
     }
 
     v8::Local<v8::Object> objChecked = obj.ToLocalChecked();
-    int                   c          = objChecked->InternalFieldCount();
+    int c = objChecked->InternalFieldCount();
     if (c > 1) {
         void *nativeObj = nullptr;
         if (index >= 0 && index < 2) {
@@ -220,7 +220,7 @@ void *getPrivate(v8::Isolate *isolate, v8::Local<v8::Value> value, uint32_t inde
 
 void clearPrivate(v8::Isolate *isolate, ObjectWrap &wrap) {
     v8::Local<v8::Object> obj = wrap.handle(isolate);
-    int                   c   = obj->InternalFieldCount();
+    int c = obj->InternalFieldCount();
     if (c > 1) {
         wrap.wrap(nullptr, 0);
         wrap.wrap(nullptr, 1);

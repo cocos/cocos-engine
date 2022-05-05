@@ -132,16 +132,16 @@ public:
 
     TypedArrayTemp &operator=(TypedArrayTemp &&o) noexcept {
         if (this != &o) {
-            _buffer       = o._buffer;
-            _byteOffset   = o._byteOffset;
-            _byteLength   = o._byteLength;
-            _byteEndPos   = o._byteEndPos;
+            _buffer = o._buffer;
+            _byteOffset = o._byteOffset;
+            _byteLength = o._byteLength;
+            _byteEndPos = o._byteEndPos;
             _jsTypedArray = o._jsTypedArray;
 
-            o._buffer       = nullptr;
-            o._byteOffset   = 0;
-            o._byteLength   = 0;
-            o._byteEndPos   = 0;
+            o._buffer = nullptr;
+            o._byteOffset = 0;
+            o._byteLength = 0;
+            o._byteEndPos = 0;
             o._jsTypedArray = nullptr;
         }
         return *this;
@@ -178,7 +178,7 @@ public:
         CC_ASSERT(start < (_byteLength / BYTES_PER_ELEMENT));
         CC_ASSERT(end <= (_byteLength / BYTES_PER_ELEMENT));
         uint32_t newBufByteLength = (end - start) * BYTES_PER_ELEMENT;
-        auto *   buffer           = ccnew ArrayBuffer(newBufByteLength);
+        auto *buffer = ccnew ArrayBuffer(newBufByteLength);
         memcpy(buffer->getData(), _buffer->getData() + start * BYTES_PER_ELEMENT + _byteOffset, newBufByteLength);
         return TypedArrayTemp(buffer);
     }
@@ -213,21 +213,21 @@ public:
             _jsTypedArray = nullptr;
         }
         const uint32_t byteLength = length * BYTES_PER_ELEMENT;
-        _buffer                   = ccnew ArrayBuffer(byteLength);
-        _byteLength               = _buffer->byteLength();
-        _byteOffset               = 0;
-        _byteEndPos               = byteLength;
-        _jsTypedArray             = se::Object::createTypedArrayWithBuffer(toTypedArrayType<T>(), _buffer->getJSArrayBuffer(), 0, byteLength);
+        _buffer = ccnew ArrayBuffer(byteLength);
+        _byteLength = _buffer->byteLength();
+        _byteOffset = 0;
+        _byteEndPos = byteLength;
+        _jsTypedArray = se::Object::createTypedArrayWithBuffer(toTypedArrayType<T>(), _buffer->getJSArrayBuffer(), 0, byteLength);
         _jsTypedArray->root();
     }
 
     inline ArrayBuffer *buffer() const { return _buffer; }
-    inline uint32_t     byteLength() const { return _byteLength; }
-    inline uint32_t     length() const { return _byteLength / BYTES_PER_ELEMENT; }
-    inline uint32_t     byteOffset() const { return _byteOffset; }
-    inline bool         empty() const { return _byteLength == 0; }
-    inline se::Object * getJSTypedArray() const { return _jsTypedArray; }
-    inline void         setJSTypedArray(se::Object *typedArray) {
+    inline uint32_t byteLength() const { return _byteLength; }
+    inline uint32_t length() const { return _byteLength / BYTES_PER_ELEMENT; }
+    inline uint32_t byteOffset() const { return _byteOffset; }
+    inline bool empty() const { return _byteLength == 0; }
+    inline se::Object *getJSTypedArray() const { return _jsTypedArray; }
+    inline void setJSTypedArray(se::Object *typedArray) {
         if (_jsTypedArray != nullptr) {
             _jsTypedArray->unroot();
             _jsTypedArray->decRef();
@@ -240,23 +240,23 @@ public:
 
             se::Value tmpVal;
             _jsTypedArray->getProperty("buffer", &tmpVal);
-            assert(tmpVal.isObject());
-            assert(tmpVal.toObject()->isArrayBuffer());
+            CC_ASSERT(tmpVal.isObject());
+            CC_ASSERT(tmpVal.toObject()->isArrayBuffer());
 
             _buffer = ccnew ArrayBuffer();
             _buffer->setJSArrayBuffer(tmpVal.toObject());
 
             _jsTypedArray->getProperty("byteOffset", &tmpVal);
-            assert(tmpVal.isNumber());
+            CC_ASSERT(tmpVal.isNumber());
             _byteOffset = tmpVal.toUint32();
 
             _jsTypedArray->getProperty("byteLength", &tmpVal);
-            assert(tmpVal.isNumber());
+            CC_ASSERT(tmpVal.isNumber());
             _byteLength = tmpVal.toUint32();
 
             _byteEndPos = _buffer->byteLength();
         } else {
-            _buffer     = nullptr;
+            _buffer = nullptr;
             _byteOffset = 0;
             _byteLength = 0;
             _byteEndPos = 0;
@@ -265,10 +265,10 @@ public:
 
 private:
     ArrayBuffer::Ptr _buffer;
-    uint32_t         _byteOffset{0};
-    uint32_t         _byteLength{0};
-    uint32_t         _byteEndPos{0};
-    se::Object *     _jsTypedArray{nullptr};
+    uint32_t _byteOffset{0};
+    uint32_t _byteLength{0};
+    uint32_t _byteEndPos{0};
+    se::Object *_jsTypedArray{nullptr};
 };
 
 template <typename T>
@@ -277,7 +277,7 @@ typename std::enable_if_t<std::is_same<T, SrcType>::value, void> TypedArrayTemp<
     CC_ASSERT(_buffer);
     uint32_t dstByteOffset = offset * BYTES_PER_ELEMENT;
     uint32_t srcByteOffset = array.byteOffset();
-    uint32_t srcCount      = array.length();
+    uint32_t srcCount = array.length();
     CC_ASSERT(dstByteOffset + srcCount * TypedArrayTemp<SrcType>::BYTES_PER_ELEMENT <= _byteEndPos);
     memcpy(_buffer->_data + dstByteOffset, array._buffer->_data + srcByteOffset, array.byteLength());
 }
@@ -288,23 +288,23 @@ typename std::enable_if_t<!std::is_same<T, SrcType>::value, void> TypedArrayTemp
     CC_ASSERT(_buffer);
     uint32_t dstByteOffset = offset * BYTES_PER_ELEMENT;
     uint32_t srcByteOffset = array.byteOffset();
-    uint32_t srcCount      = array.length();
-    uint32_t remainCount   = (_byteEndPos - dstByteOffset) / BYTES_PER_ELEMENT;
+    uint32_t srcCount = array.length();
+    uint32_t remainCount = (_byteEndPos - dstByteOffset) / BYTES_PER_ELEMENT;
     CC_ASSERT(srcCount <= remainCount);
     for (uint32_t i = 0; i < srcCount; ++i) {
         (*this)[offset + i] = reinterpret_cast<T>(array[i]);
     }
 }
 
-using Int8Array             = TypedArrayTemp<int8_t>;
-using Int16Array            = TypedArrayTemp<int16_t>;
-using Int32Array            = TypedArrayTemp<int32_t>;
-using Uint8Array            = TypedArrayTemp<uint8_t>;
-using Uint16Array           = TypedArrayTemp<uint16_t>;
-using Uint32Array           = TypedArrayTemp<uint32_t>;
-using Float32Array          = TypedArrayTemp<float>;
-using Float64Array          = TypedArrayTemp<double>;
-using TypedArray            = cc::variant<cc::monostate, Int8Array, Int16Array, Int32Array, Uint8Array, Uint16Array, Uint32Array, Float32Array, Float64Array>;
+using Int8Array = TypedArrayTemp<int8_t>;
+using Int16Array = TypedArrayTemp<int16_t>;
+using Int32Array = TypedArrayTemp<int32_t>;
+using Uint8Array = TypedArrayTemp<uint8_t>;
+using Uint16Array = TypedArrayTemp<uint16_t>;
+using Uint32Array = TypedArrayTemp<uint32_t>;
+using Float32Array = TypedArrayTemp<float>;
+using Float64Array = TypedArrayTemp<double>;
+using TypedArray = cc::variant<cc::monostate, Int8Array, Int16Array, Int32Array, Uint8Array, Uint16Array, Uint32Array, Float32Array, Float64Array>;
 using TypedArrayElementType = cc::variant<cc::monostate, int8_t, int16_t, int32_t, uint8_t, uint16_t, uint32_t, float, double>;
 
 uint32_t getTypedArrayLength(const TypedArray &arr);

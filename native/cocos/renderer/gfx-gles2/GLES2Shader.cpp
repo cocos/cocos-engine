@@ -41,11 +41,11 @@ GLES2Shader::~GLES2Shader() {
 }
 
 void GLES2Shader::doInit(const ShaderInfo & /*info*/) {
-    _gpuShader                  = ccnew GLES2GPUShader;
-    _gpuShader->name            = _name;
-    _gpuShader->blocks          = _blocks;
+    _gpuShader = ccnew GLES2GPUShader;
+    _gpuShader->name = _name;
+    _gpuShader->blocks = _blocks;
     _gpuShader->samplerTextures = _samplerTextures;
-    _gpuShader->subpassInputs   = _subpassInputs;
+    _gpuShader->subpassInputs = _subpassInputs;
 
     for (const auto &stage : _stages) {
         _gpuShader->gpuStages.push_back({stage.stage, stage.source});

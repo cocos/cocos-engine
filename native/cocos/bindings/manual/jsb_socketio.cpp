@@ -106,9 +106,9 @@ public:
 
         if (it != _eventRegistry.end()) {
             const se::ValueArray &cbStruct = it->second;
-            assert(cbStruct.size() == 2);
+            CC_ASSERT(cbStruct.size() == 2);
             const se::Value &callback = cbStruct[0];
-            const se::Value &target   = cbStruct[1];
+            const se::Value &target = cbStruct[1];
             if (callback.isObject() && callback.toObject()->isFunction() && target.isObject()) {
                 se::ValueArray args;
                 args.push_back(dataVal);
@@ -122,8 +122,8 @@ public:
     }
 
     void addEvent(const ccstd::string &eventName, const se::Value &callback, const se::Value &target) {
-        assert(callback.isObject() && callback.toObject()->isFunction());
-        assert(target.isObject());
+        CC_ASSERT(callback.isObject() && callback.toObject()->isFunction());
+        CC_ASSERT(target.isObject());
         _eventRegistry[eventName].clear();
         _eventRegistry[eventName].push_back(callback);
         _eventRegistry[eventName].push_back(target);
@@ -164,12 +164,12 @@ SE_BIND_PROP_SET(SocketIO_prop_setTag) // NOLINT(readability-identifier-naming)
 
 static bool SocketIO_send(se::State &s) { // NOLINT(readability-identifier-naming)
     const auto &args = s.args();
-    int         argc = static_cast<int>(args.size());
-    auto *      cobj = static_cast<cc::network::SIOClient *>(s.nativeThisObject());
+    int argc = static_cast<int>(args.size());
+    auto *cobj = static_cast<cc::network::SIOClient *>(s.nativeThisObject());
 
     if (argc == 1) {
         ccstd::string payload;
-        bool          ok = sevalue_to_native(args[0], &payload);
+        bool ok = sevalue_to_native(args[0], &payload);
         SE_PRECONDITION2(ok, false, "Converting payload failed!");
 
         cobj->send(payload);
@@ -183,11 +183,11 @@ SE_BIND_FUNC(SocketIO_send) // NOLINT(readability-identifier-naming)
 
 static bool SocketIO_emit(se::State &s) { // NOLINT(readability-identifier-naming)
     const auto &args = s.args();
-    int         argc = static_cast<int>(args.size());
-    auto *      cobj = static_cast<cc::network::SIOClient *>(s.nativeThisObject());
+    int argc = static_cast<int>(args.size());
+    auto *cobj = static_cast<cc::network::SIOClient *>(s.nativeThisObject());
 
     if (argc >= 1) {
-        bool          ok = false;
+        bool ok = false;
         ccstd::string eventName;
         ok = sevalue_to_native(args[0], &eventName);
         SE_PRECONDITION2(ok, false, "Converting eventName failed!");
@@ -216,8 +216,8 @@ SE_BIND_FUNC(SocketIO_emit) // NOLINT(readability-identifier-naming)
 
 static bool SocketIO_disconnect(se::State &s) { // NOLINT(readability-identifier-naming)
     const auto &args = s.args();
-    int         argc = static_cast<int>(args.size());
-    auto *      cobj = static_cast<cc::network::SIOClient *>(s.nativeThisObject());
+    int argc = static_cast<int>(args.size());
+    auto *cobj = static_cast<cc::network::SIOClient *>(s.nativeThisObject());
 
     if (argc == 0) {
         cobj->disconnect();
@@ -231,11 +231,11 @@ SE_BIND_FUNC(SocketIO_disconnect) // NOLINT(readability-identifier-naming)
 
 static bool SocketIO_on(se::State &s) { // NOLINT(readability-identifier-naming)
     const auto &args = s.args();
-    int         argc = static_cast<int>(args.size());
-    auto *      cobj = static_cast<cc::network::SIOClient *>(s.nativeThisObject());
+    int argc = static_cast<int>(args.size());
+    auto *cobj = static_cast<cc::network::SIOClient *>(s.nativeThisObject());
 
     if (argc == 2) {
-        bool          ok = false;
+        bool ok = false;
         ccstd::string eventName;
         ok = sevalue_to_native(args[0], &eventName);
         SE_PRECONDITION2(ok, false, "Converting eventName failed!");
@@ -254,13 +254,13 @@ SE_BIND_FUNC(SocketIO_on) // NOLINT(readability-identifier-naming)
 // static
 static bool SocketIO_connect(se::State &s) { // NOLINT(readability-identifier-naming)
     const auto &args = s.args();
-    int         argc = static_cast<int>(args.size());
+    int argc = static_cast<int>(args.size());
     CC_LOG_DEBUG("JSB SocketIO.connect method called");
 
     if (argc >= 1 && argc <= 3) {
         ccstd::string url;
         ccstd::string caFilePath;
-        bool          ok = false;
+        bool ok = false;
 
         ok = sevalue_to_native(args[0], &url);
         SE_PRECONDITION2(ok, false, "Error processing arguments");
@@ -313,7 +313,7 @@ SE_BIND_FUNC(SocketIO_connect) // NOLINT(readability-identifier-naming)
 // static
 static bool SocketIO_close(se::State &s) { // NOLINT(readability-identifier-naming)
     const auto &args = s.args();
-    int         argc = static_cast<int>(args.size());
+    int argc = static_cast<int>(args.size());
     if (argc == 0) {
         return true;
     }

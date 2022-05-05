@@ -26,12 +26,10 @@
 #include "platform/mac/modules/System.h"
 #import <AppKit/AppKit.h>
 
-
 #include <sys/utsname.h>
 #include <algorithm>
 #include <mutex>
 #include <sstream>
-
 
 namespace cc {
 using OSType = System::OSType;
@@ -48,13 +46,13 @@ ccstd::string System::getDeviceModel() const {
 
 System::LanguageType System::getCurrentLanguage() const {
     // get the current language and country config
-    NSUserDefaults *defaults        = [NSUserDefaults standardUserDefaults];
-    NSArray *       languages       = [defaults objectForKey:@"AppleLanguages"];
-    NSString *      currentLanguage = [languages objectAtIndex:0];
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSArray *languages = [defaults objectForKey:@"AppleLanguages"];
+    NSString *currentLanguage = [languages objectAtIndex:0];
 
     // get the current language code.(such as English is "en", Chinese is "zh" and so on)
-    NSDictionary *temp         = [NSLocale componentsFromLocaleIdentifier:currentLanguage];
-    NSString *    languageCode = [temp objectForKey:NSLocaleLanguageCode];
+    NSDictionary *temp = [NSLocale componentsFromLocaleIdentifier:currentLanguage];
+    NSString *languageCode = [temp objectForKey:NSLocaleLanguageCode];
 
     if ([languageCode isEqualToString:@"zh"]) return LanguageType::CHINESE;
     if ([languageCode isEqualToString:@"en"]) return LanguageType::ENGLISH;
@@ -79,22 +77,22 @@ System::LanguageType System::getCurrentLanguage() const {
 }
 
 ccstd::string System::getCurrentLanguageCode() const {
-    NSUserDefaults *defaults        = [NSUserDefaults standardUserDefaults];
-    NSArray *       languages       = [defaults objectForKey:@"AppleLanguages"];
-    NSString *      currentLanguage = [languages objectAtIndex:0];
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSArray *languages = [defaults objectForKey:@"AppleLanguages"];
+    NSString *currentLanguage = [languages objectAtIndex:0];
     return [currentLanguage UTF8String];
 }
 
 ccstd::string System::getSystemVersion() const {
-    NSOperatingSystemVersion v           = NSProcessInfo.processInfo.operatingSystemVersion;
-    char                     version[50] = {0};
+    NSOperatingSystemVersion v = NSProcessInfo.processInfo.operatingSystemVersion;
+    char version[50] = {0};
     snprintf(version, sizeof(version), "%d.%d.%d", (int)v.majorVersion, (int)v.minorVersion, (int)v.patchVersion);
     return version;
 }
 
 bool System::openURL(const ccstd::string &url) {
-    NSString *msg   = [NSString stringWithCString:url.c_str() encoding:NSUTF8StringEncoding];
-    NSURL *   nsUrl = [NSURL URLWithString:msg];
+    NSString *msg = [NSString stringWithCString:url.c_str() encoding:NSUTF8StringEncoding];
+    NSURL *nsUrl = [NSURL URLWithString:msg];
     return [[NSWorkspace sharedWorkspace] openURL:nsUrl];
 }
 } // namespace cc

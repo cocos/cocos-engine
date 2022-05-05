@@ -49,8 +49,8 @@ public:
     void onFinishImpl(int taskId, int errCode, const char *errStr, const ccstd::vector<unsigned char> &data);
 
 protected:
-    int                                              _id;
-    _jobject *                                       _impl;
+    int _id;
+    _jobject *_impl;
     ccstd::unordered_map<int, DownloadTaskAndroid *> _taskMap;
 };
 } // namespace network

@@ -57,7 +57,7 @@ private:
     static TBBJobSystem *_instance;
 
     tbb::global_control _control;
-    uint                _threadCount = 0u;
+    uint _threadCount = 0u;
 };
 
 } // namespace cc

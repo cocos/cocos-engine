@@ -47,8 +47,7 @@ DRAGONBONES_NAMESPACE_BEGIN
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class Armature : public virtual IAnimatable, public BaseObject
-{
+class Armature : public virtual IAnimatable, public BaseObject {
     BIND_CLASS_TYPE_B(Armature);
 
 private:
@@ -118,16 +117,13 @@ protected:
     void* _replacedTexture;
 
 public:
-    Armature() :
-        _animation(nullptr),
-        _proxy(nullptr),
-        _clock(nullptr),
-        _replaceTextureAtlasData(nullptr)
-    {
+    Armature() : _animation(nullptr),
+                 _proxy(nullptr),
+                 _clock(nullptr),
+                 _replaceTextureAtlasData(nullptr) {
         _onClear();
     }
-    virtual ~Armature()
-    {
+    virtual ~Armature() {
         _onClear();
     }
 
@@ -184,7 +180,7 @@ public:
     /**
      * @internal
      */
-    void init(ArmatureData *armatureData, IArmatureProxy* proxy, void* display, DragonBones* dragonBones);
+    void init(ArmatureData* armatureData, IArmatureProxy* proxy, void* display, DragonBones* dragonBones);
     /**
      * @inheritDoc
      */
@@ -269,8 +265,7 @@ public:
         float xA, float yA, float xB, float yB,
         Point* intersectionPointA = nullptr,
         Point* intersectionPointB = nullptr,
-        Point* normalRadians = nullptr
-    ) const;
+        Point* normalRadians = nullptr) const;
     /**
      * - Get a specific bone.
      * @param name - The bone name.
@@ -343,8 +338,7 @@ public:
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    inline const std::vector<Bone*>& getBones() const
-    {
+    inline const std::vector<Bone*>& getBones() const {
         return _bones;
     }
     /**
@@ -359,8 +353,7 @@ public:
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    inline const std::vector<Slot*>& getSlots() const
-    {
+    inline const std::vector<Slot*>& getSlots() const {
         return _slots;
     }
     /**
@@ -373,12 +366,10 @@ public:
      * @version DragonBones 5.5
      * @language zh_CN
      */
-    bool getFlipX() const 
-    { 
-        return _flipX; 
+    bool getFlipX() const {
+        return _flipX;
     }
-    void setFlipX(bool value) 
-    { 
+    void setFlipX(bool value) {
         _flipX = value;
         invalidUpdate("");
     }
@@ -393,12 +384,10 @@ public:
      * @version DragonBones 5.5
      * @language zh_CN
      */
-    bool getFlipY() const 
-    { 
-        return _flipY; 
+    bool getFlipY() const {
+        return _flipY;
     }
-    void setFlipY(bool value) 
-    { 
+    void setFlipY(bool value) {
         _flipY = value;
         invalidUpdate("");
     }
@@ -432,8 +421,7 @@ public:
      * @version DragonBones 4.5
      * @language zh_CN
      */
-    inline unsigned getCacheFrameRate() const
-    {
+    inline unsigned getCacheFrameRate() const {
         return _armatureData->cacheFrameRate;
     }
     void setCacheFrameRate(unsigned value);
@@ -447,8 +435,7 @@ public:
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    inline const std::string& getName() const
-    {
+    inline const std::string& getName() const {
         return _armatureData->name;
     }
     /**
@@ -463,8 +450,7 @@ public:
      * @version DragonBones 4.5
      * @language zh_CN
      */
-    inline const ArmatureData* getArmatureData() const
-    {
+    inline const ArmatureData* getArmatureData() const {
         return _armatureData;
     }
     /**
@@ -479,15 +465,13 @@ public:
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    inline Animation* getAnimation() const
-    {
+    inline Animation* getAnimation() const {
         return _animation;
     }
     /**
      * @pivate
      */
-    inline IArmatureProxy* getProxy() const
-    {
+    inline IArmatureProxy* getProxy() const {
         return _proxy;
     }
     /**
@@ -500,8 +484,7 @@ public:
      * @version DragonBones 4.5
      * @language zh_CN
      */
-    inline IEventDispatcher* getEventDispatcher() const
-    {
+    inline IEventDispatcher* getEventDispatcher() const {
         return _proxy;
     }
     /**
@@ -518,23 +501,20 @@ public:
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    inline void* getDisplay() const
-    {
+    inline void* getDisplay() const {
         return _display;
     }
     /**
      * @private
      */
-    inline void* getReplacedTexture() const
-    {
+    inline void* getReplacedTexture() const {
         return _replacedTexture;
     }
     void setReplacedTexture(void* value);
     /**
      * @inheritDoc
      */
-    inline WorldClock* getClock() const override
-    {
+    inline WorldClock* getClock() const override {
         return _clock;
     }
     void setClock(WorldClock* value) override;
@@ -550,8 +530,7 @@ public:
      * @version DragonBones 4.5
      * @language zh_CN
      */
-    inline Slot* getParent() const
-    {
+    inline Slot* getParent() const {
         return _parent;
     }
 
