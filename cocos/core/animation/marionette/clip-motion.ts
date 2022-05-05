@@ -2,7 +2,9 @@ import { editorExtrasTag } from '../../data';
 import { ccclass, type } from '../../data/class-decorator';
 import { EditorExtendable } from '../../data/editor-extendable';
 import { AnimationClip } from '../animation-clip';
-import { AnimationState } from '../animation-state';
+import { PoseOutput } from '../pose-output';
+import { WrapModeMask, WrappedInfo } from '../types';
+import { wrap } from '../wrap';
 import { createEval } from './create-eval';
 import { getMotionRuntimeID, graphDebug, GRAPH_DEBUG_ENABLED, pushWeight, RUNTIME_ID_ENABLED } from './graph-debug';
 import { ClipStatus } from './graph-eval';
@@ -39,14 +41,19 @@ class ClipMotionEval implements MotionEval {
 
     public declare runtimeId?: number;
 
-    private declare _state: AnimationState;
-
     public declare readonly duration: number;
 
     constructor (context: MotionEvalContext, clip: AnimationClip) {
         this.duration = clip.duration / clip.speed;
-        this._state = new AnimationState(clip);
-        this._state.initialize(context.node, context.blendBuffer, context.mask);
+        this._clip = clip;
+        const poseOutput = new PoseOutput(context.blendBuffer);
+        this._poseOutput = poseOutput;
+        this._clipEval = clip.createEvaluator({
+            target: context.node,
+            pose: poseOutput,
+            mask: context.mask,
+        });
+        this._clipEventEval = clip.createEventEvaluator(context.node);
     }
 
     public getClipStatuses (baseWeight: number): Iterator<ClipStatus, any, undefined> {
@@ -64,7 +71,7 @@ class ClipMotionEval implements MotionEval {
                         done: false,
                         value: {
                             __DEBUG_ID__: this.__DEBUG__ID__,
-                            clip: this._state.clip,
+                            clip: this._clip,
                             weight: baseWeight,
                         },
                     };
@@ -74,18 +81,46 @@ class ClipMotionEval implements MotionEval {
     }
 
     get progress () {
-        return this._state.time / this.duration;
+        return this._elapsedTime / this.duration;
     }
 
     public sample (progress: number, weight: number) {
         if (weight === 0.0) {
             return;
         }
-        pushWeight(this._state.name, weight);
-        const time = this._state.duration * progress;
-        this._state.time = time;
-        this._state.weight = weight;
-        this._state.sample();
-        this._state.weight = 0.0;
+        pushWeight(this._clip.name, weight);
+        const { duration } = this;
+        const elapsedTime = this.duration * progress;
+        const { wrapMode } = this._clip;
+        const repeatCount = (wrapMode & WrapModeMask.Loop) === WrapModeMask.Loop
+            ? Infinity : 1;
+        const wrapInfo = wrap(
+            elapsedTime,
+            duration,
+            wrapMode,
+            repeatCount,
+            false,
+            this._wrapInfo,
+        );
+        this._poseOutput.weight = weight;
+        this._clipEval.evaluate(wrapInfo.time);
+        this._poseOutput.weight = 0.0;
+        this._clipEventEval.sample(
+            wrapInfo.ratio,
+            wrapInfo.direction,
+            wrapInfo.iterations,
+        );
     }
+
+    private _clip: AnimationClip;
+
+    private _poseOutput: PoseOutput;
+
+    private _clipEval: ReturnType<AnimationClip['createEvaluator']>;
+
+    private _clipEventEval: ReturnType<AnimationClip['createEventEvaluator']>;
+
+    private _elapsedTime = 0.0;
+
+    private _wrapInfo = new WrappedInfo();
 }
