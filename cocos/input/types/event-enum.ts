@@ -373,6 +373,9 @@ export enum InputEventType {
      * 重力感应
      */
     DEVICEMOTION = 'devicemotion',
+
+    GAMEPAD_INPUT = 'gamepad-input',
+    GAMEPAD_CHANGE = 'gamepad-change',
 }
 
 export type SystemEventTypeUnion = SystemEventType | NodeEventType | InputEventType | string;
