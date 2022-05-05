@@ -32,11 +32,13 @@ declare module 'pal/input' {
         public on (eventType: import('cocos/input/types/event-enum').InputEventType, callback: KeyboardCallback, target?: any);
     }
 
+    export type GamepadCallback = (res: import('cocos/input/types/event').EventGamepad) => void;
+
     /**
      * Class designed for gamepad input
      */
     export class GamepadInputSource {
-        // TODO: add more details for GamepadInputSource class
+        public on (eventType: import('cocos/input/types/event-enum').InputEventType, cb: GamepadCallback, target?: any);
     }
 
     type AccelerometerCallback = (res: import('cocos/input/types').EventAcceleration) => void;

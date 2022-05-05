@@ -24,14 +24,12 @@
  THE SOFTWARE.
 */
 
-
-
 import { EDITOR, NATIVE } from 'internal:constants';
-import { TouchInputSource, MouseInputSource, KeyboardInputSource, AccelerometerInputSource } from 'pal/input';
+import { TouchInputSource, MouseInputSource, KeyboardInputSource, AccelerometerInputSource, GamepadInputSource } from 'pal/input';
 import { touchManager } from '../../pal/input/touch-manager';
 import { sys } from '../core/platform/sys';
 import { EventTarget } from '../core/event/event-target';
-import { Event, EventAcceleration, EventKeyboard, EventMouse, EventTouch, Touch } from './types';
+import { Event, EventAcceleration, EventGamepad, EventKeyboard, EventMouse, EventTouch, Touch } from './types';
 import { InputEventType } from './types/event-enum';
 
 export enum EventDispatcherPriority {
@@ -88,6 +86,8 @@ interface InputEventMap {
     [Input.EventType.KEY_PRESSING]: (event: EventKeyboard) => void,
     [Input.EventType.KEY_UP]: (event: EventKeyboard) => void,
     [Input.EventType.DEVICEMOTION]: (event: EventAcceleration) => void,
+    [Input.EventType.GAMEPAD_CHANGE]: (event: EventGamepad) => void,
+    [Input.EventType.GAMEPAD_INPUT]: (event: EventGamepad) => void,
 }
 
 /**
@@ -129,11 +129,13 @@ export class Input {
     private _mouseInput = new MouseInputSource();
     private _keyboardInput = new KeyboardInputSource();
     private _accelerometerInput = new AccelerometerInputSource();
+    private _gamepadInput = new GamepadInputSource();
 
     private _eventTouchList: EventTouch[] = [];
     private _eventMouseList: EventMouse[] = [];
     private _eventKeyboardList: EventKeyboard[] = [];
     private _eventAccelerationList: EventAcceleration[] = [];
+    private _eventGamepadList: EventGamepad[] = [];
 
     private _needSimulateTouchMoveEvent = false;
 
@@ -301,6 +303,12 @@ export class Input {
         if (sys.hasFeature(sys.Feature.EVENT_ACCELEROMETER)) {
             const eventAccelerationList = this._eventAccelerationList;
             this._accelerometerInput.on(InputEventType.DEVICEMOTION, (event) => { this._dispatchOrPushEvent(event, eventAccelerationList); });
+        }
+
+        if (sys.hasFeature(sys.Feature.EVENT_GAMEPAD)) {
+            const eventGamepadList = this._eventGamepadList;
+            this._gamepadInput.on(InputEventType.GAMEPAD_CHANGE, (event) => { this._dispatchOrPushEvent(event, eventGamepadList); });
+            this._gamepadInput.on(InputEventType.GAMEPAD_INPUT, (event) => { this._dispatchOrPushEvent(event, eventGamepadList); });
         }
     }
 

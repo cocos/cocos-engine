@@ -115,6 +115,7 @@ class SystemInfo extends EventTarget {
             [Feature.EVENT_MOUSE]: isPCWechat,
             [Feature.EVENT_TOUCH]: true,
             [Feature.EVENT_ACCELEROMETER]: !isPCWechat,
+            [Feature.EVENT_GAMEPAD]: false,
         };
 
         this._registerEvent();
