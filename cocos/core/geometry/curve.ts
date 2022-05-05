@@ -154,9 +154,9 @@ export class AnimationCurve {
 
     /**
      * @en
-     * Loop mode [[WrapMode]] when the sampling time exceeds the left end.
+     * Loop mode [[AnimationClip.WrapMode]] when the sampling time exceeds the left end.
      * @zh
-     * 当采样时间超出左端时采用的循环模式[[WrapMode]]。
+     * 当采样时间超出左端时采用的循环模式[[AnimationClip.WrapMode]]。
      */
     get preWrapMode () {
         return toLegacyWrapMode(this._curve.preExtrapolation);
@@ -168,9 +168,9 @@ export class AnimationCurve {
 
     /**
      * @en
-     * Cycle mode [[WrapMode]] when the sampling time exceeds the right end.
+     * Cycle mode [[AnimationClip.WrapMode]] when the sampling time exceeds the right end.
      * @zh
-     * 当采样时间超出右端时采用的循环模式[[WrapMode]]。
+     * 当采样时间超出右端时采用的循环模式[[AnimationClip.WrapMode]]。
      */
     get postWrapMode () {
         return toLegacyWrapMode(this._curve.postExtrapolation);

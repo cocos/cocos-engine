@@ -131,7 +131,7 @@ export class RenderTexture extends TextureBase {
 
     // To be compatible with material property interface
     /**
-     * @en Gets the related [[Texture]] resource, it's also the color attachment for the render window
+     * @en Gets the related [[gfx.Texture]] resource, it's also the color attachment for the render window
      * @zh 获取渲染贴图的 GFX 资源，同时也是渲染窗口所指向的颜色缓冲贴图资源
      */
     public getGFXTexture (): Texture | null {
