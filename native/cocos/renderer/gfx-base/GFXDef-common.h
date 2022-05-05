@@ -96,6 +96,10 @@ using TextureList             = vector<Texture *>;
 using SamplerList             = vector<Sampler *>;
 using DescriptorSetLayoutList = vector<DescriptorSetLayout *>;
 
+/**
+ * @en Graphics object type
+ * @zh 图形API对象的类型
+ */
 enum class ObjectType : uint32_t {
     UNKNOWN,
     SWAPCHAIN,
@@ -882,7 +886,8 @@ struct Color {
 };
 using ColorList = vector<Color>;
 
-/**
+ /**
+ * @en
  * For non-vulkan backends, to maintain compatibility and maximize
  * descriptor cache-locality, descriptor-set-based binding numbers need
  * to be mapped to backend-specific bindings based on maximum limit
@@ -896,6 +901,8 @@ using ColorList = vector<Color>;
  * The `setIndices` field defines the binding ordering between different sets.
  * The last set index is treated as the 'flexible set', whose capacity is dynamically
  * assigned based on the total available descriptor slots on the runtime device.
+ * @zh
+ * 描述符绑定的映射信息
  */
 struct BindingMappingInfo {
     IndexList maxBlockCounts{0};

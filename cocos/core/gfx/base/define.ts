@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { Queue } from './queue';
 import { Buffer } from './buffer';
 import { Texture } from './texture';
@@ -53,6 +51,10 @@ const deepCopy = <T extends ICopyable>(target: T[], source: T[], Ctor: Construct
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 
+/**
+ * @en Graphics object type
+ * @zh 图形API对象的类型
+ */
 export enum ObjectType {
     UNKNOWN,
     SWAPCHAIN,
@@ -951,6 +953,7 @@ export class Color {
 }
 
 /**
+ * @en
  * For non-vulkan backends, to maintain compatibility and maximize
  * descriptor cache-locality, descriptor-set-based binding numbers need
  * to be mapped to backend-specific bindings based on maximum limit
@@ -964,6 +967,8 @@ export class Color {
  * The `setIndices` field defines the binding ordering between different sets.
  * The last set index is treated as the 'flexible set', whose capacity is dynamically
  * assigned based on the total available descriptor slots on the runtime device.
+ * @zh
+ * 描述符绑定的映射信息
  */
 export class BindingMappingInfo {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
