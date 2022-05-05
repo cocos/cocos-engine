@@ -46,7 +46,16 @@ public:
     };
 
     BaseGame() = default;
-    int init() override {
+    int init() override;
+
+protected:
+    std::string  _xxteaKey;
+    DebuggerInfo _debuggerInfo;
+    WindowInfo   _windowInfo;
+    std::once_flag _windowIsCreated;
+};
+
+int BaseGame::init() {
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX || CC_PLATFORM == CC_PLATFORM_MAC_OSX
         // override default value
         //_windowInfo.x      = _windowInfo.x == -1 ? 0 : _windowInfo.x;
@@ -56,11 +65,11 @@ public:
         _windowInfo.flags  = _windowInfo.flags == -1 ? cc::ISystemWindow::CC_WINDOW_SHOWN |
                                                           cc::ISystemWindow::CC_WINDOW_RESIZABLE |
                                                           cc::ISystemWindow::CC_WINDOW_INPUT_FOCUS
-                                                    : _windowInfo.flags;
-        if (!isDesktopWindowCreated) {
+                                                     : _windowInfo.flags;
+        std::call_once(_windowIsCreated, [&]() {
             createWindow(_windowInfo.title.c_str(), _windowInfo.width, _windowInfo.height, _windowInfo.flags);
-            isDesktopWindowCreated = true;
-        }
+        });
+
 #endif
 
         if (_debuggerInfo.enabled) {
@@ -76,14 +85,5 @@ public:
         runScript("jsb-adapter/jsb-builtin.js");
         runScript("main.js");
         return 0;
-    }
-
-protected:
-    std::string  _xxteaKey;
-    DebuggerInfo _debuggerInfo;
-    WindowInfo   _windowInfo;
-
-private:
-    bool         isDesktopWindowCreated { false };
-};
+}
 } // namespace cc
