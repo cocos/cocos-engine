@@ -69,7 +69,7 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
     protected _model: ParticleBatchModel | null = null;
     protected _renderInfo: ParticleSystemRenderer | null = null;
     protected _vertAttrs: Attribute[] = [];
-    protected _useInstance;
+    protected _useInstance: boolean;
 
     constructor (info: ParticleSystemRenderer) {
         this._renderInfo = info;
