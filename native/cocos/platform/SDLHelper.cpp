@@ -30,7 +30,6 @@
 #include "base/Log.h"
 #include "platform/IEventDispatch.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
-#include <cocos/application/ApplicationManager.h>
 
 namespace {
 std::unordered_map<int, cc::KeyCode> gKeyMap = {
@@ -184,8 +183,6 @@ void SDLHelper::dispatchWindowEvent(const SDL_WindowEvent &wevent) {
             ev.type   = WindowEvent::Type::SIZE_CHANGED;
             ev.width  = wevent.data1;
             ev.height = wevent.data2;
-            auto* w  = CC_GET_PLATFORM_INTERFACE(ISystemWindow);
-            w->setViewSize(wevent.data1, wevent.data2);
             _delegate->dispatchEvent(ev);
             break;
         }
