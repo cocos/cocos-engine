@@ -38,6 +38,7 @@ import { AnimationMask } from './marionette/animation-mask';
 import { PoseOutput } from './pose-output';
 import { BlendStateBuffer } from '../../3d/skeletal-animation/skeletal-animation-blending';
 import { getGlobalAnimationManager } from './global-animation-manager';
+import { wrap } from './wrap';
 
 /**
  * @en The event type supported by Animation
@@ -588,81 +589,21 @@ export class AnimationState extends Playable {
         }
     }
 
-    private _needReverse (currentIterations: number) {
-        const wrapMode = this.wrapMode;
-        let needReverse = false;
-
-        if ((wrapMode & WrapModeMask.PingPong) === WrapModeMask.PingPong) {
-            const isEnd = currentIterations - (currentIterations | 0) === 0;
-            if (isEnd && (currentIterations > 0)) {
-                currentIterations -= 1;
-            }
-
-            const isOddIteration = currentIterations & 1;
-            if (isOddIteration) {
-                needReverse = !needReverse;
-            }
-        }
-        if ((wrapMode & WrapModeMask.Reverse) === WrapModeMask.Reverse) {
-            needReverse = !needReverse;
-        }
-        return needReverse;
-    }
-
     private getWrappedInfo (time: number, info?: WrappedInfo) {
-        info = info || new WrappedInfo();
-
+        info = info ?? new WrappedInfo();
         const playbackStart = this._getPlaybackStart();
         const playbackEnd = this._getPlaybackEnd();
         const playbackDuration = playbackEnd - playbackStart;
-
-        let stopped = false;
-        const repeatCount = this.repeatCount;
-
         time -= playbackStart;
-
-        let currentIterations = time > 0 ? (time / playbackDuration) : -(time / playbackDuration);
-        if (currentIterations >= repeatCount) {
-            currentIterations = repeatCount;
-
-            stopped = true;
-            let tempRatio = repeatCount - (repeatCount | 0);
-            if (tempRatio === 0) {
-                tempRatio = 1;  // 如果播放过，动画不复位
-            }
-            time = tempRatio * playbackDuration * (time > 0 ? 1 : -1);
-        }
-
-        if (time > playbackDuration) {
-            const tempTime = time % playbackDuration;
-            time = tempTime === 0 ? playbackDuration : tempTime;
-        } else if (time < 0) {
-            time %= playbackDuration;
-            if (time !== 0) { time += playbackDuration; }
-        }
-
-        let needReverse = false;
-        const shouldWrap = this._wrapMode & WrapModeMask.ShouldWrap;
-        if (shouldWrap) {
-            needReverse = this._needReverse(currentIterations);
-        }
-
-        let direction = needReverse ? -1 : 1;
-        if (this.speed < 0) {
-            direction *= -1;
-        }
-
-        // calculate wrapped time
-        if (shouldWrap && needReverse) {
-            time = playbackDuration - time;
-        }
-
-        info.time = playbackStart + time;
-        info.ratio = info.time / this.duration;
-        info.direction = direction;
-        info.stopped = stopped;
-        info.iterations = currentIterations;
-
+        wrap(
+            time,
+            playbackDuration,
+            this._wrapMode,
+            this._repeatCount,
+            this._speed < 0,
+            info,
+        );
+        info.time += playbackStart;
         return info;
     }
 
