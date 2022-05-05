@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { EDITOR } from 'internal:constants';
 import { Node } from '../scene-graph/node';
 import { AnimationClip } from './animation-clip';
@@ -600,7 +598,7 @@ export class AnimationState extends Playable {
             playbackDuration,
             this._wrapMode,
             this._repeatCount,
-            this._speed < 0,
+            this.speed < 0,
             info,
         );
         info.time += playbackStart;
