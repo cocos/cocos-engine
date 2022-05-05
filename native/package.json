@@ -9,7 +9,7 @@
   "devDependencies": {
     "gulp": "^4.0.2",
     "@types/fs-extra": "^9.0.1",
-    "async": "^2.6.1",
+    "async": "^2.6.4",
     "chalk": "^2.4.1",
     "del": "^6.0.0",
     "fs-extra": "^9.0.0",
