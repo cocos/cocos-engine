@@ -282,7 +282,7 @@ export function load (app: Application) {
                     continue;
                 }
                 const printUnableResolve = (iSegment: number) => {
-                    _context.logger.error(`Failed to resolve ${segments[iSegment]} in ${match[0]} `
+                    _context.logger.warn(`Failed to resolve ${segments[iSegment]} in ${match[0]} `
                         + `referenced in ${!node ? '<unknown-location>' : node.getText()}`);
                 };
                 let targetReflection = resolveUnqualifiedReflection(segments[0]);
