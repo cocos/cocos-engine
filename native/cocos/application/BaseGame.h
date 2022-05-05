@@ -75,15 +75,24 @@ public:
         }
 
         setXXTeaKey(_xxteaKey);
-
+        registerListeners();
         runScript("jsb-adapter/jsb-builtin.js");
         runScript("main.js");
         return 0;
+    }
+    void registerListeners() {
+        EventDispatcher::addCustomEventListener("event_resize", [&](const CustomEvent& event) {
+            //TODO: get width and height
+            //_windowInfo.width = event.args
+            _windowInfo.width  = event.args[1].longVal;
+            _windowInfo.height = event.args[2].longVal;
+        });
     }
 
 protected:
     std::string  _xxteaKey;
     DebuggerInfo _debuggerInfo;
     WindowInfo   _windowInfo;
+
 };
 } // namespace cc

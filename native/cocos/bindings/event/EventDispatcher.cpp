@@ -256,12 +256,44 @@ void EventDispatcher::dispatchResizeEvent(int width, int height) {
         jsResizeEventObj = se::Object::createPlainObject();
         jsResizeEventObj->root();
     }
+//    reinterpret_cast<BaseGame>(CC_CURRENT_APPLICATION_SAFE())->_windowInfo.width = width;
+//    reinterpret_cast<BaseGame>(CC_CURRENT_APPLICATION_SAFE())->_windowInfo.height = height;
 
     jsResizeEventObj->setProperty("width", se::Value(width));
     jsResizeEventObj->setProperty("height", se::Value(height));
+    
     se::ValueArray args;
     args.emplace_back(se::Value(jsResizeEventObj));
-    EventDispatcher::doDispatchEvent(EVENT_RESIZE, "onResize", args);
+    const char *jsFunctionName = "onResize";
+    //EventDispatcher::doDispatchEvent(EVENT_RESIZE, "onResize", args);
+
+    if (!se::ScriptEngine::getInstance()->isValid()) {
+        return;
+    }
+
+    if (true) {
+        CustomEvent event;
+        event.name = EVENT_RESIZE;
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+        CCASSERT(CC_GET_PLATFORM_INTERFACE(ISystemWindow) != nullptr, "System window interface does not exist");
+        event.args->ptrVal = reinterpret_cast<void *>(CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandler());
+        event.args[1].longVal = width;
+        event.args[2].longVal = height;
+#endif
+        EventDispatcher::dispatchCustomEvent(event);
+    }
+
+    // dispatch to Javascript
+    if (!se::ScriptEngine::getInstance()->isValid()) {
+        return;
+    }
+    assert(inited);
+
+    se::Value func;
+    __jsbObj->getProperty(jsFunctionName, &func);
+    if (func.isObject() && func.toObject()->isFunction()) {
+        func.toObject()->call(args, nullptr);
+    }
 }
 
 void EventDispatcher::dispatchOrientationChangeEvent(int orientation) {
