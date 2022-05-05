@@ -136,6 +136,10 @@ gulp.task('gen-simulator', async function () {
     });
 });
 
+function formatPath(p) {
+    return p.replace(/\\/g, '/');
+}
+
 gulp.task('clean-simulator', async function () {
     console.log('=====================================\n');
     console.log('clean project\n');
