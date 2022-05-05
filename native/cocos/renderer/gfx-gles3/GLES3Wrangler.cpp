@@ -60,7 +60,7 @@ bool gles3wOpen() {
     #if __OHOS__
     libgles = dlopen("libGLESv3.so", RTLD_LAZY | RTLD_GLOBAL);
     #else
-    libgles = dlopen("libGLESv2.so", RTLD_LAZY | RTLD_GLOBAL);
+    libgles = dlopen("libGLESv3.so", RTLD_LAZY | RTLD_GLOBAL);
     #endif
     return (libegl && libgles);
 }
