@@ -79,6 +79,7 @@ void RenderScene::update(uint32_t stamp) {
         if (model->isEnabled()) {
             model->updateTransform(stamp);
             model->updateUBOs(stamp);
+            model->updateOctree();
         }
     }
 
