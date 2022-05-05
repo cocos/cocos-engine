@@ -58,10 +58,9 @@ public:
                                                           cc::ISystemWindow::CC_WINDOW_INPUT_FOCUS
                                                     : _windowInfo.flags;
         if (!isDesktopWindowCreated) {
-                createWindow(_windowInfo.title.c_str(), _windowInfo.width, _windowInfo.height, _windowInfo.flags);
-                isDesktopWindowCreated = true;
+            createWindow(_windowInfo.title.c_str(), _windowInfo.width, _windowInfo.height, _windowInfo.flags);
+            isDesktopWindowCreated = true;
         }
-        
 #endif
 
         if (_debuggerInfo.enabled) {

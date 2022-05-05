@@ -86,5 +86,9 @@ void SystemWindow::copyTextToClipboard(const std::string &text) {
 SystemWindow::Size SystemWindow::getViewSize() const {
     return Size{static_cast<float>(_width), static_cast<float>(_height)};
 }
+void SystemWindow::setViewSize(uint32_t width, uint32_t height) {
+    _width = width;
+    _height = height;
+}
 
 } // namespace cc
