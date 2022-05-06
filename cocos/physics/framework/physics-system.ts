@@ -404,9 +404,9 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @zh
      * 检测所有的碰撞盒，并记录所有被检测到的结果，通过 PhysicsSystem.instance.raycastResults 访问结果。
      * @param worldRay @zh 世界空间下的一条射线 @en A ray in world space
-     * @param mask @zh 掩码，默认为 0xffffffff @en Mask, default is 0xffffffff
+     * @param mask @zh 掩码，默认为 0xffffffff @en Mask, default value is 0xffffffff
      * @param maxDistance @zh 最大检测距离，默认为 10000000，目前请勿传入 Infinity 或 Number.MAX_VALUE
-     *                    @en Maximum detection distance, default is 10000000, do not pass Infinity or Number.MAX_VALUE for now
+     *                    @en Maximum detection distance, default value is 10000000, do not pass Infinity or Number.MAX_VALUE for now
      * @param queryTrigger @zh 是否检测触发器 @en Whether to detect triggers
      * @return {boolean} @zh 表示是否有检测到碰撞 @en Indicates whether a collision has been detected
      */
@@ -427,9 +427,9 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @zh
      * 检测所有的碰撞盒，并记录与射线距离最短的检测结果，通过 PhysicsSystem.instance.raycastClosestResult 访问结果。
      * @param worldRay @zh 世界空间下的一条射线 @en A ray in world space
-     * @param mask @zh 掩码，默认为 0xffffffff @en Mask, default is 0xffffffff
+     * @param mask @zh 掩码，默认为 0xffffffff @en Mask, default value is 0xffffffff
      * @param maxDistance @zh 最大检测距离，默认为 10000000，目前请勿传入 Infinity 或 Number.MAX_VALUE
-     *                    @en Maximum detection distance, default is 10000000, do not pass Infinity or Number.MAX_VALUE for now
+     *                    @en Maximum detection distance, default value is 10000000, do not pass Infinity or Number.MAX_VALUE for now
      * @param queryTrigger @zh 是否检测触发器 @en Whether to detect triggers
      * @return {boolean} @zh 表示是否有检测到碰撞 @en Indicates whether a collision has been detected
      */
