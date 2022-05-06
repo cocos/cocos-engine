@@ -179,9 +179,7 @@ void Model::updateTransform(uint32_t stamp) {
         _localDataUpdated = true;
         if (_modelBounds != nullptr && _modelBounds->isValid() && _worldBounds != nullptr) {
             _modelBounds->transform(node->getWorldMatrix(), _worldBounds);
-        }
-        if (_scene) {
-            _scene->updateOctree(this);
+            _worldBoundsDirty = true;
         }
     }
 }
@@ -193,6 +191,7 @@ void Model::updateWorldBound() {
         _localDataUpdated = true;
         if (_modelBounds != nullptr && _modelBounds->isValid() && _worldBounds != nullptr) {
             _modelBounds->transform(node->getWorldMatrix(), _worldBounds);
+            _worldBoundsDirty = true;
         }
     }
 }
@@ -203,6 +202,7 @@ void Model::updateWorldBoundsForJSSkinningModel(const Vec3 &min, const Vec3 &max
         if (_modelBounds != nullptr && _modelBounds->isValid() && _worldBounds != nullptr) {
             geometry::AABB::fromPoints(min, max, _modelBounds);
             _modelBounds->transform(node->getWorldMatrix(), _worldBounds);
+            _worldBoundsDirty = true;
         }
     }
 }
@@ -210,6 +210,7 @@ void Model::updateWorldBoundsForJSSkinningModel(const Vec3 &min, const Vec3 &max
 void Model::updateWorldBoundsForJSBakedSkinningModel(geometry::AABB *aabb) {
     _worldBounds->center = aabb->center;
     _worldBounds->halfExtents = aabb->halfExtents;
+    _worldBoundsDirty = true;
 }
 
 void Model::updateUBOs(uint32_t stamp) {
@@ -250,6 +251,13 @@ void Model::updateUBOs(uint32_t stamp) {
     }
 }
 
+void Model::updateOctree() {
+    if (_scene && _worldBoundsDirty) {
+        _worldBoundsDirty = false;
+        _scene->updateOctree(this);
+    }
+}
+
 void Model::updateWorldBoundUBOs() {
     if (_worldBoundBuffer) {
         ccstd::array<float, pipeline::UBOWorldBound::COUNT> worldBoundBufferView;
@@ -277,6 +285,7 @@ void Model::createBoundingShape(const cc::optional<Vec3> &minPos, const cc::opti
         _worldBounds = ccnew geometry::AABB();
     }
     geometry::AABB::fromPoints(minPos.value(), maxPos.value(), _worldBounds);
+    _worldBoundsDirty = true;
 }
 
 SubModel *Model::createSubModel() {
