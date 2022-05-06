@@ -261,6 +261,7 @@ export class OBB {
 
     /**
      * @en
+     * Scale OBB by a 3d-vector.
      * @zh
      *  将 out 根据这个 obb 的数据进行缩放。
      * @param scale @zh 缩放值。 @en 3d-vector scale.
