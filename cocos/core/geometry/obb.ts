@@ -149,7 +149,7 @@ export class OBB {
      * @param oz_1 @zh 方向矩阵参数。 @en The z component of the one axis of the OBB.
      * @param oz_2 @zh 方向矩阵参数。 @en The z component of the second axis of the OBB.
      * @param oz_3 @zh 方向矩阵参数。 @en The z component of the third axis of the OBB.
-     * @return @zh out 接受操作的 OBB @en The reference of the first parameter `out`.
+     * @returns @zh out 接受操作的 OBB @en The reference of the first parameter `out`.
      */
     public static set (
         out: OBB,

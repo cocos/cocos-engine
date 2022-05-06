@@ -91,7 +91,7 @@ export class AABB {
       * 将从一个 AABB 的值复制到另一个 AABB。
       * @param out @zh 接受操作的 AABB。 @en The output AABB, copy destination.
       * @param a @zh 被复制的 AABB。 @en Source object of copy operation.
-      * @returns dst @zh 接受操作的 AABB。 @en The reference of the first parameter `dst`, the new AABB.
+      * @returns @zh 接受操作的 AABB。 @en The reference of the first parameter `dst`, the new AABB.
       */
     public static copy (out: AABB, a: AABB | Readonly<AABB>): AABB {
         Vec3.copy(out.center, a.center);
