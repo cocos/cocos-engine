@@ -6,7 +6,9 @@ import { ccclass } from '../core/data/class-decorator';
 import { CCTextureData } from './CCTextureData';
 
 // @skipLibCheck
-
+/**
+ * @internal
+*/
 @ccclass('dragonBones.CCSlot')
 export class CCSlot extends Slot {
     static toString () {

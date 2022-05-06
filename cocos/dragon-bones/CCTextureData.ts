@@ -7,6 +7,9 @@ import { TextureBase } from '../core/assets/texture-base';
 import { ccclass } from '../core/data/decorators';
 import { Rect } from '../core/math/rect';
 
+/**
+ * @internal
+*/
 @ccclass('dragonBones.CCTextureAtlasData')
 export class CCTextureAtlasData extends TextureAtlasData {
     get renderTexture () {
@@ -60,6 +63,9 @@ export class CCTextureAtlasData extends TextureAtlasData {
     }
 }
 
+/**
+ * @internal
+*/
 @ccclass('dragonBones.CCTextureData')
 export class CCTextureData extends TextureData {
     spriteFrame: SpriteFrame | null = null

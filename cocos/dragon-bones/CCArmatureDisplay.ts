@@ -10,6 +10,9 @@ import { EventTarget } from '../core/event';
 import { CCSlot } from './CCSlot';
 import { ArmatureDisplay } from './ArmatureDisplay';
 
+/**
+* @internal
+*/
 @ccclass('dragonBones.CCArmatureDisplay')
 export class CCArmatureDisplay extends DisplayData implements IEventDispatcher {
     get node () { return this; }

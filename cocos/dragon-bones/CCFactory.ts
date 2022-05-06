@@ -14,6 +14,7 @@ import { CCArmatureDisplay } from './CCArmatureDisplay';
  * DragonBones factory
  * @class CCFactory
  * @extends BaseFactory
+ * @internal
 */
 @ccclass('CCFactory')
 export class CCFactory extends BaseFactory implements ISchedulable {
