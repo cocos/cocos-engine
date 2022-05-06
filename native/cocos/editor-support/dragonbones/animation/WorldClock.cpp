@@ -15,7 +15,6 @@ void WorldClock::advanceTime(float passedTime) {
     if (passedTime < 0.0f) {
         passedTime = currentTime - _systemTime;
     }
-
     _systemTime = currentTime;
 
     if (timeScale != 1.0f) {

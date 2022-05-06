@@ -1,8 +1,9 @@
 #include "DeformVertices.h"
-#include "../model/DragonBonesData.h"
-#include "../model/DisplayData.h"
 #include "../armature/Armature.h"
 #include "../armature/Bone.h"
+#include "../model/DisplayData.h"
+#include "../model/DragonBonesData.h"
+
 
 DRAGONBONES_NAMESPACE_BEGIN
 
@@ -15,7 +16,6 @@ void DeformVertices::_onClear() {
 
 void DeformVertices::init(const VerticesData* verticesDataValue, Armature* armature) {
     verticesData = verticesDataValue;
-
     if (verticesData != nullptr) {
         unsigned vertexCount = 0;
         if (verticesData->weight != nullptr) {

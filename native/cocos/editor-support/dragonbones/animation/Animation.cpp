@@ -1,11 +1,12 @@
 #include "Animation.h"
-#include "../model/DisplayData.h"
-#include "../model/AnimationConfig.h"
-#include "../model/AnimationData.h"
 #include "../armature/Armature.h"
 #include "../armature/Bone.h"
 #include "../armature/Slot.h"
+#include "../model/AnimationConfig.h"
+#include "../model/AnimationData.h"
+#include "../model/DisplayData.h"
 #include "AnimationState.h"
+
 
 DRAGONBONES_NAMESPACE_BEGIN
 
@@ -13,7 +14,6 @@ void Animation::_onClear() {
     for (const auto animationState : _animationStates) {
         animationState->returnToPool();
     }
-
     if (_animationConfig != nullptr) {
         _animationConfig->returnToPool();
     }

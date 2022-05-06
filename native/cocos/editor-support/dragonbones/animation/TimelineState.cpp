@@ -1,20 +1,21 @@
 #include "TimelineState.h"
-#include "WorldClock.h"
-#include "Animation.h"
-#include "../model/DragonBonesData.h"
-#include "../model/UserData.h"
+#include "../armature/Armature.h"
+#include "../armature/Bone.h"
+#include "../armature/Constraint.h"
+#include "../armature/DeformVertices.h"
+#include "../armature/Slot.h"
+#include "../event/EventObject.h"
+#include "../event/IEventDispatcher.h"
+#include "../model/AnimationData.h"
 #include "../model/ArmatureData.h"
 #include "../model/ConstraintData.h"
 #include "../model/DisplayData.h"
-#include "../model/AnimationData.h"
-#include "../event/EventObject.h"
-#include "../event/IEventDispatcher.h"
-#include "../armature/Armature.h"
-#include "../armature/Bone.h"
-#include "../armature/Slot.h"
-#include "../armature/Constraint.h"
-#include "../armature/DeformVertices.h"
+#include "../model/DragonBonesData.h"
+#include "../model/UserData.h"
+#include "Animation.h"
 #include "AnimationState.h"
+#include "WorldClock.h"
+
 
 DRAGONBONES_NAMESPACE_BEGIN
 
@@ -29,7 +30,6 @@ void ActionTimelineState::_onCrossFrame(unsigned frameIndex) const {
         for (std::size_t i = 0; i < actionCount; ++i) {
             const auto actionIndex = _frameArray[frameOffset + 2 + i];
             const auto action = actions[actionIndex];
-
             if (action->type == ActionType::Play) {
                 const auto eventObject = BaseObject::borrowObject<EventObject>();
                 // eventObject->time = _frameArray[frameOffset] * _frameRateR; // Precision problem

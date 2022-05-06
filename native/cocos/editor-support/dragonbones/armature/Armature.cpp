@@ -1,13 +1,13 @@
 #include "Armature.h"
+#include "../animation/Animation.h"
+#include "../animation/WorldClock.h"
+#include "../event/EventObject.h"
 #include "../model/TextureAtlasData.h"
 #include "../model/UserData.h"
-#include "../animation/WorldClock.h"
-#include "../animation/Animation.h"
-#include "../event/EventObject.h"
-#include "IArmatureProxy.h"
 #include "Bone.h"
-#include "Slot.h"
 #include "Constraint.h"
+#include "IArmatureProxy.h"
+#include "Slot.h"
 
 DRAGONBONES_NAMESPACE_BEGIN
 
@@ -240,7 +240,6 @@ void Armature::invalidUpdate(const std::string& boneName, bool updateSlot) {
         const auto bone = getBone(boneName);
         if (bone != nullptr) {
             bone->invalidUpdate();
-
             if (updateSlot) {
                 for (const auto slot : _slots) {
                     if (slot->getParent() == bone) {
@@ -362,7 +361,6 @@ Bone* Armature::getBone(const std::string& name) const {
             return bone;
         }
     }
-
     return nullptr;
 }
 
@@ -378,7 +376,6 @@ Slot* Armature::getSlot(const std::string& name) const {
             return slot;
         }
     }
-
     return nullptr;
 }
 
@@ -390,7 +387,6 @@ Slot* Armature::getSlotByDisplay(void* display) const {
             }
         }
     }
-
     return nullptr;
 }
 
