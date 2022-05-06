@@ -238,7 +238,7 @@ export class DirectionalLight extends Light {
     }
 
     /**
-     * @en get or set shadow camera near
+     * @en The near clip plane of the shadow camera
      * @zh 获取或者设置阴影相机近裁剪面
      */
     get shadowNear () {
@@ -252,7 +252,7 @@ export class DirectionalLight extends Light {
     }
 
     /**
-     * @en get or set shadow camera far
+     * @en The far clip plane of the shadow camera
      * @zh 获取或者设置阴影相机远裁剪面
      */
     get shadowFar () {

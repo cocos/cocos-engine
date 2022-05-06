@@ -228,8 +228,8 @@ export class SpotLight extends Light {
     }
 
     /**
-     * @en The sampler offset of the shadow map.
-     * @zh 获取或者设置阴影纹理偏移值
+     * @en The depth offset of shadow to avoid moire pattern artifacts
+     * @zh 阴影的深度偏移, 可以减弱跨像素导致的条纹状失真
      */
     @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 3 } })

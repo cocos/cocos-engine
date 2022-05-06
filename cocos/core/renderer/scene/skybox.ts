@@ -76,7 +76,7 @@ export const EnvironmentLightingType = Enum({
  */
 export class Skybox {
     /**
-     * @en The Model object for the skybox
+     * @en The Model object of the skybox
      * @zh 天空盒的 Model 对象
      */
     get model (): Model | null {

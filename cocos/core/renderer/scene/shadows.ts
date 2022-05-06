@@ -273,7 +273,7 @@ export class Shadows {
      */
     public firstSetCSM = false;
     /**
-     * @en The far clip of the shadow camera
+     * @en The far clip plane of the shadow camera
      * @zh 阴影相机的远裁剪平面
      */
     public shadowCameraFar = 0;

@@ -101,7 +101,7 @@ export class SubModel {
     }
 
     /**
-     * @en Render passes for the sub model
+     * @en Render passes for the sub-model
      * @zh 子模型的渲染 pass
      */
     set passes (passes) {
@@ -130,7 +130,7 @@ export class SubModel {
     }
 
     /**
-     * @en Shaders for the sub model, each shader corresponds to one of the [[passes]]
+     * @en Shaders for the sub-model, each shader corresponds to one of the [[passes]]
      * @zh 子模型的着色器程序列表，每个着色器程序对应其中一个渲染 [[passes]]
      */
     get shaders (): Shader[] {
@@ -138,7 +138,7 @@ export class SubModel {
     }
 
     /**
-     * @en The rendering sub mesh for the sub model, each sub model can only have one sub mesh.
+     * @en The rendering sub mesh for the sub-model, each sub-model can only have one sub mesh.
      * @zh 用于渲染的子网格对象，每个子模型只能包含一个子网格。
      */
     set subMesh (subMesh) {
@@ -153,7 +153,7 @@ export class SubModel {
     }
 
     /**
-     * @en The rendering priority of the sub model
+     * @en The rendering priority of the sub-model
      * @zh 子模型的渲染优先级
      */
     set priority (val) {
@@ -176,7 +176,7 @@ export class SubModel {
     }
 
     /**
-     * @en The descriptor set used for sub model rendering
+     * @en The descriptor set used for sub-model rendering
      * @zh 底层渲染子模型用的描述符集组
      */
     get descriptorSet (): DescriptorSet {

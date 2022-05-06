@@ -49,7 +49,7 @@ export class SphereLight extends Light {
     }
 
     /**
-     * @en The world position of the center point of the light source
+     * @en The world position of the light source
      * @zh 光源中心点的世界坐标
      */
     get position () {

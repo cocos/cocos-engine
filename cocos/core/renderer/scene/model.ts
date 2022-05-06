@@ -117,7 +117,7 @@ export class Model {
     }
 
     /**
-     * @en The aabb bounding box of the model in the world space
+     * @en The axis-aligned bounding box of the model in the world space
      * @zh 获取世界空间包围盒
      */
     get worldBounds () {
@@ -125,7 +125,7 @@ export class Model {
     }
 
     /**
-     * @en The aabb bounding box of the model in the model space
+     * @en The axis-aligned bounding box of the model in the model space
      * @zh 获取模型空间包围盒
      */
     get modelBounds () {
@@ -223,7 +223,7 @@ export class Model {
     }
 
     /**
-     * @en Model's node
+     * @en The node to which the model belongs
      * @zh 模型所在的节点
      */
     get node () : Node {
@@ -271,8 +271,8 @@ export class Model {
     }
 
     /**
-     * @en Whether the model is enabled
-     * @zh 模型是否启用
+     * @en Whether the model is enabled in the render scene so that it will be rendered
+     * @zh 模型是否在渲染场景中启用并被渲染
      */
     get enabled () : boolean {
         return this._enabled;
@@ -292,7 +292,7 @@ export class Model {
     public type = ModelType.DEFAULT;
 
     /**
-     * @en The render scene of the model
+     * @en The render scene to which the model belongs
      * @zh 模型所在的场景
      */
     public scene: RenderScene | null = null;
@@ -310,13 +310,13 @@ export class Model {
     public instancedAttributes: IInstancedAttributeBlock = { buffer: null!, views: [], attributes: [] };
 
     /**
-     * @en The world aabb
+     * @en The world axis-aligned bounding box
      * @zh 世界空间包围盒
      */
     protected _worldBounds: AABB | null = null;
 
     /**
-     * @en The model aabb
+     * @en The model axis-aligned bounding box
      * @zh 模型空间包围盒
      */
     protected _modelBounds: AABB | null = null;
@@ -328,8 +328,8 @@ export class Model {
     protected _subModels: SubModel[] = [];
 
     /**
-     * @en Model's node
-     * @zh 子模型所在的节点
+     * @en The node to which the model belongs
+     * @zh 模型所在的节点
      */
     protected _node: Node = null!;
 
@@ -390,7 +390,7 @@ export class Model {
     private _lightmapUVParam: Vec4 = new Vec4();
 
     /**
-     * @en World aabb buffer
+     * @en World AABB buffer
      * @zh 世界空间包围盒缓冲
      */
     protected _worldBoundBuffer: Buffer | null = null;
@@ -420,8 +420,8 @@ export class Model {
     protected _shadowNormalBias = 0;
 
     /**
-     * @en Whether the model is enable
-     * @zh 是否启用
+     * @en Whether the model is enabled in the render scene so that it will be rendered
+     * @zh 模型是否在渲染场景中启用并被渲染
      */
     protected _enabled = true;
 
@@ -562,7 +562,7 @@ export class Model {
     }
 
     /**
-     * @en Update the model's world aabb
+     * @en Update the model's world AABB
      * @zh 更新模型的世界空间包围盒
      */
     public updateWorldBound () {
@@ -641,10 +641,10 @@ export class Model {
     }
 
     /**
-     * @en Create the model's aabb bounding box
+     * @en Create the model's AABB
      * @zh 创建模型的包围盒
-     * @param minPos min position of the aabb
-     * @param maxPos max position of the aabb
+     * @param minPos min position of the AABB
+     * @param maxPos max position of the AABB
      */
     public createBoundingShape (minPos?: Vec3, maxPos?: Vec3) {
         if (!minPos || !maxPos) { return; }
