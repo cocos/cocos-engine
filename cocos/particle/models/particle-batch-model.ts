@@ -617,10 +617,6 @@ export default class ParticleBatchModel extends scene.Model {
         this._insBuffers = [];
         this._insIndices = null;
         this.destroySubMeshData();
-        if (this._iaInfoBuffer) {
-            this._iaInfoBuffer.destroy();
-            this._iaInfoBuffer = null;
-        }
     }
 
     private rebuild () {
@@ -647,6 +643,9 @@ export default class ParticleBatchModel extends scene.Model {
         if (this._subMeshData) {
             this._subMeshData.destroy();
             this._subMeshData = null;
+        }
+        if (this._iaInfoBuffer) {
+            this._iaInfoBuffer.destroy();
             this._iaInfoBuffer = null;
         }
     }
