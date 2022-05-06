@@ -122,7 +122,7 @@ public:
     inline void setBounds(geometry::AABB *world) {
         _worldBounds = world;
         _modelBounds->set(_worldBounds->getCenter(), _worldBounds->getHalfExtents());
-        _needUpdateOctree = true;
+        _worldBoundsDirty = true;
     }
     inline void setInstancedAttributeBlock(const InstancedAttributeBlock &val) {
         _instanceAttributeBlock = val;
@@ -179,7 +179,7 @@ public:
     inline void setLocalDataUpdated(bool v) { _localDataUpdated = v; }
     inline void setWorldBounds(geometry::AABB *bounds) {
         _worldBounds = bounds;
-        _needUpdateOctree = true;
+        _worldBoundsDirty = true;
     }
     inline void setModelBounds(geometry::AABB *bounds) { _modelBounds = bounds; }
     inline bool isModelImplementedInJS() const { return (_type != Type::DEFAULT && _type != Type::SKINNING && _type != Type::BAKED_SKINNING); };
@@ -193,7 +193,7 @@ protected:
 
     Type _type{Type::DEFAULT};
     bool _localDataUpdated{false};
-    bool _needUpdateOctree{true};
+    bool _worldBoundsDirty{true};
     IntrusivePtr<geometry::AABB> _worldBounds;
     IntrusivePtr<geometry::AABB> _modelBounds;
     OctreeNode *_octreeNode{nullptr};
