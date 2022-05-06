@@ -369,12 +369,12 @@ export class Batcher2D implements IBatcher {
 
     /**
      * @en
-     * Render component data submission process for individual [[InputAssembler]]
+     * Render component data submission process for individual [[gfx.InputAssembler]]
      * @zh
-     * 渲染组件中针对独立 [[InputAssembler]] 的提交流程
+     * 渲染组件中针对独立 [[gfx.InputAssembler]] 的提交流程
      * 例如：Spine 和 DragonBones 等包含动态数据和材质的组件在内部管理 IA 并提交批次
      * @param comp - The committed renderable component
-     * @param ia - The committed [[InputAssembler]]
+     * @param ia - The committed [[gfx.InputAssembler]]
      * @param tex - The texture used
      * @param mat - The material used
      * @param [transform] - The related node transform if the render data is based on node's local coordinates

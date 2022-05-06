@@ -429,10 +429,10 @@ export function mixin (object?: any, ...sources: any[]) {
  * @en
  * Derive the class from the supplied base class.
  * Both classes are just native javascript constructors, not created by `Class`, so
- * usually you will want to inherit using [[Class]] instead.
+ * usually you will want to inherit using [[CCClass]] instead.
  * @zh
  * 将一个类型继承另一个类型
- * 两个类型都需要是 javascript 的构建函数，而不是 `Class`, 所以你通常可以用 [[Class]] 来代替
+ * 两个类型都需要是 javascript 的构建函数，而不是 `Class`, 所以你通常可以用 [[CCClass]] 来代替
  * @param base The baseclass to inherit.
  * @return The result class.
  */

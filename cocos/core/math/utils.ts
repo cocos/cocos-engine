@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { ValueType } from '../value-types';
 import { IVec3Like } from './type-define';
 
@@ -245,8 +243,8 @@ export function inverseLerp (from: number, to: number, value: number) {
 /**
  * @en Compare the absolute values of all components and the component with the largest absolute value will be returned.
  * @zh 对所有分量的绝对值进行比较大小，返回绝对值最大的分量。
- * @param v 类 Vec3 结构
- * @returns 绝对值最大的分量
+ * @param v vec3 like value
+ * @returns max absolute component
  */
 export function absMaxComponent (v: IVec3Like) {
     if (Math.abs(v.x) > Math.abs(v.y)) {

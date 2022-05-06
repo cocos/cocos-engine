@@ -78,7 +78,7 @@ class TrackPath {
     /**
      * @en Appends a component path.
      * @zh 附加一段组件路径。
-     * @param constructor 组件的构造函数。
+     * @param constructor @en The constructor of the component. @zh 组件的构造函数。
      * @returns `this`
      */
     public toComponent<T extends Component> (constructor: Constructor<T> | string) {
@@ -108,8 +108,8 @@ class TrackPath {
     }
 
     /**
-     * @en 判断指定路径段是否是属性路径。
-     * @zh Decides if the specific path segment is property path.
+     * @zh 判断指定路径段是否是属性路径。
+     * @en Decides if the specific path segment is property path.
      * @param index Index to the segment。
      * @returns The judgement result.
      */
@@ -118,8 +118,8 @@ class TrackPath {
     }
 
     /**
-     * @en 将指定路径段视为属性路径，获取其描述的属性。
-     * @zh Treats the path segment as a property path. Obtains the property it describes.
+     * @zh 将指定路径段视为属性路径，获取其描述的属性。
+     * @en Treats the path segment as a property path. Obtains the property it describes.
      * @param index Index to the segment。
      * @returns The property.
      */
@@ -128,8 +128,8 @@ class TrackPath {
     }
 
     /**
-     * @en 判断指定路径段是否是数组元素路径。
-     * @zh Decides if the specific path segment is an array element path.
+     * @zh 判断指定路径段是否是数组元素路径。
+     * @en Decides if the specific path segment is an array element path.
      * @param index Index to the segment。
      * @returns The judgement result.
      */
@@ -138,8 +138,8 @@ class TrackPath {
     }
 
     /**
-     * @en 将指定路径段视为数组元素路径，获取其描述的数组元素。
-     * @zh Treats the path segment as an array element path. Obtains the element index it describes.
+     * @zh 将指定路径段视为数组元素路径，获取其描述的数组元素。
+     * @en Treats the path segment as an array element path. Obtains the element index it describes.
      * @param index Index to the segment。
      * @returns The element index.
      */
@@ -148,8 +148,8 @@ class TrackPath {
     }
 
     /**
-     * @en 判断指定路径段是否是层级路径。
-     * @zh Decides if the specific path segment is a hierarchy path.
+     * @zh 判断指定路径段是否是层级路径。
+     * @en Decides if the specific path segment is a hierarchy path.
      * @param index Index to the segment。
      * @returns The judgement result.
      */
@@ -158,8 +158,8 @@ class TrackPath {
     }
 
     /**
-     * @en 将指定路径段视为层级路径，获取其描述的层级路径。
-     * @zh Treats the path segment as a hierarchy path. Obtains the hierarchy path it describes.
+     * @zh 将指定路径段视为层级路径，获取其描述的层级路径。
+     * @en Treats the path segment as a hierarchy path. Obtains the hierarchy path it describes.
      * @param index Index to the segment。
      * @returns The hierarchy path.
      */
@@ -169,8 +169,8 @@ class TrackPath {
     }
 
     /**
-     * @en 判断指定路径段是否是组件路径。
-     * @zh Decides if the specific path segment is a component path.
+     * @zh 判断指定路径段是否是组件路径。
+     * @en Decides if the specific path segment is a component path.
      * @param index Index to the segment。
      * @returns The judgement result.
      */
@@ -179,8 +179,8 @@ class TrackPath {
     }
 
     /**
-     * @en 将指定路径段视为组件路径，获取其描述的组件路径。
-     * @zh Treats the path segment as a hierarchy path. Obtains the component path it describes.
+     * @zh 将指定路径段视为组件路径，获取其描述的组件路径。
+     * @en Treats the path segment as a hierarchy path. Obtains the component path it describes.
      * @param index Index to the segment。
      * @returns The component path.
      */
