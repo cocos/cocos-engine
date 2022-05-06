@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 import { BatchingSchemes, Pass } from '../renderer/core/pass';
 import { RenderPipeline } from './render-pipeline';
 import { Model } from '../renderer/scene/model';
@@ -336,7 +335,7 @@ export class RenderAdditiveLightQueue {
                 Mat4.invert(_matShadowView, (light as SpotLight).node!.getWorldMatrix());
 
                 // light proj
-                Mat4.perspective(_matShadowViewProj, (light as SpotLight).angle, (light as SpotLight).aspect, 0.001, (light as SpotLight).range);
+                Mat4.perspective(_matShadowViewProj, (light as SpotLight).angle, 1.0, 0.001, (light as SpotLight).range);
                 matShadowProj = _matShadowViewProj.clone();
                 matShadowInvProj = _matShadowViewProj.clone().invert();
 

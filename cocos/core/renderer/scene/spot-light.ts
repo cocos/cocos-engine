@@ -69,8 +69,6 @@ export class SpotLight extends Light {
 
     protected _luminanceLDR = 0;
 
-    protected _aspect = 0;
-
     // Shadow map properties
     protected _shadowEnabled = false;
     protected _shadowPcf = PCFType.HARD;
@@ -170,12 +168,17 @@ export class SpotLight extends Light {
         return this._dir;
     }
 
-    // 获取 cache 下来的 cos(angle / 2) 属性值，uniform 里需要
+    /**
+     * @en The setter will take the value as the full spot angle,
+     * but the getter will give you the consine value of the half spot angle: `cos(angle / 2)`.
+     * As the in-consistence is not acceptable for a property, please do not use it.
+     * @zh 赋值时这个属性会把输入值当做聚光灯光照区域的全角弧度，但是获取时返回的是 `cos(angle / 2)`。
+     * 由于这种不一致性，请不要使用这个值。
+     * @internal
+     */
     get spotAngle () {
         return this._spotAngle;
     }
-
-    // 设置用户指定的全角弧度，同时计算 cache 下来的 cos(angle / 2) 属性值，uniform 里需要。
     set spotAngle (val: number) {
         this._angle = val;
         this._spotAngle = Math.cos(val * 0.5);
@@ -188,19 +191,6 @@ export class SpotLight extends Light {
 
     get angle () {
         return this._angle;
-    }
-
-    set aspect (val: number) {
-        this._aspect = val;
-        if (JSB) {
-            (this._nativeObj! as NativeSpotLight).setAspect(val);
-        }
-
-        this._needUpdate = true;
-    }
-
-    get aspect (): number {
-        return this._aspect;
     }
 
     get aabb () {
@@ -280,7 +270,6 @@ export class SpotLight extends Light {
 
         const size = 0.15;
         this.size = size;
-        this.aspect = 1.0;
         this.luminanceHDR = 1700 / nt2lm(size);
         this.luminanceLDR = 1.0;
         this.range = Math.cos(Math.PI / 6);

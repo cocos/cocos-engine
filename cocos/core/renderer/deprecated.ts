@@ -30,6 +30,7 @@ import { legacyCC } from '../global-exports';
 import { Pass } from './core/pass';
 import { Camera } from './scene/camera';
 import { Shadows } from './scene/shadows';
+import { SpotLight } from './scene';
 
 removeProperty(RenderScene.prototype, 'RenderScene.prototype', [
     { name: 'raycastUI2DNode' },
@@ -222,5 +223,11 @@ removeProperty(Shadows.prototype, 'Shadows.prototype', [
     },
     {
         name: 'saturation',
+    },
+]);
+
+removeProperty(SpotLight.prototype, 'SpotLight.prototype', [
+    {
+        name: 'aspect',
     },
 ]);
