@@ -1,6 +1,6 @@
 name: <Native> Linter
 
-on: [pull_request, push]
+on: [pull_request]
 
 jobs:
   # Set the job key. The key is displayed as the job name
