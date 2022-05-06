@@ -1,7 +1,9 @@
 name: <Native> Linter
 
-on: [pull_request]
-
+# on: [pull_request]
+on:
+  pull_request_target:
+    types: [closed]
 jobs:
   # Set the job key. The key is displayed as the job name
   # when a job name is not provided
@@ -96,5 +98,5 @@ jobs:
           useLog: false
           noFailOnIssue: false
           repo-token: ${{ secrets.PR_TOKEN }}
-          github-token: ${{ secrets.GITHUB_TOKEN}}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           error-limit: 200
