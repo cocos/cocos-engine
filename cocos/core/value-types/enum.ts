@@ -42,8 +42,8 @@ import { assertIsTrue } from '../data/utils/asserts';
  * 定义一个枚举类型。<br/>
  * 用户可以把枚举值设为任意的整数，如果设为 -1，系统将会分配为上一个枚举值 + 1。
  *
- * @param obj - a JavaScript literal object containing enum names and values, or a TypeScript enum type
- * @return the defined enum type
+ * @param obj @en a JavaScript literal object containing enum names and values, or a TypeScript enum type. @zh 包含枚举名和值的 JavaScript literal 对象，或者是一个 TypeScript enum 类型。
+ * @return @en the defined enum type  @zh 定义的枚举类型。
  */
 export function Enum<T> (obj: T): T {
     if ('__enums__' in obj) {
@@ -58,7 +58,7 @@ export function Enum<T> (obj: T): T {
  * Update the enum object properties.
  * @zh
  * 更新枚举对象的属性列表。
- * @param obj
+ * @param obj @en The enum object to update. @zh 需要更新的枚举对象。
  */
 Enum.update = <T> (obj: T): T => {
     let lastIndex = -1;
@@ -122,7 +122,7 @@ function assertIsEnum <EnumT extends {}> (enumType: EnumT): asserts enumType is 
 
 /**
  * Get the enumerators from the enum type.
- * @param enumType An enum type.
+ * @param enumType @en An enum type. @zh 枚举类型。
  */
 Enum.getList = <EnumT extends {}>(enumType: EnumT): readonly Enum.Enumerator<EnumT>[] => {
     assertIsEnum(enumType);
@@ -136,7 +136,7 @@ Enum.getList = <EnumT extends {}>(enumType: EnumT): readonly Enum.Enumerator<Enu
 
 /**
  * Update the enumerators from the enum type.
- * @param enumType - the enum type defined from cc.Enum
+ * @param enumType @en the enum type defined from cc.Enum @zh 从cc.Enum定义的枚举类型。
  * @return {Object[]}
  */
 function updateList<EnumT extends {}> (enumType: EnumT): readonly Enum.Enumerator<EnumT>[] {
