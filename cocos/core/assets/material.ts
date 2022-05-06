@@ -40,7 +40,7 @@ import { Color } from '../math/color';
 import { warnID } from '../platform/debug';
 import { Vec4 } from '../math';
 import { SRGBToLinear } from '../pipeline/pipeline-funcs';
-import { BaseRenderer } from '../components';
+import { Renderer } from '../components/renderer';
 
 const v4_1 = new Vec4();
 
@@ -182,7 +182,7 @@ export class Material extends Asset {
      * @en The owner render component
      * @zh 该材质所归属的渲染组件
      */
-    get owner (): BaseRenderer | null {
+    get owner (): Renderer | null {
         return null;
     }
 

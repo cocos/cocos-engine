@@ -31,14 +31,13 @@
 import {
     ccclass, serializable,
 } from 'cc.decorator';
-import { Material } from '../assets/material';
 import { scene } from '../renderer';
 import { Layers } from '../scene-graph/layers';
 import { legacyCC } from '../global-exports';
-import { BaseRenderer } from './base-renderer';
+import { Renderer } from './renderer';
 
-@ccclass('cc.Renderer')
-export class Renderer extends BaseRenderer {
+@ccclass('cc.ModelRenderer')
+export class ModelRenderer extends Renderer {
     @serializable
     protected _visFlags = Layers.Enum.NONE;
 
@@ -70,4 +69,4 @@ export class Renderer extends BaseRenderer {
     }
 }
 
-legacyCC.Renderer = Renderer;
+legacyCC.Renderer = ModelRenderer;

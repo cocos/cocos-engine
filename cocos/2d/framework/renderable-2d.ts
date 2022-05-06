@@ -44,7 +44,7 @@ import { UITransform } from './ui-transform';
 import { Stage } from '../renderer/stencil-manager';
 import { legacyCC } from '../../core/global-exports';
 import { NodeEventType } from '../../core/scene-graph/node-event';
-import { BaseRenderer } from '../../core';
+import { Renderer } from '../../core/components/renderer';
 
 // hack
 ccenum(BlendFactor);
@@ -114,7 +114,7 @@ export enum InstanceMaterialType {
 @requireComponent(UITransform)
 @disallowMultiple
 @executeInEditMode
-export class UIRenderer extends BaseRenderer {
+export class UIRenderer extends Renderer {
     /**
      * @en The blend factor enums
      * @zh 混合模式枚举类型

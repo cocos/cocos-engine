@@ -36,7 +36,6 @@ import { Material } from '../assets/material';
 import { Component } from './component';
 import { IMaterialInstanceInfo, MaterialInstance } from '../renderer/core/material-instance';
 import { warnID } from '../platform/debug';
-import { legacyCC } from '../global-exports';
 
 const _matInsInfo: IMaterialInstanceInfo = {
     parent: null!,
@@ -44,8 +43,8 @@ const _matInsInfo: IMaterialInstanceInfo = {
     subModelIdx: 0,
 };
 
-@ccclass('cc.BaseRenderer')
-export class BaseRenderer extends Component {
+@ccclass('cc.Renderer')
+export class Renderer extends Component {
     @type(Material)
     @displayOrder(0)
     @displayName('Materials')
@@ -216,5 +215,3 @@ export class BaseRenderer extends Component {
     protected _clearMaterials () {
     }
 }
-
-legacyCC.BaseRenderer = BaseRenderer;

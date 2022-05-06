@@ -28,16 +28,15 @@
  * @module material
  */
 
-import { Renderer } from '../../components/renderable-component';
 import { Material } from '../../assets/material';
 import { PassInstance } from './pass-instance';
 import { MacroRecord } from './pass-utils';
 import { PassOverrides } from './pass';
-import { BaseRenderer } from '../../components/base-renderer';
+import { Renderer } from '../../components/renderer';
 
 export interface IMaterialInstanceInfo {
     parent: Material;
-    owner?: BaseRenderer;
+    owner?: Renderer;
     subModelIdx?: number;
 }
 
@@ -57,7 +56,7 @@ export class MaterialInstance extends Material {
     protected _passes: PassInstance[] = [];
 
     private _parent: Material;
-    private _owner: BaseRenderer | null;
+    private _owner: Renderer | null;
     private _subModelIdx = 0;
 
     constructor (info: IMaterialInstanceInfo) {
