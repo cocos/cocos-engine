@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { Mat4, Vec3, Vec4 } from '../math';
 import enums from './enums';
 import { legacyCC } from '../global-exports';
