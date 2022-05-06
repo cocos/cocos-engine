@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { binarySearchEpsilon as binarySearch } from '../algorithm/binary-search';
 import { lerp, Quat } from '../math';
 import { errorID } from '../platform/debug';
@@ -241,9 +239,9 @@ export class EventInfo {
  * @zh
  * Samples an animation curve.
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
- * @param curve 动画曲线。
- * @param sampler 采样器。
- * @param ratio 采样比率。
+ * @param curve The curve.
+ * @param sampler The sampler.
+ * @param ratio Sample ratio([0, 1]).
  */
 export function sampleAnimationCurve (curve: AnimCurve, sampler: RatioSampler, ratio: number) {
     let index = sampler.sample(ratio);
