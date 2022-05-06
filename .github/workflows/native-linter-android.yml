@@ -96,4 +96,5 @@ jobs:
           useLog: false
           noFailOnIssue: false
           repo-token: ${{ secrets.PR_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN}}
           error-limit: 200
