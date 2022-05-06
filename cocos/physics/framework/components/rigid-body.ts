@@ -601,7 +601,7 @@ export class RigidBody extends Component {
      * Gets the group value.
      * @zh
      * 获取分组值。
-     * @returns @zh 整数，范围为 2 的 0 次方 到 2 的 31 次方 @en integer, the range is from 2^0 to 2^31
+     * @returns @zh 分组值，为 32 位整数，范围为 [2^0, 2^31] @en group value which is a 32-bits integer, the range is [2^0, 2^31]
      */
     public getGroup (): number {
         if (this._isInitialized) return this._body!.getGroup();
@@ -613,7 +613,7 @@ export class RigidBody extends Component {
      * Sets the group value.
      * @zh
      * 设置分组值。
-     * @param v @zh 整数，范围为 2 的 0 次方 到 2 的 31 次方 @en integer, the range is from 2^0 to 2^31
+     * @param v @zh 分组值，为 32 位整数，范围为 [2^0, 2^31] @en group value which is a 32-bits integer, the range is [2^0, 2^31]
      */
     public setGroup (v: number): void {
         if (this._isInitialized) this._body!.setGroup(v);
@@ -624,7 +624,7 @@ export class RigidBody extends Component {
      * Add a grouping value to fill in the group you want to join.
      * @zh
      * 添加分组值，可填要加入的 group。
-     * @param v @zh 整数，范围为 2 的 0 次方 到 2 的 31 次方 @en integer, the range is from 2^0 to 2^31
+     * @param v @zh 分组值，为 32 位整数，范围为 [2^0, 2^31] @en group value which is a 32-bits integer, the range is [2^0, 2^31]
      */
     public addGroup (v: number) {
         if (this._isInitialized) this._body!.addGroup(v);
@@ -635,7 +635,7 @@ export class RigidBody extends Component {
      * Subtract the grouping value to fill in the group to be removed.
      * @zh
      * 减去分组值，可填要移除的 group。
-     * @param v @zh 整数，范围为 2 的 0 次方 到 2 的 31 次方 @en integer, the range is from 2^0 to 2^31
+     * @param v @zh 分组值，为 32 位整数，范围为 [2^0, 2^31] @en group value which is a 32-bits integer, the range is [2^0, 2^31]
      */
     public removeGroup (v: number) {
         if (this._isInitialized) this._body!.removeGroup(v);
@@ -646,7 +646,7 @@ export class RigidBody extends Component {
      * Gets the mask value.
      * @zh
      * 获取掩码值。
-     * @returns {number} @zh 整数，范围为 2 的 0 次方 到 2 的 31 次方 @en integer, the range is from 2^0 to 2^31
+     * @returns {number} @zh 掩码值，为 32 位整数，范围为 [2^0, 2^31] @en mask value which is a 32-bits integer, the range is [2^0, 2^31]
      */
     public getMask (): number {
         if (this._isInitialized) return this._body!.getMask();
@@ -658,7 +658,7 @@ export class RigidBody extends Component {
      * Sets the mask value.
      * @zh
      * 设置掩码值。
-     * @param v @zh 整数，范围为 2 的 0 次方 到 2 的 31 次方 @en integer, the range is from 2^0 to 2^31
+     * @param v @zh 掩码值，为 32 位整数，范围为 [2^0, 2^31] @en mask value which is a 32-bits integer, the range is [2^0, 2^31]
      */
     public setMask (v: number) {
         if (this._isInitialized) this._body!.setMask(v);
@@ -669,7 +669,7 @@ export class RigidBody extends Component {
      * Add mask values to fill in groups that need to be checked.
      * @zh
      * 添加掩码值，可填入需要检查的 group。
-     * @param v @zh 整数，范围为 2 的 0 次方 到 2 的 31 次方 @en integer, the range is from 2^0 to 2^31
+     * @param v @zh 掩码值，为 32 位整数，范围为 [2^0, 2^31] @en mask value which is a 32-bits integer, the range is [2^0, 2^31]
      */
     public addMask (v: number) {
         if (this._isInitialized) this._body!.addMask(v);
@@ -680,7 +680,7 @@ export class RigidBody extends Component {
      * Subtract the mask value to fill in the group that does not need to be checked.
      * @zh
      * 减去掩码值，可填入不需要检查的 group。
-     * @param v @zh 整数，范围为 2 的 0 次方 到 2 的 31 次方 @en integer, the range is from 2^0 to 2^31
+     * @param v @zh 掩码值，为 32 位整数，范围为 [2^0, 2^31] @en mask value which is a 32-bits integer, the range is [2^0, 2^31]
      */
     public removeMask (v: number) {
         if (this._isInitialized) this._body!.removeMask(v);
