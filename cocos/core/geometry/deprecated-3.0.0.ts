@@ -152,9 +152,9 @@ function deprecatedClassMessage (oldClassName: string, newClassName) {
 
 /**
  * @en
- * Alias of [[Line]]
+ * Alias of [[geometry.Line]]
  * @zh
- * [[Line]] 别名类
+ * [[geometry.Line]] 别名类
  *
  * @deprecated Since v3.0, please use Line instead
  */
@@ -167,10 +167,10 @@ export class line extends Line {
 
 /**
  * @en
- * Alias of [[Plane]]
+ * Alias of [[geometry.Plane]]
  *
  * @zh
- * [[Plane]] 别名类
+ * [[geometry.Plane]] 别名类
  *
  * @deprecated Since v3.0, please use Plane instead
  */
@@ -183,9 +183,9 @@ export class plane extends Plane {
 
 /**
  * @en
- * Alias of [[Ray]]
+ * Alias of [[geometry.Ray]]
  * @zh
- * [[Ray]] 别名类
+ * [[geometry.Ray]] 别名类
  * @deprecated Since v3.0, please use Ray instead
  */
 export class ray extends Ray {
@@ -197,10 +197,10 @@ export class ray extends Ray {
 
 /**
  * @en
- * Alias of [[Triangle]]
+ * Alias of [[geometry.Triangle]]
  *
  * @zh
- * [[Triangle]] 别名类
+ * [[geometry.Triangle]] 别名类
  * @deprecated Since v3.0, please use Triangle instead
  */
 export class triangle extends Triangle {
@@ -212,10 +212,10 @@ export class triangle extends Triangle {
 
 /**
  * @en
- * Alias of [[Sphere]]
+ * Alias of [[geometry.Sphere]]
  *
  * @zh
- * [[Sphere]] 别名类
+ * [[geometry.Sphere]] 别名类
  * @deprecated Since v3.0, please use Sphere instead
  */
 export class sphere extends Sphere {
@@ -227,10 +227,10 @@ export class sphere extends Sphere {
 
 /**
  * @en
- * Alias of [[AABB]]
+ * Alias of [[geometry.AABB]]
  *
  * @zh
- * [[AABB]] 别名类
+ * [[geometry.AABB]] 别名类
  * @deprecated Since v3.0, please use AABB instead
  */
 export class aabb extends AABB {
@@ -242,10 +242,10 @@ export class aabb extends AABB {
 
 /**
  * @en
- * Alias of [[OBB]]
+ * Alias of [[geometry.OBB]]
  *
  * @zh
- * [[OBB]] 别名类
+ * [[geometry.OBB]] 别名类
  * @deprecated Since v3.0, please use OBB instead
  */
 export class obb extends OBB {
@@ -257,10 +257,10 @@ export class obb extends OBB {
 
 /**
  * @en
- * Alias of [[Capsule]]
+ * Alias of [[geometry.Capsule]]
  *
  * @zh
- * [[Capsule]] 别名类
+ * [[geometry.Capsule]] 别名类
  * @deprecated Since v3.0, please use Capsule instead
  */
 export class capsule extends Capsule {
@@ -272,10 +272,10 @@ export class capsule extends Capsule {
 
 /**
  * @en
- * Alias of [[Frustum]]
+ * Alias of [[geometry.Frustum]]
  *
  * @zh
- * [[Frustum]] 别名类
+ * [[geometry.Frustum]] 别名类
  * @deprecated Since v3.0, please use Frustum instead
  */
 export class frustum extends Frustum {
