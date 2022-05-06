@@ -43,7 +43,7 @@ export class ValueType {
      * 克隆当前值。克隆的结果值应与当前值相等，即满足 `this.equals(this, value.clone())`。
      * 本方法的基类版本简单地返回 `this`；
      * 派生类**必须**重写本方法，并且返回的对象不应当为 `this`，即满足 `this !== this.clone()`。
-     * @returns @en The cloned object @zh 克隆的对象。
+     * @returns @en The cloned object. @zh 克隆的对象。
      */
     public clone (): ValueType {
         errorID(100, `${js.getClassName(this)}.clone`);
