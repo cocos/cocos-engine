@@ -341,6 +341,7 @@ cocos_source_files(
     cocos/application/ApplicationManager.h
     cocos/application/ApplicationManager.cpp
     cocos/application/BaseGame.h
+    cocos/application/BaseGame.cpp
 )
 
 ############ engine
