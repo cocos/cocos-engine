@@ -580,7 +580,6 @@ void Object::setPrivateObject(PrivateObjectBase *data) {
     internal::setPrivate(__cx, obj, data, this, &_internalData, _finalizeCb); //TODO(cjh): how to use _internalData?
     NativePtrToObjectMap::emplace(data->getRaw(), this);
     _privateObject = data;
-    defineOwnProperty("__native_ptr__", se::Value(static_cast<uint64_t>(reinterpret_cast<uintptr_t>(data->getRaw()))), false, false, false);
 }
 
 PrivateObjectBase *Object::getPrivateObject() const {
@@ -598,7 +597,6 @@ void Object::clearPrivateData(bool clearMapping) {
         }
         JS::RootedObject obj(__cx, _getJSObject());
         internal::clearPrivate(__cx, obj);
-        defineOwnProperty("__native_ptr__", se::Value(static_cast<uint64_t>(reinterpret_cast<uintptr_t>(nullptr))), false, false, false);
         delete _privateObject;
         _privateObject = nullptr;
     }
