@@ -49,7 +49,6 @@ jobs:
               - added|modified: '**/*.m'
               - added|modified: '**/*.mm'
               - added|modified: '**/*.c'
-              - exclude: 'native/cocos/editor-support/**'
               - exclude: 'native/cocos/base/etc1.*'
               - exclude: 'native/cocos/base/etc2.*'
               - exclude: 'native/cocos/bindings/manual/jsb_global.cpp'
