@@ -149,7 +149,7 @@ export class Batcher2D implements IBatcher {
      * 添加屏幕组件管理。
      *
      * @param comp @en The render root of 2d.
-     *             @zh 屏幕组件。
+     *             @zh 2d渲染入口组件。
      */
     public addScreen (comp: RenderRoot2D) {
         this._screens.push(comp);
