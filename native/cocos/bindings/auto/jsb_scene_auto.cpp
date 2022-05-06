@@ -7582,6 +7582,21 @@ static bool js_scene_Model_updateLocalShadowBias(se::State& s) // NOLINT(readabi
 }
 SE_BIND_FUNC(js_scene_Model_updateLocalShadowBias)
 
+static bool js_scene_Model_updateOctree(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Model_updateOctree : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->updateOctree();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Model_updateOctree)
+
 static bool js_scene_Model_updateTransform(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
@@ -7783,6 +7798,7 @@ bool js_register_scene_Model(se::Object* obj) // NOLINT(readability-identifier-n
     cls->defineFunction("updateLightingmap", _SE(js_scene_Model_updateLightingmap));
     cls->defineFunction("_updateLocalDescriptors", _SE(js_scene_Model_updateLocalDescriptors));
     cls->defineFunction("updateLocalShadowBias", _SE(js_scene_Model_updateLocalShadowBias));
+    cls->defineFunction("updateOctree", _SE(js_scene_Model_updateOctree));
     cls->defineFunction("updateTransform", _SE(js_scene_Model_updateTransform));
     cls->defineFunction("updateUBOs", _SE(js_scene_Model_updateUBOs));
     cls->defineFunction("updateWorldBound", _SE(js_scene_Model_updateWorldBound));

@@ -325,6 +325,7 @@ SE_DECLARE_FUNC(js_scene_Model_updateInstancedAttributes);
 SE_DECLARE_FUNC(js_scene_Model_updateLightingmap);
 SE_DECLARE_FUNC(js_scene_Model_updateLocalDescriptors);
 SE_DECLARE_FUNC(js_scene_Model_updateLocalShadowBias);
+SE_DECLARE_FUNC(js_scene_Model_updateOctree);
 SE_DECLARE_FUNC(js_scene_Model_updateTransform);
 SE_DECLARE_FUNC(js_scene_Model_updateUBOs);
 SE_DECLARE_FUNC(js_scene_Model_updateWorldBound);
