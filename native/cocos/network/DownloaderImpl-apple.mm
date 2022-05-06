@@ -216,15 +216,12 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
                     if(downloadTask.originalRequest.URL.absoluteString) {
                         NSString *tempFilePathWithHash = [NSString stringWithFormat:@"%s%lu%s", cc::FileUtils::getInstance()->getWritablePath().c_str(), (unsigned long)[downloadTask.originalRequest.URL.absoluteString hash], _hints.tempFileNameSuffix.c_str()];
                         [resumeData writeToFile:tempFilePathWithHash atomically:YES];
-                        self.hasUnfinishedTask = NO;
                     } else if (downloadTask.currentRequest.URL.absoluteString) {
                             NSString *tempFilePathWithHash = [NSString stringWithFormat:@"%s%lu%s", cc::FileUtils::getInstance()->getWritablePath().c_str(), (unsigned long)[downloadTask.currentRequest.URL.absoluteString hash], _hints.tempFileNameSuffix.c_str()];
                         [resumeData writeToFile:tempFilePathWithHash atomically:YES];
-                        self.hasUnfinishedTask = NO;
                     }
                 }];
             }
-        
         }
     }];
     
