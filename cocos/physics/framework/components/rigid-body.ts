@@ -25,8 +25,6 @@
  THE SOFTWARE.
  */
 
-
-
 import {
     ccclass,
     help,
@@ -437,8 +435,8 @@ export class RigidBody extends Component {
      * Apply force to a world point. This could, for example, be a point on the Body surface.
      * @zh
      * 在世界空间中，相对于刚体的质心的某点上对刚体施加作用力。
-     * @param force - 作用力
-     * @param relativePoint - 作用点，相对于刚体的质心
+     * @param force @zh 作用力 @en the force applied
+     * @param relativePoint @zh 作用点，相对于刚体的质心 @en The point applied the force, relative to the center of mass of the rigid body
      */
     public applyForce (force: Vec3, relativePoint?: Vec3) {
         if (this._isInitialized) this._body!.applyForce(force, relativePoint);
@@ -449,8 +447,8 @@ export class RigidBody extends Component {
      * Apply force to a local point. This could, for example, be a point on the Body surface.
      * @zh
      * 在本地空间中，相对于刚体的质心的某点上对刚体施加作用力。
-     * @param force - 作用力
-     * @param localPoint - 作用点
+     * @param force @zh 作用力 @en the force applied
+     * @param localPoint @zh 作用点 @en The point applied the force
      */
     public applyLocalForce (force: Vec3, localPoint?: Vec3) {
         if (this._isInitialized) this._body!.applyLocalForce(force, localPoint);
@@ -461,8 +459,8 @@ export class RigidBody extends Component {
      * In world space, impulse is applied to the rigid body at some point relative to the center of mass of the rigid body.
      * @zh
      * 在世界空间中，相对于刚体的质心的某点上对刚体施加冲量。
-     * @param impulse - 冲量
-     * @param relativePoint - 作用点，相对于刚体的中心点
+     * @param impulse @zh 冲量 @en the impulse applied
+     * @param relativePoint @zh 作用点，相对于刚体的中心点 @en The point applied the impulse, relative to the center of mass of the rigid body
      */
     public applyImpulse (impulse: Vec3, relativePoint?: Vec3) {
         if (this._isInitialized) this._body!.applyImpulse(impulse, relativePoint);
@@ -473,8 +471,8 @@ export class RigidBody extends Component {
      * In local space, impulse is applied to the rigid body at some point relative to the center of mass of the rigid body.
      * @zh
      * 在本地空间中，相对于刚体的质心的某点上对刚体施加冲量。
-     * @param impulse - 冲量
-     * @param localPoint - 作用点
+     * @param impulse @zh 冲量 @en the impulse applied
+     * @param localPoint @zh 作用点 @en The point applied the impulse
      */
     public applyLocalImpulse (impulse: Vec3, localPoint?: Vec3) {
         if (this._isInitialized) this._body!.applyLocalImpulse(impulse, localPoint);
@@ -485,7 +483,7 @@ export class RigidBody extends Component {
      * In world space, torque is applied to the rigid body.
      * @zh
      * 在世界空间中，对刚体施加扭矩。
-     * @param torque - 扭矩
+     * @param torque @zh 扭矩 @en The torque applied
      */
     public applyTorque (torque: Vec3) {
         if (this._isInitialized) this._body!.applyTorque(torque);
@@ -494,7 +492,9 @@ export class RigidBody extends Component {
     /**
      * @zh
      * 在本地空间中，对刚体施加扭矩。
-     * @param torque - 扭矩
+     * @zh
+     * In local space, torque is applied to the rigid body.
+     * @param torque @zh 扭矩 @en The torque applied
      */
     public applyLocalTorque (torque: Vec3) {
         if (this._isInitialized) this._body!.applyLocalTorque(torque);
@@ -555,7 +555,7 @@ export class RigidBody extends Component {
      * Gets the linear velocity.
      * @zh
      * 获取线性速度。
-     * @param out 速度 Vec3
+     * @param out @zh 速度向量 @en The velocity vector
      */
     public getLinearVelocity (out: Vec3) {
         if (this._isInitialized) this._body!.getLinearVelocity(out);
@@ -566,7 +566,7 @@ export class RigidBody extends Component {
      * Sets the linear velocity.
      * @zh
      * 设置线性速度。
-     * @param value 速度 Vec3
+     * @param value @zh 速度向量 @en The velocity vector
      */
     public setLinearVelocity (value: Vec3): void {
         if (this._isInitialized) this._body!.setLinearVelocity(value);
@@ -577,7 +577,7 @@ export class RigidBody extends Component {
      * Gets the angular velocity.
      * @zh
      * 获取旋转速度。
-     * @param out 速度 Vec3
+     * @param out @zh 角速度向量 @en The angular velocity vector
      */
     public getAngularVelocity (out: Vec3) {
         if (this._isInitialized) this._body!.getAngularVelocity(out);
@@ -588,7 +588,7 @@ export class RigidBody extends Component {
      * Sets the angular velocity.
      * @zh
      * 设置旋转速度。
-     * @param value 速度 Vec3
+     * @param value @zh 角速度向量 @en The angular velocity vector
      */
     public setAngularVelocity (value: Vec3): void {
         if (this._isInitialized) this._body!.setAngularVelocity(value);
@@ -601,7 +601,7 @@ export class RigidBody extends Component {
      * Gets the group value.
      * @zh
      * 获取分组值。
-     * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     * @returns @zh 整数，范围为 2 的 0 次方 到 2 的 31 次方 @en integer, the range is from 2^0 to 2^31
      */
     public getGroup (): number {
         if (this._isInitialized) return this._body!.getGroup();
@@ -613,7 +613,7 @@ export class RigidBody extends Component {
      * Sets the group value.
      * @zh
      * 设置分组值。
-     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     * @param v @zh 整数，范围为 2 的 0 次方 到 2 的 31 次方 @en integer, the range is from 2^0 to 2^31
      */
     public setGroup (v: number): void {
         if (this._isInitialized) this._body!.setGroup(v);
@@ -624,7 +624,7 @@ export class RigidBody extends Component {
      * Add a grouping value to fill in the group you want to join.
      * @zh
      * 添加分组值，可填要加入的 group。
-     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     * @param v @zh 整数，范围为 2 的 0 次方 到 2 的 31 次方 @en integer, the range is from 2^0 to 2^31
      */
     public addGroup (v: number) {
         if (this._isInitialized) this._body!.addGroup(v);
@@ -635,7 +635,7 @@ export class RigidBody extends Component {
      * Subtract the grouping value to fill in the group to be removed.
      * @zh
      * 减去分组值，可填要移除的 group。
-     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     * @param v @zh 整数，范围为 2 的 0 次方 到 2 的 31 次方 @en integer, the range is from 2^0 to 2^31
      */
     public removeGroup (v: number) {
         if (this._isInitialized) this._body!.removeGroup(v);
@@ -646,7 +646,7 @@ export class RigidBody extends Component {
      * Gets the mask value.
      * @zh
      * 获取掩码值。
-     * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     * @returns {number} @zh 整数，范围为 2 的 0 次方 到 2 的 31 次方 @en integer, the range is from 2^0 to 2^31
      */
     public getMask (): number {
         if (this._isInitialized) return this._body!.getMask();
@@ -658,7 +658,7 @@ export class RigidBody extends Component {
      * Sets the mask value.
      * @zh
      * 设置掩码值。
-     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     * @param v @zh 整数，范围为 2 的 0 次方 到 2 的 31 次方 @en integer, the range is from 2^0 to 2^31
      */
     public setMask (v: number) {
         if (this._isInitialized) this._body!.setMask(v);
@@ -669,7 +669,7 @@ export class RigidBody extends Component {
      * Add mask values to fill in groups that need to be checked.
      * @zh
      * 添加掩码值，可填入需要检查的 group。
-     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     * @param v @zh 整数，范围为 2 的 0 次方 到 2 的 31 次方 @en integer, the range is from 2^0 to 2^31
      */
     public addMask (v: number) {
         if (this._isInitialized) this._body!.addMask(v);
@@ -680,7 +680,7 @@ export class RigidBody extends Component {
      * Subtract the mask value to fill in the group that does not need to be checked.
      * @zh
      * 减去掩码值，可填入不需要检查的 group。
-     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     * @param v @zh 整数，范围为 2 的 0 次方 到 2 的 31 次方 @en integer, the range is from 2^0 to 2^31
      */
     public removeMask (v: number) {
         if (this._isInitialized) this._body!.removeMask(v);
