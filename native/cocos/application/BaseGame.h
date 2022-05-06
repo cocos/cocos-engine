@@ -67,7 +67,12 @@ int BaseGame::init() {
                                                           cc::ISystemWindow::CC_WINDOW_INPUT_FOCUS
                                                      : _windowInfo.flags;
         std::call_once(_windowIsCreated, [&]() {
-            createWindow(_windowInfo.title.c_str(), _windowInfo.width, _windowInfo.height, _windowInfo.flags);
+            if (_windowInfo.x == -1 && _windowInfo.y == -1) {
+                createWindow(_windowInfo.title.c_str(), _windowInfo.width, _windowInfo.height, _windowInfo.flags);
+            } else {
+                createWindow(_windowInfo.title.c_str(), 
+                    _windowInfo.x, _windowInfo.y, _windowInfo.width, _windowInfo.height, _windowInfo.flags);
+            }
         });
 
 #endif
