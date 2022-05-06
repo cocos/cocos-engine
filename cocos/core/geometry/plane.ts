@@ -45,10 +45,10 @@ export class Plane {
      * create a new plane
      * @zh
      * 创建一个新的 plane。
-     * @param nx @en The x part of the normal component. @zh 法向分量的 x 部分。
-     * @param ny @en The y part of the normal component. @zh 法向分量的 y 部分。
-     * @param nz @en The z part of the normal component. @zh 法向分量的 z 部分。
-     * @param d  @en Distance from the origin. @zh 与原点的距离。
+     * @param nx @en The x component of normal vector. @zh 法向分量的 x 部分。
+     * @param ny @en The y component of normal vector. @zh 法向分量的 y 部分。
+     * @param nz @en The z component of normal vector. @zh 法向分量的 z 部分。
+     * @param d  @en The distance between normal vector and the origin. @zh 与原点的距离。
      * @return
      */
     public static create (nx: number, ny: number, nz: number, d: number) {
@@ -60,7 +60,7 @@ export class Plane {
      * clone a new plane
      * @zh
      * 克隆一个新的 plane。
-     * @param p @en Source of cloning. @zh 克隆的来源。
+     * @param p @en The Plane object to be cloned from. @zh 克隆的来源。
      * @return @en Cloned objects @zh 克隆出的对象。
      */
     public static clone (p: Plane) {
@@ -89,9 +89,9 @@ export class Plane {
      * @zh
      * 用三个点创建一个平面。
      * @param out @en The object to be operated on. @zh 接受操作的对象。
-     * @param a @en Points a. @zh 点 a。
-     * @param b @en Points b. @zh 点 b。
-     * @param c @en Points c. @zh 点 c。
+     * @param a @en Point a. @zh 点 a。
+     * @param b @en Point b. @zh 点 b。
+     * @param c @en Point c. @zh 点 c。
      * @return out @en The object to be operated on. @zh 接受操作的对象。
      */
     public static fromPoints (out: Plane, a: Vec3, b: Vec3, c: Vec3) {
@@ -110,10 +110,10 @@ export class Plane {
      * @zh
      * 将给定平面的属性设置为给定值。
      * @param out @en The object to be operated on. @zh 接受操作的对象。
-     * @param nx @en The x part of the normal component. @zh 法向分量的 x 部分。
-     * @param ny @en The y part of the normal component. @zh 法向分量的 y 部分。
-     * @param nz @en The z part of the normal component. @zh 法向分量的 z 部分。
-     * @param d  @en Distance from the origin. @zh 与原点的距离。
+     * @param nx @en The x component of normal vector. @zh 法向分量的 x 部分。
+     * @param ny @en The y component of normal vector. @zh 法向分量的 y 部分。
+     * @param nz @en The z component of normal vector. @zh 法向分量的 z 部分。
+     * @param d  @en The distance between normal vector and the origin. @zh 与原点的距离。
      * @return out @en The object to be operated on. @zh 接受操作的对象。
      */
     public static set (out: Plane, nx: number, ny: number, nz: number, d: number) {
@@ -203,10 +203,10 @@ export class Plane {
      * Construct a plane.
      * @zh
      * 构造一个平面。
-     * @param nx @en The x part of the normal component. @zh 法向分量的 x 部分。
-     * @param ny @en The y part of the normal component. @zh 法向分量的 y 部分。
-     * @param nz @en The z part of the normal component. @zh 法向分量的 z 部分。
-     * @param d @en Distance from the origin. @zh 与原点的距离。
+     * @param nx @en The x component of normal vector. @zh 法向分量的 x 部分。
+     * @param ny @en The y component of normal vector. @zh 法向分量的 y 部分。
+     * @param nz @en The z component of normal vector. @zh 法向分量的 z 部分。
+     * @param d @en The distance between normal vector and the origin. @zh 与原点的距离。
      */
     constructor (nx = 0, ny = 1, nz = 0, d = 0) {
         this._type = enums.SHAPE_PLANE;
