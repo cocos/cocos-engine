@@ -56,7 +56,7 @@ using ccHttpRequestCallback = std::function<void(HttpClient *, HttpResponse *)>;
  * @lua NA
  */
 
-#if (CC_PLATFORM == CC_PLATFORM_WINRT)
+#if _WIN32
     #ifdef DELETE
         #undef DELETE
     #endif

@@ -34,6 +34,7 @@ jobs:
         env:
           COCOS_ENGINE_DEV: 1
         run: |
+          NATIVE_ROOT=$GITHUB_WORKSPACE/native
           cd $GITHUB_WORKSPACE/templates/windows
           echo "message(STATUS \"hook before \${CC_TARGET_NAME}\")" >> Pre-Sample.cmake
           echo "message(STATUS \"hook after \${CC_TARGET_NAME}\")" >> Post-Sample.cmake
@@ -54,10 +55,10 @@ jobs:
           echo "set(USE_JOB_SYSTEM_TBB OFF)" >> build-win64/proj/cfg.cmake
           echo "set(USE_PHYSICS_PHYSX OFF)" >> build-win64/proj/cfg.cmake
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-win64/proj/cfg.cmake
+          echo "set(COCOS_X_PATH \"${NATIVE_ROOT}\")" >> build-win64/proj/cfg.cmake
           mkdir build-win64/assets
           cd build-win64
           RES_DIR=${GITHUB_WORKSPACE//\\//}/templates/windows/build-win64
-          COCOS_X_PATH=${GITHUB_WORKSPACE//\\//}/native
           cmake ../ -G"Visual Studio 16 2019" -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS_X_PATH -Ax64
           cmake --build . --config Release
           echo "Compile Win64 Release Done!"
@@ -175,11 +176,12 @@ jobs:
           echo "set(USE_JOB_SYSTEM_TBB OFF)" >> build-mac/proj/cfg.cmake
           echo "set(USE_PHYSICS_PHYSX OFF)" >> build-mac/proj/cfg.cmake
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-mac/proj/cfg.cmake
+          echo "set(COCOS_X_PATH \"${NATIVE_ROOT}\")" >> build-mac/proj/cfg.cmake
           mkdir build-mac/assets
 
           RES_DIR=$GITHUB_WORKSPACE/templates/mac/build-mac
           cd build-mac
-          cmake ../ -GXcode -DCMAKE_OSX_ARCHITECTURES=x86_64 -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$NATIVE_ROOT
+          cmake ../ -GXcode -DCMAKE_OSX_ARCHITECTURES=x86_64 -DRES_DIR=$RES_DIR
           set +e
           cmake --build . --config Release -- -quiet -jobs $NUM_OF_CORES -arch x86_64
           retcode=$?
@@ -243,14 +245,14 @@ jobs:
           echo "set(USE_JOB_SYSTEM_TBB OFF)" >> build-ios/proj/cfg.cmake
           echo "set(USE_PHYSICS_PHYSX OFF)" >> build-ios/proj/cfg.cmake
           echo "set(MACOSX_BUNDLE_GUI_IDENTIFIER com.cocos.demo.ios)" >> build-ios/proj/cfg.cmake
+          echo "set(COCOS_X_PATH \"${NATIVE_ROOT}\")" >> build-ios/proj/cfg.cmake
           mkdir build-ios/assets
           cd build-ios
           RES_DIR=$GITHUB_WORKSPACE/templates/ios/build-ios
           cmake ../ -GXcode -DCMAKE_SYSTEM_NAME=iOS \
               -DCMAKE_OSX_SYSROOT=iphoneos \
               -DCMAKE_OSX_ARCHITECTURES=arm64 \
-              -DRES_DIR=$RES_DIR \
-              -DCOCOS_X_PATH=$NATIVE_ROOT
+              -DRES_DIR=$RES_DIR
           set +e
           #cmake --build . --config Debug -- -quiet -jobs $NUM_OF_CORES -allowProvisioningUpdates CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
           cmake --build . --config Debug -- -quiet -jobs $NUM_OF_CORES CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
