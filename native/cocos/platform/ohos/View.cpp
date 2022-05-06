@@ -47,14 +47,14 @@ void View::engineHandleCmd(int cmd) {
                 cc::CustomEvent event;
                 event.name         = EVENT_RECREATE_WINDOW;
                 event.args->ptrVal = cocosApp.pendingWindow;
-                cc::EventDispatcher::dispatchNativeEvent(event);
+                cc::EventDispatcher::dispatchCustomEvent(event);
             }
             break;
         case ABILITY_CMD_TERM_WINDOW: {
             cc::CustomEvent event;
             event.name         = EVENT_DESTROY_WINDOW;
             event.args->ptrVal = cocosApp.pendingWindow;
-            cc::EventDispatcher::dispatchNativeEvent(event);
+            cc::EventDispatcher::dispatchCustomEvent(event);
         } break;
         case ABILITY_CMD_RESUME:
             if (Application::getInstance()) {

@@ -212,7 +212,7 @@ void PlayerTaskMac::cleanup()
     _taskPrivate = nil;
     CC_LOG_DEBUG("\nCMD: (exit code: %d) %s", _resultCode, _output.c_str());
     
-//    cocos2d::Director::getInstance()->getEventDispatcher()->dispatchNativeEvent(_name);
+//    cocos2d::Director::getInstance()->getEventDispatcher()->dispatchCustomEvent(_name);
 }
 
 std::u16string PlayerTaskMac::makeCommandLine() const

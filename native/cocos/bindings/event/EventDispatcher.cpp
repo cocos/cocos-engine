@@ -195,7 +195,7 @@ void EventDispatcher::dispatchMouseEvent(const MouseEvent &mouseEvent) {
     se::ValueArray args;
     args.emplace_back(se::Value(jsMouseEventObj));
     EventDispatcher::doDispatchJsEvent(jsFunctionName, args);
-    EventDispatcher::doDispatchNativeEvent(eventName, 0);
+    EventDispatcher::dispatchCustomEvent(eventName, 0);
 }
 
 void EventDispatcher::dispatchKeyboardEvent(const KeyboardEvent &keyboardEvent) {
@@ -266,10 +266,10 @@ void EventDispatcher::dispatchResizeEvent(int width, int height) {
     const char *jsFunctionName = "onResize";
     EventDispatcher::doDispatchJsEvent("onResize", args);
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-    //EventDispatcher::doDispatchNativeEvent(EVENT_RESIZE, 3, reinterpret_cast<void *>(CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandler()), width, height);
-    EventDispatcher::doDispatchNativeEvent(EVENT_RESIZE, 3, reinterpret_cast<void *>(CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandler()));
+    //EventDispatcher::dispatchCustomEvent(EVENT_RESIZE, 3, reinterpret_cast<void *>(CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandler()), width, height);
+    EventDispatcher::dispatchCustomEvent(EVENT_RESIZE, 3, reinterpret_cast<void *>(CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandler()));
 #else
-    EventDispatcher::doDispatchNativeEvent(EVENT_RESIZE, 2, width, height);
+    EventDispatcher::dispatchCustomEvent(EVENT_RESIZE, 2, width, height);
 #endif
 }
 
@@ -299,37 +299,37 @@ void EventDispatcher::dispatchOrientationChangeEvent(int orientation) {
 
 void EventDispatcher::dispatchEnterBackgroundEvent() {
     EventDispatcher::doDispatchJsEvent("onPause", se::EmptyValueArray);
-    EventDispatcher::doDispatchNativeEvent(EVENT_COME_TO_BACKGROUND, 0);
+    EventDispatcher::dispatchCustomEvent(EVENT_COME_TO_BACKGROUND, 0);
 }
 
 void EventDispatcher::dispatchEnterForegroundEvent() {
     EventDispatcher::doDispatchJsEvent("onResume", se::EmptyValueArray);
-    EventDispatcher::doDispatchNativeEvent(EVENT_COME_TO_FOREGROUND, 0);
+    EventDispatcher::dispatchCustomEvent(EVENT_COME_TO_FOREGROUND, 0);
 }
 
 void EventDispatcher::dispatchMemoryWarningEvent() {
     EventDispatcher::doDispatchJsEvent("onMemoryWarning", se::EmptyValueArray);
-    EventDispatcher::doDispatchNativeEvent(EVENT_MEMORY_WARNING, 0);
+    EventDispatcher::dispatchCustomEvent(EVENT_MEMORY_WARNING, 0);
 }
 
 void EventDispatcher::dispatchRestartVM() {
     EventDispatcher::doDispatchJsEvent("onRestartVM", se::EmptyValueArray);
-    EventDispatcher::doDispatchNativeEvent(EVENT_RESTART_VM, 0);
+    EventDispatcher::dispatchCustomEvent(EVENT_RESTART_VM, 0);
 }
 
 void EventDispatcher::dispatchCloseEvent() {
     EventDispatcher::doDispatchJsEvent("onClose", se::EmptyValueArray);
-    EventDispatcher::doDispatchNativeEvent(EVENT_CLOSE, 0);
+    EventDispatcher::dispatchCustomEvent(EVENT_CLOSE, 0);
 }
 
 void EventDispatcher::dispatchDestroyWindowEvent() {
     EventDispatcher::doDispatchJsEvent("", se::EmptyValueArray);
-    EventDispatcher::doDispatchNativeEvent(EVENT_DESTROY_WINDOW, 0);
+    EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 0);
 }
 
 void EventDispatcher::dispatchRecreateWindowEvent() {
     EventDispatcher::doDispatchJsEvent("", se::EmptyValueArray);
-    EventDispatcher::doDispatchNativeEvent(EVENT_RECREATE_WINDOW, 0);
+    EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 0);
 }
 
 void EventDispatcher::doDispatchJsEvent(const char *jsFunctionName, const std::vector<se::Value> &args) {
@@ -428,7 +428,7 @@ void EventDispatcher::removeAllEventListeners() {
     hashListenerId = 1;
 }
 
-void EventDispatcher::doDispatchNativeEvent(const char *eventName, int argNum, ...) {
+void EventDispatcher::dispatchCustomEvent(const char *eventName, int argNum, ...) {
     if (!eventName || !strcmp(eventName, "")) {
         return;
     }
@@ -442,9 +442,9 @@ void EventDispatcher::doDispatchNativeEvent(const char *eventName, int argNum, .
         event.args[i] = va_arg(vl, EventParameterType);
     }
     va_end(vl);
-    dispatchNativeEvent(event);
+    dispatchCustomEvent(event);
 }
-void EventDispatcher::dispatchNativeEvent(const CustomEvent& event) {
+void EventDispatcher::dispatchCustomEvent(const CustomEvent& event) {
     
     auto iter = listeners.find(event.name);
     if (iter != listeners.end()) {

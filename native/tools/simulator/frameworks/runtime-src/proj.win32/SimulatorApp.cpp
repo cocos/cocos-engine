@@ -714,7 +714,7 @@ LRESULT CALLBACK SimulatorApp::windowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
                         << "}";
                     event.setDataString(buf.str());
                     event.args[0].ptrVal = (void*)menuItem;
-                    cc::EventDispatcher::dispatchNativeEvent(event);
+                    cc::EventDispatcher::dispatchCustomEvent(event);
                 }
 
                 if (menuId == ID_HELP_ABOUT) {

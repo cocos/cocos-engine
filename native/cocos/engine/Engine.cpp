@@ -277,7 +277,7 @@ bool Engine::handleEvent(const OSEvent& ev) {
         cc::EventDispatcher::dispatchKeyboardEvent(OSEvent::castEvent<KeyboardEvent>(ev));
         isHandled = true;
     } else if (type == OSEventType::CUSTOM_OSEVENT) {
-        cc::EventDispatcher::dispatchNativeEvent(OSEvent::castEvent<CustomEvent>(ev));
+        cc::EventDispatcher::dispatchCustomEvent(OSEvent::castEvent<CustomEvent>(ev));
         isHandled = true;
     } else if (type == OSEventType::WINDOW_OSEVENT) {
         isHandled = dispatchWindowEvent(OSEvent::castEvent<WindowEvent>(ev));

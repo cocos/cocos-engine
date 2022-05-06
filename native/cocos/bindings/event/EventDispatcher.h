@@ -266,11 +266,11 @@ public:
     static void     removeCustomEventListener(const std::string &eventName, uint32_t listenerID);
     static void     removeAllCustomEventListeners(const std::string &eventName);
     static void     removeAllEventListeners();
-    static void     dispatchNativeEvent(const CustomEvent &event);
+    static void     dispatchCustomEvent(const CustomEvent &event);
 
 private:
     static void doDispatchJsEvent(const char *jsFunctionName, const std::vector<se::Value> &args);
-    static void doDispatchNativeEvent(const char *eventName, int argNum, ...);
+    static void dispatchCustomEvent(const char *eventName, int argNum, ...);
 
     struct Node {
         CustomEventListener listener;
