@@ -97,7 +97,7 @@ export class AABB {
       * copy the values from one AABB to another
       * @param out The output AABB, copy destination.
       * @param a Source object of copy operation.
-      * @returns The Reference of the first parameter `dst`, the new AABB.
+      * @returns The reference of the first parameter `dst`, the new AABB.
       * @zh
       * 将从一个 AABB 的值复制到另一个 AABB。
       * @param out 接受操作的 AABB。
@@ -143,7 +143,7 @@ export class AABB {
       * @param hw  Half the width of the AABB.
       * @param hh  Half the height of the AABB.
       * @param hl  Half the length of the AABB.
-      * @returns The Reference fo the first parameter `out`.
+      * @returns The reference fo the first parameter `out`.
       * @zh
       * 将 AABB 的属性设置为给定的值。
       * @param {AABB} out 接受操作的 AABB。
@@ -167,7 +167,7 @@ export class AABB {
       * @param out The output AABB to storge merge result.
       * @param a The first AABB to be merged.
       * @param b The second AABB to be merged.
-      * @returns The Reference of the first parameter `out`.
+      * @returns The reference of the first parameter `out`.
       * @zh
       * 合并两个 AABB 到 out。
       * @param out 接受操作的 AABB。
@@ -190,7 +190,7 @@ export class AABB {
       * Convert AABB to sphere.
       * @param out The output sphere.
       * @param a The input AABB.
-      * @returns The Reference of the first parameter `out`.
+      * @returns The reference of the first parameter `out`.
       * @zh
       * 包围盒转包围球
       * @param out 接受操作的 sphere。
@@ -209,7 +209,7 @@ export class AABB {
       * @param out The output AABB.
       * @param a The input AABB.
       * @param matrix The transformation matrix.
-      * @returns The Reference of the first parameter `out`.
+      * @returns The reference of the first parameter `out`.
       * @zh
       * 变换一个 AABB 到 out 中。
       * @param out 接受操作的 AABB。
