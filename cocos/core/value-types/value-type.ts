@@ -89,7 +89,7 @@ export class ValueType {
      * @returns The string representation of the current object
      */
     public toString () {
-        return `${{}}`;
+        return `${''}`;
     }
 }
 js.setClassName('cc.ValueType', ValueType);
