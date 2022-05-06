@@ -103,13 +103,13 @@ DownloaderApple::~DownloaderApple() {
 IDownloadTask *DownloaderApple::createCoTask(std::shared_ptr<const DownloadTask> &task) {
     DownloadTaskApple *coTask = ccnew DownloadTaskApple();
     DeclareDownloaderImplVar;
-    CC_CURRENT_ENGINE()->getScheduler()->schedule([=](float dt) mutable {
-        if (task->storagePath.length()) {
-            coTask->downloadTask = [impl createFileTask:task];
-        } else {
-           coTask->dataTask = [impl createDataTask:task];
-        }
-    },this , 0, 0, 0.1F, false, "DownloaderApple");
+    if (task->storagePath.length()) {
+        CC_CURRENT_ENGINE()->getScheduler()->schedule([=](float dt) mutable {
+        coTask->downloadTask = [impl createFileTask:task];
+        },this , 0, 0, 0.1F, false, "DownloaderApple");
+    } else {
+        coTask->dataTask = [impl createDataTask:task];
+    }
     return coTask;
 }
 void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
