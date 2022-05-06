@@ -367,10 +367,10 @@ export class AssetManager {
     /**
      * @en
      * Remove this bundle. NOTE: The asset within this bundle will not be released automatically,
-     * you can call [[Bundle.releaseAll]] manually before remove it if you need
+     * you can call [[AssetManager.Bundle.releaseAll]] manually before remove it if you need
      *
      * @zh
-     * 移除此包, 注意：这个包内的资源不会自动释放, 如果需要的话你可以在摧毁之前手动调用 [[Bundle.releaseAll]] 进行释放
+     * 移除此包, 注意：这个包内的资源不会自动释放, 如果需要的话你可以在摧毁之前手动调用 [[AssetManager.Bundle.releaseAll]] 进行释放
      *
      * @param bundle - The bundle to be removed
      *

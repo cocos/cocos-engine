@@ -116,7 +116,7 @@ export class Renderable2D extends RenderableComponent {
     /**
      * @en The blend factor enums
      * @zh 混合模式枚举类型
-     * @see [[BlendFactor]]
+     * @see [[gfx.BlendFactor]]
      */
     public static BlendState = BlendFactor;
     /**
