@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { errorID } from '../platform/debug';
 import * as js from '../utils/js';
 import { legacyCC } from '../global-exports';
@@ -37,7 +35,8 @@ import { legacyCC } from '../global-exports';
 export class ValueType {
     /**
      * @en
-     * Clone the current object. The clone result of the object should be equal to the current object, i.e. satisfy `this.equals(this, value.clone())`.
+     * Clone the current object. The clone result of the object should be equal to the current object,
+     * i.e. satisfy `this.equals(this, value.clone())`.
      * The base version of this method do nothing and returns `this'.
      * The derived class **must** rewrite this method and the returned object should not be `this`, i.e. satisfy `this !== this.clone()`.
      * @zh
@@ -59,8 +58,8 @@ export class ValueType {
      * @zh
      * 判断当前值是否与指定值相等。此判断应当具有交换性，即满足 `this.equals(other) === other.equals(this)`。
      * 本方法的基类版本简单地返回 `false`。
-     * @param other 相比较的值。
-     * @returns 相等则返回 `true`，否则返回 `false`。
+     * @param other The other object
+     * @returns `true` if equal, otherwise returns `false`
      */
     public equals (other: this) {
         // errorID(100, js.getClassName(this) + '.equals');
