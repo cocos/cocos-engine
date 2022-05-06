@@ -148,7 +148,7 @@ export class Batcher2D implements IBatcher {
      * @zh
      * 添加屏幕组件管理。
      *
-     * @param comp @en The Screen Component.
+     * @param comp @en The render root of 2d.
      *             @zh 屏幕组件。
      */
     public addScreen (comp: RenderRoot2D) {
@@ -583,7 +583,7 @@ export class Batcher2D implements IBatcher {
      *
      * @param material @en The material of the current batch.
      *                 @zh 当前批次的材质。
-     * @param sprite @en The current batch of sprite frames.
+     * @param sprite @en Sprite frame of current batch.
      *               @zh 当前批次的精灵帧。
      */
     public forceMergeBatches (material: Material, frame: TextureBase | SpriteFrame | null, renderComp: Renderable2D) {

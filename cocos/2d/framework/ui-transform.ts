@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, serializable, disallowMultiple } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Component } from '../../core/components';
@@ -529,9 +527,9 @@ export class UITransform extends Component {
      * 将一个 UI 节点世界坐标系下点转换到另一个 UI 节点 (局部) 空间坐标系，这个坐标系以锚点为原点。
      * 非 UI 节点转换到 UI 节点(局部) 空间坐标系，请走 Camera 的 `convertToUINode`。
      *
-     * @param worldPoint @en World coordinate point.
+     * @param worldPoint @en Point in world space.
      *                   @zh 世界坐标点。
-     * @param out @en Coordinates after conversion.
+     * @param out @en Point in local space.
      *            @zh 转换后坐标。
      * @returns @en Return the relative position to the target node.
      *          @zh 返回与目标节点的相对位置。
@@ -557,9 +555,9 @@ export class UITransform extends Component {
      * @zh
      * 将距当前节点坐标系下的一个点转换到世界坐标系。
      *
-     * @param nodePoint @en Node coordinates.
+     * @param nodePoint @en Point in local space.
      *                  @zh 节点坐标。
-     * @param out @en Coordinates after conversion.
+     * @param out @en Point in world space.
      *            @zh 转换后坐标。
      * @returns @en Returns the coordinates in the UI world coordinate system.
      *          @zh 返回 UI 世界坐标系。
