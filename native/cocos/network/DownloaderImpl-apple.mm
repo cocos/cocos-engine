@@ -58,6 +58,7 @@
 }
 @property (nonatomic, strong) NSURLSession *downloadSession;
 @property (nonatomic, strong) NSMutableDictionary *taskDict; // ocTask: DownloadTaskWrapper
+@property (nonatomic) Boolean hasUnfinishedTask;
 
 - (id)init:(const cc::network::DownloaderApple *)o hints:(const cc::network::DownloaderHints &)hints;
 - (const cc::network::DownloaderHints &)getHints;
@@ -104,9 +105,13 @@ IDownloadTask *DownloaderApple::createCoTask(std::shared_ptr<const DownloadTask>
     DownloadTaskApple *coTask = ccnew DownloadTaskApple();
     DeclareDownloaderImplVar;
     if (task->storagePath.length()) {
-        CC_CURRENT_ENGINE()->getScheduler()->schedule([=](float dt) mutable {
-        coTask->downloadTask = [impl createFileTask:task];
-        },this , 0, 0, 0.1F, false, "DownloaderApple");
+        if (impl.hasUnfinishedTask == YES) {
+                CC_CURRENT_ENGINE()->getScheduler()->schedule([=](float dt) mutable {
+                    coTask->downloadTask = [impl createFileTask:task];
+                },this , 0, 0, 0.1F, false, "DownloaderApple");
+            } else {
+            coTask->downloadTask = [impl createFileTask:task];
+        }
     } else {
         coTask->dataTask = [impl createDataTask:task];
     }
@@ -189,7 +194,7 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
     // save outer task ref
     _outer = o;
     _hints = hints;
-
+    
     // create task dictionary
     self.taskDict = [NSMutableDictionary dictionary];
 
@@ -201,7 +206,7 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
     // use backgroundSession to support background download
     self.downloadSession = [self backgroundURLSession];
 
-    
+    self.hasUnfinishedTask = YES;
     // cancel and save last running tasks
     [self.downloadSession getTasksWithCompletionHandler:^(NSArray *dataTasks, NSArray *uploadTasks, NSArray *downloadTasks) {
         for (NSURLSessionDownloadTask *downloadTask in downloadTasks) {
@@ -211,9 +216,11 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
                     if(downloadTask.originalRequest.URL.absoluteString) {
                         NSString *tempFilePathWithHash = [NSString stringWithFormat:@"%s%lu%s", cc::FileUtils::getInstance()->getWritablePath().c_str(), (unsigned long)[downloadTask.originalRequest.URL.absoluteString hash], _hints.tempFileNameSuffix.c_str()];
                         [resumeData writeToFile:tempFilePathWithHash atomically:YES];
+                        self.hasUnfinishedTask = NO;
                     } else if (downloadTask.currentRequest.URL.absoluteString) {
                             NSString *tempFilePathWithHash = [NSString stringWithFormat:@"%s%lu%s", cc::FileUtils::getInstance()->getWritablePath().c_str(), (unsigned long)[downloadTask.currentRequest.URL.absoluteString hash], _hints.tempFileNameSuffix.c_str()];
                         [resumeData writeToFile:tempFilePathWithHash atomically:YES];
+                        self.hasUnfinishedTask = NO;
                     }
                 }];
             }
@@ -496,6 +503,7 @@ static int tag = 0;
                         NSLog(@"url:%@",url);
                         NSString *tempFilePath = [NSString stringWithFormat:@"%s%lu%s", cc::FileUtils::getInstance()->getWritablePath().c_str(), (unsigned long)[url hash], _hints.tempFileNameSuffix.c_str()];
                         [resumeData writeToFile:tempFilePath atomically:YES];
+                        self.hasUnfinishedTask = NO;
                     }
             }
     }
@@ -645,7 +653,8 @@ static int tag = 0;
     }
     ccstd::vector<unsigned char> buf; // just a placeholder
     if (wrapper) { 
-        _outer->onTaskFinish(*[wrapper get], errorCode, errorCodeInternal, errorString, buf); 
+        _outer->onTaskFinish(*[wrapper get], errorCode, errorCodeInternal, errorString, buf);
+        self.hasUnfinishedTask = NO;
     }
 }
 
