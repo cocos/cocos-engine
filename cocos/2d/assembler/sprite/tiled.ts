@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { IUV } from '../../assets';
 import { Mat4, Vec3, Color } from '../../../core/math';
 import { IRenderData, RenderData } from '../../renderer/render-data';
@@ -38,7 +36,16 @@ const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
     vec3_temps.push(new Vec3());
 }
+
 const matrix = new Mat4();
+
+let origin:IUV;
+let leftInner:IUV;
+let rightInner:IUV;
+let rightOuter:IUV;
+let bottomInner:IUV;
+let topInner:IUV;
+let topOuter:IUV;
 
 export const tiled: IAssembler = {
     createData (sprite: Renderable2D) {
@@ -193,6 +200,18 @@ export const tiled: IAssembler = {
         let coefU = 0; let coefV = 0;
         const tempXVerts :any = [];
         const tempYVerts :any = [];
+
+        // origin at left bottom
+        origin = uvSliced[0];
+        // on bottom edge
+        leftInner = uvSliced[1];
+        rightInner = uvSliced[2];
+        rightOuter = uvSliced[3];
+        // on left edge
+        bottomInner = uvSliced[4];
+        topInner = uvSliced[8];
+        topOuter = uvSliced[12];
+
         for (let yIndex = 0, yLength = row; yIndex < yLength; ++yIndex) {
             if (sizableHeight > centerHeight) {
                 if (sizableHeight >= yIndex * centerHeight) {
@@ -219,59 +238,59 @@ export const tiled: IAssembler = {
                 // UV
                 if (rotated) {
                     if (yIndex === 0) {
-                        tempXVerts[0] = uvSliced[0].u;
-                        tempXVerts[1] = uvSliced[0].u;
-                        tempXVerts[2] = uvSliced[4].u + (uvSliced[8].u - uvSliced[4].u) * coefV;
+                        tempXVerts[0] = origin.u;
+                        tempXVerts[1] = origin.u;
+                        tempXVerts[2] = bottomInner.u + (topInner.u - bottomInner.u) * coefV;
                     } else if (yIndex < (row - 1)) {
-                        tempXVerts[0] = uvSliced[4].u;
-                        tempXVerts[1] = uvSliced[4].u;
-                        tempXVerts[2] = uvSliced[4].u + (uvSliced[8].u - uvSliced[4].u) * coefV;
+                        tempXVerts[0] = bottomInner.u;
+                        tempXVerts[1] = bottomInner.u;
+                        tempXVerts[2] = bottomInner.u + (topInner.u - bottomInner.u) * coefV;
                     } else if (yIndex === (row - 1)) {
-                        tempXVerts[0] = uvSliced[8].u;
-                        tempXVerts[1] = uvSliced[8].u;
-                        tempXVerts[2] = uvSliced[12].u;
+                        tempXVerts[0] = topInner.u;
+                        tempXVerts[1] = topInner.u;
+                        tempXVerts[2] = topOuter.u;
                     }
                     if (xIndex === 0) {
-                        tempYVerts[0] = uvSliced[0].v;
-                        tempYVerts[1] = uvSliced[1].v + (uvSliced[2].v - uvSliced[1].v) * coefU;
-                        tempYVerts[2] = uvSliced[0].v;
+                        tempYVerts[0] = origin.v;
+                        tempYVerts[1] = leftInner.v + (rightInner.v - leftInner.v) * coefU;
+                        tempYVerts[2] = origin.v;
                     } else if (xIndex < (col - 1)) {
-                        tempYVerts[0] = uvSliced[1].v;
-                        tempYVerts[1] = uvSliced[1].v + (uvSliced[2].v - uvSliced[1].v) * coefU;
-                        tempYVerts[2] = uvSliced[1].v;
+                        tempYVerts[0] = leftInner.v;
+                        tempYVerts[1] = leftInner.v + (rightInner.v - leftInner.v) * coefU;
+                        tempYVerts[2] = leftInner.v;
                     } else if (xIndex === (col - 1)) {
-                        tempYVerts[0] = uvSliced[2].v;
-                        tempYVerts[1] = uvSliced[3].v;
-                        tempYVerts[2] = uvSliced[2].v;
+                        tempYVerts[0] = rightInner.v;
+                        tempYVerts[1] = rightOuter.v;
+                        tempYVerts[2] = rightInner.v;
                     }
                     tempXVerts[3] = tempXVerts[2];
                     tempYVerts[3] = tempYVerts[1];
                 } else {
                     if (xIndex === 0) {
-                        tempXVerts[0] = uvSliced[0].u;
-                        tempXVerts[1] = uvSliced[1].u + (uvSliced[2].u - uvSliced[1].u) * coefU;
+                        tempXVerts[0] = origin.u;
+                        tempXVerts[1] = leftInner.u + (rightInner.u - leftInner.u) * coefU;
                         tempXVerts[2] = uv[0];
                     } else if (xIndex < (col - 1)) {
-                        tempXVerts[0] = uvSliced[1].u;
-                        tempXVerts[1] = uvSliced[1].u + (uvSliced[2].u - uvSliced[1].u) * coefU;
-                        tempXVerts[2] = uvSliced[1].u;
+                        tempXVerts[0] = leftInner.u;
+                        tempXVerts[1] = leftInner.u + (rightInner.u - leftInner.u) * coefU;
+                        tempXVerts[2] = leftInner.u;
                     } else if (xIndex === (col - 1)) {
-                        tempXVerts[0] = uvSliced[2].u;
-                        tempXVerts[1] = uvSliced[3].u;
-                        tempXVerts[2] = uvSliced[2].u;
+                        tempXVerts[0] = rightInner.u;
+                        tempXVerts[1] = rightOuter.u;
+                        tempXVerts[2] = rightInner.u;
                     }
                     if (yIndex === 0) {
-                        tempYVerts[0] = uvSliced[0].v;
-                        tempYVerts[1] = uvSliced[0].v;
-                        tempYVerts[2] = uvSliced[4].v + (uvSliced[8].v - uvSliced[4].v) * coefV;
+                        tempYVerts[0] = origin.v;
+                        tempYVerts[1] = origin.v;
+                        tempYVerts[2] = bottomInner.v + (topInner.v - bottomInner.v) * coefV;
                     } else if (yIndex < (row - 1)) {
-                        tempYVerts[0] = uvSliced[4].v;
-                        tempYVerts[1] = uvSliced[4].v;
-                        tempYVerts[2] = uvSliced[4].v + (uvSliced[8].v - uvSliced[4].v) * coefV;
+                        tempYVerts[0] = bottomInner.v;
+                        tempYVerts[1] = bottomInner.v;
+                        tempYVerts[2] = bottomInner.v + (topInner.v - bottomInner.v) * coefV;
                     } else if (yIndex === (row - 1)) {
-                        tempYVerts[0] = uvSliced[8].v;
-                        tempYVerts[1] = uvSliced[8].v;
-                        tempYVerts[2] = uvSliced[12].v;
+                        tempYVerts[0] = topInner.v;
+                        tempYVerts[1] = topInner.v;
+                        tempYVerts[2] = topOuter.v;
                     }
                     tempXVerts[3] = tempXVerts[1];
                     tempYVerts[3] = tempYVerts[2];
