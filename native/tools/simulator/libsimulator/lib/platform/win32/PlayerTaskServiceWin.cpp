@@ -238,7 +238,7 @@ void PlayerTaskWin::cleanup()
 
     CC_LOG_DEBUG("CMD: %s", _output.c_str());
 
-    // cc::Director::getInstance()->getEventDispatcher()->dispatchCustomEvent(_name);
+    // cc::Director::getInstance()->getEventDispatcher()->dispatchNativeEvent(_name);
 }
 
 std::u16string PlayerTaskWin::makeCommandLine() const

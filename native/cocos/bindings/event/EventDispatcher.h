@@ -212,7 +212,7 @@ public:
     bool   shiftKeyActive = false;
     // TODO(mingo): support caps lock?
 };
-union ccUnionArg {
+union EventParameterType {
     void *  ptrVal;
     int32_t longVal;
     int     intVal;
@@ -224,7 +224,7 @@ class CustomEvent : public OSEvent {
 public:
     CONSTRUCT_EVENT(CustomEvent, OSEventType::CUSTOM_OSEVENT)
     std::string name;
-    ccUnionArg args[10];
+    EventParameterType args[10];
 
     virtual ~CustomEvent() = default;
 };
@@ -237,7 +237,7 @@ public:
         DEVICE_ORIENTATION,
         UNKNOWN
     };
-    ccUnionArg args[3];
+    EventParameterType args[3];
     Type type = Type::DEVICE_MEMORY;
 };
 
@@ -266,11 +266,11 @@ public:
     static void     removeCustomEventListener(const std::string &eventName, uint32_t listenerID);
     static void     removeAllCustomEventListeners(const std::string &eventName);
     static void     removeAllEventListeners();
-    static void     dispatchCustomEvent(const CustomEvent &event);
+    static void     dispatchNativeEvent(const CustomEvent &event);
 
 private:
     static void doDispatchJsEvent(const char *jsFunctionName, const std::vector<se::Value> &args);
-    static void doDispatchCustomEvent(const char *eventName, int argNum, ...);
+    static void doDispatchNativeEvent(const char *eventName, int argNum, ...);
 
     struct Node {
         CustomEventListener listener;

@@ -52,6 +52,6 @@ protected:
     std::string  _xxteaKey;
     DebuggerInfo _debuggerInfo;
     WindowInfo   _windowInfo;
-    std::once_flag _windowIsCreated;
+    std::once_flag _windowCreateFlag;
 };
 } // namespace cc
