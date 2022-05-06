@@ -264,13 +264,8 @@ void EventDispatcher::dispatchResizeEvent(int width, int height) {
     se::ValueArray args;
     args.emplace_back(se::Value(jsResizeEventObj));
     const char *jsFunctionName = "onResize";
-    EventDispatcher::doDispatchJsEvent("onResize", args);
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
-    //EventDispatcher::dispatchCustomEvent(EVENT_RESIZE, 3, reinterpret_cast<void *>(CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandler()), width, height);
-    EventDispatcher::dispatchCustomEvent(EVENT_RESIZE, 3, reinterpret_cast<void *>(CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandler()));
-#else
-    EventDispatcher::dispatchCustomEvent(EVENT_RESIZE, 2, width, height);
-#endif
+    EventDispatcher::doDispatchJsEvent(jsFunctionName, args);
+    EventDispatcher::dispatchCustomEvent(EVENT_RESIZE, 0);
 }
 
 void EventDispatcher::dispatchOrientationChangeEvent(int orientation) {
@@ -324,19 +319,26 @@ void EventDispatcher::dispatchCloseEvent() {
 
 void EventDispatcher::dispatchDestroyWindowEvent() {
     EventDispatcher::doDispatchJsEvent("", se::EmptyValueArray);
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+    EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 1,
+        reinterpret_cast<void *>(CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandler()));
+#else
     EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 0);
+#endif
+    
 }
 
 void EventDispatcher::dispatchRecreateWindowEvent() {
     EventDispatcher::doDispatchJsEvent("", se::EmptyValueArray);
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+    EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 1,
+        reinterpret_cast<void *>(CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandler()));
+#else
     EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 0);
+#endif
 }
 
 void EventDispatcher::doDispatchJsEvent(const char *jsFunctionName, const std::vector<se::Value> &args) {
-    if (!se::ScriptEngine::getInstance()->isValid()) {
-        return;
-    }
-    // dispatch to Javascript
     if (!se::ScriptEngine::getInstance()->isValid()) {
         return;
     }
@@ -433,8 +435,7 @@ void EventDispatcher::dispatchCustomEvent(const char *eventName, int argNum, ...
         return;
     }
     CustomEvent event;
-    event.name = eventName;
-    
+    event.name = eventName;    
     va_list vl;
     va_start(vl, argNum);
     // Step through the list.
