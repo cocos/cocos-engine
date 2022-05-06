@@ -248,8 +248,10 @@ var MotionStreak = cc.Class({
     reset () {
         this._points.length = 0;
         this._assembler && this._assembler._renderData.clear();
-        this._lastWPos.x = 0;
-        this._lastWPos.y = 0;
+        this.node._updateWorldMatrix();
+        let matrix = this.node._worldMatrix.m;
+        this._lastWPos.x = matrix[12];
+        this._lastWPos.y = matrix[13];
         if (CC_EDITOR) {
             cc.engine.repaintInEditMode();
         }

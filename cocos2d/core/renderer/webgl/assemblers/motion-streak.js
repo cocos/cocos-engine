@@ -92,6 +92,7 @@ export default class MotionStreakAssembler extends Assembler2D {
         let stroke = comp._stroke / 2;
 
         let node = comp.node;
+        node._updateWorldMatrix();
         let matrix = node._worldMatrix.m;
         let tx = matrix[12], ty = matrix[13];
 
