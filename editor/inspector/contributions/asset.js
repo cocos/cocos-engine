@@ -3,8 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const History = require('./asset-history/index');
 
-const showImage = ['cc.ImageAsset', 'cc.SpriteFrame', 'cc.Texture2D'];
-
+const showImage = ['image', 'texture', 'sprite-frame', 'gltf-mesh'];
 exports.listeners = {};
 
 exports.style = fs.readFileSync(path.join(__dirname, './asset.css'), 'utf8');
@@ -240,7 +239,7 @@ const Elements = {
                 panel.$.copy.style.display = 'none';
             }
 
-            const isImage = showImage.includes(panel.asset.type);
+            const isImage = showImage.includes(panel.asset.importer);
 
             if (isImage) {
                 panel.$.image.value = panel.asset.uuid;
