@@ -40,6 +40,7 @@ public:
     void      copyTextToClipboard(const std::string& text) override;
     uintptr_t getWindowHandler() const override;
     Size      getViewSize() const override;
+    void      setViewSize(uint32_t w, uint32_t h) override {}
 };
 
 } // namespace cc
