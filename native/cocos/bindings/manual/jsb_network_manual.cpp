@@ -30,7 +30,7 @@
 #include "bindings/manual/jsb_global.h"
 #include "network/Downloader.h"
 
-static bool js_cocos2dx_network_Downloader_createDownloadFileTask(se::State &s) { // NOLINT(readability-identifier-naming)
+static bool js_network_Downloader_createDownloadFileTask(se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<cc::network::Downloader *>(s.nativeThisObject());
     SE_PRECONDITION2(cobj, false,
                      "js_network_Downloader_createDownloadFileTask : Invalid Native Object");
@@ -77,7 +77,7 @@ static bool js_cocos2dx_network_Downloader_createDownloadFileTask(se::State &s) 
     return false;
 }
 
-SE_BIND_FUNC(js_cocos2dx_network_Downloader_createDownloadFileTask)
+SE_BIND_FUNC(js_network_Downloader_createDownloadFileTask)
 
 static bool js_network_Downloader_setOnFileTaskSuccess(se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<cc::network::Downloader *>(s.nativeThisObject());
@@ -176,7 +176,7 @@ SE_BIND_FUNC(js_network_Downloader_setOnTaskError) // NOLINT(readability-identif
 
 bool register_all_network_manual(se::Object * /*obj*/) {
     __jsb_cc_network_Downloader_proto->defineFunction("createDownloadFileTask",
-                                                      _SE(js_cocos2dx_network_Downloader_createDownloadFileTask));
+                                                      _SE(js_network_Downloader_createDownloadFileTask));
     __jsb_cc_network_Downloader_proto->defineFunction("setOnTaskError",
                                                       _SE(js_network_Downloader_setOnTaskError));
     __jsb_cc_network_Downloader_proto->defineFunction("setOnFileTaskSuccess",
