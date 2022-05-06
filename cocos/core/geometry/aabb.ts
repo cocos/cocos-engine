@@ -244,8 +244,8 @@ export class AABB {
       * Get the bounding points of this shape
       * @zh
       * 获取 AABB 的最小点和最大点。
-      * @param minPos @zh 最小点。 @en minPos Minimum position of the axis-aligned 3d bounding box.
-      * @param maxPos @zh 最大点。 @en maxPos Maximum position of the axis-aligned 3d bounding box.
+      * @param minPos @zh 最小点。 @en Minimum position of the axis-aligned 3d bounding box.
+      * @param maxPos @zh 最大点。 @en Maximum position of the axis-aligned 3d bounding box.
       */
     public getBoundary (minPos: IVec3Like, maxPos: IVec3Like) {
         Vec3.subtract(minPos, this.center, this.halfExtents);
@@ -257,11 +257,11 @@ export class AABB {
       * Transform this shape
       * @zh
       * 将 out 根据这个 AABB 的数据进行变换。
-      * @param m @zh 变换的矩阵。 @en m The transform matrix.
-      * @param pos @zh 变换的位置部分。 @en pos 3d-vector translation.
-      * @param rot @zh 变换的旋转部分。 @en rot Quaternion rotation .
-      * @param scale @zh 变换的缩放部分。 @en scale 3d-vector scale.
-      * @param out @zh 变换的目标。 @en out The output AABB.
+      * @param m @zh 变换的矩阵。 @en The transform matrix.
+      * @param pos @zh 变换的位置部分。 @en 3d-vector translation.
+      * @param rot @zh 变换的旋转部分。 @en Quaternion rotation .
+      * @param scale @zh 变换的缩放部分。 @en 3d-vector scale.
+      * @param out @zh 变换的目标。 @en The output AABB.
       */
     public transform (m: Mat4, pos: Vec3 | null, rot: Quat | null, scale: Vec3 | null, out: AABB) {
         Vec3.transformMat4(out.center, this.center, m);
@@ -271,10 +271,9 @@ export class AABB {
     /**
       * @en
       * Clones the AABB
-      * @returns A copy of the object.
       * @zh
       * 获得克隆。
-      * @returns {AABB}
+      * @returns @zh {AABB} @en A copy of the object.
       */
     public clone (): AABB {
         return AABB.clone(this);
@@ -295,7 +294,7 @@ export class AABB {
     /**
       * @en AABB and point merge.
       * @zh AABB包围盒合并一个顶点。
-      * @param point @zh - 某一个位置的顶点。 @en input A point in 3d space.
+      * @param point @zh - 某一个位置的顶点。 @en A point in 3d space.
       */
     public mergePoint (point: IVec3) {
         // _v3_tmp is min pos
@@ -317,7 +316,7 @@ export class AABB {
     /**
       * @en AABB and points merge.
       * @zh AABB包围盒合并一系列顶点。
-      * @param points @zh - 某一个位置的顶点。 @en points A list of points in 3d space.
+      * @param points @zh - 某一个位置的顶点。 @en A list of points in 3d space.
       */
     public mergePoints (points: IVec3[]) {
         if (points.length < 1) { return; }
@@ -329,7 +328,7 @@ export class AABB {
     /**
       * @en AABB and frustum merge.
       * @zh Frustum 合并到 AABB。
-      * @param frustum @zh 输入的 Frustum。 @en frustum The frustum object.
+      * @param frustum @zh 输入的 Frustum。 @en The frustum object.
       */
     public mergeFrustum (frustum: Frustum | Readonly<Frustum>) {
         return this.mergePoints(frustum.vertices);

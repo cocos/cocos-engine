@@ -81,12 +81,10 @@ export class OBB {
     /**
      * @en
      * clone a new obb
-     * @param a The input OBB.
-     * @returns The new OBB.
      * @zh
      * 克隆一个 obb。
-     * @param a 克隆的目标。
-     * @returns 克隆出的新对象。
+     * @param a @zh 克隆的目标。 @en The input OBB.
+     * @returns @zh The new OBB.  @en 克隆出的新对象。
      */
     public static clone (a: OBB) {
         return new OBB(a.center.x, a.center.y, a.center.z,
@@ -133,6 +131,8 @@ export class OBB {
     /**
      * @en
      * Set the components of a obb to the given values
+     * @zh
+     * 将给定 obb 的属性设置为给定的值。
      * @param out @zh 目标 OBB @en The output OBB.
      * @param cx @zh 形状的相对于原点的 X 坐标。 @en The x coordinate of origin.
      * @param cy @zh 形状的相对于原点的 Y 坐标。 @en The y coordinate of origin.
@@ -231,11 +231,11 @@ export class OBB {
      * Transform this shape
      * @zh
      * 将 out 根据这个 obb 的数据进行变换。
-     * @param m 变换的矩阵。 * @param m The transform matrix
-     * @param pos 变换的位置部分。 * @param pos 3d-vector translation.
-     * @param rot 变换的旋转部分。 * @param rot Quaternion rotation.
-     * @param scale 变换的缩放部分。 * @param scale 3d-vector scale.
-     * @param out 变换的目标。 * @param out The output OBB.
+     * @param m @zh 变换的矩阵。 @en The transform matrix
+     * @param pos @zh 变换的位置部分。 @en 3d-vector translation.
+     * @param rot @zh 变换的旋转部分。 @en Quaternion rotation.
+     * @param scale @zh 变换的缩放部分。 @en 3d-vector scale.
+     * @param out @zh 变换的目标。 @en The output OBB.
      */
     public transform (m: Mat4, pos: Vec3, rot: Quat, scale: Vec3, out: OBB) {
         Vec3.transformMat4(out.center, this.center, m);
@@ -261,7 +261,6 @@ export class OBB {
 
     /**
      * @en
-     * Scale obb by a 3d-vector
      * @zh
      *  将 out 根据这个 obb 的数据进行缩放。
      * @param scale @zh 缩放值。 @en 3d-vector scale.
