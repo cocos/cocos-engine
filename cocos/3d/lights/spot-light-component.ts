@@ -210,8 +210,8 @@ export class SpotLight extends Light {
     }
 
     /**
-     * @en get or set shadow pcf.
-     * @zh 获取或者设置阴影pcf等级。
+     * @en The pcf level of the shadow generation.
+     * @zh 获取或者设置阴影 pcf 等级。
      */
     @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 2  } })
@@ -228,8 +228,8 @@ export class SpotLight extends Light {
     }
 
     /**
-     * @en get or set shadow map sampler offset
-     * @zh 获取或者设置阴影纹理偏移值
+     * @en The depth offset of shadow to avoid moire pattern artifacts
+     * @zh 阴影的深度偏移, 可以减弱跨像素导致的条纹状失真
      */
     @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 3 } })
@@ -246,7 +246,7 @@ export class SpotLight extends Light {
     }
 
     /**
-     * @en get or set normal bias.
+     * @en The normal bias of the shadow map.
      * @zh 设置或者获取法线偏移。
      */
     @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)

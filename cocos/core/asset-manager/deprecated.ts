@@ -879,7 +879,7 @@ export const AssetLibrary = {
      * @zh
      * 加载资源。
      * @param {String} uuid
-     * @param {loadCallback} callback - 加载完成后执行的回调函数。
+     * @param {loadCallback} callback - @en Callback function to be executed after loading asset. @zh 加载完成后执行的回调函数。
      * @param {Object} options
      * @param {Boolean} options.readMainCache - 默认为true。如果为false，则资源及其所有依赖资源将重新加载并从库中创建新实例。
      * @param {Boolean} options.writeMainCache - 默认为true。如果为true，则结果将缓存到 AssetLibrary，并且必须由用户手动卸载。

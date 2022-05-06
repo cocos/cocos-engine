@@ -515,6 +515,9 @@ export class AnimationState extends Playable {
         this.emit(EventType.PAUSE, this);
     }
 
+    /**
+     * @internal
+     */
     protected _sampleCurves (time: number) {
         const { _poseOutput: poseOutput, _clipEval: clipEval } = this;
         if (poseOutput) {

@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { CCClass } from '../data/class';
 import { clamp, inverseLerp, pingPong, repeat } from '../math/utils';
 import { WrapModeMask } from '../animation/types';
@@ -154,9 +152,9 @@ export class AnimationCurve {
 
     /**
      * @en
-     * Loop mode [[WrapMode]] when the sampling time exceeds the left end.
+     * Loop mode [[AnimationClip.WrapMode]] when the sampling time exceeds the left end.
      * @zh
-     * 当采样时间超出左端时采用的循环模式[[WrapMode]]。
+     * 当采样时间超出左端时采用的循环模式[[AnimationClip.WrapMode]]。
      */
     get preWrapMode () {
         return toLegacyWrapMode(this._curve.preExtrapolation);
@@ -168,9 +166,9 @@ export class AnimationCurve {
 
     /**
      * @en
-     * Cycle mode [[WrapMode]] when the sampling time exceeds the right end.
+     * Cycle mode [[AnimationClip.WrapMode]] when the sampling time exceeds the right end.
      * @zh
-     * 当采样时间超出右端时采用的循环模式[[WrapMode]]。
+     * 当采样时间超出右端时采用的循环模式[[AnimationClip.WrapMode]]。
      */
     get postWrapMode () {
         return toLegacyWrapMode(this._curve.postExtrapolation);
@@ -217,7 +215,7 @@ export class AnimationCurve {
      * Add a keyframe.
      * @zh
      * 添加一个关键帧。
-     * @param keyFrame 关键帧。
+     * @param keyFrame @en A keyframe. @zh 关键帧。
      */
     public addKey (keyFrame: Keyframe | null) {
         if (!keyFrame) {
@@ -245,7 +243,7 @@ export class AnimationCurve {
      * Calculate the curve interpolation at a given point in time.
      * @zh
      * 计算给定时间点的曲线插值。
-     * @param time 时间。
+     * @param time @en The time. @zh 时间。
      */
     public evaluate (time: number) {
         const { cachedKey, _curve: curve } = this;

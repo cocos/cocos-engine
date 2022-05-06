@@ -39,6 +39,13 @@ import { Root } from '../../root';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const MAX_PASS_COUNT = 8;
+
+/**
+ * @en A sub part of the model, it describes how to render a specific sub mesh.
+ * It contains geometry information in [[RenderingSubMesh]] and all sort of rendering configuration like shaders, macro patches, passes etc.
+ * @zh 组成模型对象的子模型，它用来描述如何渲染模型的一个子网格。
+ * 它包含 [[RenderingSubMesh]] 代表的几何网格信息和所有渲染需要的数据，比如着色器程序，着色器宏定义，渲染 pass，等。
+ */
 export class SubModel {
     protected _device: Device | null = null;
     protected _passes: Pass[] | null = null;
@@ -93,6 +100,10 @@ export class SubModel {
         }
     }
 
+    /**
+     * @en Render passes for the sub-model
+     * @zh 子模型的渲染 pass
+     */
     set passes (passes) {
         const passLengh = passes.length;
         if (passLengh > MAX_PASS_COUNT) {
@@ -118,10 +129,18 @@ export class SubModel {
         return this._passes!;
     }
 
+    /**
+     * @en Shaders for the sub-model, each shader corresponds to one of the [[passes]]
+     * @zh 子模型的着色器程序列表，每个着色器程序对应其中一个渲染 [[passes]]
+     */
     get shaders (): Shader[] {
         return this._shaders!;
     }
 
+    /**
+     * @en The rendering sub mesh for the sub-model, each sub-model can only have one sub mesh.
+     * @zh 用于渲染的子网格对象，每个子模型只能包含一个子网格。
+     */
     set subMesh (subMesh) {
         this._inputAssembler!.destroy();
         this._inputAssembler!.initialize(subMesh.iaInfo);
@@ -133,6 +152,10 @@ export class SubModel {
         return this._subMesh!;
     }
 
+    /**
+     * @en The rendering priority of the sub-model
+     * @zh 子模型的渲染优先级
+     */
     set priority (val) {
         this._priority = val;
         if (JSB) {
@@ -144,26 +167,50 @@ export class SubModel {
         return this._priority;
     }
 
+    /**
+     * @en The low level input assembler which contains geometry data
+     * @zh 底层渲染用的输入汇集器，包含几何信息
+     */
     get inputAssembler (): InputAssembler {
         return this._inputAssembler!;
     }
 
+    /**
+     * @en The descriptor set used for sub-model rendering
+     * @zh 底层渲染子模型用的描述符集组
+     */
     get descriptorSet (): DescriptorSet {
         return this._descriptorSet!;
     }
 
+    /**
+     * @en The descriptor set for world bound
+     * @zh 用于存储世界包围盒的描述符集组
+     */
     get worldBoundDescriptorSet (): DescriptorSet {
         return this._worldBoundDescriptorSet!;
     }
 
+    /**
+     * @en The macro patches for the shaders
+     * @zh 着色器程序所用的宏定义组合
+     */
     get patches (): IMacroPatch[] | null {
         return this._patches;
     }
 
+    /**
+     * @en The shader for rendering the planar shadow, instancing draw version.
+     * @zh 用于渲染平面阴影的着色器，适用于实例化渲染（instancing draw）
+     */
     get planarInstanceShader (): Shader | null {
         return this._planarInstanceShader;
     }
 
+    /**
+     * @en The shader for rendering the planar shadow.
+     * @zh 用于渲染平面阴影的着色器。
+     */
     get planarShader (): Shader | null {
         return this._planarShader;
     }
@@ -182,6 +229,9 @@ export class SubModel {
         }
     }
 
+    /**
+     * @internal
+     */
     get native (): NativeSubModel {
         return this._nativeObj!;
     }
@@ -261,6 +311,9 @@ export class SubModel {
         }
     }
 
+    /**
+     * @internal
+     */
     // This is a temporary solution
     // It should not be written in a fixed way, or modified by the user
     public initPlanarShadowShader () {
@@ -276,6 +329,9 @@ export class SubModel {
         }
     }
 
+    /**
+     * @internal
+     */
     // This is a temporary solution
     // It should not be written in a fixed way, or modified by the user
     public initPlanarShadowInstanceShader () {
@@ -318,6 +374,10 @@ export class SubModel {
         this._worldBoundDescriptorSet!.update();
     }
 
+    /**
+     * @en Pipeline changed callback
+     * @zh 管线更新回调
+     */
     public onPipelineStateChanged (): void {
         const passes = this._passes;
         if (!passes) { return; }
@@ -332,6 +392,10 @@ export class SubModel {
         this._flushPassInfo();
     }
 
+    /**
+     * @en Shader macro changed callback
+     * @zh Shader 宏更新回调
+     */
     public onMacroPatchesStateChanged (patches: IMacroPatch[] | null): void {
         this._patches = patches;
 
