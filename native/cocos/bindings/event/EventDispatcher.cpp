@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-#include <stdarg.h>
+#include <cstdarg>
 #include "EventDispatcher.h"
 #include "cocos/bindings/event/CustomEventTypes.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
@@ -429,7 +429,7 @@ void EventDispatcher::removeAllEventListeners() {
 }
 
 void EventDispatcher::doDispatchNativeEvent(const char *eventName, int argNum, ...) {
-    if (!eventName || strcmp(eventName, "") == 1) {
+    if (!eventName || !strcmp(eventName, "")) {
         return;
     }
     CustomEvent event;
