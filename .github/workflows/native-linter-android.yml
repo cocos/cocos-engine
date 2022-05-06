@@ -1,6 +1,6 @@
 name: <Native> Linter
 
-on: pull_request
+on: [pull_request, push]
 
 jobs:
   # Set the job key. The key is displayed as the job name
@@ -85,7 +85,7 @@ jobs:
             clang-tidy-11 --format-style=file --export-fixes=clang-fixes.yaml $FILTERED
           fi
       - name: clang-tidy-action
-        uses: PatriceJiang/clang-tidy-action@master
+        uses: PatriceJiang/clang-tidy-action@github-api
         if: hashFiles('clang-fixes.yaml') != ''
         with:
           fixesFile: clang-fixes.yaml
