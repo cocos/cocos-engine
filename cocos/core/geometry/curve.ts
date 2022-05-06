@@ -215,7 +215,7 @@ export class AnimationCurve {
      * Add a keyframe.
      * @zh
      * 添加一个关键帧。
-     * @param keyFrame A keyframe.
+     * @param keyFrame @en A keyframe. @zh 关键帧。
      */
     public addKey (keyFrame: Keyframe | null) {
         if (!keyFrame) {
@@ -243,7 +243,7 @@ export class AnimationCurve {
      * Calculate the curve interpolation at a given point in time.
      * @zh
      * 计算给定时间点的曲线插值。
-     * @param time The time.
+     * @param time @en The time. @zh 时间。
      */
     public evaluate (time: number) {
         const { cachedKey, _curve: curve } = this;

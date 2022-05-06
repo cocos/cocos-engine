@@ -234,14 +234,14 @@ export class EventInfo {
 }
 
 /**
- * @en
- * 采样动画曲线。
  * @zh
+ * 采样动画曲线。
+ * @en
  * Samples an animation curve.
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
- * @param curve The curve.
- * @param sampler The sampler.
- * @param ratio Sample ratio([0, 1]).
+ * @param curve @zh 动画曲线。@en The curve.
+ * @param sampler @zh 采样器。@en The sampler.
+ * @param ratio @zh 采样比率。@en Sample ratio([0, 1]).
  */
 export function sampleAnimationCurve (curve: AnimCurve, sampler: RatioSampler, ratio: number) {
     let index = sampler.sample(ratio);
