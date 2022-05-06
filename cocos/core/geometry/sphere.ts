@@ -61,8 +61,8 @@ export class Sphere {
      * clone a new sphere
      * @zh
      * 克隆一个新的 sphere 实例。
-     * @param p @en Sphere which cloned from. @zh 克隆的目标。
-     * @return @en Sphere which cloned to. @zh 克隆出的示例。
+     * @param p @en The sphere object to clone from. @zh 克隆的目标。
+     * @return @en The sphere object to clone to. @zh 克隆出的示例。
      */
     public static clone (p: Sphere): Sphere {
         return new Sphere(p.center.x, p.center.y, p.center.z, p.radius);
@@ -109,8 +109,8 @@ export class Sphere {
      * @param cx @en X-Coordinate of center point relative to the origin.  @zh 中心点的相对于原点的 X 坐标。
      * @param cy @en Y-Coordinate of center point relative to the origin.  @zh 中心点的相对于原点的 Y 坐标。
      * @param cz @en Z-Coordinate of center point relative to the origin.  @zh 中心点的相对于原点的 Z 坐标。
-     * @param {number} r @en Radius of the sphere. @zh 半径。
-     * @return out @en Sphere which the properties set to. @zh 接受操作的 sphere。
+     * @param r @en Radius of the sphere. @zh 半径。
+     * @return out @en Sphere which the properties will be set to. @zh 接受操作的 sphere。
      * @function
      */
     public static set (out: Sphere, cx: number, cy: number, cz: number, r: number): Sphere {
@@ -173,7 +173,7 @@ export class Sphere {
      * @param cx @en The X-Coordinate of the sphere. @zh 该球的世界坐标的 X 坐标。
      * @param cy @en The Y-Coordinate of the sphere. @zh 该球的世界坐标的 Y 坐标。
      * @param cz @en The Z-Coordinate of the sphere. @zh 该球的世界坐标的 Z 坐标。
-     * @param {number} r 半径。
+     * @param r @en The radius. @zh 半径。
      */
     constructor (cx = 0, cy = 0, cz = 0, r = 1) {
         this._type = enums.SHAPE_SPHERE;
@@ -210,8 +210,8 @@ export class Sphere {
      * Get the bounding points of this shape
      * @zh
      * 获取此形状的边界点。
-     * @param {Vec3} minPos @en Bottom(negative direction) point of the sphere. @zh 最小点。
-     * @param {Vec3} maxPos @en Top(positive directin) point of the sphere. @zh 最大点。
+     * @param minPos @en Bottom(negative direction) point of the sphere. @zh 最小点。
+     * @param maxPos @en Top(positive direction) point of the sphere. @zh 最大点。
      */
     public getBoundary (minPos: Vec3, maxPos: Vec3) {
         Vec3.set(minPos, this.center.x - this.radius, this.center.y - this.radius, this.center.z - this.radius);
