@@ -503,11 +503,11 @@ static int tag = 0;
                         NSLog(@"url:%@",url);
                         NSString *tempFilePath = [NSString stringWithFormat:@"%s%lu%s", cc::FileUtils::getInstance()->getWritablePath().c_str(), (unsigned long)[url hash], _hints.tempFileNameSuffix.c_str()];
                         [resumeData writeToFile:tempFilePath atomically:YES];
-                        self.hasUnfinishedTask = NO;
                     }
             }
     }
     [self.taskDict removeObjectForKey:task];
+    self.hasUnfinishedTask = NO;
 
     while (!_taskQueue.empty() && _taskQueue.front() == nil) {
         _taskQueue.pop();
