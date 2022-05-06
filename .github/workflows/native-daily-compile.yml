@@ -1,9 +1,9 @@
 name: <Daily-Native> Minimized Compile
 
-# on:
-#   schedule:
-#     - cron: '30 7,20 * * *'
-on: [pull_request]
+on:
+  schedule:
+#     - cron: '18 7,20 * * *'
+# on: [pull_request]
 
 jobs:
   compile_windows:
