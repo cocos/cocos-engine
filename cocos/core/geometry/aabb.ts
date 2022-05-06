@@ -59,9 +59,9 @@ export class AABB {
       * create a new AABB
       * @zh
       * 创建一个新的 AABB 实例。
-      * @param px @zh AABB 的原点的 X 坐标。@en The x coordinate of the origin.
-      * @param py @zh AABB 的原点的 Y 坐标。@en The y coordinate of the origin.
-      * @param pz @zh AABB 的原点的 Z 坐标。 @en The z coordinate of the origin.
+      * @param px @zh AABB 的原点的 X 坐标。@en The x coordinate of the origin of the AABB.
+      * @param py @zh AABB 的原点的 Y 坐标。@en The y coordinate of the origin of the AABB.
+      * @param pz @zh AABB 的原点的 Z 坐标。 @en The z coordinate of the origin of the AABB.
       * @param hw @zh AABB 宽度的一半。 @en Half the width of the AABB.
       * @param hh @zh AABB 高度的一半。@en Half the height of the AABB.
       * @param hl @zh AABB 长度的一半。@en Half the length of the AABB.
@@ -124,9 +124,9 @@ export class AABB {
       * @zh
       * 将 AABB 的属性设置为给定的值。
       * @param @zh out 接受操作的 AABB。 @en The output AABB to set.
-      * @param px @zh - AABB 的原点的 X 坐标。 @en The x coordinate of the origin.
-      * @param py @zh - AABB 的原点的 Y 坐标。 @en The y coordinate of the origin.
-      * @param pz @zh - AABB 的原点的 Z 坐标。 @en The z coordinate of the origin.
+      * @param px @zh - AABB 的原点的 X 坐标。 @en The x coordinate of the origin of the AABB.
+      * @param py @zh - AABB 的原点的 Y 坐标。 @en The y coordinate of the origin of the AABB.
+      * @param pz @zh - AABB 的原点的 Z 坐标。 @en The z coordinate of the origin of the AABB.
       * @param hw @zh - AABB 宽度的一半。 @en Half the width of the AABB.
       * @param hh @zh - AABB 高度的一半。 @en Half the height of the AABB.
       * @param hl @zh - AABB 长度度的一半。 @en Half the length of the AABB.
