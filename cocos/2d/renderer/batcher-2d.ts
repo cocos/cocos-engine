@@ -148,7 +148,8 @@ export class Batcher2D implements IBatcher {
      * @zh
      * 添加屏幕组件管理。
      *
-     * @param comp - 屏幕组件。
+     * @param comp @en The Screen Component.
+     *             @zh 屏幕组件。
      */
     public addScreen (comp: RenderRoot2D) {
         this._screens.push(comp);
@@ -159,7 +160,8 @@ export class Batcher2D implements IBatcher {
      * @zh
      * Removes the Canvas from the list.
      *
-     * @param comp - 被移除的屏幕。
+     * @param comp @en The target to removed.
+     *             @zh 被移除的屏幕。
      */
     public removeScreen (comp: RenderRoot2D) {
         const idx = this._screens.indexOf(comp);
@@ -490,7 +492,8 @@ export class Batcher2D implements IBatcher {
      *
      * @zh
      * 提交独立渲染数据.
-     * @param comp 静态组件
+     * @param comp @en The UIStaticBatch component.
+     *             @zh 静态组件
      */
     public commitStaticBatch (comp: UIStaticBatch) {
         this._batches.concat(comp.drawBatchList);
@@ -578,8 +581,10 @@ export class Batcher2D implements IBatcher {
      * @zh
      * 强行修改当前批次数据并合并。
      *
-     * @param material - 当前批次的材质。
-     * @param sprite - 当前批次的精灵帧。
+     * @param material @en The material of the current batch.
+     *                 @zh 当前批次的材质。
+     * @param sprite @en The current batch of sprite frames.
+     *               @zh 当前批次的精灵帧。
      */
     public forceMergeBatches (material: Material, frame: TextureBase | SpriteFrame | null, renderComp: Renderable2D) {
         this._currMaterial = material;
