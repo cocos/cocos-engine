@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { JSB } from 'internal:constants';
 import { Mat3, Mat4, Quat, Vec3 } from '../math';
 import enums from './enums';
@@ -59,14 +57,20 @@ export class AABB {
     /**
       * @en
       * create a new AABB
+      * @param px  The x coordinate of the origin.
+      * @param py  The y coordinate of the origin.
+      * @param pz  The z coordinate of the origin.
+      * @param hw  Half the width of the AABB.
+      * @param hh  Half the height of the AABB.
+      * @param hl  Half the length of the AABB.
       * @zh
       * 创建一个新的 AABB 实例。
-      * @param px - AABB 的原点的 X 坐标。
-      * @param py - AABB 的原点的 Y 坐标。
-      * @param pz - AABB 的原点的 Z 坐标。
-      * @param hw - AABB 宽度的一半。
-      * @param hh - AABB 高度的一半。
-      * @param hl - AABB 长度的一半。
+      * @param px  AABB 的原点的 X 坐标。
+      * @param py  AABB 的原点的 Y 坐标。
+      * @param pz  AABB 的原点的 Z 坐标。
+      * @param hw  AABB 宽度的一半。
+      * @param hh  AABB 高度的一半。
+      * @param hl  AABB 长度的一半。
       * @returns 返回新创建的 AABB 实例。
       */
     public static create (px?: number, py?: number, pz?: number, hw?: number, hh?: number, hl?: number) {
@@ -76,6 +80,8 @@ export class AABB {
     /**
       * @en
       * clone a new AABB
+      * @param a Target object.
+      * @returnsThe new AABB.
       * @zh
       * 克隆一个 AABB。
       * @param a - 克隆的目标。
@@ -89,27 +95,34 @@ export class AABB {
     /**
       * @en
       * copy the values from one AABB to another
+      * @param dst The output AABB, copy destination.
+      * @param src Source object of copy operation.
+      * @returnsThe Reference of the first parameter `dst`, the new AABB.
       * @zh
       * 将从一个 AABB 的值复制到另一个 AABB。
-      * @param {AABB} out 接受操作的 AABB。
-      * @param {AABB} a 被复制的 AABB。
-      * @return {AABB} out 接受操作的 AABB。
+      * @param dst 接受操作的 AABB。
+      * @param src 被复制的 AABB。
+      * @returnsdst 接受操作的 AABB。
       */
-    public static copy (out: AABB, a: AABB | Readonly<AABB>): AABB {
-        Vec3.copy(out.center, a.center);
-        Vec3.copy(out.halfExtents, a.halfExtents);
+    public static copy (dst: AABB, src: AABB | Readonly<AABB>): AABB {
+        Vec3.copy(dst.center, src.center);
+        Vec3.copy(dst.halfExtents, src.halfExtents);
 
-        return out;
+        return dst;
     }
 
     /**
       * @en
-      * create a new AABB from two corner points
+      * Construct a new AABB from two corner points
+      * @param out The output AABB
+      * @param minPos Minimum point of the axis-aligned 3d bounding box.
+      * @param maxPos Maximum point of the axis-aligned 3d bounding box.
+      * @returnsThe new AABB
       * @zh
       * 从两个点创建一个新的 AABB。
-      * @param out - 接受操作的 AABB。
-      * @param minPos - AABB 的最小点。
-      * @param maxPos - AABB 的最大点。
+      * @param out 接受操作的 AABB。
+      * @param minPos AABB 的最小点。
+      * @param maxPos AABB 的最大点。
       * @returns {AABB} out 接受操作的 AABB。
       */
     public static fromPoints (out: AABB, minPos: IVec3, maxPos: IVec3): AABB {
@@ -123,6 +136,14 @@ export class AABB {
     /**
       * @en
       * Set the components of a AABB to the given values
+      * @param out The output AABB to set.
+      * @param px  The x coordinate of the origin.
+      * @param py  The y coordinate of the origin.
+      * @param pz  The z coordinate of the origin.
+      * @param hw  Half the width of the AABB.
+      * @param hh  Half the height of the AABB.
+      * @param hl  Half the length of the AABB.
+      * @returnsThe Reference fo the first parameter `out`.
       * @zh
       * 将 AABB 的属性设置为给定的值。
       * @param {AABB} out 接受操作的 AABB。
@@ -132,7 +153,7 @@ export class AABB {
       * @param hw - AABB 宽度的一半。
       * @param hh - AABB 高度的一半。
       * @param hl - AABB 长度度的一半。
-      * @return {AABB} out 接受操作的 AABB。
+      * @returns{AABB} out 接受操作的 AABB。
       */
     public static set (out: AABB, px: number, py: number, pz: number, hw: number, hh: number, hl: number): AABB {
         out.center.set(px, py, pz);
@@ -142,13 +163,17 @@ export class AABB {
 
     /**
       * @en
-      * Merge tow AABB.
+      * Merge two AABB into one.
+      * @param out The output AABB to storge merge result.
+      * @param a The first AABB to be merged.
+      * @param b The second AABB to be merged.
+      * @returnsThe Reference of the first parameter `out`.
       * @zh
       * 合并两个 AABB 到 out。
       * @param out 接受操作的 AABB。
       * @param a 输入的 AABB。
       * @param b 输入的 AABB。
-      * @returns {AABB} out 接受操作的 AABB。
+      * @returnsout 接受操作的 AABB。
       */
     public static merge (out: AABB, a: AABB | Readonly<AABB>, b: AABB | Readonly<AABB>): AABB {
         Vec3.subtract(_v3_tmp, a.center, a.halfExtents);
@@ -162,11 +187,15 @@ export class AABB {
 
     /**
       * @en
-      * AABB to sphere
+      * Convert AABB to sphere.
+      * @param out The output sphere.
+      * @param a The input AABB.
+      * @returnsThe Reference of the first parameter `out`.
       * @zh
       * 包围盒转包围球
       * @param out 接受操作的 sphere。
       * @param a 输入的 AABB。
+      * @returnsout 接受的 Sphere
       */
     public static toBoundingSphere (out: Sphere, a: AABB | Readonly<AABB>) {
         out.center.set(a.center);
@@ -177,6 +206,10 @@ export class AABB {
     /**
       * @en
       * Transform this AABB.
+      * @param out The output AABB.
+      * @param a The input AABB.
+      * @param matrix The transformation matrix.
+      * @returnsThe Reference of the first parameter `out`.
       * @zh
       * 变换一个 AABB 到 out 中。
       * @param out 接受操作的 AABB。
@@ -191,12 +224,16 @@ export class AABB {
     }
 
     /**
+      * @en
+      * The origin point of the AABB
       * @zh
       * 本地坐标的中心点。
       */
     public center: Vec3;
 
     /**
+      * @en
+      * Half the size of the AABB
       * @zh
       * 长宽高的一半。
       */
@@ -239,6 +276,8 @@ export class AABB {
     /**
       * @en
       * Get the bounding points of this shape
+      * @param minPos Minimum position of the axis-aligned 3d bounding box.
+      * @param maxPos Maximum position of the axis-aligned 3d bounding box.
       * @zh
       * 获取 AABB 的最小点和最大点。
       * @param {Vec3} minPos 最小点。
@@ -252,6 +291,11 @@ export class AABB {
     /**
       * @en
       * Transform this shape
+      * @param m The transform matrix.
+      * @param pos 3d-vector translation.
+      * @param rot Quaternion rotation .
+      * @param scale 3d-vector scale.
+      * @param out The output AABB.
       * @zh
       * 将 out 根据这个 AABB 的数据进行变换。
       * @param m 变换的矩阵。
@@ -266,6 +310,9 @@ export class AABB {
     }
 
     /**
+      * @en
+      * Clones the AABB
+      * @returns A copy of the object.
       * @zh
       * 获得克隆。
       * @returns {AABB}
@@ -275,6 +322,9 @@ export class AABB {
     }
 
     /**
+      * @en
+      * Copy the input to the receiver object.
+      * @returns The reference of this.
       * @zh
       * 拷贝对象。
       * @param a 拷贝的目标。
@@ -286,6 +336,7 @@ export class AABB {
 
     /**
       * @en AABB and point merge.
+      * @param input A point in 3d space.
       * @zh AABB包围盒合并一个顶点。
       * @param point - 某一个位置的顶点。
       */
@@ -307,10 +358,11 @@ export class AABB {
     }
 
     /**
-        * @en AABB and points merge.
-        * @zh AABB包围盒合并一系列顶点。
-        * @param points - 某一个位置的顶点。
-        */
+      * @en AABB and points merge.
+      * @param points A list of points in 3d space.
+      * @zh AABB包围盒合并一系列顶点。
+      * @param points - 某一个位置的顶点。
+      */
     public mergePoints (points: IVec3[]) {
         if (points.length < 1) { return; }
         for (let i = 0; i < points.length; i++) {
@@ -320,6 +372,7 @@ export class AABB {
 
     /**
       * @en AABB and frustum merge.
+      * @param frustum The frustum object.
       * @zh Frustum 合并到 AABB。
       * @param frustum 输入的 Frustum。
       */

@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { Mat3, Mat4, Quat, Vec3 } from '../math';
 import enums from './enums';
 
@@ -51,6 +49,22 @@ export class OBB {
     /**
      * @en
      * create a new obb
+     * @param cx The x coordinate of origin.
+     * @param cy The y coordinate of origin.
+     * @param cz The z coordinate of origin.
+     * @param hw Half the width of the OBB.
+     * @param hh Half the height of the OBB.
+     * @param hl Half the length of the OBB.
+     * @param ox_1 The x component of the one axis of the OBB.
+     * @param oy_1 The y component of the one axis of the OBB.
+     * @param oz_1 The z component of the one axis of the OBB.
+     * @param ox_2 The x component of the second axis of the OBB.
+     * @param oy_2 The y component of the second axis of the OBB.
+     * @param oz_2 The z component of the second axis of the OBB.
+     * @param ox_3 The x component of the third axis of the OBB.
+     * @param oy_3 The y component of the third axis of the OBB.
+     * @param oz_3 The z component of the third axis of the OBB.
+     * @returns A new OBB.
      * @zh
      * 创建一个新的 obb 实例。
      * @param cx 形状的相对于原点的 X 坐标。
@@ -83,6 +97,8 @@ export class OBB {
     /**
      * @en
      * clone a new obb
+     * @param a The input OBB.
+     * @returns The new OBB.
      * @zh
      * 克隆一个 obb。
      * @param a 克隆的目标。
@@ -99,6 +115,9 @@ export class OBB {
     /**
      * @en
      * copy the values from one obb to another
+     * @param out The output OBB.
+     * @param a The input OBB.
+     * @returns The reference of the first parameter `out`.
      * @zh
      * 将从一个 obb 的值复制到另一个 obb。
      * @param {OBB} out 接受操作的 obb。
@@ -116,6 +135,10 @@ export class OBB {
     /**
      * @en
      * create a new obb from two corner points
+     * @param out The output OBB.
+     * @param minPos The minimum position of the AABB.
+     * @param maxPos The maximum position of the AABB.
+     * @returns The reference of the first parameter `out`.
      * @zh
      * 用两个点创建一个新的 obb。
      * @param out - 接受操作的 obb。
@@ -133,6 +156,23 @@ export class OBB {
     /**
      * @en
      * Set the components of a obb to the given values
+     * @param out The output OBB.
+     * @param cx The x coordinate of origin.
+     * @param cy The y coordinate of origin.
+     * @param cz The z coordinate of origin.
+     * @param hw Half the width of the OBB.
+     * @param hh Half the height of the OBB.
+     * @param hl Half the length of the OBB.
+     * @param ox_1 The x component of the one axis of the OBB.
+     * @param oy_1 The y component of the one axis of the OBB.
+     * @param oz_1 The z component of the one axis of the OBB.
+     * @param ox_2 The x component of the second axis of the OBB.
+     * @param oy_2 The y component of the second axis of the OBB.
+     * @param oz_2 The z component of the second axis of the OBB.
+     * @param ox_3 The x component of the third axis of the OBB.
+     * @param oy_3 The y component of the third axis of the OBB.
+     * @param oz_3 The z component of the third axis of the OBB.
+     * @returns The reference of the first parameter `out`.
      * @zh
      * 将给定 obb 的属性设置为给定的值。
      * @param cx - obb 的原点的 X 坐标。
@@ -167,18 +207,24 @@ export class OBB {
     }
 
     /**
+     * @en
+     * Center point of the OBB.
      * @zh
      * 本地坐标的中心点。
      */
     public center: Vec3;
 
     /**
+     * @en
+     * Half the distance across the OBB in each local axis.
      * @zh
      * 长宽高的一半。
      */
     public halfExtents: Vec3;
 
     /**
+     * @en
+     * Orientation matrix.
      * @zh
      * 方向矩阵。
      */
@@ -210,10 +256,12 @@ export class OBB {
     /**
      * @en
      * Get the bounding points of this shape
+     * @param minPos The out minimum position of the OBB.
+     * @param maxPos The out maximum position of the OBB.
      * @zh
      * 获取 obb 的最小点和最大点。
-     * @param {Vec3} minPos 最小点。
-     * @param {Vec3} maxPos 最大点。
+     * @param minPos 最小点。
+     * @param maxPos 最大点。
      */
     public getBoundary (minPos: Vec3, maxPos: Vec3) {
         transform_extent_m3(_v3_tmp, this.halfExtents, this.orientation);
@@ -224,6 +272,11 @@ export class OBB {
     /**
      * @en
      * Transform this shape
+     * @param m The transform matrix
+     * @param pos 3d-vector translation.
+     * @param rot Quaternion rotation.
+     * @param scale 3d-vector scale.
+     * @param out The output OBB.
      * @zh
      * 将 out 根据这个 obb 的数据进行变换。
      * @param m 变换的矩阵。
@@ -240,6 +293,11 @@ export class OBB {
     }
 
     /**
+     * @en
+     * Transform by matrix and rotation.
+     * @param m The transform matrix.
+     * @param rot Quaternion rotation.
+     * @param out The output OBB.
      * @zh
      * 将 out 根据这个 obb 的数据进行变换。
      * @param m 变换的矩阵。
@@ -253,6 +311,9 @@ export class OBB {
     }
 
     /**
+     * @en
+     * @param scale 3d-vector scale.
+     * @param out The output OBB.
      * @zh
      *  将 out 根据这个 obb 的数据进行缩放。
      * @param scale 缩放值。
