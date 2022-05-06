@@ -78,7 +78,7 @@ class TrackPath {
     /**
      * @en Appends a component path.
      * @zh 附加一段组件路径。
-     * @param constructor 组件的构造函数。
+     * @param constructor @en The constructor of the component. @zh 组件的构造函数。
      * @returns `this`
      */
     public toComponent<T extends Component> (constructor: Constructor<T> | string) {
