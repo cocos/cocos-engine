@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { errorID } from '../platform/debug';
 import * as js from '../utils/js';
 import { legacyCC } from '../global-exports';
@@ -37,7 +35,8 @@ import { legacyCC } from '../global-exports';
 export class ValueType {
     /**
      * @en
-     * Clone the current object. The clone result of the object should be equal to the current object, i.e. satisfy `this.equals(this, value.clone())`.
+     * Clone the current object. The clone result of the object should be equal to the current object,
+     * i.e. satisfy `this.equals(this, value.clone())`.
      * The base version of this method do nothing and returns `this'.
      * The derived class **must** rewrite this method and the returned object should not be `this`, i.e. satisfy `this !== this.clone()`.
      * @zh
@@ -90,7 +89,7 @@ export class ValueType {
      * @returns The string representation of the current object
      */
     public toString () {
-        return `${{}}`;
+        return `${''}`;
     }
 }
 js.setClassName('cc.ValueType', ValueType);
