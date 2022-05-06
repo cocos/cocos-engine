@@ -93,7 +93,7 @@ jobs:
         if: hashFiles('clang-fixes.yaml') != ''
         with:
           fixesFile: clang-fixes.yaml
-          useLog: true
+          useLog: false
           noFailOnIssue: false
           repo-token: ${{ secrets.PR_TOKEN }}
           error-limit: 200
