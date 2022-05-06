@@ -40,9 +40,9 @@ export class Ray {
      * create a new ray
      * @zh
      * 创建一条射线。
-     * @param {number} ox @en Start position x @zh 起点的 x 部分。
-     * @param {number} oy @en Start position y @zh 起点的 y 部分。
-     * @param {number} oz @en Start position z @zh 起点的 z 部分。
+     * @param {number} ox @en x component of start point @zh 起点的 x 部分。
+     * @param {number} oy @en y component of start point @zh 起点的 y 部分。
+     * @param {number} oz @en z component of start point @zh 起点的 z 部分。
      * @param {number} dx @en Point in the x direction @zh 方向的 x 部分。
      * @param {number} dy @en Point in the y direction @zh 方向的 y 部分。
      * @param {number} dz @en Point in the z direction @zh 方向的 z 部分。
@@ -57,7 +57,7 @@ export class Ray {
      * Creates a new ray initialized with values from an existing ray
      * @zh
      * 从一条射线克隆出一条新的射线。
-     * @param {Ray} a @en Cloned target @zh 克隆的目标。
+     * @param {Ray} a @en The Ray object to be cloned from @zh 克隆的目标。
      * @return {Ray} @en Clone new ray object @zh 克隆出的新对象。
      */
     public static clone (a: Ray): Ray {
@@ -72,7 +72,7 @@ export class Ray {
      * Copy the values from one ray to another
      * @zh
      * 将从一个 ray 的值复制到另一个 ray。
-     * @param {Ray} out @en The ray object to be manipulated @zh 接受操作的 ray。
+     * @param {Ray} out @en The ray object to be modified @zh 接受操作的 ray。
      * @param {Ray} a @en The copied ray object @zh 被复制的 ray。
      * @return {Ray} @en Ray object @zh out 接受操作的 ray。
      */
@@ -88,7 +88,7 @@ export class Ray {
      * create a ray from two points
      * @zh
      * 用两个点创建一条射线。
-     * @param {Ray} out @en Ray that accepts operations @zh 接受操作的射线。
+     * @param {Ray} out @en The ray object to be modified @zh 接受操作的射线。
      * @param {Vec3} origin @en Starting point of the ray @zh 射线的起点。
      * @param {Vec3} target @en point on the ray @zh 射线上的一点。
      * @return {Ray} @en Ray object @zh out 接受操作的射线。
@@ -104,10 +104,10 @@ export class Ray {
      * Set the components of a ray to the given values
      * @zh
      * 将给定射线的属性设置为给定的值。
-     * @param {Ray} out @en Ray that accepts operations @zh 接受操作的射线。
-     * @param {number} ox @en Start position x @zh 起点的 x 部分。
-     * @param {number} oy @en Start position y @zh 起点的 y 部分。
-     * @param {number} oz @en Start position z @zh 起点的 z 部分。
+     * @param {Ray} out @en The ray object to be modified @zh 接受操作的射线。
+     * @param {number} ox @en x component of start point @zh 起点的 x 部分。
+     * @param {number} oy @en y component of start point @zh 起点的 y 部分。
+     * @param {number} oz @en z component of start point @zh 起点的 z 部分。
      * @param {number} dx @en Point in the x direction @zh 方向的 x 部分。
      * @param {number} dy @en Point in the y direction @zh 方向的 y 部分。
      * @param {number} dz @en Point in the z direction @zh 方向的 z 部分。
@@ -157,9 +157,9 @@ export class Ray {
      * Construct a ray;
      * @zh
      * 构造一条射线。
-     * @param {number} ox @en Start position x @zh 起点的 x 部分。
-     * @param {number} oy @en Start position y @zh 起点的 y 部分。
-     * @param {number} oz @en Start position z @zh 起点的 z 部分。
+     * @param {number} ox @en x component of start point @zh 起点的 x 部分。
+     * @param {number} oy @en y component of start point @zh 起点的 y 部分。
+     * @param {number} oz @en z component of start point @zh 起点的 z 部分。
      * @param {number} dx @en Point in the x direction @zh 方向的 x 部分。
      * @param {number} dy @en Point in the y direction @zh 方向的 y 部分。
      * @param {number} dz @en Point in the z direction @zh 方向的 z 部分。
