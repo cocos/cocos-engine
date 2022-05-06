@@ -62,10 +62,9 @@ jobs:
               - added|modified|deleted: '**'
             skipedDebug:
               - added|modified|deleted: '**'
-              - exclude: 'native/cocos/editor-support/**'
       - name: Install CMake & Clang Tidy
         run: |
-          sudo apt install -y cmake llvm clang-tidy-11
+          sudo apt install -y clang-tidy-11 ninja-build
 
       - name: Generate Compile database
         shell: bash
@@ -82,7 +81,12 @@ jobs:
           if [[ "$FILTERED-xxx" == "-xxx" ]]; then
             echo "no source files match"
           else
+            for src in $FILTERED
+            do
+              echo "lint file ${src} ..."
+            done
             clang-tidy-11 --format-style=file --export-fixes=clang-fixes.yaml $FILTERED
+            du -h clang-fixes.yaml
           fi
       - name: clang-tidy-action
         uses: PatriceJiang/clang-tidy-action@github-api
