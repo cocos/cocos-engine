@@ -12,6 +12,15 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
+
+#if CC_DEBUG
+static bool js_extension_getter_return_true(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    s.rval().setBoolean(true);
+    return true;
+}
+SE_BIND_PROP_GET(js_extension_getter_return_true)
+#endif
 se::Object* __jsb_cc_extension_EventAssetsManagerEx_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_extension_EventAssetsManagerEx_class = nullptr;  // NOLINT
 
@@ -291,6 +300,9 @@ bool js_register_extension_EventAssetsManagerEx(se::Object* obj) // NOLINT(reada
 {
     auto* cls = se::Class::create("EventAssetsManager", obj, nullptr, _SE(js_extension_EventAssetsManagerEx_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_extension_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getAssetId", _SE(js_extension_EventAssetsManagerEx_getAssetId));
     cls->defineFunction("getAssetsManagerEx", _SE(js_extension_EventAssetsManagerEx_getAssetsManagerEx));
     cls->defineFunction("getCURLECode", _SE(js_extension_EventAssetsManagerEx_getCURLECode));
@@ -600,6 +612,9 @@ bool js_register_extension_Manifest(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("Manifest", obj, nullptr, _SE(js_extension_Manifest_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_extension_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getManifestFileUrl", _SE(js_extension_Manifest_getManifestFileUrl));
     cls->defineFunction("getManifestRoot", _SE(js_extension_Manifest_getManifestRoot));
     cls->defineFunction("getPackageUrl", _SE(js_extension_Manifest_getPackageUrl));
@@ -1221,6 +1236,9 @@ bool js_register_extension_AssetsManagerEx(se::Object* obj) // NOLINT(readabilit
 {
     auto* cls = se::Class::create("AssetsManager", obj, nullptr, _SE(js_extension_AssetsManagerEx_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_extension_getter_return_true), nullptr);
+#endif
     cls->defineFunction("checkUpdate", _SE(js_extension_AssetsManagerEx_checkUpdate));
     cls->defineFunction("downloadFailedAssets", _SE(js_extension_AssetsManagerEx_downloadFailedAssets));
     cls->defineFunction("getDownloadedBytes", _SE(js_extension_AssetsManagerEx_getDownloadedBytes));
