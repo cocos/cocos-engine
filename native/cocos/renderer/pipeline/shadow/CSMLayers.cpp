@@ -235,14 +235,14 @@ void CSMLayers::splitFrustumLevels(scene::DirectionalLight *dirLight) {
 
 void CSMLayers::calculateCSM(const scene::Camera *camera, scene::DirectionalLight *dirLight, const scene::Shadow *shadowInfo) {
     const uint         level          = static_cast<uint>(dirLight->getShadowCSMLevel());
-    const float        shadowMapWidth = shadowInfo->size.x;
+    const float        shadowMapWidth = level > 1u ? shadowInfo->size.x * 0.5F : shadowInfo->size.x;
 
     if (shadowMapWidth < 0.0F) { return; }
 
+    const Mat4  mat4Trans = getCameraWorldMatrix(camera);
     for (CSMLayerInfo *layer: _layers) {
         const float nearClamp = layer->getSplitCameraNear();
         const float farClamp  = layer->getSplitCameraFar();
-        const Mat4  mat4Trans = getCameraWorldMatrix(camera);
         scene::Frustum splitFrustum;
         splitFrustum.type = scene::ShapeEnums::SHAPE_FRUSTUM_ACCURATE;
         splitFrustum.split(nearClamp, farClamp, camera->aspect, camera->fov, mat4Trans);
@@ -260,7 +260,6 @@ void CSMLayers::calculateCSM(const scene::Camera *camera, scene::DirectionalLigh
         _specialLayer->setMatShadowViewProj(_layers[0]->getMatShadowViewProj().clone());
         _specialLayer->setValidFrustum(_layers[0]->getValidFrustum().clone());
     } else {
-        const Mat4 mat4Trans = getCameraWorldMatrix(camera);
         _specialLayer->getSplitFrustum().split(0.1F, dirLight->getShadowDistance(), camera->aspect, camera->fov, mat4Trans);
         _specialLayer->createMatrix(_specialLayer->getSplitFrustum(), dirLight, shadowMapWidth, true);
     }
