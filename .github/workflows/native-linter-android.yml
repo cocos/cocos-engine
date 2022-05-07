@@ -38,35 +38,6 @@ jobs:
           cd ./native/tools/tojs
           python ./genbindings.py
           rm userconf.ini
-      - name: Get changed files
-        uses: PatriceJiang/paths-filter@master
-        id: listchanged
-        with:
-          list-files: shell
-          filters: |
-            source:
-              - added|modified: '**/*.cpp'
-              - added|modified: '**/*.h'
-              - added|modified: '**/*.hpp'
-              - added|modified: '**/*.m'
-              - added|modified: '**/*.mm'
-              - added|modified: '**/*.c'
-              - exclude: 'native/cocos/base/etc1.*'
-              - exclude: 'native/cocos/base/etc2.*'
-              - exclude: 'native/cocos/bindings/manual/jsb_global.cpp'
-              - exclude: 'native/cocos/bindings/manual/jsb_dragonbones_manual.cpp'
-              - exclude: 'native/cocos/bindings/manual/jsb_spine_manual.cpp'
-              - exclude: 'native/cocos/bindings/manual/jsb_socketio.cpp'
-              - exclude: 'native/cocos/bindings/manual/jsb_conversions.*'
-              - exclude: 'native/cocos/bindings/jswrapper/v8/debugger/**'
-              - exclude: 'native/cocos/audio/android/audio_utils/**'
-            allChanges:
-              - added|modified|deleted: '**'
-            skipedDebug:
-              - added|modified|deleted: '**'
-      - name: Install CMake & Clang Tidy
-        run: |
-          sudo apt install -y clang-tidy-11 ninja-build
 
       - name: Generate Compile database
         shell: bash
@@ -82,8 +53,8 @@ jobs:
         with:
           style: file
           version: 11
-          database: native/build/
-          thread-comments: true
+          thread-comments: false
+          repo-root: native
 
       - name: Fail fast!
         if: steps.linter.outputs.checks-failed > 0
