@@ -54,7 +54,7 @@ jobs:
           style: file
           version: 11
           thread-comments: false
-          repo-root: native
+          database: native
 
       - name: Fail fast!
         if: steps.linter.outputs.checks-failed > 0
