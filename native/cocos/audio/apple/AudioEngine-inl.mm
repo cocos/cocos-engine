@@ -390,14 +390,9 @@ void AudioEngineImpl::play2dImpl(AudioCache *cache, int audioID) {
     if (!*cache->_isDestroyed && cache->_state == AudioCache::State::READY) {
         _threadMutex.lock();
         auto playerIt = _audioPlayers.find(audioID);
-        if (playerIt != _audioPlayers.end() && playerIt->second->play2d()) {
-            if (auto sche = _scheduler.lock()) {
-                sche->performFunctionInCocosThread([audioID]() {
-                    if (AudioEngine::sAudioIDInfoMap.find(audioID) != AudioEngine::sAudioIDInfoMap.end()) {
-                        AudioEngine::sAudioIDInfoMap[audioID].state = AudioEngine::AudioState::PLAYING;
-                    }
-                });
-            }
+        if (playerIt != _audioPlayers.end()) {
+            // Trust it, or assert it out.
+            assert(playerIt->second->play2d());
         }
         _threadMutex.unlock();
     } else {

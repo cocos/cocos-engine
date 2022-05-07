@@ -204,9 +204,6 @@ bool AudioPlayer::play2d() {
             ALOGE("%s:alSourcePlay error code:%x", __PRETTY_FUNCTION__, alError);
             break;
         }
-
-        ALint state;
-        alGetSourcei(_alSource, AL_SOURCE_STATE, &state);
         /** Due to the bug of OpenAL, when the second time OpenAL trying to mix audio into bus, the mRampState become kRampingComplete, and for those oalSource whose mRampState == kRampingComplete, nothing happens.
          * OALSource::Play{
          *      switch(mState){
