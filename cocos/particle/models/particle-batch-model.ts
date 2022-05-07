@@ -337,7 +337,7 @@ export default class ParticleBatchModel extends scene.Model {
             this._subMeshData = null;
         }
         if (this._iaInfoBuffer) {
-            this._iaInfoBuffer.destroy();
+            //this._iaInfoBuffer.destroy(); // Already destroied in _subMeshData
             this._iaInfoBuffer = null;
         }
     }
