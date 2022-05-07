@@ -263,8 +263,7 @@ void EventDispatcher::dispatchResizeEvent(int width, int height) {
     
     se::ValueArray args;
     args.emplace_back(se::Value(jsResizeEventObj));
-    const char *jsFunctionName = "onResize";
-    EventDispatcher::doDispatchJsEvent(jsFunctionName, args);
+    EventDispatcher::doDispatchJsEvent("onResize", args);
     EventDispatcher::dispatchCustomEvent(EVENT_RESIZE, 0);
 }
 
