@@ -27,8 +27,6 @@
 
 /* spell-checker:words COORD, Quesada, INITED, Renerer */
 
-
-
 import { DEBUG, EDITOR, BUILD, TEST } from 'internal:constants';
 import { SceneAsset } from './assets';
 import System from './components/system';
@@ -481,8 +479,8 @@ export class Director extends EventTarget {
      * @zh 预加载场景资源，你可以在任何时候调用这个方法。
      * 调用完后，你仍然需要通过 `director.loadScene` 来启动场景，因为这个方法不会执行场景加载操作。<br>
      * 就算预加载还没完成，你也可以直接调用 `director.loadScene`，加载完成后场景就会启动。
-     * @param sceneName 场景名称。
-     * @param onLoaded 加载回调。
+     * @param sceneName @en The name of the scene to load @zh 场景名称。
+     * @param onLoaded @en Callback to execute once the scene is loaded @zh 加载回调。
      */
     public preloadScene (sceneName: string, onLoaded?: Director.OnSceneLoaded): void;
 
@@ -495,9 +493,9 @@ export class Director extends EventTarget {
      * @zh 预加载场景，你可以在任何时候调用这个方法。
      * 调用完后，你仍然需要通过 `director.loadScene` 来启动场景，因为这个方法不会执行场景加载操作。<br>
      * 就算预加载还没完成，你也可以直接调用 `director.loadScene`，加载完成后场景就会启动。
-     * @param sceneName 场景名称。
-     * @param onProgress 加载进度回调。
-     * @param onLoaded 加载回调。
+     * @param sceneName @en The name of scene to load @zh 场景名称。
+     * @param onProgress @en Callback to execute when the load progression change.  @zh 加载进度回调。
+     * @param onLoaded @en Callback to execute once the scene is loaded @zh 加载回调。
      */
     public preloadScene (sceneName: string, onProgress: Director.OnLoadSceneProgress, onLoaded: Director.OnSceneLoaded): void;
 

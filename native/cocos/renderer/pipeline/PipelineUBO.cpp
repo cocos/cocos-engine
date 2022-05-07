@@ -30,6 +30,7 @@
 #include "forward/ForwardPipeline.h"
 #include "gfx-base/GFXDevice.h"
 #include "scene/RenderScene.h"
+#include "helper/Utils.h"
 
 namespace cc {
 
@@ -148,7 +149,9 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, float *out
     output[UBOCamera::CAMERA_POS_OFFSET + 3] = getCombineSignY();
 
     if (fog->enabled) {
-        TO_VEC4(output, fog->color, UBOCamera::GLOBAL_FOG_COLOR_OFFSET)
+        gfx::Color srgbColor = {fog->color.x, fog->color.y, fog->color.z, fog->color.w};
+        cc::pipeline::srgbToLinear(&srgbColor, srgbColor);
+        TO_VEC4(output, srgbColor, UBOCamera::GLOBAL_FOG_COLOR_OFFSET)
 
         output[UBOCamera::GLOBAL_FOG_BASE_OFFSET + 0] = fog->start;
         output[UBOCamera::GLOBAL_FOG_BASE_OFFSET + 1] = fog->end;

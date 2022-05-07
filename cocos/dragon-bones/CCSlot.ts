@@ -1,12 +1,12 @@
-
-
 import { BoneType, BinaryOffset, Slot } from '@cocos/dragonbones-js';
 import { Color, Mat4, Texture2D } from '../core';
 import { ccclass } from '../core/data/class-decorator';
 import { CCTextureData } from './CCTextureData';
 
 // @skipLibCheck
-
+/**
+* @deprecated since v3.5.1, this is an engine private interface that will be removed in the future.
+*/
 @ccclass('dragonBones.CCSlot')
 export class CCSlot extends Slot {
     static toString () {
