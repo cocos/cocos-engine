@@ -392,7 +392,8 @@ void AudioEngineImpl::play2dImpl(AudioCache *cache, int audioID) {
         auto playerIt = _audioPlayers.find(audioID);
         if (playerIt != _audioPlayers.end()) {
             // Trust it, or assert it out.
-            assert(playerIt->second->play2d());
+            bool res = playerIt->second->play2d();
+            CCASSERT(res, "AudioPlay failed");
         }
         _threadMutex.unlock();
     } else {
