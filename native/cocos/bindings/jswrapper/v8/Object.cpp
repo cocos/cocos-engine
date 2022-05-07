@@ -581,7 +581,6 @@ void Object::setPrivateObject(PrivateObjectBase *data) {
 
     if (data != nullptr) {
         NativePtrToObjectMap::emplace(data->getRaw(), this);
-        defineOwnProperty("__native_ptr__", se::Value(static_cast<uint64_t>(reinterpret_cast<uintptr_t>(data->getRaw()))), false, false, false);
     }
 }
 
@@ -598,7 +597,6 @@ void Object::clearPrivateData(bool clearMapping) {
             NativePtrToObjectMap::erase(_privateObject->getRaw());
         }
         internal::clearPrivate(__isolate, _obj);
-        defineOwnProperty("__native_ptr__", se::Value(static_cast<uint64_t>(reinterpret_cast<uintptr_t>(nullptr))), false, false, false);
         delete _privateObject;
         _privateObject = nullptr;
     }
