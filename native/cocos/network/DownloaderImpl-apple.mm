@@ -194,16 +194,10 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
     // save outer task ref
     _outer = o;
     _hints = hints;
-    
     // create task dictionary
     self.taskDict = [NSMutableDictionary dictionary];
 
-    // create download session
-//     NSURLSessionConfiguration *defaultConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
-//     self.downloadSession = [NSURLSession sessionWithConfiguration:defaultConfig delegate:self delegateQueue:[NSOperationQueue mainQueue]];
-    //    self.downloadSession.sessionDescription = kCurrentSession;
-
-    // use backgroundSession to support background download
+    // create backgroundSession to support background download
     self.downloadSession = [self backgroundURLSession];
 
     self.hasUnfinishedTask = YES;
@@ -437,7 +431,7 @@ static int tag = 0;
  */
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task
     didCompleteWithError:(NSError *)error {
-    DLLOG("DownloaderAppleImpl task: \"%s\" didCompleteWithError: %d errDesc: %s", [task.originalRequest.URL.absoluteString cStringUsingEncoding:NSUTF8StringEncoding], (error ? (int)error.code : 0), [error.localizedDescription cStringUsingEncoding:NSUTF8StringEncoding]);
+    DLLOG("DownloaderAppleImpl task: \"%s\" didCompleteWithError: %d errDesc: %s", [task.originalRequest.URL.absoluteString cStringUsingEncoding:NSUTF8StringEncoding], (error ? static_cast<int32_t>(error.code) : 0), [error.localizedDescription cStringUsingEncoding:NSUTF8StringEncoding]);
 
     // clean wrapper C++ object
     DownloadTaskWrapper *wrapper = [self.taskDict objectForKey:task];
@@ -445,7 +439,7 @@ static int tag = 0;
     if (wrapper) {
         if (_outer) {
             if (error) {
-              int errorCode = (int)error.code;
+              int errorCode = static_cast<int32_t>(error.code);
               NSString *errorMsg = error.localizedDescription;
               if (error.code == NSURLErrorCancelled) {
                   //cancel
@@ -480,7 +474,7 @@ static int tag = 0;
                 if (statusCode >= 400) {
                     ccstd::vector<unsigned char> buf; // just a placeholder
                     const char *originalURL = [task.originalRequest.URL.absoluteString cStringUsingEncoding:NSUTF8StringEncoding];
-                    ccstd::string errorMessage = cc::StringUtils::format("Downloader: Failed to download %s with status code (%d)", originalURL, (int)statusCode);
+                    ccstd::string errorMessage = cc::StringUtils::format("Downloader: Failed to download %s with status code (%d)", originalURL, static_cast<int32_t>(statusCode));
 
                         _outer->onTaskFinish(*[wrapper get],
                                              cc::network::DownloadTask::ERROR_IMPL_INTERNAL,
@@ -548,7 +542,7 @@ static int tag = 0;
     didReceiveData:(NSData *)data {
     DLLOG("DownloaderAppleImpl dataTask: \"%s\" didReceiveDataLen %d",
           [dataTask.originalRequest.URL.absoluteString cStringUsingEncoding:NSUTF8StringEncoding],
-          (int)data.length);
+          static_cast<int32_t>(data.length));
     if (nullptr == _outer) {
         return;
     }
@@ -644,7 +638,7 @@ static int tag = 0;
     } else {
         errorCode = cc::network::DownloadTask::ERROR_FILE_OP_FAILED;
         if (error) {
-            errorCodeInternal = (int)error.code;
+            errorCodeInternal = static_cast<int32_t>(error.code);
             errorString = [error.localizedDescription cStringUsingEncoding:NSUTF8StringEncoding];
         }
     }
@@ -668,7 +662,6 @@ static int tag = 0;
     }
 
     DownloadTaskWrapper *wrapper = [self.taskDict objectForKey:downloadTask];
-    
     std::function<int64_t(void *, int64_t)> transferDataToBuffer; // just a placeholder
     if (wrapper) {
         _outer->onTaskProgress(*[wrapper get], bytesWritten, totalBytesWritten, totalBytesExpectedToWrite, transferDataToBuffer);
@@ -684,8 +677,6 @@ static int tag = 0;
      didResumeAtOffset:(int64_t)fileOffset
     expectedTotalBytes:(int64_t)expectedTotalBytes {
     NSLog(@"[REFINE]DownloaderAppleImpl downloadTask: \"%@\" didResumeAtOffset: %lld", downloadTask.originalRequest.URL, fileOffset);
-    // 下载失败
-    //    self.downloadFail([self getDownloadRespose:XZDownloadFail identifier:self.identifier progress:0.00 downloadUrl:nil downloadSaveFileUrl:nil downloadData:nil downloadResult:@"下载失败"]);
 }
 
 @end
