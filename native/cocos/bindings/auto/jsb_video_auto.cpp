@@ -12,6 +12,15 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
+
+#if CC_DEBUG
+static bool js_video_getter_return_true(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    s.rval().setBoolean(true);
+    return true;
+}
+SE_BIND_PROP_GET(js_video_getter_return_true)
+#endif
 se::Object* __jsb_cc_VideoPlayer_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_VideoPlayer_class = nullptr;  // NOLINT
 
@@ -333,6 +342,9 @@ bool js_register_video_VideoPlayer(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("VideoPlayer", obj, nullptr, _SE(js_video_VideoPlayer_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_video_getter_return_true), nullptr);
+#endif
     cls->defineFunction("addEventListener", _SE(js_video_VideoPlayer_addEventListener));
     cls->defineFunction("currentTime", _SE(js_video_VideoPlayer_currentTime));
     cls->defineFunction("duration", _SE(js_video_VideoPlayer_duration));
