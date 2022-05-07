@@ -54,6 +54,7 @@ jobs:
           style: file
           version: 11
           thread-comments: false
+          ignore: native/cocos/editor-support|native/cocos/bindings/manual|native/cocos/bindings/jswrapper/v8/debugger|native/cocos/audio/android/audio_utils|native/cocos/renderer/gfx-vulkan/volk|native/cocos/bindings/auto
           database: native
 
       - name: Fail fast!
