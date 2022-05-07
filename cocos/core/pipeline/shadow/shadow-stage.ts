@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { ccclass } from 'cc.decorator';
 import { Color, Rect, Framebuffer, DescriptorSet } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
