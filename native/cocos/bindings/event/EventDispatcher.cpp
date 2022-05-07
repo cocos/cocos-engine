@@ -317,7 +317,6 @@ void EventDispatcher::dispatchCloseEvent() {
 }
 
 void EventDispatcher::dispatchDestroyWindowEvent() {
-    EventDispatcher::doDispatchJsEvent("", se::EmptyValueArray);
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
     EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 1,
         reinterpret_cast<void *>(CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandler()));
@@ -328,7 +327,6 @@ void EventDispatcher::dispatchDestroyWindowEvent() {
 }
 
 void EventDispatcher::dispatchRecreateWindowEvent() {
-    EventDispatcher::doDispatchJsEvent("", se::EmptyValueArray);
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
     EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 1,
         reinterpret_cast<void *>(CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandler()));
