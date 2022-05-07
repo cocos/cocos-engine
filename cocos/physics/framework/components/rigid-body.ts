@@ -436,7 +436,7 @@ export class RigidBody extends Component {
      * @zh
      * 在世界空间中，相对于刚体的质心的某点上对刚体施加作用力。
      * @param force @zh 作用力 @en The force applied
-     * @param relativePoint @zh 作用点，相对于刚体的质心 @en The point to applied the force on, relative to the center of mass of the rigid body
+     * @param relativePoint @zh 作用点，相对于刚体的质心 @en The point to apply the force on, relative to the center of mass of the rigid body
      */
     public applyForce (force: Vec3, relativePoint?: Vec3) {
         if (this._isInitialized) this._body!.applyForce(force, relativePoint);
@@ -448,7 +448,7 @@ export class RigidBody extends Component {
      * @zh
      * 在本地空间中，相对于刚体的质心的某点上对刚体施加作用力。
      * @param force @zh 作用力 @en The force applied
-     * @param localPoint @zh 作用点 @en The point to applied the force on
+     * @param localPoint @zh 作用点 @en The point to apply the force on
      */
     public applyLocalForce (force: Vec3, localPoint?: Vec3) {
         if (this._isInitialized) this._body!.applyLocalForce(force, localPoint);
@@ -460,7 +460,7 @@ export class RigidBody extends Component {
      * @zh
      * 在世界空间中，相对于刚体的质心的某点上对刚体施加冲量。
      * @param impulse @zh 冲量 @en The impulse applied
-     * @param relativePoint @zh 作用点，相对于刚体的中心点 @en The point to applied the impulse, relative to the center of mass of the rigid body
+     * @param relativePoint @zh 作用点，相对于刚体的中心点 @en The point to apply the impulse, relative to the center of mass of the rigid body
      */
     public applyImpulse (impulse: Vec3, relativePoint?: Vec3) {
         if (this._isInitialized) this._body!.applyImpulse(impulse, relativePoint);
@@ -472,7 +472,7 @@ export class RigidBody extends Component {
      * @zh
      * 在本地空间中，相对于刚体的质心的某点上对刚体施加冲量。
      * @param impulse @zh 冲量 @en The impulse applied
-     * @param localPoint @zh 作用点 @en The point to applied the impulse
+     * @param localPoint @zh 作用点 @en The point to apply the impulse
      */
     public applyLocalImpulse (impulse: Vec3, localPoint?: Vec3) {
         if (this._isInitialized) this._body!.applyLocalImpulse(impulse, localPoint);
