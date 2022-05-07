@@ -210,8 +210,8 @@ export class Sphere {
      * Get the bounding points of this shape
      * @zh
      * 获取此形状的边界点。
-     * @param minPos @en Bottom(negative direction) point of the sphere. @zh 最小点。
-     * @param maxPos @en Top(positive direction) point of the sphere. @zh 最大点。
+     * @param minPos @en The point with maximum coordinates of the sphere. @zh 最小点。
+     * @param maxPos @en The point with minimum coordinates of the sphere. @zh 最大点。
      */
     public getBoundary (minPos: Vec3, maxPos: Vec3) {
         Vec3.set(minPos, this.center.x - this.radius, this.center.y - this.radius, this.center.z - this.radius);
