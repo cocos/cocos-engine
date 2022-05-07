@@ -1,12 +1,12 @@
-
-
 import { BaseObject, TextureAtlasData, TextureData } from '@cocos/dragonbones-js';
-import { Size, Vec2 } from '../core';
 import { SpriteFrame } from '../2d';
 import { TextureBase } from '../core/assets/texture-base';
 import { ccclass } from '../core/data/decorators';
 import { Rect } from '../core/math/rect';
 
+/**
+ * @deprecated
+ */
 @ccclass('dragonBones.CCTextureAtlasData')
 export class CCTextureAtlasData extends TextureAtlasData {
     get renderTexture () {
@@ -60,6 +60,9 @@ export class CCTextureAtlasData extends TextureAtlasData {
     }
 }
 
+/**
+ * @deprecated
+ */
 @ccclass('dragonBones.CCTextureData')
 export class CCTextureData extends TextureData {
     spriteFrame: SpriteFrame | null = null

@@ -1,5 +1,3 @@
-
-
 import { EDITOR } from 'internal:constants';
 import { Armature, BaseObject, Animation, BaseFactory, DragonBones } from '@cocos/dragonbones-js';
 import { director, Game, game, ISchedulable, Node, Scheduler, System } from '../core';
@@ -14,6 +12,7 @@ import { CCArmatureDisplay } from './CCArmatureDisplay';
  * DragonBones factory
  * @class CCFactory
  * @extends BaseFactory
+ * @deprecated
 */
 @ccclass('CCFactory')
 export class CCFactory extends BaseFactory implements ISchedulable {
