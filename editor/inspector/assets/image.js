@@ -57,7 +57,7 @@ exports.$ = {
     isRGBEProp: '.isRGBE-prop',
     isRGBECheckbox: '.isRGBE-checkbox',
 
-    //bakeOfflineMipmapsCheckbox: '.bakeOfflineMipmaps-checkbox',
+    // bakeOfflineMipmapsCheckbox: '.bakeOfflineMipmaps-checkbox',
 };
 
 /**
@@ -313,7 +313,11 @@ exports.methods = {
         }
 
         const asset = assetList[0];
-        this.$.panelName.setAttribute('value', this.meta.userData.type);
+        let type = this.meta.userData.type;
+        if (type === 'sprite-frame') {
+            type = 'texture';
+        }
+        this.$.panelName.setAttribute('value', type);
         this.$.panel.setAttribute('src', path.join(__dirname, `./${asset.importer}.js`));
         this.$.panel.update(assetList, metaList);
     },
