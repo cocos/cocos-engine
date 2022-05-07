@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -68,5 +68,3 @@ export class ModelRenderer extends Renderer {
     protected _onVisibilityChange (val) {
     }
 }
-
-legacyCC.Renderer = ModelRenderer;
