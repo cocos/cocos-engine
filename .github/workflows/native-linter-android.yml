@@ -74,29 +74,44 @@ jobs:
           cd native
           ./utils/generate_compile_commands_android.sh
 
-      - name: Generate clang-fix.yaml
-        shell: bash
-        if: ${{ steps.listchanged.outputs.source == 'true' }}
-        run: |
-          CPP="${{ steps.listchanged.outputs.source_files }}"
-          FILTERED=`node .github/workflows/filter_by_cdb.js $CPP`
-          if [[ "$FILTERED-xxx" == "-xxx" ]]; then
-            echo "no source files match"
-          else
-            for src in $FILTERED
-            do
-              echo "lint file ${src} ..."
-            done
-            clang-tidy-11 --format-style=file --export-fixes=clang-fixes.yaml $FILTERED
-            du -h clang-fixes.yaml
-          fi
-      - name: clang-tidy-action
-        uses: PatriceJiang/clang-tidy-action@github-api
-        if: hashFiles('clang-fixes.yaml') != ''
+      - uses: shenxianpeng/cpp-linter-action@v1
+        name: lint action
+        id: linter
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          fixesFile: clang-fixes.yaml
-          useLog: false
-          noFailOnIssue: false
-          repo-token: ${{ secrets.PR_TOKEN }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          error-limit: 200
+          style: file
+          database: native/build/
+
+      - name: Fail fast!
+        if: steps.linter.outputs.checks-failed > 0
+        run: |
+          echo "Some files failed the linting checks!"
+        # for actual deployment
+        # run: exit 1
+      # - name: Generate clang-fix.yaml
+      #   shell: bash
+      #   if: ${{ steps.listchanged.outputs.source == 'true' }}
+      #   run: |
+      #     CPP="${{ steps.listchanged.outputs.source_files }}"
+      #     FILTERED=`node .github/workflows/filter_by_cdb.js $CPP`
+      #     if [[ "$FILTERED-xxx" == "-xxx" ]]; then
+      #       echo "no source files match"
+      #     else
+      #       for src in $FILTERED
+      #       do
+      #         echo "lint file ${src} ..."
+      #       done
+      #       clang-tidy-11 --format-style=file --export-fixes=clang-fixes.yaml $FILTERED
+      #       du -h clang-fixes.yaml
+      #     fi
+      # - name: clang-tidy-action
+      #   uses: PatriceJiang/clang-tidy-action@github-api
+      #   if: hashFiles('clang-fixes.yaml') != ''
+      #   with:
+      #     fixesFile: clang-fixes.yaml
+      #     useLog: false
+      #     noFailOnIssue: false
+      #     repo-token: ${{ secrets.PR_TOKEN }}
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     error-limit: 200
