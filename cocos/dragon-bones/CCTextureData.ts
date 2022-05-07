@@ -5,8 +5,8 @@ import { ccclass } from '../core/data/decorators';
 import { Rect } from '../core/math/rect';
 
 /**
- * @deprecated
- */
+* @deprecated since v3.5.1, this is an engine private interface that will be removed in the future.
+*/
 @ccclass('dragonBones.CCTextureAtlasData')
 export class CCTextureAtlasData extends TextureAtlasData {
     get renderTexture () {
@@ -61,8 +61,8 @@ export class CCTextureAtlasData extends TextureAtlasData {
 }
 
 /**
- * @deprecated
- */
+* @deprecated since v3.5.1, this is an engine private interface that will be removed in the future.
+*/
 @ccclass('dragonBones.CCTextureData')
 export class CCTextureData extends TextureData {
     spriteFrame: SpriteFrame | null = null

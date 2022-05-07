@@ -5,8 +5,8 @@ import { CCTextureData } from './CCTextureData';
 
 // @skipLibCheck
 /**
- * @deprecated
- */
+* @deprecated since v3.5.1, this is an engine private interface that will be removed in the future.
+*/
 @ccclass('dragonBones.CCSlot')
 export class CCSlot extends Slot {
     static toString () {
