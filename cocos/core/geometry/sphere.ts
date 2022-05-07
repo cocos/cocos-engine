@@ -47,10 +47,10 @@ export class Sphere {
      * @zh
      * 创建一个新的 sphere 实例。
      * @param cx @en X-Coordinate of center point relative to the origin.  @zh 中心点的相对于原点的 X 坐标。
-     * @param cy @en X-Coordinate of center point relative to the origin.  @zh 中心点的相对于原点的 Y 坐标。
-     * @param cz @en X-Coordinate of center point relative to the origin.  @zh 中心点的相对于原点的 Z 坐标。
+     * @param cy @en Y-Coordinate of center point relative to the origin.  @zh 中心点的相对于原点的 Y 坐标。
+     * @param cz @en Z-Coordinate of center point relative to the origin.  @zh 中心点的相对于原点的 Z 坐标。
      * @param r @en Radius of the sphere. @zh 球体的半径
-     * @return 返回一个 sphere。
+     * @return @en return a new sphere. @zh 返回一个 sphere。
      */
     public static create (cx: number, cy: number, cz: number, r: number): Sphere {
         return new Sphere(cx, cy, cz, r);
@@ -110,7 +110,7 @@ export class Sphere {
      * @param cy @en Y-Coordinate of center point relative to the origin.  @zh 中心点的相对于原点的 Y 坐标。
      * @param cz @en Z-Coordinate of center point relative to the origin.  @zh 中心点的相对于原点的 Z 坐标。
      * @param r @en Radius of the sphere. @zh 半径。
-     * @return out @en Sphere which the properties will be set to. @zh 接受操作的 sphere。
+     * @return @en Sphere which the properties will be set to. @zh 接受操作的 sphere。
      * @function
      */
     public static set (out: Sphere, cx: number, cy: number, cz: number, r: number): Sphere {
