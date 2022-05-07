@@ -72,9 +72,9 @@ export class Renderer extends Component {
     protected _materials: (Material | null)[] = [];
 
     /**
-      * @en The materials of the model.
-      * @zh 模型材质。
-      */
+     * @en The materials of the model.
+     * @zh 模型材质。
+     */
     get materials (): (MaterialInstance | null)[] {
         for (let i = 0; i < this._materials.length; i++) {
             this._materialInstances[i] = this.getMaterialInstance(i) as MaterialInstance;
@@ -106,9 +106,9 @@ export class Renderer extends Component {
     }
 
     /**
-      * @en Get the shared material asset of the specified sub-model.
-      * @zh 获取指定子模型的共享材质资源。
-      */
+     * @en Get the shared material asset of the specified sub-model.
+     * @zh 获取指定子模型的共享材质资源。
+     */
     public getMaterial (idx: number): Material | null {
         if (idx < 0 || idx >= this._materials.length) {
             return null;
@@ -117,10 +117,10 @@ export class Renderer extends Component {
     }
 
     /**
-      * @en Set the shared material asset of the specified sub-model,
-      * new material instance will be created automatically if the sub-model is already using one.
-      * @zh 设置指定子模型的 sharedMaterial，如果对应位置有材质实例则会创建一个对应的材质实例。
-      */
+     * @en Set the shared material asset of the specified sub-model,
+     * new material instance will be created automatically if the sub-model is already using one.
+     * @zh 设置指定子模型的 sharedMaterial，如果对应位置有材质实例则会创建一个对应的材质实例。
+     */
     public setMaterial (material: Material | null, index: number) {
         if (material && material instanceof MaterialInstance) {
             console.error('Can\'t set a material instance to a sharedMaterial slot');
@@ -146,9 +146,9 @@ export class Renderer extends Component {
     }
 
     /**
-      * @en Get the material instance of the specified sub-model.
-      * @zh 获取指定子模型的材质实例。
-      */
+     * @en Get the material instance of the specified sub-model.
+     * @zh 获取指定子模型的材质实例。
+     */
     public getMaterialInstance (idx: number): MaterialInstance | null {
         const mat = this._materials[idx];
         if (!mat) {
@@ -168,9 +168,9 @@ export class Renderer extends Component {
     }
 
     /**
-      * @en Set the material instance of the specified sub-model.
-      * @zh 获取指定子模型的材质实例。
-      */
+     * @en Set the material instance of the specified sub-model.
+     * @zh 获取指定子模型的材质实例。
+     */
     public setMaterialInstance (matInst: Material | MaterialInstance | null, index: number) {
         if (typeof matInst === 'number') {
             warnID(12007);
@@ -198,10 +198,10 @@ export class Renderer extends Component {
     }
 
     /**
-      * @en Get the actual rendering material of the specified sub-model.
-      * (material instance if there is one, or the shared material asset)
-      * @zh 获取指定位置可供渲染的材质，如果有材质实例则使用材质实例，如果没有则使用材质资源
-      */
+     * @en Get the actual rendering material of the specified sub-model.
+     * (material instance if there is one, or the shared material asset)
+     * @zh 获取指定位置可供渲染的材质，如果有材质实例则使用材质实例，如果没有则使用材质资源
+     */
     public getRenderMaterial (index: number): Material | null {
         return this._materialInstances[index] || this._materials[index];
     }
