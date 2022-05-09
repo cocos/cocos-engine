@@ -32,7 +32,7 @@ import { Camera, PCFType, Shadows, ShadowType, CSMLevel } from '../../core/rende
 import { Root } from '../../core/root';
 import { property } from '../../core/data/class-decorator';
 import { CCBoolean, CCFloat } from '../../core/data/utils/attribute';
-import { clamp } from '../../core';
+import { clamp, warnID } from '../../core';
 
 @ccclass('cc.DirectionalLight')
 @help('i18n:cc.DirectionalLight')
@@ -220,6 +220,7 @@ export class DirectionalLight extends Light {
     }
     set shadowDistance (val) {
         this._shadowDistance = Math.min(val, Shadows.MAX_FAR);
+        if (this._shadowDistance / 0.1 < 10.0) { warnID(15003, this._shadowDistance); }
         if (this._light) {
             this._light.shadowDistance = this._shadowDistance;
             this._light.shadowCSMValueDirty = true;
