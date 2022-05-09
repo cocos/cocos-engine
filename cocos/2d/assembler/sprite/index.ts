@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { UIRenderer } from '../../framework/renderable-2d';
+import { UIRenderer } from '../../framework/ui-renderer';
 import { IAssemblerManager } from '../../renderer/base';
 import { Sprite } from '../../components';
 import { barFilled } from './bar-filled';

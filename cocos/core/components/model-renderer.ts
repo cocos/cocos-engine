@@ -23,24 +23,26 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module model
- */
-
 import {
     ccclass, serializable,
 } from 'cc.decorator';
 import { scene } from '../renderer';
 import { Layers } from '../scene-graph/layers';
-import { legacyCC } from '../global-exports';
 import { Renderer } from './renderer';
 
+/**
+ * @en Base class for all rendering components containing model.
+ * @zh 所有包含 model 的渲染组件基类。
+ */
 @ccclass('cc.ModelRenderer')
 export class ModelRenderer extends Renderer {
     @serializable
     protected _visFlags = Layers.Enum.NONE;
 
+    /**
+     * @zh 组件所属层，影响该组件下的所有 model 的 visFlags
+     * @en The layer of the current component, which affects all the visFlags of the models belonging to this component.
+     */
     get visibility () {
         return this._visFlags;
     }
@@ -53,6 +55,8 @@ export class ModelRenderer extends Renderer {
     protected _models: scene.Model[] = [];
 
     /**
+     * @zh 收集组件中的 models
+     * @en Collect the models in this component.
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _collectModels (): scene.Model[] {

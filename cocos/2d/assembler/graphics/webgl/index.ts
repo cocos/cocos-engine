@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { UIRenderer } from '../../../framework/renderable-2d';
+import { UIRenderer } from '../../../framework/ui-renderer';
 import { IAssemblerManager } from '../../../renderer/base';
 import { Graphics } from '../../../components';
 import { graphicsAssembler as graphics } from './graphics-assembler';

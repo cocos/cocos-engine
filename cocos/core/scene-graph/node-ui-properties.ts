@@ -29,7 +29,7 @@
  */
 
 import { JSB } from 'internal:constants';
-import { UIRenderer } from '../../2d/framework/renderable-2d';
+import { UIRenderer } from '../../2d/framework/ui-renderer';
 import { UITransform } from '../../2d/framework/ui-transform';
 import { warnID } from '../platform/debug';
 import { UIMeshRenderer } from '../../2d';

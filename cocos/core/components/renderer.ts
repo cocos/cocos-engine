@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module model
- */
-
 import { EDITOR } from 'internal:constants';
 import {
     ccclass, type, displayOrder, displayName, serializable,
@@ -43,8 +38,16 @@ const _matInsInfo: IMaterialInstanceInfo = {
     subModelIdx: 0,
 };
 
+/**
+ * @zh 所有渲染组件的基类。
+ * @en Base class for all rendering components.
+ */
 @ccclass('cc.Renderer')
 export class Renderer extends Component {
+    /**
+     * @zh 组件的材质。
+     * @en The materials of the component.
+     */
     @type(Material)
     @displayOrder(0)
     @displayName('Materials')
@@ -101,6 +104,10 @@ export class Renderer extends Component {
 
     protected _materialInstances: (MaterialInstance | null)[] = [];
 
+    /**
+     * @en Get the shared material asset of the first sub-model.
+     * @zh 获取第一个子模型的共享材质资源。
+     */
     get sharedMaterial () {
         return this.getMaterial(0);
     }
@@ -134,6 +141,10 @@ export class Renderer extends Component {
         this._onMaterialModified(index, this._materials[index]);
     }
 
+    /**
+     * @en Get the material instance of the first sub-model.
+     * @zh 获取第一个子模型的材质实例。
+     */
     get material (): MaterialInstance | null {
         return this.getMaterialInstance(0);
     }

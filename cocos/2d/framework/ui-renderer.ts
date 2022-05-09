@@ -23,10 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
 import { EDITOR } from 'internal:constants';
 import { ccclass, executeInEditMode, requireComponent, disallowMultiple, tooltip,
     type, displayOrder, serializable, override, visible, displayName, disallowAnimation } from 'cc.decorator';
@@ -104,10 +100,10 @@ export enum InstanceMaterialType {
 }
 
 /**
- * @en Base class for 2D components which supports rendering features.
+ * @en Base class for UI components which supports rendering features.
  * This component will setup [[NodeUIProperties.uiComp]] in its owner [[Node]]
  *
- * @zh 所有支持渲染的 2D 组件的基类。
+ * @zh 所有支持渲染的 UI 组件的基类。
  * 这个组件会设置 [[Node]] 上的 [[NodeUIProperties.uiComp]]。
  */
 @ccclass('cc.UIRenderer')

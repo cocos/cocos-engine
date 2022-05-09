@@ -33,7 +33,7 @@
 import { ccclass } from 'cc.decorator';
 
 import { EDITOR } from 'internal:constants';
-import { UIRenderer } from '../2d/framework/renderable-2d';
+import { UIRenderer } from '../2d/framework/ui-renderer';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
 import { Component } from '../core/components';
 import { TMXMapInfo } from './tmx-xml-parser';

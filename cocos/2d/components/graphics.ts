@@ -31,7 +31,7 @@
 
 import { ccclass, help, executionOrder, menu, tooltip, type, visible, override, editable, serializable } from 'cc.decorator';
 import { builtinResMgr } from '../../core/builtin';
-import { InstanceMaterialType, UIRenderer } from '../framework/renderable-2d';
+import { InstanceMaterialType, UIRenderer } from '../framework/ui-renderer';
 import { director } from '../../core/director';
 import { Color } from '../../core/math';
 import { scene } from '../../core/renderer';

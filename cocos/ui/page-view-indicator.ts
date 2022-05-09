@@ -38,7 +38,7 @@ import { Node } from '../core/scene-graph';
 import { Layout } from './layout';
 import { PageView } from './page-view';
 import { Sprite } from '../2d/components/sprite';
-import { UIRenderer } from '../2d/framework/renderable-2d';
+import { UIRenderer } from '../2d/framework/ui-renderer';
 import { legacyCC } from '../core/global-exports';
 
 const _color = new Color();

@@ -29,7 +29,7 @@
  */
 
 import { ccclass, help, menu, executionOrder, visible, override } from 'cc.decorator';
-import { UIRenderer } from '../framework/renderable-2d';
+import { UIRenderer } from '../framework/ui-renderer';
 import { IBatcher } from '../renderer/i-batcher';
 import { DrawBatch2D } from '../renderer/draw-batch';
 import { director, Color, warnID } from '../../core';

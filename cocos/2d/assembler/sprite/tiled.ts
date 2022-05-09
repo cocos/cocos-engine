@@ -28,7 +28,7 @@ import { Mat4, Vec3, Color } from '../../../core/math';
 import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components/sprite';
-import { UIRenderer } from '../../framework/renderable-2d';
+import { UIRenderer } from '../../framework/ui-renderer';
 import { IAssembler } from '../../renderer/base';
 import { StaticVBChunk } from '../../renderer/static-vb-accessor';
 

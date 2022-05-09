@@ -32,7 +32,7 @@
 import { markAsWarning, removeProperty, replaceProperty } from '../../core/utils';
 import { UIComponent } from './ui-component';
 import { UITransform } from './ui-transform';
-import { UIRenderer } from './renderable-2d';
+import { UIRenderer } from './ui-renderer';
 import { Canvas } from './canvas';
 import { js } from '../../core/utils/js';
 import { legacyCC } from '../../core/global-exports';

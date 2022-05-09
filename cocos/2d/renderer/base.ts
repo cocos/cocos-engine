@@ -28,7 +28,7 @@
  * @module ui
  */
 
-import { UIRenderer } from '../framework/renderable-2d';
+import { UIRenderer } from '../framework/ui-renderer';
 
 export interface IAssembler {
     [key: string]: any;
