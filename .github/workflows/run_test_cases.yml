@@ -9,7 +9,7 @@ on:
 jobs:
   Win-RunTestCases:
     if: |
-      github.event.issue.pull_request && !contains(github.event.comment.body, '@cocos-robot run test cases')
+      github.event.issue.pull_request && contains(github.event.comment.body, '@cocos-robot run test cases')
     runs-on: self-hosted-win
 
     steps:
