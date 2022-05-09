@@ -33,7 +33,7 @@ import { ccclass, help, executionOrder, menu, requireComponent, tooltip, display
 import { EDITOR } from 'internal:constants';
 import { SpriteFrame } from '../2d/assets';
 import { Component, EventHandler as ComponentEventHandler } from '../core/components';
-import { UITransform, Renderable2D } from '../2d/framework';
+import { UITransform, UIRenderer } from '../2d/framework';
 import { EventMouse, EventTouch } from '../input/types';
 import { Color, Vec3 } from '../core/math';
 import { ccenum } from '../core/value-types/enum';
@@ -643,7 +643,7 @@ export class Button extends Component {
         }
 
         if (this._transition === Transition.COLOR) {
-            const renderComp = target._uiProps.uiComp as Renderable2D;
+            const renderComp = target._uiProps.uiComp as UIRenderer;
             Color.lerp(_tempColor, this._fromColor, this._toColor, ratio);
             if (renderComp) {
                 renderComp.color = _tempColor;
@@ -680,7 +680,7 @@ export class Button extends Component {
         }
         const transition = this._transition;
         if (transition === Transition.COLOR && this._interactable) {
-            const renderComp = target.getComponent(Renderable2D);
+            const renderComp = target.getComponent(UIRenderer);
             if (renderComp) {
                 renderComp.color = this._normalColor;
             }
@@ -919,7 +919,7 @@ export class Button extends Component {
     protected _updateColorTransition (state: string) {
         const color = this[`${state}Color`];
 
-        const renderComp = this.target?.getComponent(Renderable2D);
+        const renderComp = this.target?.getComponent(UIRenderer);
         if (!renderComp) {
             return;
         }

@@ -33,7 +33,7 @@
 import { ccclass } from 'cc.decorator';
 
 import { EDITOR } from 'internal:constants';
-import { Renderable2D } from '../2d/framework/renderable-2d';
+import { UIRenderer } from '../2d/framework/ui-renderer';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
 import { Component } from '../core/components';
 import { TMXMapInfo } from './tmx-xml-parser';
@@ -83,7 +83,7 @@ type TiledMeshDataArray = (TiledMeshData | TiledSubNodeData)[];
  * @extends Component
  */
 @ccclass('cc.TiledLayer')
-export class TiledLayer extends Renderable2D {
+export class TiledLayer extends UIRenderer {
     // [row][col] = {count: 0, nodesList: []};
     protected _userNodeGrid: { [key: number]: { count: number;[key: number]: { count: number, list: (TiledUserNodeData | null)[] } } } = {};
     protected _userNodeMap: { [key: string]: TiledUserNodeData } = {};// [id] = node;
