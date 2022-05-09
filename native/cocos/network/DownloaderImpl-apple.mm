@@ -225,13 +225,13 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
 #pragma mark - backgroundURLSession
 - (NSURLSession *)backgroundURLSession {
     // use for backgroundSession global unique identifier, remove it if use singleton instance in the future.
-    static int tag = 0;
+    static int sessionId = 0;
     // Single thread delegate mode
     // NSOperationQueue *queue = [[NSOperationQueue alloc] init];
     // queue.maxConcurrentOperationCount = 1;
-    NSString* identifierStr = [NSString stringWithFormat:@"%s%d", "BackgroundDownloadIdentifier" , tag];
+    NSString* identifierStr = [NSString stringWithFormat:@"%s%d", "BackgroundDownloadIdentifier" , sessionId];
     NSURLSessionConfiguration *backgroudConfig = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:identifierStr];
-    tag++;
+    sessionId++;
     return [NSURLSession sessionWithConfiguration:backgroudConfig delegate:self delegateQueue:[NSOperationQueue mainQueue]];
 }
 
