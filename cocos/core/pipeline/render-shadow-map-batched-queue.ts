@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { SubModel } from '../renderer/scene/submodel';
 import { SetIndex } from './define';
 import { Device, RenderPass, Shader, CommandBuffer } from '../gfx';
@@ -163,6 +161,7 @@ export class RenderShadowMapBatchedQueue {
         for (let j = 0; j < subModels.length; j++) {
             const subModel = subModels[j];
             const shadowPassIdx = _shadowPassIndices[j];
+            if (shadowPassIdx < 0) { return; }
             const pass = subModel.passes[shadowPassIdx];
             const batchingScheme = pass.batchingScheme;
 
