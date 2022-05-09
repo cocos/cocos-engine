@@ -37,7 +37,7 @@ layout(location = 3) in vec4 a_tangent;
   in vec4 a_matWorld0;
   in vec4 a_matWorld1;
   in vec4 a_matWorld2;
-  #if USE_LIGHTMAP
+  #if CC_USE_LIGHTMAP
     in vec4 a_lightingMapUVParam;
   #endif
   #if CC_RECEIVE_SHADOW

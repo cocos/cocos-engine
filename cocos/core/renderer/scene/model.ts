@@ -48,6 +48,10 @@ const shadowMapPatches: IMacroPatch[] = [
     { name: 'CC_RECEIVE_SHADOW', value: true },
 ];
 
+const lightMapPatches: IMacroPatch[] = [
+    { name: 'CC_USE_LIGHTMAP', value: true },
+];
+
 export interface IInstancedAttributeBlock {
     buffer: Uint8Array;
     views: TypedArray[];
@@ -744,6 +748,8 @@ export class Model {
         this._lightmap = texture;
         this._lightmapUVParam = uvParam;
 
+        this.onMacroPatchesStateChanged();
+
         if (texture === null) {
             texture = builtinResMgr.get<Texture2D>('empty-texture');
         }
@@ -754,8 +760,6 @@ export class Model {
             const subModels = this._subModels;
             for (let i = 0; i < subModels.length; i++) {
                 const { descriptorSet } = subModels[i];
-                // TODO: should manage lightmap macro switches automatically
-                // USE_LIGHTMAP -> CC_USE_LIGHTMAP
                 descriptorSet.bindTexture(UNIFORM_LIGHTMAP_TEXTURE_BINDING, gfxTexture);
                 descriptorSet.bindSampler(UNIFORM_LIGHTMAP_TEXTURE_BINDING, sampler);
                 descriptorSet.update();
@@ -786,7 +790,11 @@ export class Model {
      * @param subModelIndex sub model's index
      */
     public getMacroPatches (subModelIndex: number): IMacroPatch[] | null {
-        return this.receiveShadow ? shadowMapPatches : null;
+        let patches = this.receiveShadow ? shadowMapPatches : null;
+        if (this._lightmap != null) {
+            patches = patches ? patches.concat(lightMapPatches) : lightMapPatches;
+        }
+        return patches;
     }
 
     protected _updateAttributesAndBinding (subModelIndex: number) {
