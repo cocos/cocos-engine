@@ -29,7 +29,7 @@
 
 
 // eslint-disable-next-line max-len
-import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, inspector, boolean, visible } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, inspector, boolean, visible, slide, rangeStep } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { RenderableComponent } from '../core/components/renderable-component';
 import { Material } from '../core/assets/material';
@@ -315,6 +315,232 @@ export class ParticleSystem extends RenderableComponent {
     @displayOrder(16)
     @tooltip('i18n:particle_system.bursts')
     public bursts: Burst[] = [];
+
+    @type(Boolean)
+    @displayOrder(16)
+    get useNoise () {
+        return this._useNoise;
+    }
+    set useNoise (value: boolean) {
+        this._useNoise = value;
+        if (this.processor) {
+            this.processor.updateMaterialParams();
+        }
+    }
+    @serializable
+    private _useNoise = false;
+
+    @type(Number)
+    @range([0, 100])
+    @displayOrder(16)
+    @slide
+    get strengthX () {
+        return this._strengthX;
+    }
+    set strengthX (value: number) {
+        this._strengthX = value;
+        if (this.processor) {
+            this.processor.updateMaterialParams();
+        }
+    }
+    @serializable
+    private _strengthX = 0;
+
+    @type(Number)
+    @range([0, 100])
+    @displayOrder(16)
+    @slide
+    get strengthY () {
+        return this._strengthY;
+    }
+    set strengthY (value: number) {
+        this._strengthY = value;
+        if (this.processor) {
+            this.processor.updateMaterialParams();
+        }
+    }
+    @serializable
+    private _strengthY = 0;
+
+    @type(Number)
+    @range([0, 100])
+    @displayOrder(16)
+    @slide
+    get strengthZ () {
+        return this._strengthZ;
+    }
+    set strengthZ (value: number) {
+        this._strengthZ = value;
+        if (this.processor) {
+            this.processor.updateMaterialParams();
+        }
+    }
+    @serializable
+    private _strengthZ = 0;
+
+    @type(Number)
+    @range([0, 100])
+    @slide
+    @displayOrder(16)
+    get noiseSpeedX () {
+        return this._noiseSpeedX;
+    }
+    set noiseSpeedX (value: number) {
+        this._noiseSpeedX = value;
+        if (this.processor) {
+            this.processor.updateMaterialParams();
+        }
+    }
+    @serializable
+    private _noiseSpeedX = 0;
+
+    @type(Number)
+    @range([0, 100])
+    @displayOrder(16)
+    @slide
+    get noiseSpeedY () {
+        return this._noiseSpeedY;
+    }
+    set noiseSpeedY (value: number) {
+        this._noiseSpeedY = value;
+        if (this.processor) {
+            this.processor.updateMaterialParams();
+        }
+    }
+    @serializable
+    private _noiseSpeedY = 0;
+
+    @type(Number)
+    @range([0, 100])
+    @displayOrder(16)
+    @slide
+    get noiseSpeedZ () {
+        return this._noiseSpeedZ;
+    }
+    set noiseSpeedZ (value: number) {
+        this._noiseSpeedZ = value;
+        if (this.processor) {
+            this.processor.updateMaterialParams();
+        }
+    }
+    @serializable
+    private _noiseSpeedZ = 0;
+
+    @type(Number)
+    @range([0, 100])
+    @rangeStep(0.1)
+    @displayOrder(16)
+    @slide
+    get noiseFrequency () {
+        return this._noiseFrequency;
+    }
+    set noiseFrequency (value: number) {
+        this._noiseFrequency = value;
+        if (this.processor) {
+            this.processor.updateMaterialParams();
+        }
+    }
+    @serializable
+    private _noiseFrequency = 0;
+
+    @type(Number)
+    @range([0, 1])
+    @rangeStep(0.1)
+    @displayOrder(16)
+    @slide
+    get remapX () {
+        return this._remapX;
+    }
+    set remapX (value: number) {
+        this._remapX = value;
+        if (this.processor) {
+            this.processor.updateMaterialParams();
+        }
+    }
+    @serializable
+    private _remapX = 0;
+
+    @type(Number)
+    @range([0, 1])
+    @rangeStep(0.1)
+    @displayOrder(16)
+    @slide
+    get remapY () {
+        return this._remapY;
+    }
+    set remapY (value: number) {
+        this._remapY = value;
+        if (this.processor) {
+            this.processor.updateMaterialParams();
+        }
+    }
+    @serializable
+    private _remapY = 0;
+
+    @type(Number)
+    @range([0, 1])
+    @rangeStep(0.1)
+    @displayOrder(16)
+    @slide
+    get remapZ () {
+        return this._remapZ;
+    }
+    set remapZ (value: number) {
+        this._remapZ = value;
+        if (this.processor) {
+            this.processor.updateMaterialParams();
+        }
+    }
+    @serializable
+    private _remapZ = 0;
+
+    @type(Number)
+    @range([1, 10])
+    @rangeStep(1)
+    @displayOrder(16)
+    get octaves () {
+        return this._octaves;
+    }
+    set octaves (value: number) {
+        this._octaves = value;
+        if (this.processor) {
+            this.processor.updateMaterialParams();
+        }
+    }
+    @serializable
+    private _octaves = 1;
+
+    @type(Number)
+    @range([0, 1])
+    @rangeStep(0.1)
+    @displayOrder(16)
+    get octaveMultiplier () {
+        return this._octaveMultiplier;
+    }
+    set octaveMultiplier (value: number) {
+        this._octaveMultiplier = value;
+        if (this.processor) {
+            this.processor.updateMaterialParams();
+        }
+    }
+    @serializable
+    private _octaveMultiplier = 1;
+
+    @type(Number)
+    @range([1, 4])
+    @rangeStep(0.1)
+    @displayOrder(16)
+    get octaveScale () {
+        return this._octaveScale;
+    }
+    set octaveScale (value: number) {
+        this._octaveScale = value;
+        if (this.processor) {
+            this.processor.updateMaterialParams();
+        }
+    }
+    @serializable
+    private _octaveScale = 1;
 
     /**
      * @en Enable particle culling switch. Open it to enable particle culling. If enabled will generate emitter bounding box and emitters outside the frustum will be culled.
@@ -710,6 +936,8 @@ export class ParticleSystem extends RenderableComponent {
     private _isCulled: boolean;
     private _isSimulating: boolean;
 
+    private _deltaTime: number;
+
     private _customData1: Vec2;
     private _customData2: Vec2;
 
@@ -753,6 +981,7 @@ export class ParticleSystem extends RenderableComponent {
         this._curPos = null;
         this._isCulled = false;
         this._isSimulating = true;
+        this._deltaTime = 0;
 
         this._customData1 = new Vec2();
         this._customData2 = new Vec2();
@@ -1019,6 +1248,7 @@ export class ParticleSystem extends RenderableComponent {
 
     protected update (dt: number) {
         const scaledDeltaTime = dt * this.simulationSpeed;
+        this._deltaTime = scaledDeltaTime;
 
         if (!this.renderCulling) {
             if (this._boundingBox) {
@@ -1365,11 +1595,21 @@ export class ParticleSystem extends RenderableComponent {
         return this._time;
     }
 
+    get deltaTime () {
+        return this._deltaTime;
+    }
+
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onBeforeSerialize (props) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this.dataCulling ? props.filter((p) => !PARTICLE_MODULE_PROPERTY.includes(p) || (this[p] && this[p].enable)) : props;
+    }
+
+    public getNoisePreview (out: number[], width: number, height: number) {
+        if (this.processor) {
+            this.processor.getNoisePreview(out, width, height);
+        }
     }
 }
