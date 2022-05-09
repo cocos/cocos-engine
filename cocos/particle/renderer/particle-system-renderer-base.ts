@@ -24,7 +24,7 @@
  */
 
 import { Component } from '../../core';
-import { Attribute } from '../../core/gfx';
+import { Attribute, Feature } from '../../core/gfx';
 import ParticleBatchModel from '../models/particle-batch-model';
 import ParticleSystemRenderer from './particle-system-renderer-data';
 import { Material } from '../../core/assets';
@@ -60,6 +60,8 @@ export interface IParticleSystemRenderer {
     updateTrailMaterial (): void;
     getDefaultTrailMaterial (): any;
     beforeRender (): void;
+    setUseInstance (value: boolean): void;
+    getUseInstance (): boolean;
 }
 
 export abstract class ParticleSystemRendererBase implements IParticleSystemRenderer {
@@ -67,9 +69,19 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
     protected _model: ParticleBatchModel | null = null;
     protected _renderInfo: ParticleSystemRenderer | null = null;
     protected _vertAttrs: Attribute[] = [];
+    protected _useInstance: boolean;
 
     constructor (info: ParticleSystemRenderer) {
         this._renderInfo = info;
+        if (!legacyCC.game._gfxDevice.hasFeature(Feature.INSTANCED_ARRAYS)) {
+            this._useInstance = false;
+        } else {
+            this._useInstance = true;
+        }
+    }
+
+    public getUseInstance (): boolean {
+        return this._useInstance;
     }
 
     public getInfo () {
@@ -155,4 +167,5 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
     public abstract updateRenderData (): void;
     public abstract enableModule (name: string, val: boolean, pm: IParticleModule): void;
     public abstract beforeRender (): void;
+    public abstract setUseInstance (value: boolean): void;
 }

@@ -32,7 +32,7 @@
 import { ccclass, editable, type, displayOrder, menu,
     executeInEditMode, serializable, playOnFocus, tooltip, visible, formerlySerializedAs } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { Renderable2D } from '../2d/framework/renderable-2d';
+import { UIRenderer } from '../2d/framework/ui-renderer';
 import { Color, Vec2 } from '../core/math';
 import { warnID, errorID, error } from '../core/platform/debug';
 import { Simulator } from './particle-simulator-2d';
@@ -185,7 +185,7 @@ function getParticleComponents (node): ParticleSystem2D[] {
 @menu('Effects/ParticleSystem2D')
 @playOnFocus
 @executeInEditMode
-export class ParticleSystem2D extends Renderable2D {
+export class ParticleSystem2D extends UIRenderer {
     static EmitterMode = EmitterMode;
     static PositionType = PositionType;
     static readonly DURATION_INFINITY = DURATION_INFINITY;

@@ -30,7 +30,7 @@
 import { ccclass, disallowMultiple, executeInEditMode, help, visible, type, serializable, editable, disallowAnimation } from 'cc.decorator';
 import { JSB } from 'internal:constants';
 import { builtinResMgr } from '../core/builtin';
-import { RenderableComponent } from '../core/components/renderable-component';
+import { ModelRenderer } from '../core/components/model-renderer';
 import { EffectAsset, Texture2D } from '../core/assets';
 import { Filter, PixelFormat, WrapMode } from '../core/assets/asset-enum';
 import { Material } from '../core/assets/material';
@@ -178,7 +178,7 @@ export class TerrainLayer {
  * @en Terrain renderable
  * @zh 地形渲染组件
  */
-class TerrainRenderable extends RenderableComponent {
+class TerrainRenderable extends ModelRenderer {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */

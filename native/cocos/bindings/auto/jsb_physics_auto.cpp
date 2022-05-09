@@ -12,6 +12,15 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
+
+#if CC_DEBUG
+static bool js_physics_getter_return_true(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    s.rval().setBoolean(true);
+    return true;
+}
+SE_BIND_PROP_GET(js_physics_getter_return_true)
+#endif
 se::Object* __jsb_cc_physics_RevoluteJoint_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_physics_RevoluteJoint_class = nullptr;  // NOLINT
 
@@ -225,6 +234,9 @@ bool js_register_physics_RevoluteJoint(se::Object* obj) // NOLINT(readability-id
 {
     auto* cls = se::Class::create("RevoluteJoint", obj, nullptr, _SE(js_physics_RevoluteJoint_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_physics_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getImpl", _SE(js_physics_RevoluteJoint_getImpl));
     cls->defineFunction("initialize", _SE(js_physics_RevoluteJoint_initialize));
     cls->defineFunction("onDestroy", _SE(js_physics_RevoluteJoint_onDestroy));
@@ -436,6 +448,9 @@ bool js_register_physics_DistanceJoint(se::Object* obj) // NOLINT(readability-id
 {
     auto* cls = se::Class::create("DistanceJoint", obj, nullptr, _SE(js_physics_DistanceJoint_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_physics_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getImpl", _SE(js_physics_DistanceJoint_getImpl));
     cls->defineFunction("initialize", _SE(js_physics_DistanceJoint_initialize));
     cls->defineFunction("onDestroy", _SE(js_physics_DistanceJoint_onDestroy));
@@ -1256,6 +1271,9 @@ bool js_register_physics_RigidBody(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("RigidBody", obj, nullptr, _SE(js_physics_RigidBody_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_physics_getter_return_true), nullptr);
+#endif
     cls->defineFunction("applyForce", _SE(js_physics_RigidBody_applyForce));
     cls->defineFunction("applyImpulse", _SE(js_physics_RigidBody_applyImpulse));
     cls->defineFunction("applyLocalForce", _SE(js_physics_RigidBody_applyLocalForce));
@@ -1635,6 +1653,9 @@ bool js_register_physics_SphereShape(se::Object* obj) // NOLINT(readability-iden
 {
     auto* cls = se::Class::create("SphereShape", obj, nullptr, _SE(js_physics_SphereShape_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_physics_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getAABB", _SE(js_physics_SphereShape_getAABB));
     cls->defineFunction("getBoundingSphere", _SE(js_physics_SphereShape_getBoundingSphere));
     cls->defineFunction("getGroup", _SE(js_physics_SphereShape_getGroup));
@@ -1995,6 +2016,9 @@ bool js_register_physics_BoxShape(se::Object* obj) // NOLINT(readability-identif
 {
     auto* cls = se::Class::create("BoxShape", obj, nullptr, _SE(js_physics_BoxShape_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_physics_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getAABB", _SE(js_physics_BoxShape_getAABB));
     cls->defineFunction("getBoundingSphere", _SE(js_physics_BoxShape_getBoundingSphere));
     cls->defineFunction("getGroup", _SE(js_physics_BoxShape_getGroup));
@@ -2389,6 +2413,9 @@ bool js_register_physics_CapsuleShape(se::Object* obj) // NOLINT(readability-ide
 {
     auto* cls = se::Class::create("CapsuleShape", obj, nullptr, _SE(js_physics_CapsuleShape_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_physics_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getAABB", _SE(js_physics_CapsuleShape_getAABB));
     cls->defineFunction("getBoundingSphere", _SE(js_physics_CapsuleShape_getBoundingSphere));
     cls->defineFunction("getGroup", _SE(js_physics_CapsuleShape_getGroup));
@@ -2770,6 +2797,9 @@ bool js_register_physics_PlaneShape(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("PlaneShape", obj, nullptr, _SE(js_physics_PlaneShape_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_physics_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getAABB", _SE(js_physics_PlaneShape_getAABB));
     cls->defineFunction("getBoundingSphere", _SE(js_physics_PlaneShape_getBoundingSphere));
     cls->defineFunction("getGroup", _SE(js_physics_PlaneShape_getGroup));
@@ -3146,6 +3176,9 @@ bool js_register_physics_TrimeshShape(se::Object* obj) // NOLINT(readability-ide
 {
     auto* cls = se::Class::create("TrimeshShape", obj, nullptr, _SE(js_physics_TrimeshShape_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_physics_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getAABB", _SE(js_physics_TrimeshShape_getAABB));
     cls->defineFunction("getBoundingSphere", _SE(js_physics_TrimeshShape_getBoundingSphere));
     cls->defineFunction("getGroup", _SE(js_physics_TrimeshShape_getGroup));
@@ -3526,6 +3559,9 @@ bool js_register_physics_CylinderShape(se::Object* obj) // NOLINT(readability-id
 {
     auto* cls = se::Class::create("CylinderShape", obj, nullptr, _SE(js_physics_CylinderShape_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_physics_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getAABB", _SE(js_physics_CylinderShape_getAABB));
     cls->defineFunction("getBoundingSphere", _SE(js_physics_CylinderShape_getBoundingSphere));
     cls->defineFunction("getGroup", _SE(js_physics_CylinderShape_getGroup));
@@ -3906,6 +3942,9 @@ bool js_register_physics_ConeShape(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("ConeShape", obj, nullptr, _SE(js_physics_ConeShape_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_physics_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getAABB", _SE(js_physics_ConeShape_getAABB));
     cls->defineFunction("getBoundingSphere", _SE(js_physics_ConeShape_getBoundingSphere));
     cls->defineFunction("getGroup", _SE(js_physics_ConeShape_getGroup));
@@ -4269,6 +4308,9 @@ bool js_register_physics_TerrainShape(se::Object* obj) // NOLINT(readability-ide
 {
     auto* cls = se::Class::create("TerrainShape", obj, nullptr, _SE(js_physics_TerrainShape_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_physics_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getAABB", _SE(js_physics_TerrainShape_getAABB));
     cls->defineFunction("getBoundingSphere", _SE(js_physics_TerrainShape_getBoundingSphere));
     cls->defineFunction("getGroup", _SE(js_physics_TerrainShape_getGroup));
@@ -4679,6 +4721,9 @@ bool js_register_physics_World(se::Object* obj) // NOLINT(readability-identifier
 {
     auto* cls = se::Class::create("World", obj, nullptr, _SE(js_physics_World_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_physics_getter_return_true), nullptr);
+#endif
     cls->defineFunction("createConvex", _SE(js_physics_World_createConvex));
     cls->defineFunction("createHeightField", _SE(js_physics_World_createHeightField));
     cls->defineFunction("createMaterial", _SE(js_physics_World_createMaterial));

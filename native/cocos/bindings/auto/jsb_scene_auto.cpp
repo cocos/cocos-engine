@@ -42,6 +42,15 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
+
+#if CC_DEBUG
+static bool js_scene_getter_return_true(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    s.rval().setBoolean(true);
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_getter_return_true)
+#endif
 se::Object* __jsb_cc_BaseNode_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_BaseNode_class = nullptr;  // NOLINT
 static bool js_cc_BaseNode_finalize(se::State& s) // NOLINT(readability-identifier-naming)
@@ -54,6 +63,9 @@ bool js_register_scene_BaseNode(se::Object* obj) // NOLINT(readability-identifie
 {
     auto* cls = se::Class::create("BaseNode", obj, __jsb_cc_CCObject_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineFinalizeFunction(_SE(js_cc_BaseNode_finalize));
     cls->install();
     JSBClassType::registerClass<cc::BaseNode>(cls);
@@ -1786,6 +1798,9 @@ bool js_register_scene_Node(se::Object* obj) // NOLINT(readability-identifier-na
 {
     auto* cls = se::Class::create("Node", obj, __jsb_cc_BaseNode_proto, _SE(js_scene_Node_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("_siblingIndex", _SE(js_scene_Node_get__siblingIndex), _SE(js_scene_Node_set__siblingIndex));
     cls->defineProperty("_id", _SE(js_scene_Node_get__id), _SE(js_scene_Node_set__id));
     cls->defineProperty("_parentInternal", _SE(js_scene_Node_get__parent), _SE(js_scene_Node_set__parent));
@@ -2054,6 +2069,9 @@ bool js_register_scene_Scene(se::Object* obj) // NOLINT(readability-identifier-n
 {
     auto* cls = se::Class::create("Scene", obj, __jsb_cc_Node_proto, _SE(js_scene_Scene_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("autoReleaseAssets", _SE(js_scene_Scene_isAutoReleaseAssets_asGetter), _SE(js_scene_Scene_setAutoReleaseAssets_asSetter));
     cls->defineFunction("_activate", _SE(js_scene_Scene_activate));
     cls->defineFunction("getRenderScene", _SE(js_scene_Scene_getRenderScene));
@@ -2300,6 +2318,9 @@ bool js_register_scene_SceneGlobals(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("SceneGlobals", obj, nullptr, _SE(js_scene_SceneGlobals_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineFunction("activate", _SE(js_scene_SceneGlobals_activate));
     cls->defineFunction("getAmbientInfo", _SE(js_scene_SceneGlobals_getAmbientInfo));
     cls->defineFunction("getFogInfo", _SE(js_scene_SceneGlobals_getFogInfo));
@@ -2767,6 +2788,9 @@ bool js_register_scene_Light(se::Object* obj) // NOLINT(readability-identifier-n
 {
     auto* cls = se::Class::create("Light", obj, nullptr, _SE(js_scene_Light_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("baked", _SE(js_scene_Light_isBaked_asGetter), _SE(js_scene_Light_setBaked_asSetter));
     cls->defineProperty("color", _SE(js_scene_Light_getColor_asGetter), _SE(js_scene_Light_setColor_asSetter));
     cls->defineProperty("useColorTemperature", _SE(js_scene_Light_isUseColorTemperature_asGetter), _SE(js_scene_Light_setUseColorTemperature_asSetter));
@@ -3249,6 +3273,9 @@ bool js_register_scene_Fog(se::Object* obj) // NOLINT(readability-identifier-nam
 {
     auto* cls = se::Class::create("Fog", obj, nullptr, _SE(js_scene_Fog_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("enabled", _SE(js_scene_Fog_isEnabled_asGetter), _SE(js_scene_Fog_setEnabled_asSetter));
     cls->defineProperty("fogColor", _SE(js_scene_Fog_getFogColor_asGetter), _SE(js_scene_Fog_setFogColor_asSetter));
     cls->defineProperty("type", _SE(js_scene_Fog_getType_asGetter), _SE(js_scene_Fog_setType_asSetter));
@@ -3967,6 +3994,9 @@ bool js_register_scene_FogInfo(se::Object* obj) // NOLINT(readability-identifier
 {
     auto* cls = se::Class::create("FogInfo", obj, nullptr, _SE(js_scene_FogInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("_type", _SE(js_scene_FogInfo_get__type), _SE(js_scene_FogInfo_set__type));
     cls->defineProperty("_fogColor", _SE(js_scene_FogInfo_get__fogColor), _SE(js_scene_FogInfo_set__fogColor));
     cls->defineProperty("_enabled", _SE(js_scene_FogInfo_get__isEnabled), _SE(js_scene_FogInfo_set__isEnabled));
@@ -4139,6 +4169,9 @@ bool js_register_scene_IMacroPatch(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("IMacroPatch", obj, nullptr, _SE(js_scene_IMacroPatch_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("name", _SE(js_scene_IMacroPatch_get_name), _SE(js_scene_IMacroPatch_set_name));
     cls->defineProperty("value", _SE(js_scene_IMacroPatch_get_value), _SE(js_scene_IMacroPatch_set_value));
     cls->defineFinalizeFunction(_SE(js_cc_scene_IMacroPatch_finalize));
@@ -4687,6 +4720,9 @@ bool js_register_scene_ShadowsInfo(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("ShadowsInfo", obj, nullptr, _SE(js_scene_ShadowsInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("_enabled", _SE(js_scene_ShadowsInfo_get__enabled), _SE(js_scene_ShadowsInfo_set__enabled));
     cls->defineProperty("_type", _SE(js_scene_ShadowsInfo_get__type), _SE(js_scene_ShadowsInfo_set__type));
     cls->defineProperty("_normal", _SE(js_scene_ShadowsInfo_get__normal), _SE(js_scene_ShadowsInfo_set__normal));
@@ -5426,6 +5462,9 @@ bool js_register_scene_Shadows(se::Object* obj) // NOLINT(readability-identifier
 {
     auto* cls = se::Class::create("Shadows", obj, nullptr, _SE(js_scene_Shadows_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("enabled", _SE(js_scene_Shadows_isEnabled_asGetter), _SE(js_scene_Shadows_setEnabled_asSetter));
     cls->defineProperty("type", _SE(js_scene_Shadows_getType_asGetter), _SE(js_scene_Shadows_setType_asSetter));
     cls->defineProperty("normal", _SE(js_scene_Shadows_getNormal_asGetter), _SE(js_scene_Shadows_setNormal_asSetter));
@@ -6085,6 +6124,9 @@ bool js_register_scene_SubModel(se::Object* obj) // NOLINT(readability-identifie
 {
     auto* cls = se::Class::create("SubModel", obj, nullptr, _SE(js_scene_SubModel_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("passes", _SE(js_scene_SubModel_getPasses_asGetter), _SE(js_scene_SubModel_setPasses_asSetter));
     cls->defineProperty("shaders", _SE(js_scene_SubModel_getShaders_asGetter), _SE(js_scene_SubModel_setShaders_asSetter));
     cls->defineProperty("subMesh", _SE(js_scene_SubModel_getSubMesh_asGetter), _SE(js_scene_SubModel_setSubMesh_asSetter));
@@ -6294,6 +6336,9 @@ bool js_register_scene_InstancedAttributeBlock(se::Object* obj) // NOLINT(readab
 {
     auto* cls = se::Class::create("IInstancedAttributeBlock", obj, nullptr, _SE(js_scene_InstancedAttributeBlock_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("buffer", _SE(js_scene_InstancedAttributeBlock_get_buffer), _SE(js_scene_InstancedAttributeBlock_set_buffer));
     cls->defineProperty("views", _SE(js_scene_InstancedAttributeBlock_get_views), _SE(js_scene_InstancedAttributeBlock_set_views));
     cls->defineProperty("attributes", _SE(js_scene_InstancedAttributeBlock_get_attributes), _SE(js_scene_InstancedAttributeBlock_set_attributes));
@@ -7731,6 +7776,9 @@ bool js_register_scene_Model(se::Object* obj) // NOLINT(readability-identifier-n
 {
     auto* cls = se::Class::create("Model", obj, nullptr, _SE(js_scene_Model_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("scene", _SE(js_scene_Model_getScene_asGetter), _SE(js_scene_Model_setScene_asSetter));
     cls->defineProperty({"_subModels", "subModels"}, _SE(js_scene_Model_getSubModels_asGetter), nullptr);
     cls->defineProperty("inited", _SE(js_scene_Model_isInited_asGetter), nullptr);
@@ -7891,6 +7939,9 @@ bool js_register_scene_IRenderSceneInfo(se::Object* obj) // NOLINT(readability-i
 {
     auto* cls = se::Class::create("IRenderSceneInfo", obj, nullptr, _SE(js_scene_IRenderSceneInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("name", _SE(js_scene_IRenderSceneInfo_get_name), _SE(js_scene_IRenderSceneInfo_set_name));
     cls->defineFinalizeFunction(_SE(js_cc_scene_IRenderSceneInfo_finalize));
     cls->install();
@@ -8582,6 +8633,9 @@ bool js_register_scene_RenderScene(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("RenderScene", obj, nullptr, _SE(js_scene_RenderScene_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("name", _SE(js_scene_RenderScene_getName_asGetter), nullptr);
     cls->defineProperty("cameras", _SE(js_scene_RenderScene_getCameras_asGetter), nullptr);
     cls->defineProperty("mainLight", _SE(js_scene_RenderScene_getMainLight_asGetter), _SE(js_scene_RenderScene_setMainLight_asSetter));
@@ -8874,6 +8928,9 @@ bool js_register_scene_IRenderWindowInfo(se::Object* obj) // NOLINT(readability-
 {
     auto* cls = se::Class::create("IRenderWindowInfo", obj, nullptr, _SE(js_scene_IRenderWindowInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("title", _SE(js_scene_IRenderWindowInfo_get_title), _SE(js_scene_IRenderWindowInfo_set_title));
     cls->defineProperty("width", _SE(js_scene_IRenderWindowInfo_get_width), _SE(js_scene_IRenderWindowInfo_set_width));
     cls->defineProperty("height", _SE(js_scene_IRenderWindowInfo_get_height), _SE(js_scene_IRenderWindowInfo_set_height));
@@ -9155,6 +9212,9 @@ bool js_register_scene_RenderWindow(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("RenderWindow", obj, nullptr, _SE(js_scene_RenderWindow_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("width", _SE(js_scene_RenderWindow_getWidth_asGetter), nullptr);
     cls->defineProperty("height", _SE(js_scene_RenderWindow_getHeight_asGetter), nullptr);
     cls->defineProperty("framebuffer", _SE(js_scene_RenderWindow_getFramebuffer_asGetter), nullptr);
@@ -9449,6 +9509,9 @@ bool js_register_scene_SphereLight(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("SphereLight", obj, __jsb_cc_scene_Light_proto, _SE(js_scene_SphereLight_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("position", _SE(js_scene_SphereLight_getPosition_asGetter), _SE(js_scene_SphereLight_setPosition_asSetter));
     cls->defineProperty("size", _SE(js_scene_SphereLight_getSize_asGetter), _SE(js_scene_SphereLight_setSize_asSetter));
     cls->defineProperty("range", _SE(js_scene_SphereLight_getRange_asGetter), _SE(js_scene_SphereLight_setRange_asSetter));
@@ -10215,6 +10278,9 @@ bool js_register_scene_Root(se::Object* obj) // NOLINT(readability-identifier-na
 {
     auto* cls = se::Class::create("Root", obj, nullptr, _SE(js_scene_Root_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty({"device", "_device"}, _SE(js_scene_Root_getDevice_asGetter), _SE(js_scene_Root_setDevice_asSetter));
     cls->defineProperty("mainWindow", _SE(js_scene_Root_getMainWindow_asGetter), nullptr);
     cls->defineProperty("curWindow", _SE(js_scene_Root_getCurWindow_asGetter), _SE(js_scene_Root_setCurWindow_asSetter));
@@ -10795,6 +10861,9 @@ bool js_register_scene_SkyboxInfo(se::Object* obj) // NOLINT(readability-identif
 {
     auto* cls = se::Class::create("SkyboxInfo", obj, nullptr, _SE(js_scene_SkyboxInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("_envmapHDR", _SE(js_scene_SkyboxInfo_get__envmapHDR), _SE(js_scene_SkyboxInfo_set__envmapHDR));
     cls->defineProperty("_envmapLDR", _SE(js_scene_SkyboxInfo_get__envmapLDR), _SE(js_scene_SkyboxInfo_set__envmapLDR));
     cls->defineProperty("_diffuseMapHDR", _SE(js_scene_SkyboxInfo_get__diffuseMapHDR), _SE(js_scene_SkyboxInfo_set__diffuseMapHDR));
@@ -11188,6 +11257,9 @@ bool js_register_scene_Skybox(se::Object* obj) // NOLINT(readability-identifier-
 {
     auto* cls = se::Class::create("Skybox", obj, nullptr, _SE(js_scene_Skybox_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("model", _SE(js_scene_Skybox_getModel_asGetter), nullptr);
     cls->defineProperty("enabled", _SE(js_scene_Skybox_isEnabled_asGetter), _SE(js_scene_Skybox_setEnabled_asSetter));
     cls->defineProperty("useIBL", _SE(js_scene_Skybox_isUseIBL_asGetter), _SE(js_scene_Skybox_setUseIBL_asSetter));
@@ -11470,6 +11542,9 @@ bool js_register_scene_Ambient(se::Object* obj) // NOLINT(readability-identifier
 {
     auto* cls = se::Class::create("Ambient", obj, nullptr, _SE(js_scene_Ambient_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("skyColor", _SE(js_scene_Ambient_getSkyColor_asGetter), _SE(js_scene_Ambient_setSkyColor_asSetter));
     cls->defineProperty("skyIllum", _SE(js_scene_Ambient_getSkyIllum_asGetter), _SE(js_scene_Ambient_setSkyIllum_asSetter));
     cls->defineProperty("groundAlbedo", _SE(js_scene_Ambient_getGroundAlbedo_asGetter), _SE(js_scene_Ambient_setGroundAlbedo_asSetter));
@@ -12001,6 +12076,9 @@ bool js_register_scene_AmbientInfo(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("AmbientInfo", obj, nullptr, _SE(js_scene_AmbientInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("_skyColorHDR", _SE(js_scene_AmbientInfo_get__skyColorHDR), _SE(js_scene_AmbientInfo_set__skyColorHDR));
     cls->defineProperty("_skyIllumHDR", _SE(js_scene_AmbientInfo_get__skyIllumHDR), _SE(js_scene_AmbientInfo_set__skyIllumHDR));
     cls->defineProperty("_groundAlbedoHDR", _SE(js_scene_AmbientInfo_get__groundAlbedoHDR), _SE(js_scene_AmbientInfo_set__groundAlbedoHDR));
@@ -12627,6 +12705,9 @@ bool js_register_scene_DirectionalLight(se::Object* obj) // NOLINT(readability-i
 {
     auto* cls = se::Class::create("DirectionalLight", obj, __jsb_cc_scene_Light_proto, _SE(js_scene_DirectionalLight_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("direction", _SE(js_scene_DirectionalLight_getDirection_asGetter), _SE(js_scene_DirectionalLight_setDirection_asSetter));
     cls->defineProperty("illuminance", _SE(js_scene_DirectionalLight_getIlluminance_asGetter), _SE(js_scene_DirectionalLight_setIlluminance_asSetter));
     cls->defineProperty("illuminanceHDR", _SE(js_scene_DirectionalLight_getIlluminanceHDR_asGetter), _SE(js_scene_DirectionalLight_setIlluminanceHDR_asSetter));
@@ -13208,6 +13289,9 @@ bool js_register_scene_SpotLight(se::Object* obj) // NOLINT(readability-identifi
 {
     auto* cls = se::Class::create("SpotLight", obj, __jsb_cc_scene_Light_proto, _SE(js_scene_SpotLight_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("position", _SE(js_scene_SpotLight_getPosition_asGetter), nullptr);
     cls->defineProperty("size", _SE(js_scene_SpotLight_getSize_asGetter), _SE(js_scene_SpotLight_setSize_asSetter));
     cls->defineProperty("range", _SE(js_scene_SpotLight_getRange_asGetter), _SE(js_scene_SpotLight_setRange_asSetter));
@@ -13375,6 +13459,9 @@ bool js_register_scene_PassDynamicsValue(se::Object* obj) // NOLINT(readability-
 {
     auto* cls = se::Class::create("PassDynamicsValue", obj, nullptr, _SE(js_scene_PassDynamicsValue_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("dirty", _SE(js_scene_PassDynamicsValue_get_dirty), _SE(js_scene_PassDynamicsValue_set_dirty));
     cls->defineProperty("value", _SE(js_scene_PassDynamicsValue_get_value), _SE(js_scene_PassDynamicsValue_set_value));
     cls->defineFinalizeFunction(_SE(js_cc_scene_PassDynamicsValue_finalize));
@@ -14617,6 +14704,9 @@ bool js_register_scene_Pass(se::Object* obj) // NOLINT(readability-identifier-na
 {
     auto* cls = se::Class::create("Pass", obj, nullptr, _SE(js_scene_Pass_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("root", _SE(js_scene_Pass_getRoot_asGetter), nullptr);
     cls->defineProperty("device", _SE(js_scene_Pass_getDevice_asGetter), nullptr);
     cls->defineProperty("shaderInfo", _SE(js_scene_Pass_getShaderInfo_asGetter), nullptr);
@@ -14926,6 +15016,9 @@ bool js_register_scene_DrawBatch2D(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("DrawBatch2D", obj, nullptr, _SE(js_scene_DrawBatch2D_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("visFlags", _SE(js_scene_DrawBatch2D_get_visFlags), _SE(js_scene_DrawBatch2D_set_visFlags));
     cls->defineProperty("descriptorSet", _SE(js_scene_DrawBatch2D_get_descriptorSet), _SE(js_scene_DrawBatch2D_set_descriptorSet));
     cls->defineProperty("inputAssembler", _SE(js_scene_DrawBatch2D_get_inputAssembler), _SE(js_scene_DrawBatch2D_set_inputAssembler));
@@ -15252,6 +15345,9 @@ bool js_register_scene_ICameraInfo(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("ICameraInfo", obj, nullptr, _SE(js_scene_ICameraInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("name", _SE(js_scene_ICameraInfo_get_name), _SE(js_scene_ICameraInfo_set_name));
     cls->defineProperty("node", _SE(js_scene_ICameraInfo_get_node), _SE(js_scene_ICameraInfo_set_node));
     cls->defineProperty("projection", _SE(js_scene_ICameraInfo_get_projection), _SE(js_scene_ICameraInfo_set_projection));
@@ -16787,6 +16883,9 @@ bool js_register_scene_Camera(se::Object* obj) // NOLINT(readability-identifier-
 {
     auto* cls = se::Class::create("Camera", obj, nullptr, _SE(js_scene_Camera_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("iso", _SE(js_scene_Camera_getIso_asGetter), _SE(js_scene_Camera_setIso_asSetter));
     cls->defineProperty("isoValue", _SE(js_scene_Camera_getIsoValue_asGetter), nullptr);
     cls->defineProperty("ec", _SE(js_scene_Camera_getEc_asGetter), _SE(js_scene_Camera_setEc_asSetter));
@@ -16902,6 +17001,9 @@ bool js_register_scene_PassInstance(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("PassInstance", obj, __jsb_cc_scene_Pass_proto, _SE(js_scene_PassInstance_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("parent", _SE(js_scene_PassInstance_getParent_asGetter), nullptr);
     cls->defineFinalizeFunction(_SE(js_cc_PassInstance_finalize));
     cls->install();
@@ -17054,6 +17156,9 @@ bool js_register_scene_IMaterialInstanceInfo(se::Object* obj) // NOLINT(readabil
 {
     auto* cls = se::Class::create("IMaterialInstanceInfo", obj, nullptr, _SE(js_scene_IMaterialInstanceInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("parent", _SE(js_scene_IMaterialInstanceInfo_get_parent), _SE(js_scene_IMaterialInstanceInfo_set_parent));
     cls->defineProperty("subModelIdx", _SE(js_scene_IMaterialInstanceInfo_get_subModelIdx), _SE(js_scene_IMaterialInstanceInfo_set_subModelIdx));
     cls->defineFinalizeFunction(_SE(js_cc_IMaterialInstanceInfo_finalize));
@@ -17163,6 +17268,9 @@ bool js_register_scene_MaterialInstance(se::Object* obj) // NOLINT(readability-i
 {
     auto* cls = se::Class::create("MaterialInstance", obj, __jsb_cc_Material_proto, _SE(js_scene_MaterialInstance_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineFunction("onPassStateChange", _SE(js_scene_MaterialInstance_onPassStateChange));
     cls->defineFunction("setRebuildPSOCallback", _SE(js_scene_MaterialInstance_setRebuildPSOCallback));
     cls->defineFinalizeFunction(_SE(js_cc_MaterialInstance_finalize));
@@ -17218,6 +17326,9 @@ bool js_register_scene_MorphModel(se::Object* obj) // NOLINT(readability-identif
 {
     auto* cls = se::Class::create("MorphModel", obj, __jsb_cc_scene_Model_proto, _SE(js_scene_MorphModel_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineFunction("setMorphRendering", _SE(js_scene_MorphModel_setMorphRendering));
     cls->defineFinalizeFunction(_SE(js_cc_MorphModel_finalize));
     cls->install();
@@ -17276,6 +17387,9 @@ bool js_register_scene_SkinningModel(se::Object* obj) // NOLINT(readability-iden
 {
     auto* cls = se::Class::create("SkinningModel", obj, __jsb_cc_MorphModel_proto, _SE(js_scene_SkinningModel_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineFunction("bindSkeleton", _SE(js_scene_SkinningModel_bindSkeleton));
     cls->defineFinalizeFunction(_SE(js_cc_SkinningModel_finalize));
     cls->install();
@@ -17409,6 +17523,9 @@ bool js_register_scene_BakedSkinningModel(se::Object* obj) // NOLINT(readability
 {
     auto* cls = se::Class::create("BakedSkinningModel", obj, __jsb_cc_MorphModel_proto, _SE(js_scene_BakedSkinningModel_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineFunction("bindSkeleton", _SE(js_scene_BakedSkinningModel_bindSkeleton));
     cls->defineFunction("setUploadedAnimForJS", _SE(js_scene_BakedSkinningModel_setUploadedAnimForJS));
     cls->defineFunction("syncAnimInfoForJS", _SE(js_scene_BakedSkinningModel_syncAnimInfoForJS));
@@ -17532,6 +17649,9 @@ bool js_register_scene_IDefineRecord(se::Object* obj) // NOLINT(readability-iden
 {
     auto* cls = se::Class::create("IDefineRecord", obj, __jsb_cc_IDefineInfo_proto, _SE(js_scene_IDefineRecord_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("offset", _SE(js_scene_IDefineRecord_get_offset), _SE(js_scene_IDefineRecord_set_offset));
     cls->defineFinalizeFunction(_SE(js_cc_IDefineRecord_finalize));
     cls->install();
@@ -17773,6 +17893,9 @@ bool js_register_scene_IProgramInfo(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("IProgramInfo", obj, __jsb_cc_IShaderInfo_proto, _SE(js_scene_IProgramInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("effectName", _SE(js_scene_IProgramInfo_get_effectName), _SE(js_scene_IProgramInfo_set_effectName));
     cls->defineProperty("defines", _SE(js_scene_IProgramInfo_get_defines), _SE(js_scene_IProgramInfo_set_defines));
     cls->defineProperty("constantMacros", _SE(js_scene_IProgramInfo_get_constantMacros), _SE(js_scene_IProgramInfo_set_constantMacros));
@@ -18060,6 +18183,9 @@ bool js_register_scene_ProgramLib(se::Object* obj) // NOLINT(readability-identif
 {
     auto* cls = se::Class::create("ProgramLib", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineFunction("define", _SE(js_scene_ProgramLib_define));
     cls->defineFunction("destroyShaderByDefines", _SE(js_scene_ProgramLib_destroyShaderByDefines));
     cls->defineFunction("getDescriptorSetLayout", _SE(js_scene_ProgramLib_getDescriptorSetLayout));
@@ -18383,6 +18509,9 @@ bool js_register_scene_OctreeInfo(se::Object* obj) // NOLINT(readability-identif
 {
     auto* cls = se::Class::create("OctreeInfo", obj, nullptr, _SE(js_scene_OctreeInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineProperty("_enabled", _SE(js_scene_OctreeInfo_get__enabled), _SE(js_scene_OctreeInfo_set__enabled));
     cls->defineProperty("_minPos", _SE(js_scene_OctreeInfo_get__minPos), _SE(js_scene_OctreeInfo_set__minPos));
     cls->defineProperty("_maxPos", _SE(js_scene_OctreeInfo_get__maxPos), _SE(js_scene_OctreeInfo_set__maxPos));
@@ -18702,6 +18831,9 @@ bool js_register_scene_Octree(se::Object* obj) // NOLINT(readability-identifier-
 {
     auto* cls = se::Class::create("Octree", obj, nullptr, _SE(js_scene_Octree_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getMaxDepth", _SE(js_scene_Octree_getMaxDepth));
     cls->defineFunction("getMaxPos", _SE(js_scene_Octree_getMaxPos));
     cls->defineFunction("getMinPos", _SE(js_scene_Octree_getMinPos));

@@ -12,6 +12,15 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
+
+#if CC_DEBUG
+static bool js_network_getter_return_true(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    s.rval().setBoolean(true);
+    return true;
+}
+SE_BIND_PROP_GET(js_network_getter_return_true)
+#endif
 se::Object* __jsb_cc_network_DownloaderHints_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_network_DownloaderHints_class = nullptr;  // NOLINT
 
@@ -186,6 +195,9 @@ bool js_register_network_DownloaderHints(se::Object* obj) // NOLINT(readability-
 {
     auto* cls = se::Class::create("DownloaderHints", obj, nullptr, _SE(js_network_DownloaderHints_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_network_getter_return_true), nullptr);
+#endif
     cls->defineProperty("countOfMaxProcessingTasks", _SE(js_network_DownloaderHints_get_countOfMaxProcessingTasks), _SE(js_network_DownloaderHints_set_countOfMaxProcessingTasks));
     cls->defineProperty("timeoutInSeconds", _SE(js_network_DownloaderHints_get_timeoutInSeconds), _SE(js_network_DownloaderHints_set_timeoutInSeconds));
     cls->defineProperty("tempFileNameSuffix", _SE(js_network_DownloaderHints_get_tempFileNameSuffix), _SE(js_network_DownloaderHints_set_tempFileNameSuffix));
@@ -293,6 +305,9 @@ bool js_register_network_Downloader(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("Downloader", obj, nullptr, _SE(js_network_Downloader_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_network_getter_return_true), nullptr);
+#endif
     cls->defineFunction("setOnTaskProgress", _SE(js_network_Downloader_setOnTaskProgress));
     cls->defineFinalizeFunction(_SE(js_cc_network_Downloader_finalize));
     cls->install();

@@ -34,7 +34,7 @@
 // eslint-disable-next-line max-len
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, inspector, boolean, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { RenderableComponent } from '../core/components/renderable-component';
+import { ModelRenderer } from '../core/components/model-renderer';
 import { Material } from '../core/assets/material';
 import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3, Vec4 } from '../core/math';
 import { INT_MAX } from '../core/math/bits';
@@ -65,14 +65,14 @@ import { ParticleCuller } from './particle-culler';
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
 
-const superMaterials = Object.getOwnPropertyDescriptor(RenderableComponent.prototype, 'sharedMaterials')!;
+const superMaterials = Object.getOwnPropertyDescriptor(ModelRenderer.prototype, 'sharedMaterials')!;
 
 @ccclass('cc.ParticleSystem')
 @help('i18n:cc.ParticleSystem')
 @menu('Effects/ParticleSystem')
 @executionOrder(99)
 @executeInEditMode
-export class ParticleSystem extends RenderableComponent {
+export class ParticleSystem extends ModelRenderer {
     /**
      * @zh 粒子系统能生成的最大粒子数量。
      */

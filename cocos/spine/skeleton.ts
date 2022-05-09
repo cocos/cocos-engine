@@ -9,7 +9,7 @@ import spine from './lib/spine-core.js';
 import SkeletonCache, { AnimationCache, AnimationFrame } from './skeleton-cache';
 import { AttachUtil } from './attach-util';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
-import { Renderable2D } from '../2d/framework/renderable-2d';
+import { UIRenderer } from '../2d/framework/ui-renderer';
 import { Node, CCClass, CCObject, Color, Enum, Material, Texture2D, builtinResMgr, ccenum, errorID, logID, warn, RecyclePool } from '../core';
 import { displayName, displayOrder, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { SkeletonData } from './skeleton-data';
@@ -125,13 +125,13 @@ js.setClassAlias(SpineSocket, 'sp.Skeleton.SpineSocket');
  * 多个 Skeleton 可以使用相同的骨骼数据，其中包括所有的动画，皮肤和 attachments。
  *
  * @class Skeleton
- * @extends Renderable2D
+ * @extends UIRenderer
  */
 @ccclass('sp.Skeleton')
 @help('i18n:sp.Skeleton')
 @menu('Spine/Skeleton')
 @executeInEditMode
-export class Skeleton extends Renderable2D {
+export class Skeleton extends UIRenderer {
     public static SpineSocket = SpineSocket;
 
     public static AnimationCacheMode = AnimationCacheMode;
