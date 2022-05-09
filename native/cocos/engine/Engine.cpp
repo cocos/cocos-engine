@@ -131,6 +131,9 @@ Engine::~Engine() {
 
     se::ScriptEngine::getInstance()->cleanup();
     se::ScriptEngine::destroyInstance();
+#if CC_USE_MIDDLEWARE
+    cc::middleware::MiddlewareManager::destroyInstance();
+#endif
     ProgramLib::destroyInstance();
     BuiltinResMgr::destroyInstance();
     FileUtils::destroyInstance();

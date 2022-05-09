@@ -58,28 +58,20 @@ public:
 
     int32_t getHeight() const;
 
-    void setAndroidApp(android_app *app);
+    bool isInited() const { return _isInited; }
 
-    void reuseGameThread();
+    using GameThreadFunc = void(void *);
 
-    void awake();
-
-    bool isInited() { return _inputProxy != nullptr; }
-
-    using ReuseFuncCallback = void(void *);
-
-    void setReuseFunction(ReuseFuncCallback *func, android_app *app) {
-        _reuseFuncCallback = func;
-        _pendingApp = app;
-    }
+    void runInGameThread(GameThreadFunc *func, android_app *app);
 
 private:
-    ReuseFuncCallback *_reuseFuncCallback{nullptr};
+    bool _isInited{false};
+    GameThreadFunc *_gameThreadFuncCallback{nullptr};
     android_app *_pendingApp{nullptr};
     GameInputProxy *_inputProxy{nullptr};
     android_app *_app{nullptr};
-    std::mutex _recycleMutex;
-    std::condition_variable _recycleGameThread;
+    std::mutex _gameThreadFuncMutex;
+    std::condition_variable _gameThreadCondition;
 
     friend class GameInputProxy;
 };

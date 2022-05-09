@@ -34,6 +34,7 @@
 #include "modules/System.h"
 #include "platform/BasePlatform.h"
 #include "platform/android/AndroidPlatform.h"
+#include "platform/android/FileUtils-android.h"
 #include "platform/java/jni/JniImp.h"
 #include "platform/java/jni/glue/JniNativeGlue.h"
 #include "platform/java/modules/Accelerometer.h"
@@ -61,8 +62,23 @@
     }
 
 #define INPUT_ACTION_COUNT 6
+#define COCOS_EXIT_GAME 101
 
 extern int cocos_main(int argc, const char **argv); // NOLINT(readability-identifier-naming)
+
+extern "C" {
+bool perform_in_game_thread(struct android_app *app, cc::AndroidPlatform::GameThreadFunc func) {
+    auto *platform = cc::BasePlatform::getPlatform();
+    auto *androidPlatform = static_cast<cc::AndroidPlatform *>(platform);
+    if (!androidPlatform->isInited()) {
+        return false;
+    }
+    androidPlatform->runInGameThread(func, app);
+
+    return true;
+}
+}
+
 
 namespace cc {
 
@@ -119,7 +135,7 @@ public:
         Paddleboat_destroy(_jniEnv);
         if (_jniEnv) {
             CC_LOG_INFO("Detaching current thread from JNI.");
-            _androidPlatform->_app->activity->vm->DetachCurrentThread();
+//            _androidPlatform->_app->activity->vm->DetachCurrentThread();
             CC_LOG_INFO("Current thread detached from JNI.");
             _jniEnv = nullptr;
         }
@@ -270,9 +286,11 @@ public:
                 _hasWindow = true;
                 // We have a window!
                 CC_LOG_DEBUG("AndroidPlatform: APP_CMD_INIT_WINDOW");
-                if (!_running) {
-                    _running = true;
-                    _androidPlatform->run(0, nullptr);
+                if (!_launched) {
+                    _launched = true;
+                    if (cocos_main(0, nullptr) != 0) {
+                        CC_LOG_ERROR("AndroidPlatform: Launch game failed!");
+                    }
                 } else {
                     cc::CustomEvent event;
                     event.name = EVENT_RECREATE_WINDOW;
@@ -292,31 +310,32 @@ public:
                 break;
             }
             case APP_CMD_GAINED_FOCUS:
-                CC_LOG_DEBUG("AndroidPlatform: APP_CMD_GAINED_FOCUS");
+                CC_LOG_INFO("AndroidPlatform: APP_CMD_GAINED_FOCUS");
                 break;
             case APP_CMD_LOST_FOCUS:
-                CC_LOG_DEBUG("AndroidPlatform: APP_CMD_LOST_FOCUS");
+                CC_LOG_INFO("AndroidPlatform: APP_CMD_LOST_FOCUS");
                 break;
             case APP_CMD_PAUSE:
-                CC_LOG_DEBUG("AndroidPlatform: APP_CMD_PAUSE");
+                CC_LOG_INFO("AndroidPlatform: APP_CMD_PAUSE");
                 break;
             case APP_CMD_RESUME: {
-                CC_LOG_DEBUG("AndroidPlatform: APP_CMD_RESUME");
+                CC_LOG_INFO("AndroidPlatform: APP_CMD_RESUME");
+                break;
+            }
+            case COCOS_EXIT_GAME: {
+                WindowEvent ev;
+                ev.type = WindowEvent::Type::CLOSE;
+                _androidPlatform->dispatchEvent(ev);
+                _androidPlatform->_isInited = false;
                 break;
             }
             case APP_CMD_DESTROY: {
-                if (_recheckDestroy) {
-                    _recheckDestroy = false;
-                } else {
-                    _recheckDestroy = true;
-                    WindowEvent ev;
-                    ev.type = WindowEvent::Type::CLOSE;
-                    _androidPlatform->dispatchEvent(ev);
-                    //TODO: maybe need to notify user to kill application
-                }
+                CC_LOG_INFO("AndroidPlatform: APP_CMD_DESTROY");
+                // We try to reuse game thread, so we do nothing here, use COCOS_EXIT_GAME to exit game while user really want to exit.
                 break;
             }
             case APP_CMD_STOP: {
+                CC_LOG_INFO("AndroidPlatform: APP_CMD_STOP");
                 _isVisible = false;
                 Paddleboat_onStop(_jniEnv);
                 WindowEvent ev;
@@ -325,6 +344,7 @@ public:
                 break;
             }
             case APP_CMD_START: {
+                CC_LOG_INFO("AndroidPlatform: APP_CMD_START");
                 _isVisible = true;
                 Paddleboat_onStart(_jniEnv);
                 WindowEvent ev;
@@ -333,6 +353,7 @@ public:
                 break;
             }
             case APP_CMD_WINDOW_RESIZED: {
+                CC_LOG_INFO("AndroidPlatform: APP_CMD_WINDOW_RESIZED");
                 cc::WindowEvent ev;
                 ev.type = cc::WindowEvent::Type::SIZE_CHANGED;
                 ev.width = ANativeWindow_getWidth(_androidPlatform->_app->window);
@@ -341,6 +362,7 @@ public:
                 break;
             }
             case APP_CMD_CONFIG_CHANGED:
+                CC_LOG_INFO("AndroidPlatform: APP_CMD_CONFIG_CHANGED");
                 // Window was resized or some other configuration changed.
                 // Note: we don't handle this event because we check the surface dimensions
                 // every frame, so that's how we know it was resized. If you are NOT doing that,
@@ -349,7 +371,7 @@ public:
             case APP_CMD_LOW_MEMORY: {
                 // system told us we have low memory. So if we are not visible, let's
                 // cooperate by deallocating all of our graphic resources.
-                CC_LOG_DEBUG("AndroidPlatform: APP_CMD_LOW_MEMORY");
+                CC_LOG_INFO("AndroidPlatform: APP_CMD_LOW_MEMORY");
                 DeviceEvent ev;
                 ev.type = DeviceEvent::Type::DEVICE_MEMORY;
                 _androidPlatform->dispatchEvent(ev);
@@ -359,7 +381,7 @@ public:
                 CC_LOG_DEBUG("AndroidPlatform: APP_CMD_CONTENT_RECT_CHANGED");
                 break;
             case APP_CMD_WINDOW_REDRAW_NEEDED:
-                CC_LOG_DEBUG("AndroidPlatform: APP_CMD_WINDOW_REDRAW_NEEDED");
+                CC_LOG_INFO("AndroidPlatform: APP_CMD_WINDOW_REDRAW_NEEDED");
                 break;
             case APP_CMD_WINDOW_INSETS_CHANGED:
                 CC_LOG_DEBUG("AndroidPlatform: APP_CMD_WINDOW_INSETS_CHANGED");
@@ -370,7 +392,7 @@ public:
                 //            }
                 break;
             default:
-                CC_LOG_DEBUG("AndroidPlatform: (unknown command).");
+                CC_LOG_INFO("AndroidPlatform: (unknown command).");
                 break;
         }
     }
@@ -379,18 +401,17 @@ public:
         return _isVisible && _hasWindow;
     }
 
-    void setRunning(bool running) {
-        _running = running;
+    void setLaunched(bool launched) {
+        _launched = launched;
     }
 
 private:
     AndroidPlatform *_androidPlatform{nullptr};
     JNIEnv *_jniEnv{nullptr};         // JNI environment
     int32_t _gameControllerIndex{-1}; // Most recently connected game controller index
-    bool _running{false};
+    bool _launched{false};
     bool _isVisible{false};
     bool _hasWindow{false};
-    bool _recheckDestroy{true};
 };
 
 static void handleCmdProxy(struct android_app *app, int32_t cmd) {
@@ -432,20 +453,14 @@ AndroidPlatform::~AndroidPlatform() {
 }
 
 int AndroidPlatform::init() {
-    bool isRunning = _inputProxy != nullptr;
-    if (!_inputProxy) {
-        registerInterface(std::make_shared<Accelerometer>());
-        registerInterface(std::make_shared<Battery>());
-        registerInterface(std::make_shared<Network>());
-        registerInterface(std::make_shared<Screen>());
-        registerInterface(std::make_shared<System>());
-        registerInterface(std::make_shared<SystemWindow>());
-        registerInterface(std::make_shared<Vibrator>());
-    } else {
-        CC_SAFE_DELETE(_inputProxy);
-    }
-    _inputProxy = new GameInputProxy(this);
-    _inputProxy->setRunning(isRunning);
+    registerInterface(std::make_shared<Accelerometer>());
+    registerInterface(std::make_shared<Battery>());
+    registerInterface(std::make_shared<Network>());
+    registerInterface(std::make_shared<Screen>());
+    registerInterface(std::make_shared<System>());
+    registerInterface(std::make_shared<SystemWindow>());
+    registerInterface(std::make_shared<Vibrator>());
+    _isInited = true;
 
     return 0;
 }
@@ -455,9 +470,20 @@ int AndroidPlatform::getSdkVersion() const {
 }
 
 int32_t AndroidPlatform::run(int argc, const char **argv) {
-    if (cocos_main(argc, argv) != 0) {
-        return -1;
+    auto *app = reinterpret_cast<struct android_app *>(argv);
+    cc::FileUtilsAndroid::setassetmanager(app->activity->assetManager);
+    _app = app;
+    CC_SAFE_DELETE(_inputProxy);
+    _inputProxy = ccnew GameInputProxy(this);
+    _inputProxy->setLaunched(_isInited);
+    _app->userData = _inputProxy;
+    _app->onAppCmd = handleCmdProxy;
+
+    if (!_isInited) {
+        init();
     }
+    loop();
+
     return 0;
 }
 
@@ -465,35 +491,7 @@ uintptr_t AndroidPlatform::getWindowHandler() const {
     return reinterpret_cast<uintptr_t>(_app->window);
 }
 
-void AndroidPlatform::reuseGameThread() {
-    while (!_reuseFuncCallback) {
-        auto now = std::chrono::system_clock::now();
-        std::chrono::duration<int> duration(3);
-
-        std::unique_lock<std::mutex> lk(_recycleMutex);
-        if (_recycleGameThread.wait_until(lk, now + duration) == std::cv_status::timeout) {
-            int8_t cmd = APP_CMD_DESTROY; // User really want to destroy activity!
-            write(_app->msgwrite, &cmd, sizeof(cmd));
-            return;
-        }
-        break;
-    }
-    if (_reuseFuncCallback) {
-        _app = _pendingApp;
-        _pendingApp = nullptr;
-        auto *callback = _reuseFuncCallback;
-        _reuseFuncCallback = nullptr;
-        callback(_app);
-    }
-}
-
-void AndroidPlatform::awake() {
-    _recycleGameThread.notify_one();
-}
-
 int32_t AndroidPlatform::loop() {
-    _app->userData = _inputProxy;
-    _app->onAppCmd = handleCmdProxy;
 
     while (true) {
         int events;
@@ -507,7 +505,42 @@ int32_t AndroidPlatform::loop() {
                 source->process(_app, source);
             }
 
+            /**
+             * GameActivity`s onDestroy has been trigger, reuse game thread while Activity is destroy due to configuration changed(i.e: orientation change)
+             */
             if (_app->destroyRequested) {
+                //call android_app_destroy here, as we remove android_app_destroy from android_app_entry
+                CC_SAFE_DELETE(_inputProxy);
+                pthread_mutex_lock(&_app->mutex);
+                AConfiguration_delete(_app->config);
+                _app->config = nullptr;
+                _app->destroyed = 1;
+                pthread_cond_broadcast(&_app->cond);
+                pthread_mutex_unlock(&_app->mutex);
+
+                {// Wait for game thread entry's function(android_app_entry) set, or terminate game if user really want to exit.
+                    std::unique_lock<std::mutex> lk(_gameThreadFuncMutex);
+                    auto now = std::chrono::system_clock::now();
+                    std::chrono::duration<int> duration(3);//
+                    if (nullptr == _gameThreadFuncCallback &&
+                        _gameThreadCondition.wait_until(lk, now + duration) == std::cv_status::timeout) {
+//                        _inputProxy->handleAppCommand( COCOS_EXIT_GAME);// User really want to destroy activity!
+                        WindowEvent ev;
+                        ev.type = WindowEvent::Type::CLOSE;
+                        dispatchEvent(ev);
+                        _isInited = false;
+                        onDestory();
+                        return 0;
+                    }
+                }
+
+                //Call GameActivity`s entry function(android_app_entry) at game thread.
+                if (_gameThreadFuncCallback) {
+                    auto *callback = _gameThreadFuncCallback;
+                    _gameThreadFuncCallback = nullptr;
+                    callback(_pendingApp);
+                    _pendingApp = nullptr;
+                }
                 return 0;
             }
         }
@@ -519,6 +552,16 @@ int32_t AndroidPlatform::loop() {
             flushTasksOnGameThreadAtForegroundJNI();
         }
     }
+}
+
+void AndroidPlatform::runInGameThread(GameThreadFunc *func, android_app *app) {
+    {
+        std::unique_lock<std::mutex> lk(_gameThreadFuncMutex);
+        _gameThreadFuncCallback = func;
+        _pendingApp = app;
+    }
+
+    _gameThreadCondition.notify_one();
 }
 
 void AndroidPlatform::pollEvent() {
@@ -539,10 +582,6 @@ int32_t AndroidPlatform::getWidth() const {
 
 int32_t AndroidPlatform::getHeight() const {
     return ANativeWindow_getHeight(_app->window);
-}
-
-void AndroidPlatform::setAndroidApp(android_app *app) {
-    _app = app;
 }
 
 } // namespace cc

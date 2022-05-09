@@ -197,6 +197,8 @@ void jsb_init_file_operation_delegate() { //NOLINT
         CC_ASSERT(delegate.isValid());
 
         se::ScriptEngine::getInstance()->setFileOperationDelegate(delegate);
+    } else {
+        se::ScriptEngine::getInstance()->setFileOperationDelegate(delegate); // game maybe relaunched at different thread but at the same process
     }
 }
 

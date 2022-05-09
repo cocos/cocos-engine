@@ -500,8 +500,8 @@ ScriptEngine::ScriptEngine()
 ScriptEngine::~ScriptEngine() {
     #if !CC_EDITOR
     if (gSharedV8) {
-        delete gSharedV8;
-        gSharedV8 = nullptr;
+//        delete gSharedV8;
+//        gSharedV8 = nullptr;
     }
     #endif
 }

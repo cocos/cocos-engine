@@ -26,38 +26,15 @@
 #include <jni.h>
 
 #include "platform/android/AndroidPlatform.h"
-#include "platform/android/FileUtils-android.h"
 #include "platform/java/jni/JniHelper.h"
 #include "game-activity/native_app_glue/android_native_app_glue.h"
 
 extern "C" {
 
-void try_game_thread_loop() {
-    auto *platform = cc::BasePlatform::getPlatform();
-    auto *androidPlatform = static_cast<cc::AndroidPlatform *>(platform);
-    androidPlatform->reuseGameThread();
-}
-
-bool perform_in_game_thread(struct android_app *app, void func(void *)) {
-    auto *platform = cc::BasePlatform::getPlatform();
-    auto *androidPlatform = static_cast<cc::AndroidPlatform *>(platform);
-    if (!androidPlatform->isInited()) {
-        return false;
-    }
-    androidPlatform->setReuseFunction(func, app);
-    androidPlatform->awake();
-
-    return true;
-}
-
 void android_main(struct android_app *app) {
-    cc::FileUtilsAndroid::setassetmanager(app->activity->assetManager);
-
     auto *platform = cc::BasePlatform::getPlatform();
     auto *androidPlatform = static_cast<cc::AndroidPlatform *>(platform);
-    androidPlatform->setAndroidApp(app);
-    platform->init();
-    platform->loop();
+    androidPlatform->run(0, reinterpret_cast<const char**>(app));
 }
 
 //NOLINTNEXTLINE
