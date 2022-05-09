@@ -155,7 +155,6 @@ enum class Feature : uint32_t {
     INSTANCED_ARRAYS,
     MULTIPLE_RENDER_TARGETS,
     BLEND_MINMAX,
-    MEMORY_ALIASING,
     COMPUTE_SHADER,
     // This flag indicates whether the device can benefit from subpass-style usages.
     // Specifically, this only differs on the GLES backends: the Framebuffer Fetch
@@ -884,6 +883,7 @@ struct TextureBlit {
 using TextureBlitList = ccstd::vector<TextureBlit>;
 
 struct BufferTextureCopy {
+    uint32_t buffOffset{0};
     uint32_t buffStride{0};
     uint32_t buffTexHeight{0};
     Offset texOffset;

@@ -175,6 +175,7 @@ gfx::Texture *BitmapFontFace::loadTexture(const ccstd::string &path) {
     gfx::BufferDataList buffers{image->getData()};
     gfx::BufferTextureCopyList regions = {{0U,
                                            0U,
+                                           0U,
                                            {0U, 0U, 0U},
                                            {width, height, 1U},
                                            {0U, 0U, 1U}}};
