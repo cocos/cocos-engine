@@ -223,8 +223,8 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
 }
 
 #pragma mark - backgroundURLSession
-static int tag = 0;
 - (NSURLSession *)backgroundURLSession {
+    static int tag = 0;
     // Single thread delegate mode
     // NSOperationQueue *queue = [[NSOperationQueue alloc] init];
     // queue.maxConcurrentOperationCount = 1;
