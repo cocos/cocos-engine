@@ -10,10 +10,16 @@ import { Feature } from '../../system-info/enum-type';
 const EPSILON = 0.01;
 type WebGamepad = Gamepad;
 
+type CodeMap = Record<GamepadCode, number>;
+
+interface ICodeMapList {
+    [id: number]: CodeMap;
+}
+
 export class GamepadInputSource {
     private _cachedWebGamepads: (WebGamepad | null)[] = [];
     private _eventTarget: EventTarget = new EventTarget();
-
+    private _codeMapList: ICodeMapList = {};
     private _intervalId = -1;
 
     constructor () {
@@ -109,8 +115,7 @@ export class GamepadInputSource {
     }
 
     private _genCodeMap (webGamepad: WebGamepad): Record<GamepadCode, number> {
-        // @ts-expect-error missing properties
-        const codeMap: Record<GamepadCode, number> = {};
+        const codeMap: CodeMap = this._codeMapList[webGamepad.index] = this._codeMapList[webGamepad.index] || {};
 
         const buttons = webGamepad.buttons;
         for (let i = 0; i < buttons.length; ++i) {
