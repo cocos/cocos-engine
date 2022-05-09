@@ -4,14 +4,25 @@ precision highp float;
 #include <particle-common>
 #include <cc-local>
 
-in vec3 a_position; // center position
-in vec3 a_texCoord;  // xy:vertex index,z:frame index
-in vec3 a_texCoord1; // size
-in vec3 a_texCoord2; // rotation
-in vec4 a_color;
+#if !CC_INSTANCE_PARTICLE
+ in vec3 a_position; // center position
+ in vec3 a_texCoord;  // xy:vertex index,z:frame index
+ in vec3 a_texCoord1; // size
+ in vec3 a_texCoord2; // rotation
+ in vec4 a_color;
+#else
+ in vec4 a_position; // xyz:position,z:frame index
+ in vec3 a_texCoord1; // size
+ in vec3 a_texCoord2; // rotation
+ in vec4 a_color;
+#endif
 
 #if CC_RENDER_MODE == RENDER_MODE_STRETCHED_BILLBOARD
   in vec3 a_color1; // velocity.x, velocity.y, velocity.z, scale
+#endif
+
+#if CC_INSTANCE_PARTICLE
+ in vec2 a_texCoord; // uv
 #endif
 
 #if CC_RENDER_MODE == RENDER_MODE_MESH
@@ -22,7 +33,7 @@ in vec4 a_color;
 
 vec4 lpvs_main () {
   vec3 compScale = scale.xyz * a_texCoord1;
-  vec4 pos = vec4(a_position, 1);
+  vec4 pos = vec4(a_position.xyz, 1);
   #if CC_RENDER_MODE == RENDER_MODE_STRETCHED_BILLBOARD
     vec4 velocity = vec4(a_color1.xyz, 0);
   #endif
@@ -85,7 +96,12 @@ vec4 lpvs_main () {
     vec4 normal = xformNoScale * vec4(a_normal, 0);
     color = a_color * a_color1;
   #endif
-  uv = computeUV(a_texCoord.z, a_texCoord.xy, frameTile_velLenScale.xy) * mainTiling_Offset.xy + mainTiling_Offset.zw;
+
+  #if !CC_INSTANCE_PARTICLE
+    uv = computeUV(a_texCoord.z, a_texCoord.xy, frameTile_velLenScale.xy) * mainTiling_Offset.xy + mainTiling_Offset.zw;
+  #else
+    uv = computeUV(a_position.w, a_texCoord.xy, frameTile_velLenScale.xy) * mainTiling_Offset.xy + mainTiling_Offset.zw;
+  #endif
 
   pos = cc_matViewProj * pos;
 
