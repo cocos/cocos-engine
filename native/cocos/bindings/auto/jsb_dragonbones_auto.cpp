@@ -12,6 +12,15 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
+
+#if CC_DEBUG
+static bool js_dragonbones_getter_return_true(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    s.rval().setBoolean(true);
+    return true;
+}
+SE_BIND_PROP_GET(js_dragonbones_getter_return_true)
+#endif
 se::Object* __jsb_dragonBones_BaseObject_proto = nullptr; // NOLINT
 se::Class* __jsb_dragonBones_BaseObject_class = nullptr;  // NOLINT
 
@@ -74,6 +83,9 @@ bool js_register_dragonbones_BaseObject(se::Object* obj) // NOLINT(readability-i
 {
     auto* cls = se::Class::create("BaseObject", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
     cls->defineFunction("returnToPool", _SE(js_dragonbones_BaseObject_returnToPool));
     cls->defineStaticFunction("clearPool", _SE(js_dragonbones_BaseObject_clearPool_static));
     cls->defineStaticFunction("setMaxCount", _SE(js_dragonbones_BaseObject_setMaxCount_static));
@@ -125,6 +137,9 @@ bool js_register_dragonbones_Rectangle(se::Object* obj) // NOLINT(readability-id
 {
     auto* cls = se::Class::create("Rectangle", obj, nullptr, _SE(js_dragonbones_Rectangle_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
     cls->defineFunction("clear", _SE(js_dragonbones_Rectangle_clear));
     cls->defineFinalizeFunction(_SE(js_dragonBones_Rectangle_finalize));
     cls->install();
@@ -306,6 +321,9 @@ bool js_register_dragonbones_Matrix(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("Matrix", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
     cls->defineProperty("a", _SE(js_dragonbones_Matrix_get_a), _SE(js_dragonbones_Matrix_set_a));
     cls->defineProperty("b", _SE(js_dragonbones_Matrix_get_b), _SE(js_dragonbones_Matrix_set_b));
     cls->defineProperty("c", _SE(js_dragonbones_Matrix_get_c), _SE(js_dragonbones_Matrix_set_c));
@@ -511,6 +529,9 @@ bool js_register_dragonbones_Transform(se::Object* obj) // NOLINT(readability-id
 {
     auto* cls = se::Class::create("Transform", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
     cls->defineProperty("x", _SE(js_dragonbones_Transform_get_x), _SE(js_dragonbones_Transform_set_x));
     cls->defineProperty("y", _SE(js_dragonbones_Transform_get_y), _SE(js_dragonbones_Transform_set_y));
     cls->defineProperty("skew", _SE(js_dragonbones_Transform_get_skew), _SE(js_dragonbones_Transform_set_skew));
@@ -622,6 +643,9 @@ bool js_register_dragonbones_TextureAtlasData(se::Object* obj) // NOLINT(readabi
 {
     auto* cls = se::Class::create("TextureAtlasData", obj, __jsb_dragonBones_BaseObject_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
     cls->defineProperty("name", _SE(js_dragonbones_TextureAtlasData_get_name), _SE(js_dragonbones_TextureAtlasData_set_name));
     cls->defineFunction("addTexture", _SE(js_dragonbones_TextureAtlasData_addTexture));
     cls->defineFunction("createTexture", _SE(js_dragonbones_TextureAtlasData_createTexture));
@@ -755,6 +779,9 @@ bool js_register_dragonbones_TextureData(se::Object* obj) // NOLINT(readability-
 {
     auto* cls = se::Class::create("TextureData", obj, __jsb_dragonBones_BaseObject_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getFrame", _SE(js_dragonbones_TextureData_getFrame));
     cls->defineFunction("getParent", _SE(js_dragonbones_TextureData_getParent));
     cls->defineFunction("getRegion", _SE(js_dragonbones_TextureData_getRegion));
@@ -1151,6 +1178,9 @@ bool js_register_dragonbones_ArmatureData(se::Object* obj) // NOLINT(readability
 {
     auto* cls = se::Class::create("ArmatureData", obj, __jsb_dragonBones_BaseObject_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
     cls->defineProperty("frameRate", _SE(js_dragonbones_ArmatureData_get_frameRate), _SE(js_dragonbones_ArmatureData_set_frameRate));
     cls->defineProperty("name", _SE(js_dragonbones_ArmatureData_get_name), _SE(js_dragonbones_ArmatureData_set_name));
     cls->defineFunction("getAABB", _SE(js_dragonbones_ArmatureData_getAABB));
@@ -1297,6 +1327,9 @@ bool js_register_dragonbones_BoneData(se::Object* obj) // NOLINT(readability-ide
 {
     auto* cls = se::Class::create("BoneData", obj, __jsb_dragonBones_BaseObject_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
     cls->defineProperty("name", _SE(js_dragonbones_BoneData_get_name), _SE(js_dragonbones_BoneData_set_name));
     cls->defineProperty("parent", _SE(js_dragonbones_BoneData_get_parent), _SE(js_dragonbones_BoneData_set_parent));
     cls->defineFunction("getParent", _SE(js_dragonbones_BoneData_getParent));
@@ -1449,6 +1482,9 @@ bool js_register_dragonbones_SlotData(se::Object* obj) // NOLINT(readability-ide
 {
     auto* cls = se::Class::create("SlotData", obj, __jsb_dragonBones_BaseObject_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
     cls->defineProperty("name", _SE(js_dragonbones_SlotData_get_name), _SE(js_dragonbones_SlotData_set_name));
     cls->defineProperty("parent", _SE(js_dragonbones_SlotData_get_parent), _SE(js_dragonbones_SlotData_set_parent));
     cls->defineFunction("getBlendMode", _SE(js_dragonbones_SlotData_getBlendMode));
@@ -1578,6 +1614,9 @@ bool js_register_dragonbones_DragonBonesData(se::Object* obj) // NOLINT(readabil
 {
     auto* cls = se::Class::create("DragonBonesData", obj, __jsb_dragonBones_BaseObject_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
     cls->defineProperty("name", _SE(js_dragonbones_DragonBonesData_get_name), _SE(js_dragonbones_DragonBonesData_set_name));
     cls->defineFunction("addArmature", _SE(js_dragonbones_DragonBonesData_addArmature));
     cls->defineFunction("getArmature", _SE(js_dragonbones_DragonBonesData_getArmature));
@@ -1627,6 +1666,9 @@ bool js_register_dragonbones_SkinData(se::Object* obj) // NOLINT(readability-ide
 {
     auto* cls = se::Class::create("SkinData", obj, __jsb_dragonBones_BaseObject_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
     cls->defineProperty("name", _SE(js_dragonbones_SkinData_get_name), _SE(js_dragonbones_SkinData_set_name));
     cls->install();
     JSBClassType::registerClass<dragonBones::SkinData>(cls);
@@ -1881,6 +1923,9 @@ bool js_register_dragonbones_AnimationData(se::Object* obj) // NOLINT(readabilit
 {
     auto* cls = se::Class::create("AnimationData", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
     cls->defineProperty("frameCount", _SE(js_dragonbones_AnimationData_get_frameCount), _SE(js_dragonbones_AnimationData_set_frameCount));
     cls->defineProperty("playTimes", _SE(js_dragonbones_AnimationData_get_playTimes), _SE(js_dragonbones_AnimationData_set_playTimes));
     cls->defineProperty("duration", _SE(js_dragonbones_AnimationData_get_duration), _SE(js_dragonbones_AnimationData_set_duration));
@@ -2382,6 +2427,9 @@ bool js_register_dragonbones_Armature(se::Object* obj) // NOLINT(readability-ide
 {
     auto* cls = se::Class::create("Armature", obj, __jsb_dragonBones_BaseObject_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
     cls->defineFunction("_addBone", _SE(js_dragonbones_Armature__addBone));
     cls->defineFunction("_addSlot", _SE(js_dragonbones_Armature__addSlot));
     cls->defineFunction("_bufferAction", _SE(js_dragonbones_Armature__bufferAction));
@@ -2533,6 +2581,9 @@ bool js_register_dragonbones_TransformObject(se::Object* obj) // NOLINT(readabil
 {
     auto* cls = se::Class::create("TransformObject", obj, __jsb_dragonBones_BaseObject_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getArmature", _SE(js_dragonbones_TransformObject_getArmature));
     cls->defineFunction("getGlobal", _SE(js_dragonbones_TransformObject_getGlobal));
     cls->defineFunction("getGlobalTransformMatrix", _SE(js_dragonbones_TransformObject_getGlobalTransformMatrix));
@@ -3153,6 +3204,9 @@ bool js_register_dragonbones_AnimationState(se::Object* obj) // NOLINT(readabili
 {
     auto* cls = se::Class::create("AnimationState", obj, __jsb_dragonBones_BaseObject_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
     cls->defineProperty("additiveBlending", _SE(js_dragonbones_AnimationState_get_additiveBlending), _SE(js_dragonbones_AnimationState_set_additiveBlending));
     cls->defineProperty("displayControl", _SE(js_dragonbones_AnimationState_get_displayControl), _SE(js_dragonbones_AnimationState_set_displayControl));
     cls->defineProperty("playTimes", _SE(js_dragonbones_AnimationState_get_playTimes), _SE(js_dragonbones_AnimationState_set_playTimes));
@@ -3422,6 +3476,9 @@ bool js_register_dragonbones_Bone(se::Object* obj) // NOLINT(readability-identif
 {
     auto* cls = se::Class::create("Bone", obj, __jsb_dragonBones_TransformObject_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
     cls->defineFunction("contains", _SE(js_dragonbones_Bone_contains));
     cls->defineFunction("getBoneData", _SE(js_dragonbones_Bone_getBoneData));
     cls->defineFunction("getName", _SE(js_dragonbones_Bone_getName));
@@ -3767,6 +3824,9 @@ bool js_register_dragonbones_Slot(se::Object* obj) // NOLINT(readability-identif
 {
     auto* cls = se::Class::create("Slot", obj, __jsb_dragonBones_TransformObject_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
     cls->defineProperty("displayController", _SE(js_dragonbones_Slot_get_displayController), _SE(js_dragonbones_Slot_set_displayController));
     cls->defineProperty("_zOrder", _SE(js_dragonbones_Slot_get__zOrder), _SE(js_dragonbones_Slot_set__zOrder));
     cls->defineFunction("_setZorder", _SE(js_dragonbones_Slot__setZorder));
@@ -3904,6 +3964,9 @@ bool js_register_dragonbones_WorldClock(se::Object* obj) // NOLINT(readability-i
 {
     auto* cls = se::Class::create("WorldClock", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
     cls->defineFunction("advanceTime", _SE(js_dragonbones_WorldClock_advanceTime));
     cls->defineFunction("clear", _SE(js_dragonbones_WorldClock_clear));
     cls->defineFunction("getClock", _SE(js_dragonbones_WorldClock_getClock));
@@ -4554,6 +4617,9 @@ bool js_register_dragonbones_Animation(se::Object* obj) // NOLINT(readability-id
 {
     auto* cls = se::Class::create("Animation", obj, __jsb_dragonBones_BaseObject_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
     cls->defineProperty("timeScale", _SE(js_dragonbones_Animation_get_timeScale), _SE(js_dragonbones_Animation_set_timeScale));
     cls->defineFunction("advanceTime", _SE(js_dragonbones_Animation_advanceTime));
     cls->defineFunction("fadeIn", _SE(js_dragonbones_Animation_fadeIn));
@@ -4829,6 +4895,9 @@ bool js_register_dragonbones_EventObject(se::Object* obj) // NOLINT(readability-
 {
     auto* cls = se::Class::create("EventObject", obj, __jsb_dragonBones_BaseObject_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
     cls->defineProperty("type", _SE(js_dragonbones_EventObject_get_type), _SE(js_dragonbones_EventObject_set_type));
     cls->defineProperty("name", _SE(js_dragonbones_EventObject_get_name), _SE(js_dragonbones_EventObject_set_name));
     cls->defineProperty("armature", _SE(js_dragonbones_EventObject_get_armature), _SE(js_dragonbones_EventObject_set_armature));
@@ -5320,6 +5389,9 @@ bool js_register_dragonbones_BaseFactory(se::Object* obj) // NOLINT(readability-
 {
     auto* cls = se::Class::create("BaseFactory", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
     cls->defineFunction("addDragonBonesData", _SE(js_dragonbones_BaseFactory_addDragonBonesData));
     cls->defineFunction("addTextureAtlasData", _SE(js_dragonbones_BaseFactory_addTextureAtlasData));
     cls->defineFunction("buildArmature", _SE(js_dragonbones_BaseFactory_buildArmature));
@@ -5366,6 +5438,9 @@ bool js_register_dragonbones_CCSlot(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("CCSlot", obj, __jsb_dragonBones_Slot_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
     cls->defineFunction("updateWorldMatrix", _SE(js_dragonbones_CCSlot_updateWorldMatrix));
     cls->install();
     JSBClassType::registerClass<dragonBones::CCSlot>(cls);
@@ -5926,6 +6001,9 @@ bool js_register_dragonbones_CCArmatureDisplay(se::Object* obj) // NOLINT(readab
 {
     auto* cls = se::Class::create("CCArmatureDisplay", obj, nullptr, _SE(js_dragonbones_CCArmatureDisplay_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
     cls->defineFunction("addDBEventListener", _SE(js_dragonbones_CCArmatureDisplay_addDBEventListener));
     cls->defineFunction("convertToRootSpace", _SE(js_dragonbones_CCArmatureDisplay_convertToRootSpace));
     cls->defineFunction("dbClear", _SE(js_dragonbones_CCArmatureDisplay_dbClear));
@@ -6047,6 +6125,9 @@ bool js_register_dragonbones_ArmatureCacheMgr(se::Object* obj) // NOLINT(readabi
 {
     auto* cls = se::Class::create("ArmatureCacheMgr", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
     cls->defineFunction("buildArmatureCache", _SE(js_dragonbones_ArmatureCacheMgr_buildArmatureCache));
     cls->defineFunction("removeArmatureCache", _SE(js_dragonbones_ArmatureCacheMgr_removeArmatureCache));
     cls->defineStaticFunction("destroyInstance", _SE(js_dragonbones_ArmatureCacheMgr_destroyInstance_static));
@@ -6567,6 +6648,9 @@ bool js_register_dragonbones_CCArmatureCacheDisplay(se::Object* obj) // NOLINT(r
 {
     auto* cls = se::Class::create("CCArmatureCacheDisplay", obj, nullptr, _SE(js_dragonbones_CCArmatureCacheDisplay_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
     cls->defineFunction("addDBEventListener", _SE(js_dragonbones_CCArmatureCacheDisplay_addDBEventListener));
     cls->defineFunction("beginSchedule", _SE(js_dragonbones_CCArmatureCacheDisplay_beginSchedule));
     cls->defineFunction("dispatchDBEvent", _SE(js_dragonbones_CCArmatureCacheDisplay_dispatchDBEvent));
@@ -7041,6 +7125,9 @@ bool js_register_dragonbones_CCFactory(se::Object* obj) // NOLINT(readability-id
 {
     auto* cls = se::Class::create("CCFactory", obj, __jsb_dragonBones_BaseFactory_proto, _SE(js_dragonbones_CCFactory_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
     cls->defineFunction("add", _SE(js_dragonbones_CCFactory_add));
     cls->defineFunction("buildArmatureDisplay", _SE(js_dragonbones_CCFactory_buildArmatureDisplay));
     cls->defineFunction("getDragonBones", _SE(js_dragonbones_CCFactory_getDragonBones));
@@ -7077,6 +7164,9 @@ bool js_register_dragonbones_CCTextureAtlasData(se::Object* obj) // NOLINT(reada
 {
     auto* cls = se::Class::create("CCTextureAtlasData", obj, __jsb_dragonBones_TextureAtlasData_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
     cls->install();
     JSBClassType::registerClass<dragonBones::CCTextureAtlasData>(cls);
 
@@ -7094,6 +7184,9 @@ bool js_register_dragonbones_CCTextureData(se::Object* obj) // NOLINT(readabilit
 {
     auto* cls = se::Class::create("CCTextureData", obj, __jsb_dragonBones_TextureData_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_dragonbones_getter_return_true), nullptr);
+#endif
     cls->install();
     JSBClassType::registerClass<dragonBones::CCTextureData>(cls);
 
