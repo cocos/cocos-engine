@@ -32,15 +32,31 @@ uniform TickConstants {
   vec4 u_timeDelta;
 };
 
-in vec4 a_position_starttime; // center position,particle start time
-in vec4 a_size_uv;  // xyz:size, w:uv_0
-in vec4 a_rotation_uv;  // xyz:rotation, w:uv_1
-in vec4 a_color;
-in vec4 a_dir_life;  // xyz:particle start velocity,w:particle lifetime
-in float a_rndSeed;
+#if !CC_INSTANCE_PARTICLE
+  in vec4 a_position_starttime; // center position,particle start time
+  in vec4 a_size_uv;  // xyz:size, w:uv_0
+  in vec4 a_rotation_uv;  // xyz:rotation, w:uv_1
+  in vec4 a_color;
+  in vec4 a_dir_life;  // xyz:particle start velocity,w:particle lifetime
+  in float a_rndSeed;
+#else
+  in vec4 a_position_starttime; // center position,particle start time
+  in vec4 a_size_fid;  // xyz:size, w:fid
+  in vec3 a_rotation;  // xyz:rotation
+  in vec4 a_color;
+  in vec4 a_dir_life;  // xyz:particle start velocity,w:particle lifetime
+  in float a_rndSeed;
+  #if CC_RENDER_MODE != RENDER_MODE_MESH
+    in vec2 a_uv;
+  #endif
+#endif
 
 #if CC_RENDER_MODE == RENDER_MODE_MESH
-  in vec3 a_texCoord;  // mesh uv
+  #if !CC_INSTANCE_PARTICLE
+    in vec3 a_texCoord;   // mesh uv
+  #else
+    in vec2 a_texCoord;
+  #endif
   in vec3 a_texCoord3;  // mesh vertices
   in vec3 a_normal;     // mesh normal
   in vec4 a_color1;     // mesh color
@@ -178,14 +194,22 @@ vec4 gpvs_main () {
   #if CC_RENDER_MODE == RENDER_MODE_MESH
     vec2 vertIdx = vec2(a_texCoord.x, a_texCoord.y);
   #else
-    vec2 vertIdx = vec2(a_size_uv.w, a_rotation_uv.w);
+    #if !CC_INSTANCE_PARTICLE
+      vec2 vertIdx = vec2(a_size_uv.w, a_rotation_uv.w);
+    #else
+      vec2 vertIdx = a_uv;
+    #endif
   #endif
 
   vec4 velocity = vec4(a_dir_life.xyz, 0.);
   vec4 pos = vec4(a_position_starttime.xyz, 1.);
 
   // size
-  vec3 size = a_size_uv.xyz;
+  #if !CC_INSTANCE_PARTICLE
+    vec3 size = a_size_uv.xyz;
+  #else
+    vec3 size = a_size_fid.xyz;
+  #endif
   #if SIZE_OVER_TIME_MODULE_ENABLE
     if (u_size_mode == CURVE_MODE_FIX) {
       size *= unpackCurveData(size_over_time_tex0, timeCoord0);
@@ -249,7 +273,11 @@ vec4 gpvs_main () {
   #endif
 
   // rotation
-  vec3 startRotation = a_rotation_uv.xyz;
+  #if !CC_INSTANCE_PARTICLE
+    vec3 startRotation = a_rotation_uv.xyz;
+  #else
+    vec3 startRotation = a_rotation;
+  #endif
   #if CC_RENDER_MODE != RENDER_MODE_MESH
     #if CC_RENDER_MODE == RENDER_MODE_BILLBOARD
       vec3 rotEuler = startRotation.xyz;
@@ -315,7 +343,11 @@ vec4 gpvs_main () {
         , velocity
         , frameTile_velLenScale.z
         , frameTile_velLenScale.w
-        , a_size_uv.w
+        #if !CC_INSTANCE_PARTICLE
+          , a_size_uv.w
+        #else
+          , a_uv.x
+        #endif
       #endif
     );
   #else

@@ -12,6 +12,15 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
+
+#if CC_DEBUG
+static bool js_audio_getter_return_true(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    s.rval().setBoolean(true);
+    return true;
+}
+SE_BIND_PROP_GET(js_audio_getter_return_true)
+#endif
 se::Object* __jsb_cc_AudioProfile_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_AudioProfile_class = nullptr;  // NOLINT
 
@@ -116,6 +125,9 @@ bool js_register_audio_AudioProfile(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("AudioProfile", obj, nullptr, _SE(js_audio_AudioProfile_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_audio_getter_return_true), nullptr);
+#endif
     cls->defineProperty("name", _SE(js_audio_AudioProfile_get_name), _SE(js_audio_AudioProfile_set_name));
     cls->defineProperty("maxInstances", _SE(js_audio_AudioProfile_get_maxInstances), _SE(js_audio_AudioProfile_set_maxInstances));
     cls->defineProperty("minDelay", _SE(js_audio_AudioProfile_get_minDelay), _SE(js_audio_AudioProfile_set_minDelay));
@@ -794,6 +806,9 @@ bool js_register_audio_AudioEngine(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("AudioEngine", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_audio_getter_return_true), nullptr);
+#endif
     cls->defineStaticFunction("end", _SE(js_audio_AudioEngine_end_static));
     cls->defineStaticFunction("getCurrentTime", _SE(js_audio_AudioEngine_getCurrentTime_static));
     cls->defineStaticFunction("getDefaultProfile", _SE(js_audio_AudioEngine_getDefaultProfile_static));

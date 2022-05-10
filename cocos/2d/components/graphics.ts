@@ -31,7 +31,7 @@
 
 import { ccclass, help, executionOrder, menu, tooltip, type, visible, override, editable, serializable } from 'cc.decorator';
 import { builtinResMgr } from '../../core/builtin';
-import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';
+import { InstanceMaterialType, UIRenderer } from '../framework/ui-renderer';
 import { director } from '../../core/director';
 import { Color } from '../../core/math';
 import { scene } from '../../core/renderer';
@@ -64,7 +64,7 @@ const stride = getAttributeStride(attributes);
 @help('i18n:cc.Graphics')
 @executionOrder(110)
 @menu('2D/Graphics')
-export class Graphics extends Renderable2D {
+export class Graphics extends UIRenderer {
     /**
      * @en
      * Current line width.

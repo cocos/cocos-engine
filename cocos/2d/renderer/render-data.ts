@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { director } from '../../core/director';
 import { Material } from '../../core/assets/material';
 import { TextureBase } from '../../core/assets/texture-base';
@@ -32,7 +30,7 @@ import { Color } from '../../core/math';
 import { Pool, RecyclePool } from '../../core/memop';
 import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { SpriteFrame } from '../assets/sprite-frame';
-import { Renderable2D } from '../framework/renderable-2d';
+import { UIRenderer } from '../framework/ui-renderer';
 import { StaticVBAccessor, StaticVBChunk } from './static-vb-accessor';
 import { getAttributeStride, vfmtPosUvColor } from './vertex-format';
 import { Buffer, BufferInfo, BufferUsageBit, Device, InputAssembler, InputAssemblerInfo, MemoryUsageBit } from '../../core/gfx';
@@ -216,13 +214,13 @@ export class RenderData extends BaseRenderData {
         }
     }
 
-    public updateNode (comp: Renderable2D) {
+    public updateNode (comp: UIRenderer) {
         this.layer = comp.node.layer;
         this.nodeDirty = false;
         this.hashDirty = true;
     }
 
-    public updatePass (comp: Renderable2D) {
+    public updatePass (comp: UIRenderer) {
         this.material = comp.getRenderMaterial(0);
         this.blendHash = comp.blendHash;
         this.passDirty = false;
@@ -243,7 +241,7 @@ export class RenderData extends BaseRenderData {
         this.hashDirty = false;
     }
 
-    public updateRenderData (comp: Renderable2D, frame: SpriteFrame | TextureBase) {
+    public updateRenderData (comp: UIRenderer, frame: SpriteFrame | TextureBase) {
         if (this.passDirty) {
             this.material = comp.getRenderMaterial(0);
             this.blendHash = comp.blendHash;

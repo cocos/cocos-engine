@@ -106,6 +106,7 @@ void BakedSkinningModel::updateTransform(uint32_t stamp) {
     if (_worldBounds && skelBound != nullptr) {
         Node *node = getTransform();
         skelBound->transform(node->getWorldMatrix(), _worldBounds);
+        _worldBoundsDirty = true;
     }
 }
 

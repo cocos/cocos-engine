@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module model
- */
-
 import { EDITOR } from 'internal:constants';
 import {
     ccclass, type, displayOrder, displayName, serializable,
@@ -35,10 +30,7 @@ import {
 import { Material } from '../assets/material';
 import { Component } from './component';
 import { IMaterialInstanceInfo, MaterialInstance } from '../renderer/core/material-instance';
-import { scene } from '../renderer';
-import { Layers } from '../scene-graph/layers';
 import { warnID } from '../platform/debug';
-import { legacyCC } from '../global-exports';
 
 const _matInsInfo: IMaterialInstanceInfo = {
     parent: null!,
@@ -46,20 +38,16 @@ const _matInsInfo: IMaterialInstanceInfo = {
     subModelIdx: 0,
 };
 
-@ccclass('cc.RenderableComponent')
-export class RenderableComponent extends Component {
-    @serializable
-    protected _visFlags = Layers.Enum.NONE;
-
-    get visibility () {
-        return this._visFlags;
-    }
-
-    set visibility (val) {
-        this._visFlags = val;
-        this._onVisibilityChange(val);
-    }
-
+/**
+ * @zh 所有渲染组件的基类。
+ * @en Base class for all rendering components.
+ */
+@ccclass('cc.Renderer')
+export class Renderer extends Component {
+    /**
+     * @zh 组件的材质。
+     * @en The materials of the component.
+     */
     @type(Material)
     @displayOrder(0)
     @displayName('Materials')
@@ -116,8 +104,10 @@ export class RenderableComponent extends Component {
 
     protected _materialInstances: (MaterialInstance | null)[] = [];
 
-    protected _models: scene.Model[] = [];
-
+    /**
+     * @en Get the shared material asset of the first sub-model.
+     * @zh 获取第一个子模型的共享材质资源。
+     */
     get sharedMaterial () {
         return this.getMaterial(0);
     }
@@ -151,6 +141,10 @@ export class RenderableComponent extends Component {
         this._onMaterialModified(index, this._materials[index]);
     }
 
+    /**
+     * @en Get the material instance of the first sub-model.
+     * @zh 获取第一个子模型的材质实例。
+     */
     get material (): MaterialInstance | null {
         return this.getMaterialInstance(0);
     }
@@ -223,19 +217,6 @@ export class RenderableComponent extends Component {
         return this._materialInstances[index] || this._materials[index];
     }
 
-    /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
-     */
-    public _collectModels (): scene.Model[] {
-        return this._models;
-    }
-
-    protected _attachToScene () {
-    }
-
-    protected _detachFromScene () {
-    }
-
     protected _onMaterialModified (index: number, material: Material | null) {
     }
 
@@ -244,9 +225,4 @@ export class RenderableComponent extends Component {
 
     protected _clearMaterials () {
     }
-
-    protected _onVisibilityChange (val) {
-    }
 }
-
-legacyCC.RenderableComponent = RenderableComponent;

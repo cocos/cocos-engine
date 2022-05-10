@@ -30,7 +30,7 @@
  */
 
 import { ccclass, help, executionOrder, menu, executeInEditMode } from 'cc.decorator';
-import { RenderableComponent } from '../../core/components/renderable-component';
+import { ModelRenderer } from '../../core/components/model-renderer';
 import { RenderPriority } from '../../core/pipeline/define';
 import { IBatcher } from '../renderer/i-batcher';
 import { Stage } from '../renderer/stencil-manager';
@@ -57,7 +57,7 @@ export class UIMeshRenderer extends Component {
         return this._modelComponent;
     }
 
-    private _modelComponent: RenderableComponent | null = null;
+    private _modelComponent: ModelRenderer | null = null;
 
     public __preload () {
         this.node._uiProps.uiComp = this;
@@ -68,7 +68,7 @@ export class UIMeshRenderer extends Component {
             this.node.addComponent('cc.UITransform');
         }
 
-        this._modelComponent = this.getComponent('cc.RenderableComponent') as RenderableComponent;
+        this._modelComponent = this.getComponent('cc.ModelRenderer') as ModelRenderer;
         if (!this._modelComponent) {
             console.warn(`node '${this.node && this.node.name}' doesn't have any renderable component`);
         }
@@ -78,7 +78,7 @@ export class UIMeshRenderer extends Component {
         if (this.node._uiProps.uiComp === this) {
             this.node._uiProps.uiComp = null;
         }
-        this._modelComponent = this.getComponent('cc.RenderableComponent') as RenderableComponent;
+        this._modelComponent = this.getComponent('cc.ModelRenderer') as ModelRenderer;
         if (!this._modelComponent) {
             return;
         }
