@@ -497,15 +497,8 @@ ScriptEngine::ScriptEngine()
     #endif
 }
 
-ScriptEngine::~ScriptEngine() {
 //ScriptEngineV8Context will be shared by process, so we disable release gSharedV8 here.
-//    #if !CC_EDITOR
-//    if (gSharedV8) {
-//        delete gSharedV8;
-//        gSharedV8 = nullptr;
-//    }
-//    #endif
-}
+ScriptEngine::~ScriptEngine() = default;
 
 bool ScriptEngine::postInit() {
     v8::HandleScope hs(_isolate);

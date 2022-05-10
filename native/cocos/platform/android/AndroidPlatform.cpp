@@ -454,7 +454,7 @@ int AndroidPlatform::getSdkVersion() const {
     return AConfiguration_getSdkVersion(_app->config);
 }
 
-int32_t AndroidPlatform::run(int argc, const char **argv) {
+int32_t AndroidPlatform::run(int  /*argc*/, const char **argv) {
     auto *app = reinterpret_cast<struct android_app *>(argv);
     cc::FileUtilsAndroid::setassetmanager(app->activity->assetManager);
     _app = app;
