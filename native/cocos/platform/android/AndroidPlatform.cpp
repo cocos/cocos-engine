@@ -27,7 +27,7 @@
 
 #include "base/Log.h"
 #include "base/memory/Memory.h"
-#include "cocos/bindings/event/CustomEventTypes.h"
+#include "bindings/event/CustomEventTypes.h"
 #include "game-activity/native_app_glue/android_native_app_glue.h"
 #include "java/jni/JniHelper.h"
 #include "modules/Screen.h"
@@ -62,23 +62,8 @@
     }
 
 #define INPUT_ACTION_COUNT 6
-#define COCOS_EXIT_GAME 101
 
 extern int cocos_main(int argc, const char **argv); // NOLINT(readability-identifier-naming)
-
-extern "C" {
-bool perform_in_game_thread(struct android_app *app, cc::AndroidPlatform::GameThreadFunc func) {
-    auto *platform = cc::BasePlatform::getPlatform();
-    auto *androidPlatform = static_cast<cc::AndroidPlatform *>(platform);
-    if (!androidPlatform->isInited()) {
-        return false;
-    }
-    androidPlatform->runInGameThread(func, app);
-
-    return true;
-}
-}
-
 
 namespace cc {
 
@@ -322,16 +307,14 @@ public:
                 CC_LOG_INFO("AndroidPlatform: APP_CMD_RESUME");
                 break;
             }
-            case COCOS_EXIT_GAME: {
+            case APP_CMD_DESTROY: {
+                CC_LOG_INFO("AndroidPlatform: APP_CMD_DESTROY");
                 WindowEvent ev;
                 ev.type = WindowEvent::Type::CLOSE;
                 _androidPlatform->dispatchEvent(ev);
                 _androidPlatform->_isInited = false;
-                break;
-            }
-            case APP_CMD_DESTROY: {
-                CC_LOG_INFO("AndroidPlatform: APP_CMD_DESTROY");
-                // We try to reuse game thread, so we do nothing here, use COCOS_EXIT_GAME to exit game while user really want to exit.
+                _androidPlatform->onDestory();
+                CC_SAFE_DELETE(_androidPlatform->_inputProxy);
                 break;
             }
             case APP_CMD_STOP: {
@@ -453,14 +436,16 @@ AndroidPlatform::~AndroidPlatform() {
 }
 
 int AndroidPlatform::init() {
-    registerInterface(std::make_shared<Accelerometer>());
-    registerInterface(std::make_shared<Battery>());
-    registerInterface(std::make_shared<Network>());
-    registerInterface(std::make_shared<Screen>());
-    registerInterface(std::make_shared<System>());
-    registerInterface(std::make_shared<SystemWindow>());
-    registerInterface(std::make_shared<Vibrator>());
-    _isInited = true;
+    if (!_isInited) {
+        registerInterface(std::make_shared<Accelerometer>());
+        registerInterface(std::make_shared<Battery>());
+        registerInterface(std::make_shared<Network>());
+        registerInterface(std::make_shared<Screen>());
+        registerInterface(std::make_shared<System>());
+        registerInterface(std::make_shared<SystemWindow>());
+        registerInterface(std::make_shared<Vibrator>());
+        _isInited = true;
+    }
 
     return 0;
 }
@@ -479,9 +464,7 @@ int32_t AndroidPlatform::run(int argc, const char **argv) {
     _app->userData = _inputProxy;
     _app->onAppCmd = handleCmdProxy;
 
-    if (!_isInited) {
-        init();
-    }
+    init();
     loop();
 
     return 0;
@@ -505,42 +488,8 @@ int32_t AndroidPlatform::loop() {
                 source->process(_app, source);
             }
 
-            /**
-             * GameActivity`s onDestroy has been trigger, reuse game thread while Activity is destroy due to configuration changed(i.e: orientation change)
-             */
+            // exit game loop while Activity's onDestroy trigger
             if (_app->destroyRequested) {
-                //call android_app_destroy here, as we remove android_app_destroy from android_app_entry
-                CC_SAFE_DELETE(_inputProxy);
-                pthread_mutex_lock(&_app->mutex);
-                AConfiguration_delete(_app->config);
-                _app->config = nullptr;
-                _app->destroyed = 1;
-                pthread_cond_broadcast(&_app->cond);
-                pthread_mutex_unlock(&_app->mutex);
-
-                {// Wait for game thread entry's function(android_app_entry) set, or terminate game if user really want to exit.
-                    std::unique_lock<std::mutex> lk(_gameThreadFuncMutex);
-                    auto now = std::chrono::system_clock::now();
-                    std::chrono::duration<int> duration(3);//
-                    if (nullptr == _gameThreadFuncCallback &&
-                        _gameThreadCondition.wait_until(lk, now + duration) == std::cv_status::timeout) {
-//                        _inputProxy->handleAppCommand( COCOS_EXIT_GAME);// User really want to destroy activity!
-                        WindowEvent ev;
-                        ev.type = WindowEvent::Type::CLOSE;
-                        dispatchEvent(ev);
-                        _isInited = false;
-                        onDestory();
-                        return 0;
-                    }
-                }
-
-                //Call GameActivity`s entry function(android_app_entry) at game thread.
-                if (_gameThreadFuncCallback) {
-                    auto *callback = _gameThreadFuncCallback;
-                    _gameThreadFuncCallback = nullptr;
-                    callback(_pendingApp);
-                    _pendingApp = nullptr;
-                }
                 return 0;
             }
         }
@@ -552,16 +501,6 @@ int32_t AndroidPlatform::loop() {
             flushTasksOnGameThreadAtForegroundJNI();
         }
     }
-}
-
-void AndroidPlatform::runInGameThread(GameThreadFunc *func, android_app *app) {
-    {
-        std::unique_lock<std::mutex> lk(_gameThreadFuncMutex);
-        _gameThreadFuncCallback = func;
-        _pendingApp = app;
-    }
-
-    _gameThreadCondition.notify_one();
 }
 
 void AndroidPlatform::pollEvent() {

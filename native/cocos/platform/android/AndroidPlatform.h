@@ -58,20 +58,11 @@ public:
 
     int32_t getHeight() const;
 
-    bool isInited() const { return _isInited; }
-
-    using GameThreadFunc = void(void *);
-
-    void runInGameThread(GameThreadFunc *func, android_app *app);
-
 private:
     bool _isInited{false};
-    GameThreadFunc *_gameThreadFuncCallback{nullptr};
     android_app *_pendingApp{nullptr};
     GameInputProxy *_inputProxy{nullptr};
     android_app *_app{nullptr};
-    std::mutex _gameThreadFuncMutex;
-    std::condition_variable _gameThreadCondition;
 
     friend class GameInputProxy;
 };
