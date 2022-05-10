@@ -173,7 +173,7 @@ export class PipelineUBO {
         const sv = bufferView;
 
         if (shadowInfo.enabled) {
-            if (mainLight && shadowInfo.type === ShadowType.ShadowMap) {
+            if (mainLight && mainLight.shadowEnabled && shadowInfo.type === ShadowType.ShadowMap) {
                 let near = 0.1;
                 let far = 0;
                 const matShadowView = shadowInfo.matShadowView;

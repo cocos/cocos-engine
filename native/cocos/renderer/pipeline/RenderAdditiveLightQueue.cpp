@@ -71,10 +71,13 @@ RenderAdditiveLightQueue ::~RenderAdditiveLightQueue() {
 }
 
 void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, scene::Camera *camera, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) {
-    _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuffer);
-    _batchedQueue->recordCommandBuffer(device, renderPass, cmdBuffer);
+    const uint offset = _pipeline->getPipelineUBO()->getCurrentCameraUBOOffset();
+    for (const auto light : _lightIndices) {
+        auto *     globalDescriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(light);
+        _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuffer, globalDescriptorSet, offset);
+        _batchedQueue->recordCommandBuffer(device, renderPass, cmdBuffer, globalDescriptorSet, offset);
+    }
     const bool enableOcclusionQuery = _pipeline->getOcclusionQueryEnabled();
-    const auto offset               = _pipeline->getPipelineUBO()->getCurrentCameraUBOOffset();
 
     for (const auto &lightPass : _lightPasses) {
         const auto *const subModel = lightPass.subModel;
