@@ -120,7 +120,7 @@ public:
         Paddleboat_destroy(_jniEnv);
         if (_jniEnv) {
             CC_LOG_INFO("Detaching current thread from JNI.");
-//            _androidPlatform->_app->activity->vm->DetachCurrentThread();
+            _androidPlatform->_app->activity->vm->DetachCurrentThread();
             CC_LOG_INFO("Current thread detached from JNI.");
             _jniEnv = nullptr;
         }
