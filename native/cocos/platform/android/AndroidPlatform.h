@@ -58,8 +58,13 @@ public:
 
     int32_t getHeight() const;
 
+    void destroy();
+
+    inline void setAndroidApp(android_app *app) {
+        _app = app;
+    }
+
 private:
-    bool _isInited{false};
     android_app *_pendingApp{nullptr};
     GameInputProxy *_inputProxy{nullptr};
     android_app *_app{nullptr};

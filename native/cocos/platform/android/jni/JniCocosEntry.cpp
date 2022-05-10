@@ -34,7 +34,9 @@ extern "C" {
 void android_main(struct android_app *app) {
     auto *platform = cc::BasePlatform::getPlatform();
     auto *androidPlatform = static_cast<cc::AndroidPlatform *>(platform);
-    androidPlatform->run(1, reinterpret_cast<const char**>(app));
+    androidPlatform->setAndroidApp(app);
+    androidPlatform->init();
+    androidPlatform->run(0, nullptr);
 }
 
 //NOLINTNEXTLINE

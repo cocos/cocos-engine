@@ -160,6 +160,10 @@ public:
         _osInterfaces.erase(it);
     }
 
+    void unregisterAllInterface() {
+        _osInterfaces.clear();
+    }
+
 private:
     static BasePlatform *createDefaultPlatform();
 

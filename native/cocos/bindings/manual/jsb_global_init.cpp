@@ -198,7 +198,8 @@ void jsb_init_file_operation_delegate() { //NOLINT
 
         se::ScriptEngine::getInstance()->setFileOperationDelegate(delegate);
     } else {
-        se::ScriptEngine::getInstance()->setFileOperationDelegate(delegate); // game maybe relaunched at different thread but at the same process
+        // game maybe relaunched at different thread but at the same process. Android maybe relaunch from recent task list.
+        se::ScriptEngine::getInstance()->setFileOperationDelegate(delegate);
     }
 }
 

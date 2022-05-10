@@ -312,9 +312,8 @@ public:
                 WindowEvent ev;
                 ev.type = WindowEvent::Type::CLOSE;
                 _androidPlatform->dispatchEvent(ev);
-                _androidPlatform->_isInited = false;
                 _androidPlatform->onDestory();
-                CC_SAFE_DELETE(_androidPlatform->_inputProxy);
+                _androidPlatform->destroy();
                 break;
             }
             case APP_CMD_STOP: {
@@ -384,10 +383,6 @@ public:
         return _isVisible && _hasWindow;
     }
 
-    void setLaunched(bool launched) {
-        _launched = launched;
-    }
-
 private:
     AndroidPlatform *_androidPlatform{nullptr};
     JNIEnv *_jniEnv{nullptr};         // JNI environment
@@ -431,42 +426,36 @@ void gameControllerStatusCallback(const int32_t controllerIndex,
     }
 }
 
-AndroidPlatform::~AndroidPlatform() {
-    CC_SAFE_DELETE(_inputProxy)
-}
+AndroidPlatform::~AndroidPlatform() = default;
 
 int AndroidPlatform::init() {
-    if (!_isInited) {
-        registerInterface(std::make_shared<Accelerometer>());
-        registerInterface(std::make_shared<Battery>());
-        registerInterface(std::make_shared<Network>());
-        registerInterface(std::make_shared<Screen>());
-        registerInterface(std::make_shared<System>());
-        registerInterface(std::make_shared<SystemWindow>());
-        registerInterface(std::make_shared<Vibrator>());
-        _isInited = true;
-    }
+    cc::FileUtilsAndroid::setassetmanager(_app->activity->assetManager);
+    _inputProxy = ccnew GameInputProxy(this);
+    _app->userData = _inputProxy;
+    _app->onAppCmd = handleCmdProxy;
+
+    registerInterface(std::make_shared<Accelerometer>());
+    registerInterface(std::make_shared<Battery>());
+    registerInterface(std::make_shared<Network>());
+    registerInterface(std::make_shared<Screen>());
+    registerInterface(std::make_shared<System>());
+    registerInterface(std::make_shared<SystemWindow>());
+    registerInterface(std::make_shared<Vibrator>());
 
     return 0;
+}
+
+void AndroidPlatform::destroy() {
+    unregisterAllInterface();
+    CC_SAFE_DELETE(_inputProxy)
 }
 
 int AndroidPlatform::getSdkVersion() const {
     return AConfiguration_getSdkVersion(_app->config);
 }
 
-int32_t AndroidPlatform::run(int  /*argc*/, const char **argv) {
-    auto *app = reinterpret_cast<struct android_app *>(argv);
-    cc::FileUtilsAndroid::setassetmanager(app->activity->assetManager);
-    _app = app;
-    CC_SAFE_DELETE(_inputProxy);
-    _inputProxy = ccnew GameInputProxy(this);
-    _inputProxy->setLaunched(_isInited);
-    _app->userData = _inputProxy;
-    _app->onAppCmd = handleCmdProxy;
-
-    init();
+int32_t AndroidPlatform::run(int  /*argc*/, const char **/*argv*/) {
     loop();
-
     return 0;
 }
 
