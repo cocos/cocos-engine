@@ -50,18 +50,18 @@ void RenderInstancedQueue::uploadBuffers(gfx::CommandBuffer *cmdBuffer) {
 }
 
 void RenderInstancedQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer, gfx::DescriptorSet *ds, uint offset) {
-    for (const InstancedBuffer *instanceBuffer : _queues) {
+    for (const auto *instanceBuffer : _queues) {
         if (!instanceBuffer->hasPendingModels()) continue;
 
-        const InstancedItemList &instances = instanceBuffer->getInstances();
-        const scene::Pass *      pass      = instanceBuffer->getPass();
+        const auto &instances = instanceBuffer->getInstances();
+        const auto *pass      = instanceBuffer->getPass();
         cmdBuffer->bindDescriptorSet(materialSet, pass->getDescriptorSet());
         gfx::PipelineState *lastPSO = nullptr;
-        for (const InstancedItem &instance : instances) {
+        for (const auto &instance : instances) {
             if (!instance.count) {
                 continue;
             }
-            gfx::PipelineState *pso = PipelineStateManager::getOrCreatePipelineState(pass, instance.shader, instance.ia, renderPass);
+            auto *pso = PipelineStateManager::getOrCreatePipelineState(pass, instance.shader, instance.ia, renderPass);
             if (lastPSO != pso) {
                 cmdBuffer->bindPipelineState(pso);
                 lastPSO = pso;

@@ -71,9 +71,9 @@ RenderAdditiveLightQueue ::~RenderAdditiveLightQueue() {
 }
 
 void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, scene::Camera *camera, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) {
-    uint offset = _pipeline->getPipelineUBO()->getCurrentCameraUBOOffset();
-    for (const uint light : _lightIndices) {
-        gfx::DescriptorSet *     globalDescriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(light);
+    const uint offset = _pipeline->getPipelineUBO()->getCurrentCameraUBOOffset();
+    for (const auto light : _lightIndices) {
+        auto *     globalDescriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(light);
         _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuffer, globalDescriptorSet, offset);
         _batchedQueue->recordCommandBuffer(device, renderPass, cmdBuffer, globalDescriptorSet, offset);
     }
