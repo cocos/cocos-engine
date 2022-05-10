@@ -403,7 +403,7 @@ inline bool operator!=(const NameLocalID& lhs, const NameLocalID& rhs) noexcept 
 struct DescriptorData {
     DescriptorData() = default;
     DescriptorData(NameLocalID descriptorIDIn) noexcept // NOLINT
-    : descriptorID(std::move(descriptorIDIn)) {}
+    : descriptorID(descriptorIDIn) {}
 
     NameLocalID descriptorID;
     uint32_t    count{1};
