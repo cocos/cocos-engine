@@ -30,7 +30,7 @@
  */
 /* eslint-disable max-len */
 import * as impl from './graph';
-import { ShaderStageFlagBit, Type, Uniform } from '../../gfx';
+import { DescriptorSet, DescriptorSetLayoutInfo, ShaderStageFlagBit, Type, Uniform } from '../../gfx';
 import { ParameterType, UpdateFrequency } from './types';
 
 export const enum DescriptorIndex {
@@ -60,7 +60,6 @@ export class DescriptorBlock {
     readonly uniformBlocks: Map<string, UniformBlockDB> = new Map<string, UniformBlockDB>();
     readonly merged: Map<Type, Descriptor> = new Map<Type, Descriptor>();
     capacity = 0;
-    start = 0;
     count = 0;
 }
 
@@ -609,27 +608,6 @@ export class UniformBlockData {
     readonly uniforms: UniformData[] = [];
 }
 
-export class DescriptorData {
-    constructor (descriptorID = 0xFFFFFFFF, type: Type = Type.UNKNOWN) {
-        this.descriptorID = descriptorID;
-        this.type = type;
-    }
-    descriptorID: number;
-    type: Type;
-    count = 1;
-}
-
-export class DescriptorBlockData {
-    constructor (type: DescriptorIndex = DescriptorIndex.UNIFORM_BLOCK, capacity = 0) {
-        this.type = type;
-        this.capacity = capacity;
-    }
-    type: DescriptorIndex;
-    capacity: number;
-    readonly descriptors: DescriptorData[] = [];
-    readonly uniformBlocks: Map<number, UniformBlockData> = new Map<number, UniformBlockData>();
-}
-
 export class DescriptorTableData {
     constructor (tableID = 0xFFFFFFFF, capacity = 0) {
         this.tableID = tableID;
@@ -637,7 +615,10 @@ export class DescriptorTableData {
     }
     tableID: number;
     capacity: number;
-    readonly descriptorBlocks: DescriptorBlockData[] = [];
+    readonly descriptorSetLayout: DescriptorSetLayoutInfo = new DescriptorSetLayoutInfo();
+    readonly descriptorSet: DescriptorSet[] = [];
+    readonly descriptorIDs: number[] = [];
+    readonly uniformBlocks: Map<number, UniformBlockData> = new Map<number, UniformBlockData>();
 }
 
 export class DescriptorSetData {
@@ -650,6 +631,10 @@ export class PipelineLayoutData {
 
 export class ShaderProgramData {
     readonly layout: PipelineLayoutData = new PipelineLayoutData();
+}
+
+export class RenderStageData {
+    readonly descriptorVisibility: Map<number, ShaderStageFlagBit> = new Map<number, ShaderStageFlagBit>();
 }
 
 export class RenderPhaseData {
@@ -668,16 +653,16 @@ export const enum LayoutGraphDataValue {
 }
 
 interface LayoutGraphDataValueType {
-    [LayoutGraphDataValue.RenderStage]: number
+    [LayoutGraphDataValue.RenderStage]: RenderStageData
     [LayoutGraphDataValue.RenderPhase]: RenderPhaseData
 }
 
 export interface LayoutGraphDataVisitor {
-    renderStage(value: number): unknown;
+    renderStage(value: RenderStageData): unknown;
     renderPhase(value: RenderPhaseData): unknown;
 }
 
-type LayoutGraphDataObject = number | RenderPhaseData;
+type LayoutGraphDataObject = RenderStageData | RenderPhaseData;
 
 //-----------------------------------------------------------------
 // Graph Concept
@@ -1026,16 +1011,16 @@ export class LayoutGraphData implements impl.BidirectionalGraph
         const vert = this._vertices[v];
         switch (vert._id) {
         case LayoutGraphDataValue.RenderStage:
-            return visitor.renderStage(vert._object as number);
+            return visitor.renderStage(vert._object as RenderStageData);
         case LayoutGraphDataValue.RenderPhase:
             return visitor.renderPhase(vert._object as RenderPhaseData);
         default:
             throw Error('polymorphic type not found');
         }
     }
-    getRenderStage (v: number): number {
+    getRenderStage (v: number): RenderStageData {
         if (this._vertices[v]._id === LayoutGraphDataValue.RenderStage) {
-            return this._vertices[v]._object as number;
+            return this._vertices[v]._object as RenderStageData;
         } else {
             throw Error('value id not match');
         }
@@ -1047,9 +1032,9 @@ export class LayoutGraphData implements impl.BidirectionalGraph
             throw Error('value id not match');
         }
     }
-    tryGetRenderStage (v: number): number | null {
+    tryGetRenderStage (v: number): RenderStageData | null {
         if (this._vertices[v]._id === LayoutGraphDataValue.RenderStage) {
-            return this._vertices[v]._object as number;
+            return this._vertices[v]._object as RenderStageData;
         } else {
             return null;
         }
@@ -1176,4 +1161,7 @@ export class LayoutGraphData implements impl.BidirectionalGraph
     readonly _names: string[] = [];
     readonly _updateFrequencies: UpdateFrequency[] = [];
     readonly _layouts: PipelineLayoutData[] = [];
+    readonly valueNames: string[] = [];
+    readonly attributeIndex: Map<string, number> = new Map<string, number>();
+    readonly constantIndex: Map<string, number> = new Map<string, number>();
 }

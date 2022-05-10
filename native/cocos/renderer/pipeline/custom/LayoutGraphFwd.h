@@ -31,6 +31,7 @@
 // clang-format off
 #pragma once
 #include <boost/variant2/variant.hpp>
+#include <functional>
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonFwd.h"
 
@@ -55,20 +56,26 @@ using UniformID = uint32_t;
 
 struct UniformData;
 struct UniformBlockData;
-
-using DescriptorID = uint32_t;
-
-struct DescriptorData;
-struct DescriptorBlockData;
+struct NameLocalID;
 struct DescriptorTableData;
 struct DescriptorSetData;
 struct PipelineLayoutData;
 struct ShaderProgramData;
+struct RenderStageData;
 struct RenderPhaseData;
 struct LayoutGraphData;
 
 } // namespace render
 
 } // namespace cc
+
+namespace std {
+
+template <>
+struct hash<cc::render::NameLocalID> {
+    size_t operator()(const cc::render::NameLocalID& v) const noexcept;
+};
+
+}
 
 // clang-format on

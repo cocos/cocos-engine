@@ -521,7 +521,7 @@ gfx::ShaderStageFlagBit getVisibilityByDescName(const LGD &lgd, uint32_t passID,
     auto compare = [](const PmrString &name, const uint32_t slot) {
         return boost::lexical_cast<uint32_t>(name) == slot;
     };
-
+/*
     for (const auto &pair : layout.descriptorSets) {
         const auto &descriptorSetData = pair.second;
         const auto &tables = descriptorSetData.tables;
@@ -538,7 +538,7 @@ gfx::ShaderStageFlagBit getVisibilityByDescName(const LGD &lgd, uint32_t passID,
             }
         }
     }
-
+*/
     // UNREACHABLE
     CC_ENSURES(found);
     return vis;

@@ -1601,7 +1601,7 @@ holds_alternative(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g
 
 template <>
 inline bool
-holds_alternative<uint32_t>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) noexcept { // NOLINT
+holds_alternative<RenderStageData>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
         impl::ValueHandle<RenderStageTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
@@ -1620,8 +1620,8 @@ inline ValueT&
 get(LayoutGraphData::vertex_descriptor /*v*/, LayoutGraphData& /*g*/);
 
 template <>
-inline uint32_t&
-get<uint32_t>(LayoutGraphData::vertex_descriptor v, LayoutGraphData& g) {
+inline RenderStageData&
+get<RenderStageData>(LayoutGraphData::vertex_descriptor v, LayoutGraphData& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<RenderStageTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
@@ -1642,8 +1642,8 @@ inline const ValueT&
 get(LayoutGraphData::vertex_descriptor /*v*/, const LayoutGraphData& /*g*/);
 
 template <>
-inline const uint32_t&
-get<uint32_t>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) {
+inline const RenderStageData&
+get<RenderStageData>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<RenderStageTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
@@ -1659,7 +1659,7 @@ get<RenderPhaseData>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData
     return g.phases[handle.value];
 }
 
-inline uint32_t&
+inline RenderStageData&
 get(RenderStageTag /*tag*/, LayoutGraphData::vertex_descriptor v, LayoutGraphData& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<RenderStageTag, LayoutGraphData::vertex_descriptor>>(
@@ -1675,7 +1675,7 @@ get(RenderPhaseTag /*tag*/, LayoutGraphData::vertex_descriptor v, LayoutGraphDat
     return g.phases[handle.value];
 }
 
-inline const uint32_t&
+inline const RenderStageData&
 get(RenderStageTag /*tag*/, LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<RenderStageTag, LayoutGraphData::vertex_descriptor>>(
@@ -1696,9 +1696,9 @@ inline ValueT*
 get_if(LayoutGraphData::vertex_descriptor v, LayoutGraphData* pGraph) noexcept; // NOLINT
 
 template <>
-inline uint32_t*
-get_if<uint32_t>(LayoutGraphData::vertex_descriptor v, LayoutGraphData* pGraph) noexcept { // NOLINT
-    uint32_t* ptr = nullptr;
+inline RenderStageData*
+get_if<RenderStageData>(LayoutGraphData::vertex_descriptor v, LayoutGraphData* pGraph) noexcept { // NOLINT
+    RenderStageData* ptr = nullptr;
     if (!pGraph) {
         return ptr;
     }
@@ -1734,9 +1734,9 @@ inline const ValueT*
 get_if(LayoutGraphData::vertex_descriptor v, const LayoutGraphData* pGraph) noexcept; // NOLINT
 
 template <>
-inline const uint32_t*
-get_if<uint32_t>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData* pGraph) noexcept { // NOLINT
-    const uint32_t* ptr = nullptr;
+inline const RenderStageData*
+get_if<RenderStageData>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData* pGraph) noexcept { // NOLINT
+    const RenderStageData* ptr = nullptr;
     if (!pGraph) {
         return ptr;
     }
@@ -2041,7 +2041,7 @@ inline void remove_vertex(LayoutGraphData::vertex_descriptor u, LayoutGraphData&
 template <class ValueT>
 void addVertexImpl( // NOLINT
     ValueT &&val, LayoutGraphData &g, LayoutGraphData::Vertex &vert, // NOLINT
-    std::enable_if_t<std::is_same<std::decay_t<ValueT>, uint32_t>::value>* dummy = nullptr) { // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, RenderStageData>::value>* dummy = nullptr) { // NOLINT
     vert.handle = impl::ValueHandle<RenderStageTag, LayoutGraphData::vertex_descriptor>{
         gsl::narrow_cast<LayoutGraphData::vertex_descriptor>(g.stages.size())};
     g.stages.emplace_back(std::forward<ValueT>(val));
