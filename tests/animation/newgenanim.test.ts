@@ -1,5 +1,5 @@
 
-import { Component, lerp, Node, Vec2, Vec3, warnID } from '../../cocos/core';
+import { Component, lerp, math, Node, Vec2, Vec3, warnID } from '../../cocos/core';
 import { AnimationBlend1D, AnimationBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, ClipMotion, AnimationBlendDirect, VariableType } from '../../cocos/core/animation/marionette/asset-creation';
 import { AnimationGraph, StateMachine, Transition, isAnimationTransition, AnimationTransition } from '../../cocos/core/animation/marionette/animation-graph';
 import { createEval } from '../../cocos/core/animation/marionette/create-eval';
@@ -2267,6 +2267,98 @@ describe('NewGen Anim', () => {
             ['t1', VariableType.TRIGGER, true],
         ]);
     });
+
+    test('Runtime state status query', () => {
+        const animationGraph = new AnimationGraph();
+        const mainLayer = animationGraph.addLayer();
+        const clipMotion = createEmptyClipMotion(1.3);
+        const clipMotion2 = createEmptyClipMotion(1.7);
+        {
+            const motionState = mainLayer.stateMachine.addMotion();
+            motionState.motion = clipMotion;
+            mainLayer.stateMachine.connect(mainLayer.stateMachine.entryState, motionState);
+
+            const motionState2 = mainLayer.stateMachine.addMotion();
+            motionState2.motion = clipMotion2;
+            const transition = mainLayer.stateMachine.connect(motionState, motionState2);
+            transition.exitConditionEnabled = true;
+            transition.exitCondition = 1.4;
+            transition.duration = 0.31;
+            transition.relativeDuration = false;
+        }
+
+        const { newGenAnim } = createAnimationGraphEval2(animationGraph, new Node());
+        const graphUpdater = new GraphUpdater(newGenAnim);
+
+        graphUpdater.goto(0.23);
+        {
+            const stateStatus = newGenAnim.getCurrentStateStatus(0);
+            expect(stateStatus).not.toBeNull();
+            expect(stateStatus.duration).toBeCloseTo(1.3);
+            expect(stateStatus.elapsedTime).toBeCloseTo(0.23);
+            expect(stateStatus.progress).toBeCloseTo((0.23 / 1.3) - Math.trunc((0.23 / 1.3)));
+            const clipStatues = Array.from(newGenAnim.getCurrentClipStatuses(0));
+            expect(clipStatues).toHaveLength(1);
+            expect(clipStatues[0].clip).toBe(clipMotion.clip);
+            expect(clipStatues[0].weight).toBeCloseTo(1.0);
+            expect(newGenAnim.getCurrentTransition(0)).toBeNull();
+        }
+
+        graphUpdater.goto(1.56); // Span 1 pass
+        {
+            const stateStatus = newGenAnim.getCurrentStateStatus(0);
+            expect(stateStatus).not.toBeNull();
+            expect(stateStatus.duration).toBeCloseTo(1.3);
+            expect(stateStatus.elapsedTime).toBeCloseTo(1.56);
+            expect(stateStatus.progress).toBeCloseTo((1.56 / 1.3) - Math.trunc((1.56 / 1.3)));
+            const clipStatues = Array.from(newGenAnim.getCurrentClipStatuses(0));
+            expect(clipStatues).toHaveLength(1);
+            expect(clipStatues[0].clip).toBe(clipMotion.clip);
+            expect(clipStatues[0].weight).toBeCloseTo(1.0);
+            expect(newGenAnim.getCurrentTransition(0)).toBeNull();
+        }
+
+        graphUpdater.goto(1.3 * 1.4 + 0.12); // Not start to transition
+        {
+            const current = 1.3 * 1.4 + 0.12;
+            const stateStatus = newGenAnim.getCurrentStateStatus(0);
+            expect(stateStatus).not.toBeNull();
+            expect(stateStatus.duration).toBeCloseTo(1.3);
+            expect(stateStatus.elapsedTime).toBeCloseTo(current);
+            expect(stateStatus.progress).toBeCloseTo((current / 1.3) - Math.trunc((current / 1.3)));
+            const clipStatues = Array.from(newGenAnim.getCurrentClipStatuses(0));
+            expect(clipStatues).toHaveLength(1);
+            expect(clipStatues[0].clip).toBe(clipMotion.clip);
+            expect(clipStatues[0].weight).toBeCloseTo(1.0 - 0.12 / 0.31);
+
+            const transition = newGenAnim.getCurrentTransition(0);
+            expect(transition.time).toBeCloseTo(0.12);
+            expect(transition.duration).toBeCloseTo(0.31);
+
+            const nextStateStatus = newGenAnim.getNextStateStatus(0);
+            expect(nextStateStatus).not.toBeNull();
+            expect(nextStateStatus.duration).toBeCloseTo(1.7);
+            expect(nextStateStatus.elapsedTime).toBeCloseTo(0.12);
+            expect(nextStateStatus.progress).toBeCloseTo((0.12 / 1.7) - Math.trunc((0.12 / 1.7)));
+            const nextClipStatues = Array.from(newGenAnim.getNextClipStatuses(0));
+            expect(nextClipStatues).toHaveLength(1);
+            expect(nextClipStatues[0].clip).toBe(clipMotion2.clip);
+            expect(nextClipStatues[0].weight).toBeCloseTo(0.12 / 0.31);
+        }
+
+        graphUpdater.goto(1.3 * 1.4 + 0.37); // Full transitioned to motion 2
+        {
+            const stateStatus = newGenAnim.getCurrentStateStatus(0);
+            expect(stateStatus).not.toBeNull();
+            expect(stateStatus.duration).toBeCloseTo(1.7);
+            expect(stateStatus.elapsedTime).toBeCloseTo(0.37);
+            expect(stateStatus.progress).toBeCloseTo((0.37 / 1.7) - Math.trunc((0.37 / 1.7)));
+            const clipStatues = Array.from(newGenAnim.getCurrentClipStatuses(0));
+            expect(clipStatues).toHaveLength(1);
+            expect(clipStatues[0].clip).toBe(clipMotion2.clip);
+            expect(clipStatues[0].weight).toBeCloseTo(1.0);
+        }
+    });
 });
 
 function createEmptyClipMotion (duration: number, name = '') {
@@ -2429,8 +2521,12 @@ function createAnimationGraphEval2 (animationGraph: AnimationGraph, node: Node) 
 }
 
 class GraphUpdater {
-    constructor (private _graphEval: AnimationGraphEval) {
+    constructor (private _graphEval: AnimationGraphEval | AnimationController) {
 
+    }
+
+    get current() {
+        return this._current
     }
 
     public step(deltaTime: number) {

@@ -184,9 +184,9 @@ export interface TransitionStatus {
 
     /**
      * @en
-     * The progress of the transition.
+     * Total time elapsed since the transition starts, in seconds.
      * @zh
-     * 过渡的进度。
+     * 自过渡开始后经过的总时间，以秒为单位。
      */
     time: number;
 }
@@ -231,9 +231,30 @@ export interface MotionStateStatus {
 
     /**
      * @en
-     * The normalized time of the state.
+     * State duration, in seconds.
+     * Note the duration may be varied in animation blend case
+     * if the weights or durations of its recursive blend items change.
      * @zh
-     * 状态的规范化进度。
+     * 状态周期，以秒为单位。
+     * 注意，在动画混合的情况下，如果它递归的混合项的权重或周期更改后，它的周期可能会改变。
+     */
+    duration: number;
+
+    /**
+     * @en
+     * Total time elapsed since the state was entered, in seconds.
+     * @zh
+     * 自进入该状态后经过的总时间，以秒为单位。
+     */
+    elapsedTime: number;
+
+    /**
+     * @en
+     * The normalized time of the state. (The fractional part of `elapsedTime / duration`)
+     * This is definitely NOT the clip's progress if the state is not a clip motion or its wrap mode isn't loop.
+     * @zh
+     * 状态的规范化时间。（`elapsedTime / duration` 的小数部分）
+     * 这并不是剪辑的进度，因为该状态可能并不是一个剪辑动作，或者它的循环模式并非循环。
      */
     progress: number;
 }
@@ -1049,6 +1070,8 @@ class LayerEval {
 function createStateStatusCache (): MotionStateStatus {
     return {
         progress: 0.0,
+        elapsedTime: 0.0,
+        duration: 0.0,
     };
 }
 
@@ -1268,7 +1291,7 @@ export class MotionStateEval extends StateEval {
         if (DEBUG) {
             stateStatus.__DEBUG_ID__ = this.name;
         }
-        stateStatus.progress = normalizeProgress(this._fromPort.progress);
+        this._fillTimeInfo(this._fromPort.progress, stateStatus);
         return stateStatus;
     }
 
@@ -1277,7 +1300,7 @@ export class MotionStateEval extends StateEval {
         if (DEBUG) {
             stateStatus.__DEBUG_ID__ = this.name;
         }
-        stateStatus.progress = normalizeProgress(this._toPort.progress);
+        this._fillTimeInfo(this._toPort.progress, stateStatus);
         return stateStatus;
     }
 
@@ -1323,6 +1346,13 @@ export class MotionStateEval extends StateEval {
     private _setSpeedMultiplier (value: number) {
         this._speed = this._baseSpeed * value;
     }
+
+    private _fillTimeInfo (progress: number, status: MotionStateStatus) {
+        const { duration } = this;
+        status.duration = duration;
+        status.elapsedTime = duration * progress;
+        status.progress = progress - Math.trunc(progress);
+    }
 }
 
 function calcProgressUpdate (currentProgress: number, duration: number, deltaTime: number) {
@@ -1332,10 +1362,6 @@ function calcProgressUpdate (currentProgress: number, duration: number, deltaTim
     }
     const progress = currentProgress + deltaTime / duration;
     return progress;
-}
-
-function normalizeProgress (progress: number) {
-    return progress - Math.trunc(progress);
 }
 
 interface MotionEvalPort {
