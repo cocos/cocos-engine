@@ -428,7 +428,7 @@ void EventDispatcher::removeAllEventListeners() {
 }
 
 void EventDispatcher::dispatchCustomEvent(const char *eventName, int argNum, ...) {
-    CC_ASSERT(eventName && strcmp(eventName, ""));
+    CC_ASSERT(eventName && (strcmp(eventName, "") != 0));
     CustomEvent event;
     event.name = eventName;    
     va_list vl;
