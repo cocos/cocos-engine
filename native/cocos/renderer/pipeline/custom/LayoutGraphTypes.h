@@ -709,9 +709,9 @@ struct LayoutGraphData {
     ccstd::pmr::vector<RenderStageData> stages;
     ccstd::pmr::vector<RenderPhaseData> phases;
     // Members
-    ccstd::pmr::vector<ccstd::pmr::string>                     valueNames;
-    ccstd::pmr::unordered_map<ccstd::pmr::string, NameLocalID> attributeIndex;
-    ccstd::pmr::unordered_map<ccstd::pmr::string, NameLocalID> constantIndex;
+    ccstd::pmr::vector<ccstd::pmr::string>      valueNames;
+    PmrFlatMap<ccstd::pmr::string, NameLocalID> attributeIndex;
+    PmrFlatMap<ccstd::pmr::string, NameLocalID> constantIndex;
     // Path
     PmrTransparentMap<ccstd::pmr::string, vertex_descriptor> pathIndex;
 };
