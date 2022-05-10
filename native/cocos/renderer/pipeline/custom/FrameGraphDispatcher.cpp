@@ -512,7 +512,7 @@ AccessVertex dependencyCheck(RAG &rag, AccessTable &accessRecord, AccessVertex c
     return lastVertID;
 }
 
-gfx::ShaderStageFlagBit getVisibilityByDescName(const LGD &lgd, uint32_t passID, const PmrString &slotName) {
+gfx::ShaderStageFlagBit getVisibilityByDescName(const LGD &lgd, uint32_t passID, const PmrString &/*slotName*/) {
     auto vis = gfx::ShaderStageFlagBit::NONE;
 
     const auto &layout = get(LGD::Layout, lgd, passID);

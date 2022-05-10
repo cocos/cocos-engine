@@ -137,29 +137,52 @@ UniformBlockData::UniformBlockData(UniformBlockData const& rhs, const allocator_
 : bufferSize(rhs.bufferSize),
   uniforms(rhs.uniforms, alloc) {}
 
-DescriptorTableData::DescriptorTableData(const allocator_type& alloc) noexcept
-: descriptorIDs(alloc),
-  uniformBlocks(alloc) {}
+DescriptorBlockData::DescriptorBlockData(const allocator_type& alloc) noexcept
+: descriptors(alloc) {}
 
-DescriptorTableData::DescriptorTableData(uint32_t tableIDIn, uint32_t capacityIn, const allocator_type& alloc) noexcept // NOLINT
-: tableID(tableIDIn),
+DescriptorBlockData::DescriptorBlockData(gfx::Type typeIn, gfx::ShaderStageFlagBit visibilityIn, uint32_t capacityIn, const allocator_type& alloc) noexcept // NOLINT
+: type(typeIn),
+  visibility(visibilityIn),
   capacity(capacityIn),
-  descriptorIDs(alloc),
+  descriptors(alloc) {}
+
+DescriptorBlockData::DescriptorBlockData(DescriptorBlockData&& rhs, const allocator_type& alloc)
+: type(rhs.type),
+  visibility(rhs.visibility),
+  offset(rhs.offset),
+  capacity(rhs.capacity),
+  descriptors(std::move(rhs.descriptors), alloc) {}
+
+DescriptorBlockData::DescriptorBlockData(DescriptorBlockData const& rhs, const allocator_type& alloc)
+: type(rhs.type),
+  visibility(rhs.visibility),
+  offset(rhs.offset),
+  capacity(rhs.capacity),
+  descriptors(rhs.descriptors, alloc) {}
+
+DescriptorSetLayoutData::DescriptorSetLayoutData(const allocator_type& alloc) noexcept
+: descriptorBlocks(alloc),
   uniformBlocks(alloc) {}
 
-DescriptorTableData::DescriptorTableData(DescriptorTableData&& rhs, const allocator_type& alloc)
-: tableID(rhs.tableID),
+DescriptorSetLayoutData::DescriptorSetLayoutData(uint32_t slotIn, uint32_t capacityIn, const allocator_type& alloc) noexcept // NOLINT
+: slot(slotIn),
+  capacity(capacityIn),
+  descriptorBlocks(alloc),
+  uniformBlocks(alloc) {}
+
+DescriptorSetLayoutData::DescriptorSetLayoutData(DescriptorSetLayoutData&& rhs, const allocator_type& alloc)
+: slot(rhs.slot),
   capacity(rhs.capacity),
-  descriptorSetLayout(std::move(rhs.descriptorSetLayout)),
-  descriptorSet(std::move(rhs.descriptorSet)),
-  descriptorIDs(std::move(rhs.descriptorIDs), alloc),
+  descriptorBlocks(std::move(rhs.descriptorBlocks), alloc),
   uniformBlocks(std::move(rhs.uniformBlocks), alloc) {}
 
 DescriptorSetData::DescriptorSetData(const allocator_type& alloc) noexcept
-: tables(alloc) {}
+: descriptorSetLayoutData(alloc) {}
 
 DescriptorSetData::DescriptorSetData(DescriptorSetData&& rhs, const allocator_type& alloc)
-: tables(std::move(rhs.tables), alloc) {}
+: descriptorSetLayoutData(std::move(rhs.descriptorSetLayoutData), alloc),
+  descriptorSetLayout(std::move(rhs.descriptorSetLayout)),
+  descriptorSet(std::move(rhs.descriptorSet)) {}
 
 PipelineLayoutData::PipelineLayoutData(const allocator_type& alloc) noexcept
 : descriptorSets(alloc) {}

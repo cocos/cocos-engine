@@ -30,7 +30,7 @@
  */
 /* eslint-disable max-len */
 import * as impl from './graph';
-import { DescriptorSet, DescriptorSetLayoutInfo, ShaderStageFlagBit, Type, Uniform } from '../../gfx';
+import { DescriptorSet, DescriptorSetLayout, ShaderStageFlagBit, Type, Uniform } from '../../gfx';
 import { ParameterType, UpdateFrequency } from './types';
 
 export const enum DescriptorIndex {
@@ -608,21 +608,42 @@ export class UniformBlockData {
     readonly uniforms: UniformData[] = [];
 }
 
-export class DescriptorTableData {
-    constructor (tableID = 0xFFFFFFFF, capacity = 0) {
-        this.tableID = tableID;
+export class DescriptorData {
+    constructor (descriptorID = 0) {
+        this.descriptorID = descriptorID;
+    }
+    descriptorID: number;
+    count = 1;
+}
+
+export class DescriptorBlockData {
+    constructor (type: Type = Type.UNKNOWN, visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE, capacity = 0) {
+        this.type = type;
+        this.visibility = visibility;
         this.capacity = capacity;
     }
-    tableID: number;
+    type: Type;
+    visibility: ShaderStageFlagBit;
+    offset = 0;
     capacity: number;
-    readonly descriptorSetLayout: DescriptorSetLayoutInfo = new DescriptorSetLayoutInfo();
-    readonly descriptorSet: DescriptorSet[] = [];
-    readonly descriptorIDs: number[] = [];
+    readonly descriptors: DescriptorData[] = [];
+}
+
+export class DescriptorSetLayoutData {
+    constructor (slot = 0xFFFFFFFF, capacity = 0) {
+        this.slot = slot;
+        this.capacity = capacity;
+    }
+    slot: number;
+    capacity: number;
+    readonly descriptorBlocks: DescriptorBlockData[] = [];
     readonly uniformBlocks: Map<number, UniformBlockData> = new Map<number, UniformBlockData>();
 }
 
 export class DescriptorSetData {
-    readonly tables: Map<ShaderStageFlagBit, DescriptorTableData> = new Map<ShaderStageFlagBit, DescriptorTableData>();
+    readonly descriptorSetLayoutData: DescriptorSetLayoutData = new DescriptorSetLayoutData();
+    readonly descriptorSetLayout: DescriptorSetLayout[] = [];
+    readonly descriptorSet: DescriptorSet[] = [];
 }
 
 export class PipelineLayoutData {

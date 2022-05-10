@@ -40,6 +40,7 @@
 #include "cocos/base/std/container/vector.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/gfx-base/GFXDescriptorSet.h"
+#include "cocos/renderer/gfx-base/GFXDescriptorSetLayout.h"
 #include "cocos/renderer/pipeline/custom/GraphTypes.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphFwd.h"
 #include "cocos/renderer/pipeline/custom/Map.h"
@@ -399,33 +400,63 @@ inline bool operator!=(const NameLocalID& lhs, const NameLocalID& rhs) noexcept 
     return !(lhs == rhs);
 }
 
-struct DescriptorTableData {
+struct DescriptorData {
+    DescriptorData() = default;
+    DescriptorData(NameLocalID descriptorIDIn) noexcept // NOLINT
+    : descriptorID(std::move(descriptorIDIn)) {}
+
+    NameLocalID descriptorID;
+    uint32_t    count{1};
+};
+
+struct DescriptorBlockData {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {descriptorIDs.get_allocator().resource()};
+        return {descriptors.get_allocator().resource()};
     }
 
-    DescriptorTableData(const allocator_type& alloc) noexcept; // NOLINT
-    DescriptorTableData(uint32_t tableIDIn, uint32_t capacityIn, const allocator_type& alloc) noexcept;
-    DescriptorTableData(DescriptorTableData&& rhs, const allocator_type& alloc);
+    DescriptorBlockData(const allocator_type& alloc) noexcept; // NOLINT
+    DescriptorBlockData(gfx::Type typeIn, gfx::ShaderStageFlagBit visibilityIn, uint32_t capacityIn, const allocator_type& alloc) noexcept;
+    DescriptorBlockData(DescriptorBlockData&& rhs, const allocator_type& alloc);
+    DescriptorBlockData(DescriptorBlockData const& rhs, const allocator_type& alloc);
 
-    DescriptorTableData(DescriptorTableData&& rhs) noexcept = default;
-    DescriptorTableData(DescriptorTableData const& rhs)     = delete;
-    DescriptorTableData& operator=(DescriptorTableData&& rhs) = default;
-    DescriptorTableData& operator=(DescriptorTableData const& rhs) = delete;
+    DescriptorBlockData(DescriptorBlockData&& rhs) noexcept = default;
+    DescriptorBlockData(DescriptorBlockData const& rhs)     = delete;
+    DescriptorBlockData& operator=(DescriptorBlockData&& rhs) = default;
+    DescriptorBlockData& operator=(DescriptorBlockData const& rhs) = default;
 
-    uint32_t                                                 tableID{0xFFFFFFFF};
+    gfx::Type                          type{gfx::Type::UNKNOWN};
+    gfx::ShaderStageFlagBit            visibility{gfx::ShaderStageFlagBit::NONE};
+    uint32_t                           offset{0};
+    uint32_t                           capacity{0};
+    ccstd::pmr::vector<DescriptorData> descriptors;
+};
+
+struct DescriptorSetLayoutData {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {descriptorBlocks.get_allocator().resource()};
+    }
+
+    DescriptorSetLayoutData(const allocator_type& alloc) noexcept; // NOLINT
+    DescriptorSetLayoutData(uint32_t slotIn, uint32_t capacityIn, const allocator_type& alloc) noexcept;
+    DescriptorSetLayoutData(DescriptorSetLayoutData&& rhs, const allocator_type& alloc);
+
+    DescriptorSetLayoutData(DescriptorSetLayoutData&& rhs) noexcept = default;
+    DescriptorSetLayoutData(DescriptorSetLayoutData const& rhs)     = delete;
+    DescriptorSetLayoutData& operator=(DescriptorSetLayoutData&& rhs) = default;
+    DescriptorSetLayoutData& operator=(DescriptorSetLayoutData const& rhs) = delete;
+
+    uint32_t                                                 slot{0xFFFFFFFF};
     uint32_t                                                 capacity{0};
-    gfx::DescriptorSetLayoutInfo                             descriptorSetLayout;
-    IntrusivePtr<gfx::DescriptorSet>                         descriptorSet;
-    ccstd::pmr::vector<NameLocalID>                          descriptorIDs;
+    ccstd::pmr::vector<DescriptorBlockData>                  descriptorBlocks;
     ccstd::pmr::unordered_map<NameLocalID, UniformBlockData> uniformBlocks;
 };
 
 struct DescriptorSetData {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {tables.get_allocator().resource()};
+        return {descriptorSetLayoutData.get_allocator().resource()};
     }
 
     DescriptorSetData(const allocator_type& alloc) noexcept; // NOLINT
@@ -436,7 +467,9 @@ struct DescriptorSetData {
     DescriptorSetData& operator=(DescriptorSetData&& rhs) = default;
     DescriptorSetData& operator=(DescriptorSetData const& rhs) = delete;
 
-    PmrFlatMap<gfx::ShaderStageFlagBit, DescriptorTableData> tables;
+    DescriptorSetLayoutData                descriptorSetLayoutData;
+    IntrusivePtr<gfx::DescriptorSetLayout> descriptorSetLayout;
+    IntrusivePtr<gfx::DescriptorSet>       descriptorSet;
 };
 
 struct PipelineLayoutData {

@@ -62,7 +62,9 @@ inline const char* getName(const LayoutGraph& /*v*/) noexcept { return "LayoutGr
 inline const char* getName(const UniformData& /*v*/) noexcept { return "UniformData"; }
 inline const char* getName(const UniformBlockData& /*v*/) noexcept { return "UniformBlockData"; }
 inline const char* getName(const NameLocalID& /*v*/) noexcept { return "NameLocalID"; }
-inline const char* getName(const DescriptorTableData& /*v*/) noexcept { return "DescriptorTableData"; }
+inline const char* getName(const DescriptorData& /*v*/) noexcept { return "DescriptorData"; }
+inline const char* getName(const DescriptorBlockData& /*v*/) noexcept { return "DescriptorBlockData"; }
+inline const char* getName(const DescriptorSetLayoutData& /*v*/) noexcept { return "DescriptorSetLayoutData"; }
 inline const char* getName(const DescriptorSetData& /*v*/) noexcept { return "DescriptorSetData"; }
 inline const char* getName(const PipelineLayoutData& /*v*/) noexcept { return "PipelineLayoutData"; }
 inline const char* getName(const ShaderProgramData& /*v*/) noexcept { return "ShaderProgramData"; }
