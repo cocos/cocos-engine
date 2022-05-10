@@ -124,7 +124,7 @@ void jsToSeValue(v8::Isolate *isolate, v8::Local<v8::Value> jsval, Value *v) {
     } else if (jsval->IsObject()) {
         v8::MaybeLocal<v8::Object> jsObj = jsval->ToObject(isolate->GetCurrentContext());
         if (!jsObj.IsEmpty()) {
-            auto* seObj = internal::getPrivate(isolate, jsObj.ToLocalChecked());
+            auto *seObj = internal::getPrivate(isolate, jsObj.ToLocalChecked());
             PrivateObjectBase *privateObject = seObj != nullptr ? seObj->getPrivateObject() : nullptr;
             void *nativePtr = privateObject != nullptr ? privateObject->getRaw() : nullptr;
             Object *obj = nullptr;
@@ -198,7 +198,7 @@ Object *getPrivate(v8::Isolate *isolate, v8::Local<v8::Value> value) {
     v8::Local<v8::Object> objChecked = obj.ToLocalChecked();
     int c = objChecked->InternalFieldCount();
     if (c > 0) {
-        return static_cast<Object*>(ObjectWrap::unwrap(objChecked, 0));
+        return static_cast<Object *>(ObjectWrap::unwrap(objChecked, 0));
     }
 
     return nullptr;

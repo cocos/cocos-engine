@@ -80,8 +80,8 @@ private:
     State &operator=(const State &);
     State &operator=(State &&) noexcept;
 
-    Object *          _thisObject{nullptr}; //weak ref
-    const ValueArray *_args{nullptr};       //weak ref
-    Value             _retVal;              //weak ref
+    Object *_thisObject{nullptr};     //weak ref
+    const ValueArray *_args{nullptr}; //weak ref
+    Value _retVal;                    //weak ref
 };
 } // namespace se

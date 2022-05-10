@@ -85,8 +85,7 @@ void Object::nativeObjectFinalizeHook(Object *seObj) {
 
     if (seObj->_finalizeCb != nullptr) {
         seObj->_finalizeCb(seObj);
-    }
-    else {
+    } else {
         if (seObj->_getClass() != nullptr && seObj->_getClass()->_finalizeFunc != nullptr) {
             seObj->_getClass()->_finalizeFunc(seObj);
         }
