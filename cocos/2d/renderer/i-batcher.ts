@@ -6,7 +6,7 @@ import { Camera } from '../../core/renderer/scene/camera';
 import { Model } from '../../core/renderer/scene/model';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { UIStaticBatch } from '../components/ui-static-batch';
-import { Renderable2D, RenderRoot2D } from '../framework';
+import { UIRenderer, RenderRoot2D } from '../framework';
 import { StaticVBAccessor } from './static-vb-accessor';
 import { DrawBatch2D } from './draw-batch';
 import { BaseRenderData } from './render-data';
@@ -38,15 +38,15 @@ export interface IBatcher {
 
     switchBufferAccessor (attributes?: Attribute[]): StaticVBAccessor;
 
-    commitComp (comp: Renderable2D, renderData: BaseRenderData|null, frame: TextureBase | SpriteFrame | null, assembler: any, transform: Node | null);
-    commitModel (comp: UIMeshRenderer | Renderable2D, model: Model | null, mat: Material | null);
+    commitComp (comp: UIRenderer, renderData: BaseRenderData|null, frame: TextureBase | SpriteFrame | null, assembler: any, transform: Node | null);
+    commitModel (comp: UIMeshRenderer | UIRenderer, model: Model | null, mat: Material | null);
 
     setupStaticBatch (staticComp: UIStaticBatch, bufferAccessor: StaticVBAccessor);
     endStaticBatch ();
     commitStaticBatch (comp: UIStaticBatch);
 
-    autoMergeBatches (renderComp?: Renderable2D);
-    forceMergeBatches (material: Material, frame: TextureBase | SpriteFrame | null, renderComp: Renderable2D);
+    autoMergeBatches (renderComp?: UIRenderer);
+    forceMergeBatches (material: Material, frame: TextureBase | SpriteFrame | null, renderComp: UIRenderer);
     finishMergeBatches ();
     flushMaterial (mat: Material);
 

@@ -28,7 +28,7 @@ import { Mat4, Vec3, Color } from '../../../core/math';
 import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components/sprite';
-import { Renderable2D } from '../../framework/renderable-2d';
+import { UIRenderer } from '../../framework/ui-renderer';
 import { IAssembler } from '../../renderer/base';
 import { StaticVBChunk } from '../../renderer/static-vb-accessor';
 
@@ -51,7 +51,7 @@ export function has9SlicedOffsetVertexCount (spriteFrame:SpriteFrame) {
 }
 
 export const tiled: IAssembler = {
-    createData (sprite: Renderable2D) {
+    createData (sprite: UIRenderer) {
         return sprite.requestRenderData();
     },
 

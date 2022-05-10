@@ -12,6 +12,15 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
+
+#if CC_DEBUG
+static bool js_spine_getter_return_true(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    s.rval().setBoolean(true);
+    return true;
+}
+SE_BIND_PROP_GET(js_spine_getter_return_true)
+#endif
 se::Object* __jsb_spine_Animation_proto = nullptr; // NOLINT
 se::Class* __jsb_spine_Animation_class = nullptr;  // NOLINT
 
@@ -117,6 +126,9 @@ bool js_register_spine_Animation(se::Object* obj) // NOLINT(readability-identifi
 {
     auto* cls = se::Class::create("Animation", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getDuration", _SE(js_spine_Animation_getDuration));
     cls->defineFunction("getName", _SE(js_spine_Animation_getName));
     cls->defineFunction("getTimelines", _SE(js_spine_Animation_getTimelines));
@@ -895,6 +907,9 @@ bool js_register_spine_TrackEntry(se::Object* obj) // NOLINT(readability-identif
 {
     auto* cls = se::Class::create("TrackEntry", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getAlpha", _SE(js_spine_TrackEntry_getAlpha));
     cls->defineFunction("getAnimation", _SE(js_spine_TrackEntry_getAnimation));
     cls->defineFunction("getAnimationEnd", _SE(js_spine_TrackEntry_getAnimationEnd));
@@ -1308,6 +1323,9 @@ bool js_register_spine_AnimationState(se::Object* obj) // NOLINT(readability-ide
 {
     auto* cls = se::Class::create("AnimationState", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("addAnimation", _SE(js_spine_AnimationState_addAnimation));
     cls->defineFunction("addEmptyAnimation", _SE(js_spine_AnimationState_addEmptyAnimation));
     cls->defineFunction("clearTrack", _SE(js_spine_AnimationState_clearTrack));
@@ -1467,6 +1485,9 @@ bool js_register_spine_AnimationStateData(se::Object* obj) // NOLINT(readability
 {
     auto* cls = se::Class::create("AnimationStateData", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getDefaultMix", _SE(js_spine_AnimationStateData_getDefaultMix));
     cls->defineFunction("getMix", _SE(js_spine_AnimationStateData_getMix));
     cls->defineFunction("getSkeletonData", _SE(js_spine_AnimationStateData_getSkeletonData));
@@ -1576,6 +1597,9 @@ bool js_register_spine_Attachment(se::Object* obj) // NOLINT(readability-identif
 {
     auto* cls = se::Class::create("Attachment", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("copy", _SE(js_spine_Attachment_copy));
     cls->defineFunction("dereference", _SE(js_spine_Attachment_dereference));
     cls->defineFunction("getName", _SE(js_spine_Attachment_getName));
@@ -1617,6 +1641,9 @@ bool js_register_spine_Timeline(se::Object* obj) // NOLINT(readability-identifie
 {
     auto* cls = se::Class::create("Timeline", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getPropertyId", _SE(js_spine_Timeline_getPropertyId));
     cls->install();
     JSBClassType::registerClass<spine::Timeline>(cls);
@@ -1772,6 +1799,9 @@ bool js_register_spine_AttachmentTimeline(se::Object* obj) // NOLINT(readability
 {
     auto* cls = se::Class::create("AttachmentTimeline", obj, __jsb_spine_Timeline_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getAttachmentNames", _SE(js_spine_AttachmentTimeline_getAttachmentNames));
     cls->defineFunction("getFrameCount", _SE(js_spine_AttachmentTimeline_getFrameCount));
     cls->defineFunction("getFrames", _SE(js_spine_AttachmentTimeline_getFrames));
@@ -2954,6 +2984,9 @@ bool js_register_spine_Bone(se::Object* obj) // NOLINT(readability-identifier-na
 {
     auto* cls = se::Class::create("Bone", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getA", _SE(js_spine_Bone_getA));
     cls->defineFunction("getAScaleX", _SE(js_spine_Bone_getAScaleX));
     cls->defineFunction("getAScaleY", _SE(js_spine_Bone_getAScaleY));
@@ -3468,6 +3501,9 @@ bool js_register_spine_BoneData(se::Object* obj) // NOLINT(readability-identifie
 {
     auto* cls = se::Class::create("BoneData", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getIndex", _SE(js_spine_BoneData_getIndex));
     cls->defineFunction("getLength", _SE(js_spine_BoneData_getLength));
     cls->defineFunction("getName", _SE(js_spine_BoneData_getName));
@@ -3641,6 +3677,9 @@ bool js_register_spine_VertexAttachment(se::Object* obj) // NOLINT(readability-i
 {
     auto* cls = se::Class::create("VertexAttachment", obj, __jsb_spine_Attachment_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("copyTo", _SE(js_spine_VertexAttachment_copyTo));
     cls->defineFunction("getDeformAttachment", _SE(js_spine_VertexAttachment_getDeformAttachment));
     cls->defineFunction("getId", _SE(js_spine_VertexAttachment_getId));
@@ -3684,6 +3723,9 @@ bool js_register_spine_BoundingBoxAttachment(se::Object* obj) // NOLINT(readabil
 {
     auto* cls = se::Class::create("BoundingBoxAttachment", obj, __jsb_spine_VertexAttachment_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("copy", _SE(js_spine_BoundingBoxAttachment_copy));
     cls->install();
     JSBClassType::registerClass<spine::BoundingBoxAttachment>(cls);
@@ -3759,6 +3801,9 @@ bool js_register_spine_ClippingAttachment(se::Object* obj) // NOLINT(readability
 {
     auto* cls = se::Class::create("ClippingAttachment", obj, __jsb_spine_VertexAttachment_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("copy", _SE(js_spine_ClippingAttachment_copy));
     cls->defineFunction("getEndSlot", _SE(js_spine_ClippingAttachment_getEndSlot));
     cls->defineFunction("setEndSlot", _SE(js_spine_ClippingAttachment_setEndSlot));
@@ -3906,6 +3951,9 @@ bool js_register_spine_Color(se::Object* obj) // NOLINT(readability-identifier-n
 {
     auto* cls = se::Class::create("Color", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineProperty("r", _SE(js_spine_Color_get_r), _SE(js_spine_Color_set_r));
     cls->defineProperty("g", _SE(js_spine_Color_get_g), _SE(js_spine_Color_set_g));
     cls->defineProperty("b", _SE(js_spine_Color_get_b), _SE(js_spine_Color_set_b));
@@ -4077,6 +4125,9 @@ bool js_register_spine_CurveTimeline(se::Object* obj) // NOLINT(readability-iden
 {
     auto* cls = se::Class::create("CurveTimeline", obj, __jsb_spine_Timeline_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getCurvePercent", _SE(js_spine_CurveTimeline_getCurvePercent));
     cls->defineFunction("getCurveType", _SE(js_spine_CurveTimeline_getCurveType));
     cls->defineFunction("getFrameCount", _SE(js_spine_CurveTimeline_getFrameCount));
@@ -4206,6 +4257,9 @@ bool js_register_spine_ColorTimeline(se::Object* obj) // NOLINT(readability-iden
 {
     auto* cls = se::Class::create("ColorTimeline", obj, __jsb_spine_CurveTimeline_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getFrames", _SE(js_spine_ColorTimeline_getFrames));
     cls->defineFunction("getPropertyId", _SE(js_spine_ColorTimeline_getPropertyId));
     cls->defineFunction("getSlotIndex", _SE(js_spine_ColorTimeline_getSlotIndex));
@@ -4323,6 +4377,9 @@ bool js_register_spine_ConstraintData(se::Object* obj) // NOLINT(readability-ide
 {
     auto* cls = se::Class::create("ConstraintData", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getName", _SE(js_spine_ConstraintData_getName));
     cls->defineFunction("getOrder", _SE(js_spine_ConstraintData_getOrder));
     cls->defineFunction("isSkinRequired", _SE(js_spine_ConstraintData_isSkinRequired));
@@ -4459,6 +4516,9 @@ bool js_register_spine_DeformTimeline(se::Object* obj) // NOLINT(readability-ide
 {
     auto* cls = se::Class::create("DeformTimeline", obj, __jsb_spine_CurveTimeline_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getAttachment", _SE(js_spine_DeformTimeline_getAttachment));
     cls->defineFunction("getFrames", _SE(js_spine_DeformTimeline_getFrames));
     cls->defineFunction("getPropertyId", _SE(js_spine_DeformTimeline_getPropertyId));
@@ -4539,6 +4599,9 @@ bool js_register_spine_DrawOrderTimeline(se::Object* obj) // NOLINT(readability-
 {
     auto* cls = se::Class::create("DrawOrderTimeline", obj, __jsb_spine_Timeline_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getFrameCount", _SE(js_spine_DrawOrderTimeline_getFrameCount));
     cls->defineFunction("getFrames", _SE(js_spine_DrawOrderTimeline_getFrames));
     cls->defineFunction("getPropertyId", _SE(js_spine_DrawOrderTimeline_getPropertyId));
@@ -4787,6 +4850,9 @@ bool js_register_spine_Event(se::Object* obj) // NOLINT(readability-identifier-n
 {
     auto* cls = se::Class::create("Event", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getBalance", _SE(js_spine_Event_getBalance));
     cls->defineFunction("getData", _SE(js_spine_Event_getData));
     cls->defineFunction("getFloatValue", _SE(js_spine_Event_getFloatValue));
@@ -5063,6 +5129,9 @@ bool js_register_spine_EventData(se::Object* obj) // NOLINT(readability-identifi
 {
     auto* cls = se::Class::create("EventData", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getAudioPath", _SE(js_spine_EventData_getAudioPath));
     cls->defineFunction("getBalance", _SE(js_spine_EventData_getBalance));
     cls->defineFunction("getFloatValue", _SE(js_spine_EventData_getFloatValue));
@@ -5190,6 +5259,9 @@ bool js_register_spine_EventTimeline(se::Object* obj) // NOLINT(readability-iden
 {
     auto* cls = se::Class::create("EventTimeline", obj, __jsb_spine_Timeline_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getEvents", _SE(js_spine_EventTimeline_getEvents));
     cls->defineFunction("getFrameCount", _SE(js_spine_EventTimeline_getFrameCount));
     cls->defineFunction("getFrames", _SE(js_spine_EventTimeline_getFrames));
@@ -5550,6 +5622,9 @@ bool js_register_spine_IkConstraint(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("IkConstraint", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getBendDirection", _SE(js_spine_IkConstraint_getBendDirection));
     cls->defineFunction("getBones", _SE(js_spine_IkConstraint_getBones));
     cls->defineFunction("getCompress", _SE(js_spine_IkConstraint_getCompress));
@@ -5870,6 +5945,9 @@ bool js_register_spine_IkConstraintData(se::Object* obj) // NOLINT(readability-i
 {
     auto* cls = se::Class::create("IkConstraintData", obj, __jsb_spine_ConstraintData_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getBendDirection", _SE(js_spine_IkConstraintData_getBendDirection));
     cls->defineFunction("getBones", _SE(js_spine_IkConstraintData_getBones));
     cls->defineFunction("getCompress", _SE(js_spine_IkConstraintData_getCompress));
@@ -5952,6 +6030,9 @@ bool js_register_spine_IkConstraintTimeline(se::Object* obj) // NOLINT(readabili
 {
     auto* cls = se::Class::create("IkConstraintTimeline", obj, __jsb_spine_CurveTimeline_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getPropertyId", _SE(js_spine_IkConstraintTimeline_getPropertyId));
     cls->defineFunction("setFrame", _SE(js_spine_IkConstraintTimeline_setFrame));
     cls->install();
@@ -6765,6 +6846,9 @@ bool js_register_spine_MeshAttachment(se::Object* obj) // NOLINT(readability-ide
 {
     auto* cls = se::Class::create("MeshAttachment", obj, __jsb_spine_VertexAttachment_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("copy", _SE(js_spine_MeshAttachment_copy));
     cls->defineFunction("getColor", _SE(js_spine_MeshAttachment_getColor));
     cls->defineFunction("getEdges", _SE(js_spine_MeshAttachment_getEdges));
@@ -6938,6 +7022,9 @@ bool js_register_spine_PathAttachment(se::Object* obj) // NOLINT(readability-ide
 {
     auto* cls = se::Class::create("PathAttachment", obj, __jsb_spine_VertexAttachment_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("copy", _SE(js_spine_PathAttachment_copy));
     cls->defineFunction("getLengths", _SE(js_spine_PathAttachment_getLengths));
     cls->defineFunction("isClosed", _SE(js_spine_PathAttachment_isClosed));
@@ -7276,6 +7363,9 @@ bool js_register_spine_PathConstraint(se::Object* obj) // NOLINT(readability-ide
 {
     auto* cls = se::Class::create("PathConstraint", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("apply", _SE(js_spine_PathConstraint_apply));
     cls->defineFunction("getBones", _SE(js_spine_PathConstraint_getBones));
     cls->defineFunction("getData", _SE(js_spine_PathConstraint_getData));
@@ -7671,6 +7761,9 @@ bool js_register_spine_PathConstraintData(se::Object* obj) // NOLINT(readability
 {
     auto* cls = se::Class::create("PathConstraintData", obj, __jsb_spine_ConstraintData_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getBones", _SE(js_spine_PathConstraintData_getBones));
     cls->defineFunction("getOffsetRotation", _SE(js_spine_PathConstraintData_getOffsetRotation));
     cls->defineFunction("getPosition", _SE(js_spine_PathConstraintData_getPosition));
@@ -7726,6 +7819,9 @@ bool js_register_spine_PathConstraintMixTimeline(se::Object* obj) // NOLINT(read
 {
     auto* cls = se::Class::create("PathConstraintMixTimeline", obj, __jsb_spine_CurveTimeline_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getPropertyId", _SE(js_spine_PathConstraintMixTimeline_getPropertyId));
     cls->install();
     JSBClassType::registerClass<spine::PathConstraintMixTimeline>(cls);
@@ -7786,6 +7882,9 @@ bool js_register_spine_PathConstraintPositionTimeline(se::Object* obj) // NOLINT
 {
     auto* cls = se::Class::create("PathConstraintPositionTimeline", obj, __jsb_spine_CurveTimeline_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getPropertyId", _SE(js_spine_PathConstraintPositionTimeline_getPropertyId));
     cls->defineFunction("setFrame", _SE(js_spine_PathConstraintPositionTimeline_setFrame));
     cls->install();
@@ -7824,6 +7923,9 @@ bool js_register_spine_PathConstraintSpacingTimeline(se::Object* obj) // NOLINT(
 {
     auto* cls = se::Class::create("PathConstraintSpacingTimeline", obj, __jsb_spine_PathConstraintPositionTimeline_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getPropertyId", _SE(js_spine_PathConstraintSpacingTimeline_getPropertyId));
     cls->install();
     JSBClassType::registerClass<spine::PathConstraintSpacingTimeline>(cls);
@@ -7975,6 +8077,9 @@ bool js_register_spine_PointAttachment(se::Object* obj) // NOLINT(readability-id
 {
     auto* cls = se::Class::create("PointAttachment", obj, __jsb_spine_Attachment_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("copy", _SE(js_spine_PointAttachment_copy));
     cls->defineFunction("getRotation", _SE(js_spine_PointAttachment_getRotation));
     cls->defineFunction("getX", _SE(js_spine_PointAttachment_getX));
@@ -8649,6 +8754,9 @@ bool js_register_spine_RegionAttachment(se::Object* obj) // NOLINT(readability-i
 {
     auto* cls = se::Class::create("RegionAttachment", obj, __jsb_spine_Attachment_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("copy", _SE(js_spine_RegionAttachment_copy));
     cls->defineFunction("getColor", _SE(js_spine_RegionAttachment_getColor));
     cls->defineFunction("getHeight", _SE(js_spine_RegionAttachment_getHeight));
@@ -8799,6 +8907,9 @@ bool js_register_spine_RotateTimeline(se::Object* obj) // NOLINT(readability-ide
 {
     auto* cls = se::Class::create("RotateTimeline", obj, __jsb_spine_CurveTimeline_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getBoneIndex", _SE(js_spine_RotateTimeline_getBoneIndex));
     cls->defineFunction("getFrames", _SE(js_spine_RotateTimeline_getFrames));
     cls->defineFunction("getPropertyId", _SE(js_spine_RotateTimeline_getPropertyId));
@@ -8865,6 +8976,9 @@ bool js_register_spine_TranslateTimeline(se::Object* obj) // NOLINT(readability-
 {
     auto* cls = se::Class::create("TranslateTimeline", obj, __jsb_spine_CurveTimeline_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getPropertyId", _SE(js_spine_TranslateTimeline_getPropertyId));
     cls->defineFunction("setFrame", _SE(js_spine_TranslateTimeline_setFrame));
     cls->install();
@@ -8903,6 +9017,9 @@ bool js_register_spine_ScaleTimeline(se::Object* obj) // NOLINT(readability-iden
 {
     auto* cls = se::Class::create("ScaleTimeline", obj, __jsb_spine_TranslateTimeline_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getPropertyId", _SE(js_spine_ScaleTimeline_getPropertyId));
     cls->install();
     JSBClassType::registerClass<spine::ScaleTimeline>(cls);
@@ -8940,6 +9057,9 @@ bool js_register_spine_ShearTimeline(se::Object* obj) // NOLINT(readability-iden
 {
     auto* cls = se::Class::create("ShearTimeline", obj, __jsb_spine_TranslateTimeline_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getPropertyId", _SE(js_spine_ShearTimeline_getPropertyId));
     cls->install();
     JSBClassType::registerClass<spine::ShearTimeline>(cls);
@@ -9742,6 +9862,9 @@ bool js_register_spine_Skeleton(se::Object* obj) // NOLINT(readability-identifie
 {
     auto* cls = se::Class::create("Skeleton", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("findBone", _SE(js_spine_Skeleton_findBone));
     cls->defineFunction("findBoneIndex", _SE(js_spine_Skeleton_findBoneIndex));
     cls->defineFunction("findIkConstraint", _SE(js_spine_Skeleton_findIkConstraint));
@@ -10020,6 +10143,9 @@ bool js_register_spine_SkeletonBounds(se::Object* obj) // NOLINT(readability-ide
 {
     auto* cls = se::Class::create("SkeletonBounds", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("aabbcontainsPoint", _SE(js_spine_SkeletonBounds_aabbcontainsPoint));
     cls->defineFunction("aabbintersectsSegment", _SE(js_spine_SkeletonBounds_aabbintersectsSegment));
     cls->defineFunction("containsPoint", _SE(js_spine_SkeletonBounds_containsPoint));
@@ -10044,6 +10170,9 @@ bool js_register_spine_Polygon(se::Object* obj) // NOLINT(readability-identifier
 {
     auto* cls = se::Class::create("Polygon", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->install();
     JSBClassType::registerClass<spine::Polygon>(cls);
 
@@ -10873,6 +11002,9 @@ bool js_register_spine_SkeletonData(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("SkeletonData", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("findAnimation", _SE(js_spine_SkeletonData_findAnimation));
     cls->defineFunction("findBone", _SE(js_spine_SkeletonData_findBone));
     cls->defineFunction("findBoneIndex", _SE(js_spine_SkeletonData_findBoneIndex));
@@ -11094,6 +11226,9 @@ bool js_register_spine_Skin(se::Object* obj) // NOLINT(readability-identifier-na
 {
     auto* cls = se::Class::create("Skin", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("addSkin", _SE(js_spine_Skin_addSkin));
     cls->defineFunction("copySkin", _SE(js_spine_Skin_copySkin));
     cls->defineFunction("getAttachment", _SE(js_spine_Skin_getAttachment));
@@ -11343,6 +11478,9 @@ bool js_register_spine_Slot(se::Object* obj) // NOLINT(readability-identifier-na
 {
     auto* cls = se::Class::create("Slot", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getAttachment", _SE(js_spine_Slot_getAttachment));
     cls->defineFunction("getAttachmentTime", _SE(js_spine_Slot_getAttachmentTime));
     cls->defineFunction("getBone", _SE(js_spine_Slot_getBone));
@@ -11581,6 +11719,9 @@ bool js_register_spine_SlotData(se::Object* obj) // NOLINT(readability-identifie
 {
     auto* cls = se::Class::create("SlotData", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getAttachmentName", _SE(js_spine_SlotData_getAttachmentName));
     cls->defineFunction("getBlendMode", _SE(js_spine_SlotData_getBlendMode));
     cls->defineFunction("getBoneData", _SE(js_spine_SlotData_getBoneData));
@@ -11924,6 +12065,9 @@ bool js_register_spine_TransformConstraint(se::Object* obj) // NOLINT(readabilit
 {
     auto* cls = se::Class::create("TransformConstraint", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("apply", _SE(js_spine_TransformConstraint_apply));
     cls->defineFunction("getBones", _SE(js_spine_TransformConstraint_getBones));
     cls->defineFunction("getData", _SE(js_spine_TransformConstraint_getData));
@@ -12224,6 +12368,9 @@ bool js_register_spine_TransformConstraintData(se::Object* obj) // NOLINT(readab
 {
     auto* cls = se::Class::create("TransformConstraintData", obj, __jsb_spine_ConstraintData_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getBones", _SE(js_spine_TransformConstraintData_getBones));
     cls->defineFunction("getOffsetRotation", _SE(js_spine_TransformConstraintData_getOffsetRotation));
     cls->defineFunction("getOffsetScaleX", _SE(js_spine_TransformConstraintData_getOffsetScaleX));
@@ -12303,6 +12450,9 @@ bool js_register_spine_TransformConstraintTimeline(se::Object* obj) // NOLINT(re
 {
     auto* cls = se::Class::create("TransformConstraintTimeline", obj, __jsb_spine_CurveTimeline_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getPropertyId", _SE(js_spine_TransformConstraintTimeline_getPropertyId));
     cls->defineFunction("setFrame", _SE(js_spine_TransformConstraintTimeline_setFrame));
     cls->install();
@@ -12414,6 +12564,9 @@ bool js_register_spine_TwoColorTimeline(se::Object* obj) // NOLINT(readability-i
 {
     auto* cls = se::Class::create("TwoColorTimeline", obj, __jsb_spine_CurveTimeline_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getPropertyId", _SE(js_spine_TwoColorTimeline_getPropertyId));
     cls->defineFunction("getSlotIndex", _SE(js_spine_TwoColorTimeline_getSlotIndex));
     cls->defineFunction("setFrame", _SE(js_spine_TwoColorTimeline_setFrame));
@@ -12435,6 +12588,9 @@ bool js_register_spine_VertexEffect(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("VertexEffect", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->install();
     JSBClassType::registerClass<spine::VertexEffect>(cls);
 
@@ -12528,6 +12684,9 @@ bool js_register_spine_JitterVertexEffect(se::Object* obj) // NOLINT(readability
 {
     auto* cls = se::Class::create("JitterVertexEffect", obj, __jsb_spine_VertexEffect_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getJitterX", _SE(js_spine_JitterVertexEffect_getJitterX));
     cls->defineFunction("getJitterY", _SE(js_spine_JitterVertexEffect_getJitterY));
     cls->defineFunction("setJitterX", _SE(js_spine_JitterVertexEffect_setJitterX));
@@ -12777,6 +12936,9 @@ bool js_register_spine_SwirlVertexEffect(se::Object* obj) // NOLINT(readability-
 {
     auto* cls = se::Class::create("SwirlVertexEffect", obj, __jsb_spine_VertexEffect_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getAngle", _SE(js_spine_SwirlVertexEffect_getAngle));
     cls->defineFunction("getCenterX", _SE(js_spine_SwirlVertexEffect_getCenterX));
     cls->defineFunction("getCenterY", _SE(js_spine_SwirlVertexEffect_getCenterY));
@@ -12985,6 +13147,9 @@ bool js_register_spine_VertexEffectDelegate(se::Object* obj) // NOLINT(readabili
 {
     auto* cls = se::Class::create("VertexEffectDelegate", obj, nullptr, _SE(js_spine_VertexEffectDelegate_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("clear", _SE(js_spine_VertexEffectDelegate_clear));
     cls->defineFunction("getEffectType", _SE(js_spine_VertexEffectDelegate_getEffectType));
     cls->defineFunction("getJitterVertexEffect", _SE(js_spine_VertexEffectDelegate_getJitterVertexEffect));
@@ -13907,6 +14072,9 @@ bool js_register_spine_SkeletonRenderer(se::Object* obj) // NOLINT(readability-i
 {
     auto* cls = se::Class::create("SkeletonRenderer", obj, nullptr, _SE(js_spine_SkeletonRenderer_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("beginSchedule", _SE(js_spine_SkeletonRenderer_beginSchedule));
     cls->defineFunction("findBone", _SE(js_spine_SkeletonRenderer_findBone));
     cls->defineFunction("findSlot", _SE(js_spine_SkeletonRenderer_findSlot));
@@ -14973,6 +15141,9 @@ bool js_register_spine_SkeletonAnimation(se::Object* obj) // NOLINT(readability-
 {
     auto* cls = se::Class::create("SkeletonAnimation", obj, __jsb_spine_SkeletonRenderer_proto, _SE(js_spine_SkeletonAnimation_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("addAnimation", _SE(js_spine_SkeletonAnimation_addAnimation));
     cls->defineFunction("addEmptyAnimation", _SE(js_spine_SkeletonAnimation_addEmptyAnimation));
     cls->defineFunction("clearTrack", _SE(js_spine_SkeletonAnimation_clearTrack));
@@ -15801,6 +15972,9 @@ bool js_register_spine_SkeletonCacheAnimation(se::Object* obj) // NOLINT(readabi
 {
     auto* cls = se::Class::create("SkeletonCacheAnimation", obj, nullptr, _SE(js_spine_SkeletonCacheAnimation_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("addAnimation", _SE(js_spine_SkeletonCacheAnimation_addAnimation));
     cls->defineFunction("beginSchedule", _SE(js_spine_SkeletonCacheAnimation_beginSchedule));
     cls->defineFunction("findAnimation", _SE(js_spine_SkeletonCacheAnimation_findAnimation));
@@ -15928,6 +16102,9 @@ bool js_register_spine_SkeletonCacheMgr(se::Object* obj) // NOLINT(readability-i
 {
     auto* cls = se::Class::create("SkeletonCacheMgr", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("buildSkeletonCache", _SE(js_spine_SkeletonCacheMgr_buildSkeletonCache));
     cls->defineFunction("removeSkeletonCache", _SE(js_spine_SkeletonCacheMgr_removeSkeletonCache));
     cls->defineStaticFunction("destroyInstance", _SE(js_spine_SkeletonCacheMgr_destroyInstance_static));
@@ -16031,6 +16208,9 @@ bool js_register_spine_SkeletonDataMgr(se::Object* obj) // NOLINT(readability-id
 {
     auto* cls = se::Class::create("SkeletonDataMgr", obj, nullptr, _SE(js_spine_SkeletonDataMgr_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_spine_getter_return_true), nullptr);
+#endif
     cls->defineFunction("setDestroyCallback", _SE(js_spine_SkeletonDataMgr_setDestroyCallback));
     cls->defineStaticFunction("getInstance", _SE(js_spine_SkeletonDataMgr_getInstance_static));
     cls->defineFinalizeFunction(_SE(js_spine_SkeletonDataMgr_finalize));

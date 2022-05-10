@@ -6,7 +6,7 @@
 import { EDITOR } from 'internal:constants';
 import { Armature, Bone, EventObject } from '@cocos/dragonbones-js';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
-import { Renderable2D } from '../2d/framework/renderable-2d';
+import { UIRenderer } from '../2d/framework/ui-renderer';
 import { Node, CCClass, Color, Enum, ccenum, errorID, Texture2D, Material, RecyclePool, js, CCObject } from '../core';
 import { EventTarget } from '../core/event';
 import { BlendFactor } from '../core/gfx';
@@ -134,7 +134,7 @@ interface BoneIndex extends Number {
 @help('i18n:dragonBones.ArmatureDisplay')
 @menu('DragonBones/ArmatureDisplay')
 @executeInEditMode
-export class ArmatureDisplay extends Renderable2D {
+export class ArmatureDisplay extends UIRenderer {
     static AnimationCacheMode = AnimationCacheMode;
 
     /**

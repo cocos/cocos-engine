@@ -84,6 +84,8 @@ NodeCls.TransformDirtyBit = TransformBit;
  */
 NodeCls.TransformBit = TransformBit;
 
+const TRANSFORMBIT_TRS = TransformBit.TRS;
+
 const nodeProto: any = jsb.Node.prototype;
 export const TRANSFORM_ON = 1 << 0;
 const Destroying = CCObject.Flags.Destroying;
@@ -1079,13 +1081,15 @@ nodeProto._onActiveNode = function (shouldActiveNow: boolean) {
 };
 
 nodeProto._onBatchCreated = function (dontSyncChildPrefab: boolean) {
-    this.hasChangedFlags = TransformBit.TRS;
-    this._dirtyFlags |= TransformBit.TRS;
+    this.hasChangedFlags = TRANSFORMBIT_TRS;
+    this._dirtyFlags |= TRANSFORMBIT_TRS;
     const children = this._children;
     const len = children.length;
+    let child;
     for (let i = 0; i < len; ++i) {
-        children[i]._siblingIndex = i;
-        children[i]._onBatchCreated(dontSyncChildPrefab);
+        child = children[i];
+        child._siblingIndex = i;
+        child._onBatchCreated(dontSyncChildPrefab);
     }
 
     // Sync node _lpos, _lrot, _lscale to native

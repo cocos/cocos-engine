@@ -30,7 +30,7 @@
  */
 
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, visible, override, serializable, range, slide } from 'cc.decorator';
-import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';
+import { InstanceMaterialType, UIRenderer } from '../framework/ui-renderer';
 import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
 import { warnID } from '../../core/platform';
 import { IBatcher } from '../renderer/i-batcher';
@@ -118,7 +118,7 @@ const SEGMENTS_MAX = 10000;
 @help('i18n:cc.Mask')
 @executionOrder(110)
 @menu('2D/Mask')
-export class Mask extends Renderable2D {
+export class Mask extends UIRenderer {
     /**
      * @en
      * The mask type.

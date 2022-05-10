@@ -55,6 +55,9 @@ bool js_register_${generator.prefix}_${current_class.nested_class_name}(se::Obje
     #end if
 #end if
 
+\#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_${generator.prefix}_getter_return_true), nullptr);
+\#endif
 #for m in public_fields
     #if  $current_class.should_export_field(m.name) and not m.is_static
     cls->defineProperty("${m.export_name}", _SE(${m.signature_name}_get_${m.name}), _SE(${m.signature_name}_set_${m.name}));

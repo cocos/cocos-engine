@@ -12,6 +12,15 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
+
+#if CC_DEBUG
+static bool js_geometry_getter_return_true(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    s.rval().setBoolean(true);
+    return true;
+}
+SE_BIND_PROP_GET(js_geometry_getter_return_true)
+#endif
 se::Object* __jsb_cc_geometry_ShapeBase_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_geometry_ShapeBase_class = nullptr;  // NOLINT
 
@@ -57,6 +66,9 @@ bool js_register_geometry_ShapeBase(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("ShapeBase", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_geometry_getter_return_true), nullptr);
+#endif
     cls->defineProperty("_type", _SE(js_geometry_ShapeBase_getType_asGetter), _SE(js_geometry_ShapeBase_setType_asSetter));
     cls->install();
     JSBClassType::registerClass<cc::geometry::ShapeBase>(cls);
@@ -253,6 +265,9 @@ bool js_register_geometry_AABB(se::Object* obj) // NOLINT(readability-identifier
 {
     auto* cls = se::Class::create("AABB", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_geometry_AABB_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_geometry_getter_return_true), nullptr);
+#endif
     cls->defineProperty("center", _SE(js_geometry_AABB_get_center), _SE(js_geometry_AABB_set_center));
     cls->defineProperty("halfExtents", _SE(js_geometry_AABB_get_halfExtents), _SE(js_geometry_AABB_set_halfExtents));
     cls->defineFunction("contain", _SE(js_geometry_AABB_contain));
@@ -377,6 +392,9 @@ bool js_register_geometry_Capsule(se::Object* obj) // NOLINT(readability-identif
 {
     auto* cls = se::Class::create("Capsule", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_geometry_Capsule_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_geometry_getter_return_true), nullptr);
+#endif
     cls->defineFunction("transform", _SE(js_geometry_Capsule_transform));
     cls->defineFinalizeFunction(_SE(js_cc_geometry_Capsule_finalize));
     cls->install();
@@ -680,6 +698,9 @@ bool js_register_geometry_Plane(se::Object* obj) // NOLINT(readability-identifie
 {
     auto* cls = se::Class::create("Plane", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_geometry_Plane_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_geometry_getter_return_true), nullptr);
+#endif
     cls->defineProperty("n", _SE(js_geometry_Plane_get_n), _SE(js_geometry_Plane_set_n));
     cls->defineProperty("d", _SE(js_geometry_Plane_get_d), _SE(js_geometry_Plane_set_d));
     cls->defineFunction("define", _SE(js_geometry_Plane_define));
@@ -951,6 +972,9 @@ bool js_register_geometry_Frustum(se::Object* obj) // NOLINT(readability-identif
 {
     auto* cls = se::Class::create("Frustum", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_geometry_Frustum_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_geometry_getter_return_true), nullptr);
+#endif
     cls->defineProperty("vertices", _SE(js_geometry_Frustum_get_vertices), _SE(js_geometry_Frustum_set_vertices));
     cls->defineProperty("planes", _SE(js_geometry_Frustum_get_planes), _SE(js_geometry_Frustum_set_planes));
     cls->defineFunction("createOrtho", _SE(js_geometry_Frustum_createOrtho));
@@ -1286,6 +1310,9 @@ bool js_register_geometry_Line(se::Object* obj) // NOLINT(readability-identifier
 {
     auto* cls = se::Class::create("Line", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_geometry_Line_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_geometry_getter_return_true), nullptr);
+#endif
     cls->defineFunction("length", _SE(js_geometry_Line_length));
     cls->defineStaticFunction("clone", _SE(js_geometry_Line_clone_static));
     cls->defineStaticFunction("copy", _SE(js_geometry_Line_copy_static));
@@ -1656,6 +1683,9 @@ bool js_register_geometry_Ray(se::Object* obj) // NOLINT(readability-identifier-
 {
     auto* cls = se::Class::create("Ray", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_geometry_Ray_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_geometry_getter_return_true), nullptr);
+#endif
     cls->defineStaticFunction("clone", _SE(js_geometry_Ray_clone_static));
     cls->defineStaticFunction("copy", _SE(js_geometry_Ray_copy_static));
     cls->defineStaticFunction("create", _SE(js_geometry_Ray_create_static));
@@ -2267,6 +2297,9 @@ bool js_register_geometry_Sphere(se::Object* obj) // NOLINT(readability-identifi
 {
     auto* cls = se::Class::create("Sphere", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_geometry_Sphere_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_geometry_getter_return_true), nullptr);
+#endif
     cls->defineFunction("clone", _SE(js_geometry_Sphere_clone));
     cls->defineFunction("copy", _SE(js_geometry_Sphere_copy));
     cls->defineFunction("define", _SE(js_geometry_Sphere_define));
@@ -2732,6 +2765,9 @@ bool js_register_geometry_Spline(se::Object* obj) // NOLINT(readability-identifi
 {
     auto* cls = se::Class::create("Spline", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_geometry_Spline_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_geometry_getter_return_true), nullptr);
+#endif
     cls->defineProperty("mode", _SE(js_geometry_Spline_getMode_asGetter), _SE(js_geometry_Spline_setMode_asSetter));
     cls->defineProperty("knots", _SE(js_geometry_Spline_getKnots_asGetter), _SE(js_geometry_Spline_setKnots_asSetter));
     cls->defineFunction("addKnot", _SE(js_geometry_Spline_addKnot));
@@ -3283,6 +3319,9 @@ bool js_register_geometry_Triangle(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("Triangle", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_geometry_Triangle_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_geometry_getter_return_true), nullptr);
+#endif
     cls->defineStaticFunction("clone", _SE(js_geometry_Triangle_clone_static));
     cls->defineStaticFunction("copy", _SE(js_geometry_Triangle_copy_static));
     cls->defineStaticFunction("create", _SE(js_geometry_Triangle_create_static));

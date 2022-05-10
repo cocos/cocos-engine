@@ -135,3 +135,26 @@ gulp.task('gen-simulator', async function () {
         });
     });
 });
+
+function formatPath(p) {
+    return p.replace(/\\/g, '/');
+}
+
+gulp.task('clean-simulator', async function () {
+    console.log('=====================================\n');
+    console.log('clean project\n');
+    console.log('=====================================\n');
+    let isWin32 = process.platform === 'win32';
+    let delPatterns = [
+        formatPath(Path.join(__dirname, './simulator/*')),
+        formatPath(`!${Path.join(__dirname, './simulator/Debug')}`),
+    ];
+    if (!isWin32) {
+        delPatterns.push(formatPath(Path.join(__dirname, './simulator/Debug/libcocos2d.a')));
+        delPatterns.push(formatPath(Path.join(__dirname, './simulator/Debug/libsimulator.a')));
+    }
+    console.log('delete patterns: ', JSON.stringify(delPatterns, undefined, 2));
+    await del(delPatterns, { force: true });
+});
+
+gulp.task('gen-simulator-release', gulp.series('gen-simulator', 'clean-simulator'));
