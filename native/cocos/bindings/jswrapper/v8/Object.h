@@ -50,10 +50,6 @@ namespace se {
 class Class;
 class ScriptEngine;
 
-namespace internal {
-struct PrivateData;
-}
-
 /**
      * se::Object represents JavaScript Object.
      */
@@ -460,7 +456,7 @@ private:
 
     PrivateObjectBase *_privateObject{nullptr};
     V8FinalizeFunc _finalizeCb{nullptr};
-    internal::PrivateData *_internalData{nullptr};
+
     bool _clearMappingInFinalizer{true};
 
     #if CC_DEBUG && CC_DEBUG_JS_OBJECT_ID
