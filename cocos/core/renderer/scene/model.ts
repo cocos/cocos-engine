@@ -101,7 +101,7 @@ const lightmapSamplerWithMipHash = new SamplerInfo(
  */
 export class Model {
     /**
-     * @en return sub models
+     * @en Sub models of the current model
      * @zh 获取所有子模型
      */
     get subModels () {
@@ -109,7 +109,7 @@ export class Model {
     }
 
     /**
-     * @en is inited
+     * @en Whether the model is initialized
      * @zh 是否初始化
      */
     get inited (): boolean {
@@ -117,7 +117,7 @@ export class Model {
     }
 
     /**
-     * @en return world aabb
+     * @en The axis-aligned bounding box of the model in the world space
      * @zh 获取世界空间包围盒
      */
     get worldBounds () {
@@ -125,23 +125,23 @@ export class Model {
     }
 
     /**
-     * @en return model aabb
-     * @zh 获取模型包围盒
+     * @en The axis-aligned bounding box of the model in the model space
+     * @zh 获取模型空间包围盒
      */
     get modelBounds () {
         return this._modelBounds;
     }
 
     /**
-     * @en return model ubo buffer
-     * @zh 获取模型 ubo 缓冲
+     * @en The ubo buffer of the model
+     * @zh 获取模型的 ubo 缓冲
      */
     get localBuffer () {
         return this._localBuffer;
     }
 
     /**
-     * @en return world bound buffer
+     * @en The world bound ubo buffer
      * @zh 获取世界包围盒 ubo 缓冲
      */
     get worldBoundBuffer () {
@@ -149,15 +149,15 @@ export class Model {
     }
 
     /**
-     * @en return update time stamp
-     * @zh 获取更新时间戳
+     * @en The time stamp of last update
+     * @zh 获取上次更新时间戳
      */
     get updateStamp () {
         return this._updateStamp;
     }
 
     /**
-     * @en is GPU instancing enabled for the current model
+     * @en Whether GPU instancing is enabled for the current model
      * @zh 是否开启实例化渲染
      */
     get isInstancingEnabled () {
@@ -165,7 +165,7 @@ export class Model {
     }
 
     /**
-     * @en shadow bias
+     * @en Model level shadow bias
      * @zh 阴影偏移值
      */
     get shadowBias () {
@@ -180,7 +180,7 @@ export class Model {
     }
 
     /**
-     * @en shadow normal bias
+     * @en Model level shadow normal bias
      * @zh 阴影法线偏移值
      */
     get shadowNormalBias () {
@@ -195,7 +195,7 @@ export class Model {
     }
 
     /**
-     * @en receive shadow or not
+     * @en Whether the model should receive shadow
      * @zh 是否接收阴影
      */
     get receiveShadow () {
@@ -208,7 +208,7 @@ export class Model {
     }
 
     /**
-     * @en cast shadow or not
+     * @en Whether the model should cast shadow
      * @zh 是否投射阴影
      */
     get castShadow () {
@@ -223,7 +223,7 @@ export class Model {
     }
 
     /**
-     * @en model's node
+     * @en The node to which the model belongs
      * @zh 模型所在的节点
      */
     get node () : Node {
@@ -238,7 +238,7 @@ export class Model {
     }
 
     /**
-     * @en model's transform
+     * @en Model's transform
      * @zh 模型的变换
      */
     get transform () : Node {
@@ -253,7 +253,7 @@ export class Model {
     }
 
     /**
-     * @en model's visibility tag
+     * @en Model's visibility tag
      * Model's visibility flags, it's different from [[Node.layer]],
      * but it will also be compared with [[Camera.visibility]] during culling process.
      * @zh 模型的可见性标志
@@ -271,8 +271,8 @@ export class Model {
     }
 
     /**
-     * @en enabled
-     * @zh 模型是否启用
+     * @en Whether the model is enabled in the render scene so that it will be rendered
+     * @zh 模型是否在渲染场景中启用并被渲染
      */
     get enabled () : boolean {
         return this._enabled;
@@ -286,103 +286,103 @@ export class Model {
     }
 
     /**
-     * @en model type
+     * @en The type of the model
      * @zh 模型类型
      */
     public type = ModelType.DEFAULT;
 
     /**
-     * @en model's render scene
+     * @en The render scene to which the model belongs
      * @zh 模型所在的场景
      */
     public scene: RenderScene | null = null;
 
     /**
-     * @en is dynamic batching
+     * @en Whether dynamic batching is enabled for model
      * @zh 是否动态合批
      */
     public isDynamicBatching = false;
 
     /**
-     * @en instance attributes
+     * @en The instance attributes
      * @zh 实例化属性
      */
     public instancedAttributes: IInstancedAttributeBlock = { buffer: null!, views: [], attributes: [] };
 
     /**
-     * @en world aabb
+     * @en The world axis-aligned bounding box
      * @zh 世界空间包围盒
      */
     protected _worldBounds: AABB | null = null;
 
     /**
-     * @en model aabb
+     * @en The model axis-aligned bounding box
      * @zh 模型空间包围盒
      */
     protected _modelBounds: AABB | null = null;
 
     /**
-     * @en sub models
+     * @en Sub models
      * @zh 子模型
      */
     protected _subModels: SubModel[] = [];
 
     /**
-     * @en model's node
-     * @zh 子模型所在的节点
+     * @en The node to which the model belongs
+     * @zh 模型所在的节点
      */
     protected _node: Node = null!;
 
     /**
-     * @en model's transform
+     * @en Model's transform
      * @zh 子模型的变换
      */
     protected _transform: Node = null!;
 
     /**
-     * @en current device
-     * @zh 当前设备
+     * @en Current gfx device
+     * @zh 当前 GFX 设备
      */
     protected _device: Device;
 
     /**
-     * @en is inited
+     * @en Whether the model is initialized
      * @zh 是否初始化过
      */
     protected _inited = false;
 
     /**
-     * @en descriptor set count
+     * @en Descriptor set count
      * @zh 描述符集合个数
      */
     protected _descriptorSetCount = 1;
 
     /**
-     * @en update time stamp
+     * @en Time stamp for last update
      * @zh 更新时间戳
      */
     protected _updateStamp = -1;
 
     /**
-     * @en local ubo data dirty flag
+     * @en Local ubo data dirty flag
      * @zh 本地 ubo 数据是否修改过
      */
     protected _localDataUpdated = true;
 
     /**
-     * @en local ubo data
+     * @en Local ubo data
      * @zh 本地 ubo 数据
      */
     protected _localData = new Float32Array(UBOLocal.COUNT);
 
     /**
-     * @en local ubo buffer
+     * @en Local ubo buffer
      * @zh 本地 ubo 缓冲
      */
     protected _localBuffer: Buffer | null = null;
 
     /**
-     * @en instance matrix id
+     * @en Instance matrix id
      * @zh 实例矩阵索引
      */
     private _instMatWorldIdx = -1;
@@ -390,43 +390,43 @@ export class Model {
     private _lightmapUVParam: Vec4 = new Vec4();
 
     /**
-     * @en world aabb buffer
+     * @en World AABB buffer
      * @zh 世界空间包围盒缓冲
      */
     protected _worldBoundBuffer: Buffer | null = null;
 
     /**
-     * @en receive shadow or not
+     * @en Whether the model should receive shadow
      * @zh 是否接收阴影
      */
     protected _receiveShadow = false;
 
     /**
-     * @en cast shadow or not
+     * @en Whether the model should cast shadow
      * @zh 是否投射阴影
      */
     protected _castShadow = false;
 
     /**
-     * @en shadow bias
+     * @en Shadow bias
      * @zh 阴影偏移
      */
     protected _shadowBias = 0;
 
     /**
-     * @en shadow normal bias
+     * @en Shadow normal bias
      * @zh 阴影法线偏移
      */
     protected _shadowNormalBias = 0;
 
     /**
-     * @en enable or not
-     * @zh 是否启用
+     * @en Whether the model is enabled in the render scene so that it will be rendered
+     * @zh 模型是否在渲染场景中启用并被渲染
      */
     protected _enabled = true;
 
     /**
-     * @en visible flag
+     * @en The visibility flags
      * @zh 可见性标志位
      */
     protected _visFlags = Layers.Enum.NONE;
@@ -448,7 +448,7 @@ export class Model {
     }
 
     /**
-     * @en create a empty model
+     * @en Constructor to create an empty model
      * @zh 创建一个空模型
      */
     constructor () {
@@ -469,7 +469,7 @@ export class Model {
     }
 
     /**
-     * @en init model
+     * @en Initialize the model
      * @zh 初始化模型
      */
     public initialize () {
@@ -495,7 +495,7 @@ export class Model {
     }
 
     /**
-     * @en destroy model
+     * @en Destroy the model
      * @zh 销毁模型
      */
     public destroy () {
@@ -525,7 +525,7 @@ export class Model {
     }
 
     /**
-     * @en attach model to [[RenderScene]]
+     * @en Attach the model to a [[RenderScene]]
      * @zh 添加模型到渲染场景 [[RenderScene]] 中
      * @param scene destination scene
      */
@@ -535,7 +535,7 @@ export class Model {
     }
 
     /**
-     * @en detach model from scene
+     * @en Detach the model from its render scene
      * @zh 移除场景中的模型
      */
     public detachFromScene () {
@@ -543,7 +543,7 @@ export class Model {
     }
 
     /**
-     * @en update model's transform
+     * @en Update the model's transform
      * @zh 更新模型的变换
      * @param stamp time stamp
      */
@@ -562,7 +562,7 @@ export class Model {
     }
 
     /**
-     * @en update model's world aabb
+     * @en Update the model's world AABB
      * @zh 更新模型的世界空间包围盒
      */
     public updateWorldBound () {
@@ -597,7 +597,7 @@ export class Model {
     }
 
     /**
-     * @en update model's ubo
+     * @en Update the model's ubo
      * @zh 更新模型的 ubo
      * @param stamp time stamp
      */
@@ -641,10 +641,10 @@ export class Model {
     }
 
     /**
-     * @en create model's aabb
+     * @en Create the model's AABB
      * @zh 创建模型的包围盒
-     * @param minPos min positoin of the aabb
-     * @param maxPos max positoin of the aabb
+     * @param minPos min position of the AABB
+     * @param maxPos max position of the AABB
      */
     public createBoundingShape (minPos?: Vec3, maxPos?: Vec3) {
         if (!minPos || !maxPos) { return; }
@@ -658,7 +658,7 @@ export class Model {
     }
 
     /**
-     * @en init a sub model
+     * @en Initialize a sub model
      * @zh 初始化一个子模型
      * @param idx sub model's index
      * @param subMeshData sub mesh
@@ -688,7 +688,7 @@ export class Model {
     }
 
     /**
-     * @en set material for a given sub model
+     * @en Set material for a given sub model
      * @zh 为指定的子模型设置材质
      * @param idx sub model's index
      * @param subMesh sub mesh
@@ -699,7 +699,7 @@ export class Model {
     }
 
     /**
-     * @en set a sub material
+     * @en Set a sub material
      * @zh 设置一个子材质
      * @param idx sub model's index
      * @param mat sub material
@@ -711,7 +711,7 @@ export class Model {
     }
 
     /**
-     * @en pipeline changed callback
+     * @en Pipeline changed callback
      * @zh 管线更新回调
      */
     public onGlobalPipelineStateChanged () {
@@ -722,8 +722,8 @@ export class Model {
     }
 
     /**
-     * @en shader macro changed callback
-     * @zh shader宏更新回调
+     * @en Shader macro changed callback
+     * @zh Shader 宏更新回调
      */
     public onMacroPatchesStateChanged () {
         const subModels = this._subModels;
@@ -733,7 +733,7 @@ export class Model {
     }
 
     /**
-     * @en update light map
+     * @en Update the light map
      * @zh 更新光照贴图
      * @param texture light map
      * @param uvParam uv coordinate
@@ -768,7 +768,7 @@ export class Model {
     }
 
     /**
-     * @en update shadow bias
+     * @en Update the shadow bias
      * @zh 更新阴影偏移
      */
     public updateLocalShadowBias () {
@@ -781,7 +781,7 @@ export class Model {
     }
 
     /**
-     * @en return shader macro
+     * @en Return shader's macro patches
      * @zh 获取 shader 宏
      * @param subModelIndex sub model's index
      */

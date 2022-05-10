@@ -1,7 +1,7 @@
 
 
 macro(cc_android_before_target target_name)
-    set(CC_ALL_SOURCES ${CC_COMMON_SOURCES} ${CC_PROJ_SOURCES})
+    list(APPEND CC_ALL_SOURCES ${CC_COMMON_SOURCES} ${CC_PROJ_SOURCES})
     cc_common_before_target(${target_name})
 endmacro()
 
