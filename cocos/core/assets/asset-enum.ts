@@ -31,7 +31,7 @@
 import { Address, Filter as GFXFilter, Format } from '../gfx';
 
 // define a specified number for the pixel format which gfx do not have a standard definition.
-let CUSTOM_PIXEL_FORMAT = 1024;
+const CUSTOM_PIXEL_FORMAT = 1024;
 
 /**
  * @en
