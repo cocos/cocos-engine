@@ -497,16 +497,22 @@ ScriptEngine::ScriptEngine()
     #endif
 }
 
-
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+/**
+ * v8::V8::Initialize() can only be called once time at same process.
+ * Platform android call activity's onDestroy, process will exists for a long time so we disable release gSharedV8 here.
+ */
+ScriptEngine::~ScriptEngine() = default;
+#else
 ScriptEngine::~ScriptEngine() {
-//v8::V8::Initialize() can only be called once time at same process.Platform android call activity's onDestroy, process will exists for a long time so we disable release gSharedV8 here.
-#if !CC_EDITOR && CC_PLATFORM != CC_PLATFORM_ANDROID
+#if !CC_EDITOR
     if (gSharedV8) {
         delete gSharedV8;
         gSharedV8 = nullptr;
     }
 #endif
 }
+#endif
 
 bool ScriptEngine::postInit() {
     v8::HandleScope hs(_isolate);
