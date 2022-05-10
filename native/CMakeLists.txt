@@ -140,10 +140,6 @@ endif()
 
 include(${CMAKE_CURRENT_LIST_DIR}/external/CMakeLists.txt)
 
-if(USE_SERVER_MODE)
-list(REMOVE_ITEM CC_EXTERNAL_LIBS SDL2 SDL2Main)
-endif()
-
 ##### audio
 if(USE_AUDIO)
     cocos_source_files(
