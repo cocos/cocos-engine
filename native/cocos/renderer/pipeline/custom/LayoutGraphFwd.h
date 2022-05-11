@@ -39,7 +39,7 @@ namespace cc {
 
 namespace render {
 
-enum class DescriptorIndex;
+enum class DescriptorTypeOrder;
 
 struct UniformBlockDB;
 struct Descriptor;

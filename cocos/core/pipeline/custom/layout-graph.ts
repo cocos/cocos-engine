@@ -33,7 +33,7 @@ import * as impl from './graph';
 import { DescriptorSet, DescriptorSetLayout, ShaderStageFlagBit, Type, Uniform } from '../../gfx';
 import { ParameterType, UpdateFrequency } from './types';
 
-export const enum DescriptorIndex {
+export const enum DescriptorTypeOrder {
     UNIFORM_BLOCK,
     SAMPLER_TEXTURE,
     SAMPLER,
@@ -63,7 +63,7 @@ export class DescriptorBlock {
 }
 
 export class DescriptorBlockIndex {
-    constructor (updateFrequency: UpdateFrequency = UpdateFrequency.PER_INSTANCE, parameterType: ParameterType = ParameterType.CONSTANTS, descriptorType: DescriptorIndex = DescriptorIndex.UNIFORM_BLOCK, visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE) {
+    constructor (updateFrequency: UpdateFrequency = UpdateFrequency.PER_INSTANCE, parameterType: ParameterType = ParameterType.CONSTANTS, descriptorType: DescriptorTypeOrder = DescriptorTypeOrder.UNIFORM_BLOCK, visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE) {
         this.updateFrequency = updateFrequency;
         this.parameterType = parameterType;
         this.descriptorType = descriptorType;
@@ -71,7 +71,7 @@ export class DescriptorBlockIndex {
     }
     updateFrequency: UpdateFrequency;
     parameterType: ParameterType;
-    descriptorType: DescriptorIndex;
+    descriptorType: DescriptorTypeOrder;
     visibility: ShaderStageFlagBit;
 }
 

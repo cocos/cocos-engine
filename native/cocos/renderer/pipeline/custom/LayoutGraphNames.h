@@ -37,15 +37,15 @@ namespace cc {
 
 namespace render {
 
-inline const char* getName(DescriptorIndex e) noexcept {
+inline const char* getName(DescriptorTypeOrder e) noexcept {
     switch (e) {
-        case DescriptorIndex::UNIFORM_BLOCK: return "UNIFORM_BLOCK";
-        case DescriptorIndex::SAMPLER_TEXTURE: return "SAMPLER_TEXTURE";
-        case DescriptorIndex::SAMPLER: return "SAMPLER";
-        case DescriptorIndex::TEXTURE: return "TEXTURE";
-        case DescriptorIndex::STORAGE_BUFFER: return "STORAGE_BUFFER";
-        case DescriptorIndex::STORAGE_TEXTURE: return "STORAGE_TEXTURE";
-        case DescriptorIndex::SUBPASS_INPUT: return "SUBPASS_INPUT";
+        case DescriptorTypeOrder::UNIFORM_BLOCK: return "UNIFORM_BLOCK";
+        case DescriptorTypeOrder::SAMPLER_TEXTURE: return "SAMPLER_TEXTURE";
+        case DescriptorTypeOrder::SAMPLER: return "SAMPLER";
+        case DescriptorTypeOrder::TEXTURE: return "TEXTURE";
+        case DescriptorTypeOrder::STORAGE_BUFFER: return "STORAGE_BUFFER";
+        case DescriptorTypeOrder::STORAGE_TEXTURE: return "STORAGE_TEXTURE";
+        case DescriptorTypeOrder::SUBPASS_INPUT: return "SUBPASS_INPUT";
     }
     return "";
 }

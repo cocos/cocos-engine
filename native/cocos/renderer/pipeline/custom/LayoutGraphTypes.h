@@ -51,7 +51,7 @@ namespace cc {
 
 namespace render {
 
-enum class DescriptorIndex {
+enum class DescriptorTypeOrder {
     UNIFORM_BLOCK,
     SAMPLER_TEXTURE,
     SAMPLER,
@@ -83,7 +83,7 @@ struct DescriptorBlock {
 
 struct DescriptorBlockIndex {
     DescriptorBlockIndex() = default;
-    DescriptorBlockIndex(UpdateFrequency updateFrequencyIn, ParameterType parameterTypeIn, DescriptorIndex descriptorTypeIn, gfx::ShaderStageFlagBit visibilityIn) noexcept
+    DescriptorBlockIndex(UpdateFrequency updateFrequencyIn, ParameterType parameterTypeIn, DescriptorTypeOrder descriptorTypeIn, gfx::ShaderStageFlagBit visibilityIn) noexcept
     : updateFrequency(updateFrequencyIn),
       parameterType(parameterTypeIn),
       descriptorType(descriptorTypeIn),
@@ -91,7 +91,7 @@ struct DescriptorBlockIndex {
 
     UpdateFrequency         updateFrequency{UpdateFrequency::PER_INSTANCE};
     ParameterType           parameterType{ParameterType::CONSTANTS};
-    DescriptorIndex         descriptorType{DescriptorIndex::UNIFORM_BLOCK};
+    DescriptorTypeOrder     descriptorType{DescriptorTypeOrder::UNIFORM_BLOCK};
     gfx::ShaderStageFlagBit visibility{gfx::ShaderStageFlagBit::NONE};
 };
 
