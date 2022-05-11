@@ -160,7 +160,7 @@ public:
         _osInterfaces.erase(it);
     }
 
-    void unregisterAllInterface() {
+    void unregisterAllInterfaces() {
         _osInterfaces.clear();
     }
 

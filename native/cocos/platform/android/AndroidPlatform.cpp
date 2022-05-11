@@ -313,7 +313,6 @@ public:
                 ev.type = WindowEvent::Type::CLOSE;
                 _androidPlatform->dispatchEvent(ev);
                 _androidPlatform->onDestory();
-                _androidPlatform->destroy();
                 break;
             }
             case APP_CMD_STOP: {
@@ -445,8 +444,9 @@ int AndroidPlatform::init() {
     return 0;
 }
 
-void AndroidPlatform::destroy() {
-    unregisterAllInterface();
+void AndroidPlatform::onDestory() {
+    UniversalPlatform::onDestory();
+    unregisterAllInterfaces();
     CC_SAFE_DELETE(_inputProxy)
 }
 

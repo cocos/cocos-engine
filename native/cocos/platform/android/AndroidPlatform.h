@@ -58,7 +58,7 @@ public:
 
     int32_t getHeight() const;
 
-    void destroy();
+    void onDestory() override;
 
     inline void setAndroidApp(android_app *app) {
         _app = app;

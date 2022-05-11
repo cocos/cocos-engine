@@ -499,8 +499,8 @@ ScriptEngine::ScriptEngine()
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
 /**
- * v8::V8::Initialize() can only be called once time at same process.
- * Platform android call activity's onDestroy, process will exists for a long time so we disable release gSharedV8 here.
+ * v8::V8::Initialize() can only be called once for a process.
+ * After calling onDestroy on Android platform, the process will be maintained for a period of time. so we disable gSharedV8 to release here.
  */
 ScriptEngine::~ScriptEngine() = default;
 #else
