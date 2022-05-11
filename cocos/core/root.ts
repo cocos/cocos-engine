@@ -25,7 +25,7 @@
 
 
 
-import { JSB } from 'internal:constants';
+import { JSB, SERVER_MODE } from 'internal:constants';
 import { builtinResMgr } from './builtin';
 import { Pool } from './memop';
 import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from './pipeline';
@@ -450,7 +450,9 @@ export class Root {
 
             legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_COMMIT);
             cameraList.sort((a: Camera, b: Camera) => a.priority - b.priority);
-            this._pipeline.render(cameraList);
+            if (!SERVER_MODE) {
+                this._pipeline.render(cameraList);
+            }
             this._device.present();
         }
 
