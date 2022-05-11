@@ -31,6 +31,7 @@ import { Pool } from '../memop';
 import { array, createMap } from '../utils/js';
 import { CCObject, isValid } from '../data/object';
 import { legacyCC } from '../global-exports';
+import { JSB } from '../default-constants';
 
 const fastRemoveAt = array.fastRemoveAt;
 
@@ -54,8 +55,15 @@ class CallbackInfo {
     }
 
     public check () {
+        let isCCObject = this.target instanceof CCObject;
+        if (JSB) {
+            if (!isCCObject) {
+                // @ts-expect-error: jsb related codes.
+                isCCObject =  this.target instanceof jsb.CCObject;
+            }
+        }
         // Validation
-        if (this.target instanceof CCObject && !isValid(this.target, true)) {
+        if (isCCObject && !isValid(this.target, true)) {
             return false;
         } else {
             return true;

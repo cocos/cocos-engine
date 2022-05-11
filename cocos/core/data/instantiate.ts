@@ -237,7 +237,14 @@ function enumerateObject (obj, clone, parent) {
             }
         }
     }
-    if (obj instanceof CCObject) {
+    let isCCObject = obj instanceof CCObject;
+    if (JSB) {
+        if (!isCCObject) {
+            // @ts-expect-error: jsb related codes.
+            isCCObject = obj instanceof jsb.CCObject;
+        }
+    }
+    if (isCCObject) {
         clone._objFlags &= PersistentMask;
     }
 }

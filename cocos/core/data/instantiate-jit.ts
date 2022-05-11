@@ -35,6 +35,7 @@ import { CCObject } from './object';
 import * as Attr from './utils/attribute';
 import { flattenCodeArray } from './utils/compiler';
 import { legacyCC } from '../global-exports';
+import { JSB } from '../default-constants';
 
 const Destroyed = CCObject.Flags.Destroyed;
 const PersistentMask = CCObject.Flags.PersistentMask;
@@ -409,7 +410,14 @@ class Parser {
         } else if (typeof value === 'string') {
             return escapeForJS(value);
         } else {
-            if (key === '_objFlags' && (obj instanceof CCObject)) {
+            let isCCObject = obj instanceof CCObject;
+            if (JSB) {
+                if (!isCCObject) {
+                    // @ts-expect-error: jsb related codes.
+                    isCCObject = obj instanceof jsb.CCObject;
+                }
+            }
+            if (key === '_objFlags' && isCCObject) {
                 value &= PersistentMask;
             }
             return value;

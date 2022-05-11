@@ -30,6 +30,7 @@ import { errorID, logID, assertID } from '../../core/platform/debug';
 import { Action } from './action';
 import { Node, CCObject } from '../../core';
 import { legacyCC } from '../../core/global-exports';
+import { JSB } from '../../core/default-constants';
 
 let ID_COUNTER = 0;
 
@@ -457,7 +458,14 @@ export class ActionManager {
             locCurrTarget = this._currentTarget;
 
             const target = locCurrTarget.target;
-            if (target instanceof CCObject && !target.isValid) {
+            let isCCObject = target instanceof CCObject;
+            if (JSB) {
+                if (!isCCObject) {
+                    // @ts-expect-error: jsb related codes.
+                    isCCObject = target instanceof jsb.CCObject;
+                }
+            }
+            if (isCCObject && !target.isValid) {
                 this.removeAllActionsFromTarget(target as any);
                 elt--;
                 continue;
