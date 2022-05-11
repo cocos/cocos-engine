@@ -583,12 +583,12 @@ elseif(LINUX)
         cocos/platform/linux/modules/System.h
     )
     if(USE_SERVER_MODE)
-            cocos_source_files(
-                cocos/platform/empty/modules/Screen.cpp
-                cocos/platform/empty/modules/Screen.h
-                cocos/platform/empty/modules/SystemWindow.cpp
-                cocos/platform/empty/modules/SystemWindow.h
-            )
+        cocos_source_files(
+            cocos/platform/empty/modules/Screen.cpp
+            cocos/platform/empty/modules/Screen.h
+            cocos/platform/empty/modules/SystemWindow.cpp
+            cocos/platform/empty/modules/SystemWindow.h
+        )
     else()
         cocos_source_files(
             cocos/platform/linux/modules/Screen.cpp
