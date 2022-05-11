@@ -163,9 +163,7 @@ void FrameGraph::move(const TextureHandle from, const TextureHandle to, uint8_t 
     uint32_t const          toTextureHeight = toTextureDesc.height >> mipmapLevel;
     uint32_t const          toTextureDepth  = toTextureDesc.depth >> mipmapLevel;
 
-#if !defined(CC_SERVER_MODE)
     CC_ASSERT(toTextureWidth && toTextureHeight && toTextureDepth);
-#endif
     CC_ASSERT(toTextureDesc.levelCount > mipmapLevel && toTextureDesc.layerCount > arrayPosition);
     CC_ASSERT(toTextureDesc.type == gfx::TextureType::CUBE && faceId < 6 || faceId == 0);
 
