@@ -255,7 +255,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._alignSpace = space;
     }
 
-    public getDefaultMaterial(): Material | null {
+    public getDefaultMaterial (): Material | null {
         return this._defaultMat;
     }
 
@@ -408,6 +408,21 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     }
 
     public getNoisePreview (out: number[], width: number, height: number) {
+        const ps = this._particleSystem;
+        if (!ps) {
+            return;
+        }
+
+        if (ps.useNoise) {
+            this.noise.setTime(ps.time);
+            this.noise.setSpeed(ps.noiseSpeedX, ps.noiseSpeedY, ps.noiseSpeedZ);
+            this.noise.setFrequency(ps.noiseFrequency);
+            this.noise.setAbs(ps.remapX, ps.remapY, ps.remapZ);
+            this.noise.setAmplititude(ps.strengthX, ps.strengthY, ps.strengthZ);
+            this.noise.setOctaves(ps.octaves, ps.octaveMultiplier, ps.octaveScale);
+            this.noise.getNoiseParticle();
+        }
+
         this.noise.getPreview(out, width, height);
     }
 
