@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { ccclass, serializable, type } from 'cc.decorator';
 import { Asset } from './asset';
 import { EffectAsset } from './effect-asset';
@@ -483,6 +481,7 @@ export class Material extends Asset {
         this.initialize({
             effectName: 'unlit',
             defines: { USE_COLOR: true },
+            technique: 0,
         });
         this.setProperty('mainColor', new Color('#ff00ff'));
     }
