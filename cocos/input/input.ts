@@ -376,6 +376,13 @@ export class Input {
             this._emitEvent(eventAcceleration);
         }
 
+        const eventGamepadList = this._eventGamepadList;
+        // TODO: culling event queue
+        for (let i = 0, length = eventGamepadList.length; i < length; ++i) {
+            const eventGamepad = eventGamepadList[i];
+            this._emitEvent(eventGamepad);
+        }
+
         this._clearEvents();
     }
 }

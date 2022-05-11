@@ -19,7 +19,7 @@ interface ICodeMapList {
 export class GamepadInputSource {
     private _cachedWebGamepads: (WebGamepad | null)[] = [];
     private _eventTarget: EventTarget = new EventTarget();
-    private _codeMapList: ICodeMapList = {};
+    private _codeMapList: ICodeMapList = [];
     private _intervalId = -1;
 
     constructor () {
