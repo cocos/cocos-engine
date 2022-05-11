@@ -135,7 +135,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _localMat: Mat4 = new Mat4();
     private _gravity: Vec4 = new Vec4();
 
-    constructor (info: any) {
+    constructor(info: any) {
         super(info);
 
         this._model = null;
@@ -157,7 +157,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         };
     }
 
-    public onInit (ps: Component) {
+    public onInit(ps: Component) {
         super.onInit(ps);
 
         this._particles = new RecyclePool(() => new Particle(this), 16);
@@ -171,7 +171,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._inited = true;
     }
 
-    public clear () {
+    public clear() {
         super.clear();
         this._particles!.reset();
         if (this._particleSystem._trailModule) {
@@ -181,28 +181,28 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._model!.enabled = false;
     }
 
-    public updateRenderMode () {
+    public updateRenderMode() {
         this._setVertexAttrib();
         this._setFillFunc();
         this.updateMaterialParams();
         this.setVertexAttributes();
     }
 
-    public getFreeParticle (): Particle | null {
+    public getFreeParticle(): Particle | null {
         if (this._particles!.length >= this._particleSystem.capacity) {
             return null;
         }
         return this._particles!.add() as Particle;
     }
 
-    public getDefaultTrailMaterial (): any {
+    public getDefaultTrailMaterial(): any {
         return this._defaultTrailMat;
     }
 
-    public setNewParticle (p: Particle) {
+    public setNewParticle(p: Particle) {
     }
 
-    private _initModuleList () {
+    private _initModuleList() {
         _anim_module.forEach((val) => {
             const pm = this._particleSystem[val];
             if (pm && pm.enable) {
@@ -226,7 +226,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
-    public enableModule (name: string, val: boolean, pm: IParticleModule) {
+    public enableModule(name: string, val: boolean, pm: IParticleModule) {
         if (val) {
             if (pm.needUpdate) {
                 this._updateList[pm.name] = pm;
@@ -251,7 +251,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this.updateMaterialParams();
     }
 
-    public updateAlignSpace (space) {
+    public updateAlignSpace(space) {
         this._alignSpace = space;
     }
 
@@ -259,13 +259,13 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         return this._defaultMat;
     }
 
-    public updateRotation (pass: Pass | null) {
+    public updateRotation(pass: Pass | null) {
         if (pass) {
             this.doUpdateRotation(pass);
         }
     }
 
-    private doUpdateRotation (pass) {
+    private doUpdateRotation(pass) {
         const mode = this._renderInfo!.renderMode;
         if (mode !== RenderMode.Mesh && this._alignSpace === AlignmentSpace.View) {
             return;
@@ -278,10 +278,10 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         } else if (this._alignSpace === AlignmentSpace.View) {
             // Quat.fromEuler(_node_rot, 0.0, 0.0, 0.0);
             _node_rot.set(0.0, 0.0, 0.0, 1.0);
-            const cameraLst: Camera[]|undefined = this._particleSystem.node.scene.renderScene?.cameras;
+            const cameraLst: Camera[] | undefined = this._particleSystem.node.scene.renderScene?.cameras;
             if (cameraLst !== undefined) {
                 for (let i = 0; i < cameraLst?.length; ++i) {
-                    const camera:Camera = cameraLst[i];
+                    const camera: Camera = cameraLst[i];
                     // eslint-disable-next-line max-len
                     const checkCamera: boolean = !EDITOR ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
                     if (checkCamera) {
@@ -296,29 +296,29 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         pass.setUniform(this._uNodeRotHandle, _node_rot);
     }
 
-    public updateScale (pass: Pass | null) {
+    public updateScale(pass: Pass | null) {
         if (pass) {
             this.doUpdateScale(pass);
         }
     }
 
-    private doUpdateScale (pass) {
+    private doUpdateScale(pass) {
         switch (this._particleSystem.scaleSpace) {
-        case Space.Local:
-            this._particleSystem.node.getScale(this._node_scale);
-            break;
-        case Space.World:
-            this._particleSystem.node.getWorldScale(this._node_scale);
-            break;
-        default:
-            break;
+            case Space.Local:
+                this._particleSystem.node.getScale(this._node_scale);
+                break;
+            case Space.World:
+                this._particleSystem.node.getWorldScale(this._node_scale);
+                break;
+            default:
+                break;
         }
         pass.setUniform(this._uScaleHandle, this._node_scale);
     }
 
     private noise: ParticleNoise = new ParticleNoise();
 
-    public updateParticles (dt: number) {
+    public updateParticles(dt: number) {
         const ps = this._particleSystem;
         if (!ps) {
             return this._particles!.length;
@@ -340,7 +340,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
 
         if (ps.simulationSpace === Space.Local) {
-            const r:Quat = ps.node.getRotation();
+            const r: Quat = ps.node.getRotation();
             Mat4.fromQuat(this._localMat, r);
             this._localMat.transpose(); // just consider rotation, use transpose as invert
         }
@@ -407,12 +407,30 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         return this._particles!.length;
     }
 
-    public getNoisePreview (out: number[], width: number, height: number) {
+    public getNoisePreview(out: number[], width: number, height: number) {
+        const ps = this._particleSystem;
+        if (!ps) {
+            return;
+        }
+
+        // Update noise
+        if (ps.useNoise) {
+            this.noise.setTime(ps.time);
+            this.noise.setSpeed(ps.noiseSpeedX, ps.noiseSpeedY, ps.noiseSpeedZ);
+            this.noise.setFrequency(ps.noiseFrequency);
+            this.noise.setAbs(ps.remapX, ps.remapY, ps.remapZ);
+            this.noise.setAmplititude(ps.strengthX, ps.strengthY, ps.strengthZ);
+            this.noise.setOctaves(ps.octaves, ps.octaveMultiplier, ps.octaveScale);
+            this.noise.getNoiseParticle();
+
+            const noisePosition: Vec3 = this.noise.getResult();
+        }
+
         this.noise.getPreview(out, width, height);
     }
 
     // internal function
-    public updateRenderData () {
+    public updateRenderData() {
         // update vertex buffer
         let idx = 0;
         for (let i = 0; i < this._particles!.length; ++i) {
@@ -427,16 +445,16 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
-    public beforeRender () {
+    public beforeRender() {
         // because we use index buffer, per particle index count = 6.
         this._model!.updateIA(this._particles!.length);
     }
 
-    public getParticleCount (): number {
+    public getParticleCount(): number {
         return this._particles!.length;
     }
 
-    public onMaterialModified (index: number, material: Material) {
+    public onMaterialModified(index: number, material: Material) {
         if (!this._inited) {
             return;
         }
@@ -448,7 +466,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
-    public onRebuildPSO (index: number, material: Material) {
+    public onRebuildPSO(index: number, material: Material) {
         if (this._model && index === 0) {
             this._model.setSubModelMaterial(0, material);
         }
@@ -458,7 +476,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
-    private _setFillFunc () {
+    private _setFillFunc() {
         if (this._renderInfo!.renderMode === RenderMode.Mesh) {
             this._fillDataFunc = this._fillMeshData;
         } else if (this._renderInfo!.renderMode === RenderMode.StrecthedBillboard) {
@@ -468,7 +486,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
-    private _fillMeshData (p: Particle, idx: number, fi: number) {
+    private _fillMeshData(p: Particle, idx: number, fi: number) {
         const i = idx / 4;
         this._attrs[0] = p.position;
         _tempAttribUV.z = fi;
@@ -479,7 +497,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._model!.addParticleVertexData(i, this._attrs);
     }
 
-    private _fillStrecthedData (p: Particle, idx: number, fi: number) {
+    private _fillStrecthedData(p: Particle, idx: number, fi: number) {
         for (let j = 0; j < 4; ++j) { // four verts per particle.
             this._attrs[0] = p.position;
             _tempAttribUV.x = _uvs[2 * j];
@@ -495,7 +513,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
-    private _fillNormalData (p: Particle, idx: number, fi: number) {
+    private _fillNormalData(p: Particle, idx: number, fi: number) {
         for (let j = 0; j < 4; ++j) { // four verts per particle.
             this._attrs[0] = p.position;
             _tempAttribUV.x = _uvs[2 * j];
@@ -510,20 +528,20 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
-    private _setVertexAttrib () {
+    private _setVertexAttrib() {
         switch (this._renderInfo!.renderMode) {
-        case RenderMode.StrecthedBillboard:
-            this._vertAttrs = _vertex_attrs_stretch.slice();
-            break;
-        case RenderMode.Mesh:
-            this._vertAttrs = _vertex_attrs_mesh.slice();
-            break;
-        default:
-            this._vertAttrs = _vertex_attrs.slice();
+            case RenderMode.StrecthedBillboard:
+                this._vertAttrs = _vertex_attrs_stretch.slice();
+                break;
+            case RenderMode.Mesh:
+                this._vertAttrs = _vertex_attrs_mesh.slice();
+                break;
+            default:
+                this._vertAttrs = _vertex_attrs.slice();
         }
     }
 
-    public updateMaterialParams () {
+    public updateMaterialParams() {
         if (!this._particleSystem) {
             return;
         }
@@ -608,7 +626,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             this._noiseParams3.set(ps.octaves, ps.octaveMultiplier, ps.octaveScale);
             pass.setUniform(this._uNoiseParams3Hnd, this._noiseParams3);
         }
-        this._defines['CC_USE_NOISE'] = ps.useNoise;
+        this._defines.CC_USE_NOISE = ps.useNoise;
 
         mat.recompileShaders(this._defines);
         if (this._model) {
@@ -616,7 +634,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
-    public updateTrailMaterial () {
+    public updateTrailMaterial() {
         if (!this._particleSystem) {
             return;
         }
