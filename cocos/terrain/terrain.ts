@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 import { ccclass, disallowMultiple, executeInEditMode, help, visible, type, serializable, editable, disallowAnimation } from 'cc.decorator';
 import { JSB } from 'internal:constants';
 import { builtinResMgr } from '../core/builtin';
@@ -2206,7 +2205,7 @@ export class Terrain extends Component {
         }
 
         const terrainAsset = this.__asset;
-        if (this._buitinAsset != terrainAsset) {
+        if (this._buitinAsset !== terrainAsset) {
             this._buitinAsset = terrainAsset;
         }
 
