@@ -65,7 +65,6 @@ public:
     }
 
 private:
-    android_app *_pendingApp{nullptr};
     GameInputProxy *_inputProxy{nullptr};
     android_app *_app{nullptr};
 
