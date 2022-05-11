@@ -38,7 +38,7 @@ namespace se {
 
 namespace internal {
 
-void jsToSeArgs(const v8::FunctionCallbackInfo<v8::Value> &_v8args, ValueArray &outArr);
+void jsToSeArgs(const v8::FunctionCallbackInfo<v8::Value> &v8args, ValueArray &outArr);
 void jsToSeValue(v8::Isolate *isolate, v8::Local<v8::Value> jsval, Value *v);
 void seToJsArgs(v8::Isolate *isolate, const ValueArray &args, v8::Local<v8::Value> *outArr);
 void seToJsValue(v8::Isolate *isolate, const Value &v, v8::Local<v8::Value> *outJsVal);
