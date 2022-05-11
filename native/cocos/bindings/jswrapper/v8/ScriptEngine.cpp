@@ -458,18 +458,6 @@ void ScriptEngine::onPromiseRejectCallback(v8::PromiseRejectMessage msg) {
     }
 }
 
-void ScriptEngine::privateDataFinalize(PrivateObjectBase *privateObj) {
-    auto *p = static_cast<internal::PrivateData *>(privateObj->getRaw());
-
-    Object::nativeObjectFinalizeHook(p->seObj);
-
-    CC_ASSERT(p->seObj->getRefCount() == 1);
-
-    p->seObj->decRef();
-
-    free(p);
-}
-
 ScriptEngine *ScriptEngine::getInstance() {
     if (gSriptEngineInstance == nullptr) {
         gSriptEngineInstance = ccnew ScriptEngine();

@@ -84,10 +84,10 @@ void Object::nativeObjectFinalizeHook(Object *seObj) {
     }
 
     if (seObj->_finalizeCb != nullptr) {
-        seObj->_finalizeCb(seObj->_privateObject);
+        seObj->_finalizeCb(seObj);
     } else {
         if (seObj->_getClass() != nullptr && seObj->_getClass()->_finalizeFunc != nullptr) {
-            seObj->_getClass()->_finalizeFunc(seObj->_privateObject);
+            seObj->_getClass()->_finalizeFunc(seObj);
         }
     }
     seObj->decRef();
@@ -111,21 +111,17 @@ void Object::cleanup() {
     for (const auto &e : nativePtrToObjectMap) {
         nativeObj = e.first;
         obj = e.second;
-        PrivateObjectBase *privateObject = obj->getPrivateObject();
+
         if (obj->_finalizeCb != nullptr) {
-            obj->_finalizeCb(privateObject);
+            obj->_finalizeCb(obj);
         } else {
             if (obj->_getClass() != nullptr) {
                 if (obj->_getClass()->_finalizeFunc != nullptr) {
-                    obj->_getClass()->_finalizeFunc(privateObject);
+                    obj->_getClass()->_finalizeFunc(obj);
                 }
             }
         }
-        // internal data should only be freed in Object::cleanup, since in other case, it is freed in ScriptEngine::privateDataFinalize
-        if (obj->_internalData != nullptr) {
-            free(obj->_internalData);
-            obj->_internalData = nullptr;
-        }
+
         obj->decRef();
     }
 
@@ -576,7 +572,7 @@ void Object::setPrivateObject(PrivateObjectBase *data) {
         }
     }
     #endif
-    internal::setPrivate(__isolate, _obj, data, this, &_internalData);
+    internal::setPrivate(__isolate, _obj, this);
     _privateObject = data;
 
     if (data != nullptr) {
@@ -585,9 +581,6 @@ void Object::setPrivateObject(PrivateObjectBase *data) {
 }
 
 PrivateObjectBase *Object::getPrivateObject() const {
-    if (_privateObject == nullptr) {
-        const_cast<Object *>(this)->_privateObject = static_cast<PrivateObjectBase *>(internal::getPrivate(__isolate, const_cast<Object *>(this)->_obj.handle(__isolate)));
-    }
     return _privateObject;
 }
 
