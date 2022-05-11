@@ -126,7 +126,7 @@ private:
         if (CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION) {
             device = CC_NEW(gfx::DeviceValidator(device));
         }
-#endif()
+#endif
 
         if (!device->initialize(info)) {
             CC_SAFE_DELETE(device);
