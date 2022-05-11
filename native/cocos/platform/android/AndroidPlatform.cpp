@@ -477,7 +477,7 @@ int32_t AndroidPlatform::loop() {
                 source->process(_app, source);
             }
 
-            // exit game loop while Activity's onDestroy trigger
+            // Exit the game loop when the Activity is destroyed
             if (_app->destroyRequested) {
                 return 0;
             }
