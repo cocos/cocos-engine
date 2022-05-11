@@ -59,9 +59,7 @@ void TextureValidator::doInit(const TextureInfo &info) {
     CCASSERT(!isInited(), "initializing twice?");
     _inited = true;
 
-#if !defined(CC_SERVER_MODE)
     CCASSERT(info.width && info.height && info.depth, "zero-sized texture?");
-#endif
 
     FormatFeature ff = FormatFeature::NONE;
     if (hasAnyFlags(info.usage, TextureUsageBit::COLOR_ATTACHMENT | TextureUsageBit::DEPTH_STENCIL_ATTACHMENT)) ff |= FormatFeature::RENDER_TARGET;
