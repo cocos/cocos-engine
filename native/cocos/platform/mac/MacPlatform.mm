@@ -34,8 +34,8 @@
 #include "modules/Vibrator.h"
 
 #if defined(CC_SERVER_MODE)
-    #include <cocos/platform/empty/modules/Screen.h>
-    #include <cocos/platform/empty/modules/SystemWindow.h>
+    #include "platform/empty/modules/Screen.h"
+    #include "platform/empty/modules/SystemWindow.h"
 #else
     #include "modules/Screen.h"
     #include "modules/SystemWindow.h"
