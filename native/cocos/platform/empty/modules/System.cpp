@@ -27,7 +27,6 @@
 #include <string.h>
 
 namespace cc {
-    
 using OSType = System::OSType;
 
 OSType System::getOSType() const {

@@ -475,6 +475,21 @@ if(WINDOWS)
         cocos/platform/win32/modules/System.cpp
         cocos/platform/win32/modules/System.h
     )
+    if(USE_SERVER_MODE)
+        cocos_source_files(
+            cocos/platform/empty/modules/Screen.cpp
+            cocos/platform/empty/modules/Screen.h
+            cocos/platform/empty/modules/SystemWindow.cpp
+            cocos/platform/empty/modules/SystemWindow.h
+        )
+    else()
+        cocos_source_files(
+            cocos/platform/win32/modules/Screen.cpp
+            cocos/platform/win32/modules/Screen.h
+            cocos/platform/win32/modules/SystemWindow.cpp
+            cocos/platform/win32/modules/SystemWindow.h
+        )
+    endif()
 elseif(ANDROID OR OHOS)
     cocos_source_files(
         cocos/platform/java/modules/Accelerometer.cpp
@@ -521,6 +536,21 @@ elseif(MACOSX)
         cocos/platform/mac/modules/System.mm
         cocos/platform/mac/modules/System.h
    )
+   if(USE_SERVER_MODE)
+        cocos_source_files(
+            cocos/platform/empty/modules/Screen.cpp
+            cocos/platform/empty/modules/Screen.h
+            cocos/platform/empty/modules/SystemWindow.cpp
+            cocos/platform/empty/modules/SystemWindow.h
+        )
+    else()
+        cocos_source_files(
+            cocos/platform/mac/modules/Screen.mm
+            cocos/platform/mac/modules/Screen.h
+            cocos/platform/mac/modules/SystemWindow.mm
+            cocos/platform/mac/modules/SystemWindow.h
+        )
+    endif()
 elseif(IOS)
    cocos_source_files(
         cocos/platform/ios/modules/Accelerometer.mm
@@ -551,37 +581,21 @@ elseif(LINUX)
         cocos/platform/linux/modules/System.cpp
         cocos/platform/linux/modules/System.h
     )
-endif()
-
-############ desktop os USE_SERVER_MODE support
-if(USE_SERVER_MODE)
-    cocos_source_files(
-        cocos/platform/empty/modules/Screen.cpp
-        cocos/platform/empty/modules/Screen.h
-        cocos/platform/empty/modules/SystemWindow.cpp
-        cocos/platform/empty/modules/SystemWindow.h
-    )
-elseif(WINDOWS)
-    cocos_source_files(
-        cocos/platform/win32/modules/Screen.cpp
-        cocos/platform/win32/modules/Screen.h
-        cocos/platform/win32/modules/SystemWindow.cpp
-        cocos/platform/win32/modules/SystemWindow.h
-    )
-elseif(LINUX)
-    cocos_source_files(
-        cocos/platform/linux/modules/Screen.cpp
-        cocos/platform/linux/modules/Screen.h
-        cocos/platform/linux/modules/SystemWindow.cpp
-        cocos/platform/linux/modules/SystemWindow.h
-    )
-elseif(MACOSX)
-    cocos_source_files(
-        cocos/platform/mac/modules/Screen.mm
-        cocos/platform/mac/modules/Screen.h
-        cocos/platform/mac/modules/SystemWindow.mm
-        cocos/platform/mac/modules/SystemWindow.h
-    )
+    if(USE_SERVER_MODE)
+            cocos_source_files(
+                cocos/platform/empty/modules/Screen.cpp
+                cocos/platform/empty/modules/Screen.h
+                cocos/platform/empty/modules/SystemWindow.cpp
+                cocos/platform/empty/modules/SystemWindow.h
+            )
+    else()
+        cocos_source_files(
+            cocos/platform/linux/modules/Screen.cpp
+            cocos/platform/linux/modules/Screen.h
+            cocos/platform/linux/modules/SystemWindow.cpp
+            cocos/platform/linux/modules/SystemWindow.h
+        )
+    endif()
 endif()
 
 ############ module log
