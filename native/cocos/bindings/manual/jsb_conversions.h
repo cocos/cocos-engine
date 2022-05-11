@@ -1499,7 +1499,7 @@ inline bool nativevalue_to_se(const float &from, se::Value &to, se::Object * /*c
 }
 template <>
 inline bool nativevalue_to_se(const double &from, se::Value &to, se::Object * /*ctx*/) {
-    to.setFloat(static_cast<float>(from));
+    to.setDouble(from);
     return true;
 }
 template <>

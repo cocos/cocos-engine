@@ -9,6 +9,7 @@ declare let ral: any;
 // @ts-expect-error can't init minigame when it's declared
 const minigame: IMiniGame = {};
 cloneObject(minigame, ral);
+minigame.ral = ral;
 
 // #region SystemInfo
 const systemInfo = minigame.getSystemInfoSync();

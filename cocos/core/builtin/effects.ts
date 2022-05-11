@@ -560,12 +560,12 @@ export const effects = [
   {
     "name": "standard",
     "techniques": [
-      { "name": "opaque", "passes": [{ "program": "standard|standard-vs|standard-fs", "properties": { "tilingOffset": { "value": [1, 1, 0, 0], "type": 16 }, "mainColor": { "value": [1, 1, 1, 1], "linear": true, "type": 16, "handleInfo": ["albedo", 0, 16] }, "albedoScale": { "value": [1, 1, 1], "type": 15, "handleInfo": ["albedoScaleAndCutoff", 0, 15] }, "alphaThreshold": { "value": [0.5], "type": 13, "handleInfo": ["albedoScaleAndCutoff", 3, 13] }, "occlusion": { "value": [1], "type": 13, "handleInfo": ["pbrParams", 0, 13] }, "roughness": { "value": [0.8], "type": 13, "handleInfo": ["pbrParams", 1, 13] }, "metallic": { "value": [0.6], "type": 13, "handleInfo": ["pbrParams", 2, 13] }, "SpecularIntensity": { "value": [0.5], "type": 13, "handleInfo": ["pbrParams", 3, 13] }, "emissive": { "value": [0, 0, 0, 1], "linear": true, "type": 16 }, "emissiveScale": { "value": [1, 1, 1], "type": 15, "handleInfo": ["emissiveScaleParam", 0, 15] }, "normalStrenth": { "value": [1], "type": 13, "handleInfo": ["emissiveScaleParam", 3, 13] }, "mainTexture": { "value": "grey", "type": 28, "handleInfo": ["albedoMap", 0, 28] }, "normalMap": { "value": "normal", "type": 28 }, "pbrMap": { "value": "grey", "type": 28 }, "metallicRoughnessMap": { "value": "grey", "type": 28 }, "occlusionMap": { "value": "white", "type": 28 }, "emissiveMap": { "value": "grey", "type": 28 }, "albedo": { "type": 16, "value": [1, 1, 1, 1] }, "albedoScaleAndCutoff": { "type": 16, "value": [1, 1, 1, 0.5] }, "pbrParams": { "type": 16, "value": [1, 0.8, 0.6, 0.5] }, "emissiveScaleParam": { "type": 16, "value": [1, 1, 1, 1] }, "albedoMap": { "type": 28, "value": "grey" } } }, { "phase": "forward-add", "propertyIndex": 0, "embeddedMacros": { "CC_FORWARD_ADD": true }, "blendState": { "targets": [{ "blend": true, "blendSrc": 1, "blendDst": 1, "blendSrcAlpha": 0, "blendDstAlpha": 1 }] }, "program": "standard|standard-vs|standard-fs", "depthStencilState": { "depthFunc": 2, "depthTest": true, "depthWrite": false } }, { "phase": "shadow-caster", "propertyIndex": 0, "rasterizerState": { "cullMode": 1 }, "program": "standard|shadow-caster-vs:vert|shadow-caster-fs:frag", "properties": { "tilingOffset": { "value": [1, 1, 0, 0], "type": 16 }, "mainColor": { "value": [1, 1, 1, 1], "type": 16, "handleInfo": ["albedo", 0, 16] }, "albedoScale": { "value": [1, 1, 1], "type": 15, "handleInfo": ["albedoScaleAndCutoff", 0, 15] }, "alphaThreshold": { "value": [0.5], "type": 13, "handleInfo": ["albedoScaleAndCutoff", 3, 13] }, "mainTexture": { "value": "grey", "type": 28, "handleInfo": ["albedoMap", 0, 28] }, "albedo": { "type": 16, "value": [1, 1, 1, 1] }, "albedoScaleAndCutoff": { "type": 16, "value": [1, 1, 1, 0.5] }, "albedoMap": { "type": 28, "value": "grey" } } }] }
+      { "name": "opaque", "passes": [{ "program": "standard|standard-vs|standard-fs", "properties": { "tilingOffset": { "value": [1, 1, 0, 0], "type": 16 }, "mainColor": { "value": [1, 1, 1, 1], "linear": true, "type": 16, "handleInfo": ["albedo", 0, 16] }, "albedoScale": { "value": [1, 1, 1], "type": 15, "handleInfo": ["albedoScaleAndCutoff", 0, 15] }, "alphaThreshold": { "value": [0.5], "type": 13, "handleInfo": ["albedoScaleAndCutoff", 3, 13] }, "occlusion": { "value": [1], "type": 13, "handleInfo": ["pbrParams", 0, 13] }, "roughness": { "value": [0.8], "type": 13, "handleInfo": ["pbrParams", 1, 13] }, "metallic": { "value": [0.6], "type": 13, "handleInfo": ["pbrParams", 2, 13] }, "specularIntensity": { "value": [0.5], "type": 13, "handleInfo": ["pbrParams", 3, 13] }, "emissive": { "value": [0, 0, 0, 1], "linear": true, "type": 16 }, "emissiveScale": { "value": [1, 1, 1], "type": 15, "handleInfo": ["emissiveScaleParam", 0, 15] }, "normalStrength": { "value": [1], "type": 13, "handleInfo": ["emissiveScaleParam", 3, 13] }, "mainTexture": { "value": "grey", "type": 28, "handleInfo": ["albedoMap", 0, 28] }, "normalMap": { "value": "normal", "type": 28 }, "pbrMap": { "value": "grey", "type": 28 }, "metallicRoughnessMap": { "value": "grey", "type": 28 }, "occlusionMap": { "value": "white", "type": 28 }, "emissiveMap": { "value": "grey", "type": 28 }, "albedo": { "type": 16, "value": [1, 1, 1, 1] }, "albedoScaleAndCutoff": { "type": 16, "value": [1, 1, 1, 0.5] }, "pbrParams": { "type": 16, "value": [1, 0.8, 0.6, 0.5] }, "emissiveScaleParam": { "type": 16, "value": [1, 1, 1, 1] }, "albedoMap": { "type": 28, "value": "grey" } } }, { "phase": "forward-add", "propertyIndex": 0, "embeddedMacros": { "CC_FORWARD_ADD": true }, "blendState": { "targets": [{ "blend": true, "blendSrc": 1, "blendDst": 1, "blendSrcAlpha": 0, "blendDstAlpha": 1 }] }, "program": "standard|standard-vs|standard-fs", "depthStencilState": { "depthFunc": 2, "depthTest": true, "depthWrite": false } }, { "phase": "shadow-caster", "propertyIndex": 0, "rasterizerState": { "cullMode": 1 }, "program": "standard|shadow-caster-vs:vert|shadow-caster-fs:frag", "properties": { "tilingOffset": { "value": [1, 1, 0, 0], "type": 16 }, "mainColor": { "value": [1, 1, 1, 1], "type": 16, "handleInfo": ["albedo", 0, 16] }, "albedoScale": { "value": [1, 1, 1], "type": 15, "handleInfo": ["albedoScaleAndCutoff", 0, 15] }, "alphaThreshold": { "value": [0.5], "type": 13, "handleInfo": ["albedoScaleAndCutoff", 3, 13] }, "mainTexture": { "value": "grey", "type": 28, "handleInfo": ["albedoMap", 0, 28] }, "albedo": { "type": 16, "value": [1, 1, 1, 1] }, "albedoScaleAndCutoff": { "type": 16, "value": [1, 1, 1, 0.5] }, "albedoMap": { "type": 28, "value": "grey" } } }] }
     ],
     "shaders": [
       {
         "name": "standard|standard-vs|standard-fs",
-        "hash": 3718900422,
+        "hash": 2489015834,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 223, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 75 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_diffuseMap", "defines": ["CC_USE_DIFFUSEMAP"] }], "buffers": [], "images": [] },
@@ -587,8 +587,8 @@ export const effects = [
           { "name": "CC_USE_FOG", "type": "number", "range": [0, 4] },
           { "name": "CC_USE_ACCURATE_FOG", "type": "boolean" },
           { "name": "USE_VERTEX_COLOR", "type": "boolean" },
-          { "name": "USE_NORMAL_MAP", "type": "boolean" },
           { "name": "HAS_SECOND_UV", "type": "boolean" },
+          { "name": "USE_NORMAL_MAP", "type": "boolean" },
           { "name": "CC_FORWARD_ADD", "type": "boolean" },
           { "name": "USE_TWOSIDE", "type": "boolean" },
           { "name": "SAMPLE_FROM_RT", "type": "boolean" },
@@ -658,7 +658,7 @@ export const effects = [
       },
       {
         "name": "standard|shadow-caster-vs:vert|shadow-caster-fs:frag",
-        "hash": 2576685478,
+        "hash": 2052537501,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 184, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 75 },
           "globals": { "blocks": [{ "name": "CCShadow", "defines": [] }, { "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }], "buffers": [], "images": [] },
@@ -729,7 +729,7 @@ export const effects = [
     "shaders": [
       {
         "name": "terrain|terrain-vs|terrain-fs",
-        "hash": 3898401117,
+        "hash": 2479239220,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 71, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 71 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_diffuseMap", "defines": ["CC_USE_DIFFUSEMAP"] }], "buffers": [], "images": [] },
@@ -739,7 +739,6 @@ export const effects = [
           { "name": "CC_USE_FOG", "type": "number", "range": [0, 4] },
           { "name": "CC_USE_ACCURATE_FOG", "type": "boolean" },
           { "name": "CC_RECEIVE_SHADOW", "type": "boolean" },
-          { "name": "USE_NORMALMAP", "type": "boolean" },
           { "name": "USE_LIGHTMAP", "type": "boolean" },
           { "name": "CC_USE_IBL", "type": "number", "range": [0, 2] },
           { "name": "CC_USE_DIFFUSEMAP", "type": "number", "range": [0, 2] },
@@ -748,6 +747,7 @@ export const effects = [
           { "name": "CC_FORWARD_ADD", "type": "boolean" },
           { "name": "CC_USE_HDR", "type": "boolean" },
           { "name": "LAYERS", "type": "number", "range": [0, 4] },
+          { "name": "USE_NORMALMAP", "type": "boolean" },
           { "name": "USE_PBR", "type": "boolean" },
           { "name": "CC_PIPELINE_TYPE", "type": "number", "range": [0, 1] },
           { "name": "CC_FORCE_FORWARD_SHADING", "type": "boolean" }
@@ -1111,7 +1111,7 @@ export const effects = [
     "shaders": [
       {
         "name": "deferred-lighting|lighting-vs|lighting-fs",
-        "hash": 3818843377,
+        "hash": 2208217795,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 39, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 69 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_diffuseMap", "defines": ["CC_USE_DIFFUSEMAP"] }], "buffers": [], "images": [] },
@@ -1151,9 +1151,7 @@ export const effects = [
           { "name": "a_vertexId", "defines": ["CC_USE_MORPH"], "format": 11, "location": 13 }
         ],
         "blocks": [],
-        "samplerTextures": [
-          { "name": "depth_stencil", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 3 }
-        ],
+        "samplerTextures": [],
         "buffers": [
           { "name": "b_ccLightsBuffer", "memoryAccess": 1, "defines": ["CC_ENABLE_CLUSTERED_LIGHT_CULLING"], "stageFlags": 16, "binding": 4 },
           { "name": "b_clusterLightIndicesBuffer", "memoryAccess": 1, "defines": ["CC_ENABLE_CLUSTERED_LIGHT_CULLING"], "stageFlags": 16, "binding": 5 },
@@ -1165,7 +1163,8 @@ export const effects = [
         "subpassInputs": [
           { "name": "gbuffer_albedoMap", "count": 1, "defines": ["CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT"], "stageFlags": 16, "binding": 0 },
           { "name": "gbuffer_normalMap", "count": 1, "defines": ["CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT"], "stageFlags": 16, "binding": 1 },
-          { "name": "gbuffer_emissiveMap", "count": 1, "defines": ["CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT"], "stageFlags": 16, "binding": 2 }
+          { "name": "gbuffer_emissiveMap", "count": 1, "defines": ["CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT"], "stageFlags": 16, "binding": 2 },
+          { "name": "depth_stencil", "count": 1, "defines": ["CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT"], "stageFlags": 16, "binding": 3 }
         ]
       }
     ]
@@ -1227,7 +1226,7 @@ export const effects = [
   {
     "name": "post-process",
     "techniques": [
-      { "passes": [{ "phase": "post-process", "blendState": { "targets": [{ "blend": false, "blendSrc": 1, "blendDst": 0, "blendSrcAlpha": 1, "blendDstAlpha": 0 }] }, "program": "post-process|post-process-vs|post-process-fs", "depthStencilState": { "depthTest": false, "depthWrite": false } }] }
+      { "passes": [{ "phase": "post-process", "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendSrcAlpha": 2, "blendDstAlpha": 4 }] }, "program": "post-process|post-process-vs|post-process-fs", "depthStencilState": { "depthTest": false, "depthWrite": false } }] }
     ],
     "shaders": [
       {

@@ -1,0 +1,1273 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test link 1`] = `
+Object {
+  "categories": undefined,
+  "ccCategories": Array [],
+  "children": Array [
+    Object {
+      "categories": undefined,
+      "children": undefined,
+      "comment": undefined,
+      "decorates": undefined,
+      "decorators": undefined,
+      "defaultValue": undefined,
+      "extendedBy": undefined,
+      "extendedTypes": undefined,
+      "flags": Object {},
+      "groups": undefined,
+      "id": 30,
+      "implementationOf": undefined,
+      "implementedBy": undefined,
+      "implementedTypes": undefined,
+      "indexSignature": undefined,
+      "inheritedFrom": undefined,
+      "kind": 4,
+      "kindString": "Namespace",
+      "name": "NamespaceOverriddenByMember",
+      "overwrites": undefined,
+      "signatures": undefined,
+      "sources": Array [
+        Object {
+          "character": 17,
+          "fileName": "bar.ts",
+          "line": 210,
+        },
+      ],
+      "type": undefined,
+      "typeParameter": undefined,
+    },
+    Object {
+      "categories": undefined,
+      "children": Array [
+        Object {
+          "categories": undefined,
+          "children": undefined,
+          "comment": undefined,
+          "decorates": undefined,
+          "decorators": undefined,
+          "defaultValue": undefined,
+          "extendedBy": undefined,
+          "extendedTypes": undefined,
+          "flags": Object {},
+          "groups": undefined,
+          "id": 28,
+          "implementationOf": undefined,
+          "implementedBy": undefined,
+          "implementedTypes": undefined,
+          "indexSignature": undefined,
+          "inheritedFrom": undefined,
+          "kind": 64,
+          "kindString": "Function",
+          "name": "fn_",
+          "overwrites": undefined,
+          "signatures": Array [
+            Object {
+              "comment": undefined,
+              "decorates": undefined,
+              "decorators": undefined,
+              "flags": Object {},
+              "id": 29,
+              "implementationOf": undefined,
+              "inheritedFrom": undefined,
+              "kind": 4096,
+              "kindString": "Call signature",
+              "name": "fn_",
+              "overwrites": undefined,
+              "parameters": undefined,
+              "type": Object {
+                "name": "void",
+                "type": "intrinsic",
+              },
+              "typeParameter": undefined,
+            },
+          ],
+          "sources": Array [
+            Object {
+              "character": 20,
+              "fileName": "bar.ts",
+              "line": 207,
+            },
+          ],
+          "type": undefined,
+          "typeParameter": undefined,
+        },
+      ],
+      "comment": Object {
+        "shortText": "Namespace comment",
+        "text": "Short text
+Class [[1]] Class [[1]]
+ClassMember [[4]]
+Enumeration [[21]]
+EnumMember [[22]]
+Variable [[31]]
+Function [[8]]
+Namespace [[27]]
+NamespaceMember [[28]]
+Interface [[24]]
+TypeAlias [[26]]
+NamespaceOverriddenByMember [[30]]
+",
+      },
+      "decorates": undefined,
+      "decorators": undefined,
+      "defaultValue": undefined,
+      "extendedBy": undefined,
+      "extendedTypes": undefined,
+      "flags": Object {},
+      "groups": Array [
+        Object {
+          "children": Array [
+            28,
+          ],
+          "kind": 64,
+          "title": "Functions",
+        },
+      ],
+      "id": 27,
+      "implementationOf": undefined,
+      "implementedBy": undefined,
+      "implementedTypes": undefined,
+      "indexSignature": undefined,
+      "inheritedFrom": undefined,
+      "kind": 4,
+      "kindString": "Namespace",
+      "name": "Namespace_",
+      "overwrites": undefined,
+      "signatures": undefined,
+      "sources": Array [
+        Object {
+          "character": 17,
+          "fileName": "bar.ts",
+          "line": 206,
+        },
+      ],
+      "type": undefined,
+      "typeParameter": undefined,
+    },
+    Object {
+      "categories": undefined,
+      "children": Array [
+        Object {
+          "categories": undefined,
+          "children": undefined,
+          "comment": undefined,
+          "decorates": undefined,
+          "decorators": undefined,
+          "defaultValue": "1",
+          "extendedBy": undefined,
+          "extendedTypes": undefined,
+          "flags": Object {},
+          "groups": undefined,
+          "id": 23,
+          "implementationOf": undefined,
+          "implementedBy": undefined,
+          "implementedTypes": undefined,
+          "indexSignature": undefined,
+          "inheritedFrom": undefined,
+          "kind": 16,
+          "kindString": "Enumeration member",
+          "name": "BLUE",
+          "overwrites": undefined,
+          "signatures": undefined,
+          "sources": Array [
+            Object {
+              "character": 4,
+              "fileName": "bar.ts",
+              "line": 129,
+            },
+          ],
+          "type": undefined,
+          "typeParameter": undefined,
+        },
+        Object {
+          "categories": undefined,
+          "children": undefined,
+          "comment": Object {
+            "shortText": "Enum member  comment",
+            "text": "Short text
+Class [[1]] Class [[1]]
+ClassMember [[4]]
+Enumeration [[21]]
+EnumMember [[22]]
+Variable [[31]]
+Function [[8]]
+Namespace [[27]]
+NamespaceMember [[28]]
+Interface [[24]]
+TypeAlias [[26]]
+NamespaceOverriddenByMember [[30]]
+
+SelfMember [[22]]
+",
+          },
+          "decorates": undefined,
+          "decorators": undefined,
+          "defaultValue": "0",
+          "extendedBy": undefined,
+          "extendedTypes": undefined,
+          "flags": Object {},
+          "groups": undefined,
+          "id": 22,
+          "implementationOf": undefined,
+          "implementedBy": undefined,
+          "implementedTypes": undefined,
+          "indexSignature": undefined,
+          "inheritedFrom": undefined,
+          "kind": 16,
+          "kindString": "Enumeration member",
+          "name": "RED",
+          "overwrites": undefined,
+          "signatures": undefined,
+          "sources": Array [
+            Object {
+              "character": 4,
+              "fileName": "bar.ts",
+              "line": 127,
+            },
+          ],
+          "type": undefined,
+          "typeParameter": undefined,
+        },
+      ],
+      "comment": Object {
+        "shortText": "Enum  comment",
+        "text": "Short text
+Class [[1]] Class [[1]]
+ClassMember [[4]]
+Enumeration [[21]]
+EnumMember [[22]]
+Variable [[31]]
+Function [[8]]
+Namespace [[27]]
+NamespaceMember [[28]]
+Interface [[24]]
+TypeAlias [[26]]
+NamespaceOverriddenByMember [[30]]
+
+SelfMember [[22]]
+",
+      },
+      "decorates": undefined,
+      "decorators": undefined,
+      "defaultValue": undefined,
+      "extendedBy": undefined,
+      "extendedTypes": undefined,
+      "flags": Object {},
+      "groups": Array [
+        Object {
+          "children": Array [
+            23,
+            22,
+          ],
+          "kind": 16,
+          "title": "Enumeration members",
+        },
+      ],
+      "id": 21,
+      "implementationOf": undefined,
+      "implementedBy": undefined,
+      "implementedTypes": undefined,
+      "indexSignature": undefined,
+      "inheritedFrom": undefined,
+      "kind": 8,
+      "kindString": "Enumeration",
+      "name": "Enum_",
+      "overwrites": undefined,
+      "signatures": undefined,
+      "sources": Array [
+        Object {
+          "character": 12,
+          "fileName": "bar.ts",
+          "line": 108,
+        },
+      ],
+      "type": undefined,
+      "typeParameter": undefined,
+    },
+    Object {
+      "categories": undefined,
+      "children": Array [
+        Object {
+          "categories": undefined,
+          "children": undefined,
+          "comment": undefined,
+          "decorates": undefined,
+          "decorators": undefined,
+          "defaultValue": undefined,
+          "extendedBy": undefined,
+          "extendedTypes": undefined,
+          "flags": Object {},
+          "groups": undefined,
+          "id": 11,
+          "implementationOf": undefined,
+          "implementedBy": undefined,
+          "implementedTypes": undefined,
+          "indexSignature": undefined,
+          "inheritedFrom": undefined,
+          "kind": 512,
+          "kindString": "Constructor",
+          "name": "constructor",
+          "overwrites": undefined,
+          "signatures": Array [
+            Object {
+              "comment": undefined,
+              "decorates": undefined,
+              "decorators": undefined,
+              "flags": Object {},
+              "id": 12,
+              "implementationOf": undefined,
+              "inheritedFrom": undefined,
+              "kind": 16384,
+              "kindString": "Constructor signature",
+              "name": "new Bar",
+              "overwrites": undefined,
+              "parameters": undefined,
+              "type": Object {
+                "id": 10,
+                "name": "Bar",
+                "type": "reference",
+              },
+              "typeParameter": undefined,
+            },
+          ],
+          "sources": undefined,
+          "type": undefined,
+          "typeParameter": undefined,
+        },
+        Object {
+          "categories": undefined,
+          "children": undefined,
+          "comment": undefined,
+          "decorates": undefined,
+          "decorators": undefined,
+          "defaultValue": "1",
+          "extendedBy": undefined,
+          "extendedTypes": undefined,
+          "flags": Object {},
+          "groups": undefined,
+          "id": 20,
+          "implementationOf": undefined,
+          "implementedBy": undefined,
+          "implementedTypes": undefined,
+          "indexSignature": undefined,
+          "inheritedFrom": undefined,
+          "kind": 1024,
+          "kindString": "Property",
+          "name": "NamespaceOverriddenByMember",
+          "overwrites": undefined,
+          "signatures": undefined,
+          "sources": Array [
+            Object {
+              "character": 4,
+              "fileName": "bar.ts",
+              "line": 87,
+            },
+          ],
+          "type": Object {
+            "name": "number",
+            "type": "intrinsic",
+          },
+          "typeParameter": undefined,
+        },
+        Object {
+          "categories": undefined,
+          "children": undefined,
+          "comment": Object {
+            "shortText": "Class comment",
+            "text": "Short text
+Class [[1]] Class [[1]]
+ClassMember [[4]]
+Enumeration [[21]]
+EnumMember [[22]]
+Variable [[31]]
+Function [[8]]
+Namespace [[27]]
+NamespaceMember [[28]]
+Interface [[24]]
+TypeAlias [[26]]
+NamespaceOverriddenByMember [[20]]
+
+Text
+Property [[13]] Method: [[14]]
+",
+          },
+          "decorates": undefined,
+          "decorators": undefined,
+          "defaultValue": "0",
+          "extendedBy": undefined,
+          "extendedTypes": undefined,
+          "flags": Object {},
+          "groups": undefined,
+          "id": 13,
+          "implementationOf": undefined,
+          "implementedBy": undefined,
+          "implementedTypes": undefined,
+          "indexSignature": undefined,
+          "inheritedFrom": undefined,
+          "kind": 1024,
+          "kindString": "Property",
+          "name": "p",
+          "overwrites": undefined,
+          "signatures": undefined,
+          "sources": Array [
+            Object {
+              "character": 4,
+              "fileName": "bar.ts",
+              "line": 41,
+            },
+          ],
+          "type": Object {
+            "name": "number",
+            "type": "intrinsic",
+          },
+          "typeParameter": undefined,
+        },
+        Object {
+          "categories": undefined,
+          "children": undefined,
+          "comment": undefined,
+          "decorates": undefined,
+          "decorators": undefined,
+          "defaultValue": undefined,
+          "extendedBy": undefined,
+          "extendedTypes": undefined,
+          "flags": Object {},
+          "getSignature": Array [
+            Object {
+              "comment": Object {
+                "shortText": "Class accessor comment",
+                "text": "Short text
+Class [[1]] Class [[1]]
+ClassMember [[4]]
+Enumeration [[21]]
+EnumMember [[22]]
+Variable [[31]]
+Function [[8]]
+Namespace [[27]]
+NamespaceMember [[28]]
+Interface [[24]]
+TypeAlias [[26]]
+NamespaceOverriddenByMember [[20]]
+
+Text
+Property [[13]] Method: [[14]]
+",
+              },
+              "decorates": undefined,
+              "decorators": undefined,
+              "flags": Object {},
+              "id": 17,
+              "implementationOf": undefined,
+              "inheritedFrom": undefined,
+              "kind": 524288,
+              "kindString": "Get signature",
+              "name": "a",
+              "overwrites": undefined,
+              "parameters": undefined,
+              "type": Object {
+                "name": "void",
+                "type": "intrinsic",
+              },
+              "typeParameter": undefined,
+            },
+          ],
+          "groups": undefined,
+          "id": 16,
+          "implementationOf": undefined,
+          "implementedBy": undefined,
+          "implementedTypes": undefined,
+          "indexSignature": undefined,
+          "inheritedFrom": undefined,
+          "kind": 262144,
+          "kindString": "Accessor",
+          "name": "a",
+          "overwrites": undefined,
+          "setSignature": Array [
+            Object {
+              "comment": Object {
+                "shortText": "Class accessor comment",
+                "text": "Short text
+Class [[1]] Class [[1]]
+ClassMember [[4]]
+Enumeration [[21]]
+EnumMember [[22]]
+Variable [[31]]
+Function [[8]]
+Namespace [[27]]
+NamespaceMember [[28]]
+Interface [[24]]
+TypeAlias [[26]]
+NamespaceOverriddenByMember [[20]]
+
+Text
+Property [[13]] Method: [[14]]
+",
+              },
+              "decorates": undefined,
+              "decorators": undefined,
+              "flags": Object {},
+              "id": 18,
+              "implementationOf": undefined,
+              "inheritedFrom": undefined,
+              "kind": 1048576,
+              "kindString": "Set signature",
+              "name": "a",
+              "overwrites": undefined,
+              "parameters": Array [
+                Object {
+                  "comment": undefined,
+                  "decorates": undefined,
+                  "decorators": undefined,
+                  "defaultValue": undefined,
+                  "flags": Object {},
+                  "id": 19,
+                  "kind": 32768,
+                  "kindString": "Parameter",
+                  "name": "v",
+                  "type": Object {
+                    "name": "void",
+                    "type": "intrinsic",
+                  },
+                },
+              ],
+              "type": Object {
+                "name": "void",
+                "type": "intrinsic",
+              },
+              "typeParameter": undefined,
+            },
+          ],
+          "signatures": undefined,
+          "sources": Array [
+            Object {
+              "character": 8,
+              "fileName": "bar.ts",
+              "line": 83,
+            },
+          ],
+          "type": undefined,
+          "typeParameter": undefined,
+        },
+        Object {
+          "categories": undefined,
+          "children": undefined,
+          "comment": undefined,
+          "decorates": undefined,
+          "decorators": undefined,
+          "defaultValue": undefined,
+          "extendedBy": undefined,
+          "extendedTypes": undefined,
+          "flags": Object {},
+          "groups": undefined,
+          "id": 14,
+          "implementationOf": undefined,
+          "implementedBy": undefined,
+          "implementedTypes": undefined,
+          "indexSignature": undefined,
+          "inheritedFrom": undefined,
+          "kind": 2048,
+          "kindString": "Method",
+          "name": "m",
+          "overwrites": undefined,
+          "signatures": Array [
+            Object {
+              "comment": Object {
+                "shortText": "Class method comment",
+                "text": "Short text
+Class [[1]] Class [[1]]
+ClassMember [[4]]
+Enumeration [[21]]
+EnumMember [[22]]
+Variable [[31]]
+Function [[8]]
+Namespace [[27]]
+NamespaceMember [[28]]
+Interface [[24]]
+TypeAlias [[26]]
+NamespaceOverriddenByMember [[20]]
+
+Text
+Property [[13]] Method: [[14]]
+",
+              },
+              "decorates": undefined,
+              "decorators": undefined,
+              "flags": Object {},
+              "id": 15,
+              "implementationOf": undefined,
+              "inheritedFrom": undefined,
+              "kind": 4096,
+              "kindString": "Call signature",
+              "name": "m",
+              "overwrites": undefined,
+              "parameters": undefined,
+              "type": Object {
+                "name": "void",
+                "type": "intrinsic",
+              },
+              "typeParameter": undefined,
+            },
+          ],
+          "sources": Array [
+            Object {
+              "character": 4,
+              "fileName": "bar.ts",
+              "line": 62,
+            },
+          ],
+          "type": undefined,
+          "typeParameter": undefined,
+        },
+      ],
+      "comment": Object {
+        "shortText": "Class comment",
+        "text": "Short text
+Class [[1]] Class [[1]]
+ClassMember [[4]]
+Enumeration [[21]]
+EnumMember [[22]]
+Variable [[31]]
+Function [[8]]
+Namespace [[27]]
+NamespaceMember [[28]]
+Interface [[24]]
+TypeAlias [[26]]
+NamespaceOverriddenByMember [[20]]
+
+Text
+Property [[13]] Method: [[14]]
+",
+      },
+      "decorates": undefined,
+      "decorators": undefined,
+      "defaultValue": undefined,
+      "extendedBy": undefined,
+      "extendedTypes": undefined,
+      "flags": Object {},
+      "groups": Array [
+        Object {
+          "children": Array [
+            11,
+          ],
+          "kind": 512,
+          "title": "Constructors",
+        },
+        Object {
+          "children": Array [
+            20,
+            13,
+          ],
+          "kind": 1024,
+          "title": "Properties",
+        },
+        Object {
+          "children": Array [
+            16,
+          ],
+          "kind": 262144,
+          "title": "Accessors",
+        },
+        Object {
+          "children": Array [
+            14,
+          ],
+          "kind": 2048,
+          "title": "Methods",
+        },
+      ],
+      "id": 10,
+      "implementationOf": undefined,
+      "implementedBy": undefined,
+      "implementedTypes": undefined,
+      "indexSignature": undefined,
+      "inheritedFrom": undefined,
+      "kind": 128,
+      "kindString": "Class",
+      "name": "Bar",
+      "overwrites": undefined,
+      "signatures": undefined,
+      "sources": Array [
+        Object {
+          "character": 13,
+          "fileName": "bar.ts",
+          "line": 21,
+        },
+      ],
+      "type": undefined,
+      "typeParameter": undefined,
+    },
+    Object {
+      "categories": undefined,
+      "children": Array [
+        Object {
+          "categories": undefined,
+          "children": undefined,
+          "comment": undefined,
+          "decorates": undefined,
+          "decorators": undefined,
+          "defaultValue": undefined,
+          "extendedBy": undefined,
+          "extendedTypes": undefined,
+          "flags": Object {},
+          "groups": undefined,
+          "id": 2,
+          "implementationOf": undefined,
+          "implementedBy": undefined,
+          "implementedTypes": undefined,
+          "indexSignature": undefined,
+          "inheritedFrom": undefined,
+          "kind": 512,
+          "kindString": "Constructor",
+          "name": "constructor",
+          "overwrites": undefined,
+          "signatures": Array [
+            Object {
+              "comment": undefined,
+              "decorates": undefined,
+              "decorators": undefined,
+              "flags": Object {},
+              "id": 3,
+              "implementationOf": undefined,
+              "inheritedFrom": undefined,
+              "kind": 16384,
+              "kindString": "Constructor signature",
+              "name": "new Foo",
+              "overwrites": undefined,
+              "parameters": undefined,
+              "type": Object {
+                "id": 1,
+                "name": "Foo",
+                "type": "reference",
+              },
+              "typeParameter": undefined,
+            },
+          ],
+          "sources": undefined,
+          "type": undefined,
+          "typeParameter": undefined,
+        },
+        Object {
+          "categories": undefined,
+          "children": undefined,
+          "comment": undefined,
+          "decorates": undefined,
+          "decorators": undefined,
+          "defaultValue": "2",
+          "extendedBy": undefined,
+          "extendedTypes": undefined,
+          "flags": Object {
+            "isPublic": true,
+          },
+          "groups": undefined,
+          "id": 4,
+          "implementationOf": undefined,
+          "implementedBy": undefined,
+          "implementedTypes": undefined,
+          "indexSignature": undefined,
+          "inheritedFrom": undefined,
+          "kind": 1024,
+          "kindString": "Property",
+          "name": "member",
+          "overwrites": undefined,
+          "signatures": undefined,
+          "sources": Array [
+            Object {
+              "character": 11,
+              "fileName": "foo.ts",
+              "line": 10,
+            },
+          ],
+          "type": Object {
+            "name": "number",
+            "type": "intrinsic",
+          },
+          "typeParameter": undefined,
+        },
+        Object {
+          "categories": undefined,
+          "children": undefined,
+          "comment": undefined,
+          "decorates": undefined,
+          "decorators": undefined,
+          "defaultValue": undefined,
+          "extendedBy": undefined,
+          "extendedTypes": undefined,
+          "flags": Object {
+            "isPublic": true,
+          },
+          "groups": undefined,
+          "id": 5,
+          "implementationOf": undefined,
+          "implementedBy": undefined,
+          "implementedTypes": undefined,
+          "indexSignature": undefined,
+          "inheritedFrom": undefined,
+          "kind": 2048,
+          "kindString": "Method",
+          "name": "m",
+          "overwrites": undefined,
+          "signatures": Array [
+            Object {
+              "comment": Object {},
+              "decorates": undefined,
+              "decorators": undefined,
+              "flags": Object {},
+              "id": 6,
+              "implementationOf": undefined,
+              "inheritedFrom": undefined,
+              "kind": 4096,
+              "kindString": "Call signature",
+              "name": "m",
+              "overwrites": undefined,
+              "parameters": Array [
+                Object {
+                  "comment": Object {
+                    "shortText": "Test param [[1]]
+",
+                  },
+                  "decorates": undefined,
+                  "decorators": undefined,
+                  "defaultValue": undefined,
+                  "flags": Object {},
+                  "id": 7,
+                  "kind": 32768,
+                  "kindString": "Parameter",
+                  "name": "p",
+                  "type": Object {
+                    "name": "number",
+                    "type": "intrinsic",
+                  },
+                },
+              ],
+              "type": Object {
+                "name": "void",
+                "type": "intrinsic",
+              },
+              "typeParameter": undefined,
+            },
+          ],
+          "sources": Array [
+            Object {
+              "character": 11,
+              "fileName": "foo.ts",
+              "line": 16,
+            },
+          ],
+          "type": undefined,
+          "typeParameter": undefined,
+        },
+      ],
+      "comment": Object {
+        "shortText": "Test quoted [[1]]",
+        "tags": Array [
+          Object {
+            "tag": "en",
+            "text": "Test link tag text [[1]]
+",
+          },
+        ],
+        "text": "Test link text [[1 | How are you]]
+",
+      },
+      "decorates": undefined,
+      "decorators": undefined,
+      "defaultValue": undefined,
+      "extendedBy": undefined,
+      "extendedTypes": undefined,
+      "flags": Object {},
+      "groups": Array [
+        Object {
+          "children": Array [
+            2,
+          ],
+          "kind": 512,
+          "title": "Constructors",
+        },
+        Object {
+          "children": Array [
+            4,
+          ],
+          "kind": 1024,
+          "title": "Properties",
+        },
+        Object {
+          "children": Array [
+            5,
+          ],
+          "kind": 2048,
+          "title": "Methods",
+        },
+      ],
+      "id": 1,
+      "implementationOf": undefined,
+      "implementedBy": undefined,
+      "implementedTypes": undefined,
+      "indexSignature": undefined,
+      "inheritedFrom": undefined,
+      "kind": 128,
+      "kindString": "Class",
+      "name": "Foo",
+      "overwrites": undefined,
+      "signatures": undefined,
+      "sources": Array [
+        Object {
+          "character": 13,
+          "fileName": "foo.ts",
+          "line": 9,
+        },
+      ],
+      "type": undefined,
+      "typeParameter": undefined,
+    },
+    Object {
+      "categories": undefined,
+      "children": Array [
+        Object {
+          "categories": undefined,
+          "children": undefined,
+          "comment": Object {
+            "shortText": "Interface member comment",
+            "text": "Short text
+Class [[1]] Class [[1]]
+ClassMember [[4]]
+Enumeration [[21]]
+EnumMember [[22]]
+Variable [[31]]
+Function [[8]]
+Namespace [[27]]
+NamespaceMember [[28]]
+Interface [[24]]
+TypeAlias [[26]]
+NamespaceOverriddenByMember [[30]]
+
+SelfMember [[25]]
+",
+          },
+          "decorates": undefined,
+          "decorators": undefined,
+          "defaultValue": undefined,
+          "extendedBy": undefined,
+          "extendedTypes": undefined,
+          "flags": Object {},
+          "groups": undefined,
+          "id": 25,
+          "implementationOf": undefined,
+          "implementedBy": undefined,
+          "implementedTypes": undefined,
+          "indexSignature": undefined,
+          "inheritedFrom": undefined,
+          "kind": 1024,
+          "kindString": "Property",
+          "name": "a",
+          "overwrites": undefined,
+          "signatures": undefined,
+          "sources": Array [
+            Object {
+              "character": 4,
+              "fileName": "bar.ts",
+              "line": 169,
+            },
+          ],
+          "type": Object {
+            "name": "number",
+            "type": "intrinsic",
+          },
+          "typeParameter": undefined,
+        },
+      ],
+      "comment": Object {
+        "shortText": "Interface  comment",
+        "text": "Short text
+Class [[1]] Class [[1]]
+ClassMember [[4]]
+Enumeration [[21]]
+EnumMember [[22]]
+Variable [[31]]
+Function [[8]]
+Namespace [[27]]
+NamespaceMember [[28]]
+Interface [[24]]
+TypeAlias [[26]]
+NamespaceOverriddenByMember [[30]]
+
+SelfMember [[25]]
+",
+      },
+      "decorates": undefined,
+      "decorators": undefined,
+      "defaultValue": undefined,
+      "extendedBy": undefined,
+      "extendedTypes": undefined,
+      "flags": Object {},
+      "groups": Array [
+        Object {
+          "children": Array [
+            25,
+          ],
+          "kind": 1024,
+          "title": "Properties",
+        },
+      ],
+      "id": 24,
+      "implementationOf": undefined,
+      "implementedBy": undefined,
+      "implementedTypes": undefined,
+      "indexSignature": undefined,
+      "inheritedFrom": undefined,
+      "kind": 256,
+      "kindString": "Interface",
+      "name": "Interface_",
+      "overwrites": undefined,
+      "signatures": undefined,
+      "sources": Array [
+        Object {
+          "character": 17,
+          "fileName": "bar.ts",
+          "line": 150,
+        },
+      ],
+      "type": undefined,
+      "typeParameter": undefined,
+    },
+    Object {
+      "categories": undefined,
+      "children": undefined,
+      "comment": Object {
+        "shortText": "Type alias comment",
+        "text": "Short text
+Class [[1]] Class [[1]]
+ClassMember [[4]]
+Enumeration [[21]]
+EnumMember [[22]]
+Variable [[31]]
+Function [[8]]
+Namespace [[27]]
+NamespaceMember [[28]]
+Interface [[24]]
+TypeAlias [[26]]
+NamespaceOverriddenByMember [[30]]
+",
+      },
+      "decorates": undefined,
+      "decorators": undefined,
+      "defaultValue": undefined,
+      "extendedBy": undefined,
+      "extendedTypes": undefined,
+      "flags": Object {},
+      "groups": undefined,
+      "id": 26,
+      "implementationOf": undefined,
+      "implementedBy": undefined,
+      "implementedTypes": undefined,
+      "indexSignature": undefined,
+      "inheritedFrom": undefined,
+      "kind": 4194304,
+      "kindString": "Type alias",
+      "name": "Type_",
+      "overwrites": undefined,
+      "signatures": undefined,
+      "sources": Array [
+        Object {
+          "character": 12,
+          "fileName": "bar.ts",
+          "line": 188,
+        },
+      ],
+      "type": Object {
+        "name": "number",
+        "type": "intrinsic",
+      },
+      "typeParameter": undefined,
+    },
+    Object {
+      "categories": undefined,
+      "children": undefined,
+      "comment": Object {
+        "shortText": "Variable comment",
+        "text": "Short text
+Class [[1]] Class [[1]]
+ClassMember [[4]]
+Enumeration [[21]]
+EnumMember [[22]]
+Variable [[31]]
+Function [[8]]
+Namespace [[27]]
+NamespaceMember [[28]]
+Interface [[24]]
+TypeAlias [[26]]
+NamespaceOverriddenByMember [[30]]
+",
+      },
+      "decorates": undefined,
+      "decorators": undefined,
+      "defaultValue": "''",
+      "extendedBy": undefined,
+      "extendedTypes": undefined,
+      "flags": Object {
+        "isConst": true,
+      },
+      "groups": undefined,
+      "id": 31,
+      "implementationOf": undefined,
+      "implementedBy": undefined,
+      "implementedTypes": undefined,
+      "indexSignature": undefined,
+      "inheritedFrom": undefined,
+      "kind": 32,
+      "kindString": "Variable",
+      "name": "variable_",
+      "overwrites": undefined,
+      "signatures": undefined,
+      "sources": Array [
+        Object {
+          "character": 13,
+          "fileName": "bar.ts",
+          "line": 229,
+        },
+      ],
+      "type": Object {
+        "type": "literal",
+        "value": "",
+      },
+      "typeParameter": undefined,
+    },
+    Object {
+      "categories": undefined,
+      "children": undefined,
+      "comment": undefined,
+      "decorates": undefined,
+      "decorators": undefined,
+      "defaultValue": undefined,
+      "extendedBy": undefined,
+      "extendedTypes": undefined,
+      "flags": Object {},
+      "groups": undefined,
+      "id": 8,
+      "implementationOf": undefined,
+      "implementedBy": undefined,
+      "implementedTypes": undefined,
+      "indexSignature": undefined,
+      "inheritedFrom": undefined,
+      "kind": 64,
+      "kindString": "Function",
+      "name": "function_",
+      "overwrites": undefined,
+      "signatures": Array [
+        Object {
+          "comment": Object {
+            "shortText": "Function comment",
+            "text": "Short text
+Class [[1]] Class [[1]]
+ClassMember [[4]]
+Enumeration [[21]]
+EnumMember [[22]]
+Variable [[31]]
+Function [[8]]
+Namespace [[27]]
+NamespaceMember [[28]]
+Interface [[24]]
+TypeAlias [[26]]
+NamespaceOverriddenByMember [[30]]
+",
+          },
+          "decorates": undefined,
+          "decorators": undefined,
+          "flags": Object {},
+          "id": 9,
+          "implementationOf": undefined,
+          "inheritedFrom": undefined,
+          "kind": 4096,
+          "kindString": "Call signature",
+          "name": "function_",
+          "overwrites": undefined,
+          "parameters": undefined,
+          "type": Object {
+            "name": "void",
+            "type": "intrinsic",
+          },
+          "typeParameter": undefined,
+        },
+      ],
+      "sources": Array [
+        Object {
+          "character": 16,
+          "fileName": "bar.ts",
+          "line": 247,
+        },
+      ],
+      "type": undefined,
+      "typeParameter": undefined,
+    },
+  ],
+  "comment": undefined,
+  "decorates": undefined,
+  "decorators": undefined,
+  "flags": Object {},
+  "groups": Array [
+    Object {
+      "children": Array [
+        30,
+        27,
+      ],
+      "kind": 4,
+      "title": "Namespaces",
+    },
+    Object {
+      "children": Array [
+        21,
+      ],
+      "kind": 8,
+      "title": "Enumerations",
+    },
+    Object {
+      "children": Array [
+        10,
+        1,
+      ],
+      "kind": 128,
+      "title": "Classes",
+    },
+    Object {
+      "children": Array [
+        24,
+      ],
+      "kind": 256,
+      "title": "Interfaces",
+    },
+    Object {
+      "children": Array [
+        26,
+      ],
+      "kind": 4194304,
+      "title": "Type aliases",
+    },
+    Object {
+      "children": Array [
+        31,
+      ],
+      "kind": 32,
+      "title": "Variables",
+    },
+    Object {
+      "children": Array [
+        8,
+      ],
+      "kind": 64,
+      "title": "Functions",
+    },
+  ],
+  "id": 0,
+  "kind": 1,
+  "kindString": "Project",
+  "name": "typedoc-plugin-cc",
+  "originalName": "",
+  "sources": Array [
+    Object {
+      "character": 0,
+      "fileName": "index.ts",
+      "line": 2,
+    },
+  ],
+}
+`;

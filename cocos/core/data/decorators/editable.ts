@@ -74,7 +74,7 @@ export const executeInEditMode: ClassDecorator & ((yes?: boolean) => ClassDecora
 export const menu: (path: string) => ClassDecorator =    DEV ? makeEditorClassDecoratorFn('menu') : emptyDecoratorFn;
 
 /**
- * @en When {{executeInEditMode}} is set, this decorator will decide when a node with the component is on focus whether the editor should running in high FPS mode.
+ * @en When [[executeInEditMode]] is set, this decorator will decide when a node with the component is on focus whether the editor should running in high FPS mode.
  * @zh 当指定了 "executeInEditMode" 以后，playOnFocus 可以在选中当前组件所在的节点时，提高编辑器的场景刷新频率到 60 FPS，否则场景就只会在必要的时候进行重绘。
  * @example
  * ```ts
