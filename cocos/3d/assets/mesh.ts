@@ -646,7 +646,7 @@ export class Mesh extends Asset {
      * @en Reset the struct and data of the mesh
      * @zh 重置此网格的结构和数据。
      * @param struct @en The new struct @zh 新结构
-     * @param data The new data @zh 新数据
+     * @param data @en The new data @zh 新数据
      * @deprecated Will be removed in v3.0.0, please use [[reset]] instead
      */
     public assign (struct: Mesh.IStruct, data: Uint8Array) {
