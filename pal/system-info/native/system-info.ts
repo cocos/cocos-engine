@@ -87,7 +87,7 @@ class SystemInfo extends EventTarget {
             [Feature.EVENT_MOUSE]: !this.isMobile,
             [Feature.EVENT_TOUCH]: true,
             [Feature.EVENT_ACCELEROMETER]: this.isMobile,
-            [Feature.EVENT_GAMEPAD]: false,
+            [Feature.EVENT_GAMEPAD]: true,
         };
 
         this._registerEvent();

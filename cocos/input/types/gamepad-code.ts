@@ -23,4 +23,8 @@ export enum GamepadCode {
     AXIS_LEFT_STICK_Y = 19,
     AXIS_RIGHT_STICK_X = 20,
     AXIS_RIGHT_STICK_Y = 21,
+
+    // NS
+    NS_PLUS,
+    NS_MINUS,
 }
