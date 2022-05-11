@@ -150,7 +150,6 @@ export const NativeSpotLight: Constructor<{
     setPosition (pos: Vec3): void;
     setSize (size: number): void;
     setRange (range: number): void;
-    setAspect (aspect: number): void;
     setAngle (angle: number): void;
     setLuminanceHDR (lum: number): void;
     setLuminanceLDR(lum: number): void;

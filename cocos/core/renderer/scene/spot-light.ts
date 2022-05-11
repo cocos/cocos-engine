@@ -69,8 +69,6 @@ export class SpotLight extends Light {
 
     protected _luminanceLDR = 0;
 
-    protected _aspect = 0;
-
     // Shadow map properties
     protected _shadowEnabled = false;
     protected _shadowPcf = PCFType.HARD;
@@ -204,11 +202,11 @@ export class SpotLight extends Light {
      * As the in-consistence is not acceptable for a property, please do not use it.
      * @zh 赋值时这个属性会把输入值当做聚光灯光照区域的锥角，但是获取时返回的是 cos(angle / 2)。
      * 由于这种不一致性，请不要使用这个属性。
+     * @internal
      */
     get spotAngle () {
         return this._spotAngle;
     }
-
     set spotAngle (val: number) {
         this._angle = val;
         this._spotAngle = Math.cos(val * 0.5);
@@ -227,26 +225,6 @@ export class SpotLight extends Light {
         return this._angle;
     }
 
-    /**
-     * @internal
-     */
-    set aspect (val: number) {
-        this._aspect = val;
-        if (JSB) {
-            (this._nativeObj! as NativeSpotLight).setAspect(val);
-        }
-
-        this._needUpdate = true;
-    }
-
-    get aspect (): number {
-        return this._aspect;
-    }
-
-    /**
-     * @en The AABB bounding box of the lighting area
-     * @zh 受光源影响范围的 AABB 包围盒
-     */
     get aabb () {
         return this._aabb;
     }
@@ -328,7 +306,6 @@ export class SpotLight extends Light {
 
         const size = 0.15;
         this.size = size;
-        this.aspect = 1.0;
         this.luminanceHDR = 1700 / nt2lm(size);
         this.luminanceLDR = 1.0;
         this.range = Math.cos(Math.PI / 6);
