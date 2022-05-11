@@ -180,7 +180,6 @@ SE_DECLARE_FUNC(js_scene_SpotLight_getShadowNormalBias);
 SE_DECLARE_FUNC(js_scene_SpotLight_getShadowPcf);
 SE_DECLARE_FUNC(js_scene_SpotLight_setAABB);
 SE_DECLARE_FUNC(js_scene_SpotLight_setAngle);
-SE_DECLARE_FUNC(js_scene_SpotLight_setAspect);
 SE_DECLARE_FUNC(js_scene_SpotLight_setDirection);
 SE_DECLARE_FUNC(js_scene_SpotLight_setFrustum);
 SE_DECLARE_FUNC(js_scene_SpotLight_setLuminanceHDR);
