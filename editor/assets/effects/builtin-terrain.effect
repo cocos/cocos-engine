@@ -89,7 +89,7 @@ CCProgram terrain-vs %{
     uv1 = a_position.xz * UVScale.y;
     uv2 = a_position.xz * UVScale.z;
     uv3 = a_position.xz * UVScale.w;
-    #if USE_LIGHTMAP
+    #if CC_USE_LIGHTMAP
       luv.xy = lightMapUVParam.xy + a_texCoord * lightMapUVParam.z;
       luv.z = lightMapUVParam.w;
     #endif
@@ -113,7 +113,7 @@ CCProgram terrain-fs %{
   #include <cc-global>
   #include <standard-surface-entry>
   #include <cc-fog-fs>
-  #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+  #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
     #include <lightingmap-fs>
   #endif
   #pragma define-meta LAYERS range([0, 4])
@@ -264,7 +264,7 @@ CCProgram terrain-fs %{
     #endif
     s.emissive = vec3(0.0, 0.0, 0.0);
 
-    #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+    #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
       vec4 lightColor = texture(lightMap, luv.xy);
       s.lightmap = lightColor.xyz * luv.z;
       s.lightmap_test = luv.z; /*lum*/
