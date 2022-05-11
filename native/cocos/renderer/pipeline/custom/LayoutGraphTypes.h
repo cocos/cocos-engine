@@ -62,21 +62,7 @@ enum class DescriptorIndex {
 };
 
 struct UniformBlockDB {
-    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
-    allocator_type get_allocator() const noexcept { // NOLINT
-        return {values.get_allocator().resource()};
-    }
-
-    UniformBlockDB(const allocator_type& alloc) noexcept; // NOLINT
-    UniformBlockDB(UniformBlockDB&& rhs, const allocator_type& alloc);
-    UniformBlockDB(UniformBlockDB const& rhs, const allocator_type& alloc);
-
-    UniformBlockDB(UniformBlockDB&& rhs) noexcept = default;
-    UniformBlockDB(UniformBlockDB const& rhs)     = delete;
-    UniformBlockDB& operator=(UniformBlockDB&& rhs) = default;
-    UniformBlockDB& operator=(UniformBlockDB const& rhs) = default;
-
-    PmrTransparentMap<ccstd::string, gfx::Uniform> values;
+    ccstd::map<ccstd::string, gfx::Uniform> values;
 };
 
 struct Descriptor {
@@ -89,24 +75,10 @@ struct Descriptor {
 };
 
 struct DescriptorBlock {
-    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
-    allocator_type get_allocator() const noexcept { // NOLINT
-        return {descriptors.get_allocator().resource()};
-    }
-
-    DescriptorBlock(const allocator_type& alloc) noexcept; // NOLINT
-    DescriptorBlock(DescriptorBlock&& rhs, const allocator_type& alloc);
-    DescriptorBlock(DescriptorBlock const& rhs, const allocator_type& alloc);
-
-    DescriptorBlock(DescriptorBlock&& rhs) noexcept = default;
-    DescriptorBlock(DescriptorBlock const& rhs)     = delete;
-    DescriptorBlock& operator=(DescriptorBlock&& rhs) = default;
-    DescriptorBlock& operator=(DescriptorBlock const& rhs) = default;
-
-    PmrTransparentMap<ccstd::string, Descriptor>     descriptors;
-    PmrTransparentMap<ccstd::string, UniformBlockDB> uniformBlocks;
-    uint32_t                                         capacity{0};
-    uint32_t                                         count{0};
+    ccstd::map<ccstd::string, Descriptor>     descriptors;
+    ccstd::map<ccstd::string, UniformBlockDB> uniformBlocks;
+    uint32_t                                  capacity{0};
+    uint32_t                                  count{0};
 };
 
 struct DescriptorBlockIndex {

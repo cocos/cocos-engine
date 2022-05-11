@@ -35,31 +35,6 @@ namespace cc {
 
 namespace render {
 
-UniformBlockDB::UniformBlockDB(const allocator_type& alloc) noexcept
-: values(alloc) {}
-
-UniformBlockDB::UniformBlockDB(UniformBlockDB&& rhs, const allocator_type& alloc)
-: values(std::move(rhs.values), alloc) {}
-
-UniformBlockDB::UniformBlockDB(UniformBlockDB const& rhs, const allocator_type& alloc)
-: values(rhs.values, alloc) {}
-
-DescriptorBlock::DescriptorBlock(const allocator_type& alloc) noexcept
-: descriptors(alloc),
-  uniformBlocks(alloc) {}
-
-DescriptorBlock::DescriptorBlock(DescriptorBlock&& rhs, const allocator_type& alloc)
-: descriptors(std::move(rhs.descriptors), alloc),
-  uniformBlocks(std::move(rhs.uniformBlocks), alloc),
-  capacity(rhs.capacity),
-  count(rhs.count) {}
-
-DescriptorBlock::DescriptorBlock(DescriptorBlock const& rhs, const allocator_type& alloc)
-: descriptors(rhs.descriptors, alloc),
-  uniformBlocks(rhs.uniformBlocks, alloc),
-  capacity(rhs.capacity),
-  count(rhs.count) {}
-
 DescriptorDB::DescriptorDB(const allocator_type& alloc) noexcept
 : blocks(alloc) {}
 
