@@ -58,7 +58,6 @@ export class Descriptor {
 export class DescriptorBlock {
     readonly descriptors: Map<string, Descriptor> = new Map<string, Descriptor>();
     readonly uniformBlocks: Map<string, UniformBlockDB> = new Map<string, UniformBlockDB>();
-    readonly merged: Map<Type, Descriptor> = new Map<Type, Descriptor>();
     capacity = 0;
     count = 0;
 }
@@ -74,19 +73,6 @@ export class DescriptorBlockIndex {
     parameterType: ParameterType;
     descriptorType: DescriptorIndex;
     visibility: ShaderStageFlagBit;
-}
-
-export class DescriptorBlockIndexDx {
-    constructor (updateFrequency: UpdateFrequency = UpdateFrequency.PER_INSTANCE, parameterType: ParameterType = ParameterType.CONSTANTS, visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE, descriptorType: DescriptorIndex = DescriptorIndex.UNIFORM_BLOCK) {
-        this.updateFrequency = updateFrequency;
-        this.parameterType = parameterType;
-        this.visibility = visibility;
-        this.descriptorType = descriptorType;
-    }
-    updateFrequency: UpdateFrequency;
-    parameterType: ParameterType;
-    visibility: ShaderStageFlagBit;
-    descriptorType: DescriptorIndex;
 }
 
 export class DescriptorDB {

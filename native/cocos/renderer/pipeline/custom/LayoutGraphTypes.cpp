@@ -46,20 +46,17 @@ UniformBlockDB::UniformBlockDB(UniformBlockDB const& rhs, const allocator_type& 
 
 DescriptorBlock::DescriptorBlock(const allocator_type& alloc) noexcept
 : descriptors(alloc),
-  uniformBlocks(alloc),
-  merged(alloc) {}
+  uniformBlocks(alloc) {}
 
 DescriptorBlock::DescriptorBlock(DescriptorBlock&& rhs, const allocator_type& alloc)
 : descriptors(std::move(rhs.descriptors), alloc),
   uniformBlocks(std::move(rhs.uniformBlocks), alloc),
-  merged(std::move(rhs.merged), alloc),
   capacity(rhs.capacity),
   count(rhs.count) {}
 
 DescriptorBlock::DescriptorBlock(DescriptorBlock const& rhs, const allocator_type& alloc)
 : descriptors(rhs.descriptors, alloc),
   uniformBlocks(rhs.uniformBlocks, alloc),
-  merged(rhs.merged, alloc),
   capacity(rhs.capacity),
   count(rhs.count) {}
 

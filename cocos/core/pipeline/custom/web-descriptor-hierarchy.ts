@@ -99,13 +99,14 @@ export class WebDescriptorHierarchy extends DescriptorHierarchy {
                 if (count > 0) {
                     const mergedDescriptor: Descriptor = new Descriptor(type);
                     mergedDescriptor.count = count;
-                    block.merged.set(type, mergedDescriptor);
+                    // block.merged.set(type, mergedDescriptor);
                 }
             }
         }
     }
 
     private mergeDBs (descriptorDBs: DescriptorDB[], target: DescriptorDB) {
+        /*
         for (let i = 0; i < descriptorDBs.length; ++i) {
             const db: DescriptorDB = descriptorDBs[i];
             for (const e of db.blocks) {
@@ -132,6 +133,7 @@ export class WebDescriptorHierarchy extends DescriptorHierarchy {
                 }
             }
         }
+        */
     }
 
     private sort (descriptorDB: DescriptorDB) {

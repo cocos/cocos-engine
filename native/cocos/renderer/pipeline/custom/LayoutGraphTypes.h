@@ -76,7 +76,7 @@ struct UniformBlockDB {
     UniformBlockDB& operator=(UniformBlockDB&& rhs) = default;
     UniformBlockDB& operator=(UniformBlockDB const& rhs) = default;
 
-    PmrTransparentMap<ccstd::pmr::string, gfx::Uniform> values;
+    PmrTransparentMap<ccstd::string, gfx::Uniform> values;
 };
 
 struct Descriptor {
@@ -103,11 +103,10 @@ struct DescriptorBlock {
     DescriptorBlock& operator=(DescriptorBlock&& rhs) = default;
     DescriptorBlock& operator=(DescriptorBlock const& rhs) = default;
 
-    PmrTransparentMap<ccstd::pmr::string, Descriptor>     descriptors;
-    PmrTransparentMap<ccstd::pmr::string, UniformBlockDB> uniformBlocks;
-    PmrTransparentMap<gfx::Type, Descriptor>              merged;
-    uint32_t                                              capacity{0};
-    uint32_t                                              count{0};
+    PmrTransparentMap<ccstd::string, Descriptor>     descriptors;
+    PmrTransparentMap<ccstd::string, UniformBlockDB> uniformBlocks;
+    uint32_t                                         capacity{0};
+    uint32_t                                         count{0};
 };
 
 struct DescriptorBlockIndex {
@@ -127,25 +126,6 @@ struct DescriptorBlockIndex {
 inline bool operator<(const DescriptorBlockIndex& lhs, const DescriptorBlockIndex& rhs) noexcept {
     return std::forward_as_tuple(lhs.updateFrequency, lhs.parameterType, lhs.descriptorType, lhs.visibility) <
            std::forward_as_tuple(rhs.updateFrequency, rhs.parameterType, rhs.descriptorType, rhs.visibility);
-}
-
-struct DescriptorBlockIndexDx {
-    DescriptorBlockIndexDx() = default;
-    DescriptorBlockIndexDx(UpdateFrequency updateFrequencyIn, ParameterType parameterTypeIn, gfx::ShaderStageFlagBit visibilityIn, DescriptorIndex descriptorTypeIn) noexcept
-    : updateFrequency(updateFrequencyIn),
-      parameterType(parameterTypeIn),
-      visibility(visibilityIn),
-      descriptorType(descriptorTypeIn) {}
-
-    UpdateFrequency         updateFrequency{UpdateFrequency::PER_INSTANCE};
-    ParameterType           parameterType{ParameterType::CONSTANTS};
-    gfx::ShaderStageFlagBit visibility{gfx::ShaderStageFlagBit::NONE};
-    DescriptorIndex         descriptorType{DescriptorIndex::UNIFORM_BLOCK};
-};
-
-inline bool operator<(const DescriptorBlockIndexDx& lhs, const DescriptorBlockIndexDx& rhs) noexcept {
-    return std::forward_as_tuple(lhs.updateFrequency, lhs.parameterType, lhs.visibility, lhs.descriptorType) <
-           std::forward_as_tuple(rhs.updateFrequency, rhs.parameterType, rhs.visibility, rhs.descriptorType);
 }
 
 struct DescriptorDB {

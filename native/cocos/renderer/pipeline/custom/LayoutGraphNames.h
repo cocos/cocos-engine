@@ -53,7 +53,6 @@ inline const char* getName(const UniformBlockDB& /*v*/) noexcept { return "Unifo
 inline const char* getName(const Descriptor& /*v*/) noexcept { return "Descriptor"; }
 inline const char* getName(const DescriptorBlock& /*v*/) noexcept { return "DescriptorBlock"; }
 inline const char* getName(const DescriptorBlockIndex& /*v*/) noexcept { return "DescriptorBlockIndex"; }
-inline const char* getName(const DescriptorBlockIndexDx& /*v*/) noexcept { return "DescriptorBlockIndexDx"; }
 inline const char* getName(const DescriptorDB& /*v*/) noexcept { return "DescriptorDB"; }
 inline const char* getName(const RenderStageTag& /*v*/) noexcept { return "RenderStage"; }
 inline const char* getName(const RenderPhaseTag& /*v*/) noexcept { return "RenderPhase"; }

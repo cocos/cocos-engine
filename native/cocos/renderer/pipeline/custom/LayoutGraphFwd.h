@@ -45,7 +45,6 @@ struct UniformBlockDB;
 struct Descriptor;
 struct DescriptorBlock;
 struct DescriptorBlockIndex;
-struct DescriptorBlockIndexDx;
 struct DescriptorDB;
 struct RenderStageTag;
 struct RenderPhaseTag;
