@@ -26,7 +26,7 @@
 
 
 
-import { ccclass, tooltip, displayOrder, range, type, radian, serializable } from 'cc.decorator';
+import { ccclass, tooltip, displayOrder, range, type, radian, serializable, visible } from 'cc.decorator';
 import { Mat4, pseudoRandom, Quat, Vec4, Vec3 } from '../../core/math';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
@@ -78,6 +78,7 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
     @radian
     @displayOrder(2)
     @tooltip('i18n:rotationOvertimeModule.x')
+    @visible(function (this: RotationOvertimeModule): boolean { return this.separateAxes; })
     public x = new CurveRange();
 
     /**
@@ -89,6 +90,7 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
     @radian
     @displayOrder(3)
     @tooltip('i18n:rotationOvertimeModule.y')
+    @visible(function (this: RotationOvertimeModule): boolean { return this.separateAxes; })
     public y = new CurveRange();
 
     /**

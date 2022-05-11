@@ -20,23 +20,32 @@ exports.template = /* html*/`
         <!-- hack changeName if startSize3D change -->
         <ui-prop type="dump" key="startSizeX" displayName="StartSize" showflag="!startSize3D"></ui-prop>
         <ui-prop type="dump" class="indent" key="startSizeX" displayName="StartSizeX" showflag="startSize3D"></ui-prop>
-        <ui-prop type="dump" class="indent" showflag="startSize3D" key="startSizeY"></ui-prop>
-        <ui-prop type="dump" class="indent" showflag="startSize3D" key="startSizeZ"></ui-prop>
+        <ui-prop type="dump" class="indent" key="startSizeY"></ui-prop>
+        <ui-prop type="dump" class="indent" key="startSizeZ"></ui-prop>
         <ui-prop type="dump" key="startSpeed"></ui-prop>
         <ui-prop type="dump" key="startRotation3D"></ui-prop>
-        <ui-prop type="dump" class="indent" key="startRotationX" showflag="startRotation3D"></ui-prop>
-        <ui-prop type="dump" class="indent" key="startRotationY" showflag="startRotation3D"></ui-prop>
+        <ui-prop type="dump" class="indent" key="startRotationX"></ui-prop>
+        <ui-prop type="dump" class="indent" key="startRotationY"></ui-prop>
         <!-- hack changeName if startRotation3D change -->
-        <ui-prop type="dump" class="indent" showflag="startRotation3D" key="startRotationZ"></ui-prop>
-        <ui-prop type="dump" showflag="!startRotation3D" displayName="StartRotation" key="startRotationZ">
-        </ui-prop>
+        <ui-prop type="dump" class="indent" key="startRotationZ"></ui-prop>
+        <ui-prop type="dump" showflag="!startRotation3D" displayName="StartRotation" key="startRotationZ"></ui-prop>
         <ui-prop type="dump" key="gravityModifier"></ui-prop>
         <ui-prop type="dump" key="rateOverTime"></ui-prop>
         <ui-prop type="dump" key="rateOverDistance"></ui-prop>
         <ui-prop type="dump" key="bursts"></ui-prop>
         <!-- Render other data that has not taken over -->
-        <div id="customProps">
-        </div>
+        <div id="customProps"></div>
+        <ui-section key="useNoise" autoExpand cache-expand="particle-system-useNoise">
+            <ui-prop slot="header" class="header" empty="true" labelflag="useNoise" key="useNoise">
+                <ui-label></ui-label>
+                <ui-checkbox></ui-checkbox>
+            </ui-prop>
+            <ui-prop type="dump" key="strengthX" disableflag="!useNoise"></ui-prop>
+            <ui-prop type="dump" key="noiseSpeedX" disableflag="!useNoise"></ui-prop>
+            <ui-prop type="dump" key="noiseSpeedY" disableflag="!useNoise"></ui-prop>
+            <ui-prop type="dump" key="noiseSpeedZ" disableflag="!useNoise"></ui-prop>
+            <ui-prop type="dump" key="noiseFrequency" disableflag="!useNoise"></ui-prop>
+        </ui-section>
         <ui-section key="renderCulling" autoExpand cache-expand="particle-system-cullingMode">
             <ui-prop slot="header" class="header" empty="true" labelflag="renderCulling" key="renderCulling">
                 <ui-label></ui-label>
@@ -49,7 +58,7 @@ exports.template = /* html*/`
             <ui-prop empty="true" disableflag="!renderCulling">
                 <ui-label slot="label">Show Bounds</ui-label>
                 <ui-checkbox slot="content" id="showBounds"></ui-checkbox>
-            </ui-prop>  
+            </ui-prop>
             <ui-button id="resetBounds">Regenerate bounding box</ui-button>
         </ui-section>
         <ui-section class="config" key="shapeModule" cache-expand="particle-system-shapeModule">
@@ -59,110 +68,75 @@ exports.template = /* html*/`
                 <ui-label></ui-label>
             </ui-prop>
             <ui-prop type="dump" key="shapeModule.value.shapeType"></ui-prop>
-            <ui-prop showflag="checkEnumInSubset,shapeModule.value.shapeType,Box,Cone,Sphere,Hemisphere" empty="true"
-                labelflag="shapeModule.value.emitFrom" type="dump" key="shapeModule.value.emitFrom">
+            <ui-prop empty="true" labelflag="shapeModule.value.emitFrom" type="dump" key="shapeModule.value.emitFrom">
                 <ui-label slot="label"></ui-label>
                 <ui-select slot="content" id="emitFromSelect"></ui-select>
             </ui-prop>
-
-            <ui-prop type="dump" showflag="checkEnumInSubset,shapeModule.value.shapeType,Circle,Cone,Sphere,Hemisphere"
-                key="shapeModule.value.radius"></ui-prop>
-
-            <ui-prop type="dump" showflag="checkEnumInSubset,shapeModule.value.shapeType,Circle,Cone,Sphere,Hemisphere"
-                key="shapeModule.value.radiusThickness"></ui-prop>
-
-            <ui-prop type="dump" showflag="checkEnumInSubset,shapeModule.value.shapeType,Cone"
-                key="shapeModule.value.angle"></ui-prop>
-
-            <ui-prop type="dump" showflag="checkEnumInSubset,shapeModule.value.shapeType,Circle,Cone"
-                key="shapeModule.value.arc"></ui-prop>
-
-            <ui-prop type="dump" showflag="checkEnumInSubset,shapeModule.value.shapeType,Circle,Cone"
-                key="shapeModule.value.arcMode"></ui-prop>
-
-            <ui-prop type="dump" showflag="checkEnumInSubset,shapeModule.value.shapeType,Circle,Cone"
-                key="shapeModule.value.arcSpread"></ui-prop>
-
-            <ui-prop type="dump" showflag="checkEnumInSubset,shapeModule.value.shapeType,Circle,Cone"
-                key="shapeModule.value.arcSpeed"></ui-prop>
-
-            <ui-prop type="dump" showflag="checkEnumInSubset,shapeModule.value.shapeType,Cone"
-                key="shapeModule.value.length"></ui-prop>
-
-            <ui-prop type="dump" showflag="checkEnumInSubset,shapeModule.value.shapeType,Box"
-                key="shapeModule.value.boxThickness"></ui-prop>
-
+            <ui-prop type="dump" key="shapeModule.value.radius"></ui-prop>
+            <ui-prop type="dump" key="shapeModule.value.radiusThickness"></ui-prop>
+            <ui-prop type="dump" key="shapeModule.value.angle"></ui-prop>
+            <ui-prop type="dump" key="shapeModule.value.arc"></ui-prop>
+            <ui-prop type="dump" key="shapeModule.value.arcMode"></ui-prop>
+            <ui-prop type="dump" key="shapeModule.value.arcSpread"></ui-prop>
+            <ui-prop type="dump" key="shapeModule.value.arcSpeed"></ui-prop>
+            <ui-prop type="dump" key="shapeModule.value.length"></ui-prop>
+            <ui-prop type="dump" key="shapeModule.value.boxThickness"></ui-prop>
             <ui-prop type="dump" key="shapeModule.value.position"></ui-prop>
-
             <ui-prop type="dump" key="shapeModule.value.rotation"></ui-prop>
-
             <ui-prop type="dump" key="shapeModule.value.scale"></ui-prop>
-
             <ui-prop type="dump" key="shapeModule.value.alignToDirection"></ui-prop>
-
             <ui-prop type="dump" key="shapeModule.value.randomDirectionAmount"></ui-prop>
-
             <ui-prop type="dump" key="shapeModule.value.sphericalDirectionAmount"></ui-prop>
-
             <ui-prop type="dump" key="shapeModule.value.randomPositionAmount"></ui-prop>
-
         </ui-section>
         <ui-section class="config" key="velocityOvertimeModule" autoflag="true" cache-expand="particle-system-velocityOvertimeModule"></ui-section>
         <ui-section class="config" key="forceOvertimeModule" autoflag="true" cache-expand="particle-system-forceOvertimeModule"></ui-section>
-
-        <ui-section empty="true" class="config" key="sizeOvertimeModule" cache-expand="particle-system-sizeOvertimeModule">
+        <ui-section empty="true" class="config" key="sizeOvertimeModule"
+            cache-expand="particle-system-sizeOvertimeModule">
             <ui-prop slot="header" class="header" type="dump" key="sizeOvertimeModule.value.enable"
                 labelflag="sizeOvertimeModule" empty="true">
                 <ui-checkbox></ui-checkbox>
                 <ui-label></ui-label>
             </ui-prop>
             <ui-prop type="dump" key="sizeOvertimeModule.value.separateAxes"></ui-prop>
-            <ui-prop type="dump" showflag="!sizeOvertimeModule.value.separateAxes"
-                key="sizeOvertimeModule.value.size">
-            </ui-prop>
-            <ui-prop type="dump" showflag="sizeOvertimeModule.value.separateAxes"
-                key="sizeOvertimeModule.value.x">
-            </ui-prop>
-            <ui-prop type="dump" showflag="sizeOvertimeModule.value.separateAxes"
-                key="sizeOvertimeModule.value.y">
-            </ui-prop>
-            <ui-prop type="dump" showflag="sizeOvertimeModule.value.separateAxes"
-                key="sizeOvertimeModule.value.z"></ui-prop>
-
+            <ui-prop type="dump" key="sizeOvertimeModule.value.size"></ui-prop>
+            <ui-prop type="dump" key="sizeOvertimeModule.value.x"></ui-prop>
+            <ui-prop type="dump" key="sizeOvertimeModule.value.y"></ui-prop>
+            <ui-prop type="dump" key="sizeOvertimeModule.value.z"></ui-prop>
         </ui-section>
-
-        <ui-section empty="true" class="config" key="rotationOvertimeModule" cache-expand="particle-system-rotationOvertimeModule">
+        <ui-section empty="true" class="config" key="rotationOvertimeModule"
+            cache-expand="particle-system-rotationOvertimeModule">
             <ui-prop slot="header" class="header" type="dump" key="rotationOvertimeModule.value.enable"
                 labelflag="rotationOvertimeModule" empty="true">
                 <ui-checkbox></ui-checkbox>
                 <ui-label></ui-label>
             </ui-prop>
-            <ui-prop type="dump" key="rotationOvertimeModule.value.separateAxes">
-            </ui-prop>
-            <ui-prop type="dump" showflag="rotationOvertimeModule.value.separateAxes"
-                key="rotationOvertimeModule.value.x"></ui-prop>
-            <ui-prop type="dump" showflag="rotationOvertimeModule.value.separateAxes"
-                key="rotationOvertimeModule.value.y"></ui-prop>
+            <ui-prop type="dump" key="rotationOvertimeModule.value.separateAxes"></ui-prop>
+            <ui-prop type="dump" key="rotationOvertimeModule.value.x"></ui-prop>
+            <ui-prop type="dump" key="rotationOvertimeModule.value.y"></ui-prop>
             <ui-prop type="dump" key="rotationOvertimeModule.value.z"></ui-prop>
-
         </ui-section>
-        <ui-section class="config" key="colorOverLifetimeModule" autoflag="true" cache-expand="particle-system-colorOverLifetimeModule"></ui-section>
-        <ui-section class="config" key="textureAnimationModule" autoflag="true" cache-expand="particle-system-textureAnimationModule"></ui-section>
-        <ui-section type="dump" showflag="!renderer.value.useGPU" key="limitVelocityOvertimeModule" class="config" cache-expand="particle-system-limitVelocityOvertimeModule">
-            <ui-prop slot="header" class="header" type="dump" key="limitVelocityOvertimeModule.value.enable" labelflag="limitVelocityOvertimeModule"
-                empty="true">
+        <ui-section class="config" key="colorOverLifetimeModule" autoflag="true"
+            cache-expand="particle-system-colorOverLifetimeModule"></ui-section>
+        <ui-section class="config" key="textureAnimationModule" autoflag="true"
+            cache-expand="particle-system-textureAnimationModule"></ui-section>
+        <ui-section type="dump" showflag="!renderer.value.useGPU" key="limitVelocityOvertimeModule" class="config"
+            cache-expand="particle-system-limitVelocityOvertimeModule">
+            <ui-prop slot="header" class="header" type="dump" key="limitVelocityOvertimeModule.value.enable"
+                labelflag="limitVelocityOvertimeModule" empty="true">
                 <ui-checkbox></ui-checkbox>
                 <ui-label></ui-label>
             </ui-prop>
             <ui-prop type="dump" key="limitVelocityOvertimeModule.value.space"></ui-prop>
             <ui-prop type="dump" key="limitVelocityOvertimeModule.value.dampen"></ui-prop>
             <ui-prop type="dump" key="limitVelocityOvertimeModule.value.separateAxes"></ui-prop>
-            <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limit" showflag="!limitVelocityOvertimeModule.value.separateAxes"></ui-prop>
-            <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limitX" showflag="limitVelocityOvertimeModule.value.separateAxes"></ui-prop>
-            <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limitY" showflag="limitVelocityOvertimeModule.value.separateAxes"></ui-prop>
-            <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limitZ" showflag="limitVelocityOvertimeModule.value.separateAxes"></ui-prop>
+            <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limit"></ui-prop>
+            <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limitX"></ui-prop>
+            <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limitY"></ui-prop>
+            <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limitZ"></ui-prop>
         </ui-section>
-        <ui-section empty="true" class="config" showflag="!renderer.value.useGPU" key="trailModule" cache-expand="particle-system-trailModule">
+        <ui-section empty="true" class="config" showflag="!renderer.value.useGPU" key="trailModule"
+            cache-expand="particle-system-trailModule">
             <ui-prop slot="header" class="header" type="dump" key="trailModule.value.enable" labelflag="trailModule"
                 empty="true">
                 <ui-checkbox></ui-checkbox>
@@ -178,11 +152,11 @@ exports.template = /* html*/`
             <ui-prop type="dump" key="trailModule.value.colorFromParticle"></ui-prop>
             <ui-prop type="dump" key="trailModule.value.colorOverTrail"></ui-prop>
             <ui-prop type="dump" key="trailModule.value.colorOvertime"></ui-prop>
-
         </ui-section>
         <ui-prop type="dump" key="renderer"></ui-prop>
     </div>
 </div>
+
 `;
 const excludeList = [
     'duration', 'capacity', 'loop', 'playOnAwake', 'prewarm',
@@ -196,6 +170,7 @@ const excludeList = [
     'rotationOvertimeModule', 'colorOverLifetimeModule', 'textureAnimationModule',
     'trailModule', 'renderer', 'renderCulling', 'limitVelocityOvertimeModule', 'cullingMode',
     'aabbHalfX', 'aabbHalfY', 'aabbHalfZ',
+    'useNoise', 'noiseSpeedX', 'noiseSpeedY', 'noiseSpeedZ', 'noiseFrequency', 'strengthX',
 ];
 
 exports.methods = {
@@ -291,15 +266,6 @@ exports.methods = {
         return emitEnum;
     },
 
-    checkEnumInSubset(enumValue, ...subset) {
-        const optName = this.getEnumName(enumValue, enumValue.value);
-        for (const name of subset) {
-            if (name === optName) {
-                return true;
-            }
-        }
-        return false;
-    },
 };
 
 const uiElements = {
@@ -331,7 +297,13 @@ const uiElements = {
         },
         update() {
             const isInvalid = propUtils.isMultipleInvalid(this.dump.value.renderCulling);
-            this.$.resetBounds.setAttribute('disabled', isInvalid || !this.dump.value.renderCulling.value);
+            if (isInvalid || !this.dump.value.renderCulling.value) {
+                this.$.resetBounds.setAttribute('disabled', true);
+            } else {
+                if (this.$.resetBounds.hasAttribute('disabled')) {
+                    this.$.resetBounds.removeAttribute('disabled');
+                }
+            }
         },
     },
     uiSections: {
@@ -444,7 +416,11 @@ const uiElements = {
             });
         },
         async update() {
-            this.$.showBounds.disabled = !this.dump.value.renderCulling.value;
+            if (!this.dump.value.renderCulling.value) {
+                this.$.showBounds.setAttribute('disabled', true);
+            } else if (this.$.showBounds.hasAttribute('disabled')) {
+                this.$.showBounds.removeAttribute('disabled');
+            }
             const componentUUIDs = this.dump.value.uuid.values || [this.dump.value.uuid.value];
             const values = await Promise.all(
                 componentUUIDs.map(
@@ -514,8 +490,8 @@ const uiElements = {
             });
         },
         /**
-         * 
-         * @param {string} [eventInstigatorKey] 
+         *
+         * @param {string} [eventInstigatorKey]
          */
         update(eventInstigatorKey) {
             this.$.baseProps.forEach((element) => {
@@ -528,35 +504,28 @@ const uiElements = {
                 const showflag = element.getAttribute('showflag');
                 const disableflag = element.getAttribute('disableflag');
                 if (typeof showflag === 'string') {
-                    if (showflag.startsWith('checkEnumInSubset')) {
-                        const params = showflag.split(',');
-                        const enumValue = this.getObjectByKey(this.dump.value, params[1]);
-                        const subset = params.slice(2);
-                        isShow = isShow && this.checkEnumInSubset(enumValue, ...subset);
-                    } else {
-                        // only update the elements relate to eventInstigator
-                        if (eventInstigatorKey) {
-                            if (showflag.startsWith(`!${eventInstigatorKey}`)) {
-                                const dump = this.getObjectByKey(this.dump.value, showflag.slice(1));
-                                const isInvalid = propUtils.isMultipleInvalid(dump);
-                                isShow = isShow && !isInvalid && !dump.value;
-                            } else if (showflag.startsWith(eventInstigatorKey)) {
-                                const dump = this.getObjectByKey(this.dump.value, showflag);
-                                const isInvalid = propUtils.isMultipleInvalid(dump);
-                                isShow = isShow && !isInvalid && dump.value;
-                            } else {
-                                return;
-                            }
+                    // only update the elements relate to eventInstigator
+                    if (eventInstigatorKey) {
+                        if (showflag.startsWith(`!${eventInstigatorKey}`)) {
+                            const dump = this.getObjectByKey(this.dump.value, showflag.slice(1));
+                            const isInvalid = propUtils.isMultipleInvalid(dump);
+                            isShow = isShow && !isInvalid && !dump.value;
+                        } else if (showflag.startsWith(eventInstigatorKey)) {
+                            const dump = this.getObjectByKey(this.dump.value, showflag);
+                            const isInvalid = propUtils.isMultipleInvalid(dump);
+                            isShow = isShow && !isInvalid && dump.value;
                         } else {
-                            if (showflag.startsWith('!')) {
-                                const dump = this.getObjectByKey(this.dump.value, showflag.slice(1));
-                                const isInvalid = propUtils.isMultipleInvalid(dump);
-                                isShow = isShow && !isInvalid && !dump.value;
-                            } else {
-                                const dump = this.getObjectByKey(this.dump.value, showflag);
-                                const isInvalid = propUtils.isMultipleInvalid(dump);
-                                isShow = isShow && !isInvalid && dump.value;
-                            }
+                            return;
+                        }
+                    } else {
+                        if (showflag.startsWith('!')) {
+                            const dump = this.getObjectByKey(this.dump.value, showflag.slice(1));
+                            const isInvalid = propUtils.isMultipleInvalid(dump);
+                            isShow = isShow && !isInvalid && !dump.value;
+                        } else {
+                            const dump = this.getObjectByKey(this.dump.value, showflag);
+                            const isInvalid = propUtils.isMultipleInvalid(dump);
+                            isShow = isShow && !isInvalid && dump.value;
                         }
                     }
                 } else if (typeof disableflag === 'string') {
@@ -568,12 +537,20 @@ const uiElements = {
                         }
                         if (disableflag.startsWith(`!${eventInstigatorKey}`)) {
                             const dump = this.getObjectByKey(this.dump.value, disableflag.slice(1));
-                            const isInvalid = propUtils.isMultipleInvalid(dump);
-                            contentSlot.disabled = isInvalid || !dump.value;
+                            const isInvalid = propUtils.isMultipleInvalid(dump) || !dump.value;
+                            if (isInvalid) {
+                                contentSlot.setAttribute('disabled', true);
+                            } else if (contentSlot.hasAttribute('disabled')) {
+                                contentSlot.removeAttribute('disabled');
+                            }
                         } else if (disableflag.startsWith(eventInstigatorKey)) {
                             const dump = this.getObjectByKey(this.dump.value, disableflag);
-                            const isInvalid = propUtils.isMultipleInvalid(dump);
-                            contentSlot.disabled = isInvalid || !!dump.value;
+                            const isInvalid = propUtils.isMultipleInvalid(dump) || !!dump.value;
+                            if (isInvalid) {
+                                contentSlot.setAttribute('disabled', true);
+                            } else if (contentSlot.hasAttribute('disabled')) {
+                                contentSlot.removeAttribute('disabled');
+                            }
                         } else {
                             return;
                         }
@@ -602,7 +579,11 @@ const uiElements = {
                     if (typeof disableflag === 'string') {
                         const contentSlot = element.querySelector('[slot=content]');
                         if (contentSlot) {
-                            contentSlot.disabled = isDisable;
+                            if (isDisable) {
+                                contentSlot.setAttribute('disabled', true);
+                            } else if (contentSlot.hasAttribute('disabled')) {
+                                contentSlot.removeAttribute('disabled');
+                            }
                         }
                     }
                 } else {
