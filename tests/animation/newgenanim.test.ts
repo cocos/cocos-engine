@@ -1,7 +1,7 @@
 
 import { Component, lerp, Node, Vec2, Vec3, warnID } from '../../cocos/core';
 import { AnimationBlend1D, AnimationBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, ClipMotion, AnimationBlendDirect, VariableType } from '../../cocos/core/animation/marionette/asset-creation';
-import { AnimationGraph, StateMachine, Transition, isAnimationTransition, AnimationTransition } from '../../cocos/core/animation/marionette/animation-graph';
+import { AnimationGraph, StateMachine, Transition, isAnimationTransition, AnimationTransition, TransitionInterruption } from '../../cocos/core/animation/marionette/animation-graph';
 import { createEval } from '../../cocos/core/animation/marionette/create-eval';
 import { VariableTypeMismatchedError } from '../../cocos/core/animation/marionette/errors';
 import { AnimationGraphEval, MotionStateStatus, ClipStatus } from '../../cocos/core/animation/marionette/graph-eval';
@@ -2569,6 +2569,67 @@ describe('NewGen Anim', () => {
         animationController.setLayerWeight(1, 0.3);
         expect(animationController.getLayerWeight(0)).toBe(0.2);
         expect(animationController.getLayerWeight(1)).toBe(0.3);
+    });
+
+    describe('Interruption', () => {
+        test.only('Interrupted by transition from current state', () => {
+            const animationGraph = new AnimationGraph();
+            const { stateMachine } = animationGraph.addLayer();
+            const m0 = stateMachine.addMotion();
+            m0.name = 'm0';
+            m0.motion = createClipMotionPositionXLinear(0.8, 0.3, 0.4);
+            const m1 = stateMachine.addMotion();
+            m1.name = 'm1';
+            m1.motion = createClipMotionPositionXLinear(0.8, 0.3, 0.4);
+            const m2 = stateMachine.addMotion();
+            m2.name = 'm2';
+            m2.motion = createClipMotionPositionXLinear(0.8, 0.3, 0.4);
+            stateMachine.connect(stateMachine.entryState, m0);
+            const t0 = stateMachine.connect(m0, m1);
+            t0.duration = 0.2;
+            t0.interruptionSource = TransitionInterruption.CURRENT_STATE;
+            t0.exitConditionEnabled = true;
+            t0.exitCondition = 0.7;
+            const t1 = stateMachine.connect(m0, m2);
+            t1.duration = 0.3;
+            t1.exitConditionEnabled = false;
+            const [t1Condition] = t1.conditions = [new TriggerCondition()];
+            t1Condition.trigger = 't';
+            animationGraph.addTrigger('t');
+
+            const node = new Node();
+            const graphEval = createAnimationGraphEval(animationGraph, node);
+            const graphUpdater = new GraphUpdater(graphEval);
+            
+            graphUpdater.goto(0.8 * 0.71);
+            expectAnimationGraphEvalStatusLayer0(graphEval, {
+                currentNode: {
+                    __DEBUG_ID__: m0.name,
+                },
+                transition: {
+                    time: 0.8 * 0.01,
+                    duration: 0.2,
+                    nextNode: {
+                        __DEBUG_ID__: m1.name,
+                    },
+                },
+            });
+
+            graphEval.setValue('t', true);
+            graphUpdater.goto(0.8 * 0.75);
+            expectAnimationGraphEvalStatusLayer0(graphEval, {
+                currentNode: {
+                    __DEBUG_ID__: m0.name,
+                },
+                transition: {
+                    time: 0.8 * 0.04,
+                    duration: 0.3,
+                    nextNode: {
+                        __DEBUG_ID__: m2.name,
+                    },
+                },
+            });
+        });
     });
 });
 

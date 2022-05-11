@@ -65,6 +65,14 @@ export type { TransitionView as Transition };
 
 export type TransitionInternal = Transition;
 
+export enum TransitionInterruption {
+    NONE,
+    CURRENT_STATE,
+    NEXT_STATE,
+    CURRENT_STATE_THEN_NEXT_STATE,
+    NEXT_STATE_THEN_CURRENT_STATE,
+}
+
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationTransition`)
 class AnimationTransition extends Transition {
     /**
@@ -100,6 +108,9 @@ class AnimationTransition extends Transition {
         assertIsTrue(value >= 0.0);
         this._exitCondition = value;
     }
+
+    @serializable
+    public interruptionSource = TransitionInterruption.NONE;
 
     @serializable
     private _exitCondition = 1.0;
