@@ -35,6 +35,15 @@ import { Root } from '../../root';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const MAX_PASS_COUNT = 8;
+
+/**
+ * @en A representation of a sub model
+ * A model can contain multiple sub-models, each sub-model corresponds to a material and corresponds to a sub-mesh resource.
+ * Each submodel is a drawing unit, and in non-batch mode, a submodel makes one draw call.
+ * @zh 代表一个子模型
+ * 一个模型可以包含多个子模型，每个子模型对应一个材质，并对应一个子网格资源。
+ * 每个子模型是一个绘制单位，非合批模式下，一个子模型进行一次绘制调用。
+ */
 export class SubModel {
     protected _device: Device | null = null;
     protected _passes: Pass[] | null = null;
@@ -50,6 +59,13 @@ export class SubModel {
     protected _reflectionTex: Texture | null = null;
     protected _reflectionSampler: Sampler | null = null;
 
+    /**
+     * @en
+     * sub model's passes
+     * @zh
+     * 子模型的 passes
+     * @param passes @en The passes @zh 设置的 passes
+     */
     set passes (passes) {
         const passLengh = passes.length;
         if (passLengh > MAX_PASS_COUNT) {
@@ -74,10 +90,24 @@ export class SubModel {
         return this._passes!;
     }
 
+    /**
+     * @en
+     * sub model's shaders
+     * @zh
+     * 子模型的着色器
+     * @returns @en The shaders @zh 返回的着色器
+     */
     get shaders (): Shader[] {
         return this._shaders!;
     }
 
+    /**
+     * @en
+     * sub model's sub mesh
+     * @zh
+     * 子模型的子网格资源
+     * @param subMesh @en The sub mesh @zh 设置的子网格
+     */
     set subMesh (subMesh) {
         this._inputAssembler!.destroy();
         this._inputAssembler!.initialize(subMesh.iaInfo);
@@ -89,6 +119,13 @@ export class SubModel {
         return this._subMesh!;
     }
 
+    /**
+     * @en
+     * sub model's rendering proirity
+     * @zh
+     * 子模型的渲染优先级
+     * @param val @en The rendering priority @zh 设置的渲染优先级
+     */
     set priority (val) {
         this._priority = val;
     }
@@ -97,30 +134,81 @@ export class SubModel {
         return this._priority;
     }
 
+    /**
+     * @en
+     * sub model's input assembler
+     * @zh
+     * 子模型的输入汇集器
+     * @returns @en The input assembler @zh 返回的输入汇集器
+     */
     get inputAssembler (): InputAssembler {
         return this._inputAssembler!;
     }
 
+    /**
+     * @en
+     * sub model's descriptor set
+     * @zh
+     * 子模型的描述符集合
+     * @returns @en The descriptor set @zh 返回的描述符集合
+     */
     get descriptorSet (): DescriptorSet {
         return this._descriptorSet!;
     }
 
+    /**
+     * @en
+     * sub model's world bound descriptor set
+     * @zh
+     * 子模型的世界包围盒描述符集合
+     * @returns @en The world bound descriptor set @zh 返回的世界包围盒描述符集合
+     */
     get worldBoundDescriptorSet (): DescriptorSet {
         return this._worldBoundDescriptorSet!;
     }
 
+    /**
+     * @en
+     * shader's macro
+     * @zh
+     * 着色器的宏定义
+     * @returns @en The shader's macro @zh 返回的着色器宏定义
+     */
     get patches (): IMacroPatch[] | null {
         return this._patches;
     }
 
+    /**
+     * @en
+     * planar instance's shader
+     * @zh
+     * 平面投影实例化的着色器
+     * @returns @en The planar instance's shader @zh 返回的平面投影实例化着色器
+     */
     get planarInstanceShader (): Shader | null {
         return this._planarInstanceShader;
     }
 
+    /**
+     * @en
+     * planar's shader
+     * @zh
+     * 平面投影的着色器
+     * @returns @en The planar's shader @zh 返回的平面投影着色器
+     */
     get planarShader (): Shader | null {
         return this._planarShader;
     }
 
+    /**
+     * @en
+     * init sub model
+     * @zh
+     * 子模型初始化
+     * @param subMesh @en The sub mesh @zh 子网格资源
+     * @param passes @en The passes @zh 渲染的 passes
+     * @param patches @en The shader's macro @zh 着色器的宏定义
+     */
     public initialize (subMesh: RenderingSubMesh, passes: Pass[], patches: IMacroPatch[] | null = null): void {
         const root = legacyCC.director.root as Root;
         this._device = root.device;
@@ -182,22 +270,36 @@ export class SubModel {
         }
     }
 
-    // This is a temporary solution
-    // It should not be written in a fixed way, or modified by the user
+    /**
+     * @en
+     * init planar shadow's shader
+     * @zh
+     * 平面阴影着色器初始化
+     */
     public initPlanarShadowShader () {
         const pipeline = (legacyCC.director.root as Root).pipeline;
         const shadowInfo = pipeline.pipelineSceneData.shadows;
         this._planarShader = shadowInfo.getPlanarShader(this._patches);
     }
 
-    // This is a temporary solution
-    // It should not be written in a fixed way, or modified by the user
+    /**
+     * @en
+     * init planar shadow's instance shader
+     * @zh
+     * 平面阴影实例着色器初始化
+     */
     public initPlanarShadowInstanceShader () {
         const pipeline = (legacyCC.director.root as Root).pipeline;
         const shadowInfo = pipeline.pipelineSceneData.shadows;
         this._planarInstanceShader = shadowInfo.getPlanarInstanceShader(this._patches);
     }
 
+    /**
+     * @en
+     * destroy sub model
+     * @zh
+     * 销毁子模型
+     */
     public destroy (): void {
         this._descriptorSet!.destroy();
         this._descriptorSet = null;
@@ -221,6 +323,12 @@ export class SubModel {
         this._reflectionSampler = null;
     }
 
+    /**
+     * @en
+     * update sub model
+     * @zh
+     * 更新子模型
+     */
     public update (): void {
         for (let i = 0; i < this._passes!.length; ++i) {
             const pass = this._passes![i];
@@ -230,6 +338,12 @@ export class SubModel {
         this._worldBoundDescriptorSet!.update();
     }
 
+    /**
+     * @en
+     * pipeline state changed callback
+     * @zh
+     * 管线状态改变后的回调
+     */
     public onPipelineStateChanged (): void {
         const passes = this._passes;
         if (!passes) { return; }
@@ -244,6 +358,13 @@ export class SubModel {
         this._flushPassInfo();
     }
 
+     /**
+     * @en
+     * macro changed callback
+     * @zh
+     * 着色器宏设置改变后的回调
+     * @param patches @en The shader's macro @zh 着色器的宏定义
+     */
     public onMacroPatchesStateChanged (patches: IMacroPatch[] | null): void {
         this._patches = patches;
 
@@ -260,6 +381,12 @@ export class SubModel {
         this._flushPassInfo();
     }
 
+    /**
+     * @en
+     * geometry changed callback
+     * @zh
+     * 几何数据改变后的回调
+     */
     public onGeometryChanged (): void {
         if (!this._subMesh) {
             return;
