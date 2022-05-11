@@ -58,7 +58,11 @@ public:
 
     int32_t getHeight() const;
 
-    void setAndroidApp(android_app *app);
+    void onDestory() override;
+
+    inline void setAndroidApp(android_app *app) {
+        _app = app;
+    }
 
 private:
     GameInputProxy *_inputProxy{nullptr};
