@@ -4,7 +4,7 @@ const chalk = require('chalk');
 const path = require("path");
 const fs = require('fs-extra');
 
-// npm run clear-platform
+// usage: npm run clear-platform
 let externalDir = path.join(__dirname, "../external");
 let failed = false;
 
@@ -17,14 +17,14 @@ main();
 
 function main() {
     fs.readdir(externalDir, function(err, files){
-        (function iterator(i){
+        (function iterator(i) {
           if(i == files.length) {
             console.log(chalk.green(`==== current exists 3rd-libs directories ====`));
             console.log(allDirs);
             cleanPlatform(process.platform);
-            return ;
+            return;
           }
-          fs.stat(path.join(externalDir, files[i]), function(err, data){     
+          fs.stat(path.join(externalDir, files[i]), function(err, data) {     
             if(data.isDirectory() && files[i].charAt(0) !== '.') {               
                 allDirs.push(files[i]);
             }
@@ -45,11 +45,9 @@ function cleanPlatform(platform) {
                 console.log(`  ${chalk.green('Remove directory: ')} ${clearDirectory}`);
                 ensureRemove(clearDirectory);
             }
-        }
-        else {
+        } else {
             console.log(chalk.green(`==== No useless 3rd-libs need to remove, skip ====`));
         }
-
     }
     else if (platform === 'win32') { // windows
         let winUselessDirs = getArrDiff(allDirs, winUsefulDirs);
@@ -61,8 +59,7 @@ function cleanPlatform(platform) {
                 console.log(`  ${chalk.green('Remove directory: ')} ${clearDirectory}`);
                 ensureRemove(clearDirectory);
             }
-        }
-        else {
+        } else {
             console.log(chalk.green(`==== No useless 3rd-libs need to remove, skip ====`));
         }
     }
