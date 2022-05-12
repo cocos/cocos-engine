@@ -93,7 +93,7 @@ struct DescriptorBlockIndex {
 
     UpdateFrequency         updateFrequency{UpdateFrequency::PER_INSTANCE};
     ParameterType           parameterType{ParameterType::CONSTANTS};
-    DescriptorTypeOrder     descriptorType{DescriptorTypeOrder::UNIFORM_BLOCK};
+    DescriptorTypeOrder     descriptorType{DescriptorTypeOrder::UNIFORM_BUFFER};
     gfx::ShaderStageFlagBit visibility{gfx::ShaderStageFlagBit::NONE};
 };
 

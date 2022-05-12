@@ -65,7 +65,7 @@ export class DescriptorBlock {
 }
 
 export class DescriptorBlockIndex {
-    constructor (updateFrequency: UpdateFrequency = UpdateFrequency.PER_INSTANCE, parameterType: ParameterType = ParameterType.CONSTANTS, descriptorType: DescriptorTypeOrder = DescriptorTypeOrder.UNIFORM_BLOCK, visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE) {
+    constructor (updateFrequency: UpdateFrequency = UpdateFrequency.PER_INSTANCE, parameterType: ParameterType = ParameterType.CONSTANTS, descriptorType: DescriptorTypeOrder = DescriptorTypeOrder.UNIFORM_BUFFER, visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE) {
         this.updateFrequency = updateFrequency;
         this.parameterType = parameterType;
         this.descriptorType = descriptorType;
