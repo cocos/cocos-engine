@@ -166,7 +166,7 @@ public:
      */
     const gfx::BufferList &getJointMappedBuffers();
 
-    bool destroy() override;
+    bool destroy();
 
     /**
      * @en Adds a vertex attribute input called 'a_vertexId' into this sub-mesh.
