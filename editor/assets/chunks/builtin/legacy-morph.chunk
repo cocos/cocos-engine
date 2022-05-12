@@ -1,0 +1,3 @@
+#include <common>
+#include <builtin/uniforms/cc-morph>
+#include <builtin/internal-functions/morph-animation>
