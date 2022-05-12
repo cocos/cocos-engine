@@ -36,19 +36,12 @@ jobs:
           Write-Host "::set-output name=pr_base_ref::$($pull_request.base.ref)"
           Write-Host "::set-output name=pr_base_sha::$($pull_request.base.sha)"
 
-      - name: Echo pull request
+      - name: Check pull request
         run: |
           echo "${{ steps.parse_pull_request.outputs.pr_head_ref }}"
           echo "${{ steps.parse_pull_request.outputs.pr_head_sha }}"
           echo "${{ steps.parse_pull_request.outputs.pr_base_ref }}"
           echo "${{ steps.parse_pull_request.outputs.pr_base_sha }}"
-          
-      - name: update comment 
-        uses: peter-evans/create-or-update-comment@v1
-        with:
-          issue-number: ${{ steps.parse_pull_request.outputs.pr_number }}
-          body: |
-            @${{ steps.parse_pull_request.outputs.pr_author }}，请查阅任务（run test cases）执行结果：https://github.com/cocos/cocos-engine/actions/runs/${{ github.run_id }}
 
       - name: 'Checkout engine'
         uses: actions/checkout@v2
@@ -60,10 +53,23 @@ jobs:
           npm -v
           npm install --registry https://registry.npm.taobao.org
 
-      - name: 'Call run test cases job'
+      - name: 'Run test cases'
+        id: task_test_cases
         run: |
           cd ..
           python3 -u ./python/main.py ${{ steps.parse_pull_request.outputs.pr_base_ref }}
+
+      - name: update comment 
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ steps.parse_pull_request.outputs.pr_number }}
+          body: |
+            @${{ steps.parse_pull_request.outputs.pr_author }}, Please check the result of `run test cases`:
+            - Test Platform: Windows
+            - Task Result: ${{ steps.task_test_cases.outputs.task }}
+            - Task URL: ${{ steps.task_test_cases.outputs.url }}
+            - Task Details: ${{ steps.task_test_cases.outputs.msg }}
+            - GitHub Action: https://github.com/cocos/cocos-engine/actions/runs/${{ github.run_id }}
 
 
   macOS-RunTestCases:
@@ -95,7 +101,7 @@ jobs:
           Write-Host "::set-output name=pr_base_ref::$($pull_request.base.ref)"
           Write-Host "::set-output name=pr_base_sha::$($pull_request.base.sha)"
 
-      - name: Echo pull request
+      - name: Check pull request
         run: |
           echo "${{ steps.parse_pull_request.outputs.pr_head_ref }}"
           echo "${{ steps.parse_pull_request.outputs.pr_head_sha }}"
@@ -111,7 +117,20 @@ jobs:
           npm -v
           npm install --registry https://registry.npm.taobao.org
 
-      - name: 'Call run test cases job'
+      - name: 'Run test cases'
+        id: task_test_cases     
         run: |
           cd ..
           python3 -u ./python/main.py ${{ steps.parse_pull_request.outputs.pr_base_ref }}
+
+      - name: update comment 
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ steps.parse_pull_request.outputs.pr_number }}
+          body: |
+            @${{ steps.parse_pull_request.outputs.pr_author }}, Please check the result of `run test cases`:
+            - Test Platform: macOS
+            - Task Result: ${{ steps.task_test_cases.outputs.task }}
+            - Task URL: ${{ steps.task_test_cases.outputs.url }}
+            - Task Details: ${{ steps.task_test_cases.outputs.msg }}
+            - GitHub Action: https://github.com/cocos/cocos-engine/actions/runs/${{ github.run_id }}
