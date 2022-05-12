@@ -251,7 +251,7 @@ CCProgram toon-vs %{
   #include <surfaces/includes/toon-vs>
 
   // 5. shader entry with corresponding shader stage and technique usage/type
-  #include <shading-entries/main-functions/forward/vs>
+  #include <shading-entries/main-functions/render-to-scene/vs>
 }%
 
 
@@ -290,11 +290,7 @@ CCProgram toon-fs %{
   #include <surfaces/includes/toon-fs>
 
   // 6. shader entry with corresponding shader stage and technique usage/type
-#if (CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD || CC_FORCE_FORWARD_SHADING)
-  #include <shading-entries/main-functions/forward/fs>
-#elif CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_DEFERRED
-  #include <shading-entries/main-functions/deferred/fs>
-#endif  
+  #include <shading-entries/main-functions/render-to-scene/fs>
 }%
 
 CCProgram shadow-caster-fs %{
@@ -383,7 +379,7 @@ CCProgram silhouette-edge-vs %{
   #include <surfaces/includes/common-vs>
   #include <surface-vertex-silhouette-edge>
   #include <surfaces/includes/silhouette-edge-vs>
-  #include <shading-entries/main-functions/forward/vs>
+  #include <shading-entries/main-functions/misc/silhouette-edge-vs>
 }%
 
 CCProgram silhouette-edge-fs %{
