@@ -68,12 +68,7 @@ exports.methods = {
     },
     appendChildByDisplayOrder(parent, newChild, displayOrder = 0) {
         const children = Array.from(parent.children);
-        const child = children.find((child) => {
-            if (child.dump && child.displayOrder > displayOrder) {
-                return child;
-            }
-            return null;
-        });
+        const child = children.find(child => child.dump && child.displayOrder > displayOrder);
         if (child) {
             child.before(newChild);
         } else {
@@ -119,7 +114,8 @@ async function update(dump) {
             $prop.setAttribute('type', 'dump');
             $panel.$propList[id] = $prop;
 
-            $prop.displayOrder = info.displayOrder === undefined ? index : Number(info.displayOrder);
+            const _displayOrder = info.displayOrder || info.group?.displayOrder;
+            $prop.displayOrder = _displayOrder === undefined ? index : Number(_displayOrder);
 
             if (info.group && dump.groups) {
                 const key = info.group.id || 'default';
@@ -142,7 +138,13 @@ async function update(dump) {
                 $panel.appendChildByDisplayOrder($section, $prop, $prop.displayOrder);
             }
         } else if (!$prop.isConnected || !$prop.parentElement) {
-            $panel.appendChildByDisplayOrder($section, $prop, $prop.displayOrder);
+            if (info.group && dump.groups) {
+                const key = info.group.id || 'default';
+                const name = info.group.name;
+                $panel.appendChildByDisplayOrder($panel.$groups[key].tabs[name], $prop, $prop.displayOrder);
+            } else {
+                $panel.appendChildByDisplayOrder($section, $prop, $prop.displayOrder);
+            }
         }
         $prop.render(info);
     });
