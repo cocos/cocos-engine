@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-
-
 // Some helper methods for compile instantiation code
 
 import { TEST } from 'internal:constants';
@@ -35,7 +33,6 @@ import { CCObject, isCCObject } from './object';
 import * as Attr from './utils/attribute';
 import { flattenCodeArray } from './utils/compiler';
 import { legacyCC } from '../global-exports';
-import { JSB } from '../default-constants';
 
 const Destroyed = CCObject.Flags.Destroyed;
 const PersistentMask = CCObject.Flags.PersistentMask;
