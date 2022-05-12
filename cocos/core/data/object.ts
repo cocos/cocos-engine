@@ -632,7 +632,7 @@ declare namespace CCObject {
  *
  * @method isCCObject
  * @param object
- * @return @en Whether it is a CCObject boolean value @zh 是否为CCObject的布尔值
+ * @return @en Whether it is a CCObject boolean value. @zh 是否为CCObject的布尔值。
  */
 export function isCCObject (object: any) {
     let isCCObject = object instanceof CCObject;
