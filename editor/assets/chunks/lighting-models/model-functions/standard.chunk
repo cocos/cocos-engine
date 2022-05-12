@@ -29,12 +29,12 @@ void CCSurfacesLightingCalculateDirect(out vec3 lightingDiffuse, out vec3 lighti
     float calcSpec = D_GGXAniso(rT, rB, lightingData.NoHSat, lightingData.H, lightingData.T, lightingData.B);
 #else
   #if CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING
-    float calcSpec = D_GGXMobile(roughness, lightingData.NoHSat);
+    float calcSpec = (roughness * 0.25 + 0.25) * D_GGXMobile(roughness, lightingData.NoHSat);
   #else
     float calcSpec = D_GGX(roughness, lightingData.NoHSat);
   #endif
 #endif
-    lightingSpecular = lightingDiffuse * calcSpec;
+    lightingSpecular = irradiance * calcSpec;
 }
 
 
