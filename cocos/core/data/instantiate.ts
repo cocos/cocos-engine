@@ -32,7 +32,7 @@
 import { DEV } from 'internal:constants';
 import { isDomNode } from '../utils/misc';
 import { ValueType } from '../value-types';
-import { CCObject } from './object';
+import { CCObject, isCCObject } from './object';
 import { js } from '../utils/js';
 import { getError, warn } from '../platform/debug';
 import { legacyCC } from '../global-exports';
@@ -107,15 +107,8 @@ export function instantiate (original: any, internalForce?: boolean) {
     }
 
     let clone;
-    let isCCObject = original instanceof CCObject;
-    if (JSB) {
-        if (!isCCObject) {
-            // @ts-expect-error: jsb related codes.
-            isCCObject = original instanceof jsb.CCObject;
-        }
-    }
 
-    if (isCCObject) {
+    if (isCCObject(original)) {
         if (original._instantiate) {
             legacyCC.game._isCloning = true;
             clone = original._instantiate(null, true);
@@ -237,7 +230,7 @@ function enumerateObject (obj, clone, parent) {
             }
         }
     }
-    if (obj instanceof CCObject) {
+    if (isCCObject(obj)) {
         clone._objFlags &= PersistentMask;
     }
 }
