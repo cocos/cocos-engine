@@ -6,6 +6,7 @@
 #include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "cocos/bindings/auto/jsb_gfx_auto.h"
 #include "cocos/bindings/auto/jsb_scene_auto.h"
+#include "cocos/renderer/pipeline/custom/LayoutGraphJsb.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonJsb.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphJsb.h"
 
@@ -1515,6 +1516,77 @@ bool js_register_render_SceneTransversal(se::Object* obj) // NOLINT(readability-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
+se::Object* __jsb_cc_render_LayoutGraphBuilder_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_render_LayoutGraphBuilder_class = nullptr;  // NOLINT
+
+static bool js_render_LayoutGraphBuilder_addDescriptorBlock(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::LayoutGraphBuilder>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_LayoutGraphBuilder_addDescriptorBlock : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 3) {
+        HolderType<unsigned int, false> arg0 = {};
+        HolderType<cc::render::DescriptorBlockIndex, true> arg1 = {};
+        HolderType<cc::render::DescriptorBlock, true> arg2 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_render_LayoutGraphBuilder_addDescriptorBlock : Error processing arguments");
+        cobj->addDescriptorBlock(arg0.value(), arg1.value(), arg2.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+    return false;
+}
+SE_BIND_FUNC(js_render_LayoutGraphBuilder_addDescriptorBlock)
+
+static bool js_render_LayoutGraphBuilder_addNode(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::LayoutGraphBuilder>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_LayoutGraphBuilder_addNode : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 3) {
+        HolderType<std::string, true> arg0 = {};
+        HolderType<cc::render::UpdateFrequency, false> arg1 = {};
+        HolderType<unsigned int, false> arg2 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_render_LayoutGraphBuilder_addNode : Error processing arguments");
+        unsigned int result = cobj->addNode(arg0.value(), arg1.value(), arg2.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_render_LayoutGraphBuilder_addNode : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+    return false;
+}
+SE_BIND_FUNC(js_render_LayoutGraphBuilder_addNode)
+
+bool js_register_render_LayoutGraphBuilder(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("LayoutGraphBuilder", obj, nullptr, nullptr);
+
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_render_getter_return_true), nullptr);
+#endif
+    cls->defineFunction("addDescriptorBlock", _SE(js_render_LayoutGraphBuilder_addDescriptorBlock));
+    cls->defineFunction("addNode", _SE(js_render_LayoutGraphBuilder_addNode));
+    cls->install();
+    JSBClassType::registerClass<cc::render::LayoutGraphBuilder>(cls);
+
+    __jsb_cc_render_LayoutGraphBuilder_proto = cls->getProto();
+    __jsb_cc_render_LayoutGraphBuilder_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
 se::Object* __jsb_cc_render_Pipeline_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_render_Pipeline_class = nullptr;  // NOLINT
 
@@ -1927,6 +1999,7 @@ bool register_all_render(se::Object* obj)    // NOLINT
     js_register_render_CopyPassBuilder(ns);
     js_register_render_DescriptorHierarchy(ns);
     js_register_render_Factory(ns);
+    js_register_render_LayoutGraphBuilder(ns);
     js_register_render_MovePassBuilder(ns);
     js_register_render_PipelineRuntime(ns);
     js_register_render_Pipeline(ns);

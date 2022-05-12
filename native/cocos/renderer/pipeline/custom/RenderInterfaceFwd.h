@@ -32,6 +32,7 @@
 #pragma once
 #include <boost/variant2/variant.hpp>
 #include "cocos/core/assets/EffectAsset.h"
+#include "cocos/renderer/pipeline/custom/LayoutGraphFwd.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphFwd.h"
 
 namespace cc {
@@ -50,6 +51,7 @@ class CopyPassBuilder;
 class SceneVisitor;
 class SceneTask;
 class SceneTransversal;
+class LayoutGraphBuilder;
 class Pipeline;
 class Factory;
 

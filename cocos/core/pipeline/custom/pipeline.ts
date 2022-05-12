@@ -33,10 +33,11 @@ import { EffectAsset } from '../../assets';
 import { Camera } from '../../renderer/scene/camera';
 import { Buffer, Color, DescriptorSet, DescriptorSetLayout, DrawInfo, Format, InputAssembler, PipelineState, Rect, Sampler, Swapchain, Texture, Viewport } from '../../gfx';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
+import { DescriptorBlock, DescriptorBlockIndex } from './layout-graph';
 import { Mat4, Quat, Vec2, Vec4 } from '../../math';
 import { MacroRecord } from '../../renderer/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { QueueHint, ResourceResidency, TaskType } from './types';
+import { QueueHint, ResourceResidency, TaskType, UpdateFrequency } from './types';
 import { ComputeView, CopyPair, MovePair, RasterView } from './render-graph';
 import { RenderScene } from '../../renderer/core/render-scene';
 import { RenderWindow } from '../../renderer/core/render-window';
@@ -141,6 +142,11 @@ export abstract class SceneTask {
 
 export abstract class SceneTransversal {
     public abstract transverse(visitor: SceneVisitor): SceneTask;
+}
+
+export abstract class LayoutGraphBuilder {
+    public abstract addNode(name: string, frequency: UpdateFrequency, parentID: number): number;
+    public abstract addDescriptorBlock(nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlock): void;
 }
 
 export abstract class Pipeline extends PipelineRuntime {

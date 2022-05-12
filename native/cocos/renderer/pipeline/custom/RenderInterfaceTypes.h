@@ -32,6 +32,7 @@
 #pragma once
 #include "cocos/core/assets/EffectAsset.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
+#include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
 
@@ -293,6 +294,22 @@ public:
 };
 
 inline SceneTransversal::~SceneTransversal() noexcept = default;
+
+class LayoutGraphBuilder {
+public:
+    LayoutGraphBuilder() noexcept = default;
+    LayoutGraphBuilder(LayoutGraphBuilder&& rhs)      = delete;
+    LayoutGraphBuilder(LayoutGraphBuilder const& rhs) = delete;
+    LayoutGraphBuilder& operator=(LayoutGraphBuilder&& rhs) = delete;
+    LayoutGraphBuilder& operator=(LayoutGraphBuilder const& rhs) = delete;
+
+    virtual ~LayoutGraphBuilder() noexcept = 0;
+
+    virtual uint32_t addNode(const std::string& name, UpdateFrequency frequency, uint32_t parentID) = 0;
+    virtual void addDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlock& block) = 0;
+};
+
+inline LayoutGraphBuilder::~LayoutGraphBuilder() noexcept = default;
 
 class Pipeline : public PipelineRuntime {
 public:
