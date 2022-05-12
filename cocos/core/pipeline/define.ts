@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { Pass } from '../renderer/core/pass';
 import { Model } from '../renderer/scene/model';
 import { SubModel } from '../renderer/scene/submodel';
@@ -304,8 +302,8 @@ export class UBOCSM {
     public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOCSM.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.ALL);
     public static readonly LAYOUT = new UniformBlock(SetIndex.GLOBAL, UBOCSM.BINDING, UBOCSM.NAME, [
         new Uniform('cc_matShadowView_levels', Type.MAT4, UBOCSM.CSM_LEVEL_COUNT),
-        new Uniform('cc_matLightViewProj_levels', Type.MAT4, UBOCSM.CSM_LEVEL_COUNT),
-        new Uniform('cc_matLightViewProjAtlas_levels', Type.MAT4, UBOCSM.CSM_LEVEL_COUNT),
+        new Uniform('cc_matShadowViewProj_levels', Type.MAT4, UBOCSM.CSM_LEVEL_COUNT),
+        new Uniform('cc_matShadowViewProjAtlas_levels', Type.MAT4, UBOCSM.CSM_LEVEL_COUNT),
         new Uniform('cc_shadowProjDepthInfo_levels', Type.FLOAT4, UBOCSM.CSM_LEVEL_COUNT),
         new Uniform('cc_shadowProjInfo_levels', Type.FLOAT4, UBOCSM.CSM_LEVEL_COUNT),
         new Uniform('cc_shadowSplits', Type.FLOAT4, 1),

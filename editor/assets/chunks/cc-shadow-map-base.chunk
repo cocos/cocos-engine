@@ -32,6 +32,21 @@ float CCGetViewSpaceDepth(float depthHS)
   #pragma builtin(global)
   layout(set = 0, binding = 5) uniform highp sampler2D cc_spotLightingMap;
 
+  int CCGetCSMLevel(out vec4 oPos, vec4 iPos) {
+  for (int i = 0; i < NUMCASCADES; i++) {
+    vec4 pos = cc_matShadowViewProj_levels[i] * iPos;
+    vec3 clipPos = pos.xyz / pos.w * 0.5 + 0.5;
+    if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
+        clipPos.y < 0.0 || clipPos.y > 1.0 ||
+        clipPos.z < 0.0 || clipPos.z > 1.0) {
+      continue;
+    }
+    oPos = cc_matShadowViewProjAtlas_levels[i] * iPos;
+    return i;
+  }
+  return -1;
+}
+
   vec4 ApplyShadowDepthBias_FaceNormal(vec4 shadowPos, vec3 worldNormal, float normalBias)
   {
     vec4 newShadowPos = shadowPos;
@@ -358,31 +373,16 @@ float CCShadowFactorBase(vec4 shadowPos, vec3 N, vec2 shadowBias)
   return mix(realtimeShadow, 1.0, cc_shadowNFLSInfo.w);
 }
 
-vec4 CCGetCSMPos(out float isOutside, vec4 iPos, float depth) {
-  if (depth < cc_shadowSplits.x)
-    return cc_matLightViewProjAtlas_levels[0] * iPos;
-  else if (depth < cc_shadowSplits.y)
-    return cc_matLightViewProjAtlas_levels[1] * iPos;
-  else if (depth < cc_shadowSplits.z)
-    return cc_matLightViewProjAtlas_levels[2] * iPos;
-  else if (depth < cc_shadowSplits.w)
-    return cc_matLightViewProjAtlas_levels[3] * iPos;
-  else
-    isOutside = 1.0;
-
-  return vec4(0.0);
-}
-
-float CCCSMFactorBase(vec4 iPos, float depth, vec3 N, vec2 shadowBias)
+float CCCSMFactorBase(vec4 iPos, vec3 N, vec2 shadowBias)
 {
-  float isOutside = 0.0;
+  vec4 shadowPos = vec4(1.0);
+  int level = CCGetCSMLevel(shadowPos, iPos);
+  if (level < 0) { return 1.0; }
   float realtimeShadow = 1.0;
-  vec4 shadowPos = CCGetCSMPos(isOutside, iPos, depth);
-  if (isOutside > 0.9) { return isOutside; }
 
   float pcf = cc_shadowWHPBInfo.z;
   if (pcf > 1.9) {
-    realtimeShadow =  CCGetShadowFactorSoft2X(shadowPos, shadowBias.x);
+    realtimeShadow = CCGetShadowFactorSoft2X(shadowPos, shadowBias.x);
   }else if (pcf > 0.9) {
     realtimeShadow = CCGetShadowFactorSoft(shadowPos, shadowBias.x);
   }else { 

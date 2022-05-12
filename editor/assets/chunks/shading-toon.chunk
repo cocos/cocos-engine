@@ -74,21 +74,12 @@ struct ToonSurface {
   #if CC_RECEIVE_SHADOW
     #include <cc-shadow-map-fs>
     #include <cc-csm>
-
-    float GetDepth(vec4 clipPos)
-    {
-      return dot(clipPos.zw, cc_depthMode.zw);
-    }
   #endif
 
   vec4 CCToonShading (ToonSurface s) {
     vec3 position;
     HIGHP_VALUE_FROM_STRUCT_DEFINED(position, s.position);
 
-    #if CC_RECEIVE_SHADOW
-      vec4 glPosition = cc_matProj * cc_matView * vec4(position.xyz, 1.0);
-    #endif
-    
     vec3 V = normalize(cc_cameraPos.xyz - position);
     vec3 N = normalize(s.normal);
 
@@ -113,7 +104,7 @@ struct ToonSurface {
     #if CC_RECEIVE_SHADOW
     if(s.shadowCover < NL && cc_mainLitDir.w > 0.0) {
       if (cc_shadowLPNNInfo.w > 0.0) {
-        shadow = CCCSMFactorBase(vec4(position, 1.0), GetDepth(glPosition), N, s.shadowBias);
+        shadow = CCCSMFactorBase(vec4(position, 1.0), N, s.shadowBias);
       } else {
         shadow = CCShadowFactorBase(CC_SHADOW_POSITION, N, s.shadowBias);
       }
@@ -128,13 +119,14 @@ struct ToonSurface {
     finalColor += s.emissive;
 
   #if CC_RECEIVE_SHADOW
-    if (cc_csmInfo.x > 0.9) {
-      float depth = GetDepth(glPosition);
-      if (depth < cc_shadowSplits.x && cc_shadowLPNNInfo.w > 0.9)
+    vec4 oPos = vec4(1.0);
+    int level = CCGetCSMLevel(oPos, vec4(s.position, 1.0));
+    if (cc_csmInfo.x > 0.9 && level > -1) {
+      if (level < 1 && cc_shadowLPNNInfo.w > 0.9)
         finalColor.xyz *= vec3(5.0, 0.0, 0.0);
-      else if (depth < cc_shadowSplits.y && cc_shadowLPNNInfo.w > 1.9)
+      else if (level < 2 && cc_shadowLPNNInfo.w > 1.9)
         finalColor.xyz *= vec3(0.0, 5.0, 0.0);
-      else if (depth < cc_shadowSplits.z && cc_shadowLPNNInfo.w > 2.9)
+      else if (level < 3 && cc_shadowLPNNInfo.w > 2.9)
         finalColor.xyz *= vec3(0.0, 0.0, 5.0);
       else if (cc_shadowLPNNInfo.w > 3.9)
         finalColor.xyz *= vec3(5.0, 5.0, 0.0);

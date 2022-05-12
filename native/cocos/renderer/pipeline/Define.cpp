@@ -169,8 +169,8 @@ const gfx::UniformBlock UBOCSM::LAYOUT = {
     UBOCSM::NAME,
     {
         {"cc_matShadowView_levels", gfx::Type::MAT4, UBOCSM::CSM_LEVEL_COUNT},
-        {"cc_matLightViewProj_levels", gfx::Type::MAT4, UBOCSM::CSM_LEVEL_COUNT},
-        {"cc_matLightViewProjAtlas_levels", gfx::Type::MAT4, UBOCSM::CSM_LEVEL_COUNT},
+        {"cc_matShadowViewProj_levels", gfx::Type::MAT4, UBOCSM::CSM_LEVEL_COUNT},
+        {"cc_matShadowViewProjAtlas_levels", gfx::Type::MAT4, UBOCSM::CSM_LEVEL_COUNT},
         {"cc_shadowProjDepthInfo_levels", gfx::Type::FLOAT4, UBOCSM::CSM_LEVEL_COUNT},
         {"cc_shadowProjInfo_levels", gfx::Type::FLOAT4, UBOCSM::CSM_LEVEL_COUNT},
         {"cc_shadowSplits", gfx::Type::FLOAT4, 1},

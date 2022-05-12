@@ -4,8 +4,8 @@
 #pragma builtin(global)
 layout(set = 0, binding = 3) uniform CCCSM {
   highp mat4 cc_matShadowView_levels[NUMCASCADES];
-  highp mat4 cc_matLightViewProj_levels[NUMCASCADES];
-  highp mat4 cc_matLightViewProjAtlas_levels[NUMCASCADES];
+  highp mat4 cc_matShadowViewProj_levels[NUMCASCADES];
+  highp mat4 cc_matShadowViewProjAtlas_levels[NUMCASCADES];
   highp vec4 cc_shadowProjDepthInfo_levels[NUMCASCADES];
   highp vec4 cc_shadowProjInfo_levels[NUMCASCADES];
   highp vec4 cc_shadowSplits;  // x-> level_1 far, y-> level_2 far, z-> level_3 far, w-> level_4 far
