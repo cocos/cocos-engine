@@ -40,11 +40,23 @@ exports.template = /* html*/`
                 <ui-label></ui-label>
                 <ui-checkbox></ui-checkbox>
             </ui-prop>
+            <ui-prop>
+                <ui-label slot="label">Noise Preview</ui-label>
+                <div slot="content" style="display: flex;flex-direction: row-reverse;padding: 5px;">
+                     <canvas id="noisePreview" width="100" height="100"></canvas>
+                </div>
+            </ui-prop>
+
             <ui-prop type="dump" key="strengthX" disableflag="!useNoise"></ui-prop>
+            <ui-prop type="dump" key="strengthY" disableflag="!useNoise"></ui-prop>
+            <ui-prop type="dump" key="strengthZ" disableflag="!useNoise"></ui-prop>
             <ui-prop type="dump" key="noiseSpeedX" disableflag="!useNoise"></ui-prop>
             <ui-prop type="dump" key="noiseSpeedY" disableflag="!useNoise"></ui-prop>
             <ui-prop type="dump" key="noiseSpeedZ" disableflag="!useNoise"></ui-prop>
             <ui-prop type="dump" key="noiseFrequency" disableflag="!useNoise"></ui-prop>
+            <ui-prop type="dump" key="octaves" disableflag="!useNoise"></ui-prop>
+            <ui-prop type="dump" key="octaveMultiplier" disableflag="!useNoise"></ui-prop>
+            <ui-prop type="dump" key="octaveScale" disableflag="!useNoise"></ui-prop>
         </ui-section>
         <ui-section key="renderCulling" autoExpand cache-expand="particle-system-cullingMode">
             <ui-prop slot="header" class="header" empty="true" labelflag="renderCulling" key="renderCulling">
@@ -170,7 +182,7 @@ const excludeList = [
     'rotationOvertimeModule', 'colorOverLifetimeModule', 'textureAnimationModule',
     'trailModule', 'renderer', 'renderCulling', 'limitVelocityOvertimeModule', 'cullingMode',
     'aabbHalfX', 'aabbHalfY', 'aabbHalfZ',
-    'useNoise', 'noiseSpeedX', 'noiseSpeedY', 'noiseSpeedZ', 'noiseFrequency', 'strengthX',
+    'useNoise', 'noiseSpeedX', 'noiseSpeedY', 'noiseSpeedZ', 'noiseFrequency', 'strengthX', 'strengthY', 'strengthZ', 'octaves', 'octaveMultiplier', 'octaveScale',
 ];
 
 exports.methods = {
@@ -621,12 +633,35 @@ const uiElements = {
             });
         },
     },
+    noisePreview: {
+        async update() {
+            if (!this.dump?.value?.uuid?.values && !this.dump?.value?.uuid?.value) { return; }
+            let uuid = this.dump.value.uuid.values ? this.dump.value.uuid.values[0] : this.dump.value.uuid.value;
+            if (!uuid) { return; }
+            let data = await Editor.Message.request('scene', 'execute-component-method', {
+                uuid,
+                name: 'getNoisePreview',
+                args: [100, 100],
+            });
+            data = data.reduce((result, item) => {
+                const value = item * 255;
+                const rgba = [value, value, value, 255];
+                result.push(...rgba);
+                return result;
+            }, []);
+            const imageData = new ImageData(new Uint8ClampedArray(data), 100, 100);
+            const context = this.$.noisePreview.getContext('2d');
+            context.putImageData(imageData, 0, 0);
+        },
+    },
 };
 exports.$ = {
     customProps: '#customProps',
     emitFromSelect: '#emitFromSelect',
     showBounds: '#showBounds',
     resetBounds: '#resetBounds',
+    noisePreview: '#noisePreview',
+
 };
 exports.ready = function() {
     for (const key in uiElements) {
