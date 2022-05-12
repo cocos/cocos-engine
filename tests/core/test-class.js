@@ -635,62 +635,6 @@ test('mixins ctor', function () {
     ctorOfMixin.once('ctor of mixin should be called only once');
 });
 
-asyncTest('instantiate properties in the next frame', function () {
-    var Dog = cc.Class({
-        properties: function () {
-            return {
-                like: 'shit'
-            };
-        }
-    });
-    var Husky = cc.Class({
-        extends: Dog,
-        properties: {
-            weight: 100
-        }
-    });
-
-    throws(
-        function () {
-            Husky.__props__.length;
-        },
-        'should raised error if accessing to props via Class'
-    );
-
-    throws(
-        function () {
-            Husky.__values__.length;
-        },
-        'should raise error if accessing to serializable props via Class'
-    );
-
-    setTimeout(function () {
-        deepEqual(Husky.__props__, ['like', 'weight'], 'should get properties in the correct order');
-        deepEqual(Husky.__values__, ['like', 'weight'], 'should get serializable properties in the correct order');
-
-        start();
-    }, 0);
-});
-
-test('lazy instantiate properties', function () {
-    var Dog = cc.Class({
-        properties: function () {
-            return {
-                like: 'shit'
-            };
-        }
-    });
-    var Husky = cc.Class({
-        extends: Dog,
-        properties: {
-            weight: 100
-        }
-    });
-
-    var dog = new Husky();
-    deepEqual(Husky.__props__, ['like', 'weight'], 'could get properties in the correct order after instantiating');
-});
-
 test('simplified properties define', function () {
     var Type = cc.Class({
         properties: {
