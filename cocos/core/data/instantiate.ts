@@ -193,7 +193,7 @@ function enumerateObject (obj, clone, parent) {
     js.value(obj, '_iN$t', clone, true);
     objsToClearTmpVar.push(obj);
     const klass = obj.constructor;
-    if (legacyCC.Class._isCCClass(klass)) {
+    if (legacyCC.Class._isCCClass(klass, true)) {
         enumerateCCClass(klass, obj, clone, parent);
     } else {
         // primitive javascript object
@@ -266,7 +266,7 @@ function instantiateObj (obj, parent) {
     }
 
     const ctor = obj.constructor;
-    if (legacyCC.Class._isCCClass(ctor)) {
+    if (legacyCC.Class._isCCClass(ctor, true)) {
         if (parent) {
             if (parent instanceof legacyCC.Component) {
                 if (obj instanceof legacyCC._BaseNode || obj instanceof legacyCC.Component) {

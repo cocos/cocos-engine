@@ -425,7 +425,7 @@ class Parser {
     // codeArray - the source code array for this object
     public enumerateObject (codeArray, obj) {
         const klass = obj.constructor;
-        if (legacyCC.Class._isCCClass(klass)) {
+        if (legacyCC.Class._isCCClass(klass, true)) {
             this.enumerateCCClass(codeArray, obj, klass);
         } else {
             // primitive javascript object
@@ -460,7 +460,7 @@ class Parser {
 
         let createCode;
         const ctor = obj.constructor;
-        if (legacyCC.Class._isCCClass(ctor)) {
+        if (legacyCC.Class._isCCClass(ctor, true)) {
             if (this.parent) {
                 if (this.parent instanceof legacyCC.Component) {
                     if (obj instanceof legacyCC._BaseNode || obj instanceof legacyCC.Component) {
