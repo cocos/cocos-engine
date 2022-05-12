@@ -9,7 +9,7 @@ let externalDir = path.join(__dirname, "../external");
 let failed = false;
 
 let macUsefulDirs = ['android', 'cmake', 'emscripten', 'ios', 'ios-m1-simulator', 'mac', 'ohos', 'sources'];
-let winUsefulDirs = ['android', 'cmake', 'emscripten', 'ohos', 'sources', 'win32', 'win64'];
+let winUsefulDirs = ['android', 'cmake', 'emscripten', 'ohos', 'sources', 'win64'];
 let linuxUsefulDirs = ['android', 'cmake', 'emscripten', 'linux', 'ohos', 'sources'];
 let allDirs = [];
 
