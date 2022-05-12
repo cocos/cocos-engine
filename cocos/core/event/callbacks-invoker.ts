@@ -24,12 +24,10 @@
  THE SOFTWARE.
 */
 
-
-
 import { TEST } from 'internal:constants';
 import { Pool } from '../memop';
 import { array, createMap } from '../utils/js';
-import { CCObject, isValid } from '../data/object';
+import { CCObject, isCCObject, isValid } from '../data/object';
 import { legacyCC } from '../global-exports';
 import { JSB } from '../default-constants';
 
@@ -55,15 +53,8 @@ class CallbackInfo {
     }
 
     public check () {
-        let isCCObject = this.target instanceof CCObject;
-        if (JSB) {
-            if (!isCCObject) {
-                // @ts-expect-error: jsb related codes.
-                isCCObject =  this.target instanceof jsb.CCObject;
-            }
-        }
         // Validation
-        if (isCCObject && !isValid(this.target, true)) {
+        if (isCCObject(this.target) && !isValid(this.target, true)) {
             return false;
         } else {
             return true;
