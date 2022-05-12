@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/restrict-plus-operands */
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+/* eslint-disable max-len */
 /*
  Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
@@ -29,11 +32,11 @@
  */
 
 import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializable, visible, range } from 'cc.decorator';
-import { Mat4, Quat, Vec2, Vec3, clamp, pingPong, random, randomRange, repeat, toDegree, toRadian } from '../../core/math';
+import { Mat4, Quat, Vec2, Vec3, clamp, pingPong, random, randomRange, repeat, toDegree, toRadian, pseudoRandomRange, pseudoRandom } from '../../core/math';
 
 import CurveRange from '../animator/curve-range';
 import { ArcMode, EmitLocation, ShapeType } from '../enum';
-import { fixedAngleUnitVector2, particleEmitZAxis, randomPointBetweenCircleAtFixedAngle, randomPointBetweenSphere,
+import { fixedAngleUnitVector2, particleEmitZAxis, pRandomPointBetweenCircleAtFixedAngle, pRandomPointBetweenSphere, pRandomPointInCube, pRandomSign, pRandomSortArray, pRandomUnitVector, randomPointBetweenCircleAtFixedAngle, randomPointBetweenSphere,
     randomPointInCube, randomSign, randomSortArray, randomUnitVector } from '../particle-general-function';
 import { ParticleSystem } from '../particle-system';
 
@@ -307,27 +310,27 @@ export default class ShapeModule {
     public emit (p) {
         switch (this.shapeType) {
         case ShapeType.Box:
-            boxEmit(this.emitFrom, this.boxThickness, p.position, p.velocity);
+            boxEmit(this.emitFrom, this.boxThickness, p.position, p.velocity, p);
             break;
         case ShapeType.Circle:
-            circleEmit(this.radius, this.radiusThickness, this.generateArcAngle(), p.position, p.velocity);
+            circleEmit(this.radius, this.radiusThickness, this.generateArcAngle(p), p.position, p.velocity, p);
             break;
         case ShapeType.Cone:
-            coneEmit(this.emitFrom, this.radius, this.radiusThickness, this.generateArcAngle(), this._angle, this.length, p.position, p.velocity);
+            coneEmit(this.emitFrom, this.radius, this.radiusThickness, this.generateArcAngle(p), this._angle, this.length, p.position, p.velocity, p);
             break;
         case ShapeType.Sphere:
-            sphereEmit(this.emitFrom, this.radius, this.radiusThickness, p.position, p.velocity);
+            sphereEmit(this.emitFrom, this.radius, this.radiusThickness, p.position, p.velocity, p);
             break;
         case ShapeType.Hemisphere:
-            hemisphereEmit(this.emitFrom, this.radius, this.radiusThickness, p.position, p.velocity);
+            hemisphereEmit(this.emitFrom, this.radius, this.radiusThickness, p.position, p.velocity, p);
             break;
         default:
             console.warn(`${this.shapeType} shapeType is not supported by ShapeModule.`);
         }
         if (this.randomPositionAmount > 0) {
-            p.position.x += randomRange(-this.randomPositionAmount, this.randomPositionAmount);
-            p.position.y += randomRange(-this.randomPositionAmount, this.randomPositionAmount);
-            p.position.z += randomRange(-this.randomPositionAmount, this.randomPositionAmount);
+            p.position.x += p.useRandom ? randomRange(-this.randomPositionAmount, this.randomPositionAmount) : pseudoRandomRange(p.randomSeed * 2, -this.randomPositionAmount, this.randomPositionAmount);
+            p.position.y += p.useRandom ? randomRange(-this.randomPositionAmount, this.randomPositionAmount) : pseudoRandomRange(p.randomSeed * 3, -this.randomPositionAmount, this.randomPositionAmount);
+            p.position.z += p.useRandom ? randomRange(-this.randomPositionAmount, this.randomPositionAmount) : pseudoRandomRange(p.randomSeed * 4, -this.randomPositionAmount, this.randomPositionAmount);
         }
         Vec3.transformQuat(p.velocity, p.velocity, this.quat);
         Vec3.transformMat4(p.position, p.position, this.mat);
@@ -343,9 +346,9 @@ export default class ShapeModule {
         Mat4.fromRTS(this.mat, this.quat, this._position, this._scale);
     }
 
-    private generateArcAngle () {
+    private generateArcAngle (p) {
         if (this.arcMode === ArcMode.Random) {
-            return randomRange(0, this._arc);
+            return p.useRandom ? randomRange(0, this._arc) : pseudoRandomRange(p.randomSeed, 0, this._arc);
         }
         let angle = this.totalAngle + 2 * Math.PI * this.arcSpeed.evaluate(this.particleSystem._time, 1)! * (this.particleSystem._time - this.lastTime);
         this.totalAngle = angle;
@@ -363,14 +366,22 @@ export default class ShapeModule {
     }
 }
 
-function sphereEmit (emitFrom, radius, radiusThickness, pos, dir) {
+function sphereEmit (emitFrom, radius, radiusThickness, pos, dir, p) {
     switch (emitFrom) {
     case EmitLocation.Volume:
-        randomPointBetweenSphere(pos, radius * (1 - radiusThickness), radius);
+        if (p.useRandom) {
+            randomPointBetweenSphere(pos, radius * (1 - radiusThickness), radius);
+        } else {
+            pRandomPointBetweenSphere(pos, p.randomSeed, radius * (1 - radiusThickness), radius);
+        }
         Vec3.normalize(dir, pos);
         break;
     case EmitLocation.Shell:
-        randomUnitVector(pos);
+        if (p.useRandom) {
+            randomUnitVector(pos);
+        } else {
+            pRandomUnitVector(pos, p.randomSeed);
+        }
         Vec3.multiplyScalar(pos, pos, radius);
         Vec3.normalize(dir, pos);
         break;
@@ -379,17 +390,25 @@ function sphereEmit (emitFrom, radius, radiusThickness, pos, dir) {
     }
 }
 
-function hemisphereEmit (emitFrom, radius, radiusThickness, pos, dir) {
+function hemisphereEmit (emitFrom, radius, radiusThickness, pos, dir, p) {
     switch (emitFrom) {
     case EmitLocation.Volume:
-        randomPointBetweenSphere(pos, radius * (1 - radiusThickness), radius);
+        if (p.useRandom) {
+            randomPointBetweenSphere(pos, radius * (1 - radiusThickness), radius);
+        } else {
+            pRandomPointBetweenSphere(pos, p.randomSeed, radius * (1 - radiusThickness), radius);
+        }
         if (pos.z > 0) {
             pos.z *= -1;
         }
         Vec3.normalize(dir, pos);
         break;
     case EmitLocation.Shell:
-        randomUnitVector(pos);
+        if (p.useRandom) {
+            randomUnitVector(pos);
+        } else {
+            pRandomUnitVector(pos, p.randomSeed);
+        }
         Vec3.multiplyScalar(pos, pos, radius);
         if (pos.z > 0) {
             pos.z *= -1;
@@ -401,10 +420,14 @@ function hemisphereEmit (emitFrom, radius, radiusThickness, pos, dir) {
     }
 }
 
-function coneEmit (emitFrom, radius, radiusThickness, theta, angle, length, pos, dir) {
+function coneEmit (emitFrom, radius, radiusThickness, theta, angle, length, pos, dir, p) {
     switch (emitFrom) {
     case EmitLocation.Base:
-        randomPointBetweenCircleAtFixedAngle(pos, radius * (1 - radiusThickness), radius, theta);
+        if (p.useRandom) {
+            randomPointBetweenCircleAtFixedAngle(pos, radius * (1 - radiusThickness), radius, theta);
+        } else {
+            pRandomPointBetweenCircleAtFixedAngle(pos, p.randomSeed, radius * (1 - radiusThickness), radius, theta);
+        }
         Vec2.multiplyScalar(dir, pos, Math.sin(angle));
         dir.z = -Math.cos(angle) * radius;
         Vec3.normalize(dir, dir);
@@ -419,40 +442,62 @@ function coneEmit (emitFrom, radius, radiusThickness, theta, angle, length, pos,
         pos.z = 0;
         break;
     case EmitLocation.Volume:
-        randomPointBetweenCircleAtFixedAngle(pos, radius * (1 - radiusThickness), radius, theta);
+        if (p.useRandom) {
+            randomPointBetweenCircleAtFixedAngle(pos, radius * (1 - radiusThickness), radius, theta);
+        } else {
+            pRandomPointBetweenCircleAtFixedAngle(pos, p.randomSeed, radius * (1 - radiusThickness), radius, theta);
+        }
         Vec2.multiplyScalar(dir, pos, Math.sin(angle));
         dir.z = -Math.cos(angle) * radius;
         Vec3.normalize(dir, dir);
         pos.z = 0;
-        Vec3.add(pos, pos, Vec3.multiplyScalar(_intermediVec, dir, length * random() / -dir.z));
+        Vec3.add(pos, pos, Vec3.multiplyScalar(_intermediVec, dir, length * p.useRandom ? random() : pseudoRandom(p.randomSeed * 2) / -dir.z));
         break;
     default:
         console.warn(`${emitFrom} is not supported for cone emitter.`);
     }
 }
 
-function boxEmit (emitFrom, boxThickness, pos, dir) {
+function boxEmit (emitFrom, boxThickness, pos, dir, p) {
     switch (emitFrom) {
     case EmitLocation.Volume:
-        randomPointInCube(pos, _unitBoxExtent);
+        if (p.useRandom) {
+            randomPointInCube(pos, _unitBoxExtent);
+        } else {
+            pRandomPointInCube(pos, p.randomSeed, _unitBoxExtent);
+        }
         // randomPointBetweenCube(pos, vec3.multiply(_intermediVec, _unitBoxExtent, boxThickness), _unitBoxExtent);
         break;
     case EmitLocation.Shell:
         _intermediArr.splice(0, _intermediArr.length);
-        _intermediArr.push(randomRange(-0.5, 0.5));
-        _intermediArr.push(randomRange(-0.5, 0.5));
-        _intermediArr.push(randomSign() * 0.5);
-        randomSortArray(_intermediArr);
-        applyBoxThickness(_intermediArr, boxThickness);
+        if (p.useRandom) {
+            _intermediArr.push(randomRange(-0.5, 0.5));
+            _intermediArr.push(randomRange(-0.5, 0.5));
+            _intermediArr.push(randomSign() * 0.5);
+            randomSortArray(_intermediArr);
+        } else {
+            _intermediArr.push(pseudoRandomRange(p.randomSeed * 5, -0.5, 0.5));
+            _intermediArr.push(pseudoRandomRange(p.randomSeed * 6, -0.5, 0.5));
+            _intermediArr.push(pRandomSign(p.randomSeed) * 0.5);
+            pRandomSortArray(p.randomSeed, _intermediArr);
+        }
+        applyBoxThickness(_intermediArr, boxThickness, p);
         Vec3.set(pos, _intermediArr[0], _intermediArr[1], _intermediArr[2]);
         break;
     case EmitLocation.Edge:
         _intermediArr.splice(0, _intermediArr.length);
-        _intermediArr.push(randomRange(-0.5, 0.5));
-        _intermediArr.push(randomSign() * 0.5);
-        _intermediArr.push(randomSign() * 0.5);
-        randomSortArray(_intermediArr);
-        applyBoxThickness(_intermediArr, boxThickness);
+        if (p.useRandom) {
+            _intermediArr.push(randomRange(-0.5, 0.5));
+            _intermediArr.push(randomSign() * 0.5);
+            _intermediArr.push(randomSign() * 0.5);
+            randomSortArray(_intermediArr);
+        } else {
+            _intermediArr.push(pseudoRandomRange(p.randomSeed * 6, -0.5, 0.5));
+            _intermediArr.push(pRandomSign(p.randomSeed * 5) * 0.5);
+            _intermediArr.push(pRandomSign(p.randomSeed * 4) * 0.5);
+            pRandomSortArray(_intermediArr, p.randomSeed);
+        }
+        applyBoxThickness(_intermediArr, boxThickness, p);
         Vec3.set(pos, _intermediArr[0], _intermediArr[1], _intermediArr[2]);
         break;
     default:
@@ -461,22 +506,26 @@ function boxEmit (emitFrom, boxThickness, pos, dir) {
     Vec3.copy(dir, particleEmitZAxis);
 }
 
-function circleEmit (radius, radiusThickness, theta, pos, dir) {
-    randomPointBetweenCircleAtFixedAngle(pos, radius * (1 - radiusThickness), radius, theta);
+function circleEmit (radius, radiusThickness, theta, pos, dir, p) {
+    if (p.useRandom) {
+        randomPointBetweenCircleAtFixedAngle(pos, radius * (1 - radiusThickness), radius, theta);
+    } else {
+        pRandomPointBetweenCircleAtFixedAngle(pos, p.randomSeed, radius * (1 - radiusThickness), radius, theta);
+    }
     Vec3.normalize(dir, pos);
 }
 
-function applyBoxThickness (pos, thickness) {
+function applyBoxThickness (pos, thickness, p) {
     if (thickness.x > 0) {
-        pos[0] += 0.5 * randomRange(-thickness.x, thickness.x);
+        pos[0] += 0.5 * p.useRandom ? randomRange(-thickness.x, thickness.x) : pseudoRandomRange(p.randomSeed + 3, -thickness.x, thickness.x);
         pos[0] = clamp(pos[0], -0.5, 0.5);
     }
     if (thickness.y > 0) {
-        pos[1] += 0.5 * randomRange(-thickness.y, thickness.y);
+        pos[1] += 0.5 * p.useRandom ? randomRange(-thickness.y, thickness.y) : pseudoRandomRange(p.randomSeed + 2, -thickness.y, thickness.y);
         pos[1] = clamp(pos[1], -0.5, 0.5);
     }
     if (thickness.z > 0) {
-        pos[2] += 0.5 * randomRange(-thickness.z, thickness.z);
+        pos[2] += 0.5 * p.useRandom ? randomRange(-thickness.z, thickness.z) : pseudoRandomRange(p.randomSeed + 1, -thickness.z, thickness.z);
         pos[2] = clamp(pos[2], -0.5, 0.5);
     }
 }

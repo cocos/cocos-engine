@@ -36,7 +36,7 @@ import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displa
 import { EDITOR } from 'internal:constants';
 import { RenderableComponent } from '../core/components/renderable-component';
 import { Material } from '../core/assets/material';
-import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3, Vec4 } from '../core/math';
+import { Mat4, pseudoRandom, pseudoRandomRangeInt, Quat, randomRangeInt, Vec2, Vec3, Vec4 } from '../core/math';
 import { INT_MAX } from '../core/math/bits';
 import { scene } from '../core/renderer';
 import ColorOverLifetimeModule from './animator/color-overtime';
@@ -89,6 +89,27 @@ export class ParticleSystem extends RenderableComponent {
         if (this.processor && this.processor._model) {
             // @ts-expect-error private property access
             this.processor._model.setCapacity(this._capacity);
+        }
+    }
+
+    @displayOrder(1)
+    public get useRandom () {
+        return this._useRandom;
+    }
+
+    public set useRandom (val) {
+        this._useRandom = val;
+    }
+
+    @displayOrder(1)
+    public get randomSeed () {
+        return this._randomSeed;
+    }
+
+    public set randomSeed (val) {
+        this._randomSeed = val;
+        if (val !== this._randomSeed) {
+            this.genRandomTable(this._capacity);
         }
     }
 
@@ -717,12 +738,20 @@ export class ParticleSystem extends RenderableComponent {
     private _customData2: Vec2;
 
     private _subEmitters: any[]; // array of { emitter: ParticleSystem, type: 'birth', 'collision' or 'death'}
+    private _randomTable: number[];
+    private _currentParticle: number;
 
     @serializable
     private _prewarm = false;
 
     @serializable
     private _capacity = 100;
+
+    @serializable
+    private _useRandom = true;
+
+    @serializable
+    private _randomSeed = 0;
 
     @serializable
     private _simulationSpace = Space.Local;
@@ -761,6 +790,15 @@ export class ParticleSystem extends RenderableComponent {
         this._customData2 = new Vec2();
 
         this._subEmitters = []; // array of { emitter: ParticleSystem, type: 'birth', 'collision' or 'death'}
+        this._randomTable = [];
+        this._currentParticle = 0;
+    }
+
+    private genRandomTable (num: number) {
+        this._randomTable = [];
+        for (let i = 0; i < num; ++i) {
+            this._randomTable.push(pseudoRandom(i));
+        }
     }
 
     public onFocusInEditor () {
@@ -929,6 +967,7 @@ export class ParticleSystem extends RenderableComponent {
             if (this._trailModule) this._trailModule.clear();
         }
         this._calculateBounding(false);
+        this._currentParticle = 0;
     }
 
     /**
@@ -1172,7 +1211,12 @@ export class ParticleSystem extends RenderableComponent {
             particle.particleSystem = this;
             particle.reset();
 
-            const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
+            if (this._randomTable.length !== this._capacity) {
+                this.genRandomTable(this._capacity);
+            }
+            particle.useRandom = this._useRandom;
+            particle.randomSeed = particle.useRandom ? randomRangeInt(0, 233280) : pseudoRandomRangeInt(this._randomTable[this._currentParticle % this._randomTable.length] + this._randomSeed, 0, 233280);
+            const rand = pseudoRandom(particle.useRandom ? randomRangeInt(0, INT_MAX) : pseudoRandomRangeInt(particle.randomSeed, 0, INT_MAX));
 
             if (this._shapeModule && this._shapeModule.enable) {
                 this._shapeModule.emit(particle);
@@ -1222,10 +1266,10 @@ export class ParticleSystem extends RenderableComponent {
             particle.startLifetime = this.startLifetime.evaluate(loopDelta, rand)! + dt;
             particle.remainingLifetime = particle.startLifetime;
 
-            particle.randomSeed = randomRangeInt(0, 233280);
             particle.loopCount++;
 
             this.processor.setNewParticle(particle);
+            this._currentParticle++;
         } // end of particles forLoop.
     }
 

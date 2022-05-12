@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/restrict-plus-operands */
 /*
  Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
@@ -23,9 +24,7 @@
  THE SOFTWARE.
  */
 
-
-
-import { Mat4, Quat, random, randomRange, randomRangeInt, Vec2, Vec3 } from '../core/math';
+import { Mat4, pseudoRandom, pseudoRandomRange, pseudoRandomRangeInt, Quat, random, randomRange, randomRangeInt, Vec2, Vec3 } from '../core/math';
 import { sign } from '../core/math/bits';
 import { Space } from './enum';
 
@@ -130,6 +129,92 @@ export function randomSortArray (arr: any[]) {
 
 export function randomSign () {
     let sgn = randomRange(-1, 1);
+    if (sgn === 0) {
+        sgn++;
+    }
+    return sign(sgn);
+}
+
+export function pRandomUnitVector2 (out: Vec2 | Vec3, seed) {
+    const a = pseudoRandomRange(seed, 0, 2 * Math.PI);
+    const x = Math.cos(a);
+    const y = Math.sin(a);
+    Vec2.set(out, x, y);
+}
+
+export function pRandomUnitVector (out: Vec3, seed) {
+    const z = pseudoRandomRange(seed * 2, -1, 1);
+    const a = pseudoRandomRange(seed * 3, 0, 2 * Math.PI);
+    const r = Math.sqrt(1 - z * z);
+    const x = r * Math.cos(a);
+    const y = r * Math.sin(a);
+    Vec3.set(out, x, y, z);
+}
+
+export function pRandomPointInUnitSphere (out: Vec3, seed) {
+    pRandomUnitVector(out, seed);
+    Vec3.multiplyScalar(out, out, pseudoRandom(seed * 2));
+}
+
+export function pRandomPointBetweenSphere (out: Vec3, seed, minRadius: number, maxRadius: number) {
+    pRandomUnitVector(out, seed * 3);
+    Vec3.multiplyScalar(out, out, minRadius + (maxRadius - minRadius) * pseudoRandom(seed));
+}
+
+export function pRandomPointInUnitCircle (out: Vec3, seed) {
+    pRandomUnitVector2(out, seed * 4);
+    out.z = 0;
+    Vec3.multiplyScalar(out, out, pseudoRandom(seed * 3));
+}
+
+export function pRandomPointBetweenCircle (out: Vec3, seed, minRadius: number, maxRadius: number) {
+    pRandomUnitVector2(out, seed);
+    out.z = 0;
+    Vec3.multiplyScalar(out, out, minRadius + (maxRadius - minRadius) * pseudoRandom(seed * 3));
+}
+
+export function pRandomPointBetweenCircleAtFixedAngle (out: Vec3, seed, minRadius: number, maxRadius: number, theta: number) {
+    fixedAngleUnitVector2(out, theta);
+    out.z = 0;
+    Vec3.multiplyScalar(out, out, minRadius + (maxRadius - minRadius) * pseudoRandom(seed * 2));
+}
+
+export function pRandomPointInCube (out: Vec3, seed, extents: Vec3) {
+    Vec3.set(out,
+        pseudoRandomRange(seed, -extents.x, extents.x),
+        pseudoRandomRange(seed * 2, -extents.y, extents.y),
+        pseudoRandomRange(seed * 3, -extents.z, extents.z));
+}
+
+export function pRandomPointBetweenCube (out: Vec3, seed, minBox: Vec3, maxBox: Vec3) {
+    const subscript = ['x', 'y', 'z'];
+    const edge = pseudoRandomRangeInt(seed, 0, 3);
+    for (let i = 0; i < 3; i++) {
+        if (i === edge) {
+            out[subscript[i]] = pseudoRandomRange(seed, -maxBox[subscript[i]], maxBox[subscript[i]]);
+            continue;
+        }
+        const x = pseudoRandom(seed * (i + 1)) * 2 - 1;
+        if (x < 0) {
+            out[subscript[i]] = -minBox[subscript[i]] + x * (maxBox[subscript[i]] - minBox[subscript[i]]);
+        } else {
+            out[subscript[i]] = minBox[subscript[i]] + x * (maxBox[subscript[i]] - minBox[subscript[i]]);
+        }
+    }
+}
+
+// Fisher–Yates shuffle
+export function pRandomSortArray (arr: any[], seed) {
+    for (let i = 0; i < arr.length; i++) {
+        const transpose = i + pseudoRandomRangeInt(seed * (i + 2), 0, arr.length - i);
+        const val = arr[transpose];
+        arr[transpose] = arr[i];
+        arr[i] = val;
+    }
+}
+
+export function pRandomSign (seed) {
+    let sgn = pseudoRandomRange(seed * 5, -1, 1);
     if (sgn === 0) {
         sgn++;
     }

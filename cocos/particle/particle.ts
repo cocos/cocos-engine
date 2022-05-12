@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { Color, Vec3, Mat4, Quat } from '../core/math';
 import { ParticleSystem } from './particle-system';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
@@ -61,6 +59,7 @@ export class Particle {
     public emitAccumulator1: number;
     public frameIndex: number;
     public startRow: number;
+    public useRandom: boolean;
 
     constructor (particleSystem: any) {
         this.particleSystem = particleSystem;
@@ -91,6 +90,7 @@ export class Particle {
         this.emitAccumulator1 = 0.0;
         this.frameIndex = 0.0;
         this.startRow = 0;
+        this.useRandom = false;
     }
 
     public reset () {

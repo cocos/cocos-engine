@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /*
  Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
@@ -241,7 +242,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     public name = PARTICLE_MODULE_NAME.TEXTURE;
 
     public init (p: Particle) {
-        p.startRow = Math.floor(Math.random() * this.numTilesY);
+        p.startRow = Math.floor(p.useRandom ? Math.random() : pseudoRandom(p.randomSeed) * this.numTilesY);
     }
 
     public animate (p: Particle, dt: number) {
