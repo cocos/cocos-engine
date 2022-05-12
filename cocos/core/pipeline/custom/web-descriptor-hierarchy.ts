@@ -165,7 +165,7 @@ export class WebDescriptorHierarchy extends DescriptorHierarchy {
             for (let k = 0; k < shader.blocks.length; ++k) {
                 const blockInfo: EffectAsset.IBlockInfo = shader.blocks[k];
                 const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_INSTANCE,
-                    ParameterType.TABLE, DescriptorTypeOrder.UNIFORM_BLOCK, blockInfo.stageFlags, queueDB);
+                    ParameterType.TABLE, DescriptorTypeOrder.UNIFORM_BUFFER, blockInfo.stageFlags, queueDB);
                 const uniformDB: UniformBlockDB = this.getUniformBlock(blockInfo.name, targetBlock);
                 for (let kk = 0; kk < blockInfo.members.length; ++kk) {
                     const uniform: Uniform = blockInfo.members[kk];
@@ -183,7 +183,7 @@ export class WebDescriptorHierarchy extends DescriptorHierarchy {
             for (let k = 0; k < shader.images.length; ++k) {
                 const imageInfo: EffectAsset.IImageInfo = shader.images[k];
                 const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_QUEUE,
-                    ParameterType.TABLE, DescriptorTypeOrder.STORAGE_TEXTURE, imageInfo.stageFlags, queueDB);
+                    ParameterType.TABLE, DescriptorTypeOrder.STORAGE_IMAGE, imageInfo.stageFlags, queueDB);
                 this.setDescriptor(targetBlock, imageInfo.name, imageInfo.type);
             }
 
@@ -211,17 +211,19 @@ export class WebDescriptorHierarchy extends DescriptorHierarchy {
             for (let k = 0; k < shader.subpassInputs.length; ++k) {
                 const subpassInfo: EffectAsset.IInputAttachmentInfo = shader.subpassInputs[k];
                 const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_QUEUE,
-                    ParameterType.TABLE, DescriptorTypeOrder.SUBPASS_INPUT, subpassInfo.stageFlags, queueDB);
+                    ParameterType.TABLE, DescriptorTypeOrder.INPUT_ATTACHMENT, subpassInfo.stageFlags, queueDB);
                 this.setDescriptor(targetBlock, subpassInfo.name, Type.SUBPASS_INPUT);
             }
 
             // Add queue layout from define.ts
             const localUniformTarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_INSTANCE,
-                ParameterType.TABLE, DescriptorTypeOrder.UNIFORM_BLOCK, ShaderStageFlagBit.VERTEX, queueDB);
+                ParameterType.TABLE, DescriptorTypeOrder.UNIFORM_BUFFER, ShaderStageFlagBit.VERTEX, queueDB);
             const localLightTarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_QUEUE,
-                ParameterType.TABLE, DescriptorTypeOrder.UNIFORM_BLOCK, ShaderStageFlagBit.FRAGMENT, queueDB);
+                ParameterType.TABLE, DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER, ShaderStageFlagBit.FRAGMENT, queueDB);
+            const localUITarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_INSTANCE,
+                ParameterType.TABLE, DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER, ShaderStageFlagBit.VERTEX, queueDB);
             const localModelTarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_INSTANCE,
-                ParameterType.TABLE, DescriptorTypeOrder.UNIFORM_BLOCK, ShaderStageFlagBit.VERTEX | ShaderStageFlagBit.COMPUTE, queueDB);
+                ParameterType.TABLE, DescriptorTypeOrder.UNIFORM_BUFFER, ShaderStageFlagBit.VERTEX | ShaderStageFlagBit.COMPUTE, queueDB);
             const localSamplerVertTarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_BATCH,
                 ParameterType.TABLE, DescriptorTypeOrder.SAMPLER_TEXTURE, ShaderStageFlagBit.VERTEX, queueDB);
             const localSamplerFragTarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_BATCH,
@@ -245,7 +247,7 @@ export class WebDescriptorHierarchy extends DescriptorHierarchy {
                     const skinningDB: UniformBlockDB = this.getUniformBlock('CCSkinning', localUniformTarget);
                     this.setUniform(skinningDB, 'cc_joints', Type.FLOAT4, JOINT_UNIFORM_CAPACITY * 3);
                 } else if (blockName === 'CCUILocal') {
-                    const uiDB: UniformBlockDB = this.getUniformBlock('CCUILocal', localUniformTarget);
+                    const uiDB: UniformBlockDB = this.getUniformBlock('CCUILocal', localUITarget);
                     this.setUniform(uiDB, 'cc_local_data', Type.FLOAT4, 1);
                 } else if (blockName === 'CCForwardLight') {
                     const lightDB: UniformBlockDB = this.getUniformBlock('CCForwardLight', localLightTarget);
@@ -330,7 +332,7 @@ export class WebDescriptorHierarchy extends DescriptorHierarchy {
         const passDB: DescriptorDB = new DescriptorDB();
         // Add pass layout from define.ts
         const globalUniformTarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_PASS,
-            ParameterType.TABLE, DescriptorTypeOrder.UNIFORM_BLOCK, ShaderStageFlagBit.ALL, passDB);
+            ParameterType.TABLE, DescriptorTypeOrder.UNIFORM_BUFFER, ShaderStageFlagBit.ALL, passDB);
         const globalSamplerTexTarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_PASS,
             ParameterType.TABLE, DescriptorTypeOrder.SAMPLER_TEXTURE, ShaderStageFlagBit.FRAGMENT, passDB);
 

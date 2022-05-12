@@ -52,13 +52,15 @@ namespace cc {
 namespace render {
 
 enum class DescriptorTypeOrder {
-    UNIFORM_BLOCK,
+    UNIFORM_BUFFER,
+    DYNAMIC_UNIFORM_BUFFER,
     SAMPLER_TEXTURE,
     SAMPLER,
     TEXTURE,
     STORAGE_BUFFER,
-    STORAGE_TEXTURE,
-    SUBPASS_INPUT,
+    DYNAMIC_STORAGE_BUFFER,
+    STORAGE_IMAGE,
+    INPUT_ATTACHMENT,
 };
 
 struct UniformBlockDB {

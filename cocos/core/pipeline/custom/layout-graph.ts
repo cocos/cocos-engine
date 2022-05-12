@@ -34,13 +34,15 @@ import { DescriptorSet, DescriptorSetLayout, ShaderStageFlagBit, Type, Uniform }
 import { ParameterType, UpdateFrequency } from './types';
 
 export const enum DescriptorTypeOrder {
-    UNIFORM_BLOCK,
+    UNIFORM_BUFFER,
+    DYNAMIC_UNIFORM_BUFFER,
     SAMPLER_TEXTURE,
     SAMPLER,
     TEXTURE,
     STORAGE_BUFFER,
-    STORAGE_TEXTURE,
-    SUBPASS_INPUT,
+    DYNAMIC_STORAGE_BUFFER,
+    STORAGE_IMAGE,
+    INPUT_ATTACHMENT,
 }
 
 export class UniformBlockDB {
