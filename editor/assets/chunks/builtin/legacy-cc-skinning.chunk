@@ -1,3 +1,0 @@
-#include <common>
-#include <builtin/uniforms/cc-skinning-uniforms>
-#include <builtin/internal-functions/skinning-animation>
