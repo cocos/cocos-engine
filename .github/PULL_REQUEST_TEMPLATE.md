@@ -19,8 +19,8 @@ This pull request:
 This pull request:
 
 * [ ] changes public API, and have ensured backward compatibility with [deprecated features](https://github.com/cocos/cocos-engine/blob/v3.5.0/docs/contribution/deprecated-features.md).
-* [ ] changes platform compatibility, e.g. system version, browser version, platform sdk version, platform toolchain, language version, hardware compatibility etc.
-* [ ] affects build package file structure or build configuration which requires user project upgrade.
+* [ ] affects platform compatibility, e.g. system version, browser version, platform sdk version, platform toolchain, language version, hardware compatibility etc.
+* [ ] affects file structure of the build package or build configuration which requires user project upgrade.
 * [ ] **introduces breaking changes**, please list all changes, affected features and the scope of violation.
 
 <!-- Note: Makes sure these boxes are checked before submitting your PR - thank you!
