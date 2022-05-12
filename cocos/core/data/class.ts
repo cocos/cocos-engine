@@ -131,15 +131,7 @@ function getDefault (defaultVal) {
     return defaultVal;
 }
 
-function mixinWithInherited (dest, src, filter?) {
-    for (const prop in src) {
-        if (!dest.hasOwnProperty(prop) && (!filter || filter(prop))) {
-            Object.defineProperty(dest, prop, js.getPropertyDescriptor(src, prop)!);
-        }
-    }
-}
-
-function doDefine (className, baseClass, mixins, options) {
+function doDefine (className, baseClass, options) {
     const ctor = options.ctor;
 
     if (DEV) {
@@ -156,25 +148,11 @@ function doDefine (className, baseClass, mixins, options) {
         ctor.$super = baseClass;
     }
 
-    if (mixins) {
-        for (let m = mixins.length - 1; m >= 0; m--) {
-            const mixin = mixins[m];
-            mixinWithInherited(prototype, mixin.prototype);
-
-            // mixin attributes
-            if (CCClass._isCCClass(mixin)) {
-                mixinWithInherited(attributeUtils.getClassAttrs(ctor), attributeUtils.getClassAttrs(mixin));
-            }
-        }
-        // restore constuctor overridden by mixin
-        prototype.constructor = ctor;
-    }
-
     js.setClassName(className, ctor);
     return ctor;
 }
 
-function define (className, baseClass, mixins, options) {
+function define (className, baseClass, options) {
     const Component = legacyCC.Component;
     const frame = RF.peek();
 
@@ -190,7 +168,7 @@ function define (className, baseClass, mixins, options) {
         className = className || frame.script;
     }
 
-    const cls = doDefine(className, baseClass, mixins, options);
+    const cls = doDefine(className, baseClass, options);
 
     if (EDITOR) {
         // for RenderPipeline, RenderFlow, RenderStage
@@ -270,20 +248,11 @@ function escapeForJS (s) {
 // simple test variable name
 const IDENTIFIER_RE = /^[A-Za-z_$][0-9A-Za-z_$]*$/;
 
-function declareProperties (cls, className, properties, baseClass, mixins) {
+function declareProperties (cls, className, properties, baseClass) {
     cls.__props__ = [];
 
     if (baseClass && baseClass.__props__) {
         cls.__props__ = baseClass.__props__.slice();
-    }
-
-    if (mixins) {
-        for (let m = 0; m < mixins.length; ++m) {
-            const mixin = mixins[m];
-            if (mixin.__props__) {
-                cls.__props__ = cls.__props__.concat(mixin.__props__.filter((x) => cls.__props__.indexOf(x) < 0));
-            }
-        }
     }
 
     if (properties) {
@@ -309,15 +278,13 @@ export function CCClass<TFunction> (options: {
     extends: null | (Function & { __props__?: any; _sealed?: boolean });
     ctor: TFunction;
     properties?: any;
-    mixins?: (Function & { __props__?: any })[];
     editor?: any;
 }) {
     let name = options.name;
     const base = options.extends/* || CCObject */;
-    const mixins = options.mixins;
 
     // create constructor
-    const cls = define(name, base, mixins, options);
+    const cls = define(name, base, options);
     if (!name) {
         name = legacyCC.js.getClassName(cls);
     }
@@ -329,7 +296,7 @@ export function CCClass<TFunction> (options: {
 
     // define Properties
     const properties = options.properties;
-    declareProperties(cls, name, properties, base, options.mixins);
+    declareProperties(cls, name, properties, base);
 
     const editor = options.editor;
     if (editor) {
