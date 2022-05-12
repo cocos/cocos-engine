@@ -174,7 +174,6 @@ const gfx::UniformBlock UBOCSM::LAYOUT = {
         {"cc_shadowProjDepthInfo_levels", gfx::Type::FLOAT4, UBOCSM::CSM_LEVEL_COUNT},
         {"cc_shadowProjInfo_levels", gfx::Type::FLOAT4, UBOCSM::CSM_LEVEL_COUNT},
         {"cc_shadowSplits", gfx::Type::FLOAT4, 1},
-        {"cc_depthMode", gfx::Type::FLOAT4, 1},
         {"cc_csmInfo", gfx::Type::FLOAT4, 1},
     },
     1,

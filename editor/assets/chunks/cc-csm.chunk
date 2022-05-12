@@ -9,6 +9,5 @@ layout(set = 0, binding = 3) uniform CCCSM {
   highp vec4 cc_shadowProjDepthInfo_levels[NUMCASCADES];
   highp vec4 cc_shadowProjInfo_levels[NUMCASCADES];
   highp vec4 cc_shadowSplits;  // x-> level_1 far, y-> level_2 far, z-> level_3 far, w-> level_4 far
-  highp vec4 cc_depthMode;     // xyzw: shadow camera depth mode
   highp vec4 cc_csmInfo;       // x-> isDebugMode
 };

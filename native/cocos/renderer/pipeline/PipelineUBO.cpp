@@ -230,27 +230,6 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, std::array
                     memcpy(cv.data() + UBOCSM::SHADOW_PROJ_INFO_LEVELS_OFFSET + 4 * i, &shadowProjInfos, sizeof(shadowProjInfos));
                 }
 
-                if (camera->isOrhto) {
-                    cv[UBOCSM::DEPTH_MODE_OFFSET + 0] = 1.0F;
-                    cv[UBOCSM::DEPTH_MODE_OFFSET + 1] = 0.0F;
-                    if (device->getGfxAPI() == gfx::API::GLES2 ||
-                        device->getGfxAPI() == gfx::API::GLES3 ||
-                        device->getGfxAPI() == gfx::API::WEBGL ||
-                        device->getGfxAPI() == gfx::API::WEBGL2) {
-                        cv[UBOCSM::DEPTH_MODE_OFFSET + 2] = 0.5F;
-                        cv[UBOCSM::DEPTH_MODE_OFFSET + 3] = 0.5F;
-                    } else {
-                        // TODO 未知平台需要验证深度模式
-                        cv[UBOCSM::DEPTH_MODE_OFFSET + 2] = 1.0F;
-                        cv[UBOCSM::DEPTH_MODE_OFFSET + 3] = 0.0F;
-                    }
-                } else {
-                    cv[UBOCSM::DEPTH_MODE_OFFSET + 0] = 0.0F;
-                    cv[UBOCSM::DEPTH_MODE_OFFSET + 1] = 0.0F;
-                    cv[UBOCSM::DEPTH_MODE_OFFSET + 2] = 0.0F;
-                    cv[UBOCSM::DEPTH_MODE_OFFSET + 3] = 1.0F / mainLight->getShadowDistance();
-                }
-
                 cv[UBOCSM::CSM_INFO_OFFSET + 0] = mainLight->isShadowCSMDebugMode() ? 1.0F : 0.0F;
                 cv[UBOCSM::CSM_INFO_OFFSET + 1] = 0.0F;
                 cv[UBOCSM::CSM_INFO_OFFSET + 2] = 0.0F;

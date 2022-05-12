@@ -292,8 +292,7 @@ export class UBOCSM {
     public static readonly SHADOW_PROJ_DEPTH_INFO_LEVELS_OFFSET = UBOCSM.MAT_SHADOW_VIEW_PROJ_ATLAS_LEVELS_OFFSET + 16 * UBOCSM.CSM_LEVEL_COUNT;
     public static readonly SHADOW_PROJ_INFO_LEVELS_OFFSET = UBOCSM.SHADOW_PROJ_DEPTH_INFO_LEVELS_OFFSET + 4 * UBOCSM.CSM_LEVEL_COUNT;
     public static readonly SHADOW_SPLITS_OFFSET = UBOCSM.SHADOW_PROJ_INFO_LEVELS_OFFSET + 4 * UBOCSM.CSM_LEVEL_COUNT;
-    public static readonly DEPTH_MODE_OFFSET = UBOCSM.SHADOW_SPLITS_OFFSET + 4;
-    public static readonly CSM_INFO_OFFSET = UBOCSM.DEPTH_MODE_OFFSET + 4;
+    public static readonly CSM_INFO_OFFSET = UBOCSM.SHADOW_SPLITS_OFFSET + 4;
     public static readonly COUNT: number = UBOCSM.CSM_INFO_OFFSET + 4;
     public static readonly SIZE = UBOCSM.COUNT * 4;
 
@@ -307,7 +306,6 @@ export class UBOCSM {
         new Uniform('cc_shadowProjDepthInfo_levels', Type.FLOAT4, UBOCSM.CSM_LEVEL_COUNT),
         new Uniform('cc_shadowProjInfo_levels', Type.FLOAT4, UBOCSM.CSM_LEVEL_COUNT),
         new Uniform('cc_shadowSplits', Type.FLOAT4, 1),
-        new Uniform('cc_depthMode', Type.FLOAT4, 1),
         new Uniform('cc_csmInfo', Type.FLOAT4, 1),
     ], 1);
 }
