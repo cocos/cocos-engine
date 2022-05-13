@@ -181,9 +181,9 @@ if(WINDOWS)
     target_include_directories(${libsimulator_name} PRIVATE 
         ${CMAKE_CURRENT_LIST_DIR}/proj.win32
         ${CMAKE_CURRENT_LIST_DIR}/../simulator/frameworks/runtime-src/proj.win32
-        PRIVATE ${CMAKE_CURRENT_LIST_DIR}/../../../external/win32/include
-        PRIVATE ${CMAKE_CURRENT_LIST_DIR}/../../../external/win32/include/v8
-        PRIVATE ${CMAKE_CURRENT_LIST_DIR}/../../../external/win32/include/zlib
+        PRIVATE ${CMAKE_CURRENT_LIST_DIR}/../../../external/win64/include
+        PRIVATE ${CMAKE_CURRENT_LIST_DIR}/../../../external/win64/include/v8
+        PRIVATE ${CMAKE_CURRENT_LIST_DIR}/../../../external/win64/include/zlib
     )
     if(COMMAND target_precompile_headers)
         target_precompile_headers(${libsimulator_name}
