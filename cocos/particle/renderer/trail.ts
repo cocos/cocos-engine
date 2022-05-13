@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /*
  Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
