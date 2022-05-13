@@ -258,48 +258,41 @@ export class WebGL2Device extends Device {
         this._formatFeatures[Format.RGB8] = tempFeature;
         this._formatFeatures[Format.RGBA8] = tempFeature;
 
-        tempFeature = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE
-            | FormatFeatureBit.STORAGE_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
+        tempFeature = FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.STORAGE_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
 
         this._formatFeatures[Format.R8SN] = tempFeature;
         this._formatFeatures[Format.RG8SN] = tempFeature;
         this._formatFeatures[Format.RGB8SN] = tempFeature;
         this._formatFeatures[Format.RGBA8SN] = tempFeature;
+        this._formatFeatures[Format.RGB9E5] = tempFeature;
+        this._formatFeatures[Format.SRGB8] = tempFeature;
+        this._formatFeatures[Format.R11G11B10F] = FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.STORAGE_TEXTURE;
+
+        tempFeature = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE
+            | FormatFeatureBit.STORAGE_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
+
         this._formatFeatures[Format.R5G6B5] = tempFeature;
         this._formatFeatures[Format.RGBA4] = tempFeature;
         this._formatFeatures[Format.RGB5A1] = tempFeature;
         this._formatFeatures[Format.RGB10A2] = tempFeature;
-
-        this._formatFeatures[Format.SRGB8] = tempFeature;
         this._formatFeatures[Format.SRGB8_A8] = tempFeature;
-
-        this._formatFeatures[Format.R11G11B10F] = tempFeature;
-        this._formatFeatures[Format.RGB9E5] = tempFeature;
-
         this._formatFeatures[Format.DEPTH] = tempFeature;
         this._formatFeatures[Format.DEPTH_STENCIL] = tempFeature;
+        this._formatFeatures[Format.RGB10A2UI] = tempFeature;
 
-        this._formatFeatures[Format.RGB10A2UI] = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.STORAGE_TEXTURE
-            | FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
-
-        tempFeature = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE
-            | FormatFeatureBit.STORAGE_TEXTURE | FormatFeatureBit.VERTEX_ATTRIBUTE;
+        tempFeature = FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.STORAGE_TEXTURE | FormatFeatureBit.VERTEX_ATTRIBUTE;
 
         this._formatFeatures[Format.R16F] = tempFeature;
         this._formatFeatures[Format.RG16F] = tempFeature;
         this._formatFeatures[Format.RGB16F] = tempFeature;
         this._formatFeatures[Format.RGBA16F] = tempFeature;
 
-        tempFeature = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.STORAGE_TEXTURE
-            | FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.VERTEX_ATTRIBUTE;
+        tempFeature = FormatFeatureBit.STORAGE_TEXTURE | FormatFeatureBit.VERTEX_ATTRIBUTE;
 
         this._formatFeatures[Format.R32F] = tempFeature;
         this._formatFeatures[Format.RG32F] = tempFeature;
         this._formatFeatures[Format.RGB32F] = tempFeature;
         this._formatFeatures[Format.RGBA32F] = tempFeature;
-
-        this._formatFeatures[Format.RGB10A2UI] = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.STORAGE_TEXTURE
-            | FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
 
         tempFeature = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.STORAGE_TEXTURE
             | FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER | FormatFeatureBit.VERTEX_ATTRIBUTE;
@@ -318,19 +311,22 @@ export class WebGL2Device extends Device {
         this._formatFeatures[Format.RG32I] = tempFeature;
         this._formatFeatures[Format.RG32UI] = tempFeature;
 
-        this._formatFeatures[Format.RGB8I] = tempFeature;
-        this._formatFeatures[Format.RGB8UI] = tempFeature;
-        this._formatFeatures[Format.RGB16I] = tempFeature;
-        this._formatFeatures[Format.RGB16UI] = tempFeature;
-        this._formatFeatures[Format.RGB32I] = tempFeature;
-        this._formatFeatures[Format.RGB32UI] = tempFeature;
-
         this._formatFeatures[Format.RGBA8I] = tempFeature;
         this._formatFeatures[Format.RGBA8UI] = tempFeature;
         this._formatFeatures[Format.RGBA16I] = tempFeature;
         this._formatFeatures[Format.RGBA16UI] = tempFeature;
         this._formatFeatures[Format.RGBA32I] = tempFeature;
         this._formatFeatures[Format.RGBA32UI] = tempFeature;
+
+        tempFeature = FormatFeatureBit.STORAGE_TEXTURE | FormatFeatureBit.SAMPLED_TEXTURE
+            | FormatFeatureBit.LINEAR_FILTER | FormatFeatureBit.VERTEX_ATTRIBUTE;
+
+        this._formatFeatures[Format.RGB8I] = tempFeature;
+        this._formatFeatures[Format.RGB8UI] = tempFeature;
+        this._formatFeatures[Format.RGB16I] = tempFeature;
+        this._formatFeatures[Format.RGB16UI] = tempFeature;
+        this._formatFeatures[Format.RGB32I] = tempFeature;
+        this._formatFeatures[Format.RGB32UI] = tempFeature;
 
         this._textureExclusive[Format.R8] = false;
         this._textureExclusive[Format.RG8] = false;
@@ -369,29 +365,43 @@ export class WebGL2Device extends Device {
         this._textureExclusive[Format.DEPTH_STENCIL] = false;
 
         if (exts.EXT_color_buffer_float) {
+            this._formatFeatures[Format.R16F] |= FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.RENDER_TARGET;
+            this._formatFeatures[Format.RG16F] |= FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.RENDER_TARGET;
+            this._formatFeatures[Format.RGBA16F] |= FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.RENDER_TARGET;
+            this._formatFeatures[Format.R32F] |= FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.RENDER_TARGET;
+            this._formatFeatures[Format.RG32F] |= FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.RENDER_TARGET;
+            this._formatFeatures[Format.RGBA32F] |= FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.RENDER_TARGET;
+            this._formatFeatures[Format.R11G11B10F] |= FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.RENDER_TARGET;
+
+            this._textureExclusive[Format.R16F] = false;
+            this._textureExclusive[Format.RG16F] = false;
+            this._textureExclusive[Format.RGBA16F] = false;
             this._textureExclusive[Format.R32F] = false;
             this._textureExclusive[Format.RG32F] = false;
             this._textureExclusive[Format.RGBA32F] = false;
+            this._textureExclusive[Format.R11G11B10F] = false;
         }
 
         if (exts.EXT_color_buffer_half_float) {
-            this._textureExclusive[Format.R16F] = false;
-            this._textureExclusive[Format.RG16F] = false;
+            this._formatFeatures[Format.RGB16F] |= FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.RENDER_TARGET;
+            this._formatFeatures[Format.RGBA16F] |= FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.RENDER_TARGET;
+
+            this._textureExclusive[Format.RGB16F] = false;
             this._textureExclusive[Format.RGBA16F] = false;
         }
 
         if (exts.OES_texture_float_linear) {
-            this._formatFeatures[Format.RGB32F] |= FormatFeatureBit.LINEAR_FILTER;
-            this._formatFeatures[Format.RGBA32F] |= FormatFeatureBit.LINEAR_FILTER;
-            this._formatFeatures[Format.R32F] |= FormatFeatureBit.LINEAR_FILTER;
-            this._formatFeatures[Format.RG32F] |= FormatFeatureBit.LINEAR_FILTER;
+            this._formatFeatures[Format.RGB32F] |= FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
+            this._formatFeatures[Format.RGBA32F] |= FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
+            this._formatFeatures[Format.R32F] |= FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
+            this._formatFeatures[Format.RG32F] |= FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
         }
 
         if (exts.OES_texture_half_float_linear) {
-            this._formatFeatures[Format.RGB16F] |= FormatFeatureBit.LINEAR_FILTER;
-            this._formatFeatures[Format.RGBA16F] |= FormatFeatureBit.LINEAR_FILTER;
-            this._formatFeatures[Format.R16F] |= FormatFeatureBit.LINEAR_FILTER;
-            this._formatFeatures[Format.RG16F] |= FormatFeatureBit.LINEAR_FILTER;
+            this._formatFeatures[Format.RGB16F] |= FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
+            this._formatFeatures[Format.RGBA16F] |= FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
+            this._formatFeatures[Format.R16F] |= FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
+            this._formatFeatures[Format.RG16F] |= FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
         }
 
         const compressedFeature: FormatFeature = FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
