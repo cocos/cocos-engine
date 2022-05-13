@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { Mesh } from '../../3d/assets/mesh';
 import { AttributeName, BufferUsageBit, FormatInfos, MemoryUsageBit, PrimitiveMode,
     Attribute, DRAW_INFO_SIZE, Buffer, IndirectBuffer, BufferInfo, DrawInfo } from '../../core/gfx';
@@ -322,8 +320,12 @@ export default class ParticleBatchModel extends scene.Model {
 
     public destroy () {
         super.destroy();
+        this._vertAttrs = null;
         this._vBuffer = null;
         this._vdataF32 = null;
+        this._vdataUint32 = null;
+        this._material = null;
+        this._mesh = null;
         this.destroySubMeshData();
         if (this._iaInfoBuffer) {
             this._iaInfoBuffer.destroy();
