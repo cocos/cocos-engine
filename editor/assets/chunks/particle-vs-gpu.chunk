@@ -32,20 +32,17 @@ uniform TickConstants {
   vec4 u_timeDelta;
 };
 
+in vec4 a_position_starttime; // center position,particle start time
+in vec4 a_color;
+in vec4 a_dir_life;  // xyz:particle start velocity,w:particle lifetime
+in float a_rndSeed;
+
 #if !CC_INSTANCE_PARTICLE
-  in vec4 a_position_starttime; // center position,particle start time
   in vec4 a_size_uv;  // xyz:size, w:uv_0
   in vec4 a_rotation_uv;  // xyz:rotation, w:uv_1
-  in vec4 a_color;
-  in vec4 a_dir_life;  // xyz:particle start velocity,w:particle lifetime
-  in float a_rndSeed;
 #else
-  in vec4 a_position_starttime; // center position,particle start time
   in vec4 a_size_fid;  // xyz:size, w:fid
   in vec3 a_rotation;  // xyz:rotation
-  in vec4 a_color;
-  in vec4 a_dir_life;  // xyz:particle start velocity,w:particle lifetime
-  in float a_rndSeed;
   #if CC_RENDER_MODE != RENDER_MODE_MESH
     in vec2 a_uv;
   #endif

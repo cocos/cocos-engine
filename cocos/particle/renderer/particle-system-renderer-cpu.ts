@@ -100,7 +100,7 @@ const _vertex_attrs_mesh = [
 ];
 
 const _vertex_attrs_ins = [
-    new Attribute(AttributeName.ATTR_POSITION, Format.RGBA32F, false, 0, true),      // position,frame idx
+    new Attribute(AttributeName.ATTR_TEX_COORD4, Format.RGBA32F, false, 0, true),    // position,frame idx
     new Attribute(AttributeName.ATTR_TEX_COORD1, Format.RGB32F, false, 0, true),     // size
     new Attribute(AttributeName.ATTR_TEX_COORD2, Format.RGB32F, false, 0, true),     // rotation
     new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true, 0, true),            // color
@@ -108,7 +108,7 @@ const _vertex_attrs_ins = [
 ];
 
 const _vertex_attrs_stretch_ins = [
-    new Attribute(AttributeName.ATTR_POSITION, Format.RGBA32F, false, 0, true),      // position,frame idx
+    new Attribute(AttributeName.ATTR_TEX_COORD4, Format.RGBA32F, false, 0, true),    // position,frame idx
     new Attribute(AttributeName.ATTR_TEX_COORD1, Format.RGB32F, false, 0, true),     // size
     new Attribute(AttributeName.ATTR_TEX_COORD2, Format.RGB32F, false, 0, true),     // rotation
     new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true, 0, true),            // color
@@ -117,7 +117,7 @@ const _vertex_attrs_stretch_ins = [
 ];
 
 const _vertex_attrs_mesh_ins = [
-    new Attribute(AttributeName.ATTR_POSITION, Format.RGBA32F, false, 0, true),      // particle position,frame idx
+    new Attribute(AttributeName.ATTR_TEX_COORD4, Format.RGBA32F, false, 0, true),    // particle position,frame idx
     new Attribute(AttributeName.ATTR_TEX_COORD1, Format.RGB32F, false, 0, true),     // size
     new Attribute(AttributeName.ATTR_TEX_COORD2, Format.RGB32F, false, 0, true),     // rotation
     new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true, 0, true),            // particle color
