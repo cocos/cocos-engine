@@ -141,8 +141,7 @@ CCProgram toon-vs %{
 
     CC_TRANSFER_SHADOW(pos);
 
-    vec4 glPosition = cc_matProj * (cc_matView * matWorld) * In.position;
-    return glPosition;
+    return cc_matProj * (cc_matView * matWorld) * In.position;
   }
 }%
 

@@ -16,7 +16,7 @@ void CC_SHADOW_FACTOR(out float realtimeShadow, vec3 N, float NL, vec2 shadowBia
     realtimeShadow = CCShadowFactorBase(CC_SHADOW_POSITION, N, shadowBias);
 }
 
-void CC_CSM_FACTOR(out float realtimeShadow, vec4 iPos, vec3 N, float NL, vec2 shadowBias) {
-    realtimeShadow = CCCSMFactorBase(iPos, N, shadowBias);
+void CC_CSM_FACTOR(out float realtimeShadow, vec3 worldPos, vec3 N, float NL, vec2 shadowBias) {
+    realtimeShadow = CCCSMFactorBase(worldPos, N, shadowBias);
 }
 #endif
