@@ -418,12 +418,12 @@ bool Node::onPreDestroyBase() {
 
     //NOTE: The following code is not needed now since we override Node._onPreDestroy in node.jsb.ts
     // and the logic will be done in TS.
-//    emit(NodeEventType::NODE_DESTROYED, this);
-//    for (const auto &child : _children) {
-//        child->destroyImmediate();
-//    }
-//
-//    emit(EventTypesToJS::NODE_DESTROY_COMPONENTS);
+    //    emit(NodeEventType::NODE_DESTROYED, this);
+    //    for (const auto &child : _children) {
+    //        child->destroyImmediate();
+    //    }
+    //
+    //    emit(EventTypesToJS::NODE_DESTROY_COMPONENTS);
 
     _eventProcessor->destroy();
     return destroyByParent;
