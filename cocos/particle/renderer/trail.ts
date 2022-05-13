@@ -755,6 +755,10 @@ export default class TrailModule {
         }
     }
 
+    public getModel () {
+        return this._trailModel;
+    }
+
     // <debug use>
     // private _printVB() {
     //     let log = new String();
