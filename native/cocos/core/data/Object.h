@@ -126,7 +126,6 @@ public:
     explicit CCObject(ccstd::string name = "");
     ~CCObject() override;
 
-public:
     // MEMBER
 
     /**
