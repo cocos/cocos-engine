@@ -315,10 +315,7 @@ void GLES2Device::initFormatFeature() {
     }
 
     _formatFeatures[toNumber(Format::DEPTH)] |= FormatFeature::RENDER_TARGET;
-    _textureExclusive[toNumber(Format::DEPTH)] = false;
-
     _formatFeatures[toNumber(Format::DEPTH_STENCIL)] |= FormatFeature::RENDER_TARGET;
-    _textureExclusive[toNumber(Format::DEPTH_STENCIL)] = false;
 
     if (checkExtension("EXT_sRGB")) {
         _formatFeatures[toNumber(Format::SRGB8)] |= completeFeature;
@@ -332,32 +329,32 @@ void GLES2Device::initFormatFeature() {
     }
 
     if (checkExtension("texture_float")) {
-        _formatFeatures[toNumber(Format::RGB32F)] |= FormatFeature::RENDER_TARGET | FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::RGBA32F)] |= FormatFeature::RENDER_TARGET | FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::RGB32F)] |= FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::RGBA32F)] |= FormatFeature::SAMPLED_TEXTURE;
         if (checkExtension("texture_rg")) {
-            _formatFeatures[toNumber(Format::R32F)] |= FormatFeature::RENDER_TARGET | FormatFeature::SAMPLED_TEXTURE;
-            _formatFeatures[toNumber(Format::RG32F)] |= FormatFeature::RENDER_TARGET | FormatFeature::SAMPLED_TEXTURE;
+            _formatFeatures[toNumber(Format::R32F)] |= FormatFeature::SAMPLED_TEXTURE;
+            _formatFeatures[toNumber(Format::RG32F)] |= FormatFeature::SAMPLED_TEXTURE;
         }
     }
 
     if (checkExtension("texture_half_float")) {
-        _formatFeatures[toNumber(Format::RGB16F)] |= FormatFeature::RENDER_TARGET | FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::RGBA16F)] |= FormatFeature::RENDER_TARGET | FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::RGB16F)] |= FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::RGBA16F)] |= FormatFeature::SAMPLED_TEXTURE;
         if (checkExtension("texture_rg")) {
-            _formatFeatures[toNumber(Format::R16F)] |= FormatFeature::RENDER_TARGET | FormatFeature::SAMPLED_TEXTURE;
-            _formatFeatures[toNumber(Format::RG16F)] |= FormatFeature::RENDER_TARGET | FormatFeature::SAMPLED_TEXTURE;
+            _formatFeatures[toNumber(Format::R16F)] |= FormatFeature::SAMPLED_TEXTURE;
+            _formatFeatures[toNumber(Format::RG16F)] |= FormatFeature::SAMPLED_TEXTURE;
         }
     }
 
     if (checkExtension("color_buffer_half_float")) {
-        _formatFeatures[toNumber(Format::RGB16F)] |= FormatFeature::RENDER_TARGET;
+        _formatFeatures[toNumber(Format::RGB16F)] |= FormatFeature::SAMPLED_TEXTURE | FormatFeature::RENDER_TARGET;
         _textureExclusive[toNumber(Format::RGB16F)] = false;
-        _formatFeatures[toNumber(Format::RGBA16F)] |= FormatFeature::RENDER_TARGET;
+        _formatFeatures[toNumber(Format::RGBA16F)] |= FormatFeature::SAMPLED_TEXTURE | FormatFeature::RENDER_TARGET;
         _textureExclusive[toNumber(Format::RGBA16F)] = false;
         if (checkExtension("texture_rg")) {
-            _formatFeatures[toNumber(Format::R16F)] |= FormatFeature::RENDER_TARGET;
+            _formatFeatures[toNumber(Format::R16F)] |= FormatFeature::SAMPLED_TEXTURE | FormatFeature::RENDER_TARGET;
             _textureExclusive[toNumber(Format::R16F)] = false;
-            _formatFeatures[toNumber(Format::RG16F)] |= FormatFeature::RENDER_TARGET;
+            _formatFeatures[toNumber(Format::RG16F)] |= FormatFeature::SAMPLED_TEXTURE | FormatFeature::RENDER_TARGET;
             _textureExclusive[toNumber(Format::RG16F)] = false;
         }
     }

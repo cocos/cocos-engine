@@ -283,43 +283,42 @@ void GLES3Device::initFormatFeature() {
     _formatFeatures[toNumber(Format::RGB8)]  = tempFeature;
     _formatFeatures[toNumber(Format::RGBA8)] = tempFeature;
 
+    tempFeature = FormatFeature::SAMPLED_TEXTURE | FormatFeature::LINEAR_FILTER | FormatFeature::STORAGE_TEXTURE;
+
+    _formatFeatures[toNumber(Format::R8SN)]       = tempFeature;
+    _formatFeatures[toNumber(Format::RG8SN)]      = tempFeature;
+    _formatFeatures[toNumber(Format::RGB8SN)]     = tempFeature;
+    _formatFeatures[toNumber(Format::RGBA8SN)]    = tempFeature;
+    _formatFeatures[toNumber(Format::RGB9E5)]     = tempFeature;
+    _formatFeatures[toNumber(Format::SRGB8)]      = tempFeature;
+    _formatFeatures[toNumber(Format::R11G11B10F)] = FormatFeature::SAMPLED_TEXTURE | FormatFeature::STORAGE_TEXTURE;
+
     tempFeature = FormatFeature::SAMPLED_TEXTURE | FormatFeature::RENDER_TARGET | FormatFeature::LINEAR_FILTER | FormatFeature::STORAGE_TEXTURE;
 
-    _formatFeatures[toNumber(Format::R8SN)]    = tempFeature;
-    _formatFeatures[toNumber(Format::RG8SN)]   = tempFeature;
-    _formatFeatures[toNumber(Format::RGB8SN)]  = tempFeature;
-    _formatFeatures[toNumber(Format::RGBA8SN)] = tempFeature;
-    _formatFeatures[toNumber(Format::R5G6B5)]  = tempFeature;
-    _formatFeatures[toNumber(Format::RGBA4)]   = tempFeature;
-    _formatFeatures[toNumber(Format::RGB5A1)]  = tempFeature;
-    _formatFeatures[toNumber(Format::RGB10A2)] = tempFeature;
-
-    _formatFeatures[toNumber(Format::SRGB8)]    = tempFeature;
-    _formatFeatures[toNumber(Format::SRGB8_A8)] = tempFeature;
-
-    _formatFeatures[toNumber(Format::R11G11B10F)] = tempFeature;
-    _formatFeatures[toNumber(Format::RGB9E5)]     = tempFeature;
-
+    _formatFeatures[toNumber(Format::R5G6B5)]        = tempFeature;
+    _formatFeatures[toNumber(Format::RGBA4)]         = tempFeature;
+    _formatFeatures[toNumber(Format::RGB5A1)]        = tempFeature;
+    _formatFeatures[toNumber(Format::RGB10A2)]       = tempFeature;
+    _formatFeatures[toNumber(Format::SRGB8_A8)]      = tempFeature;
     _formatFeatures[toNumber(Format::DEPTH)]         = tempFeature;
     _formatFeatures[toNumber(Format::DEPTH_STENCIL)] = tempFeature;
+    _formatFeatures[toNumber(Format::RGB10A2UI)]     = tempFeature;
 
-    tempFeature = FormatFeature::SAMPLED_TEXTURE | FormatFeature::RENDER_TARGET | FormatFeature::LINEAR_FILTER | FormatFeature::STORAGE_TEXTURE | FormatFeature::VERTEX_ATTRIBUTE;
+    tempFeature = FormatFeature::SAMPLED_TEXTURE | FormatFeature::STORAGE_TEXTURE | FormatFeature::VERTEX_ATTRIBUTE;
 
     _formatFeatures[toNumber(Format::R16F)]    = tempFeature;
     _formatFeatures[toNumber(Format::RG16F)]   = tempFeature;
     _formatFeatures[toNumber(Format::RGB16F)]  = tempFeature;
     _formatFeatures[toNumber(Format::RGBA16F)] = tempFeature;
 
-    tempFeature = FormatFeature::SAMPLED_TEXTURE | FormatFeature::RENDER_TARGET | FormatFeature::STORAGE_TEXTURE | FormatFeature::VERTEX_ATTRIBUTE;
+    tempFeature = FormatFeature::STORAGE_TEXTURE | FormatFeature::VERTEX_ATTRIBUTE;
 
     _formatFeatures[toNumber(Format::R32F)]    = tempFeature;
     _formatFeatures[toNumber(Format::RG32F)]   = tempFeature;
     _formatFeatures[toNumber(Format::RGB32F)]  = tempFeature;
     _formatFeatures[toNumber(Format::RGBA32F)] = tempFeature;
 
-    _formatFeatures[toNumber(Format::RGB10A2UI)] = FormatFeature::RENDER_TARGET | FormatFeature::LINEAR_FILTER | FormatFeature::STORAGE_TEXTURE;
-
-    tempFeature = FormatFeature::SAMPLED_TEXTURE | FormatFeature::RENDER_TARGET | FormatFeature::LINEAR_FILTER | FormatFeature::STORAGE_TEXTURE | FormatFeature::VERTEX_ATTRIBUTE;
+    tempFeature = FormatFeature::RENDER_TARGET | FormatFeature::STORAGE_TEXTURE | FormatFeature::SAMPLED_TEXTURE | FormatFeature::LINEAR_FILTER | FormatFeature::VERTEX_ATTRIBUTE;
 
     _formatFeatures[toNumber(Format::R8I)]   = tempFeature;
     _formatFeatures[toNumber(Format::R8UI)]  = tempFeature;
@@ -335,19 +334,21 @@ void GLES3Device::initFormatFeature() {
     _formatFeatures[toNumber(Format::RG32I)]  = tempFeature;
     _formatFeatures[toNumber(Format::RG32UI)] = tempFeature;
 
-    _formatFeatures[toNumber(Format::RGB8I)]   = tempFeature;
-    _formatFeatures[toNumber(Format::RGB8UI)]  = tempFeature;
-    _formatFeatures[toNumber(Format::RGB16I)]  = tempFeature;
-    _formatFeatures[toNumber(Format::RGB16UI)] = tempFeature;
-    _formatFeatures[toNumber(Format::RGB32I)]  = tempFeature;
-    _formatFeatures[toNumber(Format::RGB32UI)] = tempFeature;
-
     _formatFeatures[toNumber(Format::RGBA8I)]   = tempFeature;
     _formatFeatures[toNumber(Format::RGBA8UI)]  = tempFeature;
     _formatFeatures[toNumber(Format::RGBA16I)]  = tempFeature;
     _formatFeatures[toNumber(Format::RGBA16UI)] = tempFeature;
     _formatFeatures[toNumber(Format::RGBA32I)]  = tempFeature;
     _formatFeatures[toNumber(Format::RGBA32UI)] = tempFeature;
+
+    tempFeature = FormatFeature::STORAGE_TEXTURE | FormatFeature::VERTEX_ATTRIBUTE | FormatFeature::SAMPLED_TEXTURE | FormatFeature::LINEAR_FILTER;
+
+    _formatFeatures[toNumber(Format::RGB8I)]   = tempFeature;
+    _formatFeatures[toNumber(Format::RGB8UI)]  = tempFeature;
+    _formatFeatures[toNumber(Format::RGB16I)]  = tempFeature;
+    _formatFeatures[toNumber(Format::RGB16UI)] = tempFeature;
+    _formatFeatures[toNumber(Format::RGB32I)]  = tempFeature;
+    _formatFeatures[toNumber(Format::RGB32UI)] = tempFeature;
 
     _textureExclusive[toNumber(Format::R8)]     = false;
     _textureExclusive[toNumber(Format::RG8)]    = false;
@@ -395,12 +396,28 @@ void GLES3Device::initFormatFeature() {
     }
 
     if (checkExtension("color_buffer_float")) {
-        _textureExclusive[toNumber(Format::R32F)]    = false;
-        _textureExclusive[toNumber(Format::RG32F)]   = false;
-        _textureExclusive[toNumber(Format::RGB32F)]  = false;
-        _textureExclusive[toNumber(Format::RGBA32F)] = false;
+        _formatFeatures[toNumber(Format::R16F)] |= FormatFeature::SAMPLED_TEXTURE | FormatFeature::RENDER_TARGET;
+        _formatFeatures[toNumber(Format::RG16F)] |= FormatFeature::SAMPLED_TEXTURE | FormatFeature::RENDER_TARGET;
+        _formatFeatures[toNumber(Format::RGBA16F)] |= FormatFeature::SAMPLED_TEXTURE | FormatFeature::RENDER_TARGET;
+        _formatFeatures[toNumber(Format::R32F)] |= FormatFeature::SAMPLED_TEXTURE | FormatFeature::RENDER_TARGET;
+        _formatFeatures[toNumber(Format::RG32F)] |= FormatFeature::SAMPLED_TEXTURE | FormatFeature::RENDER_TARGET;
+        _formatFeatures[toNumber(Format::RGBA32F)] |= FormatFeature::SAMPLED_TEXTURE | FormatFeature::RENDER_TARGET;
+        _formatFeatures[toNumber(Format::R11G11B10F)] |= FormatFeature::SAMPLED_TEXTURE | FormatFeature::RENDER_TARGET;
+
+        _textureExclusive[toNumber(Format::R16F)]       = false;
+        _textureExclusive[toNumber(Format::RG16F)]      = false;
+        _textureExclusive[toNumber(Format::RGBA16F)]    = false;
+        _textureExclusive[toNumber(Format::R32F)]       = false;
+        _textureExclusive[toNumber(Format::RG32F)]      = false;
+        _textureExclusive[toNumber(Format::RGBA32F)]    = false;
+        _textureExclusive[toNumber(Format::R11G11B10F)] = false;
     }
     if (checkExtension("color_buffer_half_float")) {
+        _formatFeatures[toNumber(Format::R16F)] |= FormatFeature::SAMPLED_TEXTURE | FormatFeature::RENDER_TARGET;
+        _formatFeatures[toNumber(Format::RG16F)] |= FormatFeature::SAMPLED_TEXTURE | FormatFeature::RENDER_TARGET;
+        _formatFeatures[toNumber(Format::RGB16F)] |= FormatFeature::SAMPLED_TEXTURE | FormatFeature::RENDER_TARGET;
+        _formatFeatures[toNumber(Format::RGBA16F)] |= FormatFeature::SAMPLED_TEXTURE | FormatFeature::RENDER_TARGET;
+
         _textureExclusive[toNumber(Format::R16F)]    = false;
         _textureExclusive[toNumber(Format::RG16F)]   = false;
         _textureExclusive[toNumber(Format::RGB16F)]  = false;
@@ -408,17 +425,17 @@ void GLES3Device::initFormatFeature() {
     }
 
     if (checkExtension("texture_float_linear")) {
-        _formatFeatures[toNumber(Format::RGB32F)] |= FormatFeature::LINEAR_FILTER;
-        _formatFeatures[toNumber(Format::RGBA32F)] |= FormatFeature::LINEAR_FILTER;
-        _formatFeatures[toNumber(Format::R32F)] |= FormatFeature::LINEAR_FILTER;
-        _formatFeatures[toNumber(Format::RG32F)] |= FormatFeature::LINEAR_FILTER;
+        _formatFeatures[toNumber(Format::RGB32F)] |= FormatFeature::SAMPLED_TEXTURE | FormatFeature::LINEAR_FILTER;
+        _formatFeatures[toNumber(Format::RGBA32F)] |= FormatFeature::SAMPLED_TEXTURE | FormatFeature::LINEAR_FILTER;
+        _formatFeatures[toNumber(Format::R32F)] |= FormatFeature::SAMPLED_TEXTURE | FormatFeature::LINEAR_FILTER;
+        _formatFeatures[toNumber(Format::RG32F)] |= FormatFeature::SAMPLED_TEXTURE | FormatFeature::LINEAR_FILTER;
     }
 
     if (checkExtension("texture_half_float_linear")) {
-        _formatFeatures[toNumber(Format::RGB16F)] |= FormatFeature::LINEAR_FILTER;
-        _formatFeatures[toNumber(Format::RGBA16F)] |= FormatFeature::LINEAR_FILTER;
-        _formatFeatures[toNumber(Format::R16F)] |= FormatFeature::LINEAR_FILTER;
-        _formatFeatures[toNumber(Format::RG16F)] |= FormatFeature::LINEAR_FILTER;
+        _formatFeatures[toNumber(Format::RGB16F)] |= FormatFeature::SAMPLED_TEXTURE | FormatFeature::LINEAR_FILTER;
+        _formatFeatures[toNumber(Format::RGBA16F)] |= FormatFeature::SAMPLED_TEXTURE | FormatFeature::LINEAR_FILTER;
+        _formatFeatures[toNumber(Format::R16F)] |= FormatFeature::SAMPLED_TEXTURE | FormatFeature::LINEAR_FILTER;
+        _formatFeatures[toNumber(Format::RG16F)] |= FormatFeature::SAMPLED_TEXTURE | FormatFeature::LINEAR_FILTER;
     }
 
     const FormatFeature compressedFeature = FormatFeature::SAMPLED_TEXTURE | FormatFeature::LINEAR_FILTER;

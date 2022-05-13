@@ -268,9 +268,7 @@ export class WebGLDevice extends Device {
         this._textureExclusive[Format.RGB5A1] = false;
 
         this._formatFeatures[Format.DEPTH] = FormatFeatureBit.RENDER_TARGET;
-        this._textureExclusive[Format.DEPTH] = false;
         this._formatFeatures[Format.DEPTH_STENCIL] = FormatFeatureBit.RENDER_TARGET;
-        this._textureExclusive[Format.DEPTH_STENCIL] = false;
 
         this._formatFeatures[Format.R8I] |= FormatFeatureBit.VERTEX_ATTRIBUTE;
         this._formatFeatures[Format.RG8I] |= FormatFeatureBit.VERTEX_ATTRIBUTE;
@@ -310,27 +308,27 @@ export class WebGLDevice extends Device {
         }
 
         if (exts.WEBGL_color_buffer_float) {
-            this._formatFeatures[Format.RGB32F] |= FormatFeatureBit.RENDER_TARGET;
-            this._formatFeatures[Format.RGBA32F] |= FormatFeatureBit.RENDER_TARGET;
+            this._formatFeatures[Format.RGB32F] |= FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.RENDER_TARGET;
+            this._formatFeatures[Format.RGBA32F] |= FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.RENDER_TARGET;
             this._textureExclusive[Format.RGB32F] = false;
             this._textureExclusive[Format.RGBA32F] = false;
         }
 
         if (exts.EXT_color_buffer_half_float) {
-            this._formatFeatures[Format.RGB16F] |= FormatFeatureBit.RENDER_TARGET;
-            this._formatFeatures[Format.RGBA16F] |= FormatFeatureBit.RENDER_TARGET;
+            this._formatFeatures[Format.RGB16F] |= FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.RENDER_TARGET;
+            this._formatFeatures[Format.RGBA16F] |= FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.RENDER_TARGET;
             this._textureExclusive[Format.RGB16F] = false;
             this._textureExclusive[Format.RGBA16F] = false;
         }
 
         if (exts.OES_texture_float) {
-            this._formatFeatures[Format.RGB32F] |= FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE;
-            this._formatFeatures[Format.RGBA32F] |= FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE;
+            this._formatFeatures[Format.RGB32F] |= FormatFeatureBit.SAMPLED_TEXTURE;
+            this._formatFeatures[Format.RGBA32F] |= FormatFeatureBit.SAMPLED_TEXTURE;
         }
 
         if (exts.OES_texture_half_float) {
-            this._formatFeatures[Format.RGB16F] |= FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE;
-            this._formatFeatures[Format.RGBA16F] |= FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE;
+            this._formatFeatures[Format.RGB16F] |= FormatFeatureBit.SAMPLED_TEXTURE;
+            this._formatFeatures[Format.RGBA16F] |= FormatFeatureBit.SAMPLED_TEXTURE;
         }
 
         if (exts.OES_texture_float_linear) {
