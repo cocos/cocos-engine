@@ -38,6 +38,7 @@
 #include "cocos/scene/RenderWindow.h"
 #include "gfx-base/GFXDevice.h"
 #include "profiler/DebugRenderer.h"
+#include "test/test.h"
 
 namespace cc {
 
@@ -272,6 +273,7 @@ void NativePipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
             framegraph::FrameGraph::gc(INTERVAL_IN_SECONDS * 60);
         }
     }
+    testCase3();
 }
 
 const MacroRecord &NativePipeline::getMacros() const {

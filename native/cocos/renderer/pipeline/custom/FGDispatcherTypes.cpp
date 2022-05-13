@@ -67,7 +67,7 @@ FrameGraphDispatcher::FrameGraphDispatcher(ResourceGraph& resourceGraphIn, Rende
   graph(graphIn),
   layoutGraph(layoutGraphIn),
   scratch(scratchIn),
-  _externalResMap(alloc) {}
+  externalResMap(alloc) {}
 
 } // namespace render
 
