@@ -692,9 +692,9 @@ if (JSB) {
     copyAllProperties(CCObject.prototype, jsb.CCObject.prototype,
         ['constructor', 'name', 'hideFlags', 'replicated', 'isValid']);
 
-    // @ts-expect-error Override the CCObject with jsb.CCObject
+    // @ts-expect-error TS2629
     CCObject = jsb.CCObject;
 }
 
 legacyCC.Object = CCObject;
-export {CCObject};
+export { CCObject };
