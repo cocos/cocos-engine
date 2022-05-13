@@ -115,6 +115,14 @@ describe('Skeletal animation state', () => {
         expect(animationAddUserMock.mock.calls[0][0]).toBe(anotherChildSkin);
         animationAddUserMock.mockClear();
 
+        // Inactive skin
+        const inactiveChildNode = new Node('inactiveChildNode');
+        const inactiveSkin = inactiveChildNode.addComponent(SkinnedMeshRenderer) as SkinnedMeshRenderer;
+        n_0_0.addChild(inactiveChildNode);
+        inactiveChildNode.active = false;
+        inactiveSkin.skinningRoot = n_0_0;
+        expect(animationAddUserMock).toBeCalledTimes(0);
+
         // Sibling's skin
         const siblingSkin = siblingNode.addComponent(SkinnedMeshRenderer) as SkinnedMeshRenderer;
         const siblingSkinSetUseBakedAnimationMock = mockSkinSetUseBakedAnimation(siblingSkin);
