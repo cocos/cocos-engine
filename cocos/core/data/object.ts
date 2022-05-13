@@ -687,13 +687,17 @@ if (EDITOR || TEST) {
 
 declare const jsb: any;
 
+let CCObjectExported;
+
 if (JSB) {
     copyAllProperties(CCObject, jsb.CCObject, ['prototype', 'length', 'name']);
     copyAllProperties(CCObject.prototype, jsb.CCObject.prototype,
         ['constructor', 'name', 'hideFlags', 'replicated', 'isValid']);
 
-    (CCObject as any) = jsb.CCObject;
+    CCObjectExported = jsb.CCObject;
+} else {
+    CCObjectExported = CCObject;
 }
 
-legacyCC.Object = CCObject;
-export { CCObject };
+legacyCC.Object = CCObjectExported;
+export { CCObjectExported as CCObject };
