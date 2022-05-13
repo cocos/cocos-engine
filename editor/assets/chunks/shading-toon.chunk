@@ -73,7 +73,6 @@ struct ToonSurface {
 #else
   #if CC_RECEIVE_SHADOW
     #include <cc-shadow-map-fs>
-    #include <cc-csm>
   #endif
 
   vec4 CCToonShading (ToonSurface s) {

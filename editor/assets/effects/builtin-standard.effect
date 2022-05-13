@@ -310,7 +310,6 @@ CCProgram shadow-caster-vs %{
   #include <cc-local-batch>
   #include <shared-ubos>
   #include <cc-shadow>
-  #include <cc-csm>
 
   #if HAS_SECOND_UV || USE_LIGHTMAP
     in vec2 a_texCoord1;

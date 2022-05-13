@@ -5,7 +5,6 @@
 #include <common>
 #include <gamma>
 #include <cc-shadow-map-base>
-#include <cc-csm>
 
 #if CC_USE_IBL
   #include <cc-environment>
