@@ -9,7 +9,7 @@ jobs:
   compile_windows:
     strategy:
       matrix:
-        branch: ['v3.6.0']
+        branch: ['v3.5.1', v3.6.0']
     runs-on: windows-2019
     name: "Daily Windows"
 
@@ -73,7 +73,7 @@ jobs:
     name: "Daily Android"
     strategy:
       matrix:
-        branch: ['v3.6.0']
+        branch: ['v3.5.1', v3.6.0']
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -145,7 +145,7 @@ jobs:
     name: "Daily MacOS x86_64"
     strategy:
       matrix:
-        branch: ['v3.6.0']
+        branch: ['v3.5.1', v3.6.0']
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
@@ -214,7 +214,7 @@ jobs:
     name: "Daily iOS"
     strategy:
       matrix:
-        branch: ['v3.6.0']
+        branch: ['v3.5.1', v3.6.0']
 
     runs-on: macos-latest
     steps:
