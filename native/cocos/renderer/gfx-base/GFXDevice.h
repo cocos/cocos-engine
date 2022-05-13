@@ -59,55 +59,55 @@ public:
     void destroy();
 
     virtual void acquire(Swapchain *const *swapchains, uint32_t count) = 0;
-    virtual void present()                                             = 0;
+    virtual void present() = 0;
 
     virtual void flushCommands(CommandBuffer *const *cmdBuffs, uint32_t count) {}
 
     virtual MemoryStatus &getMemoryStatus() { return _memoryStatus; }
-    virtual uint32_t      getNumDrawCalls() const { return _numDrawCalls; }
-    virtual uint32_t      getNumInstances() const { return _numInstances; }
-    virtual uint32_t      getNumTris() const { return _numTriangles; }
+    virtual uint32_t getNumDrawCalls() const { return _numDrawCalls; }
+    virtual uint32_t getNumInstances() const { return _numInstances; }
+    virtual uint32_t getNumTris() const { return _numTriangles; }
 
-    inline CommandBuffer *      createCommandBuffer(const CommandBufferInfo &info);
-    inline Queue *              createQueue(const QueueInfo &info);
-    inline QueryPool *          createQueryPool(const QueryPoolInfo &info);
-    inline Swapchain *          createSwapchain(const SwapchainInfo &info);
-    inline Buffer *             createBuffer(const BufferInfo &info);
-    inline Buffer *             createBuffer(const BufferViewInfo &info);
-    inline Texture *            createTexture(const TextureInfo &info);
-    inline Texture *            createTexture(const TextureViewInfo &info);
-    inline Shader *             createShader(const ShaderInfo &info);
-    inline InputAssembler *     createInputAssembler(const InputAssemblerInfo &info);
-    inline RenderPass *         createRenderPass(const RenderPassInfo &info);
-    inline Framebuffer *        createFramebuffer(const FramebufferInfo &info);
-    inline DescriptorSet *      createDescriptorSet(const DescriptorSetInfo &info);
+    inline CommandBuffer *createCommandBuffer(const CommandBufferInfo &info);
+    inline Queue *createQueue(const QueueInfo &info);
+    inline QueryPool *createQueryPool(const QueryPoolInfo &info);
+    inline Swapchain *createSwapchain(const SwapchainInfo &info);
+    inline Buffer *createBuffer(const BufferInfo &info);
+    inline Buffer *createBuffer(const BufferViewInfo &info);
+    inline Texture *createTexture(const TextureInfo &info);
+    inline Texture *createTexture(const TextureViewInfo &info);
+    inline Shader *createShader(const ShaderInfo &info);
+    inline InputAssembler *createInputAssembler(const InputAssemblerInfo &info);
+    inline RenderPass *createRenderPass(const RenderPassInfo &info);
+    inline Framebuffer *createFramebuffer(const FramebufferInfo &info);
+    inline DescriptorSet *createDescriptorSet(const DescriptorSetInfo &info);
     inline DescriptorSetLayout *createDescriptorSetLayout(const DescriptorSetLayoutInfo &info);
-    inline PipelineLayout *     createPipelineLayout(const PipelineLayoutInfo &info);
-    inline PipelineState *      createPipelineState(const PipelineStateInfo &info);
+    inline PipelineLayout *createPipelineLayout(const PipelineLayoutInfo &info);
+    inline PipelineState *createPipelineState(const PipelineStateInfo &info);
 
-    virtual Sampler *       getSampler(const SamplerInfo &info);
+    virtual Sampler *getSampler(const SamplerInfo &info);
     virtual GeneralBarrier *getGeneralBarrier(const GeneralBarrierInfo &info);
     virtual TextureBarrier *getTextureBarrier(const TextureBarrierInfo &info);
 
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) = 0;
-    virtual void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count)        = 0;
-    virtual void getQueryPoolResults(QueryPool *queryPool)                                                                           = 0;
+    virtual void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) = 0;
+    virtual void getQueryPoolResults(QueryPool *queryPool) = 0;
 
     inline void copyTextureToBuffers(Texture *src, BufferSrcList &buffers, const BufferTextureCopyList &regions);
     inline void copyBuffersToTexture(const BufferDataList &buffers, Texture *dst, const BufferTextureCopyList &regions);
     inline void flushCommands(const ccstd::vector<CommandBuffer *> &cmdBuffs);
     inline void acquire(const ccstd::vector<Swapchain *> &swapchains);
 
-    inline Queue *              getQueue() const { return _queue; }
-    inline QueryPool *          getQueryPool() const { return _queryPool; }
-    inline CommandBuffer *      getCommandBuffer() const { return _cmdBuff; }
-    inline const DeviceCaps &   getCapabilities() const { return _caps; }
-    inline API                  getGfxAPI() const { return _api; }
+    inline Queue *getQueue() const { return _queue; }
+    inline QueryPool *getQueryPool() const { return _queryPool; }
+    inline CommandBuffer *getCommandBuffer() const { return _cmdBuff; }
+    inline const DeviceCaps &getCapabilities() const { return _caps; }
+    inline API getGfxAPI() const { return _api; }
     inline const ccstd::string &getDeviceName() const { return _deviceName; }
     inline const ccstd::string &getRenderer() const { return _renderer; }
     inline const ccstd::string &getVendor() const { return _vendor; }
-    inline bool                 hasFeature(Feature feature) const { return _features[toNumber(feature)]; }
-    inline FormatFeature        getFormatFeatures(Format format) const { return _formatFeatures[toNumber(format)]; }
+    inline bool hasFeature(Feature feature) const { return _features[toNumber(feature)]; }
+    inline FormatFeature getFormatFeatures(Format format) const { return _formatFeatures[toNumber(format)]; }
 
     inline const BindingMappingInfo &bindingMappingInfo() const { return _bindingMappingInfo; }
 
@@ -133,60 +133,60 @@ protected:
     void createSurface(void *windowHandle);
 
     virtual bool doInit(const DeviceInfo &info) = 0;
-    virtual void doDestroy()                    = 0;
+    virtual void doDestroy() = 0;
 
-    virtual CommandBuffer *      createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) = 0;
-    virtual Queue *              createQueue()                                                     = 0;
-    virtual QueryPool *          createQueryPool()                                                 = 0;
-    virtual Swapchain *          createSwapchain()                                                 = 0;
-    virtual Buffer *             createBuffer()                                                    = 0;
-    virtual Texture *            createTexture()                                                   = 0;
-    virtual Shader *             createShader()                                                    = 0;
-    virtual InputAssembler *     createInputAssembler()                                            = 0;
-    virtual RenderPass *         createRenderPass()                                                = 0;
-    virtual Framebuffer *        createFramebuffer()                                               = 0;
-    virtual DescriptorSet *      createDescriptorSet()                                             = 0;
-    virtual DescriptorSetLayout *createDescriptorSetLayout()                                       = 0;
-    virtual PipelineLayout *     createPipelineLayout()                                            = 0;
-    virtual PipelineState *      createPipelineState()                                             = 0;
+    virtual CommandBuffer *createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) = 0;
+    virtual Queue *createQueue() = 0;
+    virtual QueryPool *createQueryPool() = 0;
+    virtual Swapchain *createSwapchain() = 0;
+    virtual Buffer *createBuffer() = 0;
+    virtual Texture *createTexture() = 0;
+    virtual Shader *createShader() = 0;
+    virtual InputAssembler *createInputAssembler() = 0;
+    virtual RenderPass *createRenderPass() = 0;
+    virtual Framebuffer *createFramebuffer() = 0;
+    virtual DescriptorSet *createDescriptorSet() = 0;
+    virtual DescriptorSetLayout *createDescriptorSetLayout() = 0;
+    virtual PipelineLayout *createPipelineLayout() = 0;
+    virtual PipelineState *createPipelineState() = 0;
 
-    virtual Sampler *       createSampler(const SamplerInfo &info) { return ccnew Sampler(info); }
+    virtual Sampler *createSampler(const SamplerInfo &info) { return ccnew Sampler(info); }
     virtual GeneralBarrier *createGeneralBarrier(const GeneralBarrierInfo &info) { return ccnew GeneralBarrier(info); }
     virtual TextureBarrier *createTextureBarrier(const TextureBarrierInfo &info) { return ccnew TextureBarrier(info); }
 
     // For context switching between threads
     virtual void bindContext(bool bound) {}
 
-    ccstd::string      _deviceName;
-    ccstd::string      _renderer;
-    ccstd::string      _vendor;
-    ccstd::string      _version;
-    API                _api{API::UNKNOWN};
-    DeviceCaps         _caps;
+    ccstd::string _deviceName;
+    ccstd::string _renderer;
+    ccstd::string _vendor;
+    ccstd::string _version;
+    API _api{API::UNKNOWN};
+    DeviceCaps _caps;
     BindingMappingInfo _bindingMappingInfo;
 
     bool _multithreadedCommandRecording{true};
 
-    ccstd::array<bool, static_cast<size_t>(Feature::COUNT)>         _features;
+    ccstd::array<bool, static_cast<size_t>(Feature::COUNT)> _features;
     ccstd::array<FormatFeature, static_cast<size_t>(Format::COUNT)> _formatFeatures;
 
-    Queue *        _queue{nullptr};
-    QueryPool *    _queryPool{nullptr};
+    Queue *_queue{nullptr};
+    QueryPool *_queryPool{nullptr};
     CommandBuffer *_cmdBuff{nullptr};
-    Executable *   _onAcquire{nullptr};
+    Executable *_onAcquire{nullptr};
 
-    uint32_t     _numDrawCalls{0U};
-    uint32_t     _numInstances{0U};
-    uint32_t     _numTriangles{0U};
+    uint32_t _numDrawCalls{0U};
+    uint32_t _numInstances{0U};
+    uint32_t _numTriangles{0U};
     MemoryStatus _memoryStatus;
 
-    ccstd::unordered_map<SamplerInfo, Sampler *, Hasher<SamplerInfo>>                      _samplers;
+    ccstd::unordered_map<SamplerInfo, Sampler *, Hasher<SamplerInfo>> _samplers;
     ccstd::unordered_map<GeneralBarrierInfo, GeneralBarrier *, Hasher<GeneralBarrierInfo>> _generalBarriers;
     ccstd::unordered_map<TextureBarrierInfo, TextureBarrier *, Hasher<TextureBarrierInfo>> _textureBarriers;
 
 private:
     ccstd::vector<Swapchain *> _swapchains; // weak reference
-    bool                       _rendererAvailable{false};
+    bool _rendererAvailable{false};
 };
 
 //////////////////////////////////////////////////////////////////////////

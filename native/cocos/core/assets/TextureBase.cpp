@@ -42,8 +42,8 @@ IDGenerator idGenerator("Tex");
 
 TextureBase::TextureBase() {
     // Id for generate hash in material
-    _id              = idGenerator.getNewId();
-    _gfxDevice       = getGFXDevice();
+    _id = idGenerator.getNewId();
+    _gfxDevice = getGFXDevice();
     std::size_t seed = 666;
     boost::hash_range(seed, _id.begin(), _id.end());
     _textureHash = static_cast<uint32_t>(seed);
@@ -52,13 +52,13 @@ TextureBase::TextureBase() {
 TextureBase::~TextureBase() = default;
 
 void TextureBase::setWrapMode(WrapMode wrapS, WrapMode wrapT, WrapMode wrapR) {
-    _wrapS                = wrapS;
+    _wrapS = wrapS;
     _samplerInfo.addressU = static_cast<gfx::Address>(wrapS),
 
-    _wrapT                = wrapT;
+    _wrapT = wrapT;
     _samplerInfo.addressV = static_cast<gfx::Address>(wrapT),
 
-    _wrapR                = wrapR;
+    _wrapR = wrapR;
     _samplerInfo.addressW = static_cast<gfx::Address>(wrapR);
 
     if (_gfxDevice != nullptr) {
@@ -73,9 +73,9 @@ void TextureBase::setWrapMode(WrapMode wrapS, WrapMode wrapT) {
 }
 
 void TextureBase::setFilters(Filter minFilter, Filter magFilter) {
-    _minFilter             = minFilter;
+    _minFilter = minFilter;
     _samplerInfo.minFilter = static_cast<gfx::Filter>(minFilter);
-    _magFilter             = magFilter;
+    _magFilter = magFilter;
     _samplerInfo.magFilter = static_cast<gfx::Filter>(magFilter);
 
     if (_gfxDevice != nullptr) {
@@ -86,7 +86,7 @@ void TextureBase::setFilters(Filter minFilter, Filter magFilter) {
 }
 
 void TextureBase::setMipFilter(Filter mipFilter) {
-    _mipFilter             = mipFilter;
+    _mipFilter = mipFilter;
     _samplerInfo.mipFilter = static_cast<gfx::Filter>(mipFilter);
 
     if (_gfxDevice != nullptr) {
@@ -97,7 +97,7 @@ void TextureBase::setMipFilter(Filter mipFilter) {
 }
 
 void TextureBase::setAnisotropy(uint32_t anisotropy) {
-    _anisotropy                = anisotropy;
+    _anisotropy = anisotropy;
     _samplerInfo.maxAnisotropy = anisotropy;
 
     if (_gfxDevice != nullptr) {
@@ -140,8 +140,8 @@ void TextureBase::deserialize(const cc::any &serializedData, const cc::any & /*h
     if (pData == nullptr) {
         return;
     }
-    const ccstd::string &data   = *pData;
-    auto                 fields = StringUtil::split(data, ",");
+    const ccstd::string &data = *pData;
+    auto fields = StringUtil::split(data, ",");
     fields.insert(fields.begin(), "");
 
     if (fields.size() >= 5) {

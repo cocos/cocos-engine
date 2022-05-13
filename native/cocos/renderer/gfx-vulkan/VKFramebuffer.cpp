@@ -41,18 +41,18 @@ CCVKFramebuffer::~CCVKFramebuffer() {
 }
 
 void CCVKFramebuffer::doInit(const FramebufferInfo & /*info*/) {
-    _gpuFBO                = ccnew CCVKGPUFramebuffer;
+    _gpuFBO = ccnew CCVKGPUFramebuffer;
     _gpuFBO->gpuRenderPass = static_cast<CCVKRenderPass *>(_renderPass)->gpuRenderPass();
 
     _gpuFBO->gpuColorViews.resize(_colorTextures.size());
     for (size_t i = 0; i < _colorTextures.size(); ++i) {
-        auto *colorTex            = static_cast<CCVKTexture *>(_colorTextures[i]);
+        auto *colorTex = static_cast<CCVKTexture *>(_colorTextures[i]);
         _gpuFBO->gpuColorViews[i] = colorTex->gpuTextureView();
         CCVKDevice::getInstance()->gpuFramebufferHub()->connect(colorTex->gpuTexture(), _gpuFBO);
     }
 
     if (_depthStencilTexture) {
-        auto *depthTex               = static_cast<CCVKTexture *>(_depthStencilTexture);
+        auto *depthTex = static_cast<CCVKTexture *>(_depthStencilTexture);
         _gpuFBO->gpuDepthStencilView = depthTex->gpuTextureView();
         CCVKDevice::getInstance()->gpuFramebufferHub()->connect(depthTex->gpuTexture(), _gpuFBO);
     }

@@ -36,7 +36,7 @@ protected:
     AudioDecoderSLES();
     virtual ~AudioDecoderSLES();
 
-    bool         init(SLEngineItf engineItf, const ccstd::string &url, int bufferSizeInFrames, int sampleRate, const FdGetterCallback &fdGetterCallback);
+    bool init(SLEngineItf engineItf, const ccstd::string &url, int bufferSizeInFrames, int sampleRate, const FdGetterCallback &fdGetterCallback);
     virtual bool decodeToPcm() override;
 
 private:
@@ -69,24 +69,24 @@ private:
     int _endiannessKeyIndex;
 
     /* to signal to the test app the end of the stream to decode has been reached */
-    bool                    _eos;
-    std::mutex              _eosLock;
+    bool _eos;
+    std::mutex _eosLock;
     std::condition_variable _eosCondition;
 
     /* Structure for passing information to callback function */
     typedef struct CallbackCntxt_ {
-        SLPlayItf               playItf;
+        SLPlayItf playItf;
         SLMetadataExtractionItf metaItf;
-        SLuint32                size;
-        SLint8 *                pDataBase; // Base address of local audio data storage
-        SLint8 *                pData;     // Current address of local audio data storage
+        SLuint32 size;
+        SLint8 *pDataBase; // Base address of local audio data storage
+        SLint8 *pData;     // Current address of local audio data storage
     } CallbackCntxt;
 
-    CallbackCntxt    _decContext;
-    int              _bufferSizeInFrames;
-    int              _assetFd;
+    CallbackCntxt _decContext;
+    int _bufferSizeInFrames;
+    int _assetFd;
     FdGetterCallback _fdGetterCallback;
-    bool             _isDecodingCallbackInvoked;
+    bool _isDecodingCallbackInvoked;
 
     friend class SLAudioDecoderCallbackProxy;
     friend class AudioDecoderProvider;

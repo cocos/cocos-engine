@@ -121,7 +121,7 @@ size_t Hasher<FramebufferInfo>::operator()(const FramebufferInfo &info) const {
     } else {
         seed = info.colorTextures.size() * 3;
     }
-    for (auto* colorTexture : info.colorTextures) {
+    for (auto *colorTexture : info.colorTextures) {
         boost::hash_combine(seed, colorTexture);
         boost::hash_combine(seed, colorTexture->getRaw());
         boost::hash_combine(seed, colorTexture->getHash());
@@ -132,7 +132,7 @@ size_t Hasher<FramebufferInfo>::operator()(const FramebufferInfo &info) const {
 bool operator==(const FramebufferInfo &lhs, const FramebufferInfo &rhs) {
     // render pass is mostly irrelevant
     bool res = false;
-    res      = lhs.colorTextures == rhs.colorTextures;
+    res = lhs.colorTextures == rhs.colorTextures;
 
     if (res) {
         res = lhs.depthStencilTexture == rhs.depthStencilTexture;
@@ -610,7 +610,7 @@ uint32_t formatSurfaceSize(Format format, uint32_t width, uint32_t height, uint3
 
     for (uint32_t i = 0; i < mips; ++i) {
         size += formatSize(format, width, height, depth);
-        width  = std::max(width >> 1, 1U);
+        width = std::max(width >> 1, 1U);
         height = std::max(height >> 1, 1U);
     }
 

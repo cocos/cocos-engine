@@ -30,7 +30,7 @@ THE SOFTWARE.
 #include <math.h>
 
 TEST(mathVec3Test, test2) {
-	cc::Vec3 vec3(1, 2, 3);
+    cc::Vec3 vec3(1, 2, 3);
     // isZero
     logLabel = "test whether vec3 is 0";
     ExpectEq(vec3.isZero(), false);
@@ -156,4 +156,3 @@ TEST(mathVec3Test, test2) {
     vec3 = cc::Vec3::fromColor(255);
     ExpectEq(vec3.z == 1, true);
 }
-

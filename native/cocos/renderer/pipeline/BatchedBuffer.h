@@ -39,27 +39,27 @@ class SubModel;
 namespace pipeline {
 
 struct CC_DLL BatchedItem {
-    gfx::BufferList                             vbs;
-    ccstd::vector<uint8_t *>                    vbDatas;
-    gfx::Buffer *                               indexBuffer = nullptr;
-    float *                                     indexData   = nullptr;
-    uint                                        vbCount     = 0;
-    uint                                        mergeCount  = 0;
-    gfx::InputAssembler *                       ia          = nullptr;
-    gfx::Buffer *                               ubo         = nullptr;
+    gfx::BufferList vbs;
+    ccstd::vector<uint8_t *> vbDatas;
+    gfx::Buffer *indexBuffer = nullptr;
+    float *indexData = nullptr;
+    uint vbCount = 0;
+    uint mergeCount = 0;
+    gfx::InputAssembler *ia = nullptr;
+    gfx::Buffer *ubo = nullptr;
     ccstd::array<float, UBOLocalBatched::COUNT> uboData;
-    gfx::DescriptorSet *                        descriptorSet = nullptr;
-    const scene::Pass *                         pass          = nullptr;
-    gfx::Shader *                               shader        = nullptr;
+    gfx::DescriptorSet *descriptorSet = nullptr;
+    const scene::Pass *pass = nullptr;
+    gfx::Shader *shader = nullptr;
 };
-using BatchedItemList   = ccstd::vector<BatchedItem>;
+using BatchedItemList = ccstd::vector<BatchedItem>;
 using DynamicOffsetList = ccstd::vector<uint>;
 
 class CC_DLL BatchedBuffer : public RefCounted {
 public:
     static BatchedBuffer *get(scene::Pass *pass);
     static BatchedBuffer *get(scene::Pass *pass, uint extraKey);
-    static void           destroyBatchedBuffer();
+    static void destroyBatchedBuffer();
 
     explicit BatchedBuffer(const scene::Pass *pass);
     ~BatchedBuffer() override;
@@ -69,16 +69,16 @@ public:
     void clear();
     void setDynamicOffset(uint idx, uint value);
 
-    inline const BatchedItemList &  getBatches() const { return _batches; }
-    inline const scene::Pass *      getPass() const { return _pass; }
+    inline const BatchedItemList &getBatches() const { return _batches; }
+    inline const scene::Pass *getPass() const { return _pass; }
     inline const DynamicOffsetList &getDynamicOffset() const { return _dynamicOffsets; }
 
 private:
     static ccstd::unordered_map<scene::Pass *, ccstd::unordered_map<uint, BatchedBuffer *>> buffers;
-    DynamicOffsetList                                                                       _dynamicOffsets;
-    BatchedItemList                                                                         _batches;
-    const scene::Pass *                                                                     _pass   = nullptr;
-    gfx::Device *                                                                           _device = nullptr;
+    DynamicOffsetList _dynamicOffsets;
+    BatchedItemList _batches;
+    const scene::Pass *_pass = nullptr;
+    gfx::Device *_device = nullptr;
 };
 
 } // namespace pipeline

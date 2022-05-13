@@ -27,7 +27,7 @@ import { JSB } from 'internal:constants';
 import { Camera, Model } from 'cocos/core/renderer/scene';
 import type { UIStaticBatch } from '../components/ui-static-batch';
 import { Material } from '../../core/assets/material';
-import { RenderRoot2D, Renderable2D } from '../framework';
+import { RenderRoot2D, UIRenderer } from '../framework';
 import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, Buffer,
     BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet, InputAssembler } from '../../core/gfx';
 import { Pool } from '../../core/memop';
@@ -92,7 +92,7 @@ export class Batcher2D implements IBatcher {
     private _currTexture: Texture | null = null;
     private _currSampler: Sampler | null = null;
     private _currStaticRoot: UIStaticBatch | null = null;
-    private _currComponent: Renderable2D | null = null;
+    private _currComponent: UIRenderer | null = null;
     private _currTransform: Node | null = null;
     private _currTextureHash = 0;
     private _currSamplerHash = 0;
@@ -321,7 +321,7 @@ export class Batcher2D implements IBatcher {
      * @param assembler - The assembler for the current component, could be null
      * @param transform - Node type transform, if passed, then batcher will consider it's using model matrix, could be null
      */
-    public commitComp (comp: Renderable2D, renderData: BaseRenderData|null, frame: TextureBase|SpriteFrame|null, assembler, transform: Node|null) {
+    public commitComp (comp: UIRenderer, renderData: BaseRenderData|null, frame: TextureBase|SpriteFrame|null, assembler, transform: Node|null) {
         let dataHash = 0;
         let mat;
         let bufferID = -1;
@@ -378,7 +378,7 @@ export class Batcher2D implements IBatcher {
      * @param mat - The material used
      * @param [transform] - The related node transform if the render data is based on node's local coordinates
      */
-    public commitIA (renderComp: Renderable2D, ia: InputAssembler, tex?: TextureBase, mat?: Material, transform?: Node) {
+    public commitIA (renderComp: UIRenderer, ia: InputAssembler, tex?: TextureBase, mat?: Material, transform?: Node) {
         // if the last comp is spriteComp, previous comps should be batched.
         if (this._currMaterial !== this._emptyMaterial) {
             this.autoMergeBatches(this._currComponent!);
@@ -427,7 +427,7 @@ export class Batcher2D implements IBatcher {
      * @param model - The committed model
      * @param mat - The material used, could be null
      */
-    public commitModel (comp: UIMeshRenderer | Renderable2D, model: Model | null, mat: Material | null) {
+    public commitModel (comp: UIMeshRenderer | UIRenderer, model: Model | null, mat: Material | null) {
         // if the last comp is spriteComp, previous comps should be batched.
         if (this._currMaterial !== this._emptyMaterial) {
             this.autoMergeBatches(this._currComponent!);
@@ -503,7 +503,7 @@ export class Batcher2D implements IBatcher {
      * @zh
      * 根据合批条件，结束一段渲染数据并提交。
      */
-    public autoMergeBatches (renderComp?: Renderable2D) {
+    public autoMergeBatches (renderComp?: UIRenderer) {
         const mat = this._currMaterial;
         if (!mat) {
             return;
@@ -580,7 +580,7 @@ export class Batcher2D implements IBatcher {
      * @param material - 当前批次的材质。
      * @param sprite - 当前批次的精灵帧。
      */
-    public forceMergeBatches (material: Material, frame: TextureBase | SpriteFrame | null, renderComp: Renderable2D) {
+    public forceMergeBatches (material: Material, frame: TextureBase | SpriteFrame | null, renderComp: UIRenderer) {
         this._currMaterial = material;
 
         if (frame) {
@@ -637,7 +637,7 @@ export class Batcher2D implements IBatcher {
         }
         const children = node.children;
         const uiProps = node._uiProps;
-        const render = uiProps.uiComp as Renderable2D;
+        const render = uiProps.uiComp as UIRenderer;
 
         // Save opacity
         const parentOpacity = this._pOpacity;

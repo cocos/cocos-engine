@@ -58,17 +58,17 @@ using namespace cc; //NOLINT
 
 // Audio focus values synchronized with which in cocos/platform/android/java/src/com/cocos/lib/CocosNativeActivity.java
 namespace {
-AudioEngineImpl *gAudioImpl         = nullptr;
-int              outputSampleRate   = 44100;
-int              bufferSizeInFrames = 192;
+AudioEngineImpl *gAudioImpl = nullptr;
+int outputSampleRate = 44100;
+int bufferSizeInFrames = 192;
 
 void getAudioInfo() {
-    JNIEnv *  env         = JniHelper::getEnv();
-    jclass    audioSystem = env->FindClass("android/media/AudioSystem");
-    jmethodID method      = env->GetStaticMethodID(audioSystem, "getPrimaryOutputSamplingRate", "()I");
-    outputSampleRate      = env->CallStaticIntMethod(audioSystem, method);
-    method                = env->GetStaticMethodID(audioSystem, "getPrimaryOutputFrameCount", "()I");
-    bufferSizeInFrames    = env->CallStaticIntMethod(audioSystem, method);
+    JNIEnv *env = JniHelper::getEnv();
+    jclass audioSystem = env->FindClass("android/media/AudioSystem");
+    jmethodID method = env->GetStaticMethodID(audioSystem, "getPrimaryOutputSamplingRate", "()I");
+    outputSampleRate = env->CallStaticIntMethod(audioSystem, method);
+    method = env->GetStaticMethodID(audioSystem, "getPrimaryOutputFrameCount", "()I");
+    bufferSizeInFrames = env->CallStaticIntMethod(audioSystem, method);
 }
 } // namespace
 
@@ -97,8 +97,8 @@ static int fdGetter(const ccstd::string &url, off_t *start, off_t *length) {
     if (cc::FileUtilsAndroid::getObbFile() != nullptr) {
         int64_t startV;
         int64_t lenV;
-        fd      = getObbAssetFileDescriptorJNI(url, &startV, &lenV);
-        *start  = static_cast<off_t>(startV);
+        fd = getObbAssetFileDescriptorJNI(url, &startV, &lenV);
+        *start = static_cast<off_t>(startV);
         *length = static_cast<off_t>(lenV);
     }
     if (fd <= 0) {
@@ -170,8 +170,8 @@ bool AudioEngineImpl::init() {
 
         // create output mix
         const SLInterfaceID outputMixIIDs[] = {};
-        const SLboolean     outputMixReqs[] = {};
-        result                              = (*_engineEngine)->CreateOutputMix(_engineEngine, &_outputMixObject, 0, outputMixIIDs, outputMixReqs);
+        const SLboolean outputMixReqs[] = {};
+        result = (*_engineEngine)->CreateOutputMix(_engineEngine, &_outputMixObject, 0, outputMixIIDs, outputMixReqs);
         if (SL_RESULT_SUCCESS != result) {
             CC_LOG_ERROR("create output mix fail");
             break;

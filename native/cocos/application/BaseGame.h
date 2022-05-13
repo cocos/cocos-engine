@@ -30,18 +30,18 @@ namespace cc {
 class BaseGame : public CocosApplication {
 public:
     struct DebuggerInfo {
-        bool        enabled{true};
-        int32_t     port{6086};
+        bool enabled{true};
+        int32_t port{6086};
         std::string address{"0.0.0.0"};
-        bool        pauseOnStart{false};
+        bool pauseOnStart{false};
     };
     struct WindowInfo {
         std::string title;
-        int32_t     x{-1};
-        int32_t     y{-1};
-        int32_t     width{-1};
-        int32_t     height{-1};
-        int32_t     flags{-1};
+        int32_t x{-1};
+        int32_t y{-1};
+        int32_t width{-1};
+        int32_t height{-1};
+        int32_t flags{-1};
     };
 
     BaseGame() = default;
@@ -51,9 +51,9 @@ public:
         // override default value
         //_windowInfo.x      = _windowInfo.x == -1 ? 0 : _windowInfo.x;
         //_windowInfo.y      = _windowInfo.y == -1 ? 0 : _windowInfo.y;
-        _windowInfo.width  = _windowInfo.width == -1 ? 800 : _windowInfo.width;
+        _windowInfo.width = _windowInfo.width == -1 ? 800 : _windowInfo.width;
         _windowInfo.height = _windowInfo.height == -1 ? 600 : _windowInfo.height;
-        _windowInfo.flags  = _windowInfo.flags == -1 ? cc::ISystemWindow::CC_WINDOW_SHOWN |
+        _windowInfo.flags = _windowInfo.flags == -1 ? cc::ISystemWindow::CC_WINDOW_SHOWN |
                                                           cc::ISystemWindow::CC_WINDOW_RESIZABLE |
                                                           cc::ISystemWindow::CC_WINDOW_INPUT_FOCUS
                                                     : _windowInfo.flags;
@@ -82,8 +82,8 @@ public:
     }
 
 protected:
-    std::string  _xxteaKey;
+    std::string _xxteaKey;
     DebuggerInfo _debuggerInfo;
-    WindowInfo   _windowInfo;
+    WindowInfo _windowInfo;
 };
 } // namespace cc

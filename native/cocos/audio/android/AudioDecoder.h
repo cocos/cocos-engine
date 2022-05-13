@@ -43,19 +43,19 @@ public:
 
 protected:
     virtual bool decodeToPcm() = 0;
-    bool         resample();
-    bool         interleave();
+    bool resample();
+    bool interleave();
 
     static size_t fileRead(void *ptr, size_t size, size_t nmemb, void *datasource);
-    static int    fileSeek(void *datasource, int64_t offset, int whence);
-    static int    fileClose(void *datasource);
-    static long   fileTell(void *datasource);
+    static int fileSeek(void *datasource, int64_t offset, int whence);
+    static int fileClose(void *datasource);
+    static long fileTell(void *datasource);
 
     ccstd::string _url;
-    PcmData       _result;
-    int           _sampleRate;
-    Data          _fileData;
-    size_t        _fileCurrPos;
+    PcmData _result;
+    int _sampleRate;
+    Data _fileData;
+    size_t _fileCurrPos;
 };
 
 } // namespace cc

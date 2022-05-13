@@ -111,12 +111,12 @@ AudioDecoderSLES::~AudioDecoderSLES() {
 
 bool AudioDecoderSLES::init(SLEngineItf engineItf, const ccstd::string &url, int bufferSizeInFrames, int sampleRate, const FdGetterCallback &fdGetterCallback) {
     if (AudioDecoder::init(url, sampleRate)) {
-        _engineItf          = engineItf;
+        _engineItf = engineItf;
         _bufferSizeInFrames = bufferSizeInFrames;
-        _fdGetterCallback   = fdGetterCallback;
+        _fdGetterCallback = fdGetterCallback;
 
         BUFFER_SIZE_IN_BYTES = toBufferSizeInBytes(bufferSizeInFrames, 2, 2);
-        _pcmData             = (char *)malloc(NB_BUFFERS_IN_QUEUE * BUFFER_SIZE_IN_BYTES);
+        _pcmData = (char *)malloc(NB_BUFFERS_IN_QUEUE * BUFFER_SIZE_IN_BYTES);
         memset(_pcmData, 0x00, NB_BUFFERS_IN_QUEUE * BUFFER_SIZE_IN_BYTES);
         return true;
     }
@@ -132,23 +132,23 @@ bool AudioDecoderSLES::decodeToPcm() {
 
     /* Interfaces for the audio player */
     SLAndroidSimpleBufferQueueItf decBuffQueueItf;
-    SLPrefetchStatusItf           prefetchItf;
-    SLPlayItf                     playItf;
-    SLMetadataExtractionItf       mdExtrItf;
+    SLPrefetchStatusItf prefetchItf;
+    SLPlayItf playItf;
+    SLMetadataExtractionItf mdExtrItf;
 
     /* Source of audio data for the decoding */
     SLDataSource decSource;
 
     // decUri & locFd should be defined here
-    SLDataLocator_URI       decUri;
+    SLDataLocator_URI decUri;
     SLDataLocator_AndroidFD locFd;
 
     /* Data sink for decoded audio */
-    SLDataSink                             decDest;
+    SLDataSink decDest;
     SLDataLocator_AndroidSimpleBufferQueue decBuffQueue;
-    SLDataFormat_PCM                       pcm;
+    SLDataFormat_PCM pcm;
 
-    SLboolean     required[NUM_EXPLICIT_INTERFACES_FOR_PLAYER];
+    SLboolean required[NUM_EXPLICIT_INTERFACES_FOR_PLAYER];
     SLInterfaceID iidArray[NUM_EXPLICIT_INTERFACES_FOR_PLAYER];
 
     /* Initialize arrays required[] and iidArray[] */
@@ -171,12 +171,12 @@ bool AudioDecoderSLES::decodeToPcm() {
     iidArray[2] = SL_IID_METADATAEXTRACTION;
 
     SLDataFormat_MIME formatMime = {SL_DATAFORMAT_MIME, nullptr, SL_CONTAINERTYPE_UNSPECIFIED};
-    decSource.pFormat            = &formatMime;
+    decSource.pFormat = &formatMime;
 
     if (_url[0] != '/') {
-        off_t         start = 0, length = 0;
+        off_t start = 0, length = 0;
         ccstd::string relativePath;
-        size_t        position = _url.find("@assets/");
+        size_t position = _url.find("@assets/");
 
         if (0 == position) {
             // "@assets/" is at the beginning of the path and we don't want it
@@ -197,25 +197,25 @@ bool AudioDecoderSLES::decodeToPcm() {
 
         decSource.pLocator = &locFd;
     } else {
-        decUri             = {SL_DATALOCATOR_URI, (SLchar *)_url.c_str()};
+        decUri = {SL_DATALOCATOR_URI, (SLchar *)_url.c_str()};
         decSource.pLocator = &decUri;
     }
 
     /* Setup the data sink */
     decBuffQueue.locatorType = SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE;
-    decBuffQueue.numBuffers  = NB_BUFFERS_IN_QUEUE;
+    decBuffQueue.numBuffers = NB_BUFFERS_IN_QUEUE;
     /*    set up the format of the data in the buffer queue */
     pcm.formatType = SL_DATAFORMAT_PCM;
     // IDEA: valid value required but currently ignored
-    pcm.numChannels   = 2;
+    pcm.numChannels = 2;
     pcm.samplesPerSec = SL_SAMPLINGRATE_44_1;
     pcm.bitsPerSample = SL_PCMSAMPLEFORMAT_FIXED_16;
     pcm.containerSize = SL_PCMSAMPLEFORMAT_FIXED_16;
-    pcm.channelMask   = SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT;
-    pcm.endianness    = SL_BYTEORDER_LITTLEENDIAN;
+    pcm.channelMask = SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT;
+    pcm.endianness = SL_BYTEORDER_LITTLEENDIAN;
 
     decDest.pLocator = (void *)&decBuffQueue;
-    decDest.pFormat  = (void *)&pcm;
+    decDest.pFormat = (void *)&pcm;
 
     {
         std::lock_guard<std::mutex> lk(__SLPlayerMutex);
@@ -264,11 +264,11 @@ bool AudioDecoderSLES::decodeToPcm() {
 
     /* ------------------------------------------------------ */
     /* Initialize the callback and its context for the decoding buffer queue */
-    _decContext.playItf   = playItf;
-    _decContext.metaItf   = mdExtrItf;
+    _decContext.playItf = playItf;
+    _decContext.metaItf = mdExtrItf;
     _decContext.pDataBase = (int8_t *)_pcmData;
-    _decContext.pData     = _decContext.pDataBase;
-    _decContext.size      = NB_BUFFERS_IN_QUEUE * BUFFER_SIZE_IN_BYTES;
+    _decContext.pData = _decContext.pDataBase;
+    _decContext.size = NB_BUFFERS_IN_QUEUE * BUFFER_SIZE_IN_BYTES;
 
     result = (*decBuffQueueItf)->RegisterCallback(decBuffQueueItf, SLAudioDecoderCallbackProxy::decPlayCallback, this);
     SL_RETURN_VAL_IF_FAILED(result, false, "decBuffQueueItf RegisterCallback failed");
@@ -299,7 +299,7 @@ bool AudioDecoderSLES::decodeToPcm() {
 
     /*     2/ block until data has been prefetched */
     SLuint32 prefetchStatus = SL_PREFETCHSTATUS_UNDERFLOW;
-    SLuint32 timeOutIndex   = 1000; //cjh time out prefetching after 2s
+    SLuint32 timeOutIndex = 1000; //cjh time out prefetching after 2s
     while ((prefetchStatus != SL_PREFETCHSTATUS_SUFFICIENTDATA) && (timeOutIndex > 0) &&
            !_prefetchError) {
         std::this_thread::sleep_for(std::chrono::milliseconds(2));
@@ -315,7 +315,7 @@ bool AudioDecoderSLES::decodeToPcm() {
     /* ------------------------------------------------------ */
     /* Display duration */
     SLmillisecond durationInMsec = SL_TIME_UNKNOWN;
-    result                       = (*playItf)->GetDuration(playItf, &durationInMsec);
+    result = (*playItf)->GetDuration(playItf, &durationInMsec);
     SL_RETURN_VAL_IF_FAILED(result, false, "GetDuration failed");
 
     if (durationInMsec == SL_TIME_UNKNOWN) {
@@ -331,14 +331,14 @@ bool AudioDecoderSLES::decodeToPcm() {
     //   can make assumptions about the size of the keys and their matching values (all SLuint32)
     SLuint32 itemCount;
     result = (*mdExtrItf)->GetItemCount(mdExtrItf, &itemCount);
-    SLuint32        i, keySize, valueSize;
+    SLuint32 i, keySize, valueSize;
     SLMetadataInfo *keyInfo, *value;
     for (i = 0; i < itemCount; i++) {
-        keyInfo   = nullptr;
-        keySize   = 0;
-        value     = nullptr;
+        keyInfo = nullptr;
+        keySize = 0;
+        value = nullptr;
         valueSize = 0;
-        result    = (*mdExtrItf)->GetKeySize(mdExtrItf, i, &keySize);
+        result = (*mdExtrItf)->GetKeySize(mdExtrItf, i, &keySize);
         SL_RETURN_VAL_IF_FAILED(result, false, "GetKeySize(%d) failed", (int)i);
 
         result = (*mdExtrItf)->GetValueSize(mdExtrItf, i, &valueSize);
@@ -433,7 +433,7 @@ void AudioDecoderSLES::queryAudioInfo() {
     SLresult result;
     /* Get duration in callback where we use the callback context for the SLPlayItf*/
     SLmillisecond durationInMsec = SL_TIME_UNKNOWN;
-    result                       = (*_decContext.playItf)->GetDuration(_decContext.playItf, &durationInMsec);
+    result = (*_decContext.playItf)->GetDuration(_decContext.playItf, &durationInMsec);
     SL_RETURN_IF_FAILED(result, "decodeProgressCallback,GetDuration failed");
 
     if (durationInMsec == SL_TIME_UNKNOWN) {
@@ -455,7 +455,7 @@ void AudioDecoderSLES::queryAudioInfo() {
     //       but the call was successful for the PCM format keys, so those conditions are implied
 
     _result.sampleRate = *((SLuint32 *)pcmMetaData.data);
-    result             = (*_decContext.metaItf)->GetValue(_decContext.metaItf, _numChannelsKeyIndex, PCM_METADATA_VALUE_SIZE, &pcmMetaData);
+    result = (*_decContext.metaItf)->GetValue(_decContext.metaItf, _numChannelsKeyIndex, PCM_METADATA_VALUE_SIZE, &pcmMetaData);
     SL_RETURN_IF_FAILED(result, "%s GetValue _numChannelsKeyIndex failed", __FUNCTION__);
 
     _result.numChannels = *((SLuint32 *)pcmMetaData.data);
@@ -481,7 +481,7 @@ void AudioDecoderSLES::queryAudioInfo() {
 
 void AudioDecoderSLES::prefetchCallback(SLPrefetchStatusItf caller, SLuint32 event) {
     SLpermille level = 0;
-    SLresult   result;
+    SLresult result;
     result = (*caller)->GetFillLevel(caller, &level);
     SL_RETURN_IF_FAILED(result, "GetFillLevel failed");
 

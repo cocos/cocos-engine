@@ -51,7 +51,7 @@ RenderScene::~RenderScene() = default;
 
 void RenderScene::activate() {
     const auto *sceneData = Root::getInstance()->getPipeline()->getPipelineSceneData();
-    _octree               = sceneData->getOctree();
+    _octree = sceneData->getOctree();
 }
 
 bool RenderScene::initialize(const IRenderSceneInfo &info) {
@@ -79,6 +79,7 @@ void RenderScene::update(uint32_t stamp) {
         if (model->isEnabled()) {
             model->updateTransform(stamp);
             model->updateUBOs(stamp);
+            model->updateOctree();
         }
     }
 
@@ -102,6 +103,7 @@ void RenderScene::addCamera(Camera *camera) {
 void RenderScene::removeCamera(Camera *camera) {
     auto iter = std::find(_cameras.begin(), _cameras.end(), camera);
     if (iter != _cameras.end()) {
+        (*iter)->detachFromScene();
         _cameras.erase(iter);
     }
 }

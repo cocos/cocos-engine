@@ -33,13 +33,13 @@
         #define __GNU_SOURCE
         #include <dlfcn.h>
 
-static NewHookType    g_new_hooker    = nullptr;
+static NewHookType g_new_hooker = nullptr;
 static DeleteHookType g_delete_hooker = nullptr;
 
 extern "C" {
 
 void *malloc(size_t size) __attribute__((weak));
-void  free(void *ptr) __attribute__((weak));
+void free(void *ptr) __attribute__((weak));
 
 // Use strong symbol to overwrite the weak one.
 void *malloc(size_t size) {
@@ -70,17 +70,17 @@ void free(void *ptr) {
 }
 
     #elif CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
-typedef void malloc_logger_t(uint32_t  aType,
+typedef void malloc_logger_t(uint32_t aType,
                              uintptr_t aArg1, uintptr_t aArg2, uintptr_t aArg3,
                              uintptr_t aResult, uint32_t aNumHotFramesToSkip);
 
 extern malloc_logger_t *malloc_logger;
 static malloc_logger_t *g_system_malloc_logger = nullptr;
-static NewHookType      g_new_hooker           = nullptr;
-static DeleteHookType   g_delete_hooker        = nullptr;
+static NewHookType g_new_hooker = nullptr;
+static DeleteHookType g_delete_hooker = nullptr;
 
 static void
-cc_malloc_logger(uint32_t  aType,
+cc_malloc_logger(uint32_t aType,
                  uintptr_t aArg1, uintptr_t aArg2, uintptr_t aArg3,
                  uintptr_t aResult, uint32_t aNumHotFramesToSkip) {
     if (aResult != 0) {
@@ -99,8 +99,8 @@ cc_malloc_logger(uint32_t  aType,
         } else {
             // malloc/calloc/valloc
             if (CC_PREDICT_TRUE(g_new_hooker != nullptr)) {
-                const void *ptr  = reinterpret_cast<const void *>(aResult);
-                size_t      size = reinterpret_cast<size_t>(aArg2);
+                const void *ptr = reinterpret_cast<const void *>(aResult);
+                size_t size = reinterpret_cast<size_t>(aArg2);
                 g_new_hooker(ptr, size);
             }
         }
@@ -160,8 +160,8 @@ void MemoryHook::addRecord(uint64_t address, size_t size) {
     // {} is necessary here to make variables being destroyed before _hooking = false
     {
         MemoryRecord record;
-        record.address   = address;
-        record.size      = size;
+        record.address = address;
+        record.size = size;
         record.callstack = CallStack::backtrace();
         _records.insert({address, record});
         _totalSize += size;
@@ -243,12 +243,12 @@ void MemoryHook::dumpMemoryLeak() {
         log(stream.str());
     }
 
-    uint32_t i         = 0;
-    size_t   skipSize  = 0;
+    uint32_t i = 0;
+    size_t skipSize = 0;
     uint32_t skipCount = 0;
 
     for (const auto &iter : _records) {
-        bool skip   = false;
+        bool skip = false;
         auto frames = CallStack::backtraceSymbols(iter.second.callstack);
         for (auto &frame : frames) {
             if (isIgnored(frame)) {
@@ -264,7 +264,7 @@ void MemoryHook::dumpMemoryLeak() {
         }
 
         std::stringstream stream;
-        int               k = 0;
+        int k = 0;
 
         stream << std::endl;
         stream << "<" << ++i << ">:"
@@ -305,14 +305,14 @@ void MemoryHook::log(const ccstd::string &msg) {
 
 void MemoryHook::registerAll() {
     #if CC_PLATFORM == CC_PLATFORM_ANDROID
-    g_new_hooker    = newHook;
+    g_new_hooker = newHook;
     g_delete_hooker = deleteHook;
     free(malloc(1)); // force to init system_malloc/system_free
     #elif CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
     g_system_malloc_logger = malloc_logger;
-    malloc_logger          = cc_malloc_logger;
-    g_new_hooker           = newHook;
-    g_delete_hooker        = deleteHook;
+    malloc_logger = cc_malloc_logger;
+    g_new_hooker = newHook;
+    g_delete_hooker = deleteHook;
     #elif CC_PLATFORM == CC_PLATFORM_WINDOWS
     MallocHook_AddNewHook(&newHook);
     MallocHook_AddDeleteHook(&deleteHook);
@@ -321,12 +321,12 @@ void MemoryHook::registerAll() {
 
 void MemoryHook::unRegisterAll() {
     #if CC_PLATFORM == CC_PLATFORM_ANDROID
-    g_new_hooker    = nullptr;
+    g_new_hooker = nullptr;
     g_delete_hooker = nullptr;
     #elif CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
-    malloc_logger          = g_system_malloc_logger;
-    g_new_hooker           = nullptr;
-    g_delete_hooker        = nullptr;
+    malloc_logger = g_system_malloc_logger;
+    g_new_hooker = nullptr;
+    g_delete_hooker = nullptr;
     #elif CC_PLATFORM == CC_PLATFORM_WINDOWS
     MallocHook_RemoveNewHook(&newHook);
     MallocHook_RemoveDeleteHook(&deleteHook);

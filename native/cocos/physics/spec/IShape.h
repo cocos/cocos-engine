@@ -41,10 +41,10 @@ enum class EAxisDirection : uint8_t {
 };
 
 enum class EShapeFilterFlag : uint8_t {
-    NONE               = 0,
-    IS_TRIGGER         = 1 << 0,
-    NEED_EVENT         = 1 << 1,
-    NEED_CONTACT_DATA  = 1 << 2,
+    NONE = 0,
+    IS_TRIGGER = 1 << 0,
+    NEED_EVENT = 1 << 1,
+    NEED_CONTACT_DATA = 1 << 2,
     DETECT_CONTACT_CCD = 1 << 3,
 };
 
@@ -52,19 +52,19 @@ class IBaseShape : virtual public ILifecycle {
 public:
     ~IBaseShape() override = default;
     ;
-    virtual void              initialize(Node *node)                     = 0;
-    virtual uintptr_t         getImpl()                                  = 0;
-    virtual void              setMaterial(uint16_t id, float f, float df, float r,
-                                          uint8_t m0, uint8_t m1)        = 0;
-    virtual void              setAsTrigger(bool v)                       = 0;
-    virtual void              setCenter(float x, float y, float z)       = 0;
-    virtual geometry::AABB &  getAABB()                                  = 0;
-    virtual geometry::Sphere &getBoundingSphere()                        = 0;
-    virtual void              updateEventListener(EShapeFilterFlag flag) = 0;
-    virtual uint32_t          getGroup()                                 = 0;
-    virtual void              setGroup(uint32_t g)                       = 0;
-    virtual uint32_t          getMask()                                  = 0;
-    virtual void              setMask(uint32_t m)                        = 0;
+    virtual void initialize(Node *node) = 0;
+    virtual uintptr_t getImpl() = 0;
+    virtual void setMaterial(uint16_t id, float f, float df, float r,
+                             uint8_t m0, uint8_t m1) = 0;
+    virtual void setAsTrigger(bool v) = 0;
+    virtual void setCenter(float x, float y, float z) = 0;
+    virtual geometry::AABB &getAABB() = 0;
+    virtual geometry::Sphere &getBoundingSphere() = 0;
+    virtual void updateEventListener(EShapeFilterFlag flag) = 0;
+    virtual uint32_t getGroup() = 0;
+    virtual void setGroup(uint32_t g) = 0;
+    virtual uint32_t getMask() = 0;
+    virtual void setMask(uint32_t m) = 0;
 };
 
 class ISphereShape : virtual public IBaseShape {
@@ -85,8 +85,8 @@ class ICapsuleShape : virtual public IBaseShape {
 public:
     ~ICapsuleShape() override = default;
     ;
-    virtual void setRadius(float v)             = 0;
-    virtual void setCylinderHeight(float v)     = 0;
+    virtual void setRadius(float v) = 0;
+    virtual void setCylinderHeight(float v) = 0;
     virtual void setDirection(EAxisDirection v) = 0;
 };
 
@@ -94,7 +94,7 @@ class ICylinderShape : virtual public IBaseShape {
 public:
     ~ICylinderShape() override = default;
     ;
-    virtual void setConvex(uintptr_t v)                          = 0;
+    virtual void setConvex(uintptr_t v) = 0;
     virtual void setCylinder(float r, float h, EAxisDirection d) = 0;
 };
 
@@ -102,7 +102,7 @@ class IConeShape : virtual public IBaseShape {
 public:
     ~IConeShape() override = default;
     ;
-    virtual void setConvex(uintptr_t v)                      = 0;
+    virtual void setConvex(uintptr_t v) = 0;
     virtual void setCone(float r, float h, EAxisDirection d) = 0;
 };
 
@@ -110,7 +110,7 @@ class IPlaneShape : virtual public IBaseShape {
 public:
     ~IPlaneShape() override = default;
     ;
-    virtual void setConstant(float v)                 = 0;
+    virtual void setConstant(float v) = 0;
     virtual void setNormal(float x, float y, float z) = 0;
 };
 
@@ -119,7 +119,7 @@ public:
     ~ITrimeshShape() override = default;
     ;
     virtual void setMesh(uintptr_t v) = 0;
-    virtual void useConvex(bool v)    = 0;
+    virtual void useConvex(bool v) = 0;
 };
 
 class ITerrainShape : virtual public IBaseShape {

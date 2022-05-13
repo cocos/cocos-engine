@@ -29,7 +29,7 @@ import {
     _initializerDefineProperty,
 } from '../data/utils/decorator-jsb-utils';
 import { Material } from '../../assets';
-import { RenderableComponent } from '../../components';
+import { Renderer } from '../../components/renderer';
 
 export const MaterialInstance = jsb.MaterialInstance;
 export type MaterialInstance = jsb.MaterialInstance;
@@ -38,7 +38,7 @@ const materialInstanceProto: any = jsb.MaterialInstance.prototype;
 
 export interface IMaterialInstanceInfo {
     parent: Material;
-    owner?: RenderableComponent;
+    owner?: Renderer;
     subModelIdx?: number;
 }
 

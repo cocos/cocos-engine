@@ -54,6 +54,6 @@ public:
 private:
     int32_t _width{0};
     int32_t _height{0};
-    bool    _isWindowCreated{false};
+    bool _isWindowCreated{false};
 };
 } // namespace cc

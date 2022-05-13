@@ -123,7 +123,7 @@ public:
     }
 
     T *get() const { return _ptr; }
-       operator T *() const { return _ptr; } // NOLINT
+    operator T *() const { return _ptr; } // NOLINT
     T &operator*() const { return *_ptr; }
     T *operator->() const { return _ptr; }
 
@@ -180,7 +180,7 @@ public:
     void swap(T **pp) noexcept {
         T *p = _ptr;
         _ptr = *pp;
-        *pp  = p;
+        *pp = p;
     }
 
     void swap(IntrusivePtr<T> &r) noexcept { swap(&r._ptr); }
@@ -193,7 +193,7 @@ private:
     // calling Release() once on the object when no longer using it.
     T *release() {
         T *retVal = _ptr;
-        _ptr      = nullptr;
+        _ptr = nullptr;
         return retVal;
     }
 

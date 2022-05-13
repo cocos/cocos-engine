@@ -78,8 +78,8 @@ public:
     }
 
 private:
-    static SkeletonDataMgr *                  instance;
-    destroyCallback                           _destroyCallback = nullptr;
+    static SkeletonDataMgr *instance;
+    destroyCallback _destroyCallback = nullptr;
     std::map<std::string, SkeletonDataInfo *> _dataMap;
 };
 

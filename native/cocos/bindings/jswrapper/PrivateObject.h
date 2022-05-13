@@ -55,8 +55,8 @@ public:
         return reinterpret_cast<TypedPrivateObject<T> *>(this);
     }
     virtual const char *getName() const = 0;
-    virtual void *      getRaw() const  = 0;
-    virtual void        allowDestroyInGC() const {
+    virtual void *getRaw() const = 0;
+    virtual void allowDestroyInGC() const {
         CC_ASSERT(false);
     }
     virtual void tryAllowDestroyInGC() const {}
@@ -72,9 +72,9 @@ public:
 template <typename T>
 class TypedPrivateObject : public PrivateObjectBase {
 public:
-    inline std::shared_ptr<T>   share();
+    inline std::shared_ptr<T> share();
     inline cc::IntrusivePtr<T> &ccShared();
-    inline const char *         getName() const override {
+    inline const char *getName() const override {
         static_assert(!std::is_base_of<PrivateObjectBase, T>::value, ""); // NOLINT // remove after using c++17
         return typeid(T).name();
     }
@@ -175,9 +175,9 @@ inline cc::IntrusivePtr<T> &TypedPrivateObject<T>::ccShared() {
 #if CC_DEBUG
 inline void inHeap(void *ptr) {
     constexpr size_t r = 4 * 1024; // 4K
-    char             a;
-    auto             anchor = reinterpret_cast<intptr_t>(&a);
-    auto             p      = reinterpret_cast<intptr_t>(ptr);
+    char a;
+    auto anchor = reinterpret_cast<intptr_t>(&a);
+    auto p = reinterpret_cast<intptr_t>(ptr);
     // must be in heaps
     CC_ASSERT(abs(anchor - p) > r);
 }

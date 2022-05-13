@@ -42,7 +42,6 @@ struct Error {
     cc::optional<ccstd::string> msg;
 };
 
-using HTMLElement = void *;
 
 struct BoundingBox {
     Vec3 min;
@@ -57,7 +56,7 @@ struct VertexIdChannel {
 struct NativeDep {
     ccstd::string uuid;
     ccstd::string ext;
-    bool          __isNative__{false}; // NOLINT(bugprone-reserved-identifier)
+    bool __isNative__{false}; // NOLINT(bugprone-reserved-identifier)
 
     explicit NativeDep() = default;
 

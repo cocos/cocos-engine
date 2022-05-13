@@ -30,7 +30,7 @@
 /* static */
 void CleanupTask::pushTaskToAutoReleasePool(const std::function<void()> &cb) {
     auto *ret = ccnew CleanupTask;
-    ret->_cb  = cb;
+    ret->_cb = cb;
     cc::DeferredReleasePool::add(ret);
 }
 

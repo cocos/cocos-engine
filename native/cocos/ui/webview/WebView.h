@@ -70,7 +70,7 @@ public:
          * @param encoding The encoding of the data.
          * @param baseURL The base URL for the content.
          */
-    void loadData(const cc::Data &     data,
+    void loadData(const cc::Data &data,
                   const ccstd::string &mimeType,
                   const ccstd::string &encoding,
                   const ccstd::string &baseURL);

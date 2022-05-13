@@ -45,11 +45,11 @@ using IPropertyHandleInfo = std::tuple<ccstd::string, uint32_t, gfx::Type>;
 using IPropertyValue = cc::optional<cc::variant<ccstd::vector<float>, ccstd::string>>;
 
 struct IPropertyInfo {
-    int32_t                           type;        // auto-extracted from shader
-    cc::optional<IPropertyHandleInfo> handleInfo;  // auto-generated from 'target'
-    cc::optional<uint64_t>            samplerHash; // auto-generated from 'sampler'
-    IPropertyValue                    value;       // default value
-    cc::optional<bool>                linear;      // whether to convert the input to linear space first before applying
+    int32_t type;                                 // auto-extracted from shader
+    cc::optional<IPropertyHandleInfo> handleInfo; // auto-generated from 'target'
+    cc::optional<uint64_t> samplerHash;           // auto-generated from 'sampler'
+    IPropertyValue value;                         // default value
+    cc::optional<bool> linear;                    // whether to convert the input to linear space first before applying
 };
 
 struct IPassInfoFull;
@@ -62,8 +62,8 @@ struct RasterizerStateInfo {
     cc::optional<bool> isMultisample;
 
     cc::optional<gfx::PolygonMode> polygonMode;
-    cc::optional<gfx::ShadeModel>  shadeModel;
-    cc::optional<gfx::CullMode>    cullMode;
+    cc::optional<gfx::ShadeModel> shadeModel;
+    cc::optional<gfx::CullMode> cullMode;
 
     cc::optional<float> depthBias;
     cc::optional<float> depthBiasClamp;
@@ -71,20 +71,20 @@ struct RasterizerStateInfo {
     cc::optional<float> lineWidth;
 
     void fromGFXRasterizerState(const gfx::RasterizerState &rs) {
-        isDiscard        = rs.isDiscard;
-        isFrontFaceCCW   = rs.isFrontFaceCCW;
+        isDiscard = rs.isDiscard;
+        isFrontFaceCCW = rs.isFrontFaceCCW;
         depthBiasEnabled = rs.depthBiasEnabled;
-        isDepthClip      = rs.isDepthClip;
-        isMultisample    = rs.isMultisample;
+        isDepthClip = rs.isDepthClip;
+        isMultisample = rs.isMultisample;
 
         polygonMode = rs.polygonMode;
-        shadeModel  = rs.shadeModel;
-        cullMode    = rs.cullMode;
+        shadeModel = rs.shadeModel;
+        cullMode = rs.cullMode;
 
-        depthBias      = rs.depthBias;
+        depthBias = rs.depthBias;
         depthBiasClamp = rs.depthBiasClamp;
-        depthBiasSlop  = rs.depthBiasSlop;
-        lineWidth      = rs.lineWidth;
+        depthBiasSlop = rs.depthBiasSlop;
+        lineWidth = rs.lineWidth;
     }
 
     void assignToGFXRasterizerState(gfx::RasterizerState &rs) const {
@@ -135,43 +135,43 @@ struct DepthStencilStateInfo {
 
     cc::optional<gfx::ComparisonFunc> depthFunc;
     cc::optional<gfx::ComparisonFunc> stencilFuncFront;
-    cc::optional<uint>                stencilReadMaskFront;
-    cc::optional<uint>                stencilWriteMaskFront;
-    cc::optional<gfx::StencilOp>      stencilFailOpFront;
-    cc::optional<gfx::StencilOp>      stencilZFailOpFront;
-    cc::optional<gfx::StencilOp>      stencilPassOpFront;
-    cc::optional<uint>                stencilRefFront;
+    cc::optional<uint> stencilReadMaskFront;
+    cc::optional<uint> stencilWriteMaskFront;
+    cc::optional<gfx::StencilOp> stencilFailOpFront;
+    cc::optional<gfx::StencilOp> stencilZFailOpFront;
+    cc::optional<gfx::StencilOp> stencilPassOpFront;
+    cc::optional<uint> stencilRefFront;
 
     cc::optional<gfx::ComparisonFunc> stencilFuncBack;
-    cc::optional<uint>                stencilReadMaskBack;
-    cc::optional<uint>                stencilWriteMaskBack;
-    cc::optional<gfx::StencilOp>      stencilFailOpBack;
-    cc::optional<gfx::StencilOp>      stencilZFailOpBack;
-    cc::optional<gfx::StencilOp>      stencilPassOpBack;
-    cc::optional<uint>                stencilRefBack;
+    cc::optional<uint> stencilReadMaskBack;
+    cc::optional<uint> stencilWriteMaskBack;
+    cc::optional<gfx::StencilOp> stencilFailOpBack;
+    cc::optional<gfx::StencilOp> stencilZFailOpBack;
+    cc::optional<gfx::StencilOp> stencilPassOpBack;
+    cc::optional<uint> stencilRefBack;
 
     void fromGFXDepthStencilState(const gfx::DepthStencilState &ds) {
-        depthTest        = ds.depthTest;
-        depthWrite       = ds.depthWrite;
+        depthTest = ds.depthTest;
+        depthWrite = ds.depthWrite;
         stencilTestFront = ds.stencilTestFront;
-        stencilTestBack  = ds.stencilTestBack;
+        stencilTestBack = ds.stencilTestBack;
 
-        depthFunc             = ds.depthFunc;
-        stencilFuncFront      = ds.stencilFuncFront;
-        stencilReadMaskFront  = ds.stencilReadMaskFront;
+        depthFunc = ds.depthFunc;
+        stencilFuncFront = ds.stencilFuncFront;
+        stencilReadMaskFront = ds.stencilReadMaskFront;
         stencilWriteMaskFront = ds.stencilWriteMaskFront;
-        stencilFailOpFront    = ds.stencilFailOpFront;
-        stencilZFailOpFront   = ds.stencilZFailOpFront;
-        stencilPassOpFront    = ds.stencilPassOpFront;
-        stencilRefFront       = ds.stencilRefFront;
+        stencilFailOpFront = ds.stencilFailOpFront;
+        stencilZFailOpFront = ds.stencilZFailOpFront;
+        stencilPassOpFront = ds.stencilPassOpFront;
+        stencilRefFront = ds.stencilRefFront;
 
-        stencilFuncBack      = ds.stencilFuncBack;
-        stencilReadMaskBack  = ds.stencilReadMaskBack;
+        stencilFuncBack = ds.stencilFuncBack;
+        stencilReadMaskBack = ds.stencilReadMaskBack;
         stencilWriteMaskBack = ds.stencilWriteMaskBack;
-        stencilFailOpBack    = ds.stencilFailOpBack;
-        stencilZFailOpBack   = ds.stencilZFailOpBack;
-        stencilPassOpBack    = ds.stencilPassOpBack;
-        stencilRefBack       = ds.stencilRefBack;
+        stencilFailOpBack = ds.stencilFailOpBack;
+        stencilZFailOpBack = ds.stencilZFailOpBack;
+        stencilPassOpBack = ds.stencilPassOpBack;
+        stencilRefBack = ds.stencilRefBack;
     }
 
     void assignToGFXDepthStencilState(gfx::DepthStencilState &ds) const {
@@ -236,23 +236,23 @@ struct DepthStencilStateInfo {
 };
 
 struct BlendTargetInfo {
-    cc::optional<bool>             blend;
+    cc::optional<bool> blend;
     cc::optional<gfx::BlendFactor> blendSrc;
     cc::optional<gfx::BlendFactor> blendDst;
-    cc::optional<gfx::BlendOp>     blendEq;
+    cc::optional<gfx::BlendOp> blendEq;
     cc::optional<gfx::BlendFactor> blendSrcAlpha;
     cc::optional<gfx::BlendFactor> blendDstAlpha;
-    cc::optional<gfx::BlendOp>     blendAlphaEq;
-    cc::optional<gfx::ColorMask>   blendColorMask;
+    cc::optional<gfx::BlendOp> blendAlphaEq;
+    cc::optional<gfx::ColorMask> blendColorMask;
 
     void fromGFXBlendTarget(const gfx::BlendTarget &target) {
-        blend          = target.blend;
-        blendSrc       = target.blendSrc;
-        blendDst       = target.blendDst;
-        blendEq        = target.blendEq;
-        blendSrcAlpha  = target.blendSrcAlpha;
-        blendDstAlpha  = target.blendDstAlpha;
-        blendAlphaEq   = target.blendAlphaEq;
+        blend = target.blend;
+        blendSrc = target.blendSrc;
+        blendDst = target.blendDst;
+        blendEq = target.blendEq;
+        blendSrcAlpha = target.blendSrcAlpha;
+        blendDstAlpha = target.blendDstAlpha;
+        blendAlphaEq = target.blendAlphaEq;
         blendColorMask = target.blendColorMask;
     }
 
@@ -287,13 +287,13 @@ struct BlendTargetInfo {
 using BlendTargetInfoList = ccstd::vector<BlendTargetInfo>;
 
 struct BlendStateInfo {
-    cc::optional<bool>                isA2C;
-    cc::optional<bool>                isIndepend;
-    cc::optional<gfx::Color>          blendColor;
+    cc::optional<bool> isA2C;
+    cc::optional<bool> isIndepend;
+    cc::optional<gfx::Color> blendColor;
     cc::optional<BlendTargetInfoList> targets;
 
     void fromGFXBlendState(const gfx::BlendState &bs) {
-        isA2C      = bs.isA2C;
+        isA2C = bs.isA2C;
         isIndepend = bs.isIndepend;
         blendColor = bs.blendColor;
         size_t len = bs.targets.size();
@@ -331,19 +331,19 @@ struct BlendStateInfo {
 
 // Pass instance itself are compliant to IPassStates too
 struct IPassStates {
-    cc::optional<int32_t>                   priority;
-    cc::optional<gfx::PrimitiveMode>        primitive;
+    cc::optional<int32_t> priority;
+    cc::optional<gfx::PrimitiveMode> primitive;
     cc::optional<pipeline::RenderPassStage> stage;
-    cc::optional<RasterizerStateInfo>       rasterizerState;
-    cc::optional<DepthStencilStateInfo>     depthStencilState;
-    cc::optional<BlendStateInfo>            blendState;
-    cc::optional<gfx::DynamicStateFlags>    dynamicStates;
-    cc::optional<ccstd::string>             phase;
+    cc::optional<RasterizerStateInfo> rasterizerState;
+    cc::optional<DepthStencilStateInfo> depthStencilState;
+    cc::optional<BlendStateInfo> blendState;
+    cc::optional<gfx::DynamicStateFlags> dynamicStates;
+    cc::optional<ccstd::string> phase;
 
     IPassStates() = default;
     explicit IPassStates(const IPassInfoFull &o);
     IPassStates &operator=(const IPassInfoFull &o);
-    void         overrides(const IPassInfoFull &o);
+    void overrides(const IPassInfoFull &o);
 };
 using PassOverrides = IPassStates;
 
@@ -351,25 +351,25 @@ using PassPropertyInfoMap = ccstd::unordered_map<ccstd::string, IPropertyInfo>;
 
 struct IPassInfoFull final { //cjh } : public IPassInfo {
     // IPassStates
-    cc::optional<int32_t>                   priority;
-    cc::optional<gfx::PrimitiveMode>        primitive;
+    cc::optional<int32_t> priority;
+    cc::optional<gfx::PrimitiveMode> primitive;
     cc::optional<pipeline::RenderPassStage> stage;
-    cc::optional<RasterizerStateInfo>       rasterizerState;
-    cc::optional<DepthStencilStateInfo>     depthStencilState;
-    cc::optional<BlendStateInfo>            blendState;
-    cc::optional<gfx::DynamicStateFlags>    dynamicStates;
-    cc::optional<ccstd::string>             phase;
+    cc::optional<RasterizerStateInfo> rasterizerState;
+    cc::optional<DepthStencilStateInfo> depthStencilState;
+    cc::optional<BlendStateInfo> blendState;
+    cc::optional<gfx::DynamicStateFlags> dynamicStates;
+    cc::optional<ccstd::string> phase;
     // IPassInfo
-    ccstd::string                     program; // auto-generated from 'vert' and 'frag'
-    cc::optional<MacroRecord>         embeddedMacros;
-    index_t                           propertyIndex{CC_INVALID_INDEX};
-    cc::optional<ccstd::string>       switch_;
+    ccstd::string program; // auto-generated from 'vert' and 'frag'
+    cc::optional<MacroRecord> embeddedMacros;
+    index_t propertyIndex{CC_INVALID_INDEX};
+    cc::optional<ccstd::string> switch_;
     cc::optional<PassPropertyInfoMap> properties;
 
     // IPassInfoFull
     // generated part
-    index_t                     passIndex{0};
-    MacroRecord                 defines;
+    index_t passIndex{0};
+    MacroRecord defines;
     cc::optional<PassOverrides> stateOverrides;
 
     IPassInfoFull() = default;
@@ -377,14 +377,14 @@ struct IPassInfoFull final { //cjh } : public IPassInfo {
         *this = o;
     }
     IPassInfoFull &operator=(const IPassStates &o) {
-        priority          = o.priority;
-        primitive         = o.primitive;
-        stage             = o.stage;
-        rasterizerState   = o.rasterizerState;
+        priority = o.priority;
+        primitive = o.primitive;
+        stage = o.stage;
+        rasterizerState = o.rasterizerState;
         depthStencilState = o.depthStencilState;
-        blendState        = o.blendState;
-        dynamicStates     = o.dynamicStates;
-        phase             = o.phase;
+        blendState = o.blendState;
+        dynamicStates = o.dynamicStates;
+        phase = o.phase;
         return *this;
     }
 };
@@ -393,86 +393,86 @@ using IPassInfo = IPassInfoFull;
 
 struct ITechniqueInfo {
     ccstd::vector<IPassInfoFull> passes;
-    cc::optional<ccstd::string>  name;
+    cc::optional<ccstd::string> name;
 };
 
 struct IBlockInfo {
-    int32_t                     binding{-1};
-    ccstd::string               name;
+    int32_t binding{-1};
+    ccstd::string name;
     ccstd::vector<gfx::Uniform> members;
-    gfx::ShaderStageFlags       stageFlags{gfx::ShaderStageFlags::NONE};
+    gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
 };
 
 struct ISamplerTextureInfo {
-    int32_t               binding{-1};
-    ccstd::string         name;
-    gfx::Type             type{gfx::Type::UNKNOWN};
-    uint32_t              count{0};
+    int32_t binding{-1};
+    ccstd::string name;
+    gfx::Type type{gfx::Type::UNKNOWN};
+    uint32_t count{0};
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
 };
 
 struct ITextureInfo {
-    uint32_t              set{0};
-    int32_t               binding{-1};
-    ccstd::string         name;
-    gfx::Type             type{gfx::Type::UNKNOWN};
-    uint32_t              count{0};
+    uint32_t set{0};
+    int32_t binding{-1};
+    ccstd::string name;
+    gfx::Type type{gfx::Type::UNKNOWN};
+    uint32_t count{0};
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
 };
 
 struct ISamplerInfo {
-    uint32_t              set{0};
-    int32_t               binding{-1};
-    ccstd::string         name;
-    uint32_t              count{0};
+    uint32_t set{0};
+    int32_t binding{-1};
+    ccstd::string name;
+    uint32_t count{0};
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
 };
 
 struct IBufferInfo {
-    int32_t               binding{-1};
-    ccstd::string         name;
-    gfx::MemoryAccess     memoryAccess{gfx::MemoryAccess::NONE};
+    int32_t binding{-1};
+    ccstd::string name;
+    gfx::MemoryAccess memoryAccess{gfx::MemoryAccess::NONE};
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
 };
 
 struct IImageInfo {
-    int32_t               binding{-1};
-    ccstd::string         name;
-    gfx::Type             type{gfx::Type::UNKNOWN};
-    uint32_t              count{0};
-    gfx::MemoryAccess     memoryAccess{gfx::MemoryAccess::NONE};
+    int32_t binding{-1};
+    ccstd::string name;
+    gfx::Type type{gfx::Type::UNKNOWN};
+    uint32_t count{0};
+    gfx::MemoryAccess memoryAccess{gfx::MemoryAccess::NONE};
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
 };
 
 struct IInputAttachmentInfo {
-    uint32_t              set{0};
-    int32_t               binding{-1};
-    ccstd::string         name;
-    uint32_t              count{0};
+    uint32_t set{0};
+    int32_t binding{-1};
+    ccstd::string name;
+    uint32_t count{0};
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
 };
 
 struct IAttributeInfo {
     ccstd::string name;
-    gfx::Format   format{gfx::Format::UNKNOWN};
-    bool          isNormalized{false};
-    uint32_t      stream{0U};
-    bool          isInstanced{false};
-    uint32_t      location{0U};
+    gfx::Format format{gfx::Format::UNKNOWN};
+    bool isNormalized{false};
+    uint32_t stream{0U};
+    bool isInstanced{false};
+    uint32_t location{0U};
 
     ccstd::vector<ccstd::string> defines;
 };
 
 struct IDefineInfo {
-    ccstd::string                              name;
-    ccstd::string                              type;
-    cc::optional<ccstd::vector<int32_t>>       range; //cjh number is float?  ?: number[];
+    ccstd::string name;
+    ccstd::string type;
+    cc::optional<ccstd::vector<int32_t>> range; //cjh number is float?  ?: number[];
     cc::optional<ccstd::vector<ccstd::string>> options;
-    cc::optional<ccstd::string>                defaultVal;
+    cc::optional<ccstd::string> defaultVal;
 };
 
 struct IBuiltin {
-    ccstd::string                name;
+    ccstd::string name;
     ccstd::vector<ccstd::string> defines;
 };
 
@@ -486,8 +486,8 @@ struct IBuiltinInfo {
 using BuiltinsStatisticsType = ccstd::unordered_map<ccstd::string, int32_t>;
 
 struct IBuiltins {
-    IBuiltinInfo           globals;
-    IBuiltinInfo           locals;
+    IBuiltinInfo globals;
+    IBuiltinInfo locals;
     BuiltinsStatisticsType statistics;
 };
 
@@ -497,20 +497,20 @@ struct IShaderSource {
 };
 
 struct IShaderInfo {
-    ccstd::string                       name;
-    uint64_t                            hash{0xFFFFFFFFFFFFFFFFULL}; //cjh hash is 64 bit?
-    IShaderSource                       glsl4;
-    IShaderSource                       glsl3;
-    IShaderSource                       glsl1;
-    IBuiltins                           builtins;
-    ccstd::vector<IDefineInfo>          defines;
-    ccstd::vector<IAttributeInfo>       attributes;
-    ccstd::vector<IBlockInfo>           blocks;
-    ccstd::vector<ISamplerTextureInfo>  samplerTextures;
-    ccstd::vector<ISamplerInfo>         samplers;
-    ccstd::vector<ITextureInfo>         textures;
-    ccstd::vector<IBufferInfo>          buffers;
-    ccstd::vector<IImageInfo>           images;
+    ccstd::string name;
+    uint64_t hash{0xFFFFFFFFFFFFFFFFULL}; //cjh hash is 64 bit?
+    IShaderSource glsl4;
+    IShaderSource glsl3;
+    IShaderSource glsl1;
+    IBuiltins builtins;
+    ccstd::vector<IDefineInfo> defines;
+    ccstd::vector<IAttributeInfo> attributes;
+    ccstd::vector<IBlockInfo> blocks;
+    ccstd::vector<ISamplerTextureInfo> samplerTextures;
+    ccstd::vector<ISamplerInfo> samplers;
+    ccstd::vector<ITextureInfo> textures;
+    ccstd::vector<IBufferInfo> buffers;
+    ccstd::vector<IImageInfo> images;
     ccstd::vector<IInputAttachmentInfo> subpassInputs;
 
     const IShaderSource *getSource(const ccstd::string &version) const {
@@ -522,13 +522,13 @@ struct IShaderInfo {
 };
 
 using IPreCompileInfoValueType = cc::variant<ccstd::vector<bool>, ccstd::vector<int32_t>, ccstd::vector<ccstd::string>>;
-using IPreCompileInfo          = ccstd::unordered_map<ccstd::string, IPreCompileInfoValueType>;
+using IPreCompileInfo = ccstd::unordered_map<ccstd::string, IPreCompileInfoValueType>;
 
 class EffectAsset final : public Asset {
 public:
     using Super = Asset;
 
-    EffectAsset()           = default;
+    EffectAsset() = default;
     ~EffectAsset() override = default;
     /**
      * @en Register the effect asset to the static map
@@ -560,8 +560,8 @@ public:
     inline void setShaders(const ccstd::vector<IShaderInfo> &val) { _shaders = val; }
     inline void setCombinations(const ccstd::vector<IPreCompileInfo> &val) { _combinations = val; }
 
-    inline const ccstd::vector<ITechniqueInfo> & getTechniques() const { return _techniques; }
-    inline const ccstd::vector<IShaderInfo> &    getShaders() const { return _shaders; }
+    inline const ccstd::vector<ITechniqueInfo> &getTechniques() const { return _techniques; }
+    inline const ccstd::vector<IShaderInfo> &getShaders() const { return _shaders; }
     inline const ccstd::vector<IPreCompileInfo> &getCombinations() const { return _combinations; }
 
     /*
@@ -583,8 +583,8 @@ protected:
     static ccstd::vector<MacroRecord> doCombine(const ccstd::vector<MacroRecord> &cur, const IPreCompileInfo &info, IPreCompileInfo::iterator iter);
     static ccstd::vector<MacroRecord> generateRecords(const ccstd::string &key, const IPreCompileInfoValueType &value);
     static ccstd::vector<MacroRecord> insertInfoValue(const ccstd::vector<MacroRecord> &records,
-                                                      const ccstd::string &             key,
-                                                      const IPreCompileInfoValueType &  value);
+                                                      const ccstd::string &key,
+                                                      const IPreCompileInfoValueType &value);
 
     void precompile();
 

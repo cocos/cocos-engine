@@ -44,10 +44,10 @@ class CCObject : public RefCounted /*cjh implements EditorExtendableObject*/ {
 public:
     // definitions for CCObject.Flags
     enum class Flags : FlagBits {
-        ZERO           = 0,
-        DESTROYED      = 1 << 0,
+        ZERO = 0,
+        DESTROYED = 1 << 0,
         REAL_DESTROYED = 1 << 1,
-        TO_DESTROY     = 1 << 2,
+        TO_DESTROY = 1 << 2,
         /**
          * @en The object will not be saved.
          * @zh 该对象将不会被保存。
@@ -58,14 +58,14 @@ public:
          * @zh 构建项目时，该对象将不会被保存。
          */
         EDITOR_ONLY = 1 << 4,
-        DIRTY       = 1 << 5,
+        DIRTY = 1 << 5,
         /**
          * @en Dont destroy automatically when loading a new scene.
          * @zh 加载一个新场景时，不自动删除该对象。
          * @private
          */
         DONT_DESTROY = 1 << 6,
-        DESTROYING   = 1 << 7,
+        DESTROYING = 1 << 7,
         /**
          * @en The node is deactivating.
          * @zh 节点正在反激活的过程中。
@@ -84,21 +84,21 @@ public:
           */
         HIDE_IN_HIERARCHY = 1 << 10,
 
-        IS_ON_ENABLE_CALLED        = 1 << 11,
+        IS_ON_ENABLE_CALLED = 1 << 11,
         IS_EDITOR_ON_ENABLE_CALLED = 1 << 12,
-        IS_PRELOAD_STARTED         = 1 << 13,
-        IS_ON_LOAD_CALLED          = 1 << 14,
-        IS_ON_LOAD_STARTED         = 1 << 15,
-        IS_START_CALLED            = 1 << 16,
+        IS_PRELOAD_STARTED = 1 << 13,
+        IS_ON_LOAD_CALLED = 1 << 14,
+        IS_ON_LOAD_STARTED = 1 << 15,
+        IS_START_CALLED = 1 << 16,
 
         IS_ROTATION_LOCKED = 1 << 17,
-        IS_SCALE_LOCKED    = 1 << 18,
-        IS_ANCHOR_LOCKED   = 1 << 19,
-        IS_SIZE_LOCKED     = 1 << 20,
+        IS_SCALE_LOCKED = 1 << 18,
+        IS_ANCHOR_LOCKED = 1 << 19,
+        IS_SIZE_LOCKED = 1 << 20,
         IS_POSITION_LOCKED = 1 << 21,
 
         // Distributed
-        IS_REPLICATED  = 1 << 22,
+        IS_REPLICATED = 1 << 22,
         IS_CLIENT_LOAD = 1 << 23,
 
         // var Hide = HideInGame | HideInEditor;
@@ -119,7 +119,7 @@ public:
 
     //cjh    public declare [editorExtrasTag]: unknown;
 
-    Flags         _objFlags{Flags::ZERO};
+    Flags _objFlags{Flags::ZERO};
     ccstd::string _name;
 
 protected:
@@ -139,13 +139,13 @@ public:
      * ```
      */
     inline const ccstd::string &getName() const { return _name; }
-    inline void                 setName(const ccstd::string &value) { _name = value; }
+    inline void setName(const ccstd::string &value) { _name = value; }
 
     /**
      * @en After inheriting CCObject objects, control whether you need to hide, lock, serialize, and other functions.
      * @zh 在继承 CCObject 对象后，控制是否需要隐藏，锁定，序列化等功能。
      */
-    inline void  setHideFlags(Flags hideFlags);
+    inline void setHideFlags(Flags hideFlags);
     inline Flags getHideFlags() const;
 
     inline void setReplicated(bool value);
@@ -238,7 +238,7 @@ inline bool CCObject::isValid() const {
 
 inline void CCObject::setHideFlags(Flags hideFlags) {
     Flags flags = hideFlags & Flags::ALL_HIDE_MASKS;
-    _objFlags   = (_objFlags & ~Flags::ALL_HIDE_MASKS) | flags;
+    _objFlags = (_objFlags & ~Flags::ALL_HIDE_MASKS) | flags;
 }
 
 inline CCObject::Flags CCObject::getHideFlags() const {

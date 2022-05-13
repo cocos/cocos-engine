@@ -132,17 +132,17 @@ private:
     static void cleanup();
     //        static v8::Local<v8::Object> _createJSObject(const ccstd::string &clsName, Class** outCls);
     static v8::Local<v8::Object> _createJSObjectWithClass(Class *cls); // NOLINT(readability-identifier-naming)
-    static void                  setIsolate(v8::Isolate *isolate);
+    static void setIsolate(v8::Isolate *isolate);
 
     ccstd::string _name;
-    Object *      _parent;
-    Object *      _parentProto;
-    Object *      _proto;
+    Object *_parent;
+    Object *_parentProto;
+    Object *_proto;
 
-    v8::FunctionCallback                       _ctor;
+    v8::FunctionCallback _ctor;
     v8::UniquePersistent<v8::FunctionTemplate> _ctorTemplate;
-    V8FinalizeFunc                             _finalizeFunc;
-    bool                                       _createProto;
+    V8FinalizeFunc _finalizeFunc;
+    bool _createProto;
 
     friend class ScriptEngine;
     friend class Object;

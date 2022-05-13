@@ -59,8 +59,8 @@ struct ITextureCubeSerializeMipmapData {
 };
 
 struct ITextureCubeSerializeData {
-    ccstd::string                                  base;
-    bool                                           rgbe{false};
+    ccstd::string base;
+    bool rgbe{false};
     ccstd::vector<ITextureCubeSerializeMipmapData> mipmaps;
 };
 
@@ -82,12 +82,12 @@ public:
      * @zh 立方体每个面的约定索引。
      */
     enum class FaceIndex {
-        RIGHT  = 0,
-        LEFT   = 1,
-        TOP    = 2,
+        RIGHT = 0,
+        LEFT = 1,
+        TOP = 2,
         BOTTOM = 3,
-        FRONT  = 4,
-        BACK   = 5,
+        FRONT = 4,
+        BACK = 5,
     };
 
     /**
@@ -166,7 +166,7 @@ public:
     bool destroy() override;
 
     cc::any serialize(const cc::any &ctxForExporting) override;
-    void    deserialize(const cc::any &serializedData, const cc::any &handle) override;
+    void deserialize(const cc::any &serializedData, const cc::any &handle) override;
 
     gfx::TextureInfo getGfxTextureCreateInfo(gfx::TextureUsageBit usage, gfx::Format format, uint32_t levelCount, gfx::TextureFlagBit flags) override;
     gfx::TextureViewInfo getGfxTextureViewCreateInfo(gfx::Texture *texture, gfx::Format format, uint32_t baseLevel, uint32_t levelCount) override;

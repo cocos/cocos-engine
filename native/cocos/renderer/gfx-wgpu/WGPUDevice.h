@@ -117,9 +117,9 @@ public:
     Shader *createShader(const SPVShaderInfoInstance &spvInfo);
 
     void copyBuffersToTexture(const emscripten::val &v, Texture *dst, const BufferTextureCopyList &regions) {
-        uint32_t                              len = v["length"].as<unsigned>();
+        uint32_t len = v["length"].as<unsigned>();
         ccstd::vector<ccstd::vector<uint8_t>> lifeProlonger(len);
-        ccstd::vector<const uint8_t *>        buffers;
+        ccstd::vector<const uint8_t *> buffers;
         for (size_t i = 0; i < len; i++) {
             lifeProlonger[i] = EMSArraysToU8Vec(v, i);
             buffers.push_back(lifeProlonger[i].data());
@@ -135,29 +135,29 @@ protected:
 
     CCWGPUDevice();
 
-    bool                 doInit(const DeviceInfo &info) override;
-    void                 doDestroy() override;
-    CommandBuffer *      createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
-    Queue *              createQueue() override;
-    Buffer *             createBuffer() override;
-    Texture *            createTexture() override;
-    Shader *             createShader() override;
-    InputAssembler *     createInputAssembler() override;
-    RenderPass *         createRenderPass() override;
-    Framebuffer *        createFramebuffer() override;
-    DescriptorSet *      createDescriptorSet() override;
+    bool doInit(const DeviceInfo &info) override;
+    void doDestroy() override;
+    CommandBuffer *createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
+    Queue *createQueue() override;
+    Buffer *createBuffer() override;
+    Texture *createTexture() override;
+    Shader *createShader() override;
+    InputAssembler *createInputAssembler() override;
+    RenderPass *createRenderPass() override;
+    Framebuffer *createFramebuffer() override;
+    DescriptorSet *createDescriptorSet() override;
     DescriptorSetLayout *createDescriptorSetLayout() override;
-    PipelineLayout *     createPipelineLayout() override;
-    PipelineState *      createPipelineState() override;
-    Swapchain *          createSwapchain() override;
-    QueryPool *          createQueryPool() override;
-    Sampler *            createSampler(const SamplerInfo &info) override;
+    PipelineLayout *createPipelineLayout() override;
+    PipelineState *createPipelineState() override;
+    Swapchain *createSwapchain() override;
+    QueryPool *createQueryPool() override;
+    Sampler *createSampler(const SamplerInfo &info) override;
 
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
     void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count) override;
     void getQueryPoolResults(QueryPool *queryPool) override;
 
-    CCWGPUDeviceObject *             _gpuDeviceObj = nullptr;
+    CCWGPUDeviceObject *_gpuDeviceObj = nullptr;
     ccstd::vector<CCWGPUSwapchain *> _swapchains;
 };
 

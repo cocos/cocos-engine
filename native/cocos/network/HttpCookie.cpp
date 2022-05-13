@@ -37,7 +37,7 @@ void HttpCookie::readFile() {
         cookiesVec.clear();
 
         std::stringstream stream(inString);
-        ccstd::string     item;
+        ccstd::string item;
         while (std::getline(stream, item, '\n')) {
             cookiesVec.push_back(item);
         }
@@ -61,10 +61,10 @@ void HttpCookie::readFile() {
                 continue;
             }
 
-            CookiesInfo                  co;
-            std::stringstream            streamInfo(cookie);
+            CookiesInfo co;
+            std::stringstream streamInfo(cookie);
             ccstd::vector<ccstd::string> elems;
-            ccstd::string                elemsItem;
+            ccstd::string elemsItem;
 
             while (std::getline(streamInfo, elemsItem, '\t')) {
                 elems.push_back(elemsItem);
@@ -75,11 +75,11 @@ void HttpCookie::readFile() {
                 co.domain = co.domain.substr(1);
             }
             co.tailmatch = (strcmp("TRUE", elems[1].c_str()) != 0);
-            co.path      = elems[2];
-            co.secure    = (strcmp("TRUE", elems[3].c_str()) != 0);
-            co.expires   = elems[4];
-            co.name      = elems[5];
-            co.value     = elems[6];
+            co.path = elems[2];
+            co.secure = (strcmp("TRUE", elems[3].c_str()) != 0);
+            co.expires = elems[4];
+            co.name = elems[5];
+            co.value = elems[6];
             _cookies.push_back(co);
         }
     }

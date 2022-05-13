@@ -159,8 +159,8 @@ void Vec2::rotate(const Vec2 &point, float angle) {
 
     if (point.isZero()) {
         float tempX = x * cosAngle - y * sinAngle;
-        y           = y * cosAngle + x * sinAngle;
-        x           = tempX;
+        y = y * cosAngle + x * sinAngle;
+        x = tempX;
     } else {
         float tempX = x - point.x;
         float tempY = y - point.y;
@@ -199,8 +199,8 @@ bool Vec2::fuzzyEquals(const Vec2 &b, float var) const {
 }
 
 float Vec2::getAngle(const Vec2 &other) const {
-    Vec2  a2    = getNormalized();
-    Vec2  b2    = other.getNormalized();
+    Vec2 a2 = getNormalized();
+    Vec2 b2 = other.getNormalized();
     float angle = atan2f(a2.cross(b2), a2.dot(b2));
     if (std::abs(angle) < FLT_EPSILON) {
         return 0.F;

@@ -135,7 +135,7 @@ void generateConstantMacros(
 
 // NOLINTNEXTLINE
 bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
-    swapchain                  = swapchainIn;
+    swapchain = swapchainIn;
     macros["CC_PIPELINE_TYPE"] = 0;
     globalDSManager->activate(device);
     pipelineSceneData->activate(device);
@@ -166,9 +166,9 @@ bool NativePipeline::destroy() noexcept {
 
 // NOLINTNEXTLINE
 void NativePipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
-    const auto *sceneData     = pipelineSceneData.get();
-    auto *      commandBuffer = device->getCommandBuffer();
-    float       shadingScale  = sceneData->getShadingScale();
+    const auto *sceneData = pipelineSceneData.get();
+    auto *commandBuffer = device->getCommandBuffer();
+    float shadingScale = sceneData->getShadingScale();
 
     struct RenderData2 {
         framegraph::TextureHandle outputTex;
@@ -190,8 +190,8 @@ void NativePipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
             // color
             framegraph::Texture::Descriptor colorTexInfo;
             colorTexInfo.format = sceneData->isHDR() ? gfx::Format::RGBA16F : gfx::Format::RGBA8;
-            colorTexInfo.usage  = gfx::TextureUsageBit::COLOR_ATTACHMENT;
-            colorTexInfo.width  = static_cast<uint>(static_cast<float>(camera->getWindow()->getWidth()) * shadingScale);
+            colorTexInfo.usage = gfx::TextureUsageBit::COLOR_ATTACHMENT;
+            colorTexInfo.width = static_cast<uint>(static_cast<float>(camera->getWindow()->getWidth()) * shadingScale);
             colorTexInfo.height = static_cast<uint>(static_cast<float>(camera->getWindow()->getHeight()) * shadingScale);
             if (shadingScale != 1.F) {
                 colorTexInfo.usage |= gfx::TextureUsageBit::TRANSFER_SRC;
@@ -199,9 +199,9 @@ void NativePipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
 
             data.outputTex = builder.create(colorHandle, colorTexInfo);
             framegraph::RenderTargetAttachment::Descriptor colorAttachmentInfo;
-            colorAttachmentInfo.usage      = framegraph::RenderTargetAttachment::Usage::COLOR;
+            colorAttachmentInfo.usage = framegraph::RenderTargetAttachment::Usage::COLOR;
             colorAttachmentInfo.clearColor = clearColor;
-            colorAttachmentInfo.loadOp     = gfx::LoadOp::CLEAR;
+            colorAttachmentInfo.loadOp = gfx::LoadOp::CLEAR;
 
             colorAttachmentInfo.beginAccesses = colorAttachmentInfo.endAccesses = gfx::AccessFlagBit::COLOR_ATTACHMENT_WRITE;
 
@@ -266,7 +266,7 @@ void NativePipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
 
     commandBuffer->end();
     {
-        static uint64_t           frameCount{0U};
+        static uint64_t frameCount{0U};
         static constexpr uint64_t INTERVAL_IN_SECONDS = 30;
         if (++frameCount % (INTERVAL_IN_SECONDS * 60) == 0) {
             framegraph::FrameGraph::gc(INTERVAL_IN_SECONDS * 60);

@@ -39,8 +39,8 @@
 
 namespace cc {
 
-const ValueVector    VALUE_VECTOR_NULL;
-const ValueMap       VALUE_MAP_NULL         = {};
+const ValueVector VALUE_VECTOR_NULL;
+const ValueMap VALUE_MAP_NULL = {};
 const ValueMapIntKey VALUE_MAP_INT_KEY_NULL = {};
 
 const Value Value::VALUE_NULL;
@@ -90,43 +90,43 @@ Value::Value(const char *v)
 
 Value::Value(const ccstd::string &v)
 : _type(Type::STRING) {
-    _field.strVal  = ccnew ccstd::string();
+    _field.strVal = ccnew ccstd::string();
     *_field.strVal = v;
 }
 
 Value::Value(const ValueVector &v)
 : _type(Type::VECTOR) {
-    _field.vectorVal  = ccnew ValueVector();
+    _field.vectorVal = ccnew ValueVector();
     *_field.vectorVal = v;
 }
 
 Value::Value(ValueVector &&v)
 : _type(Type::VECTOR) {
-    _field.vectorVal  = ccnew ValueVector();
+    _field.vectorVal = ccnew ValueVector();
     *_field.vectorVal = std::move(v);
 }
 
 Value::Value(const ValueMap &v)
 : _type(Type::MAP) {
-    _field.mapVal  = ccnew ValueMap();
+    _field.mapVal = ccnew ValueMap();
     *_field.mapVal = v;
 }
 
 Value::Value(ValueMap &&v)
 : _type(Type::MAP) {
-    _field.mapVal  = ccnew ValueMap();
+    _field.mapVal = ccnew ValueMap();
     *_field.mapVal = std::move(v);
 }
 
 Value::Value(const ValueMapIntKey &v)
 : _type(Type::INT_KEY_MAP) {
-    _field.intKeyMapVal  = ccnew ValueMapIntKey();
+    _field.intKeyMapVal = ccnew ValueMapIntKey();
     *_field.intKeyMapVal = v;
 }
 
 Value::Value(ValueMapIntKey &&v)
 : _type(Type::INT_KEY_MAP) {
-    _field.intKeyMapVal  = ccnew  ValueMapIntKey();
+    _field.intKeyMapVal = ccnew ValueMapIntKey();
     *_field.intKeyMapVal = std::move(v);
 }
 
@@ -181,7 +181,7 @@ Value &Value::operator=(const Value &other) { //NOLINT(misc-no-recursion)
                 break;
             case Type::MAP:
                 if (_field.mapVal == nullptr) {
-                    _field.mapVal = ccnew  ValueMap();
+                    _field.mapVal = ccnew ValueMap();
                 }
                 *_field.mapVal = *other._field.mapVal;
                 break;
@@ -361,9 +361,9 @@ bool Value::operator==(const Value &v) const { //NOLINT(misc-no-recursion)
         case Type::FLOAT: return std::abs(v._field.floatVal - this->_field.floatVal) <= FLT_EPSILON;
         case Type::DOUBLE: return std::abs(v._field.doubleVal - this->_field.doubleVal) <= DBL_EPSILON;
         case Type::VECTOR: {
-            const auto &v1   = *(this->_field.vectorVal);
-            const auto &v2   = *(v._field.vectorVal);
-            const auto  size = v1.size();
+            const auto &v1 = *(this->_field.vectorVal);
+            const auto &v2 = *(v._field.vectorVal);
+            const auto size = v1.size();
             if (size == v2.size()) {
                 for (size_t i = 0; i < size; i++) {
                     if (v1[i] != v2[i]) {

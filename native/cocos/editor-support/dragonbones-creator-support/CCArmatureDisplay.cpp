@@ -35,7 +35,7 @@
 USING_NS_MW;        // NOLINT(google-build-using-namespace)
 using namespace cc; // NOLINT(google-build-using-namespace)
 
-static const std::string TECH_STAGE  = "opaque";
+static const std::string TECH_STAGE = "opaque";
 static const std::string TEXTURE_KEY = "texture";
 namespace cc {
 
@@ -105,11 +105,11 @@ void CCArmatureDisplay::dbRender() {
     auto *mgr = MiddlewareManager::getInstance();
     if (!mgr->isRendering) return;
 
-    auto *renderMgr  = mgr->getRenderInfoMgr();
+    auto *renderMgr = mgr->getRenderInfoMgr();
     auto *renderInfo = renderMgr->getBuffer();
     if (!renderInfo) return;
 
-    auto *attachMgr  = mgr->getAttachInfoMgr();
+    auto *attachMgr = mgr->getAttachInfoMgr();
     auto *attachInfo = attachMgr->getBuffer();
     if (!attachInfo) return;
 
@@ -129,19 +129,19 @@ void CCArmatureDisplay::dbRender() {
 
     // render not ready
     auto *paramsBuffer = _paramsBuffer->getBuffer();
-    float renderOrder  = *reinterpret_cast<float *>(paramsBuffer);
+    float renderOrder = *reinterpret_cast<float *>(paramsBuffer);
     if (renderOrder < 0) {
         return;
     }
 
-    _preBlendMode    = -1;
+    _preBlendMode = -1;
     _preTextureIndex = -1;
     _curTextureIndex = -1;
     _preISegWritePos = -1;
-    _curISegLen      = 0;
+    _curISegLen = 0;
 
     _debugSlotsLen = 0;
-    _materialLen   = 0;
+    _materialLen = 0;
 
     // Traverse all aramture to fill vertex and index buffer.
     traverseArmature(_armature);
@@ -174,18 +174,18 @@ void CCArmatureDisplay::dbRender() {
                 boneLen = bone->_boneData->length;
             }
 
-            boneMat.m[0]  = bone->globalTransformMatrix.a;
-            boneMat.m[1]  = bone->globalTransformMatrix.b;
-            boneMat.m[4]  = -bone->globalTransformMatrix.c;
-            boneMat.m[5]  = -bone->globalTransformMatrix.d;
+            boneMat.m[0] = bone->globalTransformMatrix.a;
+            boneMat.m[1] = bone->globalTransformMatrix.b;
+            boneMat.m[4] = -bone->globalTransformMatrix.c;
+            boneMat.m[5] = -bone->globalTransformMatrix.d;
             boneMat.m[12] = bone->globalTransformMatrix.tx;
             boneMat.m[13] = bone->globalTransformMatrix.ty;
             attachInfo->checkSpace(sizeof(boneMat), true);
             attachInfo->writeBytes(reinterpret_cast<const char *>(&boneMat), sizeof(boneMat));
 
             if (_debugDraw) {
-                float bx   = bone->globalTransformMatrix.tx;
-                float by   = bone->globalTransformMatrix.ty;
+                float bx = bone->globalTransformMatrix.tx;
+                float by = bone->globalTransformMatrix.ty;
                 float endx = bx + bone->globalTransformMatrix.a * boneLen;
                 float endy = by + bone->globalTransformMatrix.b * boneLen;
                 _debugBuffer->writeFloat32(bx);
@@ -212,8 +212,8 @@ const cc::Vec2 &CCArmatureDisplay::convertToRootSpace(float x, float y) const {
 
     slot->updateWorldMatrix();
     cc::Mat4 &worldMatrix = slot->worldMatrix;
-    _tmpVec2.x            = x * worldMatrix.m[0] + y * worldMatrix.m[4] + worldMatrix.m[12];
-    _tmpVec2.y            = x * worldMatrix.m[1] + y * worldMatrix.m[5] + worldMatrix.m[13];
+    _tmpVec2.x = x * worldMatrix.m[0] + y * worldMatrix.m[4] + worldMatrix.m[12];
+    _tmpVec2.y = x * worldMatrix.m[1] + y * worldMatrix.m[5] + worldMatrix.m[13];
     return _tmpVec2;
 }
 
@@ -225,7 +225,7 @@ CCArmatureDisplay *CCArmatureDisplay::getRootDisplay() {
 
     Slot *parentSlot = slot->_armature->getParent();
     while (parentSlot) {
-        slot       = parentSlot;
+        slot = parentSlot;
         parentSlot = parentSlot->_armature->getParent();
     }
     return static_cast<CCArmatureDisplay *>(slot->_armature->getDisplay());
@@ -239,29 +239,29 @@ void CCArmatureDisplay::traverseArmature(Armature *armature, float parentOpacity
     const cc::Mat4 &nodeWorldMat = *reinterpret_cast<cc::Mat4 *>(&paramsBuffer[4]);
 
     const auto &slots = armature->getSlots();
-    auto *      mgr   = MiddlewareManager::getInstance();
+    auto *mgr = MiddlewareManager::getInstance();
 
     middleware::MeshBuffer *mb = mgr->getMeshBuffer(VF_XYZUVC);
-    IOBuffer &              vb = mb->getVB();
-    IOBuffer &              ib = mb->getIB();
+    IOBuffer &vb = mb->getVB();
+    IOBuffer &ib = mb->getIB();
 
     float realOpacity = _nodeColor.a;
-    auto *renderMgr   = mgr->getRenderInfoMgr();
-    auto *renderInfo  = renderMgr->getBuffer();
+    auto *renderMgr = mgr->getRenderInfoMgr();
+    auto *renderInfo = renderMgr->getBuffer();
     if (!renderInfo) return;
 
-    auto *attachMgr  = mgr->getAttachInfoMgr();
+    auto *attachMgr = mgr->getAttachInfoMgr();
     auto *attachInfo = attachMgr->getBuffer();
     if (!attachInfo) return;
 
     // range [0.0, 255.0]
-    float                  r;
-    float                  g;
-    float                  b;
-    float                  a;
-    CCSlot *               slot    = nullptr;
+    float r;
+    float g;
+    float b;
+    float a;
+    CCSlot *slot = nullptr;
     middleware::Texture2D *texture = nullptr;
-    int                    isFull  = 0;
+    int isFull = 0;
 
     auto flush = [&]() {
         // fill pre segment count field
@@ -324,7 +324,7 @@ void CCArmatureDisplay::traverseArmature(Armature *armature, float parentOpacity
 
     for (auto *i : slots) {
         isFull = 0;
-        slot   = dynamic_cast<CCSlot *>(i); //TODO(zhakasi): refine the logic
+        slot = dynamic_cast<CCSlot *>(i); //TODO(zhakasi): refine the logic
         if (slot == nullptr) {
             return;
         }
@@ -344,7 +344,7 @@ void CCArmatureDisplay::traverseArmature(Armature *armature, float parentOpacity
         texture = slot->getTexture();
         if (!texture) continue;
         _curTextureIndex = texture->getRealTextureIndex();
-        auto vbSize      = slot->triangles.vertCount * sizeof(middleware::V2F_T2F_C4F);
+        auto vbSize = slot->triangles.vertCount * sizeof(middleware::V2F_T2F_C4F);
         isFull |= vb.checkSpace(vbSize, true);
 
         // If texture or blendMode change,will change material.
@@ -353,15 +353,15 @@ void CCArmatureDisplay::traverseArmature(Armature *armature, float parentOpacity
         }
 
         // Calculation vertex color.
-        a                = realOpacity * static_cast<float>(slot->color.a) * parentOpacity / 255.0F;
+        a = realOpacity * static_cast<float>(slot->color.a) * parentOpacity / 255.0F;
         float multiplier = _premultipliedAlpha ? a / 255.0F : 1.0F / 255.0F;
-        r                = _nodeColor.r * static_cast<float>(slot->color.r) * multiplier;
-        g                = _nodeColor.g * static_cast<float>(slot->color.g) * multiplier;
-        b                = _nodeColor.b * static_cast<float>(slot->color.b) * multiplier;
+        r = _nodeColor.r * static_cast<float>(slot->color.r) * multiplier;
+        g = _nodeColor.g * static_cast<float>(slot->color.g) * multiplier;
+        b = _nodeColor.b * static_cast<float>(slot->color.b) * multiplier;
 
         // Transform component matrix to global matrix
-        middleware::Triangles &triangles   = slot->triangles;
-        cc::Mat4 *             worldMatrix = &slot->worldMatrix;
+        middleware::Triangles &triangles = slot->triangles;
+        cc::Mat4 *worldMatrix = &slot->worldMatrix;
         if (_batch) {
             cc::Mat4::multiply(nodeWorldMat, *worldMatrix, &matrixTemp);
             worldMatrix = &matrixTemp;
@@ -370,7 +370,7 @@ void CCArmatureDisplay::traverseArmature(Armature *armature, float parentOpacity
         middleware::V2F_T2F_C4F *worldTriangles = slot->worldVerts;
 
         for (int v = 0, w = 0, vn = triangles.vertCount; v < vn; ++v, w += 2) {
-            middleware::V2F_T2F_C4F *vertex      = triangles.verts + v;
+            middleware::V2F_T2F_C4F *vertex = triangles.verts + v;
             middleware::V2F_T2F_C4F *worldVertex = worldTriangles + v;
 
             vertex->vertex.z = 0; //reset for z value

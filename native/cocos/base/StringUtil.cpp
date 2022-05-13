@@ -47,7 +47,7 @@ int StringUtil::vprintf(char *buf, const char *last, const char *fmt, va_list ar
     if (last <= buf) return 0;
 
     int count = (int)(last - buf);
-    int ret   = _vsnprintf_s(buf, count, _TRUNCATE, fmt, args);
+    int ret = _vsnprintf_s(buf, count, _TRUNCATE, fmt, args);
     if (ret < 0) {
         if (errno == 0) {
             return count - 1;
@@ -65,7 +65,7 @@ int StringUtil::vprintf(char *buf, const char *last, const char *fmt, va_list ar
     }
 
     auto count = static_cast<int>(last - buf);
-    int  ret   = vsnprintf(buf, count, fmt, args);
+    int ret = vsnprintf(buf, count, fmt, args);
     if (ret >= count - 1) {
         return count - 1;
     }
@@ -85,7 +85,7 @@ int StringUtil::printf(char *buf, const char *last, const char *fmt, ...) {
 }
 
 ccstd::string StringUtil::format(const char *fmt, ...) {
-    char    sz[4096];
+    char sz[4096];
     va_list args;
     va_start(args, fmt);
     vprintf(sz, sz + sizeof(sz) - 1, fmt, args);
@@ -164,11 +164,11 @@ ccstd::string &StringUtil::toupper(ccstd::string &str) {
 }
 
 ccstd::string GzipedString::value() const { // NOLINT(readability-convert-member-functions-to-static)
-    uint8_t *     outGzip{nullptr};
-    uint8_t *     outBase64{nullptr};
-    auto *        input       = reinterpret_cast<unsigned char *>(const_cast<char *>(_str.c_str()));
-    auto          lenOfBase64 = base64Decode(input, static_cast<unsigned int>(_str.size()), &outBase64);
-    auto          lenofUnzip  = ZipUtils::inflateMemory(outBase64, static_cast<uint32_t>(lenOfBase64), &outGzip);
+    uint8_t *outGzip{nullptr};
+    uint8_t *outBase64{nullptr};
+    auto *input = reinterpret_cast<unsigned char *>(const_cast<char *>(_str.c_str()));
+    auto lenOfBase64 = base64Decode(input, static_cast<unsigned int>(_str.size()), &outBase64);
+    auto lenofUnzip = ZipUtils::inflateMemory(outBase64, static_cast<uint32_t>(lenOfBase64), &outGzip);
     ccstd::string ret(outGzip, outGzip + lenofUnzip);
     free(outGzip);
     free(outBase64);

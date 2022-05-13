@@ -164,9 +164,9 @@ protected:
     bool _keepAspectRatioEnabled;
 
     ccstd::string _videoURL;
-    Source        _videoSource;
+    Source _videoSource;
 
-    int                                                        _videoPlayerIndex;
+    int _videoPlayerIndex;
     ccstd::unordered_map<ccstd::string, ccVideoPlayerCallback> _eventCallback;
 
     void *_videoView;

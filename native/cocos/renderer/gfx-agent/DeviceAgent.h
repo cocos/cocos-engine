@@ -41,9 +41,9 @@ class CommandBufferAgent;
 
 class CC_DLL DeviceAgent final : public Agent<Device> {
 public:
-    static DeviceAgent *      getInstance();
+    static DeviceAgent *getInstance();
     static constexpr uint32_t MAX_CPU_FRAME_AHEAD = 1;
-    static constexpr uint32_t MAX_FRAME_INDEX     = MAX_CPU_FRAME_AHEAD + 1;
+    static constexpr uint32_t MAX_FRAME_INDEX = MAX_CPU_FRAME_AHEAD + 1;
 
     ~DeviceAgent() override;
 
@@ -68,36 +68,36 @@ public:
     void acquire(Swapchain *const *swapchains, uint32_t count) override;
     void present() override;
 
-    CommandBuffer *      createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
-    Queue *              createQueue() override;
-    QueryPool *          createQueryPool() override;
-    Swapchain *          createSwapchain() override;
-    Buffer *             createBuffer() override;
-    Texture *            createTexture() override;
-    Shader *             createShader() override;
-    InputAssembler *     createInputAssembler() override;
-    RenderPass *         createRenderPass() override;
-    Framebuffer *        createFramebuffer() override;
-    DescriptorSet *      createDescriptorSet() override;
+    CommandBuffer *createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
+    Queue *createQueue() override;
+    QueryPool *createQueryPool() override;
+    Swapchain *createSwapchain() override;
+    Buffer *createBuffer() override;
+    Texture *createTexture() override;
+    Shader *createShader() override;
+    InputAssembler *createInputAssembler() override;
+    RenderPass *createRenderPass() override;
+    Framebuffer *createFramebuffer() override;
+    DescriptorSet *createDescriptorSet() override;
     DescriptorSetLayout *createDescriptorSetLayout() override;
-    PipelineLayout *     createPipelineLayout() override;
-    PipelineState *      createPipelineState() override;
+    PipelineLayout *createPipelineLayout() override;
+    PipelineState *createPipelineState() override;
 
-    Sampler *       getSampler(const SamplerInfo &info) override;
+    Sampler *getSampler(const SamplerInfo &info) override;
     GeneralBarrier *getGeneralBarrier(const GeneralBarrierInfo &info) override;
     TextureBarrier *getTextureBarrier(const TextureBarrierInfo &info) override;
 
-    void          copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) override;
-    void          copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) override;
-    void          flushCommands(CommandBuffer *const *cmdBuffs, uint32_t count) override;
-    void          getQueryPoolResults(QueryPool *queryPool) override;
+    void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) override;
+    void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) override;
+    void flushCommands(CommandBuffer *const *cmdBuffs, uint32_t count) override;
+    void getQueryPoolResults(QueryPool *queryPool) override;
     MemoryStatus &getMemoryStatus() override { return _actor->getMemoryStatus(); }
-    uint32_t      getNumDrawCalls() const override { return _actor->getNumDrawCalls(); }
-    uint32_t      getNumInstances() const override { return _actor->getNumInstances(); }
-    uint32_t      getNumTris() const override { return _actor->getNumTris(); }
+    uint32_t getNumDrawCalls() const override { return _actor->getNumDrawCalls(); }
+    uint32_t getNumInstances() const override { return _actor->getNumInstances(); }
+    uint32_t getNumTris() const override { return _actor->getNumTris(); }
 
     uint32_t getCurrentIndex() const { return _currentIndex; }
-    void     setMultithreaded(bool multithreaded);
+    void setMultithreaded(bool multithreaded);
 
     inline MessageQueue *getMessageQueue() const { return _mainMessageQueue; }
 
@@ -112,10 +112,10 @@ protected:
     bool doInit(const DeviceInfo &info) override;
     void doDestroy() override;
 
-    bool          _multithreaded{false};
+    bool _multithreaded{false};
     MessageQueue *_mainMessageQueue{nullptr};
 
-    uint32_t  _currentIndex = 0U;
+    uint32_t _currentIndex = 0U;
     Semaphore _frameBoundarySemaphore{MAX_CPU_FRAME_AHEAD};
 
     ccstd::unordered_set<CommandBufferAgent *> _cmdBuffRefs;

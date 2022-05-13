@@ -40,8 +40,7 @@ DRAGONBONES_NAMESPACE_BEGIN
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class Animation final : public BaseObject
-{
+class Animation final : public BaseObject {
     BIND_CLASS_TYPE_B(Animation);
 
 public:
@@ -58,7 +57,7 @@ public:
      * @language zh_CN
      */
     float timeScale;
-    
+
 private:
     bool _animationDirty;
     float _inheritTimeScale;
@@ -70,13 +69,10 @@ private:
     AnimationState* _lastAnimationState;
 
 public:
-    Animation() :
-        _animationConfig(nullptr)
-    { 
+    Animation() : _animationConfig(nullptr) {
         _onClear();
     }
-    ~Animation()
-    {
+    ~Animation() {
         _onClear();
     }
 
@@ -209,8 +205,7 @@ public:
      */
     AnimationState* fadeIn(
         const std::string& animationName, float fadeInTime = -1.f, int playTimes = -1,
-        int layer = 0, const std::string& group = "", AnimationFadeOutMode fadeOutMode = AnimationFadeOutMode::SameLayerAndGroup
-    );
+        int layer = 0, const std::string& group = "", AnimationFadeOutMode fadeOutMode = AnimationFadeOutMode::SameLayerAndGroup);
     /**
      * - Play a specific animation from the specific time.
      * @param animationName - The name of animation data.
@@ -371,8 +366,7 @@ public:
      * @version DragonBones 5.1
      * @language zh_CN
      */
-    inline const std::vector<AnimationState*>& getStates() const
-    {
+    inline const std::vector<AnimationState*>& getStates() const {
         return _animationStates;
     }
     /**
@@ -424,8 +418,7 @@ public:
      * @version DragonBones 4.5
      * @language zh_CN
      */
-    inline const std::vector<std::string>& getAnimationNames() const
-    {
+    inline const std::vector<std::string>& getAnimationNames() const {
         return _animationNames;
     }
     /**
@@ -438,8 +431,7 @@ public:
      * @version DragonBones 4.5
      * @language zh_CN
      */
-    inline const std::map<std::string, AnimationData*>& getAnimations() const
-    {
+    inline const std::map<std::string, AnimationData*>& getAnimations() const {
         return _animations;
     }
     void setAnimations(const std::map<std::string, AnimationData*>& value);
@@ -468,11 +460,10 @@ public:
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    inline AnimationState* getLastAnimationState() const
-    {
+    inline AnimationState* getLastAnimationState() const {
         return _lastAnimationState;
     }
 };
 
 DRAGONBONES_NAMESPACE_END
-#endif  // DRAGONBONES_ANIMATION_H
+#endif // DRAGONBONES_ANIMATION_H

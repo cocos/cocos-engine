@@ -40,24 +40,24 @@ size_t Buffer::computeHash(const BufferInfo &info) {
 }
 
 void Buffer::initialize(const BufferInfo &info) {
-    _usage    = info.usage;
+    _usage = info.usage;
     _memUsage = info.memUsage;
-    _size     = info.size;
-    _flags    = info.flags;
-    _stride   = std::max(info.stride, 1U);
-    _count    = _size / _stride;
+    _size = info.size;
+    _flags = info.flags;
+    _stride = std::max(info.stride, 1U);
+    _count = _size / _stride;
 
     doInit(info);
 }
 
 void Buffer::initialize(const BufferViewInfo &info) {
-    _usage    = info.buffer->getUsage();
+    _usage = info.buffer->getUsage();
     _memUsage = info.buffer->getMemUsage();
-    _flags    = info.buffer->getFlags();
-    _offset   = info.offset;
+    _flags = info.buffer->getFlags();
+    _offset = info.offset;
     _size = _stride = info.range;
-    _count          = 1U;
-    _isBufferView   = true;
+    _count = 1U;
+    _isBufferView = true;
 
     doInit(info);
 }
@@ -73,7 +73,7 @@ void Buffer::resize(uint32_t size) {
         uint32_t count = size / _stride;
         doResize(size, count);
 
-        _size  = size;
+        _size = size;
         _count = count;
     }
 }

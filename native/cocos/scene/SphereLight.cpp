@@ -37,7 +37,7 @@ SphereLight::SphereLight() {
 void SphereLight::initialize() {
     Light::initialize();
 
-    _size  = 0.15F;
+    _size = 0.15F;
     _range = 1.0F;
     setLuminance(1700 / Light::nt2lm(_size));
     _luminanceLDR = 1.0;
@@ -54,13 +54,13 @@ void SphereLight::update() {
 
 float SphereLight::getLuminance() const {
     auto *sceneData = Root::getInstance()->getPipeline()->getPipelineSceneData();
-    auto  isHDR     = sceneData->isHDR();
+    auto isHDR = sceneData->isHDR();
     return isHDR ? _luminanceHDR : _luminanceLDR;
 }
 
 void SphereLight::setLuminance(float value) {
     auto *sceneData = Root::getInstance()->getPipeline()->getPipelineSceneData();
-    auto  isHDR     = sceneData->isHDR();
+    auto isHDR = sceneData->isHDR();
     if (isHDR) {
         _luminanceHDR = value;
     } else {

@@ -42,22 +42,22 @@ class FrameGraph final {
 public:
     using ResourceHandleBlackboard = Blackboard<StringHandle, Handle::IndexType, Handle::UNINITIALIZED>;
 
-    FrameGraph()                       = default;
-    ~FrameGraph()                      = default;
-    FrameGraph(const FrameGraph &)     = delete;
+    FrameGraph() = default;
+    ~FrameGraph() = default;
+    FrameGraph(const FrameGraph &) = delete;
     FrameGraph(FrameGraph &&) noexcept = delete;
     FrameGraph &operator=(const FrameGraph &) = delete;
     FrameGraph &operator=(FrameGraph &&) noexcept = delete;
 
     static StringHandle stringToHandle(const char *name);
-    static const char * handleToString(const StringHandle &handle) noexcept;
+    static const char *handleToString(const StringHandle &handle) noexcept;
 
-    void        present(const TextureHandle &input, gfx::Texture *target, bool useMoveSemantic = true);
-    void        presentLastVersion(const VirtualResource *virtualResource, gfx::Texture *target, bool useMoveSemantic = true);
-    void        presentFromBlackboard(const StringHandle &inputName, gfx::Texture *target, bool useMoveSemantic = true);
-    void        compile();
-    void        execute() noexcept;
-    void        reset() noexcept;
+    void present(const TextureHandle &input, gfx::Texture *target, bool useMoveSemantic = true);
+    void presentLastVersion(const VirtualResource *virtualResource, gfx::Texture *target, bool useMoveSemantic = true);
+    void presentFromBlackboard(const StringHandle &inputName, gfx::Texture *target, bool useMoveSemantic = true);
+    void compile();
+    void execute() noexcept;
+    void reset() noexcept;
     static void gc(uint32_t unusedFrameCount = 30) noexcept;
 
     template <typename Data, typename SetupMethod, typename ExecuteMethod>
@@ -67,34 +67,34 @@ public:
     TypedHandle<ResourceType> create(const StringHandle &name, const DescriptorType &desc) noexcept;
     template <typename ResourceType>
     TypedHandle<ResourceType> importExternal(const StringHandle &name, ResourceType &resource) noexcept;
-    void                      move(TextureHandle from, TextureHandle to, uint8_t mipmapLevel, uint8_t faceId, uint8_t arrayPosition) noexcept;
+    void move(TextureHandle from, TextureHandle to, uint8_t mipmapLevel, uint8_t faceId, uint8_t arrayPosition) noexcept;
 
-    inline ResourceNode &            getResourceNode(const Handle handle) noexcept { return _resourceNodes[handle]; }
-    inline const ResourceNode &      getResourceNode(const Handle handle) const noexcept { return _resourceNodes[handle]; }
+    inline ResourceNode &getResourceNode(const Handle handle) noexcept { return _resourceNodes[handle]; }
+    inline const ResourceNode &getResourceNode(const Handle handle) const noexcept { return _resourceNodes[handle]; }
     inline ResourceHandleBlackboard &getBlackboard() noexcept { return _blackboard; }
 
-    void        exportGraphViz(const ccstd::string &path);
+    void exportGraphViz(const ccstd::string &path);
     inline void enableMerge(bool enable) noexcept;
-    bool        hasPass(StringHandle handle);
+    bool hasPass(StringHandle handle);
 
 private:
-    Handle        create(VirtualResource *virtualResource);
-    PassNode &    createPassNode(PassInsertPoint insertPoint, const StringHandle &name, Executable *pass);
-    Handle        createResourceNode(VirtualResource *virtualResource);
-    void          sort() noexcept;
-    void          cull();
-    void          computeResourceLifetime();
-    void          mergePassNodes() noexcept;
-    void          computeStoreActionAndMemoryless();
-    void          generateDevicePasses();
+    Handle create(VirtualResource *virtualResource);
+    PassNode &createPassNode(PassInsertPoint insertPoint, const StringHandle &name, Executable *pass);
+    Handle createResourceNode(VirtualResource *virtualResource);
+    void sort() noexcept;
+    void cull();
+    void computeResourceLifetime();
+    void mergePassNodes() noexcept;
+    void computeStoreActionAndMemoryless();
+    void generateDevicePasses();
     ResourceNode *getResourceNode(const VirtualResource *virtualResource, uint8_t version) noexcept;
 
-    ccstd::vector<std::unique_ptr<PassNode>>        _passNodes{};
-    ccstd::vector<ResourceNode>                     _resourceNodes{};
+    ccstd::vector<std::unique_ptr<PassNode>> _passNodes{};
+    ccstd::vector<ResourceNode> _resourceNodes{};
     ccstd::vector<std::unique_ptr<VirtualResource>> _virtualResources{};
-    ccstd::vector<std::unique_ptr<DevicePass>>      _devicePasses{};
-    ResourceHandleBlackboard                        _blackboard;
-    bool                                            _merge{true};
+    ccstd::vector<std::unique_ptr<DevicePass>> _devicePasses{};
+    ResourceHandleBlackboard _blackboard;
+    bool _merge{true};
 
     friend class PassNode;
     friend class PassNodeBuilder;
@@ -105,8 +105,8 @@ private:
 template <typename Data, typename SetupMethod, typename ExecuteMethod>
 const CallbackPass<Data, ExecuteMethod> &FrameGraph::addPass(const PassInsertPoint insertPoint, const StringHandle &name, SetupMethod setup, ExecuteMethod &&execute) noexcept {
     static_assert(sizeof(ExecuteMethod) < 1024, "Execute() lambda is capturing too much data.");
-    auto *const     pass     = ccnew CallbackPass<Data, ExecuteMethod>(std::forward<ExecuteMethod>(execute));
-    PassNode &      passNode = createPassNode(insertPoint, name, pass);
+    auto *const pass = ccnew CallbackPass<Data, ExecuteMethod>(std::forward<ExecuteMethod>(execute));
+    PassNode &passNode = createPassNode(insertPoint, name, pass);
     PassNodeBuilder builder(*this, passNode);
     setup(builder, pass->getData());
     return *pass;

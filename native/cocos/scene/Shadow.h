@@ -134,18 +134,18 @@ class Shadows;
 
 class ShadowsInfo : public RefCounted {
 public:
-    ShadowsInfo()           = default;
+    ShadowsInfo() = default;
     ~ShadowsInfo() override = default;
     /**
      * @en Whether activate planar shadow
      * @zh 是否启用平面阴影？
      */
-    void        setEnabled(bool val);
+    void setEnabled(bool val);
     inline bool isEnabled() const {
         return _enabled;
     }
 
-    void              setType(ShadowType val);
+    void setType(ShadowType val);
     inline ShadowType getType() const {
         return _type;
     }
@@ -154,7 +154,7 @@ public:
      * @en Shadow color
      * @zh 阴影颜色
      */
-    void                setShadowColor(const Color &val);
+    void setShadowColor(const Color &val);
     inline const Color &getShadowColor() const {
         return _shadowColor;
     }
@@ -163,7 +163,7 @@ public:
      * @en The normal of the plane which receives shadow
      * @zh 阴影接收平面的法线
      */
-    void               setNormal(const Vec3 &val);
+    void setNormal(const Vec3 &val);
     inline const Vec3 &getNormal() const {
         return _normal;
     }
@@ -172,7 +172,7 @@ public:
      * @en The distance from coordinate origin to the receiving plane.
      * @zh 阴影接收平面与原点的距离
      */
-    void         setDistance(float val);
+    void setDistance(float val);
     inline float getDistance() const {
         return _distance;
     }
@@ -181,7 +181,7 @@ public:
      * @en get or set shadow max received
      * @zh 获取或者设置阴影接收的最大光源数量
      */
-    void            setMaxReceived(uint32_t val);
+    void setMaxReceived(uint32_t val);
     inline uint32_t getMaxReceived() const {
         return _maxReceived;
     }
@@ -190,7 +190,7 @@ public:
      * @en get or set shadow map size
      * @zh 获取或者设置阴影纹理大小
      */
-    void         setShadowMapSize(float value);
+    void setShadowMapSize(float value);
     inline float getShadowMapSize() const {
         return _size.x;
     }
@@ -208,13 +208,13 @@ public:
 
     void activate(Shadows *resource);
 
-    bool       _enabled{false};
+    bool _enabled{false};
     ShadowType _type{ShadowType::PLANAR};
-    Vec3       _normal{0.F, 1.F, 0.F};
-    float      _distance{0.F};
-    Color      _shadowColor{0, 0, 0, 76};
-    uint32_t   _maxReceived{4};
-    Vec2       _size{512.F, 512.F};
+    Vec3 _normal{0.F, 1.F, 0.F};
+    float _distance{0.F};
+    Color _shadowColor{0, 0, 0, 76};
+    uint32_t _maxReceived{4};
+    Vec2 _size{512.F, 512.F};
 
     Shadows *_resource{nullptr};
 };
@@ -233,14 +233,14 @@ public:
      */
     static const float COEFFICIENT_OF_EXPANSION;
 
-    Shadows()  = default;
+    Shadows() = default;
     ~Shadows() = default;
 
-    void         initialize(const ShadowsInfo &shadowsInfo);
-    void         destroy();
+    void initialize(const ShadowsInfo &shadowsInfo);
+    void destroy();
     gfx::Shader *getPlanarShader(const ccstd::vector<IMacroPatch> &patches);
     gfx::Shader *getPlanarInstanceShader(const ccstd::vector<IMacroPatch> &patches);
-    void         activate();
+    void activate();
 
     /**
      * @en Whether activate shadow.
@@ -257,21 +257,21 @@ public:
      * @zh 阴影接收平面的法线。
      */
     inline const Vec3 &getNormal() const { return _normal; }
-    inline void        setNormal(const Vec3 &val) { _normal.set(val); }
+    inline void setNormal(const Vec3 &val) { _normal.set(val); }
 
     /**
      * @en The distance from coordinate origin to the receiving plane.
      * @zh 阴影接收平面与原点的距离。
      */
     inline float getDistance() const { return _distance; }
-    inline void  setDistance(float val) { _distance = val; }
+    inline void setDistance(float val) { _distance = val; }
 
     /**
      * @en Shadow color.
      * @zh 阴影颜色。
      */
     inline const Color &getShadowColor() const { return _shadowColor; }
-    inline void         setShadowColor(const Color &color) {
+    inline void setShadowColor(const Color &color) {
         _shadowColor.set(color);
         _shadowColor4f[0] = static_cast<float>(color.r) / 255.F;
         _shadowColor4f[1] = static_cast<float>(color.g) / 255.F;
@@ -285,7 +285,7 @@ public:
      * @zh 阴影类型。
      */
     inline ShadowType getType() const { return _type; }
-    inline void       setType(ShadowType val) {
+    inline void setType(ShadowType val) {
         _type = _enabled ? val : ShadowType::NONE;
         activate();
     }
@@ -295,7 +295,7 @@ public:
      * @zh 获取或者设置阴影纹理大小。
      */
     inline const Vec2 &getSize() const { return _size; }
-    inline void        setSize(const Vec2 &val) {
+    inline void setSize(const Vec2 &val) {
         _size.set(val);
         _shadowMapDirty = true;
     }
@@ -315,7 +315,7 @@ public:
     inline void setShadowMapDirty(bool val) { _shadowMapDirty = val; }
 
     inline const Mat4 &getMatLight() const { return _matLight; }
-    inline Mat4 &      getMatLight() { return _matLight; }
+    inline Mat4 &getMatLight() { return _matLight; }
 
     inline Material *getMaterial() const { return _material.get(); }
     inline Material *getInstancingMaterial() const { return _instancingMaterial.get(); }
@@ -324,11 +324,11 @@ public:
      * @en get or set shadow max received
      * @zh 获取或者设置阴影接收的最大光源数量
      */
-    inline void     setMaxReceived(uint32_t val) { _maxReceived = val; }
+    inline void setMaxReceived(uint32_t val) { _maxReceived = val; }
     inline uint32_t getMaxReceived() const { return _maxReceived; }
 
     inline float getShadowCameraFar() const { return _shadowCameraFar; }
-    inline void  setShadowCameraFar(float shadowDistance) { _shadowCameraFar = shadowDistance; }
+    inline void setShadowCameraFar(float shadowDistance) { _shadowCameraFar = shadowDistance; }
 
     inline Mat4 getMatShadowView() const { return _matShadowView; }
     inline void setMatShadowView(const Mat4 &matShadowView) { _matShadowView = matShadowView; }
@@ -358,22 +358,22 @@ private:
 
     // local set
     float _shadowCameraFar{0.0F};
-    Mat4  _matShadowView;
-    Mat4  _matShadowProj;
-    Mat4  _matShadowViewProj;
+    Mat4 _matShadowView;
+    Mat4 _matShadowProj;
+    Mat4 _matShadowViewProj;
 
     // public properties of shadow
-    Vec3                   _normal{0.F, 1.F, 0.F};
-    Color                  _shadowColor{0, 0, 0, 76};
+    Vec3 _normal{0.F, 1.F, 0.F};
+    Color _shadowColor{0, 0, 0, 76};
     ccstd::array<float, 4> _shadowColor4f{0.F, 0.F, 0.F, 76.F / 255.F};
-    Mat4                   _matLight;
+    Mat4 _matLight;
     IntrusivePtr<Material> _material{nullptr};
     IntrusivePtr<Material> _instancingMaterial{nullptr};
-    Vec2                   _size{512.F, 512.F};
-    bool                   _enabled{false};
-    float                  _distance{0.F};
-    ShadowType             _type{ShadowType::NONE};
-    bool                   _shadowMapDirty{false};
+    Vec2 _size{512.F, 512.F};
+    bool _enabled{false};
+    float _distance{0.F};
+    ShadowType _type{ShadowType::NONE};
+    bool _shadowMapDirty{false};
 };
 
 } // namespace scene

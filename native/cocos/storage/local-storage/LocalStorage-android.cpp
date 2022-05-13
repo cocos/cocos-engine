@@ -43,7 +43,7 @@ static int gInitialized = 0;
 
 static void splitFilename(ccstd::string &str) {
     size_t found = 0;
-    found        = str.find_last_of("/\\");
+    found = str.find_last_of("/\\");
     if (found != ccstd::string::npos) {
         str = str.substr(found + 1);
     }
@@ -83,7 +83,7 @@ bool localStorageGetItem(const ccstd::string &key, ccstd::string *outItem) {
 
     if (JniHelper::getStaticMethodInfo(t, JCLS_LOCALSTORAGE, "getItem", "(Ljava/lang/String;)Ljava/lang/String;")) {
         jstring jkey = t.env->NewStringUTF(key.c_str());
-        auto *  jret = static_cast<jstring>(t.env->CallStaticObjectMethod(t.classID, t.methodID, jkey));
+        auto *jret = static_cast<jstring>(t.env->CallStaticObjectMethod(t.classID, t.methodID, jkey));
         if (jret == nullptr) {
             ccDeleteLocalRef(t.env, jret);
             ccDeleteLocalRef(t.env, jkey);

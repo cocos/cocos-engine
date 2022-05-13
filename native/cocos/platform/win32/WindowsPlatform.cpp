@@ -58,11 +58,11 @@ void PVRFrameEnableControlWindow(bool bEnable) {
         return;
     }
 
-    const WCHAR *wszValue        = L"hide_gui";
-    const WCHAR *wszNewData      = (bEnable) ? L"NO" : L"YES";
-    WCHAR        wszOldData[256] = {0};
-    DWORD        dwSize          = sizeof(wszOldData);
-    LSTATUS      status          = RegQueryValueExW(hKey, wszValue, 0, nullptr, (LPBYTE)wszOldData, &dwSize);
+    const WCHAR *wszValue = L"hide_gui";
+    const WCHAR *wszNewData = (bEnable) ? L"NO" : L"YES";
+    WCHAR wszOldData[256] = {0};
+    DWORD dwSize = sizeof(wszOldData);
+    LSTATUS status = RegQueryValueExW(hKey, wszValue, 0, nullptr, (LPBYTE)wszOldData, &dwSize);
     if (ERROR_FILE_NOT_FOUND == status               // the key not exist
         || (ERROR_SUCCESS == status                  // or the hide_gui value is exist
             && 0 != wcscmp(wszNewData, wszOldData))) // but new data and old data not equal
@@ -80,7 +80,6 @@ namespace cc {
 WindowsPlatform::WindowsPlatform() {
 }
 WindowsPlatform::~WindowsPlatform() {
-
 #ifdef USE_WIN32_CONSOLE
     FreeConsole();
 #endif
@@ -112,15 +111,15 @@ int32_t WindowsPlatform::loop() {
     ///////////////////////////////////////////////////////////////////////////
     /////////////// changing timer resolution
     ///////////////////////////////////////////////////////////////////////////
-    UINT     TARGET_RESOLUTION = 1; // 1 millisecond target resolution
+    UINT TARGET_RESOLUTION = 1; // 1 millisecond target resolution
     TIMECAPS tc;
-    UINT     wTimerRes = 0;
+    UINT wTimerRes = 0;
     if (TIMERR_NOERROR == timeGetDevCaps(&tc, sizeof(TIMECAPS))) {
         wTimerRes = std::min(std::max(tc.wPeriodMin, TARGET_RESOLUTION), tc.wPeriodMax);
         timeBeginPeriod(wTimerRes);
     }
 
-    float       dt    = 0.f;
+    float dt = 0.f;
     const DWORD _16ms = 16;
 
     // Main message loop:
@@ -128,9 +127,9 @@ int32_t WindowsPlatform::loop() {
     LARGE_INTEGER nLast;
     LARGE_INTEGER nNow;
 
-    LONGLONG actualInterval  = 0LL; // actual frame internal
+    LONGLONG actualInterval = 0LL;  // actual frame internal
     LONGLONG desiredInterval = 0LL; // desired frame internal, 1 / fps
-    LONG     waitMS          = 0L;
+    LONG waitMS = 0L;
 
     QueryPerformanceCounter(&nLast);
     QueryPerformanceFrequency(&nFreq);

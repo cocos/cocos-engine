@@ -159,8 +159,7 @@ void AudioEngineInterruptionListenerCallback(void *user_data, UInt32 interruptio
             }
             [[AVAudioSession sharedInstance] setActive:YES error:&error];
             alcMakeContextCurrent(s_ALContext);
-        }
-        else if (isAudioSessionInterrupted) {
+        } else if (isAudioSessionInterrupted) {
             isAudioSessionInterrupted = false;
             ALOGD("UIApplicationDidBecomeActiveNotification, alcMakeContextCurrent(s_ALContext)");
             NSError *error = nil;
@@ -635,7 +634,6 @@ void AudioEngineImpl::update(float dt) {
             delete player;
             _unusedSourcesPool.push_back(alSource);
         } else if (player->_ready && sourceState == AL_STOPPED) {
-
             ccstd::string filePath;
             if (player->_finishCallbak) {
                 auto &audioInfo = AudioEngine::sAudioIDInfoMap[audioID];

@@ -39,12 +39,12 @@ public:
 
     void onOpen(cc::network::WebSocket *ws) override;
 
-    void onMessage(cc::network::WebSocket *            ws,
+    void onMessage(cc::network::WebSocket *ws,
                    const cc::network::WebSocket::Data &data) override;
 
     void onClose(cc::network::WebSocket *ws) override;
 
-    void onError(cc::network::WebSocket *                 ws,
+    void onError(cc::network::WebSocket *ws,
                  const cc::network::WebSocket::ErrorCode &error) override;
 
     void setJSDelegate(const se::Value &jsDelegate);

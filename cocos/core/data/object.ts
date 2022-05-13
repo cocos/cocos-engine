@@ -625,6 +625,27 @@ declare namespace CCObject {
 
 /*
  * @en
+ * Checks whether the object is a CCObject.<br>
+ *
+ * @zh
+ * 检查该对象是否为CCObject。<br>
+ *
+ * @method isCCObject
+ * @param object
+ * @return @en Whether it is a CCObject boolean value. @zh 是否为CCObject的布尔值。
+ */
+export function isCCObject (object: any) {
+    let isCCObject = object instanceof CCObject;
+    if (JSB) {
+        if (!isCCObject) {
+            isCCObject = object instanceof jsb.CCObject;
+        }
+    }
+    return isCCObject;
+}
+
+/*
+ * @en
  * Checks whether the object is non-nil and not yet destroyed.<br>
  * When an object's `destroy` is called, it is actually destroyed after the end of this frame.
  * So `isValid` will return false from the next frame, while `isValid` in the current frame will still be true.

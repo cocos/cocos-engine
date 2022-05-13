@@ -12,6 +12,15 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
+
+#if CC_DEBUG
+static bool js_webview_getter_return_true(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    s.rval().setBoolean(true);
+    return true;
+}
+SE_BIND_PROP_GET(js_webview_getter_return_true)
+#endif
 se::Object* __jsb_cc_WebView_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_WebView_class = nullptr;  // NOLINT
 
@@ -656,6 +665,9 @@ bool js_register_webview_WebView(se::Object* obj) // NOLINT(readability-identifi
 {
     auto* cls = se::Class::create("WebView", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_webview_getter_return_true), nullptr);
+#endif
     cls->defineFunction("canGoBack", _SE(js_webview_WebView_canGoBack));
     cls->defineFunction("canGoForward", _SE(js_webview_WebView_canGoForward));
     cls->defineFunction("evaluateJS", _SE(js_webview_WebView_evaluateJS));

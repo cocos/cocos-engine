@@ -63,13 +63,13 @@ void GLES2PrimaryCommandBuffer::end() {
 void GLES2PrimaryCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint32_t stencil, CommandBuffer *const * /*secondaryCBs*/, uint32_t /*secondaryCBCount*/) {
     _curSubpassIdx = 0U;
 
-    GLES2GPURenderPass * gpuRenderPass  = static_cast<GLES2RenderPass *>(renderPass)->gpuRenderPass();
+    GLES2GPURenderPass *gpuRenderPass = static_cast<GLES2RenderPass *>(renderPass)->gpuRenderPass();
     GLES2GPUFramebuffer *gpuFramebuffer = static_cast<GLES2Framebuffer *>(fbo)->gpuFBO();
 
     cmdFuncGLES2BeginRenderPass(GLES2Device::getInstance(), _curSubpassIdx, gpuRenderPass, gpuFramebuffer,
                                 &renderArea, colors, depth, stencil);
     _curDynamicStates.viewport = {renderArea.x, renderArea.y, renderArea.width, renderArea.height};
-    _curDynamicStates.scissor  = renderArea;
+    _curDynamicStates.scissor = renderArea;
 }
 
 void GLES2PrimaryCommandBuffer::endRenderPass() {
@@ -85,7 +85,7 @@ void GLES2PrimaryCommandBuffer::draw(const DrawInfo &info) {
     CC_PROFILE(GLES2PrimaryCommandBufferDraw);
     if (_isStateInvalid) {
         ccstd::vector<uint32_t> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
-        ccstd::vector<uint32_t> &dynamicOffsets       = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsets;
+        ccstd::vector<uint32_t> &dynamicOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsets;
         for (size_t i = 0U; i < _curDynamicOffsets.size(); i++) {
             size_t count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
             // CC_ASSERT(_curDynamicOffsets[i].size() >= count);
@@ -183,7 +183,7 @@ void GLES2PrimaryCommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t
 void GLES2PrimaryCommandBuffer::bindStates() {
     if (_curGPUPipelineState) {
         ccstd::vector<uint32_t> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
-        ccstd::vector<uint32_t> &dynamicOffsets       = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsets;
+        ccstd::vector<uint32_t> &dynamicOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsets;
         for (size_t i = 0U; i < _curDynamicOffsets.size(); i++) {
             size_t count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
             // CC_ASSERT(_curDynamicOffsets[i].size() >= count);

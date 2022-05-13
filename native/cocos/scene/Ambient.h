@@ -43,7 +43,7 @@ public:
     static constexpr float SKY_ILLUM{20000.0F};
 
     Ambient(/* args */) = default;
-    ~Ambient()          = default;
+    ~Ambient() = default;
 
     void initialize(AmbientInfo *info);
 
@@ -60,33 +60,33 @@ public:
      */
 
     Vec4 &getSkyColor();
-    void  setSkyColor(const Vec4 &color);
+    void setSkyColor(const Vec4 &color);
 
     /**
      * @en Sky illuminance
      * @zh 天空亮度
      */
     float getSkyIllum() const;
-    void  setSkyIllum(float illum);
+    void setSkyIllum(float illum);
 
     /**
      * @en Ground color
      * @zh 地面颜色
      */
     const Vec4 &getGroundAlbedo() const;
-    void        setGroundAlbedo(const Vec4 &color);
+    void setGroundAlbedo(const Vec4 &color);
 
     inline uint8_t getMipmapCount() const { return _mipmapCount; }
-    inline void    setMipmapCount(uint8_t count) { _mipmapCount = count; }
+    inline void setMipmapCount(uint8_t count) { _mipmapCount = count; }
 
 protected:
-    Vec4  _groundAlbedoHDR{0.2F, 0.2F, 0.2F, 1.F};
-    Vec4  _skyColorHDR{0.2F, 0.5F, 0.8F, 1.F};
+    Vec4 _groundAlbedoHDR{0.2F, 0.2F, 0.2F, 1.F};
+    Vec4 _skyColorHDR{0.2F, 0.5F, 0.8F, 1.F};
     float _skyIllumHDR{0.F};
 
-    Vec4    _groundAlbedoLDR{0.2F, 0.2F, 0.2F, 1.F};
-    Vec4    _skyColorLDR{0.2F, 0.5F, 0.8F, 1.F};
-    float   _skyIllumLDR{0.F};
+    Vec4 _groundAlbedoLDR{0.2F, 0.2F, 0.2F, 1.F};
+    Vec4 _skyColorLDR{0.2F, 0.5F, 0.8F, 1.F};
+    float _skyIllumLDR{0.F};
     uint8_t _mipmapCount{1};
 
     bool _enabled{false};
@@ -105,15 +105,15 @@ public:
     AmbientInfo(/* args */) = default;
     ~AmbientInfo() override = default;
 
-    inline void        setSkyColorHDR(const Vec4 &val) { _skyColorHDR.set(val); };
+    inline void setSkyColorHDR(const Vec4 &val) { _skyColorHDR.set(val); };
     inline const Vec4 &getSkyColorHDR() const { return _skyColorHDR; };
     inline const Vec4 &getSkyColorLDR() const { return _skyColorLDR; };
 
-    inline void        setGroundAlbedoHDR(const Vec4 &val) { _groundAlbedoHDR.set(val); };
+    inline void setGroundAlbedoHDR(const Vec4 &val) { _groundAlbedoHDR.set(val); };
     inline const Vec4 &getGroundAlbedoHDR() const { return _groundAlbedoHDR; };
     inline const Vec4 &getGroundAlbedoLDR() const { return _groundAlbedoLDR; };
 
-    inline void         setSkyIllumHDR(float val) { _skyIllumHDR = val; };
+    inline void setSkyIllumHDR(float val) { _skyIllumHDR = val; };
     inline const float &getSkyIllumHDR() const { return _skyIllumHDR; };
     inline const float &getSkyIllumLDR() const { return _skyIllumLDR; };
 
@@ -132,7 +132,7 @@ public:
     // })
     // @editable
     // @tooltip('i18n:ambient.skyLightingColor')
-    void         setSkyLightingColor(const Color &val);
+    void setSkyLightingColor(const Color &val);
     const Color &getSkyLightingColor() const;
 
     void setSkyColor(const Vec4 &val);
@@ -144,7 +144,7 @@ public:
     // @editable
     // @type(CCFloat)
     // @tooltip('i18n:ambient.skyIllum')
-    void  setSkyIllum(float val);
+    void setSkyIllum(float val);
     float getSkyIllum() const;
 
     /**
@@ -162,7 +162,7 @@ public:
     // })
     // @editable
     // @tooltip('i18n:ambient.groundLightingColor')
-    void         setGroundLightingColor(const Color &val);
+    void setGroundLightingColor(const Color &val);
     const Color &getGroundLightingColor() const;
 
     void setGroundAlbedo(const Vec4 &val);

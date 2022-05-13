@@ -35,15 +35,15 @@ using roundUpType = std::function<uint32_t(uint32_t size, uint32_t formatSize)>;
 
 struct ITextureBuffer {
     gfx::Texture *texture{nullptr};
-    uint32_t      size{0};
-    index_t       start{0};
-    index_t       end{0};
+    uint32_t size{0};
+    index_t start{0};
+    index_t end{0};
 };
 
 struct ITextureBufferHandle {
-    index_t       chunkIdx{0};
-    index_t       start{0};
-    index_t       end{0};
+    index_t chunkIdx{0};
+    index_t start{0};
+    index_t end{0};
     gfx::Texture *texture{nullptr};
 
     bool operator==(const ITextureBufferHandle &handle) const {
@@ -52,10 +52,10 @@ struct ITextureBufferHandle {
 };
 
 struct ITextureBufferPoolInfo {
-    gfx::Format               format{gfx::Format::UNKNOWN}; // target texture format
-    cc::optional<bool>        inOrderFree;                  // will the handles be freed exactly in the order of their allocation?
-    cc::optional<uint32_t>    alignment;                    // the data alignment for each handle allocated, in bytes
-    cc::optional<roundUpType> roundUpFn;                    // given a target size, how will the actual texture size round up?
+    gfx::Format format{gfx::Format::UNKNOWN}; // target texture format
+    cc::optional<bool> inOrderFree;           // will the handles be freed exactly in the order of their allocation?
+    cc::optional<uint32_t> alignment;         // the data alignment for each handle allocated, in bytes
+    cc::optional<roundUpType> roundUpFn;      // given a target size, how will the actual texture size round up?
 };
 
 class TextureBufferPool : public RefCounted {
@@ -64,14 +64,14 @@ public:
     explicit TextureBufferPool(gfx::Device *device);
     ~TextureBufferPool() override;
 
-    void                 initialize(const ITextureBufferPoolInfo &info);
-    void                 destroy();
+    void initialize(const ITextureBufferPoolInfo &info);
+    void destroy();
     ITextureBufferHandle alloc(uint32_t size);
     ITextureBufferHandle alloc(uint32_t size, index_t chunkIdx);
 
-    void     free(const ITextureBufferHandle &handle);
+    void free(const ITextureBufferHandle &handle);
     uint32_t createChunk(uint32_t length);
-    void     update(const ITextureBufferHandle &handle, ArrayBuffer *buffer);
+    void update(const ITextureBufferHandle &handle, ArrayBuffer *buffer);
 
 private:
     index_t findAvailableSpace(uint32_t size, index_t chunkIdx) const;
@@ -79,19 +79,19 @@ private:
     // [McDonald 12] Efficient Buffer Management
     ITextureBufferHandle mcDonaldAlloc(uint32_t size);
 
-    gfx::Device *                       _device{nullptr};
-    gfx::Format                         _format{gfx::Format::UNKNOWN};
-    uint32_t                            _formatSize{0};
-    ccstd::vector<ITextureBuffer>       _chunks;
-    uint32_t                            _chunkCount{0};
+    gfx::Device *_device{nullptr};
+    gfx::Format _format{gfx::Format::UNKNOWN};
+    uint32_t _formatSize{0};
+    ccstd::vector<ITextureBuffer> _chunks;
+    uint32_t _chunkCount{0};
     ccstd::vector<ITextureBufferHandle> _handles;
-    gfx::BufferTextureCopy              _region0;
-    gfx::BufferTextureCopy              _region1;
-    gfx::BufferTextureCopy              _region2;
-    roundUpType                         _roundUpFn{nullptr};
-    bool                                _useMcDonaldAlloc{false};
-    uint32_t                            _channels{4};
-    uint32_t                            _alignment{1};
+    gfx::BufferTextureCopy _region0;
+    gfx::BufferTextureCopy _region1;
+    gfx::BufferTextureCopy _region2;
+    roundUpType _roundUpFn{nullptr};
+    bool _useMcDonaldAlloc{false};
+    uint32_t _channels{4};
+    uint32_t _alignment{1};
     CC_DISALLOW_COPY_MOVE_ASSIGN(TextureBufferPool);
 };
 

@@ -24,7 +24,7 @@
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_OSX) || (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
 
-#import "network/HttpAsynConnection-apple.h"
+    #import "network/HttpAsynConnection-apple.h"
 
 @interface HttpAsynConnection ()
 
@@ -61,42 +61,41 @@
 }
 
 - (void)startRequest:(NSURLRequest *)request {
-#ifdef CC_DEBUG
-    // NSLog(@"Starting to load %@", srcURL);
-#endif
-    
+    #ifdef CC_DEBUG
+        // NSLog(@"Starting to load %@", srcURL);
+    #endif
+
     finish = false;
-    
+
     self.responseData = [NSMutableData data];
     getDataTime = 0;
-    
+
     self.responseError = nil;
     self.connError = nil;
-    
+
     session = [NSURLSession sharedSession];
-    
-    task = [session dataTaskWithRequest:request completionHandler:^(NSData * data, NSURLResponse * response, NSError * _Nullable error) {
-        
-        if(error != nil) {
-            self.connError = error;
-            finish = true;
-            return;
-        }
-        if(response != nil) {
-#ifdef CC_DEBUG
-            // NSLog(@"Received response from request to url %@", srcURL);
-#endif
-            
-            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
-            //NSLog(@"All headers = %@", [httpResponse allHeaderFields]);
-            self.responseHeader = [httpResponse allHeaderFields];
-            
-            responseCode = httpResponse.statusCode;
-            self.statusString = [NSHTTPURLResponse localizedStringForStatusCode:responseCode];
-            if (responseCode == 200)
-                self.statusString = @"OK";
-            
-            /*The individual values of the numeric status codes defined for HTTP/1.1
+
+    task = [session dataTaskWithRequest:request
+                      completionHandler:^(NSData *data, NSURLResponse *response, NSError *_Nullable error) {
+                          if (error != nil) {
+                              self.connError = error;
+                              finish = true;
+                              return;
+                          }
+                          if (response != nil) {
+    #ifdef CC_DEBUG
+                // NSLog(@"Received response from request to url %@", srcURL);
+    #endif
+                              NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+                              //NSLog(@"All headers = %@", [httpResponse allHeaderFields]);
+                              self.responseHeader = [httpResponse allHeaderFields];
+
+                              responseCode = httpResponse.statusCode;
+                              self.statusString = [NSHTTPURLResponse localizedStringForStatusCode:responseCode];
+                              if (responseCode == 200)
+                                  self.statusString = @"OK";
+
+                              /*The individual values of the numeric status codes defined for HTTP/1.1
              | "200"  ; OK
              | "201"  ; Created
              | "202"  ; Accepted
@@ -105,22 +104,22 @@
              | "205"  ; Reset Content
              | "206"  ; Partial Content
              */
-            if (responseCode < 200 || responseCode >= 300) { // something went wrong, abort the whole thing
-                self.responseError = [NSError errorWithDomain:@"CCBackendDomain"
-                                                         code:responseCode
-                                                     userInfo:@{NSLocalizedDescriptionKey : @"Bad HTTP Response Code"}];
-            }
-            
-            [responseData setLength:0];
-        }
-        
-        if (data != nil) {
-            [responseData appendData:data];
-            getDataTime++;
-        }
-        
-        finish = true;
-    }];
+                              if (responseCode < 200 || responseCode >= 300) { // something went wrong, abort the whole thing
+                                  self.responseError = [NSError errorWithDomain:@"CCBackendDomain"
+                                                                           code:responseCode
+                                                                       userInfo:@{NSLocalizedDescriptionKey : @"Bad HTTP Response Code"}];
+                              }
+
+                              [responseData setLength:0];
+                          }
+
+                          if (data != nil) {
+                              [responseData appendData:data];
+                              getDataTime++;
+                          }
+
+                          finish = true;
+                      }];
     [task resume];
 }
 
@@ -133,16 +132,16 @@
     NSData *certData = [[NSData alloc] initWithContentsOfFile:certPath];
     CFDataRef certDataRef = (CFDataRef)certData;
     SecCertificateRef cert = SecCertificateCreateWithData(NULL, certDataRef);
-    
+
     //Establish a chain of trust anchored on our bundled certificate
     CFArrayRef certArrayRef = CFArrayCreate(NULL, (void *)&cert, 1, NULL);
     SecTrustRef serverTrust = protectionSpace.serverTrust;
     SecTrustSetAnchorCertificates(serverTrust, certArrayRef);
-    
+
     //Verify that trust
     SecTrustResultType trustResult;
     SecTrustEvaluate(serverTrust, &trustResult);
-    
+
     if (trustResult == kSecTrustResultRecoverableTrustFailure) {
         CFDataRef errDataRef = SecTrustCopyExceptions(serverTrust);
         SecTrustSetExceptions(serverTrust, errDataRef);
@@ -161,10 +160,10 @@
 }
 
 - (void)URLSession:(NSURLSession *)session didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
- completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential * _Nullable credential))completionHandler {
+      completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *_Nullable credential))completionHandler {
     id<NSURLAuthenticationChallengeSender> sender = challenge.sender;
     NSURLProtectionSpace *protectionSpace = challenge.protectionSpace;
-    
+
     //Should server trust client?
     if ([self shouldTrustProtectionSpace:protectionSpace]) {
         SecTrustRef trust = [protectionSpace serverTrust];

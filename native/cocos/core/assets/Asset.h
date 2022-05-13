@@ -57,7 +57,7 @@ public:
     NativeDep getNativeDep() const;
 
     inline const ccstd::string &getUuid() const { return _uuid; }
-    inline void                 setUuid(const ccstd::string &uuid) { _uuid = uuid; }
+    inline void setUuid(const ccstd::string &uuid) { _uuid = uuid; }
 
     /**
      * @en
@@ -93,8 +93,8 @@ public:
      */
     virtual void createNode(const CreateNodeCallback &cb) {}
 
-    void            addAssetRef();
-    void            decAssetRef(bool autoRelease = true);
+    void addAssetRef();
+    void decAssetRef(bool autoRelease = true);
     inline uint32_t getAssetRefCount() const { return _assetRefCount; }
 
     virtual void onLoaded() {}
@@ -146,7 +146,7 @@ public:
 protected:
     ccstd::string _uuid;
 
-    cc::any  _file;
+    cc::any _file;
     uint32_t _assetRefCount{0};
 
     bool _loaded{true};

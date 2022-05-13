@@ -52,14 +52,14 @@ void *ThreadSafeLinearAllocator::doAllocate(size_t size, size_t alignment) noexc
         return nullptr;
     }
 
-    void *   allocatedMemory = nullptr;
-    size_t   oldUsedSize     = 0;
-    uint64_t newUsedSize     = 0; // force 64-bit here to correctly detect overflows
+    void *allocatedMemory = nullptr;
+    size_t oldUsedSize = 0;
+    uint64_t newUsedSize = 0; // force 64-bit here to correctly detect overflows
 
     do {
-        oldUsedSize     = getUsedSize();
+        oldUsedSize = getUsedSize();
         allocatedMemory = acl::align_to(acl::add_offset_to_ptr<void>(_buffer, oldUsedSize), alignment);
-        newUsedSize     = reinterpret_cast<uintptr_t>(allocatedMemory) - reinterpret_cast<uintptr_t>(_buffer) + size;
+        newUsedSize = reinterpret_cast<uintptr_t>(allocatedMemory) - reinterpret_cast<uintptr_t>(_buffer) + size;
 
         if (newUsedSize > _capacity) {
             return nullptr; // overflows

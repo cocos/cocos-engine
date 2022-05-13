@@ -2,23 +2,18 @@
 #include "UserData.h"
 #include "ArmatureData.h"
 
-
 DRAGONBONES_NAMESPACE_BEGIN
 
-void DragonBonesData::_onClear()
-{
-    for (const auto& pair : armatures)
-    {
+void DragonBonesData::_onClear() {
+    for (const auto& pair : armatures) {
         pair.second->returnToPool();
     }
 
-    if (binary != nullptr)
-    {
+    if (binary != nullptr) {
         delete binary;
     }
 
-    if (userData != nullptr)
-    {
+    if (userData != nullptr) {
         userData->returnToPool();
     }
 
@@ -40,10 +35,8 @@ void DragonBonesData::_onClear()
     userData = nullptr;
 }
 
-void DragonBonesData::addArmature(ArmatureData* value)
-{
-    if (armatures.find(value->name) != armatures.end()) 
-    {
+void DragonBonesData::addArmature(ArmatureData* value) {
+    if (armatures.find(value->name) != armatures.end()) {
         DRAGONBONES_ASSERT(false, "Same armature: " + value->name);
         return;
     }

@@ -29,7 +29,6 @@
 #include <Foundation/Foundation.h>
 #include "platform/apple/Reachability.h"
 
-
 namespace cc {
 
 INetwork::NetworkType Network::getNetworkType() const {
@@ -39,7 +38,7 @@ INetwork::NetworkType Network::getNetworkType() const {
         __reachability->addRef();
     }
 
-    NetworkType                 ret    = NetworkType::NONE;
+    NetworkType ret = NetworkType::NONE;
     Reachability::NetworkStatus status = __reachability->getCurrentReachabilityStatus();
     switch (status) {
         case Reachability::NetworkStatus::REACHABLE_VIA_WIFI:

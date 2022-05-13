@@ -54,23 +54,23 @@ public:
      */
     ~FileUtilsAndroid() override;
 
-    static void           setassetmanager(AAssetManager *a);
+    static void setassetmanager(AAssetManager *a);
     static AAssetManager *getAssetManager() { return assetmanager; }
-    static ZipFile *      getObbFile() { return obbfile; }
+    static ZipFile *getObbFile() { return obbfile; }
 
     /* override functions */
-    bool              init() override;
+    bool init() override;
     FileUtils::Status getContents(const ccstd::string &filename, ResizableBuffer *buffer) override;
 
     ccstd::string getWritablePath() const override;
-    bool          isAbsolutePath(const ccstd::string &strPath) const override;
+    bool isAbsolutePath(const ccstd::string &strPath) const override;
 
 private:
     bool isFileExistInternal(const ccstd::string &strFilePath) const override;
     bool isDirectoryExistInternal(const ccstd::string &dirPath) const override;
 
     static AAssetManager *assetmanager;
-    static ZipFile *      obbfile;
+    static ZipFile *obbfile;
 };
 
 // end of platform group

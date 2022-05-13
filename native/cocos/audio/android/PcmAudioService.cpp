@@ -80,9 +80,9 @@ void PcmAudioService::bqFetchBufferCallback(SLAndroidSimpleBufferQueueItf bq) {
 }
 
 bool PcmAudioService::init(AudioMixerController *controller, int numChannels, int sampleRate, int bufferSizeInBytes) {
-    _controller        = controller;
-    _numChannels       = numChannels;
-    _sampleRate        = sampleRate;
+    _controller = controller;
+    _numChannels = numChannels;
+    _sampleRate = sampleRate;
     _bufferSizeInBytes = bufferSizeInBytes;
 
     SLuint32 channelMask = SL_SPEAKER_FRONT_CENTER;

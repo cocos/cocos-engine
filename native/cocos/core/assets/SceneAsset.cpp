@@ -28,7 +28,7 @@
 
 namespace cc {
 
-SceneAsset::SceneAsset()  = default;
+SceneAsset::SceneAsset() = default;
 SceneAsset::~SceneAsset() = default;
 
 bool SceneAsset::validate() const {

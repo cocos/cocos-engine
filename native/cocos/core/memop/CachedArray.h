@@ -59,7 +59,7 @@ public:
     }
 
     CachedArray(const CachedArray &) = delete;
-    CachedArray(CachedArray &&)      = delete;
+    CachedArray(CachedArray &&) = delete;
     CachedArray &operator=(const CachedArray &) = delete;
     CachedArray &operator=(CachedArray &&) = delete;
 
@@ -148,7 +148,7 @@ public:
      * @param array The given array to be appended
      */
     void concat(const ccstd::vector<T *> &array) {
-        size_t freeSize         = _array.capacity() - _length;
+        size_t freeSize = _array.capacity() - _length;
         size_t elementsToConcat = std::min(freeSize, array.size());
         _array.insert(_array.begin() + _length, array.begin(), array.begin() + elementsToConcat);
         _length += elementsToConcat;
@@ -165,7 +165,7 @@ public:
         }
 
         const uint32_t last = --_length;
-        _array[idx]         = _array[last];
+        _array[idx] = _array[last];
     }
 
     /**
@@ -183,7 +183,7 @@ public:
     }
 
     ccstd::vector<T *> _array;
-    uint32_t           _length{0};
+    uint32_t _length{0};
 
 private:
     CompareFn _compareFn{nullptr};

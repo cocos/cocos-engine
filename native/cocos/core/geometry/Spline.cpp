@@ -47,14 +47,14 @@ Spline *Spline::clone(const Spline &s) {
 }
 
 Spline *Spline::copy(Spline *out, const Spline &s) {
-    out->_mode  = s._mode;
+    out->_mode = s._mode;
     out->_knots = s._knots;
 
     return out;
 }
 
 void Spline::setModeAndKnots(SplineMode mode, const ccstd::vector<Vec3> &knots) {
-    _mode  = mode;
+    _mode = mode;
     _knots = knots;
 }
 
@@ -102,7 +102,7 @@ Vec3 Spline::getPoint(float t, uint32_t index /*= SPLINE_WHOLE_INDEX*/) const {
         const auto deltaT = 1.0F / static_cast<float>(segments);
 
         index = static_cast<uint32_t>(t / deltaT);
-        t     = std::fmod(t, deltaT) / deltaT;
+        t = std::fmod(t, deltaT) / deltaT;
     }
 
     if (index >= segments) {
@@ -135,10 +135,10 @@ ccstd::vector<Vec3> Spline::getPoints(uint32_t num, uint32_t index /*= SPLINE_WH
     }
 
     ccstd::vector<Vec3> points;
-    const float         deltaT = 1.0F / (static_cast<float>(num) - 1.0F);
+    const float deltaT = 1.0F / (static_cast<float>(num) - 1.0F);
 
     for (auto i = 0; i < num; i++) {
-        const auto t     = static_cast<float>(i) * deltaT;
+        const auto t = static_cast<float>(i) * deltaT;
         const auto point = getPoint(t, index);
 
         points.push_back(point);
@@ -178,7 +178,7 @@ Vec3 Spline::calcLinear(const Vec3 &v0, const Vec3 &v1, float t) {
 }
 
 Vec3 Spline::calcBezier(const Vec3 &v0, const Vec3 &v1, const Vec3 &v2, const Vec3 &v3, float t) {
-    const auto s      = 1.0F - t;
+    const auto s = 1.0F - t;
     const auto result = v0 * s * s * s +
                         v1 * 3.0F * t * s * s +
                         v2 * 3.0F * t * t * s +
@@ -188,8 +188,8 @@ Vec3 Spline::calcBezier(const Vec3 &v0, const Vec3 &v1, const Vec3 &v2, const Ve
 }
 
 Vec3 Spline::calcCatmullRom(const Vec3 &v0, const Vec3 &v1, const Vec3 &v2, const Vec3 &v3, float t) {
-    const auto t2     = t * t;
-    const auto t3     = t2 * t;
+    const auto t2 = t * t;
+    const auto t3 = t2 * t;
     const auto result = v0 * (-0.5F * t3 + t2 - 0.5F * t) +
                         v1 * (1.5F * t3 - 2.5F * t2 + 1.0F) +
                         v2 * (-1.5F * t3 + 2.0F * t2 + 0.5F * t) +

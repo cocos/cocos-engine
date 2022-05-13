@@ -42,7 +42,7 @@ jobs:
           rm userconf.ini
       - name: gen simulator
         run: |
-          gulp gen-simulator-release
+          gulp gen-simulator
       - name: check result
         run: |
           Get-ChildItem ./simulator/Debug -Name SimulatorApp-Win32.exe

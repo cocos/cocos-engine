@@ -37,9 +37,9 @@ template <typename T>
 class CachedArray final {
 public:
     explicit CachedArray(uint size = 1U) {
-        _size     = 0;
+        _size = 0;
         _capacity = std::max(size, 1U);
-        _array    = ccnew T[_capacity];
+        _array = ccnew T[_capacity];
     }
 
     // The rule of five applies here
@@ -55,29 +55,29 @@ public:
     CachedArray &operator=(const CachedArray &other) {
         if (this != &other) {
             delete[] _array;
-            _size     = other._size;
+            _size = other._size;
             _capacity = other._capacity;
-            _array    = ccnew T[_capacity];
+            _array = ccnew T[_capacity];
             memcpy(_array, other._array, _size * sizeof(T));
         }
         return *this;
     }
 
     CachedArray(CachedArray &&other) noexcept : _size(other._size), _capacity(other._capacity), _array(other._array) {
-        other._size     = 0;
+        other._size = 0;
         other._capacity = 0;
-        other._array    = nullptr;
+        other._array = nullptr;
     }
 
     CachedArray &operator=(CachedArray &&other) noexcept {
         if (this != &other) {
             delete[] _array;
-            _size           = other._size;
-            _capacity       = other._capacity;
-            _array          = other._array;
-            other._size     = 0;
+            _size = other._size;
+            _capacity = other._capacity;
+            _array = other._array;
+            other._size = 0;
             other._capacity = 0;
-            other._array    = nullptr;
+            other._array = nullptr;
         }
         return *this;
     }
@@ -93,12 +93,12 @@ public:
 
     inline void clear() { _size = 0; }
     inline uint size() const { return _size; }
-    inline T    pop() { return _array[--_size]; }
+    inline T pop() { return _array[--_size]; }
 
     void reserve(uint size) {
         if (size > _capacity) {
             T *temp = _array;
-            _array  = ccnew T[size];
+            _array = ccnew T[size];
             memcpy(_array, temp, _capacity * sizeof(T));
             _capacity = size;
             delete[] temp;
@@ -108,7 +108,7 @@ public:
     void push(T item) {
         if (_size >= _capacity) {
             T *temp = _array;
-            _array  = ccnew T[_capacity * 2];
+            _array = ccnew T[_capacity * 2];
             memcpy(_array, temp, _capacity * sizeof(T));
             _capacity *= 2;
             delete[] temp;
@@ -118,9 +118,9 @@ public:
 
     void concat(const CachedArray<T> &array) {
         if (_size + array._size > _capacity) {
-            T *  temp = _array;
+            T *temp = _array;
             uint size = std::max(_capacity * 2, _size + array._size);
-            _array    = ccnew T[size];
+            _array = ccnew T[size];
             memcpy(_array, temp, _size * sizeof(T));
             _capacity = size;
             delete[] temp;
@@ -131,9 +131,9 @@ public:
 
     void concat(T *array, uint count) {
         if (_size + count > _capacity) {
-            T *  temp = _array;
+            T *temp = _array;
             uint size = std::max(_capacity * 2, _size + count);
-            _array    = ccnew T[size];
+            _array = ccnew T[size];
             memcpy(_array, temp, _size * sizeof(T));
             _capacity = size;
             delete[] temp;
@@ -159,9 +159,9 @@ public:
     }
 
 private:
-    uint _size     = 0;
+    uint _size = 0;
     uint _capacity = 0;
-    T *  _array    = nullptr;
+    T *_array = nullptr;
 };
 
 } // namespace cc

@@ -108,7 +108,7 @@ bool __log(JSContext *cx, uint32_t argc, JS::Value *vp) {
         JSString *string = JS::ToString(cx, args[0]);
         if (string) {
             JS::RootedString jsstr(cx, string);
-            JS::UniqueChars  buffer = JS_EncodeStringToUTF8(cx, jsstr);
+            JS::UniqueChars buffer = JS_EncodeStringToUTF8(cx, jsstr);
 
             SE_LOGD("JS: %s\n", buffer.get());
         }
@@ -175,13 +175,13 @@ bool JSB_console_format_log(State &s, const char *prefix, int msgIndex = 0) {
         return false;
 
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int argc = (int)args.size();
     if ((argc - msgIndex) == 1) {
         std::string msg = args[msgIndex].toStringForce();
         SE_LOGD("JS: %s%s\n", prefix, msg.c_str());
     } else if (argc > 1) {
         std::string msg = args[msgIndex].toStringForce();
-        size_t      pos;
+        size_t pos;
         for (int i = (msgIndex + 1); i < argc; ++i) {
             pos = msg.find("%");
             if (pos != std::string::npos && pos != (msg.length() - 1) && (msg[pos + 1] == 'd' || msg[pos + 1] == 's' || msg[pos + 1] == 'f')) {
@@ -293,24 +293,24 @@ void ScriptEngine::onWeakPointerCompartmentCallback(JSTracer *trc, JS::Compartme
 
 /* static */
 void ScriptEngine::onWeakPointerZoneGroupCallback(JSTracer *trc, void *data) {
-    bool    isInCleanup   = getInstance()->isInCleanup();
-    bool    isIterUpdated = false;
-    Object *obj           = nullptr;
-    auto    iter          = NativePtrToObjectMap::begin();
+    bool isInCleanup = getInstance()->isInCleanup();
+    bool isIterUpdated = false;
+    Object *obj = nullptr;
+    auto iter = NativePtrToObjectMap::begin();
     while (iter != NativePtrToObjectMap::end()) {
-        obj           = iter->second;
+        obj = iter->second;
         isIterUpdated = false;
         if (!obj->isRooted()) {
             if (obj->updateAfterGC(trc, data)) {
                 obj->decRef();
-                iter          = NativePtrToObjectMap::erase(iter);
+                iter = NativePtrToObjectMap::erase(iter);
                 isIterUpdated = true;
             }
         } else if (isInCleanup) // Rooted and in cleanup step
         {
             obj->unprotect();
             obj->decRef();
-            iter          = NativePtrToObjectMap::erase(iter);
+            iter = NativePtrToObjectMap::erase(iter);
             isIterUpdated = true;
         }
 
@@ -401,7 +401,7 @@ bool ScriptEngine::init() {
 
     // SpiderMonkey isn't shipped with a console variable. Make a fake one.
     Value consoleVal;
-    bool  hasConsole = _globalObj->getProperty("console", &consoleVal) && consoleVal.isObject();
+    bool hasConsole = _globalObj->getProperty("console", &consoleVal) && consoleVal.isObject();
     assert(!hasConsole);
 
     HandleObject consoleObj(Object::createPlainObject());
@@ -457,10 +457,10 @@ void ScriptEngine::cleanup() {
 
     JS_DestroyContext(_cx);
 
-    _cx             = nullptr;
-    _globalObj      = nullptr;
+    _cx = nullptr;
+    _globalObj = nullptr;
     _oldCompartment = nullptr;
-    _isValid        = false;
+    _isValid = false;
 
     _registerCallbackArray.clear();
 
@@ -516,13 +516,13 @@ void ScriptEngine::addPermanentRegisterCallback(RegisterCallback cb) {
 
     #pragma mark - Debug
 
-static std::string                inData;
-static std::string                outData;
+static std::string inData;
+static std::string outData;
 static ccstd::vector<std::string> g_queue;
-static std::mutex                 g_qMutex;
-static std::mutex                 g_rwMutex;
-static int                        clientSocket      = -1;
-static uint32_t                   s_nestedLoopLevel = 0;
+static std::mutex g_qMutex;
+static std::mutex g_rwMutex;
+static int clientSocket = -1;
+static uint32_t s_nestedLoopLevel = 0;
 
 static void cc_closesocket(int fd) {
     #ifdef _WIN32
@@ -534,7 +534,7 @@ static void cc_closesocket(int fd) {
 
 void ScriptEngine::_debugProcessInput(const std::string &str) {
     JS::RootedObject debugGlobal(_cx, _debugGlobalObj->_getJSObject());
-    JS::Realm *      globalCpt = JS::EnterRealm(_cx, debugGlobal);
+    JS::Realm *globalCpt = JS::EnterRealm(_cx, debugGlobal);
 
     Value func;
     if (_debugGlobalObj->getProperty("processInput", &func) && func.isObject() && func.toObject()->isFunction()) {
@@ -548,13 +548,13 @@ void ScriptEngine::_debugProcessInput(const std::string &str) {
 
 static bool NS_ProcessNextEvent() {
     std::string message;
-    size_t      messageCount = 0;
+    size_t messageCount = 0;
     while (true) {
         g_qMutex.lock();
         messageCount = g_queue.size();
         if (messageCount > 0) {
             auto first = g_queue.begin();
-            message    = *first;
+            message = *first;
             g_queue.erase(first);
             --messageCount;
         }
@@ -640,11 +640,11 @@ static void clearBuffers() {
 static void serverEntryPoint(uint32_t port) {
     // start a server, accept the connection and keep reading data from it
     struct addrinfo hints, *result = nullptr, *rp = nullptr;
-    int             s = 0;
+    int s = 0;
     memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_family   = AF_UNSPEC;
+    hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM; // TCP stream sockets
-    hints.ai_flags    = AI_PASSIVE;  // fill in my IP for me
+    hints.ai_flags = AI_PASSIVE;     // fill in my IP for me
 
     std::stringstream portstr;
     portstr << port;
@@ -698,7 +698,7 @@ static void serverEntryPoint(uint32_t port) {
     #define BUF_SIZE          MAX_RECEIVED_SIZE + 1
 
     char buf[BUF_SIZE] = {0};
-    int  readBytes     = 0;
+    int readBytes = 0;
     while (true) {
         clientSocket = accept(s, NULL, NULL);
 
@@ -733,7 +733,7 @@ static void serverEntryPoint(uint32_t port) {
 
 static bool JSBDebug_require(State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int argc = (int)args.size();
 
     if (argc >= 1) {
         ScriptEngine::getInstance()->runScript(args[0].toString());
@@ -747,7 +747,7 @@ SE_BIND_FUNC(JSBDebug_require)
 
 static bool JSBDebug_BufferWrite(State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int argc = (int)args.size();
     if (argc == 1) {
         // this is safe because we're already inside a lock (from clearBuffers)
         outData.append(args[0].toString());
@@ -802,7 +802,7 @@ bool ScriptEngine::start() {
         JS::LeaveRealm(_cx, globalCpt);
     }
 
-    bool ok    = false;
+    bool ok = false;
     _startTime = std::chrono::steady_clock::now();
 
     for (auto cb : _permRegisterCallbackArray) {
@@ -827,7 +827,7 @@ bool ScriptEngine::start() {
 
 bool ScriptEngine::getScript(const std::string &path, JS::MutableHandleScript script) {
     std::string fullPath = _fileOperationDelegate.onGetFullPath(path);
-    auto        iter     = _filenameScriptMap.find(fullPath);
+    auto iter = _filenameScriptMap.find(fullPath);
     if (iter != _filenameScriptMap.end()) {
         JS::PersistentRootedScript *rootedScript = iter->second;
         script.set(rootedScript->get());
@@ -901,7 +901,7 @@ bool ScriptEngine::compileScript(const std::string &path, JS::MutableHandleScrip
             op.setFileAndLine(path.c_str(), 1);
 
             JS::SourceText<mozilla::Utf8Unit> srcBuf;
-            bool                              succeed = srcBuf.init(_cx, jsFileContent.c_str(), jsFileContent.length(),
+            bool succeed = srcBuf.init(_cx, jsFileContent.c_str(), jsFileContent.length(),
                                        JS::SourceOwnership::Borrowed);
 
             assert(succeed);
@@ -909,7 +909,7 @@ bool ScriptEngine::compileScript(const std::string &path, JS::MutableHandleScrip
             if (compiledScript != nullptr) {
                 compileSucceed = true;
                 script.set(compiledScript);
-                std::string fullPath         = _fileOperationDelegate.onGetFullPath(path);
+                std::string fullPath = _fileOperationDelegate.onGetFullPath(path);
                 _filenameScriptMap[fullPath] = ccnew JS::PersistentRootedScript(_cx, script.get());
             }
             assert(compileSucceed);
@@ -940,7 +940,7 @@ bool ScriptEngine::evalString(const char *script, ssize_t length /* = -1 */, Val
     JS::RootedValue rval(_cx);
 
     JS::SourceText<mozilla::Utf8Unit> srcBuf;
-    bool                              succeed = srcBuf.init(_cx, script, length, JS::SourceOwnership::Borrowed);
+    bool succeed = srcBuf.init(_cx, script, length, JS::SourceOwnership::Borrowed);
     assert(succeed);
 
     bool ok = JS::Evaluate(_cx, options, srcBuf, &rval);
@@ -971,7 +971,7 @@ bool ScriptEngine::runScript(const std::string &path, Value *ret /* = nullptr */
     assert(_fileOperationDelegate.isValid());
 
     JS::RootedScript script(_cx);
-    bool             ok = compileScript(path, &script);
+    bool ok = compileScript(path, &script);
     if (ok) {
         JS::RootedValue rval(_cx);
         ok = JS_ExecuteScript(_cx, script, &rval);
@@ -998,11 +998,11 @@ void ScriptEngine::clearException() {
         JS_ClearPendingException(_cx);
 
         assert(exceptionValue.isObject());
-        JS::RootedObject  exceptionObj(_cx, exceptionValue.toObjectOrNull());
-        JSErrorReport *   report   = JS_ErrorFromException(_cx, exceptionObj);
-        const char *      message  = report->message().c_str();
+        JS::RootedObject exceptionObj(_cx, exceptionValue.toObjectOrNull());
+        JSErrorReport *report = JS_ErrorFromException(_cx, exceptionObj);
+        const char *message = report->message().c_str();
         const std::string filePath = report->filename != nullptr ? report->filename : "(no filename)";
-        char              line[50] = {0};
+        char line[50] = {0};
         snprintf(line, sizeof(line), "%u", report->lineno);
         char column[50] = {0};
         snprintf(column, sizeof(column), "%u", report->column);
@@ -1075,13 +1075,13 @@ void ScriptEngine::mainLoopUpdate() {
         return;
     }
     std::string message;
-    size_t      messageCount = 0;
+    size_t messageCount = 0;
     while (true) {
         g_qMutex.lock();
         messageCount = g_queue.size();
         if (messageCount > 0) {
             auto first = g_queue.begin();
-            message    = *first;
+            message = *first;
             g_queue.erase(first);
             --messageCount;
         }
@@ -1115,7 +1115,7 @@ bool ScriptEngine::callFunction(Object *targetObj, const char *funcName, uint32_
     }
 
     bool found = false;
-    bool ok    = JS_HasProperty(_cx, contextObject, funcName, &found);
+    bool ok = JS_HasProperty(_cx, contextObject, funcName, &found);
 
     if (!ok || !found) {
         return false;
@@ -1129,7 +1129,7 @@ bool ScriptEngine::callFunction(Object *targetObj, const char *funcName, uint32_
     }
 
     JS::RootedValue rcValue(_cx);
-    JSAutoRealm     autoRealm(_cx, funcValue.toObjectOrNull());
+    JSAutoRealm autoRealm(_cx, funcValue.toObjectOrNull());
     ok = JS_CallFunctionValue(_cx, contextObject, funcValue, jsarr, &rcValue);
 
     if (ok) {

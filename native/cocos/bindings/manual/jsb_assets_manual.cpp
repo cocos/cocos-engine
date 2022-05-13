@@ -39,9 +39,9 @@ static bool js_assets_Asset_getNativeDep(se::State &s) // NOLINT(readability-ide
 {
     auto *cobj = SE_THIS_OBJECT<cc::Asset>(s);
     SE_PRECONDITION2(cobj, false, "js_assets_Asset_getNativeDep : Invalid Native Object");
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         ok = nativevalue_to_se(cobj->getNativeDep(), s.rval());
         SE_PRECONDITION2(ok, false, "js_assets_Asset_getNativeDep : Error processing arguments");
@@ -57,7 +57,7 @@ static bool js_assets_ImageAsset_setData(se::State &s) // NOLINT(readability-ide
     auto *cobj = SE_THIS_OBJECT<cc::ImageAsset>(s);
     SE_PRECONDITION2(cobj, false, "js_assets_Asset_setData : Invalid Native Object");
     const auto &args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 1) {
         uint8_t *data{nullptr};
         if (args[0].isObject()) {
@@ -80,14 +80,14 @@ static bool js_assets_SimpleTexture_registerListeners(se::State &s) // NOLINT(re
     auto *thisObj = s.thisObject();
     cobj->on(cc::EventTypesToJS::SIMPLE_TEXTURE_GFX_TEXTURE_UPDATED, [thisObj](cc::gfx::Texture *texture) {
         se::AutoHandleScope hs;
-        se::Value           arg0;
+        se::Value arg0;
         nativevalue_to_se(texture, arg0, nullptr);
         se::ScriptEngine::getInstance()->callFunction(thisObj, "_onGFXTextureUpdated", 1, &arg0);
     });
 
     cobj->on(cc::EventTypesToJS::SIMPLE_TEXTURE_AFTER_ASSIGN_IMAGE, [thisObj](cc::ImageAsset *image) {
         se::AutoHandleScope hs;
-        se::Value           arg0;
+        se::Value arg0;
         nativevalue_to_se(image, arg0, nullptr);
         se::ScriptEngine::getInstance()->callFunction(thisObj, "_onAfterAssignImage", 1, &arg0);
     });
@@ -103,7 +103,7 @@ static bool js_assets_TextureBase_registerGFXSamplerUpdatedListener(se::State &s
     auto *thisObj = s.thisObject();
     cobj->on(cc::EventTypesToJS::TEXTURE_BASE_GFX_SAMPLER_UPDATED, [thisObj](cc::gfx::Sampler *sampler) {
         se::AutoHandleScope hs;
-        se::Value           arg0;
+        se::Value arg0;
         nativevalue_to_se(sampler, arg0, nullptr);
         se::ScriptEngine::getInstance()->callFunction(thisObj, "_onGFXSamplerUpdated", 1, &arg0);
     });

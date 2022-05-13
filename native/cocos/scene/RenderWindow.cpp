@@ -45,7 +45,7 @@ const ccstd::unordered_map<IScreen::Orientation, gfx::SurfaceTransform> ORIENTAT
 
 }
 
-RenderWindow::RenderWindow()  = default;
+RenderWindow::RenderWindow() = default;
 RenderWindow::~RenderWindow() = default;
 
 bool RenderWindow::initialize(gfx::Device *device, IRenderWindowInfo &info) {
@@ -57,7 +57,7 @@ bool RenderWindow::initialize(gfx::Device *device, IRenderWindowInfo &info) {
         _swapchain = info.swapchain;
     }
 
-    _width  = info.width;
+    _width = info.width;
     _height = info.height;
 
     _renderPass = device->createRenderPass(info.renderPassInfo);
@@ -109,7 +109,7 @@ void RenderWindow::destroy() {
 void RenderWindow::resize(uint32_t width, uint32_t height) {
     if (_swapchain != nullptr) {
         _swapchain->resize(width, height, ORIENTATION_MAP.at(Device::getDeviceOrientation()));
-        _width  = _swapchain->getWidth();
+        _width = _swapchain->getWidth();
         _height = _swapchain->getHeight();
     } else {
         for (auto *colorTexture : _colorTextures) {
@@ -118,7 +118,7 @@ void RenderWindow::resize(uint32_t width, uint32_t height) {
         if (_depthStencilTexture != nullptr) {
             _depthStencilTexture->resize(width, height);
         }
-        _width  = width;
+        _width = width;
         _height = height;
     }
 

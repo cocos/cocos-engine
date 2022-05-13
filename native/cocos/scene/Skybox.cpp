@@ -48,7 +48,7 @@ namespace cc {
 namespace scene {
 
 SkyboxInfo::SkyboxInfo(/* args */) = default;
-SkyboxInfo::~SkyboxInfo()          = default;
+SkyboxInfo::~SkyboxInfo() = default;
 
 void SkyboxInfo::setEnabled(bool val) {
     _enabled = val;
@@ -213,15 +213,15 @@ void Skybox::setDiffuseMap(TextureCube *val) {
 }
 
 void Skybox::initialize(const SkyboxInfo &skyboxInfo) {
-    _enabled       = skyboxInfo.isEnabled();
-    _useIBL        = skyboxInfo.isUseIBL();
+    _enabled = skyboxInfo.isEnabled();
+    _useIBL = skyboxInfo.isUseIBL();
     _useDiffuseMap = skyboxInfo.isApplyDiffuseMap();
-    _useHDR        = skyboxInfo.isUseHDR();
+    _useHDR = skyboxInfo.isUseHDR();
 }
 
 void Skybox::setEnvMaps(TextureCube *envmapHDR, TextureCube *envmapLDR) {
-    _envmapHDR       = envmapHDR;
-    _envmapLDR       = envmapLDR;
+    _envmapHDR = envmapHDR;
+    _envmapLDR = envmapLDR;
     const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
     if (isHDR) {
         if (envmapHDR) {
@@ -243,9 +243,9 @@ void Skybox::setDiffuseMaps(TextureCube *diffuseMapHDR, TextureCube *diffuseMapL
 }
 
 void Skybox::activate() {
-    auto *pipeline   = Root::getInstance()->getPipeline();
+    auto *pipeline = Root::getInstance()->getPipeline();
     _globalDSManager = pipeline->getGlobalDSManager();
-    _default         = BuiltinResMgr::getInstance()->get<TextureCube>("default-cube-texture");
+    _default = BuiltinResMgr::getInstance()->get<TextureCube>("default-cube-texture");
 
     if (!_model) {
         _model = Root::getInstance()->createModel<scene::Model>();
@@ -253,18 +253,18 @@ void Skybox::activate() {
         _model->initWorldBoundDescriptors(CC_INVALID_INDEX);
     }
     auto *envmap = getEnvmap();
-    bool  isRGBE = envmap != nullptr ? envmap->isRGBE : _default->isRGBE;
+    bool isRGBE = envmap != nullptr ? envmap->isRGBE : _default->isRGBE;
 
     if (!skyboxMaterial) {
         auto *mat = ccnew Material();
-        MacroRecord       defines{{"USE_RGBE_CUBEMAP", isRGBE}};
-        IMaterialInfo     matInfo;
+        MacroRecord defines{{"USE_RGBE_CUBEMAP", isRGBE}};
+        IMaterialInfo matInfo;
         matInfo.effectName = ccstd::string{"skybox"};
-        matInfo.defines    = IMaterialInfo::DefinesType{defines};
+        matInfo.defines = IMaterialInfo::DefinesType{defines};
         mat->initialize({matInfo});
         IMaterialInstanceInfo matInstInfo;
         matInstInfo.parent = mat;
-        skyboxMaterial     = ccnew MaterialInstance(matInstInfo);
+        skyboxMaterial = ccnew MaterialInstance(matInstInfo);
         skyboxMaterial->addRef();
         EventDispatcher::addCustomEventListener(EVENT_CLOSE, [](const CustomEvent & /*unused*/) {
             skyboxMaterial->release();
@@ -275,7 +275,7 @@ void Skybox::activate() {
     if (_enabled) {
         if (!_mesh) {
             IBoxOptions options;
-            options.width  = 2;
+            options.width = 2;
             options.height = 2;
             options.length = 2;
 
@@ -308,19 +308,19 @@ void Skybox::updatePipeline() const {
         _model->setSubModelMaterial(0, skyboxMaterial);
     }
 
-    Root *root     = Root::getInstance();
+    Root *root = Root::getInstance();
     auto *pipeline = root->getPipeline();
 
-    const bool    useRGBE            = isRGBE();
-    const int32_t useIBLValue        = isUseIBL() ? (useRGBE ? 2 : 1) : 0;
+    const bool useRGBE = isRGBE();
+    const int32_t useIBLValue = isUseIBL() ? (useRGBE ? 2 : 1) : 0;
     const int32_t useDiffuseMapValue = (isUseIBL() && isUseDiffuseMap() && getDiffuseMap() != nullptr) ? (useRGBE ? 2 : 1) : 0;
-    const bool    useHDRValue        = isUseHDR();
+    const bool useHDRValue = isUseHDR();
 
     bool valueChanged = false;
-    auto iter         = pipeline->getMacros().find("CC_USE_IBL");
+    auto iter = pipeline->getMacros().find("CC_USE_IBL");
     if (iter != pipeline->getMacros().end()) {
-        const MacroValue &macroIBL    = iter->second;
-        const int32_t *   macroIBLPtr = cc::get_if<int32_t>(&macroIBL);
+        const MacroValue &macroIBL = iter->second;
+        const int32_t *macroIBLPtr = cc::get_if<int32_t>(&macroIBL);
         if (macroIBLPtr != nullptr && (*macroIBLPtr != useIBLValue)) {
             pipeline->setValue("CC_USE_IBL", useIBLValue);
             valueChanged = true;
@@ -329,8 +329,8 @@ void Skybox::updatePipeline() const {
 
     auto iterDiffuseMap = pipeline->getMacros().find("CC_USE_DIFFUSEMAP");
     if (iterDiffuseMap != pipeline->getMacros().end()) {
-        const MacroValue &macroDIFFUSEMAP    = iterDiffuseMap->second;
-        const int32_t *   macroDIFFUSEMAPPtr = cc::get_if<int32_t>(&macroDIFFUSEMAP);
+        const MacroValue &macroDIFFUSEMAP = iterDiffuseMap->second;
+        const int32_t *macroDIFFUSEMAPPtr = cc::get_if<int32_t>(&macroDIFFUSEMAP);
         if (macroDIFFUSEMAPPtr != nullptr && ((*macroDIFFUSEMAPPtr != 0) != useDiffuseMapValue)) {
             pipeline->setValue("CC_USE_DIFFUSEMAP", useDiffuseMapValue);
             valueChanged = true;
@@ -339,8 +339,8 @@ void Skybox::updatePipeline() const {
 
     auto iterUseHDR = pipeline->getMacros().find("CC_USE_HDR");
     if (iterUseHDR != pipeline->getMacros().end()) {
-        const MacroValue &macroHDR    = iterUseHDR->second;
-        const int32_t *   macroHDRPtr = cc::get_if<int32_t>(&macroHDR);
+        const MacroValue &macroHDR = iterUseHDR->second;
+        const int32_t *macroHDRPtr = cc::get_if<int32_t>(&macroHDR);
         if (macroHDRPtr != nullptr && ((*macroHDRPtr != 0) != useHDRValue)) {
             pipeline->setValue("CC_USE_HDR", useHDRValue);
             valueChanged = true;

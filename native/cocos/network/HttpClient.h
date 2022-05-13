@@ -141,29 +141,29 @@ private:
 private: // NOLINT(readability-redundant-access-specifiers)
     bool _isInited;
 
-    int        _timeoutForConnect;
+    int _timeoutForConnect;
     std::mutex _timeoutForConnectMutex;
 
-    int        _timeoutForRead;
+    int _timeoutForRead;
     std::mutex _timeoutForReadMutex;
 
-    int        _threadCount;
+    int _threadCount;
     std::mutex _threadCountMutex;
 
     std::weak_ptr<Scheduler> _scheduler;
-    std::mutex               _schedulerMutex;
+    std::mutex _schedulerMutex;
 
     RefVector<HttpRequest *> _requestQueue;
-    std::mutex               _requestQueueMutex;
+    std::mutex _requestQueueMutex;
 
     RefVector<HttpResponse *> _responseQueue;
-    std::mutex                _responseQueueMutex;
+    std::mutex _responseQueueMutex;
 
     ccstd::string _cookieFilename;
-    std::mutex    _cookieFileMutex;
+    std::mutex _cookieFileMutex;
 
     ccstd::string _sslCaFilename;
-    std::mutex    _sslCaFileMutex;
+    std::mutex _sslCaFileMutex;
 
     HttpCookie *_cookie;
 

@@ -23,9 +23,7 @@
  THE SOFTWARE.
 */
 
-
-
-import { Renderable2D } from '../../framework/renderable-2d';
+import { UIRenderer } from '../../framework/ui-renderer';
 import { IAssemblerManager } from '../../renderer/base';
 import { Sprite } from '../../components';
 import { barFilled } from './bar-filled';
@@ -40,7 +38,7 @@ const FillType = Sprite.FillType;
 // Inline all type switch to avoid jit deoptimization during inlined function change
 
 const spriteAssembler: IAssemblerManager = {
-    getAssembler (spriteComp: Renderable2D) {
+    getAssembler (spriteComp: UIRenderer) {
         let util = simple;
 
         const comp = spriteComp as Sprite;

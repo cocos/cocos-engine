@@ -14,6 +14,15 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
+
+#if CC_DEBUG
+static bool js_editor_support_getter_return_true(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    s.rval().setBoolean(true);
+    return true;
+}
+SE_BIND_PROP_GET(js_editor_support_getter_return_true)
+#endif
 se::Object* __jsb_cc_middleware_Texture2D_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_middleware_Texture2D_class = nullptr;  // NOLINT
 
@@ -203,6 +212,9 @@ bool js_register_editor_support_Texture2D(se::Object* obj) // NOLINT(readability
 {
     auto* cls = se::Class::create("Texture2D", obj, nullptr, _SE(js_editor_support_Texture2D_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_editor_support_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getPixelsHigh", _SE(js_editor_support_Texture2D_getPixelsHigh));
     cls->defineFunction("getPixelsWide", _SE(js_editor_support_Texture2D_getPixelsWide));
     cls->defineFunction("getRealTextureIndex", _SE(js_editor_support_Texture2D_getRealTextureIndex));
@@ -312,6 +324,9 @@ bool js_register_editor_support_SharedBufferManager(se::Object* obj) // NOLINT(r
 {
     auto* cls = se::Class::create("SharedBufferManager", obj, nullptr, _SE(js_editor_support_SharedBufferManager_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_editor_support_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getSharedBuffer", _SE(js_editor_support_SharedBufferManager_getSharedBuffer));
     cls->defineFunction("setResizeCallback", _SE(js_editor_support_SharedBufferManager_setResizeCallback));
     cls->defineFinalizeFunction(_SE(js_cc_middleware_SharedBufferManager_finalize));
@@ -589,6 +604,9 @@ bool js_register_editor_support_MiddlewareManager(se::Object* obj) // NOLINT(rea
 {
     auto* cls = se::Class::create("MiddlewareManager", obj, nullptr, _SE(js_editor_support_MiddlewareManager_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_editor_support_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getAttachInfoMgr", _SE(js_editor_support_MiddlewareManager_getAttachInfoMgr));
     cls->defineFunction("getBufferCount", _SE(js_editor_support_MiddlewareManager_getBufferCount));
     cls->defineFunction("getIBTypedArray", _SE(js_editor_support_MiddlewareManager_getIBTypedArray));

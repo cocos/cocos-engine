@@ -43,25 +43,25 @@ class GlyphAllocator;
 class FreeTypeFontFace : public FontFace {
 public:
     explicit FreeTypeFontFace(Font *font);
-    ~FreeTypeFontFace() override               = default;
+    ~FreeTypeFontFace() override = default;
     FreeTypeFontFace(const FreeTypeFontFace &) = delete;
-    FreeTypeFontFace(FreeTypeFontFace &&)      = delete;
+    FreeTypeFontFace(FreeTypeFontFace &&) = delete;
     FreeTypeFontFace &operator=(const FreeTypeFontFace &) = delete;
     FreeTypeFontFace &operator=(FreeTypeFontFace &&) = delete;
 
     const FontGlyph *getGlyph(uint32_t code) override;
-    float            getKerning(uint32_t prevCode, uint32_t nextCode) override;
-    static void      destroyFreeType();
+    float getKerning(uint32_t prevCode, uint32_t nextCode) override;
+    static void destroyFreeType();
 
 private:
-    void             doInit(const FontFaceInfo &info) override;
+    void doInit(const FontFaceInfo &info) override;
     const FontGlyph *loadGlyph(uint32_t code);
-    void             createTexture(uint32_t width, uint32_t height);
-    void             updateTexture(uint32_t page, uint32_t x, uint32_t y, uint32_t width, uint32_t height, const uint8_t *buffer);
+    void createTexture(uint32_t width, uint32_t height);
+    void updateTexture(uint32_t page, uint32_t x, uint32_t y, uint32_t width, uint32_t height, const uint8_t *buffer);
 
     std::unique_ptr<GlyphAllocator> _allocator{nullptr};
-    std::unique_ptr<FTFace>         _face;
-    static FTLibrary *              library;
+    std::unique_ptr<FTFace> _face;
+    static FTLibrary *library;
 
     friend class FreeTypeFont;
 };
@@ -72,9 +72,9 @@ private:
 class FreeTypeFont : public Font {
 public:
     explicit FreeTypeFont(const ccstd::string &path);
-    ~FreeTypeFont() override           = default;
+    ~FreeTypeFont() override = default;
     FreeTypeFont(const FreeTypeFont &) = delete;
-    FreeTypeFont(FreeTypeFont &&)      = delete;
+    FreeTypeFont(FreeTypeFont &&) = delete;
     FreeTypeFont &operator=(const FreeTypeFont &) = delete;
     FreeTypeFont &operator=(FreeTypeFont &&) = delete;
 

@@ -210,7 +210,7 @@ public:
 
 protected:
     static gfx::Device *getGFXDevice();
-    static gfx::Format  getGFXPixelFormat(PixelFormat format);
+    static gfx::Format getGFXPixelFormat(PixelFormat format);
 
     gfx::Format getGFXFormat() const;
 
@@ -248,10 +248,10 @@ public:
     uint32_t _height{1};
 
 protected:
-    ccstd::string    _id;
+    ccstd::string _id;
     gfx::SamplerInfo _samplerInfo;
-    gfx::Sampler *   _gfxSampler{nullptr};
-    gfx::Device *    _gfxDevice{nullptr};
+    gfx::Sampler *_gfxSampler{nullptr};
+    gfx::Device *_gfxDevice{nullptr};
 
     uint32_t _textureHash{0};
 

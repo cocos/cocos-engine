@@ -78,9 +78,9 @@ public:
     static Node *instantiate(Node *cloned, bool isSyncedNode);
     // for walk
     static ccstd::vector<ccstd::vector<Node *>> stacks;
-    static index_t                              stackId;
+    static index_t stackId;
 
-    static void    setScene(Node *);
+    static void setScene(Node *);
     static index_t getIdxOfChild(const ccstd::vector<IntrusivePtr<Node>> &, Node *);
 
     static bool isStatic; // cjh TODO: add getter / setter
@@ -190,7 +190,7 @@ public:
     void off(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target, bool useCapture = false);
 
     template <typename... Args>
-    void emit(const CallbacksInvoker::KeyType &type, Args &&...args);
+    void emit(const CallbacksInvoker::KeyType &type, Args &&... args);
 
     //    void dispatchEvent(event::Event *event);
     bool hasEventListener(const CallbacksInvoker::KeyType &type) const;
@@ -260,26 +260,26 @@ public:
     inline void setActiveInHierarchy(bool v) { _activeInHierarchyArr[0] = (v ? 1 : 0); }
     inline void setActiveInHierarchyPtr(uint8_t *ptr) { _activeInHierarchyArr = ptr; }
 
-    virtual void                                    onPostActivated(bool active) {}
+    virtual void onPostActivated(bool active) {}
     inline const ccstd::vector<IntrusivePtr<Node>> &getChildren() const { return _children; }
-    inline Node *                                   getParent() const { return _parent; }
-    inline NodeEventProcessor *                     getEventProcessor() const { return _eventProcessor; }
+    inline Node *getParent() const { return _parent; }
+    inline NodeEventProcessor *getEventProcessor() const { return _eventProcessor; }
 
-    Node *           getChildByUuid(const ccstd::string &) const;
-    Node *           getChildByName(const ccstd::string &) const;
-    Node *           getChildByPath(const ccstd::string &) const;
-    inline index_t   getSiblingIndex() const { return _siblingIndex; }
+    Node *getChildByUuid(const ccstd::string &) const;
+    Node *getChildByName(const ccstd::string &) const;
+    Node *getChildByPath(const ccstd::string &) const;
+    inline index_t getSiblingIndex() const { return _siblingIndex; }
     inline UserData *getUserData() { return _userData.get(); }
-    inline void      setUserData(UserData *data) { _userData = data; }
-    inline void      insertChild(Node *child, index_t siblingIndex) {
+    inline void setUserData(UserData *data) { _userData = data; }
+    inline void insertChild(Node *child, index_t siblingIndex) {
         child->setParent(this);
         child->setSiblingIndex(siblingIndex);
     }
 
     void invalidateChildren(TransformBit dirtyBit);
 
-    void        translate(const Vec3 &, NodeSpace ns = NodeSpace::LOCAL);
-    void        rotate(const Quaternion &rot, NodeSpace ns = NodeSpace::LOCAL, bool calledFromJS = false);
+    void translate(const Vec3 &, NodeSpace ns = NodeSpace::LOCAL);
+    void rotate(const Quaternion &rot, NodeSpace ns = NodeSpace::LOCAL, bool calledFromJS = false);
     inline void rotateForJS(float x, float y, float z, float w, NodeSpace ns = NodeSpace::LOCAL) {
         rotate(Quaternion(x, y, z, w), ns, true);
     }
@@ -301,7 +301,7 @@ public:
     inline void setPosition(float x, float y) { setPosition(x, y, _localPosition.z); }
     inline void setPosition(float x, float y, float z) { setPositionInternal(x, y, z, false); }
     inline void setPositionInternal(float x, float y, bool calledFromJS) { setPositionInternal(x, y, _localPosition.z, calledFromJS); }
-    void        setPositionInternal(float x, float y, float z, bool calledFromJS);
+    void setPositionInternal(float x, float y, float z, bool calledFromJS);
     inline void setPositionForJS(float x, float y, float z) { _localPosition.set(x, y, z); }
     /**
      * @en Get position in local coordinate system, please try to pass `out` vector and reuse it to avoid garbage.
@@ -318,13 +318,13 @@ public:
      */
     inline void setRotation(const Quaternion &rotation) { setRotation(rotation.x, rotation.y, rotation.z, rotation.w); }
     inline void setRotation(float x, float y, float z, float w) { setRotationInternal(x, y, z, w, false); }
-    void        setRotationInternal(float x, float y, float z, float w, bool calledFromJS);
+    void setRotationInternal(float x, float y, float z, float w, bool calledFromJS);
     inline void setRotationForJS(float x, float y, float z, float w) { _localRotation.set(x, y, z, w); }
 
     inline void setEulerAngles(const Vec3 &val) { setRotationFromEuler(val.x, val.y, val.z); }
     inline void setRotationFromEuler(const Vec3 &val) { setRotationFromEuler(val.x, val.y, val.z); }
     inline void setRotationFromEuler(float x, float y) { setRotationFromEuler(x, y, _euler.z); }
-    void        setRotationFromEuler(float x, float y, float z);
+    void setRotationFromEuler(float x, float y, float z);
     inline void setRotationFromEulerForJS(float x, float y, float z) { _euler.set(x, y, z); }
     /**
      * @en Get rotation as quaternion in local coordinate system, please try to pass `out` quaternion and reuse it to avoid garbage.
@@ -343,7 +343,7 @@ public:
     inline void setScale(float x, float y) { setScale(x, y, _localScale.z); }
     inline void setScale(float x, float y, float z) { setScaleInternal(x, y, z, false); }
     inline void setScaleInternal(float x, float y, bool calledFromJS) { setScaleInternal(x, y, _localScale.z, calledFromJS); }
-    void        setScaleInternal(float x, float y, float z, bool calledFromJS);
+    void setScaleInternal(float x, float y, float z, bool calledFromJS);
     inline void setScaleForJS(float x, float y, float z) { _localScale.set(x, y, z); }
     /**
      * @en Get scale in local coordinate system, please try to pass `out` vector and reuse it to avoid garbage.
@@ -367,7 +367,7 @@ public:
      * @param position Target position
      */
     inline void setWorldPosition(const Vec3 &pos) { setWorldPosition(pos.x, pos.y, pos.z); }
-    void        setWorldPosition(float x, float y, float z);
+    void setWorldPosition(float x, float y, float z);
 
     /**
      * @en Get position in world coordinate system, please try to pass `out` vector and reuse it to avoid garbage.
@@ -383,7 +383,7 @@ public:
      * @param rotation Rotation in quaternion
      */
     inline void setWorldRotation(const Quaternion &rotation) { setWorldRotation(rotation.x, rotation.y, rotation.z, rotation.w); }
-    void        setWorldRotation(float x, float y, float z, float w);
+    void setWorldRotation(float x, float y, float z, float w);
     /**
      * @en Get rotation as quaternion in world coordinate system, please try to pass `out` quaternion and reuse it to avoid garbage.
      * @zh 获取世界坐标系下的旋转，注意，尽可能传递复用的 [[Quat]] 以避免产生垃圾。
@@ -400,7 +400,7 @@ public:
      * @param z Z axis rotation
      */
     inline void setWorldScale(const Vec3 &scale) { setWorldScale(scale.x, scale.y, scale.z); }
-    void        setWorldScale(float x, float y, float z);
+    void setWorldScale(float x, float y, float z);
 
     /**
      * @en Get scale in world coordinate system, please try to pass `out` vector and reuse it to avoid garbage.
@@ -455,13 +455,13 @@ public:
      * @param pos The position
      * @param scale The scale
      */
-    void        setRTSInternal(Quaternion *rot, Vec3 *pos, Vec3 *scale, bool calledFromJS);
+    void setRTSInternal(Quaternion *rot, Vec3 *pos, Vec3 *scale, bool calledFromJS);
     inline void setRTS(Quaternion *rot, Vec3 *pos, Vec3 *scale) { setRTSInternal(rot, pos, scale, false); }
 
     inline void setForward(const Vec3 &dir) {
-        const float len    = dir.length();
-        Vec3        v3Temp = dir * (-1.F / len);
-        Quaternion  qTemp{Quaternion::identity()};
+        const float len = dir.length();
+        Vec3 v3Temp = dir * (-1.F / len);
+        Quaternion qTemp{Quaternion::identity()};
         Quaternion::fromViewUp(v3Temp, &qTemp);
         setWorldRotation(qTemp);
     }
@@ -502,16 +502,16 @@ public:
      * @zh 这个节点的空间变换信息在当前帧内是否有变过？
      */
     inline uint32_t getChangedFlags() const { return _flagChange; }
-    inline void     setChangedFlags(uint32_t value) { _flagChange = value; }
+    inline void setChangedFlags(uint32_t value) { _flagChange = value; }
 
-    inline void     setDirtyFlag(uint32_t value) { _dirtyFlag = value; }
+    inline void setDirtyFlag(uint32_t value) { _dirtyFlag = value; }
     inline uint32_t getDirtyFlag() const { return _dirtyFlag; }
-    inline void     setLayer(uint32_t layer) {
+    inline void setLayer(uint32_t layer) {
         _layerArr[0] = layer;
         emit(NodeEventType::LAYER_CHANGED, layer);
     }
     inline uint32_t getLayer() const { return _layerArr[0]; }
-    inline void     setLayerPtr(uint32_t *ptr) { _layerArr = ptr; }
+    inline void setLayerPtr(uint32_t *ptr) { _layerArr = ptr; }
 
     //    inline NodeUiProperties *getUIProps() const { return _uiProps.get(); }
 
@@ -613,7 +613,7 @@ public:
     void _setChildren(ccstd::vector<IntrusivePtr<Node>> &&children); // NOLINT
     // For JS wrapper.
     inline uint32_t getEventMask() const { return _eventMask; }
-    inline void     setEventMask(uint32_t mask) { _eventMask = mask; }
+    inline void setEventMask(uint32_t mask) { _eventMask = mask; }
 
 protected:
     bool onPreDestroy() override;
@@ -659,12 +659,12 @@ private:
     }
 
 protected:
-    Scene *             _scene{nullptr};
+    Scene *_scene{nullptr};
     NodeEventProcessor *_eventProcessor{nullptr};
 
     uint32_t _eventMask{0};
 
-    Mat4     _rtMat{Mat4::IDENTITY};
+    Mat4 _rtMat{Mat4::IDENTITY};
     cc::Mat4 _worldMatrix{Mat4::IDENTITY};
 
     uint32_t _flagChange{0};
@@ -674,27 +674,27 @@ protected:
     //    IntrusivePtr<NodeUiProperties> _uiProps;
     //    bool _activeInHierarchy{false};
     // Shared memory with JS.
-    uint8_t * _activeInHierarchyArr{nullptr};
+    uint8_t *_activeInHierarchyArr{nullptr};
     uint32_t *_layerArr{nullptr};
 
 public:
     std::function<void(index_t)> onSiblingIndexChanged{nullptr};
-    index_t                      _siblingIndex{0};
+    index_t _siblingIndex{0};
     // For deserialization
-    ccstd::string                     _id;
+    ccstd::string _id;
     ccstd::vector<IntrusivePtr<Node>> _children;
-    Node *                            _parent{nullptr};
-    bool                              _active{true};
+    Node *_parent{nullptr};
+    bool _active{true};
 
 private:
     // local transform
-    cc::Vec3       _localPosition{Vec3::ZERO};
+    cc::Vec3 _localPosition{Vec3::ZERO};
     cc::Quaternion _localRotation{Quaternion::identity()};
-    cc::Vec3       _localScale{Vec3::ONE};
+    cc::Vec3 _localScale{Vec3::ONE};
     // world transform
-    cc::Vec3       _worldPosition{Vec3::ZERO};
+    cc::Vec3 _worldPosition{Vec3::ZERO};
     cc::Quaternion _worldRotation{Quaternion::identity()};
-    cc::Vec3       _worldScale{Vec3::ONE};
+    cc::Vec3 _worldScale{Vec3::ONE};
     //
     Vec3 _euler{0, 0, 0};
 
@@ -716,7 +716,7 @@ bool Node::isNode(T *obj) {
 }
 
 template <typename... Args>
-void Node::emit(const CallbacksInvoker::KeyType &type, Args &&...args) {
+void Node::emit(const CallbacksInvoker::KeyType &type, Args &&... args) {
     _eventProcessor->emit(type, std::forward<Args>(args)...);
 }
 

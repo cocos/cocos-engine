@@ -40,12 +40,12 @@
         CLASS();                                         \
         ~CLASS() override;                               \
         uintptr_t getImpl() override;                    \
-        void      initialize(Node *node) override;       \
-        void      onEnable() override;                   \
-        void      onDisable() override;                  \
-        void      onDestroy() override;                  \
-        void      setEnableCollision(bool v) override;   \
-        void      setConnectedBody(uintptr_t v) override;
+        void initialize(Node *node) override;            \
+        void onEnable() override;                        \
+        void onDisable() override;                       \
+        void onDestroy() override;                       \
+        void setEnableCollision(bool v) override;        \
+        void setConnectedBody(uintptr_t v) override;
 
 namespace cc {
 namespace physics {
@@ -54,12 +54,12 @@ CC_PHYSICS_JOINT_CLASS(RevoluteJoint)
 void setPivotA(float x, float y, float z) override;
 void setPivotB(float x, float y, float z) override;
 void setAxis(float x, float y, float z) override;
-};
+}; // namespace physics
 
 CC_PHYSICS_JOINT_CLASS(DistanceJoint)
 void setPivotA(float x, float y, float z) override;
 void setPivotB(float x, float y, float z) override;
-};
+}; // namespace cc
 
 } // namespace physics
 } // namespace cc
