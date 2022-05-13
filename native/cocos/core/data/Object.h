@@ -122,7 +122,6 @@ public:
     Flags _objFlags{Flags::ZERO};
     ccstd::string _name;
 
-public:
     explicit CCObject(ccstd::string name = "");
     ~CCObject() override;
 
