@@ -12525,6 +12525,25 @@ bool js_register_assets_IFlatBuffer(se::Object* obj) // NOLINT(readability-ident
 se::Object* __jsb_cc_RenderingSubMesh_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_RenderingSubMesh_class = nullptr;  // NOLINT
 
+static bool js_assets_RenderingSubMesh_destroy(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderingSubMesh>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_RenderingSubMesh_destroy : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->destroy();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_RenderingSubMesh_destroy : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_assets_RenderingSubMesh_destroy)
+
 static bool js_assets_RenderingSubMesh_enableVertexIdChannel(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderingSubMesh>(s);
@@ -12955,7 +12974,7 @@ SE_BIND_FINALIZE_FUNC(js_cc_RenderingSubMesh_finalize)
 
 bool js_register_assets_RenderingSubMesh(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
-    auto* cls = se::Class::create("RenderingSubMesh", obj, __jsb_cc_Asset_proto, _SE(js_assets_RenderingSubMesh_constructor));
+    auto* cls = se::Class::create("RenderingSubMesh", obj, nullptr, _SE(js_assets_RenderingSubMesh_constructor));
 
 #if CC_DEBUG
     cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
@@ -12966,6 +12985,7 @@ bool js_register_assets_RenderingSubMesh(se::Object* obj) // NOLINT(readability-
     cls->defineProperty("jointMappedBuffers", _SE(js_assets_RenderingSubMesh_getJointMappedBuffers_asGetter), nullptr);
     cls->defineProperty({"iaInfo", "_iaInfo"}, _SE(js_assets_RenderingSubMesh_getIaInfo_asGetter), nullptr);
     cls->defineProperty("primitiveMode", _SE(js_assets_RenderingSubMesh_getPrimitiveMode_asGetter), nullptr);
+    cls->defineFunction("destroy", _SE(js_assets_RenderingSubMesh_destroy));
     cls->defineFunction("enableVertexIdChannel", _SE(js_assets_RenderingSubMesh_enableVertexIdChannel));
     cls->defineFunction("genFlatBuffers", _SE(js_assets_RenderingSubMesh_genFlatBuffers));
     cls->defineFunction("getAttributes", _SE(js_assets_RenderingSubMesh_getAttributes));
@@ -13950,25 +13970,6 @@ static bool js_assets_Texture2D_getGfxTextureViewCreateInfo(se::State& s) // NOL
 }
 SE_BIND_FUNC(js_assets_Texture2D_getGfxTextureViewCreateInfo)
 
-static bool js_assets_Texture2D_getHtmlElementObj(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::Texture2D>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_Texture2D_getHtmlElementObj : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        void** result = cobj->getHtmlElementObj();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_assets_Texture2D_getHtmlElementObj : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_assets_Texture2D_getHtmlElementObj)
-
 static bool js_assets_Texture2D_getImage(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Texture2D>(s);
@@ -14159,7 +14160,6 @@ bool js_register_assets_Texture2D(se::Object* obj) // NOLINT(readability-identif
     cls->defineFunction("description", _SE(js_assets_Texture2D_description));
     cls->defineFunction("getGfxTextureCreateInfo", _SE(js_assets_Texture2D_getGfxTextureCreateInfo));
     cls->defineFunction("getGfxTextureViewCreateInfo", _SE(js_assets_Texture2D_getGfxTextureViewCreateInfo));
-    cls->defineFunction("getHtmlElementObj", _SE(js_assets_Texture2D_getHtmlElementObj));
     cls->defineFunction("getImage", _SE(js_assets_Texture2D_getImage));
     cls->defineFunction("getMipmaps", _SE(js_assets_Texture2D_getMipmaps));
     cls->defineFunction("getMipmapsUuids", _SE(js_assets_Texture2D_getMipmapsUuids));
