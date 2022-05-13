@@ -25,6 +25,7 @@
 package com.cocos.lib;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
@@ -50,12 +51,12 @@ public class CocosActivity extends GameActivity {
     private CocosSensorHandler mSensorHandler;
 
 
-    private native void onCreateNative(Activity activity);
+    private native void onCreateNative(Context activity);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         onLoadNativeLibraries();
-        onCreateNative(this);
+        onCreateNative(this.getApplicationContext());
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().requestFeature(Window.FEATURE_NO_TITLE);

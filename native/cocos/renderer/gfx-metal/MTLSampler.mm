@@ -37,7 +37,7 @@ CCMTLSampler* defaultSampler = nullptr;
 
 CCMTLSampler::CCMTLSampler(const SamplerInfo& info) : Sampler(info) {
     _typedID = generateObjectID<decltype(this)>();
-    MTLSamplerDescriptor *descriptor = [[MTLSamplerDescriptor alloc] init];
+    MTLSamplerDescriptor* descriptor = [[MTLSamplerDescriptor alloc] init];
 #if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
     descriptor.borderColor = MTLSamplerBorderColorTransparentBlack;
 #endif
@@ -71,14 +71,14 @@ CCMTLSampler::~CCMTLSampler() {
 }
 
 CCMTLSampler* CCMTLSampler::getDefaultSampler() {
-    if(!defaultSampler) {
+    if (!defaultSampler) {
         SamplerInfo info;
         defaultSampler = ccnew CCMTLSampler(info);
     }
     return defaultSampler;
 }
-void CCMTLSampler::deleteDefaultSampler(){
-    if(defaultSampler){
+void CCMTLSampler::deleteDefaultSampler() {
+    if (defaultSampler) {
         delete defaultSampler;
         defaultSampler = nullptr;
     }

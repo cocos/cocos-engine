@@ -83,10 +83,10 @@ protected:
     void doDestroy() override;
 
     CommandBufferStorage _curStates;
-    CommandRecorder      _recorder;
+    CommandRecorder _recorder;
 
-    bool     _insideRenderPass{false};
-    bool     _commandsFlushed{false};
+    bool _insideRenderPass{false};
+    bool _commandsFlushed{false};
     uint32_t _curSubpass{0U};
 
     bool _inited{false};

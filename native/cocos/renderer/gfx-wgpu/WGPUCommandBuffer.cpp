@@ -51,8 +51,8 @@ CCWGPUCommandBuffer::CCWGPUCommandBuffer() : wrapper<CommandBuffer>(val::object(
 }
 
 void CCWGPUCommandBuffer::doInit(const CommandBufferInfo &info) {
-    _gpuCommandBufferObj        = ccnew CCWGPUCommandBufferObject;
-    _gpuCommandBufferObj->type  = info.type;
+    _gpuCommandBufferObj = ccnew CCWGPUCommandBufferObject;
+    _gpuCommandBufferObj->type = info.type;
     _gpuCommandBufferObj->queue = static_cast<CCWGPUQueue *>(info.queue);
 }
 
@@ -79,8 +79,8 @@ void CCWGPUCommandBuffer::end() {
     auto *pipelineState = _gpuCommandBufferObj->stateCache.pipelineState;
     if (pipelineState) {
         if (pipelineState->getBindPoint() == PipelineBindPoint::GRAPHICS) {
-            auto *queue             = _gpuCommandBufferObj->queue;
-            auto  wgpuCommandBuffer = wgpuCommandEncoderFinish(_gpuCommandBufferObj->wgpuCommandEncoder, nullptr);
+            auto *queue = _gpuCommandBufferObj->queue;
+            auto wgpuCommandBuffer = wgpuCommandEncoderFinish(_gpuCommandBufferObj->wgpuCommandEncoder, nullptr);
             wgpuQueueSubmit(queue->gpuQueueObject()->wgpuQueue, 1, &wgpuCommandBuffer);
             wgpuCommandEncoderRelease(_gpuCommandBufferObj->wgpuCommandEncoder);
             _gpuCommandBufferObj->wgpuCommandEncoder = wgpuDefaultHandle;
@@ -97,42 +97,42 @@ void CCWGPUCommandBuffer::end() {
 }
 
 void CCWGPUCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint stencil, CommandBuffer *const * /*secondaryCBs*/, uint /*secondaryCBCount*/) {
-    _renderPass  = renderPass;
+    _renderPass = renderPass;
     _frameBuffer = fbo;
 
     CCWGPUFramebuffer *ccFrameBuffer = static_cast<CCWGPUFramebuffer *>(fbo);
 
-    const ColorAttachmentList &   colorConfigs       = renderPass->getColorAttachments();
+    const ColorAttachmentList &colorConfigs = renderPass->getColorAttachments();
     const DepthStencilAttachment &depthStencilConfig = renderPass->getDepthStencilAttachment();
-    const TextureList &           textures           = ccFrameBuffer->getColorTextures();
-    Texture *                     dsTexture          = ccFrameBuffer->getDepthStencilTexture();
-    CCWGPUSwapchain *             swapchain          = ccFrameBuffer->swapchain();
+    const TextureList &textures = ccFrameBuffer->getColorTextures();
+    Texture *dsTexture = ccFrameBuffer->getDepthStencilTexture();
+    CCWGPUSwapchain *swapchain = ccFrameBuffer->swapchain();
 
-    WGPURenderPassDescriptor &                   renderPassDesc = _gpuCommandBufferObj->renderPassDescriptor;
+    WGPURenderPassDescriptor &renderPassDesc = _gpuCommandBufferObj->renderPassDescriptor;
     ccstd::vector<WGPURenderPassColorAttachment> colorAttachments;
     if (colorConfigs.empty()) {
-        renderPassDesc.nextInChain          = nullptr;
-        renderPassDesc.label                = "swapchain";
+        renderPassDesc.nextInChain = nullptr;
+        renderPassDesc.label = "swapchain";
         WGPURenderPassColorAttachment color = {
-            .view          = swapchain->gpuSwapchainObject()->swapchainColor->gpuTextureObject()->selfView,
-            .resolveTarget = nullptr,             //TODO_Zeqiang: wgpu offscr msaa
-            .loadOp        = WGPULoadOp_Clear,    //toWGPULoadOp(colorConfigs[0].loadOp),
-            .storeOp       = WGPUStoreOp_Discard, //toWGPUStoreOp(colorConfigs[0].storeOp),
-            .clearColor    = WGPUColor{0.2, 0.2, 0.2, 1.0},
+            .view = swapchain->gpuSwapchainObject()->swapchainColor->gpuTextureObject()->selfView,
+            .resolveTarget = nullptr,       //TODO_Zeqiang: wgpu offscr msaa
+            .loadOp = WGPULoadOp_Clear,     //toWGPULoadOp(colorConfigs[0].loadOp),
+            .storeOp = WGPUStoreOp_Discard, //toWGPUStoreOp(colorConfigs[0].storeOp),
+            .clearColor = WGPUColor{0.2, 0.2, 0.2, 1.0},
         };
         colorAttachments.emplace_back(color);
     } else {
         renderPassDesc.nextInChain = nullptr;
-        renderPassDesc.label       = "attachments";
+        renderPassDesc.label = "attachments";
 
         for (size_t i = 0; i < colorConfigs.size(); i++) {
             WGPURenderPassColorAttachment *colorAttchments = ccnew WGPURenderPassColorAttachment[colorConfigs.size()];
-            WGPURenderPassColorAttachment  color           = {
-                .view          = static_cast<CCWGPUTexture *>(textures[i])->gpuTextureObject()->selfView,
+            WGPURenderPassColorAttachment color = {
+                .view = static_cast<CCWGPUTexture *>(textures[i])->gpuTextureObject()->selfView,
                 .resolveTarget = nullptr, //TODO_Zeqiang: wgpu offscr msaa
-                .loadOp        = toWGPULoadOp(colorConfigs[i].loadOp),
-                .storeOp       = toWGPUStoreOp(colorConfigs[i].storeOp),
-                .clearColor    = toWGPUColor(colors[i]),
+                .loadOp = toWGPULoadOp(colorConfigs[i].loadOp),
+                .storeOp = toWGPUStoreOp(colorConfigs[i].storeOp),
+                .clearColor = toWGPUColor(colors[i]),
             };
             colorAttachments.emplace_back(color);
         }
@@ -141,14 +141,14 @@ void CCWGPUCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *f
     ccstd::vector<WGPURenderPassDepthStencilAttachment> depthStencils;
     if (dsTexture) {
         WGPURenderPassDepthStencilAttachment depthStencil = {
-            .view            = static_cast<CCWGPUTexture *>(dsTexture)->gpuTextureObject()->selfView,
-            .depthLoadOp     = WGPULoadOp_Clear, //toWGPULoadOp(depthStencilConfig.depthLoadOp),
-            .depthStoreOp    = toWGPUStoreOp(depthStencilConfig.depthStoreOp),
-            .clearDepth      = depth,
-            .depthReadOnly   = false,
-            .stencilLoadOp   = toWGPULoadOp(depthStencilConfig.stencilLoadOp),
-            .stencilStoreOp  = toWGPUStoreOp(depthStencilConfig.stencilStoreOp),
-            .clearStencil    = stencil,
+            .view = static_cast<CCWGPUTexture *>(dsTexture)->gpuTextureObject()->selfView,
+            .depthLoadOp = WGPULoadOp_Clear, //toWGPULoadOp(depthStencilConfig.depthLoadOp),
+            .depthStoreOp = toWGPUStoreOp(depthStencilConfig.depthStoreOp),
+            .clearDepth = depth,
+            .depthReadOnly = false,
+            .stencilLoadOp = toWGPULoadOp(depthStencilConfig.stencilLoadOp),
+            .stencilStoreOp = toWGPUStoreOp(depthStencilConfig.stencilStoreOp),
+            .clearStencil = stencil,
             .stencilReadOnly = false,
         };
         depthStencils.emplace_back(depthStencil);
@@ -157,14 +157,14 @@ void CCWGPUCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *f
             renderPassDesc.depthStencilAttachment = nullptr;
         } else {
             WGPURenderPassDepthStencilAttachment depthStencil = {
-                .view            = swapchain->gpuSwapchainObject()->swapchainDepthStencil->gpuTextureObject()->selfView,
-                .depthLoadOp     = WGPULoadOp_Clear, //toWGPULoadOp(depthStencilConfig.depthLoadOp),
-                .depthStoreOp    = toWGPUStoreOp(depthStencilConfig.depthStoreOp),
-                .clearDepth      = depth,
-                .depthReadOnly   = false,
-                .stencilLoadOp   = toWGPULoadOp(depthStencilConfig.stencilLoadOp),
-                .stencilStoreOp  = toWGPUStoreOp(depthStencilConfig.stencilStoreOp),
-                .clearStencil    = stencil,
+                .view = swapchain->gpuSwapchainObject()->swapchainDepthStencil->gpuTextureObject()->selfView,
+                .depthLoadOp = WGPULoadOp_Clear, //toWGPULoadOp(depthStencilConfig.depthLoadOp),
+                .depthStoreOp = toWGPUStoreOp(depthStencilConfig.depthStoreOp),
+                .clearDepth = depth,
+                .depthReadOnly = false,
+                .stencilLoadOp = toWGPULoadOp(depthStencilConfig.stencilLoadOp),
+                .stencilStoreOp = toWGPUStoreOp(depthStencilConfig.stencilStoreOp),
+                .clearStencil = stencil,
                 .stencilReadOnly = false,
             };
             depthStencils.emplace_back(depthStencil);
@@ -176,9 +176,9 @@ void CCWGPUCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *f
 
     _gpuCommandBufferObj->renderPassBegan = true;
 
-    renderPassDesc.colorAttachments             = colorAttachments.data();
-    renderPassDesc.colorAttachmentCount         = colorAttachments.size();
-    renderPassDesc.depthStencilAttachment       = depthStencils.empty() ? nullptr : depthStencils.data();
+    renderPassDesc.colorAttachments = colorAttachments.data();
+    renderPassDesc.colorAttachmentCount = colorAttachments.size();
+    renderPassDesc.depthStencilAttachment = depthStencils.empty() ? nullptr : depthStencils.data();
     _gpuCommandBufferObj->wgpuRenderPassEncoder = wgpuCommandEncoderBeginRenderPass(_gpuCommandBufferObj->wgpuCommandEncoder, &renderPassDesc);
 } // namespace gfx
 
@@ -197,24 +197,24 @@ void CCWGPUCommandBuffer::bindPipelineState(PipelineState *pso) {
 }
 
 void CCWGPUCommandBuffer::bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) {
-    uint        dynOffsetCount = dynamicOffsetCount;
-    const uint *dynOffsets     = dynamicOffsets;
-    auto &      descriptorSets = _gpuCommandBufferObj->stateCache.descriptorSets;
-    auto        iter           = std::find_if(descriptorSets.begin(), descriptorSets.end(), [set](const CCWGPUDescriptorSetObject &descriptorSet) {
+    uint dynOffsetCount = dynamicOffsetCount;
+    const uint *dynOffsets = dynamicOffsets;
+    auto &descriptorSets = _gpuCommandBufferObj->stateCache.descriptorSets;
+    auto iter = std::find_if(descriptorSets.begin(), descriptorSets.end(), [set](const CCWGPUDescriptorSetObject &descriptorSet) {
         return descriptorSet.index == set;
     });
 
     auto *ccDescriptorSet = static_cast<CCWGPUDescriptorSet *>(descriptorSet);
     if (ccDescriptorSet->dynamicOffsetCount() == 0) {
         dynOffsetCount = 0;
-        dynOffsets     = nullptr;
+        dynOffsets = nullptr;
     }
 
     CCWGPUDescriptorSetObject dsObj = {
-        .index              = set,
-        .descriptorSet      = ccDescriptorSet,
+        .index = set,
+        .descriptorSet = ccDescriptorSet,
         .dynamicOffsetCount = dynOffsetCount, //dynamicOffsetCount,
-        .dynamicOffsets     = dynOffsets,     //dynamicOffsets,
+        .dynamicOffsets = dynOffsets,         //dynamicOffsets,
     };
 
     if (iter != descriptorSets.end()) {
@@ -242,8 +242,8 @@ void CCWGPUCommandBuffer::setLineWidth(float /*width*/) {
 
 void CCWGPUCommandBuffer::setDepthBias(float constant, float clamp, float slope) {
     _gpuCommandBufferObj->stateCache.depthBiasConstant = constant;
-    _gpuCommandBufferObj->stateCache.depthBiasClamp    = clamp;
-    _gpuCommandBufferObj->stateCache.depthBiasSlope    = slope;
+    _gpuCommandBufferObj->stateCache.depthBiasClamp = clamp;
+    _gpuCommandBufferObj->stateCache.depthBiasSlope = slope;
 }
 
 void CCWGPUCommandBuffer::setBlendConstants(const Color &constants) {
@@ -260,7 +260,7 @@ void CCWGPUCommandBuffer::setStencilWriteMask(StencilFace face, uint mask) {
 }
 
 void CCWGPUCommandBuffer::setStencilCompareMask(StencilFace face, uint ref, uint mask) {
-    _gpuCommandBufferObj->stateCache.stencilMasks[face].compareRef  = ref;
+    _gpuCommandBufferObj->stateCache.stencilMasks[face].compareRef = ref;
     _gpuCommandBufferObj->stateCache.stencilMasks[face].compareMask = mask;
 }
 
@@ -286,9 +286,9 @@ void CCWGPUCommandBuffer::bindStates() {
             descriptorSets[i].descriptorSet->prepare();
 
             if (descriptorSets[i].descriptorSet->dynamicOffsetCount() != descriptorSets[i].dynamicOffsetCount) {
-                uint *       dynOffsets       = dynamicOffsetBuffer;
-                const Pairs &dynamicOffsets   = descriptorSets[i].descriptorSet->dynamicOffsets();
-                uint         givenOffsetIndex = 0;
+                uint *dynOffsets = dynamicOffsetBuffer;
+                const Pairs &dynamicOffsets = descriptorSets[i].descriptorSet->dynamicOffsets();
+                uint givenOffsetIndex = 0;
                 for (size_t j = 0; j < descriptorSets[i].descriptorSet->dynamicOffsetCount(); ++j) {
                     if (j >= descriptorSets[i].dynamicOffsetCount || dynamicOffsets[j].second == 0) {
                         dynOffsets[j] = 0;
@@ -354,7 +354,7 @@ void CCWGPUCommandBuffer::bindStates() {
                                          pipelineState->gpuPipelineStateObject()->wgpuRenderPipeline);
 
         //input assembler
-        const auto *ia               = _gpuCommandBufferObj->stateCache.inputAssembler;
+        const auto *ia = _gpuCommandBufferObj->stateCache.inputAssembler;
         const auto &vertexBufferList = ia->getVertexBuffers();
         for (size_t i = 0; i < vertexBufferList.size(); i++) {
             const auto *vertexBuffer = static_cast<CCWGPUBuffer *>(vertexBufferList[i]);
@@ -374,10 +374,10 @@ void CCWGPUCommandBuffer::bindStates() {
                     buffer = _gpuCommandBufferObj->redundantVertexBufferMap[maxAttrLen];
                 } else {
                     BufferInfo info = {
-                        .usage    = BufferUsageBit::VERTEX,
+                        .usage = BufferUsageBit::VERTEX,
                         .memUsage = MemoryUsageBit::DEVICE,
-                        .size     = maxAttrLen,
-                        .flags    = BufferFlagBit::NONE,
+                        .size = maxAttrLen,
+                        .flags = BufferFlagBit::NONE,
                     };
                     buffer = ccnew CCWGPUBuffer;
                     buffer->initialize(info);
@@ -404,37 +404,37 @@ void CCWGPUCommandBuffer::bindStates() {
         wgpuRenderPassEncoderSetBlendConstant(_gpuCommandBufferObj->wgpuRenderPassEncoder, &blendColor);
 
         CCWGPUFramebuffer *ccFrameBuffer = static_cast<CCWGPUFramebuffer *>(_frameBuffer);
-        const TextureList &textures      = ccFrameBuffer->getColorTextures();
+        const TextureList &textures = ccFrameBuffer->getColorTextures();
         // minimum rendertarget w/h
-        uint32_t rtWidth  = std::numeric_limits<uint32_t>::max();
+        uint32_t rtWidth = std::numeric_limits<uint32_t>::max();
         uint32_t rtHeight = std::numeric_limits<uint32_t>::max();
         for (size_t i = 0; i < textures.size(); i++) {
-            rtWidth  = rtWidth > textures[i]->getWidth() ? textures[i]->getWidth() : rtWidth;
+            rtWidth = rtWidth > textures[i]->getWidth() ? textures[i]->getWidth() : rtWidth;
             rtHeight = rtHeight > textures[i]->getHeight() ? textures[i]->getHeight() : rtHeight;
             // printf("w, h %d %d\n", textures[i]->getWidth(), textures[i]->getHeight());
         }
 
         // printf("minrt %u, %u\n", rtWidth, rtHeight);
 
-        const Viewport &vp   = _gpuCommandBufferObj->stateCache.viewport;
-        uint32_t        left = vp.left > 0 ? vp.left : 0;
-        uint32_t        top  = vp.top > 0 ? vp.top : 0;
+        const Viewport &vp = _gpuCommandBufferObj->stateCache.viewport;
+        uint32_t left = vp.left > 0 ? vp.left : 0;
+        uint32_t top = vp.top > 0 ? vp.top : 0;
 
         uint32_t width = vp.left > 0 ? vp.width : vp.width + vp.left;
-        width          = left + width > rtWidth ? rtWidth - left : width;
+        width = left + width > rtWidth ? rtWidth - left : width;
 
         uint32_t height = vp.top > 0 ? vp.height : vp.height + vp.top;
-        height          = top + height > rtHeight ? rtHeight - top : height;
+        height = top + height > rtHeight ? rtHeight - top : height;
         // printf("vp %u, %u, %u, %u\n", left, top, width, height);
         wgpuRenderPassEncoderSetViewport(_gpuCommandBufferObj->wgpuRenderPassEncoder, left, top, width, height, vp.minDepth, vp.maxDepth);
 
         const Rect &rect = _gpuCommandBufferObj->stateCache.rect;
-        left             = rect.x > 0 ? rect.x : 0;
-        top              = rect.y > 0 ? rect.y : 0;
-        width            = rect.x > 0 ? rect.width : rect.width + rect.x;
-        width            = left + width > rtWidth ? rtWidth - left : width;
-        height           = rect.y > 0 ? rect.height : rect.height + rect.y;
-        height           = top + height > rtHeight ? rtHeight - top : height;
+        left = rect.x > 0 ? rect.x : 0;
+        top = rect.y > 0 ? rect.y : 0;
+        width = rect.x > 0 ? rect.width : rect.width + rect.x;
+        width = left + width > rtWidth ? rtWidth - left : width;
+        height = rect.y > 0 ? rect.height : rect.height + rect.y;
+        height = top + height > rtHeight ? rtHeight - top : height;
         // printf("sc %u, %u, %u, %u\n", left, top, width, height);
         wgpuRenderPassEncoderSetScissorRect(_gpuCommandBufferObj->wgpuRenderPassEncoder, left, top, width, height);
 
@@ -472,8 +472,8 @@ void CCWGPUCommandBuffer::draw(const DrawInfo &info) {
 
     auto *ia = static_cast<CCWGPUInputAssembler *>(_gpuCommandBufferObj->stateCache.inputAssembler);
     if (ia->getIndirectBuffer()) {
-        auto *indirectBuffer           = static_cast<CCWGPUBuffer *>(ia->getIndirectBuffer());
-        bool  multiDrawIndirectSupport = false;
+        auto *indirectBuffer = static_cast<CCWGPUBuffer *>(ia->getIndirectBuffer());
+        bool multiDrawIndirectSupport = false;
 
         // indirectSupport not support, emscripten webgpu ver < 2021
         // https://github.com/gpuweb/gpuweb/issues/1354
@@ -506,7 +506,7 @@ void CCWGPUCommandBuffer::draw(const DrawInfo &info) {
         }
     } else {
         auto *indexBuffer = static_cast<CCWGPUBuffer *>(ia->getIndexBuffer());
-        bool  drawIndexed = indexBuffer && info.indexCount;
+        bool drawIndexed = indexBuffer && info.indexCount;
 
         if (drawIndexed) {
             wgpuRenderPassEncoderDrawIndexed(_gpuCommandBufferObj->wgpuRenderPassEncoder,
@@ -527,23 +527,23 @@ void CCWGPUCommandBuffer::draw(const DrawInfo &info) {
 
 void CCWGPUCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint size) {
     uint32_t alignedSize = ceil(size / 4.0) * 4;
-    size_t   buffSize    = alignedSize;
+    size_t buffSize = alignedSize;
 
     WGPUBufferDescriptor descriptor = {
-        .nextInChain      = nullptr,
-        .label            = nullptr,
-        .usage            = WGPUBufferUsage_MapWrite | WGPUBufferUsage_CopySrc,
-        .size             = alignedSize,
+        .nextInChain = nullptr,
+        .label = nullptr,
+        .usage = WGPUBufferUsage_MapWrite | WGPUBufferUsage_CopySrc,
+        .size = alignedSize,
         .mappedAtCreation = true,
     };
     WGPUBuffer stagingBuffer = wgpuDeviceCreateBuffer(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &descriptor);
-    auto *     mappedBuffer  = wgpuBufferGetMappedRange(stagingBuffer, 0, alignedSize);
+    auto *mappedBuffer = wgpuBufferGetMappedRange(stagingBuffer, 0, alignedSize);
     memcpy(mappedBuffer, data, size);
 
     wgpuBufferUnmap(static_cast<WGPUBuffer>(stagingBuffer));
 
-    auto * ccBuffer = static_cast<CCWGPUBuffer *>(buff);
-    size_t offset   = ccBuffer->getOffset();
+    auto *ccBuffer = static_cast<CCWGPUBuffer *>(buff);
+    size_t offset = ccBuffer->getOffset();
 
     CCWGPUBufferObject *bufferObj = ccBuffer->gpuBufferObject();
 
@@ -569,28 +569,28 @@ void CCWGPUCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Te
         };
 
         WGPUImageCopyTexture imageCopyTexture = {
-            .texture  = static_cast<CCWGPUTexture *>(texture)->gpuTextureObject()->wgpuTexture,
+            .texture = static_cast<CCWGPUTexture *>(texture)->gpuTextureObject()->wgpuTexture,
             .mipLevel = 0,
-            .origin   = origin,
-            .aspect   = WGPUTextureAspect_All,
+            .origin = origin,
+            .aspect = WGPUTextureAspect_All,
         };
 
-        auto *   ccTex       = static_cast<CCWGPUTexture *>(texture);
-        uint32_t width       = regions[i].texExtent.width;
-        uint32_t height      = regions[i].texExtent.height;
-        uint32_t depth       = regions[i].texExtent.depth;
+        auto *ccTex = static_cast<CCWGPUTexture *>(texture);
+        uint32_t width = regions[i].texExtent.width;
+        uint32_t height = regions[i].texExtent.height;
+        uint32_t depth = regions[i].texExtent.depth;
         uint32_t bytesPerRow = GFX_FORMAT_INFOS[static_cast<uint>(ccTex->getFormat())].size * width;
-        uint32_t dataSize    = bytesPerRow * height * depth;
+        uint32_t dataSize = bytesPerRow * height * depth;
 
         WGPUTextureDataLayout texLayout = {
-            .offset       = 0,
-            .bytesPerRow  = bytesPerRow,
+            .offset = 0,
+            .bytesPerRow = bytesPerRow,
             .rowsPerImage = height,
         };
 
         WGPUExtent3D extent = {
-            .width              = width,
-            .height             = height,
+            .width = width,
+            .height = height,
             .depthOrArrayLayers = depth,
         };
 
@@ -610,10 +610,10 @@ void CCWGPUCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, 
         };
 
         WGPUImageCopyTexture imageCopyTextureSrc = {
-            .texture  = srcTex->gpuTextureObject()->wgpuTexture,
+            .texture = srcTex->gpuTextureObject()->wgpuTexture,
             .mipLevel = regions[i].srcSubres.mipLevel,
-            .origin   = srcOrigin,
-            .aspect   = WGPUTextureAspect_All,
+            .origin = srcOrigin,
+            .aspect = WGPUTextureAspect_All,
         };
 
         WGPUOrigin3D dstOrigin = {
@@ -623,15 +623,15 @@ void CCWGPUCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, 
         };
 
         WGPUImageCopyTexture imageCopyTextureDst = {
-            .texture  = dstTex->gpuTextureObject()->wgpuTexture,
+            .texture = dstTex->gpuTextureObject()->wgpuTexture,
             .mipLevel = regions[i].dstSubres.mipLevel,
-            .origin   = dstOrigin,
-            .aspect   = WGPUTextureAspect_All,
+            .origin = dstOrigin,
+            .aspect = WGPUTextureAspect_All,
         };
 
         WGPUExtent3D extent = {
-            .width              = regions[i].dstExtent.width,
-            .height             = regions[i].dstExtent.height,
+            .width = regions[i].dstExtent.width,
+            .height = regions[i].dstExtent.height,
             .depthOrArrayLayers = regions[i].dstExtent.depth,
         };
 

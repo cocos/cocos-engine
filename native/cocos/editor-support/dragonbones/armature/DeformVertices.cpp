@@ -6,26 +6,21 @@
 
 DRAGONBONES_NAMESPACE_BEGIN
 
-void DeformVertices::_onClear()
-{
+void DeformVertices::_onClear() {
     verticesDirty = false;
     vertices.clear();
     bones.clear();
     verticesData = nullptr;
 }
 
-void DeformVertices::init(const VerticesData* verticesDataValue, Armature* armature)
-{
+void DeformVertices::init(const VerticesData* verticesDataValue, Armature* armature) {
     verticesData = verticesDataValue;
 
-    if (verticesData != nullptr)
-    {
+    if (verticesData != nullptr) {
         unsigned vertexCount = 0;
-        if (verticesData->weight != nullptr) 
-        {
+        if (verticesData->weight != nullptr) {
             vertexCount = verticesData->weight->count * 2;
-        }
-        else {
+        } else {
             vertexCount = verticesData->data->intArray[verticesData->offset + (unsigned)BinaryOffset::MeshVertexCount] * 2;
         }
 
@@ -33,25 +28,19 @@ void DeformVertices::init(const VerticesData* verticesDataValue, Armature* armat
         vertices.resize(vertexCount);
         bones.clear();
         //
-        for (std::size_t i = 0, l = vertices.size(); i < l; ++i)
-        {
+        for (std::size_t i = 0, l = vertices.size(); i < l; ++i) {
             vertices[i] = 0.0f;
         }
 
-        if (verticesData->weight != nullptr)
-        {
-            for (std::size_t i = 0, l = verticesData->weight->bones.size(); i < l; ++i)
-            {
+        if (verticesData->weight != nullptr) {
+            for (std::size_t i = 0, l = verticesData->weight->bones.size(); i < l; ++i) {
                 const auto bone = armature->getBone(verticesData->weight->bones[i]->name);
-                if (bone != nullptr)
-                {
+                if (bone != nullptr) {
                     bones.push_back(bone);
                 }
             }
         }
-    }
-    else 
-    {
+    } else {
         verticesDirty = false;
         vertices.clear();
         bones.clear();
@@ -59,12 +48,9 @@ void DeformVertices::init(const VerticesData* verticesDataValue, Armature* armat
     }
 }
 
-bool DeformVertices::isBonesUpdate() const
-{
-    for (const auto bone : bones) 
-    {
-        if (bone != nullptr && bone->_childrenTransformDirty) 
-        {
+bool DeformVertices::isBonesUpdate() const {
+    for (const auto bone : bones) {
+        if (bone != nullptr && bone->_childrenTransformDirty) {
             return true;
         }
     }

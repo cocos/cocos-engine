@@ -36,28 +36,27 @@
 namespace spine {
 /// The interface for all constraints.
 class SP_API ConstraintData : public SpineObject {
-
 public:
-	ConstraintData(const String& name);
+    ConstraintData(const String& name);
 
-	virtual ~ConstraintData();
+    virtual ~ConstraintData();
 
-	/// The IK constraint's name, which is unique within the skeleton.
-	const String& getName();
+    /// The IK constraint's name, which is unique within the skeleton.
+    const String& getName();
 
-	/// The ordinal for the order a skeleton's constraints will be applied.
-	size_t getOrder();
-	void setOrder(size_t inValue);
+    /// The ordinal for the order a skeleton's constraints will be applied.
+    size_t getOrder();
+    void setOrder(size_t inValue);
 
-	/// Whether the constraint is only active for a specific skin.
-	bool isSkinRequired();
-	void setSkinRequired(bool inValue);
+    /// Whether the constraint is only active for a specific skin.
+    bool isSkinRequired();
+    void setSkinRequired(bool inValue);
 
 private:
-	const String _name;
-	size_t _order;
-	bool _skinRequired;
+    const String _name;
+    size_t _order;
+    bool _skinRequired;
 };
-}
+} // namespace spine
 
 #endif /* Spine_Constraint_h */

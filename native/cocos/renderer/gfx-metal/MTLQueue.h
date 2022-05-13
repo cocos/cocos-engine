@@ -37,7 +37,7 @@ public:
     explicit CCMTLQueue();
     ~CCMTLQueue();
     CCMTLQueue(const CCMTLQueue &) = delete;
-    CCMTLQueue(CCMTLQueue &&)      = delete;
+    CCMTLQueue(CCMTLQueue &&) = delete;
     CCMTLQueue &operator=(const CCMTLQueue &) = delete;
     CCMTLQueue &operator=(CCMTLQueue &&) = delete;
 

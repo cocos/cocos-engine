@@ -35,9 +35,9 @@ public:
     explicit CCMTLSemaphore(uint initialValue) : _semaphoreCount(initialValue) {
         _semaphore = dispatch_semaphore_create(initialValue);
     }
-    ~CCMTLSemaphore()                      = default;
+    ~CCMTLSemaphore() = default;
     CCMTLSemaphore(const CCMTLSemaphore &) = delete;
-    CCMTLSemaphore(CCMTLSemaphore &&)      = delete;
+    CCMTLSemaphore(CCMTLSemaphore &&) = delete;
     CCMTLSemaphore &operator=(const CCMTLSemaphore &) = delete;
     CCMTLSemaphore &operator=(CCMTLSemaphore &&) = delete;
 
@@ -62,8 +62,8 @@ public:
     }
 
 protected:
-    dispatch_semaphore_t _semaphore      = nullptr;
-    uint                 _semaphoreCount = 0;
+    dispatch_semaphore_t _semaphore = nullptr;
+    uint _semaphoreCount = 0;
 };
 
 } // namespace gfx

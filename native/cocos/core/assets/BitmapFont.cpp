@@ -56,43 +56,43 @@ void BitmapFontFace::doInit(const FontFaceInfo & /*info*/) {
 
     auto *fontNode = doc.RootElement();
     auto *infoNode = fontNode->FirstChildElement("info");
-    _fontSize      = infoNode->UnsignedAttribute("size");
+    _fontSize = infoNode->UnsignedAttribute("size");
 
     auto *commonNode = fontNode->FirstChildElement("common");
-    _lineHeight      = commonNode->UnsignedAttribute("lineHeight");
-    _textureWidth    = commonNode->UnsignedAttribute("scaleW");
-    _textureHeight   = commonNode->UnsignedAttribute("scaleH");
-    uint32_t pages   = commonNode->UnsignedAttribute("pages");
-    int      base    = commonNode->IntAttribute("base");
+    _lineHeight = commonNode->UnsignedAttribute("lineHeight");
+    _textureWidth = commonNode->UnsignedAttribute("scaleW");
+    _textureHeight = commonNode->UnsignedAttribute("scaleH");
+    uint32_t pages = commonNode->UnsignedAttribute("pages");
+    int base = commonNode->IntAttribute("base");
 
     // load glyphs
     auto *charsNode = fontNode->FirstChildElement("chars");
-    auto *charNode  = charsNode->FirstChildElement("char");
+    auto *charNode = charsNode->FirstChildElement("char");
     while (charNode) {
         FontGlyph glyph;
-        uint32_t  value{0U};
+        uint32_t value{0U};
 
-        uint32_t code  = charNode->UnsignedAttribute("id");
-        glyph.x        = static_cast<int16_t>(charNode->IntAttribute("x"));
-        glyph.y        = static_cast<int16_t>(charNode->IntAttribute("y"));
-        glyph.width    = static_cast<uint16_t>(charNode->UnsignedAttribute("width"));
-        glyph.height   = static_cast<uint16_t>(charNode->UnsignedAttribute("height"));
+        uint32_t code = charNode->UnsignedAttribute("id");
+        glyph.x = static_cast<int16_t>(charNode->IntAttribute("x"));
+        glyph.y = static_cast<int16_t>(charNode->IntAttribute("y"));
+        glyph.width = static_cast<uint16_t>(charNode->UnsignedAttribute("width"));
+        glyph.height = static_cast<uint16_t>(charNode->UnsignedAttribute("height"));
         glyph.bearingX = static_cast<int16_t>(charNode->IntAttribute("xoffset"));
         glyph.bearingY = static_cast<int16_t>(base - charNode->IntAttribute("yoffset"));
-        glyph.advance  = static_cast<int16_t>(charNode->IntAttribute("xadvance"));
-        glyph.page     = charNode->UnsignedAttribute("page");
+        glyph.advance = static_cast<int16_t>(charNode->IntAttribute("xadvance"));
+        glyph.page = charNode->UnsignedAttribute("page");
 
         _glyphs[code] = glyph;
-        charNode      = charNode->NextSiblingElement();
+        charNode = charNode->NextSiblingElement();
     }
 
     // load textures
     auto *pagesNode = fontNode->FirstChildElement("pages");
-    auto *pageNode  = pagesNode->FirstChildElement("page");
+    auto *pageNode = pagesNode->FirstChildElement("page");
     _textures.resize(pages, nullptr);
 
     ccstd::string path = fontPath;
-    auto          pos  = fontPath.rfind('/');
+    auto pos = fontPath.rfind('/');
 
     if (pos == ccstd::string::npos) {
         pos = fontPath.rfind('\\');
@@ -103,20 +103,20 @@ void BitmapFontFace::doInit(const FontFaceInfo & /*info*/) {
     }
 
     while (pageNode) {
-        uint32_t      id   = pageNode->UnsignedAttribute("id");
+        uint32_t id = pageNode->UnsignedAttribute("id");
         ccstd::string file = pageNode->Attribute("file");
-        _textures[id]      = loadTexture(path + file);
+        _textures[id] = loadTexture(path + file);
 
         pageNode = pageNode->NextSiblingElement();
     }
 
     // load kernings
     auto *kerningsNode = fontNode->FirstChildElement("kernings");
-    auto *kerningNode  = kerningsNode->FirstChildElement("kerning");
+    auto *kerningNode = kerningsNode->FirstChildElement("kerning");
     while (kerningNode) {
         KerningPair pair;
-        pair.prevCode   = kerningNode->UnsignedAttribute("first");
-        pair.nextCode   = kerningNode->UnsignedAttribute("second");
+        pair.prevCode = kerningNode->UnsignedAttribute("first");
+        pair.nextCode = kerningNode->UnsignedAttribute("second");
         _kernings[pair] = static_cast<float>(kerningNode->IntAttribute("amount"));
 
         kerningNode = kerningNode->NextSiblingElement();
@@ -148,8 +148,8 @@ float BitmapFontFace::getKerning(uint32_t prevCode, uint32_t nextCode) {
 }
 
 gfx::Texture *BitmapFontFace::loadTexture(const ccstd::string &path) {
-    auto *image   = ccnew Image();
-    bool  success = image->initWithImageFile(path);
+    auto *image = ccnew Image();
+    bool success = image->initWithImageFile(path);
     if (!success) {
         CC_LOG_WARNING("BitmapFontFace initWithImageFile failed, path: %s.", path.c_str());
         delete image;
@@ -162,17 +162,17 @@ gfx::Texture *BitmapFontFace::loadTexture(const ccstd::string &path) {
         return nullptr;
     }
 
-    auto width  = static_cast<uint32_t>(image->getWidth());
+    auto width = static_cast<uint32_t>(image->getWidth());
     auto height = static_cast<uint32_t>(image->getHeight());
 
-    auto *device  = gfx::Device::getInstance();
+    auto *device = gfx::Device::getInstance();
     auto *texture = device->createTexture({gfx::TextureType::TEX2D,
                                            gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_DST,
                                            gfx::Format::R8,
                                            width,
                                            height});
 
-    gfx::BufferDataList        buffers{image->getData()};
+    gfx::BufferDataList buffers{image->getData()};
     gfx::BufferTextureCopyList regions = {{0U,
                                            0U,
                                            {0U, 0U, 0U},
@@ -197,7 +197,7 @@ FontFace *BitmapFont::createFace(const FontFaceInfo &info) {
     face->doInit(info);
 
     uint32_t fontSize = face->getFontSize();
-    _faces[fontSize]  = face;
+    _faces[fontSize] = face;
 
     return face;
 }

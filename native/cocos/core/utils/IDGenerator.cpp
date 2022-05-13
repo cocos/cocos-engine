@@ -10,7 +10,7 @@ IDGenerator globalIdGenerator("global");
 
 IDGenerator::IDGenerator(const ccstd::string &category) {
     // Tnit with a random id to emphasize that the returns id should not be stored in persistence data.
-    _id     = static_cast<uint32_t>(RandomHelper::randomInt(0, 998));
+    _id = static_cast<uint32_t>(RandomHelper::randomInt(0, 998));
     _prefix = (category + nonUuidMark);
 }
 
@@ -18,7 +18,7 @@ ccstd::string IDGenerator::getNewId() {
 #if CC_EDITOR
     if (_prefix == "Node." || _prefix == "Comp.") {
         static boost::uuids::random_generator_mt19937 generator;
-        boost::uuids::uuid                            id = generator();
+        boost::uuids::uuid id = generator();
         return boost::uuids::to_string(id);
     }
 #endif

@@ -37,7 +37,6 @@ THE SOFTWARE.
 #include <thread>
 #include <vector>
 
-
 /**
 * @addtogroup base
 * @{
@@ -97,7 +96,7 @@ protected:
     class ThreadTasks {
         struct AsyncTaskCallBack {
             TaskCallBack callback;
-            void *       callbackParam;
+            void *callbackParam;
         };
 
     public:
@@ -106,7 +105,7 @@ protected:
                 [this] {
                     for (;;) {
                         std::function<void()> task;
-                        AsyncTaskCallBack     callback;
+                        AsyncTaskCallBack callback;
                         {
                             std::unique_lock<std::mutex> lock(this->_queueMutex);
                             this->_condition.wait(lock,
@@ -114,7 +113,7 @@ protected:
                             if (this->_stop && this->_tasks.empty()) {
                                 return;
                             }
-                            task     = std::move(this->_tasks.front());
+                            task = std::move(this->_tasks.front());
                             callback = std::move(this->_taskCallBacks.front());
                             this->_tasks.pop();
                             this->_taskCallBacks.pop();
@@ -163,7 +162,7 @@ protected:
                 }
 
                 AsyncTaskCallBack taskCallBack;
-                taskCallBack.callback      = callback;
+                taskCallBack.callback = callback;
                 taskCallBack.callbackParam = callbackParam;
                 _tasks.emplace([task]() { task(); });
                 _taskCallBacks.emplace(taskCallBack);
@@ -176,12 +175,12 @@ protected:
         std::thread _thread;
         // the task queue
         std::queue<std::function<void()>> _tasks;
-        std::queue<AsyncTaskCallBack>     _taskCallBacks;
+        std::queue<AsyncTaskCallBack> _taskCallBacks;
 
         // synchronization
-        std::mutex              _queueMutex;
+        std::mutex _queueMutex;
         std::condition_variable _condition;
-        bool                    _stop{false};
+        bool _stop{false};
     };
 
     //tasks

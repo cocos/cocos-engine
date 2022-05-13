@@ -42,7 +42,7 @@ namespace cc {
 namespace gfx {
 
 CCVKSwapchain::CCVKSwapchain() {
-    _typedID            = generateObjectID<decltype(this)>();
+    _typedID = generateObjectID<decltype(this)>();
     _preRotationEnabled = ENABLE_PRE_ROTATION;
 }
 
@@ -51,9 +51,9 @@ CCVKSwapchain::~CCVKSwapchain() {
 }
 
 void CCVKSwapchain::doInit(const SwapchainInfo &info) {
-    auto *      gpuDevice  = CCVKDevice::getInstance()->gpuDevice();
+    auto *gpuDevice = CCVKDevice::getInstance()->gpuDevice();
     const auto *gpuContext = CCVKDevice::getInstance()->gpuContext();
-    _gpuSwapchain          = ccnew CCVKGPUSwapchain;
+    _gpuSwapchain = ccnew CCVKGPUSwapchain;
     gpuDevice->swapchains.insert(_gpuSwapchain);
 
     createVkSurface();
@@ -79,7 +79,7 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
         cmdFuncCCVKGetDeviceQueue(CCVKDevice::getInstance(), queue->gpuQueue());
     }
 
-    Format colorFmt        = Format::BGRA8;
+    Format colorFmt = Format::BGRA8;
     Format depthStencilFmt = Format::DEPTH_STENCIL;
 
     VkSurfaceCapabilitiesKHR surfaceCapabilities{};
@@ -95,21 +95,21 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
     ccstd::vector<VkPresentModeKHR> presentModes(presentModeCount);
     VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(gpuContext->physicalDevice, _gpuSwapchain->vkSurface, &presentModeCount, presentModes.data()));
 
-    VkFormat        colorFormat = VK_FORMAT_B8G8R8A8_UNORM;
-    VkColorSpaceKHR colorSpace  = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+    VkFormat colorFormat = VK_FORMAT_B8G8R8A8_UNORM;
+    VkColorSpaceKHR colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
     // If the surface format list only includes one entry with VK_FORMAT_UNDEFINED,
     // there is no preferred format, so we assume VK_FORMAT_B8G8R8A8_UNORM
     if ((surfaceFormatCount == 1) && (surfaceFormats[0].format == VK_FORMAT_UNDEFINED)) {
         colorFormat = VK_FORMAT_B8G8R8A8_UNORM;
-        colorSpace  = surfaceFormats[0].colorSpace;
+        colorSpace = surfaceFormats[0].colorSpace;
     } else {
         // iterate over the list of available surface format and
         // check for the presence of VK_FORMAT_B8G8R8A8_UNORM
         bool imageFormatFound = false;
         for (VkSurfaceFormatKHR &surfaceFormat : surfaceFormats) {
             if (surfaceFormat.format == VK_FORMAT_B8G8R8A8_UNORM) {
-                colorFormat      = surfaceFormat.format;
-                colorSpace       = surfaceFormat.colorSpace;
+                colorFormat = surfaceFormat.format;
+                colorSpace = surfaceFormat.colorSpace;
                 imageFormatFound = true;
                 break;
             }
@@ -119,7 +119,7 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
         // select the first available color format
         if (!imageFormatFound) {
             colorFormat = surfaceFormats[0].format;
-            colorSpace  = surfaceFormats[0].colorSpace;
+            colorSpace = surfaceFormats[0].colorSpace;
             switch (colorFormat) {
                 case VK_FORMAT_R8G8B8A8_UNORM: colorFmt = Format::RGBA8; break;
                 case VK_FORMAT_R8G8B8A8_SRGB: colorFmt = Format::SRGB8_A8; break;
@@ -156,7 +156,7 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
     // Determine the number of images
     uint32_t desiredNumberOfSwapchainImages = std::max(gpuDevice->backBufferCount, surfaceCapabilities.minImageCount);
 
-    VkExtent2D                    imageExtent  = {1U, 1U};
+    VkExtent2D imageExtent = {1U, 1U};
     VkSurfaceTransformFlagBitsKHR preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
 
     // Find a supported composite alpha format (not all devices support alpha opaque)
@@ -185,28 +185,28 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
         imageUsage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     }
 
-    _gpuSwapchain->createInfo.surface          = _gpuSwapchain->vkSurface;
-    _gpuSwapchain->createInfo.minImageCount    = desiredNumberOfSwapchainImages;
-    _gpuSwapchain->createInfo.imageFormat      = colorFormat;
-    _gpuSwapchain->createInfo.imageColorSpace  = colorSpace;
-    _gpuSwapchain->createInfo.imageExtent      = imageExtent;
-    _gpuSwapchain->createInfo.imageUsage       = imageUsage;
+    _gpuSwapchain->createInfo.surface = _gpuSwapchain->vkSurface;
+    _gpuSwapchain->createInfo.minImageCount = desiredNumberOfSwapchainImages;
+    _gpuSwapchain->createInfo.imageFormat = colorFormat;
+    _gpuSwapchain->createInfo.imageColorSpace = colorSpace;
+    _gpuSwapchain->createInfo.imageExtent = imageExtent;
+    _gpuSwapchain->createInfo.imageUsage = imageUsage;
     _gpuSwapchain->createInfo.imageArrayLayers = 1;
-    _gpuSwapchain->createInfo.preTransform     = preTransform;
-    _gpuSwapchain->createInfo.compositeAlpha   = compositeAlpha;
-    _gpuSwapchain->createInfo.presentMode      = swapchainPresentMode;
-    _gpuSwapchain->createInfo.clipped          = VK_TRUE; // Setting clipped to VK_TRUE allows the implementation to discard rendering outside of the surface area
+    _gpuSwapchain->createInfo.preTransform = preTransform;
+    _gpuSwapchain->createInfo.compositeAlpha = compositeAlpha;
+    _gpuSwapchain->createInfo.presentMode = swapchainPresentMode;
+    _gpuSwapchain->createInfo.clipped = VK_TRUE; // Setting clipped to VK_TRUE allows the implementation to discard rendering outside of the surface area
 
     ///////////////////// Texture Creation /////////////////////
 
-    _colorTexture        = ccnew CCVKTexture;
+    _colorTexture = ccnew CCVKTexture;
     _depthStencilTexture = ccnew CCVKTexture;
 
     SwapchainTextureInfo textureInfo;
     textureInfo.swapchain = this;
-    textureInfo.format    = colorFmt;
-    textureInfo.width     = info.width;
-    textureInfo.height    = info.height;
+    textureInfo.format = colorFmt;
+    textureInfo.width = info.width;
+    textureInfo.height = info.height;
     initTexture(textureInfo, _colorTexture);
 
     textureInfo.format = depthStencilFmt;
@@ -216,8 +216,8 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
 
     // Android Game Frame Pacing:swappy
 #if CC_SWAPPY_ENABLED
-    auto *  platform = static_cast<AndroidPlatform *>(cc::BasePlatform::getPlatform());
-    int32_t fps      = cc::BasePlatform::getPlatform()->getFps();
+    auto *platform = static_cast<AndroidPlatform *>(cc::BasePlatform::getPlatform());
+    int32_t fps = cc::BasePlatform::getPlatform()->getFps();
 
     uint64_t frameRefreshIntervalNS;
     SwappyVk_initAndGetRefreshCycleDuration(static_cast<JNIEnv *>(platform->getEnv()),
@@ -239,7 +239,7 @@ void CCVKSwapchain::doDestroy() {
     CC_SAFE_DESTROY(_depthStencilTexture)
     CC_SAFE_DESTROY(_colorTexture)
 
-    auto *      gpuDevice  = CCVKDevice::getInstance()->gpuDevice();
+    auto *gpuDevice = CCVKDevice::getInstance()->gpuDevice();
     const auto *gpuContext = CCVKDevice::getInstance()->gpuContext();
 
     destroySwapchain(gpuDevice);
@@ -261,7 +261,7 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
     if (_gpuSwapchain->vkSurface == VK_NULL_HANDLE) { // vkSurface will be set to VK_NULL_HANDLE after call doDestroySurface
         return false;
     }
-    auto *      gpuDevice  = CCVKDevice::getInstance()->gpuDevice();
+    auto *gpuDevice = CCVKDevice::getInstance()->gpuDevice();
     const auto *gpuContext = CCVKDevice::getInstance()->gpuContext();
 
     VkSurfaceCapabilitiesKHR surfaceCapabilities;
@@ -270,7 +270,7 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
     // surfaceCapabilities.currentExtent seems to remain the same
     // during any size/orientation change events on android devices
     // so we prefer the system input (oriented size) here
-    uint32_t newWidth  = width ? width : surfaceCapabilities.currentExtent.width;
+    uint32_t newWidth = width ? width : surfaceCapabilities.currentExtent.width;
     uint32_t newHeight = height ? height : surfaceCapabilities.currentExtent.height;
 
     VkSurfaceTransformFlagBitsKHR preTransform = surfaceCapabilities.currentTransform;
@@ -289,10 +289,10 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
     }
 
     if (newWidth == static_cast<uint32_t>(-1)) {
-        _gpuSwapchain->createInfo.imageExtent.width  = _colorTexture->getWidth();
+        _gpuSwapchain->createInfo.imageExtent.width = _colorTexture->getWidth();
         _gpuSwapchain->createInfo.imageExtent.height = _colorTexture->getHeight();
     } else {
-        _gpuSwapchain->createInfo.imageExtent.width  = newWidth;
+        _gpuSwapchain->createInfo.imageExtent.width = newWidth;
         _gpuSwapchain->createInfo.imageExtent.height = newHeight;
     }
 
@@ -301,9 +301,9 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
         return false;
     }
 
-    _transform                             = mapSurfaceTransform(preTransform);
+    _transform = mapSurfaceTransform(preTransform);
     _gpuSwapchain->createInfo.preTransform = preTransform;
-    _gpuSwapchain->createInfo.surface      = _gpuSwapchain->vkSurface;
+    _gpuSwapchain->createInfo.surface = _gpuSwapchain->vkSurface;
     _gpuSwapchain->createInfo.oldSwapchain = _gpuSwapchain->vkSwapchain;
 
     CC_LOG_INFO("Resizing surface: %dx%d, surface rotation: %d degrees", newWidth, newHeight, (uint32_t)_transform * 90);
@@ -316,8 +316,8 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
     destroySwapchain(gpuDevice);
 
     gpuDevice->curBackBufferIndex = 0;
-    _gpuSwapchain->curImageIndex  = 0;
-    _gpuSwapchain->vkSwapchain    = vkSwapchain;
+    _gpuSwapchain->curImageIndex = 0;
+    _gpuSwapchain->vkSwapchain = vkSwapchain;
 
     uint32_t imageCount;
     VK_CHECK(vkGetSwapchainImagesKHR(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, &imageCount, nullptr));
@@ -326,36 +326,36 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
     VK_CHECK(vkGetSwapchainImagesKHR(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, &imageCount, _gpuSwapchain->swapchainImages.data()));
 
     // should skip size check, since the old swapchain has already been destroyed
-    static_cast<CCVKTexture *>(_colorTexture.get())->_info.width        = 1;
+    static_cast<CCVKTexture *>(_colorTexture.get())->_info.width = 1;
     static_cast<CCVKTexture *>(_depthStencilTexture.get())->_info.width = 1;
     _colorTexture->resize(newWidth, newHeight);
     _depthStencilTexture->resize(newWidth, newHeight);
 
-    bool                                hasStencil = GFX_FORMAT_INFOS[toNumber(_depthStencilTexture->getFormat())].hasStencil;
+    bool hasStencil = GFX_FORMAT_INFOS[toNumber(_depthStencilTexture->getFormat())].hasStencil;
     ccstd::vector<VkImageMemoryBarrier> barriers(imageCount * 2, VkImageMemoryBarrier{});
-    VkPipelineStageFlags                srcStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-    VkPipelineStageFlags                dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-    ThsvsImageBarrier                   tempBarrier{};
-    tempBarrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-    tempBarrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-    tempBarrier.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;
-    tempBarrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;
-    VkPipelineStageFlags tempSrcStageMask       = 0;
-    VkPipelineStageFlags tempDstStageMask       = 0;
-    auto *               colorGPUTexture        = static_cast<CCVKTexture *>(_colorTexture.get())->gpuTexture();
-    auto *               depthStencilGPUTexture = static_cast<CCVKTexture *>(_depthStencilTexture.get())->gpuTexture();
+    VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+    VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+    ThsvsImageBarrier tempBarrier{};
+    tempBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    tempBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    tempBarrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
+    tempBarrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
+    VkPipelineStageFlags tempSrcStageMask = 0;
+    VkPipelineStageFlags tempDstStageMask = 0;
+    auto *colorGPUTexture = static_cast<CCVKTexture *>(_colorTexture.get())->gpuTexture();
+    auto *depthStencilGPUTexture = static_cast<CCVKTexture *>(_depthStencilTexture.get())->gpuTexture();
     for (uint32_t i = 0U; i < imageCount; i++) {
-        tempBarrier.nextAccessCount             = 1;
-        tempBarrier.pNextAccesses               = getAccessType(AccessFlagBit::PRESENT);
-        tempBarrier.image                       = _gpuSwapchain->swapchainImages[i];
+        tempBarrier.nextAccessCount = 1;
+        tempBarrier.pNextAccesses = getAccessType(AccessFlagBit::PRESENT);
+        tempBarrier.image = _gpuSwapchain->swapchainImages[i];
         tempBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         thsvsGetVulkanImageMemoryBarrier(tempBarrier, &tempSrcStageMask, &tempDstStageMask, &barriers[i]);
         srcStageMask |= tempSrcStageMask;
         dstStageMask |= tempDstStageMask;
 
-        tempBarrier.nextAccessCount             = 1;
-        tempBarrier.pNextAccesses               = getAccessType(AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE);
-        tempBarrier.image                       = depthStencilGPUTexture->swapchainVkImages[i];
+        tempBarrier.nextAccessCount = 1;
+        tempBarrier.pNextAccesses = getAccessType(AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE);
+        tempBarrier.image = depthStencilGPUTexture->swapchainVkImages[i];
         tempBarrier.subresourceRange.aspectMask = hasStencil ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT : VK_IMAGE_ASPECT_DEPTH_BIT;
         thsvsGetVulkanImageMemoryBarrier(tempBarrier, &tempSrcStageMask, &tempDstStageMask, &barriers[imageCount + i]);
         srcStageMask |= tempSrcStageMask;
@@ -399,7 +399,7 @@ void CCVKSwapchain::destroySwapchain(const CCVKGPUDevice *gpuDevice) {
 
 void CCVKSwapchain::doDestroySurface() {
     if (!_gpuSwapchain || _gpuSwapchain->vkSurface == VK_NULL_HANDLE) return;
-    const auto *gpuDevice  = CCVKDevice::getInstance()->gpuDevice();
+    const auto *gpuDevice = CCVKDevice::getInstance()->gpuDevice();
     const auto *gpuContext = CCVKDevice::getInstance()->gpuContext();
 
     CCVKDevice::getInstance()->waitAllFences();
@@ -430,7 +430,7 @@ void CCVKSwapchain::createVkSurface() {
 #elif defined(VK_USE_PLATFORM_WIN32_KHR)
     VkWin32SurfaceCreateInfoKHR surfaceCreateInfo{VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR};
     surfaceCreateInfo.hinstance = static_cast<HINSTANCE>(GetModuleHandle(nullptr));
-    surfaceCreateInfo.hwnd      = reinterpret_cast<HWND>(_windowHandle);
+    surfaceCreateInfo.hwnd = reinterpret_cast<HWND>(_windowHandle);
     VK_CHECK(vkCreateWin32SurfaceKHR(gpuContext->vkInstance, &surfaceCreateInfo, nullptr, &_gpuSwapchain->vkSurface));
 #elif defined(VK_USE_PLATFORM_VI_NN)
     VkViSurfaceCreateInfoNN surfaceCreateInfo{VK_STRUCTURE_TYPE_VI_SURFACE_CREATE_INFO_NN};
@@ -448,7 +448,7 @@ void CCVKSwapchain::createVkSurface() {
 #elif defined(VK_USE_PLATFORM_XCB_KHR)
     VkXcbSurfaceCreateInfoKHR surfaceCreateInfo{VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR};
     surfaceCreateInfo.connection = nullptr; // TODO
-    surfaceCreateInfo.window     = reinterpret_cast<uint64_t>(_windowHandle);
+    surfaceCreateInfo.window = reinterpret_cast<uint64_t>(_windowHandle);
     VK_CHECK(vkCreateXcbSurfaceKHR(gpuContext->vkInstance, &surfaceCreateInfo, nullptr, &_gpuSwapchain->vkSurface));
 #else
     #pragma error Platform not supported

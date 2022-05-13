@@ -44,11 +44,11 @@ const ccstd::vector<cc::Vec3> VEC_VALS{
 } // namespace
 
 void Frustum::createOrtho(Frustum *out, float width,
-                          float       height,
-                          float       near,
-                          float       far,
+                          float height,
+                          float near,
+                          float far,
                           const Mat4 &transform) {
-    auto halfWidth  = width / 2.0F;
+    auto halfWidth = width / 2.0F;
     auto halfHeight = height / 2.0F;
     Vec3::transformMat4({halfWidth, halfHeight, -near}, transform, &out->vertices[0]);
     Vec3::transformMat4({-halfWidth, halfHeight, -near}, transform, &out->vertices[1]);
@@ -92,11 +92,11 @@ Frustum *Frustum::createFromAABB(Frustum *out, const AABB &aabb) {
 
 Frustum *Frustum::split(Frustum *out, const scene::Camera &camera, const Mat4 &m, float start, float end) {
     // 0: cameraNear  1:cameraFar
-    auto  h = static_cast<float>(::tan(camera.getFov() * 0.5));
+    auto h = static_cast<float>(::tan(camera.getFov() * 0.5));
     float w = h * camera.getAspect();
-    Vec3  nearTemp{start * w, start * h, start};
-    Vec3  farTemp{end * w, end * h, end};
-    Vec3  v3Tmp;
+    Vec3 nearTemp{start * w, start * h, start};
+    Vec3 farTemp{end * w, end * h, end};
+    Vec3 v3Tmp;
 
     auto &vertexes = out->vertices;
     // startHalfWidth startHalfHeight
@@ -181,8 +181,8 @@ void Frustum::createOrtho(const float width, const float height, const float nea
 void Frustum::split(float start, float end, float aspect, float fov, const Mat4 &transform) {
     const float h = tanf(fov * 0.5F);
     const float w = h * aspect;
-    const Vec3  nearTemp(start * w, start * h, start);
-    const Vec3  farTemp(end * w, end * h, end);
+    const Vec3 nearTemp(start * w, start * h, start);
+    const Vec3 farTemp(end * w, end * h, end);
 
     vertices[0].transformMat4(Vec3(nearTemp.x, nearTemp.y, nearTemp.z), transform);
     vertices[1].transformMat4(Vec3(-nearTemp.x, nearTemp.y, nearTemp.z), transform);

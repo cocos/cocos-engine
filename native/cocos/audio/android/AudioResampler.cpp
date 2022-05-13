@@ -140,7 +140,6 @@ static uint32_t currentMHz = 0;
 
 AudioResampler *AudioResampler::create(audio_format_t format, int inChannelCount,
                                        int32_t sampleRate, src_quality quality) {
-
     bool atFinalQuality;
     if (quality == DEFAULT_QUALITY) {
         // read the resampler default quality property the first time it is needed
@@ -247,7 +246,6 @@ AudioResampler::AudioResampler(int inChannelCount,
                                                                           mLocalTimeFreq(0),
                                                                           mPTS(AudioBufferProvider::kInvalidPTS),
                                                                           mQuality(quality) {
-
     const int maxChannels = 2; //cjh quality < DYN_LOW_QUALITY ? 2 : 8;
     if (inChannelCount < 1 || inChannelCount > maxChannels) {
         LOG_ALWAYS_FATAL("Unsupported sample format %d quality %d channels",
@@ -296,7 +294,6 @@ void AudioResampler::setPTS(int64_t pts) {
 }
 
 int64_t AudioResampler::calculateOutputPTS(int outputFrameIndex) {
-
     if (mPTS == AudioBufferProvider::kInvalidPTS) {
         return AudioBufferProvider::kInvalidPTS;
     } else {
@@ -314,7 +311,6 @@ void AudioResampler::reset() {
 
 size_t AudioResamplerOrder1::resample(int32_t *out, size_t outFrameCount,
                                       AudioBufferProvider *provider) {
-
     // should never happen, but we overflow if it does
     // ALOG_ASSERT(outFrameCount < 32767);
 
@@ -332,7 +328,6 @@ size_t AudioResamplerOrder1::resample(int32_t *out, size_t outFrameCount,
 
 size_t AudioResamplerOrder1::resampleStereo16(int32_t *out, size_t outFrameCount,
                                               AudioBufferProvider *provider) {
-
     int32_t vl = mVolume[0];
     int32_t vr = mVolume[1];
 
@@ -347,7 +342,6 @@ size_t AudioResamplerOrder1::resampleStereo16(int32_t *out, size_t outFrameCount
     //      outFrameCount, inputIndex, phaseFraction, phaseIncrement);
 
     while (outputIndex < outputSampleCount) {
-
         // buffer is empty, fetch a new one
         while (mBuffer.frameCount == 0) {
             mBuffer.frameCount = inFrameCount;
@@ -431,7 +425,6 @@ resampleStereo16_exit:
 
 size_t AudioResamplerOrder1::resampleMono16(int32_t *out, size_t outFrameCount,
                                             AudioBufferProvider *provider) {
-
     int32_t vl = mVolume[0];
     int32_t vr = mVolume[1];
 
@@ -566,17 +559,24 @@ __attribute__((noinline)) void AudioResamplerOrder1::AsmMono16Loop(int16_t *in, 
     asm(
         "stmfd  sp!, {r4, r5, r6, r7, r8, r9, r10, r11, lr}\n"
         // get parameters
-        "   ldr r6, [sp, #" MO_PARAM5 " + 20]\n"  // &phaseFraction
-        "   ldr r6, [r6]\n"                       // phaseFraction
-        "   ldr r7, [sp, #" MO_PARAM5 " + 8]\n"   // &inputIndex
-        "   ldr r7, [r7]\n"                       // inputIndex
-        "   ldr r8, [sp, #" MO_PARAM5 " + 4]\n"   // out
-        "   ldr r0, [sp, #" MO_PARAM5 " + 0]\n"   // &outputIndex
-        "   ldr r0, [r0]\n"                       // outputIndex
-        "   add r8, r8, r0, asl #2\n"             // curOut
-        "   ldr r9, [sp, #" MO_PARAM5 " + 24]\n"  // phaseIncrement
-        "   ldr r10, [sp, #" MO_PARAM5 " + 12]\n" // vl
-        "   ldr r11, [sp, #" MO_PARAM5 " + 16]\n" // vr
+        "   ldr r6, [sp, #" MO_PARAM5
+        " + 20]\n"          // &phaseFraction
+        "   ldr r6, [r6]\n" // phaseFraction
+        "   ldr r7, [sp, #" MO_PARAM5
+        " + 8]\n"           // &inputIndex
+        "   ldr r7, [r7]\n" // inputIndex
+        "   ldr r8, [sp, #" MO_PARAM5
+        " + 4]\n" // out
+        "   ldr r0, [sp, #" MO_PARAM5
+        " + 0]\n"                     // &outputIndex
+        "   ldr r0, [r0]\n"           // outputIndex
+        "   add r8, r8, r0, asl #2\n" // curOut
+        "   ldr r9, [sp, #" MO_PARAM5
+        " + 24]\n" // phaseIncrement
+        "   ldr r10, [sp, #" MO_PARAM5
+        " + 12]\n" // vl
+        "   ldr r11, [sp, #" MO_PARAM5
+        " + 16]\n" // vr
 
         // r0 pin, x0, Samp
 
@@ -632,15 +632,19 @@ __attribute__((noinline)) void AudioResamplerOrder1::AsmMono16Loop(int16_t *in, 
 
         "   bic r6, r6, #0xC0000000\n" // phaseFraction & ...
         // save modified values
-        "   ldr r0, [sp, #" MO_PARAM5 " + 20]\n" // &phaseFraction
-        "   str r6, [r0]\n"                      // phaseFraction
-        "   ldr r0, [sp, #" MO_PARAM5 " + 8]\n"  // &inputIndex
-        "   str r7, [r0]\n"                      // inputIndex
-        "   ldr r0, [sp, #" MO_PARAM5 " + 4]\n"  // out
-        "   sub r8, r0\n"                        // curOut - out
-        "   asr r8, #2\n"                        // new outputIndex
-        "   ldr r0, [sp, #" MO_PARAM5 " + 0]\n"  // &outputIndex
-        "   str r8, [r0]\n"                      // save outputIndex
+        "   ldr r0, [sp, #" MO_PARAM5
+        " + 20]\n"          // &phaseFraction
+        "   str r6, [r0]\n" // phaseFraction
+        "   ldr r0, [sp, #" MO_PARAM5
+        " + 8]\n"           // &inputIndex
+        "   str r7, [r0]\n" // inputIndex
+        "   ldr r0, [sp, #" MO_PARAM5
+        " + 4]\n"         // out
+        "   sub r8, r0\n" // curOut - out
+        "   asr r8, #2\n" // new outputIndex
+        "   ldr r0, [sp, #" MO_PARAM5
+        " + 0]\n"           // &outputIndex
+        "   str r8, [r0]\n" // save outputIndex
 
         "   ldmfd   sp!, {r4, r5, r6, r7, r8, r9, r10, r11, pc}\n");
 }
@@ -683,17 +687,24 @@ __attribute__((noinline)) void AudioResamplerOrder1::AsmStereo16Loop(int16_t *in
     asm(
         "stmfd  sp!, {r4, r5, r6, r7, r8, r9, r10, r11, r12, lr}\n"
         // get parameters
-        "   ldr r6, [sp, #" ST_PARAM5 " + 20]\n"  // &phaseFraction
-        "   ldr r6, [r6]\n"                       // phaseFraction
-        "   ldr r7, [sp, #" ST_PARAM5 " + 8]\n"   // &inputIndex
-        "   ldr r7, [r7]\n"                       // inputIndex
-        "   ldr r8, [sp, #" ST_PARAM5 " + 4]\n"   // out
-        "   ldr r0, [sp, #" ST_PARAM5 " + 0]\n"   // &outputIndex
-        "   ldr r0, [r0]\n"                       // outputIndex
-        "   add r8, r8, r0, asl #2\n"             // curOut
-        "   ldr r9, [sp, #" ST_PARAM5 " + 24]\n"  // phaseIncrement
-        "   ldr r10, [sp, #" ST_PARAM5 " + 12]\n" // vl
-        "   ldr r11, [sp, #" ST_PARAM5 " + 16]\n" // vr
+        "   ldr r6, [sp, #" ST_PARAM5
+        " + 20]\n"          // &phaseFraction
+        "   ldr r6, [r6]\n" // phaseFraction
+        "   ldr r7, [sp, #" ST_PARAM5
+        " + 8]\n"           // &inputIndex
+        "   ldr r7, [r7]\n" // inputIndex
+        "   ldr r8, [sp, #" ST_PARAM5
+        " + 4]\n" // out
+        "   ldr r0, [sp, #" ST_PARAM5
+        " + 0]\n"                     // &outputIndex
+        "   ldr r0, [r0]\n"           // outputIndex
+        "   add r8, r8, r0, asl #2\n" // curOut
+        "   ldr r9, [sp, #" ST_PARAM5
+        " + 24]\n" // phaseIncrement
+        "   ldr r10, [sp, #" ST_PARAM5
+        " + 12]\n" // vl
+        "   ldr r11, [sp, #" ST_PARAM5
+        " + 16]\n" // vr
 
         // r0 pin, x0, Samp
 
@@ -757,15 +768,19 @@ __attribute__((noinline)) void AudioResamplerOrder1::AsmStereo16Loop(int16_t *in
 
         "   bic r6, r6, #0xC0000000\n" // phaseFraction & ...
         // save modified values
-        "   ldr r0, [sp, #" ST_PARAM5 " + 20]\n" // &phaseFraction
-        "   str r6, [r0]\n"                      // phaseFraction
-        "   ldr r0, [sp, #" ST_PARAM5 " + 8]\n"  // &inputIndex
-        "   str r7, [r0]\n"                      // inputIndex
-        "   ldr r0, [sp, #" ST_PARAM5 " + 4]\n"  // out
-        "   sub r8, r0\n"                        // curOut - out
-        "   asr r8, #2\n"                        // new outputIndex
-        "   ldr r0, [sp, #" ST_PARAM5 " + 0]\n"  // &outputIndex
-        "   str r8, [r0]\n"                      // save outputIndex
+        "   ldr r0, [sp, #" ST_PARAM5
+        " + 20]\n"          // &phaseFraction
+        "   str r6, [r0]\n" // phaseFraction
+        "   ldr r0, [sp, #" ST_PARAM5
+        " + 8]\n"           // &inputIndex
+        "   str r7, [r0]\n" // inputIndex
+        "   ldr r0, [sp, #" ST_PARAM5
+        " + 4]\n"         // out
+        "   sub r8, r0\n" // curOut - out
+        "   asr r8, #2\n" // new outputIndex
+        "   ldr r0, [sp, #" ST_PARAM5
+        " + 0]\n"           // &outputIndex
+        "   str r8, [r0]\n" // save outputIndex
 
         "   ldmfd   sp!, {r4, r5, r6, r7, r8, r9, r10, r11, r12, pc}\n");
 }

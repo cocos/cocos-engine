@@ -473,11 +473,11 @@ private:
     void reset(Type type);
 
     union {
-        bool           _boolean;
-        double         _number;
+        bool _boolean;
+        double _number;
         ccstd::string *_string;
-        Object *       _object;
-        int64_t        _bigint;
+        Object *_object;
+        int64_t _bigint;
     } _u;
 
     Type _type;

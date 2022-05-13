@@ -33,13 +33,13 @@ namespace gfx {
 GLES2Sampler::GLES2Sampler(const SamplerInfo &info) : Sampler(info) {
     _typedID = generateObjectID<decltype(this)>();
 
-    _gpuSampler            = ccnew GLES2GPUSampler;
+    _gpuSampler = ccnew GLES2GPUSampler;
     _gpuSampler->minFilter = _info.minFilter;
     _gpuSampler->magFilter = _info.magFilter;
     _gpuSampler->mipFilter = _info.mipFilter;
-    _gpuSampler->addressU  = _info.addressU;
-    _gpuSampler->addressV  = _info.addressV;
-    _gpuSampler->addressW  = _info.addressW;
+    _gpuSampler->addressU = _info.addressU;
+    _gpuSampler->addressV = _info.addressV;
+    _gpuSampler->addressW = _info.addressW;
 
     cmdFuncGLES2CreateSampler(GLES2Device::getInstance(), _gpuSampler);
 }

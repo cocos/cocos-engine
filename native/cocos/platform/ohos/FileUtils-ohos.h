@@ -65,7 +65,7 @@ private:
 
     /* weak ref, do not need release */
     static ResourceManager *ohosResourceMgr;
-    static ccstd::string    ohosAssetPath;
+    static ccstd::string ohosAssetPath;
 
     friend class FileUtils;
 };

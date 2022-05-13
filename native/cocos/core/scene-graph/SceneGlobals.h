@@ -47,9 +47,9 @@ public:
 
     inline scene::AmbientInfo *getAmbientInfo() const { return _ambientInfo.get(); }
     inline scene::ShadowsInfo *getShadowsInfo() const { return _shadowInfo.get(); }
-    inline scene::SkyboxInfo * getSkyboxInfo() const { return _skyboxInfo.get(); }
-    inline scene::FogInfo *    getFogInfo() const { return _fogInfo.get(); }
-    inline scene::OctreeInfo * getOctreeInfo() const { return _octreeInfo.get(); }
+    inline scene::SkyboxInfo *getSkyboxInfo() const { return _skyboxInfo.get(); }
+    inline scene::FogInfo *getFogInfo() const { return _fogInfo.get(); }
+    inline scene::OctreeInfo *getOctreeInfo() const { return _octreeInfo.get(); }
 
     void setAmbientInfo(scene::AmbientInfo *info);
     void setShadowsInfo(scene::ShadowsInfo *info);
@@ -60,9 +60,9 @@ public:
 private:
     IntrusivePtr<scene::AmbientInfo> _ambientInfo;
     IntrusivePtr<scene::ShadowsInfo> _shadowInfo;
-    IntrusivePtr<scene::SkyboxInfo>  _skyboxInfo;
-    IntrusivePtr<scene::FogInfo>     _fogInfo;
-    IntrusivePtr<scene::OctreeInfo>  _octreeInfo;
+    IntrusivePtr<scene::SkyboxInfo> _skyboxInfo;
+    IntrusivePtr<scene::FogInfo> _fogInfo;
+    IntrusivePtr<scene::OctreeInfo> _octreeInfo;
 };
 
 } // namespace cc

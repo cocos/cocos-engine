@@ -42,15 +42,15 @@ CCVKPipelineState::~CCVKPipelineState() {
 }
 
 void CCVKPipelineState::doInit(const PipelineStateInfo & /*info*/) {
-    _gpuPipelineState                    = ccnew CCVKGPUPipelineState;
-    _gpuPipelineState->bindPoint         = _bindPoint;
-    _gpuPipelineState->primitive         = _primitive;
-    _gpuPipelineState->gpuShader         = static_cast<CCVKShader *>(_shader)->gpuShader();
-    _gpuPipelineState->inputState        = _inputState;
-    _gpuPipelineState->rs                = _rasterizerState;
-    _gpuPipelineState->dss               = _depthStencilState;
-    _gpuPipelineState->bs                = _blendState;
-    _gpuPipelineState->subpass           = _subpass;
+    _gpuPipelineState = ccnew CCVKGPUPipelineState;
+    _gpuPipelineState->bindPoint = _bindPoint;
+    _gpuPipelineState->primitive = _primitive;
+    _gpuPipelineState->gpuShader = static_cast<CCVKShader *>(_shader)->gpuShader();
+    _gpuPipelineState->inputState = _inputState;
+    _gpuPipelineState->rs = _rasterizerState;
+    _gpuPipelineState->dss = _depthStencilState;
+    _gpuPipelineState->bs = _blendState;
+    _gpuPipelineState->subpass = _subpass;
     _gpuPipelineState->gpuPipelineLayout = static_cast<CCVKPipelineLayout *>(_pipelineLayout)->gpuPipelineLayout();
     if (_renderPass) _gpuPipelineState->gpuRenderPass = static_cast<CCVKRenderPass *>(_renderPass)->gpuRenderPass();
 

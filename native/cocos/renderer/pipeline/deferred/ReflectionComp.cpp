@@ -42,22 +42,22 @@ struct ConstantBuffer {
 void ReflectionComp::applyTexSize(uint width, uint height, const Mat4 &matView,
                                   const Mat4 &matViewProj, const Mat4 &matViewProjInv,
                                   const Mat4 &matProjInv, const Vec4 &viewPort) {
-    uint globalWidth  = width;
+    uint globalWidth = width;
     uint globalHeight = height;
-    uint groupWidth   = this->getGroupSizeX();
-    uint groupHeight  = this->getGroupSizeY();
+    uint groupWidth = this->getGroupSizeX();
+    uint groupHeight = this->getGroupSizeY();
 
-    _dispatchInfo        = {(globalWidth - 1) / groupWidth + 1, (globalHeight - 1) / groupHeight + 1, 1};
+    _dispatchInfo = {(globalWidth - 1) / groupWidth + 1, (globalHeight - 1) / groupHeight + 1, 1};
     _denoiseDispatchInfo = {((globalWidth - 1) / 2) / groupWidth + 1, ((globalHeight - 1) / 2) / groupHeight + 1, 1};
 
     ConstantBuffer constants;
-    constants.matView        = matView;
-    constants.matProjInv     = matProjInv;
-    constants.matViewProj    = matViewProj;
+    constants.matView = matView;
+    constants.matProjInv = matProjInv;
+    constants.matViewProj = matViewProj;
     constants.matViewProjInv = matViewProjInv;
-    constants.viewPort       = viewPort;
-    constants.texSize        = {float(width), float(height)};
-    constants.viewPort       = viewPort;
+    constants.viewPort = viewPort;
+    constants.texSize = {float(width), float(height)};
+    constants.viewPort = viewPort;
 
     if (_compConstantsBuffer) {
         _compConstantsBuffer->update(&constants, sizeof(constants));
@@ -67,21 +67,21 @@ void ReflectionComp::applyTexSize(uint width, uint height, const Mat4 &matView,
 void ReflectionComp::init(gfx::Device *dev, uint groupSizeX, uint groupSizeY) {
     if (!dev->hasFeature(gfx::Feature::COMPUTE_SHADER)) return;
 
-    _device     = dev;
+    _device = dev;
     _groupSizeX = groupSizeX;
     _groupSizeY = groupSizeY;
 
     gfx::SamplerInfo samplerInfo;
     samplerInfo.minFilter = gfx::Filter::POINT;
     samplerInfo.magFilter = gfx::Filter::POINT;
-    _sampler              = _device->getSampler(samplerInfo);
+    _sampler = _device->getSampler(samplerInfo);
 
     uint maxInvocations = _device->getCapabilities().maxComputeWorkGroupInvocations;
     CC_ASSERT(_groupSizeX * _groupSizeY <= maxInvocations); // maxInvocations is too small
     CC_LOG_INFO(" work group size: %dx%d", _groupSizeX, _groupSizeY);
 
     gfx::DescriptorSetLayoutInfo layoutInfo = {pipeline::localDescriptorSetLayout.bindings};
-    _localDescriptorSetLayout               = _device->createDescriptorSetLayout(layoutInfo);
+    _localDescriptorSetLayout = _device->createDescriptorSetLayout(layoutInfo);
 
     gfx::GeneralBarrierInfo infoPre = {
         gfx::AccessFlagBit::COLOR_ATTACHMENT_WRITE,
@@ -262,7 +262,7 @@ void ReflectionComp::initReflectionRes() {
         getReflectorShader(sources, i);
 
         gfx::ShaderInfo shaderInfo;
-        shaderInfo.name   = "Compute ";
+        shaderInfo.name = "Compute ";
         shaderInfo.stages = {{gfx::ShaderStageFlagBit::COMPUTE, getAppropriateShaderSource(sources)}};
         shaderInfo.blocks = {
             {0, 0, "Constants", {
@@ -291,15 +291,15 @@ void ReflectionComp::initReflectionRes() {
     dslInfo.bindings.push_back({4, gfx::DescriptorType::STORAGE_IMAGE, 1, gfx::ShaderStageFlagBit::COMPUTE});
 
     _compDescriptorSetLayout = _device->createDescriptorSetLayout(dslInfo);
-    _compDescriptorSet       = _device->createDescriptorSet({_compDescriptorSetLayout});
+    _compDescriptorSet = _device->createDescriptorSet({_compDescriptorSetLayout});
 
     _compPipelineLayout = _device->createPipelineLayout({{_compDescriptorSetLayout}});
 
     for (int i = 0; i < 2; ++i) {
         gfx::PipelineStateInfo pipelineInfo;
-        pipelineInfo.shader         = _compShader[i];
+        pipelineInfo.shader = _compShader[i];
         pipelineInfo.pipelineLayout = _compPipelineLayout;
-        pipelineInfo.bindPoint      = gfx::PipelineBindPoint::COMPUTE;
+        pipelineInfo.bindPoint = gfx::PipelineBindPoint::COMPUTE;
 
         _compPipelineState[i] = _device->createPipelineState(pipelineInfo);
     }
@@ -501,11 +501,11 @@ void ReflectionComp::initDenoiseRes() {
         getDenoiseShader(sources, i);
 
         gfx::ShaderInfo shaderInfo;
-        shaderInfo.name   = "Compute ";
+        shaderInfo.name = "Compute ";
         shaderInfo.stages = {{gfx::ShaderStageFlagBit::COMPUTE, getAppropriateShaderSource(sources)}};
 
         if (i == 0) {
-            shaderInfo.blocks          = {};
+            shaderInfo.blocks = {};
             shaderInfo.samplerTextures = {
                 {0, 1, "reflectionTex", gfx::Type::SAMPLER2D, 1}};
         } else {
@@ -538,14 +538,14 @@ void ReflectionComp::initDenoiseRes() {
     dslInfo.bindings.push_back({2, gfx::DescriptorType::SAMPLER_TEXTURE, 1, gfx::ShaderStageFlagBit::COMPUTE});
     dslInfo.bindings.push_back({3, gfx::DescriptorType::SAMPLER_TEXTURE, 1, gfx::ShaderStageFlagBit::COMPUTE});
     _compDenoiseDescriptorSetLayout = _device->createDescriptorSetLayout(dslInfo);
-    _compDenoisePipelineLayout      = _device->createPipelineLayout({{_compDenoiseDescriptorSetLayout, _localDescriptorSetLayout}});
-    _compDenoiseDescriptorSet       = _device->createDescriptorSet({_compDenoiseDescriptorSetLayout});
+    _compDenoisePipelineLayout = _device->createPipelineLayout({{_compDenoiseDescriptorSetLayout, _localDescriptorSetLayout}});
+    _compDenoiseDescriptorSet = _device->createDescriptorSet({_compDenoiseDescriptorSetLayout});
 
     for (int i = 0; i < 2; ++i) {
         gfx::PipelineStateInfo pipelineInfo;
-        pipelineInfo.shader         = _compDenoiseShader[i];
+        pipelineInfo.shader = _compDenoiseShader[i];
         pipelineInfo.pipelineLayout = _compDenoisePipelineLayout;
-        pipelineInfo.bindPoint      = gfx::PipelineBindPoint::COMPUTE;
+        pipelineInfo.bindPoint = gfx::PipelineBindPoint::COMPUTE;
 
         _compDenoisePipelineState[i] = _device->createPipelineState(pipelineInfo);
     }

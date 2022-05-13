@@ -50,7 +50,7 @@ se::Object *BufferAllocator::alloc(uint index, uint bytes) {
     _buffers[index] = obj;
 
     uint8_t *ret = nullptr;
-    size_t   len;
+    size_t len;
     obj->getArrayBufferData(static_cast<uint8_t **>(&ret), &len);
 
     return obj;

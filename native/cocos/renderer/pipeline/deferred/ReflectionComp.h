@@ -32,20 +32,20 @@ public:
                       const Mat4 &matViewProj, const Mat4 &matViewProjInv,
                       const Mat4 &matProjInv, const Vec4 &viewPort);
 
-    inline gfx::DescriptorSet *           getDescriptorSet() { return _compDescriptorSet; }
-    inline const gfx::PipelineState *     getPipelineState(bool useEnvmap) { return _compPipelineState[useEnvmap]; }
-    inline gfx::DescriptorSet *           getDenoiseDescriptorSet() { return _compDenoiseDescriptorSet; }
-    inline const gfx::PipelineState *     getDenoisePipelineState(bool useEnvmap) { return _compDenoisePipelineState[useEnvmap]; }
-    inline const gfx::PipelineState *     getDenoisePipelineStateEnvmap() { return _compDenoisePipelineStateEnvmap; }
-    inline const gfx::GeneralBarrier *    getBarrierPre() { return _barrierPre; }
+    inline gfx::DescriptorSet *getDescriptorSet() { return _compDescriptorSet; }
+    inline const gfx::PipelineState *getPipelineState(bool useEnvmap) { return _compPipelineState[useEnvmap]; }
+    inline gfx::DescriptorSet *getDenoiseDescriptorSet() { return _compDenoiseDescriptorSet; }
+    inline const gfx::PipelineState *getDenoisePipelineState(bool useEnvmap) { return _compDenoisePipelineState[useEnvmap]; }
+    inline const gfx::PipelineState *getDenoisePipelineStateEnvmap() { return _compDenoisePipelineStateEnvmap; }
+    inline const gfx::GeneralBarrier *getBarrierPre() { return _barrierPre; }
     inline const gfx::TextureBarrierList &getBarrierBeforeDenoise() { return _barrierBeforeDenoise; }
     inline const gfx::TextureBarrierList &getBarrierAfterDenoise() { return _barrierAfterDenoise; }
-    inline const gfx::DispatchInfo &      getDispatchInfo() { return _dispatchInfo; }
-    inline const gfx::DispatchInfo &      getDenoiseDispatchInfo() { return _denoiseDispatchInfo; }
-    inline uint                           getGroupSizeX() const { return _groupSizeX; }
-    inline uint                           getGroupSizeY() const { return _groupSizeY; }
+    inline const gfx::DispatchInfo &getDispatchInfo() { return _dispatchInfo; }
+    inline const gfx::DispatchInfo &getDenoiseDispatchInfo() { return _denoiseDispatchInfo; }
+    inline uint getGroupSizeX() const { return _groupSizeX; }
+    inline uint getGroupSizeY() const { return _groupSizeY; }
 
-    inline gfx::Buffer * getConstantsBuffer() { return _compConstantsBuffer; }
+    inline gfx::Buffer *getConstantsBuffer() { return _compConstantsBuffer; }
     inline gfx::Sampler *getSampler() { return _sampler; }
 
 private:
@@ -54,22 +54,22 @@ private:
 
     gfx::Device *_device{nullptr};
 
-    gfx::Shader *             _compShader[2]{nullptr};
+    gfx::Shader *_compShader[2]{nullptr};
     gfx::DescriptorSetLayout *_compDescriptorSetLayout{nullptr};
-    gfx::PipelineLayout *     _compPipelineLayout{nullptr};
-    gfx::PipelineState *      _compPipelineState[2]{nullptr};
-    gfx::DescriptorSet *      _compDescriptorSet{nullptr};
+    gfx::PipelineLayout *_compPipelineLayout{nullptr};
+    gfx::PipelineState *_compPipelineState[2]{nullptr};
+    gfx::DescriptorSet *_compDescriptorSet{nullptr};
 
-    gfx::Shader *             _compDenoiseShader[2]{nullptr};
+    gfx::Shader *_compDenoiseShader[2]{nullptr};
     gfx::DescriptorSetLayout *_compDenoiseDescriptorSetLayout{nullptr};
-    gfx::PipelineLayout *     _compDenoisePipelineLayout{nullptr};
-    gfx::PipelineState *      _compDenoisePipelineState[2]{nullptr};
-    gfx::PipelineState *      _compDenoisePipelineStateEnvmap{nullptr};
-    gfx::DescriptorSet *      _compDenoiseDescriptorSet{nullptr};
+    gfx::PipelineLayout *_compDenoisePipelineLayout{nullptr};
+    gfx::PipelineState *_compDenoisePipelineState[2]{nullptr};
+    gfx::PipelineState *_compDenoisePipelineStateEnvmap{nullptr};
+    gfx::DescriptorSet *_compDenoiseDescriptorSet{nullptr};
 
     gfx::DescriptorSetLayout *_localDescriptorSetLayout{nullptr};
 
-    gfx::Buffer * _compConstantsBuffer{nullptr};
+    gfx::Buffer *_compConstantsBuffer{nullptr};
     gfx::Sampler *_sampler{nullptr};
 
     gfx::GeneralBarrier *_barrierPre{nullptr};

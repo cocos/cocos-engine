@@ -56,25 +56,25 @@
 
 using namespace cc; //NOLINT
 
-const int   AudioEngine::INVALID_AUDIO_ID = -1;
-const float AudioEngine::TIME_UNKNOWN     = -1.0F;
+const int AudioEngine::INVALID_AUDIO_ID = -1;
+const float AudioEngine::TIME_UNKNOWN = -1.0F;
 
 //audio file path,audio IDs
 ccstd::unordered_map<ccstd::string, ccstd::list<int>> AudioEngine::sAudioPathIDMap;
 //profileName,ProfileHelper
 ccstd::unordered_map<ccstd::string, AudioEngine::ProfileHelper> AudioEngine::sAudioPathProfileHelperMap;
-unsigned int                                                    AudioEngine::sMaxInstances         = MAX_AUDIOINSTANCES;
-AudioEngine::ProfileHelper *                                    AudioEngine::sDefaultProfileHelper = nullptr;
-ccstd::unordered_map<int, AudioEngine::AudioInfo>               AudioEngine::sAudioIDInfoMap;
-AudioEngineImpl *                                               AudioEngine::sAudioEngineImpl = nullptr;
+unsigned int AudioEngine::sMaxInstances = MAX_AUDIOINSTANCES;
+AudioEngine::ProfileHelper *AudioEngine::sDefaultProfileHelper = nullptr;
+ccstd::unordered_map<int, AudioEngine::AudioInfo> AudioEngine::sAudioIDInfoMap;
+AudioEngineImpl *AudioEngine::sAudioEngineImpl = nullptr;
 
-float              AudioEngine::sVolumeFactor       = 1.0F;
-uint32_t           AudioEngine::sOnPauseListenerID  = 0;
-uint32_t           AudioEngine::sOnResumeListenerID = 0;
+float AudioEngine::sVolumeFactor = 1.0F;
+uint32_t AudioEngine::sOnPauseListenerID = 0;
+uint32_t AudioEngine::sOnResumeListenerID = 0;
 ccstd::vector<int> AudioEngine::sBreakAudioID;
 
 AudioEngine::AudioEngineThreadPool *AudioEngine::sThreadPool = nullptr;
-bool                                AudioEngine::sIsEnabled  = true;
+bool AudioEngine::sIsEnabled = true;
 
 AudioEngine::AudioInfo::AudioInfo()
 : filePath(nullptr),
@@ -135,12 +135,12 @@ private:
         }
     }
 
-    ccstd::vector<std::thread>          _workers;
+    ccstd::vector<std::thread> _workers;
     ccstd::queue<std::function<void()>> _taskQueue;
 
-    std::mutex              _queueMutex;
+    std::mutex _queueMutex;
     std::condition_variable _taskCondition;
-    bool                    _stop{};
+    bool _stop{};
 };
 
 void AudioEngine::end() {
@@ -176,7 +176,7 @@ bool AudioEngine::lazyInit() {
             sAudioEngineImpl = nullptr;
             return false;
         }
-        sOnPauseListenerID  = EventDispatcher::addCustomEventListener(EVENT_COME_TO_BACKGROUND, AudioEngine::onEnterBackground);
+        sOnPauseListenerID = EventDispatcher::addCustomEventListener(EVENT_COME_TO_BACKGROUND, AudioEngine::onEnterBackground);
         sOnResumeListenerID = EventDispatcher::addCustomEventListener(EVENT_COME_TO_FOREGROUND, AudioEngine::onEnterForeground);
     }
 
@@ -208,7 +208,7 @@ int AudioEngine::play2d(const ccstd::string &filePath, bool loop, float volume, 
         auto *profileHelper = sDefaultProfileHelper;
         if (profile && profile != &profileHelper->profile) {
             CC_ASSERT(!profile->name.empty());
-            profileHelper          = &sAudioPathProfileHelperMap[profile->name];
+            profileHelper = &sAudioPathProfileHelperMap[profile->name];
             profileHelper->profile = *profile;
         }
 
@@ -223,7 +223,7 @@ int AudioEngine::play2d(const ccstd::string &filePath, bool loop, float volume, 
             }
             if (profileHelper->profile.minDelay > TIME_DELAY_PRECISION) {
                 auto currTime = std::chrono::high_resolution_clock::now();
-                auto delay    = static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(currTime - profileHelper->lastPlayTime).count()) / 1000000.0;
+                auto delay = static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(currTime - profileHelper->lastPlayTime).count()) / 1000000.0;
                 if (profileHelper->lastPlayTime.time_since_epoch().count() != 0 && delay <= profileHelper->profile.minDelay) {
                     CC_LOG_INFO("Fail to play %s cause by limited minimum delay", filePath.c_str());
                     break;
@@ -242,9 +242,9 @@ int AudioEngine::play2d(const ccstd::string &filePath, bool loop, float volume, 
             sAudioPathIDMap[filePath].push_back(ret);
             auto it = sAudioPathIDMap.find(filePath);
 
-            auto &audioRef    = sAudioIDInfoMap[ret];
-            audioRef.volume   = volume;
-            audioRef.loop     = loop;
+            auto &audioRef = sAudioIDInfoMap[ret];
+            audioRef.volume = volume;
+            audioRef.loop = loop;
             audioRef.filePath = &it->first;
 
             if (profileHelper) {

@@ -110,15 +110,15 @@ public:
     explicit Sphere(float cx = 0, float cy = 0, float cz = 0, float radius = 1.0F);
 
     Sphere(const Sphere &) = delete;
-    Sphere(Sphere &&)      = delete;
-    ~Sphere() override     = default;
+    Sphere(Sphere &&) = delete;
+    ~Sphere() override = default;
     Sphere &operator=(const Sphere &) = delete;
     Sphere &operator=(Sphere &&) = delete;
 
-    inline float       getRadius() const { return _radius; }
+    inline float getRadius() const { return _radius; }
     inline const Vec3 &getCenter() const { return _center; }
-    inline void        setCenter(const Vec3 &val) { _center = val; }
-    inline void        setRadius(float val) { _radius = val; }
+    inline void setCenter(const Vec3 &val) { _center = val; }
+    inline void setRadius(float val) { _radius = val; }
 
     inline Sphere *clone() const {
         return Sphere::clone(*this);
@@ -128,18 +128,18 @@ public:
         return Sphere::copy(out, *this);
     }
 
-    void        define(const AABB &aabb);
-    void        mergeAABB(const AABB *aabb);
-    void        mergePoint(const Vec3 &point);
-    void        mergeFrustum(const Frustum &frustum);
+    void define(const AABB &aabb);
+    void mergeAABB(const AABB *aabb);
+    void mergePoint(const Vec3 &point);
+    void mergeFrustum(const Frustum &frustum);
     inline void merge(const AABB *aabb) { mergeAABB(aabb); }
     inline void merge(const Vec3 &point) { mergePoint(point); }
-    void        merge(const ccstd::vector<Vec3> &points);
+    void merge(const ccstd::vector<Vec3> &points);
     inline void merge(const Frustum &frustum) { mergeFrustum(frustum); }
-    bool        interset(const Frustum &frustum) const;
-    int         interset(const Plane &plane) const;
-    int         spherePlane(const Plane &plane);
-    bool        sphereFrustum(const Frustum &frustum) const;
+    bool interset(const Frustum &frustum) const;
+    int interset(const Plane &plane) const;
+    int spherePlane(const Plane &plane);
+    bool sphereFrustum(const Frustum &frustum) const;
 
     /**
      * @en
@@ -166,7 +166,7 @@ public:
                    const Vec3 & /*pos*/,
                    const Quaternion & /*rot*/,
                    const Vec3 &scale,
-                   Sphere *    out) const;
+                   Sphere *out) const;
 
     /**
      * @en
@@ -195,7 +195,7 @@ public:
 
 private:
     float _radius{-1.0};
-    Vec3  _center;
+    Vec3 _center;
 };
 
 } // namespace geometry

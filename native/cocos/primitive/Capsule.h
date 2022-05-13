@@ -36,8 +36,8 @@ namespace cc {
 struct ICapsuleOptions {
     uint32_t sides{32};
     uint32_t heightSegments{32};
-    bool     capped{true};
-    float    arc{math::PI_2};
+    bool capped{true};
+    float arc{math::PI_2};
 };
 
 /**

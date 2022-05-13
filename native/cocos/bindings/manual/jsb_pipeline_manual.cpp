@@ -35,13 +35,13 @@
 
 static bool JSB_getOrCreatePipelineState(se::State &s) { // NOLINT(readability-identifier-naming)
     const auto &args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 4) {
-        auto *pass           = static_cast<cc::scene::Pass *>(args[0].toObject()->getPrivateData());
-        auto *shader         = static_cast<cc::gfx::Shader *>(args[1].toObject()->getPrivateData());
-        auto *renderPass     = static_cast<cc::gfx::RenderPass *>(args[2].toObject()->getPrivateData());
+        auto *pass = static_cast<cc::scene::Pass *>(args[0].toObject()->getPrivateData());
+        auto *shader = static_cast<cc::gfx::Shader *>(args[1].toObject()->getPrivateData());
+        auto *renderPass = static_cast<cc::gfx::RenderPass *>(args[2].toObject()->getPrivateData());
         auto *inputAssembler = static_cast<cc::gfx::InputAssembler *>(args[3].toObject()->getPrivateData());
-        auto *pipelineState  = cc::pipeline::PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass);
+        auto *pipelineState = cc::pipeline::PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass);
         native_ptr_to_seval<cc::gfx::PipelineState>(pipelineState, &s.rval());
         return true;
     }
@@ -60,7 +60,7 @@ bool register_all_pipeline_manual(se::Object *obj) { // NOLINT(readability-ident
     }
     se::Object *nr = nrVal.toObject();
 
-    se::Value        psmVal;
+    se::Value psmVal;
     se::HandleObject jsobj(se::Object::createPlainObject());
     psmVal.setObject(jsobj);
     nr->setProperty("PipelineStateManager", psmVal);

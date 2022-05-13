@@ -31,9 +31,9 @@
 namespace cc {
 namespace framegraph {
 
-using Handle       = cc::IndexHandle<uint16_t>;
+using Handle = cc::IndexHandle<uint16_t>;
 using StringHandle = cc::StringHandle;
-using StringPool   = cc::StringPool<false>;
+using StringPool = cc::StringPool<false>;
 
 template <typename T>
 class TypedHandle final : public Handle {

@@ -50,19 +50,19 @@ public:
     AudioEngineImpl();
     ~AudioEngineImpl() override;
 
-    bool  init();
-    int   play2d(const ccstd::string &filePath, bool loop, float volume);
-    void  setVolume(int audioID, float volume);
-    void  setLoop(int audioID, bool loop);
-    void  pause(int audioID);
-    void  resume(int audioID);
-    void  stop(int audioID);
-    void  stopAll();
+    bool init();
+    int play2d(const ccstd::string &filePath, bool loop, float volume);
+    void setVolume(int audioID, float volume);
+    void setLoop(int audioID, bool loop);
+    void pause(int audioID);
+    void resume(int audioID);
+    void stop(int audioID);
+    void stopAll();
     float getDuration(int audioID);
     float getDurationFromFile(const ccstd::string &filePath);
     float getCurrentTime(int audioID);
-    bool  setCurrentTime(int audioID, float time);
-    void  setFinishCallback(int audioID, const std::function<void(int, const ccstd::string &)> &callback);
+    bool setCurrentTime(int audioID, float time);
+    void setFinishCallback(int audioID, const std::function<void(int, const ccstd::string &)> &callback);
 
     void uncache(const ccstd::string &filePath);
     void uncacheAll();
@@ -82,7 +82,7 @@ private:
     SLObjectItf _outputMixObject;
 
     //audioID,AudioInfo
-    ccstd::unordered_map<int, IAudioPlayer *>                                  _audioPlayers;
+    ccstd::unordered_map<int, IAudioPlayer *> _audioPlayers;
     ccstd::unordered_map<int, std::function<void(int, const ccstd::string &)>> _callbackMap;
 
     // UrlAudioPlayers which need to resumed while entering foreground

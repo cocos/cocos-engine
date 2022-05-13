@@ -179,104 +179,104 @@ ISSUES
 ThsvsAccessType defines all potential resource usages in the Vulkan API.
 */
 typedef enum ThsvsAccessType {
-    THSVS_ACCESS_NONE,                                                      // No access. Useful primarily for initialization
+    THSVS_ACCESS_NONE, // No access. Useful primarily for initialization
 
-// Read access
+    // Read access
     // Requires VK_NV_device_generated_commands to be enabled
-    THSVS_ACCESS_COMMAND_BUFFER_READ_NV,                                    // Command buffer read operation as defined by NV_device_generated_commands
-    THSVS_ACCESS_INDIRECT_BUFFER,                                           // Read as an indirect buffer for drawing or dispatch
-    THSVS_ACCESS_INDEX_BUFFER,                                              // Read as an index buffer for drawing
-    THSVS_ACCESS_VERTEX_BUFFER,                                             // Read as a vertex buffer for drawing
-    THSVS_ACCESS_VERTEX_SHADER_READ_UNIFORM_BUFFER,                         // Read as a uniform buffer in a vertex shader
-    THSVS_ACCESS_VERTEX_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER,  // Read as a sampled image/uniform texel buffer in a vertex shader
-    THSVS_ACCESS_VERTEX_SHADER_READ_OTHER,                                  // Read as any other resource in a vertex shader
-    THSVS_ACCESS_TESSELLATION_CONTROL_SHADER_READ_UNIFORM_BUFFER,           // Read as a uniform buffer in a tessellation control shader
-    THSVS_ACCESS_TESSELLATION_CONTROL_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER, // Read as a sampled image/uniform texel buffer  in a tessellation control shader
-    THSVS_ACCESS_TESSELLATION_CONTROL_SHADER_READ_OTHER,                    // Read as any other resource in a tessellation control shader
-    THSVS_ACCESS_TESSELLATION_EVALUATION_SHADER_READ_UNIFORM_BUFFER,        // Read as a uniform buffer in a tessellation evaluation shader
+    THSVS_ACCESS_COMMAND_BUFFER_READ_NV,                                                    // Command buffer read operation as defined by NV_device_generated_commands
+    THSVS_ACCESS_INDIRECT_BUFFER,                                                           // Read as an indirect buffer for drawing or dispatch
+    THSVS_ACCESS_INDEX_BUFFER,                                                              // Read as an index buffer for drawing
+    THSVS_ACCESS_VERTEX_BUFFER,                                                             // Read as a vertex buffer for drawing
+    THSVS_ACCESS_VERTEX_SHADER_READ_UNIFORM_BUFFER,                                         // Read as a uniform buffer in a vertex shader
+    THSVS_ACCESS_VERTEX_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER,                  // Read as a sampled image/uniform texel buffer in a vertex shader
+    THSVS_ACCESS_VERTEX_SHADER_READ_OTHER,                                                  // Read as any other resource in a vertex shader
+    THSVS_ACCESS_TESSELLATION_CONTROL_SHADER_READ_UNIFORM_BUFFER,                           // Read as a uniform buffer in a tessellation control shader
+    THSVS_ACCESS_TESSELLATION_CONTROL_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER,    // Read as a sampled image/uniform texel buffer  in a tessellation control shader
+    THSVS_ACCESS_TESSELLATION_CONTROL_SHADER_READ_OTHER,                                    // Read as any other resource in a tessellation control shader
+    THSVS_ACCESS_TESSELLATION_EVALUATION_SHADER_READ_UNIFORM_BUFFER,                        // Read as a uniform buffer in a tessellation evaluation shader
     THSVS_ACCESS_TESSELLATION_EVALUATION_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER, // Read as a sampled image/uniform texel buffer in a tessellation evaluation shader
-    THSVS_ACCESS_TESSELLATION_EVALUATION_SHADER_READ_OTHER,                 // Read as any other resource in a tessellation evaluation shader
-    THSVS_ACCESS_GEOMETRY_SHADER_READ_UNIFORM_BUFFER,                       // Read as a uniform buffer in a geometry shader
-    THSVS_ACCESS_GEOMETRY_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER,// Read as a sampled image/uniform texel buffer  in a geometry shader
-    THSVS_ACCESS_GEOMETRY_SHADER_READ_OTHER,                                // Read as any other resource in a geometry shader
-    THSVS_ACCESS_TASK_SHADER_READ_UNIFORM_BUFFER_NV,                        // Read as a uniform buffer in a task shader
-    THSVS_ACCESS_TASK_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER_NV, // Read as a sampled image/uniform texel buffer in a task shader
-    THSVS_ACCESS_TASK_SHADER_READ_OTHER_NV,                                 // Read as any other resource in a task shader
-    THSVS_ACCESS_MESH_SHADER_READ_UNIFORM_BUFFER_NV,                        // Read as a uniform buffer in a mesh shader
-    THSVS_ACCESS_MESH_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER_NV, // Read as a sampled image/uniform texel buffer in a mesh shader
-    THSVS_ACCESS_MESH_SHADER_READ_OTHER_NV,                                 // Read as any other resource in a mesh shader
-    THSVS_ACCESS_TRANSFORM_FEEDBACK_COUNTER_READ_EXT,                       // Read as a transform feedback counter buffer
-    THSVS_ACCESS_FRAGMENT_DENSITY_MAP_READ_EXT,                             // Read as a fragment density map image
-    THSVS_ACCESS_SHADING_RATE_READ_NV,                                      // Read as a shading rate image
-    THSVS_ACCESS_FRAGMENT_SHADER_READ_UNIFORM_BUFFER,                       // Read as a uniform buffer in a fragment shader
-    THSVS_ACCESS_FRAGMENT_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER,// Read as a sampled image/uniform texel buffer  in a fragment shader
-    THSVS_ACCESS_FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT,               // Read as an input attachment with a color format in a fragment shader
-    THSVS_ACCESS_FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT,       // Read as an input attachment with a depth/stencil format in a fragment shader
-    THSVS_ACCESS_FRAGMENT_SHADER_READ_OTHER,                                // Read as any other resource in a fragment shader
-    THSVS_ACCESS_COLOR_ATTACHMENT_READ,                                     // Read by standard blending/logic operations or subpass load operations
-    THSVS_ACCESS_COLOR_ATTACHMENT_ADVANCED_BLENDING_EXT,                    // Read by advanced blending, standard blending, logic operations, or subpass load operations
-    THSVS_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ,                             // Read by depth/stencil tests or subpass load operations
-    THSVS_ACCESS_COMPUTE_SHADER_READ_UNIFORM_BUFFER,                        // Read as a uniform buffer in a compute shader
-    THSVS_ACCESS_COMPUTE_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER, // Read as a sampled image/uniform texel buffer in a compute shader
-    THSVS_ACCESS_COMPUTE_SHADER_READ_OTHER,                                 // Read as any other resource in a compute shader
-    THSVS_ACCESS_ANY_SHADER_READ_UNIFORM_BUFFER,                            // Read as a uniform buffer in any shader
-    THSVS_ACCESS_ANY_SHADER_READ_UNIFORM_BUFFER_OR_VERTEX_BUFFER,           // Read as a uniform buffer in any shader, or a vertex buffer
-    THSVS_ACCESS_ANY_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER,     // Read as a sampled image in any shader
-    THSVS_ACCESS_ANY_SHADER_READ_OTHER,                                     // Read as any other resource (excluding attachments) in any shader
-    THSVS_ACCESS_TRANSFER_READ,                                             // Read as the source of a transfer operation
-    THSVS_ACCESS_HOST_READ,                                                 // Read on the host
+    THSVS_ACCESS_TESSELLATION_EVALUATION_SHADER_READ_OTHER,                                 // Read as any other resource in a tessellation evaluation shader
+    THSVS_ACCESS_GEOMETRY_SHADER_READ_UNIFORM_BUFFER,                                       // Read as a uniform buffer in a geometry shader
+    THSVS_ACCESS_GEOMETRY_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER,                // Read as a sampled image/uniform texel buffer  in a geometry shader
+    THSVS_ACCESS_GEOMETRY_SHADER_READ_OTHER,                                                // Read as any other resource in a geometry shader
+    THSVS_ACCESS_TASK_SHADER_READ_UNIFORM_BUFFER_NV,                                        // Read as a uniform buffer in a task shader
+    THSVS_ACCESS_TASK_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER_NV,                 // Read as a sampled image/uniform texel buffer in a task shader
+    THSVS_ACCESS_TASK_SHADER_READ_OTHER_NV,                                                 // Read as any other resource in a task shader
+    THSVS_ACCESS_MESH_SHADER_READ_UNIFORM_BUFFER_NV,                                        // Read as a uniform buffer in a mesh shader
+    THSVS_ACCESS_MESH_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER_NV,                 // Read as a sampled image/uniform texel buffer in a mesh shader
+    THSVS_ACCESS_MESH_SHADER_READ_OTHER_NV,                                                 // Read as any other resource in a mesh shader
+    THSVS_ACCESS_TRANSFORM_FEEDBACK_COUNTER_READ_EXT,                                       // Read as a transform feedback counter buffer
+    THSVS_ACCESS_FRAGMENT_DENSITY_MAP_READ_EXT,                                             // Read as a fragment density map image
+    THSVS_ACCESS_SHADING_RATE_READ_NV,                                                      // Read as a shading rate image
+    THSVS_ACCESS_FRAGMENT_SHADER_READ_UNIFORM_BUFFER,                                       // Read as a uniform buffer in a fragment shader
+    THSVS_ACCESS_FRAGMENT_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER,                // Read as a sampled image/uniform texel buffer  in a fragment shader
+    THSVS_ACCESS_FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT,                               // Read as an input attachment with a color format in a fragment shader
+    THSVS_ACCESS_FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT,                       // Read as an input attachment with a depth/stencil format in a fragment shader
+    THSVS_ACCESS_FRAGMENT_SHADER_READ_OTHER,                                                // Read as any other resource in a fragment shader
+    THSVS_ACCESS_COLOR_ATTACHMENT_READ,                                                     // Read by standard blending/logic operations or subpass load operations
+    THSVS_ACCESS_COLOR_ATTACHMENT_ADVANCED_BLENDING_EXT,                                    // Read by advanced blending, standard blending, logic operations, or subpass load operations
+    THSVS_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ,                                             // Read by depth/stencil tests or subpass load operations
+    THSVS_ACCESS_COMPUTE_SHADER_READ_UNIFORM_BUFFER,                                        // Read as a uniform buffer in a compute shader
+    THSVS_ACCESS_COMPUTE_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER,                 // Read as a sampled image/uniform texel buffer in a compute shader
+    THSVS_ACCESS_COMPUTE_SHADER_READ_OTHER,                                                 // Read as any other resource in a compute shader
+    THSVS_ACCESS_ANY_SHADER_READ_UNIFORM_BUFFER,                                            // Read as a uniform buffer in any shader
+    THSVS_ACCESS_ANY_SHADER_READ_UNIFORM_BUFFER_OR_VERTEX_BUFFER,                           // Read as a uniform buffer in any shader, or a vertex buffer
+    THSVS_ACCESS_ANY_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER,                     // Read as a sampled image in any shader
+    THSVS_ACCESS_ANY_SHADER_READ_OTHER,                                                     // Read as any other resource (excluding attachments) in any shader
+    THSVS_ACCESS_TRANSFER_READ,                                                             // Read as the source of a transfer operation
+    THSVS_ACCESS_HOST_READ,                                                                 // Read on the host
 
     // Requires VK_KHR_swapchain to be enabled
-    THSVS_ACCESS_PRESENT,                                                   // Read by the presentation engine (i.e. vkQueuePresentKHR)
+    THSVS_ACCESS_PRESENT, // Read by the presentation engine (i.e. vkQueuePresentKHR)
 
     // Requires VK_EXT_conditional_rendering to be enabled
-    THSVS_ACCESS_CONDITIONAL_RENDERING_READ_EXT,                            // Read by conditional rendering
+    THSVS_ACCESS_CONDITIONAL_RENDERING_READ_EXT, // Read by conditional rendering
 
     // Requires VK_NV_ray_tracing to be enabled
-    THSVS_ACCESS_RAY_TRACING_SHADER_ACCELERATION_STRUCTURE_READ_NV,         // Read by a ray tracing shader as an acceleration structure
-    THSVS_ACCESS_ACCELERATION_STRUCTURE_BUILD_READ_NV,                      // Read as an acceleration structure during a build
+    THSVS_ACCESS_RAY_TRACING_SHADER_ACCELERATION_STRUCTURE_READ_NV, // Read by a ray tracing shader as an acceleration structure
+    THSVS_ACCESS_ACCELERATION_STRUCTURE_BUILD_READ_NV,              // Read as an acceleration structure during a build
 
     // Read accesses end
     THSVS_END_OF_READ_ACCESS,
 
-// Write access
+    // Write access
     // Requires VK_NV_device_generated_commands to be enabled
-    THSVS_ACCESS_COMMAND_BUFFER_WRITE_NV,                                   // Command buffer write operation
-    THSVS_ACCESS_VERTEX_SHADER_WRITE,                                       // Written as any resource in a vertex shader
-    THSVS_ACCESS_TESSELLATION_CONTROL_SHADER_WRITE,                         // Written as any resource in a tessellation control shader
-    THSVS_ACCESS_TESSELLATION_EVALUATION_SHADER_WRITE,                      // Written as any resource in a tessellation evaluation shader
-    THSVS_ACCESS_GEOMETRY_SHADER_WRITE,                                     // Written as any resource in a geometry shader
+    THSVS_ACCESS_COMMAND_BUFFER_WRITE_NV,              // Command buffer write operation
+    THSVS_ACCESS_VERTEX_SHADER_WRITE,                  // Written as any resource in a vertex shader
+    THSVS_ACCESS_TESSELLATION_CONTROL_SHADER_WRITE,    // Written as any resource in a tessellation control shader
+    THSVS_ACCESS_TESSELLATION_EVALUATION_SHADER_WRITE, // Written as any resource in a tessellation evaluation shader
+    THSVS_ACCESS_GEOMETRY_SHADER_WRITE,                // Written as any resource in a geometry shader
 
     // Requires VK_NV_mesh_shading to be enabled
-    THSVS_ACCESS_TASK_SHADER_WRITE_NV,                                      // Written as any resource in a task shader
-    THSVS_ACCESS_MESH_SHADER_WRITE_NV,                                      // Written as any resource in a mesh shader
+    THSVS_ACCESS_TASK_SHADER_WRITE_NV, // Written as any resource in a task shader
+    THSVS_ACCESS_MESH_SHADER_WRITE_NV, // Written as any resource in a mesh shader
 
     // Requires VK_EXT_transform_feedback to be enabled
-    THSVS_ACCESS_TRANSFORM_FEEDBACK_WRITE_EXT,                              // Written as a transform feedback buffer
-    THSVS_ACCESS_TRANSFORM_FEEDBACK_COUNTER_WRITE_EXT,                      // Written as a transform feedback counter buffer
+    THSVS_ACCESS_TRANSFORM_FEEDBACK_WRITE_EXT,         // Written as a transform feedback buffer
+    THSVS_ACCESS_TRANSFORM_FEEDBACK_COUNTER_WRITE_EXT, // Written as a transform feedback counter buffer
 
-    THSVS_ACCESS_FRAGMENT_SHADER_WRITE,                                     // Written as any resource in a fragment shader
-    THSVS_ACCESS_COLOR_ATTACHMENT_WRITE,                                    // Written as a color attachment during rendering, or via a subpass store op
-    THSVS_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE,                            // Written as a depth/stencil attachment during rendering, or via a subpass store op
+    THSVS_ACCESS_FRAGMENT_SHADER_WRITE,          // Written as any resource in a fragment shader
+    THSVS_ACCESS_COLOR_ATTACHMENT_WRITE,         // Written as a color attachment during rendering, or via a subpass store op
+    THSVS_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE, // Written as a depth/stencil attachment during rendering, or via a subpass store op
 
     // Requires VK_KHR_maintenance2 to be enabled
-    THSVS_ACCESS_DEPTH_ATTACHMENT_WRITE_STENCIL_READ_ONLY,                  // Written as a depth aspect of a depth/stencil attachment during rendering, whilst the stencil aspect is read-only
-    THSVS_ACCESS_STENCIL_ATTACHMENT_WRITE_DEPTH_READ_ONLY,                  // Written as a stencil aspect of a depth/stencil attachment during rendering, whilst the depth aspect is read-only
+    THSVS_ACCESS_DEPTH_ATTACHMENT_WRITE_STENCIL_READ_ONLY, // Written as a depth aspect of a depth/stencil attachment during rendering, whilst the stencil aspect is read-only
+    THSVS_ACCESS_STENCIL_ATTACHMENT_WRITE_DEPTH_READ_ONLY, // Written as a stencil aspect of a depth/stencil attachment during rendering, whilst the depth aspect is read-only
 
-    THSVS_ACCESS_COMPUTE_SHADER_WRITE,                                      // Written as any resource in a compute shader
-    THSVS_ACCESS_ANY_SHADER_WRITE,                                          // Written as any resource in any shader
-    THSVS_ACCESS_TRANSFER_WRITE,                                            // Written as the destination of a transfer operation
-    THSVS_ACCESS_HOST_PREINITIALIZED,                                       // Data pre-filled by host before device access starts
-    THSVS_ACCESS_HOST_WRITE,                                                // Written on the host
+    THSVS_ACCESS_COMPUTE_SHADER_WRITE, // Written as any resource in a compute shader
+    THSVS_ACCESS_ANY_SHADER_WRITE,     // Written as any resource in any shader
+    THSVS_ACCESS_TRANSFER_WRITE,       // Written as the destination of a transfer operation
+    THSVS_ACCESS_HOST_PREINITIALIZED,  // Data pre-filled by host before device access starts
+    THSVS_ACCESS_HOST_WRITE,           // Written on the host
 
     // Requires VK_NV_ray_tracing to be enabled
-    THSVS_ACCESS_ACCELERATION_STRUCTURE_BUILD_WRITE_NV,                     // Written as an acceleration structure during a build
+    THSVS_ACCESS_ACCELERATION_STRUCTURE_BUILD_WRITE_NV, // Written as an acceleration structure during a build
 
-    THSVS_ACCESS_COLOR_ATTACHMENT_READ_WRITE,                               // Read or written as a color attachment during rendering
-// General access
-    THSVS_ACCESS_GENERAL,                                                   // Covers any access - useful for debug, generally avoid for performance reasons
+    THSVS_ACCESS_COLOR_ATTACHMENT_READ_WRITE, // Read or written as a color attachment during rendering
+                                              // General access
+    THSVS_ACCESS_GENERAL,                     // Covers any access - useful for debug, generally avoid for performance reasons
 
-// Number of access types
+    // Number of access types
     THSVS_NUM_ACCESS_TYPES
 } ThsvsAccessType;
 
@@ -287,8 +287,8 @@ correlated with the access types to map to the correct Vulkan layouts.
 THSVS_IMAGE_LAYOUT_OPTIMAL is usually preferred.
 */
 typedef enum ThsvsImageLayout {
-    THSVS_IMAGE_LAYOUT_OPTIMAL,                 // Choose the most optimal layout for each usage. Performs layout transitions as appropriate for the access.
-    THSVS_IMAGE_LAYOUT_GENERAL,                 // Layout accessible by all Vulkan access types on a device - no layout transitions except for presentation
+    THSVS_IMAGE_LAYOUT_OPTIMAL, // Choose the most optimal layout for each usage. Performs layout transitions as appropriate for the access.
+    THSVS_IMAGE_LAYOUT_GENERAL, // Layout accessible by all Vulkan access types on a device - no layout transitions except for presentation
 
     // Requires VK_KHR_shared_presentable_image to be enabled. Can only be used for shared presentable images (i.e. single-buffered swap chains).
     THSVS_IMAGE_LAYOUT_GENERAL_AND_PRESENTATION // As GENERAL, but also allows presentation engines to access it - no layout transitions
@@ -302,10 +302,10 @@ layouts) then a global barrier should be preferred.
 Simply define the previous and next access types of resources affected.
 */
 typedef struct ThsvsGlobalBarrier {
-    uint32_t                prevAccessCount;
-    const ThsvsAccessType*  pPrevAccesses;
-    uint32_t                nextAccessCount;
-    const ThsvsAccessType*  pNextAccesses;
+    uint32_t prevAccessCount;
+    const ThsvsAccessType* pPrevAccesses;
+    uint32_t nextAccessCount;
+    const ThsvsAccessType* pNextAccesses;
 } ThsvsGlobalBarrier;
 
 /*
@@ -324,15 +324,15 @@ queue in the destination queue family, with a semaphore guaranteeing
 execution order between them.
 */
 typedef struct ThsvsBufferBarrier {
-    uint32_t                prevAccessCount;
-    const ThsvsAccessType*  pPrevAccesses;
-    uint32_t                nextAccessCount;
-    const ThsvsAccessType*  pNextAccesses;
-    uint32_t                srcQueueFamilyIndex;
-    uint32_t                dstQueueFamilyIndex;
-    VkBuffer                buffer;
-    VkDeviceSize            offset;
-    VkDeviceSize            size;
+    uint32_t prevAccessCount;
+    const ThsvsAccessType* pPrevAccesses;
+    uint32_t nextAccessCount;
+    const ThsvsAccessType* pNextAccesses;
+    uint32_t srcQueueFamilyIndex;
+    uint32_t dstQueueFamilyIndex;
+    VkBuffer buffer;
+    VkDeviceSize offset;
+    VkDeviceSize size;
 } ThsvsBufferBarrier;
 
 /*
@@ -362,16 +362,16 @@ going to be immediately overwritten. A good example of when to use this is
 when an application re-uses a presented image after vkAcquireNextImageKHR.
 */
 typedef struct ThsvsImageBarrier {
-    uint32_t                prevAccessCount;
-    const ThsvsAccessType*  pPrevAccesses;
-    uint32_t                nextAccessCount;
-    const ThsvsAccessType*  pNextAccesses;
-    ThsvsImageLayout        prevLayout;
-    ThsvsImageLayout        nextLayout;
-    VkBool32                discardContents;
-    uint32_t                srcQueueFamilyIndex;
-    uint32_t                dstQueueFamilyIndex;
-    VkImage                 image;
+    uint32_t prevAccessCount;
+    const ThsvsAccessType* pPrevAccesses;
+    uint32_t nextAccessCount;
+    const ThsvsAccessType* pNextAccesses;
+    ThsvsImageLayout prevLayout;
+    ThsvsImageLayout nextLayout;
+    VkBool32 discardContents;
+    uint32_t srcQueueFamilyIndex;
+    uint32_t dstQueueFamilyIndex;
+    VkImage image;
     VkImageSubresourceRange subresourceRange;
 } ThsvsImageBarrier;
 
@@ -380,12 +380,12 @@ Mapping function that translates a set of accesses into the corresponding
 pipeline stages, VkAccessFlags, and image layout.
 */
 void thsvsGetAccessInfo(
-    uint32_t               accessCount,
+    uint32_t accessCount,
     const ThsvsAccessType* pAccesses,
-    VkPipelineStageFlags*  pStageMask,
-    VkAccessFlags*         pAccessMask,
-    VkImageLayout*         pImageLayout,
-    bool*                  pHasWriteAccess);
+    VkPipelineStageFlags* pStageMask,
+    VkAccessFlags* pAccessMask,
+    VkImageLayout* pImageLayout,
+    bool* pHasWriteAccess);
 
 /*
 Mapping function that translates a global barrier into a set of source and
@@ -394,9 +394,9 @@ Vulkan's synchronization methods.
 */
 void thsvsGetVulkanMemoryBarrier(
     const ThsvsGlobalBarrier& thBarrier,
-    VkPipelineStageFlags*     pSrcStages,
-    VkPipelineStageFlags*     pDstStages,
-    VkMemoryBarrier*          pVkBarrier);
+    VkPipelineStageFlags* pSrcStages,
+    VkPipelineStageFlags* pDstStages,
+    VkMemoryBarrier* pVkBarrier);
 
 /*
 Mapping function that translates a buffer barrier into a set of source and
@@ -405,9 +405,9 @@ with Vulkan's synchronization methods.
 */
 void thsvsGetVulkanBufferMemoryBarrier(
     const ThsvsBufferBarrier& thBarrier,
-    VkPipelineStageFlags*     pSrcStages,
-    VkPipelineStageFlags*     pDstStages,
-    VkBufferMemoryBarrier*    pVkBarrier);
+    VkPipelineStageFlags* pSrcStages,
+    VkPipelineStageFlags* pDstStages,
+    VkBufferMemoryBarrier* pVkBarrier);
 
 /*
 Mapping function that translates an image barrier into a set of source and
@@ -416,9 +416,9 @@ with Vulkan's synchronization methods.
 */
 void thsvsGetVulkanImageMemoryBarrier(
     const ThsvsImageBarrier& thBarrier,
-    VkPipelineStageFlags*    pSrcStages,
-    VkPipelineStageFlags*    pDstStages,
-    VkImageMemoryBarrier*    pVkBarrier);
+    VkPipelineStageFlags* pSrcStages,
+    VkPipelineStageFlags* pDstStages,
+    VkImageMemoryBarrier* pVkBarrier);
 
 /*
 Simplified wrapper around vkCmdPipelineBarrier.
@@ -430,12 +430,12 @@ barriers to be passed to vkCmdPipelineBarrier.
 commandBuffer is passed unmodified to vkCmdPipelineBarrier.
 */
 void thsvsCmdPipelineBarrier(
-    VkCommandBuffer           commandBuffer,
+    VkCommandBuffer commandBuffer,
     const ThsvsGlobalBarrier* pGlobalBarrier,
-    uint32_t                  bufferBarrierCount,
+    uint32_t bufferBarrierCount,
     const ThsvsBufferBarrier* pBufferBarriers,
-    uint32_t                  imageBarrierCount,
-    const ThsvsImageBarrier*  pImageBarriers);
+    uint32_t imageBarrierCount,
+    const ThsvsImageBarrier* pImageBarriers);
 
 /*
 Wrapper around vkCmdSetEvent.
@@ -445,10 +445,10 @@ Sets an event when the accesses defined by pPrevAccesses are completed.
 commandBuffer and event are passed unmodified to vkCmdSetEvent.
 */
 void thsvsCmdSetEvent(
-    VkCommandBuffer           commandBuffer,
-    VkEvent                   event,
-    uint32_t                  prevAccessCount,
-    const ThsvsAccessType*    pPrevAccesses);
+    VkCommandBuffer commandBuffer,
+    VkEvent event,
+    uint32_t prevAccessCount,
+    const ThsvsAccessType* pPrevAccesses);
 
 /*
 Wrapper around vkCmdResetEvent.
@@ -458,10 +458,10 @@ Resets an event when the accesses defined by pPrevAccesses are completed.
 commandBuffer and event are passed unmodified to vkCmdResetEvent.
 */
 void thsvsCmdResetEvent(
-    VkCommandBuffer           commandBuffer,
-    VkEvent                   event,
-    uint32_t                  prevAccessCount,
-    const ThsvsAccessType*    pPrevAccesses);
+    VkCommandBuffer commandBuffer,
+    VkEvent event,
+    uint32_t prevAccessCount,
+    const ThsvsAccessType* pPrevAccesses);
 
 /*
 Simplified wrapper around vkCmdWaitEvents.
@@ -474,14 +474,14 @@ commandBuffer, eventCount, and pEvents are passed unmodified to
 vkCmdWaitEvents.
 */
 void thsvsCmdWaitEvents(
-    VkCommandBuffer           commandBuffer,
-    uint32_t                  eventCount,
-    const VkEvent*            pEvents,
+    VkCommandBuffer commandBuffer,
+    uint32_t eventCount,
+    const VkEvent* pEvents,
     const ThsvsGlobalBarrier* pGlobalBarrier,
-    uint32_t                  bufferBarrierCount,
+    uint32_t bufferBarrierCount,
     const ThsvsBufferBarrier* pBufferBarriers,
-    uint32_t                  imageBarrierCount,
-    const ThsvsImageBarrier*  pImageBarriers);
+    uint32_t imageBarrierCount,
+    const ThsvsImageBarrier* pImageBarriers);
 
 #endif // THSVS_SIMPLER_VULKAN_SYNCHRONIZATION_H
 
@@ -529,351 +529,348 @@ May consider other allocation strategies in future.
 
 // find definition of alloca if it's not in stdlib.h:
 #if defined(_MSC_VER) || defined(__MINGW32__)
-  #include <malloc.h>
+    #include <malloc.h>
 #endif
 #if defined(__linux__) || defined(__linux) || defined(__EMSCRIPTEN__)
-  #include <alloca.h>
+    #include <alloca.h>
 #endif
 
-#if defined(THSVS_ERROR_CHECK_ACCESS_TYPE_IN_RANGE) || \
+#if defined(THSVS_ERROR_CHECK_ACCESS_TYPE_IN_RANGE) ||     \
     defined(THSVS_ERROR_CHECK_COULD_USE_GLOBAL_BARRIER) || \
-    defined(THSVS_ERROR_CHECK_MIXED_IMAGE_LAYOUT) || \
+    defined(THSVS_ERROR_CHECK_MIXED_IMAGE_LAYOUT) ||       \
     defined(THSVS_ERROR_CHECK_POTENTIAL_HAZARD)
-  #include <assert.h>
+    #include <assert.h>
 #endif
 
 #if !defined(THSVS_TEMP_ALLOC)
-#define THSVS_TEMP_ALLOC(size)              (alloca(size))
+    #define THSVS_TEMP_ALLOC(size) (alloca(size))
 #endif
 
 #if !defined(THSVS_TEMP_FREE)
-#define THSVS_TEMP_FREE(x)                  ((void)(x))
+    #define THSVS_TEMP_FREE(x) ((void)(x))
 #endif
 
 typedef struct ThsvsVkAccessInfo {
-    VkPipelineStageFlags    stageMask;
-    VkAccessFlags           accessMask;
-    VkImageLayout           imageLayout;
+    VkPipelineStageFlags stageMask;
+    VkAccessFlags accessMask;
+    VkImageLayout imageLayout;
 } ThsvsVkAccessInfo;
 
 const ThsvsVkAccessInfo ThsvsAccessMap[THSVS_NUM_ACCESS_TYPES] = {
     // THSVS_ACCESS_NONE
-    {   0,
-        0,
-        VK_IMAGE_LAYOUT_UNDEFINED},
+    {0,
+     0,
+     VK_IMAGE_LAYOUT_UNDEFINED},
 
-// Read Access
+    // Read Access
     // THSVS_ACCESS_COMMAND_BUFFER_READ_NV
-    {   VK_PIPELINE_STAGE_COMMAND_PREPROCESS_BIT_NV,
-        VK_ACCESS_COMMAND_PREPROCESS_READ_BIT_NV,
-        VK_IMAGE_LAYOUT_UNDEFINED},
+    {VK_PIPELINE_STAGE_COMMAND_PREPROCESS_BIT_NV,
+     VK_ACCESS_COMMAND_PREPROCESS_READ_BIT_NV,
+     VK_IMAGE_LAYOUT_UNDEFINED},
     // THSVS_ACCESS_INDIRECT_BUFFER
-    {   VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT,
-        VK_ACCESS_INDIRECT_COMMAND_READ_BIT,
-        VK_IMAGE_LAYOUT_UNDEFINED},
+    {VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT,
+     VK_ACCESS_INDIRECT_COMMAND_READ_BIT,
+     VK_IMAGE_LAYOUT_UNDEFINED},
 
     // THSVS_ACCESS_INDEX_BUFFER
-    {   VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
-        VK_ACCESS_INDEX_READ_BIT,
-        VK_IMAGE_LAYOUT_UNDEFINED},
+    {VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
+     VK_ACCESS_INDEX_READ_BIT,
+     VK_IMAGE_LAYOUT_UNDEFINED},
     // THSVS_ACCESS_VERTEX_BUFFER
-    {   VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
-        VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT,
-        VK_IMAGE_LAYOUT_UNDEFINED},
+    {VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
+     VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT,
+     VK_IMAGE_LAYOUT_UNDEFINED},
     // THSVS_ACCESS_VERTEX_SHADER_READ_UNIFORM_BUFFER
-    {   VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
-        VK_ACCESS_UNIFORM_READ_BIT,
-        VK_IMAGE_LAYOUT_UNDEFINED},
+    {VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
+     VK_ACCESS_UNIFORM_READ_BIT,
+     VK_IMAGE_LAYOUT_UNDEFINED},
     // THSVS_ACCESS_VERTEX_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER
-    {   VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
-        VK_ACCESS_SHADER_READ_BIT,
-        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL},
+    {VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
+     VK_ACCESS_SHADER_READ_BIT,
+     VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL},
     // THSVS_ACCESS_VERTEX_SHADER_READ_OTHER
-    {   VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
-        VK_ACCESS_SHADER_READ_BIT,
-        VK_IMAGE_LAYOUT_GENERAL},
+    {VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
+     VK_ACCESS_SHADER_READ_BIT,
+     VK_IMAGE_LAYOUT_GENERAL},
 
     // THSVS_ACCESS_TESSELLATION_CONTROL_SHADER_READ_UNIFORM_BUFFER
-    {   VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT,
-        VK_ACCESS_UNIFORM_READ_BIT,
-        VK_IMAGE_LAYOUT_UNDEFINED},
+    {VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT,
+     VK_ACCESS_UNIFORM_READ_BIT,
+     VK_IMAGE_LAYOUT_UNDEFINED},
     // THSVS_ACCESS_TESSELLATION_CONTROL_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER
-    {   VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT,
-        VK_ACCESS_SHADER_READ_BIT,
-        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL},
+    {VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT,
+     VK_ACCESS_SHADER_READ_BIT,
+     VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL},
     // THSVS_ACCESS_TESSELLATION_CONTROL_SHADER_READ_OTHER
-    {   VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT,
-        VK_ACCESS_SHADER_READ_BIT,
-        VK_IMAGE_LAYOUT_GENERAL},
+    {VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT,
+     VK_ACCESS_SHADER_READ_BIT,
+     VK_IMAGE_LAYOUT_GENERAL},
 
     // THSVS_ACCESS_TESSELLATION_EVALUATION_SHADER_READ_UNIFORM_BUFFER
-    {   VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT,
-        VK_ACCESS_UNIFORM_READ_BIT,
-        VK_IMAGE_LAYOUT_UNDEFINED},
+    {VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT,
+     VK_ACCESS_UNIFORM_READ_BIT,
+     VK_IMAGE_LAYOUT_UNDEFINED},
     // THSVS_ACCESS_TESSELLATION_EVALUATION_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER
-    {   VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT,
-        VK_ACCESS_SHADER_READ_BIT,
-        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL},
+    {VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT,
+     VK_ACCESS_SHADER_READ_BIT,
+     VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL},
     // THSVS_ACCESS_TESSELLATION_EVALUATION_SHADER_READ_OTHER
-    {   VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT,
-        VK_ACCESS_SHADER_READ_BIT,
-        VK_IMAGE_LAYOUT_GENERAL},
+    {VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT,
+     VK_ACCESS_SHADER_READ_BIT,
+     VK_IMAGE_LAYOUT_GENERAL},
 
     // THSVS_ACCESS_GEOMETRY_SHADER_READ_UNIFORM_BUFFER
-    {   VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT,
-        VK_ACCESS_UNIFORM_READ_BIT,
-        VK_IMAGE_LAYOUT_UNDEFINED},
+    {VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT,
+     VK_ACCESS_UNIFORM_READ_BIT,
+     VK_IMAGE_LAYOUT_UNDEFINED},
     // THSVS_ACCESS_GEOMETRY_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER
-    {   VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT,
-        VK_ACCESS_SHADER_READ_BIT,
-        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL},
+    {VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT,
+     VK_ACCESS_SHADER_READ_BIT,
+     VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL},
     // THSVS_ACCESS_GEOMETRY_SHADER_READ_OTHER
-    {   VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT,
-        VK_ACCESS_SHADER_READ_BIT,
-        VK_IMAGE_LAYOUT_GENERAL},
+    {VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT,
+     VK_ACCESS_SHADER_READ_BIT,
+     VK_IMAGE_LAYOUT_GENERAL},
 
     // THSVS_ACCESS_TASK_SHADER_READ_UNIFORM_BUFFER_NV
-    {   VK_PIPELINE_STAGE_TASK_SHADER_BIT_NV,
-        VK_ACCESS_UNIFORM_READ_BIT,
-        VK_IMAGE_LAYOUT_UNDEFINED},
+    {VK_PIPELINE_STAGE_TASK_SHADER_BIT_NV,
+     VK_ACCESS_UNIFORM_READ_BIT,
+     VK_IMAGE_LAYOUT_UNDEFINED},
     // THSVS_ACCESS_TASK_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER_NV
-    {   VK_PIPELINE_STAGE_TASK_SHADER_BIT_NV,
-        VK_ACCESS_SHADER_READ_BIT,
-        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL},
+    {VK_PIPELINE_STAGE_TASK_SHADER_BIT_NV,
+     VK_ACCESS_SHADER_READ_BIT,
+     VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL},
     // THSVS_ACCESS_TASK_SHADER_READ_OTHER_NV
-    {   VK_PIPELINE_STAGE_TASK_SHADER_BIT_NV,
-        VK_ACCESS_SHADER_READ_BIT,
-        VK_IMAGE_LAYOUT_GENERAL},
+    {VK_PIPELINE_STAGE_TASK_SHADER_BIT_NV,
+     VK_ACCESS_SHADER_READ_BIT,
+     VK_IMAGE_LAYOUT_GENERAL},
 
     // THSVS_ACCESS_MESH_SHADER_READ_UNIFORM_BUFFER_NV
-    {   VK_PIPELINE_STAGE_MESH_SHADER_BIT_NV,
-        VK_ACCESS_UNIFORM_READ_BIT,
-        VK_IMAGE_LAYOUT_UNDEFINED},
+    {VK_PIPELINE_STAGE_MESH_SHADER_BIT_NV,
+     VK_ACCESS_UNIFORM_READ_BIT,
+     VK_IMAGE_LAYOUT_UNDEFINED},
     // THSVS_ACCESS_MESH_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER_NV
-    {   VK_PIPELINE_STAGE_MESH_SHADER_BIT_NV,
-        VK_ACCESS_SHADER_READ_BIT,
-        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL},
+    {VK_PIPELINE_STAGE_MESH_SHADER_BIT_NV,
+     VK_ACCESS_SHADER_READ_BIT,
+     VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL},
     // THSVS_ACCESS_MESH_SHADER_READ_OTHER_NV
-    {   VK_PIPELINE_STAGE_MESH_SHADER_BIT_NV,
-        VK_ACCESS_SHADER_READ_BIT,
-        VK_IMAGE_LAYOUT_GENERAL},
+    {VK_PIPELINE_STAGE_MESH_SHADER_BIT_NV,
+     VK_ACCESS_SHADER_READ_BIT,
+     VK_IMAGE_LAYOUT_GENERAL},
 
     // THSVS_ACCESS_TRANSFORM_FEEDBACK_COUNTER_READ_EXT
-    {   VK_PIPELINE_STAGE_TRANSFORM_FEEDBACK_BIT_EXT,
-        VK_ACCESS_TRANSFORM_FEEDBACK_COUNTER_READ_BIT_EXT,
-        VK_IMAGE_LAYOUT_UNDEFINED},
+    {VK_PIPELINE_STAGE_TRANSFORM_FEEDBACK_BIT_EXT,
+     VK_ACCESS_TRANSFORM_FEEDBACK_COUNTER_READ_BIT_EXT,
+     VK_IMAGE_LAYOUT_UNDEFINED},
     // THSVS_ACCESS_FRAGMENT_DENSITY_MAP_READ_EXT
-    {   VK_PIPELINE_STAGE_FRAGMENT_DENSITY_PROCESS_BIT_EXT,
-        VK_ACCESS_FRAGMENT_DENSITY_MAP_READ_BIT_EXT,
-        VK_IMAGE_LAYOUT_FRAGMENT_DENSITY_MAP_OPTIMAL_EXT},
+    {VK_PIPELINE_STAGE_FRAGMENT_DENSITY_PROCESS_BIT_EXT,
+     VK_ACCESS_FRAGMENT_DENSITY_MAP_READ_BIT_EXT,
+     VK_IMAGE_LAYOUT_FRAGMENT_DENSITY_MAP_OPTIMAL_EXT},
     // THSVS_ACCESS_SHADING_RATE_READ_NV
-    {   VK_PIPELINE_STAGE_SHADING_RATE_IMAGE_BIT_NV,
-        VK_ACCESS_SHADING_RATE_IMAGE_READ_BIT_NV,
-        VK_IMAGE_LAYOUT_SHADING_RATE_OPTIMAL_NV},
+    {VK_PIPELINE_STAGE_SHADING_RATE_IMAGE_BIT_NV,
+     VK_ACCESS_SHADING_RATE_IMAGE_READ_BIT_NV,
+     VK_IMAGE_LAYOUT_SHADING_RATE_OPTIMAL_NV},
 
     // THSVS_ACCESS_FRAGMENT_SHADER_READ_UNIFORM_BUFFER
-    {   VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-        VK_ACCESS_UNIFORM_READ_BIT,
-        VK_IMAGE_LAYOUT_UNDEFINED},
+    {VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+     VK_ACCESS_UNIFORM_READ_BIT,
+     VK_IMAGE_LAYOUT_UNDEFINED},
     // THSVS_ACCESS_FRAGMENT_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER
-    {   VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-        VK_ACCESS_SHADER_READ_BIT,
-        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL},
+    {VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+     VK_ACCESS_SHADER_READ_BIT,
+     VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL},
     // THSVS_ACCESS_FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT
-    {   VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-        VK_ACCESS_INPUT_ATTACHMENT_READ_BIT,
-        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL},
+    {VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+     VK_ACCESS_INPUT_ATTACHMENT_READ_BIT,
+     VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL},
     // THSVS_ACCESS_FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT
-    {   VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-        VK_ACCESS_INPUT_ATTACHMENT_READ_BIT,
-        VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL},
+    {VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+     VK_ACCESS_INPUT_ATTACHMENT_READ_BIT,
+     VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL},
     // THSVS_ACCESS_FRAGMENT_SHADER_READ_OTHER
-    {   VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-        VK_ACCESS_SHADER_READ_BIT,
-        VK_IMAGE_LAYOUT_GENERAL},
+    {VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+     VK_ACCESS_SHADER_READ_BIT,
+     VK_IMAGE_LAYOUT_GENERAL},
     // THSVS_ACCESS_COLOR_ATTACHMENT_READ
-    {   VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-        VK_ACCESS_COLOR_ATTACHMENT_READ_BIT,
-        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL},
+    {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+     VK_ACCESS_COLOR_ATTACHMENT_READ_BIT,
+     VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL},
     // THSVS_ACCESS_COLOR_ATTACHMENT_ADVANCED_BLENDING_EXT
-    {   VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-        VK_ACCESS_COLOR_ATTACHMENT_READ_NONCOHERENT_BIT_EXT,
-        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL},
+    {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+     VK_ACCESS_COLOR_ATTACHMENT_READ_NONCOHERENT_BIT_EXT,
+     VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL},
     // THSVS_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ
-    {   VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
-        VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
-        VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL},
+    {VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+     VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
+     VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL},
 
     // THSVS_ACCESS_COMPUTE_SHADER_READ_UNIFORM_BUFFER
-    {   VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-        VK_ACCESS_UNIFORM_READ_BIT,
-        VK_IMAGE_LAYOUT_UNDEFINED},
+    {VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+     VK_ACCESS_UNIFORM_READ_BIT,
+     VK_IMAGE_LAYOUT_UNDEFINED},
     // THSVS_ACCESS_COMPUTE_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER
-    {   VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-        VK_ACCESS_SHADER_READ_BIT,
-        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL},
+    {VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+     VK_ACCESS_SHADER_READ_BIT,
+     VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL},
     // THSVS_ACCESS_COMPUTE_SHADER_READ_OTHER
-    {   VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-        VK_ACCESS_SHADER_READ_BIT,
-        VK_IMAGE_LAYOUT_GENERAL},
+    {VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+     VK_ACCESS_SHADER_READ_BIT,
+     VK_IMAGE_LAYOUT_GENERAL},
 
     // THSVS_ACCESS_ANY_SHADER_READ_UNIFORM_BUFFER
-    {   VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-        VK_ACCESS_UNIFORM_READ_BIT,
-        VK_IMAGE_LAYOUT_UNDEFINED},
+    {VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+     VK_ACCESS_UNIFORM_READ_BIT,
+     VK_IMAGE_LAYOUT_UNDEFINED},
     // THSVS_ACCESS_ANY_SHADER_READ_UNIFORM_BUFFER_OR_VERTEX_BUFFER
-    {   VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-        VK_ACCESS_UNIFORM_READ_BIT | VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT,
-        VK_IMAGE_LAYOUT_UNDEFINED},
+    {VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+     VK_ACCESS_UNIFORM_READ_BIT | VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT,
+     VK_IMAGE_LAYOUT_UNDEFINED},
     // THSVS_ACCESS_ANY_SHADER_READ_SAMPLED_IMAGE
-    {   VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-        VK_ACCESS_SHADER_READ_BIT,
-        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL},
+    {VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+     VK_ACCESS_SHADER_READ_BIT,
+     VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL},
     // THSVS_ACCESS_ANY_SHADER_READ_OTHER
-    {   VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-        VK_ACCESS_SHADER_READ_BIT,
-        VK_IMAGE_LAYOUT_GENERAL},
+    {VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+     VK_ACCESS_SHADER_READ_BIT,
+     VK_IMAGE_LAYOUT_GENERAL},
 
     // THSVS_ACCESS_TRANSFER_READ
-    {   VK_PIPELINE_STAGE_TRANSFER_BIT,
-        VK_ACCESS_TRANSFER_READ_BIT,
-        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL},
+    {VK_PIPELINE_STAGE_TRANSFER_BIT,
+     VK_ACCESS_TRANSFER_READ_BIT,
+     VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL},
     // THSVS_ACCESS_HOST_READ
-    {   VK_PIPELINE_STAGE_HOST_BIT,
-        VK_ACCESS_HOST_READ_BIT,
-        VK_IMAGE_LAYOUT_GENERAL},
+    {VK_PIPELINE_STAGE_HOST_BIT,
+     VK_ACCESS_HOST_READ_BIT,
+     VK_IMAGE_LAYOUT_GENERAL},
     // THSVS_ACCESS_PRESENT
-    {   0,
-        0,
-        VK_IMAGE_LAYOUT_PRESENT_SRC_KHR},
+    {0,
+     0,
+     VK_IMAGE_LAYOUT_PRESENT_SRC_KHR},
     // THSVS_ACCESS_CONDITIONAL_RENDERING_READ_EXT
-    {   VK_PIPELINE_STAGE_CONDITIONAL_RENDERING_BIT_EXT,
-        VK_ACCESS_CONDITIONAL_RENDERING_READ_BIT_EXT,
-        VK_IMAGE_LAYOUT_UNDEFINED},
+    {VK_PIPELINE_STAGE_CONDITIONAL_RENDERING_BIT_EXT,
+     VK_ACCESS_CONDITIONAL_RENDERING_READ_BIT_EXT,
+     VK_IMAGE_LAYOUT_UNDEFINED},
 
     // THSVS_ACCESS_RAY_TRACING_SHADER_ACCELERATION_STRUCTURE_READ_NV
-    {   VK_PIPELINE_STAGE_RAY_TRACING_SHADER_BIT_NV,
-        VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_NV,
-        VK_IMAGE_LAYOUT_UNDEFINED},
+    {VK_PIPELINE_STAGE_RAY_TRACING_SHADER_BIT_NV,
+     VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_NV,
+     VK_IMAGE_LAYOUT_UNDEFINED},
     // THSVS_ACCESS_ACCELERATION_STRUCTURE_BUILD_READ_NV
-    {   VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_NV,
-        VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_NV,
-        VK_IMAGE_LAYOUT_UNDEFINED},
+    {VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_NV,
+     VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_NV,
+     VK_IMAGE_LAYOUT_UNDEFINED},
     // THSVS_END_OF_READ_ACCESS
-    {   0,
-        0,
-        VK_IMAGE_LAYOUT_UNDEFINED},
+    {0,
+     0,
+     VK_IMAGE_LAYOUT_UNDEFINED},
 
-// Write access
+    // Write access
     // THSVS_ACCESS_COMMAND_BUFFER_WRITE_NV
-    {   VK_PIPELINE_STAGE_COMMAND_PREPROCESS_BIT_NV,
-        VK_ACCESS_COMMAND_PREPROCESS_WRITE_BIT_NV,
-        VK_IMAGE_LAYOUT_UNDEFINED},
+    {VK_PIPELINE_STAGE_COMMAND_PREPROCESS_BIT_NV,
+     VK_ACCESS_COMMAND_PREPROCESS_WRITE_BIT_NV,
+     VK_IMAGE_LAYOUT_UNDEFINED},
     // THSVS_ACCESS_VERTEX_SHADER_WRITE
-    {   VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
-        VK_ACCESS_SHADER_WRITE_BIT,
-        VK_IMAGE_LAYOUT_GENERAL},
+    {VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
+     VK_ACCESS_SHADER_WRITE_BIT,
+     VK_IMAGE_LAYOUT_GENERAL},
     // THSVS_ACCESS_TESSELLATION_CONTROL_SHADER_WRITE
-    {   VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT,
-        VK_ACCESS_SHADER_WRITE_BIT,
-        VK_IMAGE_LAYOUT_GENERAL},
+    {VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT,
+     VK_ACCESS_SHADER_WRITE_BIT,
+     VK_IMAGE_LAYOUT_GENERAL},
     // THSVS_ACCESS_TESSELLATION_EVALUATION_SHADER_WRITE
-    {   VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT,
-        VK_ACCESS_SHADER_WRITE_BIT,
-        VK_IMAGE_LAYOUT_GENERAL},
+    {VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT,
+     VK_ACCESS_SHADER_WRITE_BIT,
+     VK_IMAGE_LAYOUT_GENERAL},
     // THSVS_ACCESS_GEOMETRY_SHADER_WRITE
-    {   VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT,
-        VK_ACCESS_SHADER_WRITE_BIT,
-        VK_IMAGE_LAYOUT_GENERAL},
+    {VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT,
+     VK_ACCESS_SHADER_WRITE_BIT,
+     VK_IMAGE_LAYOUT_GENERAL},
     // THSVS_ACCESS_TASK_SHADER_WRITE_NV
-    {   VK_PIPELINE_STAGE_TASK_SHADER_BIT_NV,
-        VK_ACCESS_SHADER_WRITE_BIT,
-        VK_IMAGE_LAYOUT_GENERAL},
+    {VK_PIPELINE_STAGE_TASK_SHADER_BIT_NV,
+     VK_ACCESS_SHADER_WRITE_BIT,
+     VK_IMAGE_LAYOUT_GENERAL},
     // THSVS_ACCESS_MESH_SHADER_WRITE_NV
-    {   VK_PIPELINE_STAGE_MESH_SHADER_BIT_NV,
-        VK_ACCESS_SHADER_WRITE_BIT,
-        VK_IMAGE_LAYOUT_GENERAL},
+    {VK_PIPELINE_STAGE_MESH_SHADER_BIT_NV,
+     VK_ACCESS_SHADER_WRITE_BIT,
+     VK_IMAGE_LAYOUT_GENERAL},
     // THSVS_ACCESS_TRANSFORM_FEEDBACK_WRITE_EXT
-    {   VK_PIPELINE_STAGE_TRANSFORM_FEEDBACK_BIT_EXT,
-        VK_ACCESS_TRANSFORM_FEEDBACK_WRITE_BIT_EXT,
-        VK_IMAGE_LAYOUT_UNDEFINED},
+    {VK_PIPELINE_STAGE_TRANSFORM_FEEDBACK_BIT_EXT,
+     VK_ACCESS_TRANSFORM_FEEDBACK_WRITE_BIT_EXT,
+     VK_IMAGE_LAYOUT_UNDEFINED},
     // THSVS_ACCESS_TRANSFORM_FEEDBACK_COUNTER_WRITE_EXT
-    {   VK_PIPELINE_STAGE_TRANSFORM_FEEDBACK_BIT_EXT,
-        VK_ACCESS_TRANSFORM_FEEDBACK_COUNTER_WRITE_BIT_EXT,
-        VK_IMAGE_LAYOUT_UNDEFINED},
+    {VK_PIPELINE_STAGE_TRANSFORM_FEEDBACK_BIT_EXT,
+     VK_ACCESS_TRANSFORM_FEEDBACK_COUNTER_WRITE_BIT_EXT,
+     VK_IMAGE_LAYOUT_UNDEFINED},
     // THSVS_ACCESS_FRAGMENT_SHADER_WRITE
-    {   VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-        VK_ACCESS_SHADER_WRITE_BIT,
-        VK_IMAGE_LAYOUT_GENERAL},
+    {VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+     VK_ACCESS_SHADER_WRITE_BIT,
+     VK_IMAGE_LAYOUT_GENERAL},
     // THSVS_ACCESS_COLOR_ATTACHMENT_WRITE
-    {   VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-        VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL},
+    {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+     VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+     VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL},
     // THSVS_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE
-    {   VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
-        VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-        VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL},
+    {VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+     VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+     VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL},
     // THSVS_ACCESS_DEPTH_ATTACHMENT_WRITE_STENCIL_READ_ONLY
-    {   VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
-        VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
-        VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL_KHR},
+    {VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+     VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
+     VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL_KHR},
     // THSVS_ACCESS_STENCIL_ATTACHMENT_WRITE_DEPTH_READ_ONLY
-    {   VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
-        VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
-        VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL_KHR},
+    {VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+     VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
+     VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL_KHR},
 
     // THSVS_ACCESS_COMPUTE_SHADER_WRITE
-    {   VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-        VK_ACCESS_SHADER_WRITE_BIT,
-        VK_IMAGE_LAYOUT_GENERAL},
+    {VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+     VK_ACCESS_SHADER_WRITE_BIT,
+     VK_IMAGE_LAYOUT_GENERAL},
 
     // THSVS_ACCESS_ANY_SHADER_WRITE
-    {   VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-        VK_ACCESS_SHADER_WRITE_BIT,
-        VK_IMAGE_LAYOUT_GENERAL},
+    {VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+     VK_ACCESS_SHADER_WRITE_BIT,
+     VK_IMAGE_LAYOUT_GENERAL},
 
     // THSVS_ACCESS_TRANSFER_WRITE
-    {   VK_PIPELINE_STAGE_TRANSFER_BIT,
-        VK_ACCESS_TRANSFER_WRITE_BIT,
-        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL},
+    {VK_PIPELINE_STAGE_TRANSFER_BIT,
+     VK_ACCESS_TRANSFER_WRITE_BIT,
+     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL},
     // THSVS_ACCESS_HOST_PREINITIALIZED
-    {   VK_PIPELINE_STAGE_HOST_BIT,
-        VK_ACCESS_HOST_WRITE_BIT,
-        VK_IMAGE_LAYOUT_PREINITIALIZED},
+    {VK_PIPELINE_STAGE_HOST_BIT,
+     VK_ACCESS_HOST_WRITE_BIT,
+     VK_IMAGE_LAYOUT_PREINITIALIZED},
     // THSVS_ACCESS_HOST_WRITE
-    {   VK_PIPELINE_STAGE_HOST_BIT,
-        VK_ACCESS_HOST_WRITE_BIT,
-        VK_IMAGE_LAYOUT_GENERAL},
+    {VK_PIPELINE_STAGE_HOST_BIT,
+     VK_ACCESS_HOST_WRITE_BIT,
+     VK_IMAGE_LAYOUT_GENERAL},
     // THSVS_ACCESS_ACCELERATION_STRUCTURE_BUILD_WRITE_NV
-    {   VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_NV,
-        VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_NV,
-        VK_IMAGE_LAYOUT_UNDEFINED},
+    {VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_NV,
+     VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_NV,
+     VK_IMAGE_LAYOUT_UNDEFINED},
 
     // THSVS_ACCESS_COLOR_ATTACHMENT_READ_WRITE
-    {   VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-        VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL},
+    {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+     VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+     VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL},
     // THSVS_ACCESS_GENERAL
-    {   VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-        VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT,
-        VK_IMAGE_LAYOUT_GENERAL}
-};
+    {VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+     VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT,
+     VK_IMAGE_LAYOUT_GENERAL}};
 
 void thsvsGetAccessInfo(
-    uint32_t               accessCount,
+    uint32_t accessCount,
     const ThsvsAccessType* pAccesses,
-    VkPipelineStageFlags*  pStageMask,
-    VkAccessFlags*         pAccessMask,
-    VkImageLayout*         pImageLayout,
-    bool*                  pHasWriteAccess)
-{
-    *pStageMask   = 0;
-    *pAccessMask  = 0;
+    VkPipelineStageFlags* pStageMask,
+    VkAccessFlags* pAccessMask,
+    VkImageLayout* pImageLayout,
+    bool* pHasWriteAccess) {
+    *pStageMask = 0;
+    *pAccessMask = 0;
     *pImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     *pHasWriteAccess = false;
 
-    for (uint32_t i = 0; i < accessCount; ++i)
-    {
+    for (uint32_t i = 0; i < accessCount; ++i) {
         ThsvsAccessType access = pAccesses[i];
         const ThsvsVkAccessInfo* pAccessInfo = &ThsvsAccessMap[access];
 
@@ -907,19 +904,17 @@ void thsvsGetAccessInfo(
 
 void thsvsGetVulkanMemoryBarrier(
     const ThsvsGlobalBarrier& thBarrier,
-    VkPipelineStageFlags*     pSrcStages,
-    VkPipelineStageFlags*     pDstStages,
-    VkMemoryBarrier*          pVkBarrier)
-{
-    *pSrcStages               = 0;
-    *pDstStages               = 0;
-    pVkBarrier->sType         = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
-    pVkBarrier->pNext         = NULL;
+    VkPipelineStageFlags* pSrcStages,
+    VkPipelineStageFlags* pDstStages,
+    VkMemoryBarrier* pVkBarrier) {
+    *pSrcStages = 0;
+    *pDstStages = 0;
+    pVkBarrier->sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+    pVkBarrier->pNext = NULL;
     pVkBarrier->srcAccessMask = 0;
     pVkBarrier->dstAccessMask = 0;
 
-    for (uint32_t i = 0; i < thBarrier.prevAccessCount; ++i)
-    {
+    for (uint32_t i = 0; i < thBarrier.prevAccessCount; ++i) {
         ThsvsAccessType prevAccess = thBarrier.pPrevAccesses[i];
         const ThsvsVkAccessInfo* pPrevAccessInfo = &ThsvsAccessMap[prevAccess];
 
@@ -940,8 +935,7 @@ void thsvsGetVulkanMemoryBarrier(
             pVkBarrier->srcAccessMask |= pPrevAccessInfo->accessMask;
     }
 
-    for (uint32_t i = 0; i < thBarrier.nextAccessCount; ++i)
-    {
+    for (uint32_t i = 0; i < thBarrier.nextAccessCount; ++i) {
         ThsvsAccessType nextAccess = thBarrier.pNextAccesses[i];
         const ThsvsVkAccessInfo* pNextAccessInfo = &ThsvsAccessMap[nextAccess];
 
@@ -972,28 +966,26 @@ void thsvsGetVulkanMemoryBarrier(
 
 void thsvsGetVulkanBufferMemoryBarrier(
     const ThsvsBufferBarrier& thBarrier,
-    VkPipelineStageFlags*     pSrcStages,
-    VkPipelineStageFlags*     pDstStages,
-    VkBufferMemoryBarrier*    pVkBarrier)
-{
-    *pSrcStages                     = 0;
-    *pDstStages                     = 0;
-    pVkBarrier->sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
-    pVkBarrier->pNext               = NULL;
-    pVkBarrier->srcAccessMask       = 0;
-    pVkBarrier->dstAccessMask       = 0;
+    VkPipelineStageFlags* pSrcStages,
+    VkPipelineStageFlags* pDstStages,
+    VkBufferMemoryBarrier* pVkBarrier) {
+    *pSrcStages = 0;
+    *pDstStages = 0;
+    pVkBarrier->sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+    pVkBarrier->pNext = NULL;
+    pVkBarrier->srcAccessMask = 0;
+    pVkBarrier->dstAccessMask = 0;
     pVkBarrier->srcQueueFamilyIndex = thBarrier.srcQueueFamilyIndex;
     pVkBarrier->dstQueueFamilyIndex = thBarrier.dstQueueFamilyIndex;
-    pVkBarrier->buffer              = thBarrier.buffer;
-    pVkBarrier->offset              = thBarrier.offset;
-    pVkBarrier->size                = thBarrier.size;
+    pVkBarrier->buffer = thBarrier.buffer;
+    pVkBarrier->offset = thBarrier.offset;
+    pVkBarrier->size = thBarrier.size;
 
 #ifdef THSVS_ERROR_CHECK_COULD_USE_GLOBAL_BARRIER
     assert(pVkBarrier->srcQueueFamilyIndex != pVkBarrier->dstQueueFamilyIndex);
 #endif
 
-    for (uint32_t i = 0; i < thBarrier.prevAccessCount; ++i)
-    {
+    for (uint32_t i = 0; i < thBarrier.prevAccessCount; ++i) {
         ThsvsAccessType prevAccess = thBarrier.pPrevAccesses[i];
         const ThsvsVkAccessInfo* pPrevAccessInfo = &ThsvsAccessMap[prevAccess];
 
@@ -1014,8 +1006,7 @@ void thsvsGetVulkanBufferMemoryBarrier(
             pVkBarrier->srcAccessMask |= pPrevAccessInfo->accessMask;
     }
 
-    for (uint32_t i = 0; i < thBarrier.nextAccessCount; ++i)
-    {
+    for (uint32_t i = 0; i < thBarrier.nextAccessCount; ++i) {
         ThsvsAccessType nextAccess = thBarrier.pNextAccesses[i];
         const ThsvsVkAccessInfo* pNextAccessInfo = &ThsvsAccessMap[nextAccess];
 
@@ -1047,25 +1038,23 @@ void thsvsGetVulkanBufferMemoryBarrier(
 
 void thsvsGetVulkanImageMemoryBarrier(
     const ThsvsImageBarrier& thBarrier,
-    VkPipelineStageFlags*    pSrcStages,
-    VkPipelineStageFlags*    pDstStages,
-    VkImageMemoryBarrier*    pVkBarrier)
-{
-    *pSrcStages                     = 0;
-    *pDstStages                     = 0;
-    pVkBarrier->sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-    pVkBarrier->pNext               = NULL;
-    pVkBarrier->srcAccessMask       = 0;
-    pVkBarrier->dstAccessMask       = 0;
+    VkPipelineStageFlags* pSrcStages,
+    VkPipelineStageFlags* pDstStages,
+    VkImageMemoryBarrier* pVkBarrier) {
+    *pSrcStages = 0;
+    *pDstStages = 0;
+    pVkBarrier->sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    pVkBarrier->pNext = NULL;
+    pVkBarrier->srcAccessMask = 0;
+    pVkBarrier->dstAccessMask = 0;
     pVkBarrier->srcQueueFamilyIndex = thBarrier.srcQueueFamilyIndex;
     pVkBarrier->dstQueueFamilyIndex = thBarrier.dstQueueFamilyIndex;
-    pVkBarrier->image               = thBarrier.image;
-    pVkBarrier->subresourceRange    = thBarrier.subresourceRange;
-    pVkBarrier->oldLayout           = VK_IMAGE_LAYOUT_UNDEFINED;
-    pVkBarrier->newLayout           = VK_IMAGE_LAYOUT_UNDEFINED;
+    pVkBarrier->image = thBarrier.image;
+    pVkBarrier->subresourceRange = thBarrier.subresourceRange;
+    pVkBarrier->oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    pVkBarrier->newLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
-    for (uint32_t i = 0; i < thBarrier.prevAccessCount; ++i)
-    {
+    for (uint32_t i = 0; i < thBarrier.prevAccessCount; ++i) {
         ThsvsAccessType prevAccess = thBarrier.pPrevAccesses[i];
         const ThsvsVkAccessInfo* pPrevAccessInfo = &ThsvsAccessMap[prevAccess];
 
@@ -1085,16 +1074,12 @@ void thsvsGetVulkanImageMemoryBarrier(
         if (prevAccess > THSVS_END_OF_READ_ACCESS)
             pVkBarrier->srcAccessMask |= pPrevAccessInfo->accessMask;
 
-        if (thBarrier.discardContents == VK_TRUE)
-        {
+        if (thBarrier.discardContents == VK_TRUE) {
             pVkBarrier->oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        }
-        else
-        {
+        } else {
             VkImageLayout layout = VK_IMAGE_LAYOUT_UNDEFINED;
 
-            switch(thBarrier.prevLayout)
-            {
+            switch (thBarrier.prevLayout) {
                 case THSVS_IMAGE_LAYOUT_GENERAL:
                     if (prevAccess == THSVS_ACCESS_PRESENT)
                         layout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
@@ -1109,7 +1094,6 @@ void thsvsGetVulkanImageMemoryBarrier(
                     break;
             }
 
-
 #ifdef THSVS_ERROR_CHECK_MIXED_IMAGE_LAYOUT
             assert(pVkBarrier->oldLayout == VK_IMAGE_LAYOUT_UNDEFINED ||
                    pVkBarrier->oldLayout == layout);
@@ -1118,8 +1102,7 @@ void thsvsGetVulkanImageMemoryBarrier(
         }
     }
 
-    for (uint32_t i = 0; i < thBarrier.nextAccessCount; ++i)
-    {
+    for (uint32_t i = 0; i < thBarrier.nextAccessCount; ++i) {
         ThsvsAccessType nextAccess = thBarrier.pNextAccesses[i];
         const ThsvsVkAccessInfo* pNextAccessInfo = &ThsvsAccessMap[nextAccess];
 
@@ -1142,8 +1125,7 @@ void thsvsGetVulkanImageMemoryBarrier(
             pVkBarrier->dstAccessMask |= pNextAccessInfo->accessMask;
 
         VkImageLayout layout = VK_IMAGE_LAYOUT_UNDEFINED;
-        switch(thBarrier.nextLayout)
-        {
+        switch (thBarrier.nextLayout) {
             case THSVS_IMAGE_LAYOUT_GENERAL:
                 if (nextAccess == THSVS_ACCESS_PRESENT)
                     layout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
@@ -1178,28 +1160,26 @@ void thsvsGetVulkanImageMemoryBarrier(
 }
 
 void thsvsCmdPipelineBarrier(
-    VkCommandBuffer           commandBuffer,
+    VkCommandBuffer commandBuffer,
     const ThsvsGlobalBarrier* pGlobalBarrier,
-    uint32_t                  bufferBarrierCount,
+    uint32_t bufferBarrierCount,
     const ThsvsBufferBarrier* pBufferBarriers,
-    uint32_t                  imageBarrierCount,
-    const ThsvsImageBarrier*  pImageBarriers)
-{
-    VkMemoryBarrier        memoryBarrier;
+    uint32_t imageBarrierCount,
+    const ThsvsImageBarrier* pImageBarriers) {
+    VkMemoryBarrier memoryBarrier;
     // Vulkan pipeline barrier command parameters
     //                     commandBuffer;
-    VkPipelineStageFlags   srcStageMask             = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-    VkPipelineStageFlags   dstStageMask             = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-    uint32_t               memoryBarrierCount       = (pGlobalBarrier != NULL) ? 1 : 0;
-    VkMemoryBarrier*       pMemoryBarriers          = (pGlobalBarrier != NULL) ? &memoryBarrier : NULL;
-    uint32_t               bufferMemoryBarrierCount = bufferBarrierCount;
-    VkBufferMemoryBarrier* pBufferMemoryBarriers    = NULL;
-    uint32_t               imageMemoryBarrierCount  = imageBarrierCount;
-    VkImageMemoryBarrier*  pImageMemoryBarriers     = NULL;
+    VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+    VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+    uint32_t memoryBarrierCount = (pGlobalBarrier != NULL) ? 1 : 0;
+    VkMemoryBarrier* pMemoryBarriers = (pGlobalBarrier != NULL) ? &memoryBarrier : NULL;
+    uint32_t bufferMemoryBarrierCount = bufferBarrierCount;
+    VkBufferMemoryBarrier* pBufferMemoryBarriers = NULL;
+    uint32_t imageMemoryBarrierCount = imageBarrierCount;
+    VkImageMemoryBarrier* pImageMemoryBarriers = NULL;
 
     // Global memory barrier
-    if (pGlobalBarrier != NULL)
-    {
+    if (pGlobalBarrier != NULL) {
         VkPipelineStageFlags tempSrcStageMask = 0;
         VkPipelineStageFlags tempDstStageMask = 0;
         thsvsGetVulkanMemoryBarrier(*pGlobalBarrier, &tempSrcStageMask, &tempDstStageMask, pMemoryBarriers);
@@ -1208,14 +1188,12 @@ void thsvsCmdPipelineBarrier(
     }
 
     // Buffer memory barriers
-    if (bufferBarrierCount > 0)
-    {
+    if (bufferBarrierCount > 0) {
         pBufferMemoryBarriers = (VkBufferMemoryBarrier*)THSVS_TEMP_ALLOC(sizeof(VkBufferMemoryBarrier) * bufferMemoryBarrierCount);
 
         VkPipelineStageFlags tempSrcStageMask = 0;
         VkPipelineStageFlags tempDstStageMask = 0;
-        for (uint32_t i = 0; i < bufferBarrierCount; ++i)
-        {
+        for (uint32_t i = 0; i < bufferBarrierCount; ++i) {
             thsvsGetVulkanBufferMemoryBarrier(pBufferBarriers[i], &tempSrcStageMask, &tempDstStageMask, &pBufferMemoryBarriers[i]);
             srcStageMask |= tempSrcStageMask;
             dstStageMask |= tempDstStageMask;
@@ -1223,14 +1201,12 @@ void thsvsCmdPipelineBarrier(
     }
 
     // Image memory barriers
-    if (imageBarrierCount > 0)
-    {
+    if (imageBarrierCount > 0) {
         pImageMemoryBarriers = (VkImageMemoryBarrier*)THSVS_TEMP_ALLOC(sizeof(VkImageMemoryBarrier) * imageMemoryBarrierCount);
 
         VkPipelineStageFlags tempSrcStageMask = 0;
         VkPipelineStageFlags tempDstStageMask = 0;
-        for (uint32_t i = 0; i < imageBarrierCount; ++i)
-        {
+        for (uint32_t i = 0; i < imageBarrierCount; ++i) {
             thsvsGetVulkanImageMemoryBarrier(pImageBarriers[i], &tempSrcStageMask, &tempDstStageMask, &pImageMemoryBarriers[i]);
             srcStageMask |= tempSrcStageMask;
             dstStageMask |= tempDstStageMask;
@@ -1254,15 +1230,13 @@ void thsvsCmdPipelineBarrier(
 }
 
 void thsvsCmdSetEvent(
-    VkCommandBuffer           commandBuffer,
-    VkEvent                   event,
-    uint32_t                  prevAccessCount,
-    const ThsvsAccessType*    pPrevAccesses)
-{
+    VkCommandBuffer commandBuffer,
+    VkEvent event,
+    uint32_t prevAccessCount,
+    const ThsvsAccessType* pPrevAccesses) {
     VkPipelineStageFlags stageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 
-    for (uint32_t i = 0; i < prevAccessCount; ++i)
-    {
+    for (uint32_t i = 0; i < prevAccessCount; ++i) {
         ThsvsAccessType prevAccess = pPrevAccesses[i];
         const ThsvsVkAccessInfo* pPrevAccessInfo = &ThsvsAccessMap[prevAccess];
 
@@ -1281,15 +1255,13 @@ void thsvsCmdSetEvent(
 }
 
 void thsvsCmdResetEvent(
-    VkCommandBuffer           commandBuffer,
-    VkEvent                   event,
-    uint32_t                  prevAccessCount,
-    const ThsvsAccessType*    pPrevAccesses)
-{
+    VkCommandBuffer commandBuffer,
+    VkEvent event,
+    uint32_t prevAccessCount,
+    const ThsvsAccessType* pPrevAccesses) {
     VkPipelineStageFlags stageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 
-    for (uint32_t i = 0; i < prevAccessCount; ++i)
-    {
+    for (uint32_t i = 0; i < prevAccessCount; ++i) {
         ThsvsAccessType prevAccess = pPrevAccesses[i];
         const ThsvsVkAccessInfo* pPrevAccessInfo = &ThsvsAccessMap[prevAccess];
 
@@ -1308,32 +1280,30 @@ void thsvsCmdResetEvent(
 }
 
 void thsvsCmdWaitEvents(
-    VkCommandBuffer           commandBuffer,
-    uint32_t                  eventCount,
-    const VkEvent*            pEvents,
+    VkCommandBuffer commandBuffer,
+    uint32_t eventCount,
+    const VkEvent* pEvents,
     const ThsvsGlobalBarrier* pGlobalBarrier,
-    uint32_t                  bufferBarrierCount,
+    uint32_t bufferBarrierCount,
     const ThsvsBufferBarrier* pBufferBarriers,
-    uint32_t                  imageBarrierCount,
-    const ThsvsImageBarrier*  pImageBarriers)
-{
-    VkMemoryBarrier        memoryBarrier;
+    uint32_t imageBarrierCount,
+    const ThsvsImageBarrier* pImageBarriers) {
+    VkMemoryBarrier memoryBarrier;
     // Vulkan pipeline barrier command parameters
     //                     commandBuffer;
     //                     eventCount;
     //                     pEvents;
-    VkPipelineStageFlags   srcStageMask             = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-    VkPipelineStageFlags   dstStageMask             = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-    uint32_t               memoryBarrierCount       = (pGlobalBarrier != NULL) ? 1 : 0;
-    VkMemoryBarrier*       pMemoryBarriers          = (pGlobalBarrier != NULL) ? &memoryBarrier : NULL;
-    uint32_t               bufferMemoryBarrierCount = bufferBarrierCount;
-    VkBufferMemoryBarrier* pBufferMemoryBarriers    = NULL;
-    uint32_t               imageMemoryBarrierCount  = imageBarrierCount;
-    VkImageMemoryBarrier*  pImageMemoryBarriers     = NULL;
+    VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+    VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+    uint32_t memoryBarrierCount = (pGlobalBarrier != NULL) ? 1 : 0;
+    VkMemoryBarrier* pMemoryBarriers = (pGlobalBarrier != NULL) ? &memoryBarrier : NULL;
+    uint32_t bufferMemoryBarrierCount = bufferBarrierCount;
+    VkBufferMemoryBarrier* pBufferMemoryBarriers = NULL;
+    uint32_t imageMemoryBarrierCount = imageBarrierCount;
+    VkImageMemoryBarrier* pImageMemoryBarriers = NULL;
 
     // Global memory barrier
-    if (pGlobalBarrier != NULL)
-    {
+    if (pGlobalBarrier != NULL) {
         VkPipelineStageFlags tempSrcStageMask = 0;
         VkPipelineStageFlags tempDstStageMask = 0;
         thsvsGetVulkanMemoryBarrier(*pGlobalBarrier, &tempSrcStageMask, &tempDstStageMask, pMemoryBarriers);
@@ -1342,14 +1312,12 @@ void thsvsCmdWaitEvents(
     }
 
     // Buffer memory barriers
-    if (bufferBarrierCount > 0)
-    {
+    if (bufferBarrierCount > 0) {
         pBufferMemoryBarriers = (VkBufferMemoryBarrier*)THSVS_TEMP_ALLOC(sizeof(VkBufferMemoryBarrier) * bufferMemoryBarrierCount);
 
         VkPipelineStageFlags tempSrcStageMask = 0;
         VkPipelineStageFlags tempDstStageMask = 0;
-        for (uint32_t i = 0; i < bufferBarrierCount; ++i)
-        {
+        for (uint32_t i = 0; i < bufferBarrierCount; ++i) {
             thsvsGetVulkanBufferMemoryBarrier(pBufferBarriers[i], &tempSrcStageMask, &tempDstStageMask, &pBufferMemoryBarriers[i]);
             srcStageMask |= tempSrcStageMask;
             dstStageMask |= tempDstStageMask;
@@ -1357,14 +1325,12 @@ void thsvsCmdWaitEvents(
     }
 
     // Image memory barriers
-    if (imageBarrierCount > 0)
-    {
+    if (imageBarrierCount > 0) {
         pImageMemoryBarriers = (VkImageMemoryBarrier*)THSVS_TEMP_ALLOC(sizeof(VkImageMemoryBarrier) * imageMemoryBarrierCount);
 
         VkPipelineStageFlags tempSrcStageMask = 0;
         VkPipelineStageFlags tempDstStageMask = 0;
-        for (uint32_t i = 0; i < imageBarrierCount; ++i)
-        {
+        for (uint32_t i = 0; i < imageBarrierCount; ++i) {
             thsvsGetVulkanImageMemoryBarrier(pImageBarriers[i], &tempSrcStageMask, &tempDstStageMask, &pImageMemoryBarriers[i]);
             srcStageMask |= tempSrcStageMask;
             dstStageMask |= tempDstStageMask;

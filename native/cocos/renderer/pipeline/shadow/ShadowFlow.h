@@ -61,7 +61,7 @@ private:
     gfx::RenderPass *_renderPass = nullptr;
 
     ccstd::vector<const scene::Light *> _validLights;
-    ccstd::vector<gfx::Texture *>       _usedTextures;
+    ccstd::vector<gfx::Texture *> _usedTextures;
 
     static ccstd::unordered_map<size_t, cc::gfx::RenderPass *> renderPassHashMap;
 };

@@ -40,13 +40,13 @@ struct Keyframe {
 float evalOptCurve(float t, const ccstd::vector<float> &coefs);
 
 struct OptimizedKey {
-    float                index;
-    float                time;
-    float                endTime;
+    float index;
+    float time;
+    float endTime;
     ccstd::vector<float> coefficient;
     OptimizedKey() {
-        index   = -1;
-        time    = 0;
+        index = -1;
+        time = 0;
         endTime = 0;
         coefficient.resize(4);
     }
@@ -94,10 +94,10 @@ public:
      */
     auto getKeyFrames() {
         return Array.from(this._curve.keyframes()).map(([ time, value ]) = > {
-            const legacyKeyframe      = ccnew Keyframe();
-            legacyKeyframe.time       = time;
-            legacyKeyframe.value      = value.value;
-            legacyKeyframe.inTangent  = value.leftTangent;
+            const legacyKeyframe = ccnew Keyframe();
+            legacyKeyframe.time = time;
+            legacyKeyframe.value = value.value;
+            legacyKeyframe.inTangent = value.leftTangent;
             legacyKeyframe.outTangent = value.rightTangent;
             return legacyKeyframe;
         });
@@ -155,9 +155,9 @@ private
         if (keyFrames instanceof RealCurve) {
             this._curve = keyFrames;
         } else {
-            const curve             = ccnew RealCurve();
-            this._curve             = curve;
-            curve.preExtrapolation  = ExtrapolationMode.LOOP;
+            const curve = ccnew RealCurve();
+            this._curve = curve;
+            curve.preExtrapolation = ExtrapolationMode.LOOP;
             curve.postExtrapolation = ExtrapolationMode.CLAMP;
             if (!keyFrames) {
                 curve.assignSorted([
@@ -219,12 +219,12 @@ public
     evaluate(time
              : number) {
         const {cachedKey, _curve : curve} = this;
-        const nKeyframes                  = curve.keyFramesCount;
-        const lastKeyframeIndex           = nKeyframes - 1;
-        let wrappedTime                   = time;
-        const extrapolationMode           = time < 0 ? curve.preExtrapolation : curve.postExtrapolation;
-        const startTime                   = curve.getKeyframeTime(0);
-        const endTime                     = curve.getKeyframeTime(lastKeyframeIndex);
+        const nKeyframes = curve.keyFramesCount;
+        const lastKeyframeIndex = nKeyframes - 1;
+        let wrappedTime = time;
+        const extrapolationMode = time < 0 ? curve.preExtrapolation : curve.postExtrapolation;
+        const startTime = curve.getKeyframeTime(0);
+        const endTime = curve.getKeyframeTime(lastKeyframeIndex);
         switch (extrapolationMode) {
             case ExtrapolationMode.LOOP:
                 wrappedTime = repeat(time - startTime, endTime - startTime) + startTime;
@@ -240,7 +240,7 @@ public
         if (wrappedTime >= cachedKey.time && wrappedTime < cachedKey.endTime) {
             return cachedKey.evaluate(wrappedTime);
         }
-        const leftIndex  = this.findIndex(cachedKey, wrappedTime);
+        const leftIndex = this.findIndex(cachedKey, wrappedTime);
         const rightIndex = Math.min(leftIndex + 1, lastKeyframeIndex);
         this.calcOptimizedKey(cachedKey, leftIndex, rightIndex);
         return cachedKey.evaluate(wrappedTime);
@@ -257,19 +257,19 @@ public
                      : OptimizedKey, leftIndex
                      : number, rightIndex
                      : number) {
-        const lhsTime                                         = this._curve.getKeyframeTime(leftIndex);
-        const rhsTime                                         = this._curve.getKeyframeTime(rightIndex);
+        const lhsTime = this._curve.getKeyframeTime(leftIndex);
+        const rhsTime = this._curve.getKeyframeTime(rightIndex);
         const {value : lhsValue, leftTangent : lhsOutTangent} = this._curve.getKeyframeValue(leftIndex);
         const {value : rhsValue, rightTangent : rhsInTangent} = this._curve.getKeyframeValue(rightIndex);
-        optKey.index                                          = leftIndex;
-        optKey.time                                           = lhsTime;
-        optKey.endTime                                        = rhsTime;
+        optKey.index = leftIndex;
+        optKey.time = lhsTime;
+        optKey.endTime = rhsTime;
 
-        const dx     = rhsTime - lhsTime;
-        const dy     = rhsValue - lhsValue;
+        const dx = rhsTime - lhsTime;
+        const dy = rhsValue - lhsValue;
         const length = 1 / (dx * dx);
-        const d1     = lhsOutTangent * dx;
-        const d2     = rhsInTangent * dx;
+        const d1 = lhsOutTangent * dx;
+        const d2 = rhsInTangent * dx;
 
         optKey.coefficient[0] = (d1 + d2 - dy - dy) * length / dx;
         optKey.coefficient[1] = (dy + dy + dy - d1 - d1 - d2) * length;
@@ -287,8 +287,8 @@ private
               : OptimizedKey, t
               : number) {
         const {_curve : curve} = this;
-        const nKeyframes       = curve.keyFramesCount;
-        const cachedIndex      = optKey.index;
+        const nKeyframes = curve.keyFramesCount;
+        const cachedIndex = optKey.index;
         if (cachedIndex != = -1) {
             const cachedTime = curve.getKeyframeTime(cachedIndex);
             if (t > cachedTime) {
@@ -307,7 +307,7 @@ private
                 }
             }
         }
-        let left  = 0;
+        let left = 0;
         let right = nKeyframes;
         let mid;
         while (right - left > 1) {
@@ -358,5 +358,5 @@ export function constructLegacyCurveAndConvert() {
     return curve;
 }
 
-}
+} // namespace geometry
 } // namespace cc

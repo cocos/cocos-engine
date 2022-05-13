@@ -74,8 +74,8 @@ extern "C" {
 JNIEXPORT jboolean JNICALL
 Java_com_cocos_lib_CocosWebViewHelper_shouldStartLoading(JNIEnv *env, jclass, jint index, //NOLINT
                                                          jstring jurl) {
-    auto          charUrl = env->GetStringUTFChars(jurl, nullptr);
-    ccstd::string url     = charUrl;
+    auto charUrl = env->GetStringUTFChars(jurl, nullptr);
+    ccstd::string url = charUrl;
     env->ReleaseStringUTFChars(jurl, charUrl);
     return cc::WebViewImpl::shouldStartLoading(index, url);
 }
@@ -89,8 +89,8 @@ JNIEXPORT void JNICALL
 Java_com_cocos_lib_CocosWebViewHelper_didFinishLoading(JNIEnv *env, jclass, jint index, //NOLINT
                                                        jstring jurl) {
     // LOGD("didFinishLoading");
-    auto          charUrl = env->GetStringUTFChars(jurl, nullptr);
-    ccstd::string url     = charUrl;
+    auto charUrl = env->GetStringUTFChars(jurl, nullptr);
+    ccstd::string url = charUrl;
     env->ReleaseStringUTFChars(jurl, charUrl);
     cc::WebViewImpl::didFinishLoading(index, url);
 }
@@ -104,8 +104,8 @@ JNIEXPORT void JNICALL
 Java_com_cocos_lib_CocosWebViewHelper_didFailLoading(JNIEnv *env, jclass, jint index, //NOLINT
                                                      jstring jurl) {
     // LOGD("didFailLoading");
-    auto          charUrl = env->GetStringUTFChars(jurl, nullptr);
-    ccstd::string url     = charUrl;
+    auto charUrl = env->GetStringUTFChars(jurl, nullptr);
+    ccstd::string url = charUrl;
     env->ReleaseStringUTFChars(jurl, charUrl);
     cc::WebViewImpl::didFailLoading(index, url);
 }
@@ -119,8 +119,8 @@ JNIEXPORT void JNICALL
 Java_com_cocos_lib_CocosWebViewHelper_onJsCallback(JNIEnv *env, jclass, jint index, //NOLINT
                                                    jstring jmessage) {
     // LOGD("jsCallback");
-    auto          charMessage = env->GetStringUTFChars(jmessage, nullptr);
-    ccstd::string message     = charMessage;
+    auto charMessage = env->GetStringUTFChars(jmessage, nullptr);
+    ccstd::string message = charMessage;
     env->ReleaseStringUTFChars(jmessage, charMessage);
     cc::WebViewImpl::onJsCallback(index, message);
 }
@@ -142,7 +142,7 @@ int createWebViewJNI() {
 ccstd::string getUrlStringByFileName(const ccstd::string &fileName) {
     // LOGD("error: %s,%d",__func__,__LINE__);
     const ccstd::string basePath("file:///android_asset/");
-    ccstd::string       fullPath = cc::FileUtils::getInstance()->fullPathForFilename(fileName);
+    ccstd::string fullPath = cc::FileUtils::getInstance()->fullPathForFilename(fileName);
     const ccstd::string assetsPath("assets/");
 
     ccstd::string urlString;
@@ -163,7 +163,7 @@ static ccstd::unordered_map<int, WebViewImpl *> sWebViewImpls;
 
 WebViewImpl::WebViewImpl(WebView *webView) : _viewTag(-1),
                                              _webView(webView) {
-    _viewTag                = createWebViewJNI();
+    _viewTag = createWebViewJNI();
     sWebViewImpls[_viewTag] = this;
 }
 
@@ -232,7 +232,7 @@ void WebViewImpl::setScalesPageToFit(bool scalesPageToFit) {
 
 bool WebViewImpl::shouldStartLoading(int viewTag, const ccstd::string &url) {
     bool allowLoad = true;
-    auto it        = sWebViewImpls.find(viewTag);
+    auto it = sWebViewImpls.find(viewTag);
     if (it != sWebViewImpls.end()) {
         auto webView = it->second->_webView;
         if (webView->_onShouldStartLoading) {

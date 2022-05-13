@@ -62,5 +62,5 @@ void CCMTLPipelineLayout::doDestroy() {
     CC_SAFE_DELETE(_gpuPipelineLayout);
 }
 
-}
-}
+} // namespace gfx
+} // namespace cc

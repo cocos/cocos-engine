@@ -87,8 +87,8 @@ public:
     : _maxWidth(maxWidth), _maxHeight(maxHeight) {}
 
     inline void reset() {
-        _nextX         = 0U;
-        _nextY         = 0U;
+        _nextX = 0U;
+        _nextY = 0U;
         _maxLineHeight = 0U;
     }
 
@@ -110,8 +110,8 @@ public:
             x = 0U;
             y = nextY;
 
-            _nextX         = width;
-            _nextY         = nextY;
+            _nextX = width;
+            _nextY = nextY;
             _maxLineHeight = height;
 
             return true;
@@ -151,12 +151,12 @@ void FreeTypeFontFace::doInit(const FontFaceInfo &info) {
         return;
     }
 
-    _fontSize      = info.fontSize < MIN_FONT_SIZE ? MIN_FONT_SIZE : (info.fontSize > MAX_FONT_SIZE ? MAX_FONT_SIZE : info.fontSize);
-    _textureWidth  = info.textureWidth;
+    _fontSize = info.fontSize < MIN_FONT_SIZE ? MIN_FONT_SIZE : (info.fontSize > MAX_FONT_SIZE ? MAX_FONT_SIZE : info.fontSize);
+    _textureWidth = info.textureWidth;
     _textureHeight = info.textureHeight;
-    _allocator     = std::make_unique<GlyphAllocator>(_textureWidth, _textureHeight);
+    _allocator = std::make_unique<GlyphAllocator>(_textureWidth, _textureHeight);
 
-    FT_Face  face{nullptr};
+    FT_Face face{nullptr};
     FT_Error error = FT_New_Memory_Face(library->lib, fontData.data(), static_cast<FT_Long>(fontData.size()), 0, &face);
     if (error) {
         CC_LOG_ERROR("FT_New_Memory_Face failed, error code: %d.", error);
@@ -169,7 +169,7 @@ void FreeTypeFontFace::doInit(const FontFaceInfo &info) {
         return;
     }
 
-    _face       = std::make_unique<FTFace>(face);
+    _face = std::make_unique<FTFace>(face);
     _lineHeight = static_cast<uint32_t>(face->size->metrics.height >> 6);
 
     for (const auto &code : info.preLoadedCharacters) {
@@ -198,23 +198,23 @@ float FreeTypeFontFace::getKerning(uint32_t prevCode, uint32_t nextCode) {
     }
 
     FT_Vector kerning;
-    FT_UInt   prevIndex = FT_Get_Char_Index(face, prevCode);
-    FT_UInt   nextIndex = FT_Get_Char_Index(face, nextCode);
-    FT_Error  error     = FT_Get_Kerning(face, prevIndex, nextIndex, FT_KERNING_DEFAULT, &kerning);
+    FT_UInt prevIndex = FT_Get_Char_Index(face, prevCode);
+    FT_UInt nextIndex = FT_Get_Char_Index(face, nextCode);
+    FT_Error error = FT_Get_Kerning(face, prevIndex, nextIndex, FT_KERNING_DEFAULT, &kerning);
 
     if (error) {
         CC_LOG_WARNING("FT_Get_Kerning failed, error code: %d, prevCode: %d, nextCode: %d", error, prevCode, nextCode);
         return 0.0F;
     }
 
-    auto result                     = static_cast<float>(kerning.x >> 6);
+    auto result = static_cast<float>(kerning.x >> 6);
     _kernings[{prevCode, nextCode}] = result;
 
     return result;
 }
 
 const FontGlyph *FreeTypeFontFace::loadGlyph(uint32_t code) {
-    FT_Face  face  = _face->face;
+    FT_Face face = _face->face;
     FT_Error error = FT_Load_Char(face, code, FT_LOAD_RENDER);
     if (error) {
         CC_LOG_WARNING("FT_Load_Char failed, error code: %d, character: %u.", error, code);
@@ -222,11 +222,11 @@ const FontGlyph *FreeTypeFontFace::loadGlyph(uint32_t code) {
     }
 
     FontGlyph glyph;
-    glyph.width    = face->glyph->bitmap.width;
-    glyph.height   = face->glyph->bitmap.rows;
+    glyph.width = face->glyph->bitmap.width;
+    glyph.height = face->glyph->bitmap.rows;
     glyph.bearingX = face->glyph->bitmap_left;
     glyph.bearingY = face->glyph->bitmap_top;
-    glyph.advance  = static_cast<int32_t>(face->glyph->advance.x >> 6); // advance.x's unit is 1/64 pixels
+    glyph.advance = static_cast<int32_t>(face->glyph->advance.x >> 6); // advance.x's unit is 1/64 pixels
 
     uint32_t x = 0U;
     uint32_t y = 0U;
@@ -251,8 +251,8 @@ const FontGlyph *FreeTypeFontFace::loadGlyph(uint32_t code) {
         auto page = static_cast<uint32_t>(_textures.size() - 1);
         updateTexture(page, x, y, glyph.width, glyph.height, face->glyph->bitmap.buffer);
 
-        glyph.x    = x;
-        glyph.y    = y;
+        glyph.x = x;
+        glyph.y = y;
         glyph.page = page;
     }
 
@@ -262,7 +262,7 @@ const FontGlyph *FreeTypeFontFace::loadGlyph(uint32_t code) {
 }
 
 void FreeTypeFontFace::createTexture(uint32_t width, uint32_t height) {
-    auto *device  = gfx::Device::getInstance();
+    auto *device = gfx::Device::getInstance();
     auto *texture = device->createTexture({gfx::TextureType::TEX2D,
                                            gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_DST,
                                            gfx::Format::R8,
@@ -272,13 +272,13 @@ void FreeTypeFontFace::createTexture(uint32_t width, uint32_t height) {
     _textures.push_back(texture);
 
     std::vector<uint8_t> empty(width * height, 0);
-    auto                 page = static_cast<uint32_t>(_textures.size() - 1);
+    auto page = static_cast<uint32_t>(_textures.size() - 1);
     updateTexture(page, 0U, 0U, width, height, empty.data());
 }
 
 void FreeTypeFontFace::updateTexture(uint32_t page, uint32_t x, uint32_t y, uint32_t width, uint32_t height, const uint8_t *buffer) {
-    auto *                     texture = getTexture(page);
-    gfx::BufferDataList        buffers{buffer};
+    auto *texture = getTexture(page);
+    gfx::BufferDataList buffers{buffer};
     gfx::BufferTextureCopyList regions = {{0U,
                                            0U,
                                            {static_cast<int32_t>(x), static_cast<int32_t>(y), 0U},
@@ -308,7 +308,7 @@ FontFace *FreeTypeFont::createFace(const FontFaceInfo &info) {
     face->doInit(info);
 
     uint32_t fontSize = face->getFontSize();
-    _faces[fontSize]  = face;
+    _faces[fontSize] = face;
 
     return face;
 }

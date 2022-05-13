@@ -42,32 +42,32 @@ class Mesh;
 
 // _chunkIdxMap[key] = skeleton ^ clips[i]
 struct IChunkContent {
-    uint64_t                skeleton{0};
+    uint64_t skeleton{0};
     ccstd::vector<uint64_t> clips;
 };
 
 struct ICustomJointTextureLayout {
-    uint32_t                     textureLength{0};
+    uint32_t textureLength{0};
     ccstd::vector<IChunkContent> contents;
 };
 
 struct IInternalJointAnimInfo {
-    cc::optional<Mat4>                downstream;         // downstream default pose, if present
-    cc::optional<ccstd::vector<Mat4>> curveData;          // the nearest animation curve, if present
-    index_t                           bindposeIdx{0};     // index of the actual bindpose to use
-    cc::optional<Mat4>                bindposeCorrection; // correction factor from the original bindpose
+    cc::optional<Mat4> downstream;               // downstream default pose, if present
+    cc::optional<ccstd::vector<Mat4>> curveData; // the nearest animation curve, if present
+    index_t bindposeIdx{0};                      // index of the actual bindpose to use
+    cc::optional<Mat4> bindposeCorrection;       // correction factor from the original bindpose
 };
 
 class IJointTextureHandle {
 public:
-    uint32_t                                                      pixelOffset{0};
-    uint32_t                                                      refCount{0};
-    uint64_t                                                      clipHash{0};
-    uint64_t                                                      skeletonHash{0};
-    bool                                                          readyToBeDeleted{false};
-    ITextureBufferHandle                                          handle;
+    uint32_t pixelOffset{0};
+    uint32_t refCount{0};
+    uint64_t clipHash{0};
+    uint64_t skeletonHash{0};
+    bool readyToBeDeleted{false};
+    ITextureBufferHandle handle;
     ccstd::unordered_map<uint32_t, ccstd::vector<geometry::AABB>> bounds;
-    cc::optional<ccstd::vector<IInternalJointAnimInfo>>           animInfos;
+    cc::optional<ccstd::vector<IInternalJointAnimInfo>> animInfos;
 
     static IJointTextureHandle *createJoinTextureHandle() {
         return ccnew IJointTextureHandle();
@@ -114,13 +114,13 @@ public:
 private:
     // const IInternalJointAnimInfo &createAnimInfos(Skeleton *skeleton, AnimationClip *clip, Node *skinningRoot); // TODO(xwx): AnimationClip not define
 
-    gfx::Device *                                         _device{nullptr};
-    IntrusivePtr<TextureBufferPool>                       _pool;
+    gfx::Device *_device{nullptr};
+    IntrusivePtr<TextureBufferPool> _pool;
     ccstd::unordered_map<uint64_t, IJointTextureHandle *> _textureBuffers;
-    uint32_t                                              _formatSize{0};
-    uint32_t                                              _pixelsPerJoint{0};
-    IntrusivePtr<TextureBufferPool>                       _customPool;
-    ccstd::unordered_map<uint64_t, index_t>               _chunkIdxMap; // hash -> chunkIdx
+    uint32_t _formatSize{0};
+    uint32_t _pixelsPerJoint{0};
+    IntrusivePtr<TextureBufferPool> _customPool;
+    ccstd::unordered_map<uint64_t, index_t> _chunkIdxMap; // hash -> chunkIdx
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(JointTexturePool);
 };
@@ -128,10 +128,10 @@ private:
 struct IAnimInfo {
     gfx::Buffer *buffer{nullptr};
     Float32Array data;
-    const float *curFrame{nullptr};    // Only used in JSB
-    uint32_t     frameDataBytes{0};    // Only used in JSB
-    uint8_t *    dirtyForJSB{nullptr}; // Only used in JSB
-    bool         dirty{false};
+    const float *curFrame{nullptr}; // Only used in JSB
+    uint32_t frameDataBytes{0};     // Only used in JSB
+    uint8_t *dirtyForJSB{nullptr};  // Only used in JSB
+    bool dirty{false};
 };
 
 class JointAnimationInfo : public RefCounted {
@@ -140,14 +140,14 @@ public:
     explicit JointAnimationInfo(gfx::Device *device);
     ~JointAnimationInfo() override = default;
 
-    IAnimInfo               getData(const ccstd::string &nodeID = "-1");
-    void                    destroy(const ccstd::string &nodeID);
+    IAnimInfo getData(const ccstd::string &nodeID = "-1");
+    void destroy(const ccstd::string &nodeID);
     static const IAnimInfo &switchClip(IAnimInfo &info /*, AnimationClip *clip */);
-    void                    clear();
+    void clear();
 
 private:
     ccstd::unordered_map<ccstd::string, IAnimInfo> _pool; // pre node
-    gfx::Device *                                  _device{nullptr};
+    gfx::Device *_device{nullptr};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(JointAnimationInfo);
 };

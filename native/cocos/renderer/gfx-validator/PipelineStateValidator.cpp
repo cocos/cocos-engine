@@ -55,8 +55,8 @@ void PipelineStateValidator::doInit(const PipelineStateInfo &info) {
     /////////// execute ///////////
 
     PipelineStateInfo actorInfo = info;
-    actorInfo.shader            = static_cast<ShaderValidator *>(info.shader)->getActor();
-    actorInfo.pipelineLayout    = static_cast<PipelineLayoutValidator *>(info.pipelineLayout)->getActor();
+    actorInfo.shader = static_cast<ShaderValidator *>(info.shader)->getActor();
+    actorInfo.pipelineLayout = static_cast<PipelineLayoutValidator *>(info.pipelineLayout)->getActor();
     if (info.renderPass) actorInfo.renderPass = static_cast<RenderPassValidator *>(info.renderPass)->getActor();
 
     _actor->initialize(actorInfo);

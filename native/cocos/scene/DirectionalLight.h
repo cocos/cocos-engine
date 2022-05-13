@@ -52,31 +52,31 @@ public:
     inline void setShadowFar(float farValue) { _shadowFar = farValue; }
     inline void setShadowOrthoSize(float orthoSize) { _shadowOrthoSize = orthoSize; }
 
-    inline bool  isShadowEnabled() const { return _shadowEnabled; }
+    inline bool isShadowEnabled() const { return _shadowEnabled; }
     inline float getShadowPcf() const { return _shadowPcf; }
     inline float getShadowBias() const { return _shadowBias; }
     inline float getShadowNormalBias() const { return _shadowNormalBias; }
     inline float getShadowSaturation() const { return _shadowSaturation; }
     inline float getShadowDistance() const { return _shadowDistance; }
     inline float getShadowInvisibleOcclusionRange() const { return _shadowInvisibleOcclusionRange; }
-    inline bool  isShadowFixedArea() const { return _shadowFixedArea; }
+    inline bool isShadowFixedArea() const { return _shadowFixedArea; }
     inline float getShadowNear() const { return _shadowNear; }
     inline float getShadowFar() const { return _shadowFar; }
     inline float getShadowOrthoSize() const { return _shadowOrthoSize; }
 
     inline const Vec3 &getDirection() const { return _dir; }
-    inline void        setDirection(const Vec3 &dir) { _dir = dir; }
-    inline void        setIlluminanceHDR(float value) { _illuminanceHDR = value; }
-    inline void        setIlluminanceLDR(float value) { _illuminanceLDR = value; }
-    inline float       getIlluminanceHDR() const { return _illuminanceHDR; }
-    inline float       getIlluminanceLDR() const { return _illuminanceLDR; }
-    float              getIlluminance() const;
-    void               setIlluminance(float value);
+    inline void setDirection(const Vec3 &dir) { _dir = dir; }
+    inline void setIlluminanceHDR(float value) { _illuminanceHDR = value; }
+    inline void setIlluminanceLDR(float value) { _illuminanceLDR = value; }
+    inline float getIlluminanceHDR() const { return _illuminanceHDR; }
+    inline float getIlluminanceLDR() const { return _illuminanceLDR; }
+    float getIlluminance() const;
+    void setIlluminance(float value);
 
 private:
     float _illuminanceHDR{Ambient::SUN_ILLUM};
     float _illuminanceLDR{1.F};
-    Vec3  _dir{1.0F, -1.0F, -1.0F};
+    Vec3 _dir{1.0F, -1.0F, -1.0F};
 
     // shadow info
     bool _shadowEnabled{false};
@@ -87,7 +87,7 @@ private:
     float _shadowSaturation{0.75F};
     float _shadowDistance{100.0F};
     float _shadowInvisibleOcclusionRange{200.0F};
-    bool  _shadowFixedArea{false};
+    bool _shadowFixedArea{false};
     float _shadowNear{0.1F};
     float _shadowFar{10.0F};
     float _shadowOrthoSize{1.0F};

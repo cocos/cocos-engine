@@ -54,14 +54,14 @@ public:
 private:
     int getShadowPassIndex(const scene::Model *model) const;
 
-    RenderPipeline *                       _pipeline = nullptr;
+    RenderPipeline *_pipeline = nullptr;
     ccstd::vector<const scene::SubModel *> _subModels;
-    ccstd::vector<const scene::Pass *>     _passes;
-    ccstd::vector<gfx::Shader *>           _shaders;
-    RenderInstancedQueue *                 _instancedQueue = nullptr;
-    RenderBatchedQueue *                   _batchedQueue   = nullptr;
-    gfx::Buffer *                          _buffer         = nullptr;
-    uint                                   _phaseID        = 0;
+    ccstd::vector<const scene::Pass *> _passes;
+    ccstd::vector<gfx::Shader *> _shaders;
+    RenderInstancedQueue *_instancedQueue = nullptr;
+    RenderBatchedQueue *_batchedQueue = nullptr;
+    gfx::Buffer *_buffer = nullptr;
+    uint _phaseID = 0;
 };
 
 } // namespace pipeline

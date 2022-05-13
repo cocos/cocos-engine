@@ -40,7 +40,7 @@ import { Root } from '../../core/root';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { Enum } from '../../core/value-types';
 import { builtinResMgr } from '../../core/builtin';
-import { RenderableComponent } from '../../core/components/renderable-component';
+import { ModelRenderer } from '../../core/components/model-renderer';
 import { MorphRenderingInstance } from '../assets/morph';
 import { legacyCC } from '../../core/global-exports';
 import { assertIsTrue } from '../../core/data/utils/asserts';
@@ -162,7 +162,7 @@ class ModelLightmapSettings {
 @executionOrder(100)
 @menu('Mesh/MeshRenderer')
 @executeInEditMode
-export class MeshRenderer extends RenderableComponent {
+export class MeshRenderer extends ModelRenderer {
     public static ShadowCastingMode = ModelShadowCastingMode;
     public static ShadowReceivingMode = ModelShadowReceivingMode;
 

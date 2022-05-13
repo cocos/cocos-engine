@@ -57,15 +57,15 @@ public:
 private:
     static constexpr uint POOL_FLAG = 1 << 30;
 
-    BufferAllocator      _allocator;
+    BufferAllocator _allocator;
     ccstd::vector<Chunk> _chunks;
-    uint                 _entryBits       = 1 << 8;
-    uint                 _chunkMask       = 0;
-    uint                 _entryMask       = 0;
-    uint                 _bytesPerChunk   = 0;
-    uint                 _entriesPerChunk = 0;
-    uint                 _bytesPerEntry   = 0;
-    PoolType             _type            = PoolType::UNKNOWN;
+    uint _entryBits = 1 << 8;
+    uint _chunkMask = 0;
+    uint _entryMask = 0;
+    uint _bytesPerChunk = 0;
+    uint _entriesPerChunk = 0;
+    uint _bytesPerEntry = 0;
+    PoolType _type = PoolType::UNKNOWN;
 };
 
 } // namespace se

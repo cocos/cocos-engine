@@ -76,7 +76,7 @@ void DescriptorSetValidator::update() {
 
     Texture *texture = nullptr;
     Sampler *sampler = nullptr;
-    Format   format  = {};
+    Format format = {};
 
     for (size_t i = 0; i < descriptorCount; ++i) {
         texture = _textures[i];
@@ -112,8 +112,8 @@ void DescriptorSetValidator::bindBuffer(uint32_t binding, Buffer *buffer, uint32
     CC_ASSERT(isInited());
     CC_ASSERT(buffer && static_cast<BufferValidator *>(buffer)->isInited());
 
-    const ccstd::vector<uint32_t> &       bindingIndices = _layout->getBindingIndices();
-    const DescriptorSetLayoutBindingList &bindings       = _layout->getBindings();
+    const ccstd::vector<uint32_t> &bindingIndices = _layout->getBindingIndices();
+    const DescriptorSetLayoutBindingList &bindings = _layout->getBindings();
     CC_ASSERT(binding < bindingIndices.size() && bindingIndices[binding] < bindings.size());
 
     const DescriptorSetLayoutBinding &info = bindings[bindingIndices[binding]];
@@ -141,8 +141,8 @@ void DescriptorSetValidator::bindTexture(uint32_t binding, Texture *texture, uin
     CC_ASSERT(isInited());
     CC_ASSERT(texture && static_cast<TextureValidator *>(texture)->isInited());
 
-    const ccstd::vector<uint32_t> &       bindingIndices = _layout->getBindingIndices();
-    const DescriptorSetLayoutBindingList &bindings       = _layout->getBindings();
+    const ccstd::vector<uint32_t> &bindingIndices = _layout->getBindingIndices();
+    const DescriptorSetLayoutBindingList &bindings = _layout->getBindings();
     CC_ASSERT(binding < bindingIndices.size() && bindingIndices[binding] < bindings.size());
 
     const DescriptorSetLayoutBinding &info = bindings[bindingIndices[binding]];
@@ -166,8 +166,8 @@ void DescriptorSetValidator::bindTexture(uint32_t binding, Texture *texture, uin
 void DescriptorSetValidator::bindSampler(uint32_t binding, Sampler *sampler, uint32_t index) {
     CC_ASSERT(isInited());
 
-    const ccstd::vector<uint32_t> &       bindingIndices = _layout->getBindingIndices();
-    const DescriptorSetLayoutBindingList &bindings       = _layout->getBindings();
+    const ccstd::vector<uint32_t> &bindingIndices = _layout->getBindingIndices();
+    const DescriptorSetLayoutBindingList &bindings = _layout->getBindings();
     CC_ASSERT(binding < bindingIndices.size() && bindingIndices[binding] < bindings.size());
 
     const DescriptorSetLayoutBinding &info = bindings[bindingIndices[binding]];

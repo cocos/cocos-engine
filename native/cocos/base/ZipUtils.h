@@ -41,11 +41,11 @@ using unz_file_info = struct unz_file_info_s;
 #endif
 
 struct CCZHeader {
-    unsigned char sig[4];           /** Signature. Should be 'CCZ!' 4 bytes. */
-    uint16_t      compression_type; /** Should be 0. */
-    uint16_t      version;          /** Should be 2 (although version type==1 is also supported). */
-    unsigned int  reserved;         /** Reserved for users. */
-    unsigned int  len;              /** Size of the uncompressed file. */
+    unsigned char sig[4];      /** Signature. Should be 'CCZ!' 4 bytes. */
+    uint16_t compression_type; /** Should be 0. */
+    uint16_t version;          /** Should be 2 (although version type==1 is also supported). */
+    unsigned int reserved;     /** Reserved for users. */
+    unsigned int len;          /** Size of the uncompressed file. */
 };
 
 enum {
@@ -184,13 +184,13 @@ public:
     static void setPvrEncryptionKey(unsigned int keyPart1, unsigned int keyPart2, unsigned int keyPart3, unsigned int keyPart4);
 
 private:
-    static int                 inflateMemoryWithHint(unsigned char *in, uint32_t inLength, unsigned char **out, uint32_t *outLength, uint32_t outLengthHint);
-    static inline void         decodeEncodedPvr(unsigned int *data, uint32_t len);
+    static int inflateMemoryWithHint(unsigned char *in, uint32_t inLength, unsigned char **out, uint32_t *outLength, uint32_t outLengthHint);
+    static inline void decodeEncodedPvr(unsigned int *data, uint32_t len);
     static inline unsigned int checksumPvr(const unsigned int *data, uint32_t len);
 
     static unsigned int encryptedPvrKeyParts[4];
     static unsigned int encryptionKey[1024];
-    static bool         encryptionKeyIsValid;
+    static bool encryptionKeyIsValid;
 };
 
 // forward declaration
@@ -269,7 +269,7 @@ private:
     ZipFile();
 
     bool initWithBuffer(const void *buffer, uint32_t size);
-    int  getCurrentFileInfo(ccstd::string *filename, unz_file_info *info);
+    int getCurrentFileInfo(ccstd::string *filename, unz_file_info *info);
 
     /** Internal data like zip file pointer / file list array and so on */
     ZipFilePrivate *_data{nullptr};

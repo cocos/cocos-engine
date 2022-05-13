@@ -39,16 +39,16 @@ public:
     void updateScale() override;
 
     struct Cone {
-        float          radius;
-        float          height;
+        float radius;
+        float height;
         EAxisDirection direction;
     };
 
 private:
     physx::PxConvexMesh *_mMesh;
-    Cone                 _mData;
-    void                 updateGeometry();
-    void                 onComponentSet() override;
+    Cone _mData;
+    void updateGeometry();
+    void onComponentSet() override;
 };
 
 } // namespace physics

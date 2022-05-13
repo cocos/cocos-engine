@@ -27,40 +27,40 @@ OBB *OBB::create(
     float oy1, float oy2, float oy3,
     float oz1, float oz2, float oz3) {
     return ccnew OBB(cx, cy, cz, hw, hh, hl,
-                   ox1, ox2, ox3,
-                   oy1, oy2, oy3,
-                   oz1, oz2, oz3);
+                     ox1, ox2, ox3,
+                     oy1, oy2, oy3,
+                     oz1, oz2, oz3);
 }
 
 OBB *OBB::clone(const OBB &a) {
     return ccnew OBB(a.center.x, a.center.y, a.center.z,
-                   a.halfExtents.x, a.halfExtents.y, a.halfExtents.z,
-                   a.orientation.m[0], a.orientation.m[1], a.orientation.m[2],
-                   a.orientation.m[3], a.orientation.m[4], a.orientation.m[5],
-                   a.orientation.m[6], a.orientation.m[7], a.orientation.m[8]);
+                     a.halfExtents.x, a.halfExtents.y, a.halfExtents.z,
+                     a.orientation.m[0], a.orientation.m[1], a.orientation.m[2],
+                     a.orientation.m[3], a.orientation.m[4], a.orientation.m[5],
+                     a.orientation.m[6], a.orientation.m[7], a.orientation.m[8]);
 }
 
 OBB *OBB::copy(OBB *out, const OBB &a) {
-    out->center      = a.center;
+    out->center = a.center;
     out->halfExtents = a.halfExtents;
     out->orientation = a.orientation;
     return out;
 }
 
 OBB *OBB::fromPoints(OBB *out, const Vec3 &minPos, const Vec3 &maxPos) {
-    out->center      = 0.5F * (minPos + maxPos);
+    out->center = 0.5F * (minPos + maxPos);
     out->halfExtents = 0.5F * (maxPos - minPos);
     Mat3::identity(out->orientation);
     return out;
 }
 
-OBB *OBB::set(OBB * out,
+OBB *OBB::set(OBB *out,
               float cx, float cy, float cz,
               float hw, float hh, float hl,
               float ox1, float ox2, float ox3,
               float oy1, float oy2, float oy3,
               float oz1, float oz2, float oz3) {
-    out->center      = {cx, cy, cz};
+    out->center = {cx, cy, cz};
     out->halfExtents = {hw, hh, hl};
     out->orientation = {ox1, ox2, ox3, oy1, oy2, oy3, oz1, oz2, oz3};
     return out;
@@ -72,7 +72,7 @@ OBB::OBB(float cx, float cy, float cz,
          float oy1, float oy2, float oy3,
          float oz1, float oz2, float oz3) {
     setType(ShapeEnum::SHAPE_OBB);
-    center      = {cx, cy, cz};
+    center = {cx, cy, cz};
     halfExtents = {hw, hh, hl};
     orientation = {ox1, ox2, ox3, oy1, oy2, oy3, oz1, oz2, oz3};
 }

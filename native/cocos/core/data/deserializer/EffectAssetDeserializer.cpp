@@ -71,7 +71,7 @@ static void deserializeArray(const rapidjson::Value &valArray, ccstd::vector<T> 
 static MacroRecord jsonToMacroRecord(const rapidjson::Value &embeddedMacrosVal) {
     MacroRecord cEmbeddedMacros;
     for (const auto &macro : embeddedMacrosVal.GetObject()) {
-        const auto *name  = macro.name.GetString();
+        const auto *name = macro.name.GetString();
         const auto &value = macro.value;
 
         // using MacroValue = cc::variant<int32_t, float, bool, ccstd::string>;
@@ -100,9 +100,9 @@ static IPropertyHandleInfo jsonToPropertyHandleInfo(const rapidjson::Value &hand
     if (handleInfoVal.IsArray()) {
         // using IPropertyHandleInfo = std::tuple<ccstd::string, uint32_t, gfx::Type>;
         ccstd::string t0;
-        uint32_t      t1 = 0;
-        gfx::Type     t2 = gfx::Type::UNKNOWN;
-        int32_t       i  = 0;
+        uint32_t t1 = 0;
+        gfx::Type t2 = gfx::Type::UNKNOWN;
+        int32_t i = 0;
 
         for (const auto &e : handleInfoVal.GetArray()) {
             switch (i) {
@@ -169,7 +169,7 @@ static PassPropertyInfoMap jsonToPassPropertyInfoMap(const rapidjson::Value &pro
     PassPropertyInfoMap propertyInfoMap;
 
     for (const auto &propertyVal : propertyInfoMapVal.GetObject()) {
-        const auto *name  = propertyVal.name.GetString();
+        const auto *name = propertyVal.name.GetString();
         const auto &value = propertyVal.value;
         propertyInfoMap.emplace(name, jsonToPropertyInfo(value));
     }
@@ -397,7 +397,7 @@ static BlendStateInfo jsonToBlendState(const rapidjson::Value &val) {
 
     if (val.HasMember("targets")) {
         if (val["targets"].IsArray()) {
-            const auto &        targetsVal = val["targets"].GetArray();
+            const auto &targetsVal = val["targets"].GetArray();
             BlendTargetInfoList targets;
             targets.resize(targetsVal.Size());
             int32_t i = 0;
@@ -549,7 +549,7 @@ static void deserializeShaderDefine(const rapidjson::Value &defineVal, IDefineIn
     }
 
     if (defineVal.HasMember("range")) {
-        auto &      cRange   = cDefine.range;
+        auto &cRange = cDefine.range;
         const auto &rangeVal = defineVal["range"];
 
         cRange = ccstd::vector<int32_t>{};
@@ -557,7 +557,7 @@ static void deserializeShaderDefine(const rapidjson::Value &defineVal, IDefineIn
     }
 
     if (defineVal.HasMember("options")) {
-        auto &      cOptions   = cDefine.options;
+        auto &cOptions = cDefine.options;
         const auto &optionsVal = defineVal["options"];
 
         cOptions = ccstd::vector<ccstd::string>{};

@@ -43,16 +43,16 @@ namespace example {
 
 namespace {
 
-using RDG  = RenderDependencyGraph;
+using RDG = RenderDependencyGraph;
 using RESG = ResourceGraph;
 
 // validation
 void checkComputeValue(const PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> &values0) {
     for (const auto &pair : values0) {
-        const auto &name   = pair.first;
+        const auto &name = pair.first;
         const auto &values = pair.second;
-        bool        bWrite = false;
-        int         count  = 0;
+        bool bWrite = false;
+        int count = 0;
         for (const auto &v : values) {
             if (v.clearFlags != gfx::ClearFlagBit::NONE) {
                 if (!v.isWrite()) {
@@ -173,33 +173,33 @@ void buildRenderDependencyGraph(const RenderGraph &rg, RenderDependencyGraph &rd
         visitObject(
             passID, rg,
             [&](const RasterPass &pass) {
-                auto  vertID   = add_vertex(rdg, passID);
-                auto &node     = get(RDG::Pass, rdg, vertID);
+                auto vertID = add_vertex(rdg, passID);
+                auto &node = get(RDG::Pass, rdg, vertID);
                 auto &valueIDs = get(RDG::ValueID, rdg, vertID);
                 for (const auto &pair : pass.rasterViews) {
                     const auto &valueName = pair.first;
-                    const auto &value     = pair.second;
+                    const auto &value = pair.second;
                     addPassNodeValue(rdg, node, valueIDs, valueName, value.accessType);
                 }
                 for (const auto &pair : pass.computeViews) {
                     const auto &valueName = pair.first;
-                    const auto &values    = pair.second;
+                    const auto &values = pair.second;
                     addPassNodeValue(rdg, node, valueIDs, valueName, makeAccessType(values));
                 }
             },
             [&](const ComputePass &pass) {
-                auto  vertID   = add_vertex(rdg, passID);
-                auto &node     = get(RDG::Pass, rdg, vertID);
+                auto vertID = add_vertex(rdg, passID);
+                auto &node = get(RDG::Pass, rdg, vertID);
                 auto &valueIDs = get(RDG::ValueID, rdg, vertID);
                 for (const auto &pair : pass.computeViews) {
                     const auto &valueName = pair.first;
-                    const auto &values    = pair.second;
+                    const auto &values = pair.second;
                     addPassNodeValue(rdg, node, valueIDs, valueName, makeAccessType(values));
                 }
             },
             [&](const CopyPass &pass) {
-                auto  vertID   = add_vertex(rdg, passID);
-                auto &node     = get(RDG::Pass, rdg, vertID);
+                auto vertID = add_vertex(rdg, passID);
+                auto &node = get(RDG::Pass, rdg, vertID);
                 auto &valueIDs = get(RDG::ValueID, rdg, vertID);
 
                 for (const auto &pair : pass.copyPairs) {
@@ -208,8 +208,8 @@ void buildRenderDependencyGraph(const RenderGraph &rg, RenderDependencyGraph &rd
                 }
             },
             [&](const MovePass &pass) {
-                auto  vertID   = add_vertex(rdg, passID);
-                auto &node     = get(RDG::Pass, rdg, vertID);
+                auto vertID = add_vertex(rdg, passID);
+                auto &node = get(RDG::Pass, rdg, vertID);
                 auto &valueIDs = get(RDG::ValueID, rdg, vertID);
 
                 for (const auto &pair : pass.movePairs) {
@@ -218,18 +218,18 @@ void buildRenderDependencyGraph(const RenderGraph &rg, RenderDependencyGraph &rd
                 }
             },
             [&](const RaytracePass &pass) {
-                auto  vertID   = add_vertex(rdg, passID);
-                auto &node     = get(RDG::Pass, rdg, vertID);
+                auto vertID = add_vertex(rdg, passID);
+                auto &node = get(RDG::Pass, rdg, vertID);
                 auto &valueIDs = get(RDG::ValueID, rdg, vertID);
                 for (const auto &pair : pass.computeViews) {
                     const auto &valueName = pair.first;
-                    const auto &values    = pair.second;
+                    const auto &values = pair.second;
                     addPassNodeValue(rdg, node, valueIDs, valueName, makeAccessType(values));
                 }
             },
             [&](const PresentPass &pass) {
-                auto  vertID   = add_vertex(rdg, passID);
-                auto &node     = get(RDG::Pass, rdg, vertID);
+                auto vertID = add_vertex(rdg, passID);
+                auto &node = get(RDG::Pass, rdg, vertID);
                 auto &valueIDs = get(RDG::ValueID, rdg, vertID);
 
                 for (const auto &pair : pass.presents) {
@@ -263,7 +263,7 @@ void buildRenderValueGraphAndInitialPass(RenderDependencyGraph &rdg, RenderValue
     // build value graph edges
     auto initPassID = vertex(0xFFFFFFFF, rdg);
     CC_EXPECTS(initPassID == 0);
-    auto &initPass     = get(RDG::Pass, rdg, initPassID);
+    auto &initPass = get(RDG::Pass, rdg, initPassID);
     auto &initValueIDs = get(RDG::ValueID, rdg, initPassID);
 
     for (uint32_t dstPassID = num_vertices(rdg); dstPassID-- > 0;) {
@@ -320,7 +320,7 @@ void buildRenderDependencyGraphResourceIndex(const ResourceGraph &resg, RenderDe
 
     uint32_t valueID = 0;
     for (const auto &valueName : rdg.valueNames) {
-        auto handleID                = vertex(valueName, resg);
+        auto handleID = vertex(valueName, resg);
         rdg.resourceHandles[valueID] = handleID;
         ++valueID;
     }
@@ -328,15 +328,15 @@ void buildRenderDependencyGraphResourceIndex(const ResourceGraph &resg, RenderDe
 
 struct CullingVisitor : boost::dfs_visitor<> {
     CullingVisitor(
-        const ResourceGraph &        resg0,
-        const RenderGraph &          rg0,
+        const ResourceGraph &resg0,
+        const RenderGraph &rg0,
         const RenderDependencyGraph &rdg0,
 
-        boost::property_map<RenderDependencyGraph, RenderDependencyGraph::PassTag>::const_type    passes,
+        boost::property_map<RenderDependencyGraph, RenderDependencyGraph::PassTag>::const_type passes,
         boost::property_map<RenderDependencyGraph, RenderDependencyGraph::ValueIDTag>::const_type valueIDs,
-        boost::property_map<RenderDependencyGraph, RenderDependencyGraph::PassIDTag>::const_type  passIDs,
-        boost::property_map<RenderDependencyGraph, RenderDependencyGraph::TraitsTag>::type        traits,
-        boost::property_map<ResourceGraph, ResourceGraph::TraitsTag>::const_type                  resourceTraits)
+        boost::property_map<RenderDependencyGraph, RenderDependencyGraph::PassIDTag>::const_type passIDs,
+        boost::property_map<RenderDependencyGraph, RenderDependencyGraph::TraitsTag>::type traits,
+        boost::property_map<ResourceGraph, ResourceGraph::TraitsTag>::const_type resourceTraits)
     : resg(resg0),
       rg(rg0),
       rdg(rdg0),
@@ -353,7 +353,7 @@ struct CullingVisitor : boost::dfs_visitor<> {
     void markVertex(Graph::edge_descriptor e, const Graph &g) const {
         auto sourceID = source(e, g);
         auto targetID = target(e, g);
-        auto keep     = get(traits, sourceID).keep;
+        auto keep = get(traits, sourceID).keep;
         get(traits, targetID).keep |= keep;
     }
 
@@ -400,14 +400,14 @@ struct CullingVisitor : boost::dfs_visitor<> {
         // currently, do nothing
     }
 
-    const ResourceGraph &        resg;
-    const RenderGraph &          rg;
+    const ResourceGraph &resg;
+    const RenderGraph &rg;
     const RenderDependencyGraph &rdg;
 
-    boost::property_map<RenderDependencyGraph, RenderDependencyGraph::PassTag>::const_type    mPasses;
+    boost::property_map<RenderDependencyGraph, RenderDependencyGraph::PassTag>::const_type mPasses;
     boost::property_map<RenderDependencyGraph, RenderDependencyGraph::ValueIDTag>::const_type valueIDs;
-    boost::property_map<RenderDependencyGraph, RenderDependencyGraph::PassIDTag>::const_type  passIDs;
-    boost::property_map<RenderDependencyGraph, RenderDependencyGraph::TraitsTag>::type        traits;
+    boost::property_map<RenderDependencyGraph, RenderDependencyGraph::PassIDTag>::const_type passIDs;
+    boost::property_map<RenderDependencyGraph, RenderDependencyGraph::TraitsTag>::type traits;
 
     boost::property_map<ResourceGraph, ResourceGraph::TraitsTag>::const_type mResourceTraits;
 };
@@ -415,7 +415,7 @@ struct CullingVisitor : boost::dfs_visitor<> {
 } // namespace
 
 int RenderCompiler::compile() {
-    auto &      rg   = graph;
+    auto &rg = graph;
     const auto &resg = resourceGraph;
 
     try {
@@ -461,7 +461,7 @@ int RenderCompiler::compile() {
         //    d) found back-edge, rdg is not DAG, abort
         // 3. any pass is not marked as keep, is culled
         {
-            const auto &crdg  = rdg;
+            const auto &crdg = rdg;
             const auto &cresg = resg;
 
             CullingVisitor visitor(
@@ -472,7 +472,7 @@ int RenderCompiler::compile() {
                 get(RDG::Traits, rdg),
                 get(RESG::Traits, cresg));
 
-            auto colors       = rdg.colors(scratch);
+            auto colors = rdg.colors(scratch);
             auto reverseGraph = boost::make_reverse_graph(crdg);
             boost::depth_first_search(
                 reverseGraph,

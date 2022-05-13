@@ -32,21 +32,21 @@ IGeometry sphere(float radius, const cc::optional<ISphereOptions> &opts) {
     // lat === latitude
     // lon === longitude
 
-    ccstd::vector<float>    positions;
-    ccstd::vector<float>    normals;
-    ccstd::vector<float>    uvs;
+    ccstd::vector<float> positions;
+    ccstd::vector<float> normals;
+    ccstd::vector<float> uvs;
     ccstd::vector<uint32_t> indices;
-    const Vec3              minPos(-radius, -radius, -radius);
-    const Vec3              maxPos(radius, radius, radius);
-    const float             boundingRadius = radius;
+    const Vec3 minPos(-radius, -radius, -radius);
+    const Vec3 maxPos(radius, radius, radius);
+    const float boundingRadius = radius;
 
     for (uint32_t lat = 0; lat <= segments; lat++) {
-        const float theta    = static_cast<float>(lat) * math::PI / static_cast<float>(segments);
+        const float theta = static_cast<float>(lat) * math::PI / static_cast<float>(segments);
         const float sinTheta = sin(theta);
         const float cosTheta = -cos(theta);
 
         for (uint32_t lon = 0; lon <= segments; ++lon) {
-            const float phi    = static_cast<float>(lon) * 2.F * math::PI / static_cast<float>(segments) - math::PI / 2.F;
+            const float phi = static_cast<float>(lon) * 2.F * math::PI / static_cast<float>(segments) - math::PI / 2.F;
             const float sinPhi = sin(phi);
             const float cosPhi = cos(phi);
 
@@ -69,10 +69,10 @@ IGeometry sphere(float radius, const cc::optional<ISphereOptions> &opts) {
 
             if ((lat < segments) && (lon < segments)) {
                 const uint32_t seg1 = segments + 1;
-                const uint32_t a    = seg1 * lat + lon;
-                const uint32_t b    = seg1 * (lat + 1) + lon;
-                const uint32_t c    = seg1 * (lat + 1) + lon + 1;
-                const uint32_t d    = seg1 * lat + lon + 1;
+                const uint32_t a = seg1 * lat + lon;
+                const uint32_t b = seg1 * (lat + 1) + lon;
+                const uint32_t c = seg1 * (lat + 1) + lon + 1;
+                const uint32_t d = seg1 * lat + lon + 1;
 
                 indices.emplace_back(a);
                 indices.emplace_back(d);
@@ -86,13 +86,13 @@ IGeometry sphere(float radius, const cc::optional<ISphereOptions> &opts) {
     }
 
     IGeometry info;
-    info.positions      = positions;
-    info.normals        = normals;
-    info.uvs            = uvs;
+    info.positions = positions;
+    info.normals = normals;
+    info.uvs = uvs;
     info.boundingRadius = boundingRadius;
-    info.minPos         = minPos;
-    info.maxPos         = maxPos;
-    info.indices        = indices;
+    info.minPos = minPos;
+    info.maxPos = maxPos;
+    info.indices = indices;
     return info;
 }
 

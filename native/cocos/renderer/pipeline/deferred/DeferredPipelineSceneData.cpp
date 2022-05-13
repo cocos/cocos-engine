@@ -7,7 +7,7 @@
 namespace cc {
 namespace pipeline {
 
-DeferredPipelineSceneData::DeferredPipelineSceneData()  = default;
+DeferredPipelineSceneData::DeferredPipelineSceneData() = default;
 DeferredPipelineSceneData::~DeferredPipelineSceneData() = default;
 
 void DeferredPipelineSceneData::activate(gfx::Device *device) {
@@ -59,10 +59,10 @@ void DeferredPipelineSceneData::setAntiAliasing(AntiAliasing value) {
     if (_postProcessMaterial) {
         auto &defines = (*_postProcessMaterial->getPasses())[0]->getDefines();
         defines.emplace("ANTIALIAS_TYPE", static_cast<int32_t>(value));
-        auto *        renderMat = ccnew Material();
+        auto *renderMat = ccnew Material();
         IMaterialInfo materialInfo;
         materialInfo.effectAsset = _postProcessMaterial->getEffectAsset();
-        materialInfo.defines     = defines;
+        materialInfo.defines = defines;
         renderMat->initialize(materialInfo);
         for (const auto &pass : *renderMat->getPasses()) {
             pass->tryCompile();
@@ -76,7 +76,7 @@ void DeferredPipelineSceneData::updateBloomPass() {
         return;
     }
 
-    auto &bloomPasses   = *_bloomMaterial->getPasses();
+    auto &bloomPasses = *_bloomMaterial->getPasses();
     _bloomPrefilterPass = bloomPasses[BLOOM_PREFILTERPASS_INDEX];
     _bloomPrefilterPass->beginChangeStatesSilently();
     _bloomPrefilterPass->tryCompile();
@@ -104,7 +104,7 @@ void DeferredPipelineSceneData::updateBloomPass() {
     _bloomCombinePass->endChangeStatesSilently();
     _bloomCombinePassShader = _bloomCombinePass->getShaderVariant();
 
-    _bloomUpSamplePassShader   = bloomPasses[BLOOM_UPSAMPLEPASS_INDEX]->getShaderVariant();
+    _bloomUpSamplePassShader = bloomPasses[BLOOM_UPSAMPLEPASS_INDEX]->getShaderVariant();
     _bloomDownSamplePassShader = bloomPasses[BLOOM_DOWNSAMPLEPASS_INDEX]->getShaderVariant();
 }
 
@@ -138,7 +138,7 @@ void DeferredPipelineSceneData::updateDeferredLightPass() {
 
     // It's temporary solution for main light shadowmap
     if (_shadow->isEnabled()) {
-        if (RenderPipeline::getInstance()){
+        if (RenderPipeline::getInstance()) {
             RenderPipeline::getInstance()->setValue("CC_RECEIVE_SHADOW", 1);
         }
     }

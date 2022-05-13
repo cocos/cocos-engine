@@ -27,7 +27,7 @@
 
 namespace cc {
 
-uint8_t const ThreadPool::CPU_CORE_COUNT   = std::thread::hardware_concurrency();
+uint8_t const ThreadPool::CPU_CORE_COUNT = std::thread::hardware_concurrency();
 uint8_t const ThreadPool::MAX_THREAD_COUNT = CPU_CORE_COUNT - 1;
 
 void ThreadPool::start() {

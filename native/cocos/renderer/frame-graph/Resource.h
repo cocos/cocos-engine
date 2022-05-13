@@ -51,14 +51,14 @@ template <typename DeviceResourceType, typename DescriptorType,
           typename DeviceResourceCreatorType = DeviceResourceCreator<DeviceResourceType, DescriptorType>>
 class Resource final {
 public:
-    using Allocator      = ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>;
+    using Allocator = ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>;
     using DeviceResource = DeviceResourceType;
-    using Descriptor     = DescriptorType;
+    using Descriptor = DescriptorType;
 
     Resource() = default;
     explicit Resource(const Descriptor &desc);
-    ~Resource()                    = default;
-    Resource(const Resource &)     = default;
+    ~Resource() = default;
+    Resource(const Resource &) = default;
     Resource(Resource &&) noexcept = default;
     Resource &operator=(const Resource &) = default;
     Resource &operator=(Resource &&) noexcept = default;
@@ -66,15 +66,15 @@ public:
     void createTransient() noexcept;
     void createPersistent() noexcept;
 
-    void                       destroyTransient() noexcept;
-    void                       destroyPersistent() noexcept;
+    void destroyTransient() noexcept;
+    void destroyPersistent() noexcept;
     inline DeviceResourceType *get() const noexcept;
-    inline const Descriptor &  getDesc() const noexcept;
+    inline const Descriptor &getDesc() const noexcept;
 
 private:
     explicit Resource(DeviceResourceType *external);
 
-    Descriptor          _desc;
+    Descriptor _desc;
     DeviceResourceType *_deviceObject{nullptr};
 
     friend class FrameGraph;
@@ -138,7 +138,7 @@ const DescriptorType &Resource<DeviceResourceType, DescriptorType, DeviceResourc
             return gfx::Device::getInstance()->create##Type(desc);        \
         }                                                                 \
     };                                                                    \
-    using Type         = Resource<gfx::Type, gfx::Type##Info>;            \
+    using Type = Resource<gfx::Type, gfx::Type##Info>;                    \
     using Type##Handle = TypedHandle<Type>;                               \
     template <>                                                           \
     struct ResourceTypeLookupTable<gfx::Type##Info> final {               \

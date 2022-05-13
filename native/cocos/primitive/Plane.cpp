@@ -31,20 +31,20 @@ IGeometry plane(cc::optional<IPlaneOptions> options) {
     if (!options.has_value()) {
         options = IPlaneOptions();
     }
-    const float    width     = options->width;
-    const float    length    = options->length;
+    const float width = options->width;
+    const float length = options->length;
     const uint32_t uSegments = options->widthSegments;
     const uint32_t vSegments = options->lengthSegments;
 
     const float hw = width * 0.5F;
     const float hl = length * 0.5F;
 
-    ccstd::vector<float>    positions;
-    ccstd::vector<float>    uvs;
+    ccstd::vector<float> positions;
+    ccstd::vector<float> uvs;
     ccstd::vector<uint32_t> indices;
-    const Vec3              minPos(-hw, 0, -hl);
-    const Vec3              maxPos(hw, 0, hl);
-    const float             boundingRadius = sqrt(width * width + length * length);
+    const Vec3 minPos(-hw, 0, -hl);
+    const Vec3 maxPos(hw, 0, hl);
+    const float boundingRadius = sqrt(width * width + length * length);
 
     Vec3 c00(-hw, 0, hl);
     Vec3 c10(hw, 0, hl);
@@ -70,10 +70,10 @@ IGeometry plane(cc::optional<IPlaneOptions> options) {
 
             if ((x < uSegments) && (y < vSegments)) {
                 const uint32_t uSeg1 = uSegments + 1;
-                const uint32_t a     = x + y * uSeg1;
-                const uint32_t b     = x + (y + 1) * uSeg1;
-                const uint32_t c     = (x + 1) + (y + 1) * uSeg1;
-                const uint32_t d     = (x + 1) + y * uSeg1;
+                const uint32_t a = x + y * uSeg1;
+                const uint32_t b = x + (y + 1) * uSeg1;
+                const uint32_t c = (x + 1) + (y + 1) * uSeg1;
+                const uint32_t d = (x + 1) + y * uSeg1;
 
                 indices.emplace_back(a);
                 indices.emplace_back(d);
@@ -86,14 +86,14 @@ IGeometry plane(cc::optional<IPlaneOptions> options) {
     }
 
     IGeometry result;
-    result.positions      = positions;
+    result.positions = positions;
     result.boundingRadius = boundingRadius;
-    result.minPos         = minPos;
-    result.maxPos         = maxPos;
-    result.indices        = indices;
+    result.minPos = minPos;
+    result.maxPos = maxPos;
+    result.indices = indices;
 
     if (options->includeNormal) {
-        const uint32_t       nVertex = (vSegments + 1) * (uSegments + 1);
+        const uint32_t nVertex = (vSegments + 1) * (uSegments + 1);
         ccstd::vector<float> normals(3 * nVertex);
         for (uint32_t i = 0; i < nVertex; ++i) {
             normals[i * 3 + 0] = 0;

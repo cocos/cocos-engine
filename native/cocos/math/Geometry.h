@@ -59,10 +59,10 @@ public:
 
     Size &operator=(const Size &other);
     Size &operator=(const Vec2 &point);
-    Size  operator+(const Size &right) const;
-    Size  operator-(const Size &right) const;
-    Size  operator*(float a) const;
-    Size  operator/(float a) const;
+    Size operator+(const Size &right) const;
+    Size operator-(const Size &right) const;
+    Size operator*(float a) const;
+    Size operator/(float a) const;
     /**
     Set the width and height of Size.
      */
@@ -88,7 +88,7 @@ public:
     Rect(const Vec2 &pos, const Size &dimension);
     Rect(const Rect &other);
     Rect &operator=(const Rect &other);
-    void  setRect(float x, float y, float width, float height);
+    void setRect(float x, float y, float width, float height);
     /**
     Get the left of the rect.
      */

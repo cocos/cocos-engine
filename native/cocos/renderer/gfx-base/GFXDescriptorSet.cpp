@@ -39,7 +39,7 @@ DescriptorSet::~DescriptorSet() = default;
 void DescriptorSet::initialize(const DescriptorSetInfo &info) {
     CC_ASSERT(info.layout);
 
-    _layout                  = info.layout;
+    _layout = info.layout;
     uint32_t descriptorCount = _layout->getDescriptorCount();
     _buffers.resize(descriptorCount);
     _textures.resize(descriptorCount);
@@ -62,7 +62,7 @@ void DescriptorSet::bindBuffer(uint32_t binding, Buffer *buffer, uint32_t index)
     const uint32_t descriptorIndex = _layout->getDescriptorIndices()[binding];
     if (_buffers[descriptorIndex + index] != buffer) {
         _buffers[descriptorIndex + index] = buffer;
-        _isDirty                          = true;
+        _isDirty = true;
     }
 }
 
@@ -70,7 +70,7 @@ void DescriptorSet::bindTexture(uint32_t binding, Texture *texture, uint32_t ind
     const uint32_t descriptorIndex = _layout->getDescriptorIndices()[binding];
     if (_textures[descriptorIndex + index] != texture) {
         _textures[descriptorIndex + index] = texture;
-        _isDirty                           = true;
+        _isDirty = true;
     }
 }
 
@@ -78,7 +78,7 @@ void DescriptorSet::bindSampler(uint32_t binding, Sampler *sampler, uint32_t ind
     const uint32_t descriptorIndex = _layout->getDescriptorIndices()[binding];
     if (_samplers[descriptorIndex + index] != sampler) {
         _samplers[descriptorIndex + index] = sampler;
-        _isDirty                           = true;
+        _isDirty = true;
     }
 }
 

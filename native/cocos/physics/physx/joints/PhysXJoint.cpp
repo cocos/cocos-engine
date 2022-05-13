@@ -34,7 +34,7 @@ namespace physics {
 physx::PxRigidActor *PhysXJoint::tempRigidActor = nullptr;
 
 void PhysXJoint::initialize(Node *node) {
-    auto &ins    = PhysXWorld::getInstance();
+    auto &ins = PhysXWorld::getInstance();
     _mSharedBody = ins.getSharedBody(node);
     _mSharedBody->reference(true);
     onComponentSet();
@@ -62,7 +62,7 @@ void PhysXJoint::onDestroy() {
 
 void PhysXJoint::setConnectedBody(uintptr_t v) {
     if (v) {
-        auto &ins       = PhysXWorld::getInstance();
+        auto &ins = PhysXWorld::getInstance();
         _mConnectedBody = ins.getSharedBody(reinterpret_cast<Node *>(v));
     } else {
         _mConnectedBody = nullptr;

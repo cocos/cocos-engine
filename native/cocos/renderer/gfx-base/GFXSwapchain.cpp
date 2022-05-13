@@ -38,7 +38,7 @@ void Swapchain::initialize(const SwapchainInfo &info) {
     CC_ASSERT(info.windowHandle);
 
     _windowHandle = info.windowHandle;
-    _vsyncMode    = info.vsyncMode;
+    _vsyncMode = info.vsyncMode;
 
     doInit(info);
 }

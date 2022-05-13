@@ -75,21 +75,21 @@ public:
 
     explicit Capsule(float radius = 0.5, float halfHeight = 0.5, CenterEnum axis = CenterEnum::Y) {
         this->setType(ShapeEnum::SHAPE_CAPSULE);
-        this->radius     = radius;
+        this->radius = radius;
         this->halfHeight = halfHeight;
-        this->axis       = axis;
-        this->center     = {};
-        this->rotation   = {};
-        ellipseCenter0   = {0, halfHeight, 0};
-        ellipseCenter1   = {0, -halfHeight, 0};
+        this->axis = axis;
+        this->center = {};
+        this->rotation = {};
+        ellipseCenter0 = {0, halfHeight, 0};
+        ellipseCenter1 = {0, -halfHeight, 0};
         updateCache();
     }
 
     Capsule(const Capsule &other) = default;
-    Capsule(Capsule &&other)      = default;
+    Capsule(Capsule &&other) = default;
     Capsule &operator=(const Capsule &other) = default;
     Capsule &operator=(Capsule &&other) = default;
-    ~Capsule() override                 = default;
+    ~Capsule() override = default;
 
     /**
      * @en

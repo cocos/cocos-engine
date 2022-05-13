@@ -41,7 +41,7 @@ public:
         float accelerationIncludingGravityZ = 0.0F;
 
         float rotationRateAlpha = 0.0F;
-        float rotationRateBeta  = 0.0F;
+        float rotationRateBeta = 0.0F;
         float rotationRateGamma = 0.0F;
     };
 
@@ -59,7 +59,6 @@ public:
      *  Gets the motion value of current device.
      */
     virtual const MotionValue &getDeviceMotionValue() = 0;
-
 };
 
 } // namespace cc

@@ -34,7 +34,7 @@ void TFJobGraph::makeEdge(uint j1, uint j2) noexcept {
 
 void TFJobGraph::run() noexcept {
     if (_pending) return;
-    _future  = _executor->run(_flow);
+    _future = _executor->run(_flow);
     _pending = true;
 }
 

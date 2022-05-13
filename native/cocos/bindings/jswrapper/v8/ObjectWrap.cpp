@@ -79,13 +79,13 @@ void ObjectWrap::setFinalizeCallback(FinalizeFunc finalizeCb) {
 /*static*/
 void *ObjectWrap::unwrap(v8::Local<v8::Object> handle, uint32_t fieldIndex) {
     CC_ASSERT(!handle.IsEmpty());
-    CC_ASSERT(handle->InternalFieldCount() > 1);
-    CC_ASSERT(fieldIndex >= 0 && fieldIndex < 2);
+    CC_ASSERT(handle->InternalFieldCount() > 0);
+    CC_ASSERT(fieldIndex >= 0 && fieldIndex < 1);
     return handle->GetAlignedPointerFromInternalField(static_cast<int>(fieldIndex));
 }
 void ObjectWrap::wrap(void *nativeObj, uint32_t fieldIndex) {
-    CC_ASSERT(handle()->InternalFieldCount() > 1);
-    CC_ASSERT(fieldIndex >= 0 && fieldIndex < 2);
+    CC_ASSERT(handle()->InternalFieldCount() > 0);
+    CC_ASSERT(fieldIndex >= 0 && fieldIndex < 1);
     handle()->SetAlignedPointerInInternalField(static_cast<int>(fieldIndex), nativeObj);
 }
 
@@ -136,7 +136,7 @@ void ObjectWrap::unref() {
 /*static*/
 void ObjectWrap::weakCallback(const v8::WeakCallbackInfo<Object> &data) {
     Object *seObj = data.GetParameter();
-    ObjectWrap *wrap  = &seObj->_getWrap();
+    ObjectWrap *wrap = &seObj->_getWrap();
 
     CC_ASSERT(wrap->_refs == 0);
     wrap->_handle.Reset();

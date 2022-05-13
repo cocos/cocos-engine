@@ -34,7 +34,7 @@
 namespace cc {
 
 struct ITexture2DSerializeData {
-    ccstd::string                base;
+    ccstd::string base;
     ccstd::vector<ccstd::string> mipmaps;
 };
 
@@ -68,21 +68,20 @@ struct ITexture2DCreateInfo {
      * @default 1
      */
     cc::optional<uint32_t> mipmapLevel;
-    
+
     /**
      * @en The selected base mipmap level
      * @zh 选择使用的最小 mipmap 层级。
      * @default 1
      */
     cc::optional<uint32_t> baseLevel;
-    
+
     /**
      * @en The selected maximum mipmap level
      * @zh 选择使用的最大 mipmap 层级。
      * @default 1
      */
     cc::optional<uint32_t> maxLevel;
-
 };
 
 /**
@@ -161,14 +160,6 @@ public:
     ccstd::string toString() const override;
 
     void updateMipmaps(uint32_t firstLevel, uint32_t count) override;
-
-    /**
-     * @en If the level 0 mipmap image is a HTML element, then return it, otherwise return null.
-     * @zh 若此贴图 0 级 Mipmap 的图像资源的实际源存在并为 HTML 元素则返回它，否则返回 `null`。
-     * @returns HTML element or `null`
-     * @deprecated Please use [[image.data]] instead
-     */
-    HTMLElement *getHtmlElementObj();
 
     /**
      * @en Destroy the current 2d texture, clear up all mipmap levels and the related GPU resources.

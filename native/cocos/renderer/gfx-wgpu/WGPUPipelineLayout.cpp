@@ -61,10 +61,10 @@ void CCWGPUPipelineLayout::prepare(const ccstd::set<uint8_t> &setInUse) {
     }
 
     WGPUPipelineLayoutDescriptor descriptor = {
-        .nextInChain          = nullptr,
-        .label                = nullptr,
+        .nextInChain = nullptr,
+        .label = nullptr,
         .bindGroupLayoutCount = layouts.size(),
-        .bindGroupLayouts     = layouts.data(),
+        .bindGroupLayouts = layouts.data(),
     };
 
     _gpuPipelineLayoutObj->wgpuPipelineLayout = wgpuDeviceCreatePipelineLayout(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &descriptor);

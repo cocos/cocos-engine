@@ -327,11 +327,11 @@ void removeKeyboardEventLisnters() {
 
 - (void)keyboardWillHide:(NSNotification *)notification {
     NSDictionary *info = [notification userInfo];
-    
+
     CGRect beginKeyboardRect = [[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue];
     CGRect endKeyboardRect = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
     CGFloat yOffset = endKeyboardRect.origin.y - beginKeyboardRect.origin.y;
-    
+
     if (yOffset <= 0) {
         cc::EditBox::hide();
     }

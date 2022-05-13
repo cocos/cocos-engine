@@ -36,8 +36,7 @@ DRAGONBONES_NAMESPACE_BEGIN
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class AnimationData : public BaseObject
-{
+class AnimationData : public BaseObject {
     BIND_CLASS_TYPE_B(AnimationData);
 
 public:
@@ -155,14 +154,11 @@ public:
      * @private
      */
     ArmatureData* parent;
-    AnimationData() :
-        actionTimeline(nullptr),
-        zOrderTimeline(nullptr)
-    {
+    AnimationData() : actionTimeline(nullptr),
+                      zOrderTimeline(nullptr) {
         _onClear();
     }
-    ~AnimationData()
-    {
+    ~AnimationData() {
         _onClear();
     }
 
@@ -189,36 +185,31 @@ public:
     /**
      * @private
      */
-    std::vector<TimelineData*>* getBoneTimelines(const std::string& timelineName)
-    {
+    std::vector<TimelineData*>* getBoneTimelines(const std::string& timelineName) {
         return mapFindB(boneTimelines, timelineName);
     }
     /**
      * @private
      */
-    inline std::vector<TimelineData*>* getSlotTimelines(const std::string& timelineName)
-    {
+    inline std::vector<TimelineData*>* getSlotTimelines(const std::string& timelineName) {
         return mapFindB(slotTimelines, timelineName);
     }
     /**
      * @private
      */
-    inline std::vector<TimelineData*>* getConstraintTimelines(const std::string& timelineName)
-    {
+    inline std::vector<TimelineData*>* getConstraintTimelines(const std::string& timelineName) {
         return mapFindB(constraintTimelines, timelineName);
     }
     /**
      * @private
      */
-    inline std::vector<int>* getBoneCachedFrameIndices(const std::string& boneName)
-    {
+    inline std::vector<int>* getBoneCachedFrameIndices(const std::string& boneName) {
         return mapFindB(boneCachedFrameIndices, boneName);
     }
     /**
      * @private
      */
-    inline std::vector<int>* getSlotCachedFrameIndices(const std::string& slotName)
-    {
+    inline std::vector<int>* getSlotCachedFrameIndices(const std::string& slotName) {
         return mapFindB(slotCachedFrameIndices, slotName);
     }
 
@@ -235,8 +226,7 @@ public: // For WebAssembly.
 /**
  * @internal
  */
-class TimelineData : public BaseObject
-{
+class TimelineData : public BaseObject {
     BIND_CLASS_TYPE_A(TimelineData);
 
 public:

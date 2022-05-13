@@ -136,7 +136,7 @@ protected:
 
     void tryReset();
 
-    void          createTexture(gfx::Device *device);
+    void createTexture(gfx::Device *device);
     gfx::Texture *createTextureView(gfx::Device *device);
 
     void tryDestroyTexture();

@@ -38,8 +38,7 @@ DRAGONBONES_NAMESPACE_BEGIN
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class Matrix
-{
+class Matrix {
 public:
     /**
      * - The value that affects the positioning of pixels along the x axis when scaling or rotating an image.
@@ -120,25 +119,21 @@ public:
      */
     float ty;
 
-    Matrix():
-        a(1.0f),
-        b(0.0f),
-        c(0.0f),
-        d(1.0f),
-        tx(0.0f),
-        ty(0.0f)
-    {}
+    Matrix() : a(1.0f),
+               b(0.0f),
+               c(0.0f),
+               d(1.0f),
+               tx(0.0f),
+               ty(0.0f) {}
     /**
      * @private
      */
-    Matrix(const Matrix& value)
-    {
+    Matrix(const Matrix& value) {
         operator=(value);
     }
     ~Matrix() {}
 
-    inline void operator=(const Matrix& value)
-    {
+    inline void operator=(const Matrix& value) {
         a = value.a;
         b = value.b;
         c = value.c;
@@ -158,8 +153,7 @@ public:
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    inline void identity()
-    {
+    inline void identity() {
         a = d = 1.0f;
         b = c = 0.0f;
         tx = ty = 0.0f;
@@ -176,8 +170,7 @@ public:
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    inline void concat(const Matrix& value)
-    {
+    inline void concat(const Matrix& value) {
         const auto aA = a;
         const auto bA = b;
         const auto cA = c;
@@ -208,8 +201,7 @@ public:
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    inline void invert() 
-    {
+    inline void invert() {
         const auto aA = a;
         const auto bA = b;
         const auto cA = c;
@@ -243,13 +235,11 @@ public:
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    inline void transformPoint(float x, float y, Point& result, bool delta = false) const
-    {
+    inline void transformPoint(float x, float y, Point& result, bool delta = false) const {
         result.x = a * x + c * y;
         result.y = b * x + d * y;
 
-        if (!delta)
-        {
+        if (!delta) {
             result.x += tx;
             result.y += ty;
         }
@@ -257,8 +247,7 @@ public:
     /**
      * @private
      */
-    inline void transformRectangle(Rectangle& rectangle, bool delta = false) const
-    {
+    inline void transformRectangle(Rectangle& rectangle, bool delta = false) const {
         const auto offsetX = delta ? 0.0f : this->tx;
         const auto offsetY = delta ? 0.0f : this->ty;
 
@@ -277,15 +266,13 @@ public:
         auto y3 = b * x + d * yMax + offsetY;
         auto tmp = 0.0f;
 
-        if (x0 > x1) 
-        {
+        if (x0 > x1) {
             tmp = x0;
             x0 = x1;
             x1 = tmp;
         }
 
-        if (x2 > x3) 
-        {
+        if (x2 > x3) {
             tmp = x2;
             x2 = x3;
             x3 = tmp;
@@ -294,15 +281,13 @@ public:
         rectangle.x = std::floor(x0 < x2 ? x0 : x2);
         rectangle.width = std::ceil((x1 > x3 ? x1 : x3) - rectangle.x);
 
-        if (y0 > y1) 
-        {
+        if (y0 > y1) {
             tmp = y0;
             y0 = y1;
             y1 = tmp;
         }
 
-        if (y2 > y3) 
-        {
+        if (y2 > y3) {
             tmp = y2;
             y2 = y3;
             y3 = tmp;
