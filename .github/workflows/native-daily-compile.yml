@@ -7,11 +7,16 @@ on:
 
 jobs:
   compile_windows:
+    strategy:
+      matrix:
+        branch: ['v3.6.0']
     runs-on: windows-2019
     name: "Daily Windows"
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: ${{matrix.branch}}
       - name: Download external libraries
         shell: bash
         run: |
@@ -66,9 +71,14 @@ jobs:
 
   compile_android:
     name: "Daily Android"
+    strategy:
+      matrix:
+        branch: ['v3.6.0']
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: ${{matrix.branch}}
       - name: Download external libraries
         shell: bash
         run: |
@@ -133,9 +143,14 @@ jobs:
 
   compile_mac_x86_64:
     name: "Daily MacOS x86_64"
+    strategy:
+      matrix:
+        branch: ['v3.6.0']
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: ${{matrix.branch}}
       - uses: actions/setup-python@v2
         with:
           python-version: "3.x"
@@ -197,12 +212,18 @@ jobs:
 
   compile_iOS:
     name: "Daily iOS"
+    strategy:
+      matrix:
+        branch: ['v3.6.0']
+
     runs-on: macos-latest
     steps:
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: latest-stable
       - uses: actions/checkout@v2
+        with:
+          ref: ${{matrix.branch}}
       - uses: actions/setup-python@v2
         with:
           python-version: "3.x"
