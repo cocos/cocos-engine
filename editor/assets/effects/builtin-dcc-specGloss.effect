@@ -210,7 +210,7 @@ CCProgram standard-fs %{
   #if USE_ALBEDO_MAP
     uniform sampler2D albedoMap;
   #endif
-  #if USE_TRANSPARENT_MAP
+  #if USE_TRANSPARENCY_MAP
     uniform sampler2D transparencyMap;
   #endif
 
@@ -300,7 +300,7 @@ bool GetMetallicAlbedoFromDiffuseSpecularWithoutColor(out float metallic, out ve
     #endif
     baseColor.rgb *= diffuseScale;
     
-    #if USE_TRANSPARENT_MAP
+    #if USE_TRANSPARENCY_MAP
       baseColor.a = texture(transparencyMap, TEXTURE_UV).a * transparencyFactor;
     #endif
 
@@ -423,7 +423,7 @@ CCProgram shadow-caster-fs %{
     uniform sampler2D albedoMap;
   #endif
 
-  #if USE_TRANSPARENT_MAP
+  #if USE_TRANSPARENCY_MAP
     uniform sampler2D transparencyMap;
   #endif
 
@@ -434,7 +434,7 @@ CCProgram shadow-caster-fs %{
       baseColor *= texColor;
     #endif
     
-    #if USE_TRANSPARENT_MAP
+    #if USE_TRANSPARENCY_MAP
       baseColor.a = texture(transparencyMap, TEXTURE_UV).a * transparencyFactor;
     #endif
 
