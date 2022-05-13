@@ -692,8 +692,7 @@ if (JSB) {
     copyAllProperties(CCObject.prototype, jsb.CCObject.prototype,
         ['constructor', 'name', 'hideFlags', 'replicated', 'isValid']);
 
-    // @ts-expect-error TS2629
-    CCObject = jsb.CCObject;
+    (CCObject as any) = jsb.CCObject;
 }
 
 legacyCC.Object = CCObject;
