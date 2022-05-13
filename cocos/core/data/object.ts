@@ -325,7 +325,7 @@ class CCObject implements EditorExtendableObject {
         }
 
         if (JSB) {
-            // @ts-ignore
+            // @ts-expect-error JSB method
             this._destroy();
         }
 
@@ -692,10 +692,9 @@ if (JSB) {
     copyAllProperties(CCObject.prototype, jsb.CCObject.prototype,
         ['constructor', 'name', 'hideFlags', 'replicated', 'isValid']);
 
-    // @ts-ignore
+    // @ts-expect-error Override the CCObject with jsb.CCObject
     CCObject = jsb.CCObject;
 }
 
 legacyCC.Object = CCObject;
-// @ts-ignore
 export {CCObject};
