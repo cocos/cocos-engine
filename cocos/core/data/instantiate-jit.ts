@@ -423,7 +423,7 @@ class Parser {
     // codeArray - the source code array for this object
     public enumerateObject (codeArray, obj) {
         const klass = obj.constructor;
-        if (isCCClassOrFastDefined(klass, true)) {
+        if (isCCClassOrFastDefined(klass)) {
             this.enumerateCCClass(codeArray, obj, klass);
         } else {
             // primitive javascript object
