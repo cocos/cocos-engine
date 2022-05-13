@@ -687,17 +687,15 @@ if (EDITOR || TEST) {
 
 declare const jsb: any;
 
-let CCObjectExported;
-
 if (JSB) {
     copyAllProperties(CCObject, jsb.CCObject, ['prototype', 'length', 'name']);
     copyAllProperties(CCObject.prototype, jsb.CCObject.prototype,
         ['constructor', 'name', 'hideFlags', 'replicated', 'isValid']);
 
-    CCObjectExported = jsb.CCObject;
-} else {
-    CCObjectExported = CCObject;
+    // @ts-expect-error TS2629
+    // eslint-disable-next-line no-class-assign
+    CCObject = jsb.CCObject;
 }
 
-legacyCC.Object = CCObjectExported;
-export { CCObjectExported as CCObject };
+legacyCC.Object = CCObject;
+export { CCObject };
