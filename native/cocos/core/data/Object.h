@@ -122,9 +122,9 @@ public:
     Flags _objFlags{Flags::ZERO};
     ccstd::string _name;
 
-protected:
+public:
     explicit CCObject(ccstd::string name = "");
-    ~CCObject() override = default;
+    ~CCObject() override;
 
 public:
     // MEMBER

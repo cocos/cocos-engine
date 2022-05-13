@@ -615,8 +615,10 @@ public:
     inline uint32_t getEventMask() const { return _eventMask; }
     inline void setEventMask(uint32_t mask) { _eventMask = mask; }
 
-protected:
     bool onPreDestroy() override;
+    bool onPreDestroyBase();
+
+protected:
 
     void onSetParent(Node *oldParent, bool keepWorldTransform);
 
@@ -626,8 +628,6 @@ protected:
     void onHierarchyChangedBase(Node *oldParent);
 
     virtual void onBatchCreated(bool dontChildPrefab);
-
-    bool onPreDestroyBase();
 
 #if CC_EDITOR
     inline void notifyEditorAttached(bool attached) {

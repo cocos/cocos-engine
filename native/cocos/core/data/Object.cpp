@@ -57,13 +57,15 @@ CCObject::CCObject(ccstd::string name /* = ""*/)
 : _name(std::move(name)) {
 }
 
+CCObject::~CCObject() = default;
+
 bool CCObject::destroy() {
     if (static_cast<bool>(_objFlags & Flags::DESTROYED)) {
-        debug::warnID(5000);
-        return false;
+//      debug::warnID(5000);
+        return true;
     }
     if (static_cast<bool>(_objFlags & Flags::TO_DESTROY)) {
-        return false;
+        return true;
     }
     _objFlags |= Flags::TO_DESTROY;
     addRef();
@@ -75,7 +77,7 @@ bool CCObject::destroy() {
 
 void CCObject::destroyImmediate() {
     if (static_cast<bool>(_objFlags & Flags::DESTROYED)) {
-        debug::errorID(5000);
+//      debug::errorID(5000);
         return;
     }
 

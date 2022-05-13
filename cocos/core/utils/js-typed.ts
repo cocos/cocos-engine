@@ -340,6 +340,18 @@ function _copyprop (name: string, source: any, target: any) {
     }
 }
 
+export function copyAllProperties (source: any, target: any, excepts: Array<string>) {
+    const propertyNames: Array<string> = Object.getOwnPropertyNames(source);
+    for (let i = 0, len = propertyNames.length; i < len; ++i) {
+        const propertyName: string = propertyNames[i];
+        if (excepts.indexOf(propertyName) !== -1) {
+            continue;
+        }
+
+        _copyprop(propertyName, source, target);
+    }
+}
+
 /**
  * Copy all properties not defined in object from arguments[1...n].
  * @param object Object to extend its properties.
