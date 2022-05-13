@@ -48,7 +48,7 @@ const v4_1 = new Vec4();
  * @en The basic infos for material initialization.
  * @zh 用来初始化材质的基本信息。
  */
-interface IMaterialInfo {
+export interface IMaterialInfo {
     /**
      * @en The EffectAsset to use. Must provide if `effectName` is not specified.
      * @zh
