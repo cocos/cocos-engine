@@ -440,7 +440,7 @@ CCClass.attr = attributeUtils.attr;
 
 /**
  * Returns if the class is a cc-class or is fast defined.
- * @param constructor The constructor of the class
+ * @param constructor The constructor of the class.
  * @returns Judge result.
  */
 // eslint-disable-next-line @typescript-eslint/ban-types
