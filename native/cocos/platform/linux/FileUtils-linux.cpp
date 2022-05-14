@@ -39,9 +39,7 @@
 namespace cc {
 
 FileUtils *createFileUtils() {
-    auto *fileUtils = ccnew FileUtilsLinux();
-    fileUtils->init();
-    return fileUtils;
+    return ccnew FileUtilsLinux();
 }
 
 bool FileUtilsLinux::init() {
