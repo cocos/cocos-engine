@@ -31,7 +31,7 @@ class CC_DLL FileUtilsQNX : public FileUtils {
 public:
     friend class FileUtils;
     FileUtilsQNX();
-    ~FileUtils() override = default;
+    ~FileUtilsQNX() override = default;
  
     bool isFileExistInternal(const ccstd::string &filename) const override;
     ccstd::string getWritablePath() const override;
