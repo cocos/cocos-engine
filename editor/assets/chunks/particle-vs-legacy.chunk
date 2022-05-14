@@ -10,12 +10,10 @@ in vec4 a_color;
 
 in vec3 a_texCoord;  // xy:vertex index,z:frame index
 #if !CC_INSTANCE_PARTICLE
-  in vec3 a_position;  // center position
-  in vec3 a_texCoord;  // xy:vertex index,z:frame index
+ in vec3 a_position;  // center position
 #endif
 #if CC_INSTANCE_PARTICLE
-  in vec4 a_texCoord4; // xyz:position,z:frame index
-  in vec2 a_texCoord5; // uv
+ in vec4 a_texCoord4; // xyz:position,z:frame index
 #endif
 
 #if CC_RENDER_MODE == RENDER_MODE_STRETCHED_BILLBOARD
@@ -78,22 +76,12 @@ vec4 lpvs_main () {
   #endif
 
   #if CC_RENDER_MODE != RENDER_MODE_MESH
-    #if !CC_INSTANCE_PARTICLE
-      vec2 cornerOffset = vec2((a_texCoord.xy - 0.5));
-    #endif
-    #if CC_INSTANCE_PARTICLE
-      vec2 cornerOffset = vec2((a_texCoord5.xy - 0.5));
-    #endif
+    vec2 cornerOffset = vec2((a_texCoord.xy - 0.5));
 
     #if CC_RENDER_MODE == RENDER_MODE_BILLBOARD || CC_RENDER_MODE == RENDER_MODE_VERTICAL_BILLBOARD
       computeVertPos(pos, cornerOffset, rot, compScale, cc_matViewInv);
     #elif CC_RENDER_MODE == RENDER_MODE_STRETCHED_BILLBOARD
-      #if !CC_INSTANCE_PARTICLE
-        computeVertPos(pos, cornerOffset, rot, compScale, cc_cameraPos.xyz, velocity, frameTile_velLenScale.z, frameTile_velLenScale.w, a_texCoord.x);
-      #endif
-      #if CC_INSTANCE_PARTICLE
-        computeVertPos(pos, cornerOffset, rot, compScale, cc_cameraPos.xyz, velocity, frameTile_velLenScale.z, frameTile_velLenScale.w, a_texCoord5.x);
-      #endif
+      computeVertPos(pos, cornerOffset, rot, compScale, cc_cameraPos.xyz, velocity, frameTile_velLenScale.z, frameTile_velLenScale.w, a_texCoord.x);
     #elif RENDER_MODE_HORIZONTAL_BILLBOARD
       computeVertPos(pos, cornerOffset, rot, compScale);
     #endif
@@ -117,7 +105,7 @@ vec4 lpvs_main () {
     uv = computeUV(a_texCoord.z, a_texCoord.xy, frameTile_velLenScale.xy) * mainTiling_Offset.xy + mainTiling_Offset.zw;
   #endif
   #if CC_INSTANCE_PARTICLE
-    uv = computeUV(a_texCoord4.w, a_texCoord5.xy, frameTile_velLenScale.xy) * mainTiling_Offset.xy + mainTiling_Offset.zw;
+    uv = computeUV(a_texCoord4.w, a_texCoord.xy, frameTile_velLenScale.xy) * mainTiling_Offset.xy + mainTiling_Offset.zw;
   #endif
 
   pos = cc_matViewProj * pos;
