@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import {
     ccclass, editable, serializable, type,
 } from 'cc.decorator';
@@ -206,6 +204,9 @@ export class Node extends BaseNode implements CustomSerializable {
     private _dirtyFlagsPri = TransformBit.NONE; // does the world transform need to update?
 
     protected get _dirtyFlags () {
+        if (JSB) {
+            return this._nativeDirtyFlag[0];
+        }
         return this._dirtyFlagsPri;
     }
 
