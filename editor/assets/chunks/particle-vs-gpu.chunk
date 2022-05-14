@@ -44,9 +44,7 @@ in float a_rndSeed;
 #if CC_INSTANCE_PARTICLE
   in vec4 a_size_fid;  // xyz:size, w:fid
   in vec3 a_rotation;  // xyz:rotation
-  #if CC_RENDER_MODE != RENDER_MODE_MESH
-    in vec3 a_uv;
-  #endif
+  in vec3 a_uv;
 #endif
 
 #if CC_RENDER_MODE == RENDER_MODE_MESH
