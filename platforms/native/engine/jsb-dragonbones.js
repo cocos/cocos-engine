@@ -784,7 +784,7 @@ const cacheManager = require('./jsb-cache-manager');
     };
 
     /**
-     * @internal This method only used to update opacity of skeleton.
+     * @internal This method only used to update opacity of armatureDisplay.
      */
      armatureDisplayProto._updateOpacity = function () {
         const opacity = this.node._uiProps.opacity;

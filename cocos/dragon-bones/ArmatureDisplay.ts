@@ -1323,7 +1323,7 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     /**
-     * @internal This method only used to update opacity of skeleton.
+     * @internal This method only used to update opacity of armatureDisplay.
      */
     public _updateOpacity () {
     }
