@@ -37,6 +37,7 @@ import { js } from '../../utils/js';
 import { getFullFormOfProperty } from '../utils/preprocess-class';
 import { ClassStash, PropertyStash, PropertyStashInternalFlag } from '../class-stash';
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 export type SimplePropertyType = Function | string | typeof CCString | typeof CCInteger | typeof CCFloat | typeof CCBoolean;
 
 export type PropertyType = SimplePropertyType | SimplePropertyType[];
@@ -203,6 +204,7 @@ function mergePropertyOptions (
     if (options) {
         fullOptions = getFullFormOfProperty(options, isGetset);
     }
+    // @ts-expect-error enum PropertyStashInternalFlag is used as number
     const propertyRecord: PropertyStash = js.mixin(propertyStash, fullOptions || options || {});
 
     if (isGetset) {
@@ -236,6 +238,7 @@ function mergePropertyOptions (
         );
 
         if ((EDITOR && !window.Build) || TEST) {
+            // eslint-disable-next-line no-prototype-builtins
             if (!fullOptions && options && options.hasOwnProperty('default')) {
                 warnID(3653, propertyKey, js.getClassName(ctor));
             }

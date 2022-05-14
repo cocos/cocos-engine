@@ -486,6 +486,7 @@ extern se::Class * __jsb_cc_RenderingSubMesh_class; // NOLINT
 
 bool js_register_cc_RenderingSubMesh(se::Object *obj); // NOLINT
 
+SE_DECLARE_FUNC(js_assets_RenderingSubMesh_destroy);
 SE_DECLARE_FUNC(js_assets_RenderingSubMesh_enableVertexIdChannel);
 SE_DECLARE_FUNC(js_assets_RenderingSubMesh_genFlatBuffers);
 SE_DECLARE_FUNC(js_assets_RenderingSubMesh_getAttributes);
@@ -551,7 +552,6 @@ SE_DECLARE_FUNC(js_assets_Texture2D_create);
 SE_DECLARE_FUNC(js_assets_Texture2D_description);
 SE_DECLARE_FUNC(js_assets_Texture2D_getGfxTextureCreateInfo);
 SE_DECLARE_FUNC(js_assets_Texture2D_getGfxTextureViewCreateInfo);
-SE_DECLARE_FUNC(js_assets_Texture2D_getHtmlElementObj);
 SE_DECLARE_FUNC(js_assets_Texture2D_getImage);
 SE_DECLARE_FUNC(js_assets_Texture2D_getMipmaps);
 SE_DECLARE_FUNC(js_assets_Texture2D_getMipmapsUuids);

@@ -325,7 +325,7 @@ export const effects = [
     "shaders": [
       {
         "name": "particle-gpu|particle-vs-gpu:gpvs_main|tinted-fs:add",
-        "hash": 441769894,
+        "hash": 2909083171,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 65, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 41 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
@@ -333,6 +333,7 @@ export const effects = [
         },
         "defines": [
           { "name": "CC_RENDER_MODE", "type": "number", "range": [0, 4] },
+          { "name": "CC_INSTANCE_PARTICLE", "type": "boolean" },
           { "name": "USE_VK_SHADER", "type": "boolean" },
           { "name": "COLOR_OVER_TIME_MODULE_ENABLE", "type": "boolean" },
           { "name": "ROTATION_OVER_TIME_MODULE_ENABLE", "type": "boolean" },
@@ -344,15 +345,18 @@ export const effects = [
         ],
         "attributes": [
           { "name": "a_position_starttime", "defines": [], "format": 44, "location": 0 },
-          { "name": "a_size_uv", "defines": [], "format": 44, "location": 1 },
-          { "name": "a_rotation_uv", "defines": [], "format": 44, "location": 2 },
-          { "name": "a_color", "defines": [], "format": 44, "location": 3 },
-          { "name": "a_dir_life", "defines": [], "format": 44, "location": 4 },
-          { "name": "a_rndSeed", "defines": [], "format": 11, "location": 5 },
-          { "name": "a_texCoord", "defines": ["CC_RENDER_MODE"], "format": 32, "location": 6 },
-          { "name": "a_texCoord3", "defines": ["CC_RENDER_MODE"], "format": 32, "location": 7 },
-          { "name": "a_normal", "defines": ["CC_RENDER_MODE"], "format": 32, "location": 8 },
-          { "name": "a_color1", "defines": ["CC_RENDER_MODE"], "format": 44, "location": 9 }
+          { "name": "a_color", "defines": [], "format": 44, "location": 1 },
+          { "name": "a_dir_life", "defines": [], "format": 44, "location": 2 },
+          { "name": "a_rndSeed", "defines": [], "format": 11, "location": 3 },
+          { "name": "a_size_uv", "defines": ["!CC_INSTANCE_PARTICLE"], "format": 44, "location": 4 },
+          { "name": "a_rotation_uv", "defines": ["!CC_INSTANCE_PARTICLE"], "format": 44, "location": 5 },
+          { "name": "a_size_fid", "defines": ["CC_INSTANCE_PARTICLE"], "format": 44, "location": 6 },
+          { "name": "a_rotation", "defines": ["CC_INSTANCE_PARTICLE"], "format": 32, "location": 7 },
+          { "name": "a_uv", "defines": ["CC_INSTANCE_PARTICLE"], "format": 32, "location": 8 },
+          { "name": "a_texCoord", "defines": ["CC_RENDER_MODE"], "format": 32, "location": 9 },
+          { "name": "a_texCoord3", "defines": ["CC_RENDER_MODE"], "format": 32, "location": 10 },
+          { "name": "a_normal", "defines": ["CC_RENDER_MODE"], "format": 32, "location": 11 },
+          { "name": "a_color1", "defines": ["CC_RENDER_MODE"], "format": 44, "location": 12 }
         ],
         "blocks": [
           {"name": "Constants", "defines": [], "binding": 0, "stageFlags": 1, "members": [
@@ -465,7 +469,7 @@ export const effects = [
     "shaders": [
       {
         "name": "particle|particle-vs-legacy:lpvs_main|tinted-fs:add",
-        "hash": 2896871743,
+        "hash": 3975181301,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 54, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 41 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
@@ -473,18 +477,20 @@ export const effects = [
         },
         "defines": [
           { "name": "CC_RENDER_MODE", "type": "number", "range": [0, 4] },
+          { "name": "CC_INSTANCE_PARTICLE", "type": "boolean" },
           { "name": "CC_USE_WORLD_SPACE", "type": "boolean" },
           { "name": "ROTATION_OVER_TIME_MODULE_ENABLE", "type": "boolean" }
         ],
         "attributes": [
-          { "name": "a_position", "defines": [], "format": 32, "location": 0 },
-          { "name": "a_texCoord", "defines": [], "format": 32, "location": 1 },
-          { "name": "a_texCoord1", "defines": [], "format": 32, "location": 2 },
-          { "name": "a_texCoord2", "defines": [], "format": 32, "location": 3 },
-          { "name": "a_color", "defines": [], "format": 44, "location": 4 },
-          { "name": "a_color1", "defines": ["CC_RENDER_MODE"], "format": 32, "location": 8 },
-          { "name": "a_texCoord3", "defines": ["CC_RENDER_MODE"], "format": 32, "location": 6 },
-          { "name": "a_normal", "defines": ["CC_RENDER_MODE"], "format": 32, "location": 7 }
+          { "name": "a_texCoord1", "defines": [], "format": 32, "location": 0 },
+          { "name": "a_texCoord2", "defines": [], "format": 32, "location": 1 },
+          { "name": "a_color", "defines": [], "format": 44, "location": 2 },
+          { "name": "a_texCoord", "defines": [], "format": 32, "location": 3 },
+          { "name": "a_position", "defines": ["!CC_INSTANCE_PARTICLE"], "format": 32, "location": 4 },
+          { "name": "a_texCoord4", "defines": ["CC_INSTANCE_PARTICLE"], "format": 44, "location": 5 },
+          { "name": "a_color1", "defines": ["CC_RENDER_MODE"], "format": 32, "location": 9 },
+          { "name": "a_texCoord3", "defines": ["CC_RENDER_MODE"], "format": 32, "location": 7 },
+          { "name": "a_normal", "defines": ["CC_RENDER_MODE"], "format": 32, "location": 8 }
         ],
         "blocks": [
           {"name": "Constants", "defines": [], "binding": 0, "stageFlags": 1, "members": [

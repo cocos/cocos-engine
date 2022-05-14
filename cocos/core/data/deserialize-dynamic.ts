@@ -53,7 +53,6 @@ function compileObjectTypeJit (
         if (!assumeHavePropIfIsValue) {
             sources.push('if(prop){');
         }
-        // @ts-expect-error Typing
         const ctorCode = js.getClassName(defaultValue);
         sources.push(`s._deserializeFastDefinedObject(o${accessorToSet},prop,${ctorCode});`);
         if (!assumeHavePropIfIsValue) {

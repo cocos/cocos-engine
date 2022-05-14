@@ -24,14 +24,12 @@
  THE SOFTWARE.
 */
 
-
-
 // Some helper methods for compile instantiation code
 
 import { TEST } from 'internal:constants';
 import * as js from '../utils/js';
 import { CCClass } from './class';
-import { CCObject } from './object';
+import { CCObject, isCCObject } from './object';
 import * as Attr from './utils/attribute';
 import { flattenCodeArray } from './utils/compiler';
 import { legacyCC } from '../global-exports';
@@ -409,7 +407,7 @@ class Parser {
         } else if (typeof value === 'string') {
             return escapeForJS(value);
         } else {
-            if (key === '_objFlags' && (obj instanceof CCObject)) {
+            if (key === '_objFlags' && isCCObject(obj)) {
                 value &= PersistentMask;
             }
             return value;
