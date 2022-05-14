@@ -3,8 +3,6 @@ import { CacheMode, HorizontalTextAlignment, RichText, Sprite } from "../../coco
 import { Node } from "../../cocos/core/scene-graph/node";
 
 test('parse-richtext', () => {
-    const imageAttrReg = /(\s)*src(\s)*=|(\s)*height(\s)*=|(\s)*width(\s)*=|(\s)*align(\s)*=|(\s)*offset(\s)*=|(\s)*click(\s)*=|(\s)*param(\s)*=/;
-    
     const htmlTextParser = new HtmlTextParser();
     let node =new Node();
     node.addComponent(RichText);
@@ -12,14 +10,31 @@ test('parse-richtext', () => {
 
     let attribute = "<img src='1 23' width=80 height=89 align=top />这是一段文本";
     richtext.string = attribute;
-
-    const htmlAttrArray = htmlTextParser.parse(attribute);
+    let htmlAttrArray = htmlTextParser.parse(attribute);
     expect(htmlAttrArray.length).toStrictEqual(2);
     expect(htmlAttrArray[0].style.src).toStrictEqual('1 23');
     expect(htmlAttrArray[0].style.imageWidth).toStrictEqual(80);
     expect(htmlAttrArray[0].style.imageHeight).toStrictEqual(89);
     expect(htmlAttrArray[0].style.imageAlign).toStrictEqual('top');
     expect(htmlAttrArray[1].text).toStrictEqual('这是一段文本');
+
+    attribute = "<img src='123'   width=80  height=89    align=top />这是一段文本";
+    htmlAttrArray = htmlTextParser.parse(attribute);
+    expect(htmlAttrArray.length).toStrictEqual(2);
+    expect(htmlAttrArray[0].style.src).toStrictEqual('123');
+    expect(htmlAttrArray[0].style.imageWidth).toStrictEqual(80);
+    expect(htmlAttrArray[0].style.imageHeight).toStrictEqual(89);
+    expect(htmlAttrArray[0].style.imageAlign).toStrictEqual('top');
+    expect(htmlAttrArray[1].text).toStrictEqual('这是一段文本');
+
+    attribute = "<img src=\"12 3\" width  =  80 height= 89 align  =top />   前面有三个空格，这是一段文本";
+    htmlAttrArray = htmlTextParser.parse(attribute);
+    expect(htmlAttrArray.length).toStrictEqual(2);
+    expect(htmlAttrArray[0].style.src).toStrictEqual('12 3');
+    expect(htmlAttrArray[0].style.imageWidth).toStrictEqual(80);
+    expect(htmlAttrArray[0].style.imageHeight).toStrictEqual(89);
+    expect(htmlAttrArray[0].style.imageAlign).toStrictEqual('top');
+    expect(htmlAttrArray[1].text).toStrictEqual('   前面有三个空格，这是一段文本');
 });
 
 test('label.string.setter', () => {
