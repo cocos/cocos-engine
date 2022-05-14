@@ -2,8 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const utils = require('./utils');
-const { join } = require('path');
-module.paths.push(join(Editor.App.path, 'node_modules'));
+module.paths.push(path.join(Editor.App.path, 'node_modules'));
 const { debounce } = require('throttle-debounce');
 
 exports.listeners = {
