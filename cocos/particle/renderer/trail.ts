@@ -23,8 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
+/** @packageDocumentation
  * @module particle
  */
 
@@ -307,6 +306,11 @@ export default class TrailModule {
     @tooltip('i18n:trailSegment.colorOvertime')
     public colorOvertime = new GradientRange();
 
+    /**
+     * @en Get trail model
+     * @zh 获取拖尾模型
+     * @return Model of this trail and type is scene.Model
+     */
     public getModel () {
         return this._trailModel;
     }
