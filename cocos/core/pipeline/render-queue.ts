@@ -35,6 +35,7 @@ import { PipelineStateManager } from './pipeline-state-manager';
 import { RenderPass, Device, CommandBuffer } from '../gfx';
 import { RenderQueueDesc, RenderQueueSortMode } from './pipeline-serialization';
 import { getPhaseID } from './pass-phase';
+import { SortingManager } from '../scene-graph/sorting-manager';
 
 /**
  * @en Comparison sorting function. Opaque objects are sorted by priority -> depth front to back -> shader ID.
@@ -49,7 +50,7 @@ export function opaqueCompareFn (a: IRenderPass, b: IRenderPass) {
  * @zh 比较排序函数。半透明对象按优先级 -> 深度由后向前 -> Shader ID 顺序排序。
  */
 export function transparentCompareFn (a: IRenderPass, b: IRenderPass) {
-    return (a.hash - b.hash) || (b.depth - a.depth) || (a.shaderId - b.shaderId);
+    return (a.sortingPriority - b.sortingPriority) || (a.hash - b.hash) || (b.depth - a.depth) || (a.shaderId - b.shaderId);
 }
 
 /**
@@ -74,6 +75,7 @@ export class RenderQueue {
     constructor (desc: IRenderQueueDesc) {
         this._passDesc = desc;
         this._passPool = new RecyclePool<IRenderPass>(() => ({
+            sortingPriority: SortingManager.getSortingPriority(),
             hash: 0,
             depth: 0,
             shaderId: 0,
@@ -110,6 +112,7 @@ export class RenderQueue {
         }
         const hash = (0 << 30) | pass.priority << 16 | subModel.priority << 8 | passIdx;
         const rp = this._passPool.add();
+        rp.sortingPriority = renderObj.model.sortingPriority;
         rp.hash = hash;
         rp.depth = renderObj.depth || 0;
         rp.shaderId = shader.typedID;

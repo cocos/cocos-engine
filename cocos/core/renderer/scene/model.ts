@@ -39,6 +39,7 @@ import { Mat4, Vec3, Vec4 } from '../../math';
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, getTypedArrayConstructor,
     BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature, SamplerInfo } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../pipeline/define';
+import { SortingManager } from '../../scene-graph/sorting-manager';
 
 const m4_1 = new Mat4();
 
@@ -186,6 +187,14 @@ export class Model {
         this._enabled = val;
     }
 
+    get sortingPriority () : number {
+        return this._sortingPriority;
+    }
+
+    set sortingPriority (val: number) {
+        this._sortingPriority = val;
+    }
+
     public type = ModelType.DEFAULT;
     public scene: RenderScene | null = null;
     public isDynamicBatching = false;
@@ -217,6 +226,8 @@ export class Model {
     protected _shadowNormalBias = 0;
     protected _enabled = true;
     protected _visFlags = Layers.Enum.NONE;
+
+    protected _sortingPriority: number = SortingManager.getSortingPriority();
 
     /**
      * Setup a default empty model

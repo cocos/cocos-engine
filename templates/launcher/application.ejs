@@ -137,6 +137,14 @@ function initializeGame (cc, settings, findCanvas) {
                 cc.Layers.addLayer(layer.name, layer.bit);
             });
         }
+        if (settings.sortingLayersUsed) {
+            cc.sortingManager.initLayerIDFromSettings(settings.sortingLayersUsed);
+        }
+        if (settings.sortingLayers) {
+            settings.sortingLayers.forEach((sortingLayer) => {
+                cc.sortingManager.initLayerFromSettings(sortingLayer.ID, sortingLayer.name, sortingLayer.layerIndex);
+            });
+        }
     } catch(error) {
         console.warn(error);
     }
