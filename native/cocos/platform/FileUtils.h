@@ -35,11 +35,6 @@
 
 namespace cc {
 
-/**
- * @addtogroup platform
- * @{
- */
-
 class ResizableBuffer {
 public:
     ~ResizableBuffer() = default;
@@ -116,6 +111,7 @@ public:
     /**
      *  Destroys the instance of FileUtils.
      */
+    CC_DEPRECATED(3.6.0)
     static void destroyInstance();
 
     /**
@@ -129,14 +125,16 @@ public:
      * to this function.
      *
      * @warning It will delete previous delegate
-     * @lua NA
      */
     static void setDelegate(FileUtils *delegate);
+    
+    /**
+     *  The default constructor.
+     */
+    FileUtils();
 
     /**
      *  The destructor of FileUtils.
-     * @js NA
-     * @lua NA
      */
     virtual ~FileUtils();
 
@@ -315,8 +313,6 @@ public:
      *  @param searchPaths The array contains search paths.
      *  @see fullPathForFilename(const char*)
      *  @since v2.1
-     *  In js:var setSearchPaths(var jsval);
-     *  @lua NA
      */
     virtual void setSearchPaths(const ccstd::vector<ccstd::string> &searchPaths);
 
@@ -345,7 +341,6 @@ public:
      *        But since we should not break the compatibility, we keep using the old logic.
      *        Therefore, If you want to get the original search paths, please call 'getOriginalSearchPaths()' instead.
      *  @see fullPathForFilename(const char*).
-     *  @lua NA
      */
     virtual const ccstd::vector<ccstd::string> &getSearchPaths() const;
 
@@ -549,11 +544,6 @@ public:
 
 protected:
     /**
-     *  The default constructor.
-     */
-    FileUtils();
-
-    /**
      *  Initializes the instance of FileUtils. It will set _searchPathArray and _searchResolutionsOrderArray to default values.
      *
      *  @note When you are porting Cocos2d-x to a new platform, you may need to take care of this method.
@@ -641,7 +631,7 @@ protected:
     virtual void valueVectorCompact(ValueVector &valueVector);
 };
 
-// end of support group
-/** @} */
+// Can remove this function when refactoring file system.
+FileUtils *createFileUtils();
 
 } // namespace cc

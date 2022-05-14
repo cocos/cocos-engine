@@ -73,6 +73,10 @@ void printRawfiles(ResourceManager *mgr, const ccstd::string &path) {
 }
 } // namespace
 
+FileUtils *createFileUtils() {
+    return ccnew FileUtilsOHOS();
+}
+
 bool FileUtilsOHOS::initResourceManager(ResourceManager *mgr, const ccstd::string &assetPath, const ccstd::string &moduleName) {
     CC_ASSERT(mgr);
     ohosResourceMgr = mgr;

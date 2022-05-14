@@ -47,11 +47,7 @@ class CC_DLL FileUtilsAndroid : public FileUtils {
     friend class FileUtils;
 
 public:
-    FileUtilsAndroid();
-    /**
-     * @js NA
-     * @lua NA
-     */
+    FileUtilsAndroid() = default;
     ~FileUtilsAndroid() override;
 
     static void setassetmanager(AAssetManager *a);

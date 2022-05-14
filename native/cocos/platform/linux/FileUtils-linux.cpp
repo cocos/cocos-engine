@@ -38,16 +38,10 @@
 
 namespace cc {
 
-FileUtils *FileUtils::getInstance() {
-    if (FileUtils::sharedFileUtils == nullptr) {
-        FileUtils::sharedFileUtils = ccnew FileUtilsLinux();
-        if (!FileUtils::sharedFileUtils->init()) {
-            delete FileUtils::sharedFileUtils;
-            FileUtils::sharedFileUtils = nullptr;
-            CC_LOG_DEBUG("ERROR: Could not init CCFileUtilsLinux");
-        }
-    }
-    return FileUtils::sharedFileUtils;
+FileUtils *createFileUtils() {
+    auto *fileUtils = ccnew FileUtilsLinux();
+    fileUtils->init();
+    return fileUtils;
 }
 
 bool FileUtilsLinux::init() {
