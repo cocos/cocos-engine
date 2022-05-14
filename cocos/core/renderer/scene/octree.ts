@@ -28,9 +28,13 @@ import { Vec3 } from '../../math/vec3';
 import type { OctreeInfo } from '../../scene-graph/scene-globals';
 import { NativeOctree } from '../native-scene';
 
+/**
+ * @en The octree culling configuration of the render scene
+ * @zh 渲染场景的八叉树剔除配置
+ */
 export class Octree {
     /**
-     * @en enable octree
+     * @en Whether octree culling is enabled in the render scene
      * @zh 是否开启八叉树加速剔除
      */
     set enabled (val: boolean) {
@@ -44,7 +48,7 @@ export class Octree {
     }
 
     /**
-     * @en min pos of scene bounding box
+     * @en Minimum position of the scene's bounding box
      * @zh 场景包围盒最小值
      */
     get minPos (): Vec3 {
@@ -58,7 +62,7 @@ export class Octree {
     }
 
     /**
-     * @en max pos of scene bounding box
+     * @en Maximum position of the scene's bounding box
      * @zh 场景包围盒最大值
      */
     get maxPos (): Vec3 {
@@ -72,7 +76,7 @@ export class Octree {
     }
 
     /**
-     * @en depth of octree
+     * @en The depth of the octree
      * @zh 八叉树深度
      */
     get depth (): number {

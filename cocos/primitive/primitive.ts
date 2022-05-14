@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module 3d/primitive
- */
+
 
 import { ccclass, type, serializable, editable } from 'cc.decorator';
 import { createMesh } from '../3d/misc';

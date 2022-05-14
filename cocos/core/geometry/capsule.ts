@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module geometry
- */
+
 
 import { Vec3, Quat, Mat4, absMaxComponent } from '../math';
 import enums from './enums';
@@ -91,8 +88,14 @@ export class Capsule {
      */
     readonly rotation: Quat;
 
-    /** cache, local center of ellipse */
+    /**
+     * @internal
+     * cache, local center of ellipse
+     **/
     readonly ellipseCenter0: Vec3;
+    /**
+     * @internal
+     */
     readonly ellipseCenter1: Vec3;
 
     constructor (radius = 0.5, halfHeight = 0.5, axis = 1) {
@@ -153,6 +156,8 @@ export class Capsule {
         case 2:
             this.ellipseCenter0.set(0, 0, halfHeight);
             this.ellipseCenter1.set(0, 0, -halfHeight);
+            break;
+        default:
             break;
         }
     }

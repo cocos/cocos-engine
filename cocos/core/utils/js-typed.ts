@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module core
- */
+
 
 import { EDITOR, DEV, TEST } from 'internal:constants';
 import { warnID, error, errorID } from '../platform/debug';
@@ -39,25 +36,38 @@ const classNameTag = '__classname__';
 const classIdTag = '__cid__';
 
 /**
+ * @en
  * Check the object whether is number or not
  * If a number is created by using 'new Number(10086)', the typeof it will be "object"...
  * Then you can use this function if you care about this case.
+ * @zh
+ * 检查对象是否是 number 类型，如果通过 'new Number(10086)' 创建了一个数字，则使用 typeof 判断此数字时，将返回 'object' 类型，此时你可以通过此方法来进行判断
+ * @param object object to be checked
+ * @return whether this object is number or not
  */
 export function isNumber (object: any) {
     return typeof object === 'number' || object instanceof Number;
 }
 
 /**
+ * @en
  * Check the object whether is string or not.
  * If a string is created by using 'new String("blabla")', the typeof it will be "object"...
  * Then you can use this function if you care about this case.
+ * @zh
+ * 检查对象是否是 string 类型，如果通过 'new String("blabla")' 创建了一个字符串，则使用 typeof 判断此字符串时，将返回 'object' 类型，此时你可以通过此方法来进行判断
+ * @param object object to be checked
+ * @return whether this object is string or not
  */
 export function isString (object: any) {
     return typeof object === 'string' || object instanceof String;
 }
 
 /**
+ * @en
  * Checks if the object `obj` does not have one or more enumerable properties (including properties from proto chain).
+ * @zh
+ * 检查此对象是否为空对象
  * @param obj The object.
  * @returns The result. Note that if the `obj` is not of type `'object'`, `true` is returned.
  */
@@ -69,8 +79,12 @@ export function isEmptyObject (obj: any) {
 }
 
 /**
+ * @en
  * Define value, just help to call Object.defineProperty.<br>
  * The configurable will be true.
+ * @zh
+ * 定义值，帮助调用 Object.defineProperty.
+ * 该属性默认可读写
  * @param [writable=false]
  * @param [enumerable=false]
  */
@@ -91,7 +105,10 @@ export const value = (() => {
 })();
 
 /**
+ * @en
  * Define get set accessor, just help to call Object.defineProperty(...).
+ * @zh
+ * 定义 get set 访问器，帮助调用 Object.defineProperty()
  * @param [setter=null]
  * @param [enumerable=false]
  * @param [configurable=false]
@@ -118,7 +135,10 @@ export const getset = (() => {
 })();
 
 /**
+ * @en
  * Define get accessor, just help to call Object.defineProperty(...).
+ * @zh
+ * 定义 get 访问器，帮助调用 Object.defineProperty()
  * @param [enumerable=false]
  * @param [configurable=false]
  */
@@ -138,7 +158,10 @@ export const get = (() => {
 })();
 
 /**
- * Define set accessor, just help to call Object.defineProperty(...).
+ * @en
+ * Define set accessor, just help to call Object.defineProperty(...)
+ * @zh
+ * 定义 set 访问器，帮助调用 Object.defineProperty
  * @param [enumerable=false]
  * @param [configurable=false]
  */
@@ -186,8 +209,11 @@ export function createMap (forceDictMode?: boolean): any {
 }
 
 /**
+ * @en
  * Get class name of the object, if object is just a {} (and which class named 'Object'), it will return "".
  * (modified from <a href="http://stackoverflow.com/questions/1249531/how-to-get-a-javascript-objects-class">the code from this stackoverflow post</a>)
+ * @zh
+ * 获取对象的类型名称，如果对象是 {} 字面量，将会返回 ""
  * @param objOrCtor instance or constructor
  */
 export function getClassName (objOrCtor: Object | Function): string {
@@ -206,10 +232,10 @@ export function getClassName (objOrCtor: Object | Function): string {
             const str = objOrCtor.toString();
             if (str.charAt(0) === '[') {
                 // str is "[object objectClass]"
-                arr = str.match(/\[\w+\s*(\w+)\]/);
+                arr = /\[\w+\s*(\w+)\]/.exec(str);
             } else {
                 // str is function objectClass () {} for IE Firefox
-                arr = str.match(/function\s*(\w+)/);
+                arr = /function\s*(\w+)/.exec(str);
             }
             if (arr && arr.length === 2) {
                 retval = arr[1];
@@ -223,7 +249,10 @@ export function getClassName (objOrCtor: Object | Function): string {
 }
 
 /**
+ * @en
  * Defines a polyfill field for obsoleted codes.
+ * @zh
+ * 为废弃代码定义一个填充字段
  * @param object - YourObject or YourClass.prototype
  * @param obsoleted - "OldParam" or "YourClass.OldParam"
  * @param newExpr - "NewParam" or "YourClass.NewParam"
@@ -254,7 +283,10 @@ export function obsolete (object: any, obsoleted: string, newExpr: string, writa
 }
 
 /**
+ * @en
  * Defines all polyfill fields for obsoleted codes corresponding to the enumerable properties of props.
+ * @zh
+ * 为所有可废弃属性定义填充字段
  * @param obj - YourObject or YourClass.prototype
  * @param objName - "YourObject" or "YourClass"
  * @param props
@@ -271,7 +303,10 @@ const REGEXP_NUM_OR_STR = /(%d)|(%s)/;
 const REGEXP_STR = /%s/;
 
 /**
+ * @en
  * A string tool to construct a string with format string.
+ * @zh
+ * 通过格式字符串构造一个字符串
  * @param msg - A JavaScript string containing zero or more substitution strings (%s).
  * @param subst - JavaScript objects with which to replace substitution strings within msg.
  * This gives you additional control over the format of the output.
@@ -341,7 +376,10 @@ function _copyprop (name: string, source: any, target: any) {
 }
 
 /**
+ * @en
  * Copy all properties not defined in object from arguments[1...n].
+ * @zh
+ * 如果目标对象上没有该属性，则将源对象属性拷贝到目标对象上
  * @param object Object to extend its properties.
  * @param sources Source object to copy properties from.
  * @return The result object.
@@ -365,7 +403,10 @@ export function addon (object?: any, ...sources: any[]) {
 }
 
 /**
+ * @en
  * Copy all properties from arguments[1...n] to object.
+ * @zh
+ * 拷贝源对象所有属性到目标对象上，如果有属性冲突，则以源对象为准
  * @return The result object.
  */
 export function mixin (object?: any, ...sources: any[]) {
@@ -385,9 +426,13 @@ export function mixin (object?: any, ...sources: any[]) {
 }
 
 /**
+ * @en
  * Derive the class from the supplied base class.
  * Both classes are just native javascript constructors, not created by `Class`, so
- * usually you will want to inherit using [[Class]] instead.
+ * usually you will want to inherit using [[CCClass]] instead.
+ * @zh
+ * 将一个类型继承另一个类型
+ * 两个类型都需要是 javascript 的构建函数，而不是 `Class`, 所以你通常可以用 [[CCClass]] 来代替
  * @param base The baseclass to inherit.
  * @return The result class.
  */
@@ -417,7 +462,10 @@ export function extend (cls: Function, base: Function) {
 }
 
 /**
+ * @en
  * Get super class.
+ * @zh
+ * 获取父类
  * @param constructor The constructor of subclass.
  */
 export function getSuper (constructor: Function) {
@@ -427,7 +475,13 @@ export function getSuper (constructor: Function) {
 }
 
 /**
+ * @en
  * Checks whether subclass is child of superclass or equals to superclass.
+ * @zh
+ * 判断一类型是否是另一类型的子类或本身
+ * @param subclass sub class to be checked
+ * @param superclass super class to be checked
+ * @return whether subclass is child of superclass
  */
 export function isChildClassOf (subclass: unknown, superclass: unknown) {
     if (subclass && superclass) {
@@ -457,7 +511,10 @@ export function isChildClassOf (subclass: unknown, superclass: unknown) {
 }
 
 /**
+ * @en
  * Removes all enumerable properties from object.
+ * @zh
+ * 移除对象中所有可枚举属性
  */
 export function clear (object: {}) {
     for (const key of Object.keys(object)) {
@@ -508,7 +565,10 @@ js.unregisterClass to remove the id of unused class';
 }
 
 /**
+ * @en
  * Register the class by specified id, if its classname is not defined, the class name will also be set.
+ * @zh
+ * 通过 id 注册类型
  * @method _setClassId
  * @param classId
  * @param constructor
@@ -519,7 +579,10 @@ export const _setClassId = setup('__cid__', _idToClass);
 const doSetClassName = setup('__classname__', _nameToClass);
 
 /**
+ * @en
  * Register the class by specified name manually
+ * @zh
+ * 通过指定的名称手动注册类型
  * @method setClassName
  * @param className
  * @param constructor
@@ -573,10 +636,14 @@ export function setClassAlias (target: Constructor, alias: string) {
 }
 
 /**
- * Unregister a class from fireball.
+ * @en
+ * Unregister a class from cocos.
  *
- * If you dont need a registered class anymore, you should unregister the class so that Fireball will not keep its reference anymore.
+ * If you dont need a registered class anymore, you should unregister the class so that cocos will not keep its reference anymore.
  * Please note that its still your responsibility to free other references to the class.
+ * @zh
+ * 取消注册类型，如果你不再需要一个注册的类，你应该取消注册这个类，这样 cocos 就不会再保留它的引用。
+ * 请注意，你仍然有责任释放对该类的其他引用。
  *
  * @param ...constructor - the class you will want to unregister, any number of classes can be added
  */
@@ -603,7 +670,10 @@ export function unregisterClass (...constructors: Function[]) {
 }
 
 /**
+ * @en
  * Get the registered class by id
+ * @zh
+ * 通过 id 获取已注册的类型
  * @param classId
  * @return constructor
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
@@ -613,7 +683,10 @@ export function _getClassById (classId) {
 }
 
 /**
+ * @en
  * Get the registered class by name
+ * @zh
+ * 通过名字获取已注册的类型
  * @param classname
  * @return constructor of the class
  */
@@ -622,7 +695,10 @@ export function getClassByName (classname) {
 }
 
 /**
+ * @en
  * Get class id of the object
+ * @zh
+ * 获取对象的 class id
  * @param obj - instance or constructor
  * @param [allowTempId = true]   - can return temp id in editor
  * @return

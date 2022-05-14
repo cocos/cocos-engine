@@ -1,7 +1,4 @@
-/**
- * @packageDocumentation
- * @module dragonBones
- */
+
 
 import { EDITOR } from 'internal:constants';
 import { Armature, Bone, EventObject } from '@cocos/dragonbones-js';
@@ -367,19 +364,6 @@ export class ArmatureDisplay extends Renderable2D {
         this._debugBones = value;
         this._updateDebugDraw();
     }
-    /**
-     * @en Enabled batch model, if skeleton is complex, do not enable batch, or will lower performance.
-     * @zh 开启合批，如果渲染大量相同纹理，且结构简单的骨骼动画，开启合批可以降低drawcall，否则请不要开启，cpu消耗会上升。
-     * @property {Boolean} enableBatch
-     * @default false
-     */
-    // @editable
-    // @tooltip('i18n:COMPONENT.dragon_bones.enabled_batch')
-    // get enableBatch () { return this._enableBatch; }
-    // set enableBatch (value) {
-    //     this._enableBatch = value;
-    //     this._updateBatch();
-    // }
 
     /**
      * @en

@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
+
 
 import { ccclass, serializable } from 'cc.decorator';
 import { Asset } from '../../core/assets/asset';
@@ -196,7 +193,7 @@ export class Mesh extends Asset {
     /**
      * @en The sub meshes count of the mesh.
      * @zh 此网格的子网格数量。
-     * @deprecated Please use [[renderingSubMeshes.length]] instead
+     * @deprecated Please use length of [[renderingSubMeshes]] instead
      */
     get subMeshCount () {
         const renderingMesh = this.renderingSubMeshes;
@@ -206,7 +203,7 @@ export class Mesh extends Asset {
     /**
      * @en The minimum position of all vertices in the mesh
      * @zh （各分量都）小于等于此网格任何顶点位置的最大位置。
-     * @deprecated Please use [[struct.minPosition]] instead
+     * @deprecated Please use [[IStruct.minPosition]] instead
      */
     get minPosition () {
         return this.struct.minPosition;
@@ -215,7 +212,7 @@ export class Mesh extends Asset {
     /**
      * @en The maximum position of all vertices in the mesh
      * @zh （各分量都）大于等于此网格任何顶点位置的最大位置。
-     * @deprecated Please use [[struct.maxPosition]] instead
+     * @deprecated Please use [[IStruct.maxPosition]] instead
      */
     get maxPosition () {
         return this.struct.maxPosition;
@@ -248,7 +245,10 @@ export class Mesh extends Asset {
     }
 
     /**
+     * @en
      * The index of the joint buffer of all sub meshes in the joint map buffers
+     * @zh
+     * 所有子网格中关节缓冲的索引
      */
     get jointBufferIndices () {
         if (this._jointBufferIndices) { return this._jointBufferIndices; }
@@ -420,8 +420,8 @@ export class Mesh extends Asset {
     }
 
     /**
-     * @en Get [[AABB]] bounds in the skeleton's bone space
-     * @zh 获取骨骼变换空间内下的 [[AABB]] 包围盒
+     * @en Get [[geometry.AABB]] bounds in the skeleton's bone space
+     * @zh 获取骨骼变换空间内下的 [[geometry.AABB]] 包围盒
      * @param skeleton
      */
     public getBoneSpaceBounds (skeleton: Skeleton) {

@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module scene-graph
- */
+
 
 import { EDITOR, DEV, TEST, SUPPORT_JIT, DEBUG } from 'internal:constants';
 import { CCObject, isValid } from '../data/object';

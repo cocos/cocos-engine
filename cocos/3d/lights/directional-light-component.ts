@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module component/light
- */
-
 import { ccclass, range, slide, type, editable, visible, help, executeInEditMode,
     menu, tooltip, serializable, formerlySerializedAs } from 'cc.decorator';
 import { Light } from './light-component';
@@ -49,7 +44,7 @@ export class DirectionalLight extends Light {
     protected _illuminanceHDR = 65000;
 
     @serializable
-    protected _illuminanceLDR = 1.0;
+    protected _illuminanceLDR = 65000 * Camera.standardExposureValue;
 
     // Public properties of shadow
     @serializable
@@ -336,7 +331,6 @@ export class DirectionalLight extends Light {
 
     protected _createLight () {
         super._createLight();
-        this._illuminanceLDR = this._illuminanceHDR * Camera.standardExposureValue;
         if (this._light) {
             this._light.illuminanceHDR = this._illuminanceHDR;
             this._light.illuminanceLDR = this._illuminanceLDR;

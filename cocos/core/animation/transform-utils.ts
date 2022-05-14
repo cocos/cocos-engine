@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module animation
- */
+
 
 import { Mat4 } from '../math';
 import { Node } from '../scene-graph';

@@ -1,18 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 
-/**
- * @packageDocumentation
- * @module dragonBones
- */
-
 import { Armature, DisplayData, IEventDispatcher, Slot } from '@cocos/dragonbones-js';
 import { ccclass } from '../core/data/class-decorator';
-import { Vec2, Node, Vec3 } from '../core';
+import { Node, Vec3 } from '../core';
 import { EventTarget } from '../core/event';
 // eslint-disable-next-line import/named
 import { CCSlot } from './CCSlot';
 import { ArmatureDisplay } from './ArmatureDisplay';
 
+/**
+* @deprecated since v3.5.1, this is an engine private interface that will be removed in the future.
+*/
 @ccclass('dragonBones.CCArmatureDisplay')
 export class CCArmatureDisplay extends DisplayData implements IEventDispatcher {
     get node () { return this; }

@@ -32,10 +32,7 @@ const _uuidRegex = /.*[/\\][0-9a-fA-F]{2}[/\\]([0-9a-fA-F-@]{8,}).*/;
 
 export { default as decodeUuid } from '../utils/decode-uuid';
 
-/**
- * @packageDocumentation
- * @module asset-manager
- */
+
 
 /**
  * @en
@@ -104,7 +101,7 @@ export function getUrlWithUuid (uuid: string, options?: { [k: string]: any, isNa
  *
  * @method isScene
  * @param {*} asset - asset
- * @returns {boolean} - whether or not type is cc.SceneAsset
+ * @returns {boolean} - whether or not type is SceneAsset
  *
  */
 export function isScene (asset) {

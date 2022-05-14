@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module particle2d
- */
+
 
 import { Vec2, Color } from '../core/math';
 import Pool from '../core/utils/pool';

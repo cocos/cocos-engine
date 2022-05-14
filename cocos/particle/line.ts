@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module particle
- */
+
 
 import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable, range } from 'cc.decorator';
 import { Material, Texture2D } from '../core/assets';
@@ -103,7 +100,8 @@ export class Line extends Component {
     private _positions = [];
 
     /**
-     * 每段折线的拐点坐标。
+     * @en Inflection point positions of each polyline
+     * @zh 每段折线的拐点坐标。
      */
     @type([Vec3])
     @displayOrder(2)

@@ -1,7 +1,4 @@
-/**
- * @packageDocumentation
- * @module spine
- */
+
 
 import { EDITOR } from 'internal:constants';
 import { Asset, CCString, Enum, Node, Texture2D, errorID } from '../core';
@@ -21,6 +18,8 @@ import { legacyCC } from '../core/global-exports';
 @ccclass('sp.SkeletonData')
 export class SkeletonData extends Asset {
     /**
+     * @en See http://en.esotericsoftware.com/spine-json-format
+     * @zh 可查看 Spine 官方文档 http://zh.esotericsoftware.com/spine-json-format
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @serializable
@@ -67,6 +66,8 @@ export class SkeletonData extends Asset {
     }
 
     /**
+     * @en Texture array
+     * @zh 纹理数组
      * @property {Texture2D[]} textures
      */
 

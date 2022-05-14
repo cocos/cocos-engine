@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
+
 
 import { ccclass, serializable, editable } from 'cc.decorator';
 import { Asset } from './asset';

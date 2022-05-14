@@ -24,10 +24,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module component
- */
+
 
 import { ccclass, tooltip, displayName, type, serializable, disallowAnimation } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
@@ -163,6 +160,7 @@ class Component extends CCObject {
     }
 
     public static system = null;
+
     /**
      * @en The node this component is attached to. A component is always attached to a node.
      * @zh 该组件被附加到的节点。组件总会附加到一个节点。
@@ -182,13 +180,13 @@ class Component extends CCObject {
     public _enabled = true;
 
     /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @internal
      */
     @serializable
     public __prefab: CompPrefabInfo | null = null;
 
     /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @internal
      */
     public _sceneGetter: null | (() => RenderScene) = null;
 

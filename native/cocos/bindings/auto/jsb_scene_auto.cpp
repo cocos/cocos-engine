@@ -1707,25 +1707,6 @@ static bool js_scene_SpotLight_setAngle(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FUNC(js_scene_SpotLight_setAngle)
 
-static bool js_scene_SpotLight_setAspect(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_setAspect : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<float, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SpotLight_setAspect : Error processing arguments");
-        cobj->setAspect(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_scene_SpotLight_setAspect)
-
 static bool js_scene_SpotLight_setDirection(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
@@ -1990,7 +1971,6 @@ bool js_register_scene_SpotLight(se::Object* obj) // NOLINT(readability-identifi
     cls->defineFunction("getShadowPcf", _SE(js_scene_SpotLight_getShadowPcf));
     cls->defineFunction("setAABB", _SE(js_scene_SpotLight_setAABB));
     cls->defineFunction("setAngle", _SE(js_scene_SpotLight_setAngle));
-    cls->defineFunction("setAspect", _SE(js_scene_SpotLight_setAspect));
     cls->defineFunction("setDirection", _SE(js_scene_SpotLight_setDirection));
     cls->defineFunction("setFrustum", _SE(js_scene_SpotLight_setFrustum));
     cls->defineFunction("setLuminanceHDR", _SE(js_scene_SpotLight_setLuminanceHDR));

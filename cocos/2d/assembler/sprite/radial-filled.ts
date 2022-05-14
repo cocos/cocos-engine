@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui-assembler
- */
-
 import { SpriteFrame } from '../../assets';
 import { Color, Mat4, Vec2, Vec3 } from '../../../core/math';
 import { IRenderData, RenderData } from '../../renderer/render-data';

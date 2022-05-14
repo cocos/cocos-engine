@@ -1,8 +1,3 @@
-/**
- * @packageDocumentation
- * @module dragonBones
- */
-
 import { EDITOR } from 'internal:constants';
 import { Armature, BaseObject, Animation, BaseFactory, DragonBones } from '@cocos/dragonbones-js';
 import { director, Game, game, ISchedulable, Node, Scheduler, System } from '../core';
@@ -17,17 +12,23 @@ import { CCArmatureDisplay } from './CCArmatureDisplay';
  * DragonBones factory
  * @class CCFactory
  * @extends BaseFactory
+ * @deprecated since v3.5.1, this is an engine private interface that will be removed in the future.
 */
 @ccclass('CCFactory')
 export class CCFactory extends BaseFactory implements ISchedulable {
+    static _factory: CCFactory | null = null;
+
     /**
+     * @en
+     * Get an CCFactory instance
+     * @zh
+     * 获取一个 CCFactory 实例
      * @method getInstance
      * @return {CCFactory}
      * @static
      * @example
      * let factory = CCFactory.getInstance();
     */
-    static _factory: CCFactory | null = null;
     static getInstance () {
         if (!CCFactory._factory) {
             CCFactory._factory = new CCFactory();

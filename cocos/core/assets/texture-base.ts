@@ -24,10 +24,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
+
 
 // @ts-check
 import { EDITOR, TEST } from 'internal:constants';

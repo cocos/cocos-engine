@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module material
- */
+
 
 import { RenderableComponent } from '../../components/renderable-component';
 import { Material } from '../../assets/material';

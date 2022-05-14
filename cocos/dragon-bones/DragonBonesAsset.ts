@@ -1,9 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 
-/**
- * @packageDocumentation
- * @module dragonBones
- */
+
 
 import { EDITOR } from 'internal:constants';
 import { BinaryDataParser, DragonBonesData } from '@cocos/dragonbones-js';
@@ -24,8 +21,10 @@ import { legacyCC } from '../core/global-exports';
 @ccclass('dragonBones.DragonBonesAsset')
 export class DragonBonesAsset extends Asset {
     /**
-     * @en See http://developer.egret.com/cn/github/egret-docs/DB/dbLibs/dataFormat/index.html
-     * @zh 可查看 DragonBones 官方文档 http://developer.egret.com/cn/github/egret-docs/DB/dbLibs/dataFormat/index.html
+     * @en
+     * See http://developer.egret.com/cn/github/egret-docs/DB/dbLibs/dataFormat/index.html
+     * @zh
+     * 可查看 DragonBones 官方文档 http://developer.egret.com/cn/github/egret-docs/DB/dbLibs/dataFormat/index.html
      * @property {string} dragonBonesJson
      */
     @serializable

@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module scene-graph
- */
-
 import {
     ccclass, editable, serializable, type,
 } from 'cc.decorator';
@@ -41,7 +36,7 @@ import { NULL_HANDLE, NodePool, NodeView, NodeHandle  } from '../renderer/core/m
 import { NodeSpace, TransformBit } from './node-enum';
 import { NativeNode } from '../renderer/native-scene';
 import { NodeEventType } from './node-event';
-import { CustomSerializable, editorExtrasTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
+import { CustomSerializable, editorExtrasTag, SerializationContext, SerializationOutput, serializeTag } from '../data';
 import { warnID } from '../platform/debug';
 
 const v3_a = new Vec3();
@@ -209,6 +204,9 @@ export class Node extends BaseNode implements CustomSerializable {
     private _dirtyFlagsPri = TransformBit.NONE; // does the world transform need to update?
 
     protected get _dirtyFlags () {
+        if (JSB) {
+            return this._nativeDirtyFlag[0];
+        }
         return this._dirtyFlagsPri;
     }
 
@@ -496,6 +494,9 @@ export class Node extends BaseNode implements CustomSerializable {
         this._hasChangedFlagsChunk[this._hasChangedFlagsOffset] = val;
     }
 
+    /**
+     * @internal
+     */
     public [serializeTag] (serializationOutput: SerializationOutput, context: SerializationContext) {
         if (!EDITOR) {
             serializationOutput.writeThis();

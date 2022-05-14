@@ -24,10 +24,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core/math
- */
+
 
 import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
@@ -719,7 +716,7 @@ export class Vec3 extends ValueType {
      * @param other Specified vector
      * @returns `this`
      */
-    public set (other: Vec3);
+    public set (other: Vec3): Vec3;
 
     /**
      * @en Set the value of each component of the current vector.
@@ -729,7 +726,7 @@ export class Vec3 extends ValueType {
      * @param z z value
      * @returns `this`
      */
-    public set (x?: number, y?: number, z?: number);
+    public set (x?: number, y?: number, z?: number): Vec3;
 
     public set (x?: number | Vec3, y?: number, z?: number) {
         if (x && typeof x === 'object') {

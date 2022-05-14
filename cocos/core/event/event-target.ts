@@ -24,10 +24,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module event
- */
+
 
 import { legacyCC } from '../global-exports';
 import { Eventify } from './eventify';

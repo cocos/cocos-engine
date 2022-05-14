@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module component
- */
-
 import { removeProperty } from '../../core/utils';
 import { MeshRenderer } from './mesh-renderer';
 import { js } from '../../core/utils/js';

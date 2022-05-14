@@ -30,6 +30,7 @@
 #include "forward/ForwardPipeline.h"
 #include "gfx-base/GFXDevice.h"
 #include "scene/RenderScene.h"
+#include "helper/Utils.h"
 
 namespace cc {
 
@@ -148,7 +149,9 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, float *out
     output[UBOCamera::CAMERA_POS_OFFSET + 3] = getCombineSignY();
 
     if (fog->enabled) {
-        TO_VEC4(output, fog->color, UBOCamera::GLOBAL_FOG_COLOR_OFFSET)
+        gfx::Color srgbColor = {fog->color.x, fog->color.y, fog->color.z, fog->color.w};
+        cc::pipeline::srgbToLinear(&srgbColor, srgbColor);
+        TO_VEC4(output, srgbColor, UBOCamera::GLOBAL_FOG_COLOR_OFFSET)
 
         output[UBOCamera::GLOBAL_FOG_BASE_OFFSET + 0] = fog->start;
         output[UBOCamera::GLOBAL_FOG_BASE_OFFSET + 1] = fog->end;
@@ -273,7 +276,7 @@ void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, std::
             const auto  matShadowView   = matShadowCamera.getInversed();
             memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_OFFSET, matShadowView.m, sizeof(matShadowView));
 
-            Mat4::createPerspective(spotLight->getSpotAngle(), spotLight->getAspect(), 0.001F, spotLight->getRange(), &matShadowViewProj);
+            Mat4::createPerspective(spotLight->getSpotAngle(), 1.0F, 0.001F, spotLight->getRange(), &matShadowViewProj);
 
             matShadowViewProj.multiply(matShadowView);
             memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));

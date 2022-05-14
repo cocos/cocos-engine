@@ -25,10 +25,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module tiledmap
- */
+
 
 import { ccclass } from 'cc.decorator';
 
@@ -1441,6 +1438,10 @@ export class TiledLayer extends Renderable2D {
     }
 
     /**
+     * @en
+     * Index of mesh render data array
+     * @zh
+     * 网格渲染数据数组的索引
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _meshRenderDataArrayIdx = 0;

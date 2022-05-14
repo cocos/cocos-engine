@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module animation
- */
+
 
 import { clamp01 } from '../math/utils';
 import { remove } from '../utils/array';

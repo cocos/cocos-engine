@@ -1,7 +1,4 @@
-/**
- * @packageDocumentation
- * @module spine
- */
+
 
 import { EDITOR } from 'internal:constants';
 import { TrackEntryListeners } from './track-entry-listeners';
@@ -574,8 +571,10 @@ export class Skeleton extends Renderable2D {
 
     // 由于 spine 的 skin 是无法二次替换的，所以只能设置默认的 skin
     /**
-     * @en The name of default skin.
-     * @zh 默认的皮肤名称。
+     * @en
+     * The name of default skin.
+     * @zh
+     * 默认的皮肤名称。
      * @property {String} defaultSkin
      */
     @serializable
@@ -583,8 +582,10 @@ export class Skeleton extends Renderable2D {
     protected defaultSkin = '';
 
     /**
-     * @en The name of default animation.
-     * @zh 默认的动画名称。
+     * @en
+     * The name of default animation.
+     * @zh
+     * 默认的动画名称。
      * @property {String} defaultAnimation
      */
     @visible(false)

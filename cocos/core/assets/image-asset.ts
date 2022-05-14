@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
+
 
 // @ts-check
 import { ccclass, override } from 'cc.decorator';

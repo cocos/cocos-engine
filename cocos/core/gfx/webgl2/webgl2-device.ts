@@ -290,8 +290,7 @@ export class WebGL2Device extends Device {
         this._formatFeatures[Format.RGB16F] = tempFeature;
         this._formatFeatures[Format.RGBA16F] = tempFeature;
 
-        tempFeature = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.STORAGE_TEXTURE
-            | FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.VERTEX_ATTRIBUTE;
+        tempFeature = FormatFeatureBit.STORAGE_TEXTURE | FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.VERTEX_ATTRIBUTE;
 
         this._formatFeatures[Format.R32F] = tempFeature;
         this._formatFeatures[Format.RG32F] = tempFeature;
@@ -369,6 +368,10 @@ export class WebGL2Device extends Device {
         this._textureExclusive[Format.DEPTH_STENCIL] = false;
 
         if (exts.EXT_color_buffer_float) {
+            this._formatFeatures[Format.R32F] |= FormatFeatureBit.RENDER_TARGET;
+            this._formatFeatures[Format.RG32F] |= FormatFeatureBit.RENDER_TARGET;
+            this._formatFeatures[Format.RGBA32F] |= FormatFeatureBit.RENDER_TARGET;
+
             this._textureExclusive[Format.R32F] = false;
             this._textureExclusive[Format.RG32F] = false;
             this._textureExclusive[Format.RGBA32F] = false;

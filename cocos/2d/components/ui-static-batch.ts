@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
+
 
 import { ccclass, help, menu, executionOrder, visible, override } from 'cc.decorator';
 import { Renderable2D } from '../framework/renderable-2d';

@@ -310,6 +310,18 @@ export class GeometryRenderer {
         }
     }
 
+    public empty () {
+        for (let i = 0; i < GEOMETRY_DEPTH_TYPE_COUNT; i++) {
+            if (!this._buffers.lines[i].empty()
+                || !this._buffers.dashedLines[i].empty()
+                || !this._buffers.triangles[i].empty()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public update () {
         for (let i = 0; i < GEOMETRY_DEPTH_TYPE_COUNT; i++) {
             this._buffers.lines[i].update();

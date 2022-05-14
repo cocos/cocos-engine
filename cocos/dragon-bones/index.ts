@@ -1,44 +1,6 @@
-/**
- * @packageDocumentation
- * @module dragonBones
- */
+
 
 import { EDITOR } from 'internal:constants';
-
-/**
- * @en
- * The global time scale of DragonBones.
- * @zh
- * DragonBones 全局时间缩放率。
- * @example
- * dragonBones.timeScale = 0.8;
- */
-// const _timeScale = 1.0;
-
-// TODO timescale
-// Object.defineProperty(dragonBones, 'timeScale', {
-//     get () {
-//         return this._timeScale;
-//     },
-//     set (value) {
-//         this._timeScale = value;
-//         const factory = this.CCFactory.getInstance();
-//         factory._dragonBones.clock.timeScale = value;
-//     },
-//     configurable: true,
-// });
-
-// export enum DisplayType {
-//     Image = 0,
-//     Armature = 1,
-//     Mesh = 2
-// }
-
-// export enum ArmatureType {
-//     Armature = 0,
-//     MovieClip = 1,
-//     Stage = 2
-// }
 
 export enum ExtensionType {
     FFD = 0,

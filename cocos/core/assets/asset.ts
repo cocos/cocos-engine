@@ -24,10 +24,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
+
 
 import { ccclass, serializable } from 'cc.decorator';
 import { EDITOR, PREVIEW } from 'internal:constants';
@@ -65,6 +62,7 @@ import { debug, getError, warn } from '../platform/debug';
 export class Asset extends Eventify(GCObject) {
     /**
      * 应 AssetDB 要求提供这个方法。
+     * @internal
      * @method deserialize
      * @param {String} data
      * @return {Asset}
@@ -89,6 +87,9 @@ export class Asset extends Eventify(GCObject) {
      */
     public declare _uuid: string;
 
+    /**
+     * @internal
+     */
     public declare isDefault: boolean;
 
     /**
@@ -103,7 +104,7 @@ export class Asset extends Eventify(GCObject) {
     @serializable
     public _native = '';
     /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @internal
      */
     public _nativeUrl = '';
 

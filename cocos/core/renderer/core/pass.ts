@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module material
- */
+
 
 import { EDITOR, JSB } from 'internal:constants';
 import { Root } from '../../root';
@@ -318,8 +315,8 @@ export class Pass {
     }
 
     /**
-     * @en Bind a GFX [[Texture]] the the given uniform binding
-     * @zh 绑定实际 GFX [[Texture]] 到指定 binding。
+     * @en Bind a GFX [[gfx.Texture]] the the given uniform binding
+     * @zh 绑定实际 GFX [[gfx.Texture]] 到指定 binding。
      * @param binding The binding for target uniform of texture type
      * @param value Target texture
      */
@@ -328,8 +325,8 @@ export class Pass {
     }
 
     /**
-     * @en Bind a GFX [[Sampler]] the the given uniform binding
-     * @zh 绑定实际 GFX [[Sampler]] 到指定 binding。
+     * @en Bind a GFX [[gfx.Sampler]] the the given uniform binding
+     * @zh 绑定实际 GFX [[gfx.Sampler]] 到指定 binding。
      * @param binding The binding for target uniform of sampler type
      * @param value Target sampler
      */

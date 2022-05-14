@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core/math
- */
+
 
 import { CCClass } from '../data/class';
 import { Quat } from './quat.jsb';

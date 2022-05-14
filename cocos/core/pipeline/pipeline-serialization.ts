@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module pipeline
- */
+
 
 import { ccclass, type, serializable, editable } from 'cc.decorator';
 import { CCString } from '../data/utils/attribute';

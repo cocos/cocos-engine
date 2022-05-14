@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
+
 
 import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, serializable } from 'cc.decorator';
@@ -220,7 +217,8 @@ export class TextureCube extends SimpleTexture {
     }
 
     /**
-     * 销毁此贴图，清空所有 Mipmap 并释放占用的 GPU 资源。
+     * @en Destroy this texture, clear all mipmaps and release GPU resources
+     * @zh 销毁此贴图，清空所有 Mipmap 并释放占用的 GPU 资源。
      */
     public destroy () {
         this._mipmaps = [];
