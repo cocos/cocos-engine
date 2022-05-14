@@ -54,7 +54,7 @@ in float a_rndSeed;
     in vec3 a_texCoord;   // mesh uv
   #endif
   #if CC_INSTANCE_PARTICLE
-    in vec2 a_texCoord;
+    in vec2 a_texCoord5;
   #endif
   in vec3 a_texCoord3;  // mesh vertices
   in vec3 a_normal;     // mesh normal
@@ -192,7 +192,12 @@ vec4 gpvs_main () {
   vec2 timeCoord1 = vec2(normalizedTime, 1.);
 
   #if CC_RENDER_MODE == RENDER_MODE_MESH
-    vec2 vertIdx = vec2(a_texCoord.x, a_texCoord.y);
+    #if !CC_INSTANCE_PARTICLE
+      vec2 vertIdx = vec2(a_texCoord.x, a_texCoord.y);
+    #endif
+    #if CC_INSTANCE_PARTICLE
+      vec2 vertIdx = vec2(a_texCoord5.x, a_texCoord5.y);
+    #endif
   #endif
   #if CC_RENDER_MODE != RENDER_MODE_MESH
     #if !CC_INSTANCE_PARTICLE
