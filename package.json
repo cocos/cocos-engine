@@ -78,9 +78,5 @@
     "@cocos/cannon": "1.2.8",
     "@cocos/dragonbones-js": "^1.0.1",
     "@cocos/physx": "1.0.7"
-  },
-  "creator": {
-    "version": "3.5.1"
-  },
-  "uuid": "730b764a-7707-4a03-b317-f28c133a6401"
+  }
 }
