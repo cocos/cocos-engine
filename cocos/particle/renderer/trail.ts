@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 /*
  Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
@@ -130,6 +129,7 @@ class TrailSegment {
         return this.trailElements[newEleLoc];
     }
 
+    // eslint-disable-next-line max-len
     public iterateElement (target: TrailModule, f: (target: TrailModule, e: ITrailElement, p: Particle, dt: number) => boolean, p: Particle, dt: number) {
         const end = this.start >= this.end ? this.end + this.trailElements.length : this.end;
         for (let i = this.start; i < end; i++) {
@@ -306,6 +306,10 @@ export default class TrailModule {
     @displayOrder(13)
     @tooltip('i18n:trailSegment.colorOvertime')
     public colorOvertime = new GradientRange();
+
+    public getModel () {
+        return this._trailModel;
+    }
 
     /**
      * 轨迹设定时的坐标系。
@@ -754,10 +758,6 @@ export default class TrailModule {
             this._subMeshData.destroy();
             this._subMeshData = null;
         }
-    }
-
-    public getModel () {
-        return this._trailModel;
     }
 
     // <debug use>

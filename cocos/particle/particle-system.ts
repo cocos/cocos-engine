@@ -1130,19 +1130,6 @@ export class ParticleSystem extends RenderableComponent {
         if (this._trailModule && this._trailModule.enable) {
             this._trailModule.updateRenderData();
         }
-
-        if (this.getParticleCount() > 0) {
-            if (!this._isCulled) {
-                if (!this.processor.getModel()?.scene) {
-                    this.processor.attachToScene();
-                }
-                if (this._trailModule && this._trailModule.enable) {
-                    if (!this._trailModule.getModel()?.scene) {
-                        this._trailModule._attachToScene();
-                    }
-                }
-            }
-        }
     }
 
     protected beforeRender () {
@@ -1156,6 +1143,17 @@ export class ParticleSystem extends RenderableComponent {
             this.processor.detachFromScene();
             if (this._trailModule && this._trailModule.enable) {
                 this._trailModule._detachFromScene();
+            }
+        } else if (this.getParticleCount() > 0) {
+            if (!this._isCulled) {
+                if (!this.processor.getModel()?.scene) {
+                    this.processor.attachToScene();
+                }
+                if (this._trailModule && this._trailModule.enable) {
+                    if (!this._trailModule.getModel()?.scene) {
+                        this._trailModule._attachToScene();
+                    }
+                }
             }
         }
     }
