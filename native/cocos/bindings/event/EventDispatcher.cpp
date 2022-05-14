@@ -285,7 +285,7 @@ void EventDispatcher::dispatchControllerEvent(const ControllerEvent &controllerE
     }
     se::ValueArray args;
     args.emplace_back(se::Value(jsControllerEventArray));
-    EventDispatcher::doDispatchEvent(nullptr, eventName, args);
+    EventDispatcher::doDispatchJsEvent(eventName, args);
 }
 
 void EventDispatcher::dispatchTickEvent(float /*dt*/) {
