@@ -186,14 +186,6 @@ export class HtmlTextParser {
                     // remove space and = character
                     remainingArgument = attribute.substring(tagName.length).trim();
 
-                    // Skip a pair of quotations for avoiding spaces in image name are detected.
-                    // leftQuot = remainingArgument.indexOf('\'');
-                    // if (leftQuot > -1) {
-                    //     rightQuot = remainingArgument.indexOf('\'', leftQuot + 1 >= remainingArgument.length ? -1 : leftQuot + 1);
-                    // } else {
-                    //     leftQuot = remainingArgument.indexOf('"');
-                    //     rightQuot = remainingArgument.indexOf('"', leftQuot + 1 >= remainingArgument.length ? -1 : leftQuot + 1);
-                    // }
                     rightQuot = this.getRightQuotationIndex(remainingArgument);
 
                     nextSpace = remainingArgument.indexOf(' ', rightQuot + 1 >= remainingArgument.length ? -1 : rightQuot + 1);
