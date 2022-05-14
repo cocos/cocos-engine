@@ -1624,10 +1624,10 @@ if(USE_PHYSICS_PHYSX)
 endif()
 
 ##### 2d
-# cocos_source_files(
-#     cocos/2d/framework/UITransform.h
-#     cocos/2d/framework/UITransform.cpp
-# )
+cocos_source_files(
+    cocos/2d/renderer/RenderEntry.h
+    cocos/2d/renderer/RenderEntry.cpp
+)
 
 ##### 3d
 cocos_source_files(

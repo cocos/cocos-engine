@@ -25,6 +25,7 @@
 #include "scene/Ambient.h"
 #include "renderer/core/PassInstance.h"
 #include "renderer/core/MaterialInstance.h"
+#include "2d/renderer/RenderEntry.h"
 #include "3d/models/MorphModel.h"
 #include "3d/models/SkinningModel.h"
 #include "3d/models/BakedSkinningModel.h"
@@ -17284,6 +17285,302 @@ bool js_register_scene_MaterialInstance(se::Object* obj) // NOLINT(readability-i
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
+se::Object* __jsb_cc_RenderEntry_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_RenderEntry_class = nullptr;  // NOLINT
+
+static bool js_scene_RenderEntry_getBufferId(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderEntry>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_RenderEntry_getBufferId : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->getBufferId();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_RenderEntry_getBufferId : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_scene_RenderEntry_getBufferId)
+
+static bool js_scene_RenderEntry_getIDataBuffer(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderEntry>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_RenderEntry_getIDataBuffer : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned short* result = cobj->getIDataBuffer();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_RenderEntry_getIDataBuffer : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_scene_RenderEntry_getIDataBuffer)
+
+static bool js_scene_RenderEntry_getIndexOffset(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderEntry>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_RenderEntry_getIndexOffset : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->getIndexOffset();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_RenderEntry_getIndexOffset : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_scene_RenderEntry_getIndexOffset)
+
+static bool js_scene_RenderEntry_getVDataBuffer(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderEntry>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_RenderEntry_getVDataBuffer : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        float* result = cobj->getVDataBuffer();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_RenderEntry_getVDataBuffer : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_scene_RenderEntry_getVDataBuffer)
+
+static bool js_scene_RenderEntry_getVbBuffer(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderEntry>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_RenderEntry_getVbBuffer : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        float* result = cobj->getVbBuffer();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_RenderEntry_getVbBuffer : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_scene_RenderEntry_getVbBuffer)
+
+static bool js_scene_RenderEntry_getVertexOffset(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderEntry>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_RenderEntry_getVertexOffset : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->getVertexOffset();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_RenderEntry_getVertexOffset : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_scene_RenderEntry_getVertexOffset)
+
+static bool js_scene_RenderEntry_setBufferId(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderEntry>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_RenderEntry_setBufferId : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<int, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_RenderEntry_setBufferId : Error processing arguments");
+        cobj->setBufferId(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_scene_RenderEntry_setBufferId)
+
+static bool js_scene_RenderEntry_setIDataBuffer(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderEntry>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_RenderEntry_setIDataBuffer : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<unsigned short*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_RenderEntry_setIDataBuffer : Error processing arguments");
+        cobj->setIDataBuffer(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_scene_RenderEntry_setIDataBuffer)
+
+static bool js_scene_RenderEntry_setIndexOffset(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderEntry>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_RenderEntry_setIndexOffset : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<int, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_RenderEntry_setIndexOffset : Error processing arguments");
+        cobj->setIndexOffset(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_scene_RenderEntry_setIndexOffset)
+
+static bool js_scene_RenderEntry_setVDataBuffer(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderEntry>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_RenderEntry_setVDataBuffer : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<float*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_RenderEntry_setVDataBuffer : Error processing arguments");
+        cobj->setVDataBuffer(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_scene_RenderEntry_setVDataBuffer)
+
+static bool js_scene_RenderEntry_setVbBuffer(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderEntry>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_RenderEntry_setVbBuffer : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<float*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_RenderEntry_setVbBuffer : Error processing arguments");
+        cobj->setVbBuffer(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_scene_RenderEntry_setVbBuffer)
+
+static bool js_scene_RenderEntry_setVertexOffset(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderEntry>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_RenderEntry_setVertexOffset : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<int, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_RenderEntry_setVertexOffset : Error processing arguments");
+        cobj->setVertexOffset(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_scene_RenderEntry_setVertexOffset)
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_RenderEntry_finalize)
+
+static bool js_scene_RenderEntry_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor_overloaded.c
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    do {
+        if (argc == 3) {
+            HolderType<int, false> arg0 = {};
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            HolderType<int, false> arg1 = {};
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            HolderType<int, false> arg2 = {};
+            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+            if (!ok) { ok = true; break; }
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::RenderEntry, arg0.value(), arg1.value(), arg2.value());
+            s.thisObject()->setPrivateObject(ptr);
+            return true;
+        }
+    } while(false);
+    do {
+        if (argc == 0) {
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::RenderEntry);
+            s.thisObject()->setPrivateObject(ptr);
+            return true;
+        }
+    } while(false);
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_CTOR(js_scene_RenderEntry_constructor, __jsb_cc_RenderEntry_class, js_cc_RenderEntry_finalize)
+
+static bool js_cc_RenderEntry_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_RenderEntry_finalize)
+
+bool js_register_scene_RenderEntry(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("RenderEntry", obj, nullptr, _SE(js_scene_RenderEntry_constructor));
+
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
+    cls->defineProperty("bufferId", _SE(js_scene_RenderEntry_getBufferId_asGetter), _SE(js_scene_RenderEntry_setBufferId_asSetter));
+    cls->defineProperty("vertexOffset", _SE(js_scene_RenderEntry_getVertexOffset_asGetter), _SE(js_scene_RenderEntry_setVertexOffset_asSetter));
+    cls->defineProperty("indexOffset", _SE(js_scene_RenderEntry_getIndexOffset_asGetter), _SE(js_scene_RenderEntry_setIndexOffset_asSetter));
+    cls->defineProperty("vbBuffer", _SE(js_scene_RenderEntry_getVbBuffer_asGetter), _SE(js_scene_RenderEntry_setVbBuffer_asSetter));
+    cls->defineProperty("vDataBuffer", _SE(js_scene_RenderEntry_getVDataBuffer_asGetter), _SE(js_scene_RenderEntry_setVDataBuffer_asSetter));
+    cls->defineProperty("iDataBuffer", _SE(js_scene_RenderEntry_getIDataBuffer_asGetter), _SE(js_scene_RenderEntry_setIDataBuffer_asSetter));
+    cls->defineFinalizeFunction(_SE(js_cc_RenderEntry_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::RenderEntry>(cls);
+
+    __jsb_cc_RenderEntry_proto = cls->getProto();
+    __jsb_cc_RenderEntry_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
 se::Object* __jsb_cc_MorphModel_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_MorphModel_class = nullptr;  // NOLINT
 
@@ -18899,6 +19196,7 @@ bool register_all_scene(se::Object* obj)    // NOLINT
     js_register_scene_PassDynamicsValue(ns);
     js_register_scene_PassInstance(ns);
     js_register_scene_ProgramLib(ns);
+    js_register_scene_RenderEntry(ns);
     js_register_scene_RenderScene(ns);
     js_register_scene_RenderWindow(ns);
     js_register_scene_Root(ns);

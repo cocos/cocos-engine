@@ -29,6 +29,7 @@
 #include "cocos/scene/Ambient.h"
 #include "cocos/renderer/core/PassInstance.h"
 #include "cocos/renderer/core/MaterialInstance.h"
+#include "cocos/2d/renderer/RenderEntry.h"
 #include "cocos/3d/models/MorphModel.h"
 #include "cocos/3d/models/SkinningModel.h"
 #include "cocos/3d/models/BakedSkinningModel.h"
@@ -71,6 +72,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::scene::Camera);
 JSB_REGISTER_OBJECT_TYPE(cc::PassInstance);
 JSB_REGISTER_OBJECT_TYPE(cc::IMaterialInstanceInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::MaterialInstance);
+JSB_REGISTER_OBJECT_TYPE(cc::RenderEntry);
 JSB_REGISTER_OBJECT_TYPE(cc::MorphModel);
 JSB_REGISTER_OBJECT_TYPE(cc::SkinningModel);
 JSB_REGISTER_OBJECT_TYPE(cc::BakedSkinningModel);
@@ -603,6 +605,13 @@ bool js_register_cc_MaterialInstance(se::Object *obj); // NOLINT
 SE_DECLARE_FUNC(js_scene_MaterialInstance_onPassStateChange);
 SE_DECLARE_FUNC(js_scene_MaterialInstance_setRebuildPSOCallback);
 SE_DECLARE_FUNC(js_scene_MaterialInstance_MaterialInstance);
+
+extern se::Object *__jsb_cc_RenderEntry_proto; // NOLINT
+extern se::Class * __jsb_cc_RenderEntry_class; // NOLINT
+
+bool js_register_cc_RenderEntry(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_scene_RenderEntry_RenderEntry);
 
 extern se::Object *__jsb_cc_MorphModel_proto; // NOLINT
 extern se::Class * __jsb_cc_MorphModel_class; // NOLINT
