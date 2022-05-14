@@ -38,6 +38,7 @@
 #include "cocos/math/Vec3.h"
 #include "extensions/cocos-ext.h"
 #include "network/Downloader.h"
+#include "cocos/base/TypeDef.h"
 
 #if USE_SPINE
     #include "cocos/editor-support/spine-creator-support/spine-cocos2dx.h"

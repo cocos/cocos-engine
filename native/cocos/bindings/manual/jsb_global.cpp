@@ -337,6 +337,8 @@ static bool JSBCore_os(se::State &s) { //NOLINT
     os.setString("OS X");
 #elif (CC_PLATFORM == CC_PLATFORM_OHOS)
     os.setString("OHOS");
+#elif (CC_PLATFORM == CC_PLATFORM_NX_WINDOWS)
+    os.setString("NX");
 #endif
 
     s.rval() = os;

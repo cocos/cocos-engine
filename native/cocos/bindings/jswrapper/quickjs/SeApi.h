@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,53 +25,10 @@
 
 #pragma once
 
-#include "../Config.h"
-#if USE_MEMORY_LEAK_DETECTOR
-
-    #if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_NX_WINDOWS
-        #include <Windows.h>
-    #endif
-    #include <cstdint>
-    #include <string>
-    #include <vector>
-    #include "../Macros.h"
-
-namespace cc {
-
-    #define MAX_STACK_FRAMES  32
-    #define MAX_SYMBOL_LENGTH 255
-
-/**
- * A single frame of callstack.
- */
-struct CC_DLL StackFrame {
-    std::string module;
-    std::string file;
-    std::string function;
-    uint32_t    line{0};
-
-    std::string toString();
-};
-
-/**
- * An utility class used to backtrace callstack.
- */
-class CC_DLL CallStack {
-public:
-    static std::string basename(const std::string& path);
-
-    static std::vector<void*>      backtrace();
-    static std::vector<StackFrame> backtraceSymbols(const std::vector<void*>& callstack);
-
-    #if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_NX_WINDOWS
-    static void initSym();
-    static void cleanupSym();
-
-private:
-    static HANDLE _process;
-    #endif
-};
-
-} // namespace cc
-
-#endif
+#include "../State.h"
+#include "../Value.h"
+#include "Class.h"
+#include "HelperMacros.h"
+#include "Object.h"
+#include "ScriptEngine.h"
+#include "Utils.h"

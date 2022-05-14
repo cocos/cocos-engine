@@ -59,7 +59,7 @@ std::string StackFrame::toString() {
 
     return stream.str();
 
-    #elif CC_PLATFORM == CC_PLATFORM_WINDOWS
+    #elif CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_NX_WINDOWS
     std::stringstream stream;
     stream << "\tmodule: " << (module.empty() ? unknown : module)
            << "\tfile: " << (file.empty() ? unknown : file)
@@ -168,7 +168,7 @@ std::vector<void*> CallStack::backtrace() {
     }
     return callstack;
 
-    #elif CC_PLATFORM == CC_PLATFORM_WINDOWS
+    #elif CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_NX_WINDOWS
     std::vector<void*> callstack;
     callstack.reserve(MAX_STACK_FRAMES);
 
@@ -227,7 +227,7 @@ std::vector<StackFrame> CallStack::backtraceSymbols(const std::vector<void*>& ca
 
     return frames;
 
-    #elif CC_PLATFORM == CC_PLATFORM_WINDOWS
+    #elif CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_NX_WINDOWS
     std::vector<StackFrame> frames;
 
         #if _WIN64
@@ -280,7 +280,7 @@ std::vector<StackFrame> CallStack::backtraceSymbols(const std::vector<void*>& ca
     #endif
 }
 
-    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
+    #if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_NX_WINDOWS
 void CallStack::initSym() {
     _process = GetCurrentProcess();
     if (SymInitialize(_process, NULL, TRUE) == FALSE) {

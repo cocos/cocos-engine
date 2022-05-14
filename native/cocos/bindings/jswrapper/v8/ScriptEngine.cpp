@@ -212,7 +212,7 @@ public:
         flags.append(" --expose-gc-as=" EXPOSE_GC);
         flags.append(" --no-flush-bytecode --no-lazy"); // for bytecode support
                                                         // flags.append(" --trace-gc"); // v8 trace gc
-    #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+    #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_NX)
         flags.append(" --jitless");
     #endif
         if (!flags.empty()) {

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,53 +25,39 @@
 
 #pragma once
 
-#include "../Config.h"
-#if USE_MEMORY_LEAK_DETECTOR
+#include "../config.h"
 
-    #if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_NX_WINDOWS
-        #include <Windows.h>
-    #endif
-    #include <cstdint>
-    #include <string>
-    #include <vector>
-    #include "../Macros.h"
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_QUICKJS
 
-namespace cc {
+    #include "Base.h"
 
-    #define MAX_STACK_FRAMES  32
-    #define MAX_SYMBOL_LENGTH 255
+    #include "../Value.h"
 
-/**
- * A single frame of callstack.
- */
-struct CC_DLL StackFrame {
-    std::string module;
-    std::string file;
-    std::string function;
-    uint32_t    line{0};
+namespace se {
 
-    std::string toString();
-};
+class Class;
 
-/**
- * An utility class used to backtrace callstack.
- */
-class CC_DLL CallStack {
-public:
-    static std::string basename(const std::string& path);
+namespace internal {
 
-    static std::vector<void*>      backtrace();
-    static std::vector<StackFrame> backtraceSymbols(const std::vector<void*>& callstack);
+void forceConvertJsValueToStdString(JSContext *cx, JSValue jsval, std::string *ret);
 
-    #if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_NX_WINDOWS
-    static void initSym();
-    static void cleanupSym();
+void jsToSeArgs(JSContext *cx, int argc, JSValueConst *argv, ValueArray &outArr);
+void jsToSeValue(JSContext *cx, JSValueConst jsval, Value *v);
+void seToJsArgs(JSContext *cx, int argc, const Value *args, JSValue *outArr);
+void seToJsValue(JSContext *cx, const Value &v, JSValue *outVal);
+void setReturnJSValue(JSContext *cx, const Value &arg, JSValue *outVal);
 
-private:
-    static HANDLE _process;
-    #endif
-};
+bool  hasPrivate(JSValue obj);
+void *getPrivate(JSValue obj);
+void  setPrivate(JSValue obj, Object *seObj);
+void  clearPrivate(JSValue obj);
 
-} // namespace cc
+bool isJSBClass(JSValue obj);
 
-#endif
+void jsObjectToSeObject(JSValueConst jsval, Value *v);
+
+} // namespace internal
+
+} // namespace se
+
+#endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_QUICKJS

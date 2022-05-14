@@ -86,9 +86,11 @@
 
 /** Support webp or not. If your application don't use webp format picture, you can undefine this macro to save package size.
  */
+#if CC_PLATFORM != CC_PLATFORM_NX
 #ifndef CC_USE_WEBP
     #define CC_USE_WEBP 1
 #endif // CC_USE_WEBP
+#endif
 
 /** Support EditBox
  */

@@ -10,6 +10,7 @@ set(COCOS2D_SOURCE_LIST)
 ################################# options ############################################
 # default fallback options
 cc_set_if_undefined(USE_SE_V8                ON)
+cc_set_if_undefined(USE_SE_QUICKJS           OFF)
 cc_set_if_undefined(USE_V8_DEBUGGER          ON)
 cc_set_if_undefined(USE_SOCKET               ON)
 cc_set_if_undefined(USE_AUDIO                ON)
@@ -30,9 +31,22 @@ cc_set_if_undefined(USE_SERVER_MODE          OFF)
 add_definitions()
 
 if(NX)
-    cc_set_if_undefined(CC_USE_VULKAN ON)
+    cc_set_if_undefined(CC_USE_VULKAN OFF)
     cc_set_if_undefined(CC_USE_GLES3 OFF)
     cc_set_if_undefined(CC_USE_GLES2 OFF)
+    cc_set_if_undefined(CC_USE_NVN ON)
+    
+    if(USE_SE_V8)
+        set(USE_V8_DEBUGGER OFF)
+        set(USE_SE_QUICKJS OFF)    
+    else()
+        set(USE_SE_QUICKJS ON)        
+    endif()
+    
+    set(USE_VIDEO OFF)
+    set(USE_WEBVIEW OFF)
+elseif(NX_WINDOWS)
+    cc_set_if_undefined(CC_USE_VULKAN ON)
 elseif(ANDROID OR WINDOWS OR OHOS)
     cc_set_if_undefined(CC_USE_GLES3 ON)
     cc_set_if_undefined(CC_USE_VULKAN OFF)
@@ -66,6 +80,14 @@ endif()
 if(USE_SE_JSC)
     set(USE_SE_V8 OFF)
     set(USE_V8_DEBUGGER OFF)
+    set(USE_SE_QUICKJS OFF)
+endif()
+
+if(USE_SE_QUICKJS)
+    set(USE_SE_V8 OFF)
+    set(USE_V8_DEBUGGER OFF)
+    set(USE_SE_SM OFF)
+    set(USE_SE_JSC OFF)
 endif()
 
 if(NOT USE_SOCKET)
@@ -84,11 +106,11 @@ endif()
 
 ## disable middleware when dragonbones and spine are disabled
 if(NOT USE_DRAGONBONES AND NOT USE_SPINE)
-	set(USE_MIDDLEWARE OFF)
+    set(USE_MIDDLEWARE OFF)
 endif()
 
 if(USE_DRAGONBONES OR USE_SPINE)
-	set(USE_MIDDLEWARE ON)
+    set(USE_MIDDLEWARE ON)
 endif()
 
 if(USE_JOB_SYSTEM_TASKFLOW AND USE_JOB_SYSTEM_TBB)
@@ -103,6 +125,10 @@ if(USE_JOB_SYSTEM_TASKFLOW)
     endif()
 endif()
 
+if(NX)
+    set(USE_JOB_SYSTEM_TASKFLOW OFF)
+    set(USE_JOB_SYSTEM_TBB OFF)
+endif()
 ################################# list all option values ##############################
 
 cc_inspect_values(
@@ -600,10 +626,12 @@ elseif(LINUX)
 endif()
 
 ############ module log
+if(NOT NX)
 cocos_source_files(MODULE cclog
     cocos/base/Log.cpp
     cocos/base/Log.h
 )
+endif()
 
 ############ module log
 cocos_source_files(MODULE ccunzip
@@ -781,21 +809,21 @@ if(NOT APPLE AND USE_SOCKET)
     cocos_source_files(
         NO_WERROR    cocos/network/WebSocket-okhttp.cpp
     )
-    else()
+    elseif(NOT NX AND NOT NX_WINDOWS)
     cocos_source_files(
         NO_WERROR    cocos/network/WebSocket-libwebsockets.cpp
     )
     endif()
 endif()
 
-if(WINDOWS OR LINUX OR QNX)
+if(WINDOWS OR LINUX OR QNX OR NX_WINDOWS OR NX)
     cocos_source_files(
         NO_WERROR    cocos/network/Downloader-curl.cpp
                      cocos/network/Downloader-curl.h
     )
 endif()
 
-if(WINDOWS OR MACOSX OR LINUX OR QNX)
+if(WINDOWS OR MACOSX OR LINUX OR QNX OR NX_WINDOWS OR NX)
     cocos_source_files(
         NO_WERROR    cocos/network/HttpClient.cpp
     )
@@ -831,14 +859,21 @@ cocos_source_files(MODULE ccfilesystem
     cocos/platform/FileUtils.h
 )
 
-if(WINDOWS)
+if(WINDOWS OR NX_WINDOWS)
     cocos_source_files(MODULE ccutils
         cocos/platform/win32/Utils-win32.cpp
         cocos/platform/win32/Utils-win32.h
     )
 endif()
 
-if(WINDOWS)
+if(NX_WINDOWS)
+    cocos_source_files(
+                     cocos/platform/win32/compat
+                     cocos/platform/win32/compat/stdint.h
+                     cocos/platform/win32/inet_pton_mingw.cpp
+                     cocos/platform/win32/inet_pton_mingw.h
+    )
+elseif(WINDOWS)
     cocos_source_files(
                      cocos/platform/win32/compat
                      cocos/platform/win32/compat/stdint.h
@@ -1398,10 +1433,6 @@ if(CC_USE_VULKAN)
     endif()
 endif()
 
-if(NX)
-    include(${CMAKE_CURRENT_LIST_DIR}/platform-nx/source.cmake)
-endif()
-
 cocos_source_files(
                  cocos/renderer/frame-graph/Blackboard.h
                  cocos/renderer/frame-graph/CallbackPass.h
@@ -1898,7 +1929,7 @@ elseif(APPLE)
                     cocos/platform/apple/JsbBridgeWrapper.h
                     cocos/platform/apple/JsbBridgeWrapper.mm
     )
-elseif(WIN32)
+elseif(WINDOWS OR NX_WINDOWS OR NX)
     cocos_source_files(
         NO_WERROR    cocos/bindings/manual/jsb_platfrom_win32.cpp
     )
@@ -1980,6 +2011,24 @@ if(USE_SE_JSC)
     )
 endif()
 
+
+if(USE_SE_QUICKJS)
+    cocos_source_files(MODULE ccbindings
+                    cocos/bindings/jswrapper/quickjs/Base.h
+        NO_WERROR   cocos/bindings/jswrapper/quickjs/Class.cpp
+                    cocos/bindings/jswrapper/quickjs/Class.h
+                    cocos/bindings/jswrapper/quickjs/HelperMacros.h
+        NO_WERROR   cocos/bindings/jswrapper/quickjs/HelperMacros.cpp
+        NO_WERROR   cocos/bindings/jswrapper/quickjs/Object.cpp
+                    cocos/bindings/jswrapper/quickjs/Object.h
+        NO_WERROR   cocos/bindings/jswrapper/quickjs/ScriptEngine.cpp
+                    cocos/bindings/jswrapper/quickjs/ScriptEngine.h
+                    cocos/bindings/jswrapper/quickjs/SeApi.h
+        NO_WERROR   cocos/bindings/jswrapper/quickjs/Utils.cpp
+                    cocos/bindings/jswrapper/quickjs/Utils.h
+    )
+endif()
+
 cocos_source_files(MODULE ccbindings
                  cocos/bindings/jswrapper/config.cpp
                  cocos/bindings/jswrapper/config.h
@@ -2006,10 +2055,12 @@ cocos_source_files(
 )
 
 #### storage
+if(NOT NX)
 cocos_source_files(
                  cocos/storage/local-storage/LocalStorage.cpp
                  cocos/storage/local-storage/LocalStorage.h
 )
+endif()
 
 if(ANDROID)
     cocos_source_files(
@@ -2094,7 +2145,7 @@ elseif(IOS)
             NO_WERROR    cocos/ui/webview/WebViewImpl-ios.mm
        )
    endif()
-elseif(WIN32)
+elseif(WINDOWS)
     if(USE_EDIT_BOX)
         cocos_source_files(
             NO_WERROR    cocos/ui/edit-box/EditBox-win32.cpp
@@ -2221,6 +2272,13 @@ if(QNX)
     list(APPEND COCOS2D_SOURCE_LIST ${ccqnx_SOURCE_LIST})
 endif()
 
+if(NX_WINDOWS OR NX)
+    include(${NX_PATH}/source.cmake)
+    nx_source_list(ccnx_SOURCE_LIST ${NX_PATH})
+    source_group(TREE ${NX_PATH} PREFIX "Source Files" FILES ${ccnx_SOURCE_LIST}})
+    list(APPEND COCOS2D_SOURCE_LIST ${ccnx_SOURCE_LIST})
+endif()
+
 add_library(cocos2d ${COCOS2D_SOURCE_LIST})
 
 if(USE_MODULES)
@@ -2306,10 +2364,10 @@ if(CC_USE_VULKAN)
     target_compile_definitions(cocos2d PUBLIC VK_NO_PROTOTYPES)
     target_compile_definitions(cocos2d PUBLIC CC_USE_VULKAN)
 
-    if(WIN32)
-        target_compile_definitions(cocos2d PUBLIC VK_USE_PLATFORM_WIN32_KHR)
-    elseif(NX)
+    if(NX)
         target_compile_definitions(cocos2d PUBLIC VK_USE_PLATFORM_VI_NN)
+    elseif(WINDOWS OR NX_WINDOWS)
+        target_compile_definitions(cocos2d PUBLIC VK_USE_PLATFORM_WIN32_KHR)
     elseif(ANDROID)
         target_compile_definitions(cocos2d PUBLIC VK_USE_PLATFORM_ANDROID_KHR)
     elseif(IOS)
@@ -2357,8 +2415,14 @@ target_include_directories(cocos2d PUBLIC
 )
 
 if(NX)
-    include(${CMAKE_CURRENT_LIST_DIR}/platform-nx/setup.cmake)
-elseif(WINDOWS)
+    include(${NX_PATH}/setup.cmake)
+    nx_set_property(cocos2d)
+elseif(WINDOWS OR NX_WINDOWS)
+    if(NX_WINDOWS)
+        include(${NX_PATH}/setup.cmake)
+        nx_set_property(cocos2d)
+    endif()
+    
     target_link_libraries(cocos2d PUBLIC
         ws2_32 userenv psapi winmm Iphlpapi
         ${CC_EXTERNAL_LIBS}

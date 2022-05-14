@@ -181,6 +181,17 @@ Value::~Value() {
     reset(Type::Undefined);
 }
 
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_QUICKJS
+void Value::executeFreeValueOperation() {
+    if (isObject() && _needFreeValueCount > 0) {
+        for (uint32_t i = 0; i < _needFreeValueCount; ++i) {
+            toObject()->unprotect();
+        }
+        _needFreeValueCount = 0;
+    }
+}
+#endif
+
 Value &Value::operator=(const Value &v) {
     if (this != &v) {
         reset(v.getType());
@@ -494,6 +505,10 @@ Object *Value::toObject() const {
 }
 
 void Value::reset(Type type) {
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_QUICKJS
+    executeFreeValueOperation();
+#endif
+
     if (_type != type) {
         switch (_type) {
             case Type::String:

@@ -27,7 +27,7 @@
 #include "cocos/bindings/event/CustomEventTypes.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_global_init.h"
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_NX_WINDOWS || CC_PLATFORM == CC_PLATFORM_NX
     #include "cocos/application/ApplicationManager.h"
     #include "cocos/platform/interfaces/modules/ISystemWindow.h"
 #endif
@@ -140,6 +140,7 @@ void EventDispatcher::dispatchTouchEvent(const TouchEvent &touchEvent) {
             assert(false);
             break;
     }
+
 
     se::ValueArray args;
     args.emplace_back(se::Value(jsTouchObjArray));
@@ -327,7 +328,7 @@ void EventDispatcher::dispatchDestroyWindowEvent() {
 }
 
 void EventDispatcher::dispatchRecreateWindowEvent() {
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_NX_WINDOWS || CC_PLATFORM == CC_PLATFORM_NX
     EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 1,
         reinterpret_cast<void *>(CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandler()));
 #else
