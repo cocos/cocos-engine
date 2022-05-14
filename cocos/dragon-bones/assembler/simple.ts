@@ -1,5 +1,5 @@
 import { Armature, BlendMode } from '@cocos/dragonbones-js';
-import { Color, Mat4, Node, Texture2D, Vec3, director } from '../../core';
+import { Color, Mat4, Node, Texture2D, director } from '../../core';
 import { BlendFactor } from '../../core/gfx';
 import { TextureBase } from '../../core/assets/texture-base';
 import { vfmtPosUvColor } from '../../2d/renderer/vertex-format';
@@ -7,11 +7,12 @@ import { MaterialInstance } from '../../core/renderer/core/material-instance';
 import { IAssembler } from '../../2d/renderer/base';
 import { Batcher2D } from '../../2d/renderer/batcher-2d';
 import { ArmatureFrame } from '../ArmatureCache';
-import { ArmatureDisplay, ArmatureDisplayDrawData } from '../ArmatureDisplay';
+import { ArmatureDisplay } from '../ArmatureDisplay';
 import { CCSlot } from '../CCSlot';
 import { legacyCC } from '../../core/global-exports';
 import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor';
 import { RenderData } from '../../2d/renderer/render-data';
+import { approx } from '../../core/math/utils';
 
 const NEED_COLOR = 0x01;
 const NEED_BATCH = 0x10;
@@ -422,7 +423,7 @@ function updateComponentRenderData (comp: ArmatureDisplay, batcher: Batcher2D) {
     if (nodeColor._val !== 0xffffffff ||  _premultipliedAlpha) {
         _needColor = true;
     }
-    if (Math.abs(_nodeA - 1.0) > 0.0001) {
+    if (!approx(_nodeA, 1.0, 0.0001)) {
         _needColor = true;
     }
 

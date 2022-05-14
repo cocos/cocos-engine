@@ -11,6 +11,7 @@ import { BlendFactor } from '../../core/gfx';
 import { legacyCC } from '../../core/global-exports';
 import { StaticVBAccessor, StaticVBChunk } from '../../2d/renderer/static-vb-accessor';
 import { RenderData } from '../../2d/renderer/render-data';
+import { approx } from '../../core/math/utils';
 
 const FLAG_BATCH = 0x10;
 const FLAG_TWO_COLOR = 0x01;
@@ -266,7 +267,7 @@ function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
     if (nodeColor._val !== 0xffffffff ||  _premultipliedAlpha) {
         _needColor = true;
     }
-    if (Math.abs(_nodeA - 1.0) > 0.0001) {
+    if (!approx(_nodeA, 1.0, 0.0001)) {
         _needColor = true;
     }
 
