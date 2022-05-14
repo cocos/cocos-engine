@@ -312,10 +312,7 @@ export class HtmlTextParser {
         return obj;
     }
 
-    /**
-    * @engineInternal
-    */
-    public getRightQuotationIndex (remainingArgument: string) {
+    private getRightQuotationIndex (remainingArgument: string) {
         let leftQuot = -1;
         let rightQuot = -1;
         // Skip a pair of quotations for avoiding spaces in image name are detected.

@@ -35,6 +35,26 @@ test('parse-richtext', () => {
     expect(htmlAttrArray[0].style.imageHeight).toStrictEqual(89);
     expect(htmlAttrArray[0].style.imageAlign).toStrictEqual('top');
     expect(htmlAttrArray[1].text).toStrictEqual('   前面有三个空格，这是一段文本');
+
+    attribute = "<img src='1 23'/>";
+    htmlAttrArray = htmlTextParser.parse(attribute);
+    expect(htmlAttrArray.length).toStrictEqual(1);
+    expect(htmlAttrArray[0].style.src).toStrictEqual('1 23');
+
+    // following tests are exceptional writing
+
+    attribute = "<img ='1 23'/>"; // 'src' missing 
+    htmlAttrArray = htmlTextParser.parse(attribute);
+    expect(htmlAttrArray.length).toStrictEqual(0);
+
+    attribute = "<img src='123'>"; // '/' missing 
+    htmlAttrArray = htmlTextParser.parse(attribute);
+    expect(htmlAttrArray.length).toStrictEqual(0);
+
+    attribute = "<img src='1 23\" />"; // quotations don't match
+    htmlAttrArray = htmlTextParser.parse(attribute);
+    expect(htmlAttrArray.length).toStrictEqual(1);
+    expect(htmlAttrArray[0].style.src).toStrictEqual('');
 });
 
 test('label.string.setter', () => {
