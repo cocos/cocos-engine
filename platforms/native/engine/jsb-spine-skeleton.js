@@ -354,6 +354,7 @@ const cacheManager = require('./jsb-cache-manager');
 
         this.syncTransform(true);
         this.markForUpdateRenderData();
+        this.componentOpacity = 1.0;
     };
 
     skeleton._updateColor = function () {
@@ -889,6 +890,17 @@ const cacheManager = require('./jsb-cache-manager');
             ui.commitComp(this, renderData, realTexture, this._assembler, _identityTrans);
             renderData.updateRange(renderData.vertexStart, renderData.vertexCount, _tempIndicesOffset, _tempIndicesCount);
             this.material = mat;
+        }
+    };
+
+    /**
+     * @internal This method only used to update opacity of skeleton.
+     */
+    skeleton._updateOpacity = function () {
+        const opacity = this.node._uiProps.opacity;
+        if (opacity !== this.componentOpacity) {
+            this.componentOpacity = opacity;
+            this._nativeSkeleton.setOpacity(opacity);
         }
     };
 

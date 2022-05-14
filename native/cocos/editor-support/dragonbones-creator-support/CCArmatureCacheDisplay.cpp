@@ -212,13 +212,13 @@ void CCArmatureCacheDisplay::render(float dt) {
     if (abs(_nodeColor.r - 1.0f) > 0.0001f ||
         abs(_nodeColor.g - 1.0f) > 0.0001f ||
         abs(_nodeColor.b - 1.0f) > 0.0001f ||
-        abs(_nodeColor.a - 1.0f) > 0.0001f ||
+        abs(_opacity - 1.0f) > 0.0001f ||
         _premultipliedAlpha) {
         needColor = true;
     }
 
     auto handleColor = [&](ArmatureCache::ColorData *colorData) {
-        tempA = colorData->color.a * _nodeColor.a;
+        tempA = colorData->color.a * _opacity;
         multiplier = _premultipliedAlpha ? tempA / 255.0f : 1.0f;
         tempR = _nodeColor.r * multiplier;
         tempG = _nodeColor.g * multiplier;

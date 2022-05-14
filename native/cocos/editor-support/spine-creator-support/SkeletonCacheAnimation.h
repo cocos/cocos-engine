@@ -63,6 +63,7 @@ public:
     bool setAttachment(const std::string &slotName, const std::string &attachmentName);
     bool setAttachment(const std::string &slotName, const char *attachmentName);
     void setColor(float r, float g, float b, float a);
+    void setOpacity(float opacity) { _opacity = opacity;};
     void setBatchEnabled(bool enabled);
     void setAttachEnabled(bool enabled);
 
@@ -107,6 +108,7 @@ private:
     bool _useAttach = false;
     bool _batch = true;
     cc::middleware::Color4F _nodeColor = cc::middleware::Color4F::WHITE;
+    float _opacity = 1.0f;
     bool _premultipliedAlpha = false;
 
     CacheFrameEvent _startListener = nullptr;

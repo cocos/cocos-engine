@@ -247,7 +247,7 @@ void CCArmatureDisplay::traverseArmature(Armature *armature, float parentOpacity
     IOBuffer &vb = mb->getVB();
     IOBuffer &ib = mb->getIB();
 
-    float realOpacity = _nodeColor.a;
+    float realOpacity = _opacity;
     auto renderMgr = mgr->getRenderInfoMgr();
     auto renderInfo = renderMgr->getBuffer();
     if (!renderInfo) return;

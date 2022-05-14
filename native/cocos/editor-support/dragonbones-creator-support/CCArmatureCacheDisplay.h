@@ -57,6 +57,9 @@ public:
     Animation *getAnimation() const;
 
     void setColor(float r, float g, float b, float a);
+    void setOpacity(float opacity) {
+        _opacity = opacity;
+    }
     void setBatchEnabled(bool enabled) {
         // disable switch batch mode, force to enable batch, it may be changed in future version
         // _batch = enabled;
@@ -106,6 +109,7 @@ private:
     bool _useAttach = false;
     bool _batch = true;
     cc::middleware::Color4F _nodeColor = cc::middleware::Color4F::WHITE;
+    float _opacity = 1.0f;
 
     bool _premultipliedAlpha = false;
     dbEventCallback _dbEventCallback = nullptr;

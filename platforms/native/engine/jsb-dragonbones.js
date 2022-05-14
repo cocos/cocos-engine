@@ -456,6 +456,7 @@ const cacheManager = require('./jsb-cache-manager');
         // store render order and world matrix
         this._paramsBuffer = this._nativeDisplay.getParamsBuffer();
         this._paramsBuffer[0] = -1.0;
+        this._componentOpacity = 1.0;
 
         this._nativeDisplay.setOpacityModifyRGB(this.premultipliedAlpha);
 
@@ -769,7 +770,7 @@ const cacheManager = require('./jsb-cache-manager');
             this.material = this.getMaterialForBlend(
                 renderInfo[renderInfoOffset + materialIdx++],
                 renderInfo[renderInfoOffset + materialIdx++],
-);
+            );
 
             _tempBufferIndex = renderInfo[renderInfoOffset + materialIdx++];
             _tempIndicesOffset = renderInfo[renderInfoOffset + materialIdx++];
@@ -779,6 +780,17 @@ const cacheManager = require('./jsb-cache-manager');
             ui.commitComp(this, renderData, realTexture, this._assembler, _identityTrans);
             renderData.updateRange(renderData.vertexStart, renderData.vertexCount, _tempIndicesOffset, _tempIndicesCount);
             this.material = mat;
+        }
+    };
+
+    /**
+     * @internal This method only used to update opacity of skeleton.
+     */
+     armatureDisplayProto._updateOpacity = function () {
+        const opacity = this.node._uiProps.opacity;
+        if (opacity !== this._componentOpacity) {
+            this._componentOpacity = opacity;
+            this._nativeDisplay.setOpacity(opacity);
         }
     };
 

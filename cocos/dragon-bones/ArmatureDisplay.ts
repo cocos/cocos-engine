@@ -1,5 +1,3 @@
-
-
 import { EDITOR } from 'internal:constants';
 import { Armature, Bone, EventObject } from '@cocos/dragonbones-js';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
@@ -742,11 +740,9 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     updateAnimation (dt) {
+        this.markForUpdateRenderData();
         if (!this.isAnimationCached()) return;
         if (!this._frameCache) return;
-
-        this.markForUpdateRenderData();
-
         const frameCache = this._frameCache;
         if (!frameCache.isInited()) {
             return;
@@ -1324,6 +1320,12 @@ export class ArmatureDisplay extends Renderable2D {
                 }
             }
         }
+    }
+
+    /**
+     * @internal This method only used to update opacity of skeleton.
+     */
+    public _updateOpacity () {
     }
 }
 

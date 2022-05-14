@@ -1,5 +1,3 @@
-
-
 import { EDITOR } from 'internal:constants';
 import { TrackEntryListeners } from './track-entry-listeners';
 import spine from './lib/spine-core.js';
@@ -1720,6 +1718,12 @@ export class Skeleton extends Renderable2D {
             this._materialCache[val].destroy();
         }
         this._materialCache = {};
+    }
+
+    /**
+     * @internal This method only used to update opacity of skeleton.
+     */
+    public _updateOpacity () {
     }
 }
 

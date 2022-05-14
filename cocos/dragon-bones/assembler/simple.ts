@@ -1,5 +1,3 @@
-
-
 import { Armature, BlendMode } from '@cocos/dragonbones-js';
 import { Color, Mat4, Node, Texture2D, Vec3, director } from '../../core';
 import { BlendFactor } from '../../core/gfx';
@@ -63,6 +61,7 @@ let _m05: number;
 let _m13: number;
 const _slotMat = new Mat4();
 let _batcher: Batcher2D;
+let _needColor: boolean;
 
 let _currentMaterial: MaterialInstance | null = null;
 let _currentTexture: Texture2D | null = null;
@@ -369,7 +368,7 @@ function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4) {
                 offset += PER_VERTEX_SIZE;
             }
         }
-        if ((_handleVal & NEED_COLOR)) {
+        if (_needColor) {
             // handle color
             // tip: step of frameColorOffset should fix with vertex attributes, (xyzuvrgba--xyuvc)
             let frameColorOffset = frameVFOffset / 9 * 5;
@@ -412,14 +411,19 @@ function updateComponentRenderData (comp: ArmatureDisplay, batcher: Batcher2D) {
     _comp = comp;
     _handleVal = 0;
     _currentMaterial = null;
+    _needColor = false;
 
     const nodeColor = comp.color;
     _nodeR = nodeColor.r / 255;
     _nodeG = nodeColor.g / 255;
     _nodeB = nodeColor.b / 255;
     _nodeA = comp.node._uiProps.opacity;
-    if (nodeColor._val !== 0xffffffff) {
-        _handleVal |= NEED_COLOR;
+
+    if (nodeColor._val !== 0xffffffff ||  _premultipliedAlpha) {
+        _needColor = true;
+    }
+    if (Math.abs(_nodeA - 1.0) > 0.0001) {
+        _needColor = true;
     }
 
     let worldMat: Mat4 | undefined;

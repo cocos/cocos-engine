@@ -91,9 +91,6 @@ export class CCArmatureDisplay extends DisplayData implements IEventDispatcher {
     }
 
     dbUpdate () {
-        if (this._ccComponent) {
-            this._ccComponent.markForUpdateRenderData();
-        }
     }
 
     advanceTimeBySelf (on: boolean | number) {

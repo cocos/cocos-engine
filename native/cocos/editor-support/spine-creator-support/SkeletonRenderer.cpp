@@ -588,7 +588,7 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
             continue;
         }
 
-        color.a = _skeleton->getColor().a * slot->getColor().a * color.a * _nodeColor.a * 255;
+        color.a = _skeleton->getColor().a * slot->getColor().a * color.a * _opacity * 255;
         // skip rendering if the color of this attachment is 0
         if (color.a == 0) {
             _clipper->clipEnd(*slot);

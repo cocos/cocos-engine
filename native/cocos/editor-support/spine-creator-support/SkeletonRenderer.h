@@ -115,6 +115,7 @@ public:
     se_object_ptr getParamsBuffer() const;
 
     void setColor(float r, float g, float b, float a);
+    void setOpacity(float opacity) { _opacity = opacity;};
     void setBatchEnabled(bool enabled);
     void setDebugBonesEnabled(bool enabled);
     void setDebugSlotsEnabled(bool enabled);
@@ -165,6 +166,7 @@ protected:
     bool _debugSlots = false;
     bool _debugBones = false;
     cc::middleware::Color4F _nodeColor = cc::middleware::Color4F::WHITE;
+    float _opacity = 1.0f;
     bool _premultipliedAlpha = false;
     SkeletonClipping *_clipper = nullptr;
     bool _useTint = false;

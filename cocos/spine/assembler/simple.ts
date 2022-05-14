@@ -1,5 +1,3 @@
-
-
 import spine from '../lib/spine-core.js';
 import { IAssembler } from '../../2d/renderer/base';
 import { Batcher2D } from '../../2d/renderer/batcher-2d';
@@ -266,6 +264,9 @@ function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
     _vertexEffect = comp._effectDelegate && comp._effectDelegate._vertexEffect as any;
 
     if (nodeColor._val !== 0xffffffff ||  _premultipliedAlpha) {
+        _needColor = true;
+    }
+    if (Math.abs(_nodeA - 1.0) > 0.0001) {
         _needColor = true;
     }
 

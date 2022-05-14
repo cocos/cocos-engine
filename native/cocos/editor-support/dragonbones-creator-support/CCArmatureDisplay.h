@@ -138,6 +138,9 @@ public:
     se_object_ptr getParamsBuffer() const;
 
     void setColor(float r, float g, float b, float a);
+    void setOpacity(float opacity) {
+        _opacity = opacity;
+    }
 
     void setDebugBonesEnabled(bool enabled) {
         _debugDraw = enabled;
@@ -186,6 +189,7 @@ private:
     bool _useAttach = false;
     bool _premultipliedAlpha = false;
     cc::middleware::Color4F _nodeColor = cc::middleware::Color4F::WHITE;
+    float _opacity = 1.0f;
     dbEventCallback _dbEventCallback = nullptr;
 
     cc::middleware::IOTypedArray *_sharedBufferOffset = nullptr;
