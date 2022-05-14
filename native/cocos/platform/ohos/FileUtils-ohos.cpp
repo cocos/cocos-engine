@@ -99,16 +99,8 @@ ResourceManager *FileUtilsOHOS::getResourceManager() {
     return ohosResourceMgr;
 }
 
-FileUtils *FileUtils::getInstance() {
-    if (FileUtils::sharedFileUtils == nullptr) {
-        FileUtils::sharedFileUtils = ccnew FileUtilsOHOS();
-        if (!FileUtils::sharedFileUtils->init()) {
-            delete FileUtils::sharedFileUtils;
-            FileUtils::sharedFileUtils = nullptr;
-            CC_LOG_DEBUG("ERROR: Could not init CCFileUtilsAndroid");
-        }
-    }
-    return FileUtils::sharedFileUtils;
+FileUtilsOHOS::FileUtilsOHOS() {
+    init();
 }
 
 bool FileUtilsOHOS::init() {

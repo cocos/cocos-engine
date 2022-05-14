@@ -64,6 +64,10 @@ void FileUtilsAndroid::setassetmanager(AAssetManager *a) {
     cc::FileUtilsAndroid::assetmanager = a;
 }
 
+FileUtilsAndroid::FileUtilsAndroid() {
+    init();
+}
+
 FileUtilsAndroid::~FileUtilsAndroid() {
     CC_SAFE_DELETE(obbfile);
 }

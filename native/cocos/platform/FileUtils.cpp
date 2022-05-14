@@ -491,7 +491,6 @@ void FileUtils::setDelegate(FileUtils *delegate) {
 }
 
 FileUtils::FileUtils() {
-    init();
     FileUtils::sharedFileUtils = this;
 }
 

@@ -183,6 +183,7 @@ FileUtils *createFileUtils() {
 }
 
 FileUtilsApple::FileUtilsApple() : pimpl_(ccnew IMPL([NSBundle mainBundle])) {
+    init();
 }
 
 #if CC_FILEUTILS_APPLE_ENABLE_OBJC

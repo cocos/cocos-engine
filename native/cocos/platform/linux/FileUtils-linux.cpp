@@ -42,6 +42,10 @@ FileUtils *createFileUtils() {
     return ccnew FileUtilsLinux();
 }
 
+FileUtilsLinux::FileUtilsLinux() {
+    init();
+}
+
 bool FileUtilsLinux::init() {
     // get application path
     char fullpath[256] = {0};

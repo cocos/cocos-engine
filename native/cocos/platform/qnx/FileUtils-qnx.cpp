@@ -43,6 +43,10 @@ FileUtils *createFileUtils() {
     return ccnew FileUtilsQNX();
 }
 
+FileUtilsQNX::FileUtilsQNX() {
+    init();
+}
+
 bool FileUtilsQNX::init() {
     // get application path
     // In QNX /proc/self/exefile is not a symbolic link; It's a regular file.

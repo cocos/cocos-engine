@@ -77,6 +77,7 @@ FileUtils *createFileUtils() {
 }
 
 FileUtilsWin32::FileUtilsWin32() {
+    init();
 }
 
 bool FileUtilsWin32::init() {
