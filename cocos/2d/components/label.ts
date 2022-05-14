@@ -439,8 +439,12 @@ export class Label extends Renderable2D {
         // if delete the font, we should change isSystemFontUsed to true
         this._isSystemFontUsed = !value;
 
-        if (EDITOR && value) {
-            this._userDefinedFont = value;
+        if (EDITOR) {
+            if (value) {
+                this._userDefinedFont = value;
+            } else {
+                this._userDefinedFont = null;
+            }
         }
 
         // this._N$file = value;
