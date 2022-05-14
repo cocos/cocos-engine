@@ -45,7 +45,7 @@ void CCSurfacesLightingCalculateDirect(out vec3 lightingDiffuse, out vec3 lighti
       vec3 envSpec = vec3(0.0);
       // One direction sample count
       const int SAMPLE_STEP_COUNT = CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT;
-      float sampleAngleRange = HALF_PI * abs(anisotropyShape);
+      float sampleAngleRange = PI * abs(anisotropyShape);
       vec3 anisoDirection = anisotropyShape < 0.0 ? T : B;
       vec3 ROnNormalPlane = normalize(R - anisoDirection * dot(R, anisoDirection));
       //ROnTangentPlane = R; //for example: cross-style
@@ -55,8 +55,9 @@ void CCSurfacesLightingCalculateDirect(out vec3 lightingDiffuse, out vec3 lighti
       {
           float rT, rB;
           GetAnisotropicRoughness(roughness, anisotropyShape, rT, rB);
-          vec3 L = normalize(R + stepOffset * float(i));
-          vec3 H = normalize(L + V);
+          float coef = pow(abs(float(i)) / float(SAMPLE_STEP_COUNT), 1.3) * float(SAMPLE_STEP_COUNT);
+          vec3 H = normalize(N + stepOffset * sign(float(i)) * coef);
+          vec3 L = reflect(-V, H);
           float NoHSat = saturate(dot(N, H));
           float calcSpec = D_GGXAniso(rT, rB, NoHSat, H, T, B);
 

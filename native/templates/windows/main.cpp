@@ -26,17 +26,8 @@
 #include <iostream>
 
 #include "platform/BasePlatform.h"
-
-#if defined(CC_SERVER_MODE)
-#include <windows.h>
-int WINAPI
-WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw) {
-    START_PLATFORM(0, nullptr);
-}
-#else
 #include "sdl2/SDL_main.h"
 
 int SDL_main(int argc, char** argv) {
     START_PLATFORM(argc, (const char**)argv);
 }
-#endif

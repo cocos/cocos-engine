@@ -379,6 +379,12 @@ cocos_source_files(
 )
 
 ############ main
+if(USE_SERVER_MODE)
+    cocos_source_files(
+        cocos/main/EmptyMain.cpp
+    )
+endif()
+
 if(NOT USE_SERVER_MODE AND (WINDOWS OR LINUX))
 cocos_source_files(
     cocos/platform/SDLHelper.h
@@ -394,7 +400,12 @@ cocos_source_files(
     cocos/platform/UniversalPlatform.cpp
     cocos/platform/UniversalPlatform.h
 )
-if(WINDOWS)
+if(USE_SERVER_MODE)
+    cocos_source_files(
+        cocos/platform/empty/EmptyPlatform.cpp
+        cocos/platform/empty/EmptyPlatform.h
+    )
+elseif(WINDOWS)
     cocos_source_files(
         cocos/platform/win32/WindowsPlatform.cpp
         cocos/platform/win32/WindowsPlatform.h
@@ -489,34 +500,40 @@ endif()
 
 ############ platform : Interface implementation of windows
 
-if(WINDOWS)
+if(USE_SERVER_MODE)
+    cocos_source_files(
+        cocos/platform/empty/modules/Accelerometer.cpp
+        cocos/platform/empty/modules/Accelerometer.h
+        cocos/platform/empty/modules/Battery.cpp
+        cocos/platform/empty/modules/Battery.h
+        cocos/platform/empty/modules/Screen.cpp
+        cocos/platform/empty/modules/Screen.h
+        cocos/platform/empty/modules/Network.cpp
+        cocos/platform/empty/modules/Network.h
+        cocos/platform/empty/modules/Vibrator.cpp
+        cocos/platform/empty/modules/Vibrator.h
+        cocos/platform/empty/modules/System.cpp
+        cocos/platform/empty/modules/System.h
+        cocos/platform/empty/modules/SystemWindow.cpp
+        cocos/platform/empty/modules/SystemWindow.h
+    )
+elseif(WINDOWS)
     cocos_source_files(
         cocos/platform/win32/modules/Accelerometer.cpp
         cocos/platform/win32/modules/Accelerometer.h
         cocos/platform/win32/modules/Battery.cpp
         cocos/platform/win32/modules/Battery.h
+        cocos/platform/win32/modules/Screen.cpp
+        cocos/platform/win32/modules/Screen.h
         cocos/platform/win32/modules/Network.cpp
         cocos/platform/win32/modules/Network.h
         cocos/platform/win32/modules/Vibrator.cpp
         cocos/platform/win32/modules/Vibrator.h
         cocos/platform/win32/modules/System.cpp
         cocos/platform/win32/modules/System.h
+        cocos/platform/win32/modules/SystemWindow.cpp
+        cocos/platform/win32/modules/SystemWindow.h
     )
-    if(USE_SERVER_MODE)
-        cocos_source_files(
-            cocos/platform/empty/modules/Screen.cpp
-            cocos/platform/empty/modules/Screen.h
-            cocos/platform/empty/modules/SystemWindow.cpp
-            cocos/platform/empty/modules/SystemWindow.h
-        )
-    else()
-        cocos_source_files(
-            cocos/platform/win32/modules/Screen.cpp
-            cocos/platform/win32/modules/Screen.h
-            cocos/platform/win32/modules/SystemWindow.cpp
-            cocos/platform/win32/modules/SystemWindow.h
-        )
-    endif()
 elseif(ANDROID OR OHOS)
     cocos_source_files(
         cocos/platform/java/modules/Accelerometer.cpp
@@ -535,8 +552,9 @@ elseif(ANDROID OR OHOS)
         cocos/platform/java/modules/SystemWindow.h
     )
 endif()
-
-if(ANDROID)
+if (USE_SERVER_MODE)
+#nothing
+elseif(ANDROID)
     cocos_source_files(
         cocos/platform/android/modules/Screen.cpp
         cocos/platform/android/modules/Screen.h
@@ -556,28 +574,17 @@ elseif(MACOSX)
         cocos/platform/mac/modules/Accelerometer.h
         cocos/platform/mac/modules/Battery.mm
         cocos/platform/mac/modules/Battery.h
+        cocos/platform/mac/modules/Screen.mm
+        cocos/platform/mac/modules/Screen.h
         cocos/platform/mac/modules/Network.mm
         cocos/platform/mac/modules/Network.h
         cocos/platform/mac/modules/Vibrator.mm
         cocos/platform/mac/modules/Vibrator.h
         cocos/platform/mac/modules/System.mm
         cocos/platform/mac/modules/System.h
+        cocos/platform/mac/modules/SystemWindow.mm
+        cocos/platform/mac/modules/SystemWindow.h
    )
-   if(USE_SERVER_MODE)
-        cocos_source_files(
-            cocos/platform/empty/modules/Screen.cpp
-            cocos/platform/empty/modules/Screen.h
-            cocos/platform/empty/modules/SystemWindow.cpp
-            cocos/platform/empty/modules/SystemWindow.h
-        )
-    else()
-        cocos_source_files(
-            cocos/platform/mac/modules/Screen.mm
-            cocos/platform/mac/modules/Screen.h
-            cocos/platform/mac/modules/SystemWindow.mm
-            cocos/platform/mac/modules/SystemWindow.h
-        )
-    endif()
 elseif(IOS)
    cocos_source_files(
         cocos/platform/ios/modules/Accelerometer.mm
@@ -601,28 +608,17 @@ elseif(LINUX)
         cocos/platform/linux/modules/Accelerometer.h
         cocos/platform/linux/modules/Battery.cpp
         cocos/platform/linux/modules/Battery.h
+        cocos/platform/linux/modules/Screen.cpp
+        cocos/platform/linux/modules/Screen.h
         cocos/platform/linux/modules/Network.cpp
         cocos/platform/linux/modules/Network.h
         cocos/platform/linux/modules/Vibrator.cpp
         cocos/platform/linux/modules/Vibrator.h
         cocos/platform/linux/modules/System.cpp
         cocos/platform/linux/modules/System.h
+        cocos/platform/linux/modules/SystemWindow.cpp
+        cocos/platform/linux/modules/SystemWindow.h
     )
-    if(USE_SERVER_MODE)
-        cocos_source_files(
-            cocos/platform/empty/modules/Screen.cpp
-            cocos/platform/empty/modules/Screen.h
-            cocos/platform/empty/modules/SystemWindow.cpp
-            cocos/platform/empty/modules/SystemWindow.h
-        )
-    else()
-        cocos_source_files(
-            cocos/platform/linux/modules/Screen.cpp
-            cocos/platform/linux/modules/Screen.h
-            cocos/platform/linux/modules/SystemWindow.cpp
-            cocos/platform/linux/modules/SystemWindow.h
-        )
-    endif()
 endif()
 
 ############ module log
