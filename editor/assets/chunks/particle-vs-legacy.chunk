@@ -8,9 +8,9 @@ in vec3 a_texCoord1;  // size
 in vec3 a_texCoord2;  // rotation
 in vec4 a_color;
 
+in vec3 a_texCoord;  // xy:vertex index,z:frame index
 #if !CC_INSTANCE_PARTICLE
  in vec3 a_position;  // center position
- in vec3 a_texCoord;  // xy:vertex index,z:frame index
 #endif
 #if CC_INSTANCE_PARTICLE
  in vec4 a_texCoord4; // xyz:position,z:frame index
@@ -18,10 +18,6 @@ in vec4 a_color;
 
 #if CC_RENDER_MODE == RENDER_MODE_STRETCHED_BILLBOARD
   in vec3 a_color1; // velocity.x, velocity.y, velocity.z, scale
-#endif
-
-#if CC_INSTANCE_PARTICLE
- in vec2 a_texCoord; // uv
 #endif
 
 #if CC_RENDER_MODE == RENDER_MODE_MESH

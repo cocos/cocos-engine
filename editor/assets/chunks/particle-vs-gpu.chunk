@@ -45,17 +45,12 @@ in float a_rndSeed;
   in vec4 a_size_fid;  // xyz:size, w:fid
   in vec3 a_rotation;  // xyz:rotation
   #if CC_RENDER_MODE != RENDER_MODE_MESH
-    in vec2 a_uv;
+    in vec3 a_uv;
   #endif
 #endif
 
 #if CC_RENDER_MODE == RENDER_MODE_MESH
-  #if !CC_INSTANCE_PARTICLE
-    in vec3 a_texCoord;   // mesh uv
-  #endif
-  #if CC_INSTANCE_PARTICLE
-    in vec2 a_texCoord;
-  #endif
+  in vec3 a_texCoord;   // mesh uv
   in vec3 a_texCoord3;  // mesh vertices
   in vec3 a_normal;     // mesh normal
   in vec4 a_color1;     // mesh color
@@ -199,7 +194,7 @@ vec4 gpvs_main () {
       vec2 vertIdx = vec2(a_size_uv.w, a_rotation_uv.w);
     #endif
     #if CC_INSTANCE_PARTICLE
-      vec2 vertIdx = a_uv;
+      vec2 vertIdx = a_uv.xy;
     #endif
   #endif
 

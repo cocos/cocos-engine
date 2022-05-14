@@ -109,7 +109,7 @@ const _gpu_vert_attr_ins = [
     new Attribute(_vert_attr_name.COLOR, Format.RGBA32F, false, 0, true),
     new Attribute(_vert_attr_name.DIR_LIFE, Format.RGBA32F, false, 0, true),
     new Attribute(_vert_attr_name.RANDOM_SEED, Format.R32F, false, 0, true),
-    new Attribute(_vert_attr_name.VERT_UV, Format.RG32F, false, 1),
+    new Attribute(_vert_attr_name.VERT_UV, Format.RGB32F, false, 1),
 ];
 
 const _gpu_vert_attr_mesh_ins = [
@@ -119,7 +119,7 @@ const _gpu_vert_attr_mesh_ins = [
     new Attribute(_vert_attr_name.COLOR, Format.RGBA32F, false, 0, true),
     new Attribute(_vert_attr_name.DIR_LIFE, Format.RGBA32F, false, 0, true),
     new Attribute(_vert_attr_name.RANDOM_SEED, Format.R32F, false, 0, true),
-    new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F, false, 1),       // mesh uv
+    new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F, false, 1),      // mesh uv
     new Attribute(AttributeName.ATTR_TEX_COORD3, Format.RGB32F, false, 1),     // mesh position
     new Attribute(AttributeName.ATTR_NORMAL, Format.RGB32F, false, 1),         // mesh normal
     new Attribute(AttributeName.ATTR_COLOR1, Format.RGBA8, true, 1),           // mesh color

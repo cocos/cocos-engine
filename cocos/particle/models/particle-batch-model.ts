@@ -46,6 +46,13 @@ const _uvs = [
     1, 1, // top-right
 ];
 
+const _uvs_ins = [
+    0, 0, 0, // bottom-left
+    1, 0, 0, // bottom-right
+    0, 1, 0, // top-left
+    1, 1, 0, // top-right
+];
+
 export default class ParticleBatchModel extends scene.Model {
     private _capacity: number;
     private _vertAttrs: Attribute[] | null;
@@ -295,8 +302,8 @@ export default class ParticleBatchModel extends scene.Model {
             }
         } else {
             const vbFloatArray = new Float32Array(vBuffer);
-            for (let i = 0; i < _uvs.length; ++i) {
-                vbFloatArray[i] = _uvs[i];
+            for (let i = 0; i < _uvs_ins.length; ++i) {
+                vbFloatArray[i] = _uvs_ins[i];
             }
         }
         vertexBuffer.update(vBuffer);
