@@ -312,7 +312,12 @@ module.exports = {
             },
             preferLocalTimeSpan: {
                 name: '优先使用文件时间范围',
-                title: '在导出 FBX 动画时，是否优先使用 FBX 文件中记录的动画时间范围。若不使用该时间范围或此范围不可能用，则会粗略地计算动画时间范围。有些 FBX 生产工具中可能并未导出该信息。',
+                title: '在导出 FBX 动画时，是否优先使用 FBX 文件中记录的动画时间范围。<br>若不使用该时间范围或此范围不可能用，则会粗略地计算动画时间范围。有些 FBX 生产工具中可能并未导出该信息。',
+            },
+            smartMaterialEnabled: {
+                name: '材质智能转换',
+                title: '',
+                warn: '由于偏好设置里的实验室功能 材质智能转换 已关闭，本属性的预期值为 FALSE，与现值 TRUE 不匹配。',
             },
         },
         textureCube: {

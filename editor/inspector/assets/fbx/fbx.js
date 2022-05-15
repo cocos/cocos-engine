@@ -20,6 +20,13 @@ exports.template = `
         <ui-label slot="label" value="i18n:ENGINE.assets.fbx.preferLocalTimeSpan.name" tooltip="i18n:ENGINE.assets.fbx.preferLocalTimeSpan.title"></ui-label>
         <ui-checkbox slot="content" class="preferLocalTimeSpan-checkbox"></ui-checkbox>
     </ui-prop>
+    <ui-prop>
+        <ui-label slot="label" value="i18n:ENGINE.assets.fbx.smartMaterialEnabled.name" tooltip="i18n:ENGINE.assets.fbx.smartMaterialEnabled.title"></ui-label>
+        <ui-checkbox slot="content" class="smartMaterialEnabled-checkbox"></ui-checkbox>
+    </ui-prop>
+    <div class="warn-words smart-material-warn" slot="content">
+        <ui-label value="i18n:ENGINE.assets.fbx.smartMaterialEnabled.warn"></ui-label>
+    </div>
     <ui-section class="legacy">
         <ui-label slot="header" value="i18n:ENGINE.assets.fbx.legacyOptions"></ui-label>
         <div class="legacy-importer">
@@ -47,6 +54,11 @@ ui-section {
     display: none;
     margin-top: 10px;
 }
+.smart-material-warn {
+    display: none;
+    margin-top: 5px;
+    line-height: 20px;
+}
 `;
 
 exports.$ = {
@@ -57,6 +69,8 @@ exports.$ = {
     animationBakeRateSelect: '.animationBakeRate-select',
     promoteSingleRootNodeCheckbox: '.promoteSingleRootNode-checkbox',
     preferLocalTimeSpanCheckbox: '.preferLocalTimeSpan-checkbox',
+    smartMaterialEnabledCheckbox: '.smartMaterialEnabled-checkbox',
+    smartMaterialEnabledWarn: '.smart-material-warn',
 };
 
 /**
@@ -154,9 +168,45 @@ const Elements = {
             panel.updateReadonly(panel.$.preferLocalTimeSpanCheckbox);
         },
     },
+    smartMaterialEnabled: {
+        ready() {
+            const panel = this;
+
+            panel.$.smartMaterialEnabledCheckbox.addEventListener('change', (event) => {
+                panel.setProp.call(panel, 'fbx.smartMaterialEnabled', 'boolean', event);
+                Elements.smartMaterialEnabled.checkValue.call(panel);
+            });
+        },
+        async update() {
+            const panel = this;
+
+            await Elements.smartMaterialEnabled.checkValue.call(panel);
+
+            const laboratoryExpectedValue = await Editor.Profile.getConfig('inspector', 'asset.fbx.material.smart');
+            let defaultValue = laboratoryExpectedValue || false;
+            if (panel.meta.userData.fbx) {
+                defaultValue = panel.getDefault(panel.meta.userData.fbx.smartMaterialEnabled, defaultValue);
+            }
+
+            panel.$.smartMaterialEnabledCheckbox.value = defaultValue;
+
+            panel.updateInvalid(panel.$.smartMaterialEnabledCheckbox, 'fbx.smartMaterialEnabled');
+            panel.updateReadonly(panel.$.smartMaterialEnabledCheckbox);
+        },
+        async checkValue() {
+            const panel = this;
+
+            const laboratoryExpectedValue = await Editor.Profile.getConfig('inspector', 'asset.fbx.material.smart');
+            if (!laboratoryExpectedValue && panel.meta.userData.fbx && panel.meta.userData.fbx.smartMaterialEnabled) {
+                panel.$.smartMaterialEnabledWarn.style.display = 'block';
+            } else {
+                panel.$.smartMaterialEnabledWarn.style.display = 'none';
+            }
+        },
+    },
 };
 
-exports.update = function(assetList, metaList) {
+exports.update = async function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
@@ -165,7 +215,7 @@ exports.update = function(assetList, metaList) {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.update) {
-            element.update.call(this);
+            await element.update.call(this);
         }
     }
 };
