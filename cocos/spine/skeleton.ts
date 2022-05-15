@@ -1,5 +1,3 @@
-
-
 import { EDITOR } from 'internal:constants';
 import { TrackEntryListeners } from './track-entry-listeners';
 import spine from './lib/spine-core.js';
@@ -438,24 +436,6 @@ export class Skeleton extends Renderable2D {
     }
 
     get socketNodes () { return this._socketNodes; }
-
-    /*
-     * @en Enabled batch model, if skeleton is complex, do not enable batch, or will lower performance.
-     * @zh 开启合批，如果渲染大量相同纹理，且结构简单的骨骼动画，开启合批可以降低drawcall，否则请不要开启，cpu消耗会上升。
-     */
-    // @tooltip('i18n:COMPONENT.skeleton.enabled_batch')
-    // get enableBatch () { return this._enableBatch; }
-    // set enableBatch (value) {
-    //     if (value != this._enableBatch) {
-    //         this._enableBatch = value;
-    //         this._updateBatch();
-    //     }
-    // }
-
-    // @serializable
-    // private _enableBatch: boolean = true;
-
-    public enableBatch = false;
     // Frame cache
     /**
      * @internal
