@@ -498,11 +498,13 @@ ScriptEngine::ScriptEngine()
  * So gSharedV8 variable should not be released and it will be re-used when ScriptEngine is constructed next time.
  */
 ScriptEngine::~ScriptEngine() {
+    cleanup();
     ScriptEngine::instance = nullptr;
 }
 #else
 ScriptEngine::~ScriptEngine() {
     ScriptEngine::instance = nullptr;
+    cleanup();
 #if !CC_EDITOR
     if (gSharedV8) {
         delete gSharedV8;

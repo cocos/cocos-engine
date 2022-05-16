@@ -128,7 +128,6 @@ Engine::~Engine() {
     DebugRenderer::destroyInstance();
     FreeTypeFontFace::destroyFreeType();
 
-    se::ScriptEngine::getInstance()->cleanup();
 #if CC_USE_MIDDLEWARE
     cc::middleware::MiddlewareManager::destroyInstance();
 #endif
