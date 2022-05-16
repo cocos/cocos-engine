@@ -41,6 +41,7 @@ class ScriptEngine;
 namespace cc {
 
 class FileUtils;
+class DebugRenderer;
 class Profiler;
 
 #define NANOSECONDS_PER_SECOND 1000000000
@@ -139,6 +140,7 @@ private:
     // Subsystems
     FileUtils *_fs{nullptr};
 	Profiler *_profiler{nullptr};
+    DebugRenderer *_debugRenderer{nullptr};
     se::ScriptEngine *_scriptEngine{nullptr};
 
     std::map<OSEventType, EventCb> _eventCallbacks;
