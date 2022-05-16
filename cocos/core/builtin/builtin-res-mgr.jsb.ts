@@ -88,7 +88,7 @@ builtinResMgrProto.initBuiltinRes = function (device: Device): Promise<void> {
 /**
  * @internal
  */
-builtinResMgrProto._preloadAssets = async function () {
+builtinResMgrProto._preloadAssets = function () {
     const resources = this._resources;
     if (window._CCSettings && window._CCSettings.preloadAssets && window._CCSettings.preloadAssets.length > 0) {
         const preloadedAssets = window._CCSettings.preloadAssets as string[];

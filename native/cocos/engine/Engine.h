@@ -36,6 +36,9 @@
 
 namespace cc {
 
+class FileUtils;
+class Profiler;
+
 #define NANOSECONDS_PER_SECOND 1000000000
 #define NANOSECONDS_60FPS      16666667L
 
@@ -128,6 +131,10 @@ private:
     cc::Vec2 _viewLogicalSize{0, 0};
     bool _needRestart{false};
     bool _inited{false};
+    
+    // Subsystems
+    FileUtils *_fs{nullptr};
+    Profiler *_profiler{nullptr};
 
     std::map<OSEventType, EventCb> _eventCallbacks;
     CC_DISALLOW_COPY_MOVE_ASSIGN(Engine);

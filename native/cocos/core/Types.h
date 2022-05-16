@@ -42,7 +42,6 @@ struct Error {
     cc::optional<ccstd::string> msg;
 };
 
-using HTMLElement = void *;
 
 struct BoundingBox {
     Vec3 min;

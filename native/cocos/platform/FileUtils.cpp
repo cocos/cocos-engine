@@ -478,8 +478,11 @@ bool FileUtils::writeToFile(const ValueMap &dict, const ccstd::string &fullPath)
 // Implement FileUtils
 FileUtils *FileUtils::sharedFileUtils = nullptr;
 
+FileUtils *FileUtils::getInstance() {
+    return FileUtils::sharedFileUtils;
+}
+
 void FileUtils::destroyInstance() {
-    CC_SAFE_DELETE(FileUtils::sharedFileUtils);
 }
 
 void FileUtils::setDelegate(FileUtils *delegate) {
@@ -487,9 +490,13 @@ void FileUtils::setDelegate(FileUtils *delegate) {
     FileUtils::sharedFileUtils = delegate;
 }
 
-FileUtils::FileUtils() = default;
+FileUtils::FileUtils() {
+    FileUtils::sharedFileUtils = this;
+}
 
-FileUtils::~FileUtils() = default;
+FileUtils::~FileUtils() {
+    FileUtils::sharedFileUtils = nullptr;
+}
 
 bool FileUtils::writeStringToFile(const ccstd::string &dataStr, const ccstd::string &fullPath) {
     Data data;
@@ -527,6 +534,8 @@ bool FileUtils::writeDataToFile(const Data &data, const ccstd::string &fullPath)
 }
 
 bool FileUtils::init() {
+    addSearchPath("Resources", true);
+    addSearchPath("data", true);
     _searchPathArray.push_back(_defaultResRootPath);
     return true;
 }

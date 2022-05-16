@@ -220,7 +220,7 @@ exports.template = `
     <section class="section-missing"></section>
 
     <footer class="footer">
-        <ui-button>
+        <ui-button class="add-component">
             <ui-label value="i18n:ENGINE.components.add_component"></ui-label>
         </ui-button>
     </footer>
@@ -273,7 +273,7 @@ exports.$ = {
     sectionAsset: '.section-asset',
 
     footer: '.footer',
-    componentAdd: '.footer > ui-button',
+    componentAdd: '.footer .add-component',
 };
 
 const Elements = {
@@ -572,8 +572,10 @@ const Elements = {
             const panel = this;
 
             if (!panel.dump || !panel.dump.isScene) {
+                panel.$.componentAdd.style.display = 'block';
                 return;
             }
+            panel.$.componentAdd.style.display = 'none';
 
             panel.$this.setAttribute('sub-type', 'scene');
             panel.$.container.removeAttribute('droppable');

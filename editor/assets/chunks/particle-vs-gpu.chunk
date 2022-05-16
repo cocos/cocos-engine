@@ -32,31 +32,23 @@ uniform TickConstants {
   vec4 u_timeDelta;
 };
 
+in vec4 a_position_starttime; // center position,particle start time
+in vec4 a_color;
+in vec4 a_dir_life;  // xyz:particle start velocity,w:particle lifetime
+in float a_rndSeed;
+
 #if !CC_INSTANCE_PARTICLE
-  in vec4 a_position_starttime; // center position,particle start time
   in vec4 a_size_uv;  // xyz:size, w:uv_0
   in vec4 a_rotation_uv;  // xyz:rotation, w:uv_1
-  in vec4 a_color;
-  in vec4 a_dir_life;  // xyz:particle start velocity,w:particle lifetime
-  in float a_rndSeed;
-#else
-  in vec4 a_position_starttime; // center position,particle start time
+#endif
+#if CC_INSTANCE_PARTICLE
   in vec4 a_size_fid;  // xyz:size, w:fid
   in vec3 a_rotation;  // xyz:rotation
-  in vec4 a_color;
-  in vec4 a_dir_life;  // xyz:particle start velocity,w:particle lifetime
-  in float a_rndSeed;
-  #if CC_RENDER_MODE != RENDER_MODE_MESH
-    in vec2 a_uv;
-  #endif
+  in vec3 a_uv;
 #endif
 
 #if CC_RENDER_MODE == RENDER_MODE_MESH
-  #if !CC_INSTANCE_PARTICLE
-    in vec3 a_texCoord;   // mesh uv
-  #else
-    in vec2 a_texCoord;
-  #endif
+  in vec3 a_texCoord;   // mesh uv
   in vec3 a_texCoord3;  // mesh vertices
   in vec3 a_normal;     // mesh normal
   in vec4 a_color1;     // mesh color
@@ -103,7 +95,8 @@ float pseudoRandom(float x) {
   v *= 0.7071067812; // fix sheared 'distance' measurements - but this is 1D so unsure it's even a good thing to try
   v = y < 0.0 ? -v : v;
   return v;
-#else
+#endif
+#if !USE_VK_SHADER
   float seed = mod(x, 233280.);
   float q = (seed * 9301. + 49297.) / 233280.;
   return fract(q);
@@ -193,11 +186,13 @@ vec4 gpvs_main () {
 
   #if CC_RENDER_MODE == RENDER_MODE_MESH
     vec2 vertIdx = vec2(a_texCoord.x, a_texCoord.y);
-  #else
+  #endif
+  #if CC_RENDER_MODE != RENDER_MODE_MESH
     #if !CC_INSTANCE_PARTICLE
       vec2 vertIdx = vec2(a_size_uv.w, a_rotation_uv.w);
-    #else
-      vec2 vertIdx = a_uv;
+    #endif
+    #if CC_INSTANCE_PARTICLE
+      vec2 vertIdx = a_uv.xy;
     #endif
   #endif
 
@@ -207,7 +202,8 @@ vec4 gpvs_main () {
   // size
   #if !CC_INSTANCE_PARTICLE
     vec3 size = a_size_uv.xyz;
-  #else
+  #endif
+  #if CC_INSTANCE_PARTICLE
     vec3 size = a_size_fid.xyz;
   #endif
   #if SIZE_OVER_TIME_MODULE_ENABLE
@@ -275,7 +271,8 @@ vec4 gpvs_main () {
   // rotation
   #if !CC_INSTANCE_PARTICLE
     vec3 startRotation = a_rotation_uv.xyz;
-  #else
+  #endif
+  #if CC_INSTANCE_PARTICLE
     vec3 startRotation = a_rotation;
   #endif
   #if CC_RENDER_MODE != RENDER_MODE_MESH
@@ -283,11 +280,13 @@ vec4 gpvs_main () {
       vec3 rotEuler = startRotation.xyz;
     #elif CC_RENDER_MODE == RENDER_MODE_STRETCHED_BILLBOARD
       vec3 rotEuler = vec3(0.);
-    #else
+    #endif
+    #if CC_RENDER_MODE != RENDER_MODE_BILLBOARD && CC_RENDER_MODE != RENDER_MODE_STRETCHED_BILLBOARD
       vec3 rotEuler = vec3(0., 0., startRotation.z);
     #endif
     vec4 rot = quaternionFromEuler(rotEuler);
-  #else
+  #endif
+  #if CC_RENDER_MODE == RENDER_MODE_MESH
     vec4 rot = quaternionFromEuler(startRotation);
   #endif
 
@@ -323,7 +322,8 @@ vec4 gpvs_main () {
       float factor_c = pseudoRandom(a_rndSeed + COLOR_OVERTIME_RAND_OFFSET);
       color = a_color * mix(color_0, color_1, factor_c);
     }
-  #else
+  #endif
+  #if !COLOR_OVER_TIME_MODULE_ENABLE
     color = a_color;
   #endif
 
@@ -345,12 +345,14 @@ vec4 gpvs_main () {
         , frameTile_velLenScale.w
         #if !CC_INSTANCE_PARTICLE
           , a_size_uv.w
-        #else
+        #endif
+        #if CC_INSTANCE_PARTICLE
           , a_uv.x
         #endif
       #endif
     );
-  #else
+  #endif
+  #if CC_RENDER_MODE == RENDER_MODE_MESH
     mat3 rotMat = quatToMat3(rot);
     mat3 nodeMat = quatToMat3(nodeRotation);
     rotMat = nodeMat * rotMat;

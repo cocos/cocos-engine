@@ -96,13 +96,12 @@ namespace cc {
 
 Engine::Engine() {
     _scheduler = std::make_shared<Scheduler>();
-    FileUtils::getInstance()->addSearchPath("Resources", true);
-    FileUtils::getInstance()->addSearchPath("data", true);
+    _fs = createFileUtils();
     EventDispatcher::init();
     se::ScriptEngine::getInstance();
 
 #if CC_USE_PROFILER
-    Profiler::getInstance();
+    _profiler = new Profiler();
 #endif
 }
 
@@ -124,7 +123,7 @@ Engine::~Engine() {
     Root::getInstance()->destroy();
 
 #if CC_USE_PROFILER
-    Profiler::destroyInstance();
+    delete _profiler;
 #endif
     DebugRenderer::destroyInstance();
     FreeTypeFontFace::destroyFreeType();
@@ -136,10 +135,10 @@ Engine::~Engine() {
 #endif
     ProgramLib::destroyInstance();
     BuiltinResMgr::destroyInstance();
-    FileUtils::destroyInstance();
 
     CCObject::deferredDestroy();
     gfx::DeviceManager::destroy();
+    delete _fs;
 }
 
 int32_t Engine::init() {

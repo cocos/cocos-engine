@@ -81,7 +81,7 @@ export const value = (() => {
         writable: false,
         configurable: true,
     };
-    return (object: Object, propertyName: string, value_: any, writable?: boolean, enumerable?: boolean) => {
+    return (object: Record<string | number, any>, propertyName: string, value_: any, writable?: boolean, enumerable?: boolean) => {
         descriptor.value = value_;
         descriptor.writable = writable;
         descriptor.enumerable = enumerable;
@@ -102,7 +102,7 @@ export const getset = (() => {
         set: undefined,
         enumerable: false,
     };
-    return (object: {}, propertyName: string, getter: Getter, setter?: Setter | boolean, enumerable = false, configurable = false) => {
+    return (object: Record<string | number, any>, propertyName: string, getter: Getter, setter?: Setter | boolean, enumerable = false, configurable = false) => {
         if (typeof setter === 'boolean') {
             enumerable = setter;
             setter = undefined;
@@ -128,7 +128,7 @@ export const get = (() => {
         enumerable: false,
         configurable: false,
     };
-    return (object: Object, propertyName: string, getter: Getter, enumerable?: boolean, configurable?: boolean) => {
+    return (object: Record<string | number, any>, propertyName: string, getter: Getter, enumerable?: boolean, configurable?: boolean) => {
         descriptor.get = getter;
         descriptor.enumerable = enumerable;
         descriptor.configurable = configurable;
@@ -148,7 +148,7 @@ export const set = (() => {
         enumerable: false,
         configurable: false,
     };
-    return (object: Object, propertyName: string, setter: Setter, enumerable?: boolean, configurable?: boolean) => {
+    return (object: Record<string | number, any>, propertyName: string, setter: Setter, enumerable?: boolean, configurable?: boolean) => {
         descriptor.set = setter;
         descriptor.enumerable = enumerable;
         descriptor.configurable = configurable;
@@ -190,11 +190,12 @@ export function createMap (forceDictMode?: boolean): any {
  * (modified from <a href="http://stackoverflow.com/questions/1249531/how-to-get-a-javascript-objects-class">the code from this stackoverflow post</a>)
  * @param objOrCtor instance or constructor
  */
-export function getClassName (objOrCtor: Object | Function): string {
+export function getClassName (objOrCtor: any): string {
     if (typeof objOrCtor === 'function') {
         const prototype = objOrCtor.prototype;
+        // eslint-disable-next-line no-prototype-builtins
         if (prototype && prototype.hasOwnProperty(classNameTag) && prototype[classNameTag]) {
-            return prototype[classNameTag];
+            return prototype[classNameTag] as string;
         }
         let retval = '';
         //  for browsers which have name property in the constructor of the object, such as chrome
@@ -206,9 +207,11 @@ export function getClassName (objOrCtor: Object | Function): string {
             const str = objOrCtor.toString();
             if (str.charAt(0) === '[') {
                 // str is "[object objectClass]"
+                // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
                 arr = str.match(/\[\w+\s*(\w+)\]/);
             } else {
                 // str is function objectClass () {} for IE Firefox
+                // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
                 arr = str.match(/function\s*(\w+)/);
             }
             if (arr && arr.length === 2) {
@@ -237,7 +240,7 @@ export function obsolete (object: any, obsoleted: string, newExpr: string, writa
         if (DEV) {
             warnID(5400, obsoleted, newExpr);
         }
-        return this[newProp];
+        return this[newProp] as unknown;
     }
     function setter (this: any, value_: any) {
         if (DEV) {
@@ -282,7 +285,7 @@ const REGEXP_STR = /%s/;
  * js.formatStr(a, b, c);
  * ```
  */
-export function formatStr (msg: string | any, ...subst: any[]) {
+export function formatStr (msg: string, ...subst: any[]) {
     if (arguments.length === 0) {
         return '';
     }
@@ -316,6 +319,7 @@ export function shiftArguments () {
     for (let i = 0; i < len; ++i) {
         args[i] = arguments[i + 1];
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return args;
 }
 
@@ -340,13 +344,25 @@ function _copyprop (name: string, source: any, target: any) {
     }
 }
 
+export function copyAllProperties (source: any, target: any, excepts: Array<string>) {
+    const propertyNames: Array<string> = Object.getOwnPropertyNames(source);
+    for (let i = 0, len = propertyNames.length; i < len; ++i) {
+        const propertyName: string = propertyNames[i];
+        if (excepts.indexOf(propertyName) !== -1) {
+            continue;
+        }
+
+        _copyprop(propertyName, source, target);
+    }
+}
+
 /**
  * Copy all properties not defined in object from arguments[1...n].
  * @param object Object to extend its properties.
  * @param sources Source object to copy properties from.
  * @return The result object.
  */
-export function addon (object?: any, ...sources: any[]) {
+export function addon (object?: Record<string | number, any>, ...sources: any[]) {
     object = object || {};
     for (const source of sources) {
         if (source) {
@@ -368,7 +384,7 @@ export function addon (object?: any, ...sources: any[]) {
  * Copy all properties from arguments[1...n] to object.
  * @return The result object.
  */
-export function mixin (object?: any, ...sources: any[]) {
+export function mixin (object?: Record<string | number, any>, ...sources: any[]) {
     object = object || {};
     for (const source of sources) {
         if (source) {
@@ -391,6 +407,7 @@ export function mixin (object?: any, ...sources: any[]) {
  * @param base The baseclass to inherit.
  * @return The result class.
  */
+// eslint-disable-next-line @typescript-eslint/ban-types
 export function extend (cls: Function, base: Function) {
     if (DEV) {
         if (!base) {
@@ -405,6 +422,7 @@ export function extend (cls: Function, base: Function) {
             errorID(5406);
         }
     }
+    // eslint-disable-next-line no-prototype-builtins
     for (const p in base) { if (base.hasOwnProperty(p)) { cls[p] = base[p]; } }
     cls.prototype = Object.create(base.prototype, {
         constructor: {
@@ -413,6 +431,7 @@ export function extend (cls: Function, base: Function) {
             configurable: true,
         },
     });
+    // eslint-disable-next-line consistent-return
     return cls;
 }
 
@@ -420,9 +439,11 @@ export function extend (cls: Function, base: Function) {
  * Get super class.
  * @param constructor The constructor of subclass.
  */
+// eslint-disable-next-line @typescript-eslint/ban-types
 export function getSuper (constructor: Function) {
     const proto = constructor.prototype; // binded function do not have prototype
     const dunderProto = proto && Object.getPrototypeOf(proto);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return dunderProto && dunderProto.constructor;
 }
 
@@ -444,6 +465,7 @@ export function isChildClassOf (subclass: unknown, superclass: unknown) {
             return true;
         }
         for (; ;) {
+            // eslint-disable-next-line @typescript-eslint/ban-types
             subclass = getSuper(subclass as Function);
             if (!subclass) {
                 return false;
@@ -459,7 +481,7 @@ export function isChildClassOf (subclass: unknown, superclass: unknown) {
 /**
  * Removes all enumerable properties from object.
  */
-export function clear (object: {}) {
+export function clear (object: Record<string | number, any>) {
     for (const key of Object.keys(object)) {
         delete object[key];
     }
@@ -479,9 +501,10 @@ export const _idToClass: Record<string, Constructor> = createMap(true);
  */
 export const _nameToClass: Record<string, Constructor> = createMap(true);
 
-function setup (tag: string, table: object) {
+function setup (tag: string, table: Record<string | number, any>) {
     return function (id: string, constructor: Constructor) {
         // deregister old
+        // eslint-disable-next-line no-prototype-builtins
         if (constructor.prototype.hasOwnProperty(tag)) {
             delete table[constructor.prototype[tag]];
         }
@@ -492,6 +515,7 @@ function setup (tag: string, table: object) {
             if (registered && registered !== constructor) {
                 let err = `A Class already exists with the same ${tag} : "${id}".`;
                 if (TEST) {
+                    // eslint-disable-next-line no-multi-str
                     err += ' (This may be caused by error of unit test.) \
 If you dont need serialization, you can set class id to "". You can also call \
 js.unregisterClass to remove the id of unused class';
@@ -527,6 +551,7 @@ const doSetClassName = setup('__classname__', _nameToClass);
 export function setClassName (className: string, constructor: Constructor) {
     doSetClassName(className, constructor);
     // auto set class id
+    // eslint-disable-next-line no-prototype-builtins
     if (!constructor.prototype.hasOwnProperty(classIdTag)) {
         const id = className || tempCIDGenerator.getNewId();
         if (id) {
@@ -580,6 +605,7 @@ export function setClassAlias (target: Constructor, alias: string) {
  *
  * @param ...constructor - the class you will want to unregister, any number of classes can be added
  */
+// eslint-disable-next-line @typescript-eslint/ban-types
 export function unregisterClass (...constructors: Function[]) {
     for (const constructor of constructors) {
         const p = constructor.prototype;
@@ -632,21 +658,23 @@ export function _getClassId (obj, allowTempId?: boolean) {
     allowTempId = (typeof allowTempId !== 'undefined' ? allowTempId : true);
 
     let res;
+    // eslint-disable-next-line no-prototype-builtins
     if (typeof obj === 'function' && obj.prototype.hasOwnProperty(classIdTag)) {
         res = obj.prototype[classIdTag];
         if (!allowTempId && (DEV || EDITOR) && isTempClassId(res)) {
             return '';
         }
-        return res;
+        return res as string;
     }
     if (obj && obj.constructor) {
         const prototype = obj.constructor.prototype;
+        // eslint-disable-next-line no-prototype-builtins
         if (prototype && prototype.hasOwnProperty(classIdTag)) {
             res = obj[classIdTag];
             if (!allowTempId && (DEV || EDITOR) && isTempClassId(res)) {
                 return '';
             }
-            return res;
+            return res as string;
         }
     }
     return '';

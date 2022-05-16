@@ -34,6 +34,7 @@ import { CCClass } from './class';
 import { errorID, warnID } from '../platform/debug';
 import { legacyCC } from '../global-exports';
 import { EditorExtendableObject, editorExtrasTag } from './editor-extras-tag';
+import { copyAllProperties } from '../utils/js';
 
 // definitions for CCObject.Flags
 
@@ -192,12 +193,6 @@ class CCObject implements EditorExtendableObject {
         if (EDITOR) {
             deferredDestroyTimer = null;
         }
-
-        if (JSB) {
-            // release objects which hold for delay GC
-            // jsb function call
-            jsb.CCObject._deferredDestroyReleaseObjects();
-        }
     }
 
     /**
@@ -328,6 +323,12 @@ class CCObject implements EditorExtendableObject {
             // @ts-expect-error no function
             deferredDestroyTimer = setTimeout(CCObject._deferredDestroy);
         }
+
+        if (JSB) {
+            // @ts-expect-error JSB method
+            this._destroy();
+        }
+
         return true;
     }
 
@@ -635,13 +636,7 @@ declare namespace CCObject {
  * @return @en Whether it is a CCObject boolean value. @zh 是否为CCObject的布尔值。
  */
 export function isCCObject (object: any) {
-    let isCCObject = object instanceof CCObject;
-    if (JSB) {
-        if (!isCCObject) {
-            isCCObject = object instanceof jsb.CCObject;
-        }
-    }
-    return isCCObject;
+    return object instanceof CCObject;
 }
 
 /*
@@ -690,13 +685,17 @@ if (EDITOR || TEST) {
     });
 }
 
-legacyCC.Object = CCObject;
-export { CCObject };
-
 declare const jsb: any;
 
 if (JSB) {
-    CCClass.fastDefine('jsb.CCObject', jsb.CCObject, { _name: '', _objFlags: 0, [editorExtrasTag]: {} });
-    CCClass.Attr.setClassAttr(jsb.CCObject, editorExtrasTag, 'editorOnly', true);
-    CCClass.Attr.setClassAttr(jsb.CCObject, 'replicated', 'visible', false);
+    copyAllProperties(CCObject, jsb.CCObject, ['prototype', 'length', 'name']);
+    copyAllProperties(CCObject.prototype, jsb.CCObject.prototype,
+        ['constructor', 'name', 'hideFlags', 'replicated', 'isValid']);
+
+    // @ts-expect-error TS2629
+    // eslint-disable-next-line no-class-assign
+    CCObject = jsb.CCObject;
 }
+
+legacyCC.Object = CCObject;
+export { CCObject };

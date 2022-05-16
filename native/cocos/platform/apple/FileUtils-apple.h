@@ -26,8 +26,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef __CC_FILEUTILS_APPLE_H__
-#define __CC_FILEUTILS_APPLE_H__
+#pragma once
 
 #include <memory>
 #include "base/std/container/string.h"
@@ -37,44 +36,35 @@
 
 namespace cc {
 
-/**
- * @addtogroup platform
- * @{
- */
-
 //! @brief  Helper class to handle file operations
 class CC_DLL FileUtilsApple : public FileUtils {
 public:
     FileUtilsApple();
-    virtual ~FileUtilsApple();
+    ~FileUtilsApple() override = default;
     /* override functions */
-    virtual ccstd::string getWritablePath() const override;
-    virtual ccstd::string getFullPathForDirectoryAndFilename(const ccstd::string &directory, const ccstd::string &filename) const override;
+    ccstd::string getWritablePath() const override;
+    ccstd::string getFullPathForDirectoryAndFilename(const ccstd::string &directory, const ccstd::string &filename) const override;
 
-    virtual ValueMap getValueMapFromFile(const ccstd::string &filename) override;
-    virtual ValueMap getValueMapFromData(const char *filedata, int filesize) override;
-    virtual bool writeToFile(const ValueMap &dict, const ccstd::string &fullPath) override;
+    ValueMap getValueMapFromFile(const ccstd::string &filename) override;
+    ValueMap getValueMapFromData(const char *filedata, int filesize) override;
+    bool writeToFile(const ValueMap &dict, const ccstd::string &fullPath) override;
 
-    virtual ValueVector getValueVectorFromFile(const ccstd::string &filename) override;
+    ValueVector getValueVectorFromFile(const ccstd::string &filename) override;
 #if CC_FILEUTILS_APPLE_ENABLE_OBJC
     void setBundle(NSBundle *bundle);
 #endif
 
-    virtual bool createDirectory(const ccstd::string &path) override;
+    bool createDirectory(const ccstd::string &path) override;
 
 private:
-    virtual bool isFileExistInternal(const ccstd::string &filePath) const override;
-    virtual bool removeDirectory(const ccstd::string &dirPath) override;
-    virtual void valueMapCompact(ValueMap &valueMap) override;
-    virtual void valueVectorCompact(ValueVector &valueVector) override;
+    bool isFileExistInternal(const ccstd::string &filePath) const override;
+    bool removeDirectory(const ccstd::string &dirPath) override;
+    void valueMapCompact(ValueMap &valueMap) override;
+    void valueVectorCompact(ValueVector &valueVector) override;
 
     struct IMPL;
     std::unique_ptr<IMPL> pimpl_;
 };
 
-// end of platform group
-/// @}
 
 } // namespace cc
-
-#endif // __CC_FILEUTILS_APPLE_H__
