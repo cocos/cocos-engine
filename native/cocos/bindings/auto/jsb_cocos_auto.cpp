@@ -812,11 +812,6 @@ static bool js_engine_FileUtils_normalizePath_static(se::State& s) // NOLINT(rea
     return false;
 }
 SE_BIND_FUNC(js_engine_FileUtils_normalizePath_static)
-static bool js_cc_FileUtils_finalize(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_cc_FileUtils_finalize)
 
 bool js_register_engine_FileUtils(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -860,7 +855,6 @@ bool js_register_engine_FileUtils(se::Object* obj) // NOLINT(readability-identif
     cls->defineStaticFunction("getFileDir", _SE(js_engine_FileUtils_getFileDir_static));
     cls->defineStaticFunction("getInstance", _SE(js_engine_FileUtils_getInstance_static));
     cls->defineStaticFunction("normalizePath", _SE(js_engine_FileUtils_normalizePath_static));
-    cls->defineFinalizeFunction(_SE(js_cc_FileUtils_finalize));
     cls->install();
     JSBClassType::registerClass<cc::FileUtils>(cls);
 
