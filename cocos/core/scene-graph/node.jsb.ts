@@ -415,6 +415,47 @@ nodeProto._onChildAdded = function (child) {
 
 nodeProto._onNodeDestroyed = function () {
     this.emit(NodeEventType.NODE_DESTROYED, this);
+    // destroy children
+    const children = this._children;
+    for (let i = 0; i < children.length; ++i) {
+        // destroy immediate so its _onPreDestroy can be called
+        children[i]._destroyImmediate();
+    }
+};
+
+const oldPreDestroy = nodeProto._onPreDestroy;
+nodeProto._onPreDestroy = function _onPreDestroy () {
+    const ret = oldPreDestroy.call(this);
+
+    // emit node destroy event (this should before event processor destroy)
+    this.emit(NodeEventType.NODE_DESTROYED, this);
+
+    // Destroy node event processor
+    this._eventProcessor.destroy();
+
+    // destroy children
+    const children = this._children;
+    for (let i = 0; i < children.length; ++i) {
+        // destroy immediate so its _onPreDestroy can be called
+        children[i]._destroyImmediate();
+    }
+
+    // destroy self components
+    const comps = this._components;
+    for (let i = 0; i < comps.length; ++i) {
+        // destroy immediate so its _onPreDestroy can be called
+        // TO DO
+        comps[i]._destroyImmediate();
+    }
+
+    return ret;
+};
+
+nodeProto.destroyAllChildren = function destroyAllChildren () {
+    const children = this._children;
+    for (let i = 0, len = children.length; i < len; ++i) {
+        children[i].destroy();
+    }
 };
 
 nodeProto._onSiblingOrderChanged = function () {
