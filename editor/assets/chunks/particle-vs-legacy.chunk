@@ -23,7 +23,6 @@ in vec4 a_color;
 vec4 lpvs_main () {
   vec3 compScale = scale.xyz * a_texCoord1;
   vec4 pos = vec4(a_position, 1);
-  
   #if CC_RENDER_MODE == RENDER_MODE_STRETCHED_BILLBOARD
     vec4 velocity = vec4(a_color1.xyz, 0);
   #endif

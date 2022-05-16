@@ -148,13 +148,11 @@ vec4 rotateQuat (vec4 p, vec4 q) {
   return vec4(res.xyz, p.w);
 }
 
-/*
 float random (float seed) {
   seed = mod(seed, 233280.);
   float q = (seed * 9301. + 49297.) / 233280.;
   return fract(q);
 }
-*/
 
 #pragma define INDENTIFY_NEG_QUAT 10.0
 
@@ -239,10 +237,6 @@ vec4 gpvs_main () {
     }
     velocity.xyz += velocityTrack.xyz;
     velocity.xyz *= speedModifier0;
-  #endif
-
-  #if CC_USE_NOISE
-    pos.xyz += getNoiseParticle(pos.xyz, uNoiseParams2.w, uNoiseSpeed.xyz, uNoiseParams1.w, uNoiseParams1.xyz, uNoiseParams2.xyz, uNoiseParams3.xyz).xyz * normalizedTime;
   #endif
 
   pos.xyz += velocity.xyz * normalizedTime * a_dir_life.w;
