@@ -96,8 +96,7 @@ namespace cc {
 
 Engine::Engine() {
     _scheduler = std::make_shared<Scheduler>();
-    FileUtils::getInstance()->addSearchPath("Resources", true);
-    FileUtils::getInstance()->addSearchPath("data", true);
+    _fs = createFileUtils();
     EventDispatcher::init();
     se::ScriptEngine::getInstance();
 
@@ -136,10 +135,10 @@ Engine::~Engine() {
 #endif
     ProgramLib::destroyInstance();
     BuiltinResMgr::destroyInstance();
-    FileUtils::destroyInstance();
 
     CCObject::deferredDestroy();
     gfx::DeviceManager::destroy();
+    delete _fs;
 }
 
 int32_t Engine::init() {
