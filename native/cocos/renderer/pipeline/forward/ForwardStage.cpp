@@ -132,6 +132,8 @@ void ForwardStage::dispenseRenderObject2Queues() {
         }
     }
 
+    _instancedQueue->sort();
+
     for (auto *queue : _renderQueues) {
         queue->sort();
     }

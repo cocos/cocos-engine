@@ -26,7 +26,8 @@
 #pragma once
 
 #include "base/Macros.h"
-#include "base/std/container/unordered_set.h"
+#include "base/std/container/set.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 
@@ -48,11 +49,13 @@ public:
     void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer);
     void add(InstancedBuffer *instancedBuffer);
     void uploadBuffers(gfx::CommandBuffer *cmdBuffer);
+    void sort();
     void clear();
     bool empty() { return _queues.empty(); }
 
 private:
-    ccstd::unordered_set<InstancedBuffer *> _queues;
+    ccstd::set<InstancedBuffer *> _queues;
+    ccstd::vector<InstancedBuffer *> _renderQueues;
 };
 
 } // namespace pipeline

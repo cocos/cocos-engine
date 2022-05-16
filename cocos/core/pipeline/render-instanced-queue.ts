@@ -44,6 +44,8 @@ export class RenderInstancedQueue {
      */
     public queue = new Set<InstancedBuffer>();
 
+    private _renderQueue : InstancedBuffer[] = [];
+
     /**
      * @en Clear the render queue
      * @zh 清空渲染队列。
@@ -54,7 +56,27 @@ export class RenderInstancedQueue {
             res.value.clear();
             res = it.next();
         }
+        this._renderQueue = [];
         this.queue.clear();
+    }
+
+    public sort () {
+        let it = this.queue.values();
+        let res = it.next();
+        while (!res.done) {
+            if (!(res.value.pass.blendState.targets[0].blend)) {
+                this._renderQueue.push(res.value);
+            }
+            res = it.next();
+        }
+        it = this.queue.values();
+        res = it.next();
+        while (!res.done) {
+            if (res.value.pass.blendState.targets[0].blend) {
+                this._renderQueue.push(res.value);
+            }
+            res = it.next();
+        }
     }
 
     public uploadBuffers (cmdBuff: CommandBuffer) {
@@ -71,7 +93,7 @@ export class RenderInstancedQueue {
      * @param cmdBuff The command buffer to store the result
      */
     public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
-        const it = this.queue.values(); let res = it.next();
+        const it = this._renderQueue.values(); let res = it.next();
         while (!res.done) {
             const { instances, pass, hasPendingModels } = res.value;
             if (hasPendingModels) {
