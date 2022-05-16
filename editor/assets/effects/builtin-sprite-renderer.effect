@@ -31,7 +31,7 @@ CCProgram spriteRender-vs %{
   vec4 vert () {
     vec4 pos = vec4(a_position, 1);
 
-    pos = cc_matProj * (cc_matView * cc_matWorld) * pos;
+    pos = cc_matViewProj * cc_matWorld * pos;
 
     uv0 = vec2(a_texCoord.x, 1.0 - a_texCoord.y);
 

@@ -29,7 +29,7 @@
 
 import { ccclass, executeInEditMode, executionOrder, help, menu, serializable, type, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { builtinResMgr, Color, Material, RenderableComponent, Vec2 } from '../../core';
+import { builtinResMgr, Color, Material, ModelRenderer, Vec2 } from '../../core';
 import { legacyCC } from '../../core/global-exports';
 import { Root } from '../../core/root';
 import { TransformBit } from '../../core/scene-graph/node-enum';
@@ -47,7 +47,7 @@ enum SpriteMode {
 @executionOrder(100)
 @menu('2D/SpriteRenderer')
 @executeInEditMode
-export class SpriteRenderer extends RenderableComponent {
+export class SpriteRenderer extends ModelRenderer {
     @type(SpriteFrame)
     get spriteFrame () {
         return this._spriteFrame;
