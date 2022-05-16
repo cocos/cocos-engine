@@ -48,13 +48,14 @@ enum class ShowOption : uint32_t {
  */
 class Profiler {
 public:
+    static Profiler *getInstance();
+
+    Profiler();
+    ~Profiler();
     Profiler(const Profiler &) = delete;
     Profiler(Profiler &&) = delete;
     Profiler &operator=(const Profiler &) = delete;
     Profiler &operator=(Profiler &&) = delete;
-
-    static Profiler *getInstance();
-    static void destroyInstance();
 
     void setEnable(ShowOption option, bool b = true);
     bool isEnabled(ShowOption option) const;
@@ -68,11 +69,9 @@ public:
     inline ObjectStats &getObjectStats() { return _objectStats; }
 
 private:
-    Profiler();
-    ~Profiler();
+    static void doFrameUpdate();
 
     void doIntervalUpdate();
-    static void doFrameUpdate();
     void printStats();
 
     void beginBlock(const ccstd::string &name);
