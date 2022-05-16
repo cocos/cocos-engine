@@ -634,6 +634,44 @@ static bool js_scene_Node_onPostActivated(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_FUNC(js_scene_Node_onPostActivated)
 
+static bool js_scene_Node_onPreDestroy(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Node_onPreDestroy : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->onPreDestroy();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_Node_onPreDestroy : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Node_onPreDestroy)
+
+static bool js_scene_Node_onPreDestroyBase(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Node_onPreDestroyBase : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->onPreDestroyBase();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_Node_onPreDestroyBase : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Node_onPreDestroyBase)
+
 static bool js_scene_Node_pauseSystemEvents(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
@@ -1830,6 +1868,8 @@ bool js_register_scene_Node(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineFunction("lookAt", _SE(js_scene_Node_lookAt));
     cls->defineFunction("off", _SE(js_scene_Node_off));
     cls->defineFunction("onPostActivated", _SE(js_scene_Node_onPostActivated));
+    cls->defineFunction("_onPreDestroy", _SE(js_scene_Node_onPreDestroy));
+    cls->defineFunction("_onPreDestroyBase", _SE(js_scene_Node_onPreDestroyBase));
     cls->defineFunction("pauseSystemEvents", _SE(js_scene_Node_pauseSystemEvents));
     cls->defineFunction("removeAllChildren", _SE(js_scene_Node_removeAllChildren));
     cls->defineFunction("removeChild", _SE(js_scene_Node_removeChild));
