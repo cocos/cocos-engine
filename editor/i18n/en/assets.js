@@ -324,9 +324,9 @@ module.exports = {
             },
             smartMaterialEnabled: {
                 name: 'Smart Material Conversion',
-                title: '',
+                title: 'Convert DCC material to engine material, and match the lighting model of DCC material.',
                 warn: 'For the Smart Material Conversion of laboratory function in preferences is turned off, ' +
-                    'the expected value of this property is FALSE, which does not match the present value of TRUE.',
+                    'the expected value of this property is not checked, which does not match the current value checked.',
             },
         },
         textureCube: {
