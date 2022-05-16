@@ -1568,6 +1568,25 @@ static bool js_render_LayoutGraphBuilder_addNode(se::State& s) // NOLINT(readabi
 }
 SE_BIND_FUNC(js_render_LayoutGraphBuilder_addNode)
 
+static bool js_render_LayoutGraphBuilder_compile(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::LayoutGraphBuilder>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_LayoutGraphBuilder_compile : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->compile();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_render_LayoutGraphBuilder_compile : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_render_LayoutGraphBuilder_compile)
+
 bool js_register_render_LayoutGraphBuilder(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("LayoutGraphBuilder", obj, nullptr, nullptr);
@@ -1577,6 +1596,7 @@ bool js_register_render_LayoutGraphBuilder(se::Object* obj) // NOLINT(readabilit
 #endif
     cls->defineFunction("addDescriptorBlock", _SE(js_render_LayoutGraphBuilder_addDescriptorBlock));
     cls->defineFunction("addNode", _SE(js_render_LayoutGraphBuilder_addNode));
+    cls->defineFunction("compile", _SE(js_render_LayoutGraphBuilder_compile));
     cls->install();
     JSBClassType::registerClass<cc::render::LayoutGraphBuilder>(cls);
 

@@ -142,6 +142,7 @@ bool js_register_cc_render_LayoutGraphBuilder(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_render_LayoutGraphBuilder_addDescriptorBlock);
 SE_DECLARE_FUNC(js_render_LayoutGraphBuilder_addNode);
+SE_DECLARE_FUNC(js_render_LayoutGraphBuilder_compile);
 
 extern se::Object *__jsb_cc_render_Pipeline_proto; // NOLINT
 extern se::Class * __jsb_cc_render_Pipeline_class; // NOLINT

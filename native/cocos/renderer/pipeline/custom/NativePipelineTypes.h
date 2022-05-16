@@ -53,6 +53,7 @@ public:
 
     uint32_t addNode(const ccstd::string& name, UpdateFrequency frequency, uint32_t parentID) override;
     void addDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlock& block) override;
+    int compile() override;
 
     LayoutGraphData data;
 };

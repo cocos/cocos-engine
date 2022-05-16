@@ -147,6 +147,7 @@ export abstract class SceneTransversal {
 export abstract class LayoutGraphBuilder {
     public abstract addNode(name: string, frequency: UpdateFrequency, parentID: number): number;
     public abstract addDescriptorBlock(nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlock): void;
+    public abstract compile(): number;
 }
 
 export abstract class Pipeline extends PipelineRuntime {
