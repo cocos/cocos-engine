@@ -1,0 +1,57 @@
+{
+    "importBase": "import",
+    "nativeBase": "native",
+    "name": "sub-pack-01",
+    "deps": [
+        "resources"
+    ],
+    "uuids": [
+        "0975e4486",
+        "20835ba4-6145-4fbc-a58a-051ce700aa3e@f9941",
+        "2eb95390-c2a8-4c26-b682-3ed7a181762f",
+        "544e49d6-3f05-4fa8-9a9e-091f98fc2ce8@f9941",
+        "951249e0-9f16-456d-8b85-a6ca954da16b@f9941",
+        "f3dc5151-21c8-4eb3-b72a-8c2037a57dda",
+        "f3dc5151-21c8-4eb3-b72a-8c2037a57dda@6c48a",
+        "f3dc5151-21c8-4eb3-b72a-8c2037a57dda@f9941"
+    ],
+    "paths": {
+        "f3dc5151-21c8-4eb3-b72a-8c2037a57dda": [
+            "content",
+            "cc.ImageAsset"
+        ],
+        "f3dc5151-21c8-4eb3-b72a-8c2037a57dda@6c48a": [
+            "content/texture",
+            "cc.Texture2D",
+            1
+        ],
+        "f3dc5151-21c8-4eb3-b72a-8c2037a57dda@f9941": [
+            "content/spriteFrame",
+            "cc.SpriteFrame",
+            1
+        ]
+    },
+    "scenes": {
+        "db://assets/cases/asset/sub-packages/sub-pack-01/subPack01.scene": "2eb95390-c2a8-4c26-b682-3ed7a181762f"
+    },
+    "packs": {
+        "0975e4486": [
+            "2eb95390-c2a8-4c26-b682-3ed7a181762f",
+            "f3dc5151-21c8-4eb3-b72a-8c2037a57dda@f9941"
+        ]
+    },
+    "versions": {
+        "import": [],
+        "native": []
+    },
+    "redirect": [
+        "20835ba4-6145-4fbc-a58a-051ce700aa3e@f9941",
+        "0",
+        "544e49d6-3f05-4fa8-9a9e-091f98fc2ce8@f9941",
+        "0",
+        "951249e0-9f16-456d-8b85-a6ca954da16b@f9941",
+        "0"
+    ],
+    "debug": true,
+    "extensionMap": {}
+}

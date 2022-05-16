@@ -1,0 +1,56 @@
+{
+    "importBase": "import",
+    "nativeBase": "native",
+    "name": "TestBundleZip",
+    "deps": [
+        "resources"
+    ],
+    "uuids": [
+        "04630cbb-267a-436f-a315-ab1e48022642",
+        "093b45c8-80d9-49a8-ac5c-bcdbaed2c6bf@f9941",
+        "20835ba4-6145-4fbc-a58a-051ce700aa3e@f9941",
+        "544e49d6-3f05-4fa8-9a9e-091f98fc2ce8@f9941",
+        "55c2cf34-3760-4ef5-98cd-6011f1c4f634",
+        "55c2cf34-3760-4ef5-98cd-6011f1c4f634@6c48a",
+        "832f56de-8db6-426f-8aeb-d14649e4b0aa",
+        "951249e0-9f16-456d-8b85-a6ca954da16b@f9941",
+        "cea506fc-84e0-4e06-aa96-1db22f4e6a74@f9941"
+    ],
+    "paths": {
+        "04630cbb-267a-436f-a315-ab1e48022642": [
+            "audio",
+            "cc.AudioClip"
+        ],
+        "55c2cf34-3760-4ef5-98cd-6011f1c4f634": [
+            "content",
+            "cc.ImageAsset"
+        ],
+        "55c2cf34-3760-4ef5-98cd-6011f1c4f634@6c48a": [
+            "content/texture",
+            "cc.Texture2D",
+            1
+        ]
+    },
+    "scenes": {
+        "db://assets/cases/asset/test-bundle-zip/sub-scene.scene": "832f56de-8db6-426f-8aeb-d14649e4b0aa"
+    },
+    "packs": {},
+    "versions": {
+        "import": [],
+        "native": []
+    },
+    "redirect": [
+        "093b45c8-80d9-49a8-ac5c-bcdbaed2c6bf@f9941",
+        "0",
+        "20835ba4-6145-4fbc-a58a-051ce700aa3e@f9941",
+        "0",
+        "544e49d6-3f05-4fa8-9a9e-091f98fc2ce8@f9941",
+        "0",
+        "951249e0-9f16-456d-8b85-a6ca954da16b@f9941",
+        "0",
+        "cea506fc-84e0-4e06-aa96-1db22f4e6a74@f9941",
+        "0"
+    ],
+    "debug": true,
+    "extensionMap": {}
+}

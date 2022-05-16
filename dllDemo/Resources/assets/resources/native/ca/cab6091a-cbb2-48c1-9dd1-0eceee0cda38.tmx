@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" tiledversion="1.1.4" orientation="isometric" renderorder="right-down" width="10" height="10" tilewidth="100" tileheight="50" infinite="0" nextobjectid="1">
+ <tileset firstgid="1" source="tile_iso_offset_with_tsx2.tsx"/>
+ <tileset firstgid="3" source="tile_iso_offset_with_tsx1.tsx"/>
+ <layer name="baseLayer" width="10" height="10">
+  <data encoding="base64" compression="zlib">
+   eJxtkDEOADEIwwjk/2++GzpYUQYvrWtUNDMC97NAhXsYnst9ax7cdISZ2b9ob3lHz3G+Mcvw2Kbr8i9Fl3vx9D1tOAndD6DcANU=
+  </data>
+ </layer>
+</map>

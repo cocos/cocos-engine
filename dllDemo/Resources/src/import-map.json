@@ -1,0 +1,5 @@
+{
+  "imports": {
+    "cc": "./cocos-js/cc.js"
+  }
+}

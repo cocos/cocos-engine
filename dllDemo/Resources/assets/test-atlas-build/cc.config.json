@@ -1,0 +1,100 @@
+{
+    "importBase": "import",
+    "nativeBase": "native",
+    "name": "test-atlas-build",
+    "deps": [],
+    "uuids": [
+        "08231d784",
+        "08e9d085e",
+        "0a2f8577-9298-44ff-93d0-8a055f252cb0@f9941",
+        "0bee0d02e",
+        "0e9ddf4f2",
+        "13ebf42b4",
+        "13ebf42b4@6c48a",
+        "1498277f-70b1-4fd1-9426-0f768c79fe30@f9941",
+        "1e9ddf4f2",
+        "1e9ddf4f2@6c48a",
+        "21fc5703-07f0-402b-a59d-e0ec3e8f6152",
+        "2dc2e6e5-9133-4a23-b361-07ad77734308",
+        "2dc2e6e5-9133-4a23-b361-07ad77734308@6c48a",
+        "2dc2e6e5-9133-4a23-b361-07ad77734308@f9941",
+        "c608b2f9-68b4-4e6b-92b6-eddb919d9a36",
+        "c608b2f9-68b4-4e6b-92b6-eddb919d9a36@6c48a",
+        "c608b2f9-68b4-4e6b-92b6-eddb919d9a36@f9941"
+    ],
+    "paths": {
+        "1498277f-70b1-4fd1-9426-0f768c79fe30@f9941": [
+            "config/1/spriteFrame",
+            "cc.SpriteFrame",
+            1
+        ],
+        "0a2f8577-9298-44ff-93d0-8a055f252cb0@f9941": [
+            "config/2/spriteFrame",
+            "cc.SpriteFrame",
+            1
+        ],
+        "2dc2e6e5-9133-4a23-b361-07ad77734308": [
+            "normal/1",
+            "cc.ImageAsset"
+        ],
+        "2dc2e6e5-9133-4a23-b361-07ad77734308@6c48a": [
+            "normal/1/texture",
+            "cc.Texture2D",
+            1
+        ],
+        "2dc2e6e5-9133-4a23-b361-07ad77734308@f9941": [
+            "normal/1/spriteFrame",
+            "cc.SpriteFrame",
+            1
+        ],
+        "c608b2f9-68b4-4e6b-92b6-eddb919d9a36": [
+            "normal/2",
+            "cc.ImageAsset"
+        ],
+        "c608b2f9-68b4-4e6b-92b6-eddb919d9a36@6c48a": [
+            "normal/2/texture",
+            "cc.Texture2D",
+            1
+        ],
+        "c608b2f9-68b4-4e6b-92b6-eddb919d9a36@f9941": [
+            "normal/2/spriteFrame",
+            "cc.SpriteFrame",
+            1
+        ],
+        "21fc5703-07f0-402b-a59d-e0ec3e8f6152": [
+            "normal/auto-atlas",
+            "cc.SpriteAtlas"
+        ]
+    },
+    "scenes": {},
+    "packs": {
+        "0bee0d02e": [
+            "1e9ddf4f2",
+            "2dc2e6e5-9133-4a23-b361-07ad77734308",
+            "13ebf42b4",
+            "c608b2f9-68b4-4e6b-92b6-eddb919d9a36"
+        ],
+        "08e9d085e": [
+            "1e9ddf4f2@6c48a",
+            "2dc2e6e5-9133-4a23-b361-07ad77734308@6c48a",
+            "13ebf42b4@6c48a",
+            "c608b2f9-68b4-4e6b-92b6-eddb919d9a36@6c48a"
+        ],
+        "08231d784": [
+            "21fc5703-07f0-402b-a59d-e0ec3e8f6152",
+            "2dc2e6e5-9133-4a23-b361-07ad77734308@f9941",
+            "c608b2f9-68b4-4e6b-92b6-eddb919d9a36@f9941"
+        ],
+        "0e9ddf4f2": [
+            "0a2f8577-9298-44ff-93d0-8a055f252cb0@f9941",
+            "1498277f-70b1-4fd1-9426-0f768c79fe30@f9941"
+        ]
+    },
+    "versions": {
+        "import": [],
+        "native": []
+    },
+    "redirect": [],
+    "debug": true,
+    "extensionMap": {}
+}

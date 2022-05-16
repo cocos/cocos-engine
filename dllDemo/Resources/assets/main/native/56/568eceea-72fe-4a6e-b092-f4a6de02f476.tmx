@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="32" tileheight="32" nextobjectid="3">
+ <tileset firstgid="1" name="barriers" tilewidth="32" tileheight="32" tilecount="36" columns="6">
+  <image source="barriers.png" width="192" height="192"/>
+  <tile id="0">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="1">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="2">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="3">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="4">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="5">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="6">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="7">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="8">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="9">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="10">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="11">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="12">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="13">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="14">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="15">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="16">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="17">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="18">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="19">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="20">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="21">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="22">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="23">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="24">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="25">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="26">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="27">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="28">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="29">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="30">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="31">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="32">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="33">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="34">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+  <tile id="35">
+   <properties>
+    <property name="barrier" value="true"/>
+   </properties>
+  </tile>
+ </tileset>
+ <tileset firstgid="37" name="ground" tilewidth="32" tileheight="32" tilecount="1" columns="1">
+  <image source="ground.png" width="32" height="32"/>
+  <tile id="0">
+   <properties>
+    <property name="floor" value="true"/>
+   </properties>
+  </tile>
+ </tileset>
+ <layer name="floor" width="30" height="30">
+  <properties>
+   <property name="floor" value="true"/>
+  </properties>
+  <data encoding="base64" compression="zlib">
+   eJztwwENAAAMw6CamX+LF3JIWDVVVVXfPeR1ghU=
+  </data>
+ </layer>
+ <layer name="barrier" width="30" height="30">
+  <properties>
+   <property name="barrier" value="true"/>
+  </properties>
+  <data encoding="base64" compression="zlib">
+   eJy1VmtPwzAMNAO6AWFjSr/yEvz/30gietLtZjsdGpastV3js8+v7s1sf0V9bfq24r2XK+N+Nf0evHNs+mB/k4mu66Jrz20dXNiYF43sleDcNPCjCO5N003T24GvjBPZraR3Te/lHOP26x3dwy7OVTuNUe1F8tj0KcF9tt+cH+j/6pwzec68gjPljfPF+UU+WSbLBWcK3YOzSnb5fbPz/KrNYnmNerkDZ+DNwzXB5VoweRbl0suB+gZh/qJ4L7FfzfdZpfOHXEa4Xnzd36jX1mBnPKPuvPhQD7sA+xJZw3OlX+Byn2eCHluDq/0DDrpG9cp5Yb47R15uuH9xNuqfLLdR3YEj9LPimnNW+0nnqIfh+ds50r2X5Vdt8BzNajbCPtC94mqMmmv8zzn39o1i6zPFnQVLdywLZoCX29FO9XjOsKJdofFxLXj7xsONfOXdM8LlWtA88D5in3gmZVzxTtWY2A8vD1686LdoLkV8TMG1+sG4zAU4Ojq4HXMO/OF5Uyz/3gRuxIXa1/ns7WrPD+23bG5sl9j4f53PsDnbef3oNzDHxriak2wu6kzJvv+8a8bVHhnN46zPR9Jtb0jfm340/ZTn/6E/3g4VKg==
+  </data>
+ </layer>
+ <objectgroup name="players" visible="0">
+  <object id="1" name="SpawnPoint" x="143" y="914">
+   <ellipse/>
+  </object>
+  <object id="2" name="SuccessPoint" x="655" y="80">
+   <ellipse/>
+  </object>
+ </objectgroup>
+</map>
