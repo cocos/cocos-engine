@@ -185,7 +185,7 @@ const Elements = {
         async update() {
             const panel = this;
 
-            const laboratoryExpectedValue = await Editor.Profile.getConfig('inspector', 'asset.fbx.material.smart');
+            const laboratoryExpectedValue = await Editor.Profile.getConfig('engine', 'asset.fbx.material.smart');
             if (!laboratoryExpectedValue) {
                 panel.$.smartMaterialEnabledProp.setAttribute('readonly', '');
             } else {
