@@ -139,7 +139,9 @@ private:
     
     // Subsystems
     FileUtils *_fs{nullptr};
+#if CC_USE_PROFILER
 	Profiler *_profiler{nullptr};
+#endif
     DebugRenderer *_debugRenderer{nullptr};
     se::ScriptEngine *_scriptEngine{nullptr};
 
