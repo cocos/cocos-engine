@@ -1117,6 +1117,7 @@ cc.Director.EVENT_AFTER_PHYSICS = 'director_after_physics';
 /**
  * !#en Enable FixedDeltaTime mode.
  * !#zh 开启 FixedDeltaTime 模式.
+ * @method enableFixedDeltaTime
  * @param {number} options - the value of fixedDeltaTime
  * @example
  *   cc.director.enableFixedDeltaTime()
