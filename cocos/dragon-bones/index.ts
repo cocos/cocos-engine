@@ -1,5 +1,3 @@
-
-
 import { EDITOR } from 'internal:constants';
 
 export enum ExtensionType {
@@ -51,5 +49,6 @@ export * from './DragonBonesAtlasAsset';
 export * from './ArmatureDisplay';
 export * from './AttachUtil';
 export * from './assembler';
+export * from './deprecated';
 
 export * from '@cocos/dragonbones-js';

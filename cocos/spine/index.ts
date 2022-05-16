@@ -1,5 +1,3 @@
-
-
 import { ccenum } from '../core';
 import spine from './lib/spine-core';
 
@@ -26,6 +24,7 @@ export * from './skeleton-data';
 export * from './skeleton-texture';
 export * from './vertex-effect-delegate';
 export * from './assembler';
+export * from './deprecated';
 
 export { spine };
 
