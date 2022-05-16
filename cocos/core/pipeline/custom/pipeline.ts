@@ -37,7 +37,7 @@ import { DescriptorBlock, DescriptorBlockIndex } from './layout-graph';
 import { Mat4, Quat, Vec2, Vec4 } from '../../math';
 import { MacroRecord } from '../../renderer/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { QueueHint, ResourceResidency, TaskType, UpdateFrequency } from './types';
+import { QueueHint, ResourceResidency, TaskType } from './types';
 import { ComputeView, CopyPair, MovePair, RasterView } from './render-graph';
 import { RenderScene } from '../../renderer/core/render-scene';
 import { RenderWindow } from '../../renderer/core/render-window';
@@ -145,7 +145,8 @@ export abstract class SceneTransversal {
 }
 
 export abstract class LayoutGraphBuilder {
-    public abstract addNode(name: string, frequency: UpdateFrequency, parentID: number): number;
+    public abstract addRenderStage(name: string): number;
+    public abstract addRenderPhase(name: string, parentID: number): number;
     public abstract addDescriptorBlock(nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlock): void;
     public abstract compile(): number;
 }

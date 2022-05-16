@@ -51,11 +51,13 @@ public:
 
     NativeLayoutGraphBuilder(const allocator_type& alloc) noexcept; // NOLINT
 
-    uint32_t addNode(const ccstd::string& name, UpdateFrequency frequency, uint32_t parentID) override;
+    uint32_t addRenderStage(const ccstd::string& name) override;
+    uint32_t addRenderPhase(const ccstd::string& name, uint32_t parentID) override;
     void addDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlock& block) override;
     int compile() override;
 
-    LayoutGraphData data;
+    LayoutGraphData              data;
+    ccstd::pmr::vector<uint32_t> registers;
 };
 
 class NativePipeline final : public Pipeline {

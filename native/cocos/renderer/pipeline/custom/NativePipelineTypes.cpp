@@ -36,7 +36,8 @@ namespace cc {
 namespace render {
 
 NativeLayoutGraphBuilder::NativeLayoutGraphBuilder(const allocator_type& alloc) noexcept
-: data(alloc) {}
+: data(alloc),
+  registers(alloc) {}
 
 } // namespace render
 

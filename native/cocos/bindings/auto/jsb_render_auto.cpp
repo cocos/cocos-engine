@@ -1542,31 +1542,51 @@ static bool js_render_LayoutGraphBuilder_addDescriptorBlock(se::State& s) // NOL
 }
 SE_BIND_FUNC(js_render_LayoutGraphBuilder_addDescriptorBlock)
 
-static bool js_render_LayoutGraphBuilder_addNode(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_render_LayoutGraphBuilder_addRenderPhase(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::render::LayoutGraphBuilder>(s);
-    SE_PRECONDITION2(cobj, false, "js_render_LayoutGraphBuilder_addNode : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_render_LayoutGraphBuilder_addRenderPhase : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 3) {
+    if (argc == 2) {
         HolderType<std::string, true> arg0 = {};
-        HolderType<cc::render::UpdateFrequency, false> arg1 = {};
-        HolderType<unsigned int, false> arg2 = {};
+        HolderType<unsigned int, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_render_LayoutGraphBuilder_addNode : Error processing arguments");
-        unsigned int result = cobj->addNode(arg0.value(), arg1.value(), arg2.value());
+        SE_PRECONDITION2(ok, false, "js_render_LayoutGraphBuilder_addRenderPhase : Error processing arguments");
+        unsigned int result = cobj->addRenderPhase(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_render_LayoutGraphBuilder_addNode : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_render_LayoutGraphBuilder_addRenderPhase : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
     return false;
 }
-SE_BIND_FUNC(js_render_LayoutGraphBuilder_addNode)
+SE_BIND_FUNC(js_render_LayoutGraphBuilder_addRenderPhase)
+
+static bool js_render_LayoutGraphBuilder_addRenderStage(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::LayoutGraphBuilder>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_LayoutGraphBuilder_addRenderStage : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<std::string, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_render_LayoutGraphBuilder_addRenderStage : Error processing arguments");
+        unsigned int result = cobj->addRenderStage(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_render_LayoutGraphBuilder_addRenderStage : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_render_LayoutGraphBuilder_addRenderStage)
 
 static bool js_render_LayoutGraphBuilder_compile(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1595,7 +1615,8 @@ bool js_register_render_LayoutGraphBuilder(se::Object* obj) // NOLINT(readabilit
     cls->defineStaticProperty("isJSBClass", _SE(js_render_getter_return_true), nullptr);
 #endif
     cls->defineFunction("addDescriptorBlock", _SE(js_render_LayoutGraphBuilder_addDescriptorBlock));
-    cls->defineFunction("addNode", _SE(js_render_LayoutGraphBuilder_addNode));
+    cls->defineFunction("addRenderPhase", _SE(js_render_LayoutGraphBuilder_addRenderPhase));
+    cls->defineFunction("addRenderStage", _SE(js_render_LayoutGraphBuilder_addRenderStage));
     cls->defineFunction("compile", _SE(js_render_LayoutGraphBuilder_compile));
     cls->install();
     JSBClassType::registerClass<cc::render::LayoutGraphBuilder>(cls);

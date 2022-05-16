@@ -605,15 +605,16 @@ export class DescriptorData {
 }
 
 export class DescriptorBlockData {
-    constructor (type: Type = Type.UNKNOWN, visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE, capacity = 0) {
+    constructor (type: DescriptorTypeOrder = DescriptorTypeOrder.UNIFORM_BUFFER, visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE, capacity = 0) {
         this.type = type;
         this.visibility = visibility;
         this.capacity = capacity;
     }
-    type: Type;
+    type: DescriptorTypeOrder;
     visibility: ShaderStageFlagBit;
     offset = 0;
     capacity: number;
+    registerSlot = 0;
     readonly descriptors: DescriptorData[] = [];
 }
 

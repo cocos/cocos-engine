@@ -112,7 +112,7 @@ UniformBlockData::UniformBlockData(UniformBlockData const& rhs, const allocator_
 DescriptorBlockData::DescriptorBlockData(const allocator_type& alloc) noexcept
 : descriptors(alloc) {}
 
-DescriptorBlockData::DescriptorBlockData(gfx::Type typeIn, gfx::ShaderStageFlagBit visibilityIn, uint32_t capacityIn, const allocator_type& alloc) noexcept // NOLINT
+DescriptorBlockData::DescriptorBlockData(DescriptorTypeOrder typeIn, gfx::ShaderStageFlagBit visibilityIn, uint32_t capacityIn, const allocator_type& alloc) noexcept // NOLINT
 : type(typeIn),
   visibility(visibilityIn),
   capacity(capacityIn),
@@ -123,6 +123,7 @@ DescriptorBlockData::DescriptorBlockData(DescriptorBlockData&& rhs, const alloca
   visibility(rhs.visibility),
   offset(rhs.offset),
   capacity(rhs.capacity),
+  registerSlot(rhs.registerSlot),
   descriptors(std::move(rhs.descriptors), alloc) {}
 
 DescriptorBlockData::DescriptorBlockData(DescriptorBlockData const& rhs, const allocator_type& alloc)
@@ -130,6 +131,7 @@ DescriptorBlockData::DescriptorBlockData(DescriptorBlockData const& rhs, const a
   visibility(rhs.visibility),
   offset(rhs.offset),
   capacity(rhs.capacity),
+  registerSlot(rhs.registerSlot),
   descriptors(rhs.descriptors, alloc) {}
 
 DescriptorSetLayoutData::DescriptorSetLayoutData(const allocator_type& alloc) noexcept

@@ -25,6 +25,7 @@
 
 #include <memory>
 #include "NativePipelineTypes.h"
+#include "base/Macros.h"
 #include "cocos/base/StringUtil.h"
 #include "cocos/renderer/gfx-base/GFXDescriptorSetLayout.h"
 #include "cocos/renderer/pipeline/Enum.h"
@@ -37,11 +38,56 @@
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/RenderWindow.h"
 #include "gfx-base/GFXDevice.h"
+#include "pipeline/custom/LayoutGraphFwd.h"
+#include "pipeline/custom/LayoutGraphTypes.h"
+#include "pipeline/custom/NativePipelineFwd.h"
 #include "profiler/DebugRenderer.h"
+#include "LayoutGraphGraphs.h"
 
 namespace cc {
 
 namespace render {
+
+uint32_t NativeLayoutGraphBuilder::addRenderStage(const ccstd::string &name) {
+    return add_vertex(data, RenderStageTag{}, name.c_str());
+}
+
+uint32_t NativeLayoutGraphBuilder::addRenderPhase(const ccstd::string &name, uint32_t parentID) {
+    return add_vertex(data, RenderPhaseTag{}, name.c_str(), parentID);
+}
+
+void NativeLayoutGraphBuilder::addDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex &index, const DescriptorBlock &block) {
+    auto& g = data;
+    auto& ppl = get(LayoutGraphData::Layout, g, nodeID);
+
+    CC_ASSERT(block.capacity);
+    auto& layout = ppl.descriptorSets[index.updateFrequency].descriptorSetLayoutData;
+
+    // add block
+    layout.descriptorBlocks.emplace_back(
+        index.descriptorType, index.visibility, block.capacity);
+
+    auto& dstBlock = layout.descriptorBlocks.back();
+    // auto& reg = registers.at(static_cast<uint32_t>(index.descriptorType));
+    dstBlock.registerSlot = 0xFFFFFFFF;
+    dstBlock.offset = layout.capacity;
+    dstBlock.capacity = block.capacity;
+    for (const auto& pairD : block.descriptors) {
+        const auto& name = pairD.first;
+        const auto& d = pairD.second;
+        // auto nameID = mData.mAttributeIndex.at(name);
+        // dstBlock.mDescriptors.emplace_back(nameID, d.mCount);
+    }
+    // update layout
+    layout.capacity += block.capacity;
+    // reg += block.capacity;
+}
+
+int NativeLayoutGraphBuilder::compile() {
+    registers.resize(static_cast<size_t>(DescriptorTypeOrder::INPUT_ATTACHMENT) + 1);
+
+    return 0;
+}
 
 NativePipeline::NativePipeline() noexcept
 : device(gfx::Device::getInstance()), globalDSManager(std::make_unique<pipeline::GlobalDSManager>()), pipelineSceneData(ccnew pipeline::PipelineSceneData()) // NOLINT

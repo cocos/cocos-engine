@@ -370,7 +370,7 @@ struct DescriptorBlockData {
     }
 
     DescriptorBlockData(const allocator_type& alloc) noexcept; // NOLINT
-    DescriptorBlockData(gfx::Type typeIn, gfx::ShaderStageFlagBit visibilityIn, uint32_t capacityIn, const allocator_type& alloc) noexcept;
+    DescriptorBlockData(DescriptorTypeOrder typeIn, gfx::ShaderStageFlagBit visibilityIn, uint32_t capacityIn, const allocator_type& alloc) noexcept;
     DescriptorBlockData(DescriptorBlockData&& rhs, const allocator_type& alloc);
     DescriptorBlockData(DescriptorBlockData const& rhs, const allocator_type& alloc);
 
@@ -379,10 +379,11 @@ struct DescriptorBlockData {
     DescriptorBlockData& operator=(DescriptorBlockData&& rhs) = default;
     DescriptorBlockData& operator=(DescriptorBlockData const& rhs) = default;
 
-    gfx::Type                          type{gfx::Type::UNKNOWN};
+    DescriptorTypeOrder                type{DescriptorTypeOrder::UNIFORM_BUFFER};
     gfx::ShaderStageFlagBit            visibility{gfx::ShaderStageFlagBit::NONE};
     uint32_t                           offset{0};
     uint32_t                           capacity{0};
+    uint32_t                           registerSlot{0};
     ccstd::pmr::vector<DescriptorData> descriptors;
 };
 
@@ -440,7 +441,7 @@ struct PipelineLayoutData {
     PipelineLayoutData& operator=(PipelineLayoutData&& rhs) = default;
     PipelineLayoutData& operator=(PipelineLayoutData const& rhs) = delete;
 
-    PmrFlatMap<UpdateFrequency, DescriptorSetData> descriptorSets;
+    ccstd::pmr::map<UpdateFrequency, DescriptorSetData> descriptorSets;
 };
 
 struct ShaderProgramData {
