@@ -62,7 +62,6 @@ ccstd::unordered_map<ccstd::string, unsigned> jsbFunctionInvokedRecords;
 namespace se {
 
 namespace {
-ScriptEngine *gSriptEngineInstance = nullptr;
 
 void seLogCallback(const v8::FunctionCallbackInfo<v8::Value> &info) {
     if (info[0]->IsString()) {
@@ -233,6 +232,8 @@ public:
 ScriptEngineV8Context *gSharedV8 = nullptr;
     #endif // CC_EDITOR
 } // namespace
+
+ScriptEngine* ScriptEngine::instance = nullptr;
 
 void ScriptEngine::callExceptionCallback(const char *location, const char *message, const char *stack) {
     if (_nativeExceptionCallback) {
@@ -459,19 +460,10 @@ void ScriptEngine::onPromiseRejectCallback(v8::PromiseRejectMessage msg) {
 }
 
 ScriptEngine *ScriptEngine::getInstance() {
-    if (gSriptEngineInstance == nullptr) {
-        gSriptEngineInstance = ccnew ScriptEngine();
-    }
-
-    return gSriptEngineInstance;
+    return ScriptEngine::instance;
 }
 
 void ScriptEngine::destroyInstance() {
-    if (gSriptEngineInstance) {
-        gSriptEngineInstance->cleanup();
-        delete gSriptEngineInstance;
-        gSriptEngineInstance = nullptr;
-    }
 }
 
 ScriptEngine::ScriptEngine()
@@ -495,6 +487,8 @@ ScriptEngine::ScriptEngine()
         gSharedV8 = ccnew ScriptEngineV8Context();
     }
     #endif
+    
+    ScriptEngine::instance = this;
 }
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
@@ -503,9 +497,12 @@ ScriptEngine::ScriptEngine()
  * After calling onDestroy on Android platform, the process will be maintained for a period of time.
  * So gSharedV8 variable should not be released and it will be re-used when ScriptEngine is constructed next time.
  */
-ScriptEngine::~ScriptEngine() = default;
+ScriptEngine::~ScriptEngine() {
+    ScriptEngine::instance = nullptr;
+}
 #else
 ScriptEngine::~ScriptEngine() {
+    ScriptEngine::instance = nullptr;
 #if !CC_EDITOR
     if (gSharedV8) {
         delete gSharedV8;
