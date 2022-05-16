@@ -25,8 +25,6 @@
  THE SOFTWARE.
  */
 
-
-
 import {
     ccclass,
     help,

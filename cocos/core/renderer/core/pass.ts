@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { EDITOR, JSB } from 'internal:constants';
 import { Root } from '../../root';
 import { TextureBase } from '../../assets/texture-base';

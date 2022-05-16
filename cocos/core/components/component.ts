@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { ccclass, tooltip, displayName, type, serializable, disallowAnimation } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
 import { Script } from '../assets/scripts';

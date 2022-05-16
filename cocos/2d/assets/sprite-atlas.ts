@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, serializable, editable } from 'cc.decorator';
 import * as js from '../../core/utils/js';

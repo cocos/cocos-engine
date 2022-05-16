@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { ccclass, disallowMultiple, executeInEditMode, executionOrder, requireComponent } from 'cc.decorator';
 import { IBatcher } from '../renderer/i-batcher';
 import { Component } from '../../core/components/component';

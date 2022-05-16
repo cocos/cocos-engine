@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { LegacyPropertyDecorator } from './utils';
 import { getOrCreatePropertyStash } from './property';
 

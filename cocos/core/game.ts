@@ -24,7 +24,6 @@
  THE SOFTWARE.
 */
 
-
 import { EDITOR, HTML5, JSB, PREVIEW, RUNTIME_BASED, TEST } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
 import { ConfigOrientation } from 'pal/screen-adapter';

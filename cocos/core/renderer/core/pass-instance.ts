@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { EffectAsset } from '../../assets/effect-asset';
 import { MaterialInstance } from './material-instance';
 import { BatchingSchemes, Pass, PassOverrides } from './pass';

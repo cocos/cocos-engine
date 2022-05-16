@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { CCClass } from '../data/class';
 import { Mat4 } from './mat4.jsb';
 import { IVec3Like, FloatArray, IMat3, IMat4, IQuat, IVec3 } from './type-define';

@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { IVec3Like } from '../../core/math/type-define';
 import { PhysicsRayResult } from '../framework/physics-ray-result';
 import { Ray } from '../../core/geometry';

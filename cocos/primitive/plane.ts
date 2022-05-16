@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { Vec3 } from '../core/math';
 import { applyDefaultGeometryOptions, IGeometry, IGeometryOptions } from './define';
 

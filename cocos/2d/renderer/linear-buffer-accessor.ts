@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { InputAssembler, Device, Attribute } from '../../core/gfx';
 import { MeshBuffer } from './mesh-buffer';
 import { BufferAccessor } from './buffer-accessor';

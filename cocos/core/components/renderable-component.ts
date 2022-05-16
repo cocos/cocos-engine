@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { EDITOR } from 'internal:constants';
 import {
     ccclass, type, displayOrder, displayName, serializable,

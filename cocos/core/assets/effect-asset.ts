@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { ccclass, serializable, editable, editorOnly } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Root } from '../root';

@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import './node-event-processor';
 import './deprecated';
 

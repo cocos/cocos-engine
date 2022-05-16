@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { CallbacksInvoker } from './callbacks-invoker';
 import { createMap } from '../utils/js';
 

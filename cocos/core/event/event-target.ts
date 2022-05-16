@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { legacyCC } from '../global-exports';
 import { Eventify } from './eventify';
 

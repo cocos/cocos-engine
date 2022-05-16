@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { EventTarget } from './event-target';
 
 export function applyMixins (derivedCtor: any, baseCtors: any[]) {

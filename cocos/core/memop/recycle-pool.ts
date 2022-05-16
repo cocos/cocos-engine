@@ -25,8 +25,6 @@
 
 import { ScalableContainer } from './scalable-container';
 
-
-
 /**
  * @en Recyclable object pool. It's designed to be entirely reused each time.
  * There is no put and get method, each time you get the [[data]], you can use all elements as new.

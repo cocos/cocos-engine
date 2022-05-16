@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { EPSILON, Mat3, Vec3, Mat4 } from '../math';
 import { AABB } from './aabb';
 import { Capsule } from './capsule';

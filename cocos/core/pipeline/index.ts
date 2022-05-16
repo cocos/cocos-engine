@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import * as pipeline from './define';
 import { ForwardPipeline } from './forward/forward-pipeline';
 
