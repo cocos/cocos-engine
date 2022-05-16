@@ -97,11 +97,11 @@ namespace cc {
 Engine::Engine() {
     _scheduler = std::make_shared<Scheduler>();
     _fs = createFileUtils();
-    _scriptEngine = new se::ScriptEngine();
+    _scriptEngine = ccnew se::ScriptEngine();
     EventDispatcher::init();
 
 #if CC_USE_PROFILER
-    _profiler = new Profiler();
+    _profiler = ccnew Profiler();
 #endif
 }
 
