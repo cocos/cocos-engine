@@ -497,7 +497,7 @@ ScriptEngine::ScriptEngine()
  * After calling onDestroy on Android platform, the process will be maintained for a period of time.
  * So gSharedV8 variable should not be released and it will be re-used when ScriptEngine is constructed next time.
  */
-ScriptEngine::~ScriptEngine() {
+ScriptEngine::~ScriptEngine() { //NOLINT(bugprone-exception-escape)
     cleanup();
     ScriptEngine::instance = nullptr;
 }

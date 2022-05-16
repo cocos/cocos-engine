@@ -127,7 +127,11 @@ Engine::~Engine() {
 #endif
     DebugRenderer::destroyInstance();
     FreeTypeFontFace::destroyFreeType();
+    
+    // Should delete it before deleting DeviceManager as ScriptEngine will check gpu resource usage,
+    // and ScriptEngine will hold gfx objects.
     delete _scriptEngine;
+
 #if CC_USE_MIDDLEWARE
     cc::middleware::MiddlewareManager::destroyInstance();
 #endif
