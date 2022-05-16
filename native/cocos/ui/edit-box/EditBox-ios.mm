@@ -23,29 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "EditBox.h"
-#include "cocos/bindings/jswrapper/SeApi.h"
-#include "cocos/bindings/manual/jsb_global.h"
-
-
-#import <UIKit/UIKit.h>
-
-#define TEXT_LINE_HEIGHT         40
-#define TEXT_VIEW_MAX_LINE_SHOWN 3
-#define BUTTON_HIGHT             (TEXT_LINE_HEIGHT - 2)
-#define BUTTON_WIDTH             60
-
-#define TO_TEXT_VIEW(textinput)  ((UITextView *)textinput)
-#define TO_TEXT_FIELD(textinput) ((UITextField *)textinput)
-
-/*************************************************************************
- Inner class declarations.
- ************************************************************************/
-
-// MARK: class declaration
-
-
-/*******************************
+/************************************************************
  TODO: New implementation of iOS inputbox
  UI Structure:
     ==[|             ][done]== >>> inputAccessoryView
@@ -62,7 +40,7 @@
         uiInputField inputFld;
         inputFld.oninput = () => {...}
         jsb.inputbox ibox;
-        ibox.addComponent(sendBtn); //automatically set as the last element.
+        ibox.addComponent(sendBtn); automatically set as the last element.
         ibox.setLayout(sendBtn, inputFld);
     JSB binding:
         jsb_addComponent(se::Value){
@@ -77,44 +55,53 @@
         createInputBox();
     }
 
- *******************************/
+ ************************************************************/
+
+#include "EditBox.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
+#include "cocos/bindings/manual/jsb_global.h"
 
 
-//TODO: A mecanism to store each customize UITextView or UITextField. For example, if keyboard and toolbar is customized, should give a hash value and store in the map with a hash value calculated.
+#import <UIKit/UIKit.h>
 
+#define TEXT_LINE_HEIGHT         40
+#define TEXT_VIEW_MAX_LINE_SHOWN 3
+#define BUTTON_HIGHT             (TEXT_LINE_HEIGHT - 2)
+#define BUTTON_WIDTH             60
 
-// Customize inputbox
-@interface Inputbox : NSObject {
-@public UITextView  *g_inputView;
-@public UITextField *g_inputField;
-}
+/*************************************************************************
+ Inner class declarations.
+ ************************************************************************/
+@interface Editbox_impl : NSObject
++ (instancetype)sharedInstance;
+- (void)        show: (const cc::EditBox::ShowInfo*)showInfo;
+- (UIView*)     getCurrentViewInUse;
+- (NSString*)   getCurrentText;
 
-- (void) createTextField:   (const cc::EditBox::ShowInfo*)showInfo;
-- (void) createTextView:    (const cc::EditBox::ShowInfo*)showInfo;
-
-- (void) addComponent: (UIView*) component;
-- (void) setLayout: (UIView*[]) components;
-- (void) show: (const cc::EditBox::ShowInfo*)showInfo;
-//TODO: move all handlers into inputbox implementation
-- (IBAction)buttonTapped:(UIButton *)button;
-- (void)keyboardWillShow:(NSNotification *)notification;
-- (void)keyboardWillHide:(NSNotification *)notification;
-- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string;
-- (void)textFieldDidChange:(UITextField *)textField;
-- (BOOL)textFieldShouldReturn:(UITextField *)textField;
-- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text;
-- (void)textViewDidChange:(UITextView *)textView;
 @end
 
+@interface KeyboardEventHandler : NSObject
+- (void)        keyboardWillShow:(NSNotification *)notification;
+- (void)        keyboardWillHide:(NSNotification *)notification;
+@end
 
-static Inputbox *g_inputbox = nil;
+@interface TextFieldDelegate : NSObject <UITextFieldDelegate>
+- (BOOL)        textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string;
+- (void)        textFieldDidChange:(UITextField *)textField;
+- (BOOL)        textFieldShouldReturn:(UITextField *)textField;
+@end
+
+@interface TextViewDelegate : NSObject <UITextViewDelegate> //Multiline
+- (BOOL)        textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text;
+- (void)        textViewDidChange:(UITextView *)textView;
+@end
+
 /*************************************************************************
  Global variables and functions relative to script engine.
  ************************************************************************/
 namespace {
 
 se::Value textInputCallback;
-
 void getTextInputCallback() {
     if (!textInputCallback.isUndefined())
         return;
@@ -140,6 +127,10 @@ void callJSFunc(const ccstd::string &type, const ccstd::string &text) {
     textInputCallback.toObject()->call(args, nullptr);
 }
 
+/*************************************************************************
+ Global functions as tools to set values
+ ************************************************************************/
+
 int getTextInputHeight(bool isMultiline) {
     if (isMultiline)
         return TEXT_LINE_HEIGHT * TEXT_VIEW_MAX_LINE_SHOWN;
@@ -147,8 +138,27 @@ int getTextInputHeight(bool isMultiline) {
         return TEXT_LINE_HEIGHT;
 }
 
-
-void setTextFieldReturnType(UITextField *textField, const ccstd::string &returnType) {
+// set textfield input type
+void setTexFieldKeyboardType(UITextField *textField, const std::string &inputType) {
+    if (0 == inputType.compare("password")) {
+        textField.secureTextEntry = TRUE;
+        textField.keyboardType = UIKeyboardTypeDefault;
+    } else {
+        textField.secureTextEntry = FALSE;
+        if (0 == inputType.compare("email"))
+            textField.keyboardType = UIKeyboardTypeEmailAddress;
+        else if (0 == inputType.compare("number"))
+            textField.keyboardType = UIKeyboardTypeDecimalPad;
+        else if (0 == inputType.compare("url"))
+            textField.keyboardType = UIKeyboardTypeURL;
+        else if (0 == inputType.compare("text"))
+            textField.keyboardType = UIKeyboardTypeDefault;
+    }
+}
+// change the name of keyboard return btn.
+// TODO: Set the process into private method, reduce one layour read write
+// TODO: Make type as enum
+void setTextFieldReturnType(UITextField *textField, const std::string &returnType) {
     if (0 == returnType.compare("done"))
         textField.returnKeyType = UIReturnKeyDone;
     else if (0 == returnType.compare("next"))
@@ -161,27 +171,11 @@ void setTextFieldReturnType(UITextField *textField, const ccstd::string &returnT
         textField.returnKeyType = UIReturnKeySend;
 }
 
-NSString *getConfirmButtonTitle(const ccstd::string &returnType) {
+NSString *getConfirmButtonTitle(const std::string &returnType) {
     NSString *titleKey = [NSString stringWithUTF8String:returnType.c_str()];
     return NSLocalizedString(titleKey, nil); // get i18n string to be the title
 }
-
-void initTextField(const cc::EditBox::ShowInfo &showInfo) {
-    if(!g_inputbox) {
-        g_inputbox = [[Inputbox alloc] init];
-    }
-    [g_inputbox createTextField:&showInfo];
-    return;
-}
-
-void initTextView(const cc::EditBox::ShowInfo &showInfo) {
-    if(!g_inputbox) {
-        g_inputbox = [[Inputbox alloc] init];
-    }
-    [g_inputbox createTextView:&showInfo];
-    return;
-}
-
+//
 CGRect getSafeAreaRect() {
     UIView *view = UIApplication.sharedApplication.delegate.window.rootViewController.view;
     CGRect viewRect = view.frame;
@@ -190,8 +184,8 @@ CGRect getSafeAreaRect() {
     if (@available(iOS 11.0, *)) {
         auto safeAreaInsets = view.safeAreaInsets;
 
-        UIInterfaceOrientation sataus = [UIApplication sharedApplication].statusBarOrientation;
-        if (UIInterfaceOrientationLandscapeLeft == sataus) {
+        UIInterfaceOrientation orient = [UIApplication sharedApplication].statusBarOrientation;
+        if (UIInterfaceOrientationLandscapeLeft == orient) {
             viewRect.origin.x = 0;
             viewRect.size.width -= safeAreaInsets.right;
         } else {
@@ -202,84 +196,144 @@ CGRect getSafeAreaRect() {
 
     return viewRect;
 }
-UIView *getCurrentView(bool isMultiline) {
-    if(isMultiline)
-        return g_inputbox->g_inputView;
-    return g_inputbox->g_inputField;
-}
 
-NSString* getCurrentText(bool isMultiline){
-    if(isMultiline)
-        return g_inputbox->g_inputView.text;
-    return g_inputbox->g_inputField.text;
-}
-void addTextInput(const cc::EditBox::ShowInfo &showInfo) {
-    auto safeAreaRect = getSafeAreaRect();
-    int height = getTextInputHeight(showInfo.isMultiline);
-    CGRect btnRect = CGRectMake(safeAreaRect.origin.x,
-                             safeAreaRect.size.height - height/2,
-                             safeAreaRect.size.width,
-                             height);
-    if (showInfo.isMultiline)
-        initTextView(showInfo);
-    else
-        initTextField(showInfo);
-
-    UIView *textInput = getCurrentView(showInfo.isMultiline);
-    UIView *view = UIApplication.sharedApplication.delegate.window.rootViewController.view;
-    [view addSubview:textInput];
-    [textInput becomeFirstResponder];
-}
-
-void addKeyboardEventLisnters() {
-
-}
-
-void removeKeyboardEventLisnters() {
-
-}
 } // namespace
 
 /*************************************************************************
  Class implementations.
  ************************************************************************/
-@implementation Inputbox
+@implementation Editbox_impl
 {
+    //recently there'ill be only 2 elements
+    NSMutableDictionary<NSString*, id>*     textInputDictionnary;
+    UIView*                                 curView;
+    bool                                    isCurViewMultiline;
+}
+static Editbox_impl *instance = nil;
 
++ (instancetype) sharedInstance {
+    static dispatch_once_t pred = 0;
+    dispatch_once(&pred, ^{
+        instance = [[super allocWithZone:NULL] init];
+    });
+    return instance;
 }
-- (void) createTextView:    (const cc::EditBox::ShowInfo *)showInfo{
-    g_inputView = [[UITextView alloc]
-                   initWithFrame:CGRectMake(showInfo->x,
-                                            showInfo->y,
-                                            showInfo->width,
-                                            showInfo->height)];
-    //TODO: bind with specified inputView and inputAccessoryView
-    return;
++ (id)allocWithZone:(struct _NSZone*)zone {
+    return [Editbox_impl sharedInstance];
 }
-- (void) createTextField:    (const cc::EditBox::ShowInfo*)showInfo{
-    g_inputField = [[UITextField alloc]
-                   initWithFrame:CGRectMake(showInfo->x,
-                                            showInfo->y,
-                                            showInfo->width,
-                                            showInfo->height)];
-    //TODO: bind with specified inputView and inputAccessoryView
-    return;
+
+- (id)copyWithZone:(struct _NSZone*)zone {
+    return [Editbox_impl sharedInstance];
+}
+- (id)init {
+    self          = [super init];
+    textInputDictionnary = [NSMutableDictionary new];
+    return self;
+}
+- (void)dealloc {
+    for (id textInput : textInputDictionnary) {
+        [textInput release];
+    }
+    [super dealloc];
+}
+
+- (id) createTextView:    (const cc::EditBox::ShowInfo *)showInfo {
+    UITextView* ret;
+    //TODO: object for key with hash value
+    if ((ret = [textInputDictionnary objectForKey:@"0"])) {
+        //TODO: Set properties
+    } else {
+        ret = [[UITextView alloc]
+               initWithFrame:CGRectMake(showInfo->x,
+                                        showInfo->y,
+                                        showInfo->width,
+                                        showInfo->height)];
+        [textInputDictionnary setValue:ret forKey:@"0"];
+    }
+    
+    // TODO: Bind with specified inputView and inputAccessoryView
+    // TODO: Add into textInputDictionnary
+    return ret;
+}
+- (id) createTextField:    (const cc::EditBox::ShowInfo*)showInfo {
+    UITextField* ret;
+    if ((ret = [textInputDictionnary objectForKey:@"1"])) {
+        //TODO: Set properties
+    } else {
+        ret = [[UITextField alloc]
+                initWithFrame:CGRectMake(showInfo->x,
+                                         showInfo->y,
+                                         showInfo->width,
+                                         showInfo->height)];
+        [textInputDictionnary setValue:ret forKey:@"1"];
+    }
+    // TODO: Bind with specified inputView and inputAccessoryView
+    // TODO: Add into textInputDictionnary
+    return ret;
+}
+- (void) keyboardWillShow:(NSNotification *)notification {
+    UIView* currentView = [[Editbox_impl sharedInstance] getCurrenViewInUse];
+    if (!currentView)
+        return;
+
+    NSDictionary *keyboardInfo = [notification userInfo];
+    NSValue *keyboardFrame = [keyboardInfo objectForKey:UIKeyboardFrameEndUserInfoKey];
+    CGSize kbSize = [keyboardFrame CGRectValue].size;
+
+    int textHeight = getTextInputHeight(isCurViewMultiline);
+
+    CGRect screenRect = getSafeAreaRect();
+    //reset currentView position.
+    currentView.frame = CGRectMake(screenRect.origin.x,
+                                screenRect.size.height - textHeight - kbSize.height,
+                                screenRect.size.width,
+                                textHeight);
+}
+
+- (void) keyboardWillHide:(NSNotification *)notification {
+    NSDictionary *info = [notification userInfo];
+    
+    CGRect beginKeyboardRect = [[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue];
+    CGRect endKeyboardRect = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
+    CGFloat yOffset = endKeyboardRect.origin.y - beginKeyboardRect.origin.y;
+    
+    if (yOffset <= 0) {
+        cc::EditBox::hide();
+    }
+}
+- (void) addKeyboardEventListeners {
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillShow:)
+                                                 name:UIKeyboardWillShowNotification
+                                               object:nil];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillHide:)
+                                                 name:UIKeyboardWillHideNotification
+                                               object:nil];
+}
+
+- (void) removeKeyboardEventListeners {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 - (void) show: (const cc::EditBox::ShowInfo*)showInfo {
     if (showInfo->isMultiline) {
-        createTextField:showInfo;
+        curView = [self createTextView:showInfo];
+        isCurViewMultiline = true;
     } else {
-        createTextView:showInfo;
+        curView = [self createTextField:showInfo];
+        isCurViewMultiline = true;
     }
-        
+    [self addKeyboardEventListeners];
 }
 - (void) hide {
+    //TODO: I'm not so sure about what should be hide here.
+    [self removeKeyboardEventListeners];
+    [curView removeFromSuperview];
+    [curView resignFirstResponder];
     
 }
-- (id) init {
-    self = [super init];
-    return self;
-}
+
 - (void) addComponent:(UIView *)component {
     //TODO: Add component into inputAccessoryView
     return;
@@ -291,11 +345,13 @@ void removeKeyboardEventLisnters() {
     return;
 }
 
-- (void)keyboardWillShow:(NSNotification *)notification {
-
+- (UIView*) getCurrentViewInUse {
+    return curView;
 }
-- (void)keyboardWillHide:(NSNotification *)notification {
-    
+- (NSString*) getCurrentText {
+    if (isCurViewMultiline)
+        return [(UITextView*)curView text];
+    return [(UITextField*)curView text];
 }
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
@@ -352,25 +408,21 @@ void removeKeyboardEventLisnters() {
 namespace cc{
 bool EditBox::_isShown = false;
 void EditBox::show(const cc::EditBox::ShowInfo &showInfo) {
-    if(!g_inputbox){
-        g_inputbox = [[Inputbox alloc] init];
-    }
-    [g_inputbox show:&showInfo];
+    [[Editbox_impl sharedInstance] show:&showInfo];
 }
 
 void EditBox::hide() {
-    [g_inputbox hide];
+    [[Editbox_impl sharedInstance] hide];
 }
 
 bool EditBox::complete() {
     if (!_isShown)
         return false;
 
-    NSString *text = getCurrentText(sinfo.isMultiline);
+    NSString *text = [[Editbox_impl sharedInstance] getCurrentText];
     callJSFunc("complete", [text UTF8String]);
     EditBox::hide();
 
     return true;
 }
-
 } // namespace cc
