@@ -63,6 +63,12 @@
 
 #define INPUT_ACTION_COUNT 6
 
+//Interval time per frame, in milliseconds
+#define LOW_FREQUENCY_TIME_INTERVAL 50
+
+//Maximum runtime of game threads while in the background, in seconds
+#define LOW_FREQUENCY_EXPIRED_DURATION_SECONDS 60
+
 extern int cocos_main(int argc, const char **argv); // NOLINT(readability-identifier-naming)
 
 namespace cc {
@@ -376,13 +382,26 @@ public:
                 CC_LOG_INFO("AndroidPlatform: (unknown command).");
                 break;
         }
+        if (_eventCallback) {
+            _eventCallback(cmd);
+        }
+    }
+
+    using AppEventCallback = std::function<void(int32_t)>;
+    void registerAppEventCallback(AppEventCallback callback) {
+        _eventCallback = callback;
     }
 
     bool isAnimating() const {
         return _isVisible && _hasWindow;
     }
 
+    bool isLaunched() const {
+        return _launched;
+    }
+
 private:
+    AppEventCallback _eventCallback{nullptr};
     AndroidPlatform *_androidPlatform{nullptr};
     JNIEnv *_jniEnv{nullptr};         // JNI environment
     int32_t _gameControllerIndex{-1}; // Most recently connected game controller index
@@ -430,6 +449,18 @@ AndroidPlatform::~AndroidPlatform() = default;
 int AndroidPlatform::init() {
     cc::FileUtilsAndroid::setassetmanager(_app->activity->assetManager);
     _inputProxy = ccnew GameInputProxy(this);
+    _inputProxy->registerAppEventCallback([this](int32_t cmd) {
+        if (APP_CMD_START == cmd || APP_CMD_INIT_WINDOW == cmd) {
+            if (_inputProxy->isAnimating()) {
+                _isLowFrequencyLoopEnabled = false;
+                _loopTimeOut = 0;
+            }
+        } else if(APP_CMD_STOP == cmd) {
+            _lowFrequencyTimer.reset();
+            _loopTimeOut = LOW_FREQUENCY_TIME_INTERVAL;
+            _isLowFrequencyLoopEnabled = true;
+        }
+    });
     _app->userData = _inputProxy;
     _app->onAppCmd = handleCmdProxy;
 
@@ -469,8 +500,8 @@ int32_t AndroidPlatform::loop() {
         int events;
         struct android_poll_source *source;
 
-        // If not animating, block until we get an event; if animating, don't block.
-        while ((ALooper_pollAll(_inputProxy->isAnimating() ? 0 : -1, nullptr, &events,
+        // suspend thread while _loopTimeOut set to -1
+        while ((ALooper_pollAll(_loopTimeOut, nullptr, &events,
                                 reinterpret_cast<void **>(&source))) >= 0) {
             // process event
             if (source != nullptr) {
@@ -483,11 +514,17 @@ int32_t AndroidPlatform::loop() {
             }
         }
         _inputProxy->handleInput();
-        runTask();
-
-        flushTasksOnGameThreadJNI();
-        if (_inputProxy->isAnimating()) {
+        if (_inputProxy->isAnimating() ) {
+            runTask();
             flushTasksOnGameThreadAtForegroundJNI();
+        }
+        flushTasksOnGameThreadJNI();
+        if (_isLowFrequencyLoopEnabled) {
+            //Suspend a game thread after it has been running in the background for a specified amount of time
+            if (_lowFrequencyTimer.getSeconds() > LOW_FREQUENCY_EXPIRED_DURATION_SECONDS) {
+                _isLowFrequencyLoopEnabled = false;
+                _loopTimeOut = -1;
+            }
         }
     }
 }
