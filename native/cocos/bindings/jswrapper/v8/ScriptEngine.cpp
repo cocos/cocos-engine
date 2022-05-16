@@ -503,7 +503,6 @@ ScriptEngine::~ScriptEngine() {
 }
 #else
 ScriptEngine::~ScriptEngine() {
-    ScriptEngine::instance = nullptr;
     cleanup();
 #if !CC_EDITOR
     if (gSharedV8) {
@@ -511,6 +510,7 @@ ScriptEngine::~ScriptEngine() {
         gSharedV8 = nullptr;
     }
 #endif
+    ScriptEngine::instance = nullptr;
 }
 #endif
 
