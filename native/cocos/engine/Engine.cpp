@@ -100,6 +100,7 @@ Engine::Engine() {
     _scriptEngine = ccnew se::ScriptEngine();
     EventDispatcher::init();
 
+    _debugRenderer = ccnew DebugRenderer();
 #if CC_USE_PROFILER
     _profiler = ccnew Profiler();
 #endif
@@ -125,7 +126,9 @@ Engine::~Engine() {
 #if CC_USE_PROFILER
     delete _profiler;
 #endif
-    DebugRenderer::destroyInstance();
+    // Profiler depends on DebugRenderer, should delete it after deleting Profiler.
+    delete _debugRenderer;
+
     FreeTypeFontFace::destroyFreeType();
     
     // Should delete it before deleting DeviceManager as ScriptEngine will check gpu resource usage,
