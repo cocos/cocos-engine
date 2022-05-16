@@ -34,6 +34,10 @@
 #include <map>
 #include <memory>
 
+namespace se {
+class ScriptEngine;
+}
+
 namespace cc {
 
 class FileUtils;
@@ -134,7 +138,8 @@ private:
     
     // Subsystems
     FileUtils *_fs{nullptr};
-    Profiler *_profiler{nullptr};
+	Profiler *_profiler{nullptr};
+    se::ScriptEngine *_scriptEngine{nullptr};
 
     std::map<OSEventType, EventCb> _eventCallbacks;
     CC_DISALLOW_COPY_MOVE_ASSIGN(Engine);
