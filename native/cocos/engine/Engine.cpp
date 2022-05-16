@@ -118,8 +118,8 @@ Engine::~Engine() {
     spine::SkeletonCacheMgr::destroyInstance();
 #endif
 
-    cc::EventDispatcher::destroy();
-    cc::network::HttpClient::destroyInstance();
+    EventDispatcher::destroy();
+    network::HttpClient::destroyInstance();
     Root::getInstance()->destroy();
 
 #if CC_USE_PROFILER
@@ -127,7 +127,7 @@ Engine::~Engine() {
 #endif
     DebugRenderer::destroyInstance();
     FreeTypeFontFace::destroyFreeType();
-
+    delete _scriptEngine;
 #if CC_USE_MIDDLEWARE
     cc::middleware::MiddlewareManager::destroyInstance();
 #endif
@@ -136,7 +136,7 @@ Engine::~Engine() {
 
     CCObject::deferredDestroy();
     gfx::DeviceManager::destroy();
-    delete _scriptEngine;
+    
     delete _fs;
 }
 
