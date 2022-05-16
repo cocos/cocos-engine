@@ -72,7 +72,6 @@ ProfilerBlock::~ProfilerBlock() {
     for (auto *child : _children) {
         CC_SAFE_DELETE(child);
     }
-
     _children.clear();
 }
 
@@ -123,29 +122,21 @@ struct ProfilerBlockDepth {
  */
 Profiler *Profiler::instance = nullptr;
 Profiler *Profiler::getInstance() {
-    if (!instance) {
-        instance = ccnew Profiler();
-    }
-
     return instance;
-}
-
-void Profiler::destroyInstance() {
-    if (instance) {
-        delete instance;
-        instance = nullptr;
-    }
 }
 
 Profiler::Profiler() {
     _mainThreadId = std::this_thread::get_id();
     _root = ccnew ProfilerBlock(nullptr, "MainThread");
     _current = _root;
+    
+    Profiler::instance = this;
 }
 
 Profiler::~Profiler() {
     CC_SAFE_DELETE(_root);
     _current = nullptr;
+    Profiler::instance = nullptr;
 }
 
 void Profiler::setEnable(ShowOption option, bool b) {

@@ -101,7 +101,7 @@ Engine::Engine() {
     EventDispatcher::init();
 
 #if CC_USE_PROFILER
-    Profiler::getInstance();
+    _profiler = new Profiler();
 #endif
 }
 
@@ -123,7 +123,7 @@ Engine::~Engine() {
     Root::getInstance()->destroy();
 
 #if CC_USE_PROFILER
-    Profiler::destroyInstance();
+    delete _profiler;
 #endif
     DebugRenderer::destroyInstance();
     FreeTypeFontFace::destroyFreeType();
