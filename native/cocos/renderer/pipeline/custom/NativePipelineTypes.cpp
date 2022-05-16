@@ -31,4 +31,15 @@
 // clang-format off
 #include "NativePipelineTypes.h"
 
+namespace cc {
+
+namespace render {
+
+NativeLayoutGraphBuilder::NativeLayoutGraphBuilder(const allocator_type& alloc) noexcept
+: data(alloc) {}
+
+} // namespace render
+
+} // namespace cc
+
 // clang-format on

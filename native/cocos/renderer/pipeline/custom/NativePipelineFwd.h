@@ -39,6 +39,7 @@ namespace cc {
 
 namespace render {
 
+class NativeLayoutGraphBuilder;
 class NativePipeline;
 
 } // namespace render

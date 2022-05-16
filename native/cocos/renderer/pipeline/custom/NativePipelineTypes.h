@@ -31,6 +31,7 @@
 // clang-format off
 #pragma once
 #include "cocos/base/Ptr.h"
+#include "cocos/base/std/container/string.h"
 #include "cocos/renderer/frame-graph/FrameGraph.h"
 #include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
 #include "cocos/renderer/pipeline/custom/NativePipelineFwd.h"
@@ -40,6 +41,21 @@
 namespace cc {
 
 namespace render {
+
+class NativeLayoutGraphBuilder final : public LayoutGraphBuilder {
+public:
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {data.get_allocator().resource()};
+    }
+
+    NativeLayoutGraphBuilder(const allocator_type& alloc) noexcept; // NOLINT
+
+    uint32_t addNode(const ccstd::string& name, UpdateFrequency frequency, uint32_t parentID) override;
+    void addDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlock& block) override;
+
+    LayoutGraphData data;
+};
 
 class NativePipeline final : public Pipeline {
 public:

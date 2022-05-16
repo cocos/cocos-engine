@@ -38,6 +38,7 @@ namespace cc {
 
 namespace render {
 
+inline const char* getName(const NativeLayoutGraphBuilder& /*v*/) noexcept { return "NativeLayoutGraphBuilder"; }
 inline const char* getName(const NativePipeline& /*v*/) noexcept { return "NativePipeline"; }
 
 } // namespace render
