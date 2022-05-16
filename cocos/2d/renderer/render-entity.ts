@@ -1,7 +1,7 @@
 import { BaseRenderData } from './render-data';
 import { Stage } from './stencil-manager';
 import { JSB } from '../../core/default-constants';
-import { NativeRenderEntry } from '../../core/renderer/scene/native-scene';
+import { NativeRenderEntity } from '../../core/renderer/2d/native-2d';
 
 export class RenderEntity {
     public renderData: BaseRenderData=null!;
@@ -15,11 +15,11 @@ export class RenderEntity {
     public vData: Float32Array | undefined;//要考虑是否每个组件都需要存这个指针
     public iData: Uint16Array | undefined;
 
-    protected declare _nativeObj: NativeRenderEntry;
+    protected declare _nativeObj: NativeRenderEntity;
 
     public init () {
         if (JSB) {
-            this._nativeObj = new NativeRenderEntry();
+            this._nativeObj = new NativeRenderEntity();
             this._nativeObj.bufferId = 1;
         }
     }

@@ -1,4 +1,4 @@
-export const NativeRenderEntry: Constructor<{
+export const NativeRenderEntity: Constructor<{
     get bufferId():number;
     set bufferId(bufferId:number);
 
@@ -18,4 +18,4 @@ export const NativeRenderEntry: Constructor<{
     set iDataBuffer(iDataBuffer:ArrayBufferLike);
 
 }> = null!;
-export type NativeRenderEntry = InstanceType<typeof NativeRenderEntry>;
+export type NativeRenderEntity = InstanceType<typeof NativeRenderEntity>;
