@@ -2,11 +2,11 @@
 #include <cocos/base/TypeDef.h>
 
 namespace cc {
-class RenderEntry {
+class RenderEntity {
 public:
-    RenderEntry();
-    explicit RenderEntry(const index_t bufferId, const index_t vertexOffset, const index_t indexOffset);
-    ~RenderEntry();
+    RenderEntity();
+    explicit RenderEntity(const index_t bufferId, const index_t vertexOffset, const index_t indexOffset);
+    ~RenderEntity();
 
     inline index_t getBufferId() const { return this->_bufferId; }
     void setBufferId(index_t bufferId);

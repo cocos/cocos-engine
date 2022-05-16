@@ -28,7 +28,8 @@ defaultSections = [
     'physics',
     'scene',
     'geometry',
-    'assets'
+    'assets',
+    '2d'
 ]
 
 projectRoot = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))

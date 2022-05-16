@@ -3,7 +3,7 @@ import { Stage } from './stencil-manager';
 import { JSB } from '../../core/default-constants';
 import { NativeRenderEntry } from '../../core/renderer/scene/native-scene';
 
-export class RenderEntry {
+export class RenderEntity {
     public renderData: BaseRenderData=null!;
     public stencilStage:Stage = Stage.DISABLED;
 

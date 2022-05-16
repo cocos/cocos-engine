@@ -1625,8 +1625,8 @@ endif()
 
 ##### 2d
 cocos_source_files(
-    cocos/2d/renderer/RenderEntry.h
-    cocos/2d/renderer/RenderEntry.cpp
+    cocos/2d/renderer/RenderEntity.h
+    cocos/2d/renderer/RenderEntity.cpp
 )
 
 ##### 3d
