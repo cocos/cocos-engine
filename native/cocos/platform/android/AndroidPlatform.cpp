@@ -389,7 +389,7 @@ public:
 
     using AppEventCallback = std::function<void(int32_t)>;
     void registerAppEventCallback(AppEventCallback callback) {
-        _eventCallback = callback;
+        _eventCallback = std::move(callback);
     }
 
     bool isAnimating() const {
