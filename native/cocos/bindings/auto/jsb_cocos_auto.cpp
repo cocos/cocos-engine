@@ -812,11 +812,6 @@ static bool js_engine_FileUtils_normalizePath_static(se::State& s) // NOLINT(rea
     return false;
 }
 SE_BIND_FUNC(js_engine_FileUtils_normalizePath_static)
-static bool js_cc_FileUtils_finalize(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_cc_FileUtils_finalize)
 
 bool js_register_engine_FileUtils(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -860,7 +855,6 @@ bool js_register_engine_FileUtils(se::Object* obj) // NOLINT(readability-identif
     cls->defineStaticFunction("getFileDir", _SE(js_engine_FileUtils_getFileDir_static));
     cls->defineStaticFunction("getInstance", _SE(js_engine_FileUtils_getInstance_static));
     cls->defineStaticFunction("normalizePath", _SE(js_engine_FileUtils_normalizePath_static));
-    cls->defineFinalizeFunction(_SE(js_cc_FileUtils_finalize));
     cls->install();
     JSBClassType::registerClass<cc::FileUtils>(cls);
 
@@ -2657,6 +2651,17 @@ static bool js_engine_CCObject_set__name(se::State& s) // NOLINT(readability-ide
     return true;
 }
 SE_BIND_PROP_SET(js_engine_CCObject_set__name)
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_CCObject_finalize)
+
+static bool js_engine_CCObject_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
+{
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::CCObject);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_engine_CCObject_constructor, __jsb_cc_CCObject_class, js_cc_CCObject_finalize)
+
 static bool js_cc_CCObject_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     return true;
@@ -2665,7 +2670,7 @@ SE_BIND_FINALIZE_FUNC(js_cc_CCObject_finalize)
 
 bool js_register_engine_CCObject(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
-    auto* cls = se::Class::create("CCObject", obj, nullptr, nullptr);
+    auto* cls = se::Class::create("CCObject", obj, nullptr, _SE(js_engine_CCObject_constructor));
 
 #if CC_DEBUG
     cls->defineStaticProperty("isJSBClass", _SE(js_engine_getter_return_true), nullptr);
@@ -2676,7 +2681,7 @@ bool js_register_engine_CCObject(se::Object* obj) // NOLINT(readability-identifi
     cls->defineProperty("hideFlags", _SE(js_engine_CCObject_getHideFlags_asGetter), _SE(js_engine_CCObject_setHideFlags_asSetter));
     cls->defineProperty("replicated", _SE(js_engine_CCObject_isReplicated_asGetter), _SE(js_engine_CCObject_setReplicated_asSetter));
     cls->defineProperty("isValid", _SE(js_engine_CCObject_isValid_asGetter), nullptr);
-    cls->defineFunction("destroy", _SE(js_engine_CCObject_destroy));
+    cls->defineFunction("_destroy", _SE(js_engine_CCObject_destroy));
     cls->defineFunction("_destroyImmediate", _SE(js_engine_CCObject_destroyImmediate));
     cls->defineFunction("toString", _SE(js_engine_CCObject_toString));
     cls->defineStaticFunction("deferredDestroy", _SE(js_engine_CCObject_deferredDestroy_static));
