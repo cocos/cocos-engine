@@ -18,7 +18,7 @@ CCEffect %{
         emissive:                 { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
         emissiveScale:            { value: [1.0, 1.0, 1.0], target: emissiveScaleParam.xyz }
         normalStrength:           { value: 1.0, target: emissiveScaleParam.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
-        anisotropyShape:          { value: 1.0, target: anisotropyParam.x, editor: { parent: IS_ANISOTROPY, slide : true, range : [-1.0, 1.0] , step : 0.0001 } }
+        anisotropyShape:          { value: 1.0, target: anisotropyParam.x, editor: { parent: IS_ANISOTROPY, slide : true, range : [0.0, 1.0] , step : 0.0001 } }
         anisotropyRotation:       { value: 0.0, target: anisotropyParam.y, editor: { parent: IS_ANISOTROPY, slide : true, range : [0, 1.0] , step : 0.0001 } }
         mainTexture:              { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
         normalMap:                { value: normal }
@@ -93,22 +93,24 @@ CCProgram macro-remapping %{
   #pragma define-meta HAS_SECOND_UV
   #pragma define-meta USE_TWOSIDE
   #pragma define-meta USE_REFLECTION_DENOISE
+  #pragma define-meta IS_ANISOTROPY
+
   #define CC_SURFACES_USE_SECOND_UV HAS_SECOND_UV
   #define CC_SURFACES_USE_TWO_SIDED USE_TWOSIDE
   #define CC_SURFACES_USE_REFLECTION_DENOISE USE_REFLECTION_DENOISE
+  #define CC_SURFACES_LIGHTING_ANISOTROPIC IS_ANISOTROPY
 
   // if disabled, simulate convoluted IBL without convolution
   #pragma define-meta USE_COMPATIBLE_LIGHTING
   #define CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING USE_COMPATIBLE_LIGHTING
 
   // ui displayed macros used in this effect file
-  #pragma define-meta IS_ANISOTROPY
-  #define CC_SURFACES_LIGHTING_ANISOTROPIC IS_ANISOTROPY
+  #define CC_SURFACES_USE_VERTEX_COLOR USE_VERTEX_COLOR
 #if IS_ANISOTROPY || USE_NORMAL_MAP
   #define CC_SURFACES_USE_TANGENT_SPACE 1
-#endif
-  #define CC_SURFACES_USE_VERTEX_COLOR USE_VERTEX_COLOR
-  
+#endif  
+
+  // functionality for each effect
   #define CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT 31
 }%
 
