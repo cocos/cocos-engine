@@ -180,13 +180,17 @@ const Elements = {
         ready() {
             const panel = this;
 
-            panel.$.smartMaterialEnabledCheckbox.addEventListener('change', (event) => {
-                panel.setProp.call(panel, 'fbx.smartMaterialEnabled', 'boolean', event);
-                Elements.smartMaterialEnabled.checkValue.call(panel);
-            });
+            panel.$.smartMaterialEnabledCheckbox.addEventListener('change', panel.setProp.bind(panel, 'fbx.smartMaterialEnabled', 'boolean'));
         },
         async update() {
             const panel = this;
+
+            const laboratoryExpectedValue = await Editor.Profile.getConfig('inspector', 'asset.fbx.material.smart');
+            if (!laboratoryExpectedValue) {
+                panel.$.smartMaterialEnabledProp.setAttribute('readonly', '');
+            } else {
+                panel.$.smartMaterialEnabledProp.removeAttribute('readonly');
+            }
 
             let defaultValue = false;
             if (panel.meta.userData.fbx) {
@@ -197,23 +201,6 @@ const Elements = {
 
             panel.updateInvalid(panel.$.smartMaterialEnabledCheckbox, 'fbx.smartMaterialEnabled');
             panel.updateReadonly(panel.$.smartMaterialEnabledCheckbox);
-
-            await Elements.smartMaterialEnabled.checkValue.call(panel);
-
-        },
-        async checkValue() {
-            const panel = this;
-
-            const laboratoryExpectedValue = await Editor.Profile.getConfig('inspector', 'asset.fbx.material.smart');
-            if (!laboratoryExpectedValue) {
-                panel.$.smartMaterialEnabledProp.setAttribute('readonly', '');
-            } else {
-                panel.$.smartMaterialEnabledProp.removeAttribute('readonly');
-            }
-
-
-
-
         },
     },
 };
