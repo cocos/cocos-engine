@@ -101,66 +101,55 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
 
     ccstd::string extStr = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
     _extensions = StringUtil::split(extStr, " ");
+    CC_LOG_INFO("extensions: %s", extStr.c_str());
 
     _multithreadedCommandRecording = false;
 
     initFormatFeature();
 
-    if (checkExtension("element_index_uint")) {
+    if (checkExtension("GL_OES_element_index_uint")) {
         _features[toNumber(Feature::ELEMENT_INDEX_UINT)] = true;
     }
 
-    if (checkExtension("draw_buffers")) {
+    if (checkExtension("GL_EXT_draw_buffers")) {
         _features[toNumber(Feature::MULTIPLE_RENDER_TARGETS)] = true;
         glGetIntegerv(GL_MAX_DRAW_BUFFERS_EXT, reinterpret_cast<GLint *>(&_caps.maxColorRenderTargets));
     }
 
-    if (checkExtension("blend_minmax")) {
+    if (checkExtension("GL_EXT_blend_minmax")) {
         _features[toNumber(Feature::BLEND_MINMAX)] = true;
     }
 
-    _gpuConstantRegistry->useVAO = checkExtension("vertex_array_object");
-    _gpuConstantRegistry->useDrawInstanced = checkExtension("draw_instanced");
-    _gpuConstantRegistry->useInstancedArrays = checkExtension("instanced_arrays");
-    _gpuConstantRegistry->useDiscardFramebuffer = checkExtension("discard_framebuffer");
+    _gpuConstantRegistry->useVAO = checkExtension("GL_OES_vertex_array_object");
+    _gpuConstantRegistry->useDrawInstanced = checkExtension("GL_EXT_draw_instanced");
+    _gpuConstantRegistry->useInstancedArrays = checkExtension("GL_EXT_draw_instanced");
+    _gpuConstantRegistry->useDiscardFramebuffer = checkExtension("GL_EXT_discard_framebuffer");
 
     _features[toNumber(Feature::INSTANCED_ARRAYS)] = _gpuConstantRegistry->useInstancedArrays;
 
     ccstd::string fbfLevelStr = "NONE";
     // PVRVFrame has issues on their support
 #if CC_PLATFORM != CC_PLATFORM_WINDOWS
-    if (checkExtension("framebuffer_fetch")) {
-        ccstd::string nonCoherent = "framebuffer_fetch_non";
-
-        auto it = std::find_if(_extensions.begin(), _extensions.end(), [&nonCoherent](auto &ext) {
-            return ext.find(nonCoherent) != ccstd::string::npos;
-        });
-
-        if (it != _extensions.end()) {
-            if (*it == CC_TOSTR(GL_EXT_shader_framebuffer_fetch_non_coherent)) {
-                _gpuConstantRegistry->mFBF = FBFSupportLevel::NON_COHERENT_EXT;
-                fbfLevelStr = "NON_COHERENT_EXT";
-            } else if (*it == CC_TOSTR(GL_QCOM_shader_framebuffer_fetch_noncoherent)) {
-                _gpuConstantRegistry->mFBF = FBFSupportLevel::NON_COHERENT_QCOM;
-                fbfLevelStr = "NON_COHERENT_QCOM";
-                GL_CHECK(glEnable(GL_FRAMEBUFFER_FETCH_NONCOHERENT_QCOM));
-            }
-        } else if (checkExtension(CC_TOSTR(GL_EXT_shader_framebuffer_fetch))) {
-            // we only care about EXT_shader_framebuffer_fetch, the ARM version does not support MRT
-            _gpuConstantRegistry->mFBF = FBFSupportLevel::COHERENT;
-            fbfLevelStr = "COHERENT";
-        }
-        _features[toNumber(Feature::INPUT_ATTACHMENT_BENEFIT)] = _gpuConstantRegistry->mFBF != FBFSupportLevel::NONE;
+    if (checkExtension(CC_TOSTR(GL_EXT_shader_framebuffer_fetch_non_coherent))) {
+        _gpuConstantRegistry->mFBF = FBFSupportLevel::NON_COHERENT_EXT;
+        fbfLevelStr = "NON_COHERENT_EXT";
+    } else if (checkExtension(CC_TOSTR(GL_QCOM_shader_framebuffer_fetch_noncoherent))) {
+        _gpuConstantRegistry->mFBF = FBFSupportLevel::NON_COHERENT_QCOM;
+        fbfLevelStr = "NON_COHERENT_QCOM";
+        GL_CHECK(glEnable(GL_FRAMEBUFFER_FETCH_NONCOHERENT_QCOM));
+    } else if (checkExtension(CC_TOSTR(GL_EXT_shader_framebuffer_fetch))) {
+        _gpuConstantRegistry->mFBF = FBFSupportLevel::COHERENT;
+        fbfLevelStr = "COHERENT";
     }
+
+    _features[toNumber(Feature::INPUT_ATTACHMENT_BENEFIT)] = _gpuConstantRegistry->mFBF != FBFSupportLevel::NONE;
 #endif
 
 #if CC_PLATFORM != CC_PLATFORM_WINDOWS || ALLOW_MULTISAMPLED_RENDER_TO_TEXTURE_ON_DESKTOP
-    if (checkExtension("multisampled_render_to_texture")) {
-        if (checkExtension("multisampled_render_to_texture2")) {
-            _gpuConstantRegistry->mMSRT = MSRTSupportLevel::LEVEL2;
-        } else {
-            _gpuConstantRegistry->mMSRT = MSRTSupportLevel::LEVEL1;
-        }
+    if (checkExtension("GL_EXT_multisampled_render_to_texture2")) {
+        _gpuConstantRegistry->mMSRT = MSRTSupportLevel::LEVEL2;
+    } else if (checkExtension("GL_EXT_multisampled_render_to_texture")) {
+        _gpuConstantRegistry->mMSRT = MSRTSupportLevel::LEVEL1;
     }
 #endif
 
@@ -310,7 +299,7 @@ void GLES2Device::initFormatFeature() {
     _formatFeatures[toNumber(Format::RGB32F)] |= FormatFeature::VERTEX_ATTRIBUTE;
     _formatFeatures[toNumber(Format::RGBA32F)] |= FormatFeature::VERTEX_ATTRIBUTE;
 
-    if (checkExtension("OES_vertex_half_float")) {
+    if (checkExtension("GL_OES_vertex_half_float")) {
         _formatFeatures[toNumber(Format::R16F)] |= FormatFeature::VERTEX_ATTRIBUTE;
         _formatFeatures[toNumber(Format::RG16F)] |= FormatFeature::VERTEX_ATTRIBUTE;
         _formatFeatures[toNumber(Format::RGB16F)] |= FormatFeature::VERTEX_ATTRIBUTE;
@@ -320,41 +309,41 @@ void GLES2Device::initFormatFeature() {
     _formatFeatures[toNumber(Format::DEPTH)] |= FormatFeature::RENDER_TARGET;
     _formatFeatures[toNumber(Format::DEPTH_STENCIL)] |= FormatFeature::RENDER_TARGET;
 
-    if (checkExtension("EXT_sRGB")) {
+    if (checkExtension("GL_EXT_sRGB")) {
         _formatFeatures[toNumber(Format::SRGB8)] |= completeFeature;
         _formatFeatures[toNumber(Format::SRGB8_A8)] |= completeFeature;
         _textureExclusive[toNumber(Format::SRGB8_A8)] = false;
     }
 
-    if (checkExtension("texture_rg")) {
+    if (checkExtension("GL_EXT_texture_rg")) {
         _formatFeatures[toNumber(Format::R8)] |= completeFeature;
         _formatFeatures[toNumber(Format::RG8)] |= completeFeature;
     }
 
-    if (checkExtension("texture_float")) {
+    if (checkExtension("GL_OES_texture_float")) {
         _formatFeatures[toNumber(Format::RGB32F)] |= FormatFeature::SAMPLED_TEXTURE;
         _formatFeatures[toNumber(Format::RGBA32F)] |= FormatFeature::SAMPLED_TEXTURE;
-        if (checkExtension("texture_rg")) {
+        if (checkExtension("GL_EXT_texture_rg")) {
             _formatFeatures[toNumber(Format::R32F)] |= FormatFeature::SAMPLED_TEXTURE;
             _formatFeatures[toNumber(Format::RG32F)] |= FormatFeature::SAMPLED_TEXTURE;
         }
     }
 
-    if (checkExtension("texture_half_float")) {
+    if (checkExtension("GL_OES_texture_half_float")) {
         _formatFeatures[toNumber(Format::RGB16F)] |= FormatFeature::SAMPLED_TEXTURE;
         _formatFeatures[toNumber(Format::RGBA16F)] |= FormatFeature::SAMPLED_TEXTURE;
-        if (checkExtension("texture_rg")) {
+        if (checkExtension("GL_EXT_texture_rg")) {
             _formatFeatures[toNumber(Format::R16F)] |= FormatFeature::SAMPLED_TEXTURE;
             _formatFeatures[toNumber(Format::RG16F)] |= FormatFeature::SAMPLED_TEXTURE;
         }
     }
 
-    if (checkExtension("color_buffer_half_float")) {
+    if (checkExtension("GL_EXT_color_buffer_half_float")) {
         _formatFeatures[toNumber(Format::RGB16F)] |= FormatFeature::SAMPLED_TEXTURE | FormatFeature::RENDER_TARGET;
         _textureExclusive[toNumber(Format::RGB16F)] = false;
         _formatFeatures[toNumber(Format::RGBA16F)] |= FormatFeature::SAMPLED_TEXTURE | FormatFeature::RENDER_TARGET;
         _textureExclusive[toNumber(Format::RGBA16F)] = false;
-        if (checkExtension("texture_rg")) {
+        if (checkExtension("GL_EXT_texture_rg")) {
             _formatFeatures[toNumber(Format::R16F)] |= FormatFeature::SAMPLED_TEXTURE | FormatFeature::RENDER_TARGET;
             _textureExclusive[toNumber(Format::R16F)] = false;
             _formatFeatures[toNumber(Format::RG16F)] |= FormatFeature::SAMPLED_TEXTURE | FormatFeature::RENDER_TARGET;
@@ -362,46 +351,46 @@ void GLES2Device::initFormatFeature() {
         }
     }
 
-    if (checkExtension("texture_float_linear")) {
+    if (checkExtension("GL_OES_texture_float_linear")) {
         _formatFeatures[toNumber(Format::RGB32F)] |= FormatFeature::LINEAR_FILTER;
         _formatFeatures[toNumber(Format::RGBA32F)] |= FormatFeature::LINEAR_FILTER;
-        if (checkExtension("texture_rg")) {
+        if (checkExtension("GL_EXT_texture_rg")) {
             _formatFeatures[toNumber(Format::R32F)] |= FormatFeature::LINEAR_FILTER;
             _formatFeatures[toNumber(Format::RG32F)] |= FormatFeature::LINEAR_FILTER;
         }
     }
 
-    if (checkExtension("OES_texture_half_float_linear")) {
+    if (checkExtension("GL_OES_texture_half_float_linear")) {
         _formatFeatures[toNumber(Format::RGB16F)] |= FormatFeature::LINEAR_FILTER;
         _formatFeatures[toNumber(Format::RGBA16F)] |= FormatFeature::LINEAR_FILTER;
-        if (checkExtension("texture_rg")) {
+        if (checkExtension("GL_EXT_texture_rg")) {
             _formatFeatures[toNumber(Format::R16F)] |= FormatFeature::LINEAR_FILTER;
             _formatFeatures[toNumber(Format::RG16F)] |= FormatFeature::LINEAR_FILTER;
         }
     }
 
-    if (checkExtension("depth_texture")) {
+    if (checkExtension("GL_OES_depth_texture")) {
         _formatFeatures[toNumber(Format::DEPTH)] |= completeFeature;
     }
 
-    if (checkExtension("packed_depth_stencil")) {
+    if (checkExtension("GL_OES_packed_depth_stencil")) {
         _formatFeatures[toNumber(Format::DEPTH_STENCIL)] |= completeFeature;
     }
 
     // compressed texture feature
     const FormatFeature compressedFeature = FormatFeature::SAMPLED_TEXTURE | FormatFeature::LINEAR_FILTER;
-    if (checkExtension("compressed_ETC1")) {
+    if (checkExtension("GL_OES_compressed_ETC1_RGB8_texture")) {
         _formatFeatures[toNumber(Format::ETC_RGB8)] |= compressedFeature;
     }
 
-    if (checkExtension("texture_compression_pvrtc")) {
+    if (checkExtension("GL_IMG_texture_compression_pvrtc")) {
         _formatFeatures[toNumber(Format::PVRTC_RGB2)] |= compressedFeature;
         _formatFeatures[toNumber(Format::PVRTC_RGBA2)] |= compressedFeature;
         _formatFeatures[toNumber(Format::PVRTC_RGB4)] |= compressedFeature;
         _formatFeatures[toNumber(Format::PVRTC_RGBA4)] |= compressedFeature;
     }
 
-    if (checkExtension("texture_compression_astc")) {
+    if (checkExtension("GL_OES_texture_compression_astc")) {
         _formatFeatures[toNumber(Format::ASTC_RGBA_4X4)] |= compressedFeature;
         _formatFeatures[toNumber(Format::ASTC_RGBA_5X4)] |= compressedFeature;
         _formatFeatures[toNumber(Format::ASTC_RGBA_5X5)] |= compressedFeature;

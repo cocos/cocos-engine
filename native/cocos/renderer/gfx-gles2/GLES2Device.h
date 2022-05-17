@@ -78,9 +78,7 @@ public:
     inline GLES2GPUFramebufferCacheMap *framebufferCacheMap() const { return _gpuFramebufferCacheMap; }
 
     inline bool checkExtension(const ccstd::string &extension) const {
-        return std::any_of(_extensions.begin(), _extensions.end(), [&extension](auto &ext) {
-            return ext.find(extension) != ccstd::string::npos;
-        });
+        return std::find(_extensions.begin(), _extensions.end(), extension) != _extensions.end();
     }
 
     // check the specified format is texture-exclusive (no renderbuffers allowed)

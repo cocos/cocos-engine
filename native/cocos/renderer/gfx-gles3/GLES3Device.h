@@ -77,9 +77,7 @@ public:
     inline GLES3GPUFramebufferCacheMap *framebufferCacheMap() const { return _gpuFramebufferCacheMap; }
 
     inline bool checkExtension(const ccstd::string &extension) const {
-        return std::any_of(_extensions.begin(), _extensions.end(), [&extension](auto &ext) {
-            return ext.find(extension) != ccstd::string::npos;
-        });
+        return std::find(_extensions.begin(), _extensions.end(), extension) != _extensions.end();
     }
 
     inline bool isTextureExclusive(const Format &format) { return _textureExclusive[static_cast<size_t>(format)]; };
