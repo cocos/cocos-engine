@@ -31,7 +31,7 @@ import { Camera } from '../renderer/scene/camera';
 import { Mat4, Vec3, Vec4, Color } from '../math';
 import { RenderPipeline } from './render-pipeline';
 import { legacyCC } from '../global-exports';
-import { CSMLevel, ShadowType } from '../renderer/scene/shadows';
+import { CSMLevel, PCFType, Shadows, ShadowType } from '../renderer/scene/shadows';
 import { updatePlanarNormalAndDistance, updatePlanarPROJ } from './scene-culling';
 import { Light, LightType } from '../renderer/scene/light';
 import { DirectionalLight, SpotLight } from '../renderer/scene';
@@ -166,6 +166,20 @@ export class PipelineUBO {
         cv[UBOCamera.VIEW_PORT_OFFSET + 3] = sceneData.shadingScale * camera.window.height * camera.viewport.w;
     }
 
+    public static getPCFRadius (shadowInfo: Shadows, mainLight: DirectionalLight): number {
+        const shadowMapSize = shadowInfo.size.x;
+        switch (mainLight.shadowPcf) {
+        case PCFType.HARD:
+            return 0.0;
+        case PCFType.SOFT:
+            return 1.0  / (shadowMapSize * 0.5);
+        case PCFType.SOFT_2X:
+            return 2.0  / (shadowMapSize * 0.5);
+        default:
+        }
+        return 0.0;
+    }
+
     public static updateShadowUBOView (pipeline: RenderPipeline, shadowBufferView: Float32Array,
         csmBufferView: Float32Array, camera: Camera) {
         const device = pipeline.device;
@@ -232,7 +246,7 @@ export class PipelineUBO {
                     }
 
                     cv[UBOCSM.CSM_INFO_OFFSET + 0] = mainLight.shadowCSMDebugMode ? 1 : 0;
-                    cv[UBOCSM.CSM_INFO_OFFSET + 1] = 1.0  / (shadowInfo.size.x * 0.5) * mainLight.shadowPcf;
+                    cv[UBOCSM.CSM_INFO_OFFSET + 1] = this.getPCFRadius(shadowInfo, mainLight);
                     cv[UBOCSM.CSM_INFO_OFFSET + 2] = 0;
                     cv[UBOCSM.CSM_INFO_OFFSET + 3] = 0;
 
