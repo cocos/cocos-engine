@@ -230,7 +230,7 @@ export class PipelineUBO {
                     }
 
                     cv[UBOCSM.CSM_INFO_OFFSET + 0] = mainLight.shadowCSMDebugMode ? 1 : 0;
-                    cv[UBOCSM.CSM_INFO_OFFSET + 1] = 0;
+                    cv[UBOCSM.CSM_INFO_OFFSET + 1] = 1.0  / (shadowInfo.size.x * 0.5) * mainLight.shadowPcf;
                     cv[UBOCSM.CSM_INFO_OFFSET + 2] = 0;
                     cv[UBOCSM.CSM_INFO_OFFSET + 3] = 0;
 
