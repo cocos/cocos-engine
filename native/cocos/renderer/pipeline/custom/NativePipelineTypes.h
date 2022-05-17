@@ -50,12 +50,17 @@ public:
     }
 
     NativeLayoutGraphBuilder(const allocator_type& alloc) noexcept; // NOLINT
+    NativeLayoutGraphBuilder(gfx::Device* deviceIn, const allocator_type& alloc) noexcept;
 
     uint32_t addRenderStage(const ccstd::string& name) override;
     uint32_t addRenderPhase(const ccstd::string& name, uint32_t parentID) override;
     void addDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlock& block) override;
+    void reserveDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlock& block) override;
     int compile() override;
 
+    std::string print() const override;
+
+    gfx::Device*    device{nullptr};
     LayoutGraphData data;
 };
 

@@ -144,6 +144,8 @@ SE_DECLARE_FUNC(js_render_LayoutGraphBuilder_addDescriptorBlock);
 SE_DECLARE_FUNC(js_render_LayoutGraphBuilder_addRenderPhase);
 SE_DECLARE_FUNC(js_render_LayoutGraphBuilder_addRenderStage);
 SE_DECLARE_FUNC(js_render_LayoutGraphBuilder_compile);
+SE_DECLARE_FUNC(js_render_LayoutGraphBuilder_print);
+SE_DECLARE_FUNC(js_render_LayoutGraphBuilder_reserveDescriptorBlock);
 
 extern se::Object *__jsb_cc_render_Pipeline_proto; // NOLINT
 extern se::Class * __jsb_cc_render_Pipeline_class; // NOLINT

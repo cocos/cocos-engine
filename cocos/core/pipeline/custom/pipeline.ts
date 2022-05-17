@@ -148,7 +148,9 @@ export abstract class LayoutGraphBuilder {
     public abstract addRenderStage(name: string): number;
     public abstract addRenderPhase(name: string, parentID: number): number;
     public abstract addDescriptorBlock(nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlock): void;
+    public abstract reserveDescriptorBlock(nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlock): void;
     public abstract compile(): number;
+    public abstract print(): string;
 }
 
 export abstract class Pipeline extends PipelineRuntime {

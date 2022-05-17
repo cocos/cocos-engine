@@ -38,6 +38,10 @@ namespace render {
 NativeLayoutGraphBuilder::NativeLayoutGraphBuilder(const allocator_type& alloc) noexcept
 : data(alloc) {}
 
+NativeLayoutGraphBuilder::NativeLayoutGraphBuilder(gfx::Device* deviceIn, const allocator_type& alloc) noexcept
+: device(deviceIn),
+  data(alloc) {}
+
 } // namespace render
 
 } // namespace cc

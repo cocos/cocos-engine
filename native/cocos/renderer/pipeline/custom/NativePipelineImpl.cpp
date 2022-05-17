@@ -24,9 +24,11 @@
 ****************************************************************************/
 
 #include <memory>
+#include <sstream>
 #include <stdexcept>
 #include "NativePipelineTypes.h"
 #include "base/Macros.h"
+#include "base/Ptr.h"
 #include "cocos/base/StringUtil.h"
 #include "cocos/renderer/gfx-base/GFXDescriptorSetLayout.h"
 #include "cocos/renderer/pipeline/Enum.h"
@@ -38,10 +40,12 @@
 #include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/RenderWindow.h"
+#include "gfx-base/GFXDef-common.h"
 #include "gfx-base/GFXDevice.h"
 #include "pipeline/custom/LayoutGraphFwd.h"
 #include "pipeline/custom/LayoutGraphTypes.h"
 #include "pipeline/custom/NativePipelineFwd.h"
+#include "pipeline/custom/Range.h"
 #include "profiler/DebugRenderer.h"
 #include "LayoutGraphGraphs.h"
 
@@ -57,7 +61,8 @@ uint32_t NativeLayoutGraphBuilder::addRenderPhase(const ccstd::string &name, uin
     return add_vertex(data, RenderPhaseTag{}, name.c_str(), parentID);
 }
 
-void NativeLayoutGraphBuilder::addDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex &index, const DescriptorBlock &block) {
+void NativeLayoutGraphBuilder::addDescriptorBlock(uint32_t nodeID,
+    const DescriptorBlockIndex &index, const DescriptorBlock &block) {
     auto& g = data;
     auto& ppl = get(LayoutGraphData::Layout, g, nodeID);
 
@@ -85,9 +90,95 @@ void NativeLayoutGraphBuilder::addDescriptorBlock(uint32_t nodeID, const Descrip
     layout.capacity += block.capacity;
 }
 
+void NativeLayoutGraphBuilder::reserveDescriptorBlock(uint32_t nodeID,
+    const DescriptorBlockIndex &index, const DescriptorBlock &block) {
+    auto& g = data;
+    auto& ppl = get(LayoutGraphData::Layout, g, nodeID);
+
+    CC_ASSERT(block.capacity);
+    auto& layout = ppl.descriptorSets[index.updateFrequency].descriptorSetLayoutData;
+
+    // add block
+    layout.descriptorBlocks.emplace_back(
+        index.descriptorType, index.visibility, block.capacity);
+
+    auto& dstBlock = layout.descriptorBlocks.back();
+    dstBlock.offset = layout.capacity;
+    dstBlock.capacity = block.capacity;
+
+    // update layout
+    layout.capacity += block.capacity;
+}
+
+namespace {
+
+gfx::DescriptorType getGfxType(DescriptorTypeOrder type) {
+    switch (type) {
+    case DescriptorTypeOrder::UNIFORM_BUFFER:
+        return gfx::DescriptorType::UNIFORM_BUFFER;
+    case DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER:
+        return gfx::DescriptorType::DYNAMIC_UNIFORM_BUFFER;
+    case DescriptorTypeOrder::SAMPLER_TEXTURE:
+        return gfx::DescriptorType::SAMPLER_TEXTURE;
+    case DescriptorTypeOrder::SAMPLER:
+        return gfx::DescriptorType::SAMPLER;
+    case DescriptorTypeOrder::TEXTURE:
+        return gfx::DescriptorType::TEXTURE;
+    case DescriptorTypeOrder::STORAGE_BUFFER:
+        return gfx::DescriptorType::STORAGE_BUFFER;
+    case DescriptorTypeOrder::DYNAMIC_STORAGE_BUFFER:
+        return gfx::DescriptorType::DYNAMIC_STORAGE_BUFFER;
+    case DescriptorTypeOrder::STORAGE_IMAGE:
+        return gfx::DescriptorType::STORAGE_IMAGE;
+    case DescriptorTypeOrder::INPUT_ATTACHMENT:
+        return gfx::DescriptorType::INPUT_ATTACHMENT;
+    }
+    throw std::invalid_argument("DescriptorType not found");
+}
+
+IntrusivePtr<gfx::DescriptorSetLayout> createDescriptorSetLayout(
+    gfx::Device* device, const DescriptorSetLayoutData& layoutData) {
+    gfx::DescriptorSetLayoutInfo info;
+    
+    for (const auto& block : layoutData.descriptorBlocks) {
+        uint32_t slot = block.offset;
+        for (const auto& d : block.descriptors) {
+            gfx::DescriptorSetLayoutBinding binding;
+            binding.binding = slot;
+            binding.descriptorType = getGfxType(block.type);
+            binding.count = d.count;
+            binding.stageFlags = block.visibility;
+            binding.immutableSamplers = {};
+            info.bindings.emplace_back(std::move(binding));
+            slot += d.count;
+        }
+    }
+
+    return {device->createDescriptorSetLayout(info)};
+}
+
+} // namespace
+
 int NativeLayoutGraphBuilder::compile() {
+    // create descriptor sets
+    for (const auto& v : makeRange(vertices(data))) {
+        auto& ppl = get(LayoutGraphData::Layout, data, v);
+        for (auto& levelPair : ppl.descriptorSets) {
+            auto& level = levelPair.second;
+            const auto& layoutData = level.descriptorSetLayoutData;
+            level.descriptorSetLayout = createDescriptorSetLayout(device, layoutData);
+            level.descriptorSet = device->createDescriptorSet(
+                gfx::DescriptorSetInfo{level.descriptorSetLayout.get()});
+        }
+    }
 
     return 0;
+}
+
+std::string NativeLayoutGraphBuilder::print() const {
+    std::ostringstream oss;
+    
+    return oss.str();
 }
 
 NativePipeline::NativePipeline() noexcept
