@@ -48,6 +48,7 @@ class FileUtils;
 class DebugRenderer;
 class Profiler;
 class BuiltinResMgr;
+class ProgramLib;
 
 #define NANOSECONDS_PER_SECOND 1000000000
 #define NANOSECONDS_60FPS      16666667L
@@ -154,6 +155,7 @@ private:
     
     // Should move them into material system in future.
     BuiltinResMgr *_builtinResMgr{nullptr};
+    ProgramLib *_programLib{nullptr};
 
     std::map<OSEventType, EventCb> _eventCallbacks;
     CC_DISALLOW_COPY_MOVE_ASSIGN(Engine);
