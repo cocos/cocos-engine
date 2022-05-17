@@ -11,7 +11,7 @@
 namespace sebind {
 
 struct ThisObject {};
-using SeCallbackType  = bool(se::State &);
+using SeCallbackType = bool(se::State &);
 using SeCallbackFnPtr = bool (*)(se::State &);
 
 namespace intl {
@@ -22,17 +22,17 @@ struct TypeList;
 template <typename T, typename... OTHERS>
 struct TypeList<T, OTHERS...> {
     constexpr static size_t COUNT = 1 + sizeof...(OTHERS);
-    using head                    = T;
-    using tail                    = TypeList<OTHERS...>;
-    using tuple_type              = std::tuple<T, OTHERS...>;
+    using head = T;
+    using tail = TypeList<OTHERS...>;
+    using tuple_type = std::tuple<T, OTHERS...>;
 };
 
 template <>
 struct TypeList<> {
     constexpr static size_t COUNT = 0;
-    using head                    = void;
-    using tail                    = TypeList<>;
-    using tuple_type              = std::tuple<>;
+    using head = void;
+    using tail = TypeList<>;
+    using tuple_type = std::tuple<>;
 };
 
 template <typename T, typename O>
@@ -41,6 +41,53 @@ struct Cons;
 template <typename T, typename... OTHERS>
 struct Cons<T, TypeList<OTHERS...>> {
     using type = TypeList<T, OTHERS...>;
+};
+
+template <typename T>
+struct FunctionWrapper;
+
+template <typename R, typename C, typename... ARGS>
+struct FunctionWrapper<R (*)(C *, ARGS...)> {
+    using type = R (*)(C *, ARGS...);
+    using return_type = R;
+    using arg_list = TypeList<ARGS...>;
+    static constexpr size_t ARG_N = sizeof...(ARGS);
+    inline R static invoke(type fn, C *self, ARGS &&...args) {
+        return (*fn)(self, std::forward<ARGS>(args)...);
+    }
+};
+
+template <typename R, typename C, typename... ARGS>
+struct FunctionWrapper<R (C::*)(ARGS...)> {
+    using type = R (C::*)(ARGS...);
+    using return_type = R;
+    using arg_list = TypeList<ARGS...>;
+    static constexpr size_t ARG_N = sizeof...(ARGS);
+    inline R static invoke(type fn, C *self, ARGS &&...args) {
+        return (self->*fn)(std::forward<ARGS>(args)...);
+    }
+};
+
+template <typename R, typename C, typename... ARGS>
+struct FunctionWrapper<R (C::*)(ARGS...) const> {
+    using type = R (C::*)(ARGS...) const;
+    using return_type = R;
+    using arg_list = TypeList<ARGS...>;
+    static constexpr size_t ARG_N = sizeof...(ARGS);
+    inline R static invoke(type fn, C *self, ARGS &&...args) {
+        return (self->*fn)(std::forward<ARGS>(args)...);
+    }
+};
+
+template <>
+struct FunctionWrapper<nullptr_t> {
+    using type = nullptr_t;
+    using return_type = nullptr_t;
+    using arg_list = TypeList<>;
+    static constexpr size_t ARG_N = 0;
+    template <typename C, typename... ARGS>
+    void static invoke(type fn, C *self, ARGS &&...args) {
+    }
 };
 
 template <typename T, typename S>
@@ -77,21 +124,21 @@ struct FilterThisObject<T, OTHERS...> {
     using filtered_types = std::conditional_t<IsThisObject<T>::value,
                                               typename FilterThisObject<OTHERS...>::filtered_types,
                                               typename Cons<T, typename FilterThisObject<OTHERS...>::filtered_types>::type>;
-    using mapped_types   = typename Cons<std::conditional_t<IsThisObject<T>::value, se::Object *, T>,
+    using mapped_types = typename Cons<std::conditional_t<IsThisObject<T>::value, se::Object *, T>,
                                        typename FilterThisObject<OTHERS...>::mapped_types>::type;
 };
 
 template <>
 struct FilterThisObject<> {
     using filtered_types = TypeList<>;
-    using mapped_types   = TypeList<>;
+    using mapped_types = TypeList<>;
 };
 
 template <size_t From, size_t To, bool Skip>
 struct MapArg {
     constexpr static size_t FROM = From;
-    constexpr static size_t TO   = To; // NOLINT
-    constexpr static bool   SKIP = Skip;
+    constexpr static size_t TO = To; // NOLINT
+    constexpr static bool SKIP = Skip;
 };
 
 template <size_t From, size_t Remain>
@@ -111,13 +158,13 @@ struct GenMapArg {
 
 template <int FullIdx, int IncompleteIdx, int FullRemain, int IncompleteRemain, typename FullTypeList, typename IncompleteTypeList>
 struct TypeListMapImpl {
-    constexpr static bool SHOULD_SKIP            = IsThisObject<typename FullTypeList::head>::value;
-    constexpr static int  NEXT_INCOMPLETE        = SHOULD_SKIP ? IncompleteIdx : IncompleteIdx + 1;
-    constexpr static int  NEXT_INCOMPLETE_REMAIN = SHOULD_SKIP ? IncompleteRemain : IncompleteRemain - 1;
-    using full_tail                              = typename FullTypeList::tail;
-    using incomplete_tail                        = std::conditional_t<SHOULD_SKIP, IncompleteTypeList, typename IncompleteTypeList::tail>;
-    using map_value                              = MapArg<FullIdx, IncompleteIdx, SHOULD_SKIP>;
-    using map_list                               = typename Cons<map_value, typename TypeListMapImpl<FullIdx + 1, NEXT_INCOMPLETE, FullRemain - 1, NEXT_INCOMPLETE_REMAIN, full_tail, incomplete_tail>::map_list>::type;
+    constexpr static bool SHOULD_SKIP = IsThisObject<typename FullTypeList::head>::value;
+    constexpr static int NEXT_INCOMPLETE = SHOULD_SKIP ? IncompleteIdx : IncompleteIdx + 1;
+    constexpr static int NEXT_INCOMPLETE_REMAIN = SHOULD_SKIP ? IncompleteRemain : IncompleteRemain - 1;
+    using full_tail = typename FullTypeList::tail;
+    using incomplete_tail = std::conditional_t<SHOULD_SKIP, IncompleteTypeList, typename IncompleteTypeList::tail>;
+    using map_value = MapArg<FullIdx, IncompleteIdx, SHOULD_SKIP>;
+    using map_list = typename Cons<map_value, typename TypeListMapImpl<FullIdx + 1, NEXT_INCOMPLETE, FullRemain - 1, NEXT_INCOMPLETE_REMAIN, full_tail, incomplete_tail>::map_list>::type;
 };
 
 template <int FullIdx, int IncompleteIdx, typename FullTypeList, typename IncompleteTypeList>
@@ -141,15 +188,33 @@ struct TypeMapping;
 
 template <typename... ARGS>
 struct TypeMapping<TypeList<ARGS...>> {
-    using declare_types                = TypeList<ARGS...>;
-    using input_types                  = typename FilterThisObject<ARGS...>::filtered_types;
-    using result_types                 = typename FilterThisObject<ARGS...>::mapped_types;
-    using result_types_tuple           = typename result_types::tuple_type;
-    using input_types_tuple            = typename input_types::tuple_type;
-    using mapping_list                 = typename TypeListMap<declare_types, input_types>::map_list;
-    static constexpr size_t FULL_ARGN  = sizeof...(ARGS);
-    static constexpr size_t NEW_ARGN   = input_types::COUNT;
-    static constexpr bool   NEED_REMAP = FULL_ARGN != NEW_ARGN;
+    using declare_types = TypeList<ARGS...>;
+    using input_types = typename FilterThisObject<ARGS...>::filtered_types;
+    using result_types = typename FilterThisObject<ARGS...>::mapped_types;
+    using result_types_tuple = typename result_types::tuple_type;
+    using input_types_tuple = typename input_types::tuple_type;
+    using mapping_list = typename TypeListMap<declare_types, input_types>::map_list;
+    static constexpr size_t FULL_ARGN = sizeof...(ARGS);
+    static constexpr size_t NEW_ARGN = input_types::COUNT;
+    static constexpr bool NEED_REMAP = FULL_ARGN != NEW_ARGN;
+};
+template <bool, size_t>
+struct ReturnSwitch;
+
+template <size_t t>
+struct ReturnSwitch<true, t> {
+    template <typename T>
+    static se::Object *select(se::Object *self, T &) {
+        return self;
+    }
+};
+
+template <size_t index>
+struct ReturnSwitch<false, index> {
+    template <typename T>
+    static auto select(se::Object *, T &tuple) {
+        return std::get<index>(tuple).value();
+    }
 };
 
 struct ArgumentFilter {
@@ -157,19 +222,20 @@ struct ArgumentFilter {
     static auto forward(se::Object *self, Tuple &tuple) {
         constexpr static MapTuple TUPLE_VAL;
         using map_arg = std::remove_reference_t<decltype(std::get<index>(TUPLE_VAL))>;
-        if constexpr (map_arg::SKIP) {
-            return self;
-        } else {
-            return std::get<index>(tuple).value();
-        }
+        //if CC_CONSTEXPR (map_arg::SKIP) {
+        //    return self;
+        //} else {
+        //    return std::get<index>(tuple).value();
+        //}
+        return ReturnSwitch<map_arg::SKIP, index>::select(self, tuple);
     }
 };
 
 template <typename Mapping, typename TupleIn, typename TupleOut, size_t... indexes>
 void mapTupleArguments(se::Object *self, TupleIn &input, TupleOut &output, std::index_sequence<indexes...> /*args*/) {
-    if constexpr (std::tuple_size<TupleOut>::value > 0) {
+    if CC_CONSTEXPR (std::tuple_size<TupleOut>::value > 0) {
         using map_tuple = typename Mapping::mapping_list::tuple_type;
-        output          = {ArgumentFilter::forward<map_tuple, TupleIn, indexes>(self, input)...};
+        output = {ArgumentFilter::forward<map_tuple, TupleIn, indexes>(self, input)...};
     }
 }
 
@@ -191,7 +257,7 @@ template <typename... ARGS, size_t... indexes>
 // NOLINTNEXTLINE
 bool convert_js_args_to_tuple(const se::ValueArray &jsArgs, std::tuple<ARGS...> &args, se::Object *thisObj, std::index_sequence<indexes...>) {
     constexpr static size_t ARG_N = sizeof...(ARGS);
-    std::array<bool, ARG_N> all   = {sevalue_to_native(jsArgs[indexes], &std::get<indexes>(args).data, thisObj)...};
+    std::array<bool, ARG_N> all = {sevalue_to_native(jsArgs[indexes], &std::get<indexes>(args).data, thisObj)...};
     return AndAll<ARG_N, ARG_N>::cal(all);
 }
 template <size_t... indexes>
@@ -201,9 +267,9 @@ bool convert_js_args_to_tuple(const se::ValueArray &jsArgs, std::tuple<> &args, 
 }
 
 struct ConstructorBase {
-    size_t          arg_count = 0;
+    size_t arg_count = 0;
     SeCallbackFnPtr bfnPtr{nullptr};
-    virtual bool    construct(se::State &state) {
+    virtual bool construct(se::State &state) {
         if (bfnPtr) {
             return (*bfnPtr)(state);
         }
@@ -211,11 +277,11 @@ struct ConstructorBase {
     }
 };
 struct InstanceMethodBase {
-    std::string     class_name;
-    std::string     method_name;
-    size_t          arg_count;
+    std::string class_name;
+    std::string method_name;
+    size_t arg_count;
     SeCallbackFnPtr bfnPtr{nullptr};
-    virtual bool    invoke(se::State &state) const {
+    virtual bool invoke(se::State &state) const {
         if (bfnPtr) {
             return (*bfnPtr)(state);
         }
@@ -227,11 +293,11 @@ struct FinalizerBase {
 };
 
 struct InstanceFieldBase {
-    std::string     class_name;
-    std::string     attr_name;
+    std::string class_name;
+    std::string attr_name;
     SeCallbackFnPtr bfnSetPtr{nullptr};
     SeCallbackFnPtr bfnGetPtr{nullptr};
-    virtual bool    get(se::State &state) const {
+    virtual bool get(se::State &state) const {
         if (bfnGetPtr) return (*bfnGetPtr)(state);
         return false;
     }
@@ -242,11 +308,11 @@ struct InstanceFieldBase {
 };
 
 struct InstanceAttributeBase {
-    std::string     class_name;
-    std::string     attr_name;
+    std::string class_name;
+    std::string attr_name;
     SeCallbackFnPtr bfnSetPtr{nullptr};
     SeCallbackFnPtr bfnGetPtr{nullptr};
-    virtual bool    get(se::State &state) const {
+    virtual bool get(se::State &state) const {
         if (bfnGetPtr) return (*bfnGetPtr)(state);
         return false;
     }
@@ -257,21 +323,21 @@ struct InstanceAttributeBase {
 };
 
 struct StaticMethodBase {
-    std::string     class_name;
-    std::string     method_name;
-    size_t          arg_count;
+    std::string class_name;
+    std::string method_name;
+    size_t arg_count;
     SeCallbackFnPtr bfnPtr{nullptr};
-    virtual bool    invoke(se::State &state) const {
+    virtual bool invoke(se::State &state) const {
         if (bfnPtr) return (*bfnPtr)(state);
         return false;
     }
 };
 struct StaticAttributeBase {
-    std::string     class_name;
-    std::string     attr_name;
+    std::string class_name;
+    std::string attr_name;
     SeCallbackFnPtr bfnSetPtr{nullptr};
     SeCallbackFnPtr bfnGetPtr{nullptr};
-    virtual bool    get(se::State &state) const {
+    virtual bool get(se::State &state) const {
         if (bfnGetPtr) return (*bfnGetPtr)(state);
         return false;
     }
@@ -302,24 +368,24 @@ struct StaticAttribute;
 template <typename T, typename... ARGS>
 struct Constructor<TypeList<T, ARGS...>> : ConstructorBase {
     bool construct(se::State &state) override {
-        using unmap_types      = TypeMapping<TypeList<ARGS...>>;
-        using args_holder_type = typename MapTypeListToTuple<HolderType, typename unmap_types::input_types>::tuple;
+        using type_mapping = TypeMapping<TypeList<ARGS...>>;
+        using args_holder_type = typename MapTypeListToTuple<HolderType, typename type_mapping::input_types>::tuple;
         se::PrivateObjectBase *self{nullptr};
-        se::Object *           thisObj = state.thisObject();
-        args_holder_type       args{};
-        const auto &           jsArgs = state.args();
-        convert_js_args_to_tuple(jsArgs, args, thisObj, std::make_index_sequence<unmap_types::NEW_ARGN>());
-        if constexpr (unmap_types::NEED_REMAP) {
-            using map_list_type  = typename unmap_types::mapping_list;
-            using map_tuple_type = typename unmap_types::result_types_tuple;
+        se::Object *thisObj = state.thisObject();
+        args_holder_type args{};
+        const auto &jsArgs = state.args();
+        convert_js_args_to_tuple(jsArgs, args, thisObj, std::make_index_sequence<type_mapping::NEW_ARGN>());
+        if CC_CONSTEXPR (type_mapping::NEED_REMAP) {
+            using map_list_type = typename type_mapping::mapping_list;
+            using map_tuple_type = typename type_mapping::result_types_tuple;
 
-            static_assert(map_list_type::COUNT == sizeof...(ARGS));
+            static_assert(map_list_type::COUNT == sizeof...(ARGS), "type mapping incorrect");
 
             map_tuple_type remapArgs; //TODO: optimize copy arguments
-            mapTupleArguments<unmap_types>(thisObj, args, remapArgs, std::make_index_sequence<unmap_types::FULL_ARGN>{});
-            self = constructWithTuple(remapArgs, std::make_index_sequence<unmap_types::FULL_ARGN>{});
+            mapTupleArguments<type_mapping>(thisObj, args, remapArgs, std::make_index_sequence<type_mapping::FULL_ARGN>{});
+            self = constructWithTuple(remapArgs, std::make_index_sequence<type_mapping::FULL_ARGN>{});
         } else {
-            self = constructWithTupleValue(args, std::make_index_sequence<sizeof...(ARGS)>());
+            self = constructWithTupleValue(args, std::make_index_sequence<type_mapping::NEW_ARGN>{});
         }
         state.thisObject()->setPrivateObject(self);
         return true;
@@ -345,8 +411,8 @@ struct Constructor<T *(*)(ARGS...)> : ConstructorBase {
             return false;
         }
         std::tuple<HolderType<ARGS, std::is_reference_v<ARGS>>...> args{};
-        const auto &                                               jsArgs  = state.args();
-        se::Object *                                               thisObj = state.thisObject();
+        const auto &jsArgs = state.args();
+        se::Object *thisObj = state.thisObject();
         convert_js_args_to_tuple(jsArgs, args, thisObj, std::make_index_sequence<sizeof...(ARGS)>());
         T *ptr = constructWithTuple(args, std::make_index_sequence<sizeof...(ARGS)>());
         state.thisObject()->setPrivateData(ptr);
@@ -361,7 +427,7 @@ struct Constructor<T *(*)(ARGS...)> : ConstructorBase {
 
 template <typename T>
 struct Finalizer : FinalizerBase {
-    using type     = void (*)(T *);
+    using type = void (*)(T *);
     using arg_type = T;
     type func;
     void finalize(void *ptr) override {
@@ -371,11 +437,11 @@ struct Finalizer : FinalizerBase {
 
 template <typename T, typename R, typename... ARGS>
 struct InstanceMethod<R (T::*)(ARGS...)> : InstanceMethodBase {
-    using type                          = R (T::*)(ARGS...);
-    using return_type                   = R;
-    using class_type                    = std::remove_cv_t<T>;
-    constexpr static size_t ARG_N       = sizeof...(ARGS);
-    constexpr static bool   RETURN_VOID = std::is_same<void, R>::value;
+    using type = R (T::*)(ARGS...);
+    using return_type = R;
+    using class_type = std::remove_cv_t<T>;
+    constexpr static size_t ARG_N = sizeof...(ARGS);
+    constexpr static bool RETURN_VOID = std::is_same<void, R>::value;
 
     type func = nullptr;
 
@@ -386,16 +452,16 @@ struct InstanceMethod<R (T::*)(ARGS...)> : InstanceMethodBase {
 
     bool invoke(se::State &state) const override {
         constexpr auto indexes{std::make_index_sequence<sizeof...(ARGS)>()};
-        T *            self       = reinterpret_cast<T *>(state.nativeThisObject());
-        se::Object *   thisObject = state.thisObject();
-        const auto &   jsArgs     = state.args();
+        T *self = reinterpret_cast<T *>(state.nativeThisObject());
+        se::Object *thisObject = state.thisObject();
+        const auto &jsArgs = state.args();
         if (ARG_N != jsArgs.size()) {
             SE_LOGE("incorret argument size %d, expect %d\n", static_cast<int>(jsArgs.size()), static_cast<int>(ARG_N));
             return false;
         }
         std::tuple<HolderType<ARGS, std::is_reference_v<ARGS>>...> args{};
         convert_js_args_to_tuple(jsArgs, args, thisObject, indexes);
-        if constexpr (RETURN_VOID) {
+        if CC_CONSTEXPR (RETURN_VOID) {
             callWithTuple(self, args, indexes);
         } else {
             nativevalue_to_se(callWithTuple(self, args, indexes), state.rval(), thisObject);
@@ -406,11 +472,11 @@ struct InstanceMethod<R (T::*)(ARGS...)> : InstanceMethodBase {
 
 template <typename T, typename R, typename... ARGS>
 struct InstanceMethod<R (T::*)(ARGS...) const> : InstanceMethodBase {
-    using type                          = R (T::*)(ARGS...) const;
-    using return_type                   = R;
-    using class_type                    = std::remove_cv_t<T>;
-    constexpr static size_t ARG_N       = sizeof...(ARGS);
-    constexpr static bool   RETURN_VOID = std::is_same<void, R>::value;
+    using type = R (T::*)(ARGS...) const;
+    using return_type = R;
+    using class_type = std::remove_cv_t<T>;
+    constexpr static size_t ARG_N = sizeof...(ARGS);
+    constexpr static bool RETURN_VOID = std::is_same<void, R>::value;
 
     type func = nullptr;
 
@@ -421,16 +487,16 @@ struct InstanceMethod<R (T::*)(ARGS...) const> : InstanceMethodBase {
 
     bool invoke(se::State &state) const override {
         constexpr auto indexes{std::make_index_sequence<sizeof...(ARGS)>()};
-        T *            self       = reinterpret_cast<T *>(state.nativeThisObject());
-        se::Object *   thisObject = state.thisObject();
-        const auto &   jsArgs     = state.args();
+        T *self = reinterpret_cast<T *>(state.nativeThisObject());
+        se::Object *thisObject = state.thisObject();
+        const auto &jsArgs = state.args();
         if (ARG_N != jsArgs.size()) {
             SE_LOGE("incorret argument size %d, expect %d\n", static_cast<int>(jsArgs.size()), static_cast<int>(ARG_N));
             return false;
         }
         std::tuple<HolderType<ARGS, std::is_reference_v<ARGS>>...> args{};
         convert_js_args_to_tuple(jsArgs, args, thisObject, indexes);
-        if constexpr (RETURN_VOID) {
+        if CC_CONSTEXPR (RETURN_VOID) {
             callWithTuple(self, args, indexes);
         } else {
             nativevalue_to_se(callWithTuple(self, args, indexes), state.rval(), thisObject);
@@ -441,11 +507,11 @@ struct InstanceMethod<R (T::*)(ARGS...) const> : InstanceMethodBase {
 
 template <typename T, typename R, typename... ARGS>
 struct InstanceMethod<R (*)(T *, ARGS...)> : InstanceMethodBase {
-    using type                          = R (*)(T *, ARGS...);
-    using return_type                   = R;
-    using class_type                    = std::remove_cv_t<T>;
-    constexpr static size_t ARG_N       = sizeof...(ARGS);
-    constexpr static bool   RETURN_VOID = std::is_same<void, R>::value;
+    using type = R (*)(T *, ARGS...);
+    using return_type = R;
+    using class_type = std::remove_cv_t<T>;
+    constexpr static size_t ARG_N = sizeof...(ARGS);
+    constexpr static bool RETURN_VOID = std::is_same<void, R>::value;
 
     type func = nullptr;
 
@@ -456,16 +522,16 @@ struct InstanceMethod<R (*)(T *, ARGS...)> : InstanceMethodBase {
 
     bool invoke(se::State &state) const override {
         constexpr auto indexes{std::make_index_sequence<sizeof...(ARGS)>()};
-        T *            self       = reinterpret_cast<T *>(state.nativeThisObject());
-        se::Object *   thisObject = state.thisObject();
-        const auto &   jsArgs     = state.args();
+        T *self = reinterpret_cast<T *>(state.nativeThisObject());
+        se::Object *thisObject = state.thisObject();
+        const auto &jsArgs = state.args();
         if (ARG_N != jsArgs.size()) {
             SE_LOGE("incorret argument size %d, expect %d\n", static_cast<int>(jsArgs.size()), static_cast<int>(ARG_N));
             return false;
         }
         std::tuple<HolderType<ARGS, std::is_reference_v<ARGS>>...> args{};
         convert_js_args_to_tuple(jsArgs, args, thisObject, indexes);
-        if constexpr (RETURN_VOID) {
+        if CC_CONSTEXPR (RETURN_VOID) {
             callWithTuple(self, args, indexes);
         } else {
             nativevalue_to_se(callWithTuple(self, args, indexes), state.rval(), thisObject);
@@ -476,8 +542,8 @@ struct InstanceMethod<R (*)(T *, ARGS...)> : InstanceMethodBase {
 
 struct InstanceMethodOverloaded : InstanceMethodBase {
     std::vector<InstanceMethodBase *> functions;
-    bool                              invoke(se::State &state) const override {
-        bool ret      = false;
+    bool invoke(se::State &state) const override {
+        bool ret = false;
         auto argCount = state.args().size();
         for (auto *method : functions) {
             if (method->arg_count == -1 || method->arg_count == argCount) {
@@ -491,22 +557,22 @@ struct InstanceMethodOverloaded : InstanceMethodBase {
 
 template <typename T, typename F>
 struct InstanceField<F(T::*)> : InstanceFieldBase {
-    using type        = F(T::*);
-    using class_type  = T;
+    using type = F(T::*);
+    using class_type = T;
     using return_type = std::remove_cv_t<F>;
 
     type func;
 
     bool get(se::State &state) const override {
-        T *         self       = reinterpret_cast<T *>(state.nativeThisObject());
+        T *self = reinterpret_cast<T *>(state.nativeThisObject());
         se::Object *thisObject = state.thisObject();
         return nativevalue_to_se((self->*func), state.rval(), thisObject);
     }
 
     bool set(se::State &state) const override {
-        T *         self       = reinterpret_cast<T *>(state.nativeThisObject());
+        T *self = reinterpret_cast<T *>(state.nativeThisObject());
         se::Object *thisObject = state.thisObject();
-        const auto &args       = state.args();
+        const auto &args = state.args();
         return sevalue_to_native(args[0], &(self->*func), thisObject);
     }
 };
@@ -516,95 +582,93 @@ struct AttributeAccessor;
 
 template <typename T>
 struct AccessorGet {
-    using type        = void;
+    using type = void;
     using return_type = void;
-    using class_type  = void;
+    using class_type = void;
 };
 
 template <typename T>
 struct AccessorSet {
-    using type       = void;
+    using type = void;
     using value_type = void;
     using class_type = void;
 };
 
 template <>
 struct AccessorGet<std::nullptr_t> {
-    using class_type  = std::nullptr_t;
-    using type        = std::nullptr_t;
+    using class_type = std::nullptr_t;
+    using type = std::nullptr_t;
     using return_type = std::nullptr_t;
 };
 
 template <>
 struct AccessorSet<std::nullptr_t> {
     using class_type = std::nullptr_t;
-    using type       = std::nullptr_t;
+    using type = std::nullptr_t;
     using value_type = std::nullptr_t;
 };
 
 template <typename T, typename R>
 struct AccessorGet<R (T::*)()> {
-    using class_type  = T;
-    using type        = R (T::*)();
+    using class_type = T;
+    using type = R (T::*)();
     using return_type = R;
-    constexpr static void validate() {
-        static_assert(!std::is_void_v<R>);
-    }
+    static_assert(!std::is_void_v<R>, "Getter should return a value!");
 };
 
 template <typename T, typename R, typename F>
 struct AccessorSet<R (T::*)(F)> {
-    using class_type          = T;
-    using type                = R (T::*)(F);
-    using value_type          = F;
+    using class_type = T;
+    using type = R (T::*)(F);
+    using value_type = F;
     using ignored_return_type = R;
 };
 
 template <typename T, typename R>
 struct AccessorGet<R (T::*)() const> {
-    using class_type  = T;
-    using type        = R (T::*)() const;
+    using class_type = T;
+    using type = R (T::*)() const;
     using return_type = R;
     static_assert(!std::is_void_v<R>, "Getter should return a value");
 };
 
 template <typename T, typename R, typename F>
 struct AccessorSet<R (T::*)(F) const> {
-    using class_type          = T;
-    using type                = R (T::*)(F) const;
-    using value_type          = F;
+    using class_type = T;
+    using type = R (T::*)(F) const;
+    using value_type = F;
     using ignored_return_type = R;
 };
 
 template <typename T, typename R, typename F>
 struct AccessorSet<R (*)(T *, F)> {
-    using class_type          = T;
-    using type                = R (*)(T *, F);
-    using value_type          = F;
+    using class_type = T;
+    using type = R (*)(T *, F);
+    using value_type = F;
     using ignored_return_type = R;
 };
 template <typename T, typename R>
 struct AccessorGet<R (*)(T *)> {
-    using class_type  = T;
-    using type        = R (*)(T *);
+    using class_type = T;
+    using type = R (*)(T *);
     using return_type = R;
     static_assert(!std::is_void_v<R>, "Getter should return a value");
 };
 
 template <typename T, typename Getter, typename Setter>
 struct InstanceAttribute<AttributeAccessor<T, Getter, Setter>> : InstanceAttributeBase {
-    using type              = T;
-    using get_accessor      = AccessorGet<Getter>;
-    using set_accessor      = AccessorSet<Setter>;
-    using getter_type       = typename get_accessor::type;
-    using setter_type       = typename set_accessor::type;
-    using set_value_type    = std::remove_reference_t<std::remove_cv_t<typename set_accessor::value_type>>;
-    using get_value_type    = std::remove_reference_t<std::remove_cv_t<typename get_accessor::return_type>>;
+    using type = T;
+    using get_accessor = AccessorGet<Getter>;
+    using set_accessor = AccessorSet<Setter>;
+    using getter_type = typename get_accessor::type;
+    using setter_type = typename set_accessor::type;
+    using set_value_type = std::remove_reference_t<std::remove_cv_t<typename set_accessor::value_type>>;
+    using get_value_type = std::remove_reference_t<std::remove_cv_t<typename get_accessor::return_type>>;
     using getter_class_type = typename get_accessor::class_type;
     using setter_class_type = typename set_accessor::class_type;
 
-    constexpr static bool HAS_GETTER          = !std::is_same_v<std::nullptr_t, getter_type>;
-    constexpr static bool HAS_SETTER          = !std::is_same_v<std::nullptr_t, setter_type>;
+    constexpr static bool HAS_GETTER = !std::is_same_v<std::nullptr_t, getter_type>;
+    constexpr static bool HAS_SETTER = !std::is_same_v<std::nullptr_t, setter_type>;
     constexpr static bool GETTER_IS_MEMBER_FN = HAS_GETTER && std::is_member_function_pointer<Getter>::value;
     constexpr static bool SETTER_IS_MEMBER_FN = HAS_SETTER && std::is_member_function_pointer<Setter>::value;
 
@@ -615,30 +679,25 @@ struct InstanceAttribute<AttributeAccessor<T, Getter, Setter>> : InstanceAttribu
     getter_type getterPtr;
 
     bool get(se::State &state) const override {
-        if constexpr (HAS_GETTER) {
-            T *         self       = reinterpret_cast<T *>(state.nativeThisObject());
+        if CC_CONSTEXPR (HAS_GETTER) {
+            T *self = reinterpret_cast<T *>(state.nativeThisObject());
             se::Object *thisObject = state.thisObject();
-            if constexpr (GETTER_IS_MEMBER_FN) {
-                return nativevalue_to_se((self->*getterPtr)(), state.rval(), thisObject);
-            } else {
-                return nativevalue_to_se((*getterPtr)(self), state.rval(), thisObject);
-            }
+            using func_type = FunctionWrapper<getter_type>;
+            return nativevalue_to_se(func_type::invoke(getterPtr, self), state.rval(), thisObject);
         }
         return false;
     }
 
     bool set(se::State &state) const override {
-        if constexpr (HAS_SETTER) {
-            T *                                                             self       = reinterpret_cast<T *>(state.nativeThisObject());
-            se::Object *                                                    thisObject = state.thisObject();
-            const auto &                                                    args       = state.args();
+        if CC_CONSTEXPR (HAS_SETTER) {
+            T *self = reinterpret_cast<T *>(state.nativeThisObject());
+            se::Object *thisObject = state.thisObject();
+            const auto &args = state.args();
             HolderType<set_value_type, std::is_reference_v<set_value_type>> temp;
             sevalue_to_native(args[0], &(temp.data), thisObject);
-            if constexpr (SETTER_IS_MEMBER_FN) {
-                (self->*setterPtr)(temp.value());
-            } else {
-                (*setterPtr)(self, temp.value());
-            }
+
+            using func_type = FunctionWrapper<setter_type>;
+            func_type::invoke(setterPtr, self, temp.value());
             return true;
         }
         return false;
@@ -647,10 +706,10 @@ struct InstanceAttribute<AttributeAccessor<T, Getter, Setter>> : InstanceAttribu
 
 template <typename R, typename... ARGS>
 struct StaticMethod<R (*)(ARGS...)> : StaticMethodBase {
-    using type                          = R (*)(ARGS...);
-    using return_type                   = R;
-    constexpr static size_t ARG_N       = sizeof...(ARGS);
-    constexpr static bool   RETURN_VOID = std::is_same<void, R>::value;
+    using type = R (*)(ARGS...);
+    using return_type = R;
+    constexpr static size_t ARG_N = sizeof...(ARGS);
+    constexpr static bool RETURN_VOID = std::is_same<void, R>::value;
 
     type func = nullptr;
 
@@ -661,14 +720,14 @@ struct StaticMethod<R (*)(ARGS...)> : StaticMethodBase {
 
     bool invoke(se::State &state) const override {
         constexpr auto indexes{std::make_index_sequence<sizeof...(ARGS)>()};
-        const auto &   jsArgs = state.args();
+        const auto &jsArgs = state.args();
         if (ARG_N != jsArgs.size()) {
             SE_LOGE("incorret argument size %d, expect %d\n", static_cast<int>(jsArgs.size()), static_cast<int>(ARG_N));
             return false;
         }
         std::tuple<HolderType<ARGS, std::is_reference_v<ARGS>>...> args{};
         convert_js_args_to_tuple(jsArgs, args, nullptr, indexes);
-        if constexpr (RETURN_VOID) {
+        if CC_CONSTEXPR (RETURN_VOID) {
             callWithTuple(args, indexes);
         } else {
             nativevalue_to_se(callWithTuple(args, indexes), state.rval(), nullptr);
@@ -679,8 +738,8 @@ struct StaticMethod<R (*)(ARGS...)> : StaticMethodBase {
 
 struct StaticMethodOverloaded : StaticMethodBase {
     std::vector<StaticMethodBase *> functions;
-    bool                            invoke(se::State &state) const override {
-        bool ret      = false;
+    bool invoke(se::State &state) const override {
+        bool ret = false;
         auto argCount = state.args().size();
         for (auto *method : functions) {
             if (method->arg_count == -1 || method->arg_count == argCount) {
@@ -697,49 +756,49 @@ struct SAttributeAccessor;
 
 template <typename T>
 struct SAccessorGet {
-    using type        = void;
+    using type = void;
     using return_type = void;
 };
 
 template <typename T>
 struct SAccessorSet {
-    using type       = void;
+    using type = void;
     using value_type = void;
 };
 
 template <>
 struct SAccessorGet<std::nullptr_t> {
-    using type        = std::nullptr_t;
+    using type = std::nullptr_t;
     using return_type = std::nullptr_t;
 };
 
 template <>
 struct SAccessorSet<std::nullptr_t> {
-    using type       = std::nullptr_t;
+    using type = std::nullptr_t;
     using value_type = std::nullptr_t;
 };
 
 template <typename R>
 struct SAccessorGet<R(*)> {
-    using type        = R(*);
+    using type = R(*);
     using return_type = R;
     static_assert(!std::is_void_v<R>, "Getter should return value");
 };
 
 template <typename R, typename F>
 struct SAccessorSet<R (*)(F)> {
-    using type                = R (*)(F);
-    using value_type          = F;
+    using type = R (*)(F);
+    using value_type = F;
     using ignored_return_type = R;
 };
 
 template <typename T, typename Getter, typename Setter>
 struct StaticAttribute<SAttributeAccessor<T, Getter, Setter>> : StaticAttributeBase {
-    using type           = T;
-    using get_accessor   = SAccessorGet<Getter>;
-    using set_accessor   = SAccessorSet<Setter>;
-    using getter_type    = typename get_accessor::type;
-    using setter_type    = typename set_accessor::type;
+    using type = T;
+    using get_accessor = SAccessorGet<Getter>;
+    using set_accessor = SAccessorSet<Setter>;
+    using getter_type = typename get_accessor::type;
+    using setter_type = typename set_accessor::type;
     using set_value_type = std::remove_reference_t<std::remove_cv_t<typename set_accessor::value_type>>;
     using get_value_type = std::remove_reference_t<std::remove_cv_t<typename get_accessor::return_type>>;
 
@@ -752,15 +811,15 @@ struct StaticAttribute<SAttributeAccessor<T, Getter, Setter>> : StaticAttributeB
     getter_type getterPtr;
 
     bool get(se::State &state) const override {
-        if constexpr (HAS_GETTER) {
+        if CC_CONSTEXPR (HAS_GETTER) {
             return nativevalue_to_se((*getterPtr)(), state.rval(), nullptr);
         }
         return false;
     }
 
     bool set(se::State &state) const override {
-        if constexpr (HAS_SETTER) {
-            const auto &                                                    args = state.args();
+        if CC_CONSTEXPR (HAS_SETTER) {
+            const auto &args = state.args();
             HolderType<set_value_type, std::is_reference_v<set_value_type>> temp;
             sevalue_to_native(args[0], &(temp.data), nullptr);
             (*setterPtr)(temp.value());
@@ -776,37 +835,26 @@ public:
     // NOLINTNEXTLINE
     struct context_ {
         std::vector<std::tuple<std::string, std::unique_ptr<InstanceAttributeBase>>> properties;
-        std::vector<std::tuple<std::string, std::unique_ptr<InstanceFieldBase>>>     fields;
-        std::vector<std::tuple<std::string, std::unique_ptr<InstanceMethodBase>>>    functions;
-        std::vector<std::tuple<std::string, std::unique_ptr<StaticMethodBase>>>      staticFunctions;
-        std::vector<std::tuple<std::string, std::unique_ptr<StaticAttributeBase>>>   staticProperties;
-        std::vector<std::unique_ptr<ConstructorBase>>                                constructors;
-        std::vector<std::unique_ptr<FinalizerBase>>                                  finalizeCallbacks;
-        std::string                                                                  className;
-        se::Class *                                                                  kls = nullptr;
+        std::vector<std::tuple<std::string, std::unique_ptr<InstanceFieldBase>>> fields;
+        std::vector<std::tuple<std::string, std::unique_ptr<InstanceMethodBase>>> functions;
+        std::vector<std::tuple<std::string, std::unique_ptr<StaticMethodBase>>> staticFunctions;
+        std::vector<std::tuple<std::string, std::unique_ptr<StaticAttributeBase>>> staticProperties;
+        std::vector<std::unique_ptr<ConstructorBase>> constructors;
+        std::vector<std::unique_ptr<FinalizerBase>> finalizeCallbacks;
+        std::string className;
+        se::Class *kls = nullptr;
         // se::Object *                                                  nsObject    = nullptr;
         se::Object *parentProto = nullptr;
     };
     inline context_ *operator[](const std::string &key) {
         return this->operator[](key.c_str());
     }
-    context_ *          operator[](const char *key);
+    context_ *operator[](const char *key);
     static context_db_ &instance();
-    static void         reset();
+    static void reset();
 
 private:
     std::map<std::string, context_ *> _contexts;
-};
-
-template <typename T>
-struct FunctionWrapper;
-
-template <typename R, typename... ARGS>
-struct FunctionWrapper<R (*)(ARGS...)> {
-    using type                    = R (*)(ARGS...);
-    using return_type             = R;
-    using arg_list                = TypeList<ARGS...>;
-    static constexpr size_t ARG_N = sizeof...(ARGS);
 };
 
 } // namespace intl

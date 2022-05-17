@@ -105,7 +105,7 @@ bool class_<T>::install(se::Object *nsObject) {
     _installed = true;
 
     if (_ctx->constructors.empty()) {
-        if constexpr (std::is_default_constructible<T>::value) {
+        if CC_CONSTEXPR (std::is_default_constructible<T>::value) {
             constructor(); // add default constructor
         }
     }
