@@ -29,11 +29,11 @@
 #include <sstream>
 #include "base/DeferredReleasePool.h"
 #include "base/Macros.h"
-#include "cocos/bindings/jswrapper/SeApi.h"
-#include "cocos/core/builtin/BuiltinResMgr.h"
-#include "cocos/renderer/GFXDeviceManager.h"
-#include "cocos/renderer/core/ProgramLib.h"
-#include "pipeline/RenderPipeline.h"
+#include "bindings/jswrapper/SeApi.h"
+#include "core/builtin/BuiltinResMgr.h"
+#include "renderer/GFXDeviceManager.h"
+#include "renderer/core/ProgramLib.h"
+#include "renderer/pipeline/RenderPipeline.h"
 #include "platform/BasePlatform.h"
 #include "platform/FileUtils.h"
 
@@ -97,6 +97,8 @@ namespace cc {
 Engine::Engine() {
     _scheduler = std::make_shared<Scheduler>();
     _fs = createFileUtils();
+    // May create gfx device in render subsystem in future.
+    _gfxDevice = gfx::DeviceManager::create();
     _scriptEngine = ccnew se::ScriptEngine();
     EventDispatcher::init();
 
@@ -142,8 +144,8 @@ Engine::~Engine() {
     BuiltinResMgr::destroyInstance();
 
     CCObject::deferredDestroy();
-    gfx::DeviceManager::destroy();
     
+    CC_SAFE_DESTROY_AND_DELETE(_gfxDevice);
     delete _fs;
 }
 
@@ -294,7 +296,7 @@ int32_t Engine::restartVM() {
     _scheduler->unscheduleAll();
 
     _scriptEngine->cleanup();
-    cc::gfx::DeviceManager::destroy();
+    CC_SAFE_DESTROY_AND_DELETE(_gfxDevice);
     cc::EventDispatcher::destroy();
     ProgramLib::destroyInstance();
     BuiltinResMgr::destroyInstance();
