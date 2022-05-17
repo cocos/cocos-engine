@@ -40,6 +40,10 @@ class ScriptEngine;
 
 namespace cc {
 
+namespace gfx {
+class Device;
+}
+
 class FileUtils;
 class DebugRenderer;
 class Profiler;
@@ -144,6 +148,7 @@ private:
 #endif
     DebugRenderer *_debugRenderer{nullptr};
     se::ScriptEngine *_scriptEngine{nullptr};
+    gfx::Device *_gfxDevice{nullptr};
 
     std::map<OSEventType, EventCb> _eventCallbacks;
     CC_DISALLOW_COPY_MOVE_ASSIGN(Engine);
