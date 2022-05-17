@@ -65,8 +65,9 @@ uint32_t NativeLayoutGraphBuilder::addRenderPhase(const ccstd::string &name, uin
     return add_vertex(*data, RenderPhaseTag{}, name.c_str(), parentID);
 }
 
-void NativeLayoutGraphBuilder::addDescriptorBlock(uint32_t nodeID,
-                                                  const DescriptorBlockIndex &index, const DescriptorBlock &block) {
+void NativeLayoutGraphBuilder::addDescriptorBlock(
+    uint32_t nodeID,
+    const DescriptorBlockIndex &index, const DescriptorBlock &block) {
     auto &g = *data;
     auto &ppl = get(LayoutGraphData::Layout, g, nodeID);
 
@@ -94,8 +95,9 @@ void NativeLayoutGraphBuilder::addDescriptorBlock(uint32_t nodeID,
     layout.capacity += block.capacity;
 }
 
-void NativeLayoutGraphBuilder::reserveDescriptorBlock(uint32_t nodeID,
-                                                      const DescriptorBlockIndex &index, const DescriptorBlock &block) {
+void NativeLayoutGraphBuilder::reserveDescriptorBlock(
+    uint32_t nodeID,
+    const DescriptorBlockIndex &index, const DescriptorBlock &block) {
     auto &g = *data;
     auto &ppl = get(LayoutGraphData::Layout, g, nodeID);
 
