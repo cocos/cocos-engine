@@ -29,11 +29,11 @@ import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeat
 import { Mat4, Quat, Vec2, Vec4 } from '../../math';
 import { QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, TaskType } from './types';
 import { AccessType, AttachmentType, Blit, ComputePass, ComputeView, CopyPair, CopyPass, Dispatch, ManagedResource, MovePair, MovePass, PresentPass, RasterPass, RasterView, RenderData, RenderGraph, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
-import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, MovePassBuilder, Pipeline, RasterPassBuilder, RasterQueueBuilder, SceneTask, SceneTransversal, SceneVisitor, Setter } from './pipeline';
+import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, LayoutGraphBuilder, MovePassBuilder, Pipeline, RasterPassBuilder, RasterQueueBuilder, SceneTask, SceneTransversal, SceneVisitor, Setter } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { Model, Camera, SKYBOX_FLAG, Light, LightType, ShadowType, DirectionalLight, Shadows } from '../../renderer/scene';
 import { legacyCC } from '../../global-exports';
-import { LayoutGraphData } from './layout-graph';
+import { DescriptorBlock, DescriptorBlockIndex, LayoutGraphData } from './layout-graph';
 import { Executor } from './executor';
 import { WebImplExample } from './web-pipeline-impl';
 import { RenderWindow } from '../../renderer/core/render-window';
@@ -311,6 +311,27 @@ export class WebCopyPassBuilder extends CopyPassBuilder {
 function isManaged (residency: ResourceResidency): boolean {
     return residency === ResourceResidency.MANAGED
     || residency === ResourceResidency.MEMORYLESS;
+}
+
+export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
+    public addRenderStage (name: string): number {
+        return 0xFFFFFFFF;
+    }
+    public addRenderPhase (name: string, parentID: number): number {
+        return 0xFFFFFFFF;
+    }
+    public addDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlock): void {
+
+    }
+    public reserveDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlock): void {
+
+    }
+    public compile (): number {
+        return 0;
+    }
+    public print (): string {
+        return '';
+    }
 }
 
 export class WebPipeline extends Pipeline {
@@ -641,6 +662,9 @@ export class WebPipeline extends Pipeline {
     }
     createSceneTransversal (camera: Camera, scene: RenderScene): SceneTransversal {
         return new WebSceneTransversal(camera, this.pipelineSceneData);
+    }
+    public createLayoutGraph (name: string): LayoutGraphBuilder {
+        return new WebLayoutGraphBuilder();
     }
     get renderGraph () {
         return this._renderGraph;
