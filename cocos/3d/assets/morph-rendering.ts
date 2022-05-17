@@ -41,13 +41,13 @@ import { PixelFormat } from '../../core/assets/asset-enum';
 
 /**
  * True if force to use cpu computing based sub-mesh rendering.
- * Only customizable by modify the internal engine code
+ * Only customizable by modify the internal engine code.
  */
 const preferCpuComputing = false;
 
 /**
  * @en Interface for classes which control the rendering of morph resources.
- * @zh 支持形变网格渲染的基类
+ * @zh 支持形变网格渲染的基类。
  */
 export interface MorphRendering {
     createInstance (): MorphRenderingInstance;
@@ -202,7 +202,7 @@ interface SubMeshMorphRendering {
 /**
  * @en The instance of sub-mesh morph rendering, each sub-mesh have its own instance
  * for controlling its morph target weights, render pipeline state and strategy of morph blending.
- * @zh 子网格形变渲染的实例，每个子网格都拥有自己独立的子网格形变渲染实例，用于独立控制形变目标权重、渲染管线状态和形变混合计算策略
+ * @zh 子网格形变渲染的实例，每个子网格都拥有自己独立的子网格形变渲染实例，用于独立控制形变目标权重、渲染管线状态和形变混合计算策略。
  */
 interface SubMeshMorphRenderingInstance {
     /**
