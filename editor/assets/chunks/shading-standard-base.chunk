@@ -117,7 +117,11 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   float shadow = 1.0;
   #if CC_RECEIVE_SHADOW
     if (NL > 0.0 && cc_mainLitDir.w > 0.0) {
-      shadow = CCShadowFactorBase(shadowPos, N, s.shadowBias);
+      if (cc_shadowLPNNInfo.w > 0.0) {
+        shadow = CCCSMFactorBase(position, N, s.shadowBias);
+      } else {
+        shadow = CCShadowFactorBase(shadowPos, N, s.shadowBias);
+      }
     }
   #endif
 
@@ -166,6 +170,21 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   
 
   finalColor += s.emissive;
+
+    #if CC_RECEIVE_SHADOW
+    vec4 csmPos = vec4(1.0);
+    int level = CCGetCSMLevel(csmPos, position);
+    if (cc_csmInfo.x > 0.9 && level > -1) {
+      if (level < 1 && cc_shadowLPNNInfo.w > 0.9)
+        finalColor.xyz *= vec3(5.0, 0.0, 0.0);
+      else if (level < 2 && cc_shadowLPNNInfo.w > 1.9)
+        finalColor.xyz *= vec3(0.0, 5.0, 0.0);
+      else if (level < 3 && cc_shadowLPNNInfo.w > 2.9)
+        finalColor.xyz *= vec3(0.0, 0.0, 5.0);
+      else if (cc_shadowLPNNInfo.w > 3.9)
+        finalColor.xyz *= vec3(5.0, 5.0, 0.0);
+    }
+  #endif
 
   return vec4(finalColor, s.albedo.a);
 }

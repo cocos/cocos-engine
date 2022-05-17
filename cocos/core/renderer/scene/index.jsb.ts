@@ -23,6 +23,7 @@
  THE SOFTWARE.
  */
 import { legacyCC } from '../../global-exports';
+import { Vec3 } from '../../math';
 import { Enum } from '../../value-types';
 
 export type Ambient = jsb.Ambient;
@@ -187,18 +188,47 @@ export const PCFType = Enum({
     HARD: 0,
 
     /**
-     * @zh 软阴影
-     * @en soft shadow
+     * @zh x4 次采样
+     * @en x4 times
      * @readonly
      */
     SOFT: 1,
 
     /**
-     * @zh 软阴影
-     * @en soft shadow
+     * @zh x9 次采样
+     * @en x9 times
      * @readonly
      */
     SOFT_2X: 2,
+});
+export const CSMLevel = Enum({
+    /**
+     * @zh 1 个层级
+     * @en level 1
+     * @readonly
+     */
+    level_1: 1,
+
+    /**
+     * @zh 2 个层级
+     * @en level 2
+     * @readonly
+     */
+    level_2: 2,
+
+    /**
+     * @zh 3 个层级
+     * @en level 3
+     * @readonly
+     */
+    level_3: 3,
+
+    /**
+     * @zh 4 个层级
+     * @en level 4
+     * @readonly
+     */
+    level_4: 4,
 });
 export const ShadowsInfo = jsb.ShadowsInfo;
 export type ShadowsInfo = jsb.ShadowsInfo;

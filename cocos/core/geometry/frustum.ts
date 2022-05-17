@@ -316,6 +316,17 @@ export class Frustum {
     }
 
     /**
+     * @en Initialize the frustum
+     * @zh 初始化视锥体
+     */
+    public zero () {
+        for (let i = 0; i < 8; i++) {
+            this.vertices[i].set(0.0, 0.0, 0.0);
+        }
+        this.updatePlanes();
+    }
+
+    /**
      * @en Update all six planes of the frustum
      * @zh 更新视锥体的所有面数据
      */
