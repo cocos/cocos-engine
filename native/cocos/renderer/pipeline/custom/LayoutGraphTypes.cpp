@@ -123,7 +123,6 @@ DescriptorBlockData::DescriptorBlockData(DescriptorBlockData&& rhs, const alloca
   visibility(rhs.visibility),
   offset(rhs.offset),
   capacity(rhs.capacity),
-  registerSlot(rhs.registerSlot),
   descriptors(std::move(rhs.descriptors), alloc) {}
 
 DescriptorBlockData::DescriptorBlockData(DescriptorBlockData const& rhs, const allocator_type& alloc)
@@ -131,7 +130,6 @@ DescriptorBlockData::DescriptorBlockData(DescriptorBlockData const& rhs, const a
   visibility(rhs.visibility),
   offset(rhs.offset),
   capacity(rhs.capacity),
-  registerSlot(rhs.registerSlot),
   descriptors(rhs.descriptors, alloc) {}
 
 DescriptorSetLayoutData::DescriptorSetLayoutData(const allocator_type& alloc) noexcept

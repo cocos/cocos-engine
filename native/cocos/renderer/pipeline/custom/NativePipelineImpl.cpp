@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include <memory>
+#include <stdexcept>
 #include "NativePipelineTypes.h"
 #include "base/Macros.h"
 #include "cocos/base/StringUtil.h"
@@ -68,23 +69,23 @@ void NativeLayoutGraphBuilder::addDescriptorBlock(uint32_t nodeID, const Descrip
         index.descriptorType, index.visibility, block.capacity);
 
     auto& dstBlock = layout.descriptorBlocks.back();
-    // auto& reg = registers.at(static_cast<uint32_t>(index.descriptorType));
-    dstBlock.registerSlot = 0xFFFFFFFF;
     dstBlock.offset = layout.capacity;
     dstBlock.capacity = block.capacity;
     for (const auto& pairD : block.descriptors) {
         const auto& name = pairD.first;
         const auto& d = pairD.second;
-        // auto nameID = mData.mAttributeIndex.at(name);
-        // dstBlock.mDescriptors.emplace_back(nameID, d.mCount);
+        auto iter = data.attributeIndex.find(boost::string_view(name));
+        if (iter == data.attributeIndex.end()) {
+            throw std::out_of_range("attribute not found");
+        }
+        const auto& nameID = iter->second;
+        dstBlock.descriptors.emplace_back(nameID, d.count);
     }
     // update layout
     layout.capacity += block.capacity;
-    // reg += block.capacity;
 }
 
 int NativeLayoutGraphBuilder::compile() {
-    registers.resize(static_cast<size_t>(DescriptorTypeOrder::INPUT_ATTACHMENT) + 1);
 
     return 0;
 }

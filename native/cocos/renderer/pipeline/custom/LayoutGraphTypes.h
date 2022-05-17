@@ -358,6 +358,9 @@ struct DescriptorData {
     DescriptorData() = default;
     DescriptorData(NameLocalID descriptorIDIn) noexcept // NOLINT
     : descriptorID(descriptorIDIn) {}
+    DescriptorData(NameLocalID descriptorIDIn, uint32_t countIn) noexcept
+    : descriptorID(descriptorIDIn),
+      count(countIn) {}
 
     NameLocalID descriptorID;
     uint32_t    count{1};
@@ -383,7 +386,6 @@ struct DescriptorBlockData {
     gfx::ShaderStageFlagBit            visibility{gfx::ShaderStageFlagBit::NONE};
     uint32_t                           offset{0};
     uint32_t                           capacity{0};
-    uint32_t                           registerSlot{0};
     ccstd::pmr::vector<DescriptorData> descriptors;
 };
 

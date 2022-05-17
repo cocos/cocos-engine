@@ -56,8 +56,7 @@ public:
     void addDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlock& block) override;
     int compile() override;
 
-    LayoutGraphData              data;
-    ccstd::pmr::vector<uint32_t> registers;
+    LayoutGraphData data;
 };
 
 class NativePipeline final : public Pipeline {

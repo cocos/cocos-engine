@@ -614,7 +614,6 @@ export class DescriptorBlockData {
     visibility: ShaderStageFlagBit;
     offset = 0;
     capacity: number;
-    registerSlot = 0;
     readonly descriptors: DescriptorData[] = [];
 }
 
