@@ -160,6 +160,7 @@ SE_DECLARE_FUNC(js_render_Pipeline_addRasterPass);
 SE_DECLARE_FUNC(js_render_Pipeline_addRenderTarget);
 SE_DECLARE_FUNC(js_render_Pipeline_addRenderTexture);
 SE_DECLARE_FUNC(js_render_Pipeline_beginFrame);
+SE_DECLARE_FUNC(js_render_Pipeline_createLayoutGraph);
 SE_DECLARE_FUNC(js_render_Pipeline_createSceneTransversal);
 SE_DECLARE_FUNC(js_render_Pipeline_endFrame);
 SE_DECLARE_FUNC(js_render_Pipeline_presentAll);

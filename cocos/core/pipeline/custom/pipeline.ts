@@ -167,6 +167,7 @@ export abstract class Pipeline extends PipelineRuntime {
     public abstract addCopyPass(name: string): CopyPassBuilder;
     public abstract presentAll(): void;
     public abstract createSceneTransversal(camera: Camera, scene: RenderScene): SceneTransversal;
+    public abstract createLayoutGraph(name: string): LayoutGraphBuilder;
 }
 
 export class Factory {

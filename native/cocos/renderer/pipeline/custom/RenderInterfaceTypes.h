@@ -336,6 +336,7 @@ public:
     virtual void                presentAll() = 0;
 
     virtual SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) = 0;
+    virtual LayoutGraphBuilder *createLayoutGraph(const ccstd::string& name) = 0;
 };
 
 inline Pipeline::~Pipeline() noexcept = default;

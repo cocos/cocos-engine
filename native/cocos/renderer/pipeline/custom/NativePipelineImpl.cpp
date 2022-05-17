@@ -26,9 +26,14 @@
 #include <memory>
 #include <sstream>
 #include <stdexcept>
+#include <tuple>
+#include <utility>
+#include "LayoutGraphGraphs.h"
 #include "NativePipelineTypes.h"
 #include "base/Macros.h"
 #include "base/Ptr.h"
+#include "boost/container/pmr/global_resource.hpp"
+#include "boost/utility/string_view_fwd.hpp"
 #include "cocos/base/StringUtil.h"
 #include "cocos/renderer/gfx-base/GFXDescriptorSetLayout.h"
 #include "cocos/renderer/pipeline/Enum.h"
@@ -47,43 +52,42 @@
 #include "pipeline/custom/NativePipelineFwd.h"
 #include "pipeline/custom/Range.h"
 #include "profiler/DebugRenderer.h"
-#include "LayoutGraphGraphs.h"
 
 namespace cc {
 
 namespace render {
 
 uint32_t NativeLayoutGraphBuilder::addRenderStage(const ccstd::string &name) {
-    return add_vertex(data, RenderStageTag{}, name.c_str());
+    return add_vertex(*data, RenderStageTag{}, name.c_str());
 }
 
 uint32_t NativeLayoutGraphBuilder::addRenderPhase(const ccstd::string &name, uint32_t parentID) {
-    return add_vertex(data, RenderPhaseTag{}, name.c_str(), parentID);
+    return add_vertex(*data, RenderPhaseTag{}, name.c_str(), parentID);
 }
 
 void NativeLayoutGraphBuilder::addDescriptorBlock(uint32_t nodeID,
-    const DescriptorBlockIndex &index, const DescriptorBlock &block) {
-    auto& g = data;
-    auto& ppl = get(LayoutGraphData::Layout, g, nodeID);
+                                                  const DescriptorBlockIndex &index, const DescriptorBlock &block) {
+    auto &g = *data;
+    auto &ppl = get(LayoutGraphData::Layout, g, nodeID);
 
     CC_ASSERT(block.capacity);
-    auto& layout = ppl.descriptorSets[index.updateFrequency].descriptorSetLayoutData;
+    auto &layout = ppl.descriptorSets[index.updateFrequency].descriptorSetLayoutData;
 
     // add block
     layout.descriptorBlocks.emplace_back(
         index.descriptorType, index.visibility, block.capacity);
 
-    auto& dstBlock = layout.descriptorBlocks.back();
+    auto &dstBlock = layout.descriptorBlocks.back();
     dstBlock.offset = layout.capacity;
     dstBlock.capacity = block.capacity;
-    for (const auto& pairD : block.descriptors) {
-        const auto& name = pairD.first;
-        const auto& d = pairD.second;
-        auto iter = data.attributeIndex.find(boost::string_view(name));
-        if (iter == data.attributeIndex.end()) {
+    for (const auto &pairD : block.descriptors) {
+        const auto &name = pairD.first;
+        const auto &d = pairD.second;
+        auto iter = g.attributeIndex.find(boost::string_view(name));
+        if (iter == g.attributeIndex.end()) {
             throw std::out_of_range("attribute not found");
         }
-        const auto& nameID = iter->second;
+        const auto &nameID = iter->second;
         dstBlock.descriptors.emplace_back(nameID, d.count);
     }
     // update layout
@@ -91,18 +95,18 @@ void NativeLayoutGraphBuilder::addDescriptorBlock(uint32_t nodeID,
 }
 
 void NativeLayoutGraphBuilder::reserveDescriptorBlock(uint32_t nodeID,
-    const DescriptorBlockIndex &index, const DescriptorBlock &block) {
-    auto& g = data;
-    auto& ppl = get(LayoutGraphData::Layout, g, nodeID);
+                                                      const DescriptorBlockIndex &index, const DescriptorBlock &block) {
+    auto &g = *data;
+    auto &ppl = get(LayoutGraphData::Layout, g, nodeID);
 
     CC_ASSERT(block.capacity);
-    auto& layout = ppl.descriptorSets[index.updateFrequency].descriptorSetLayoutData;
+    auto &layout = ppl.descriptorSets[index.updateFrequency].descriptorSetLayoutData;
 
     // add block
     layout.descriptorBlocks.emplace_back(
         index.descriptorType, index.visibility, block.capacity);
 
-    auto& dstBlock = layout.descriptorBlocks.back();
+    auto &dstBlock = layout.descriptorBlocks.back();
     dstBlock.offset = layout.capacity;
     dstBlock.capacity = block.capacity;
 
@@ -114,35 +118,35 @@ namespace {
 
 gfx::DescriptorType getGfxType(DescriptorTypeOrder type) {
     switch (type) {
-    case DescriptorTypeOrder::UNIFORM_BUFFER:
-        return gfx::DescriptorType::UNIFORM_BUFFER;
-    case DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER:
-        return gfx::DescriptorType::DYNAMIC_UNIFORM_BUFFER;
-    case DescriptorTypeOrder::SAMPLER_TEXTURE:
-        return gfx::DescriptorType::SAMPLER_TEXTURE;
-    case DescriptorTypeOrder::SAMPLER:
-        return gfx::DescriptorType::SAMPLER;
-    case DescriptorTypeOrder::TEXTURE:
-        return gfx::DescriptorType::TEXTURE;
-    case DescriptorTypeOrder::STORAGE_BUFFER:
-        return gfx::DescriptorType::STORAGE_BUFFER;
-    case DescriptorTypeOrder::DYNAMIC_STORAGE_BUFFER:
-        return gfx::DescriptorType::DYNAMIC_STORAGE_BUFFER;
-    case DescriptorTypeOrder::STORAGE_IMAGE:
-        return gfx::DescriptorType::STORAGE_IMAGE;
-    case DescriptorTypeOrder::INPUT_ATTACHMENT:
-        return gfx::DescriptorType::INPUT_ATTACHMENT;
+        case DescriptorTypeOrder::UNIFORM_BUFFER:
+            return gfx::DescriptorType::UNIFORM_BUFFER;
+        case DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER:
+            return gfx::DescriptorType::DYNAMIC_UNIFORM_BUFFER;
+        case DescriptorTypeOrder::SAMPLER_TEXTURE:
+            return gfx::DescriptorType::SAMPLER_TEXTURE;
+        case DescriptorTypeOrder::SAMPLER:
+            return gfx::DescriptorType::SAMPLER;
+        case DescriptorTypeOrder::TEXTURE:
+            return gfx::DescriptorType::TEXTURE;
+        case DescriptorTypeOrder::STORAGE_BUFFER:
+            return gfx::DescriptorType::STORAGE_BUFFER;
+        case DescriptorTypeOrder::DYNAMIC_STORAGE_BUFFER:
+            return gfx::DescriptorType::DYNAMIC_STORAGE_BUFFER;
+        case DescriptorTypeOrder::STORAGE_IMAGE:
+            return gfx::DescriptorType::STORAGE_IMAGE;
+        case DescriptorTypeOrder::INPUT_ATTACHMENT:
+            return gfx::DescriptorType::INPUT_ATTACHMENT;
     }
     throw std::invalid_argument("DescriptorType not found");
 }
 
 IntrusivePtr<gfx::DescriptorSetLayout> createDescriptorSetLayout(
-    gfx::Device* device, const DescriptorSetLayoutData& layoutData) {
+    gfx::Device *device, const DescriptorSetLayoutData &layoutData) {
     gfx::DescriptorSetLayoutInfo info;
-    
-    for (const auto& block : layoutData.descriptorBlocks) {
+
+    for (const auto &block : layoutData.descriptorBlocks) {
         uint32_t slot = block.offset;
-        for (const auto& d : block.descriptors) {
+        for (const auto &d : block.descriptors) {
             gfx::DescriptorSetLayoutBinding binding;
             binding.binding = slot;
             binding.descriptorType = getGfxType(block.type);
@@ -160,12 +164,13 @@ IntrusivePtr<gfx::DescriptorSetLayout> createDescriptorSetLayout(
 } // namespace
 
 int NativeLayoutGraphBuilder::compile() {
+    auto &g = *data;
     // create descriptor sets
-    for (const auto& v : makeRange(vertices(data))) {
-        auto& ppl = get(LayoutGraphData::Layout, data, v);
-        for (auto& levelPair : ppl.descriptorSets) {
-            auto& level = levelPair.second;
-            const auto& layoutData = level.descriptorSetLayoutData;
+    for (const auto &v : makeRange(vertices(g))) {
+        auto &ppl = get(LayoutGraphData::Layout, g, v);
+        for (auto &levelPair : ppl.descriptorSets) {
+            auto &level = levelPair.second;
+            const auto &layoutData = level.descriptorSetLayoutData;
             level.descriptorSetLayout = createDescriptorSetLayout(device, layoutData);
             level.descriptorSet = device->createDescriptorSet(
                 gfx::DescriptorSetInfo{level.descriptorSetLayout.get()});
@@ -177,12 +182,15 @@ int NativeLayoutGraphBuilder::compile() {
 
 std::string NativeLayoutGraphBuilder::print() const {
     std::ostringstream oss;
-    
+
     return oss.str();
 }
 
-NativePipeline::NativePipeline() noexcept
-: device(gfx::Device::getInstance()), globalDSManager(std::make_unique<pipeline::GlobalDSManager>()), pipelineSceneData(ccnew pipeline::PipelineSceneData()) // NOLINT
+NativePipeline::NativePipeline(const allocator_type &alloc) noexcept
+: device(gfx::Device::getInstance()),
+  globalDSManager(std::make_unique<pipeline::GlobalDSManager>()),
+  layoutGraphs(alloc),
+  pipelineSceneData(ccnew pipeline::PipelineSceneData()) // NOLINT
 {
 }
 
@@ -244,6 +252,14 @@ void NativePipeline::presentAll() {
 // NOLINTNEXTLINE
 SceneTransversal *NativePipeline::createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) {
     return nullptr;
+}
+
+LayoutGraphBuilder *NativePipeline::createLayoutGraph(const ccstd::string &name) {
+    auto res = layoutGraphs.emplace(std::piecewise_construct,
+                                    std::forward_as_tuple(name.c_str()),
+                                    std::forward_as_tuple());
+    CC_ASSERT(res.second);
+    return ccnew NativeLayoutGraphBuilder(device, &res.first->second);
 }
 
 namespace {
