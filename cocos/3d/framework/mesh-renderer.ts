@@ -36,7 +36,7 @@ import { TransformBit } from '../../core/scene-graph/node-enum';
 import { Enum } from '../../core/value-types';
 import { builtinResMgr } from '../../core/builtin';
 import { RenderableComponent } from '../../core/components/renderable-component';
-import { MorphRenderingInstance } from '../assets/morph';
+import { MorphRenderingInstance } from '../assets/morph-rendering';
 import { legacyCC } from '../../core/global-exports';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { CCFloat } from '../../core/data/utils/attribute';

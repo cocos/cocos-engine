@@ -28,3 +28,4 @@ import './deprecated';
 
 export { Mesh } from './mesh';
 export { Skeleton } from './skeleton';
+export * from './morph';
