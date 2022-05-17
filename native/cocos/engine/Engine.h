@@ -47,6 +47,7 @@ class Device;
 class FileUtils;
 class DebugRenderer;
 class Profiler;
+class BuiltinResMgr;
 
 #define NANOSECONDS_PER_SECOND 1000000000
 #define NANOSECONDS_60FPS      16666667L
@@ -141,14 +142,18 @@ private:
     bool _needRestart{false};
     bool _inited{false};
     
-    // Subsystems
+    // Some global objects.
     FileUtils *_fs{nullptr};
 #if CC_USE_PROFILER
 	Profiler *_profiler{nullptr};
 #endif
     DebugRenderer *_debugRenderer{nullptr};
     se::ScriptEngine *_scriptEngine{nullptr};
+    // Should move to renderer system in future.
     gfx::Device *_gfxDevice{nullptr};
+    
+    // Should move them into material system in future.
+    BuiltinResMgr *_builtinResMgr{nullptr};
 
     std::map<OSEventType, EventCb> _eventCallbacks;
     CC_DISALLOW_COPY_MOVE_ASSIGN(Engine);
