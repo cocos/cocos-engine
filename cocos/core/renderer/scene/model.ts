@@ -662,8 +662,8 @@ export class Model {
     }
 
     /**
-     * @en Initialize a sub model
-     * @zh 初始化一个子模型
+     * @en Initialize a sub model with the sub mesh data and the material.
+     * @zh 用子网格数据和材质初始化一个子模型。
      * @param idx sub model's index
      * @param subMeshData sub mesh
      * @param mat sub material
