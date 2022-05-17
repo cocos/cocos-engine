@@ -35,11 +35,14 @@ import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 import { StaticVBChunk } from '../../renderer/static-vb-accessor';
+import { RenderEntity } from '../../renderer/render-entity';
+import { NativeRenderEntity } from '../../../core/renderer/2d/native-2d';
 
 const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
     vec3_temps.push(new Vec3());
 }
+let renderEntity :RenderEntity = null!;
 
 /**
  * simple 组装器
@@ -76,6 +79,9 @@ export const simple: IAssembler = {
             }
             renderData.updateRenderData(sprite, frame);
         }
+
+        renderEntity = new RenderEntity();
+        //renderEntity.init();
     },
 
     updateWorldVerts (sprite: Sprite, chunk: StaticVBChunk) {
@@ -139,6 +145,8 @@ export const simple: IAssembler = {
             vData[27] = ar + cttx;
             vData[28] = br + dtty;
         }
+
+        renderEntity.setVB(vData.buffer);
     },
 
     fillBuffers (sprite: Sprite, renderer: IBatcher) {

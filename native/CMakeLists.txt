@@ -1624,10 +1624,17 @@ if(USE_PHYSICS_PHYSX)
 endif()
 
 ##### 2d
-# cocos_source_files(
-#     cocos/2d/framework/UITransform.h
-#     cocos/2d/framework/UITransform.cpp
-# )
+cocos_source_files(
+    cocos/2d/assembler/IAssmebler.h
+    cocos/2d/assembler/IAssmebler.cpp
+    cocos/2d/assembler/Simple.h    
+    cocos/2d/assembler/Simple.cpp
+
+    cocos/2d/render/Batcher2d.h
+    cocos/2d/render/Batcher2d.cpp
+    cocos/2d/render/RenderEntity.h
+    cocos/2d/render/RenderEntity.cpp
+)
 
 ##### 3d
 cocos_source_files(
