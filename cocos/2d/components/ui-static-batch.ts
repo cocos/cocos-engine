@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { ccclass, help, menu, executionOrder, visible, override } from 'cc.decorator';
 import { Renderable2D } from '../framework/renderable-2d';
 import { IBatcher } from '../renderer/i-batcher';

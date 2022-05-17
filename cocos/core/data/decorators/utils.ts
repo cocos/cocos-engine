@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { DEV } from 'internal:constants';
 import { CCClass } from '../class';
 import { error } from '../../platform/debug';

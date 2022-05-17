@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { ccenum } from '../value-types/enum';
 
 export enum WrapModeMask {

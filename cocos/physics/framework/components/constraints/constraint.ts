@@ -24,8 +24,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { ccclass, requireComponent, displayOrder, type, readOnly, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Component } from '../../../../core';

@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { ccclass, displayOrder, serializable } from 'cc.decorator';
 import { legacyCC } from '../global-exports';
 import { RenderPipeline } from './render-pipeline';

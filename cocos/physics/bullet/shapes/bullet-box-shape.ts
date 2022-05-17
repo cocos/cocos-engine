@@ -24,8 +24,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { BulletShape } from './bullet-shape';
 import { Vec3 } from '../../../core';
 import { BoxCollider, PhysicsSystem } from '../../../../exports/physics-framework';

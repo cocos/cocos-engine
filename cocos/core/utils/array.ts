@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { logID } from '../platform/debug';
 
 export { default as MutableForwardIterator } from './mutable-forward-iterator';

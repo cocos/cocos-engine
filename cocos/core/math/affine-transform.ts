@@ -25,8 +25,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { Mat4 } from './mat4';
 import { Rect } from './rect';
 import { Size } from './size';

@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 export interface IColorLike {
     r: number;
     g: number;

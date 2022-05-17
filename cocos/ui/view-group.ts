@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-
-
 /**
  * @en
  * Handling touch events in a ViewGroup takes special care,

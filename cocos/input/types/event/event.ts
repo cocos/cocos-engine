@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { legacyCC } from '../../../core/global-exports';
 import { SystemEventTypeUnion } from '../event-enum';
 

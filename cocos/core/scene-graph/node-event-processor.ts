@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { CallbacksInvoker } from '../event/callbacks-invoker';
 import { Event, EventMouse, EventTouch } from '../../input/types';
 import { Vec2 } from '../math/vec2';
@@ -37,7 +35,7 @@ import { InputEventType, SystemEventTypeUnion } from '../../input/types/event-en
 
 const _cachedArray = new Array<BaseNode>(16);
 let _currentHovered: BaseNode | null = null;
-let pos = new Vec2();
+const pos = new Vec2();
 
 const _touchEvents = [
     NodeEventType.TOUCH_START,

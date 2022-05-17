@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { TEST } from 'internal:constants';
 import { BASE64_VALUES } from './misc';
 import { legacyCC } from '../global-exports';

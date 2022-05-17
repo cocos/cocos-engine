@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { EDITOR, DEV, TEST } from 'internal:constants';
 import { warnID, error, errorID } from '../platform/debug';
 import IDGenerator from './id-generator';

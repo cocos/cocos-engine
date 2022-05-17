@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { Mat4 } from './mat4';

@@ -24,8 +24,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { ccclass, tooltip, displayOrder, range, type, radian, serializable } from 'cc.decorator';
 import { Mat4, pseudoRandom, Quat, Vec4, Vec3 } from '../../core/math';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';

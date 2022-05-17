@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { Color, Rect, Size, Texture2D, Vec2 } from '../core';
 import { SpriteFrame } from '../2d/assets';
 import { ccenum } from '../core/value-types/enum';

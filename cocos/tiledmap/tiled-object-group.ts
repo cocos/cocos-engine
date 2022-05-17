@@ -24,8 +24,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { ccclass, help, type, requireComponent } from 'cc.decorator';
 import { Component } from '../core/components';
 import { Sprite } from '../2d/components/sprite';

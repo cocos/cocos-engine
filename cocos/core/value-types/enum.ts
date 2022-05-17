@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { EDITOR, TEST, DEV } from 'internal:constants';
 import { value } from '../utils/js';
 import { legacyCC } from '../global-exports';
@@ -42,8 +40,8 @@ import { assertIsTrue } from '../data/utils/asserts';
  * 定义一个枚举类型。<br/>
  * 用户可以把枚举值设为任意的整数，如果设为 -1，系统将会分配为上一个枚举值 + 1。
  *
- * @param obj 
- * @en A JavaScript literal object containing enum names and values, or a TypeScript enum type. 
+ * @param obj
+ * @en A JavaScript literal object containing enum names and values, or a TypeScript enum type.
  * @zh 包含枚举名和值的 JavaScript literal 对象，或者是一个 TypeScript enum 类型。
  * @return @en The defined enum type. @zh 定义的枚举类型。
  */

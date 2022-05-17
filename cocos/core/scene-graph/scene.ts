@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { ccclass, serializable, editable } from 'cc.decorator';
 import { EDITOR, JSB, TEST } from 'internal:constants';
 import { CCObject } from '../data/object';

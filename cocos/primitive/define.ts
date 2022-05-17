@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { PrimitiveMode, Attribute } from '../core/gfx';
 
 /**

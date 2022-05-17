@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { legacyCC } from '../global-exports';
 
 /**

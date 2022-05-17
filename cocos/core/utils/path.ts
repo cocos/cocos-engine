@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { systemInfo } from 'pal/system-info';
 import { OS } from '../../../pal/system-info/enum-type';
 

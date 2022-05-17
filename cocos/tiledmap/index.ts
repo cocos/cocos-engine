@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 export * from './tiled-map';
 export * from './tiled-map-asset';
 export * from './tiled-layer';

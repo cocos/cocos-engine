@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-
-
 /**
  * @example
  * ```

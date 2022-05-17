@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 import { ImageAsset, Texture2D } from '../assets';
 import { packCustomObjData, unpackJSONs } from '../data/deserialize';
 import { error, errorID } from '../platform/debug';

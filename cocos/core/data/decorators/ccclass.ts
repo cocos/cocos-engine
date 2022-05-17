@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { DEV } from 'internal:constants';
 import { js } from '../../utils/js';
 import { CCClass } from '../class';

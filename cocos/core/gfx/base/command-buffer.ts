@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { Buffer } from './buffer';
 import { DescriptorSet } from './descriptor-set';
 import { Framebuffer } from './framebuffer';
