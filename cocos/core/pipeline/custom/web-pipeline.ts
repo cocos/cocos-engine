@@ -508,7 +508,7 @@ export class WebPipeline extends Pipeline {
         if (!shadows.enabled || shadows.type !== ShadowType.ShadowMap) {
             return;
         }
-        const castShadowObjects = pplScene.castShadowObjects;
+        const castShadowObjects = pplScene.csmLayers.castShadowObjects;
         const validPunctualLights = pplScene.validPunctualLights;
 
         // force clean up
