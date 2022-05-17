@@ -30,6 +30,10 @@ import { legacyCC } from '../../core/global-exports';
 import { Camera } from '../../core/renderer/scene';
 import { Root } from '../../core/root';
 
+/**
+ * @en The sphere light component, multiple sphere lights can be added to one scene.
+ * @zh 球面光源组件，场景中可以添加多个球面光源。
+ */
 @ccclass('cc.SphereLight')
 @help('i18n:cc.SphereLight')
 @menu('Light/SphereLight')
