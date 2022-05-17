@@ -934,7 +934,7 @@ const Elements = {
                     sectionMissing.appendChild($section);
                 }
                 $section.innerHTML = `
-                <span class="name">${panel.dump.removedComponents[i].name} [removed]</span>
+                <span class="name"><span>${panel.dump.removedComponents[i].name}</span> [removed]</span>
                 <ui-icon value="reset" index="${i}" tooltip="i18n:ENGINE.prefab.reset"></ui-icon>
                 <ui-icon value="save-o" index="${i}" tooltip="i18n:ENGINE.prefab.save"></ui-icon>
                 `;
