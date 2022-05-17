@@ -56,7 +56,7 @@
 #include "application/ApplicationManager.h"
 #include "application/BaseApplication.h"
 #include "base/Scheduler.h"
-#include "cocos/network/HttpClient.h"
+#include "network/HttpClient.h"
 #include "core/Root.h"
 #include "core/assets/FreeTypeFont.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
@@ -97,11 +97,12 @@ namespace cc {
 Engine::Engine() {
     _scheduler = std::make_shared<Scheduler>();
     _fs = createFileUtils();
+    _scriptEngine = ccnew se::ScriptEngine();
     EventDispatcher::init();
-    se::ScriptEngine::getInstance();
 
+    _debugRenderer = ccnew DebugRenderer();
 #if CC_USE_PROFILER
-    _profiler = new Profiler();
+    _profiler = ccnew Profiler();
 #endif
 }
 
@@ -118,18 +119,22 @@ Engine::~Engine() {
     spine::SkeletonCacheMgr::destroyInstance();
 #endif
 
-    cc::EventDispatcher::destroy();
-    cc::network::HttpClient::destroyInstance();
+    EventDispatcher::destroy();
+    network::HttpClient::destroyInstance();
     Root::getInstance()->destroy();
 
 #if CC_USE_PROFILER
     delete _profiler;
 #endif
-    DebugRenderer::destroyInstance();
-    FreeTypeFontFace::destroyFreeType();
+    // Profiler depends on DebugRenderer, should delete it after deleting Profiler.
+    delete _debugRenderer;
 
-    se::ScriptEngine::getInstance()->cleanup();
-    se::ScriptEngine::destroyInstance();
+    FreeTypeFontFace::destroyFreeType();
+    
+    // Should delete it before deleting DeviceManager as ScriptEngine will check gpu resource usage,
+    // and ScriptEngine will hold gfx objects.
+    delete _scriptEngine;
+
 #if CC_USE_MIDDLEWARE
     cc::middleware::MiddlewareManager::destroyInstance();
 #endif
@@ -138,6 +143,7 @@ Engine::~Engine() {
 
     CCObject::deferredDestroy();
     gfx::DeviceManager::destroy();
+    
     delete _fs;
 }
 
@@ -275,8 +281,6 @@ int32_t Engine::restartVM() {
 
     Root::getInstance()->getPipeline()->destroy();
 
-    auto *scriptEngine = se::ScriptEngine::getInstance();
-
     cc::DeferredReleasePool::clear();
 #if CC_USE_AUDIO
     cc::AudioEngine::stopAll();
@@ -289,7 +293,7 @@ int32_t Engine::restartVM() {
     _scheduler->removeAllFunctionsToBePerformedInCocosThread();
     _scheduler->unscheduleAll();
 
-    scriptEngine->cleanup();
+    _scriptEngine->cleanup();
     cc::gfx::DeviceManager::destroy();
     cc::EventDispatcher::destroy();
     ProgramLib::destroyInstance();

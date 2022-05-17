@@ -83,7 +83,11 @@ public:
     /**
      *  @brief Destroys the instance of script engine.
      */
+    CC_DEPRECATED(v3.6.0)
     static void destroyInstance();
+    
+    ScriptEngine();
+    ~ScriptEngine();
 
     /**
      *  @brief Gets the global object of JavaScript VM.
@@ -346,8 +350,6 @@ public:
 
     //
 private:
-    ScriptEngine();
-    ~ScriptEngine();
     static void privateDataFinalize(PrivateObjectBase *privateObj);
     static void onFatalErrorCallback(const char *location, const char *message);
     static void onOOMErrorCallback(const char *location, bool isHeapOom);
@@ -371,6 +373,8 @@ private:
     };
     // Push promise and exception msg to _promiseArray
     void pushPromiseExeception(const v8::Local<v8::Promise> &promise, const char *event, const char *stackTrace);
+    
+    static ScriptEngine *instance;
 
     ccstd::vector<std::tuple<std::unique_ptr<v8::Persistent<v8::Promise>>, ccstd::vector<PromiseExceptionMsg>>> _promiseArray;
 

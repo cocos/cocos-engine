@@ -34,9 +34,14 @@
 #include <map>
 #include <memory>
 
+namespace se {
+class ScriptEngine;
+}
+
 namespace cc {
 
 class FileUtils;
+class DebugRenderer;
 class Profiler;
 
 #define NANOSECONDS_PER_SECOND 1000000000
@@ -134,7 +139,11 @@ private:
     
     // Subsystems
     FileUtils *_fs{nullptr};
-    Profiler *_profiler{nullptr};
+#if CC_USE_PROFILER
+	Profiler *_profiler{nullptr};
+#endif
+    DebugRenderer *_debugRenderer{nullptr};
+    se::ScriptEngine *_scriptEngine{nullptr};
 
     std::map<OSEventType, EventCb> _eventCallbacks;
     CC_DISALLOW_COPY_MOVE_ASSIGN(Engine);
