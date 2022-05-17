@@ -49,7 +49,7 @@ export class DirectionalLight extends Light {
     protected _shadowInvisibleOcclusionRange = 200;
     protected _shadowCSMLevel = CSMLevel.level_3;
     protected _shadowCSMValueDirty = false;
-    protected _shadowCSMLambda = 0.35;
+    protected _shadowCSMLambda = 0.75;
     protected _shadowCSMDebugMode = false;
 
     // fixed area properties

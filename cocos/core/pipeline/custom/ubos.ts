@@ -170,9 +170,11 @@ export class PipelineUBO {
         case PCFType.HARD:
             return 0.0;
         case PCFType.SOFT:
-            return 1.0  / shadowMapSize;
-        case PCFType.SOFT_2X:
             return 1.0  / (shadowMapSize * 0.5);
+        case PCFType.SOFT_2X:
+            return 2.0  / (shadowMapSize * 0.5);
+        case PCFType.SOFT_5X:
+            return 3.0  / (shadowMapSize * 0.5);
         default:
         }
         return 0.0;

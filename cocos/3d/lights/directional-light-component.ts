@@ -71,7 +71,7 @@ export class DirectionalLight extends Light {
     @serializable
     protected _shadowCSMLevel = CSMLevel.level_3;
     @serializable
-    protected _shadowCSMLambda = 0.35;
+    protected _shadowCSMLambda = 0.75;
 
     // fixed area properties
     @serializable

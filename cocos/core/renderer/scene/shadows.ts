@@ -118,6 +118,13 @@ export const PCFType = Enum({
      * @readonly
      */
     SOFT_2X: 2,
+
+    /**
+     * @zh x25 次采样
+     * @en x25 times
+     * @readonly
+     */
+    SOFT_5X: 3,
 });
 
 /**

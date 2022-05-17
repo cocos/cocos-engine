@@ -175,6 +175,8 @@ export class PipelineUBO {
             return 1.0  / (shadowMapSize * 0.5);
         case PCFType.SOFT_2X:
             return 2.0  / (shadowMapSize * 0.5);
+        case PCFType.SOFT_5X:
+            return 3.0  / (shadowMapSize * 0.5);
         default:
         }
         return 0.0;
