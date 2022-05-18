@@ -6,6 +6,7 @@
 #include <vector>
 #include "bindings/jswrapper/SeApi.h"
 #include "bindings/jswrapper/Value.h"
+#include "base/memory/Memory.h"
 
 #include "bindings/manual/jsb_conversions.h"
 #include "bindings/manual/jsb_global.h"
@@ -18,11 +19,11 @@ template <typename T>
 class class_ { //NOLINT
 public:
     using class_type = T;
-    using context_   = intl::context_db_::context_;
+    using Context   = intl::ContextDB::Context;
 
-    explicit class_(context_ *ctx) : _ctx(ctx) {}
-    explicit class_(const std::string &name);
-    explicit class_(const std::string &name, se::Object *parentProto);
+    explicit class_(Context *ctx) : _ctx(ctx) {}
+    explicit class_(const char *name);
+    explicit class_(const char *name, se::Object *parentProto);
 
     ~class_() {
         assert(_installed); // procedure `class_::install` has not been invoked?
@@ -40,29 +41,29 @@ public:
     class_ &finalizer(F callback);
 
     template <typename Method>
-    class_ &function(const std::string &name, Method method);
+    class_ &function(const char *name, Method method);
 
     template <typename Field>
-    class_ &property(const std::string &name, Field field);
+    class_ &property(const char *name, Field field);
 
     template <typename Getter, typename Setter>
-    class_ &property(const std::string &name, Getter getter, Setter setter);
+    class_ &property(const char *name, Getter getter, Setter setter);
 
     template <typename Method>
-    class_ &staticFunction(const std::string &name, Method method);
+    class_ &staticFunction(const char *name, Method method);
 
     template <typename Getter, typename Setter>
-    class_ &staticProperty(const std::string &name, Getter getter, Setter setter);
+    class_ &staticProperty(const char *name, Getter getter, Setter setter);
 
     class_ &constructor(SeCallbackFnPtr callback);
 
-    class_ &function(const std::string &name, SeCallbackFnPtr callback);
+    class_ &function(const char *name, SeCallbackFnPtr callback);
 
-    class_ &property(const std::string &name, SeCallbackFnPtr getter, SeCallbackFnPtr setter);
+    class_ &property(const char *name, SeCallbackFnPtr getter, SeCallbackFnPtr setter);
 
-    class_ &staticFunction(const std::string &name, SeCallbackFnPtr callback);
+    class_ &staticFunction(const char *name, SeCallbackFnPtr callback);
 
-    class_ &staticProperty(const std::string &name, SeCallbackFnPtr getter, SeCallbackFnPtr setter);
+    class_ &staticProperty(const char *name, SeCallbackFnPtr getter, SeCallbackFnPtr setter);
 
     se::Object *prototype() {
         return _ctx->kls->getProto();
@@ -70,7 +71,7 @@ public:
 
 private:
     bool      _installed{false};
-    context_ *_ctx{nullptr};
+    Context *_ctx{nullptr};
     template <typename R>
     friend void genericConstructor(const v8::FunctionCallbackInfo<v8::Value> &);
 };
@@ -79,14 +80,14 @@ private:
 // implements
 
 template <typename T>
-class_<T>::class_(const std::string &name) {
-    _ctx            = intl::context_db_::instance()[name];
+class_<T>::class_(const char *name) {
+    _ctx            = intl::ContextDB::instance()[name];
     _ctx->className = name;
 }
 
 template <typename T>
-class_<T>::class_(const std::string &name, se::Object *parentProto) {
-    _ctx              = intl::context_db_::instance()[name];
+class_<T>::class_(const char *name, se::Object *parentProto) {
+    _ctx              = intl::ContextDB::instance()[name];
     _ctx->className   = name;
     _ctx->parentProto = parentProto;
 }
@@ -97,7 +98,7 @@ class_<T> &class_<T>::constructor() {
     using CTYPE = intl::Constructor<intl::TypeList<T, ARGS...>>;
     using MTYPE = intl::TypeMapping<intl::TypeList<ARGS...>>;
     static_assert(intl::IsConstructibleWithTypeList<T, typename MTYPE::result_types>::value, "No matched constructor found");
-    auto *constructp      = new CTYPE();
+    auto *constructp      = ccnew CTYPE();
     constructp->arg_count = MTYPE::NEW_ARGN;
     _ctx->constructors.emplace_back(constructp);
     return *this;
@@ -107,9 +108,9 @@ template <typename T>
 template <typename F>
 class_<T> &class_<T>::constructor(F callback) {
     using FTYPE           = intl::FunctionWrapper<F>;
-    static_assert(std::is_same<typename FTYPE::return_type, T*>::value);
+    static_assert(std::is_same<typename FTYPE::return_type, T*>::value, "Function should return a instance pointer");
     using CTYPE           = intl::Constructor<typename FTYPE::type>;
-    auto *constructp      = new CTYPE();
+    auto *constructp      = ccnew CTYPE();
     constructp->arg_count = FTYPE::ARG_N;
     constructp->func      = callback;
     _ctx->constructors.emplace_back(constructp);
@@ -118,7 +119,7 @@ class_<T> &class_<T>::constructor(F callback) {
 
 template <typename T>
 class_<T> &class_<T>::constructor(SeCallbackFnPtr callback) {
-    auto *constructp      = new intl::ConstructorBase();
+    auto *constructp      = ccnew intl::ConstructorBase();
     constructp->arg_count = -1;
     constructp->bfnPtr    = callback;
     _ctx->constructors.emplace_back(constructp);
@@ -128,7 +129,7 @@ class_<T> &class_<T>::constructor(SeCallbackFnPtr callback) {
 template <typename T>
 template <typename F>
 class_<T> &class_<T>::finalizer(F callback) {
-    auto *fin = new intl::Finalizer<T>();
+    auto *fin = ccnew intl::Finalizer<T>();
     fin->func = callback;
     _ctx->finalizeCallbacks.emplace_back(fin);
     return *this;
@@ -136,10 +137,10 @@ class_<T> &class_<T>::finalizer(F callback) {
 
 template <typename T>
 template <typename Method>
-class_<T> &class_<T>::function(const std::string &name, Method method) {
+class_<T> &class_<T>::function(const char *name, Method method) {
     using MTYPE = intl::InstanceMethod<Method>;
     static_assert(std::is_base_of<typename MTYPE::class_type, T>::value, "incorrect class type");
-    auto *methodp        = new MTYPE();
+    auto *methodp        = ccnew MTYPE();
     methodp->method_name = name;
     methodp->class_name  = _ctx->className;
     methodp->arg_count   = MTYPE::ARG_N;
@@ -149,8 +150,8 @@ class_<T> &class_<T>::function(const std::string &name, Method method) {
 }
 
 template <typename T>
-class_<T> &class_<T>::function(const std::string &name, SeCallbackFnPtr callback) {
-    auto *methodp        = new intl::InstanceMethodBase();
+class_<T> &class_<T>::function(const char *name, SeCallbackFnPtr callback) {
+    auto *methodp        = ccnew intl::InstanceMethodBase();
     methodp->method_name = name;
     methodp->class_name  = _ctx->className;
     methodp->arg_count   = -1;
@@ -161,11 +162,11 @@ class_<T> &class_<T>::function(const std::string &name, SeCallbackFnPtr callback
 
 template <typename T>
 template <typename Field>
-class_<T> &class_<T>::property(const std::string &name, Field field) {
+class_<T> &class_<T>::property(const char *name, Field field) {
     static_assert(std::is_member_pointer<Field>::value, "2nd parameter should be a member pointer");
     using FTYPE = intl::InstanceField<Field>;
     static_assert(std::is_base_of<typename FTYPE::class_type, T>::value, "class_type incorrect");
-    auto *fieldp       = new FTYPE();
+    auto *fieldp       = ccnew FTYPE();
     fieldp->func       = field;
     fieldp->attr_name  = name;
     fieldp->class_name = _ctx->className;
@@ -175,9 +176,9 @@ class_<T> &class_<T>::property(const std::string &name, Field field) {
 
 template <typename T>
 template <typename Getter, typename Setter>
-class_<T> &class_<T>::property(const std::string &name, Getter getter, Setter setter) {
+class_<T> &class_<T>::property(const char *name, Getter getter, Setter setter) {
     using ATYPE       = intl::InstanceAttribute<intl::AttributeAccessor<T, Getter, Setter>>;
-    auto *attrp       = new ATYPE();
+    auto *attrp       = ccnew ATYPE();
     attrp->getterPtr  = ATYPE::HAS_GETTER ? getter : nullptr;
     attrp->setterPtr  = ATYPE::HAS_SETTER ? setter : nullptr;
     attrp->class_name = _ctx->className;
@@ -187,8 +188,8 @@ class_<T> &class_<T>::property(const std::string &name, Getter getter, Setter se
 }
 
 template <typename T>
-class_<T> &class_<T>::property(const std::string &name, SeCallbackFnPtr getter, SeCallbackFnPtr setter) {
-    auto *attrp       = new intl::InstanceAttributeBase();
+class_<T> &class_<T>::property(const char *name, SeCallbackFnPtr getter, SeCallbackFnPtr setter) {
+    auto *attrp       = ccnew intl::InstanceAttributeBase();
     attrp->bfnGetPtr  = getter;
     attrp->bfnSetPtr  = setter;
     attrp->class_name = _ctx->className;
@@ -199,9 +200,9 @@ class_<T> &class_<T>::property(const std::string &name, SeCallbackFnPtr getter, 
 
 template <typename T>
 template <typename Method>
-class_<T> &class_<T>::staticFunction(const std::string &name, Method method) {
+class_<T> &class_<T>::staticFunction(const char *name, Method method) {
     using MTYPE          = intl::StaticMethod<Method>;
-    auto *methodp        = new MTYPE();
+    auto *methodp        = ccnew MTYPE();
     methodp->method_name = name;
     methodp->class_name  = _ctx->className;
     methodp->arg_count   = MTYPE::ARG_N;
@@ -211,8 +212,8 @@ class_<T> &class_<T>::staticFunction(const std::string &name, Method method) {
 }
 
 template <typename T>
-class_<T> &class_<T>::staticFunction(const std::string &name, SeCallbackFnPtr callback) {
-    auto *methodp        = new intl::StaticMethodBase();
+class_<T> &class_<T>::staticFunction(const char *name, SeCallbackFnPtr callback) {
+    auto *methodp        = ccnew intl::StaticMethodBase();
     methodp->method_name = name;
     methodp->class_name  = _ctx->className;
     methodp->arg_count   = -1;
@@ -223,9 +224,9 @@ class_<T> &class_<T>::staticFunction(const std::string &name, SeCallbackFnPtr ca
 
 template <typename T>
 template <typename Getter, typename Setter>
-class_<T> &class_<T>::staticProperty(const std::string &name, Getter getter, Setter setter) {
+class_<T> &class_<T>::staticProperty(const char *name, Getter getter, Setter setter) {
     using ATYPE       = intl::StaticAttribute<intl::SAttributeAccessor<T, Getter, Setter>>;
-    auto *attrp       = new ATYPE();
+    auto *attrp       = ccnew ATYPE();
     attrp->getterPtr  = ATYPE::HAS_GETTER ? getter : nullptr;
     attrp->setterPtr  = ATYPE::HAS_SETTER ? setter : nullptr;
     attrp->class_name = _ctx->className;
@@ -235,8 +236,8 @@ class_<T> &class_<T>::staticProperty(const std::string &name, Getter getter, Set
 }
 
 template <typename T>
-class_<T> &class_<T>::staticProperty(const std::string &name, SeCallbackFnPtr getter, SeCallbackFnPtr setter) {
-    auto *attrp       = new intl::StaticAttributeBase();
+class_<T> &class_<T>::staticProperty(const char *name, SeCallbackFnPtr getter, SeCallbackFnPtr setter) {
+    auto *attrp       = ccnew intl::StaticAttributeBase();
     attrp->bfnGetPtr  = getter;
     attrp->bfnSetPtr  = setter;
     attrp->class_name = _ctx->className;

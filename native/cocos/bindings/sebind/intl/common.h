@@ -7,6 +7,9 @@
 #include <utility>
 
 #include "bindings/manual/jsb_conversions.h"
+#include "bindings/manual/jsb_global.h"
+
+#include "base/std/container/string.h"
 
 namespace sebind {
 
@@ -99,12 +102,12 @@ struct IsConstructibleWithTypeList<T, TypeList<ARGS...>> {
     constexpr static bool value = std::is_constructible<T, ARGS...>::value;
 };
 
-template <template <typename, bool> typename M, typename List>
+template <typename List>
 struct MapTypeListToTuple;
 
-template <template <typename, bool> typename M, typename... OTHERS>
-struct MapTypeListToTuple<M, TypeList<OTHERS...>> {
-    using tuple = std::tuple<M<OTHERS, std::is_reference<OTHERS>::value>...>;
+template <typename... OTHERS>
+struct MapTypeListToTuple<TypeList<OTHERS...>> {
+    using tuple = std::tuple<HolderType<OTHERS, std::is_reference<OTHERS>::value>...>;
 };
 
 template <typename T>
@@ -199,10 +202,10 @@ struct TypeMapping<TypeList<ARGS...>> {
     static constexpr bool NEED_REMAP = FULL_ARGN != NEW_ARGN;
 };
 template <bool, size_t>
-struct ReturnSwitch;
+struct TypeMapReturnSwitch;
 
 template <size_t t>
-struct ReturnSwitch<true, t> {
+struct TypeMapReturnSwitch<true, t> {
     template <typename T>
     static se::Object *select(se::Object *self, T &) {
         return self;
@@ -210,7 +213,7 @@ struct ReturnSwitch<true, t> {
 };
 
 template <size_t index>
-struct ReturnSwitch<false, index> {
+struct TypeMapReturnSwitch<false, index> {
     template <typename T>
     static auto select(se::Object *, T &tuple) {
         return std::get<index>(tuple).value();
@@ -227,7 +230,7 @@ struct ArgumentFilter {
         //} else {
         //    return std::get<index>(tuple).value();
         //}
-        return ReturnSwitch<map_arg::SKIP, index>::select(self, tuple);
+        return TypeMapReturnSwitch<map_arg::SKIP, index>::select(self, tuple);
     }
 };
 
@@ -240,14 +243,14 @@ void mapTupleArguments(se::Object *self, TupleIn &input, TupleOut &output, std::
 }
 
 template <size_t M, size_t N>
-struct AndAll {
+struct BoolArrayAndAll {
     static constexpr bool cal(const std::array<bool, N> &bools) {
-        return bools[M - 1] && AndAll<M - 1, N>::cal(bools);
+        return bools[M - 1] && BoolArrayAndAll<M - 1, N>::cal(bools);
     }
 };
 
 template <size_t N>
-struct AndAll<0, N> {
+struct BoolArrayAndAll<0, N> {
     static constexpr bool cal(const std::array<bool, N> & /*unused*/) {
         return true;
     }
@@ -258,7 +261,7 @@ template <typename... ARGS, size_t... indexes>
 bool convert_js_args_to_tuple(const se::ValueArray &jsArgs, std::tuple<ARGS...> &args, se::Object *thisObj, std::index_sequence<indexes...>) {
     constexpr static size_t ARG_N = sizeof...(ARGS);
     std::array<bool, ARG_N> all = {sevalue_to_native(jsArgs[indexes], &std::get<indexes>(args).data, thisObj)...};
-    return AndAll<ARG_N, ARG_N>::cal(all);
+    return BoolArrayAndAll<ARG_N, ARG_N>::cal(all);
 }
 template <size_t... indexes>
 // NOLINTNEXTLINE
@@ -289,7 +292,7 @@ struct InstanceMethodBase {
     }
 };
 struct FinalizerBase {
-    virtual void finalize(void *) = 0;
+    virtual void finalize(void *) {}
 };
 
 struct InstanceFieldBase {
@@ -369,7 +372,7 @@ template <typename T, typename... ARGS>
 struct Constructor<TypeList<T, ARGS...>> : ConstructorBase {
     bool construct(se::State &state) override {
         using type_mapping = TypeMapping<TypeList<ARGS...>>;
-        using args_holder_type = typename MapTypeListToTuple<HolderType, typename type_mapping::input_types>::tuple;
+        using args_holder_type = typename MapTypeListToTuple<typename type_mapping::input_types>::tuple;
         se::PrivateObjectBase *self{nullptr};
         se::Object *thisObj = state.thisObject();
         args_holder_type args{};
@@ -410,7 +413,7 @@ struct Constructor<T *(*)(ARGS...)> : ConstructorBase {
         if ((sizeof...(ARGS)) != state.args().size()) {
             return false;
         }
-        std::tuple<HolderType<ARGS, std::is_reference_v<ARGS>>...> args{};
+        std::tuple<HolderType<ARGS, std::is_reference<ARGS>::value>...> args{};
         const auto &jsArgs = state.args();
         se::Object *thisObj = state.thisObject();
         convert_js_args_to_tuple(jsArgs, args, thisObj, std::make_index_sequence<sizeof...(ARGS)>());
@@ -459,7 +462,7 @@ struct InstanceMethod<R (T::*)(ARGS...)> : InstanceMethodBase {
             SE_LOGE("incorret argument size %d, expect %d\n", static_cast<int>(jsArgs.size()), static_cast<int>(ARG_N));
             return false;
         }
-        std::tuple<HolderType<ARGS, std::is_reference_v<ARGS>>...> args{};
+        std::tuple<HolderType<ARGS, std::is_reference<ARGS>::value>...> args{};
         convert_js_args_to_tuple(jsArgs, args, thisObject, indexes);
         if CC_CONSTEXPR (RETURN_VOID) {
             callWithTuple(self, args, indexes);
@@ -494,7 +497,7 @@ struct InstanceMethod<R (T::*)(ARGS...) const> : InstanceMethodBase {
             SE_LOGE("incorret argument size %d, expect %d\n", static_cast<int>(jsArgs.size()), static_cast<int>(ARG_N));
             return false;
         }
-        std::tuple<HolderType<ARGS, std::is_reference_v<ARGS>>...> args{};
+        std::tuple<HolderType<ARGS, std::is_reference<ARGS>::value>...> args{};
         convert_js_args_to_tuple(jsArgs, args, thisObject, indexes);
         if CC_CONSTEXPR (RETURN_VOID) {
             callWithTuple(self, args, indexes);
@@ -529,7 +532,7 @@ struct InstanceMethod<R (*)(T *, ARGS...)> : InstanceMethodBase {
             SE_LOGE("incorret argument size %d, expect %d\n", static_cast<int>(jsArgs.size()), static_cast<int>(ARG_N));
             return false;
         }
-        std::tuple<HolderType<ARGS, std::is_reference_v<ARGS>>...> args{};
+        std::tuple<HolderType<ARGS, std::is_reference<ARGS>::value>...> args{};
         convert_js_args_to_tuple(jsArgs, args, thisObject, indexes);
         if CC_CONSTEXPR (RETURN_VOID) {
             callWithTuple(self, args, indexes);
@@ -613,7 +616,7 @@ struct AccessorGet<R (T::*)()> {
     using class_type = T;
     using type = R (T::*)();
     using return_type = R;
-    static_assert(!std::is_void_v<R>, "Getter should return a value!");
+    static_assert(!std::is_void<R>::value, "Getter should return a value!");
 };
 
 template <typename T, typename R, typename F>
@@ -629,7 +632,7 @@ struct AccessorGet<R (T::*)() const> {
     using class_type = T;
     using type = R (T::*)() const;
     using return_type = R;
-    static_assert(!std::is_void_v<R>, "Getter should return a value");
+    static_assert(!std::is_void<R>::value, "Getter should return a value");
 };
 
 template <typename T, typename R, typename F>
@@ -652,7 +655,7 @@ struct AccessorGet<R (*)(T *)> {
     using class_type = T;
     using type = R (*)(T *);
     using return_type = R;
-    static_assert(!std::is_void_v<R>, "Getter should return a value");
+    static_assert(!std::is_void<R>::value, "Getter should return a value");
 };
 
 template <typename T, typename Getter, typename Setter>
@@ -667,8 +670,8 @@ struct InstanceAttribute<AttributeAccessor<T, Getter, Setter>> : InstanceAttribu
     using getter_class_type = typename get_accessor::class_type;
     using setter_class_type = typename set_accessor::class_type;
 
-    constexpr static bool HAS_GETTER = !std::is_same_v<std::nullptr_t, getter_type>;
-    constexpr static bool HAS_SETTER = !std::is_same_v<std::nullptr_t, setter_type>;
+    constexpr static bool HAS_GETTER = !std::is_null_pointer<getter_type>::value;
+    constexpr static bool HAS_SETTER = !std::is_null_pointer<setter_type>::value;
     constexpr static bool GETTER_IS_MEMBER_FN = HAS_GETTER && std::is_member_function_pointer<Getter>::value;
     constexpr static bool SETTER_IS_MEMBER_FN = HAS_SETTER && std::is_member_function_pointer<Setter>::value;
 
@@ -693,7 +696,7 @@ struct InstanceAttribute<AttributeAccessor<T, Getter, Setter>> : InstanceAttribu
             T *self = reinterpret_cast<T *>(state.nativeThisObject());
             se::Object *thisObject = state.thisObject();
             const auto &args = state.args();
-            HolderType<set_value_type, std::is_reference_v<set_value_type>> temp;
+            HolderType<set_value_type, std::is_reference<set_value_type>::value> temp;
             sevalue_to_native(args[0], &(temp.data), thisObject);
 
             using func_type = FunctionWrapper<setter_type>;
@@ -725,7 +728,7 @@ struct StaticMethod<R (*)(ARGS...)> : StaticMethodBase {
             SE_LOGE("incorret argument size %d, expect %d\n", static_cast<int>(jsArgs.size()), static_cast<int>(ARG_N));
             return false;
         }
-        std::tuple<HolderType<ARGS, std::is_reference_v<ARGS>>...> args{};
+        std::tuple<HolderType<ARGS, std::is_reference<ARGS>::value>...> args{};
         convert_js_args_to_tuple(jsArgs, args, nullptr, indexes);
         if CC_CONSTEXPR (RETURN_VOID) {
             callWithTuple(args, indexes);
@@ -782,7 +785,7 @@ template <typename R>
 struct SAccessorGet<R(*)> {
     using type = R(*);
     using return_type = R;
-    static_assert(!std::is_void_v<R>, "Getter should return value");
+    static_assert(!std::is_void<R>::value, "Getter should return value");
 };
 
 template <typename R, typename F>
@@ -802,8 +805,8 @@ struct StaticAttribute<SAttributeAccessor<T, Getter, Setter>> : StaticAttributeB
     using set_value_type = std::remove_reference_t<std::remove_cv_t<typename set_accessor::value_type>>;
     using get_value_type = std::remove_reference_t<std::remove_cv_t<typename get_accessor::return_type>>;
 
-    constexpr static bool HAS_GETTER = !std::is_same_v<std::nullptr_t, getter_type>;
-    constexpr static bool HAS_SETTER = !std::is_same_v<std::nullptr_t, setter_type>;
+    constexpr static bool HAS_GETTER = !std::is_null_pointer<getter_type>::value;
+    constexpr static bool HAS_SETTER = !std::is_null_pointer<setter_type>::value;
 
     static_assert(HAS_GETTER || HAS_SETTER, "Either getter or setter should be set");
 
@@ -820,7 +823,7 @@ struct StaticAttribute<SAttributeAccessor<T, Getter, Setter>> : StaticAttributeB
     bool set(se::State &state) const override {
         if CC_CONSTEXPR (HAS_SETTER) {
             const auto &args = state.args();
-            HolderType<set_value_type, std::is_reference_v<set_value_type>> temp;
+            HolderType<set_value_type, std::is_reference<set_value_type>::value> temp;
             sevalue_to_native(args[0], &(temp.data), nullptr);
             (*setterPtr)(temp.value());
             return true;
@@ -830,31 +833,28 @@ struct StaticAttribute<SAttributeAccessor<T, Getter, Setter>> : StaticAttributeB
 };
 
 // NOLINTNEXTLINE
-class context_db_ {
+class ContextDB {
 public:
     // NOLINTNEXTLINE
-    struct context_ {
-        std::vector<std::tuple<std::string, std::unique_ptr<InstanceAttributeBase>>> properties;
-        std::vector<std::tuple<std::string, std::unique_ptr<InstanceFieldBase>>> fields;
-        std::vector<std::tuple<std::string, std::unique_ptr<InstanceMethodBase>>> functions;
-        std::vector<std::tuple<std::string, std::unique_ptr<StaticMethodBase>>> staticFunctions;
-        std::vector<std::tuple<std::string, std::unique_ptr<StaticAttributeBase>>> staticProperties;
+    struct Context {
+        std::vector<std::tuple<ccstd::string, std::unique_ptr<InstanceAttributeBase>>> properties;
+        std::vector<std::tuple<ccstd::string, std::unique_ptr<InstanceFieldBase>>> fields;
+        std::vector<std::tuple<ccstd::string, std::unique_ptr<InstanceMethodBase>>> functions;
+        std::vector<std::tuple<ccstd::string, std::unique_ptr<StaticMethodBase>>> staticFunctions;
+        std::vector<std::tuple<ccstd::string, std::unique_ptr<StaticAttributeBase>>> staticProperties;
         std::vector<std::unique_ptr<ConstructorBase>> constructors;
         std::vector<std::unique_ptr<FinalizerBase>> finalizeCallbacks;
-        std::string className;
+        ccstd::string className;
         se::Class *kls = nullptr;
         // se::Object *                                                  nsObject    = nullptr;
         se::Object *parentProto = nullptr;
     };
-    inline context_ *operator[](const std::string &key) {
-        return this->operator[](key.c_str());
-    }
-    context_ *operator[](const char *key);
-    static context_db_ &instance();
+    Context *operator[](const char *key);
+    static ContextDB &instance();
     static void reset();
 
 private:
-    std::map<std::string, context_ *> _contexts;
+    std::map<ccstd::string, std::unique_ptr<Context>> _contexts;
 };
 
 } // namespace intl

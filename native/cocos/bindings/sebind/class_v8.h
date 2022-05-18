@@ -7,7 +7,7 @@ namespace sebind {
 template <typename T>
 void genericFinalizer(se::Object *obj) {
     se::PrivateObjectBase *privateObject = obj->getPrivateObject();
-    using context_type = typename class_<T>::context_;
+    using context_type = typename class_<T>::Context;
     if (privateObject == nullptr) {
         return;
     }
@@ -24,7 +24,7 @@ void genericFinalizer(se::Object *obj) {
 // function wrappers for v8
 template <typename T>
 void genericConstructor(const v8::FunctionCallbackInfo<v8::Value> &v8args) {
-    using context_type = typename class_<T>::context_;
+    using context_type = typename class_<T>::Context;
     v8::Isolate *isolate = v8args.GetIsolate();
     v8::HandleScope handleScope(isolate);
     bool ret = true;
@@ -129,7 +129,7 @@ bool class_<T>::install(se::Object *nsObject) {
         }
         for (auto &method : multimap) {
             if (method.second.size() > 1) {
-                auto *overloaded = new intl::InstanceMethodOverloaded;
+                auto *overloaded = ccnew intl::InstanceMethodOverloaded;
                 overloaded->class_name = _ctx->className;
                 overloaded->method_name = method.first;
                 for (auto *method : method.second) {
@@ -149,7 +149,7 @@ bool class_<T>::install(se::Object *nsObject) {
         }
         for (auto &method : multimap) {
             if (method.second.size() > 1) {
-                auto *overloaded = new intl::StaticMethodOverloaded;
+                auto *overloaded = ccnew intl::StaticMethodOverloaded;
                 overloaded->class_name = _ctx->className;
                 overloaded->method_name = method.first;
                 for (auto *method : method.second) {
