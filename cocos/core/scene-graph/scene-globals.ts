@@ -38,7 +38,7 @@ import { Node } from './node';
 import { legacyCC } from '../global-exports';
 import { Root } from '../root';
 import { warnID } from '../platform/debug';
-import { Material } from '../../core/assets/material';
+import { Material } from '../assets/material';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
@@ -441,14 +441,13 @@ export class SkyboxInfo {
     @editable
     @type(Material)
     @tooltip('i18n:skybox.material')
-    set skyboxMaterial(val : Material | null) {
+    set skyboxMaterial(val: Material | null) {
         this._editableMaterial = val;
         if (this._resource) {
             this._resource.setSkyboxMaterial(this._editableMaterial);
         }
     }
-    get skyboxMaterial()
-    {
+    get skyboxMaterial() {
         return this._editableMaterial;
     }
 
