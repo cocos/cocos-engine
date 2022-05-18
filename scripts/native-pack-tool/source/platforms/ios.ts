@@ -100,7 +100,7 @@ export class IOSPackTool extends MacOSPackTool {
         return true;
     }
 
-    async compile() {
+    async make() {
         const options = this.params.platformParams;
         if (options.iphoneos && !options.teamid) {
             throw new Error("Error: Try to build iphoneos application but no developer team id was given!");

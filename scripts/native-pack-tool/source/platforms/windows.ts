@@ -55,7 +55,7 @@ export class WindowsPackTool extends NativePackTool {
         return true;
     }
 
-    async compile() {
+    async make() {
         const buildDir = this.paths.buildDir;
         await toolHelper.runCmake(['--build', `"${cchelper.fixPath(buildDir)}"`, '--config', this.params.debug ? 'Debug' : 'Release', '--', '-verbosity:quiet']);
         return true;

@@ -103,7 +103,7 @@ export class OHOSPackTool extends NativePackTool {
         return true;
     }
 
-    async compile() {
+    async make() {
         cchelper.checkJavaHome();
 
         const projectDir = this.paths.platformTemplateDirInPrj;

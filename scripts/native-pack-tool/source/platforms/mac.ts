@@ -35,10 +35,11 @@ export class MacPackTool extends MacOSPackTool {
         return true;
     }
 
-    async compile() {
+    async make() {
         const buildDir = this.paths.buildDir;
 
         const platform = this.isAppleSilicon() ? `-arch arm64` : `-arch x86_64`;
         await toolHelper.runCmake(["--build", `${buildDir}`, "--config", this.params.debug ? 'Debug' : 'Release', "--", "-quiet", platform]);
+        return true;
     }
 }

@@ -51,7 +51,7 @@ export class AndroidPackTool extends NativePackTool {
         return true;
     }
 
-    async compile() {
+    async make() {
         const options = this.params.platformParams;
 
         const projDir: string = ps.join(Paths.projectDir, 'proj');
