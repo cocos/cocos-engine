@@ -1149,7 +1149,7 @@ export class ParticleSystem extends RenderableComponent {
                     this._needSwitch = false;
                 }
             }
-        }        
+        }
     }
 
     protected beforeRender () {
@@ -1171,7 +1171,7 @@ export class ParticleSystem extends RenderableComponent {
             if (!this.processor.getModel()?.scene) {
                 this._needSwitch = true;
             }
-        } 
+        }
     }
 
     protected _onVisibilityChange (val) {
