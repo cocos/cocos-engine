@@ -20,6 +20,7 @@ playground/library
 3d-api-docs
 scripts/build-engine/node_modules
 scripts/build-engine/dist
+scripts/native-pack-tool/dist
 
 tests/core/serialization/ccob-serialized-gallery
 

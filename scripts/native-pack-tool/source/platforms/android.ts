@@ -1,0 +1,272 @@
+import { CocosParams, NativePackTool } from "../base/default";
+import * as fs from 'fs-extra';
+import * as ps from 'path';
+import { cchelper, Paths } from "../utils";
+import * as URL from 'url';
+
+export interface IOrientation {
+    landscapeLeft: boolean;
+    landscapeRight: boolean;
+    portrait: boolean;
+    upsideDown: boolean;
+}
+
+export interface IAndroidParams {
+    packageName: string;
+    keyStorePath: string;
+    sdkPath: string;
+    ndkPath: string;
+    androidInstant: boolean,
+    remoteUrl?: string;
+    apiLevel: number;
+    appABIs: string[];
+    keystorePassword: string;
+    keystoreAlias: string;
+    keystoreAliasPassword: string;
+
+    orientation: IOrientation;
+    appBundle: boolean;
+}
+
+export class AndroidPackTool extends NativePackTool {
+    params: CocosParams<IAndroidParams>;
+    constructor(params: CocosParams<IAndroidParams>) {
+        super(params);
+        this.params = params;
+    }
+    protected async copyPlatformTemplate() {
+        // 原生工程不重复拷贝 TODO 复用前需要做版本检测
+        if (!fs.existsSync(this.paths.nativePrjDir)) {
+            // 拷贝 lite 仓库的 templates/平台/native 文件到 native 目录
+            await fs.copy(ps.join(this.paths.nativeTemplateDirInCocos, this.params.platform, 'build'), this.paths.nativePrjDir, { overwrite: false });
+        }
+    }
+
+    async create() {
+        // 拷贝一些内置的模板文件
+        await this.copyCommonTemplate();
+        await this.copyPlatformTemplate();
+
+        await this.setOrientation();
+        return true;
+    }
+
+    async compile() {
+        const options = this.params.platformParams;
+
+        const projDir: string = ps.join(Paths.projectDir, 'proj');
+        if (!fs.existsSync(projDir)) {
+            console.error(`dir ${projDir} not exits`);
+            return false;
+        }
+        let gradle = 'gradlew';
+        if (process.platform === 'win32') {
+            gradle += '.bat';
+        }
+        gradle = ps.join(projDir, gradle);
+
+        let buildMode = '';
+        const outputMode = this.params.debug ? 'Debug' : 'Release';
+
+        // compile android
+        buildMode = `${this.params.projectName}:assemble${outputMode}`;
+        // await cchelper.runCmd(gradle, [buildMode /* "--quiet",*/ /*"--build-cache", "--project-cache-dir", buildDir */], false, projDir);
+        await cchelper.runCmd(gradle, [buildMode], false, projDir);
+
+        // compile android-instant
+        if (options.androidInstant) {
+            buildMode = `instantapp:assemble${outputMode}`;
+            // await cchelper.runCmd(gradle, [buildMode, /*"--quiet",*/ /*"--build-cache", "--project-cache-dir", buildDir*/], false, projDir);
+            await cchelper.runCmd(gradle, [buildMode], false, projDir);
+        }
+
+        // compile google app bundle
+        if (options.appBundle) {
+            if (options.androidInstant) {
+                buildMode = `bundle${outputMode}`;
+            } else {
+                buildMode = `${this.params.projectName}:bundle${outputMode}`;
+            }
+            // await cchelper.runCmd(gradle, [buildMode, /*"--quiet",*/ /*"--build-cache", "--project-cache-dir", buildDir*/], false, projDir);
+            await cchelper.runCmd(gradle, [buildMode], false, projDir);
+        }
+        return await this.copyToDist();
+    }
+
+    protected async setOrientation() {
+        const cfg = this.params.platformParams.orientation;
+        const manifestPath = cchelper.join(this.paths.platformTemplateDirInPrj, 'app/AndroidManifest.xml');
+        const instantManifestPath = cchelper.join(this.paths.platformTemplateDirInPrj, 'instantapp/AndroidManifest.xml');
+        if (fs.existsSync(manifestPath) && fs.existsSync(instantManifestPath)) {
+            const pattern = /android:screenOrientation="[^"]*"/;
+            let replaceString = 'android:screenOrientation="unspecified"';
+
+            if (cfg.landscapeRight && cfg.landscapeLeft && cfg.portrait && cfg.upsideDown) {
+                replaceString = 'android:screenOrientation="fullSensor"';
+            } else if (cfg.landscapeRight && !cfg.landscapeLeft) {
+                replaceString = 'android:screenOrientation="landscape"';
+            } else if (!cfg.landscapeRight && cfg.landscapeLeft) {
+                replaceString = 'android:screenOrientation="reverseLandscape"';
+            } else if (cfg.landscapeRight && cfg.landscapeLeft) {
+                replaceString = 'android:screenOrientation="sensorLandscape"';
+            } else if (cfg.portrait && !cfg.upsideDown) {
+                replaceString = 'android:screenOrientation="portrait"';
+            } else if (!cfg.portrait && cfg.upsideDown) {
+                const oriValue = 'reversePortrait';
+                replaceString = `android:screenOrientation="${oriValue}"`;
+            } else if (cfg.portrait && cfg.upsideDown) {
+                const oriValue = 'sensorPortrait';
+                replaceString = `android:screenOrientation="${oriValue}"`;
+            }
+
+            let content = await fs.readFile(manifestPath, 'utf8');
+            content = content.replace(pattern, replaceString);
+            let instantContent = await fs.readFile(instantManifestPath, 'utf8');
+            instantContent = instantContent.replace(pattern, replaceString);
+            await fs.writeFile(manifestPath, content);
+            await fs.writeFile(instantManifestPath, instantContent);
+        }
+    }
+
+    protected async updateAndroidGradleValues() {
+        const options = this.params.platformParams;
+        // android-studio gradle.properties
+        console.log(`update settings.properties`);
+        await cchelper.replaceInFile([
+            { reg: '^rootProject\\.name.*', text: `rootProject.name = "${this.params.projectName}"` },
+        ], ps.join(Paths.projectDir, 'proj/settings.gradle'));
+
+        console.log(`update gradle.properties`);
+        const gradlePropertyPath = cchelper.join(Paths.projectDir, 'proj/gradle.properties');
+        if (fs.existsSync(gradlePropertyPath)) {
+            let keystorePath = options.keyStorePath;
+            if (process.platform === 'win32') {
+                keystorePath = cchelper.fixPath(keystorePath);
+            }
+            let apiLevel = options.apiLevel;
+            if (!apiLevel) {
+                apiLevel = 27;
+            }
+            console.log(`AndroidAPI level ${apiLevel}`);
+            let content = fs.readFileSync(gradlePropertyPath, 'utf-8');
+            if (keystorePath) {
+                content = content.replace(/.*RELEASE_STORE_FILE=.*/, `RELEASE_STORE_FILE=${keystorePath}`);
+                content = content.replace(/.*RELEASE_STORE_PASSWORD=.*/, `RELEASE_STORE_PASSWORD=${options.keystorePassword}`);
+                content = content.replace(/.*RELEASE_KEY_ALIAS=.*/, `RELEASE_KEY_ALIAS=${options.keystoreAlias}`);
+                content = content.replace(/.*RELEASE_KEY_PASSWORD=.*/, `RELEASE_KEY_PASSWORD=${options.keystoreAliasPassword}`);
+            } else {
+                content = content.replace(/.*RELEASE_STORE_FILE=.*/, `# RELEASE_STORE_FILE=${keystorePath}`);
+                content = content.replace(/.*RELEASE_STORE_PASSWORD=.*/, `# RELEASE_STORE_PASSWORD=${options.keystorePassword}`);
+                content = content.replace(/.*RELEASE_KEY_ALIAS=.*/, `# RELEASE_KEY_ALIAS=${options.keystoreAlias}`);
+                content = content.replace(/.*RELEASE_KEY_PASSWORD=.*/, `# RELEASE_KEY_PASSWORD=${options.keystoreAliasPassword}`);
+            }
+
+            const compileSDKVersion = this.parseVersion(content, 'PROP_COMPILE_SDK_VERSION', 27);
+            const minimalSDKVersion = this.parseVersion(content, 'PROP_MIN_SDK_VERSION', 21);
+
+            content = content.replace(/PROP_TARGET_SDK_VERSION=.*/, `PROP_TARGET_SDK_VERSION=${apiLevel}`);
+            content = content.replace(/PROP_COMPILE_SDK_VERSION=.*/, `PROP_COMPILE_SDK_VERSION=${Math.max(apiLevel, compileSDKVersion, 27)}`);
+            content = content.replace(/PROP_MIN_SDK_VERSION=.*/, `PROP_MIN_SDK_VERSION=${Math.min(apiLevel, minimalSDKVersion)}`);
+            content = content.replace(/PROP_APP_NAME=.*/, `PROP_APP_NAME=${this.params.projectName}`);
+            content = content.replace(/PROP_ENABLE_INSTANT_APP=.*/, `PROP_ENABLE_INSTANT_APP=${options.androidInstant ? "true" : "false"}`);
+
+            content = content.replace(/RES_PATH=.*/, `RES_PATH=${cchelper.fixPath(Paths.projectDir)}`);
+            content = content.replace(/COCOS_ENGINE_PATH=.*/, `COCOS_ENGINE_PATH=${cchelper.fixPath(Paths.nativeRoot)}`);
+            content = content.replace(/APPLICATION_ID=.*/, `APPLICATION_ID=${options.packageName}`);
+            content = content.replace(/NATIVE_DIR=.*/, `NATIVE_DIR=${this.paths.platformTemplateDirInPrj}`);
+
+
+            if (process.platform === 'win32') {
+                options.ndkPath = options.ndkPath.replace(/\\/g, '\\\\');
+            }
+
+            content = content.replace(/PROP_NDK_PATH=.*/, `PROP_NDK_PATH=${options.ndkPath}`);
+
+            const abis = (options.appABIs && options.appABIs.length > 0) ? options.appABIs.join(':') : 'armeabi-v7a';
+            // todo:新的template里面有个注释也是这个字段，所以要加个g
+            content = content.replace(/PROP_APP_ABI=.*/g, `PROP_APP_ABI=${abis}`);
+            fs.writeFileSync(gradlePropertyPath, content);
+
+            // generate local.properties
+            content = '';
+            content += `sdk.dir=${options.sdkPath}`;
+            // windows 需要使用的这样的格式 e\:\\aa\\bb\\cc
+            if (process.platform === 'win32') {
+                content = content.replace(/\\/g, '\\\\');
+                content = content.replace(/:/g, '\\:');
+            }
+
+            fs.writeFileSync(cchelper.join(ps.dirname(gradlePropertyPath), 'local.properties'), content);
+        } else {
+            console.log(`warning: ${gradlePropertyPath} not found!`);
+        }
+    }
+
+    protected async configAndroidInstant() {
+        if (!this.params.platformParams.androidInstant) {
+            console.log('android instant not configured');
+            return;
+        }
+        const url =this.params.platformParams.remoteUrl;
+        if (!url) {
+            return;
+        }
+        const manifestPath = cchelper.join(this.paths.platformTemplateDirInPrj, 'instantapp/AndroidManifest.xml');
+        if (!fs.existsSync(manifestPath)) {
+            console.error(`${manifestPath} not found`);
+            return;
+        }
+        const urlInfo = URL.parse(url);
+        if (!urlInfo.host) {
+            console.error(`parse url ${url} fail`);
+            return;
+        }
+        let manifest = fs.readFileSync(manifestPath, 'utf8');
+        manifest = manifest.replace(/<category\s*android:name="android.intent.category.DEFAULT"\s*\/>/, (str) => {
+            let newStr = '<category android:name="android.intent.category.DEFAULT" />';
+            newStr += `\n                <data android:host="${urlInfo.host}" android:pathPattern="${urlInfo.path}" android:scheme="https"/>`
+                + `\n                <data android:scheme="http"/>`;
+            return newStr;
+        });
+
+        fs.writeFileSync(manifestPath, manifest, 'utf8');
+    }
+
+    /**
+     * 到对应目录拷贝文件到工程发布目录
+     */
+    async copyToDist(): Promise<boolean> {
+        const options = this.params.platformParams;
+
+        const suffix = this.params.debug ? 'debug' : 'release';
+        const destDir: string = ps.join(Paths.projectDir, 'publish', suffix);
+        fs.ensureDirSync(destDir);
+        let apkName = `${this.params.projectName}-${suffix}.apk`;
+        let apkPath = ps.join(Paths.projectDir, `proj/build/${this.params.projectName}/outputs/apk/${suffix}/${apkName}`);
+        if (!fs.existsSync(apkPath)) {
+            console.error('apk not found at ', apkPath);
+            return false;
+        }
+        fs.copyFileSync(apkPath, ps.join(destDir, apkName));
+        if (options.androidInstant) {
+            apkName = `instantapp-${suffix}.apk`;
+            apkPath = ps.join(Paths.projectDir, `proj/build/instantapp/outputs/apk/${suffix}/${apkName}`);
+            if (!fs.existsSync(apkPath)) {
+                console.error('instant apk not found at ', apkPath);
+                return false;
+            }
+            fs.copyFileSync(apkPath, ps.join(destDir, apkName));
+        }
+
+        if (options.appBundle) {
+            apkName = `${this.params.projectName}-${suffix}.aab`;
+            apkPath = ps.join(Paths.projectDir, `proj/build/${this.params.projectName}/outputs/bundle/${suffix}/${apkName}`);
+            if (!fs.existsSync(apkPath)) {
+                console.error('instant apk not found at ', apkPath);
+                return false;
+            }
+            fs.copyFileSync(apkPath, ps.join(destDir, apkName));
+        }
+        return true;
+    }
+}
