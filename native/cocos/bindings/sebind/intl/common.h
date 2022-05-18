@@ -107,9 +107,9 @@ struct FunctionWrapper<R (C::*)(ARGS...) const> {
 };
 
 template <>
-struct FunctionWrapper<nullptr_t> {
-    using type = nullptr_t;
-    using return_type = nullptr_t;
+struct FunctionWrapper<std::nullptr_t> {
+    using type = std::nullptr_t;
+    using return_type = std::nullptr_t;;
     using arg_list = TypeList<>;
     static constexpr size_t ARG_N = 0;
     template <typename C, typename... ARGS>
