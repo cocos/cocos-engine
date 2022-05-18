@@ -29,11 +29,11 @@
 #include <sstream>
 #include "base/DeferredReleasePool.h"
 #include "base/Macros.h"
-#include "cocos/bindings/jswrapper/SeApi.h"
-#include "cocos/core/builtin/BuiltinResMgr.h"
-#include "cocos/renderer/GFXDeviceManager.h"
-#include "cocos/renderer/core/ProgramLib.h"
-#include "pipeline/RenderPipeline.h"
+#include "bindings/jswrapper/SeApi.h"
+#include "core/builtin/BuiltinResMgr.h"
+#include "renderer/GFXDeviceManager.h"
+#include "renderer/core/ProgramLib.h"
+#include "renderer/pipeline/RenderPipeline.h"
 #include "platform/BasePlatform.h"
 #include "platform/FileUtils.h"
 
@@ -97,6 +97,10 @@ namespace cc {
 Engine::Engine() {
     _scheduler = std::make_shared<Scheduler>();
     _fs = createFileUtils();
+    _programLib = ccnew ProgramLib();
+    _builtinResMgr = ccnew BuiltinResMgr;
+    // May create gfx device in render subsystem in future.
+    _gfxDevice = gfx::DeviceManager::create();
     _scriptEngine = ccnew se::ScriptEngine();
     EventDispatcher::init();
 
@@ -138,12 +142,11 @@ Engine::~Engine() {
 #if CC_USE_MIDDLEWARE
     cc::middleware::MiddlewareManager::destroyInstance();
 #endif
-    ProgramLib::destroyInstance();
-    BuiltinResMgr::destroyInstance();
-
-    CCObject::deferredDestroy();
-    gfx::DeviceManager::destroy();
     
+    CCObject::deferredDestroy();
+    delete _builtinResMgr;
+    delete _programLib;
+    CC_SAFE_DESTROY_AND_DELETE(_gfxDevice);
     delete _fs;
 }
 
@@ -294,10 +297,18 @@ int32_t Engine::restartVM() {
     _scheduler->unscheduleAll();
 
     _scriptEngine->cleanup();
-    cc::gfx::DeviceManager::destroy();
+    CC_SAFE_DESTROY_AND_DELETE(_gfxDevice);
     cc::EventDispatcher::destroy();
-    ProgramLib::destroyInstance();
-    BuiltinResMgr::destroyInstance();
+    
+    // Should re-create ProgramLib as shaders may change after restart. For example,
+    // program update resources and do restart.
+    delete _programLib;
+    _programLib = ccnew ProgramLib;
+
+    // Should reinitialize builtin resources as _programLib will be re-created.
+    delete _builtinResMgr;
+    _builtinResMgr = ccnew BuiltinResMgr;
+
     CCObject::deferredDestroy();
 
     // remove all listening events

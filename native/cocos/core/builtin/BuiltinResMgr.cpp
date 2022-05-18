@@ -119,15 +119,15 @@ BuiltinResMgr *BuiltinResMgr::instance = nullptr;
 
 /* static */
 BuiltinResMgr *BuiltinResMgr::getInstance() {
-    if (BuiltinResMgr::instance == nullptr) {
-        BuiltinResMgr::instance = ccnew BuiltinResMgr();
-        BuiltinResMgr::instance->addRef();
-    }
-    return instance;
+    return BuiltinResMgr::instance;
 }
 
-void BuiltinResMgr::destroyInstance() {
-    CC_SAFE_RELEASE_NULL(BuiltinResMgr::instance);
+BuiltinResMgr::BuiltinResMgr() {
+    BuiltinResMgr::instance = this;
+}
+
+BuiltinResMgr::~BuiltinResMgr() {
+    BuiltinResMgr::instance = nullptr;
 }
 
 void BuiltinResMgr::addAsset(const ccstd::string &uuid, Asset *asset) {
