@@ -31,13 +31,13 @@
 #include "platform/FileUtils.h"
 
 void HttpCookie::readFile() {
-    std::string inString = cc::FileUtils::getInstance()->getStringFromFile(_cookieFileName);
+    ccstd::string inString = cc::FileUtils::getInstance()->getStringFromFile(_cookieFileName);
     if (!inString.empty()) {
-        std::vector<std::string> cookiesVec;
+        ccstd::vector<ccstd::string> cookiesVec;
         cookiesVec.clear();
 
         std::stringstream stream(inString);
-        std::string       item;
+        ccstd::string item;
         while (std::getline(stream, item, '\n')) {
             cookiesVec.push_back(item);
         }
@@ -53,7 +53,7 @@ void HttpCookie::readFile() {
                 continue;
             }
 
-            if (cookie.find("#HttpOnly_") != std::string::npos) {
+            if (cookie.find("#HttpOnly_") != ccstd::string::npos) {
                 cookie = cookie.substr(10);
             }
 
@@ -61,10 +61,10 @@ void HttpCookie::readFile() {
                 continue;
             }
 
-            CookiesInfo              co;
-            std::stringstream        streamInfo(cookie);
-            std::vector<std::string> elems;
-            std::string              elemsItem;
+            CookiesInfo co;
+            std::stringstream streamInfo(cookie);
+            ccstd::vector<ccstd::string> elems;
+            ccstd::string elemsItem;
 
             while (std::getline(streamInfo, elemsItem, '\t')) {
                 elems.push_back(elemsItem);
@@ -75,23 +75,23 @@ void HttpCookie::readFile() {
                 co.domain = co.domain.substr(1);
             }
             co.tailmatch = (strcmp("TRUE", elems[1].c_str()) != 0);
-            co.path      = elems[2];
-            co.secure    = (strcmp("TRUE", elems[3].c_str()) != 0);
-            co.expires   = elems[4];
-            co.name      = elems[5];
-            co.value     = elems[6];
+            co.path = elems[2];
+            co.secure = (strcmp("TRUE", elems[3].c_str()) != 0);
+            co.expires = elems[4];
+            co.name = elems[5];
+            co.value = elems[6];
             _cookies.push_back(co);
         }
     }
 }
 
-const std::vector<CookiesInfo> *HttpCookie::getCookies() const {
+const ccstd::vector<CookiesInfo> *HttpCookie::getCookies() const {
     return &_cookies;
 }
 
-const CookiesInfo *HttpCookie::getMatchCookie(const std::string &url) const {
+const CookiesInfo *HttpCookie::getMatchCookie(const ccstd::string &url) const {
     for (const auto &cookie : _cookies) {
-        if (url.find(cookie.domain) != std::string::npos) {
+        if (url.find(cookie.domain) != ccstd::string::npos) {
             return &cookie;
         }
     }
@@ -119,7 +119,7 @@ void HttpCookie::writeFile() {
         "# Test cocos2d-x cookie write.\n\n",
         out);
 
-    std::string line;
+    ccstd::string line;
     for (auto &cookie : _cookies) {
         line.clear();
         line.append(cookie.domain);
@@ -143,6 +143,6 @@ void HttpCookie::writeFile() {
     fclose(out);
 }
 
-void HttpCookie::setCookieFileName(const std::string &filename) {
+void HttpCookie::setCookieFileName(const ccstd::string &filename) {
     _cookieFileName = filename;
 }

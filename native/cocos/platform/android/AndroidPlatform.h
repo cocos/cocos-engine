@@ -27,19 +27,47 @@
 
 #include "platform/UniversalPlatform.h"
 
+struct android_app;
+
 namespace cc {
-class JniNativeGlue;
-class AndroidPlatform : public UniversalPlatform {
+class GameInputProxy;
+
+class CC_DLL AndroidPlatform : public UniversalPlatform {
 public:
-    AndroidPlatform();
-    void    pollEvent() override;
+    AndroidPlatform() = default;
+
+    ~AndroidPlatform() override;
+
+    int init() override;
+
+    void pollEvent() override;
+
     int32_t run(int argc, const char **argv) override;
-    int     getSdkVersion() const override;
+
+    int getSdkVersion() const override;
+
     int32_t loop() override;
 
-private:
-    void waitWindowInitialized();
+    void *getActivity();
 
-    JniNativeGlue *_jniNativeGlue;
+    static void *getEnv();
+
+    uintptr_t getWindowHandler() const;
+
+    int32_t getWidth() const;
+
+    int32_t getHeight() const;
+
+    void onDestory() override;
+
+    inline void setAndroidApp(android_app *app) {
+        _app = app;
+    }
+
+private:
+    GameInputProxy *_inputProxy{nullptr};
+    android_app *_app{nullptr};
+
+    friend class GameInputProxy;
 };
 } // namespace cc

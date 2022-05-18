@@ -33,7 +33,7 @@ import { EDITOR, TEST } from 'internal:constants';
 import { CCObject } from '../data/object';
 import { Mat4, Quat, Vec3 } from '../math';
 import { assert, getError } from '../platform/debug';
-import { RenderScene } from '../renderer/scene/render-scene';
+import { RenderScene } from '../renderer/core/render-scene';
 import { BaseNode } from './base-node';
 import { legacyCC } from '../global-exports';
 import { Component } from '../components/component';
@@ -75,7 +75,7 @@ export class Scene extends BaseNode {
      * @en Per-scene level rendering info
      * @zh 场景级别的渲染信息
      *
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @serializable
     public _globals = new SceneGlobals();
@@ -151,12 +151,12 @@ export class Scene extends BaseNode {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onHierarchyChanged () { }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
         super._onBatchCreated(dontSyncChildPrefab);

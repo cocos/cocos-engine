@@ -48,6 +48,7 @@ struct ManagedResource;
 struct ManagedTag;
 struct PersistentBufferTag;
 struct PersistentTextureTag;
+struct FramebufferTag;
 struct SwapchainTag;
 struct ResourceGraph;
 

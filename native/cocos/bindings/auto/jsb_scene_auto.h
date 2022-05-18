@@ -1,6 +1,6 @@
 // clang-format off
 #pragma once
-#include "base/Config.h"
+
 #include <type_traits>
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
@@ -110,6 +110,8 @@ SE_DECLARE_FUNC(js_scene_Node_isChildOf);
 SE_DECLARE_FUNC(js_scene_Node_lookAt);
 SE_DECLARE_FUNC(js_scene_Node_off);
 SE_DECLARE_FUNC(js_scene_Node_onPostActivated);
+SE_DECLARE_FUNC(js_scene_Node_onPreDestroy);
+SE_DECLARE_FUNC(js_scene_Node_onPreDestroyBase);
 SE_DECLARE_FUNC(js_scene_Node_pauseSystemEvents);
 SE_DECLARE_FUNC(js_scene_Node_removeAllChildren);
 SE_DECLARE_FUNC(js_scene_Node_removeChild);
@@ -426,12 +428,12 @@ SE_DECLARE_FUNC(js_scene_Root_destroyWindows);
 SE_DECLARE_FUNC(js_scene_Root_frameMove);
 SE_DECLARE_FUNC(js_scene_Root_getBatcher2D);
 SE_DECLARE_FUNC(js_scene_Root_getEventProcessor);
-SE_DECLARE_FUNC(js_scene_Root_getPipeline);
 SE_DECLARE_FUNC(js_scene_Root_initialize);
 SE_DECLARE_FUNC(js_scene_Root_onGlobalPipelineStateChanged);
 SE_DECLARE_FUNC(js_scene_Root_resetCumulativeTime);
 SE_DECLARE_FUNC(js_scene_Root_resize);
 SE_DECLARE_FUNC(js_scene_Root_setRenderPipeline);
+SE_DECLARE_FUNC(js_scene_Root_usesCustomPipeline);
 SE_DECLARE_FUNC(js_scene_Root_getInstance);
 SE_DECLARE_FUNC(js_scene_Root_Root);
 

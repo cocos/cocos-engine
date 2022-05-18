@@ -23,17 +23,12 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { IUV } from '../../assets';
 import { Mat4, Vec3, Color } from '../../../core/math';
 import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components/sprite';
-import { Renderable2D } from '../../framework/renderable-2d';
+import { UIRenderer } from '../../framework/ui-renderer';
 import { IAssembler } from '../../renderer/base';
 import { StaticVBChunk } from '../../renderer/static-vb-accessor';
 
@@ -44,7 +39,7 @@ for (let i = 0; i < 4; i++) {
 const matrix = new Mat4();
 
 export const tiled: IAssembler = {
-    createData (sprite: Renderable2D) {
+    createData (sprite: UIRenderer) {
         return sprite.requestRenderData();
     },
 
@@ -112,8 +107,8 @@ export const tiled: IAssembler = {
         // update indices
         const bid = chunk.bufferId;
         let vid = chunk.vertexOffset;
-        const meshBuffer = chunk.vertexAccessor.getMeshBuffer(chunk.bufferId);
-        const ib = chunk.vertexAccessor.getIndexBuffer(bid);
+        const meshBuffer = chunk.meshBuffer;
+        const ib = chunk.meshBuffer.iData;
         let indexOffset = meshBuffer.indexOffset;
         for (let i = 0; i < renderData.indexCount; i += 6) {
             ib[indexOffset++] = vid;

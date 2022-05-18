@@ -25,6 +25,6 @@
 
 #pragma once
 
-#include <string>
+#include "base/std/container/string.h"
 
 bool jsb_register_all_modules();

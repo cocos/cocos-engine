@@ -1549,7 +1549,7 @@ export class Mat4 extends ValueType {
      * @param other Specified matrix.
      * @return this
      */
-    public set (other: Mat4);
+    public set (other: Mat4): Mat4;
 
     /**
      * @en Set the matrix with values of all elements
@@ -1560,7 +1560,7 @@ export class Mat4 extends ValueType {
         m00?: number, m01?: number, m02?: number, m03?: number,
         m04?: number, m05?: number, m06?: number, m07?: number,
         m08?: number, m09?: number, m10?: number, m11?: number,
-        m12?: number, m13?: number, m14?: number, m15?: number);
+        m12?: number, m13?: number, m14?: number, m15?: number): Mat4;
 
     public set (m00: Mat4 | number = 1, m01 = 0, m02 = 0, m03 = 0,
         m04 = 0, m05 = 1, m06 = 0, m07 = 0,

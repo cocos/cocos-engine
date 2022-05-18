@@ -30,7 +30,7 @@
  */
 
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, visible, override, serializable, range, slide } from 'cc.decorator';
-import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';
+import { InstanceMaterialType, UIRenderer } from '../framework/ui-renderer';
 import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
 import { warnID } from '../../core/platform';
 import { IBatcher } from '../renderer/i-batcher';
@@ -118,7 +118,7 @@ const SEGMENTS_MAX = 10000;
 @help('i18n:cc.Mask')
 @executionOrder(110)
 @menu('2D/Mask')
-export class Mask extends Renderable2D {
+export class Mask extends UIRenderer {
     /**
      * @en
      * The mask type.
@@ -328,11 +328,11 @@ export class Mask extends Renderable2D {
     public static Type = MaskType;
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _clearStencilMtl: Material | null = null;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _clearModel: Model | null = null;
 
@@ -406,12 +406,11 @@ export class Mask extends Renderable2D {
     }
 
     /**
-     * @zh
-     * 根据屏幕坐标计算点击事件。
+     * Hit test with point in World Space.
      *
-     * @param cameraPt  屏幕点转换到相机坐标系下的点。
+     * @param worldPt point in World Space.
      */
-    public isHit (cameraPt: Vec2) {
+    public isHit (worldPt: Vec2) {
         const uiTrans = this.node._uiProps.uiTransformComp!;
         const size = uiTrans.contentSize;
         const w = size.width;
@@ -420,7 +419,7 @@ export class Mask extends Renderable2D {
 
         this.node.getWorldMatrix(_worldMatrix);
         Mat4.invert(_mat4_temp, _worldMatrix);
-        Vec2.transformMat4(testPt, cameraPt, _mat4_temp);
+        Vec2.transformMat4(testPt, worldPt, _mat4_temp);
         const ap = uiTrans.anchorPoint;
         testPt.x += ap.x * w;
         testPt.y += ap.y * h;

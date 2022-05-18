@@ -40,7 +40,7 @@ import { Root } from '../../core/root';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { Enum } from '../../core/value-types';
 import { builtinResMgr } from '../../core/builtin';
-import { RenderableComponent } from '../../core/components/renderable-component';
+import { ModelRenderer } from '../../core/components/model-renderer';
 import { MorphRenderingInstance } from '../assets/morph';
 import { legacyCC } from '../../core/global-exports';
 import { assertIsTrue } from '../../core/data/utils/asserts';
@@ -162,7 +162,7 @@ class ModelLightmapSettings {
 @executionOrder(100)
 @menu('Mesh/MeshRenderer')
 @executeInEditMode
-export class MeshRenderer extends RenderableComponent {
+export class MeshRenderer extends ModelRenderer {
     public static ShadowCastingMode = ModelShadowCastingMode;
     public static ShadowReceivingMode = ModelShadowReceivingMode;
 
@@ -460,20 +460,20 @@ export class MeshRenderer extends RenderableComponent {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _updateLightmap (lightmap: Texture2D|null, uOff: number, vOff: number, uScale: number, vScale: number) {
+    public _updateLightmap (lightmap: Texture2D|null, uOff: number, vOff: number, scale: number, lum: number) {
         this.lightmapSettings.texture = lightmap;
         this.lightmapSettings.uvParam.x = uOff;
         this.lightmapSettings.uvParam.y = vOff;
-        this.lightmapSettings.uvParam.z = uScale;
-        this.lightmapSettings.uvParam.w = vScale;
+        this.lightmapSettings.uvParam.z = scale;
+        this.lightmapSettings.uvParam.w = lum;
 
         this._onUpdateLightingmap();
     }
 
     protected _updateModels () {
-        if (!this.enabledInHierarchy || !this._mesh) {
+        if (!this.enabledInHierarchy) {
             return;
         }
 
@@ -487,7 +487,9 @@ export class MeshRenderer extends RenderableComponent {
         }
 
         if (this._model) {
-            this._model.createBoundingShape(this._mesh.struct.minPosition, this._mesh.struct.maxPosition);
+            if (this._mesh) {
+                this._model.createBoundingShape(this._mesh.struct.minPosition, this._mesh.struct.maxPosition);
+            }
             this._updateModelParams();
             this._onUpdateLightingmap();
             this._onUpdateLocalShadowBias();

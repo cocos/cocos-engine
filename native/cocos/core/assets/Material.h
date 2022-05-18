@@ -25,10 +25,9 @@
 
 #pragma once
 
-#include <string>
-#include <unordered_map>
-#include <vector>
 #include "base/Ptr.h"
+#include "base/std/container/string.h"
+#include "base/std/container/unordered_map.h"
 #include "cocos/base/Optional.h"
 #include "cocos/base/Variant.h"
 #include "core/assets/EffectAsset.h"
@@ -58,7 +57,7 @@ struct IMaterialInfo {
      * @zh
      * 这个材质将使用的 EffectAsset，通过 effect 名指定，和 `effectAsset` 至少要指定一个。
      */
-    cc::optional<std::string> effectName;
+    cc::optional<ccstd::string> effectName;
     /**
      * @en
      * The index of the technique to use.
@@ -67,7 +66,7 @@ struct IMaterialInfo {
      */
     cc::optional<uint32_t> technique;
 
-    using DefinesType = cc::variant<MacroRecord, std::vector<MacroRecord>>;
+    using DefinesType = cc::variant<MacroRecord, ccstd::vector<MacroRecord>>;
     /**
      * @en
      * The shader macro definitions. Default to 0 or the specified value in [[EffectAsset]].
@@ -76,7 +75,7 @@ struct IMaterialInfo {
      */
     cc::optional<DefinesType> defines;
 
-    using PassOverridesType = cc::variant<PassOverrides, std::vector<PassOverrides>>;
+    using PassOverridesType = cc::variant<PassOverrides, ccstd::vector<PassOverrides>>;
     /**
      * @en
      * The override values on top of the pipeline states specified in [[EffectAsset]].
@@ -95,7 +94,7 @@ public:
      * @zh 获取一个材质的哈希值
      * @param material
      */
-    static uint64_t      getHashForMaterial(Material *material);
+    static uint64_t getHashForMaterial(Material *material);
     inline static double getHashForMaterialForJS(Material *material) {
         return static_cast<double>(getHashForMaterial(material));
     }
@@ -111,7 +110,7 @@ public:
     void initialize(const IMaterialInfo &info);
     void reset(const IMaterialInfo &info);
 
-    void initDefault(const cc::optional<std::string> &uuid) override;
+    void initDefault(const cc::optional<ccstd::string> &uuid) override;
     bool validate() const override;
 
     /**
@@ -174,31 +173,31 @@ public:
      * @param val The target value.
      * @param passIdx The pass to apply to. Will apply to all passes if not specified.
      */
-    void setProperty(const std::string &name, const MaterialPropertyVariant &val, index_t passIdx = CC_INVALID_INDEX);
+    void setProperty(const ccstd::string &name, const MaterialPropertyVariant &val, index_t passIdx = CC_INVALID_INDEX);
 
-    void setPropertyFloat32(const std::string &name, float val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyInt32(const std::string &name, int32_t val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyVec2(const std::string &name, const Vec2 &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyVec3(const std::string &name, const Vec3 &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyVec4(const std::string &name, const Vec4 &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyColor(const std::string &name, const Color &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyMat3(const std::string &name, const Mat3 &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyMat4(const std::string &name, const Mat4 &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyQuaternion(const std::string &name, const Quaternion &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyTextureBase(const std::string &name, TextureBase *val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyGFXTexture(const std::string &name, gfx::Texture *val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyFloat32(const ccstd::string &name, float val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyInt32(const ccstd::string &name, int32_t val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyVec2(const ccstd::string &name, const Vec2 &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyVec3(const ccstd::string &name, const Vec3 &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyVec4(const ccstd::string &name, const Vec4 &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyColor(const ccstd::string &name, const Color &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyMat3(const ccstd::string &name, const Mat3 &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyMat4(const ccstd::string &name, const Mat4 &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyQuaternion(const ccstd::string &name, const Quaternion &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyTextureBase(const ccstd::string &name, TextureBase *val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyGFXTexture(const ccstd::string &name, gfx::Texture *val, index_t passIdx = CC_INVALID_INDEX);
 
-    void setPropertyFloat32Array(const std::string &name, const std::vector<float> &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyInt32Array(const std::string &name, const std::vector<int32_t> &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyVec2Array(const std::string &name, const std::vector<Vec2> &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyVec3Array(const std::string &name, const std::vector<Vec3> &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyVec4Array(const std::string &name, const std::vector<Vec4> &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyColorArray(const std::string &name, const std::vector<cc::Color> &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyMat3Array(const std::string &name, const std::vector<Mat3> &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyMat4Array(const std::string &name, const std::vector<Mat4> &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyQuaternionArray(const std::string &name, const std::vector<Quaternion> &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyTextureBaseArray(const std::string &name, const std::vector<TextureBase *> &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyGFXTextureArray(const std::string &name, const std::vector<gfx::Texture *> &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyFloat32Array(const ccstd::string &name, const ccstd::vector<float> &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyInt32Array(const ccstd::string &name, const ccstd::vector<int32_t> &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyVec2Array(const ccstd::string &name, const ccstd::vector<Vec2> &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyVec3Array(const ccstd::string &name, const ccstd::vector<Vec3> &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyVec4Array(const ccstd::string &name, const ccstd::vector<Vec4> &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyColorArray(const ccstd::string &name, const ccstd::vector<cc::Color> &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyMat3Array(const ccstd::string &name, const ccstd::vector<Mat3> &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyMat4Array(const ccstd::string &name, const ccstd::vector<Mat4> &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyQuaternionArray(const ccstd::string &name, const ccstd::vector<Quaternion> &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyTextureBaseArray(const ccstd::string &name, const ccstd::vector<TextureBase *> &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyGFXTextureArray(const ccstd::string &name, const ccstd::vector<gfx::Texture *> &val, index_t passIdx = CC_INVALID_INDEX);
 
     /**
      * @en
@@ -212,7 +211,7 @@ public:
      * @param name The property or uniform name.
      * @param passIdx The target pass index. If not specified, return the first found value in all passes.
      */
-    const MaterialPropertyVariant *getProperty(const std::string &name, index_t passIdx = CC_INVALID_INDEX) const;
+    const MaterialPropertyVariant *getProperty(const ccstd::string &name, index_t passIdx = CC_INVALID_INDEX) const;
 
     /**
      * @en Copy the target material, with optional overrides.
@@ -220,7 +219,7 @@ public:
      * @param mat The material to be copied.
      * @param overrides The overriding states on top of the original material.
      */
-    void copy(const Material *mat, IMaterialInfo* overrides = nullptr);
+    void copy(const Material *mat, IMaterialInfo *overrides = nullptr);
 
     void fillInfo(const IMaterialInfo &info);
 
@@ -232,17 +231,17 @@ public:
     uint32_t _techIdx{0};
 
     /* @serializable */
-    std::vector<MacroRecord> _defines;
+    ccstd::vector<MacroRecord> _defines;
 
     /* @serializable */
-    std::vector<PassOverrides> _states;
+    ccstd::vector<PassOverrides> _states;
 
     /* @serializable */
-    std::vector<Record<std::string, MaterialPropertyVariant>> _props;
+    ccstd::vector<Record<ccstd::string, MaterialPropertyVariant>> _props;
     //
 
 protected:
-    std::shared_ptr<std::vector<IntrusivePtr<scene::Pass>>> _passes;
+    std::shared_ptr<ccstd::vector<IntrusivePtr<scene::Pass>>> _passes;
 
     uint64_t _hash{0};
 
@@ -267,7 +266,7 @@ public:
      * @en Name of the current [[EffectAsset]].
      * @zh 当前使用的 [[EffectAsset]] 资源名。
      */
-    inline std::string getEffectName() const {
+    inline ccstd::string getEffectName() const {
         return _effectAsset ? _effectAsset->getName() : "";
     }
 
@@ -283,7 +282,7 @@ public:
      * @en The passes defined in this material.
      * @zh 当前正在使用的 pass 数组。
      */
-    std::shared_ptr<std::vector<IntrusivePtr<scene::Pass>>> &getPasses() {
+    std::shared_ptr<ccstd::vector<IntrusivePtr<scene::Pass>>> &getPasses() {
         return _passes;
     }
 
@@ -317,16 +316,16 @@ public:
 
 protected:
     void update(bool keepProps = true);
-    bool uploadProperty(scene::Pass *pass, const std::string &name, const MaterialPropertyVariant &val);
+    bool uploadProperty(scene::Pass *pass, const ccstd::string &name, const MaterialPropertyVariant &val);
     void bindTexture(scene::Pass *pass, uint32_t handle, const MaterialProperty &val, index_t index = CC_INVALID_INDEX);
 
     template <typename T1, typename T2>
-    void prepareInfo(const T1 &patch, std::vector<T2> &cur) {
+    void prepareInfo(const T1 &patch, ccstd::vector<T2> &cur) {
         auto *pOneElement = cc::get_if<T2>(&patch);
         if (pOneElement != nullptr) {
             size_t len = _effectAsset != nullptr ? _effectAsset->_techniques[_techIdx].passes.size() : 1;
 
-            std::vector<T2> patchArray;
+            ccstd::vector<T2> patchArray;
             patchArray.reserve(len);
             for (size_t i = 0; i < len; ++i) {
                 patchArray.emplace_back(*pOneElement);
@@ -338,10 +337,10 @@ protected:
                 cur[i] = patchArray[i];
             }
         } else {
-            auto *pPatchArray = cc::get_if<std::vector<T2>>(&patch);
+            auto *pPatchArray = cc::get_if<ccstd::vector<T2>>(&patch);
             if (pPatchArray != nullptr) {
                 const auto &patchArray = *pPatchArray;
-                size_t      len        = patchArray.size();
+                size_t len = patchArray.size();
                 cur.resize(len);
 
                 for (size_t i = 0; i < len; ++i) {
@@ -353,7 +352,7 @@ protected:
 
     virtual void doDestroy();
 
-    virtual std::vector<IntrusivePtr<scene::Pass>> createPasses();
+    virtual ccstd::vector<IntrusivePtr<scene::Pass>> createPasses();
 
 private:
     friend class MaterialDeserializer;

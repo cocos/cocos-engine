@@ -37,9 +37,9 @@ class RenderPipeline;
 class RenderStage;
 
 struct CC_DLL RenderFlowInfo {
-    String          name;
-    uint            priority = 0;
-    uint            tag      = 0;
+    ccstd::string name;
+    uint priority = 0;
+    uint tag = 0;
     RenderStageList stages;
 };
 
@@ -53,17 +53,17 @@ public:
     virtual void render(scene::Camera *camera);
     virtual void destroy();
 
-    inline const String &getName() const { return _name; }
-    inline uint          getPriority() const { return _priority; }
-    inline uint          getTag() const { return _tag; }
-    RenderStage *        getRenderstageByName(const String &name) const;
+    inline const ccstd::string &getName() const { return _name; }
+    inline uint getPriority() const { return _priority; }
+    inline uint getTag() const { return _tag; }
+    RenderStage *getRenderstageByName(const ccstd::string &name) const;
 
 protected:
     RenderStageList _stages;
-    String          _name;
+    ccstd::string _name;
     RenderPipeline *_pipeline = nullptr;
-    uint            _priority = 0;
-    uint            _tag      = 0;
+    uint _priority = 0;
+    uint _tag = 0;
 };
 
 } // namespace pipeline

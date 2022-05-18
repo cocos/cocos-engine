@@ -48,7 +48,7 @@ MorphRendering *createMorphRendering(Mesh *mesh, gfx::Device *gfxDevice);
  */
 class MorphRendering : public RefCounted {
 public:
-    ~MorphRendering() override                       = default;
+    ~MorphRendering() override = default;
     virtual MorphRenderingInstance *createInstance() = 0;
 };
 
@@ -72,7 +72,7 @@ public:
      */
     virtual void adaptPipelineState(index_t subMeshIndex, gfx::DescriptorSet *descriptorSet) = 0;
 
-    virtual std::vector<scene::IMacroPatch> requiredPatches(index_t subMeshIndex) = 0;
+    virtual ccstd::vector<scene::IMacroPatch> requiredPatches(index_t subMeshIndex) = 0;
 
     /**
      * Destroy the rendering instance.

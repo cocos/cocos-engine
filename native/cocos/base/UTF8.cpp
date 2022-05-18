@@ -37,10 +37,10 @@ namespace cc {
 
 namespace StringUtils { //NOLINT
 
-std::string format(const char *format, ...) {
+ccstd::string format(const char *format, ...) {
 #define CC_MAX_STRING_LENGTH (1024 * 100)
 
-    std::string ret;
+    ccstd::string ret;
 
     va_list ap;
     va_start(ap, format);
@@ -62,7 +62,7 @@ std::string format(const char *format, ...) {
  *
  * Return value: the index of the last character that is not c.
  * */
-unsigned int getIndexOfLastNotChar16(const std::vector<char16_t> &str, char16_t c) {
+unsigned int getIndexOfLastNotChar16(const ccstd::vector<char16_t> &str, char16_t c) {
     int len = static_cast<int>(str.size());
 
     int i = len - 1;
@@ -83,7 +83,7 @@ unsigned int getIndexOfLastNotChar16(const std::vector<char16_t> &str, char16_t 
  *
  * Return value: the trimmed string.
  * */
-static void trimUTF16VectorFromIndex(std::vector<char16_t> &str, int index) { //NOLINT
+static void trimUTF16VectorFromIndex(ccstd::vector<char16_t> &str, int index) { //NOLINT
     int size = static_cast<int>(str.size());
     if (index >= size || index < 0) {
         return;
@@ -114,7 +114,7 @@ bool isCJKUnicode(char16_t ch) {
            || (ch >= 0x31C0 && ch <= 0x4DFF); // Other extensions
 }
 
-void trimUTF16Vector(std::vector<char16_t> &str) {
+void trimUTF16Vector(ccstd::vector<char16_t> &str) {
     int len = static_cast<int>(str.size());
 
     if (len <= 0) {
@@ -174,7 +174,7 @@ bool utfConvert(
     constexpr int mostBytesPerCharacter = 4;
 
     const size_t maxNumberOfChars = from.length(); // all UTFs at most one element represents one character.
-    const size_t numberOfOut      = maxNumberOfChars * mostBytesPerCharacter / sizeof(To);
+    const size_t numberOfOut = maxNumberOfChars * mostBytesPerCharacter / sizeof(To);
 
     std::basic_string<To> working(numberOfOut, 0);
 
@@ -183,7 +183,7 @@ bool utfConvert(
 
     auto outbeg = reinterpret_cast<typename ToTrait::ArgType *>(&working[0]);
     auto outend = outbeg + working.length();
-    auto r      = cvtfunc(&inbeg, inend, &outbeg, outend, strictConversion);
+    auto r = cvtfunc(&inbeg, inend, &outbeg, outend, strictConversion);
     if (r != conversionOK) {
         return false;
     }
@@ -194,10 +194,10 @@ bool utfConvert(
     return true;
 };
 
-CC_DLL void UTF8LooseFix(const std::string &in, std::string &out) { //NOLINT
-    const auto *p        = reinterpret_cast<const UTF8 *>(in.c_str());
-    const auto *end      = reinterpret_cast<const UTF8 *>(in.c_str() + in.size());
-    unsigned    ucharLen = 0;
+CC_DLL void UTF8LooseFix(const ccstd::string &in, ccstd::string &out) { //NOLINT
+    const auto *p = reinterpret_cast<const UTF8 *>(in.c_str());
+    const auto *end = reinterpret_cast<const UTF8 *>(in.c_str() + in.size());
+    unsigned ucharLen = 0;
     while (p < end) {
         ucharLen = getNumBytesForUTF8(*p);
         if (isLegalUTF8Sequence(p, p + ucharLen)) {
@@ -211,15 +211,15 @@ CC_DLL void UTF8LooseFix(const std::string &in, std::string &out) { //NOLINT
     }
 }
 
-bool UTF8ToUTF16(const std::string &utf8, std::u16string &outUtf16) { //NOLINT
+bool UTF8ToUTF16(const ccstd::string &utf8, std::u16string &outUtf16) { //NOLINT
     return utfConvert(utf8, outUtf16, ConvertUTF8toUTF16);
 }
 
-bool UTF8ToUTF32(const std::string &utf8, std::u32string &outUtf32) { //NOLINT
+bool UTF8ToUTF32(const ccstd::string &utf8, std::u32string &outUtf32) { //NOLINT
     return utfConvert(utf8, outUtf32, ConvertUTF8toUTF32);
 }
 
-bool UTF16ToUTF8(const std::u16string &utf16, std::string &outUtf8) { //NOLINT
+bool UTF16ToUTF8(const std::u16string &utf16, ccstd::string &outUtf8) { //NOLINT
     return utfConvert(utf16, outUtf8, ConvertUTF16toUTF8);
 }
 
@@ -227,7 +227,7 @@ bool UTF16ToUTF32(const std::u16string &utf16, std::u32string &outUtf32) { //NOL
     return utfConvert(utf16, outUtf32, ConvertUTF16toUTF32);
 }
 
-bool UTF32ToUTF8(const std::u32string &utf32, std::string &outUtf8) { //NOLINT
+bool UTF32ToUTF8(const std::u32string &utf32, ccstd::string &outUtf8) { //NOLINT
     return utfConvert(utf32, outUtf8, ConvertUTF32toUTF8);
 }
 
@@ -236,12 +236,12 @@ bool UTF32ToUTF16(const std::u32string &utf32, std::u16string &outUtf16) { //NOL
 }
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
-std::string getStringUTFCharsJNI(JNIEnv *env, jstring srcjStr, bool *ret) {
-    std::string          utf8Str;
-    auto *               unicodeChar       = static_cast<const uint16_t *>(env->GetStringChars(srcjStr, nullptr));
-    size_t               unicodeCharLength = env->GetStringLength(srcjStr);
+ccstd::string getStringUTFCharsJNI(JNIEnv *env, jstring srcjStr, bool *ret) {
+    ccstd::string utf8Str;
+    auto *unicodeChar = static_cast<const uint16_t *>(env->GetStringChars(srcjStr, nullptr));
+    size_t unicodeCharLength = env->GetStringLength(srcjStr);
     const std::u16string unicodeStr(reinterpret_cast<const char16_t *>(unicodeChar), unicodeCharLength);
-    bool                 flag = UTF16ToUTF8(unicodeStr, utf8Str);
+    bool flag = UTF16ToUTF8(unicodeStr, utf8Str);
 
     if (ret) {
         *ret = flag;
@@ -254,9 +254,9 @@ std::string getStringUTFCharsJNI(JNIEnv *env, jstring srcjStr, bool *ret) {
     return utf8Str;
 }
 
-jstring newStringUTFJNI(JNIEnv *env, const std::string &utf8Str, bool *ret) {
+jstring newStringUTFJNI(JNIEnv *env, const ccstd::string &utf8Str, bool *ret) {
     std::u16string utf16Str;
-    bool           flag = cc::StringUtils::UTF8ToUTF16(utf8Str, utf16Str);
+    bool flag = cc::StringUtils::UTF8ToUTF16(utf8Str, utf16Str);
 
     if (ret) {
         *ret = flag;
@@ -270,15 +270,15 @@ jstring newStringUTFJNI(JNIEnv *env, const std::string &utf8Str, bool *ret) {
 }
 #endif
 
-std::vector<char16_t> getChar16VectorFromUTF16String(const std::u16string &utf16) {
-    return std::vector<char16_t>(utf16.begin(), utf16.end());
+ccstd::vector<char16_t> getChar16VectorFromUTF16String(const std::u16string &utf16) {
+    return ccstd::vector<char16_t>(utf16.begin(), utf16.end());
 }
 
-long getCharacterCountInUTF8String(const std::string &utf8) { //NOLINT
+long getCharacterCountInUTF8String(const ccstd::string &utf8) { //NOLINT
     return getUTF8StringLength(reinterpret_cast<const UTF8 *>(utf8.c_str()));
 }
 
-StringUTF8::StringUTF8(const std::string &newStr) {
+StringUTF8::StringUTF8(const ccstd::string &newStr) {
     replace(newStr);
 }
 
@@ -286,7 +286,7 @@ std::size_t StringUTF8::length() const {
     return _str.size();
 }
 
-void StringUTF8::replace(const std::string &newStr) {
+void StringUTF8::replace(const ccstd::string &newStr) {
     _str.clear();
     if (!newStr.empty()) {
         const auto *sequenceUtf8 = reinterpret_cast<const UTF8 *>(newStr.c_str());
@@ -310,8 +310,8 @@ void StringUTF8::replace(const std::string &newStr) {
     }
 }
 
-std::string StringUTF8::getAsCharSequence() const {
-    std::string charSequence;
+ccstd::string StringUTF8::getAsCharSequence() const {
+    ccstd::string charSequence;
 
     for (auto &charUtf8 : _str) {
         charSequence.append(charUtf8._char);
@@ -328,7 +328,7 @@ bool StringUTF8::deleteChar(std::size_t pos) {
     return false;
 }
 
-bool StringUTF8::insert(std::size_t pos, const std::string &insertStr) {
+bool StringUTF8::insert(std::size_t pos, const ccstd::string &insertStr) {
     StringUTF8 utf8(insertStr);
 
     return insert(pos, utf8);

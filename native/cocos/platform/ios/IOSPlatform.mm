@@ -28,14 +28,21 @@
 #include "platform/interfaces/modules/ISystemWindow.h"
 
 #import <UIKit/UIKit.h>
-#import "platform/ios/AppDelegate.h"
 
-extern int cocos_main(int argc, const char** argv);
+#include "modules/Accelerometer.h"
+#include "modules/Battery.h"
+#include "modules/Network.h"
+#include "modules/Screen.h"
+#include "modules/System.h"
+#include "modules/SystemWindow.h"
+#include "modules/Vibrator.h"
+
+extern int cocos_main(int argc, const char **argv);
 
 @interface MyTimer : NSObject {
     cc::IOSPlatform *_platform;
-    CADisplayLink *  _displayLink;
-    int              _fps;
+    CADisplayLink *_displayLink;
+    int _fps;
 }
 - (instancetype)initWithApp:(cc::IOSPlatform *)platform fps:(int)fps;
 - (void)start;
@@ -48,9 +55,9 @@ extern int cocos_main(int argc, const char** argv);
 
 - (instancetype)initWithApp:(cc::IOSPlatform *)platform fps:(int)fps {
     if (self = [super init]) {
-        _fps                                  = fps;
-        _platform                             = platform;
-        _displayLink                          = [NSClassFromString(@"CADisplayLink") displayLinkWithTarget:self selector:@selector(renderScene:)];
+        _fps = fps;
+        _platform = platform;
+        _displayLink = [NSClassFromString(@"CADisplayLink") displayLinkWithTarget:self selector:@selector(renderScene:)];
         _displayLink.preferredFramesPerSecond = _fps;
     }
     return self;
@@ -92,7 +99,14 @@ IOSPlatform::~IOSPlatform() = default;
 
 int32_t IOSPlatform::init() {
     _timer = [[MyTimer alloc] initWithApp:this fps:60];
-    return UniversalPlatform::init();
+    registerInterface(std::make_shared<Accelerometer>());
+    registerInterface(std::make_shared<Battery>());
+    registerInterface(std::make_shared<Network>());
+    registerInterface(std::make_shared<Screen>());
+    registerInterface(std::make_shared<System>());
+    registerInterface(std::make_shared<SystemWindow>());
+    registerInterface(std::make_shared<Vibrator>());
+    return 0;
 }
 
 int32_t IOSPlatform::loop() {
@@ -101,8 +115,8 @@ int32_t IOSPlatform::loop() {
     return 0;
 }
 
-int32_t IOSPlatform::run(int argc, const char** argv) {
-    return runUIAppicationMain(argc, argv);
+int32_t IOSPlatform::run(int argc, const char **argv) {
+    return 0;
 }
 
 void IOSPlatform::setFps(int32_t fps) {
@@ -115,7 +129,7 @@ int32_t IOSPlatform::getFps() const {
 
 void IOSPlatform::onPause() {
     [_timer pause];
-    
+
     cc::WindowEvent ev;
     ev.type = cc::WindowEvent::Type::HIDDEN;
     dispatchEvent(ev);
@@ -123,7 +137,7 @@ void IOSPlatform::onPause() {
 
 void IOSPlatform::onResume() {
     [_timer resume];
-    
+
     cc::WindowEvent ev;
     ev.type = cc::WindowEvent::Type::SHOW;
     dispatchEvent(ev);

@@ -29,7 +29,7 @@
 
 namespace cc {
 
-class IVibrator : public OSInterface {
+class CC_DLL IVibrator : public OSInterface {
 public:
     IVibrator() = default;
     /**
@@ -40,12 +40,6 @@ public:
      * @param duration The duration in seconds.
      */
     virtual void vibrate(float duration) = 0;
-
-    /**
-     * @brief Create default Vibrator interface.
-     * @return Vibrator interface.
-     */
-    static OSInterface::Ptr createVibratorInterface();
 };
 
 } // namespace cc

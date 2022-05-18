@@ -25,9 +25,9 @@ THE SOFTWARE.
 
 #pragma once
 
-#include "audio/android/AudioDecoder.h"
-#include <mutex>
 #include <condition_variable>
+#include <mutex>
+#include "audio/android/AudioDecoder.h"
 
 namespace cc {
 
@@ -36,7 +36,7 @@ protected:
     AudioDecoderSLES();
     virtual ~AudioDecoderSLES();
 
-    bool init(SLEngineItf engineItf, const std::string &url, int bufferSizeInFrames, int sampleRate, const FdGetterCallback &fdGetterCallback);
+    bool init(SLEngineItf engineItf, const ccstd::string &url, int bufferSizeInFrames, int sampleRate, const FdGetterCallback &fdGetterCallback);
     virtual bool decodeToPcm() override;
 
 private:

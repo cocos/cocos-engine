@@ -40,23 +40,24 @@
 #include "gfx-base/GFXSwapchain.h"
 #include "gfx-base/states/GFXTextureBarrier.h"
 #include "pipeline/ClusterLightCulling.h"
+#include "profiler/Profiler.h"
 #include "scene/RenderWindow.h"
 
 namespace cc {
 namespace pipeline {
 
 #define TO_VEC3(dst, src, offset)  \
-    dst[offset]         = (src).x; \
+    dst[offset] = (src).x;         \
     (dst)[(offset) + 1] = (src).y; \
     (dst)[(offset) + 2] = (src).z;
 #define TO_VEC4(dst, src, offset)  \
-    dst[offset]         = (src).x; \
+    dst[offset] = (src).x;         \
     (dst)[(offset) + 1] = (src).y; \
     (dst)[(offset) + 2] = (src).z; \
     (dst)[(offset) + 3] = (src).w;
 
 DeferredPipeline::DeferredPipeline() {
-    _pipelineSceneData = new DeferredPipelineSceneData();
+    _pipelineSceneData = ccnew DeferredPipelineSceneData();
 }
 
 DeferredPipeline::~DeferredPipeline() = default;
@@ -66,20 +67,20 @@ framegraph::StringHandle DeferredPipeline::fgStrHandleGbufferTexture[GBUFFER_COU
     framegraph::FrameGraph::stringToHandle("gbufferNormalTexture"),
     framegraph::FrameGraph::stringToHandle("gbufferEmissiveTexture")};
 
-framegraph::StringHandle DeferredPipeline::fgStrHandleGbufferPass     = framegraph::FrameGraph::stringToHandle("deferredGbufferPass");
-framegraph::StringHandle DeferredPipeline::fgStrHandleLightingPass    = framegraph::FrameGraph::stringToHandle("deferredLightingPass");
+framegraph::StringHandle DeferredPipeline::fgStrHandleGbufferPass = framegraph::FrameGraph::stringToHandle("deferredGbufferPass");
+framegraph::StringHandle DeferredPipeline::fgStrHandleLightingPass = framegraph::FrameGraph::stringToHandle("deferredLightingPass");
 framegraph::StringHandle DeferredPipeline::fgStrHandleTransparentPass = framegraph::FrameGraph::stringToHandle("deferredTransparentPass");
-framegraph::StringHandle DeferredPipeline::fgStrHandleSsprPass        = framegraph::FrameGraph::stringToHandle("deferredSSPRPass");
+framegraph::StringHandle DeferredPipeline::fgStrHandleSsprPass = framegraph::FrameGraph::stringToHandle("deferredSSPRPass");
 
 bool DeferredPipeline::initialize(const RenderPipelineInfo &info) {
     RenderPipeline::initialize(info);
 
     if (_flows.empty()) {
-        auto *shadowFlow = CC_NEW(ShadowFlow);
+        auto *shadowFlow = ccnew ShadowFlow;
         shadowFlow->initialize(ShadowFlow::getInitializeInfo());
         _flows.emplace_back(shadowFlow);
 
-        auto *mainFlow = CC_NEW(MainFlow);
+        auto *mainFlow = ccnew MainFlow;
         mainFlow->initialize(MainFlow::getInitializeInfo());
         _flows.emplace_back(mainFlow);
     }
@@ -102,9 +103,10 @@ bool DeferredPipeline::activate(gfx::Swapchain *swapchain) {
     return true;
 }
 
-void DeferredPipeline::render(const vector<scene::Camera *> &cameras) {
-    auto *device               = gfx::Device::getInstance();
-    bool  enableOcclusionQuery = isOcclusionQueryEnabled();
+void DeferredPipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
+    CC_PROFILE(DeferredPipelineRender);
+    auto *device = gfx::Device::getInstance();
+    bool enableOcclusionQuery = isOcclusionQueryEnabled();
     if (enableOcclusionQuery) {
         device->getQueryPoolResults(_queryPools[0]);
     }
@@ -164,12 +166,12 @@ bool DeferredPipeline::activeRenderer(gfx::Swapchain *swapchain) {
     _descriptorSet->update();
 
     // update global defines when all states initialized.
-    _macros["CC_USE_HDR"]               = static_cast<bool>(_pipelineSceneData->isHDR());
+    _macros["CC_USE_HDR"] = static_cast<bool>(_pipelineSceneData->isHDR());
     _macros["CC_SUPPORT_FLOAT_TEXTURE"] = hasAnyFlags(_device->getFormatFeatures(gfx::Format::RGBA32F), gfx::FormatFeature::RENDER_TARGET | gfx::FormatFeature::SAMPLED_TEXTURE);
 
     // step 2 create index buffer
     uint ibStride = 4;
-    uint ibSize   = ibStride * 6;
+    uint ibSize = ibStride * 6;
     if (_quadIB == nullptr) {
         _quadIB = _device->createBuffer({gfx::BufferUsageBit::INDEX | gfx::BufferUsageBit::TRANSFER_DST,
                                          gfx::MemoryUsageBit::DEVICE, ibSize, ibStride});
@@ -182,12 +184,12 @@ bool DeferredPipeline::activeRenderer(gfx::Swapchain *swapchain) {
     unsigned int ibData[] = {0, 1, 2, 1, 3, 2};
     _quadIB->update(ibData, sizeof(ibData));
 
-    _width  = swapchain->getWidth();
+    _width = swapchain->getWidth();
     _height = swapchain->getHeight();
 
     if (_clusterEnabled) {
         // cluster component resource
-        _clusterComp = new ClusterLightCulling(this);
+        _clusterComp = ccnew ClusterLightCulling(this);
         _clusterComp->initialize(this->getDevice());
     }
 

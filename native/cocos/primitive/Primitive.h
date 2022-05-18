@@ -43,14 +43,14 @@ namespace cc {
 
 using PrimitiveOptions = cc::variant<IGeometryOptions, IBoxOptions, ICapsuleOptions, ICircleOptions, ICylinderOptions, IConeOptions, IPlaneOptions, ISphereOptions, ITorusOptions>;
 enum class PrimitiveType {
-    BOX      = 0,
-    SPHERE   = 1,
+    BOX = 0,
+    SPHERE = 1,
     CYLINDER = 2,
-    CONE     = 3,
-    CAPSULE  = 4,
-    TORUS    = 5,
-    PLANE    = 6,
-    QUAD     = 7,
+    CONE = 3,
+    CAPSULE = 4,
+    TORUS = 5,
+    PLANE = 6,
+    QUAD = 7,
 };
 
 /**
@@ -78,7 +78,7 @@ public:
      */
     //    @serializable
     //    @editable
-    Record<std::string, float> info; //cjh float?
+    Record<ccstd::string, float> info; //cjh float?
 
     explicit Primitive(PrimitiveType type = PrimitiveType::BOX);
     ~Primitive() override;

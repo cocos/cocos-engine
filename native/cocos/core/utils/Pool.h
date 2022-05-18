@@ -136,7 +136,7 @@ public:
     T _get() { //NOLINT(readability-identifier-naming)
         if (_count > 0) {
             --_count;
-            T cache       = _pool[_count];
+            T cache = _pool[_count];
             _pool[_count] = nullptr;
             return cache;
         }
@@ -173,7 +173,7 @@ public:
     int32_t getCount() const { return _count; }
 
 private:
-    std::vector<T>  _pool;
+    ccstd::vector<T> _pool;
     CleanUpFunction _cleanup{nullptr};
 
     /**

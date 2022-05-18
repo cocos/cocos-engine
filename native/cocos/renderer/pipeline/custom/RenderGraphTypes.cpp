@@ -44,6 +44,7 @@ ResourceGraph::ResourceGraph(const allocator_type& alloc) noexcept
   resources(alloc),
   buffers(alloc),
   textures(alloc),
+  framebuffers(alloc),
   swapchains(alloc),
   valueIndex(alloc) {}
 
@@ -56,6 +57,7 @@ ResourceGraph::ResourceGraph(ResourceGraph&& rhs, const allocator_type& alloc)
   resources(std::move(rhs.resources), alloc),
   buffers(std::move(rhs.buffers), alloc),
   textures(std::move(rhs.textures), alloc),
+  framebuffers(std::move(rhs.framebuffers), alloc),
   swapchains(std::move(rhs.swapchains), alloc),
   valueIndex(std::move(rhs.valueIndex), alloc) {}
 
@@ -68,6 +70,7 @@ ResourceGraph::ResourceGraph(ResourceGraph const& rhs, const allocator_type& all
   resources(rhs.resources, alloc),
   buffers(rhs.buffers, alloc),
   textures(rhs.textures, alloc),
+  framebuffers(rhs.framebuffers, alloc),
   swapchains(rhs.swapchains, alloc),
   valueIndex(rhs.valueIndex, alloc) {}
 
@@ -97,7 +100,7 @@ ResourceGraph::Vertex::Vertex(Vertex const& rhs, const allocator_type& alloc)
 RasterView::RasterView(const allocator_type& alloc) noexcept
 : slotName(alloc) {}
 
-RasterView::RasterView(PmrString slotNameIn, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, const allocator_type& alloc) noexcept
+RasterView::RasterView(ccstd::pmr::string slotNameIn, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, const allocator_type& alloc) noexcept
 : slotName(std::move(slotNameIn), alloc),
   accessType(accessTypeIn),
   attachmentType(attachmentTypeIn),
@@ -193,12 +196,14 @@ RasterPass::RasterPass(const allocator_type& alloc) noexcept
   subpassGraph(alloc) {}
 
 RasterPass::RasterPass(RasterPass&& rhs, const allocator_type& alloc)
-: rasterViews(std::move(rhs.rasterViews), alloc),
+: isValid(rhs.isValid),
+  rasterViews(std::move(rhs.rasterViews), alloc),
   computeViews(std::move(rhs.computeViews), alloc),
   subpassGraph(std::move(rhs.subpassGraph), alloc) {}
 
 RasterPass::RasterPass(RasterPass const& rhs, const allocator_type& alloc)
-: rasterViews(rhs.rasterViews, alloc),
+: isValid(rhs.isValid),
+  rasterViews(rhs.rasterViews, alloc),
   computeViews(rhs.computeViews, alloc),
   subpassGraph(rhs.subpassGraph, alloc) {}
 
@@ -215,7 +220,7 @@ CopyPair::CopyPair(const allocator_type& alloc) noexcept
 : source(alloc),
   target(alloc) {}
 
-CopyPair::CopyPair(PmrString sourceIn, PmrString targetIn, uint32_t mipLevelsIn, uint32_t numSlicesIn, uint32_t sourceMostDetailedMipIn, uint32_t sourceFirstSliceIn, uint32_t sourcePlaneSliceIn, uint32_t targetMostDetailedMipIn, uint32_t targetFirstSliceIn, uint32_t targetPlaneSliceIn, const allocator_type& alloc) noexcept // NOLINT
+CopyPair::CopyPair(ccstd::pmr::string sourceIn, ccstd::pmr::string targetIn, uint32_t mipLevelsIn, uint32_t numSlicesIn, uint32_t sourceMostDetailedMipIn, uint32_t sourceFirstSliceIn, uint32_t sourcePlaneSliceIn, uint32_t targetMostDetailedMipIn, uint32_t targetFirstSliceIn, uint32_t targetPlaneSliceIn, const allocator_type& alloc) noexcept // NOLINT
 : source(std::move(sourceIn), alloc),
   target(std::move(targetIn), alloc),
   mipLevels(mipLevelsIn),
@@ -264,7 +269,7 @@ MovePair::MovePair(const allocator_type& alloc) noexcept
 : source(alloc),
   target(alloc) {}
 
-MovePair::MovePair(PmrString sourceIn, PmrString targetIn, uint32_t mipLevelsIn, uint32_t numSlicesIn, uint32_t targetMostDetailedMipIn, uint32_t targetFirstSliceIn, uint32_t targetPlaneSliceIn, const allocator_type& alloc) noexcept // NOLINT
+MovePair::MovePair(ccstd::pmr::string sourceIn, ccstd::pmr::string targetIn, uint32_t mipLevelsIn, uint32_t numSlicesIn, uint32_t targetMostDetailedMipIn, uint32_t targetFirstSliceIn, uint32_t targetPlaneSliceIn, const allocator_type& alloc) noexcept // NOLINT
 : source(std::move(sourceIn), alloc),
   target(std::move(targetIn), alloc),
   mipLevels(mipLevelsIn),
@@ -313,7 +318,7 @@ SceneData::SceneData(const allocator_type& alloc) noexcept
 : name(alloc),
   scenes(alloc) {}
 
-SceneData::SceneData(PmrString nameIn, const allocator_type& alloc) noexcept
+SceneData::SceneData(ccstd::pmr::string nameIn, const allocator_type& alloc) noexcept
 : name(std::move(nameIn), alloc),
   scenes(alloc) {}
 
@@ -330,7 +335,7 @@ SceneData::SceneData(SceneData const& rhs, const allocator_type& alloc)
 Dispatch::Dispatch(const allocator_type& alloc) noexcept
 : shader(alloc) {}
 
-Dispatch::Dispatch(PmrString shaderIn, uint32_t threadGroupCountXIn, uint32_t threadGroupCountYIn, uint32_t threadGroupCountZIn, const allocator_type& alloc) noexcept // NOLINT
+Dispatch::Dispatch(ccstd::pmr::string shaderIn, uint32_t threadGroupCountXIn, uint32_t threadGroupCountYIn, uint32_t threadGroupCountZIn, const allocator_type& alloc) noexcept // NOLINT
 : shader(std::move(shaderIn), alloc),
   threadGroupCountX(threadGroupCountXIn),
   threadGroupCountY(threadGroupCountYIn),
@@ -351,7 +356,7 @@ Dispatch::Dispatch(Dispatch const& rhs, const allocator_type& alloc)
 Blit::Blit(const allocator_type& alloc) noexcept
 : shader(alloc) {}
 
-Blit::Blit(PmrString shaderIn, const allocator_type& alloc) noexcept
+Blit::Blit(ccstd::pmr::string shaderIn, const allocator_type& alloc) noexcept
 : shader(std::move(shaderIn), alloc) {}
 
 Blit::Blit(Blit&& rhs, const allocator_type& alloc)
@@ -387,6 +392,7 @@ RenderGraph::RenderGraph(const allocator_type& alloc) noexcept
   names(alloc),
   layoutNodes(alloc),
   data(alloc),
+  valid(alloc),
   rasterPasses(alloc),
   computePasses(alloc),
   copyPasses(alloc),
@@ -405,6 +411,7 @@ RenderGraph::RenderGraph(RenderGraph&& rhs, const allocator_type& alloc)
   names(std::move(rhs.names), alloc),
   layoutNodes(std::move(rhs.layoutNodes), alloc),
   data(std::move(rhs.data), alloc),
+  valid(std::move(rhs.valid), alloc),
   rasterPasses(std::move(rhs.rasterPasses), alloc),
   computePasses(std::move(rhs.computePasses), alloc),
   copyPasses(std::move(rhs.copyPasses), alloc),
@@ -424,6 +431,7 @@ void RenderGraph::reserve(vertices_size_type sz) {
     names.reserve(sz);
     layoutNodes.reserve(sz);
     data.reserve(sz);
+    valid.reserve(sz);
 }
 
 RenderGraph::Object::Object(const allocator_type& alloc) noexcept

@@ -37,7 +37,7 @@ using std::optional;
 
 }; // namespace cc
 #else
-    #include <string>
+    #include "base/std/container/string.h"
     #include "boost/none.hpp"
     #include "boost/optional.hpp"
 

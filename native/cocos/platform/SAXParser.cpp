@@ -28,9 +28,6 @@
 ****************************************************************************/
 
 #include "platform/SAXParser.h"
-
-#include <vector> // because its based on windows 8 build :P
-
 #include "platform/FileUtils.h"
 #include "tinyxml2/tinyxml2.h"
 
@@ -56,7 +53,7 @@ private:
 bool XmlSaxHander::VisitEnter(const tinyxml2::XMLElement &element, const tinyxml2::XMLAttribute *firstAttribute) {
     //log(" VisitEnter %s",element.Value());
 
-    std::vector<const char *> attsVector;
+    ccstd::vector<const char *> attsVector;
     for (const tinyxml2::XMLAttribute *attrib = firstAttribute; attrib; attrib = attrib->Next()) {
         //log("%s", attrib->Name());
         attsVector.push_back(attrib->Name());
@@ -106,8 +103,8 @@ bool SAXParser::parse(const char *xmlData, size_t dataLength) {
     return tinyDoc.Accept(&printer);
 }
 
-bool SAXParser::parse(const std::string &filename) {
-    bool ret  = false;
+bool SAXParser::parse(const ccstd::string &filename) {
+    bool ret = false;
     Data data = FileUtils::getInstance()->getDataFromFile(filename);
     if (!data.isNull()) {
         ret = parse((const char *)data.getBytes(), data.getSize());

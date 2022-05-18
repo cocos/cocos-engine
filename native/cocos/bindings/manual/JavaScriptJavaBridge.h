@@ -24,14 +24,13 @@
 ****************************************************************************/
 
 #pragma once
-#include <string>
-#include <vector>
+#include "base/std/container/string.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "platform/java/jni/JniHelper.h"
 namespace se {
 class Object;
 }
 
-bool register_javascript_java_bridge(se::Object *obj);                           // NOLINT(readability-identifier-naming)
-bool register_script_native_bridge(se::Object *obj);                             // NOLINT(readability-identifier-naming)
-void callPlatformStringMethod(const std::string &arg0, const std::string &arg1); // NOLINT(readability-identifier-naming)
+bool register_javascript_java_bridge(se::Object *obj);                               // NOLINT(readability-identifier-naming)
+bool register_script_native_bridge(se::Object *obj);                                 // NOLINT(readability-identifier-naming)
+void callPlatformStringMethod(const ccstd::string &arg0, const ccstd::string &arg1); // NOLINT(readability-identifier-naming)

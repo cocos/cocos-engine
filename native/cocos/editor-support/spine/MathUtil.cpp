@@ -28,7 +28,7 @@
  *****************************************************************************/
 
 #ifdef SPINE_UE4
-#include "SpinePluginPrivatePCH.h"
+    #include "SpinePluginPrivatePCH.h"
 #endif
 
 #include <spine/MathUtil.h>
@@ -37,7 +37,7 @@
 
 // Required for division by 0 in _isNaN on MSVC
 #ifdef _MSC_VER
-#pragma warning(disable:4723)
+    #pragma warning(disable : 4723)
 #endif
 
 using namespace spine;
@@ -48,80 +48,80 @@ const float MathUtil::Deg_Rad = (3.1415926535897932385f / 180.0f);
 const float MathUtil::Rad_Deg = (180.0f / 3.1415926535897932385f);
 
 float MathUtil::abs(float v) {
-	return ((v) < 0 ? -(v) : (v));
+    return ((v) < 0 ? -(v) : (v));
 }
 
 float MathUtil::sign(float v) {
-	return ((v) < 0 ? -1.0f : (v) > 0 ? 1.0f : 0.0f);
+    return ((v) < 0 ? -1.0f : (v) > 0 ? 1.0f : 0.0f);
 }
 
 float MathUtil::clamp(float x, float min, float max) {
-	return ((x) < (min) ? (min) : ((x) > (max) ? (max) : (x)));
+    return ((x) < (min) ? (min) : ((x) > (max) ? (max) : (x)));
 }
 
 float MathUtil::fmod(float a, float b) {
-	return (float)::fmod(a, b);
+    return (float)::fmod(a, b);
 }
 
 /// Returns atan2 in radians, faster but less accurate than Math.Atan2. Average error of 0.00231 radians (0.1323
 /// degrees), largest error of 0.00488 radians (0.2796 degrees).
 float MathUtil::atan2(float y, float x) {
-	return (float)::atan2(y, x);
+    return (float)::atan2(y, x);
 }
 
 /// Returns the cosine in radians from a lookup table.
 float MathUtil::cos(float radians) {
-	return (float)::cos(radians);
+    return (float)::cos(radians);
 }
 
 /// Returns the sine in radians from a lookup table.
 float MathUtil::sin(float radians) {
-	return (float)::sin(radians);
+    return (float)::sin(radians);
 }
 
 float MathUtil::sqrt(float v) {
-	return (float)::sqrt(v);
+    return (float)::sqrt(v);
 }
 
 float MathUtil::acos(float v) {
-	return (float)::acos(v);
+    return (float)::acos(v);
 }
 
 /// Returns the sine in radians from a lookup table.
 float MathUtil::sinDeg(float degrees) {
-	return (float)::sin(degrees * MathUtil::Deg_Rad);
+    return (float)::sin(degrees * MathUtil::Deg_Rad);
 }
 
 /// Returns the cosine in radians from a lookup table.
 float MathUtil::cosDeg(float degrees) {
-	return (float)::cos(degrees * MathUtil::Deg_Rad);
+    return (float)::cos(degrees * MathUtil::Deg_Rad);
 }
 
 /* Need to pass 0 as an argument, so VC++ doesn't error with C2124 */
 static bool _isNan(float value, float zero) {
-	float _nan = (float) 0.0 / zero;
-	return 0 == memcmp((void *) &value, (void *) &_nan, sizeof(value));
+    float _nan = (float)0.0 / zero;
+    return 0 == memcmp((void *)&value, (void *)&_nan, sizeof(value));
 }
 
 bool MathUtil::isNan(float v) {
-	return _isNan(v, 0);
+    return _isNan(v, 0);
 }
 
 float MathUtil::random() {
-	return ::rand() / (float)RAND_MAX;
+    return ::rand() / (float)RAND_MAX;
 }
 
 float MathUtil::randomTriangular(float min, float max) {
-	return randomTriangular(min, max, (min + max) * 0.5f);
+    return randomTriangular(min, max, (min + max) * 0.5f);
 }
 
 float MathUtil::randomTriangular(float min, float max, float mode) {
-	float u = random();
-	float d = max - min;
-	if (u <= (mode - min) / d) return min + sqrt(u * d * (mode - min));
-	return max - sqrt((1 - u) * d * (max - mode));
+    float u = random();
+    float d = max - min;
+    if (u <= (mode - min) / d) return min + sqrt(u * d * (mode - min));
+    return max - sqrt((1 - u) * d * (max - mode));
 }
 
 float MathUtil::pow(float a, float b) {
-	return (float)::pow(a, b);
+    return (float)::pow(a, b);
 }

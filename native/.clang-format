@@ -4,8 +4,6 @@ BasedOnStyle:                         Google
 
 AccessModifierOffset:                 -4
 AlignConsecutiveMacros:               true
-AlignConsecutiveAssignments:          true
-AlignConsecutiveDeclarations:         true
 AllowShortCaseLabelsOnASingleLine:    true
 ColumnLimit:                          0
 ConstructorInitializerIndentWidth:    0
@@ -19,6 +17,4 @@ ObjCSpaceAfterProperty:               true
 
 ---
 Language:                             Cpp
-# Force pointers to the type for C++.
-DerivePointerAlignment:               false
-PointerAlignment:                     Right
+DerivePointerAlignment:               true

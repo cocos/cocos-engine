@@ -29,7 +29,7 @@
 
 #include <SystemConfiguration/SystemConfiguration.h>
 #include <functional>
-#include <string>
+#include "base/std/container/string.h"
 
 struct sockaddr;
 
@@ -46,7 +46,7 @@ public:
     /*!
      * Use to check the reachability of a given host name.
      */
-    static Reachability *createWithHostName(const std::string &hostName);
+    static Reachability *createWithHostName(const ccstd::string &hostName);
 
     /*!
      * Use to check the reachability of a given IP address.
@@ -79,8 +79,8 @@ private:
 
     static void onReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *info);
 
-    ReachabilityCallback     _callback;
-    void *                   _userData;
+    ReachabilityCallback _callback;
+    void *_userData;
     SCNetworkReachabilityRef _reachabilityRef;
 };
 

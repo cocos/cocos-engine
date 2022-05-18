@@ -32,10 +32,10 @@ namespace cc {
 class Node;
 
 struct IJointTransform {
-    Node *                  node{nullptr};
-    Mat4                    local;
-    Mat4                    world;
-    int                     stamp{-1};
+    Node *node{nullptr};
+    Mat4 local;
+    Mat4 world;
+    int stamp{-1};
     struct IJointTransform *parent{nullptr};
 };
 

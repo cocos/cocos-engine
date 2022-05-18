@@ -33,7 +33,8 @@
     #import <Foundation/Foundation.h>
     #import <Security/Security.h>
 /// @cond
-@interface HttpAsynConnection : NSObject <NSURLConnectionDelegate, NSURLConnectionDataDelegate> {
+@interface HttpAsynConnection : NSObject <NSURLSessionDelegate> {
+    NSURLSession *session;
 }
 
 // The original URL to download.  Due to redirects the actual content may come from another URL
@@ -53,7 +54,7 @@
 @property (strong) NSError *responseError;
 @property (strong) NSError *connError;
 
-@property (strong) NSURLConnection *conn;
+@property (strong) NSURLSessionDataTask *task;
 
 @property bool finish;
 

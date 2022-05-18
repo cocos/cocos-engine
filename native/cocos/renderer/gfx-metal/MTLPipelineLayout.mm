@@ -23,8 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "MTLStd.h"
-
 #include "MTLDescriptorSetLayout.h"
 #include "MTLGPUObjects.h"
 #include "MTLPipelineLayout.h"
@@ -41,12 +39,12 @@ CCMTLPipelineLayout::~CCMTLPipelineLayout() {
 
 void CCMTLPipelineLayout::doInit(const PipelineLayoutInfo &info) {
     const auto setCount = _setLayouts.size();
-    _gpuPipelineLayout = CC_NEW(CCMTLGPUPipelineLayout);
+    _gpuPipelineLayout = ccnew CCMTLGPUPipelineLayout;
     _gpuPipelineLayout->dynamicOffsetIndices.resize(setCount);
 
     for (size_t i = 0; i < setCount; i++) {
         const auto *setLayout = _setLayouts[i];
-        CCASSERT(setLayout != nullptr, "SetLayout should not be nullptr.");
+        CC_ASSERT(setLayout != nullptr);
         auto gpuDescriptorSetLayout = static_cast<const CCMTLDescriptorSetLayout *>(setLayout)->gpuDescriptorSetLayout();
         auto dynamicCount = gpuDescriptorSetLayout->dynamicBindings.size();
         auto &indices = _gpuPipelineLayout->dynamicOffsetIndices[i];
@@ -64,5 +62,5 @@ void CCMTLPipelineLayout::doDestroy() {
     CC_SAFE_DELETE(_gpuPipelineLayout);
 }
 
-}
-}
+} // namespace gfx
+} // namespace cc

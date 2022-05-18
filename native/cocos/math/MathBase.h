@@ -27,8 +27,8 @@
 #define __CCMATHBASE_H__
 
 #include <memory>
-#include <string>
 #include "base/Macros.h"
+#include "base/std/container/string.h"
 /**
  * @addtogroup base
  * @{

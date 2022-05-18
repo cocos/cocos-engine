@@ -27,14 +27,17 @@
 
 #include "platform/FileUtils.h"
 namespace cc {
-class FileUtilsQNX : public FileUtils {
+class CC_DLL FileUtilsQNX : public FileUtils {
 public:
     friend class FileUtils;
-    bool        isFileExistInternal(const std::string &filename) const override;
-    std::string getWritablePath() const override;
-    bool        init() override;
+    FileUtilsQNX();
+    ~FileUtilsQNX() override = default;
+ 
+    bool isFileExistInternal(const ccstd::string &filename) const override;
+    ccstd::string getWritablePath() const override;
+    bool init() override;
 
 private:
-    std::string _writablePath;
+    ccstd::string _writablePath;
 };
 } // namespace cc

@@ -34,7 +34,7 @@
 // eslint-disable-next-line max-len
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, inspector, boolean, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { RenderableComponent } from '../core/components/renderable-component';
+import { ModelRenderer } from '../core/components/model-renderer';
 import { Material } from '../core/assets/material';
 import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3, Vec4 } from '../core/math';
 import { INT_MAX } from '../core/math/bits';
@@ -65,14 +65,14 @@ import { ParticleCuller } from './particle-culler';
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
 
-const superMaterials = Object.getOwnPropertyDescriptor(RenderableComponent.prototype, 'sharedMaterials')!;
+const superMaterials = Object.getOwnPropertyDescriptor(ModelRenderer.prototype, 'sharedMaterials')!;
 
 @ccclass('cc.ParticleSystem')
 @help('i18n:cc.ParticleSystem')
 @menu('Effects/ParticleSystem')
 @executionOrder(99)
 @executeInEditMode
-export class ParticleSystem extends RenderableComponent {
+export class ParticleSystem extends ModelRenderer {
     /**
      * @zh 粒子系统能生成的最大粒子数量。
      */
@@ -779,7 +779,7 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onMaterialModified (index: number, material: Material) {
         if (this.processor !== null) {
@@ -788,14 +788,14 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onRebuildPSO (index: number, material: Material) {
         this.processor.onRebuildPSO(index, material);
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _collectModels (): scene.Model[] {
         this._models.length = 0;
@@ -963,7 +963,7 @@ export class ParticleSystem extends RenderableComponent {
 
     protected onEnable () {
         legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
-        if (this.playOnAwake) {
+        if (this.playOnAwake && !EDITOR) {
             this.play();
         }
         this.processor.onEnable();
@@ -1366,7 +1366,7 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onBeforeSerialize (props) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return

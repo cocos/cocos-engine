@@ -24,17 +24,16 @@
 ****************************************************************************/
 
 #import "View.h"
-#import "platform/ios/AppDelegate.h"
 
 #include <UIKit/UIScreen.h>
-#include "bindings/event/EventDispatcher.h"
+#import "platform/ios/AppDelegateBridge.h"
+#include "platform/ios/IOSPlatform.h"
 
 namespace {
 } // namespace
 
 @implementation View {
-    cc::TouchEvent _touchEvent;
-    AppDelegate*      _delegate;
+    cc::IOSPlatform *_platform;
 }
 
 @synthesize preventTouch;
@@ -49,31 +48,33 @@ namespace {
 }
 #endif
 
-- (void)dispatchEvents:(cc::TouchEvent &)touchEvent withEvent:(NSSet*) touches {
+- (void)dispatchTouchEvent:(cc::TouchEvent::Type)type withEvent:(NSSet *)touches {
+    cc::TouchEvent touchEvent;
+    touchEvent.type = type;
     for (UITouch *touch in touches) {
         touchEvent.touches.push_back({static_cast<float>([touch locationInView:[touch view]].x),
                                       static_cast<float>([touch locationInView:[touch view]].y),
                                       static_cast<int>((intptr_t)touch)});
     }
-    [_delegate dispatchEvent:touchEvent];
-    touchEvent.touches.clear();
+    CC_ASSERT(_platform != nullptr);
+    _platform->dispatchTouchEvent(touchEvent);
 }
 
 - (id)initWithFrame:(CGRect)frame {
-    _delegate = [[UIApplication sharedApplication] delegate];
+    _platform = reinterpret_cast<cc::IOSPlatform *>(cc::BasePlatform::getPlatform());
 #ifdef CC_USE_METAL
     if (self = [super initWithFrame:frame]) {
         self.preventTouch = FALSE;
 
-        float  pixelRatio       = [[UIScreen mainScreen] nativeScale];
-        CGSize size             = CGSizeMake(static_cast<int>(frame.size.width * pixelRatio),
-                                             static_cast<int>(frame.size.height * pixelRatio));
+        float pixelRatio = [[UIScreen mainScreen] nativeScale];
+        CGSize size = CGSizeMake(static_cast<int>(frame.size.width * pixelRatio),
+                                 static_cast<int>(frame.size.height * pixelRatio));
         self.contentScaleFactor = pixelRatio;
         // Config metal layer
         CAMetalLayer *layer = (CAMetalLayer *)self.layer;
-        layer.pixelFormat   = MTLPixelFormatBGRA8Unorm;
+        layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
         layer.device = self.device = MTLCreateSystemDefaultDevice();
-        layer.drawableSize         = size;
+        layer.drawableSize = size;
     }
 #else
     if (self = [super initWithFrame:frame]) {
@@ -88,32 +89,28 @@ namespace {
     if (self.preventTouch)
         return;
 
-    _touchEvent.type = cc::TouchEvent::Type::BEGAN;
-    [self dispatchEvents:_touchEvent withEvent:touches];
+    [self dispatchTouchEvent:cc::TouchEvent::Type::BEGAN withEvent:touches];
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
     if (self.preventTouch)
         return;
 
-    _touchEvent.type = cc::TouchEvent::Type::MOVED;
-    [self dispatchEvents:_touchEvent withEvent:touches];
+    [self dispatchTouchEvent:cc::TouchEvent::Type::MOVED withEvent:touches];
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
     if (self.preventTouch)
         return;
 
-    _touchEvent.type = cc::TouchEvent::Type::ENDED;
-    [self dispatchEvents:_touchEvent withEvent:touches];
+    [self dispatchTouchEvent:cc::TouchEvent::Type::ENDED withEvent:touches];
 }
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
     if (self.preventTouch)
         return;
 
-    _touchEvent.type = cc::TouchEvent::Type::CANCELLED;
-    [self dispatchEvents:_touchEvent withEvent:touches];
+    [self dispatchTouchEvent:cc::TouchEvent::Type::CANCELLED withEvent:touches];
 }
 
 - (void)setPreventTouchEvent:(BOOL)flag {

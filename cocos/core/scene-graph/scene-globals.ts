@@ -24,19 +24,20 @@
  * @module scene-graph
  */
 
-import { ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep, editable, serializable, rangeMin, tooltip, formerlySerializedAs, displayName, help } from 'cc.decorator';
-import { BAIDU, EDITOR } from 'internal:constants';
+import { ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep, editable, serializable, rangeMin, tooltip, formerlySerializedAs, displayName } from 'cc.decorator';
+import { BAIDU } from 'internal:constants';
 import { TextureCube } from '../assets/texture-cube';
-import { CCFloat, CCBoolean, CCInteger } from '../data/utils/attribute';
+import { CCFloat, CCInteger } from '../data/utils/attribute';
 import { Color, Quat, Vec3, Vec2, Vec4 } from '../math';
 import { Ambient } from '../renderer/scene/ambient';
-import { Shadows, ShadowType, PCFType, ShadowSize } from '../renderer/scene/shadows';
+import { Shadows, ShadowType, ShadowSize } from '../renderer/scene/shadows';
 import { Skybox, EnvironmentLightingType } from '../renderer/scene/skybox';
 import { Octree } from '../renderer/scene/octree';
 import { Fog, FogType } from '../renderer/scene/fog';
 import { Node } from './node';
 import { legacyCC } from '../global-exports';
 import { Root } from '../root';
+import { warnID } from '../platform/debug';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
@@ -58,7 +59,6 @@ const normalizeHDRColor = (color : Vec4) => {
  * @zh 场景的环境光照相关信息
  */
 @ccclass('cc.AmbientInfo')
-@help('i18n:cc.Ambient')
 export class AmbientInfo {
     @serializable
     @formerlySerializedAs('_skyColor')
@@ -219,7 +219,6 @@ legacyCC.AmbientInfo = AmbientInfo;
  * @zh 天空盒相关信息
  */
 @ccclass('cc.SkyboxInfo')
-@help('i18n:cc.Skybox')
 export class SkyboxInfo {
     @serializable
     protected _envLightingType = EnvironmentLightingType.HEMISPHERE_DIFFUSE;
@@ -284,16 +283,24 @@ export class SkyboxInfo {
     @type(EnvironmentLightingType)
     @tooltip('i18n:skybox.EnvironmentLightingType')
     set envLightingType (val) {
-        if (EnvironmentLightingType.HEMISPHERE_DIFFUSE === val) {
+        if (!this.envmap && EnvironmentLightingType.HEMISPHERE_DIFFUSE !== val) {
             this.useIBL = false;
-        } else if (EnvironmentLightingType.AUTOGEN_HEMISPHERE_DIFFUSE_WITH_REFLECTION === val) {
-            this.useIBL = true;
             this.applyDiffuseMap = false;
-        } else if (EnvironmentLightingType.DIFFUSEMAP_WITH_REFLECTION === val) {
-            this.useIBL = true;
-            this.applyDiffuseMap = true;
+            this._envLightingType = EnvironmentLightingType.HEMISPHERE_DIFFUSE;
+            warnID(15001);
+        } else {
+            if (EnvironmentLightingType.HEMISPHERE_DIFFUSE === val) {
+                this.useIBL = false;
+                this.applyDiffuseMap = false;
+            } else if (EnvironmentLightingType.AUTOGEN_HEMISPHERE_DIFFUSE_WITH_REFLECTION === val) {
+                this.useIBL = true;
+                this.applyDiffuseMap = false;
+            } else if (EnvironmentLightingType.DIFFUSEMAP_WITH_REFLECTION === val) {
+                this.useIBL = true;
+                this.applyDiffuseMap = true;
+            }
+            this._envLightingType = val;
         }
-        this._envLightingType = val;
     }
     get envLightingType () {
         return this._envLightingType;
@@ -326,13 +333,16 @@ export class SkyboxInfo {
 
         // Switch UI to and from LDR/HDR textures depends on HDR state
         if (this._resource) {
-            if (this._resource.envmap) {
-                this.envmap = this._resource.envmap;
-            }
+            this.envmap = this._resource.envmap;
             this.diffuseMap = this._resource.diffuseMap;
 
-            if (this.diffuseMap == null) {
-                this.applyDiffuseMap = false;
+            if (this.envLightingType === EnvironmentLightingType.DIFFUSEMAP_WITH_REFLECTION) {
+                if (this.diffuseMap === null) {
+                    this.envLightingType = EnvironmentLightingType.AUTOGEN_HEMISPHERE_DIFFUSE_WITH_REFLECTION;
+                    warnID(15000);
+                } else if (this.diffuseMap.isDefault) {
+                    warnID(15002);
+                }
             }
         }
 
@@ -358,13 +368,15 @@ export class SkyboxInfo {
             this._envmapLDR = val;
         }
         if (!val) {
-            this._diffuseMapHDR = null;
-            this._diffuseMapLDR = null;
-            this._envmapHDR = null;
-            this._envmapLDR = null;
+            if (isHDR) {
+                this._diffuseMapHDR = null;
+            } else {
+                this._diffuseMapLDR = null;
+            }
             this.applyDiffuseMap = false;
             this.useIBL = false;
             this.envLightingType = EnvironmentLightingType.HEMISPHERE_DIFFUSE;
+            warnID(15001);
         }
 
         if (this._resource) {
@@ -388,7 +400,7 @@ export class SkyboxInfo {
      * @zh 使用的漫反射卷积图
      */
     @visible(function (this : SkyboxInfo) {
-        if (this.useIBL) {
+        if (this.useIBL && this.applyDiffuseMap) {
             return true;
         }
         return false;
@@ -434,7 +446,6 @@ legacyCC.SkyboxInfo = SkyboxInfo;
  * @en Global fog info
  */
 @ccclass('cc.FogInfo')
-@help('i18n:cc.Fog')
 export class FogInfo {
     public static FogType = FogType;
     @serializable
@@ -653,7 +664,6 @@ export class FogInfo {
  * @zh 平面阴影相关信息
  */
 @ccclass('cc.ShadowsInfo')
-@help('i18n:cc.Shadow')
 export class ShadowsInfo {
     @serializable
     protected _enabled = false;
@@ -816,7 +826,6 @@ export const DEFAULT_WORLD_MAX_POS = new Vec3(1024.0, 1024.0, 1024.0);
 export const DEFAULT_OCTREE_DEPTH = 8;
 
 @ccclass('cc.OctreeInfo')
-@help('i18n:cc.OctreeCulling')
 export class OctreeInfo {
     @serializable
     protected _enabled = false;
@@ -908,7 +917,7 @@ export class SceneGlobals {
     @editable
     public shadows = new ShadowsInfo();
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @serializable
     public _skybox = new SkyboxInfo();

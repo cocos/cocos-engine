@@ -28,6 +28,11 @@
 #include "GLES3GPUObjects.h"
 #include "GLES3Texture.h"
 
+#if CC_SWAPPY_ENABLED
+    #include "platform/android/AndroidPlatform.h"
+    #include "swappy/swappyGL.h"
+#endif
+
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     #include "android/native_window.h"
 #elif CC_PLATFORM == CC_PLATFORM_OHOS
@@ -48,7 +53,7 @@ GLES3Swapchain::~GLES3Swapchain() {
 
 void GLES3Swapchain::doInit(const SwapchainInfo &info) {
     const auto *context = GLES3Device::getInstance()->context();
-    _gpuSwapchain       = CC_NEW(GLES3GPUSwapchain);
+    _gpuSwapchain = ccnew GLES3GPUSwapchain;
 #if CC_PLATFORM == CC_PLATFORM_LINUX
     auto window = reinterpret_cast<EGLNativeWindowType>(info.windowHandle);
 #else
@@ -62,7 +67,25 @@ void GLES3Swapchain::doInit(const SwapchainInfo &info) {
         return;
     }
 
-    auto width  = static_cast<int32_t>(info.width);
+    #if CC_SWAPPY_ENABLED
+    bool enableSwappy = true;
+    auto *platform = static_cast<AndroidPlatform *>(cc::BasePlatform::getPlatform());
+    enableSwappy &= SwappyGL_init(static_cast<JNIEnv *>(platform->getEnv()), static_cast<jobject>(platform->getActivity()));
+    int32_t fps = cc::BasePlatform::getPlatform()->getFps();
+    if (enableSwappy) {
+        if (!fps)
+            SwappyGL_setSwapIntervalNS(SWAPPY_SWAP_60FPS);
+        else
+            SwappyGL_setSwapIntervalNS(1000000000L / fps); //ns
+        enableSwappy &= SwappyGL_setWindow(window);
+        _gpuSwapchain->swappyEnabled = enableSwappy;
+    } else {
+        CC_LOG_ERROR("Failed to enable Swappy in current GL swapchain, fallback instead.");
+    }
+
+    #endif
+
+    auto width = static_cast<int32_t>(info.width);
     auto height = static_cast<int32_t>(info.height);
 
     #if CC_PLATFORM == CC_PLATFORM_ANDROID
@@ -90,14 +113,14 @@ void GLES3Swapchain::doInit(const SwapchainInfo &info) {
 
     ///////////////////// Texture Creation /////////////////////
 
-    _colorTexture        = CC_NEW(GLES3Texture);
-    _depthStencilTexture = CC_NEW(GLES3Texture);
+    _colorTexture = ccnew GLES3Texture;
+    _depthStencilTexture = ccnew GLES3Texture;
 
     SwapchainTextureInfo textureInfo;
     textureInfo.swapchain = this;
-    textureInfo.format    = Format::RGBA8;
-    textureInfo.width     = info.width;
-    textureInfo.height    = info.height;
+    textureInfo.format = Format::RGBA8;
+    textureInfo.width = info.width;
+    textureInfo.height = info.height;
     initTexture(textureInfo, _colorTexture);
 
     textureInfo.format = Format::DEPTH_STENCIL;
@@ -108,6 +131,12 @@ void GLES3Swapchain::doInit(const SwapchainInfo &info) {
 
 void GLES3Swapchain::doDestroy() {
     if (!_gpuSwapchain) return;
+
+#if CC_SWAPPY_ENABLED
+    if (_gpuSwapchain->swappyEnabled) {
+        SwappyGL_destroy();
+    }
+#endif
 
     CC_SAFE_DESTROY(_depthStencilTexture)
     CC_SAFE_DESTROY(_colorTexture)
@@ -147,10 +176,17 @@ void GLES3Swapchain::doCreateSurface(void *windowHandle) {
         return;
     }
 
-    auto width  = static_cast<int>(_colorTexture->getWidth());
+    auto width = static_cast<int>(_colorTexture->getWidth());
     auto height = static_cast<int>(_colorTexture->getHeight());
     CC_UNUSED_PARAM(width);
     CC_UNUSED_PARAM(height);
+
+#if CC_SWAPPY_ENABLED
+    if (_gpuSwapchain->swappyEnabled) {
+        _gpuSwapchain->swappyEnabled &= SwappyGL_setWindow(window);
+    }
+#endif
+
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     ANativeWindow_setBuffersGeometry(window, width, height, nFmt);
 #elif CC_PLATFORM == CC_PLATFORM_OHOS

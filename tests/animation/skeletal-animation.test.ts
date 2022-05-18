@@ -134,6 +134,15 @@ describe('Skeletal animation state', () => {
         childSkinSetUseBakedAnimationMock.mockClear();
 
         // Change to the animation's bake option. Skins are notified.
+        animation_0_0.useBakedAnimation = false;
+        expect(childSkinSetUseBakedAnimationMock).toBeCalledTimes(1);
+        expect(childSkinSetUseBakedAnimationMock.mock.calls[0][0]).toBe(false);
+        childSkinSetUseBakedAnimationMock.mockClear();
+        expect(anotherChildSkinSetUseBakedAnimationMock).toBeCalledTimes(1);
+        expect(anotherChildSkinSetUseBakedAnimationMock.mock.calls[0][0]).toBe(false);
+        anotherChildSkinSetUseBakedAnimationMock.mockClear();
+
+        // Change to the animation's bake option. Skins are notified.(Test again)
         animation_0_0.useBakedAnimation = true;
         expect(childSkinSetUseBakedAnimationMock).toBeCalledTimes(1);
         expect(childSkinSetUseBakedAnimationMock.mock.calls[0][0]).toBe(true);
@@ -169,5 +178,23 @@ describe('Skeletal animation state', () => {
         };
 
         scene.destroy();
+    });
+
+    test('Change to setUseBakedAnimation', () => {
+        const node = new Node();
+        const skeletalAnimation = node.addComponent(SkeletalAnimation) as SkeletalAnimation;
+        skeletalAnimation.clips = [new AnimationClip('Anim')];
+        let state = skeletalAnimation.getState('Anim');
+
+        skeletalAnimation.useBakedAnimation = true;
+        expect(skeletalAnimation.getState('Anim') === state);
+
+        skeletalAnimation.useBakedAnimation = false;
+        expect(skeletalAnimation.getState('Anim') !== state);
+        state = skeletalAnimation.getState('Anim');
+
+        skeletalAnimation.useBakedAnimation = true;
+        expect(skeletalAnimation.getState('Anim') !== state);
+        state = skeletalAnimation.getState('Anim');
     });
 });

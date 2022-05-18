@@ -81,21 +81,21 @@ public:
      *
      * @return the cookie filename
      */
-    const std::string &getCookieFilename();
+    const ccstd::string &getCookieFilename();
 
     /**
      * Set root certificate path for SSL verification.
      *
      * @param caFile a full path of root certificate.if it is empty, SSL verification is disabled.
      */
-    void setSSLVerification(const std::string &caFile);
+    void setSSLVerification(const ccstd::string &caFile);
 
     /**
      * Get the ssl CA filename
      *
      * @return the ssl CA filename
      */
-    const std::string &getSSLVerification();
+    const ccstd::string &getSSLVerification();
 
     /**
      * Add a get request to task queue
@@ -112,38 +112,6 @@ public:
                       please make sure request->_requestData is clear before calling "sendImmediate" here.
      */
     void sendImmediate(HttpRequest *request);
-
-    /**
-     * Set the timeout value for connecting.
-     *
-     * @param value the timeout value for connecting.
-     * @deprecated Please use `HttpRequest.setTimeout` instead.
-     */
-    CC_DEPRECATED_ATTRIBUTE void setTimeoutForConnect(int value);
-
-    /**
-     * Get the timeout value for connecting.
-     *
-     * @return int the timeout value for connecting.
-     * @deprecated Please use `HttpRequest.getTimeout` instead.
-     */
-    CC_DEPRECATED_ATTRIBUTE int getTimeoutForConnect();
-
-    /**
-     * Set the timeout value for reading.
-     *
-     * @param value the timeout value for reading.
-     * @deprecated Please use `HttpRequest.setTimeout` instead.
-     */
-    CC_DEPRECATED_ATTRIBUTE void setTimeoutForRead(int value);
-
-    /**
-     * Get the timeout value for reading.
-     *
-     * @return int the timeout value for reading.
-     * @deprecated Please use `HttpRequest.setTimeout` instead.
-     */
-    CC_DEPRECATED_ATTRIBUTE int getTimeoutForRead();
 
     HttpCookie *getCookie() const { return _cookie; }
 
@@ -173,29 +141,29 @@ private:
 private: // NOLINT(readability-redundant-access-specifiers)
     bool _isInited;
 
-    int        _timeoutForConnect;
+    int _timeoutForConnect;
     std::mutex _timeoutForConnectMutex;
 
-    int        _timeoutForRead;
+    int _timeoutForRead;
     std::mutex _timeoutForReadMutex;
 
-    int        _threadCount;
+    int _threadCount;
     std::mutex _threadCountMutex;
 
     std::weak_ptr<Scheduler> _scheduler;
-    std::mutex               _schedulerMutex;
+    std::mutex _schedulerMutex;
 
     RefVector<HttpRequest *> _requestQueue;
-    std::mutex            _requestQueueMutex;
+    std::mutex _requestQueueMutex;
 
     RefVector<HttpResponse *> _responseQueue;
-    std::mutex             _responseQueueMutex;
+    std::mutex _responseQueueMutex;
 
-    std::string _cookieFilename;
-    std::mutex  _cookieFileMutex;
+    ccstd::string _cookieFilename;
+    std::mutex _cookieFileMutex;
 
-    std::string _sslCaFilename;
-    std::mutex  _sslCaFileMutex;
+    ccstd::string _sslCaFilename;
+    std::mutex _sslCaFileMutex;
 
     HttpCookie *_cookie;
 

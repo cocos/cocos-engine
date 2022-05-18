@@ -614,20 +614,20 @@ parse_url_char(enum state s, const char ch) { //NOLINT
     return s_dead;
 }
 //NOLINTNEXTLINE
-size_t http_parser_execute(http_parser *               parser,
+size_t http_parser_execute(http_parser *parser,
                            const http_parser_settings *settings,
-                           const char *                data,
-                           size_t                      len) {
-    char               c, ch;     //NOLINT
-    int8_t             unhex_val; //NOLINT
-    const char *       p                 = data;
-    const char *       header_field_mark = nullptr;
-    const char *       header_value_mark = nullptr;
-    const char *       url_mark          = nullptr;
-    const char *       body_mark         = nullptr;
-    const char *       status_mark       = nullptr;
-    auto               p_state           = static_cast<enum state>(parser->state);
-    const unsigned int lenient           = parser->lenient_http_headers;
+                           const char *data,
+                           size_t len) {
+    char c, ch;       //NOLINT
+    int8_t unhex_val; //NOLINT
+    const char *p = data;
+    const char *header_field_mark = nullptr;
+    const char *header_value_mark = nullptr;
+    const char *url_mark = nullptr;
+    const char *body_mark = nullptr;
+    const char *status_mark = nullptr;
+    auto p_state = static_cast<enum state>(parser->state);
+    const unsigned int lenient = parser->lenient_http_headers;
 
     /* We're in an error state. Don't bother doing anything. */
     if (HTTP_PARSER_ERRNO(parser) != HPE_OK) {
@@ -706,7 +706,7 @@ size_t http_parser_execute(http_parser *               parser,
                 if (ch == CR || ch == LF) {
                     break;
                 }
-                parser->flags          = 0;
+                parser->flags = 0;
                 parser->content_length = ULLONG_MAX;
 
                 if (ch == 'H') {
@@ -732,15 +732,15 @@ size_t http_parser_execute(http_parser *               parser,
                         goto error;
                     }
 
-                    parser->type   = HTTP_REQUEST;
+                    parser->type = HTTP_REQUEST;
                     parser->method = HTTP_HEAD;
-                    parser->index  = 2;
+                    parser->index = 2;
                     UPDATE_STATE(s_req_method);
                 }
                 break;
 
             case s_start_res: {
-                parser->flags          = 0;
+                parser->flags = 0;
                 parser->content_length = ULLONG_MAX;
 
                 switch (ch) {
@@ -933,7 +933,7 @@ size_t http_parser_execute(http_parser *               parser,
                 if (ch == CR || ch == LF) {
                     break;
                 }
-                parser->flags          = 0;
+                parser->flags = 0;
                 parser->content_length = ULLONG_MAX;
 
                 if (UNLIKELY(!IS_ALPHA(ch))) {
@@ -942,7 +942,7 @@ size_t http_parser_execute(http_parser *               parser,
                 }
 
                 parser->method = static_cast<enum http_method>(0);
-                parser->index  = 1;
+                parser->index = 1;
                 switch (ch) {
                     case 'A': parser->method = HTTP_ACL; break;
                     case 'B': parser->method = HTTP_BIND; break;
@@ -1280,7 +1280,7 @@ size_t http_parser_execute(http_parser *               parser,
                 const char *start = p;
                 for (; p != data + len; p++) {
                     ch = *p;
-                    c  = TOKEN(ch);
+                    c = TOKEN(ch);
 
                     if (!c) {
                         break;
@@ -1478,8 +1478,8 @@ size_t http_parser_execute(http_parser *               parser,
             }
 
             case s_header_value: {
-                const char *start  = p;
-                auto        hState = static_cast<enum header_states>(parser->header_state);
+                const char *start = p;
+                auto hState = static_cast<enum header_states>(parser->header_state);
                 for (; p != data + len; p++) {
                     ch = *p;
                     if (ch == CR) {
@@ -1508,7 +1508,7 @@ size_t http_parser_execute(http_parser *               parser,
                         case h_general: {
                             const char *pCr;
                             const char *pLf;
-                            size_t      limit = data + len - p;
+                            size_t limit = data + len - p;
 
                             limit = MIN(limit, HTTP_MAX_HEADER_SIZE);
 
@@ -1622,7 +1622,7 @@ size_t http_parser_execute(http_parser *               parser,
 
                         case h_matching_connection_token:
                             if (ch == ',') {
-                                hState        = h_matching_connection_token_start;
+                                hState = h_matching_connection_token_start;
                                 parser->index = 0;
                             }
                             break;
@@ -1642,7 +1642,7 @@ size_t http_parser_execute(http_parser *               parser,
                                 } else if (hState == h_connection_upgrade) {
                                     parser->flags |= F_CONNECTION_UPGRADE;
                                 }
-                                hState        = h_matching_connection_token_start;
+                                hState = h_matching_connection_token_start;
                                 parser->index = 0;
                             } else if (ch != ' ') {
                                 hState = h_matching_connection_token;
@@ -2091,9 +2091,9 @@ http_method_str(enum http_method m) { //NOLINT
 void http_parser_init(http_parser *parser, enum http_parser_type t) { //NOLINT
     void *data = parser->data;                                        /* preserve application data */
     memset(parser, 0, sizeof(*parser));
-    parser->data       = data;
-    parser->type       = t;
-    parser->state      = (t == HTTP_REQUEST ? s_start_req : (t == HTTP_RESPONSE ? s_start_res : s_start_req_or_res));
+    parser->data = data;
+    parser->type = t;
+    parser->state = (t == HTTP_REQUEST ? s_start_req : (t == HTTP_RESPONSE ? s_start_res : s_start_req_or_res));
     parser->http_errno = HPE_OK;
 }
 
@@ -2201,7 +2201,7 @@ http_parse_host(const char *buf, struct http_parser_url *u, int found_at) { //NO
     enum http_host_state s;
 
     const char *p;
-    size_t      buflen = u->field_data[UF_HOST].off + u->field_data[UF_HOST].len;
+    size_t buflen = u->field_data[UF_HOST].off + u->field_data[UF_HOST].len;
 
     u->field_data[UF_HOST].len = 0;
 
@@ -2282,14 +2282,14 @@ void http_parser_url_init(struct http_parser_url *u) { //NOLINT
 
 int http_parser_parse_url(const char *buf, size_t buflen, int is_connect, //NOLINT
                           struct http_parser_url *u) {
-    enum state                  s;
-    const char *                p;
-    enum http_parser_url_fields uf, old_uf;   //NOLINT
-    int                         found_at = 0; //NOLINT
+    enum state s;
+    const char *p;
+    enum http_parser_url_fields uf, old_uf; //NOLINT
+    int found_at = 0;                       //NOLINT
 
     u->port = u->field_set = 0;
-    s                      = is_connect ? s_req_server_start : s_req_spaces_before_url;
-    old_uf                 = UF_MAX;
+    s = is_connect ? s_req_server_start : s_req_spaces_before_url;
+    old_uf = UF_MAX;
 
     for (p = buf; p < buf + buflen; p++) {
         s = parse_url_char(s, *p);

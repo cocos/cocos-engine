@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "base/std/container/unordered_set.h"
 #include "gfx-base/GFXDef.h"
 
 namespace cc {
@@ -34,7 +35,7 @@ class BatchedBuffer;
 
 class CC_DLL RenderBatchedQueue final {
 public:
-    RenderBatchedQueue()  = default;
+    RenderBatchedQueue() = default;
     ~RenderBatchedQueue() = default;
 
     void clear();
@@ -44,7 +45,7 @@ public:
     bool empty() { return _queues.empty(); }
 
 private:
-    unordered_set<BatchedBuffer *> _queues;
+    ccstd::unordered_set<BatchedBuffer *> _queues;
 };
 
 } // namespace pipeline

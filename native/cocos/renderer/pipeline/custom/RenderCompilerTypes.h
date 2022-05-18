@@ -30,10 +30,10 @@
  */
 // clang-format off
 #pragma once
+#include "cocos/base/std/container/string.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderCompilerFwd.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
-#include "cocos/renderer/pipeline/custom/String.h"
 
 namespace cc {
 

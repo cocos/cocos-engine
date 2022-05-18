@@ -41,15 +41,15 @@ GLES3Shader::~GLES3Shader() {
 }
 
 void GLES3Shader::doInit(const ShaderInfo & /*info*/) {
-    _gpuShader                  = CC_NEW(GLES3GPUShader);
-    _gpuShader->name            = _name;
-    _gpuShader->blocks          = _blocks;
-    _gpuShader->buffers         = _buffers;
+    _gpuShader = ccnew GLES3GPUShader;
+    _gpuShader->name = _name;
+    _gpuShader->blocks = _blocks;
+    _gpuShader->buffers = _buffers;
     _gpuShader->samplerTextures = _samplerTextures;
-    _gpuShader->samplers        = _samplers;
-    _gpuShader->textures        = _textures;
-    _gpuShader->images          = _images;
-    _gpuShader->subpassInputs   = _subpassInputs;
+    _gpuShader->samplers = _samplers;
+    _gpuShader->textures = _textures;
+    _gpuShader->images = _images;
+    _gpuShader->subpassInputs = _subpassInputs;
     for (const auto &stage : _stages) {
         GLES3GPUShaderStage gpuShaderStage = {stage.stage, stage.source};
         _gpuShader->gpuStages.emplace_back(std::move(gpuShaderStage));
@@ -61,7 +61,7 @@ void GLES3Shader::doInit(const ShaderInfo & /*info*/) {
 void GLES3Shader::doDestroy() {
     if (_gpuShader) {
         cmdFuncGLES3DestroyShader(GLES3Device::getInstance(), _gpuShader);
-        CC_DELETE(_gpuShader);
+        delete _gpuShader;
         _gpuShader = nullptr;
     }
 }

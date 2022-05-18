@@ -38,6 +38,7 @@
 #include "frame-graph/DevicePassResourceTable.h"
 #include "frame-graph/Resource.h"
 #include "gfx-base/GFXDevice.h"
+#include "profiler/Profiler.h"
 #include "scene/Camera.h"
 
 namespace cc {
@@ -51,8 +52,8 @@ RenderStageInfo GbufferStage::initInfo = {
 const RenderStageInfo &GbufferStage::getInitializeInfo() { return GbufferStage::initInfo; }
 
 GbufferStage::GbufferStage() {
-    _batchedQueue   = CC_NEW(RenderBatchedQueue);
-    _instancedQueue = CC_NEW(RenderInstancedQueue);
+    _batchedQueue = ccnew RenderBatchedQueue;
+    _instancedQueue = ccnew RenderInstancedQueue;
 }
 
 GbufferStage::~GbufferStage() = default;
@@ -60,7 +61,7 @@ GbufferStage::~GbufferStage() = default;
 bool GbufferStage::initialize(const RenderStageInfo &info) {
     RenderStage::initialize(info);
     _renderQueueDescriptors = info.renderQueues;
-    _phaseID                = getPhaseID("default");
+    _phaseID = getPhaseID("default");
     return true;
 }
 
@@ -68,12 +69,12 @@ void GbufferStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     RenderStage::activate(pipeline, flow);
 
     for (const auto &descriptor : _renderQueueDescriptors) {
-        uint                  phase    = convertPhase(descriptor.stages);
-        RenderQueueSortFunc   sortFunc = convertQueueSortFunc(descriptor.sortMode);
-        RenderQueueCreateInfo info     = {descriptor.isTransparent, phase, sortFunc};
-        _renderQueues.emplace_back(CC_NEW(RenderQueue(_pipeline, std::move(info), true)));
+        uint phase = convertPhase(descriptor.stages);
+        RenderQueueSortFunc sortFunc = convertQueueSortFunc(descriptor.sortMode);
+        RenderQueueCreateInfo info = {descriptor.isTransparent, phase, sortFunc};
+        _renderQueues.emplace_back(ccnew RenderQueue(_pipeline, std::move(info), true));
     }
-    _planarShadowQueue = CC_NEW(PlanarShadowQueue(_pipeline));
+    _planarShadowQueue = ccnew PlanarShadowQueue(_pipeline);
 }
 
 void GbufferStage::destroy() {
@@ -92,17 +93,17 @@ void GbufferStage::dispenseRenderObject2Queues() {
         queue->clear();
     }
 
-    uint   subModelIdx = 0;
-    uint   passIdx     = 0;
-    size_t k           = 0;
+    uint subModelIdx = 0;
+    uint passIdx = 0;
+    size_t k = 0;
     for (auto ro : renderObjects) {
-        const auto *const model         = ro.model;
-        const auto &      subModels     = model->getSubModels();
-        auto              subModelCount = subModels.size();
+        const auto *const model = ro.model;
+        const auto &subModels = model->getSubModels();
+        auto subModelCount = subModels.size();
         for (subModelIdx = 0; subModelIdx < subModelCount; ++subModelIdx) {
-            const auto &subModel  = subModels[subModelIdx];
-            const auto &passes    = subModel->getPasses();
-            auto        passCount = passes.size();
+            const auto &subModel = subModels[subModelIdx];
+            const auto &passes = subModel->getPasses();
+            auto passCount = passes.size();
             for (passIdx = 0; passIdx < passCount; ++passIdx) {
                 const auto &pass = passes[passIdx];
                 if (pass->getPhase() != _phaseID) continue;
@@ -131,7 +132,7 @@ void GbufferStage::recordCommands(DeferredPipeline *pipeline, scene::Camera *cam
     auto *cmdBuff = pipeline->getCommandBuffers()[0];
 
     // DescriptorSet bindings
-    const std::array<uint, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
+    const ccstd::array<uint, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
     cmdBuff->bindDescriptorSet(globalSet, pipeline->getDescriptorSet(), utils::toUint(globalOffsets.size()), globalOffsets.data());
 
     // record commands
@@ -141,6 +142,7 @@ void GbufferStage::recordCommands(DeferredPipeline *pipeline, scene::Camera *cam
 }
 
 void GbufferStage::render(scene::Camera *camera) {
+    CC_PROFILE(GbufferStageRender);
     struct RenderData {
         framegraph::TextureHandle gbuffer[4];
         framegraph::TextureHandle depth;
@@ -187,11 +189,11 @@ void GbufferStage::render(scene::Camera *camera) {
         gfx::Color clearColor{0.0, 0.0, 0.0, 0.0};
 
         framegraph::RenderTargetAttachment::Descriptor colorInfo;
-        colorInfo.usage         = framegraph::RenderTargetAttachment::Usage::COLOR;
-        colorInfo.loadOp        = gfx::LoadOp::CLEAR;
-        colorInfo.clearColor    = clearColor;
+        colorInfo.usage = framegraph::RenderTargetAttachment::Usage::COLOR;
+        colorInfo.loadOp = gfx::LoadOp::CLEAR;
+        colorInfo.clearColor = clearColor;
         colorInfo.beginAccesses = gfx::AccessFlagBit::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT;
-        colorInfo.endAccesses   = gfx::AccessFlagBit::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT;
+        colorInfo.endAccesses = gfx::AccessFlagBit::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT;
         for (int i = 0; i < DeferredPipeline::GBUFFER_COUNT; ++i) {
             data.gbuffer[i] = builder.write(data.gbuffer[i], colorInfo);
             builder.writeToBlackboard(DeferredPipeline::fgStrHandleGbufferTexture[i], data.gbuffer[i]);
@@ -205,15 +207,18 @@ void GbufferStage::render(scene::Camera *camera) {
             static_cast<uint>(static_cast<float>(pipeline->getWidth()) * shadingScale),
             static_cast<uint>(static_cast<float>(pipeline->getHeight()) * shadingScale),
         };
+        if (_device->getGfxAPI() == gfx::API::VULKAN) { // TODO(Zhenglong Zhou): remove platform dependent settings
+            depthTexInfo.usage |= gfx::TextureUsageBit::INPUT_ATTACHMENT;
+        }
         data.depth = builder.create(DeferredPipeline::fgStrHandleOutDepthTexture, depthTexInfo);
 
         framegraph::RenderTargetAttachment::Descriptor depthInfo;
-        depthInfo.usage        = framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL;
-        depthInfo.loadOp       = gfx::LoadOp::CLEAR;
-        depthInfo.clearDepth   = camera->getClearDepth();
+        depthInfo.usage = framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL;
+        depthInfo.loadOp = gfx::LoadOp::CLEAR;
+        depthInfo.clearDepth = camera->getClearDepth();
         depthInfo.clearStencil = camera->getClearStencil();
-        depthInfo.endAccesses  = gfx::AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE;
-        data.depth             = builder.write(data.depth, depthInfo);
+        depthInfo.endAccesses = gfx::AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE;
+        data.depth = builder.write(data.depth, depthInfo);
         builder.writeToBlackboard(DeferredPipeline::fgStrHandleOutDepthTexture, data.depth);
 
         // viewport setup

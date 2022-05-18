@@ -1639,7 +1639,7 @@ export class ScrollView extends ViewGroup {
             if (!this._autoScrollCurrentlyOutOfBoundary) {
                 this._autoScrollCurrentlyOutOfBoundary = true;
                 this._autoScrollBraking = true;
-                this._autoScrollBrakingStartPosition = this._getContentPosition();
+                Vec3.copy(this._autoScrollBrakingStartPosition, this._getContentPosition());
                 return true;
             }
         } else {

@@ -471,7 +471,7 @@ class BuiltinResMgr {
     /**
      * @internal
      */
-    private async _preloadAssets () {
+    private _preloadAssets () {
         const resources = this._resources;
         if (window._CCSettings && window._CCSettings.preloadAssets && window._CCSettings.preloadAssets.length > 0) {
             const preloadedAssets = window._CCSettings.preloadAssets as string[];

@@ -37,28 +37,27 @@
 #include "core/scene-graph/Scene.h"
 #include "core/utils/IDGenerator.h"
 
-
 namespace cc {
 
 // static variables
 
-uint32_t                         Node::clearFrame{0};
-uint32_t                         Node::clearRound{1000};
-bool                             Node::isStatic{false};
-const uint32_t                   Node::TRANSFORM_ON{1 << 0};
-const uint32_t                   Node::DESTROYING{static_cast<uint>(CCObject::Flags::DESTROYING)};
-const uint32_t                   Node::DEACTIVATING{static_cast<uint>(CCObject::Flags::DEACTIVATING)};
-const uint32_t                   Node::DONT_DESTROY{static_cast<uint>(CCObject::Flags::DONT_DESTROY)};
-index_t                          Node::stackId{0};
-std::vector<std::vector<Node *>> Node::stacks;
+uint32_t Node::clearFrame{0};
+uint32_t Node::clearRound{1000};
+bool Node::isStatic{false};
+const uint32_t Node::TRANSFORM_ON{1 << 0};
+const uint32_t Node::DESTROYING{static_cast<uint>(CCObject::Flags::DESTROYING)};
+const uint32_t Node::DEACTIVATING{static_cast<uint>(CCObject::Flags::DEACTIVATING)};
+const uint32_t Node::DONT_DESTROY{static_cast<uint>(CCObject::Flags::DONT_DESTROY)};
+index_t Node::stackId{0};
+ccstd::vector<ccstd::vector<Node *>> Node::stacks;
 //
 
 namespace {
 CachedArray<Node *> allNodes{128}; //cjh how to clear ?
-const std::string   EMPTY_NODE_NAME;
-IDGenerator         idGenerator("Node");
+const ccstd::string EMPTY_NODE_NAME;
+IDGenerator idGenerator("Node");
 
-std::vector<Node *>  dirtyNodes;
+ccstd::vector<Node *> dirtyNodes;
 CC_FORCE_INLINE void setDirtyNode(const index_t idx, Node *node) {
     if (idx >= dirtyNodes.size()) {
         if (idx >= dirtyNodes.capacity()) {
@@ -81,7 +80,7 @@ CC_FORCE_INLINE Node *getDirtyNode(const index_t idx) {
 Node::Node() : Node(EMPTY_NODE_NAME) {
 }
 
-Node::Node(const std::string &name) {
+Node::Node(const ccstd::string &name) {
     _id = idGenerator.getNewId();
     if (name.empty()) {
         _name.append("New Node");
@@ -89,7 +88,7 @@ Node::Node(const std::string &name) {
         _name = name;
     }
     allNodes.push(this);
-    _eventProcessor = new NodeEventProcessor(this);
+    _eventProcessor = ccnew NodeEventProcessor(this);
 }
 
 Node::~Node() {
@@ -131,21 +130,19 @@ Node *Node::instantiate(Node *cloned, bool isSyncedNode) {
     return cloned;
 }
 
-
-void Node::onHierarchyChangedBase(Node *oldParent) {// NOLINT(misc-unused-parameters)
+void Node::onHierarchyChangedBase(Node *oldParent) { // NOLINT(misc-unused-parameters)
     Node *newParent = _parent;
-    auto *scene     = dynamic_cast<Scene *>(newParent);
+    auto *scene = dynamic_cast<Scene *>(newParent);
     if (isPersistNode() && scene == nullptr) {
         emit(EventTypesToJS::NODE_REMOVE_PERSIST_ROOT_NODE);
-#ifdef CC_EDITOR
+#if CC_EDITOR
         debug::warnID(1623);
 #endif
-
     }
-#ifdef CC_EDITOR
-    auto *     curScene             = getScene();
+#if CC_EDITOR
+    auto *curScene = getScene();
     const bool inCurrentSceneBefore = oldParent && oldParent->isChildOf(curScene);
-    const bool inCurrentSceneNow    = newParent && newParent->isChildOf(curScene);
+    const bool inCurrentSceneNow = newParent && newParent->isChildOf(curScene);
     if (!inCurrentSceneBefore && inCurrentSceneNow) {
         // attached
         this->notifyEditorAttached(true);
@@ -155,7 +152,7 @@ void Node::onHierarchyChangedBase(Node *oldParent) {// NOLINT(misc-unused-parame
     }
     // conflict detection
     // _Scene.DetectConflict.afterAddChild(this);
-#endif 
+#endif
 
     bool shouldActiveNow = _active && !!(newParent && newParent->isActiveInHierarchy());
     if (isActiveInHierarchy() != shouldActiveNow) {
@@ -221,7 +218,7 @@ void Node::targetOff(const CallbacksInvoker::KeyType &type) {
 
 void Node::setActive(bool isActive) {
     if (_active != isActive) {
-        _active      = isActive;
+        _active = isActive;
         Node *parent = _parent;
         if (parent) {
             bool couldActiveInScene = parent->isActiveInHierarchy();
@@ -249,7 +246,7 @@ void Node::setParent(Node *parent, bool isKeepWorld /* = false */) {
         debug::errorID(3821);
     }
 #endif
-    _parent       = newParent;
+    _parent = newParent;
     _siblingIndex = 0;
     onSetParent(oldParent, isKeepWorld);
     emit(NodeEventType::PARENT_CHANGED, oldParent);
@@ -291,11 +288,11 @@ void Node::walk(const std::function<void(Node *)> &preFunc) {
 }
 
 void Node::walk(const std::function<void(Node *)> &preFunc, const std::function<void(Node *)> &postFunc) {
-    index_t                                index{1};
-    index_t                                i{0};
-    const std::vector<IntrusivePtr<Node>> *children = nullptr;
-    Node *                                 curr{nullptr};
-    auto                                   stacksCount = static_cast<index_t>(Node::stacks.size());
+    index_t index{1};
+    index_t i{0};
+    const ccstd::vector<IntrusivePtr<Node>> *children = nullptr;
+    Node *curr{nullptr};
+    auto stacksCount = static_cast<index_t>(Node::stacks.size());
     if (stackId >= stacksCount) {
         stacks.resize(stackId + 1);
     }
@@ -306,7 +303,7 @@ void Node::walk(const std::function<void(Node *)> &preFunc, const std::function<
     stack.resize(1);
     stack[0] = this;
     Node *parent{nullptr};
-    bool  afterChildren{false};
+    bool afterChildren{false};
     while (index) {
         index--;
         auto stackCount = static_cast<index_t>(stack.size());
@@ -332,9 +329,9 @@ void Node::walk(const std::function<void(Node *)> &preFunc, const std::function<
             afterChildren = false;
         } else {
             if (static_cast<index_t>(curr->_children.size()) > 0) {
-                parent       = curr;
-                children     = &curr->_children;
-                i            = 0;
+                parent = curr;
+                children = &curr->_children;
+                i = 0;
                 stack[index] = (*children)[i];
                 stack.resize(++index);
             } else {
@@ -355,7 +352,7 @@ void Node::walk(const std::function<void(Node *)> &preFunc, const std::function<
                 stack.resize(++index);
                 afterChildren = true;
                 if (parent->_parent != nullptr) {
-                    children    = &parent->_parent->_children;
+                    children = &parent->_parent->_children;
                     index_t idx = getIdxOfChild(*children, parent);
                     if (idx != CC_INVALID_INDEX) {
                         i = idx;
@@ -363,7 +360,7 @@ void Node::walk(const std::function<void(Node *)> &preFunc, const std::function<
                     parent = parent->_parent;
                 } else {
                     // At root
-                    parent   = nullptr;
+                    parent = nullptr;
                     children = nullptr;
                 }
                 if (i < 0) {
@@ -398,7 +395,7 @@ bool Node::onPreDestroyBase() {
     Flags destroyingFlag = Flags::DESTROYING;
     _objFlags |= destroyingFlag;
     bool destroyByParent = (!!_parent) && (!!(_parent->_objFlags & destroyingFlag));
-#ifdef CC_EDITOR
+#if CC_EDITOR
     if (!destroyByParent) {
         this->notifyEditorAttached(false);
     }
@@ -418,17 +415,21 @@ bool Node::onPreDestroyBase() {
             _parent->emit(NodeEventType::CHILD_REMOVED, this);
         }
     }
-    emit(NodeEventType::NODE_DESTROYED, this);
-    for (const auto &child : _children) {
-        child->destroyImmediate();
-    }
 
-    emit(EventTypesToJS::NODE_DESTROY_COMPONENTS);
+    //NOTE: The following code is not needed now since we override Node._onPreDestroy in node.jsb.ts
+    // and the logic will be done in TS.
+    //    emit(NodeEventType::NODE_DESTROYED, this);
+    //    for (const auto &child : _children) {
+    //        child->destroyImmediate();
+    //    }
+    //
+    //    emit(EventTypesToJS::NODE_DESTROY_COMPONENTS);
+
     _eventProcessor->destroy();
     return destroyByParent;
 }
 
-Node *Node::getChildByName(const std::string &name) const {
+Node *Node::getChildByName(const ccstd::string &name) const {
     if (name.empty()) {
         CC_LOG_INFO("Invalid name");
         return nullptr;
@@ -453,7 +454,7 @@ void Node::updateScene() {
     emit(EventTypesToJS::NODE_SCENE_UPDATED, _scene);
 }
 
-index_t Node::getIdxOfChild(const std::vector<IntrusivePtr<Node>> &child, Node *target) {
+index_t Node::getIdxOfChild(const ccstd::vector<IntrusivePtr<Node>> &child, Node *target) {
     auto iteChild = std::find(child.begin(), child.end(), target);
     if (iteChild != child.end()) {
         return static_cast<index_t>(iteChild - child.begin());
@@ -461,7 +462,7 @@ index_t Node::getIdxOfChild(const std::vector<IntrusivePtr<Node>> &child, Node *
     return CC_INVALID_INDEX;
 }
 
-Node *Node::getChildByUuid(const std::string &uuid) const {
+Node *Node::getChildByUuid(const ccstd::string &uuid) const {
     if (uuid.empty()) {
         CC_LOG_INFO("Invalid uuid");
         return nullptr;
@@ -502,9 +503,9 @@ void Node::setSiblingIndex(index_t index) {
         debug::errorID(3821);
         return;
     }
-    std::vector<IntrusivePtr<Node>> &siblings = _parent->_children;
-    index                                     = index != -1 ? index : static_cast<index_t>(siblings.size()) - 1;
-    index_t oldIdx                            = getIdxOfChild(siblings, this);
+    ccstd::vector<IntrusivePtr<Node>> &siblings = _parent->_children;
+    index = index != -1 ? index : static_cast<index_t>(siblings.size()) - 1;
+    index_t oldIdx = getIdxOfChild(siblings, this);
     if (index != oldIdx) {
         if (oldIdx != CC_INVALID_INDEX) {
             siblings.erase(siblings.begin() + oldIdx);
@@ -521,11 +522,11 @@ void Node::setSiblingIndex(index_t index) {
     }
 }
 
-Node *Node::getChildByPath(const std::string &path) const {
-    size_t                   end      = 0;
-    std::vector<std::string> segments = StringUtil::split(path, "/");
-    auto *                   lastNode = const_cast<Node *>(this);
-    for (const std::string &segment : segments) {
+Node *Node::getChildByPath(const ccstd::string &path) const {
+    size_t end = 0;
+    ccstd::vector<ccstd::string> segments = StringUtil::split(path, "/");
+    auto *lastNode = const_cast<Node *>(this);
+    for (const ccstd::string &segment : segments) {
         if (segment.empty()) {
             continue;
         }
@@ -605,16 +606,16 @@ void Node::updateWorldTransform() { //NOLINT(misc-no-recursion)
         return;
     }
 
-    index_t    i    = 0;
-    Node *     curr = this;
-    Mat3       mat3;
-    Mat3       m43;
+    index_t i = 0;
+    Node *curr = this;
+    Mat3 mat3;
+    Mat3 m43;
     Quaternion quat;
     while (curr && curr->getDirtyFlag()) {
         setDirtyNode(i++, curr);
         curr = curr->getParent();
     }
-    Node *   child{nullptr};
+    Node *child{nullptr};
     uint32_t dirtyBits = 0;
     while (i) {
         child = getDirtyNode(--i);
@@ -685,7 +686,7 @@ Mat4 Node::getWorldRT() {
 }
 
 void Node::invalidateChildren(TransformBit dirtyBit) {
-    auto           curDirtyBit{static_cast<uint32_t>(dirtyBit)};
+    auto curDirtyBit{static_cast<uint32_t>(dirtyBit)};
     const uint32_t childDirtyBit{curDirtyBit | static_cast<uint32_t>(TransformBit::POSITION)};
     setDirtyNode(0, this);
     int i{0};
@@ -844,7 +845,7 @@ void Node::rotate(const Quaternion &rot, NodeSpace ns /* = NodeSpace::LOCAL*/, b
         qTempB = qTempA * _worldRotation;
         qTempA = _worldRotation;
         qTempA.inverse();
-        qTempB         = qTempA * qTempB;
+        qTempB = qTempA * qTempB;
         _localRotation = _localRotation * qTempB;
     }
     _eulerDirty = true;
@@ -859,7 +860,7 @@ void Node::rotate(const Quaternion &rot, NodeSpace ns /* = NodeSpace::LOCAL*/, b
 }
 
 void Node::lookAt(const Vec3 &pos, const Vec3 &up) {
-    Vec3       vTemp = getWorldPosition();
+    Vec3 vTemp = getWorldPosition();
     Quaternion qTemp{Quaternion::identity()};
     vTemp -= pos;
     vTemp.normalize();
@@ -869,7 +870,7 @@ void Node::lookAt(const Vec3 &pos, const Vec3 &up) {
 
 void Node::inverseTransformPoint(Vec3 &out, const Vec3 &p) {
     out.set(p.x, p.y, p.z);
-    Node *  cur{this};
+    Node *cur{this};
     index_t i{0};
     while (cur != nullptr && cur->getParent()) {
         setDirtyNode(i++, cur);
@@ -916,7 +917,7 @@ void Node::setRTSInternal(Quaternion *rot, Vec3 *pos, Vec3 *scale, bool calledFr
     if (rot) {
         dirtyBit |= static_cast<uint32_t>(TransformBit::ROTATION);
         _localRotation = *rot;
-        _eulerDirty    = true;
+        _eulerDirty = true;
     }
     if (pos) {
         _localPosition = *pos;
@@ -998,7 +999,7 @@ void Node::onHierarchyChanged(Node *oldParent) {
 }
 
 /* static */
-//Node *Node::find(const std::string &path, Node *referenceNode /* = nullptr*/) {
+//Node *Node::find(const ccstd::string &path, Node *referenceNode /* = nullptr*/) {
 //    return cc::find(path, referenceNode);
 //}
 
@@ -1027,7 +1028,7 @@ void Node::onHierarchyChanged(Node *oldParent) {
 //    return _children.size();
 //}
 //
-void Node::_setChildren(std::vector<IntrusivePtr<Node>> &&children) {
+void Node::_setChildren(ccstd::vector<IntrusivePtr<Node>> &&children) {
     _children = std::move(children);
 }
 

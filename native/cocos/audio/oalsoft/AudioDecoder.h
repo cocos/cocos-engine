@@ -114,7 +114,7 @@ protected:
     AudioDecoder();
     virtual ~AudioDecoder();
 
-    bool     _isOpened;
+    bool _isOpened;
     uint32_t _totalFrames;
     uint32_t _bytesPerFrame;
     uint32_t _sampleRate;

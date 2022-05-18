@@ -1,6 +1,6 @@
 // clang-format off
 #pragma once
-#include "base/Config.h"
+
 #include <type_traits>
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
@@ -486,6 +486,7 @@ extern se::Class * __jsb_cc_RenderingSubMesh_class; // NOLINT
 
 bool js_register_cc_RenderingSubMesh(se::Object *obj); // NOLINT
 
+SE_DECLARE_FUNC(js_assets_RenderingSubMesh_destroy);
 SE_DECLARE_FUNC(js_assets_RenderingSubMesh_enableVertexIdChannel);
 SE_DECLARE_FUNC(js_assets_RenderingSubMesh_genFlatBuffers);
 SE_DECLARE_FUNC(js_assets_RenderingSubMesh_getAttributes);
@@ -521,6 +522,7 @@ bool js_register_cc_SimpleTexture(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_assets_SimpleTexture_assignImage);
 SE_DECLARE_FUNC(js_assets_SimpleTexture_checkTextureLoaded);
+SE_DECLARE_FUNC(js_assets_SimpleTexture_setMipRange);
 SE_DECLARE_FUNC(js_assets_SimpleTexture_updateImage);
 SE_DECLARE_FUNC(js_assets_SimpleTexture_updateMipmaps);
 SE_DECLARE_FUNC(js_assets_SimpleTexture_uploadData);
@@ -549,7 +551,7 @@ bool js_register_cc_Texture2D(se::Object *obj); // NOLINT
 SE_DECLARE_FUNC(js_assets_Texture2D_create);
 SE_DECLARE_FUNC(js_assets_Texture2D_description);
 SE_DECLARE_FUNC(js_assets_Texture2D_getGfxTextureCreateInfo);
-SE_DECLARE_FUNC(js_assets_Texture2D_getHtmlElementObj);
+SE_DECLARE_FUNC(js_assets_Texture2D_getGfxTextureViewCreateInfo);
 SE_DECLARE_FUNC(js_assets_Texture2D_getImage);
 SE_DECLARE_FUNC(js_assets_Texture2D_getMipmaps);
 SE_DECLARE_FUNC(js_assets_Texture2D_getMipmapsUuids);
@@ -591,6 +593,7 @@ extern se::Class * __jsb_cc_TextureCube_class; // NOLINT
 bool js_register_cc_TextureCube(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_assets_TextureCube_getGfxTextureCreateInfo);
+SE_DECLARE_FUNC(js_assets_TextureCube_getGfxTextureViewCreateInfo);
 SE_DECLARE_FUNC(js_assets_TextureCube_getImage);
 SE_DECLARE_FUNC(js_assets_TextureCube_getMipmaps);
 SE_DECLARE_FUNC(js_assets_TextureCube_initialize);
@@ -607,6 +610,7 @@ extern se::Class * __jsb_cc_BuiltinResMgr_class; // NOLINT
 
 bool js_register_cc_BuiltinResMgr(se::Object *obj); // NOLINT
 
+SE_DECLARE_FUNC(js_assets_BuiltinResMgr_addAsset);
 SE_DECLARE_FUNC(js_assets_BuiltinResMgr_getAsset);
 SE_DECLARE_FUNC(js_assets_BuiltinResMgr_initBuiltinRes);
 SE_DECLARE_FUNC(js_assets_BuiltinResMgr_isInitialized);

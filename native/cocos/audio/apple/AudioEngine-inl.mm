@@ -34,10 +34,11 @@
 #endif
 
 #include "audio/include/AudioEngine.h"
-#include "platform/FileUtils.h"
 #include "application/ApplicationManager.h"
 #include "base/Scheduler.h"
 #include "base/Utils.h"
+#include "base/memory/Memory.h"
+#include "platform/FileUtils.h"
 
 using namespace cc;
 
@@ -159,7 +160,18 @@ void AudioEngineInterruptionListenerCallback(void *user_data, UInt32 interruptio
             [[AVAudioSession sharedInstance] setActive:YES error:&error];
             alcMakeContextCurrent(s_ALContext);
         } else if (isAudioSessionInterrupted) {
-            ALOGD("Audio session is still interrupted, pause director!");
+            isAudioSessionInterrupted = false;
+            ALOGD("UIApplicationDidBecomeActiveNotification, alcMakeContextCurrent(s_ALContext)");
+            NSError *error = nil;
+            BOOL success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient error:&error];
+            if (!success) {
+                ALOGE("Fail to set audio session.");
+                return;
+            }
+            [[AVAudioSession sharedInstance] setActive:YES error:&error];
+            alcMakeContextCurrent(s_ALContext);
+
+            // ALOGD("Audio session is still interrupted, pause director!");
             //IDEA: Director::getInstance()->pause();
         }
     }
@@ -258,14 +270,14 @@ bool AudioEngineImpl::init() {
             {
                 if (gOALBufferMap == NULL) // Position 1
                 {
-                    gOALBufferMap = new OALBufferMap ();  // Position 2
+                    gOALBufferMap = ccnew OALBufferMap ();  // Position 2
 
                     // Position Gap
 
-                    gBufferMapLock = new CAGuard("OAL:BufferMapLock"); // Position 3
-                    gDeadOALBufferMap = new OALBufferMap ();
+                    gBufferMapLock = ccnew CAGuard("OAL:BufferMapLock"); // Position 3
+                    gDeadOALBufferMap = ccnew OALBufferMap ();
 
-                    OALBuffer   *newBuffer = new OALBuffer (AL_NONE);
+                    OALBuffer   *newBuffer = ccnew OALBuffer (AL_NONE);
                     gOALBufferMap->Add(AL_NONE, &newBuffer);
                 }
             }
@@ -316,7 +328,7 @@ bool AudioEngineImpl::init() {
     return ret;
 }
 
-AudioCache *AudioEngineImpl::preload(const std::string &filePath, std::function<void(bool)> callback) {
+AudioCache *AudioEngineImpl::preload(const ccstd::string &filePath, std::function<void(bool)> callback) {
     AudioCache *audioCache = nullptr;
 
     auto it = _audioCaches.find(filePath);
@@ -343,7 +355,7 @@ AudioCache *AudioEngineImpl::preload(const std::string &filePath, std::function<
     return audioCache;
 }
 
-int AudioEngineImpl::play2d(const std::string &filePath, bool loop, float volume) {
+int AudioEngineImpl::play2d(const ccstd::string &filePath, bool loop, float volume) {
     if (s_ALDevice == nullptr) {
         return AudioEngine::INVALID_AUDIO_ID;
     }
@@ -353,7 +365,7 @@ int AudioEngineImpl::play2d(const std::string &filePath, bool loop, float volume
         return AudioEngine::INVALID_AUDIO_ID;
     }
 
-    auto player = new (std::nothrow) AudioPlayer;
+    auto *player = ccnew AudioPlayer;
     if (player == nullptr) {
         return AudioEngine::INVALID_AUDIO_ID;
     }
@@ -526,7 +538,7 @@ float AudioEngineImpl::getDuration(int audioID) {
     }
 }
 
-float AudioEngineImpl::getDurationFromFile(const std::string &filePath) {
+float AudioEngineImpl::getDurationFromFile(const ccstd::string &filePath) {
     auto it = _audioCaches.find(filePath);
     if (it == _audioCaches.end()) {
         this->preload(filePath, nullptr);
@@ -593,7 +605,7 @@ bool AudioEngineImpl::setCurrentTime(int audioID, float time) {
     return ret;
 }
 
-void AudioEngineImpl::setFinishCallback(int audioID, const std::function<void(int, const std::string &)> &callback) {
+void AudioEngineImpl::setFinishCallback(int audioID, const std::function<void(int, const ccstd::string &)> &callback) {
     if (!checkAudioIdValid(audioID)) {
         return;
     }
@@ -622,8 +634,7 @@ void AudioEngineImpl::update(float dt) {
             delete player;
             _unusedSourcesPool.push_back(alSource);
         } else if (player->_ready && sourceState == AL_STOPPED) {
-
-            std::string filePath;
+            ccstd::string filePath;
             if (player->_finishCallbak) {
                 auto &audioInfo = AudioEngine::sAudioIDInfoMap[audioID];
                 filePath = *audioInfo.filePath;
@@ -658,7 +669,7 @@ void AudioEngineImpl::update(float dt) {
     }
 }
 
-void AudioEngineImpl::uncache(const std::string &filePath) {
+void AudioEngineImpl::uncache(const ccstd::string &filePath) {
     _audioCaches.erase(filePath);
 }
 

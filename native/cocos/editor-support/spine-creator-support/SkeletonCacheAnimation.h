@@ -42,13 +42,13 @@ public:
     SkeletonCacheAnimation(const std::string &uuid, bool isShare);
     ~SkeletonCacheAnimation() override;
 
-    void     update(float dt) override;
-    void     render(float dt) override;
+    void update(float dt) override;
+    void render(float dt) override;
     uint32_t getRenderOrder() const override;
 
     Skeleton *getSkeleton() const;
 
-    void  setTimeScale(float scale);
+    void setTimeScale(float scale);
     float getTimeScale() const;
 
     void paused(bool value);
@@ -60,11 +60,11 @@ public:
     void setSkin(const char *skinName);
 
     Attachment *getAttachment(const std::string &slotName, const std::string &attachmentName) const;
-    bool        setAttachment(const std::string &slotName, const std::string &attachmentName);
-    bool        setAttachment(const std::string &slotName, const char *attachmentName);
-    void        setColor(float r, float g, float b, float a);
-    void        setBatchEnabled(bool enabled);
-    void        setAttachEnabled(bool enabled);
+    bool setAttachment(const std::string &slotName, const std::string &attachmentName);
+    bool setAttachment(const std::string &slotName, const char *attachmentName);
+    void setColor(float r, float g, float b, float a);
+    void setBatchEnabled(bool enabled);
+    void setAttachEnabled(bool enabled);
 
     void setOpacityModifyRGB(bool value);
     bool isOpacityModifyRGB() const;
@@ -75,8 +75,8 @@ public:
     void onDisable();
     void setUseTint(bool enabled);
 
-    void       setAnimation(const std::string &name, bool loop);
-    void       addAnimation(const std::string &name, bool loop, float delay = 0);
+    void setAnimation(const std::string &name, bool loop);
+    void addAnimation(const std::string &name, bool loop, float delay = 0);
     Animation *findAnimation(const std::string &name) const;
 
     using CacheFrameEvent = std::function<void(std::string)>;
@@ -102,35 +102,35 @@ public:
     se_object_ptr getParamsBuffer() const;
 
 private:
-    float                   _timeScale          = 1;
-    bool                    _paused             = false;
-    bool                    _useAttach          = false;
-    bool                    _batch              = true;
-    cc::middleware::Color4F _nodeColor          = cc::middleware::Color4F::WHITE;
-    bool                    _premultipliedAlpha = false;
+    float _timeScale = 1;
+    bool _paused = false;
+    bool _useAttach = false;
+    bool _batch = true;
+    cc::middleware::Color4F _nodeColor = cc::middleware::Color4F::WHITE;
+    bool _premultipliedAlpha = false;
 
-    CacheFrameEvent _startListener    = nullptr;
-    CacheFrameEvent _endListener      = nullptr;
+    CacheFrameEvent _startListener = nullptr;
+    CacheFrameEvent _endListener = nullptr;
     CacheFrameEvent _completeListener = nullptr;
 
-    SkeletonCache *               _skeletonCache = nullptr;
+    SkeletonCache *_skeletonCache = nullptr;
     SkeletonCache::AnimationData *_animationData = nullptr;
-    int                           _curFrameIndex = -1;
+    int _curFrameIndex = -1;
 
-    float       _accTime       = 0.0F;
-    int         _playCount     = 0;
-    int         _playTimes     = 0;
-    bool        _isAniComplete = true;
+    float _accTime = 0.0F;
+    int _playCount = 0;
+    int _playTimes = 0;
+    bool _isAniComplete = true;
     std::string _animationName;
-    bool        _useTint = true;
+    bool _useTint = true;
 
     struct AniQueueData {
         std::string animationName;
-        bool        loop  = false;
-        float       delay = 0.0F;
+        bool loop = false;
+        float delay = 0.0F;
     };
     std::queue<AniQueueData *> _animationQueue;
-    AniQueueData *             _headAnimation = nullptr;
+    AniQueueData *_headAnimation = nullptr;
 
     cc::middleware::IOTypedArray *_sharedBufferOffset = nullptr;
     // Js fill this buffer to send parameter to cpp, avoid to call jsb function.

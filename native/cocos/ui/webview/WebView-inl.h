@@ -25,8 +25,8 @@
 ****************************************************************************/
 
 #include "WebView.h"
-#include "platform/FileUtils.h"
 #include "base/memory/Memory.h"
+#include "platform/FileUtils.h"
 
 #if CC_PLATFORM == CC_PLATFORM_MAC_IOS
     #include "WebViewImpl-ios.h"
@@ -39,7 +39,7 @@ static_assert(false, "WebView only supported on iOS & Android");
 namespace cc {
 
 WebView::WebView()
-: _impl(new WebViewImpl(this)),
+: _impl(ccnew WebViewImpl(this)),
   _onJSCallback(nullptr),
   _onShouldStartLoading(nullptr),
   _onDidFinishLoading(nullptr),
@@ -51,34 +51,33 @@ WebView::~WebView() {
 }
 
 WebView *WebView::create() {
-    auto webView = new (std::nothrow) WebView();
+    auto webView = ccnew WebView();
     if (webView) {
         return webView;
     }
-    CC_SAFE_DELETE(webView);
     return nullptr;
 }
 
-void WebView::setJavascriptInterfaceScheme(const std::string &scheme) {
+void WebView::setJavascriptInterfaceScheme(const ccstd::string &scheme) {
     _impl->setJavascriptInterfaceScheme(scheme);
 }
 
-void WebView::loadData(const cc::Data &   data,
-                       const std::string &MIMEType,
-                       const std::string &encoding,
-                       const std::string &baseURL) {
+void WebView::loadData(const cc::Data &data,
+                       const ccstd::string &MIMEType,
+                       const ccstd::string &encoding,
+                       const ccstd::string &baseURL) {
     _impl->loadData(data, MIMEType, encoding, baseURL);
 }
 
-void WebView::loadHTMLString(const std::string &string, const std::string &baseURL) {
+void WebView::loadHTMLString(const ccstd::string &string, const ccstd::string &baseURL) {
     _impl->loadHTMLString(string, baseURL);
 }
 
-void WebView::loadURL(const std::string &url) {
+void WebView::loadURL(const ccstd::string &url) {
     _impl->loadURL(url);
 }
 
-void WebView::loadFile(const std::string &fileName) {
+void WebView::loadFile(const ccstd::string &fileName) {
     _impl->loadFile(fileName);
 }
 
@@ -106,7 +105,7 @@ void WebView::goForward() {
     _impl->goForward();
 }
 
-void WebView::evaluateJS(const std::string &js) {
+void WebView::evaluateJS(const ccstd::string &js) {
     _impl->evaluateJS(js);
 }
 
@@ -139,7 +138,7 @@ void WebView::setOnDidFinishLoading(const ccWebViewCallback &callback) {
 }
 
 void WebView::setOnShouldStartLoading(
-    const std::function<bool(WebView *sender, const std::string &url)> &callback) {
+    const std::function<bool(WebView *sender, const ccstd::string &url)> &callback) {
     _onShouldStartLoading = callback;
 }
 
@@ -148,8 +147,8 @@ void WebView::setOnJSCallback(const ccWebViewCallback &callback) {
 }
 
 std::function<bool(WebView
-                       *              sender,
-                   const std::string &url)>
+                       *sender,
+                   const ccstd::string &url)>
 
 WebView::getOnShouldStartLoading() const {
     return _onShouldStartLoading;

@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { IVec3Like, IQuatLike } from '../../core/math/type-define';
 import { Mesh } from '../../3d';

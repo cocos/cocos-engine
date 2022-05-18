@@ -45,6 +45,7 @@ inline const char* getName(const ManagedResource& /*v*/) noexcept { return "Mana
 inline const char* getName(const ManagedTag& /*v*/) noexcept { return "Managed"; }
 inline const char* getName(const PersistentBufferTag& /*v*/) noexcept { return "PersistentBuffer"; }
 inline const char* getName(const PersistentTextureTag& /*v*/) noexcept { return "PersistentTexture"; }
+inline const char* getName(const FramebufferTag& /*v*/) noexcept { return "Framebuffer"; }
 inline const char* getName(const SwapchainTag& /*v*/) noexcept { return "Swapchain"; }
 inline const char* getName(const ResourceGraph& /*v*/) noexcept { return "ResourceGraph"; }
 inline const char* getName(AttachmentType e) noexcept {

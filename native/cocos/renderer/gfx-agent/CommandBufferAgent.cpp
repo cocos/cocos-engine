@@ -35,7 +35,6 @@
 #include "QueueAgent.h"
 #include "RenderPassAgent.h"
 #include "TextureAgent.h"
-#include "base/CoreStd.h"
 #include "base/Utils.h"
 #include "base/job-system/JobSystem.h"
 #include "base/threading/MessageQueue.h"
@@ -50,7 +49,13 @@ CommandBufferAgent::CommandBufferAgent(CommandBuffer *actor)
 }
 
 void CommandBufferAgent::flushCommands(uint32_t count, CommandBufferAgent *const *cmdBuffs, bool multiThreaded) {
-    uint32_t jobThreadCount    = JobSystem::getInstance()->threadCount();
+    // don't even touch the job system if we are only recording sequentially
+    if (count == 1) {
+        cmdBuffs[0]->getMessageQueue()->flushMessages();
+        return;
+    }
+
+    uint32_t jobThreadCount = JobSystem::getInstance()->threadCount();
     uint32_t workForThisThread = (count - 1) / jobThreadCount + 1; // ceil(count / jobThreadCount)
 
     if (count > workForThisThread + 1 && multiThreaded) { // more than one job to dispatch
@@ -86,16 +91,19 @@ void CommandBufferAgent::initMessageQueue() {
     DeviceAgent *device = DeviceAgent::getInstance();
     device->_cmdBuffRefs.insert(this);
 
-    // TODO(PatriceJiang): replace with: _messageQueue = CC_NEW(MessageQueue);
-    _messageQueue = CC_NEW_ALIGN(MessageQueue, alignof(MessageQueue));
+    // TODO(PatriceJiang): replace with: _messageQueue = ccnew MessageQueue;
+    _messageQueue = ccnew_placement(CC_MALLOC_ALIGN(sizeof(MessageQueue), alignof(MessageQueue))) MessageQueue;
     if (device->_multithreaded) _messageQueue->setImmediateMode(false);
 }
 
 void CommandBufferAgent::destroyMessageQueue() {
     DeviceAgent::getInstance()->getMessageQueue()->kickAndWait();
     // TODO(PatriceJiang): replace with:  CC_SAFE_DELETE(_messageQueue);
-    CC_DELETE_ALIGN(_messageQueue, MessageQueue, alignof(MessageQueue));
-    _messageQueue = nullptr;
+    if (_messageQueue) {
+        _messageQueue->~MessageQueue();
+        CC_FREE_ALIGN(_messageQueue);
+        _messageQueue = nullptr;
+    }
 
     DeviceAgent::getInstance()->_cmdBuffRefs.erase(this);
 }
@@ -112,7 +120,7 @@ void CommandBufferAgent::doInit(const CommandBufferInfo &info) {
     initMessageQueue();
 
     CommandBufferInfo actorInfo = info;
-    actorInfo.queue             = static_cast<QueueAgent *>(info.queue)->getActor();
+    actorInfo.queue = static_cast<QueueAgent *>(info.queue)->getActor();
 
     ENQUEUE_MESSAGE_2(
         DeviceAgent::getInstance()->getMessageQueue(), CommandBufferInit,
@@ -157,8 +165,11 @@ void CommandBufferAgent::end() {
 }
 
 void CommandBufferAgent::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint32_t stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) {
-    auto   attachmentCount = utils::toUint(renderPass->getColorAttachments().size());
-    Color *actorColors     = nullptr;
+    if (!cc::gfx::Device::getInstance()->isRendererAvailable()) {
+        return;
+    }
+    auto attachmentCount = utils::toUint(renderPass->getColorAttachments().size());
+    Color *actorColors = nullptr;
     if (attachmentCount) {
         actorColors = _messageQueue->allocate<Color>(attachmentCount);
         memcpy(actorColors, colors, sizeof(Color) * attachmentCount);
@@ -189,6 +200,9 @@ void CommandBufferAgent::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
 }
 
 void CommandBufferAgent::endRenderPass() {
+    if (!cc::gfx::Device::getInstance()->isRendererAvailable()) {
+        return;
+    }
     ENQUEUE_MESSAGE_1(
         _messageQueue, CommandBufferEndRenderPass,
         actor, getActor(),
@@ -350,6 +364,9 @@ void CommandBufferAgent::nextSubpass() {
 }
 
 void CommandBufferAgent::draw(const DrawInfo &info) {
+    if (!cc::gfx::Device::getInstance()->isRendererAvailable()) {
+        return;
+    }
     ENQUEUE_MESSAGE_2(
         _messageQueue, CommandBufferDraw,
         actor, getActor(),
@@ -363,7 +380,7 @@ void CommandBufferAgent::updateBuffer(Buffer *buff, const void *data, uint32_t s
     auto *bufferAgent = static_cast<BufferAgent *>(buff);
 
     uint8_t *actorBuffer{nullptr};
-    bool     needFreeing{false};
+    bool needFreeing{false};
 
     BufferAgent::getActorBuffer(bufferAgent, _messageQueue, size, &actorBuffer, &needFreeing);
     memcpy(actorBuffer, data, size);
@@ -418,7 +435,7 @@ void CommandBufferAgent::dispatch(const DispatchInfo &info) {
 
 void CommandBufferAgent::pipelineBarrier(const GeneralBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) {
     TextureBarrier **actorTextureBarriers = nullptr;
-    Texture **       actorTextures        = nullptr;
+    Texture **actorTextures = nullptr;
 
     if (textureBarrierCount) {
         actorTextureBarriers = _messageQueue->allocate<TextureBarrier *>(textureBarrierCount);

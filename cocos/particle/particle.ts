@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { Color, Vec3, Mat4, Quat } from '../core/math';
 import { ParticleSystem } from './particle-system';

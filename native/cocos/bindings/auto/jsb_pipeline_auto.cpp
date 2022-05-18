@@ -32,6 +32,15 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
+
+#if CC_DEBUG
+static bool js_pipeline_getter_return_true(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    s.rval().setBoolean(true);
+    return true;
+}
+SE_BIND_PROP_GET(js_pipeline_getter_return_true)
+#endif
 se::Object* __jsb_cc_pipeline_RenderObject_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_pipeline_RenderObject_class = nullptr;  // NOLINT
 
@@ -172,6 +181,9 @@ bool js_register_pipeline_RenderObject(se::Object* obj) // NOLINT(readability-id
 {
     auto* cls = se::Class::create("RenderObject", obj, nullptr, _SE(js_pipeline_RenderObject_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_pipeline_getter_return_true), nullptr);
+#endif
     cls->defineProperty("depth", _SE(js_pipeline_RenderObject_get_depth), _SE(js_pipeline_RenderObject_set_depth));
     cls->defineProperty("model", _SE(js_pipeline_RenderObject_get_model), _SE(js_pipeline_RenderObject_set_model));
     cls->defineFinalizeFunction(_SE(js_cc_pipeline_RenderObject_finalize));
@@ -359,6 +371,9 @@ bool js_register_pipeline_RenderQueueDesc(se::Object* obj) // NOLINT(readability
 {
     auto* cls = se::Class::create("RenderQueueDesc", obj, nullptr, _SE(js_pipeline_RenderQueueDesc_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_pipeline_getter_return_true), nullptr);
+#endif
     cls->defineProperty("isTransparent", _SE(js_pipeline_RenderQueueDesc_get_isTransparent), _SE(js_pipeline_RenderQueueDesc_set_isTransparent));
     cls->defineProperty("sortMode", _SE(js_pipeline_RenderQueueDesc_get_sortMode), _SE(js_pipeline_RenderQueueDesc_set_sortMode));
     cls->defineProperty("stages", _SE(js_pipeline_RenderQueueDesc_get_stages), _SE(js_pipeline_RenderQueueDesc_set_stages));
@@ -513,6 +528,9 @@ bool js_register_pipeline_RenderPipelineInfo(se::Object* obj) // NOLINT(readabil
 {
     auto* cls = se::Class::create("RenderPipelineInfo", obj, nullptr, _SE(js_pipeline_RenderPipelineInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_pipeline_getter_return_true), nullptr);
+#endif
     cls->defineProperty("tag", _SE(js_pipeline_RenderPipelineInfo_get_tag), _SE(js_pipeline_RenderPipelineInfo_set_tag));
     cls->defineProperty("flows", _SE(js_pipeline_RenderPipelineInfo_get_flows), _SE(js_pipeline_RenderPipelineInfo_set_flows));
     cls->defineFinalizeFunction(_SE(js_cc_pipeline_RenderPipelineInfo_finalize));
@@ -714,25 +732,6 @@ static bool js_pipeline_RenderPipeline_getDevice(se::State& s) // NOLINT(readabi
     return false;
 }
 SE_BIND_FUNC(js_pipeline_RenderPipeline_getDevice)
-
-static bool js_pipeline_RenderPipeline_getGeometryRenderer(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipeline_getGeometryRenderer : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::pipeline::GeometryRenderer* result = cobj->getGeometryRenderer();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_pipeline_RenderPipeline_getGeometryRenderer : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_RenderPipeline_getGeometryRenderer)
 
 static bool js_pipeline_RenderPipeline_getGlobalDSManager(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1149,25 +1148,6 @@ static bool js_pipeline_RenderPipeline_setClusterEnabled(se::State& s) // NOLINT
 }
 SE_BIND_FUNC_AS_PROP_SET(js_pipeline_RenderPipeline_setClusterEnabled)
 
-static bool js_pipeline_RenderPipeline_setGeometryRenderer(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipeline_setGeometryRenderer : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::pipeline::GeometryRenderer*, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_pipeline_RenderPipeline_setGeometryRenderer : Error processing arguments");
-        cobj->setGeometryRenderer(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_RenderPipeline_setGeometryRenderer)
-
 static bool js_pipeline_RenderPipeline_setOcclusionQueryEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
@@ -1340,6 +1320,9 @@ bool js_register_pipeline_RenderPipeline(se::Object* obj) // NOLINT(readability-
 {
     auto* cls = se::Class::create("RenderPipeline", obj, __jsb_cc_Asset_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_pipeline_getter_return_true), nullptr);
+#endif
     cls->defineProperty("globalDSManager", _SE(js_pipeline_RenderPipeline_getGlobalDSManager_asGetter), nullptr);
     cls->defineProperty("descriptorSet", _SE(js_pipeline_RenderPipeline_getDescriptorSet_asGetter), nullptr);
     cls->defineProperty("descriptorSetLayout", _SE(js_pipeline_RenderPipeline_getDescriptorSetLayout_asGetter), nullptr);
@@ -1355,7 +1338,6 @@ bool js_register_pipeline_RenderPipeline(se::Object* obj) // NOLINT(readability-
     cls->defineFunction("genQuadVertexData", _SE(js_pipeline_RenderPipeline_genQuadVertexData));
     cls->defineFunction("getClearcolor", _SE(js_pipeline_RenderPipeline_getClearcolor));
     cls->defineFunction("getDevice", _SE(js_pipeline_RenderPipeline_getDevice));
-    cls->defineFunction("getGeometryRenderer", _SE(js_pipeline_RenderPipeline_getGeometryRenderer));
     cls->defineFunction("getHeight", _SE(js_pipeline_RenderPipeline_getHeight));
     cls->defineFunction("getIAByRenderArea", _SE(js_pipeline_RenderPipeline_getIAByRenderArea));
     cls->defineFunction("getQueryPools", _SE(js_pipeline_RenderPipeline_getQueryPools));
@@ -1371,7 +1353,6 @@ bool js_register_pipeline_RenderPipeline(se::Object* obj) // NOLINT(readability-
     cls->defineFunction("isOcclusionQueryEnabled", _SE(js_pipeline_RenderPipeline_isOcclusionQueryEnabled));
     cls->defineFunction("onGlobalPipelineStateChanged", _SE(js_pipeline_RenderPipeline_onGlobalPipelineStateChanged));
     cls->defineFunction("render", _SE(js_pipeline_RenderPipeline_render));
-    cls->defineFunction("setGeometryRenderer", _SE(js_pipeline_RenderPipeline_setGeometryRenderer));
     cls->defineFunction("setOcclusionQueryEnabled", _SE(js_pipeline_RenderPipeline_setOcclusionQueryEnabled));
     cls->defineFunction("setValue", _SE(js_pipeline_RenderPipeline_setValue));
     cls->defineFunction("updateQuadVertexData", _SE(js_pipeline_RenderPipeline_updateQuadVertexData));
@@ -1410,6 +1391,9 @@ bool js_register_pipeline_ForwardPipeline(se::Object* obj) // NOLINT(readability
 {
     auto* cls = se::Class::create("ForwardPipeline", obj, __jsb_cc_pipeline_RenderPipeline_proto, _SE(js_pipeline_ForwardPipeline_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_pipeline_getter_return_true), nullptr);
+#endif
     cls->defineFinalizeFunction(_SE(js_cc_pipeline_ForwardPipeline_finalize));
     cls->install();
     JSBClassType::registerClass<cc::pipeline::ForwardPipeline>(cls);
@@ -1629,6 +1613,9 @@ bool js_register_pipeline_RenderFlowInfo(se::Object* obj) // NOLINT(readability-
 {
     auto* cls = se::Class::create("RenderFlowInfo", obj, nullptr, _SE(js_pipeline_RenderFlowInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_pipeline_getter_return_true), nullptr);
+#endif
     cls->defineProperty("name", _SE(js_pipeline_RenderFlowInfo_get_name), _SE(js_pipeline_RenderFlowInfo_set_name));
     cls->defineProperty("priority", _SE(js_pipeline_RenderFlowInfo_get_priority), _SE(js_pipeline_RenderFlowInfo_set_priority));
     cls->defineProperty("tag", _SE(js_pipeline_RenderFlowInfo_get_tag), _SE(js_pipeline_RenderFlowInfo_set_tag));
@@ -1733,6 +1720,9 @@ bool js_register_pipeline_RenderFlow(se::Object* obj) // NOLINT(readability-iden
 {
     auto* cls = se::Class::create("RenderFlow", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_pipeline_getter_return_true), nullptr);
+#endif
     cls->defineFunction("activate", _SE(js_pipeline_RenderFlow_activate));
     cls->defineFunction("getRenderstageByName", _SE(js_pipeline_RenderFlow_getRenderstageByName));
     cls->defineFunction("getTag", _SE(js_pipeline_RenderFlow_getTag));
@@ -1787,6 +1777,9 @@ bool js_register_pipeline_ForwardFlow(se::Object* obj) // NOLINT(readability-ide
 {
     auto* cls = se::Class::create("ForwardFlow", obj, __jsb_cc_pipeline_RenderFlow_proto, _SE(js_pipeline_ForwardFlow_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_pipeline_getter_return_true), nullptr);
+#endif
     cls->defineStaticFunction("getInitializeInfo", _SE(js_pipeline_ForwardFlow_getInitializeInfo_static));
     cls->defineFinalizeFunction(_SE(js_cc_pipeline_ForwardFlow_finalize));
     cls->install();
@@ -2007,6 +2000,9 @@ bool js_register_pipeline_RenderStageInfo(se::Object* obj) // NOLINT(readability
 {
     auto* cls = se::Class::create("RenderStageInfo", obj, nullptr, _SE(js_pipeline_RenderStageInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_pipeline_getter_return_true), nullptr);
+#endif
     cls->defineProperty("name", _SE(js_pipeline_RenderStageInfo_get_name), _SE(js_pipeline_RenderStageInfo_set_name));
     cls->defineProperty("priority", _SE(js_pipeline_RenderStageInfo_get_priority), _SE(js_pipeline_RenderStageInfo_set_priority));
     cls->defineProperty("tag", _SE(js_pipeline_RenderStageInfo_get_tag), _SE(js_pipeline_RenderStageInfo_set_tag));
@@ -2110,6 +2106,9 @@ bool js_register_pipeline_RenderStage(se::Object* obj) // NOLINT(readability-ide
 {
     auto* cls = se::Class::create("RenderStage", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_pipeline_getter_return_true), nullptr);
+#endif
     cls->defineFunction("activate", _SE(js_pipeline_RenderStage_activate));
     cls->defineFunction("getFlow", _SE(js_pipeline_RenderStage_getFlow));
     cls->defineFunction("getTag", _SE(js_pipeline_RenderStage_getTag));
@@ -2164,6 +2163,9 @@ bool js_register_pipeline_ForwardStage(se::Object* obj) // NOLINT(readability-id
 {
     auto* cls = se::Class::create("ForwardStage", obj, __jsb_cc_pipeline_RenderStage_proto, _SE(js_pipeline_ForwardStage_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_pipeline_getter_return_true), nullptr);
+#endif
     cls->defineStaticFunction("getInitializeInfo", _SE(js_pipeline_ForwardStage_getInitializeInfo_static));
     cls->defineFinalizeFunction(_SE(js_cc_pipeline_ForwardStage_finalize));
     cls->install();
@@ -2216,6 +2218,9 @@ bool js_register_pipeline_ShadowFlow(se::Object* obj) // NOLINT(readability-iden
 {
     auto* cls = se::Class::create("ShadowFlow", obj, __jsb_cc_pipeline_RenderFlow_proto, _SE(js_pipeline_ShadowFlow_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_pipeline_getter_return_true), nullptr);
+#endif
     cls->defineStaticFunction("getInitializeInfo", _SE(js_pipeline_ShadowFlow_getInitializeInfo_static));
     cls->defineFinalizeFunction(_SE(js_cc_pipeline_ShadowFlow_finalize));
     cls->install();
@@ -2310,6 +2315,9 @@ bool js_register_pipeline_ShadowStage(se::Object* obj) // NOLINT(readability-ide
 {
     auto* cls = se::Class::create("ShadowStage", obj, __jsb_cc_pipeline_RenderStage_proto, _SE(js_pipeline_ShadowStage_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_pipeline_getter_return_true), nullptr);
+#endif
     cls->defineFunction("setFramebuffer", _SE(js_pipeline_ShadowStage_setFramebuffer));
     cls->defineFunction("setUsage", _SE(js_pipeline_ShadowStage_setUsage));
     cls->defineStaticFunction("getInitializeInfo", _SE(js_pipeline_ShadowStage_getInitializeInfo_static));
@@ -2555,6 +2563,9 @@ bool js_register_pipeline_GlobalDSManager(se::Object* obj) // NOLINT(readability
 {
     auto* cls = se::Class::create("GlobalDSManager", obj, nullptr, _SE(js_pipeline_GlobalDSManager_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_pipeline_getter_return_true), nullptr);
+#endif
     cls->defineFunction("bindBuffer", _SE(js_pipeline_GlobalDSManager_bindBuffer));
     cls->defineFunction("bindSampler", _SE(js_pipeline_GlobalDSManager_bindSampler));
     cls->defineFunction("bindTexture", _SE(js_pipeline_GlobalDSManager_bindTexture));
@@ -2691,6 +2702,9 @@ bool js_register_pipeline_InstancedBuffer(se::Object* obj) // NOLINT(readability
 {
     auto* cls = se::Class::create("InstancedBuffer", obj, nullptr, _SE(js_pipeline_InstancedBuffer_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_pipeline_getter_return_true), nullptr);
+#endif
     cls->defineFunction("destroy", _SE(js_pipeline_InstancedBuffer_destroy));
     cls->defineFunction("setDynamicOffset", _SE(js_pipeline_InstancedBuffer_setDynamicOffset));
     cls->defineStaticFunction("destroyInstancedBuffer", _SE(js_pipeline_InstancedBuffer_destroyInstancedBuffer_static));
@@ -2729,6 +2743,9 @@ bool js_register_pipeline_DeferredPipeline(se::Object* obj) // NOLINT(readabilit
 {
     auto* cls = se::Class::create("DeferredPipeline", obj, __jsb_cc_pipeline_RenderPipeline_proto, _SE(js_pipeline_DeferredPipeline_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_pipeline_getter_return_true), nullptr);
+#endif
     cls->defineFinalizeFunction(_SE(js_cc_pipeline_DeferredPipeline_finalize));
     cls->install();
     JSBClassType::registerClass<cc::pipeline::DeferredPipeline>(cls);
@@ -2780,6 +2797,9 @@ bool js_register_pipeline_MainFlow(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("MainFlow", obj, __jsb_cc_pipeline_RenderFlow_proto, _SE(js_pipeline_MainFlow_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_pipeline_getter_return_true), nullptr);
+#endif
     cls->defineStaticFunction("getInitializeInfo", _SE(js_pipeline_MainFlow_getInitializeInfo_static));
     cls->defineFinalizeFunction(_SE(js_cc_pipeline_MainFlow_finalize));
     cls->install();
@@ -2832,6 +2852,9 @@ bool js_register_pipeline_GbufferStage(se::Object* obj) // NOLINT(readability-id
 {
     auto* cls = se::Class::create("GbufferStage", obj, __jsb_cc_pipeline_RenderStage_proto, _SE(js_pipeline_GbufferStage_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_pipeline_getter_return_true), nullptr);
+#endif
     cls->defineStaticFunction("getInitializeInfo", _SE(js_pipeline_GbufferStage_getInitializeInfo_static));
     cls->defineFinalizeFunction(_SE(js_cc_pipeline_GbufferStage_finalize));
     cls->install();
@@ -2884,6 +2907,9 @@ bool js_register_pipeline_LightingStage(se::Object* obj) // NOLINT(readability-i
 {
     auto* cls = se::Class::create("LightingStage", obj, __jsb_cc_pipeline_RenderStage_proto, _SE(js_pipeline_LightingStage_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_pipeline_getter_return_true), nullptr);
+#endif
     cls->defineStaticFunction("getInitializeInfo", _SE(js_pipeline_LightingStage_getInitializeInfo_static));
     cls->defineFinalizeFunction(_SE(js_cc_pipeline_LightingStage_finalize));
     cls->install();
@@ -3145,6 +3171,9 @@ bool js_register_pipeline_BloomStage(se::Object* obj) // NOLINT(readability-iden
 {
     auto* cls = se::Class::create("BloomStage", obj, __jsb_cc_pipeline_RenderStage_proto, _SE(js_pipeline_BloomStage_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_pipeline_getter_return_true), nullptr);
+#endif
     cls->defineProperty("threshold", _SE(js_pipeline_BloomStage_getThreshold_asGetter), _SE(js_pipeline_BloomStage_setThreshold_asSetter));
     cls->defineProperty("intensity", _SE(js_pipeline_BloomStage_getIntensity_asGetter), _SE(js_pipeline_BloomStage_setIntensity_asSetter));
     cls->defineProperty("iterations", _SE(js_pipeline_BloomStage_getIterations_asGetter), _SE(js_pipeline_BloomStage_setIterations_asSetter));
@@ -3205,6 +3234,9 @@ bool js_register_pipeline_PostProcessStage(se::Object* obj) // NOLINT(readabilit
 {
     auto* cls = se::Class::create("PostProcessStage", obj, __jsb_cc_pipeline_RenderStage_proto, _SE(js_pipeline_PostProcessStage_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_pipeline_getter_return_true), nullptr);
+#endif
     cls->defineStaticFunction("getInitializeInfo", _SE(js_pipeline_PostProcessStage_getInitializeInfo_static));
     cls->defineFinalizeFunction(_SE(js_cc_pipeline_PostProcessStage_finalize));
     cls->install();
@@ -3340,6 +3372,44 @@ static bool js_pipeline_PipelineSceneData_getAmbient(se::State& s) // NOLINT(rea
     return false;
 }
 SE_BIND_FUNC_AS_PROP_GET(js_pipeline_PipelineSceneData_getAmbient)
+
+static bool js_pipeline_PipelineSceneData_getDebugRendererPass(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getDebugRendererPass : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::scene::Pass* result = cobj->getDebugRendererPass();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getDebugRendererPass : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_getDebugRendererPass)
+
+static bool js_pipeline_PipelineSceneData_getDebugRendererShader(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getDebugRendererShader : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::gfx::Shader* result = cobj->getDebugRendererShader();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getDebugRendererShader : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_getDebugRendererShader)
 
 static bool js_pipeline_PipelineSceneData_getDirShadowObjects(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -3777,6 +3847,9 @@ bool js_register_pipeline_PipelineSceneData(se::Object* obj) // NOLINT(readabili
 {
     auto* cls = se::Class::create("PipelineSceneData", obj, nullptr, _SE(js_pipeline_PipelineSceneData_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_pipeline_getter_return_true), nullptr);
+#endif
     cls->defineProperty("isHDR", _SE(js_pipeline_PipelineSceneData_isHDR_asGetter), _SE(js_pipeline_PipelineSceneData_setHDR_asSetter));
     cls->defineProperty("shadingScale", _SE(js_pipeline_PipelineSceneData_getShadingScale_asGetter), _SE(js_pipeline_PipelineSceneData_setShadingScale_asSetter));
     cls->defineProperty("fog", _SE(js_pipeline_PipelineSceneData_getFog_asGetter), nullptr);
@@ -3789,6 +3862,8 @@ bool js_register_pipeline_PipelineSceneData(se::Object* obj) // NOLINT(readabili
     cls->defineFunction("clearRenderObjects", _SE(js_pipeline_PipelineSceneData_clearRenderObjects));
     cls->defineFunction("clearValidPunctualLights", _SE(js_pipeline_PipelineSceneData_clearValidPunctualLights));
     cls->defineFunction("destroy", _SE(js_pipeline_PipelineSceneData_destroy));
+    cls->defineFunction("getDebugRendererPass", _SE(js_pipeline_PipelineSceneData_getDebugRendererPass));
+    cls->defineFunction("getDebugRendererShader", _SE(js_pipeline_PipelineSceneData_getDebugRendererShader));
     cls->defineFunction("getDirShadowObjects", _SE(js_pipeline_PipelineSceneData_getDirShadowObjects));
     cls->defineFunction("getGeometryRendererMaterials", _SE(js_pipeline_PipelineSceneData_getGeometryRendererMaterials));
     cls->defineFunction("getGeometryRendererPasses", _SE(js_pipeline_PipelineSceneData_getGeometryRendererPasses));
@@ -4295,6 +4370,9 @@ bool js_register_pipeline_BatchedItem(se::Object* obj) // NOLINT(readability-ide
 {
     auto* cls = se::Class::create("BatchedItem", obj, nullptr, _SE(js_pipeline_BatchedItem_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_pipeline_getter_return_true), nullptr);
+#endif
     cls->defineProperty("vbs", _SE(js_pipeline_BatchedItem_get_vbs), _SE(js_pipeline_BatchedItem_set_vbs));
     cls->defineProperty("vbDatas", _SE(js_pipeline_BatchedItem_get_vbDatas), _SE(js_pipeline_BatchedItem_set_vbDatas));
     cls->defineProperty("indexBuffer", _SE(js_pipeline_BatchedItem_get_indexBuffer), _SE(js_pipeline_BatchedItem_set_indexBuffer));
@@ -4527,6 +4605,9 @@ bool js_register_pipeline_BatchedBuffer(se::Object* obj) // NOLINT(readability-i
 {
     auto* cls = se::Class::create("BatchedBuffer", obj, nullptr, _SE(js_pipeline_BatchedBuffer_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_pipeline_getter_return_true), nullptr);
+#endif
     cls->defineFunction("clear", _SE(js_pipeline_BatchedBuffer_clear));
     cls->defineFunction("destroy", _SE(js_pipeline_BatchedBuffer_destroy));
     cls->defineFunction("getBatches", _SE(js_pipeline_BatchedBuffer_getBatches));
@@ -4550,6 +4631,2262 @@ bool js_register_pipeline_BatchedBuffer(se::Object* obj) // NOLINT(readability-i
 se::Object* __jsb_cc_pipeline_GeometryRenderer_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_pipeline_GeometryRenderer_class = nullptr;  // NOLINT
 
+static bool js_pipeline_GeometryRenderer_addArc(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GeometryRenderer>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GeometryRenderer_addArc : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 5) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<float, false> arg3 = {};
+        HolderType<float, false> arg4 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addArc : Error processing arguments");
+        cobj->addArc(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value());
+        return true;
+    }
+    if (argc == 6) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<float, false> arg3 = {};
+        HolderType<float, false> arg4 = {};
+        HolderType<unsigned int, false> arg5 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addArc : Error processing arguments");
+        cobj->addArc(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
+        return true;
+    }
+    if (argc == 7) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<float, false> arg3 = {};
+        HolderType<float, false> arg4 = {};
+        HolderType<unsigned int, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addArc : Error processing arguments");
+        cobj->addArc(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value());
+        return true;
+    }
+    if (argc == 8) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<float, false> arg3 = {};
+        HolderType<float, false> arg4 = {};
+        HolderType<unsigned int, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        HolderType<bool, false> arg7 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addArc : Error processing arguments");
+        cobj->addArc(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value());
+        return true;
+    }
+    if (argc == 9) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<float, false> arg3 = {};
+        HolderType<float, false> arg4 = {};
+        HolderType<unsigned int, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        HolderType<bool, false> arg7 = {};
+        HolderType<cc::Mat4, true> arg8 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
+        ok &= sevalue_to_native(args[8], &arg8, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addArc : Error processing arguments");
+        cobj->addArc(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value(), arg8.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 9);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GeometryRenderer_addArc)
+
+static bool js_pipeline_GeometryRenderer_addBezier(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GeometryRenderer>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GeometryRenderer_addBezier : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 5) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<cc::Vec3, true> arg1 = {};
+        HolderType<cc::Vec3, true> arg2 = {};
+        HolderType<cc::Vec3, true> arg3 = {};
+        HolderType<cc::gfx::Color, false> arg4 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addBezier : Error processing arguments");
+        cobj->addBezier(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value());
+        return true;
+    }
+    if (argc == 6) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<cc::Vec3, true> arg1 = {};
+        HolderType<cc::Vec3, true> arg2 = {};
+        HolderType<cc::Vec3, true> arg3 = {};
+        HolderType<cc::gfx::Color, false> arg4 = {};
+        HolderType<unsigned int, false> arg5 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addBezier : Error processing arguments");
+        cobj->addBezier(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
+        return true;
+    }
+    if (argc == 7) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<cc::Vec3, true> arg1 = {};
+        HolderType<cc::Vec3, true> arg2 = {};
+        HolderType<cc::Vec3, true> arg3 = {};
+        HolderType<cc::gfx::Color, false> arg4 = {};
+        HolderType<unsigned int, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addBezier : Error processing arguments");
+        cobj->addBezier(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value());
+        return true;
+    }
+    if (argc == 8) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<cc::Vec3, true> arg1 = {};
+        HolderType<cc::Vec3, true> arg2 = {};
+        HolderType<cc::Vec3, true> arg3 = {};
+        HolderType<cc::gfx::Color, false> arg4 = {};
+        HolderType<unsigned int, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        HolderType<bool, false> arg7 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addBezier : Error processing arguments");
+        cobj->addBezier(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value());
+        return true;
+    }
+    if (argc == 9) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<cc::Vec3, true> arg1 = {};
+        HolderType<cc::Vec3, true> arg2 = {};
+        HolderType<cc::Vec3, true> arg3 = {};
+        HolderType<cc::gfx::Color, false> arg4 = {};
+        HolderType<unsigned int, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        HolderType<bool, false> arg7 = {};
+        HolderType<cc::Mat4, true> arg8 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
+        ok &= sevalue_to_native(args[8], &arg8, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addBezier : Error processing arguments");
+        cobj->addBezier(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value(), arg8.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 9);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GeometryRenderer_addBezier)
+
+static bool js_pipeline_GeometryRenderer_addBoundingBox(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GeometryRenderer>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GeometryRenderer_addBoundingBox : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<cc::geometry::AABB, true> arg0 = {};
+        HolderType<cc::gfx::Color, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addBoundingBox : Error processing arguments");
+        cobj->addBoundingBox(arg0.value(), arg1.value());
+        return true;
+    }
+    if (argc == 3) {
+        HolderType<cc::geometry::AABB, true> arg0 = {};
+        HolderType<cc::gfx::Color, false> arg1 = {};
+        HolderType<bool, false> arg2 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addBoundingBox : Error processing arguments");
+        cobj->addBoundingBox(arg0.value(), arg1.value(), arg2.value());
+        return true;
+    }
+    if (argc == 4) {
+        HolderType<cc::geometry::AABB, true> arg0 = {};
+        HolderType<cc::gfx::Color, false> arg1 = {};
+        HolderType<bool, false> arg2 = {};
+        HolderType<bool, false> arg3 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addBoundingBox : Error processing arguments");
+        cobj->addBoundingBox(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+        return true;
+    }
+    if (argc == 5) {
+        HolderType<cc::geometry::AABB, true> arg0 = {};
+        HolderType<cc::gfx::Color, false> arg1 = {};
+        HolderType<bool, false> arg2 = {};
+        HolderType<bool, false> arg3 = {};
+        HolderType<bool, false> arg4 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addBoundingBox : Error processing arguments");
+        cobj->addBoundingBox(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value());
+        return true;
+    }
+    if (argc == 6) {
+        HolderType<cc::geometry::AABB, true> arg0 = {};
+        HolderType<cc::gfx::Color, false> arg1 = {};
+        HolderType<bool, false> arg2 = {};
+        HolderType<bool, false> arg3 = {};
+        HolderType<bool, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addBoundingBox : Error processing arguments");
+        cobj->addBoundingBox(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
+        return true;
+    }
+    if (argc == 7) {
+        HolderType<cc::geometry::AABB, true> arg0 = {};
+        HolderType<cc::gfx::Color, false> arg1 = {};
+        HolderType<bool, false> arg2 = {};
+        HolderType<bool, false> arg3 = {};
+        HolderType<bool, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        HolderType<cc::Mat4, true> arg6 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addBoundingBox : Error processing arguments");
+        cobj->addBoundingBox(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 7);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GeometryRenderer_addBoundingBox)
+
+static bool js_pipeline_GeometryRenderer_addCapsule(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GeometryRenderer>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GeometryRenderer_addCapsule : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 4) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addCapsule : Error processing arguments");
+        cobj->addCapsule(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+        return true;
+    }
+    if (argc == 5) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addCapsule : Error processing arguments");
+        cobj->addCapsule(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value());
+        return true;
+    }
+    if (argc == 6) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        HolderType<unsigned int, false> arg5 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addCapsule : Error processing arguments");
+        cobj->addCapsule(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
+        return true;
+    }
+    if (argc == 7) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        HolderType<unsigned int, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addCapsule : Error processing arguments");
+        cobj->addCapsule(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value());
+        return true;
+    }
+    if (argc == 8) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        HolderType<unsigned int, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        HolderType<bool, false> arg7 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addCapsule : Error processing arguments");
+        cobj->addCapsule(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value());
+        return true;
+    }
+    if (argc == 9) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        HolderType<unsigned int, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        HolderType<bool, false> arg7 = {};
+        HolderType<bool, false> arg8 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
+        ok &= sevalue_to_native(args[8], &arg8, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addCapsule : Error processing arguments");
+        cobj->addCapsule(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value(), arg8.value());
+        return true;
+    }
+    if (argc == 10) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        HolderType<unsigned int, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        HolderType<bool, false> arg7 = {};
+        HolderType<bool, false> arg8 = {};
+        HolderType<bool, false> arg9 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
+        ok &= sevalue_to_native(args[8], &arg8, s.thisObject());
+        ok &= sevalue_to_native(args[9], &arg9, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addCapsule : Error processing arguments");
+        cobj->addCapsule(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value(), arg8.value(), arg9.value());
+        return true;
+    }
+    if (argc == 11) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        HolderType<unsigned int, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        HolderType<bool, false> arg7 = {};
+        HolderType<bool, false> arg8 = {};
+        HolderType<bool, false> arg9 = {};
+        HolderType<cc::Mat4, true> arg10 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
+        ok &= sevalue_to_native(args[8], &arg8, s.thisObject());
+        ok &= sevalue_to_native(args[9], &arg9, s.thisObject());
+        ok &= sevalue_to_native(args[10], &arg10, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addCapsule : Error processing arguments");
+        cobj->addCapsule(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value(), arg8.value(), arg9.value(), arg10.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 11);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GeometryRenderer_addCapsule)
+
+static bool js_pipeline_GeometryRenderer_addCircle(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GeometryRenderer>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GeometryRenderer_addCircle : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 3) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addCircle : Error processing arguments");
+        cobj->addCircle(arg0.value(), arg1.value(), arg2.value());
+        return true;
+    }
+    if (argc == 4) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addCircle : Error processing arguments");
+        cobj->addCircle(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+        return true;
+    }
+    if (argc == 5) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        HolderType<bool, false> arg4 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addCircle : Error processing arguments");
+        cobj->addCircle(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value());
+        return true;
+    }
+    if (argc == 6) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        HolderType<bool, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addCircle : Error processing arguments");
+        cobj->addCircle(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
+        return true;
+    }
+    if (argc == 7) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        HolderType<bool, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        HolderType<cc::Mat4, true> arg6 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addCircle : Error processing arguments");
+        cobj->addCircle(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 7);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GeometryRenderer_addCircle)
+
+static bool js_pipeline_GeometryRenderer_addCone(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GeometryRenderer>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GeometryRenderer_addCone : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 4) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addCone : Error processing arguments");
+        cobj->addCone(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+        return true;
+    }
+    if (argc == 5) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addCone : Error processing arguments");
+        cobj->addCone(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value());
+        return true;
+    }
+    if (argc == 6) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addCone : Error processing arguments");
+        cobj->addCone(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
+        return true;
+    }
+    if (argc == 7) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addCone : Error processing arguments");
+        cobj->addCone(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value());
+        return true;
+    }
+    if (argc == 8) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        HolderType<bool, false> arg7 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addCone : Error processing arguments");
+        cobj->addCone(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value());
+        return true;
+    }
+    if (argc == 9) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        HolderType<bool, false> arg7 = {};
+        HolderType<bool, false> arg8 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
+        ok &= sevalue_to_native(args[8], &arg8, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addCone : Error processing arguments");
+        cobj->addCone(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value(), arg8.value());
+        return true;
+    }
+    if (argc == 10) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        HolderType<bool, false> arg7 = {};
+        HolderType<bool, false> arg8 = {};
+        HolderType<cc::Mat4, true> arg9 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
+        ok &= sevalue_to_native(args[8], &arg8, s.thisObject());
+        ok &= sevalue_to_native(args[9], &arg9, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addCone : Error processing arguments");
+        cobj->addCone(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value(), arg8.value(), arg9.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 10);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GeometryRenderer_addCone)
+
+static bool js_pipeline_GeometryRenderer_addCross(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GeometryRenderer>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GeometryRenderer_addCross : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 3) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addCross : Error processing arguments");
+        cobj->addCross(arg0.value(), arg1.value(), arg2.value());
+        return true;
+    }
+    if (argc == 4) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<bool, false> arg3 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addCross : Error processing arguments");
+        cobj->addCross(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GeometryRenderer_addCross)
+
+static bool js_pipeline_GeometryRenderer_addCylinder(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GeometryRenderer>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GeometryRenderer_addCylinder : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 4) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addCylinder : Error processing arguments");
+        cobj->addCylinder(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+        return true;
+    }
+    if (argc == 5) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addCylinder : Error processing arguments");
+        cobj->addCylinder(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value());
+        return true;
+    }
+    if (argc == 6) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addCylinder : Error processing arguments");
+        cobj->addCylinder(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
+        return true;
+    }
+    if (argc == 7) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addCylinder : Error processing arguments");
+        cobj->addCylinder(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value());
+        return true;
+    }
+    if (argc == 8) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        HolderType<bool, false> arg7 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addCylinder : Error processing arguments");
+        cobj->addCylinder(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value());
+        return true;
+    }
+    if (argc == 9) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        HolderType<bool, false> arg7 = {};
+        HolderType<bool, false> arg8 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
+        ok &= sevalue_to_native(args[8], &arg8, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addCylinder : Error processing arguments");
+        cobj->addCylinder(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value(), arg8.value());
+        return true;
+    }
+    if (argc == 10) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        HolderType<bool, false> arg7 = {};
+        HolderType<bool, false> arg8 = {};
+        HolderType<cc::Mat4, true> arg9 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
+        ok &= sevalue_to_native(args[8], &arg8, s.thisObject());
+        ok &= sevalue_to_native(args[9], &arg9, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addCylinder : Error processing arguments");
+        cobj->addCylinder(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value(), arg8.value(), arg9.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 10);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GeometryRenderer_addCylinder)
+
+static bool js_pipeline_GeometryRenderer_addDashedLine(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GeometryRenderer>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GeometryRenderer_addDashedLine : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 3) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<cc::Vec3, true> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addDashedLine : Error processing arguments");
+        cobj->addDashedLine(arg0.value(), arg1.value(), arg2.value());
+        return true;
+    }
+    if (argc == 4) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<cc::Vec3, true> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<bool, false> arg3 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addDashedLine : Error processing arguments");
+        cobj->addDashedLine(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GeometryRenderer_addDashedLine)
+
+static bool js_pipeline_GeometryRenderer_addDisc(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GeometryRenderer>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GeometryRenderer_addDisc : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 3) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addDisc : Error processing arguments");
+        cobj->addDisc(arg0.value(), arg1.value(), arg2.value());
+        return true;
+    }
+    if (argc == 4) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addDisc : Error processing arguments");
+        cobj->addDisc(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+        return true;
+    }
+    if (argc == 5) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        HolderType<bool, false> arg4 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addDisc : Error processing arguments");
+        cobj->addDisc(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value());
+        return true;
+    }
+    if (argc == 6) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        HolderType<bool, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addDisc : Error processing arguments");
+        cobj->addDisc(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
+        return true;
+    }
+    if (argc == 7) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        HolderType<bool, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addDisc : Error processing arguments");
+        cobj->addDisc(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value());
+        return true;
+    }
+    if (argc == 8) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        HolderType<bool, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        HolderType<bool, false> arg7 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addDisc : Error processing arguments");
+        cobj->addDisc(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value());
+        return true;
+    }
+    if (argc == 9) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        HolderType<bool, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        HolderType<bool, false> arg7 = {};
+        HolderType<cc::Mat4, true> arg8 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
+        ok &= sevalue_to_native(args[8], &arg8, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addDisc : Error processing arguments");
+        cobj->addDisc(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value(), arg8.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 9);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GeometryRenderer_addDisc)
+
+static bool js_pipeline_GeometryRenderer_addFrustum(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GeometryRenderer>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GeometryRenderer_addFrustum : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<cc::geometry::Frustum, true> arg0 = {};
+        HolderType<cc::gfx::Color, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addFrustum : Error processing arguments");
+        cobj->addFrustum(arg0.value(), arg1.value());
+        return true;
+    }
+    if (argc == 3) {
+        HolderType<cc::geometry::Frustum, true> arg0 = {};
+        HolderType<cc::gfx::Color, false> arg1 = {};
+        HolderType<bool, false> arg2 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addFrustum : Error processing arguments");
+        cobj->addFrustum(arg0.value(), arg1.value(), arg2.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GeometryRenderer_addFrustum)
+
+static bool js_pipeline_GeometryRenderer_addIndexedMesh(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GeometryRenderer>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GeometryRenderer_addIndexedMesh : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 4) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<std::vector<cc::Vec3>, true> arg1 = {};
+        HolderType<std::vector<unsigned int>, true> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addIndexedMesh : Error processing arguments");
+        cobj->addIndexedMesh(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+        return true;
+    }
+    if (argc == 5) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<std::vector<cc::Vec3>, true> arg1 = {};
+        HolderType<std::vector<unsigned int>, true> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<bool, false> arg4 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addIndexedMesh : Error processing arguments");
+        cobj->addIndexedMesh(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value());
+        return true;
+    }
+    if (argc == 6) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<std::vector<cc::Vec3>, true> arg1 = {};
+        HolderType<std::vector<unsigned int>, true> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<bool, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addIndexedMesh : Error processing arguments");
+        cobj->addIndexedMesh(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
+        return true;
+    }
+    if (argc == 7) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<std::vector<cc::Vec3>, true> arg1 = {};
+        HolderType<std::vector<unsigned int>, true> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<bool, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        HolderType<cc::Mat4, true> arg6 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addIndexedMesh : Error processing arguments");
+        cobj->addIndexedMesh(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 7);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GeometryRenderer_addIndexedMesh)
+
+static bool js_pipeline_GeometryRenderer_addLine(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GeometryRenderer>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GeometryRenderer_addLine : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 3) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<cc::Vec3, true> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addLine : Error processing arguments");
+        cobj->addLine(arg0.value(), arg1.value(), arg2.value());
+        return true;
+    }
+    if (argc == 4) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<cc::Vec3, true> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<bool, false> arg3 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addLine : Error processing arguments");
+        cobj->addLine(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GeometryRenderer_addLine)
+
+static bool js_pipeline_GeometryRenderer_addMesh(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GeometryRenderer>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GeometryRenderer_addMesh : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 3) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<std::vector<cc::Vec3>, true> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addMesh : Error processing arguments");
+        cobj->addMesh(arg0.value(), arg1.value(), arg2.value());
+        return true;
+    }
+    if (argc == 4) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<std::vector<cc::Vec3>, true> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<bool, false> arg3 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addMesh : Error processing arguments");
+        cobj->addMesh(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+        return true;
+    }
+    if (argc == 5) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<std::vector<cc::Vec3>, true> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<bool, false> arg3 = {};
+        HolderType<bool, false> arg4 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addMesh : Error processing arguments");
+        cobj->addMesh(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value());
+        return true;
+    }
+    if (argc == 6) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<std::vector<cc::Vec3>, true> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<bool, false> arg3 = {};
+        HolderType<bool, false> arg4 = {};
+        HolderType<cc::Mat4, true> arg5 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addMesh : Error processing arguments");
+        cobj->addMesh(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GeometryRenderer_addMesh)
+
+static bool js_pipeline_GeometryRenderer_addOctahedron(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GeometryRenderer>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GeometryRenderer_addOctahedron : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 3) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addOctahedron : Error processing arguments");
+        cobj->addOctahedron(arg0.value(), arg1.value(), arg2.value());
+        return true;
+    }
+    if (argc == 4) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<bool, false> arg3 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addOctahedron : Error processing arguments");
+        cobj->addOctahedron(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+        return true;
+    }
+    if (argc == 5) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<bool, false> arg3 = {};
+        HolderType<bool, false> arg4 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addOctahedron : Error processing arguments");
+        cobj->addOctahedron(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value());
+        return true;
+    }
+    if (argc == 6) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<bool, false> arg3 = {};
+        HolderType<bool, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addOctahedron : Error processing arguments");
+        cobj->addOctahedron(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
+        return true;
+    }
+    if (argc == 7) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<bool, false> arg3 = {};
+        HolderType<bool, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addOctahedron : Error processing arguments");
+        cobj->addOctahedron(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value());
+        return true;
+    }
+    if (argc == 8) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<bool, false> arg3 = {};
+        HolderType<bool, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        HolderType<cc::Mat4, true> arg7 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addOctahedron : Error processing arguments");
+        cobj->addOctahedron(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 8);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GeometryRenderer_addOctahedron)
+
+static bool js_pipeline_GeometryRenderer_addPolygon(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GeometryRenderer>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GeometryRenderer_addPolygon : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 3) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addPolygon : Error processing arguments");
+        cobj->addPolygon(arg0.value(), arg1.value(), arg2.value());
+        return true;
+    }
+    if (argc == 4) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addPolygon : Error processing arguments");
+        cobj->addPolygon(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+        return true;
+    }
+    if (argc == 5) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        HolderType<bool, false> arg4 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addPolygon : Error processing arguments");
+        cobj->addPolygon(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value());
+        return true;
+    }
+    if (argc == 6) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        HolderType<bool, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addPolygon : Error processing arguments");
+        cobj->addPolygon(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
+        return true;
+    }
+    if (argc == 7) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        HolderType<bool, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addPolygon : Error processing arguments");
+        cobj->addPolygon(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value());
+        return true;
+    }
+    if (argc == 8) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        HolderType<bool, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        HolderType<bool, false> arg7 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addPolygon : Error processing arguments");
+        cobj->addPolygon(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value());
+        return true;
+    }
+    if (argc == 9) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        HolderType<bool, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        HolderType<bool, false> arg7 = {};
+        HolderType<cc::Mat4, true> arg8 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
+        ok &= sevalue_to_native(args[8], &arg8, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addPolygon : Error processing arguments");
+        cobj->addPolygon(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value(), arg8.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 9);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GeometryRenderer_addPolygon)
+
+static bool js_pipeline_GeometryRenderer_addQuad(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GeometryRenderer>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GeometryRenderer_addQuad : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 5) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<cc::Vec3, true> arg1 = {};
+        HolderType<cc::Vec3, true> arg2 = {};
+        HolderType<cc::Vec3, true> arg3 = {};
+        HolderType<cc::gfx::Color, false> arg4 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addQuad : Error processing arguments");
+        cobj->addQuad(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value());
+        return true;
+    }
+    if (argc == 6) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<cc::Vec3, true> arg1 = {};
+        HolderType<cc::Vec3, true> arg2 = {};
+        HolderType<cc::Vec3, true> arg3 = {};
+        HolderType<cc::gfx::Color, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addQuad : Error processing arguments");
+        cobj->addQuad(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
+        return true;
+    }
+    if (argc == 7) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<cc::Vec3, true> arg1 = {};
+        HolderType<cc::Vec3, true> arg2 = {};
+        HolderType<cc::Vec3, true> arg3 = {};
+        HolderType<cc::gfx::Color, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addQuad : Error processing arguments");
+        cobj->addQuad(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value());
+        return true;
+    }
+    if (argc == 8) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<cc::Vec3, true> arg1 = {};
+        HolderType<cc::Vec3, true> arg2 = {};
+        HolderType<cc::Vec3, true> arg3 = {};
+        HolderType<cc::gfx::Color, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        HolderType<bool, false> arg7 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addQuad : Error processing arguments");
+        cobj->addQuad(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 8);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GeometryRenderer_addQuad)
+
+static bool js_pipeline_GeometryRenderer_addSector(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GeometryRenderer>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GeometryRenderer_addSector : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 5) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<float, false> arg3 = {};
+        HolderType<float, false> arg4 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addSector : Error processing arguments");
+        cobj->addSector(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value());
+        return true;
+    }
+    if (argc == 6) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<float, false> arg3 = {};
+        HolderType<float, false> arg4 = {};
+        HolderType<unsigned int, false> arg5 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addSector : Error processing arguments");
+        cobj->addSector(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
+        return true;
+    }
+    if (argc == 7) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<float, false> arg3 = {};
+        HolderType<float, false> arg4 = {};
+        HolderType<unsigned int, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addSector : Error processing arguments");
+        cobj->addSector(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value());
+        return true;
+    }
+    if (argc == 8) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<float, false> arg3 = {};
+        HolderType<float, false> arg4 = {};
+        HolderType<unsigned int, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        HolderType<bool, false> arg7 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addSector : Error processing arguments");
+        cobj->addSector(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value());
+        return true;
+    }
+    if (argc == 9) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<float, false> arg3 = {};
+        HolderType<float, false> arg4 = {};
+        HolderType<unsigned int, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        HolderType<bool, false> arg7 = {};
+        HolderType<bool, false> arg8 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
+        ok &= sevalue_to_native(args[8], &arg8, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addSector : Error processing arguments");
+        cobj->addSector(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value(), arg8.value());
+        return true;
+    }
+    if (argc == 10) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<float, false> arg3 = {};
+        HolderType<float, false> arg4 = {};
+        HolderType<unsigned int, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        HolderType<bool, false> arg7 = {};
+        HolderType<bool, false> arg8 = {};
+        HolderType<bool, false> arg9 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
+        ok &= sevalue_to_native(args[8], &arg8, s.thisObject());
+        ok &= sevalue_to_native(args[9], &arg9, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addSector : Error processing arguments");
+        cobj->addSector(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value(), arg8.value(), arg9.value());
+        return true;
+    }
+    if (argc == 11) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<float, false> arg3 = {};
+        HolderType<float, false> arg4 = {};
+        HolderType<unsigned int, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        HolderType<bool, false> arg7 = {};
+        HolderType<bool, false> arg8 = {};
+        HolderType<bool, false> arg9 = {};
+        HolderType<cc::Mat4, true> arg10 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
+        ok &= sevalue_to_native(args[8], &arg8, s.thisObject());
+        ok &= sevalue_to_native(args[9], &arg9, s.thisObject());
+        ok &= sevalue_to_native(args[10], &arg10, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addSector : Error processing arguments");
+        cobj->addSector(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value(), arg8.value(), arg9.value(), arg10.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 11);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GeometryRenderer_addSector)
+
+static bool js_pipeline_GeometryRenderer_addSphere(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GeometryRenderer>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GeometryRenderer_addSphere : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 3) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addSphere : Error processing arguments");
+        cobj->addSphere(arg0.value(), arg1.value(), arg2.value());
+        return true;
+    }
+    if (argc == 4) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addSphere : Error processing arguments");
+        cobj->addSphere(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+        return true;
+    }
+    if (argc == 5) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addSphere : Error processing arguments");
+        cobj->addSphere(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value());
+        return true;
+    }
+    if (argc == 6) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addSphere : Error processing arguments");
+        cobj->addSphere(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
+        return true;
+    }
+    if (argc == 7) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addSphere : Error processing arguments");
+        cobj->addSphere(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value());
+        return true;
+    }
+    if (argc == 8) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        HolderType<bool, false> arg7 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addSphere : Error processing arguments");
+        cobj->addSphere(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value());
+        return true;
+    }
+    if (argc == 9) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        HolderType<bool, false> arg7 = {};
+        HolderType<bool, false> arg8 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
+        ok &= sevalue_to_native(args[8], &arg8, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addSphere : Error processing arguments");
+        cobj->addSphere(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value(), arg8.value());
+        return true;
+    }
+    if (argc == 10) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<cc::gfx::Color, false> arg2 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        HolderType<bool, false> arg7 = {};
+        HolderType<bool, false> arg8 = {};
+        HolderType<cc::Mat4, true> arg9 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
+        ok &= sevalue_to_native(args[8], &arg8, s.thisObject());
+        ok &= sevalue_to_native(args[9], &arg9, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addSphere : Error processing arguments");
+        cobj->addSphere(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value(), arg8.value(), arg9.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 10);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GeometryRenderer_addSphere)
+
+static bool js_pipeline_GeometryRenderer_addSpline(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GeometryRenderer>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GeometryRenderer_addSpline : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<cc::geometry::Spline, true> arg0 = {};
+        HolderType<cc::gfx::Color, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addSpline : Error processing arguments");
+        cobj->addSpline(arg0.value(), arg1.value());
+        return true;
+    }
+    if (argc == 3) {
+        HolderType<cc::geometry::Spline, true> arg0 = {};
+        HolderType<cc::gfx::Color, false> arg1 = {};
+        HolderType<unsigned int, false> arg2 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addSpline : Error processing arguments");
+        cobj->addSpline(arg0.value(), arg1.value(), arg2.value());
+        return true;
+    }
+    if (argc == 4) {
+        HolderType<cc::geometry::Spline, true> arg0 = {};
+        HolderType<cc::gfx::Color, false> arg1 = {};
+        HolderType<unsigned int, false> arg2 = {};
+        HolderType<float, false> arg3 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addSpline : Error processing arguments");
+        cobj->addSpline(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+        return true;
+    }
+    if (argc == 5) {
+        HolderType<cc::geometry::Spline, true> arg0 = {};
+        HolderType<cc::gfx::Color, false> arg1 = {};
+        HolderType<unsigned int, false> arg2 = {};
+        HolderType<float, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addSpline : Error processing arguments");
+        cobj->addSpline(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value());
+        return true;
+    }
+    if (argc == 6) {
+        HolderType<cc::geometry::Spline, true> arg0 = {};
+        HolderType<cc::gfx::Color, false> arg1 = {};
+        HolderType<unsigned int, false> arg2 = {};
+        HolderType<float, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addSpline : Error processing arguments");
+        cobj->addSpline(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GeometryRenderer_addSpline)
+
+static bool js_pipeline_GeometryRenderer_addTorus(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GeometryRenderer>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GeometryRenderer_addTorus : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 4) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addTorus : Error processing arguments");
+        cobj->addTorus(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+        return true;
+    }
+    if (argc == 5) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addTorus : Error processing arguments");
+        cobj->addTorus(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value());
+        return true;
+    }
+    if (argc == 6) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        HolderType<unsigned int, false> arg5 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addTorus : Error processing arguments");
+        cobj->addTorus(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
+        return true;
+    }
+    if (argc == 7) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        HolderType<unsigned int, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addTorus : Error processing arguments");
+        cobj->addTorus(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value());
+        return true;
+    }
+    if (argc == 8) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        HolderType<unsigned int, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        HolderType<bool, false> arg7 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addTorus : Error processing arguments");
+        cobj->addTorus(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value());
+        return true;
+    }
+    if (argc == 9) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        HolderType<unsigned int, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        HolderType<bool, false> arg7 = {};
+        HolderType<bool, false> arg8 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
+        ok &= sevalue_to_native(args[8], &arg8, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addTorus : Error processing arguments");
+        cobj->addTorus(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value(), arg8.value());
+        return true;
+    }
+    if (argc == 10) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        HolderType<unsigned int, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        HolderType<bool, false> arg7 = {};
+        HolderType<bool, false> arg8 = {};
+        HolderType<bool, false> arg9 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
+        ok &= sevalue_to_native(args[8], &arg8, s.thisObject());
+        ok &= sevalue_to_native(args[9], &arg9, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addTorus : Error processing arguments");
+        cobj->addTorus(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value(), arg8.value(), arg9.value());
+        return true;
+    }
+    if (argc == 11) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        HolderType<unsigned int, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        HolderType<bool, false> arg7 = {};
+        HolderType<bool, false> arg8 = {};
+        HolderType<bool, false> arg9 = {};
+        HolderType<cc::Mat4, true> arg10 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
+        ok &= sevalue_to_native(args[8], &arg8, s.thisObject());
+        ok &= sevalue_to_native(args[9], &arg9, s.thisObject());
+        ok &= sevalue_to_native(args[10], &arg10, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addTorus : Error processing arguments");
+        cobj->addTorus(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value(), arg8.value(), arg9.value(), arg10.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 11);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GeometryRenderer_addTorus)
+
+static bool js_pipeline_GeometryRenderer_addTriangle(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GeometryRenderer>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GeometryRenderer_addTriangle : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 4) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<cc::Vec3, true> arg1 = {};
+        HolderType<cc::Vec3, true> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addTriangle : Error processing arguments");
+        cobj->addTriangle(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+        return true;
+    }
+    if (argc == 5) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<cc::Vec3, true> arg1 = {};
+        HolderType<cc::Vec3, true> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<bool, false> arg4 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addTriangle : Error processing arguments");
+        cobj->addTriangle(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value());
+        return true;
+    }
+    if (argc == 6) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<cc::Vec3, true> arg1 = {};
+        HolderType<cc::Vec3, true> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<bool, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addTriangle : Error processing arguments");
+        cobj->addTriangle(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
+        return true;
+    }
+    if (argc == 7) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        HolderType<cc::Vec3, true> arg1 = {};
+        HolderType<cc::Vec3, true> arg2 = {};
+        HolderType<cc::gfx::Color, false> arg3 = {};
+        HolderType<bool, false> arg4 = {};
+        HolderType<bool, false> arg5 = {};
+        HolderType<bool, false> arg6 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_addTriangle : Error processing arguments");
+        cobj->addTriangle(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 7);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GeometryRenderer_addTriangle)
+
+static bool js_pipeline_GeometryRenderer_empty(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GeometryRenderer>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GeometryRenderer_empty : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->empty();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_empty : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GeometryRenderer_empty)
+
 SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_GeometryRenderer_finalize)
 
 static bool js_pipeline_GeometryRenderer_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
@@ -4570,6 +6907,32 @@ bool js_register_pipeline_GeometryRenderer(se::Object* obj) // NOLINT(readabilit
 {
     auto* cls = se::Class::create("GeometryRenderer", obj, nullptr, _SE(js_pipeline_GeometryRenderer_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_pipeline_getter_return_true), nullptr);
+#endif
+    cls->defineFunction("addArc", _SE(js_pipeline_GeometryRenderer_addArc));
+    cls->defineFunction("addBezier", _SE(js_pipeline_GeometryRenderer_addBezier));
+    cls->defineFunction("addBoundingBox", _SE(js_pipeline_GeometryRenderer_addBoundingBox));
+    cls->defineFunction("addCapsule", _SE(js_pipeline_GeometryRenderer_addCapsule));
+    cls->defineFunction("addCircle", _SE(js_pipeline_GeometryRenderer_addCircle));
+    cls->defineFunction("addCone", _SE(js_pipeline_GeometryRenderer_addCone));
+    cls->defineFunction("addCross", _SE(js_pipeline_GeometryRenderer_addCross));
+    cls->defineFunction("addCylinder", _SE(js_pipeline_GeometryRenderer_addCylinder));
+    cls->defineFunction("addDashedLine", _SE(js_pipeline_GeometryRenderer_addDashedLine));
+    cls->defineFunction("addDisc", _SE(js_pipeline_GeometryRenderer_addDisc));
+    cls->defineFunction("addFrustum", _SE(js_pipeline_GeometryRenderer_addFrustum));
+    cls->defineFunction("addIndexedMesh", _SE(js_pipeline_GeometryRenderer_addIndexedMesh));
+    cls->defineFunction("addLine", _SE(js_pipeline_GeometryRenderer_addLine));
+    cls->defineFunction("addMesh", _SE(js_pipeline_GeometryRenderer_addMesh));
+    cls->defineFunction("addOctahedron", _SE(js_pipeline_GeometryRenderer_addOctahedron));
+    cls->defineFunction("addPolygon", _SE(js_pipeline_GeometryRenderer_addPolygon));
+    cls->defineFunction("addQuad", _SE(js_pipeline_GeometryRenderer_addQuad));
+    cls->defineFunction("addSector", _SE(js_pipeline_GeometryRenderer_addSector));
+    cls->defineFunction("addSphere", _SE(js_pipeline_GeometryRenderer_addSphere));
+    cls->defineFunction("addSpline", _SE(js_pipeline_GeometryRenderer_addSpline));
+    cls->defineFunction("addTorus", _SE(js_pipeline_GeometryRenderer_addTorus));
+    cls->defineFunction("addTriangle", _SE(js_pipeline_GeometryRenderer_addTriangle));
+    cls->defineFunction("empty", _SE(js_pipeline_GeometryRenderer_empty));
     cls->defineFinalizeFunction(_SE(js_cc_pipeline_GeometryRenderer_finalize));
     cls->install();
     JSBClassType::registerClass<cc::pipeline::GeometryRenderer>(cls);

@@ -28,7 +28,7 @@
 
 namespace cc {
 
-std::unordered_map<int, std::string> debugInfos = {
+ccstd::unordered_map<int, ccstd::string> debugInfos = {
 { 0100, "%s not yet implemented." },
 { 0200, "You should specify a valid DOM canvas element." },
 { 1006, "[Action step]. override me" },
@@ -102,6 +102,7 @@ std::unordered_map<int, std::string> debugInfos = {
 { 3121, "Can't find a texture format supported by the current platform! Please add a fallback format in the editor." },
 { 3122, "Error Texture in %s." },
 { 3123, "Set same texture %s." },
+{ 3124, "Texture: setMipRange failed because base level is larger than max level" },
 { 3300, "Rect width exceeds maximum margin: %s" },
 { 3301, "Rect height exceeds maximum margin: %s" },
 { 3500, "0 priority is forbidden for fixed priority since it's used for scene graph based priority." },
@@ -191,7 +192,7 @@ std::unordered_map<int, std::string> debugInfos = {
 { 3904, "motion path of target [%s] in prop [%s] frame [%s] is not valid" },
 { 3905, "sprite frames must be an Array." },
 { 3906, "Can't find easing type [%s]" },
-{ 3907, "animator not added or already removed" },
+{ 3907, "Animation state is not playing or already removed" },
 { 3912, "already-playing" },
 { 3920, "Current context does not allow root motion." },
 { 3921, "You provided a ill-formed track path. The last component of track path should be property key, or the setter should not be empty." },
@@ -436,6 +437,12 @@ std::unordered_map<int, std::string> debugInfos = {
 { 14100, "Pool.destroy no longer take a function as parameter, Please specify destruct function in the construction of Pool instead" },
 { 14200, "Can not update a static mesh." },
 { 14201, "The primitiveIndex is out of range." },
+{ 14300, "Can not keep world transform due to the zero scaling of parent node" },
+{ 14400, "Spline error: less than 2 knots." },
+{ 14401, "Spline error: less than 4 knots or not a multiple of 4.\n\n<!-- Rendering algorithm reserved: 15000 - 16000 -->" },
+{ 15000, "Can not find corresponding diffuse map for environment lighting, use hemisphere diffuse instead, change environment lighting type to regenerate diffuse map" },
+{ 15001, "Can not find environment map, disable IBL lighting" },
+{ 15002, "Diffuse map resource is missing, please change environment lighting type to regenerate resource" },
 
 };
 }//namespace cc

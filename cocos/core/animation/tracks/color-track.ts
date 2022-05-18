@@ -23,6 +23,9 @@ export class ColorTrack extends Track {
         return this._channels;
     }
 
+    /**
+     * @internal
+     */
     public [createEvalSymbol] () {
         return new ColorTrackEval(
             maskIfEmpty(this._channels[0].curve),

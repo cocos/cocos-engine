@@ -25,7 +25,16 @@
 
 package com.cocos.lib;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
+
+import org.cocos2dx.okhttp3.Call;
+import org.cocos2dx.okhttp3.Callback;
+import org.cocos2dx.okhttp3.Dispatcher;
+import org.cocos2dx.okhttp3.OkHttpClient;
+import org.cocos2dx.okhttp3.Request;
+import org.cocos2dx.okhttp3.Response;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -46,23 +55,18 @@ import java.util.concurrent.TimeUnit;
 // Rename package okhttp3 to org.cocos2dx.okhttp3
 // Github repo: https://github.com/PatriceJiang/okhttp/tree/cocos2dx-rename-3.12.x
 // and https://github.com/PatriceJiang/okio/tree/cocos2dx-rename-1.15.0
-import org.cocos2dx.okhttp3.Call;
-import org.cocos2dx.okhttp3.Callback;
-import org.cocos2dx.okhttp3.OkHttpClient;
-import org.cocos2dx.okhttp3.Request;
-import org.cocos2dx.okhttp3.Response;
 
 public class CocosDownloader {
 
     private int _id;
     private OkHttpClient _httpClient = null;
+    private static Dispatcher dispatcher = null;
 
     private String _tempFileNameSuffix;
     private int _countOfMaxProcessingTasks;
     private ConcurrentHashMap<Integer,Call> _taskMap = new ConcurrentHashMap<>();
     private Queue<Runnable> _taskQueue = new LinkedList<>();
     private int _runningTaskCount = 0;
-    private static ConcurrentHashMap<String, Boolean> _resumingSupport = new ConcurrentHashMap<>();
 
     private void onProgress(final int id, final long downloadBytes, final long downloadNow, final long downloadTotal) {
         CocosHelper.runOnGameThread(new Runnable() {
@@ -91,14 +95,20 @@ public class CocosDownloader {
         CocosDownloader downloader = new CocosDownloader();
         downloader._id = id;
 
+        if(dispatcher == null) {
+            dispatcher = new Dispatcher();
+        }
+
         if (timeoutInSeconds > 0) {
             downloader._httpClient = new OkHttpClient().newBuilder()
+                    .dispatcher(dispatcher)
                     .followRedirects(true)
                     .followSslRedirects(true)
                     .callTimeout(timeoutInSeconds, TimeUnit.SECONDS)
                     .build();
         } else {
             downloader._httpClient = new OkHttpClient().newBuilder()
+                    .dispatcher(dispatcher)
                     .followRedirects(true)
                     .followSslRedirects(true)
                     .build();
@@ -114,6 +124,8 @@ public class CocosDownloader {
         final int id = id_;
         final String url = url_;
         final String path = path_;
+        final String pathWithUrlHash = path + url.hashCode();
+        final String tempFilePath = pathWithUrlHash + downloader._tempFileNameSuffix;
         final String[] header = header_;
 
         Runnable taskRunnable = new Runnable() {
@@ -141,7 +153,7 @@ public class CocosDownloader {
                         }
 
                         // file task
-                        tempFile = new File(path + downloader._tempFileNameSuffix);
+                        tempFile = new File(tempFilePath);
                         if (tempFile.isDirectory()) break;
 
                         File parent = tempFile.getParentFile();
@@ -153,7 +165,8 @@ public class CocosDownloader {
 
                         host = domain.startsWith("www.") ? domain.substring(4) : domain;
                         if (fileLen > 0) {
-                            if (_resumingSupport.containsKey(host) && _resumingSupport.get(host)) {
+                            SharedPreferences sharedPreferences = GlobalObject.getActivity().getSharedPreferences("breakpointDownloadSupport", Context.MODE_PRIVATE);
+                            if (sharedPreferences.contains(host) && sharedPreferences.getBoolean(host, false)) {
                                 downloadStart = fileLen;
                             } else {
                                 // Remove previous downloaded context
@@ -179,6 +192,17 @@ public class CocosDownloader {
 
                     final Request request = builder.build();
                     task = downloader._httpClient.newCall(request);
+                    if (null == task) {
+                        final String errStr = "Can't create DownloadTask for " + url;
+                        CocosHelper.runOnGameThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                downloader.nativeOnFinish(downloader._id, id, 0, errStr, null);
+                            }
+                        });
+                    } else {
+                        downloader._taskMap.put(id, task);
+                    }
                     task.enqueue(new Callback() {
                         @Override
                         public void onFailure(Call call, IOException e) {
@@ -196,22 +220,27 @@ public class CocosDownloader {
                                 if(!(response.code() >= 200 && response.code() <= 206)) {
                                     // it is encourage to delete the tmp file when requested range not satisfiable.
                                     if (response.code() == 416) {
-                                        File file = new File(path + downloader._tempFileNameSuffix);
+                                        File file = new File(tempFilePath);
                                         if (file.exists() && file.isFile()) {
                                             file.delete();
                                         }
-                                    } 
+                                    }
                                     downloader.onFinish(id, -2, response.message(), null);
                                     return;
                                 }
 
+                                // save breakpointDownloadSupport Data to SharedPreferences storage
+                                Context context = GlobalObject.getActivity();
+                                SharedPreferences sharedPreferences = context.getSharedPreferences("breakpointDownloadSupport", Context.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
                                 long total = response.body().contentLength();
-                                if (path.length() > 0 && !_resumingSupport.containsKey(host)) {
+                                if (path.length() > 0 && !sharedPreferences.contains(host)) {
                                     if (total > 0) {
-                                        _resumingSupport.put(host, true);
+                                        editor.putBoolean(host, true);
                                     } else {
-                                        _resumingSupport.put(host, false);
+                                        editor.putBoolean(host, false);
                                     }
+                                    editor.commit();
                                 }
 
                                 long current = downloadStart;
@@ -250,11 +279,15 @@ public class CocosDownloader {
                                     if (errStr == null) {
                                         downloader.onFinish(id, 0, null, null);
                                         downloader.runNextTaskIfExists();
-                                    }
-                                    else
+                                    } else {
                                         downloader.onFinish(id, 0, errStr, null);
+                                    }
+                                    if (sharedPreferences.contains(host)) {
+                                        editor.remove(host);
+                                        editor.commit();
+                                    }
                                 } else {
-                                    // 非文件
+                                    // non-file
                                     ByteArrayOutputStream buffer;
                                     if(total > 0) {
                                         buffer = new ByteArrayOutputStream((int) total);
@@ -289,18 +322,6 @@ public class CocosDownloader {
                         }
                     });
                 } while (false);
-
-                if (null == task) {
-                    final String errStr = "Can't create DownloadTask for " + url;
-                    CocosHelper.runOnGameThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            downloader.nativeOnFinish(downloader._id, id, 0, errStr, null);
-                        }
-                    });
-                } else {
-                    downloader._taskMap.put(id, task);
-                }
             }
         };
         downloader.enqueueTask(taskRunnable);
@@ -355,9 +376,9 @@ public class CocosDownloader {
 
     private void runNextTaskIfExists() {
         synchronized (_taskQueue) {
-            while (_runningTaskCount < _countOfMaxProcessingTasks && 
+            while (_runningTaskCount < _countOfMaxProcessingTasks &&
                 CocosDownloader.this._taskQueue.size() > 0) {
-                
+
                 Runnable taskRunnable = CocosDownloader.this._taskQueue.poll();
                 GlobalObject.getActivity().runOnUiThread(taskRunnable);
                 _runningTaskCount += 1;

@@ -25,12 +25,12 @@ THE SOFTWARE.
 
 #define LOG_TAG "AudioMixerController"
 
+#include <algorithm>
 #include "audio/android/AudioMixerController.h"
 #include "audio/android/AudioMixer.h"
-#include "audio/android/Track.h"
 #include "audio/android/OpenSLHelper.h"
-
-#include <algorithm>
+#include "audio/android/Track.h"
+#include "base/memory/Memory.h"
 
 namespace cc {
 
@@ -57,7 +57,7 @@ AudioMixerController::~AudioMixerController() {
 }
 
 bool AudioMixerController::init() {
-    _mixer = new (std::nothrow) AudioMixer(_bufferSizeInFrames, _sampleRate);
+    _mixer = ccnew AudioMixer(_bufferSizeInFrames, _sampleRate);
     return _mixer != nullptr;
 }
 
@@ -77,14 +77,14 @@ bool AudioMixerController::addTrack(Track *track) {
 }
 
 template <typename T>
-static void removeItemFromVector(std::vector<T> &v, T item) {
+static void removeItemFromVector(ccstd::vector<T> &v, T item) {
     auto iter = std::find(v.begin(), v.end(), item);
     if (iter != v.end()) {
         v.erase(iter);
     }
 }
 
-void AudioMixerController::initTrack(Track *track, std::vector<Track *> &tracksToRemove) {
+void AudioMixerController::initTrack(Track *track, ccstd::vector<Track *> &tracksToRemove) {
     if (track->isInitialized())
         return;
 
@@ -142,7 +142,7 @@ void AudioMixerController::mixOneFrame() {
 
     auto mixStart = clockNow();
 
-    std::vector<Track *> tracksToRemove;
+    ccstd::vector<Track *> tracksToRemove;
     tracksToRemove.reserve(_activeTracks.size());
 
     // FOR TESTING BEGIN

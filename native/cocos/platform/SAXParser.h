@@ -30,8 +30,8 @@
 #define __CCSAXPARSER_H__
 /// @cond DO_NOT_SHOW
 
-#include <string>
 #include "base/Macros.h"
+#include "base/std/container/string.h"
 
 namespace cc {
 
@@ -91,7 +91,7 @@ public:
      * @js NA
      * @lua NA
      */
-    bool parse(const std::string &filename);
+    bool parse(const ccstd::string &filename);
     /**
      * @js NA
      * @lua NA

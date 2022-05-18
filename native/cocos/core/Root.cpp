@@ -24,17 +24,17 @@
  ****************************************************************************/
 
 #include "core/Root.h"
-// #include "core/Director.h"
 #include "core/event/CallbacksInvoker.h"
 #include "core/event/EventTypesToJS.h"
+#include "profiler/Profiler.h"
 #include "renderer/gfx-base/GFXDef.h"
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/gfx-base/GFXSwapchain.h"
 #include "renderer/pipeline/PipelineSceneData.h"
+#include "renderer/pipeline/custom/NativePipelineTypes.h"
+#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "renderer/pipeline/deferred/DeferredPipeline.h"
 #include "renderer/pipeline/forward/ForwardPipeline.h"
-#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
-#include "renderer/pipeline/custom/NativePipelineTypes.h"
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/DrawBatch2D.h"
@@ -52,12 +52,10 @@ Root *Root::getInstance() {
 
 Root::Root(gfx::Device *device)
 : _device(device) {
-    instance        = this;
+    instance = this;
     _eventProcessor = new CallbacksInvoker();
     // TODO(minggo):
     //    this._dataPoolMgr = legacyCC.internal.DataPoolManager && new legacyCC.internal.DataPoolManager(device) as DataPoolManager;
-    _cameraPool = new memop::Pool<scene::Camera>([this]() { return new scene::Camera(_device); },
-                                                 4);
 
     _cameraList.reserve(6);
     _swapchains.reserve(2);
@@ -65,7 +63,6 @@ Root::Root(gfx::Device *device)
 
 Root::~Root() {
     instance = nullptr;
-    delete _cameraPool;
     CC_SAFE_DELETE(_eventProcessor);
 }
 
@@ -78,18 +75,18 @@ void Root::initialize(gfx::Swapchain *swapchain) {
     colorAttachment.format = swapchain->getColorTexture()->getFormat();
     renderPassInfo.colorAttachments.emplace_back(colorAttachment);
 
-    auto &depthStencilAttachment          = renderPassInfo.depthStencilAttachment;
-    depthStencilAttachment.format         = swapchain->getDepthStencilTexture()->getFormat();
-    depthStencilAttachment.depthStoreOp   = gfx::StoreOp::DISCARD;
+    auto &depthStencilAttachment = renderPassInfo.depthStencilAttachment;
+    depthStencilAttachment.format = swapchain->getDepthStencilTexture()->getFormat();
+    depthStencilAttachment.depthStoreOp = gfx::StoreOp::DISCARD;
     depthStencilAttachment.stencilStoreOp = gfx::StoreOp::DISCARD;
 
     scene::IRenderWindowInfo info;
-    info.title          = std::string{"rootMainWindow"};
-    info.width          = swapchain->getWidth();
-    info.height         = swapchain->getHeight();
+    info.title = ccstd::string{"rootMainWindow"};
+    info.width = swapchain->getWidth();
+    info.height = swapchain->getHeight();
     info.renderPassInfo = renderPassInfo;
-    info.swapchain      = swapchain;
-    _mainWindow         = createWindow(info);
+    info.swapchain = swapchain;
+    _mainWindow = createWindow(info);
 
     _curWindow = _mainWindow;
 
@@ -134,7 +131,7 @@ public:
     bool destroy() noexcept override {
         return pipeline->destroy();
     }
-    void render(const std::vector<scene::Camera *> &cameras) override {
+    void render(const ccstd::vector<scene::Camera *> &cameras) override {
         pipeline->render(cameras);
     }
     const MacroRecord &getMacros() const override {
@@ -149,7 +146,7 @@ public:
     pipeline::PipelineSceneData *getPipelineSceneData() const override {
         return pipeline->getPipelineSceneData();
     }
-    const std::string &getConstantMacros() const override {
+    const ccstd::string &getConstantMacros() const override {
         return pipeline->getConstantMacros();
     }
     scene::Model *getProfiler() const override {
@@ -167,11 +164,14 @@ public:
     void onGlobalPipelineStateChanged() override {
         pipeline->onGlobalPipelineStateChanged();
     }
-    void setValue(const std::string &name, int32_t value) override {
+    void setValue(const ccstd::string &name, int32_t value) override {
         pipeline->setValue(name, value);
     }
-    void setValue(const std::string &name, bool value) override {
+    void setValue(const ccstd::string &name, bool value) override {
         pipeline->setValue(name, value);
+    }
+    bool isOcclusionQueryEnabled() const override {
+        return pipeline->isOcclusionQueryEnabled();
     }
     pipeline::RenderPipeline *pipeline = nullptr;
 };
@@ -186,7 +186,7 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
 
         bool isCreateDefaultPipeline{false};
         if (!rppl) {
-            rppl = new pipeline::ForwardPipeline();
+            rppl = ccnew pipeline::ForwardPipeline();
             rppl->initialize({});
             isCreateDefaultPipeline = true;
         }
@@ -210,7 +210,8 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
             return false;
         }
     } else {
-        _pipelineRuntime = std::make_unique<render::NativePipeline>();
+        _pipelineRuntime = std::make_unique<render::NativePipeline>(
+            boost::container::pmr::get_default_resource());
         if (!_pipelineRuntime->activate(_mainWindow->getSwapchain())) {
             _pipelineRuntime->destroy();
             _pipelineRuntime.reset();
@@ -229,7 +230,7 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
     _eventProcessor->emit(EventTypesToJS::ROOT_BATCH2D_INIT, this);
     // TODO(minggo):
     //    if (!_batcher) {
-    //        _batcher = new Batcher2D(this);
+    //        _batcher = ccnew Batcher2D(this);
     //        if (!this._batcher.initialize()) {
     //            this.destroy();
     //            return false;
@@ -256,15 +257,21 @@ void Root::resetCumulativeTime() {
 }
 
 void Root::frameMove(float deltaTime, int32_t totalFrames) {
+    if (!cc::gfx::Device::getInstance()->isRendererAvailable()) {
+        return;
+    }
+
+    CCObject::deferredDestroy();
+
     _frameTime = deltaTime;
 
     ++_frameCount;
     _cumulativeTime += deltaTime;
     _fpsTime += deltaTime;
     if (_fpsTime > 1.0F) {
-        _fps        = _frameCount;
+        _fps = _frameCount;
         _frameCount = 0;
-        _fpsTime    = 0.0;
+        _fpsTime = 0.0;
     }
 
     for (const auto &scene : _scenes) {
@@ -300,6 +307,8 @@ void Root::frameMove(float deltaTime, int32_t totalFrames) {
             scene->update(stamp);
         }
 
+        CC_PROFILER_UPDATE;
+
         _eventProcessor->emit(EventTypesToJS::DIRECTOR_BEFORE_COMMIT, this);
 
         std::stable_sort(_cameraList.begin(), _cameraList.end(), [](const auto *a, const auto *b) {
@@ -314,7 +323,7 @@ void Root::frameMove(float deltaTime, int32_t totalFrames) {
 }
 
 scene::RenderWindow *Root::createWindow(scene::IRenderWindowInfo &info) {
-    IntrusivePtr<scene::RenderWindow> window = new scene::RenderWindow();
+    IntrusivePtr<scene::RenderWindow> window = ccnew scene::RenderWindow();
 
     window->initialize(_device, info);
     _windows.emplace_back(window);
@@ -337,7 +346,7 @@ void Root::destroyWindows() {
 }
 
 scene::RenderScene *Root::createScene(const scene::IRenderSceneInfo &info) {
-    IntrusivePtr<scene::RenderScene> scene = new scene::RenderScene();
+    IntrusivePtr<scene::RenderScene> scene = ccnew scene::RenderScene();
     scene->initialize(info);
     _scenes.emplace_back(scene);
     return scene.get();
@@ -366,7 +375,7 @@ void Root::destroyLight(scene::Light *light) { // NOLINT(readability-convert-mem
     if (light == nullptr) {
         return;
     }
-    
+
     if (light->getScene() != nullptr) {
         if (light->getType() == scene::LightType::DIRECTIONAL) {
             light->getScene()->removeDirectionalLight(static_cast<scene::DirectionalLight *>(light));
@@ -380,7 +389,7 @@ void Root::destroyLight(scene::Light *light) { // NOLINT(readability-convert-mem
 }
 
 scene::Camera *Root::createCamera() const {
-    return new scene::Camera(_device);
+    return ccnew scene::Camera(_device);
 }
 
 void Root::destroyScenes() {

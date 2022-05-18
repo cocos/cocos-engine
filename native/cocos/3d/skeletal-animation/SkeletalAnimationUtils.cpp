@@ -40,25 +40,25 @@ cc::gfx::Format selectJointsMediumFormat(cc::gfx::Device *device) {
 
 // Linear Blending Skinning
 void uploadJointDataLBS(cc::Float32Array out, uint32_t base, const cc::Mat4 &mat, bool /*firstBone*/) {
-    out[base + 0]  = mat.m[0];
-    out[base + 1]  = mat.m[1];
-    out[base + 2]  = mat.m[2];
-    out[base + 3]  = mat.m[12];
-    out[base + 4]  = mat.m[4];
-    out[base + 5]  = mat.m[5];
-    out[base + 6]  = mat.m[6];
-    out[base + 7]  = mat.m[13];
-    out[base + 8]  = mat.m[8];
-    out[base + 9]  = mat.m[9];
+    out[base + 0] = mat.m[0];
+    out[base + 1] = mat.m[1];
+    out[base + 2] = mat.m[2];
+    out[base + 3] = mat.m[12];
+    out[base + 4] = mat.m[4];
+    out[base + 5] = mat.m[5];
+    out[base + 6] = mat.m[6];
+    out[base + 7] = mat.m[13];
+    out[base + 8] = mat.m[8];
+    out[base + 9] = mat.m[9];
     out[base + 10] = mat.m[10];
     out[base + 11] = mat.m[14];
 }
 
 cc::Quaternion dq0;
 cc::Quaternion dq1;
-cc::Vec3       v31;
+cc::Vec3 v31;
 cc::Quaternion qt1;
-cc::Vec3       v32;
+cc::Vec3 v32;
 
 float dot(const cc::Quaternion &a, const cc::Quaternion &b) {
     return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
@@ -87,22 +87,22 @@ void uploadJointDataDQS(cc::Float32Array out, uint32_t base, cc::Mat4 &mat, bool
     dq1.w = 0;
     multiplyScalar(dq1 * qt1, 0.5, &dq1);
     // upload
-    out[base + 0]  = qt1.x;
-    out[base + 1]  = qt1.y;
-    out[base + 2]  = qt1.z;
-    out[base + 3]  = qt1.w;
-    out[base + 4]  = dq1.x;
-    out[base + 5]  = dq1.y;
-    out[base + 6]  = dq1.z;
-    out[base + 7]  = dq1.w;
-    out[base + 8]  = v32.x;
-    out[base + 9]  = v32.y;
+    out[base + 0] = qt1.x;
+    out[base + 1] = qt1.y;
+    out[base + 2] = qt1.z;
+    out[base + 3] = qt1.w;
+    out[base + 4] = dq1.x;
+    out[base + 5] = dq1.y;
+    out[base + 6] = dq1.z;
+    out[base + 7] = dq1.w;
+    out[base + 8] = v32.x;
+    out[base + 9] = v32.y;
     out[base + 10] = v32.z;
 }
 
 // change here and cc-skinning.chunk to use other skinning algorithms
 constexpr auto UPLOAD_JOINT_DATA = uploadJointDataLBS;
-#ifdef CC_EDITOR
+#if CC_EDITOR
 const uint32_t MINIMUM_JOINT_TEXTURE_SIZE = 2040;
 #else
 const uint32_t MINIMUM_JOINT_TEXTURE_SIZE = 480; // have to be multiples of 12
@@ -136,18 +136,18 @@ cc::Mat4 *getWorldTransformUntilRoot(cc::Node *target, cc::Node *root, cc::Mat4 
 } // namespace
 namespace cc {
 JointTexturePool::JointTexturePool(gfx::Device *device) {
-    _device            = device;
+    _device = device;
     const auto &format = selectJointsMediumFormat(_device);
-    _formatSize        = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size;
-    _pixelsPerJoint    = 48 / _formatSize;
-    _pool              = new TextureBufferPool(device);
+    _formatSize = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size;
+    _pixelsPerJoint = 48 / _formatSize;
+    _pool = ccnew TextureBufferPool(device);
     ITextureBufferPoolInfo poolInfo;
-    poolInfo.format    = format;
+    poolInfo.format = format;
     poolInfo.roundUpFn = roundUpType{roundUpTextureSize};
     _pool->initialize(poolInfo);
-    _customPool = new TextureBufferPool(device);
+    _customPool = ccnew TextureBufferPool(device);
     ITextureBufferPoolInfo customPoolInfo;
-    customPoolInfo.format    = format;
+    customPoolInfo.format = format;
     customPoolInfo.roundUpFn = roundUpType{roundUpTextureSize};
     _customPool->initialize(customPoolInfo);
 }
@@ -157,11 +157,11 @@ void JointTexturePool::clear() {
     _textureBuffers.clear();
 }
 
-void JointTexturePool::registerCustomTextureLayouts(const std::vector<ICustomJointTextureLayout> &layouts) {
+void JointTexturePool::registerCustomTextureLayouts(const ccstd::vector<ICustomJointTextureLayout> &layouts) {
     for (const auto &layout : layouts) {
         auto chunkIdx = static_cast<index_t>(_customPool->createChunk(layout.textureLength));
         for (const auto &content : layout.contents) {
-            auto skeleton          = content.skeleton;
+            auto skeleton = content.skeleton;
             _chunkIdxMap[skeleton] = chunkIdx; // include default pose too
             for (const auto &clip : content.clips) {
                 _chunkIdxMap[skeleton ^ clip] = chunkIdx;
@@ -171,19 +171,19 @@ void JointTexturePool::registerCustomTextureLayouts(const std::vector<ICustomJoi
 }
 
 cc::optional<IJointTextureHandle *> JointTexturePool::getDefaultPoseTexture(Skeleton *skeleton, Mesh *mesh, Node *skinningRoot) {
-    uint64_t                            hash = skeleton->getHash() ^ 0; // may not equal to skeleton.hash
+    uint64_t hash = skeleton->getHash() ^ 0; // may not equal to skeleton.hash
     cc::optional<IJointTextureHandle *> texture;
     if (_textureBuffers.find(hash) != _textureBuffers.end()) {
         texture = _textureBuffers[hash];
     }
 
-    const std::vector<std::string> &joints    = skeleton->getJoints();
-    const std::vector<Mat4> &       bindPoses = skeleton->getBindposes();
-    Float32Array                    textureBuffer;
-    bool                            buildTexture = false;
-    auto                            jointCount   = static_cast<uint32_t>(joints.size());
+    const ccstd::vector<ccstd::string> &joints = skeleton->getJoints();
+    const ccstd::vector<Mat4> &bindPoses = skeleton->getBindposes();
+    Float32Array textureBuffer;
+    bool buildTexture = false;
+    auto jointCount = static_cast<uint32_t>(joints.size());
     if (!texture.has_value()) {
-        uint32_t             bufSize = jointCount * 12;
+        uint32_t bufSize = jointCount * 12;
         ITextureBufferHandle handle;
         if (_chunkIdxMap.find(hash) != _chunkIdxMap.end()) {
             handle = _customPool->alloc(bufSize * Float32Array::BYTES_PER_ELEMENT, _chunkIdxMap[hash]);
@@ -192,29 +192,29 @@ cc::optional<IJointTextureHandle *> JointTexturePool::getDefaultPoseTexture(Skel
             return texture;
         }
         IJointTextureHandle *textureHandle = IJointTextureHandle::createJoinTextureHandle();
-        textureHandle->pixelOffset         = handle.start / _formatSize;
-        textureHandle->refCount            = 1;
-        textureHandle->clipHash            = 0;
-        textureHandle->skeletonHash        = skeleton->getHash();
-        textureHandle->readyToBeDeleted    = false;
-        textureHandle->handle              = handle;
-        texture                            = textureHandle;
-        textureBuffer                      = Float32Array(bufSize);
-        buildTexture                       = true;
+        textureHandle->pixelOffset = handle.start / _formatSize;
+        textureHandle->refCount = 1;
+        textureHandle->clipHash = 0;
+        textureHandle->skeletonHash = skeleton->getHash();
+        textureHandle->readyToBeDeleted = false;
+        textureHandle->handle = handle;
+        texture = textureHandle;
+        textureBuffer = Float32Array(bufSize);
+        buildTexture = true;
     } else {
         texture.value()->refCount++;
     }
 
     geometry::AABB ab1;
-    Mat4           mat4;
-    Vec3           v34;
-    Vec3           v33;
-    Vec3           v3Min(-INF, -INF, -INF);
-    Vec3           v3Max(-INF, -INF, -INF);
-    auto           boneSpaceBounds = mesh->getBoneSpaceBounds(skeleton);
+    Mat4 mat4;
+    Vec3 v34;
+    Vec3 v33;
+    Vec3 v3Min(-INF, -INF, -INF);
+    Vec3 v3Max(-INF, -INF, -INF);
+    auto boneSpaceBounds = mesh->getBoneSpaceBounds(skeleton);
     for (uint32_t j = 0, offset = 0; j < jointCount; ++j, offset += 12) {
         auto *node = skinningRoot->getChildByPath(joints[j]);
-        Mat4  mat  = node ? *getWorldTransformUntilRoot(node, skinningRoot, &mat4) : skeleton->getInverseBindposes()[j];
+        Mat4 mat = node ? *getWorldTransformUntilRoot(node, skinningRoot, &mat4) : skeleton->getInverseBindposes()[j];
         if (j < boneSpaceBounds.size()) {
             auto *bound = boneSpaceBounds[j].get();
             bound->transform(mat, &ab1);
@@ -231,7 +231,7 @@ cc::optional<IJointTextureHandle *> JointTexturePool::getDefaultPoseTexture(Skel
         }
     }
 
-    std::vector<geometry::AABB> bounds;
+    ccstd::vector<geometry::AABB> bounds;
     texture.value()->bounds[static_cast<uint32_t>(mesh->getHash())] = bounds;
     geometry::AABB::fromPoints(v3Min, v3Max, &bounds[0]);
     if (buildTexture) {
@@ -253,8 +253,8 @@ cc::optional<IJointTextureHandle *> JointTexturePool::getDefaultPoseTexture(Skel
 //             return texture;
 //         }
 //     }
-//     const std::vector<std::string> &joints    = skeleton->getJoints();
-//     const std::vector<Mat4> &       bindPoses = skeleton->getBindposes();
+//     const ccstd::vector<ccstd::string> &joints    = skeleton->getJoints();
+//     const ccstd::vector<Mat4> &       bindPoses = skeleton->getBindposes();
 //     // const clipData = SkelAnimDataHub.getOrExtract(clip);
 //     // const { frames } = clipData;
 //     Float32Array textureBuffer;
@@ -286,7 +286,7 @@ cc::optional<IJointTextureHandle *> JointTexturePool::getDefaultPoseTexture(Skel
 //         texture->refCount++;
 //     }
 //     auto                        boneSpaceBounds = mesh->getBoneSpaceBounds(skeleton);
-//     std::vector<geometry::AABB> bounds;
+//     ccstd::vector<geometry::AABB> bounds;
 //     texture->bounds[mesh->getHash()] = bounds;
 
 //     // for (uint32_t f = 0; f < frames; ++f) { // TODO(xwx): frames not define
@@ -409,7 +409,7 @@ void JointTexturePool::releaseSkeleton(Skeleton *skeleton) {
 //             animPath = animPath.substring(0, idx);
 //             source = clipData.joints[animPath];
 //             if (animNode) {
-//                 if (!downstream) { downstream = new Mat4(); }
+//                 if (!downstream) { downstream = ccnew Mat4(); }
 //                 Mat4.fromRTS(m4_1, animNode.rotation, animNode.position, animNode.scale);
 //                 Mat4.multiply(downstream, m4_1, downstream);
 //                 animNode = animNode.parent;
@@ -446,7 +446,7 @@ void JointTexturePool::releaseSkeleton(Skeleton *skeleton) {
 //             for (let t = 0; t < jointCount; t++) {
 //                 if (joints[t] === correctionPath) {
 //                     bindposeIdx = t;
-//                     bindposeCorrection = new Mat4();
+//                     bindposeCorrection = ccnew Mat4();
 //                     Mat4.multiply(bindposeCorrection, bindposes[t], skeleton.inverseBindposes[j]);
 //                     break;
 //                 }
@@ -459,7 +459,7 @@ void JointTexturePool::releaseSkeleton(Skeleton *skeleton) {
 //     return animInfos;
 // }
 
-IAnimInfo JointAnimationInfo::getData(const std::string &nodeID) {
+IAnimInfo JointAnimationInfo::getData(const ccstd::string &nodeID) {
     if (_pool.find(nodeID) != _pool.end()) {
         return _pool[nodeID];
     }
@@ -474,15 +474,15 @@ IAnimInfo JointAnimationInfo::getData(const std::string &nodeID) {
     Float32Array data;
     buffer->update(data.buffer()->getData());
     IAnimInfo info;
-    info.buffer   = buffer;
-    info.data     = data;
-    info.dirty    = false;
+    info.buffer = buffer;
+    info.data = data;
+    info.dirty = false;
     _pool[nodeID] = info;
 
     return info;
 }
 
-void JointAnimationInfo::destroy(const std::string &nodeID) {
+void JointAnimationInfo::destroy(const ccstd::string &nodeID) {
     if (_pool.find(nodeID) != _pool.end()) {
         CC_SAFE_DESTROY_AND_DELETE(_pool[nodeID].buffer);
         _pool.erase(nodeID);
@@ -490,7 +490,7 @@ void JointAnimationInfo::destroy(const std::string &nodeID) {
 }
 
 const IAnimInfo &JointAnimationInfo::switchClip(IAnimInfo &info /*, AnimationClip *clip */) {
-//    info.currentClip = clip;
+    //    info.currentClip = clip;
     info.data[0] = -1;
     info.buffer->update(info.data.buffer()->getData());
     info.dirty = false;

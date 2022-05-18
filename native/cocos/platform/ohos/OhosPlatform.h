@@ -29,12 +29,13 @@
 
 namespace cc {
 class JniNativeGlue;
-class OhosPlatform : public UniversalPlatform {
+class CC_DLL OhosPlatform : public UniversalPlatform {
 public:
     OhosPlatform();
-    void    pollEvent() override;
+    int init() override;
+    void pollEvent() override;
     int32_t run(int argc, const char **argv) override;
-    int     getSdkVersion() const override;
+    int getSdkVersion() const override;
     int32_t loop() override;
 
 private:

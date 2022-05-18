@@ -24,7 +24,9 @@
 ****************************************************************************/
 
 #include "RenderFlow.h"
+#include <algorithm>
 #include "RenderStage.h"
+#include "base/memory/Memory.h"
 
 namespace cc {
 namespace pipeline {
@@ -34,10 +36,10 @@ RenderFlow::RenderFlow() = default;
 RenderFlow::~RenderFlow() = default;
 
 bool RenderFlow::initialize(const RenderFlowInfo &info) {
-    _name     = info.name;
+    _name = info.name;
     _priority = info.priority;
-    _tag      = info.tag;
-    _stages   = info.stages;
+    _tag = info.tag;
+    _stages = info.stages;
     return true;
 }
 
@@ -60,14 +62,14 @@ void RenderFlow::render(scene::Camera *camera) {
 }
 
 void RenderFlow::destroy() {
-    for (auto *const stage : _stages) {
-        stage->destroy();
+    for (auto *stage : _stages) {
+        CC_SAFE_DESTROY_AND_DELETE(stage);
     }
 
     _stages.clear();
 }
 
-RenderStage *RenderFlow::getRenderstageByName(const String &name) const {
+RenderStage *RenderFlow::getRenderstageByName(const ccstd::string &name) const {
     for (auto *node : _stages) {
         if (node->getName() == name) {
             return node;

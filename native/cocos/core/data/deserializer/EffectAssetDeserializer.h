@@ -33,7 +33,7 @@ class Asset;
 
 class EffectAssetDeserializer final : public IAssetDeserializer {
 public:
-    EffectAssetDeserializer()           = default;
+    EffectAssetDeserializer() = default;
     ~EffectAssetDeserializer() override = default;
 
     void deserialize(const rapidjson::Value &serializedData, Asset *effectAsset) override;

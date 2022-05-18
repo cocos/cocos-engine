@@ -25,8 +25,6 @@
 
 #include <boost/functional/hash.hpp>
 
-#include "base/CoreStd.h"
-
 #include "GFXObject.h"
 #include "GFXRenderPass.h"
 #include "base/Utils.h"
@@ -61,11 +59,11 @@ size_t RenderPass::computeHash(const RenderPassInfo &info) {
 }
 
 void RenderPass::initialize(const RenderPassInfo &info) {
-    _colorAttachments       = info.colorAttachments;
+    _colorAttachments = info.colorAttachments;
     _depthStencilAttachment = info.depthStencilAttachment;
-    _subpasses              = info.subpasses;
-    _dependencies           = info.dependencies;
-    _hash                   = computeHash();
+    _subpasses = info.subpasses;
+    _dependencies = info.dependencies;
+    _hash = computeHash();
 
     doInit(info);
 }

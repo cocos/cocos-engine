@@ -24,22 +24,22 @@
 ****************************************************************************/
 #pragma once
 
-#include <string>
 #include "base/Macros.h"
+#include "base/std/container/string.h"
 
 namespace cc {
 
 namespace core {
 
 struct ISchedulable {
-    std::string id;
-    std::string uuid;
+    ccstd::string id;
+    ccstd::string uuid;
 };
 
 enum struct Priority : uint32_t {
-    LOW       = 0,
-    MEDIUM    = 100,
-    HIGH      = 200,
+    LOW = 0,
+    MEDIUM = 100,
+    HIGH = 200,
     SCHEDULER = UINT32_MAX,
 };
 
@@ -48,7 +48,7 @@ private:
     /* data */
 protected:
     Priority _priority{Priority::LOW};
-    bool     _executeInEditMode{false};
+    bool _executeInEditMode{false};
 
 public:
     /**
@@ -63,14 +63,14 @@ public:
         return 0;
     }
 
-    System()          = default;
+    System() = default;
     virtual ~System() = default;
 
-    inline const std::string &getId() { return id; }
-    inline void               setId(std::string &s) { id = s; }
+    inline const ccstd::string &getId() { return id; }
+    inline void setId(ccstd::string &s) { id = s; }
 
     inline Priority getPriority() const { return _priority; }
-    inline void     setPriority(Priority i) { _priority = i; }
+    inline void setPriority(Priority i) { _priority = i; }
 
     inline bool getExecuteInEditMode() const { return _executeInEditMode; }
     inline void setExecuteInEditMode(bool b) { _executeInEditMode = b; }

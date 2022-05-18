@@ -31,11 +31,12 @@
 
 #include <functional>
 #include <mutex>
-#include <set>
-#include <unordered_map>
-#include <vector>
 
 #include "base/RefCounted.h"
+#include "base/std/container/set.h"
+#include "base/std/container/string.h"
+#include "base/std/container/unordered_map.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 
@@ -56,7 +57,7 @@ public:
     void setupTimerWithInterval(float seconds, unsigned int repeat, float delay);
 
     virtual void trigger(float dt) = 0;
-    virtual void cancel()          = 0;
+    virtual void cancel() = 0;
 
     /** triggers the timer */
     void update(float dt);
@@ -64,14 +65,14 @@ public:
 protected:
     Timer() = default;
 
-    Scheduler *  _scheduler     = nullptr;
-    float        _elapsed       = 0.F;
-    bool         _runForever    = false;
-    bool         _useDelay      = false;
+    Scheduler *_scheduler = nullptr;
+    float _elapsed = 0.F;
+    bool _runForever = false;
+    bool _useDelay = false;
     unsigned int _timesExecuted = 0;
-    unsigned int _repeat        = 0; //0 = once, 1 is 2 x executed
-    float        _delay         = 0.F;
-    float        _interval      = 0.F;
+    unsigned int _repeat = 0; //0 = once, 1 is 2 x executed
+    float _delay = 0.F;
+    float _interval = 0.F;
 };
 
 class CC_DLL TimerTargetCallback final : public Timer {
@@ -79,18 +80,18 @@ public:
     TimerTargetCallback() = default;
 
     // Initializes a timer with a target, a lambda and an interval in seconds, repeat in number of times to repeat, delay in seconds.
-    bool initWithCallback(Scheduler *scheduler, const ccSchedulerFunc &callback, void *target, const std::string &key, float seconds, unsigned int repeat, float delay);
+    bool initWithCallback(Scheduler *scheduler, const ccSchedulerFunc &callback, void *target, const ccstd::string &key, float seconds, unsigned int repeat, float delay);
 
     inline const ccSchedulerFunc &getCallback() const { return _callback; };
-    inline const std::string &    getKey() const { return _key; };
+    inline const ccstd::string &getKey() const { return _key; };
 
     void trigger(float dt) override;
     void cancel() override;
 
 private:
-    void *          _target   = nullptr;
+    void *_target = nullptr;
     ccSchedulerFunc _callback = nullptr;
-    std::string     _key;
+    ccstd::string _key;
 };
 
 /**
@@ -160,7 +161,7 @@ public:
      @param key The key to identify the callback function, because there is not way to identify a std::function<>.
      @since v3.0
      */
-    void schedule(const ccSchedulerFunc &callback, void *target, float interval, unsigned int repeat, float delay, bool paused, const std::string &key);
+    void schedule(const ccSchedulerFunc &callback, void *target, float interval, unsigned int repeat, float delay, bool paused, const ccstd::string &key);
 
     /** The scheduled method will be called every 'interval' seconds for ever.
      @param callback The callback function.
@@ -170,7 +171,7 @@ public:
      @param key The key to identify the callback function, because there is not way to identify a std::function<>.
      @since v3.0
      */
-    void schedule(const ccSchedulerFunc &callback, void *target, float interval, bool paused, const std::string &key);
+    void schedule(const ccSchedulerFunc &callback, void *target, float interval, bool paused, const ccstd::string &key);
 
     /////////////////////////////////////
 
@@ -182,7 +183,7 @@ public:
      @param target The target to be unscheduled.
      @since v3.0
      */
-    void unschedule(const std::string &key, void *target);
+    void unschedule(const ccstd::string &key, void *target);
 
     /** Unschedules all selectors for a given target.
      This also includes the "update" selector.
@@ -216,7 +217,7 @@ public:
      @return True if the specified callback is invoked, false if not.
      @since v3.0.0
      */
-    bool isScheduled(const std::string &key, void *target);
+    bool isScheduled(const ccstd::string &key, void *target);
 
     /////////////////////////////////////
 
@@ -250,7 +251,7 @@ public:
             priority is higher than minPriority will be paused.
       @since v2.0.0
       */
-    std::set<void *> pauseAllTargetsWithMinPriority(int minPriority);
+    ccstd::set<void *> pauseAllTargetsWithMinPriority(int minPriority);
 
     /** Calls a function on the cocos2d thread. Useful when you need to call a cocos2d function from another thread.
      This function is thread safe.
@@ -274,12 +275,12 @@ public:
 private:
     // Hash Element used for "selectors with interval"
     struct HashTimerEntry {
-        std::vector<Timer *> timers;
-        void *               target;
-        int                  timerIndex;
-        Timer *              currentTimer;
-        bool                 currentTimerSalvaged;
-        bool                 paused;
+        ccstd::vector<Timer *> timers;
+        void *target;
+        int timerIndex;
+        Timer *currentTimer;
+        bool currentTimerSalvaged;
+        bool paused;
     };
 
     void removeHashElement(struct HashTimerEntry *element);
@@ -288,15 +289,15 @@ private:
     // update specific
 
     // Used for "selectors with interval"
-    std::unordered_map<void *, HashTimerEntry *> _hashForTimers;
-    struct HashTimerEntry *                      _currentTarget         = nullptr;
-    bool                                         _currentTargetSalvaged = false;
+    ccstd::unordered_map<void *, HashTimerEntry *> _hashForTimers;
+    struct HashTimerEntry *_currentTarget = nullptr;
+    bool _currentTargetSalvaged = false;
     // If true unschedule will not remove anything from a hash. Elements will only be marked for deletion.
     bool _updateHashLocked = false;
 
     // Used for "perform Function"
-    std::vector<std::function<void()>> _functionsToPerform;
-    std::mutex                         _performMutex;
+    ccstd::vector<std::function<void()>> _functionsToPerform;
+    std::mutex _performMutex;
 };
 
 // end of base group

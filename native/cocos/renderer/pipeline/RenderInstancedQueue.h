@@ -25,7 +25,8 @@
 
 #pragma once
 
-#include "base/CoreStd.h"
+#include "base/Macros.h"
+#include "base/std/container/unordered_set.h"
 
 namespace cc {
 
@@ -41,7 +42,7 @@ class InstancedBuffer;
 
 class CC_DLL RenderInstancedQueue final {
 public:
-    RenderInstancedQueue()  = default;
+    RenderInstancedQueue() = default;
     ~RenderInstancedQueue() = default;
 
     void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer);
@@ -51,7 +52,7 @@ public:
     bool empty() { return _queues.empty(); }
 
 private:
-    unordered_set<InstancedBuffer *> _queues;
+    ccstd::unordered_set<InstancedBuffer *> _queues;
 };
 
 } // namespace pipeline

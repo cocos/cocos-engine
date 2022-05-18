@@ -26,34 +26,34 @@
 #pragma once
 
 #include <algorithm>
-#include <array>
 #include "base/Utils.h"
+#include "base/std/container/array.h"
 #include "gfx-base/GFXDef.h"
 
 namespace cc {
 
 namespace utils {
 
-String getStacktraceJS();
+ccstd::string getStacktraceJS();
 
 } // namespace utils
 
 namespace gfx {
 
 struct RenderPassSnapshot {
-    RenderPass *  renderPass  = nullptr;
-    Framebuffer * framebuffer = nullptr;
-    Rect          renderArea;
-    vector<Color> clearColors;
-    float         clearDepth   = 1.F;
-    uint32_t      clearStencil = 0U;
+    RenderPass *renderPass = nullptr;
+    Framebuffer *framebuffer = nullptr;
+    Rect renderArea;
+    ccstd::vector<Color> clearColors;
+    float clearDepth = 1.F;
+    uint32_t clearStencil = 0U;
 };
 
 struct DrawcallSnapshot {
-    PipelineState *          pipelineState;
-    InputAssembler *         inputAssembler;
-    vector<DescriptorSet *>  descriptorSets;
-    vector<vector<uint32_t>> dynamicOffsets;
+    PipelineState *pipelineState;
+    InputAssembler *inputAssembler;
+    ccstd::vector<DescriptorSet *> descriptorSets;
+    ccstd::vector<ccstd::vector<uint32_t>> dynamicOffsets;
 };
 
 struct CommandBufferStorage : public DynamicStates, RenderPassSnapshot, DrawcallSnapshot {};
@@ -65,9 +65,9 @@ public:
     void recordEndRenderPass();
     void clear();
 
-    static vector<uint32_t> serialize(const CommandRecorder &recorder);
-    static CommandRecorder  deserialize(const vector<uint32_t> &bytes);
-    static bool             compare(const CommandRecorder &test, const CommandRecorder &baseline);
+    static ccstd::vector<uint32_t> serialize(const CommandRecorder &recorder);
+    static CommandRecorder deserialize(const ccstd::vector<uint32_t> &bytes);
+    static bool compare(const CommandRecorder &test, const CommandRecorder &baseline);
 
 private:
     enum class CommandType {
@@ -77,39 +77,39 @@ private:
     };
 
     struct RenderPassCommand {
-        ColorAttachmentList    colorAttachments;
+        ColorAttachmentList colorAttachments;
         DepthStencilAttachment depthStencilAttachment;
 
-        Rect          renderArea;
-        vector<Color> clearColors;
-        float         clearDepth   = 1.F;
-        uint32_t      clearStencil = 0U;
+        Rect renderArea;
+        ccstd::vector<Color> clearColors;
+        float clearDepth = 1.F;
+        uint32_t clearStencil = 0U;
     };
 
     struct DrawcallCommand {
-        InputState        inputState;
-        RasterizerState   rasterizerState;
+        InputState inputState;
+        RasterizerState rasterizerState;
         DepthStencilState depthStencilState;
-        BlendState        blendState;
-        PrimitiveMode     primitive     = PrimitiveMode::TRIANGLE_LIST;
+        BlendState blendState;
+        PrimitiveMode primitive = PrimitiveMode::TRIANGLE_LIST;
         DynamicStateFlags dynamicStates = DynamicStateFlagBit::NONE;
-        PipelineBindPoint bindPoint     = PipelineBindPoint::GRAPHICS;
+        PipelineBindPoint bindPoint = PipelineBindPoint::GRAPHICS;
 
         DrawInfo drawInfo;
 
-        vector<DescriptorSet *> descriptorSets;
-        vector<uint32_t>        dynamicOffsets;
+        ccstd::vector<DescriptorSet *> descriptorSets;
+        ccstd::vector<uint32_t> dynamicOffsets;
     };
 
-    vector<CommandType>       _commands;
-    vector<RenderPassCommand> _renderPassCommands;
-    vector<DrawcallCommand>   _drawcallCommands;
+    ccstd::vector<CommandType> _commands;
+    ccstd::vector<RenderPassCommand> _renderPassCommands;
+    ccstd::vector<DrawcallCommand> _drawcallCommands;
 
     struct BufferData {
-        BufferInfo      info;
-        vector<uint8_t> data;
+        BufferInfo info;
+        ccstd::vector<uint8_t> data;
     };
-    unordered_map<uint32_t, BufferData> _bufferMap;
+    ccstd::unordered_map<uint32_t, BufferData> _bufferMap;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -132,14 +132,14 @@ public:
 private:
     struct ResourceRecord {
         Resource *resource = nullptr;
-        String    initStack;
+        ccstd::string initStack;
     };
 
-    static vector<ResourceRecord> resources;
+    static ccstd::vector<ResourceRecord> resources;
 };
 
 template <typename Resource, typename Enable>
-vector<typename DeviceResourceTracker<Resource, Enable>::ResourceRecord> DeviceResourceTracker<Resource, Enable>::resources;
+ccstd::vector<typename DeviceResourceTracker<Resource, Enable>::ResourceRecord> DeviceResourceTracker<Resource, Enable>::resources;
 
 template <typename Resource, typename Enable>
 template <typename T, typename EnableFn>
@@ -157,7 +157,7 @@ DeviceResourceTracker<Resource, Enable>::push(T *resource) {
 
 template <typename Resource, typename Enable>
 void DeviceResourceTracker<Resource, Enable>::erase(Resource *resource) {
-    CCASSERT(!resources.empty(), "Deleted twice?");
+    CC_ASSERT(!resources.empty());
 
     resources.erase(std::remove_if(resources.begin(), resources.end(),
                                    [resource](const auto &record) { return record.resource == resource; }));
@@ -170,7 +170,7 @@ void DeviceResourceTracker<Resource, Enable>::checkEmpty() {
     // and look up the resource initialization stacktrace in `resources[i].initStack`.
     // Note: capturing stacktrace is a painfully time-consuming process,
     // so better to uncomment the exact type of resource that is leaking rather than toggle them all at once.
-    CCASSERT(resources.empty(), "Resource leaked");
+    CC_ASSERT(resources.empty()); // Resource leaked.
 }
 
 //template <> struct RecordStacktrace<CommandBuffer> : std::true_type {};

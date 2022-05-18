@@ -49,26 +49,26 @@ public:
 
     inline BufferUsage getUsage() const { return _usage; }
     inline MemoryUsage getMemUsage() const { return _memUsage; }
-    inline uint32_t    getStride() const { return _stride; }
-    inline uint32_t    getCount() const { return _count; }
-    inline uint32_t    getSize() const { return _size; }
+    inline uint32_t getStride() const { return _stride; }
+    inline uint32_t getCount() const { return _count; }
+    inline uint32_t getSize() const { return _size; }
     inline BufferFlags getFlags() const { return _flags; }
-    inline bool        isBufferView() const { return _isBufferView; }
+    inline bool isBufferView() const { return _isBufferView; }
 
 protected:
-    virtual void doInit(const BufferInfo &info)          = 0;
-    virtual void doInit(const BufferViewInfo &info)      = 0;
+    virtual void doInit(const BufferInfo &info) = 0;
+    virtual void doInit(const BufferViewInfo &info) = 0;
     virtual void doResize(uint32_t size, uint32_t count) = 0;
-    virtual void doDestroy()                             = 0;
+    virtual void doDestroy() = 0;
 
-    BufferUsage _usage        = BufferUsageBit::NONE;
-    MemoryUsage _memUsage     = MemoryUsageBit::NONE;
-    uint32_t    _stride       = 0U;
-    uint32_t    _count        = 0U;
-    uint32_t    _size         = 0U;
-    uint32_t    _offset       = 0U;
-    BufferFlags _flags        = BufferFlagBit::NONE;
-    bool        _isBufferView = false;
+    BufferUsage _usage = BufferUsageBit::NONE;
+    MemoryUsage _memUsage = MemoryUsageBit::NONE;
+    uint32_t _stride = 0U;
+    uint32_t _count = 0U;
+    uint32_t _size = 0U;
+    uint32_t _offset = 0U;
+    BufferFlags _flags = BufferFlagBit::NONE;
+    bool _isBufferView = false;
 };
 
 } // namespace gfx

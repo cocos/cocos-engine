@@ -39,7 +39,7 @@ int Screen::getDPI() const {
         int32_t density = AConfiguration_getDensity(config);
         AConfiguration_delete(config);
         const int stdDpi = 160;
-        dpi              = density * stdDpi;
+        dpi = density * stdDpi;
     }
     return dpi;
 }

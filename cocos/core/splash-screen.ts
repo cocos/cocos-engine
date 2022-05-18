@@ -23,12 +23,9 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
 
-import * as easing from './animation/easing';
+
+import * as easing from './easing/easing';
 import { Material } from './assets/material';
 import { clamp01 } from './math/utils';
 import {

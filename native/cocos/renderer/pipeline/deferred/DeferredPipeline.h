@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include <array>
+#include "base/std/container/array.h"
 
-#include <unordered_map>
+#include "base/std/container/unordered_map.h"
 #include "pipeline/Enum.h"
 #include "pipeline/RenderPipeline.h"
 
@@ -47,23 +47,23 @@ public:
     bool initialize(const RenderPipelineInfo &info) override;
     bool destroy() override;
     bool activate(gfx::Swapchain *swapchain) override;
-    void render(const vector<scene::Camera *> &cameras) override;
+    void render(const ccstd::vector<scene::Camera *> &cameras) override;
     void onGlobalPipelineStateChanged() override;
 
-    inline gfx::Buffer *          getLightsUBO() const { return _lightsUBO; }
-    inline const LightList &      getValidLights() const { return _validLights; }
+    inline gfx::Buffer *getLightsUBO() const { return _lightsUBO; }
+    inline const LightList &getValidLights() const { return _validLights; }
     inline const gfx::BufferList &getLightBuffers() const { return _lightBuffers; }
-    inline const UintList &       getLightIndexOffsets() const { return _lightIndexOffsets; }
-    inline const UintList &       getLightIndices() const { return _lightIndices; }
+    inline const UintList &getLightIndexOffsets() const { return _lightIndexOffsets; }
+    inline const UintList &getLightIndices() const { return _lightIndices; }
 
 private:
     bool activeRenderer(gfx::Swapchain *swapchain);
 
-    gfx::Buffer *   _lightsUBO = nullptr;
-    LightList       _validLights;
+    gfx::Buffer *_lightsUBO = nullptr;
+    LightList _validLights;
     gfx::BufferList _lightBuffers;
-    UintList        _lightIndexOffsets;
-    UintList        _lightIndices;
+    UintList _lightIndexOffsets;
+    UintList _lightIndices;
 
     ClusterLightCulling *_clusterComp{nullptr};
 

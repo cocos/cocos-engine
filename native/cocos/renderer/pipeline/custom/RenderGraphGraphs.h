@@ -283,6 +283,13 @@ inline void remove_vertex_value_impl(const ResourceGraph::VertexHandle& h, Resou
                 }
                 impl::reindexVectorHandle<PersistentTextureTag>(g.vertices, h.value);
             },
+            [&](const impl::ValueHandle<FramebufferTag, vertex_descriptor>& h) {
+                g.framebuffers.erase(g.framebuffers.begin() + std::ptrdiff_t(h.value));
+                if (h.value == g.framebuffers.size()) {
+                    return;
+                }
+                impl::reindexVectorHandle<FramebufferTag>(g.vertices, h.value);
+            },
             [&](const impl::ValueHandle<SwapchainTag, vertex_descriptor>& h) {
                 g.swapchains.erase(g.swapchains.begin() + std::ptrdiff_t(h.value));
                 if (h.value == g.swapchains.size()) {
@@ -348,6 +355,15 @@ void addVertexImpl( // NOLINT
 template <class ValueT>
 void addVertexImpl( // NOLINT
     ValueT &&val, ResourceGraph &g, ResourceGraph::Vertex &vert, // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, IntrusivePtr<gfx::Framebuffer>>::value>* dummy = nullptr) { // NOLINT
+    vert.handle = impl::ValueHandle<FramebufferTag, ResourceGraph::vertex_descriptor>{
+        gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.framebuffers.size())};
+    g.framebuffers.emplace_back(std::forward<ValueT>(val));
+}
+
+template <class ValueT>
+void addVertexImpl( // NOLINT
+    ValueT &&val, ResourceGraph &g, ResourceGraph::Vertex &vert, // NOLINT
     std::enable_if_t<std::is_same<std::decay_t<ValueT>, RenderSwapchain>::value>* dummy = nullptr) { // NOLINT
     vert.handle = impl::ValueHandle<SwapchainTag, ResourceGraph::vertex_descriptor>{
         gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.swapchains.size())};
@@ -408,6 +424,17 @@ void addVertexImpl(PersistentTextureTag /*tag*/, Tuple &&val, ResourceGraph &g, 
             vert.handle = impl::ValueHandle<PersistentTextureTag, ResourceGraph::vertex_descriptor>{
                 gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.textures.size())};
             g.textures.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Tuple>(val));
+}
+
+template <class Tuple>
+void addVertexImpl(FramebufferTag /*tag*/, Tuple &&val, ResourceGraph &g, ResourceGraph::Vertex &vert) {
+    invoke_hpp::apply(
+        [&](auto&&... args) {
+            vert.handle = impl::ValueHandle<FramebufferTag, ResourceGraph::vertex_descriptor>{
+                gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.framebuffers.size())};
+            g.framebuffers.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Tuple>(val));
 }
@@ -1017,15 +1044,15 @@ struct property_map<cc::render::ResourceGraph, cc::render::ResourceGraph::NameTa
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         const cc::render::ResourceGraph,
-        const container::pmr::vector<cc::PmrString>,
+        const ccstd::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        const cc::PmrString&>;
+        const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::ResourceGraph,
-        container::pmr::vector<cc::PmrString>,
+        ccstd::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        cc::PmrString&>;
+        ccstd::pmr::string&>;
 };
 
 // Vertex Name
@@ -1034,15 +1061,15 @@ struct property_map<cc::render::ResourceGraph, vertex_name_t> {
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         const cc::render::ResourceGraph,
-        const container::pmr::vector<cc::PmrString>,
+        const ccstd::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        const cc::PmrString&>;
+        const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::ResourceGraph,
-        container::pmr::vector<cc::PmrString>,
+        ccstd::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        cc::PmrString&>;
+        ccstd::pmr::string&>;
 };
 
 // Vertex Component
@@ -1051,13 +1078,13 @@ struct property_map<cc::render::ResourceGraph, cc::render::ResourceGraph::DescTa
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::ResourceGraph,
-        const container::pmr::vector<cc::render::ResourceDesc>,
+        const ccstd::pmr::vector<cc::render::ResourceDesc>,
         cc::render::ResourceDesc,
         const cc::render::ResourceDesc&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         cc::render::ResourceGraph,
-        container::pmr::vector<cc::render::ResourceDesc>,
+        ccstd::pmr::vector<cc::render::ResourceDesc>,
         cc::render::ResourceDesc,
         cc::render::ResourceDesc&>;
 };
@@ -1068,14 +1095,14 @@ struct property_map<cc::render::ResourceGraph, T cc::render::ResourceDesc::*> {
     using const_type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         const cc::render::ResourceGraph,
-        const container::pmr::vector<cc::render::ResourceDesc>,
+        const ccstd::pmr::vector<cc::render::ResourceDesc>,
         T,
         const T&,
         T cc::render::ResourceDesc::*>;
     using type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         cc::render::ResourceGraph,
-        container::pmr::vector<cc::render::ResourceDesc>,
+        ccstd::pmr::vector<cc::render::ResourceDesc>,
         T,
         T&,
         T cc::render::ResourceDesc::*>;
@@ -1087,13 +1114,13 @@ struct property_map<cc::render::ResourceGraph, cc::render::ResourceGraph::Traits
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::ResourceGraph,
-        const container::pmr::vector<cc::render::ResourceTraits>,
+        const ccstd::pmr::vector<cc::render::ResourceTraits>,
         cc::render::ResourceTraits,
         const cc::render::ResourceTraits&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         cc::render::ResourceGraph,
-        container::pmr::vector<cc::render::ResourceTraits>,
+        ccstd::pmr::vector<cc::render::ResourceTraits>,
         cc::render::ResourceTraits,
         cc::render::ResourceTraits&>;
 };
@@ -1104,14 +1131,14 @@ struct property_map<cc::render::ResourceGraph, T cc::render::ResourceTraits::*> 
     using const_type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         const cc::render::ResourceGraph,
-        const container::pmr::vector<cc::render::ResourceTraits>,
+        const ccstd::pmr::vector<cc::render::ResourceTraits>,
         T,
         const T&,
         T cc::render::ResourceTraits::*>;
     using type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         cc::render::ResourceGraph,
-        container::pmr::vector<cc::render::ResourceTraits>,
+        ccstd::pmr::vector<cc::render::ResourceTraits>,
         T,
         T&,
         T cc::render::ResourceTraits::*>;
@@ -1123,13 +1150,13 @@ struct property_map<cc::render::ResourceGraph, cc::render::ResourceGraph::States
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::ResourceGraph,
-        const container::pmr::vector<cc::render::ResourceStates>,
+        const ccstd::pmr::vector<cc::render::ResourceStates>,
         cc::render::ResourceStates,
         const cc::render::ResourceStates&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         cc::render::ResourceGraph,
-        container::pmr::vector<cc::render::ResourceStates>,
+        ccstd::pmr::vector<cc::render::ResourceStates>,
         cc::render::ResourceStates,
         cc::render::ResourceStates&>;
 };
@@ -1140,14 +1167,14 @@ struct property_map<cc::render::ResourceGraph, T cc::render::ResourceStates::*> 
     using const_type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         const cc::render::ResourceGraph,
-        const container::pmr::vector<cc::render::ResourceStates>,
+        const ccstd::pmr::vector<cc::render::ResourceStates>,
         T,
         const T&,
         T cc::render::ResourceStates::*>;
     using type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         cc::render::ResourceGraph,
-        container::pmr::vector<cc::render::ResourceStates>,
+        ccstd::pmr::vector<cc::render::ResourceStates>,
         T,
         T&,
         T cc::render::ResourceStates::*>;
@@ -1166,15 +1193,15 @@ struct property_map<cc::render::SubpassGraph, cc::render::SubpassGraph::NameTag>
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         const cc::render::SubpassGraph,
-        const container::pmr::vector<cc::PmrString>,
+        const ccstd::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        const cc::PmrString&>;
+        const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::SubpassGraph,
-        container::pmr::vector<cc::PmrString>,
+        ccstd::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        cc::PmrString&>;
+        ccstd::pmr::string&>;
 };
 
 // Vertex Name
@@ -1183,15 +1210,15 @@ struct property_map<cc::render::SubpassGraph, vertex_name_t> {
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         const cc::render::SubpassGraph,
-        const container::pmr::vector<cc::PmrString>,
+        const ccstd::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        const cc::PmrString&>;
+        const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::SubpassGraph,
-        container::pmr::vector<cc::PmrString>,
+        ccstd::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        cc::PmrString&>;
+        ccstd::pmr::string&>;
 };
 
 // Vertex Component
@@ -1200,13 +1227,13 @@ struct property_map<cc::render::SubpassGraph, cc::render::SubpassGraph::SubpassT
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::SubpassGraph,
-        const container::pmr::vector<cc::render::RasterSubpass>,
+        const ccstd::pmr::vector<cc::render::RasterSubpass>,
         cc::render::RasterSubpass,
         const cc::render::RasterSubpass&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         cc::render::SubpassGraph,
-        container::pmr::vector<cc::render::RasterSubpass>,
+        ccstd::pmr::vector<cc::render::RasterSubpass>,
         cc::render::RasterSubpass,
         cc::render::RasterSubpass&>;
 };
@@ -1217,14 +1244,14 @@ struct property_map<cc::render::SubpassGraph, T cc::render::RasterSubpass::*> {
     using const_type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         const cc::render::SubpassGraph,
-        const container::pmr::vector<cc::render::RasterSubpass>,
+        const ccstd::pmr::vector<cc::render::RasterSubpass>,
         T,
         const T&,
         T cc::render::RasterSubpass::*>;
     using type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         cc::render::SubpassGraph,
-        container::pmr::vector<cc::render::RasterSubpass>,
+        ccstd::pmr::vector<cc::render::RasterSubpass>,
         T,
         T&,
         T cc::render::RasterSubpass::*>;
@@ -1243,15 +1270,15 @@ struct property_map<cc::render::RenderGraph, cc::render::RenderGraph::NameTag> {
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         const cc::render::RenderGraph,
-        const container::pmr::vector<cc::PmrString>,
+        const ccstd::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        const cc::PmrString&>;
+        const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::RenderGraph,
-        container::pmr::vector<cc::PmrString>,
+        ccstd::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        cc::PmrString&>;
+        ccstd::pmr::string&>;
 };
 
 // Vertex Name
@@ -1260,15 +1287,15 @@ struct property_map<cc::render::RenderGraph, vertex_name_t> {
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         const cc::render::RenderGraph,
-        const container::pmr::vector<cc::PmrString>,
+        const ccstd::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        const cc::PmrString&>;
+        const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::RenderGraph,
-        container::pmr::vector<cc::PmrString>,
+        ccstd::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        cc::PmrString&>;
+        ccstd::pmr::string&>;
 };
 
 // Vertex Component
@@ -1277,15 +1304,15 @@ struct property_map<cc::render::RenderGraph, cc::render::RenderGraph::LayoutTag>
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         const cc::render::RenderGraph,
-        const container::pmr::vector<cc::PmrString>,
+        const ccstd::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        const cc::PmrString&>;
+        const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::RenderGraph,
-        container::pmr::vector<cc::PmrString>,
+        ccstd::pmr::vector<ccstd::pmr::string>,
         boost::string_view,
-        cc::PmrString&>;
+        ccstd::pmr::string&>;
 };
 
 // Vertex Component
@@ -1294,13 +1321,13 @@ struct property_map<cc::render::RenderGraph, cc::render::RenderGraph::DataTag> {
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::RenderGraph,
-        const container::pmr::vector<cc::render::RenderData>,
+        const ccstd::pmr::vector<cc::render::RenderData>,
         cc::render::RenderData,
         const cc::render::RenderData&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         cc::render::RenderGraph,
-        container::pmr::vector<cc::render::RenderData>,
+        ccstd::pmr::vector<cc::render::RenderData>,
         cc::render::RenderData,
         cc::render::RenderData&>;
 };
@@ -1311,17 +1338,34 @@ struct property_map<cc::render::RenderGraph, T cc::render::RenderData::*> {
     using const_type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         const cc::render::RenderGraph,
-        const container::pmr::vector<cc::render::RenderData>,
+        const ccstd::pmr::vector<cc::render::RenderData>,
         T,
         const T&,
         T cc::render::RenderData::*>;
     using type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         cc::render::RenderGraph,
-        container::pmr::vector<cc::render::RenderData>,
+        ccstd::pmr::vector<cc::render::RenderData>,
         T,
         T&,
         T cc::render::RenderData::*>;
+};
+
+// Vertex Component
+template <>
+struct property_map<cc::render::RenderGraph, cc::render::RenderGraph::ValidTag> {
+    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
+        lvalue_property_map_tag,
+        const cc::render::RenderGraph,
+        const ccstd::pmr::vector<bool>,
+        bool,
+        const bool&>;
+    using type = cc::render::impl::VectorVertexComponentPropertyMap<
+        lvalue_property_map_tag,
+        cc::render::RenderGraph,
+        ccstd::pmr::vector<bool>,
+        bool,
+        bool&>;
 };
 
 } // namespace boost
@@ -1342,7 +1386,7 @@ get(boost::vertex_index_t /*tag*/, ResourceGraph& /*g*/) noexcept {
 }
 
 inline impl::ColorMap<ResourceGraph::vertex_descriptor>
-get(boost::container::pmr::vector<boost::default_color_type>& colors, const ResourceGraph& /*g*/) noexcept {
+get(ccstd::pmr::vector<boost::default_color_type>& colors, const ResourceGraph& /*g*/) noexcept {
     return {colors};
 }
 
@@ -1450,6 +1494,9 @@ id(ResourceGraph::vertex_descriptor u, const ResourceGraph& g) noexcept {
             [](const impl::ValueHandle<PersistentTextureTag, vertex_descriptor>& h) {
                 return h.value;
             },
+            [](const impl::ValueHandle<FramebufferTag, vertex_descriptor>& h) {
+                return h.value;
+            },
             [](const impl::ValueHandle<SwapchainTag, vertex_descriptor>& h) {
                 return h.value;
             }),
@@ -1469,6 +1516,9 @@ tag(ResourceGraph::vertex_descriptor u, const ResourceGraph& g) noexcept {
             },
             [](const impl::ValueHandle<PersistentTextureTag, vertex_descriptor>&) {
                 return ResourceGraph::VertexTag{PersistentTextureTag{}};
+            },
+            [](const impl::ValueHandle<FramebufferTag, vertex_descriptor>&) {
+                return ResourceGraph::VertexTag{FramebufferTag{}};
             },
             [](const impl::ValueHandle<SwapchainTag, vertex_descriptor>&) {
                 return ResourceGraph::VertexTag{SwapchainTag{}};
@@ -1490,6 +1540,9 @@ value(ResourceGraph::vertex_descriptor u, ResourceGraph& g) noexcept {
             [&](const impl::ValueHandle<PersistentTextureTag, vertex_descriptor>& h) {
                 return ResourceGraph::VertexValue{&g.textures[h.value]};
             },
+            [&](const impl::ValueHandle<FramebufferTag, vertex_descriptor>& h) {
+                return ResourceGraph::VertexValue{&g.framebuffers[h.value]};
+            },
             [&](const impl::ValueHandle<SwapchainTag, vertex_descriptor>& h) {
                 return ResourceGraph::VertexValue{&g.swapchains[h.value]};
             }),
@@ -1509,6 +1562,9 @@ value(ResourceGraph::vertex_descriptor u, const ResourceGraph& g) noexcept {
             },
             [&](const impl::ValueHandle<PersistentTextureTag, vertex_descriptor>& h) {
                 return ResourceGraph::VertexConstValue{&g.textures[h.value]};
+            },
+            [&](const impl::ValueHandle<FramebufferTag, vertex_descriptor>& h) {
+                return ResourceGraph::VertexConstValue{&g.framebuffers[h.value]};
             },
             [&](const impl::ValueHandle<SwapchainTag, vertex_descriptor>& h) {
                 return ResourceGraph::VertexConstValue{&g.swapchains[h.value]};
@@ -1546,6 +1602,14 @@ holds<PersistentTextureTag>(ResourceGraph::vertex_descriptor v, const ResourceGr
 
 template <>
 inline bool
+holds<FramebufferTag>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) noexcept {
+    return boost::variant2::holds_alternative<
+        impl::ValueHandle<FramebufferTag, ResourceGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+}
+
+template <>
+inline bool
 holds<SwapchainTag>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) noexcept {
     return boost::variant2::holds_alternative<
         impl::ValueHandle<SwapchainTag, ResourceGraph::vertex_descriptor>>(
@@ -1577,6 +1641,14 @@ inline bool
 holds_alternative<IntrusivePtr<gfx::Texture>>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
         impl::ValueHandle<PersistentTextureTag, ResourceGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+}
+
+template <>
+inline bool
+holds_alternative<IntrusivePtr<gfx::Framebuffer>>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) noexcept { // NOLINT
+    return boost::variant2::holds_alternative<
+        impl::ValueHandle<FramebufferTag, ResourceGraph::vertex_descriptor>>(
         g.vertices[v].handle);
 }
 
@@ -1620,6 +1692,15 @@ get<IntrusivePtr<gfx::Texture>>(ResourceGraph::vertex_descriptor v, ResourceGrap
 }
 
 template <>
+inline IntrusivePtr<gfx::Framebuffer>&
+get<IntrusivePtr<gfx::Framebuffer>>(ResourceGraph::vertex_descriptor v, ResourceGraph& g) {
+    auto& handle = boost::variant2::get<
+        impl::ValueHandle<FramebufferTag, ResourceGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+    return g.framebuffers[handle.value];
+}
+
+template <>
 inline RenderSwapchain&
 get<RenderSwapchain>(ResourceGraph::vertex_descriptor v, ResourceGraph& g) {
     auto& handle = boost::variant2::get<
@@ -1660,6 +1741,15 @@ get<IntrusivePtr<gfx::Texture>>(ResourceGraph::vertex_descriptor v, const Resour
 }
 
 template <>
+inline const IntrusivePtr<gfx::Framebuffer>&
+get<IntrusivePtr<gfx::Framebuffer>>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) {
+    const auto& handle = boost::variant2::get<
+        impl::ValueHandle<FramebufferTag, ResourceGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+    return g.framebuffers[handle.value];
+}
+
+template <>
 inline const RenderSwapchain&
 get<RenderSwapchain>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) {
     const auto& handle = boost::variant2::get<
@@ -1692,6 +1782,14 @@ get(PersistentTextureTag /*tag*/, ResourceGraph::vertex_descriptor v, ResourceGr
     return g.textures[handle.value];
 }
 
+inline IntrusivePtr<gfx::Framebuffer>&
+get(FramebufferTag /*tag*/, ResourceGraph::vertex_descriptor v, ResourceGraph& g) {
+    auto& handle = boost::variant2::get<
+        impl::ValueHandle<FramebufferTag, ResourceGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+    return g.framebuffers[handle.value];
+}
+
 inline RenderSwapchain&
 get(SwapchainTag /*tag*/, ResourceGraph::vertex_descriptor v, ResourceGraph& g) {
     auto& handle = boost::variant2::get<
@@ -1722,6 +1820,14 @@ get(PersistentTextureTag /*tag*/, ResourceGraph::vertex_descriptor v, const Reso
         impl::ValueHandle<PersistentTextureTag, ResourceGraph::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.textures[handle.value];
+}
+
+inline const IntrusivePtr<gfx::Framebuffer>&
+get(FramebufferTag /*tag*/, ResourceGraph::vertex_descriptor v, const ResourceGraph& g) {
+    const auto& handle = boost::variant2::get<
+        impl::ValueHandle<FramebufferTag, ResourceGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+    return g.framebuffers[handle.value];
 }
 
 inline const RenderSwapchain&
@@ -1783,6 +1889,23 @@ get_if<IntrusivePtr<gfx::Texture>>(ResourceGraph::vertex_descriptor v, ResourceG
         &g.vertices[v].handle);
     if (pHandle) {
         ptr = &g.textures[pHandle->value];
+    }
+    return ptr;
+}
+
+template <>
+inline IntrusivePtr<gfx::Framebuffer>*
+get_if<IntrusivePtr<gfx::Framebuffer>>(ResourceGraph::vertex_descriptor v, ResourceGraph* pGraph) noexcept { // NOLINT
+    IntrusivePtr<gfx::Framebuffer>* ptr = nullptr;
+    if (!pGraph) {
+        return ptr;
+    }
+    auto& g       = *pGraph;
+    auto* pHandle = boost::variant2::get_if<
+        impl::ValueHandle<FramebufferTag, ResourceGraph::vertex_descriptor>>(
+        &g.vertices[v].handle);
+    if (pHandle) {
+        ptr = &g.framebuffers[pHandle->value];
     }
     return ptr;
 }
@@ -1860,6 +1983,23 @@ get_if<IntrusivePtr<gfx::Texture>>(ResourceGraph::vertex_descriptor v, const Res
 }
 
 template <>
+inline const IntrusivePtr<gfx::Framebuffer>*
+get_if<IntrusivePtr<gfx::Framebuffer>>(ResourceGraph::vertex_descriptor v, const ResourceGraph* pGraph) noexcept { // NOLINT
+    const IntrusivePtr<gfx::Framebuffer>* ptr = nullptr;
+    if (!pGraph) {
+        return ptr;
+    }
+    const auto& g       = *pGraph;
+    const auto* pHandle = boost::variant2::get_if<
+        impl::ValueHandle<FramebufferTag, ResourceGraph::vertex_descriptor>>(
+        &g.vertices[v].handle);
+    if (pHandle) {
+        ptr = &g.framebuffers[pHandle->value];
+    }
+    return ptr;
+}
+
+template <>
 inline const RenderSwapchain*
 get_if<RenderSwapchain>(ResourceGraph::vertex_descriptor v, const ResourceGraph* pGraph) noexcept { // NOLINT
     const RenderSwapchain* ptr = nullptr;
@@ -1901,7 +2041,7 @@ inline void put(
 
 // UuidGraph
 inline ResourceGraph::vertex_descriptor
-vertex(const PmrString& key, const ResourceGraph& g) {
+vertex(const ccstd::pmr::string& key, const ResourceGraph& g) {
     return g.valueIndex.at(key);
 }
 
@@ -1928,7 +2068,7 @@ findVertex(const KeyLike& key, const ResourceGraph& g) noexcept {
 }
 
 inline bool
-contains(const PmrString& key, const ResourceGraph& g) noexcept {
+contains(const ccstd::pmr::string& key, const ResourceGraph& g) noexcept {
     auto iter = g.valueIndex.find(key);
     return iter != g.valueIndex.end();
 }
@@ -1943,7 +2083,7 @@ contains(const KeyLike& key, const ResourceGraph& g) noexcept {
 // MutableGraph(Vertex)
 template <class Tag>
 inline ResourceGraph::vertex_descriptor
-add_vertex(ResourceGraph& g, Tag t, PmrString&& name) { // NOLINT
+add_vertex(ResourceGraph& g, Tag t, ccstd::pmr::string&& name) { // NOLINT
     return addVertex(
         t,
         std::forward_as_tuple(std::move(name)), // names
@@ -1979,7 +2119,7 @@ get(boost::vertex_index_t /*tag*/, SubpassGraph& /*g*/) noexcept {
 }
 
 inline impl::ColorMap<SubpassGraph::vertex_descriptor>
-get(boost::container::pmr::vector<boost::default_color_type>& colors, const SubpassGraph& /*g*/) noexcept {
+get(ccstd::pmr::vector<boost::default_color_type>& colors, const SubpassGraph& /*g*/) noexcept {
     return {colors};
 }
 
@@ -2049,7 +2189,7 @@ inline void put(
 
 // MutableGraph(Vertex)
 inline SubpassGraph::vertex_descriptor
-add_vertex(SubpassGraph& g, PmrString&& name) { // NOLINT
+add_vertex(SubpassGraph& g, ccstd::pmr::string&& name) { // NOLINT
     return addVertex(
         std::piecewise_construct,
         std::forward_as_tuple(std::move(name)), // names
@@ -2078,7 +2218,7 @@ get(boost::vertex_index_t /*tag*/, RenderGraph& /*g*/) noexcept {
 }
 
 inline impl::ColorMap<RenderGraph::vertex_descriptor>
-get(boost::container::pmr::vector<boost::default_color_type>& colors, const RenderGraph& /*g*/) noexcept {
+get(ccstd::pmr::vector<boost::default_color_type>& colors, const RenderGraph& /*g*/) noexcept {
     return {colors};
 }
 
@@ -2132,6 +2272,17 @@ template <class T>
 inline typename boost::property_map<RenderGraph, T RenderData::*>::type
 get(T RenderData::*memberPointer, RenderGraph& g) noexcept {
     return {g.data, memberPointer};
+}
+
+// Vertex Component
+inline typename boost::property_map<RenderGraph, RenderGraph::ValidTag>::const_type
+get(RenderGraph::ValidTag /*tag*/, const RenderGraph& g) noexcept {
+    return {g.valid};
+}
+
+inline typename boost::property_map<RenderGraph, RenderGraph::ValidTag>::type
+get(RenderGraph::ValidTag /*tag*/, RenderGraph& g) noexcept {
+    return {g.valid};
 }
 
 // PolymorphicGraph
@@ -3174,15 +3325,279 @@ inline void put(
     put(get(tag, g), v, std::forward<Args>(args)...);
 }
 
+// MutablePropertyGraph(Vertex)
+template <class ValueT>
+void addVertexImpl( // NOLINT
+    ValueT &&val, RenderGraph &g, RenderGraph::Vertex &vert, // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, RasterPass>::value>* dummy = nullptr) { // NOLINT
+    vert.handle = impl::ValueHandle<RasterTag, RenderGraph::vertex_descriptor>{
+        gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.rasterPasses.size())};
+    g.rasterPasses.emplace_back(std::forward<ValueT>(val));
+}
+
+template <class ValueT>
+void addVertexImpl( // NOLINT
+    ValueT &&val, RenderGraph &g, RenderGraph::Vertex &vert, // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, ComputePass>::value>* dummy = nullptr) { // NOLINT
+    vert.handle = impl::ValueHandle<ComputeTag, RenderGraph::vertex_descriptor>{
+        gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.computePasses.size())};
+    g.computePasses.emplace_back(std::forward<ValueT>(val));
+}
+
+template <class ValueT>
+void addVertexImpl( // NOLINT
+    ValueT &&val, RenderGraph &g, RenderGraph::Vertex &vert, // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, CopyPass>::value>* dummy = nullptr) { // NOLINT
+    vert.handle = impl::ValueHandle<CopyTag, RenderGraph::vertex_descriptor>{
+        gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.copyPasses.size())};
+    g.copyPasses.emplace_back(std::forward<ValueT>(val));
+}
+
+template <class ValueT>
+void addVertexImpl( // NOLINT
+    ValueT &&val, RenderGraph &g, RenderGraph::Vertex &vert, // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, MovePass>::value>* dummy = nullptr) { // NOLINT
+    vert.handle = impl::ValueHandle<MoveTag, RenderGraph::vertex_descriptor>{
+        gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.movePasses.size())};
+    g.movePasses.emplace_back(std::forward<ValueT>(val));
+}
+
+template <class ValueT>
+void addVertexImpl( // NOLINT
+    ValueT &&val, RenderGraph &g, RenderGraph::Vertex &vert, // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, PresentPass>::value>* dummy = nullptr) { // NOLINT
+    vert.handle = impl::ValueHandle<PresentTag, RenderGraph::vertex_descriptor>{
+        gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.presentPasses.size())};
+    g.presentPasses.emplace_back(std::forward<ValueT>(val));
+}
+
+template <class ValueT>
+void addVertexImpl( // NOLINT
+    ValueT &&val, RenderGraph &g, RenderGraph::Vertex &vert, // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, RaytracePass>::value>* dummy = nullptr) { // NOLINT
+    vert.handle = impl::ValueHandle<RaytraceTag, RenderGraph::vertex_descriptor>{
+        gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.raytracePasses.size())};
+    g.raytracePasses.emplace_back(std::forward<ValueT>(val));
+}
+
+template <class ValueT>
+void addVertexImpl( // NOLINT
+    ValueT &&val, RenderGraph &g, RenderGraph::Vertex &vert, // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, RenderQueue>::value>* dummy = nullptr) { // NOLINT
+    vert.handle = impl::ValueHandle<QueueTag, RenderGraph::vertex_descriptor>{
+        gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.renderQueues.size())};
+    g.renderQueues.emplace_back(std::forward<ValueT>(val));
+}
+
+template <class ValueT>
+void addVertexImpl( // NOLINT
+    ValueT &&val, RenderGraph &g, RenderGraph::Vertex &vert, // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, SceneData>::value>* dummy = nullptr) { // NOLINT
+    vert.handle = impl::ValueHandle<SceneTag, RenderGraph::vertex_descriptor>{
+        gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.scenes.size())};
+    g.scenes.emplace_back(std::forward<ValueT>(val));
+}
+
+template <class ValueT>
+void addVertexImpl( // NOLINT
+    ValueT &&val, RenderGraph &g, RenderGraph::Vertex &vert, // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, Blit>::value>* dummy = nullptr) { // NOLINT
+    vert.handle = impl::ValueHandle<BlitTag, RenderGraph::vertex_descriptor>{
+        gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.blits.size())};
+    g.blits.emplace_back(std::forward<ValueT>(val));
+}
+
+template <class ValueT>
+void addVertexImpl( // NOLINT
+    ValueT &&val, RenderGraph &g, RenderGraph::Vertex &vert, // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, Dispatch>::value>* dummy = nullptr) { // NOLINT
+    vert.handle = impl::ValueHandle<DispatchTag, RenderGraph::vertex_descriptor>{
+        gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.dispatches.size())};
+    g.dispatches.emplace_back(std::forward<ValueT>(val));
+}
+
+template <class Component0, class Component1, class Component2, class Component3, class ValueT>
+inline RenderGraph::vertex_descriptor
+addVertex(Component0&& c0, Component1&& c1, Component2&& c2, Component3&& c3, ValueT&& val, RenderGraph& g, RenderGraph::vertex_descriptor u = RenderGraph::null_vertex()) {
+    auto v = gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.vertices.size());
+
+    g.objects.emplace_back();
+
+    g.vertices.emplace_back();
+    auto& vert = g.vertices.back();
+    g.names.emplace_back(std::forward<Component0>(c0));
+    g.layoutNodes.emplace_back(std::forward<Component1>(c1));
+    g.data.emplace_back(std::forward<Component2>(c2));
+    g.valid.emplace_back(std::forward<Component3>(c3));
+
+    // PolymorphicGraph
+    // if no matching overloaded function is found, Type is not supported by PolymorphicGraph
+    addVertexImpl(std::forward<ValueT>(val), g, vert);
+
+    return v;
+}
+
+template <class Tuple>
+void addVertexImpl(RasterTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Vertex &vert) {
+    invoke_hpp::apply(
+        [&](auto&&... args) {
+            vert.handle = impl::ValueHandle<RasterTag, RenderGraph::vertex_descriptor>{
+                gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.rasterPasses.size())};
+            g.rasterPasses.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Tuple>(val));
+}
+
+template <class Tuple>
+void addVertexImpl(ComputeTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Vertex &vert) {
+    invoke_hpp::apply(
+        [&](auto&&... args) {
+            vert.handle = impl::ValueHandle<ComputeTag, RenderGraph::vertex_descriptor>{
+                gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.computePasses.size())};
+            g.computePasses.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Tuple>(val));
+}
+
+template <class Tuple>
+void addVertexImpl(CopyTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Vertex &vert) {
+    invoke_hpp::apply(
+        [&](auto&&... args) {
+            vert.handle = impl::ValueHandle<CopyTag, RenderGraph::vertex_descriptor>{
+                gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.copyPasses.size())};
+            g.copyPasses.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Tuple>(val));
+}
+
+template <class Tuple>
+void addVertexImpl(MoveTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Vertex &vert) {
+    invoke_hpp::apply(
+        [&](auto&&... args) {
+            vert.handle = impl::ValueHandle<MoveTag, RenderGraph::vertex_descriptor>{
+                gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.movePasses.size())};
+            g.movePasses.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Tuple>(val));
+}
+
+template <class Tuple>
+void addVertexImpl(PresentTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Vertex &vert) {
+    invoke_hpp::apply(
+        [&](auto&&... args) {
+            vert.handle = impl::ValueHandle<PresentTag, RenderGraph::vertex_descriptor>{
+                gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.presentPasses.size())};
+            g.presentPasses.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Tuple>(val));
+}
+
+template <class Tuple>
+void addVertexImpl(RaytraceTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Vertex &vert) {
+    invoke_hpp::apply(
+        [&](auto&&... args) {
+            vert.handle = impl::ValueHandle<RaytraceTag, RenderGraph::vertex_descriptor>{
+                gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.raytracePasses.size())};
+            g.raytracePasses.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Tuple>(val));
+}
+
+template <class Tuple>
+void addVertexImpl(QueueTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Vertex &vert) {
+    invoke_hpp::apply(
+        [&](auto&&... args) {
+            vert.handle = impl::ValueHandle<QueueTag, RenderGraph::vertex_descriptor>{
+                gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.renderQueues.size())};
+            g.renderQueues.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Tuple>(val));
+}
+
+template <class Tuple>
+void addVertexImpl(SceneTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Vertex &vert) {
+    invoke_hpp::apply(
+        [&](auto&&... args) {
+            vert.handle = impl::ValueHandle<SceneTag, RenderGraph::vertex_descriptor>{
+                gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.scenes.size())};
+            g.scenes.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Tuple>(val));
+}
+
+template <class Tuple>
+void addVertexImpl(BlitTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Vertex &vert) {
+    invoke_hpp::apply(
+        [&](auto&&... args) {
+            vert.handle = impl::ValueHandle<BlitTag, RenderGraph::vertex_descriptor>{
+                gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.blits.size())};
+            g.blits.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Tuple>(val));
+}
+
+template <class Tuple>
+void addVertexImpl(DispatchTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Vertex &vert) {
+    invoke_hpp::apply(
+        [&](auto&&... args) {
+            vert.handle = impl::ValueHandle<DispatchTag, RenderGraph::vertex_descriptor>{
+                gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.dispatches.size())};
+            g.dispatches.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Tuple>(val));
+}
+
+template <class Component0, class Component1, class Component2, class Component3, class Tag, class ValueT>
+inline RenderGraph::vertex_descriptor
+addVertex(Tag tag, Component0&& c0, Component1&& c1, Component2&& c2, Component3&& c3, ValueT&& val, RenderGraph& g, RenderGraph::vertex_descriptor u = RenderGraph::null_vertex()) {
+    auto v = gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.vertices.size());
+
+    g.objects.emplace_back();
+
+    g.vertices.emplace_back();
+    auto& vert = g.vertices.back();
+
+    invoke_hpp::apply(
+        [&](auto&&... args) {
+            g.names.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Component0>(c0));
+
+    invoke_hpp::apply(
+        [&](auto&&... args) {
+            g.layoutNodes.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Component1>(c1));
+
+    invoke_hpp::apply(
+        [&](auto&&... args) {
+            g.data.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Component2>(c2));
+
+    invoke_hpp::apply(
+        [&](auto&&... args) {
+            g.valid.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Component3>(c3));
+
+    // PolymorphicGraph
+    // if no matching overloaded function is found, Type is not supported by PolymorphicGraph
+    addVertexImpl(tag, std::forward<ValueT>(val), g, vert);
+
+    return v;
+}
+
 // MutableGraph(Vertex)
 template <class Tag>
 inline RenderGraph::vertex_descriptor
-add_vertex(RenderGraph& g, Tag t, PmrString&& name) { // NOLINT
+add_vertex(RenderGraph& g, Tag t, ccstd::pmr::string&& name) { // NOLINT
     return addVertex(
         t,
         std::forward_as_tuple(std::move(name)), // names
         std::forward_as_tuple(),                // layoutNodes
         std::forward_as_tuple(),                // data
+        std::forward_as_tuple(),                // valid
         std::forward_as_tuple(),                // PolymorphicType
         g);
 }
@@ -3195,6 +3610,7 @@ add_vertex(RenderGraph& g, Tag t, const char* name) { // NOLINT
         std::forward_as_tuple(name), // names
         std::forward_as_tuple(),     // layoutNodes
         std::forward_as_tuple(),     // data
+        std::forward_as_tuple(),     // valid
         std::forward_as_tuple(),     // PolymorphicType
         g);
 }

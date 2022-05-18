@@ -24,10 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @hidden
- */
-
 import { EDITOR, TEST, DEV, DEBUG, JSB, PREVIEW, SUPPORT_JIT } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import * as js from '../utils/js';
@@ -57,7 +53,6 @@ function compileObjectTypeJit (
         if (!assumeHavePropIfIsValue) {
             sources.push('if(prop){');
         }
-        // @ts-expect-error Typing
         const ctorCode = js.getClassName(defaultValue);
         sources.push(`s._deserializeFastDefinedObject(o${accessorToSet},prop,${ctorCode});`);
         if (!assumeHavePropIfIsValue) {
@@ -667,9 +662,9 @@ class _Deserializer {
 
                     const rawDeserialize: CompiledDeserializeFn = deserialize;
                     deserialize = function (deserializer: _Deserializer,
-                                            object: Record<string, unknown>,
-                                            deserialized: Record<string, unknown>,
-                                            constructor: AnyFunction) {
+                        object: Record<string, unknown>,
+                        deserialized: Record<string, unknown>,
+                        constructor: AnyFunction) {
                         try {
                             if (!JSON.parse(JSON.stringify(deserialized._$erialized))) {
                                 error(`Unable to load previously serialized data. ${JSON.stringify(deserialized)}`);

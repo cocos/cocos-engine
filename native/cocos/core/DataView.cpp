@@ -30,7 +30,7 @@ namespace cc {
 #include "base/Macros.h"
 #include "core/ArrayBuffer.h"
 
-std::unordered_map<std::string, DataView::ReaderVariant> DataView::intReaderMap{
+ccstd::unordered_map<ccstd::string, DataView::ReaderVariant> DataView::intReaderMap{
     {"getUint8", &DataView::getUint8},
     {"getUint16", &DataView::getUint16},
     {"getUint32", &DataView::getUint32},
@@ -39,7 +39,7 @@ std::unordered_map<std::string, DataView::ReaderVariant> DataView::intReaderMap{
     {"getInt32", &DataView::getInt32},
 };
 
-std::unordered_map<std::string, DataView::IntWritter> DataView::intWritterMap{
+ccstd::unordered_map<ccstd::string, DataView::IntWritter> DataView::intWritterMap{
     {"setUint8", reinterpret_cast<DataView::IntWritter>(&DataView::setUint8)},
     {"setUint16", reinterpret_cast<DataView::IntWritter>(&DataView::setUint16)},
     {"setUint32", reinterpret_cast<DataView::IntWritter>(&DataView::setUint32)},
@@ -75,7 +75,7 @@ void DataView::assign(ArrayBuffer *buffer, uint32_t byteOffset) {
 void DataView::assign(ArrayBuffer *buffer, uint32_t byteOffset, uint32_t byteLength) {
     CC_ASSERT(buffer != nullptr);
     CC_ASSERT(byteLength > 0);
-    _buffer     = buffer;
+    _buffer = buffer;
     _byteOffset = byteOffset;
     _byteEndPos = byteLength + byteOffset;
     CC_ASSERT(_byteEndPos <= buffer->_byteLength);

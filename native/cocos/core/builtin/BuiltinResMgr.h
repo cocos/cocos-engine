@@ -42,33 +42,34 @@ class Asset;
 class BuiltinResMgr final : public RefCounted {
 public:
     static BuiltinResMgr *getInstance();
-    static void           destroyInstance();
+    static void destroyInstance();
 
-    bool        initBuiltinRes(gfx::Device *device);
+    bool initBuiltinRes(gfx::Device *device);
     inline bool isInitialized() const { return _isInitialized; }
 
-    Asset *getAsset(const std::string &uuid);
+    void addAsset(const ccstd::string &uuid, Asset *asset);
+    Asset *getAsset(const ccstd::string &uuid);
 
     template <typename T, typename Enabled = std::enable_if_t<std::is_base_of<Asset, T>::value>>
-    T *get(const std::string &uuid) {
+    T *get(const ccstd::string &uuid) {
         return static_cast<T *>(getAsset(uuid));
     }
 
 private:
-    explicit BuiltinResMgr()  = default;
+    explicit BuiltinResMgr() = default;
     ~BuiltinResMgr() override = default;
 
     void initMaterials();
     void tryCompileAllPasses();
-    void initTexture2DWithUuid(const std::string &uuid, const uint8_t *data, size_t dataBytes, uint32_t width, uint32_t height);
-    void initTextureCubeWithUuid(const std::string &uuid, const uint8_t *data, size_t dataBytes, uint32_t width, uint32_t height);
+    void initTexture2DWithUuid(const ccstd::string &uuid, const uint8_t *data, size_t dataBytes, uint32_t width, uint32_t height);
+    void initTextureCubeWithUuid(const ccstd::string &uuid, const uint8_t *data, size_t dataBytes, uint32_t width, uint32_t height);
 
     static BuiltinResMgr *instance;
 
-    gfx::Device *                            _device{nullptr};
-    Record<std::string, IntrusivePtr<Asset>> _resources;
-    std::vector<IntrusivePtr<Material>>      _materialsToBeCompiled;
-    bool                                     _isInitialized{false};
+    gfx::Device *_device{nullptr};
+    Record<ccstd::string, IntrusivePtr<Asset>> _resources;
+    ccstd::vector<IntrusivePtr<Material>> _materialsToBeCompiled;
+    bool _isInitialized{false};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(BuiltinResMgr);
 };

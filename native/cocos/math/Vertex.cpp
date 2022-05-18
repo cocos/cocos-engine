@@ -26,13 +26,12 @@
  ****************************************************************************/
 
 #include "math/Vertex.h"
-#include <vector>
 #include "base/Macros.h"
 
 namespace cc {
 
-void ccVertexLineToPolygon(const std::vector<Vec2> &points, float stroke, unsigned int offset, unsigned int nuPoints, std::vector<Vec2> *vertices) {
-    GP_ASSERT(vertices);
+void ccVertexLineToPolygon(const ccstd::vector<Vec2> &points, float stroke, unsigned int offset, unsigned int nuPoints, ccstd::vector<Vec2> *vertices) {
+    CC_ASSERT(vertices);
     nuPoints += offset;
     if (nuPoints <= 1) return;
 
@@ -42,7 +41,7 @@ void ccVertexLineToPolygon(const std::vector<Vec2> &points, float stroke, unsign
     unsigned int nuPointsMinus = nuPoints - 1;
 
     for (unsigned int i = offset; i < nuPoints; i++) {
-        idx     = i * 2;
+        idx = i * 2;
         Vec2 p1 = points[i];
         Vec2 perpVector;
 
@@ -77,7 +76,7 @@ void ccVertexLineToPolygon(const std::vector<Vec2> &points, float stroke, unsign
     // Validate vertexes
     offset = (offset == 0) ? 0 : offset - 1;
     for (unsigned int i = offset; i < nuPointsMinus; i++) {
-        idx                     = i * 2;
+        idx = i * 2;
         const unsigned int idx1 = idx + 2;
 
         Vec2 p1 = (*vertices)[idx];
@@ -95,7 +94,7 @@ void ccVertexLineToPolygon(const std::vector<Vec2> &points, float stroke, unsign
         }
 
         if (fixVertex) {
-            (*vertices)[idx1]     = p4;
+            (*vertices)[idx1] = p4;
             (*vertices)[idx1 + 1] = p3;
         }
     }
@@ -129,12 +128,12 @@ bool ccVertexLineIntersect(float ax, float ay,
     // Rotate the system so that point B is on the positive X axis.
     theCos = bx / distAB;
     theSin = by / distAB;
-    newX   = cx * theCos + cy * theSin;
-    cy     = cy * theCos - cx * theSin;
-    cx     = newX;
-    newX   = dx * theCos + dy * theSin;
-    dy     = dy * theCos - dx * theSin;
-    dx     = newX;
+    newX = cx * theCos + cy * theSin;
+    cy = cy * theCos - cx * theSin;
+    cx = newX;
+    newX = dx * theCos + dy * theSin;
+    dy = dy * theCos - dx * theSin;
+    dx = newX;
 
     // FAIL: Lines are parallel.
     if (cy == dy) {

@@ -25,21 +25,21 @@
 
 #include "renderer/pipeline/helper/Utils.h"
 #include "renderer/pipeline/PipelineStateManager.h"
-
+#include "profiler/DebugRenderer.h"
 #include "gfx-base/GFXSwapchain.h"
 #include "pipeline/Define.h"
 #include "scene/Camera.h"
 #include "scene/Model.h"
+#include "scene/Pass.h"
 #include "scene/RenderWindow.h"
 #include "scene/SubModel.h"
-#include "scene/Pass.h"
 
 namespace cc {
 namespace pipeline {
 
 const scene::Camera *profilerCamera{nullptr};
 
-void decideProfilerCamera(const vector<scene::Camera *> &cameras) {
+void decideProfilerCamera(const ccstd::vector<scene::Camera *> &cameras) {
     for (int i = static_cast<int>(cameras.size() - 1); i >= 0; --i) {
         if (cameras[i]->getWindow()->getSwapchain()) {
             profilerCamera = cameras[i];
@@ -52,12 +52,12 @@ void decideProfilerCamera(const vector<scene::Camera *> &cameras) {
 void renderProfiler(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, scene::Model *profiler, const scene::Camera *camera) {
     if (profiler && profiler->isEnabled() && camera == profilerCamera) {
         const auto &submodel = profiler->getSubModels()[0];
-        auto *      pass     = submodel->getPass(0);
-        auto *      ia       = submodel->getInputAssembler();
-        auto *      pso      = PipelineStateManager::getOrCreatePipelineState(pass, submodel->getShader(0), ia, renderPass);
+        auto *pass = submodel->getPass(0);
+        auto *ia = submodel->getInputAssembler();
+        auto *pso = PipelineStateManager::getOrCreatePipelineState(pass, submodel->getShader(0), ia, renderPass);
 
         gfx::Viewport profilerViewport;
-        gfx::Rect     profilerScissor;
+        gfx::Rect profilerScissor;
         profilerViewport.width = profilerScissor.width = camera->getWindow()->getWidth();
         profilerViewport.height = profilerScissor.height = camera->getWindow()->getHeight();
         cmdBuff->setViewport(profilerViewport);
@@ -69,6 +69,14 @@ void renderProfiler(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, sc
         cmdBuff->bindInputAssembler(ia);
         cmdBuff->draw(ia);
     }
+}
+
+void renderDebugRenderer(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, PipelineSceneData *sceneData, const scene::Camera *camera) {
+    if (camera != profilerCamera) {
+        return;
+    }
+
+    CC_DEBUG_RENDERER->render(renderPass, cmdBuff, sceneData);
 }
 
 } // namespace pipeline

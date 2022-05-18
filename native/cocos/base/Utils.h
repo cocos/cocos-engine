@@ -32,10 +32,10 @@
 #include <cerrno>
 #include <climits>
 #include <limits>
-#include <string>
-#include <vector>
 #include "base/Macros.h"
 #include "base/TypeDef.h"
+#include "base/std/container/string.h"
+#include "base/std/container/vector.h"
 /** @file ccUtils.h
 Misc free functions
 */
@@ -43,7 +43,7 @@ Misc free functions
 namespace cc {
 namespace utils {
 
-CC_DLL std::string getStacktrace(uint skip = 0, uint maxDepth = UINT_MAX);
+CC_DLL ccstd::string getStacktrace(uint skip = 0, uint maxDepth = UINT_MAX);
 
 /**
  * Returns the Next Power of Two value.
@@ -120,8 +120,7 @@ template <class T>
 inline uint toUint(T value) {
     static_assert(std::is_arithmetic<T>::value, "T must be numeric");
 
-    CCASSERT(static_cast<uintmax_t>(value) <= static_cast<uintmax_t>(std::numeric_limits<uint>::max()),
-             "value is too big to be converted to uint");
+    CC_ASSERT(static_cast<uintmax_t>(value) <= static_cast<uintmax_t>(std::numeric_limits<uint>::max()));
 
     return static_cast<uint>(value);
 }
@@ -146,7 +145,7 @@ namespace array {
  * @param value 待移除元素。
  */
 template <typename T>
-bool remove(std::vector<T> &array, T value) {
+bool remove(ccstd::vector<T> &array, T value) {
     auto iter = std::find(array.begin(), array.end(), value);
     if (iter != array.end()) {
         array.erase(iter);
@@ -164,7 +163,7 @@ bool remove(std::vector<T> &array, T value) {
  * @param index 待移除元素的索引。
  */
 template <typename T>
-bool removeAt(std::vector<T> &array, int32_t index) {
+bool removeAt(ccstd::vector<T> &array, int32_t index) {
     if (index >= 0 && index < static_cast<int32_t>(array.size())) {
         array.erase(array.begin() + index);
         return true;
@@ -183,7 +182,7 @@ bool removeAt(std::vector<T> &array, int32_t index) {
  * @param index 待移除元素的索引。
  */
 template <typename T>
-bool fastRemoveAt(std::vector<T> &array, int32_t index) {
+bool fastRemoveAt(ccstd::vector<T> &array, int32_t index) {
     const auto length = static_cast<int32_t>(array.size());
     if (index < 0 || index >= length) {
         return false;
@@ -205,7 +204,7 @@ bool fastRemoveAt(std::vector<T> &array, int32_t index) {
  * @param value 待移除元素。
  */
 template <typename T>
-bool fastRemove(std::vector<T> &array, T value) {
+bool fastRemove(ccstd::vector<T> &array, T value) {
     auto iter = std::find(array.begin(), array.end(), value);
     if (iter != array.end()) {
         *iter = array[array.size() - 1];

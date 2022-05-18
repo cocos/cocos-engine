@@ -30,7 +30,7 @@
 #include <rawfile/resource_manager.h>
 #include <condition_variable>
 #include <mutex>
-#include <string>
+#include "base/std/container/string.h"
 
 #include <future>
 

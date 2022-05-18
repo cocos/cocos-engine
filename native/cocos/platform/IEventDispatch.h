@@ -25,10 +25,11 @@
 
 #pragma once
 
+#include "base/Macros.h"
 #include "bindings/event/EventDispatcher.h"
 
 namespace cc {
-class IEventDispatch {
+class CC_DLL IEventDispatch {
 public:
     /**
      * Destructor of EventDispatchInterface.
@@ -37,11 +38,11 @@ public:
     /**
      * Dispatch event interface.
      */
-    virtual void dispatchEvent(const OSEvent &ev) = 0;
+    virtual void dispatchEvent(const OSEvent& ev) = 0;
     /**
      * Dispatch touch event interface.
      */
-    virtual void dispatchTouchEvent(const OSEvent &ev) = 0;
+    virtual void dispatchTouchEvent(const TouchEvent& ev) = 0;
 };
 
 } // namespace cc

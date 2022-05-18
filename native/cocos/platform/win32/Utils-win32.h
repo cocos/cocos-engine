@@ -30,13 +30,13 @@
 
 #include "base/Macros.h"
 
-#include <string>
+#include "base/std/container/string.h"
 
 namespace cc {
 
-std::wstring CC_DLL StringUtf8ToWideChar(const std::string &strUtf8);
-std::string CC_DLL  StringWideCharToUtf8(const std::wstring &strWideChar);
-std::string CC_DLL  UTF8StringToMultiByte(const std::string &strUtf8);
+std::wstring CC_DLL StringUtf8ToWideChar(const ccstd::string &strUtf8);
+ccstd::string CC_DLL StringWideCharToUtf8(const std::wstring &strWideChar);
+ccstd::string CC_DLL UTF8StringToMultiByte(const ccstd::string &strUtf8);
 
 } // namespace cc
 

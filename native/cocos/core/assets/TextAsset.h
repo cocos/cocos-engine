@@ -35,7 +35,7 @@ namespace cc {
  */
 class TextAsset final : public Asset {
 public:
-    explicit TextAsset()  = default;
+    explicit TextAsset() = default;
     ~TextAsset() override = default;
     /**
      * @en The text content.
@@ -43,9 +43,9 @@ public:
 
     @serializable
     @editable*/
-    std::string text;
+    ccstd::string text;
 
-    std::string toString() const override {
+    ccstd::string toString() const override {
         return text;
     }
 

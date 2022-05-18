@@ -26,15 +26,16 @@
 
 #pragma once
 
-#include <unordered_map>
 #include "base/Log.h"
 #include "base/Random.h"
 #include "base/RefCounted.h"
+#include "base/std/container/unordered_map.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 
 /**
- * Similar to std::unordered_map, but it will manage reference count automatically internally.
+ * Similar to ccstd::unordered_map, but it will manage reference count automatically internally.
  * Which means it will invoke RefCounted::addRef() when adding an element, and invoke RefCounted::release() when removing an element.
  * @warning The element should be `RefCounted` or its sub-class.
  */
@@ -46,9 +47,9 @@ public:
     // ------------------------------------------
 
     /** Iterator, can be used to loop the Map. */
-    using iterator = typename std::unordered_map<K, V>::iterator;
+    using iterator = typename ccstd::unordered_map<K, V>::iterator;
     /** Const iterator, can be used to loop the Map. */
-    using const_iterator = typename std::unordered_map<K, V>::const_iterator;
+    using const_iterator = typename ccstd::unordered_map<K, V>::const_iterator;
 
     /** Return iterator to beginning. */
     iterator begin() { return _data.begin(); }
@@ -66,14 +67,12 @@ public:
     const_iterator cend() const { return _data.cend(); }
 
     /** Default constructor */
-    RefMap<K, V>()
-    : _data() {
+    RefMap<K, V>() {
         static_assert(std::is_convertible<V, RefCounted *>::value, "Invalid Type for cc::Map<K, V>!");
     }
 
     /** Constructor with capacity. */
-    explicit RefMap<K, V>(ssize_t capacity)
-    : _data() {
+    explicit RefMap<K, V>(uint32_t capacity) {
         static_assert(std::is_convertible<V, RefCounted *>::value, "Invalid Type for cc::Map<K, V>!");
         _data.reserve(capacity);
     }
@@ -100,28 +99,28 @@ public:
     }
 
     /** Sets capacity of the map. */
-    void reserve(ssize_t capacity) {
+    void reserve(uint32_t capacity) {
         _data.reserve(capacity);
     }
 
     /** Returns the number of buckets in the Map container. */
-    ssize_t bucketCount() const {
-        return _data.bucket_count();
+    uint32_t bucketCount() const {
+        return static_cast<uint32_t>(_data.bucket_count());
     }
 
     /** Returns the number of elements in bucket n. */
-    ssize_t bucketSize(ssize_t n) const {
-        return _data.bucket_size(n);
+    uint32_t bucketSize(uint32_t n) const {
+        return static_cast<uint32_t>(_data.bucket_size(n));
     }
 
     /** Returns the bucket number where the element with key k is located. */
-    ssize_t bucket(const K &k) const {
+    uint32_t bucket(const K &k) const {
         return _data.bucket(k);
     }
 
     /** The number of elements in the map. */
-    ssize_t size() const {
-        return _data.size();
+    uint32_t size() const {
+        return static_cast<uint32_t>(_data.size());
     }
 
     /**
@@ -134,29 +133,29 @@ public:
     }
 
     /** Returns all keys in the map. */
-    std::vector<K> keys() const {
-        std::vector<K> keys;
+    ccstd::vector<K> keys() const {
+        ccstd::vector<K> keys;
 
         if (!_data.empty()) {
             keys.reserve(_data.size());
 
-            for (auto iter = _data.cbegin(); iter != _data.cend(); ++iter) {
-                keys.push_back(iter->first);
+            for (const auto &element : _data) {
+                keys.push_back(element.first);
             }
         }
         return keys;
     }
 
     /** Returns all keys that matches the object. */
-    std::vector<K> keys(V object) const {
-        std::vector<K> keys;
+    ccstd::vector<K> keys(V object) const {
+        ccstd::vector<K> keys;
 
         if (!_data.empty()) {
             keys.reserve(_data.size() / 10);
 
-            for (auto iter = _data.cbegin(); iter != _data.cend(); ++iter) {
-                if (iter->second == object) {
-                    keys.push_back(iter->first);
+            for (const auto &element : _data) {
+                if (element.second == object) {
+                    keys.push_back(element.first);
                 }
             }
         }
@@ -205,7 +204,7 @@ public:
      * @param object The object to be inserted.
      */
     void insert(const K &key, V object) {
-        CCASSERT(object != nullptr, "Object is nullptr!");
+        CC_ASSERT(object != nullptr);
         object->addRef();
         erase(key);
         _data.insert(std::make_pair(key, object));
@@ -218,7 +217,7 @@ public:
      *        Member type const_iterator is a forward iterator type.
      */
     iterator erase(const_iterator position) {
-        CCASSERT(position != _data.cend(), "Invalid iterator!");
+        CC_ASSERT(position != _data.cend());
         position->second->release();
         return _data.erase(position);
     }
@@ -245,7 +244,7 @@ public:
      *
      * @param keys Keys of elements to be erased.
      */
-    void erase(const std::vector<K> &keys) {
+    void erase(const ccstd::vector<K> &keys) {
         for (const auto &key : keys) {
             this->erase(key);
         }
@@ -257,8 +256,8 @@ public:
      *  leaving it with a size of 0.
      */
     void clear() {
-        for (auto iter = _data.cbegin(); iter != _data.cend(); ++iter) {
-            iter->second->release();
+        for (const auto &element : _data) {
+            element.second->release();
         }
 
         _data.clear();
@@ -270,7 +269,7 @@ public:
      */
     V getRandomObject() const {
         if (!_data.empty()) {
-            auto           randIdx  = RandomHelper::randomInt<int>(0, static_cast<int>(_data.size()) - 1);
+            auto randIdx = RandomHelper::randomInt<int>(0, static_cast<int>(_data.size()) - 1);
             const_iterator randIter = _data.begin();
             std::advance(randIter, randIdx);
             return randIter->second;
@@ -300,12 +299,12 @@ public:
 private:
     /** Retains all the objects in the map */
     void addRefForAllObjects() {
-        for (auto iter = _data.begin(); iter != _data.end(); ++iter) {
-            iter->second->addRef();
+        for (const auto &element : _data) {
+            element.second->addRef();
         }
     }
 
-    std::unordered_map<K, V> _data;
+    ccstd::unordered_map<K, V> _data;
 };
 
 } // namespace cc

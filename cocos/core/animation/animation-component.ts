@@ -39,6 +39,7 @@ import { AnimationClip } from './animation-clip';
 import { AnimationState, EventType } from './animation-state';
 import { CrossFade } from './cross-fade';
 import { legacyCC } from '../global-exports';
+import { js } from '../utils/js';
 
 /**
  * @en
@@ -259,17 +260,6 @@ export class Animation extends Eventify(Component) {
      * Get specified animation state.
      * @zh
      * 获取指定的动画状态。
-     * @deprecated please use [[getState]]
-     */
-    public getAnimationState (name: string) {
-        return this.getState(name);
-    }
-
-    /**
-     * @en
-     * Get specified animation state.
-     * @zh
-     * 获取指定的动画状态。
      * @param name The name of the animation
      * @returns If no animation found, return null, otherwise the correspond animation state is returned
      */
@@ -317,7 +307,6 @@ export class Animation extends Eventify(Component) {
 
     /**
      * 添加一个动画剪辑到 `this.clips`中并以此剪辑创建动画状态。
-     * @deprecated please use [[createState]]
      * @param clip The animation clip
      * @param name The animation state name, if absent, the default clip's name will be used
      * @returns The created animation state
@@ -339,7 +328,6 @@ export class Animation extends Eventify(Component) {
      * 从动画列表中移除指定的动画剪辑，<br/>
      * 如果依赖于 clip 的 AnimationState 正在播放或者 clip 是 defaultClip 的话，默认是不会删除 clip 的。<br/>
      * 但是如果 force 参数为 true，则会强制停止该动画，然后移除该动画剪辑和相关的动画。这时候如果 clip 是 defaultClip，defaultClip 将会被重置为 null。<br/>
-     * @deprecated please use [[removeState]]
      * @param force - If force is true, then will always remove the clip and any animation states based on it.
      */
     public removeClip (clip: AnimationClip, force?: boolean) {
@@ -486,8 +474,10 @@ export class Animation extends Eventify(Component) {
     }
 }
 
+type EventType_ = EventType;
+
 export declare namespace Animation {
-    export type EventType = EnumAlias<typeof EventType>;
+    export type EventType = EventType_;
 }
 
 function equalClips (clip1: AnimationClip | null, clip2: AnimationClip | null) {
@@ -498,3 +488,11 @@ function equalClips (clip1: AnimationClip | null, clip2: AnimationClip | null) {
 }
 
 legacyCC.Animation = Animation;
+
+/**
+ * Alias of [[Animation]]
+ * @deprecated Since v1.2
+ */
+export { Animation as AnimationComponent };
+legacyCC.AnimationComponent = Animation;
+js.setClassAlias(Animation, 'cc.AnimationComponent');

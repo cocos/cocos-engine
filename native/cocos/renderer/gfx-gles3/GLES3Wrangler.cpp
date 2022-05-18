@@ -29,13 +29,28 @@
     #define WIN32_LEAN_AND_MEAN 1
     #include <windows.h>
 
-static HMODULE libegl  = NULL;
+static HMODULE libegl = NULL;
 static HMODULE libgles = NULL;
 
 bool gles3wOpen() {
-    libegl  = LoadLibraryA("libEGL.dll");
+    libegl = LoadLibraryA("libEGL.dll");
     libgles = LoadLibraryA("libGLESv2.dll");
     return (libegl && libgles);
+}
+
+bool gles3wClose() {
+    bool ret = true;
+    if (libegl) {
+        ret &= FreeLibrary(libegl) ? true : false;
+        libegl = NULL;
+    }
+
+    if (libgles) {
+        ret &= FreeLibrary(libgles) ? true : false;
+        libgles = NULL;
+    }
+
+    return ret;
 }
 
 void *gles3wLoad(const char *proc) {
@@ -45,24 +60,40 @@ void *gles3wLoad(const char *proc) {
     return res;
 }
 #elif defined(__EMSCRIPTEN__)
-bool  gles3wOpen() { return true; }
+bool gles3wOpen() { return true; }
+bool gles3wClose() { return true; }
 void *gles3wLoad(const char *proc) {
     return (void *)eglGetProcAddress(proc);
 }
 #else
     #include <dlfcn.h>
 
-static void *libegl  = nullptr;
+static void *libegl = nullptr;
 static void *libgles = nullptr;
 
 bool gles3wOpen() {
-    libegl  = dlopen("libEGL.so", RTLD_LAZY | RTLD_GLOBAL);
+    libegl = dlopen("libEGL.so", RTLD_LAZY | RTLD_GLOBAL);
     #if __OHOS__
     libgles = dlopen("libGLESv3.so", RTLD_LAZY | RTLD_GLOBAL);
     #else
     libgles = dlopen("libGLESv2.so", RTLD_LAZY | RTLD_GLOBAL);
     #endif
     return (libegl && libgles);
+}
+
+bool gles3wClose() {
+    bool ret = true;
+    if (libegl) {
+        ret &= dlclose(libegl) == 0;
+        libegl = nullptr;
+    }
+
+    if (libgles) {
+        ret &= dlclose(libgles) == 0;
+        libgles = nullptr;
+    }
+
+    return ret;
 }
 
 void *gles3wLoad(const char *proc) {
@@ -83,4 +114,8 @@ bool gles3wInit() {
     gles3wLoadProcs(gles3wLoad);
 
     return true;
+}
+
+bool gles3wExit() {
+    return gles3wClose();
 }

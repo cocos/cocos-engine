@@ -60,7 +60,7 @@ describe(`Decorators`, () => {
             ['@unit(a)', [unit('cd/m²')], withVisibleTrueSerializableFalse({ unit: 'cd/m²' })],
             ['@radian', [radian], withVisibleTrueSerializableFalse({ radian: true })],
             ['@multiline', [multiline], withVisibleTrueSerializableFalse({ multiline: true })],
-            ['@disallowAnimation', [disallowAnimation], withVisibleTrueSerializableFalse({ animatable: false })],
+            ['@disallowAnimation', [disallowAnimation], { animatable: false, serializable: false, visible: false }],
 
             ['@serializable', [serializable], withVisibleFalseSerializableTrue({})],
             ['@editorOnly', [editorOnly], withVisibleFalseSerializableTrue({ editorOnly: true })],
@@ -152,6 +152,35 @@ describe(`Decorators`, () => {
     
             const attr = CCClass.Attr.attr(Foo, 'bar');
             expect(attr).toStrictEqual(expected);
+        });
+
+        test('Properties started with slash', () => {
+            @ccclass
+            class Foo {
+                @property
+                _p0 = 3.0;
+
+                @property({ visible: true })
+                _p1 = 3.0;
+
+                @visible(true)
+                _p2 = 3.0;
+
+                @tooltip('t')
+                _p3 = 3.0;
+
+                @property
+                get _a() {
+                    return 0;
+                }
+            }
+
+            expect(CCClass.Attr.attr(Foo, '_p0')).toHaveProperty('visible', false);
+            expect(CCClass.Attr.attr(Foo, '_p1')).toHaveProperty('visible', true);
+            expect(CCClass.Attr.attr(Foo, '_p2')).toHaveProperty('visible', true);
+            expect(CCClass.Attr.attr(Foo, '_p3')).toHaveProperty('visible', true);
+            expect(CCClass.Attr.attr(Foo, '_a')).toHaveProperty('visible', false);
+
         });
     });
 

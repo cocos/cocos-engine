@@ -30,12 +30,21 @@
 #include "base/Scheduler.h"
 #include "base/TypeDef.h"
 #include "platform/BasePlatform.h"
+#include "core/event/CallbacksInvoker.h"
 
 namespace cc {
 
-class BaseEngine : public std::enable_shared_from_this<BaseEngine> {
+class CC_DLL BaseEngine : public CallbacksInvoker,
+                          public std::enable_shared_from_this<BaseEngine> {
 public:
-    virtual ~BaseEngine();
+    enum EngineStatus {
+        ON_START,
+        ON_PAUSE,
+        ON_RESUME,
+        ON_CLOSE,
+        UNKNOWN,
+    };
+    ~BaseEngine() override;
     using Ptr = std::shared_ptr<BaseEngine>;
 
     /**
@@ -100,6 +109,8 @@ public:
      @brief Get engine scheduler.
      */
     virtual SchedulerPtr getScheduler() const = 0;
+
+    virtual bool isInited() const = 0;
 };
 
 } // namespace cc

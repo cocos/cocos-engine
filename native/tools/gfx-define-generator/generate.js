@@ -132,7 +132,7 @@ const getMemberList = (() => {
 })();
 
 const structRE = /(struct\s+(?:\w+\(\w+\)\s+)?(\w+).*?){\s*.+?\s*};/gs;
-const structMemberRE = /^\s*(const\w*\s*)?([\w[\]]+)\s+?(\w+)(?:\s*[={]?\s*(.*?)\s*}*\s*)?;(?:\s*\/\/\s*@ts-(.*?)$)?/gm;
+const structMemberRE = /^\s*(const\w*\s*)?([\w[\:\]]+)\s+?(\w+)(?:\s*[={]?\s*(.*?)\s*}*\s*)?;(?:\s*\/\/\s*@ts-(.*?)$)?/gm;
 const structMap = {};
 const replaceConstants = (() => {
     const strMap = {
@@ -180,6 +180,7 @@ while (structCap) {
             type = type.replace(/(\b)(?:uint\w+?_t|int\w+?_t|float)(\b)/, '$1number$1');
             type = type.replace(/(\b)(?:bool)(\b)/, '$1boolean$2');
             type = type.replace(/(\b)(?:String)(\b)/, '$1string$2');
+            type = type.replace(/(\b)(?:ccstd::string)(\b)/, '$1string$2');
             if (memberCap[1]) { readonly = true; }
             const isArray = type.endsWith('[]');
             const decayedType = isArray ? type.slice(0, -2) : type;

@@ -29,7 +29,7 @@
 
 namespace cc {
 
-class IAccelerometer : public OSInterface {
+class CC_DLL IAccelerometer : public OSInterface {
 public:
     struct MotionValue {
         float accelerationX = 0.0F;
@@ -41,7 +41,7 @@ public:
         float accelerationIncludingGravityZ = 0.0F;
 
         float rotationRateAlpha = 0.0F;
-        float rotationRateBeta  = 0.0F;
+        float rotationRateBeta = 0.0F;
         float rotationRateGamma = 0.0F;
     };
 
@@ -59,13 +59,6 @@ public:
      *  Gets the motion value of current device.
      */
     virtual const MotionValue &getDeviceMotionValue() = 0;
-    /**
-     @brief Create default accelerometer interface.
-     @return accelerometer interface.
-     */
-    static OSInterface::Ptr createAccelerometerInterface();
-
-private:
 };
 
 } // namespace cc

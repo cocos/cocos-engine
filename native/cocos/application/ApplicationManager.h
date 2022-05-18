@@ -26,14 +26,13 @@
 #pragma once
 
 #include <memory>
-#include <vector>
-
 #include "application/BaseApplication.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
-class ApplicationManager {
+class CC_DLL ApplicationManager {
 public:
-    static ApplicationManager *getInstance();
+    static ApplicationManager* getInstance();
 
     using ApplicationPtr = std::shared_ptr<BaseApplication>;
 
@@ -65,7 +64,7 @@ public:
 
 private:
     std::weak_ptr<BaseApplication> _currentApp;
-    std::vector<ApplicationPtr>    _apps;
+    ccstd::vector<ApplicationPtr> _apps;
 };
 } // namespace cc
 
@@ -87,7 +86,7 @@ private:
         return app->run(argc, argv);                                         \
     } while (0)
 
-#define CC_APPLICATION_MAIN(className)            \
-    int cocos_main(int argc, const char **argv) { \
+#define CC_REGISTER_APPLICATION(className)        \
+    int cocos_main(int argc, const char** argv) { \
         CC_START_APPLICATION(className);          \
     }

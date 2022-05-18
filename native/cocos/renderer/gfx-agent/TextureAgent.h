@@ -38,6 +38,8 @@ public:
 
     inline void renounceOwnership() { _ownTheActor = false; }
 
+    const Texture *getRaw() const override { return _actor->getRaw(); }
+
 protected:
     friend class SwapchainAgent;
 

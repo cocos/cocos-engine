@@ -25,14 +25,13 @@
 
 #pragma once
 
-#include "base/CoreStd.h"
 #include "bindings/jswrapper/PrivateObject.h"
 #include "jsb_global_init.h"
 
 template <typename T, class... Args>
-T *jsb_override_new(Args &&...args) { //NOLINT(readability-identifier-naming)
+T *jsb_override_new(Args &&... args) { //NOLINT(readability-identifier-naming)
     //create object in the default way
-    return new T(std::forward<Args>(args)...);
+    return ccnew T(std::forward<Args>(args)...);
 }
 
 template <typename T>
@@ -43,14 +42,14 @@ void jsb_override_delete(T *arg) { //NOLINT(readability-identifier-naming)
 
 template <typename T, typename... ARGS>
 typename std::enable_if<std::is_base_of<cc::RefCounted, T>::value, se::PrivateObjectBase *>::type
-jsb_make_private_object(ARGS &&...args) { //NOLINT(readability-identifier-naming)
-    //return se::raw_private_data(new T(std::forward<ARGS>(args)...));
-    return se::ccshared_private_object(new T(std::forward<ARGS>(args)...));
+jsb_make_private_object(ARGS &&... args) { //NOLINT(readability-identifier-naming)
+    //return se::raw_private_data(ccnew T(std::forward<ARGS>(args)...));
+    return se::ccshared_private_object(ccnew T(std::forward<ARGS>(args)...));
 }
 
 template <typename T, typename... ARGS>
 typename std::enable_if<!std::is_base_of<cc::RefCounted, T>::value, se::PrivateObjectBase *>::type
-jsb_make_private_object(ARGS &&...args) { //NOLINT(readability-identifier-naming)
+jsb_make_private_object(ARGS &&... args) { //NOLINT(readability-identifier-naming)
     return se::shared_private_object(std::make_shared<T>(std::forward<ARGS>(args)...));
 }
 
@@ -64,8 +63,8 @@ class Value;
 
 bool jsb_register_global_variables(se::Object *global); //NOLINT(readability-identifier-naming)
 
-bool jsb_set_extend_property(const char *ns, const char *clsName);                  //NOLINT(readability-identifier-naming)
-bool jsb_run_script(const std::string &filePath, se::Value *rval = nullptr);        //NOLINT(readability-identifier-naming)
-bool jsb_run_script_module(const std::string &filePath, se::Value *rval = nullptr); //NOLINT(readability-identifier-naming)
+bool jsb_set_extend_property(const char *ns, const char *clsName);                    //NOLINT(readability-identifier-naming)
+bool jsb_run_script(const ccstd::string &filePath, se::Value *rval = nullptr);        //NOLINT(readability-identifier-naming)
+bool jsb_run_script_module(const ccstd::string &filePath, se::Value *rval = nullptr); //NOLINT(readability-identifier-naming)
 
-bool jsb_global_load_image(const std::string &path, const se::Value &callbackVal); //NOLINT(readability-identifier-naming)
+bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackVal); //NOLINT(readability-identifier-naming)

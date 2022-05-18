@@ -26,6 +26,7 @@ THE SOFTWARE.
 #pragma once
 
 #include <functional>
+#include "base/std/container/string.h"
 
 namespace cc {
 
@@ -48,7 +49,7 @@ public:
 
     virtual void setId(int id) = 0;
 
-    virtual std::string getUrl() const = 0;
+    virtual ccstd::string getUrl() const = 0;
 
     virtual State getState() const = 0;
 

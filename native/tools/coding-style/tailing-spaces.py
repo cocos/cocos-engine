@@ -43,7 +43,7 @@ def lint(root):
   dirs = [
     os.path.join(root, 'cocos'),
     os.path.join(root, 'extensions'),
-    os.path.join(root, 'templates')
+    os.path.join(root, '..', 'templates')
   ]
 
   files = scan(*dirs, extensions=['.c', '.cpp', '.h', '.hpp', '.m', '.mm', '.java'])

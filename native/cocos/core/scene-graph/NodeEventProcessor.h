@@ -26,20 +26,21 @@
 #pragma once
 
 #include <functional>
-#include <string>
+#include "base/memory/Memory.h"
+#include "base/std/container/string.h"
 #include "cocos/base/Any.h"
 #include "core/event/CallbacksInvoker.h"
 //#include "core/event/Event.h"
 #include "core/scene-graph/NodeEvent.h"
 
 namespace cc {
-const std::vector<CallbacksInvoker::KeyType> TOUCH_EVENTS{
+const ccstd::vector<CallbacksInvoker::KeyType> TOUCH_EVENTS{
     cc::NodeEventType::TOUCH_START,
     cc::NodeEventType::TOUCH_MOVE,
     cc::NodeEventType::TOUCH_END,
     cc::NodeEventType::TOUCH_CANCEL};
 
-const std::vector<CallbacksInvoker::KeyType> MOUSE_EVENTS{
+const ccstd::vector<CallbacksInvoker::KeyType> MOUSE_EVENTS{
     cc::NodeEventType::MOUSE_DOWN,
     cc::NodeEventType::MOUSE_ENTER,
     cc::NodeEventType::MOUSE_MOVE,
@@ -56,8 +57,8 @@ public:
     ~NodeEventProcessor();
 
     inline Node *getNode() { return _node; }
-    void         reattach();
-    void         destroy();
+    void reattach();
+    void destroy();
 
     /**
      * @zh
@@ -78,7 +79,7 @@ public:
     template <typename Target, typename... Args>
     bool hasEventListener(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target) const;
 
-    static bool checkListeners(Node *node, const std::vector<CallbacksInvoker::KeyType> &events);
+    static bool checkListeners(Node *node, const ccstd::vector<CallbacksInvoker::KeyType> &events);
 
     template <typename... Args>
     void on(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, CallbackInfoBase::ID &cbID, bool useCapture = false);
@@ -129,12 +130,12 @@ public:
      * @param args - The  arguments to be passed to the callback
      */
     template <typename... Args>
-    void emit(const CallbacksInvoker::KeyType &type, Args &&...args);
+    void emit(const CallbacksInvoker::KeyType &type, Args &&... args);
 
     void targetOff(const CallbacksInvoker::KeyType &target);
 
-    void getCapturingTargets(const CallbacksInvoker::KeyType &type, std::vector<Node *> &targets) const;
-    void getBubblingTargets(const CallbacksInvoker::KeyType &type, std::vector<Node *> &targets) const;
+    void getCapturingTargets(const CallbacksInvoker::KeyType &type, ccstd::vector<Node *> &targets) const;
+    void getBubblingTargets(const CallbacksInvoker::KeyType &type, ccstd::vector<Node *> &targets) const;
 
     inline CallbacksInvoker *getBubblingTargets() const { return _bubblingTargets; }
     inline CallbacksInvoker *getCapturingTargets() const { return _capturingTargets; }
@@ -189,7 +190,7 @@ private:
 };
 
 template <typename... Args>
-void NodeEventProcessor::emit(const CallbacksInvoker::KeyType &type, Args &&...args) {
+void NodeEventProcessor::emit(const CallbacksInvoker::KeyType &type, Args &&... args) {
     if (_bubblingTargets != nullptr) {
         _bubblingTargets->emit(type, std::forward<Args>(args)...);
     }
@@ -199,12 +200,12 @@ void NodeEventProcessor::onDispatch(const CallbacksInvoker::KeyType &type, std::
     CallbacksInvoker *listeners = nullptr;
     if (useCapture) {
         if (_capturingTargets == nullptr) {
-            _capturingTargets = new CallbacksInvoker();
+            _capturingTargets = ccnew CallbacksInvoker();
         }
         listeners = _capturingTargets;
     } else {
         if (_bubblingTargets == nullptr) {
-            _bubblingTargets = new CallbacksInvoker();
+            _bubblingTargets = ccnew CallbacksInvoker();
         }
         listeners = _bubblingTargets;
     }
@@ -218,12 +219,12 @@ void NodeEventProcessor::onDispatch(const CallbacksInvoker::KeyType &type, std::
     CallbacksInvoker *listeners = nullptr;
     if (useCapture) {
         if (_capturingTargets == nullptr) {
-            _capturingTargets = new CallbacksInvoker();
+            _capturingTargets = ccnew CallbacksInvoker();
         }
         listeners = _capturingTargets;
     } else {
         if (_bubblingTargets == nullptr) {
-            _bubblingTargets = new CallbacksInvoker();
+            _bubblingTargets = ccnew CallbacksInvoker();
         }
         listeners = _bubblingTargets;
     }
@@ -237,12 +238,12 @@ void NodeEventProcessor::onDispatch(const CallbacksInvoker::KeyType &type, void 
     CallbacksInvoker *listeners = nullptr;
     if (useCapture) {
         if (_capturingTargets == nullptr) {
-            _capturingTargets = new CallbacksInvoker();
+            _capturingTargets = ccnew CallbacksInvoker();
         }
         listeners = _capturingTargets;
     } else {
         if (_bubblingTargets == nullptr) {
-            _bubblingTargets = new CallbacksInvoker();
+            _bubblingTargets = ccnew CallbacksInvoker();
         }
         listeners = _bubblingTargets;
     }
@@ -259,7 +260,7 @@ void NodeEventProcessor::on(const CallbacksInvoker::KeyType &type, std::function
     //    } else
     {
         if (_bubblingTargets == nullptr) {
-            _bubblingTargets = new CallbacksInvoker();
+            _bubblingTargets = ccnew CallbacksInvoker();
         }
         _bubblingTargets->on(type, std::forward<std::function<void(Args...)>>(callback), cbID);
     }
@@ -273,7 +274,7 @@ void NodeEventProcessor::on(const CallbacksInvoker::KeyType &type, std::function
     //    } else
     {
         if (_bubblingTargets == nullptr) {
-            _bubblingTargets = new CallbacksInvoker();
+            _bubblingTargets = ccnew CallbacksInvoker();
         }
         _bubblingTargets->on(type, std::forward<std::function<void(Args...)>>(callback), cbID);
     }
@@ -288,7 +289,7 @@ NodeEventProcessor::on(const CallbacksInvoker::KeyType &type, LambdaType &&callb
     //    } else
     {
         if (_bubblingTargets == nullptr) {
-            _bubblingTargets = new CallbacksInvoker();
+            _bubblingTargets = ccnew CallbacksInvoker();
         }
         _bubblingTargets->on(type, callback, target, cbID);
     }
@@ -303,7 +304,7 @@ NodeEventProcessor::on(const CallbacksInvoker::KeyType &type, LambdaType &&callb
     //    } else
     {
         if (_bubblingTargets == nullptr) {
-            _bubblingTargets = new CallbacksInvoker();
+            _bubblingTargets = ccnew CallbacksInvoker();
         }
         _bubblingTargets->on(type, callback, cbID);
     }
@@ -318,7 +319,7 @@ void NodeEventProcessor::on(const CallbacksInvoker::KeyType &type, void (Target:
     //    } else
     {
         if (_bubblingTargets == nullptr) {
-            _bubblingTargets = new CallbacksInvoker();
+            _bubblingTargets = ccnew CallbacksInvoker();
         }
         _bubblingTargets->on(type, memberFn, target);
     }
@@ -334,12 +335,12 @@ void NodeEventProcessor::once(const CallbacksInvoker::KeyType &type, void (Targe
     CallbacksInvoker *listeners = nullptr;
     if (useCapture) {
         if (_capturingTargets == nullptr) {
-            _capturingTargets = new CallbacksInvoker();
+            _capturingTargets = ccnew CallbacksInvoker();
         }
         listeners = _capturingTargets;
     } else {
         if (_bubblingTargets == nullptr) {
-            _bubblingTargets = new CallbacksInvoker();
+            _bubblingTargets = ccnew CallbacksInvoker();
         }
         listeners = _bubblingTargets;
     }
@@ -354,12 +355,12 @@ void NodeEventProcessor::once(const CallbacksInvoker::KeyType &type, std::functi
     CallbacksInvoker *listeners = nullptr;
     if (useCapture) {
         if (_capturingTargets == nullptr) {
-            _capturingTargets = new CallbacksInvoker();
+            _capturingTargets = ccnew CallbacksInvoker();
         }
         listeners = _capturingTargets;
     } else {
         if (_bubblingTargets == nullptr) {
-            _bubblingTargets = new CallbacksInvoker();
+            _bubblingTargets = ccnew CallbacksInvoker();
         }
         listeners = _bubblingTargets;
     }

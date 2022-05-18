@@ -26,14 +26,14 @@ THE SOFTWARE.
 #pragma once
 
 #include <stdio.h>
-#include <string>
-#include <vector>
 #include <memory>
+#include "base/std/container/string.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 
 struct PcmData {
-    std::shared_ptr<std::vector<char>> pcmBuffer;
+    std::shared_ptr<ccstd::vector<char>> pcmBuffer;
     int numChannels;
     int sampleRate;
     int bitsPerSample;
@@ -59,7 +59,7 @@ struct PcmData {
 
     bool isValid() const;
 
-    std::string toString() const;
+    ccstd::string toString() const;
 };
 
 } // namespace cc

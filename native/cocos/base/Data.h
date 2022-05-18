@@ -27,15 +27,8 @@
 
 #pragma once
 
-#include <cstdint> // for ssize_t on android
-#include <string>  // for ssize_t on linux
 #include "base/Macros.h"
 
-/**
- * @addtogroup base
- * @js NA
- * @lua NA
- */
 namespace cc {
 
 class CC_DLL Data {
@@ -82,21 +75,21 @@ public:
      *
      * @return Pointer of bytes used internal in Data.
      */
-    unsigned char *getBytes() const;
+    uint8_t *getBytes() const;
 
     /**
      * Gets the size of the bytes.
      *
      * @return The size of bytes of Data.
      */
-    ssize_t getSize() const;
+    uint32_t getSize() const;
 
     /** Copies the buffer pointer and its size.
      *  @note This method will copy the whole buffer.
      *        Developer should free the pointer after invoking this method.
      *  @see Data::fastSet
      */
-    void copy(const unsigned char *bytes, ssize_t size);
+    void copy(const unsigned char *bytes, uint32_t size);
 
     /** Fast set the buffer pointer and its size. Please use it carefully.
      *  @param bytes The buffer pointer, note that it have to be allocated by 'malloc' or 'calloc',
@@ -105,9 +98,9 @@ public:
      *        2. The pointer should not be used outside after it was passed to this method.
      *  @see Data::copy
      */
-    void fastSet(unsigned char *bytes, ssize_t size);
+    void fastSet(unsigned char *bytes, uint32_t size);
 
-    void resize(ssize_t size);
+    void resize(uint32_t size);
 
     /**
      * Clears data, free buffer and reset data size.
@@ -132,8 +125,8 @@ public:
      * @code
      *  Data d;
      *  // ...
-     *  ssize_t size;
-     *  unsigned char* buffer = d.takeBuffer(&size);
+     *  uint32_t size;
+     *  uint8_t* buffer = d.takeBuffer(&size);
      *  // use buffer and size
      *  free(buffer);
      * @endcode
@@ -141,14 +134,13 @@ public:
      * @param size Will fill with the data buffer size in bytes, if you do not care buffer size, pass nullptr.
      * @return the internal data buffer, free it after use.
      */
-    unsigned char *takeBuffer(ssize_t *size = nullptr);
+    unsigned char *takeBuffer(uint32_t *size = nullptr);
 
 private:
     void move(Data &other); //NOLINT
 
-private:
-    unsigned char *_bytes;
-    ssize_t        _size;
+    uint8_t *_bytes{nullptr};
+    uint32_t _size{0};
 };
 
 } // namespace cc

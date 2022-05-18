@@ -24,14 +24,15 @@
 ****************************************************************************/
 
 #include "MainFlow.h"
+#include "BloomStage.h"
 #include "DeferredPipeline.h"
 #include "GbufferStage.h"
 #include "LightingStage.h"
-#include "BloomStage.h"
 #include "PostProcessStage.h"
 #include "gfx-base/GFXDescriptorSet.h"
 #include "gfx-base/GFXDevice.h"
 #include "pipeline/SceneCulling.h"
+#include "profiler/Profiler.h"
 
 namespace cc {
 namespace pipeline {
@@ -49,16 +50,16 @@ bool MainFlow::initialize(const RenderFlowInfo &info) {
     RenderFlow::initialize(info);
 
     if (_stages.empty()) {
-        auto *gbufferStage = CC_NEW(GbufferStage);
+        auto *gbufferStage = ccnew GbufferStage;
         gbufferStage->initialize(GbufferStage::getInitializeInfo());
         _stages.emplace_back(gbufferStage);
-        auto *lightingStage = CC_NEW(LightingStage);
+        auto *lightingStage = ccnew LightingStage;
         lightingStage->initialize(LightingStage::getInitializeInfo());
         _stages.emplace_back(lightingStage);
-        auto *bloomStage = CC_NEW(BloomStage);
+        auto *bloomStage = ccnew BloomStage;
         bloomStage->initialize(BloomStage::getInitializeInfo());
         _stages.emplace_back(bloomStage);
-        auto *postProcessStage = CC_NEW(PostProcessStage);
+        auto *postProcessStage = ccnew PostProcessStage;
         postProcessStage->initialize(PostProcessStage::getInitializeInfo());
         _stages.emplace_back(postProcessStage);
     }
@@ -71,6 +72,7 @@ void MainFlow::activate(RenderPipeline *pipeline) {
 }
 
 void MainFlow::render(scene::Camera *camera) {
+    CC_PROFILE(MainFlowRender);
     RenderFlow::render(camera);
 }
 

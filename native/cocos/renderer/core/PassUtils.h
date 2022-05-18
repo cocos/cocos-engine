@@ -25,10 +25,11 @@
 
 #pragma once
 
-#include <string>
 #include "base/Ptr.h"
 #include "base/TypeDef.h"
-#include "cocos/base/Variant.h"
+#include "base/Variant.h"
+#include "base/std/container/string.h"
+#include "base/std/container/vector.h"
 
 #include "math/Color.h"
 #include "math/Mat3.h"
@@ -39,15 +40,16 @@
 #include "math/Vec4.h"
 
 #include "renderer/gfx-base/GFXDef.h"
+#include "renderer/gfx-base/GFXTexture.h"
 
 namespace cc {
 
 class TextureBase;
 
-constexpr uint32_t TYPE_MASK    = 0xfc000000; //  6 bits => 64 types
+constexpr uint32_t TYPE_MASK = 0xfc000000;    //  6 bits => 64 types
 constexpr uint32_t BINDING_MASK = 0x03f00000; //  6 bits => 64 bindings
-constexpr uint32_t COUNT_MASK   = 0x000ff000; //  8 bits => 256 vectors
-constexpr uint32_t OFFSET_MASK  = 0x00000fff; // 12 bits => 1024 vectors
+constexpr uint32_t COUNT_MASK = 0x000ff000;   //  8 bits => 256 vectors
+constexpr uint32_t OFFSET_MASK = 0x00000fff;  // 12 bits => 1024 vectors
 
 constexpr uint32_t genHandle(uint32_t binding, gfx::Type type, uint32_t count, uint32_t offset = 0) {
     return ((static_cast<uint32_t>(type) << 26) & TYPE_MASK) |
@@ -57,24 +59,24 @@ constexpr uint32_t genHandle(uint32_t binding, gfx::Type type, uint32_t count, u
 }
 
 constexpr gfx::Type getTypeFromHandle(uint32_t handle) { return static_cast<gfx::Type>((handle & TYPE_MASK) >> 26); }
-constexpr uint32_t  getBindingFromHandle(uint32_t handle) { return (handle & BINDING_MASK) >> 20; }
-constexpr uint32_t  getCountFromHandle(uint32_t handle) { return (handle & COUNT_MASK) >> 12; }
-constexpr uint32_t  getOffsetFromHandle(uint32_t handle) { return (handle & OFFSET_MASK); }
-constexpr uint32_t  customizeType(uint32_t handle, gfx::Type type) {
+constexpr uint32_t getBindingFromHandle(uint32_t handle) { return (handle & BINDING_MASK) >> 20; }
+constexpr uint32_t getCountFromHandle(uint32_t handle) { return (handle & COUNT_MASK) >> 12; }
+constexpr uint32_t getOffsetFromHandle(uint32_t handle) { return (handle & OFFSET_MASK); }
+constexpr uint32_t customizeType(uint32_t handle, gfx::Type type) {
     return (handle & ~TYPE_MASK) | ((static_cast<uint32_t>(type) << 26) & TYPE_MASK);
 }
 
-using MacroValue = cc::variant<int32_t, bool, std::string>;
+using MacroValue = cc::variant<int32_t, bool, ccstd::string>;
 
 /**
  * @en Combination of preprocess macros
  * @zh 预处理宏组合
  */
-using MacroRecord = Record<std::string, MacroValue>;
+using MacroRecord = Record<ccstd::string, MacroValue>;
 
 using MaterialProperty = cc::variant<cc::monostate /*0*/, float /*1*/, int32_t /*2*/, Vec2 /*3*/, Vec3 /*4*/, Vec4 /*5*/, Color, /*6*/ Mat3 /*7*/, Mat4 /*8*/, Quaternion /*9*/, IntrusivePtr<TextureBase> /*10*/, IntrusivePtr<gfx::Texture> /*11*/>;
 
-using MaterialPropertyList = std::vector<MaterialProperty>;
+using MaterialPropertyList = ccstd::vector<MaterialProperty>;
 
 using MaterialPropertyVariant = cc::variant<cc::monostate /*0*/, MaterialProperty /*1*/, MaterialPropertyList /*2*/>;
 
@@ -84,16 +86,16 @@ using MaterialPropertyVariant = cc::variant<cc::monostate /*0*/, MaterialPropert
 using GFXTypeReaderCallback = void (*)(const float *, MaterialProperty &, index_t);
 using GFXTypeWriterCallback = void (*)(float *, const MaterialProperty &, index_t);
 
-extern const std::unordered_map<gfx::Type, GFXTypeReaderCallback> type2reader; //NOLINT(readability-identifier-naming)
-extern const std::unordered_map<gfx::Type, GFXTypeWriterCallback> type2writer; //NOLINT(readability-identifier-naming)
+extern const ccstd::unordered_map<gfx::Type, GFXTypeReaderCallback> type2reader; //NOLINT(readability-identifier-naming)
+extern const ccstd::unordered_map<gfx::Type, GFXTypeWriterCallback> type2writer; //NOLINT(readability-identifier-naming)
 
 /**
  * @en Gets the default values for the given type of uniform
  * @zh 根据指定的 Uniform 类型来获取默认值
  * @param type The type of the uniform
  */
-const std::vector<float> &getDefaultFloatArrayFromType(gfx::Type type);
-const std::string &       getDefaultStringFromType(gfx::Type type);
+const ccstd::vector<float> &getDefaultFloatArrayFromType(gfx::Type type);
+const ccstd::string &getDefaultStringFromType(gfx::Type type);
 
 /**
  * @en Combination of preprocess macros
@@ -106,5 +108,7 @@ const std::string &       getDefaultStringFromType(gfx::Type type);
  * @param source Preprocess macros used for override
  */
 bool overrideMacros(MacroRecord &target, const MacroRecord &source);
+
+MaterialProperty toMaterialProperty(gfx::Type type, const ccstd::vector<float> &vec);
 
 } // namespace cc

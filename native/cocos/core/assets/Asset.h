@@ -52,12 +52,12 @@ public:
      * 返回该资源对应的目标平台资源的 URL，如果没有将返回一个空字符串。
      * @readOnly
      */
-    std::string getNativeUrl() const;
+    ccstd::string getNativeUrl() const;
 
     NativeDep getNativeDep() const;
 
-    inline const std::string &getUuid() const { return _uuid; }
-    inline void               setUuid(const std::string &uuid) { _uuid = uuid; }
+    inline const ccstd::string &getUuid() const { return _uuid; }
+    inline void setUuid(const ccstd::string &uuid) { _uuid = uuid; }
 
     /**
      * @en
@@ -93,13 +93,16 @@ public:
      */
     virtual void createNode(const CreateNodeCallback &cb) {}
 
-    void            addAssetRef();
-    void            decAssetRef(bool autoRelease = true);
+    void addAssetRef();
+    void decAssetRef(bool autoRelease = true);
     inline uint32_t getAssetRefCount() const { return _assetRefCount; }
 
     virtual void onLoaded() {}
 
-    virtual void initDefault(const cc::optional<std::string> &uuid);
+    virtual void initDefault() { initDefault(cc::nullopt); }
+
+    virtual void initDefault(const cc::optional<ccstd::string> &uuid);
+
     virtual bool validate() const { return true; }
 
     bool isDefault() const { return _isDefault; }
@@ -119,7 +122,7 @@ public:
      */
     virtual void deserialize(const cc::any &serializedData, const cc::any &handle) {}
 
-    std::string toString() const override { return _nativeUrl; }
+    ccstd::string toString() const override { return _nativeUrl; }
 
 protected:
     /**
@@ -133,17 +136,17 @@ protected:
      * @param inLibrary
      * @private
      */
-    void setRawAsset(const std::string &filename, bool inLibrary = true);
+    void setRawAsset(const ccstd::string &filename, bool inLibrary = true);
 
     // Make _native, _nativeUrl public for deserialization
 public:
-    std::string _native;
-    std::string _nativeUrl;
+    ccstd::string _native;
+    ccstd::string _nativeUrl;
 
 protected:
-    std::string _uuid;
+    ccstd::string _uuid;
 
-    cc::any  _file;
+    cc::any _file;
     uint32_t _assetRefCount{0};
 
     bool _loaded{true};

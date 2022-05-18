@@ -33,9 +33,8 @@ import { Model } from '../renderer/scene/model';
 import { SubModel } from '../renderer/scene/submodel';
 import { Layers } from '../scene-graph/layers';
 import { legacyCC } from '../global-exports';
-import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit, UniformStorageBuffer,
-    DescriptorSetLayoutBinding, Uniform, UniformBlock, UniformSamplerTexture, UniformStorageImage, Device,
-    Feature, API, FormatFeatureBit, Format,
+import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit, UniformStorageBuffer, DescriptorSetLayoutBinding,
+    Uniform, UniformBlock, UniformSamplerTexture, UniformStorageImage, Device, FormatFeatureBit, Format,
 } from '../gfx';
 
 export const PIPELINE_FLOW_MAIN = 'MainFlow';
@@ -206,7 +205,8 @@ export class UBOCamera {
     public static readonly MAT_VIEW_PROJ_OFFSET = UBOCamera.MAT_PROJ_INV_OFFSET + 16;
     public static readonly MAT_VIEW_PROJ_INV_OFFSET = UBOCamera.MAT_VIEW_PROJ_OFFSET + 16;
     public static readonly CAMERA_POS_OFFSET = UBOCamera.MAT_VIEW_PROJ_INV_OFFSET + 16;
-    public static readonly SCREEN_SCALE_OFFSET = UBOCamera.CAMERA_POS_OFFSET + 4;
+    public static readonly SURFACE_TRANSFORM_OFFSET = UBOCamera.CAMERA_POS_OFFSET + 4;
+    public static readonly SCREEN_SCALE_OFFSET = UBOCamera.SURFACE_TRANSFORM_OFFSET + 4;
     public static readonly EXPOSURE_OFFSET = UBOCamera.SCREEN_SCALE_OFFSET + 4;
     public static readonly MAIN_LIT_DIR_OFFSET = UBOCamera.EXPOSURE_OFFSET + 4;
     public static readonly MAIN_LIT_COLOR_OFFSET = UBOCamera.MAIN_LIT_DIR_OFFSET + 4;
@@ -231,6 +231,7 @@ export class UBOCamera {
         new Uniform('cc_matViewProj', Type.MAT4, 1),
         new Uniform('cc_matViewProjInv', Type.MAT4, 1),
         new Uniform('cc_cameraPos', Type.FLOAT4, 1),
+        new Uniform('cc_surfaceTransform', Type.FLOAT4, 1),
         new Uniform('cc_screenScale', Type.FLOAT4, 1),
         new Uniform('cc_exposure', Type.FLOAT4, 1),
         new Uniform('cc_mainLitDir', Type.FLOAT4, 1),

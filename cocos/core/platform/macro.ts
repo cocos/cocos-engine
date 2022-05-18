@@ -846,102 +846,80 @@ const KEY = {
     dpadCenter: 1005,
 };
 
-/**
- * @en
- * Predefined constants
- * @zh
- * 预定义常量。
- */
-const macro = {
+interface Macro {
     /**
      * @en
-     * The image format supported by the engine defaults, and the supported formats may differ in different build platforms and device types.
-     * Currently all platform and device support ['.webp', '.jpg', '.jpeg', '.bmp', '.png'], ios mobile platform
+     * The image format supported by the engine, the actual supported formats may differ in different build platforms and device types.
+     * Currently contains ['.astc', '.pkm', '.pvr', '.webp', '.jpg', '.jpeg', '.bmp', '.png'].
      * @zh
-     * 引擎默认支持的图片格式，支持的格式可能在不同的构建平台和设备类型上有所差别。
-     * 目前所有平台和设备支持的格式有 ['.webp', '.jpg', '.jpeg', '.bmp', '.png']. The iOS mobile platform also supports the PVR format。
+     * 引擎默认支持的图片格式，实际运行时支持的格式可能在不同的构建平台和设备类型上有所差别。
+     * 目前包含的格式有 ['.astc', '.pkm', '.pvr', '.webp', '.jpg', '.jpeg', '.bmp', '.png']。
      */
-    SUPPORT_TEXTURE_FORMATS,
+    SUPPORT_TEXTURE_FORMATS: string[];
 
     /**
      * @en Key map for keyboard event
      * @zh 键盘事件的按键值。
      * @example {@link cocos/core/platform/CCCommon/KEY.js}
-     * @deprecated since v3.3 please use KeyCode instead
+     * @deprecated since v3.3 please use [[KeyCode]] instead
      */
-    KEY,
+    KEY: typeof KEY;
 
     /**
-     * PI / 180
+     * @en One angle in radian, equals to PI / 180
+     * @zh 弧度制中的单位角度，等同于 PI / 180
      */
-    RAD: Math.PI / 180,
+    RAD: number;
 
     /**
-     * One degree
+     * @en One radian in angle, equals to 180 / PI
+     * @zh 角度制中的单位弧度，等同于 180 / PI
      */
-    DEG: 180 / Math.PI,
+    DEG: number;
 
     /**
-     * A maximum value of number
+     * @en A maximum value of number representing infinity repeat times
+     * @zh 重复执行的最大值，实际取值为数字的最大值
      */
-    REPEAT_FOREVER: (Number.MAX_VALUE - 1),
+    REPEAT_FOREVER: number;
 
     /**
-     * A minimal float value
+     * @en A float value for representing a minimum error in comparison
+     * @zh 用于比较时可忽略的浮点误差值
      */
-    FLT_EPSILON: 0.0000001192092896,
+    FLT_EPSILON: number;
 
     // Possible device orientations
     /**
      * @en Oriented vertically
      * @zh 竖屏朝向
      */
-    ORIENTATION_PORTRAIT: 1,
+    ORIENTATION_PORTRAIT: number;
 
     /**
      * @en Oriented horizontally
      * @zh 横屏朝向
      */
-    ORIENTATION_LANDSCAPE: 2,
+    ORIENTATION_LANDSCAPE: number;
 
     /**
      * @en Oriented automatically
      * @zh 自动适配朝向
      */
-    ORIENTATION_AUTO: 3,
-
-    /**
-     * <p>
-     *   If enabled, the texture coordinates will be calculated by using this formula: <br/>
-     *      - texCoord.left = (rect.x*2+1) / (texture.wide*2);                  <br/>
-     *      - texCoord.right = texCoord.left + (rect.width*2-2)/(texture.wide*2); <br/>
-     *                                                                                 <br/>
-     *  The same for bottom and top.                                                   <br/>
-     *                                                                                 <br/>
-     *  This formula prevents artifacts by using 99% of the texture.                   <br/>
-     *  The "correct" way to prevent artifacts is by expand the texture's border with the same color by 1 pixel<br/>
-     *                                                                                  <br/>
-     *  Affected component:                                                                 <br/>
-     *      - TMXLayer                                                       <br/>
-     *                                                                                  <br/>
-     *  Enabled by default. To disabled set it to 0. <br/>
-     *  To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
-     * </p>
-     * Currently not useful in 3D engine
-     */
-    // FIX_ARTIFACTS_BY_STRECHING_TEXEL_TMX: true,
+    ORIENTATION_AUTO: number;
 
     /**
      * @en
      * Whether or not enabled tiled map auto culling. If you set the TiledMap skew or rotation,
      * then need to manually disable this, otherwise, the rendering will be wrong.
-     * Currently not useful in 3D engine
+     * Currently not used in 3D engine
      * @zh
      * 是否开启瓦片地图的自动裁减功能。瓦片地图如果设置了 skew, rotation 的话，需要手动关闭，否则渲染会出错。
      * 在 3D 引擎中暂时无效。
      * @default true
+     * @deprecated since v3.0
      */
-    ENABLE_TILEDMAP_CULLING: true,
+    ENABLE_TILEDMAP_CULLING: boolean;
 
     /**
      * @en
@@ -951,7 +929,8 @@ const macro = {
      * no touch cancel event is triggered, and the touch will be considered active forever.
      * After multiple times of this action, our maximum touches number will be reached and all new touches will be ignored.
      * So this new mechanism can remove the touch that should be inactive if it's not updated during the last 5000 milliseconds.
-     * Though it might remove a real touch if it's just not moving for the last 5 seconds which is not easy with the sensibility of mobile touch screen.
+     * Though it might remove a real touch if it's just not moving for the last 5 seconds,
+     * which is not easy with the sensibility of mobile touch screen.
      * You can modify this value to have a better behavior if you find it's not enough.
      * @zh
      * 用于甄别一个触点对象是否已经失效并且可以被移除的延时时长
@@ -963,21 +942,21 @@ const macro = {
      * 你可以修改这个值来获得你需要的效果，默认值是 5000 毫秒。
      * @default 5000
      */
-    TOUCH_TIMEOUT: 5000,
+    TOUCH_TIMEOUT: number;
 
     /**
      * @en
      * Boolean that indicates if the canvas contains an alpha channel, default sets to false for better performance.
      * Though if you want to make your canvas background transparent and show other dom elements at the background,
-     * you can set it to true before {{game.init}}.
+     * you can set it to true before [[game.init]].
      * Web only.
      * @zh
      * 用于设置 Canvas 背景是否支持 alpha 通道，默认为 false，这样可以有更高的性能表现。
-     * 如果你希望 Canvas 背景是透明的，并显示背后的其他 DOM 元素，你可以在 {{game.init}} 之前将这个值设为 true。
+     * 如果你希望 Canvas 背景是透明的，并显示背后的其他 DOM 元素，你可以在 [[game.init]] 之前将这个值设为 true。
      * 仅支持 Web
      * @default false
      */
-    ENABLE_TRANSPARENT_CANVAS: false,
+    ENABLE_TRANSPARENT_CANVAS: boolean;
 
     /**
      * @en
@@ -987,36 +966,36 @@ const macro = {
      * device with retina display usually have good detail on graphics with or without this option,
      * you probably don't want antialias if your game style is pixel art based.
      * Also, it could have great performance impact with some browser / device using software MSAA.
-     * You can set it to true before {{game.init}}.
+     * You can set it to true before [[game.init]].
      * Only affect OpenGL ES and WebGL backend
      * @zh
      * 用于设置在创建 GL Context 时是否开启抗锯齿选项，默认值是 false。
      * 将这个选项设置为 true 会让你的游戏画面稍稍平滑一些，比如旋转硬边贴图时的锯齿。是否开启这个选项很大程度上取决于你的游戏和面向的平台。
      * 在大多数拥有 retina 级别屏幕的设备上用户往往无法区分这个选项带来的变化；如果你的游戏选择像素艺术风格，你也多半不会想开启这个选项。
      * 同时，在少部分使用软件级别抗锯齿算法的设备或浏览器上，这个选项会对性能产生比较大的影响。
-     * 你可以在 {{game.init}} 之前设置这个值，否则它不会生效。
+     * 你可以在 [[game.init]] 之前设置这个值，否则它不会生效。
      * 仅影响 WebGL 后端
      * @default true
      */
-    ENABLE_WEBGL_ANTIALIAS: true,
+    ENABLE_WEBGL_ANTIALIAS: boolean;
 
     /**
      * @en
-     * Used to set fxaa post-processing anti-aliasing, the default value is false.
+     * Used to set FXAA post-processing anti-aliasing, the default value is false.
      * @zh
-     * 用于开启fxaa后处理抗锯齿, 默认值为false。
+     * 用于开启 FXAA 后处理抗锯齿, 默认值为 false。
      * @default false
      */
-    ENABLE_ANTIALIAS_FXAA: false,
+    ENABLE_ANTIALIAS_FXAA: boolean;
 
     /**
      * @en
      * Used to set bloom, the default value is false.
      * @zh
-     * 用于开启 bloom, 默认值为false。
+     * 用于开启 bloom, 默认值为 false。
      * @default false
      */
-    ENABLE_BLOOM: false,
+    ENABLE_BLOOM: boolean;
 
     /**
      * @en
@@ -1034,16 +1013,16 @@ const macro = {
      * 在 3D 引擎中暂时无效。
      * @default false
      */
-    CLEANUP_IMAGE_CACHE: false,
+    CLEANUP_IMAGE_CACHE: boolean;
 
     /**
-      * @en
-      * Whether to enable multi-touch.
-      * @zh
-      * 是否开启多点触摸
-      * @default true
-      */
-    ENABLE_MULTI_TOUCH: true,
+     * @en
+     * Whether to enable multi-touch.
+     * @zh
+     * 是否开启多点触摸
+     * @default true
+     */
+    ENABLE_MULTI_TOUCH: boolean;
 
     /**
      * @en
@@ -1052,7 +1031,7 @@ const macro = {
      * Label 使用的 canvas pool 的最大大小，请根据项目同场景的 label 数量进行调整
      * @default 20
      */
-    MAX_LABEL_CANVAS_POOL_SIZE: 20,
+    MAX_LABEL_CANVAS_POOL_SIZE: number;
 
     /**
      * @en
@@ -1068,7 +1047,7 @@ const macro = {
      * 仅影响 WebGL 后端
      * @default false
      */
-    ENABLE_WEBGL_HIGHP_STRUCT_VALUES: false,
+    ENABLE_WEBGL_HIGHP_STRUCT_VALUES: boolean;
 
     /**
      * @zh Batcher2D 中内存增量的大小（KB）
@@ -1084,9 +1063,38 @@ const macro = {
      * you can user larger buffer size to increase the elements count per 2d draw batch.
      * @default 144 KB
      */
+    BATCHER2D_MEM_INCREMENT: number;
+}
+
+/**
+ * @en
+ * Predefined constants
+ * @zh
+ * 预定义常量。
+ */
+const macro: Macro = {
+    SUPPORT_TEXTURE_FORMATS,
+    KEY,
+    RAD: Math.PI / 180,
+    DEG: 180 / Math.PI,
+    REPEAT_FOREVER: (Number.MAX_VALUE - 1),
+    FLT_EPSILON: 0.0000001192092896,
+    ORIENTATION_PORTRAIT: 1,
+    ORIENTATION_LANDSCAPE: 2,
+    ORIENTATION_AUTO: 3,
+    ENABLE_TILEDMAP_CULLING: true,
+    TOUCH_TIMEOUT: 5000,
+    ENABLE_TRANSPARENT_CANVAS: false,
+    ENABLE_WEBGL_ANTIALIAS: true,
+    ENABLE_ANTIALIAS_FXAA: false,
+    ENABLE_BLOOM: false,
+    CLEANUP_IMAGE_CACHE: false,
+    ENABLE_MULTI_TOUCH: true,
+    MAX_LABEL_CANVAS_POOL_SIZE: 20,
+    ENABLE_WEBGL_HIGHP_STRUCT_VALUES: false,
     BATCHER2D_MEM_INCREMENT: 144,
 };
 
 legacyCC.macro = macro;
-
 export { macro };
+export type { Macro };

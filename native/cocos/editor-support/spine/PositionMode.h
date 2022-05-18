@@ -32,8 +32,8 @@
 
 namespace spine {
 enum PositionMode {
-	PositionMode_Fixed = 0,
-	PositionMode_Percent
+    PositionMode_Fixed = 0,
+    PositionMode_Percent
 };
 }
 

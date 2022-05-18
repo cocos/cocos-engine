@@ -27,7 +27,7 @@ THE SOFTWARE.
 #include <math.h>
 
 TEST(mathVec4Test, test3) {
-	cc::Vec4 vec4(1, 2, 3, 1);
+    cc::Vec4 vec4(1, 2, 3, 1);
     // isZero
     logLabel = "test whether vec4 is 0";
     ExpectEq(vec4.isZero(), false);
@@ -106,4 +106,3 @@ TEST(mathVec4Test, test3) {
     vec4 = cc::Vec4::fromColor(255);
     ExpectEq(vec4.w == 1, true);
 }
-

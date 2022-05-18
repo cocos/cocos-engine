@@ -28,14 +28,15 @@ import { PipelineSceneData } from '../pipeline-scene-data';
 import { SceneVisitor } from './pipeline';
 
 export class WebSceneVisitor extends SceneVisitor {
+    protected _pipelineSceneData: PipelineSceneData;
     private _commandBuffer: CommandBuffer;
-    private _pipelineSceneData : PipelineSceneData | null = null;
-    constructor (commandBuffer: CommandBuffer) {
+    constructor (commandBuffer: CommandBuffer, pipelineSceneData: PipelineSceneData) {
         super();
+        this._pipelineSceneData = pipelineSceneData;
         this._commandBuffer = commandBuffer;
     }
     public get pipelineSceneData (): PipelineSceneData {
-        return this._pipelineSceneData!;
+        return this._pipelineSceneData;
     }
     public setViewport (vp: Viewport): void {
         this._commandBuffer.setViewport(vp);

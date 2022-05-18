@@ -28,12 +28,12 @@
  * @module ui
  */
 
-import { Renderable2D } from '../framework/renderable-2d';
+import { UIRenderer } from '../framework/ui-renderer';
 
 export interface IAssembler {
     [key: string]: any;
 }
 
 export interface IAssemblerManager {
-    getAssembler (component: Renderable2D): IAssembler;
+    getAssembler (component: UIRenderer): IAssembler;
 }

@@ -37,7 +37,7 @@ export class AnimationController extends Component {
 
     private _graphEval: AnimationGraphEval | null = null;
 
-    public start () {
+    public __preload () {
         if (this.graph) {
             this._graphEval = new AnimationGraphEval(this.graph as AnimationGraph, this.node, this);
         }
@@ -152,5 +152,11 @@ export class AnimationController extends Component {
         const { _graphEval: graphEval } = this;
         assertIsNonNullable(graphEval);
         return graphEval.getNextClipStatuses(layer);
+    }
+
+    public setLayerWeight (layer: number, weight: number) {
+        const { _graphEval: graphEval } = this;
+        assertIsNonNullable(graphEval);
+        return graphEval.setLayerWeight(layer, weight);
     }
 }

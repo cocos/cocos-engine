@@ -29,7 +29,11 @@
 #include <unistd.h>
 #include <functional>
 #include <thread>
-#include <vector>
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    #include "android/AndroidPlatform.h"
+#endif
+
+#include "BasePlatform.h"
 #include "base/Log.h"
 #include "base/Macros.h"
 #include "platform/java/jni/JniImp.h"
@@ -41,33 +45,34 @@ namespace {
 
 namespace cc {
 
-bool SystemWindow::createWindow(const char *title,
-                                int x, int y, int w,
-                                int h, int flags) {
-    CC_UNUSED_PARAM(title);
-    CC_UNUSED_PARAM(x);
-    CC_UNUSED_PARAM(y);
-    CC_UNUSED_PARAM(w);
-    CC_UNUSED_PARAM(h);
-    CC_UNUSED_PARAM(flags);
-    return true;
-}
-
 void SystemWindow::setCursorEnabled(bool value) {
 }
 
-void SystemWindow::copyTextToClipboard(const std::string &text) {
+void SystemWindow::copyTextToClipboard(const ccstd::string &text) {
     copyTextToClipboardJNI(text);
 }
 
 uintptr_t SystemWindow::getWindowHandler() const {
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    auto *platform = dynamic_cast<AndroidPlatform *>(BasePlatform::getPlatform());
+    CC_ASSERT(platform != nullptr);
+    return platform->getWindowHandler();
+#else
     return reinterpret_cast<uintptr_t>(
         JNI_NATIVE_GLUE()->getWindowHandler());
+#endif
 }
 
 SystemWindow::Size SystemWindow::getViewSize() const {
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    auto *platform = dynamic_cast<AndroidPlatform *>(BasePlatform::getPlatform());
+    CC_ASSERT(platform != nullptr);
+    return Size{static_cast<float>(platform->getWidth()),
+                static_cast<float>(platform->getHeight())};
+#else
     return Size{static_cast<float>(JNI_NATIVE_GLUE()->getWidth()),
                 static_cast<float>(JNI_NATIVE_GLUE()->getHeight())};
+#endif
 }
 
 } // namespace cc

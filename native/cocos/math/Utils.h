@@ -8,9 +8,9 @@ namespace cc {
 
 namespace mathutils {
 
-constexpr auto EPSILON     = 0.000001;
-constexpr auto D2R         = M_PI / 180.0;
-constexpr auto R2D         = 180.0 / M_PI;
+constexpr auto EPSILON = 0.000001;
+constexpr auto D2R = M_PI / 180.0;
+constexpr auto R2D = 180.0 / M_PI;
 constexpr auto HALF_TO_RAD = 0.5 * D2R;
 /**
  * @en Tests whether or not the arguments have approximately the same value, within an absolute<br/>
@@ -55,12 +55,11 @@ typename std::enable_if<std::is_arithmetic<F>::value, F>::type
 clamp(F val, F min, F max) {
     if (min > max) {
         const auto temp = min;
-        min             = max;
-        max             = temp;
+        min = max;
+        max = temp;
     }
 
-    return val < min ? min : val > max ? max
-                                       : val;
+    return val < min ? min : val > max ? max : val;
 }
 
 /**
@@ -71,8 +70,7 @@ clamp(F val, F min, F max) {
 template <typename F>
 auto clamp01(F val) {
     static_assert(std::is_floating_point<F>::value, "number expected");
-    return val < 0 ? 0 : val > 1 ? 1
-                                 : val;
+    return val < 0 ? 0 : val > 1 ? 1 : val;
 }
 
 /**
@@ -218,7 +216,7 @@ auto repeat(T t, T length) {
 template <typename T>
 auto pingPong(T t, T length) {
     t = repeat(t, length * 2);
-    t = length - abs(t - length);
+    t = length - std::abs(t - length);
     return t;
 }
 
@@ -252,7 +250,7 @@ Vec3ElementType maxComponent(const Vec3 &v);
  */
 template <typename F>
 auto absMax(F a, F b) {
-    return abs(a) > abs(b) ? a : b;
+    return std::abs(a) > std::abs(b) ? a : b;
 }
 
 } // namespace mathutils

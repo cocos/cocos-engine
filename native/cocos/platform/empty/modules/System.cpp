@@ -35,7 +35,7 @@ OSType System::getOSType() const {
     return OSType::LINUX;
 }
 
-std::string System::getDeviceModel() const {
+ccstd::string System::getDeviceModel() const {
     return "Empty";
 }
 
@@ -52,9 +52,9 @@ System::LanguageType System::getCurrentLanguage() const {
     return getLanguageTypeByISO2(pLanguageName);
 }
 
-std::string System::getCurrentLanguageCode() const {
-    static char code[3]       = {0};
-    char *      pLanguageName = getenv("LANG");
+ccstd::string System::getCurrentLanguageCode() const {
+    static char code[3] = {0};
+    char *pLanguageName = getenv("LANG");
     if (!pLanguageName) {
         return "en";
     }
@@ -67,11 +67,11 @@ std::string System::getCurrentLanguageCode() const {
     return code;
 }
 
-std::string System::getSystemVersion() const {
+ccstd::string System::getSystemVersion() const {
     return "empty";
 }
 
-bool System::openURL(const std::string &url) {
+bool System::openURL(const ccstd::string &url) {
     return true;
 }
 

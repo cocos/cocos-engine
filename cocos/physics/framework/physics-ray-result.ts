@@ -90,7 +90,7 @@ export class PhysicsRayResult {
      * @zh
      * 设置射线，此方法由引擎内部使用，请勿在外部脚本调用。
      *
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _assign (hitPoint: IVec3Like, distance: number, collider: Collider, hitNormal: IVec3Like) {
         Vec3.copy(this._hitPoint, hitPoint);

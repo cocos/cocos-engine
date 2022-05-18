@@ -23,7 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
 #include "base/job-system/JobSystem.h"
 #include "base/threading/MessageQueue.h"
 
@@ -73,8 +72,8 @@ void QueueAgent::doDestroy() {
 void QueueAgent::submit(CommandBuffer *const *cmdBuffs, uint32_t count) {
     if (!count) return;
 
-    MessageQueue *msgQ          = DeviceAgent::getInstance()->getMessageQueue();
-    auto **       actorCmdBuffs = msgQ->allocate<CommandBuffer *>(count);
+    MessageQueue *msgQ = DeviceAgent::getInstance()->getMessageQueue();
+    auto **actorCmdBuffs = msgQ->allocate<CommandBuffer *>(count);
     for (uint32_t i = 0U; i < count; ++i) {
         actorCmdBuffs[i] = static_cast<CommandBufferAgent *>(cmdBuffs[i])->getActor();
     }

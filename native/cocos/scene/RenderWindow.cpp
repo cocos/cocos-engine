@@ -36,7 +36,7 @@ namespace scene {
 
 namespace {
 
-const std::unordered_map<IScreen::Orientation, gfx::SurfaceTransform> ORIENTATION_MAP{
+const ccstd::unordered_map<IScreen::Orientation, gfx::SurfaceTransform> ORIENTATION_MAP{
     {IScreen::Orientation::PORTRAIT, gfx::SurfaceTransform::IDENTITY},
     {IScreen::Orientation::LANDSCAPE_RIGHT, gfx::SurfaceTransform::ROTATE_90},
     {IScreen::Orientation::PORTRAIT_UPSIDE_DOWN, gfx::SurfaceTransform::ROTATE_180},
@@ -45,7 +45,7 @@ const std::unordered_map<IScreen::Orientation, gfx::SurfaceTransform> ORIENTATIO
 
 }
 
-RenderWindow::RenderWindow()  = default;
+RenderWindow::RenderWindow() = default;
 RenderWindow::~RenderWindow() = default;
 
 bool RenderWindow::initialize(gfx::Device *device, IRenderWindowInfo &info) {
@@ -57,7 +57,7 @@ bool RenderWindow::initialize(gfx::Device *device, IRenderWindowInfo &info) {
         _swapchain = info.swapchain;
     }
 
-    _width  = info.width;
+    _width = info.width;
     _height = info.height;
 
     _renderPass = device->createRenderPass(info.renderPassInfo);
@@ -109,7 +109,7 @@ void RenderWindow::destroy() {
 void RenderWindow::resize(uint32_t width, uint32_t height) {
     if (_swapchain != nullptr) {
         _swapchain->resize(width, height, ORIENTATION_MAP.at(Device::getDeviceOrientation()));
-        _width  = _swapchain->getWidth();
+        _width = _swapchain->getWidth();
         _height = _swapchain->getHeight();
     } else {
         for (auto *colorTexture : _colorTextures) {
@@ -118,7 +118,7 @@ void RenderWindow::resize(uint32_t width, uint32_t height) {
         if (_depthStencilTexture != nullptr) {
             _depthStencilTexture->resize(width, height);
         }
-        _width  = width;
+        _width = width;
         _height = height;
     }
 
@@ -136,7 +136,7 @@ void RenderWindow::resize(uint32_t width, uint32_t height) {
     }
 }
 
-void RenderWindow::extractRenderCameras(std::vector<Camera *> &cameras) {
+void RenderWindow::extractRenderCameras(ccstd::vector<Camera *> &cameras) {
     for (Camera *camera : _cameras) {
         if (camera->isEnabled()) {
             camera->update();

@@ -23,34 +23,204 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <memory>
+#include <sstream>
+#include <stdexcept>
+#include <tuple>
+#include <utility>
+#include "LayoutGraphGraphs.h"
 #include "NativePipelineTypes.h"
+#include "base/Macros.h"
+#include "base/Ptr.h"
+#include "boost/container/pmr/global_resource.hpp"
+#include "boost/container/pmr/unsynchronized_pool_resource.hpp"
+#include "boost/utility/string_view_fwd.hpp"
+#include "cocos/base/StringUtil.h"
 #include "cocos/renderer/gfx-base/GFXDescriptorSetLayout.h"
+#include "cocos/renderer/pipeline/Enum.h"
+#include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
+#include "cocos/renderer/pipeline/PipelineSceneData.h"
+#include "cocos/renderer/pipeline/RenderPipeline.h"
 #include "cocos/renderer/pipeline/custom/GslUtils.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/RenderWindow.h"
+#include "gfx-base/GFXDef-common.h"
+#include "gfx-base/GFXDevice.h"
+#include "pipeline/custom/LayoutGraphFwd.h"
+#include "pipeline/custom/LayoutGraphTypes.h"
+#include "pipeline/custom/NativePipelineFwd.h"
+#include "pipeline/custom/Range.h"
+#include "profiler/DebugRenderer.h"
 
 namespace cc {
 
 namespace render {
 
-NativePipeline::NativePipeline() noexcept {
-    CC_EXPECTS(true);
+uint32_t NativeLayoutGraphBuilder::addRenderStage(const ccstd::string &name) {
+    return add_vertex(*data, RenderStageTag{}, name.c_str());
+}
+
+uint32_t NativeLayoutGraphBuilder::addRenderPhase(const ccstd::string &name, uint32_t parentID) {
+    return add_vertex(*data, RenderPhaseTag{}, name.c_str(), parentID);
+}
+
+void NativeLayoutGraphBuilder::addDescriptorBlock(
+    uint32_t nodeID,
+    const DescriptorBlockIndex &index, const DescriptorBlock &block) {
+    auto &g = *data;
+    auto &ppl = get(LayoutGraphData::Layout, g, nodeID);
+
+    CC_ASSERT(block.capacity);
+    auto &layout = ppl.descriptorSets[index.updateFrequency].descriptorSetLayoutData;
+
+    // add block
+    layout.descriptorBlocks.emplace_back(
+        index.descriptorType, index.visibility, block.capacity);
+
+    auto &dstBlock = layout.descriptorBlocks.back();
+    dstBlock.offset = layout.capacity;
+    dstBlock.capacity = block.capacity;
+    for (const auto &pairD : block.descriptors) {
+        const auto &name = pairD.first;
+        const auto &d = pairD.second;
+        auto iter = g.attributeIndex.find(boost::string_view(name));
+        if (iter == g.attributeIndex.end()) {
+            throw std::out_of_range("attribute not found");
+        }
+        const auto &nameID = iter->second;
+        dstBlock.descriptors.emplace_back(nameID, d.count);
+    }
+    // update layout
+    layout.capacity += block.capacity;
+}
+
+void NativeLayoutGraphBuilder::reserveDescriptorBlock(
+    uint32_t nodeID,
+    const DescriptorBlockIndex &index, const DescriptorBlock &block) {
+    auto &g = *data;
+    auto &ppl = get(LayoutGraphData::Layout, g, nodeID);
+
+    CC_ASSERT(block.capacity);
+    auto &layout = ppl.descriptorSets[index.updateFrequency].descriptorSetLayoutData;
+
+    // add block
+    layout.descriptorBlocks.emplace_back(
+        index.descriptorType, index.visibility, block.capacity);
+
+    auto &dstBlock = layout.descriptorBlocks.back();
+    dstBlock.offset = layout.capacity;
+    dstBlock.capacity = block.capacity;
+
+    // update layout
+    layout.capacity += block.capacity;
+}
+
+namespace {
+
+gfx::DescriptorType getGfxType(DescriptorTypeOrder type) {
+    switch (type) {
+        case DescriptorTypeOrder::UNIFORM_BUFFER:
+            return gfx::DescriptorType::UNIFORM_BUFFER;
+        case DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER:
+            return gfx::DescriptorType::DYNAMIC_UNIFORM_BUFFER;
+        case DescriptorTypeOrder::SAMPLER_TEXTURE:
+            return gfx::DescriptorType::SAMPLER_TEXTURE;
+        case DescriptorTypeOrder::SAMPLER:
+            return gfx::DescriptorType::SAMPLER;
+        case DescriptorTypeOrder::TEXTURE:
+            return gfx::DescriptorType::TEXTURE;
+        case DescriptorTypeOrder::STORAGE_BUFFER:
+            return gfx::DescriptorType::STORAGE_BUFFER;
+        case DescriptorTypeOrder::DYNAMIC_STORAGE_BUFFER:
+            return gfx::DescriptorType::DYNAMIC_STORAGE_BUFFER;
+        case DescriptorTypeOrder::STORAGE_IMAGE:
+            return gfx::DescriptorType::STORAGE_IMAGE;
+        case DescriptorTypeOrder::INPUT_ATTACHMENT:
+            return gfx::DescriptorType::INPUT_ATTACHMENT;
+    }
+    throw std::invalid_argument("DescriptorType not found");
+}
+
+IntrusivePtr<gfx::DescriptorSetLayout> createDescriptorSetLayout(
+    gfx::Device *device, const DescriptorSetLayoutData &layoutData) {
+    gfx::DescriptorSetLayoutInfo info;
+
+    for (const auto &block : layoutData.descriptorBlocks) {
+        uint32_t slot = block.offset;
+        for (const auto &d : block.descriptors) {
+            gfx::DescriptorSetLayoutBinding binding;
+            binding.binding = slot;
+            binding.descriptorType = getGfxType(block.type);
+            binding.count = d.count;
+            binding.stageFlags = block.visibility;
+            binding.immutableSamplers = {};
+            info.bindings.emplace_back(std::move(binding));
+            slot += d.count;
+        }
+    }
+
+    return {device->createDescriptorSetLayout(info)};
+}
+
+} // namespace
+
+int NativeLayoutGraphBuilder::compile() {
+    auto &g = *data;
+    // create descriptor sets
+    for (const auto v : makeRange(vertices(g))) {
+        auto &ppl = get(LayoutGraphData::Layout, g, v);
+        for (auto &levelPair : ppl.descriptorSets) {
+            auto &level = levelPair.second;
+            const auto &layoutData = level.descriptorSetLayoutData;
+            level.descriptorSetLayout = createDescriptorSetLayout(device, layoutData);
+            level.descriptorSet = device->createDescriptorSet(
+                gfx::DescriptorSetInfo{level.descriptorSetLayout.get()});
+        }
+    }
+
+    return 0;
+}
+
+std::string NativeLayoutGraphBuilder::print() const {
+    std::ostringstream oss;
+    boost::container::pmr::unsynchronized_pool_resource pool(
+        boost::container::pmr::get_default_resource());
+    ccstd::pmr::string space(&pool);
+
+    auto &g = *data;
+    for (const auto v : makeRange(vertices(g))) {
+        if (parent(v, g) != LayoutGraphData::null_vertex()) {
+            continue;
+        }
+        const auto& name = get(LayoutGraphData::Name, g);
+        
+    }
+
+    return oss.str();
+}
+
+NativePipeline::NativePipeline(const allocator_type &alloc) noexcept
+: device(gfx::Device::getInstance()),
+  globalDSManager(std::make_unique<pipeline::GlobalDSManager>()),
+  layoutGraphs(alloc),
+  pipelineSceneData(ccnew pipeline::PipelineSceneData()) // NOLINT
+{
 }
 
 // NOLINTNEXTLINE
-uint32_t NativePipeline::addRenderTexture(const std::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) {
+uint32_t NativePipeline::addRenderTexture(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) {
     return 0;
 }
 
 // NOLINTNEXTLINE
-uint32_t NativePipeline::addRenderTarget(const std::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) {
+uint32_t NativePipeline::addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) {
     return 0;
 }
 
 // NOLINTNEXTLINE
-uint32_t NativePipeline::addDepthStencil(const std::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) {
+uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) {
     return 0;
 }
 
@@ -61,32 +231,32 @@ void NativePipeline::endFrame() {
 }
 
 // NOLINTNEXTLINE
-RasterPassBuilder *NativePipeline::addRasterPass(uint32_t width, uint32_t height, const std::string &layoutName, const std::string &name) {
+RasterPassBuilder *NativePipeline::addRasterPass(uint32_t width, uint32_t height, const ccstd::string &layoutName, const ccstd::string &name) {
     return nullptr;
 }
 
 // NOLINTNEXTLINE
-RasterPassBuilder *NativePipeline::addRasterPass(uint32_t width, uint32_t height, const std::string &layoutName) {
+RasterPassBuilder *NativePipeline::addRasterPass(uint32_t width, uint32_t height, const ccstd::string &layoutName) {
     return nullptr;
 }
 
 // NOLINTNEXTLINE
-ComputePassBuilder *NativePipeline::addComputePass(const std::string &layoutName, const std::string &name) {
+ComputePassBuilder *NativePipeline::addComputePass(const ccstd::string &layoutName, const ccstd::string &name) {
     return nullptr;
 }
 
 // NOLINTNEXTLINE
-ComputePassBuilder *NativePipeline::addComputePass(const std::string &layoutName) {
+ComputePassBuilder *NativePipeline::addComputePass(const ccstd::string &layoutName) {
     return nullptr;
 }
 
 // NOLINTNEXTLINE
-MovePassBuilder *NativePipeline::addMovePass(const std::string &name) {
+MovePassBuilder *NativePipeline::addMovePass(const ccstd::string &name) {
     return nullptr;
 }
 
 // NOLINTNEXTLINE
-CopyPassBuilder *NativePipeline::addCopyPass(const std::string &name) {
+CopyPassBuilder *NativePipeline::addCopyPass(const ccstd::string &name) {
     return nullptr;
 }
 
@@ -99,17 +269,178 @@ SceneTransversal *NativePipeline::createSceneTransversal(const scene::Camera *ca
     return nullptr;
 }
 
+LayoutGraphBuilder *NativePipeline::createLayoutGraph(const ccstd::string &name) {
+    auto res = layoutGraphs.emplace(std::piecewise_construct,
+                                    std::forward_as_tuple(name.c_str()),
+                                    std::forward_as_tuple());
+    CC_ASSERT(res.second);
+    return ccnew NativeLayoutGraphBuilder(device, &res.first->second);
+}
+
+namespace {
+
+void generateConstantMacros(
+    gfx::Device *device,
+    std::string &constantMacros, bool clusterEnabled) {
+    constantMacros = StringUtil::format(
+        R"(
+#define CC_DEVICE_SUPPORT_FLOAT_TEXTURE %d
+#define CC_ENABLE_CLUSTERED_LIGHT_CULLING %d
+#define CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS %d
+#define CC_DEVICE_MAX_FRAGMENT_UNIFORM_VECTORS %d
+#define CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT %d
+#define CC_PLATFORM_ANDROID_AND_WEBGL 0
+#define CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES 0
+        )",
+        hasAnyFlags(device->getFormatFeatures(gfx::Format::RGBA32F),
+                    gfx::FormatFeature::RENDER_TARGET | gfx::FormatFeature::SAMPLED_TEXTURE),
+        clusterEnabled ? 1 : 0,
+        device->getCapabilities().maxVertexUniformVectors,
+        device->getCapabilities().maxFragmentUniformVectors,
+        device->hasFeature(gfx::Feature::INPUT_ATTACHMENT_BENEFIT));
+}
+
+} // namespace
+
 // NOLINTNEXTLINE
-bool NativePipeline::activate(gfx::Swapchain *swapchain) {
+bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
+    swapchain = swapchainIn;
+    macros["CC_PIPELINE_TYPE"] = 0;
+    globalDSManager->activate(device);
+    pipelineSceneData->activate(device);
+    cc::DebugRenderer::getInstance()->activate(device);
+
+    // generate macros here rather than construct func because _clusterEnabled
+    // switch may be changed in root.ts setRenderPipeline() function which is after
+    // pipeline construct.
+    generateConstantMacros(device, constantMacros, false);
+
     return true;
 }
 
 bool NativePipeline::destroy() noexcept {
+    if (globalDSManager) {
+        globalDSManager->destroy();
+        globalDSManager.reset();
+    }
+    if (pipelineSceneData) {
+        pipelineSceneData->destroy();
+        pipelineSceneData = {};
+    }
+
+    framegraph::FrameGraph::gc(0);
+
     return true;
 }
 
 // NOLINTNEXTLINE
-void NativePipeline::render(const std::vector<scene::Camera *> &cameras) {
+void NativePipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
+    const auto *sceneData = pipelineSceneData.get();
+    auto *commandBuffer = device->getCommandBuffer();
+    float shadingScale = sceneData->getShadingScale();
+
+    struct RenderData2 {
+        framegraph::TextureHandle outputTex;
+    };
+
+    commandBuffer->begin();
+
+    for (const auto *camera : cameras) {
+        auto colorHandle = framegraph::FrameGraph::stringToHandle("outputTexture");
+
+        auto forwardSetup = [&](framegraph::PassNodeBuilder &builder, RenderData2 &data) {
+            gfx::Color clearColor;
+            if (hasFlag(static_cast<gfx::ClearFlags>(camera->getClearFlag()), gfx::ClearFlagBit::COLOR)) {
+                clearColor.x = camera->getClearColor().x;
+                clearColor.y = camera->getClearColor().y;
+                clearColor.z = camera->getClearColor().z;
+            }
+            clearColor.w = camera->getClearColor().w;
+            // color
+            framegraph::Texture::Descriptor colorTexInfo;
+            colorTexInfo.format = sceneData->isHDR() ? gfx::Format::RGBA16F : gfx::Format::RGBA8;
+            colorTexInfo.usage = gfx::TextureUsageBit::COLOR_ATTACHMENT;
+            colorTexInfo.width = static_cast<uint>(static_cast<float>(camera->getWindow()->getWidth()) * shadingScale);
+            colorTexInfo.height = static_cast<uint>(static_cast<float>(camera->getWindow()->getHeight()) * shadingScale);
+            if (shadingScale != 1.F) {
+                colorTexInfo.usage |= gfx::TextureUsageBit::TRANSFER_SRC;
+            }
+
+            data.outputTex = builder.create(colorHandle, colorTexInfo);
+            framegraph::RenderTargetAttachment::Descriptor colorAttachmentInfo;
+            colorAttachmentInfo.usage = framegraph::RenderTargetAttachment::Usage::COLOR;
+            colorAttachmentInfo.clearColor = clearColor;
+            colorAttachmentInfo.loadOp = gfx::LoadOp::CLEAR;
+
+            colorAttachmentInfo.beginAccesses = colorAttachmentInfo.endAccesses = gfx::AccessFlagBit::COLOR_ATTACHMENT_WRITE;
+
+            data.outputTex = builder.write(data.outputTex, colorAttachmentInfo);
+            builder.writeToBlackboard(colorHandle, data.outputTex);
+
+            auto getRenderArea = [](const scene::Camera *camera) {
+                float w{static_cast<float>(camera->getWindow()->getWidth())};
+                float h{static_cast<float>(camera->getWindow()->getHeight())};
+
+                const auto &vp = camera->getViewport();
+                return gfx::Rect{
+                    static_cast<int32_t>(vp.x * w),
+                    static_cast<int32_t>(vp.y * h),
+                    static_cast<uint32_t>(vp.z * w),
+                    static_cast<uint32_t>(vp.w * h),
+                };
+            };
+
+            auto getViewport = [&shadingScale, &getRenderArea](const scene::Camera *camera) {
+                const gfx::Rect &rect = getRenderArea(camera);
+                return gfx::Viewport{
+                    static_cast<int>(static_cast<float>(rect.x) * shadingScale),
+                    static_cast<int>(static_cast<float>(rect.y) * shadingScale),
+                    static_cast<uint>(static_cast<float>(rect.width) * shadingScale),
+                    static_cast<uint>(static_cast<float>(rect.height) * shadingScale)};
+            };
+
+            auto getScissor = [&shadingScale, &getRenderArea](const scene::Camera *camera) {
+                const gfx::Rect &rect = getRenderArea(camera);
+                return gfx::Rect{
+                    static_cast<int>(static_cast<float>(rect.x) * shadingScale),
+                    static_cast<int>(static_cast<float>(rect.y) * shadingScale),
+                    static_cast<uint>(static_cast<float>(rect.width) * shadingScale),
+                    static_cast<uint>(static_cast<float>(rect.height) * shadingScale)};
+            };
+
+            builder.setViewport(getViewport(camera), getScissor(camera));
+        };
+
+        auto forwardExec = [](const RenderData2 & /*data*/,
+                              const framegraph::DevicePassResourceTable &table) {
+            // do nothing
+        };
+
+        auto passHandle = framegraph::FrameGraph::stringToHandle("forwardPass");
+
+        frameGraph.addPass<RenderData2>(
+            static_cast<uint>(ForwardInsertPoint::IP_FORWARD),
+            passHandle, forwardSetup, forwardExec);
+
+        frameGraph.presentFromBlackboard(colorHandle,
+                                         camera->getWindow()->getFramebuffer()->getColorTextures()[0], true);
+    }
+    frameGraph.compile();
+    frameGraph.execute();
+    frameGraph.reset();
+
+    ccstd::vector<gfx::CommandBuffer *> commandBuffers(1, commandBuffer);
+    device->flushCommands(commandBuffers);
+    device->getQueue()->submit(commandBuffers);
+
+    commandBuffer->end();
+    {
+        static uint64_t frameCount{0U};
+        static constexpr uint64_t INTERVAL_IN_SECONDS = 30;
+        if (++frameCount % (INTERVAL_IN_SECONDS * 60) == 0) {
+            framegraph::FrameGraph::gc(INTERVAL_IN_SECONDS * 60);
+        }
+    }
 }
 
 const MacroRecord &NativePipeline::getMacros() const {
@@ -128,7 +459,7 @@ pipeline::PipelineSceneData *NativePipeline::getPipelineSceneData() const {
     return pipelineSceneData;
 }
 
-const std::string &NativePipeline::getConstantMacros() const {
+const ccstd::string &NativePipeline::getConstantMacros() const {
     return constantMacros;
 }
 
@@ -142,21 +473,27 @@ void NativePipeline::setProfiler(scene::Model *profilerIn) {
 }
 
 float NativePipeline::getShadingScale() const {
-    return 0;
+    return pipelineSceneData->getShadingScale();
 }
 
 void NativePipeline::setShadingScale(float scale) {
+    pipelineSceneData->setShadingScale(scale);
 }
 
 void NativePipeline::onGlobalPipelineStateChanged() {
+    pipelineSceneData->updatePipelineSceneData();
 }
 
-void NativePipeline::setValue(const std::string &name, int32_t value) {
+void NativePipeline::setValue(const ccstd::string &name, int32_t value) {
     macros[name] = value;
 }
 
-void NativePipeline::setValue(const std::string &name, bool value) {
+void NativePipeline::setValue(const ccstd::string &name, bool value) {
     macros[name] = value;
+}
+
+bool NativePipeline::isOcclusionQueryEnabled() const {
+    return false;
 }
 
 } // namespace render

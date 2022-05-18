@@ -32,19 +32,18 @@
 #include <algorithm> // for std::find
 #include <cstdint>
 #include <functional>
-#include <vector>
 
 #include "base/Log.h"
-#include "base/memory/Memory.h"
 #include "base/Random.h"
 #include "base/RefCounted.h"
 #include "base/TypeDef.h"
+#include "base/memory/Memory.h"
 #include "core/TypedArray.h"
 
 namespace cc {
 
 /*
- * Similar to std::vector, but it will manage reference count automatically internally.
+ * Similar to ccstd::vector, but it will manage reference count automatically internally.
  * Which means it will invoke RefCounted::addRef() when adding an element, and invoke RefCounted::release() when removing an element.
  * @warn The element should be `RefCounted` or its sub-class.
  */
@@ -56,14 +55,14 @@ public:
     // ------------------------------------------
 
     /** Iterator, can be used to loop the Vector. */
-    using iterator = typename std::vector<T>::iterator;
+    using iterator = typename ccstd::vector<T>::iterator;
     /** Const iterator, can be used to loop the Vector. */
-    using const_iterator = typename std::vector<T>::const_iterator;
+    using const_iterator = typename ccstd::vector<T>::const_iterator;
 
     /** Reversed iterator, can be used to loop the Vector in reverse sequence. */
-    using reverse_iterator = typename std::vector<T>::reverse_iterator;
+    using reverse_iterator = typename ccstd::vector<T>::reverse_iterator;
     /** Reversed iterator, can be used to loop the Vector in reverse sequence. */
-    using const_reverse_iterator = typename std::vector<T>::const_reverse_iterator;
+    using const_reverse_iterator = typename ccstd::vector<T>::const_reverse_iterator;
 
     /** Returns an iterator pointing the first element of the Vector. */
     iterator begin() { return _data.begin(); }
@@ -148,7 +147,7 @@ public:
     }
 
     /** Copy constructor. */
-    explicit RefVector<T>(const std::vector<T> &other) {
+    explicit RefVector<T>(const ccstd::vector<T> &other) {
         static_assert(std::is_convertible<T, RefCounted *>::value, "Invalid Type for cc::Vector<T>!");
         //        CC_LOG_INFO("In the copy constructor!");
         _data = other;
@@ -163,7 +162,7 @@ public:
     }
 
     /** Constructor with std::move semantic. */
-    explicit RefVector<T>(std::vector<T> &&other) noexcept {
+    explicit RefVector<T>(ccstd::vector<T> &&other) noexcept {
         static_assert(std::is_convertible<T, RefCounted *>::value, "Invalid Type for cc::Vector<T>!");
         //        CC_LOG_INFO("In the move constructor of Vector!");
         _data = std::move(other);
@@ -457,7 +456,7 @@ public:
         _data.shrink_to_fit();
     }
 
-    const std::vector<T> &get() const {
+    const ccstd::vector<T> &get() const {
         return _data;
     }
 
@@ -473,7 +472,7 @@ protected:
         }
     }
 
-    std::vector<T> _data;
+    ccstd::vector<T> _data;
 };
 
 } // namespace cc

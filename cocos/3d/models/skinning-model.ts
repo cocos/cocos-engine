@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { Material } from '../../core/assets/material';
 import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
 import { Mesh } from '../assets/mesh';
@@ -42,7 +37,6 @@ import { uploadJointData } from '../skeletal-animation/skeletal-animation-utils'
 import { MorphModel } from './morph-model';
 import { deleteTransform, getTransform, getWorldMatrix, IJointTransform } from '../../core/animation/skeletal-animation-utils';
 import { IMacroPatch, BatchingSchemes, Pass } from '../../core/renderer';
-
 import { warnID } from '../../core/platform/debug';
 
 const myPatches: IMacroPatch[] = [
@@ -192,7 +186,7 @@ export class SkinningModel extends MorphModel {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _updateLocalDescriptors (submodelIdx: number, descriptorSet: DescriptorSet) {
         super._updateLocalDescriptors(submodelIdx, descriptorSet);

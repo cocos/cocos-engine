@@ -83,7 +83,11 @@ public:
     /**
      *  @brief Destroys the instance of script engine.
      */
+    CC_DEPRECATED(v3.6.0)
     static void destroyInstance();
+    
+    ScriptEngine();
+    ~ScriptEngine();
 
     /**
      *  @brief Gets the global object of JavaScript VM.
@@ -171,12 +175,12 @@ public:
     /**
      *  @brief Executes a utf-8 string buffer which contains JavaScript code.
      *  @param[in] script A utf-8 string buffer, if it isn't null-terminated, parameter `length` should be assigned and > 0.
-     *  @param[in] length The length of parameter `scriptStr`, it will be set to string length internally if passing < 0 and parameter `scriptStr` is null-terminated.
+     *  @param[in] length The length of parameter `scriptStr`, it will be set to string length internally if passing 0 and parameter `scriptStr` is null-terminated.
      *  @param[in] ret The se::Value that results from evaluating script. Passing nullptr if you don't care about the result.
      *  @param[in] fileName A string containing a URL for the script's source file. This is used by debuggers and when reporting exceptions. Pass NULL if you do not care to include source file information.
      *  @return true if succeed, otherwise false.
      */
-    bool evalString(const char *script, ssize_t length = -1, Value *ret = nullptr, const char *fileName = nullptr);
+    bool evalString(const char *script, uint32_t length = 0, Value *ret = nullptr, const char *fileName = nullptr);
 
     /**
      *  @brief Compile script file into v8::ScriptCompiler::CachedData and save to file.
@@ -184,13 +188,13 @@ public:
      *  @param[in] pathBc The location where bytecode file should be written to. The path should be ends with ".bc", which indicates a bytecode file.
      *  @return true if succeed, otherwise false.
      */
-    bool saveByteCodeToFile(const std::string &path, const std::string &pathBc);
+    bool saveByteCodeToFile(const ccstd::string &path, const ccstd::string &pathBc);
 
     /**
      * @brief Grab a snapshot of the current JavaScript execution stack.
      * @return current stack trace string
      */
-    std::string getCurrentStackTrace();
+    ccstd::string getCurrentStackTrace();
 
     /**
      *  Delegate class for file operation
@@ -211,13 +215,13 @@ public:
         }
 
         // path, buffer, buffer size
-        std::function<void(const std::string &, const std::function<void(const uint8_t *, size_t)> &)> onGetDataFromFile;
+        std::function<void(const ccstd::string &, const std::function<void(const uint8_t *, size_t)> &)> onGetDataFromFile;
         // path, return file string content.
-        std::function<std::string(const std::string &)> onGetStringFromFile;
+        std::function<ccstd::string(const ccstd::string &)> onGetStringFromFile;
         // path
-        std::function<bool(const std::string &)> onCheckFileExist;
+        std::function<bool(const ccstd::string &)> onCheckFileExist;
         // path, return full path
-        std::function<std::string(const std::string &)> onGetFullPath;
+        std::function<ccstd::string(const ccstd::string &)> onGetFullPath;
     };
 
     /**
@@ -238,7 +242,7 @@ public:
      *  @param[in] ret The se::Value that results from evaluating script. Passing nullptr if you don't care about the result.
      *  @return true if succeed, otherwise false.
      */
-    bool runScript(const std::string &path, Value *ret = nullptr);
+    bool runScript(const ccstd::string &path, Value *ret = nullptr);
 
     /**
      *  @brief Tests whether script engine is doing garbage collection.
@@ -266,7 +270,7 @@ public:
     /**
      * @brief Throw JS exception
      */
-    void throwException(const std::string &errorMessage);
+    void throwException(const ccstd::string &errorMessage);
 
     /**
      *  @brief Clears all exceptions.
@@ -298,7 +302,7 @@ public:
      *  @param[in] serverAddr The address of debugger server.
      *  @param[in] isWait Whether wait debugger attach when loading.
      */
-    void enableDebugger(const std::string &serverAddr, uint32_t port, bool isWait = false);
+    void enableDebugger(const ccstd::string &serverAddr, uint32_t port, bool isWait = false);
 
     /**
      *  @brief Tests whether JavaScript debugger is enabled
@@ -332,22 +336,20 @@ public:
         VMStringPool();
         ~VMStringPool();
         v8::MaybeLocal<v8::String> get(v8::Isolate *isolate, const char *name);
-        void                       clear();
+        void clear();
 
     private:
-        std::unordered_map<std::string, v8::Persistent<v8::String> *> _vmStringPoolMap;
+        ccstd::unordered_map<ccstd::string, v8::Persistent<v8::String> *> _vmStringPoolMap;
     };
 
-    inline VMStringPool &  _getStringPool() { return _stringPool; }         // NOLINT(readability-identifier-naming)
-    void                   _retainScriptObject(void *owner, void *target);  // NOLINT(readability-identifier-naming)
-    void                   _releaseScriptObject(void *owner, void *target); // NOLINT(readability-identifier-naming)
-    v8::Local<v8::Context> _getContext() const;                             // NOLINT(readability-identifier-naming)
-    void                   _setGarbageCollecting(bool isGarbageCollecting); // NOLINT(readability-identifier-naming)
+    inline VMStringPool &_getStringPool() { return _stringPool; } // NOLINT(readability-identifier-naming)
+    void _retainScriptObject(void *owner, void *target);          // NOLINT(readability-identifier-naming)
+    void _releaseScriptObject(void *owner, void *target);         // NOLINT(readability-identifier-naming)
+    v8::Local<v8::Context> _getContext() const;                   // NOLINT(readability-identifier-naming)
+    void _setGarbageCollecting(bool isGarbageCollecting);         // NOLINT(readability-identifier-naming)
 
     //
 private:
-    ScriptEngine();
-    ~ScriptEngine();
     static void privateDataFinalize(PrivateObjectBase *privateObj);
     static void onFatalErrorCallback(const char *location, const char *message);
     static void onOOMErrorCallback(const char *location, bool isHeapOom);
@@ -360,39 +362,41 @@ private:
      *  @param[in] ret The se::Value that results from evaluating script. Passing nullptr if you don't care about the result.
      *  @return true if succeed, otherwise false.
      */
-    bool runByteCodeFile(const std::string &pathBc, Value *ret /* = nullptr */);
+    bool runByteCodeFile(const ccstd::string &pathBc, Value *ret /* = nullptr */);
     void callExceptionCallback(const char *, const char *, const char *);
     bool callRegisteredCallback();
     bool postInit();
     // Struct to save exception info
     struct PromiseExceptionMsg {
-        std::string event;
-        std::string stackTrace;
+        ccstd::string event;
+        ccstd::string stackTrace;
     };
     // Push promise and exception msg to _promiseArray
     void pushPromiseExeception(const v8::Local<v8::Promise> &promise, const char *event, const char *stackTrace);
+    
+    static ScriptEngine *instance;
 
-    std::vector<std::tuple<std::unique_ptr<v8::Persistent<v8::Promise>>, std::vector<PromiseExceptionMsg>>> _promiseArray;
+    ccstd::vector<std::tuple<std::unique_ptr<v8::Persistent<v8::Promise>>, ccstd::vector<PromiseExceptionMsg>>> _promiseArray;
 
     std::chrono::steady_clock::time_point _startTime;
-    std::vector<RegisterCallback>         _registerCallbackArray;
-    std::vector<RegisterCallback>         _permRegisterCallbackArray;
-    std::vector<std::function<void()>>    _beforeInitHookArray;
-    std::vector<std::function<void()>>    _afterInitHookArray;
-    std::vector<std::function<void()>>    _beforeCleanupHookArray;
-    std::vector<std::function<void()>>    _afterCleanupHookArray;
+    ccstd::vector<RegisterCallback> _registerCallbackArray;
+    ccstd::vector<RegisterCallback> _permRegisterCallbackArray;
+    ccstd::vector<std::function<void()>> _beforeInitHookArray;
+    ccstd::vector<std::function<void()>> _afterInitHookArray;
+    ccstd::vector<std::function<void()>> _beforeCleanupHookArray;
+    ccstd::vector<std::function<void()>> _afterCleanupHookArray;
 
     v8::Persistent<v8::Context> _context;
 
-    v8::Isolate *    _isolate;
+    v8::Isolate *_isolate;
     v8::HandleScope *_handleScope;
-    Object *         _globalObj;
-    Value            _gcFuncValue;
-    Object *         _gcFunc = nullptr;
+    Object *_globalObj;
+    Value _gcFuncValue;
+    Object *_gcFunc = nullptr;
 
     FileOperationDelegate _fileOperationDelegate;
-    ExceptionCallback     _nativeExceptionCallback = nullptr;
-    ExceptionCallback     _jsExceptionCallback     = nullptr;
+    ExceptionCallback _nativeExceptionCallback = nullptr;
+    ExceptionCallback _jsExceptionCallback = nullptr;
 
     #if SE_ENABLE_INSPECTOR
     node::Environment *_env;
@@ -401,10 +405,10 @@ private:
     VMStringPool _stringPool;
 
     std::thread::id _engineThreadId;
-    std::string     _lastStackTrace;
-    std::string     _debuggerServerAddr;
-    uint32_t        _debuggerServerPort;
-    bool            _isWaitForConnect;
+    ccstd::string _lastStackTrace;
+    ccstd::string _debuggerServerAddr;
+    uint32_t _debuggerServerPort;
+    bool _isWaitForConnect;
 
     uint32_t _vmId;
 

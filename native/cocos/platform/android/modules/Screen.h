@@ -29,7 +29,7 @@
 
 namespace cc {
 
-class Screen : public CommonScreen {
+class CC_DLL Screen : public CommonScreen {
 public:
     int getDPI() const override;
 };

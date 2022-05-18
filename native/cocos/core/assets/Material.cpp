@@ -42,7 +42,7 @@ uint64_t Material::getHashForMaterial(Material *material) {
         return 0;
     }
 
-    uint64_t    hash   = 0;
+    uint64_t hash = 0;
     const auto &passes = *material->_passes;
     for (const auto &pass : passes) {
         hash ^= pass->getHash();
@@ -51,7 +51,7 @@ uint64_t Material::getHashForMaterial(Material *material) {
 }
 
 Material::Material() {
-    _passes = std::make_shared<std::vector<IntrusivePtr<scene::Pass>>>();
+    _passes = std::make_shared<ccstd::vector<IntrusivePtr<scene::Pass>>>();
 }
 
 Material::~Material() = default;
@@ -103,12 +103,12 @@ void Material::doDestroy() {
 }
 
 void Material::recompileShaders(const MacroRecord & /*overrides*/, index_t /*passIdx*/) {
-    assert(false);
+    CC_ASSERT(false);
     CC_LOG_WARNING("Shaders in material asset '%s' cannot be modified at runtime, please instantiate the material first.", _name.c_str());
 }
 
 void Material::overridePipelineStates(const PassOverrides & /*overrides*/, index_t /*passIdx*/) {
-    assert(false);
+    CC_ASSERT(false);
     CC_LOG_WARNING("Pipeline states in material asset '%s' cannot be modified at runtime, please instantiate the material first.", _name.c_str());
 }
 
@@ -130,16 +130,16 @@ void Material::resetUniforms(bool clearPasses /* = true */) {
     }
 }
 
-void Material::setProperty(const std::string &name, const MaterialPropertyVariant &val, index_t passIdx /* = CC_INVALID_INDEX */) {
-    const auto &passes  = *_passes;
-    bool        success = false;
+void Material::setProperty(const ccstd::string &name, const MaterialPropertyVariant &val, index_t passIdx /* = CC_INVALID_INDEX */) {
+    const auto &passes = *_passes;
+    bool success = false;
     if (passIdx == CC_INVALID_INDEX) { // try set property for all applicable passes
         size_t len = passes.size();
         for (size_t i = 0; i < len; i++) {
             const auto &pass = passes[i];
             if (uploadProperty(pass, name, val)) {
                 _props[pass->getPropertyIndex()][name] = val;
-                success                                = true;
+                success = true;
             }
         }
     } else {
@@ -151,7 +151,7 @@ void Material::setProperty(const std::string &name, const MaterialPropertyVarian
         const auto &pass = passes[passIdx];
         if (uploadProperty(pass, name, val)) {
             _props[pass->getPropertyIndex()][name] = val;
-            success                                = true;
+            success = true;
         }
     }
 
@@ -160,9 +160,9 @@ void Material::setProperty(const std::string &name, const MaterialPropertyVarian
     }
 }
 
-#define CC_MATERIAL_SETPROPERTY_IMPL(funcNameSuffix, type)                                                                   \
-    void Material::setProperty##funcNameSuffix(const std::string &name, type val, index_t passIdx /* = CC_INVALID_INDEX*/) { \
-        setProperty(name, val, passIdx);                                                                                     \
+#define CC_MATERIAL_SETPROPERTY_IMPL(funcNameSuffix, type)                                                                     \
+    void Material::setProperty##funcNameSuffix(const ccstd::string &name, type val, index_t passIdx /* = CC_INVALID_INDEX*/) { \
+        setProperty(name, val, passIdx);                                                                                       \
     }
 
 CC_MATERIAL_SETPROPERTY_IMPL(Float32, float)
@@ -179,14 +179,14 @@ CC_MATERIAL_SETPROPERTY_IMPL(GFXTexture, gfx::Texture *)
 
 #undef CC_MATERIAL_SETPROPERTY_IMPL
 
-#define CC_MATERIAL_SETPROPERTY_ARRAY_IMPL(funcNameSuffix, type)                                                                                       \
-    void Material::setProperty##funcNameSuffix##Array(const std::string &name, const std::vector<type> &val, index_t /*passIdx = CC_INVALID_INDEX*/) { \
-        MaterialPropertyList propertyArr;                                                                                                              \
-        propertyArr.reserve(val.size());                                                                                                               \
-        for (const auto &e : val) {                                                                                                                    \
-            propertyArr.emplace_back(e);                                                                                                               \
-        }                                                                                                                                              \
-        setProperty(name, propertyArr);                                                                                                                \
+#define CC_MATERIAL_SETPROPERTY_ARRAY_IMPL(funcNameSuffix, type)                                                                                           \
+    void Material::setProperty##funcNameSuffix##Array(const ccstd::string &name, const ccstd::vector<type> &val, index_t /*passIdx = CC_INVALID_INDEX*/) { \
+        MaterialPropertyList propertyArr;                                                                                                                  \
+        propertyArr.reserve(val.size());                                                                                                                   \
+        for (const auto &e : val) {                                                                                                                        \
+            propertyArr.emplace_back(e);                                                                                                                   \
+        }                                                                                                                                                  \
+        setProperty(name, propertyArr);                                                                                                                    \
     }
 
 CC_MATERIAL_SETPROPERTY_ARRAY_IMPL(Float32, float)
@@ -203,13 +203,13 @@ CC_MATERIAL_SETPROPERTY_ARRAY_IMPL(GFXTexture, gfx::Texture *)
 
 #undef CC_MATERIAL_SETPROPERTY_ARRAY_IMPL
 
-const MaterialPropertyVariant *Material::getProperty(const std::string &name, index_t passIdx) const {
+const MaterialPropertyVariant *Material::getProperty(const ccstd::string &name, index_t passIdx) const {
     if (passIdx == CC_INVALID_INDEX) { // try get property in all possible passes
         const auto &propsArray = _props;
-        size_t      len        = propsArray.size();
+        size_t len = propsArray.size();
         for (size_t i = 0; i < len; i++) {
             const auto &props = propsArray[i];
-            auto        iter  = props.find(name);
+            auto iter = props.find(name);
             if (iter != props.end()) {
                 return &iter->second;
             }
@@ -221,8 +221,8 @@ const MaterialPropertyVariant *Material::getProperty(const std::string &name, in
         }
 
         const auto &passes = *_passes;
-        const auto &props  = _props[passes[passIdx]->getPropertyIndex()];
-        auto        iter   = props.find(name);
+        const auto &props = _props[passes[passIdx]->getPropertyIndex()];
+        auto iter = props.find(name);
         if (iter != props.end()) {
             return &iter->second;
         }
@@ -240,7 +240,7 @@ void Material::fillInfo(const IMaterialInfo &info) {
     } else if (info.effectName != cc::nullopt) {
         _effectAsset = EffectAsset::get(info.effectName.value());
     }
-    
+
     if (info.defines != cc::nullopt) {
         prepareInfo(info.defines.value(), _defines);
     }
@@ -309,9 +309,9 @@ void Material::update(bool keepProps /* = true*/) {
     _hash = Material::getHashForMaterial(this);
 }
 
-std::vector<IntrusivePtr<scene::Pass>> Material::createPasses() {
-    std::vector<IntrusivePtr<scene::Pass>> passes;
-    ITechniqueInfo *                       tech = nullptr;
+ccstd::vector<IntrusivePtr<scene::Pass>> Material::createPasses() {
+    ccstd::vector<IntrusivePtr<scene::Pass>> passes;
+    ITechniqueInfo *tech = nullptr;
     if (_techIdx < _effectAsset->_techniques.size()) {
         tech = &_effectAsset->_techniques[_techIdx];
     }
@@ -322,14 +322,14 @@ std::vector<IntrusivePtr<scene::Pass>> Material::createPasses() {
 
     size_t passNum = tech->passes.size();
     for (size_t k = 0; k < passNum; ++k) {
-        auto &  passInfo = tech->passes[k];
+        auto &passInfo = tech->passes[k];
         index_t propIdx = passInfo.passIndex = static_cast<index_t>(k);
 
         if (propIdx >= _defines.size()) {
             _defines.resize(propIdx + 1);
         }
         passInfo.defines = _defines[propIdx];
-        auto &defines    = passInfo.defines;
+        auto &defines = passInfo.defines;
 
         if (propIdx >= _states.size()) {
             _states.resize(propIdx + 1);
@@ -348,14 +348,14 @@ std::vector<IntrusivePtr<scene::Pass>> Material::createPasses() {
             continue;
         }
 
-        auto *pass = new scene::Pass(Root::getInstance());
+        auto *pass = ccnew scene::Pass(Root::getInstance());
         pass->initialize(passInfo);
         passes.emplace_back(pass);
     }
     return passes;
 }
 
-bool Material::uploadProperty(scene::Pass *pass, const std::string &name, const MaterialPropertyVariant &val) {
+bool Material::uploadProperty(scene::Pass *pass, const ccstd::string &name, const MaterialPropertyVariant &val) {
     uint32_t handle = pass->getHandle(name);
     if (!handle) {
         return false;
@@ -367,11 +367,11 @@ bool Material::uploadProperty(scene::Pass *pass, const std::string &name, const 
             pass->setUniformArray(handle, cc::get<MaterialPropertyList>(val));
         } else if (val.index() == MATERIAL_PROPERTY_INDEX_SINGLE) {
             const auto &passProps = pass->getProperties();
-            auto        iter      = passProps.find(name);
+            auto iter = passProps.find(name);
             if (iter != passProps.end() && iter->second.linear.has_value()) {
                 CC_ASSERT(cc::holds_alternative<MaterialProperty>(val));
                 const auto &prop = cc::get<MaterialProperty>(val);
-                Vec4        srgb;
+                Vec4 srgb;
                 if (cc::holds_alternative<cc::Color>(prop)) {
                     srgb = cc::get<cc::Color>(prop).toVec4();
                 } else if (cc::holds_alternative<Vec4>(prop)) {
@@ -412,8 +412,8 @@ void Material::bindTexture(scene::Pass *pass, uint32_t handle, const MaterialPro
     if (const auto *pTexture = cc::get_if<IntrusivePtr<gfx::Texture>>(&val)) {
         pass->bindTexture(binding, const_cast<gfx::Texture *>(pTexture->get()), index);
     } else if (const auto *pTextureBase = cc::get_if<IntrusivePtr<TextureBase>>(&val)) {
-        auto *        textureBase = pTextureBase->get();
-        gfx::Texture *texture     = nullptr;
+        auto *textureBase = pTextureBase->get();
+        gfx::Texture *texture = nullptr;
         if (textureBase != nullptr) {
             texture = textureBase->getGFXTexture();
         }
@@ -432,12 +432,12 @@ void Material::bindTexture(scene::Pass *pass, uint32_t handle, const MaterialPro
     }
 }
 
-void Material::initDefault(const cc::optional<std::string> &uuid) {
+void Material::initDefault(const cc::optional<ccstd::string> &uuid) {
     Super::initDefault(uuid);
-    MacroRecord   defines{{"USE_COLOR", true}};
+    MacroRecord defines{{"USE_COLOR", true}};
     IMaterialInfo info;
-    info.effectName = std::string{"unlit"};
-    info.defines    = IMaterialInfo::DefinesType{defines};
+    info.effectName = ccstd::string{"unlit"};
+    info.defines = IMaterialInfo::DefinesType{defines};
     initialize(info);
     setProperty("mainColor", Color{0xFF, 0x00, 0xFF, 0xFF});
 }

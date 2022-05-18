@@ -32,8 +32,8 @@ namespace framegraph {
 
 struct RenderTargetAttachment final {
     using StoreOp = gfx::StoreOp;
-    using LoadOp  = gfx::LoadOp;
-    using Color   = gfx::Color;
+    using LoadOp = gfx::LoadOp;
+    using Color = gfx::Color;
 
     enum class Usage : uint8_t {
         COLOR,
@@ -43,12 +43,12 @@ struct RenderTargetAttachment final {
     };
 
     struct Descriptor final {
-        Usage   usage{Usage::COLOR};
+        Usage usage{Usage::COLOR};
         uint8_t slot{0xff};
         uint8_t writeMask{0xff};
-        LoadOp  loadOp{LoadOp::DISCARD};
-        Color   clearColor;
-        float   clearDepth{1.F};
+        LoadOp loadOp{LoadOp::DISCARD};
+        Color clearColor;
+        float clearDepth{1.F};
         uint8_t clearStencil{0U};
 
         gfx::AccessFlags beginAccesses{gfx::AccessFlagBit::NONE};
@@ -62,12 +62,12 @@ struct RenderTargetAttachment final {
     static constexpr uint8_t DEPTH_STENCIL_SLOT_START{13};
 
     TextureHandle textureHandle{};
-    Descriptor    desc;
-    uint8_t       level{0};
-    uint8_t       layer{0};
-    uint8_t       index{0};
-    StoreOp       storeOp{StoreOp::DISCARD};
-    bool          isGeneralLayout{false};
+    Descriptor desc;
+    uint8_t level{0};
+    uint8_t layer{0};
+    uint8_t index{0};
+    StoreOp storeOp{StoreOp::DISCARD};
+    bool isGeneralLayout{false};
 };
 
 inline bool RenderTargetAttachment::Sorter::operator()(const RenderTargetAttachment &a1, const RenderTargetAttachment &a2) const noexcept {

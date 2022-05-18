@@ -39,15 +39,15 @@
 namespace {
 
 template <typename T>
-std::string toString(T arg) {
+ccstd::string toString(T arg) {
     std::stringstream ss;
     ss << arg;
     return ss.str();
 }
 
-std::string submatch(const std::smatch &m, int idx) {
+ccstd::string submatch(const std::smatch &m, int idx) {
     auto &sub = m[idx];
-    return std::string(sub.first, sub.second);
+    return ccstd::string(sub.first, sub.second);
 }
 
 template <class String>
@@ -129,7 +129,7 @@ bool Uri::operator==(const Uri &o) const {
     return (_isValid == o._isValid && _isSecure == o._isSecure && _scheme == o._scheme && _username == o._username && _password == o._password && _host == o._host && _hostName == o._hostName && _hasAuthority == o._hasAuthority && _port == o._port && _authority == o._authority && _pathEtc == o._pathEtc && _path == o._path && _query == o._query && _fragment == o._fragment && _queryParams == o._queryParams);
 }
 
-Uri Uri::parse(const std::string &str) {
+Uri Uri::parse(const ccstd::string &str) {
     Uri uri;
 
     if (!uri.doParse(str)) {
@@ -139,7 +139,7 @@ Uri Uri::parse(const std::string &str) {
     return uri;
 }
 
-bool Uri::doParse(const std::string &str) {
+bool Uri::doParse(const ccstd::string &str) {
     static const std::regex uriRegex(
         "([a-zA-Z][a-zA-Z0-9+.-]*):" // scheme:
         "([^?#]*)"                   // authority and path
@@ -154,8 +154,8 @@ bool Uri::doParse(const std::string &str) {
 
     bool hasScheme = true;
     ;
-    std::string copied(str);
-    if (copied.find("://") == std::string::npos) {
+    ccstd::string copied(str);
+    if (copied.find("://") == ccstd::string::npos) {
         hasScheme = false;
         copied.insert(0, "abc://"); // Just make regex happy.
     }
@@ -174,7 +174,7 @@ bool Uri::doParse(const std::string &str) {
         }
     }
 
-    std::string authorityAndPath(match[2].first, match[2].second);
+    ccstd::string authorityAndPath(match[2].first, match[2].second);
     std::smatch authorityAndPathMatch;
     if (!std::regex_match(authorityAndPath.cbegin(),
                           authorityAndPath.cend(),
@@ -196,12 +196,12 @@ bool Uri::doParse(const std::string &str) {
                               authority.second,
                               authorityMatch,
                               authorityRegex)) {
-            std::string invalidAuthority(authority.first, authority.second);
+            ccstd::string invalidAuthority(authority.first, authority.second);
             CC_LOG_ERROR("Invalid URI authority: %s", invalidAuthority.c_str());
             return false;
         }
 
-        std::string port(authorityMatch[4].first, authorityMatch[4].second);
+        ccstd::string port(authorityMatch[4].first, authorityMatch[4].second);
         if (!port.empty()) {
             _port = static_cast<uint16_t>(atoi(port.c_str()));
         }
@@ -282,7 +282,7 @@ void Uri::clear() {
     _queryParams.clear();
 }
 
-const std::vector<std::pair<std::string, std::string>> &Uri::getQueryParams() {
+const ccstd::vector<std::pair<ccstd::string, ccstd::string>> &Uri::getQueryParams() {
     if (!_query.empty() && _queryParams.empty()) {
         // Parse query string
         static const std::regex queryParamRegex(
@@ -301,15 +301,15 @@ const std::vector<std::pair<std::string, std::string>> &Uri::getQueryParams() {
                 continue;
             }
             _queryParams.emplace_back(
-                std::string((*itr)[2].first, (*itr)[2].second), // parameter name
-                std::string((*itr)[3].first, (*itr)[3].second)  // parameter value
+                ccstd::string((*itr)[2].first, (*itr)[2].second), // parameter name
+                ccstd::string((*itr)[3].first, (*itr)[3].second)  // parameter value
             );
         }
     }
     return _queryParams;
 }
 
-std::string Uri::toString() const {
+ccstd::string Uri::toString() const {
     std::stringstream ss;
     if (_hasAuthority) {
         ss << _scheme << "://";

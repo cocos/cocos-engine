@@ -33,21 +33,21 @@
 
 namespace cc {
 namespace pipeline {
-map<scene::Pass *, map<uint, InstancedBuffer *>> InstancedBuffer::buffers;
-InstancedBuffer *                                InstancedBuffer::get(scene::Pass *pass) {
+ccstd::unordered_map<scene::Pass *, ccstd::unordered_map<uint, InstancedBuffer *>> InstancedBuffer::buffers;
+InstancedBuffer *InstancedBuffer::get(scene::Pass *pass) {
     return InstancedBuffer::get(pass, 0);
 }
 InstancedBuffer *InstancedBuffer::get(scene::Pass *pass, uint extraKey) {
     auto &record = buffers[pass];
     auto &buffer = record[extraKey];
-    if (buffer == nullptr) buffer = CC_NEW(InstancedBuffer(pass));
+    if (buffer == nullptr) buffer = ccnew InstancedBuffer(pass);
 
     return buffer;
 }
 
 void InstancedBuffer::destroyInstancedBuffer() {
     for (auto &pair : InstancedBuffer::buffers) {
-        const map<uint, InstancedBuffer *> &instanceItem = pair.second;
+        const ccstd::unordered_map<uint, InstancedBuffer *> &instanceItem = pair.second;
         for (const auto &item : instanceItem) {
             InstancedBuffer *instanceBuffer = item.second;
             if (instanceBuffer) {
@@ -79,14 +79,14 @@ void InstancedBuffer::merge(const scene::Model *model, const scene::SubModel *su
 }
 
 void InstancedBuffer::merge(const scene::Model *model, const scene::SubModel *subModel, uint passIdx, gfx::Shader *shaderImplant) {
-    auto        stride          = model->getInstancedBufferSize();
+    auto stride = model->getInstancedBufferSize();
     const auto *instancedBuffer = model->getInstancedBuffer();
 
     if (!stride) return; // we assume per-instance attributes are always present
-    auto *sourceIA      = subModel->getInputAssembler();
+    auto *sourceIA = subModel->getInputAssembler();
     auto *descriptorSet = subModel->getDescriptorSet();
-    auto *lightingMap   = descriptorSet->getTexture(LIGHTMAPTEXTURE::BINDING);
-    auto *shader        = shaderImplant;
+    auto *lightingMap = descriptorSet->getTexture(LIGHTMAPTEXTURE::BINDING);
+    auto *shader = shaderImplant;
     if (!shader) {
         shader = subModel->getShader(passIdx);
     }
@@ -107,7 +107,7 @@ void InstancedBuffer::merge(const scene::Model *model, const scene::SubModel *su
         if (instance.count >= instance.capacity) { // resize buffers
             instance.capacity <<= 1;
             const auto newSize = instance.stride * instance.capacity;
-            instance.data      = static_cast<uint8_t *>(CC_REALLOC(instance.data, newSize));
+            instance.data = static_cast<uint8_t *>(CC_REALLOC(instance.data, newSize));
             instance.vb->resize(newSize);
         }
         if (instance.shader != shader) {
@@ -122,17 +122,17 @@ void InstancedBuffer::merge(const scene::Model *model, const scene::SubModel *su
     }
 
     // Create a new instance
-    auto  newSize = stride * INITIAL_CAPACITY;
-    auto *vb      = _device->createBuffer({
+    auto newSize = stride * INITIAL_CAPACITY;
+    auto *vb = _device->createBuffer({
         gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
         gfx::MemoryUsageBit::DEVICE,
         static_cast<uint>(newSize),
         static_cast<uint>(stride),
     });
 
-    auto  vertexBuffers = sourceIA->getVertexBuffers();
-    auto  attributes    = sourceIA->getAttributes();
-    auto *indexBuffer   = sourceIA->getIndexBuffer();
+    auto vertexBuffers = sourceIA->getVertexBuffers();
+    auto attributes = sourceIA->getAttributes();
+    auto *indexBuffer = sourceIA->getIndexBuffer();
 
     for (const auto &attribute : model->getInstanceAttributes()) {
         attributes.emplace_back(gfx::Attribute{
@@ -148,8 +148,8 @@ void InstancedBuffer::merge(const scene::Model *model, const scene::SubModel *su
     memcpy(data, instancedBuffer, stride);
     vertexBuffers.emplace_back(vb);
     gfx::InputAssemblerInfo iaInfo = {attributes, vertexBuffers, indexBuffer};
-    auto *                  ia     = _device->createInputAssembler(iaInfo);
-    InstancedItem           item   = {1, INITIAL_CAPACITY, vb, data, ia, stride, shader, descriptorSet, lightingMap};
+    auto *ia = _device->createInputAssembler(iaInfo);
+    InstancedItem item = {1, INITIAL_CAPACITY, vb, data, ia, stride, shader, descriptorSet, lightingMap};
     _instances.emplace_back(item);
     _hasPendingModels = true;
 }

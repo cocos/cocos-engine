@@ -12,6 +12,15 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
+
+#if CC_DEBUG
+static bool js_geometry_getter_return_true(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    s.rval().setBoolean(true);
+    return true;
+}
+SE_BIND_PROP_GET(js_geometry_getter_return_true)
+#endif
 se::Object* __jsb_cc_geometry_ShapeBase_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_geometry_ShapeBase_class = nullptr;  // NOLINT
 
@@ -57,6 +66,9 @@ bool js_register_geometry_ShapeBase(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("ShapeBase", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_geometry_getter_return_true), nullptr);
+#endif
     cls->defineProperty("_type", _SE(js_geometry_ShapeBase_getType_asGetter), _SE(js_geometry_ShapeBase_setType_asSetter));
     cls->install();
     JSBClassType::registerClass<cc::geometry::ShapeBase>(cls);
@@ -253,6 +265,9 @@ bool js_register_geometry_AABB(se::Object* obj) // NOLINT(readability-identifier
 {
     auto* cls = se::Class::create("AABB", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_geometry_AABB_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_geometry_getter_return_true), nullptr);
+#endif
     cls->defineProperty("center", _SE(js_geometry_AABB_get_center), _SE(js_geometry_AABB_set_center));
     cls->defineProperty("halfExtents", _SE(js_geometry_AABB_get_halfExtents), _SE(js_geometry_AABB_set_halfExtents));
     cls->defineFunction("contain", _SE(js_geometry_AABB_contain));
@@ -377,6 +392,9 @@ bool js_register_geometry_Capsule(se::Object* obj) // NOLINT(readability-identif
 {
     auto* cls = se::Class::create("Capsule", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_geometry_Capsule_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_geometry_getter_return_true), nullptr);
+#endif
     cls->defineFunction("transform", _SE(js_geometry_Capsule_transform));
     cls->defineFinalizeFunction(_SE(js_cc_geometry_Capsule_finalize));
     cls->install();
@@ -680,6 +698,9 @@ bool js_register_geometry_Plane(se::Object* obj) // NOLINT(readability-identifie
 {
     auto* cls = se::Class::create("Plane", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_geometry_Plane_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_geometry_getter_return_true), nullptr);
+#endif
     cls->defineProperty("n", _SE(js_geometry_Plane_get_n), _SE(js_geometry_Plane_set_n));
     cls->defineProperty("d", _SE(js_geometry_Plane_get_d), _SE(js_geometry_Plane_set_d));
     cls->defineFunction("define", _SE(js_geometry_Plane_define));
@@ -703,25 +724,6 @@ bool js_register_geometry_Plane(se::Object* obj) // NOLINT(readability-identifie
 }
 se::Object* __jsb_cc_geometry_Frustum_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_geometry_Frustum_class = nullptr;  // NOLINT
-
-static bool js_geometry_Frustum_clone(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::geometry::Frustum>(s);
-    SE_PRECONDITION2(cobj, false, "js_geometry_Frustum_clone : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::geometry::Frustum result = cobj->clone();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_geometry_Frustum_clone : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_geometry_Frustum_clone)
 
 static bool js_geometry_Frustum_createOrtho(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -970,9 +972,11 @@ bool js_register_geometry_Frustum(se::Object* obj) // NOLINT(readability-identif
 {
     auto* cls = se::Class::create("Frustum", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_geometry_Frustum_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_geometry_getter_return_true), nullptr);
+#endif
     cls->defineProperty("vertices", _SE(js_geometry_Frustum_get_vertices), _SE(js_geometry_Frustum_set_vertices));
     cls->defineProperty("planes", _SE(js_geometry_Frustum_get_planes), _SE(js_geometry_Frustum_set_planes));
-    cls->defineFunction("clone", _SE(js_geometry_Frustum_clone));
     cls->defineFunction("createOrtho", _SE(js_geometry_Frustum_createOrtho));
     cls->defineFunction("setAccurate", _SE(js_geometry_Frustum_setAccurate));
     cls->defineFunction("transform", _SE(js_geometry_Frustum_transform));
@@ -1306,6 +1310,9 @@ bool js_register_geometry_Line(se::Object* obj) // NOLINT(readability-identifier
 {
     auto* cls = se::Class::create("Line", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_geometry_Line_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_geometry_getter_return_true), nullptr);
+#endif
     cls->defineFunction("length", _SE(js_geometry_Line_length));
     cls->defineStaticFunction("clone", _SE(js_geometry_Line_clone_static));
     cls->defineStaticFunction("copy", _SE(js_geometry_Line_copy_static));
@@ -1676,6 +1683,9 @@ bool js_register_geometry_Ray(se::Object* obj) // NOLINT(readability-identifier-
 {
     auto* cls = se::Class::create("Ray", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_geometry_Ray_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_geometry_getter_return_true), nullptr);
+#endif
     cls->defineStaticFunction("clone", _SE(js_geometry_Ray_clone_static));
     cls->defineStaticFunction("copy", _SE(js_geometry_Ray_copy_static));
     cls->defineStaticFunction("create", _SE(js_geometry_Ray_create_static));
@@ -2287,6 +2297,9 @@ bool js_register_geometry_Sphere(se::Object* obj) // NOLINT(readability-identifi
 {
     auto* cls = se::Class::create("Sphere", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_geometry_Sphere_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_geometry_getter_return_true), nullptr);
+#endif
     cls->defineFunction("clone", _SE(js_geometry_Sphere_clone));
     cls->defineFunction("copy", _SE(js_geometry_Sphere_copy));
     cls->defineFunction("define", _SE(js_geometry_Sphere_define));
@@ -2317,6 +2330,465 @@ bool js_register_geometry_Sphere(se::Object* obj) // NOLINT(readability-identifi
 
     __jsb_cc_geometry_Sphere_proto = cls->getProto();
     __jsb_cc_geometry_Sphere_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_cc_geometry_Spline_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_geometry_Spline_class = nullptr;  // NOLINT
+
+static bool js_geometry_Spline_addKnot(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::geometry::Spline>(s);
+    SE_PRECONDITION2(cobj, false, "js_geometry_Spline_addKnot : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::Vec3, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_geometry_Spline_addKnot : Error processing arguments");
+        cobj->addKnot(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_geometry_Spline_addKnot)
+
+static bool js_geometry_Spline_clearKnots(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::geometry::Spline>(s);
+    SE_PRECONDITION2(cobj, false, "js_geometry_Spline_clearKnots : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->clearKnots();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_geometry_Spline_clearKnots)
+
+static bool js_geometry_Spline_getKnot(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::geometry::Spline>(s);
+    SE_PRECONDITION2(cobj, false, "js_geometry_Spline_getKnot : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<unsigned int, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_geometry_Spline_getKnot : Error processing arguments");
+        const cc::Vec3& result = cobj->getKnot(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_geometry_Spline_getKnot : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_geometry_Spline_getKnot)
+
+static bool js_geometry_Spline_getKnotCount(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::geometry::Spline>(s);
+    SE_PRECONDITION2(cobj, false, "js_geometry_Spline_getKnotCount : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getKnotCount();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_geometry_Spline_getKnotCount : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_geometry_Spline_getKnotCount)
+
+static bool js_geometry_Spline_getKnots(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::geometry::Spline>(s);
+    SE_PRECONDITION2(cobj, false, "js_geometry_Spline_getKnots : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const std::vector<cc::Vec3>& result = cobj->getKnots();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_geometry_Spline_getKnots : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_geometry_Spline_getKnots)
+
+static bool js_geometry_Spline_getMode(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::geometry::Spline>(s);
+    SE_PRECONDITION2(cobj, false, "js_geometry_Spline_getMode : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        auto result = static_cast<int>(cobj->getMode());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_geometry_Spline_getMode : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_geometry_Spline_getMode)
+
+static bool js_geometry_Spline_getPoint(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::geometry::Spline>(s);
+    SE_PRECONDITION2(cobj, false, "js_geometry_Spline_getPoint : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<float, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_geometry_Spline_getPoint : Error processing arguments");
+        cc::Vec3 result = cobj->getPoint(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_geometry_Spline_getPoint : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    if (argc == 2) {
+        HolderType<float, false> arg0 = {};
+        HolderType<unsigned int, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_geometry_Spline_getPoint : Error processing arguments");
+        cc::Vec3 result = cobj->getPoint(arg0.value(), arg1.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_geometry_Spline_getPoint : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_geometry_Spline_getPoint)
+
+static bool js_geometry_Spline_getPoints(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::geometry::Spline>(s);
+    SE_PRECONDITION2(cobj, false, "js_geometry_Spline_getPoints : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<unsigned int, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_geometry_Spline_getPoints : Error processing arguments");
+        std::vector<cc::Vec3> result = cobj->getPoints(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_geometry_Spline_getPoints : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    if (argc == 2) {
+        HolderType<unsigned int, false> arg0 = {};
+        HolderType<unsigned int, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_geometry_Spline_getPoints : Error processing arguments");
+        std::vector<cc::Vec3> result = cobj->getPoints(arg0.value(), arg1.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_geometry_Spline_getPoints : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_geometry_Spline_getPoints)
+
+static bool js_geometry_Spline_insertKnot(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::geometry::Spline>(s);
+    SE_PRECONDITION2(cobj, false, "js_geometry_Spline_insertKnot : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<unsigned int, false> arg0 = {};
+        HolderType<cc::Vec3, true> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_geometry_Spline_insertKnot : Error processing arguments");
+        cobj->insertKnot(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_geometry_Spline_insertKnot)
+
+static bool js_geometry_Spline_removeKnot(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::geometry::Spline>(s);
+    SE_PRECONDITION2(cobj, false, "js_geometry_Spline_removeKnot : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<unsigned int, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_geometry_Spline_removeKnot : Error processing arguments");
+        cobj->removeKnot(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_geometry_Spline_removeKnot)
+
+static bool js_geometry_Spline_setKnot(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::geometry::Spline>(s);
+    SE_PRECONDITION2(cobj, false, "js_geometry_Spline_setKnot : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<unsigned int, false> arg0 = {};
+        HolderType<cc::Vec3, true> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_geometry_Spline_setKnot : Error processing arguments");
+        cobj->setKnot(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_geometry_Spline_setKnot)
+
+static bool js_geometry_Spline_setKnots(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::geometry::Spline>(s);
+    SE_PRECONDITION2(cobj, false, "js_geometry_Spline_setKnots : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<std::vector<cc::Vec3>, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_geometry_Spline_setKnots : Error processing arguments");
+        cobj->setKnots(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_geometry_Spline_setKnots)
+
+static bool js_geometry_Spline_setMode(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::geometry::Spline>(s);
+    SE_PRECONDITION2(cobj, false, "js_geometry_Spline_setMode : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::geometry::SplineMode, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_geometry_Spline_setMode : Error processing arguments");
+        cobj->setMode(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_geometry_Spline_setMode)
+
+static bool js_geometry_Spline_setModeAndKnots(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::geometry::Spline>(s);
+    SE_PRECONDITION2(cobj, false, "js_geometry_Spline_setModeAndKnots : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<cc::geometry::SplineMode, false> arg0 = {};
+        HolderType<std::vector<cc::Vec3>, true> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_geometry_Spline_setModeAndKnots : Error processing arguments");
+        cobj->setModeAndKnots(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_geometry_Spline_setModeAndKnots)
+
+static bool js_geometry_Spline_clone_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::geometry::Spline, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        SE_PRECONDITION2(ok, false, "js_geometry_Spline_clone_static : Error processing arguments");
+        cc::geometry::Spline* result = cc::geometry::Spline::clone(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_geometry_Spline_clone_static : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_geometry_Spline_clone_static)
+
+static bool js_geometry_Spline_copy_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<cc::geometry::Spline*, false> arg0 = {};
+        HolderType<cc::geometry::Spline, true> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        ok &= sevalue_to_native(args[1], &arg1, nullptr);
+        SE_PRECONDITION2(ok, false, "js_geometry_Spline_copy_static : Error processing arguments");
+        cc::geometry::Spline* result = cc::geometry::Spline::copy(arg0.value(), arg1.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_geometry_Spline_copy_static : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_geometry_Spline_copy_static)
+
+static bool js_geometry_Spline_create_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<cc::geometry::SplineMode, false> arg0 = {};
+        HolderType<std::vector<cc::Vec3>, true> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        ok &= sevalue_to_native(args[1], &arg1, nullptr);
+        SE_PRECONDITION2(ok, false, "js_geometry_Spline_create_static : Error processing arguments");
+        cc::geometry::Spline* result = cc::geometry::Spline::create(arg0.value(), arg1.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_geometry_Spline_create_static : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_geometry_Spline_create_static)
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_geometry_Spline_finalize)
+
+static bool js_geometry_Spline_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor_overloaded.c
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    do {
+        if (argc == 1) {
+            HolderType<cc::geometry::Spline, true> arg0 = {};
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::geometry::Spline, arg0.value());
+            s.thisObject()->setPrivateObject(ptr);
+            return true;
+        }
+    } while(false);
+    do {
+        if (argc == 0) {
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::geometry::Spline);
+            s.thisObject()->setPrivateObject(ptr);
+            return true;
+        }
+    } while(false);
+    do {
+        if (argc == 1) {
+            HolderType<cc::geometry::SplineMode, false> arg0 = {};
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::geometry::Spline, arg0.value());
+            s.thisObject()->setPrivateObject(ptr);
+            return true;
+        }
+    } while(false);
+    do {
+        if (argc == 2) {
+            HolderType<cc::geometry::SplineMode, false> arg0 = {};
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            HolderType<std::vector<cc::Vec3>, false> arg1 = {};
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::geometry::Spline, arg0.value(), arg1.value());
+            s.thisObject()->setPrivateObject(ptr);
+            return true;
+        }
+    } while(false);
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_CTOR(js_geometry_Spline_constructor, __jsb_cc_geometry_Spline_class, js_cc_geometry_Spline_finalize)
+
+static bool js_cc_geometry_Spline_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_geometry_Spline_finalize)
+
+bool js_register_geometry_Spline(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("Spline", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_geometry_Spline_constructor));
+
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_geometry_getter_return_true), nullptr);
+#endif
+    cls->defineProperty("mode", _SE(js_geometry_Spline_getMode_asGetter), _SE(js_geometry_Spline_setMode_asSetter));
+    cls->defineProperty("knots", _SE(js_geometry_Spline_getKnots_asGetter), _SE(js_geometry_Spline_setKnots_asSetter));
+    cls->defineFunction("addKnot", _SE(js_geometry_Spline_addKnot));
+    cls->defineFunction("clearKnots", _SE(js_geometry_Spline_clearKnots));
+    cls->defineFunction("getKnot", _SE(js_geometry_Spline_getKnot));
+    cls->defineFunction("getKnotCount", _SE(js_geometry_Spline_getKnotCount));
+    cls->defineFunction("getPoint", _SE(js_geometry_Spline_getPoint));
+    cls->defineFunction("getPoints", _SE(js_geometry_Spline_getPoints));
+    cls->defineFunction("insertKnot", _SE(js_geometry_Spline_insertKnot));
+    cls->defineFunction("removeKnot", _SE(js_geometry_Spline_removeKnot));
+    cls->defineFunction("setKnot", _SE(js_geometry_Spline_setKnot));
+    cls->defineFunction("setModeAndKnots", _SE(js_geometry_Spline_setModeAndKnots));
+    cls->defineStaticFunction("clone", _SE(js_geometry_Spline_clone_static));
+    cls->defineStaticFunction("copy", _SE(js_geometry_Spline_copy_static));
+    cls->defineStaticFunction("create", _SE(js_geometry_Spline_create_static));
+    cls->defineFinalizeFunction(_SE(js_cc_geometry_Spline_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::geometry::Spline>(cls);
+
+    __jsb_cc_geometry_Spline_proto = cls->getProto();
+    __jsb_cc_geometry_Spline_class = cls;
 
 
     se::ScriptEngine::getInstance()->clearException();
@@ -2847,6 +3319,9 @@ bool js_register_geometry_Triangle(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("Triangle", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_geometry_Triangle_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_geometry_getter_return_true), nullptr);
+#endif
     cls->defineStaticFunction("clone", _SE(js_geometry_Triangle_clone_static));
     cls->defineStaticFunction("copy", _SE(js_geometry_Triangle_copy_static));
     cls->defineStaticFunction("create", _SE(js_geometry_Triangle_create_static));
@@ -2883,6 +3358,7 @@ bool register_all_geometry(se::Object* obj)    // NOLINT
     js_register_geometry_Plane(ns);
     js_register_geometry_Ray(ns);
     js_register_geometry_Sphere(ns);
+    js_register_geometry_Spline(ns);
     js_register_geometry_Triangle(ns);
     return true;
 }

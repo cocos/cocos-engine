@@ -25,8 +25,8 @@
 
 #include "core/assets/RenderTexture.h"
 #include "core/Root.h"
-#include "core/utils/IDGenerator.h"
 #include "core/platform/Debug.h"
+#include "core/utils/IDGenerator.h"
 #include "renderer/gfx-base/GFXDef-common.h"
 #include "scene/RenderWindow.h"
 
@@ -50,12 +50,12 @@ gfx::RenderPassInfo getDefaultRenderPassInfo(gfx::Device *device) {
 }
 } // namespace
 
-RenderTexture::RenderTexture()  = default;
+RenderTexture::RenderTexture() = default;
 RenderTexture::~RenderTexture() = default;
 
 void RenderTexture::initialize(const IRenderTextureCreateInfo &info) {
-    _name   = info.name.has_value() ? info.name.value() : "";
-    _width  = info.width;
+    _name = info.name.has_value() ? info.name.value() : "";
+    _width = info.width;
     _height = info.height;
     initWindow(info);
 }
@@ -73,12 +73,12 @@ bool RenderTexture::destroy() {
 }
 
 void RenderTexture::resize(uint32_t width, uint32_t height) {
-    _width  = std::floor(clampf(static_cast<float>(width), 1.F, 2048.F));
+    _width = std::floor(clampf(static_cast<float>(width), 1.F, 2048.F));
     _height = std::floor(clampf(static_cast<float>(height), 1.F, 2048.F));
     if (_window != nullptr) {
         _window->resize(_width, _height);
     }
-    // emit(std::string("resize"), _window); //TODO(xwx): not inherit form Eventify in Asset base class
+    // emit(ccstd::string("resize"), _window); //TODO(xwx): not inherit form Eventify in Asset base class
 }
 
 gfx::Texture *RenderTexture::getGFXTexture() const {
@@ -93,8 +93,8 @@ void RenderTexture::initWindow() {
     auto *device{Root::getInstance()->getDevice()};
 
     cc::scene::IRenderWindowInfo windowInfo;
-    windowInfo.title  = _name;
-    windowInfo.width  = _width;
+    windowInfo.title = _name;
+    windowInfo.width = _width;
     windowInfo.height = _height;
     windowInfo.renderPassInfo = getDefaultRenderPassInfo(device);
 
@@ -110,8 +110,8 @@ void RenderTexture::initWindow(const IRenderTextureCreateInfo &info) {
     auto *device{Root::getInstance()->getDevice()};
 
     cc::scene::IRenderWindowInfo windowInfo;
-    windowInfo.title  = _name;
-    windowInfo.width  = _width;
+    windowInfo.title = _name;
+    windowInfo.width = _width;
     windowInfo.height = _height;
     if (info.passInfo.has_value()) {
         windowInfo.renderPassInfo = info.passInfo.value();
@@ -127,9 +127,9 @@ void RenderTexture::initWindow(const IRenderTextureCreateInfo &info) {
     }
 }
 
-void RenderTexture::initDefault(const cc::optional<std::string> &uuid) {
+void RenderTexture::initDefault(const cc::optional<ccstd::string> &uuid) {
     Super::initDefault(uuid);
-    _width  = 1;
+    _width = 1;
     _height = 1;
     initWindow();
 }
@@ -138,7 +138,7 @@ bool RenderTexture::validate() const {
     return _width >= 1 && _width <= 2048 && _height >= 1 && _height <= 2048;
 }
 
-std::vector<uint8_t> RenderTexture::readPixels(uint32_t x, uint32_t y, uint32_t width, uint32_t height) const {
+ccstd::vector<uint8_t> RenderTexture::readPixels(uint32_t x, uint32_t y, uint32_t width, uint32_t height) const {
     auto *gfxTexture = getGFXTexture();
     if (!gfxTexture) {
         debug::errorID(7606);
@@ -148,12 +148,12 @@ std::vector<uint8_t> RenderTexture::readPixels(uint32_t x, uint32_t y, uint32_t 
     auto *gfxDevice = getGFXDevice();
 
     gfx::BufferTextureCopy region0{};
-    region0.texOffset.x      = static_cast<int32_t>(x);
-    region0.texOffset.y      = static_cast<int32_t>(y);
-    region0.texExtent.width  = width;
+    region0.texOffset.x = static_cast<int32_t>(x);
+    region0.texOffset.y = static_cast<int32_t>(y);
+    region0.texExtent.width = width;
     region0.texExtent.height = height;
 
-    std::vector<uint8_t> buffer;
+    ccstd::vector<uint8_t> buffer;
     buffer.resize(width * height * 4);
     uint8_t *pBuffer = buffer.data();
     gfxDevice->copyTextureToBuffers(gfxTexture, &pBuffer, &region0, 1);

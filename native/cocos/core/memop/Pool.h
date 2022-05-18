@@ -28,8 +28,8 @@
 #include <algorithm>
 #include <cstdint>
 #include <functional>
-#include <vector>
 #include "base/TypeDef.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 
@@ -55,8 +55,8 @@ public:
     }
 
     Pool(const Pool &) = delete;
-    Pool(Pool &&)      = delete;
-    ~Pool()            = default;
+    Pool(Pool &&) = delete;
+    ~Pool() = default;
     Pool &operator=(const Pool &) = delete;
     Pool &operator=(Pool &&) = delete;
 
@@ -91,7 +91,7 @@ public:
      * @zh 将一组对象放回对象池中。
      * @param objs An array of objects to be put back into the pool
      */
-    void freeArray(const std::vector<T *> &objs) {
+    void freeArray(const ccstd::vector<T *> &objs) {
         _freepool.reserve(_nextAvail + 1 + objs.size());
         _freepool.insert(_freepool.begin() + _nextAvail + 1,
                          objs.begin(), objs.end());
@@ -117,9 +117,9 @@ public:
 
 private:
     std::function<T *()> _ctor{nullptr};
-    uint32_t             _elementsPerBatch{0};
-    index_t              _nextAvail{-1};
-    std::vector<T *>     _freepool;
+    uint32_t _elementsPerBatch{0};
+    index_t _nextAvail{-1};
+    ccstd::vector<T *> _freepool;
 };
 
 } // namespace memop

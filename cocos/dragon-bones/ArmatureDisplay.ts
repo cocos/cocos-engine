@@ -6,7 +6,7 @@
 import { EDITOR } from 'internal:constants';
 import { Armature, Bone, EventObject } from '@cocos/dragonbones-js';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
-import { Renderable2D } from '../2d/framework/renderable-2d';
+import { UIRenderer } from '../2d/framework/ui-renderer';
 import { Node, CCClass, Color, Enum, ccenum, errorID, Texture2D, Material, RecyclePool, js, CCObject } from '../core';
 import { EventTarget } from '../core/event';
 import { BlendFactor } from '../core/gfx';
@@ -134,7 +134,7 @@ interface BoneIndex extends Number {
 @help('i18n:dragonBones.ArmatureDisplay')
 @menu('DragonBones/ArmatureDisplay')
 @executeInEditMode
-export class ArmatureDisplay extends Renderable2D {
+export class ArmatureDisplay extends UIRenderer {
     static AnimationCacheMode = AnimationCacheMode;
 
     /**
@@ -156,6 +156,7 @@ export class ArmatureDisplay extends Renderable2D {
     }
     set dragonAsset (value) {
         this._dragonAsset = value;
+        this.destroyRenderData();
         this._refresh();
         if (EDITOR) {
             this._defaultArmatureIndex = 0;
@@ -437,7 +438,7 @@ export class ArmatureDisplay extends Renderable2D {
     /* protected */ _debugDraw: Graphics | null = null;
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @serializable
     public _enableBatch = false;
@@ -522,6 +523,7 @@ export class ArmatureDisplay extends Renderable2D {
         this.initFactory();
         setEnumAttr(this, '_animationIndex', this._enumAnimations);
         setEnumAttr(this, '_defaultArmatureIndex', this._enumArmatures);
+        this._useVertexOpacity = true;
     }
 
     initFactory () {

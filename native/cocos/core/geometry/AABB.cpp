@@ -24,8 +24,7 @@
 ****************************************************************************/
 
 #include "AABB.h"
-
-#include <cassert>
+#include "base/Macros.h"
 #include "cocos/core/geometry/Enums.h"
 #include "cocos/core/geometry/Sphere.h"
 
@@ -81,14 +80,14 @@ void AABB::merge(const cc::Vec3 &point) {
     setHalfExtents(maxPos.x - center.x, maxPos.y - center.y, maxPos.z - center.z);
 }
 
-void AABB::merge(const std::vector<cc::Vec3> &points) {
+void AABB::merge(const ccstd::vector<cc::Vec3> &points) {
     for (const auto &p : points) {
         merge(p);
     }
 }
 
 void AABB::merge(const Frustum &frustum) {
-    const std::array<Vec3, 8> &vertices = frustum.vertices;
+    const ccstd::array<Vec3, 8> &vertices = frustum.vertices;
     for (size_t i = 0; i < vertices.max_size(); ++i) {
         merge(vertices[i]);
     }
@@ -124,7 +123,7 @@ int AABB::aabbPlane(const Plane &plane) const {
 
 bool AABB::aabbFrustum(const Frustum &frustum) const {
     const auto &planes = frustum.planes;
-    const auto *self   = this;
+    const auto *self = this;
     return std::all_of(planes.begin(),
                        planes.end(),
                        // frustum plane normal points to the inside

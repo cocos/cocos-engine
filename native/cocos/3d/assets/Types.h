@@ -26,8 +26,7 @@
 #pragma once
 
 #include <cstdint>
-#include <string>
-#include <vector>
+#include "base/std/container/string.h"
 #include "cocos/base/Optional.h"
 #include "core/TypedArray.h"
 namespace cc {
@@ -39,7 +38,7 @@ struct IMeshBufferView {
     uint32_t stride{0};
 };
 
-using MeshWeightsType = std::vector<float>;
+using MeshWeightsType = ccstd::vector<float>;
 
 /**
  * @en Array views for index buffer
@@ -70,19 +69,19 @@ struct MorphTarget {
     /**
      * Displacement of each target attribute.
      */
-    std::vector<IMeshBufferView> displacements;
+    ccstd::vector<IMeshBufferView> displacements;
 };
 
 struct SubMeshMorph {
     /**
      * Attributes to morph.
      */
-    std::vector<std::string> attributes;
+    ccstd::vector<ccstd::string> attributes;
 
     /**
      * Targets.
      */
-    std::vector<MorphTarget> targets;
+    ccstd::vector<MorphTarget> targets;
 
     /**
      * Initial weights of each target.
@@ -94,7 +93,7 @@ struct Morph {
     /**
      * Morph data of each sub-mesh.
      */
-    std::vector<cc::optional<SubMeshMorph>> subMeshMorphs;
+    ccstd::vector<cc::optional<SubMeshMorph>> subMeshMorphs;
 
     /**
      * Common initial weights of each sub-mesh.
@@ -105,7 +104,7 @@ struct Morph {
      * Name of each target of each sub-mesh morph.
      * This field is only meaningful if every sub-mesh has the same number of targets.
      */
-    cc::optional<std::vector<std::string>> targetNames;
+    cc::optional<ccstd::vector<ccstd::string>> targetNames;
 };
 
 } // namespace cc

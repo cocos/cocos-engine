@@ -32,12 +32,15 @@ import { binarySearchEpsilon as binarySearch } from '../algorithm/binary-search'
 import { lerp, Quat } from '../math';
 import { errorID } from '../platform/debug';
 import { ValueType } from '../value-types';
-import { bezierByTime, BezierControlPoints } from './bezier';
-import * as easing from './easing';
+import { bezierByTime, BezierControlPoints } from '../curves/bezier';
+import * as easing from '../easing/easing';
 import { ILerpable, isLerpable } from './types';
 import { legacyCC } from '../global-exports';
 import type * as legacy from './legacy-clip-data';
 
+/**
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ */
 export class RatioSampler {
     public ratios: number[];
 
@@ -70,6 +73,7 @@ legacyCC.RatioSampler = RatioSampler;
 
 /**
  * 动画曲线。
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
 export class AnimCurve {
     public static Linear = null;
@@ -233,6 +237,7 @@ export class EventInfo {
 
 /**
  * 采样动画曲线。
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  * @param curve 动画曲线。
  * @param sampler 采样器。
  * @param ratio 采样比率。
@@ -262,6 +267,7 @@ legacyCC.sampleAnimationCurve = sampleAnimationCurve;
  * @param ratio - The origin ratio
  * @param type - If it's Array, then ratio will be computed with bezierByTime.
  * If it's string, then ratio will be computed with cc.easing function
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
 export function computeRatioByType (ratio: number, type: legacy.LegacyEasingMethod) {
     if (typeof type === 'string') {
@@ -281,6 +287,7 @@ export function computeRatioByType (ratio: number, type: legacy.LegacyEasingMeth
 
 /**
  * Use this function if intervals between frames are same.
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
 function quickFindIndex (ratios: number[], ratio: number) {
     const length = ratios.length - 1;

@@ -93,7 +93,7 @@ void ShadowsInfo::setShadowMapSize(float value) {
 
 void ShadowsInfo::setPlaneFromNode(Node *node) {
     const auto &qt = node->getWorldRotation();
-    _normal        = Vec3::UNIT_Y;
+    _normal = Vec3::UNIT_Y;
     _normal.transformQuat(qt);
     _distance = _normal.dot(node->getWorldPosition());
 }
@@ -130,7 +130,7 @@ void Shadows::destroy() {
     }
 }
 
-gfx::Shader *Shadows::getPlanarShader(const std::vector<IMacroPatch> &patches) {
+gfx::Shader *Shadows::getPlanarShader(const ccstd::vector<IMacroPatch> &patches) {
     if (!_material) {
         createMaterial();
     }
@@ -139,7 +139,7 @@ gfx::Shader *Shadows::getPlanarShader(const std::vector<IMacroPatch> &patches) {
     return passes[0]->getShaderVariant(patches);
 }
 
-gfx::Shader *Shadows::getPlanarInstanceShader(const std::vector<IMacroPatch> &patches) {
+gfx::Shader *Shadows::getPlanarInstanceShader(const ccstd::vector<IMacroPatch> &patches) {
     if (!_instancingMaterial) {
         createInstanceMaterial();
     }
@@ -166,7 +166,7 @@ void Shadows::updatePlanarInfo() {
 }
 
 void Shadows::createInstanceMaterial() {
-    _instancingMaterial = new Material();
+    _instancingMaterial = ccnew Material();
 
     IMaterialInfo materialInfo;
     materialInfo.effectName = "planar-shadow";
@@ -176,7 +176,7 @@ void Shadows::createInstanceMaterial() {
 }
 
 void Shadows::createMaterial() {
-    _material = new Material();
+    _material = ccnew Material();
 
     IMaterialInfo materialInfo;
     materialInfo.effectName = "planar-shadow";

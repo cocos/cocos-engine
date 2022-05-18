@@ -35,34 +35,34 @@
 namespace spine {
 #define SP_PATHCONSTRAINTMIXTIMELINE_ENTRIES 5
 
-	class SP_API PathConstraintMixTimeline : public CurveTimeline {
-		friend class SkeletonBinary;
-		friend class SkeletonJson;
+class SP_API PathConstraintMixTimeline : public CurveTimeline {
+    friend class SkeletonBinary;
+    friend class SkeletonJson;
 
-		RTTI_DECL
+    RTTI_DECL
 
-	public:
-		static const int ENTRIES;
+public:
+    static const int ENTRIES;
 
-		explicit PathConstraintMixTimeline(int frameCount);
+    explicit PathConstraintMixTimeline(int frameCount);
 
-		virtual void apply(Skeleton& skeleton, float lastTime, float time, Vector<Event*>* pEvents, float alpha, MixBlend blend, MixDirection direction);
+    virtual void apply(Skeleton& skeleton, float lastTime, float time, Vector<Event*>* pEvents, float alpha, MixBlend blend, MixDirection direction);
 
-		virtual int getPropertyId();
+    virtual int getPropertyId();
 
-	private:
-		static const int PREV_TIME;
-		static const int PREV_ROTATE;
-		static const int PREV_TRANSLATE;
-		static const int ROTATE;
-		static const int TRANSLATE;
+private:
+    static const int PREV_TIME;
+    static const int PREV_ROTATE;
+    static const int PREV_TRANSLATE;
+    static const int ROTATE;
+    static const int TRANSLATE;
 
-		Vector<float> _frames;
-		int _pathConstraintIndex;
+    Vector<float> _frames;
+    int _pathConstraintIndex;
 
-		/// Sets the time and mixes of the specified keyframe.
-		void setFrame(int frameIndex, float time, float rotateMix, float translateMix);
-	};
-}
+    /// Sets the time and mixes of the specified keyframe.
+    void setFrame(int frameIndex, float time, float rotateMix, float translateMix);
+};
+} // namespace spine
 
 #endif /* Spine_PathConstraintMixTimeline_h */

@@ -45,18 +45,18 @@ void ImageAsset::setNativeAsset(const cc::any &obj) {
             image->takeData(&_data);
             _needFreeData = true;
 
-            _width  = image->getWidth();
+            _width = image->getWidth();
             _height = image->getHeight();
             _format = static_cast<PixelFormat>(image->getRenderFormat());
-            _url    = image->getFilePath();
+            _url = image->getFilePath();
         } else {
             const auto *imageSource = cc::any_cast<IMemoryImageSource>(&obj);
             if (imageSource != nullptr) {
                 _arrayBuffer = imageSource->data;
-                _data        = const_cast<uint8_t *>(_arrayBuffer->getData());
-                _width       = imageSource->width;
-                _height      = imageSource->height;
-                _format      = imageSource->format;
+                _data = const_cast<uint8_t *>(_arrayBuffer->getData());
+                _width = imageSource->width;
+                _height = imageSource->height;
+                _format = imageSource->format;
             } else {
                 CC_LOG_WARNING("ImageAsset::setNativeAsset, unknown type!");
             }
@@ -84,7 +84,7 @@ bool ImageAsset::isCompressed() const {
     return (_format >= PixelFormat::RGB_ETC1 && _format <= PixelFormat::RGBA_ASTC_12X12) || (_format >= PixelFormat::RGB_A_PVRTC_2BPPV1 && _format <= PixelFormat::RGBA_ETC1);
 }
 
-std::string ImageAsset::getUrl() const {
+ccstd::string ImageAsset::getUrl() const {
     return _url;
 }
 

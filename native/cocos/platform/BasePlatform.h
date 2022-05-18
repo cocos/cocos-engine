@@ -39,7 +39,7 @@ namespace cc {
 
 class OSInterface;
 
-class BasePlatform {
+class CC_DLL BasePlatform {
 public:
     BasePlatform();
     /**
@@ -83,6 +83,12 @@ public:
     virtual void setHandleEventCallback(HandleEventCallback cb) = 0;
 
     /**
+     * @brief Set touch event handling callback function.
+     */
+    using HandleTouchEventCallback = std::function<bool(const TouchEvent &)>;
+    virtual void setHandleTouchEventCallback(HandleTouchEventCallback cb) = 0;
+
+    /**
      * @brief Set default event handling callback function.
      */
     virtual void setHandleDefaultEventCallback(HandleEventCallback cb) = 0;
@@ -101,7 +107,7 @@ public:
      * @param task : Tasks running in platform threads
      * @param fps : Task call frequency
      */
-    using ThreadCallback                                         = std::function<void(void)>;
+    using ThreadCallback = std::function<void(void)>;
     virtual void runInPlatformThread(const ThreadCallback &task) = 0;
     /**
      * @brief Get task call frequency.
@@ -124,7 +130,7 @@ public:
                 return intf;
             }
         }
-        CCASSERT(false, "Interface does not exist");
+        CC_ASSERT(false);
         return nullptr;
     }
 
@@ -132,7 +138,7 @@ public:
      * @brief Registration system interface.
      */
     bool registerInterface(const OSInterface::Ptr &osInterface) {
-        CCASSERT(osInterface != nullptr, "Invalid interface pointer");
+        CC_ASSERT(osInterface != nullptr);
         auto it = std::find(_osInterfaces.begin(), _osInterfaces.end(), osInterface);
         if (it != _osInterfaces.end()) {
             CC_LOG_WARNING("Duplicate registration interface");
@@ -145,7 +151,7 @@ public:
      * @brief Unregistration system interface.
      */
     void unregisterInterface(const OSInterface::Ptr &osInterface) {
-        CCASSERT(osInterface != nullptr, "Invalid interface pointer");
+        CC_ASSERT(osInterface != nullptr);
         auto it = std::find(_osInterfaces.begin(), _osInterfaces.end(), osInterface);
         if (it != _osInterfaces.end()) {
             CC_LOG_WARNING("Interface is not registrated");
@@ -154,7 +160,14 @@ public:
         _osInterfaces.erase(it);
     }
 
+    void unregisterAllInterfaces() {
+        _osInterfaces.clear();
+    }
+
 private:
+    static BasePlatform *createDefaultPlatform();
+
+    static BasePlatform *_currentPlatform; // NOLINT(readability-identifier-naming)
     std::vector<OSInterface::Ptr> _osInterfaces;
     CC_DISALLOW_COPY_MOVE_ASSIGN(BasePlatform);
 };

@@ -47,7 +47,7 @@ struct Overloaded<T0> : T0 {
 
 template <class T0, class T1, class... Ts>
 struct Overloaded<T0, T1, Ts...> : T0, Overloaded<T1, Ts...> {
-    using T0::                     operator();
+    using T0::operator();
     using Overloaded<T1, Ts...>::operator();
     Overloaded(T0 t0, T1 t1, Ts... ts)
     : T0(std::move(t0)), Overloaded<T1, Ts...>(std::move(t1), std::move(ts)...) {}
@@ -61,7 +61,7 @@ Overloaded<Ts...> overload(Ts... ts) {
 template <typename V>
 auto variantFromIndex(size_t index) -> V { // NOLINT
     return boost::mp11::mp_with_index<boost::mp11::mp_size<V>>(index,
-        [](auto i) { return V(boost::variant2::in_place_index<i>); });
+                                                               [](auto i) { return V(boost::variant2::in_place_index<i>); });
 }
 
 } // namespace cc

@@ -49,24 +49,24 @@ void forEachFace(const ITextureCubeMipmap &mipmap, const ForEachFaceCallback &ca
 } // namespace
 
 /* static */
-TextureCube *TextureCube::fromTexture2DArray(const std::vector<Texture2D *> &textures) {
-    size_t                          nMipmaps = textures.size() / 6;
-    std::vector<ITextureCubeMipmap> mipmaps;
+TextureCube *TextureCube::fromTexture2DArray(const ccstd::vector<Texture2D *> &textures) {
+    size_t nMipmaps = textures.size() / 6;
+    ccstd::vector<ITextureCubeMipmap> mipmaps;
     mipmaps.reserve(nMipmaps);
     for (size_t i = 0; i < nMipmaps; i++) {
         size_t x = i * 6;
 
         ITextureCubeMipmap mipmap;
-        mipmap.front  = textures[x + static_cast<uint32_t>(FaceIndex::FRONT)]->getImage(),
-        mipmap.back   = textures[x + static_cast<uint32_t>(FaceIndex::BACK)]->getImage(),
-        mipmap.left   = textures[x + static_cast<uint32_t>(FaceIndex::LEFT)]->getImage(),
-        mipmap.right  = textures[x + static_cast<uint32_t>(FaceIndex::RIGHT)]->getImage(),
-        mipmap.top    = textures[x + static_cast<uint32_t>(FaceIndex::TOP)]->getImage(),
+        mipmap.front = textures[x + static_cast<uint32_t>(FaceIndex::FRONT)]->getImage(),
+        mipmap.back = textures[x + static_cast<uint32_t>(FaceIndex::BACK)]->getImage(),
+        mipmap.left = textures[x + static_cast<uint32_t>(FaceIndex::LEFT)]->getImage(),
+        mipmap.right = textures[x + static_cast<uint32_t>(FaceIndex::RIGHT)]->getImage(),
+        mipmap.top = textures[x + static_cast<uint32_t>(FaceIndex::TOP)]->getImage(),
         mipmap.bottom = textures[x + static_cast<uint32_t>(FaceIndex::BOTTOM)]->getImage(),
 
         mipmaps.emplace_back(mipmap);
     }
-    auto *out = new TextureCube();
+    auto *out = ccnew TextureCube();
     out->setMipmaps(mipmaps);
     return out;
 }
@@ -75,36 +75,35 @@ TextureCube::TextureCube() = default;
 
 TextureCube::~TextureCube() = default;
 
-void TextureCube::setMipmaps(const std::vector<ITextureCubeMipmap> &value) {
+void TextureCube::setMipmaps(const ccstd::vector<ITextureCubeMipmap> &value) {
     _mipmaps = value;
     setMipmapLevel(static_cast<uint32_t>(_mipmaps.size()));
     if (!_mipmaps.empty()) {
         ImageAsset *imageAsset = _mipmaps[0].front;
-        reset({
-            imageAsset->getWidth(),
-            imageAsset->getHeight(),
-            imageAsset->getFormat(),
-            static_cast<uint32_t>(_mipmaps.size()),
-        });
+        reset({imageAsset->getWidth(),
+               imageAsset->getHeight(),
+               imageAsset->getFormat(),
+               static_cast<uint32_t>(_mipmaps.size()),
+               _baseLevel,
+               _maxLevel});
 
         for (size_t level = 0, len = _mipmaps.size(); level < len; ++level) {
             forEachFace(_mipmaps[level], [this, level](ImageAsset *face, TextureCube::FaceIndex faceIndex) {
                 assignImage(face, static_cast<uint32_t>(level), static_cast<uint32_t>(faceIndex));
             });
-            ;
         }
 
     } else {
-        reset({
-            0,
-            0,
-            cc::nullopt,
-            static_cast<uint32_t>(_mipmaps.size()),
-        });
+        reset({0,
+               0,
+               cc::nullopt,
+               static_cast<uint32_t>(_mipmaps.size()),
+               _baseLevel,
+               _maxLevel});
     }
 }
 
-void TextureCube::setMipmapsForJS(const std::vector<ITextureCubeMipmap> &value) {
+void TextureCube::setMipmapsForJS(const ccstd::vector<ITextureCubeMipmap> &value) {
     _mipmaps = value;
 }
 
@@ -113,10 +112,17 @@ void TextureCube::setImage(const ITextureCubeMipmap &value) {
     _mipmaps.emplace_back(value);
 }
 void TextureCube::reset(const ITextureCubeCreateInfo &info) {
-    _width  = info.width;
+    _width = info.width;
     _height = info.height;
     setGFXFormat(info.format);
-    setMipmapLevel(info.mipmapLevel.has_value() ? info.mipmapLevel.value() : 1);
+
+    uint32_t mipLevels = info.mipmapLevel.has_value() ? info.mipmapLevel.value() : 1;
+    setMipmapLevel(mipLevels);
+
+    uint32_t minLod = info.baseLevel.has_value() ? info.baseLevel.value() : 0;
+    uint32_t maxLod = info.maxLevel.has_value() ? info.maxLevel.value() : 1000;
+    setMipRange(minLod, maxLod);
+
     tryReset();
 }
 
@@ -191,13 +197,13 @@ void TextureCube::deserialize(const cc::any &serializedData, const cc::any &hand
     for (size_t i = 0; i < data->mipmaps.size(); ++i) {
         // Prevent resource load failed
         ITextureCubeMipmap mipmap;
-        mipmap.front  = new ImageAsset(),
-        mipmap.back   = new ImageAsset(),
-        mipmap.left   = new ImageAsset(),
-        mipmap.right  = new ImageAsset(),
-        mipmap.top    = new ImageAsset(),
-        mipmap.bottom = new ImageAsset();
-        _mipmaps[i]   = mipmap;
+        mipmap.front = ccnew ImageAsset(),
+        mipmap.back = ccnew ImageAsset(),
+        mipmap.left = ccnew ImageAsset(),
+        mipmap.right = ccnew ImageAsset(),
+        mipmap.top = ccnew ImageAsset(),
+        mipmap.bottom = ccnew ImageAsset();
+        _mipmaps[i] = mipmap;
         //        auto* mipmap = data->mipmaps[i];
 
         //cjh TODO: what's handle.result??        const imageAssetClassId = js._getClassId(ImageAsset);
@@ -213,31 +219,43 @@ void TextureCube::deserialize(const cc::any &serializedData, const cc::any &hand
 
 gfx::TextureInfo TextureCube::getGfxTextureCreateInfo(gfx::TextureUsageBit usage, gfx::Format format, uint32_t levelCount, gfx::TextureFlagBit flags) {
     gfx::TextureInfo texInfo;
-    texInfo.type       = gfx::TextureType::CUBE;
-    texInfo.width      = _width;
-    texInfo.height     = _height;
+    texInfo.type = gfx::TextureType::CUBE;
+    texInfo.width = _width;
+    texInfo.height = _height;
     texInfo.layerCount = 6;
-    texInfo.usage      = usage;
-    texInfo.format     = format;
+    texInfo.usage = usage;
+    texInfo.format = format;
     texInfo.levelCount = levelCount;
-    texInfo.flags      = flags;
+    texInfo.flags = flags;
     return texInfo;
 }
 
-void TextureCube::initDefault(const cc::optional<std::string> &uuid) {
+gfx::TextureViewInfo TextureCube::getGfxTextureViewCreateInfo(gfx::Texture *texture, gfx::Format format, uint32_t baseLevel, uint32_t levelCount) {
+    gfx::TextureViewInfo texViewInfo;
+    texViewInfo.type = gfx::TextureType::CUBE;
+    texViewInfo.baseLayer = 0;
+    texViewInfo.layerCount = 6;
+    texViewInfo.texture = texture;
+    texViewInfo.format = format;
+    texViewInfo.baseLevel = baseLevel;
+    texViewInfo.levelCount = levelCount;
+    return texViewInfo;
+}
+
+void TextureCube::initDefault(const cc::optional<ccstd::string> &uuid) {
     Super::initDefault(uuid);
 
-    auto *imageAsset = new ImageAsset();
+    auto *imageAsset = ccnew ImageAsset();
     imageAsset->initDefault(cc::nullopt);
 
     ITextureCubeMipmap mipmap;
 
-    mipmap.front  = imageAsset;
-    mipmap.back   = imageAsset;
-    mipmap.top    = imageAsset;
+    mipmap.front = imageAsset;
+    mipmap.back = imageAsset;
+    mipmap.top = imageAsset;
     mipmap.bottom = imageAsset;
-    mipmap.left   = imageAsset;
-    mipmap.right  = imageAsset;
+    mipmap.left = imageAsset;
+    mipmap.right = imageAsset;
 
     setMipmaps({mipmap});
 }

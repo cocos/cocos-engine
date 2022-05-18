@@ -19,11 +19,10 @@
 
 #pragma once
 
-#include "base/Macros.h"
-
-#include <string>
-#include <vector>
 #include <stdint.h>
+#include "base/Macros.h"
+#include "base/std/container/string.h"
+#include "base/std/container/vector.h"
 
 /**
   * @addtogroup network
@@ -55,7 +54,7 @@ public:
     /**
      * Parse a Uri from a string.  Throws std::invalid_argument on parse error.
      */
-    static Uri parse(const std::string &str);
+    static Uri parse(const ccstd::string &str);
 
     /** Default constructor */
     Uri();
@@ -82,18 +81,18 @@ public:
     bool isSecure() const { return _isSecure; }
 
     /** Gets the scheme name for this URI. */
-    const std::string &getScheme() const { return _scheme; }
+    const ccstd::string &getScheme() const { return _scheme; }
 
     /** Gets the user name with the specified URI. */
-    const std::string &getUserName() const { return _username; }
+    const ccstd::string &getUserName() const { return _username; }
 
     /** Gets the password with the specified URI. */
-    const std::string &getPassword() const { return _password; }
+    const ccstd::string &getPassword() const { return _password; }
     /**
      * Get host part of URI. If host is an IPv6 address, square brackets will be
      * returned, for example: "[::1]".
      */
-    const std::string &getHost() const { return _host; }
+    const ccstd::string &getHost() const { return _host; }
     /**
      * Get host part of URI. If host is an IPv6 address, square brackets will not
      * be returned, for exmaple "::1"; otherwise it returns the same thing as
@@ -103,32 +102,32 @@ public:
      * or API that connects to that host/port; e.g. getaddrinfo() only understands
      * IPv6 host without square brackets
      */
-    const std::string &getHostName() const { return _hostName; }
+    const ccstd::string &getHostName() const { return _hostName; }
 
     /** Gets the port number of the URI. */
     uint16_t getPort() const { return _port; }
 
     /** Gets the path part of the URI. */
-    const std::string &getPath() const { return _path; }
+    const ccstd::string &getPath() const { return _path; }
 
     /// Gets the path, query and fragment parts of the URI.
-    const std::string &getPathEtc() const { return _pathEtc; }
+    const ccstd::string &getPathEtc() const { return _pathEtc; }
 
     /** Gets the query part of the URI. */
-    const std::string &getQuery() const { return _query; }
+    const ccstd::string &getQuery() const { return _query; }
 
     /** Gets the fragment part of the URI */
-    const std::string &getFragment() const { return _fragment; }
+    const ccstd::string &getFragment() const { return _fragment; }
 
     /** Gets the authority part (userName, password, host and port) of the URI.
      * @note If the port number is a well-known port
      *      number for the given scheme (e.g., 80 for http), it
      *      is not included in the authority.
      */
-    const std::string &getAuthority() const { return _authority; }
+    const ccstd::string &getAuthority() const { return _authority; }
 
     /** Gets a string representation of the URI. */
-    std::string toString() const;
+    ccstd::string toString() const;
 
     /**
     * Get query parameters as key-value pairs.
@@ -150,29 +149,29 @@ public:
     *          pair of which the first element is parameter name and the second
     *          one is parameter value
     */
-    const std::vector<std::pair<std::string, std::string>> &getQueryParams();
+    const ccstd::vector<std::pair<ccstd::string, ccstd::string>> &getQueryParams();
 
     /** Clears all parts of the URI. */
     void clear();
 
 private:
-    bool doParse(const std::string &str);
+    bool doParse(const ccstd::string &str);
 
     bool _isValid;
     bool _isSecure;
-    std::string _scheme;
-    std::string _username;
-    std::string _password;
-    std::string _host;
-    std::string _hostName;
+    ccstd::string _scheme;
+    ccstd::string _username;
+    ccstd::string _password;
+    ccstd::string _host;
+    ccstd::string _hostName;
     bool _hasAuthority;
     uint16_t _port;
-    std::string _authority;
-    std::string _pathEtc;
-    std::string _path;
-    std::string _query;
-    std::string _fragment;
-    std::vector<std::pair<std::string, std::string>> _queryParams;
+    ccstd::string _authority;
+    ccstd::string _pathEtc;
+    ccstd::string _path;
+    ccstd::string _query;
+    ccstd::string _fragment;
+    ccstd::vector<std::pair<ccstd::string, ccstd::string>> _queryParams;
 };
 
 } // namespace network

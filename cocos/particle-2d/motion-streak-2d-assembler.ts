@@ -228,8 +228,8 @@ export const MotionStreakAssembler: IAssembler = {
         // fill index data
         const bid = chunk.bufferId;
         const vid = chunk.vertexOffset;
-        const meshBuffer = chunk.vertexAccessor.getMeshBuffer(chunk.bufferId);
-        const ib = chunk.vertexAccessor.getIndexBuffer(bid);
+        const meshBuffer = chunk.meshBuffer;
+        const ib = chunk.meshBuffer.iData;
         let indexOffset = meshBuffer.indexOffset;
         for (let i = 0, l = indexCount; i < l; i += 2) {
             const start = vid + i;

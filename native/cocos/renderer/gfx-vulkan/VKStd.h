@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "base/CoreStd.h"
+#include "base/Log.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     #if defined(CC_STATIC)
@@ -47,7 +47,7 @@
             VkResult err = x;                                          \
             if (err) {                                                 \
                 CC_LOG_ERROR("%s returned Vulkan error: %d", #x, err); \
-                CCASSERT(false, "Vulkan Error");                       \
+                CC_ASSERT(false);                                      \
             }                                                          \
         } while (0)
 

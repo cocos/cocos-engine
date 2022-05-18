@@ -29,12 +29,8 @@
 #include "platform/IEventDispatch.h"
 
 namespace cc {
-class UniversalPlatform : public BasePlatform, public IEventDispatch {
+class CC_DLL UniversalPlatform : public BasePlatform, public IEventDispatch {
 public:
-    /**
-     * @brief Implement basic platform initialization.
-     */
-    int32_t init() override;
     /**
      * @brief Start base platform initialization.
      */
@@ -48,6 +44,12 @@ public:
      * @brief Set the event handling callback.
      */
     void setHandleEventCallback(HandleEventCallback cb) override;
+
+    /**
+      * @brief Set the touch event handling callback.
+      */
+    void setHandleTouchEventCallback(HandleTouchEventCallback cb) override;
+
     /**
      * @brief Set the event to handle callbacks by default.
      */
@@ -59,7 +61,7 @@ public:
     /**
      * @brief Implement dispatch touch event interface.
      */
-    void dispatchTouchEvent(const OSEvent &ev) override;
+    void dispatchTouchEvent(const TouchEvent &ev) override;
     /**
      * @brief Implement handle default event interface.
      */
@@ -112,6 +114,7 @@ private:
     int32_t _fps{60};
 
     HandleEventCallback _handleEventCallback{nullptr};
+    HandleTouchEventCallback _handleTouchEventCallback{nullptr};
     HandleEventCallback _handleDefaultEventCallback{nullptr};
 };
 

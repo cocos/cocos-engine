@@ -25,7 +25,6 @@
 
 #include "jsb_global.h"
 #include "application/ApplicationManager.h"
-#include "base/CoreStd.h"
 #include "base/DeferredReleasePool.h"
 #include "base/Scheduler.h"
 #include "base/ThreadPool.h"
@@ -52,15 +51,15 @@ using namespace cc; //NOLINT
 
 static LegacyThreadPool *gThreadPool = nullptr;
 
-static std::shared_ptr<cc::network::Downloader>                                               gLocalDownloader = nullptr;
-static std::map<std::string, std::function<void(const std::string &, unsigned char *, uint)>> gLocalDownloaderHandlers;
-static uint64_t                                                                               gLocalDownloaderTaskId = 1000000;
+static std::shared_ptr<cc::network::Downloader> gLocalDownloader = nullptr;
+static ccstd::unordered_map<ccstd::string, std::function<void(const ccstd::string &, unsigned char *, uint)>> gLocalDownloaderHandlers;
+static uint64_t gLocalDownloaderTaskId = 1000000;
 
 static cc::network::Downloader *localDownloader() {
     if (!gLocalDownloader) {
-        gLocalDownloader                    = std::make_shared<cc::network::Downloader>();
-        gLocalDownloader->onDataTaskSuccess = [=](const cc::network::DownloadTask & task,
-                                                  const std::vector<unsigned char> &data) {
+        gLocalDownloader = std::make_shared<cc::network::Downloader>();
+        gLocalDownloader->onDataTaskSuccess = [=](const cc::network::DownloadTask &task,
+                                                  const ccstd::vector<unsigned char> &data) {
             if (data.empty()) {
                 SE_REPORT_ERROR("Getting image from (%s) failed!", task.requestURL.c_str());
                 return;
@@ -72,7 +71,7 @@ static cc::network::Downloader *localDownloader() {
                 return;
             }
             size_t imageBytes = data.size();
-            auto * imageData  = static_cast<unsigned char *>(malloc(imageBytes));
+            auto *imageData = static_cast<unsigned char *>(malloc(imageBytes));
             memcpy(imageData, data.data(), imageBytes);
 
             (callback->second)("", imageData, static_cast<uint>(imageBytes));
@@ -80,9 +79,9 @@ static cc::network::Downloader *localDownloader() {
             gLocalDownloaderHandlers.erase(callback);
         };
         gLocalDownloader->onTaskError = [=](const cc::network::DownloadTask &task,
-                                            int                              errorCode,         //NOLINT
-                                            int                              errorCodeInternal, //NOLINT
-                                            const std::string &              errorStr) {                      //NOLINT
+                                            int errorCode,                   //NOLINT
+                                            int errorCodeInternal,           //NOLINT
+                                            const ccstd::string &errorStr) { //NOLINT
             SE_REPORT_ERROR("Getting image from (%s) failed!", task.requestURL.c_str());
             gLocalDownloaderHandlers.erase(task.identifier);
         };
@@ -90,17 +89,17 @@ static cc::network::Downloader *localDownloader() {
     return gLocalDownloader.get();
 }
 
-static void localDownloaderCreateTask(const std::string &url, const std::function<void(const std::string &, unsigned char *, int)> &callback) {
+static void localDownloaderCreateTask(const ccstd::string &url, const std::function<void(const ccstd::string &, unsigned char *, int)> &callback) {
     std::stringstream ss;
     ss << "jsb_loadimage_" << (gLocalDownloaderTaskId++);
-    std::string key  = ss.str();
-    auto        task = localDownloader()->createDownloadDataTask(url, key);
+    ccstd::string key = ss.str();
+    auto task = localDownloader()->createDownloadDataTask(url, key);
     gLocalDownloaderHandlers.emplace(std::make_pair(task->identifier, callback));
 }
 
 bool jsb_set_extend_property(const char *ns, const char *clsName) { //NOLINT
     se::Object *globalObj = se::ScriptEngine::getInstance()->getGlobalObject();
-    se::Value   nsVal;
+    se::Value nsVal;
     if (globalObj->getProperty(ns, &nsVal) && nsVal.isObject()) {
         se::Value ccVal;
         if (globalObj->getProperty("cc", &ccVal) && ccVal.isObject()) {
@@ -121,35 +120,35 @@ bool jsb_set_extend_property(const char *ns, const char *clsName) { //NOLINT
 
 namespace {
 
-std::unordered_map<std::string, se::Value> gModuleCache;
+ccstd::unordered_map<ccstd::string, se::Value> gModuleCache;
 
 static bool require(se::State &s) { //NOLINT
     const auto &args = s.args();
-    int         argc = static_cast<int>(args.size());
-    assert(argc >= 1);
-    assert(args[0].isString());
+    int argc = static_cast<int>(args.size());
+    CC_ASSERT(argc >= 1);
+    CC_ASSERT(args[0].isString());
 
     return jsb_run_script(args[0].toString(), &s.rval());
 }
 SE_BIND_FUNC(require)
 
-static bool doModuleRequire(const std::string &path, se::Value *ret, const std::string &prevScriptFileDir) { //NOLINT
+static bool doModuleRequire(const ccstd::string &path, se::Value *ret, const ccstd::string &prevScriptFileDir) { //NOLINT
     se::AutoHandleScope hs;
-    assert(!path.empty());
+    CC_ASSERT(!path.empty());
 
     const auto &fileOperationDelegate = se::ScriptEngine::getInstance()->getFileOperationDelegate();
-    assert(fileOperationDelegate.isValid());
+    CC_ASSERT(fileOperationDelegate.isValid());
 
-    std::string fullPath;
+    ccstd::string fullPath;
 
-    std::string pathWithSuffix = path;
+    ccstd::string pathWithSuffix = path;
     if (pathWithSuffix.rfind(".js") != (pathWithSuffix.length() - 3)) {
         pathWithSuffix += ".js";
     }
-    std::string scriptBuffer = fileOperationDelegate.onGetStringFromFile(pathWithSuffix);
+    ccstd::string scriptBuffer = fileOperationDelegate.onGetStringFromFile(pathWithSuffix);
 
     if (scriptBuffer.empty() && !prevScriptFileDir.empty()) {
-        std::string secondPath = prevScriptFileDir;
+        ccstd::string secondPath = prevScriptFileDir;
         if (secondPath[secondPath.length() - 1] != '/') {
             secondPath += "/";
         }
@@ -167,7 +166,7 @@ static bool doModuleRequire(const std::string &path, se::Value *ret, const std::
             }
         }
 
-        fullPath     = fileOperationDelegate.onGetFullPath(secondPath);
+        fullPath = fileOperationDelegate.onGetFullPath(secondPath);
         scriptBuffer = fileOperationDelegate.onGetStringFromFile(fullPath);
     } else {
         fullPath = fileOperationDelegate.onGetFullPath(pathWithSuffix);
@@ -180,10 +179,10 @@ static bool doModuleRequire(const std::string &path, se::Value *ret, const std::
             //                printf("Found cache: %s, value: %d\n", fullPath.c_str(), (int)ret->getType());
             return true;
         }
-        std::string currentScriptFileDir = FileUtils::getInstance()->getFileDir(fullPath);
+        ccstd::string currentScriptFileDir = FileUtils::getInstance()->getFileDir(fullPath);
 
         // Add closure for evalutate the script
-        char prefix[]    = "(function(currentScriptDir){ window.module = window.module || {}; var exports = window.module.exports = {}; ";
+        char prefix[] = "(function(currentScriptDir){ window.module = window.module || {}; var exports = window.module.exports = {}; ";
         char suffix[512] = {0};
         snprintf(suffix, sizeof(suffix), "\nwindow.module.exports = window.module.exports || exports;\n})('%s'); ", currentScriptFileDir.c_str());
 
@@ -195,23 +194,23 @@ static bool doModuleRequire(const std::string &path, se::Value *ret, const std::
         //            fclose(fp);
 
 #if CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_MAC_IOS
-        std::string reletivePath = fullPath;
+        ccstd::string reletivePath = fullPath;
     #if CC_PLATFORM == CC_PLATFORM_MAC_OSX
-        const std::string reletivePathKey = "/Contents/Resources";
+        const ccstd::string reletivePathKey = "/Contents/Resources";
     #else
-        const std::string reletivePathKey = ".app";
+        const ccstd::string reletivePathKey = ".app";
     #endif
 
         size_t pos = reletivePath.find(reletivePathKey);
-        if (pos != std::string::npos) {
+        if (pos != ccstd::string::npos) {
             reletivePath = reletivePath.substr(pos + reletivePathKey.length() + 1);
         }
 #else
-        const std::string &reletivePath = fullPath;
+        const ccstd::string &reletivePath = fullPath;
 #endif
 
-        auto      se      = se::ScriptEngine::getInstance();
-        bool      succeed = se->evalString(scriptBuffer.c_str(), scriptBuffer.length(), nullptr, reletivePath.c_str());
+        auto se = se::ScriptEngine::getInstance();
+        bool succeed = se->evalString(scriptBuffer.c_str(), static_cast<uint32_t>(scriptBuffer.length()), nullptr, reletivePath.c_str());
         se::Value moduleVal;
         if (succeed && se->getGlobalObject()->getProperty("module", &moduleVal) && moduleVal.isObject()) {
             se::Value exportsVal;
@@ -228,33 +227,33 @@ static bool doModuleRequire(const std::string &path, se::Value *ret, const std::
         } else {
             gModuleCache[fullPath] = se::Value::Undefined;
         }
-        assert(succeed);
+        CC_ASSERT(succeed);
         return succeed;
     }
 
     SE_LOGE("doModuleRequire %s, buffer is empty!\n", path.c_str());
-    assert(false);
+    CC_ASSERT(false);
     return false;
 }
 
 static bool moduleRequire(se::State &s) { //NOLINT
     const auto &args = s.args();
-    int         argc = static_cast<int>(args.size());
-    assert(argc >= 2);
-    assert(args[0].isString());
-    assert(args[1].isString());
+    int argc = static_cast<int>(args.size());
+    CC_ASSERT(argc >= 2);
+    CC_ASSERT(args[0].isString());
+    CC_ASSERT(args[1].isString());
 
     return doModuleRequire(args[0].toString(), &s.rval(), args[1].toString());
 }
 SE_BIND_FUNC(moduleRequire)
 } // namespace
 
-bool jsb_run_script(const std::string &filePath, se::Value *rval /* = nullptr */) { //NOLINT
+bool jsb_run_script(const ccstd::string &filePath, se::Value *rval /* = nullptr */) { //NOLINT
     se::AutoHandleScope hs;
     return se::ScriptEngine::getInstance()->runScript(filePath, rval);
 }
 
-bool jsb_run_script_module(const std::string &filePath, se::Value *rval /* = nullptr */) { //NOLINT
+bool jsb_run_script_module(const ccstd::string &filePath, se::Value *rval /* = nullptr */) { //NOLINT
     return doModuleRequire(filePath, rval, "");
 }
 
@@ -269,24 +268,24 @@ static bool jsc_dumpNativePtrToSeObjectMap(se::State &s) { //NOLINT
 
     struct NamePtrStruct {
         const char *name;
-        void *      ptr;
+        void *ptr;
     };
 
-    std::vector<NamePtrStruct> namePtrArray;
+    ccstd::vector<NamePtrStruct> namePtrArray;
 
     for (const auto &e : se::NativePtrToObjectMap::instance()) {
         se::Object *jsobj = e.second;
-        assert(jsobj->_getClass() != nullptr);
+        CC_ASSERT(jsobj->_getClass() != nullptr);
         NamePtrStruct tmp;
         tmp.name = jsobj->_getClass()->getName();
-        tmp.ptr  = e.first;
+        tmp.ptr = e.first;
         namePtrArray.push_back(tmp);
     }
 
     std::sort(namePtrArray.begin(), namePtrArray.end(), [](const NamePtrStruct &a, const NamePtrStruct &b) -> bool {
-        std::string left  = a.name;
-        std::string right = b.name;
-        for (std::string::const_iterator lit = left.begin(), rit = right.begin(); lit != left.end() && rit != right.end(); ++lit, ++rit) {
+        ccstd::string left = a.name;
+        ccstd::string right = b.name;
+        for (ccstd::string::const_iterator lit = left.begin(), rit = right.begin(); lit != left.end() && rit != right.end(); ++lit, ++rit) {
             if (::tolower(*lit) < ::tolower(*rit)) {
                 return true;
             }
@@ -306,7 +305,7 @@ static bool jsc_dumpNativePtrToSeObjectMap(se::State &s) { //NOLINT
 SE_BIND_FUNC(jsc_dumpNativePtrToSeObjectMap)
 
 static bool jsc_dumpRoot(se::State &s) { //NOLINT
-    assert(false);
+    CC_ASSERT(false);
     return true;
 }
 SE_BIND_FUNC(jsc_dumpRoot)
@@ -347,8 +346,8 @@ SE_BIND_FUNC(JSBCore_os)
 
 static bool JSBCore_getCurrentLanguage(se::State &s) { //NOLINT
     ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
-    CCASSERT(systemIntf != nullptr, "System interface does not exist");
-    std::string languageStr = systemIntf->getCurrentLanguageToString();
+    CC_ASSERT(systemIntf != nullptr);
+    ccstd::string languageStr = systemIntf->getCurrentLanguageToString();
     s.rval().setString(languageStr);
     return true;
 }
@@ -356,8 +355,8 @@ SE_BIND_FUNC(JSBCore_getCurrentLanguage)
 
 static bool JSBCore_getCurrentLanguageCode(se::State &s) { //NOLINT
     ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
-    CCASSERT(systemIntf != nullptr, "System interface does not exist");
-    std::string language = systemIntf->getCurrentLanguageCode();
+    CC_ASSERT(systemIntf != nullptr);
+    ccstd::string language = systemIntf->getCurrentLanguageCode();
     s.rval().setString(language);
     return true;
 }
@@ -365,8 +364,8 @@ SE_BIND_FUNC(JSBCore_getCurrentLanguageCode)
 
 static bool JSB_getOSVersion(se::State &s) { //NOLINT
     ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
-    CCASSERT(systemIntf != nullptr, "System interface does not exist");
-    std::string systemVersion = systemIntf->getSystemVersion();
+    CC_ASSERT(systemIntf != nullptr);
+    ccstd::string systemVersion = systemIntf->getSystemVersion();
     s.rval().setString(systemVersion);
     return true;
 }
@@ -387,7 +386,7 @@ SE_BIND_FUNC(JSB_closeWindow)
 
 static bool JSB_isObjectValid(se::State &s) { //NOLINT
     const auto &args = s.args();
-    int         argc = static_cast<int>(args.size());
+    int argc = static_cast<int>(args.size());
     if (argc == 1) {
         void *nativePtr = nullptr;
         seval_to_native_ptr(args[0], &nativePtr);
@@ -402,15 +401,15 @@ SE_BIND_FUNC(JSB_isObjectValid)
 
 static bool JSB_setCursorEnabled(se::State &s) { //NOLINT
     const auto &args = s.args();
-    int         argc = static_cast<int>(args.size());
+    int argc = static_cast<int>(args.size());
     SE_PRECONDITION2(argc == 1, false, "Invalid number of arguments");
-    bool ok    = true;
+    bool ok = true;
     bool value = true;
     ok &= sevalue_to_native(args[0], &value);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     auto *systemWindowIntf = CC_GET_PLATFORM_INTERFACE(ISystemWindow);
-    CCASSERT(systemWindowIntf != nullptr, "System window interface does not exist");
+    CC_ASSERT(systemWindowIntf != nullptr);
     systemWindowIntf->setCursorEnabled(value);
     return true;
 }
@@ -418,11 +417,11 @@ SE_BIND_FUNC(JSB_setCursorEnabled)
 
 static bool JSB_saveByteCode(se::State &s) { //NOLINT
     const auto &args = s.args();
-    int         argc = static_cast<int>(args.size());
+    int argc = static_cast<int>(args.size());
     SE_PRECONDITION2(argc == 2, false, "Invalid number of arguments");
-    bool        ok = true;
-    std::string srcfile;
-    std::string dstfile;
+    bool ok = true;
+    ccstd::string srcfile;
+    ccstd::string dstfile;
     ok &= sevalue_to_native(args[0], &srcfile);
     ok &= sevalue_to_native(args[1], &dstfile);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
@@ -433,8 +432,8 @@ static bool JSB_saveByteCode(se::State &s) { //NOLINT
 SE_BIND_FUNC(JSB_saveByteCode)
 
 static bool getOrCreatePlainObject_r(const char *name, se::Object *parent, se::Object **outObj) { //NOLINT
-    assert(parent != nullptr);
-    assert(outObj != nullptr);
+    CC_ASSERT(parent != nullptr);
+    CC_ASSERT(outObj != nullptr);
     se::Value tmp;
 
     if (parent->getProperty(name, &tmp) && tmp.isObject()) {
@@ -449,7 +448,7 @@ static bool getOrCreatePlainObject_r(const char *name, se::Object *parent, se::O
 }
 
 static bool js_performance_now(se::State &s) { //NOLINT
-    auto now   = std::chrono::steady_clock::now();
+    auto now = std::chrono::steady_clock::now();
     auto micro = std::chrono::duration_cast<std::chrono::microseconds>(now - se::ScriptEngine::getInstance()->getStartTime()).count();
     s.rval().setDouble(static_cast<double>(micro) * 0.001);
     return true;
@@ -458,19 +457,19 @@ SE_BIND_FUNC(js_performance_now)
 
 namespace {
 struct ImageInfo {
-    uint32_t        length     = 0;
-    uint32_t        width      = 0;
-    uint32_t        height     = 0;
-    uint8_t *       data       = nullptr;
-    cc::gfx::Format format     = cc::gfx::Format::UNKNOWN;
-    bool            hasAlpha   = false;
-    bool            compressed = false;
+    uint32_t length = 0;
+    uint32_t width = 0;
+    uint32_t height = 0;
+    uint8_t *data = nullptr;
+    cc::gfx::Format format = cc::gfx::Format::UNKNOWN;
+    bool hasAlpha = false;
+    bool compressed = false;
 };
 
 uint8_t *convertRGB2RGBA(uint32_t length, uint8_t *src) {
     auto *dst = reinterpret_cast<uint8_t *>(malloc(length));
     for (uint32_t i = 0; i < length; i += 4) {
-        dst[i]     = *src++;
+        dst[i] = *src++;
         dst[i + 1] = *src++;
         dst[i + 2] = *src++;
         dst[i + 3] = 255;
@@ -481,7 +480,7 @@ uint8_t *convertRGB2RGBA(uint32_t length, uint8_t *src) {
 uint8_t *convertIA2RGBA(uint32_t length, uint8_t *src) {
     auto *dst = reinterpret_cast<uint8_t *>(malloc(length));
     for (uint32_t i = 0; i < length; i += 4) {
-        dst[i]     = *src;
+        dst[i] = *src;
         dst[i + 1] = *src;
         dst[i + 2] = *src++;
         dst[i + 3] = *src++;
@@ -492,7 +491,7 @@ uint8_t *convertIA2RGBA(uint32_t length, uint8_t *src) {
 uint8_t *convertI2RGBA(uint32_t length, uint8_t *src) {
     auto *dst = reinterpret_cast<uint8_t *>(malloc(length));
     for (uint32_t i = 0; i < length; i += 4) {
-        dst[i]     = *src;
+        dst[i] = *src;
         dst[i + 1] = *src;
         dst[i + 2] = *src++;
         dst[i + 3] = 255;
@@ -501,12 +500,12 @@ uint8_t *convertI2RGBA(uint32_t length, uint8_t *src) {
 }
 
 struct ImageInfo *createImageInfo(Image *img) {
-    auto *imgInfo   = new struct ImageInfo();
+    auto *imgInfo = ccnew struct ImageInfo();
     imgInfo->length = static_cast<uint32_t>(img->getDataLen());
-    imgInfo->width  = img->getWidth();
+    imgInfo->width = img->getWidth();
     imgInfo->height = img->getHeight();
     img->takeData(&imgInfo->data);
-    imgInfo->format     = img->getRenderFormat();
+    imgInfo->format = img->getRenderFormat();
     imgInfo->compressed = img->isCompressed();
 
     // Convert to RGBA888 because standard web api will return only RGBA888.
@@ -516,9 +515,9 @@ struct ImageInfo *createImageInfo(Image *img) {
     // format, or it will cause 0x502 error on OpenGL ES 2.
     if (!imgInfo->compressed && imgInfo->format != cc::gfx::Format::RGBA8) {
         imgInfo->length = img->getWidth() * img->getHeight() * 4;
-        uint8_t *dst    = nullptr;
+        uint8_t *dst = nullptr;
         uint32_t length = imgInfo->length;
-        uint8_t *src    = imgInfo->data;
+        uint8_t *src = imgInfo->data;
         switch (imgInfo->format) {
             case cc::gfx::Format::A8:
             case cc::gfx::Format::LA8:
@@ -538,7 +537,7 @@ struct ImageInfo *createImageInfo(Image *img) {
         }
 
         if (dst != imgInfo->data) free(imgInfo->data);
-        imgInfo->data     = dst;
+        imgInfo->data = dst;
         imgInfo->hasAlpha = true;
     }
 
@@ -546,7 +545,7 @@ struct ImageInfo *createImageInfo(Image *img) {
 }
 } // namespace
 
-bool jsb_global_load_image(const std::string &path, const se::Value &callbackVal) { //NOLINT(readability-identifier-naming)
+bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackVal) { //NOLINT(readability-identifier-naming)
     if (path.empty()) {
         se::ValueArray seArgs;
         callbackVal.toObject()->call(seArgs, nullptr);
@@ -555,8 +554,8 @@ bool jsb_global_load_image(const std::string &path, const se::Value &callbackVal
 
     std::shared_ptr<se::Value> callbackPtr = std::make_shared<se::Value>(callbackVal);
 
-    auto initImageFunc = [path, callbackPtr](const std::string &fullPath, unsigned char *imageData, int imageBytes) {
-        auto *img = new (std::nothrow) Image();
+    auto initImageFunc = [path, callbackPtr](const ccstd::string &fullPath, unsigned char *imageData, int imageBytes) {
+        auto *img = ccnew Image();
 
         gThreadPool->pushTask([=](int /*tid*/) {
             // NOTE: FileUtils::getInstance()->fullPathForFilename isn't a threadsafe method,
@@ -579,8 +578,8 @@ bool jsb_global_load_image(const std::string &path, const se::Value &callbackVal
 
             CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([=]() {
                 se::AutoHandleScope hs;
-                se::ValueArray      seArgs;
-                se::Value           dataVal;
+                se::ValueArray seArgs;
+                se::Value dataVal;
 
                 if (loadSucceed) {
                     se::HandleObject retObj(se::Object::createPlainObject());
@@ -600,24 +599,24 @@ bool jsb_global_load_image(const std::string &path, const se::Value &callbackVal
             });
         });
     };
-    size_t pos = std::string::npos;
+    size_t pos = ccstd::string::npos;
     if (path.find("http://") == 0 || path.find("https://") == 0) {
         localDownloaderCreateTask(path, initImageFunc);
 
-    } else if (path.find("data:") == 0 && (pos = path.find("base64,")) != std::string::npos) {
-        int            imageBytes   = 0;
-        unsigned char *imageData    = nullptr;
-        size_t         dataStartPos = pos + strlen("base64,");
-        const char *   base64Data   = path.data() + dataStartPos;
-        size_t         dataLen      = path.length() - dataStartPos;
-        imageBytes                  = base64Decode(reinterpret_cast<const unsigned char *>(base64Data), static_cast<unsigned int>(dataLen), &imageData);
+    } else if (path.find("data:") == 0 && (pos = path.find("base64,")) != ccstd::string::npos) {
+        int imageBytes = 0;
+        unsigned char *imageData = nullptr;
+        size_t dataStartPos = pos + strlen("base64,");
+        const char *base64Data = path.data() + dataStartPos;
+        size_t dataLen = path.length() - dataStartPos;
+        imageBytes = base64Decode(reinterpret_cast<const unsigned char *>(base64Data), static_cast<unsigned int>(dataLen), &imageData);
         if (imageBytes <= 0 || imageData == nullptr) {
             SE_REPORT_ERROR("Decode base64 image data failed!");
             return false;
         }
         initImageFunc("", imageData, imageBytes);
     } else {
-        std::string fullPath(FileUtils::getInstance()->fullPathForFilename(path));
+        ccstd::string fullPath(FileUtils::getInstance()->fullPathForFilename(path));
         if (0 == path.find("file://")) {
             fullPath = FileUtils::getInstance()->fullPathForFilename(path.substr(strlen("file://")));
         }
@@ -632,17 +631,17 @@ bool jsb_global_load_image(const std::string &path, const se::Value &callbackVal
 }
 
 static bool js_loadImage(se::State &s) { //NOLINT
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 2) {
-        std::string path;
+        ccstd::string path;
         ok &= sevalue_to_native(args[0], &path);
         SE_PRECONDITION2(ok, false, "js_loadImage : Error processing arguments");
 
         se::Value callbackVal = args[1];
-        assert(callbackVal.isObject());
-        assert(callbackVal.toObject()->isFunction());
+        CC_ASSERT(callbackVal.isObject());
+        CC_ASSERT(callbackVal.toObject()->isFunction());
 
         return jsb_global_load_image(path, callbackVal);
     }
@@ -652,9 +651,9 @@ static bool js_loadImage(se::State &s) { //NOLINT
 SE_BIND_FUNC(js_loadImage)
 
 static bool js_destroyImage(se::State &s) { //NOLINT
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         auto *data = reinterpret_cast<char *>(args[0].asPtr());
         SE_PRECONDITION2(ok, false, "js_destroyImage : Error processing arguments");
@@ -667,15 +666,15 @@ static bool js_destroyImage(se::State &s) { //NOLINT
 SE_BIND_FUNC(js_destroyImage)
 
 static bool JSB_openURL(se::State &s) { //NOLINT
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc > 0) {
-        std::string url;
+        ccstd::string url;
         ok = sevalue_to_native(args[0], &url);
         SE_PRECONDITION2(ok, false, "url is invalid!");
         ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
-        CCASSERT(systemIntf != nullptr, "System interface does not exist");
+        CC_ASSERT(systemIntf != nullptr);
         systemIntf->openURL(url);
         return true;
     }
@@ -686,15 +685,15 @@ static bool JSB_openURL(se::State &s) { //NOLINT
 SE_BIND_FUNC(JSB_openURL)
 
 static bool JSB_copyTextToClipboard(se::State &s) { //NOLINT
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc > 0) {
-        std::string text;
+        ccstd::string text;
         ok = sevalue_to_native(args[0], &text);
         SE_PRECONDITION2(ok, false, "text is invalid!");
         ISystemWindow *systemWindowIntf = CC_GET_PLATFORM_INTERFACE(ISystemWindow);
-        CCASSERT(systemWindowIntf != nullptr, "System window interface does not exist");
+        CC_ASSERT(systemWindowIntf != nullptr);
         systemWindowIntf->copyTextToClipboard(text);
         return true;
     }
@@ -705,9 +704,9 @@ static bool JSB_copyTextToClipboard(se::State &s) { //NOLINT
 SE_BIND_FUNC(JSB_copyTextToClipboard)
 
 static bool JSB_setPreferredFramesPerSecond(se::State &s) { //NOLINT
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc > 0) {
         int32_t fps;
         ok = sevalue_to_native(args[0], &fps);
@@ -725,10 +724,10 @@ SE_BIND_FUNC(JSB_setPreferredFramesPerSecond)
 #if CC_USE_EDITBOX
 static bool JSB_showInputBox(se::State &s) { //NOLINT
     const auto &args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 1) {
-        bool        ok;
-        se::Value   tmp;
+        bool ok;
+        se::Value tmp;
         const auto &obj = args[0].toObject();
 
         cc::EditBox::ShowInfo showInfo;
@@ -796,13 +795,13 @@ static bool JSB_showInputBox(se::State &s) { //NOLINT
         if (obj->getProperty("fontSize", &tmp)) {
             SE_PRECONDITION2(tmp.isNumber(), false, "fontSize is invalid!");
             if (!tmp.isUndefined()) {
-                showInfo.fontSize = tmp.toNumber();
+                showInfo.fontSize = tmp.toDouble();
             }
         }
         if (obj->getProperty("fontColor", &tmp)) {
             SE_PRECONDITION2(tmp.isNumber(), false, "fontColor is invalid!");
             if (!tmp.isUndefined()) {
-                showInfo.fontColor = tmp.toNumber();
+                showInfo.fontColor = tmp.toDouble();
             }
         }
         if (obj->getProperty("isBold", &tmp)) {
@@ -826,25 +825,25 @@ static bool JSB_showInputBox(se::State &s) { //NOLINT
         if (obj->getProperty("underlineColor", &tmp)) {
             SE_PRECONDITION2(tmp.isNumber(), false, "underlinrColor is invalid!");
             if (!tmp.isUndefined()) {
-                showInfo.underlineColor = tmp.toNumber();
+                showInfo.underlineColor = tmp.toDouble();
             }
         }
         if (obj->getProperty("backColor", &tmp)) {
             SE_PRECONDITION2(tmp.isNumber(), false, "backColor is invalid!");
             if (!tmp.isUndefined()) {
-                showInfo.backColor = tmp.toNumber();
+                showInfo.backColor = tmp.toDouble();
             }
         }
         if (obj->getProperty("backgroundColor", &tmp)) {
             SE_PRECONDITION2(tmp.isNumber(), false, "backgroundColor is invalid!");
             if (!tmp.isUndefined()) {
-                showInfo.backgroundColor = tmp.toNumber();
+                showInfo.backgroundColor = tmp.toDouble();
             }
         }
         if (obj->getProperty("textAlignment", &tmp)) {
             SE_PRECONDITION2(tmp.isNumber(), false, "textAlignment is invalid!");
             if (!tmp.isUndefined()) {
-                showInfo.textAlignment = tmp.toNumber();
+                showInfo.textAlignment = tmp.toDouble();
             }
         }
         EditBox::show(showInfo);
@@ -865,9 +864,9 @@ SE_BIND_FUNC(JSB_hideInputBox)
 #endif
 
 static bool jsb_createExternalArrayBuffer(se::State &s) {
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         uint32_t byteLength{0};
         ok &= sevalue_to_native(args[0], &byteLength, s.thisObject());
@@ -897,16 +896,16 @@ static bool jsb_createExternalArrayBuffer(se::State &s) {
 SE_BIND_FUNC(jsb_createExternalArrayBuffer)
 
 static bool JSB_zipUtils_inflateMemory(se::State &s) { //NOLINT
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc > 0) {
         unsigned char *arg0 = nullptr;
-        size_t         arg1 = 0;
+        size_t arg1 = 0;
         if (args[0].isString()) {
-            const std::string &str = args[0].toString();
-            arg0                   = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(str.c_str()));
-            arg1                   = str.size();
+            const ccstd::string &str = args[0].toString();
+            arg0 = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(str.c_str()));
+            arg1 = str.size();
         } else if (args[0].isObject()) {
             se::Object *obj = args[0].toObject();
             if (obj->isArrayBuffer()) {
@@ -923,15 +922,15 @@ static bool JSB_zipUtils_inflateMemory(se::State &s) { //NOLINT
         }
         SE_PRECONDITION2(ok, false, "args[0] is not in type of string | ArrayBuffer | TypedArray");
         unsigned char *arg2 = nullptr;
-        int32_t        len  = 0;
+        int32_t len = 0;
         if (argc == 1) {
-            len = ZipUtils::inflateMemory(arg0, static_cast<ssize_t>(arg1), &arg2);
+            len = ZipUtils::inflateMemory(arg0, static_cast<uint32_t>(arg1), &arg2);
         } else if (argc == 2) {
             SE_PRECONDITION2(args[1].isNumber(), false, "outLengthHint is invalid!");
-            int32_t outLengthHint = 0;
+            uint32_t outLengthHint = 0;
             if (!args[1].isUndefined()) {
-                outLengthHint = args[1].toInt32();
-                len           = ZipUtils::inflateMemoryWithHint(arg0, static_cast<ssize_t>(arg1), &arg2, outLengthHint);
+                outLengthHint = args[1].toUint32();
+                len = ZipUtils::inflateMemoryWithHint(arg0, static_cast<uint32_t>(arg1), &arg2, outLengthHint);
             } else {
                 ok = false;
             }
@@ -955,12 +954,12 @@ SE_BIND_FUNC(JSB_zipUtils_inflateMemory)
 
 static bool JSB_zipUtils_inflateGZipFile(se::State &s) { //NOLINT
     const auto &args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 1) {
         SE_PRECONDITION2(args[0].isString(), false, "path is invalid!");
-        std::string      arg0 = args[0].toString();
-        unsigned char *  arg1 = nullptr;
-        int32_t          len  = ZipUtils::inflateGZipFile(arg0.c_str(), &arg1);
+        ccstd::string arg0 = args[0].toString();
+        unsigned char *arg1 = nullptr;
+        int32_t len = ZipUtils::inflateGZipFile(arg0.c_str(), &arg1);
         se::HandleObject seObj(se::Object::createArrayBufferObject(arg1, len));
         if (!seObj.isEmpty() && len > 0) {
             s.rval().setObject(seObj);
@@ -977,11 +976,11 @@ SE_BIND_FUNC(JSB_zipUtils_inflateGZipFile)
 
 static bool JSB_zipUtils_isGZipFile(se::State &s) { //NOLINT
     const auto &args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 1) {
         SE_PRECONDITION2(args[0].isString(), false, "path is invalid!");
-        std::string arg0 = args[0].toString();
-        bool        flag = ZipUtils::isGZipFile(arg0.c_str());
+        ccstd::string arg0 = args[0].toString();
+        bool flag = ZipUtils::isGZipFile(arg0.c_str());
         s.rval().setBoolean(flag);
         return true;
     }
@@ -991,16 +990,16 @@ static bool JSB_zipUtils_isGZipFile(se::State &s) { //NOLINT
 SE_BIND_FUNC(JSB_zipUtils_isGZipFile)
 
 static bool JSB_zipUtils_isGZipBuffer(se::State &s) { //NOLINT
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         unsigned char *arg0 = nullptr;
-        size_t         arg1 = 0;
+        size_t arg1 = 0;
         if (args[0].isString()) {
-            const std::string &str = args[0].toString();
-            arg0                   = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(str.c_str()));
-            arg1                   = str.size();
+            const ccstd::string &str = args[0].toString();
+            arg0 = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(str.c_str()));
+            arg1 = str.size();
         } else if (args[0].isObject()) {
             se::Object *obj = args[0].toObject();
             if (obj->isArrayBuffer()) {
@@ -1016,7 +1015,7 @@ static bool JSB_zipUtils_isGZipBuffer(se::State &s) { //NOLINT
             ok = false;
         }
         SE_PRECONDITION2(ok, false, "args[0] is not in type of string | ArrayBuffer | TypedArray");
-        bool flag = ZipUtils::isGZipBuffer(arg0, static_cast<ssize_t>(arg1));
+        bool flag = ZipUtils::isGZipBuffer(arg0, static_cast<uint32_t>(arg1));
         s.rval().setBoolean(flag);
         return true;
     }
@@ -1027,12 +1026,12 @@ SE_BIND_FUNC(JSB_zipUtils_isGZipBuffer)
 
 static bool JSB_zipUtils_inflateCCZFile(se::State &s) { //NOLINT
     const auto &args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 1) {
         SE_PRECONDITION2(args[0].isString(), false, "path is invalid!");
-        std::string      arg0 = args[0].toString();
-        unsigned char *  arg1 = nullptr;
-        int32_t          len  = ZipUtils::inflateCCZFile(arg0.c_str(), &arg1);
+        ccstd::string arg0 = args[0].toString();
+        unsigned char *arg1 = nullptr;
+        int32_t len = ZipUtils::inflateCCZFile(arg0.c_str(), &arg1);
         se::HandleObject seObj(se::Object::createArrayBufferObject(arg1, len));
         if (!seObj.isEmpty() && len > 0) {
             s.rval().setObject(seObj);
@@ -1048,16 +1047,16 @@ static bool JSB_zipUtils_inflateCCZFile(se::State &s) { //NOLINT
 SE_BIND_FUNC(JSB_zipUtils_inflateCCZFile)
 
 static bool JSB_zipUtils_inflateCCZBuffer(se::State &s) { //NOLINT
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         unsigned char *arg0 = nullptr;
-        size_t         arg1 = 0;
+        size_t arg1 = 0;
         if (args[0].isString()) {
-            const std::string &str = args[0].toString();
-            arg0                   = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(str.c_str()));
-            arg1                   = str.size();
+            const ccstd::string &str = args[0].toString();
+            arg0 = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(str.c_str()));
+            arg1 = str.size();
         } else if (args[0].isObject()) {
             se::Object *obj = args[0].toObject();
             if (obj->isArrayBuffer()) {
@@ -1073,8 +1072,8 @@ static bool JSB_zipUtils_inflateCCZBuffer(se::State &s) { //NOLINT
             ok = false;
         }
         SE_PRECONDITION2(ok, false, "args[0] is not in type of string | ArrayBuffer | TypedArray");
-        unsigned char *  arg2 = nullptr;
-        int32_t          len  = ZipUtils::inflateCCZBuffer(arg0, static_cast<ssize_t>(arg1), &arg2);
+        unsigned char *arg2 = nullptr;
+        int32_t len = ZipUtils::inflateCCZBuffer(arg0, static_cast<uint32_t>(arg1), &arg2);
         se::HandleObject seObj(se::Object::createArrayBufferObject(arg2, len));
         if (!seObj.isEmpty() && len > 0) {
             s.rval().setObject(seObj);
@@ -1091,11 +1090,11 @@ SE_BIND_FUNC(JSB_zipUtils_inflateCCZBuffer)
 
 static bool JSB_zipUtils_isCCZFile(se::State &s) { //NOLINT
     const auto &args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 1) {
-        std::string arg0;
+        ccstd::string arg0;
         SE_PRECONDITION2(args[0].isString(), false, "path is invalid!");
-        arg0      = args[0].toString();
+        arg0 = args[0].toString();
         bool flag = ZipUtils::isCCZFile(arg0.c_str());
         s.rval().setBoolean(flag);
         return true;
@@ -1106,16 +1105,16 @@ static bool JSB_zipUtils_isCCZFile(se::State &s) { //NOLINT
 SE_BIND_FUNC(JSB_zipUtils_isCCZFile)
 
 static bool JSB_zipUtils_isCCZBuffer(se::State &s) { //NOLINT
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         unsigned char *arg0 = nullptr;
-        size_t         arg1 = 0;
+        size_t arg1 = 0;
         if (args[0].isString()) {
-            const std::string &str = args[0].toString();
-            arg0                   = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(str.c_str()));
-            arg1                   = str.size();
+            const ccstd::string &str = args[0].toString();
+            arg0 = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(str.c_str()));
+            arg1 = str.size();
         } else if (args[0].isObject()) {
             se::Object *obj = args[0].toObject();
             if (obj->isArrayBuffer()) {
@@ -1131,7 +1130,7 @@ static bool JSB_zipUtils_isCCZBuffer(se::State &s) { //NOLINT
             ok = false;
         }
         SE_PRECONDITION2(ok, false, "args[0] is not in type of string | ArrayBuffer | TypedArray");
-        bool flag = ZipUtils::isCCZBuffer(arg0, static_cast<ssize_t>(arg1));
+        bool flag = ZipUtils::isCCZBuffer(arg0, static_cast<uint32_t>(arg1));
         s.rval().setBoolean(flag);
         return true;
     }
@@ -1142,10 +1141,10 @@ SE_BIND_FUNC(JSB_zipUtils_isCCZBuffer)
 
 static bool JSB_zipUtils_setPvrEncryptionKeyPart(se::State &s) { //NOLINT
     const auto &args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 2) {
         SE_PRECONDITION2(args[0].isNumber() && args[1].isNumber(), false, "args is not as expected");
-        int32_t  arg0 = args[0].toInt32();
+        int32_t arg0 = args[0].toInt32();
         uint32_t arg1 = args[1].toUint32();
         ZipUtils::setPvrEncryptionKeyPart(arg0, arg1);
         return true;
@@ -1157,7 +1156,7 @@ SE_BIND_FUNC(JSB_zipUtils_setPvrEncryptionKeyPart)
 
 static bool JSB_zipUtils_setPvrEncryptionKey(se::State &s) { //NOLINT
     const auto &args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 4) {
         SE_PRECONDITION2(args[0].isNumber() && args[1].isNumber(), false, "args is not as expected");
         uint32_t arg0 = args[0].toUint32();
@@ -1171,6 +1170,125 @@ static bool JSB_zipUtils_setPvrEncryptionKey(se::State &s) { //NOLINT
     return false;
 }
 SE_BIND_FUNC(JSB_zipUtils_setPvrEncryptionKey)
+
+// TextEncoder
+static se::Class *__jsb_TextEncoder_class = nullptr;
+
+static bool js_TextEncoder_finalize(se::State &s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_TextEncoder_finalize)
+
+static bool js_TextEncoder_constructor(se::State &s) // NOLINT(readability-identifier-naming)
+{
+    const auto &args = s.args();
+    size_t argc = args.size();
+    if (argc > 0) {
+        if (args[0].isString() && args[0].toString() != "utf-8") {
+            CC_LOG_WARNING("TextEncoder only supports utf-8");
+        }
+    }
+    s.thisObject()->setProperty("encoding", se::Value{"utf-8"});
+    s.thisObject()->setPrivateObject(nullptr);
+    return true;
+}
+SE_BIND_CTOR(js_TextEncoder_constructor, __jsb_TextEncoder_class, js_TextEncoder_finalize)
+
+static bool js_TextEncoder_encode(se::State &s) // NOLINT(readability-identifier-naming)
+{
+    const auto &args = s.args();
+    size_t argc = args.size();
+
+    if (argc == 1) {
+        const auto &arg0 = args[0];
+        SE_PRECONDITION2(arg0.isString(), false, "js_TextEncoder_encode, arg0 is not a string");
+        const auto &str = arg0.toString();
+        se::HandleObject encodedUint8Array{
+            se::Object::createTypedArray(se::Object::TypedArrayType::UINT8, str.data(), str.length())};
+
+        s.rval().setObject(encodedUint8Array);
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_TextEncoder_encode)
+
+// TextDecoder
+static se::Class *__jsb_TextDecoder_class = nullptr;
+
+static bool js_TextDecoder_finalize(se::State &s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_TextDecoder_finalize)
+
+static bool js_TextDecoder_constructor(se::State &s) // NOLINT(readability-identifier-naming)
+{
+    const auto &args = s.args();
+    size_t argc = args.size();
+    if (argc > 0) {
+        if (args[0].isString() && args[0].toString() != "utf-8") {
+            CC_LOG_WARNING("TextDecoder only supports utf-8");
+        }
+    }
+    s.thisObject()->setProperty("encoding", se::Value{"utf-8"});
+    s.thisObject()->setProperty("fatal", se::Value{false});
+    s.thisObject()->setProperty("ignoreBOM", se::Value{false});
+    s.thisObject()->setPrivateObject(nullptr); //FIXME: Don't need this line if https://github.com/cocos/3d-tasks/issues/11365 is done.
+    return true;
+}
+SE_BIND_CTOR(js_TextDecoder_constructor, __jsb_TextDecoder_class, js_TextDecoder_finalize)
+
+static bool js_TextDecoder_decode(se::State &s) // NOLINT(readability-identifier-naming)
+{
+    const auto &args = s.args();
+    size_t argc = args.size();
+
+    if (argc == 1) {
+        const auto &arg0 = args[0];
+        SE_PRECONDITION2(arg0.isObject() && arg0.toObject()->isTypedArray(), false, "js_TextDecoder_decode, arg0 is not a Uint8Array");
+        auto *uint8ArrayObj = arg0.toObject();
+        uint8_t *uint8ArrayData = nullptr;
+        size_t length = 0;
+        bool ok = uint8ArrayObj->getTypedArrayData(&uint8ArrayData, &length);
+        SE_PRECONDITION2(ok, false, "js_TextDecoder_decode, get typedarray data failed!");
+
+        ccstd::string str{reinterpret_cast<const char *>(uint8ArrayData), length};
+        s.rval().setString(str);
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_TextDecoder_decode)
+
+static bool jsb_register_TextEncoder(se::Object *globalObj) {
+    auto *cls = se::Class::create("TextEncoder", globalObj, nullptr, _SE(js_TextEncoder_constructor));
+    cls->defineFunction("encode", _SE(js_TextEncoder_encode));
+    cls->defineFinalizeFunction(_SE(js_TextEncoder_finalize));
+    cls->install();
+
+    __jsb_TextEncoder_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+static bool jsb_register_TextDecoder(se::Object *globalObj) {
+    auto *cls = se::Class::create("TextDecoder", globalObj, nullptr, _SE(js_TextDecoder_constructor));
+    cls->defineFunction("decode", _SE(js_TextDecoder_decode));
+    cls->defineFinalizeFunction(_SE(js_TextDecoder_finalize));
+    cls->install();
+
+    __jsb_TextDecoder_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
 
 bool jsb_register_global_variables(se::Object *global) { //NOLINT
     gThreadPool = LegacyThreadPool::newFixedThreadPool(3);
@@ -1222,6 +1340,9 @@ bool jsb_register_global_variables(se::Object *global) { //NOLINT
     se::HandleObject performanceObj(se::Object::createPlainObject());
     performanceObj->defineFunction("now", _SE(js_performance_now));
     global->setProperty("performance", se::Value(performanceObj));
+
+    jsb_register_TextEncoder(global);
+    jsb_register_TextDecoder(global);
 
     se::ScriptEngine::getInstance()->clearException();
 

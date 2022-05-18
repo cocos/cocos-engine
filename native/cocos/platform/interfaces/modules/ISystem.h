@@ -31,7 +31,7 @@
 
 namespace cc {
 
-class ISystem : public OSInterface {
+class CC_DLL ISystem : public OSInterface {
 public:
     ~ISystem() override;
     enum class LanguageType {
@@ -71,26 +71,19 @@ public:
     virtual OSType getOSType() const = 0;
 
     //
-    virtual std::string  getDeviceModel() const         = 0;
-    virtual LanguageType getCurrentLanguage() const     = 0;
-    virtual std::string  getCurrentLanguageCode() const = 0;
-    virtual std::string  getSystemVersion() const       = 0;
+    virtual ccstd::string getDeviceModel() const = 0;
+    virtual LanguageType getCurrentLanguage() const = 0;
+    virtual ccstd::string getCurrentLanguageCode() const = 0;
+    virtual ccstd::string getSystemVersion() const = 0;
 
-    virtual std::string getCurrentLanguageToString();
+    virtual ccstd::string getCurrentLanguageToString();
 
     /**
      @brief Open url in default browser.
      @param String with url to open.
      @return True if the resource located by the URL was successfully opened; otherwise false.
      */
-    virtual bool openURL(const std::string &url) = 0;
-    /**
-     @brief Create default sytem interface.
-     @return sytem interface.
-     */
-    static OSInterface::Ptr createSystemInterface();
-
-private:
+    virtual bool openURL(const ccstd::string& url) = 0;
 };
 
 } // namespace cc

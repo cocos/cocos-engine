@@ -27,8 +27,8 @@
 #ifndef __CCVERTEX_H__
 #define __CCVERTEX_H__
 
-#include <vector>
 #include "base/Macros.h"
+#include "base/std/container/vector.h"
 #include "math/Vec2.h"
 
 /**
@@ -41,7 +41,7 @@ namespace cc {
 /** @file CCVertex.h */
 
 /** converts a line to a polygon */
-void CC_DLL ccVertexLineToPolygon(const std::vector<Vec2> &points, float stroke, unsigned int offset, unsigned int nuPoints, std::vector<Vec2> *vertices);
+void CC_DLL ccVertexLineToPolygon(const ccstd::vector<Vec2> &points, float stroke, unsigned int offset, unsigned int nuPoints, ccstd::vector<Vec2> *vertices);
 
 /** returns whether or not the line intersects */
 bool CC_DLL ccVertexLineIntersect(float ax, float ay,

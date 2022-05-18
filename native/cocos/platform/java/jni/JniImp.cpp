@@ -44,9 +44,9 @@
 #endif
 
 #ifndef COM_AUDIOFOCUS_CLASS_NAME
-#define COM_AUDIOFOCUS_CLASS_NAME com_cocos_lib_CocosAudioFocusManager
+    #define COM_AUDIOFOCUS_CLASS_NAME com_cocos_lib_CocosAudioFocusManager
 #endif
-#define JNI_AUDIO(FUNC) JNI_METHOD1(COM_AUDIOFOCUS_CLASS_NAME,FUNC)
+#define JNI_AUDIO(FUNC) JNI_METHOD1(COM_AUDIOFOCUS_CLASS_NAME, FUNC)
 
 using namespace cc; //NOLINT
 
@@ -54,25 +54,25 @@ using namespace cc; //NOLINT
  * Functions invoke from cpp to Java.
  ***********************************************************/
 
-std::string getObbFilePathJNI() {
+ccstd::string getObbFilePathJNI() {
     return JniHelper::callStaticStringMethod(JCLS_HELPER, "getObbFilePath");
 }
 
-int getObbAssetFileDescriptorJNI(const std::string &path, int64_t *startOffset, int64_t *size) {
+int getObbAssetFileDescriptorJNI(const ccstd::string &path, int64_t *startOffset, int64_t *size) {
     JniMethodInfo methodInfo;
-    int           fd = 0;
+    int fd = 0;
 
     if (JniHelper::getStaticMethodInfo(methodInfo, JCLS_HELPER, "getObbAssetFileDescriptor", "(Ljava/lang/String;)[J")) {
-        jstring stringArg   = methodInfo.env->NewStringUTF(path.c_str());
-        auto *  newArray    = static_cast<jlongArray>(methodInfo.env->CallStaticObjectMethod(methodInfo.classID, methodInfo.methodID, stringArg));
-        jsize   theArrayLen = methodInfo.env->GetArrayLength(newArray);
+        jstring stringArg = methodInfo.env->NewStringUTF(path.c_str());
+        auto *newArray = static_cast<jlongArray>(methodInfo.env->CallStaticObjectMethod(methodInfo.classID, methodInfo.methodID, stringArg));
+        jsize theArrayLen = methodInfo.env->GetArrayLength(newArray);
 
         if (3 == theArrayLen) {
-            jboolean copy  = JNI_FALSE;
-            jlong *  array = methodInfo.env->GetLongArrayElements(newArray, &copy);
-            fd             = static_cast<int>(array[0]);
-            *startOffset   = array[1];
-            *size          = array[2];
+            jboolean copy = JNI_FALSE;
+            jlong *array = methodInfo.env->GetLongArrayElements(newArray, &copy);
+            fd = static_cast<int>(array[0]);
+            *startOffset = array[1];
+            *size = array[2];
             methodInfo.env->ReleaseLongArrayElements(newArray, array, 0);
         }
 
@@ -83,27 +83,27 @@ int getObbAssetFileDescriptorJNI(const std::string &path, int64_t *startOffset, 
     return fd;
 }
 
-std::string getCurrentLanguageJNI() {
+ccstd::string getCurrentLanguageJNI() {
     return JniHelper::callStaticStringMethod(JCLS_HELPER, "getCurrentLanguage");
 }
 
-std::string getCurrentLanguageCodeJNI() {
+ccstd::string getCurrentLanguageCodeJNI() {
     return JniHelper::callStaticStringMethod(JCLS_HELPER, "getCurrentLanguageCode");
 }
 
-std::string getSystemVersionJNI() {
+ccstd::string getSystemVersionJNI() {
     return JniHelper::callStaticStringMethod(JCLS_HELPER, "getSystemVersion");
 }
 
-bool openURLJNI(const std::string &url) {
+bool openURLJNI(const ccstd::string &url) {
     return JniHelper::callStaticBooleanMethod(JCLS_HELPER, "openURL", url);
 }
 
-void copyTextToClipboardJNI(const std::string &text) {
+void copyTextToClipboardJNI(const ccstd::string &text) {
     JniHelper::callStaticVoidMethod(JCLS_HELPER, "copyTextToClipboard", text);
 }
 
-std::string getDeviceModelJNI() {
+ccstd::string getDeviceModelJNI() {
     return JniHelper::callStaticStringMethod(JCLS_HELPER, "getDeviceModel");
 }
 
@@ -153,10 +153,10 @@ float *getDeviceMotionValueJNI() {
     return JniHelper::callStaticFloatArrayMethod(JCLS_SENSOR, "getDeviceMotionValue");
 }
 
-
 extern "C" {
-JNIEXPORT void JNICALL JNI_AUDIO(nativeSetAudioVolumeFactor)(JNIEnv* /*env*/, jclass/* thiz*/, jfloat volumeFactor)
-{
+JNIEXPORT void JNICALL JNI_AUDIO(nativeSetAudioVolumeFactor)(JNIEnv * /*env*/, jclass /* thiz*/, jfloat volumeFactor) {
+#if CC_USE_AUDIO
     AudioEngine::setVolumeFactor(volumeFactor);
+#endif
 }
 }

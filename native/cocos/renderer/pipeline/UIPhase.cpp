@@ -38,7 +38,7 @@ namespace pipeline {
 
 void UIPhase::activate(RenderPipeline *pipeline) {
     _pipeline = pipeline;
-    _phaseID  = getPhaseID("default");
+    _phaseID = getPhaseID("default");
 };
 
 void UIPhase::render(scene::Camera *camera, gfx::RenderPass *renderPass) {
@@ -51,10 +51,10 @@ void UIPhase::render(scene::Camera *camera, gfx::RenderPass *renderPass) {
         for (size_t i = 0; i < batch->shaders.size(); ++i) {
             const auto *pass = batch->passes[i];
             if (pass->getPhase() != _phaseID) continue;
-            auto *shader         = batch->shaders[i];
+            auto *shader = batch->shaders[i];
             auto *inputAssembler = batch->inputAssembler;
-            auto *ds             = batch->descriptorSet;
-            auto *pso            = PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass);
+            auto *ds = batch->descriptorSet;
+            auto *pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass);
             cmdBuff->bindPipelineState(pso);
             cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
             cmdBuff->bindInputAssembler(inputAssembler);

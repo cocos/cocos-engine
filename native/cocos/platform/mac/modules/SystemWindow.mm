@@ -27,7 +27,6 @@
 #import <AppKit/AppKit.h>
 #include "platform/mac/AppDelegate.h"
 
-
 namespace {
 
 }
@@ -39,18 +38,31 @@ SystemWindow::SystemWindow() = default;
 SystemWindow::~SystemWindow() = default;
 
 bool SystemWindow::createWindow(const char *title,
-                                int x, int y, int w,
-                                int h, int flags) {
-    if(isInit) {
+                                int w, int h, int flags) {
+    if (_isWindowCreated) {
         return true;
     }
-    isInit = true;
-    _width                = w;
-    _height               = h;
+    _isWindowCreated = true;
+    _width = w;
+    _height = h;
     AppDelegate *delegate = [[NSApplication sharedApplication] delegate];
-    NSString *   aString  = [NSString stringWithUTF8String:title];
-    [delegate createWindow:aString xPos:x yPos:y width:w height:h];
+    NSString *aString = [NSString stringWithUTF8String:title];
+    [delegate createLeftBottomWindow:aString width:w height:h];
+    return true;
+}
 
+bool SystemWindow::createWindow(const char *title,
+                                int x, int y, int w,
+                                int h, int flags) {
+    if (_isWindowCreated) {
+        return true;
+    }
+    _isWindowCreated = true;
+    _width = w;
+    _height = h;
+    AppDelegate *delegate = [[NSApplication sharedApplication] delegate];
+    NSString *aString = [NSString stringWithUTF8String:title];
+    [delegate createWindow:aString xPos:x yPos:y width:w height:h];
     return true;
 }
 
@@ -73,4 +85,4 @@ SystemWindow::Size SystemWindow::getViewSize() const {
     return Size{static_cast<float>(_width), static_cast<float>(_height)};
 }
 
-}
+} // namespace cc

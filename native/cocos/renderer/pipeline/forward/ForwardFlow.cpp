@@ -27,6 +27,7 @@
 #include "../SceneCulling.h"
 #include "ForwardPipeline.h"
 #include "ForwardStage.h"
+#include "profiler/Profiler.h"
 
 namespace cc {
 namespace pipeline {
@@ -44,7 +45,7 @@ bool ForwardFlow::initialize(const RenderFlowInfo &info) {
     RenderFlow::initialize(info);
 
     if (_stages.empty()) {
-        auto *forwardStage = CC_NEW(ForwardStage);
+        auto *forwardStage = ccnew ForwardStage;
         forwardStage->initialize(ForwardStage::getInitializeInfo());
         _stages.emplace_back(forwardStage);
     }
@@ -57,6 +58,7 @@ void ForwardFlow::activate(RenderPipeline *pipeline) {
 }
 
 void ForwardFlow::render(scene::Camera *camera) {
+    CC_PROFILE(ForwardFlowRender);
     RenderFlow::render(camera);
 }
 

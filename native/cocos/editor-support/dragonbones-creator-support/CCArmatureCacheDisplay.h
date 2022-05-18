@@ -38,8 +38,8 @@ public:
     ~CCArmatureCacheDisplay() override;
     void dispose();
 
-    void     update(float dt) override;
-    void     render(float dt) override;
+    void update(float dt) override;
+    void render(float dt) override;
     uint32_t getRenderOrder() const override;
 
     void setTimeScale(float scale) {
@@ -55,7 +55,7 @@ public:
     void onEnable();
     void onDisable();
 
-    Armature * getArmature() const;
+    Armature *getArmature() const;
     Animation *getAnimation() const;
 
     void setColor(float r, float g, float b, float a);
@@ -69,8 +69,8 @@ public:
         _premultipliedAlpha = value;
     }
 
-    using dbEventCallback = std::function<void (EventObject *)>;
-    void                                       setDBEventCallback(dbEventCallback callback) {
+    using dbEventCallback = std::function<void(EventObject *)>;
+    void setDBEventCallback(dbEventCallback callback) {
         _dbEventCallback = std::move(callback);
     }
     void addDBEventListener(const std::string &type);
@@ -93,26 +93,26 @@ public:
     se_object_ptr getParamsBuffer() const;
 
 private:
-    float       _timeScale     = 1;
-    int         _curFrameIndex = -1;
-    float       _accTime       = 0.0F;
-    int         _playCount     = 0;
-    int         _playTimes     = 0;
-    bool        _isAniComplete = true;
+    float _timeScale = 1;
+    int _curFrameIndex = -1;
+    float _accTime = 0.0F;
+    int _playCount = 0;
+    int _playTimes = 0;
+    bool _isAniComplete = true;
     std::string _animationName;
 
-    Armature *                    _armature      = nullptr;
+    Armature *_armature = nullptr;
     ArmatureCache::AnimationData *_animationData = nullptr;
-    std::map<std::string, bool>   _listenerIDMap;
+    std::map<std::string, bool> _listenerIDMap;
 
-    bool                    _useAttach = false;
-    bool                    _batch     = true;
+    bool _useAttach = false;
+    bool _batch = true;
     cc::middleware::Color4F _nodeColor = cc::middleware::Color4F::WHITE;
 
-    bool            _premultipliedAlpha = false;
-    dbEventCallback _dbEventCallback    = nullptr;
-    ArmatureCache * _armatureCache      = nullptr;
-    EventObject *   _eventObject;
+    bool _premultipliedAlpha = false;
+    dbEventCallback _dbEventCallback = nullptr;
+    ArmatureCache *_armatureCache = nullptr;
+    EventObject *_eventObject;
 
     cc::middleware::IOTypedArray *_sharedBufferOffset = nullptr;
     // Js fill this buffer to send parameter to cpp, avoid to call jsb function.

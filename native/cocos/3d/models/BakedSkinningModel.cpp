@@ -39,11 +39,11 @@ const cc::gfx::SamplerInfo JOINT_TEXTURE_SAMPLER_INFO{
     cc::gfx::Address::CLAMP,
 };
 
-std::vector<cc::scene::IMacroPatch> myPatches{
+ccstd::vector<cc::scene::IMacroPatch> myPatches{
     {"CC_USE_SKINNING", true},
     {"CC_USE_BAKED_ANIMATION", true}};
 
-const std::string INST_JOINT_ANIM_INFO = "a_jointAnimInfo";
+const ccstd::string INST_JOINT_ANIM_INFO = "a_jointAnimInfo";
 } // namespace
 namespace cc {
 
@@ -72,7 +72,7 @@ void BakedSkinningModel::destroy() {
 
 void BakedSkinningModel::bindSkeleton(Skeleton *skeleton, Node *skinningRoot, Mesh *mesh) {
     _skeleton = skeleton;
-    _mesh     = mesh;
+    _mesh = mesh;
     if (skeleton == nullptr || skinningRoot == nullptr || mesh == nullptr) return;
     setTransform(skinningRoot);
 
@@ -94,9 +94,9 @@ void BakedSkinningModel::updateTransform(uint32_t stamp) {
     if (!_isUploadedAnim) {
         return;
     }
-    IAnimInfo &     animInfo  = _jointMedium.animInfo;
+    IAnimInfo &animInfo = _jointMedium.animInfo;
     geometry::AABB *skelBound = nullptr;
-    const float *   curFrame  = animInfo.curFrame;
+    const float *curFrame = animInfo.curFrame;
     //    float curFrame = info.data[0];
     auto index = static_cast<index_t>(std::roundf(*curFrame));
     if (!_jointMedium.boundsInfo.empty() && index < _jointMedium.boundsInfo.size()) {
@@ -106,16 +106,17 @@ void BakedSkinningModel::updateTransform(uint32_t stamp) {
     if (_worldBounds && skelBound != nullptr) {
         Node *node = getTransform();
         skelBound->transform(node->getWorldMatrix(), _worldBounds);
+        _worldBoundsDirty = true;
     }
 }
 
 void BakedSkinningModel::updateUBOs(uint32_t stamp) {
     Super::updateUBOs(stamp);
 
-    IAnimInfo &  info           = _jointMedium.animInfo;
-    int          idx            = _instAnimInfoIdx;
-    const float *curFrame       = info.curFrame;
-    uint32_t     frameDataBytes = info.frameDataBytes;
+    IAnimInfo &info = _jointMedium.animInfo;
+    int idx = _instAnimInfoIdx;
+    const float *curFrame = info.curFrame;
+    uint32_t frameDataBytes = info.frameDataBytes;
     //    float curFrame = info.data[0];
     //    uint32_t curFrameDataBytes = info.data.byteLength();
     if (idx >= 0) {
@@ -136,13 +137,13 @@ void BakedSkinningModel::applyJointTexture(const cc::optional<IJointTextureHandl
     if (!texture.has_value()) {
         return;
     }
-    auto *textureHandle    = texture.value();
-    auto *buffer           = _jointMedium.buffer.get();
+    auto *textureHandle = texture.value();
+    auto *buffer = _jointMedium.buffer.get();
     auto &jointTextureInfo = _jointMedium.jointTextureInfo;
-    jointTextureInfo[0]    = static_cast<float>(textureHandle->handle.texture->getWidth());
-    jointTextureInfo[1]    = static_cast<float>(_skeleton->getJoints().size());
-    jointTextureInfo[2]    = static_cast<float>(textureHandle->pixelOffset) + 0.1F; // guard against floor() underflow
-    jointTextureInfo[3]    = 1 / jointTextureInfo[0];
+    jointTextureInfo[0] = static_cast<float>(textureHandle->handle.texture->getWidth());
+    jointTextureInfo[1] = static_cast<float>(_skeleton->getJoints().size());
+    jointTextureInfo[2] = static_cast<float>(textureHandle->pixelOffset) + 0.1F; // guard against floor() underflow
+    jointTextureInfo[3] = 1 / jointTextureInfo[0];
     updateInstancedJointTextureInfo();
     if (buffer != nullptr) {
         buffer->update(&jointTextureInfo[0], jointTextureInfo.byteLength());
@@ -155,8 +156,8 @@ void BakedSkinningModel::applyJointTexture(const cc::optional<IJointTextureHandl
     }
 }
 
-std::vector<scene::IMacroPatch> &BakedSkinningModel::getMacroPatches(index_t subModelIndex) {
-    auto &patches = Super::getMacroPatches(subModelIndex);
+ccstd::vector<scene::IMacroPatch> BakedSkinningModel::getMacroPatches(index_t subModelIndex) {
+    auto patches = Super::getMacroPatches(subModelIndex);
     patches.reserve(patches.size() + myPatches.size());
     patches.insert(std::end(patches), std::begin(myPatches), std::end(myPatches));
     return patches;
@@ -164,8 +165,8 @@ std::vector<scene::IMacroPatch> &BakedSkinningModel::getMacroPatches(index_t sub
 
 void BakedSkinningModel::updateLocalDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet) {
     Super::updateLocalDescriptors(subModelIndex, descriptorSet);
-    gfx::Buffer *    buffer   = _jointMedium.buffer;
-    auto &           texture  = _jointMedium.texture;
+    gfx::Buffer *buffer = _jointMedium.buffer;
+    auto &texture = _jointMedium.texture;
     const IAnimInfo &animInfo = _jointMedium.animInfo;
     descriptorSet->bindBuffer(pipeline::UBOSkinningTexture::BINDING, buffer);
     descriptorSet->bindBuffer(pipeline::UBOSkinningAnimation::BINDING, animInfo.buffer);
@@ -176,16 +177,16 @@ void BakedSkinningModel::updateLocalDescriptors(index_t subModelIndex, gfx::Desc
     }
 }
 
-void BakedSkinningModel::updateInstancedAttributes(const std::vector<gfx::Attribute> &attributes, scene::Pass *pass) {
+void BakedSkinningModel::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, scene::Pass *pass) {
     Super::updateInstancedAttributes(attributes, pass);
     _instAnimInfoIdx = getInstancedAttributeIndex(INST_JOINT_ANIM_INFO);
     updateInstancedJointTextureInfo();
 }
 
 void BakedSkinningModel::updateInstancedJointTextureInfo() {
-    const auto &     jointTextureInfo = _jointMedium.jointTextureInfo;
-    const IAnimInfo &animInfo         = _jointMedium.animInfo;
-    index_t          idx              = _instAnimInfoIdx;
+    const auto &jointTextureInfo = _jointMedium.jointTextureInfo;
+    const IAnimInfo &animInfo = _jointMedium.animInfo;
+    index_t idx = _instAnimInfoIdx;
     if (idx >= 0) {
         auto &view = getInstancedAttributeBlock()->views[idx];
         setTypedArrayValue(view, 0, *animInfo.curFrame); //NOTE: curFrame is only used in JSB.
@@ -195,20 +196,20 @@ void BakedSkinningModel::updateInstancedJointTextureInfo() {
 }
 
 void BakedSkinningModel::syncAnimInfoForJS(gfx::Buffer *buffer, const Float32Array &data, Uint8Array &dirty) {
-    _jointMedium.animInfo.buffer         = buffer;
-    _jointMedium.animInfo.curFrame       = &data[0];
+    _jointMedium.animInfo.buffer = buffer;
+    _jointMedium.animInfo.curFrame = &data[0];
     _jointMedium.animInfo.frameDataBytes = data.byteLength();
-    _jointMedium.animInfo.dirtyForJSB    = &dirty[0];
+    _jointMedium.animInfo.dirtyForJSB = &dirty[0];
 }
 
-void BakedSkinningModel::syncDataForJS(const std::vector<cc::optional<geometry::AABB>> &boundsInfo,
-                                       const cc::optional<geometry::AABB> &             modelBound,
-                                       float                                            jointTextureInfo0,
-                                       float                                            jointTextureInfo1,
-                                       float                                            jointTextureInfo2,
-                                       float                                            jointTextureInfo3,
-                                       gfx::Texture *                                   tex,
-                                       const Float32Array &                             animInfoData) {
+void BakedSkinningModel::syncDataForJS(const ccstd::vector<cc::optional<geometry::AABB>> &boundsInfo,
+                                       const cc::optional<geometry::AABB> &modelBound,
+                                       float jointTextureInfo0,
+                                       float jointTextureInfo1,
+                                       float jointTextureInfo2,
+                                       float jointTextureInfo3,
+                                       gfx::Texture *tex,
+                                       const Float32Array &animInfoData) {
     _jointMedium.boundsInfo = boundsInfo;
 
     if (modelBound.has_value()) {
@@ -223,11 +224,11 @@ void BakedSkinningModel::syncDataForJS(const std::vector<cc::optional<geometry::
     _jointMedium.jointTextureInfo[2] = jointTextureInfo2;
     _jointMedium.jointTextureInfo[3] = jointTextureInfo3;
 
-    _jointMedium.animInfo.curFrame       = &animInfoData[0];
+    _jointMedium.animInfo.curFrame = &animInfoData[0];
     _jointMedium.animInfo.frameDataBytes = animInfoData.byteLength();
-    IJointTextureHandle *textureInfo     = IJointTextureHandle::createJoinTextureHandle();
-    textureInfo->handle.texture          = tex;
-    _jointMedium.texture                 = textureInfo;
+    IJointTextureHandle *textureInfo = IJointTextureHandle::createJoinTextureHandle();
+    textureInfo->handle.texture = tex;
+    _jointMedium.texture = textureInfo;
 
     updateInstancedJointTextureInfo();
 

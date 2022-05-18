@@ -28,7 +28,7 @@
 
 namespace cc {
 
-std::unordered_map<int, std::string> debugInfos = {
+ccstd::unordered_map<int, ccstd::string> debugInfos = {
 ${PLACE_HOLDER}
 };
 }//namespace cc

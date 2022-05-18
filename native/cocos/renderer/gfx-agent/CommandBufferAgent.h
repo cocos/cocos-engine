@@ -84,8 +84,8 @@ protected:
     void doInit(const CommandBufferInfo &info) override;
     void doDestroy() override;
 
-    void          initMessageQueue();
-    void          destroyMessageQueue();
+    void initMessageQueue();
+    void destroyMessageQueue();
     MessageQueue *_messageQueue = nullptr;
 };
 

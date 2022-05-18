@@ -30,18 +30,19 @@
  */
 
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, visible, multiline, type, serializable, editable } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
+import { BYTEDANCE, EDITOR } from 'internal:constants';
+import { minigame } from 'pal/minigame';
 import { BitmapFont, Font, SpriteFrame } from '../assets';
 import { ImageAsset, Texture2D } from '../../core/assets';
 import { ccenum } from '../../core/value-types/enum';
 import { IBatcher } from '../renderer/i-batcher';
 import { FontAtlas } from '../assets/bitmap-font';
 import { CanvasPool, ISharedLabelData, LetterRenderTexture } from '../assembler/label/font-utils';
-import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';
+import { InstanceMaterialType, UIRenderer } from '../framework/ui-renderer';
 import { TextureBase } from '../../core/assets/texture-base';
 import { PixelFormat } from '../../core/assets/asset-enum';
-import { director } from '../../core/director';
 import { legacyCC } from '../../core/global-exports';
+import { BlendFactor } from '../../core/gfx';
 
 /**
  * @en Enum for horizontal text alignment.
@@ -193,7 +194,7 @@ ccenum(CacheMode);
 @help('i18n:cc.Label')
 @executionOrder(110)
 @menu('2D/Label')
-export class Label extends Renderable2D {
+export class Label extends UIRenderer {
     public static HorizontalAlign = HorizontalTextAlignment;
     public static VerticalAlign = VerticalTextAlignment;
     public static Overflow = Overflow;
@@ -627,7 +628,7 @@ export class Label extends Renderable2D {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     get _bmFontOriginalSize () {
         if (this._font instanceof BitmapFont) {
@@ -845,6 +846,25 @@ export class Label extends Renderable2D {
             this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
         }
         this.updateMaterial();
+    }
+
+    /**
+     * @engineInternal
+     */
+    public _updateBlendFunc () {
+        // override for BYTEDANCE
+        if (BYTEDANCE) {
+            // need to fix ttf font black border at the sdk verion lower than 2.0.0
+            const sysInfo = minigame.getSystemInfoSync();
+            if (Number.parseInt(sysInfo.SDKVersion[0]) < 2) {
+                if (this._srcBlendFactor === BlendFactor.SRC_ALPHA && !minigame.isDevTool
+                    && !(this._font instanceof BitmapFont) && !this._customMaterial) {
+                    // Premultiplied alpha on runtime when sdk verion is lower than 2.0.0
+                    this._srcBlendFactor = BlendFactor.ONE;
+                }
+            }
+        }
+        super._updateBlendFunc();
     }
 }
 

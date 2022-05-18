@@ -43,7 +43,7 @@ public:
 
 protected:
     virtual void doInit(const PipelineLayoutInfo &info) = 0;
-    virtual void doDestroy()                            = 0;
+    virtual void doDestroy() = 0;
 
     DescriptorSetLayoutList _setLayouts;
 };

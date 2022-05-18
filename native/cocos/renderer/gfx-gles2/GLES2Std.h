@@ -23,25 +23,22 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef __CC_GFXGLES2_STD_H__
-    #define __CC_GFXGLES2_STD_H__
+#pragma once
 
-    #include "base/CoreStd.h"
+#include "base/Log.h"
 
-    #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-        #if defined(CC_STATIC)
-            #define CC_GLES2_API
-        #else
-            #ifdef CC_GLES2_EXPORTS
-                #define CC_GLES2_API __declspec(dllexport)
-            #else
-                #define CC_GLES2_API __declspec(dllimport)
-            #endif
-        #endif
-    #else
+#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
+    #if defined(CC_STATIC)
         #define CC_GLES2_API
+    #else
+        #ifdef CC_GLES2_EXPORTS
+            #define CC_GLES2_API __declspec(dllexport)
+        #else
+            #define CC_GLES2_API __declspec(dllimport)
+        #endif
     #endif
-
+#else
+    #define CC_GLES2_API
 #endif
 
 #if CC_DEBUG > 0
@@ -51,7 +48,7 @@
             GLenum err = glGetError();                               \
             if (err != GL_NO_ERROR) {                                \
                 CC_LOG_ERROR("%s returned GL error: 0x%x", #x, err); \
-                CCASSERT(0, "GL error");                             \
+                CC_ASSERT(false);                                    \
             }                                                        \
         } while (0)
     #define EGL_CHECK(x)                                              \
@@ -60,7 +57,7 @@
             EGLint err = eglGetError();                               \
             if (err != EGL_SUCCESS) {                                 \
                 CC_LOG_ERROR("%s returned EGL error: 0x%x", #x, err); \
-                CCASSERT(0, "EGL error");                             \
+                CC_ASSERT(false);                                     \
             }                                                         \
         } while (0)
 #else

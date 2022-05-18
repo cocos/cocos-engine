@@ -55,22 +55,19 @@
  */
 
 #include "storage/local-storage/LocalStorage.h"
+#include <cstdio>
+#include <cstdlib>
+
+#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
+    #include <sqlite3/sqlite3.h>
+#else
+    #include <sqlite3.h>
+#endif
+
 #include "base/Macros.h"
 
-#if (CC_PLATFORM != CC_PLATFORM_ANDROID)
-
-    #include <cassert>
-    #include <cstdio>
-    #include <cstdlib>
-
-    #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-        #include <sqlite3/sqlite3.h>
-    #else
-        #include <sqlite3.h>
-    #endif
-
-static int           _initialized = 0;
-static sqlite3 *     _db;
+static int _initialized = 0;
+static sqlite3 *_db;
 static sqlite3_stmt *_stmt_select;
 static sqlite3_stmt *_stmt_remove;
 static sqlite3_stmt *_stmt_update;
@@ -79,9 +76,9 @@ static sqlite3_stmt *_stmt_key;
 static sqlite3_stmt *_stmt_count;
 
 static void localStorageCreateTable() {
-    const char *  sql_createtable = "CREATE TABLE IF NOT EXISTS data(key TEXT PRIMARY KEY,value TEXT);";
+    const char *sql_createtable = "CREATE TABLE IF NOT EXISTS data(key TEXT PRIMARY KEY,value TEXT);";
     sqlite3_stmt *stmt;
-    int           ok = sqlite3_prepare_v2(_db, sql_createtable, -1, &stmt, nullptr);
+    int ok = sqlite3_prepare_v2(_db, sql_createtable, -1, &stmt, nullptr);
     ok |= sqlite3_step(stmt);
     ok |= sqlite3_finalize(stmt);
 
@@ -89,7 +86,7 @@ static void localStorageCreateTable() {
         printf("Error in CREATE TABLE\n");
 }
 
-void localStorageInit(const std::string &fullpath /* = "" */) {
+void localStorageInit(const ccstd::string &fullpath /* = "" */) {
     if (!_initialized) {
         int ret = 0;
 
@@ -145,8 +142,8 @@ void localStorageFree() {
 }
 
 /** sets an item in the LS */
-void localStorageSetItem(const std::string &key, const std::string &value) {
-    assert(_initialized);
+void localStorageSetItem(const ccstd::string &key, const ccstd::string &value) {
+    CC_ASSERT(_initialized);
     int ok = sqlite3_bind_text(_stmt_update, 1, key.c_str(), -1, SQLITE_TRANSIENT);
     ok |= sqlite3_bind_text(_stmt_update, 2, value.c_str(), -1, SQLITE_TRANSIENT);
 
@@ -159,8 +156,8 @@ void localStorageSetItem(const std::string &key, const std::string &value) {
 }
 
 /** gets an item from the LS */
-bool localStorageGetItem(const std::string &key, std::string *outItem) {
-    assert(_initialized);
+bool localStorageGetItem(const ccstd::string &key, ccstd::string *outItem) {
+    CC_ASSERT(_initialized);
     int ok = sqlite3_reset(_stmt_select);
 
     ok |= sqlite3_bind_text(_stmt_select, 1, key.c_str(), -1, SQLITE_TRANSIENT);
@@ -179,8 +176,8 @@ bool localStorageGetItem(const std::string &key, std::string *outItem) {
 }
 
 /** removes an item from the LS */
-void localStorageRemoveItem(const std::string &key) {
-    assert(_initialized);
+void localStorageRemoveItem(const ccstd::string &key) {
+    CC_ASSERT(_initialized);
     int ok = sqlite3_bind_text(_stmt_remove, 1, key.c_str(), -1, SQLITE_TRANSIENT);
 
     ok |= sqlite3_step(_stmt_remove);
@@ -193,7 +190,7 @@ void localStorageRemoveItem(const std::string &key) {
 
 /** removes all items from the LS */
 void localStorageClear() {
-    assert(_initialized);
+    CC_ASSERT(_initialized);
     int ok = sqlite3_step(_stmt_clear);
 
     ok |= sqlite3_reset(_stmt_clear);
@@ -203,8 +200,8 @@ void localStorageClear() {
 }
 
 /** gets an key from the JS. */
-void localStorageGetKey(const int nIndex, std::string *outKey) {
-    assert(_initialized);
+void localStorageGetKey(const int nIndex, ccstd::string *outKey) {
+    CC_ASSERT(_initialized);
     if (nIndex < 0) {
         printf("Error in input localStorage index Less than zero\n");
         return;
@@ -213,8 +210,8 @@ void localStorageGetKey(const int nIndex, std::string *outKey) {
 
     ok |= sqlite3_step(_stmt_key);
 
-    int                  nCount = 0;
-    const unsigned char *text   = nullptr;
+    int nCount = 0;
+    const unsigned char *text = nullptr;
     while (ok == SQLITE_ROW) {
         if (nCount == nIndex) {
             text = sqlite3_column_text(_stmt_key, 0);
@@ -236,7 +233,7 @@ void localStorageGetKey(const int nIndex, std::string *outKey) {
 
 /** gets all items count in the JS. */
 void localStorageGetLength(int &outLength) {
-    assert(_initialized);
+    CC_ASSERT(_initialized);
     int ok = sqlite3_reset(_stmt_count);
 
     ok |= sqlite3_step(_stmt_count);
@@ -248,5 +245,3 @@ void localStorageGetLength(int &outLength) {
         outLength = sqlite3_column_int(_stmt_count, 0);
     }
 }
-
-#endif // #if (CC_PLATFORM != CC_PLATFORM_ANDROID)

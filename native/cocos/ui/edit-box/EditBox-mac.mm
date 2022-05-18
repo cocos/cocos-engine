@@ -34,7 +34,7 @@
  Forward declaration of global functions.
  ************************************************************************/
 namespace {
-void callJSFunc(const std::string &type, const std::string &text);
+void callJSFunc(const ccstd::string &type, const ccstd::string &text);
 }
 
 /*************************************************************************
@@ -77,7 +77,7 @@ se::Value g_textInputCallback;
     return TRUE;
 }
 
-- (void) textDidEndEditing:(NSNotification *)notification {
+- (void)textDidEndEditing:(NSNotification *)notification {
     cc::EditBox::complete();
 }
 @end
@@ -164,7 +164,7 @@ void getTextInputCallback() {
     }
 }
 
-void callJSFunc(const std::string &type, const std::string &text) {
+void callJSFunc(const ccstd::string &type, const ccstd::string &text) {
     getTextInputCallback();
 
     se::AutoHandleScope scope;

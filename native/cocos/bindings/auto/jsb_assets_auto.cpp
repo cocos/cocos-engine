@@ -19,6 +19,15 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
+
+#if CC_DEBUG
+static bool js_assets_getter_return_true(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    s.rval().setBoolean(true);
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_getter_return_true)
+#endif
 se::Object* __jsb_cc_Error_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_Error_class = nullptr;  // NOLINT
 
@@ -109,6 +118,9 @@ bool js_register_assets_Error(se::Object* obj) // NOLINT(readability-identifier-
 {
     auto* cls = se::Class::create("Error", obj, nullptr, _SE(js_assets_Error_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("msg", _SE(js_assets_Error_get_msg), _SE(js_assets_Error_set_msg));
     cls->defineFinalizeFunction(_SE(js_cc_Error_finalize));
     cls->install();
@@ -261,6 +273,9 @@ bool js_register_assets_BoundingBox(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("BoundingBox", obj, nullptr, _SE(js_assets_BoundingBox_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("min", _SE(js_assets_BoundingBox_get_min), _SE(js_assets_BoundingBox_set_min));
     cls->defineProperty("max", _SE(js_assets_BoundingBox_get_max), _SE(js_assets_BoundingBox_set_max));
     cls->defineFinalizeFunction(_SE(js_cc_BoundingBox_finalize));
@@ -414,6 +429,9 @@ bool js_register_assets_VertexIdChannel(se::Object* obj) // NOLINT(readability-i
 {
     auto* cls = se::Class::create("VertexIdChannel", obj, nullptr, _SE(js_assets_VertexIdChannel_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("stream", _SE(js_assets_VertexIdChannel_get_stream), _SE(js_assets_VertexIdChannel_set_stream));
     cls->defineProperty("index", _SE(js_assets_VertexIdChannel_get_index), _SE(js_assets_VertexIdChannel_set_index));
     cls->defineFinalizeFunction(_SE(js_cc_VertexIdChannel_finalize));
@@ -635,19 +653,31 @@ SE_BIND_FUNC_AS_PROP_GET(js_assets_Asset_getUuid)
 
 static bool js_assets_Asset_initDefault(se::State& s) // NOLINT(readability-identifier-naming)
 {
+    CC_UNUSED bool ok = true;
     auto* cobj = SE_THIS_OBJECT<cc::Asset>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_Asset_initDefault : Invalid Native Object");
+    SE_PRECONDITION2( cobj, false, "js_assets_Asset_initDefault : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<boost::optional<std::string>, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_assets_Asset_initDefault : Error processing arguments");
-        cobj->initDefault(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    do {
+        if (argc == 1) {
+            HolderType<boost::optional<std::string>, true> arg0 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->initDefault(arg0.value());
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 0) {
+
+            cobj->initDefault();
+            return true;
+        }
+    } while(false);
+
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
 SE_BIND_FUNC(js_assets_Asset_initDefault)
@@ -839,6 +869,9 @@ bool js_register_assets_Asset(se::Object* obj) // NOLINT(readability-identifier-
 {
     auto* cls = se::Class::create("Asset", obj, __jsb_cc_CCObject_proto, _SE(js_assets_Asset_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("_native", _SE(js_assets_Asset_get__native), _SE(js_assets_Asset_set__native));
     cls->defineProperty("_nativeUrl", _SE(js_assets_Asset_get__nativeUrl), _SE(js_assets_Asset_set__nativeUrl));
     cls->defineProperty("_uuid", _SE(js_assets_Asset_getUuid_asGetter), _SE(js_assets_Asset_setUuid_asSetter));
@@ -909,6 +942,9 @@ bool js_register_assets_BufferAsset(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("BufferAsset", obj, __jsb_cc_Asset_proto, _SE(js_assets_BufferAsset_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("buffer", _SE(js_assets_BufferAsset_getBuffer_asGetter), nullptr);
     cls->defineFinalizeFunction(_SE(js_cc_BufferAsset_finalize));
     cls->install();
@@ -1163,6 +1199,9 @@ bool js_register_assets_IPropertyInfo(se::Object* obj) // NOLINT(readability-ide
 {
     auto* cls = se::Class::create("IPropertyInfo", obj, nullptr, _SE(js_assets_IPropertyInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("type", _SE(js_assets_IPropertyInfo_get_type), _SE(js_assets_IPropertyInfo_set_type));
     cls->defineProperty("handleInfo", _SE(js_assets_IPropertyInfo_get_handleInfo), _SE(js_assets_IPropertyInfo_set_handleInfo));
     cls->defineProperty("samplerHash", _SE(js_assets_IPropertyInfo_get_samplerHash), _SE(js_assets_IPropertyInfo_set_samplerHash));
@@ -1659,6 +1698,9 @@ bool js_register_assets_RasterizerStateInfo(se::Object* obj) // NOLINT(readabili
 {
     auto* cls = se::Class::create("RasterizerStateInfo", obj, nullptr, _SE(js_assets_RasterizerStateInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("isDiscard", _SE(js_assets_RasterizerStateInfo_get_isDiscard), _SE(js_assets_RasterizerStateInfo_set_isDiscard));
     cls->defineProperty("isFrontFaceCCW", _SE(js_assets_RasterizerStateInfo_get_isFrontFaceCCW), _SE(js_assets_RasterizerStateInfo_set_isFrontFaceCCW));
     cls->defineProperty("depthBiasEnabled", _SE(js_assets_RasterizerStateInfo_get_depthBiasEnabled), _SE(js_assets_RasterizerStateInfo_set_depthBiasEnabled));
@@ -2400,6 +2442,9 @@ bool js_register_assets_DepthStencilStateInfo(se::Object* obj) // NOLINT(readabi
 {
     auto* cls = se::Class::create("DepthStencilStateInfo", obj, nullptr, _SE(js_assets_DepthStencilStateInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("depthTest", _SE(js_assets_DepthStencilStateInfo_get_depthTest), _SE(js_assets_DepthStencilStateInfo_set_depthTest));
     cls->defineProperty("depthWrite", _SE(js_assets_DepthStencilStateInfo_get_depthWrite), _SE(js_assets_DepthStencilStateInfo_set_depthWrite));
     cls->defineProperty("stencilTestFront", _SE(js_assets_DepthStencilStateInfo_get_stencilTestFront), _SE(js_assets_DepthStencilStateInfo_set_stencilTestFront));
@@ -2774,6 +2819,9 @@ bool js_register_assets_BlendTargetInfo(se::Object* obj) // NOLINT(readability-i
 {
     auto* cls = se::Class::create("BlendTargetInfo", obj, nullptr, _SE(js_assets_BlendTargetInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("blend", _SE(js_assets_BlendTargetInfo_get_blend), _SE(js_assets_BlendTargetInfo_set_blend));
     cls->defineProperty("blendSrc", _SE(js_assets_BlendTargetInfo_get_blendSrc), _SE(js_assets_BlendTargetInfo_set_blendSrc));
     cls->defineProperty("blendDst", _SE(js_assets_BlendTargetInfo_get_blendDst), _SE(js_assets_BlendTargetInfo_set_blendDst));
@@ -3001,6 +3049,9 @@ bool js_register_assets_BlendStateInfo(se::Object* obj) // NOLINT(readability-id
 {
     auto* cls = se::Class::create("BlendStateInfo", obj, nullptr, _SE(js_assets_BlendStateInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("isA2C", _SE(js_assets_BlendStateInfo_get_isA2C), _SE(js_assets_BlendStateInfo_set_isA2C));
     cls->defineProperty("isIndepend", _SE(js_assets_BlendStateInfo_get_isIndepend), _SE(js_assets_BlendStateInfo_set_isIndepend));
     cls->defineProperty("blendColor", _SE(js_assets_BlendStateInfo_get_blendColor), _SE(js_assets_BlendStateInfo_set_blendColor));
@@ -3379,6 +3430,9 @@ bool js_register_assets_IPassStates(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("IPassStates", obj, nullptr, _SE(js_assets_IPassStates_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("priority", _SE(js_assets_IPassStates_get_priority), _SE(js_assets_IPassStates_set_priority));
     cls->defineProperty("primitive", _SE(js_assets_IPassStates_get_primitive), _SE(js_assets_IPassStates_set_primitive));
     cls->defineProperty("stage", _SE(js_assets_IPassStates_get_stage), _SE(js_assets_IPassStates_set_stage));
@@ -4015,6 +4069,9 @@ bool js_register_assets_IPassInfoFull(se::Object* obj) // NOLINT(readability-ide
 {
     auto* cls = se::Class::create("IPassInfoFull", obj, nullptr, _SE(js_assets_IPassInfoFull_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("priority", _SE(js_assets_IPassInfoFull_get_priority), _SE(js_assets_IPassInfoFull_set_priority));
     cls->defineProperty("primitive", _SE(js_assets_IPassInfoFull_get_primitive), _SE(js_assets_IPassInfoFull_set_primitive));
     cls->defineProperty("stage", _SE(js_assets_IPassInfoFull_get_stage), _SE(js_assets_IPassInfoFull_set_stage));
@@ -4182,6 +4239,9 @@ bool js_register_assets_ITechniqueInfo(se::Object* obj) // NOLINT(readability-id
 {
     auto* cls = se::Class::create("ITechniqueInfo", obj, nullptr, _SE(js_assets_ITechniqueInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("passes", _SE(js_assets_ITechniqueInfo_get_passes), _SE(js_assets_ITechniqueInfo_set_passes));
     cls->defineProperty("name", _SE(js_assets_ITechniqueInfo_get_name), _SE(js_assets_ITechniqueInfo_set_name));
     cls->defineFinalizeFunction(_SE(js_cc_ITechniqueInfo_finalize));
@@ -4403,6 +4463,9 @@ bool js_register_assets_IBlockInfo(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("IBlockInfo", obj, nullptr, _SE(js_assets_IBlockInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("binding", _SE(js_assets_IBlockInfo_get_binding), _SE(js_assets_IBlockInfo_set_binding));
     cls->defineProperty("name", _SE(js_assets_IBlockInfo_get_name), _SE(js_assets_IBlockInfo_set_name));
     cls->defineProperty("members", _SE(js_assets_IBlockInfo_get_members), _SE(js_assets_IBlockInfo_set_members));
@@ -4660,6 +4723,9 @@ bool js_register_assets_ISamplerTextureInfo(se::Object* obj) // NOLINT(readabili
 {
     auto* cls = se::Class::create("ISamplerTextureInfo", obj, nullptr, _SE(js_assets_ISamplerTextureInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("binding", _SE(js_assets_ISamplerTextureInfo_get_binding), _SE(js_assets_ISamplerTextureInfo_set_binding));
     cls->defineProperty("name", _SE(js_assets_ISamplerTextureInfo_get_name), _SE(js_assets_ISamplerTextureInfo_set_name));
     cls->defineProperty("type", _SE(js_assets_ISamplerTextureInfo_get_type), _SE(js_assets_ISamplerTextureInfo_set_type));
@@ -4952,6 +5018,9 @@ bool js_register_assets_ITextureInfo(se::Object* obj) // NOLINT(readability-iden
 {
     auto* cls = se::Class::create("ITextureInfo", obj, nullptr, _SE(js_assets_ITextureInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("set", _SE(js_assets_ITextureInfo_get_set), _SE(js_assets_ITextureInfo_set_set));
     cls->defineProperty("binding", _SE(js_assets_ITextureInfo_get_binding), _SE(js_assets_ITextureInfo_set_binding));
     cls->defineProperty("name", _SE(js_assets_ITextureInfo_get_name), _SE(js_assets_ITextureInfo_set_name));
@@ -5211,6 +5280,9 @@ bool js_register_assets_ISamplerInfo(se::Object* obj) // NOLINT(readability-iden
 {
     auto* cls = se::Class::create("ISamplerInfo", obj, nullptr, _SE(js_assets_ISamplerInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("set", _SE(js_assets_ISamplerInfo_get_set), _SE(js_assets_ISamplerInfo_set_set));
     cls->defineProperty("binding", _SE(js_assets_ISamplerInfo_get_binding), _SE(js_assets_ISamplerInfo_set_binding));
     cls->defineProperty("name", _SE(js_assets_ISamplerInfo_get_name), _SE(js_assets_ISamplerInfo_set_name));
@@ -5435,6 +5507,9 @@ bool js_register_assets_IBufferInfo(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("IBufferInfo", obj, nullptr, _SE(js_assets_IBufferInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("binding", _SE(js_assets_IBufferInfo_get_binding), _SE(js_assets_IBufferInfo_set_binding));
     cls->defineProperty("name", _SE(js_assets_IBufferInfo_get_name), _SE(js_assets_IBufferInfo_set_name));
     cls->defineProperty("memoryAccess", _SE(js_assets_IBufferInfo_get_memoryAccess), _SE(js_assets_IBufferInfo_set_memoryAccess));
@@ -5726,6 +5801,9 @@ bool js_register_assets_IImageInfo(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("IImageInfo", obj, nullptr, _SE(js_assets_IImageInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("binding", _SE(js_assets_IImageInfo_get_binding), _SE(js_assets_IImageInfo_set_binding));
     cls->defineProperty("name", _SE(js_assets_IImageInfo_get_name), _SE(js_assets_IImageInfo_set_name));
     cls->defineProperty("type", _SE(js_assets_IImageInfo_get_type), _SE(js_assets_IImageInfo_set_type));
@@ -5985,6 +6063,9 @@ bool js_register_assets_IInputAttachmentInfo(se::Object* obj) // NOLINT(readabil
 {
     auto* cls = se::Class::create("IInputAttachmentInfo", obj, nullptr, _SE(js_assets_IInputAttachmentInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("set", _SE(js_assets_IInputAttachmentInfo_get_set), _SE(js_assets_IInputAttachmentInfo_set_set));
     cls->defineProperty("binding", _SE(js_assets_IInputAttachmentInfo_get_binding), _SE(js_assets_IInputAttachmentInfo_set_binding));
     cls->defineProperty("name", _SE(js_assets_IInputAttachmentInfo_get_name), _SE(js_assets_IInputAttachmentInfo_set_name));
@@ -6311,6 +6392,9 @@ bool js_register_assets_IAttributeInfo(se::Object* obj) // NOLINT(readability-id
 {
     auto* cls = se::Class::create("IAttributeInfo", obj, nullptr, _SE(js_assets_IAttributeInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("name", _SE(js_assets_IAttributeInfo_get_name), _SE(js_assets_IAttributeInfo_set_name));
     cls->defineProperty("format", _SE(js_assets_IAttributeInfo_get_format), _SE(js_assets_IAttributeInfo_set_format));
     cls->defineProperty("isNormalized", _SE(js_assets_IAttributeInfo_get_isNormalized), _SE(js_assets_IAttributeInfo_set_isNormalized));
@@ -6571,6 +6655,9 @@ bool js_register_assets_IDefineInfo(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("IDefineInfo", obj, nullptr, _SE(js_assets_IDefineInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("name", _SE(js_assets_IDefineInfo_get_name), _SE(js_assets_IDefineInfo_set_name));
     cls->defineProperty("type", _SE(js_assets_IDefineInfo_get_type), _SE(js_assets_IDefineInfo_set_type));
     cls->defineProperty("range", _SE(js_assets_IDefineInfo_get_range), _SE(js_assets_IDefineInfo_set_range));
@@ -6727,6 +6814,9 @@ bool js_register_assets_IBuiltin(se::Object* obj) // NOLINT(readability-identifi
 {
     auto* cls = se::Class::create("IBuiltin", obj, nullptr, _SE(js_assets_IBuiltin_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("name", _SE(js_assets_IBuiltin_get_name), _SE(js_assets_IBuiltin_set_name));
     cls->defineProperty("defines", _SE(js_assets_IBuiltin_get_defines), _SE(js_assets_IBuiltin_set_defines));
     cls->defineFinalizeFunction(_SE(js_cc_IBuiltin_finalize));
@@ -6948,6 +7038,9 @@ bool js_register_assets_IBuiltinInfo(se::Object* obj) // NOLINT(readability-iden
 {
     auto* cls = se::Class::create("IBuiltinInfo", obj, nullptr, _SE(js_assets_IBuiltinInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("buffers", _SE(js_assets_IBuiltinInfo_get_buffers), _SE(js_assets_IBuiltinInfo_set_buffers));
     cls->defineProperty("blocks", _SE(js_assets_IBuiltinInfo_get_blocks), _SE(js_assets_IBuiltinInfo_set_blocks));
     cls->defineProperty("samplerTextures", _SE(js_assets_IBuiltinInfo_get_samplerTextures), _SE(js_assets_IBuiltinInfo_set_samplerTextures));
@@ -7137,6 +7230,9 @@ bool js_register_assets_IBuiltins(se::Object* obj) // NOLINT(readability-identif
 {
     auto* cls = se::Class::create("IBuiltins", obj, nullptr, _SE(js_assets_IBuiltins_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("globals", _SE(js_assets_IBuiltins_get_globals), _SE(js_assets_IBuiltins_set_globals));
     cls->defineProperty("locals", _SE(js_assets_IBuiltins_get_locals), _SE(js_assets_IBuiltins_set_locals));
     cls->defineProperty("statistics", _SE(js_assets_IBuiltins_get_statistics), _SE(js_assets_IBuiltins_set_statistics));
@@ -7291,6 +7387,9 @@ bool js_register_assets_IShaderSource(se::Object* obj) // NOLINT(readability-ide
 {
     auto* cls = se::Class::create("IShaderSource", obj, nullptr, _SE(js_assets_IShaderSource_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("vert", _SE(js_assets_IShaderSource_get_vert), _SE(js_assets_IShaderSource_set_vert));
     cls->defineProperty("frag", _SE(js_assets_IShaderSource_get_frag), _SE(js_assets_IShaderSource_set_frag));
     cls->defineFinalizeFunction(_SE(js_cc_IShaderSource_finalize));
@@ -7908,6 +8007,9 @@ bool js_register_assets_IShaderInfo(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("IShaderInfo", obj, nullptr, _SE(js_assets_IShaderInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("name", _SE(js_assets_IShaderInfo_get_name), _SE(js_assets_IShaderInfo_set_name));
     cls->defineProperty("hash", _SE(js_assets_IShaderInfo_get_hash), _SE(js_assets_IShaderInfo_set_hash));
     cls->defineProperty("glsl4", _SE(js_assets_IShaderInfo_get_glsl4), _SE(js_assets_IShaderInfo_set_glsl4));
@@ -8154,6 +8256,9 @@ bool js_register_assets_EffectAsset(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("EffectAsset", obj, __jsb_cc_Asset_proto, _SE(js_assets_EffectAsset_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("techniques", _SE(js_assets_EffectAsset_getTechniques_asGetter), _SE(js_assets_EffectAsset_setTechniques_asSetter));
     cls->defineProperty("shaders", _SE(js_assets_EffectAsset_getShaders_asGetter), _SE(js_assets_EffectAsset_setShaders_asSetter));
     cls->defineProperty("combinations", _SE(js_assets_EffectAsset_getCombinations_asGetter), _SE(js_assets_EffectAsset_setCombinations_asSetter));
@@ -8414,6 +8519,9 @@ bool js_register_assets_IMemoryImageSource(se::Object* obj) // NOLINT(readabilit
 {
     auto* cls = se::Class::create("IMemoryImageSource", obj, nullptr, _SE(js_assets_IMemoryImageSource_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("data", _SE(js_assets_IMemoryImageSource_get_data), _SE(js_assets_IMemoryImageSource_set_data));
     cls->defineProperty("compressed", _SE(js_assets_IMemoryImageSource_get_compressed), _SE(js_assets_IMemoryImageSource_set_compressed));
     cls->defineProperty("width", _SE(js_assets_IMemoryImageSource_get_width), _SE(js_assets_IMemoryImageSource_set_width));
@@ -8645,6 +8753,9 @@ bool js_register_assets_ImageAsset(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("ImageAsset", obj, __jsb_cc_Asset_proto, _SE(js_assets_ImageAsset_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("format", _SE(js_assets_ImageAsset_getFormat_asGetter), _SE(js_assets_ImageAsset_setFormat_asSetter));
     cls->defineProperty("url", _SE(js_assets_ImageAsset_getUrl_asGetter), _SE(js_assets_ImageAsset_setUrl_asSetter));
     cls->defineFunction("getData", _SE(js_assets_ImageAsset_getData));
@@ -8908,6 +9019,9 @@ bool js_register_assets_IMaterialInfo(se::Object* obj) // NOLINT(readability-ide
 {
     auto* cls = se::Class::create("IMaterialInfo", obj, nullptr, _SE(js_assets_IMaterialInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("effectAsset", _SE(js_assets_IMaterialInfo_get_effectAsset), _SE(js_assets_IMaterialInfo_set_effectAsset));
     cls->defineProperty("effectName", _SE(js_assets_IMaterialInfo_get_effectName), _SE(js_assets_IMaterialInfo_set_effectName));
     cls->defineProperty("technique", _SE(js_assets_IMaterialInfo_get_technique), _SE(js_assets_IMaterialInfo_set_technique));
@@ -10155,6 +10269,9 @@ bool js_register_assets_Material(se::Object* obj) // NOLINT(readability-identifi
 {
     auto* cls = se::Class::create("Material", obj, __jsb_cc_Asset_proto, _SE(js_assets_Material_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("_effectAsset", _SE(js_assets_Material_get__effectAsset), _SE(js_assets_Material_set__effectAsset));
     cls->defineProperty("_techIdx", _SE(js_assets_Material_get__techIdx), _SE(js_assets_Material_set__techIdx));
     cls->defineProperty("_defines", _SE(js_assets_Material_get__defines), _SE(js_assets_Material_set__defines));
@@ -10831,6 +10948,9 @@ bool js_register_assets_TextureBase(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("TextureBase", obj, __jsb_cc_Asset_proto, _SE(js_assets_TextureBase_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("_format", _SE(js_assets_TextureBase_get__format), _SE(js_assets_TextureBase_set__format));
     cls->defineProperty("_minFilter", _SE(js_assets_TextureBase_get__minFilter), _SE(js_assets_TextureBase_set__minFilter));
     cls->defineProperty("_magFilter", _SE(js_assets_TextureBase_get__magFilter), _SE(js_assets_TextureBase_set__magFilter));
@@ -11074,6 +11194,9 @@ bool js_register_assets_IRenderTextureCreateInfo(se::Object* obj) // NOLINT(read
 {
     auto* cls = se::Class::create("IRenderTextureCreateInfo", obj, nullptr, _SE(js_assets_IRenderTextureCreateInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("name", _SE(js_assets_IRenderTextureCreateInfo_get_name), _SE(js_assets_IRenderTextureCreateInfo_set_name));
     cls->defineProperty("width", _SE(js_assets_IRenderTextureCreateInfo_get_width), _SE(js_assets_IRenderTextureCreateInfo_set_width));
     cls->defineProperty("height", _SE(js_assets_IRenderTextureCreateInfo_get_height), _SE(js_assets_IRenderTextureCreateInfo_set_height));
@@ -11249,6 +11372,9 @@ bool js_register_assets_RenderTexture(se::Object* obj) // NOLINT(readability-ide
 {
     auto* cls = se::Class::create("RenderTexture", obj, __jsb_cc_TextureBase_proto, _SE(js_assets_RenderTexture_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("window", _SE(js_assets_RenderTexture_getWindow_asGetter), nullptr);
     cls->defineFunction("initWindow", _SE(js_assets_RenderTexture_initWindow));
     cls->defineFunction("initialize", _SE(js_assets_RenderTexture_initialize));
@@ -11474,6 +11600,9 @@ bool js_register_assets_IMeshBufferView(se::Object* obj) // NOLINT(readability-i
 {
     auto* cls = se::Class::create("IMeshBufferView", obj, nullptr, _SE(js_assets_IMeshBufferView_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("offset", _SE(js_assets_IMeshBufferView_get_offset), _SE(js_assets_IMeshBufferView_set_offset));
     cls->defineProperty("length", _SE(js_assets_IMeshBufferView_get_length), _SE(js_assets_IMeshBufferView_set_length));
     cls->defineProperty("count", _SE(js_assets_IMeshBufferView_get_count), _SE(js_assets_IMeshBufferView_set_count));
@@ -11579,6 +11708,9 @@ bool js_register_assets_MorphTarget(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("MorphTarget", obj, nullptr, _SE(js_assets_MorphTarget_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("displacements", _SE(js_assets_MorphTarget_get_displacements), _SE(js_assets_MorphTarget_set_displacements));
     cls->defineFinalizeFunction(_SE(js_cc_MorphTarget_finalize));
     cls->install();
@@ -11765,6 +11897,9 @@ bool js_register_assets_SubMeshMorph(se::Object* obj) // NOLINT(readability-iden
 {
     auto* cls = se::Class::create("SubMeshMorph", obj, nullptr, _SE(js_assets_SubMeshMorph_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("attributes", _SE(js_assets_SubMeshMorph_get_attributes), _SE(js_assets_SubMeshMorph_set_attributes));
     cls->defineProperty("targets", _SE(js_assets_SubMeshMorph_get_targets), _SE(js_assets_SubMeshMorph_set_targets));
     cls->defineProperty("weights", _SE(js_assets_SubMeshMorph_get_weights), _SE(js_assets_SubMeshMorph_set_weights));
@@ -11953,6 +12088,9 @@ bool js_register_assets_Morph(se::Object* obj) // NOLINT(readability-identifier-
 {
     auto* cls = se::Class::create("Morph", obj, nullptr, _SE(js_assets_Morph_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("subMeshMorphs", _SE(js_assets_Morph_get_subMeshMorphs), _SE(js_assets_Morph_set_subMeshMorphs));
     cls->defineProperty("weights", _SE(js_assets_Morph_get_weights), _SE(js_assets_Morph_set_weights));
     cls->defineProperty("targetNames", _SE(js_assets_Morph_get_targetNames), _SE(js_assets_Morph_set_targetNames));
@@ -12175,6 +12313,9 @@ bool js_register_assets_IGeometricInfo(se::Object* obj) // NOLINT(readability-id
 {
     auto* cls = se::Class::create("IGeometricInfo", obj, nullptr, _SE(js_assets_IGeometricInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("positions", _SE(js_assets_IGeometricInfo_get_positions), _SE(js_assets_IGeometricInfo_set_positions));
     cls->defineProperty("indices", _SE(js_assets_IGeometricInfo_get_indices), _SE(js_assets_IGeometricInfo_set_indices));
     cls->defineProperty("doubleSided", _SE(js_assets_IGeometricInfo_get_doubleSided), _SE(js_assets_IGeometricInfo_set_doubleSided));
@@ -12364,6 +12505,9 @@ bool js_register_assets_IFlatBuffer(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("IFlatBuffer", obj, nullptr, _SE(js_assets_IFlatBuffer_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("stride", _SE(js_assets_IFlatBuffer_get_stride), _SE(js_assets_IFlatBuffer_set_stride));
     cls->defineProperty("count", _SE(js_assets_IFlatBuffer_get_count), _SE(js_assets_IFlatBuffer_set_count));
     cls->defineProperty("buffer", _SE(js_assets_IFlatBuffer_get_buffer), _SE(js_assets_IFlatBuffer_set_buffer));
@@ -12380,6 +12524,25 @@ bool js_register_assets_IFlatBuffer(se::Object* obj) // NOLINT(readability-ident
 }
 se::Object* __jsb_cc_RenderingSubMesh_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_RenderingSubMesh_class = nullptr;  // NOLINT
+
+static bool js_assets_RenderingSubMesh_destroy(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderingSubMesh>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_RenderingSubMesh_destroy : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->destroy();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_RenderingSubMesh_destroy : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_assets_RenderingSubMesh_destroy)
 
 static bool js_assets_RenderingSubMesh_enableVertexIdChannel(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -12811,14 +12974,18 @@ SE_BIND_FINALIZE_FUNC(js_cc_RenderingSubMesh_finalize)
 
 bool js_register_assets_RenderingSubMesh(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
-    auto* cls = se::Class::create("RenderingSubMesh", obj, __jsb_cc_Asset_proto, _SE(js_assets_RenderingSubMesh_constructor));
+    auto* cls = se::Class::create("RenderingSubMesh", obj, nullptr, _SE(js_assets_RenderingSubMesh_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("mesh", _SE(js_assets_RenderingSubMesh_getMesh_asGetter), _SE(js_assets_RenderingSubMesh_setMesh_asSetter));
     cls->defineProperty("subMeshIdx", _SE(js_assets_RenderingSubMesh_getSubMeshIdx_asGetter), _SE(js_assets_RenderingSubMesh_setSubMeshIdx_asSetter));
     cls->defineProperty({"flatBuffers", "_flatBuffers"}, _SE(js_assets_RenderingSubMesh_getFlatBuffers_asGetter), _SE(js_assets_RenderingSubMesh_setFlatBuffers_asSetter));
     cls->defineProperty("jointMappedBuffers", _SE(js_assets_RenderingSubMesh_getJointMappedBuffers_asGetter), nullptr);
     cls->defineProperty({"iaInfo", "_iaInfo"}, _SE(js_assets_RenderingSubMesh_getIaInfo_asGetter), nullptr);
     cls->defineProperty("primitiveMode", _SE(js_assets_RenderingSubMesh_getPrimitiveMode_asGetter), nullptr);
+    cls->defineFunction("destroy", _SE(js_assets_RenderingSubMesh_destroy));
     cls->defineFunction("enableVertexIdChannel", _SE(js_assets_RenderingSubMesh_enableVertexIdChannel));
     cls->defineFunction("genFlatBuffers", _SE(js_assets_RenderingSubMesh_genFlatBuffers));
     cls->defineFunction("getAttributes", _SE(js_assets_RenderingSubMesh_getAttributes));
@@ -12901,6 +13068,9 @@ bool js_register_assets_SceneAsset(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("SceneAsset", obj, __jsb_cc_Asset_proto, _SE(js_assets_SceneAsset_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getScene", _SE(js_assets_SceneAsset_getScene));
     cls->defineFunction("setScene", _SE(js_assets_SceneAsset_setScene));
     cls->defineFinalizeFunction(_SE(js_cc_SceneAsset_finalize));
@@ -12964,6 +13134,9 @@ bool js_register_assets_TextAsset(se::Object* obj) // NOLINT(readability-identif
 {
     auto* cls = se::Class::create("TextAsset", obj, __jsb_cc_Asset_proto, _SE(js_assets_TextAsset_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("text", _SE(js_assets_TextAsset_get_text), _SE(js_assets_TextAsset_set_text));
     cls->defineFinalizeFunction(_SE(js_cc_TextAsset_finalize));
     cls->install();
@@ -13044,6 +13217,27 @@ static bool js_assets_SimpleTexture_mipmapLevel(se::State& s) // NOLINT(readabil
     return false;
 }
 SE_BIND_FUNC_AS_PROP_GET(js_assets_SimpleTexture_mipmapLevel)
+
+static bool js_assets_SimpleTexture_setMipRange(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::SimpleTexture>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_SimpleTexture_setMipRange : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<unsigned int, false> arg0 = {};
+        HolderType<unsigned int, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_SimpleTexture_setMipRange : Error processing arguments");
+        cobj->setMipRange(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_assets_SimpleTexture_setMipRange)
 
 static bool js_assets_SimpleTexture_setMipmapLevel(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -13148,9 +13342,13 @@ bool js_register_assets_SimpleTexture(se::Object* obj) // NOLINT(readability-ide
 {
     auto* cls = se::Class::create("SimpleTexture", obj, __jsb_cc_TextureBase_proto, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("mipmapLevel", _SE(js_assets_SimpleTexture_mipmapLevel_asGetter), _SE(js_assets_SimpleTexture_setMipmapLevel_asSetter));
     cls->defineFunction("assignImage", _SE(js_assets_SimpleTexture_assignImage));
     cls->defineFunction("checkTextureLoaded", _SE(js_assets_SimpleTexture_checkTextureLoaded));
+    cls->defineFunction("setMipRange", _SE(js_assets_SimpleTexture_setMipRange));
     cls->defineFunction("updateImage", _SE(js_assets_SimpleTexture_updateImage));
     cls->defineFunction("updateMipmaps", _SE(js_assets_SimpleTexture_updateMipmaps));
     cls->defineFunction("uploadData", _SE(js_assets_SimpleTexture_uploadData));
@@ -13305,6 +13503,9 @@ bool js_register_assets_ITexture2DSerializeData(se::Object* obj) // NOLINT(reada
 {
     auto* cls = se::Class::create("ITexture2DSerializeData", obj, nullptr, _SE(js_assets_ITexture2DSerializeData_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("base", _SE(js_assets_ITexture2DSerializeData_get_base), _SE(js_assets_ITexture2DSerializeData_set_base));
     cls->defineProperty("mipmaps", _SE(js_assets_ITexture2DSerializeData_get_mipmaps), _SE(js_assets_ITexture2DSerializeData_set_mipmaps));
     cls->defineFinalizeFunction(_SE(js_cc_ITexture2DSerializeData_finalize));
@@ -13429,6 +13630,60 @@ static bool js_assets_ITexture2DCreateInfo_set_mipmapLevel(se::State& s) // NOLI
 }
 SE_BIND_PROP_SET(js_assets_ITexture2DCreateInfo_set_mipmapLevel)
 
+static bool js_assets_ITexture2DCreateInfo_get_baseLevel(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::ITexture2DCreateInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_ITexture2DCreateInfo_get_baseLevel : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->baseLevel, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->baseLevel, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_ITexture2DCreateInfo_get_baseLevel)
+
+static bool js_assets_ITexture2DCreateInfo_set_baseLevel(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::ITexture2DCreateInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_ITexture2DCreateInfo_set_baseLevel : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->baseLevel, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_ITexture2DCreateInfo_set_baseLevel : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_ITexture2DCreateInfo_set_baseLevel)
+
+static bool js_assets_ITexture2DCreateInfo_get_maxLevel(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::ITexture2DCreateInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_ITexture2DCreateInfo_get_maxLevel : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->maxLevel, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->maxLevel, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_ITexture2DCreateInfo_get_maxLevel)
+
+static bool js_assets_ITexture2DCreateInfo_set_maxLevel(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::ITexture2DCreateInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_ITexture2DCreateInfo_set_maxLevel : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->maxLevel, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_ITexture2DCreateInfo_set_maxLevel : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_ITexture2DCreateInfo_set_maxLevel)
+
 
 template<>
 bool sevalue_to_native(const se::Value &from, cc::ITexture2DCreateInfo * to, se::Object *ctx)
@@ -13457,6 +13712,14 @@ bool sevalue_to_native(const se::Value &from, cc::ITexture2DCreateInfo * to, se:
     json->getProperty("mipmapLevel", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->mipmapLevel), ctx);
+    }
+    json->getProperty("baseLevel", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->baseLevel), ctx);
+    }
+    json->getProperty("maxLevel", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->maxLevel), ctx);
     }
     return ok;
 }
@@ -13505,6 +13768,12 @@ static bool js_assets_ITexture2DCreateInfo_constructor(se::State& s) // NOLINT(r
     if (argc > 3 && !args[3].isUndefined()) {
         ok &= sevalue_to_native(args[3], &(cobj->mipmapLevel), nullptr);
     }
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(cobj->baseLevel), nullptr);
+    }
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(cobj->maxLevel), nullptr);
+    }
 
     if(!ok) {
         delete ptr;
@@ -13526,10 +13795,15 @@ bool js_register_assets_ITexture2DCreateInfo(se::Object* obj) // NOLINT(readabil
 {
     auto* cls = se::Class::create("ITexture2DCreateInfo", obj, nullptr, _SE(js_assets_ITexture2DCreateInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("width", _SE(js_assets_ITexture2DCreateInfo_get_width), _SE(js_assets_ITexture2DCreateInfo_set_width));
     cls->defineProperty("height", _SE(js_assets_ITexture2DCreateInfo_get_height), _SE(js_assets_ITexture2DCreateInfo_set_height));
     cls->defineProperty("format", _SE(js_assets_ITexture2DCreateInfo_get_format), _SE(js_assets_ITexture2DCreateInfo_set_format));
     cls->defineProperty("mipmapLevel", _SE(js_assets_ITexture2DCreateInfo_get_mipmapLevel), _SE(js_assets_ITexture2DCreateInfo_set_mipmapLevel));
+    cls->defineProperty("baseLevel", _SE(js_assets_ITexture2DCreateInfo_get_baseLevel), _SE(js_assets_ITexture2DCreateInfo_set_baseLevel));
+    cls->defineProperty("maxLevel", _SE(js_assets_ITexture2DCreateInfo_get_maxLevel), _SE(js_assets_ITexture2DCreateInfo_set_maxLevel));
     cls->defineFinalizeFunction(_SE(js_cc_ITexture2DCreateInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cc::ITexture2DCreateInfo>(cls);
@@ -13584,7 +13858,39 @@ static bool js_assets_Texture2D_create(se::State& s) // NOLINT(readability-ident
         cobj->create(arg0.value(), arg1.value(), arg2.value(), arg3.value());
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
+    if (argc == 5) {
+        HolderType<unsigned int, false> arg0 = {};
+        HolderType<unsigned int, false> arg1 = {};
+        HolderType<cc::PixelFormat, false> arg2 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_Texture2D_create : Error processing arguments");
+        cobj->create(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value());
+        return true;
+    }
+    if (argc == 6) {
+        HolderType<unsigned int, false> arg0 = {};
+        HolderType<unsigned int, false> arg1 = {};
+        HolderType<cc::PixelFormat, false> arg2 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        HolderType<unsigned int, false> arg4 = {};
+        HolderType<unsigned int, false> arg5 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+        ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_Texture2D_create : Error processing arguments");
+        cobj->create(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);
     return false;
 }
 SE_BIND_FUNC(js_assets_Texture2D_create)
@@ -13636,24 +13942,33 @@ static bool js_assets_Texture2D_getGfxTextureCreateInfo(se::State& s) // NOLINT(
 }
 SE_BIND_FUNC(js_assets_Texture2D_getGfxTextureCreateInfo)
 
-static bool js_assets_Texture2D_getHtmlElementObj(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_assets_Texture2D_getGfxTextureViewCreateInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Texture2D>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_Texture2D_getHtmlElementObj : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_assets_Texture2D_getGfxTextureViewCreateInfo : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        void** result = cobj->getHtmlElementObj();
+    if (argc == 4) {
+        HolderType<cc::gfx::Texture*, false> arg0 = {};
+        HolderType<cc::gfx::Format, false> arg1 = {};
+        HolderType<unsigned int, false> arg2 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_Texture2D_getGfxTextureViewCreateInfo : Error processing arguments");
+        cc::gfx::TextureViewInfo result = cobj->getGfxTextureViewCreateInfo(arg0.value(), arg1.value(), arg2.value(), arg3.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_assets_Texture2D_getHtmlElementObj : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_assets_Texture2D_getGfxTextureViewCreateInfo : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
     return false;
 }
-SE_BIND_FUNC(js_assets_Texture2D_getHtmlElementObj)
+SE_BIND_FUNC(js_assets_Texture2D_getGfxTextureViewCreateInfo)
 
 static bool js_assets_Texture2D_getImage(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -13838,10 +14153,13 @@ bool js_register_assets_Texture2D(se::Object* obj) // NOLINT(readability-identif
 {
     auto* cls = se::Class::create("Texture2D", obj, __jsb_cc_SimpleTexture_proto, _SE(js_assets_Texture2D_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineFunction("create", _SE(js_assets_Texture2D_create));
     cls->defineFunction("description", _SE(js_assets_Texture2D_description));
     cls->defineFunction("getGfxTextureCreateInfo", _SE(js_assets_Texture2D_getGfxTextureCreateInfo));
-    cls->defineFunction("getHtmlElementObj", _SE(js_assets_Texture2D_getHtmlElementObj));
+    cls->defineFunction("getGfxTextureViewCreateInfo", _SE(js_assets_Texture2D_getGfxTextureViewCreateInfo));
     cls->defineFunction("getImage", _SE(js_assets_Texture2D_getImage));
     cls->defineFunction("getMipmaps", _SE(js_assets_Texture2D_getMipmaps));
     cls->defineFunction("getMipmapsUuids", _SE(js_assets_Texture2D_getMipmapsUuids));
@@ -14138,6 +14456,9 @@ bool js_register_assets_ITextureCubeMipmap(se::Object* obj) // NOLINT(readabilit
 {
     auto* cls = se::Class::create("ITextureCubeMipmap", obj, nullptr, _SE(js_assets_ITextureCubeMipmap_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("front", _SE(js_assets_ITextureCubeMipmap_get_front), _SE(js_assets_ITextureCubeMipmap_set_front));
     cls->defineProperty("back", _SE(js_assets_ITextureCubeMipmap_get_back), _SE(js_assets_ITextureCubeMipmap_set_back));
     cls->defineProperty("left", _SE(js_assets_ITextureCubeMipmap_get_left), _SE(js_assets_ITextureCubeMipmap_set_left));
@@ -14431,6 +14752,9 @@ bool js_register_assets_ITextureCubeSerializeMipmapData(se::Object* obj) // NOLI
 {
     auto* cls = se::Class::create("ITextureCubeSerializeMipmapData", obj, nullptr, _SE(js_assets_ITextureCubeSerializeMipmapData_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("front", _SE(js_assets_ITextureCubeSerializeMipmapData_get_front), _SE(js_assets_ITextureCubeSerializeMipmapData_set_front));
     cls->defineProperty("back", _SE(js_assets_ITextureCubeSerializeMipmapData_get_back), _SE(js_assets_ITextureCubeSerializeMipmapData_set_back));
     cls->defineProperty("left", _SE(js_assets_ITextureCubeSerializeMipmapData_get_left), _SE(js_assets_ITextureCubeSerializeMipmapData_set_left));
@@ -14622,6 +14946,9 @@ bool js_register_assets_ITextureCubeSerializeData(se::Object* obj) // NOLINT(rea
 {
     auto* cls = se::Class::create("ITextureCubeSerializeData", obj, nullptr, _SE(js_assets_ITextureCubeSerializeData_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("base", _SE(js_assets_ITextureCubeSerializeData_get_base), _SE(js_assets_ITextureCubeSerializeData_set_base));
     cls->defineProperty("rgbe", _SE(js_assets_ITextureCubeSerializeData_get_rgbe), _SE(js_assets_ITextureCubeSerializeData_set_rgbe));
     cls->defineProperty("mipmaps", _SE(js_assets_ITextureCubeSerializeData_get_mipmaps), _SE(js_assets_ITextureCubeSerializeData_set_mipmaps));
@@ -14666,6 +14993,34 @@ static bool js_assets_TextureCube_getGfxTextureCreateInfo(se::State& s) // NOLIN
     return false;
 }
 SE_BIND_FUNC(js_assets_TextureCube_getGfxTextureCreateInfo)
+
+static bool js_assets_TextureCube_getGfxTextureViewCreateInfo(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureCube>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureCube_getGfxTextureViewCreateInfo : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 4) {
+        HolderType<cc::gfx::Texture*, false> arg0 = {};
+        HolderType<cc::gfx::Format, false> arg1 = {};
+        HolderType<unsigned int, false> arg2 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_TextureCube_getGfxTextureViewCreateInfo : Error processing arguments");
+        cc::gfx::TextureViewInfo result = cobj->getGfxTextureViewCreateInfo(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_TextureCube_getGfxTextureViewCreateInfo : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
+    return false;
+}
+SE_BIND_FUNC(js_assets_TextureCube_getGfxTextureViewCreateInfo)
 
 static bool js_assets_TextureCube_getImage(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -14878,8 +15233,12 @@ bool js_register_assets_TextureCube(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("TextureCube", obj, __jsb_cc_SimpleTexture_proto, _SE(js_assets_TextureCube_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("isRGBE", _SE(js_assets_TextureCube_get_isRGBE), _SE(js_assets_TextureCube_set_isRGBE));
     cls->defineFunction("getGfxTextureCreateInfo", _SE(js_assets_TextureCube_getGfxTextureCreateInfo));
+    cls->defineFunction("getGfxTextureViewCreateInfo", _SE(js_assets_TextureCube_getGfxTextureViewCreateInfo));
     cls->defineFunction("getImage", _SE(js_assets_TextureCube_getImage));
     cls->defineFunction("getMipmaps", _SE(js_assets_TextureCube_getMipmaps));
     cls->defineFunction("initialize", _SE(js_assets_TextureCube_initialize));
@@ -14902,6 +15261,27 @@ bool js_register_assets_TextureCube(se::Object* obj) // NOLINT(readability-ident
 }
 se::Object* __jsb_cc_BuiltinResMgr_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_BuiltinResMgr_class = nullptr;  // NOLINT
+
+static bool js_assets_BuiltinResMgr_addAsset(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::BuiltinResMgr>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_BuiltinResMgr_addAsset : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<std::string, true> arg0 = {};
+        HolderType<cc::Asset*, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_BuiltinResMgr_addAsset : Error processing arguments");
+        cobj->addAsset(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_assets_BuiltinResMgr_addAsset)
 
 static bool js_assets_BuiltinResMgr_getAsset(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -15005,6 +15385,10 @@ bool js_register_assets_BuiltinResMgr(se::Object* obj) // NOLINT(readability-ide
 {
     auto* cls = se::Class::create("BuiltinResMgr", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
+    cls->defineFunction("addAsset", _SE(js_assets_BuiltinResMgr_addAsset));
     cls->defineFunction("getAsset", _SE(js_assets_BuiltinResMgr_getAsset));
     cls->defineFunction("initBuiltinRes", _SE(js_assets_BuiltinResMgr_initBuiltinRes));
     cls->defineFunction("isInitialized", _SE(js_assets_BuiltinResMgr_isInitialized));
@@ -15052,6 +15436,9 @@ bool js_register_assets_MorphRendering(se::Object* obj) // NOLINT(readability-id
 {
     auto* cls = se::Class::create("MorphRendering", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineFunction("createInstance", _SE(js_assets_MorphRendering_createInstance));
     cls->defineFinalizeFunction(_SE(js_cc_MorphRendering_finalize));
     cls->install();
@@ -15155,6 +15542,9 @@ bool js_register_assets_MorphRenderingInstance(se::Object* obj) // NOLINT(readab
 {
     auto* cls = se::Class::create("MorphRenderingInstance", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineFunction("adaptPipelineState", _SE(js_assets_MorphRenderingInstance_adaptPipelineState));
     cls->defineFunction("destroy", _SE(js_assets_MorphRenderingInstance_destroy));
     cls->defineFunction("requiredPatches", _SE(js_assets_MorphRenderingInstance_requiredPatches));
@@ -15200,6 +15590,9 @@ bool js_register_assets_StdMorphRendering(se::Object* obj) // NOLINT(readability
 {
     auto* cls = se::Class::create("StdMorphRendering", obj, __jsb_cc_MorphRendering_proto, _SE(js_assets_StdMorphRendering_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineFinalizeFunction(_SE(js_cc_StdMorphRendering_finalize));
     cls->install();
     JSBClassType::registerClass<cc::StdMorphRendering>(cls);
@@ -15351,6 +15744,9 @@ bool js_register_assets_CustomAttribute(se::Object* obj) // NOLINT(readability-i
 {
     auto* cls = se::Class::create("CustomAttribute", obj, nullptr, _SE(js_assets_CustomAttribute_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("attr", _SE(js_assets_CustomAttribute_get_attr), _SE(js_assets_CustomAttribute_set_attr));
     cls->defineProperty("values", _SE(js_assets_CustomAttribute_get_values), _SE(js_assets_CustomAttribute_set_values));
     cls->defineFinalizeFunction(_SE(js_cc_CustomAttribute_finalize));
@@ -15878,6 +16274,9 @@ bool js_register_assets_IGeometry(se::Object* obj) // NOLINT(readability-identif
 {
     auto* cls = se::Class::create("IGeometry", obj, nullptr, _SE(js_assets_IGeometry_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("positions", _SE(js_assets_IGeometry_get_positions), _SE(js_assets_IGeometry_set_positions));
     cls->defineProperty("normals", _SE(js_assets_IGeometry_get_normals), _SE(js_assets_IGeometry_set_normals));
     cls->defineProperty("uvs", _SE(js_assets_IGeometry_get_uvs), _SE(js_assets_IGeometry_set_uvs));
@@ -16042,6 +16441,9 @@ bool js_register_assets_DynamicCustomAttribute(se::Object* obj) // NOLINT(readab
 {
     auto* cls = se::Class::create("DynamicCustomAttribute", obj, nullptr, _SE(js_assets_DynamicCustomAttribute_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("attr", _SE(js_assets_DynamicCustomAttribute_get_attr), _SE(js_assets_DynamicCustomAttribute_set_attr));
     cls->defineProperty("values", _SE(js_assets_DynamicCustomAttribute_get_values), _SE(js_assets_DynamicCustomAttribute_set_values));
     cls->defineFinalizeFunction(_SE(js_cc_DynamicCustomAttribute_finalize));
@@ -16535,6 +16937,9 @@ bool js_register_assets_IDynamicGeometry(se::Object* obj) // NOLINT(readability-
 {
     auto* cls = se::Class::create("IDynamicGeometry", obj, nullptr, _SE(js_assets_IDynamicGeometry_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("positions", _SE(js_assets_IDynamicGeometry_get_positions), _SE(js_assets_IDynamicGeometry_set_positions));
     cls->defineProperty("normals", _SE(js_assets_IDynamicGeometry_get_normals), _SE(js_assets_IDynamicGeometry_set_normals));
     cls->defineProperty("uvs", _SE(js_assets_IDynamicGeometry_get_uvs), _SE(js_assets_IDynamicGeometry_set_uvs));
@@ -16732,6 +17137,9 @@ bool js_register_assets_Mesh_IVertexBundle(se::Object* obj) // NOLINT(readabilit
 {
     auto* cls = se::Class::create({"Mesh","IVertexBundle"}, obj, nullptr, _SE(js_assets_IVertexBundle_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("_padding", _SE(js_assets_IVertexBundle_get__padding), _SE(js_assets_IVertexBundle_set__padding));
     cls->defineProperty("view", _SE(js_assets_IVertexBundle_get_view), _SE(js_assets_IVertexBundle_set_view));
     cls->defineProperty("attributes", _SE(js_assets_IVertexBundle_get_attributes), _SE(js_assets_IVertexBundle_set_attributes));
@@ -16954,6 +17362,9 @@ bool js_register_assets_Mesh_ISubMesh(se::Object* obj) // NOLINT(readability-ide
 {
     auto* cls = se::Class::create({"Mesh","ISubMesh"}, obj, nullptr, _SE(js_assets_ISubMesh_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("vertexBundelIndices", _SE(js_assets_ISubMesh_get_vertexBundelIndices), _SE(js_assets_ISubMesh_set_vertexBundelIndices));
     cls->defineProperty("primitiveMode", _SE(js_assets_ISubMesh_get_primitiveMode), _SE(js_assets_ISubMesh_set_primitiveMode));
     cls->defineProperty("indexView", _SE(js_assets_ISubMesh_get_indexView), _SE(js_assets_ISubMesh_set_indexView));
@@ -17143,6 +17554,9 @@ bool js_register_assets_Mesh_IDynamicInfo(se::Object* obj) // NOLINT(readability
 {
     auto* cls = se::Class::create({"Mesh","IDynamicInfo"}, obj, nullptr, _SE(js_assets_IDynamicInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("maxSubMeshes", _SE(js_assets_IDynamicInfo_get_maxSubMeshes), _SE(js_assets_IDynamicInfo_set_maxSubMeshes));
     cls->defineProperty("maxSubMeshVertices", _SE(js_assets_IDynamicInfo_get_maxSubMeshVertices), _SE(js_assets_IDynamicInfo_set_maxSubMeshVertices));
     cls->defineProperty("maxSubMeshIndices", _SE(js_assets_IDynamicInfo_get_maxSubMeshIndices), _SE(js_assets_IDynamicInfo_set_maxSubMeshIndices));
@@ -17297,6 +17711,9 @@ bool js_register_assets_Mesh_IDynamicStruct(se::Object* obj) // NOLINT(readabili
 {
     auto* cls = se::Class::create({"Mesh","IDynamicStruct"}, obj, nullptr, _SE(js_assets_IDynamicStruct_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("info", _SE(js_assets_IDynamicStruct_get_info), _SE(js_assets_IDynamicStruct_set_info));
     cls->defineProperty("bounds", _SE(js_assets_IDynamicStruct_get_bounds), _SE(js_assets_IDynamicStruct_set_bounds));
     cls->defineFinalizeFunction(_SE(js_cc_Mesh_IDynamicStruct_finalize));
@@ -17620,6 +18037,9 @@ bool js_register_assets_Mesh_IStruct(se::Object* obj) // NOLINT(readability-iden
 {
     auto* cls = se::Class::create({"Mesh","IStruct"}, obj, nullptr, _SE(js_assets_IStruct_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("vertexBundles", _SE(js_assets_IStruct_get_vertexBundles), _SE(js_assets_IStruct_set_vertexBundles));
     cls->defineProperty("primitives", _SE(js_assets_IStruct_get_primitives), _SE(js_assets_IStruct_set_primitives));
     cls->defineProperty("minPosition", _SE(js_assets_IStruct_get_minPosition), _SE(js_assets_IStruct_set_minPosition));
@@ -17778,6 +18198,9 @@ bool js_register_assets_Mesh_ICreateInfo(se::Object* obj) // NOLINT(readability-
 {
     auto* cls = se::Class::create({"Mesh","ICreateInfo"}, obj, nullptr, _SE(js_assets_ICreateInfo_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("struct", _SE(js_assets_ICreateInfo_get_structInfo), _SE(js_assets_ICreateInfo_set_structInfo));
     cls->defineProperty("data", _SE(js_assets_ICreateInfo_get_data), _SE(js_assets_ICreateInfo_set_data));
     cls->defineFinalizeFunction(_SE(js_cc_Mesh_ICreateInfo_finalize));
@@ -18371,6 +18794,9 @@ bool js_register_assets_Mesh(se::Object* obj) // NOLINT(readability-identifier-n
 {
     auto* cls = se::Class::create("Mesh", obj, __jsb_cc_Asset_proto, _SE(js_assets_Mesh_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("morphRendering", _SE(js_assets_Mesh_get_morphRendering), _SE(js_assets_Mesh_set_morphRendering));
     cls->defineProperty({"_hash", "hash"}, _SE(js_assets_Mesh_getHashForJS_asGetter), _SE(js_assets_Mesh_setHash_asSetter));
     cls->defineProperty({"data", "_data"}, _SE(js_assets_Mesh_getData_asGetter), _SE(js_assets_Mesh_setData_asSetter));
@@ -18565,6 +18991,9 @@ bool js_register_assets_Skeleton(se::Object* obj) // NOLINT(readability-identifi
 {
     auto* cls = se::Class::create("Skeleton", obj, __jsb_cc_Asset_proto, _SE(js_assets_Skeleton_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty({"_joints", "joints"}, _SE(js_assets_Skeleton_getJoints_asGetter), _SE(js_assets_Skeleton_setJoints_asSetter));
     cls->defineProperty({"_hash", "hash"}, _SE(js_assets_Skeleton_getHashForJS_asGetter), _SE(js_assets_Skeleton_setHash_asSetter));
     cls->defineFunction("_getBindposes", _SE(js_assets_Skeleton_getBindposes));
@@ -18675,6 +19104,9 @@ bool js_register_assets_ICreateMeshOptions(se::Object* obj) // NOLINT(readabilit
 {
     auto* cls = se::Class::create("ICreateMeshOptions", obj, nullptr, _SE(js_assets_ICreateMeshOptions_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("calculateBounds", _SE(js_assets_ICreateMeshOptions_get_calculateBounds), _SE(js_assets_ICreateMeshOptions_set_calculateBounds));
     cls->defineFinalizeFunction(_SE(js_cc_ICreateMeshOptions_finalize));
     cls->install();
@@ -18861,6 +19293,9 @@ bool js_register_assets_ICreateDynamicMeshOptions(se::Object* obj) // NOLINT(rea
 {
     auto* cls = se::Class::create("ICreateDynamicMeshOptions", obj, nullptr, _SE(js_assets_ICreateDynamicMeshOptions_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineProperty("maxSubMeshes", _SE(js_assets_ICreateDynamicMeshOptions_get_maxSubMeshes), _SE(js_assets_ICreateDynamicMeshOptions_set_maxSubMeshes));
     cls->defineProperty("maxSubMeshVertices", _SE(js_assets_ICreateDynamicMeshOptions_get_maxSubMeshVertices), _SE(js_assets_ICreateDynamicMeshOptions_set_maxSubMeshVertices));
     cls->defineProperty("maxSubMeshIndices", _SE(js_assets_ICreateDynamicMeshOptions_get_maxSubMeshIndices), _SE(js_assets_ICreateDynamicMeshOptions_set_maxSubMeshIndices));
@@ -19029,6 +19464,9 @@ bool js_register_assets_MeshUtils(se::Object* obj) // NOLINT(readability-identif
 {
     auto* cls = se::Class::create("MeshUtils", obj, nullptr, nullptr);
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
     cls->defineStaticFunction("createDynamicMesh", _SE(js_assets_MeshUtils_createDynamicMesh_static));
     cls->defineStaticFunction("createDynamicMeshInfo", _SE(js_assets_MeshUtils_createDynamicMeshInfo_static));
     cls->defineStaticFunction("createMesh", _SE(js_assets_MeshUtils_createMesh_static));

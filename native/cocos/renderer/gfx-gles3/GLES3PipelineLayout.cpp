@@ -42,15 +42,15 @@ GLES3PipelineLayout::~GLES3PipelineLayout() {
 }
 
 void GLES3PipelineLayout::doInit(const PipelineLayoutInfo & /*info*/) {
-    _gpuPipelineLayout = CC_NEW(GLES3GPUPipelineLayout);
+    _gpuPipelineLayout = ccnew GLES3GPUPipelineLayout;
 
     uint32_t offset = 0U;
     _gpuPipelineLayout->dynamicOffsetIndices.resize(_setLayouts.size());
     for (uint32_t i = 0U; i < _setLayouts.size(); i++) {
-        DescriptorSetLayout *        setLayout    = _setLayouts[i];
+        DescriptorSetLayout *setLayout = _setLayouts[i];
         GLES3GPUDescriptorSetLayout *gpuSetLayout = static_cast<GLES3DescriptorSetLayout *>(setLayout)->gpuDescriptorSetLayout();
-        uint32_t                     dynamicCount = utils::toUint(gpuSetLayout->dynamicBindings.size());
-        vector<int> &                indices      = _gpuPipelineLayout->dynamicOffsetIndices[i];
+        uint32_t dynamicCount = utils::toUint(gpuSetLayout->dynamicBindings.size());
+        ccstd::vector<int> &indices = _gpuPipelineLayout->dynamicOffsetIndices[i];
         indices.assign(setLayout->getBindingIndices().size(), -1);
 
         for (uint32_t j = 0U; j < dynamicCount; j++) {
@@ -67,10 +67,7 @@ void GLES3PipelineLayout::doInit(const PipelineLayoutInfo & /*info*/) {
 }
 
 void GLES3PipelineLayout::doDestroy() {
-    if (_gpuPipelineLayout) {
-        CC_DELETE(_gpuPipelineLayout);
-        _gpuPipelineLayout = nullptr;
-    }
+    CC_SAFE_DELETE(_gpuPipelineLayout);
 }
 
 } // namespace gfx

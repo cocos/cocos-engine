@@ -65,17 +65,17 @@ const char *BYTE_CODE_FILE_EXT = ".jsc";
 ScriptEngine *__instance = nullptr;
 
 const JSClassOps global_classOps = {
-    nullptr,                   // addProperty
-    nullptr,                   // delProperty
-    nullptr,                   // enumerate
-    nullptr,                   // newEnumerate
-    nullptr,                   // resolve
-    nullptr,                   // mayResolve
-    nullptr,                   // finalize
-    nullptr,                   // call
-    nullptr,                   // hasInstance
-    nullptr,                   // construct
-    JS_GlobalObjectTraceHook,  // trace
+    nullptr,                  // addProperty
+    nullptr,                  // delProperty
+    nullptr,                  // enumerate
+    nullptr,                  // newEnumerate
+    nullptr,                  // resolve
+    nullptr,                  // mayResolve
+    nullptr,                  // finalize
+    nullptr,                  // call
+    nullptr,                  // hasInstance
+    nullptr,                  // construct
+    JS_GlobalObjectTraceHook, // trace
 };
 
 JSClass __globalClass = {
@@ -85,7 +85,7 @@ JSClass __globalClass = {
 
 void reportWarning(JSContext *cx, JSErrorReport *report) {
     MOZ_RELEASE_ASSERT(report);
-//    MOZ_RELEASE_ASSERT(report->isWarning());
+    //    MOZ_RELEASE_ASSERT(report->isWarning());
 
     SE_LOGE("%s:%u:%s\n", report->filename ? report->filename : "<no filename>",
             (unsigned int)report->lineno,
@@ -108,7 +108,7 @@ bool __log(JSContext *cx, uint32_t argc, JS::Value *vp) {
         JSString *string = JS::ToString(cx, args[0]);
         if (string) {
             JS::RootedString jsstr(cx, string);
-            JS::UniqueChars           buffer = JS_EncodeStringToUTF8(cx, jsstr);
+            JS::UniqueChars buffer = JS_EncodeStringToUTF8(cx, jsstr);
 
             SE_LOGD("JS: %s\n", buffer.get());
         }
@@ -135,7 +135,7 @@ void privateDataFinalize(JSFreeOp *fop, JSObject *obj) {
 
 // ------------------------------------------------------- ScriptEngine
 
-void on_garbage_collect(JSContext* cx, JSGCStatus status, JS::GCReason reason, void* data) {
+void on_garbage_collect(JSContext *cx, JSGCStatus status, JS::GCReason reason, void *data) {
     /* We finalize any pending toggle refs before doing any garbage collection,
              * so that we can collect the JS wrapper objects, and in order to minimize
              * the chances of objects having a pending toggle up queued when they are
@@ -157,16 +157,16 @@ std::string removeFileExt(const std::string &filePath) {
     return filePath;
 }
 
-bool getBytecodeBuildId(JS::BuildIdCharVector* buildId) {
-  // The browser embeds the date into the buildid and the buildid is embedded
-  // in the binary, so every 'make' necessarily builds a new firefox binary.
-  // Fortunately, the actual firefox executable is tiny -- all the code is in
-  // libxul.so and other shared modules -- so this isn't a big deal. Not so
-  // for the statically-linked JS shell. To avoid recompiling js.cpp and
-  // re-linking 'js' on every 'make', we use a constant buildid and rely on
-  // the shell user to manually clear any caches between cache-breaking updates.
-  const char buildid[] = "cocos_xdr";
-  return buildId->append(buildid, sizeof(buildid));
+bool getBytecodeBuildId(JS::BuildIdCharVector *buildId) {
+    // The browser embeds the date into the buildid and the buildid is embedded
+    // in the binary, so every 'make' necessarily builds a new firefox binary.
+    // Fortunately, the actual firefox executable is tiny -- all the code is in
+    // libxul.so and other shared modules -- so this isn't a big deal. Not so
+    // for the statically-linked JS shell. To avoid recompiling js.cpp and
+    // re-linking 'js' on every 'make', we use a constant buildid and rely on
+    // the shell user to manually clear any caches between cache-breaking updates.
+    const char buildid[] = "cocos_xdr";
+    return buildId->append(buildid, sizeof(buildid));
 }
 
 // For console stuff
@@ -175,13 +175,13 @@ bool JSB_console_format_log(State &s, const char *prefix, int msgIndex = 0) {
         return false;
 
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int argc = (int)args.size();
     if ((argc - msgIndex) == 1) {
         std::string msg = args[msgIndex].toStringForce();
         SE_LOGD("JS: %s%s\n", prefix, msg.c_str());
     } else if (argc > 1) {
         std::string msg = args[msgIndex].toStringForce();
-        size_t      pos;
+        size_t pos;
         for (int i = (msgIndex + 1); i < argc; ++i) {
             pos = msg.find("%");
             if (pos != std::string::npos && pos != (msg.length() - 1) && (msg[pos + 1] == 'd' || msg[pos + 1] == 's' || msg[pos + 1] == 'f')) {
@@ -244,10 +244,9 @@ bool JSB_console_time(State &s) {
 SE_BIND_FUNC(JSB_console_time)
 
 bool JSB_console_timeEnd(State &s) {
-    return true;//TODO(cjh)
+    return true; //TODO(cjh)
 }
 SE_BIND_FUNC(JSB_console_timeEnd)
-
 
 } // namespace
 
@@ -260,7 +259,7 @@ AutoHandleScope::~AutoHandleScope() {
 
 ScriptEngine *ScriptEngine::getInstance() {
     if (__instance == nullptr) {
-        __instance = new ScriptEngine();
+        __instance = ccnew ScriptEngine();
     }
 
     return __instance;
@@ -288,30 +287,30 @@ ScriptEngine::ScriptEngine()
 }
 
 /* static */
-void ScriptEngine::onWeakPointerCompartmentCallback(JSTracer* trc, JS::Compartment *comp, void *data) {
+void ScriptEngine::onWeakPointerCompartmentCallback(JSTracer *trc, JS::Compartment *comp, void *data) {
     onWeakPointerZoneGroupCallback(trc, data);
 }
 
 /* static */
-void ScriptEngine::onWeakPointerZoneGroupCallback(JSTracer* trc, void *data) {
-    bool    isInCleanup   = getInstance()->isInCleanup();
-    bool    isIterUpdated = false;
-    Object *obj           = nullptr;
-    auto    iter          = NativePtrToObjectMap::begin();
+void ScriptEngine::onWeakPointerZoneGroupCallback(JSTracer *trc, void *data) {
+    bool isInCleanup = getInstance()->isInCleanup();
+    bool isIterUpdated = false;
+    Object *obj = nullptr;
+    auto iter = NativePtrToObjectMap::begin();
     while (iter != NativePtrToObjectMap::end()) {
-        obj           = iter->second;
+        obj = iter->second;
         isIterUpdated = false;
         if (!obj->isRooted()) {
             if (obj->updateAfterGC(trc, data)) {
                 obj->decRef();
-                iter          = NativePtrToObjectMap::erase(iter);
+                iter = NativePtrToObjectMap::erase(iter);
                 isIterUpdated = true;
             }
         } else if (isInCleanup) // Rooted and in cleanup step
         {
             obj->unprotect();
             obj->decRef();
-            iter          = NativePtrToObjectMap::erase(iter);
+            iter = NativePtrToObjectMap::erase(iter);
             isIterUpdated = true;
         }
 
@@ -363,27 +362,27 @@ bool ScriptEngine::init() {
 
     JS::SetWarningReporter(_cx, reportWarning);
 
-#if defined(JS_GC_ZEAL) && defined(DEBUG)
-//    JS_SetGCZeal(_cx, 2, JS_DEFAULT_ZEAL_FREQ);
-#endif
+    #if defined(JS_GC_ZEAL) && defined(DEBUG)
+    //    JS_SetGCZeal(_cx, 2, JS_DEFAULT_ZEAL_FREQ);
+    #endif
 
     JS::RealmOptions options;
     SetStandardCompartmentOptions(options);
 
-#ifdef DEBUG
+    #ifdef DEBUG
     JS::ContextOptionsRef(_cx)
-                .setDisableIon()
-                .setWasmBaseline(false)
-                .setAsmJS(false)
-                .setWasm(false)
-                .setWasmIon(false);
-#else
+        .setDisableIon()
+        .setWasmBaseline(false)
+        .setAsmJS(false)
+        .setWasm(false)
+        .setWasmIon(false);
+    #else
     JS::ContextOptionsRef(_cx)
-                .setAsmJS(true)
-                .setWasm(true)
-                .setWasmBaseline(true)
-                .setWasmIon(true);
-#endif
+        .setAsmJS(true)
+        .setWasm(true)
+        .setWasmBaseline(true)
+        .setWasmIon(true);
+    #endif
 
     JS::RootedObject globalObj(_cx, JS_NewGlobalObject(_cx, &__globalClass, nullptr, JS::DontFireOnNewGlobalHook, options));
 
@@ -402,7 +401,7 @@ bool ScriptEngine::init() {
 
     // SpiderMonkey isn't shipped with a console variable. Make a fake one.
     Value consoleVal;
-    bool  hasConsole = _globalObj->getProperty("console", &consoleVal) && consoleVal.isObject();
+    bool hasConsole = _globalObj->getProperty("console", &consoleVal) && consoleVal.isObject();
     assert(!hasConsole);
 
     HandleObject consoleObj(Object::createPlainObject());
@@ -412,7 +411,7 @@ bool ScriptEngine::init() {
     consoleObj->defineFunction("warn", _SE(JSB_console_warn));
     consoleObj->defineFunction("error", _SE(JSB_console_error));
     consoleObj->defineFunction("assert", _SE(JSB_console_assert));
-    consoleObj->defineFunction("time", _SE(JSB_console_info)); //TODO(cjh)
+    consoleObj->defineFunction("time", _SE(JSB_console_info));    //TODO(cjh)
     consoleObj->defineFunction("timeEnd", _SE(JSB_console_info)); //TODO(cjh)
 
     _globalObj->setProperty("console", Value(consoleObj));
@@ -458,10 +457,10 @@ void ScriptEngine::cleanup() {
 
     JS_DestroyContext(_cx);
 
-    _cx             = nullptr;
-    _globalObj      = nullptr;
+    _cx = nullptr;
+    _globalObj = nullptr;
     _oldCompartment = nullptr;
-    _isValid        = false;
+    _isValid = false;
 
     _registerCallbackArray.clear();
 
@@ -517,13 +516,13 @@ void ScriptEngine::addPermanentRegisterCallback(RegisterCallback cb) {
 
     #pragma mark - Debug
 
-static std::string              inData;
-static std::string              outData;
-static std::vector<std::string> g_queue;
-static std::mutex               g_qMutex;
-static std::mutex               g_rwMutex;
-static int                      clientSocket      = -1;
-static uint32_t                 s_nestedLoopLevel = 0;
+static std::string inData;
+static std::string outData;
+static ccstd::vector<std::string> g_queue;
+static std::mutex g_qMutex;
+static std::mutex g_rwMutex;
+static int clientSocket = -1;
+static uint32_t s_nestedLoopLevel = 0;
 
 static void cc_closesocket(int fd) {
     #ifdef _WIN32
@@ -535,7 +534,7 @@ static void cc_closesocket(int fd) {
 
 void ScriptEngine::_debugProcessInput(const std::string &str) {
     JS::RootedObject debugGlobal(_cx, _debugGlobalObj->_getJSObject());
-    JS::Realm *  globalCpt = JS::EnterRealm(_cx, debugGlobal);
+    JS::Realm *globalCpt = JS::EnterRealm(_cx, debugGlobal);
 
     Value func;
     if (_debugGlobalObj->getProperty("processInput", &func) && func.isObject() && func.toObject()->isFunction()) {
@@ -549,13 +548,13 @@ void ScriptEngine::_debugProcessInput(const std::string &str) {
 
 static bool NS_ProcessNextEvent() {
     std::string message;
-    size_t      messageCount = 0;
+    size_t messageCount = 0;
     while (true) {
         g_qMutex.lock();
         messageCount = g_queue.size();
         if (messageCount > 0) {
             auto first = g_queue.begin();
-            message    = *first;
+            message = *first;
             g_queue.erase(first);
             --messageCount;
         }
@@ -641,11 +640,11 @@ static void clearBuffers() {
 static void serverEntryPoint(uint32_t port) {
     // start a server, accept the connection and keep reading data from it
     struct addrinfo hints, *result = nullptr, *rp = nullptr;
-    int             s = 0;
+    int s = 0;
     memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_family   = AF_UNSPEC;
+    hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM; // TCP stream sockets
-    hints.ai_flags    = AI_PASSIVE;  // fill in my IP for me
+    hints.ai_flags = AI_PASSIVE;     // fill in my IP for me
 
     std::stringstream portstr;
     portstr << port;
@@ -699,7 +698,7 @@ static void serverEntryPoint(uint32_t port) {
     #define BUF_SIZE          MAX_RECEIVED_SIZE + 1
 
     char buf[BUF_SIZE] = {0};
-    int  readBytes     = 0;
+    int readBytes = 0;
     while (true) {
         clientSocket = accept(s, NULL, NULL);
 
@@ -734,7 +733,7 @@ static void serverEntryPoint(uint32_t port) {
 
 static bool JSBDebug_require(State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int argc = (int)args.size();
 
     if (argc >= 1) {
         ScriptEngine::getInstance()->runScript(args[0].toString());
@@ -748,7 +747,7 @@ SE_BIND_FUNC(JSBDebug_require)
 
 static bool JSBDebug_BufferWrite(State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int argc = (int)args.size();
     if (argc == 1) {
         // this is safe because we're already inside a lock (from clearBuffers)
         outData.append(args[0].toString());
@@ -803,7 +802,7 @@ bool ScriptEngine::start() {
         JS::LeaveRealm(_cx, globalCpt);
     }
 
-    bool ok    = false;
+    bool ok = false;
     _startTime = std::chrono::steady_clock::now();
 
     for (auto cb : _permRegisterCallbackArray) {
@@ -828,7 +827,7 @@ bool ScriptEngine::start() {
 
 bool ScriptEngine::getScript(const std::string &path, JS::MutableHandleScript script) {
     std::string fullPath = _fileOperationDelegate.onGetFullPath(path);
-    auto        iter     = _filenameScriptMap.find(fullPath);
+    auto iter = _filenameScriptMap.find(fullPath);
     if (iter != _filenameScriptMap.end()) {
         JS::PersistentRootedScript *rootedScript = iter->second;
         script.set(rootedScript->get());
@@ -883,7 +882,7 @@ bool ScriptEngine::compileScript(const std::string &path, JS::MutableHandleScrip
     //                    if (appended && result == JS::TranscodeResult::TranscodeResult_Ok)
     //                    {
     //                        compileSucceed = true;
-    //                        _filenameScriptMap[byteCodePath] = new (std::nothrow) JS::PersistentRootedScript(_cx, script.get());
+    //                        _filenameScriptMap[byteCodePath] = ccnew JS::PersistentRootedScript(_cx, script.get());
     //                    }
     //                    assert(compileSucceed);
     //                }
@@ -906,12 +905,12 @@ bool ScriptEngine::compileScript(const std::string &path, JS::MutableHandleScrip
                                        JS::SourceOwnership::Borrowed);
 
             assert(succeed);
-            JSScript* compiledScript = JS::Compile(_cx, op, srcBuf);
+            JSScript *compiledScript = JS::Compile(_cx, op, srcBuf);
             if (compiledScript != nullptr) {
-                compileSucceed               = true;
+                compileSucceed = true;
                 script.set(compiledScript);
-                std::string fullPath         = _fileOperationDelegate.onGetFullPath(path);
-                _filenameScriptMap[fullPath] = new (std::nothrow) JS::PersistentRootedScript(_cx, script.get());
+                std::string fullPath = _fileOperationDelegate.onGetFullPath(path);
+                _filenameScriptMap[fullPath] = ccnew JS::PersistentRootedScript(_cx, script.get());
             }
             assert(compileSucceed);
         }
@@ -972,7 +971,7 @@ bool ScriptEngine::runScript(const std::string &path, Value *ret /* = nullptr */
     assert(_fileOperationDelegate.isValid());
 
     JS::RootedScript script(_cx);
-    bool             ok = compileScript(path, &script);
+    bool ok = compileScript(path, &script);
     if (ok) {
         JS::RootedValue rval(_cx);
         ok = JS_ExecuteScript(_cx, script, &rval);
@@ -999,11 +998,11 @@ void ScriptEngine::clearException() {
         JS_ClearPendingException(_cx);
 
         assert(exceptionValue.isObject());
-        JS::RootedObject  exceptionObj(_cx, exceptionValue.toObjectOrNull());
-        JSErrorReport *   report   = JS_ErrorFromException(_cx, exceptionObj);
-        const char *      message  = report->message().c_str();
+        JS::RootedObject exceptionObj(_cx, exceptionValue.toObjectOrNull());
+        JSErrorReport *report = JS_ErrorFromException(_cx, exceptionObj);
+        const char *message = report->message().c_str();
         const std::string filePath = report->filename != nullptr ? report->filename : "(no filename)";
-        char              line[50] = {0};
+        char line[50] = {0};
         snprintf(line, sizeof(line), "%u", report->lineno);
         char column[50] = {0};
         snprintf(column, sizeof(column), "%u", report->column);
@@ -1038,12 +1037,9 @@ void ScriptEngine::clearException() {
                 args.push_back(Value(filePath));
                 args.push_back(Value(report->lineno));
                 args.push_back(Value(message));
-                if (stack)
-                {
+                if (stack) {
                     args.push_back(Value(stack.get()));
-                }
-                else
-                {
+                } else {
                     args.push_back(Value(""));
                 }
                 errorHandler.toObject()->call(args, _globalObj);
@@ -1061,7 +1057,6 @@ void ScriptEngine::setExceptionCallback(const ExceptionCallback &cb) {
 }
 
 void ScriptEngine::setJSExceptionCallback(const ExceptionCallback &cb) { //TODO(cjh)
-
 }
 
 void ScriptEngine::enableDebugger(const std::string &serverAddr, uint32_t port, bool isWait) {
@@ -1080,13 +1075,13 @@ void ScriptEngine::mainLoopUpdate() {
         return;
     }
     std::string message;
-    size_t      messageCount = 0;
+    size_t messageCount = 0;
     while (true) {
         g_qMutex.lock();
         messageCount = g_queue.size();
         if (messageCount > 0) {
             auto first = g_queue.begin();
-            message    = *first;
+            message = *first;
             g_queue.erase(first);
             --messageCount;
         }
@@ -1120,7 +1115,7 @@ bool ScriptEngine::callFunction(Object *targetObj, const char *funcName, uint32_
     }
 
     bool found = false;
-    bool ok    = JS_HasProperty(_cx, contextObject, funcName, &found);
+    bool ok = JS_HasProperty(_cx, contextObject, funcName, &found);
 
     if (!ok || !found) {
         return false;

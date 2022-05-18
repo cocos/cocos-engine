@@ -24,9 +24,8 @@
 ****************************************************************************/
 
 #include "platform/linux/modules/CanvasRenderingContext2DDelegate.h"
-#include "SDL2/SDL.h"
-#include "SDL2/SDL_syswm.h"
 #include "platform/linux/LinuxPlatform.h"
+#include "platform/linux/modules/SystemWindow.h"
 
 namespace {
 #define RGB(r, g, b)     (int)((int)r | (((int)g) << 8) | (((int)b) << 16))
@@ -39,13 +38,10 @@ namespace cc {
 static const char gdefaultFontName[] = "lucidasans-24";
 
 CanvasRenderingContext2DDelegate::CanvasRenderingContext2DDelegate() {
-    SDL_SysWMinfo wmInfo;
-    SDL_VERSION(&wmInfo.version);
-    LinuxPlatform *platform = dynamic_cast<LinuxPlatform *>(BasePlatform::getPlatform());
-    CCASSERT(platform != nullptr, "Platform pointer can't be null");
-    SDL_GetWindowWMInfo(reinterpret_cast<SDL_Window *>(platform->getWindow()), &wmInfo);
-    _dis = wmInfo.info.x11.display;
-    _win = wmInfo.info.x11.window;
+    SystemWindow *window = BasePlatform::getPlatform()->getInterface<SystemWindow>();
+    CC_ASSERT(window != nullptr);
+    _dis = reinterpret_cast<Display *>(window->getDisplay());
+    _win = reinterpret_cast<Drawable>(window->getWindowHandler());
 }
 
 CanvasRenderingContext2DDelegate::~CanvasRenderingContext2DDelegate() {
@@ -54,13 +50,13 @@ CanvasRenderingContext2DDelegate::~CanvasRenderingContext2DDelegate() {
 }
 
 void CanvasRenderingContext2DDelegate::recreateBuffer(float w, float h) {
-    _bufferWidth  = w;
+    _bufferWidth = w;
     _bufferHeight = h;
     if (_bufferWidth < 1.0F || _bufferHeight < 1.0F) {
         return;
     }
-    auto  textureSize = static_cast<int>(_bufferWidth * _bufferHeight * 4);
-    auto *data        = static_cast<int8_t *>(malloc(sizeof(int8_t) * textureSize));
+    auto textureSize = static_cast<int>(_bufferWidth * _bufferHeight * 4);
+    auto *data = static_cast<int8_t *>(malloc(sizeof(int8_t) * textureSize));
     memset(data, 0x00, textureSize);
     _imageData.fastSet((uint8_t *)data, textureSize);
 
@@ -73,7 +69,7 @@ void CanvasRenderingContext2DDelegate::recreateBuffer(float w, float h) {
     }
     //Screen *scr = DefaultScreenOfDisplay(_dis);
     _pixmap = XCreatePixmap(_dis, _win, w, h, 32);
-    _gc     = XCreateGC(_dis, _pixmap, 0, 0);
+    _gc = XCreateGC(_dis, _pixmap, 0, 0);
 }
 
 void CanvasRenderingContext2DDelegate::beginPath() {
@@ -126,7 +122,7 @@ void CanvasRenderingContext2DDelegate::fillRect(float x, float y, float w, float
     XFillRectangle(_dis, _pixmap, _gc, x, y, w, h);
 }
 
-void CanvasRenderingContext2DDelegate::fillText(const std::string &text, float x, float y, float /*maxWidth*/) {
+void CanvasRenderingContext2DDelegate::fillText(const ccstd::string &text, float x, float y, float /*maxWidth*/) {
     if (text.empty() || _bufferWidth < 1.0F || _bufferHeight < 1.0F) {
         return;
     }
@@ -135,10 +131,10 @@ void CanvasRenderingContext2DDelegate::fillText(const std::string &text, float x
     XSetForeground(_dis, _gc, 0xff000000 | _fillStyle);
     XSetFont(_dis, _gc, _font->fid);
     XDrawString(_dis, _pixmap, _gc, offsetPoint[0], offsetPoint[1], text.c_str(), (int)(text.length()));
-    XImage *       image  = XGetImage(_dis, _pixmap, 0, 0, _bufferWidth, _bufferHeight, AllPlanes, ZPixmap);
-    int            width  = image->width;
-    int            height = image->height;
-    unsigned char *data   = _imageData.getBytes();
+    XImage *image = XGetImage(_dis, _pixmap, 0, 0, _bufferWidth, _bufferHeight, AllPlanes, ZPixmap);
+    int width = image->width;
+    int height = image->height;
+    unsigned char *data = _imageData.getBytes();
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; x++) {
             *(((int *)data + (y * width) + x)) = static_cast<int>(XGetPixel(image, x, y));
@@ -146,37 +142,37 @@ void CanvasRenderingContext2DDelegate::fillText(const std::string &text, float x
     }
 }
 
-void CanvasRenderingContext2DDelegate::strokeText(const std::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) const {
+void CanvasRenderingContext2DDelegate::strokeText(const ccstd::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) const {
     if (text.empty() || _bufferWidth < 1.0F || _bufferHeight < 1.0F) {
         return;
     }
 }
 
-CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measureText(const std::string &text) {
+CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measureText(const ccstd::string &text) {
     if (text.empty())
-        return std::array<float, 2>{0.0f, 0.0f};
-    int         font_ascent  = 0;
-    int         font_descent = 0;
-    int         direction    = 0;
+        return ccstd::array<float, 2>{0.0f, 0.0f};
+    int font_ascent = 0;
+    int font_descent = 0;
+    int direction = 0;
     XCharStruct overall;
     XQueryTextExtents(_dis, _font->fid, text.c_str(), text.length(), &direction, &font_ascent, &font_descent, &overall);
-    return std::array<float, 2>{static_cast<float>(overall.width),
-                                static_cast<float>(overall.ascent + overall.descent)};
+    return ccstd::array<float, 2>{static_cast<float>(overall.width),
+                                  static_cast<float>(overall.ascent + overall.descent)};
 }
 
-void CanvasRenderingContext2DDelegate::updateFont(const std::string &fontName,
-                                                  float              fontSize,
-                                                  bool               bold,
-                                                  bool               italic,
-                                                  bool               oblique,
+void CanvasRenderingContext2DDelegate::updateFont(const ccstd::string &fontName,
+                                                  float fontSize,
+                                                  bool bold,
+                                                  bool italic,
+                                                  bool oblique,
                                                   bool /* smallCaps */) {
     do {
         _fontName = fontName;
         _fontSize = static_cast<int>(fontSize);
         /// TODO(bug):Remove default settings
-        std::string fontName   = "helvetica"; // default
-        char        serv[1024] = {0};
-        std::string slant      = "";
+        ccstd::string fontName = "helvetica"; // default
+        char serv[1024] = {0};
+        ccstd::string slant = "";
         if (italic) {
             slant = "*I";
         } else if (oblique) {
@@ -195,8 +191,8 @@ void CanvasRenderingContext2DDelegate::updateFont(const std::string &fontName,
         _font = XLoadQueryFont(_dis, serv);
         if (!_font) {
             static int fontSizes[] = {8, 10, 12, 14, 18, 24};
-            int        i           = 0;
-            int        size        = sizeof(fontSizes) / sizeof(fontSizes[0]);
+            int i = 0;
+            int size = sizeof(fontSizes) / sizeof(fontSizes[0]);
             for (i = 0; i < size; ++i) {
                 if (_fontSize < fontSizes[i]) {
                     break;
@@ -218,11 +214,11 @@ void CanvasRenderingContext2DDelegate::updateFont(const std::string &fontName,
     } while (false);
 }
 
-void CanvasRenderingContext2DDelegate::setTextAlign(CanvasTextAlign align) {
+void CanvasRenderingContext2DDelegate::setTextAlign(TextAlign align) {
     _textAlign = align;
 }
 
-void CanvasRenderingContext2DDelegate::setTextBaseline(CanvasTextBaseline baseline) {
+void CanvasRenderingContext2DDelegate::setTextBaseline(TextBaseline baseline) {
     _textBaseLine = baseline;
 }
 
@@ -247,23 +243,23 @@ void CanvasRenderingContext2DDelegate::removeCustomFont() {
 }
 
 // x, y offset value
-int CanvasRenderingContext2DDelegate::drawText(const std::string &text, int x, int y) {
+int CanvasRenderingContext2DDelegate::drawText(const ccstd::string &text, int x, int y) {
     XTextItem item{const_cast<char *>(text.c_str()), static_cast<int>(text.length()), 0, None};
     return XDrawText(_dis, _pixmap, _gc, x, y, &item, 1);
 }
 
 CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::sizeWithText(const wchar_t *pszText, int nLen) {
     // if (text.empty())
-    //     return std::array<float, 2>{0.0f, 0.0f};
+    //     return ccstd::array<float, 2>{0.0f, 0.0f};
     // XFontStruct *fs = XLoadQueryFont(dpy, "cursor");
-    // assert(fs);
+    // CC_ASSERT(fs);
     // int font_ascent = 0;
     // int font_descent = 0;
     // XCharStruct overall;
     // XQueryTextExtents(_dis, fs -> fid, text.c_str(), text.length(), nullptr, &font_ascent, &font_descent, &overall);
-    // return std::array<float, 2>{static_cast<float>(overall.lbearing),
+    // return ccstd::array<float, 2>{static_cast<float>(overall.lbearing),
     //                             static_cast<float>(overall.rbearing)};
-    return std::array<float, 2>{0.0F, 0.0F};
+    return ccstd::array<float, 2>{0.0F, 0.0F};
 }
 
 void CanvasRenderingContext2DDelegate::prepareBitmap(int nWidth, int nHeight) {
@@ -275,26 +271,26 @@ void CanvasRenderingContext2DDelegate::deleteBitmap() {
 void CanvasRenderingContext2DDelegate::fillTextureData() {
 }
 
-std::array<float, 2> CanvasRenderingContext2DDelegate::convertDrawPoint(Point point, const std::string &text) {
-    int         font_ascent  = 0;
-    int         font_descent = 0;
-    int         direction    = 0;
+ccstd::array<float, 2> CanvasRenderingContext2DDelegate::convertDrawPoint(Point point, const ccstd::string &text) {
+    int font_ascent = 0;
+    int font_descent = 0;
+    int direction = 0;
     XCharStruct overall;
     XQueryTextExtents(_dis, _font->fid, text.c_str(), text.length(), &direction, &font_ascent, &font_descent, &overall);
     int width = overall.width;
-    if (_textAlign == CanvasTextAlign::CENTER) {
+    if (_textAlign == TextAlign::CENTER) {
         point[0] -= width / 2.0f;
-    } else if (_textAlign == CanvasTextAlign::RIGHT) {
+    } else if (_textAlign == TextAlign::RIGHT) {
         point[0] -= width;
     }
 
-    if (_textBaseLine == CanvasTextBaseline::TOP) {
+    if (_textBaseLine == TextBaseline::TOP) {
         point[1] += overall.ascent;
-    } else if (_textBaseLine == CanvasTextBaseline::MIDDLE) {
+    } else if (_textBaseLine == TextBaseline::MIDDLE) {
         point[1] += (overall.descent - overall.ascent) / 2 - overall.descent;
-    } else if (_textBaseLine == CanvasTextBaseline::BOTTOM) {
+    } else if (_textBaseLine == TextBaseline::BOTTOM) {
         point[1] += -overall.descent;
-    } else if (_textBaseLine == CanvasTextBaseline::ALPHABETIC) {
+    } else if (_textBaseLine == TextBaseline::ALPHABETIC) {
         //point[1] -= overall.ascent;
         // X11 The default way of drawing text
     }
@@ -305,11 +301,11 @@ std::array<float, 2> CanvasRenderingContext2DDelegate::convertDrawPoint(Point po
 void CanvasRenderingContext2DDelegate::fill() {
 }
 
-void CanvasRenderingContext2DDelegate::setLineCap(const std::string &lineCap) {
+void CanvasRenderingContext2DDelegate::setLineCap(const ccstd::string &lineCap) {
     _lineCap = LineSolid;
 }
 
-void CanvasRenderingContext2DDelegate::setLineJoin(const std::string &lineJoin) {
+void CanvasRenderingContext2DDelegate::setLineJoin(const ccstd::string &lineJoin) {
     _lineJoin = JoinRound;
 }
 
@@ -322,7 +318,7 @@ void CanvasRenderingContext2DDelegate::fillImageData(const Data & /* imageData *
     //XPutImage(dpy, w, gc, image, 0, 0, 50, 60, 40, 30);
 }
 
-void CanvasRenderingContext2DDelegate::strokeText(const std::string & /* text */,
+void CanvasRenderingContext2DDelegate::strokeText(const ccstd::string & /* text */,
                                                   float /* x */,
                                                   float /* y */,
                                                   float /* maxWidth */) {

@@ -31,7 +31,10 @@
 // clang-format off
 #pragma once
 #include "cocos/base/Ptr.h"
+#include "cocos/base/std/container/string.h"
+#include "cocos/renderer/frame-graph/FrameGraph.h"
 #include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
+#include "cocos/renderer/pipeline/custom/Map.h"
 #include "cocos/renderer/pipeline/custom/NativePipelineFwd.h"
 #include "cocos/renderer/pipeline/custom/RenderCompilerTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderInterfaceTypes.h"
@@ -40,34 +43,59 @@ namespace cc {
 
 namespace render {
 
+class NativeLayoutGraphBuilder final : public LayoutGraphBuilder {
+public:
+    NativeLayoutGraphBuilder() = default;
+    NativeLayoutGraphBuilder(gfx::Device* deviceIn, LayoutGraphData* dataIn) noexcept
+    : device(deviceIn),
+      data(dataIn) {}
+
+    uint32_t addRenderStage(const ccstd::string& name) override;
+    uint32_t addRenderPhase(const ccstd::string& name, uint32_t parentID) override;
+    void addDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlock& block) override;
+    void reserveDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlock& block) override;
+    int compile() override;
+
+    std::string print() const override;
+
+    gfx::Device*     device{nullptr};
+    LayoutGraphData* data{nullptr};
+};
+
 class NativePipeline final : public Pipeline {
 public:
-    NativePipeline() noexcept;
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {layoutGraphs.get_allocator().resource()};
+    }
 
-    uint32_t            addRenderTexture(const std::string& name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow* renderWindow) override;
-    uint32_t            addRenderTarget(const std::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
-    uint32_t            addDepthStencil(const std::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
+    NativePipeline(const allocator_type& alloc) noexcept; // NOLINT
+
+    uint32_t            addRenderTexture(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow* renderWindow) override;
+    uint32_t            addRenderTarget(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
+    uint32_t            addDepthStencil(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
     void                beginFrame() override;
     void                endFrame() override;
-    RasterPassBuilder  *addRasterPass(uint32_t width, uint32_t height, const std::string& layoutName, const std::string& name) override;
-    RasterPassBuilder  *addRasterPass(uint32_t width, uint32_t height, const std::string& layoutName) override;
-    ComputePassBuilder *addComputePass(const std::string& layoutName, const std::string& name) override;
-    ComputePassBuilder *addComputePass(const std::string& layoutName) override;
-    MovePassBuilder    *addMovePass(const std::string& name) override;
-    CopyPassBuilder    *addCopyPass(const std::string& name) override;
+    RasterPassBuilder  *addRasterPass(uint32_t width, uint32_t height, const ccstd::string& layoutName, const ccstd::string& name) override;
+    RasterPassBuilder  *addRasterPass(uint32_t width, uint32_t height, const ccstd::string& layoutName) override;
+    ComputePassBuilder *addComputePass(const ccstd::string& layoutName, const ccstd::string& name) override;
+    ComputePassBuilder *addComputePass(const ccstd::string& layoutName) override;
+    MovePassBuilder    *addMovePass(const ccstd::string& name) override;
+    CopyPassBuilder    *addCopyPass(const ccstd::string& name) override;
     void                presentAll() override;
 
     SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) override;
+    LayoutGraphBuilder *createLayoutGraph(const ccstd::string& name) override;
 
     bool activate(gfx::Swapchain * swapchain) override;
     bool destroy() noexcept override;
-    void render(const std::vector<scene::Camera*>& cameras) override;
+    void render(const ccstd::vector<scene::Camera*>& cameras) override;
 
     const MacroRecord           &getMacros() const override;
     pipeline::GlobalDSManager   *getGlobalDSManager() const override;
     gfx::DescriptorSetLayout    *getDescriptorSetLayout() const override;
     pipeline::PipelineSceneData *getPipelineSceneData() const override;
-    const std::string           &getConstantMacros() const override;
+    const ccstd::string         &getConstantMacros() const override;
     scene::Model                *getProfiler() const override;
     void                         setProfiler(scene::Model *profiler) override;
 
@@ -76,15 +104,20 @@ public:
 
     void onGlobalPipelineStateChanged() override;
 
-    void setValue(const std::string& name, int32_t value) override;
-    void setValue(const std::string& name, bool value) override;
+    void setValue(const ccstd::string& name, int32_t value) override;
+    void setValue(const ccstd::string& name, bool value) override;
 
-    gfx::Device*                               device{nullptr};
-    MacroRecord                                macros;
-    std::string                                constantMacros;
-    std::unique_ptr<pipeline::GlobalDSManager> globalDSManager;
-    scene::Model*                              profiler{nullptr};
-    IntrusivePtr<pipeline::PipelineSceneData>  pipelineSceneData;
+    bool isOcclusionQueryEnabled() const override;
+
+    gfx::Device*                                           device{nullptr};
+    gfx::Swapchain*                                        swapchain{nullptr};
+    MacroRecord                                            macros;
+    ccstd::string                                          constantMacros;
+    std::unique_ptr<pipeline::GlobalDSManager>             globalDSManager;
+    scene::Model*                                          profiler{nullptr};
+    PmrTransparentMap<ccstd::pmr::string, LayoutGraphData> layoutGraphs;
+    IntrusivePtr<pipeline::PipelineSceneData>              pipelineSceneData;
+    framegraph::FrameGraph                                 frameGraph;
 };
 
 } // namespace render

@@ -30,6 +30,7 @@
 #include <unistd.h>
 #include <fstream>
 #include "base/Log.h"
+#include "base/memory/Memory.h"
 
 #define DECLARE_GUARD std::lock_guard<std::recursive_mutex> mutexGuard(_mutex)
 #ifndef CC_RESOURCE_FOLDER_LINUX
@@ -38,16 +39,12 @@
 
 namespace cc {
 
-FileUtils *FileUtils::getInstance() {
-    if (FileUtils::sharedFileUtils == nullptr) {
-        FileUtils::sharedFileUtils = new FileUtilsQNX();
-        if (!FileUtils::sharedFileUtils->init()) {
-            delete FileUtils::sharedFileUtils;
-            FileUtils::sharedFileUtils = nullptr;
-            CC_LOG_DEBUG("ERROR: Could not init CCFileUtilsQNX");
-        }
-    }
-    return FileUtils::sharedFileUtils;
+FileUtils *createFileUtils() {
+    return ccnew FileUtilsQNX();
+}
+
+FileUtilsQNX::FileUtilsQNX() {
+    init();
 }
 
 bool FileUtilsQNX::init() {
@@ -57,7 +54,7 @@ bool FileUtilsQNX::init() {
     if (!file) {
         return false;
     }
-    std::string appPath;
+    ccstd::string appPath;
     std::getline(file, appPath);
     if (appPath.empty()) {
         return false;
@@ -67,7 +64,7 @@ bool FileUtilsQNX::init() {
 
     // Set writable path to $XDG_CONFIG_HOME or ~/.config/<app name>/ if $XDG_CONFIG_HOME not exists.
     const char *xdg_config_path = getenv("XDG_CONFIG_HOME");
-    std::string xdgConfigPath;
+    ccstd::string xdgConfigPath;
     if (xdg_config_path == NULL) {
         xdg_config_path = getenv("HOME");
         if (xdg_config_path) {
@@ -98,12 +95,12 @@ bool FileUtilsQNX::init() {
     return FileUtils::init();
 }
 
-bool FileUtilsQNX::isFileExistInternal(const std::string &filename) const {
+bool FileUtilsQNX::isFileExistInternal(const ccstd::string &filename) const {
     if (filename.empty()) {
         return false;
     }
 
-    std::string strPath = filename;
+    ccstd::string strPath = filename;
     if (!isAbsolutePath(strPath)) { // Not absolute path, add the default root path at the beginning.
         strPath.insert(0, _defaultResRootPath);
     }
@@ -112,7 +109,7 @@ bool FileUtilsQNX::isFileExistInternal(const std::string &filename) const {
     return (stat(strPath.c_str(), &sts) == 0) && S_ISREG(sts.st_mode);
 }
 
-std::string FileUtilsQNX::getWritablePath() const {
+ccstd::string FileUtilsQNX::getWritablePath() const {
     struct stat st;
     stat(_writablePath.c_str(), &st);
     if (!S_ISDIR(st.st_mode)) {

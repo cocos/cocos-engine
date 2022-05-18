@@ -28,8 +28,9 @@
 #include "GFXBuffer.h"
 #include "GFXInputAssembler.h"
 #include "GFXObject.h"
-#include "base/Utils.h"
 #include "base/RefCounted.h"
+#include "base/Utils.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 namespace gfx {
@@ -42,32 +43,32 @@ public:
     void initialize(const CommandBufferInfo &info);
     void destroy();
 
-    virtual void begin(RenderPass *renderPass, uint32_t subpass, Framebuffer *frameBuffer)                                                                                                                            = 0;
-    virtual void end()                                                                                                                                                                                                = 0;
+    virtual void begin(RenderPass *renderPass, uint32_t subpass, Framebuffer *frameBuffer) = 0;
+    virtual void end() = 0;
     virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint32_t stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) = 0;
-    virtual void endRenderPass()                                                                                                                                                                                      = 0;
-    virtual void bindPipelineState(PipelineState *pso)                                                                                                                                                                = 0;
-    virtual void bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, uint32_t dynamicOffsetCount, const uint32_t *dynamicOffsets)                                                                           = 0;
-    virtual void bindInputAssembler(InputAssembler *ia)                                                                                                                                                               = 0;
-    virtual void setViewport(const Viewport &vp)                                                                                                                                                                      = 0;
-    virtual void setScissor(const Rect &rect)                                                                                                                                                                         = 0;
-    virtual void setLineWidth(float width)                                                                                                                                                                            = 0;
-    virtual void setDepthBias(float constant, float clamp, float slope)                                                                                                                                               = 0;
-    virtual void setBlendConstants(const Color &constants)                                                                                                                                                            = 0;
-    virtual void setDepthBound(float minBounds, float maxBounds)                                                                                                                                                      = 0;
-    virtual void setStencilWriteMask(StencilFace face, uint32_t mask)                                                                                                                                                 = 0;
-    virtual void setStencilCompareMask(StencilFace face, uint32_t ref, uint32_t mask)                                                                                                                                 = 0;
-    virtual void nextSubpass()                                                                                                                                                                                        = 0;
-    virtual void draw(const DrawInfo &info)                                                                                                                                                                           = 0;
-    virtual void updateBuffer(Buffer *buff, const void *data, uint32_t size)                                                                                                                                          = 0;
-    virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count)                                                                              = 0;
-    virtual void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter)                                                                                     = 0;
-    virtual void execute(CommandBuffer *const *cmdBuffs, uint32_t count)                                                                                                                                              = 0;
-    virtual void dispatch(const DispatchInfo &info)                                                                                                                                                                   = 0;
-    virtual void pipelineBarrier(const GeneralBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount)                                            = 0;
-    virtual void beginQuery(QueryPool *queryPool, uint32_t id)                                                                                                                                                        = 0;
-    virtual void endQuery(QueryPool *queryPool, uint32_t id)                                                                                                                                                          = 0;
-    virtual void resetQueryPool(QueryPool *queryPool)                                                                                                                                                                 = 0;
+    virtual void endRenderPass() = 0;
+    virtual void bindPipelineState(PipelineState *pso) = 0;
+    virtual void bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, uint32_t dynamicOffsetCount, const uint32_t *dynamicOffsets) = 0;
+    virtual void bindInputAssembler(InputAssembler *ia) = 0;
+    virtual void setViewport(const Viewport &vp) = 0;
+    virtual void setScissor(const Rect &rect) = 0;
+    virtual void setLineWidth(float width) = 0;
+    virtual void setDepthBias(float constant, float clamp, float slope) = 0;
+    virtual void setBlendConstants(const Color &constants) = 0;
+    virtual void setDepthBound(float minBounds, float maxBounds) = 0;
+    virtual void setStencilWriteMask(StencilFace face, uint32_t mask) = 0;
+    virtual void setStencilCompareMask(StencilFace face, uint32_t ref, uint32_t mask) = 0;
+    virtual void nextSubpass() = 0;
+    virtual void draw(const DrawInfo &info) = 0;
+    virtual void updateBuffer(Buffer *buff, const void *data, uint32_t size) = 0;
+    virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) = 0;
+    virtual void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) = 0;
+    virtual void execute(CommandBuffer *const *cmdBuffs, uint32_t count) = 0;
+    virtual void dispatch(const DispatchInfo &info) = 0;
+    virtual void pipelineBarrier(const GeneralBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) = 0;
+    virtual void beginQuery(QueryPool *queryPool, uint32_t id) = 0;
+    virtual void endQuery(QueryPool *queryPool, uint32_t id) = 0;
+    virtual void resetQueryPool(QueryPool *queryPool) = 0;
     virtual void completeQueryPool(QueryPool *queryPool) {}
 
     inline void begin();
@@ -79,7 +80,7 @@ public:
     inline void execute(const CommandBufferList &cmdBuffs, uint32_t count);
 
     inline void bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet);
-    inline void bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, const vector<uint32_t> &dynamicOffsets);
+    inline void bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, const ccstd::vector<uint32_t> &dynamicOffsets);
 
     inline void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, uint32_t stencil, const CommandBufferList &secondaryCBs);
     inline void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, uint32_t stencil);
@@ -93,7 +94,7 @@ public:
     inline void pipelineBarrier(const GeneralBarrier *barrier);
     inline void pipelineBarrier(const GeneralBarrier *barrier, const TextureBarrierList &textureBarriers, const TextureList &textures);
 
-    inline Queue *           getQueue() const { return _queue; }
+    inline Queue *getQueue() const { return _queue; }
     inline CommandBufferType getType() const { return _type; }
 
     virtual uint32_t getNumDrawCalls() const { return _numDrawCalls; }
@@ -102,10 +103,10 @@ public:
 
 protected:
     virtual void doInit(const CommandBufferInfo &info) = 0;
-    virtual void doDestroy()                           = 0;
+    virtual void doDestroy() = 0;
 
-    Queue *           _queue = nullptr;
-    CommandBufferType _type  = CommandBufferType::PRIMARY;
+    Queue *_queue = nullptr;
+    CommandBufferType _type = CommandBufferType::PRIMARY;
 
     uint32_t _numDrawCalls = 0;
     uint32_t _numInstances = 0;
@@ -138,7 +139,7 @@ void CommandBuffer::bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet
     bindDescriptorSet(set, descriptorSet, 0, nullptr);
 }
 
-void CommandBuffer::bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, const vector<uint32_t> &dynamicOffsets) {
+void CommandBuffer::bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, const ccstd::vector<uint32_t> &dynamicOffsets) {
     bindDescriptorSet(set, descriptorSet, utils::toUint(dynamicOffsets.size()), dynamicOffsets.data());
 }
 

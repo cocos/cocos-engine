@@ -24,18 +24,19 @@
  ****************************************************************************/
 
 #include "scene/Camera.h"
-#include <vector>
 #include "core/Root.h"
-#include "core/scene-graph/Node.h"
 #include "core/platform/Debug.h"
+#include "core/scene-graph/Node.h"
 #include "math/MathUtil.h"
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/pipeline/Define.h"
+#include "renderer/pipeline/GeometryRenderer.h"
+
 namespace cc {
 namespace scene {
 
 namespace {
-std::array<Mat4, 4> correctionMatrices;
+ccstd::array<Mat4, 4> correctionMatrices;
 
 void assignMat4(Mat4 &mat4, float m0, float m1, float m2, float m3, float m4, float m5) {
     mat4.m[0] = m0;
@@ -46,7 +47,7 @@ void assignMat4(Mat4 &mat4, float m0, float m1, float m2, float m3, float m4, fl
     mat4.m[5] = m5;
 }
 
-constexpr std::array<std::array<float, 4>, 4> PRE_TRANSFORMS = {{
+constexpr ccstd::array<ccstd::array<float, 4>, 4> PRE_TRANSFORMS = {{
     {{1, 0, 0, 1}},   // SurfaceTransform.IDENTITY
     {{0, 1, -1, 0}},  // SurfaceTransform.ROTATE_90
     {{-1, 0, 0, -1}}, // SurfaceTransform.ROTATE_180
@@ -55,21 +56,24 @@ constexpr std::array<std::array<float, 4>, 4> PRE_TRANSFORMS = {{
 
 } // namespace
 
-const std::vector<float> Camera::FSTOPS{1.8F, 2.0F, 2.2F, 2.5F, 2.8F, 3.2F, 3.5F, 4.0F, 4.5F, 5.0F, 5.6F, 6.3F, 7.1F, 8.0F, 9.0F, 10.0F, 11.0F, 13.0F, 14.0F, 16.0F, 18.0F, 20.0F, 22.0F};
-const std::vector<float> Camera::SHUTTERS{1.0F, 1.0F / 2.0F, 1.0F / 4.0F, 1.0F / 8.0F, 1.0F / 15.0F, 1.0F / 30.0F, 1.0F / 60.0F, 1.0F / 125.0F,
-                                          1.0F / 250.0F, 1.0F / 500.0F, 1.0F / 1000.0F, 1.0F / 2000.0F, 1.0F / 4000.0F};
-const std::vector<float> Camera::ISOS{100.0F, 200.0F, 400.0F, 800.0F};
+const ccstd::vector<float> Camera::FSTOPS{1.8F, 2.0F, 2.2F, 2.5F, 2.8F, 3.2F, 3.5F, 4.0F, 4.5F, 5.0F, 5.6F, 6.3F, 7.1F, 8.0F, 9.0F, 10.0F, 11.0F, 13.0F, 14.0F, 16.0F, 18.0F, 20.0F, 22.0F};
+const ccstd::vector<float> Camera::SHUTTERS{1.0F, 1.0F / 2.0F, 1.0F / 4.0F, 1.0F / 8.0F, 1.0F / 15.0F, 1.0F / 30.0F, 1.0F / 60.0F, 1.0F / 125.0F,
+                                            1.0F / 250.0F, 1.0F / 500.0F, 1.0F / 1000.0F, 1.0F / 2000.0F, 1.0F / 4000.0F};
+const ccstd::vector<float> Camera::ISOS{100.0F, 200.0F, 400.0F, 800.0F};
 
 Camera::Camera(gfx::Device *device)
 : _device(device) {
     _apertureValue = Camera::FSTOPS.at(static_cast<int>(_aperture));
-    _shutterValue  = Camera::SHUTTERS.at(static_cast<int>(_shutter));
-    _isoValue      = Camera::ISOS[static_cast<int>(_iso)];
+    _shutterValue = Camera::SHUTTERS.at(static_cast<int>(_shutter));
+    _isoValue = Camera::ISOS[static_cast<int>(_iso)];
 
     _aspect = _screenScale = 1.F;
-    _frustum               = new geometry::Frustum();
+    _frustum = ccnew geometry::Frustum();
     _frustum->addRef();
     _frustum->setAccurate(true);
+
+    _geometryRenderer = ccnew pipeline::GeometryRenderer();
+    _geometryRenderer->activate(device);
 
     if (correctionMatrices.empty()) {
         float ySign = _device->getCapabilities().clipSpaceSignY;
@@ -80,20 +84,16 @@ Camera::Camera(gfx::Device *device)
     }
 }
 
-Camera::~Camera() {
-    _frustum->release();
-}
-
 bool Camera::initialize(const ICameraInfo &info) {
-    _node       = info.node;
-    _width      = 1.F;
-    _height     = 1.F;
-    _clearFlag  = gfx::ClearFlagBit::NONE;
+    _node = info.node;
+    _width = 1.F;
+    _height = 1.F;
+    _clearFlag = gfx::ClearFlagBit::NONE;
     _clearDepth = 1.0F;
     _visibility = pipeline::CAMERA_DEFAULT_MASK;
-    _name       = info.name;
-    _proj       = info.projection;
-    _priority   = info.priority;
+    _name = info.name;
+    _proj = info.projection;
+    _priority = info.priority;
     _aspect = _screenScale = 1.F;
     updateExposure();
     changeTargetWindow(info.window);
@@ -106,16 +106,18 @@ void Camera::destroy() {
         _window = nullptr;
     }
     _name.clear();
+    CC_SAFE_DESTROY_NULL(_geometryRenderer);
+    CC_SAFE_RELEASE_NULL(_frustum);
 }
 
 void Camera::attachToScene(RenderScene *scene) {
     _enabled = true;
-    _scene   = scene;
+    _scene = scene;
 }
 
 void Camera::detachFromScene() {
     _enabled = false;
-    _scene   = nullptr;
+    _scene = nullptr;
 }
 
 void Camera::resize(uint32_t width, uint32_t height) {
@@ -123,13 +125,13 @@ void Camera::resize(uint32_t width, uint32_t height) {
         return;
     }
 
-    _width  = width;
+    _width = width;
     _height = height;
     updateAspect();
 }
 
 void Camera::setFixedSize(uint32_t width, uint32_t height) {
-    _width  = width;
+    _width = width;
     _height = height;
     updateAspect(false);
     _isWindowSize = false;
@@ -137,12 +139,12 @@ void Camera::setFixedSize(uint32_t width, uint32_t height) {
 
 // Editor specific gizmo camera logic
 void Camera::syncCameraEditor(const Camera &camera) {
-#ifdef CC_EDITOR
-    this->_position    = camera._position;
-    this->_forward     = camera._forward;
-    this->_matView     = camera._matView;
-    this->_matProj     = camera._matProj;
-    this->_matProjInv  = camera._matProjInv;
+#if CC_EDITOR
+    this->_position = camera._position;
+    this->_forward = camera._forward;
+    this->_matView = camera._matView;
+    this->_matProj = camera._matProj;
+    this->_matProjInv = camera._matProjInv;
     this->_matViewProj = camera._matViewProj;
 #endif
 }
@@ -163,11 +165,11 @@ void Camera::update(bool forceUpdate /*false*/) {
     }
 
     // projection matrix
-    auto *      swapchain   = _window->getSwapchain();
+    auto *swapchain = _window->getSwapchain();
     const auto &orientation = swapchain ? swapchain->getSurfaceTransform() : gfx::SurfaceTransform::IDENTITY;
 
     if (_isProjDirty || _curTransform != orientation) {
-        _curTransform               = orientation;
+        _curTransform = orientation;
         const float projectionSignY = _device->getCapabilities().clipSpaceSignY;
         // Only for rendertexture processing
         if (_proj == CameraProjection::PERSPECTIVE) {
@@ -180,9 +182,9 @@ void Camera::update(bool forceUpdate /*false*/) {
                                               _device->getCapabilities().clipSpaceMinZ, projectionSignY,
                                               static_cast<int>(orientation), &_matProj);
         }
-        _matProjInv   = _matProj.getInversed();
+        _matProjInv = _matProj.getInversed();
         viewProjDirty = true;
-        _isProjDirty  = false;
+        _isProjDirty = false;
     }
 
     // view-projection
@@ -202,7 +204,7 @@ void Camera::changeTargetWindow(RenderWindow *window) {
         _window = win;
 
         // window size is pre-rotated
-        auto *     swapchain   = win->getSwapchain();
+        auto *swapchain = win->getSwapchain();
         const auto orientation = swapchain ? swapchain->getSurfaceTransform() : gfx::SurfaceTransform::IDENTITY;
         if (static_cast<int32_t>(orientation) % 2) {
             resize(win->getHeight(), win->getWidth());
@@ -220,13 +222,13 @@ void Camera::detachCamera() {
 
 geometry::Ray Camera::screenPointToRay(float x, float y) {
     CC_ASSERT(_node != nullptr);
-    const float                 cx           = _orientedViewport.x * static_cast<float>(_width);
-    const float                 cy           = _orientedViewport.y * static_cast<float>(_height);
-    const float                 cw           = _orientedViewport.z * static_cast<float>(_width);
-    const float                 ch           = _orientedViewport.w * static_cast<float>(_height);
-    const bool                  isProj       = _proj == CameraProjection::PERSPECTIVE;
-    const float                 ySign        = _device->getCapabilities().clipSpaceSignY;
-    const std::array<float, 4> &preTransform = PRE_TRANSFORMS[static_cast<int>(_curTransform)];
+    const float cx = _orientedViewport.x * static_cast<float>(_width);
+    const float cy = _orientedViewport.y * static_cast<float>(_height);
+    const float cw = _orientedViewport.z * static_cast<float>(_width);
+    const float ch = _orientedViewport.w * static_cast<float>(_height);
+    const bool isProj = _proj == CameraProjection::PERSPECTIVE;
+    const float ySign = _device->getCapabilities().clipSpaceSignY;
+    const ccstd::array<float, 4> &preTransform = PRE_TRANSFORMS[static_cast<int>(_curTransform)];
 
     Vec3 tmpVec3{
         (x - cx) / cw * 2 - 1.F,
@@ -254,13 +256,13 @@ geometry::Ray Camera::screenPointToRay(float x, float y) {
 }
 
 Vec3 Camera::screenToWorld(const Vec3 &screenPos) {
-    const float                 cx           = _orientedViewport.x * static_cast<float>(_width);
-    const float                 cy           = _orientedViewport.y * static_cast<float>(_height);
-    const float                 cw           = _orientedViewport.z * static_cast<float>(_width);
-    const float                 ch           = _orientedViewport.w * static_cast<float>(_height);
-    const float                 ySign        = _device->getCapabilities().clipSpaceSignY;
-    const std::array<float, 4> &preTransform = PRE_TRANSFORMS[static_cast<int>(_curTransform)];
-    Vec3                        out;
+    const float cx = _orientedViewport.x * static_cast<float>(_width);
+    const float cy = _orientedViewport.y * static_cast<float>(_height);
+    const float cw = _orientedViewport.z * static_cast<float>(_width);
+    const float ch = _orientedViewport.w * static_cast<float>(_height);
+    const float ySign = _device->getCapabilities().clipSpaceSignY;
+    const ccstd::array<float, 4> &preTransform = PRE_TRANSFORMS[static_cast<int>(_curTransform)];
+    Vec3 out;
 
     if (_proj == CameraProjection::PERSPECTIVE) {
         // calculate screen pos in far clip plane
@@ -297,9 +299,9 @@ Vec3 Camera::screenToWorld(const Vec3 &screenPos) {
 }
 
 Vec3 Camera::worldToScreen(const Vec3 &worldPos) {
-    const float                 ySign        = _device->getCapabilities().clipSpaceSignY;
-    const std::array<float, 4> &preTransform = PRE_TRANSFORMS[static_cast<int>(_curTransform)];
-    Vec3                        out;
+    const float ySign = _device->getCapabilities().clipSpaceSignY;
+    const ccstd::array<float, 4> &preTransform = PRE_TRANSFORMS[static_cast<int>(_curTransform)];
+    Vec3 out;
     Vec3::transformMat4(worldPos, _matViewProj, &out);
 
     out.x = out.x * preTransform[0] + out.y * preTransform[2] * ySign;
@@ -322,9 +324,9 @@ Mat4 Camera::worldMatrixToScreen(const Mat4 &worldMatrix, uint32_t width, uint32
     Mat4::multiply(_matViewProj, worldMatrix, &out);
     Mat4::multiply(correctionMatrices[static_cast<int>(_curTransform)], out, &out);
 
-    const float halfWidth  = static_cast<float>(width) / 2;
+    const float halfWidth = static_cast<float>(width) / 2;
     const float halfHeight = static_cast<float>(height) / 2;
-    Mat4        tmpMat4(Mat4::IDENTITY);
+    Mat4 tmpMat4(Mat4::IDENTITY);
     tmpMat4.translate(halfWidth, halfHeight, 0);
     tmpMat4.scale(halfWidth, halfHeight, 1);
 
@@ -348,7 +350,7 @@ void Camera::updateAspect(bool oriented) {
     _aspect = (static_cast<float>(getWindow()->getWidth()) * _viewport.z) / (static_cast<float>(getWindow()->getHeight()) * _viewport.w);
     // window size/viewport is pre-rotated, but aspect should be oriented to acquire the correct projection
     if (oriented) {
-        auto *     swapchain   = getWindow()->getSwapchain();
+        auto *swapchain = getWindow()->getSwapchain();
         const auto orientation = swapchain ? swapchain->getSurfaceTransform() : gfx::SurfaceTransform::IDENTITY;
         if (static_cast<int32_t>(orientation) % 2) _aspect = 1 / _aspect;
     }
@@ -361,13 +363,13 @@ void Camera::setViewport(const Vec4 &val) {
 }
 
 void Camera::setViewportInOrientedSpace(const Vec4 &val) {
-    const float x      = val.x;
-    const float width  = val.z;
+    const float x = val.x;
+    const float width = val.z;
     const float height = val.w;
 
     const float y = _device->getCapabilities().screenSpaceSignY < 0 ? 1 - val.y - height : val.y;
 
-    auto *     swapchain   = getWindow()->getSwapchain();
+    auto *swapchain = getWindow()->getSwapchain();
     const auto orientation = swapchain ? swapchain->getSurfaceTransform() : gfx::SurfaceTransform::IDENTITY;
     switch (orientation) {
         case gfx::SurfaceTransform::ROTATE_90:

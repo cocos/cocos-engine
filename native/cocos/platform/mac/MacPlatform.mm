@@ -25,16 +25,24 @@
 
 #include "platform/mac/MacPlatform.h"
 #include "platform/interfaces/OSInterface.h"
-#include "platform/interfaces/modules/ISystemWindow.h"
 #include "platform/mac/AppDelegate.h"
 
+#include "modules/Accelerometer.h"
+#include "modules/Battery.h"
+#include "modules/Network.h"
+#include "modules/Screen.h"
+#include "modules/System.h"
+#include "modules/SystemWindow.h"
+#include "modules/Vibrator.h"
+
 #import <AppKit/AppKit.h>
-extern int cocos_main(int argc, const char** argv);
+
+extern int cocos_main(int argc, const char **argv);
 
 @interface MyTimer : NSObject {
     cc::MacPlatform *_platform;
-    NSTimer *        _timer;
-    int              _fps;
+    NSTimer *_timer;
+    int _fps;
 }
 - (instancetype)initWithApp:(cc::MacPlatform *)platform fps:(int)fps;
 - (void)start;
@@ -99,7 +107,14 @@ MacPlatform::~MacPlatform() {
 
 int32_t MacPlatform::init() {
     _timer = [[MyTimer alloc] initWithApp:this fps:60];
-    return UniversalPlatform::init();
+    registerInterface(std::make_shared<Accelerometer>());
+    registerInterface(std::make_shared<Battery>());
+    registerInterface(std::make_shared<Network>());
+    registerInterface(std::make_shared<Screen>());
+    registerInterface(std::make_shared<System>());
+    registerInterface(std::make_shared<SystemWindow>());
+    registerInterface(std::make_shared<Vibrator>());
+    return 0;
 }
 
 int32_t MacPlatform::loop(void) {
@@ -107,7 +122,7 @@ int32_t MacPlatform::loop(void) {
     return cocos_main(0, nullptr);
 }
 
-int32_t MacPlatform::run(int argc, const char** argv) {
+int32_t MacPlatform::run(int argc, const char **argv) {
     id delegate = [[AppDelegate alloc] init];
     NSApplication.sharedApplication.delegate = delegate;
     return NSApplicationMain(argc, argv);
@@ -123,7 +138,7 @@ int32_t MacPlatform::getFps() const {
 
 void MacPlatform::onPause() {
     [_timer pause];
-    
+
     cc::WindowEvent ev;
     ev.type = cc::WindowEvent::Type::HIDDEN;
     dispatchEvent(ev);
@@ -131,7 +146,7 @@ void MacPlatform::onPause() {
 
 void MacPlatform::onResume() {
     [_timer resume];
-    
+
     cc::WindowEvent ev;
     ev.type = cc::WindowEvent::Type::SHOW;
     dispatchEvent(ev);

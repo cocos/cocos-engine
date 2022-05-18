@@ -50,10 +50,6 @@ namespace se {
 class Class;
 class ScriptEngine;
 
-namespace internal {
-struct PrivateData;
-}
-
 /**
      * se::Object represents JavaScript Object.
      */
@@ -131,9 +127,8 @@ public:
          */
     static Object *createArrayBufferObject(const void *data, size_t byteLength);
 
-    using BufferContentsFreeFunc = void (*)(void* contents, size_t byteLength, void* userData);
-    static Object *createExternalArrayBufferObject(void* contents, size_t byteLength, BufferContentsFreeFunc freeFunc, void* freeUserData = nullptr);
-
+    using BufferContentsFreeFunc = void (*)(void *contents, size_t byteLength, void *userData);
+    static Object *createExternalArrayBufferObject(void *contents, size_t byteLength, BufferContentsFreeFunc freeFunc, void *freeUserData = nullptr);
 
     /**
          *  @brief Creates a JavaScript Object from a JSON formatted string.
@@ -141,7 +136,7 @@ public:
          *  @return A JavaScript Object containing the parsed value, or nullptr if the input is invalid.
          *  @note The return value (non-null) has to be released manually.
          */
-    static Object *createJSONObject(const std::string &jsonStr);
+    static Object *createJSONObject(const ccstd::string &jsonStr);
 
     /**
          *  @brief Creates a JavaScript Native Binding Object from an existing se::Class instance.
@@ -171,7 +166,7 @@ public:
 
     bool getProperty(const char *name, Value *data, bool cachePropertyName);
 
-    inline bool getProperty(const std::string &name, Value *value) {
+    inline bool getProperty(const ccstd::string &name, Value *value) {
         return getProperty(name.c_str(), value);
     }
 
@@ -183,7 +178,7 @@ public:
          */
     bool setProperty(const char *name, const Value &data);
 
-    inline bool setProperty(const std::string &name, const Value &value) {
+    inline bool setProperty(const ccstd::string &name, const Value &value) {
         return setProperty(name.c_str(), value);
     }
 
@@ -295,9 +290,9 @@ public:
          *  @param[out] allKeys A string vector to store all property names.
          *  @return true if succeed, otherwise false.
          */
-    bool getAllKeys(std::vector<std::string> *allKeys) const;
+    bool getAllKeys(ccstd::vector<ccstd::string> *allKeys) const;
 
-    void               setPrivateObject(PrivateObjectBase *data);
+    void setPrivateObject(PrivateObjectBase *data);
     PrivateObjectBase *getPrivateObject() const;
 
     /**
@@ -311,7 +306,7 @@ public:
     /**
      *  @brief Sets a pointer to private data on an object.
      *  @param[in] data A void* to set as the object's private data.
-     *  @note This method will associate private data with se::Object by std::unordered_map::emplace.
+     *  @note This method will associate private data with se::Object by ccstd::unordered_map::emplace.
      *        It's used for search a se::Object via a void* private data.
      */
     template <typename T>
@@ -426,15 +421,15 @@ public:
          *  @brief Returns the string for describing current object.
          *  @return The string for describing current object.
          */
-    std::string toString() const;
+    ccstd::string toString() const;
 
-    std::string toStringExt() const;
+    ccstd::string toStringExt() const;
 
     // Private API used in wrapper
-    static Object *       _createJSObject(Class *cls, v8::Local<v8::Object> obj); // NOLINT(readability-identifier-naming)
-    v8::Local<v8::Object> _getJSObject() const;                                   // NOLINT(readability-identifier-naming)
-    ObjectWrap &          _getWrap();                                             // NOLINT(readability-identifier-naming)
-    Class *               _getClass() const;                                      // NOLINT(readability-identifier-naming)
+    static Object *_createJSObject(Class *cls, v8::Local<v8::Object> obj); // NOLINT(readability-identifier-naming)
+    v8::Local<v8::Object> _getJSObject() const;                            // NOLINT(readability-identifier-naming)
+    ObjectWrap &_getWrap();                                                // NOLINT(readability-identifier-naming)
+    Class *_getClass() const;                                              // NOLINT(readability-identifier-naming)
 
     void _setFinalizeCallback(V8FinalizeFunc finalizeCb); // NOLINT(readability-identifier-naming)
     bool _isNativeFunction() const;                       // NOLINT(readability-identifier-naming)
@@ -455,25 +450,25 @@ private:
 
     bool init(Class *cls, v8::Local<v8::Object> obj);
 
-    Class *     _cls{nullptr};
-    ObjectWrap  _obj;
-    uint32_t    _rootCount{0};
+    Class *_cls{nullptr};
+    ObjectWrap _obj;
+    uint32_t _rootCount{0};
 
-    PrivateObjectBase *    _privateObject{nullptr};
-    V8FinalizeFunc         _finalizeCb{nullptr};
-    internal::PrivateData *_internalData{nullptr};
-    bool                   _clearMappingInFinalizer{true};
+    PrivateObjectBase *_privateObject{nullptr};
+    V8FinalizeFunc _finalizeCb{nullptr};
+
+    bool _clearMappingInFinalizer{true};
 
     #if CC_DEBUG && CC_DEBUG_JS_OBJECT_ID
     uint32_t _objectId = 0;
     #endif
     #if JSB_TRACK_OBJECT_CREATION
-    std::string _objectCreationStackFrame;
+    ccstd::string _objectCreationStackFrame;
     #endif
     friend class ScriptEngine;
 };
 // NOLINTNEXTLINE
-extern std::unique_ptr<std::unordered_map<Object *, void *>> __objectMap; // Currently, the value `void*` is always nullptr
+extern std::unique_ptr<ccstd::unordered_map<Object *, void *>> __objectMap; // Currently, the value `void*` is always nullptr
 
 } // namespace se
 

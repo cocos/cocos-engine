@@ -29,36 +29,49 @@
 #include <sstream>
 #include "base/DeferredReleasePool.h"
 #include "base/Macros.h"
-#include "cocos/bindings/jswrapper/SeApi.h"
-#include "cocos/core/builtin/BuiltinResMgr.h"
-#include "cocos/renderer/GFXDeviceManager.h"
-#include "cocos/renderer/core/ProgramLib.h"
-#include "pipeline/RenderPipeline.h"
+#include "bindings/jswrapper/SeApi.h"
+#include "core/builtin/BuiltinResMgr.h"
+#include "renderer/GFXDeviceManager.h"
+#include "renderer/core/ProgramLib.h"
+#include "renderer/pipeline/RenderPipeline.h"
 #include "platform/BasePlatform.h"
 #include "platform/FileUtils.h"
 
-#if USE_AUDIO
+#if CC_USE_AUDIO
     #include "cocos/audio/include/AudioEngine.h"
 #endif
 
-#if USE_SOCKET
+#if CC_USE_SOCKET
     #include "cocos/network/WebSocket.h"
+#endif
+
+#if CC_USE_DRAGONBONES
+    #include "editor-support/dragonbones-creator-support/ArmatureCacheMgr.h"
+#endif
+
+#if CC_USE_SPINE
+    #include "editor-support/spine-creator-support/SkeletonCacheMgr.h"
 #endif
 
 #include "application/ApplicationManager.h"
 #include "application/BaseApplication.h"
 #include "base/Scheduler.h"
-#include "cocos/network/HttpClient.h"
+#include "network/HttpClient.h"
+#include "core/Root.h"
+#include "core/assets/FreeTypeFont.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
+#include "profiler/DebugRenderer.h"
+#include "profiler/Profiler.h"
+#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 
 namespace {
 
 bool setCanvasCallback(se::Object * /*global*/) {
     se::AutoHandleScope scope;
-    se::ScriptEngine *  se       = se::ScriptEngine::getInstance();
-    auto *              window   = CC_CURRENT_ENGINE()->getInterface<cc::ISystemWindow>();
-    auto                handler  = window->getWindowHandler();
-    auto                viewSize = window->getViewSize();
+    se::ScriptEngine *se = se::ScriptEngine::getInstance();
+    auto *window = CC_CURRENT_ENGINE()->getInterface<cc::ISystemWindow>();
+    auto handler = window->getWindowHandler();
+    auto viewSize = window->getViewSize();
 
     std::stringstream ss;
     {
@@ -83,28 +96,57 @@ namespace cc {
 
 Engine::Engine() {
     _scheduler = std::make_shared<Scheduler>();
-    FileUtils::getInstance()->addSearchPath("Resources", true);
+    _fs = createFileUtils();
+    // May create gfx device in render subsystem in future.
+    _gfxDevice = gfx::DeviceManager::create();
+    _scriptEngine = ccnew se::ScriptEngine();
     EventDispatcher::init();
-    se::ScriptEngine::getInstance();
+
+    _debugRenderer = ccnew DebugRenderer();
+#if CC_USE_PROFILER
+    _profiler = ccnew Profiler();
+#endif
 }
 
 Engine::~Engine() {
-#if USE_AUDIO
+#if CC_USE_AUDIO
     AudioEngine::end();
 #endif
 
-    pipeline::RenderPipeline::getInstance()->destroy();
+#if CC_USE_DRAGONBONES
+    dragonBones::ArmatureCacheMgr::destroyInstance();
+#endif
+
+#if CC_USE_SPINE
+    spine::SkeletonCacheMgr::destroyInstance();
+#endif
 
     EventDispatcher::destroy();
-    se::ScriptEngine::destroyInstance();
+    network::HttpClient::destroyInstance();
+    Root::getInstance()->destroy();
+
+#if CC_USE_PROFILER
+    delete _profiler;
+#endif
+    // Profiler depends on DebugRenderer, should delete it after deleting Profiler.
+    delete _debugRenderer;
+
+    FreeTypeFontFace::destroyFreeType();
+    
+    // Should delete it before deleting DeviceManager as ScriptEngine will check gpu resource usage,
+    // and ScriptEngine will hold gfx objects.
+    delete _scriptEngine;
+
+#if CC_USE_MIDDLEWARE
+    cc::middleware::MiddlewareManager::destroyInstance();
+#endif
     ProgramLib::destroyInstance();
     BuiltinResMgr::destroyInstance();
-    gfx::DeviceManager::destroy();
 
     CCObject::deferredDestroy();
-
-    BasePlatform *platform = BasePlatform::getPlatform();
-    platform->setHandleEventCallback(nullptr);
+    
+    CC_SAFE_DESTROY_AND_DELETE(_gfxDevice);
+    delete _fs;
 }
 
 int32_t Engine::init() {
@@ -117,7 +159,12 @@ int32_t Engine::init() {
     platform->setHandleEventCallback(
         std::bind(&Engine::handleEvent, this, std::placeholders::_1)); // NOLINT(modernize-avoid-bind)
 
-    se::ScriptEngine::getInstance()->addPermanentRegisterCallback(setCanvasCallback);
+    platform->setHandleTouchEventCallback(
+        std::bind(&Engine::handleTouchEvent, this, std::placeholders::_1)); // NOLINT(modernize-avoid-bind)
+
+    se::ScriptEngine::getInstance()->addRegisterCallback(setCanvasCallback);
+    emit(static_cast<int>(ON_START));
+    _inited = true;
     return 0;
 }
 
@@ -143,29 +190,19 @@ int Engine::restart() {
 }
 
 void Engine::close() { // NOLINT
-    if (cc::EventDispatcher::initialized()) {
-        cc::EventDispatcher::dispatchCloseEvent();
-    }
-
-    auto *scriptEngine = se::ScriptEngine::getInstance();
-
-    cc::DeferredReleasePool::clear();
-#if USE_AUDIO
+#if CC_USE_AUDIO
     cc::AudioEngine::stopAll();
 #endif
-    //#if USE_SOCKET
+
+    //#if CC_USE_SOCKET
     //    cc::network::WebSocket::closeAllConnections();
     //#endif
-    cc::network::HttpClient::destroyInstance();
 
+    cc::DeferredReleasePool::clear();
     _scheduler->removeAllFunctionsToBePerformedInCocosThread();
     _scheduler->unscheduleAll();
 
-    scriptEngine->cleanup();
-    cc::EventDispatcher::destroy();
-
-    // exit
-    exit(0);
+    BasePlatform::getPlatform()->setHandleEventCallback(nullptr);
 }
 
 uint Engine::getTotalFrames() const {
@@ -192,59 +229,65 @@ void Engine::removeEventCallback(OSEventType evType) {
         return;
     }
 
-    // For debugging.
-    CCASSERT(false, "Interface does not exist");
+    // For debugging. Interface does not exist.
+    CC_ASSERT(false);
 }
 
 void Engine::tick() {
-    if (_needRestart) {
-        restartVM();
-        _needRestart = false;
-    }
+    CC_PROFILER_BEGIN_FRAME;
+    {
+        CC_PROFILE(EngineTick);
 
-    static std::chrono::steady_clock::time_point prevTime;
-    static std::chrono::steady_clock::time_point now;
-    static float                                 dt   = 0.F;
-    static double                                dtNS = NANOSECONDS_60FPS;
+        if (_needRestart) {
+            restartVM();
+            _needRestart = false;
+        }
 
-    ++_totalFrames;
+        static std::chrono::steady_clock::time_point prevTime;
+        static std::chrono::steady_clock::time_point now;
+        static float dt = 0.F;
+        static double dtNS = NANOSECONDS_60FPS;
 
-    // iOS/macOS use its own fps limitation algorithm.
+        ++_totalFrames;
+
+        // iOS/macOS use its own fps limitation algorithm.
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_OHOS)
-    if (dtNS < static_cast<double>(_prefererredNanosecondsPerFrame)) {
-        std::this_thread::sleep_for(
-            std::chrono::nanoseconds(_prefererredNanosecondsPerFrame - static_cast<int64_t>(dtNS)));
-        dtNS = static_cast<double>(_prefererredNanosecondsPerFrame);
-    }
+        if (dtNS < static_cast<double>(_prefererredNanosecondsPerFrame)) {
+            CC_PROFILE(EngineSleep);
+            std::this_thread::sleep_for(
+                std::chrono::nanoseconds(_prefererredNanosecondsPerFrame - static_cast<int64_t>(dtNS)));
+            dtNS = static_cast<double>(_prefererredNanosecondsPerFrame);
+        }
 #endif
 
-    prevTime = std::chrono::steady_clock::now();
+        prevTime = std::chrono::steady_clock::now();
 
-    _scheduler->update(dt);
+        _scheduler->update(dt);
 
-    se::ScriptEngine::getInstance()->handlePromiseExceptions();
-    cc::EventDispatcher::dispatchTickEvent(dt);
-    se::ScriptEngine::getInstance()->mainLoopUpdate();
+        se::ScriptEngine::getInstance()->handlePromiseExceptions();
+        cc::EventDispatcher::dispatchTickEvent(dt);
+        se::ScriptEngine::getInstance()->mainLoopUpdate();
 
-    cc::DeferredReleasePool::clear();
+        cc::DeferredReleasePool::clear();
 
-    now  = std::chrono::steady_clock::now();
-    dtNS = dtNS * 0.1 + 0.9 * static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(now - prevTime).count());
-    dt   = static_cast<float>(dtNS) / NANOSECONDS_PER_SECOND;
+        now = std::chrono::steady_clock::now();
+        dtNS = dtNS * 0.1 + 0.9 * static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(now - prevTime).count());
+        dt = static_cast<float>(dtNS) / NANOSECONDS_PER_SECOND;
+    }
+
+    CC_PROFILER_END_FRAME;
 }
 
 int32_t Engine::restartVM() {
     cc::EventDispatcher::dispatchRestartVM();
 
-    pipeline::RenderPipeline::getInstance()->destroy();
-
-    auto *scriptEngine = se::ScriptEngine::getInstance();
+    Root::getInstance()->getPipeline()->destroy();
 
     cc::DeferredReleasePool::clear();
-#if USE_AUDIO
+#if CC_USE_AUDIO
     cc::AudioEngine::stopAll();
 #endif
-    //#if USE_SOCKET
+    //#if CC_USE_SOCKET
     //    cc::network::WebSocket::closeAllConnections();
     //#endif
     cc::network::HttpClient::destroyInstance();
@@ -252,12 +295,15 @@ int32_t Engine::restartVM() {
     _scheduler->removeAllFunctionsToBePerformedInCocosThread();
     _scheduler->unscheduleAll();
 
-    scriptEngine->cleanup();
+    _scriptEngine->cleanup();
+    CC_SAFE_DESTROY_AND_DELETE(_gfxDevice);
     cc::EventDispatcher::destroy();
     ProgramLib::destroyInstance();
     BuiltinResMgr::destroyInstance();
     CCObject::deferredDestroy();
 
+    // remove all listening events
+    offAll();
     // start
     cc::EventDispatcher::init();
     CC_CURRENT_APPLICATION()->init();
@@ -267,8 +313,8 @@ int32_t Engine::restartVM() {
 }
 
 bool Engine::handleEvent(const OSEvent &ev) {
-    bool        isHandled = false;
-    OSEventType type      = ev.eventType();
+    bool isHandled = false;
+    OSEventType type = ev.eventType();
     if (type == OSEventType::TOUCH_OSEVENT) {
         cc::EventDispatcher::dispatchTouchEvent(OSEvent::castEvent<TouchEvent>(ev));
         isHandled = true;
@@ -290,6 +336,11 @@ bool Engine::handleEvent(const OSEvent &ev) {
     return isHandled;
 }
 
+bool Engine::handleTouchEvent(const TouchEvent &ev) { // NOLINT(readability-convert-member-functions-to-static)
+    cc::EventDispatcher::dispatchTouchEvent(ev);
+    return true;
+}
+
 Engine::SchedulerPtr Engine::getScheduler() const {
     return _scheduler;
 }
@@ -306,7 +357,11 @@ bool Engine::dispatchWindowEvent(const WindowEvent &ev) {
     bool isHandled = false;
     if (ev.type == WindowEvent::Type::SHOW ||
         ev.type == WindowEvent::Type::RESTORED) {
-        onResume();
+        emit(static_cast<int>(ON_RESUME));
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+        cc::EventDispatcher::dispatchRecreateWindowEvent();
+#endif
+        cc::EventDispatcher::dispatchEnterForegroundEvent();
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::SIZE_CHANGED ||
                ev.type == WindowEvent::Type::RESIZED) {
@@ -314,10 +369,15 @@ bool Engine::dispatchWindowEvent(const WindowEvent &ev) {
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::HIDDEN ||
                ev.type == WindowEvent::Type::MINIMIZED) {
-        onPause();
+        emit(static_cast<int>(ON_PAUSE));
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+        cc::EventDispatcher::dispatchDestroyWindowEvent();
+#endif
+        cc::EventDispatcher::dispatchEnterBackgroundEvent();
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::CLOSE) {
-        onClose();
+        emit(static_cast<int>(ON_CLOSE));
+        cc::EventDispatcher::dispatchCloseEvent();
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::QUIT) {
         // There is no need to process the quit message,
@@ -334,30 +394,6 @@ bool Engine::dispatchEventToApp(OSEventType type, const OSEvent &ev) {
         return true;
     }
     return false;
-}
-
-void Engine::onPause() {
-    AppEvent appEv;
-    appEv.type = AppEvent::Type::PAUSE;
-    dispatchEventToApp(OSEventType::APP_OSEVENT, appEv);
-
-    cc::EventDispatcher::dispatchEnterBackgroundEvent();
-}
-
-void Engine::onResume() {
-    AppEvent appEv;
-    appEv.type = AppEvent::Type::RESUME;
-    dispatchEventToApp(OSEventType::APP_OSEVENT, appEv);
-
-    cc::EventDispatcher::dispatchEnterForegroundEvent();
-}
-
-void Engine::onClose() {
-    AppEvent appEv;
-    appEv.type = AppEvent::Type::CLOSE;
-    dispatchEventToApp(OSEventType::APP_OSEVENT, appEv);
-
-    cc::EventDispatcher::dispatchCloseEvent();
 }
 
 } // namespace cc

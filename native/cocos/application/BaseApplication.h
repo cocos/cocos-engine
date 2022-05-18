@@ -30,7 +30,7 @@
 
 namespace cc {
 
-class BaseApplication {
+class CC_DLL BaseApplication {
 public:
     virtual ~BaseApplication() = default;
     /**
@@ -40,7 +40,7 @@ public:
     /**
      * @brief Application main business logic.
      */
-    virtual int32_t run(int          argc,
+    virtual int32_t run(int argc,
                         const char **argv) = 0;
     /**
      * @brief Pause the application.

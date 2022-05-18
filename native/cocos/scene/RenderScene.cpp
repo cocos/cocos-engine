@@ -30,9 +30,11 @@
 #include "3d/models/BakedSkinningModel.h"
 #include "3d/models/SkinningModel.h"
 #include "base/Log.h"
+#include "core/Root.h"
 #include "core/scene-graph/Node.h"
-#include "renderer/pipeline/RenderPipeline.h"
+#include "profiler/Profiler.h"
 #include "renderer/pipeline/PipelineSceneData.h"
+#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/DrawBatch2D.h"
@@ -48,8 +50,8 @@ RenderScene::RenderScene() = default;
 RenderScene::~RenderScene() = default;
 
 void RenderScene::activate() {
-    const auto *sceneData = pipeline::RenderPipeline::getInstance()->getPipelineSceneData();
-    _octree               = sceneData->getOctree();
+    const auto *sceneData = Root::getInstance()->getPipeline()->getPipelineSceneData();
+    _octree = sceneData->getOctree();
 }
 
 bool RenderScene::initialize(const IRenderSceneInfo &info) {
@@ -62,6 +64,8 @@ void RenderScene::setMainLight(DirectionalLight *dl) {
 }
 
 void RenderScene::update(uint32_t stamp) {
+    CC_PROFILE(RenderSceneUpdate);
+
     if (_mainLight) {
         _mainLight->update();
     }
@@ -75,8 +79,13 @@ void RenderScene::update(uint32_t stamp) {
         if (model->isEnabled()) {
             model->updateTransform(stamp);
             model->updateUBOs(stamp);
+            model->updateOctree();
         }
     }
+
+    CC_PROFILE_OBJECT_UPDATE(Models, _models.size());
+    CC_PROFILE_OBJECT_UPDATE(Cameras, _cameras.size());
+    CC_PROFILE_OBJECT_UPDATE(DrawBatch2D, _batches.size());
 }
 
 void RenderScene::destroy() {
@@ -94,6 +103,7 @@ void RenderScene::addCamera(Camera *camera) {
 void RenderScene::removeCamera(Camera *camera) {
     auto iter = std::find(_cameras.begin(), _cameras.end(), camera);
     if (iter != _cameras.end()) {
+        (*iter)->detachFromScene();
         _cameras.erase(iter);
     }
 }
@@ -101,6 +111,7 @@ void RenderScene::removeCamera(Camera *camera) {
 void RenderScene::removeCameras() {
     for (const auto &camera : _cameras) {
         camera->detachFromScene();
+        camera->destroy();
     }
     _cameras.clear();
 }

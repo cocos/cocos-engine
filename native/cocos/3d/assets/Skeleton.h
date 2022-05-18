@@ -35,18 +35,18 @@ namespace cc {
  */
 class Skeleton final : public Asset {
 public:
-    using Super          = Asset;
-    Skeleton()           = default;
+    using Super = Asset;
+    Skeleton() = default;
     ~Skeleton() override = default;
     /**
      * @en The path of all bones, the length always equals the length of [[bindposes]]
      * @zh 所有关节的路径。该数组的长度始终与 [[bindposes]] 的长度相同。
      */
-    inline const std::vector<std::string> &getJoints() const {
+    inline const ccstd::vector<ccstd::string> &getJoints() const {
         return _joints;
     }
 
-    inline void setJoints(const std::vector<std::string> &value) {
+    inline void setJoints(const ccstd::vector<ccstd::string> &value) {
         _joints = value;
     }
 
@@ -54,11 +54,11 @@ public:
      * @en The bind poses matrix of all bones, the length always equals the length of [[joints]]
      * @zh 所有关节的绑定姿势矩阵。该数组的长度始终与 [[joints]] 的长度相同。
      */
-    const std::vector<Mat4> &getBindposes() const {
+    const ccstd::vector<Mat4> &getBindposes() const {
         return _bindposes;
     }
 
-    void setBindposes(const std::vector<Mat4> &value) {
+    void setBindposes(const ccstd::vector<Mat4> &value) {
         _bindposes = value;
     }
 
@@ -66,14 +66,14 @@ public:
      * @en Gets the inverse bind poses matrix
      * @zh 获取反向绑定姿势矩阵
      */
-    const std::vector<Mat4> &getInverseBindposes();
+    const ccstd::vector<Mat4> &getInverseBindposes();
 
     /**
      * @en Gets the hash of the skeleton asset
      * @zh 获取骨骼资源的哈希值
      */
     uint64_t getHash();
-    void     setHash(uint64_t hash) { _hash = hash; }
+    void setHash(uint64_t hash) { _hash = hash; }
 
     inline double getHashForJS() {
         return static_cast<double>(getHash());
@@ -83,10 +83,10 @@ public:
     bool validate() const override;
 
 private:
-    std::vector<std::string>        _joints;
-    std::vector<Mat4>               _bindposes;
-    cc::optional<std::vector<Mat4>> _invBindposes;
-    uint64_t                        _hash{0};
+    ccstd::vector<ccstd::string> _joints;
+    ccstd::vector<Mat4> _bindposes;
+    cc::optional<ccstd::vector<Mat4>> _invBindposes;
+    uint64_t _hash{0};
 };
 
 } // namespace cc

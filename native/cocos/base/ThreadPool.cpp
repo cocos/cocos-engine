@@ -27,6 +27,7 @@
 #include "base/ThreadPool.h"
 #include <chrono>
 #include <memory>
+#include "base/memory/Memory.h"
 #include "platform/StdC.h"
 
 #ifdef __ANDROID__
@@ -68,7 +69,7 @@ void LegacyThreadPool::destroyDefaultThreadPool() {
 
 LegacyThreadPool *LegacyThreadPool::newCachedThreadPool(int minThreadNum, int maxThreadNum, int shrinkInterval,
                                                         int shrinkStep, int stretchStep) {
-    auto *pool = new (std::nothrow) LegacyThreadPool(minThreadNum, maxThreadNum);
+    auto *pool = ccnew LegacyThreadPool(minThreadNum, maxThreadNum);
     if (pool != nullptr) {
         pool->setFixedSize(false);
         pool->setShrinkInterval(shrinkInterval);
@@ -79,7 +80,7 @@ LegacyThreadPool *LegacyThreadPool::newCachedThreadPool(int minThreadNum, int ma
 }
 
 LegacyThreadPool *LegacyThreadPool::newFixedThreadPool(int threadNum) {
-    auto *pool = new (std::nothrow) LegacyThreadPool(threadNum, threadNum);
+    auto *pool = ccnew LegacyThreadPool(threadNum, threadNum);
     if (pool != nullptr) {
         pool->setFixedSize(true);
     }
@@ -87,7 +88,7 @@ LegacyThreadPool *LegacyThreadPool::newFixedThreadPool(int threadNum) {
 }
 
 LegacyThreadPool *LegacyThreadPool::newSingleThreadPool() {
-    auto *pool = new (std::nothrow) LegacyThreadPool(1, 1);
+    auto *pool = ccnew LegacyThreadPool(1, 1);
     if (pool != nullptr) {
         pool->setFixedSize(true);
     }
@@ -107,7 +108,7 @@ LegacyThreadPool::~LegacyThreadPool() {
 
 // number of idle threads
 int LegacyThreadPool::getIdleThreadNum() const {
-    auto *                      thiz = const_cast<LegacyThreadPool *>(this);
+    auto *thiz = const_cast<LegacyThreadPool *>(this);
     std::lock_guard<std::mutex> lk(thiz->_idleThreadNumMutex);
     return _idleThreadNum;
 }
@@ -130,7 +131,7 @@ void LegacyThreadPool::init() {
             _initedFlags[i] = std::make_shared<std::atomic<bool>>(true);
             ++_initedThreadNum;
         } else {
-            _abortFlags[i]  = std::make_shared<std::atomic<bool>>(true);
+            _abortFlags[i] = std::make_shared<std::atomic<bool>>(true);
             _initedFlags[i] = std::make_shared<std::atomic<bool>>(false);
         }
     }
@@ -141,8 +142,8 @@ bool LegacyThreadPool::tryShrinkPool() {
 
     auto before = std::chrono::high_resolution_clock::now();
 
-    std::vector<int> threadIDsToJoin;
-    int              maxThreadNumToJoin = std::min(_initedThreadNum - _minThreadNum, _shrinkStep);
+    ccstd::vector<int> threadIDsToJoin;
+    int maxThreadNumToJoin = std::min(_initedThreadNum - _minThreadNum, _shrinkStep);
 
     for (int i = 0; i < _maxThreadNum; ++i) {
         if ((int)threadIDsToJoin.size() >= maxThreadNumToJoin) {
@@ -200,7 +201,7 @@ void LegacyThreadPool::stretchPool(int count) {
     }
 
     if (newThreadCount > 0) {
-        auto  after   = std::chrono::high_resolution_clock::now();
+        auto after = std::chrono::high_resolution_clock::now();
         float seconds = TIME_MINUS(after, before);
 
         LOGD("stretch pool from %d to %d, waste %f seconds\n", oldThreadCount, _initedThreadNum,
@@ -209,7 +210,7 @@ void LegacyThreadPool::stretchPool(int count) {
 }
 
 void LegacyThreadPool::pushTask(const std::function<void(int)> &runnable,
-                                TaskType                        type /* = DEFAULT*/) {
+                                TaskType type /* = DEFAULT*/) {
     if (!_isFixedSize) {
         _idleThreadNumMutex.lock();
         int idleNum = _idleThreadNum;
@@ -217,7 +218,7 @@ void LegacyThreadPool::pushTask(const std::function<void(int)> &runnable,
 
         if (idleNum > _minThreadNum) {
             if (_taskQueue.empty()) {
-                auto  now     = std::chrono::high_resolution_clock::now();
+                auto now = std::chrono::high_resolution_clock::now();
                 float seconds = TIME_MINUS(now, _lastShrinkTime);
                 if (seconds > _shrinkInterval) {
                     tryShrinkPool();
@@ -229,12 +230,12 @@ void LegacyThreadPool::pushTask(const std::function<void(int)> &runnable,
         }
     }
 
-    auto callback = new (std::nothrow) std::function<void(int)>([runnable](int tid) {
+    auto callback = ccnew std::function<void(int)>([runnable](int tid) {
         runnable(tid);
     });
 
     Task task;
-    task.type     = type;
+    task.type = type;
     task.callback = callback;
     _taskQueue.push(task);
 
@@ -254,7 +255,7 @@ void LegacyThreadPool::stopAllTasks() {
 void LegacyThreadPool::stopTasksByType(TaskType type) {
     Task task;
 
-    std::vector<Task> notStopTasks;
+    ccstd::vector<Task> notStopTasks;
     notStopTasks.reserve(_taskQueue.size());
 
     while (_taskQueue.pop(task)) {
@@ -339,8 +340,8 @@ void LegacyThreadPool::setThread(int tid) {
         _abortFlags[tid]); // a copy of the shared ptr to the flag
     auto f = [this, tid, abortPtr /* a copy of the shared ptr to the abort */]() {
         std::atomic<bool> &abort = *abortPtr;
-        Task               task;
-        bool               isPop = _taskQueue.pop(task);
+        Task task;
+        bool isPop = _taskQueue.pop(task);
         while (true) {
             while (isPop) { // if there is anything in the queue
                 std::unique_ptr<std::function<void(int)>> func(
@@ -374,7 +375,7 @@ void LegacyThreadPool::setThread(int tid) {
         }
     };
     _threads[tid].reset(
-        new (std::nothrow) std::thread(f)); // compiler may not support std::make_unique()
+        ccnew std::thread(f)); // compiler may not support std::make_unique()
 }
 
 } // namespace cc

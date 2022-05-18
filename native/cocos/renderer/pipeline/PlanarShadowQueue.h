@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #pragma once
-#include "base/CoreStd.h"
 #include "scene/Model.h"
 
 namespace cc {
@@ -50,14 +49,14 @@ public:
 
     void clear();
     void gatherShadowPasses(scene::Camera *camera, gfx::CommandBuffer *cmdBuffer);
-    void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *);
+    void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *, uint32_t subpassID = 0);
     void destroy();
 
 private:
-    RenderPipeline *                  _pipeline       = nullptr;
-    RenderInstancedQueue *            _instancedQueue = nullptr;
-    std::vector<const scene::Model *> _castModels;
-    std::vector<const scene::Model *> _pendingModels;
+    RenderPipeline *_pipeline = nullptr;
+    RenderInstancedQueue *_instancedQueue = nullptr;
+    ccstd::vector<const scene::Model *> _castModels;
+    ccstd::vector<const scene::Model *> _pendingModels;
 };
 } // namespace pipeline
 } // namespace cc
