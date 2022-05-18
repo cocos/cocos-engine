@@ -33,6 +33,7 @@
 #include "base/Macros.h"
 #include "base/Ptr.h"
 #include "boost/container/pmr/global_resource.hpp"
+#include "boost/container/pmr/unsynchronized_pool_resource.hpp"
 #include "boost/utility/string_view_fwd.hpp"
 #include "cocos/base/StringUtil.h"
 #include "cocos/renderer/gfx-base/GFXDescriptorSetLayout.h"
@@ -168,7 +169,7 @@ IntrusivePtr<gfx::DescriptorSetLayout> createDescriptorSetLayout(
 int NativeLayoutGraphBuilder::compile() {
     auto &g = *data;
     // create descriptor sets
-    for (const auto &v : makeRange(vertices(g))) {
+    for (const auto v : makeRange(vertices(g))) {
         auto &ppl = get(LayoutGraphData::Layout, g, v);
         for (auto &levelPair : ppl.descriptorSets) {
             auto &level = levelPair.second;
@@ -184,6 +185,18 @@ int NativeLayoutGraphBuilder::compile() {
 
 std::string NativeLayoutGraphBuilder::print() const {
     std::ostringstream oss;
+    boost::container::pmr::unsynchronized_pool_resource pool(
+        boost::container::pmr::get_default_resource());
+    ccstd::pmr::string space(&pool);
+
+    auto &g = *data;
+    for (const auto v : makeRange(vertices(g))) {
+        if (parent(v, g) != LayoutGraphData::null_vertex()) {
+            continue;
+        }
+        const auto& name = get(LayoutGraphData::Name, g);
+        
+    }
 
     return oss.str();
 }

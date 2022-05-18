@@ -33,7 +33,7 @@ import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, LayoutGraphBu
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { Model, Camera, SKYBOX_FLAG, Light, LightType, ShadowType, DirectionalLight, Shadows } from '../../renderer/scene';
 import { legacyCC } from '../../global-exports';
-import { DescriptorBlock, DescriptorBlockIndex, LayoutGraphData } from './layout-graph';
+import { LayoutGraphData } from './layout-graph';
 import { Executor } from './executor';
 import { WebImplExample } from './web-pipeline-impl';
 import { RenderWindow } from '../../renderer/core/render-window';
@@ -48,6 +48,7 @@ import { Compiler } from './compiler';
 import { PipelineUBO } from './ubos';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Texture2D } from '../../assets/texture-2d';
+import { WebLayoutGraphBuilder } from './web-layout-graph';
 
 export class WebSetter {
     constructor (data: RenderData) {
@@ -311,27 +312,6 @@ export class WebCopyPassBuilder extends CopyPassBuilder {
 function isManaged (residency: ResourceResidency): boolean {
     return residency === ResourceResidency.MANAGED
     || residency === ResourceResidency.MEMORYLESS;
-}
-
-export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
-    public addRenderStage (name: string): number {
-        return 0xFFFFFFFF;
-    }
-    public addRenderPhase (name: string, parentID: number): number {
-        return 0xFFFFFFFF;
-    }
-    public addDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlock): void {
-
-    }
-    public reserveDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlock): void {
-
-    }
-    public compile (): number {
-        return 0;
-    }
-    public print (): string {
-        return '';
-    }
 }
 
 export class WebPipeline extends Pipeline {
