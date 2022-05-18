@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module animation
- */
-
 import {
     ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type, serializable, editable,
 } from 'cc.decorator';
@@ -286,7 +281,7 @@ export class SkeletalAnimation extends Animation {
      * @internal This method only friends to skinned mesh renderer.
      */
     public notifySkinnedMeshRemoved (skinnedMeshRenderer: SkinnedMeshRenderer) {
-        assertIsTrue(skinnedMeshRenderer.associatedAnimation === this);
+        assertIsTrue(skinnedMeshRenderer.associatedAnimation === this || skinnedMeshRenderer.associatedAnimation === null);
         skinnedMeshRenderer.setUseBakedAnimation(false);
         skinnedMeshRenderer.associatedAnimation = null;
         this._users.delete(skinnedMeshRenderer);

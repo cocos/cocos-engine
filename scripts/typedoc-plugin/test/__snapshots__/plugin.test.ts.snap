@@ -330,7 +330,8 @@ Object {
                     "tags": Array [
                       Object {
                         "tag": "deprecated",
-                        "text": "This key is reserved for internal usage.",
+                        "text": "since v3.5.0, this is an engine private interface that will be removed in the future.
+",
                       },
                     ],
                   },

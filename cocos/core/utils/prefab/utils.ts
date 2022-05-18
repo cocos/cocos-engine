@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { EDITOR, SUPPORT_JIT } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
 import type { Node } from '../../scene-graph/node';

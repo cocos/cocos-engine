@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
 import { Attribute, Device } from '../../core/gfx';
 import type { MeshBuffer } from './mesh-buffer';
 import { getComponentPerVertex } from './vertex-format';

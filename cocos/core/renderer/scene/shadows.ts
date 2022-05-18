@@ -124,6 +124,10 @@ export const PCFType = Enum({
 
 const SHADOW_TYPE_NONE = ShadowType.ShadowMap + 1;
 
+/**
+ * @en The global shadow's configuration of the render scene
+ * @zh 渲染场景的全局阴影配置
+ */
 export class Shadows {
     /**
      * @en MAX_FAR. This is shadow camera max far.
@@ -235,6 +239,10 @@ export class Shadows {
         }
     }
 
+    /**
+     * @en The transform matrix of the light source
+     * @zh 光源的变换矩阵
+     */
     public get matLight () {
         return this._matLight;
     }
@@ -260,10 +268,29 @@ export class Shadows {
     public maxReceived = 4;
 
     // local set
+    /**
+     * @internal
+     */
     public firstSetCSM = false;
+    /**
+     * @en The far clip plane of the shadow camera
+     * @zh 阴影相机的远裁剪平面
+     */
     public shadowCameraFar = 0;
+    /**
+     * @en Shadow camera's view matrix
+     * @zh 阴影相机的视图矩阵
+     */
     public matShadowView = new Mat4();
+    /**
+     * @en Shadow camera's projection matrix
+     * @zh 阴影相机的投影矩阵
+     */
     public matShadowProj = new Mat4();
+    /**
+     * @en Shadow camera's view projection matrix
+     * @zh 阴影相机的视图投影矩阵
+     */
     public matShadowViewProj = new Mat4();
 
     protected _enabled = false;
@@ -280,6 +307,9 @@ export class Shadows {
 
     protected declare _nativeObj: NativeShadow | null;
 
+    /**
+     * @internal
+     */
     get native (): NativeShadow {
         return this._nativeObj!;
     }
@@ -290,6 +320,12 @@ export class Shadows {
         }
     }
 
+    /**
+     * @en Get the shader for the planar shadow with macro patches
+     * @zh 通过指定宏获取平面阴影的 Shader 对象
+     * @param patches The macro patches for the shader
+     * @returns The shader for the planar shadow
+     */
     public getPlanarShader (patches: IMacroPatch[] | null): Shader | null {
         if (!this._material) {
             this._material = new Material();
@@ -302,6 +338,12 @@ export class Shadows {
         return this._material.passes[0].getShaderVariant(patches);
     }
 
+    /**
+     * @en Get the shader which support instancing draw for the planar shadow with macro patches
+     * @zh 通过指定宏获取支持实例化渲染的平面阴影的 Shader 对象
+     * @param patches The macro patches for the shader
+     * @returns The shader for the planar shadow
+     */
     public getPlanarInstanceShader (patches: IMacroPatch[] | null): Shader | null {
         if (!this._instancingMaterial) {
             this._instancingMaterial = new Material();

@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module animation
- */
-
 import { JSB } from 'internal:constants';
 import { Mat4, Quat, Vec3 } from '../../core/math';
 import { IAnimInfo, JointAnimationInfo } from './skeletal-animation-utils';

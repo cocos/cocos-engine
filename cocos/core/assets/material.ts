@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module material
- */
-
 import { ccclass, serializable, type } from 'cc.decorator';
 import { Asset } from './asset';
 import { EffectAsset } from './effect-asset';
@@ -48,7 +43,7 @@ const v4_1 = new Vec4();
  * @en The basic infos for material initialization.
  * @zh 用来初始化材质的基本信息。
  */
-interface IMaterialInfo {
+export interface IMaterialInfo {
     /**
      * @en The EffectAsset to use. Must provide if `effectName` is not specified.
      * @zh
@@ -246,8 +241,8 @@ export class Material extends Asset {
     }
 
     /**
-     * @en Callback function after material is loaded in [[Loader]]. Initialize the resources automatically.
-     * @zh 通过 [[Loader]] 加载完成时的回调，将自动初始化材质资源。
+     * @en Callback function after material is loaded in [[CCLoader]]. Initialize the resources automatically.
+     * @zh 通过 [[CCLoader]] 加载完成时的回调，将自动初始化材质资源。
      */
     public onLoaded () {
         this._update();
@@ -271,10 +266,10 @@ export class Material extends Asset {
     /**
      * @en
      * Convenient property setter provided for quick material setup.<br>
-     * [[Pass.setUniform]] should be used instead if you need to do per-frame uniform update.
+     * [[renderer.Pass.setUniform]] should be used instead if you need to do per-frame uniform update.
      * @zh
      * 设置材质 uniform 参数的统一入口。<br>
-     * 注意如果需要每帧更新 uniform，建议使用 [[Pass.setUniform]] 以获得更好的性能。
+     * 注意如果需要每帧更新 uniform，建议使用 [[renderer.Pass.setUniform]] 以获得更好的性能。
      * @param name The target uniform name.
      * @param val The target value.
      * @param passIdx The pass to apply to. Will apply to all passes if not specified.
@@ -308,11 +303,11 @@ export class Material extends Asset {
      * @en
      * Get the specified uniform value for this material.<br>
      * Note that only uniforms set through [[Material.setProperty]] can be acquired here.<br>
-     * For the complete rendering data, use [[Pass.getUniform]] instead.
+     * For the complete rendering data, use [[renderer.Pass.getUniform]] instead.
      * @zh
      * 获取当前材质的指定 uniform 参数的值。<br>
      * 注意只有通过 [[Material.setProperty]] 函数设置的参数才能从此函数取出，<br>
-     * 如需取出完整的渲染数据，请使用 [[Pass.getUniform]]。
+     * 如需取出完整的渲染数据，请使用 [[renderer.Pass.getUniform]]。
      * @param name The property or uniform name.
      * @param passIdx The target pass index. If not specified, return the first found value in all passes.
      */
@@ -486,6 +481,7 @@ export class Material extends Asset {
         this.initialize({
             effectName: 'unlit',
             defines: { USE_COLOR: true },
+            technique: 0,
         });
         this.setProperty('mainColor', new Color('#ff00ff'));
     }

@@ -30,6 +30,12 @@ import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
 import { DescriptorSet } from '../../core/gfx';
 import { IMacroPatch } from '../../core/renderer';
 
+/**
+ * @en
+ * The model that could contain morph target.
+ * @zh
+ * 实时计算动画的蒙皮模型。
+ */
 export class MorphModel extends Model {
     private _morphRenderingInstance: MorphRenderingInstance | null = null;
     private _usedMaterials = new Set<Material>();
@@ -62,6 +68,10 @@ export class MorphModel extends Model {
         return super.setSubModelMaterial(subModelIndex, this._launderMaterial(material));
     }
 
+    public setMorphRendering (morphRendering: MorphRenderingInstance) {
+        this._morphRenderingInstance = morphRendering;
+    }
+
     protected _updateLocalDescriptors (submodelIdx: number, descriptorSet: DescriptorSet) {
         super._updateLocalDescriptors(submodelIdx, descriptorSet);
 
@@ -80,9 +90,5 @@ export class MorphModel extends Model {
         //     this._usedMaterials.add(material);
         //     return material;
         // }
-    }
-
-    public setMorphRendering (morphRendering: MorphRenderingInstance) {
-        this._morphRenderingInstance = morphRendering;
     }
 }

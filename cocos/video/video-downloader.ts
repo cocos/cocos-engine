@@ -23,10 +23,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-/**
- * @packageDocumentation
- * @module asset-manager
- */
 
 import downloader from '../core/asset-manager/downloader';
 import factory from '../core/asset-manager/factory';

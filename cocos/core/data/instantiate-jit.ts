@@ -24,13 +24,11 @@
  THE SOFTWARE.
 */
 
-
-
 // Some helper methods for compile instantiation code
 
 import { TEST } from 'internal:constants';
 import * as js from '../utils/js';
-import { CCClass } from './class';
+import { CCClass, isCCClassOrFastDefined } from './class';
 import { CCObject } from './object';
 import * as Attr from './utils/attribute';
 import { flattenCodeArray } from './utils/compiler';
@@ -425,7 +423,7 @@ class Parser {
     // codeArray - the source code array for this object
     public enumerateObject (codeArray, obj) {
         const klass = obj.constructor;
-        if (legacyCC.Class._isCCClass(klass)) {
+        if (isCCClassOrFastDefined(klass)) {
             this.enumerateCCClass(codeArray, obj, klass);
         } else {
             // primitive javascript object
@@ -460,7 +458,7 @@ class Parser {
 
         let createCode;
         const ctor = obj.constructor;
-        if (legacyCC.Class._isCCClass(ctor)) {
+        if (isCCClassOrFastDefined(ctor)) {
             if (this.parent) {
                 if (this.parent instanceof legacyCC.Component) {
                     if (obj instanceof legacyCC._BaseNode || obj instanceof legacyCC.Component) {

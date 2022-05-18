@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { AttributeName, Device, DescriptorSet } from '../../core/gfx';
 import { Mesh } from './mesh';
 import { StdMorphRendering } from './morph-rendering';

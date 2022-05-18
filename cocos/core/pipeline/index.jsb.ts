@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 declare const nr: any;
 
 import { getPhaseID } from './pass-phase'

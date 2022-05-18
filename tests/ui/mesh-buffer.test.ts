@@ -29,6 +29,13 @@ test('basic', () => {
     expect(meshBuffer.vertexOffset).toBe(4);
     expect(meshBuffer.byteOffset).toBe(Float32Array.BYTES_PER_ELEMENT * 36);
     expect(meshBuffer.indexOffset).toBe(6);
+
+    // test checkCapacity
+    expect(meshBuffer.checkCapacity(110, 0)).toBe(false);
+    expect(meshBuffer.checkCapacity(0, 2048)).toBe(false);
+    expect(meshBuffer.checkCapacity(109, 0)).toBe(true);
+    expect(meshBuffer.checkCapacity(0, 2042)).toBe(true);
+
 });
 
 // test('shrink', () => {

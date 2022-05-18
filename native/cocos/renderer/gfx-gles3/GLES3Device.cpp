@@ -115,7 +115,8 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
 
     String fbfLevelStr = "NONE";
     // PVRVFrame has issues on their support
-#if CC_PLATFORM != CC_PLATFORM_WINDOWS
+#if 0 // CC_PLATFORM != CC_PLATFORM_WINDOWS
+    // TODO: enable fbf in the future, it is not implemented yet in gles3 backend
     if (checkExtension("framebuffer_fetch")) {
         String nonCoherent = "framebuffer_fetch_non";
 
@@ -309,7 +310,7 @@ void GLES3Device::initFormatFeature() {
     _formatFeatures[toNumber(Format::RGB16F)]  = tempFeature;
     _formatFeatures[toNumber(Format::RGBA16F)] = tempFeature;
 
-    tempFeature = FormatFeature::SAMPLED_TEXTURE | FormatFeature::RENDER_TARGET | FormatFeature::STORAGE_TEXTURE | FormatFeature::VERTEX_ATTRIBUTE;
+    tempFeature = FormatFeature::SAMPLED_TEXTURE | FormatFeature::STORAGE_TEXTURE | FormatFeature::VERTEX_ATTRIBUTE;
 
     _formatFeatures[toNumber(Format::R32F)]    = tempFeature;
     _formatFeatures[toNumber(Format::RG32F)]   = tempFeature;
@@ -394,9 +395,12 @@ void GLES3Device::initFormatFeature() {
     }
 
     if (checkExtension("color_buffer_float")) {
+        _formatFeatures[toNumber(Format::R32F)] |= FormatFeature::RENDER_TARGET;
+        _formatFeatures[toNumber(Format::RG32F)] |= FormatFeature::RENDER_TARGET;
+        _formatFeatures[toNumber(Format::RGBA32F)] |= FormatFeature::RENDER_TARGET;
+
         _textureExclusive[toNumber(Format::R32F)]    = false;
         _textureExclusive[toNumber(Format::RG32F)]   = false;
-        _textureExclusive[toNumber(Format::RGB32F)]  = false;
         _textureExclusive[toNumber(Format::RGBA32F)] = false;
     }
     if (checkExtension("color_buffer_half_float")) {

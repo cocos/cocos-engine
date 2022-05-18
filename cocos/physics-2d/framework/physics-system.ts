@@ -1,7 +1,4 @@
-/**
- * @packageDocumentation
- * @module physics2d
- */
+
 
 import { EDITOR, DEBUG } from 'internal:constants';
 import { System, Vec2, director, Director, game, error, IVec2Like, Rect, Eventify, Enum } from '../../core';

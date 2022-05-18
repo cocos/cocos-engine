@@ -22,10 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-/**
- * @packageDocumentation
- * @module asset-manager
- */
+
 import { BUILD, EDITOR, PREVIEW } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import { legacyCC } from '../global-exports';
@@ -116,10 +113,10 @@ export interface IAssetManagerOptions {
 /**
  * @en
  * This module controls asset's behaviors and information, include loading, releasing etc. it is a singleton
- * All member can be accessed with `cc.assetManager`.
+ * All member can be accessed with `assetManager`.
  *
  * @zh
- * 此模块管理资源的行为和信息，包括加载，释放等，这是一个单例，所有成员能够通过 `cc.assetManager` 调用
+ * 此模块管理资源的行为和信息，包括加载，释放等，这是一个单例，所有成员能够通过 `assetManager` 调用
  *
  */
 export class AssetManager {
@@ -155,20 +152,20 @@ export class AssetManager {
 
     /**
      * @en
-     * The collection of bundle which is already loaded, you can remove cache with {{#crossLink "AssetManager/removeBundle:method"}}{{/crossLink}}
+     * The collection of bundle which is already loaded, you can remove cache with [[removeBundle]]
      *
      * @zh
-     * 已加载 bundle 的集合， 你能通过 {{#crossLink "AssetManager/removeBundle:method"}}{{/crossLink}} 来移除缓存
+     * 已加载 bundle 的集合， 你能通过 [[removeBundle]] 来移除缓存
      *
      */
     public bundles: ICache<Bundle> = bundles;
 
     /**
      * @en
-     * The collection of asset which is already loaded, you can remove cache with {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}}
+     * The collection of asset which is already loaded, you can remove cache with [[releaseAsset]]
      *
      * @zh
-     * 已加载资源的集合， 你能通过 {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}} 来移除缓存
+     * 已加载资源的集合， 你能通过 [[releaseAsset]] 来移除缓存
      */
     public assets: ICache<Asset> = assets;
 
@@ -358,9 +355,9 @@ export class AssetManager {
      *
      * @example
      * // ${project}/assets/test1
-     * cc.assetManager.getBundle('test1');
+     * assetManager.getBundle('test1');
      *
-     * cc.assetManager.getBundle('resources');
+     * assetManager.getBundle('resources');
      *
      */
     public getBundle (name: string): Bundle | null {
@@ -370,15 +367,15 @@ export class AssetManager {
     /**
      * @en
      * Remove this bundle. NOTE: The asset within this bundle will not be released automatically,
-     * you can call {{#crossLink "Bundle/releaseAll:method"}}{{/crossLink}} manually before remove it if you need
+     * you can call [[AssetManager.Bundle.releaseAll]] manually before remove it if you need
      *
      * @zh
-     * 移除此包, 注意：这个包内的资源不会自动释放, 如果需要的话你可以在摧毁之前手动调用 {{#crossLink "Bundle/releaseAll:method"}}{{/crossLink}} 进行释放
+     * 移除此包, 注意：这个包内的资源不会自动释放, 如果需要的话你可以在摧毁之前手动调用 [[AssetManager.Bundle.releaseAll]] 进行释放
      *
      * @param bundle - The bundle to be removed
      *
      * @typescript
-     * removeBundle(bundle: cc.AssetManager.Bundle): void
+     * removeBundle(bundle: AssetManager.Bundle): void
      */
     public removeBundle (bundle: Bundle) {
         bundle._destroy();
@@ -420,20 +417,20 @@ export class AssetManager {
      * @param onComplete.data - The loaded content
      *
      * @example
-     * cc.assetManager.loadAny({url: 'http://example.com/a.png'}, (err, img) => cc.log(img));
-     * cc.assetManager.loadAny(['60sVXiTH1D/6Aft4MRt9VC'], (err, assets) => cc.log(assets));
-     * cc.assetManager.loadAny([{ uuid: '0cbZa5Y71CTZAccaIFluuZ'}, {url: 'http://example.com/a.png'}], (err, assets) => cc.log(assets));
-     * cc.assetManager.downloader.register('.asset', (url, options, onComplete) => {
+     * assetManager.loadAny({url: 'http://example.com/a.png'}, (err, img) => log(img));
+     * assetManager.loadAny(['60sVXiTH1D/6Aft4MRt9VC'], (err, assets) => log(assets));
+     * assetManager.loadAny([{ uuid: '0cbZa5Y71CTZAccaIFluuZ'}, {url: 'http://example.com/a.png'}], (err, assets) => log(assets));
+     * assetManager.downloader.register('.asset', (url, options, onComplete) => {
      *      url += '?userName=' + options.userName + "&password=" + options.password;
-     *      cc.assetManager.downloader.downloadFile(url, null, onComplete);
+     *      assetManager.downloader.downloadFile(url, null, onComplete);
      * });
-     * cc.assetManager.parser.register('.asset', (file, options, onComplete) => {
+     * assetManager.parser.register('.asset', (file, options, onComplete) => {
      *      var json = JSON.parse(file);
      *      var skin = json[options.skin];
      *      var model = json[options.model];
      *      onComplete(null, {skin, model});
      * });
-     * cc.assetManager.loadAny({ url: 'http://example.com/my.asset', skin: 'xxx', model: 'xxx', userName: 'xxx', password: 'xxx' });
+     * assetManager.loadAny({ url: 'http://example.com/my.asset', skin: 'xxx', model: 'xxx', userName: 'xxx', password: 'xxx' });
      *
      */
     public loadAny (requests: Request, options: IOptions | null, onProgress: ProgressCallback | null, onComplete: CompleteCallbackWithData | null): void;
@@ -458,13 +455,13 @@ export class AssetManager {
     /**
      * @en
      * General interface used to preload assets with a progression callback and a complete callback.It is highly recommended that you use
-     * more simple API, such as `preloadRes`, `preloadResDir` etc. Everything about preload is just likes `cc.assetManager.loadAny`, the
-     * difference is `cc.assetManager.preloadAny` will only download asset but not parse asset. You need to invoke `cc.assetManager.loadAny(preloadTask)`
+     * more simple API, such as `preloadRes`, `preloadResDir` etc. Everything about preload is just likes `assetManager.loadAny`, the
+     * difference is `assetManager.preloadAny` will only download asset but not parse asset. You need to invoke `assetManager.loadAny(preloadTask)`
      * to finish loading asset
      *
      * @zh
      * 通用预加载资源接口，可传入进度回调以及完成回调，非常建议你使用更简单的 API ，例如 `preloadRes`, `preloadResDir` 等。`preloadAny` 和 `loadAny`
-     * 几乎一样，区别在于 `preloadAny` 只会下载资源，不会去解析资源，你需要调用 `cc.assetManager.loadAny(preloadTask)` 来完成资源加载。
+     * 几乎一样，区别在于 `preloadAny` 只会下载资源，不会去解析资源，你需要调用 `assetManager.loadAny(preloadTask)` 来完成资源加载。
      *
      * @param requests - The request you want to preload
      * @param options - Optional parameters
@@ -477,7 +474,7 @@ export class AssetManager {
      * @param onComplete.items - The preloaded content
      *
      * @example
-     * cc.assetManager.preloadAny('0cbZa5Y71CTZAccaIFluuZ', (err) => cc.assetManager.loadAny('0cbZa5Y71CTZAccaIFluuZ'));
+     * assetManager.preloadAny('0cbZa5Y71CTZAccaIFluuZ', (err) => assetManager.loadAny('0cbZa5Y71CTZAccaIFluuZ'));
      *
      */
     public preloadAny (
@@ -517,9 +514,9 @@ export class AssetManager {
      * @param onComplete.asset - The loaded texture
      *
      * @example
-     * cc.assetManager.loadRemote('http://www.cloud.com/test1.jpg', (err, texture) => console.log(err));
-     * cc.assetManager.loadRemote('http://www.cloud.com/test2.mp3', (err, audioClip) => console.log(err));
-     * cc.assetManager.loadRemote('http://www.cloud.com/test3', { ext: '.png' }, (err, texture) => console.log(err));
+     * assetManager.loadRemote('http://www.cloud.com/test1.jpg', (err, texture) => console.log(err));
+     * assetManager.loadRemote('http://www.cloud.com/test2.mp3', (err, audioClip) => console.log(err));
+     * assetManager.loadRemote('http://www.cloud.com/test3', { ext: '.png' }, (err, texture) => console.log(err));
      *
      */
     public loadRemote<T extends Asset> (url: string, options: IRemoteOptions | null, onComplete?: CompleteCallbackWithData<T> | null): void;
@@ -608,7 +605,7 @@ export class AssetManager {
      *
      * @example
      * // release a texture which is no longer need
-     * cc.assetManager.releaseAsset(texture);
+     * assetManager.releaseAsset(texture);
      *
      */
     public releaseAsset (asset: Asset): void {
@@ -617,10 +614,10 @@ export class AssetManager {
 
     /**
      * @en
-     * Release all unused assets. Refer to {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}} for detailed information.
+     * Release all unused assets. Refer to [[releaseAsset]] for detailed information.
      *
      * @zh
-     * 释放所有没有用到的资源。详细信息请参考 {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}}
+     * 释放所有没有用到的资源。详细信息请参考 [[releaseAsset]]
      *
      * @engineInternal
      *
@@ -633,10 +630,10 @@ export class AssetManager {
 
     /**
      * @en
-     * Release all assets. Refer to {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}} for detailed information.
+     * Release all assets. Refer to [[releaseAsset]] for detailed information.
      *
      * @zh
-     * 释放所有资源。详细信息请参考 {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}}
+     * 释放所有资源。详细信息请参考 [[releaseAsset]]
      *
      */
     public releaseAll () {

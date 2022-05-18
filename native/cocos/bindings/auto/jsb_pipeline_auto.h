@@ -305,5 +305,6 @@ bool js_register_cc_pipeline_GeometryRenderer(se::Object* obj);
 bool register_all_pipeline(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::GeometryRenderer);
+SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_empty);
 SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_GeometryRenderer);
 

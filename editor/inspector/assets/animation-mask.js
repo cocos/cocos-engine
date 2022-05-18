@@ -160,7 +160,7 @@ exports.methods = {
     },
 
     updateTree() {
-        const convertData = this.convertData(this.queryData._jointMasks.value);
+        const convertData = this.convertData(this.queryData.joints.value);
         this.flatData = convertData.flatData;
         this.$.tree.tree = convertData.treeData;
     },
@@ -215,7 +215,7 @@ exports.ready = function() {
             timestamp: rawTimestamp,
             type: 'asset',
             assetFilter: {
-                importer: 'fbx',
+                importer: ['fbx', 'gltf'],
             },
             events: {
                 async confirm(uuid) {
@@ -270,7 +270,7 @@ exports.ready = function() {
         $left.$checkbox.addEventListener('click', (event) => {
             const key = $left.data.detail.key;
             const origin = panel.flatData[key].origin;
-            panel.jointEnableChange(key, !origin.value.enabled.value, event.altKey);
+            panel.jointEnableChange(key, !origin.value.enabled.value, !event.altKey);
             panel.dataChange();
             panel.$.tree.render();
         });

@@ -3226,3 +3226,17 @@ Pool.destroy no longer take a function as parameter, Please specify destruct fun
 ### 14200
 
 Can not keep world transform due to the zero scaling of parent node
+
+<!-- Rendering algorithm reserved: 15000 - 16000 -->
+
+### 15000
+
+Can not find corresponding diffuse map for environment lighting, use hemisphere diffuse instead, change environment lighting type to regenerate diffuse map
+
+### 15001
+
+Can not find environment map, disable IBL lighting
+
+### 15002
+
+Diffuse map resource is missing, please change environment lighting type to regenerate resource

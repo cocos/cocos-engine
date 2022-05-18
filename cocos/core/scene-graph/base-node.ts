@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module scene-graph
- */
-
 import { ccclass, editable, serializable } from 'cc.decorator';
 import { DEV, DEBUG, EDITOR } from 'internal:constants';
 import { Component } from '../components/component';
@@ -219,14 +214,24 @@ export class BaseNode extends CCObject implements ISchedulable {
         return this._eventProcessor;
     }
 
+    /**
+     * @internal
+     */
     protected static idGenerator = idGenerator;
 
-    // For walk
+    /**
+     * for walk
+     * @internal
+     */
     protected static _stacks: Array<Array<(BaseNode | null)>> = [[]];
+    /**
+     * @internal
+     */
     protected static _stackId = 0;
 
     /**
      * Call `_updateScene` of specified node.
+     * @internal
      * @param node The node.
      */
     protected static _setScene (node: BaseNode) {
@@ -332,7 +337,10 @@ export class BaseNode extends CCObject implements ISchedulable {
     protected _siblingIndex = 0;
 
     /**
+     * @en
      * record scene's id when set this node as persist node
+     * @zh
+     * 当设置节点为常驻节点时记录场景的 id
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _originalSceneId = '';
@@ -340,6 +348,7 @@ export class BaseNode extends CCObject implements ISchedulable {
     /**
      * Set `_scene` field of this node.
      * The derived `Scene` overrides this method to behavior differently.
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     protected _updateScene () {
         if (this._parent == null) {
@@ -1070,7 +1079,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * 同时您可以将事件派发到父节点或者通过调用 stopPropagation 拦截它。
      * 你也可以注册自定义事件到节点上，并通过 emit 方法触发此类事件，对于这类事件，不会发生捕获冒泡阶段，只会直接派发给注册在该节点上的监听器
      * 你可以通过在 emit 方法调用时在 type 之后传递额外的参数作为事件回调的参数列表
-     * @param type - A string representing the event type to listen for.<br>See {{#crossLink "Node/EventType/POSITION_CHANGED"}}Node Events{{/crossLink}} for all builtin events.
+     * @param type - A string representing the event type to listen for.<br>See [[Node.EventType.POSITION_CHANGED]] for all builtin events.
      * @param callback - The callback that will be invoked when the event is dispatched. The callback is ignored if it is a duplicate (the callbacks are unique).
      * @param target - The target (this object) to invoke the callback, can be null
      * @param useCapture - When set to true, the listener will be triggered at capturing phase which is ahead of the final target emit, otherwise it will be triggered during bubbling phase.
@@ -1403,7 +1412,10 @@ export class BaseNode extends CCObject implements ISchedulable {
     protected _onSiblingIndexChanged? (siblingIndex: number): void;
 
     /**
+     * @en
      * Ensures that this node has already had the specified component(s). If not, this method throws.
+     * @zh
+     * 检查节点已经包含对应的组件，如果没有，则抛出异常
      * @param constructor Constructor of the component.
      * @throws If one or more component of same type have been existed in this node.
      */

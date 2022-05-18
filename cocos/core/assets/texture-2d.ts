@@ -24,11 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
-
 import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, type } from 'cc.decorator';
 import { TextureType, TextureInfo, TextureViewInfo } from '../gfx';
@@ -223,7 +218,7 @@ export class Texture2D extends SimpleTexture {
      * @en If the level 0 mipmap image is a HTML element, then return it, otherwise return null.
      * @zh 若此贴图 0 级 Mipmap 的图像资源的实际源存在并为 HTML 元素则返回它，否则返回 `null`。
      * @returns HTML element or `null`
-     * @deprecated Please use [[image.data]] instead
+     * @deprecated Please use [[ImageAsset.data]] instead
      */
     public getHtmlElementObj () {
         return (this._mipmaps[0] && (this._mipmaps[0].data instanceof HTMLElement)) ? this._mipmaps[0].data : null;

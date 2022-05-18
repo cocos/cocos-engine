@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module 3d/primitive
- */
-
 import { applyDefaultGeometryOptions, IGeometry, IGeometryOptions } from './define';
 
 /**

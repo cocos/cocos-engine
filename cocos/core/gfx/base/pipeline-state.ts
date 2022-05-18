@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module gfx
- */
-
 import { PipelineLayout } from './pipeline-layout';
 import { RenderPass } from './render-pass';
 import { Shader } from './shader';
