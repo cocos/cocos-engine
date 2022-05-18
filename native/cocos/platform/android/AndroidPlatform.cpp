@@ -69,6 +69,8 @@
 //Maximum runtime of game threads while in the background, in seconds
 #define LOW_FREQUENCY_EXPIRED_DURATION_SECONDS 60
 
+#define CC_ENABLE_SUSPEND_GAME_THREAD true
+
 extern int cocos_main(int argc, const char **argv); // NOLINT(readability-identifier-naming)
 
 namespace cc {
@@ -396,10 +398,6 @@ public:
         return _isVisible && _hasWindow;
     }
 
-    bool isLaunched() const {
-        return _launched;
-    }
-
 private:
     AppEventCallback _eventCallback{nullptr};
     AndroidPlatform *_androidPlatform{nullptr};
@@ -519,6 +517,8 @@ int32_t AndroidPlatform::loop() {
             flushTasksOnGameThreadAtForegroundJNI();
         }
         flushTasksOnGameThreadJNI();
+
+#if CC_ENABLE_SUSPEND_GAME_THREAD
         if (_isLowFrequencyLoopEnabled) {
             //Suspend a game thread after it has been running in the background for a specified amount of time
             if (_lowFrequencyTimer.getSeconds() > LOW_FREQUENCY_EXPIRED_DURATION_SECONDS) {
@@ -526,6 +526,7 @@ int32_t AndroidPlatform::loop() {
                 _loopTimeOut = -1;
             }
         }
+#endif
     }
 }
 
