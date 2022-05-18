@@ -145,9 +145,15 @@ static CCMotionDispatcher *__motionDispatcher = nullptr;
 
 namespace cc {
 void Accelerometer::setAccelerometerEnabled(bool isEnabled) {
+#if !defined(CC_TARGET_OS_TVOS)
+    [[CCMotionDispatcher sharedMotionDispatcher] setMotionEnabled:isEnabled];
+#endif
 }
 
 void Accelerometer::setAccelerometerInterval(float interval) {
+#if !defined(CC_TARGET_OS_TVOS)
+    [[CCMotionDispatcher sharedMotionDispatcher] setMotionInterval:interval];
+#endif
 }
 
 const Accelerometer::MotionValue &Accelerometer::getDeviceMotionValue() {
