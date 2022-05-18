@@ -253,7 +253,7 @@ protected:
     gfx::Sampler *_gfxSampler{nullptr};
     gfx::Device *_gfxDevice{nullptr};
 
-    uint32_t _textureHash{0};
+    uint64_t _textureHash{0};
 
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(TextureBase);

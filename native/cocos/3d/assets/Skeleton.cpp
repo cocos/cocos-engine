@@ -56,7 +56,7 @@ uint64_t Skeleton::getHash() {
         ccstd::string str{sstr.str()};
         std::size_t seed = 666;
         boost::hash_range(seed, str.begin(), str.end());
-        _hash = static_cast<uint32_t>(seed);
+        _hash = static_cast<uint64_t>(seed);
     }
     return _hash;
 }

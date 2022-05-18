@@ -118,7 +118,7 @@ uint64_t Pass::getPassHash(Pass *pass) {
     ccstd::string str{res.str()};
     std::size_t seed = 666;
     boost::hash_range(seed, str.begin(), str.end());
-    return static_cast<uint32_t>(seed);
+    return static_cast<uint64_t>(seed);
 }
 
 Pass::Pass() : Pass(Root::getInstance()) {}
