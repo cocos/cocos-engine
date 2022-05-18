@@ -97,6 +97,8 @@ namespace cc {
 Engine::Engine() {
     _scheduler = std::make_shared<Scheduler>();
     _fs = createFileUtils();
+    _programLib = ccnew ProgramLib();
+    _builtinResMgr = ccnew BuiltinResMgr;
     // May create gfx device in render subsystem in future.
     _gfxDevice = gfx::DeviceManager::create();
     _scriptEngine = ccnew se::ScriptEngine();
@@ -140,11 +142,10 @@ Engine::~Engine() {
 #if CC_USE_MIDDLEWARE
     cc::middleware::MiddlewareManager::destroyInstance();
 #endif
-    ProgramLib::destroyInstance();
-    BuiltinResMgr::destroyInstance();
-
-    CCObject::deferredDestroy();
     
+    CCObject::deferredDestroy();
+    delete _builtinResMgr;
+    delete _programLib;
     CC_SAFE_DESTROY_AND_DELETE(_gfxDevice);
     delete _fs;
 }
@@ -298,8 +299,16 @@ int32_t Engine::restartVM() {
     _scriptEngine->cleanup();
     CC_SAFE_DESTROY_AND_DELETE(_gfxDevice);
     cc::EventDispatcher::destroy();
-    ProgramLib::destroyInstance();
-    BuiltinResMgr::destroyInstance();
+    
+    // Should re-create ProgramLib as shaders may change after restart. For example,
+    // program update resources and do restart.
+    delete _programLib;
+    _programLib = ccnew ProgramLib;
+
+    // Should reinitialize builtin resources as _programLib will be re-created.
+    delete _builtinResMgr;
+    _builtinResMgr = ccnew BuiltinResMgr;
+
     CCObject::deferredDestroy();
 
     // remove all listening events
