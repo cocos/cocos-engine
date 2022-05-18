@@ -57,12 +57,10 @@
 #include "application/BaseApplication.h"
 #include "base/Scheduler.h"
 #include "network/HttpClient.h"
-#include "core/Root.h"
 #include "core/assets/FreeTypeFont.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "profiler/DebugRenderer.h"
 #include "profiler/Profiler.h"
-#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 
 namespace {
 
@@ -125,7 +123,6 @@ Engine::~Engine() {
 
     EventDispatcher::destroy();
     network::HttpClient::destroyInstance();
-    Root::getInstance()->destroy();
 
 #if CC_USE_PROFILER
     delete _profiler;
@@ -281,8 +278,6 @@ void Engine::tick() {
 
 int32_t Engine::restartVM() {
     cc::EventDispatcher::dispatchRestartVM();
-
-    Root::getInstance()->getPipeline()->destroy();
 
     cc::DeferredReleasePool::clear();
 #if CC_USE_AUDIO
