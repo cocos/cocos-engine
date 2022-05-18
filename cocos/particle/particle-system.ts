@@ -718,6 +718,8 @@ export class ParticleSystem extends RenderableComponent {
 
     private _subEmitters: any[]; // array of { emitter: ParticleSystem, type: 'birth', 'collision' or 'death'}
 
+    private _needSwitch: boolean;
+
     @serializable
     private _prewarm = false;
 
@@ -743,6 +745,7 @@ export class ParticleSystem extends RenderableComponent {
         this._isStopped = true;
         this._isEmitting = false;
         this._needRefresh = true;
+        this._needSwitch = false;
 
         this._time = 0.0;  // playback position in seconds.
         this._emitRateTimeCounter = 0.0;
@@ -1132,12 +1135,48 @@ export class ParticleSystem extends RenderableComponent {
         }
     }
 
+    protected lateUpdate (dt: number) {
+        if (super.lateUpdate) {
+            super.lateUpdate(dt);
+        }
+
+        if (this._needSwitch) {
+            if (this.getParticleCount() > 0) {
+                if (!this._isCulled) {
+                    if (!this.processor.getModel()?.scene) {
+                        this.processor.attachToScene();
+                    }
+                    if (this._trailModule && this._trailModule.enable) {
+                        if (!this._trailModule.getModel()?.scene) {
+                            this._trailModule._attachToScene();
+                        }
+                    }
+                    this._needSwitch = false;
+                }
+            }
+        }        
+    }
+
     protected beforeRender () {
         if (!this._isPlaying) return;
         this.processor.beforeRender();
         if (this._trailModule && this._trailModule.enable) {
             this._trailModule.beforeRender();
         }
+
+        if (this.getParticleCount() <= 0) {
+            if (this.processor.getModel()?.scene) {
+                this.processor.detachFromScene();
+                if (this._trailModule && this._trailModule.enable) {
+                    this._trailModule._detachFromScene();
+                }
+                this._needSwitch = false;
+            }
+        } else if (this.getParticleCount() > 0) {
+            if (!this.processor.getModel()?.scene) {
+                this._needSwitch = true;
+            }
+        } 
     }
 
     protected _onVisibilityChange (val) {
