@@ -14,8 +14,11 @@ public:
     Coconut(float r) : Fruit("Coconut"), _radius(r) {}
 
     float getRadius() const { return _radius; }
+    void setRadius(float r) { _radius = r; }
 
     float growRadius(float x) { _radius += x; }
+
+    void doNothing() const {}
 
     std::shared_ptr<Coconut> combine(Coconut *other) const {
         return std::make_shared<Coconut>(other->_radius + _radius);
@@ -26,6 +29,8 @@ public:
     static std::vector<int> OneTwoThree() {
         return {1,2,3};
     }
+    static void IgnoreInput(int ) {}
+    static void StaticDoNothing() {}
 
 private:
     se::Object *_jsThis{nullptr};

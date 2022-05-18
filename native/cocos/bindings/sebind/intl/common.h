@@ -142,8 +142,7 @@ struct StaticFunctionWrapper<R (*)(ARGS...)> {
 template <>
 struct StaticFunctionWrapper<std::nullptr_t> {
     using type = std::nullptr_t;
-    using return_type = std::nullptr_t;
-    ;
+    using return_type = void;
     using arg_list = TypeList<>;
     static constexpr size_t ARG_N = 0;
     template <typename... ARGS>
@@ -520,6 +519,23 @@ struct InstanceMethod<R (T::*)(ARGS...)> : InstanceMethodBase {
 
     type func = nullptr;
 
+    template <bool>
+    struct CallFunc;
+    template <>
+    struct CallFunc<true> {
+        template <typename S, typename... ARGS2, size_t... indexes>
+        static void invoke(S *m, T *self, se::State &state, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> a) {
+            m->callWithTuple(self, args, a);
+        }
+    };
+    template <>
+    struct CallFunc<false> {
+        template <typename S, typename... ARGS2, size_t... indexes>
+        static void invoke(S *m, T *self, se::State &state, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> a) {
+            nativevalue_to_se(m->callWithTuple(self, args, a), state.rval(), state.thisObject());
+        }
+    };
+
     template <typename... ARGS_HT, size_t... indexes>
     R callWithTuple(T *self, std::tuple<ARGS_HT...> &args, std::index_sequence<indexes...> /*unused*/) const {
         return ((reinterpret_cast<T *>(self))->*func)(std::get<indexes>(args).value()...);
@@ -536,11 +552,7 @@ struct InstanceMethod<R (T::*)(ARGS...)> : InstanceMethodBase {
         }
         std::tuple<HolderType<ARGS, std::is_reference<ARGS>::value>...> args{};
         convert_js_args_to_tuple(jsArgs, args, thisObject, indexes);
-        if CC_CONSTEXPR (RETURN_VOID) {
-            callWithTuple(self, args, indexes);
-        } else {
-            nativevalue_to_se(callWithTuple(self, args, indexes), state.rval(), thisObject);
-        }
+        CallFunc<RETURN_VOID>::invoke(this, self, state, args, indexes);
         return true;
     }
 };
@@ -555,6 +567,23 @@ struct InstanceMethod<R (T::*)(ARGS...) const> : InstanceMethodBase {
 
     type func = nullptr;
 
+    template <bool>
+    struct CallFunc;
+    template <>
+    struct CallFunc<true> {
+        template <typename S, typename... ARGS2, size_t... indexes>
+        static void invoke(S *m, T *self, se::State &state, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> a) {
+            m->callWithTuple(self, args, a);
+        }
+    };
+    template <>
+    struct CallFunc<false> {
+        template <typename S, typename... ARGS2, size_t... indexes>
+        static void invoke(S *m, T *self, se::State &state, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> a) {
+            nativevalue_to_se(m->callWithTuple(self, args, a), state.rval(), state.thisObject());
+        }
+    };
+
     template <typename... ARGS_HT, size_t... indexes>
     R callWithTuple(T *self, std::tuple<ARGS_HT...> &args, std::index_sequence<indexes...> /*unused*/) const {
         return ((reinterpret_cast<T *>(self))->*func)(std::get<indexes>(args).value()...);
@@ -571,11 +600,7 @@ struct InstanceMethod<R (T::*)(ARGS...) const> : InstanceMethodBase {
         }
         std::tuple<HolderType<ARGS, std::is_reference<ARGS>::value>...> args{};
         convert_js_args_to_tuple(jsArgs, args, thisObject, indexes);
-        if CC_CONSTEXPR (RETURN_VOID) {
-            callWithTuple(self, args, indexes);
-        } else {
-            nativevalue_to_se(callWithTuple(self, args, indexes), state.rval(), thisObject);
-        }
+        CallFunc<RETURN_VOID>::invoke(this, self, state, args, indexes);
         return true;
     }
 };
@@ -589,6 +614,23 @@ struct InstanceMethod<R (*)(T *, ARGS...)> : InstanceMethodBase {
     constexpr static bool RETURN_VOID = std::is_same<void, R>::value;
 
     type func = nullptr;
+
+    template <bool>
+    struct CallFunc;
+    template <>
+    struct CallFunc<true> {
+        template <typename S, typename... ARGS2, size_t... indexes>
+        static void invoke(S *m, T *self, se::State &state, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> a) {
+            m->callWithTuple(self, args, a);
+        }
+    };
+    template <>
+    struct CallFunc<false> {
+        template <typename S, typename... ARGS2, size_t... indexes>
+        static void invoke(S *m, T *self, se::State &state, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> a) {
+            nativevalue_to_se(m->callWithTuple(self, args, a), state.rval(), state.thisObject());
+        }
+    };
 
     template <typename... ARGS_HT, size_t... indexes>
     R callWithTuple(T *self, std::tuple<ARGS_HT...> &args, std::index_sequence<indexes...> /*unused*/) const {
@@ -606,11 +648,7 @@ struct InstanceMethod<R (*)(T *, ARGS...)> : InstanceMethodBase {
         }
         std::tuple<HolderType<ARGS, std::is_reference<ARGS>::value>...> args{};
         convert_js_args_to_tuple(jsArgs, args, thisObject, indexes);
-        if CC_CONSTEXPR (RETURN_VOID) {
-            callWithTuple(self, args, indexes);
-        } else {
-            nativevalue_to_se(callWithTuple(self, args, indexes), state.rval(), thisObject);
-        }
+        CallFunc<RETURN_VOID>::invoke(this, self, state, args, indexes);
         return true;
     }
 };
@@ -657,16 +695,10 @@ struct AttributeAccessor;
 
 template <typename T>
 struct AccessorGet {
-    using type = void;
-    using return_type = void;
-    using class_type = void;
 };
 
 template <typename T>
 struct AccessorSet {
-    using type = void;
-    using value_type = void;
-    using class_type = void;
 };
 
 template <>
@@ -708,14 +740,6 @@ struct AccessorGet<R (T::*)() const> {
 };
 
 template <typename T, typename R, typename F>
-struct AccessorSet<R (T::*)(F) const> {
-    using class_type = T;
-    using type = R (T::*)(F) const;
-    using value_type = F;
-    using ignored_return_type = R;
-};
-
-template <typename T, typename R, typename F>
 struct AccessorSet<R (*)(T *, F)> {
     using class_type = T;
     using type = R (*)(T *, F);
@@ -753,14 +777,29 @@ struct InstanceAttribute<AttributeAccessor<T, Getter, Setter>> : InstanceAttribu
     setter_type setterPtr;
     getter_type getterPtr;
 
-    bool get(se::State &state) const override {
-        if CC_CONSTEXPR (HAS_GETTER) {
+    template <bool>
+    struct GetterFn;
+
+    template <>
+    struct GetterFn<true> {
+        static bool invoke(getter_type getterPtr, se::State &state) {
             T *self = reinterpret_cast<T *>(state.nativeThisObject());
             se::Object *thisObject = state.thisObject();
             using func_type = FunctionWrapper<getter_type>;
+            static_assert(!std::is_void<func_type::return_type>::value, "should return a value");
             return nativevalue_to_se(func_type::invoke(getterPtr, self), state.rval(), thisObject);
         }
-        return false;
+    };
+
+    template <>
+    struct GetterFn<false> {
+        static bool invoke(getter_type getterPtr, se::State &state) {
+            return false;
+        }
+    };
+
+    bool get(se::State &state) const override {
+        return GetterFn<HAS_GETTER>::invoke(getterPtr, state);
     }
 
     bool set(se::State &state) const override {
@@ -788,6 +827,23 @@ struct StaticMethod<R (*)(ARGS...)> : StaticMethodBase {
 
     type func = nullptr;
 
+    template <bool>
+    struct CallFunc;
+    template <>
+    struct CallFunc<true> {
+        template <typename T, typename... ARGS2, size_t... indexes>
+        static void invoke(T *self, se::State &state, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> a) {
+            self->callWithTuple(args, a);
+        }
+    };
+    template <>
+    struct CallFunc<false> {
+        template <typename T, typename... ARGS2, size_t... indexes>
+        static void invoke(T *self, se::State &state, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> a) {
+            nativevalue_to_se(self->callWithTuple(args, a), state.rval(), nullptr);
+        }
+    };
+
     template <typename... ARGS_HT, size_t... indexes>
     R callWithTuple(std::tuple<ARGS_HT...> &args, std::index_sequence<indexes...> /*unused*/) const {
         return (*func)(std::get<indexes>(args).value()...);
@@ -802,11 +858,7 @@ struct StaticMethod<R (*)(ARGS...)> : StaticMethodBase {
         }
         std::tuple<HolderType<ARGS, std::is_reference<ARGS>::value>...> args{};
         convert_js_args_to_tuple(jsArgs, args, nullptr, indexes);
-        if CC_CONSTEXPR (RETURN_VOID) {
-            callWithTuple(args, indexes);
-        } else {
-            nativevalue_to_se(callWithTuple(args, indexes), state.rval(), nullptr);
-        }
+        CallFunc<RETURN_VOID>::invoke(this, state, args, indexes);
         return true;
     }
 };
@@ -885,12 +937,27 @@ struct StaticAttribute<SAttributeAccessor<T, Getter, Setter>> : StaticAttributeB
     setter_type setterPtr;
     getter_type getterPtr;
 
-    bool get(se::State &state) const override {
-        if CC_CONSTEXPR (HAS_GETTER) {
+    template <bool>
+    struct GetterFn;
+
+    template <>
+    struct GetterFn<true> {
+        static bool invoke(getter_type getterPtr, se::State &state) {
             using func_type = StaticFunctionWrapper<getter_type>;
+            static_assert(!std::is_void<func_type::return_type>::value, "should return a value");
             return nativevalue_to_se(func_type::invoke(getterPtr), state.rval(), nullptr);
         }
-        return false;
+    };
+
+    template <>
+    struct GetterFn<false> {
+        static bool invoke(getter_type getterPtr, se::State &state) {
+            return false;
+        }
+    };
+
+    bool get(se::State &state) const override {
+        return GetterFn<HAS_GETTER>::invoke(getterPtr, state);
     }
 
     bool set(se::State &state) const override {

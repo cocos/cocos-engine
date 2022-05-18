@@ -17,6 +17,8 @@ public:
 
     int uid{-1};
 
+    std::string getName() const { return _name; }
+
     double getPrice() const {return _price;}
 
 private:

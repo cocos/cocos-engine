@@ -51,7 +51,7 @@ void genericConstructor(const v8::FunctionCallbackInfo<v8::Value> &v8args) {
     using context_type = typename class_<T>::Context;
     v8::Isolate *isolate = v8args.GetIsolate();
     v8::HandleScope handleScope(isolate);
-    bool ret = true;
+    bool ret = false;
     se::ValueArray &args = se::gValueArrayPool.get(v8args.Length());
     se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth};
     se::internal::jsToSeArgs(v8args, args);
