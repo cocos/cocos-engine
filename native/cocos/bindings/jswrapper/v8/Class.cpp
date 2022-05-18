@@ -40,9 +40,8 @@ namespace {
 inline v8::Local<v8::Value> createExternal(v8::Isolate *isolate, void *data) {
     if (data) {
         return v8::External::New(isolate, data);
-    } else {
-        return v8::Local<v8::Value>();
     }
+    return {};
 }
 } // namespace
 

@@ -1,3 +1,27 @@
+/****************************************************************************
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+****************************************************************************/
 #pragma once
 
 #include <array>
@@ -55,8 +79,8 @@ struct FunctionWrapper<R (*)(C *, ARGS...)> {
     using return_type = R;
     using arg_list = TypeList<ARGS...>;
     static constexpr size_t ARG_N = sizeof...(ARGS);
-    inline R static invoke(type fn, C *self, ARGS &&...args) {
-        return (*fn)(self, std::forward<ARGS>(args)...);
+    inline R static invoke(type func, C *self, ARGS &&... args) {
+        return (*func)(self, std::forward<ARGS>(args)...);
     }
 };
 
@@ -66,8 +90,8 @@ struct FunctionWrapper<R (C::*)(ARGS...)> {
     using return_type = R;
     using arg_list = TypeList<ARGS...>;
     static constexpr size_t ARG_N = sizeof...(ARGS);
-    inline R static invoke(type fn, C *self, ARGS &&...args) {
-        return (self->*fn)(std::forward<ARGS>(args)...);
+    inline R static invoke(type func, C *self, ARGS &&... args) {
+        return (self->*func)(std::forward<ARGS>(args)...);
     }
 };
 
@@ -77,8 +101,8 @@ struct FunctionWrapper<R (C::*)(ARGS...) const> {
     using return_type = R;
     using arg_list = TypeList<ARGS...>;
     static constexpr size_t ARG_N = sizeof...(ARGS);
-    inline R static invoke(type fn, C *self, ARGS &&...args) {
-        return (self->*fn)(std::forward<ARGS>(args)...);
+    inline R static invoke(type func, C *self, ARGS &&... args) {
+        return (self->*func)(std::forward<ARGS>(args)...);
     }
 };
 
@@ -89,7 +113,7 @@ struct FunctionWrapper<nullptr_t> {
     using arg_list = TypeList<>;
     static constexpr size_t ARG_N = 0;
     template <typename C, typename... ARGS>
-    void static invoke(type fn, C *self, ARGS &&...args) {
+    void static invoke(type /*func*/, C * /*self*/, ARGS &&... /*args*/) {
     }
 };
 
@@ -207,7 +231,7 @@ struct TypeMapReturnSwitch;
 template <size_t t>
 struct TypeMapReturnSwitch<true, t> {
     template <typename T>
-    static se::Object *select(se::Object *self, T &) {
+    static se::Object *select(se::Object *self, T & /*unused*/) {
         return self;
     }
 };
@@ -215,7 +239,7 @@ struct TypeMapReturnSwitch<true, t> {
 template <size_t index>
 struct TypeMapReturnSwitch<false, index> {
     template <typename T>
-    static auto select(se::Object *, T &tuple) {
+    static auto select(se::Object * /*unused*/, T &tuple) {
         return std::get<index>(tuple).value();
     }
 };
@@ -292,7 +316,7 @@ struct InstanceMethodBase {
     }
 };
 struct FinalizerBase {
-    virtual void finalize(void *) {}
+    virtual void finalize(void * /*unused*/) {}
 };
 
 struct InstanceFieldBase {
@@ -384,7 +408,7 @@ struct Constructor<TypeList<T, ARGS...>> : ConstructorBase {
 
             static_assert(map_list_type::COUNT == sizeof...(ARGS), "type mapping incorrect");
 
-            map_tuple_type remapArgs; //TODO: optimize copy arguments
+            map_tuple_type remapArgs; //TODO(PatriceJiang): optimize copy arguments
             mapTupleArguments<type_mapping>(thisObj, args, remapArgs, std::make_index_sequence<type_mapping::FULL_ARGN>{});
             self = constructWithTuple(remapArgs, std::make_index_sequence<type_mapping::FULL_ARGN>{});
         } else {
