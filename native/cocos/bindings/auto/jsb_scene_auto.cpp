@@ -18189,19 +18189,6 @@ static bool js_scene_ProgramLib_registerEffect(se::State& s) // NOLINT(readabili
 }
 SE_BIND_FUNC(js_scene_ProgramLib_registerEffect)
 
-static bool js_scene_ProgramLib_destroyInstance_static(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cc::ProgramLib::destroyInstance();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_scene_ProgramLib_destroyInstance_static)
-
 static bool js_scene_ProgramLib_getInstance_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
@@ -18235,7 +18222,6 @@ bool js_register_scene_ProgramLib(se::Object* obj) // NOLINT(readability-identif
     cls->defineFunction("getTemplateInfo", _SE(js_scene_ProgramLib_getTemplateInfo));
     cls->defineFunction("hasProgram", _SE(js_scene_ProgramLib_hasProgram));
     cls->defineFunction("register", _SE(js_scene_ProgramLib_registerEffect));
-    cls->defineStaticFunction("destroyInstance", _SE(js_scene_ProgramLib_destroyInstance_static));
     cls->defineStaticFunction("getInstance", _SE(js_scene_ProgramLib_getInstance_static));
     cls->install();
     JSBClassType::registerClass<cc::ProgramLib>(cls);
