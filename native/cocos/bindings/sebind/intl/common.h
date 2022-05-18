@@ -52,6 +52,8 @@ struct TypeList<T, OTHERS...> {
     using head = T;
     using tail = TypeList<OTHERS...>;
     using tuple_type = std::tuple<T, OTHERS...>;
+    using tuple_type_mutable = std::tuple<typename std::remove_reference<typename std::remove_const<T>::type>::type,
+                                          typename std::remove_reference<typename std::remove_const<OTHERS>::type>::type...>;
 };
 
 template <>
@@ -60,6 +62,7 @@ struct TypeList<> {
     using head = void;
     using tail = TypeList<>;
     using tuple_type = std::tuple<>;
+    using tuple_type_mutable = std::tuple<>;
 };
 
 template <typename T, typename O>
@@ -79,8 +82,9 @@ struct FunctionWrapper<R (*)(C *, ARGS...)> {
     using return_type = R;
     using arg_list = TypeList<ARGS...>;
     static constexpr size_t ARG_N = sizeof...(ARGS);
-    inline R static invoke(type func, C *self, ARGS &&... args) {
-        return (*func)(self, std::forward<ARGS>(args)...);
+    template <typename... ARGS2>
+    inline R static invoke(type func, C *self, ARGS2 &&...args) {
+        return (*func)(self, std::forward<ARGS2>(args)...);
     }
 };
 
@@ -90,8 +94,9 @@ struct FunctionWrapper<R (C::*)(ARGS...)> {
     using return_type = R;
     using arg_list = TypeList<ARGS...>;
     static constexpr size_t ARG_N = sizeof...(ARGS);
-    inline R static invoke(type func, C *self, ARGS &&... args) {
-        return (self->*func)(std::forward<ARGS>(args)...);
+    template <typename... ARGS2>
+    inline R static invoke(type func, C *self, ARGS2 &&...args) {
+        return (self->*func)(std::forward<ARGS2>(args)...);
     }
 };
 
@@ -101,19 +106,48 @@ struct FunctionWrapper<R (C::*)(ARGS...) const> {
     using return_type = R;
     using arg_list = TypeList<ARGS...>;
     static constexpr size_t ARG_N = sizeof...(ARGS);
-    inline R static invoke(type func, C *self, ARGS &&... args) {
-        return (self->*func)(std::forward<ARGS>(args)...);
+    template <typename... ARGS2>
+    inline R static invoke(type func, C *self, ARGS2 &&...args) {
+        return (self->*func)(std::forward<ARGS2>(args)...);
     }
 };
 
 template <>
 struct FunctionWrapper<std::nullptr_t> {
     using type = std::nullptr_t;
-    using return_type = std::nullptr_t;;
+    using return_type = std::nullptr_t;
+    ;
     using arg_list = TypeList<>;
     static constexpr size_t ARG_N = 0;
     template <typename C, typename... ARGS>
-    void static invoke(type /*func*/, C * /*self*/, ARGS &&... /*args*/) {
+    void static invoke(type /*func*/, C * /*self*/, ARGS &&.../*args*/) {
+    }
+};
+
+template <typename T>
+struct StaticFunctionWrapper;
+
+template <typename R, typename... ARGS>
+struct StaticFunctionWrapper<R (*)(ARGS...)> {
+    using type = R (*)(ARGS...);
+    using return_type = R;
+    using arg_list = TypeList<ARGS...>;
+    static constexpr size_t ARG_N = sizeof...(ARGS);
+    template <typename... ARGS2>
+    inline R static invoke(type func, ARGS2 &&...args) {
+        return (*func)(std::forward<ARGS2>(args)...);
+    }
+};
+
+template <>
+struct StaticFunctionWrapper<std::nullptr_t> {
+    using type = std::nullptr_t;
+    using return_type = std::nullptr_t;
+    ;
+    using arg_list = TypeList<>;
+    static constexpr size_t ARG_N = 0;
+    template <typename... ARGS>
+    void static invoke(type /*func*/, ARGS &&.../*args*/) {
     }
 };
 
@@ -219,6 +253,7 @@ struct TypeMapping<TypeList<ARGS...>> {
     using input_types = typename FilterThisObject<ARGS...>::filtered_types;
     using result_types = typename FilterThisObject<ARGS...>::mapped_types;
     using result_types_tuple = typename result_types::tuple_type;
+    using result_types_tuple_mutable = typename result_types::tuple_type_mutable;
     using input_types_tuple = typename input_types::tuple_type;
     using mapping_list = typename TypeListMap<declare_types, input_types>::map_list;
     static constexpr size_t FULL_ARGN = sizeof...(ARGS);
@@ -228,19 +263,19 @@ struct TypeMapping<TypeList<ARGS...>> {
 template <bool, size_t>
 struct TypeMapReturnSwitch;
 
-template <size_t t>
-struct TypeMapReturnSwitch<true, t> {
-    template <typename T>
-    static se::Object *select(se::Object *self, T & /*unused*/) {
+template <size_t To>
+struct TypeMapReturnSwitch<true, To> {
+    template <typename V>
+    static se::Object *select(se::Object *self, V & /*unused*/) {
         return self;
     }
 };
 
-template <size_t index>
-struct TypeMapReturnSwitch<false, index> {
-    template <typename T>
-    static auto select(se::Object * /*unused*/, T &tuple) {
-        return std::get<index>(tuple).value();
+template <size_t To>
+struct TypeMapReturnSwitch<false, To> {
+    template <typename V>
+    static auto select(se::Object * /*unused*/, V &tuple) {
+        return std::get<To>(tuple).value();
     }
 };
 
@@ -249,21 +284,19 @@ struct ArgumentFilter {
     static auto forward(se::Object *self, Tuple &tuple) {
         constexpr static MapTuple TUPLE_VAL;
         using map_arg = std::remove_reference_t<decltype(std::get<index>(TUPLE_VAL))>;
-        //if CC_CONSTEXPR (map_arg::SKIP) {
-        //    return self;
-        //} else {
-        //    return std::get<index>(tuple).value();
-        //}
-        return TypeMapReturnSwitch<map_arg::SKIP, index>::select(self, tuple);
+        return TypeMapReturnSwitch<map_arg::SKIP, map_arg::TO>::select(self, tuple);
     }
 };
 
-template <typename Mapping, typename TupleIn, typename TupleOut, size_t... indexes>
-void mapTupleArguments(se::Object *self, TupleIn &input, TupleOut &output, std::index_sequence<indexes...> /*args*/) {
-    if CC_CONSTEXPR (std::tuple_size<TupleOut>::value > 0) {
-        using map_tuple = typename Mapping::mapping_list::tuple_type;
-        output = {ArgumentFilter::forward<map_tuple, TupleIn, indexes>(self, input)...};
-    }
+template <typename ResultType, typename Mapping, typename TupleIn, size_t... indexes>
+ResultType mapTupleArguments(se::Object *self, TupleIn &input, std::index_sequence<indexes...> /*args*/) {
+    using map_tuple = typename Mapping::mapping_list::tuple_type;
+    using result_type = typename Mapping::result_types_tuple_mutable;
+    static_assert(std::is_same<ResultType, result_type>::value, "result_type mismatch");
+    //if CC_CONSTEXPR (std::tuple_size<result_type>::value > 0) {
+    return result_type(ArgumentFilter::forward<map_tuple, TupleIn, indexes>(self, input)...);
+    //}
+    //return result_type();
 }
 
 template <size_t M, size_t N>
@@ -394,6 +427,32 @@ struct StaticAttribute;
 
 template <typename T, typename... ARGS>
 struct Constructor<TypeList<T, ARGS...>> : ConstructorBase {
+    // no `if constexpr`, more code is needed...
+    template <bool MapArgs>
+    struct ConstructFn;
+    template <>
+    struct ConstructFn<true> {
+        template <typename Self, typename... ARGS2, size_t... indexes>
+        static auto invoke(Self *self, se::Object *thisObj, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> n) {
+            using type_mapping = TypeMapping<TypeList<ARGS...>>;
+            using map_list_type = typename type_mapping::mapping_list;
+            using map_tuple_type = typename type_mapping::result_types_tuple_mutable;
+
+            static_assert(map_list_type::COUNT == sizeof...(ARGS), "type mapping incorrect");
+
+            map_tuple_type remapArgs = mapTupleArguments<map_tuple_type, type_mapping>(thisObj, args, std::make_index_sequence<type_mapping::FULL_ARGN>{});
+
+            return self->constructWithTuple(remapArgs, n);
+        }
+    };
+    template <>
+    struct ConstructFn<false> {
+        template <typename Self, typename... ARGS2, size_t... indexes>
+        static auto invoke(Self *self, se::Object *thisObj, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> n) {
+            return self->constructWithTupleValue(args, n);
+        }
+    };
+
     bool construct(se::State &state) override {
         using type_mapping = TypeMapping<TypeList<ARGS...>>;
         using args_holder_type = typename MapTypeListToTuple<typename type_mapping::input_types>::tuple;
@@ -402,18 +461,7 @@ struct Constructor<TypeList<T, ARGS...>> : ConstructorBase {
         args_holder_type args{};
         const auto &jsArgs = state.args();
         convert_js_args_to_tuple(jsArgs, args, thisObj, std::make_index_sequence<type_mapping::NEW_ARGN>());
-        if CC_CONSTEXPR (type_mapping::NEED_REMAP) {
-            using map_list_type = typename type_mapping::mapping_list;
-            using map_tuple_type = typename type_mapping::result_types_tuple;
-
-            static_assert(map_list_type::COUNT == sizeof...(ARGS), "type mapping incorrect");
-
-            map_tuple_type remapArgs; //TODO(PatriceJiang): optimize copy arguments
-            mapTupleArguments<type_mapping>(thisObj, args, remapArgs, std::make_index_sequence<type_mapping::FULL_ARGN>{});
-            self = constructWithTuple(remapArgs, std::make_index_sequence<type_mapping::FULL_ARGN>{});
-        } else {
-            self = constructWithTupleValue(args, std::make_index_sequence<type_mapping::NEW_ARGN>{});
-        }
+        self = ConstructFn<type_mapping::NEED_REMAP>::invoke(this, thisObj, args, std::make_index_sequence<type_mapping::FULL_ARGN>{});
         state.thisObject()->setPrivateObject(self);
         return true;
     }
@@ -839,7 +887,8 @@ struct StaticAttribute<SAttributeAccessor<T, Getter, Setter>> : StaticAttributeB
 
     bool get(se::State &state) const override {
         if CC_CONSTEXPR (HAS_GETTER) {
-            return nativevalue_to_se((*getterPtr)(), state.rval(), nullptr);
+            using func_type = StaticFunctionWrapper<getter_type>;
+            return nativevalue_to_se(func_type::invoke(getterPtr), state.rval(), nullptr);
         }
         return false;
     }
@@ -849,7 +898,8 @@ struct StaticAttribute<SAttributeAccessor<T, Getter, Setter>> : StaticAttributeB
             const auto &args = state.args();
             HolderType<set_value_type, std::is_reference<set_value_type>::value> temp;
             sevalue_to_native(args[0], &(temp.data), nullptr);
-            (*setterPtr)(temp.value());
+            using func_type = StaticFunctionWrapper<setter_type>;
+            func_type::invoke(setterPtr, temp.value());
             return true;
         }
         return false;
