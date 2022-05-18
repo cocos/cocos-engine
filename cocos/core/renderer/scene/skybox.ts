@@ -178,7 +178,7 @@ export class Skybox {
         }
     }
 
-    public setSkyboxMaterial(skyboxMat: Material | null) {
+    public setSkyboxMaterial (skyboxMat: Material | null) {
         if (skyboxMat) {
             this._editableMaterial = new MaterialInstance({ parent: skyboxMat });
             this._editableMaterial.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
@@ -260,9 +260,8 @@ export class Skybox {
                 skybox_mesh = legacyCC.utils.createMesh(legacyCC.primitives.box({ width: 2, height: 2, length: 2 })) as Mesh;
             }
             if (this._editableMaterial) {
-                this._model.initSubModel(0, skybox_mesh.renderingSubMeshes[0], this._editableMaterial!);
-            }
-            else {
+                this._model.initSubModel(0, skybox_mesh.renderingSubMeshes[0], this._editableMaterial);
+            } else {
                 this._model.initSubModel(0, skybox_mesh.renderingSubMeshes[0], skybox_material);
             }
         }
@@ -300,17 +299,15 @@ export class Skybox {
         if (this.enabled) {
             if (this._editableMaterial) {
                 this._editableMaterial.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
-            }
-            else if (skybox_material) {
+            } else if (skybox_material) {
                 skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
             }
         }
 
         if (this._model) {
             if (this._editableMaterial) {
-                this._model.setSubModelMaterial(0, this._editableMaterial!);
-            }
-            else {
+                this._model.setSubModelMaterial(0, this._editableMaterial);
+            } else {
                 this._model.setSubModelMaterial(0, skybox_material!);
             }
         }
