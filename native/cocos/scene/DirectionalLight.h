@@ -47,6 +47,10 @@ public:
     inline void setShadowSaturation(float saturation) { _shadowSaturation = saturation; }
     inline void setShadowDistance(float distance) { _shadowDistance = distance; }
     inline void setShadowInvisibleOcclusionRange(float invisibleOcclusionRange) { _shadowInvisibleOcclusionRange = invisibleOcclusionRange; }
+    inline void setShadowCSMLevel(float csmLevel) { _shadowCSMLevel = csmLevel; }
+    inline void setShadowCSMLambda(float lambda) { _shadowCSMLambda = lambda; }
+    inline void setShadowCSMValueDirty(bool isShadowCSMValueDirty) { _isShadowCSMValueDirty = isShadowCSMValueDirty; }
+    inline void setShadowCSMDebugMode(bool isShadowCSMDebugMode) { _isShadowCSMDebugMode = isShadowCSMDebugMode; }
     inline void setShadowFixedArea(bool fixedArea) { _shadowFixedArea = fixedArea; }
     inline void setShadowNear(float nearValue) { _shadowNear = nearValue; }
     inline void setShadowFar(float farValue) { _shadowFar = farValue; }
@@ -59,6 +63,10 @@ public:
     inline float getShadowSaturation() const { return _shadowSaturation; }
     inline float getShadowDistance() const { return _shadowDistance; }
     inline float getShadowInvisibleOcclusionRange() const { return _shadowInvisibleOcclusionRange; }
+    inline float getShadowCSMLevel() const { return _shadowCSMLevel; }
+    inline float getShadowCSMLambda() const { return _shadowCSMLambda; }
+    inline bool isShadowCSMValueDirty() const { return _isShadowCSMValueDirty; }
+    inline bool isShadowCSMDebugMode() const { return _isShadowCSMDebugMode; }
     inline bool isShadowFixedArea() const { return _shadowFixedArea; }
     inline float getShadowNear() const { return _shadowNear; }
     inline float getShadowFar() const { return _shadowFar; }
@@ -87,6 +95,10 @@ private:
     float _shadowSaturation{0.75F};
     float _shadowDistance{100.0F};
     float _shadowInvisibleOcclusionRange{200.0F};
+    float _shadowCSMLevel{3.0};
+    float _shadowCSMLambda{0.75};
+    bool _isShadowCSMValueDirty{false};
+    bool _isShadowCSMDebugMode{false};
     bool _shadowFixedArea{false};
     float _shadowNear{0.1F};
     float _shadowFar{10.0F};

@@ -23,7 +23,6 @@ import { DirectionalLight, Camera, Shadows, CSMLevel } from '../../renderer/scen
 import { Mat4, Vec3, Vec2, Quat } from '../../math';
 import { Frustum, AABB } from '../../geometry';
 import { IRenderObject } from '../define';
-import { Device } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 import { PipelineSceneData } from '../pipeline-scene-data';
 
@@ -130,8 +129,9 @@ export class ShadowTransformInfo {
         this._shadowObjects.length = 0;
     }
 
-    public createMatrix (device: Device, splitFrustum: Frustum, dirLight: DirectionalLight,
+    public createMatrix (splitFrustum: Frustum, dirLight: DirectionalLight,
         shadowMapWidth: number, onlyForCulling: boolean) {
+        const device = legacyCC.director.root.device;
         const invisibleOcclusionRange = dirLight.shadowInvisibleOcclusionRange;
         Frustum.copy(this._lightViewFrustum, splitFrustum);
 
@@ -290,7 +290,8 @@ export class CSMLayers {
                 }
             }
 
-            if (dirLight.shadowCSMValueDirty || this._levelCount !== levelCount || isRecalculate || this._shadowDistance !== shadowDistance) {
+            if (dirLight.shadowCSMValueDirty || this._levelCount !== levelCount
+                || isRecalculate || this._shadowDistance !== shadowDistance) {
                 this._splitFrustumLevels(dirLight);
                 this._levelCount = levelCount;
                 this._shadowDistance = shadowDistance;
@@ -350,7 +351,6 @@ export class CSMLayers {
     }
 
     private _calculateCSM (camera: Camera, dirLight: DirectionalLight, shadowInfo: Shadows) {
-        const device = legacyCC.director.root.device;
         const level = dirLight.shadowCSMLevel;
         const shadowMapWidth = level > 1 ? shadowInfo.size.x * 0.5 : shadowInfo.size.x;
 
@@ -362,7 +362,7 @@ export class CSMLayers {
             const near = csmLayer.splitCameraNear;
             const far = csmLayer.splitCameraFar;
             Frustum.split(csmLayer.splitFrustum, camera, _mat4Trans, near, far);
-            csmLayer.createMatrix(device, csmLayer.splitFrustum, dirLight, shadowMapWidth, false);
+            csmLayer.createMatrix(csmLayer.splitFrustum, dirLight, shadowMapWidth, false);
 
             Mat4.multiply(csmLayer.matShadowViewProjAtlas, csmLayer.matShadowAtlas, csmLayer.matShadowViewProj);
         }
@@ -375,7 +375,7 @@ export class CSMLayers {
             Frustum.copy(this._specialLayer.validFrustum, this._layers[0].validFrustum);
         } else {
             Frustum.split(this._specialLayer.splitFrustum, camera, _mat4Trans, 0.1, dirLight.shadowDistance);
-            this._specialLayer.createMatrix(device, this._specialLayer.splitFrustum, dirLight, shadowMapWidth, true);
+            this._specialLayer.createMatrix(this._specialLayer.splitFrustum, dirLight, shadowMapWidth, true);
         }
     }
 

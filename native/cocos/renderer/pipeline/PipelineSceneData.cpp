@@ -36,6 +36,7 @@
 #include "scene/Pass.h"
 #include "scene/Shadow.h"
 #include "scene/Skybox.h"
+#include "shadow/CSMLayers.h"
 
 namespace cc {
 namespace pipeline {
@@ -45,6 +46,7 @@ PipelineSceneData::PipelineSceneData() {
     _ambient = ccnew scene::Ambient();
     _skybox = ccnew scene::Skybox();
     _shadow = ccnew scene::Shadows();
+    _csmLayers = ccnew CSMLayers();
     _octree = ccnew scene::Octree();
 }
 
@@ -54,6 +56,7 @@ PipelineSceneData::~PipelineSceneData() {
     CC_SAFE_DELETE(_skybox);
     CC_SAFE_DELETE(_shadow);
     CC_SAFE_DELETE(_octree);
+    CC_SAFE_DELETE(_csmLayers);
 }
 
 void PipelineSceneData::activate(gfx::Device *device) {
@@ -64,7 +67,7 @@ void PipelineSceneData::activate(gfx::Device *device) {
 }
 
 void PipelineSceneData::destroy() {
-    for (auto &pair : _shadowFrameBufferMap) {
+    for (const auto &pair : _shadowFrameBufferMap) {
         pair.second->destroy();
         delete pair.second;
     }

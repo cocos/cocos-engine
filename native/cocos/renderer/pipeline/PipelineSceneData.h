@@ -45,6 +45,7 @@ class Octree;
 class Light;
 } // namespace scene
 namespace pipeline {
+class CSMLayers;
 
 class CC_DLL PipelineSceneData : public RefCounted {
 public:
@@ -58,16 +59,13 @@ public:
     inline void setShadowFramebuffer(const scene::Light *light, gfx::Framebuffer *framebuffer) { _shadowFrameBufferMap.emplace(light, framebuffer); }
     inline const ccstd::unordered_map<const scene::Light *, gfx::Framebuffer *> &getShadowFramebufferMap() const { return _shadowFrameBufferMap; }
     inline const RenderObjectList &getRenderObjects() const { return _renderObjects; }
-    inline const RenderObjectList &getDirShadowObjects() const { return _dirShadowObjects; }
     inline void setRenderObjects(RenderObjectList &&ro) { _renderObjects = std::forward<RenderObjectList>(ro); }
-    inline void setDirShadowObjects(RenderObjectList &&ro) { _dirShadowObjects = std::forward<RenderObjectList>(ro); }
-    inline const RenderObjectList &isCastShadowObjects() const { return _castShadowObjects; }
-    inline void setCastShadowObjects(RenderObjectList &&ro) { _castShadowObjects = std::forward<RenderObjectList>(ro); }
     inline const ccstd::vector<const scene::Light *> &getValidPunctualLights() const { return _validPunctualLights; }
     inline void setValidPunctualLights(ccstd::vector<const scene::Light *> &&validPunctualLights) { _validPunctualLights = std::forward<ccstd::vector<const scene::Light *>>(validPunctualLights); }
     inline bool isHDR() const { return _isHDR; }
     inline void setHDR(bool val) { _isHDR = val; }
     inline scene::Shadows *getShadows() const { return _shadow; }
+    inline CSMLayers *getCSMLayers() const { return _csmLayers; }
     inline scene::Ambient *getAmbient() const { return _ambient; }
     inline scene::Skybox *getSkybox() const { return _skybox; }
     inline scene::Fog *getFog() const { return _fog; }
@@ -98,8 +96,6 @@ protected:
     static constexpr uint32_t GEOMETRY_RENDERER_TECHNIQUE_COUNT{6};
 
     RenderObjectList _renderObjects;
-    RenderObjectList _dirShadowObjects;
-    RenderObjectList _castShadowObjects;
     ccstd::vector<const scene::Light *> _validPunctualLights;
     gfx::Buffer *_occlusionQueryVertexBuffer{nullptr};
     gfx::Buffer *_occlusionQueryIndicesBuffer{nullptr};
@@ -123,6 +119,7 @@ protected:
     scene::Skybox *_skybox{nullptr};
     scene::Shadows *_shadow{nullptr};
     scene::Octree *_octree{nullptr};
+    CSMLayers *_csmLayers{nullptr};
     bool _isHDR{true};
     float _shadingScale{1.0F};
 
