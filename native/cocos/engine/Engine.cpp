@@ -29,11 +29,11 @@
 #include <sstream>
 #include "base/DeferredReleasePool.h"
 #include "base/Macros.h"
-#include "cocos/bindings/jswrapper/SeApi.h"
-#include "cocos/core/builtin/BuiltinResMgr.h"
-#include "cocos/renderer/GFXDeviceManager.h"
-#include "cocos/renderer/core/ProgramLib.h"
-#include "pipeline/RenderPipeline.h"
+#include "bindings/jswrapper/SeApi.h"
+#include "core/builtin/BuiltinResMgr.h"
+#include "renderer/GFXDeviceManager.h"
+#include "renderer/core/ProgramLib.h"
+#include "renderer/pipeline/RenderPipeline.h"
 #include "platform/BasePlatform.h"
 #include "platform/FileUtils.h"
 
@@ -56,7 +56,7 @@
 #include "application/ApplicationManager.h"
 #include "application/BaseApplication.h"
 #include "base/Scheduler.h"
-#include "cocos/network/HttpClient.h"
+#include "network/HttpClient.h"
 #include "core/Root.h"
 #include "core/assets/FreeTypeFont.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
@@ -97,11 +97,14 @@ namespace cc {
 Engine::Engine() {
     _scheduler = std::make_shared<Scheduler>();
     _fs = createFileUtils();
+    // May create gfx device in render subsystem in future.
+    _gfxDevice = gfx::DeviceManager::create();
+    _scriptEngine = ccnew se::ScriptEngine();
     EventDispatcher::init();
-    se::ScriptEngine::getInstance();
 
+    _debugRenderer = ccnew DebugRenderer();
 #if CC_USE_PROFILER
-    Profiler::getInstance();
+    _profiler = ccnew Profiler();
 #endif
 }
 
@@ -118,18 +121,22 @@ Engine::~Engine() {
     spine::SkeletonCacheMgr::destroyInstance();
 #endif
 
-    cc::EventDispatcher::destroy();
-    cc::network::HttpClient::destroyInstance();
+    EventDispatcher::destroy();
+    network::HttpClient::destroyInstance();
     Root::getInstance()->destroy();
 
 #if CC_USE_PROFILER
-    Profiler::destroyInstance();
+    delete _profiler;
 #endif
-    DebugRenderer::destroyInstance();
-    FreeTypeFontFace::destroyFreeType();
+    // Profiler depends on DebugRenderer, should delete it after deleting Profiler.
+    delete _debugRenderer;
 
-    se::ScriptEngine::getInstance()->cleanup();
-    se::ScriptEngine::destroyInstance();
+    FreeTypeFontFace::destroyFreeType();
+    
+    // Should delete it before deleting DeviceManager as ScriptEngine will check gpu resource usage,
+    // and ScriptEngine will hold gfx objects.
+    delete _scriptEngine;
+
 #if CC_USE_MIDDLEWARE
     cc::middleware::MiddlewareManager::destroyInstance();
 #endif
@@ -137,7 +144,8 @@ Engine::~Engine() {
     BuiltinResMgr::destroyInstance();
 
     CCObject::deferredDestroy();
-    gfx::DeviceManager::destroy();
+    
+    CC_SAFE_DESTROY_AND_DELETE(_gfxDevice);
     delete _fs;
 }
 
@@ -275,8 +283,6 @@ int32_t Engine::restartVM() {
 
     Root::getInstance()->getPipeline()->destroy();
 
-    auto *scriptEngine = se::ScriptEngine::getInstance();
-
     cc::DeferredReleasePool::clear();
 #if CC_USE_AUDIO
     cc::AudioEngine::stopAll();
@@ -289,8 +295,8 @@ int32_t Engine::restartVM() {
     _scheduler->removeAllFunctionsToBePerformedInCocosThread();
     _scheduler->unscheduleAll();
 
-    scriptEngine->cleanup();
-    cc::gfx::DeviceManager::destroy();
+    _scriptEngine->cleanup();
+    CC_SAFE_DESTROY_AND_DELETE(_gfxDevice);
     cc::EventDispatcher::destroy();
     ProgramLib::destroyInstance();
     BuiltinResMgr::destroyInstance();
