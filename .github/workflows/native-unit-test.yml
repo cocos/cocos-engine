@@ -43,9 +43,6 @@ jobs:
   sebind-run-on-linux:
     name: "Test sebind on Ubuntu"
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ${{github.workspace}}/native
     steps:
       - uses: actions/checkout@v2
       - name: Download external libraries
@@ -66,6 +63,7 @@ jobs:
       - name: Run Sebind Tests
         shell: bash
         run: |
+          cd ${GITHUB_WORKSPACE}/native
           cp -r ../templates/linux tests/sebind-tests/linux
           cd tests/sebind-tests
           mkdir -p proj
