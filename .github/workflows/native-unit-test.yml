@@ -72,7 +72,7 @@ jobs:
           cd tests/sebind-tests
           mkdir -p proj
           cp cfg.cmake proj/
-          cmake -G Ninja -B proj -S win64 -DRES_DIR=${GITHUB_WORKSPACE}/native/tests/sebind-tests/ -DCOCOS_X_PATH=${GITHUB_WORKSPACE}/native -DAPP_NAME=sebind
+          cmake -B proj -S win64 -DRES_DIR="${GITHUB_WORKSPACE}/native/tests/sebind-tests" -DCOCOS_X_PATH="${GITHUB_WORKSPACE}/native" -DAPP_NAME=sebind
           cmake --build proj
           cd proj/Debug
           ./sebind.exe || true
