@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { ccclass, type, serializable, editable } from 'cc.decorator';
 import { CCString } from '../data/utils/attribute';
 import { AccessFlagBit, Format, LoadOp, StoreOp, TextureType, TextureUsageBit } from '../gfx';

@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { Game, game } from '../../core';
 import { selector } from '../framework/physics-selector';
 import { BulletRigidBody } from './bullet-rigid-body';

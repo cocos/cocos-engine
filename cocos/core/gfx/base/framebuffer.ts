@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { RenderPass } from './render-pass';
 import { Texture } from './texture';
 import { GFXObject, ObjectType, FramebufferInfo } from './define';

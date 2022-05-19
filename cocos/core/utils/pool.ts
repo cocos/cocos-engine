@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 type CleanUpFunction<T> = (value: T) => boolean | void;
 
 /**

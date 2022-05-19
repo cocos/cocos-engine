@@ -24,7 +24,6 @@
  THE SOFTWARE.
 */
 
-
 import { systemInfo } from 'pal/system-info';
 import { screenAdapter } from 'pal/screen-adapter';
 import { WECHAT } from 'internal:constants';

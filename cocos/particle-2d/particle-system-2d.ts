@@ -24,8 +24,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { ccclass, editable, type, displayOrder, menu,
     executeInEditMode, serializable, playOnFocus, tooltip, visible, formerlySerializedAs } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';

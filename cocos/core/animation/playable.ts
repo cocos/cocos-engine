@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { getError } from '../platform/debug';
 
 export class Playable {

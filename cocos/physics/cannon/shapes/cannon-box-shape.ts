@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import CANNON from '@cocos/cannon';
 import { clamp, Vec3 } from '../../../core/math';
 import { commitShapeUpdates } from '../cannon-util';

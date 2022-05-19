@@ -24,8 +24,6 @@
  */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 
-
-
 import { markAsWarning, removeProperty, replaceProperty } from '../../core/utils';
 import { UIComponent } from './ui-component';
 import { UITransform } from './ui-transform';

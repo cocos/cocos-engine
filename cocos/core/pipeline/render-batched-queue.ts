@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { BatchedBuffer } from './batched-buffer';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { RenderPass, Device, CommandBuffer, DescriptorSet } from '../gfx';

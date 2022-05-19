@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { Buffer } from './buffer';
 import { DescriptorSetLayout } from './descriptor-set-layout';
 import { Sampler } from './states/sampler';

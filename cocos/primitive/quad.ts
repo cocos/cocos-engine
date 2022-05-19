@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { applyDefaultGeometryOptions, IGeometry, IGeometryOptions } from './define';
 
 /**

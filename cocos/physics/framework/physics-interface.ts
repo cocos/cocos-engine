@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { IVec3Like } from '../../core/math';
 import { Collider } from './components/colliders/collider';
 

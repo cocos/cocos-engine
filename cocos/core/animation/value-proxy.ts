@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 /**
  * @en
  * Value proxies are used to set curve value to target. They are "generalized assignment".

@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 /**
  * @class TupleDictionary
  * @constructor

@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import {
     AttributeName, Buffer, BufferUsageBit, Device, Feature, MemoryUsageBit, DescriptorSet, BufferInfo,
     FormatFeatureBit, Format,

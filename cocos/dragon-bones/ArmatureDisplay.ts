@@ -1,4 +1,27 @@
+/*
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 
 import { EDITOR } from 'internal:constants';
 import { Armature, Bone, EventObject } from '@cocos/dragonbones-js';
@@ -421,12 +444,6 @@ export class ArmatureDisplay extends Renderable2D {
     protected _debugBones = false;
     /* protected */ _debugDraw: Graphics | null = null;
 
-    /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
-     */
-    @serializable
-    public _enableBatch = false;
-
     // DragonBones data store key.
     /**
      * @internal
@@ -592,37 +609,6 @@ export class ArmatureDisplay extends Renderable2D {
             }
             // this.node._static = true;
         }
-    }
-
-    // if change use batch mode, just clear material cache
-    _updateBatch () {
-        // const baseMaterial = this.getMaterial(0);
-        // if (baseMaterial) {
-        //     baseMaterial.define('CC_USE_MODEL', !this.enableBatch);
-        // }
-        this._materialCache = {};
-        this.markForUpdateRenderData();
-    }
-
-    // override base class _updateMaterial to set define value and clear material cache
-    _updateMaterial () {
-        // const baseMaterial = this.getMaterial(0);
-        // if (baseMaterial) {
-        //     baseMaterial.define('CC_USE_MODEL', !this.enableBatch);
-        //     baseMaterial.define('USE_TEXTURE', true);
-
-        //     const srcBlendFactor = this.premultipliedAlpha ? cc.gfx.BLEND_ONE : cc.gfx.BLEND_SRC_ALPHA;
-        //     const dstBlendFactor = cc.gfx.BLEND_ONE_MINUS_SRC_ALPHA;
-
-        //     baseMaterial.setBlend(
-        //         true,
-        //         ccBLEND_FUNC_ADD,
-        //         srcBlendFactor, srcBlendFactor,
-        //         cc.gfx.BLEND_FUNC_ADD,
-        //         dstBlendFactor, dstBlendFactor
-        //     );
-        // }
-        this.markForUpdateRenderData();
     }
 
     __preload () {
@@ -929,8 +915,6 @@ export class ArmatureDisplay extends Renderable2D {
             const aabb = armatureData.aabb;
             this.node._uiProps.uiTransformComp!.setContentSize(aabb.width, aabb.height);
         }
-
-        this._updateBatch();
         this.attachUtil.init(this);
 
         if (this.animationName) {

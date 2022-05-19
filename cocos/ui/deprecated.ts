@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 import { UICoordinateTracker } from './ui-coordinate-tracker';
 import { BlockInputEvents } from './block-input-events';
 import { Button } from './button';

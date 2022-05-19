@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 import Cache from './cache';
 
 /**

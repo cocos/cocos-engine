@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { ccclass } from 'cc.decorator';
 import { Asset } from './asset';
 import { legacyCC } from '../global-exports';

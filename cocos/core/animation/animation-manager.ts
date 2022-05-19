@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { ccclass } from 'cc.decorator';
 import System from '../components/system';
 import { director, Director } from '../director';

@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { Camera } from '../components/camera-component';
 import { Vec3 } from '../math';
 import { Node } from '../scene-graph';

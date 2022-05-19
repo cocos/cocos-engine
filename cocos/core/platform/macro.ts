@@ -25,8 +25,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { legacyCC } from '../global-exports';
 
 const SUPPORT_TEXTURE_FORMATS = ['.astc', '.pkm', '.pvr', '.webp', '.jpg', '.jpeg', '.bmp', '.png'];

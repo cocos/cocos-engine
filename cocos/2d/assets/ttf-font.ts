@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { ccclass, string, override, serializable } from 'cc.decorator';
 import { extname } from '../../core/utils/path';
 import { Font } from './font';

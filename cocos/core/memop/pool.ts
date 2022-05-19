@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { warnID } from '../platform/debug';
 import { ScalableContainer } from './scalable-container';
 
