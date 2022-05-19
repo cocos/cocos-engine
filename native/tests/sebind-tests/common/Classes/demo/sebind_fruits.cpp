@@ -1,5 +1,6 @@
 #include "sebind_fruits.h"
 
+#include <chrono>
 #include "bindings/sebind/intl/common.h"
 #include "bindings/sebind/sebind.h"
 #include "tests/sebind-tests/common/Classes/demo/Coconut.h"
@@ -17,6 +18,21 @@ void doAssert(bool value, const std::string &message) {
 
 void successQuit(int code) {
     std::exit(code);
+}
+
+int Coconut_time() {
+    return std::chrono::duration_cast<std::chrono::seconds>(
+               std::chrono::system_clock::now().time_since_epoch())
+        .count();
+}
+
+float Coconut_area(demo::Coconut *d) {
+    return d->getRadius() * d->getRadius() * 3.14F;
+}
+
+bool  Coconut_weight(se::State &s) {
+    s.rval().setFloat(88.8);
+    return true;
 }
 
 } // namespace
@@ -71,6 +87,21 @@ bool jsb_register_fruits(se::Object *globalThis) {
         utilsClass.staticFunction("assert", &doAssert)
             .staticFunction("exit", &successQuit)
             .install(globalThis);
+    }
+
+    sebind::class_<demo::Coconut> coconutExtClass("CoconutExt", fruitClass.prototype());
+    {
+        coconutExtClass.constructor<sebind::ThisObject>()
+            .staticProperty("time", &Coconut_time, nullptr)
+            .staticFunction("getTime", &Coconut_time)
+            .property("area", &Coconut_area, nullptr)
+            .function("getArea", &Coconut_area)
+            .property("weight", &Coconut_weight, &Coconut_weight)
+            .function("getWeight", &Coconut_weight)
+            .finalizer([](demo::Coconut*){
+
+            })
+            .install(ns);
     }
 
     return true;

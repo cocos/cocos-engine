@@ -83,7 +83,7 @@ struct FunctionWrapper<R (*)(C *, ARGS...)> {
     using arg_list = TypeList<ARGS...>;
     static constexpr size_t ARG_N = sizeof...(ARGS);
     template <typename... ARGS2>
-    inline R static invoke(type func, C *self, ARGS2 &&...args) {
+    inline R static invoke(type func, C *self, ARGS2 &&... args) {
         return (*func)(self, std::forward<ARGS2>(args)...);
     }
 };
@@ -95,7 +95,7 @@ struct FunctionWrapper<R (C::*)(ARGS...)> {
     using arg_list = TypeList<ARGS...>;
     static constexpr size_t ARG_N = sizeof...(ARGS);
     template <typename... ARGS2>
-    inline R static invoke(type func, C *self, ARGS2 &&...args) {
+    inline R static invoke(type func, C *self, ARGS2 &&... args) {
         return (self->*func)(std::forward<ARGS2>(args)...);
     }
 };
@@ -107,7 +107,7 @@ struct FunctionWrapper<R (C::*)(ARGS...) const> {
     using arg_list = TypeList<ARGS...>;
     static constexpr size_t ARG_N = sizeof...(ARGS);
     template <typename... ARGS2>
-    inline R static invoke(type func, C *self, ARGS2 &&...args) {
+    inline R static invoke(type func, C *self, ARGS2 &&... args) {
         return (self->*func)(std::forward<ARGS2>(args)...);
     }
 };
@@ -120,7 +120,7 @@ struct FunctionWrapper<std::nullptr_t> {
     using arg_list = TypeList<>;
     static constexpr size_t ARG_N = 0;
     template <typename C, typename... ARGS>
-    void static invoke(type /*func*/, C * /*self*/, ARGS &&.../*args*/) {
+    void static invoke(type /*func*/, C * /*self*/, ARGS &&... /*args*/) {
     }
 };
 
@@ -134,7 +134,7 @@ struct StaticFunctionWrapper<R (*)(ARGS...)> {
     using arg_list = TypeList<ARGS...>;
     static constexpr size_t ARG_N = sizeof...(ARGS);
     template <typename... ARGS2>
-    inline R static invoke(type func, ARGS2 &&...args) {
+    inline R static invoke(type func, ARGS2 &&... args) {
         return (*func)(std::forward<ARGS2>(args)...);
     }
 };
@@ -146,7 +146,7 @@ struct StaticFunctionWrapper<std::nullptr_t> {
     using arg_list = TypeList<>;
     static constexpr size_t ARG_N = 0;
     template <typename... ARGS>
-    void static invoke(type /*func*/, ARGS &&.../*args*/) {
+    void static invoke(type /*func*/, ARGS &&... /*args*/) {
     }
 };
 
@@ -447,7 +447,7 @@ struct Constructor<TypeList<T, ARGS...>> : ConstructorBase {
     template <>
     struct ConstructFn<false> {
         template <typename Self, typename... ARGS2, size_t... indexes>
-        static auto invoke(Self *self, se::Object *thisObj, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> n) {
+        static auto invoke(Self *self, se::Object * /*thisObj*/, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> n) {
             return self->constructWithTupleValue(args, n);
         }
     };
@@ -524,7 +524,7 @@ struct InstanceMethod<R (T::*)(ARGS...)> : InstanceMethodBase {
     template <>
     struct CallFunc<true> {
         template <typename S, typename... ARGS2, size_t... indexes>
-        static void invoke(S *m, T *self, se::State &state, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> a) {
+        static void invoke(S *m, T *self, se::State & /*state*/, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> a) {
             m->callWithTuple(self, args, a);
         }
     };
@@ -572,7 +572,7 @@ struct InstanceMethod<R (T::*)(ARGS...) const> : InstanceMethodBase {
     template <>
     struct CallFunc<true> {
         template <typename S, typename... ARGS2, size_t... indexes>
-        static void invoke(S *m, T *self, se::State &state, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> a) {
+        static void invoke(S *m, T *self, se::State & /*state*/, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> a) {
             m->callWithTuple(self, args, a);
         }
     };
@@ -620,7 +620,7 @@ struct InstanceMethod<R (*)(T *, ARGS...)> : InstanceMethodBase {
     template <>
     struct CallFunc<true> {
         template <typename S, typename... ARGS2, size_t... indexes>
-        static void invoke(S *m, T *self, se::State &state, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> a) {
+        static void invoke(S *m, T *self, se::State & /*state*/, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> a) {
             m->callWithTuple(self, args, a);
         }
     };
@@ -778,42 +778,43 @@ struct InstanceAttribute<AttributeAccessor<T, Getter, Setter>> : InstanceAttribu
     getter_type getterPtr;
 
     template <bool>
-    struct GetterFn;
+    struct Invoker;
 
     template <>
-    struct GetterFn<true> {
+    struct Invoker<true> {
         static bool invoke(getter_type getterPtr, se::State &state) {
             T *self = reinterpret_cast<T *>(state.nativeThisObject());
             se::Object *thisObject = state.thisObject();
             using func_type = FunctionWrapper<getter_type>;
-            static_assert(!std::is_void<func_type::return_type>::value, "should return a value");
+            static_assert(!std::is_void<typename func_type::return_type>::value, "should return a value");
             return nativevalue_to_se(func_type::invoke(getterPtr, self), state.rval(), thisObject);
         }
     };
 
     template <>
-    struct GetterFn<false> {
-        static bool invoke(getter_type getterPtr, se::State &state) {
+    struct Invoker<false> {
+        static bool invoke(getter_type /*getterPtr*/, se::State & /*state*/) {
             return false;
         }
     };
 
     bool get(se::State &state) const override {
-        return GetterFn<HAS_GETTER>::invoke(getterPtr, state);
+        return Invoker<HAS_GETTER>::invoke(getterPtr, state);
     }
 
     bool set(se::State &state) const override {
-        if CC_CONSTEXPR (HAS_SETTER) {
-            T *self = reinterpret_cast<T *>(state.nativeThisObject());
-            se::Object *thisObject = state.thisObject();
-            const auto &args = state.args();
-            HolderType<set_value_type, std::is_reference<set_value_type>::value> temp;
-            sevalue_to_native(args[0], &(temp.data), thisObject);
+        if
+            CC_CONSTEXPR(HAS_SETTER) {
+                T *self = reinterpret_cast<T *>(state.nativeThisObject());
+                se::Object *thisObject = state.thisObject();
+                const auto &args = state.args();
+                HolderType<set_value_type, std::is_reference<set_value_type>::value> temp;
+                sevalue_to_native(args[0], &(temp.data), thisObject);
 
-            using func_type = FunctionWrapper<setter_type>;
-            func_type::invoke(setterPtr, self, temp.value());
-            return true;
-        }
+                using func_type = FunctionWrapper<setter_type>;
+                func_type::invoke(setterPtr, self, temp.value());
+                return true;
+            }
         return false;
     }
 };
@@ -828,19 +829,19 @@ struct StaticMethod<R (*)(ARGS...)> : StaticMethodBase {
     type func = nullptr;
 
     template <bool>
-    struct CallFunc;
+    struct Invoker;
     template <>
-    struct CallFunc<true> {
+    struct Invoker<true> {
         template <typename T, typename... ARGS2, size_t... indexes>
-        static void invoke(T *self, se::State &state, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> a) {
-            self->callWithTuple(args, a);
+        static void invoke(T *self, se::State & /*state*/, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> idxs) {
+            self->callWithTuple(args, idxs);
         }
     };
     template <>
-    struct CallFunc<false> {
+    struct Invoker<false> {
         template <typename T, typename... ARGS2, size_t... indexes>
-        static void invoke(T *self, se::State &state, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> a) {
-            nativevalue_to_se(self->callWithTuple(args, a), state.rval(), nullptr);
+        static void invoke(T *self, se::State &state, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> idxs) {
+            nativevalue_to_se(self->callWithTuple(args, idxs), state.rval(), nullptr);
         }
     };
 
@@ -858,7 +859,7 @@ struct StaticMethod<R (*)(ARGS...)> : StaticMethodBase {
         }
         std::tuple<HolderType<ARGS, std::is_reference<ARGS>::value>...> args{};
         convert_js_args_to_tuple(jsArgs, args, nullptr, indexes);
-        CallFunc<RETURN_VOID>::invoke(this, state, args, indexes);
+        Invoker<RETURN_VOID>::invoke(this, state, args, indexes);
         return true;
     }
 };
@@ -938,37 +939,38 @@ struct StaticAttribute<SAttributeAccessor<T, Getter, Setter>> : StaticAttributeB
     getter_type getterPtr;
 
     template <bool>
-    struct GetterFn;
+    struct Invoker;
 
     template <>
-    struct GetterFn<true> {
+    struct Invoker<true> {
         static bool invoke(getter_type getterPtr, se::State &state) {
             using func_type = StaticFunctionWrapper<getter_type>;
-            static_assert(!std::is_void<func_type::return_type>::value, "should return a value");
+            static_assert(!std::is_void<typename func_type::return_type>::value, "should return a value");
             return nativevalue_to_se(func_type::invoke(getterPtr), state.rval(), nullptr);
         }
     };
 
     template <>
-    struct GetterFn<false> {
-        static bool invoke(getter_type getterPtr, se::State &state) {
+    struct Invoker<false> {
+        static bool invoke(getter_type /*getterPtr*/, se::State & /*state*/) {
             return false;
         }
     };
 
     bool get(se::State &state) const override {
-        return GetterFn<HAS_GETTER>::invoke(getterPtr, state);
+        return Invoker<HAS_GETTER>::invoke(getterPtr, state);
     }
 
     bool set(se::State &state) const override {
-        if CC_CONSTEXPR (HAS_SETTER) {
-            const auto &args = state.args();
-            HolderType<set_value_type, std::is_reference<set_value_type>::value> temp;
-            sevalue_to_native(args[0], &(temp.data), nullptr);
-            using func_type = StaticFunctionWrapper<setter_type>;
-            func_type::invoke(setterPtr, temp.value());
-            return true;
-        }
+        if
+            CC_CONSTEXPR(HAS_SETTER) {
+                const auto &args = state.args();
+                HolderType<set_value_type, std::is_reference<set_value_type>::value> temp;
+                sevalue_to_native(args[0], &(temp.data), nullptr);
+                using func_type = StaticFunctionWrapper<setter_type>;
+                func_type::invoke(setterPtr, temp.value());
+                return true;
+            }
         return false;
     }
 };
