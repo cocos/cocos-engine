@@ -17,6 +17,11 @@ void doAssert(bool value, const std::string &message) {
 }
 
 void successQuit(int code) {
+    if (code == 0) {
+        FILE *fp = fopen("result.txt", "wt");
+        fwrite("ok\n", 3, 1, fp);
+        fclose(fp);
+    }
     std::exit(code);
 }
 

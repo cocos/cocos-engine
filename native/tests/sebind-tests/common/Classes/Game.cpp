@@ -49,7 +49,7 @@ int Game::init() {
 #endif
     _debuggerInfo.port         = 6086;
     _debuggerInfo.address      = "0.0.0.0";
-    _debuggerInfo.pauseOnStart = true;
+    _debuggerInfo.pauseOnStart = false;
 
     _xxteaKey = SCRIPT_XXTEAKEY;
 

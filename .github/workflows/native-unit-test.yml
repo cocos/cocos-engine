@@ -34,6 +34,17 @@ jobs:
           cmake --build tests/unit-test/build --config Release
           ./tests/unit-test/build/src/Release/CocosTest.exe
       
+      - name: Run Sebind Tests
+        shell: bash
+        run: |
+          cp -r ../templates/windows tests/sebind-tests/win64
+          cd tests/sebind-tests
+          mkdir -p proj
+          cp cfg.cmake proj
+          cmake -B proj -S win64 -DRES_DIR=${GITHUB_WORKSPACE}/native/tests/sebind-tests/ -DCOCOS_X_PATH=${GITHUB_WORKSPACE}/native -DAPP_NAME=sebind
+          cmake --build proj
+          cd proj/Debug
+          ./sebind.exe
       #### TODO(PatriceJiang): model split
       # - name: Run Module Tests
       #   shell: bash
