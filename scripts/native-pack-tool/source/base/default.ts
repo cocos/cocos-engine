@@ -95,7 +95,7 @@ export abstract class NativePackTool {
     }
 
     protected async copyPlatformTemplate() {
-        // 原生工程不重复拷贝 TODO 复用前需要做版本检测
+        // TODO version check
         if (!fs.existsSync(this.paths.platformTemplateDirInPrj)) {
             // 拷贝 lite 仓库的 templates/平台/ 文件到 native 目录
             await fs.copy(ps.join(this.paths.nativeTemplateDirInCocos, this.params.platform), this.paths.platformTemplateDirInPrj, { overwrite: false });

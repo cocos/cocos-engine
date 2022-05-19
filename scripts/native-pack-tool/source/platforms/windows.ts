@@ -125,7 +125,7 @@ export class WindowsPackTool extends NativePackTool {
         return ret;
     }
 
-    // TODO 用户传入的 visual studio 版本
+    // TODO visual studio version
     getCmakeGenerator() {
         return '';
     }
