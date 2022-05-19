@@ -53,7 +53,7 @@
 #include "EditBox.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_global.h"
-
+#include "cocos/bindings/event/EventDispatcher.h"
 
 #import <UIKit/UIKit.h>
 
@@ -71,6 +71,7 @@ const bool INPUTBOX_HIDDEN = true; // Toggle if Inputbox is visible
 @interface Editbox_impl : NSObject
 + (instancetype)sharedInstance;
 - (void)        show:(const cc::EditBox::ShowInfo*)showInfo;
+- (void)        hide;
 - (UIView*)     getCurrentViewInUse;
 - (NSString*)   getCurrentText;
 @end
@@ -197,7 +198,9 @@ NSString *getHash(const cc::EditBox::ShowInfo* showInfo) {
     //TODO: get hash with different type of showInfo, for example different inputAccessoryView
     return showInfo->isMultiline?@"textView":@"textField";
 }
-
+void onParentViewTouched(const cc::CustomEvent &touchEvent){
+    [[Editbox_impl sharedInstance] hide];
+}
 } // namespace
 
 /*************************************************************************
@@ -287,6 +290,8 @@ static Editbox_impl *instance = nil;
     dispatch_once(&pred, ^{
         instance = [[super allocWithZone:NULL] init];
     });
+    
+
     return instance;
 }
 + (id)allocWithZone:(struct _NSZone*)zone {
@@ -395,8 +400,6 @@ static Editbox_impl *instance = nil;
     TextFieldDelegate* delegate = [[TextFieldDelegate alloc] initWithPairs:[inputbox inputOnView] and:textField];
     textField.delegate = delegate;
     [textField addTarget:delegate action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
-    setTextFieldReturnType(textField, showInfo->confirmType);
-    setTextFieldKeyboardType(textField, showInfo->inputType);
     UIBarButtonItem *textFieldItem = [[UIBarButtonItem alloc] initWithCustomView:textField];
     
     if (!btnHandler){
@@ -477,6 +480,8 @@ static Editbox_impl *instance = nil;
     }
     ((UITextField*)[ret inputOnToolbar]).text = [NSString stringWithUTF8String:showInfo->defaultValue.c_str()];
     ((UITextField*)[ret inputOnView]).text = [NSString stringWithUTF8String:showInfo->defaultValue.c_str()];
+    setTextFieldReturnType((UITextField*)[ret inputOnToolbar], showInfo->confirmType);
+    setTextFieldKeyboardType((UITextField*)[ret inputOnToolbar], showInfo->inputType);
     return ret;
 }
 
@@ -533,13 +538,17 @@ namespace cc{
 bool EditBox::_isShown = false;
 void EditBox::show(const cc::EditBox::ShowInfo &showInfo) {
     [[Editbox_impl sharedInstance] show:&showInfo];
+    EditBox::_isShown = true;
 }
 
 void EditBox::hide() {
     [[Editbox_impl sharedInstance] hide];
+    EditBox::_isShown = true;
 }
 
 bool EditBox::complete() {
+    if(!EditBox::_isShown)
+        return;
     NSString *text = [[Editbox_impl sharedInstance] getCurrentText];
     callJSFunc("complete", [text UTF8String]);
     EditBox::hide();

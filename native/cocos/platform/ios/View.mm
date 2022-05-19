@@ -28,6 +28,7 @@
 #include <UIKit/UIScreen.h>
 #import "platform/ios/AppDelegateBridge.h"
 #include "platform/ios/IOSPlatform.h"
+#include "cocos/ui/edit-box/EditBox.h"
 
 namespace {
 } // namespace
@@ -90,6 +91,7 @@ namespace {
         return;
 
     [self dispatchTouchEvent:cc::TouchEvent::Type::BEGAN withEvent:touches];
+    cc::EditBox::complete();
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
