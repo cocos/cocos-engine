@@ -417,6 +417,7 @@ struct DescriptorSetData {
     }
 
     DescriptorSetData(const allocator_type& alloc) noexcept; // NOLINT
+    DescriptorSetData(DescriptorSetLayoutData descriptorSetLayoutDataIn, IntrusivePtr<gfx::DescriptorSetLayout> descriptorSetLayoutIn, IntrusivePtr<gfx::DescriptorSet> descriptorSetIn, const allocator_type& alloc) noexcept;
     DescriptorSetData(DescriptorSetData&& rhs, const allocator_type& alloc);
 
     DescriptorSetData(DescriptorSetData&& rhs) noexcept = default;
