@@ -38,6 +38,8 @@ import { NodeEventProcessor } from './node-event-processor';
 import { Layers } from './layers';
 import { SerializationContext, SerializationOutput, serializeTag } from '../data';
 import { EDITOR } from '../default-constants';
+import { _tempFloatArray } from './utils.jsb';
+
 import {
     applyMountedChildren,
     applyMountedComponents, applyPropertyOverrides,
@@ -47,7 +49,8 @@ import {
 } from '../utils/prefab/utils';
 import { getClassByName, isChildClassOf } from '../utils/js-typed';
 import { syncNodeValues } from "../utils/jsb-utils";
-import { BaseNode } from "./base-node.jsb";
+//import { BaseNode } from "./base-node.jsb";
+var BaseNode = legacyCC._BaseNode;
 
 declare const jsb: any;
 
@@ -90,9 +93,7 @@ const nodeProto: any = jsb.Node.prototype;
 export const TRANSFORM_ON = 1 << 0;
 const Destroying = CCObject.Flags.Destroying;
 
-// For optimize getPosition, getRotation, getScale
-export const _tempFloatArray = new Float32Array(jsb.createExternalArrayBuffer(20 * 4));
-//
+
 
 Node._setTempFloatArray(_tempFloatArray.buffer);
 
