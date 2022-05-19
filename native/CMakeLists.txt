@@ -1625,15 +1625,15 @@ endif()
 
 ##### 2d
 cocos_source_files(
-    cocos/2d/assembler/IAssmebler.h
-    cocos/2d/assembler/IAssmebler.cpp
+    cocos/2d/assembler/IAssembler.h
+    cocos/2d/assembler/IAssembler.cpp
     cocos/2d/assembler/Simple.h    
     cocos/2d/assembler/Simple.cpp
 
-    cocos/2d/render/Batcher2d.h
-    cocos/2d/render/Batcher2d.cpp
-    cocos/2d/render/RenderEntity.h
-    cocos/2d/render/RenderEntity.cpp
+    cocos/2d/renderer/Batcher2d.h
+    cocos/2d/renderer/Batcher2d.cpp
+    cocos/2d/renderer/RenderEntity.h
+    cocos/2d/renderer/RenderEntity.cpp
 )
 
 ##### 3d
@@ -1956,6 +1956,8 @@ cocos_source_files(
                             cocos/bindings/auto/jsb_geometry_auto.h
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_render_auto.cpp
                             cocos/bindings/auto/jsb_render_auto.h
+    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_2d_auto.cpp
+                            cocos/bindings/auto/jsb_2d_auto.h
 )
 
 if(USE_AUDIO)
