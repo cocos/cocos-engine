@@ -47,7 +47,7 @@ type ConstructorType<T> = OmitType<T, Function>;
  * @zh
  * Tween 提供了一个简单灵活的方法来缓动目标，从 creator 移植而来。
  * @class Tween
- * @param {Object} [target]
+ * @param [target]
  * @example
  * tween(this.node)
  *   .to(1, {scale: new Vec3(2, 2, 2), position: new Vec3(5, 5, 5)})
@@ -69,7 +69,7 @@ export class Tween<T> {
      * @en Sets tween tag
      * @zh 设置缓动的标签
      * @method tag
-     * @param {number} tag @en The tag set for this tween @zh 为当前缓动设置的标签
+     * @param tag @en The tag set for this tween @zh 为当前缓动设置的标签
      */
     tag (tag: number) {
         this._tag = tag;
@@ -82,7 +82,7 @@ export class Tween<T> {
      * @zh
      * 插入一个 tween 到队列中。
      * @method then
-     * @param {Tween} other @en The rear tween of this tween @zh 当前缓动的后置缓动
+     * @param other @en The rear tween of this tween @zh 当前缓动的后置缓动
      */
     then (other: Tween<T>): Tween<T> {
         if (other instanceof Action) {
@@ -99,7 +99,7 @@ export class Tween<T> {
      * @zh
      * 设置 tween 的 target。
      * @method target
-     * @param {T} target @en The target of this tween @zh 当前缓动的目标对象
+     * @param target @en The target of this tween @zh 当前缓动的目标对象
      */
     target (target: T): Tween<T | undefined> {
         this._target = target;
@@ -145,7 +145,7 @@ export class Tween<T> {
      * @zh
      * 克隆当前 tween。
      * @method clone
-     * @param {T} target @en The target of clone tween @zh 克隆缓动的目标对象
+     * @param target @en The target of clone tween @zh 克隆缓动的目标对象
      */
     clone (target: T): Tween<T> {
         const action = this._union();
@@ -171,11 +171,11 @@ export class Tween<T> {
      * @zh
      * 添加一个对属性进行绝对值计算的 action。
      * @method to
-     * @param {number} duration @en Tween time, in seconds @zh 缓动时间，单位为秒
-     * @param {Object} props @en List of properties of tween @zh 缓动的属性列表
-     * @param {Object} opts @en Optional functions of tween @zh 可选的缓动功能
-     * @param {Function} [opts.progress]
-     * @param {Function|String} [opts.easing]
+     * @param duration @en Tween time, in seconds @zh 缓动时间，单位为秒
+     * @param props @en List of properties of tween @zh 缓动的属性列表
+     * @param opts @en Optional functions of tween @zh 可选的缓动功能
+     * @param [opts.progress]
+     * @param [opts.easing]
      */
     to (duration: number, props: ConstructorType<T>, opts?: ITweenOption): Tween<T> {
         opts = opts || Object.create(null);
@@ -191,11 +191,11 @@ export class Tween<T> {
      * @zh
      * 添加一个对属性进行相对值计算的 action。
      * @method by
-     * @param {number} duration @en Tween time, in seconds @zh 缓动时间，单位为秒
-     * @param {Object} props @en List of properties of tween @zh 缓动的属性列表
-     * @param {Object} opts @en Optional functions of tween @zh 可选的缓动功能
-     * @param {Function} [opts.progress]
-     * @param {Function|String} [opts.easing]
+     * @param duration @en Tween time, in seconds @zh 缓动时间，单位为秒
+     * @param props @en List of properties of tween @zh 缓动的属性列表
+     * @param opts @en Optional functions of tween @zh 可选的缓动功能
+     * @param [opts.progress]
+     * @param [opts.easing]
      * @return {Tween}
      */
     by (duration: number, props: ConstructorType<T>, opts?: ITweenOption): Tween<T> {
@@ -212,7 +212,7 @@ export class Tween<T> {
      * @zh
      * 直接设置 target 的属性。
      * @method set
-     * @param {Object} props @en List of properties of tween @zh 缓动的属性列表
+     * @param props @en List of properties of tween @zh 缓动的属性列表
      * @return {Tween}
      */
     set (props: ConstructorType<T>): Tween<T> {
@@ -227,7 +227,7 @@ export class Tween<T> {
      * @zh
      * 添加一个延时 action。
      * @method delay
-     * @param {number} duration @en Delay time of this tween @zh 当前缓动的延迟时间
+     * @param duration @en Delay time of this tween @zh 当前缓动的延迟时间
      * @return {Tween}
      */
     delay (duration: number): Tween<T> {
@@ -242,7 +242,7 @@ export class Tween<T> {
      * @zh
      * 添加一个回调 action。
      * @method call
-     * @param {Function} callback @en Callback function at the end of this tween @zh 当前缓动结束时的回调函数
+     * @param callback @en Callback function at the end of this tween @zh 当前缓动结束时的回调函数
      * @return {Tween}
      */
     // eslint-disable-next-line @typescript-eslint/ban-types
@@ -258,7 +258,7 @@ export class Tween<T> {
      * @zh
      * 添加一个队列 action。
      * @method sequence
-     * @param {Tween[]} args @en All tween that make up the sequence @zh 组成队列的所有缓动
+     * @param args @en All tween that make up the sequence @zh 组成队列的所有缓动
      */
     sequence (...args: Tween<T>[]): Tween<T> {
         const action = Tween._wrappedSequence(...args);
@@ -272,7 +272,7 @@ export class Tween<T> {
      * @zh
      * 添加一个并行 action。
      * @method parallel
-     * @param {Tween[]} args @en The tween parallel to this tween @zh 与当前缓动并行的缓动
+     * @param args @en The tween parallel to this tween @zh 与当前缓动并行的缓动
      */
     parallel (...args: Tween<T>[]): Tween<T> {
         const action = Tween._wrappedParallel(...args);
@@ -286,8 +286,8 @@ export class Tween<T> {
      * This action will integrate before actions to a sequence action as their parameters.
      * @zh
      * 添加一个重复 action，这个 action 会将前一个动作作为他的参数。
-     * @param {number} repeatTimes @en The repeat times of this tween @zh 重复次数
-     * @param {Tween<T>} embedTween @en Optional, embedded tween of this tween @zh 可选，嵌入缓动
+     * @param repeatTimes @en The repeat times of this tween @zh 重复次数
+     * @param embedTween @en Optional, embedded tween of this tween @zh 可选，嵌入缓动
      */
     repeat (repeatTimes: number, embedTween?: Tween<T>): Tween<T> {
         /** adapter */
@@ -315,7 +315,7 @@ export class Tween<T> {
      * @zh
      * 添加一个永久重复 action，这个 action 会将前一个动作作为他的参数。
      * @method repeatForever
-     * @param {Tween<T>} embedTween @en Optional, embedded tween of this tween @zh 可选，嵌入缓动
+     * @param embedTween @en Optional, embedded tween of this tween @zh 可选，嵌入缓动
      */
     repeatForever (embedTween?: Tween<T>): Tween<T> {
         const actions = this._actions;
@@ -338,7 +338,7 @@ export class Tween<T> {
      * @zh
      * 添加一个倒置时间 action，这个 action 会将前一个动作作为他的参数。
      * @method reverseTime
-     * @param {Tween<T>} embedTween @en Optional, embedded tween of this tween @zh 可选，嵌入缓动
+     * @param embedTween @en Optional, embedded tween of this tween @zh 可选，嵌入缓动
      */
     reverseTime (embedTween?: Tween<T>): Tween<T> {
         const actions = this._actions;

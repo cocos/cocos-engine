@@ -207,8 +207,8 @@ export class Toggle extends Button {
  * @zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event toggle
- * @param {Event.EventCustom} event @en The event when toggle is pressed up or down @zh 切换键被按下或抬起时发送的事件
- * @param {Toggle} toggle @en The Toggle component @zh 切换键组件
+ * @param event @en The event when toggle is pressed up or down @zh 切换键被按下或抬起时发送的事件
+ * @param toggle @en The Toggle component @zh 切换键组件
  */
 
 legacyCC.Toggle = Toggle;
