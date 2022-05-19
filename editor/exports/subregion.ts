@@ -3,6 +3,7 @@ export {
     getSubregionsTag,
     addSubRegionTag,
     removeSubRegionTag,
+    clearSubRegionsTag,
 } from '../../cocos/core/animation/animation-clip';
 
 export { Subregion } from '../../cocos/core/animation/subregion/subregion';

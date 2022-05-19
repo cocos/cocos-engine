@@ -87,6 +87,7 @@ export const subRegionsCountTag = Symbol('[[SubregionsCount]]');
 export const getSubregionsTag = Symbol('[[GetSubregions]]');
 export const addSubRegionTag = Symbol('[[AddSubRegion]]');
 export const removeSubRegionTag = Symbol('[[RemoveSubRegion]]');
+export const clearSubRegionsTag = Symbol('[[ClearSubregions]]');
 
 /**
  * @zh 动画剪辑表示一段使用动画编辑器编辑的关键帧动画或是外部美术工具生产的骨骼动画。
@@ -604,6 +605,13 @@ export class AnimationClip extends Asset {
         if (iSubRegion >= 0) {
             this._subregions.splice(iSubRegion, 1);
         }
+    }
+
+    /**
+     * @internal
+     */
+    public [clearSubRegionsTag] () {
+        this._subregions.length = 0;
     }
 
     @serializable
