@@ -31,11 +31,11 @@
 #include "base/Macros.h"
 #include "bindings/jswrapper/SeApi.h"
 #include "core/builtin/BuiltinResMgr.h"
+#include "platform/BasePlatform.h"
+#include "platform/FileUtils.h"
 #include "renderer/GFXDeviceManager.h"
 #include "renderer/core/ProgramLib.h"
 #include "renderer/pipeline/RenderPipeline.h"
-#include "platform/BasePlatform.h"
-#include "platform/FileUtils.h"
 
 #if CC_USE_AUDIO
     #include "cocos/audio/include/AudioEngine.h"
@@ -56,8 +56,8 @@
 #include "application/ApplicationManager.h"
 #include "application/BaseApplication.h"
 #include "base/Scheduler.h"
-#include "network/HttpClient.h"
 #include "core/assets/FreeTypeFont.h"
+#include "network/HttpClient.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "profiler/DebugRenderer.h"
 #include "profiler/Profiler.h"
@@ -124,22 +124,23 @@ Engine::~Engine() {
     EventDispatcher::destroy();
     network::HttpClient::destroyInstance();
 
-#if CC_USE_PROFILER
-    delete _profiler;
-#endif
-    // Profiler depends on DebugRenderer, should delete it after deleting Profiler.
-    delete _debugRenderer;
-
-    FreeTypeFontFace::destroyFreeType();
-    
     // Should delete it before deleting DeviceManager as ScriptEngine will check gpu resource usage,
     // and ScriptEngine will hold gfx objects.
     delete _scriptEngine;
 
+#if CC_USE_PROFILER
+    delete _profiler;
+#endif
+    // Profiler depends on DebugRenderer, should delete it after deleting Profiler,
+    // and delete DebugRenderer after RenderPipeline::destroy which destroy DebugRenderer.
+    delete _debugRenderer;
+
+    FreeTypeFontFace::destroyFreeType();
+
 #if CC_USE_MIDDLEWARE
     cc::middleware::MiddlewareManager::destroyInstance();
 #endif
-    
+
     CCObject::deferredDestroy();
     delete _builtinResMgr;
     delete _programLib;
@@ -294,7 +295,7 @@ int32_t Engine::restartVM() {
     _scriptEngine->cleanup();
     CC_SAFE_DESTROY_AND_DELETE(_gfxDevice);
     cc::EventDispatcher::destroy();
-    
+
     // Should re-create ProgramLib as shaders may change after restart. For example,
     // program update resources and do restart.
     delete _programLib;
