@@ -40,7 +40,7 @@ jobs:
       #   run: |
       #     cd tests/module-tests 
       #     bash run-test-windows.sh
-  sebind-with-cmake:
+  sebind-with-windows:
     name: "sebind tests"
     runs-on: windows-latest
     defaults:

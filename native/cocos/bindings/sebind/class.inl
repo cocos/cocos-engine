@@ -46,27 +46,86 @@ public:
     using Context   = intl::ContextDB::Context;
 
     explicit class_(Context *ctx) : _ctx(ctx) {}
+
+    /**
+     * @brief Construct a new class_ object
+     * 
+     * @param name specify the class in JS
+     */
     explicit class_(const char *name);
+
+    /**
+     * @brief Construct a new class_ object
+     * 
+     * @param name Specify the class name in JS
+     * @param parentProto The prototype object of the parent class
+     */
     explicit class_(const char *name, se::Object *parentProto);
 
     ~class_() {
         assert(_installed); // procedure `class_::install` has not been invoked?
     }
 
+    /**
+     * @brief Attach function object to the namespace object
+     * 
+     * @param nsObject the namespace object
+     * @return true 
+     */
     bool install(se::Object *nsObject);
 
+    /**
+     * @brief Define a constructor by argument type list
+     *
+     * @tparam ARGS parameter types for a constructor of class T 
+     * @return class_& 
+     */
     template <typename... ARGS>
     class_ &constructor();
 
+    /**
+     * @brief Define a constructor by a function
+     * The signature of the function pointer can be
+     * - `bool(*)(se::State&)`
+     * or
+     * - `T*(*)(ARGS...)`
+     * @tparam F 
+     * @param callback The function pointer 
+     * @return class_& 
+     */
     template <typename F>
     class_ &constructor(F callback);
-
+    
+    /**
+     * @brief Register a callback when GC occurs
+     * The signature of the function pointer can be
+     * - `void(*)(T*)`
+     * @tparam F 
+     * @param callback GC callback
+     * @return class_& 
+     */
     template <typename F>
     class_ &finalizer(F callback);
 
+    /**
+     * @brief Define a member function for js class
+     * 
+     * @tparam Method 
+     * @param name The method name
+     * @param method Member function pointer of class `T`, or normal function which the first argument is `T*`.
+     * @return class_& 
+     */
     template <typename Method>
     class_ &function(const char *name, Method method);
 
+    /**
+     * @brief Define a property for js class
+     * 
+     * @tparam Field 
+     * @param name 
+     * @param field 
+     * @return class_& 
+     */
     template <typename Field>
     class_ &property(const char *name, Field field);
 
