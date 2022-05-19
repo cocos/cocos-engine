@@ -26,8 +26,14 @@
 #pragma once
 
 #include "base/Macros.h"
-#include "concurrentqueue/concurrentqueue.h"
-#include "concurrentqueue/lightweightsemaphore.h"
+#if (CC_PLATFORM != CC_PLATFORM_NX)
+    #include "concurrentqueue/concurrentqueue.h"
+    #include "concurrentqueue/lightweightsemaphore.h"
+#else
+    #include "nx/concurrentqueue/concurrentqueue.h"
+    #include "nx/concurrentqueue/lightweightsemaphore.h"
+#endif
+
 namespace cc {
 
 class Semaphore final {
