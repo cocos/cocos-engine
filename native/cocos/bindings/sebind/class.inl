@@ -71,7 +71,7 @@ public:
     }
 
     /**
-     * @brief Attach function object to the namespace object
+     * @brief Export function object to the namespace object
      * 
      * @param nsObject the namespace object
      * @return true 

@@ -27,7 +27,7 @@
 #include "class.inl"
 
 namespace sebind {
-
+// finalizer callback
 template <typename T>
 void genericFinalizer(se::Object *obj) {
     se::PrivateObjectBase *privateObject = obj->getPrivateObject();
@@ -83,7 +83,7 @@ void genericConstructor(const v8::FunctionCallbackInfo<v8::Value> &v8args) {
     found = thisObject->getProperty("_ctor", &propertyVal);
     if (found) propertyVal.toObject()->call(args, thisObject);
 }
-
+// v8 property callback
 template <typename ContextType>
 void genericAccessorSet(v8::Local<v8::Name> /*prop*/, v8::Local<v8::Value> jsVal,
                         const v8::PropertyCallbackInfo<void> &v8args) {
