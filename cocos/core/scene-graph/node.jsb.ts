@@ -49,8 +49,7 @@ import {
 } from '../utils/prefab/utils';
 import { getClassByName, isChildClassOf } from '../utils/js-typed';
 import { syncNodeValues } from "../utils/jsb-utils";
-//import { BaseNode } from "./base-node.jsb";
-var BaseNode = legacyCC._BaseNode;
+import { BaseNode } from "./base-node";
 
 declare const jsb: any;
 
