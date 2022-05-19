@@ -57,6 +57,10 @@ export function ColorTemperatureToRGB (rgb: Vec3, kelvin: number) {
     rgb.z =  0.0556434 * X + -0.2040259 +  1.0572252 * Z;
 }
 
+/**
+ * @en The light type enumeration.
+ * @zh 光源类型枚举。
+ */
 export enum LightType {
     DIRECTIONAL,
     SPHERE,

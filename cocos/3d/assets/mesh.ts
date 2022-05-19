@@ -38,7 +38,8 @@ import {
     FormatInfos, FormatType, MemoryUsageBit, PrimitiveMode, getTypedArrayConstructor,
 } from '../../core/gfx';
 import { Mat4, Quat, Vec3 } from '../../core/math';
-import { Morph, MorphRendering, createMorphRendering } from './morph';
+import { Morph } from './morph';
+import { MorphRendering, createMorphRendering } from './morph-rendering';
 
 function getIndexStrideCtor (stride: number) {
     switch (stride) {
