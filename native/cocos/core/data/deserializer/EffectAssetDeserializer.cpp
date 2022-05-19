@@ -775,7 +775,7 @@ static void deserializeShaderAttribute(const rapidjson::Value &gfxAttributeVal, 
     }
 
     if (gfxAttributeVal.HasMember("isInstanced")) {
-        cAttribute.isNormalized = gfxAttributeVal["isInstanced"].GetBool();
+        cAttribute.isInstanced = gfxAttributeVal["isInstanced"].GetBool();
     }
 
     if (gfxAttributeVal.HasMember("location")) {

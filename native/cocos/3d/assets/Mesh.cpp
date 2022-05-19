@@ -198,7 +198,7 @@ uint64_t Mesh::getHash() {
     if (_hash == 0) {
         std::size_t seed = 666;
         boost::hash_range(seed, _data.buffer()->getData(), _data.buffer()->getData() + _data.length());
-        _hash = static_cast<uint32_t>(seed);
+        _hash = static_cast<uint64_t>(seed);
     }
 
     return _hash;
