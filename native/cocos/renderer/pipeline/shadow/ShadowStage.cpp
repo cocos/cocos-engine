@@ -81,14 +81,14 @@ void ShadowStage::render(scene::Camera *camera) {
     const Vec2 &shadowMapSize = shadowInfo->getSize();
     switch (_light->getType()) {
         case scene::LightType::DIRECTIONAL: {
-            const auto mainLight = static_cast<const scene::DirectionalLight *>(_light);
+            const auto* mainLight = static_cast<const scene::DirectionalLight *>(_light);
             if (mainLight->isShadowFixedArea() || mainLight->getShadowCSMLevel() < 2.0F) {
                 _renderArea.x = 0;
                 _renderArea.y = 0;
                 _renderArea.width = static_cast<uint>(shadowMapSize.x);
                 _renderArea.height = static_cast<uint>(shadowMapSize.y);
             } else {
-                _renderArea.x = static_cast<int>(static_cast<float>(_level % 2u) * 0.5F * shadowMapSize.x);
+                _renderArea.x = static_cast<int>(static_cast<float>(_level % 2) * 0.5F * shadowMapSize.x);
                 _renderArea.y = static_cast<int>((1 - std::floorf(static_cast<float>(_level) / 2)) * 0.5F * shadowMapSize.y);
                 _renderArea.width = static_cast<int>(0.5F * shadowMapSize.x);
                 _renderArea.height = static_cast<int>(0.5F * shadowMapSize.y);

@@ -67,7 +67,7 @@ public:
     inline geometry::AABB getCastLightViewBoundingBox() const { return _castLightViewBoundingBox; }
     inline void setCastLightViewBoundingBox(const geometry::AABB &castLightViewBoundingBox) { _castLightViewBoundingBox = castLightViewBoundingBox; }
 
-    void createMatrix(const geometry::Frustum splitFrustum, const scene::DirectionalLight *dirLight, float shadowMapWidth, bool isOnlyCulling);
+    void createMatrix(geometry::Frustum splitFrustum, const scene::DirectionalLight *dirLight, float shadowMapWidth, bool isOnlyCulling);
 
 private:
     RenderObjectList _shadowObjects;

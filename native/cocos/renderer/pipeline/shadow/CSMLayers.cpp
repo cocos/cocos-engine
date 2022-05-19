@@ -39,7 +39,7 @@ ShadowTransformInfo::~ShadowTransformInfo() {
     _shadowObjects.clear();
 }
 
-void ShadowTransformInfo::createMatrix(const geometry::Frustum splitFrustum, const scene::DirectionalLight *dirLight, float shadowMapWidth, bool isOnlyCulling) {
+void ShadowTransformInfo::createMatrix(geometry::Frustum splitFrustum, const scene::DirectionalLight *dirLight, float shadowMapWidth, bool isOnlyCulling) {
     const float invisibleOcclusionRange = dirLight->getShadowInvisibleOcclusionRange();
     const gfx::Device *device = gfx::Device::getInstance();
     _lightViewFrustum = *geometry::Frustum::clone(splitFrustum);
@@ -74,7 +74,7 @@ void ShadowTransformInfo::createMatrix(const geometry::Frustum splitFrustum, con
         const float halfOrthoSize = orthoSize * 0.5F;
         Mat4 matShadowProj;
         Mat4::createOrthographicOffCenter(-halfOrthoSize, halfOrthoSize, -halfOrthoSize, halfOrthoSize,
-                                          0.1F, _shadowCameraFar, clipSpaceMinZ, projectionSinY, 0u, &matShadowProj);
+                                          0.1F, _shadowCameraFar, clipSpaceMinZ, projectionSinY, 0U, &matShadowProj);
 
         Mat4 matShadowViewProjArbitaryPos;
         Mat4::multiply(matShadowProj, shadowViewArbitaryPos, &matShadowViewProjArbitaryPos);
@@ -114,15 +114,15 @@ CSMLayerInfo::CSMLayerInfo(uint level) {
 void CSMLayerInfo::calculateAtlas(uint level) {
     const gfx::Device *device = gfx::Device::getInstance();
     const float clipSpaceSignY = device->getCapabilities().clipSpaceSignY;
-    const float x = std::floorf(static_cast<float>(level % 2u)) - 0.5F;
-    const float y = clipSpaceSignY * (0.5F - std::floorf(static_cast<float>(level) / 2u));
+    const float x = std::floorf(static_cast<float>(level % 2U)) - 0.5F;
+    const float y = clipSpaceSignY * (0.5F - std::floorf(static_cast<float>(level) / 2U));
     const Vec3 bias(x, y, 0.0F);
     const Vec3 scale(0.5F, 0.5F, 1.0F);
     Mat4::fromRTS(Quaternion::identity(), bias, scale, &_matShadowAtlas);
 }
 
 CSMLayers::CSMLayers() {
-    _levelCount = 0u;
+    _levelCount = 0U;
     _specialLayer = new ShadowTransformInfo();
     _shadowDistance = 0.0F;
 }
@@ -197,7 +197,7 @@ void CSMLayers::updateFixedArea(const scene::DirectionalLight *dirLight) const {
     const Mat4 matShadowView = matShadowTrans.getInversed();
     Mat4 matShadowProj;
     Mat4::createOrthographicOffCenter(-x, x, -y, y, -nearClamp,
-                                      farClamp, clipSpaceMinZ, projectionSinY, 0u, &matShadowProj);
+                                      farClamp, clipSpaceMinZ, projectionSinY, 0U, &matShadowProj);
     Mat4 matShadowViewProj;
     Mat4::multiply(matShadowProj, matShadowView, &matShadowViewProj);
     _specialLayer->setMatShadowView(matShadowView);
@@ -231,7 +231,7 @@ void CSMLayers::splitFrustumLevels(scene::DirectionalLight *dirLight) {
 
 void CSMLayers::calculateCSM(const scene::Camera *camera, const scene::DirectionalLight *dirLight, const scene::Shadows *shadowInfo) {
     const uint level = static_cast<uint>(dirLight->getShadowCSMLevel());
-    const float shadowMapWidth = level > 1u ? shadowInfo->getSize().x * 0.5F : shadowInfo->getSize().x;
+    const float shadowMapWidth = level > 1U ? shadowInfo->getSize().x * 0.5F : shadowInfo->getSize().x;
 
     if (shadowMapWidth < 0.0F) {
         return;
