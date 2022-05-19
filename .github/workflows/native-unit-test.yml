@@ -44,7 +44,13 @@ jobs:
           cmake -B proj -S win64 -DRES_DIR=${GITHUB_WORKSPACE}/native/tests/sebind-tests/ -DCOCOS_X_PATH=${GITHUB_WORKSPACE}/native -DAPP_NAME=sebind
           cmake --build proj
           cd proj/Debug
-          ./sebind.exe
+          ./sebind.exe || true
+          if [[ -f "result.txt" ]]; 
+          then
+            echo "success!"
+          else
+            echo "Run sebind-tests fail!" > /dev/stderr
+          fi
       #### TODO(PatriceJiang): model split
       # - name: Run Module Tests
       #   shell: bash
