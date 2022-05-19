@@ -178,6 +178,15 @@ export class Skybox {
         }
     }
 
+    public setSkyboxMaterial (skyboxMat: Material | null) {
+        if (skyboxMat) {
+            this._editableMaterial = new MaterialInstance({ parent: skyboxMat });
+            this._editableMaterial.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
+        } else {
+            this._editableMaterial = null;
+        }
+        this._updatePipeline();
+    }
     protected _envmapLDR: TextureCube | null = null;
     protected _envmapHDR: TextureCube | null = null;
     protected _diffuseMapLDR: TextureCube | null = null;
@@ -189,6 +198,7 @@ export class Skybox {
     protected _useIBL = false;
     protected _useHDR = true;
     protected _useDiffuseMap = false;
+    protected _editableMaterial: MaterialInstance | null = null;
 
     public initialize (skyboxInfo: SkyboxInfo) {
         this._enabled = skyboxInfo.enabled;
@@ -249,7 +259,11 @@ export class Skybox {
             if (!skybox_mesh) {
                 skybox_mesh = legacyCC.utils.createMesh(legacyCC.primitives.box({ width: 2, height: 2, length: 2 })) as Mesh;
             }
-            this._model.initSubModel(0, skybox_mesh.renderingSubMeshes[0], skybox_material);
+            if (this._editableMaterial) {
+                this._model.initSubModel(0, skybox_mesh.renderingSubMeshes[0], this._editableMaterial);
+            } else {
+                this._model.initSubModel(0, skybox_mesh.renderingSubMeshes[0], skybox_material);
+            }
         }
 
         if (!this.envmap) {
@@ -282,12 +296,20 @@ export class Skybox {
             root.onGlobalPipelineStateChanged();
         }
 
-        if (this.enabled && skybox_material) {
-            skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
+        if (this.enabled) {
+            if (this._editableMaterial) {
+                this._editableMaterial.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
+            } else if (skybox_material) {
+                skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
+            }
         }
 
         if (this._model) {
-            this._model.setSubModelMaterial(0, skybox_material!);
+            if (this._editableMaterial) {
+                this._model.setSubModelMaterial(0, this._editableMaterial);
+            } else {
+                this._model.setSubModelMaterial(0, skybox_material!);
+            }
         }
     }
 
