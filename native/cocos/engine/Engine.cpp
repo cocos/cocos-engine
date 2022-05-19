@@ -153,11 +153,6 @@ Engine::~Engine() {
 }
 
 int32_t Engine::init() {
-    _scheduler->removeAllFunctionsToBePerformedInCocosThread();
-    _scheduler->unscheduleAll();
-
-    se::ScriptEngine::getInstance()->cleanup();
-
     BasePlatform *platform = BasePlatform::getPlatform();
     platform->setHandleEventCallback(
         std::bind(&Engine::handleEvent, this, std::placeholders::_1)); // NOLINT(modernize-avoid-bind)
