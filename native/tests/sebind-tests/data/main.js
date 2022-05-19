@@ -1,4 +1,6 @@
 
+const l = utils.log;
+
 function assert(value, message) {
     if (!value) {
         utils.assert(value, message);
@@ -12,13 +14,12 @@ function block(name, fn) {
 
 function flush() {
     for(let i = 0 ; i <  blocks.length; i++) {
-        console.log(`:: Run test ${i+1}/${blocks.length}, ${blocks[i].name}`);
+        l(`:: Run test ${i+1}/${blocks.length}, ${blocks[i].name}`);
         blocks[i].fn();
     }
 }
 
 
-const l = console.log;
 try {
 
     let f1 = new demo.Fruit("Banana");

@@ -1,5 +1,5 @@
 #include "sebind_fruits.h"
-
+#include <iostream>
 #include <chrono>
 #include "bindings/sebind/intl/common.h"
 #include "bindings/sebind/sebind.h"
@@ -12,8 +12,13 @@ struct Utils {};
 void doAssert(bool value, const std::string &message) {
     if (!value) {
         CC_LOG_ERROR("Assert Fail: %s", message.c_str());
+        std::cerr << "Assert Failed: " <<  message << std::endl;;
         std::exit(-1);
     }
+}
+
+void WriteLog(const std::string &message) {
+    std::cout << "[log] " << message << std::endl;
 }
 
 void successQuit(int code) {
@@ -91,6 +96,7 @@ bool jsb_register_fruits(se::Object *globalThis) {
     {
         utilsClass.staticFunction("assert", &doAssert)
             .staticFunction("exit", &successQuit)
+            .staticFunction("log", &WriteLog)
             .install(globalThis);
     }
 
