@@ -81,7 +81,7 @@ jobs:
           then
             echo "success!"
           else
-            echo "Run sebind-tests fail!" > /dev/stderr
+            echo "Run sebind-tests fail!"
             exit 1
           fi
 
