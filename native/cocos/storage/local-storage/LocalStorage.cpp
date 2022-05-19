@@ -63,7 +63,7 @@
     #include <cstdio>
     #include <cstdlib>
 
-    #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
+    #if (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_NX_WINDOWS)
         #include <sqlite3/sqlite3.h>
     #else
         #include <sqlite3.h>

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,28 +25,10 @@
 
 #pragma once
 
-#include "base/Macros.h"
-#if (CC_PLATFORM != CC_PLATFORM_NX)
-    #include "concurrentqueue/concurrentqueue.h"
-    #include "concurrentqueue/lightweightsemaphore.h"
-#else
-    #include "nx/concurrentqueue/concurrentqueue.h"
-    #include "nx/concurrentqueue/lightweightsemaphore.h"
-#endif
-
-namespace cc {
-
-class Semaphore final {
-public:
-    Semaphore() noexcept;
-    explicit Semaphore(int initialCount) noexcept;
-
-    void wait() noexcept;
-    void signal(int count = 1) noexcept;
-    void signalAll() noexcept { CC_ASSERT(false); } // NOLINT(readability-convert-member-functions-to-static)
-
-private:
-    moodycamel::details::Semaphore _semaphore;
-};
-
-} // namespace cc
+#include "../State.h"
+#include "../Value.h"
+#include "Class.h"
+#include "HelperMacros.h"
+#include "Object.h"
+#include "ScriptEngine.h"
+#include "Utils.h"

@@ -48,6 +48,7 @@ layout(location = 3) in vec4 a_tangent;
 #endif
 
 #if CC_USE_MORPH
+  #pragma extension([GL_KHR_vulkan_glsl, __VERSION__ >= 450, enable])
   #if __VERSION__ < 450
     in float a_vertexId;
     int getVertexId() {

@@ -69,6 +69,7 @@ static std::string removeFileExt(const std::string &filePath) {
 }
 
 static int selectPort(int port) {
+#if (CC_PLATFORM != CC_PLATFORM_NX)
     struct sockaddr_in addr;
     static uv_tcp_t    server;
     uv_loop_t *        loop      = uv_loop_new();
@@ -89,6 +90,9 @@ static int selectPort(int port) {
     }
     uv_loop_close(loop);
     return startPort;
+#else
+    return 6743; // TODO : add libuv for nx
+#endif
 }
 
 void jsb_init_file_operation_delegate() { //NOLINT

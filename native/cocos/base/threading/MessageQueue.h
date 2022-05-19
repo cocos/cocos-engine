@@ -28,7 +28,12 @@
 #include <cstdint>
 #include "../memory/Memory.h"
 #include "Event.h"
-#include "concurrentqueue/concurrentqueue.h"
+#if (CC_PLATFORM != CC_PLATFORM_NX)
+    #include "concurrentqueue/concurrentqueue.h"
+#else
+    #include "nx/concurrentqueue/concurrentqueue.h"
+#endif
+
 
 namespace cc {
 

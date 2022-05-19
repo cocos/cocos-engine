@@ -26,7 +26,7 @@
 
 #pragma once
 
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+#if (CC_PLATFORM == CC_PLATFORM_WINDOWS) || (CC_PLATFORM == CC_PLATFORM_NX_WINDOWS)
 
     #define WIN32_LEAN_AND_MEAN
     #include <Windows.h>

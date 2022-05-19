@@ -27,6 +27,50 @@
 #include "State.h"
 #include "Object.h"
 
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_QUICKJS
+namespace se {
+
+State::State(Object *thisObject)
+: _thisObject(thisObject) {
+    if (_thisObject != nullptr) {
+        _thisObject->incRef();
+    }
+}
+
+State::State(Object *thisObject, const ValueArray &args)
+: _thisObject(thisObject),
+  _args(&args) {
+    if (_thisObject != nullptr) {
+        _thisObject->incRef();
+    }
+}
+
+State::~State() {
+    SAFE_DEC_REF(_thisObject);
+}
+
+void *State::nativeThisObject() const {
+    return _thisObject->getPrivateData();
+}
+
+Object *State::thisObject() {
+    assert(_thisObject != nullptr);
+    return _thisObject;
+}
+
+const ValueArray &State::args() const {
+    if (_args != nullptr) {
+        return *(_args);
+    }
+    return EmptyValueArray;
+}
+
+Value &State::rval() {
+    return _retVal;
+}
+} // namespace se
+#else
+
 namespace se {
 
 State::State()
@@ -84,3 +128,5 @@ Value &State::rval() {
     return _retVal;
 }
 } // namespace se
+
+#endif

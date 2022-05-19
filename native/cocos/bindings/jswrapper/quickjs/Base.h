@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,28 +25,18 @@
 
 #pragma once
 
-#include "base/Macros.h"
-#if (CC_PLATFORM != CC_PLATFORM_NX)
-    #include "concurrentqueue/concurrentqueue.h"
-    #include "concurrentqueue/lightweightsemaphore.h"
-#else
-    #include "nx/concurrentqueue/concurrentqueue.h"
-    #include "nx/concurrentqueue/lightweightsemaphore.h"
-#endif
+#include "quickjs-libc.h"
+#include "quickjs.h"
 
-namespace cc {
+using JSPropGetter = JSValue (*)(JSContext *ctx, JSValueConst this_val);
+using JSPropSetter = JSValue (*)(JSContext *ctx, JSValueConst this_val, JSValueConst val);
 
-class Semaphore final {
-public:
-    Semaphore() noexcept;
-    explicit Semaphore(int initialCount) noexcept;
+#include "HelperMacros.h"
 
-    void wait() noexcept;
-    void signal(int count = 1) noexcept;
-    void signalAll() noexcept { CC_ASSERT(false); } // NOLINT(readability-convert-member-functions-to-static)
-
-private:
-    moodycamel::details::Semaphore _semaphore;
-};
-
-} // namespace cc
+#include <assert.h>
+#include <chrono>
+#include <functional>
+#include <initializer_list>
+#include <string>
+#include <unordered_map>
+#include <vector>

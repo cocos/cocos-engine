@@ -60,7 +60,6 @@ private:
 };
 
 } // namespace cc
-
 #define CC_LOG_DEBUG(formats, ...) \
     if (cc::Log::slogLevel >= cc::LogLevel::LEVEL_DEBUG) cc::Log::logMessage(cc::LogType::KERNEL, cc::LogLevel::LEVEL_DEBUG, formats, ##__VA_ARGS__)
 #define CC_LOG_INFO(formats, ...) \

@@ -28,7 +28,7 @@
 #include "../Config.h"
 #if USE_MEMORY_LEAK_DETECTOR
 
-    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
+    #if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_NX_WINDOWS
         #include <Windows.h>
     #endif
     #include <cstdint>
@@ -63,7 +63,7 @@ public:
     static std::vector<void*>      backtrace();
     static std::vector<StackFrame> backtraceSymbols(const std::vector<void*>& callstack);
 
-    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
+    #if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_NX_WINDOWS
     static void initSym();
     static void cleanupSym();
 

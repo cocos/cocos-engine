@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,28 +25,39 @@
 
 #pragma once
 
-#include "base/Macros.h"
-#if (CC_PLATFORM != CC_PLATFORM_NX)
-    #include "concurrentqueue/concurrentqueue.h"
-    #include "concurrentqueue/lightweightsemaphore.h"
-#else
-    #include "nx/concurrentqueue/concurrentqueue.h"
-    #include "nx/concurrentqueue/lightweightsemaphore.h"
-#endif
+#include "../config.h"
 
-namespace cc {
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_QUICKJS
 
-class Semaphore final {
-public:
-    Semaphore() noexcept;
-    explicit Semaphore(int initialCount) noexcept;
+    #include "Base.h"
 
-    void wait() noexcept;
-    void signal(int count = 1) noexcept;
-    void signalAll() noexcept { CC_ASSERT(false); } // NOLINT(readability-convert-member-functions-to-static)
+    #include "../Value.h"
 
-private:
-    moodycamel::details::Semaphore _semaphore;
-};
+namespace se {
 
-} // namespace cc
+class Class;
+
+namespace internal {
+
+void forceConvertJsValueToStdString(JSContext *cx, JSValue jsval, std::string *ret);
+
+void jsToSeArgs(JSContext *cx, int argc, JSValueConst *argv, ValueArray &outArr);
+void jsToSeValue(JSContext *cx, JSValueConst jsval, Value *v);
+void seToJsArgs(JSContext *cx, int argc, const Value *args, JSValue *outArr);
+void seToJsValue(JSContext *cx, const Value &v, JSValue *outVal);
+void setReturnJSValue(JSContext *cx, const Value &arg, JSValue *outVal);
+
+bool  hasPrivate(JSValue obj);
+void *getPrivate(JSValue obj);
+void  setPrivate(JSValue obj, Object *seObj);
+void  clearPrivate(JSValue obj);
+
+bool isJSBClass(JSValue obj);
+
+void jsObjectToSeObject(JSValueConst jsval, Value *v);
+
+} // namespace internal
+
+} // namespace se
+
+#endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_QUICKJS

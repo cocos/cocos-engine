@@ -19,6 +19,8 @@ const platformMap: Record<number, Platform> = {
     // 5 is IPAD
     5: Platform.IOS,
     6: Platform.OHOS,
+    // 7 is QNX,
+    8: Platform.NX,
 };
 
 class SystemInfo extends EventTarget {
@@ -48,7 +50,7 @@ class SystemInfo extends EventTarget {
 
         // @ts-expect-error __getPlatform()
         this.platform = platformMap[__getPlatform()];
-        this.isMobile = this.platform === Platform.ANDROID || this.platform === Platform.IOS || this.platform === Platform.OHOS;
+        this.isMobile = this.platform === Platform.ANDROID || this.platform === Platform.IOS || this.platform === Platform.OHOS || this.platform === Platform.NX;
 
         // init isLittleEndian
         this.isLittleEndian = (() => {

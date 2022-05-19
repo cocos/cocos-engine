@@ -43,3 +43,7 @@
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE
     #include "chakracore/Object.h"
 #endif
+
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_QUICKJS
+    #include "quickjs/Object.h"
+#endif

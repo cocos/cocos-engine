@@ -29,7 +29,9 @@
 #include "base/Macros.h"
 // clang-format on
 
+#if(CC_PLATFORM != CC_PLATFORM_NX)
 #include <uv.h>
+#endif
 #include <functional>
 
 namespace cc {
@@ -37,10 +39,14 @@ namespace cc {
 class ReadWriteLock final {
 public:
     ReadWriteLock() {
+#if (CC_PLATFORM != CC_PLATFORM_NX)
         uv_rwlock_init(&_lock);
+#endif
     };
     ~ReadWriteLock() {
+#if (CC_PLATFORM != CC_PLATFORM_NX)
         uv_rwlock_destroy(&_lock);
+#endif
     }
 
     template <typename Function, typename... Args>
@@ -50,7 +56,9 @@ public:
     auto lockWrite(Function &&func, Args &&...args) noexcept -> decltype(func(std::forward<Args>(args)...));
 
 private:
+#if (CC_PLATFORM != CC_PLATFORM_NX)
     uv_rwlock_t _lock;
+#endif
 
     struct Defer final {
         explicit Defer(std::function<void()> &&f) : fn(f) {}
@@ -63,19 +71,23 @@ private:
 
 template <typename Function, typename... Args>
 auto ReadWriteLock::lockRead(Function &&func, Args &&...args) noexcept -> decltype(func(std::forward<Args>(args)...)) {
+#if (CC_PLATFORM != CC_PLATFORM_NX)
     uv_rwlock_rdlock(&_lock);
     auto defer = Defer([&]() {
         uv_rwlock_rdunlock(&_lock);
     });
+#endif
     return func(std::forward<Args>(args)...);
 }
 
 template <typename Function, typename... Args>
 auto ReadWriteLock::lockWrite(Function &&func, Args &&...args) noexcept -> decltype(func(std::forward<Args>(args)...)) {
+#if (CC_PLATFORM != CC_PLATFORM_NX)
     uv_rwlock_wrlock(&_lock);
     auto defer = Defer([&]() {
         uv_rwlock_wrunlock(&_lock);
     });
+#endif
     return func(std::forward<Args>(args)...);
 }
 
