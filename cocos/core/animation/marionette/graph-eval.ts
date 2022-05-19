@@ -443,6 +443,7 @@ class LayerEval {
                     triggers: undefined,
                     duration: 0.0,
                     normalizedDuration: false,
+                    offset: 0.0,
                     exitCondition: 0.0,
                     exitConditionEnabled: false,
                 };
@@ -452,6 +453,7 @@ class LayerEval {
                     transitionEval.normalizedDuration = outgoing.relativeDuration;
                     transitionEval.exitConditionEnabled = outgoing.exitConditionEnabled;
                     transitionEval.exitCondition = outgoing.exitCondition;
+                    transitionEval.offset = outgoing.offset;
                 } else if (outgoing instanceof EmptyStateTransition) {
                     transitionEval.duration = outgoing.duration;
                 }
@@ -853,6 +855,12 @@ class LayerEval {
     }
 
     private _doTransitionToMotion (targetNode: MotionStateEval | EmptyStateEval) {
+        const {
+            _currentTransitionPath: currentTransitionPath,
+        } = this;
+
+        assertIsTrue(currentTransitionPath.length !== 0);
+
         // Reset triggers
         this._resetTriggersAlongThePath();
 
@@ -861,7 +869,10 @@ class LayerEval {
         this._toUpdated = false;
 
         if (targetNode.kind === NodeKind.animation) {
-            targetNode.resetToPort();
+            const {
+                offset: transitionOffset,
+            } = currentTransitionPath[0];
+            targetNode.resetToPort(transitionOffset);
         }
         this._callEnterMethods(targetNode);
     }
@@ -1248,8 +1259,8 @@ export class MotionStateEval extends StateEval {
         return stateStatus;
     }
 
-    public resetToPort () {
-        this._toPort.progress = 0.0;
+    public resetToPort (at: number) {
+        this._toPort.progress = at;
     }
 
     public finishTransition () {
@@ -1336,6 +1347,7 @@ interface TransitionEval {
     conditions: ConditionEval[];
     exitConditionEnabled: boolean;
     exitCondition: number;
+    offset: number;
     /**
      * Bound triggers, once this transition satisfied. All triggers would be reset.
      */

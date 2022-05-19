@@ -83,6 +83,14 @@ class AnimationTransition extends Transition {
     @serializable
     public exitConditionEnabled = true;
 
+    /**
+     * @en The start time of (final) target motion state when this transition starts.
+     * Its unit is the duration of target motion state.
+     * @zh 此过渡开始时，（最终）目标动作状态的起始时间。其单位是目标动作状态的周期。
+     */
+    @serializable
+    public offset = 0.0;
+
     get exitCondition () {
         return this._exitCondition;
     }
