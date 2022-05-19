@@ -520,16 +520,16 @@ struct InstanceMethod<R (T::*)(ARGS...)> : InstanceMethodBase {
     type func = nullptr;
 
     template <bool>
-    struct CallFunc;
+    struct Invoker;
     template <>
-    struct CallFunc<true> {
+    struct Invoker<true> {
         template <typename S, typename... ARGS2, size_t... indexes>
         static void invoke(S *m, T *self, se::State & /*state*/, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> a) {
             m->callWithTuple(self, args, a);
         }
     };
     template <>
-    struct CallFunc<false> {
+    struct Invoker<false> {
         template <typename S, typename... ARGS2, size_t... indexes>
         static void invoke(S *m, T *self, se::State &state, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> a) {
             nativevalue_to_se(m->callWithTuple(self, args, a), state.rval(), state.thisObject());
@@ -552,7 +552,7 @@ struct InstanceMethod<R (T::*)(ARGS...)> : InstanceMethodBase {
         }
         std::tuple<HolderType<ARGS, std::is_reference<ARGS>::value>...> args{};
         convert_js_args_to_tuple(jsArgs, args, thisObject, indexes);
-        CallFunc<RETURN_VOID>::invoke(this, self, state, args, indexes);
+        Invoker<RETURN_VOID>::invoke(this, self, state, args, indexes);
         return true;
     }
 };
@@ -568,16 +568,16 @@ struct InstanceMethod<R (T::*)(ARGS...) const> : InstanceMethodBase {
     type func = nullptr;
 
     template <bool>
-    struct CallFunc;
+    struct Invoker;
     template <>
-    struct CallFunc<true> {
+    struct Invoker<true> {
         template <typename S, typename... ARGS2, size_t... indexes>
         static void invoke(S *m, T *self, se::State & /*state*/, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> a) {
             m->callWithTuple(self, args, a);
         }
     };
     template <>
-    struct CallFunc<false> {
+    struct Invoker<false> {
         template <typename S, typename... ARGS2, size_t... indexes>
         static void invoke(S *m, T *self, se::State &state, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> a) {
             nativevalue_to_se(m->callWithTuple(self, args, a), state.rval(), state.thisObject());
@@ -600,7 +600,7 @@ struct InstanceMethod<R (T::*)(ARGS...) const> : InstanceMethodBase {
         }
         std::tuple<HolderType<ARGS, std::is_reference<ARGS>::value>...> args{};
         convert_js_args_to_tuple(jsArgs, args, thisObject, indexes);
-        CallFunc<RETURN_VOID>::invoke(this, self, state, args, indexes);
+        Invoker<RETURN_VOID>::invoke(this, self, state, args, indexes);
         return true;
     }
 };
@@ -616,16 +616,16 @@ struct InstanceMethod<R (*)(T *, ARGS...)> : InstanceMethodBase {
     type func = nullptr;
 
     template <bool>
-    struct CallFunc;
+    struct Invoker;
     template <>
-    struct CallFunc<true> {
+    struct Invoker<true> {
         template <typename S, typename... ARGS2, size_t... indexes>
         static void invoke(S *m, T *self, se::State & /*state*/, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> a) {
             m->callWithTuple(self, args, a);
         }
     };
     template <>
-    struct CallFunc<false> {
+    struct Invoker<false> {
         template <typename S, typename... ARGS2, size_t... indexes>
         static void invoke(S *m, T *self, se::State &state, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> a) {
             nativevalue_to_se(m->callWithTuple(self, args, a), state.rval(), state.thisObject());
@@ -648,7 +648,7 @@ struct InstanceMethod<R (*)(T *, ARGS...)> : InstanceMethodBase {
         }
         std::tuple<HolderType<ARGS, std::is_reference<ARGS>::value>...> args{};
         convert_js_args_to_tuple(jsArgs, args, thisObject, indexes);
-        CallFunc<RETURN_VOID>::invoke(this, self, state, args, indexes);
+        Invoker<RETURN_VOID>::invoke(this, self, state, args, indexes);
         return true;
     }
 };
@@ -962,8 +962,7 @@ struct StaticAttribute<SAttributeAccessor<T, Getter, Setter>> : StaticAttributeB
     }
 
     bool set(se::State &state) const override {
-        if
-            CC_CONSTEXPR(HAS_SETTER) {
+        if CC_CONSTEXPR(HAS_SETTER) {
                 const auto &args = state.args();
                 HolderType<set_value_type, std::is_reference<set_value_type>::value> temp;
                 sevalue_to_native(args[0], &(temp.data), nullptr);

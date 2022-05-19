@@ -25,6 +25,7 @@
 #include "class_v8.h"
 
 namespace sebind {
+// adoption layer from v8 function to se function
 void genericFunction(const v8::FunctionCallbackInfo<v8::Value> &v8args) {
     void *ctx = v8args.Data().IsEmpty() ? nullptr : v8args.Data().As<v8::External>()->Value();
     auto *method = reinterpret_cast<intl::InstanceMethodBase *>(ctx);

@@ -38,7 +38,11 @@
 
 namespace sebind {
 
-
+/**
+ * @brief Export C++ Class/Funtions to JS
+ * 
+ * @tparam T  C++ type
+ */
 template <typename T>
 class class_ { //NOLINT
 public:
@@ -98,14 +102,10 @@ public:
     
     /**
      * @brief Register a callback when GC occurs
-     * The signature of the function pointer can be
-     * - `void(*)(T*)`
-     * @tparam F 
      * @param callback GC callback
      * @return class_& 
      */
-    template <typename F>
-    class_ &finalizer(F callback);
+    class_ &finalizer(void (*callback)(T *));
 
     /**
      * @brief Define a member function for js class
@@ -122,32 +122,104 @@ public:
      * @brief Define a property for js class
      * 
      * @tparam Field 
-     * @param name 
-     * @param field 
+     * @param name Field name
+     * @param field Member data pointer of class `T`
      * @return class_& 
      */
     template <typename Field>
     class_ &property(const char *name, Field field);
 
+    /**
+     * @brief Define a property for JS class
+     * 
+     * The getter and setter can not be both null.
+     * @tparam Getter Member function pointer or normal function pointer which first parameter is `T*`.
+     * @tparam Setter Member function pointer or normal function pointer which first parameter is `T*`.
+     * @param name  Property name
+     * @param getter Getter function pointer
+     * @param setter Setter function pointer
+     * @return class_& 
+     */
     template <typename Getter, typename Setter>
     class_ &property(const char *name, Getter getter, Setter setter);
 
+    /**
+     * @brief Define a static property for JS class
+     * 
+     * @tparam Method static function pointer or normal function pointer.
+     * @param name property name
+     * @param method function pointer
+     * @return class_& 
+     */
     template <typename Method>
     class_ &staticFunction(const char *name, Method method);
 
+    /**
+     * @brief Define a static property for JS class
+     *
+     * The getter and setter can not be both null.
+     * 
+     * @tparam Getter Static function pointer or normal function pointer.
+     * @tparam Setter Static function pointer or normal function pointer.
+     * @param name property name
+     * @param getter function pointer
+     * @param setter function pointer
+     * @return class_& 
+     */
     template <typename Getter, typename Setter>
     class_ &staticProperty(const char *name, Getter getter, Setter setter);
 
+    /**
+     * @brief Define a constructor with verbose callback.
+     * 
+     * @param callback function pointer
+     * @return class_& 
+     */
     class_ &constructor(SeCallbackFnPtr callback);
 
+    /**
+     * @brief Define a function with verbose callback.
+     * 
+     * @param name function name
+     * @param callback function pointer
+     * @return class_& 
+     */
     class_ &function(const char *name, SeCallbackFnPtr callback);
 
+    /**
+     * @brief Define a property with verbose callback.
+     * getter and setter can not be both null 
+     * @param name property name
+     * @param getter function pointer
+     * @param setter function pointer
+     * @return class_& 
+     */
     class_ &property(const char *name, SeCallbackFnPtr getter, SeCallbackFnPtr setter);
 
+    /**
+     * @brief Define static function with verbose callback
+     * 
+     * @param name static function name
+     * @param callback 
+     * @return class_& 
+     */
     class_ &staticFunction(const char *name, SeCallbackFnPtr callback);
 
+    /**
+     * @brief Define a property with verbose callback.
+     * getter and setter can not be both null 
+     * @param name property name
+     * @param getter function pointer
+     * @param setter function pointer
+     * @return class_& 
+     */
     class_ &staticProperty(const char *name, SeCallbackFnPtr getter, SeCallbackFnPtr setter);
 
+    /**
+     * @brief Prototype of JS class, only valid after invoke install.
+     * 
+     * @return se::Object* 
+     */
     se::Object *prototype() {
         return _ctx->kls->getProto();
     }
@@ -210,8 +282,7 @@ class_<T> &class_<T>::constructor(SeCallbackFnPtr callback) {
 }
 
 template <typename T>
-template <typename F>
-class_<T> &class_<T>::finalizer(F callback) {
+class_<T> &class_<T>::finalizer(void (*callback)(T*)) {
     auto *fin = ccnew intl::Finalizer<T>();
     fin->func = callback;
     _ctx->finalizeCallbacks.emplace_back(fin);
