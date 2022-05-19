@@ -39,26 +39,15 @@
      = virtual [    ] keyboard = >>> inputView
     The principle idea is to set inputAccessoryView from JS where developer can bind selector with js callback.
     JS API:
-        uibutton sendBtn;
-        sendBtn.onclick = () => {...}
-        uiInputField inputFld;
-        inputFld.oninput = () => {...}
-        jsb.inputbox ibox;
-        ibox.addComponent(sendBtn); automatically set as the last element.
+        jsb.InputBox customizeIBox = new jsb.InputBox();
+        ibox.addComponent(sendBtn, (ClickEvent: event)=>{...}); automatically set as the last element.
+        ibox.addComponent(inputFld, (InputEvent: event)=>{...});
         ibox.setLayout(sendBtn, inputFld);
     JSB binding:
         jsb_addComponent(se::Value){
             ...
             inputBox.addComponent(cpt);
         }
-    Native API:
-    class InputBox{
-        ...
-        addComponent(UIView* cpt);
-        setLayout(UIView*[] views);
-        createInputBox();
-    }
-
  ************************************************************/
 
 #include "EditBox.h"
@@ -68,14 +57,14 @@
 
 #import <UIKit/UIKit.h>
 
-#define TEXT_LINE_HEIGHT            40
-#define TEXT_VIEW_MAX_LINE_SHOWN    3
-#define BUTTON_HEIGHT                (TEXT_LINE_HEIGHT - 2)
-#define BUTTON_WIDTH                60
-#define TOOLBAR_HEIGHT              (TEXT_LINE_HEIGHT + 2)
-#define TEXT_FIELD_HEIGHT           (BUTTON_HEIGHT - 10)
-#define ITEM_MARGIN                 10
-const bool INPUTBOX_HIDDEN = false; // Toggle if Inputbox is visible
+#define ITEM_MARGIN_WIDTH               10
+#define ITEM_MARGIN_HEIGHT              10
+#define TEXT_LINE_HEIGHT                40
+#define TEXT_VIEW_MAX_LINE_SHOWN        1.5
+#define BUTTON_HEIGHT                   (TEXT_LINE_HEIGHT - ITEM_MARGIN_HEIGHT)
+#define BUTTON_WIDTH                    60
+
+const bool INPUTBOX_HIDDEN = true; // Toggle if Inputbox is visible
 /*************************************************************************
  Inner class declarations.
  ************************************************************************/
@@ -91,7 +80,6 @@ const bool INPUTBOX_HIDDEN = false; // Toggle if Inputbox is visible
 @end
 
 @interface TextFieldDelegate : NSObject <UITextFieldDelegate>
-
 - (BOOL)        textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string;
 - (void)        textFieldDidChange:(UITextField *)textField;
 - (BOOL)        textFieldShouldReturn:(UITextField *)textField;
@@ -109,7 +97,7 @@ namespace {
 
 static int      g_maxLength = INT_MAX;
 static bool     g_isMultiline = true;
-se::Value textInputCallback;
+se::Value       textInputCallback;
 
 void getTextInputCallback() {
     if (!textInputCallback.isUndefined())
@@ -148,7 +136,7 @@ int getTextInputHeight() {
 }
 
 // TODO: Make type enum
-void setTexFieldKeyboardType(UITextField *textField, const std::string &inputType) {
+void setTextFieldKeyboardType(UITextField *textField, const std::string &inputType) {
     if (0 == inputType.compare("password")) {
         textField.secureTextEntry = TRUE;
         textField.keyboardType = UIKeyboardTypeDefault;
@@ -225,9 +213,6 @@ NSString *getHash(const cc::EditBox::ShowInfo* showInfo) {
     tViewOnToolbar = inputOnToolbar;
     return self;
 }
-- (void) setViewOnToolbar: (UITextView*)view {
-    tViewOnToolbar = view;
-}
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
     // REFINE: check length limit before text changed
     return YES;
@@ -280,13 +265,11 @@ NSString *getHash(const cc::EditBox::ShowInfo* showInfo) {
 }
 @end
 
-@end
 
 static ButtonHandler*           btnHandler = nil;
 @interface InputBoxPair : NSObject
 @property(readwrite) id inputOnView;
 @property(readwrite) id inputOnToolbar;
-
 @end
 @implementation InputBoxPair
 @end
@@ -324,8 +307,29 @@ static Editbox_impl *instance = nil;
     }
     [super dealloc];
 }
-- (CGFloat) getTextFieldWidthOf: (UIToolbar*)toolbar{
-    
+- (UIBarButtonItem*) setInputWidthOf: (UIToolbar*)toolbar{
+    CGFloat totalItemsWidth = ITEM_MARGIN_WIDTH;
+    UIBarButtonItem *textViewBarButtonItem;
+    UIView *view;
+    for (UIBarButtonItem *barButtonItem in toolbar.items) {
+        if ((view = [barButtonItem valueForKey:@"view"])) {
+            if ([view isKindOfClass:[UITextView class]] || [view isKindOfClass:[UITextField class]]) {
+                textViewBarButtonItem = barButtonItem;
+            } else if (view.bounds.size.width > 0) {
+                // Docs say width can be negative for variable size items
+                totalItemsWidth += view.frame.size.width + ITEM_MARGIN_WIDTH;
+            }
+        } else {
+            totalItemsWidth += barButtonItem.width + ITEM_MARGIN_WIDTH;
+        }
+        totalItemsWidth += ITEM_MARGIN_WIDTH;
+    }
+    [[textViewBarButtonItem customView]
+        setFrame:CGRectMake(0,
+                            0,
+                            getSafeAreaRect().size.width - totalItemsWidth,
+                            getTextInputHeight())];
+    return textViewBarButtonItem;
 }
 - (void) addInputAccessoryViewForTextView: (InputBoxPair*)inputbox
                                      with:(const cc::EditBox::ShowInfo*)showInfo{
@@ -334,12 +338,14 @@ static Editbox_impl *instance = nil;
                           initWithFrame:CGRectMake(0,
                                                    0,
                                                    safeView.size.width,
-                                                   TOOLBAR_HEIGHT * TEXT_VIEW_MAX_LINE_SHOWN)];
+                                                   getTextInputHeight() + ITEM_MARGIN_HEIGHT)];
     [toolbar setBackgroundColor:[UIColor darkGrayColor]];
     
     UITextView* textView = [[UITextView alloc] init];
     textView.textColor = [UIColor blackColor];
     textView.backgroundColor = [UIColor whiteColor];
+    textView.layer.cornerRadius = 5.0;
+    textView.clipsToBounds = YES;
     textView.text = [NSString stringWithUTF8String:showInfo->defaultValue.c_str()];
     TextViewDelegate* delegate = [[TextViewDelegate alloc] initWithPairs:[inputbox inputOnView] and:textView];
     textView.delegate = delegate;
@@ -365,26 +371,9 @@ static Editbox_impl *instance = nil;
     UIBarButtonItem *confirm = [[UIBarButtonItem alloc]initWithCustomView:confirmBtn];
     
     [toolbar setItems:@[textViewItem, confirm] animated:YES];
-    
-    CGFloat totalItemsWidth = ITEM_MARGIN;
-    UIBarButtonItem *textViewBarButtonItem;
-    UIView *view;
-    for (UIBarButtonItem *barButtonItem in toolbar.items) {
-        if ((view = [barButtonItem valueForKey:@"view"])) {
-            if ([view isKindOfClass:[UITextView class]]) {
-                textViewBarButtonItem = barButtonItem;
-            } else if (view.bounds.size.width > 0) {
-                // Docs say width can be negative for variable size items
-                totalItemsWidth += view.frame.size.width + ITEM_MARGIN;
-            }
-        } else {
-            totalItemsWidth += barButtonItem.width + ITEM_MARGIN;
-        }
-        totalItemsWidth += ITEM_MARGIN;
-    }
-    [[textViewBarButtonItem customView] setFrame:CGRectMake(0, 0, safeView.size.width - totalItemsWidth,
-                                                         TEXT_FIELD_HEIGHT * TEXT_VIEW_MAX_LINE_SHOWN)];
+    UIBarButtonItem* textViewBarButtonItem = [self setInputWidthOf:toolbar];
     ((UITextView*)[inputbox inputOnView]).inputAccessoryView = toolbar;
+    
     [inputbox setInputOnToolbar:textViewBarButtonItem.customView];
     
 }
@@ -395,17 +384,19 @@ static Editbox_impl *instance = nil;
                           initWithFrame:CGRectMake(0,
                                                    0,
                                                    safeView.size.width,
-                                                   TOOLBAR_HEIGHT)];
+                                                   TEXT_LINE_HEIGHT + ITEM_MARGIN_HEIGHT)];
     [toolbar setBackgroundColor:[UIColor darkGrayColor]];
     
     UITextField* textField = [[UITextField alloc] init];
+    textField.borderStyle = UITextBorderStyleRoundedRect;
     textField.textColor = [UIColor blackColor];
     textField.backgroundColor = [UIColor whiteColor];
     textField.text = [NSString stringWithUTF8String:showInfo->defaultValue.c_str()];
     TextFieldDelegate* delegate = [[TextFieldDelegate alloc] initWithPairs:[inputbox inputOnView] and:textField];
     textField.delegate = delegate;
     [textField addTarget:delegate action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
-
+    setTextFieldReturnType(textField, showInfo->confirmType);
+    setTextFieldKeyboardType(textField, showInfo->inputType);
     UIBarButtonItem *textFieldItem = [[UIBarButtonItem alloc] initWithCustomView:textField];
     
     if (!btnHandler){
@@ -429,24 +420,8 @@ static Editbox_impl *instance = nil;
     
     [toolbar setItems:@[textFieldItem, confirm] animated:YES];
     
-    CGFloat totalItemsWidth = ITEM_MARGIN;
-    UIBarButtonItem *textFieldBarButtonItem;
-    UIView *view;
-    for (UIBarButtonItem *barButtonItem in toolbar.items) {
-        if ((view = [barButtonItem valueForKey:@"view"])) {
-            if ([view isKindOfClass:[UITextField class]]) {
-                textFieldBarButtonItem = barButtonItem;
-            } else if (view.bounds.size.width > 0) {
-                // Docs say width can be negative for variable size items
-                totalItemsWidth += view.frame.size.width + ITEM_MARGIN;
-            }
-        } else {
-            totalItemsWidth += barButtonItem.width + ITEM_MARGIN;
-        }
-        totalItemsWidth += ITEM_MARGIN;
-    }
-    [[textFieldBarButtonItem customView] setFrame:CGRectMake(0, 0, safeView.size.width - totalItemsWidth,
-                                                         TEXT_FIELD_HEIGHT)];
+    
+    UIBarButtonItem* textFieldBarButtonItem = [self setInputWidthOf:toolbar];
     ((UITextField*)[inputbox inputOnView]).inputAccessoryView = toolbar;
     [inputbox setInputOnToolbar:textFieldBarButtonItem.customView];
 }
