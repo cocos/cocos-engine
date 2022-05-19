@@ -29,11 +29,8 @@ export interface IAndroidParams {
 }
 
 export class AndroidPackTool extends NativePackTool {
-    params: CocosParams<IAndroidParams>;
-    constructor(params: CocosParams<IAndroidParams>) {
-        super(params);
-        this.params = params;
-    }
+    params!: CocosParams<IAndroidParams>;
+
     protected async copyPlatformTemplate() {
         // 原生工程不重复拷贝 TODO 复用前需要做版本检测
         if (!fs.existsSync(this.paths.nativePrjDir)) {
@@ -43,18 +40,19 @@ export class AndroidPackTool extends NativePackTool {
     }
 
     async create() {
-        // 拷贝一些内置的模板文件
-        await this.copyCommonTemplate();
+        await super.create();
         await this.copyPlatformTemplate();
 
         await this.setOrientation();
+
+        await this.encrypteScripts();
         return true;
     }
 
     async make() {
         const options = this.params.platformParams;
 
-        const projDir: string = ps.join(Paths.projectDir, 'proj');
+        const projDir: string = ps.join(this.paths.buildDir, 'proj');
         if (!fs.existsSync(projDir)) {
             console.error(`dir ${projDir} not exits`);
             return false;
@@ -70,13 +68,13 @@ export class AndroidPackTool extends NativePackTool {
 
         // compile android
         buildMode = `${this.params.projectName}:assemble${outputMode}`;
-        // await cchelper.runCmd(gradle, [buildMode /* "--quiet",*/ /*"--build-cache", "--project-cache-dir", buildDir */], false, projDir);
+        // await cchelper.runCmd(gradle, [buildMode /* "--quiet",*/ /*"--build-cache", "--project-cache-dir", nativePrjDir */], false, projDir);
         await cchelper.runCmd(gradle, [buildMode], false, projDir);
 
         // compile android-instant
         if (options.androidInstant) {
             buildMode = `instantapp:assemble${outputMode}`;
-            // await cchelper.runCmd(gradle, [buildMode, /*"--quiet",*/ /*"--build-cache", "--project-cache-dir", buildDir*/], false, projDir);
+            // await cchelper.runCmd(gradle, [buildMode, /*"--quiet",*/ /*"--build-cache", "--project-cache-dir", nativePrjDir*/], false, projDir);
             await cchelper.runCmd(gradle, [buildMode], false, projDir);
         }
 
@@ -87,7 +85,7 @@ export class AndroidPackTool extends NativePackTool {
             } else {
                 buildMode = `${this.params.projectName}:bundle${outputMode}`;
             }
-            // await cchelper.runCmd(gradle, [buildMode, /*"--quiet",*/ /*"--build-cache", "--project-cache-dir", buildDir*/], false, projDir);
+            // await cchelper.runCmd(gradle, [buildMode, /*"--quiet",*/ /*"--build-cache", "--project-cache-dir", nativePrjDir*/], false, projDir);
             await cchelper.runCmd(gradle, [buildMode], false, projDir);
         }
         return await this.copyToDist();

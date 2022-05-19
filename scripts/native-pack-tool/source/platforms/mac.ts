@@ -9,24 +9,29 @@ export interface IMacParams {
 }
 
 export class MacPackTool extends MacOSPackTool {
-    params: CocosParams<IMacParams>;
+    params!: CocosParams<IMacParams>;
 
-    constructor(params: CocosParams<IMacParams>) {
-        super(params);
+    init(params: CocosParams<IMacParams>) {
         this.params = params;
     }
 
-    async generate() {
-        await super.generate();
-        const buildDir = this.paths.buildDir;
+    async create(): Promise<boolean> {
+        await super.create();
+        await this.encrypteScripts();
+        await this.generate();
+        return true;
+    }
 
-        if (!fs.existsSync(buildDir)) {
-            cchelper.makeDirectoryRecursive(buildDir);
+    async generate() {
+        const nativePrjDir = this.paths.nativePrjDir;
+
+        if (!fs.existsSync(nativePrjDir)) {
+            cchelper.makeDirectoryRecursive(nativePrjDir);
         }
 
         const ver = toolHelper.getXcodeMajorVerion() >= 12 ? "12" : "1";
         const cmakeArgs = ['-S', `${this.paths.platformTemplateDirInPrj}`, '-GXcode', '-T', `buildsystem=${ver}`,
-                           `-B${buildDir}`, '-DCMAKE_SYSTEM_NAME=Darwin'];
+                           `-B${nativePrjDir}`, '-DCMAKE_SYSTEM_NAME=Darwin'];
         this.appendCmakeResDirArgs(cmakeArgs);
 
         await toolHelper.runCmake(cmakeArgs);
@@ -36,10 +41,10 @@ export class MacPackTool extends MacOSPackTool {
     }
 
     async make() {
-        const buildDir = this.paths.buildDir;
+        const nativePrjDir = this.paths.nativePrjDir;
 
         const platform = this.isAppleSilicon() ? `-arch arm64` : `-arch x86_64`;
-        await toolHelper.runCmake(["--build", `${buildDir}`, "--config", this.params.debug ? 'Debug' : 'Release', "--", "-quiet", platform]);
+        await toolHelper.runCmake(["--build", `${nativePrjDir}`, "--config", this.params.debug ? 'Debug' : 'Release', "--", "-quiet", platform]);
         return true;
     }
 }

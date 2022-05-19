@@ -21,17 +21,14 @@ export interface IOSParams {
 }
 
 export class IOSPackTool extends MacOSPackTool {
-    params: CocosParams<IOSParams>;
-
-    constructor(params: CocosParams<IOSParams>) {
-        super(params);
-        this.params = params;
-    }
+    params!: CocosParams<IOSParams>;
 
     async create() {
         await super.create();
-
         await this.setOrientation();
+
+        await this.encrypteScripts();
+        await this.generate();
         return true;
     }
 
@@ -81,10 +78,9 @@ export class IOSPackTool extends MacOSPackTool {
     }
 
     async generate() {
-        await super.generate();
-        const buildDir = this.paths.buildDir;
-        if (!fs.existsSync(buildDir)) {
-            cchelper.makeDirectoryRecursive(buildDir);
+        const nativePrjDir = this.paths.nativePrjDir;
+        if (!fs.existsSync(nativePrjDir)) {
+            cchelper.makeDirectoryRecursive(nativePrjDir);
         }
 
         const ext: string[] = ['-DCMAKE_CXX_COMPILER=clang++', '-DCMAKE_C_COMPILER=clang'];
@@ -92,7 +88,7 @@ export class IOSPackTool extends MacOSPackTool {
         this.appendCmakeResDirArgs(ext);
 
         const ver = toolHelper.getXcodeMajorVerion() >= 12 ? "12" : "1";
-        await toolHelper.runCmake(['-S', `${this.paths.platformTemplateDirInPrj}`, '-GXcode', `-B${buildDir}`, '-T', `buildsystem=${ver}`,
+        await toolHelper.runCmake(['-S', `${this.paths.platformTemplateDirInPrj}`, '-GXcode', `-B${nativePrjDir}`, '-T', `buildsystem=${ver}`,
                                     '-DCMAKE_SYSTEM_NAME=iOS'].concat(ext));
 
         this.skipUpdateXcodeProject();
@@ -105,7 +101,7 @@ export class IOSPackTool extends MacOSPackTool {
         if (options.iphoneos && !options.teamid) {
             throw new Error("Error: Try to build iphoneos application but no developer team id was given!");
         }
-        const buildDir = this.paths.buildDir;
+        const nativePrjDir = this.paths.nativePrjDir;
 
         const projName = this.params.projectName;
         const os = require('os');
@@ -115,12 +111,12 @@ export class IOSPackTool extends MacOSPackTool {
         // const platform = /Apple/.test(model) ? `-arch arm64` : `-arch x86_64`;
         // get xcode workspace
         const regex = new RegExp(projName + '.xcworkspace$');
-        const files = fs.readdirSync(buildDir);
+        const files = fs.readdirSync(nativePrjDir);
         const xcodeWorkSpace = files.find((file) => regex.test(file));
         if (xcodeWorkSpace) {
-            const workspaceCompileParams = `-workspace ${buildDir}/${xcodeWorkSpace} -scheme ALL_BUILD `
+            const workspaceCompileParams = `-workspace ${nativePrjDir}/${xcodeWorkSpace} -scheme ALL_BUILD `
                 + `-parallelizeTargets -quiet -configuration ${this.params.debug ? 'Debug' : 'Release'} `
-                + `-hideShellScriptEnvironment -allowProvisioningUpdates SYMROOT=${buildDir}`;
+                + `-hideShellScriptEnvironment -allowProvisioningUpdates SYMROOT=${nativePrjDir}`;
             if (options.simulator) {
                 await toolHelper.runXcodeBuild([`-destination generic/platform='iOS Simulator'`,
                     workspaceCompileParams, `CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO`]);
@@ -131,7 +127,7 @@ export class IOSPackTool extends MacOSPackTool {
             }
         }
         else {
-            const projCompileParams = `--build ${buildDir} --config ${this.params.debug ? 'Debug' : 'Release'} -- -allowProvisioningUpdates -quiet`;
+            const projCompileParams = `--build ${nativePrjDir} --config ${this.params.debug ? 'Debug' : 'Release'} -- -allowProvisioningUpdates -quiet`;
             if (options.iphoneos) {
                 await toolHelper.runCmake([projCompileParams, '-sdk', 'iphoneos', `-arch arm64`]);
             }

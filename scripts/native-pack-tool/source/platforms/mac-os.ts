@@ -17,24 +17,18 @@ export interface MacOSParams {
 }
 
 export class MacOSPackTool extends NativePackTool {
-    params: CocosParams<MacOSParams>;
-
-    constructor(params: CocosParams<MacOSParams>) {
-        super(params);
-        this.params = params;
-    }
+    params!: CocosParams<MacOSParams>;
 
     async create() {
-        // 拷贝一些内置的模板文件
-        await this.copyCommonTemplate();
-        await this.copyPlatformTemplate();
+        await super.create();
+        await this.generate();
         return true;
     }
 
     async generate() {
-        const buildDir = this.paths.buildDir;
+        const nativePrjDir = this.paths.nativePrjDir;
         const options = this.params.platformParams;
-        if (options.skipUpdateXcodeProject && fs.existsSync(ps.join(buildDir, 'CMakeCache.txt'))) {
+        if (options.skipUpdateXcodeProject && fs.existsSync(ps.join(nativePrjDir, 'CMakeCache.txt'))) {
             console.log('Skip xcode project update');
             return true;
         }
@@ -70,11 +64,11 @@ export class MacOSPackTool extends NativePackTool {
     }
 
     async xcodeDestroyZEROCHECK() {
-        const buildDir = this.paths.buildDir;
+        const nativePrjDir = this.paths.nativePrjDir;
         const xcode = require('../../static/xcode');
-        const projs = fs.readdirSync(buildDir).filter((x) => x.endsWith('.xcodeproj')).map((x) => ps.join(buildDir, x));
+        const projs = fs.readdirSync(nativePrjDir).filter((x) => x.endsWith('.xcodeproj')).map((x) => ps.join(nativePrjDir, x));
         if (projs.length === 0) {
-            console.error(`can not find xcode project file in ${buildDir}`);
+            console.error(`can not find xcode project file in ${nativePrjDir}`);
         } else {
             try {
                 for (const proj of projs) {

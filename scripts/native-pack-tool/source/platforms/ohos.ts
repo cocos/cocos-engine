@@ -20,12 +20,11 @@ export interface OHOSParam {
 }
 
 export class OHOSPackTool extends NativePackTool {
-    params: CocosParams<OHOSParam>;
-    constructor(params: CocosParams<OHOSParam>) {
-        super(params);
-        this.params = params;
-    }
+    params!: CocosParams<OHOSParam>;
+
     async create() {
+        await super.create();
+
         const ohosProjDir = this.paths.platformTemplateDirInPrj;
         const cocosXRoot = ps.normalize(Paths.nativeRoot);
         const platformParams = this.params.platformParams;
@@ -33,11 +32,11 @@ export class OHOSPackTool extends NativePackTool {
         if (!fs.existsSync(platformParams.sdkPath)) {
             throw new Error(`Directory hwsdk.dir ${platformParams.sdkPath} not exists`);
         }
-        
+
         if (!fs.existsSync(platformParams.ndkPath)) {
             throw new Error(`Directory native.dir ${platformParams.ndkPath} not exists`);
         }
-        
+
         // local.properties
         await cchelper.replaceInFile([
             { reg: '^hwsdk\\.dir.*', text: `hwsdk.dir=${cchelper.fixPath(platformParams.sdkPath)}` },
@@ -100,6 +99,8 @@ export class OHOSPackTool extends NativePackTool {
         } catch (e) {
             console.error(e);
         }
+
+        await this.encrypteScripts();
         return true;
     }
 
@@ -122,7 +123,7 @@ export class OHOSPackTool extends NativePackTool {
 
         // compile android
         buildMode = `assemble${outputMode}`;
-        // await cchelper.runCmd(gradle, [buildMode /*"--quiet",*/ /*"--build-cache", "--project-cache-dir", buildDir*/], false, projectDir);
+        // await cchelper.runCmd(gradle, [buildMode /*"--quiet",*/ /*"--build-cache", "--project-cache-dir", nativePrjDir*/], false, projectDir);
         await cchelper.runCmd(gradle, [buildMode], false, projectDir);
 
         return true;

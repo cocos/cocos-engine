@@ -4,5 +4,15 @@
   "description": "pack native project",
   "main": "./dist/index",
   "author": "CocosCreator",
-  "license": "ISC"
+  "license": "ISC",
+  "scripts": {
+    "pack": "node ./scripts/task"
+  },
+  "dependencies": {
+    "fs-extra": "^10.1.0",
+    "globby": "^13.1.1",
+    "xxtea-node": "^1.1.4",
+    "yargs": "^17.5.1",
+    "zlib": "^1.0.5"
+  }
 }

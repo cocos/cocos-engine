@@ -484,47 +484,89 @@ export const toolHelper = {
 }
 
 export class Paths {
-    public static enginePath: string;
-    public static nativeRoot: string;
-    public static projectDir: string;
+    public static enginePath: string; // [engine]
+    public static nativeRoot: string; // [engine-native]
+    public static projectDir: string; // [project]
     public static cmakePath: string;
+    /**
+     * ios/mac/windows/android
+     */
     private platform: string;
+    /**
+     * ios/mac/win64/win32/android
+     */
+    private platformTemplateDirName: string;
+    /**
+     * build/[platform]
+     */
     public buildDir: string;
+
+    /**
+     * build/[platform]/data
+     */
     public buildAssetsDir: string;
 
     constructor(params: CocosParams<Object>) {
         Paths.enginePath = params.enginePath;
         Paths.projectDir = params.projDir;
         Paths.nativeRoot = params.nativeEnginePath;
+        Paths.cmakePath = params.cmakePath;
         this.platform = params.platform;
         this.buildDir = params.buildDir;
         this.buildAssetsDir = params.buildAssetsDir;
+        if (params.platform === 'windows') {
+            this.platformTemplateDirName = params.platformParams.targetPlatform === "win32" ? "win32" : "win64";
+        } else {
+            this.platformTemplateDirName = this.platform;
+        }
     }
 
+
+    /**
+     * [project]/native/engine/common
+     */
     get commonDirInPrj() {
-        return ps.join(Paths.projectDir, 'common');
+        return ps.join(Paths.projectDir, 'native', 'engine', 'common');
     }
 
+    /**
+     * [engine]/templates/common
+     */
     get commonDirInCocos() {
-        return ps.join(Paths.nativeRoot, 'common');
+        return ps.join(this.nativeTemplateDirInCocos, 'common');
     }
 
+    /**
+     * [project]/native/engine
+     */
     get nativeTemplateDirInPrj() {
-        return ps.join(Paths.nativeRoot, 'engine');
+        return ps.join(Paths.projectDir, 'native', 'engine');
     }
 
+    /**
+     * [engine]/templates
+     */
     get nativeTemplateDirInCocos() {
-        return ps.join(Paths.nativeRoot, 'templates');
+        return ps.join(Paths.enginePath, 'templates');
     }
 
+    /**
+     * [project]/native/engine/[platformTemplateDirName]
+     */
     get platformTemplateDirInPrj() {
-        return ps.join(this.nativeTemplateDirInPrj, this.platform);
+        return ps.join(this.nativeTemplateDirInPrj, this.platformTemplateDirName);
     }
 
+    /**
+     * [engine]/templates/[platformTemplateDirName]
+     */
     get platformTemplateDirInCocos() {
         return ps.join(this.nativeTemplateDirInCocos, this.platform);
     }
 
+    /**
+     * build/[platform]/proj
+     */
     get nativePrjDir() {
         return ps.join(this.buildDir, 'proj');
     }

@@ -11,32 +11,29 @@ export interface IWindowsParam {
 }
 
 export class WindowsPackTool extends NativePackTool {
-    params: CocosParams<IWindowsParam>;
-    constructor(params: CocosParams<IWindowsParam>) {
-        super(params);
-        this.params = params;
-    }
+    params!: CocosParams<IWindowsParam>;
 
     async create() {
-        // 拷贝引擎原生模板到项目的 native 目录下
-        await fs.copy(this.paths.commonDirInCocos, this.paths.commonDirInPrj);
+        await super.create();
+        await this.encrypteScripts();
+        await this.generate();
         return true;
     }
 
     async generate() {
-        const buildDir = this.paths.buildDir;
+        const nativePrjDir = this.paths.nativePrjDir;
 
         const cmakePath = ps.join(this.paths.platformTemplateDirInPrj, 'CMakeLists.txt');
         if (!fs.existsSync(cmakePath)) {
             throw new Error(`CMakeLists.txt not found in ${cmakePath}`);
         }
 
-        if (!fs.existsSync(buildDir)) {
-            cchelper.makeDirectoryRecursive(buildDir);
+        if (!fs.existsSync(nativePrjDir)) {
+            cchelper.makeDirectoryRecursive(nativePrjDir);
         }
 
         let generateArgs: string[] = [];
-        if (!fs.existsSync(ps.join(buildDir, 'CMakeCache.txt'))) {
+        if (!fs.existsSync(ps.join(nativePrjDir, 'CMakeCache.txt'))) {
             const g = this.getCmakeGenerator();
             // const g = '';
             if (g) {
@@ -51,13 +48,13 @@ export class WindowsPackTool extends NativePackTool {
             }
             this.appendCmakeResDirArgs(generateArgs);
         }
-        await toolHelper.runCmake([`-S"${cchelper.fixPath(this.paths.platformTemplateDirInPrj)}"`, `-B"${cchelper.fixPath(this.paths.buildDir)}"`].concat(generateArgs));
+        await toolHelper.runCmake([`-S"${cchelper.fixPath(this.paths.platformTemplateDirInPrj)}"`, `-B"${cchelper.fixPath(this.paths.nativePrjDir)}"`].concat(generateArgs));
         return true;
     }
 
     async make() {
-        const buildDir = this.paths.buildDir;
-        await toolHelper.runCmake(['--build', `"${cchelper.fixPath(buildDir)}"`, '--config', this.params.debug ? 'Debug' : 'Release', '--', '-verbosity:quiet']);
+        const nativePrjDir = this.paths.nativePrjDir;
+        await toolHelper.runCmake(['--build', `"${cchelper.fixPath(nativePrjDir)}"`, '--config', this.params.debug ? 'Debug' : 'Release', '--', '-verbosity:quiet']);
         return true;
     }
 
@@ -106,15 +103,15 @@ export class WindowsPackTool extends NativePackTool {
         };
         const availableGenerators: string[] = [];
         for (const cfg of visualstudioGenerators) {
-            const buildDir = ps.join(testProjDir, `build_${cfg.G.replace(/ /g, '_')}`);
-            const args: string[] = [`-S"${testProjDir}"`, `-G"${cfg.G}"`, `-B"${buildDir}"`];
+            const nativePrjDir = ps.join(testProjDir, `build_${cfg.G.replace(/ /g, '_')}`);
+            const args: string[] = [`-S"${testProjDir}"`, `-G"${cfg.G}"`, `-B"${nativePrjDir}"`];
             args.push('-A', this.params.platformParams.targetPlatform);
-            await fs.mkdir(buildDir);
-            if (await tryRunCmakeWithArguments(args, buildDir)) {
+            await fs.mkdir(nativePrjDir);
+            if (await tryRunCmakeWithArguments(args, nativePrjDir)) {
                 availableGenerators.push(cfg.G);
                 break;
             }
-            await cchelper.removeDirectoryRecursive(buildDir);
+            await cchelper.removeDirectoryRecursive(nativePrjDir);
         }
         await cchelper.removeDirectoryRecursive(testProjDir);
 

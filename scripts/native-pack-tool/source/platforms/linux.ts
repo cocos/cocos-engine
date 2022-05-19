@@ -5,8 +5,10 @@ import { Paths } from "../utils";
 
 export class LinuxPackTool extends NativePackTool {
     async create() {
+        await super.create();
         await fs.copy(ps.join(this.paths.platformTemplateDirInPrj, 'CMakeLists.txt'), ps.join(Paths.projectDir, 'proj', 'CMakeLists.txt'));
         this.generateCMakeConfig();
+        await this.encrypteScripts();
         return true;
     }
 }

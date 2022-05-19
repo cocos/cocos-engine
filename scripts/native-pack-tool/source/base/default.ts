@@ -2,6 +2,7 @@ import * as ps from 'path';
 import * as fs from 'fs-extra';
 import { cchelper, Paths } from "../utils";
 import { CocosProjectTasks } from './cocosProjectTypes';
+import { gzipSync } from 'zlib';
 
 const PackageNewConfig = 'cocos-project-template.json';
 
@@ -69,16 +70,14 @@ export abstract class NativePackTool {
     paths!: Paths;
     // 存储调用 cmake 的命令行参数
     cmakeArgs: string[] = [];
-    constructor(params: CocosParams<Object>) {
-        this.init(params);
-    }
+
     // 设置命令行调用时的环境参数
     setEnv(key: string, value: any) {
         process.env[key] = value;
     }
 
     init(params: CocosParams<Object>) {
-        this.params = params;
+        this.params = new CocosParams(params);
         this.paths = new Paths(params);
     }
 
@@ -97,9 +96,9 @@ export abstract class NativePackTool {
 
     protected async copyPlatformTemplate() {
         // 原生工程不重复拷贝 TODO 复用前需要做版本检测
-        if (!fs.existsSync(this.paths.nativePrjDir)) {
+        if (!fs.existsSync(this.paths.platformTemplateDirInPrj)) {
             // 拷贝 lite 仓库的 templates/平台/ 文件到 native 目录
-            await fs.copy(ps.join(this.paths.nativeTemplateDirInCocos, this.params.platform), this.paths.nativePrjDir, { overwrite: false });
+            await fs.copy(ps.join(this.paths.nativeTemplateDirInCocos, this.params.platform), this.paths.platformTemplateDirInPrj, { overwrite: false });
         }
     }
 
@@ -137,7 +136,7 @@ export abstract class NativePackTool {
                 replaceFilesDelay[fp] = replaceFilesDelay[fp] || [];
                 replaceFilesDelay[fp].push({
                     reg: name,
-                    content: this.params.packageName!,
+                    content: this.params.platformParams.packageName!,
                 });
             });
             delete tasks.projectReplacePackageName;
@@ -176,38 +175,105 @@ export abstract class NativePackTool {
     }
 
     protected appendCmakeResDirArgs(args: string[]) {
-        args.push(`-DRES_DIR="${cchelper.fixPath(Paths.projectDir)}" -DAPP_NAME="${this.params.projectName}" `);
+        args.push(`-DRES_DIR="${cchelper.fixPath(this.paths.buildDir)}" -DAPP_NAME="${this.params.projectName}" `);
     }
 
-    abstract create(): Promise<boolean>;
+    protected async encrypteScripts() {
+        if (!this.params.encrypted) {
+            return;
+        }
+
+        if (!this.params.xxteaKey) {
+            throw new Error('Encryption Key can not be empty');
+        }
+
+        // native 加密步骤(1/3)：生成完工程所有文件添加 cmake 配置
+        if (this.params.encrypted) {
+            this.params.cMakeConfig.XXTEAKEY = `set(XXTEAKEY "${this.params.xxteaKey}")`;
+        }
+        const backupPath = ps.join(this.paths.buildDir, 'script-backup');
+        fs.ensureDirSync(backupPath);
+        fs.emptyDirSync(backupPath);
+
+        const globby = require('globby');
+        const xxtea = require('xxtea-node');
+
+        const allBundleConfigs: string[] = await globby(ps.join(this.paths.buildAssetsDir, 'assets/cc.config*.json'));
+        for (const configPath of allBundleConfigs) {
+            const config = await fs.readJSON(configPath);
+
+            // native 加密步骤(2/3)：加密的标志位，需要写入到 bundle 的 config.json 内运行时需要
+            const version = config.match(/config(.*).json/)[1];
+            const scriptDest = ps.join(ps.basename(config), `index${version}.js`);
+            let content: any = fs.readFileSync(scriptDest, 'utf8');
+            if (config.compressZip) {
+                content = gzipSync(content);
+                content = xxtea.encrypt(content, xxtea.toBytes(this.params.xxteaKey));
+            } else {
+                content = xxtea.encrypt(xxtea.toBytes(content), xxtea.toBytes(this.params.xxteaKey));
+            }
+            const newScriptDest = ps.join(ps.dirname(scriptDest), ps.basename(scriptDest, ps.extname(scriptDest)) + '.jsc');
+            fs.writeFileSync(newScriptDest, content);
+    
+            fs.copySync(scriptDest, ps.join(backupPath, ps.relative(this.paths.buildAssetsDir, scriptDest)));
+            fs.removeSync(scriptDest);
+        }
+
+    }
+
+    async create(): Promise<boolean> {
+        await this.copyCommonTemplate();
+        await this.copyPlatformTemplate();
+        await this.generateCMakeConfig();
+        return true;
+    };
     make?():  Promise<boolean>;
-    generate?():  Promise<boolean>;
     run?():  Promise<boolean>;
 }
 
 export class CocosParams<T> {
-    platformParams!: T;
-    public debug: boolean = true;
-    public projectName: string = '';
-    public cmakePath: string = '';
-    public platform: string = '';
-    public packageName: string = '';
-    // ts 引擎地址
-    public enginePath: string = '';
-    // native 引擎地址
-    public nativeEnginePath: string = '';
-    // 项目地址
-    public projDir: string = '';
-    // 构建路径 /build/[platform]
-    public buildDir: string = '';
-    // 构建资源路径 /build/[platform]/data
-    public buildAssetsDir: string = '';
-    // 是否加密 | is encrypted
+    platformParams!: T | any;
+    public debug: boolean;
+    public projectName: string;
+    public cmakePath: string;
+    public platform: string;
+    /**
+     * engine root
+     */
+    public enginePath: string;
+    /**
+     * native engine root
+     */
+    public nativeEnginePath: string;
+    /**
+     * project path
+     */
+    public projDir: string;
+    /**
+     * build/[platform]
+     */
+    public buildDir: string;
+    /**
+     * @zh 构建资源路径
+     * @en /build/[platform]/data
+     */
+    public buildAssetsDir: string;
+    /**
+     * @zh 是否加密脚本
+     * @en is encrypted
+     */
     encrypted?: boolean;
-    // 加密密钥 | encrypt Key
+    /**
+     * @zh 加密密钥
+     * @en encrypt Key
+     */
     xxteaKey?: string;
-    // 是否为模拟器
+    /**
+     * @zh 是否为模拟器
+     * @en is simulator
+     */
     simulator?: boolean;
+
 
     public cMakeConfig: ICMakeConfig = {
         CC_USE_GLES3: false,
@@ -216,5 +282,19 @@ export class CocosParams<T> {
         NET_MODE: 'set(NET_MODE 0)',
         XXTEAKEY : '',
         CC_ENABLE_SWAPPY: false,
+    }
+
+    constructor(params: CocosParams<Object>) {
+        this.buildAssetsDir = params.buildAssetsDir;
+        this.projectName = params.projectName;
+        this.debug = params.debug;
+        this.cmakePath = params.cmakePath;
+        this.platform = params.platform;
+        this.enginePath = params.enginePath;
+        this.nativeEnginePath = params.nativeEnginePath;
+        this.projDir = params.projDir;
+        this.buildDir = params.buildDir;
+        Object.assign(this.cMakeConfig, params.cMakeConfig);
+        this.platformParams = params.platformParams;
     }
 }
