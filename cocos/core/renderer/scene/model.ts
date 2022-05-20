@@ -95,9 +95,9 @@ const lightmapSamplerWithMipHash = new SamplerInfo(
  * @en A representation of a model instance
  * The base model class, which is the core component of [[MeshRenderer]],
  * adds its own Model to the rendered scene for rendering submissions when [[MeshRenderer]] is enabled.
- * This type of object represents a rendering instance in a scene, and it can contain multiple submodels,
- * each of which corresponds to a material. These submodels share the same location and form a complete object.
- * Each submodel references a submesh resource, which provides vertex and index buffers for rendering.
+ * This type of object represents a rendering instance in a scene, and it can contain multiple sub models,
+ * each of which corresponds to a material. These sub models share the same location and form a complete object.
+ * Each sub model references a sub mesh resource, which provides vertex and index buffers for rendering.
  * @zh 代表一个模型实例
  * 基础模型类，它是 [[MeshRenderer]] 的核心组成部分，在 [[MeshRenderer]] 启用时会将自己的 Model 添加到渲染场景中用于提交渲染。
  * 此类型对象代表一个场景中的渲染实例，它可以包含多个子模型，每个子模型对应一个材质。这些子模型共享同样的位置，组成一个完整的物体。
@@ -529,8 +529,8 @@ export class Model {
     }
 
     /**
-     * @en Attach the model to a [[RenderScene]]
-     * @zh 添加模型到渲染场景 [[RenderScene]] 中
+     * @en Attach the model to a [[renderer.RenderScene]]
+     * @zh 添加模型到渲染场景 [[renderer.RenderScene]] 中
      * @param scene destination scene
      */
     public attachToScene (scene: RenderScene) {
@@ -662,8 +662,8 @@ export class Model {
     }
 
     /**
-     * @en Initialize a sub model
-     * @zh 初始化一个子模型
+     * @en Initialize a sub model with the sub mesh data and the material.
+     * @zh 用子网格数据和材质初始化一个子模型。
      * @param idx sub model's index
      * @param subMeshData sub mesh
      * @param mat sub material

@@ -119,8 +119,8 @@ export const SKYBOX_FLAG = ClearFlagBit.STENCIL << 1;
 const correctionMatrices: Mat4[] = [];
 
 /**
- * @en The render camera representation in the render scene, it's managed by [[CameraComponent]]
- * @zh 渲染场景中的相机对象，由项目层的 [[CameraComponent]] 管理。
+ * @en The render camera representation in the render scene, it's managed by [[Camera]]
+ * @zh 渲染场景中的相机对象，由项目层的 [[Camera]] 管理。
  */
 export class Camera {
     /**
