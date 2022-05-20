@@ -28,7 +28,7 @@
 
 namespace cc {
 int BaseGame::init() {
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX || CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_NX_WINDOWS || CC_PLATFORM == CC_PLATFORM_NX
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX || CC_PLATFORM == CC_PLATFORM_MAC_OSX
         // override default value
         //_windowInfo.x      = _windowInfo.x == -1 ? 0 : _windowInfo.x;
         //_windowInfo.y      = _windowInfo.y == -1 ? 0 : _windowInfo.y;

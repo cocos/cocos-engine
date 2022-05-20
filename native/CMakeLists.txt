@@ -855,21 +855,14 @@ cocos_source_files(MODULE ccfilesystem
     cocos/platform/FileUtils.h
 )
 
-if(WINDOWS OR NX_WINDOWS)
+if(WINDOWS)
     cocos_source_files(MODULE ccutils
         cocos/platform/win32/Utils-win32.cpp
         cocos/platform/win32/Utils-win32.h
     )
 endif()
 
-if(NX_WINDOWS)
-    cocos_source_files(
-                     cocos/platform/win32/compat
-                     cocos/platform/win32/compat/stdint.h
-                     cocos/platform/win32/inet_pton_mingw.cpp
-                     cocos/platform/win32/inet_pton_mingw.h
-    )
-elseif(WINDOWS)
+if(WINDOWS)
     cocos_source_files(
                      cocos/platform/win32/compat
                      cocos/platform/win32/compat/stdint.h
