@@ -23,6 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 #include <stdint.h>
+#include <algorithm>
 #include <boost/graph/breadth_first_search.hpp>
 #include <boost/range/algorithm.hpp>
 #include <limits>
@@ -41,6 +42,7 @@
 #include "gfx-base/GFXDef-common.h"
 #include "gfx-base/GFXDef.h"
 #include "pipeline/custom/RenderCommonFwd.h"
+#include "pipeline/custom/RenderGraphTypes.h"
 #include  <boost/graph/adjacency_list.hpp>
 #include <boost/graph/transitive_closure.hpp>
 
@@ -60,6 +62,9 @@ using ResourceNames = PmrFlatSet<PmrString>;
 using EdgeList = std::pair<RAG::edge_descriptor, RAG::edge_descriptor>;
 using CloseCircuit = std::pair<EdgeList, EdgeList>;
 using CloseCircuits = std::vector<CloseCircuit>;
+using EmptyVert = EmptyGraph::vertex_descriptor;
+using EmptyVerts = std::vector<EmptyGraph::vertex_descriptor>;
+using ScoreMap = std::map<EmptyVert, std::pair<int64_t, int64_t>>;
 
 auto defaultAccess = gfx::MemoryAccessBit::NONE;
 auto defaultVisibility = gfx::ShaderStageFlagBit::NONE;
@@ -620,188 +625,212 @@ private:
     const std::vector<Edge>& edges;
 };
 
-void preprocessGraph(EmptyGraph& graph) {
-    // remove extra external node
-}
+auto evaluateHeaviness(const RAG& rag, const ResourceGraph& rescGraph, EmptyVert vert, bool backward){
+    const ResourceAccessNode& accessNode = get(RAG::AccessNode, rag, static_cast<RAG::vertex_descriptor>(vert));
+    int64_t score = 0;
+    bool forceAdjacent = false;
+    // how much corelation to last pass
+    for (const auto& resc : accessNode.attachemntStatus) {
+        int64_t eval = 0;
+        auto rescID = resc.vertID;
+        const ResourceDesc& desc = get(ResourceGraph::Desc, rescGraph, rescID);
+        const ResourceTraits& traits = get(ResourceGraph::Traits, rescGraph, rescID);
 
-void evaluateHeaviness(const RAG& rag, const ResourceGraph& rescGraph,EmptyGraph& relationGraph, const EmptyGraph& relationGraph_tc, const std::vector<EmptyGraph::vertex_descriptor>& lhsVerts, const std::vector<EmptyGraph::vertex_descriptor>& rhsVerts) {
+        gfx::MemoryAccessBit filter = backward ? gfx::MemoryAccessBit::WRITE_ONLY : gfx::MemoryAccessBit::READ_ONLY;
+        if(resc.access == filter)
+            continue;
+
+        switch (desc.dimension) {
+            case ResourceDimension::BUFFER:
+                eval = desc.width;
+                break;
+            case ResourceDimension::TEXTURE1D:
+            case ResourceDimension::TEXTURE2D:
+            case ResourceDimension::TEXTURE3D:
+                eval = gfx::formatSize(desc.format, desc.width, desc.height, desc.depthOrArraySize);
+                break;
+        }
+
+        if(traits.residency == ResourceResidency::MEMORYLESS) {
+            forceAdjacent = true;
+            score = backward ? std::numeric_limits<int64_t>::lowest() : std::numeric_limits<int64_t>::max();
+            break;
+        } else if(traits.residency == ResourceResidency::MANAGED) {
+            eval *= 2; // metal on macOS holds a copy of memory on CPU side in this mode. 
+            score += eval;
+        }
+    }
+    return std::tie(forceAdjacent, score);
+};
+
+
+
+void evaluateAndTryMerge(const RAG& rag, const ResourceGraph& rescGraph,EmptyGraph& relationGraph, const EmptyGraph& relationGraph_tc, const EmptyVerts& lhsVerts, const EmptyVerts& rhsVerts) {
     assert(lhsVerts.size() >= 2);
     assert(rhsVerts.size() >= 2);
+ 
+    auto evaluate = [&rag, &rescGraph](EmptyVert vert, bool backward){
+        return evaluateHeaviness(rag, rescGraph, vert, backward);
+    };
 
-    int64_t lhsScore = 0;
-    int64_t rhsScore = 0;
-
-    auto evaluateAndTryMerge = [&rag, &rescGraph, &relationGraph, &relationGraph_tc](const std::vector<EmptyGraph::vertex_descriptor>& verts, const std::vector<EmptyGraph::vertex_descriptor>& anotherVerts){
-        int64_t score = 0;
-
-        auto evaluate = [&rag, &rescGraph, &relationGraph](EmptyGraph::vertex_descriptor vert, bool backward){
-            const ResourceAccessNode& accessNode = get(RAG::AccessNode, rag, vert);
-            int64_t score = 0;
-            bool forceAdjacent = false;
-            // how much corelation to last pass
-            for (const auto& resc : accessNode.attachemntStatus) {
-                int64_t eval = 0;
-                auto rescID = resc.vertID;
-                const ResourceDesc& desc = get(ResourceGraph::Desc, rescGraph, rescID);
-                const ResourceTraits& traits = get(ResourceGraph::Traits, rescGraph, rescID);
-
-                gfx::MemoryAccessBit filter = backward ? gfx::MemoryAccessBit::WRITE_ONLY : gfx::MemoryAccessBit::READ_ONLY;
-                if(resc.access == filter)
-                    continue;
-
-                switch (desc.dimension) {
-                    case ResourceDimension::BUFFER:
-                        eval = desc.width; // TODO_Zeqiang: figure out which one. 
-                        break;
-                    case ResourceDimension::TEXTURE1D:
-                    case ResourceDimension::TEXTURE2D:
-                    case ResourceDimension::TEXTURE3D:
-                        eval = gfx::formatSize(desc.format, desc.width, desc.height, desc.depthOrArraySize);
-                        break;
-                }
-
-                if(traits.residency == ResourceResidency::MEMORYLESS) {
-                    forceAdjacent = true;
-                    score = backward ? std::numeric_limits<int64_t>::lowest() : std::numeric_limits<int64_t>::max();
-                    break;
-                } else if(traits.residency == ResourceResidency::MANAGED) {
-                    eval *= 2; // metal on macOS holds a copy of memory on CPU side in this mode. 
-                    score += eval;
-                }
-            }
-            return std::tie(forceAdjacent, score);
-        };
-
-        if(verts.size() == 2 || anotherVerts.size() == 2) {
-            /*
+    if(lhsVerts.size() == 2 || rhsVerts.size() == 2) {
+        /*
                1 ----------- 2 
                 \       __--/
                  3 --``
             no extra choice, only 1 - 3 - 2
             */
-            score = std::numeric_limits<int64_t>::lowest();
-        } else {
-            // fist and last pass in this circuit don't get involved in reorder.
-            auto firstNode = verts[1];
-            auto lastNode = verts[verts.size() - 1];
+        const EmptyVerts* shorterPath = lhsVerts.size() == 2 ? &lhsVerts : &rhsVerts;
+        remove_edge((*shorterPath)[0], (*shorterPath)[1], relationGraph);
+    } else {
+        // fist and last pass in this circuit don't get involved in reorder.
+        auto firstLhsNode = lhsVerts[1];
+        auto lastLhsNode = lhsVerts[lhsVerts.size() - 2];
+        // back to front 
+        const auto& backLhsStatus = evaluate(firstLhsNode, true);
+        bool lhsAdjacentToStart = std::get<0>(backLhsStatus);
+        const auto& frontLhsStatus = evaluate(lastLhsNode, false);
+        bool lhsAdjacentToEnd = std::get<0>(frontLhsStatus);
 
-            const ResourceAccessNode& frontAccessNode = get(RAG::AccessNode, rag, firstNode);
-            const ResourceAccessNode& backAccessNode = get(RAG::AccessNode, rag, lastNode);
-            
-            const auto& frontStatus = evaluate(firstNode, true);
-            bool adjacentToStart = std::get<0>(frontStatus);
-            int64_t frontScore = std::get<1>(frontStatus);
+        auto firstRhsNode = rhsVerts[1];
+        auto lastRhsNode = rhsVerts[rhsVerts.size() - 2];
 
-            const auto& backStatus = evaluate(lastNode, false);
-            bool adjacentToEnd = std::get<0>(backStatus);
-            int64_t backScore = std::get<1>(backStatus);
-            
-            if(adjacentToStart && adjacentToEnd) {
-                assert(verts.size() > 3);
-                int64_t score = std::numeric_limits<int64_t>::lowest();
-                for (size_t i = 2; i < verts.size() - 1; i++) {
-                    auto tryE = edge(verts[i], verts[i - 1], relationGraph_tc);
-                    auto tryRE = edge(verts[i - 1], verts[i], relationGraph_tc);
-                    if(!tryE.second && !tryRE.second) {
-                        // verts[i] and verts[i-1] are merged by this alg before,
-                        // they are indepndent. so we can insert here.
-                        remove_edge(verts[i - 1], verts[i], relationGraph);
-                        remove_edge(anotherVerts[0], anotherVerts[1], relationGraph);
-                        remove_edge(anotherVerts[anotherVerts.size() - 2], anotherVerts[anotherVerts.size() - 1], relationGraph);
-                        tryAddEdge(verts[i - 1], anotherVerts[0], relationGraph);
-                        tryAddEdge(anotherVerts[anotherVerts.size() - 2], verts[i], relationGraph);
-                        break;
-                    }
-                    const auto& frontStats = evaluate(verts[i], true);
-                    const int64_t evalScore = std::get<1>(frontStatus);
-                    if()
-                }
+        const auto& backRhsStatus = evaluate(firstRhsNode, true);
+        bool rhsAdjacentToStart = std::get<0>(backRhsStatus);
+        int64_t rhsBackScore = std::get<1>(backRhsStatus);
+        const auto& frontRhsStatus = evaluate(lastRhsNode, false);
+        bool rhsAdjacentToEnd = std::get<0>(frontRhsStatus);
+
+        if(lhsAdjacentToStart || rhsAdjacentToEnd || lhsAdjacentToEnd || rhsAdjacentToStart) {
+
+            const EmptyVerts* formerPath = &lhsVerts;
+            const EmptyVerts* latterPath = &rhsVerts;
+            if(rhsAdjacentToStart || lhsAdjacentToEnd) {
+                swap(formerPath, latterPath);
             }
 
+            remove_edge((*latterPath)[0], (*latterPath)[1], relationGraph);
+            remove_edge((*formerPath)[formerPath->size() - 2], (*formerPath)[formerPath->size() - 1], relationGraph);
+            // remove_edge(rhsVerts[0], rhsVerts[1], relationGraph);
+            // remove_edge(rhsVerts[rhsVerts.size() - 2], rhsVerts[rhsVerts.size() - 1], relationGraph);
 
+            tryAddEdge((*formerPath)[formerPath->size() - 2], (*latterPath)[1], relationGraph);
         }
-        return score;
 
-    };
+        assert(lhsVerts.size() >= 3 && rhsVerts.size() >= 3);
+        int64_t score = std::numeric_limits<int64_t>::lowest();
+        std::vector<EmptyVerts> candidateSections;
+        EmptyVerts section;
+        for(size_t i = 1; i < lhsVerts.size() - 1; ++i) {
+            auto tryE = edge(lhsVerts[i], lhsVerts[i - 1], relationGraph_tc);
+            auto tryRE = edge(lhsVerts[i - 1], lhsVerts[i], relationGraph_tc);
+            if(!tryE.second && !tryRE.second) {
+                remove_edge(lhsVerts[i - 1], lhsVerts[i], relationGraph);
+                candidateSections.push_back(section);
+                section.clear();
+            }
+            section.push_back(lhsVerts[i]);
+        }
+        section.clear();
+        for(size_t i = 1; i < rhsVerts.size() - 1; ++i) {
+            auto tryE = edge(rhsVerts[i], rhsVerts[i - 1], relationGraph_tc);
+            auto tryRE = edge(rhsVerts[i - 1], rhsVerts[i], relationGraph_tc);
+            if(!tryE.second && !tryRE.second) {
+                candidateSections.push_back(section);
+                section.clear();
+            }
+            section.push_back(rhsVerts[i]);
+        }
+
+        assert(candidateSections.size() >= 2);
+        std::sort(candidateSections.begin(), candidateSections.end(), [evaluate](const EmptyVerts& lhs, const EmptyVerts& rhs){
+                      const auto lhsFrontStats = evaluate(lhs.back(), true);
+                      const auto lhsBackStats = evaluate(lhs.front(), false);
+                      const auto rhsFrontStats = evaluate(lhs.back(), true);
+                      const auto rhsBackStats = evaluate(lhs.front(), false);
+                      return std::get<1>(lhsBackStats) - std::get<1>(lhsFrontStats) < std::get<1>(rhsBackStats) - std::get<1>(rhsFrontStats);
+                  });
+
+        tryAddEdge(lhsVerts[0], candidateSections[0][0], relationGraph);
+        for(size_t i = 0; i < candidateSections.size() - 1; ++i) {
+            tryAddEdge(candidateSections[i].back(), candidateSections[i + 1].front(), relationGraph);
+        }
+        tryAddEdge(candidateSections.back().back(), lhsVerts.back(), relationGraph);
+    }
 }
 
 // return : can be further reduced? 
-bool reduce(const RAG &rag, EmptyGraph &graph, EmptyGraph &relationGraph_tc, boost::container::pmr::memory_resource * scratch) {
-    CloseCircuits circuits;
-    std::vector<RAG::edge_descriptor> crossEdges;
-    CrossEdgeVisitor edgeVistor(crossEdges);
-    PassVisitor visitor(rag, graph, circuits, crossEdges);
-    auto colors = rag.colors(scratch);
-    std::set<EmptyGraph::vertex_descriptor> visits;// visited(s);
+bool reduce(const RAG &rag, const ResourceGraph& rescGraph, EmptyGraph &relationGraph, EmptyGraph &relationGraph_tc, const CloseCircuit& circuit) {
 
-    boost::depth_first_search(rag, visitor, get(colors, rag));
+    auto checkPath = [&relationGraph](std::stack<EmptyGraph::vertex_descriptor> &vertices, EmptyGraph::vertex_descriptor endVert, EmptyVerts& stackTrace) {
+        bool simpleGraph = true;
+        while (!vertices.empty()) {
+            auto vert = vertices.top();
+            vertices.pop();
+            stackTrace.emplace_back(vert);
 
-    for (auto iter = circuits.begin(); iter != circuits.end();) {
-
-        auto checkPath = [&graph](std::stack<EmptyGraph::vertex_descriptor> &vertices, EmptyGraph::vertex_descriptor endVert, std::vector<EmptyGraph::vertex_descriptor>& stackTrace) {
-            bool simpleGraph = true;
-            while (!vertices.empty()) {
-                auto vert = vertices.top();
-                vertices.pop();
-                stackTrace.emplace_back(vert);
-
-                if (endVert == vert) {
-                    break;
-                }
-
-                if (out_degree(vert, graph) > 1) {
-                    simpleGraph = false;
-                    break;
-                }
-                auto r = out_edges(vert, graph);
-                for (auto rIter = r.first; rIter != r.second; ++rIter) {
-                    auto dstID = target(*rIter, graph);
-                    vertices.push(dstID);
-                }
-                if (r.first == r.second) {
-                    stackTrace.pop_back();
-                }
+            if (endVert == vert) {
+                break;
             }
-            return simpleGraph;
-        };
 
-        //check if there is a sub branch on lhs
-        auto lhsEdges = (*iter).first;
-        auto startVert = target(lhsEdges.first, graph);
-        auto endVert = source(lhsEdges.second, graph);
-
-        std::stack<EmptyGraph::vertex_descriptor> vertices;
-        vertices.emplace(startVert);
-
-        std::vector<EmptyGraph::vertex_descriptor> lhsVisited;
-        // check if there is a branch on lhs path
-        if (!checkPath(vertices, endVert, lhsVisited)) {
-            continue;
+            if (out_degree(vert, relationGraph) > 1) {
+                simpleGraph = false;
+                break;
+            }
+            auto r = out_edges(vert, relationGraph);
+            for (auto rIter = r.first; rIter != r.second; ++rIter) {
+                auto dstID = target(*rIter, relationGraph);
+                vertices.push(dstID);
+            }
+            if (r.first == r.second) {
+                stackTrace.pop_back();
+            }
         }
-        //if it's a simple graph, lhs path must can be dfs to the end at the first time.
-        assert(vertices.empty());
+        return simpleGraph;
+    };
 
-        auto rhsEdges = (*iter).second;
-        startVert = target(rhsEdges.first, graph);
-        endVert = source(rhsEdges.second, graph);
-        vertices.emplace(startVert);
+    //check if there is a sub branch on lhs
+    auto lhsEdges = circuit.first;
+    auto startVert = target(lhsEdges.first, relationGraph);
+    auto endVert = source(lhsEdges.second, relationGraph);
 
-        std::vector<EmptyGraph::vertex_descriptor> rhsVisited;
-        if (!checkPath(vertices, endVert, rhsVisited)) {
-            continue;
+    std::stack<EmptyGraph::vertex_descriptor> vertices;
+    vertices.emplace(startVert);
+
+    EmptyVerts lhsVisited;
+    // check if there is a branch on lhs path
+    if (!checkPath(vertices, endVert, lhsVisited)) {
+        return false;
+    }
+    //if it's a simple graph, lhs path must can be dfs to the end at the first time.
+    assert(vertices.empty());
+
+    auto rhsEdges = circuit.second;
+    startVert = target(rhsEdges.first, relationGraph);
+    endVert = source(rhsEdges.second, relationGraph);
+    vertices.emplace(startVert);
+
+    EmptyVerts rhsVisited;
+    if (!checkPath(vertices, endVert, rhsVisited)) {
+        return false;
+    }
+
+    /* 
+        for (size_t i = 0; i < lhsVisited.size() - 1; ++i) {
+            auto e = edge(lhsVisited[i], lhsVisited[i + 1], relationGraph);
+            assert(e.second);
+            visits.insert(e.first);
         }
 
-        for (auto vert : lhsVisited) {
-            visits.insert(vert);
+        for (size_t i = 0; i < rhsVisited.size() - 1; ++i) {
+            auto e = edge(rhsVisited[i], rhsVisited[i + 1], relationGraph);
+            assert(e.second);
+            visits.insert(e.first);
         }
-
-        for (auto vert : rhsVisited) {
-            visits.insert(vert);
-        }
-
-        // merge this circuit
-        // from
-        /*      2 - 3 - 4
+*/
+    // merge this circuit
+    // from
+    /*          2 - 3 - 4
               /           \
             1               8
               \           /
@@ -814,45 +843,99 @@ bool reduce(const RAG &rag, EmptyGraph &graph, EmptyGraph &relationGraph_tc, boo
             ${B} : 5 - 6 - 7
         */
 
+    evaluateAndTryMerge(rag, rescGraph, relationGraph, relationGraph_tc, lhsVisited, rhsVisited);
 
-    }
-
-    
-
-    return !crossEdges.empty();
+    return true;
 }
 
-void FrameGraphDispatcher::passReorder() {
+void FrameGraphDispatcher::passReorder(float memsavePercent, float parelellPercent) {
+    assert(fabs(memsavePercent + parelellPercent - 1.0f) < std::numeric_limits<float>::epsilon()); 
+    ResourceAccessGraph rag(scratch);
+
     {
-        // record resource current in-access and out-access for every single node
-        ResourceAccessGraph rag(scratch);
-        // a mutable global resource access look-up table
-        buildAccessGraph(graph, layoutGraph, resourceGraph, rag, relationGraph);
+        // preprocessGraph(relationGraph);
+        
+        // determine do mem saving how many times
+        EmptyGraph relationGraph_tc;
+        boost::transitive_closure(relationGraph, relationGraph_tc);
 
-        // found pass id in this map ? barriers you should commit when run into this pass
-        // : or no extra barrier needed.
-        {
-            preprocessGraph(relationGraph);
-            EmptyGraph relationGraph_tc;
-            boost::transitive_closure(relationGraph, relationGraph_tc);
+        CloseCircuits circuits;
+        std::vector<RAG::edge_descriptor> crossEdges;
+        CrossEdgeVisitor edgeVistor(crossEdges);
+        PassVisitor visitor(rag, relationGraph_tc, circuits, crossEdges);
+        auto colors = rag.colors(scratch);
+        boost::depth_first_search(rag, visitor, get(colors, rag));
 
-            while (reduce(rag, relationGraph, relationGraph_tc, scratch)) {
+        float percent = 0.0F;
+        uint32_t count = 0;
+        uint32_t total = circuits.size();
 
+        for(auto iter = circuits.begin(); iter != circuits.end(), percent < memsavePercent;) {
+            bool reduced = reduce(rag, resourceGraph, relationGraph, relationGraph_tc, (*iter));
+            if(reduced) {
+                ++count;
+                iter = circuits.erase(iter);
+                percent = count / (float)total;
+            } else {
+                ++iter;
             }
+        }
 
-            
+        // topological sort
+        bool empty = relationGraph.vertices.empty();
+        ScoreMap scoreMap;
+        std::queue<EmptyVert> vertQ;
+        EmptyVerts candidates;
+ 
+        auto findCandidates = [this, &candidates]() {
+            for(size_t i = 0; i < relationGraph.vertices.size(); ++i) {
+                if(in_degree(i, relationGraph) == 0) {
+                    if(std::find(candidates.begin(), candidates.end(), i) != candidates.end()) {
+                        candidates.push_back(i);
+                    }
+                }  
+            }
+        };
+    
+        while(!empty) {
+            findCandidates();
+            // decreasing order
+            std::sort(candidates.begin(), candidates.end(), [&](EmptyVert lhsVert, EmptyVert rhsVert){
+                          int64_t lhsFrontScore{0}, rhsFrontScore{0}, lhsBackScore{0}, rhsBackScore{0};
+                          if(scoreMap.find(lhsVert) == scoreMap.end()) {
+                              const auto& frontLhsStats = evaluateHeaviness(rag, resourceGraph, lhsVert, false);
+                              lhsFrontScore = get<1>(frontLhsStats); 
+                              const auto& backLhsStats = evaluateHeaviness(rag, resourceGraph, lhsVert, true);
+                              lhsBackScore = get<1>(backLhsStats);
+                              scoreMap.emplace(lhsVert, std::pair<int64_t, int64_t>{lhsBackScore, lhsFrontScore});
+                          } else {
+                              lhsBackScore = scoreMap[lhsVert].first;
+                              lhsFrontScore = scoreMap[lhsVert].second;
+                          }
 
+                          if(scoreMap.find(rhsVert) == scoreMap.end()) {
+                              const auto& frontRhsStats = evaluateHeaviness(rag, resourceGraph, rhsVert, false);
+                              rhsFrontScore = get<1>(frontRhsStats); 
+                              const auto& backRhsStats = evaluateHeaviness(rag, resourceGraph, rhsVert, true);
+                              rhsBackScore = get<1>(backRhsStats);
+                              scoreMap.emplace(rhsVert, std::pair<int64_t, int64_t>{rhsBackScore, rhsFrontScore});
+                          } else {
+                              rhsBackScore = scoreMap[rhsVert].first;
+                              rhsFrontScore = scoreMap[rhsVert].second;
+                          } 
+                          return lhsBackScore - lhsFrontScore > rhsBackScore - rhsFrontScore;
+                      });
 
-            //// _externalResNames records external resource between frames
-            CloseCircuits circuit;
-            std::vector<RAG::edge_descriptor> crossEdges;
-            CrossEdgeVisitor edgeVistor(crossEdges);
-            PassVisitor visitor(rag, relationGraph_tc, circuit, crossEdges);
-            auto colors = rag.colors(scratch);
-
-
-            boost::depth_first_search(rag, visitor, get(colors, rag));
-            // boost::hawick_circuits(rag, visitor);
+            vertQ.push(candidates.back());
+            remove_vertex(candidates.back(), relationGraph);
+            candidates.pop_back();
+            if(!candidates.empty()) {
+                vertQ.push(candidates.back());
+                findCandidates();
+                remove_vertex(candidates.back(), relationGraph);
+                candidates.pop_back();
+            }
+            empty = relationGraph.vertices.empty();
         }
     }
 }
@@ -1117,6 +1200,8 @@ void processPresentPass(RAG &rag, EmptyGraph &relationGraph, const LGD &lgd, con
         // LOG("~~~~~~~~~~ Found an empty pipeline! ~~~~~~~~~~");
         tryAddEdge(EXPECT_START_ID, vertID, rag);
     }
+    
+    rag.presentPassID = vertID;
     std::sort(node.attachemntStatus.begin(), node.attachemntStatus.end(), [](const AccessStatus &lhs, const AccessStatus &rhs) { return lhs.vertID < rhs.vertID; });
 }
 

@@ -204,8 +204,8 @@ struct ResourceAccessGraph {
     PmrUnorderedMap<RenderGraph::vertex_descriptor, vertex_descriptor> passIndex;
     // Members
     ccstd::pmr::vector<ccstd::pmr::string>              resourceNames;
-    std::vector<RenderGraph::vertex_descriptor>         presentPasses;
     PmrUnorderedStringMap<ccstd::pmr::string, uint32_t> resourceIndex;
+    RenderGraph::vertex_descriptor                      presentPassID{0xFFFFFFFF};
 };
 
 struct EmptyGraph {
@@ -319,7 +319,7 @@ struct FrameGraphDispatcher {
     FrameGraphDispatcher& operator=(FrameGraphDispatcher const& rhs) = delete;
 
     void buildBarriers();
-    void passReorder();
+    void passReorder(float memsavePercent, float parelellPercent);
 
     ResourceGraph&                                     resourceGraph;
     RenderGraph&                                       graph;
