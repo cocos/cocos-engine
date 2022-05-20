@@ -118,7 +118,7 @@ export abstract class NativePackTool {
             const cmd = tasks.projectReplaceProjectName;
 
             cmd.files.forEach((file) => {
-                const fp = cchelper.join(Paths.projectDir, file);
+                const fp = cchelper.join(this.paths.buildDir, file);
                 replaceFilesDelay[fp] = replaceFilesDelay[fp] || [];
                 replaceFilesDelay[fp].push({
                     reg: cmd.srcProjectName,
@@ -132,7 +132,7 @@ export abstract class NativePackTool {
             const cmd = tasks.projectReplacePackageName;
             const name = cmd.srcPackageName.replace(/\./g, '\\.');
             cmd.files.forEach((file) => {
-                const fp = cchelper.join(Paths.projectDir, file);
+                const fp = cchelper.join(this.paths.buildDir, file);
                 replaceFilesDelay[fp] = replaceFilesDelay[fp] || [];
                 replaceFilesDelay[fp].push({
                     reg: name,
@@ -225,12 +225,16 @@ export abstract class NativePackTool {
         await this.copyCommonTemplate();
         await this.copyPlatformTemplate();
         await this.generateCMakeConfig();
+
+        const templatTasks = await fs.readJSON(ps.join(this.paths.nativeTemplateDirInCocos, PackageNewConfig));
+        await this.excuteTemplateTask(templatTasks);
         return true;
     };
     make?():  Promise<boolean>;
     run?():  Promise<boolean>;
 }
 
+// cocos.compile.json 
 export class CocosParams<T> {
     platformParams!: T | any;
     public debug: boolean;

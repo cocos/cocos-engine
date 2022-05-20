@@ -51,7 +51,7 @@ export class OHOSPackTool extends NativePackTool {
         
         // gradle.properties
         await cchelper.replaceInFile([
-            { reg: '^RES_ps.*', text: `RES_PATH=${cchelper.fixPath(Paths.projectDir)}` },
+            { reg: '^RES_ps.*', text: `RES_PATH=${cchelper.fixPath(this.paths.buildDir)}` },
             { reg: '^ENGINE_ROOT.*', text: `ENGINE_ROOT=${cchelper.fixPath(cocosXRoot)}` },
             { reg: '^COMMON_DIR.*', text: `COMMON_DIR=${cchelper.fixPath(process.env.COMMON_DIR || '')}` },
         ], ps.join(ohosProjDir, 'gradle.properties'));

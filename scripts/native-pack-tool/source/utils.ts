@@ -326,6 +326,16 @@ export class cchelper {
                     console.log(`[runCmd ${cmd} - error] ${chunk}`);
                 });
             }
+            cp.on('exit', (code, signal) => {
+                if (code !== 0 && !slient) {
+                    reject(`failed to exec ${cmd} ${args.join(' ')}`);
+                } else {
+                    resolve();
+                }
+            });
+            cp.on('error', (err: Error) => {
+                reject(err);
+            });
             cp.on('close', (code, signal) => {
                 if (code !== 0 && !slient) {
                     reject(`failed to exec ${cmd} ${args.join(' ')}`);

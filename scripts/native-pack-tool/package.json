@@ -6,7 +6,9 @@
   "author": "CocosCreator",
   "license": "ISC",
   "scripts": {
-    "pack": "node ./scripts/task"
+    "pack": "node ./scripts/task",
+    "build": "tsc --build",
+    "clean": "tsc --clean"
   },
   "dependencies": {
     "fs-extra": "^10.1.0",

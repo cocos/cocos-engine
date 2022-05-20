@@ -1,6 +1,6 @@
-import { CocosParams, NativePackTool } from "../base/default";
 import * as fs from 'fs-extra';
 import * as ps from 'path';
+import { CocosParams, NativePackTool } from "../base/default";
 import { cchelper, Paths } from "../utils";
 import * as URL from 'url';
 
@@ -13,7 +13,6 @@ export interface IOrientation {
 
 export interface IAndroidParams {
     packageName: string;
-    keyStorePath: string;
     sdkPath: string;
     ndkPath: string;
     androidInstant: boolean,
@@ -23,6 +22,7 @@ export interface IAndroidParams {
     keystorePassword: string;
     keystoreAlias: string;
     keystoreAliasPassword: string;
+    keystorePath: string;
 
     orientation: IOrientation;
     appBundle: boolean;
@@ -34,8 +34,13 @@ export class AndroidPackTool extends NativePackTool {
     protected async copyPlatformTemplate() {
         // 原生工程不重复拷贝 TODO 复用前需要做版本检测
         if (!fs.existsSync(this.paths.nativePrjDir)) {
-            // 拷贝 lite 仓库的 templates/平台/native 文件到 native 目录
+            // 拷贝 lite 仓库的 templates/android/build 文件到构建输出目录
             await fs.copy(ps.join(this.paths.nativeTemplateDirInCocos, this.params.platform, 'build'), this.paths.nativePrjDir, { overwrite: false });
+        }
+        // 原生工程不重复拷贝 TODO 复用前需要做版本检测
+        if (!fs.existsSync(this.paths.platformTemplateDirInPrj)) {
+            // 拷贝 lite 仓库的 templates/android/build 文件到构建输出目录
+            await fs.copy(ps.join(this.paths.nativeTemplateDirInCocos, this.params.platform, 'template'), this.paths.platformTemplateDirInPrj, { overwrite: false });
         }
     }
 
@@ -46,13 +51,15 @@ export class AndroidPackTool extends NativePackTool {
         await this.setOrientation();
 
         await this.encrypteScripts();
+        await this.updateAndroidGradleValues();
+        await this.configAndroidInstant();
         return true;
     }
 
     async make() {
         const options = this.params.platformParams;
 
-        const projDir: string = ps.join(this.paths.buildDir, 'proj');
+        const projDir: string = this.paths.nativePrjDir;
         if (!fs.existsSync(projDir)) {
             console.error(`dir ${projDir} not exits`);
             return false;
@@ -132,12 +139,13 @@ export class AndroidPackTool extends NativePackTool {
         console.log(`update settings.properties`);
         await cchelper.replaceInFile([
             { reg: '^rootProject\\.name.*', text: `rootProject.name = "${this.params.projectName}"` },
-        ], ps.join(Paths.projectDir, 'proj/settings.gradle'));
+            { reg: ':CocosGame', text: `:${this.params.projectName}`}
+        ], ps.join(this.paths.nativePrjDir, 'settings.gradle'));
 
         console.log(`update gradle.properties`);
-        const gradlePropertyPath = cchelper.join(Paths.projectDir, 'proj/gradle.properties');
+        const gradlePropertyPath = cchelper.join(this.paths.nativePrjDir, 'gradle.properties');
         if (fs.existsSync(gradlePropertyPath)) {
-            let keystorePath = options.keyStorePath;
+            let keystorePath = options.keystorePath;
             if (process.platform === 'win32') {
                 keystorePath = cchelper.fixPath(keystorePath);
             }
@@ -168,10 +176,10 @@ export class AndroidPackTool extends NativePackTool {
             content = content.replace(/PROP_APP_NAME=.*/, `PROP_APP_NAME=${this.params.projectName}`);
             content = content.replace(/PROP_ENABLE_INSTANT_APP=.*/, `PROP_ENABLE_INSTANT_APP=${options.androidInstant ? "true" : "false"}`);
 
-            content = content.replace(/RES_PATH=.*/, `RES_PATH=${cchelper.fixPath(Paths.projectDir)}`);
+            content = content.replace(/RES_PATH=.*/, `RES_PATH=${cchelper.fixPath(this.paths.buildDir)}`);
             content = content.replace(/COCOS_ENGINE_PATH=.*/, `COCOS_ENGINE_PATH=${cchelper.fixPath(Paths.nativeRoot)}`);
             content = content.replace(/APPLICATION_ID=.*/, `APPLICATION_ID=${options.packageName}`);
-            content = content.replace(/NATIVE_DIR=.*/, `NATIVE_DIR=${this.paths.platformTemplateDirInPrj}`);
+            content = content.replace(/NATIVE_DIR=.*/, `NATIVE_DIR=${cchelper.fixPath(this.paths.platformTemplateDirInPrj)}`);
 
 
             if (process.platform === 'win32') {
@@ -237,10 +245,10 @@ export class AndroidPackTool extends NativePackTool {
         const options = this.params.platformParams;
 
         const suffix = this.params.debug ? 'debug' : 'release';
-        const destDir: string = ps.join(Paths.projectDir, 'publish', suffix);
+        const destDir: string = ps.join(this.paths.buildDir, 'publish', suffix);
         fs.ensureDirSync(destDir);
         let apkName = `${this.params.projectName}-${suffix}.apk`;
-        let apkPath = ps.join(Paths.projectDir, `proj/build/${this.params.projectName}/outputs/apk/${suffix}/${apkName}`);
+        let apkPath = ps.join(this.paths.nativePrjDir, `build/${this.params.projectName}/outputs/apk/${suffix}/${apkName}`);
         if (!fs.existsSync(apkPath)) {
             console.error('apk not found at ', apkPath);
             return false;
@@ -248,7 +256,7 @@ export class AndroidPackTool extends NativePackTool {
         fs.copyFileSync(apkPath, ps.join(destDir, apkName));
         if (options.androidInstant) {
             apkName = `instantapp-${suffix}.apk`;
-            apkPath = ps.join(Paths.projectDir, `proj/build/instantapp/outputs/apk/${suffix}/${apkName}`);
+            apkPath = ps.join(this.paths.nativePrjDir, `build/instantapp/outputs/apk/${suffix}/${apkName}`);
             if (!fs.existsSync(apkPath)) {
                 console.error('instant apk not found at ', apkPath);
                 return false;
@@ -258,7 +266,7 @@ export class AndroidPackTool extends NativePackTool {
 
         if (options.appBundle) {
             apkName = `${this.params.projectName}-${suffix}.aab`;
-            apkPath = ps.join(Paths.projectDir, `proj/build/${this.params.projectName}/outputs/bundle/${suffix}/${apkName}`);
+            apkPath = ps.join(this.paths.nativePrjDir, `build/${this.params.projectName}/outputs/bundle/${suffix}/${apkName}`);
             if (!fs.existsSync(apkPath)) {
                 console.error('instant apk not found at ', apkPath);
                 return false;

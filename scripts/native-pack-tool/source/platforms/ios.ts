@@ -14,9 +14,9 @@ export interface IOSParams {
     orientation: IOrientation;
     bundleId: string;
     skipUpdateXcodeProject: boolean;
-    iphoneos: boolean;
     teamid: string;
 
+    iphoneos: boolean;
     simulator?: boolean;
 }
 

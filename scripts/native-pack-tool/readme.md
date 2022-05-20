@@ -1,6 +1,6 @@
 # 原生工程打包/生成工具
 
-原生功能打包工具是基于 CocosCreator 定制的，用于快速将 CocosCreator 生成的普通资源项目文件夹整合成标准的原生平台功能代码，支持快速编译、运行对应的原生平台工程。
+原生功能打包工具是基于 CocosCreator 定制的，用于快速将 CocosCreator 构建生成的普通资源项目文件夹整合成标准的原生平台功能代码，支持快速编译、运行对应的原生平台工程。
 
 处理的原生工程目录需要为以下的目录结构：
 
@@ -16,15 +16,15 @@
 在使用之前请先执行以下命令
 
 ```bash
-npm install
-npm run build
+1. npm install
+2. tsc (需要全局安装 typescript)
 ```
 
 ## 支持的命令
 
 ```bash
 npm run pack [projectPath] create // 根据原始构建后的目录资源生成基础的原生资源工程
-npm run pack [projectPath] make // 编译指定的原生工程
+npm run pack [projectPath] make // 编译/生成指定的原生工程
 npm run pack [projectPath] run // 运行已经编译好的原生导出软件
 
 npm run pack [projectPath] init,make,run
@@ -32,7 +32,7 @@ npm run pack [projectPath] init,make,run
 
 ## 开发须知
 
-1. 在开发原生相关代码的过程中，可以先使用构建生成一份不加密的平台构建包，删掉 `build/[platform]/proj` 以及 `[projectPath]/native` 后，直接在 engine 仓库快速执行命令编译验证逻辑。
+1. 在开发原生相关代码的过程中，可以先使用构建生成一份不加密的平台构建包，删掉 `build/[platform]/proj` 以及 `[projectPath]/native` 后，直接在 `engine` 仓库快速执行命令来编译生成验证逻辑。
 
 2. 如何注册新平台？
 
@@ -48,3 +48,23 @@ nativePackToolMg.register('windows', new WindowsPackTool());
 (3) 保障新的类里，`create, make, run` 的逻辑都正常，直接使用命令行测试即可。
 
 (4) 构建插件是直接加载的入口脚本，所有如果有其他闭源插件想要做平台插件注册，直接在 `hooks` 脚本的 `load` 钩子里加载 `nativePackToolMg` 后执行注册逻辑即可。
+
+(5) 所有原生平台的打包参数，都要在构建阶段整理，写入到 `cocos.compile.json`，关于 `nativePackToolMg` 的调用方式，可以参考 `scripts/task` 内的写法。
+
+3. 调试打包工具
+
+相对来说调试打包工具应该尽量在本仓库内直接调试好，构建阶段调用即可，可以在 `.vscode.launch.json` 内配置调试参数，如下图
+
+```json5
+    {
+        "command": "npm run pack  make",
+        "name": "npm run pack",
+        "request": "launch",
+        "cwd": "${workspaceRoot}/scripts/native-pack-tool", // 实际的构建项目目录（cocos.compile.config.json 所在目录）
+        "args": [
+            "E:\\test-cases-3d\\build\\android2",
+            "create"
+        ],
+        "type": "node-terminal"
+    },
+```

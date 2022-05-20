@@ -66,6 +66,6 @@ tasks.forEach((taskName) => {
 });
 
 promise.then(() => {
-    console.log(`run task ${tasks} sucess!`);
+    console.log(`run task ${tasks} success!`);
     process.exit();
 })
