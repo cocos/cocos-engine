@@ -305,10 +305,10 @@ int32_t Engine::restartVM() {
     offAll();
     // start
     _gfxDevice = gfx::DeviceManager::create();
-    // Should reinitialize builtin resources as _programLib will be re-created.
-    _programLib = ccnew ProgramLib;
     // Should re-create ProgramLib as shaders may change after restart. For example,
     // program update resources and do restart.
+    _programLib = ccnew ProgramLib;
+    // Should reinitialize builtin resources as _programLib will be re-created.
     _builtinResMgr = ccnew BuiltinResMgr;
     cc::EventDispatcher::init();
     CC_CURRENT_APPLICATION()->init();
