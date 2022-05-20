@@ -144,8 +144,14 @@ export class ShadowTransformInfo {
         // bounding box in light space
         AABB.fromPoints(this._castLightViewBoundingBox, _maxVec3, _minVec3);
         this._castLightViewBoundingBox.mergeFrustum(this._lightViewFrustum);
-        const orthoSize = Vec3.distance(this._lightViewFrustum.vertices[0], this._lightViewFrustum.vertices[6]);
-
+        let orthoSizeWidth;
+        let orthoSizeHeight;
+        if (dirLight.shadowCSMPerformanceMode) {
+            orthoSizeWidth = this._castLightViewBoundingBox.halfExtents.x * 2.0;
+            orthoSizeHeight = this._castLightViewBoundingBox.halfExtents.y * 2.0;
+        } else {
+            orthoSizeWidth = orthoSizeHeight = Vec3.distance(this._lightViewFrustum.vertices[0], this._lightViewFrustum.vertices[6]);
+        }
         const r = this._castLightViewBoundingBox.halfExtents.z;
         this._shadowCameraFar = r * 2 + invisibleOcclusionRange;
         const center = this._castLightViewBoundingBox.center;
@@ -157,9 +163,10 @@ export class ShadowTransformInfo {
 
         if (!onlyForCulling) {
             // snap to whole texels
-            const halfOrthoSize = orthoSize * 0.5;
-            Mat4.ortho(_matShadowProj, -halfOrthoSize, halfOrthoSize, -halfOrthoSize, halfOrthoSize, 0.1, this.shadowCameraFar,
-                device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
+            const halfOrthoSizeWidth = orthoSizeWidth * 0.5;
+            const halfOrthoSizeHeight = orthoSizeHeight * 0.5;
+            Mat4.ortho(_matShadowProj, -halfOrthoSizeWidth, halfOrthoSizeWidth, -halfOrthoSizeHeight, halfOrthoSizeHeight,
+                0.1, this._shadowCameraFar, device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
 
             Mat4.multiply(_matShadowViewProjArbitaryPos, _matShadowProj, shadowViewArbitaryPos);
             Vec3.transformMat4(_projPos, _shadowPos, _matShadowViewProjArbitaryPos);
@@ -180,7 +187,9 @@ export class ShadowTransformInfo {
             Mat4.copy(this._matShadowProj, _matShadowProj);
             Mat4.copy(this._matShadowViewProj, _matShadowViewProj);
         }
-        Frustum.createOrtho(this._validFrustum, orthoSize, orthoSize, 0.1,  this._shadowCameraFar, _matShadowTrans);
+
+        Frustum.createOrtho(this._validFrustum, orthoSizeWidth, orthoSizeHeight,
+            0.1,  this._shadowCameraFar, _matShadowTrans);
     }
 }
 export class CSMLayerInfo extends ShadowTransformInfo {

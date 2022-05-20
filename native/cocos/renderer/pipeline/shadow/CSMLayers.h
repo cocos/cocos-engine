@@ -59,7 +59,7 @@ public:
     inline void setValidFrustum(const geometry::Frustum &validFrustum) { _validFrustum = validFrustum; }
 
     inline geometry::Frustum getSplitFrustum() const { return _splitFrustum; }
-    inline void setSplitFrustum(const geometry::Frustum &splitFrustum) { _splitFrustum = splitFrustum; }
+    inline void setSplitFrustum(geometry::Frustum &splitFrustum) { _splitFrustum = splitFrustum; }
 
     inline geometry::Frustum getLightViewFrustum() const { return _lightViewFrustum; }
     inline void setLightViewFrustum(const geometry::Frustum &lightViewFrustum) { _lightViewFrustum = lightViewFrustum; }

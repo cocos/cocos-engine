@@ -51,6 +51,7 @@ public:
     inline void setShadowCSMLambda(float lambda) { _shadowCSMLambda = lambda; }
     inline void setShadowCSMValueDirty(bool isShadowCSMValueDirty) { _isShadowCSMValueDirty = isShadowCSMValueDirty; }
     inline void setShadowCSMDebugMode(bool isShadowCSMDebugMode) { _isShadowCSMDebugMode = isShadowCSMDebugMode; }
+    inline void setShadowCSMPerformanceMode(bool isShadowCSMPerformanceMode) { _isShadowCSMPerformanceMode = isShadowCSMPerformanceMode; }
     inline void setShadowFixedArea(bool fixedArea) { _shadowFixedArea = fixedArea; }
     inline void setShadowNear(float nearValue) { _shadowNear = nearValue; }
     inline void setShadowFar(float farValue) { _shadowFar = farValue; }
@@ -67,6 +68,7 @@ public:
     inline float getShadowCSMLambda() const { return _shadowCSMLambda; }
     inline bool isShadowCSMValueDirty() const { return _isShadowCSMValueDirty; }
     inline bool isShadowCSMDebugMode() const { return _isShadowCSMDebugMode; }
+    inline bool isShadowCSMPerformanceMode() const { return _isShadowCSMPerformanceMode; }
     inline bool isShadowFixedArea() const { return _shadowFixedArea; }
     inline float getShadowNear() const { return _shadowNear; }
     inline float getShadowFar() const { return _shadowFar; }
@@ -99,6 +101,7 @@ private:
     float _shadowCSMLambda{0.75};
     bool _isShadowCSMValueDirty{false};
     bool _isShadowCSMDebugMode{false};
+    bool _isShadowCSMPerformanceMode{false};
     bool _shadowFixedArea{false};
     float _shadowNear{0.1F};
     float _shadowFar{10.0F};

@@ -51,6 +51,7 @@ export class DirectionalLight extends Light {
     protected _shadowCSMValueDirty = false;
     protected _shadowCSMLambda = 0.75;
     protected _shadowCSMDebugMode = false;
+    protected _shadowCSMPerformanceMode = false;
 
     // fixed area properties
     protected _shadowFixedArea = false;
@@ -202,6 +203,17 @@ export class DirectionalLight extends Light {
     }
     set shadowCSMLambda (val) {
         this._shadowCSMLambda = val;
+    }
+
+    /**
+     * @en get or set shadow CSM level ratio
+     * @zh 获取或者设置级联阴影层数系数
+     */
+    get shadowCSMPerformanceMode () {
+        return this._shadowCSMPerformanceMode;
+    }
+    set shadowCSMPerformanceMode (val) {
+        this._shadowCSMPerformanceMode = val;
     }
 
     /**

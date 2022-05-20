@@ -58,7 +58,13 @@ void ShadowTransformInfo::createMatrix(geometry::Frustum splitFrustum, const sce
                             Vec3(-100000.0F, -100000.0F, -100000.0F),
                             &_castLightViewBoundingBox);
     _castLightViewBoundingBox.merge(_lightViewFrustum);
-    const float orthoSize = _lightViewFrustum.vertices[0].distance(_lightViewFrustum.vertices[6]);
+    float orthoSizeWidth, orthoSizeHeight;
+    if (dirLight->isShadowCSMPerformanceMode()) {
+        orthoSizeWidth = _castLightViewBoundingBox.halfExtents.x;
+        orthoSizeHeight = _castLightViewBoundingBox.halfExtents.y;
+    } else {
+        orthoSizeWidth = orthoSizeHeight = _lightViewFrustum.vertices[0].distance(_lightViewFrustum.vertices[6]);
+    }
 
     const float r = _castLightViewBoundingBox.getHalfExtents().z;
     _shadowCameraFar = r * 2.0F + invisibleOcclusionRange;
@@ -71,9 +77,10 @@ void ShadowTransformInfo::createMatrix(geometry::Frustum splitFrustum, const sce
 
     if (!isOnlyCulling) {
         // snap to whole texels
-        const float halfOrthoSize = orthoSize * 0.5F;
+        const float halfOrthoSizeWidth = orthoSizeWidth * 0.5F;
+        const float halfOrthoSizeHeight = orthoSizeHeight * 0.5F;
         Mat4 matShadowProj;
-        Mat4::createOrthographicOffCenter(-halfOrthoSize, halfOrthoSize, -halfOrthoSize, halfOrthoSize,
+        Mat4::createOrthographicOffCenter(-halfOrthoSizeWidth, halfOrthoSizeWidth, -halfOrthoSizeHeight, halfOrthoSizeHeight,
                                           0.1F, _shadowCameraFar, clipSpaceMinZ, projectionSinY, 0U, &matShadowProj);
 
         Mat4 matShadowViewProjArbitaryPos;
@@ -99,7 +106,7 @@ void ShadowTransformInfo::createMatrix(geometry::Frustum splitFrustum, const sce
         _matShadowProj = matShadowProj.clone();
         _matShadowViewProj = matShadowViewProj.clone();
     }
-    _validFrustum.createOrtho(orthoSize, orthoSize, 0.1F, _shadowCameraFar, matShadowTrans);
+    _validFrustum.createOrtho(orthoSizeWidth, orthoSizeHeight, 0.1F, _shadowCameraFar, matShadowTrans);
 }
 
 CSMLayerInfo::CSMLayerInfo(uint level) {
@@ -114,8 +121,8 @@ CSMLayerInfo::CSMLayerInfo(uint level) {
 void CSMLayerInfo::calculateAtlas(uint level) {
     const gfx::Device *device = gfx::Device::getInstance();
     const float clipSpaceSignY = device->getCapabilities().clipSpaceSignY;
-    const float x = std::floorf(static_cast<float>(level % 2U)) - 0.5F;
-    const float y = clipSpaceSignY * (0.5F - std::floorf(static_cast<float>(level) / 2U));
+    const float x = floorf(static_cast<float>(level % 2U)) - 0.5F;
+    const float y = clipSpaceSignY * (0.5F - floorf(static_cast<float>(level) / 2U));
     const Vec3 bias(x, y, 0.0F);
     const Vec3 scale(0.5F, 0.5F, 1.0F);
     Mat4::fromRTS(Quaternion::identity(), bias, scale, &_matShadowAtlas);

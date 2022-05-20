@@ -89,7 +89,7 @@ void ShadowStage::render(scene::Camera *camera) {
                 _renderArea.height = static_cast<uint>(shadowMapSize.y);
             } else {
                 _renderArea.x = static_cast<int>(static_cast<float>(_level % 2) * 0.5F * shadowMapSize.x);
-                _renderArea.y = static_cast<int>((1 - std::floorf(static_cast<float>(_level) / 2)) * 0.5F * shadowMapSize.y);
+                _renderArea.y = static_cast<int>((1 - floorf(static_cast<float>(_level) / 2)) * 0.5F * shadowMapSize.y);
                 _renderArea.width = static_cast<int>(0.5F * shadowMapSize.x);
                 _renderArea.height = static_cast<int>(0.5F * shadowMapSize.y);
             }

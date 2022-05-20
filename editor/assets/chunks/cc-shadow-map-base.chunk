@@ -16,7 +16,7 @@ int CCGetCSMLevel(out vec4 csmPos, vec3 worldPos) {
     vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
     if (clipPos.x < (0.0 + cc_csmInfo.y) || clipPos.x > (1.0 - cc_csmInfo.y) ||
         clipPos.y < (0.0 + cc_csmInfo.y) || clipPos.y > (1.0 - cc_csmInfo.y) ||
-        clipPos.z < (0.0 + cc_csmInfo.y) || clipPos.z > (1.0 - cc_csmInfo.y)) {
+        clipPos.z < 0.0 || clipPos.z > 1.0) {
       continue;
     }
     csmPos = cc_matShadowViewProjAtlas_levels[i] * vec4(worldPos.xyz, 1.0);
