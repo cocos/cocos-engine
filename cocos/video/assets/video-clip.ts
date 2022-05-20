@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module component/video
- */
-
 import { ccclass, serializable } from 'cc.decorator';
 import { Asset } from '../../core/assets';
 

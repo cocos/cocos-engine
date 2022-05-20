@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module scene-graph
- */
-
 import './node-event-processor';
 import './deprecated';
 
@@ -36,5 +31,6 @@ export { Node } from './node';
 export { Scene } from './scene';
 export { Layers } from './layers';
 export { find } from './find';
+export * from './scene-globals';
 export * from './deprecated';
 export { default as NodeActivator } from './node-activator';

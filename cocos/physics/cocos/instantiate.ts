@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { selector } from '../framework/physics-selector';
 import { BuiltInWorld } from './builtin-world';
 import { BuiltinRigidBody } from './builtin-rigid-body';

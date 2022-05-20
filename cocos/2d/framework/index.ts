@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 export * from './canvas';
 export * from './ui-component';
 export * from './renderable-2d';

@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { director } from '../../core/director';
 import { Material } from '../../core/assets/material';
 import { TextureBase } from '../../core/assets/texture-base';
@@ -38,6 +36,9 @@ import { getAttributeStride, vfmtPosUvColor } from './vertex-format';
 import { Buffer, BufferInfo, BufferUsageBit, Device, InputAssembler, InputAssemblerInfo, MemoryUsageBit } from '../../core/gfx';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 
+/**
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ */
 export interface IRenderData {
     x: number;
     y: number;
@@ -60,6 +61,9 @@ const _dataPool = new Pool(() => ({
 
 let _pool: RecyclePool<RenderData> = null!;
 
+/**
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ */
 export class BaseRenderData {
     public material: Material | null = null;
     get vertexCount () {
@@ -96,6 +100,9 @@ export class BaseRenderData {
     }
 }
 
+/**
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ */
 export class RenderData extends BaseRenderData {
     public static add (vertexFormat = vfmtPosUvColor, accessor?: StaticVBAccessor) {
         if (!_pool) {
@@ -305,6 +312,9 @@ export class RenderData extends BaseRenderData {
     }
 }
 
+/**
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ */
 export class MeshRenderData extends BaseRenderData {
     public static add (vertexFormat = vfmtPosUvColor) {
         const rd = _meshDataPool.add();

@@ -49,10 +49,6 @@ public:
         _angle      = acos(_spotAngle) * 2;
         _needUpdate = true;
     }
-    inline void setAspect(float aspect) {
-        _aspect     = aspect;
-        _needUpdate = true;
-    }
     inline void setDirection(const Vec3 &dir) { _dir = dir; }
     inline void setFrustum(Frustum frustum) { _frustum = std::move(frustum); }
     inline void setLuminanceHDR(float illu) { _luminanceHDR = illu; }
@@ -72,7 +68,6 @@ public:
     inline AABB *         getAABB() const { return _aabb; }
     inline float          getAngle() const { return _angle; }
     inline float          getSpotAngle() const { return _spotAngle; }
-    inline float          getAspect() const { return _aspect; }
     inline const Vec3 &   getDirection() const { return _dir; }
     inline const Frustum &getFrustum() const { return _frustum; }
     inline float          getLuminanceHDR() const { return _luminanceHDR; }
@@ -94,7 +89,6 @@ private:
     float   _size{0.F};
     float   _angle{0.F};
     float   _spotAngle{0.F};
-    float   _aspect{0.F};
     Vec3    _dir;
     Vec3    _pos;
     AABB *  _aabb{nullptr};

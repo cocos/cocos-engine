@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module terrain
- */
-
 import { clamp } from '../core/math';
 
 export class HeightField {

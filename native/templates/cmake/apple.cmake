@@ -1,5 +1,5 @@
 macro(cc_ios_before_target target_name)
-    set(CC_UI_RESOURCES
+    list(APPEND CC_UI_RESOURCES
         ${CC_PROJECT_DIR}/LaunchScreenBackground.png
         ${CC_PROJECT_DIR}/Images.xcassets
         ${CC_PROJECT_DIR}/Base.lproj/Localizable.strings
@@ -34,7 +34,7 @@ macro(cc_ios_before_target target_name)
         ${CC_PROJECT_DIR}/ViewController.h
     )
 
-    set(CC_ALL_SOURCES ${CC_PROJ_SOURCES} ${CC_ASSET_FILES} ${CC_COMMON_SOURCES})
+    list(APPEND CC_ALL_SOURCES ${CC_PROJ_SOURCES} ${CC_ASSET_FILES} ${CC_COMMON_SOURCES})
     cc_common_before_target(${target_name})
 endmacro()
 
@@ -77,7 +77,7 @@ macro(cc_mac_before_target target_name)
 
     set(CMAKE_OSX_DEPLOYMENT_TARGET ${TARGET_OSX_VERSION})
 
-    set(CC_UI_RESOURCES
+    list(APPEND CC_UI_RESOURCES
         ${CC_PROJECT_DIR}/Assets.xcassets
         ${CC_PROJECT_DIR}/Icon.icns
     )
@@ -101,7 +101,7 @@ macro(cc_mac_before_target target_name)
     source_group(TREE ${CC_PROJECT_DIR} PREFIX "Source Files" FILES ${CC_PROJ_SOURCES})
     source_group(TREE ${CC_PROJECT_DIR}/../common PREFIX "Source Files" FILES ${CC_COMMON_SOURCES})
 
-    set(CC_ALL_SOURCES ${CC_PROJ_SOURCES} ${CC_ASSET_FILES} ${CC_COMMON_SOURCES})
+    list(APPEND CC_ALL_SOURCES ${CC_PROJ_SOURCES} ${CC_ASSET_FILES} ${CC_COMMON_SOURCES})
     cc_common_before_target(${target_name})
 endmacro()
 

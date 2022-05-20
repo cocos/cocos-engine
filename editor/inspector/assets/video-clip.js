@@ -30,7 +30,7 @@ exports.update = function(assetList, metaList) {
             html += `<div>${asset.name}</div>`;
         }
 
-        html += `<video class="video" controls="controls" src="${asset.file}"></video>`;
+        html += `<video class="video" controls="controls" src="${asset.file}?v=${Date.now()}"></video>`;
     });
 
     this.$.constainer.innerHTML = html;

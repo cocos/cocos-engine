@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module physics
- */
-
 import { IVec3Like } from '../../core/math';
 import { Collider } from './components/colliders/collider';
 

@@ -1,0 +1,42 @@
+#include <common/lighting/brdf>
+#include <common/lighting/functions>
+
+bool CCSurfacesLightingEnableShadow(in float NoL)
+{
+  return NoL > 0.0;
+}
+
+float CCSurfacesLightingCalculateDistanceAttenuation(in LightingIntermediateData lightingData, in vec4 lightSizeRangeAngle)
+{
+  return CalculateDistanceAttenuation(lightingData.distToLightSqr, lightSizeRangeAngle.x, lightSizeRangeAngle.y);
+}
+
+float CCSurfacesLightingCalculateAngleAttenuation(in LightingIntermediateData lightingData, in vec4 lightSizeRangeAngle, in vec3 spotLightDir)
+{
+  return CalculateAngleAttenuation(spotLightDir, lightingData.L, lightSizeRangeAngle.z);
+}
+
+void CCSurfacesLightingCalculateDirect(out vec3 lightingDiffuse, out vec3 lightingSpecular, in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity)
+{
+    vec3 irradiance = lightSourceColorAndIntensity.rgb * lightSourceColorAndIntensity.w;
+    
+    lightingDiffuse = irradiance; // no energy conservation
+
+  // punctual lighting is different from dir lighting
+#if CC_FORWARD_ADD || CC_ENABLE_CLUSTERED_LIGHT_CULLING
+    float NL = 0.5 * lightingData.NoL + 0.5;
+    lightingDiffuse *= NL;
+#endif
+
+    float NH = 0.5 * lightingData.NoH + 0.5;
+    float specularWeight = 1.0 - pow(lightingData.specularParam, 5.0);
+    float specularMask = step(specularWeight, NH);
+    lightingSpecular = irradiance * specularMask;
+}
+
+void CCSurfacesLightingCalculateEnvironment(inout LightingResult lightingResult, in LightingIntermediateData lightingData)
+{
+  lightingResult.environmentDiffuse = vec3(0.0);
+  lightingResult.environmentSpecular = vec3(0.0);
+}
+

@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module decorator
- */
-
 import { DEV, EDITOR } from 'internal:constants';
 import { IExposedAttributes } from '../utils/attribute-defines';
 import { getOrCreatePropertyStash } from './property';

@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { AudioSource } from './audio-source';
 import { replaceProperty, markAsWarning } from '../core/utils/x-deprecated';
 import { AudioClip } from './audio-clip';
