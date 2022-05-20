@@ -1,56 +1,6 @@
 export const cocosConfig = {
-    languages: [
-        'js',
-    ],
-    platforms: [
-        'ios',
-        'mac',
-        'windows',
-        'android',
-        'ios-simulator',
-        'huawei-agc',
-        'ohos',
-        'linux',
-        'xr-huaweivr',
-        'xr-oculus',
-        'xr-pico',
-        'xr-rokid',
-        'xr-mobile',
-    ],
-    supportTemplates: ['link', 'default'],
     default: {
         projectName: 'MyGame',
-    },
-    availableTargetPlatforms: {
-        mac: [
-            'mac',
-            'ios',
-            'android',
-            'huawei-agc',
-            'ohos',
-	        'linux',
-            'xr-huaweivr',
-            'xr-oculus',
-            'xr-pico',
-            'xr-rokid',
-            'xr-mobile',
-        ],
-        windows: [
-            'windows',
-            'android',
-            'huawei-agc',
-            'ohos',
-	        'linux',
-            'xr-huaweivr',
-            'xr-oculus',
-            'xr-pico',
-            'xr-rokid',
-            'xr-mobile',
-        ],
-    },
-    defaultGeneratePlatforms: {
-        mac: ['mac', 'ios-simulator'],
-        windows: ['windows'],
     },
     cmake: {
         windows: {
