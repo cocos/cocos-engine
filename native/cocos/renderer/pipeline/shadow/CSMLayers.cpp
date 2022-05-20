@@ -89,8 +89,8 @@ void ShadowTransformInfo::createMatrix(geometry::Frustum splitFrustum, const sce
         projPos.transformMat4(shadowPos, matShadowViewProjArbitaryPos);
         const float invActualSize = 2.0F / shadowMapWidth;
         const Vec2 texelSize(invActualSize, invActualSize);
-        const float modX = std::fmodf(projPos.x, texelSize.x);
-        const float modY = std::fmodf(projPos.y, texelSize.y);
+        const float modX = fmodf(projPos.x, texelSize.x);
+        const float modY = fmodf(projPos.y, texelSize.y);
         const Vec3 projSnap(projPos.x - modX, projPos.y - modY, projPos.z);
         const Mat4 matShadowViewProjArbitaryPosInv = matShadowViewProjArbitaryPos.getInversed();
         Vec3 snap;
