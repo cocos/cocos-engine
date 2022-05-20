@@ -72,6 +72,7 @@ describe('NewGen Anim', () => {
         expect(animTransition.duration).toBe(0.3);
         expect(animTransition.exitConditionEnabled).toBe(true);
         expect(animTransition.exitCondition).toBe(1.0);
+        expect(animTransition.offset).toBe(0.0);
 
         function testGraphDefaults(graph: StateMachine) {
             expect(Array.from(graph.states())).toStrictEqual(expect.arrayContaining([
@@ -1247,6 +1248,52 @@ describe('NewGen Anim', () => {
                     },
                 },
             });
+        });
+
+        test(`Transition offset`, () => {
+            const animationGraph = new AnimationGraph();
+            const layer = animationGraph.addLayer();
+            const graph = layer.stateMachine;
+            const animState1 = graph.addMotion();
+            animState1.name = 'Motion1';
+            animState1.motion = createClipMotionPositionXLinear(4.0, 0.6, 0.8);
+            const animState2 = graph.addMotion();
+            animState2.name = 'Motion2';
+            animState2.motion = createClipMotionPositionXLinear(2.2, 3.0, 0.1415);
+            graph.connect(graph.entryState, animState1);
+            const transition = graph.connect(animState1, animState2);
+            transition.exitConditionEnabled = true;
+            transition.exitCondition = 0.1;
+            transition.duration = 0.3;
+            transition.relativeDuration = false;
+            transition.offset = 0.17;
+
+            const node = new Node();
+            const graphEval = createAnimationGraphEval(animationGraph, node);
+
+            const graphUpdater = new GraphUpdater(graphEval);
+            graphUpdater.goto(4.0 * 0.1 + 0.2);
+
+            expectAnimationGraphEvalStatusLayer0(graphEval, {
+                currentNode: {
+                    __DEBUG_ID__: 'Motion1',
+                    progress: 0.1 + 0.2 / 4.0,
+                },
+                transition: {
+                    nextNode: {
+                        __DEBUG_ID__: 'Motion2',
+                        progress: 0.17 + 0.2 / 2.2,
+                    },
+                },
+            });
+
+            expect(node.position.x).toBeCloseTo(
+                lerp(
+                    lerp(0.6, 0.8, 0.1 + 0.2 / 4.0),
+                    lerp(3.0, 0.1415, 0.17 + 0.2 / 2.2),
+                    0.2 / 0.3,
+                ),
+            );
         });
 
         test(`Ran into entry/exit node`, () => {
