@@ -37,7 +37,6 @@ declare type RecursivePartial<T> = {
     T[P] extends ReadonlyArray<infer V> ? ReadonlyArray<RecursivePartial<V>> : RecursivePartial<T[P]>;
 };
 
-import { legacyCC } from '../global-exports';
 import {
     BlendFactor,
     BlendOp,
@@ -658,16 +657,9 @@ export class BlendState {
     }
 }
 
-
-
 export const PipelineState = gfx.PipelineState;
 export const PipelineStateInfo = gfx.PipelineStateInfo;
 
-legacyCC.gfx.BlendTarget = BlendTarget;
-legacyCC.gfx.BlendState = BlendState;
-legacyCC.gfx.RasterizerState = RasterizerState;
-legacyCC.gfx.DepthStencilState = DepthStencilState;
-legacyCC.gfx.PipelineStateInfo = PipelineStateInfo;
 
 
 

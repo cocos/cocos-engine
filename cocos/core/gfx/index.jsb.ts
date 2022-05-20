@@ -32,7 +32,7 @@ declare const gfx: any;
 
 import { legacyCC } from '../global-exports';
 import * as defines from './base/define';
-//import * as pso from './pipeline-state.jsb';
+import {BlendTarget, BlendState, RasterizerState, DepthStencilState, PipelineStateInfo } from './base/pipeline-state'
 
 export * from './base/descriptor-set';
 export * from './base/buffer';
@@ -44,6 +44,7 @@ export * from './base/framebuffer';
 export * from './base/input-assembler';
 export * from './base/descriptor-set-layout';
 export * from './base/pipeline-layout';
+export * from './base/pipeline-state';
 export * from './base/queue';
 export * from './base/render-pass';
 export * from './base/shader';
@@ -78,10 +79,10 @@ legacyCC.gfx = polyfillCC;
 // export const PipelineState = pso.PipelineState;
 // export const PipelineStateInfo = pso.PipelineStateInfo;
 
-// polyfillCC.BlendTarget = pso.BlendTarget;
-// polyfillCC.BlendState = pso.BlendState;
-// polyfillCC.RasterizerState = pso.RasterizerState;
-// polyfillCC.DepthStencilState = pso.DepthStencilState;
-// polyfillCC.PipelineStateInfo = pso.PipelineStateInfo;
+polyfillCC.BlendTarget = BlendTarget;
+polyfillCC.BlendState = BlendState;
+polyfillCC.RasterizerState = RasterizerState;
+polyfillCC.DepthStencilState = DepthStencilState;
+polyfillCC.PipelineStateInfo = PipelineStateInfo;
 
 import './deprecated-3.0.0';
