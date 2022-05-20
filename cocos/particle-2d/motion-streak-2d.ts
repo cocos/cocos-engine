@@ -24,8 +24,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { ccclass, executeInEditMode, serializable, playOnFocus, menu, help, editable, type } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Renderable2D } from '../2d/framework';

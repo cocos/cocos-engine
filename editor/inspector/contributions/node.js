@@ -156,7 +156,7 @@ exports.listeners = {
     },
 };
 
-exports.template = `
+exports.template = /* html*/`
 <ui-drag-area class="container">
     <section class="prefab" hidden missing>
         <ui-label value="Prefab"></ui-label>

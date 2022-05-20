@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { ccclass, help, executionOrder, menu, executeInEditMode } from 'cc.decorator';
 import { RenderableComponent } from '../../core/components/renderable-component';
 import { RenderPriority } from '../../core/pipeline/define';

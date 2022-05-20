@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { JSB } from 'internal:constants';
 import { builtinResMgr } from './builtin';
 import { Pool } from './memop';

@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import './polyfill-legacy-cc';
 import './deprecated-3.0.0';
 import './deprecated-3.5.0';

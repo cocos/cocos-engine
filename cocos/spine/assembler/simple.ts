@@ -1,4 +1,27 @@
+/*
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 
 import spine from '../lib/spine-core.js';
 import { IAssembler } from '../../2d/renderer/base';
@@ -14,10 +37,8 @@ import { legacyCC } from '../../core/global-exports';
 import { StaticVBAccessor, StaticVBChunk } from '../../2d/renderer/static-vb-accessor';
 import { RenderData } from '../../2d/renderer/render-data';
 
-const FLAG_BATCH = 0x10;
 const FLAG_TWO_COLOR = 0x01;
 
-let _handleVal = 0x00;
 const _quadTriangles = [0, 1, 2, 2, 3, 0];
 const _slotColor = new Color(0, 0, 255, 255);
 const _boneColor = new Color(255, 0, 0, 255);
@@ -261,7 +282,6 @@ function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
     _mustFlush = true;
     _premultipliedAlpha = comp.premultipliedAlpha;
     _multiplier = 1.0;
-    _handleVal = 0x00;
     _needColor = false;
     _vertexEffect = comp._effectDelegate && comp._effectDelegate._vertexEffect as any;
 
@@ -269,23 +289,12 @@ function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
         _needColor = true;
     }
 
-    if (_useTint) {
-        _handleVal |= FLAG_TWO_COLOR;
-    }
-
-    let worldMat: Mat4 | undefined;
-    if (_comp.enableBatch) {
-        worldMat = _node.worldMatrix as Mat4;
-        _mustFlush = false;
-        _handleVal |= FLAG_BATCH;
-    }
-
     if (comp.isAnimationCached()) {
         // Traverse input assembler.
-        cacheTraverse(worldMat);
+        cacheTraverse();
     } else {
         if (_vertexEffect) _vertexEffect.begin(comp._skeleton);
-        realTimeTraverse(batcher, worldMat);
+        realTimeTraverse(batcher);
         if (_vertexEffect) _vertexEffect.end();
     }
     // Ensure mesh buffer update
@@ -454,7 +463,7 @@ function fillVertices (skeletonColor: spine.Color,
     }
 }
 
-function realTimeTraverse (batcher: Batcher2D, worldMat?: Mat4) {
+function realTimeTraverse (batcher: Batcher2D) {
     const rd = _renderData!;
     _vbuf = rd.chunk.vb;
     _ibuf = rd.indices!;
@@ -637,21 +646,6 @@ function realTimeTraverse (batcher: Batcher2D, worldMat?: Mat4) {
             for (let ii = _indexOffset, nn = _indexOffset + _indexCount; ii < nn; ii++) {
                 _ibuf[ii] += _vertexOffset + chunkOffset;
             }
-
-            if (worldMat) {
-                _m00 = worldMat.m00;
-                _m04 = worldMat.m04;
-                _m12 = worldMat.m12;
-                _m01 = worldMat.m01;
-                _m05 = worldMat.m05;
-                _m13 = worldMat.m13;
-                for (let ii = _vertexFloatOffset, nn = _vertexFloatOffset + _vertexFloatCount; ii < nn; ii += _perVertexSize) {
-                    _x = _vbuf[ii];
-                    _y = _vbuf[ii + 1];
-                    _vbuf[ii] = _x * _m00 + _y * _m04 + _m12;
-                    _vbuf[ii + 1] = _x * _m01 + _y * _m05 + _m13;
-                }
-            }
         }
         _vertexFloatOffset += _vertexFloatCount;
         _vertexOffset += _vertexCount;
@@ -694,7 +688,7 @@ function realTimeTraverse (batcher: Batcher2D, worldMat?: Mat4) {
     }
 }
 
-function cacheTraverse (worldMat?: Mat4) {
+function cacheTraverse () {
     const frame = _comp!._curFrame;
     if (!frame) return;
 
@@ -715,18 +709,6 @@ function cacheTraverse (worldMat?: Mat4) {
     let frameVFOffset = 0;
     let frameIndexOffset = 0;
     let segVFCount = 0;
-    if (worldMat) {
-        _m00 = worldMat.m00;
-        _m01 = worldMat.m01;
-        _m04 = worldMat.m04;
-        _m05 = worldMat.m05;
-        _m12 = worldMat.m12;
-        _m13 = worldMat.m13;
-    }
-
-    const justTranslate = _m00 === 1 && _m01 === 0 && _m04 === 0 && _m05 === 1;
-    const needBatch = (_handleVal & FLAG_BATCH);
-    const calcTranslate = needBatch && justTranslate;
 
     const colors = frame.colors;
     let colorOffset = 0;
@@ -768,21 +750,6 @@ function cacheTraverse (worldMat?: Mat4) {
         // Fill vertices
         segVFCount = segInfo.vfCount;
         vbuf.set(vertices.subarray(frameVFOffset, frameVFOffset + segVFCount), frameVFOffset);
-
-        // Update local position to world position
-        if (calcTranslate) {
-            for (let ii = frameVFOffset, il = frameVFOffset + segVFCount; ii < il; ii += _perVertexSize) {
-                vbuf[ii] += _m12;
-                vbuf[ii + 1] += _m13;
-            }
-        } else if (needBatch) {
-            for (let ii = frameVFOffset, il = frameVFOffset + segVFCount; ii < il; ii += _perVertexSize) {
-                _x = vbuf[ii];
-                _y = vbuf[ii + 1];
-                vbuf[ii] = _x * _m00 + _y * _m04 + _m12;
-                vbuf[ii + 1] = _x * _m01 + _y * _m05 + _m13;
-            }
-        }
 
         // Update color
         if (_needColor) {

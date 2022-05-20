@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, type } from 'cc.decorator';
 import { TextureType, TextureInfo, TextureViewInfo } from '../gfx';

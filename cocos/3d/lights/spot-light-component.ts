@@ -34,6 +34,10 @@ import { Camera, PCFType, ShadowType } from '../../core/renderer/scene';
 import { property } from '../../core/data/class-decorator';
 import { CCBoolean, CCFloat } from '../../core/data/utils/attribute';
 
+/**
+ * @en The spot light component, multiple spot lights can be added to one scene.
+ * @zh 聚光灯光源组件，场景中可以添加多个聚光灯光源。
+ */
 @ccclass('cc.SpotLight')
 @help('i18n:cc.SpotLight')
 @menu('Light/SpotLight')

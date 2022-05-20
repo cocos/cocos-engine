@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { PhysicsGroup } from './physics-enum';
 
 export class CollisionMatrix {

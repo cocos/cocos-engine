@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { EDITOR, JSB } from 'internal:constants';
 import { Root } from '../../root';
 import { TextureBase } from '../../assets/texture-base';
@@ -146,8 +144,8 @@ export class Pass {
     }
 
     /**
-     * @en Get pass hash value by [[Pass]] hash information.
-     * @zh 根据 [[Pass]] 的哈希信息获取哈希值。
+     * @en Get pass hash value by [[renderer.Pass]] hash information.
+     * @zh 根据 [[renderer.Pass]] 的哈希信息获取哈希值。
      *
      * @param hPass Handle of the pass info used to compute hash value.
      */

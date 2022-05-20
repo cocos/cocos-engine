@@ -24,7 +24,5 @@
  THE SOFTWARE.
 */
 
-
-
 export { EventTarget } from './event-target';
 export { Eventify } from './eventify';

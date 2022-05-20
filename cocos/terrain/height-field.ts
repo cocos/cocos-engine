@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { clamp } from '../core/math';
 
 export class HeightField {

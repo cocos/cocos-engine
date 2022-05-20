@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { TEST } from 'internal:constants';
 import { Pool } from '../memop';
 import { array, createMap } from '../utils/js';

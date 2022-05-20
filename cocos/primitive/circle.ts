@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { PrimitiveMode } from '../core/gfx';
 import { applyDefaultGeometryOptions, IGeometry, IGeometryOptions } from './define';
 

@@ -25,8 +25,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { ccclass } from 'cc.decorator';
 
 import { EDITOR } from 'internal:constants';

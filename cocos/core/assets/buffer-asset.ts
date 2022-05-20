@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { ccclass, override } from 'cc.decorator';
 import { legacyCC } from '../global-exports';
 import { Asset } from './asset';

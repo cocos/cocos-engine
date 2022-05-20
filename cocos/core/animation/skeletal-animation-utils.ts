@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { EDITOR } from 'internal:constants';
 import { Mat4 } from '../math';
 import { Node } from '../scene-graph/node';

@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { LegacyPropertyDecorator } from './utils';
 import { property } from './property';
 import { CCString, CCInteger, CCFloat, CCBoolean, PrimitiveType } from '../utils/attribute';

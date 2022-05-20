@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { Vec2 } from '../../core/math';
 import { legacyCC } from '../../core/global-exports';
 

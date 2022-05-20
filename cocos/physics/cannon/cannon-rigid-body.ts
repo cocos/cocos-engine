@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import CANNON from '@cocos/cannon';
 import { Vec3 } from '../../core/math';
 import { IRigidBody } from '../spec/i-rigid-body';

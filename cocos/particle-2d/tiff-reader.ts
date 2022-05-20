@@ -29,8 +29,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { getError, logID } from '../core/platform/debug';
 
 interface IFile {

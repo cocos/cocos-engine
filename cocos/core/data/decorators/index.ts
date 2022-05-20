@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 export { ccclass } from './ccclass';
 export * from './component';
 export {

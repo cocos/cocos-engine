@@ -139,6 +139,10 @@ export interface ICustomJointTextureLayout {
 // For (Infinity - Infinity) evaluates to NaN
 const Inf = Number.MAX_SAFE_INTEGER;
 
+/**
+ * The pool for joint textures.
+ * @internal
+ */
 export class JointTexturePool {
     private _device: Device;
 
