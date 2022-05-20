@@ -443,7 +443,7 @@ class LayerEval {
                     triggers: undefined,
                     duration: 0.0,
                     normalizedDuration: false,
-                    offset: 0.0,
+                    destinationStart: 0.0,
                     exitCondition: 0.0,
                     exitConditionEnabled: false,
                 };
@@ -453,7 +453,7 @@ class LayerEval {
                     transitionEval.normalizedDuration = outgoing.relativeDuration;
                     transitionEval.exitConditionEnabled = outgoing.exitConditionEnabled;
                     transitionEval.exitCondition = outgoing.exitCondition;
-                    transitionEval.offset = outgoing.offset;
+                    transitionEval.destinationStart = outgoing.destinationStart;
                 } else if (outgoing instanceof EmptyStateTransition) {
                     transitionEval.duration = outgoing.duration;
                 }
@@ -870,9 +870,9 @@ class LayerEval {
 
         if (targetNode.kind === NodeKind.animation) {
             const {
-                offset: transitionOffset,
+                destinationStart,
             } = currentTransitionPath[0];
-            targetNode.resetToPort(transitionOffset);
+            targetNode.resetToPort(destinationStart);
         }
         this._callEnterMethods(targetNode);
     }
@@ -1347,7 +1347,7 @@ interface TransitionEval {
     conditions: ConditionEval[];
     exitConditionEnabled: boolean;
     exitCondition: number;
-    offset: number;
+    destinationStart: number;
     /**
      * Bound triggers, once this transition satisfied. All triggers would be reset.
      */

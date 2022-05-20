@@ -72,7 +72,7 @@ describe('NewGen Anim', () => {
         expect(animTransition.duration).toBe(0.3);
         expect(animTransition.exitConditionEnabled).toBe(true);
         expect(animTransition.exitCondition).toBe(1.0);
-        expect(animTransition.offset).toBe(0.0);
+        expect(animTransition.destinationStart).toBe(0.0);
 
         function testGraphDefaults(graph: StateMachine) {
             expect(Array.from(graph.states())).toStrictEqual(expect.arrayContaining([
@@ -1266,7 +1266,7 @@ describe('NewGen Anim', () => {
             transition.exitCondition = 0.1;
             transition.duration = 0.3;
             transition.relativeDuration = false;
-            transition.offset = 0.17;
+            transition.destinationStart = 0.17;
 
             const node = new Node();
             const graphEval = createAnimationGraphEval(animationGraph, node);
