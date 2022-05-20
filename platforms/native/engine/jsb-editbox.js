@@ -34,6 +34,7 @@
     const InputFlag = EditBox.InputFlag;
 
     let worldMat = cc.mat4();
+    const isNxPlatform = (__getPlatform() === 8);
 
     function getInputType (type) {
         switch (type) {
@@ -110,7 +111,12 @@
                 self.endEditing();
             }
 
-            jsb.inputBox.onInput(onInput);
+            if (isNxPlatform) {
+                // There is no input callback on NX platform
+                jsb.inputBox.onComplete(onInput);
+            } else {
+                jsb.inputBox.onInput(onInput);
+            }
             jsb.inputBox.onConfirm(onConfirm);
             jsb.inputBox.onComplete(onComplete);
 
