@@ -39,7 +39,7 @@ ShadowTransformInfo::~ShadowTransformInfo() {
     _shadowObjects.clear();
 }
 
-void ShadowTransformInfo::createMatrix(geometry::Frustum splitFrustum, const scene::DirectionalLight *dirLight, float shadowMapWidth, bool isOnlyCulling) {
+void ShadowTransformInfo::createMatrix(const geometry::Frustum &splitFrustum, const scene::DirectionalLight *dirLight, float shadowMapWidth, bool isOnlyCulling) {
     const float invisibleOcclusionRange = dirLight->getShadowInvisibleOcclusionRange();
     const gfx::Device *device = gfx::Device::getInstance();
     _lightViewFrustum = *geometry::Frustum::clone(splitFrustum);
