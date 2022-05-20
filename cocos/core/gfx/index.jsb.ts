@@ -32,7 +32,7 @@ declare const gfx: any;
 
 import { legacyCC } from '../global-exports';
 import * as defines from './base/define';
-import {BlendTarget, BlendState, RasterizerState, DepthStencilState, PipelineStateInfo } from './base/pipeline-state'
+import * as pso from './base/pipeline-state';
 
 export * from './base/descriptor-set';
 export * from './base/buffer';
@@ -79,10 +79,10 @@ legacyCC.gfx = polyfillCC;
 // export const PipelineState = pso.PipelineState;
 // export const PipelineStateInfo = pso.PipelineStateInfo;
 
-polyfillCC.BlendTarget = BlendTarget;
-polyfillCC.BlendState = BlendState;
-polyfillCC.RasterizerState = RasterizerState;
-polyfillCC.DepthStencilState = DepthStencilState;
-polyfillCC.PipelineStateInfo = PipelineStateInfo;
+polyfillCC.BlendTarget = pso.BlendTarget;
+polyfillCC.BlendState = pso.BlendState;
+polyfillCC.RasterizerState = pso.RasterizerState;
+polyfillCC.DepthStencilState = pso.DepthStencilState;
+polyfillCC.PipelineStateInfo = pso.PipelineStateInfo;
 
 import './deprecated-3.0.0';
