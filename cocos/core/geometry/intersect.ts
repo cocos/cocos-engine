@@ -1220,8 +1220,8 @@ const sphereFrustumAccurate = (function () {
  * sphere-sphere intersect detect.
  * @zh
  * 球和球的相交性检测。
- * @param sphere0 @zh 球 0 @en Sphere 0
- * @param sphere1 @zh 球 1 @en Sphere 1
+ * @param sphere0 @zh 球 0 @en The sphere A to test
+ * @param sphere1 @zh 球 1 @en The sphere B to test
  * @return @zh 是否发生碰撞 @en true or false which indicates if there is a intersection
  */
 const sphereWithSphere = function (sphere0: Sphere, sphere1: Sphere): boolean {
@@ -1269,7 +1269,7 @@ const sphereOBB = (function () {
  * @zh
  * 球和胶囊体的相交性检测。
  * @param sphere @zh 球 @en The sphere to test
- * @param capsule @zh 方向包围盒 @en The obb to test
+ * @param capsule @zh 胶囊体 @en The capsule to test
  * @return @zh 是否发生碰撞 @en true or false which indicates if there is a intersection
  */
 const sphereCapsule = (function () {
