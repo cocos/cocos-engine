@@ -293,14 +293,12 @@ int32_t Engine::restartVM() {
 
     _scriptEngine->cleanup();
     cc::EventDispatcher::destroy();
-    
     CCObject::deferredDestroy();
-    
+
     delete _programLib;
     delete _builtinResMgr;
     CC_SAFE_DESTROY_AND_DELETE(_gfxDevice);
 
-    
     // remove all listening events
     offAll();
     // start
