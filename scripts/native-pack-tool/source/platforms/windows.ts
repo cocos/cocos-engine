@@ -129,4 +129,16 @@ export class WindowsPackTool extends NativePackTool {
     getCmakeGenerator() {
         return '';
     }
+
+    async run(): Promise<boolean> {
+        const destPath = ps.join(
+            this.paths.nativePrjDir, this.params.debug ? 'Debug' : 'Release',
+            `${this.params.projectName}.exe`);
+        if (!fs.existsSync(destPath)) {
+            console.error('exe file not found at' + destPath);
+            return false;
+        }
+        await cchelper.runCmd(destPath, [], false);
+        return true;
+    }
 }

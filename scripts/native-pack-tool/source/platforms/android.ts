@@ -3,6 +3,7 @@ import * as ps from 'path';
 import { CocosParams, NativePackTool } from "../base/default";
 import { cchelper, Paths } from "../utils";
 import * as URL from 'url';
+import { spawn } from 'child_process';
 
 export interface IOrientation {
     landscapeLeft: boolean;
@@ -273,6 +274,91 @@ export class AndroidPackTool extends NativePackTool {
             }
             fs.copyFileSync(apkPath, ps.join(destDir, apkName));
         }
+        return true;
+    }
+
+// ---------------------------- run ------------------------- //
+
+    async run() {
+        if (await this.install()) {
+            return await this.startApp();
+        }
+        return true;
+    }
+
+    getAdbPath() {
+        return ps.join(
+            this.params.platformParams.sdkPath,
+            `platform-tools/adb${process.platform === 'win32' ? '.exe' : ''}`);
+    }
+
+    getApkPath() {
+        const suffix = this.params.debug ? 'debug' : 'release';
+        const apkName = `${this.params.projectName}-${suffix}.apk`;
+        return ps.join(
+            this.paths.nativePrjDir,
+            `build/${this.params.projectName}/outputs/apk/${suffix}/${apkName}`);
+    }
+
+    async install(): Promise<boolean> {
+        const apkPath = this.getApkPath();
+        const adbPath = this.getAdbPath();
+
+        if (!fs.existsSync(apkPath)) {
+            console.error('can not find apk at', apkPath);
+            return false;
+        }
+
+        if (!fs.existsSync(adbPath)) {
+            console.error('can not find adb at', adbPath);
+            return false;
+        }
+
+        if (await this.checkApkInstalled()) {
+            await cchelper.runCmd(
+                adbPath, ['uninstall', this.params.platformParams.packageName], false);
+        }
+
+        await cchelper.runCmd(adbPath, ['install', '-r', apkPath], false);
+        return true;
+    }
+
+    async checkApkInstalled() {
+        const ret: string = await new Promise((resolve, reject) => {
+            const adbPath = this.getAdbPath();
+            const cp = spawn(
+                adbPath,
+                [
+                    'shell pm list packages | grep',
+                    this.params.platformParams.packageName,
+                ],
+                {
+                    shell: true,
+                    env: process.env,
+                    cwd: process.cwd(),
+                });
+            cp.stdout.on(`data`, (chunk) => {
+                resolve(chunk.toString());
+            });
+            cp.stderr.on(`data`, (chunk) => {
+                resolve('');
+            });
+            cp.on('close', (code, signal) => {
+                resolve('');
+            });
+        });
+        return ret.includes(this.params.platformParams.packageName);
+    }
+
+    async startApp(): Promise<boolean> {
+        const adbPath = this.getAdbPath();
+        await cchelper.runCmd(
+            adbPath,
+            [
+                'shell', 'am', 'start', '-n',
+                `${this.params.platformParams.packageName}/com.cocos.game.AppActivity`,
+            ],
+            false);
         return true;
     }
 }

@@ -3,6 +3,7 @@ import { CocosParams, NativePackTool } from "../base/default";
 import * as ps from 'path';
 import * as fs from 'fs-extra';
 import { cchelper, Paths } from "../utils";
+import { randomBytes } from "crypto";
 
 
 export interface IOrientation {
@@ -127,6 +128,117 @@ export class OHOSPackTool extends NativePackTool {
         await cchelper.runCmd(gradle, [buildMode], false, projectDir);
 
         return true;
+    }
+    // --------------- run ------------------//
+    async run(): Promise<boolean> {
+        // $ hdc shell am force-stop com.cocos.ohos.demo1
+        // $ hdc shell bm uninstall com.cocos.ohos.demo1
+        // $ hdc file send ohos/entry/build/outputs/hap/debug/entry-debug-signed.hap
+        //      /sdcard/cb347818fd9e4de2b63eab4af150e0fa/entry-debug-signed.hap
+        // $ hdc shell bm install -p /sdcard/cb347818fd9e4de2b63eab4af150e0fa/
+        // $ hdc shell rm -rf /sdcard/cb347818fd9e4de2b63eab4af150e0fa
+        // $ hdc shell am start -n
+        // "com.cocos.ohos.demo1/com.example.cocosdemo.MainAbilityShellActivity"
+
+        const packageName = this.params.platformParams.packageName;
+        const projectDir = this.paths.platformTemplateDirInPrj;
+        const outputMode = this.params.debug ? 'debug' : 'release';
+
+        // const hapFile = ps.join(projectDir,
+        // `entry/build/outputs/hap/${outputMode}/entry-${outputMode}-signed.hap`);
+        const hapFile = this.selectHap(projectDir, outputMode);
+
+        if (!fs.existsSync(hapFile)) {
+            console.error(`File ${hapFile} does not exist!`);
+            return false;
+        }
+        const hdc = this.hdcPath;
+        if (!hdc) {
+            console.error(`Failed to locate hdc`);
+            return false;
+        }
+
+        const tmpdir = `/sdcard/${this.randString(32)}`;
+        try {
+            await cchelper.runCmd(
+                hdc, ['shell', 'am', 'force-stop', packageName], true);
+            await cchelper.runCmd(
+                hdc, ['shell', 'bm', 'uninstall', packageName], true);
+            await cchelper.runCmd(
+                hdc,
+                [
+                    'file', 'send', cchelper.fixPath(hapFile),
+                    cchelper.fixPath(ps.join(tmpdir, 'entry-debug-signed.hap')),
+                ],
+                false);
+            await cchelper.runCmd(
+                hdc, ['shell', 'bm', 'install', '-p', tmpdir], false);
+            // TODO: Ability path should be configurable.
+            await cchelper.runCmd(
+                hdc,
+                [
+                    'shell', 'am', 'start', '-n',
+                    `"${packageName}/com.example.cocosdemo.MainAbilityShellActivity"`,
+                ],
+                false);
+        } finally {
+            await cchelper.runCmd(hdc, ['shell', 'rm', '-rf', tmpdir], true);
+        }
+
+
+        return true;
+    }
+
+    private selectHap(projectDir: string, outputMode: string): string {
+        const outputDir =
+            ps.join(projectDir, `entry/build/outputs/hap/${outputMode}`);
+        return ps.join(outputDir, this.selectHapFile(outputDir, outputMode));
+    }
+
+    private selectHapFile(outputDir: string, outputMode: string): string {
+        if (!fs.existsSync(outputDir)) {
+            throw new Error(`directory ${outputDir} does not exist!`);
+        }
+        const hapFiles = fs.readdirSync(outputDir).filter(x => x.endsWith(`.hap`));
+        if (hapFiles.length === 0) {
+            throw new Error(`no hap found in ${outputDir}`);
+        } else if (hapFiles.length === 1) {
+            return hapFiles[0];
+        }
+        const opt1 = hapFiles.filter(
+            x => x.endsWith('-signed.hap') && x.startsWith(`entry-${outputMode}-`));
+        const opt2 = hapFiles.filter(x => x.startsWith(`entry-${outputMode}`));
+        return opt1.length > 0 ? opt1[0] :
+            (opt2.length > 0 ? opt2[0] : hapFiles[0]);
+    }
+
+    get hdcPath(): string | null {
+        if (this.params.platformParams.sdkPath) {
+            return ps.join(this.params.platformParams.sdkPath, 'toolchains/hdc');
+        }
+        return null;
+    }
+
+    randString(n: number): string {
+        if (n <= 0) {
+            return '';
+        }
+        let rs = '';
+        try {
+            rs = randomBytes(Math.ceil(n / 2)).toString('hex').slice(0, n);
+        } catch (ex) {
+            rs = '';
+            const r = n % 8;
+            const q = (n - r) / 8;
+            let i: number = 0;
+            for (; i < q; i++) {
+                rs += Math.random().toString(16).slice(2);
+            }
+            if (r > 0) {
+                rs += Math.random().toString(16).slice(2, i);
+            }
+        }
+        return rs;
     }
 }
 
