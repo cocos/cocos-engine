@@ -619,7 +619,9 @@ class TriggerVariable implements BasicVariableDescription<VariableType.TRIGGER> 
     }
 
     set resetMode (value: TriggerResetMode) {
-        this._flags &= ~(TRIGGER_VARIABLE_FLAG_RESET_MODE_MASK << TRIGGER_VARIABLE_FLAG_RESET_MODE_START);
+        // Clear
+        this._flags &= ~TRIGGER_VARIABLE_FLAG_RESET_MODE_MASK;
+        // Set
         this._flags |= (value << TRIGGER_VARIABLE_FLAG_RESET_MODE_START);
     }
 
