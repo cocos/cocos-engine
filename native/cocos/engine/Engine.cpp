@@ -292,23 +292,24 @@ int32_t Engine::restartVM() {
     _scheduler->unscheduleAll();
 
     _scriptEngine->cleanup();
-    CC_SAFE_DESTROY_AND_DELETE(_gfxDevice);
     cc::EventDispatcher::destroy();
-
-    // Should re-create ProgramLib as shaders may change after restart. For example,
-    // program update resources and do restart.
-    delete _programLib;
-    _programLib = ccnew ProgramLib;
-
-    // Should reinitialize builtin resources as _programLib will be re-created.
-    delete _builtinResMgr;
-    _builtinResMgr = ccnew BuiltinResMgr;
-
+    
     CCObject::deferredDestroy();
+    
+    delete _programLib;
+    delete _builtinResMgr;
+    CC_SAFE_DESTROY_AND_DELETE(_gfxDevice);
 
+    
     // remove all listening events
     offAll();
     // start
+    _gfxDevice = gfx::DeviceManager::create();
+    // Should reinitialize builtin resources as _programLib will be re-created.
+    _programLib = ccnew ProgramLib;
+    // Should re-create ProgramLib as shaders may change after restart. For example,
+    // program update resources and do restart.
+    _builtinResMgr = ccnew BuiltinResMgr;
     cc::EventDispatcher::init();
     CC_CURRENT_APPLICATION()->init();
 
