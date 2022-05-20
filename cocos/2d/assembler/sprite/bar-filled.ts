@@ -222,7 +222,6 @@ export const barFilled: IAssembler = {
         const vData = chunk.vb;
 
         let offset = 0;
-        const z = node.getPosition().z;
         for (let i = 0; i < 4; i++) {
             const local = dataList[i];
             Vec3.set(vec3_temp, local.x, local.y, 0);
