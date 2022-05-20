@@ -95,17 +95,18 @@ namespace cc {
 Engine::Engine() {
     _scheduler = std::make_shared<Scheduler>();
     _fs = createFileUtils();
-    _programLib = ccnew ProgramLib();
-    _builtinResMgr = ccnew BuiltinResMgr;
     // May create gfx device in render subsystem in future.
     _gfxDevice = gfx::DeviceManager::create();
-    _scriptEngine = ccnew se::ScriptEngine();
-    EventDispatcher::init();
+    _programLib = ccnew ProgramLib();
+    _builtinResMgr = ccnew BuiltinResMgr;
 
     _debugRenderer = ccnew DebugRenderer();
 #if CC_USE_PROFILER
     _profiler = ccnew Profiler();
 #endif
+
+    _scriptEngine = ccnew se::ScriptEngine();
+    EventDispatcher::init();
 }
 
 Engine::~Engine() {
@@ -113,16 +114,7 @@ Engine::~Engine() {
     AudioEngine::end();
 #endif
 
-#if CC_USE_DRAGONBONES
-    dragonBones::ArmatureCacheMgr::destroyInstance();
-#endif
-
-#if CC_USE_SPINE
-    spine::SkeletonCacheMgr::destroyInstance();
-#endif
-
     EventDispatcher::destroy();
-    network::HttpClient::destroyInstance();
 
     // Should delete it before deleting DeviceManager as ScriptEngine will check gpu resource usage,
     // and ScriptEngine will hold gfx objects.
@@ -134,26 +126,33 @@ Engine::~Engine() {
     // Profiler depends on DebugRenderer, should delete it after deleting Profiler,
     // and delete DebugRenderer after RenderPipeline::destroy which destroy DebugRenderer.
     delete _debugRenderer;
+    
+    //TODO(): Delete some global objects.
 
     FreeTypeFontFace::destroyFreeType();
+
+#if CC_USE_DRAGONBONES
+    dragonBones::ArmatureCacheMgr::destroyInstance();
+#endif
+
+#if CC_USE_SPINE
+    spine::SkeletonCacheMgr::destroyInstance();
+#endif
 
 #if CC_USE_MIDDLEWARE
     cc::middleware::MiddlewareManager::destroyInstance();
 #endif
 
     CCObject::deferredDestroy();
+
     delete _builtinResMgr;
     delete _programLib;
     CC_SAFE_DESTROY_AND_DELETE(_gfxDevice);
     delete _fs;
+    _scheduler.reset();
 }
 
 int32_t Engine::init() {
-    _scheduler->removeAllFunctionsToBePerformedInCocosThread();
-    _scheduler->unscheduleAll();
-
-    se::ScriptEngine::getInstance()->cleanup();
-
     BasePlatform *platform = BasePlatform::getPlatform();
     platform->setHandleEventCallback(
         std::bind(&Engine::handleEvent, this, std::placeholders::_1)); // NOLINT(modernize-avoid-bind)
