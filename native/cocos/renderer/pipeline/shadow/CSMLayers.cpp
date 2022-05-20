@@ -58,7 +58,8 @@ void ShadowTransformInfo::createMatrix(const geometry::Frustum &splitFrustum, co
                             Vec3(-100000.0F, -100000.0F, -100000.0F),
                             &_castLightViewBoundingBox);
     _castLightViewBoundingBox.merge(_lightViewFrustum);
-    float orthoSizeWidth, orthoSizeHeight;
+    float orthoSizeWidth;
+    float orthoSizeHeight;
     if (dirLight->isShadowCSMPerformanceMode()) {
         orthoSizeWidth = _castLightViewBoundingBox.halfExtents.x;
         orthoSizeHeight = _castLightViewBoundingBox.halfExtents.y;
