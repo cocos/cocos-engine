@@ -32,12 +32,13 @@ import { RecyclePool } from '../../core/memop';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { MacroRecord } from '../../core/renderer/core/pass-utils';
 import { AlignmentSpace, RenderMode, Space } from '../enum';
-import { Particle, IParticleModule, PARTICLE_MODULE_ORDER } from '../particle';
+import { Particle, IParticleModule, PARTICLE_MODULE_ORDER, PARTICLE_MODULE_NAME } from '../particle';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
 import { Component } from '../../core';
 import { Camera } from '../../core/renderer/scene/camera';
 import { Pass } from '../../core/renderer';
 import { ParticleNoise } from '../noise';
+import NoiseModule from '../animator/noise-module';
 
 const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
@@ -52,6 +53,7 @@ const _anim_module = [
     '_limitVelocityOvertimeModule',
     '_rotationOvertimeModule',
     '_textureAnimationModule',
+    '_noiseModule',
 ];
 
 const _uvs = [
@@ -377,22 +379,6 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             if (trailEnable) {
                 trailModule.animate(p, dt);
             }
-
-            // Update noise
-            if (ps.useNoise) {
-                this.noise.setTime(ps.time);
-                this.noise.setSpeed(ps.noiseSpeedX, ps.noiseSpeedY, ps.noiseSpeedZ);
-                this.noise.setFrequency(ps.noiseFrequency);
-                this.noise.setAbs(ps.remapX, ps.remapY, ps.remapZ);
-                this.noise.setAmplititude(ps.strengthX, ps.strengthY, ps.strengthZ);
-                this.noise.setOctaves(ps.octaves, ps.octaveMultiplier, ps.octaveScale);
-                this.noise.setSamplePoint(p.position);
-                this.noise.getNoiseParticle();
-
-                const noisePosition: Vec3 = this.noise.getResult();
-                noisePosition.multiply3f(random(), random(), random());
-                Vec3.add(p.position, p.position, noisePosition.multiplyScalar(dt));
-            }
         }
 
         this._model!.enabled = this._particles!.length > 0;
@@ -400,22 +386,12 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     }
 
     public getNoisePreview (out: number[], width: number, height: number) {
-        const ps = this._particleSystem;
-        if (!ps) {
-            return;
-        }
-
-        if (ps.useNoise) {
-            this.noise.setTime(ps.time);
-            this.noise.setSpeed(ps.noiseSpeedX, ps.noiseSpeedY, ps.noiseSpeedZ);
-            this.noise.setFrequency(ps.noiseFrequency);
-            this.noise.setAbs(ps.remapX, ps.remapY, ps.remapZ);
-            this.noise.setAmplititude(ps.strengthX, ps.strengthY, ps.strengthZ);
-            this.noise.setOctaves(ps.octaves, ps.octaveMultiplier, ps.octaveScale);
-            this.noise.getNoiseParticle();
-        }
-
-        this.noise.getPreview(out, width, height);
+        this._runAnimateList.forEach((value) => {
+            if (value.name === PARTICLE_MODULE_NAME.NOISE) {
+                const m = value as NoiseModule;
+                m.getNoisePreview(out, this._particleSystem, width, height);
+            }
+        });
     }
 
     // internal function
