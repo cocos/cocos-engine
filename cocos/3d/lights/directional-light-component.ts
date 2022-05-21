@@ -458,6 +458,7 @@ export class DirectionalLight extends Light {
             this._light.shadowCSMLevel = this._shadowCSMLevel;
             this._light.shadowCSMLambda = this._shadowCSMLambda;
             this._light.shadowCSMDebugMode = this._shadowCSMDebugMode;
+            this._light.shadowCSMPerformanceMode = this._shadowCSMPerformanceMode;
         }
     }
 }

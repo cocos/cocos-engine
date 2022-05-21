@@ -864,6 +864,25 @@ const aabbFrustum = function (aabb: AABB, frustum: Frustum): number {
     return 1;
 };
 
+/**
+ * @en
+ * aabb-frustum intersect detect, faster but false while frustum is completely inside the aabb.
+ * @zh
+ * 轴对齐包围盒和锥台的相交性检测。速度快，但是当锥台完全在aabb中时就会判断出错。
+ * @param {AABB} aabb 轴对齐包围盒
+ * @param {Frustum} frustum 锥台
+ * @return {number} aabb completely inside the frustum = 1, otherwise = 0
+ */
+const aabbFrustumCompletelyInside = function (aabb: AABB, frustum: Frustum): number {
+    for (let i = 0; i < frustum.planes.length; i++) {
+        // frustum plane normal points to the inside
+        if (aabbPlane(aabb, frustum.planes[i]) !== 0) {
+            return 0;
+        }
+    } // completely inside
+    return 1;
+};
+
 // https://cesium.com/blog/2017/02/02/tighter-frustum-culling-and-why-you-may-want-to-disregard-it/
 /**
  * @en
@@ -1428,6 +1447,7 @@ const intersect = {
     obbFrustumAccurate,
     obbPoint,
     obbCapsule,
+    aabbFrustumCompletelyInside,
 
     capsuleWithCapsule,
 

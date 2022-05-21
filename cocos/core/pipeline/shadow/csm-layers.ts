@@ -49,6 +49,8 @@ export class ShadowTransformInfo {
     protected _shadowObjects: IRenderObject[] = [];
 
     protected _shadowCameraFar = 0;
+    // Level is a vector, Indicates the location.
+    protected _level: number;
 
     protected _matShadowView: Mat4 = new Mat4();
     protected _matShadowProj: Mat4 = new Mat4();
@@ -61,11 +63,14 @@ export class ShadowTransformInfo {
     protected _lightViewFrustum: Frustum = new Frustum();
     protected _castLightViewBoundingBox: AABB = new AABB();
 
-    constructor () {
+    constructor (level: number) {
+        this._level = level;
         this._validFrustum.accurate = true;
         this._splitFrustum.accurate = true;
         this._lightViewFrustum.accurate = true;
     }
+
+    get level () { return this._level; }
 
     get shadowObjects () {
         return this._shadowObjects;
@@ -193,8 +198,6 @@ export class ShadowTransformInfo {
     }
 }
 export class CSMLayerInfo extends ShadowTransformInfo {
-    // Level is a vector, Indicates the location.
-    protected _level: number;
     protected _splitCameraNear = 0;
     protected _splitCameraFar = 0;
 
@@ -202,12 +205,9 @@ export class CSMLayerInfo extends ShadowTransformInfo {
     protected _matShadowViewProjAtlas: Mat4 = new Mat4();
 
     constructor (level: number) {
-        super();
-        this._level = level;
+        super(level);
         this._calculateAtlas(level);
     }
-
-    get level () { return this._level; }
 
     get splitCameraNear () {
         return this._splitCameraNear;
@@ -262,7 +262,7 @@ export class CSMLayers {
     // LevelCount is a scalar, Indicates the number.
     protected _levelCount = 0;
     // The ShadowTransformInfo object for 'fixed area shadow' || 'maximum clipping info' || 'CSM layers = 1'.
-    protected _specialLayer: ShadowTransformInfo = new ShadowTransformInfo();
+    protected _specialLayer: ShadowTransformInfo = new ShadowTransformInfo(1);
     protected _shadowDistance = 0;
 
     get castShadowObjects () {

@@ -23,14 +23,14 @@
  THE SOFTWARE.
  */
 
-import { intersect, Sphere } from '../geometry';
+import { Frustum, intersect, Sphere } from '../geometry';
 import { Model } from '../renderer/scene/model';
 import { Camera, SKYBOX_FLAG } from '../renderer/scene/camera';
-import { Vec3, Mat4 } from '../math';
+import { Vec3, Mat4, Color } from '../math';
 import { RenderPipeline } from './render-pipeline';
 import { Pool } from '../memop';
 import { IRenderObject, UBOShadow } from './define';
-import { ShadowType, Shadows } from '../renderer/scene/shadows';
+import { ShadowType, Shadows, CSMLevel } from '../renderer/scene/shadows';
 import { SphereLight, DirectionalLight } from '../renderer/scene';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { ShadowTransformInfo } from './shadow/csm-layers';
@@ -176,12 +176,15 @@ export function validPunctualLightsCulling (pipeline: RenderPipeline, camera: Ca
     }
 }
 export function shadowCulling (camera: Camera, sceneData: PipelineSceneData, layer: ShadowTransformInfo) {
+    const scene = camera.scene!;
+    const mainLight = scene.mainLight!;
     const csmLayers = sceneData.csmLayers;
     const castShadowObjects = csmLayers.castShadowObjects;
     const dirLightFrustum = layer.validFrustum;
     const dirShadowObjects = layer.shadowObjects;
     dirShadowObjects.length = 0;
     const visibility = camera.visibility;
+
     for (let i = 0; i < castShadowObjects.length; i++) {
         const castShadowObject = castShadowObjects[i];
         const model = castShadowObject.model;
@@ -192,8 +195,20 @@ export function shadowCulling (camera: Camera, sceneData: PipelineSceneData, lay
                 if (dirShadowObjects != null && model.castShadow && model.worldBounds) {
                     // frustum culling
                     // eslint-disable-next-line no-lonely-if
-                    if (intersect.aabbFrustum(model.worldBounds, dirLightFrustum)) {
-                        dirShadowObjects.push(castShadowObject);
+                    const accurate = intersect.aabbFrustum(model.worldBounds, dirLightFrustum);
+                    if (accurate) {
+                        if (layer.level < mainLight.shadowCSMLevel) {
+                            dirShadowObjects.push(castShadowObject);
+                            if (intersect.aabbFrustumCompletelyInside(model.worldBounds, dirLightFrustum)) {
+                                castShadowObjects.splice(i, 1);
+                                i--;
+                            }
+                        } else {
+                            // eslint-disable-next-line no-lonely-if
+                            if (accurate) {
+                                dirShadowObjects.push(castShadowObject);
+                            }
+                        }
                     }
                 }
             }
