@@ -277,6 +277,13 @@ ProgramLib::ProgramLib() {
 
 ProgramLib::~ProgramLib() {
     ProgramLib::instance = nullptr;
+#if CC_DEBUG
+    for (const auto& cache : _cache) {
+        if (cache.second->getRefCount() > 1) {
+            CC_LOG_WARNING("ProgramLib cache: %s ref_count is %d and may leak", cache.second->getName().c_str(), cache.second->getRefCount() );
+         }
+    }
+#endif
 }
 
 //

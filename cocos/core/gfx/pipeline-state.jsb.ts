@@ -568,7 +568,7 @@ export class BlendState {
         const CACHED_FIELD_NAME = `$__nativeObj`;
         this._syncTargetsToNativeObj(CACHED_FIELD_NAME);
 
-        // watch target[i]._nativeObj fields update 
+        // watch target[i]._nativeObj fields update
         watchArrayElementsField(this, this.targets, "_nativeObj", CACHED_FIELD_NAME, (self, _idx, _originTarget, _prop, _value) => {
             self._syncTargetsToNativeObj(CACHED_FIELD_NAME);
         });
@@ -659,3 +659,7 @@ export class BlendState {
 
 export const PipelineState = gfx.PipelineState;
 export const PipelineStateInfo = gfx.PipelineStateInfo;
+
+
+
+
