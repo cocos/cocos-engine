@@ -39,12 +39,20 @@
 namespace sebind {
 
 /**
+ * @brief Remove all cached data. Should be invoked before restart.
+ * 
+ */
+void reset() {
+    intl::ContextDB::reset();
+}
+
+/**
  * @brief Export C++ Class/Funtions to JS
  * 
  * @tparam T  C++ type
  */
 template <typename T>
-class class_ { //NOLINT
+class class_ final { //NOLINT
 public:
     using class_type = T;
     using Context   = intl::ContextDB::Context;
@@ -72,7 +80,7 @@ public:
 
     /**
      * @brief  Attach the function object to the namespace object, 
-     * then the export class can be accessed through the namespace object in JS.
+     * then the exported class can be accessed through the namespace object in JS.
      * And the namespace object is a global object in most cases.
      * 
      * @param nsObject the namespace object

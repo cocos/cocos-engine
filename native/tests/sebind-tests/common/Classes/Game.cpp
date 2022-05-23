@@ -47,13 +47,14 @@ int Game::init() {
 #else
     _debuggerInfo.enabled = false;
 #endif
-    _debuggerInfo.port         = 6086;
-    _debuggerInfo.address      = "0.0.0.0";
+    _debuggerInfo.port = 6086;
+    _debuggerInfo.address = "0.0.0.0";
     _debuggerInfo.pauseOnStart = false;
 
     _xxteaKey = SCRIPT_XXTEAKEY;
-
-    se::ScriptEngine::getInstance()->addRegisterCallback(jsb_register_fruits);
+    auto *seengine = se::ScriptEngine::getInstance();
+    seengine->addRegisterCallback(jsb_register_fruits);
+    seengine->addAfterCleanupHook([]() { sebind::reset(); });
 
     BaseGame::init();
     return 0;
