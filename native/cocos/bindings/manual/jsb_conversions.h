@@ -635,7 +635,7 @@ struct is_variant<ccstd::variant<Args...>> : std::true_type {}; // NOLINT
 template <typename T>
 inline typename std::enable_if_t<!std::is_enum<T>::value && !std::is_pointer<T>::value && !is_jsb_object_v<T>, bool>
 sevalue_to_native(const se::Value & /*from*/, T * /*to*/, se::Object * /*unused*/) { // NOLINT(readability-identifier-naming)
-    SE_LOGE("Missing conversion for type [[%s]]\n", typeid(T).name());
+    SE_LOGE("Missing conversion impl `sevalue_to_native` for type [[%s]]\n", typeid(T).name());
     CC_STATIC_ASSERT(!is_variant<T>::value, "should not match cc::variant");
     CC_STATIC_ASSERT((std::is_same<T, void>::value), "Type incorrect or implementation not found!");
     return false;
