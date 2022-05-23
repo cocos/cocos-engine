@@ -1167,10 +1167,8 @@ export class ParticleSystem extends RenderableComponent {
                 }
                 this._needSwitch = false;
             }
-        } else if (this.getParticleCount() > 0) {
-            if (!this.processor.getModel()?.scene) {
-                this._needSwitch = true;
-            }
+        } else if (!this.processor.getModel()?.scene) {
+            this._needSwitch = true;
         }
     }
 
