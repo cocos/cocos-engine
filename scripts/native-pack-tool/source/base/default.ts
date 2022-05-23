@@ -180,6 +180,10 @@ export abstract class NativePackTool {
         args.push(`-DRES_DIR="${cchelper.fixPath(this.paths.buildDir)}" -DAPP_NAME="${this.params.projectName}" `);
     }
 
+    /**
+     * 加密脚本，加密后，会修改 cmake 参数，因而要在 cmake 命令执行之前
+     * @returns 
+     */
     protected async encrypteScripts() {
         if (!this.params.encrypted) {
             return;
@@ -208,7 +212,7 @@ export abstract class NativePackTool {
             const version = configPath.match(/\/cc.config(.*).json/)![1];
             const scriptDest = ps.join(ps.dirname(configPath), `index${version}.js`);
             let content: any = fs.readFileSync(scriptDest, 'utf8');
-            if (this.params.compressScriptZip) {
+            if (this.params.compressZip) {
                 content = gzipSync(content);
                 content = xxtea.encrypt(content, xxtea.toBytes(this.params.xxteaKey));
             } else {
@@ -223,6 +227,7 @@ export abstract class NativePackTool {
             fs.copySync(scriptDest, ps.join(backupPath, ps.relative(this.paths.buildAssetsDir, scriptDest)));
             fs.removeSync(scriptDest);
         }
+        await this.generateCMakeConfig();
         console.debug('Encrypte scriptes success');
     }
 
@@ -276,7 +281,7 @@ export class CocosParams<T> {
      * @zh 是否压缩脚本
      * @en is compress script
      */
-     compressScriptZip?: boolean;
+     compressZip?: boolean;
     /**
      * @zh 加密密钥
      * @en encrypt Key

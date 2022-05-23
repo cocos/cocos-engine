@@ -13,10 +13,6 @@ export interface IMacParams {
 export class MacPackTool extends MacOSPackTool {
     params!: CocosParams<IMacParams>;
 
-    init(params: CocosParams<IMacParams>) {
-        this.params = params;
-    }
-
     async create(): Promise<boolean> {
         await super.create();
         await this.encrypteScripts();

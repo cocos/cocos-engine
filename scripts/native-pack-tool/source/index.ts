@@ -5,7 +5,9 @@ import { WindowsPackTool } from './platforms/windows';
 import { AndroidPackTool } from './platforms/android';
 import { LinuxPackTool } from './platforms/linux';
 import { OHOSPackTool } from './platforms/ohos';
+import { IOSPackTool } from './platforms/ios';
 
+nativePackToolMg.register('ios', new IOSPackTool());
 nativePackToolMg.register('mac', new MacPackTool());
 nativePackToolMg.register('windows', new WindowsPackTool());
 nativePackToolMg.register('android', new AndroidPackTool());
