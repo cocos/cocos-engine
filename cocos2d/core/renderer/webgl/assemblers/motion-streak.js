@@ -100,7 +100,7 @@ export default class MotionStreakAssembler extends Assembler2D {
         let lastPos = comp._lastWPos;
         let fadeTime = comp._fadeTime;
 
-        let moved = lastPos.x !== tx || lastPos.y !== ty;
+        let moved = comp._lastWPosUpdated && (lastPos.x !== tx || lastPos.y !== ty);
         if (moved) {
             let cur;
             let newHead = false;
@@ -145,6 +145,7 @@ export default class MotionStreakAssembler extends Assembler2D {
 
         lastPos.x = tx;
         lastPos.y = ty;
+        comp._lastWPosUpdated = true;
 
         if (points.length < 2) {
             return;

@@ -62,6 +62,7 @@ var MotionStreak = cc.Class({
     ctor () {
         this._points = [];
         this._lastWPos = new cc.Vec2();
+        this._lastWPosUpdated = false;
     },
 
     properties: {
@@ -248,10 +249,7 @@ var MotionStreak = cc.Class({
     reset () {
         this._points.length = 0;
         this._assembler && this._assembler._renderData.clear();
-        this.node._updateWorldMatrix();
-        let matrix = this.node._worldMatrix.m;
-        this._lastWPos.x = matrix[12];
-        this._lastWPos.y = matrix[13];
+        this._lastWPosUpdated = false;
         if (CC_EDITOR) {
             cc.engine.repaintInEditMode();
         }
