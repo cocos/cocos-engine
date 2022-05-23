@@ -1403,9 +1403,11 @@ export class ParticleSystem extends RenderableComponent {
         return this.dataCulling ? props.filter((p) => !PARTICLE_MODULE_PROPERTY.includes(p) || (this[p] && this[p].enable)) : props;
     }
 
-    public getNoisePreview (out: number[], width: number, height: number) {
+    public getNoisePreview (width: number, height: number): number[] {
+        const out: number[] = [];
         if (this.processor) {
             this.processor.getNoisePreview(out, width, height);
         }
+        return out;
     }
 }
