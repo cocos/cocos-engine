@@ -24,6 +24,8 @@
  ****************************************************************************/
 #include "Game.h"
 
+#include "bindings/sebind/sebind.h"
+
 #ifndef GAME_NAME
     #define GAME_NAME "CocosGame";
 #endif

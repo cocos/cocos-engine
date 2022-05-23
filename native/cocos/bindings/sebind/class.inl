@@ -42,7 +42,7 @@ namespace sebind {
  * @brief Remove all cached data. Should be invoked before restart.
  * 
  */
-void reset() {
+inline void reset() {
     intl::ContextDB::reset();
 }
 

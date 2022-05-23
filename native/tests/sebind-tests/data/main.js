@@ -80,7 +80,7 @@ try {
     l("create CoconutExt");
     let d = new demo.CoconutExt;
     block("check time", () => {
-        assert(typeof d.time === 'number', "attribute time");
+        assert(typeof demo.CoconutExt.time === 'number', "attribute time");
         l(`time is ${demo.CoconutExt.time}`)
     });
     block("check getTime", () => {
