@@ -139,12 +139,12 @@ ccstd::hash_t Hasher<FramebufferInfo>::hashValue(const FramebufferInfo &info) {
     // render pass is mostly irrelevant
     ccstd::hash_t seed;
     if (info.depthStencilTexture) {
-        seed = (info.colorTextures.size() + 1) * 3;
+        seed = (static_cast<uint32_t>(info.colorTextures.size()) + 1) * 3;
         ccstd::hash_combine(seed, info.depthStencilTexture);
         ccstd::hash_combine(seed, info.depthStencilTexture->getRaw());
         ccstd::hash_combine(seed, info.depthStencilTexture->getHash());
     } else {
-        seed = info.colorTextures.size() * 3;
+        seed = static_cast<uint32_t>(info.colorTextures.size()) * 3;
     }
     for (auto *colorTexture : info.colorTextures) {
         ccstd::hash_combine(seed, colorTexture);

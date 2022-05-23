@@ -78,9 +78,9 @@ struct Hasher final {
     static ccstd::hash_t hashValue(const T &info);
 };
 
-// make this boost::hash compatible
+// make this ccstd::hash compatible
 template <typename T, typename Enable = std::enable_if_t<std::is_class<T>::value>>
-size_t hash_value(const T &info) { return static_cast<size_t>(Hasher<T>::hashValue(info)); } // NOLINT(readability-identifier-naming)
+ccstd::hash_t hash_value(const T &info) { return Hasher<T>::hashValue(info); } // NOLINT(readability-identifier-naming)
 
 NS_CC_MATH_END
 

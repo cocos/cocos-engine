@@ -21,7 +21,7 @@
 #include "base/std/hash/hash_fwd.hpp"
 #include <functional>
 #include <iterator>
-#include "boost/container_hash/detail/hash_float.hpp"
+#include "base/std/hash/detail/hash_float.hpp"
 
 #include <string>
 #include <boost/limits.hpp>
@@ -509,7 +509,7 @@ namespace ccstd
     template <typename T>
     typename ccstd::hash_detail::float_numbers<T>::type hash_value(T v)
     {
-        return boost::hash_detail::float_hash_value(v);
+        return ccstd::hash_detail::float_hash_value(v);
     }
 
 #if CCSTD_HASH_HAS_OPTIONAL
@@ -543,7 +543,20 @@ namespace ccstd
 #if !defined(BOOST_NO_CXX11_HDR_TYPEINDEX)
     inline hash_t hash_value(std::type_index v)
     {
-        return v.hash_code();
+        size_t hash = v.hash_code();
+
+#ifndef INTPTR_MAX
+#error "no INTPTR_MAX"
+#endif
+
+#ifndef INT64_MAX
+#error "no INT64_MAX"
+#endif
+
+#if INTPTR_MAX == INT64_MAX
+        hash = (hash >> 32) ^ (hash & 0xFFFFFFFF);
+#endif
+        return static_cast<hash_t>(hash);
     }
 #endif
 

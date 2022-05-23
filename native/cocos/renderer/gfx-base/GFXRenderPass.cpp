@@ -41,7 +41,7 @@ RenderPass::~RenderPass() = default;
 
 // Based on render pass compatibility
 ccstd::hash_t RenderPass::computeHash() {
-    ccstd::hash_t seed = _colorAttachments.size() * 2 + 3;
+    ccstd::hash_t seed = static_cast<uint32_t>(_colorAttachments.size()) * 2 + 3;
     for (const ColorAttachment &ca : _colorAttachments) {
         ccstd::hash_combine(seed, ca.format);
         ccstd::hash_combine(seed, ca.sampleCount);
