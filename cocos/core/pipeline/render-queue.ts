@@ -75,7 +75,7 @@ export class RenderQueue {
     constructor (desc: IRenderQueueDesc) {
         this._passDesc = desc;
         this._passPool = new RecyclePool<IRenderPass>(() => ({
-            sortingPriority: SortingManager.getSortingPriority(),
+            sortingPriority: 0,
             hash: 0,
             depth: 0,
             shaderId: 0,

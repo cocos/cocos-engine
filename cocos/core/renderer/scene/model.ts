@@ -227,7 +227,7 @@ export class Model {
     protected _enabled = true;
     protected _visFlags = Layers.Enum.NONE;
 
-    protected _sortingPriority: number = SortingManager.getSortingPriority();
+    protected _sortingPriority = 0;
 
     /**
      * Setup a default empty model

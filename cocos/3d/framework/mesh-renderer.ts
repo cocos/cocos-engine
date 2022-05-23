@@ -347,6 +347,7 @@ export class MeshRenderer extends ModelRenderer {
     }
 
     public onEnable () {
+        super.onEnable();
         if (!this._model) {
             this._updateModels();
         }

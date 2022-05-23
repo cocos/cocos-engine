@@ -24,40 +24,41 @@
 */
 
 import { legacyCC } from '../global-exports';
+import { errorID } from '../platform';
 
 export class SortingManager {
     public static getSortingPriority (layer = 0, order = 0): number {
         return (((layer + (1 << 15)) << 16) | (order + (1 << 15))) >>> 0;
     }
 
-    public static getSortingLayerIndex (layerID = 0): number {
+    public static getLayerIndex (layer = 0): number {
         let index = 0;
-        if (this.indexMap.has(layerID)) {
-            index = this.indexMap.get(layerID)!;
+        if (this.indexMap.has(layer)) {
+            index = this.indexMap.get(layer)!;
         } else {
-            console.error('invalid ID');
+            errorID(2105);
         }
         return index;
     }
 
-    public static getSortingIndexFromName (name: string): number {
-        const id = this.getSortingIDFromName(name);
-        return this.getSortingLayerIndex(id);
+    public static getLayerIndexByName (name: string): number {
+        const id = this.getLayerByName(name);
+        return this.getLayerIndex(id);
     }
 
     // ID To Name
-    public static getSortingLayerName (layerID = 0): string {
+    public static getLayerName (layer = 0): string {
         let name = '';
-        if (this.nameMap.has(layerID)) {
-            name = this.nameMap.get(layerID)!;
+        if (this.nameMap.has(layer)) {
+            name = this.nameMap.get(layer)!;
         } else {
-            console.error('invalid ID');
+            errorID(2105);
         }
         return name;
     }
 
     // Name To ID
-    public static getSortingIDFromName (name: string): number {
+    public static getLayerByName (name: string): number {
         const count = this.nameMap.size;
         const keyIterator = this.nameMap.keys();
         let key = 0;
@@ -65,47 +66,47 @@ export class SortingManager {
             key = keyIterator.next().value;
             if (this.nameMap.get(key) === name) return key;
         }
-        console.warn('invalid name');
+        errorID(2106);
         return 0;
     }
 
-    public static idIsValid (id: number): boolean {
+    public static isLayerValid (id: number): boolean {
         // check valid
         if (this.indexMap.has(id)) {
             return true;
         } else {
-            console.error('invalid ID');
+            errorID(2105);
             return false;
         }
     }
 
     // Editor Function
 
-    public static addSortingLayer () {
+    public static addLayer () {
         this.ID++;
         if (this.ID > 65535) {
-            console.error('too many layers');
+            errorID(2107);
         }
         this.nameMap.set(this.ID, `New Layer${this.ID}`);
         this.indexMap.set(this.ID, this.ID);
     }
 
-    public static removeSortingLayer (layerID: number) {
-        if (!this.idIsValid(layerID)) return;
+    public static removeSortingLayer (layer: number) {
+        if (!this.isLayerValid(layer)) return;
 
-        if (this.nameMap.has(layerID) && this.indexMap.has(layerID)) {
+        if (this.nameMap.has(layer) && this.indexMap.has(layer)) {
             // Todo: need update all component used this layer
             // set the value to 0
-            this.nameMap.delete(layerID);
-            this.indexMap.delete(layerID);
+            this.nameMap.delete(layer);
+            this.indexMap.delete(layer);
         }
     }
 
-    public static renameSortingLayer (layerID, layerName) {
-        if (this.nameMap.has(layerID)) {
-            console.warn('Invalid layer id.');
+    public static renameLayer (layer: number, layerName: string) {
+        if (this.nameMap.has(layer)) {
+            errorID(2105);
         } else {
-            this.nameMap.set(layerID, layerName);
+            this.nameMap.set(layer, layerName);
         }
     }
 
@@ -120,15 +121,15 @@ export class SortingManager {
     private static indexMap = new Map<number, number>();
     private static ID = 0;
 
-    public static initLayerFromSettings (layerID, layerName, layerIndex) {
-        this.nameMap.set(layerID, layerName);
-        this.indexMap.set(layerID, layerIndex);
+    public static initLayerFromSettings (layer, layerName, layerIndex) {
+        this.nameMap.set(layer, layerName);
+        this.indexMap.set(layer, layerIndex);
     }
 
     public static initLayerIDFromSettings (ID) {
         // Error check
         if (ID > 65535) {
-            console.error('Invalid layer id.');
+            errorID(2105);
         }
         this.ID = ID;
     }

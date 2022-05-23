@@ -41,14 +41,6 @@ const MIN_UINT_NUM = -1 << 15;
  */
 @ccclass('cc.ModelRenderer')
 export class ModelRenderer extends Renderer {
-    @serializable
-    protected _visFlags = Layers.Enum.NONE;
-
-    @serializable
-    protected _sortingLayerID = 0;
-    @serializable
-    protected _sortingOrder = 0;
-
     /**
      * @zh 组件所属层，影响该组件下的所有 model 的 visFlags
      * @en The layer of the current component, which affects all the visFlags of the models belonging to this component.
@@ -67,12 +59,12 @@ export class ModelRenderer extends Renderer {
      * @en The sorting layer id of the component, which affects the rendering order of the component.
      */
     // Todo,how to show on inspector
-    get sortingLayerID () {
-        return this._sortingLayerID;
+    get sortingLayer () {
+        return this._sortingLayer;
     }
-    set sortingLayerID (val) {
-        if (val === this._sortingLayerID || !SortingManager.idIsValid(val)) return;
-        this._sortingLayerID = val;
+    set sortingLayer (val) {
+        if (val === this._sortingLayer || !SortingManager.isLayerValid(val)) return;
+        this._sortingLayer = val;
         this._updateSortingPriority();
     }
 
@@ -96,11 +88,9 @@ export class ModelRenderer extends Renderer {
      * @param name
      */
     public setSortingLayerByName (name: string) {
-        const id = SortingManager.getSortingIDFromName(name);
-        this.sortingLayerID = id;
+        const id = SortingManager.getLayerByName(name);
+        this.sortingLayer = id;
     }
-
-    protected _models: scene.Model[] = [];
 
     /**
      * @zh 收集组件中的 models
@@ -109,6 +99,20 @@ export class ModelRenderer extends Renderer {
      */
     public _collectModels (): scene.Model[] {
         return this._models;
+    }
+
+    @serializable
+    protected _visFlags = Layers.Enum.NONE;
+
+    @serializable
+    protected _sortingLayer = 0;
+    @serializable
+    protected _sortingOrder = 0;
+
+    protected _models: scene.Model[] = [];
+
+    protected onEnable () {
+        this._updateSortingPriority();
     }
 
     protected _attachToScene () {
@@ -121,7 +125,7 @@ export class ModelRenderer extends Renderer {
     }
 
     protected _updateSortingPriority () {
-        const sortingLayerValue = SortingManager.getSortingLayerIndex(this._sortingLayerID);
+        const sortingLayerValue = SortingManager.getLayerIndex(this._sortingLayer);
         const sortingPriority = SortingManager.getSortingPriority(sortingLayerValue, this._sortingOrder);
         if (this._models.length > 0) {
             for (let i = 0; i < this._models.length; i++) {

@@ -621,6 +621,18 @@ cc.Layer.addLayer(): layer should be non-null
 
 Layer collision. The name of layer (%s) is collided with the name or value of some layer
 
+### 2105
+
+Invalid Sorting Layer ID.
+
+### 2106
+
+Invalid Sorting Layer Name.
+
+### 2107
+
+Too many Sorting Layer.
+
 ### 2200
 
 Design resolution not valid
