@@ -54,7 +54,7 @@ public:
     /**
      * @brief Construct a new class_ object
      * 
-     * @param name specify the class in JS
+     * @param name specify the class name in JS
      */
     explicit class_(const char *name);
 
@@ -71,7 +71,9 @@ public:
     }
 
     /**
-     * @brief Export function object to the namespace object
+     * @brief  Attach the function object to the namespace object, 
+     * then the export class can be accessed through the namespace object in JS.
+     * And the namespace object is a global object in most cases.
      * 
      * @param nsObject the namespace object
      * @return true 
@@ -80,7 +82,9 @@ public:
 
     /**
      * @brief Define a constructor by argument type list
-     *
+     * 
+     * The parameter list must match a specific constructor.
+     * 
      * @tparam ARGS parameter types for a constructor of class T 
      * @return class_& 
      */
@@ -89,10 +93,12 @@ public:
 
     /**
      * @brief Define a constructor by a function
+     *
      * The signature of the function pointer can be
      * - `bool(*)(se::State&)`
      * or
      * - `T*(*)(ARGS...)`
+     *
      * @tparam F 
      * @param callback The function pointer 
      * @return class_& 
