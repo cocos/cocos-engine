@@ -204,7 +204,7 @@ const oldDestroy = textureBaseProto.destroy;
 textureBaseProto.destroy = function () {
     let destroyed = oldDestroy.call(this);
     if (destroyed && legacyCC.director.root?.batcher2D) {
-        legacyCC.director.root.batcher2D._releaseDescriptorSetCache(this._textureHash);
+        legacyCC.director.root.batcher2D._releaseDescriptorSetCache(this.getHash());
     }
     return destroyed;
 };
