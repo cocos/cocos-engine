@@ -62,16 +62,18 @@ try {
         assert(c.callJsFunction("rock") == "Coconut Rock", "Call JS function");
     });
     block("call setRadius", () => {
-        assert(typeof c.setRadius === 'function', "functio setRadius");
+        assert(typeof c.setRadius === 'function', "function setRadius");
     });
     block("call getRadius", () => {
-        assert(typeof c.getRadius === 'function', "functio getRadius");
+        assert(typeof c.getRadius === 'function', "function getRadius");
     });
     block("call static 123", () => {
         assert(typeof demo.Coconut.OneTwoThree === 'function', "static function getRadius");
+        let ret = demo.Coconut.OneTwoThree();
+        assert(ret.length === 3, "[1,2,3]"); 
     });
     block("call inherited function", () => {
-        assert(typeof c.fullInfo === 'function', "toString found");
+        assert(typeof c.fullInfo === 'function', "function fullInfo/toString found");
     });
 
 
@@ -85,17 +87,19 @@ try {
         l(`gettime is ${demo.CoconutExt.getTime()}`);
     });
     block("check area", () => {
+        assert(typeof d.area === 'number', "attribute area");
         l(`area is ${d.area}`);
     });
     block("check getArea", () => {
-        assert(typeof d.getArea === 'function', "getArea time");
+        assert(typeof d.getArea === 'function', "getArea function");
         l(`get Area is ${d.getArea()}`);
     });
     block(`check weight`, () => {
+        assert(typeof d.weight === 'number', "attribute weight");
         l(`weight is ${d.weight}`);
     });
     block("check getWeight", () => {
-        assert(typeof d.getWeight === 'function', "getWeight time");
+        assert(typeof d.getWeight === 'function', "getWeight function");
     });
 
     flush();
