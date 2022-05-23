@@ -200,6 +200,15 @@ textureBaseProto.getSamplerInfo = function () {
     return this._samplerInfo;
 };
 
+const oldDestroy = textureBaseProto.destroy;
+textureBaseProto.destroy = function () {
+    let destroyed = oldDestroy.call(this);
+    if (destroyed && legacyCC.director.root?.batcher2D) {
+        legacyCC.director.root.batcher2D._releaseDescriptorSetCache(this.getHash());
+    }
+    return destroyed;
+};
+
 textureBaseProto._onGFXSamplerUpdated = function (gfxSampler, samplerInfo) {
     this._gfxSampler = gfxSampler;
     this._samplerInfo = samplerInfo;
