@@ -31,7 +31,7 @@
 #include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
 #include "base/memory/Memory.h"
-#include "boost/functional/hash.hpp"
+#include "base/std/hash/hash.h"
 #include "threading/ReadWriteLock.h"
 
 namespace cc {
@@ -40,7 +40,7 @@ namespace {
 class StringHasher final {
 public:
     size_t operator()(const char *str) const noexcept {
-        return boost::hash_range(str, str + strlen(str));
+        return static_cast<size_t>(ccstd::hash_range(str, str + strlen(str)));
     }
 };
 

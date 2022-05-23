@@ -25,7 +25,7 @@
 
 #include "Font.h"
 #include <algorithm>
-#include <boost/functional/hash.hpp>
+#include "base/std/hash/hash.h"
 #include <cctype>
 #include "base/Data.h"
 #include "base/Log.h"
@@ -38,11 +38,11 @@
 
 namespace cc {
 
-std::size_t KerningHash::operator()(const KerningPair &k) const {
-    size_t seed = 2;
-    boost::hash_combine(seed, k.prevCode);
-    boost::hash_combine(seed, k.nextCode);
-    return seed;
+size_t KerningHash::operator()(const KerningPair &k) const {
+    ccstd::hash_t seed = 2;
+    ccstd::hash_combine(seed, k.prevCode);
+    ccstd::hash_combine(seed, k.nextCode);
+    return static_cast<size_t>(seed);
 }
 
 /**

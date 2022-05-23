@@ -20,7 +20,7 @@
  This file was modified to fit the cocos2d-x project
  */
 
-#include <boost/functional/hash.hpp>
+#include "base/std/hash/hash.h"
 
 #include "math/Vec4.h"
 
@@ -314,9 +314,14 @@ const Vec4 Vec4::UNIT_Z = Vec4(0.0F, 0.0F, 1.0F, 0.0F);
 const Vec4 Vec4::UNIT_W = Vec4(0.0F, 0.0F, 0.0F, 1.0F);
 
 template <>
-size_t Hasher<Vec4>::operator()(const Vec4 &v) const {
-    return boost::hash_range(reinterpret_cast<const uint64_t *>(&v.x),
+ccstd::hash_t Hasher<Vec4>::hashValue(const Vec4 &v) {
+    return ccstd::hash_range(reinterpret_cast<const uint64_t *>(&v.x),
                              reinterpret_cast<const uint64_t *>(&v.x + 4));
+}
+
+template <>
+size_t Hasher<Vec4>::operator()(const Vec4 &v) const {
+    return static_cast<size_t>(hashValue(v));
 }
 
 NS_CC_MATH_END

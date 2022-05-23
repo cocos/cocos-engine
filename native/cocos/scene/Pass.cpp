@@ -27,7 +27,7 @@
 
 #include <sstream>
 
-#include "boost/container_hash/hash.hpp"
+#include "base/std/hash/hash.h"
 #include "core/Root.h"
 #include "core/assets/TextureBase.h"
 #include "core/builtin/BuiltinResMgr.h"
@@ -107,7 +107,7 @@ void Pass::fillPipelineInfo(Pass *pass, const IPassInfoFull &info) {
 }
 
 /* static */
-uint64_t Pass::getPassHash(Pass *pass) {
+ccstd::hash_t Pass::getPassHash(Pass *pass) {
     const ccstd::string &shaderKey = ProgramLib::getInstance()->getKey(pass->getProgram(), pass->getDefines());
     std::stringstream res;
     res << shaderKey << "," << static_cast<uint32_t>(pass->_primitive) << "," << static_cast<uint32_t>(pass->_dynamicStates);
@@ -116,8 +116,8 @@ uint64_t Pass::getPassHash(Pass *pass) {
     res << serializeRasterizerState(pass->_rs);
 
     ccstd::string str{res.str()};
-    std::size_t seed = 666;
-    boost::hash_range(seed, str.begin(), str.end());
+    ccstd::hash_t seed = 666;
+    ccstd::hash_range(seed, str.begin(), str.end());
     return static_cast<uint64_t>(seed);
 }
 
@@ -344,7 +344,7 @@ void Pass::resetTexture(const ccstd::string &name, index_t index /* = CC_INVALID
     gfx::Texture *texture = textureBase != nullptr ? textureBase->getGFXTexture() : nullptr;
     cc::optional<gfx::SamplerInfo> samplerInfo;
     if (info != nullptr && info->samplerHash.has_value()) {
-        samplerInfo = gfx::Sampler::unpackFromHash(static_cast<size_t>(info->samplerHash.value()));
+        samplerInfo = gfx::Sampler::unpackFromHash(info->samplerHash.value());
     } else if (textureBase != nullptr) {
         samplerInfo = textureBase->getSamplerInfo();
     }
@@ -596,7 +596,7 @@ void Pass::syncBatchingScheme() {
     }
 }
 
-void Pass::initPassFromTarget(Pass *target, const gfx::DepthStencilState &dss, const gfx::BlendState &bs, uint64_t hashFactor) {
+void Pass::initPassFromTarget(Pass *target, const gfx::DepthStencilState &dss, const gfx::BlendState &bs, ccstd::hash_t hashFactor) {
     _priority = target->_priority;
     _stage = target->_stage;
     _phase = target->_phase;

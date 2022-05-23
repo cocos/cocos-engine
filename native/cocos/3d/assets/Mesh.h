@@ -259,17 +259,13 @@ public:
      * @en The hash of the mesh
      * @zh 此网格的哈希值。
      */
-    uint64_t getHash();
-
-    inline double getHashForJS() {
-        return static_cast<double>(getHash());
-    }
+    ccstd::hash_t getHash();
 
     /**
      * @en Set the hash of the mesh
      * @zh 设置此网格的哈希值。
      */
-    void setHash(uint64_t hash) { _hash = hash; }
+    void setHash(ccstd::hash_t hash) { _hash = hash; }
 
     using JointBufferIndicesType = ccstd::vector<index_t>;
     /**
@@ -432,7 +428,7 @@ public:
 
 private:
     IStruct _struct;
-    uint64_t _hash{0};
+    ccstd::hash_t _hash{0U};
     Uint8Array _data;
 
     bool _initialized{false};
