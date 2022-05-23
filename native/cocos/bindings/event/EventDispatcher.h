@@ -147,7 +147,7 @@ enum class StickAxisCode {
 struct ControllerInfo {
     struct AxisInfo {
         StickAxisCode axis = StickAxisCode::UNDEFINE;
-        float         value = 0.0f;
+        float         value = 0.0F;
         AxisInfo(StickAxisCode axis, float value) : axis(axis), value(value) {}
     };
     struct ButtonInfo {
@@ -300,7 +300,7 @@ public:
     static void dispatchTouchEvent(const TouchEvent &touchEvent);
     static void dispatchMouseEvent(const MouseEvent &mouseEvent);
     static void dispatchKeyboardEvent(const KeyboardEvent &keyboardEvent);
-    static void dispatchControllerEvent(const ControllerEvent &touchEvent);
+    static void dispatchControllerEvent(const ControllerEvent &controllerEvent);
     static void dispatchTickEvent(float dt);
     static void dispatchResizeEvent(int width, int height);
     static void dispatchOrientationChangeEvent(int orientation);
