@@ -29,7 +29,7 @@
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
-import { range, rangeStep, slide } from '../../core/data/decorators/editable';
+import { range, rangeStep, slide, visible } from '../../core/data/decorators/editable';
 import { Vec3 } from '../../core/math';
 import { ParticleNoise } from '../noise';
 import { Particle, PARTICLE_MODULE_NAME, ParticleModuleBase } from '../particle';
@@ -145,6 +145,7 @@ export default class NoiseModule extends ParticleModuleBase {
     @serializable
     private _noiseFrequency = 0;
 
+    @visible(false)
     @type(Number)
     @range([0, 1])
     @rangeStep(0.1)
@@ -159,6 +160,7 @@ export default class NoiseModule extends ParticleModuleBase {
     @serializable
     private _remapX = 0;
 
+    @visible(false)
     @type(Number)
     @range([0, 1])
     @rangeStep(0.1)
@@ -173,6 +175,7 @@ export default class NoiseModule extends ParticleModuleBase {
     @serializable
     private _remapY = 0;
 
+    @visible(false)
     @type(Number)
     @range([0, 1])
     @rangeStep(0.1)
