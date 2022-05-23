@@ -68,7 +68,7 @@ try {
         assert(typeof c.getRadius === 'function', "function getRadius");
     });
     block("call static 123", () => {
-        assert(typeof demo.Coconut.OneTwoThree === 'function', "static function getRadius");
+        assert(typeof demo.Coconut.OneTwoThree === 'function', "static function OneTwoThree");
         let ret = demo.Coconut.OneTwoThree();
         assert(ret.length === 3, "[1,2,3]"); 
     });
@@ -80,6 +80,7 @@ try {
     l("create CoconutExt");
     let d = new demo.CoconutExt;
     block("check time", () => {
+        assert(typeof d.time === 'number', "attribute time");
         l(`time is ${demo.CoconutExt.time}`)
     });
     block("check getTime", () => {
