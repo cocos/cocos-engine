@@ -56,6 +56,7 @@ import { TransformBit } from '../core/scene-graph/node-enum';
 import { AABB, intersect } from '../core/geometry';
 import { Camera } from '../core/renderer/scene';
 import { ParticleCuller } from './particle-culler';
+import NoiseModule from './animator/noise-module';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
@@ -318,232 +319,6 @@ export class ParticleSystem extends RenderableComponent {
     @displayOrder(16)
     @tooltip('i18n:particle_system.bursts')
     public bursts: Burst[] = [];
-
-    @type(Boolean)
-    @displayOrder(16)
-    get useNoise() {
-        return this._useNoise;
-    }
-    set useNoise(value: boolean) {
-        this._useNoise = value;
-        if (this.processor) {
-            this.processor.updateMaterialParams();
-        }
-    }
-    @serializable
-    private _useNoise = false;
-
-    @type(Number)
-    @range([0, 100])
-    @displayOrder(16)
-    @slide
-    get strengthX() {
-        return this._strengthX;
-    }
-    set strengthX(value: number) {
-        this._strengthX = value;
-        if (this.processor) {
-            this.processor.updateMaterialParams();
-        }
-    }
-    @serializable
-    private _strengthX = 0;
-
-    @type(Number)
-    @range([0, 100])
-    @displayOrder(16)
-    @slide
-    get strengthY() {
-        return this._strengthY;
-    }
-    set strengthY(value: number) {
-        this._strengthY = value;
-        if (this.processor) {
-            this.processor.updateMaterialParams();
-        }
-    }
-    @serializable
-    private _strengthY = 0;
-
-    @type(Number)
-    @range([0, 100])
-    @displayOrder(16)
-    @slide
-    get strengthZ() {
-        return this._strengthZ;
-    }
-    set strengthZ(value: number) {
-        this._strengthZ = value;
-        if (this.processor) {
-            this.processor.updateMaterialParams();
-        }
-    }
-    @serializable
-    private _strengthZ = 0;
-
-    @type(Number)
-    @range([0, 100])
-    @slide
-    @displayOrder(16)
-    get noiseSpeedX() {
-        return this._noiseSpeedX;
-    }
-    set noiseSpeedX(value: number) {
-        this._noiseSpeedX = value;
-        if (this.processor) {
-            this.processor.updateMaterialParams();
-        }
-    }
-    @serializable
-    private _noiseSpeedX = 0;
-
-    @type(Number)
-    @range([0, 100])
-    @displayOrder(16)
-    @slide
-    get noiseSpeedY() {
-        return this._noiseSpeedY;
-    }
-    set noiseSpeedY(value: number) {
-        this._noiseSpeedY = value;
-        if (this.processor) {
-            this.processor.updateMaterialParams();
-        }
-    }
-    @serializable
-    private _noiseSpeedY = 0;
-
-    @type(Number)
-    @range([0, 100])
-    @displayOrder(16)
-    @slide
-    get noiseSpeedZ() {
-        return this._noiseSpeedZ;
-    }
-    set noiseSpeedZ(value: number) {
-        this._noiseSpeedZ = value;
-        if (this.processor) {
-            this.processor.updateMaterialParams();
-        }
-    }
-    @serializable
-    private _noiseSpeedZ = 0;
-
-    @type(Number)
-    @range([0, 100])
-    @rangeStep(0.1)
-    @displayOrder(16)
-    @slide
-    get noiseFrequency() {
-        return this._noiseFrequency;
-    }
-    set noiseFrequency(value: number) {
-        this._noiseFrequency = value;
-        if (this.processor) {
-            this.processor.updateMaterialParams();
-        }
-    }
-    @serializable
-    private _noiseFrequency = 0;
-
-    @type(Number)
-    @range([0, 1])
-    @rangeStep(0.1)
-    @displayOrder(16)
-    @slide
-    get remapX() {
-        return this._remapX;
-    }
-    set remapX(value: number) {
-        this._remapX = value;
-        if (this.processor) {
-            this.processor.updateMaterialParams();
-        }
-    }
-    @serializable
-    private _remapX = 0;
-
-    @type(Number)
-    @range([0, 1])
-    @rangeStep(0.1)
-    @displayOrder(16)
-    @slide
-    get remapY() {
-        return this._remapY;
-    }
-    set remapY(value: number) {
-        this._remapY = value;
-        if (this.processor) {
-            this.processor.updateMaterialParams();
-        }
-    }
-    @serializable
-    private _remapY = 0;
-
-    @type(Number)
-    @range([0, 1])
-    @rangeStep(0.1)
-    @displayOrder(16)
-    @slide
-    get remapZ() {
-        return this._remapZ;
-    }
-    set remapZ(value: number) {
-        this._remapZ = value;
-        if (this.processor) {
-            this.processor.updateMaterialParams();
-        }
-    }
-    @serializable
-    private _remapZ = 0;
-
-    @type(Number)
-    @range([1, 10])
-    @rangeStep(1)
-    @displayOrder(16)
-    get octaves() {
-        return this._octaves;
-    }
-    set octaves(value: number) {
-        this._octaves = value;
-        if (this.processor) {
-            this.processor.updateMaterialParams();
-        }
-    }
-    @serializable
-    private _octaves = 1;
-
-    @type(Number)
-    @range([0, 1])
-    @rangeStep(0.1)
-    @displayOrder(16)
-    get octaveMultiplier() {
-        return this._octaveMultiplier;
-    }
-    set octaveMultiplier(value: number) {
-        this._octaveMultiplier = value;
-        if (this.processor) {
-            this.processor.updateMaterialParams();
-        }
-    }
-    @serializable
-    private _octaveMultiplier = 1;
-
-    @type(Number)
-    @range([1, 4])
-    @rangeStep(0.1)
-    @displayOrder(16)
-    get octaveScale() {
-        return this._octaveScale;
-    }
-    set octaveScale(value: number) {
-        this._octaveScale = value;
-        if (this.processor) {
-            this.processor.updateMaterialParams();
-        }
-    }
-    @serializable
-    private _octaveScale = 1;
 
     /**
      * @en Enable particle culling switch. Open it to enable particle culling. If enabled will generate emitter bounding box and emitters outside the frustum will be culled.
@@ -883,6 +658,27 @@ export class ParticleSystem extends RenderableComponent {
     public set textureAnimationModule(val) {
         if (!val) return;
         this._textureAnimationModule = val;
+    }
+
+    // noise module
+    @type(NoiseModule)
+    _noiseModule: NoiseModule | null = null;
+
+    @type(NoiseModule)
+    @displayOrder(24)
+    public get noiseModule() {
+        if (EDITOR) {
+            if (!this._noiseModule) {
+                this._noiseModule = new NoiseModule();
+                this._noiseModule.bindTarget(this.processor);
+            }
+        }
+        return this._noiseModule;
+    }
+
+    public set noiseModule(val) {
+        if (!val) return;
+        this._noiseModule = val;
     }
 
     // trail module

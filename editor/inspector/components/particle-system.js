@@ -35,29 +35,7 @@ exports.template = /* html*/`
         <ui-prop type="dump" key="bursts"></ui-prop>
         <!-- Render other data that has not taken over -->
         <div id="customProps"></div>
-        <ui-section key="useNoise" autoExpand cache-expand="particle-system-useNoise">
-            <ui-prop slot="header" class="header" empty="true" labelflag="useNoise" key="useNoise">
-                <ui-label></ui-label>
-                <ui-checkbox></ui-checkbox>
-            </ui-prop>
-            <ui-prop>
-                <ui-label slot="label">Noise Preview</ui-label>
-                <div slot="content" style="display: flex;flex-direction: row-reverse;padding: 5px;">
-                     <canvas id="noisePreview" width="100" height="100"></canvas>
-                </div>
-            </ui-prop>
 
-            <ui-prop type="dump" key="strengthX" disableflag="!useNoise"></ui-prop>
-            <ui-prop type="dump" key="strengthY" disableflag="!useNoise"></ui-prop>
-            <ui-prop type="dump" key="strengthZ" disableflag="!useNoise"></ui-prop>
-            <ui-prop type="dump" key="noiseSpeedX" disableflag="!useNoise"></ui-prop>
-            <ui-prop type="dump" key="noiseSpeedY" disableflag="!useNoise"></ui-prop>
-            <ui-prop type="dump" key="noiseSpeedZ" disableflag="!useNoise"></ui-prop>
-            <ui-prop type="dump" key="noiseFrequency" disableflag="!useNoise"></ui-prop>
-            <ui-prop type="dump" key="octaves" disableflag="!useNoise"></ui-prop>
-            <ui-prop type="dump" key="octaveMultiplier" disableflag="!useNoise"></ui-prop>
-            <ui-prop type="dump" key="octaveScale" disableflag="!useNoise"></ui-prop>
-        </ui-section>
         <ui-section key="renderCulling" autoExpand cache-expand="particle-system-cullingMode">
             <ui-prop slot="header" class="header" empty="true" labelflag="renderCulling" key="renderCulling">
                 <ui-label></ui-label>
@@ -72,6 +50,32 @@ exports.template = /* html*/`
                 <ui-checkbox slot="content" id="showBounds"></ui-checkbox>
             </ui-prop>
             <ui-button id="resetBounds">Regenerate bounding box</ui-button>
+        </ui-section>
+        <ui-section class="config" key="noiseModule.value.enable" autoExpand cache-expand="particle-system-useNoise">
+            <ui-prop slot="header" class="header" empty="true" key="noiseModule.value.enable">
+                <ui-checkbox></ui-checkbox>
+                <ui-label>NoiseModule</ui-label>
+            </ui-prop>
+            <ui-prop>
+                <ui-label slot="label">Noise Preview</ui-label>
+                <div slot="content" style="display: flex;flex-direction: row-reverse;padding: 5px;">
+                     <canvas id="noisePreview" width="100" height="100"></canvas>
+                </div>
+            </ui-prop>
+
+            <ui-prop type="dump" key="noiseModule.value.strengthX" disableflag="!noiseModule.value.enable"></ui-prop>
+            <ui-prop type="dump" key="noiseModule.value.strengthY" disableflag="!noiseModule.value.enable"></ui-prop>
+            <ui-prop type="dump" key="noiseModule.value.strengthZ" disableflag="!noiseModule.value.enable"></ui-prop>
+            <ui-prop type="dump" key="noiseModule.value.noiseSpeedX" disableflag="!noiseModule.value.enable"></ui-prop>
+            <ui-prop type="dump" key="noiseModule.value.noiseSpeedY" disableflag="!noiseModule.value.enable"></ui-prop>
+            <ui-prop type="dump" key="noiseModule.value.noiseSpeedZ" disableflag="!noiseModule.value.enable"></ui-prop>
+            <ui-prop type="dump" key="noiseModule.value.noiseFrequency" disableflag="!noiseModule.value.enable"></ui-prop>
+            <ui-prop type="dump" key="noiseModule.value.remapX" disableflag="!noiseModule.value.enable"></ui-prop>
+            <ui-prop type="dump" key="noiseModule.value.remapY" disableflag="!noiseModule.value.enable"></ui-prop>
+            <ui-prop type="dump" key="noiseModule.value.remapZ" disableflag="!noiseModule.value.enable"></ui-prop>
+            <ui-prop type="dump" key="noiseModule.value.octaves" disableflag="!noiseModule.value.enable"></ui-prop>
+            <ui-prop type="dump" key="noiseModule.value.octaveMultiplier" disableflag="!noiseModule.value.enable"></ui-prop>
+            <ui-prop type="dump" key="noiseModule.value.octaveScale" disableflag="!noiseModule.value.enable"></ui-prop>
         </ui-section>
         <ui-section class="config" key="shapeModule" cache-expand="particle-system-shapeModule">
             <ui-prop slot="header" class="header" type="dump" key="shapeModule.value.enable" labelflag="shapeModule"
@@ -182,7 +186,11 @@ const excludeList = [
     'rotationOvertimeModule', 'colorOverLifetimeModule', 'textureAnimationModule',
     'trailModule', 'renderer', 'renderCulling', 'limitVelocityOvertimeModule', 'cullingMode',
     'aabbHalfX', 'aabbHalfY', 'aabbHalfZ',
-    'useNoise', 'noiseSpeedX', 'noiseSpeedY', 'noiseSpeedZ', 'noiseFrequency', 'strengthX', 'strengthY', 'strengthZ', 'octaves', 'octaveMultiplier', 'octaveScale',
+    'noiseSpeedX', 'noiseSpeedY', 'noiseSpeedZ', 'noiseFrequency', 'strengthX', 'strengthY', 'strengthZ', 'octaves', 'octaveMultiplier', 'octaveScale',
+    'remapX',
+    'remapY',
+    'remapZ',
+
 ];
 
 exports.methods = {
