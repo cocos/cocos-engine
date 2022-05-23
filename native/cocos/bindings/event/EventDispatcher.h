@@ -29,6 +29,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <memory>
 
 namespace se {
 class Value;
@@ -37,14 +38,15 @@ class Value;
 namespace cc {
 
 enum class OSEventType {
-    KEYBOARD_OSEVENT = 0,
-    TOUCH_OSEVENT    = 1,
-    MOUSE_OSEVENT    = 2,
-    CUSTOM_OSEVENT   = 3,
-    DEVICE_OSEVENT   = 4,
-    WINDOW_OSEVENT   = 5,
-    APP_OSEVENT      = 6,
-    UNKNOWN_OSEVENT  = 7
+    KEYBOARD_OSEVENT   = 0,
+    TOUCH_OSEVENT      = 1,
+    MOUSE_OSEVENT      = 2,
+    CUSTOM_OSEVENT     = 3,
+    DEVICE_OSEVENT     = 4,
+    WINDOW_OSEVENT     = 5,
+    APP_OSEVENT        = 6,
+    CONTROLLER_OSEVENT = 7,
+    UNKNOWN_OSEVENT    = 8
 };
 
 class OSEvent {
@@ -114,6 +116,54 @@ public:
 
     std::vector<TouchInfo> touches;
     Type                   type = Type::UNKNOWN;
+};
+
+enum class StickKeyCode {
+    UNDEFINE = 0,
+    A,
+    B,
+    X,
+    Y,
+    L1,
+    R1,
+    MINUS,
+    PLUS,
+    L3,
+    R3,
+};
+
+enum class StickAxisCode {
+    UNDEFINE = 0,
+    X,
+    Y,
+    LEFT_STICK_X,
+    LEFT_STICK_Y,
+    RIGHT_STICK_X,
+    RIGHT_STICK_Y,
+    L2,
+    R2,
+};
+
+struct ControllerInfo {
+    struct AxisInfo {
+        StickAxisCode axis = StickAxisCode::UNDEFINE;
+        float         value = 0.0F;
+        AxisInfo(StickAxisCode axis, float value) : axis(axis), value(value) {}
+    };
+    struct ButtonInfo {
+        StickKeyCode key;
+        bool         isPress;
+        ButtonInfo(StickKeyCode key, bool isPress) : key(key), isPress(isPress) {}
+    };
+
+    int napdId;
+    std::vector<AxisInfo> axisInfos;
+    std::vector<ButtonInfo> buttonInfos;
+};
+
+struct ControllerEvent : public OSEvent {
+    CONSTRUCT_EVENT(ControllerEvent, OSEventType::CONTROLLER_OSEVENT)
+    std::vector<std::unique_ptr<ControllerInfo>> controllerInfos;
 };
 
 class MouseEvent : public OSEvent {
@@ -250,6 +300,7 @@ public:
     static void dispatchTouchEvent(const TouchEvent &touchEvent);
     static void dispatchMouseEvent(const MouseEvent &mouseEvent);
     static void dispatchKeyboardEvent(const KeyboardEvent &keyboardEvent);
+    static void dispatchControllerEvent(const ControllerEvent &controllerEvent);
     static void dispatchTickEvent(float dt);
     static void dispatchResizeEvent(int width, int height);
     static void dispatchOrientationChangeEvent(int orientation);
