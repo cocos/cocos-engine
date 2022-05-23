@@ -27,7 +27,7 @@ cc_set_if_undefined(USE_JOB_SYSTEM_TBB       OFF)
 cc_set_if_undefined(USE_PHYSICS_PHYSX        OFF)
 cc_set_if_undefined(USE_MODULES              OFF)
 cc_set_if_undefined(USE_SERVER_MODE          OFF)
-cc_set_if_undefined(USE_CCACHE               ON)
+cc_set_if_undefined(USE_CCACHE               OFF)
 
 add_definitions()
 
