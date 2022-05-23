@@ -1128,14 +1128,8 @@ export class ParticleSystem extends RenderableComponent {
         if (this._trailModule && this._trailModule.enable) {
             this._trailModule.updateRenderData();
         }
-    }
 
-    protected lateUpdate (dt: number) {
-        if (super.lateUpdate) {
-            super.lateUpdate(dt);
-        }
-
-        if (this._needSwitch) {
+        if (this._needSwitch) { // Check whether this particle model should be reattached
             if (this.getParticleCount() > 0) {
                 if (!this._isCulled) {
                     if (!this.processor.getModel()?.scene) {
