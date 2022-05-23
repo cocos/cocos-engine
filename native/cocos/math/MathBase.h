@@ -73,7 +73,7 @@
 NS_CC_MATH_BEGIN
 
 template <typename T, typename Enable = std::enable_if_t<std::is_class<T>::value>>
-struct Hasher final { 
+struct Hasher final {
     size_t operator()(const T &info) const;
     static ccstd::hash_t hashValue(const T &info);
 };

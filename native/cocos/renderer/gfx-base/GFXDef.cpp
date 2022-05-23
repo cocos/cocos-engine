@@ -23,9 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/std/hash/hash.h"
 #include "base/Utils.h"
 #include "base/std/container/array.h"
+#include "base/std/hash/hash.h"
 
 #include "GFXDef.h"
 #include "GFXTexture.h"

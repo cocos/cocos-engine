@@ -28,9 +28,9 @@
 #include <cstring>
 #include "StringHandle.h"
 #include "base/Macros.h"
+#include "base/memory/Memory.h"
 #include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
-#include "base/memory/Memory.h"
 #include "base/std/hash/hash.h"
 #include "threading/ReadWriteLock.h"
 

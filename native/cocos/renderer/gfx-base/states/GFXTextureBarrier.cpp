@@ -24,9 +24,9 @@
 ****************************************************************************/
 
 #include "GFXTextureBarrier.h"
-#include "base/std/hash/hash.h"
 #include "../GFXQueue.h"
 #include "base/Utils.h"
+#include "base/std/hash/hash.h"
 
 namespace cc {
 namespace gfx {

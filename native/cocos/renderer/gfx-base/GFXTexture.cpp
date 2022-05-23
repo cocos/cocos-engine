@@ -25,9 +25,9 @@
 
 #include "base/Utils.h"
 
-#include "base/std/hash/hash.h"
 #include "GFXSwapchain.h"
 #include "GFXTexture.h"
+#include "base/std/hash/hash.h"
 
 namespace cc {
 namespace gfx {
