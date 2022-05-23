@@ -3,6 +3,8 @@ import * as fs from 'fs-extra';
 import { cchelper, Paths } from "../utils";
 import { CocosProjectTasks } from './cocosProjectTypes';
 import { gzipSync } from 'zlib';
+const globby = require('globby');
+const xxtea = require('xxtea-node');
 
 const PackageNewConfig = 'cocos-project-template.json';
 
@@ -186,7 +188,7 @@ export abstract class NativePackTool {
         if (!this.params.xxteaKey) {
             throw new Error('Encryption Key can not be empty');
         }
-
+        console.debug('Start encrypte scripts...');
         // native 加密步骤(1/3)：生成完工程所有文件添加 cmake 配置
         if (this.params.encrypted) {
             this.params.cMakeConfig.XXTEAKEY = `set(XXTEAKEY "${this.params.xxteaKey}")`;
@@ -195,18 +197,18 @@ export abstract class NativePackTool {
         fs.ensureDirSync(backupPath);
         fs.emptyDirSync(backupPath);
 
-        const globby = require('globby');
-        const xxtea = require('xxtea-node');
-
-        const allBundleConfigs: string[] = await globby(ps.join(this.paths.buildAssetsDir, 'assets/cc.config*.json'));
+        const allBundleConfigs: string[] = await globby([
+            ps.join(this.paths.buildAssetsDir, 'assets/*/cc.config*.json'),
+            ps.join(this.paths.buildAssetsDir, 'remote/*/cc.config*.json'),
+        ]);
         for (const configPath of allBundleConfigs) {
             const config = await fs.readJSON(configPath);
 
             // native 加密步骤(2/3)：加密的标志位，需要写入到 bundle 的 config.json 内运行时需要
-            const version = config.match(/config(.*).json/)[1];
-            const scriptDest = ps.join(ps.basename(config), `index${version}.js`);
+            const version = configPath.match(/\/cc.config(.*).json/)![1];
+            const scriptDest = ps.join(ps.dirname(configPath), `index${version}.js`);
             let content: any = fs.readFileSync(scriptDest, 'utf8');
-            if (config.compressZip) {
+            if (this.params.compressScriptZip) {
                 content = gzipSync(content);
                 content = xxtea.encrypt(content, xxtea.toBytes(this.params.xxteaKey));
             } else {
@@ -214,11 +216,14 @@ export abstract class NativePackTool {
             }
             const newScriptDest = ps.join(ps.dirname(scriptDest), ps.basename(scriptDest, ps.extname(scriptDest)) + '.jsc');
             fs.writeFileSync(newScriptDest, content);
+
+            config.encrypted = true;
+            fs.writeJSONSync(configPath, config);
     
             fs.copySync(scriptDest, ps.join(backupPath, ps.relative(this.paths.buildAssetsDir, scriptDest)));
             fs.removeSync(scriptDest);
         }
-
+        console.debug('Encrypte scriptes success');
     }
 
     async create(): Promise<boolean> {
@@ -268,6 +273,11 @@ export class CocosParams<T> {
      */
     encrypted?: boolean;
     /**
+     * @zh 是否压缩脚本
+     * @en is compress script
+     */
+     compressScriptZip?: boolean;
+    /**
      * @zh 加密密钥
      * @en encrypt Key
      */
@@ -298,6 +308,8 @@ export class CocosParams<T> {
         this.nativeEnginePath = params.nativeEnginePath;
         this.projDir = params.projDir;
         this.buildDir = params.buildDir;
+        this.xxteaKey = params.xxteaKey;
+        this.encrypted = params.encrypted;
         Object.assign(this.cMakeConfig, params.cMakeConfig);
         this.platformParams = params.platformParams;
     }

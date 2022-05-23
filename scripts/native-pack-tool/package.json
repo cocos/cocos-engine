@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "fs-extra": "^10.1.0",
-    "globby": "^13.1.1",
+    "globby": "^8.0.2",
     "xxtea-node": "^1.1.4",
     "yargs": "^17.5.1",
     "zlib": "^1.0.5"
