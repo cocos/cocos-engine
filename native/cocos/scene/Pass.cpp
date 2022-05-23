@@ -118,7 +118,7 @@ ccstd::hash_t Pass::getPassHash(Pass *pass) {
     ccstd::string str{res.str()};
     ccstd::hash_t seed = 666;
     ccstd::hash_range(seed, str.begin(), str.end());
-    return static_cast<uint64_t>(seed);
+    return seed;
 }
 
 Pass::Pass() : Pass(Root::getInstance()) {}
