@@ -1,6 +1,5 @@
 #include <2d/renderer/RenderEntity.h>
 #include <cocos/base/TypeDef.h>
-#include <iostream>
 
 namespace cc {
 RenderEntity::RenderEntity() : RenderEntity(0, 0, 0) {
@@ -8,7 +7,7 @@ RenderEntity::RenderEntity() : RenderEntity(0, 0, 0) {
 
 RenderEntity::RenderEntity(const index_t bufferId, const index_t vertexOffset, const index_t indexOffset) {
     this->_bufferId = bufferId;
-    this->_vertextOffset = vertexOffset;
+    this->_vertexOffset = vertexOffset;
     this->_indexOffset = indexOffset;
 }
 
@@ -20,7 +19,7 @@ void RenderEntity::setBufferId(index_t bufferId) {
 }
 
 void RenderEntity::setVertexOffset(index_t vertexOffset) {
-    this->_vertextOffset = vertexOffset;
+    this->_vertexOffset = vertexOffset;
 }
 
 void RenderEntity::setIndexOffset(index_t indexOffset) {

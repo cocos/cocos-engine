@@ -4,6 +4,7 @@
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
 #include "2d/renderer/RenderEntity.h"
+#include "2d/renderer/Batcher2d.h"
 
 #ifndef JSB_ALLOC
 #define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
@@ -317,6 +318,63 @@ bool js_register_2d_RenderEntity(se::Object* obj) // NOLINT(readability-identifi
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
+se::Object* __jsb_cc_Batcher2d_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_Batcher2d_class = nullptr;  // NOLINT
+
+static bool js_2d_Batcher2d_updateRenderEntities(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Batcher2d>(s);
+    SE_PRECONDITION2(cobj, false, "js_2d_Batcher2d_updateRenderEntities : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<std::vector<cc::RenderEntity *>, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_2d_Batcher2d_updateRenderEntities : Error processing arguments");
+        cobj->updateRenderEntities(std::move(arg0.value()));
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_2d_Batcher2d_updateRenderEntities)
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_Batcher2d_finalize)
+
+static bool js_2d_Batcher2d_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
+{
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::Batcher2d);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_2d_Batcher2d_constructor, __jsb_cc_Batcher2d_class, js_cc_Batcher2d_finalize)
+
+static bool js_cc_Batcher2d_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_Batcher2d_finalize)
+
+bool js_register_2d_Batcher2d(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("Batcher2d", obj, nullptr, _SE(js_2d_Batcher2d_constructor));
+
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_2d_getter_return_true), nullptr);
+#endif
+    cls->defineFunction("updateRenderEntities", _SE(js_2d_Batcher2d_updateRenderEntities));
+    cls->defineFinalizeFunction(_SE(js_cc_Batcher2d_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::Batcher2d>(cls);
+
+    __jsb_cc_Batcher2d_proto = cls->getProto();
+    __jsb_cc_Batcher2d_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
 bool register_all_2d(se::Object* obj)    // NOLINT
 {
     // Get the ns
@@ -329,6 +387,7 @@ bool register_all_2d(se::Object* obj)    // NOLINT
     }
     se::Object* ns = nsVal.toObject();
 
+    js_register_2d_Batcher2d(ns);
     js_register_2d_RenderEntity(ns);
     return true;
 }

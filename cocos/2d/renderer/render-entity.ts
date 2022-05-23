@@ -7,6 +7,10 @@ export class RenderEntity {
     public renderData: BaseRenderData=null!;
     public stencilStage:Stage = Stage.DISABLED;
 
+    //节点树渲染index
+    static static_renderIndex:number;
+    renderIndex:number = 0;
+
     //具体的渲染数据
     public bufferId: number | undefined;
     public vertexOffset: number | undefined;

@@ -10,7 +10,7 @@ public:
 
     inline index_t getBufferId() const { return this->_bufferId; }
     void setBufferId(index_t bufferId);
-    inline index_t getVertexOffset() const { return this->_vertextOffset; }
+    inline index_t getVertexOffset() const { return this->_vertexOffset; }
     void setVertexOffset(index_t vertexOffset);
     inline index_t getIndexOffset() const { return this->_indexOffset; }
     void setIndexOffset(index_t indexOffset);
@@ -24,7 +24,7 @@ public:
 
 private:
     index_t _bufferId{0};
-    index_t _vertextOffset{0};
+    index_t _vertexOffset{0};
     index_t _indexOffset{0};
 
     float_t* _vbBuffer{nullptr};

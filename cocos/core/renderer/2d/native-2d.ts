@@ -1,3 +1,5 @@
+import { RenderEntity } from '../../../2d/renderer/render-entity';
+
 export class NativeRenderEntity {
     get bufferId ():number { return 0; }
     set bufferId (bufferId:number) {}
@@ -16,4 +18,8 @@ export class NativeRenderEntity {
 
     get iDataBuffer ():ArrayBufferLike { return new ArrayBuffer(0); }
     set iDataBuffer (iDataBuffer:ArrayBufferLike) {}
+}
+
+export class NativeBatcher2d {
+    updateRenderEntities (renderEntities: RenderEntity[]) {}
 }

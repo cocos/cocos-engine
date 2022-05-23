@@ -48,6 +48,8 @@ import { getAttributeStride, vfmtPosUvColor } from './vertex-format';
 import { updateOpacity } from '../assembler/utils';
 import { BaseRenderData, MeshRenderData } from './render-data';
 import { UIMeshRenderer } from '../components/ui-mesh-renderer';
+import { RenderEntity } from './render-entity';
+import { NativeBatcher2d } from '../../core/renderer/2d/native-2d';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
@@ -57,6 +59,11 @@ const m4_1 = new Mat4();
  * UI 渲染流程
  */
 export class Batcher2D implements IBatcher {
+    protected declare _nativeBatcher2d: NativeBatcher2d;
+    public get nativeObj (): NativeBatcher2d  {
+        return this._nativeBatcher2d;
+    }
+
     get currBufferAccessor () {
         if (this._staticVBBuffer) return this._staticVBBuffer;
         // create if not set
@@ -113,6 +120,10 @@ export class Batcher2D implements IBatcher {
         this.device = _root.device;
         this._batches = new CachedArray(64);
         this._drawBatchPool = new Pool(() => new DrawBatch2D(), 128, (obj) => obj.destroy(this));
+
+        if (JSB) {
+            this._nativeBatcher2d = new NativeBatcher2d();
+        }
     }
 
     public initialize () {
@@ -699,6 +710,20 @@ export class Batcher2D implements IBatcher {
     // TODO: Not a good way to do the job
     private _releaseDescriptorSetCache (textureHash: number) {
         this._descriptorSetCache.releaseDescriptorSetCache(textureHash);
+    }
+
+    //native batcher2d
+    private _renderEntities: RenderEntity[] = [];
+
+    public updateRenderEntities (renderEntities: RenderEntity[]) {
+        const entity = new RenderEntity();
+        entity.bufferId = 15;
+        entity.renderIndex = 10;
+        this._renderEntities.push(entity);
+        if (JSB) {
+            //native调用
+
+        }
     }
 }
 
