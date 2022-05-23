@@ -710,7 +710,7 @@ export class ParticleSystem extends RenderableComponent {
 
     private _subEmitters: any[]; // array of { emitter: ParticleSystem, type: 'birth', 'collision' or 'death'}
 
-    private _needSwitch: boolean;
+    private _needAttach: boolean;
 
     @serializable
     private _prewarm = false;
@@ -737,7 +737,7 @@ export class ParticleSystem extends RenderableComponent {
         this._isStopped = true;
         this._isEmitting = false;
         this._needRefresh = true;
-        this._needSwitch = false;
+        this._needAttach = false;
 
         this._time = 0.0;  // playback position in seconds.
         this._emitRateTimeCounter = 0.0;
@@ -1129,7 +1129,7 @@ export class ParticleSystem extends RenderableComponent {
             this._trailModule.updateRenderData();
         }
 
-        if (this._needSwitch) { // Check whether this particle model should be reattached
+        if (this._needAttach) { // Check whether this particle model should be reattached
             if (this.getParticleCount() > 0) {
                 if (!this._isCulled) {
                     if (!this.processor.getModel()?.scene) {
@@ -1140,7 +1140,7 @@ export class ParticleSystem extends RenderableComponent {
                             this._trailModule._attachToScene();
                         }
                     }
-                    this._needSwitch = false;
+                    this._needAttach = false;
                 }
             }
         }
@@ -1159,10 +1159,10 @@ export class ParticleSystem extends RenderableComponent {
                 if (this._trailModule && this._trailModule.enable) {
                     this._trailModule._detachFromScene();
                 }
-                this._needSwitch = false;
+                this._needAttach = false;
             }
         } else if (!this.processor.getModel()?.scene) {
-            this._needSwitch = true;
+            this._needAttach = true;
         }
     }
 
