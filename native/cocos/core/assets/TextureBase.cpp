@@ -46,7 +46,7 @@ TextureBase::TextureBase() {
     _gfxDevice = getGFXDevice();
     ccstd::hash_t seed = 666;
     ccstd::hash_range(seed, _id.begin(), _id.end());
-    _textureHash = static_cast<uint64_t>(seed);
+    _textureHash = seed;
 }
 
 TextureBase::~TextureBase() = default;
