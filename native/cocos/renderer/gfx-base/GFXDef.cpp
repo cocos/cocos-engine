@@ -231,7 +231,7 @@ ccstd::hash_t Hasher<SamplerInfo>::hashValue(const SamplerInfo &info) {
     // return quickHashTrivialStruct(&info);
 
     // the hash may be used to reconstruct the original struct
-    ccstd::hash_t hash = static_cast<uint32_t>(info.minFilter);
+    auto hash = static_cast<uint32_t>(info.minFilter);
     hash |= static_cast<uint32_t>(info.magFilter) << 2;
     hash |= static_cast<uint32_t>(info.mipFilter) << 4;
     hash |= static_cast<uint32_t>(info.addressU) << 6;
@@ -239,7 +239,7 @@ ccstd::hash_t Hasher<SamplerInfo>::hashValue(const SamplerInfo &info) {
     hash |= static_cast<uint32_t>(info.addressW) << 10;
     hash |= static_cast<uint32_t>(info.maxAnisotropy) << 12;
     hash |= static_cast<uint32_t>(info.cmpFunc) << 16;
-    return hash;
+    return static_cast<ccstd::hash_t>(hash);
 }
 
 template <>
