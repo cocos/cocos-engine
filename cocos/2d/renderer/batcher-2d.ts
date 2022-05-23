@@ -122,7 +122,7 @@ export class Batcher2D implements IBatcher {
         this._drawBatchPool = new Pool(() => new DrawBatch2D(), 128, (obj) => obj.destroy(this));
 
         if (JSB) {
-            this._nativeBatcher2d = new NativeBatcher2d();
+            //this._nativeBatcher2d = new NativeBatcher2d();
         }
     }
 

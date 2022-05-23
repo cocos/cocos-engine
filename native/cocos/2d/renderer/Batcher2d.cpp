@@ -2,12 +2,10 @@
 #include <cocos/base/TypeDef.h>
 
 namespace cc {
-Batcher2d::Batcher2d()
-{
+Batcher2d::Batcher2d() {
 }
 
-Batcher2d::~Batcher2d()
-{
+Batcher2d::~Batcher2d() {
 }
 
 void Batcher2d::updateRenderEntities(std::vector<RenderEntity*>&& renderEntities) {
