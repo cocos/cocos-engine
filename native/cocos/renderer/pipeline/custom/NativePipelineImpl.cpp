@@ -306,6 +306,7 @@ NativePipeline::NativePipeline(const allocator_type &alloc) noexcept
   globalDSManager(std::make_unique<pipeline::GlobalDSManager>()),
   layoutGraphs(alloc),
   pipelineSceneData(ccnew pipeline::PipelineSceneData()), // NOLINT
+  resourceGraph(alloc),
   renderGraph(alloc)
 {
 }

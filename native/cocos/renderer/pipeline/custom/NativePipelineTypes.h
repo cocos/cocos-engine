@@ -118,6 +118,7 @@ public:
     PmrTransparentMap<ccstd::pmr::string, LayoutGraphData> layoutGraphs;
     IntrusivePtr<pipeline::PipelineSceneData>              pipelineSceneData;
     framegraph::FrameGraph                                 frameGraph;
+    ResourceGraph                                          resourceGraph;
     RenderGraph                                            renderGraph;
 };
 
