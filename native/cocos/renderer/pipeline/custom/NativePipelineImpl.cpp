@@ -55,6 +55,7 @@
 #include "pipeline/custom/LayoutGraphTypes.h"
 #include "pipeline/custom/NativePipelineFwd.h"
 #include "pipeline/custom/Range.h"
+#include "pipeline/custom/RenderGraphTypes.h"
 #include "profiler/DebugRenderer.h"
 
 namespace cc {
@@ -304,7 +305,8 @@ NativePipeline::NativePipeline(const allocator_type &alloc) noexcept
 : device(gfx::Device::getInstance()),
   globalDSManager(std::make_unique<pipeline::GlobalDSManager>()),
   layoutGraphs(alloc),
-  pipelineSceneData(ccnew pipeline::PipelineSceneData()) // NOLINT
+  pipelineSceneData(ccnew pipeline::PipelineSceneData()), // NOLINT
+  renderGraph(alloc)
 {
 }
 
