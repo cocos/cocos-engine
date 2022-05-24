@@ -25,7 +25,7 @@
 
 #pragma once
 #include "base/std/container/unordered_map.h"
-#include "cocos/base/Optional.h"
+#include "base/std/optional.h"
 
 #include "3d/assets/Skeleton.h"
 #include "core/TypedArray.h"
@@ -52,10 +52,10 @@ struct ICustomJointTextureLayout {
 };
 
 struct IInternalJointAnimInfo {
-    cc::optional<Mat4> downstream;               // downstream default pose, if present
-    cc::optional<ccstd::vector<Mat4>> curveData; // the nearest animation curve, if present
+    ccstd::optional<Mat4> downstream;               // downstream default pose, if present
+    ccstd::optional<ccstd::vector<Mat4>> curveData; // the nearest animation curve, if present
     index_t bindposeIdx{0};                      // index of the actual bindpose to use
-    cc::optional<Mat4> bindposeCorrection;       // correction factor from the original bindpose
+    ccstd::optional<Mat4> bindposeCorrection;       // correction factor from the original bindpose
 };
 
 class IJointTextureHandle {
@@ -67,7 +67,7 @@ public:
     bool readyToBeDeleted{false};
     ITextureBufferHandle handle;
     ccstd::unordered_map<uint32_t, ccstd::vector<geometry::AABB>> bounds;
-    cc::optional<ccstd::vector<IInternalJointAnimInfo>> animInfos;
+    ccstd::optional<ccstd::vector<IInternalJointAnimInfo>> animInfos;
 
     static IJointTextureHandle *createJoinTextureHandle() {
         return ccnew IJointTextureHandle();
@@ -95,7 +95,7 @@ public:
      * @zh
      * 获取默认姿势的骨骼贴图。
      */
-    cc::optional<IJointTextureHandle *> getDefaultPoseTexture(Skeleton *skeleton, Mesh *mesh, Node *skinningRoot);
+    ccstd::optional<IJointTextureHandle *> getDefaultPoseTexture(Skeleton *skeleton, Mesh *mesh, Node *skinningRoot);
 
     /**
      * @en
@@ -103,7 +103,7 @@ public:
      * @zh
      * 获取指定动画片段的骨骼贴图。
      */
-    // cc::optional<IJointTextureHandle> getSequencePoseTexture(Skeleton *skeleton, AnimationClip *clip, Mesh *mesh, Node *skinningRoot);
+    // ccstd::optional<IJointTextureHandle> getSequencePoseTexture(Skeleton *skeleton, AnimationClip *clip, Mesh *mesh, Node *skinningRoot);
 
     void releaseHandle(IJointTextureHandle *handle);
 

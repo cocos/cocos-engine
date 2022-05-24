@@ -66,7 +66,7 @@ void BakedSkinningModel::destroy() {
     if (_jointMedium.texture.has_value()) {
         CC_SAFE_DELETE(_jointMedium.texture.value());
     }
-    applyJointTexture(cc::nullopt);
+    applyJointTexture(ccstd::nullopt);
     Super::destroy();
 }
 
@@ -128,7 +128,7 @@ void BakedSkinningModel::updateUBOs(uint32_t stamp) {
     }
 }
 
-void BakedSkinningModel::applyJointTexture(const cc::optional<IJointTextureHandle *> &texture) {
+void BakedSkinningModel::applyJointTexture(const ccstd::optional<IJointTextureHandle *> &texture) {
     auto oldTex = _jointMedium.texture;
     if (oldTex.has_value() && texture.has_value() && (&oldTex.value() != &texture.value())) {
         //        _dataPoolManager->jointTexturePool->releaseHandle(oldTex.value());
@@ -202,8 +202,8 @@ void BakedSkinningModel::syncAnimInfoForJS(gfx::Buffer *buffer, const Float32Arr
     _jointMedium.animInfo.dirtyForJSB = &dirty[0];
 }
 
-void BakedSkinningModel::syncDataForJS(const ccstd::vector<cc::optional<geometry::AABB>> &boundsInfo,
-                                       const cc::optional<geometry::AABB> &modelBound,
+void BakedSkinningModel::syncDataForJS(const ccstd::vector<ccstd::optional<geometry::AABB>> &boundsInfo,
+                                       const ccstd::optional<geometry::AABB> &modelBound,
                                        float jointTextureInfo0,
                                        float jointTextureInfo1,
                                        float jointTextureInfo2,

@@ -29,25 +29,25 @@
 
     #include <optional>
 
-namespace cc {
+namespace ccstd {
 
 using std::nullopt;
 using std::nullopt_t;
 using std::optional;
 
-}; // namespace cc
+}; // namespace ccstd
 #else
     #include "base/std/container/string.h"
     #include "boost/none.hpp"
     #include "boost/optional.hpp"
 
-namespace cc {
+namespace ccstd {
 
 using boost::optional;
 using nullopt_t = boost::none_t;
 
 const nullopt_t nullopt((boost::none_t::init_tag())); // NOLINT // use std style
 
-}; // namespace cc
+}; // namespace ccstd
 
 #endif

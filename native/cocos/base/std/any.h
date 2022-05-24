@@ -29,18 +29,18 @@
 
     #include <any>
 
-namespace cc {
+namespace ccstd {
 
 using std::any;
 using std::any_cast;
 
-} // namespace cc
+} // namespace ccstd
 
 #else
 
     #include "boost/any.hpp"
 
-namespace cc {
+namespace ccstd {
 
 class any : public boost::any { // NOLINT // use std style
 public:
@@ -76,5 +76,5 @@ inline ValueType any_cast(any &&operand) { // NOLINT // use std style
     return boost::any_cast<ValueType>(operand);
 }
 
-} // namespace cc
+} // namespace ccstd
 #endif

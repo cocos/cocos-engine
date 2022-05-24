@@ -30,7 +30,7 @@
 #include <boost/optional.hpp>
 #include <memory>
 #include <type_traits>
-#include "base/Variant.h"
+#include "base/std/variant.h"
 #include "base/memory/Memory.h"
 #include "base/std/container/list.h"
 #include "base/std/container/string.h"
@@ -67,7 +67,7 @@ struct VertexOverloaded : Overloaded<Ts...> {
 
 template <class GraphT, class... Ts>
 auto visitObject(typename GraphT::vertex_descriptor v, GraphT &g, Ts... args) {
-    return cc::visit(VertexOverloaded<Ts...>{std::move(args)...}, value(v, g));
+    return ccstd::visit(VertexOverloaded<Ts...>{std::move(args)...}, value(v, g));
 }
 
 namespace impl {

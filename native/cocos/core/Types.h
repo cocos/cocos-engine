@@ -28,7 +28,7 @@
 #include <utility>
 #include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
-#include "cocos/base/Optional.h"
+#include "base/std/optional.h"
 
 #include <cstdint>
 
@@ -39,7 +39,7 @@
 namespace cc {
 
 struct Error {
-    cc::optional<ccstd::string> msg;
+    ccstd::optional<ccstd::string> msg;
 };
 
 
