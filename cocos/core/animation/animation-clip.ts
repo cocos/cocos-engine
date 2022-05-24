@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module animation
- */
-
 import { ccclass, serializable } from 'cc.decorator';
 import { Asset } from '../assets/asset';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
@@ -63,7 +58,7 @@ export declare namespace AnimationClip {
     }
 
     /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @internal
      */
     export type { legacy as _legacy };
 }
@@ -144,8 +139,7 @@ export class AnimationClip extends Asset {
     /**
      * Sets if node TRS curves in this animation can be blended.
      * Normally this flag is enabled for model animation and disabled for other case.
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
-     * This is an internal slot. Never use it in your code.
+     * @internal This is an internal slot. Never use it in your code.
      */
     @serializable
     public enableTrsBlending = false;
@@ -163,14 +157,20 @@ export class AnimationClip extends Asset {
     }
 
     /**
+     * @en
      * Gets the count of tracks this animation owns.
+     * @zh
+     * 获取此动画中的轨道数量。
      */
     get tracksCount () {
         return this._tracks.length;
     }
 
     /**
+     * @en
      * Gets an iterable to tracks.
+     * @zh
+     * 获取可用于迭代轨道的对象。
      */
     get tracks (): Iterable<Track> {
         return this._tracks;
@@ -237,7 +237,10 @@ export class AnimationClip extends Asset {
     }
 
     /**
-     * Counts the time range this animation spans.
+     * @en
+     * Counts the time range that the tracks within this animation span.
+     * @zh
+     * 获取此动画所有轨道占据的时间范围。
      * @returns The time range.
      */
     public range () {
@@ -254,7 +257,10 @@ export class AnimationClip extends Asset {
     }
 
     /**
+     * @en
      * Gets the specified track.
+     * @zh
+     * 获取指定的轨道。
      * @param index Index to the track.
      * @returns The track.
      */
@@ -263,7 +269,10 @@ export class AnimationClip extends Asset {
     }
 
     /**
+     * @en
      * Adds a track into this animation.
+     * @zh
+     * 添加一个轨道到此动画中。
      * @param track The track.
      * @returns Index to the track.
      */
@@ -274,7 +283,10 @@ export class AnimationClip extends Asset {
     }
 
     /**
+     * @en
      * Removes a track from this animation.
+     * @zh
+     * 移除此动画中的指定轨道。
      * @param index Index to the track.
      */
     public removeTrack (index: number) {
@@ -282,7 +294,10 @@ export class AnimationClip extends Asset {
     }
 
     /**
+     * @en
      * Removes all tracks from this animation.
+     * @zh
+     * 移除此动画的所有轨道。
      */
     public clearTracks () {
         this._tracks.length = 0;
@@ -291,9 +306,7 @@ export class AnimationClip extends Asset {
     /**
      * Creates an event evaluator for this animation.
      * @param targetNode Target node used to fire events.
-     * @returns
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
-     * Do not use this in your code.
+     * @internal Do not use this in your code.
      */
     public createEventEvaluator (targetNode: Node) {
         return new EventEvaluator(
@@ -308,8 +321,7 @@ export class AnimationClip extends Asset {
      * Creates an evaluator for this animation.
      * @param context The context.
      * @returns The evaluator.
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
-     * Do not use this in your code.
+     * @internal Do not use this in your code.
      */
     public createEvaluator (context: AnimationClipEvalContext) {
         const {
@@ -419,8 +431,7 @@ export class AnimationClip extends Asset {
     /**
      * Convert all untyped tracks into typed ones and delete the original.
      * @param refine How to decide the type on specified path.
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
-     * DO NOT USE THIS IN YOUR CODE.
+     * @internal DO NOT USE THIS IN YOUR CODE.
      */
     public upgradeUntypedTracks (refine: UntypedTrackRefine) {
         const newTracks: Track[] = [];
@@ -446,7 +457,7 @@ export class AnimationClip extends Asset {
     }
 
     /**
-     * Export for test.
+     * @internal Export for test.
      */
     public [searchForRootBonePathSymbol] () {
         return this._searchForRootBonePath();
@@ -498,6 +509,9 @@ export class AnimationClip extends Asset {
     }
 
     /**
+     * @en
+     * The animation's data.
+     * @zh
      * 此动画的数据。
      * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
      */
@@ -513,7 +527,6 @@ export class AnimationClip extends Asset {
     }
 
     /**
-     * @protected
      * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
      */
     get eventGroups (): readonly IAnimationEventGroup[] {
@@ -545,7 +558,7 @@ export class AnimationClip extends Asset {
      * Migrates legacy data into tracks.
      * NOTE: This method tend to be used as internal purpose or patch.
      * DO NOT use it in your code since it might be removed for the future at any time.
-     * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
+     * @internal Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
      */
     public syncLegacyData () {
         if (this._legacyData) {

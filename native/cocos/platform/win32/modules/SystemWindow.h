@@ -47,6 +47,7 @@ public:
                       int h, int flags) override;
     uintptr_t getWindowHandler() const override;
     Size getViewSize() const override;
+    void      setViewSize(uint32_t width, uint32_t height) override { _width = width; _height = height; }
     /*
      @brief enable/disable(lock) the cursor, default is enabled
      */

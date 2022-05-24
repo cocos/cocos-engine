@@ -31,8 +31,10 @@ import { BAKE_SKELETON_CURVE_SYMBOL } from '../../core/animation/internal-symbol
 type BakeData = ReturnType<AnimationClip[typeof BAKE_SKELETON_CURVE_SYMBOL]>;
 
 /**
- * @en The data conversion tool for skeleton animation
- * @zh 骨骼动画数据转换中心。
+ * @en
+ * The data conversion tool for skeleton animation
+ * @zh
+ * 骨骼动画数据转换中心。
  * @internal
  */
 export class SkelAnimDataHub {

@@ -1,6 +1,26 @@
-/**
- * @packageDocumentation
- * @module spine
+/*
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
 import { EDITOR } from 'internal:constants';
@@ -441,24 +461,6 @@ export class Skeleton extends UIRenderer {
     }
 
     get socketNodes () { return this._socketNodes; }
-
-    /*
-     * @en Enabled batch model, if skeleton is complex, do not enable batch, or will lower performance.
-     * @zh 开启合批，如果渲染大量相同纹理，且结构简单的骨骼动画，开启合批可以降低drawcall，否则请不要开启，cpu消耗会上升。
-     */
-    // @tooltip('i18n:COMPONENT.skeleton.enabled_batch')
-    // get enableBatch () { return this._enableBatch; }
-    // set enableBatch (value) {
-    //     if (value != this._enableBatch) {
-    //         this._enableBatch = value;
-    //         this._updateBatch();
-    //     }
-    // }
-
-    // @serializable
-    // private _enableBatch: boolean = true;
-
-    public enableBatch = false;
     // Frame cache
     /**
      * @internal
@@ -574,8 +576,10 @@ export class Skeleton extends UIRenderer {
 
     // 由于 spine 的 skin 是无法二次替换的，所以只能设置默认的 skin
     /**
-     * @en The name of default skin.
-     * @zh 默认的皮肤名称。
+     * @en
+     * The name of default skin.
+     * @zh
+     * 默认的皮肤名称。
      * @property {String} defaultSkin
      */
     @serializable
@@ -583,8 +587,10 @@ export class Skeleton extends UIRenderer {
     protected defaultSkin = '';
 
     /**
-     * @en The name of default animation.
-     * @zh 默认的动画名称。
+     * @en
+     * The name of default animation.
+     * @zh
+     * 默认的动画名称。
      * @property {String} defaultAnimation
      */
     @visible(false)

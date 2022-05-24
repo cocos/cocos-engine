@@ -24,11 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
 import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multiline, type, displayOrder, serializable } from 'cc.decorator';
 import { DEV, EDITOR } from 'internal:constants';
 import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
@@ -114,6 +109,7 @@ function getSegmentByPool (type: string, content: string | SpriteFrame) {
         seg.comp.string = content as string;
         seg.comp.horizontalAlign = HorizontalTextAlignment.LEFT;
         seg.comp.verticalAlign = VerticalTextAlignment.TOP;
+        seg.comp.underlineHeight = 2;
     }
     node.setPosition(0, 0, 0);
     const trans = node._uiProps.uiTransformComp!;

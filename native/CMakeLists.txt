@@ -346,6 +346,7 @@ cocos_source_files(
     cocos/application/ApplicationManager.h
     cocos/application/ApplicationManager.cpp
     cocos/application/BaseGame.h
+    cocos/application/BaseGame.cpp
 )
 
 ############ engine
@@ -2922,14 +2923,11 @@ if(ANDROID)
     )
 
     find_library(LIB_EGL NAMES EGL)
-    find_library(LIB_GLESv2 NAMES GLESv2)
     target_link_libraries(${ENGINE_NAME} PUBLIC
         android
         paddleboat_static
         OpenSLES
         ${LIB_EGL}
-        ${LIB_GLESv2}
-        GLESv2
         jnigraphics
         ${CC_EXTERNAL_LIBS}
     )

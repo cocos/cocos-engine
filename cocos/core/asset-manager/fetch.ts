@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { Asset } from '../assets';
 import { error } from '../platform/debug';
 import packManager from './pack-manager';

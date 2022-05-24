@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { EDITOR, DEV, TEST } from 'internal:constants';
 import { CCObject } from '../data/object';
 import * as js from '../utils/js';

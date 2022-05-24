@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module 3d/primitive
- */
-
 import { Vec3 } from '../core/math';
 import { IGeometry, IGeometryOptions } from './define';
 
@@ -44,8 +39,8 @@ interface ISphereOptions extends IGeometryOptions {
  * Generate a shpere with radius 0.5.
  * @zh
  * 生成一个球。
- * @param radius 球半径。
- * @param options 参数选项。
+ * @param radius @en The radius. @zh 球半径。
+ * @param options @en The sphere creation options. @zh 参数选项。
  */
 export default function sphere (radius = 0.5, opts: RecursivePartial<ISphereOptions> = {}): IGeometry {
     const segments = opts.segments !== undefined ? opts.segments : 32;

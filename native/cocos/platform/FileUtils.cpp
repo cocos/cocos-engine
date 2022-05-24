@@ -410,7 +410,7 @@ static tinyxml2::XMLElement *generateElementForObject(const Value &value, tinyxm
         return node;
     }
 
-    //object is bool
+    // object is bool
     if (value.getType() == Value::Type::BOOLEAN) {
         tinyxml2::XMLElement *node = doc->NewElement(value.asString().c_str());
         return node;
@@ -742,7 +742,7 @@ void FileUtils::setSearchPaths(const ccstd::vector<ccstd::string> &searchPaths) 
     }
 
     if (!existDefaultRootPath) {
-        //CC_LOG_DEBUG("Default root path doesn't exist, adding it.");
+        // CC_LOG_DEBUG("Default root path doesn't exist, adding it.");
         _searchPathArray.push_back(_defaultResRootPath);
     }
 }
@@ -1061,21 +1061,15 @@ int unlinkCb(const char *fpath, const struct stat * /*sb*/, int /*typeflag*/, st
 } // namespace
 
 bool FileUtils::removeDirectory(const ccstd::string &path) {
-    #if !defined(CC_TARGET_OS_TVOS)
-
-        #if (CC_PLATFORM != CC_PLATFORM_ANDROID)
+    #if (CC_PLATFORM != CC_PLATFORM_ANDROID)
     return nftw(path.c_str(), unlinkCb, 64, FTW_DEPTH | FTW_PHYS) != -1;
-        #else
+    #else
     ccstd::string command = "rm -r ";
     // Path may include space.
     command += "\"" + path + "\"";
 
     return (system(command.c_str()) >= 0);
-        #endif // (CC_PLATFORM != CC_PLATFORM_ANDROID)
-
-    #else
-    return false;
-    #endif // !defined(CC_TARGET_OS_TVOS)
+    #endif // (CC_PLATFORM != CC_PLATFORM_ANDROID)
 }
 
 bool FileUtils::removeFile(const ccstd::string &path) {
@@ -1127,7 +1121,7 @@ long FileUtils::getFileSize(const ccstd::string &filepath) { //NOLINT(google-run
         // Failed
         return -1;
     }
-    return static_cast<long>(info.st_size); //NOLINT(google-runtime-int)
+    return static_cast<long>(info.st_size); // NOLINT(google-runtime-int)
 }
 #endif
 

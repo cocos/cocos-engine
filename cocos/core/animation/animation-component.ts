@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module animation
- */
-
 import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type, serializable } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
 import { Component } from '../components/component';
@@ -107,7 +102,7 @@ export class Animation extends Eventify(Component) {
      * @en
      * Gets or sets the default clip.
      * Two clips that both have same non-empty UUID are treat as equivalent.
-     * @en
+     * @zh
      * 获取或设置默认剪辑。
      * 设置时，若指定的剪辑不在 `this.clips` 中则会被自动添加至 `this.clips`。
      * 具有相同的非空 UUID 的两个动画剪辑将被视为是相同的。
@@ -145,13 +140,25 @@ export class Animation extends Eventify(Component) {
     @tooltip('i18n:animation.play_on_load')
     public playOnLoad = false;
 
+    /**
+     * @internal
+     */
     protected _crossFade = new CrossFade();
 
+    /**
+     * @internal
+     */
     protected _nameToState: Record<string, AnimationState> = createMap(true);
 
+    /**
+     * @internal
+     */
     @type([AnimationClip])
     protected _clips: (AnimationClip | null)[] = [];
 
+    /**
+     * @internal
+     */
     @serializable
     protected _defaultClip: AnimationClip | null = null;
 
@@ -306,7 +313,10 @@ export class Animation extends Eventify(Component) {
     }
 
     /**
+     * @zh
      * 添加一个动画剪辑到 `this.clips`中并以此剪辑创建动画状态。
+     * @en
+     * Adds an animation clip into this component and creates a animation state for this clip.
      * @param clip The animation clip
      * @param name The animation state name, if absent, the default clip's name will be used
      * @returns The created animation state
@@ -423,10 +433,16 @@ export class Animation extends Eventify(Component) {
         }
     }
 
+    /**
+     * @internal
+     */
     protected _createState (clip: AnimationClip, name?: string) {
         return new AnimationState(clip, name);
     }
 
+    /**
+     * @internal
+     */
     protected _doCreateState (clip: AnimationClip, name: string) {
         const state = this._createState(clip, name);
         state._setEventTarget(this);
@@ -439,7 +455,6 @@ export class Animation extends Eventify(Component) {
     }
 
     /**
-     *
      * @internal This method only friends to skeletal animation component.
      */
     protected doPlayOrCrossFade (state: AnimationState, duration: number) {

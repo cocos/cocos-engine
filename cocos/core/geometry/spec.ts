@@ -24,11 +24,6 @@
  */
 
 /**
- * @packageDocumentation
- * @module geometry
- */
-
-/**
  * @en
  * The raycast mode.
  * @zh

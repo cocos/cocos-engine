@@ -40,6 +40,10 @@
 
 namespace cc {
 
+MorphRendering *createMorphRendering(Mesh *mesh, gfx::Device *gfxDevice) {
+    return ccnew StdMorphRendering(mesh, gfxDevice);
+}
+
 /**
  * The instance of once sub-mesh morph rendering.
  */

@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module scene-graph
- */
-
 import { ccclass, editable, serializable } from 'cc.decorator';
 import { DEV, DEBUG, EDITOR } from 'internal:constants';
 import { Component } from '../components/component';
@@ -219,14 +214,24 @@ export class BaseNode extends CCObject implements ISchedulable {
         return this._eventProcessor;
     }
 
+    /**
+     * @internal
+     */
     protected static idGenerator = idGenerator;
 
-    // For walk
+    /**
+     * for walk
+     * @internal
+     */
     protected static _stacks: Array<Array<(BaseNode | null)>> = [[]];
+    /**
+     * @internal
+     */
     protected static _stackId = 0;
 
     /**
      * Call `_updateScene` of specified node.
+     * @internal
      * @param node The node.
      */
     protected static _setScene (node: BaseNode) {
@@ -332,7 +337,10 @@ export class BaseNode extends CCObject implements ISchedulable {
     protected _siblingIndex = 0;
 
     /**
+     * @en
      * record scene's id when set this node as persist node
+     * @zh
+     * 当设置节点为常驻节点时记录场景的 id
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _originalSceneId = '';
@@ -340,6 +348,7 @@ export class BaseNode extends CCObject implements ISchedulable {
     /**
      * Set `_scene` field of this node.
      * The derived `Scene` overrides this method to behavior differently.
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     protected _updateScene () {
         if (this._parent == null) {
@@ -1403,7 +1412,10 @@ export class BaseNode extends CCObject implements ISchedulable {
     protected _onSiblingIndexChanged? (siblingIndex: number): void;
 
     /**
+     * @en
      * Ensures that this node has already had the specified component(s). If not, this method throws.
+     * @zh
+     * 检查节点已经包含对应的组件，如果没有，则抛出异常
      * @param constructor Constructor of the component.
      * @throws If one or more component of same type have been existed in this node.
      */
