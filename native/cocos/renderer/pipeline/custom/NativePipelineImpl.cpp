@@ -44,6 +44,9 @@
 #include "cocos/renderer/pipeline/custom/GslUtils.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
+#include "cocos/renderer/pipeline/custom/DebugUtils.h"
+#include "cocos/renderer/pipeline/custom/LayoutGraphNames.h"
+#include "cocos/renderer/pipeline/custom/LayoutGraphGraphs.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/RenderWindow.h"
 #include "gfx-base/GFXDef-common.h"
@@ -183,6 +186,58 @@ int NativeLayoutGraphBuilder::compile() {
     return 0;
 }
 
+namespace {
+
+std::string getName(gfx::ShaderStageFlagBit stage) {
+    std::ostringstream oss;
+    int count = 0;
+    if (hasFlag(stage, gfx::ShaderStageFlagBit::VERTEX)) {
+        if (count++) {
+            oss << " | ";
+        }
+        oss << "Vertex";
+    }
+    if (hasFlag(stage, gfx::ShaderStageFlagBit::CONTROL)) {
+        if (count++) {
+            oss << " | ";
+        }
+        oss << "Control";
+    }
+    if (hasFlag(stage, gfx::ShaderStageFlagBit::EVALUATION)) {
+        if (count++) {
+            oss << " | ";
+        }
+        oss << "Evaluation";
+    }
+    if (hasFlag(stage, gfx::ShaderStageFlagBit::GEOMETRY)) {
+        if (count++) {
+            oss << " | ";
+        }
+        oss << "Geometry";
+    }
+    if (hasFlag(stage, gfx::ShaderStageFlagBit::FRAGMENT)) {
+        if (count++) {
+            oss << " | ";
+        }
+        oss << "Fragment";
+    }
+    if (hasFlag(stage, gfx::ShaderStageFlagBit::COMPUTE)) {
+        if (count++) {
+            oss << " | ";
+        }
+        oss << "Compute";
+    }
+    if (hasFlag(stage, gfx::ShaderStageFlagBit::ALL)) {
+        if (count++) {
+            oss << " | ";
+        }
+        oss << "All";
+    }
+    return oss.str();
+}
+
+} // namespace
+
 std::string NativeLayoutGraphBuilder::print() const {
     std::ostringstream oss;
     boost::container::pmr::unsynchronized_pool_resource pool(
@@ -194,8 +249,52 @@ std::string NativeLayoutGraphBuilder::print() const {
         if (parent(v, g) != LayoutGraphData::null_vertex()) {
             continue;
         }
-        const auto& name = get(LayoutGraphData::Name, g);
-        
+        const auto &name = get(LayoutGraphData::Name, g, v);
+        const auto &freq = get(LayoutGraphData::Update, g, v);
+        OSS << "\"" << name << "\": ";
+
+        visit(
+            [&](auto tag) {
+                oss << getName(tag);
+            },
+            tag(v, g)
+        );
+
+        oss << "<" << getName(freq) << "> {\n";
+        INDENT_BEG();
+        const auto &info = get(LayoutGraphData::Layout, g, v);
+        for (const auto& set : info.descriptorSets) {
+            OSS << "Set<" << getName(set.first) << "> {\n";
+            {
+                INDENT();
+                for (const auto& block : set.second.descriptorSetLayoutData.descriptorBlocks) {
+                    OSS << "Block<" << getName(block.type) << ", " << getName(block.visibility) << "> {\n";
+                    {
+                        INDENT();
+                        OSS << "capacity: " << block.capacity << ",\n";
+                        OSS << "count: " << block.descriptors.size() << ",\n";
+                        if (!block.descriptors.empty()) {
+                            OSS << "Descriptors{ ";
+                            int count = 0;
+                            for (const auto & d : block.descriptors) {
+                                if (count++) {
+                                    oss << ", ";
+                                }
+                                const auto& name = g.valueNames.at(d.descriptorID.value);
+                                oss << "\"" << name;
+                                if (d.count != 1) {
+                                    oss << "[" << d.count << "]";
+                                }
+                                oss << "\"";
+                            }
+                            oss << " }\n";
+                        }
+                    }
+                    OSS << "}\n";
+                }
+            }
+            OSS << "}\n";
+        }
     }
 
     return oss.str();
