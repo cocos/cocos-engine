@@ -8,7 +8,7 @@
 - build
   - windows
     -- data // 原始的构建工程资源
-    -- cocos.compile.json // 所有原生工程需要的配置信息（包括项目路径等等）都放置在此文件中，这个文件将在每次构建后更新
+    -- cocos.compile.config.json // 所有原生工程需要的配置信息（包括项目路径等等）都放置在此文件中，这个文件将在每次构建后更新
 ```
 
 ## 快速开始
@@ -57,7 +57,7 @@ nativePackToolMg.register('windows', new WindowsPackTool());
 
 ```json5
     {
-        "command": "npm run pack  make",
+        "command": "npm run pack",
         "name": "npm run pack",
         "request": "launch",
         "cwd": "${workspaceRoot}/scripts/native-pack-tool", // 实际的构建项目目录（cocos.compile.config.json 所在目录）
