@@ -57,9 +57,10 @@ public:
         return static_cast<T *>(getAsset(uuid));
     }
 
+    void tryCompileAllPasses();
+
 private:
     void initMaterials();
-    void tryCompileAllPasses();
     void initTexture2DWithUuid(const ccstd::string &uuid, const uint8_t *data, size_t dataBytes, uint32_t width, uint32_t height);
     void initTextureCubeWithUuid(const ccstd::string &uuid, const uint8_t *data, size_t dataBytes, uint32_t width, uint32_t height);
 
