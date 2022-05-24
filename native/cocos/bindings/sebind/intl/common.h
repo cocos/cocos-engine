@@ -85,7 +85,7 @@ struct FunctionWrapper<R (*)(C *, ARGS...)> {
     using arg_list = TypeList<ARGS...>;
     static constexpr size_t ARG_N = sizeof...(ARGS);
     template <typename... ARGS2>
-    inline R static invoke(type func, C *self, ARGS2 &&... args) {
+    inline static R invoke(type func, C *self, ARGS2 &&... args) {
         return (*func)(self, std::forward<ARGS2>(args)...);
     }
 };
@@ -97,7 +97,7 @@ struct FunctionWrapper<R (C::*)(ARGS...)> {
     using arg_list = TypeList<ARGS...>;
     static constexpr size_t ARG_N = sizeof...(ARGS);
     template <typename... ARGS2>
-    inline R static invoke(type func, C *self, ARGS2 &&... args) {
+    inline static R invoke(type func, C *self, ARGS2 &&... args) {
         return (self->*func)(std::forward<ARGS2>(args)...);
     }
 };
@@ -109,7 +109,7 @@ struct FunctionWrapper<R (C::*)(ARGS...) const> {
     using arg_list = TypeList<ARGS...>;
     static constexpr size_t ARG_N = sizeof...(ARGS);
     template <typename... ARGS2>
-    inline R static invoke(type func, C *self, ARGS2 &&... args) {
+    inline static R invoke(type func, C *self, ARGS2 &&... args) {
         return (self->*func)(std::forward<ARGS2>(args)...);
     }
 };
@@ -121,7 +121,7 @@ struct FunctionWrapper<std::nullptr_t> {
     using arg_list = TypeList<>;
     static constexpr size_t ARG_N = 0;
     template <typename C, typename... ARGS>
-    void static invoke(type /*func*/, C * /*self*/, ARGS &&... /*args*/) {
+    static void invoke(type /*func*/, C * /*self*/, ARGS &&... /*args*/) {
     }
 };
 
@@ -135,7 +135,7 @@ struct StaticFunctionWrapper<R (*)(ARGS...)> {
     using arg_list = TypeList<ARGS...>;
     static constexpr size_t ARG_N = sizeof...(ARGS);
     template <typename... ARGS2>
-    inline R static invoke(type func, ARGS2 &&... args) {
+    inline static R invoke(type func, ARGS2 &&... args) {
         return (*func)(std::forward<ARGS2>(args)...);
     }
 };
@@ -147,7 +147,7 @@ struct StaticFunctionWrapper<std::nullptr_t> {
     using arg_list = TypeList<>;
     static constexpr size_t ARG_N = 0;
     template <typename... ARGS>
-    void static invoke(type /*func*/, ARGS &&... /*args*/) {
+    static void invoke(type /*func*/, ARGS &&... /*args*/) {
     }
 };
 
@@ -339,7 +339,7 @@ struct ConstructorBase {
 struct InstanceMethodBase {
     ccstd::string className;
     ccstd::string methodName;
-    size_t argCount;
+    size_t argCount = 0;
     SeCallbackFnPtr bfnPtr{nullptr};
     virtual bool invoke(se::State &state) const {
         if (bfnPtr) {
@@ -385,7 +385,7 @@ struct InstanceAttributeBase {
 struct StaticMethodBase {
     ccstd::string className;
     ccstd::string methodName;
-    size_t argCount;
+    size_t argCount = 0;
     SeCallbackFnPtr bfnPtr{nullptr};
     virtual bool invoke(se::State &state) const {
         if (bfnPtr) return (*bfnPtr)(state);
