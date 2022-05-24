@@ -31,13 +31,6 @@
 #include "core/TypedArray.h"
 namespace cc {
 
-struct IMeshBufferView {
-    uint32_t offset{0};
-    uint32_t length{0};
-    uint32_t count{0};
-    uint32_t stride{0};
-};
-
 using MeshWeightsType = ccstd::vector<float>;
 
 /**
@@ -64,47 +57,5 @@ T getIBArrayValue(const IBArray &arr, uint32_t idx) {
 
     return 0;
 }
-
-struct MorphTarget {
-    /**
-     * Displacement of each target attribute.
-     */
-    ccstd::vector<IMeshBufferView> displacements;
-};
-
-struct SubMeshMorph {
-    /**
-     * Attributes to morph.
-     */
-    ccstd::vector<ccstd::string> attributes;
-
-    /**
-     * Targets.
-     */
-    ccstd::vector<MorphTarget> targets;
-
-    /**
-     * Initial weights of each target.
-     */
-    cc::optional<MeshWeightsType> weights;
-};
-
-struct Morph {
-    /**
-     * Morph data of each sub-mesh.
-     */
-    ccstd::vector<cc::optional<SubMeshMorph>> subMeshMorphs;
-
-    /**
-     * Common initial weights of each sub-mesh.
-     */
-    cc::optional<MeshWeightsType> weights;
-
-    /**
-     * Name of each target of each sub-mesh morph.
-     * This field is only meaningful if every sub-mesh has the same number of targets.
-     */
-    cc::optional<ccstd::vector<ccstd::string>> targetNames;
-};
 
 } // namespace cc

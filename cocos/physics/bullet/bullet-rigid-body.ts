@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { Vec3 } from '../../core';
 import { BulletWorld } from './bullet-world';
 import { cocos2BulletVec3, bullet2CocosVec3 } from './bullet-utils';

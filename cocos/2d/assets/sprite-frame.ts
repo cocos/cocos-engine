@@ -25,11 +25,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
-
 import { ccclass } from 'cc.decorator';
 import { EDITOR, TEST, BUILD } from 'internal:constants';
 import { Rect, Size, Vec2 } from '../../core/math';
@@ -239,8 +234,8 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @en
-     * @zh
+     * @en uv update event
+     * @zh uv 更新事件
      */
     public static EVENT_UV_UPDATED = 'uv_updated';
 
@@ -661,7 +656,7 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @en Gets the related GFX [[Texture]] resource
+     * @en Gets the related GFX [[gfx.Texture]] resource
      * @zh 获取渲染贴图的 GFX 资源
      */
     public getGFXTexture () {

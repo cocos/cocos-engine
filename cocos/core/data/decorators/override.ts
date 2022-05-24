@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module decorator
- */
-
 import { LegacyPropertyDecorator } from './utils';
 import { getOrCreatePropertyStash } from './property';
 

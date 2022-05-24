@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module geometry
- */
-
 import { Mat4, Vec3 } from '../math';
 import { Camera } from '../renderer/scene';
 import enums from './enums';

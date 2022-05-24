@@ -24,10 +24,10 @@
  */
 
 import { DEBUG } from 'internal:constants';
-import { Vec3, Quat, approx } from '../../core/math';
+import { Vec3, Quat } from '../../core/math';
 import { Node } from '../../core/scene-graph';
 import { RuntimeBinding } from '../../core/animation/tracks/track';
-import { assertIsNonNullable, assertIsTrue } from '../../core/data/utils/asserts';
+import { assertIsTrue } from '../../core/data/utils/asserts';
 import { MAX_ANIMATION_LAYER } from './limits';
 
 export abstract class BlendStateBuffer<

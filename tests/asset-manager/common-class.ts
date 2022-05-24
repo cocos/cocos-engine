@@ -4,7 +4,6 @@ import { serializable, type } from "../../cocos/core/data/decorators";
 import { ccclass } from "../../cocos/core/data/decorators/ccclass";
 import { Vec2 } from "../../cocos/core/math";
 
-
 @ccclass('TestTexture')
 class TestTexture extends Asset{
     @serializable

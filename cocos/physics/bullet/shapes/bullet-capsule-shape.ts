@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { absMax } from '../../../core';
 import { BulletShape } from './bullet-shape';
 import { CapsuleCollider } from '../../../../exports/physics-framework';

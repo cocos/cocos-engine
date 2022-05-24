@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module component/web-view
- */
-
 import { legacyCC } from '../core/global-exports';
 import { WebViewImplWeb } from './web-view-impl-web';
 

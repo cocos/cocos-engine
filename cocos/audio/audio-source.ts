@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module component/audio
- */
-
 import { AudioPlayer } from 'pal/audio';
 import { ccclass, help, menu, tooltip, type, range, serializable } from 'cc.decorator';
 import { AudioState } from '../../pal/audio/type';
@@ -111,6 +106,7 @@ export class AudioSource extends Component {
             return;
         }
         this._lastSetClip = clip;
+        this._operationsBeforeLoading.length = 0;
         AudioPlayer.load(clip._nativeAsset.url, {
             audioLoadMode: clip.loadMode,
         }).then((player) => {
@@ -260,7 +256,7 @@ export class AudioSource extends Component {
      * - 直接播放音频，引擎会在下一次发生用户交互时自动播放。
      */
     public play () {
-        if (!this._isLoaded) {
+        if (!this._isLoaded && this.clip) {
             this._operationsBeforeLoading.push('play');
             return;
         }
@@ -282,7 +278,7 @@ export class AudioSource extends Component {
      * 暂停播放。
      */
     public pause () {
-        if (!this._isLoaded) {
+        if (!this._isLoaded && this.clip) {
             this._operationsBeforeLoading.push('pause');
             return;
         }
@@ -298,7 +294,7 @@ export class AudioSource extends Component {
      * 停止播放。
      */
     public stop () {
-        if (!this._isLoaded) {
+        if (!this._isLoaded && this.clip) {
             this._operationsBeforeLoading.push('stop');
             return;
         }

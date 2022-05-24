@@ -68,12 +68,6 @@ public:
 
     inline float getAngle() const { return _angle; }
 
-    inline float getAspect() const { return _aspect; }
-    inline void setAspect(float aspect) {
-        _aspect = aspect;
-        _needUpdate = true;
-    }
-
     inline const geometry::AABB &getAABB() const { return *_aabb; }
 
     inline const geometry::Frustum &getFrustum() const { return *_frustum; }
@@ -102,7 +96,6 @@ private:
     float _size{0.F};
     float _angle{0.F};
     float _spotAngle{0.F};
-    float _aspect{0.F};
     Vec3 _dir;
     Vec3 _pos;
     geometry::AABB *_aabb{nullptr};

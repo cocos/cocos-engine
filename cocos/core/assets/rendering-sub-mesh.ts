@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
-
 import { legacyCC } from '../global-exports';
 import { mapBuffer } from '../../3d/misc/buffer';
 import {
@@ -84,10 +79,8 @@ export interface IFlatBuffer {
 }
 
 /**
- * @en A representation of a sub mesh
- * Sub mesh for rendering which contains all geometry data, it can be used to create [[InputAssembler]].
- * @zh 代表一个子网格资源
- * 包含所有顶点数据的渲染子网格，可以用来创建 [[InputAssembler]]。
+ * @en Sub mesh for rendering which contains all geometry data, it can be used to create [[gfx.InputAssembler]].
+ * @zh 包含所有顶点数据的渲染子网格，可以用来创建 [[gfx.InputAssembler]]。
  */
 export class RenderingSubMesh {
     /**

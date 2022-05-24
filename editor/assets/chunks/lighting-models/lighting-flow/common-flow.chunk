@@ -1,0 +1,95 @@
+#if (CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD || CC_FORCE_FORWARD_SHADING)
+  #if CC_FORWARD_ADD && !CC_ENABLE_CLUSTERED_LIGHT_CULLING
+    void CCSurfacesLighting(inout LightingResult lightingResult, in SurfacesMaterialData surfaceData, in vec4 shadowPos, in vec2 shadowBias)
+    {
+      vec3 worldPos;
+      HIGHP_VALUE_FROM_STRUCT_DEFINED(worldPos, surfaceData.worldPos);
+
+      LightingIntermediateData lightingData;
+      CCSurfacesInitializeLightingIntermediateData(lightingData, surfaceData);
+
+      CCSurfacesLightingInitializeColorWithLighting(lightingResult.diffuseColorWithLighting, lightingResult.specularColorWithLighting, surfaceData, lightingData);
+
+      lightingResult.directDiffuse = lightingResult.directSpecular = vec3(0.0);
+
+      int numLights = CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD ? LIGHTS_PER_PASS : int(cc_lightDir[0].w);
+      for (int i = 0; i < LIGHTS_PER_PASS; i++) {
+        if (i >= numLights) break;
+
+        CCSurfacesLightingCalculateIntermediateData_PerLight(lightingData, surfaceData, cc_lightPos[i].xyz - worldPos);
+        CCSurfacesLightingCalculateColorWithLighting(lightingResult.diffuseColorWithLighting, lightingResult.specularColorWithLighting, surfaceData, lightingData);
+  
+        vec3 diffuseLighting, specularLighting;
+        CCSurfacesLightingCalculateDirect(diffuseLighting, specularLighting, lightingData, cc_lightColor[i]);
+        
+        float shadow = 1.0;
+      #if CC_RECEIVE_SHADOW
+        if (cc_lightPos[i].w > 0.0 && cc_lightSizeRangeAngle[i].w > 0.0) {
+          if (CCSurfacesLightingEnableShadow(lightingData.NoL)) {
+            shadow = CCSpotShadowFactorBase(shadowPos, worldPos, shadowBias);
+          }
+        }
+      #endif
+
+        float distAtt = CCSurfacesLightingCalculateDistanceAttenuation(lightingData, cc_lightSizeRangeAngle[i]);
+
+        float angleAtt = 1.0;
+        if (cc_lightPos[i].w > 0.0) {
+          angleAtt = CCSurfacesLightingCalculateAngleAttenuation(lightingData, cc_lightSizeRangeAngle[i], -cc_lightDir[i].xyz);
+        }
+
+        float multiplier = distAtt * angleAtt * shadow;
+
+        lightingResult.directDiffuse += diffuseLighting * multiplier;
+        lightingResult.directSpecular += specularLighting * multiplier;
+      }
+    }
+  #else
+    void CCSurfacesLighting(inout LightingResult lightingResult, in SurfacesMaterialData surfaceData, in vec4 shadowPos, in vec2 shadowBias)
+    {
+      LightingIntermediateData lightingData;
+      CCSurfacesInitializeLightingIntermediateData(lightingData, surfaceData);
+      CCSurfacesInitializeLightingResult(lightingResult, surfaceData);
+      
+      CCSurfacesLightingInitializeColorWithLighting(lightingResult.diffuseColorWithLighting, lightingResult.specularColorWithLighting, surfaceData, lightingData);
+
+      CCSurfacesLightingCalculateIntermediateData_PerLight(lightingData, surfaceData, -cc_mainLitDir.xyz);
+      CCSurfacesLightingCalculateColorWithLighting(lightingResult.diffuseColorWithLighting, lightingResult.specularColorWithLighting, surfaceData, lightingData);
+
+      CCSurfacesLightingCalculateDirect(lightingResult.directDiffuse, lightingResult.directSpecular, lightingData, cc_mainLitColor);
+      
+      // CCSurfacesLightingCalculateShadow:
+      lightingResult.shadow = 1.0;
+    #if CC_RECEIVE_SHADOW
+      if (cc_mainLitDir.w > 0.0) {
+        if (CCSurfacesLightingEnableShadow(lightingData.NoL)) {
+          lightingResult.shadow = CCShadowFactorBase(shadowPos, lightingData.N, shadowBias);
+        }
+      }
+    #endif
+
+      // apply SSR, local probe & global probe
+      CCSurfacesLightingCalculateEnvironment(lightingResult, lightingData);
+      
+      // CCSurfacesLightingCalculateTransmittence(lightingResult, lightingData, shadowPos);
+
+      // CCSurfacesLightingCalculateBaked:
+        lightingResult.lightmapColor = vec3(0.0);
+      #if CC_SURFACES_USE_LIGHT_MAP && !CC_SURFACES_USE_BATCHING && !CC_FORWARD_ADD
+        vec4 lightmap = GetLightMapColor(FSInput_lightMapUV.xy, FSInput_lightMapUV.z);
+        lightingResult.lightmapColor = lightmap.rgb;
+        // lightingResult.shadow/ao *= lightmap.a;
+      #endif
+
+      // apply screen-space shadow and ao
+      // lightingResult.shadow/ao *= XXX;
+
+
+
+      //#todo: cluster related lighting flow
+      #if CC_ENABLE_CLUSTERED_LIGHT_CULLING
+        //#include <shading-cluster-additive>
+      #endif
+    }
+  #endif
+#endif

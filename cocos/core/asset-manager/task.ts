@@ -22,10 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-/**
- * @packageDocumentation
- * @module asset-manager
- */
+
 export type TaskCompleteCallback = (err: Error | null | undefined, data: any) => void;
 export type TaskProgressCallback = (...args: any[]) => void;
 export type TaskErrorCallback = (...args: any[]) => void;

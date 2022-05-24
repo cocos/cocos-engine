@@ -56,6 +56,9 @@ export function extractStorageUnitElementType (combined: StorageUnitElementType)
     };
 }
 
+/**
+ * @deprecated Since V3.5.0.
+ */
 @ccclass('cc.CompactValueTypeArray')
 export class CompactValueTypeArray {
     public static StorageUnit = StorageUnit;
