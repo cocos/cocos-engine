@@ -23,27 +23,27 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module component/light
- */
-
 import { ccclass, tooltip, range, slide, type, displayOrder, serializable, editable } from 'cc.decorator';
 import { Component } from '../../core/components/component';
 import { Color, Vec3 } from '../../core/math';
 import { Enum } from '../../core/value-types';
-
 import { scene } from '../../core/renderer';
 import { Root } from '../../core/root';
 import { legacyCC } from '../../core/global-exports';
 
+const _color_tmp = new Vec3();
+
+/**
+ * @en The physical term used for light.
+ * @zh 光源所使用的物理计量单位。
+ */
 export const PhotometricTerm = Enum({
     LUMINOUS_FLUX: 0,
     LUMINANCE: 1,
 });
-const _color_tmp = new Vec3();
+
 /**
- * @en static light settings.
+ * @en Static light settings.
  * @zh 静态灯光设置
  */
 @ccclass('cc.StaticLightSettings')
@@ -58,7 +58,7 @@ class StaticLightSettings {
     protected _castShadow = false;
 
     /**
-     * @en editor only.
+     * @en Whether the light is editor only.
      * @zh 是否只在编辑器里生效。
      */
     @editable
@@ -70,7 +70,8 @@ class StaticLightSettings {
     }
 
     /**
-     * bake state
+     * @en Whether the light is baked
+     * @zh 光源是否被烘焙
      */
     get baked () {
         return this._baked;
@@ -81,8 +82,8 @@ class StaticLightSettings {
     }
 
     /**
-     * @en bakeable.
-     * @zh 是否可烘培。
+     * @en Whether the light is bake-able.
+     * @zh 光源是否可烘培。
      */
     @editable
     get bakeable () {
@@ -94,8 +95,8 @@ class StaticLightSettings {
     }
 
     /**
-     * @en cast shadow.
-     * @zh 是否投射阴影。
+     * @en Whether the light will cast shadow during baking process.
+     * @zh 光源在烘焙时是否投射阴影。
      */
     @editable
     get castShadow () {
@@ -112,9 +113,21 @@ export declare namespace Light {
     export type PhotometricTerm = EnumAlias<typeof PhotometricTerm>;
 }
 
+/**
+ * @en The base class of all light components, contains basic light settings for both real time light and baked light.
+ * @zh 光源组件基类，包含实时光源和烘焙光源的基本配置信息。
+ */
 @ccclass('cc.Light')
 export class Light extends Component {
+    /**
+     * @en The light type enumeration.
+     * @zh 光源类型枚举。
+     */
     public static Type = scene.LightType;
+    /**
+     * @en The physical term used for light.
+     * @zh 光源所使用的物理计量单位。
+     */
     public static PhotometricTerm = PhotometricTerm;
 
     @serializable
@@ -131,10 +144,8 @@ export class Light extends Component {
     protected _light: scene.Light | null = null;
 
     /**
-     * @en
-     * Color of the light.
-     * @zh
-     * 光源颜色。
+     * @en The color of the light.
+     * @zh 光源颜色。
      */
     @tooltip('i18n:lights.color')
     get color (): Readonly<Color> {
@@ -200,17 +211,16 @@ export class Light extends Component {
     }
 
     /**
-     * @en
-     * The light type.
-     * @zh
-     * 光源类型。
+     * @en The light type.
+     * @zh 光源类型。
      */
     get type () {
         return this._type;
     }
 
     /**
-     * bake state
+     * @en Whether the light is baked
+     * @zh 光源是否被烘焙
      */
     get baked () {
         return this.staticSettings.baked;

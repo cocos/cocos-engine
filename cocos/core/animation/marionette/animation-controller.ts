@@ -67,8 +67,8 @@ export class AnimationController extends Component {
     /**
      * @zh 设置动画图实例中变量的值。
      * @en Sets the value of the variable in the animation graph instance.
-     * @param name 变量名称。
-     * @param value 变量的值。
+     * @param name @en Variable's name. @zh 变量的名称。
+     * @param value @en Variable's value. @zh 变量的值。
      * @example
      * ```ts
      * animationController.setValue('speed', 3.14);
@@ -85,8 +85,8 @@ export class AnimationController extends Component {
     /**
      * @zh 获取动画图实例中变量的值。
      * @en Gets the value of the variable in the animation graph instance.
-     * @param name 变量名称。
-     * @returns 变量当前的值。
+     * @param name @en Variable's name. @zh 变量的名称。
+     * @returns @en Variable's value. @zh 变量的值。
      */
     public getValue (name: string) {
         const { _graphEval: graphEval } = this;
@@ -97,8 +97,9 @@ export class AnimationController extends Component {
     /**
      * @zh 获取动画图实例中当前状态的运行状况。
      * @en Gets the running status of the current state in the animation graph instance.
-     * @param layer 层级索引。（必须为 `0`）
-     * @returns 当前的状态运作状态对象。
+     * @param layer @en Index of the layer. @zh 层级索引。
+     * @returns @en The running status of the current state.
+     *          @zh 当前的状态运作状态对象。
      */
     public getCurrentStateStatus (layer: number) {
         const { _graphEval: graphEval } = this;
@@ -109,8 +110,9 @@ export class AnimationController extends Component {
     /**
      * @zh 获取动画图实例中当前状态上包含的所有动画剪辑的运行状况。
      * @en Gets the running status of all the animation clips added on the current state in the animation graph instance.
-     * @param layer 层级索引。（必须为 `0`）
-     * @returns 到动画剪辑运作状态的迭代器。
+     * @param layer @en Index of the layer. @zh 层级索引。
+     * @returns @en Iterable to the animation clip statuses on current state.
+     *          @zh 到动画剪辑运作状态的迭代器。
      */
     public getCurrentClipStatuses (layer: number) {
         const { _graphEval: graphEval } = this;
@@ -121,8 +123,9 @@ export class AnimationController extends Component {
     /**
      * @zh 获取动画图实例中当前正在进行的过渡的运行状况。
      * @en Gets the running status of the transition currently in progress in the animation graph instance.
-     * @param layer 层级索引。（必须为 `0`）
-     * @returns 当前正在进行的过渡，若没有进行任何过渡，则返回 `null`。
+     * @param layer @en Index of the layer. @zh 层级索引。
+     * @returns @en Current transition status. `null` is returned in case of no transition.
+     *          @zh 当前正在进行的过渡，若没有进行任何过渡，则返回 `null`。
      */
     public getCurrentTransition (layer: number) {
         const { _graphEval: graphEval } = this;
@@ -133,8 +136,9 @@ export class AnimationController extends Component {
     /**
      * @zh 获取动画图实例中下一个状态的运行状况。
      * @en Gets the running status of the next state in the animation graph instance.
-     * @param layer 层级索引。（必须为 `0`）
-     * @returns 下一状态运作状态对象，若未在进行过渡，则返回 `null`。
+     * @param layer @en Index of the layer. @zh 层级索引。
+     * @returns @en The running status of the next state. `null` is returned in case of no transition.
+     *          @zh 下一状态运作状态对象，若未在进行过渡，则返回 `null`。
      */
     public getNextStateStatus (layer: number) {
         const { _graphEval: graphEval } = this;
@@ -145,8 +149,9 @@ export class AnimationController extends Component {
     /**
      * @zh 获取动画图实例中下一个状态上添加的所有动画剪辑的运行状况。
      * @en Gets the running status of all the animation clips added on the next state in the animation graph instance.
-     * @param layer 层级索引。（必须为 `0`）
-     * @returns 到下一状态上包含的动画剪辑运作状态的迭代器，若未在进行过渡，则返回一个空的迭代器。
+     * @param layer @en Index of the layer. @zh 层级索引。
+     * @returns @en Iterable to the animation clip statuses on next state. An empty iterable is returned in case of no transition.
+     *          @zh 到下一状态上包含的动画剪辑运作状态的迭代器，若未在进行过渡，则返回一个空的迭代器。
      */
     public getNextClipStatuses (layer: number) {
         const { _graphEval: graphEval } = this;
@@ -154,6 +159,11 @@ export class AnimationController extends Component {
         return graphEval.getNextClipStatuses(layer);
     }
 
+    /**
+     * @zh 设置层级权重。
+     * @en Sets the weight of specified layer.
+     * @param layer @en Index of the layer. @zh 层级索引。
+     */
     public setLayerWeight (layer: number, weight: number) {
         const { _graphEval: graphEval } = this;
         assertIsNonNullable(graphEval);

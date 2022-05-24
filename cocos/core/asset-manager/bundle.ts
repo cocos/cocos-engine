@@ -22,10 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-/**
- * @packageDocumentation
- * @module asset-manager
- */
+
 import { Asset } from '../assets/asset';
 import { SceneAsset } from '../assets/scene-asset';
 import { legacyCC } from '../global-exports';
@@ -99,11 +96,11 @@ export default class Bundle {
      * 使用 path 获取资源的配置信息
      *
      * @param path - The relative path of asset, such as 'images/a'
-     * @param type - The constructor of asset, such as  `cc.Texture2D`
+     * @param type - The constructor of asset, such as  `Texture2D`
      * @returns The asset info
      *
      * @example
-     * var info = bundle.getInfoWithPath('image/a', cc.Texture2D);
+     * var info = bundle.getInfoWithPath('image/a', Texture2D);
      *
      */
     public getInfoWithPath (path: string, type?: AssetType | null): IAddressableInfo | null {
@@ -124,7 +121,7 @@ export default class Bundle {
      *
      * @example
      * var infos = [];
-     * bundle.getDirWithPath('images', cc.Texture2D, infos);
+     * bundle.getDirWithPath('images', Texture2D, infos);
      */
     public getDirWithPath (path: string, type?: AssetType | null, out?: IAddressableInfo[]): IAddressableInfo[] {
         return this._config.getDirWithPath(path, type, out);
@@ -202,16 +199,16 @@ export default class Bundle {
      *
      * @example
      * // load the texture (${project}/assets/resources/textures/background.jpg) from resources
-     * cc.resources.load('textures/background', cc.Texture2D, (err, texture) => console.log(err));
+     * resources.load('textures/background', Texture2D, (err, texture) => console.log(err));
      *
      * // load the audio (${project}/assets/resources/music/hit.mp3) from resources
-     * cc.resources.load('music/hit', cc.AudioClip, (err, audio) => console.log(err));
+     * resources.load('music/hit', AudioClip, (err, audio) => console.log(err));
      *
      * // load the prefab (${project}/assets/bundle1/misc/character/cocos) from bundle1 folder
-     * bundle1.load('misc/character/cocos', cc.Prefab, (err, prefab) => console.log(err));
+     * bundle1.load('misc/character/cocos', Prefab, (err, prefab) => console.log(err));
      *
      * // load the sprite frame (${project}/assets/some/xxx/bundle2/imgs/cocos.png) from bundle2 folder
-     * bundle2.load('imgs/cocos', cc.SpriteFrame, null, (err, spriteFrame) => console.log(err));
+     * bundle2.load('imgs/cocos', SpriteFrame, null, (err, spriteFrame) => console.log(err));
      *
      */
     public load<T extends Asset> (
@@ -263,20 +260,20 @@ export default class Bundle {
      *
      * @example
      * // preload the texture (${project}/assets/resources/textures/background.jpg) from resources
-     * cc.resources.preload('textures/background', cc.Texture2D);
+     * resources.preload('textures/background', Texture2D);
      *
      * // preload the audio (${project}/assets/resources/music/hit.mp3) from resources
-     * cc.resources.preload('music/hit', cc.AudioClip);
+     * resources.preload('music/hit', AudioClip);
      * // wait for while
-     * cc.resources.load('music/hit', cc.AudioClip, (err, audioClip) => {});
+     * resources.load('music/hit', AudioClip, (err, audioClip) => {});
      *
      * * // preload the prefab (${project}/assets/bundle1/misc/character/cocos) from bundle1 folder
-     * bundle1.preload('misc/character/cocos', cc.Prefab);
+     * bundle1.preload('misc/character/cocos', Prefab);
      *
      * // load the sprite frame of (${project}/assets/bundle2/imgs/cocos.png) from bundle2 folder
-     * bundle2.preload('imgs/cocos', cc.SpriteFrame);
+     * bundle2.preload('imgs/cocos', SpriteFrame);
      * // wait for while
-     * bundle2.load('imgs/cocos', cc.SpriteFrame, (err, spriteFrame) => {});
+     * bundle2.load('imgs/cocos', SpriteFrame, (err, spriteFrame) => {});
      *
      */
     public preload (paths: string|string[], type: AssetType|null, onProgress: ProgressCallback|null, onComplete: CompleteCallbackWithData<RequestItem[]>|null): void;
@@ -315,19 +312,19 @@ export default class Bundle {
      *
      * @example
      * // load all audios (resources/audios/)
-     * cc.resources.loadDir('audios', cc.AudioClip, (err, audios) => {});
+     * resources.loadDir('audios', AudioClip, (err, audios) => {});
      *
      * // load all textures in "resources/imgs/"
-     * cc.resources.loadDir('imgs', cc.Texture2D, null, function (err, textures) {
+     * resources.loadDir('imgs', Texture2D, null, function (err, textures) {
      *     var texture1 = textures[0];
      *     var texture2 = textures[1];
      * });
      *
      * // load all prefabs (${project}/assets/bundle1/misc/characters/) from bundle1 folder
-     * bundle1.loadDir('misc/characters', cc.Prefab, (err, prefabs) => console.log(err));
+     * bundle1.loadDir('misc/characters', Prefab, (err, prefabs) => console.log(err));
      *
      * // load all sprite frame (${project}/assets/some/xxx/bundle2/skills/) from bundle2 folder
-     * bundle2.loadDir('skills', cc.SpriteFrame, null, (err, spriteFrames) => console.log(err));
+     * bundle2.loadDir('skills', SpriteFrame, null, (err, spriteFrames) => console.log(err));
      *
      */
     public loadDir<T extends Asset> (dir: string, type: AssetType<T> | null, onProgress: ProgressCallback | null, onComplete: CompleteCallbackWithData<T[]> | null): void;
@@ -367,20 +364,20 @@ export default class Bundle {
      *
      * @example
      * // preload all audios (resources/audios/)
-     * cc.resources.preloadDir('audios', cc.AudioClip);
+     * resources.preloadDir('audios', AudioClip);
      *
      * // preload all textures in "resources/imgs/"
-     * cc.resources.preloadDir('imgs', cc.Texture2D);
+     * resources.preloadDir('imgs', Texture2D);
      * // wait for while
-     * cc.resources.loadDir('imgs', cc.Texture2D, (err, textures) => {});
+     * resources.loadDir('imgs', Texture2D, (err, textures) => {});
      *
      * // preload all prefabs (${project}/assets/bundle1/misc/characters/) from bundle1 folder
-     * bundle1.preloadDir('misc/characters', cc.Prefab);
+     * bundle1.preloadDir('misc/characters', Prefab);
      *
      * // preload all sprite frame (${project}/assets/some/xxx/bundle2/skills/) from bundle2 folder
-     * bundle2.preloadDir('skills', cc.SpriteFrame);
+     * bundle2.preloadDir('skills', SpriteFrame);
      * // wait for while
-     * bundle2.loadDir('skills', cc.SpriteFrame, (err, spriteFrames) => {});
+     * bundle2.loadDir('skills', SpriteFrame, (err, spriteFrames) => {});
      */
     public preloadDir (dir: string, type: AssetType | null, onProgress: ProgressCallback | null, onComplete: CompleteCallbackWithData<RequestItem[]> | null): void;
     public preloadDir (dir: string, onProgress: ProgressCallback | null, onComplete: CompleteCallbackWithData<RequestItem[]> | null): void;
@@ -414,7 +411,7 @@ export default class Bundle {
      * @param onComplete.sceneAsset - The scene asset
      *
      * @example
-     * bundle1.loadScene('first', (err, sceneAsset) => cc.director.runScene(sceneAsset));
+     * bundle1.loadScene('first', (err, sceneAsset) => director.runScene(sceneAsset));
      *
      */
     public loadScene (sceneName: string, options: IAssetOptions | null, onProgress: ProgressCallback | null, onComplete: CompleteCallbackWithData<SceneAsset> | null): void;
@@ -449,12 +446,12 @@ export default class Bundle {
     /**
      * @en
      * Preload the scene asset within this bundle by its name. After calling this method, you still need to finish loading
-     * by calling `Bundle.loadScene` or `cc.director.loadScene`.It will be totally fine to call `Bundle.loadDir` at any
+     * by calling `Bundle.loadScene` or `director.loadScene`.It will be totally fine to call `Bundle.loadDir` at any
      * time even if the preloading is not yet finished
      *
      * @zh
-     * 通过场景名称预加载分包中的场景资源.调用完后，你仍然需要通过 `Bundle.loadScene` 或 `cc.director.loadScene` 来完成加载。
-     * 就算预加载还没完成，你也可以直接调用 `Bundle.loadScene` 或 `cc.director.loadScene`。
+     * 通过场景名称预加载分包中的场景资源.调用完后，你仍然需要通过 `Bundle.loadScene` 或 `director.loadScene` 来完成加载。
+     * 就算预加载还没完成，你也可以直接调用 `Bundle.loadScene` 或 `director.loadScene`。
      *
      * @param sceneName - The name of the scene to preload.
      * @param options - Some optional parameters
@@ -468,7 +465,7 @@ export default class Bundle {
      * @example
      * bundle1.preloadScene('first');
      * // wait for a while
-     * bundle1.loadScene('first', (err, scene) => cc.director.runScene(scene));
+     * bundle1.loadScene('first', (err, scene) => director.runScene(scene));
      *
      */
     public preloadScene (sceneName: string, options: IAssetOptions | null, onProgress: ProgressCallback, onComplete: CompleteCallbackNoData | null): void;
@@ -512,7 +509,7 @@ export default class Bundle {
      * @returns - the asset has been cached
      *
      * @example
-     * bundle1.get('music/hit', cc.AudioClip);
+     * bundle1.get('music/hit', AudioClip);
      */
     public get<T extends Asset> (path: string, type?: AssetType<T> | null): T | null {
         const info = this.getInfoWithPath(path, type);

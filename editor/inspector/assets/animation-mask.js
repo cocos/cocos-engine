@@ -160,7 +160,7 @@ exports.methods = {
     },
 
     updateTree() {
-        const convertData = this.convertData(this.queryData._jointMasks.value);
+        const convertData = this.convertData(this.queryData.joints.value);
         this.flatData = convertData.flatData;
         this.$.tree.tree = convertData.treeData;
     },
@@ -215,7 +215,7 @@ exports.ready = function() {
             timestamp: rawTimestamp,
             type: 'asset',
             assetFilter: {
-                importer: 'fbx',
+                importer: ['fbx', 'gltf'],
             },
             events: {
                 async confirm(uuid) {

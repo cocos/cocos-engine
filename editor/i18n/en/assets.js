@@ -318,9 +318,14 @@ module.exports = {
             preferLocalTimeSpan: {
                 name: 'Prefer Local Time Span',
                 title:
-                    'When exporting FBX animations, whether prefer to use the time range recorded in FBX file. ' +
-                    'If one is not preferred, or one is invalid for use, the time range is robustly calculated. ' +
+                    'When exporting FBX animations, whether prefer to use the time range recorded in FBX file.<br>' +
+                    'If one is not preferred, or one is invalid for use, the time range is robustly calculated.<br>' +
                     'Some FBX generators may not export this information.',
+            },
+            smartMaterialEnabled: {
+                name: 'Smart Material Conversion',
+                title: 'Convert DCC materials to engine builtin materials which match the internal lighting model.',
+                warn: 'The laboratory feature "Smart Material Conversion" in the preferences is turned off, please enable this feature to modify model level settings.',
             },
         },
         textureCube: {

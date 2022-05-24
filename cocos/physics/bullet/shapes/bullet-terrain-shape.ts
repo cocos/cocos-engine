@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { BulletShape } from './bullet-shape';
 import { Vec3, warn } from '../../../core';
 import { TerrainCollider } from '../../../../exports/physics-framework';

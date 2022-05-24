@@ -124,7 +124,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   dirlightContrib *= shadow;
   finalColor *= dirlightContrib;
 
-  #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+  #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
     if (s.lightmap_test > EPSILON_LOWP) {
       finalColor = diffuse * s.lightmap.rgb * shadow;
     }
