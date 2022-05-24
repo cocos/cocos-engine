@@ -498,7 +498,7 @@ struct IShaderSource {
 
 struct IShaderInfo {
     ccstd::string name;
-    uint64_t hash{0xFFFFFFFFFFFFFFFFULL}; //cjh hash is 64 bit?
+    ccstd::hash_t hash{0xFFFFFFFFU};
     IShaderSource glsl4;
     IShaderSource glsl3;
     IShaderSource glsl1;

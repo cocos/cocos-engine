@@ -171,7 +171,7 @@ void JointTexturePool::registerCustomTextureLayouts(const ccstd::vector<ICustomJ
 }
 
 cc::optional<IJointTextureHandle *> JointTexturePool::getDefaultPoseTexture(Skeleton *skeleton, Mesh *mesh, Node *skinningRoot) {
-    uint64_t hash = skeleton->getHash() ^ 0; // may not equal to skeleton.hash
+    ccstd::hash_t hash = skeleton->getHash() ^ 0; // may not equal to skeleton.hash
     cc::optional<IJointTextureHandle *> texture;
     if (_textureBuffers.find(hash) != _textureBuffers.end()) {
         texture = _textureBuffers[hash];
@@ -345,7 +345,7 @@ void JointTexturePool::releaseHandle(IJointTextureHandle *handle) {
         handle->refCount--;
     }
     if (!handle->refCount && handle->readyToBeDeleted) {
-        uint64_t hash = handle->skeletonHash ^ handle->clipHash;
+        ccstd::hash_t hash = handle->skeletonHash ^ handle->clipHash;
         if (_chunkIdxMap.find(hash) != _chunkIdxMap.end()) {
             _customPool->free(handle->handle);
         } else {
