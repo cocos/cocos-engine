@@ -22,10 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-/**
- * @packageDocumentation
- * @module asset-manager
- */
+
 import { Asset } from '..';
 import { IMemoryImageSource } from '../assets/image-asset';
 import { js } from '../utils';
@@ -132,10 +129,10 @@ export type ParseHandler = (file: any, options: IDownloadParseOptions, onComplet
 
 /**
  * @en
- * Parse the downloaded file, it's a singleton, all member can be accessed with `cc.assetManager.parser`
+ * Parse the downloaded file, it's a singleton, all member can be accessed with `assetManager.parser`
  *
  * @zh
- * 解析已下载的文件，parser 是一个单例, 所有成员能通过 `cc.assetManaager.parser` 访问
+ * 解析已下载的文件，parser 是一个单例, 所有成员能通过 `assetManaager.parser` 访问
  *
  */
 export class Parser {

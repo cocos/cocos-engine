@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module tiledmap
- */
-
 import { Label, HorizontalTextAlignment, VerticalTextAlignment } from '../2d/components/label';
 import codec from '../../external/compression/ZipUtils.js';
 import zlib from '../../external/compression/zlib.min.js';

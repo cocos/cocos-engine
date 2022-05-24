@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module gfx
- */
-
 import './polyfill-legacy-cc';
 import './deprecated-3.0.0';
 import './deprecated-3.5.0';

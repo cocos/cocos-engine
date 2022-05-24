@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module component/web-view
- */
-
 import { ccclass, help, executeInEditMode, menu, tooltip, type, displayOrder, serializable, requireComponent } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { UITransform } from '../2d/framework';

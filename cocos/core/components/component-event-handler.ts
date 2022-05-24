@@ -24,11 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module event
- */
-
 import { ccclass, type, serializable, editable, tooltip } from 'cc.decorator';
 import type { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';

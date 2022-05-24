@@ -24,12 +24,6 @@
  */
 
 /**
- * @packageDocumentation
- * 数学库
- * @module core/math/bits
- */
-
-/**
  * Bit twiddling hacks for JavaScript.
  *
  * Author: Mikola Lysenko
@@ -38,9 +32,26 @@
  *    http://graphics.stanford.edu/~seander/bithacks.html
  */
 
-// Number of bits in an integer
+/**
+ * @en
+ * Number of bits in an integer
+ * @zh
+ * 整型类型的 bit 数
+ */
 export const INT_BITS = 32;
+/**
+ * @en
+ * The maximal signed integer number
+ * @zh
+ * 最大有符号整型数
+ */
 export const INT_MAX = 0x7fffffff;
+/**
+ * @en
+ * The minimal signed integer number
+ * @zh
+ * 最小有符号整型数
+ */
 export const INT_MIN = -1 << (INT_BITS - 1);
 
 /**
@@ -109,8 +120,8 @@ export function log10 (v: number) {
 }
 
 /**
- * @zh Counts number of bits.
- * @en 计算传入数字二进制表示中 1 的数量。
+ * @en Counts number of bits.
+ * @zh 计算传入数字二进制表示中 1 的数量。
  */
 export function popCount (v: number) {
     v -= ((v >>> 1) & 0x55555555);
@@ -261,8 +272,8 @@ export function interleave3 (x: number, y: number, z: number) {
 }
 
 /**
- * @zh Extracts nth interleaved component of a 3-tuple.
- * @en 提取三个数字中的第n个交错分量。
+ * @en Extracts nth interleaved component of a 3-tuple.
+ * @zh 提取三个数字中的第n个交错分量。
  */
 export function deinterleave3 (v: number, n: number) {
     v = (v >>> n) & 1227133513;

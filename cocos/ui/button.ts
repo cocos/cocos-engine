@@ -24,11 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
 import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, type, rangeMin, rangeMax, serializable, executeInEditMode } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { SpriteFrame } from '../2d/assets';

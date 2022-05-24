@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module scene-graph
- */
-
 import { JSB } from 'internal:constants';
 import { UIRenderer } from '../../2d/framework/ui-renderer';
 import { UITransform } from '../../2d/framework/ui-transform';

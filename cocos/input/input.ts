@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { EDITOR, NATIVE } from 'internal:constants';
 import { TouchInputSource, MouseInputSource, KeyboardInputSource, AccelerometerInputSource } from 'pal/input';
 import { touchManager } from '../../pal/input/touch-manager';

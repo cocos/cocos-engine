@@ -24,11 +24,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module particle2d
- */
-
 import { IAssembler, IAssemblerManager } from '../2d/renderer/base';
 import { MotionStreak } from './motion-streak-2d';
 import { Vec2, Color } from '../core/math';

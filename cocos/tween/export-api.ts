@@ -25,11 +25,6 @@
  */
 
 /**
- * @packageDocumentation
- * @module tween
- */
-
-/**
   * @en
   * Built-in string value definition for the cache function.
   * @zh

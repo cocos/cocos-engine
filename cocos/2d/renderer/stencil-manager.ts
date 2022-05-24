@@ -23,7 +23,6 @@
  THE SOFTWARE.
 */
 
-
 import { ComparisonFunc, StencilOp, DepthStencilState } from '../../core/gfx';
 import { Mask } from '../components/mask';
 import { Material } from '../../core';

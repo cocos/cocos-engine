@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module animation
- */
-
 import { ccclass } from 'cc.decorator';
 import System from '../components/system';
 import { director, Director } from '../director';

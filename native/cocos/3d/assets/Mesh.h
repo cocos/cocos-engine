@@ -26,7 +26,7 @@
 #pragma once
 
 #include "3d/assets/MorphRendering.h"
-#include "3d/assets/Types.h"
+#include "3d/assets/Morph.h"
 #include "cocos/base/Optional.h"
 #include "core/assets/Asset.h"
 #include "core/geometry/AABB.h"

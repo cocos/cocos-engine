@@ -1,0 +1,41 @@
+#ifndef CC_SURFACES_VERTEX_MODIFY_LOCAL_POS
+vec3 SurfacesVertexModifyLocalPos(in SurfacesStandardVertexIntermediate In)
+{
+  return In.position.xyz;
+}
+#endif
+
+#ifndef CC_SURFACES_VERTEX_MODIFY_WORLD_POS
+vec3 SurfacesVertexModifyWorldPos(in SurfacesStandardVertexIntermediate In)
+{
+  return In.worldPos;
+}
+#endif
+
+#ifndef CC_SURFACES_VERTEX_MODIFY_CLIP_POS
+vec4 SurfacesVertexModifyClipPos(in SurfacesStandardVertexIntermediate In)
+{
+  return In.clipPos;
+}
+#endif
+
+#ifndef CC_SURFACES_VERTEX_MODIFY_UV
+void SurfacesVertexModifyUV(inout SurfacesStandardVertexIntermediate In)
+{
+  In.texCoord = In.texCoord;
+#if CC_SURFACES_USE_SECOND_UV && !CC_SURFACES_USE_LIGHT_MAP
+  In.texCoord1 = In.texCoord1;
+#endif
+}
+#endif
+
+#ifndef CC_SURFACES_VERTEX_MODIFY_WORLD_NORMAL
+vec3 SurfacesVertexModifyWorldNormal(in SurfacesStandardVertexIntermediate In)
+{
+    vec3 worldNormal = In.worldNormal.xyz;
+  #if CC_SURFACES_USE_TWO_SIDED
+      worldNormal.xyz *= In.worldNormal.w;
+  #endif
+  return worldNormal;
+}
+#endif

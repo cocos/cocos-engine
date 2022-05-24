@@ -24,11 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module event
- */
-
 import { ccclass, help, menu } from 'cc.decorator';
 import { Component } from '../core/components/component';
 import { Event } from '../input/types';

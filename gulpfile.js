@@ -57,19 +57,28 @@ gulp.task('build-h5-source', gulp.series('build-debug-infos', async () => {
     await fs.ensureDir(outDir);
     await fs.emptyDir(outDir);
     const cli = require.resolve('@cocos/build-engine/dist/cli');
-    return cp.spawn('node', [
-        cli,
-        `--engine=${__dirname}`,
-        '--module=system',
-        '--build-mode=BUILD',
-        '--platform=HTML5',
-        '--physics=cannon',
-        `--out=${outDir}`,
-    ], {
-        shell: true,
-        stdio: 'inherit',
-        cwd: __dirname,
+    const exitCode = await new Promise((resolve, reject) => {
+        cp.spawn('node', [
+            cli,
+            `--engine=${__dirname}`,
+            '--module=system',
+            '--build-mode=BUILD',
+            '--platform=HTML5',
+            '--physics=cannon',
+            `--out=${outDir}`,
+        ], {
+            shell: true,
+            stdio: 'inherit',
+            cwd: __dirname,
+        }).on('exit', (code) => {
+            resolve(code);
+        }).on('error', (err) => {
+            reject(err);
+        });
     });
+    if (exitCode) {
+        throw new Error(`Build process exit with ${exitCode}`);
+    }
 }));
 
 gulp.task('build-h5-minified', gulp.series('build-debug-infos', async () => {
