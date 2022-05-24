@@ -205,10 +205,7 @@ export function shadowCulling (camera: Camera, sceneData: PipelineSceneData, lay
                                     csmLayerObjects.fastRemove(i);
                                 }
                             } else {
-                                // eslint-disable-next-line no-lonely-if
-                                if (accurate) {
-                                    dirShadowObjects.push(csmLayerObject);
-                                }
+                                dirShadowObjects.push(csmLayerObject);
                             }
                         }
                     }

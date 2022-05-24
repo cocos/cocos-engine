@@ -10,6 +10,9 @@
 // When screenSpaceSingY and clipSpaceSignY have different signs, need to flip the uv
 #pragma define CC_HANDLE_NDC_SAMPLE_FLIP(uv) uv = cc_cameraPos.w == 1.0 ? vec2(uv.x, 1.0 - uv.y) : uv
 
+#pragma define SHADOWMAP_FORMAT_RGBA8 1
+#pragma define SHADOWMAP_FORMAT_FLOAT 0
+
 int CCGetCSMLevel(out vec4 csmPos, vec3 worldPos) {
   for (int i = 0; i < NUMCASCADES; i++) {
     vec4 shadowPos = cc_matShadowViewProj_levels[i] * vec4(worldPos.xyz, 1.0);
@@ -110,7 +113,7 @@ float CCGetViewSpaceDepth(float depthHS)
 
     float shadow = 0.0;
     float closestDepth = 0.0;
-    #if CC_SHADOWMAP_FORMAT
+    #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
       closestDepth = unpackRGBAToDepth(texture(cc_shadowMap, clipPos.xy));
     #else
       closestDepth = texture(cc_shadowMap, clipPos.xy).x;
@@ -134,7 +137,7 @@ float CCGetViewSpaceDepth(float depthHS)
     vec2 clipPos_offset = clipPos.xy + oneTap;
 
     float block0, block1, block2, block3;
-    #if CC_SHADOWMAP_FORMAT
+    #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
       block0 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x, clipPos.y))));
       block1 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos_offset.x, clipPos.y))));
       block2 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x, clipPos_offset.y))));
@@ -171,7 +174,7 @@ float CCGetViewSpaceDepth(float depthHS)
     float clipPos_offset_D = clipPos.y + oneTap.y;
 
     float block0, block1, block2, block3, block4, block5, block6, block7, block8;
-    #if CC_SHADOWMAP_FORMAT
+    #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
       block0 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos_offset_L, clipPos_offset_U))));
       block1 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x, clipPos_offset_U))));
       block2 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos_offset_R, clipPos_offset_U))));
@@ -256,7 +259,7 @@ float CCGetViewSpaceDepth(float depthHS)
   	vec2 offset25 = clipPos.xy + vec2(twoTap.x, twoTap.y);
 
     float block1, block2, block3, block4, block5, block6, block7, block8, block9, block10, block11, block12, block13, block14, block15, block16, block17, block18, block19, block20, block21, block22, block23, block24, block25;
-    #if CC_SHADOWMAP_FORMAT
+    #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
       block1 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, offset1)));
       block2 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, offset2)));
       block3 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, offset3)));
@@ -352,7 +355,7 @@ float CCGetViewSpaceDepth(float depthHS)
     float closestDepth = 0.0;
     float depth = clipPos.z;
 
-    #if CC_SHADOWMAP_FORMAT
+    #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
       closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, clipPos.xy));
     #else
       closestDepth = texture(cc_spotLightingMap, clipPos.xy).x;
@@ -381,7 +384,7 @@ float CCGetViewSpaceDepth(float depthHS)
     vec2 clipPos_offset = clipPos.xy + oneTap;
 
     float block0, block1, block2, block3;
-    #if CC_SHADOWMAP_FORMAT
+    #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
       block0 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x, clipPos.y))));
       block1 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset.x, clipPos.y))));
       block2 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x, clipPos_offset.y))));
@@ -424,7 +427,7 @@ float CCGetViewSpaceDepth(float depthHS)
     float clipPos_offset_D = clipPos.y + oneTap.y;
 
     float block0, block1, block2, block3, block4, block5, block6, block7, block8;
-    #if CC_SHADOWMAP_FORMAT
+    #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
       block0 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset_L, clipPos_offset_U))));
       block1 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x, clipPos_offset_U))));
       block2 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset_R, clipPos_offset_U))));
@@ -514,7 +517,7 @@ float CCGetViewSpaceDepth(float depthHS)
   	vec2 offset25 = clipPos.xy + vec2(twoTap.x, twoTap.y);
 
     float block1, block2, block3, block4, block5, block6, block7, block8, block9, block10, block11, block12, block13, block14, block15, block16, block17, block18, block19, block20, block21, block22, block23, block24, block25;
-    #if CC_SHADOWMAP_FORMAT
+    #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
       block1 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, offset1)));
       block2 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, offset2)));
       block3 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, offset3)));
