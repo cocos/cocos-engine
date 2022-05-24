@@ -62,8 +62,9 @@ Root::Root(gfx::Device *device)
 }
 
 Root::~Root() {
-    instance = nullptr;
+    destroy();
     CC_SAFE_DELETE(_eventProcessor);
+    instance = nullptr;
 }
 
 void Root::initialize(gfx::Swapchain *swapchain) {

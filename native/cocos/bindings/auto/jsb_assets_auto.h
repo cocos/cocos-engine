@@ -614,8 +614,9 @@ SE_DECLARE_FUNC(js_assets_BuiltinResMgr_addAsset);
 SE_DECLARE_FUNC(js_assets_BuiltinResMgr_getAsset);
 SE_DECLARE_FUNC(js_assets_BuiltinResMgr_initBuiltinRes);
 SE_DECLARE_FUNC(js_assets_BuiltinResMgr_isInitialized);
-SE_DECLARE_FUNC(js_assets_BuiltinResMgr_destroyInstance);
+SE_DECLARE_FUNC(js_assets_BuiltinResMgr_tryCompileAllPasses);
 SE_DECLARE_FUNC(js_assets_BuiltinResMgr_getInstance);
+SE_DECLARE_FUNC(js_assets_BuiltinResMgr_BuiltinResMgr);
 
 extern se::Object *__jsb_cc_MorphRendering_proto; // NOLINT
 extern se::Class * __jsb_cc_MorphRendering_class; // NOLINT

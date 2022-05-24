@@ -25,7 +25,7 @@
 import { Ray } from '../../geometry';
 import { RenderWindow } from '../core/render-window';
 import { ClearFlagBit } from '../../gfx';
-import { _tempFloatArray } from '../../scene-graph/node.jsb';
+import { _tempFloatArray } from '../../scene-graph/utils.jsb';
 import { Mat4, Vec3 } from '../../math';
 
 export enum CameraFOVAxis {

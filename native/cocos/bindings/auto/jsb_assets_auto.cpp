@@ -15346,18 +15346,20 @@ static bool js_assets_BuiltinResMgr_isInitialized(se::State& s) // NOLINT(readab
 }
 SE_BIND_FUNC(js_assets_BuiltinResMgr_isInitialized)
 
-static bool js_assets_BuiltinResMgr_destroyInstance_static(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_assets_BuiltinResMgr_tryCompileAllPasses(se::State& s) // NOLINT(readability-identifier-naming)
 {
+    auto* cobj = SE_THIS_OBJECT<cc::BuiltinResMgr>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_BuiltinResMgr_tryCompileAllPasses : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
-        cc::BuiltinResMgr::destroyInstance();
+        cobj->tryCompileAllPasses();
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_assets_BuiltinResMgr_destroyInstance_static)
+SE_BIND_FUNC(js_assets_BuiltinResMgr_tryCompileAllPasses)
 
 static bool js_assets_BuiltinResMgr_getInstance_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -15375,6 +15377,17 @@ static bool js_assets_BuiltinResMgr_getInstance_static(se::State& s) // NOLINT(r
     return false;
 }
 SE_BIND_FUNC(js_assets_BuiltinResMgr_getInstance_static)
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_BuiltinResMgr_finalize)
+
+static bool js_assets_BuiltinResMgr_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
+{
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::BuiltinResMgr);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_assets_BuiltinResMgr_constructor, __jsb_cc_BuiltinResMgr_class, js_cc_BuiltinResMgr_finalize)
+
 static bool js_cc_BuiltinResMgr_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     return true;
@@ -15383,7 +15396,7 @@ SE_BIND_FINALIZE_FUNC(js_cc_BuiltinResMgr_finalize)
 
 bool js_register_assets_BuiltinResMgr(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
-    auto* cls = se::Class::create("BuiltinResMgr", obj, nullptr, nullptr);
+    auto* cls = se::Class::create("BuiltinResMgr", obj, nullptr, _SE(js_assets_BuiltinResMgr_constructor));
 
 #if CC_DEBUG
     cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
@@ -15392,7 +15405,7 @@ bool js_register_assets_BuiltinResMgr(se::Object* obj) // NOLINT(readability-ide
     cls->defineFunction("getAsset", _SE(js_assets_BuiltinResMgr_getAsset));
     cls->defineFunction("initBuiltinRes", _SE(js_assets_BuiltinResMgr_initBuiltinRes));
     cls->defineFunction("isInitialized", _SE(js_assets_BuiltinResMgr_isInitialized));
-    cls->defineStaticFunction("destroyInstance", _SE(js_assets_BuiltinResMgr_destroyInstance_static));
+    cls->defineFunction("tryCompileAllPasses", _SE(js_assets_BuiltinResMgr_tryCompileAllPasses));
     cls->defineStaticFunction("getInstance", _SE(js_assets_BuiltinResMgr_getInstance_static));
     cls->defineFinalizeFunction(_SE(js_cc_BuiltinResMgr_finalize));
     cls->install();

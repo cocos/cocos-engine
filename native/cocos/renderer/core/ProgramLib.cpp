@@ -271,9 +271,20 @@ void IProgramInfo::copyFrom(const IShaderInfo &o) {
     subpassInputs = o.subpassInputs;
 }
 
-ProgramLib::ProgramLib() = default;
+ProgramLib::ProgramLib() {
+    ProgramLib::instance = this;
+}
 
-ProgramLib::~ProgramLib() = default;
+ProgramLib::~ProgramLib() {
+    ProgramLib::instance = nullptr;
+#if CC_DEBUG
+    for (const auto& cache : _cache) {
+        if (cache.second->getRefCount() > 1) {
+            CC_LOG_WARNING("ProgramLib cache: %s ref_count is %d and may leak", cache.second->getName().c_str(), cache.second->getRefCount() );
+         }
+    }
+#endif
+}
 
 //
 /*static*/
@@ -281,17 +292,7 @@ ProgramLib::~ProgramLib() = default;
 ProgramLib *ProgramLib::instance = nullptr;
 
 ProgramLib *ProgramLib::getInstance() {
-    if (!ProgramLib::instance) {
-        ProgramLib::instance = ccnew ProgramLib();
-    }
     return ProgramLib::instance;
-}
-
-void ProgramLib::destroyInstance() {
-    if (ProgramLib::instance) {
-        delete ProgramLib::instance;
-        ProgramLib::instance = nullptr;
-    }
 }
 
 void ProgramLib::registerEffect(EffectAsset *effect) {

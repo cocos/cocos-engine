@@ -84,7 +84,9 @@ const char *getDeviceShaderVersion(const gfx::Device *device);
 class ProgramLib final {
 public:
     static ProgramLib *getInstance();
-    static void destroyInstance();
+    
+    ProgramLib();
+    ~ProgramLib();
 
     void registerEffect(EffectAsset *effect);
 
@@ -157,8 +159,6 @@ public:
 
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(ProgramLib);
-    ProgramLib();
-    ~ProgramLib();
 
     static ProgramLib *instance;
     Record<ccstd::string, IProgramInfo> _templates; // per shader
