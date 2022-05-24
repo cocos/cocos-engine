@@ -397,7 +397,7 @@ export class TerrainBlock {
         ];
 
         this._renderable._meshData = new RenderingSubMesh([vertexBuffer], gfxAttributes,
-            PrimitiveMode.TRIANGLE_LIST, this._terrain._getSharedIndexBuffer());
+            PrimitiveMode.TRIANGLE_LIST, this._terrain._createSharedIndexBuffer());
         this._renderable._model = (legacyCC.director.root as Root).createModel(scene.Model);
         this._renderable._model.createBoundingShape(this._bbMin, this._bbMax);
         this._renderable._model.node = this._renderable._model.transform = this._node;
@@ -2094,19 +2094,28 @@ export class Terrain extends Component {
     }
 
     /**
+     * @deprecated since v3.5.1, this is an engine private interface that will be removed in the future.
+     */
+    public _createSharedIndexBuffer () {
+        // initialize shared index buffer
+        const gfxDevice = legacyCC.director.root.device as Device;
+        const gfxBuffer = gfxDevice.createBuffer(new BufferInfo(
+            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.DEVICE,
+            Uint16Array.BYTES_PER_ELEMENT * this._lod._indexBuffer.length,
+            Uint16Array.BYTES_PER_ELEMENT,
+        ));
+        gfxBuffer.update(this._lod._indexBuffer);
+
+        return gfxBuffer;
+    }
+
+    /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _getSharedIndexBuffer () {
         if (this._sharedIndexBuffer == null) {
-            // initialize shared index buffer
-            const gfxDevice = legacyCC.director.root.device as Device;
-            this._sharedIndexBuffer = gfxDevice.createBuffer(new BufferInfo(
-                BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-                MemoryUsageBit.DEVICE,
-                Uint16Array.BYTES_PER_ELEMENT * this._lod._indexBuffer.length,
-                Uint16Array.BYTES_PER_ELEMENT,
-            ));
-            this._sharedIndexBuffer.update(this._lod._indexBuffer);
+            this._sharedIndexBuffer = this._createSharedIndexBuffer();
         }
 
         return this._sharedIndexBuffer;
