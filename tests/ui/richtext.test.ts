@@ -61,6 +61,11 @@ test('parse-richtext', () => {
     expect(htmlAttrArray.length).toStrictEqual(1);
     expect(htmlAttrArray[0].style.src).toStrictEqual('1 23');
 
+    attribute = "<img src = click = 'onclick' />文本中没有图片名，无法生成style对象";
+    htmlAttrArray = htmlTextParser.parse(attribute);
+    expect(htmlAttrArray.length).toStrictEqual(1);
+    expect(htmlAttrArray[0].text).toStrictEqual('文本中没有图片名，无法生成style对象');
+    
     // following tests are exceptional writing
 
     attribute = "<img ='1 23'/>"; // 'src' missing 
