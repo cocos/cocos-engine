@@ -100,7 +100,7 @@ export enum SystemEventType {
      * @en
      * The event type for mouse wheel events
      *
-     * @zh 当鼠标滚轮滚动时触发一次。
+     * @zh 当滚动鼠标滚轮或操作其它类似输入设备时会触发滚轮事件。
      */
     MOUSE_WHEEL = 'mouse-wheel',
 
