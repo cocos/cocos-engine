@@ -65,7 +65,7 @@ void genericConstructor(const v8::FunctionCallbackInfo<v8::Value> &v8args) {
 
     assert(!self->constructors.empty());
     for (auto &ctor : self->constructors) {
-        if (ctor->arg_count == -1 || ctor->arg_count == args.size()) {
+        if (ctor->argCount == -1 || ctor->argCount == args.size()) {
             ret = ctor->construct(state);
             if (ret) break;
         }
@@ -100,7 +100,7 @@ void genericAccessorSet(v8::Local<v8::Name> /*prop*/, v8::Local<v8::Value> jsVal
     se::State state(thisObject, args);
     ret = attr->set(state);
     if (!ret) {
-        SE_LOGE("[ERROR] Failed to invoke set %s, location: %s:%d\n", attr->attr_name.c_str(), __FILE__, __LINE__);
+        SE_LOGE("[ERROR] Failed to invoke set %s, location: %s:%d\n", attr->attrName.c_str(), __FILE__, __LINE__);
     }
 }
 template <typename ContextType>
@@ -115,7 +115,7 @@ void genericAccessorGet(v8::Local<v8::Name> /*prop*/,
     se::State state(thisObject);
     ret = attr->get(state);
     if (!ret) {
-        SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", attr->attr_name.c_str(), __FILE__, __LINE__);
+        SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", attr->attrName.c_str(), __FILE__, __LINE__);
     }
     se::internal::setReturnValue(state.rval(), v8args);
 }
@@ -147,15 +147,15 @@ bool class_<T>::install(se::Object *nsObject) {
     }
     // defineFunctions
     {
-        std::map<std::string, std::vector<intl::InstanceMethodBase *>> multimap;
+        ccstd::unordered_map<ccstd::string, ccstd::vector<intl::InstanceMethodBase *>> multimap;
         for (auto &method : _ctx->functions) {
             multimap[std::get<0>(method)].emplace_back(std::get<1>(method).get());
         }
         for (auto &method : multimap) {
             if (method.second.size() > 1) {
                 auto *overloaded = ccnew intl::InstanceMethodOverloaded;
-                overloaded->class_name = _ctx->className;
-                overloaded->method_name = method.first;
+                overloaded->className = _ctx->className;
+                overloaded->methodName = method.first;
                 for (auto *method : method.second) {
                     overloaded->functions.push_back(method);
                 }
@@ -167,15 +167,15 @@ bool class_<T>::install(se::Object *nsObject) {
     }
     // define static functions
     {
-        std::map<std::string, std::vector<intl::StaticMethodBase *>> multimap;
+        ccstd::unordered_map<ccstd::string, ccstd::vector<intl::StaticMethodBase *>> multimap;
         for (auto &method : _ctx->staticFunctions) {
             multimap[std::get<0>(method)].emplace_back(std::get<1>(method).get());
         }
         for (auto &method : multimap) {
             if (method.second.size() > 1) {
                 auto *overloaded = ccnew intl::StaticMethodOverloaded;
-                overloaded->class_name = _ctx->className;
-                overloaded->method_name = method.first;
+                overloaded->className = _ctx->className;
+                overloaded->methodName = method.first;
                 for (auto *method : method.second) {
                     overloaded->functions.push_back(method);
                 }

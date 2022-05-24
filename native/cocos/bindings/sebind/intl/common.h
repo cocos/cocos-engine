@@ -24,7 +24,6 @@
 ****************************************************************************/
 #pragma once
 
-#include <array>
 #include <cstdint>
 #include <tuple>
 #include <type_traits>
@@ -34,6 +33,9 @@
 #include "bindings/manual/jsb_global.h"
 
 #include "base/std/container/string.h"
+#include "base/std/container/vector.h"
+#include "base/std/container/array.h"
+#include "base/std/container/unordered_map.h"
 
 namespace sebind {
 
@@ -116,7 +118,6 @@ template <>
 struct FunctionWrapper<std::nullptr_t> {
     using type = std::nullptr_t;
     using return_type = std::nullptr_t;
-    ;
     using arg_list = TypeList<>;
     static constexpr size_t ARG_N = 0;
     template <typename C, typename... ARGS>
@@ -300,14 +301,14 @@ ResultType mapTupleArguments(se::Object *self, TupleIn &input, std::index_sequen
 
 template <size_t M, size_t N>
 struct BoolArrayAndAll {
-    static constexpr bool cal(const std::array<bool, N> &bools) {
+    static constexpr bool cal(const ccstd::array<bool, N> &bools) {
         return bools[M - 1] && BoolArrayAndAll<M - 1, N>::cal(bools);
     }
 };
 
 template <size_t N>
 struct BoolArrayAndAll<0, N> {
-    static constexpr bool cal(const std::array<bool, N> & /*unused*/) {
+    static constexpr bool cal(const ccstd::array<bool, N> & /*unused*/) {
         return true;
     }
 };
@@ -316,7 +317,7 @@ template <typename... ARGS, size_t... indexes>
 // NOLINTNEXTLINE
 bool convert_js_args_to_tuple(const se::ValueArray &jsArgs, std::tuple<ARGS...> &args, se::Object *thisObj, std::index_sequence<indexes...>) {
     constexpr static size_t ARG_N = sizeof...(ARGS);
-    std::array<bool, ARG_N> all = {sevalue_to_native(jsArgs[indexes], &std::get<indexes>(args).data, thisObj)...};
+    ccstd::array<bool, ARG_N> all = {sevalue_to_native(jsArgs[indexes], &std::get<indexes>(args).data, thisObj)...};
     return BoolArrayAndAll<ARG_N, ARG_N>::cal(all);
 }
 template <size_t... indexes>
@@ -326,7 +327,7 @@ bool convert_js_args_to_tuple(const se::ValueArray &jsArgs, std::tuple<> &args, 
 }
 
 struct ConstructorBase {
-    size_t arg_count = 0;
+    size_t argCount = 0;
     SeCallbackFnPtr bfnPtr{nullptr};
     virtual bool construct(se::State &state) {
         if (bfnPtr) {
@@ -336,9 +337,9 @@ struct ConstructorBase {
     }
 };
 struct InstanceMethodBase {
-    std::string class_name;
-    std::string method_name;
-    size_t arg_count;
+    ccstd::string className;
+    ccstd::string methodName;
+    size_t argCount;
     SeCallbackFnPtr bfnPtr{nullptr};
     virtual bool invoke(se::State &state) const {
         if (bfnPtr) {
@@ -352,8 +353,8 @@ struct FinalizerBase {
 };
 
 struct InstanceFieldBase {
-    std::string class_name;
-    std::string attr_name;
+    ccstd::string className;
+    ccstd::string attrName;
     SeCallbackFnPtr bfnSetPtr{nullptr};
     SeCallbackFnPtr bfnGetPtr{nullptr};
     virtual bool get(se::State &state) const {
@@ -367,8 +368,8 @@ struct InstanceFieldBase {
 };
 
 struct InstanceAttributeBase {
-    std::string class_name;
-    std::string attr_name;
+    ccstd::string className;
+    ccstd::string attrName;
     SeCallbackFnPtr bfnSetPtr{nullptr};
     SeCallbackFnPtr bfnGetPtr{nullptr};
     virtual bool get(se::State &state) const {
@@ -382,9 +383,9 @@ struct InstanceAttributeBase {
 };
 
 struct StaticMethodBase {
-    std::string class_name;
-    std::string method_name;
-    size_t arg_count;
+    ccstd::string className;
+    ccstd::string methodName;
+    size_t argCount;
     SeCallbackFnPtr bfnPtr{nullptr};
     virtual bool invoke(se::State &state) const {
         if (bfnPtr) return (*bfnPtr)(state);
@@ -392,8 +393,8 @@ struct StaticMethodBase {
     }
 };
 struct StaticAttributeBase {
-    std::string class_name;
-    std::string attr_name;
+    ccstd::string className;
+    ccstd::string attrName;
     SeCallbackFnPtr bfnSetPtr{nullptr};
     SeCallbackFnPtr bfnGetPtr{nullptr};
     virtual bool get(se::State &state) const {
@@ -479,7 +480,7 @@ struct Constructor<TypeList<T, ARGS...>> : ConstructorBase {
 template <typename T, typename... ARGS>
 struct Constructor<T *(*)(ARGS...)> : ConstructorBase {
     using type = T *(*)(ARGS...);
-    type func;
+    type func{nullptr};
     bool construct(se::State &state) override {
         if ((sizeof...(ARGS)) != state.args().size()) {
             return false;
@@ -503,7 +504,7 @@ template <typename T>
 struct Finalizer : FinalizerBase {
     using type = void (*)(T *);
     using arg_type = T;
-    type func;
+    type func{nullptr};
     void finalize(void *ptr) override {
         (*func)(reinterpret_cast<T *>(ptr));
     }
@@ -517,22 +518,22 @@ struct InstanceMethod<R (T::*)(ARGS...)> : InstanceMethodBase {
     constexpr static size_t ARG_N = sizeof...(ARGS);
     constexpr static bool RETURN_VOID = std::is_same<void, R>::value;
 
-    type func = nullptr;
+    type func{nullptr};
 
     template <bool>
     struct Invoker;
     template <>
     struct Invoker<true> {
         template <typename S, typename... ARGS2, size_t... indexes>
-        static void invoke(S *m, T *self, se::State & /*state*/, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> a) {
-            m->callWithTuple(self, args, a);
+        static void invoke(S *method, T *self, se::State & /*state*/, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> idx) {
+            method->callWithTuple(self, args, idx);
         }
     };
     template <>
     struct Invoker<false> {
         template <typename S, typename... ARGS2, size_t... indexes>
-        static void invoke(S *m, T *self, se::State &state, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> a) {
-            nativevalue_to_se(m->callWithTuple(self, args, a), state.rval(), state.thisObject());
+        static void invoke(S *method, T *self, se::State &state, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> idx) {
+            nativevalue_to_se(method->callWithTuple(self, args, idx), state.rval(), state.thisObject());
         }
     };
 
@@ -565,22 +566,22 @@ struct InstanceMethod<R (T::*)(ARGS...) const> : InstanceMethodBase {
     constexpr static size_t ARG_N = sizeof...(ARGS);
     constexpr static bool RETURN_VOID = std::is_same<void, R>::value;
 
-    type func = nullptr;
+    type func{nullptr};
 
     template <bool>
     struct Invoker;
     template <>
     struct Invoker<true> {
         template <typename S, typename... ARGS2, size_t... indexes>
-        static void invoke(S *m, T *self, se::State & /*state*/, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> a) {
-            m->callWithTuple(self, args, a);
+        static void invoke(S *method, T *self, se::State & /*state*/, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> idx) {
+            method->callWithTuple(self, args, idx);
         }
     };
     template <>
     struct Invoker<false> {
         template <typename S, typename... ARGS2, size_t... indexes>
-        static void invoke(S *m, T *self, se::State &state, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> a) {
-            nativevalue_to_se(m->callWithTuple(self, args, a), state.rval(), state.thisObject());
+        static void invoke(S *method, T *self, se::State &state, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> idx) {
+            nativevalue_to_se(method->callWithTuple(self, args, idx), state.rval(), state.thisObject());
         }
     };
 
@@ -613,22 +614,22 @@ struct InstanceMethod<R (*)(T *, ARGS...)> : InstanceMethodBase {
     constexpr static size_t ARG_N = sizeof...(ARGS);
     constexpr static bool RETURN_VOID = std::is_same<void, R>::value;
 
-    type func = nullptr;
+    type func{nullptr};
 
     template <bool>
     struct Invoker;
     template <>
     struct Invoker<true> {
         template <typename S, typename... ARGS2, size_t... indexes>
-        static void invoke(S *m, T *self, se::State & /*state*/, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> a) {
-            m->callWithTuple(self, args, a);
+        static void invoke(S *method, T *self, se::State & /*state*/, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> idx) {
+            method->callWithTuple(self, args, idx);
         }
     };
     template <>
     struct Invoker<false> {
         template <typename S, typename... ARGS2, size_t... indexes>
-        static void invoke(S *m, T *self, se::State &state, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> a) {
-            nativevalue_to_se(m->callWithTuple(self, args, a), state.rval(), state.thisObject());
+        static void invoke(S *method, T *self, se::State &state, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> idx) {
+            nativevalue_to_se(method->callWithTuple(self, args, idx), state.rval(), state.thisObject());
         }
     };
 
@@ -654,12 +655,12 @@ struct InstanceMethod<R (*)(T *, ARGS...)> : InstanceMethodBase {
 };
 
 struct InstanceMethodOverloaded : InstanceMethodBase {
-    std::vector<InstanceMethodBase *> functions;
+    ccstd::vector<InstanceMethodBase *> functions;
     bool invoke(se::State &state) const override {
         bool ret = false;
         auto argCount = state.args().size();
         for (auto *method : functions) {
-            if (method->arg_count == -1 || method->arg_count == argCount) {
+            if (method->argCount == -1 || method->argCount == argCount) {
                 ret = method->invoke(state);
                 if (ret) return true;
             }
@@ -674,7 +675,7 @@ struct InstanceField<F(T::*)> : InstanceFieldBase {
     using class_type = T;
     using return_type = std::remove_cv_t<F>;
 
-    type func;
+    type func{nullptr};
 
     bool get(se::State &state) const override {
         T *self = reinterpret_cast<T *>(state.nativeThisObject());
@@ -826,7 +827,7 @@ struct StaticMethod<R (*)(ARGS...)> : StaticMethodBase {
     constexpr static size_t ARG_N = sizeof...(ARGS);
     constexpr static bool RETURN_VOID = std::is_same<void, R>::value;
 
-    type func = nullptr;
+    type func{nullptr};
 
     template <bool>
     struct Invoker;
@@ -865,12 +866,12 @@ struct StaticMethod<R (*)(ARGS...)> : StaticMethodBase {
 };
 
 struct StaticMethodOverloaded : StaticMethodBase {
-    std::vector<StaticMethodBase *> functions;
+    ccstd::vector<StaticMethodBase *> functions;
     bool invoke(se::State &state) const override {
         bool ret = false;
         auto argCount = state.args().size();
         for (auto *method : functions) {
-            if (method->arg_count == -1 || method->arg_count == argCount) {
+            if (method->argCount == -1 || method->argCount == argCount) {
                 ret = method->invoke(state);
                 if (ret) return true;
             }
@@ -962,7 +963,8 @@ struct StaticAttribute<SAttributeAccessor<T, Getter, Setter>> : StaticAttributeB
     }
 
     bool set(se::State &state) const override {
-        if CC_CONSTEXPR(HAS_SETTER) {
+        if
+            CC_CONSTEXPR(HAS_SETTER) {
                 const auto &args = state.args();
                 HolderType<set_value_type, std::is_reference<set_value_type>::value> temp;
                 sevalue_to_native(args[0], &(temp.data), nullptr);
@@ -979,13 +981,13 @@ class ContextDB {
 public:
     // NOLINTNEXTLINE
     struct Context {
-        std::vector<std::tuple<ccstd::string, std::unique_ptr<InstanceAttributeBase>>> properties;
-        std::vector<std::tuple<ccstd::string, std::unique_ptr<InstanceFieldBase>>> fields;
-        std::vector<std::tuple<ccstd::string, std::unique_ptr<InstanceMethodBase>>> functions;
-        std::vector<std::tuple<ccstd::string, std::unique_ptr<StaticMethodBase>>> staticFunctions;
-        std::vector<std::tuple<ccstd::string, std::unique_ptr<StaticAttributeBase>>> staticProperties;
-        std::vector<std::unique_ptr<ConstructorBase>> constructors;
-        std::vector<std::unique_ptr<FinalizerBase>> finalizeCallbacks;
+        ccstd::vector<std::tuple<ccstd::string, std::unique_ptr<InstanceAttributeBase>>> properties;
+        ccstd::vector<std::tuple<ccstd::string, std::unique_ptr<InstanceFieldBase>>> fields;
+        ccstd::vector<std::tuple<ccstd::string, std::unique_ptr<InstanceMethodBase>>> functions;
+        ccstd::vector<std::tuple<ccstd::string, std::unique_ptr<StaticMethodBase>>> staticFunctions;
+        ccstd::vector<std::tuple<ccstd::string, std::unique_ptr<StaticAttributeBase>>> staticProperties;
+        ccstd::vector<std::unique_ptr<ConstructorBase>> constructors;
+        ccstd::vector<std::unique_ptr<FinalizerBase>> finalizeCallbacks;
         ccstd::string className;
         se::Class *kls = nullptr;
         // se::Object *                                                  nsObject    = nullptr;
@@ -996,7 +998,7 @@ public:
     static void reset();
 
 private:
-    std::map<ccstd::string, std::unique_ptr<Context>> _contexts;
+    ccstd::unordered_map<ccstd::string, std::unique_ptr<Context>> _contexts;
 };
 
 } // namespace intl

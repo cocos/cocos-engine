@@ -18,7 +18,8 @@ void doAssert(bool value, const std::string &message) {
 }
 
 void WriteLog(const std::string &message) {
-    std::cout << "[log] " << message << std::endl;
+    // std::cout << "[log] " << message << std::endl;
+    CC_LOG_DEBUG("[log] %s", message.c_str());
 }
 
 void successQuit(int code) {

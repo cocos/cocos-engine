@@ -40,7 +40,7 @@ void genericFunction(const v8::FunctionCallbackInfo<v8::Value> &v8args) {
     se::State state(thisObject, args);
     ret = method->invoke(state);
     if (!ret) {
-        SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", method->method_name.c_str(), __FILE__, __LINE__);
+        SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", method->methodName.c_str(), __FILE__, __LINE__);
     }
     se::internal::setReturnValue(state.rval(), v8args);
 }

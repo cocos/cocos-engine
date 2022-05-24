@@ -24,10 +24,7 @@
 ****************************************************************************/
 #pragma once
 
-#include <string>
-#include <tuple>
 #include <utility>
-#include <vector>
 #include "base/memory/Memory.h"
 #include "bindings/jswrapper/SeApi.h"
 #include "bindings/jswrapper/Value.h"
@@ -268,7 +265,7 @@ class_<T> &class_<T>::constructor() {
     using MTYPE = intl::TypeMapping<intl::TypeList<ARGS...>>;
     static_assert(intl::IsConstructibleWithTypeList<T, typename MTYPE::result_types>::value, "No matched constructor found");
     auto *constructp = ccnew CTYPE();
-    constructp->arg_count = MTYPE::NEW_ARGN;
+    constructp->argCount = MTYPE::NEW_ARGN;
     _ctx->constructors.emplace_back(constructp);
     return *this;
 }
@@ -280,7 +277,7 @@ class_<T> &class_<T>::constructor(F callback) {
     static_assert(std::is_same<typename FTYPE::return_type, T *>::value, "Function should return a instance pointer");
     using CTYPE = intl::Constructor<typename FTYPE::type>;
     auto *constructp = ccnew CTYPE();
-    constructp->arg_count = FTYPE::ARG_N;
+    constructp->argCount = FTYPE::ARG_N;
     constructp->func = callback;
     _ctx->constructors.emplace_back(constructp);
     return *this;
@@ -289,7 +286,7 @@ class_<T> &class_<T>::constructor(F callback) {
 template <typename T>
 class_<T> &class_<T>::constructor(SeCallbackFnPtr callback) {
     auto *constructp = ccnew intl::ConstructorBase();
-    constructp->arg_count = -1;
+    constructp->argCount = -1;
     constructp->bfnPtr = callback;
     _ctx->constructors.emplace_back(constructp);
     return *this;
@@ -309,9 +306,9 @@ class_<T> &class_<T>::function(const char *name, Method method) {
     using MTYPE = intl::InstanceMethod<Method>;
     static_assert(std::is_base_of<typename MTYPE::class_type, T>::value, "incorrect class type");
     auto *methodp = ccnew MTYPE();
-    methodp->method_name = name;
-    methodp->class_name = _ctx->className;
-    methodp->arg_count = MTYPE::ARG_N;
+    methodp->methodName = name;
+    methodp->className = _ctx->className;
+    methodp->argCount = MTYPE::ARG_N;
     methodp->func = method;
     _ctx->functions.emplace_back(name, methodp);
     return *this;
@@ -320,9 +317,9 @@ class_<T> &class_<T>::function(const char *name, Method method) {
 template <typename T>
 class_<T> &class_<T>::function(const char *name, SeCallbackFnPtr callback) {
     auto *methodp = ccnew intl::InstanceMethodBase();
-    methodp->method_name = name;
-    methodp->class_name = _ctx->className;
-    methodp->arg_count = -1;
+    methodp->methodName = name;
+    methodp->className = _ctx->className;
+    methodp->argCount = -1;
     methodp->bfnPtr = callback;
     _ctx->functions.emplace_back(name, methodp);
     return *this;
@@ -336,8 +333,8 @@ class_<T> &class_<T>::property(const char *name, Field field) {
     static_assert(std::is_base_of<typename FTYPE::class_type, T>::value, "class_type incorrect");
     auto *fieldp = ccnew FTYPE();
     fieldp->func = field;
-    fieldp->attr_name = name;
-    fieldp->class_name = _ctx->className;
+    fieldp->attrName = name;
+    fieldp->className = _ctx->className;
     _ctx->fields.emplace_back(name, fieldp);
     return *this;
 }
@@ -349,8 +346,8 @@ class_<T> &class_<T>::property(const char *name, Getter getter, Setter setter) {
     auto *attrp = ccnew ATYPE();
     attrp->getterPtr = ATYPE::HAS_GETTER ? getter : nullptr;
     attrp->setterPtr = ATYPE::HAS_SETTER ? setter : nullptr;
-    attrp->class_name = _ctx->className;
-    attrp->attr_name = name;
+    attrp->className = _ctx->className;
+    attrp->attrName = name;
     _ctx->properties.emplace_back(name, attrp);
     return *this;
 }
@@ -360,8 +357,8 @@ class_<T> &class_<T>::property(const char *name, SeCallbackFnPtr getter, SeCallb
     auto *attrp = ccnew intl::InstanceAttributeBase();
     attrp->bfnGetPtr = getter;
     attrp->bfnSetPtr = setter;
-    attrp->class_name = _ctx->className;
-    attrp->attr_name = name;
+    attrp->className = _ctx->className;
+    attrp->attrName = name;
     _ctx->properties.emplace_back(name, attrp);
     return *this;
 }
@@ -371,9 +368,9 @@ template <typename Method>
 class_<T> &class_<T>::staticFunction(const char *name, Method method) {
     using MTYPE = intl::StaticMethod<Method>;
     auto *methodp = ccnew MTYPE();
-    methodp->method_name = name;
-    methodp->class_name = _ctx->className;
-    methodp->arg_count = MTYPE::ARG_N;
+    methodp->methodName = name;
+    methodp->className = _ctx->className;
+    methodp->argCount = MTYPE::ARG_N;
     methodp->func = method;
     _ctx->staticFunctions.emplace_back(name, methodp);
     return *this;
@@ -382,9 +379,9 @@ class_<T> &class_<T>::staticFunction(const char *name, Method method) {
 template <typename T>
 class_<T> &class_<T>::staticFunction(const char *name, SeCallbackFnPtr callback) {
     auto *methodp = ccnew intl::StaticMethodBase();
-    methodp->method_name = name;
-    methodp->class_name = _ctx->className;
-    methodp->arg_count = -1;
+    methodp->methodName = name;
+    methodp->className = _ctx->className;
+    methodp->argCount = -1;
     methodp->bfnPtr = callback;
     _ctx->staticFunctions.emplace_back(name, methodp);
     return *this;
@@ -397,8 +394,8 @@ class_<T> &class_<T>::staticProperty(const char *name, Getter getter, Setter set
     auto *attrp = ccnew ATYPE();
     attrp->getterPtr = ATYPE::HAS_GETTER ? getter : nullptr;
     attrp->setterPtr = ATYPE::HAS_SETTER ? setter : nullptr;
-    attrp->class_name = _ctx->className;
-    attrp->attr_name = name;
+    attrp->className = _ctx->className;
+    attrp->attrName = name;
     _ctx->staticProperties.emplace_back(name, attrp);
     return *this;
 }
@@ -408,8 +405,8 @@ class_<T> &class_<T>::staticProperty(const char *name, SeCallbackFnPtr getter, S
     auto *attrp = ccnew intl::StaticAttributeBase();
     attrp->bfnGetPtr = getter;
     attrp->bfnSetPtr = setter;
-    attrp->class_name = _ctx->className;
-    attrp->attr_name = name;
+    attrp->className = _ctx->className;
+    attrp->attrName = name;
     _ctx->staticProperties.emplace_back(name, attrp);
     return *this;
 }
