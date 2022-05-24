@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 import { legacyCC } from '../../core/global-exports';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 

@@ -33,6 +33,7 @@ namespace gfx {
 class Device;
 class RenderPass;
 class CommandBuffer;
+class DescriptorSet;
 } // namespace gfx
 
 namespace pipeline {
@@ -44,7 +45,7 @@ public:
     RenderInstancedQueue()           = default;
     ~RenderInstancedQueue() override = default;
 
-    void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer);
+    void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer, gfx::DescriptorSet *ds = nullptr, uint offset = 0);
     void add(InstancedBuffer *instancedBuffer);
     void uploadBuffers(gfx::CommandBuffer *cmdBuffer);
     void clear();

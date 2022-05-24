@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { PipelineLayout } from './pipeline-layout';
 import { RenderPass } from './render-pass';
 import { Shader } from './shader';

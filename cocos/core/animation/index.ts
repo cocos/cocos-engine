@@ -42,3 +42,4 @@ export {
 } from './animation-component';
 export * from './transform-utils';
 export { animation };
+export type { ILerpable } from './types';

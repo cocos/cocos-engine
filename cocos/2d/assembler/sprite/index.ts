@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { Renderable2D } from '../../framework/renderable-2d';
 import { IAssemblerManager } from '../../renderer/base';
 import { Sprite } from '../../components';

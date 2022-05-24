@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { CommandBuffer } from './command-buffer';
 import { GFXObject, ObjectType, QueueType, QueueInfo } from './define';
 

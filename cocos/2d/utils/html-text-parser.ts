@@ -172,6 +172,7 @@ export class HtmlTextParser {
 
         header = /^(img(\s)*src(\s)*=[^>]+\/)/.exec(attribute);
         let remainingArgument = '';
+        let rightQuot = -1;
         if (header && header[0].length > 0) {
             tagName = header[0].trim();
             if (tagName.startsWith('img') && tagName[tagName.length - 1] === '/') {
@@ -184,7 +185,10 @@ export class HtmlTextParser {
                     tagName = attribute.substr(0, header[0].length);
                     // remove space and = character
                     remainingArgument = attribute.substring(tagName.length).trim();
-                    nextSpace = remainingArgument.indexOf(' ');
+
+                    rightQuot = this.getRightQuotationIndex(remainingArgument);
+
+                    nextSpace = remainingArgument.indexOf(' ', rightQuot + 1 >= remainingArgument.length ? -1 : rightQuot + 1);
 
                     tagValue = (nextSpace > -1) ? remainingArgument.substr(0, nextSpace) : remainingArgument;
                     tagName = tagName.replace(/[^a-zA-Z]/g, '').trim();
@@ -306,6 +310,21 @@ export class HtmlTextParser {
         }
 
         return obj;
+    }
+
+    private getRightQuotationIndex (remainingArgument: string) {
+        let leftQuot = -1;
+        let rightQuot = -1;
+        // Skip a pair of quotations for avoiding spaces in image name are detected.
+        leftQuot = remainingArgument.indexOf('\'');
+        if (leftQuot > -1) {
+            rightQuot = remainingArgument.indexOf('\'', leftQuot + 1 >= remainingArgument.length ? -1 : leftQuot + 1);
+        } else {
+            leftQuot = remainingArgument.indexOf('"');
+            rightQuot = remainingArgument.indexOf('"', leftQuot + 1 >= remainingArgument.length ? -1 : leftQuot + 1);
+        }
+
+        return rightQuot;
     }
 
     private _processEventHandler (eventString: string) {

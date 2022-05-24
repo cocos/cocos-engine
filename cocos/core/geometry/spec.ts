@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 /**
  * @en
  * The raycast mode.

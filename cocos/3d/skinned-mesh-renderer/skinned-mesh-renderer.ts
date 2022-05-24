@@ -72,7 +72,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
     /**
      * @en The skinning root. (The node where the controlling Animation is located)
-     * 骨骼根节点的引用，对应控制此模型的动画组件所在节点。
+     * @zh 骨骼根节点的引用，对应控制此模型的动画组件所在节点。
      */
     @type(Node)
     @tooltip('i18n:model.skinning_root')

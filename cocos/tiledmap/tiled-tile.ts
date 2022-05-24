@@ -24,8 +24,6 @@
  THE SOFTWARE.
  */
 
-
-
 /**
  * @en TiledTile can control the specified map tile.
  * It will apply the node rotation, scale, translate to the map tile.

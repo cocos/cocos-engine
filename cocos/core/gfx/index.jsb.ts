@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 declare const gfx: any;
 
 import { legacyCC } from '../global-exports';

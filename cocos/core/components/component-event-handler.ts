@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { ccclass, type, serializable, editable, tooltip } from 'cc.decorator';
 import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';

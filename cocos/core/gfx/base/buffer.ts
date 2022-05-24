@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import {
     BufferFlagBit,
     BufferFlags,

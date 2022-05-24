@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import {
     ccclass, type, serializable, override,
 } from 'cc.decorator';

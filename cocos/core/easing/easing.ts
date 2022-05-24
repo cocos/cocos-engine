@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 export function constant () {
     return 0;
 }

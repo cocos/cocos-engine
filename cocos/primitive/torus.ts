@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { Vec3 } from '../core/math';
 import { IGeometryOptions } from './define';
 
@@ -33,9 +31,9 @@ import { IGeometryOptions } from './define';
  * 环面参数选项。
  */
 interface ITorusOptions extends IGeometryOptions {
-  radialSegments: number;
-  tubularSegments: number;
-  arc: number;
+    radialSegments: number;
+    tubularSegments: number;
+    arc: number;
 }
 
 /**

@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { Event } from './event';
 import { SystemEventTypeUnion, SystemEventType } from '../event-enum';
 import { KeyCode } from '../key-code';

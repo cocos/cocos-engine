@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 import { Mask } from './mask';
 import { Label } from './label';
 import { LabelOutline } from './label-outline';

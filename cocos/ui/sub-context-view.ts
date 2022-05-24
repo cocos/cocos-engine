@@ -166,7 +166,7 @@ export class SubContextView extends Component {
                 }
             }
             sharedCanvas.width = designWidth;
-            sharedCanvas.height = designWidth;
+            sharedCanvas.height = designHeight;
         }
     }
 

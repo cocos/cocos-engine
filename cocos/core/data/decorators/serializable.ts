@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { EDITOR, TEST } from 'internal:constants';
 import { emptyDecorator, LegacyPropertyDecorator } from './utils';
 import { getOrCreatePropertyStash } from './property';

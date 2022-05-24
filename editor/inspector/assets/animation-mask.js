@@ -215,7 +215,7 @@ exports.ready = function() {
             timestamp: rawTimestamp,
             type: 'asset',
             assetFilter: {
-                importer: 'fbx',
+                importer: ['fbx', 'gltf'],
             },
             events: {
                 async confirm(uuid) {

@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import * as _decorator from './class-decorator';
 import { legacyCC } from '../global-exports';
 

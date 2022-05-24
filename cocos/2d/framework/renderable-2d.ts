@@ -23,7 +23,6 @@
  THE SOFTWARE.
 */
 
-
 import { EDITOR } from 'internal:constants';
 import { ccclass, executeInEditMode, requireComponent, disallowMultiple, tooltip,
     type, displayOrder, serializable, override, visible, displayName, disallowAnimation } from 'cc.decorator';
@@ -116,7 +115,7 @@ export class Renderable2D extends RenderableComponent {
     /**
      * @en The blend factor enums
      * @zh 混合模式枚举类型
-     * @see [[BlendFactor]]
+     * @see [[gfx.BlendFactor]]
      */
     public static BlendState = BlendFactor;
     /**

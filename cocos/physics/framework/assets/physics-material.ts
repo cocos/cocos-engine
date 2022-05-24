@@ -25,8 +25,6 @@
 
 // @ts-check
 
-
-
 import { ccclass, editable, serializable } from 'cc.decorator';
 import { Asset } from '../../../core/assets/asset';
 import { math } from '../../../core';

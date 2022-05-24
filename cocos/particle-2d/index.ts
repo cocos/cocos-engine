@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { ParticleSystem2D } from './particle-system-2d';
 import { MotionStreak } from './motion-streak-2d';
 import { MotionStreakAssemblerManager } from './motion-streak-2d-assembler';

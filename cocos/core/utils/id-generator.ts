@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { EDITOR } from 'internal:constants';
 
 const NonUuidMark = '.';

@@ -1,0 +1,13 @@
+struct LightingResult
+{
+  // material-dependent lighting data
+  vec3 diffuseColorWithLighting, specularColorWithLighting;
+
+  // pure lighting
+  vec3 directDiffuse, directSpecular;
+  vec3 environmentDiffuse, environmentSpecular;
+  float shadow, ao;
+  vec3 lightmapColor;
+  vec3 emissive;
+  //vec3 transmittance, scattered;
+};
