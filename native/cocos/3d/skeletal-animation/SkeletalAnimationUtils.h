@@ -42,8 +42,8 @@ class Mesh;
 
 // _chunkIdxMap[key] = skeleton ^ clips[i]
 struct IChunkContent {
-    uint64_t skeleton{0};
-    ccstd::vector<uint64_t> clips;
+    uint32_t skeleton{0U};
+    ccstd::vector<uint32_t> clips;
 };
 
 struct ICustomJointTextureLayout {

@@ -159,7 +159,7 @@ void JointTexturePool::clear() {
 
 void JointTexturePool::registerCustomTextureLayouts(const ccstd::vector<ICustomJointTextureLayout> &layouts) {
     for (const auto &layout : layouts) {
-        auto chunkIdx = static_cast<index_t>(_customPool->createChunk(layout.textureLength));
+        uint32_t chunkIdx = _customPool->createChunk(layout.textureLength);
         for (const auto &content : layout.contents) {
             auto skeleton = content.skeleton;
             _chunkIdxMap[skeleton] = chunkIdx; // include default pose too
