@@ -42,7 +42,6 @@ struct Error {
     ccstd::optional<ccstd::string> msg;
 };
 
-
 struct BoundingBox {
     Vec3 min;
     Vec3 max;

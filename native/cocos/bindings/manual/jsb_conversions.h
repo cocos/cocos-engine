@@ -29,16 +29,16 @@
 #include <functional>
 #include <type_traits>
 #include <utility>
+#include "base/Macros.h"
+#include "base/Ptr.h"
+#include "base/RefCounted.h"
+#include "base/std/any.h"
+#include "base/std/container/vector.h"
+#include "base/std/optional.h"
+#include "base/std/variant.h"
 #include "bindings/jswrapper/HandleObject.h"
 #include "bindings/jswrapper/SeApi.h"
 #include "bindings/manual/jsb_classtype.h"
-#include "base/std/any.h"
-#include "base/Macros.h"
-#include "base/std/optional.h"
-#include "base/RefCounted.h"
-#include "base/Ptr.h"
-#include "base/std/variant.h"
-#include "base/std/container/vector.h"
 #include "jsb_conversions_spec.h"
 
 #if CC_USE_SPINE
@@ -1321,12 +1321,12 @@ bool nativevalue_to_se_args(se::ValueArray &array, T &x) { // NOLINT(readability
     return nativevalue_to_se(x, array[i], nullptr);
 }
 template <int i, typename T, typename... Args>
-bool nativevalue_to_se_args(se::ValueArray &array, T &x, Args &... args) { // NOLINT(readability-identifier-naming)
+bool nativevalue_to_se_args(se::ValueArray &array, T &x, Args &...args) { // NOLINT(readability-identifier-naming)
     return nativevalue_to_se_args<i, T>(array, x) && nativevalue_to_se_args<i + 1, Args...>(array, args...);
 }
 
 template <typename... Args>
-bool nativevalue_to_se_args_v(se::ValueArray &array, Args &... args) { // NOLINT(readability-identifier-naming)
+bool nativevalue_to_se_args_v(se::ValueArray &array, Args &...args) { // NOLINT(readability-identifier-naming)
     return nativevalue_to_se_args<0, Args...>(array, args...);
 }
 

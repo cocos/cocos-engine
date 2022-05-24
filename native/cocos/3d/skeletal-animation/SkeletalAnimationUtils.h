@@ -54,7 +54,7 @@ struct ICustomJointTextureLayout {
 struct IInternalJointAnimInfo {
     ccstd::optional<Mat4> downstream;               // downstream default pose, if present
     ccstd::optional<ccstd::vector<Mat4>> curveData; // the nearest animation curve, if present
-    index_t bindposeIdx{0};                      // index of the actual bindpose to use
+    index_t bindposeIdx{0};                         // index of the actual bindpose to use
     ccstd::optional<Mat4> bindposeCorrection;       // correction factor from the original bindpose
 };
 

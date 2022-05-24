@@ -29,8 +29,8 @@
 #include <memory>
 #include <type_traits>
 #include "base/TypeDef.h"
-#include "bindings/jswrapper/Object.h"
 #include "base/std/variant.h"
+#include "bindings/jswrapper/Object.h"
 #include "core/ArrayBuffer.h"
 
 namespace cc {
@@ -314,7 +314,7 @@ template <typename T>
 T getTypedArrayValue(const TypedArray &arr, uint32_t idx) {
 #define TYPEDARRAY_GET_VALUE(type)            \
     do {                                      \
-        auto *p = ccstd::get_if<type>(&arr);     \
+        auto *p = ccstd::get_if<type>(&arr);  \
         if (p != nullptr) {                   \
             return static_cast<T>((*p)[idx]); \
         }                                     \
@@ -337,12 +337,12 @@ void setTypedArrayValue(TypedArray &arr, uint32_t idx, const TypedArrayElementTy
 
 template <typename T>
 T &getTypedArrayValueRef(const TypedArray &arr, uint32_t idx) {
-#define TYPEDARRAY_GET_VALUE_REF(type)    \
-    do {                                  \
+#define TYPEDARRAY_GET_VALUE_REF(type)       \
+    do {                                     \
         auto *p = ccstd::get_if<type>(&arr); \
-        if (p != nullptr) {               \
-            return (*p)[idx];             \
-        }                                 \
+        if (p != nullptr) {                  \
+            return (*p)[idx];                \
+        }                                    \
     } while (false)
 
     TYPEDARRAY_GET_VALUE_REF(Float32Array);
@@ -358,12 +358,12 @@ T &getTypedArrayValueRef(const TypedArray &arr, uint32_t idx) {
 
 template <typename T>
 T getTypedArrayElementValue(const TypedArrayElementType &element) {
-#define CAST_TO_T(type)                       \
-    do {                                      \
+#define CAST_TO_T(type)                          \
+    do {                                         \
         auto *p = ccstd::get_if<type>(&element); \
-        if (p != nullptr) {                   \
-            return static_cast<T>(*p);        \
-        }                                     \
+        if (p != nullptr) {                      \
+            return static_cast<T>(*p);           \
+        }                                        \
     } while (false)
 
     CAST_TO_T(float);

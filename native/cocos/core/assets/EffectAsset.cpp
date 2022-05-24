@@ -23,10 +23,10 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "cocos.h"
-#include "engine/BaseEngine.h"
 #include "core/assets/EffectAsset.h"
+#include "cocos.h"
 #include "core/Root.h"
+#include "engine/BaseEngine.h"
 #include "renderer/core/ProgramLib.h"
 
 namespace cc {

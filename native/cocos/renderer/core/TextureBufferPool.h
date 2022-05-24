@@ -53,9 +53,9 @@ struct ITextureBufferHandle {
 
 struct ITextureBufferPoolInfo {
     gfx::Format format{gfx::Format::UNKNOWN}; // target texture format
-    ccstd::optional<bool> inOrderFree;           // will the handles be freed exactly in the order of their allocation?
-    ccstd::optional<uint32_t> alignment;         // the data alignment for each handle allocated, in bytes
-    ccstd::optional<roundUpType> roundUpFn;      // given a target size, how will the actual texture size round up?
+    ccstd::optional<bool> inOrderFree;        // will the handles be freed exactly in the order of their allocation?
+    ccstd::optional<uint32_t> alignment;      // the data alignment for each handle allocated, in bytes
+    ccstd::optional<roundUpType> roundUpFn;   // given a target size, how will the actual texture size round up?
 };
 
 class TextureBufferPool : public RefCounted {

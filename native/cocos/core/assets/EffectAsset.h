@@ -45,10 +45,10 @@ using IPropertyHandleInfo = std::tuple<ccstd::string, uint32_t, gfx::Type>;
 using IPropertyValue = ccstd::optional<ccstd::variant<ccstd::vector<float>, ccstd::string>>;
 
 struct IPropertyInfo {
-    int32_t type;                                 // auto-extracted from shader
+    int32_t type;                                    // auto-extracted from shader
     ccstd::optional<IPropertyHandleInfo> handleInfo; // auto-generated from 'target'
     ccstd::optional<uint64_t> samplerHash;           // auto-generated from 'sampler'
-    IPropertyValue value;                         // default value
+    IPropertyValue value;                            // default value
     ccstd::optional<bool> linear;                    // whether to convert the input to linear space first before applying
 };
 

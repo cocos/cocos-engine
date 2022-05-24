@@ -84,7 +84,7 @@ const char *getDeviceShaderVersion(const gfx::Device *device);
 class ProgramLib final {
 public:
     static ProgramLib *getInstance();
-    
+
     ProgramLib();
     ~ProgramLib();
 

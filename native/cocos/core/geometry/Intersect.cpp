@@ -283,7 +283,7 @@ float narrowphase(float *minDis, const Float32Array &vb, const IBArray &ib, gfx:
         }
         return *minDis;
     },
-                     ib);
+                        ib);
 }
 } // namespace
 

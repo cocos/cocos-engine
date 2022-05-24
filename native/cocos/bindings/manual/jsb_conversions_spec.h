@@ -23,13 +23,13 @@
 
 #include "base/Ptr.h"
 #include "base/Value.h"
-#include "base/std/container/unordered_map.h"
-#include "bindings/jswrapper/SeApi.h"
 #include "base/std/any.h"
+#include "base/std/container/unordered_map.h"
 #include "base/std/optional.h"
 #include "base/std/variant.h"
-#include "core/assets/AssetsModuleHeader.h"
+#include "bindings/jswrapper/SeApi.h"
 #include "core/TypedArray.h"
+#include "core/assets/AssetsModuleHeader.h"
 #include "core/assets/RenderingSubMesh.h"
 
 #if CC_USE_PHYSICS_PHYSX
@@ -334,7 +334,7 @@ inline bool sevalue_to_native(const se::Value &from, cc::ValueMap *to, se::Objec
 
 bool sevalue_to_native(const se::Value &from, ccstd::vector<bool> *to, se::Object * /*ctx*/); // NOLINT(readability-identifier-naming)
 
-bool sevalue_to_native(const se::Value &from, ccstd::vector<unsigned char> *to, se::Object * /*ctx*/);                // NOLINT(readability-identifier-naming)
+bool sevalue_to_native(const se::Value &from, ccstd::vector<unsigned char> *to, se::Object * /*ctx*/);                   // NOLINT(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &from, ccstd::variant<ccstd::vector<float>, ccstd::string> *to, se::Object *ctx); // NOLINT(readability-identifier-naming)
 inline bool sevalue_to_native(const se::Value & /*from*/, ccstd::monostate * /*to*/, se::Object * /*ctx*/) {             // NOLINT(readability-identifier-naming)
     // nothing todo
