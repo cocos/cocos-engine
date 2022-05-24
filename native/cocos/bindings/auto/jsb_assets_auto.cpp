@@ -543,8 +543,8 @@ static bool js_assets_Asset_deserialize(se::State& s) // NOLINT(readability-iden
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 2) {
-        HolderType<cc::any, true> arg0 = {};
-        HolderType<cc::any, true> arg1 = {};
+        HolderType<ccstd::any, true> arg0 = {};
+        HolderType<ccstd::any, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_assets_Asset_deserialize : Error processing arguments");
@@ -583,7 +583,7 @@ static bool js_assets_Asset_getNativeAsset(se::State& s) // NOLINT(readability-i
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cc::any result = cobj->getNativeAsset();
+        ccstd::any result = cobj->getNativeAsset();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_assets_Asset_getNativeAsset : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -724,10 +724,10 @@ static bool js_assets_Asset_serialize(se::State& s) // NOLINT(readability-identi
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<cc::any, true> arg0 = {};
+        HolderType<ccstd::any, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_assets_Asset_serialize : Error processing arguments");
-        cc::any result = cobj->serialize(arg0.value());
+        ccstd::any result = cobj->serialize(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_assets_Asset_serialize : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -746,7 +746,7 @@ static bool js_assets_Asset_setNativeAsset(se::State& s) // NOLINT(readability-i
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<cc::any, true> arg0 = {};
+        HolderType<ccstd::any, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_assets_Asset_setNativeAsset : Error processing arguments");
         cobj->setNativeAsset(arg0.value());
@@ -14705,205 +14705,6 @@ bool js_register_assets_BuiltinResMgr(se::Object* obj) // NOLINT(readability-ide
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_MorphRenderingInstance_proto = nullptr; // NOLINT
-se::Class* __jsb_cc_MorphRenderingInstance_class = nullptr;  // NOLINT
-
-static bool js_assets_MorphRenderingInstance_adaptPipelineState(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::MorphRenderingInstance>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_MorphRenderingInstance_adaptPipelineState : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        HolderType<int, false> arg0 = {};
-        HolderType<cc::gfx::DescriptorSet*, false> arg1 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_assets_MorphRenderingInstance_adaptPipelineState : Error processing arguments");
-        cobj->adaptPipelineState(arg0.value(), arg1.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_assets_MorphRenderingInstance_adaptPipelineState)
-
-static bool js_assets_MorphRenderingInstance_destroy(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::MorphRenderingInstance>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_MorphRenderingInstance_destroy : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->destroy();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_assets_MorphRenderingInstance_destroy)
-
-static bool js_assets_MorphRenderingInstance_requiredPatches(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::MorphRenderingInstance>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_MorphRenderingInstance_requiredPatches : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<int, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_assets_MorphRenderingInstance_requiredPatches : Error processing arguments");
-        std::vector<cc::scene::IMacroPatch> result = cobj->requiredPatches(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_assets_MorphRenderingInstance_requiredPatches : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_assets_MorphRenderingInstance_requiredPatches)
-
-static bool js_assets_MorphRenderingInstance_setWeights(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::MorphRenderingInstance>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_MorphRenderingInstance_setWeights : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        HolderType<int, false> arg0 = {};
-        HolderType<std::vector<float>, true> arg1 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_assets_MorphRenderingInstance_setWeights : Error processing arguments");
-        cobj->setWeights(arg0.value(), arg1.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_assets_MorphRenderingInstance_setWeights)
-static bool js_cc_MorphRenderingInstance_finalize(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_cc_MorphRenderingInstance_finalize)
-
-bool js_register_assets_MorphRenderingInstance(se::Object* obj) // NOLINT(readability-identifier-naming)
-{
-    auto* cls = se::Class::create("MorphRenderingInstance", obj, nullptr, nullptr);
-
-#if CC_DEBUG
-    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
-#endif
-    cls->defineFunction("adaptPipelineState", _SE(js_assets_MorphRenderingInstance_adaptPipelineState));
-    cls->defineFunction("destroy", _SE(js_assets_MorphRenderingInstance_destroy));
-    cls->defineFunction("requiredPatches", _SE(js_assets_MorphRenderingInstance_requiredPatches));
-    cls->defineFunction("setWeights", _SE(js_assets_MorphRenderingInstance_setWeights));
-    cls->defineFinalizeFunction(_SE(js_cc_MorphRenderingInstance_finalize));
-    cls->install();
-    JSBClassType::registerClass<cc::MorphRenderingInstance>(cls);
-
-    __jsb_cc_MorphRenderingInstance_proto = cls->getProto();
-    __jsb_cc_MorphRenderingInstance_class = cls;
-
-
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-se::Object* __jsb_cc_MorphRendering_proto = nullptr; // NOLINT
-se::Class* __jsb_cc_MorphRendering_class = nullptr;  // NOLINT
-
-static bool js_assets_MorphRendering_createInstance(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::MorphRendering>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_MorphRendering_createInstance : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::MorphRenderingInstance* result = cobj->createInstance();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_assets_MorphRendering_createInstance : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_assets_MorphRendering_createInstance)
-static bool js_cc_MorphRendering_finalize(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_cc_MorphRendering_finalize)
-
-bool js_register_assets_MorphRendering(se::Object* obj) // NOLINT(readability-identifier-naming)
-{
-    auto* cls = se::Class::create("MorphRendering", obj, nullptr, nullptr);
-
-#if CC_DEBUG
-    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
-#endif
-    cls->defineFunction("createInstance", _SE(js_assets_MorphRendering_createInstance));
-    cls->defineFinalizeFunction(_SE(js_cc_MorphRendering_finalize));
-    cls->install();
-    JSBClassType::registerClass<cc::MorphRendering>(cls);
-
-    __jsb_cc_MorphRendering_proto = cls->getProto();
-    __jsb_cc_MorphRendering_class = cls;
-
-
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-se::Object* __jsb_cc_StdMorphRendering_proto = nullptr; // NOLINT
-se::Class* __jsb_cc_StdMorphRendering_class = nullptr;  // NOLINT
-
-SE_DECLARE_FINALIZE_FUNC(js_cc_StdMorphRendering_finalize)
-
-static bool js_assets_StdMorphRendering_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Mesh* arg0 = nullptr;
-    cc::gfx::Device* arg1 = nullptr;
-    ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-    ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_assets_StdMorphRendering_constructor : Error processing arguments");
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::StdMorphRendering, arg0, arg1);
-    s.thisObject()->setPrivateObject(ptr);
-    return true;
-}
-SE_BIND_CTOR(js_assets_StdMorphRendering_constructor, __jsb_cc_StdMorphRendering_class, js_cc_StdMorphRendering_finalize)
-
-static bool js_cc_StdMorphRendering_finalize(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_cc_StdMorphRendering_finalize)
-
-bool js_register_assets_StdMorphRendering(se::Object* obj) // NOLINT(readability-identifier-naming)
-{
-    auto* cls = se::Class::create("StdMorphRendering", obj, __jsb_cc_MorphRendering_proto, _SE(js_assets_StdMorphRendering_constructor));
-
-#if CC_DEBUG
-    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
-#endif
-    cls->defineFinalizeFunction(_SE(js_cc_StdMorphRendering_finalize));
-    cls->install();
-    JSBClassType::registerClass<cc::StdMorphRendering>(cls);
-
-    __jsb_cc_StdMorphRendering_proto = cls->getProto();
-    __jsb_cc_StdMorphRendering_class = cls;
-
-
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
 se::Object* __jsb_cc_IMeshBufferView_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_IMeshBufferView_class = nullptr;  // NOLINT
 
@@ -15612,6 +15413,205 @@ bool js_register_assets_Morph(se::Object* obj) // NOLINT(readability-identifier-
 
     __jsb_cc_Morph_proto = cls->getProto();
     __jsb_cc_Morph_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_cc_MorphRenderingInstance_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_MorphRenderingInstance_class = nullptr;  // NOLINT
+
+static bool js_assets_MorphRenderingInstance_adaptPipelineState(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::MorphRenderingInstance>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_MorphRenderingInstance_adaptPipelineState : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<int, false> arg0 = {};
+        HolderType<cc::gfx::DescriptorSet*, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_MorphRenderingInstance_adaptPipelineState : Error processing arguments");
+        cobj->adaptPipelineState(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_assets_MorphRenderingInstance_adaptPipelineState)
+
+static bool js_assets_MorphRenderingInstance_destroy(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::MorphRenderingInstance>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_MorphRenderingInstance_destroy : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->destroy();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_assets_MorphRenderingInstance_destroy)
+
+static bool js_assets_MorphRenderingInstance_requiredPatches(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::MorphRenderingInstance>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_MorphRenderingInstance_requiredPatches : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<int, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_MorphRenderingInstance_requiredPatches : Error processing arguments");
+        std::vector<cc::scene::IMacroPatch> result = cobj->requiredPatches(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_MorphRenderingInstance_requiredPatches : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_assets_MorphRenderingInstance_requiredPatches)
+
+static bool js_assets_MorphRenderingInstance_setWeights(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::MorphRenderingInstance>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_MorphRenderingInstance_setWeights : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<int, false> arg0 = {};
+        HolderType<std::vector<float>, true> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_MorphRenderingInstance_setWeights : Error processing arguments");
+        cobj->setWeights(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_assets_MorphRenderingInstance_setWeights)
+static bool js_cc_MorphRenderingInstance_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_MorphRenderingInstance_finalize)
+
+bool js_register_assets_MorphRenderingInstance(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("MorphRenderingInstance", obj, nullptr, nullptr);
+
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
+    cls->defineFunction("adaptPipelineState", _SE(js_assets_MorphRenderingInstance_adaptPipelineState));
+    cls->defineFunction("destroy", _SE(js_assets_MorphRenderingInstance_destroy));
+    cls->defineFunction("requiredPatches", _SE(js_assets_MorphRenderingInstance_requiredPatches));
+    cls->defineFunction("setWeights", _SE(js_assets_MorphRenderingInstance_setWeights));
+    cls->defineFinalizeFunction(_SE(js_cc_MorphRenderingInstance_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::MorphRenderingInstance>(cls);
+
+    __jsb_cc_MorphRenderingInstance_proto = cls->getProto();
+    __jsb_cc_MorphRenderingInstance_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_cc_MorphRendering_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_MorphRendering_class = nullptr;  // NOLINT
+
+static bool js_assets_MorphRendering_createInstance(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::MorphRendering>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_MorphRendering_createInstance : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::MorphRenderingInstance* result = cobj->createInstance();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_MorphRendering_createInstance : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_assets_MorphRendering_createInstance)
+static bool js_cc_MorphRendering_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_MorphRendering_finalize)
+
+bool js_register_assets_MorphRendering(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("MorphRendering", obj, nullptr, nullptr);
+
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
+    cls->defineFunction("createInstance", _SE(js_assets_MorphRendering_createInstance));
+    cls->defineFinalizeFunction(_SE(js_cc_MorphRendering_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::MorphRendering>(cls);
+
+    __jsb_cc_MorphRendering_proto = cls->getProto();
+    __jsb_cc_MorphRendering_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_cc_StdMorphRendering_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_StdMorphRendering_class = nullptr;  // NOLINT
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_StdMorphRendering_finalize)
+
+static bool js_assets_StdMorphRendering_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::Mesh* arg0 = nullptr;
+    cc::gfx::Device* arg1 = nullptr;
+    ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+    ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_StdMorphRendering_constructor : Error processing arguments");
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::StdMorphRendering, arg0, arg1);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_assets_StdMorphRendering_constructor, __jsb_cc_StdMorphRendering_class, js_cc_StdMorphRendering_finalize)
+
+static bool js_cc_StdMorphRendering_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_StdMorphRendering_finalize)
+
+bool js_register_assets_StdMorphRendering(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("StdMorphRendering", obj, __jsb_cc_MorphRendering_proto, _SE(js_assets_StdMorphRendering_constructor));
+
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
+#endif
+    cls->defineFinalizeFunction(_SE(js_cc_StdMorphRendering_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::StdMorphRendering>(cls);
+
+    __jsb_cc_StdMorphRendering_proto = cls->getProto();
+    __jsb_cc_StdMorphRendering_class = cls;
 
 
     se::ScriptEngine::getInstance()->clearException();
