@@ -174,8 +174,8 @@ export class Tween<T> {
      * @param duration @en Tween time, in seconds @zh 缓动时间，单位为秒
      * @param props @en List of properties of tween @zh 缓动的属性列表
      * @param opts @en Optional functions of tween @zh 可选的缓动功能
-     * @param [opts.progress]
-     * @param [opts.easing]
+     * @param opts.progress @en Interpolation function @zh 缓动的速度插值函数
+     * @param opts.easing @en Tween function or a lambda @zh 缓动的曲线函数或lambda表达式
      */
     to (duration: number, props: ConstructorType<T>, opts?: ITweenOption): Tween<T> {
         opts = opts || Object.create(null);

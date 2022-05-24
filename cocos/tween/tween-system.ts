@@ -68,7 +68,7 @@ export class TweenSystem extends System {
      * The update will auto execute after all components update.
      * @zh
      * 此方法会在组件 update 之后自动执行。
-     * @param dt @en The ticked time @zh 间隔时间
+     * @param dt @en The delta time @zh 间隔时间
      */
     update (dt: number) {
         if (!EDITOR || legacyCC.GAME_VIEW || this._executeInEditMode) {
