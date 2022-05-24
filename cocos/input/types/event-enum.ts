@@ -100,7 +100,7 @@ export enum SystemEventType {
      * @en
      * The event type for mouse wheel events
      *
-     * @zh 手指开始触摸事件
+     * @zh 当鼠标滚轮滚动时触发一次。
      */
     MOUSE_WHEEL = 'mouse-wheel',
 
