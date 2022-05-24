@@ -26,11 +26,11 @@
 #include "platform/win32/modules/SystemWindow.h"
 #include <functional>
 #include "base/Log.h"
-#include "sdl2/SDL_clipboard.h"
 #include "bindings/event/EventDispatcher.h"
 #include "platform/IEventDispatch.h"
-#include "platform/win32/WindowsPlatform.h"
 #include "platform/SDLHelper.h"
+#include "platform/win32/WindowsPlatform.h"
+#include "sdl2/SDL_clipboard.h"
 
 namespace cc {
 SystemWindow::SystemWindow(IEventDispatch *delegate)
@@ -84,5 +84,4 @@ void SystemWindow::copyTextToClipboard(const ccstd::string &text) {
 SystemWindow::Size SystemWindow::getViewSize() const {
     return Size{static_cast<float>(_width), static_cast<float>(_height)};
 }
-
 } // namespace cc

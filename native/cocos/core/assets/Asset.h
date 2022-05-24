@@ -26,8 +26,8 @@
 #pragma once
 
 #include <functional>
-#include "cocos/base/Any.h"
-#include "cocos/base/Optional.h"
+#include "base/std/any.h"
+#include "base/std/optional.h"
 
 #include "base/Macros.h"
 #include "core/Types.h"
@@ -70,11 +70,11 @@ public:
      * @default null
      * @private
      */
-    virtual cc::any getNativeAsset() const {
+    virtual ccstd::any getNativeAsset() const {
         return _file;
     }
 
-    virtual void setNativeAsset(const cc::any &obj) {
+    virtual void setNativeAsset(const ccstd::any &obj) {
         _file = obj;
     }
 
@@ -99,9 +99,9 @@ public:
 
     virtual void onLoaded() {}
 
-    virtual void initDefault() { initDefault(cc::nullopt); }
+    virtual void initDefault() { initDefault(ccstd::nullopt); }
 
-    virtual void initDefault(const cc::optional<ccstd::string> &uuid);
+    virtual void initDefault(const ccstd::optional<ccstd::string> &uuid);
 
     virtual bool validate() const { return true; }
 
@@ -114,13 +114,13 @@ public:
     /**
      * @return
      */
-    virtual cc::any serialize(const cc::any & /*ctxForExporting*/) { return cc::any{}; };
+    virtual ccstd::any serialize(const ccstd::any & /*ctxForExporting*/) { return ccstd::any{}; };
 
     /**
      *
      * @param data
      */
-    virtual void deserialize(const cc::any &serializedData, const cc::any &handle) {}
+    virtual void deserialize(const ccstd::any &serializedData, const ccstd::any &handle) {}
 
     ccstd::string toString() const override { return _nativeUrl; }
 
@@ -146,7 +146,7 @@ public:
 protected:
     ccstd::string _uuid;
 
-    cc::any _file;
+    ccstd::any _file;
     uint32_t _assetRefCount{0};
 
     bool _loaded{true};

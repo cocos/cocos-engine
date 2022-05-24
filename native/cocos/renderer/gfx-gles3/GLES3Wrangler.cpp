@@ -73,11 +73,7 @@ static void *libgles = nullptr;
 
 bool gles3wOpen() {
     libegl = dlopen("libEGL.so", RTLD_LAZY | RTLD_GLOBAL);
-    #if __OHOS__
     libgles = dlopen("libGLESv3.so", RTLD_LAZY | RTLD_GLOBAL);
-    #else
-    libgles = dlopen("libGLESv2.so", RTLD_LAZY | RTLD_GLOBAL);
-    #endif
     return (libegl && libgles);
 }
 

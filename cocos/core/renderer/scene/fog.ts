@@ -76,6 +76,10 @@ export const FogType = Enum({
 
 const FOG_TYPE_NONE = FogType.LAYERED + 1;
 
+/**
+ * @en The fog representation in the render scene.
+ * @zh 渲染场景中的全局雾效配置
+ */
 export class Fog {
     /**
      * @zh 是否启用全局雾效

@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
-
 import { ccclass, serializable } from 'cc.decorator';
 import { Asset } from '../../core/assets/asset';
 import { IDynamicGeometry } from '../../primitive/define';
@@ -45,7 +40,8 @@ import {
     FormatInfos, FormatType, MemoryUsageBit, PrimitiveMode, getTypedArrayConstructor, DrawInfo,
 } from '../../core/gfx';
 import { Mat4, Quat, Vec3 } from '../../core/math';
-import { Morph, MorphRendering, createMorphRendering } from './morph';
+import { Morph } from './morph';
+import { MorphRendering, createMorphRendering } from './morph-rendering';
 
 function getIndexStrideCtor (stride: number) {
     switch (stride) {
@@ -669,8 +665,9 @@ export class Mesh extends Asset {
     }
 
     /**
-     * @en Get [[AABB]] bounds in the skeleton's bone space
-     * @zh 获取骨骼变换空间内下的 [[AABB]] 包围盒
+     * @en Get [[geometry.AABB]] bounds in the skeleton's bone space
+     * @zh 获取骨骼变换空间内下的 [[geometry.AABB]] 包围盒
+     * @param skeleton @en skeleton data @zh 骨骼信息
      * @param skeleton @en skeleton data @zh 骨骼信息
      */
     public getBoneSpaceBounds (skeleton: Skeleton) {

@@ -53,11 +53,15 @@ const myPatches = [
 
 /**
  * @en
- * The skinning model that is using baked animation.
+ * The skinning model that is using GPU baked animation.
  * @zh
- * 预烘焙动画的蒙皮模型。
+ * GPU 预烘焙动画的蒙皮模型。
  */
 export class BakedSkinningModel extends MorphModel {
+    /**
+     * @en The animation clip that have been uploaded
+     * @zh 已被上传的动画片段
+     */
     public uploadedAnim: AnimationClip | null | undefined = undefined; // uninitialized
 
     private _jointsMedium: IJointsInfo;
@@ -87,6 +91,7 @@ export class BakedSkinningModel extends MorphModel {
         super.destroy();
     }
 
+    // Override
     public bindSkeleton (skeleton: Skeleton | null = null, skinningRoot: Node | null = null, mesh: Mesh | null = null) {
         this._skeleton = skeleton;
         this._mesh = mesh;
@@ -104,6 +109,7 @@ export class BakedSkinningModel extends MorphModel {
         }
     }
 
+    // Override
     public updateTransform (stamp: number) {
         super.updateTransform(stamp);
 
@@ -118,7 +124,7 @@ export class BakedSkinningModel extends MorphModel {
         }
     }
 
-    // update fid buffer only when visible
+    // Override, update fid buffer only when visible
     public updateUBOs (stamp: number) {
         super.updateUBOs(stamp);
 
@@ -134,6 +140,21 @@ export class BakedSkinningModel extends MorphModel {
         return true;
     }
 
+    // Override
+    public getMacroPatches (subModelIndex: number): IMacroPatch[] | null {
+        const patches = super.getMacroPatches(subModelIndex);
+        return patches ? patches.concat(myPatches) : myPatches;
+    }
+
+    /**
+     * @en Pre-simulate and store the frames data of the given animation clip to a joint texture and upload it to GPU.
+     * Normally, it's automatically managed by [[SkeletalAnimationState]].
+     * But user can also use Joint Texture Layout Settings in the editor to manually organize the joint textures.
+     * @zh 预计算并存储一个指定动画片段的完整帧数据到一张骨骼贴图上，并将其上传到 GPU。
+     * 一般情况下 [[SkeletalAnimationState]] 会自动管理所有骨骼贴图，但用户也可以使用编辑器的骨骼贴图布局设置面板来手动管理所有骨骼贴图。
+     * @param anim @en The animation clip to be uploaded to the joint texture. @zh 需要上传到骨骼贴图上的动画片段。
+     * @returns void
+     */
     public uploadAnimation (anim: AnimationClip | null) {
         if (!this._skeleton || !this._mesh || this.uploadedAnim === anim) { return; }
         this.uploadedAnim = anim;
@@ -146,7 +167,7 @@ export class BakedSkinningModel extends MorphModel {
         } else {
             texture = resMgr.jointTexturePool.getDefaultPoseTexture(this._skeleton, this._mesh, this.transform);
             this._jointsMedium.boundsInfo = null;
-            this._modelBounds = texture && texture.bounds.get(this._mesh.hash)![0];
+	        this._modelBounds = texture && texture.bounds.get(this._mesh.hash)![0];
         }
         this._applyJointTexture(texture);
     }
@@ -169,11 +190,6 @@ export class BakedSkinningModel extends MorphModel {
             const descriptorSet = this._subModels[i].descriptorSet;
             descriptorSet.bindTexture(UNIFORM_JOINT_TEXTURE_BINDING, tex);
         }
-    }
-
-    public getMacroPatches (subModelIndex: number): IMacroPatch[] | null {
-        const patches = super.getMacroPatches(subModelIndex);
-        return patches ? patches.concat(myPatches) : myPatches;
     }
 
     protected _updateLocalDescriptors (submodelIdx: number, descriptorSet: DescriptorSet) {

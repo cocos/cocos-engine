@@ -74,7 +74,7 @@ static MacroRecord jsonToMacroRecord(const rapidjson::Value &embeddedMacrosVal) 
         const auto *name = macro.name.GetString();
         const auto &value = macro.value;
 
-        // using MacroValue = cc::variant<int32_t, float, bool, ccstd::string>;
+        // using MacroValue = ccstd::variant<int32_t, float, bool, ccstd::string>;
         // MacroValue only support one of int32_t, float, bool, ccstd::string
         if (value.IsInt()) {
             cEmbeddedMacros.emplace(name, value.GetInt());
@@ -358,7 +358,7 @@ static void jsonToBlendTarget(const rapidjson::Value &val, BlendTargetInfo *outB
     }
 }
 
-static void deserializeGfxColor(const rapidjson::Value &color, cc::optional<gfx::Color> &gfxColor) {
+static void deserializeGfxColor(const rapidjson::Value &color, ccstd::optional<gfx::Color> &gfxColor) {
     if (gfxColor.has_value()) {
         if (color.HasMember("x")) {
             gfxColor->x = color["x"].GetFloat();

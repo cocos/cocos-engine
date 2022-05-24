@@ -27,54 +27,27 @@
 
 #ifdef USE_CXX_17
 
-    #include <any>
+    #include <optional>
 
-namespace cc {
+namespace ccstd {
 
-using std::any;
-using std::any_cast;
+using std::nullopt;
+using std::nullopt_t;
+using std::optional;
 
-} // namespace cc
-
+}; // namespace ccstd
 #else
+    #include "base/std/container/string.h"
+    #include "boost/none.hpp"
+    #include "boost/optional.hpp"
 
-    #include "boost/any.hpp"
+namespace ccstd {
 
-namespace cc {
+using boost::optional;
+using nullopt_t = boost::none_t;
 
-class any : public boost::any { // NOLINT // use std style
-public:
-    using boost::any::any;
+const nullopt_t nullopt((boost::none_t::init_tag())); // NOLINT // use std style
 
-    inline bool has_value() const noexcept { // NOLINT // use std style
-        return !this->empty();
-    }
-};
+}; // namespace ccstd
 
-template <typename ValueType>
-inline ValueType *any_cast(any *operand) noexcept { // NOLINT // use std style
-    return boost::any_cast<ValueType>(operand);
-}
-
-template <typename ValueType>
-inline const ValueType *any_cast(const any *operand) noexcept { // NOLINT // use std style
-    return boost::any_cast<ValueType>(operand);
-}
-
-template <typename ValueType>
-inline ValueType any_cast(any &operand) { // NOLINT // use std style
-    return boost::any_cast<ValueType>(operand);
-}
-
-template <typename ValueType>
-inline ValueType any_cast(const any &operand) { // NOLINT // use std style
-    return boost::any_cast<ValueType>(operand);
-}
-
-template <typename ValueType>
-inline ValueType any_cast(any &&operand) { // NOLINT // use std style
-    return boost::any_cast<ValueType>(operand);
-}
-
-} // namespace cc
 #endif

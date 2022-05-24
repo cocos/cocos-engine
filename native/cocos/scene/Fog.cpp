@@ -25,8 +25,8 @@
 
 #include "scene/Fog.h"
 #include "core/Root.h"
-#include "renderer/pipeline/helper/Utils.h"
 #include "renderer/pipeline/custom/RenderInterfaceTypes.h"
+#include "renderer/pipeline/helper/Utils.h"
 
 namespace cc {
 namespace scene {
@@ -130,8 +130,8 @@ void Fog::updatePipeline() {
     if (iterMacroFog != pipeline->getMacros().end() && iterMacroAccurateFog != pipeline->getMacros().end()) {
         const MacroValue &macroFog = iterMacroFog->second;
         const MacroValue &macroAccurateFog = iterMacroAccurateFog->second;
-        const int32_t *macroFogPtr = cc::get_if<int32_t>(&macroFog);
-        const int32_t *macroAccurateFogPtr = cc::get_if<int32_t>(&macroAccurateFog);
+        const int32_t *macroFogPtr = ccstd::get_if<int32_t>(&macroFog);
+        const int32_t *macroAccurateFogPtr = ccstd::get_if<int32_t>(&macroAccurateFog);
         if (macroFogPtr != nullptr && *macroFogPtr == static_cast<int32_t>(value) && macroAccurateFogPtr != nullptr && *macroAccurateFogPtr == accurateValue) return;
     }
 

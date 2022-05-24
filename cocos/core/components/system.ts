@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { ISchedulable } from '../scheduler';
 import { Enum } from '../value-types/enum';
 

@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core/data
- */
-
 import * as _decorator from './class-decorator';
 import { legacyCC } from '../global-exports';
 

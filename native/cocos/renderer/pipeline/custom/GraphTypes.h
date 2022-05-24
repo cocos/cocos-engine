@@ -30,10 +30,10 @@
 #include <boost/optional.hpp>
 #include <memory>
 #include <type_traits>
-#include "base/Variant.h"
 #include "base/memory/Memory.h"
 #include "base/std/container/list.h"
 #include "base/std/container/string.h"
+#include "base/std/variant.h"
 #include "renderer/pipeline/custom/Overload.h"
 
 namespace boost {
@@ -67,7 +67,7 @@ struct VertexOverloaded : Overloaded<Ts...> {
 
 template <class GraphT, class... Ts>
 auto visitObject(typename GraphT::vertex_descriptor v, GraphT &g, Ts... args) {
-    return cc::visit(VertexOverloaded<Ts...>{std::move(args)...}, value(v, g));
+    return ccstd::visit(VertexOverloaded<Ts...>{std::move(args)...}, value(v, g));
 }
 
 namespace impl {
@@ -483,7 +483,7 @@ struct ListEdge {
     : source(s), target(t), property(p) {}
 
     template <class... T>
-    ListEdge(VertexDescriptor s, VertexDescriptor t, T &&... args) // NOLINT
+    ListEdge(VertexDescriptor s, VertexDescriptor t, T &&...args) // NOLINT
     : source(s), target(t), property(std::forward<T>(args)...) {}
 
     EdgeProperty &get_property() noexcept { return property; }             // NOLINT
@@ -512,7 +512,7 @@ struct PmrListEdge {
     : source(s), target(t), property(p, alloc) {}
 
     template <class... T>
-    PmrListEdge(VertexDescriptor s, VertexDescriptor t, T &&... args) // NOLINT
+    PmrListEdge(VertexDescriptor s, VertexDescriptor t, T &&...args) // NOLINT
     : source(s), target(t), property(std::forward<T>(args)...) {}
 
     // move/copy cntrs
@@ -553,7 +553,7 @@ struct ValueHandle : Tag {
     ValueHandle(Handle &&handle) noexcept // NOLINT(google-explicit-constructor)
     : value(std::move(handle)) {}
     template <class... Args>
-    ValueHandle(Args &&... args) noexcept // NOLINT(google-explicit-constructor)
+    ValueHandle(Args &&...args) noexcept // NOLINT(google-explicit-constructor)
     : value(std::forward<Args>(args)...) {}
 
     Handle value{};

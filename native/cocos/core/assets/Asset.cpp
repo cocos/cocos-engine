@@ -89,7 +89,7 @@ void Asset::decAssetRef(bool autoRelease /* = true*/) {
     }
 }
 
-void Asset::initDefault(const cc::optional<ccstd::string> &uuid) {
+void Asset::initDefault(const ccstd::optional<ccstd::string> &uuid) {
     if (uuid.has_value()) {
         _uuid = uuid.value();
     }

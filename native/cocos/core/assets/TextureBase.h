@@ -31,7 +31,7 @@
 #include "core/assets/AssetEnum.h"
 #include "renderer/gfx-base/GFXDef.h"
 
-#include "cocos/base/Any.h"
+#include "base/std/any.h"
 
 namespace cc {
 
@@ -196,13 +196,13 @@ public:
     /**
      * @return
      */
-    cc::any serialize(const cc::any &ctxForExporting) override;
+    ccstd::any serialize(const ccstd::any &ctxForExporting) override;
 
     /**
      *
      * @param data
      */
-    void deserialize(const cc::any &serializedData, const cc::any &handle) override;
+    void deserialize(const ccstd::any &serializedData, const ccstd::any &handle) override;
 
 protected:
     static gfx::Device *getGFXDevice();
@@ -210,7 +210,7 @@ protected:
 
     gfx::Format getGFXFormat() const;
 
-    void setGFXFormat(const cc::optional<PixelFormat> &format);
+    void setGFXFormat(const ccstd::optional<PixelFormat> &format);
 
 private:
     void notifySamplerUpdated();

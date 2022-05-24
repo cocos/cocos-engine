@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module particle
- */
-
 import { ccclass, tooltip, displayOrder, type, serializable, range } from 'cc.decorator';
 import { Material } from '../../core/assets/material';
 import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
@@ -129,6 +124,7 @@ class TrailSegment {
         return this.trailElements[newEleLoc];
     }
 
+    // eslint-disable-next-line max-len
     public iterateElement (target: TrailModule, f: (target: TrailModule, e: ITrailElement, p: Particle, dt: number) => boolean, p: Particle, dt: number) {
         const end = this.start >= this.end ? this.end + this.trailElements.length : this.end;
         for (let i = this.start; i < end; i++) {
@@ -305,6 +301,15 @@ export default class TrailModule {
     @displayOrder(13)
     @tooltip('i18n:trailSegment.colorOvertime')
     public colorOvertime = new GradientRange();
+
+    /**
+     * @en Get trail model
+     * @zh 获取拖尾模型
+     * @return Model of this trail and type is scene.Model
+     */
+    public getModel () {
+        return this._trailModel;
+    }
 
     /**
      * 轨迹设定时的坐标系。

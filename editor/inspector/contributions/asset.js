@@ -577,7 +577,7 @@ exports.update = async function update(uuidList, renderMap, dropConfig) {
         }
     }
 
-    panel.history.snapshot(panel);
+    panel.history && panel.history.snapshot(panel);
 };
 
 exports.ready = function ready() {

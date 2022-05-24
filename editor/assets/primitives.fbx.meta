@@ -1,5 +1,5 @@
 {
-  "ver": "2.1.14",
+  "ver": "2.2.0",
   "importer": "fbx",
   "imported": true,
   "uuid": "1263d74c-8167-4928-91a6-4e2672411f47",
@@ -216,7 +216,8 @@
     "imageMetas": [],
     "legacyFbxImporter": false,
     "fbx": {
-      "preferLocalTimeSpan": false
+      "preferLocalTimeSpan": false,
+      "smartMaterialEnabled": false
     }
   }
 }
