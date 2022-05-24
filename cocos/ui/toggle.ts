@@ -164,7 +164,7 @@ export class Toggle extends Button {
      * @zh
      * 设置 isChecked 而不调用 checkEvents 回调。
      *
-     * @param value @en whether this toggle is pressed @zh 是否被按下
+     * @param value @en Whether this toggle is pressed @zh 是否被按下
      */
     public setIsCheckedWithoutNotify (value: boolean) {
         this._set(value, false);

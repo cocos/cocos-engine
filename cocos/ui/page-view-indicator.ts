@@ -101,7 +101,7 @@ export class PageViewIndicator extends Component {
      * @zh
      * 页面标记摆放方向
      *
-     * @param direction @en the direction of the PageViewIndicator @zh 页面标记的摆放方向
+     * @param direction @en The direction of the PageViewIndicator @zh 页面标记的摆放方向
      */
     @type(Direction)
     @tooltip('i18n:pageview_indicator.direction')

@@ -457,7 +457,7 @@ export class PageView extends ScrollView {
      * @zh
      * 移除指定下标的页面。
      *
-     * @param index @en the index of the page to be removed @zh 将被移除界面的页面下标
+     * @param index @en The index of the page to be removed @zh 将被移除界面的页面下标
      */
     public removePageAtIndex (index: number) {
         const pageList = this._pages;
@@ -494,7 +494,7 @@ export class PageView extends ScrollView {
      * 滚动到指定页面
      *
      * @param idx @en The index of page to be scroll to @zh 希望滚动到的页面下标
-     * @param timeInSecond @en how long time to scroll to the page, in seconds @zh 滚动到指定页面所需时间，单位：秒
+     * @param timeInSecond @en How long time to scroll to the page, in seconds @zh 滚动到指定页面所需时间，单位：秒
      */
     public scrollToPage (idx: number, timeInSecond = 0.3) {
         if (idx < 0 || idx >= this._pages.length) {
