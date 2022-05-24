@@ -2,6 +2,8 @@
 
 #include <cfloat>
 #include <cstdint>
+
+#include "base/std/container/vector.h"
 #include "base/std/optional.h"
 
 namespace cc {
