@@ -88,16 +88,52 @@ export const simple: IAssembler = {
 
         const stride = renderData.floatStride;
 
-        const vec3_temp = vec3_temps[0];
-        let offset = 0;
-        for (let i = 0; i < dataList.length; i++) {
-            const curData = dataList[i];
-            Vec3.set(vec3_temp, curData.x, curData.y, 0);
-            Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
-            offset = i * stride;
-            vData[offset++] = vec3_temp.x;
-            vData[offset++] = vec3_temp.y;
-            vData[offset++] = vec3_temp.z;
+        const a = matrix.m00; const b = matrix.m01; const c = matrix.m02;
+        const d = matrix.m04; const e = matrix.m05; const f = matrix.m06;
+        const g = matrix.m08; const h = matrix.m09; const i = matrix.m10;
+
+        const justTranslate = a === 1 && b === 0 && c === 0
+                           && d === 0 && e === 1 && f === 0
+                           && g === 0 && h === 0 && i === 1;
+
+        if (justTranslate) {
+            const tx = matrix.m12; const ty = matrix.m13; const tz = matrix.m14;
+            const vl = dataList[0].x; const vr = dataList[1].x;
+            const vb = dataList[0].y; const vt = dataList[2].y;
+
+            const vltx = vl + tx;
+            const vrtx = vr + tx;
+            const vbty = vb + ty;
+            const vtty = vt + ty;
+
+            // left bottom
+            vData[0] = vltx;
+            vData[1] = vbty;
+            vData[2] = tz;
+            // right bottom
+            vData[9] = vrtx;
+            vData[10] = vbty;
+            vData[11] = tz;
+            // left top
+            vData[18] = vltx;
+            vData[19] = vtty;
+            vData[20] = tz;
+            // right top
+            vData[27] = vrtx;
+            vData[28] = vtty;
+            vData[29] = tz;
+        } else {
+            const vec3_temp = vec3_temps[0];
+            let offset = 0;
+            for (let i = 0; i < dataList.length; i++) {
+                const curData = dataList[i];
+                Vec3.set(vec3_temp, curData.x, curData.y, 0);
+                Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
+                offset = i * stride;
+                vData[offset++] = vec3_temp.x;
+                vData[offset++] = vec3_temp.y;
+                vData[offset++] = vec3_temp.z;
+            }
         }
     },
 
