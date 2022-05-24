@@ -289,7 +289,6 @@ endif()
 ##### base
 cocos_source_files(
     cocos/base/Agent.h
-    cocos/base/Any.h
     cocos/base/astc.cpp
     cocos/base/astc.h
     cocos/base/base64.cpp
@@ -308,7 +307,6 @@ cocos_source_files(
     cocos/base/Locked.h
     cocos/base/Macros.h
     cocos/base/Object.h
-    cocos/base/Optional.h
     cocos/base/Ptr.h
     cocos/base/Random.h
     cocos/base/RefCounted.cpp
@@ -325,7 +323,9 @@ cocos_source_files(
     cocos/base/ThreadPool.cpp
     cocos/base/ThreadPool.h
     cocos/base/TypeDef.h
-    cocos/base/Variant.h
+    cocos/base/std/any.h
+    cocos/base/std/optional.h
+    cocos/base/std/variant.h
     cocos/base/std/container/array.h
     cocos/base/std/container/deque.h
     cocos/base/std/container/list.h
