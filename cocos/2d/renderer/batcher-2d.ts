@@ -46,10 +46,11 @@ import { StaticVBAccessor } from './static-vb-accessor';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { getAttributeStride, vfmtPosUvColor } from './vertex-format';
 import { updateOpacity } from '../assembler/utils';
-import { BaseRenderData, MeshRenderData } from './render-data';
+import { BaseRenderData, MeshRenderData, RenderData } from './render-data';
 import { UIMeshRenderer } from '../components/ui-mesh-renderer';
 import { RenderEntity } from './render-entity';
-import { NativeBatcher2d } from '../../core/renderer/2d/native-2d';
+import { NativeAdvanceRenderData, NativeBatcher2d, NativeRenderEntity } from '../../core/renderer/2d/native-2d';
+import { AdvanceRenderData } from './AdvanceRenderData';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
@@ -59,9 +60,9 @@ const m4_1 = new Mat4();
  * UI 渲染流程
  */
 export class Batcher2D implements IBatcher {
-    protected declare _nativeBatcher2d: NativeBatcher2d;
+    protected declare _nativeObj: NativeBatcher2d;
     public get nativeObj (): NativeBatcher2d  {
-        return this._nativeBatcher2d;
+        return this._nativeObj;
     }
 
     get currBufferAccessor () {
@@ -122,7 +123,29 @@ export class Batcher2D implements IBatcher {
         this._drawBatchPool = new Pool(() => new DrawBatch2D(), 128, (obj) => obj.destroy(this));
 
         if (JSB) {
-            //this._nativeBatcher2d = new NativeBatcher2d();
+            this._nativeObj = new NativeBatcher2d();
+
+            // test code
+            const renderData :AdvanceRenderData = new AdvanceRenderData();
+
+            // // test code
+            // const tempArray:NativeRenderEntity[] = [];
+            // for (let i = 0; i < 3; i++) {
+            //     //这里频繁触发了jsb的调用，需要思考下如何优化
+            //     const tempEntity = new RenderEntity();
+            //     tempEntity.setBufferId(i);
+
+            //     const tempAdvanceRenderData1 = new AdvanceRenderData();
+            //     tempAdvanceRenderData1.setX(i * 10);
+            //     tempEntity.addAdvanceRenderData(tempAdvanceRenderData1);
+            //     const tempAdvanceRenderData2 = new AdvanceRenderData();
+            //     tempAdvanceRenderData2.setX(i * 100);
+            //     tempEntity.addAdvanceRenderData(tempAdvanceRenderData2);
+            //     tempEntity.setAdvanceRenderDataArrToNative();
+
+            //     tempArray.push(tempEntity.nativeObj);
+            // }
+            // this._nativeObj.updateRenderEntities(tempArray);
         }
     }
 
@@ -666,7 +689,9 @@ export class Batcher2D implements IBatcher {
 
         // Render assembler update logic
         if (render && render.enabledInHierarchy) {
-            render.updateAssembler(this);
+            //render.updateAssembler(this);
+            render.updateRenderEntities(this);// for collecting data
+            render.doRender(this);// for rendering
         }
 
         // Update cascaded opacity to vertex buffer

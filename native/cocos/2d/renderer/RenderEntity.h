@@ -1,5 +1,7 @@
 #pragma once
 #include <cocos/base/TypeDef.h>
+#include <cocos/2d/renderer/AdvanceRenderData.h>
+#include <vector>
 
 namespace cc {
 class RenderEntity {
@@ -22,7 +24,14 @@ public:
     inline uint16_t* getIDataBuffer() const { return this->_iDataBuffer; }
     void setIDataBuffer(uint16_t* iDataBuffer);
 
+    inline std::vector<AdvanceRenderData*> getDataArr() { return this->_dataArr; }
+    void setAdvanceRenderDataArr(std::vector<AdvanceRenderData*>&& arr);
+
 private:
+    // updateVertex,uv等用到的数据
+    std::vector<AdvanceRenderData*> _dataArr{};
+
+    // updateWorld 数据计算用到
     index_t _bufferId{0};
     index_t _vertexOffset{0};
     index_t _indexOffset{0};

@@ -1,5 +1,6 @@
 #include <2d/renderer/RenderEntity.h>
 #include <cocos/base/TypeDef.h>
+#include "RenderEntity.h"
 
 namespace cc {
 RenderEntity::RenderEntity() : RenderEntity(0, 0, 0) {
@@ -36,6 +37,10 @@ void RenderEntity::setVDataBuffer(float_t* vDataBuffer) {
 
 void RenderEntity::setIDataBuffer(uint16_t* iDataBuffer) {
     this->_iDataBuffer = iDataBuffer;
+}
+
+void RenderEntity::setAdvanceRenderDataArr(std::vector<AdvanceRenderData*>&& arr) {
+    this->_dataArr = std::move(arr);
 }
 }
 

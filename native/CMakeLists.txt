@@ -1632,6 +1632,8 @@ cocos_source_files(
 
     cocos/2d/renderer/Batcher2d.h
     cocos/2d/renderer/Batcher2d.cpp
+    cocos/2d/renderer/AdvanceRenderData.h
+    cocos/2d/renderer/AdvanceRenderData.cpp
     cocos/2d/renderer/RenderEntity.h
     cocos/2d/renderer/RenderEntity.cpp
 )

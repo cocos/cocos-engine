@@ -357,6 +357,21 @@ export class UIRenderer extends Renderer {
         }
     }
 
+    // test code: to replace prev part updateAssembler
+    public updateRenderEntities (render: IBatcher) {
+        if (this._renderDataFlag) {
+            this._assembler!.updateRenderData(this, render);
+            this._renderDataFlag = false;
+        }
+    }
+
+    // test code: to replace after part updateAssembler
+    public doRender (render: IBatcher) {
+        if (this._renderFlag) {
+            this._render(render);
+        }
+    }
+
     /**
      * @en Post render data submission procedure, it's executed after assembler updated for all children.
      * It may assemble some extra render data to the geometry buffers, or it may only change some render states.

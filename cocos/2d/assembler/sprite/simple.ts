@@ -80,6 +80,7 @@ export const simple: IAssembler = {
             renderData.updateRenderData(sprite, frame);
         }
 
+        // test code: fill renderEntities
         renderEntity = new RenderEntity();
         //renderEntity.init();
     },
