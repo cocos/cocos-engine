@@ -15346,6 +15346,21 @@ static bool js_assets_BuiltinResMgr_isInitialized(se::State& s) // NOLINT(readab
 }
 SE_BIND_FUNC(js_assets_BuiltinResMgr_isInitialized)
 
+static bool js_assets_BuiltinResMgr_tryCompileAllPasses(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::BuiltinResMgr>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_BuiltinResMgr_tryCompileAllPasses : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->tryCompileAllPasses();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_assets_BuiltinResMgr_tryCompileAllPasses)
+
 static bool js_assets_BuiltinResMgr_getInstance_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
@@ -15390,6 +15405,7 @@ bool js_register_assets_BuiltinResMgr(se::Object* obj) // NOLINT(readability-ide
     cls->defineFunction("getAsset", _SE(js_assets_BuiltinResMgr_getAsset));
     cls->defineFunction("initBuiltinRes", _SE(js_assets_BuiltinResMgr_initBuiltinRes));
     cls->defineFunction("isInitialized", _SE(js_assets_BuiltinResMgr_isInitialized));
+    cls->defineFunction("tryCompileAllPasses", _SE(js_assets_BuiltinResMgr_tryCompileAllPasses));
     cls->defineStaticFunction("getInstance", _SE(js_assets_BuiltinResMgr_getInstance_static));
     cls->defineFinalizeFunction(_SE(js_cc_BuiltinResMgr_finalize));
     cls->install();
