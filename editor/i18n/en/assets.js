@@ -1,5 +1,17 @@
 module.exports = {
+    dialog: {
+        confirm: 'Confirm',
+        cancel: 'Cancel',
+        warn: 'Warn',
+    },
+    inspector: {
+        cloneToEdit: 'Clone it. Use and go into edit.',
+        cloneToDirectoryIllegal: 'Please limit the saved path to the current project assets path',
+    },
     assets: {
+        reset: 'Reset',
+        save: 'Save',
+        locate_asset: 'Locate in Assets Panel',
         'label-atlas': {
             SpriteFrameTip: 'SpriteFrame',
             ItemWidthTip: 'Item Width',
@@ -31,8 +43,7 @@ module.exports = {
             wrapModeTTip: 'Wrap Mode T',
             faceSize: {
                 name: 'Face Size',
-                title:
-                    'Size of each cube face. If not specified, or specified as 0, the default size, which is the nearest power of two to (image.width)/4, is used.',
+                title: 'Size of each cube face. If not specified, or specified as 0, the default size, which is the nearest power of two to (image.width)/4, is used.',
             },
         },
         javascript: {
@@ -73,55 +84,60 @@ module.exports = {
         image: {
             type: 'Type',
             typeTip: 'Type',
+            bakeOfflineMipmaps: 'Bake Offline Mipmaps',
+            bakeOfflineMipmapsTip: 'Bake Offline Mipmaps',
             flipVertical: 'Flip Vertical',
             flipVerticalTip: 'Flip Vertical',
+            fixAlphaTransparencyArtifacts: 'Fix Alpha Transparency Artifacts',
+            fixAlphaTransparencyArtifactsTip: 'Fill transparent pixels with color of neareast solid pixel. These filled pixels would fix the dark halos at transparent borders of textures. Please turn on this option when you use the Alpha transparency channel in textures.',
             isRGBE: 'Is RGBE',
             isRGBETip: 'Is RGBE',
         },
         spriteFrame: {
             packable: 'Packable',
-            packableTip: 'Packable',
+            packableTip: 'Whether to participate in dynamic atlas',
             rotated: 'Rotated',
-            rotatedTip: 'Rotated',
+            rotatedTip: 'Whether the sprite frame in TexturePacker is rotated',
             offsetX: 'Offset X',
-            offsetXTip: 'Offset X',
+            offsetXTip: 'The x-axis offset of the sprite frame in TexturePacker',
             offsetY: 'Offset Y',
-            offsetYTip: 'Offset Y',
+            offsetYTip: 'The y-axis offset of the sprite frame in TexturePacker',
             trimType: 'Trim Type',
-            trimTypeTip: 'Trim Type',
+            trimTypeTip: 'The type of trimming',
             trimThreshold: 'Trim Threshold',
-            trimThresholdTip: 'Trim Threshold',
+            trimThresholdTip: 'Transparency threshold for trimming',
             trimX: 'Trim X',
-            trimXTip: 'Trim X',
+            trimXTip: 'The x coord of the top left corner of the trim rect',
             trimY: 'Trim Y',
-            trimYTip: 'Trim Y',
+            trimYTip: 'The y coord of the top left corner of the trim rect',
             width: 'Trim Width',
-            widthTip: 'Trim Width',
+            widthTip: 'The width of the trim rect',
             height: 'Trim Height',
-            heightTip: 'Trim Height',
+            heightTip: 'The height of the trim rect',
             borderTop: 'Border Top',
-            borderTopTip: 'Border Top',
+            borderTopTip: 'The top margin of the 9-slicing',
             borderBottom: 'Border Bottom',
-            borderBottomTip: 'Border Bottom',
+            borderBottomTip: 'The bottom margin of 9-slicing',
             borderLeft: 'Border Left',
-            borderLeftTip: 'Border Left',
+            borderLeftTip: 'The left margin of 9-slicing',
             borderRight: 'Border Right',
-            borderRightTip: 'Border Right',
+            borderRightTip: 'The right margin of 9-slicing',
             edit: 'Edit',
+            editTip: 'Edit',
         },
         texture: {
             anisotropy: 'Anisotropy',
             anisotropyTip: 'Anisotropy',
             minfilter: 'Min Filter',
-            minfilterTip: 'Min Filter',
+            minfilterTip: 'Minification filtering method',
             magfilter: 'Mag Filter',
-            magfilterTip: 'Mag Filter',
+            magfilterTip: 'Magnification filtering method',
             mipfilter: 'Mip Filter',
-            mipfilterTip: 'Mip Filter',
+            mipfilterTip: 'Mip map filtering method',
             wrapModeS: 'Wrap Mode S',
-            wrapModeSTip: 'Wrap Mode S',
+            wrapModeSTip: 'Texture addressing mode in S(U) direction',
             wrapModeT: 'Wrap Mode T',
-            wrapModeTTip: 'Wrap Mode T',
+            wrapModeTTip: 'Texture addressing mode in T(V) direction',
             modeWarn:
                 "Warning: WebGL 1.0 platform doesn't support 'repeat' filter for non-power-of-two textures(runtime fallback to 'clamp-to-edge'), effectively disabling features like the 'tilingOffset' property in many materials.",
         },
@@ -129,7 +145,10 @@ module.exports = {
             browse: 'Change Target',
             model: 'Model',
             animation: 'Animation',
+            modelPreview: 'Model preview',
             material: 'Material',
+            no_model_tips: 'No model is available for preview',
+            drag_model_tips: 'Drag a model here for preview',
             fbx: 'FBX',
             GlTFUserData: {
                 normals: {
@@ -165,8 +184,7 @@ module.exports = {
                     },
                     require: {
                         name: 'Required',
-                        title:
-                            'Import tangents that are contained in the model file, or calculated if not contained and texture coordinates exist.',
+                        title: 'Import tangents that are contained in the model file, or calculated if not contained and texture coordinates exist.',
                     },
                     recalculate: {
                         name: 'Recalculate',
@@ -199,8 +217,7 @@ module.exports = {
                 },
                 materialDumpDir: {
                     name: 'Material dump directory',
-                    title:
-                        'The directory to dump the materials.\nDefault to a direct sub-folder named `Materials_${model-file-base-name}` under current path.',
+                    title: 'The directory to dump the materials.\nDefault to a direct sub-folder named `Materials_${model-file-base-name}` under current path.',
                 },
                 useVertexColors: {
                     name: 'Use vertex colors',
@@ -224,6 +241,7 @@ module.exports = {
                 original: 'Original',
             },
             limitMaterialDumpDir: 'The extracted path needs to be scoped to the project path.',
+            legacyOptions:'Legacy Options',
             legacyFbxImporter: {
                 name: 'Compatible with v1.*',
                 title: 'Whether this importer should be compatible with its behaviour prior to Cocos Creator version 1.* .',
@@ -280,10 +298,13 @@ module.exports = {
                         title: 'Verbose output',
                     },
                 },
+                // eslint-disable-next-line max-len
+                warn: 'Warning: After optimization, the number and names of mesh resources will change, which will cause the loss of resources referenced by the components, please update them manually in time. (In addition, for prefabs pre-generated in the model resources, the resource synchronization mechanism will update them automatically)',
             },
             animationBakeRate: {
                 name: 'Animation Bake Rate',
                 title: 'Specify the animation bake rate in frames per second (fps).',
+                auto: 'Auto',
             },
             promoteSingleRootNode: {
                 name: 'Promote single root node',
@@ -291,6 +312,13 @@ module.exports = {
                     'If enabled and there is only one single root node in a FBX scene, <br>' +
                     'the single root node is used as the root of prefab when converting the FBX scene to Cocos Creator prefab. <br>' +
                     "Otherwise, the FBX scene become prefab's root.",
+            },
+            preferLocalTimeSpan: {
+                name: 'Prefer Local Time Span',
+                title:
+                    'When exporting FBX animations, whether prefer to use the time range recorded in FBX file. ' +
+                    'If one is not preferred, or one is invalid for use, the time range is robustly calculated. ' +
+                    'Some FBX generators may not export this information.',
             },
         },
         textureCube: {
@@ -313,5 +341,60 @@ module.exports = {
             'fail-to-load-custom-inspector': 'material: fail to load custom inspector of {effect}',
             'illegal-inspector-url': "Inspector's URL is not valid",
         },
+        animationGraph: {
+            edit: 'Edit',
+        },
+        animationMask: {
+            importSkeleton: 'Import Skeleton',
+            clearAllNodes: 'Clear',
+            clearAllNodesWarn: 'Are you sure to clear all data of this Animation Mask?',
+            illegalFbx: 'Import Skeleton Failed: this fbx asset has not contained sub prefab asset.',
+            nodeEnableTip: 'Whether enable this joint;<br>Alt + Click can toggle the children state.',
+        },
+        multipleWarning: 'Multi-select editing of this type of asset is not supported',
+        check_is_saved: {
+            message: 'The modified data has not been saved. Do you want to save it?',
+            assetMessage: "${assetName} is modified, it's data has not been saved. Do you want to save it?",
+            save: 'Save',
+            abort: 'Abort',
+        },
+    },
+
+    menu: {
+        node: 'Node Menu',
+        component: 'Component Menu',
+
+        remove_component: 'Remove',
+        reset_component: 'Reset',
+        move_up_component: 'Move Up',
+        move_down_component: 'Move Down',
+
+        reset_node: 'Reset',
+        reset_node_position: 'Reset Position',
+        reset_node_rotation: 'Reset Rotation',
+        reset_node_scale: 'Reset Scale ',
+
+        copy_node_value: 'Copy Node Values',
+        paste_node_value: 'Paste Node Values',
+        copy_node_world_transform: 'Copy Node World Transform',
+        paste_node_world_transform: 'Paste Node World Transform',
+
+        copy_component: 'Copy Component',
+        paste_component: 'Paste Component As New',
+        paste_component_values: 'Paste Component Values',
+
+        help_url: 'Help Document',
+        custom_script: 'Custom script',
+    },
+
+    prefab: {
+        edit: 'Edit prefab asset',
+        local: 'Location',
+        reset: 'Reset from prefab',
+        save: 'Update prefab asset',
+        link: 'Connect it to another prefab',
+        unlink: 'Disconnect node with current prefab asset',
+        lost: 'Prefab asset is not exist.',
+        exist: 'Prefab Asset',
     },
 };

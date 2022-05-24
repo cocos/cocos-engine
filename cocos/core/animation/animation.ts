@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 export * from './target-path';
 export * from './value-proxy';
@@ -40,3 +37,4 @@ export { QuatTrack } from './tracks/quat-track';
 export { ColorTrack } from './tracks/color-track';
 export { SizeTrack } from './tracks/size-track';
 export { ObjectTrack } from './tracks/object-track';
+export * from './marionette/runtime-exports';

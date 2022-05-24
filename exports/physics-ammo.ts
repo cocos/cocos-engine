@@ -23,21 +23,4 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
-import Ammo from '../cocos/physics/ammo/instantiated';
-import '../cocos/physics/ammo/instantiate';
-
-window.Ammo = Ammo;
-
-// polyfill config
-(Ammo as any).CC_CONFIG = {
-    ignoreSelfBody: true,
-};
-
-(Ammo as any).CC_CACHE = {
-    btTriangleMesh: { enable: false },
-};
+import '../cocos/physics/bullet/instantiate';

@@ -1,0 +1,77 @@
+name: Bug report
+description: Create a report to help us improve
+labels: ["Needs Triage","Bug"]
+body:
+
+- type: markdown
+  attributes:
+    value: |
+      Please write a descriptive issue title above.
+      
+      **Before You Start:**
+      - Search [open](https://github.com/cocos/cocos-engine/issues) and [closed](https://github.com/cocos/cocos-engine/issues?q=is%3Aissue+is%3Aclosed) issues to ensure it has not already been reported.
+      - Verify that your issue is reproducible in the latest stable version of [Cocos Creator](https://www.cocos.com/creator).
+
+      **For usage questions, please use the following resources:**
+      - Read our [Docs](https://docs.cocos.com/creator/manual/en/)
+      - Check our [API](https://docs.cocos.com/creator/api/en/#/)
+      - Watch our [Video Tutorials](https://www.youtube.com/cocosengine)
+      - Ask on our [forum](https://discuss.cocos2d-x.org/)
+
+      **Thanks for taking the time to fill out this form!** 
+      
+
+- type: input
+  attributes:
+    label: Cocos Creator version
+    description: >
+      Specify the official build version of engine.
+      If you use a custom build, please test if your issue is reproducible in the official builds too.
+    placeholder: 3.4.2, 3.5.0 
+  validations:
+    required: true
+
+- type: input
+  attributes:
+    label: System information
+    description: |
+      Specify the OS version, and when relevant hardware information.
+      For graphics-related issues, specify the GPU model, driver version, and the rendering backend (GLES2, GLES3, Vulkan).
+      For issues regarding to smart phones, specify the OS and phone model
+    placeholder: Windows 10 Editor, iOS 15.4 build on iPhone 13
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Issue description
+    description: |
+      Describe your issue briefly. What doesn't work, and how do you expect it to work instead?
+      You can include images or videos with drag and drop, and format code blocks or logs with <code>```</code> tags.
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Relevant error log output
+    description: |
+     Error output and stack trace.
+  validations:
+    required: false
+
+- type: textarea
+  attributes:
+    label: Steps to reproduce
+    description: |
+      List of steps or sample code that reproduces the issue. If you include a minimal reproduction project below, you can detail how to use it here. Clear and concise reproduction instructions are important for us to be able to triage your issue in a timely manner.
+      
+      Note that you can use [Markdown](https://guides.github.com/features/mastering-markdown/) to format lists and code.
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Minimal reproduction project
+    description: |
+      A small Cocos Creator project which reproduces the issue. Highly recommended to speed up troubleshooting.
+      Drag and drop a ZIP archive to upload it.

@@ -1,4 +1,3 @@
-
 /****************************************************************************
  Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
 
@@ -26,21 +25,21 @@
 
 // JS to Native bridges
 // set to lazy
-Object.defineProperty(jsb, "reflection", {
-    get: function () {
+Object.defineProperty(jsb, 'reflection', {
+    get () {
         if (jsb.__bridge !== undefined) return jsb.__bridge;
-        if (window.JavascriptJavaBridge && cc.sys.os === cc.sys.OS.ANDROID) {
+        if (window.JavascriptJavaBridge && (cc.sys.os === cc.sys.OS.ANDROID || cc.sys.os === cc.sys.OS.OHOS)) {
             jsb.__bridge = new JavascriptJavaBridge();
         } else if (window.JavaScriptObjCBridge && (cc.sys.os === cc.sys.OS.IOS || cc.sys.os === cc.sys.OS.OSX)) {
             jsb.__bridge = new JavaScriptObjCBridge();
-        }else   {
+        } else   {
             jsb.__bridge = null;
         }
         return jsb.__bridge;
     },
     enumerable: true,
     configurable: true,
-    set: function (value) {
+    set (value) {
         jsb.__bridge = value;
-    }
-})
+    },
+});

@@ -35,10 +35,9 @@ import { ccenum } from '../../core/value-types/enum';
 import { builtinResMgr } from '../../core/builtin';
 import { Material } from '../../core/assets';
 import { BlendFactor, BlendState, BlendTarget } from '../../core/gfx';
-import { IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { IAssembler, IAssemblerManager } from '../renderer/base';
 import { RenderData } from '../renderer/render-data';
-import { Batcher2D } from '../renderer/batcher-2d';
+import { IBatcher } from '../renderer/i-batcher';
 import { Node } from '../../core/scene-graph';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { UITransform } from './ui-transform';
@@ -117,6 +116,23 @@ export enum InstanceMaterialType {
 @disallowMultiple
 @executeInEditMode
 export class Renderable2D extends RenderableComponent {
+    /**
+     * @en The blend factor enums
+     * @zh 混合模式枚举类型
+     * @see [[BlendFactor]]
+     */
+    public static BlendState = BlendFactor;
+    /**
+     * @en The render data assembler
+     * @zh 渲染数据组装器
+     */
+    public static Assembler: IAssemblerManager = null!;
+    /**
+     * @en The post render data assembler
+     * @zh 后置渲染数据组装器
+     */
+    public static PostAssembler: IAssemblerManager | null = null;
+
     @override
     protected _materials: (Material | null)[] = [];
 
@@ -150,6 +166,7 @@ export class Renderable2D extends RenderableComponent {
      */
     @type(Material)
     @displayOrder(0)
+    @tooltip('i18n:renderable2D.customMaterial')
     @displayName('CustomMaterial')
     get customMaterial () {
         return this._customMaterial;
@@ -160,92 +177,21 @@ export class Renderable2D extends RenderableComponent {
         this.updateMaterial();
     }
 
-    protected updateMaterial () {
-        if (this._customMaterial) {
-            this.setMaterial(this._customMaterial, 0);
-            this._blendHash = -1; // a flag to check merge
-            return;
-        }
-        const mat = this._updateBuiltinMaterial();
-        this.setMaterial(mat, 0);
-        this._updateBlendFunc();
-    }
-
-    /**
-     * @en Specifies the source blend mode, it will clone a new material object.
-     * @zh 指定源的混合模式，这会克隆一个新的材质对象，注意这带来的性能和内存损耗。
-     * @example
-     * ```ts
-     * sprite.srcBlendFactor = BlendFactor.ONE;
-     * ```
-     * @deprecated
-     */
-    get srcBlendFactor () {
-        if (!EDITOR && this._customMaterial) {
-            warnID(12001);
-        }
-        return this._srcBlendFactor;
-    }
-
-    set srcBlendFactor (value: BlendFactor) {
-        if (this._customMaterial) {
-            warnID(12001);
-            return;
-        }
-        if (this._srcBlendFactor === value) {
-            return;
-        }
-
-        this._srcBlendFactor = value;
-        this._updateBlendFunc();
-    }
-
-    /**
-     * @en Specifies the destination blend mode.
-     * @zh 指定目标的混合模式，这会克隆一个新的材质对象，注意这带来的性能和内存损耗。
-     * @example
-     * ```ts
-     * sprite.dstBlendFactor = BlendFactor.ONE_MINUS_SRC_ALPHA;
-     * ```
-     * @deprecated
-     */
-    get dstBlendFactor () {
-        if (!EDITOR && this._customMaterial) {
-            warnID(12001);
-        }
-        return this._dstBlendFactor;
-    }
-
-    set dstBlendFactor (value: BlendFactor) {
-        if (this._customMaterial) {
-            warnID(12001);
-            return;
-        }
-        if (this._dstBlendFactor === value) {
-            return;
-        }
-
-        this._dstBlendFactor = value;
-        this._updateBlendFunc();
-    }
-
     /**
      * @en Main color for rendering, it normally multiplies with texture color.
      * @zh 渲染颜色，一般情况下会和贴图颜色相乘。
      */
-    @displayOrder(2)
+    @displayOrder(1)
     @tooltip('i18n:renderable2D.color')
     get color (): Readonly<Color> {
         return this._color;
     }
-
     set color (value) {
         if (this._color.equals(value)) {
             return;
         }
-
         this._color.set(value);
-        this._colorDirty = true;
+        this._updateColor();
         if (EDITOR) {
             const clone = value.clone();
             this.node.emit(NodeEventType.COLOR_CHANGED, clone);
@@ -267,23 +213,6 @@ export class Renderable2D extends RenderableComponent {
      */
     public stencilStage : Stage = Stage.DISABLED;
 
-    /**
-     * @en The blend factor enums
-     * @zh 混合模式枚举类型
-     * @see [[BlendFactor]]
-     */
-    public static BlendState = BlendFactor;
-    /**
-     * @en The render data assembler
-     * @zh 渲染数据组装器
-     */
-    public static Assembler: IAssemblerManager | null = null;
-    /**
-     * @en The post render data assembler
-     * @zh 后置渲染数据组装器
-     */
-    public static PostAssembler: IAssemblerManager | null = null;
-
     @serializable
     protected _srcBlendFactor = BlendFactor.SRC_ALPHA;
     @serializable
@@ -296,17 +225,27 @@ export class Renderable2D extends RenderableComponent {
     protected _renderData: RenderData | null = null;
     protected _renderDataFlag = true;
     protected _renderFlag = true;
+
     // 特殊渲染节点，给一些不在节点树上的组件做依赖渲染（例如 mask 组件内置两个 graphics 来渲染）
     protected _delegateSrc: Node | null = null;
-    protected _instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
+    protected _instanceMaterialType = -1;
     protected _blendState: BlendState = new BlendState();
     protected _blendHash = 0;
 
-    protected _colorDirty = true;
-    protected _cacheAlpha = 1;
-
+    /**
+     * TODO mark internal
+     */
     get blendHash () {
         return this._blendHash;
+    }
+
+    /**
+     * @en Marks for calculating opacity per vertex
+     * @zh 标记组件是否逐顶点计算透明度
+     */
+    protected _useVertexOpacity = false;
+    get useVertexOpacity () {
+        return this._useVertexOpacity;
     }
 
     public updateBlendHash () {
@@ -326,6 +265,7 @@ export class Renderable2D extends RenderableComponent {
     public onEnable () {
         this.node.on(NodeEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
         this.node.on(NodeEventType.SIZE_CHANGED, this._nodeStateChange, this);
+        this.node.on(NodeEventType.PARENT_CHANGED, this._colorDirty, this);
         this.updateMaterial();
         this._renderFlag = this._canRender();
     }
@@ -333,12 +273,14 @@ export class Renderable2D extends RenderableComponent {
     // For Redo, Undo
     public onRestore () {
         this.updateMaterial();
-        this._renderFlag = this._canRender();
+        // restore render data
+        this.markForUpdateRenderData();
     }
 
     public onDisable () {
         this.node.off(NodeEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
         this.node.off(NodeEventType.SIZE_CHANGED, this._nodeStateChange, this);
+        this.node.off(NodeEventType.PARENT_CHANGED, this._colorDirty, this);
         this._renderFlag = false;
     }
 
@@ -349,10 +291,10 @@ export class Renderable2D extends RenderableComponent {
         this.destroyRenderData();
         if (this._materialInstances) {
             for (let i = 0; i < this._materialInstances.length; i++) {
-                this._materialInstances[i] && this._materialInstances[i]!.destroy();
+                const instance = this._materialInstances[i];
+                if (instance) { instance.destroy(); }
             }
         }
-        this._renderData = null;
         if (this._blendState) {
             this._blendState.destroy();
         }
@@ -365,14 +307,14 @@ export class Renderable2D extends RenderableComponent {
      */
     public markForUpdateRenderData (enable = true) {
         this._renderFlag = this._canRender();
-        if (enable && this._renderFlag) {
+        if (enable) {
             const renderData = this._renderData;
             if (renderData) {
                 renderData.vertDirty = true;
             }
 
             this._renderDataFlag = enable;
-        } else if (!enable) {
+        } else {
             this._renderDataFlag = enable;
         }
     }
@@ -396,7 +338,6 @@ export class Renderable2D extends RenderableComponent {
         if (!this._renderData) {
             return;
         }
-
         RenderData.remove(this._renderData);
         this._renderData = null;
     }
@@ -409,10 +350,12 @@ export class Renderable2D extends RenderableComponent {
      * 一般在 UI 渲染流程中调用，用于组装所有的渲染数据到顶点数据缓冲区。
      * 注意：不要手动调用该函数，除非你理解整个流程。
      */
-    public updateAssembler (render: Batcher2D) {
-        this._updateColor();
+    public updateAssembler (render: IBatcher) {
+        if (this._renderDataFlag) {
+            this._assembler!.updateRenderData(this, render);
+            this._renderDataFlag = false;
+        }
         if (this._renderFlag) {
-            this._checkAndUpdateRenderData();
             this._render(render);
         }
     }
@@ -425,55 +368,58 @@ export class Renderable2D extends RenderableComponent {
      * 它可能会组装额外的渲染数据到顶点数据缓冲区，也可能只是重置一些渲染状态。
      * 注意：不要手动调用该函数，除非你理解整个流程。
      */
-    public postUpdateAssembler (render: Batcher2D) {
-        if (this._renderFlag) {
+    public postUpdateAssembler (render: IBatcher) {
+        if (this._postAssembler && this._renderFlag) {
             this._postRender(render);
         }
     }
 
-    protected _render (render: Batcher2D) {}
+    protected _render (render: IBatcher) {}
 
-    protected _postRender (render: Batcher2D) {}
-
-    protected _checkAndUpdateRenderData () {
-        if (this._renderDataFlag) {
-            this._assembler!.updateRenderData!(this);
-            this._renderDataFlag = false;
-        }
-    }
+    protected _postRender (render: IBatcher) {}
 
     protected _canRender () {
         return this.isValid
                && this.getMaterial(0) !== null
                && this.enabled
                && (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy)
-               && this.node._uiProps.opacity > 0;
+               && this._color.a > 0;
     }
 
     protected _postCanRender () {}
 
-    protected _updateColor () {
-        // Need update rendFlag when opacity changes from 0 to !0
-        const opacityZero = this._cacheAlpha <= 0;
-        this._updateWorldAlpha();
-        if (this._colorDirty && this._assembler && this._assembler.updateColor) {
-            this._assembler.updateColor(this);
-            if (opacityZero) {
-                this._renderFlag = this._canRender();
+    protected updateMaterial () {
+        if (this._customMaterial) {
+            this.setMaterial(this._customMaterial, 0);
+            if (this._renderData) {
+                this._renderData.material = this._customMaterial;
+                this.markForUpdateRenderData();
+                this._renderData.passDirty = true;
             }
-            this._colorDirty = false;
+            this._blendHash = -1; // a flag to check merge
+            return;
+        }
+        const mat = this._updateBuiltinMaterial();
+        this.setMaterial(mat, 0);
+        if (this._renderData) {
+            this._renderData.material = mat;
+            this.markForUpdateRenderData();
+        }
+        this._updateBlendFunc();
+    }
+
+    protected _updateColor () {
+        this.node._uiProps.colorDirty = true;
+        if (this._assembler) {
+            this._assembler.updateColor(this);
+            // Need update rendFlag when opacity changes from 0 to !0 or 0 to !0
+            this._renderFlag = this._canRender();
         }
     }
 
-    protected _updateWorldAlpha () {
-        let localAlpha = this.color.a / 255;
-        if (localAlpha === 1) localAlpha = this.node._uiProps.localOpacity; // Hack for Mask use ui-opacity
-        const alpha = this.node._uiProps.opacity * localAlpha;
-        this.node._uiProps.opacity = alpha;
-        this._colorDirty = this._colorDirty || alpha !== this._cacheAlpha;
-        this._cacheAlpha = alpha;
-    }
-
+    /**
+     * @legacyPublic
+     */
     public _updateBlendFunc () {
         // todo: Not only Pass[0].target[0]
         let target = this._blendState.targets[0];
@@ -486,6 +432,9 @@ export class Renderable2D extends RenderableComponent {
             target.blendDstAlpha = BlendFactor.ONE_MINUS_SRC_ALPHA;
             target.blendDst = this._dstBlendFactor;
             target.blendSrc = this._srcBlendFactor;
+            if (this.renderData) {
+                this.renderData.passDirty = true;
+            }
         }
         this.updateBlendHash();
     }
@@ -509,23 +458,35 @@ export class Renderable2D extends RenderableComponent {
         }
     }
 
+    protected _colorDirty () {
+        this.node._uiProps.colorDirty = true;
+    }
+
+    protected _onMaterialModified (idx: number, material: Material | null) {
+        if (this._renderData) {
+            this.markForUpdateRenderData();
+            this._renderData.passDirty = true;
+        }
+        super._onMaterialModified(idx, material);
+    }
+
     protected _updateBuiltinMaterial () : Material {
         let mat : Material;
         switch (this._instanceMaterialType) {
         case InstanceMaterialType.ADD_COLOR:
-            mat = builtinResMgr.get('ui-base-material');
+            mat = builtinResMgr.get(`ui-base-material`);
             break;
         case InstanceMaterialType.GRAYSCALE:
-            mat = builtinResMgr.get('ui-sprite-gray-material');
+            mat = builtinResMgr.get(`ui-sprite-gray-material`);
             break;
         case InstanceMaterialType.USE_ALPHA_SEPARATED:
-            mat = builtinResMgr.get('ui-sprite-alpha-sep-material');
+            mat = builtinResMgr.get(`ui-sprite-alpha-sep-material`);
             break;
         case InstanceMaterialType.USE_ALPHA_SEPARATED_AND_GRAY:
-            mat = builtinResMgr.get('ui-sprite-gray-alpha-sep-material');
+            mat = builtinResMgr.get(`ui-sprite-gray-alpha-sep-material`);
             break;
         default:
-            mat = builtinResMgr.get('ui-sprite-material');
+            mat = builtinResMgr.get(`ui-sprite-material`);
             break;
         }
         return mat;
@@ -533,8 +494,16 @@ export class Renderable2D extends RenderableComponent {
 
     protected _flushAssembler? (): void;
 
-    public _setCacheAlpha (value) {
-        this._cacheAlpha = value;
+    public setNodeDirty () {
+        if (this.renderData) {
+            this.renderData.nodeDirty = true;
+        }
+    }
+
+    public setTextureDirty () {
+        if (this.renderData) {
+            this.renderData.textureDirty = true;
+        }
     }
 }
 

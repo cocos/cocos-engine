@@ -1,8 +1,3 @@
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import b2 from '@cocos/box2d';
 import { IRigidBody2D } from '../spec/i-rigid-body';
 import { RigidBody2D } from '../framework/components/rigid-body-2d';
@@ -83,13 +78,12 @@ export class b2RigidBody2D implements IRigidBody2D {
             for (let i = 0; i < colliders.length; i++) {
                 colliders[i].apply();
             }
-        } else {
-            if (type & Node.TransformBit.POSITION) {
-                this.syncPositionToPhysics(true);
-            }
-            if (type & Node.TransformBit.ROTATION) {
-                this.syncRotationToPhysics(true);
-            }
+        }
+        if (type & Node.TransformBit.POSITION) {
+            this.syncPositionToPhysics(true);
+        }
+        if (type & Node.TransformBit.ROTATION) {
+            this.syncRotationToPhysics(true);
         }
     }
 

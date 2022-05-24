@@ -18,7 +18,7 @@ const _indices: number[] = [];
 let _boneInfoOffset = 0;
 let _indexOffset = 0;
 let _vfOffset = 0;
-let _preTexUrl: string|null = null;
+let _preTexID: string|null = null;
 let _preBlendMode: spine.BlendMode | null = null;
 let _segVCount = 0;
 let _segICount = 0;
@@ -96,7 +96,12 @@ export class AnimationCache {
     public frames: AnimationFrame[] = [];
     public totalTime = 0;
     public isCompleted = false;
+    public maxVertexCount = 0;
+    public maxIndexCount = 0;
 
+    /**
+     * @legacyPublic
+     */
     public _privateMode = false;
     protected _inited = false;
     protected _invalid = true;
@@ -328,7 +333,7 @@ export class AnimationCache {
         _vfOffset = 0;
         _boneInfoOffset = 0;
         _indexOffset = 0;
-        _preTexUrl = null;
+        _preTexID = null;
         _preBlendMode = null;
         _segVCount = 0;
         _segICount = 0;
@@ -377,7 +382,8 @@ export class AnimationCache {
 
         // Fill vertices
         let vertices = frame.vertices;
-        const copyOutVerticeSize = _vfOffset / PerVertexSize * ExportVertexSize;
+        const vertexCount = _vfOffset / PerVertexSize;
+        const copyOutVerticeSize = vertexCount * ExportVertexSize;
         if (!vertices || vertices.length < copyOutVerticeSize) {
             vertices = frame.vertices = new Float32Array(copyOutVerticeSize);
         }
@@ -403,6 +409,8 @@ export class AnimationCache {
 
         frame.vertices = vertices;
         frame.indices = indices;
+        this.maxVertexCount = vertexCount > this.maxVertexCount ? vertexCount : this.maxVertexCount;
+        this.maxIndexCount = indices.length > this.maxIndexCount ? indices.length : this.maxIndexCount;
     }
 
     protected needToUpdate (toFrameIdx?: number) {
@@ -449,6 +457,10 @@ export class AnimationCache {
         for (let slotIdx = 0, slotCount = skeleton.drawOrder.length; slotIdx < slotCount; slotIdx++) {
             slot = skeleton.drawOrder[slotIdx];
 
+            if (!slot.bone.active) {
+                continue;
+            }
+
             _vfCount = 0;
             _indexCount = 0;
 
@@ -479,8 +491,8 @@ export class AnimationCache {
             }
 
             blendMode = slot.data.blendMode;
-            if (_preTexUrl !== texture.nativeUrl || _preBlendMode !== blendMode) {
-                _preTexUrl = texture.nativeUrl;
+            if (_preTexID !== texture.getId() || _preBlendMode !== blendMode) {
+                _preTexID = texture.getId();
                 _preBlendMode = blendMode;
                 // Handle pre segment.
                 preSegOffset = _segOffset - 1;
@@ -686,10 +698,10 @@ class SkeletonCache {
         return animationCache;
     }
 
-    public updateAnimationCache (uuid: string, animationName: string): null | void {
+    public updateAnimationCache (uuid: string, animationName: string): void {
         if (animationName) {
             const animationCache = this.initAnimationCache(uuid, animationName);
-            if (!animationCache) return null;
+            if (!animationCache) return;
             animationCache.updateAllFrame();
         } else {
             const skeletonInfo = this._skeletonCache[uuid];

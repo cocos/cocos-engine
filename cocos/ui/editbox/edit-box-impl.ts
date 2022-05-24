@@ -26,16 +26,13 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
+import { screenAdapter } from 'pal/screen-adapter';
 import { BitmapFont } from '../../2d/assets';
 import { director } from '../../core/director';
 import { game } from '../../core/game';
 import { Color, Mat4, Size, Vec3 } from '../../core/math';
-import { KeyCode, screen, view } from '../../core/platform';
+import { view } from '../../core/platform';
+import { KeyCode } from '../../input/types';
 import { contains } from '../../core/utils/misc';
 import { Label } from '../../2d/components/label';
 import { EditBox } from './edit-box';
@@ -62,13 +59,37 @@ let _currentEditBoxImpl: EditBoxImpl | null = null;
 let _domCount = 0;
 
 export class EditBoxImpl extends EditBoxImplBase {
+    /**
+     * @legacyPublic
+     */
     public _delegate: EditBox | null = null;
+    /**
+     * @legacyPublic
+     */
     public _inputMode: InputMode = -1;
+    /**
+     * @legacyPublic
+     */
     public _inputFlag: InputFlag = -1;
+    /**
+     * @legacyPublic
+     */
     public _returnType: KeyboardReturnType = -1;
+    /**
+     * @legacyPublic
+     */
     public __eventListeners: any = {};
+    /**
+     * @legacyPublic
+     */
     public __autoResize = false;
+    /**
+     * @legacyPublic
+     */
     public __orientationChanged: any;
+    /**
+     * @legacyPublic
+     */
     public _edTxt: HTMLInputElement | HTMLTextAreaElement | null = null;
     private _isTextArea = false;
 
@@ -101,8 +122,6 @@ export class EditBoxImpl extends EditBoxImplBase {
         this._initStyleSheet();
         this._registerEventListeners();
         this._addDomToGameContainer();
-
-        this.__autoResize = view._resizeWithBrowserSize;
     }
 
     public clear () {
@@ -225,18 +244,13 @@ export class EditBoxImpl extends EditBoxImplBase {
             return;
         }
 
-        if (this.__autoResize) {
-            view.resizeWithBrowserSize(false);
-        }
-
+        screenAdapter.handleResizeEvent = false;
         this._adjustWindowScroll();
     }
 
     private _hideDomOnMobile () {
         if (sys.os === OS.ANDROID || sys.os === OS.OHOS) {
-            if (this.__autoResize) {
-                view.resizeWithBrowserSize(true);
-            }
+            screenAdapter.handleResizeEvent = true;
         }
 
         this._scrollBackWindow();
@@ -281,7 +295,8 @@ export class EditBoxImpl extends EditBoxImplBase {
         scaleX *= widthRatio;
         scaleY *= heightRatio;
         const viewport = view.getViewportRect();
-        const dpr = view.getDevicePixelRatio();
+        // TODO: implement editBox in PAL
+        const dpr = screenAdapter.devicePixelRatio;
 
         node.getWorldMatrix(_matrix);
         const transform = node._uiProps.uiTransformComp;
@@ -378,7 +393,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         } else if (inputMode === InputMode.PHONE_NUMBER) {
             type = 'number';
             elem.pattern = '[0-9]*';
-            elem.addEventListener("wheel", () => false);
+            elem.addEventListener('wheel', () => false);
         } else if (inputMode === InputMode.URL) {
             type = 'url';
         } else {

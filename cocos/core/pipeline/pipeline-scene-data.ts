@@ -1,8 +1,6 @@
 /*
  Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
-
  https://www.cocos.com/
-
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
@@ -10,10 +8,8 @@
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
-
  The software or tools in this License Agreement are licensed, not sold.
  Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
-
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,46 +19,32 @@
  THE SOFTWARE.
  */
 
-import { JSB } from 'internal:constants';
 import { Fog } from '../renderer/scene/fog';
 import { Ambient } from '../renderer/scene/ambient';
 import { Skybox } from '../renderer/scene/skybox';
 import { Shadows } from '../renderer/scene/shadows';
+import { Octree } from '../renderer/scene/octree';
 import { IRenderObject } from './define';
-import { Device, Framebuffer } from '../gfx';
-import { RenderPipeline } from './render-pipeline';
+import { Device, Framebuffer, InputAssembler, InputAssemblerInfo, Buffer, BufferInfo,
+    BufferUsageBit, MemoryUsageBit, Attribute, Format, Shader } from '../gfx';
 import { Light } from '../renderer/scene/light';
-import { NativePipelineSharedSceneData } from '../renderer/scene';
+import { Material } from '../assets';
+import { Pass } from '../renderer/core/pass';
+
+const GEOMETRY_RENDERER_TECHNIQUE_COUNT = 6;
 
 export class PipelineSceneData {
-    private _init (): void {
-        if (JSB) {
-            this._nativeObj = new NativePipelineSharedSceneData();
-            this._nativeObj.fog = this.fog.native;
-            this._nativeObj.ambient = this.ambient.native;
-            this._nativeObj.skybox = this.skybox.native;
-            this._nativeObj.shadow = this.shadows.native;
-        }
-    }
-
-    public get native (): NativePipelineSharedSceneData {
-        return this._nativeObj!;
-    }
-
     /**
-     * @en Is open HDR.
-     * @zh 是否开启 HDR。
-     * @readonly
-     */
+      * @en Is open HDR.
+      * @zh 是否开启 HDR。
+      * @readonly
+      */
     public get isHDR () {
         return this._isHDR;
     }
 
     public set isHDR (val: boolean) {
         this._isHDR = val;
-        if (JSB) {
-            this._nativeObj!.isHDR = val;
-        }
     }
     public get shadingScale () {
         return this._shadingScale;
@@ -70,60 +52,142 @@ export class PipelineSceneData {
 
     public set shadingScale (val: number) {
         this._shadingScale = val;
-        if (JSB) {
-            this._nativeObj!.shadingScale = val;
-        }
-    }
-    public get fpScale () {
-        return this._fpScale;
-    }
-    public set fpScale (val: number) {
-        this._fpScale = val;
-        if (JSB) {
-            this._fpScale = val;
-        }
     }
 
     public fog: Fog = new Fog();
     public ambient: Ambient = new Ambient();
     public skybox: Skybox = new Skybox();
     public shadows: Shadows = new Shadows();
+    public octree: Octree = new Octree();
+
     /**
-     * @en The list for render objects, only available after the scene culling of the current frame.
-     * @zh 渲染对象数组，仅在当前帧的场景剔除完成后有效。
-     */
+      * @en The list for valid punctual Lights, only available after the scene culling of the current frame.
+      * @zh 场景中精确的有效光源，仅在当前帧的场景剔除完成后有效。
+      */
+    public validPunctualLights: Light[] = [];
+
+    /**
+      * @en The list for render objects, only available after the scene culling of the current frame.
+      * @zh 渲染对象数组，仅在当前帧的场景剔除完成后有效。
+      */
     public renderObjects: IRenderObject[] = [];
-    public shadowObjects: IRenderObject[] = [];
+    public castShadowObjects: IRenderObject[] = [];
+    public dirShadowObjects: IRenderObject[] = [];
     public shadowFrameBufferMap: Map<Light, Framebuffer> = new Map();
     protected declare _device: Device;
-    protected declare _pipeline: RenderPipeline;
-    protected declare _nativeObj: NativePipelineSharedSceneData | null;
-    protected _isHDR = false;
+    protected _geometryRendererMaterials: Material[] = [];
+    protected _geometryRendererPasses: Pass[] = [];
+    protected _geometryRendererShaders: Shader[] = [];
+    protected _occlusionQueryVertexBuffer: Buffer | null = null;
+    protected _occlusionQueryIndicesBuffer: Buffer | null = null;
+    protected _occlusionQueryInputAssembler: InputAssembler | null = null;
+    protected _occlusionQueryMaterial: Material | null = null;
+    protected _occlusionQueryShader: Shader | null = null;
+    protected _isHDR = true;
     protected _shadingScale = 1.0;
-    protected _fpScale = 1.0 / 1024.0;
 
     constructor () {
-        this._init();
-        this.shadingScale = 1.0;
-        this.fpScale = 1.0 / 1024.0;
+        this._shadingScale = 1.0;
     }
 
-    public activate (device: Device, pipeline: RenderPipeline) {
+    public activate (device: Device) {
         this._device = device;
-        this._pipeline = pipeline;
+
+        this.initGeometryRendererMaterials();
+        this.initOcclusionQuery();
+
         return true;
     }
 
-    public onGlobalPipelineStateChanged () {
+    public initGeometryRendererMaterials () {
+        let offset = 0;
+        for (let tech = 0; tech < GEOMETRY_RENDERER_TECHNIQUE_COUNT; tech++) {
+            this._geometryRendererMaterials[tech] = new Material();
+            this._geometryRendererMaterials[tech]._uuid = `geometry-renderer-material-${tech}`;
+            this._geometryRendererMaterials[tech].initialize({ effectName: 'geometry-renderer', technique: tech });
+
+            for (let pass = 0; pass < this._geometryRendererMaterials[tech].passes.length; ++pass) {
+                this._geometryRendererPasses[offset] = this._geometryRendererMaterials[tech].passes[pass];
+                this._geometryRendererShaders[offset] = this._geometryRendererMaterials[tech].passes[pass].getShaderVariant()!;
+                offset++;
+            }
+        }
+    }
+
+    public get geometryRendererPasses () {
+        return this._geometryRendererPasses;
+    }
+
+    public get geometryRendererShaders () {
+        return this._geometryRendererShaders;
+    }
+
+    public initOcclusionQuery () {
+        if (!this._occlusionQueryInputAssembler) {
+            this._occlusionQueryInputAssembler = this._createOcclusionQueryIA();
+        }
+
+        if (!this._occlusionQueryMaterial) {
+            const mat = new Material();
+            mat._uuid = 'default-occlusion-query-material';
+            mat.initialize({ effectName: 'occlusion-query' });
+            this._occlusionQueryMaterial = mat;
+            this._occlusionQueryShader = mat.passes[0].getShaderVariant();
+        }
+    }
+
+    public getOcclusionQueryPass (): Pass | null {
+        if (this._occlusionQueryMaterial) {
+            return this._occlusionQueryMaterial.passes[0];
+        }
+
+        return null;
+    }
+
+    public updatePipelineSceneData () {
     }
 
     public destroy () {
-        this.ambient.destroy();
-        this.skybox.destroy();
-        this.fog.destroy();
         this.shadows.destroy();
-        if (JSB) {
-            this._nativeObj = null;
-        }
+        this.validPunctualLights.length = 0;
+        this._occlusionQueryInputAssembler?.destroy();
+        this._occlusionQueryInputAssembler = null;
+        this._occlusionQueryVertexBuffer?.destroy();
+        this._occlusionQueryVertexBuffer = null;
+        this._occlusionQueryIndicesBuffer?.destroy();
+        this._occlusionQueryIndicesBuffer = null;
+    }
+
+    private _createOcclusionQueryIA () {
+        // create vertex buffer
+        const device = this._device;
+        const vertices = new Float32Array([-1, -1, -1, 1, -1, -1, -1, 1, -1, 1, 1, -1, -1, -1, 1, 1, -1, 1, -1, 1, 1, 1, 1, 1]);
+        const vbStride = Float32Array.BYTES_PER_ELEMENT * 3;
+        const vbSize = vbStride * 8;
+        this._occlusionQueryVertexBuffer = device.createBuffer(new BufferInfo(
+            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.DEVICE, vbSize, vbStride,
+        ));
+        this._occlusionQueryVertexBuffer.update(vertices);
+
+        // create index buffer
+        const indices = new Uint16Array([0, 2, 1, 1, 2, 3, 4, 5, 6, 5, 7, 6, 1, 3, 7, 1, 7, 5, 0, 4, 6, 0, 6, 2, 0, 1, 5, 0, 5, 4, 2, 6, 7, 2, 7, 3]);
+        const ibStride = Uint16Array.BYTES_PER_ELEMENT;
+        const ibSize = ibStride * 36;
+        this._occlusionQueryIndicesBuffer = device.createBuffer(new BufferInfo(
+            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.DEVICE, ibSize, ibStride,
+        ));
+        this._occlusionQueryIndicesBuffer.update(indices);
+
+        const attributes: Attribute[] = [
+            new Attribute('a_position', Format.RGB32F),
+        ];
+
+        // create cube input assembler
+        const info = new InputAssemblerInfo(attributes, [this._occlusionQueryVertexBuffer], this._occlusionQueryIndicesBuffer);
+        const inputAssembler = device.createInputAssembler(info);
+
+        return inputAssembler;
     }
 }

@@ -29,7 +29,7 @@
  */
 
 import { ccclass, serializable, editable } from 'cc.decorator';
-import { EDITOR, JSB, TEST } from 'internal:constants';
+import { EDITOR, TEST } from 'internal:constants';
 import { CCObject } from '../data/object';
 import { Mat4, Quat, Vec3 } from '../math';
 import { assert, getError } from '../platform/debug';
@@ -38,8 +38,7 @@ import { BaseNode } from './base-node';
 import { legacyCC } from '../global-exports';
 import { Component } from '../components/component';
 import { SceneGlobals } from './scene-globals';
-import { applyTargetOverrides } from '../utils/prefab/utils';
-import { NativeScene } from '../renderer/scene/native-scene';
+import { applyTargetOverrides, expandNestedPrefabInstanceNode } from '../utils/prefab/utils';
 
 /**
  * @en
@@ -75,13 +74,15 @@ export class Scene extends BaseNode {
     /**
      * @en Per-scene level rendering info
      * @zh 场景级别的渲染信息
+     *
+     * @legacyPublic
      */
     @serializable
     public _globals = new SceneGlobals();
 
-    public _renderScene: RenderScene | null = null;
-
     public dependAssets = null; // cache all depend assets for auto release
+
+    protected _renderScene: RenderScene | null = null;
 
     protected _inited: boolean;
 
@@ -98,20 +99,14 @@ export class Scene extends BaseNode {
 
     protected _dirtyFlags = 0;
 
-    protected declare _nativeObj: NativeScene | null;
+    protected _lpos = Vec3.ZERO;
+
+    protected _lrot = Quat.IDENTITY;
+
+    protected _lscale = Vec3.ONE;
 
     protected _updateScene () {
         this._scene = this;
-    }
-
-    get native (): any {
-        return this._nativeObj;
-    }
-
-    protected _init () {
-        if (JSB) {
-            this._nativeObj = new NativeScene();
-        }
     }
 
     constructor (name: string) {
@@ -121,7 +116,6 @@ export class Scene extends BaseNode {
             this._renderScene = legacyCC.director.root.createScene({});
         }
         this._inited = legacyCC.game ? !legacyCC.game._isCloning : true;
-        this._init();
     }
 
     /**
@@ -156,8 +150,14 @@ export class Scene extends BaseNode {
         throw new Error(getError(3822));
     }
 
+    /**
+     * @legacyPublic
+     */
     public _onHierarchyChanged () { }
 
+    /**
+     * @legacyPublic
+     */
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
         super._onBatchCreated(dontSyncChildPrefab);
         const len = this._children.length;
@@ -165,8 +165,6 @@ export class Scene extends BaseNode {
             this.children[i]._siblingIndex = i;
             this._children[i]._onBatchCreated(dontSyncChildPrefab);
         }
-
-        applyTargetOverrides(this);
     }
 
     // transform helpers
@@ -268,12 +266,15 @@ export class Scene extends BaseNode {
     protected _load () {
         if (!this._inited) {
             if (TEST) {
-                assert(!this._activeInHierarchy, 'Should deactivate ActionManager and EventManager by default');
+                assert(!this._activeInHierarchy, 'Should deactivate ActionManager by default');
             }
+
+            expandNestedPrefabInstanceNode(this);
+            applyTargetOverrides(this);
             this._onBatchCreated(EDITOR && this._prefabSyncedInLiveReload);
             this._inited = true;
         }
-        // static methode can't use this as parameter type
+        // static method can't use this as parameter type
         this.walk(BaseNode._setScene);
     }
 
@@ -285,7 +286,9 @@ export class Scene extends BaseNode {
         }
         legacyCC.director._nodeActivator.activateNode(this, active);
         // The test environment does not currently support the renderer
-        if (!TEST) this._globals.activate();
+        if (!TEST) {
+            this._globals.activate();
+        }
     }
 }
 

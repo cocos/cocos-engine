@@ -20,6 +20,8 @@ export function EditorExtendableMixin<T> (Base: new (...args: any[]) => T, class
     return editorExtendableInternal(Base);
 }
 
+class Empty {}
+
 /**
  * Class which implements the `EditorExtendableObject` interface.
  */
@@ -36,7 +38,7 @@ function editorExtendableInternal<T> (Base?: (new (...args: any[]) => T), classN
     type ResultType = new (...args: any[]) => (T & EditorExtendableObject);
 
     if (!EDITOR) {
-        return (Base ?? Object) as unknown as ResultType;
+        return (Base ?? Empty) as unknown as ResultType;
     }
 
     let name: string;

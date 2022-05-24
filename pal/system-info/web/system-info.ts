@@ -1,7 +1,7 @@
 import { DEBUG, EDITOR, TEST } from 'internal:constants';
-import { SupportCapability } from 'pal/system-info';
-import { EventTarget } from '../../../cocos/core/event/event-target';
-import { BrowserType, NetworkType, OS, Platform, Language } from '../enum-type';
+import { IFeatureMap } from 'pal/system-info';
+import { EventTarget } from '../../../cocos/core/event';
+import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
 
 class SystemInfo extends EventTarget {
     public readonly networkType: NetworkType;
@@ -17,9 +17,8 @@ class SystemInfo extends EventTarget {
     public readonly osMainVersion: number;
     public readonly browserType: BrowserType;
     public readonly browserVersion: string;
-    public readonly pixelRatio: number;
-    public readonly supportCapability: SupportCapability;
     private _battery?: any;
+    private _featureMap: IFeatureMap;
 
     constructor () {
         super();
@@ -142,8 +141,6 @@ class SystemInfo extends EventTarget {
         }
         this.browserVersion = tmp ? tmp[4] : '';
 
-        this.pixelRatio = window.devicePixelRatio || 1;
-
         // init capability
         const _tmpCanvas1 = document.createElement('canvas');
         const supportCanvas = TEST ? false : !!_tmpCanvas1.getContext('2d');
@@ -167,11 +164,21 @@ class SystemInfo extends EventTarget {
                 imageBitmap?.close();
             }).catch((err) => {});
         }
-        this.supportCapability = {
-            webp: supportWebp,
-            gl: supportWebGL,
-            canvas: supportCanvas,
-            imageBitmap: supportImageBitmap,
+
+        const supportTouch = (document.documentElement.ontouchstart !== undefined || document.ontouchstart !== undefined);
+        const supportMouse = !EDITOR && document.documentElement.onmouseup !== undefined;
+        this._featureMap = {
+            [Feature.WEBP]: supportWebp,
+            [Feature.IMAGE_BITMAP]: supportImageBitmap,
+            [Feature.WEB_VIEW]: true,
+            [Feature.VIDEO_PLAYER]: true,
+            [Feature.SAFE_AREA]: false,
+
+            [Feature.INPUT_TOUCH]: supportTouch,
+            [Feature.EVENT_KEYBOARD]: document.documentElement.onkeyup !== undefined,
+            [Feature.EVENT_MOUSE]: supportMouse,
+            [Feature.EVENT_TOUCH]: supportTouch || supportMouse,
+            [Feature.EVENT_ACCELEROMETER]: (window.DeviceMotionEvent !== undefined || window.DeviceOrientationEvent !== undefined),
         };
 
         this._registerEvent();
@@ -243,6 +250,10 @@ class SystemInfo extends EventTarget {
             document.addEventListener('pagehide', onHidden);
             document.addEventListener('pageshow', onShown);
         }
+    }
+
+    public hasFeature (feature: Feature): boolean {
+        return this._featureMap[feature];
     }
 
     public getBatteryLevel (): number {

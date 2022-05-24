@@ -33,7 +33,7 @@ export class WebGL2PipelineLayout extends PipelineLayout {
 
     private _gpuPipelineLayout: IWebGL2GPUPipelineLayout | null = null;
 
-    public initialize (info: PipelineLayoutInfo) {
+    public initialize (info: Readonly<PipelineLayoutInfo>) {
         Array.prototype.push.apply(this._setLayouts, info.setLayouts);
 
         const dynamicOffsetIndices: number[][] = [];
@@ -62,8 +62,6 @@ export class WebGL2PipelineLayout extends PipelineLayout {
             dynamicOffsetCount,
             dynamicOffsetOffsets,
         };
-
-        return true;
     }
 
     public destroy () {

@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { Shader, RenderPass, InputAssembler, Device, PipelineState, InputState, PipelineStateInfo } from '../gfx';
 import { Pass } from '../renderer/core/pass';
@@ -39,7 +36,7 @@ export class PipelineStateManager {
         const hash1 = pass.hash;
         const hash2 = renderPass.hash;
         const hash3 = ia.attributesHash;
-        const hash4 = shader.id;
+        const hash4 = shader.typedID;
 
         const newHash = hash1 ^ hash2 ^ hash3 ^ hash4;
         let pso = this._PSOHashMap.get(newHash);
@@ -47,7 +44,7 @@ export class PipelineStateManager {
             const pipelineLayout = pass.pipelineLayout;
             const inputState = new InputState(ia.attributes);
             const psoInfo = new PipelineStateInfo(
-                shader, pass.pipelineLayout, renderPass, inputState,
+                shader, pipelineLayout, renderPass, inputState,
                 pass.rasterizerState,
                 pass.depthStencilState,
                 pass.blendState,

@@ -3,7 +3,9 @@
         "base": { "modules": [ "base" ] },
         "gfx-webgl": { "modules": [ "gfx-webgl" ] },
         "gfx-webgl2": { "modules": [ "gfx-webgl2" ] },
-        "3d": { "modules": [ "3d" ] },
+        "3d": { "modules": [ "3d" ], "dependentAssets": ["0835f102-5471-47a3-9a76-01c07ac9cdb2", "b5475517-23b9-4873-bc1a-968d96616081", "0ed97c56-390e-4dd1-96b7-e7f2d93a98ed", "b23391b6-52eb-46a6-8da1-6244d9d315fb"] },
+        "animation": { "modules": ["animation"] },
+        "skeletal-animation": { "modules": ["animation", "skeletal-animation"] },
         "2d": { "modules": [ "2d" ] },
         "ui": { "modules": [ "ui", "2d" ] },
         "particle": { "modules": [ "particle" ] },
@@ -26,7 +28,13 @@
         "tween": { "modules": [ "tween" ] },
         "tiled-map": { "modules": [ "tiled-map" ] },
         "spine": { "modules": [ "spine" ] },
-        "dragon-bones": { "modules": [ "dragon-bones" ] }
+        "dragon-bones": { "modules": [ "dragon-bones" ] },
+        "marionette": {
+            "modules": [],
+            "intrinsicFlags": {
+                "MARIONETTE": true
+            }
+        }
     },
     "moduleOverrides": [
         {
@@ -40,13 +48,52 @@
             "isVirtualModule": false,
             "overrides": {
                 "cocos/core/pipeline/index.ts": "cocos/core/pipeline/index.jsb.ts",
+                "cocos/core/pipeline/render-pipeline.ts": "cocos/core/pipeline/render-pipeline.jsb.ts",
+                "cocos/core/pipeline/geometry-renderer.ts": "cocos/core/pipeline/geometry-renderer.jsb.ts",
+                "cocos/core/pipeline/custom/index.ts": "cocos/core/pipeline/custom/index.jsb.ts",
                 "cocos/core/renderer/core/native-pools.ts": "cocos/core/renderer/core/native-pools.jsb.ts",
+                "cocos/core/renderer/core/material-instance.ts": "cocos/core/renderer/core/material-instance.jsb.ts",
+                "cocos/core/renderer/core/pass.ts": "cocos/core/renderer/core/pass.jsb.ts",
+                "cocos/core/renderer/core/program-lib.ts": "cocos/core/renderer/core/program-lib.jsb.ts",
+                "cocos/core/renderer/core/render-window.ts": "cocos/core/renderer/core/render-window.jsb.ts",
+                "cocos/core/renderer/core/sampler-lib.ts": "cocos/core/renderer/core/sampler.jsb.ts",
+                "cocos/core/renderer/scene/camera.ts": "cocos/core/renderer/scene/camera.jsb.ts",
+                "cocos/core/renderer/scene/model.ts": "cocos/core/renderer/scene/model.jsb.ts",
+                "cocos/core/renderer/scene/render-scene.ts": "cocos/core/renderer/scene/render-scene.jsb.ts",
+                "cocos/core/renderer/scene/submodel.ts": "cocos/core/renderer/scene/submodel.jsb.ts",
+                "cocos/core/renderer/scene/index.ts": "cocos/core/renderer/scene/index.jsb.ts",
                 "cocos/core/gfx/index.ts": "cocos/core/gfx/index.jsb.ts",
                 "cocos/core/gfx/pipeline-state.ts": "cocos/core/gfx/pipeline-state.jsb.ts",
                 "cocos/spine/index.ts": "cocos/spine/index.jsb.ts",
                 "cocos/dragon-bones/index.ts": "cocos/dragon-bones/index.jsb.ts",
-                "cocos/core/renderer/scene/native-scene.ts": "cocos/core/renderer/scene/native-scene.jsb.ts",
-                "cocos/physics/physx/instantiate.ts": "cocos/physics/physx/instantiate.jsb.ts"
+                "cocos/physics/physx/instantiate.ts": "cocos/physics/physx/instantiate.jsb.ts",
+                "cocos/core/scene-graph/base-node.ts": "cocos/core/scene-graph/base-node.jsb.ts",
+                "cocos/core/scene-graph/node.ts": "cocos/core/scene-graph/node.jsb.ts",
+                "cocos/core/scene-graph/scene.ts": "cocos/core/scene-graph/scene.jsb.ts",
+                "cocos/core/scene-graph/scene-globals.ts": "cocos/core/scene-graph/scene-globals.jsb.ts",
+                "cocos/core/scene-graph/index.ts": "cocos/core/scene-graph/index.jsb.ts",
+                "cocos/core/root.ts": "cocos/core/root.jsb.ts",
+                "cocos/core/builtin/builtin-res-mgr.ts": "cocos/core/builtin/builtin-res-mgr.jsb.ts",
+                "cocos/core/assets/index.ts": "cocos/core/assets/index.jsb.ts",
+                "cocos/core/assets/asset.ts": "cocos/core/assets/asset.jsb.ts",
+                "cocos/core/assets/buffer-asset.ts": "cocos/core/assets/buffer-asset.jsb.ts",
+                "cocos/core/assets/render-texture.ts": "cocos/core/assets/render-texture.jsb.ts",
+                "cocos/core/assets/simple-texture.ts": "cocos/core/assets/simple-texture.jsb.ts",
+                "cocos/core/assets/scene-asset.ts": "cocos/core/assets/scene-asset.jsb.ts",
+                "cocos/core/assets/effect-asset.ts": "cocos/core/assets/effect-asset.jsb.ts",
+                "cocos/core/assets/image-asset.ts": "cocos/core/assets/image-asset.jsb.ts",
+                "cocos/core/assets/texture-base.ts": "cocos/core/assets/texture-base.jsb.ts",
+                "cocos/core/assets/texture-asset.ts": "cocos/core/assets/texture-asset.jsb.ts",
+                "cocos/core/assets/texture-2d.ts": "cocos/core/assets/texture-2d.jsb.ts",
+                "cocos/core/assets/texture-cube.ts": "cocos/core/assets/texture-cube.jsb.ts",
+                "cocos/core/assets/material.ts": "cocos/core/assets/material.jsb.ts",
+                "cocos/core/assets/rendering-sub-mesh.ts": "cocos/core/assets/rendering-sub-mesh.jsb.ts",
+                "cocos/3d/assets/mesh.ts":"cocos/3d/assets/mesh.jsb.ts",
+                "cocos/3d/assets/skeleton.ts":"cocos/3d/assets/skeleton.jsb.ts",
+                "cocos/3d/models/morph-model.ts":"cocos/3d/models/morph-model.jsb.ts",
+                "cocos/3d/models/skinning-model.ts":"cocos/3d/models/skinning-model.jsb.ts",
+                "cocos/3d/models/baked-skinning-model.ts":"cocos/3d/models/baked-skinning-model.jsb.ts",
+                "cocos/3d/misc/create-mesh.ts":"cocos/3d/misc/create-mesh.jsb.ts"
             }
         },
         {
@@ -99,6 +146,19 @@
             "overrides": {
                 "cocos/physics/physx/physx.asmjs.ts": "cocos/physics/physx/physx.null.ts"
             }
+        },
+        {
+            "test": "!context.buildTimeConstants.MARIONETTE",
+            "isVirtualModule": false,
+            "overrides": {
+                "cocos/core/animation/marionette/runtime-exports.ts": "cocos/core/animation/marionette/index-empty.ts"
+            }
         }
+    ],
+    "includes": [
+        "./exports/**/*.{ts,js,json}",
+        "./editor/exports/**/*.{ts,js,json}",
+        "./cocos/**/*.{ts,js,json}",
+        "./pal/**/*.{ts,js,json}"
     ]
 }

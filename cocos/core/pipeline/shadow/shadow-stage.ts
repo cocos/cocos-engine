@@ -29,9 +29,9 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { Color, Rect, Framebuffer } from '../../gfx';
+import { Color, Rect, Framebuffer, DescriptorSet } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
-import { ForwardStagePriority } from '../forward/enum';
+import { ForwardStagePriority } from '../enum';
 import { RenderShadowMapBatchedQueue } from '../render-shadow-map-batched-queue';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { SetIndex } from '../define';
@@ -63,7 +63,8 @@ export class ShadowStage extends RenderStage {
      * @param light
      * @param shadowFrameBuffer
      */
-    public setUsage (light: Light, shadowFrameBuffer: Framebuffer) {
+    public setUsage (globalDS: DescriptorSet, light: Light, shadowFrameBuffer: Framebuffer) {
+        this._globalDS = globalDS;
         this._light = light;
         this._shadowFrameBuffer = shadowFrameBuffer;
     }
@@ -72,8 +73,13 @@ export class ShadowStage extends RenderStage {
     private _shadowFrameBuffer: Framebuffer | null = null;
     private _renderArea = new Rect();
     private _light: Light | null = null;
+    private _globalDS: DescriptorSet | null = null;
 
     public destroy () {
+        this._shadowFrameBuffer = null;
+        this._globalDS = null;
+        this._light = null;
+
         this._additiveShadowQueue?.clear();
     }
 
@@ -94,11 +100,12 @@ export class ShadowStage extends RenderStage {
         const pipelineSceneData = pipeline.pipelineSceneData;
         const shadowInfo = pipelineSceneData.shadows;
         const shadingScale = pipelineSceneData.shadingScale;
-
+        const descriptorSet = this._globalDS!;
         const cmdBuff = pipeline.commandBuffers[0];
 
         if (!this._light || !this._shadowFrameBuffer) { return; }
-        this._additiveShadowQueue.gatherLightPasses(this._light, cmdBuff);
+        this._pipeline.pipelineUBO.updateShadowUBOLight(descriptorSet, this._light);
+        this._additiveShadowQueue.gatherLightPasses(descriptorSet, camera, this._light, cmdBuff);
 
         const vp = camera.viewport;
         const shadowMapSize = shadowInfo.size;
@@ -112,8 +119,7 @@ export class ShadowStage extends RenderStage {
 
         cmdBuff.beginRenderPass(renderPass, this._shadowFrameBuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
-
-        cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
+        cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, descriptorSet);
 
         this._additiveShadowQueue.recordCommandBuffer(device, renderPass, cmdBuff);
 

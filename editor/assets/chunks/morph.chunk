@@ -1,18 +1,7 @@
 // Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
 #include <common> // decode32
-#pragma define CC_MORPH_TARGET_COUNT range([2, 8])
-
-#if __VERSION__ < 450
-  in float a_vertexId;
-  int getVertexId() {
-    return int(a_vertexId);
-  }
-#else
-  int getVertexId() {
-    return gl_VertexIndex; // vulkan convension
-  }
-#endif
+#pragma define-meta CC_MORPH_TARGET_COUNT range([2, 8])
 
 #pragma builtin(local)
 layout(set = 2, binding = 4) uniform CCMorph {
@@ -94,7 +83,7 @@ vec3 getVec3DisplacementFromTexture(sampler2D tex, int vertexIndex) {
 
 #if CC_MORPH_TARGET_HAS_POSITION
   #pragma builtin(local)
-  layout(set = 2, binding = 6) uniform sampler2D cc_PositionDisplacements;
+  layout(set = 2, binding = 7) uniform sampler2D cc_PositionDisplacements;
   vec3 getPositionDisplacement(int vertexId) {
     return getVec3DisplacementFromTexture(cc_PositionDisplacements, vertexId);
   }
@@ -102,7 +91,7 @@ vec3 getVec3DisplacementFromTexture(sampler2D tex, int vertexIndex) {
 
 #if CC_MORPH_TARGET_HAS_NORMAL
   #pragma builtin(local)
-  layout(set = 2, binding = 7) uniform sampler2D cc_NormalDisplacements;
+  layout(set = 2, binding = 8) uniform sampler2D cc_NormalDisplacements;
   vec3 getNormalDisplacement(int vertexId) {
     return getVec3DisplacementFromTexture(cc_NormalDisplacements, vertexId);
   }
@@ -110,25 +99,25 @@ vec3 getVec3DisplacementFromTexture(sampler2D tex, int vertexIndex) {
 
 #if CC_MORPH_TARGET_HAS_TANGENT
   #pragma builtin(local)
-  layout(set = 2, binding = 8) uniform sampler2D cc_TangentDisplacements;
+  layout(set = 2, binding = 9) uniform sampler2D cc_TangentDisplacements;
   vec3 getTangentDisplacement(int vertexId) {
     return getVec3DisplacementFromTexture(cc_TangentDisplacements, vertexId);
   }
 #endif
 
-void applyMorph (inout StandardVertInput attr) {
+void applyMorph (inout vec4 position, inout vec3 normal, inout vec4 tangent) {
   int vertexId = getVertexId();
 
 #if CC_MORPH_TARGET_HAS_POSITION
-  attr.position.xyz = attr.position.xyz + getPositionDisplacement(vertexId);
+  position.xyz = position.xyz + getPositionDisplacement(vertexId);
 #endif
 
 #if CC_MORPH_TARGET_HAS_NORMAL
-  attr.normal.xyz = attr.normal.xyz + getNormalDisplacement(vertexId);
+  normal.xyz = normal.xyz + getNormalDisplacement(vertexId);
 #endif
 
 #if CC_MORPH_TARGET_HAS_TANGENT
-  attr.tangent.xyz = attr.tangent.xyz + getTangentDisplacement(vertexId);
+  tangent.xyz = tangent.xyz + getTangentDisplacement(vertexId);
 #endif
 }
 

@@ -1,3 +1,6 @@
+// some interfaces might be overridden
+/* eslint-disable import/no-mutable-exports */
+
 /**
  * API for jsb module
  * Author: haroel
@@ -126,6 +129,44 @@ declare namespace jsb {
          */
         export function callStaticMethod (className: string, methodName: string, methodSignature: string, ...parameters:any): any;
     }
+    export namespace bridge{
+        /**
+         * send to native with at least one argument.
+         */
+        export function sendToNative(arg0: string, arg1?: string): void;
+        /**
+         * save your own callback controller with a js function,
+         * use jsb.bridge.onNative = (arg0: String, arg1: String)=>{...}
+         * @param args : received from native
+         */
+        export function onNative(arg0: string, arg1?: string|null): void;
+    }
+    /**
+     * Listener for jsbBridgeWrapper's event.
+     * It takes one argument as string which is transferred by jsbBridge.
+     */
+    export type OnNativeEventListener = (arg: string) => void;
+    export namespace jsbBridgeWrapper {
+        /** If there's no event registered, the wrapper will create one  */
+        export function addNativeEventListener(eventName: string, listener: OnNativeEventListener);
+        /**
+         * Dispatch the event registered on Objective-C, Java etc.
+         * No return value in JS to tell you if it works.
+         */
+        export function dispatchEventToNative(eventName: string, arg?: string);
+        /**
+         * Remove all listeners relative.
+         */
+        export function removeAllListenersForEvent(eventName: string);
+        /**
+         * Remove the listener specified
+         */
+        export function removeNativeEventListener(eventName: string, listener: OnNativeEventListener);
+        /**
+         * Remove all events, use it carefully!
+         */
+        export function removeAllListeners();
+    }
     /**
      * 下载任务对象
      */
@@ -145,7 +186,8 @@ declare namespace jsb {
 
         setOnFileTaskSuccess (onSucceed: (task: DownloaderTask) => void): void;
 
-        setOnTaskProgress (onProgress: (task: DownloaderTask, bytesReceived: number, totalBytesReceived: number, totalBytesExpected: number) => void): void;
+        setOnTaskProgress (onProgress: (task: DownloaderTask, bytesReceived: number,
+            totalBytesReceived: number, totalBytesExpected: number) => void): void;
 
         setOnTaskError (onError: (task: DownloaderTask, errorCode: number, errorCodeInternal: number, errorStr: string) => void): void;
     }
@@ -191,7 +233,8 @@ declare namespace jsb {
         static UPDATE_FAILED: number;
         static ERROR_DECOMPRESS: number;
 
-        constructor (eventName: string, manager: AssetsManager, eventCode: number, assetId?: string, message?: string, curleCode?: number, curlmCode?: number);
+        constructor (eventName: string, manager: AssetsManager, eventCode: number,
+            assetId?: string, message?: string, curleCode?: number, curlmCode?: number);
         getAssetsManagerEx (): AssetsManager;
         isResuming (): boolean;
 
@@ -322,7 +365,8 @@ declare namespace jsb {
 
         If the new file can't be found on the file system, it will return the parameter filename directly.
 
-        This method was added to simplify multiplatform support. Whether you are using cocos2d-js or any cross-compilation toolchain like StellaSDK or Apportable,
+        This method was added to simplify multiplatform support.
+        Whether you are using cocos2d-js or any cross-compilation toolchain like StellaSDK or Apportable,
         you might need to load different resources for a given file in the different platforms.
 
         @since v2.1
@@ -535,7 +579,7 @@ declare namespace jsb {
          *  Purges full path caches.
          */
         export function purgeCachedEntries ():void;
-            /**
+        /**
          *  Gets full path from a file name and the path of the relative file.
          *  @param filename The file name.
          *  @param relativeFile The path of the relative file.
@@ -604,5 +648,122 @@ declare namespace jsb {
          *  @return  The path that can be write/read a file in
          */
         export function getWritablePath ():string;
+    }
+
+    /**
+     * ZipUtils  Helper class to handle unzip related operations.
+     */
+    export namespace zipUtils{
+        /**
+         * Inflates either zlib or gzip deflated memory. The inflated memory is expected to be freed by the caller.
+         *
+         * It will allocate 256k for the destination buffer.
+         * If it is not enough it will multiply the previous buffer size per 2, until there is enough memory.
+         *
+         * @param outLengthHint It is assumed to be the needed room to allocate the inflated buffer, which is optional.
+         *
+         *
+         * @return The deflated buffer.
+         */
+        export function inflateMemory(input:string | ArrayBuffer | TypedArray, outLengthHint?: number): ArrayBuffer | null;
+
+        /**
+         * Inflates a GZip file into memory.
+         *
+         * @return The deflated buffer.
+         */
+        export function inflateGZipFile(path:string): ArrayBuffer | null;
+
+        /**
+         * Test a file is a GZip format file or not.
+         *
+         * @return True is a GZip format file. false is not.
+         */
+        export function isGZipFile(path:string): boolean;
+
+        /**
+         * Test the buffer is GZip format or not.
+         *
+         * @return True is GZip format. false is not.
+         */
+        export function isGZipBuffer(buffer:string | ArrayBuffer | TypedArray): boolean;
+
+        /**
+         * Inflates a CCZ file into memory.
+         *
+         * @return The deflated buffer.
+         */
+        export function inflateCCZFile(path:string): ArrayBuffer | null;
+
+        /**
+         * Inflates a buffer with CCZ format into memory.
+         *
+         * @return The deflated buffer.
+         */
+        export function inflateCCZBuffer(buffer:string | ArrayBuffer | TypedArray): ArrayBuffer | null;
+
+        /**
+         * Test a file is a CCZ format file or not.
+         *
+         * @return True is a CCZ format file. false is not.
+         */
+        export function isCCZFile(path:string): boolean;
+
+        /**
+         * Test the buffer is CCZ format or not.
+         *
+         * @return True is CCZ format. false is not.
+         */
+        export function isCCZBuffer(buffer:string | ArrayBuffer | TypedArray): boolean;
+
+        /**
+         * Sets the pvr.ccz encryption key parts separately for added security.
+         *
+         * Example: If the key used to encrypt the pvr.ccz file is
+         * 0xaaaaaaaabbbbbbbbccccccccdddddddd you will call this function 4
+         * different times, preferably from 4 different source files, as follows
+         *
+         * setPvrEncryptionKeyPart(0, 0xaaaaaaaa);
+         * setPvrEncryptionKeyPart(1, 0xbbbbbbbb);
+         * setPvrEncryptionKeyPart(2, 0xcccccccc);
+         * setPvrEncryptionKeyPart(3, 0xdddddddd);
+         *
+         * Splitting the key into 4 parts and calling the function from 4 different source
+         * files increases the difficulty to reverse engineer the encryption key.
+         * Be aware that encryption is *never* 100% secure and the key code
+         * can be cracked by knowledgable persons.
+         *
+         * IMPORTANT: Be sure to call setPvrEncryptionKey or
+         * setPvrEncryptionKeyPart with all of the key parts *before* loading
+         * the sprite sheet or decryption will fail and the sprite sheet
+         * will fail to load.
+         *
+         * @param index Part of the key [0..3].
+         * @param value Value of the key part.
+         */
+        export function setPvrEncryptionKeyPart(index:number, value:number): void;
+
+        /**
+         * Sets the pvr.ccz encryption key.
+         *
+         * Example: If the key used to encrypt the pvr.ccz file is
+         * 0xaaaaaaaabbbbbbbbccccccccdddddddd you will call this function with
+         * the key split into 4 parts as follows
+         *
+         * setPvrEncryptionKey(0xaaaaaaaa, 0xbbbbbbbb, 0xcccccccc, 0xdddddddd);
+         *
+         * Note that using this function makes it easier to reverse engineer and discover
+         * the complete key because the key parts are present in one function call.
+         *
+         * IMPORTANT: Be sure to call setPvrEncryptionKey or setPvrEncryptionKeyPart
+         * with all of the key parts *before* loading the spritesheet or decryption
+         * will fail and the sprite sheet will fail to load.
+         *
+         * @param keyPart1 The key value part 1.
+         * @param keyPart2 The key value part 2.
+         * @param keyPart3 The key value part 3.
+         * @param keyPart4 The key value part 4.
+         */
+        export function setPvrEncryptionKey(keyPart1:number, keyPart2:number, keyPart3:number, keyPart4:number): void;
     }
 }

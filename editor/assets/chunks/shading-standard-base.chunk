@@ -8,8 +8,12 @@
 
 #if CC_USE_IBL
   #include <cc-environment>
-  #include <unpack>
   #include <texture-lod>
+  #include <unpack>
+
+  #if CC_USE_DIFFUSEMAP
+    #include <cc-diffusemap>
+  #endif
 #endif
 
 float GGXMobile (float roughness, float NoH, vec3 H, vec3 N) {
@@ -35,11 +39,38 @@ vec3 BRDFApprox (vec3 specular, float roughness, float NoV) {
   return specular * AB.x + AB.y;
 }
 
+#if USE_REFLECTION_DENOISE
+#pragma extension([GL_OES_standard_derivatives, __VERSION__ < 110])
+  vec3 GetEnvReflectionWithMipFiltering(vec3 R, float roughness, float mipCount, float denoiseIntensity) {
+    #if CC_USE_IBL
+    	float mip = roughness * mipCount;
+    	float delta = (dot(dFdx(R), dFdy(R))) * 1000.0;
+    	float mipBias = mix(0.0, 5.0, clamp(delta, 0.0, 1.0));
+
+    	vec4 biased = fragTextureLod(cc_environment, R, mip + mipBias);
+     	vec4 filtered = texture(cc_environment, R);
+
+      #if CC_USE_IBL == IBL_RGBE
+      	biased.rgb = unpackRGBE(biased);
+      	filtered.rgb = unpackRGBE(filtered);
+      #else
+      	biased.rgb = SRGBToLinear(biased.rgb);
+      	filtered.rgb = SRGBToLinear(filtered.rgb);
+      #endif
+      	
+      return mix(biased.rgb, filtered.rgb, denoiseIntensity);
+    #else
+      return vec3(0.0, 0.0, 0.0);
+    #endif
+  }
+#endif
+
+
 struct StandardSurface {
   // albedo
   vec4 albedo;
   // these two need to be in the same coordinate system
-  vec3 position;
+  HIGHP_VALUE_STRUCT_DEFINE(vec3, position);
   vec3 normal;
   // emissive
   vec3 emissive;
@@ -50,6 +81,10 @@ struct StandardSurface {
   float roughness;
   float metallic;
   float occlusion;
+
+  #if CC_RECEIVE_SHADOW
+    vec2 shadowBias;
+  #endif
 };
 
 vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
@@ -58,8 +93,11 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
  
   vec3 specular = mix(vec3(0.04), s.albedo.rgb, s.metallic);
 
+  vec3 position;
+  HIGHP_VALUE_FROM_STRUCT_DEFINED(position, s.position);
+
   vec3 N = normalize(s.normal);
-  vec3 V = normalize(cc_cameraPos.xyz - s.position);
+  vec3 V = normalize(cc_cameraPos.xyz - position);
 
   float NV = max(abs(dot(N, V)), 0.0);
   specular = BRDFApprox(specular, s.roughness, NV);
@@ -69,15 +107,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   float NH = max(dot(N, H), 0.0);
   float NL = max(dot(N, L), 0.0);
   vec3 finalColor = NL * cc_mainLitColor.rgb * cc_mainLitColor.w;
-  vec3 diffuseContrib = diffuse;
-
-  #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
-    if (s.lightmap_test > 0.0001) {
-      finalColor = s.lightmap.rgb;
-    }
-  #else
-    diffuseContrib /= PI;
-  #endif
+  vec3 diffuseContrib = diffuse / PI;
 
   // Cook-Torrance Microfacet Specular BRDF
   vec3 specularContrib = specular * CalcSpecular(s.roughness, NH, H, N);
@@ -85,32 +115,55 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
 
   float shadow = 1.0;
   #if CC_RECEIVE_SHADOW
-    if (NL > 0.0) {
-      CC_SHADOW_FACTOR_BASE(shadow, shadowPos, N, NL);
+    if (NL > 0.0 && cc_mainLitDir.w > 0.0) {
+      shadow = CCShadowFactorBase(shadowPos, N, s.shadowBias);
     }
   #endif
 
   dirlightContrib *= shadow;
   finalColor *= dirlightContrib;
 
+  #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+    if (s.lightmap_test > 0.0001) {
+      finalColor = diffuse * s.lightmap.rgb * shadow;
+    }
+  #endif
+
   float fAmb = 0.5 - N.y * 0.5;
-  vec3 ambDiff = mix(cc_ambientSky.rgb, cc_ambientGround.rgb, fAmb) * cc_ambientSky.w;
-  finalColor += (ambDiff.rgb * diffuse) * s.occlusion;
+  vec3 ambDiff = mix(cc_ambientSky.rgb, cc_ambientGround.rgb, fAmb);
+
 
   #if CC_USE_IBL
-    vec3 R = normalize(reflect(-V, N));
-    vec4 envmap = fragTextureLod(cc_environment, R, s.roughness * cc_ambientGround.w);
-    #if CC_USE_IBL == IBL_RGBE
-      vec3 env = unpackRGBE(envmap);
-    #else
-      vec3 env = SRGBToLinear(envmap.rgb);
+    #if CC_USE_DIFFUSEMAP
+      // Diffuse reflection irradiance
+      vec4 diffuseMap = texture(cc_diffuseMap, N);
+      #if CC_USE_DIFFUSEMAP == IBL_RGBE
+        ambDiff = unpackRGBE(diffuseMap);
+      #else
+        ambDiff = SRGBToLinear(diffuseMap.rgb);
+      #endif
     #endif
+
+    vec3 R = normalize(reflect(-V, N));
+
+    #if USE_REFLECTION_DENOISE
+      vec3 env = GetEnvReflectionWithMipFiltering(R, s.roughness, cc_ambientGround.w, 0.6);
+    #else
+      vec4 envmap = fragTextureLod(cc_environment, R, s.roughness * cc_ambientGround.w);
+
+      #if CC_USE_IBL == IBL_RGBE
+        vec3 env = unpackRGBE(envmap);
+      #else
+        vec3 env = SRGBToLinear(envmap.rgb);
+      #endif
+    #endif
+
     finalColor += env * cc_ambientSky.w * specular * s.occlusion;
   #endif
 
-  #if CC_USE_HDR
-    s.emissive *= cc_exposure.w;
-  #endif
+  finalColor += ambDiff.rgb * cc_ambientSky.w * diffuse * s.occlusion;
+  
+
   finalColor += s.emissive;
 
   return vec4(finalColor, s.albedo.a);

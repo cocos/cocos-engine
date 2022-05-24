@@ -22,10 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-/**
- * @packageDocumentation
- * @hidden
- */
+
 import { EDITOR, TEST } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import { isValid } from '../data/object';
@@ -33,8 +30,6 @@ import { Node, Scene } from '../scene-graph';
 import Cache from './cache';
 import dependUtil from './depend-util';
 import { assets, references } from './shared';
-import { ImageAsset } from '../assets/image-asset';
-import { TextureBase } from '../assets/texture-base';
 import { callInNextTick } from '../utils/misc';
 import { js } from '../utils/js';
 
@@ -130,6 +125,9 @@ class ReleaseManager {
         this._toDelete.clear();
     }
 
+    /**
+     * @legacyPublic
+     */
     public _addPersistNodeRef (node: Node) {
         const deps = [];
         visitNode(node, deps);
@@ -142,6 +140,9 @@ class ReleaseManager {
         this._persistNodeDeps.add(node.uuid, deps);
     }
 
+    /**
+     * @legacyPublic
+     */
     public _removePersistNodeRef (node: Node) {
         if (!this._persistNodeDeps.has(node.uuid)) { return; }
 
@@ -156,6 +157,9 @@ class ReleaseManager {
     }
 
     // do auto release
+    /**
+     * @legacyPublic
+     */
     public _autoRelease (oldScene: Scene, newScene: Scene, persistNodes: Record<string, Node>) {
         if (oldScene) {
             const childs = dependUtil.getDeps(oldScene.uuid);
@@ -207,6 +211,7 @@ class ReleaseManager {
         }
 
         this._toDelete.add(asset._uuid, asset);
+        if (TEST) return;
         if (!this._eventListener) {
             this._eventListener = true;
             callInNextTick(this._freeAssets.bind(this));

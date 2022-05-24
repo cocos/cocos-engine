@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { selector } from '../framework/physics-selector';
 
@@ -44,20 +41,23 @@ import { CannonPlaneShape } from './shapes/cannon-plane-shape';
 
 import { CannonPointToPointConstraint } from './constraints/cannon-point-to-point-constraint';
 import { CannonHingeConstraint } from './constraints/cannon-hinge-constraint';
+import { Game, game } from '../../core';
 
-selector.register('cannon.js', {
-    PhysicsWorld: CannonWorld,
-    RigidBody: CannonRigidBody,
+game.once(Game.EVENT_ENGINE_INITED, () => {
+    selector.register('cannon.js', {
+        PhysicsWorld: CannonWorld,
+        RigidBody: CannonRigidBody,
 
-    BoxShape: CannonBoxShape,
-    SphereShape: CannonSphereShape,
-    TrimeshShape: CannonTrimeshShape,
-    CylinderShape: CannonCylinderShape,
-    ConeShape: CannonConeShape,
-    TerrainShape: CannonTerrainShape,
-    SimplexShape: CannonSimplexShape,
-    PlaneShape: CannonPlaneShape,
+        BoxShape: CannonBoxShape,
+        SphereShape: CannonSphereShape,
+        TrimeshShape: CannonTrimeshShape,
+        CylinderShape: CannonCylinderShape,
+        ConeShape: CannonConeShape,
+        TerrainShape: CannonTerrainShape,
+        SimplexShape: CannonSimplexShape,
+        PlaneShape: CannonPlaneShape,
 
-    PointToPointConstraint: CannonPointToPointConstraint,
-    HingeConstraint: CannonHingeConstraint,
+        PointToPointConstraint: CannonPointToPointConstraint,
+        HingeConstraint: CannonHingeConstraint,
+    });
 });

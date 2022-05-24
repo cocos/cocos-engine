@@ -1,3 +1,30 @@
+interface WEBGL_multi_draw {
+    multiDrawArraysWEBGL(mode: GLenum,
+        firstsList: GLint[] | Int32Array, firstsOffset: GLuint,
+        countsList: GLsizei[] | Int32Array, countsOffset: GLuint,
+        drawCount: GLsizei
+    ): void;
+    multiDrawElementsWEBGL(mode: GLenum,
+        countsList: GLint[] | Int32Array, countsOffset: GLuint,
+        type: GLenum,
+        offsetsList: GLsizei[] | Int32Array, OffsetsOffset: GLuint,
+        drawCount: GLsizei
+    ): void;
+    multiDrawArraysInstancedWEBGL(mode: GLenum,
+        firstsList: GLint[] | Int32Array, firstsOffset: GLuint,
+        countsList: GLsizei[] | Int32Array, countsOffset: GLuint,
+        instanceCountsList: GLsizei[] | Int32Array, instanceCountsOffset: GLuint,
+        drawCount: GLsizei
+    ): void;
+    multiDrawElementsInstancedWEBGL(mode: GLenum,
+        countsList: GLint[] | Int32Array, countsOffset: GLuint,
+        type: GLenum,
+        offsetsList: GLsizei[] | Int32Array, OffsetsOffset: GLuint,
+        instanceCountsList: GLsizei[] | Int32Array, instanceCountsOffset: GLuint,
+        drawCount: GLsizei
+    ): void;
+}
+
 interface EXT_color_buffer_half_float {
     readonly RGBA16F_EXT: GLenum;
     readonly RGB16F_EXT: GLenum;

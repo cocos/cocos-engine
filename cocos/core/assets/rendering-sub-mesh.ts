@@ -32,7 +32,7 @@ import { legacyCC } from '../global-exports';
 import { mapBuffer } from '../../3d/misc/buffer';
 import {
     Attribute, Device, InputAssemblerInfo, Buffer, BufferInfo, AttributeName, BufferUsageBit,
-    Format, FormatInfos, MemoryUsageBit, PrimitiveMode, getTypedArrayConstructor,
+    Format, FormatInfos, MemoryUsageBit, PrimitiveMode, getTypedArrayConstructor, DrawInfo,
 } from '../gfx';
 import { Vec3 } from '../math';
 import { Mesh } from '../../3d/assets/mesh';
@@ -70,7 +70,7 @@ export interface IGeometricInfo {
      * @en The bounding box
      * @zh 此几何体的轴对齐包围盒。
      */
-    boundingBox: { max: Readonly<Vec3>; min: Readonly<Vec3> };
+    boundingBox: { max: Vec3 | Readonly<Vec3>; min: Vec3 | Readonly<Vec3> };
 }
 
 /**
@@ -114,8 +114,7 @@ export class RenderingSubMesh {
 
     private _iaInfo: InputAssemblerInfo;
 
-    private _init () {
-    }
+    private _drawInfo?: DrawInfo | null = null;
 
     constructor (
         vertexBuffers: Buffer[], attributes: Attribute[], primitiveMode: PrimitiveMode,
@@ -127,7 +126,6 @@ export class RenderingSubMesh {
         this._indirectBuffer = indirectBuffer;
         this._primitiveMode = primitiveMode;
         this._iaInfo = new InputAssemblerInfo(attributes, vertexBuffers, indexBuffer, indirectBuffer);
-        this._init();
     }
 
     /**
@@ -207,6 +205,28 @@ export class RenderingSubMesh {
         }
         this._geometricInfo = { positions, indices, boundingBox: { max, min } };
         return this._geometricInfo;
+    }
+
+    /**
+     * @en Invalidate the geometric info of the sub mesh after geometry changed.
+     * @zh 网格更新后，设置（用于射线检测的）几何信息为无效，需要重新计算。
+     */
+    public invalidateGeometricInfo () { this._geometricInfo = undefined; }
+
+    /**
+     * @en set the draw range
+     * @zh 设置渲染范围
+     */
+    set drawInfo (info: DrawInfo | null | undefined) {
+        this._drawInfo = info;
+    }
+
+    /**
+     * @en get the draw range
+     * @zh 获取渲染范围
+     */
+    get drawInfo (): DrawInfo | null | undefined {
+        return this._drawInfo;
     }
 
     /**

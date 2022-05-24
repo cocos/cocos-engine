@@ -23,19 +23,18 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
 
-import { AttributeName, Buffer, BufferUsageBit, Device, Feature, MemoryUsageBit, DescriptorSet, BufferInfo } from '../../core/gfx';
+
+import {
+    AttributeName, Buffer, BufferUsageBit, Device, Feature, MemoryUsageBit, DescriptorSet, BufferInfo,
+    FormatFeatureBit, Format,
+} from '../../core/gfx';
 import { Mesh } from './mesh';
 import { Texture2D } from '../../core/assets/texture-2d';
 import { ImageAsset } from '../../core/assets/image-asset';
-import { samplerLib } from '../../core/renderer/core/sampler-lib';
 import { UBOMorph, UNIFORM_NORMAL_MORPH_TEXTURE_BINDING,
     UNIFORM_POSITION_MORPH_TEXTURE_BINDING, UNIFORM_TANGENT_MORPH_TEXTURE_BINDING } from '../../core/pipeline/define';
-import { warn, warnID } from '../../core/platform/debug';
+import { warn } from '../../core/platform/debug';
 import { Morph, MorphRendering, MorphRenderingInstance, SubMeshMorph } from './morph';
 import { assertIsNonNullable, assertIsTrue } from '../../core/data/utils/asserts';
 import { log2, nextPow2 } from '../../core/math/bits';
@@ -474,7 +473,7 @@ class MorphUniforms {
  * @param vec4Capacity Capacity of vec4.
  */
 function createVec4TextureFactory (gfxDevice: Device, vec4Capacity: number) {
-    const hasFeatureFloatTexture = gfxDevice.hasFeature(Feature.TEXTURE_FLOAT);
+    const hasFeatureFloatTexture = gfxDevice.getFormatFeatures(Format.RGBA32F) & FormatFeatureBit.SAMPLED_TEXTURE;
 
     let pixelRequired: number;
     let pixelFormat: PixelFormat;
@@ -517,7 +516,7 @@ function createVec4TextureFactory (gfxDevice: Device, vec4Capacity: number) {
             if (!textureAsset.getGFXTexture()) {
                 warn('Unexpected: failed to create morph texture?');
             }
-            const sampler = samplerLib.getSampler(gfxDevice, textureAsset.getSamplerHash());
+            const sampler = gfxDevice.getSampler(textureAsset.getSamplerInfo());
             return {
                 /**
                  * Gets the GFX texture.

@@ -37,7 +37,7 @@ CCProgram unlit-vs %{
 
   // array lengths need to be determined at resource-import-time
   // so we can't define this as a runtime macro
-  #define BATCHED_UNITS 6
+  #pragma define BATCHED_UNITS 6
 
   #if USE_VERTEX_COLOR
     in lowp vec4 a_color;
@@ -94,7 +94,7 @@ CCProgram unlit-vs %{
 CCProgram unlit-fs %{
   precision highp float;
   #include <output>
-  #define BATCHED_UNITS 6
+  #pragma define BATCHED_UNITS 6
 
   #if USE_TEXTURE
     in vec2 v_uv;

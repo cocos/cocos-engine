@@ -36,7 +36,7 @@ import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import { Component } from '../../core/components/component';
 import { EventHandler as ComponentEventHandler } from '../../core/components/component-event-handler';
 import { Color, Size, Vec3 } from '../../core/math';
-import { EventTouch } from '../../core/platform';
+import { EventTouch } from '../../input/types';
 import { Node } from '../../core/scene-graph/node';
 import { Label, VerticalTextAlignment } from '../../2d/components/label';
 import { Sprite } from '../../2d/components/sprite';
@@ -94,6 +94,10 @@ export class EditBox extends Component {
     set string (value) {
         if (this._maxLength >= 0 && value.length >= this._maxLength) {
             value = value.slice(0, this._maxLength);
+        }
+
+        if (this._string === value) {
+            return;
         }
 
         this._string = value;
@@ -190,7 +194,8 @@ export class EditBox extends Component {
         }
 
         this._backgroundImage = value;
-        this._createBackgroundSprite();
+        this._ensureBackgroundSprite();
+        this._background!.spriteFrame = value;
     }
 
     /**
@@ -208,6 +213,10 @@ export class EditBox extends Component {
     }
 
     set inputFlag (value) {
+        if (this._inputFlag === value) {
+            return;
+        }
+
         this._inputFlag = value;
         this._updateString(this._string);
     }
@@ -354,7 +363,13 @@ export class EditBox extends Component {
     @tooltip('i18n:editbox.editing_return')
     public editingReturn: ComponentEventHandler[] = [];
 
+    /**
+     * @legacyPublic
+     */
     public _impl: EditBoxImplBase | null = null;
+    /**
+     * @legacyPublic
+     */
     public _background: Sprite | null = null;
 
     @serializable
@@ -386,6 +401,7 @@ export class EditBox extends Component {
         if (!EDITOR || legacyCC.GAME_VIEW) {
             this._registerEvent();
         }
+        this._ensureBackgroundSprite();
         if (this._impl) {
             this._impl.onEnable();
         }
@@ -401,6 +417,7 @@ export class EditBox extends Component {
         if (!EDITOR || legacyCC.GAME_VIEW) {
             this._unregisterEvent();
         }
+        this._unregisterBackgroundEvent();
         if (this._impl) {
             this._impl.onDisable();
         }
@@ -454,16 +471,25 @@ export class EditBox extends Component {
         return false;
     }
 
+    /**
+     * @legacyPublic
+     */
     public _editBoxEditingDidBegan () {
         ComponentEventHandler.emitEvents(this.editingDidBegan, this);
         this.node.emit(EventType.EDITING_DID_BEGAN, this);
     }
 
+    /**
+     * @legacyPublic
+     */
     public _editBoxEditingDidEnded () {
         ComponentEventHandler.emitEvents(this.editingDidEnded, this);
         this.node.emit(EventType.EDITING_DID_ENDED, this);
     }
 
+    /**
+     * @legacyPublic
+     */
     public _editBoxTextChanged (text: string) {
         text = this._updateLabelStringStyle(text, true);
         this.string = text;
@@ -471,16 +497,25 @@ export class EditBox extends Component {
         this.node.emit(EventType.TEXT_CHANGED, this);
     }
 
+    /**
+     * @legacyPublic
+     */
     public _editBoxEditingReturn () {
         ComponentEventHandler.emitEvents(this.editingReturn, this);
         this.node.emit(EventType.EDITING_RETURN, this);
     }
 
+    /**
+     * @legacyPublic
+     */
     public _showLabels () {
         this._isLabelVisible = true;
         this._updateLabels();
     }
 
+    /**
+     * @legacyPublic
+     */
     public _hideLabels () {
         this._isLabelVisible = false;
         if (this._textLabel) {
@@ -507,7 +542,6 @@ export class EditBox extends Component {
     }
 
     protected _init () {
-        this._createBackgroundSprite();
         this._updatePlaceholderLabel();
         this._updateTextLabel();
         this._isLabelVisible = true;
@@ -519,16 +553,20 @@ export class EditBox extends Component {
         this._syncSize();
     }
 
-    protected _createBackgroundSprite () {
+    protected _ensureBackgroundSprite () {
         if (!this._background) {
-            this._background = this.node.getComponent(Sprite);
-            if (!this._background) {
-                this._background = this.node.addComponent(Sprite);
+            let background = this.node.getComponent(Sprite);
+            if (!background) {
+                background = this.node.addComponent(Sprite);
+            }
+            if (background !== this._background) {
+                // init background
+                background.type = Sprite.Type.SLICED;
+                background.spriteFrame = this._backgroundImage;
+                this._background = background;
+                this._registerBackgroundEvent();
             }
         }
-
-        this._background.type = Sprite.Type.SLICED;
-        this._background.spriteFrame = this._backgroundImage;
     }
 
     protected _updateTextLabel () {
@@ -539,6 +577,7 @@ export class EditBox extends Component {
             let node = this.node.getChildByName('TEXT_LABEL');
             if (!node) {
                 node = new Node('TEXT_LABEL');
+                node.layer = this.node.layer;
             }
             textLabel = node.getComponent(Label);
             if (!textLabel) {
@@ -569,6 +608,7 @@ export class EditBox extends Component {
             let node = this.node.getChildByName('PLACEHOLDER_LABEL');
             if (!node) {
                 node = new Node('PLACEHOLDER_LABEL');
+                node.layer = this.node.layer;
             }
             placeholderLabel = node.getComponent(Label);
             if (!placeholderLabel) {
@@ -581,7 +621,6 @@ export class EditBox extends Component {
         // update
         const transform = this._placeholderLabel!.node._uiProps.uiTransformComp;
         transform!.setAnchorPoint(0, 1);
-        placeholderLabel.overflow = Label.Overflow.CLAMP;
         if (this._inputMode === InputMode.ANY) {
             placeholderLabel.verticalAlign = VerticalTextAlignment.TOP;
             placeholderLabel.enableWrapText = true;
@@ -666,6 +705,23 @@ export class EditBox extends Component {
         this.node.off(NodeEventType.TOUCH_END, this._onTouchEnded, this);
     }
 
+    private _onBackgroundSpriteFrameChanged () {
+        if (!this._background) {
+            return;
+        }
+        this.backgroundImage = this._background.spriteFrame;
+    }
+
+    private _registerBackgroundEvent () {
+        const node = this._background && this._background.node;
+        node?.on(Sprite.EventType.SPRITE_FRAME_CHANGED, this._onBackgroundSpriteFrameChanged, this);
+    }
+
+    private _unregisterBackgroundEvent () {
+        const node = this._background && this._background.node;
+        node?.off(Sprite.EventType.SPRITE_FRAME_CHANGED, this._onBackgroundSpriteFrameChanged, this);
+    }
+
     protected _updateLabelPosition (size: Size) {
         const trans = this.node._uiProps.uiTransformComp!;
         const offX = -trans.anchorX * trans.width;
@@ -709,6 +765,8 @@ export class EditBox extends Component {
         if (backgroundNode) {
             backgroundNode._uiProps.uiTransformComp!.setContentSize(trans.contentSize);
         }
+
+        this._syncSize();
     }
 }
 
@@ -773,3 +831,5 @@ if (typeof window === 'object' && typeof document === 'object' && !MINIGAME && !
  * ```
  * @return {Boolean} whether it is the first time the destroy being called
  */
+
+legacyCC.internal.EditBox = EditBox;

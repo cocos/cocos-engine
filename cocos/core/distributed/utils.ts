@@ -23,17 +23,15 @@
  THE SOFTWARE.
 */
 
-import { CCObject } from "../data/object";
-
-const Flags = CCObject.Flags;
+import { CCObject, IsClientLoad } from "../data/object";
 
 export function isClientLoad (obj: CCObject) {
-    return !!(obj._objFlags & Flags.IsClientLoad);
+    return !!(obj._objFlags & IsClientLoad);
 }
 export function setClientLoad (obj: CCObject, value: boolean) {
     if (value) {
-        obj._objFlags |= Flags.IsClientLoad;
+        obj._objFlags |= IsClientLoad;
     } else {
-        obj._objFlags &= ~Flags.IsClientLoad;
+        obj._objFlags &= ~IsClientLoad;
     }
 }

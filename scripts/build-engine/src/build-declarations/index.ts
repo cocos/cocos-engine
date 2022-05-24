@@ -1,8 +1,14 @@
-import ps from 'path';
+import ps, { dirname, join } from 'path';
 import fs from 'fs-extra';
 import ts from 'typescript';
 import * as gift from 'tfig';
 import { StatsQuery } from '../stats-query';
+import { interfaceFilter } from './interface-filter';
+
+const DEBUG = false;
+const REMOVE_TMP = true;
+const REMOVE_OLD = !DEBUG;
+const RECOMPILE = !DEBUG;
 
 export async function build (options: {
     engine: string;
@@ -45,7 +51,7 @@ export async function build (options: {
             getCurrentDirectory: ts.sys.getCurrentDirectory,
             fileExists: ts.sys.fileExists,
             readFile: ts.sys.readFile,
-        }
+        },
     );
     if (!parsedCommandLine) {
         throw new Error(`Can not get 'parsedCommandLine'.`);
@@ -65,11 +71,13 @@ export async function build (options: {
         '.d.ts',
         '.d.ts.map',
     ];
-    for (const destExtension of destExtensions) {
-        const destFile = ps.join(dirName, baseName + destExtension);
-        if (await fs.pathExists(destFile)) {
-            console.log(`Delete old ${destFile}.`);
-            await fs.unlink(destFile);
+    if (REMOVE_OLD) {
+        for (const destExtension of destExtensions) {
+            const destFile = ps.join(dirName, baseName + destExtension);
+            if (await fs.pathExists(destFile)) {
+                console.log(`Delete old ${destFile}.`);
+                await fs.unlink(destFile);
+            }
         }
     }
 
@@ -79,24 +87,25 @@ export async function build (options: {
 
     const editorExportModules = statsQuery.getEditorPublicModules();
 
-    let fileNames = parsedCommandLine.fileNames;
-    if (withEditorExports) {
-        fileNames = fileNames.concat(editorExportModules.map((e) => statsQuery.getEditorPublicModuleFile(e)));
-    }
+    if (RECOMPILE) {
+        let fileNames = parsedCommandLine.fileNames;
+        if (withEditorExports) {
+            fileNames = fileNames.concat(editorExportModules.map((e) => statsQuery.getEditorPublicModuleFile(e)));
+        }
 
-    const program = ts.createProgram(fileNames, parsedCommandLine.options);
-    const emitResult = program.emit(
-        undefined, // targetSourceFile
-        undefined, // writeFile
-        undefined, // cancellationToken,
-        true, // emitOnlyDtsFiles
-        undefined, // customTransformers
-    );
-    
-    let allDiagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
-    for (const diagnostic of allDiagnostics) {
-        let printer;
-        switch (diagnostic.category) {
+        const program = ts.createProgram(fileNames, parsedCommandLine.options);
+        const emitResult = program.emit(
+            undefined, // targetSourceFile
+            undefined, // writeFile
+            undefined, // cancellationToken,
+            true, // emitOnlyDtsFiles
+            undefined, // customTransformers
+        );
+
+        const allDiagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
+        for (const diagnostic of allDiagnostics) {
+            let printer;
+            switch (diagnostic.category) {
             case ts.DiagnosticCategory.Error:
                 printer = console.error;
                 break;
@@ -108,20 +117,21 @@ export async function build (options: {
             default:
                 printer = console.log;
                 break;
-        }
-        if (!printer) {
-            continue;
-        }
-        if (diagnostic.file && diagnostic.start !== undefined) {
-            let { line, character } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
-            let message = ts.flattenDiagnosticMessageText(diagnostic.messageText, ts.sys.newLine);
-            printer(`${diagnostic.file.fileName} (${line + 1},${character + 1}): ${message}`);
-        } else {
-            printer(`${ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n")}`);
+            }
+            if (!printer) {
+                continue;
+            }
+            if (diagnostic.file && diagnostic.start !== undefined) {
+                const { line, character } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
+                const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, ts.sys.newLine);
+                printer(`${diagnostic.file.fileName} (${line + 1},${character + 1}): ${message}`);
+            } else {
+                printer(`${ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n')}`);
+            }
         }
     }
 
-    const tscOutputDtsFile = ps.join(dirName, baseName + '.d.ts');
+    const tscOutputDtsFile = ps.join(dirName, `${baseName}.d.ts`);
     if (!await fs.pathExists(tscOutputDtsFile)) {
         console.error(`Failed to compile.`);
         return false;
@@ -136,28 +146,30 @@ export async function build (options: {
         }
     }
 
-    const giftInputs = [ tscOutputDtsFile ];
+    const giftInputs = [tscOutputDtsFile];
 
     const giftEntries: Record<string, string> = { };
 
-    const cleanupFiles = [ tscOutputDtsFile ];
+    const cleanupFiles = [tscOutputDtsFile];
 
     if (withExports) {
         for (const exportEntry of featureUnits) {
             giftEntries[exportEntry] = getModuleNameInTsOutFile(
-                statsQuery.getFeatureUnitFile(exportEntry), statsQuery);
+                statsQuery.getFeatureUnitFile(exportEntry), statsQuery,
+            );
         }
     }
 
     if (withEditorExports) {
         for (const editorExportModule of editorExportModules) {
             giftEntries[editorExportModule] = getModuleNameInTsOutFile(
-                statsQuery.getEditorPublicModuleFile(editorExportModule), statsQuery);
+                statsQuery.getEditorPublicModuleFile(editorExportModule), statsQuery,
+            );
         }
     }
 
     if (withIndex && !withExports) {
-        giftEntries['cc'] = 'cc';
+        giftEntries.cc = 'cc';
         const ccDtsFile = ps.join(dirName, 'virtual-cc.d.ts');
         giftInputs.push(ccDtsFile);
         cleanupFiles.push(ccDtsFile);
@@ -170,17 +182,27 @@ export async function build (options: {
 
     console.log(`Bundling...`);
     try {
-        const indexOutputPath = ps.join(dirName,'cc.d.ts');
+        const indexOutputPath = ps.join(dirName, 'cc.d.ts');
         const giftResult = gift.bundle({
             input: giftInputs,
             name: 'cc',
             rootModule: 'index',
             entries: giftEntries,
+            priority: [
+                'cc', // Things should be exported to 'cc' as far as possible.
+            ],
             groups: [
-                { test: /^cc\/editor.*$/, path: ps.join(dirName,'cc.editor.d.ts') },
-                { test: /^cc\/.*$/, path: ps.join(dirName,'index.d.ts') },
+                { test: /^cc\/editor.*$/, path: ps.join(dirName, 'cc.editor.d.ts') },
+                { test: /^cc\/.*$/, path: ps.join(dirName, 'index.d.ts') },
                 { test: /^cc.*$/, path: indexOutputPath },
             ],
+            nonExportedSymbolDistribution: [{
+                sourceModule: /cocos\/core\/animation\/marionette/,
+                targetModule: 'cc/editor/new-gen-anim',
+            }, {
+                sourceModule: /.*/, // Put everything non-exported that 'cc' encountered into 'cc'
+                targetModule: 'cc',
+            }],
         });
 
         await Promise.all(giftResult.groups.map(async (group) => {
@@ -191,14 +213,23 @@ export async function build (options: {
             await fs.outputFile(
                 indexOutputPath,
                 buildIndexModule(featureUnits, statsQuery),
-                { encoding: 'utf8' });
+                { encoding: 'utf8' },
+            );
         }
 
+        interfaceFilter.cullInterface({
+            inputDts: indexOutputPath,
+            privateTag: 'engineInternal',
+            deprecateTag: 'legacyPublic',
+            deprecateTip: 'since v3.5.0, this is an engine private interface that will be removed in the future.',
+        });
     } catch (error) {
-        console.error(error)
+        console.error(error);
         return false;
     } finally {
-        await Promise.all((cleanupFiles.map(async (file) => fs.unlink(file))));
+        if (REMOVE_TMP) {
+            await Promise.all((cleanupFiles.map(async (file) => fs.unlink(file))));
+        }
     }
 
     return true;
@@ -210,10 +241,10 @@ export function buildIndexModule (featureUnits: string[], statsQuery: StatsQuery
             .split('\n')
             .map((line) => `    ${line}`)
             .join('\n')
-        }\n}`;
+    }\n}`;
 }
 
-function getModuleNameInTsOutFile(moduleFile: string, statsQuery: StatsQuery) {
+function getModuleNameInTsOutFile (moduleFile: string, statsQuery: StatsQuery) {
     const path = ps.relative(statsQuery.path, moduleFile);
     const tsOutFileModuleName = ps.join(ps.dirname(path), ps.basename(path, ps.extname(path))).replace(/\\/g, '/');
     return tsOutFileModuleName;

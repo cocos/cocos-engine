@@ -51,7 +51,9 @@ class GarbageCollectionManager {
     }
 
     private finalizationRegistryCallback (gcObject: GCObject) {
-        gcObject.destroy();
+        if (gcObject.isValid) {
+            gcObject.destroy();
+        }
     }
 
     public destroy () {

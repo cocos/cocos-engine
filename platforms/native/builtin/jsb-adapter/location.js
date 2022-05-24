@@ -3,6 +3,7 @@ const location = {
     pathname: 'game.js',
     search: '',
     hash: '',
+    protocol: '',
     reload() {
     }
 }

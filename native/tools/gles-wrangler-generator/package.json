@@ -1,0 +1,15 @@
+{
+  "name": "gles-wrangler-generator",
+  "version": "1.0.0",
+  "description": "EGL/GLES loader code generator",
+  "main": "generate.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "YunHsiao",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.21.2",
+    "fast-xml-parser": "^3.17.6"
+  }
+}

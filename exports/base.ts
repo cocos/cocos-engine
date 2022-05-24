@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { legacyCC } from '../cocos/core/global-exports';
 // has to import predefines first
 import '../predefine';
@@ -45,3 +40,10 @@ legacyCC.renderer = renderer;
 export * from '../extensions/ccpool/node-pool';
 
 export { legacyCC as cclegacy };
+
+export * from '../cocos/input/types';
+export * from '../cocos/input';
+
+type Constructor_<T = unknown> = Constructor<T>;
+
+export type { Constructor_ as Constructor };

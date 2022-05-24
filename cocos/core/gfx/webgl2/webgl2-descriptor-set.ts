@@ -26,7 +26,7 @@
 import { DescriptorSet } from '../base/descriptor-set';
 import { WebGL2Buffer } from './webgl2-buffer';
 import { IWebGL2GPUDescriptorSet, IWebGL2GPUDescriptor } from './webgl2-gpu-objects';
-import { WebGL2Sampler } from './webgl2-sampler';
+import { WebGL2Sampler } from './states/webgl2-sampler';
 import { WebGL2Texture } from './webgl2-texture';
 import { WebGL2DescriptorSetLayout } from './webgl2-descriptor-set-layout';
 import { DescriptorSetInfo, DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE } from '../base/define';
@@ -38,7 +38,7 @@ export class WebGL2DescriptorSet extends DescriptorSet {
 
     private _gpuDescriptorSet: IWebGL2GPUDescriptorSet | null = null;
 
-    public initialize (info: DescriptorSetInfo): boolean {
+    public initialize (info: Readonly<DescriptorSetInfo>) {
         this._layout = info.layout;
         const { bindings, descriptorIndices, descriptorCount } = (info.layout as WebGL2DescriptorSetLayout).gpuDescriptorSetLayout;
 
@@ -55,13 +55,11 @@ export class WebGL2DescriptorSet extends DescriptorSet {
                 gpuDescriptors.push({
                     type: binding.descriptorType,
                     gpuBuffer: null,
-                    gpuTexture: null,
+                    gpuTextureView: null,
                     gpuSampler: null,
                 });
             }
         }
-
-        return true;
     }
 
     public destroy () {
@@ -79,7 +77,7 @@ export class WebGL2DescriptorSet extends DescriptorSet {
                     }
                 } else if (descriptors[i].type & DESCRIPTOR_SAMPLER_TYPE) {
                     if (this._textures[i]) {
-                        descriptors[i].gpuTexture = (this._textures[i] as WebGL2Texture).gpuTexture;
+                        descriptors[i].gpuTextureView = (this._textures[i] as WebGL2Texture).gpuTextureView;
                     }
                     if (this._samplers[i]) {
                         descriptors[i].gpuSampler = (this._samplers[i] as WebGL2Sampler).gpuSampler;

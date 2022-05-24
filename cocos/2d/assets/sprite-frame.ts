@@ -33,14 +33,12 @@
 import { ccclass } from 'cc.decorator';
 import { EDITOR, TEST, BUILD } from 'internal:constants';
 import { Rect, Size, Vec2 } from '../../core/math';
-import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { Asset } from '../../core/assets/asset';
-import { RenderTexture } from '../../core/assets/render-texture';
 import { TextureBase } from '../../core/assets/texture-base';
 import { legacyCC } from '../../core/global-exports';
 import { ImageAsset, ImageSource } from '../../core/assets/image-asset';
 import { Texture2D } from '../../core/assets/texture-2d';
-import { errorID } from '../../core/platform/debug';
+import { errorID, warnID } from '../../core/platform/debug';
 import { dynamicAtlasManager } from '../utils/dynamic-atlas/atlas-manager';
 import { js } from '../../core/utils/js';
 
@@ -241,6 +239,12 @@ export class SpriteFrame extends Asset {
     }
 
     /**
+     * @en
+     * @zh
+     */
+    public static EVENT_UV_UPDATED = 'uv_updated';
+
+    /**
      * @en Top border distance of sliced 9 rect.
      * @zh 九宫格内部矩形顶部边框距离 SpriteFrame 矩形的距离。
      */
@@ -400,7 +404,11 @@ export class SpriteFrame extends Asset {
 
     set texture (value) {
         if (!value) {
-            console.warn(`Error Texture in ${this.name}`);
+            warnID(3122, this.name);
+            return;
+        }
+
+        if (value === this._texture) {
             return;
         }
 
@@ -495,9 +503,8 @@ export class SpriteFrame extends Asset {
      * @zh 矩形的顶点 UV
      */
     public uv: number[] = [];
-    public uvHash = 0;
 
-    public unbiasUV: number[] = [];
+    public unbiasUV:number[] = [];
 
     /**
      * @en UV for sliced 9 vertices
@@ -681,8 +688,8 @@ export class SpriteFrame extends Asset {
      * @en Gets the sampler hash of its texture
      * @zh 贴图资源的采样器哈希值
      */
-    public getSamplerHash () {
-        return this._texture.getSamplerHash();
+    public getSamplerInfo () {
+        return this._texture.getSamplerInfo();
     }
 
     /**
@@ -791,7 +798,10 @@ export class SpriteFrame extends Asset {
         return super.destroy();
     }
 
-    // Calculate UV for sliced
+    /**
+     * Calculate UV for sliced
+     * @legacyPublic
+     */
     public _calculateSlicedUV () {
         const rect = this._rect;
         // const texture = this._getCalculateTarget()!;
@@ -848,9 +858,16 @@ export class SpriteFrame extends Asset {
                 }
             }
         }
+
+        // UV update event for components to update uv buffer
+        // CalculateUV will trigger _calculateSlicedUV so it's enough to emit here
+        this.emit(SpriteFrame.EVENT_UV_UPDATED, this);
     }
 
-    // Calculate UV
+    /**
+     * Calculate UV
+     * @legacyPublic
+     */
     public _calculateUV () {
         const rect = this._rect;
         const uv = this.uv;
@@ -1069,12 +1086,6 @@ export class SpriteFrame extends Asset {
             }
         }
 
-        let uvHashStr = '';
-        for (let i = 0; i < uv.length; i++) {
-            uvHashStr += uv[i];
-        }
-        this.uvHash = murmurhash2_32_gc(uvHashStr, 666);
-
         const vertices = this.vertices;
         if (vertices) {
             vertices.nu.length = 0;
@@ -1088,6 +1099,9 @@ export class SpriteFrame extends Asset {
         this._calculateSlicedUV();
     }
 
+    /**
+     * @legacyPublic
+     */
     public _setDynamicAtlasFrame (frame) {
         if (!frame) return;
 
@@ -1103,6 +1117,9 @@ export class SpriteFrame extends Asset {
         this._calculateUV();
     }
 
+    /**
+     * @legacyPublic
+     */
     public _resetDynamicAtlasFrame () {
         if (!this._original) return;
         this._rect.x = this._original._x;
@@ -1112,6 +1129,9 @@ export class SpriteFrame extends Asset {
         this._calculateUV();
     }
 
+    /**
+     * @legacyPublic
+     */
     public _checkPackable () {
         const dynamicAtlas = dynamicAtlasManager;
         if (!dynamicAtlas) return;
@@ -1135,7 +1155,9 @@ export class SpriteFrame extends Asset {
         }
     }
 
-    // SERIALIZATION
+    /**
+     * @legacyPublic
+     */
     public _serialize (ctxForExporting: any): any {
         if (EDITOR || TEST) {
             const rect = { x: this._rect.x, y: this._rect.y, width: this._rect.width, height: this._rect.height };
@@ -1179,6 +1201,9 @@ export class SpriteFrame extends Asset {
         return null;
     }
 
+    /**
+     * @legacyPublic
+     */
     public _deserialize (serializeData: any, handle: any) {
         const data = serializeData as ISpriteFramesSerializeData;
         const rect = data.rect;
@@ -1239,7 +1264,6 @@ export class SpriteFrame extends Asset {
             v: v.v?.slice(0),
         } : null as any;
         sp.uv.splice(0, sp.uv.length, ...this.uv);
-        sp.uvHash = this.uvHash;
         sp.unbiasUV.splice(0, sp.unbiasUV.length, ...this.unbiasUV);
         sp.uvSliced.splice(0, sp.uvSliced.length, ...this.uvSliced);
         sp._rect.set(this._rect);

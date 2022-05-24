@@ -2102,6 +2102,7 @@ Object.defineProperty(exports, "__esModule", {
 var location = {
   href: 'game.js',
   hostname: "alipay.com",
+  protocol: '',
 
   reload: function reload() {},
   replace: function replace() {}

@@ -1,16 +1,15 @@
 'use strict';
 
-// TODO Retain the previously modified data when switching pass, etc.
-
 const { materialTechniquePolyfill } = require('../utils/material');
 const { setDisabled, setReadonly, setHidden, loopSetAssetDumpDataReadonly } = require('../utils/prop');
 const { join, sep, normalize } = require('path');
+const cacheDot = '._';
+
 exports.style = `
 ui-button.location { flex: none; margin-left: 6px; }
 `;
 
-exports.template =
-/* html */`
+exports.template = /* html */ `
 <header class="header">
     <ui-prop>
         <ui-label slot="label">Effect</ui-label>
@@ -50,7 +49,9 @@ exports.$ = {
 
 exports.methods = {
     async getCustomInspector() {
-        const currentEffectInfo = this._effects.find(effect => { return effect.name === this.material.effect; });
+        const currentEffectInfo = this._effects.find((effect) => {
+            return effect.name === this.material.effect;
+        });
         if (currentEffectInfo && currentEffectInfo.uuid) {
             const meta = await Editor.Message.request('asset-db', 'query-asset-meta', currentEffectInfo.uuid);
             return meta && meta.userData && meta.userData.editor && meta.userData.editor.inspector;
@@ -68,10 +69,11 @@ exports.methods = {
     reset() {
         this.dirtyData.origin = this.dirtyData.realtime;
         this.dirtyData.uuid = '';
+        this.cacheData = {};
     },
     /**
-     * 
-     * @param {string} inspector 
+     *
+     * @param {string} inspector
      */
     async updateCustomInspector(inspector) {
         this.$.customPanel.hidden = false;
@@ -83,7 +85,7 @@ exports.methods = {
                 const name = relatePath.split(sep)[0];
                 const packagePath = Editor.Package.getPackages({ name, enable: true })[0].path;
                 const path = join(packagePath, relatePath.split(name)[1]);
-                if (this.$.customPanel.getAttribute('src') !== join(path)) {
+                if (this.$.customPanel.getAttribute('src') !== path) {
                     this.$.customPanel.setAttribute('src', path);
                 }
                 this.$.customPanel.update(this.material, this.assetList, this.metaList);
@@ -109,6 +111,8 @@ exports.methods = {
         if (!this.dirtyData.origin) {
             this.dirtyData.origin = this.dirtyData.realtime;
         }
+
+        this.canUpdatePreview = true;
     },
 
     isDirty() {
@@ -138,29 +142,7 @@ exports.methods = {
             return;
         }
 
-        const firstPass = technique.passes[0];
-        if (firstPass.childMap.USE_INSTANCING) {
-            technique.useInstancing.value = firstPass.childMap.USE_INSTANCING.value;
-
-            if (firstPass.childMap.USE_BATCHING) {
-                technique.useBatching.value = firstPass.childMap.USE_BATCHING.value;
-                technique.useBatching.visible = !technique.useInstancing.value;
-            }
-
-            this.changeInstancing(technique.useInstancing.value);
-        }
-
-        if (technique.useInstancing) {
-            this.$.useInstancing.render(technique.useInstancing);
-            setHidden(technique.useInstancing && !technique.useInstancing.visible, this.$.useInstancing);
-            setReadonly(this.asset.readonly, this.$.useInstancing);
-        }
-
-        if (technique.useBatching) {
-            this.$.useBatching.render(technique.useBatching);
-            setHidden(technique.useInstancing.value || (technique.useBatching && !technique.useBatching.visible), this.$.useBatching);
-            setReadonly(this.asset.readonly, this.$.useBatching);
-        }
+        this.useCache();
 
         if (technique.passes) {
             // The interface is not a regular data loop, which needs to be completely cleared and placed, but the UI-prop element is still reusable
@@ -249,6 +231,35 @@ exports.methods = {
             }
         }
     },
+
+    updateInstancing() {
+        const technique = this.technique;
+
+        const firstPass = technique.passes[0];
+        if (firstPass.childMap.USE_INSTANCING) {
+            technique.useInstancing.value = firstPass.childMap.USE_INSTANCING.value;
+
+            if (firstPass.childMap.USE_BATCHING) {
+                technique.useBatching.value = firstPass.childMap.USE_BATCHING.value;
+                technique.useBatching.visible = !technique.useInstancing.value;
+            }
+
+            this.changeInstancing(technique.useInstancing.value);
+        }
+
+        if (technique.useInstancing) {
+            this.$.useInstancing.render(technique.useInstancing);
+            setHidden(technique.useInstancing && !technique.useInstancing.visible, this.$.useInstancing);
+            setReadonly(this.asset.readonly, this.$.useInstancing);
+        }
+
+        if (technique.useBatching) {
+            this.$.useBatching.render(technique.useBatching);
+            setHidden(technique.useInstancing.value || (technique.useBatching && !technique.useBatching.visible), this.$.useBatching);
+            setReadonly(this.asset.readonly, this.$.useBatching);
+        }
+    },
+
     changeInstancing(checked) {
         this.technique.passes.forEach((pass) => {
             if (pass.childMap.USE_INSTANCING) {
@@ -286,6 +297,57 @@ exports.methods = {
         this.$.section.style = hide ? 'display:none' : '';
         this.$.materialDump.style = hide ? 'display:none' : '';
     },
+
+    async updatePreview() {
+        await Editor.Message.request('scene', 'preview-material', this.asset.uuid, this.material);
+        Editor.Message.broadcast('material-inspector:change-dump');
+    },
+
+    storeCache(dump) {
+        const { name, type, value, default: defaultValue } = dump;
+
+        if (JSON.stringify(value) === JSON.stringify(defaultValue)) {
+            delete this.cacheData[name];
+        } else {
+            this.cacheData[name] = JSON.parse(JSON.stringify({ type, value }));
+        }
+    },
+
+    useCache() {
+        const cacheData = this.cacheData;
+        this.technique.passes.forEach((pass, i) => {
+            if (pass.propertyIndex !== undefined && pass.propertyIndex.value !== i) {
+                return;
+            }
+
+            updateProperty(pass.value);
+        });
+
+        function updateProperty(prop) {
+            for (const name in prop) {
+                if (prop[name] && typeof prop[name] === 'object') {
+                    if (name in cacheData) {
+                        const { type, value } = cacheData[name];
+                        if (prop[name].type === type && JSON.stringify(prop[name].value) !== JSON.stringify(value)) {
+                            if (value && typeof value === 'object') {
+                                prop[name].value = JSON.parse(JSON.stringify(value));
+                            } else {
+                                prop[name].value = value;
+                            }
+                        }
+                    }
+
+                    if (prop[name].childMap && typeof prop[name].childMap === 'object') {
+                        updateProperty(prop[name].childMap);
+                    }
+                }
+            }
+        }
+
+        // Update the extracted useInstancing and useBatching
+        this.updateInstancing();
+        this.updatePreview();
+    },
 };
 
 /**
@@ -294,7 +356,6 @@ exports.methods = {
  * @param metaList
  */
 exports.update = async function(assetList, metaList) {
-
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
@@ -310,9 +371,14 @@ exports.update = async function(assetList, metaList) {
     if (this.dirtyData.uuid !== this.asset.uuid) {
         this.dirtyData.uuid = this.asset.uuid;
         this.dirtyData.origin = '';
+        this.cacheData = {};
     }
     // set this.material.technique
     this.material = await Editor.Message.request('scene', 'query-material', this.asset.uuid);
+    if (this.canUpdatePreview) {
+        await this.updatePreview();
+    }
+
     // effect <select> tag
     this.$.effect.value = this.material.effect;
     setDisabled(this.asset.readonly, this.$.effect);
@@ -337,12 +403,16 @@ exports.update = async function(assetList, metaList) {
  * Method of initializing the panel
  */
 exports.ready = async function() {
+    this.canUpdatePreview = false;
     // Used to determine whether the material has been modified in isDirty()
     this.dirtyData = {
         uuid: '',
         origin: '',
         realtime: '',
     };
+
+    // Retain the previously modified data when switching pass
+    this.cacheData = {};
 
     // The event triggered when the content of material is modified
     this.$.materialDump.addEventListener('change-dump', async (event) => {
@@ -357,11 +427,11 @@ exports.ready = async function() {
             }
         }
 
-        await Editor.Message.request('scene', 'preview-material', this.asset.uuid, this.material);
-        Editor.Message.broadcast('material-inspector:change-dump');
-
         this.setDirtyData();
+        this.storeCache(dump);
         this.dispatch('change');
+
+        await this.updatePreview();
     });
 
     // The event that is triggered when the effect used is modified
@@ -374,6 +444,7 @@ exports.ready = async function() {
         } else {
             this.$.technique.value = this.material.technique;
         }
+
         const inspector = await this.getCustomInspector();
         if (inspector) {
             this.updateCustomInspector(inspector);
@@ -394,6 +465,7 @@ exports.ready = async function() {
     // Event triggered when the technique being used is changed
     this.$.technique.addEventListener('change', async (event) => {
         this.material.technique = event.target.value;
+
         const inspector = await this.getCustomInspector();
         if (inspector) {
             this.updateCustomInspector(inspector);
@@ -402,20 +474,25 @@ exports.ready = async function() {
         }
         this.setDirtyData();
         this.dispatch('change');
+        this.updatePreview();
     });
 
     // The event is triggered when the useInstancing is modified
     this.$.useInstancing.addEventListener('change-dump', (event) => {
         this.changeInstancing(event.target.dump.value);
+        this.storeCache(event.target.dump);
         this.setDirtyData();
         this.dispatch('change');
+        this.updatePreview();
     });
 
     //  The event is triggered when the useBatching is modified
     this.$.useBatching.addEventListener('change-dump', (event) => {
         this.changeBatching(event.target.dump.value);
+        this.storeCache(event.target.dump);
         this.setDirtyData();
         this.dispatch('change');
+        this.updatePreview();
     });
 
     // When the page is initialized, all effect lists are queried and then not updated again
@@ -441,6 +518,7 @@ exports.ready = async function() {
     this.$.customPanel.addEventListener('change', () => {
         this.setDirtyData();
         this.dispatch('change');
+        this.updatePreview();
     });
 };
 
@@ -451,4 +529,6 @@ exports.close = function() {
         origin: '',
         realtime: '',
     };
+
+    this.cacheData = {};
 };

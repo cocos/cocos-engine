@@ -160,29 +160,15 @@ describe('Custom track setter', () => {
         expect(mockSetValue).toBeCalled();
     });
 
-    test('get() got called if any of channels is empty', () => {
-        const target = new Target();
-        const mockGetValue = target.getValue = jest.fn(target.getValue);
-        const mockSetValue = target.setValue = jest.fn(target.setValue);
-    
-        const track = new VectorTrack();
-        track.proxy = valueProxyWithGetSet;
-        const clip = new AnimationClip();
-        clip.addTrack(track);
-        const clipEval = clip.createEvaluator({
-            target,
-        });
-        clipEval.evaluate(0.0);
-        expect(mockGetValue).toBeCalled();
-        expect(mockSetValue).toBeCalled();
-    });
-
     test('If get() is not defined, the default channel value would be used', () => {
         const target = new Target();
         const mockSetValue = target.setValue = jest.fn(target.setValue);
     
         const track = new VectorTrack();
         track.proxy = valueProxyWithOnlySet;
+        track.channels().forEach(({ curve }) => {
+            curve.assignSorted([[0.0, ({ value: 2.0 })]]);
+        });
         const clip = new AnimationClip();
         clip.addTrack(track);
         const clipEval = clip.createEvaluator({

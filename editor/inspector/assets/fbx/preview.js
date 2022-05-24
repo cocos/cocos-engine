@@ -2,45 +2,67 @@ const animation = require('./animation');
 const events = require('./events');
 const eventEditor = require('./event-editor');
 
-exports.template = `
-<div class="preview">
-    <div class="animation-info">
-        <div class="flex">
-            <div class="toolbar" id="timeCtrl">
-                <ui-icon value="rewind" name="jump_first_frame"></ui-icon>
-                <ui-icon value="prev-play" name="jump_prev_frame"></ui-icon>
-                <ui-icon id="playButtonIcon" value="play" name="play"></ui-icon>
-                <ui-icon value="next-play" name="jump_next_frame"></ui-icon>
-                <ui-icon value="forward" name="jump_last_frame"></ui-icon>
-                <ui-icon value="stop" name="stop"></ui-icon>
-                <ui-icon value="event" name="add_event"></ui-icon>
-            </div>
-            <div class="time flex toolbar f1">
-                <ui-label value="Time"></ui-label>
-                <ui-num-input id="currentTime"></ui-num-input>
-                <div class="duration"></div>
-            </div>
-        </div>
-        <div class="time-line">
-            <ui-scale-plate tooltip="Frame" id="animationTime"></ui-scale-plate>
-            <div class="events"></div>
-        </div>
-    </div>
-    <div class="model-info">
-        <ui-label value="Vertices:0" class="vertices"></ui-label>
-        <ui-label value="Triangles:0" class="triangles"></ui-label>
-    </div>
-
-    <div class="event-editor">
-    </div>
-
-    <div class="image">
-        <canvas class="canvas"></canvas>
-    </div>
+exports.template = /* html */`
+<div class="multiple tips">
+    <ui-label class="big" value="i18n:ENGINE.assets.fbx.modelPreview"></ui-label>
+    <ui-label value="i18n:ENGINE.assets.multipleWarning"></ui-label>
 </div>
+<ui-drag-area class="preview" droppable="cc.Asset">
+    <div class= "noModel tips">
+        <ui-label class="big" value="i18n:ENGINE.assets.fbx.no_model_tips"></ui-label>
+        <ui-label value="i18n:ENGINE.assets.fbx.drag_model_tips"></ui-label>
+    </div>    
+    <div class="preview-container">
+        <div class="animation-info">
+            <div class="flex">
+                <div class="toolbar" id="timeCtrl">
+                    <ui-icon value="rewind" name="jump_first_frame"></ui-icon>
+                    <ui-icon value="prev-play" name="jump_prev_frame"></ui-icon>
+                    <ui-icon id="playButtonIcon" value="play" name="play"></ui-icon>
+                    <ui-icon value="next-play" name="jump_next_frame"></ui-icon>
+                    <ui-icon value="forward" name="jump_last_frame"></ui-icon>
+                    <ui-icon value="stop" name="stop"></ui-icon>
+                    <ui-icon value="event" name="add_event"></ui-icon>
+                </div>
+                <div class="time flex toolbar f1">
+                    <ui-label value="Time"></ui-label>
+                    <ui-num-input id="currentTime"></ui-num-input>
+                    <div class="duration"></div>
+                </div>
+            </div>
+            <div class="time-line">
+                <ui-scale-plate tooltip="Frame" id="animationTime"></ui-scale-plate>
+                <div class="events"></div>
+            </div>
+        </div>
+        <div class="model-info">
+            <ui-label value="Vertices:0" class="vertices"></ui-label>
+            <ui-label value="Triangles:0" class="triangles"></ui-label>
+        </div>
+
+        <div class="event-editor">
+        </div>
+
+        <div class="image">
+            <canvas class="canvas"></canvas>
+        </div>
+    </div>
+</ui-drag-area>
 `;
 
-exports.style = `
+exports.style = /* css*/`
+.tips {
+    text-align: center;
+    min-height: 200px;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-normal-border);
+}
+.tips > ui-label {
+    display: block;
+}
+.tips > ui-label.big {
+    font-size: 14px;
+}
 .flex {
     display: flex;
 }
@@ -48,38 +70,47 @@ exports.style = `
 .f1 {
     flex: 1;
 }
-.preview {
+.preview-container {
+    min-height: 200px;
     margin-top: 10px;
     border-top: 1px solid var(--color-normal-border);
 }
-.preview > .model-info {
+.preview[hoving] > .preview-container {
+    outline: 2px solid var(--color-focus-fill-weaker);
+    outline-offset: -1px;
+}
+.preview[hoving] > .tips {
+    outline: 2px solid var(--color-focus-fill-weaker);
+    outline-offset: -2px;
+}
+.preview-container > .model-info {
     padding-top: 5px;
     display: none;
 }
-.preview > .model-info > ui-label {
+.preview-container > .model-info > ui-label {
     margin-right: 6px;
 }
-.preview > .image {
+.preview-container > .image {
     height: 200px;
     overflow: hidden;
     display: flex;
     flex: 1;
-    margin-right: 10px;
+    margin: 2px;
 }
-.preview >.image > .canvas {
+.preview-container >.image > .canvas {
     flex: 1;
 }
-.preview .toolbar {
+.preview-container .toolbar {
     display: flex;
     margin-top: 10px;
     justify-content: space-between;
 }
 
-.preview .toolbar ui-num-input {
+.preview-container .toolbar ui-num-input {
     display: flex;
     flex: 1;
 }
-.preview .toolbar > * {
+.preview-container .toolbar > * {
     line-height: 25px;
     margin-right: 5px;
 }
@@ -242,7 +273,10 @@ const PLAY_STATE = {
 };
 
 exports.$ = {
+    noModel: '.noModel',
+    multiple: '.multiple',
     container: '.preview',
+    previewContainer: '.preview-container',
     vertices: '.vertices',
     triangles: '.triangles',
     image: '.image',
@@ -258,16 +292,62 @@ exports.$ = {
     timeCtrl: "#timeCtrl",
 };
 
+async function callModelPreviewFunction(funcName, ...args) {
+    return await Editor.Message.request('scene', 'call-preview-function', 'scene:model-preview', funcName, ...args);
+}
+
 const Elements = {
-    preview: {
+    container: {
         ready() {
             const panel = this;
 
+            function observer() {
+                panel.isPreviewDataDirty = true;
+            }
+
+            panel.resizeObserver = new window.ResizeObserver(observer);
+            panel.resizeObserver.observe(panel.$.container);
+
+            // Identify dragged FBX resources
+            panel.$.container.addEventListener('drop', async (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                // Multiple drag-and-drop options are not supported, and only the first value is taken
+                const values = [];
+                const { additional, value } = JSON.parse(JSON.stringify(Editor.UI.DragArea.currentDragInfo)) || {};
+                if (additional) {
+                    additional.forEach((info) => {
+                        if (info.type === 'cc.Prefab') {
+                            values.push(info.value);
+                        }
+                    });
+                }
+
+                if (value && !values.includes(value)) {
+                    values.push(value);
+                }
+
+                if (!values.length) {
+                    return;
+                }
+                const info = await callModelPreviewFunction('setModel', values[0]);
+                panel.infoUpdate(info);
+            });
+
+        },
+        close() {
+            const panel = this;
+            panel.resizeObserver.unobserve(panel.$.container);
+        },
+    },
+    preview: {
+        ready() {
+            const panel = this;
             panel.$.canvas.addEventListener('mousedown', async (event) => {
-                await Editor.Message.request('scene', 'on-model-preview-mouse-down', { x: event.x, y: event.y });
+                await callModelPreviewFunction('onMouseDown', { x: event.x, y: event.y });
 
                 async function mousemove(event) {
-                    await Editor.Message.request('scene', 'on-model-preview-mouse-move', {
+                    await callModelPreviewFunction('onMouseMove', {
                         movementX: event.movementX,
                         movementY: event.movementY,
                     });
@@ -276,7 +356,7 @@ const Elements = {
                 }
 
                 async function mouseup(event) {
-                    await Editor.Message.request('scene', 'on-model-preview-mouse-up', {
+                    await callModelPreviewFunction('onMouseUp', {
                         x: event.x,
                         y: event.y,
                     });
@@ -299,15 +379,16 @@ const Elements = {
         },
         async update() {
             const panel = this;
-
             if (!panel.$.canvas) {
                 return;
             }
 
             await panel.glPreview.init({ width: panel.$.canvas.clientWidth, height: panel.$.canvas.clientHeight });
             if (panel.asset.redirect) {
-                const info = await Editor.Message.request('scene', 'set-model-preview-model', panel.asset.redirect.uuid);
+                const info = await callModelPreviewFunction('setModel', panel.asset.redirect.uuid);
                 panel.infoUpdate(info);
+            } else {
+                this.updatePanelHidden(false);
             }
 
             panel.refreshPreview();
@@ -324,9 +405,10 @@ const Elements = {
             this.$.vertices.value = `Vertices:${info.vertices}`;
             this.$.triangles.value = `Triangles:${info.polygons}`;
             this.isPreviewDataDirty = true;
+            this.updatePanelHidden(true);
         },
         close() {
-            Editor.Message.send('scene', 'hide-model-preview');
+            callModelPreviewFunction('hide');
         },
     },
     animationTime: {
@@ -352,9 +434,15 @@ const Elements = {
 exports.update = async function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
+    this.isMultiple = this.assetList.length > 1;
+    this.$.previewContainer.hidden = this.isMultiple;
+    this.$.multiple.hidden = !this.isMultiple;
+    this.$.noModel.hidden = true;
+    if (this.isMultiple) {
+        return;
+    }
     this.asset = assetList[0];
     this.meta = metaList[0];
-
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.update) {
@@ -375,8 +463,6 @@ exports.update = async function(assetList, metaList) {
 };
 
 exports.ready = function() {
-    const panel = this;
-
     this.gridWidth = 0;
     this.gridTableWith = 0;
     this.activeTab = 'animation';
@@ -390,8 +476,8 @@ exports.ready = function() {
 
     this.onEditClipInfoChanged = async (clipInfo) => {
         if (clipInfo) {
-            await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'setEditClip', clipInfo.rawClipUUID, clipInfo.rawClipIndex);
-            this.setCurEditClipInfo(clipInfo);
+            await callModelPreviewFunction('setEditClip', clipInfo.rawClipUUID, clipInfo.rawClipIndex);
+            await this.setCurEditClipInfo(clipInfo);
         }
     };
 
@@ -407,14 +493,7 @@ exports.ready = function() {
         }
     }
 
-    function observer() {
-        panel.isPreviewDataDirty = true;
-    }
-
-    panel.resizeObserver = new window.ResizeObserver(observer);
-    panel.resizeObserver.observe(panel.$.container);
-
-    this.onSubAniChangeBind = this.onSubAniChange.bind(this);
+    this.onAssetChangeBind = this.onAssetChange.bind(this);
     this.addAssetChangeListener(true);
 
     this.events = events;
@@ -438,11 +517,19 @@ exports.close = function() {
     Editor.Message.removeBroadcastListener('fbx-inspector:change-tab', this.onTabChangedBind);
     Editor.Message.removeBroadcastListener('fbx-inspector:animation-change', this.onEditClipInfoChanged);
 
-    this.resizeObserver.unobserve(this.$.container);
     this.addAssetChangeListener(false);
 };
 
 exports.methods = {
+    /**
+     * 
+     * @param {boolean} hasModel 
+     */
+    updatePanelHidden(hasModel) {
+        this.$.noModel.hidden = hasModel;
+        this.$.previewContainer.hidden = this.isMultiple || !hasModel;
+        this.$.multiple.hidden = !this.isMultiple;
+    },
     async apply() {
         // save animation event info
         await this.events.apply.call(this);
@@ -545,13 +632,17 @@ exports.methods = {
     },
 
     updateEventInfo() {
+        let eventInfos = [];
         const events = this.curEditClipInfo.userData.events;
-        const eventInfos = events.map((info) => {
-            return {
-                ...info,
-                x: this.$.animationTime.valueToPixel(info.frame * this.curEditClipInfo.fps),
-            };
-        });
+        if (Array.isArray(events)) {
+            eventInfos = events.map((info) => {
+                return {
+                    ...info,
+                    x: this.$.animationTime.valueToPixel(info.frame * this.curEditClipInfo.fps),
+                };
+            });
+        }
+
         this.events.update.call(this, eventInfos);
     },
 
@@ -560,7 +651,7 @@ exports.methods = {
             return;
         }
 
-        await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'stop');
+        await callModelPreviewFunction('stop');
     },
     async onPlayButtonClick() {
         if (!this.curEditClipInfo) {
@@ -568,13 +659,13 @@ exports.methods = {
         }
         switch (this.curPlayState) {
             case PLAY_STATE.PAUSE:
-                await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'resume');
+                await callModelPreviewFunction('resume');
                 break;
             case PLAY_STATE.PLAYING:
-                await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'pause');
+                await callModelPreviewFunction('pause');
                 break;
             case PLAY_STATE.STOP:
-                await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'play', this.curEditClipInfo.rawClipUUID);
+                await callModelPreviewFunction('play', this.curEditClipInfo.rawClipUUID);
                 break;
             default:
                 break;
@@ -596,8 +687,8 @@ exports.methods = {
     async setCurrentFrame(frame) {
         frame = Editor.Utils.Math.clamp(frame, 0, this.curTotalFrames);
 
-        const curTime = frame / this.curEditClipInfo.fps;
-        await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'setCurEditTime', curTime);
+        const curTime = frame / this.curEditClipInfo.fps + this.curEditClipInfo.from;
+        await callModelPreviewFunction('setCurEditTime', curTime);
     },
 
     onModelAnimationUpdate(time) {
@@ -605,7 +696,9 @@ exports.methods = {
             return;
         }
         if (this.$.animationTime) {
-            this.$.animationTime.value = Math.round((time - this.curEditClipInfo.from) * this.curEditClipInfo.fps);
+            let timeFromRangeStart = Math.max(time - this.curEditClipInfo.from, 0);
+
+            this.$.animationTime.value = Math.round(timeFromRangeStart * this.curEditClipInfo.fps);
             this.$.currentTime.value = this.$.animationTime.value;
         }
 
@@ -643,20 +736,27 @@ exports.methods = {
             // update animation events, clipInfo.clipUUID may be undefined
             if (clipInfo.clipUUID) {
                 const subId = clipInfo.clipUUID.match(/@(.*)/)[1];
-                this.curEditClipInfo.userData = this.meta.subMetas[subId].userData;
+                this.curEditClipInfo.userData = this.meta.subMetas[subId] && this.meta.subMetas[subId].userData || {};
                 this.updateEventInfo();
             }
 
             if (this.$.animationTimeSlider) {
                 this.$.animationTimeSlider.max = this.curTotalFrames;
             }
-            await Editor.Message.request(
-                'scene',
-                'execute-model-preview-animation-operation',
+            await callModelPreviewFunction(
                 'setPlaybackRange',
                 clipInfo.from,
                 clipInfo.to,
             );
+
+            await callModelPreviewFunction(
+                'setClipConfig',
+                {
+                    wrapMode: clipInfo.wrapMode,
+                    speed: clipInfo.speed,
+                }
+            );
+
             await this.stopAnimation();
         }
     },
@@ -666,20 +766,17 @@ exports.methods = {
 
     addAssetChangeListener(add = true) {
         if (!add && this.hasListenAssetsChange) {
-            Editor.Message.removeBroadcastListener('asset-db:asset-change', this.onSubAniChangeBind);
+            Editor.Message.removeBroadcastListener('asset-db:asset-change', this.onAssetChangeBind);
             this.hasListenAssetsChange = false;
             return;
         }
-        Editor.Message.addBroadcastListener('asset-db:asset-change', this.onSubAniChangeBind);
+        Editor.Message.addBroadcastListener('asset-db:asset-change', this.onAssetChangeBind);
         this.hasListenAssetsChange = true;
     },
 
-    async onSubAniChange(uuid) {
-        if (!this.animationNameToUUIDMap || !this.animationNameToUUIDMap.size) {
-            return;
-        }
-        if (Array.from((this.animationNameToUUIDMap.values())).includes((uuid))) {
-            // 主动更新动画 dump 信息
+    async onAssetChange(uuid) {
+        if (this.asset.uuid === uuid) {
+            // Update the animation dump when the parent assets changes
             this.meta = await Editor.Message.request('asset-db', 'query-asset-meta', this.asset.uuid);
             const clipInfo = animation.methods.getCurClipInfo.call(this);
             await this.onEditClipInfoChanged(clipInfo);

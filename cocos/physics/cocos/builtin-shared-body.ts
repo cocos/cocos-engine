@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { Mat4, Quat, Vec3 } from '../../core/math';
 import { intersect } from '../../core/geometry';

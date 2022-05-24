@@ -46,10 +46,14 @@ export class CCFactory extends BaseFactory implements ISchedulable {
         this._dragonBones = new DragonBones(eventManager);
 
         if (!EDITOR && director.getScheduler()) {
-            game.on(Game.EVENT_RESTART, this.initUpdate, this);
+            game.on(Game.EVENT_RESTART, this.onRestart, this);
             this.initUpdate();
         }
         this.id = this.uuid = 'CCFactory';
+    }
+
+    onRestart () {
+        CCFactory._factory = null;
     }
 
     initUpdate (dt?: number) {

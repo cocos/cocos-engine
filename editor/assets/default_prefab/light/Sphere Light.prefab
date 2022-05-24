@@ -1,14 +1,15 @@
 [
   {
     "__type__": "cc.Prefab",
-    "_name": "",
+    "_name": "Sphere Light",
     "_objFlags": 0,
     "_native": "",
     "data": {
       "__id__": 1
     },
     "optimizationPolicy": 0,
-    "asyncLoadAssets": false
+    "asyncLoadAssets": false,
+    "persistent": false
   },
   {
     "__type__": "cc.Node",
@@ -24,7 +25,7 @@
       }
     ],
     "_prefab": {
-      "__id__": 3
+      "__id__": 4
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -76,8 +77,12 @@
     "_range": 2,
     "_id": "",
     "__prefab": {
-      "__id__": 4
+      "__id__": 3
     }
+  },
+  {
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "5b6a86+adN0IKor4mk41YN"
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -88,9 +93,5 @@
       "__id__": 0
     },
     "fileId": "59eikBZx5K9aR06hUuVC37"
-  },
-  {
-    "__type__": "cc.CompPrefabInfo",
-    "fileId": "5b6a86+adN0IKor4mk41YN"
   }
 ]

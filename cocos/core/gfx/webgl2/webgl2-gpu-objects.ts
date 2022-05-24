@@ -23,12 +23,81 @@
  THE SOFTWARE.
  */
 
+import { nextPow2 } from '../../math/bits';
 import {
-    Address, DescriptorType, BufferUsage, Filter, Format, MemoryUsage, SampleCount,
+    Address, DescriptorType, BufferUsage, Filter, Format, MemoryUsage, SampleCount, UniformInputAttachment,
     ShaderStageFlagBit, TextureFlags, TextureType, TextureUsage, Type, DynamicStateFlagBit, DrawInfo, Attribute,
     ColorAttachment, DepthStencilAttachment, UniformBlock, UniformSamplerTexture, DescriptorSetLayoutBinding,
 } from '../base/define';
 import { BlendState, DepthStencilState, RasterizerState } from '../base/pipeline-state';
+import { WebGL2Device } from './webgl2-device';
+
+export class WebGL2IndirectDrawInfos {
+    public counts: Int32Array;
+    public offsets: Int32Array;
+    public instances: Int32Array;
+    public drawCount = 0;
+    public drawByIndex = false;
+    public instancedDraw = false;
+
+    // staging buffer
+    public byteOffsets: Int32Array;
+
+    private _capacity = 4;
+
+    constructor () {
+        this.counts = new Int32Array(this._capacity);
+        this.offsets = new Int32Array(this._capacity);
+        this.instances  = new Int32Array(this._capacity);
+        this.byteOffsets = new Int32Array(this._capacity);
+    }
+
+    public clearDraws () {
+        this.drawCount = 0;
+        this.drawByIndex = false;
+        this.instancedDraw = false;
+    }
+
+    public setDrawInfo (idx: number, info: Readonly<DrawInfo>) {
+        this._ensureCapacity(idx);
+        this.drawByIndex = info.indexCount > 0;
+        this.instancedDraw = !!info.instanceCount;
+        this.drawCount = Math.max(idx + 1, this.drawCount);
+
+        if (this.drawByIndex) {
+            this.counts[idx] = info.indexCount;
+            this.offsets[idx] = info.firstIndex;
+        } else {
+            this.counts[idx] = info.vertexCount;
+            this.offsets[idx] = info.firstVertex;
+        }
+        this.instances[idx] = Math.max(1, info.instanceCount);
+    }
+
+    private _ensureCapacity (target: number) {
+        if (this._capacity > target) return;
+        this._capacity = nextPow2(target);
+
+        const counts = new Int32Array(this._capacity);
+        const offsets = new Int32Array(this._capacity);
+        const instances = new Int32Array(this._capacity);
+        this.byteOffsets = new Int32Array(this._capacity);
+
+        counts.set(this.counts);
+        offsets.set(this.offsets);
+        instances.set(this.instances);
+
+        this.counts = counts;
+        this.offsets = offsets;
+        this.instances = instances;
+    }
+}
+
+export interface IWebGL2BindingMapping {
+    blockOffsets: number[];
+    samplerTextureOffsets: number[];
+    flexibleSet: number;
+}
 
 export interface IWebGL2GPUUniformInfo {
     name: string;
@@ -50,7 +119,7 @@ export interface IWebGL2GPUBuffer {
     glOffset: number;
 
     buffer: ArrayBufferView | null;
-    indirects: DrawInfo[];
+    indirects: WebGL2IndirectDrawInfos;
 }
 
 export interface IWebGL2GPUTexture {
@@ -78,6 +147,16 @@ export interface IWebGL2GPUTexture {
     glWrapT: GLenum;
     glMinFilter: GLenum;
     glMagFilter: GLenum;
+
+    isSwapchainTexture: boolean;
+}
+
+export interface IWebGL2GPUTextureView {
+    gpuTexture: IWebGL2GPUTexture;
+    type: TextureType;
+    format: Format;
+    baseLevel: number;
+    levelCount: number;
 }
 
 export interface IWebGL2GPURenderPass {
@@ -87,15 +166,17 @@ export interface IWebGL2GPURenderPass {
 
 export interface IWebGL2GPUFramebuffer {
     gpuRenderPass: IWebGL2GPURenderPass;
-    gpuColorTextures: IWebGL2GPUTexture[];
-    gpuDepthStencilTexture: IWebGL2GPUTexture | null;
-    isOffscreen?: boolean;
-
+    gpuColorViews: IWebGL2GPUTextureView[];
+    gpuDepthStencilView: IWebGL2GPUTextureView | null;
     glFramebuffer: WebGLFramebuffer | null;
+    isOffscreen: boolean;
+    width: number;
+    height: number;
 }
 
 export interface IWebGL2GPUSampler {
-    glSampler: WebGLSampler | null;
+    glSamplers: Map<number, WebGLSampler>;
+
     minFilter: Filter;
     magFilter: Filter;
     mipFilter: Filter;
@@ -108,6 +189,8 @@ export interface IWebGL2GPUSampler {
     glWrapS: GLenum;
     glWrapT: GLenum;
     glWrapR: GLenum;
+
+    getGLSampler (device: WebGL2Device, minLod: number, maxLod: number) : WebGLSampler;
 }
 
 export interface IWebGL2GPUInput {
@@ -168,6 +251,7 @@ export interface IWebGL2GPUShader {
     name: string;
     blocks: UniformBlock[];
     samplerTextures: UniformSamplerTexture[];
+    subpassInputs: UniformInputAttachment[];
 
     gpuStages: IWebGL2GPUShaderStage[];
     glProgram: WebGLProgram | null;
@@ -205,7 +289,7 @@ export interface IWebGL2GPUPipelineState {
 export interface IWebGL2GPUDescriptor {
     type: DescriptorType;
     gpuBuffer: IWebGL2GPUBuffer | null;
-    gpuTexture: IWebGL2GPUTexture | null;
+    gpuTextureView: IWebGL2GPUTextureView | null;
     gpuSampler: IWebGL2GPUSampler | null;
 }
 

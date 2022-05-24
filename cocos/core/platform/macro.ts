@@ -47,7 +47,7 @@ const KEY = {
      * @en The back key on mobile phone
      * @zh 移动端返回键
      * @readonly
-     * @deprecated since v3.3
+     * @deprecated since v3.3, please use KeyCode.MOBILE_BACK instead.
      */
     back: 6,
     /**
@@ -981,24 +981,42 @@ const macro = {
 
     /**
      * @en
-     * Boolean that indicates if the WebGL context is created with `antialias` option turned on, default value is false.
+     * Boolean that indicates if the GL context is created with `antialias` option turned on, default value is false.
      * Set it to true could make your game graphics slightly smoother, like texture hard edges when rotated.
      * Whether to use this really depend on your game design and targeted platform,
      * device with retina display usually have good detail on graphics with or without this option,
      * you probably don't want antialias if your game style is pixel art based.
      * Also, it could have great performance impact with some browser / device using software MSAA.
      * You can set it to true before {{game.init}}.
-     * Web only.
+     * Only affect OpenGL ES and WebGL backend
      * @zh
-     * 用于设置在创建 WebGL Context 时是否开启抗锯齿选项，默认值是 false。
+     * 用于设置在创建 GL Context 时是否开启抗锯齿选项，默认值是 false。
      * 将这个选项设置为 true 会让你的游戏画面稍稍平滑一些，比如旋转硬边贴图时的锯齿。是否开启这个选项很大程度上取决于你的游戏和面向的平台。
      * 在大多数拥有 retina 级别屏幕的设备上用户往往无法区分这个选项带来的变化；如果你的游戏选择像素艺术风格，你也多半不会想开启这个选项。
      * 同时，在少部分使用软件级别抗锯齿算法的设备或浏览器上，这个选项会对性能产生比较大的影响。
      * 你可以在 {{game.init}} 之前设置这个值，否则它不会生效。
-     * 仅支持 Web
+     * 仅影响 WebGL 后端
      * @default true
      */
     ENABLE_WEBGL_ANTIALIAS: true,
+
+    /**
+     * @en
+     * Used to set fxaa post-processing anti-aliasing, the default value is false.
+     * @zh
+     * 用于开启fxaa后处理抗锯齿, 默认值为false。
+     * @default false
+     */
+    ENABLE_ANTIALIAS_FXAA: false,
+
+    /**
+     * @en
+     * Used to set bloom, the default value is false.
+     * @zh
+     * 用于开启 bloom, 默认值为false。
+     * @default false
+     */
+    ENABLE_BLOOM: false,
 
     /**
      * @en
@@ -1035,6 +1053,38 @@ const macro = {
      * @default 20
      */
     MAX_LABEL_CANVAS_POOL_SIZE: 20,
+
+    /**
+     * @en
+     * Boolean that indicates if enable highp precision data in structure with fragment shader.
+     * Enable this option will make the variables defined by the HIGHP_VALUE_STRUCT_DEFINE macro in the shader more accurate, such as position.
+     * Enable this option can avoid some distorted lighting effects. That depends on whether your game has abnormal lighting effects on this platform.
+     * There will be a slight performance loss if enable this option, but the impact is not significant.
+     * Only affect WebGL backend
+     * @zh
+     * 用于设置是否在片元着色器中使用结构体的时候，允许其中的数据使用highp精度
+     * 将这个选项设置为 true 会让shader中使用HIGHP_VALUE_STRUCT_DEFINE宏定义的变量精度更高，比如位置信息等，避免出现一些失真的光照效果。是否开启这个选项很大程度上取决于你的游戏在此平台上是否出现了异常的表现。
+     * 开启后会有轻微的性能损失，但影响不大。
+     * 仅影响 WebGL 后端
+     * @default false
+     */
+    ENABLE_WEBGL_HIGHP_STRUCT_VALUES: false,
+
+    /**
+     * @zh Batcher2D 中内存增量的大小（KB）
+     * 这个值决定了当场景中存在的 2d 渲染组件的顶点数量超过当前 batcher2D 中可容纳的顶点数量时，内存扩充的增加量
+     * 这个值越大，共用同一个 meshBuffer 的 2d 渲染组件数量会更多，但每次扩充所占用的内存也会更大
+     * 默认值在标准格式（[[vfmtPosUvColor]]）下可容纳 4096 个顶点（4096*9*4/1024），你可以增加容量来提升每个批次可容纳的元素数量
+     * @en The MeshBuffer chunk size in Batcher2D (KB)
+     * This value determines the increase in memory expansion,
+     * when the number of vertices of 2d rendering components present in the scene exceeds the number of vertices,
+     * that can be accommodated in the current batcher2D.
+     * The larger this value is, the more 2d rendering components will share the same meshBuffer, but the more memory will be used for each expansion
+     * The default size can contain 4096 standard vertex ([[vfmtPosUvColor]]) in one buffer,
+     * you can user larger buffer size to increase the elements count per 2d draw batch.
+     * @default 144 KB
+     */
+    BATCHER2D_MEM_INCREMENT: 144,
 };
 
 legacyCC.macro = macro;

@@ -33,12 +33,12 @@ import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, visib
 import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';
 import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
 import { warnID } from '../../core/platform';
-import { Batcher2D } from '../renderer/batcher-2d';
+import { IBatcher } from '../renderer/i-batcher';
 import { ccenum } from '../../core/value-types/enum';
 import { Graphics } from './graphics';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { SpriteFrame } from '../assets/sprite-frame';
-import { Game, Material, builtinResMgr, director, RenderingSubMesh, CCObject } from '../../core';
+import { Game, Material, builtinResMgr, director, CCObject } from '../../core';
 import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, PrimitiveMode } from '../../core/gfx';
 import { legacyCC } from '../../core/global-exports';
 import { MaterialInstance, scene } from '../../core/renderer';
@@ -46,6 +46,7 @@ import { Model } from '../../core/renderer/scene';
 import { vfmt, getAttributeStride } from '../renderer/vertex-format';
 import { Stage } from '../renderer/stencil-manager';
 import { NodeEventProcessor } from '../../core/scene-graph/node-event-processor';
+import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
 
 const _worldMatrix = new Mat4();
 const _vec2_temp = new Vec2();
@@ -126,7 +127,6 @@ export class Mask extends Renderable2D {
      * 遮罩类型。
      */
     @type(MaskType)
-    @displayOrder(10)
     @tooltip('i18n:mask.type')
     get type () {
         return this._type;
@@ -327,7 +327,13 @@ export class Mask extends Renderable2D {
 
     public static Type = MaskType;
 
+    /**
+     * @legacyPublic
+     */
     public _clearStencilMtl: Material | null = null;
+    /**
+     * @legacyPublic
+     */
     public _clearModel: Model | null = null;
 
     @serializable
@@ -366,6 +372,7 @@ export class Mask extends Renderable2D {
     public onEnable () {
         super.onEnable();
         this._updateGraphics();
+        this._enableGraphics();
     }
 
     /**
@@ -385,7 +392,6 @@ export class Mask extends Renderable2D {
     }
 
     public onDestroy () {
-        super.onDestroy();
         if (this._clearModel && this._clearModelMesh) {
             director.root!.destroyModel(this._clearModel);
             this._clearModelMesh.destroy();
@@ -396,15 +402,15 @@ export class Mask extends Renderable2D {
         }
 
         this._removeGraphics();
+        super.onDestroy();
     }
 
     /**
-     * @zh
-     * 根据屏幕坐标计算点击事件。
+     * Hit test with point in World Space.
      *
-     * @param cameraPt  屏幕点转换到相机坐标系下的点。
+     * @param worldPt point in World Space.
      */
-    public isHit (cameraPt: Vec2) {
+    public isHit (worldPt: Vec2) {
         const uiTrans = this.node._uiProps.uiTransformComp!;
         const size = uiTrans.contentSize;
         const w = size.width;
@@ -413,13 +419,13 @@ export class Mask extends Renderable2D {
 
         this.node.getWorldMatrix(_worldMatrix);
         Mat4.invert(_mat4_temp, _worldMatrix);
-        Vec2.transformMat4(testPt, cameraPt, _mat4_temp);
+        Vec2.transformMat4(testPt, worldPt, _mat4_temp);
         const ap = uiTrans.anchorPoint;
         testPt.x += ap.x * w;
         testPt.y += ap.y * h;
 
         let result = false;
-        if (this.type === MaskType.RECT || this.type === MaskType.GRAPHICS_STENCIL) {
+        if (this.type === MaskType.RECT || this.type === MaskType.GRAPHICS_STENCIL || this.type === MaskType.IMAGE_STENCIL) {
             result = testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h;
         } else if (this.type === MaskType.ELLIPSE) {
             const rx = w / 2;
@@ -436,16 +442,16 @@ export class Mask extends Renderable2D {
         return result;
     }
 
-    protected _render (render: Batcher2D) {
-        render.commitComp(this, null, this._assembler!, null);
+    protected _render (render: IBatcher) {
+        render.commitComp(this, this.renderData, null, this._assembler!, null);
     }
 
-    protected _postRender (render: Batcher2D) {
+    protected _postRender (render: IBatcher) {
         if (!this._postAssembler) {
             return;
         }
 
-        render.commitComp(this, null, this._postAssembler, null);
+        render.commitComp(this, null, null, this._postAssembler, null);
     }
 
     protected _nodeStateChange (type: TransformBit) {
@@ -463,7 +469,7 @@ export class Mask extends Renderable2D {
     }
 
     protected _flushAssembler () {
-        const assembler = Mask.Assembler!.getAssembler(this);
+        const assembler = Mask.Assembler.getAssembler(this);
         const posAssembler = Mask.PostAssembler!.getAssembler(this);
 
         if (this._assembler !== assembler) {
@@ -584,6 +590,13 @@ export class Mask extends Renderable2D {
         }
     }
 
+    protected _enableGraphics () {
+        if (this._graphics) {
+            // @ts-expect-error hack for mask _graphics renderFlag
+            this._graphics._renderFlag = this._graphics._canRender();
+        }
+    }
+
     protected _disableGraphics () {
         if (this._graphics) {
             this._graphics.onDisable();
@@ -608,6 +621,6 @@ export class Mask extends Renderable2D {
     }
 }
 
-NodeEventProcessor._comp = Mask;
+NodeEventProcessor._maskComp = Mask;
 
 legacyCC.Mask = Mask;

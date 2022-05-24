@@ -1155,6 +1155,7 @@
 	});
 	var location = {
 	  href: 'game.js',
+	  protocol: '',
 	  reload: function reload() {}
 	};
 

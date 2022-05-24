@@ -28,12 +28,15 @@
  * @module gfx
  */
 
-import { Buffer } from './buffer';
-import { DescriptorSetLayout } from './descriptor-set-layout';
 import { Queue } from './queue';
-import { RenderPass } from './render-pass';
-import { Sampler } from './sampler';
+import { Buffer } from './buffer';
 import { Texture } from './texture';
+import { Swapchain } from './swapchain';
+import { RenderPass } from './render-pass';
+import { DescriptorSetLayout } from './descriptor-set-layout';
+
+import { Sampler } from './states/sampler';
+import { GeneralBarrier } from './states/general-barrier';
 
 interface ICopyable { copy(info: ICopyable): ICopyable; }
 
@@ -47,14 +50,15 @@ const deepCopy = <T extends ICopyable>(target: T[], source: T[], Ctor: Construct
 
 /**
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
- * The following section is auto-generated from engine-native/cocos/renderer/core/gfx/GFXDef-common.h
- * by the script engine-native/tools/gfx-define-generator/generate.js.
+ * The following section is auto-generated from native/cocos/renderer/core/gfx/GFXDef-common.h
+ * by the script native/tools/gfx-define-generator/generate.js.
  * Changes to these public interfaces should be made there first and synced back.
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 
 export enum ObjectType {
     UNKNOWN,
+    SWAPCHAIN,
     BUFFER,
     TEXTURE,
     RENDER_PASS,
@@ -68,9 +72,11 @@ export enum ObjectType {
     INPUT_ASSEMBLER,
     COMMAND_BUFFER,
     QUEUE,
+    QUERY_POOL,
     GLOBAL_BARRIER,
     TEXTURE_BARRIER,
     BUFFER_BARRIER,
+    COUNT,
 }
 
 export enum Status {
@@ -85,6 +91,7 @@ export enum API {
     GLES3,
     METAL,
     VULKAN,
+    NVN,
     WEBGL,
     WEBGL2,
     WEBGPU,
@@ -98,25 +105,26 @@ export enum SurfaceTransform {
 }
 
 export enum Feature {
-    COLOR_FLOAT,
-    COLOR_HALF_FLOAT,
-    TEXTURE_FLOAT,
-    TEXTURE_HALF_FLOAT,
-    TEXTURE_FLOAT_LINEAR,
-    TEXTURE_HALF_FLOAT_LINEAR,
-    FORMAT_R11G11B10F,
-    FORMAT_SRGB,
-    FORMAT_ETC1,
-    FORMAT_ETC2,
-    FORMAT_DXT,
-    FORMAT_PVRTC,
-    FORMAT_ASTC,
-    FORMAT_RGB8,
     ELEMENT_INDEX_UINT,
     INSTANCED_ARRAYS,
     MULTIPLE_RENDER_TARGETS,
     BLEND_MINMAX,
     COMPUTE_SHADER,
+    // This flag indicates whether the device can benefit from subpass-style usages.
+    // Specifically, this only differs on the GLES backends: the Framebuffer Fetch
+    // extension is used to simulate input attachments, so the flag is not set when
+    // the extension is not supported, and you should switch to the fallback branch
+    // (without the extension requirement) in GLSL shader sources accordingly.
+    // Everything else can remain the same.
+    //
+    // Another caveat when using the Framebuffer Fetch extensions in shaders is that
+    // for subpasses with exactly 4 inout attachments the output is automatically set
+    // to the last attachment (taking advantage of 'inout' property), and a separate
+    // blit operation (if needed) will be added for you afterwards to transfer the
+    // rendering result to the correct subpass output texture. This is to ameliorate
+    // the max number of attachment limit(4) situation for many devices, and shader
+    // sources inside this kind of subpass must match this behavior.
+    INPUT_ATTACHMENT_BENEFIT,
     COUNT,
 }
 
@@ -185,34 +193,30 @@ export enum Format {
     RGB9E5,
 
     // Depth-Stencil Format
-    D16,
-    D16S8,
-    D24,
-    D24S8,
-    D32F,
-    D32F_S8,
+    DEPTH,
+    DEPTH_STENCIL,
 
     // Compressed Format
 
     // Block Compression Format, DDS (DirectDraw Surface)
-    // DXT1: 3 channels (5:6:5), 1/8 origianl size, with 0 or 1 bit of alpha
+    // DXT1: 3 channels (5:6:5), 1/8 original size, with 0 or 1 bit of alpha
     BC1,
     BC1_ALPHA,
     BC1_SRGB,
     BC1_SRGB_ALPHA,
-    // DXT3: 4 channels (5:6:5), 1/4 origianl size, with 4 bits of alpha
+    // DXT3: 4 channels (5:6:5), 1/4 original size, with 4 bits of alpha
     BC2,
     BC2_SRGB,
-    // DXT5: 4 channels (5:6:5), 1/4 origianl size, with 8 bits of alpha
+    // DXT5: 4 channels (5:6:5), 1/4 original size, with 8 bits of alpha
     BC3,
     BC3_SRGB,
-    // 1 channel (8), 1/4 origianl size
+    // 1 channel (8), 1/4 original size
     BC4,
     BC4_SNORM,
-    // 2 channels (8:8), 1/2 origianl size
+    // 2 channels (8:8), 1/2 original size
     BC5,
     BC5_SNORM,
-    // 3 channels (16:16:16), half-floating point, 1/6 origianl size
+    // 3 channels (16:16:16), half-floating point, 1/6 original size
     // UF16: unsigned float, 5 exponent bits + 11 mantissa bits
     // SF16: signed float, 1 signed bit + 5 exponent bits + 10 mantissa bits
     BC6H_UF16,
@@ -367,8 +371,8 @@ export enum MemoryAccessBit {
 
 export enum MemoryUsageBit {
     NONE   = 0,
-    DEVICE = 0x1,
-    HOST   = 0x2,
+    DEVICE = 0x1, // for rarely-updated resources, use MemoryUsageBit::DEVICE
+    HOST   = 0x2, // for frequently-updated resources, use MemoryUsageBit::DEVICE | MemoryUsageBit::HOST
 }
 
 export enum TextureType {
@@ -393,19 +397,48 @@ export enum TextureUsageBit {
 
 export enum TextureFlagBit {
     NONE           = 0,
-    GEN_MIPMAP     = 0x1,
-    IMMUTABLE      = 0x2,
-    GENERAL_LAYOUT = 0x4,
+    GEN_MIPMAP     = 0x1, // Generate mipmaps using bilinear filter
+    GENERAL_LAYOUT = 0x2, // For inout framebuffer attachments
+}
+
+export enum FormatFeatureBit {
+    NONE             = 0,
+    RENDER_TARGET    = 0x1,  // Allow usages as render pass attachments
+    SAMPLED_TEXTURE  = 0x2,  // Allow sampled reads in shaders
+    LINEAR_FILTER    = 0x4,  // Allow linear filtering when sampling in shaders or blitting
+    STORAGE_TEXTURE  = 0x8,  // Allow storage reads & writes in shaders
+    VERTEX_ATTRIBUTE = 0x10, // Allow usages as vertex input attributes
 }
 
 export enum SampleCount {
-    X1  = 0x1,
-    X2  = 0x2,
-    X4  = 0x4,
-    X8  = 0x8,
-    X16 = 0x10,
-    X32 = 0x20,
-    X64 = 0x40,
+    ONE,                  // Single sample
+    MULTIPLE_PERFORMANCE, // Multiple samples prioritizing performance over quality
+    MULTIPLE_BALANCE,     // Multiple samples leveraging both quality and performance
+    MULTIPLE_QUALITY,     // Multiple samples prioritizing quality over performance
+}
+
+export enum VsyncMode {
+    // The application does not synchronizes with the vertical sync.
+    // If application renders faster than the display refreshes, frames are wasted and tearing may be observed.
+    // FPS is uncapped. Maximum power consumption. If unsupported, "ON" value will be used instead. Minimum latency.
+    OFF,
+    // The application is always synchronized with the vertical sync. Tearing does not happen.
+    // FPS is capped to the display's refresh rate. For fast applications, battery life is improved. Always supported.
+    ON,
+    // The application synchronizes with the vertical sync, but only if the application rendering speed is greater than refresh rate.
+    // Compared to OFF, there is no tearing. Compared to ON, the FPS will be improved for "slower" applications.
+    // If unsupported, "ON" value will be used instead. Recommended for most applications. Default if supported.
+    RELAXED,
+    // The presentation engine will always use the latest fully rendered image.
+    // Compared to OFF, no tearing will be observed.
+    // Compared to ON, battery power will be worse, especially for faster applications.
+    // If unsupported,  "OFF" will be attempted next.
+    MAILBOX,
+    // The application is capped to using half the vertical sync time.
+    // FPS artificially capped to Half the display speed (usually 30fps) to maintain battery.
+    // Best possible battery savings. Worst possible performance.
+    // Recommended for specific applications where battery saving is critical.
+    HALF,
 }
 
 export enum Filter {
@@ -491,49 +524,49 @@ export enum ShaderStageFlagBit {
 }
 
 export enum LoadOp {
-    LOAD,    // Load the contents from the fbo from previous
-    CLEAR,   // Clear the fbo
-    DISCARD, // Ignore writing to the fbo and keep old data
+    LOAD,    // Load the previous content from memory
+    CLEAR,   // Clear the content to a fixed value
+    DISCARD, // Discard the previous content
 }
 
 export enum StoreOp {
-    STORE,   // Write the source to the destination
-    DISCARD, // Don't write the source to the destination
+    STORE,   // Store the pending content to memory
+    DISCARD, // Discard the pending content
 }
 
-export enum AccessType {
-    NONE,
+export enum AccessFlagBit {
+    NONE = 0,
 
-    // Read access
-    INDIRECT_BUFFER,                                     // Read as an indirect buffer for drawing or dispatch
-    INDEX_BUFFER,                                        // Read as an index buffer for drawing
-    VERTEX_BUFFER,                                       // Read as a vertex buffer for drawing
-    VERTEX_SHADER_READ_UNIFORM_BUFFER,                   // Read as a uniform buffer in a vertex shader
-    VERTEX_SHADER_READ_TEXTURE,                          // Read as a sampled image/uniform texel buffer in a vertex shader
-    VERTEX_SHADER_READ_OTHER,                            // Read as any other resource in a vertex shader
-    FRAGMENT_SHADER_READ_UNIFORM_BUFFER,                 // Read as a uniform buffer in a fragment shader
-    FRAGMENT_SHADER_READ_TEXTURE,                        // Read as a sampled image/uniform texel buffer in a fragment shader
-    FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT,         // Read as an input attachment with a color format in a fragment shader
-    FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT, // Read as an input attachment with a depth/stencil format in a fragment shader
-    FRAGMENT_SHADER_READ_OTHER,                          // Read as any other resource in a fragment shader
-    COLOR_ATTACHMENT_READ,                               // Read by standard blending/logic operations or subpass load operations
-    DEPTH_STENCIL_ATTACHMENT_READ,                       // Read by depth/stencil tests or subpass load operations
-    COMPUTE_SHADER_READ_UNIFORM_BUFFER,                  // Read as a uniform buffer in a compute shader
-    COMPUTE_SHADER_READ_TEXTURE,                         // Read as a sampled image/uniform texel buffer in a compute shader
-    COMPUTE_SHADER_READ_OTHER,                           // Read as any other resource in a compute shader
-    TRANSFER_READ,                                       // Read as the source of a transfer operation
-    HOST_READ,                                           // Read on the host
-    PRESENT,                                             // Read by the presentation engine
+    // Read accesses
+    INDIRECT_BUFFER                                     = 1 << 0,  // Read as an indirect buffer for drawing or dispatch
+    INDEX_BUFFER                                        = 1 << 1,  // Read as an index buffer for drawing
+    VERTEX_BUFFER                                       = 1 << 2,  // Read as a vertex buffer for drawing
+    VERTEX_SHADER_READ_UNIFORM_BUFFER                   = 1 << 3,  // Read as a uniform buffer in a vertex shader
+    VERTEX_SHADER_READ_TEXTURE                          = 1 << 4,  // Read as a sampled image/uniform texel buffer in a vertex shader
+    VERTEX_SHADER_READ_OTHER                            = 1 << 5,  // Read as any other resource in a vertex shader
+    FRAGMENT_SHADER_READ_UNIFORM_BUFFER                 = 1 << 6,  // Read as a uniform buffer in a fragment shader
+    FRAGMENT_SHADER_READ_TEXTURE                        = 1 << 7,  // Read as a sampled image/uniform texel buffer in a fragment shader
+    FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT         = 1 << 8,  // Read as an input attachment with a color format in a fragment shader
+    FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT = 1 << 9,  // Read as an input attachment with a depth/stencil format in a fragment shader
+    FRAGMENT_SHADER_READ_OTHER                          = 1 << 10, // Read as any other resource in a fragment shader
+    COLOR_ATTACHMENT_READ                               = 1 << 11, // Read by standard blending/logic operations or subpass load operations
+    DEPTH_STENCIL_ATTACHMENT_READ                       = 1 << 12, // Read by depth/stencil tests or subpass load operations
+    COMPUTE_SHADER_READ_UNIFORM_BUFFER                  = 1 << 13, // Read as a uniform buffer in a compute shader
+    COMPUTE_SHADER_READ_TEXTURE                         = 1 << 14, // Read as a sampled image/uniform texel buffer in a compute shader
+    COMPUTE_SHADER_READ_OTHER                           = 1 << 15, // Read as any other resource in a compute shader
+    TRANSFER_READ                                       = 1 << 16, // Read as the source of a transfer operation
+    HOST_READ                                           = 1 << 17, // Read on the host
+    PRESENT                                             = 1 << 18, // Read by the presentation engine
 
-    // Write access
-    VERTEX_SHADER_WRITE,            // Written as any resource in a vertex shader
-    FRAGMENT_SHADER_WRITE,          // Written as any resource in a fragment shader
-    COLOR_ATTACHMENT_WRITE,         // Written as a color attachment during rendering, or via a subpass store op
-    DEPTH_STENCIL_ATTACHMENT_WRITE, // Written as a depth/stencil attachment during rendering, or via a subpass store op
-    COMPUTE_SHADER_WRITE,           // Written as any resource in a compute shader
-    TRANSFER_WRITE,                 // Written as the destination of a transfer operation
-    HOST_PREINITIALIZED,            // Data pre-filled by host before device access starts
-    HOST_WRITE,                     // Written on the host
+    // Write accesses
+    VERTEX_SHADER_WRITE            = 1 << 19, // Written as any resource in a vertex shader
+    FRAGMENT_SHADER_WRITE          = 1 << 20, // Written as any resource in a fragment shader
+    COLOR_ATTACHMENT_WRITE         = 1 << 21, // Written as a color attachment during rendering, or via a subpass store op
+    DEPTH_STENCIL_ATTACHMENT_WRITE = 1 << 22, // Written as a depth/stencil attachment during rendering, or via a subpass store op
+    COMPUTE_SHADER_WRITE           = 1 << 23, // Written as any resource in a compute shader
+    TRANSFER_WRITE                 = 1 << 24, // Written as the destination of a transfer operation
+    HOST_PREINITIALIZED            = 1 << 25, // Data pre-filled by host before device access starts
+    HOST_WRITE                     = 1 << 26, // Written on the host
 }
 
 export enum ResolveMode {
@@ -587,14 +620,12 @@ export enum CullMode {
 
 export enum DynamicStateFlagBit {
     NONE                 = 0x0,
-    VIEWPORT             = 0x1,
-    SCISSOR              = 0x2,
-    LINE_WIDTH           = 0x4,
-    DEPTH_BIAS           = 0x8,
-    BLEND_CONSTANTS      = 0x10,
-    DEPTH_BOUNDS         = 0x20,
-    STENCIL_WRITE_MASK   = 0x40,
-    STENCIL_COMPARE_MASK = 0x80,
+    LINE_WIDTH           = 0x1,
+    DEPTH_BIAS           = 0x2,
+    BLEND_CONSTANTS      = 0x4,
+    DEPTH_BOUNDS         = 0x8,
+    STENCIL_WRITE_MASK   = 0x10,
+    STENCIL_COMPARE_MASK = 0x20,
 }
 
 export enum StencilFace {
@@ -622,6 +653,12 @@ export enum QueueType {
     TRANSFER,
 }
 
+export enum QueryType {
+    OCCLUSION,
+    PIPELINE_STATISTICS,
+    TIMESTAMP,
+}
+
 export enum CommandBufferType {
     PRIMARY,
     SECONDARY,
@@ -642,7 +679,9 @@ export type MemoryAccess = MemoryAccessBit;
 export type MemoryUsage = MemoryUsageBit;
 export type TextureUsage = TextureUsageBit;
 export type TextureFlags = TextureFlagBit;
+export type FormatFeature = FormatFeatureBit;
 export type ShaderStageFlags = ShaderStageFlagBit;
+export type AccessFlags = AccessFlagBit;
 export type DynamicStateFlags = DynamicStateFlagBit;
 export type ClearFlags = ClearFlagBit;
 
@@ -655,7 +694,7 @@ export class Size {
         public z: number = 0,
     ) {}
 
-    public copy (info: Size) {
+    public copy (info: Readonly<Size>) {
         this.x = info.x;
         this.y = info.y;
         this.z = info.z;
@@ -680,19 +719,18 @@ export class DeviceCaps {
         public maxUniformBlockSize: number = 0,
         public maxTextureSize: number = 0,
         public maxCubeMapTextureSize: number = 0,
-        public depthBits: number = 0,
-        public stencilBits: number = 0,
         public uboOffsetAlignment: number = 1,
         public maxComputeSharedMemorySize: number = 0,
         public maxComputeWorkGroupInvocations: number = 0,
         public maxComputeWorkGroupSize: Size = new Size(),
         public maxComputeWorkGroupCount: Size = new Size(),
+        public supportQuery: boolean = false,
         public clipSpaceMinZ: number = -1,
         public screenSpaceSignY: number = 1,
         public clipSpaceSignY: number = 1,
     ) {}
 
-    public copy (info: DeviceCaps) {
+    public copy (info: Readonly<DeviceCaps>) {
         this.maxVertexAttributes = info.maxVertexAttributes;
         this.maxVertexUniformVectors = info.maxVertexUniformVectors;
         this.maxFragmentUniformVectors = info.maxFragmentUniformVectors;
@@ -706,13 +744,12 @@ export class DeviceCaps {
         this.maxUniformBlockSize = info.maxUniformBlockSize;
         this.maxTextureSize = info.maxTextureSize;
         this.maxCubeMapTextureSize = info.maxCubeMapTextureSize;
-        this.depthBits = info.depthBits;
-        this.stencilBits = info.stencilBits;
         this.uboOffsetAlignment = info.uboOffsetAlignment;
         this.maxComputeSharedMemorySize = info.maxComputeSharedMemorySize;
         this.maxComputeWorkGroupInvocations = info.maxComputeWorkGroupInvocations;
         this.maxComputeWorkGroupSize.copy(info.maxComputeWorkGroupSize);
         this.maxComputeWorkGroupCount.copy(info.maxComputeWorkGroupCount);
+        this.supportQuery = info.supportQuery;
         this.clipSpaceMinZ = info.clipSpaceMinZ;
         this.screenSpaceSignY = info.screenSpaceSignY;
         this.clipSpaceSignY = info.clipSpaceSignY;
@@ -729,7 +766,7 @@ export class Offset {
         public z: number = 0,
     ) {}
 
-    public copy (info: Offset) {
+    public copy (info: Readonly<Offset>) {
         this.x = info.x;
         this.y = info.y;
         this.z = info.z;
@@ -747,7 +784,7 @@ export class Rect {
         public height: number = 0,
     ) {}
 
-    public copy (info: Rect) {
+    public copy (info: Readonly<Rect>) {
         this.x = info.x;
         this.y = info.y;
         this.width = info.width;
@@ -765,7 +802,7 @@ export class Extent {
         public depth: number = 1,
     ) {}
 
-    public copy (info: Extent) {
+    public copy (info: Readonly<Extent>) {
         this.width = info.width;
         this.height = info.height;
         this.depth = info.depth;
@@ -782,7 +819,7 @@ export class TextureSubresLayers {
         public layerCount: number = 1,
     ) {}
 
-    public copy (info: TextureSubresLayers) {
+    public copy (info: Readonly<TextureSubresLayers>) {
         this.mipLevel = info.mipLevel;
         this.baseArrayLayer = info.baseArrayLayer;
         this.layerCount = info.layerCount;
@@ -800,7 +837,7 @@ export class TextureSubresRange {
         public layerCount: number = 1,
     ) {}
 
-    public copy (info: TextureSubresRange) {
+    public copy (info: Readonly<TextureSubresRange>) {
         this.baseMipLevel = info.baseMipLevel;
         this.levelCount = info.levelCount;
         this.baseArrayLayer = info.baseArrayLayer;
@@ -820,7 +857,7 @@ export class TextureCopy {
         public extent: Extent = new Extent(),
     ) {}
 
-    public copy (info: TextureCopy) {
+    public copy (info: Readonly<TextureCopy>) {
         this.srcSubres.copy(info.srcSubres);
         this.srcOffset.copy(info.srcOffset);
         this.dstSubres.copy(info.dstSubres);
@@ -842,7 +879,7 @@ export class TextureBlit {
         public dstExtent: Extent = new Extent(),
     ) {}
 
-    public copy (info: TextureBlit) {
+    public copy (info: Readonly<TextureBlit>) {
         this.srcSubres.copy(info.srcSubres);
         this.srcOffset.copy(info.srcOffset);
         this.srcExtent.copy(info.srcExtent);
@@ -864,7 +901,7 @@ export class BufferTextureCopy {
         public texSubres: TextureSubresLayers = new TextureSubresLayers(),
     ) {}
 
-    public copy (info: BufferTextureCopy) {
+    public copy (info: Readonly<BufferTextureCopy>) {
         this.buffStride = info.buffStride;
         this.buffTexHeight = info.buffTexHeight;
         this.texOffset.copy(info.texOffset);
@@ -886,7 +923,7 @@ export class Viewport {
         public maxDepth: number = 1,
     ) {}
 
-    public copy (info: Viewport) {
+    public copy (info: Readonly<Viewport>) {
         this.left = info.left;
         this.top = info.top;
         this.width = info.width;
@@ -907,7 +944,7 @@ export class Color {
         public w: number = 0,
     ) {}
 
-    public copy (info: Color) {
+    public copy (info: Readonly<Color>) {
         this.x = info.x;
         this.y = info.y;
         this.z = info.z;
@@ -916,19 +953,76 @@ export class Color {
     }
 }
 
+/**
+ * For non-vulkan backends, to maintain compatibility and maximize
+ * descriptor cache-locality, descriptor-set-based binding numbers need
+ * to be mapped to backend-specific bindings based on maximum limit
+ * of available descriptor slots in each set.
+ *
+ * The GFX layer assumes the binding numbers for each descriptor type inside each set
+ * are guaranteed to be consecutive, so the mapping procedure is reduced
+ * to a simple shifting operation. This data structure specifies the
+ * capacity for each descriptor type in each set.
+ *
+ * The `setIndices` field defines the binding ordering between different sets.
+ * The last set index is treated as the 'flexible set', whose capacity is dynamically
+ * assigned based on the total available descriptor slots on the runtime device.
+ */
 export class BindingMappingInfo {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public bufferOffsets: number[] = [],
-        public samplerOffsets: number[] = [],
-        public flexibleSet: number = 0,
+        public maxBlockCounts: number[] = [0],
+        public maxSamplerTextureCounts: number[] = [0],
+        public maxSamplerCounts: number[] = [0],
+        public maxTextureCounts: number[] = [0],
+        public maxBufferCounts: number[] = [0],
+        public maxImageCounts: number[] = [0],
+        public maxSubpassInputCounts: number[] = [0],
+        public setIndices: number[] = [0],
     ) {}
 
-    public copy (info: BindingMappingInfo) {
-        this.bufferOffsets = info.bufferOffsets.slice();
-        this.samplerOffsets = info.samplerOffsets.slice();
-        this.flexibleSet = info.flexibleSet;
+    public copy (info: Readonly<BindingMappingInfo>) {
+        this.maxBlockCounts = info.maxBlockCounts.slice();
+        this.maxSamplerTextureCounts = info.maxSamplerTextureCounts.slice();
+        this.maxSamplerCounts = info.maxSamplerCounts.slice();
+        this.maxTextureCounts = info.maxTextureCounts.slice();
+        this.maxBufferCounts = info.maxBufferCounts.slice();
+        this.maxImageCounts = info.maxImageCounts.slice();
+        this.maxSubpassInputCounts = info.maxSubpassInputCounts.slice();
+        this.setIndices = info.setIndices.slice();
+        return this;
+    }
+}
+
+export class SwapchainInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public windowHandle: HTMLCanvasElement = null!,
+        public vsyncMode: VsyncMode = VsyncMode.ON,
+        public width: number = 0,
+        public height: number = 0,
+    ) {}
+
+    public copy (info: Readonly<SwapchainInfo>) {
+        this.windowHandle = info.windowHandle;
+        this.vsyncMode = info.vsyncMode;
+        this.width = info.width;
+        this.height = info.height;
+        return this;
+    }
+}
+
+export class DeviceInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public bindingMappingInfo: BindingMappingInfo = new BindingMappingInfo(),
+    ) {}
+
+    public copy (info: Readonly<DeviceInfo>) {
+        this.bindingMappingInfo.copy(info.bindingMappingInfo);
         return this;
     }
 }
@@ -940,11 +1034,11 @@ export class BufferInfo {
         public usage: BufferUsage = BufferUsageBit.NONE,
         public memUsage: MemoryUsage = MemoryUsageBit.NONE,
         public size: number = 0,
-        public stride: number = 0,
+        public stride: number = 1,
         public flags: BufferFlags = BufferFlagBit.NONE,
     ) {}
 
-    public copy (info: BufferInfo) {
+    public copy (info: Readonly<BufferInfo>) {
         this.usage = info.usage;
         this.memUsage = info.memUsage;
         this.size = info.size;
@@ -963,7 +1057,7 @@ export class BufferViewInfo {
         public range: number = 0,
     ) {}
 
-    public copy (info: BufferViewInfo) {
+    public copy (info: Readonly<BufferViewInfo>) {
         this.buffer = info.buffer;
         this.offset = info.offset;
         this.range = info.range;
@@ -984,7 +1078,7 @@ export class DrawInfo {
         public firstInstance: number = 0,
     ) {}
 
-    public copy (info: DrawInfo) {
+    public copy (info: Readonly<DrawInfo>) {
         this.vertexCount = info.vertexCount;
         this.firstVertex = info.firstVertex;
         this.indexCount = info.indexCount;
@@ -1007,7 +1101,7 @@ export class DispatchInfo {
         public indirectOffset: number = 0,
     ) {}
 
-    public copy (info: DispatchInfo) {
+    public copy (info: Readonly<DispatchInfo>) {
         this.groupCountX = info.groupCountX;
         this.groupCountY = info.groupCountY;
         this.groupCountZ = info.groupCountZ;
@@ -1024,7 +1118,7 @@ export class IndirectBuffer {
         public drawInfos: DrawInfo[] = [],
     ) {}
 
-    public copy (info: IndirectBuffer) {
+    public copy (info: Readonly<IndirectBuffer>) {
         deepCopy(this.drawInfos, info.drawInfos, DrawInfo);
         return this;
     }
@@ -1042,11 +1136,12 @@ export class TextureInfo {
         public flags: TextureFlags = TextureFlagBit.NONE,
         public layerCount: number = 1,
         public levelCount: number = 1,
-        public samples: SampleCount = SampleCount.X1,
+        public samples: SampleCount = SampleCount.ONE,
         public depth: number = 1,
+        public externalRes: number = 0,
     ) {}
 
-    public copy (info: TextureInfo) {
+    public copy (info: Readonly<TextureInfo>) {
         this.type = info.type;
         this.usage = info.usage;
         this.format = info.format;
@@ -1057,6 +1152,7 @@ export class TextureInfo {
         this.levelCount = info.levelCount;
         this.samples = info.samples;
         this.depth = info.depth;
+        this.externalRes = info.externalRes;
         return this;
     }
 }
@@ -1074,7 +1170,7 @@ export class TextureViewInfo {
         public layerCount: number = 1,
     ) {}
 
-    public copy (info: TextureViewInfo) {
+    public copy (info: Readonly<TextureViewInfo>) {
         this.texture = info.texture;
         this.type = info.type;
         this.format = info.format;
@@ -1098,11 +1194,9 @@ export class SamplerInfo {
         public addressW: Address = Address.WRAP,
         public maxAnisotropy: number = 0,
         public cmpFunc: ComparisonFunc = ComparisonFunc.ALWAYS,
-        public borderColor: Color = new Color(),
-        public mipLODBias: number = 0,
     ) {}
 
-    public copy (info: SamplerInfo) {
+    public copy (info: Readonly<SamplerInfo>) {
         this.minFilter = info.minFilter;
         this.magFilter = info.magFilter;
         this.mipFilter = info.mipFilter;
@@ -1111,8 +1205,6 @@ export class SamplerInfo {
         this.addressW = info.addressW;
         this.maxAnisotropy = info.maxAnisotropy;
         this.cmpFunc = info.cmpFunc;
-        this.borderColor.copy(info.borderColor);
-        this.mipLODBias = info.mipLODBias;
         return this;
     }
 }
@@ -1126,7 +1218,7 @@ export class Uniform {
         public count: number = 0,
     ) {}
 
-    public copy (info: Uniform) {
+    public copy (info: Readonly<Uniform>) {
         this.name = info.name;
         this.type = info.type;
         this.count = info.count;
@@ -1145,7 +1237,7 @@ export class UniformBlock {
         public count: number = 0,
     ) {}
 
-    public copy (info: UniformBlock) {
+    public copy (info: Readonly<UniformBlock>) {
         this.set = info.set;
         this.binding = info.binding;
         this.name = info.name;
@@ -1166,7 +1258,7 @@ export class UniformSamplerTexture {
         public count: number = 0,
     ) {}
 
-    public copy (info: UniformSamplerTexture) {
+    public copy (info: Readonly<UniformSamplerTexture>) {
         this.set = info.set;
         this.binding = info.binding;
         this.name = info.name;
@@ -1186,7 +1278,7 @@ export class UniformSampler {
         public count: number = 0,
     ) {}
 
-    public copy (info: UniformSampler) {
+    public copy (info: Readonly<UniformSampler>) {
         this.set = info.set;
         this.binding = info.binding;
         this.name = info.name;
@@ -1206,7 +1298,7 @@ export class UniformTexture {
         public count: number = 0,
     ) {}
 
-    public copy (info: UniformTexture) {
+    public copy (info: Readonly<UniformTexture>) {
         this.set = info.set;
         this.binding = info.binding;
         this.name = info.name;
@@ -1228,7 +1320,7 @@ export class UniformStorageImage {
         public memoryAccess: MemoryAccess = MemoryAccessBit.READ_WRITE,
     ) {}
 
-    public copy (info: UniformStorageImage) {
+    public copy (info: Readonly<UniformStorageImage>) {
         this.set = info.set;
         this.binding = info.binding;
         this.name = info.name;
@@ -1250,7 +1342,7 @@ export class UniformStorageBuffer {
         public memoryAccess: MemoryAccess = MemoryAccessBit.READ_WRITE,
     ) {}
 
-    public copy (info: UniformStorageBuffer) {
+    public copy (info: Readonly<UniformStorageBuffer>) {
         this.set = info.set;
         this.binding = info.binding;
         this.name = info.name;
@@ -1270,7 +1362,7 @@ export class UniformInputAttachment {
         public count: number = 0,
     ) {}
 
-    public copy (info: UniformInputAttachment) {
+    public copy (info: Readonly<UniformInputAttachment>) {
         this.set = info.set;
         this.binding = info.binding;
         this.name = info.name;
@@ -1287,7 +1379,7 @@ export class ShaderStage {
         public source: string = '',
     ) {}
 
-    public copy (info: ShaderStage) {
+    public copy (info: Readonly<ShaderStage>) {
         this.stage = info.stage;
         this.source = info.source;
         return this;
@@ -1306,7 +1398,7 @@ export class Attribute {
         public location: number = 0,
     ) {}
 
-    public copy (info: Attribute) {
+    public copy (info: Readonly<Attribute>) {
         this.name = info.name;
         this.format = info.format;
         this.isNormalized = info.isNormalized;
@@ -1333,7 +1425,7 @@ export class ShaderInfo {
         public subpassInputs: UniformInputAttachment[] = [],
     ) {}
 
-    public copy (info: ShaderInfo) {
+    public copy (info: Readonly<ShaderInfo>) {
         this.name = info.name;
         deepCopy(this.stages, info.stages, ShaderStage);
         deepCopy(this.attributes, info.attributes, Attribute);
@@ -1358,7 +1450,7 @@ export class InputAssemblerInfo {
         public indirectBuffer: Buffer | null = null,
     ) {}
 
-    public copy (info: InputAssemblerInfo) {
+    public copy (info: Readonly<InputAssemblerInfo>) {
         deepCopy(this.attributes, info.attributes, Attribute);
         this.vertexBuffers = info.vertexBuffers.slice();
         this.indexBuffer = info.indexBuffer;
@@ -1372,21 +1464,19 @@ export class ColorAttachment {
 
     constructor (
         public format: Format = Format.UNKNOWN,
-        public sampleCount: SampleCount = SampleCount.X1,
+        public sampleCount: SampleCount = SampleCount.ONE,
         public loadOp: LoadOp = LoadOp.CLEAR,
         public storeOp: StoreOp = StoreOp.STORE,
-        public beginAccesses: AccessType[] = [],
-        public endAccesses: AccessType[] = [AccessType.PRESENT],
+        public barrier: GeneralBarrier = null!,
         public isGeneralLayout: boolean = false,
     ) {}
 
-    public copy (info: ColorAttachment) {
+    public copy (info: Readonly<ColorAttachment>) {
         this.format = info.format;
         this.sampleCount = info.sampleCount;
         this.loadOp = info.loadOp;
         this.storeOp = info.storeOp;
-        this.beginAccesses = info.beginAccesses.slice();
-        this.endAccesses = info.endAccesses.slice();
+        this.barrier = info.barrier;
         this.isGeneralLayout = info.isGeneralLayout;
         return this;
     }
@@ -1397,25 +1487,23 @@ export class DepthStencilAttachment {
 
     constructor (
         public format: Format = Format.UNKNOWN,
-        public sampleCount: SampleCount = SampleCount.X1,
+        public sampleCount: SampleCount = SampleCount.ONE,
         public depthLoadOp: LoadOp = LoadOp.CLEAR,
         public depthStoreOp: StoreOp = StoreOp.STORE,
         public stencilLoadOp: LoadOp = LoadOp.CLEAR,
         public stencilStoreOp: StoreOp = StoreOp.STORE,
-        public beginAccesses: AccessType[] = [],
-        public endAccesses: AccessType[] = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE],
+        public barrier: GeneralBarrier = null!,
         public isGeneralLayout: boolean = false,
     ) {}
 
-    public copy (info: DepthStencilAttachment) {
+    public copy (info: Readonly<DepthStencilAttachment>) {
         this.format = info.format;
         this.sampleCount = info.sampleCount;
         this.depthLoadOp = info.depthLoadOp;
         this.depthStoreOp = info.depthStoreOp;
         this.stencilLoadOp = info.stencilLoadOp;
         this.stencilStoreOp = info.stencilStoreOp;
-        this.beginAccesses = info.beginAccesses.slice();
-        this.endAccesses = info.endAccesses.slice();
+        this.barrier = info.barrier;
         this.isGeneralLayout = info.isGeneralLayout;
         return this;
     }
@@ -1435,7 +1523,7 @@ export class SubpassInfo {
         public stencilResolveMode: ResolveMode = ResolveMode.NONE,
     ) {}
 
-    public copy (info: SubpassInfo) {
+    public copy (info: Readonly<SubpassInfo>) {
         this.inputs = info.inputs.slice();
         this.colors = info.colors.slice();
         this.resolves = info.resolves.slice();
@@ -1454,15 +1542,13 @@ export class SubpassDependency {
     constructor (
         public srcSubpass: number = 0,
         public dstSubpass: number = 0,
-        public srcAccesses: AccessType[] = [],
-        public dstAccesses: AccessType[] = [],
+        public barrier: GeneralBarrier = null!,
     ) {}
 
-    public copy (info: SubpassDependency) {
+    public copy (info: Readonly<SubpassDependency>) {
         this.srcSubpass = info.srcSubpass;
         this.dstSubpass = info.dstSubpass;
-        this.srcAccesses = info.srcAccesses.slice();
-        this.dstAccesses = info.dstAccesses.slice();
+        this.barrier = info.barrier;
         return this;
     }
 }
@@ -1477,7 +1563,7 @@ export class RenderPassInfo {
         public dependencies: SubpassDependency[] = [],
     ) {}
 
-    public copy (info: RenderPassInfo) {
+    public copy (info: Readonly<RenderPassInfo>) {
         deepCopy(this.colorAttachments, info.colorAttachments, ColorAttachment);
         this.depthStencilAttachment.copy(info.depthStencilAttachment);
         deepCopy(this.subpasses, info.subpasses, SubpassInfo);
@@ -1486,17 +1572,17 @@ export class RenderPassInfo {
     }
 }
 
-export class GlobalBarrierInfo {
+export class GeneralBarrierInfo {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public prevAccesses: AccessType[] = [],
-        public nextAccesses: AccessType[] = [],
+        public prevAccesses: AccessFlags = AccessFlagBit.NONE,
+        public nextAccesses: AccessFlags = AccessFlagBit.NONE,
     ) {}
 
-    public copy (info: GlobalBarrierInfo) {
-        this.prevAccesses = info.prevAccesses.slice();
-        this.nextAccesses = info.nextAccesses.slice();
+    public copy (info: Readonly<GeneralBarrierInfo>) {
+        this.prevAccesses = info.prevAccesses;
+        this.nextAccesses = info.nextAccesses;
         return this;
     }
 }
@@ -1505,16 +1591,16 @@ export class TextureBarrierInfo {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public prevAccesses: AccessType[] = [],
-        public nextAccesses: AccessType[] = [],
+        public prevAccesses: AccessFlags = AccessFlagBit.NONE,
+        public nextAccesses: AccessFlags = AccessFlagBit.NONE,
         public discardContents: boolean = false,
         public srcQueue: Queue | null = null,
         public dstQueue: Queue | null = null,
     ) {}
 
-    public copy (info: TextureBarrierInfo) {
-        this.prevAccesses = info.prevAccesses.slice();
-        this.nextAccesses = info.nextAccesses.slice();
+    public copy (info: Readonly<TextureBarrierInfo>) {
+        this.prevAccesses = info.prevAccesses;
+        this.nextAccesses = info.nextAccesses;
         this.discardContents = info.discardContents;
         this.srcQueue = info.srcQueue;
         this.dstQueue = info.dstQueue;
@@ -1527,11 +1613,11 @@ export class FramebufferInfo {
 
     constructor (
         public renderPass: RenderPass = null!,
-        public colorTextures: (Texture | null)[] = [],
+        public colorTextures: Texture[] = [],
         public depthStencilTexture: Texture | null = null,
     ) {}
 
-    public copy (info: FramebufferInfo) {
+    public copy (info: Readonly<FramebufferInfo>) {
         this.renderPass = info.renderPass;
         this.colorTextures = info.colorTextures.slice();
         this.depthStencilTexture = info.depthStencilTexture;
@@ -1550,7 +1636,7 @@ export class DescriptorSetLayoutBinding {
         public immutableSamplers: Sampler[] = [],
     ) {}
 
-    public copy (info: DescriptorSetLayoutBinding) {
+    public copy (info: Readonly<DescriptorSetLayoutBinding>) {
         this.binding = info.binding;
         this.descriptorType = info.descriptorType;
         this.count = info.count;
@@ -1567,7 +1653,7 @@ export class DescriptorSetLayoutInfo {
         public bindings: DescriptorSetLayoutBinding[] = [],
     ) {}
 
-    public copy (info: DescriptorSetLayoutInfo) {
+    public copy (info: Readonly<DescriptorSetLayoutInfo>) {
         deepCopy(this.bindings, info.bindings, DescriptorSetLayoutBinding);
         return this;
     }
@@ -1580,7 +1666,7 @@ export class DescriptorSetInfo {
         public layout: DescriptorSetLayout = null!,
     ) {}
 
-    public copy (info: DescriptorSetInfo) {
+    public copy (info: Readonly<DescriptorSetInfo>) {
         this.layout = info.layout;
         return this;
     }
@@ -1593,7 +1679,7 @@ export class PipelineLayoutInfo {
         public setLayouts: DescriptorSetLayout[] = [],
     ) {}
 
-    public copy (info: PipelineLayoutInfo) {
+    public copy (info: Readonly<PipelineLayoutInfo>) {
         this.setLayouts = info.setLayouts.slice();
         return this;
     }
@@ -1606,7 +1692,7 @@ export class InputState {
         public attributes: Attribute[] = [],
     ) {}
 
-    public copy (info: InputState) {
+    public copy (info: Readonly<InputState>) {
         deepCopy(this.attributes, info.attributes, Attribute);
         return this;
     }
@@ -1620,7 +1706,7 @@ export class CommandBufferInfo {
         public type: CommandBufferType = CommandBufferType.PRIMARY,
     ) {}
 
-    public copy (info: CommandBufferInfo) {
+    public copy (info: Readonly<CommandBufferInfo>) {
         this.queue = info.queue;
         this.type = info.type;
         return this;
@@ -1634,8 +1720,25 @@ export class QueueInfo {
         public type: QueueType = QueueType.GRAPHICS,
     ) {}
 
-    public copy (info: QueueInfo) {
+    public copy (info: Readonly<QueueInfo>) {
         this.type = info.type;
+        return this;
+    }
+}
+
+export class QueryPoolInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public type: QueryType = QueryType.OCCLUSION,
+        public maxQueryObjects: number = 32767,
+        public forceWait: boolean = true,
+    ) {}
+
+    public copy (info: Readonly<QueryPoolInfo>) {
+        this.type = info.type;
+        this.maxQueryObjects = info.maxQueryObjects;
+        this.forceWait = info.forceWait;
         return this;
     }
 }
@@ -1663,7 +1766,7 @@ export class MemoryStatus {
         public textureSize: number = 0,
     ) {}
 
-    public copy (info: MemoryStatus) {
+    public copy (info: Readonly<MemoryStatus>) {
         this.bufferSize = info.bufferSize;
         this.textureSize = info.textureSize;
         return this;
@@ -1679,7 +1782,7 @@ export class DynamicStencilStates {
         public reference: number = 0,
     ) {}
 
-    public copy (info: DynamicStencilStates) {
+    public copy (info: Readonly<DynamicStencilStates>) {
         this.writeMask = info.writeMask;
         this.compareMask = info.compareMask;
         this.reference = info.reference;
@@ -1704,7 +1807,7 @@ export class DynamicStates {
         public stencilStatesBack: DynamicStencilStates = new DynamicStencilStates(),
     ) {}
 
-    public copy (info: DynamicStates) {
+    public copy (info: Readonly<DynamicStates>) {
         this.viewport.copy(info.viewport);
         this.scissor.copy(info.scissor);
         this.blendConstant.copy(info.blendConstant);
@@ -1722,8 +1825,8 @@ export class DynamicStates {
 
 /**
  * ========================= !DO NOT CHANGE THE ABOVE SECTION MANUALLY! =========================
- * The above section is auto-generated from engine-native/cocos/renderer/core/gfx/GFXDef-common.h
- * by the script engine-native/tools/gfx-define-generator/generate.js.
+ * The above section is auto-generated from native/cocos/renderer/core/gfx/GFXDef-common.h
+ * by the script native/tools/gfx-define-generator/generate.js.
  * Changes to these public interfaces should be made there first and synced back.
  * ========================= !DO NOT CHANGE THE ABOVE SECTION MANUALLY! =========================
  */
@@ -1732,61 +1835,37 @@ export class DynamicStates {
  * @en GFX base object.
  * @zh GFX 基类对象。
  */
-export class Obj {
-    public get gfxType (): ObjectType {
-        return this._gfxType;
+export class GFXObject {
+    public get objectType (): ObjectType {
+        return this._objectType;
     }
 
-    protected _gfxType = ObjectType.UNKNOWN;
+    public get objectID (): number {
+        return this._objectID;
+    }
 
-    constructor (gfxType: ObjectType) {
-        this._gfxType = gfxType;
+    public get typedID (): number {
+        return this._typedID;
+    }
+
+    protected _objectType = ObjectType.UNKNOWN;
+    protected _objectID = 0;
+    protected _typedID = 0;
+
+    private static _idTable = Array(ObjectType.COUNT).fill(1 << 16);
+
+    constructor (objectType: ObjectType) {
+        this._objectType = objectType;
+        this._objectID = GFXObject._idTable[ObjectType.UNKNOWN]++;
+        this._typedID = GFXObject._idTable[objectType]++;
     }
 }
 
-export class DeviceInfo {
-    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public canvasElm: HTMLElement,
-        public isAntialias: boolean = true,
-        public isPremultipliedAlpha: boolean = true,
-        public devicePixelRatio: number = 1,
-        public width: number = 1,
-        public height: number = 1,
-        /**
-         * For non-vulkan backends, to maintain compatibility and maximize
-         * descriptor cache-locality, descriptor-set-based binding numbers need
-         * to be mapped to backend-specific bindings based on the maximum limit
-         * of available descriptor slots in each set.
-         *
-         * The GFX layer assumes the binding numbers for each descriptor type inside each set
-         * are guaranteed to be consecutive, so the mapping procedure is reduced
-         * to a simple shifting operation. This data structure specifies the
-         * offsets for each descriptor type in each set.
-         */
-        public bindingMappingInfo = new BindingMappingInfo(),
-    ) {}
-}
-
-export interface IUniform {
-    name: string;
-    type: Type;
-    count: number;
-}
-
-export interface IShaderStage {
-    stage: ShaderStageFlagBit;
-    source: string;
-}
-
-export interface IAttribute {
-    name: string;
+export interface ISwapchainTextureInfo {
+    swapchain: Swapchain;
     format: Format;
-    isNormalized: boolean;
-    stream: number;
-    isInstanced: boolean;
-    location: number;
+    width: number;
+    height: number;
 }
 
 export enum AttributeName {
@@ -1875,12 +1954,8 @@ export const FormatInfos = Object.freeze([
     new FormatInfo('RGB10A2UI', 2, 4, FormatType.UINT, true, false, false, false),
     new FormatInfo('RGB9E5', 2, 4, FormatType.FLOAT, true, false, false, false),
 
-    new FormatInfo('D16', 2, 1, FormatType.UINT, false, true, false, false),
-    new FormatInfo('D16S8', 3, 2, FormatType.UINT, false, true, true, false),
-    new FormatInfo('D24', 3, 1, FormatType.UINT, false, true, false, false),
-    new FormatInfo('D24S8', 4, 2, FormatType.UINT, false, true, true, false),
-    new FormatInfo('D32F', 4, 1, FormatType.FLOAT, false, true, false, false),
-    new FormatInfo('D32FS8', 5, 2, FormatType.FLOAT, false, true, true, false),
+    new FormatInfo('DEPTH', 4, 1, FormatType.FLOAT, false, true, false, false),
+    new FormatInfo('DEPTH_STENCIL', 5, 2, FormatType.FLOAT, false, true, true, false),
 
     new FormatInfo('BC1', 1, 3, FormatType.UNORM, false, false, false, true),
     new FormatInfo('BC1_ALPHA', 1, 4, FormatType.UNORM, true, false, false, true),

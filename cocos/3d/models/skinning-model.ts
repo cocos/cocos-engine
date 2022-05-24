@@ -23,18 +23,14 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
 
-import { JSB } from 'internal:constants';
+
 import { Material } from '../../core/assets/material';
 import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
 import { Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
 import { AABB } from '../../core/geometry';
-import { BufferUsageBit, MemoryUsageBit, DescriptorSet, Buffer, BufferInfo } from '../../core/gfx';
+import { BufferUsageBit, MemoryUsageBit, DescriptorSet, Buffer, BufferInfo, Attribute } from '../../core/gfx';
 import { Mat4, Vec3 } from '../../core/math';
 import { UBOSkinning } from '../../core/pipeline/define';
 import { Node } from '../../core/scene-graph/node';
@@ -42,8 +38,9 @@ import { ModelType } from '../../core/renderer/scene/model';
 import { uploadJointData } from '../skeletal-animation/skeletal-animation-utils';
 import { MorphModel } from './morph-model';
 import { deleteTransform, getTransform, getWorldMatrix, IJointTransform } from '../../core/animation/skeletal-animation-utils';
-import { IMacroPatch } from '../../core/renderer';
-import { NativeJointInfo, NativeJointTransform, NativeSkinningModel } from '../../core/renderer/scene';
+import { IMacroPatch, BatchingSchemes, Pass } from '../../core/renderer';
+
+import { warnID } from '../../core/platform/debug';
 
 const myPatches: IMacroPatch[] = [
     { name: 'CC_USE_SKINNING', value: true },
@@ -97,12 +94,6 @@ export class SkinningModel extends MorphModel {
         this.type = ModelType.SKINNING;
     }
 
-    protected _init () {
-        if (JSB) {
-            this._nativeObj = new NativeSkinningModel();
-        }
-    }
-
     public destroy () {
         this.bindSkeleton();
         if (this._buffers.length) {
@@ -125,7 +116,6 @@ export class SkinningModel extends MorphModel {
         const jointMaps = mesh.struct.jointMaps;
         this._ensureEnoughBuffers(jointMaps && jointMaps.length || 1);
         this._bufferIndices = mesh.jointBufferIndices;
-        const nativeJoints: NativeJointInfo[] = [];
         for (let index = 0; index < skeleton.joints.length; index++) {
             const bound = boneSpaceBounds[index];
             const target = skinningRoot.getChildByPath(skeleton.joints[index]);
@@ -136,25 +126,6 @@ export class SkinningModel extends MorphModel {
             const buffers: number[] = [];
             if (!jointMaps) { indices.push(index); buffers.push(0); } else { getRelevantBuffers(indices, buffers, jointMaps, index); }
             this._joints.push({ indices, buffers, bound, target, bindpose, transform });
-            if (JSB) {
-                let currParent: IJointTransform | null | undefined = transform.parent;
-                const transParents: NativeJointTransform[] = [];
-                while (currParent) {
-                    transParents.push({ node: currParent.node.native, local: currParent.local, world: currParent.local, stamp: currParent.stamp });
-                    currParent = currParent.parent;
-                }
-                nativeJoints.push({ indices,
-                    buffers,
-                    bound: bound.native,
-                    target: target.native,
-                    bindpose,
-                    transform: { node: transform.node.native, local: transform.local, world: transform.world, stamp: transform.stamp },
-                    parents: transParents,
-                });
-            }
-        }
-        if (JSB) {
-            (this._nativeObj! as NativeSkinningModel).setIndicesAndJoints(this._bufferIndices, nativeJoints);
         }
     }
 
@@ -163,7 +134,7 @@ export class SkinningModel extends MorphModel {
         // @ts-expect-error TS2445
         if (root.hasChangedFlags || root._dirtyFlags) {
             root.updateWorldTransform();
-            this._transformUpdated = true;
+            this._localDataUpdated = true;
         }
         // update bounds
         Vec3.set(v3_min,  Infinity,  Infinity,  Infinity);
@@ -176,12 +147,12 @@ export class SkinningModel extends MorphModel {
             Vec3.min(v3_min, v3_min, v3_1);
             Vec3.max(v3_max, v3_max, v3_2);
         }
+
         const worldBounds = this._worldBounds;
         if (this._modelBounds && worldBounds) {
             AABB.fromPoints(this._modelBounds, v3_min, v3_max);
             // @ts-expect-error TS2445
             this._modelBounds.transform(root._mat, root._pos, root._rot, root._scale, this._worldBounds);
-            this._updateNativeBounds();
         }
     }
 
@@ -210,20 +181,28 @@ export class SkinningModel extends MorphModel {
 
     public getMacroPatches (subModelIndex: number): IMacroPatch[] | null {
         const superMacroPatches = super.getMacroPatches(subModelIndex);
+
         if (superMacroPatches) {
             return myPatches.concat(superMacroPatches);
         }
         return myPatches;
     }
 
+    /**
+     * @legacyPublic
+     */
     public _updateLocalDescriptors (submodelIdx: number, descriptorSet: DescriptorSet) {
         super._updateLocalDescriptors(submodelIdx, descriptorSet);
-        if (JSB) {
-            (this._nativeObj! as NativeSkinningModel).updateLocalDescriptors(submodelIdx, descriptorSet);
-            return;
-        }
         const buffer = this._buffers[this._bufferIndices![submodelIdx]];
         if (buffer) { descriptorSet.bindBuffer(UBOSkinning.BINDING, buffer); }
+    }
+
+    protected _updateInstancedAttributes (attributes: Attribute[], pass: Pass) {
+        if (pass.batchingScheme !== BatchingSchemes.NONE) {
+            // TODO(holycanvas): #9203 better to print the complete path instead of only the current node
+            warnID(3936, this.node.getPathInHierarchy());
+        }
+        super._updateInstancedAttributes(attributes, pass);
     }
 
     private _ensureEnoughBuffers (count: number) {
@@ -239,9 +218,6 @@ export class SkinningModel extends MorphModel {
             if (!this._dataArray[i]) {
                 this._dataArray[i] = new Float32Array(UBOSkinning.COUNT);
             }
-        }
-        if (JSB) {
-            (this._nativeObj! as NativeSkinningModel).setBuffers(this._buffers);
         }
     }
 }

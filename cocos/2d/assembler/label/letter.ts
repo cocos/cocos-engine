@@ -29,14 +29,14 @@
  */
 
 import { addon } from '../../../core/utils/js';
-import { Batcher2D } from '../../renderer/batcher-2d';
+import { IBatcher } from '../../renderer/i-batcher';
 import { Label } from '../../components/label';
 import { fillMeshVertices3D } from '../utils';
 import { bmfont } from './bmfont';
 import { letterFont } from './letter-font';
 import { Color } from '../../../core/math/color';
 
-const WHITE = new Color(255, 255, 255, 255);
+const tempColor = new Color(255, 255, 255, 255);
 
 /**
  * letter 组装器
@@ -47,15 +47,19 @@ export const letter = {
         return comp.requestRenderData();
     },
 
-    fillBuffers (comp: Label, renderer: Batcher2D) {
+    fillBuffers (comp: Label, renderer: IBatcher) {
         if (!comp.renderData) {
             return;
         }
 
         const node = comp.node;
-        comp._setCacheAlpha(node._uiProps.opacity);
-        WHITE.a = node._uiProps.opacity * 255;
-        fillMeshVertices3D(node, renderer, comp.renderData, WHITE);
+        tempColor.a = node._uiProps.opacity * 255;
+        // Fill All
+        fillMeshVertices3D(node, renderer, comp.renderData, tempColor);
+    },
+
+    updateColor (comp: Label) {
+
     },
 
     appendQuad: bmfont.appendQuad,

@@ -1,70 +1,71 @@
 module.exports = {
-    root:true,
-    'env': {
-        'browser': true,
-        'commonjs': true,
-        'es6': true,
-        'node': true,
+    root: true,
+    env: {
+        browser: true,
+        commonjs: true,
+        es6: true,
+        node: true,
     },
-    'extends': [
+    extends: [
         'eslint:recommended',
         'plugin:@typescript-eslint/eslint-recommended',
     ],
-    'globals': {
-        'Atomics': 'readonly',
-        'SharedArrayBuffer': 'readonly',
+    globals: {
+        Atomics: 'readonly',
+        SharedArrayBuffer: 'readonly',
     },
-    'parser': '@typescript-eslint/parser',
-    'parserOptions': {
-    // 也就是ES6语法支持的意思
-        'ecmaVersion': 6,
-        'sourceType': 'module',
-        'ecmaFeatures': {
-            'modules': true,
+    parser: '@typescript-eslint/parser',
+    parserOptions: {
+        // ES6 syntax
+        ecmaVersion: 6,
+        sourceType: 'module',
+        ecmaFeatures: {
+            modules: true,
         },
-    // 'project': './tsconfig.json'
+        // 'project': './tsconfig.json'
     },
-    'plugins': [
+    plugins: [
         '@typescript-eslint',
         // 'jsdoc',
-    // 'prettier',
+        // 'prettier',
     ],
-    'rules': {
-    // 'prettier/prettier': 'warn',
+    rules: {
+        'quote-props': ['error', 'as-needed'],
+        // 'prettier/prettier': 'warn',
         'keyword-spacing': ['warn', {
-            'before': true,
-            'after': true,
+            before: true,
+            after: true,
         }],
-        'camelcase': ['warn', {
-            'properties': 'always',
+        camelcase: ['warn', {
+            properties: 'always',
         }],
-        'indent': ['error', 4, { SwitchCase: 1, CallExpression: { arguments: 'off' }, ArrayExpression: 'first' }],
+        indent: ['error', 4, { SwitchCase: 1, CallExpression: { arguments: 'off' }, ArrayExpression: 'first' }],
         // 'no-else-return': 'error',
         'object-curly-spacing': ['error', 'always'],
         'array-bracket-spacing': ['error', 'never'],
         'semi-spacing': ['error', {
-            'before': false,
-            'after': true,
+            before: false,
+            after: true,
         }],
         'rest-spread-spacing': ['error', 'never'],
         'space-in-parens': ['error', 'never'],
-        'curly': 'error',
-        'semi': ['error', 'always'],
+        curly: 'error',
+        semi: ['error', 'always'],
         'no-multi-spaces': ['error', { ignoreEOLComments: true }],
         'no-whitespace-before-property': 'error',
         'no-tabs': ['error', { allowIndentationTabs: true }],
 
         'no-unused-vars': ['warn', 'all'],
-        'no-empty': ['error', { 'allowEmptyCatch': true }],
-        'consistent-return': ['warn', { 'treatUndefinedAsUnspecified': true }],
-        'eqeqeq': ['warn', 'always'],
+        'no-empty': ['error', { allowEmptyCatch: true }],
+        'consistent-return': ['warn', { treatUndefinedAsUnspecified: true }],
+        eqeqeq: ['warn', 'always'],
         // 'line-comment-position': ['warn', { 'position': 'above' }],
         'max-len': ['warn', {
-            'code': 180,
+            code: 180,
         }],
         'no-undef': 0,
         'no-constant-condition': ['warn', {
-            'checkLoops': false,
+            checkLoops: false,
         }],
         'no-inner-declarations': ['warn'],
         'no-case-declarations': ['warn'],
@@ -90,47 +91,47 @@ module.exports = {
         // 行尾逗号
         'comma-style': ['error', 'last'],
         'comma-dangle': ['error', {
-            'arrays': 'always-multiline',
-            'objects': 'always-multiline',
-            'imports': 'always-multiline',
-            'exports': 'always-multiline',
-            'functions': 'only-multiline',
+            arrays: 'always-multiline',
+            objects: 'always-multiline',
+            imports: 'always-multiline',
+            exports: 'always-multiline',
+            functions: 'only-multiline',
         }],
         'comma-spacing': ['error', {
-            'before': false,
-            'after': true,
+            before: false,
+            after: true,
         }],
 
         // 空格、空行约定
         'unicode-bom': ['warn', 'never'],
         'block-spacing': ['error', 'always'],
         'arrow-spacing': ['error', {
-            'before': true,
-            'after': true,
+            before: true,
+            after: true,
         }],
         'space-before-function-paren': ['error', {
-            'anonymous': 'never',
-            'named': 'never',
-            'asyncArrow': 'always',
+            anonymous: 'never',
+            named: 'never',
+            asyncArrow: 'always',
         }],
         'space-before-blocks': ['error', 'always'],
         'space-infix-ops': ['warn'],
         'space-unary-ops': ['warn', {
-            'words': true,
-            'nonwords': false,
+            words: true,
+            nonwords: false,
         }],
         'spaced-comment': ['warn', 'always', {
-            'line': {
-                'markers': ['/'],
-                'exceptions': ['/', '*'],
+            line: {
+                markers: ['/'],
+                exceptions: ['/', '*'],
             },
         },
         ],
         'switch-colon-spacing': ['warn', {
-            'before': false,
-            'after': true,
+            before: false,
+            after: true,
         }],
         'eol-last': ['error', 'always'],
-        'no-trailing-spaces': ['error', { 'ignoreComments': true }],
+        'no-trailing-spaces': ['error', { ignoreComments: true }],
     },
 };
