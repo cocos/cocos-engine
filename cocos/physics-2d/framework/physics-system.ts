@@ -10,8 +10,10 @@ import { IPhysicsConfig, ICollisionMatrix } from '../../physics/framework/physic
 import { CollisionMatrix } from '../../physics/framework/collision-matrix';
 import { ERaycast2DType, RaycastResult2D, PHYSICS_2D_PTM_RATIO, PhysicsGroup } from './physics-types';
 import { Collider2D } from './components/colliders/collider-2d';
+import { legacyCC } from '../../core/global-exports';
 
 let instance: PhysicsSystem2D | null = null;
+legacyCC.internal.PhysicsGroup2D = PhysicsGroup;
 
 export class PhysicsSystem2D extends Eventify(System) {
     /**
