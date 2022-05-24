@@ -41,10 +41,10 @@ void RenderInstancedQueue::clear() {
 
 void RenderInstancedQueue::sort() {
     std::copy(_queues.cbegin(), _queues.cend(), std::back_inserter(_renderQueues));
-    auto isTransparent = [](const InstancedBuffer *instance) {
+    auto isSolid = [](const InstancedBuffer *instance) {
         return instance->getPass()->getBlendState()->targets[0].blend == 0;
     };
-    std::stable_partition(_renderQueues.begin(), _renderQueues.end(), isTransparent);
+    std::stable_partition(_renderQueues.begin(), _renderQueues.end(), isSolid);
 }
 
 void RenderInstancedQueue::uploadBuffers(gfx::CommandBuffer *cmdBuffer) {
