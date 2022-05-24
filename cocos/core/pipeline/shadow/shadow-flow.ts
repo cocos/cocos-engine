@@ -43,6 +43,7 @@ import { RenderPipeline } from '..';
 import { ShadowType } from '../../renderer/scene/shadows';
 import { Light, LightType } from '../../renderer/scene/light';
 import { Camera } from '../../renderer/scene';
+import { legacyCC } from '../../global-exports';
 
 const _validLights: Light[] = [];
 
@@ -74,6 +75,15 @@ export class ShadowFlow extends RenderFlow {
             this._stages.push(shadowMapStage);
         }
         return true;
+    }
+
+    public activate (pipeline: RenderPipeline) {
+        super.activate(pipeline);
+
+        // 0: SHADOWMAP_RGBE, 1: SHADOWMAP_FLOAT.
+        const isSpotFloat = supportsR32FloatTexture(pipeline.device) ? 0 : 1;
+        pipeline.macros.CC_SHADOWMAP_FORMAT = isSpotFloat;
+        pipeline.onGlobalPipelineStateChanged();
     }
 
     public render (camera: Camera) {

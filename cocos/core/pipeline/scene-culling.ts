@@ -30,7 +30,7 @@ import { Vec3, Mat4, Color } from '../math';
 import { RenderPipeline } from './render-pipeline';
 import { Pool } from '../memop';
 import { IRenderObject, UBOShadow } from './define';
-import { ShadowType, Shadows, CSMLevel } from '../renderer/scene/shadows';
+import { ShadowType, Shadows, CSMLevel, CSMPerformanceOptimizationMode } from '../renderer/scene/shadows';
 import { SphereLight, DirectionalLight } from '../renderer/scene';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { ShadowTransformInfo } from './shadow/csm-layers';
@@ -179,34 +179,36 @@ export function shadowCulling (camera: Camera, sceneData: PipelineSceneData, lay
     const scene = camera.scene!;
     const mainLight = scene.mainLight!;
     const csmLayers = sceneData.csmLayers;
-    const castShadowObjects = csmLayers.castShadowObjects;
+    const csmLayerObjects = csmLayers.csmLayerObjects;
     const dirLightFrustum = layer.validFrustum;
     const dirShadowObjects = layer.shadowObjects;
     dirShadowObjects.length = 0;
     const visibility = camera.visibility;
 
-    for (let i = 0; i < castShadowObjects.length; i++) {
-        const castShadowObject = castShadowObjects[i];
-        const model = castShadowObject.model;
-        // filter model by view visibility
-        if (model.enabled) {
-            if (model.node && ((visibility & model.node.layer) === model.node.layer)) {
-                // shadow render Object
-                if (dirShadowObjects != null && model.castShadow && model.worldBounds) {
-                    // frustum culling
-                    // eslint-disable-next-line no-lonely-if
-                    const accurate = intersect.aabbFrustum(model.worldBounds, dirLightFrustum);
-                    if (accurate) {
-                        if (layer.level < mainLight.shadowCSMLevel) {
-                            dirShadowObjects.push(castShadowObject);
-                            if (intersect.aabbFrustumCompletelyInside(model.worldBounds, dirLightFrustum)) {
-                                castShadowObjects.splice(i, 1);
-                                i--;
-                            }
-                        } else {
-                            // eslint-disable-next-line no-lonely-if
-                            if (accurate) {
-                                dirShadowObjects.push(castShadowObject);
+    for (let i = csmLayerObjects.length; i >= 0; i--) {
+        const csmLayerObject = csmLayerObjects.array[i];
+        if (csmLayerObject) {
+            const model = csmLayerObject.model;
+            // filter model by view visibility
+            if (model.enabled) {
+                if (model.node && ((visibility & model.node.layer) === model.node.layer)) {
+                    // shadow render Object
+                    if (dirShadowObjects != null && model.castShadow && model.worldBounds) {
+                        // frustum culling
+                        // eslint-disable-next-line no-lonely-if
+                        const accurate = intersect.aabbFrustum(model.worldBounds, dirLightFrustum);
+                        if (accurate) {
+                            if (layer.level < mainLight.shadowCSMLevel) {
+                                dirShadowObjects.push(csmLayerObject);
+                                if (mainLight.shadowCSMPerformanceOptimizationMode === CSMPerformanceOptimizationMode.RemoveDuplicates
+                                    && intersect.aabbFrustumCompletelyInside(model.worldBounds, dirLightFrustum)) {
+                                    csmLayerObjects.fastRemove(i);
+                                }
+                            } else {
+                                // eslint-disable-next-line no-lonely-if
+                                if (accurate) {
+                                    dirShadowObjects.push(csmLayerObject);
+                                }
                             }
                         }
                     }
@@ -229,6 +231,8 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
 
     const castShadowObjects = csmLayers.castShadowObjects;
     castShadowObjects.length = 0;
+    const csmLayerObjects = csmLayers.csmLayerObjects;
+    csmLayerObjects.clear();
 
     if (shadows.enabled) {
         pipeline.pipelineUBO.updateShadowUBORange(UBOShadow.SHADOW_COLOR_OFFSET, shadows.shadowColor);
@@ -260,6 +264,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
         if (model.enabled) {
             if (model.castShadow) {
                 castShadowObjects.push(getRenderObject(model, camera));
+                csmLayerObjects.push(getRenderObject(model, camera));
             }
 
             if (model.node && ((visibility & model.node.layer) === model.node.layer)

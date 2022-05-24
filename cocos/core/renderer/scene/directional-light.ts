@@ -27,7 +27,7 @@ import { legacyCC } from '../../global-exports';
 import { Vec3 } from '../../math';
 import { Ambient } from './ambient';
 import { Light, LightType } from './light';
-import { CSMLevel, PCFType, Shadows } from './shadows';
+import { CSMLevel, CSMPerformanceOptimizationMode, PCFType, Shadows } from './shadows';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
@@ -51,7 +51,7 @@ export class DirectionalLight extends Light {
     protected _shadowCSMValueDirty = false;
     protected _shadowCSMLambda = 0.75;
     protected _shadowCSMDebugMode = false;
-    protected _shadowCSMPerformanceMode = false;
+    protected _shadowCSMPerformanceOptimizationMode = CSMPerformanceOptimizationMode.DisableRotaitonFix;
 
     // fixed area properties
     protected _shadowFixedArea = false;
@@ -206,14 +206,14 @@ export class DirectionalLight extends Light {
     }
 
     /**
-     * @en get or set shadow CSM level ratio
-     * @zh 获取或者设置级联阴影层数系数
+     * @en get or set shadow CSM performance optimization mode
+     * @zh 获取或者设置级联阴影性能优化模式
      */
-    get shadowCSMPerformanceMode () {
-        return this._shadowCSMPerformanceMode;
+    get shadowCSMPerformanceOptimizationMode () {
+        return this._shadowCSMPerformanceOptimizationMode;
     }
-    set shadowCSMPerformanceMode (val) {
-        this._shadowCSMPerformanceMode = val;
+    set shadowCSMPerformanceOptimizationMode (val) {
+        this._shadowCSMPerformanceOptimizationMode = val;
     }
 
     /**

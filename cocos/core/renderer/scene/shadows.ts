@@ -120,11 +120,11 @@ export const PCFType = Enum({
     SOFT_2X: 2,
 
     /**
-     * @zh x25 次采样
-     * @en x25 times
+     * @zh x16 次采样
+     * @en x16 times
      * @readonly
      */
-    SOFT_5X: 3,
+    SOFT_4X: 3,
 });
 
 /**
@@ -160,6 +160,34 @@ export const CSMLevel = Enum({
      * @readonly
      */
     level_4: 4,
+});
+
+/**
+ * @zh 级联阴影性能优化模式。
+ * @en The CSM performance optimization mode
+ * @enum Shadows.CSMPerformanceOptimizationMode
+ */
+export const CSMPerformanceOptimizationMode = Enum({
+    /**
+     * @zh 没有性能优化
+     * @en has no performance optimization
+     * @readonly
+     */
+    NONE: 1,
+
+    /**
+     * @zh 2 个层级
+     * @en level 2
+     * @readonly
+     */
+    RemoveDuplicates: 2,
+
+    /**
+      * @zh 3 个层级
+      * @en level 3
+      * @readonly
+      */
+    DisableRotaitonFix: 3,
 });
 
 const SHADOW_TYPE_NONE = ShadowType.ShadowMap + 1;

@@ -94,7 +94,6 @@ export class RenderShadowMapBatchedQueue {
         const sceneData = this._pipeline.pipelineSceneData;
         const shadowInfo = sceneData.shadows;
         if (light && shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
-            const castShadowObjects = sceneData.csmLayers.castShadowObjects;
             switch (light.type) {
             case LightType.DIRECTIONAL:
                 if (shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
@@ -127,6 +126,7 @@ export class RenderShadowMapBatchedQueue {
                     Mat4.invert(_matShadowView, light.node!.getWorldMatrix());
                     Mat4.perspective(_matShadowProj, (light as any).angle, (light as any).aspect, 0.001, (light as any).range);
                     Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
+                    const castShadowObjects = sceneData.csmLayers.castShadowObjects;
                     for (let i = 0; i < castShadowObjects.length; i++) {
                         const ro = castShadowObjects[i];
                         const model = ro.model;

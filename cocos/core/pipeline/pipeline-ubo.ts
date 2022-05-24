@@ -175,7 +175,7 @@ export class PipelineUBO {
             return 1.0  / (shadowMapSize * 0.5);
         case PCFType.SOFT_2X:
             return 2.0  / (shadowMapSize * 0.5);
-        case PCFType.SOFT_5X:
+        case PCFType.SOFT_4X:
             return 3.0  / (shadowMapSize * 0.5);
         default:
         }
@@ -342,22 +342,24 @@ export class PipelineUBO {
         }
         case LightType.SPOT: {
             const spotLight = light as SpotLight;
-            Mat4.invert(_matShadowView, (light as any).node.getWorldMatrix());
-            Mat4.toArray(sv, _matShadowView, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
+            if (shadowInfo.enabled && spotLight && spotLight.shadowEnabled) {
+                Mat4.invert(_matShadowView, (light as any).node.getWorldMatrix());
+                Mat4.toArray(sv, _matShadowView, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
 
-            Mat4.perspective(_matShadowProj, (light as any).angle, (light as any).aspect, 0.001, (light as any).range);
+                Mat4.perspective(_matShadowProj, (light as any).angle, (light as any).aspect, 0.001, (light as any).range);
 
-            Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
-            Mat4.toArray(sv, _matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
+                Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
+                Mat4.toArray(sv, _matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
-            _vec4ShadowInfo.set(0.01, (light as SpotLight).range, linear, 0.0);
-            Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET);
+                _vec4ShadowInfo.set(0.01, (light as SpotLight).range, linear, 0.0);
+                Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET);
 
-            _vec4ShadowInfo.set(shadowInfo.size.x, shadowInfo.size.y, spotLight.shadowPcf, spotLight.shadowBias);
-            Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET);
+                _vec4ShadowInfo.set(shadowInfo.size.x, shadowInfo.size.y, spotLight.shadowPcf, spotLight.shadowBias);
+                Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET);
 
-            _vec4ShadowInfo.set(1.0, packing, spotLight.shadowNormalBias, 0.0);
-            Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET);
+                _vec4ShadowInfo.set(1.0, packing, spotLight.shadowNormalBias, 0.0);
+                Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET);
+            }
             break;
         }
         default:

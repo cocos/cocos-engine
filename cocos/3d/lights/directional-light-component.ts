@@ -33,7 +33,7 @@ import { ccclass, range, slide, type, editable, visible, help, executeInEditMode
 import { Light } from './light-component';
 import { scene } from '../../core/renderer';
 import { legacyCC } from '../../core/global-exports';
-import { Camera, PCFType, Shadows, ShadowType, CSMLevel } from '../../core/renderer/scene';
+import { Camera, PCFType, Shadows, ShadowType, CSMLevel, CSMPerformanceOptimizationMode } from '../../core/renderer/scene';
 import { Root } from '../../core/root';
 import { property } from '../../core/data/class-decorator';
 import { CCBoolean, CCFloat } from '../../core/data/utils/attribute';
@@ -73,7 +73,7 @@ export class DirectionalLight extends Light {
     @serializable
     protected _shadowCSMLambda = 0.75;
     @serializable
-    protected _shadowCSMPerformanceMode = false;
+    protected _shadowCSMPerformanceOptimizationMode = CSMPerformanceOptimizationMode.RemoveDuplicates;
 
     // fixed area properties
     @serializable
@@ -308,25 +308,17 @@ export class DirectionalLight extends Light {
     }
 
     /**
-     * @en get or set shadow CSM performance mode
-     * @zh 获取或者设置联级阴影是否开启性能模式
+     * @en get or set shadow CSM performance optimization mode
+     * @zh 获取或者设置联级阴影性能优化模式
+     * @internal
      */
-    @visible(function (this: DirectionalLight) {
-        return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type
-                    === ShadowType.ShadowMap && this._shadowFixedArea === false;
-    })
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 13 } })
-    @editable
-    @tooltip('enabled CSM performance mode')
-    @slide
-    @type(CCBoolean)
-    get shadowCSMPerformanceMode () {
-        return this._shadowCSMPerformanceMode;
+    get shadowCSMPerformanceOptimizationMode () {
+        return this._shadowCSMPerformanceOptimizationMode;
     }
-    set shadowCSMPerformanceMode (val) {
-        this._shadowCSMPerformanceMode = val;
+    set shadowCSMPerformanceOptimizationMode (val) {
+        this._shadowCSMPerformanceOptimizationMode = val;
         if (this._light) {
-            this._light.shadowCSMPerformanceMode = this._shadowCSMPerformanceMode;
+            this._light.shadowCSMPerformanceOptimizationMode = this._shadowCSMPerformanceOptimizationMode;
         }
     }
 
@@ -458,7 +450,7 @@ export class DirectionalLight extends Light {
             this._light.shadowCSMLevel = this._shadowCSMLevel;
             this._light.shadowCSMLambda = this._shadowCSMLambda;
             this._light.shadowCSMDebugMode = this._shadowCSMDebugMode;
-            this._light.shadowCSMPerformanceMode = this._shadowCSMPerformanceMode;
+            this._light.shadowCSMPerformanceOptimizationMode = this._shadowCSMPerformanceOptimizationMode;
         }
     }
 }

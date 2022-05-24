@@ -19,12 +19,13 @@
  THE SOFTWARE.
  */
 
-import { DirectionalLight, Camera, Shadows, CSMLevel } from '../../renderer/scene';
+import { DirectionalLight, Camera, Shadows, CSMLevel, CSMPerformanceOptimizationMode } from '../../renderer/scene';
 import { Mat4, Vec3, Vec2, Quat } from '../../math';
 import { Frustum, AABB } from '../../geometry';
 import { IRenderObject } from '../define';
 import { legacyCC } from '../../global-exports';
 import { PipelineSceneData } from '../pipeline-scene-data';
+import { CachedArray } from '../../memop/cached-array';
 
 const _mat4Trans = new Mat4();
 const _matShadowTrans = new Mat4();
@@ -44,12 +45,14 @@ const _minVec3 = new Vec3(-10000000, -10000000, -10000000);
 const _shadowPos = new Vec3();
 const _bias = new Vec3();
 const _scale = new Vec3();
+let _maxLayerPosz = 0.0;
+let _maxLayerFarPlane = 0.0;
 
 export class ShadowTransformInfo {
     protected _shadowObjects: IRenderObject[] = [];
 
     protected _shadowCameraFar = 0;
-    // Level is a vector, Indicates the location.
+    // Level is a vector, Indicates the location.range: [0 ~ 3]
     protected _level: number;
 
     protected _matShadowView: Mat4 = new Mat4();
@@ -151,12 +154,23 @@ export class ShadowTransformInfo {
         this._castLightViewBoundingBox.mergeFrustum(this._lightViewFrustum);
         let orthoSizeWidth;
         let orthoSizeHeight;
-        if (dirLight.shadowCSMPerformanceMode) {
+        if (dirLight.shadowCSMPerformanceOptimizationMode === CSMPerformanceOptimizationMode.DisableRotaitonFix) {
             orthoSizeWidth = this._castLightViewBoundingBox.halfExtents.x * 2.0;
             orthoSizeHeight = this._castLightViewBoundingBox.halfExtents.y * 2.0;
         } else {
             orthoSizeWidth = orthoSizeHeight = Vec3.distance(this._lightViewFrustum.vertices[0], this._lightViewFrustum.vertices[6]);
         }
+
+        if (dirLight.shadowCSMLevel > 1 && dirLight.shadowCSMPerformanceOptimizationMode
+            === CSMPerformanceOptimizationMode.RemoveDuplicates) {
+            if (this._level >= dirLight.shadowCSMLevel - 1) {
+                _maxLayerFarPlane = this._castLightViewBoundingBox.halfExtents.z;
+                _maxLayerPosz = this._castLightViewBoundingBox.center.z;
+            } else {
+                this._castLightViewBoundingBox.halfExtents.z = Math.abs(this._castLightViewBoundingBox.center.z - _maxLayerPosz) + _maxLayerFarPlane;
+            }
+        }
+
         const r = this._castLightViewBoundingBox.halfExtents.z;
         this._shadowCameraFar = r * 2 + invisibleOcclusionRange;
         const center = this._castLightViewBoundingBox.center;
@@ -257,6 +271,7 @@ export class CSMLayerInfo extends ShadowTransformInfo {
  */
 export class CSMLayers {
     protected _castShadowObjects: IRenderObject[] = [];
+    protected _csmLayerObjects = new CachedArray<IRenderObject>(64);
 
     protected _layers: CSMLayerInfo[] = [];
     // LevelCount is a scalar, Indicates the number.
@@ -267,6 +282,10 @@ export class CSMLayers {
 
     get castShadowObjects () {
         return this._castShadowObjects;
+    }
+
+    get csmLayerObjects () {
+        return this._csmLayerObjects;
     }
 
     get layers () {
@@ -366,7 +385,7 @@ export class CSMLayers {
         if (shadowMapWidth < 0.0) { return; }
 
         this._getCameraWorldMatrix(_mat4Trans, camera);
-        for (let i = 0; i < level; i++) {
+        for (let i = level - 1; i >= 0; i--) {
             const csmLayer = this._layers[i];
             const near = csmLayer.splitCameraNear;
             const far = csmLayer.splitCameraFar;

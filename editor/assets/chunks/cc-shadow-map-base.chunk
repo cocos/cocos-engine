@@ -110,11 +110,11 @@ float CCGetViewSpaceDepth(float depthHS)
 
     float shadow = 0.0;
     float closestDepth = 0.0;
-    if (cc_shadowLPNNInfo.y > EPSILON) {
+    #if CC_SHADOWMAP_FORMAT
       closestDepth = unpackRGBAToDepth(texture(cc_shadowMap, clipPos.xy));
-    } else {
+    #else
       closestDepth = texture(cc_shadowMap, clipPos.xy).x;
-    }
+    #endif
     shadow = step(clipPos.z, closestDepth);
 
     return shadow;
@@ -134,17 +134,17 @@ float CCGetViewSpaceDepth(float depthHS)
     vec2 clipPos_offset = clipPos.xy + oneTap;
 
     float block0, block1, block2, block3;
-    if (cc_shadowLPNNInfo.y > EPSILON) {
+    #if CC_SHADOWMAP_FORMAT
       block0 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x, clipPos.y))));
       block1 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos_offset.x, clipPos.y))));
       block2 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x, clipPos_offset.y))));
       block3 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos_offset.x, clipPos_offset.y))));
-    } else {
+    #else
       block0 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos.x, clipPos.y)).x);
       block1 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos_offset.x, clipPos.y)).x);
       block2 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos.x, clipPos_offset.y)).x);
       block3 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos_offset.x, clipPos_offset.y)).x);
-    }
+    #endif
 
     float coefX   = mod(clipPos.x, oneTap.x) * mapSize.x;
     float resultX = mix(block0, block1, coefX);
@@ -171,7 +171,7 @@ float CCGetViewSpaceDepth(float depthHS)
     float clipPos_offset_D = clipPos.y + oneTap.y;
 
     float block0, block1, block2, block3, block4, block5, block6, block7, block8;
-    if (cc_shadowLPNNInfo.y > EPSILON) {
+    #if CC_SHADOWMAP_FORMAT
       block0 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos_offset_L, clipPos_offset_U))));
       block1 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x, clipPos_offset_U))));
       block2 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos_offset_R, clipPos_offset_U))));
@@ -181,7 +181,7 @@ float CCGetViewSpaceDepth(float depthHS)
       block6 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos_offset_L, clipPos_offset_D))));
       block7 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x, clipPos_offset_D))));
       block8 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos_offset_R, clipPos_offset_D))));
-    } else {
+    #else
       block0 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos_offset_L, clipPos_offset_U)).x);
       block1 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos.x, clipPos_offset_U)).x);
       block2 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos_offset_R, clipPos_offset_U)).x);
@@ -191,7 +191,7 @@ float CCGetViewSpaceDepth(float depthHS)
       block6 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos_offset_L, clipPos_offset_D)).x);
       block7 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos.x, clipPos_offset_D)).x);
       block8 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos_offset_R, clipPos_offset_D)).x);
-    }
+    #endif
 
     float coefX = mod(clipPos.x, oneTap.x) * mapSize.x;
     float coefY = mod(clipPos.y, oneTap.y) * mapSize.y;
@@ -216,7 +216,7 @@ float CCGetViewSpaceDepth(float depthHS)
     return shadow * 0.25;
   }
 
-  float CCGetShadowFactorSoft5X (vec4 shadowPos, float bias) {
+  float CCGetShadowFactorSoft4X (vec4 shadowPos, float bias) {
     vec4 clipPosNew = ApplyShadowDepthBias_Orthographic(shadowPos, bias);
     vec3 clipPos = clipPosNew.xyz / clipPosNew.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
@@ -256,7 +256,7 @@ float CCGetViewSpaceDepth(float depthHS)
   	vec2 offset25 = clipPos.xy + vec2(twoTap.x, twoTap.y);
 
     float block1, block2, block3, block4, block5, block6, block7, block8, block9, block10, block11, block12, block13, block14, block15, block16, block17, block18, block19, block20, block21, block22, block23, block24, block25;
-    if (cc_shadowLPNNInfo.y > EPSILON) {
+    #if CC_SHADOWMAP_FORMAT
       block1 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, offset1)));
       block2 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, offset2)));
       block3 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, offset3)));
@@ -282,7 +282,7 @@ float CCGetViewSpaceDepth(float depthHS)
       block23 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, offset23)));
       block24 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, offset24)));
       block25 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, offset25)));
-    } else {
+    #else
       block1 = step(offsetDepth, texture(cc_shadowMap, offset1).x);
       block2 = step(offsetDepth, texture(cc_shadowMap, offset2).x);
       block3 = step(offsetDepth, texture(cc_shadowMap, offset3).x);
@@ -308,7 +308,7 @@ float CCGetViewSpaceDepth(float depthHS)
       block23 = step(offsetDepth, texture(cc_shadowMap, offset23).x);
       block24 = step(offsetDepth, texture(cc_shadowMap, offset24).x);
       block25 = step(offsetDepth, texture(cc_shadowMap, offset25).x);
-    }
+    #endif
 
     vec2 coef = fract(clipPos.xy / oneTap);
     vec2 v1X1 = mix(vec2(block1, block6), vec2(block2, block7), coef.xx);
@@ -352,11 +352,11 @@ float CCGetViewSpaceDepth(float depthHS)
     float closestDepth = 0.0;
     float depth = clipPos.z;
 
-    if (cc_shadowLPNNInfo.y > EPSILON) {
+    #if CC_SHADOWMAP_FORMAT
       closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, clipPos.xy));
-    } else {
+    #else
       closestDepth = texture(cc_spotLightingMap, clipPos.xy).x;
-    }
+    #endif
     shadow = step(depth, closestDepth);
 
     return shadow;
@@ -381,17 +381,17 @@ float CCGetViewSpaceDepth(float depthHS)
     vec2 clipPos_offset = clipPos.xy + oneTap;
 
     float block0, block1, block2, block3;
-    if (cc_shadowLPNNInfo.y > EPSILON) {
+    #if CC_SHADOWMAP_FORMAT
       block0 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x, clipPos.y))));
       block1 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset.x, clipPos.y))));
       block2 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x, clipPos_offset.y))));
       block3 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset.x, clipPos_offset.y))));
-    } else {
+    #else
       block0 = step(depth, texture(cc_spotLightingMap, vec2(clipPos.x, clipPos.y)).x);
       block1 = step(depth, texture(cc_spotLightingMap, vec2(clipPos_offset.x, clipPos.y)).x);
       block2 = step(depth, texture(cc_spotLightingMap, vec2(clipPos.x, clipPos_offset.y)).x);
       block3 = step(depth, texture(cc_spotLightingMap, vec2(clipPos_offset.x, clipPos_offset.y)).x);
-    }
+    #endif
 
     float coefX   = mod(clipPos.x, oneTap.x) * cc_shadowWHPBInfo.x;
     float resultX = mix(block0, block1, coefX);
@@ -424,7 +424,7 @@ float CCGetViewSpaceDepth(float depthHS)
     float clipPos_offset_D = clipPos.y + oneTap.y;
 
     float block0, block1, block2, block3, block4, block5, block6, block7, block8;
-    if (cc_shadowLPNNInfo.y > EPSILON) {
+    #if CC_SHADOWMAP_FORMAT
       block0 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset_L, clipPos_offset_U))));
       block1 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x, clipPos_offset_U))));
       block2 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset_R, clipPos_offset_U))));
@@ -434,7 +434,7 @@ float CCGetViewSpaceDepth(float depthHS)
       block6 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset_L, clipPos_offset_D))));
       block7 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x, clipPos_offset_D))));
       block8 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset_R, clipPos_offset_D))));
-    } else {
+    #else
       block0 = step(depth, texture(cc_spotLightingMap, vec2(clipPos_offset_L, clipPos_offset_U)).x);
       block1 = step(depth, texture(cc_spotLightingMap, vec2(clipPos.x, clipPos_offset_U)).x);
       block2 = step(depth, texture(cc_spotLightingMap, vec2(clipPos_offset_R, clipPos_offset_U)).x);
@@ -444,7 +444,7 @@ float CCGetViewSpaceDepth(float depthHS)
       block6 = step(depth, texture(cc_spotLightingMap, vec2(clipPos_offset_L, clipPos_offset_D)).x);
       block7 = step(depth, texture(cc_spotLightingMap, vec2(clipPos.x, clipPos_offset_D)).x);
       block8 = step(depth, texture(cc_spotLightingMap, vec2(clipPos_offset_R, clipPos_offset_D)).x);
-    }
+    #endif
 
     float coefX = mod(clipPos.x, oneTap.x) * mapSize.x;
     float coefY = mod(clipPos.y, oneTap.y) * mapSize.y;
@@ -469,7 +469,7 @@ float CCGetViewSpaceDepth(float depthHS)
     return shadow * 0.25;
   }
 
-  float CCGetSpotLightShadowFactorSoft5X (vec4 shadowPos, vec3 worldPos, float bias) {
+  float CCGetSpotLightShadowFactorSoft4X (vec4 shadowPos, vec3 worldPos, float bias) {
     vec4 clipPosNew = ApplyShadowDepthBias_Orthographic(shadowPos, bias);
     vec3 clipPos = clipPosNew.xyz / clipPosNew.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
@@ -514,7 +514,7 @@ float CCGetViewSpaceDepth(float depthHS)
   	vec2 offset25 = clipPos.xy + vec2(twoTap.x, twoTap.y);
 
     float block1, block2, block3, block4, block5, block6, block7, block8, block9, block10, block11, block12, block13, block14, block15, block16, block17, block18, block19, block20, block21, block22, block23, block24, block25;
-    if (cc_shadowLPNNInfo.y > EPSILON) {
+    #if CC_SHADOWMAP_FORMAT
       block1 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, offset1)));
       block2 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, offset2)));
       block3 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, offset3)));
@@ -540,7 +540,7 @@ float CCGetViewSpaceDepth(float depthHS)
       block23 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, offset23)));
       block24 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, offset24)));
       block25 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, offset25)));
-    } else {
+    #else
       block1 = step(offsetDepth, texture(cc_spotLightingMap, offset1).x);
       block2 = step(offsetDepth, texture(cc_spotLightingMap, offset2).x);
       block3 = step(offsetDepth, texture(cc_spotLightingMap, offset3).x);
@@ -566,7 +566,7 @@ float CCGetViewSpaceDepth(float depthHS)
       block23 = step(offsetDepth, texture(cc_spotLightingMap, offset23).x);
       block24 = step(offsetDepth, texture(cc_spotLightingMap, offset24).x);
       block25 = step(offsetDepth, texture(cc_spotLightingMap, offset25).x);
-    }
+    #endif
 
     vec2 coef = fract(clipPos.xy / oneTap);
     vec2 v1X1 = mix(vec2(block1, block6), vec2(block2, block7), coef.xx);
@@ -602,7 +602,7 @@ float CCSpotShadowFactorBase(vec4 shadowPos, vec3 worldPos, vec2 shadowBias)
 {
   float pcf = cc_shadowWHPBInfo.z;
   if (pcf > 2.9) {
-    return CCGetSpotLightShadowFactorSoft5X(shadowPos, worldPos, shadowBias.x);
+    return CCGetSpotLightShadowFactorSoft4X(shadowPos, worldPos, shadowBias.x);
   } else if (pcf > 1.9) { 
     return CCGetSpotLightShadowFactorSoft2X(shadowPos, worldPos, shadowBias.x);
   }else if (pcf > 0.9) { 
@@ -619,7 +619,7 @@ float CCShadowFactorBase(vec4 shadowPos, vec3 N, vec2 shadowBias)
 
   float pcf = cc_shadowWHPBInfo.z;
   if (pcf > 2.9) {
-    realtimeShadow =  CCGetShadowFactorSoft5X(pos, shadowBias.x);
+    realtimeShadow =  CCGetShadowFactorSoft4X(pos, shadowBias.x);
   } else if (pcf > 1.9) {
     realtimeShadow =  CCGetShadowFactorSoft2X(pos, shadowBias.x);
   }else if (pcf > 0.9) {
@@ -639,7 +639,7 @@ float CCCSMFactorBase(vec3 worldPos, vec3 N, vec2 shadowBias)
 
   float pcf = cc_shadowWHPBInfo.z;
   if (pcf > 2.9) {
-    realtimeShadow = CCGetShadowFactorSoft5X(csmPos, shadowBias.x);
+    realtimeShadow = CCGetShadowFactorSoft4X(csmPos, shadowBias.x);
   } else if (pcf > 1.9) {
     realtimeShadow = CCGetShadowFactorSoft2X(csmPos, shadowBias.x);
   } else if (pcf > 0.9) {
