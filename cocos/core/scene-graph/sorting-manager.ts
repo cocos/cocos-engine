@@ -23,6 +23,7 @@
  THE SOFTWARE.
 */
 
+import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { errorID } from '../platform';
 
@@ -83,36 +84,44 @@ export class SortingManager {
     // Editor Function
 
     public static addLayer () {
-        this.ID++;
-        if (this.ID > 65535) {
-            errorID(2107);
+        if (EDITOR) {
+            this.ID++;
+            if (this.ID > 65535) {
+                errorID(2107);
+            }
+            this.nameMap.set(this.ID, `New Layer${this.ID}`);
+            this.indexMap.set(this.ID, this.ID);
         }
-        this.nameMap.set(this.ID, `New Layer${this.ID}`);
-        this.indexMap.set(this.ID, this.ID);
     }
 
     public static removeSortingLayer (layer: number) {
-        if (!this.isLayerValid(layer)) return;
+        if (EDITOR) {
+            if (!this.isLayerValid(layer)) return;
 
-        if (this.nameMap.has(layer) && this.indexMap.has(layer)) {
+            if (this.nameMap.has(layer) && this.indexMap.has(layer)) {
             // Todo: need update all component used this layer
             // set the value to 0
-            this.nameMap.delete(layer);
-            this.indexMap.delete(layer);
+                this.nameMap.delete(layer);
+                this.indexMap.delete(layer);
+            }
         }
     }
 
     public static renameLayer (layer: number, layerName: string) {
-        if (this.nameMap.has(layer)) {
-            errorID(2105);
-        } else {
-            this.nameMap.set(layer, layerName);
+        if (EDITOR) {
+            if (this.nameMap.has(layer)) {
+                errorID(2105);
+            } else {
+                this.nameMap.set(layer, layerName);
+            }
         }
     }
 
     public static changeIndex () {
-        // Todo: need update index map
-        // Todo: need update all component sorting priority in active scene
+        if (EDITOR) {
+            // Todo: need update index map
+            // Todo: need update all component sorting priority in active scene
+        }
     }
 
     private static defaultIndex = 0;

@@ -32,8 +32,8 @@ import { Renderer } from './renderer';
 import { clamp } from '../math/utils';
 import { SortingManager } from '../scene-graph/sorting-manager';
 
-const MAX_UINT_NUM = (1 << 15) - 1;
-const MIN_UINT_NUM = -1 << 15;
+const MAX_INT16 = (1 << 15) - 1;
+const MIN_INT16 = -1 << 15;
 
 /**
  * @en Base class for all rendering components containing model.
@@ -72,15 +72,25 @@ export class ModelRenderer extends Renderer {
      * @zh 组件在当前排序层中的顺序。
      * @en Model Renderer's order within a sorting layer.
      */
-    @range([MIN_UINT_NUM, MAX_UINT_NUM, 1])
+    @range([MIN_INT16, MAX_INT16, 1])
     get sortingOrder () {
         return this._sortingOrder;
     }
     set sortingOrder (val) {
         if (val === this._sortingOrder) return;
-        this._sortingOrder = clamp(val, MIN_UINT_NUM, MAX_UINT_NUM);
+        this._sortingOrder = clamp(val, MIN_INT16, MAX_INT16);
         this._updateSortingPriority();
     }
+
+    @serializable
+    protected _visFlags = Layers.Enum.NONE;
+
+    @serializable
+    protected _sortingLayer = 0;
+    @serializable
+    protected _sortingOrder = 0;
+
+    protected _models: scene.Model[] = [];
 
     /**
      * @zh 通过 name 设置组件的 sortingLayer
@@ -100,16 +110,6 @@ export class ModelRenderer extends Renderer {
     public _collectModels (): scene.Model[] {
         return this._models;
     }
-
-    @serializable
-    protected _visFlags = Layers.Enum.NONE;
-
-    @serializable
-    protected _sortingLayer = 0;
-    @serializable
-    protected _sortingOrder = 0;
-
-    protected _models: scene.Model[] = [];
 
     protected onEnable () {
         this._updateSortingPriority();
