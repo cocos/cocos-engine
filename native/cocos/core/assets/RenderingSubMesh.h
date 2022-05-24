@@ -28,7 +28,7 @@
 #include "3d/assets/Types.h"
 #include "base/RefCounted.h"
 #include "base/RefVector.h"
-#include "base/Variant.h"
+#include "base/std/variant.h"
 #include "core/TypedArray.h"
 #include "core/Types.h"
 #include "renderer/gfx-base/GFXDef.h"
@@ -52,13 +52,13 @@ struct IGeometricInfo {
      * @en Indices data
      * @zh 索引数据。
      */
-    cc::optional<IBArray> indices;
+    ccstd::optional<IBArray> indices;
 
     /**
      * @en Whether the geometry is treated as double sided
      * @zh 是否将图元按双面对待。
      */
-    cc::optional<bool> doubleSided;
+    ccstd::optional<bool> doubleSided;
 
     /**
      * @en The bounding box
@@ -158,7 +158,7 @@ public:
     inline gfx::InputAssemblerInfo &getIaInfo() { return _iaInfo; }
 
     inline void setDrawInfo(const gfx::DrawInfo &info) { _drawInfo = info; }
-    inline cc::optional<gfx::DrawInfo> &getDrawInfo() { return _drawInfo; }
+    inline ccstd::optional<gfx::DrawInfo> &getDrawInfo() { return _drawInfo; }
 
     /**
      * @en The vertex buffer for joint after mapping
@@ -181,14 +181,14 @@ public:
     inline Mesh *getMesh() const { return _mesh; }
 
     inline void setSubMeshIdx(uint32_t idx) { _subMeshIdx = idx; }
-    inline const cc::optional<uint32_t> &getSubMeshIdx() const { return _subMeshIdx; }
+    inline const ccstd::optional<uint32_t> &getSubMeshIdx() const { return _subMeshIdx; }
 
 private:
     gfx::Buffer *allocVertexIdBuffer(gfx::Device *device);
 
     // Mesh will includes RenderingSubMesh, so use Mesh* here.
     Mesh *_mesh{nullptr};
-    cc::optional<uint32_t> _subMeshIdx;
+    ccstd::optional<uint32_t> _subMeshIdx;
 
     ccstd::vector<IFlatBuffer> _flatBuffers;
 
@@ -197,9 +197,9 @@ private:
 
     ccstd::vector<uint32_t> _jointMappedBufferIndices;
 
-    cc::optional<VertexIdChannel> _vertexIdChannel;
+    ccstd::optional<VertexIdChannel> _vertexIdChannel;
 
-    cc::optional<IGeometricInfo> _geometricInfo;
+    ccstd::optional<IGeometricInfo> _geometricInfo;
 
     // As gfx::InputAssemblerInfo needs the data structure, so not use IntrusivePtr.
     RefVector<gfx::Buffer *> _vertexBuffers;
@@ -214,7 +214,7 @@ private:
 
     gfx::InputAssemblerInfo _iaInfo;
 
-    cc::optional<gfx::DrawInfo> _drawInfo;
+    ccstd::optional<gfx::DrawInfo> _drawInfo;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderingSubMesh);
 };

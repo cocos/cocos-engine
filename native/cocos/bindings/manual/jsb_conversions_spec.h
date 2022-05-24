@@ -23,13 +23,13 @@
 
 #include "base/Ptr.h"
 #include "base/Value.h"
+#include "base/std/any.h"
 #include "base/std/container/unordered_map.h"
+#include "base/std/optional.h"
+#include "base/std/variant.h"
 #include "bindings/jswrapper/SeApi.h"
-#include "cocos/base/Any.h"
-#include "cocos/base/Optional.h"
-#include "cocos/base/Variant.h"
-#include "cocos/core/assets/AssetsModuleHeader.h"
 #include "core/TypedArray.h"
+#include "core/assets/AssetsModuleHeader.h"
 #include "core/assets/RenderingSubMesh.h"
 
 #if CC_USE_PHYSICS_PHYSX
@@ -153,8 +153,8 @@ bool seval_to_DownloaderHints(const se::Value &v, cc::network::DownloaderHints *
 bool sevalue_to_native(const se::Value &from, cc::MacroValue *to, se::Object *ctx);                    // NOLINT(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &from, cc::IPreCompileInfoValueType *to, se::Object * /*ctx*/); // NOLINT(readability-identifier-naming)
 
-// cc::any
-bool sevalue_to_native(const se::Value &from, cc::any *to, se::Object *ctx); //NOLINT(readability-identifier-naming)
+// ccstd::any
+bool sevalue_to_native(const se::Value &from, ccstd::any *to, se::Object *ctx); //NOLINT(readability-identifier-naming)
 ////////////////// ArrayBuffer
 bool sevalue_to_native(const se::Value &from, cc::ArrayBuffer *to, se::Object * /*ctx*/);  // NOLINT(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &from, cc::ArrayBuffer **to, se::Object * /*ctx*/); // NOLINT(readability-identifier-naming)
@@ -291,8 +291,8 @@ inline bool sevalue_to_native(const se::Value &from, ccstd::vector<se::Value> *t
     return true;
 }
 
-//////////////////  cc::any
-inline bool sevalue_to_native(const se::Value & /*from*/, cc::any * /*to*/, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
+//////////////////  ccstd::any
+inline bool sevalue_to_native(const se::Value & /*from*/, ccstd::any * /*to*/, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     CC_ASSERT(false);
     SE_LOGE("Can not convert any to specific types");
     return false;
@@ -334,13 +334,13 @@ inline bool sevalue_to_native(const se::Value &from, cc::ValueMap *to, se::Objec
 
 bool sevalue_to_native(const se::Value &from, ccstd::vector<bool> *to, se::Object * /*ctx*/); // NOLINT(readability-identifier-naming)
 
-bool sevalue_to_native(const se::Value &from, ccstd::vector<unsigned char> *to, se::Object * /*ctx*/);                // NOLINT(readability-identifier-naming)
-bool sevalue_to_native(const se::Value &from, cc::variant<ccstd::vector<float>, ccstd::string> *to, se::Object *ctx); // NOLINT(readability-identifier-naming)
-inline bool sevalue_to_native(const se::Value & /*from*/, cc::monostate * /*to*/, se::Object * /*ctx*/) {             // NOLINT(readability-identifier-naming)
+bool sevalue_to_native(const se::Value &from, ccstd::vector<unsigned char> *to, se::Object * /*ctx*/);                   // NOLINT(readability-identifier-naming)
+bool sevalue_to_native(const se::Value &from, ccstd::variant<ccstd::vector<float>, ccstd::string> *to, se::Object *ctx); // NOLINT(readability-identifier-naming)
+inline bool sevalue_to_native(const se::Value & /*from*/, ccstd::monostate * /*to*/, se::Object * /*ctx*/) {             // NOLINT(readability-identifier-naming)
     // nothing todo
     return false;
 }
-bool sevalue_to_native(const se::Value &from, cc::variant<cc::monostate, cc::MaterialProperty, cc::MaterialPropertyList> *to, se::Object *ctx); // NOLINT(readability-identifier-naming)
+bool sevalue_to_native(const se::Value &from, ccstd::variant<ccstd::monostate, cc::MaterialProperty, cc::MaterialPropertyList> *to, se::Object *ctx); // NOLINT(readability-identifier-naming)
 
 //////////////////////// scene info
 bool sevalue_to_native(const se::Value &from, cc::scene::FogInfo *, se::Object * /*ctx*/);     // NOLINT(readability-identifier-naming)
@@ -495,14 +495,14 @@ inline bool nativevalue_to_se(const cc::network::DownloadTask &from, se::Value &
     return DownloadTask_to_seval(from, &to);
 }
 
-inline bool nativevalue_to_se(const cc::monostate & /*from*/, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
+inline bool nativevalue_to_se(const ccstd::monostate & /*from*/, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     to.setUndefined();
     return true;
 }
 
-inline bool nativevalue_to_se(const cc::any &from, se::Value &to, se::Object *ctx) { //NOLINT
+inline bool nativevalue_to_se(const ccstd::any &from, se::Value &to, se::Object *ctx) { //NOLINT
     CC_ASSERT(false);
-    SE_LOGE("should not convert cc::any");
+    SE_LOGE("should not convert ccstd::any");
     return true;
 }
 

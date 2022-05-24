@@ -324,7 +324,7 @@ void Skybox::updatePipeline() const {
     auto iter = pipeline->getMacros().find("CC_USE_IBL");
     if (iter != pipeline->getMacros().end()) {
         const MacroValue &macroIBL = iter->second;
-        const int32_t *macroIBLPtr = cc::get_if<int32_t>(&macroIBL);
+        const int32_t *macroIBLPtr = ccstd::get_if<int32_t>(&macroIBL);
         if (macroIBLPtr != nullptr && (*macroIBLPtr != useIBLValue)) {
             pipeline->setValue("CC_USE_IBL", useIBLValue);
             valueChanged = true;
@@ -334,7 +334,7 @@ void Skybox::updatePipeline() const {
     auto iterDiffuseMap = pipeline->getMacros().find("CC_USE_DIFFUSEMAP");
     if (iterDiffuseMap != pipeline->getMacros().end()) {
         const MacroValue &macroDIFFUSEMAP = iterDiffuseMap->second;
-        const int32_t *macroDIFFUSEMAPPtr = cc::get_if<int32_t>(&macroDIFFUSEMAP);
+        const int32_t *macroDIFFUSEMAPPtr = ccstd::get_if<int32_t>(&macroDIFFUSEMAP);
         if (macroDIFFUSEMAPPtr != nullptr && ((*macroDIFFUSEMAPPtr != 0) != useDiffuseMapValue)) {
             pipeline->setValue("CC_USE_DIFFUSEMAP", useDiffuseMapValue);
             valueChanged = true;
@@ -344,7 +344,7 @@ void Skybox::updatePipeline() const {
     auto iterUseHDR = pipeline->getMacros().find("CC_USE_HDR");
     if (iterUseHDR != pipeline->getMacros().end()) {
         const MacroValue &macroHDR = iterUseHDR->second;
-        const int32_t *macroHDRPtr = cc::get_if<int32_t>(&macroHDR);
+        const int32_t *macroHDRPtr = ccstd::get_if<int32_t>(&macroHDR);
         if (macroHDRPtr != nullptr && ((*macroHDRPtr != 0) != useHDRValue)) {
             pipeline->setValue("CC_USE_HDR", useHDRValue);
             valueChanged = true;

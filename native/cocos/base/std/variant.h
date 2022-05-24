@@ -29,7 +29,7 @@
 
     #include <variant>
 
-namespace cc {
+namespace ccstd {
 
 using std::get;
 using std::get_if;
@@ -38,13 +38,13 @@ using std::monostate;
 using std::variant;
 using std::visit;
 
-}; // namespace cc
+}; // namespace ccstd
 
 #else
 
     #include "boost/variant2/variant.hpp"
 
-namespace cc {
+namespace ccstd {
 
 using boost::variant2::get;
 using boost::variant2::get_if;
@@ -53,5 +53,5 @@ using boost::variant2::monostate;
 using boost::variant2::variant;
 using boost::variant2::visit;
 
-}; // namespace cc
+}; // namespace ccstd
 #endif

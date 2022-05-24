@@ -25,7 +25,7 @@
 #pragma once
 
 #include <cmath>
-#include "cocos/base/Optional.h"
+#include "base/std/optional.h"
 #include "core/DataView.h"
 #include "renderer/gfx-base/GFXDef.h"
 
@@ -112,15 +112,15 @@ void writeBuffer(DataView &target,
     }
 }
 
-using DataVariant = cc::variant<int32_t, float>;
+using DataVariant = ccstd::variant<int32_t, float>;
 using MapBufferCallback = std::function<DataVariant(const DataVariant &cur, uint32_t idx, const DataView &view)>;
 
 DataView mapBuffer(DataView &target,
                    const MapBufferCallback &callback,
-                   cc::optional<gfx::Format> aFormat,
-                   cc::optional<uint32_t> aOffset,
-                   cc::optional<uint32_t> aLength,
-                   cc::optional<uint32_t> aStride,
+                   ccstd::optional<gfx::Format> aFormat,
+                   ccstd::optional<uint32_t> aOffset,
+                   ccstd::optional<uint32_t> aLength,
+                   ccstd::optional<uint32_t> aStride,
                    DataView *out);
 
 } // namespace cc

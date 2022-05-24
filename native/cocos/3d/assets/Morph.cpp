@@ -28,6 +28,4 @@
 
 namespace cc {
 
-
-
 } // namespace cc

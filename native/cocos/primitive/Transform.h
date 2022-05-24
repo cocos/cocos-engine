@@ -37,7 +37,7 @@ namespace cc {
  * @param geometry 几何体信息。
  * @param offset 偏移量。
  */
-IGeometry translate(IGeometry &geometry, const cc::optional<Vec3> &offset);
+IGeometry translate(IGeometry &geometry, const ccstd::optional<Vec3> &offset);
 
 /**
  * @en
@@ -47,7 +47,7 @@ IGeometry translate(IGeometry &geometry, const cc::optional<Vec3> &offset);
  * @param geometry 几何体信息。
  * @param value 缩放量。
  */
-IGeometry scale(IGeometry &geometry, const cc::optional<Vec3> &value);
+IGeometry scale(IGeometry &geometry, const ccstd::optional<Vec3> &value);
 
 /**
  * @en

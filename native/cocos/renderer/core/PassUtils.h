@@ -27,9 +27,9 @@
 
 #include "base/Ptr.h"
 #include "base/TypeDef.h"
-#include "base/Variant.h"
 #include "base/std/container/string.h"
 #include "base/std/container/vector.h"
+#include "base/std/variant.h"
 
 #include "math/Color.h"
 #include "math/Mat3.h"
@@ -66,7 +66,7 @@ constexpr uint32_t customizeType(uint32_t handle, gfx::Type type) {
     return (handle & ~TYPE_MASK) | ((static_cast<uint32_t>(type) << 26) & TYPE_MASK);
 }
 
-using MacroValue = cc::variant<int32_t, bool, ccstd::string>;
+using MacroValue = ccstd::variant<int32_t, bool, ccstd::string>;
 
 /**
  * @en Combination of preprocess macros
@@ -74,11 +74,11 @@ using MacroValue = cc::variant<int32_t, bool, ccstd::string>;
  */
 using MacroRecord = Record<ccstd::string, MacroValue>;
 
-using MaterialProperty = cc::variant<cc::monostate /*0*/, float /*1*/, int32_t /*2*/, Vec2 /*3*/, Vec3 /*4*/, Vec4 /*5*/, Color, /*6*/ Mat3 /*7*/, Mat4 /*8*/, Quaternion /*9*/, IntrusivePtr<TextureBase> /*10*/, IntrusivePtr<gfx::Texture> /*11*/>;
+using MaterialProperty = ccstd::variant<ccstd::monostate /*0*/, float /*1*/, int32_t /*2*/, Vec2 /*3*/, Vec3 /*4*/, Vec4 /*5*/, Color, /*6*/ Mat3 /*7*/, Mat4 /*8*/, Quaternion /*9*/, IntrusivePtr<TextureBase> /*10*/, IntrusivePtr<gfx::Texture> /*11*/>;
 
 using MaterialPropertyList = ccstd::vector<MaterialProperty>;
 
-using MaterialPropertyVariant = cc::variant<cc::monostate /*0*/, MaterialProperty /*1*/, MaterialPropertyList /*2*/>;
+using MaterialPropertyVariant = ccstd::variant<ccstd::monostate /*0*/, MaterialProperty /*1*/, MaterialPropertyList /*2*/>;
 
 #define MATERIAL_PROPERTY_INDEX_SINGLE 1
 #define MATERIAL_PROPERTY_INDEX_LIST   2
