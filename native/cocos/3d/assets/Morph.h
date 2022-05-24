@@ -59,12 +59,12 @@ struct SubMeshMorph {
      * Attributes to morph.
      */
     ccstd::vector<ccstd::string> attributes;
-    
+
     /**
      * Targets.
      */
     ccstd::vector<MorphTarget> targets;
-    
+
     /**
      * Initial weights of each target.
      */
@@ -85,12 +85,12 @@ struct Morph {
      * Morph data of each sub-mesh.
      */
     ccstd::vector<ccstd::optional<SubMeshMorph>> subMeshMorphs;
-    
+
     /**
      * Common initial weights of each sub-mesh.
      */
     ccstd::optional<MeshWeightsType> weights;
-    
+
     /**
      * Name of each target of each sub-mesh morph.
      * This field is only meaningful if every sub-mesh has the same number of targets.

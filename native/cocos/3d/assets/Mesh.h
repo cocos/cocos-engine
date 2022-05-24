@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "3d/assets/MorphRendering.h"
 #include "3d/assets/Morph.h"
+#include "3d/assets/MorphRendering.h"
 #include "base/std/optional.h"
 #include "core/assets/Asset.h"
 #include "core/geometry/AABB.h"

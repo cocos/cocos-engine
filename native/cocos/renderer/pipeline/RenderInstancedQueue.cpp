@@ -26,10 +26,10 @@
 #include "RenderInstancedQueue.h"
 #include "InstancedBuffer.h"
 #include "PipelineStateManager.h"
-#include "gfx-base/GFXDevice.h"
-#include "gfx-base/GFXRenderPass.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDescriptorSet.h"
+#include "gfx-base/GFXDevice.h"
+#include "gfx-base/GFXRenderPass.h"
 
 namespace cc {
 namespace pipeline {

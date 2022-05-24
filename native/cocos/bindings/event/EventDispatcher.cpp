@@ -22,8 +22,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-#include <cstdarg>
 #include "EventDispatcher.h"
+#include <cstdarg>
 #include "cocos/application/ApplicationManager.h"
 #include "cocos/bindings/event/CustomEventTypes.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
@@ -228,7 +228,6 @@ void EventDispatcher::dispatchKeyboardEvent(const KeyboardEvent &keyboardEvent) 
     se::ValueArray args;
     args.emplace_back(se::Value(jsKeyboardEventObj));
     EventDispatcher::doDispatchJsEvent(eventName, args);
-    
 }
 
 void EventDispatcher::dispatchTickEvent(float /*dt*/) {
@@ -261,7 +260,7 @@ void EventDispatcher::dispatchResizeEvent(int width, int height) {
 
     jsResizeEventObj->setProperty("width", se::Value(width));
     jsResizeEventObj->setProperty("height", se::Value(height));
-    
+
     se::ValueArray args;
     args.emplace_back(se::Value(jsResizeEventObj));
     EventDispatcher::doDispatchJsEvent("onResize", args);
@@ -320,17 +319,16 @@ void EventDispatcher::dispatchCloseEvent() {
 void EventDispatcher::dispatchDestroyWindowEvent() {
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
     EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 1,
-        reinterpret_cast<void *>(CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandler()));
+                                         reinterpret_cast<void *>(CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandler()));
 #else
     EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 0);
 #endif
-    
 }
 
 void EventDispatcher::dispatchRecreateWindowEvent() {
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
     EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 1,
-        reinterpret_cast<void *>(CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandler()));
+                                         reinterpret_cast<void *>(CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandler()));
 #else
     EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 0);
 #endif
@@ -431,7 +429,7 @@ void EventDispatcher::removeAllEventListeners() {
 void EventDispatcher::dispatchCustomEvent(const char *eventName, int argNum, ...) {
     CC_ASSERT(eventName && (strcmp(eventName, "") != 0));
     CustomEvent event;
-    event.name = eventName;    
+    event.name = eventName;
     va_list vl;
     va_start(vl, argNum);
     // Step through the list.
@@ -441,8 +439,7 @@ void EventDispatcher::dispatchCustomEvent(const char *eventName, int argNum, ...
     va_end(vl);
     dispatchCustomEvent(event);
 }
-void EventDispatcher::dispatchCustomEvent(const CustomEvent& event) {
-    
+void EventDispatcher::dispatchCustomEvent(const CustomEvent &event) {
     auto iter = listeners.find(event.name);
     if (iter != listeners.end()) {
         Node *next = nullptr;
