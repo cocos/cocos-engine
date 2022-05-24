@@ -98,10 +98,9 @@ function isInstancedOrBatched (model: Model) {
             const batchingScheme = pass.batchingScheme;
             if (batchingScheme === BatchingSchemes.INSTANCING) {
                 return true;
-            } else if (batchingScheme === BatchingSchemes.VB_MERGING) {
+            }
+            if (batchingScheme === BatchingSchemes.VB_MERGING) {
                 return true;
-            } else {
-                return false;
             }
         }
     }
