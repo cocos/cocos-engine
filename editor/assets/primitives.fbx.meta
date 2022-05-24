@@ -217,7 +217,7 @@
     "legacyFbxImporter": false,
     "fbx": {
       "preferLocalTimeSpan": false,
-      "smartMaterialEnabled": true
+      "smartMaterialEnabled": false
     }
   }
 }
