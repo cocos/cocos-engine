@@ -169,63 +169,15 @@ inline void remove_edge(ResourceGraph::edge_descriptor e, ResourceGraph& g) noex
 }
 
 inline void remove_edge(ResourceGraph::out_edge_iterator iter, ResourceGraph& g) noexcept { // NOLINT
-    auto  e           = *iter;
-    auto& outEdgeList = g.getOutEdgeList(source(e, g));
-    auto& inEdgeList  = g.getInEdgeList(target(e, g));
-    auto e1 = e;
-    std::swap(e1.source, e1.target);
-    impl::removeIncidenceEdge(e1, inEdgeList);
-    outEdgeList.erase(iter.base());
-}
-
-template <class Predicate>
-inline void remove_out_edge_if(ResourceGraph::vertex_descriptor u, Predicate&& pred, ResourceGraph& g) noexcept { // NOLINT
-    for (auto pair = out_edges(u, g); pair.first != pair.second; ++pair.first) {
-        auto& outIter = pair.first;
-        auto& outEnd = pair.second;
-        if (pred(*outIter)) {
-            auto& inEdgeList = g.getInEdgeList(target(*outIter, g));
-            auto  e          = *outIter;
-            std::swap(e.source, e.target);
-            impl::removeIncidenceEdge(e, inEdgeList);
-        }
-    }
-    auto pair = out_edges(u, g);
-    auto& first = pair.first;
-    auto& last = pair.second;
-    auto& outEdgeList  = g.getOutEdgeList(u);
-    impl::sequenceRemoveIncidenceEdgeIf(first, last, outEdgeList, std::forward<Predicate>(pred));
-}
-
-template <class Predicate>
-inline void remove_in_edge_if(ResourceGraph::vertex_descriptor v, Predicate&& pred, ResourceGraph& g) noexcept { // NOLINT
-    for (auto pair = in_edges(v, g); pair.first != pair.second; ++pair.first) {
-        auto& inIter = pair.first;
-        auto& inEnd = pair.second;
-        if (pred(*inIter)) {
-            auto& outEdgeList = g.getOutEdgeList(source(*inIter, g));
-            auto  e           = *inIter;
-            impl::removeIncidenceEdge(e, outEdgeList);
-        }
-    }
-    auto pair = in_edges(v, g);
-    auto& first = pair.first;
-    auto& last = pair.second;
-    auto& inEdgeList   = g.getInEdgeList(v);
-    impl::sequenceRemoveIncidenceEdgeIf(first, last, inEdgeList, std::forward<Predicate>(pred));
-}
-
-template <class Predicate>
-inline void remove_edge_if(Predicate&& pred, ResourceGraph& g) noexcept { // NOLINT
-    auto pair = edges(g);
-    auto& ei = pair.first;
-    auto& eiEnd = pair.second;
-    for (auto next = ei; ei != eiEnd; ei = next) {
-        ++next;
-        if (pred(*ei)) {
-            remove_edge(*ei, g);
-        }
-    }
+    auto e = *iter;
+    const auto u = source(e, g);
+    const auto v = target(e, g);
+    auto& s = g.vertices[u];
+    auto& t = g.vertices[v];
+    auto inIter = std::find(t.inEdges.begin(), t.inEdges.end(), ResourceGraph::InEdge(u));
+    CC_EXPECTS(inIter != t.inEdges.end());
+    t.inEdges.erase(inIter);
+    s.outEdges.erase(iter.base());
 }
 
 // MutableGraph(Vertex)
@@ -629,63 +581,15 @@ inline void remove_edge(SubpassGraph::edge_descriptor e, SubpassGraph& g) noexce
 }
 
 inline void remove_edge(SubpassGraph::out_edge_iterator iter, SubpassGraph& g) noexcept { // NOLINT
-    auto  e           = *iter;
-    auto& outEdgeList = g.getOutEdgeList(source(e, g));
-    auto& inEdgeList  = g.getInEdgeList(target(e, g));
-    auto e1 = e;
-    std::swap(e1.source, e1.target);
-    impl::removeIncidenceEdge(e1, inEdgeList);
-    outEdgeList.erase(iter.base());
-}
-
-template <class Predicate>
-inline void remove_out_edge_if(SubpassGraph::vertex_descriptor u, Predicate&& pred, SubpassGraph& g) noexcept { // NOLINT
-    for (auto pair = out_edges(u, g); pair.first != pair.second; ++pair.first) {
-        auto& outIter = pair.first;
-        auto& outEnd = pair.second;
-        if (pred(*outIter)) {
-            auto& inEdgeList = g.getInEdgeList(target(*outIter, g));
-            auto  e          = *outIter;
-            std::swap(e.source, e.target);
-            impl::removeIncidenceEdge(e, inEdgeList);
-        }
-    }
-    auto pair = out_edges(u, g);
-    auto& first = pair.first;
-    auto& last = pair.second;
-    auto& outEdgeList  = g.getOutEdgeList(u);
-    impl::sequenceRemoveIncidenceEdgeIf(first, last, outEdgeList, std::forward<Predicate>(pred));
-}
-
-template <class Predicate>
-inline void remove_in_edge_if(SubpassGraph::vertex_descriptor v, Predicate&& pred, SubpassGraph& g) noexcept { // NOLINT
-    for (auto pair = in_edges(v, g); pair.first != pair.second; ++pair.first) {
-        auto& inIter = pair.first;
-        auto& inEnd = pair.second;
-        if (pred(*inIter)) {
-            auto& outEdgeList = g.getOutEdgeList(source(*inIter, g));
-            auto  e           = *inIter;
-            impl::removeIncidenceEdge(e, outEdgeList);
-        }
-    }
-    auto pair = in_edges(v, g);
-    auto& first = pair.first;
-    auto& last = pair.second;
-    auto& inEdgeList   = g.getInEdgeList(v);
-    impl::sequenceRemoveIncidenceEdgeIf(first, last, inEdgeList, std::forward<Predicate>(pred));
-}
-
-template <class Predicate>
-inline void remove_edge_if(Predicate&& pred, SubpassGraph& g) noexcept { // NOLINT
-    auto pair = edges(g);
-    auto& ei = pair.first;
-    auto& eiEnd = pair.second;
-    for (auto next = ei; ei != eiEnd; ei = next) {
-        ++next;
-        if (pred(*ei)) {
-            remove_edge(*ei, g);
-        }
-    }
+    auto e = *iter;
+    const auto u = source(e, g);
+    const auto v = target(e, g);
+    auto& s = g.vertices[u];
+    auto& t = g.vertices[v];
+    auto inIter = std::find(t.inEdges.begin(), t.inEdges.end(), SubpassGraph::InEdge(u));
+    CC_EXPECTS(inIter != t.inEdges.end());
+    t.inEdges.erase(inIter);
+    s.outEdges.erase(iter.base());
 }
 
 // MutableGraph(Vertex)
@@ -892,63 +796,15 @@ inline void remove_edge(RenderGraph::edge_descriptor e, RenderGraph& g) noexcept
 }
 
 inline void remove_edge(RenderGraph::out_edge_iterator iter, RenderGraph& g) noexcept { // NOLINT
-    auto  e           = *iter;
-    auto& outEdgeList = g.getOutEdgeList(source(e, g));
-    auto& inEdgeList  = g.getInEdgeList(target(e, g));
-    auto e1 = e;
-    std::swap(e1.source, e1.target);
-    impl::removeIncidenceEdge(e1, inEdgeList);
-    outEdgeList.erase(iter.base());
-}
-
-template <class Predicate>
-inline void remove_out_edge_if(RenderGraph::vertex_descriptor u, Predicate&& pred, RenderGraph& g) noexcept { // NOLINT
-    for (auto pair = out_edges(u, g); pair.first != pair.second; ++pair.first) {
-        auto& outIter = pair.first;
-        auto& outEnd = pair.second;
-        if (pred(*outIter)) {
-            auto& inEdgeList = g.getInEdgeList(target(*outIter, g));
-            auto  e          = *outIter;
-            std::swap(e.source, e.target);
-            impl::removeIncidenceEdge(e, inEdgeList);
-        }
-    }
-    auto pair = out_edges(u, g);
-    auto& first = pair.first;
-    auto& last = pair.second;
-    auto& outEdgeList  = g.getOutEdgeList(u);
-    impl::sequenceRemoveIncidenceEdgeIf(first, last, outEdgeList, std::forward<Predicate>(pred));
-}
-
-template <class Predicate>
-inline void remove_in_edge_if(RenderGraph::vertex_descriptor v, Predicate&& pred, RenderGraph& g) noexcept { // NOLINT
-    for (auto pair = in_edges(v, g); pair.first != pair.second; ++pair.first) {
-        auto& inIter = pair.first;
-        auto& inEnd = pair.second;
-        if (pred(*inIter)) {
-            auto& outEdgeList = g.getOutEdgeList(source(*inIter, g));
-            auto  e           = *inIter;
-            impl::removeIncidenceEdge(e, outEdgeList);
-        }
-    }
-    auto pair = in_edges(v, g);
-    auto& first = pair.first;
-    auto& last = pair.second;
-    auto& inEdgeList   = g.getInEdgeList(v);
-    impl::sequenceRemoveIncidenceEdgeIf(first, last, inEdgeList, std::forward<Predicate>(pred));
-}
-
-template <class Predicate>
-inline void remove_edge_if(Predicate&& pred, RenderGraph& g) noexcept { // NOLINT
-    auto pair = edges(g);
-    auto& ei = pair.first;
-    auto& eiEnd = pair.second;
-    for (auto next = ei; ei != eiEnd; ei = next) {
-        ++next;
-        if (pred(*ei)) {
-            remove_edge(*ei, g);
-        }
-    }
+    auto e = *iter;
+    const auto u = source(e, g);
+    const auto v = target(e, g);
+    auto& s = g.vertices[u];
+    auto& t = g.vertices[v];
+    auto inIter = std::find(t.inEdges.begin(), t.inEdges.end(), RenderGraph::InEdge(u));
+    CC_EXPECTS(inIter != t.inEdges.end());
+    t.inEdges.erase(inIter);
+    s.outEdges.erase(iter.base());
 }
 
 // AddressableGraph
