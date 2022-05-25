@@ -535,7 +535,7 @@ holder_convert_to(In &input) { // NOLINT(readability-identifier-naming)
 
 template <typename T, bool is_reference>
 struct HolderType {
-    using type = typename std::remove_const<T>::type;
+    using type = typename std::remove_const<typename std::remove_reference<T>::type>::type;
     using local_type = typename std::conditional_t<is_reference && is_jsb_object_v<T>, std::add_pointer_t<type>, type>;
     local_type data;
     type *ptr = nullptr;
@@ -550,7 +550,7 @@ struct HolderType {
     ~HolderType() {
         //delete ptr;
         if (ptr) {
-            ptr->~T();
+            ptr->~type();
         }
     }
 };
@@ -635,9 +635,9 @@ struct is_variant<ccstd::variant<Args...>> : std::true_type {}; // NOLINT
 template <typename T>
 inline typename std::enable_if_t<!std::is_enum<T>::value && !std::is_pointer<T>::value && !is_jsb_object_v<T>, bool>
 sevalue_to_native(const se::Value & /*from*/, T * /*to*/, se::Object * /*unused*/) { // NOLINT(readability-identifier-naming)
-    SE_LOGE("Can not convert type ???\n - [[ %s ]]\n", typeid(T).name());
-    CC_STATIC_ASSERT(!is_variant<T>::value, "should not match ccstd::variant");
-    CC_STATIC_ASSERT((std::is_same<T, void>::value), "sevalue_to_native not implemented for T");
+    SE_LOGE("Missing conversion impl `sevalue_to_native` for type [[%s]]\n", typeid(T).name());
+    CC_STATIC_ASSERT(!is_variant<T>::value, "should not match cc::variant");
+    CC_STATIC_ASSERT((std::is_same<T, void>::value), "Type incorrect or implementation not found!");
     return false;
 }
 

@@ -27,6 +27,7 @@ cc_set_if_undefined(USE_JOB_SYSTEM_TBB       OFF)
 cc_set_if_undefined(USE_PHYSICS_PHYSX        OFF)
 cc_set_if_undefined(USE_MODULES              OFF)
 cc_set_if_undefined(USE_SERVER_MODE          OFF)
+cc_set_if_undefined(USE_CCACHE               OFF)
 
 add_definitions()
 
@@ -99,6 +100,13 @@ if(USE_JOB_SYSTEM_TASKFLOW)
     endif()
 endif()
 
+if(ANDROID)
+    if(CCACHE_EXECUTABLE AND USE_CCACHE)
+        set(CMAKE_C_COMPILER_LAUNCHER   "${CCACHE_EXECUTABLE}")
+        set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_EXECUTABLE}")
+    endif()
+endif()
+
 ################################# list all option values ##############################
 
 cc_inspect_values(
@@ -123,6 +131,8 @@ cc_inspect_values(
     USE_JOB_SYSTEM_TBB
     USE_JOB_SYSTEM_TASKFLOW
     USE_SERVER_MODE
+    USE_CCACHE
+    CCACHE_EXECUTABLE
 )
 
 ################################# external source code ################################
@@ -2347,8 +2357,17 @@ elseif(LINUX)
 endif()
 
 ############# module bindings
+cocos_source_files(MODULE ccbindings
+    cocos/bindings/sebind/intl/common.h
+    cocos/bindings/sebind/intl/common.cpp
+    cocos/bindings/sebind/class.inl
+    cocos/bindings/sebind/sebind.h
+)
+
 if(USE_SE_V8)
     cocos_source_files(MODULE ccbindings
+                     cocos/bindings/sebind/class_v8.h
+                     cocos/bindings/sebind/class_v8.cpp
                      cocos/bindings/jswrapper/v8/Base.h
                      cocos/bindings/jswrapper/v8/Class.cpp
                      cocos/bindings/jswrapper/v8/Class.h

@@ -26,6 +26,7 @@
 #include "base/std/container/unordered_map.h"
 #include "gfx-base/GFXDef.h"
 #include "gfx-gles-common/GLESCommandPool.h"
+#include <algorithm>
 
 namespace cc {
 namespace gfx {
