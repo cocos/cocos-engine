@@ -72,7 +72,7 @@ void StartIoThreadAsyncCallback(uv_async_t *handle) {
 void StartIoInterrupt(Isolate *isolate, void *agent) {
     static_cast<Agent *>(agent)->StartIoThread(false);
 }
-
+    #define __POSIX__
     #ifdef __POSIX__
 
 static void StartIoThreadWakeup(int signo) {
@@ -114,7 +114,7 @@ static int StartDebugSignalHandler() {
     CHECK_EQ(0, pthread_sigmask(SIG_SETMASK, &sigmask, nullptr));
     CHECK_EQ(0, pthread_attr_destroy(&attr));
     if (err != 0) {
-        SE_LOGE("node[%d]: pthread_create: %s\n", getpid(), strerror(err));
+        //SE_LOGE("node[%d]: pthread_create: %s\n", getpid(), strerror(err));
 
         // Leave SIGUSR1 blocked.  We don't install a signal handler,
         // receiving the signal would terminate the process.

@@ -695,7 +695,7 @@ NO_RETURN void Assert(const char *const (*args)[4]) {
 
     char pid[12] = {0};
     #ifndef _WIN32
-    snprintf(pid, sizeof(pid), "[%u]", getpid());
+    //snprintf(pid, sizeof(pid), "[%u]", getpid());
     #endif
 
     SE_LOGE("%s%s: %s:%s:%s%s Assertion `%s' failed.\n",
