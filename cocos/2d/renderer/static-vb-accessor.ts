@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { Device, Attribute } from '../../core/gfx';
 import { MeshBuffer } from './mesh-buffer';
 import { BufferAccessor } from './buffer-accessor';
@@ -53,7 +51,7 @@ export class StaticVBChunk {
         public meshBuffer: MeshBuffer,
         public vertexOffset: number,
         public vb: Float32Array,
-        indexCount: number,
+        public indexCount: number,
     ) {
         assertIsTrue(meshBuffer === vertexAccessor.getMeshBuffer(bufferId));
     }

@@ -40,7 +40,7 @@ import { legacyCC } from '../../core/global-exports';
 import { ModelLocalBindings, UBOLocal } from '../../core/pipeline/define';
 import { SpriteFrame } from '../assets';
 import { TextureBase } from '../../core/assets/texture-base';
-import { Mat4 } from '../../core/math';
+import { Mat4, Vec3 } from '../../core/math';
 import { IBatcher } from './i-batcher';
 import { StaticVBAccessor } from './static-vb-accessor';
 import { assertIsTrue } from '../../core/data/utils/asserts';
@@ -51,6 +51,7 @@ import { UIMeshRenderer } from '../components/ui-mesh-renderer';
 import { RenderEntity } from './render-entity';
 import { NativeAdvanceRenderData, NativeBatcher2d, NativeRenderEntity } from '../../core/renderer/2d/native-2d';
 import { AdvanceRenderData } from './AdvanceRenderData';
+import { mapBuffer } from '../../3d/misc';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
@@ -125,9 +126,6 @@ export class Batcher2D implements IBatcher {
         if (JSB) {
             this._nativeObj = new NativeBatcher2d();
 
-            // test code
-            const renderData :AdvanceRenderData = new AdvanceRenderData();
-
             // // test code
             // const tempArray:NativeRenderEntity[] = [];
             // for (let i = 0; i < 3; i++) {
@@ -136,10 +134,10 @@ export class Batcher2D implements IBatcher {
             //     tempEntity.setBufferId(i);
 
             //     const tempAdvanceRenderData1 = new AdvanceRenderData();
-            //     tempAdvanceRenderData1.setX(i * 10);
+            //     tempAdvanceRenderData1.pos = new Vec3(1, 2, 3);
             //     tempEntity.addAdvanceRenderData(tempAdvanceRenderData1);
             //     const tempAdvanceRenderData2 = new AdvanceRenderData();
-            //     tempAdvanceRenderData2.setX(i * 100);
+            //     tempAdvanceRenderData2.pos = new Vec3(4, 5, 6);
             //     tempEntity.addAdvanceRenderData(tempAdvanceRenderData2);
             //     tempEntity.setAdvanceRenderDataArrToNative();
 
@@ -690,7 +688,7 @@ export class Batcher2D implements IBatcher {
         // Render assembler update logic
         if (render && render.enabledInHierarchy) {
             //render.updateAssembler(this);
-            render.updateRenderEntities(this);// for collecting data
+            render.GatherRenderEntities(this);// for collecting data
             render.doRender(this);// for rendering
         }
 
@@ -737,17 +735,27 @@ export class Batcher2D implements IBatcher {
         this._descriptorSetCache.releaseDescriptorSetCache(textureHash);
     }
 
-    //native batcher2d
-    private _renderEntities: RenderEntity[] = [];
+    // render entity dictionary
+    private entityDic :Map<number, RenderEntity> =new Map();
+    public addRenderEntity (entity:RenderEntity) {
+        if (!this.entityDic.has(entity.renderIndex)) {
+            this.entityDic.set(entity.renderIndex, entity);
+        }
+    }
 
-    public updateRenderEntities (renderEntities: RenderEntity[]) {
-        const entity = new RenderEntity();
-        entity.bufferId = 15;
-        entity.renderIndex = 10;
-        this._renderEntities.push(entity);
+    public removeRenderEntity (entityId:number) {
+        if (this.entityDic.has(entityId)) {
+            this.entityDic.delete(entityId);
+        }
+    }
+
+    public updateRenderEntities () {
         if (JSB) {
-            //native调用
-
+            const nativeEntityArr:NativeRenderEntity[] = [];
+            this.entityDic.forEach((value, key) => {
+                nativeEntityArr.push(value.nativeObj);
+            });
+            this._nativeObj.updateRenderEntities(nativeEntityArr);
         }
     }
 }

@@ -35,6 +35,8 @@ import { StaticVBAccessor, StaticVBChunk } from './static-vb-accessor';
 import { getAttributeStride, vfmtPosUvColor } from './vertex-format';
 import { Buffer, BufferInfo, BufferUsageBit, Device, InputAssembler, InputAssemblerInfo, MemoryUsageBit } from '../../core/gfx';
 import { assertIsTrue } from '../../core/data/utils/asserts';
+import { RenderEntity } from './render-entity';
+import { AdvanceRenderData } from './AdvanceRenderData';
 
 export interface IRenderData {
     x: number;
@@ -77,6 +79,12 @@ export class BaseRenderData {
     }
 
     public chunk: StaticVBChunk = null!;
+
+    // entity for native
+    protected _renderEntity:RenderEntity = null!;
+    public get renderEntity () {
+        return this._renderEntity;
+    }
 
     public dataHash = 0;
     public isMeshBuffer = false;
@@ -143,6 +151,8 @@ export class RenderData extends BaseRenderData {
 
             data.length = length;
         }
+
+        this.fillAdvanceRenderData();
     }
 
     get data () {
@@ -169,6 +179,9 @@ export class RenderData extends BaseRenderData {
     private _height = 0;
     protected _accessor: StaticVBAccessor = null!;
 
+    public vertexRow = 1;
+    public vertexCol = 1;
+
     public constructor (vertexFormat = vfmtPosUvColor, accessor?: StaticVBAccessor) {
         super(vertexFormat);
         if (!accessor) {
@@ -189,6 +202,33 @@ export class RenderData extends BaseRenderData {
         // renderData always have chunk
         this.chunk = this._accessor.allocateChunk(vertexCount, indexCount)!;
         this.updateHash();
+
+        // for sync vData and iData address to native
+        this.updateRenderEntity();
+    }
+
+    protected updateRenderEntity () {
+        if (!this._renderEntity) {
+            this._renderEntity = new RenderEntity();
+        }
+        this._renderEntity.setBufferId(this.chunk.bufferId);
+        this._renderEntity.setVertexOffset(this.chunk.vertexOffset);
+        this._renderEntity.setIndexOffset(this.chunk.meshBuffer.indexOffset);
+        this._renderEntity.setVB(this.chunk.vb.buffer);
+        this._renderEntity.setVData(this.chunk.meshBuffer.vData.buffer);
+        this._renderEntity.setIData(this.chunk.meshBuffer.iData.buffer);
+    }
+
+    // Initial advance render data for native
+    protected fillAdvanceRenderData () {
+        if (!this._renderEntity) {
+            this._renderEntity = new RenderEntity();
+        }
+        for (let i = 0; i < this.dataLength; i++) {
+            const advanceData = new AdvanceRenderData();
+            this.renderEntity.addAdvanceRenderData(advanceData);
+        }
+        this.renderEntity.setAdvanceRenderDataArrToNative();
     }
 
     public resizeAndCopy (vertexCount: number, indexCount: number) {

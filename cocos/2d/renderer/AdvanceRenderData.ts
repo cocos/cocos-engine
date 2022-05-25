@@ -32,10 +32,10 @@ export class AdvanceRenderData {
     constructor () {
         this._init();
 
-        // test code
-        this.pos = new Vec3(1, 2, 3);
+        // // test code
+        // this.pos = new Vec3(1, 2, 3);
 
-        this._nativeObj.colorA = 5;
+        // this._nativeObj.colorA = 5;
     }
 
     set pos (val: Vec3) {

@@ -358,7 +358,7 @@ export class UIRenderer extends Renderer {
     }
 
     // test code: to replace prev part updateAssembler
-    public updateRenderEntities (render: IBatcher) {
+    public GatherRenderEntities (render: IBatcher) {
         if (this._renderDataFlag) {
             this._assembler!.updateRenderData(this, render);
             this._renderDataFlag = false;

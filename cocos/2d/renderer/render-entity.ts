@@ -40,14 +40,38 @@ export class RenderEntity {
     }
 
     public setBufferId (bufferId) {
-        this._nativeObj.bufferId = bufferId;
+        if (JSB) {
+            this._nativeObj.bufferId = bufferId;
+        }
+    }
+
+    public setVertexOffset (vertexOffset) {
+        if (JSB) {
+            this._nativeObj.vertexOffset = vertexOffset;
+        }
+    }
+
+    public setIndexOffset (indexOffset) {
+        if (JSB) {
+            this._nativeObj.indexOffset = indexOffset;
+        }
     }
 
     public setVB (vbBuffer: ArrayBufferLike) {
         if (JSB) {
-            if (this._nativeObj) {
-                this._nativeObj.vbBuffer = vbBuffer;
-            }
+            this._nativeObj.vbBuffer = vbBuffer;
+        }
+    }
+
+    public setVData (vDataBuffer:ArrayBufferLike) {
+        if (JSB) {
+            this._nativeObj.vDataBuffer = vDataBuffer;
+        }
+    }
+
+    public setIData (iDataBuffer:ArrayBufferLike) {
+        if (JSB) {
+            this._nativeObj.iDataBuffer = iDataBuffer;
         }
     }
 
@@ -67,12 +91,16 @@ export class RenderEntity {
     //不能这样传，这样的话会导致频繁调用JSB
     //改用3.4的node的那个typedarray的写法
     //传递给native
+    //1.这里每个组件收集完之后要设置给对应的nativeObj
+    //2.然后再由batcher2d把所有的RenderEntity的nativeObj传给c++
     public setAdvanceRenderDataArrToNative () {
-        const len = this.dataArr.length;
-        const nativeDataArr: NativeAdvanceRenderData[] = [];
-        for (let i = 0; i < len; i++) {
-            nativeDataArr.push(this.dataArr[i].nativeObj);
+        if (JSB) {
+            const len = this.dataArr.length;
+            const nativeDataArr: NativeAdvanceRenderData[] = [];
+            for (let i = 0; i < len; i++) {
+                nativeDataArr.push(this.dataArr[i].nativeObj);
+            }
+            this._nativeObj.setAdvanceRenderDataArr(nativeDataArr);
         }
-        this._nativeObj.setAdvanceRenderDataArr(nativeDataArr);
     }
 }
