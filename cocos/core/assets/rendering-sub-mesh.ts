@@ -109,12 +109,15 @@ export class RenderingSubMesh {
 
     private _iaInfo: InputAssemblerInfo;
 
+    private _isOwnerOfIndexBuffer = true;
+
     private _init () {
     }
 
     constructor (
         vertexBuffers: Buffer[], attributes: Attribute[], primitiveMode: PrimitiveMode,
         indexBuffer: Buffer | null = null, indirectBuffer: Buffer | null = null,
+        isOwnerOfIndexBuffer = true,
     ) {
         this._attributes = attributes;
         this._vertexBuffers = vertexBuffers;
@@ -122,6 +125,7 @@ export class RenderingSubMesh {
         this._indirectBuffer = indirectBuffer;
         this._primitiveMode = primitiveMode;
         this._iaInfo = new InputAssemblerInfo(attributes, vertexBuffers, indexBuffer, indirectBuffer);
+        this._isOwnerOfIndexBuffer = isOwnerOfIndexBuffer;
         this._init();
     }
 
@@ -306,7 +310,9 @@ export class RenderingSubMesh {
         }
         this.vertexBuffers.length = 0;
         if (this._indexBuffer) {
-            this._indexBuffer.destroy();
+            if (this._isOwnerOfIndexBuffer) {
+                this._indexBuffer.destroy();
+            }
             this._indexBuffer = null;
         }
         if (this._jointMappedBuffers && this._jointMappedBufferIndices) {

@@ -65,8 +65,8 @@ export enum DispatcherEventType {
 }
 
 /**
- * @zh
- * 节点事件类。
+ * @en The event processor for Node
+ * @zh 节点事件类。
  */
 export class NodeEventProcessor {
     public static _maskComp: Constructor<Component> | null = null;

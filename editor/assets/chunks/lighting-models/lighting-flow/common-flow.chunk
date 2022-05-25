@@ -76,7 +76,7 @@
       // CCSurfacesLightingCalculateBaked:
         lightingResult.lightmapColor = vec3(0.0);
       #if CC_SURFACES_USE_LIGHT_MAP && !CC_SURFACES_USE_BATCHING && !CC_FORWARD_ADD
-        vec4 lightmap = GetLightMapColor(FSInput_lightMapUV.xy, FSInput_lightMapUV.z);
+        vec4 lightmap = GetLightMapColor(cc_lightingMap, FSInput_lightMapUV.xy, FSInput_lightMapUV.z);
         lightingResult.lightmapColor = lightmap.rgb;
         // lightingResult.shadow/ao *= lightmap.a;
       #endif

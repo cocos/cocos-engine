@@ -1,3 +1,26 @@
+// depthHS = ndc depth()
+float GetCameraDepthRH(float depthHS, mat4 matProj)
+{
+    return -matProj[3][2] / (depthHS + matProj[2][2]);
+}
+float GetCameraDepthRH(float depthHS, float matProj32, float matProj22)
+{
+    return -matProj32 / (depthHS + matProj22);
+}
+
+// posHS = ndc pos (xyz: -1 ~ +1)
+vec4 GetViewPosFromScreenPos(vec3 posHS, mat4 matProj, mat4 matProjInv)
+{
+    float w = -GetCameraDepthRH(posHS.z, matProj);
+    return matProjInv * vec4(posHS * w, w);
+}
+
+vec4 GetWorldPosFromScreenPos(vec3 posHS, mat4 matProj, mat4 matViewProjInv)
+{
+    float w = -GetCameraDepthRH(posHS.z, matProj);
+    return matViewProjInv * vec4(posHS * w, w);
+}
+
 // params must be normalized
 vec3 CalculateBinormal(vec3 normal, vec3 tangent, float mirrorNormal)
 {

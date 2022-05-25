@@ -88,7 +88,9 @@ class ClipMotionEval implements MotionEval {
         if (weight === 0.0) {
             return;
         }
-        pushWeight(this._clip.name, weight);
+        if (GRAPH_DEBUG_ENABLED) {
+            pushWeight(this._state.name, weight);
+        }
         const { duration } = this;
         const elapsedTime = this.duration * progress;
         const { wrapMode } = this._clip;
