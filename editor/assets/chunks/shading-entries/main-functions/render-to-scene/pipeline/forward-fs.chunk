@@ -158,7 +158,8 @@ void main()  {
         color.rgb *= colDebugCSMLayer.rgb;
     }
   #endif
-  
+#endif
+
   #if CC_USE_HDR
     #if CC_SURFACES_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
       if (cc_debug_view_composite_enable_tone_mapping > 0.0)
@@ -172,7 +173,6 @@ void main()  {
   //-----------------------------------------------
 
   CCSurfacesDebugDisplayInvalidNumber(color);
-#endif
 
   fragColorX = color;
 }
