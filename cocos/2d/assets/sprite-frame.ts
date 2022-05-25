@@ -58,18 +58,18 @@ export interface IUV {
 }
 
 interface IVertices {
-    rawPosition: Vec3[]; // 顶点的原始位置，像素值
-    positions: number[]; // 顶点的位置，受几个值影响的模型空间值 // 计算
-    triangles: number[]; // IB
-    uv: number[]; // 像素值的 uv
-    nuv: number[]; // 归一化的 uv
+    rawPosition: Vec3[]; // Original position of the vertex, pixel value
+    positions: number[]; // The position of the vertex after being affected by the attribute
+    indexes: number[]; // IB
+    uv: number[]; // Pixel uv value
+    nuv: number[]; // Normalized uv value
     minPos: Vec3;
     maxPos: Vec3;
 }
 
 interface IVerticesSerialize { // hack for format
     rawPosition: number[];
-    triangles: number[];
+    indexes: number[];
     uv: number[];
     nuv: number[];
     minPos: Vec3;
@@ -1232,7 +1232,7 @@ export class SpriteFrame extends Asset {
                 }
                 vertices = {
                     rawPosition: posArray,
-                    triangles: this.vertices.triangles,
+                    indexes: this.vertices.indexes,
                     uv: this.vertices.uv,
                     nuv: this.vertices.nuv,
                     minPos: { x: this.vertices.minPos.x, y: this.vertices.minPos.y, z: this.vertices.minPos.z },
@@ -1317,7 +1317,7 @@ export class SpriteFrame extends Asset {
                 this.vertices = {
                     rawPosition: [],
                     positions: [],
-                    triangles: vertices.triangles,
+                    indexes: vertices.indexes,
                     uv: vertices.uv,
                     nuv: vertices.nuv,
                     minPos: new Vec3(vertices.minPos.x, vertices.minPos.y, vertices.minPos.z),
@@ -1327,8 +1327,7 @@ export class SpriteFrame extends Asset {
             this.vertices.rawPosition.length = 0;
             const rawPosition = vertices.rawPosition;
             for (let i = 0; i < rawPosition.length; i += 3) {
-                temp_vec3.set(rawPosition[i], rawPosition[i + 1], rawPosition[i + 2]);
-                this.vertices.rawPosition.push(temp_vec3.clone());
+                this.vertices.rawPosition.push(new Vec3(rawPosition[i], rawPosition[i + 1], rawPosition[i + 2]));
             }
         }
         this._updateMeshVertices();
@@ -1336,16 +1335,16 @@ export class SpriteFrame extends Asset {
 
     public clone (): SpriteFrame {
         const sp = new SpriteFrame();
-        // const v = this.vertices;
-        // sp.vertices = v ? {
-        //     x: v.x,
-        //     y: v.y,
-        //     triangles: v.triangles, /* need clone ? */
-        //     nu: v.nu?.slice(0),
-        //     u: v.u?.slice(0),
-        //     nv: v.nv?.slice(0),
-        //     v: v.v?.slice(0),
-        // } : null as any;
+        const v = this.vertices;
+        sp.vertices = v ? {
+            rawPosition: v.rawPosition.slice(0),
+            positions: v.positions.slice(0),
+            indexes: v.indexes.slice(0),
+            uv: v.uv.slice(0),
+            nuv: v.nuv.slice(0),
+            minPos: v.minPos.clone(),
+            maxPos: v.minPos.clone(),
+        } : null as any;
         sp.uv.splice(0, sp.uv.length, ...this.uv);
         sp.unbiasUV.splice(0, sp.unbiasUV.length, ...this.unbiasUV);
         sp.uvSliced.splice(0, sp.uvSliced.length, ...this.uvSliced);
@@ -1411,7 +1410,7 @@ export class SpriteFrame extends Asset {
             this.vertices = {
                 rawPosition: [],
                 positions: [],
-                triangles: [],
+                indexes: [],
                 uv: [],
                 nuv: [],
                 minPos: new Vec3(),
@@ -1420,14 +1419,14 @@ export class SpriteFrame extends Asset {
         } else {
             this.vertices.rawPosition.length = 0;
             this.vertices.positions.length = 0;
-            this.vertices.triangles.length = 0;
+            this.vertices.indexes.length = 0;
             this.vertices.uv.length = 0;
             this.vertices.nuv.length = 0;
             this.vertices.minPos.set(0, 0, 0);
             this.vertices.maxPos.set(0, 0, 0);
         }
         if (this._meshType === MeshType.POLYGON) {
-            // 使用 Bayazit 来生成顶点并赋值
+            // Use Bayazit to generate vertices and assign values
         } else { // Rect mode
             // default center is 0.5，0.5
             const tex = this.texture;
@@ -1477,19 +1476,19 @@ export class SpriteFrame extends Asset {
             this.vertices.nuv.push(t);
             this.vertices.maxPos.set(temp_vec3);
 
-            this.vertices.triangles.push(0);
-            this.vertices.triangles.push(1);
-            this.vertices.triangles.push(2);
-            this.vertices.triangles.push(2);
-            this.vertices.triangles.push(1);
-            this.vertices.triangles.push(3);
+            this.vertices.indexes.push(0);
+            this.vertices.indexes.push(1);
+            this.vertices.indexes.push(2);
+            this.vertices.indexes.push(2);
+            this.vertices.indexes.push(1);
+            this.vertices.indexes.push(3);
         }
         this._updateMeshVertices();
     }
 
-    // 综合顶点信息、单位信息、锚点、extrude 甚至 customOutline 来生成实际使用的 vertices
+    // Combine vertex information, unit information, anchor points, extrude and even customOutline to generate the actual vertices used
     protected _updateMeshVertices () {
-        //开始生成生成 mesh 要的 Geometry 信息
+        // Start generating the Geometry information to generate the mesh
         temp_matrix.identity();
 
         const units = 1 / this._pixelsToUnit;
@@ -1515,7 +1514,7 @@ export class SpriteFrame extends Asset {
             primitiveMode: PrimitiveMode.TRIANGLE_LIST,
             positions: this.vertices!.positions,
             uvs: this.vertices!.nuv,
-            indices: this.vertices!.triangles,
+            indices: this.vertices!.indexes,
             minPos: this._minPos,
             maxPos: this._maxPos,
 

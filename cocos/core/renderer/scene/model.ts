@@ -37,8 +37,8 @@ import { Pass, IMacroPatch, BatchingSchemes } from '../core/pass';
 import { legacyCC } from '../../global-exports';
 import { Mat4, Vec3, Vec4 } from '../../math';
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, getTypedArrayConstructor,
-    BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature, SamplerInfo } from '../../gfx';
-import { INST_MAT_WORLD, UBOLocal, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../pipeline/define';
+    BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature, SamplerInfo, Texture, Sampler } from '../../gfx';
+import { INST_MAT_WORLD, ModelLocalBindings, UBOLocal, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../pipeline/define';
 
 const m4_1 = new Mat4();
 
@@ -718,6 +718,17 @@ export class Model {
             patches = patches ? patches.concat(lightMapPatches) : lightMapPatches;
         }
         return patches;
+    }
+
+    public updateTexture (texture: Texture, sampler: Sampler) {
+        const subModels = this._subModels;
+        const binding = ModelLocalBindings.SAMPLER_SPRITE;
+        for (let i = 0; i < subModels.length; i++) {
+            const { descriptorSet } = subModels[i];
+            descriptorSet.bindTexture(binding, texture);
+            descriptorSet.bindSampler(binding, sampler);
+            descriptorSet.update();
+        }
     }
 
     protected _updateAttributesAndBinding (subModelIndex: number) {

@@ -22,19 +22,14 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module 2D
- */
-
 import { ccclass, executeInEditMode, executionOrder, help, menu, serializable, type, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { builtinResMgr, Color, Material, ModelRenderer, Vec2 } from '../../core';
 import { legacyCC } from '../../core/global-exports';
+import { Model } from '../../core/renderer/scene';
 import { Root } from '../../core/root';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { SpriteFrame } from '../assets/sprite-frame';
-import { SpriteModel } from './sprite-model';
 
 enum SpriteMode {
     SIMPLE = 0,
@@ -93,10 +88,7 @@ export class SpriteRenderer extends ModelRenderer {
     @serializable
     protected _size: Vec2 = new Vec2(); // todo for sliced & tiled
 
-    private _model: SpriteModel | null = null;
-
-    public __preload () {
-    }
+    private _model: Model | null = null;
 
     public onLoad () {
         if (this._spriteFrame) {
@@ -156,7 +148,7 @@ export class SpriteRenderer extends ModelRenderer {
     }
 
     protected _createModel () {
-        const model = this._model = (legacyCC.director.root as Root).createModel<SpriteModel>(SpriteModel);
+        const model = this._model = (legacyCC.director.root as Root).createModel<Model>(Model);
         model.visFlags = this.visibility;
         model.node = model.transform = this.node;
         this._models.length = 0;
