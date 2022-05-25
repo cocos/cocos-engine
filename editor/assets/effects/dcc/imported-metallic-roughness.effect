@@ -301,7 +301,8 @@ CCProgram standard-fs %{
            roughnessValue = roughnessColor.ROUGHNESS_CHANNEL;
        #endif
     #endif
-    s.roughness = roughnessValue;
+    //fit specular ior=1.5
+    s.roughness = max(0.02, roughnessValue);
 
 
     float occlusionValue = occlusion;

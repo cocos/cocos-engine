@@ -186,7 +186,8 @@ export function applyMountedChildren (node: Node, mountedChildren: MountedChildr
                 for (let i = 0; i < childInfo.nodes.length; i++) {
                     const childNode = childInfo.nodes[i];
 
-                    if (!childNode) {
+                    // @ts-expect-error private member access
+                    if (!childNode || target._children.includes(childNode)) {
                         continue;
                     }
 
