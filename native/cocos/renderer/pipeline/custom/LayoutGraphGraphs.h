@@ -159,15 +159,6 @@ inline void remove_edge(LayoutGraph::vertex_descriptor u, LayoutGraph::vertex_de
     });
 }
 
-inline void remove_edge(LayoutGraph::edge_descriptor e, LayoutGraph& g) noexcept { // NOLINT
-    // remove_edge need rewrite
-    auto& outEdgeList = g.getOutEdgeList(source(e, g));
-    impl::removeIncidenceEdge(e, outEdgeList);
-    auto& inEdgeList = g.getInEdgeList(target(e, g));
-    std::swap(e.source, e.target);
-    impl::removeIncidenceEdge(e, inEdgeList);
-}
-
 inline void remove_edge(LayoutGraph::out_edge_iterator iter, LayoutGraph& g) noexcept { // NOLINT
     auto e = *iter;
     const auto u = source(e, g);
@@ -178,6 +169,15 @@ inline void remove_edge(LayoutGraph::out_edge_iterator iter, LayoutGraph& g) noe
     CC_EXPECTS(inIter != t.inEdges.end());
     t.inEdges.erase(inIter);
     s.outEdges.erase(iter.base());
+}
+
+inline void remove_edge(LayoutGraph::edge_descriptor e, LayoutGraph& g) noexcept { // NOLINT
+    const auto u = source(e, g);
+    const auto v = target(e, g);
+    auto& s = g.vertices[u];
+    auto outIter = std::find(s.outEdges.begin(), s.outEdges.end(), LayoutGraph::OutEdge(v));
+    CC_EXPECTS(outIter != s.outEdges.end());
+    remove_edge(LayoutGraph::out_edge_iterator(outIter, u), g);
 }
 
 // AddressableGraph
@@ -383,15 +383,6 @@ inline void remove_edge(LayoutGraphData::vertex_descriptor u, LayoutGraphData::v
     });
 }
 
-inline void remove_edge(LayoutGraphData::edge_descriptor e, LayoutGraphData& g) noexcept { // NOLINT
-    // remove_edge need rewrite
-    auto& outEdgeList = g.getOutEdgeList(source(e, g));
-    impl::removeIncidenceEdge(e, outEdgeList);
-    auto& inEdgeList = g.getInEdgeList(target(e, g));
-    std::swap(e.source, e.target);
-    impl::removeIncidenceEdge(e, inEdgeList);
-}
-
 inline void remove_edge(LayoutGraphData::out_edge_iterator iter, LayoutGraphData& g) noexcept { // NOLINT
     auto e = *iter;
     const auto u = source(e, g);
@@ -402,6 +393,15 @@ inline void remove_edge(LayoutGraphData::out_edge_iterator iter, LayoutGraphData
     CC_EXPECTS(inIter != t.inEdges.end());
     t.inEdges.erase(inIter);
     s.outEdges.erase(iter.base());
+}
+
+inline void remove_edge(LayoutGraphData::edge_descriptor e, LayoutGraphData& g) noexcept { // NOLINT
+    const auto u = source(e, g);
+    const auto v = target(e, g);
+    auto& s = g.vertices[u];
+    auto outIter = std::find(s.outEdges.begin(), s.outEdges.end(), LayoutGraphData::OutEdge(v));
+    CC_EXPECTS(outIter != s.outEdges.end());
+    remove_edge(LayoutGraphData::out_edge_iterator(outIter, u), g);
 }
 
 // AddressableGraph

@@ -158,16 +158,6 @@ inline void remove_edge(RenderDependencyGraph::vertex_descriptor u, RenderDepend
     });
 }
 
-void remove_edge(RenderDependencyGraph::out_edge_iterator iter, RenderDependencyGraph& g) noexcept; // NOLINT
-
-inline void remove_edge(RenderDependencyGraph::edge_descriptor e, RenderDependencyGraph& g) noexcept { // NOLINT
-    // remove_edge need rewrite
-    auto range = out_edges(source(e, g), g);
-    range.first = std::find(range.first, range.second, e);
-    CC_ENSURES(range.first != range.second);
-    remove_edge(range.first, g);
-}
-
 inline void remove_edge(RenderDependencyGraph::out_edge_iterator iter, RenderDependencyGraph& g) noexcept { // NOLINT
     auto e = *iter;
     const auto u = source(e, g);
@@ -181,6 +171,18 @@ inline void remove_edge(RenderDependencyGraph::out_edge_iterator iter, RenderDep
     t.inEdges.erase(inIter);
     g.edges.erase(edgeIter);
     s.outEdges.erase(iter.base());
+}
+
+inline void remove_edge(RenderDependencyGraph::edge_descriptor e, RenderDependencyGraph& g) noexcept { // NOLINT
+    const auto u = source(e, g);
+    const auto v = target(e, g);
+    auto* const p = e.get_property();
+    auto& s = g.vertices[u];
+    auto outIter = std::find_if(s.outEdges.begin(), s.outEdges.end(), [p](const auto& oe) {
+        return &oe.get_property() == p;
+    });
+    CC_EXPECTS(outIter != s.outEdges.end());
+    remove_edge(RenderDependencyGraph::out_edge_iterator(outIter, u), g);
 }
 
 // MutableGraph(Vertex)
@@ -454,15 +456,6 @@ inline void remove_edge(RenderValueGraph::vertex_descriptor u, RenderValueGraph:
     });
 }
 
-inline void remove_edge(RenderValueGraph::edge_descriptor e, RenderValueGraph& g) noexcept { // NOLINT
-    // remove_edge need rewrite
-    auto& outEdgeList = g.getOutEdgeList(source(e, g));
-    impl::removeIncidenceEdge(e, outEdgeList);
-    auto& inEdgeList = g.getInEdgeList(target(e, g));
-    std::swap(e.source, e.target);
-    impl::removeIncidenceEdge(e, inEdgeList);
-}
-
 inline void remove_edge(RenderValueGraph::out_edge_iterator iter, RenderValueGraph& g) noexcept { // NOLINT
     auto e = *iter;
     const auto u = source(e, g);
@@ -473,6 +466,15 @@ inline void remove_edge(RenderValueGraph::out_edge_iterator iter, RenderValueGra
     CC_EXPECTS(inIter != t.inEdges.end());
     t.inEdges.erase(inIter);
     s.outEdges.erase(iter.base());
+}
+
+inline void remove_edge(RenderValueGraph::edge_descriptor e, RenderValueGraph& g) noexcept { // NOLINT
+    const auto u = source(e, g);
+    const auto v = target(e, g);
+    auto& s = g.vertices[u];
+    auto outIter = std::find(s.outEdges.begin(), s.outEdges.end(), RenderValueGraph::OutEdge(v));
+    CC_EXPECTS(outIter != s.outEdges.end());
+    remove_edge(RenderValueGraph::out_edge_iterator(outIter, u), g);
 }
 
 // MutableGraph(Vertex)

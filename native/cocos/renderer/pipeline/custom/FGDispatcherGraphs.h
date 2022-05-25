@@ -159,15 +159,6 @@ inline void remove_edge(ResourceAccessGraph::vertex_descriptor u, ResourceAccess
     });
 }
 
-inline void remove_edge(ResourceAccessGraph::edge_descriptor e, ResourceAccessGraph& g) noexcept { // NOLINT
-    // remove_edge need rewrite
-    auto& outEdgeList = g.getOutEdgeList(source(e, g));
-    impl::removeIncidenceEdge(e, outEdgeList);
-    auto& inEdgeList = g.getInEdgeList(target(e, g));
-    std::swap(e.source, e.target);
-    impl::removeIncidenceEdge(e, inEdgeList);
-}
-
 inline void remove_edge(ResourceAccessGraph::out_edge_iterator iter, ResourceAccessGraph& g) noexcept { // NOLINT
     auto e = *iter;
     const auto u = source(e, g);
@@ -178,6 +169,15 @@ inline void remove_edge(ResourceAccessGraph::out_edge_iterator iter, ResourceAcc
     CC_EXPECTS(inIter != t.inEdges.end());
     t.inEdges.erase(inIter);
     s.outEdges.erase(iter.base());
+}
+
+inline void remove_edge(ResourceAccessGraph::edge_descriptor e, ResourceAccessGraph& g) noexcept { // NOLINT
+    const auto u = source(e, g);
+    const auto v = target(e, g);
+    auto& s = g.vertices[u];
+    auto outIter = std::find(s.outEdges.begin(), s.outEdges.end(), ResourceAccessGraph::OutEdge(v));
+    CC_EXPECTS(outIter != s.outEdges.end());
+    remove_edge(ResourceAccessGraph::out_edge_iterator(outIter, u), g);
 }
 
 // MutableGraph(Vertex)

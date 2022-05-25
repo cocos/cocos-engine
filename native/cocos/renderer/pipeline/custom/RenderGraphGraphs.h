@@ -159,15 +159,6 @@ inline void remove_edge(ResourceGraph::vertex_descriptor u, ResourceGraph::verte
     });
 }
 
-inline void remove_edge(ResourceGraph::edge_descriptor e, ResourceGraph& g) noexcept { // NOLINT
-    // remove_edge need rewrite
-    auto& outEdgeList = g.getOutEdgeList(source(e, g));
-    impl::removeIncidenceEdge(e, outEdgeList);
-    auto& inEdgeList = g.getInEdgeList(target(e, g));
-    std::swap(e.source, e.target);
-    impl::removeIncidenceEdge(e, inEdgeList);
-}
-
 inline void remove_edge(ResourceGraph::out_edge_iterator iter, ResourceGraph& g) noexcept { // NOLINT
     auto e = *iter;
     const auto u = source(e, g);
@@ -178,6 +169,15 @@ inline void remove_edge(ResourceGraph::out_edge_iterator iter, ResourceGraph& g)
     CC_EXPECTS(inIter != t.inEdges.end());
     t.inEdges.erase(inIter);
     s.outEdges.erase(iter.base());
+}
+
+inline void remove_edge(ResourceGraph::edge_descriptor e, ResourceGraph& g) noexcept { // NOLINT
+    const auto u = source(e, g);
+    const auto v = target(e, g);
+    auto& s = g.vertices[u];
+    auto outIter = std::find(s.outEdges.begin(), s.outEdges.end(), ResourceGraph::OutEdge(v));
+    CC_EXPECTS(outIter != s.outEdges.end());
+    remove_edge(ResourceGraph::out_edge_iterator(outIter, u), g);
 }
 
 // MutableGraph(Vertex)
@@ -571,15 +571,6 @@ inline void remove_edge(SubpassGraph::vertex_descriptor u, SubpassGraph::vertex_
     });
 }
 
-inline void remove_edge(SubpassGraph::edge_descriptor e, SubpassGraph& g) noexcept { // NOLINT
-    // remove_edge need rewrite
-    auto& outEdgeList = g.getOutEdgeList(source(e, g));
-    impl::removeIncidenceEdge(e, outEdgeList);
-    auto& inEdgeList = g.getInEdgeList(target(e, g));
-    std::swap(e.source, e.target);
-    impl::removeIncidenceEdge(e, inEdgeList);
-}
-
 inline void remove_edge(SubpassGraph::out_edge_iterator iter, SubpassGraph& g) noexcept { // NOLINT
     auto e = *iter;
     const auto u = source(e, g);
@@ -590,6 +581,15 @@ inline void remove_edge(SubpassGraph::out_edge_iterator iter, SubpassGraph& g) n
     CC_EXPECTS(inIter != t.inEdges.end());
     t.inEdges.erase(inIter);
     s.outEdges.erase(iter.base());
+}
+
+inline void remove_edge(SubpassGraph::edge_descriptor e, SubpassGraph& g) noexcept { // NOLINT
+    const auto u = source(e, g);
+    const auto v = target(e, g);
+    auto& s = g.vertices[u];
+    auto outIter = std::find(s.outEdges.begin(), s.outEdges.end(), SubpassGraph::OutEdge(v));
+    CC_EXPECTS(outIter != s.outEdges.end());
+    remove_edge(SubpassGraph::out_edge_iterator(outIter, u), g);
 }
 
 // MutableGraph(Vertex)
@@ -786,15 +786,6 @@ inline void remove_edge(RenderGraph::vertex_descriptor u, RenderGraph::vertex_de
     });
 }
 
-inline void remove_edge(RenderGraph::edge_descriptor e, RenderGraph& g) noexcept { // NOLINT
-    // remove_edge need rewrite
-    auto& outEdgeList = g.getOutEdgeList(source(e, g));
-    impl::removeIncidenceEdge(e, outEdgeList);
-    auto& inEdgeList = g.getInEdgeList(target(e, g));
-    std::swap(e.source, e.target);
-    impl::removeIncidenceEdge(e, inEdgeList);
-}
-
 inline void remove_edge(RenderGraph::out_edge_iterator iter, RenderGraph& g) noexcept { // NOLINT
     auto e = *iter;
     const auto u = source(e, g);
@@ -805,6 +796,15 @@ inline void remove_edge(RenderGraph::out_edge_iterator iter, RenderGraph& g) noe
     CC_EXPECTS(inIter != t.inEdges.end());
     t.inEdges.erase(inIter);
     s.outEdges.erase(iter.base());
+}
+
+inline void remove_edge(RenderGraph::edge_descriptor e, RenderGraph& g) noexcept { // NOLINT
+    const auto u = source(e, g);
+    const auto v = target(e, g);
+    auto& s = g.vertices[u];
+    auto outIter = std::find(s.outEdges.begin(), s.outEdges.end(), RenderGraph::OutEdge(v));
+    CC_EXPECTS(outIter != s.outEdges.end());
+    remove_edge(RenderGraph::out_edge_iterator(outIter, u), g);
 }
 
 // AddressableGraph
