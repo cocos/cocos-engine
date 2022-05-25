@@ -936,7 +936,7 @@ bool ScriptEngine::saveByteCodeToFile(const ccstd::string &path, const ccstd::st
             SE_LOGE("ScriptEngine::generateByteCode write %s\n", pathBc.c_str());
         }
 
-        // TODO: v8 on windows is built with dynamic library (dll),
+        // TODO(PatriceJiang): v8 on windows is built with dynamic library (dll),
         // Invoking `delete` for the memory allocated in v8.dll will cause crash.
         // Need to modify v8 source code and add v8::ScriptCompiler::DestroyCodeCache(v8::ScriptCompiler::CachedData *cd).
 #if CC_PLATFORM != CC_PLATFORM_WINDOWS
@@ -969,7 +969,7 @@ bool ScriptEngine::runByteCodeFile(const ccstd::string &pathBc, Value *ret /* = 
         v8::ScriptCompiler::CachedData *dummyData = v8::ScriptCompiler::CreateCodeCache(dummyFunction);
         memcpy(p + 4, dummyData->data + 12, 4);
 
-        // TODO: v8 on windows is built with dynamic library (dll),
+        // TODO(PatriceJiang): v8 on windows is built with dynamic library (dll),
         // Invoking `delete` for the memory allocated in v8.dll will cause crash.
         // Need to modify v8 source code and add v8::ScriptCompiler::DestroyCodeCache(v8::ScriptCompiler::CachedData *cd).
 #if CC_PLATFORM != CC_PLATFORM_WINDOWS
