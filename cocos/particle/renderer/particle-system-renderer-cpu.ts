@@ -208,6 +208,11 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this.setVertexAttributes();
     }
 
+    public onDestroy (): void {
+        this._particles?.destroy();
+        super.onDestroy();
+    }
+
     public getFreeParticle (): Particle | null {
         if (this._particles!.length >= this._particleSystem.capacity) {
             return null;

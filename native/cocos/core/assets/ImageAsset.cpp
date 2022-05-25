@@ -37,9 +37,9 @@ ImageAsset::~ImageAsset() {
     }
 }
 
-void ImageAsset::setNativeAsset(const cc::any &obj) {
+void ImageAsset::setNativeAsset(const ccstd::any &obj) {
     if (obj.has_value()) {
-        auto **pImage = const_cast<Image **>(cc::any_cast<Image *>(&obj));
+        auto **pImage = const_cast<Image **>(ccstd::any_cast<Image *>(&obj));
         if (pImage != nullptr) {
             Image *image = *pImage;
             image->takeData(&_data);
@@ -50,7 +50,7 @@ void ImageAsset::setNativeAsset(const cc::any &obj) {
             _format = static_cast<PixelFormat>(image->getRenderFormat());
             _url = image->getFilePath();
         } else {
-            const auto *imageSource = cc::any_cast<IMemoryImageSource>(&obj);
+            const auto *imageSource = ccstd::any_cast<IMemoryImageSource>(&obj);
             if (imageSource != nullptr) {
                 _arrayBuffer = imageSource->data;
                 _data = const_cast<uint8_t *>(_arrayBuffer->getData());

@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module model
- */
-
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, visible, type,
     formerlySerializedAs, serializable, editable, disallowAnimation } from 'cc.decorator';
 import { Texture2D } from '../../core/assets';
@@ -41,7 +36,7 @@ import { TransformBit } from '../../core/scene-graph/node-enum';
 import { Enum } from '../../core/value-types';
 import { builtinResMgr } from '../../core/builtin';
 import { ModelRenderer } from '../../core/components/model-renderer';
-import { MorphRenderingInstance } from '../assets/morph';
+import { MorphRenderingInstance } from '../assets/morph-rendering';
 import { legacyCC } from '../../core/global-exports';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { CCFloat } from '../../core/data/utils/attribute';
@@ -70,19 +65,19 @@ const ModelShadowCastingMode = Enum({
  */
 const ModelShadowReceivingMode = Enum({
     /**
-     * @en Disable shadow projection.
+     * @en Disable shadow receiving.
      * @zh 不接收阴影。
      */
     OFF: 0,
     /**
-     * @en Enable shadow projection.
+     * @en Enable shadow receiving.
      * @zh 开启阴影投射。
      */
     ON: 1,
 });
 
 /**
- * @en model light map settings.
+ * @en Model's light map settings.
  * @zh 模型光照图设置
  */
 @ccclass('cc.ModelLightmapSettings')
@@ -101,8 +96,10 @@ class ModelLightmapSettings {
     protected _lightmapSize = 64;
 
     /**
-     * @en bakeable.
-     * @zh 是否可烘培。
+     * @en Whether the model is static and bake-able with light map.
+     * Notice: the model's vertex data must have the second UV attribute to enable light map baking.
+     * @zh 模型是否是静态的并可以烘培光照贴图。
+     * 注意：模型顶点数据必须包含第二套 UV 属性来支持光照贴图烘焙。
      */
     @editable
     get bakeable () {
@@ -114,8 +111,8 @@ class ModelLightmapSettings {
     }
 
     /**
-     * @en cast shadow.
-     * @zh 是否投射阴影。
+     * @en Whether to cast shadow in light map baking.
+     * @zh 在光照贴图烘焙中是否投射阴影。
      */
     @editable
     get castShadow () {
@@ -127,8 +124,8 @@ class ModelLightmapSettings {
     }
 
     /**
-     * @en receive shadow.
-     * @zh 是否接受阴影。
+     * @en Whether to receive shadow in light map baking.
+     * @zh 在光照贴图烘焙中是否接受阴影。
      */
     @editable
     get receiveShadow () {
@@ -140,8 +137,8 @@ class ModelLightmapSettings {
     }
 
     /**
-     * @en lightmap size.
-     * @zh 光照图大小
+     * @en The lightmap size.
+     * @zh 光照图大小。
      */
     @editable
     get lightmapSize () {
@@ -154,8 +151,10 @@ class ModelLightmapSettings {
 }
 
 /**
- * @en Mesh renderer component
- * @zh 网格渲染器组件。
+ * @en Mesh renderer component for general 3d model rendering, it generates and link to a Model in the render scene.
+ * It supports real time lighting and shadow, baked light map, and morph rendering.
+ * @zh 用于通用模型渲染的网格渲染器组件，会创建并关联一个渲染场景中的模型对象。
+ * 该组件支持实时光照和阴影，预烘焙光照贴图和形变网格渲染。
  */
 @ccclass('cc.MeshRenderer')
 @help('i18n:cc.MeshRenderer')
@@ -163,9 +162,21 @@ class ModelLightmapSettings {
 @menu('Mesh/MeshRenderer')
 @executeInEditMode
 export class MeshRenderer extends ModelRenderer {
+    /**
+     * @en Shadow projection mode enumeration.
+     * @zh 阴影投射方式枚举。
+     */
     public static ShadowCastingMode = ModelShadowCastingMode;
+    /**
+     * @en Shadow receive mode enumeration.
+     * @zh 阴影接收方式枚举。
+     */
     public static ShadowReceivingMode = ModelShadowReceivingMode;
 
+    /**
+     * @en The settings for light map baking
+     * @zh 光照贴图烘焙的配置
+     */
     @serializable
     @editable
     @disallowAnimation
@@ -180,18 +191,18 @@ export class MeshRenderer extends ModelRenderer {
     @serializable
     protected _shadowReceivingMode = ModelShadowReceivingMode.ON;
 
-    // @serializable
-    private _subMeshShapesWeights: number[][] = [];
-
     @serializable
     protected _shadowBias = 0;
 
     @serializable
     protected _shadowNormalBias = 0;
 
+    // @serializable
+    private _subMeshShapesWeights: number[][] = [];
+
     /**
-     * @en local shadow bias.
-     * @zh 模型局部的阴影偏移。
+     * @en Local shadow bias for real time lighting.
+     * @zh 实时光照下模型局部的阴影偏移。
      */
     @type(CCFloat)
     @tooltip('i18n:model.shadow_bias')
@@ -208,8 +219,8 @@ export class MeshRenderer extends ModelRenderer {
     }
 
     /**
-   * @en local shadow normal bias.
-   * @zh 模型局部的阴影法线偏移。
+   * @en local shadow normal bias for real time lighting.
+   * @zh 实时光照下模型局部的阴影法线偏移。
    */
     @type(CCFloat)
     @tooltip('i18n:model.shadow_normal_bias')
@@ -227,7 +238,7 @@ export class MeshRenderer extends ModelRenderer {
 
     /**
      * @en Shadow projection mode.
-     * @zh 阴影投射方式。
+     * @zh 实时光照下阴影投射方式。
      */
     @type(ModelShadowCastingMode)
     @tooltip('i18n:model.shadow_casting_model')
@@ -244,7 +255,7 @@ export class MeshRenderer extends ModelRenderer {
 
     /**
      * @en receive shadow.
-     * @zh 是否接受阴影。
+     * @zh 实时光照下是否接受阴影。
      */
     @type(ModelShadowReceivingMode)
     @tooltip('i18n:model.shadow_receiving_model')
@@ -261,9 +272,9 @@ export class MeshRenderer extends ModelRenderer {
 
     /**
      * @en Gets or sets the mesh of the model.
-     * Note, when set, all shape's weights would be reset to zero.
+     * Note, when set, all morph targets' weights would be reset to zero.
      * @zh 获取或设置模型的网格数据。
-     * 注意，设置时，所有形状的权重都将归零。
+     * 注意，设置时，所有形变目标的权重都将归零。
      */
     @type(Mesh)
     @tooltip('i18n:model.mesh')
@@ -286,10 +297,18 @@ export class MeshRenderer extends ModelRenderer {
         this._updateReceiveShadow();
     }
 
+    /**
+     * @en Gets the model in [[RenderScene]].
+     * @zh 获取渲染场景 [[RenderScene]] 中对应的模型。
+     */
     get model () {
         return this._model;
     }
 
+    /**
+     * @en Whether to enable morph rendering.
+     * @zh 是否启用形变网格渲染。
+     */
     // eslint-disable-next-line func-names
     @visible(function (this: MeshRenderer) {
         return !!(
@@ -384,10 +403,10 @@ export class MeshRenderer extends ModelRenderer {
     }
 
     /**
-     * @zh 获取子网格指定外形的权重。
-     * @en Gets the weight at specified shape of specified sub mesh.
+     * @zh 获取子网格指定形变目标的权重。
+     * @en Gets the weight at specified morph target of the specified sub mesh.
      * @param subMeshIndex Index to the sub mesh.
-     * @param shapeIndex Index to the shape of the sub mesh.
+     * @param shapeIndex Index to the morph target of the sub mesh.
      * @returns The weight.
      */
     public getWeight (subMeshIndex: number, shapeIndex: number) {
@@ -400,13 +419,11 @@ export class MeshRenderer extends ModelRenderer {
 
     /**
      * @zh
-     * 设置子网格所有外形的权重。
-     * `subMeshIndex` 是无效索引或 `weights` 的长度不匹配子网格的外形数量时，此方法不会生效。
+     * 设置子网格所有形变目标的权重。
+     * `subMeshIndex` 是无效索引或 `weights` 的长度不匹配子网格的形变目标数量时，此方法不会生效。
      * @en
-     * Sets weights of each shape of specified sub mesh.
-     * If takes no effect if
-     * `subMeshIndex` out of bounds or
-     * `weights` has a different length with shapes count of the sub mesh.
+     * Sets weights of each morph target of the specified sub mesh.
+     * If takes no effect if `subMeshIndex` is out of bounds or if `weights` has a different length with morph targets count of the sub mesh.
      * @param weights The weights.
      * @param subMeshIndex Index to the sub mesh.
      */
@@ -739,6 +756,14 @@ export class MeshRenderer extends ModelRenderer {
 }
 
 export declare namespace MeshRenderer {
+    /**
+     * @en Shadow projection mode.
+     * @zh 阴影投射方式。
+     */
     export type ShadowCastingMode = EnumAlias<typeof ModelShadowCastingMode>;
+    /**
+     * @en Shadow receive mode.
+     * @zh 阴影接收方式。
+     */
     export type ShadowReceivingMode = EnumAlias<typeof ModelShadowReceivingMode>;
 }

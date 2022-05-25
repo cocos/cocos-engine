@@ -31,7 +31,7 @@ float sign(float v) {
     return (v < 0 ? -1.0F : (v > 0 ? 1.0F : 0.0F));
 }
 
-IGeometry cylinder(float radiusTop, float radiusBottom, float height, const cc::optional<ICylinderOptions> &opts) {
+IGeometry cylinder(float radiusTop, float radiusBottom, float height, const ccstd::optional<ICylinderOptions> &opts) {
     const float halfHeight = height * 0.5F;
     const uint32_t radialSegments = opts.has_value() ? opts->radialSegments : 32;
     const uint32_t heightSegments = opts.has_value() ? opts->heightSegments : 1;

@@ -25,7 +25,7 @@
 
 #include "primitive/Quad.h"
 namespace cc {
-IGeometry quad(cc::optional<IGeometryOptions> options) {
+IGeometry quad(ccstd::optional<IGeometryOptions> options) {
     if (!options.has_value()) {
         options = IGeometryOptions();
     }

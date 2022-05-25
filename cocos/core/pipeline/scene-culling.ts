@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { Frustum, intersect, Sphere } from '../geometry';
+import { AABB, Frustum, intersect, Sphere } from '../geometry';
 import { Model } from '../renderer/scene/model';
 import { Camera, SKYBOX_FLAG } from '../renderer/scene/camera';
 import { Vec3, Mat4, Color } from '../math';

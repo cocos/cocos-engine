@@ -38,7 +38,7 @@ public:
     SceneAsset();
     ~SceneAsset() override;
 
-    void initDefault(const cc::optional<ccstd::string> &uuid) override;
+    void initDefault(const ccstd::optional<ccstd::string> &uuid) override;
 
     bool validate() const override;
 

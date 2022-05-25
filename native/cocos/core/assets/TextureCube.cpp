@@ -96,7 +96,7 @@ void TextureCube::setMipmaps(const ccstd::vector<ITextureCubeMipmap> &value) {
     } else {
         reset({0,
                0,
-               cc::nullopt,
+               ccstd::nullopt,
                static_cast<uint32_t>(_mipmaps.size()),
                _baseLevel,
                _maxLevel});
@@ -160,7 +160,7 @@ bool TextureCube::destroy() {
     return Super::destroy();
 }
 
-cc::any TextureCube::serialize(const cc::any & /*ctxForExporting*/) {
+ccstd::any TextureCube::serialize(const ccstd::any & /*ctxForExporting*/) {
     //cjh TODO:    if (EDITOR || TEST) {
     //        return {
     //            base: super._serialize(ctxForExporting),
@@ -185,8 +185,8 @@ cc::any TextureCube::serialize(const cc::any & /*ctxForExporting*/) {
     return nullptr;
 }
 
-void TextureCube::deserialize(const cc::any &serializedData, const cc::any &handle) {
-    const auto *data = cc::any_cast<ITextureCubeSerializeData>(&serializedData);
+void TextureCube::deserialize(const ccstd::any &serializedData, const ccstd::any &handle) {
+    const auto *data = ccstd::any_cast<ITextureCubeSerializeData>(&serializedData);
     if (data == nullptr) {
         return;
     }
@@ -242,11 +242,11 @@ gfx::TextureViewInfo TextureCube::getGfxTextureViewCreateInfo(gfx::Texture *text
     return texViewInfo;
 }
 
-void TextureCube::initDefault(const cc::optional<ccstd::string> &uuid) {
+void TextureCube::initDefault(const ccstd::optional<ccstd::string> &uuid) {
     Super::initDefault(uuid);
 
     auto *imageAsset = ccnew ImageAsset();
-    imageAsset->initDefault(cc::nullopt);
+    imageAsset->initDefault(ccstd::nullopt);
 
     ITextureCubeMipmap mipmap;
 

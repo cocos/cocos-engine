@@ -39,10 +39,12 @@ class Device;
 class Material;
 class Asset;
 
-class BuiltinResMgr final : public RefCounted {
+class BuiltinResMgr final {
 public:
     static BuiltinResMgr *getInstance();
-    static void destroyInstance();
+    
+    BuiltinResMgr();
+    ~BuiltinResMgr();
 
     bool initBuiltinRes(gfx::Device *device);
     inline bool isInitialized() const { return _isInitialized; }
@@ -55,18 +57,15 @@ public:
         return static_cast<T *>(getAsset(uuid));
     }
 
-private:
-    explicit BuiltinResMgr() = default;
-    ~BuiltinResMgr() override = default;
-
-    void initMaterials();
     void tryCompileAllPasses();
+
+private:
+    void initMaterials();
     void initTexture2DWithUuid(const ccstd::string &uuid, const uint8_t *data, size_t dataBytes, uint32_t width, uint32_t height);
     void initTextureCubeWithUuid(const ccstd::string &uuid, const uint8_t *data, size_t dataBytes, uint32_t width, uint32_t height);
 
     static BuiltinResMgr *instance;
 
-    gfx::Device *_device{nullptr};
     Record<ccstd::string, IntrusivePtr<Asset>> _resources;
     ccstd::vector<IntrusivePtr<Material>> _materialsToBeCompiled;
     bool _isInitialized{false};

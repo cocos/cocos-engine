@@ -900,9 +900,5 @@ extern se::Class * __jsb_cc_gfx_DeviceManager_class; // NOLINT
 
 bool js_register_cc_gfx_DeviceManager(se::Object *obj); // NOLINT
 
-SE_DECLARE_FUNC(js_gfx_DeviceManager_addSurfaceEventListener);
 SE_DECLARE_FUNC(js_gfx_DeviceManager_create);
-SE_DECLARE_FUNC(js_gfx_DeviceManager_destroy);
-SE_DECLARE_FUNC(js_gfx_DeviceManager_getGFXName);
-SE_DECLARE_FUNC(js_gfx_DeviceManager_isDetachDeviceThread);
 // clang-format on

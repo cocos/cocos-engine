@@ -192,6 +192,10 @@ export const CSMPerformanceOptimizationMode = Enum({
 
 const SHADOW_TYPE_NONE = ShadowType.ShadowMap + 1;
 
+/**
+ * @en The global shadow's configuration of the render scene
+ * @zh 渲染场景的全局阴影配置
+ */
 export class Shadows {
     /**
      * @en MAX_FAR. This is shadow camera max far.
@@ -288,6 +292,10 @@ export class Shadows {
         this._shadowMapDirty = val;
     }
 
+    /**
+     * @en The transform matrix of the light source
+     * @zh 光源的变换矩阵
+     */
     public get matLight () {
         return this._matLight;
     }
@@ -326,6 +334,12 @@ export class Shadows {
     protected _size: Vec2 = new Vec2(1024, 1024);
     protected _shadowMapDirty = false;
 
+    /**
+     * @en Get the shader for the planar shadow with macro patches
+     * @zh 通过指定宏获取平面阴影的 Shader 对象
+     * @param patches The macro patches for the shader
+     * @returns The shader for the planar shadow
+     */
     public getPlanarShader (patches: IMacroPatch[] | null): Shader | null {
         if (!this._material) {
             this._material = new Material();
@@ -335,6 +349,12 @@ export class Shadows {
         return this._material.passes[0].getShaderVariant(patches);
     }
 
+    /**
+     * @en Get the shader which support instancing draw for the planar shadow with macro patches
+     * @zh 通过指定宏获取支持实例化渲染的平面阴影的 Shader 对象
+     * @param patches The macro patches for the shader
+     * @returns The shader for the planar shadow
+     */
     public getPlanarInstanceShader (patches: IMacroPatch[] | null): Shader | null {
         if (!this._instancingMaterial) {
             this._instancingMaterial = new Material();

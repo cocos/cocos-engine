@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core/data
- */
-
 import { SUPPORT_JIT, EDITOR, TEST, JSB } from 'internal:constants';
 import * as js from '../utils/js';
 import { CCClass } from './class';
@@ -196,12 +191,12 @@ class CCObject implements EditorExtendableObject {
     }
 
     /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @internal
      */
     public declare [editorExtrasTag]: unknown;
 
     /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @internal
      */
     public _objFlags: number;
     protected _name: string;
@@ -333,10 +328,18 @@ class CCObject implements EditorExtendableObject {
     }
 
     /**
+     * @en
      * Clear all references in the instance.
      *
      * NOTE: this method will not clear the getter or setter functions which defined in the instance of CCObject.
-     *       You can override the _destruct method if you need, for example:
+     *
+     * @zh
+     * 清理实例的所有引用
+     * 注意：此方法不会清理实例上的 getter 与 setter 方法。
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @example
+     * ```
+     * // You can override the _destruct method if you need, for example:
      *       _destruct: function () {
      *           for (var key in this) {
      *               if (this.hasOwnProperty(key)) {
@@ -351,8 +354,7 @@ class CCObject implements EditorExtendableObject {
      *               }
      *           }
      *       }
-     *
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * ```
      */
     public _destruct () {
         const ctor: any = this.constructor;

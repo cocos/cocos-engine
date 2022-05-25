@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module pipeline
- */
-
 import { SubModel } from '../renderer/scene/submodel';
 import { SetIndex } from './define';
 import { Device, RenderPass, Shader, CommandBuffer } from '../gfx';

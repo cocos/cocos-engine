@@ -221,9 +221,14 @@ export class AudioPlayerMinigame implements OperationQueueable {
     seek (time: number): Promise<void> {
         return new Promise((resolve) => {
             time = clamp(time, 0, this.duration);
-            this._eventTarget.once(AudioEvent.SEEKED, resolve);
-            this._innerAudioContext.seek(time);
-            this._audioTimer.seek(time);
+            if (time === 0 && this.currentTime === 0) {
+                // skip invalid seek
+                resolve();
+            } else {
+                this._eventTarget.once(AudioEvent.SEEKED, resolve);
+                this._innerAudioContext.seek(time);
+                this._audioTimer.seek(time);
+            }
         });
     }
 

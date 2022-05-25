@@ -1,0 +1,147 @@
+// vertex & face data
+#define CC_SURFACES_DEBUG_VIEW_VERTEX_COLOR 1
+#define CC_SURFACES_DEBUG_VIEW_VERTEX_NORMAL CC_SURFACES_DEBUG_VIEW_VERTEX_COLOR + 1
+#define CC_SURFACES_DEBUG_VIEW_VERTEX_TANGENT CC_SURFACES_DEBUG_VIEW_VERTEX_NORMAL + 1
+#define CC_SURFACES_DEBUG_VIEW_WORLD_POS CC_SURFACES_DEBUG_VIEW_VERTEX_TANGENT + 1
+#define CC_SURFACES_DEBUG_VIEW_VERTEX_MIRROR CC_SURFACES_DEBUG_VIEW_WORLD_POS + 1
+#define CC_SURFACES_DEBUG_VIEW_FACE_SIDE CC_SURFACES_DEBUG_VIEW_VERTEX_MIRROR + 1
+#define CC_SURFACES_DEBUG_VIEW_UV0 CC_SURFACES_DEBUG_VIEW_FACE_SIDE + 1
+#define CC_SURFACES_DEBUG_VIEW_UV1 CC_SURFACES_DEBUG_VIEW_UV0 + 1
+#define CC_SURFACES_DEBUG_VIEW_UVLIGHTMAP CC_SURFACES_DEBUG_VIEW_UV1 + 1
+#define CC_SURFACES_DEBUG_VIEW_PROJ_DEPTH CC_SURFACES_DEBUG_VIEW_UVLIGHTMAP + 1
+#define CC_SURFACES_DEBUG_VIEW_LINEAR_DEPTH CC_SURFACES_DEBUG_VIEW_PROJ_DEPTH + 1
+
+// surface material data
+#define CC_SURFACES_DEBUG_VIEW_FRAGMENT_NORMAL CC_SURFACES_DEBUG_VIEW_LINEAR_DEPTH + 1
+#define CC_SURFACES_DEBUG_VIEW_FRAGMENT_TANGENT CC_SURFACES_DEBUG_VIEW_FRAGMENT_NORMAL + 1
+#define CC_SURFACES_DEBUG_VIEW_FRAGMENT_BINORMAL CC_SURFACES_DEBUG_VIEW_FRAGMENT_TANGENT + 1
+#define CC_SURFACES_DEBUG_VIEW_BASE_COLOR CC_SURFACES_DEBUG_VIEW_FRAGMENT_BINORMAL + 1
+#define CC_SURFACES_DEBUG_VIEW_DIFFUSE_COLOR CC_SURFACES_DEBUG_VIEW_BASE_COLOR + 1
+#define CC_SURFACES_DEBUG_VIEW_SPECULAR_COLOR CC_SURFACES_DEBUG_VIEW_DIFFUSE_COLOR + 1
+#define CC_SURFACES_DEBUG_VIEW_TRANSPARENCY CC_SURFACES_DEBUG_VIEW_SPECULAR_COLOR + 1
+#define CC_SURFACES_DEBUG_VIEW_METALLIC CC_SURFACES_DEBUG_VIEW_TRANSPARENCY + 1
+#define CC_SURFACES_DEBUG_VIEW_ROUGHNESS CC_SURFACES_DEBUG_VIEW_METALLIC + 1
+#define CC_SURFACES_DEBUG_VIEW_SPECULAR_INTENSITY CC_SURFACES_DEBUG_VIEW_ROUGHNESS + 1
+
+// lighting data
+#define CC_SURFACES_DEBUG_VIEW_DIRECT_DIFFUSE CC_SURFACES_DEBUG_VIEW_SPECULAR_INTENSITY + 1
+#define CC_SURFACES_DEBUG_VIEW_DIRECT_SPECULAR CC_SURFACES_DEBUG_VIEW_DIRECT_DIFFUSE + 1
+#define CC_SURFACES_DEBUG_VIEW_DIRECT_ALL CC_SURFACES_DEBUG_VIEW_DIRECT_SPECULAR + 1
+#define CC_SURFACES_DEBUG_VIEW_ENV_DIFFUSE CC_SURFACES_DEBUG_VIEW_DIRECT_ALL + 1
+#define CC_SURFACES_DEBUG_VIEW_ENV_SPECULAR CC_SURFACES_DEBUG_VIEW_ENV_DIFFUSE + 1
+#define CC_SURFACES_DEBUG_VIEW_ENV_ALL CC_SURFACES_DEBUG_VIEW_ENV_SPECULAR + 1
+#define CC_SURFACES_DEBUG_VIEW_EMISSIVE CC_SURFACES_DEBUG_VIEW_ENV_ALL + 1
+#define CC_SURFACES_DEBUG_VIEW_LIGHT_MAP CC_SURFACES_DEBUG_VIEW_EMISSIVE + 1
+#define CC_SURFACES_DEBUG_VIEW_SHADOW CC_SURFACES_DEBUG_VIEW_LIGHT_MAP + 1
+#define CC_SURFACES_DEBUG_VIEW_AO CC_SURFACES_DEBUG_VIEW_SHADOW + 1
+
+#define CC_SURFACES_DEBUG_VIEW_FOG CC_SURFACES_DEBUG_VIEW_AO + 1
+
+// composite sign: base lighting functionality, all switches on == non debug mode
+#define CC_SURFACES_DEBUG_VIEW_COMPOSITE_DIRECT_DIFFUSE 1
+#define CC_SURFACES_DEBUG_VIEW_COMPOSITE_DIRECT_SPECULAR CC_SURFACES_DEBUG_VIEW_COMPOSITE_DIRECT_DIFFUSE * 2
+#define CC_SURFACES_DEBUG_VIEW_COMPOSITE_ENV_DIFFUSE CC_SURFACES_DEBUG_VIEW_COMPOSITE_DIRECT_SPECULAR * 2
+#define CC_SURFACES_DEBUG_VIEW_COMPOSITE_ENV_SPECULAR CC_SURFACES_DEBUG_VIEW_COMPOSITE_ENV_DIFFUSE * 2
+#define CC_SURFACES_DEBUG_VIEW_COMPOSITE_EMISSIVE CC_SURFACES_DEBUG_VIEW_COMPOSITE_ENV_SPECULAR * 2
+#define CC_SURFACES_DEBUG_VIEW_COMPOSITE_LIGHT_MAP CC_SURFACES_DEBUG_VIEW_COMPOSITE_EMISSIVE * 2
+#define CC_SURFACES_DEBUG_VIEW_COMPOSITE_SHADOW CC_SURFACES_DEBUG_VIEW_COMPOSITE_LIGHT_MAP * 2
+#define CC_SURFACES_DEBUG_VIEW_COMPOSITE_AO CC_SURFACES_DEBUG_VIEW_COMPOSITE_SHADOW * 2
+
+#define CC_SURFACES_DEBUG_VIEW_COMPOSITE_NORMAL_MAP CC_SURFACES_DEBUG_VIEW_COMPOSITE_AO * 2
+#define CC_SURFACES_DEBUG_VIEW_COMPOSITE_FOG CC_SURFACES_DEBUG_VIEW_COMPOSITE_NORMAL_MAP * 2
+
+#define CC_SURFACES_DEBUG_VIEW_COMPOSITE_TONE_MAPPING CC_SURFACES_DEBUG_VIEW_COMPOSITE_FOG * 2
+#define CC_SURFACES_DEBUG_VIEW_COMPOSITE_GAMMA_CORRECTION CC_SURFACES_DEBUG_VIEW_COMPOSITE_TONE_MAPPING * 2
+
+// Debug view UI and macros
+// #pragma define-meta CC_SURFACES_DEBUG_VIEW_MODE range([0, 19])
+// #pragma define-meta CC_SURFACES_DEBUG_VIEW_COMPOSITE_MODE range([0, 16])
+// #pragma define-meta CC_SURFACES_DEBUG_VIEW_LIGHTING_WITH_ALBEDO range([0, 1])
+// #pragma define-meta CC_SURFACES_DEBUG_VIEW_MISC_ENABLE_CSM_LAYER_COLORATION range([0, 1])
+
+// test
+#pragma define CC_SURFACES_DEBUG_VIEW_LIGHTING_WITH_ALBEDO 0
+#pragma define CC_SURFACES_DEBUG_VIEW_MODE 0//CC_SURFACES_DEBUG_VIEW_LINEAR_DEPTH
+#pragma define CC_SURFACES_DEBUG_VIEW_COMPOSITE_MODE 0
+#pragma define CC_SURFACES_DEBUG_VIEW_MISC_ENABLE_CSM_LAYER_COLORATION 0
+#pragma define CC_SURFACES_USE_DEBUG_VIEW 0
+
+// use uniforms for fast toggling
+// 逻辑: 只要单项调试开启，此宏即为1(ubo中设置view_single_mode)
+//       当单项调试关闭时：当复合开关全开且misc也全关时此宏为0, 否则此宏为2(ubo中设置composite和misc相关项)
+#define CC_SURFACES_DEBUG_VIEW_SINGLE 1
+#define CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC 2
+
+/*
+#if CC_SURFACES_USE_DEBUG_VIEW
+  #pragma builtin(global)
+  layout(set = 0, binding = 3) uniform CCDebugView {
+    int cc_debug_view_single_mode; // single debug
+    float cc_debug_view_lighting_enable_with_albedo;
+    float cc_debug_view_misc_enable_csm_layer_coloration; // misc debug
+    float cc_debug_view_composite_enable_direct_diffuse;
+    float cc_debug_view_composite_enable_direct_specular;
+    float cc_debug_view_composite_enable_env_diffuse;
+    float cc_debug_view_composite_enable_env_specular;
+    float cc_debug_view_composite_enable_emissive;
+    float cc_debug_view_composite_enable_light_map;
+    float cc_debug_view_composite_enable_shadow;
+    float cc_debug_view_composite_enable_ao;
+    float cc_debug_view_composite_enable_normal_map;
+    float cc_debug_view_composite_enable_fog;
+    float cc_debug_view_composite_enable_tone_mapping;
+    float cc_debug_view_composite_enable_gamma_correction;
+  };
+#endif
+*/
+  // move to common.chunk
+#pragma define equalf(data1, data2) (abs(float(data1) - float(data2)) < EPSILON)
+
+  // define.ts: 增加PipelineGlobalBindings.UBO_DEBUGVIEW, cc_shadowMap / cc_spotLightingMap / cc_environment / cc_diffuseMap的binding加1
+  /**
+   * @en The uniform buffer object for debug view
+   * @zh 渲染调试 UBO。
+   */
+/*
+  export class UBODebugView {
+      public static readonly SINGLE_MODE = 0;
+      public static readonly LIGHTING_ENABLE_WITH_ALBEDO = UBODebugView.SINGLE_MODE + 1;
+      public static readonly MISC_ENABLE_CSM_LAYER_COLORATION = UBODebugView.LIGHTING_ENABLE_WITH_ALBEDO + 1;
+      public static readonly COMPOSITE_ENABLE_DIRECT_DIFFUSE = UBODebugView.MISC_ENABLE_CSM_LAYER_COLORATION + 1;
+      public static readonly COMPOSITE_ENABLE_DIRECT_SPECULAR = UBODebugView.COMPOSITE_ENABLE_DIRECT_DIFFUSE + 1;
+      public static readonly COMPOSITE_ENABLE_ENV_DIFFUSE = UBODebugView.COMPOSITE_ENABLE_DIRECT_SPECULAR + 1;
+      public static readonly COMPOSITE_ENABLE_ENV_SPECULAR = UBODebugView.COMPOSITE_ENABLE_ENV_DIFFUSE + 1;
+      public static readonly COMPOSITE_ENABLE_EMISSIVE = UBODebugView.COMPOSITE_ENABLE_ENV_SPECULAR + 1;
+      public static readonly COMPOSITE_ENABLE_LIGHT_MAP = UBODebugView.COMPOSITE_ENABLE_EMISSIVE + 1;
+      public static readonly COMPOSITE_ENABLE_SHADOW = UBODebugView.COMPOSITE_ENABLE_LIGHT_MAP + 1;
+      public static readonly COMPOSITE_ENABLE_AO = UBODebugView.COMPOSITE_ENABLE_SHADOW + 1;
+      public static readonly COMPOSITE_ENABLE_NORMAL_MAP = UBODebugView.COMPOSITE_ENABLE_AO + 1;
+      public static readonly COMPOSITE_ENABLE_FOG = UBODebugView.COMPOSITE_ENABLE_NORMAL_MAP + 1;
+      public static readonly COMPOSITE_ENABLE_TONE_MAPPING = UBODebugView.COMPOSITE_ENABLE_FOG + 1;
+      public static readonly COMPOSITE_ENABLE_GAMMA_CORRECTION = UBODebugView.COMPOSITE_ENABLE_TONE_MAPPING + 1;
+      public static readonly COUNT : number = UBODebugView.COMPOSITE_ENABLE_GAMMA_CORRECTION + 1;
+      public static readonly SIZE = UBODebugView.COUNT * 4;
+      public static readonly NAME = 'CCDebugView';
+      public static readonly BINDING = PipelineGlobalBindings.UBO_DEBUGVIEW;
+      public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBODebugView.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.ALL);
+      public static readonly LAYOUT = new UniformBlock(SetIndex.GLOBAL, UBODebugView.BINDING, UBODebugView.NAME, [
+          new Uniform('cc_debug_view_single_mode', Type.INT, 1),
+          new Uniform('cc_debug_view_lighting_enable_with_albedo', Type.FLOAT, 1),
+          new Uniform('cc_debug_view_misc_enable_csm_layer_coloration', Type.FLOAT, 1),
+          new Uniform('cc_debug_view_composite_enable_direct_diffuse', Type.FLOAT, 1),
+          new Uniform('cc_debug_view_composite_enable_direct_specular', Type.FLOAT, 1),
+          new Uniform('cc_debug_view_composite_enable_env_diffuse', Type.FLOAT, 1),
+          new Uniform('cc_debug_view_composite_enable_env_specular', Type.FLOAT, 1),
+          new Uniform('cc_debug_view_composite_enable_emissive', Type.FLOAT, 1),
+          new Uniform('cc_debug_view_composite_enable_light_map', Type.FLOAT, 1),
+          new Uniform('cc_debug_view_composite_enable_shadow', Type.FLOAT, 1),
+          new Uniform('cc_debug_view_composite_enable_ao', Type.FLOAT, 1),
+          new Uniform('cc_debug_view_composite_enable_normal_map', Type.FLOAT, 1),
+          new Uniform('cc_debug_view_composite_enable_fog', Type.FLOAT, 1),
+          new Uniform('cc_debug_view_composite_enable_tone_mapping', Type.FLOAT, 1),
+          new Uniform('cc_debug_view_composite_enable_gamma_correction', Type.FLOAT, 1),
+      ], 1);
+  }
+  globalDescriptorSetLayout.layouts[UBODebugView.NAME] = UBODebugView.LAYOUT;
+  globalDescriptorSetLayout.bindings[UBODebugView.BINDING] = UBODebugView.DESCRIPTOR;
+  */
