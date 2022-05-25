@@ -47,7 +47,7 @@ using IPropertyValue = ccstd::optional<ccstd::variant<ccstd::vector<float>, ccst
 struct IPropertyInfo {
     int32_t type;                                    // auto-extracted from shader
     ccstd::optional<IPropertyHandleInfo> handleInfo; // auto-generated from 'target'
-    ccstd::optional<uint64_t> samplerHash;           // auto-generated from 'sampler'
+    ccstd::optional<ccstd::hash_t> samplerHash;      // auto-generated from 'sampler'
     IPropertyValue value;                            // default value
     ccstd::optional<bool> linear;                    // whether to convert the input to linear space first before applying
 };
@@ -498,7 +498,7 @@ struct IShaderSource {
 
 struct IShaderInfo {
     ccstd::string name;
-    uint64_t hash{0xFFFFFFFFFFFFFFFFULL}; //cjh hash is 64 bit?
+    ccstd::hash_t hash{0xFFFFFFFFU};
     IShaderSource glsl4;
     IShaderSource glsl3;
     IShaderSource glsl1;

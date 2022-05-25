@@ -36,7 +36,7 @@ public:
     Framebuffer();
     ~Framebuffer() override;
 
-    static size_t computeHash(const FramebufferInfo &info);
+    static ccstd::hash_t computeHash(const FramebufferInfo &info);
 
     void initialize(const FramebufferInfo &info);
     void destroy();

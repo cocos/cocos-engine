@@ -165,12 +165,8 @@ public:
      * @en Gets the texture hash.
      * @zh 获取此贴图的哈希值。
      */
-    inline uint64_t getHash() const {
+    inline ccstd::hash_t getHash() const {
         return _textureHash;
-    }
-
-    inline double getHashForJS() const {
-        return static_cast<double>(getHash());
     }
 
     /**
@@ -182,7 +178,7 @@ public:
     }
 
     /**
-     * @en Gets the internal GFX sampler hash.
+     * @en Gets the internal GFX sampler information.
      * @zh 获取此贴图内部使用的 GFX 采样器信息。
      * @private
      */
@@ -253,7 +249,7 @@ protected:
     gfx::Sampler *_gfxSampler{nullptr};
     gfx::Device *_gfxDevice{nullptr};
 
-    uint64_t _textureHash{0};
+    ccstd::hash_t _textureHash{0U};
 
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(TextureBase);

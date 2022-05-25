@@ -27,16 +27,25 @@
 
 #include <functional>
 #include "GFXDef-common.h"
+#include "base/std/hash/hash.h"
 
 namespace cc {
 namespace gfx {
 
 template <typename T, typename Enable = std::enable_if_t<std::is_class<T>::value>>
-struct Hasher final { size_t operator()(const T &info) const; };
+struct Hasher final {
+    // NOTE: ccstd::hash_t is a typedef of uint32_t now, sizeof(ccstd::hash_t) == sizeof(size_t) on 32 bits architecture device,
+    // sizeof(ccstd::hash_t) < sizeof(size_t) on 64 bits architecture device.
+    // STL containers like ccstd::unordered_map<K, V, Hasher> expects the custom Hasher function to return size_t.
+    // So it's safe to return ccstd::hash_t for operator() function now.
+    // If we need to define ccstd::hash_t to uint64_t someday, we must take care of the return value of operator(),
+    // it should be size_t and we need to convert hash value from uint64_t to uint32_t for 32 bit architecture device.
+    ccstd::hash_t operator()(const T &info) const;
+};
 
-// make this boost::hash compatible
+// make this ccstd::hash compatible
 template <typename T, typename Enable = std::enable_if_t<std::is_class<T>::value>>
-size_t hash_value(const T &info) { return Hasher<T>()(info); } // NOLINT(readability-identifier-naming)
+ccstd::hash_t hash_value(const T &info) { return Hasher<T>()(info); } // NOLINT(readability-identifier-naming)
 
 #define DEFINE_CMP_OP(type)                            \
     bool operator==(const type &lhs, const type &rhs); \
