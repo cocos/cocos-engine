@@ -521,7 +521,6 @@ SE_DECLARE_FUNC(js_scene_Pass_endChangeStatesSilently);
 SE_DECLARE_FUNC(js_scene_Pass_getBatchedBuffer);
 SE_DECLARE_FUNC(js_scene_Pass_getBinding);
 SE_DECLARE_FUNC(js_scene_Pass_getHandle);
-SE_DECLARE_FUNC(js_scene_Pass_getHash);
 SE_DECLARE_FUNC(js_scene_Pass_getInstancedBuffer);
 SE_DECLARE_FUNC(js_scene_Pass_getPassInfoFull);
 SE_DECLARE_FUNC(js_scene_Pass_getRootBlock);

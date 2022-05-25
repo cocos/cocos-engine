@@ -158,8 +158,8 @@ static IPropertyInfo jsonToPropertyInfo(const rapidjson::Value &propertyInfoVal)
     }
 
     if (propertyInfoVal.HasMember("samplerHash")) {
-        ret.samplerHash = propertyInfoVal.GetUint64();
-        //        CC_LOG_DEBUG("samplerHash: %lu", ret.samplerHash.value());
+        ret.samplerHash = propertyInfoVal.GetUint();
+        //        CC_LOG_DEBUG("samplerHash: %u", ret.samplerHash.value());
     }
 
     return ret;
@@ -796,7 +796,7 @@ static void deserializeShader(const rapidjson::Value &shaderVal, IShaderInfo &cS
     CC_ASSERT(shaderVal.IsObject());
 
     cShader.name = shaderVal["name"].GetString();
-    cShader.hash = shaderVal["hash"].GetUint64();
+    cShader.hash = shaderVal["hash"].GetUint();
     //NOTE: glsl1, glsl3, glsl4 are not initialized here
 
     deserializeShaderBuiltins(shaderVal["builtins"], cShader.builtins);

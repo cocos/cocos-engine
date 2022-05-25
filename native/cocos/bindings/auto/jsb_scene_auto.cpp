@@ -13866,7 +13866,7 @@ static bool js_scene_Pass_getHash(se::State& s) // NOLINT(readability-identifier
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        uint64_t result = cobj->getHash();
+        unsigned int result = cobj->getHash();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_scene_Pass_getHash : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -13875,26 +13875,7 @@ static bool js_scene_Pass_getHash(se::State& s) // NOLINT(readability-identifier
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_scene_Pass_getHash)
-
-static bool js_scene_Pass_getHashForJS(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Pass_getHashForJS : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        double result = cobj->getHashForJS();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getHashForJS : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC_AS_PROP_GET(js_scene_Pass_getHashForJS)
+SE_BIND_FUNC_AS_PROP_GET(js_scene_Pass_getHash)
 
 static bool js_scene_Pass_getInstancedBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -14282,7 +14263,7 @@ static bool js_scene_Pass_initPassFromTarget(se::State& s) // NOLINT(readability
         HolderType<cc::scene::Pass*, false> arg0 = {};
         HolderType<cc::gfx::DepthStencilState, true> arg1 = {};
         HolderType<cc::gfx::BlendState, true> arg2 = {};
-        HolderType<uint64_t, false> arg3 = {};
+        HolderType<unsigned int, false> arg3 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
@@ -14635,7 +14616,7 @@ static bool js_scene_Pass_getPassHash_static(se::State& s) // NOLINT(readability
         HolderType<cc::scene::Pass*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
         SE_PRECONDITION2(ok, false, "js_scene_Pass_getPassHash_static : Error processing arguments");
-        uint64_t result = cc::scene::Pass::getPassHash(arg0.value());
+        unsigned int result = cc::scene::Pass::getPassHash(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_scene_Pass_getPassHash_static : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -14730,7 +14711,7 @@ bool js_register_scene_Pass(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineProperty("dynamicStates", _SE(js_scene_Pass_getDynamicStates_asGetter), nullptr);
     cls->defineProperty("batchingScheme", _SE(js_scene_Pass_getBatchingScheme_asGetter), nullptr);
     cls->defineProperty("descriptorSet", _SE(js_scene_Pass_getDescriptorSet_asGetter), nullptr);
-    cls->defineProperty("hash", _SE(js_scene_Pass_getHashForJS_asGetter), nullptr);
+    cls->defineProperty("hash", _SE(js_scene_Pass_getHash_asGetter), nullptr);
     cls->defineProperty("pipelineLayout", _SE(js_scene_Pass_getPipelineLayout_asGetter), nullptr);
     cls->defineFunction("beginChangeStatesSilently", _SE(js_scene_Pass_beginChangeStatesSilently));
     cls->defineFunction("bindSampler", _SE(js_scene_Pass_bindSampler));
@@ -14740,7 +14721,6 @@ bool js_register_scene_Pass(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineFunction("getBatchedBuffer", _SE(js_scene_Pass_getBatchedBuffer));
     cls->defineFunction("getBinding", _SE(js_scene_Pass_getBinding));
     cls->defineFunction("getHandle", _SE(js_scene_Pass_getHandle));
-    cls->defineFunction("getHash", _SE(js_scene_Pass_getHash));
     cls->defineFunction("getInstancedBuffer", _SE(js_scene_Pass_getInstancedBuffer));
     cls->defineFunction("getPassInfoFull", _SE(js_scene_Pass_getPassInfoFull));
     cls->defineFunction("getRootBlock", _SE(js_scene_Pass_getRootBlock));

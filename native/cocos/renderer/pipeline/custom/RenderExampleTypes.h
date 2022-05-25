@@ -36,6 +36,7 @@
 #include <boost/range/irange.hpp>
 #include "cocos/base/std/container/string.h"
 #include "cocos/base/std/container/vector.h"
+#include "base/std/hash/hash.h"
 #include "cocos/renderer/pipeline/custom/GraphTypes.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/Map.h"
@@ -396,10 +397,10 @@ struct RenderCompiler {
 namespace std {
 
 inline size_t hash<cc::render::example::RenderValueNode>::operator()(const cc::render::example::RenderValueNode& v) const noexcept {
-    size_t seed = 0;
-    boost::hash_combine(seed, v.passID);
-    boost::hash_combine(seed, v.valueID);
-    return seed;
+    ccstd::hash_t seed = 0;
+    ccstd::hash_combine(seed, v.passID);
+    ccstd::hash_combine(seed, v.valueID);
+    return static_cast<size_t>(seed);
 }
 
 } // namespace std

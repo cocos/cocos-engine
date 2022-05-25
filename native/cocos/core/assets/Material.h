@@ -94,10 +94,7 @@ public:
      * @zh 获取一个材质的哈希值
      * @param material
      */
-    static uint64_t getHashForMaterial(Material *material);
-    inline static double getHashForMaterialForJS(Material *material) {
-        return static_cast<double>(getHashForMaterial(material));
-    }
+    static ccstd::hash_t getHashForMaterial(Material *material);
 
     Material();
     ~Material() override;
@@ -243,7 +240,7 @@ public:
 protected:
     std::shared_ptr<ccstd::vector<IntrusivePtr<scene::Pass>>> _passes;
 
-    uint64_t _hash{0};
+    ccstd::hash_t _hash{0U};
 
 public:
     /**
@@ -290,12 +287,8 @@ public:
      * @en The hash value of this material.
      * @zh 材质的 hash。
      */
-    inline uint64_t getHash() const {
+    inline ccstd::hash_t getHash() const {
         return _hash;
-    }
-
-    inline double getHashForJS() const {
-        return static_cast<double>(getHash());
     }
 
     /**

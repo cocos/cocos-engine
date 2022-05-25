@@ -32,7 +32,7 @@
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/pipeline/Define.h"
 
-#include "boost/container_hash/hash.hpp"
+#include "base/std/hash/hash.h"
 
 namespace cc {
 
@@ -44,9 +44,9 @@ TextureBase::TextureBase() {
     // Id for generate hash in material
     _id = idGenerator.getNewId();
     _gfxDevice = getGFXDevice();
-    std::size_t seed = 666;
-    boost::hash_range(seed, _id.begin(), _id.end());
-    _textureHash = static_cast<uint64_t>(seed);
+    ccstd::hash_t seed = 666;
+    ccstd::hash_range(seed, _id.begin(), _id.end());
+    _textureHash = seed;
 }
 
 TextureBase::~TextureBase() = default;
