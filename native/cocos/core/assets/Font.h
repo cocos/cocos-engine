@@ -71,7 +71,7 @@ struct KerningPair {
 };
 
 struct KerningHash {
-    size_t operator()(const KerningPair &k) const;
+    ccstd::hash_t operator()(const KerningPair &k) const;
 };
 
 /**

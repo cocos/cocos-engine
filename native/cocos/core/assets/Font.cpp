@@ -38,11 +38,11 @@
 
 namespace cc {
 
-size_t KerningHash::operator()(const KerningPair &k) const {
+ccstd::hash_t KerningHash::operator()(const KerningPair &k) const {
     ccstd::hash_t seed = 2;
     ccstd::hash_combine(seed, k.prevCode);
     ccstd::hash_combine(seed, k.nextCode);
-    return static_cast<size_t>(seed);
+    return seed;
 }
 
 /**

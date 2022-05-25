@@ -39,8 +39,8 @@ namespace cc {
 namespace {
 class StringHasher final {
 public:
-    size_t operator()(const char *str) const noexcept {
-        return static_cast<size_t>(ccstd::hash_range(str, str + strlen(str)));
+    ccstd::hash_t operator()(const char *str) const noexcept {
+        return ccstd::hash_range(str, str + strlen(str));
     }
 };
 
