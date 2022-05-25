@@ -45,7 +45,7 @@ export class DirectionalLight extends Light {
     protected _shadowBias = 0.00001;
     protected _shadowNormalBias = 0.0;
     protected _shadowSaturation = 1.0;
-    protected _shadowDistance = 100;
+    protected _shadowDistance = 50;
     protected _shadowInvisibleOcclusionRange = 200;
     protected _shadowCSMLevel = CSMLevel.level_3;
     protected _shadowCSMValueDirty = false;

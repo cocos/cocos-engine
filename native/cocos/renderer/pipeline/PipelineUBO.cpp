@@ -369,7 +369,7 @@ uint8_t PipelineUBO::getCombineSignY() {
 
 float PipelineUBO::getPCFRadius(const scene::Shadows* shadowInfo, const scene::DirectionalLight* dirLight) {
     const float shadowMapSize = shadowInfo->getSize().x;
-    if (dirLight->getShadowPcf() > 2.9F) {          // PCFType.SOFT_5X
+    if (dirLight->getShadowPcf() > 2.9F) {          // PCFType.SOFT_4X
         return 3.0F / (shadowMapSize * 0.5F);
     }
     if (dirLight->getShadowPcf() > 1.9F) {          // PCFType.SOFT_2X

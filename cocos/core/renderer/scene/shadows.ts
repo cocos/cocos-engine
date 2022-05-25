@@ -323,7 +323,7 @@ export class Shadows {
     protected _distance = 0;
     protected _normal = new Vec3(0, 1, 0);
     protected _shadowColor = new Color(0, 0, 0, 76);
-    protected _size: Vec2 = new Vec2(512, 512);
+    protected _size: Vec2 = new Vec2(1024, 1024);
     protected _shadowMapDirty = false;
 
     public getPlanarShader (patches: IMacroPatch[] | null): Shader | null {

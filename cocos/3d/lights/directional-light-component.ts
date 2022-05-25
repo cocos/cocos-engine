@@ -65,7 +65,7 @@ export class DirectionalLight extends Light {
     @serializable
     protected _shadowSaturation = 1.0;
     @serializable
-    protected _shadowDistance = 100;
+    protected _shadowDistance = 50;
     @serializable
     protected _shadowInvisibleOcclusionRange = 200;
     @serializable
@@ -312,6 +312,12 @@ export class DirectionalLight extends Light {
      * @zh 获取或者设置联级阴影性能优化模式
      * @internal
      */
+    @visible(false)
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 13 } })
+    @editable
+    @tooltip('CSM Performance Optimization Mode')
+    @slide
+    @type(CSMPerformanceOptimizationMode)
     get shadowCSMPerformanceOptimizationMode () {
         return this._shadowCSMPerformanceOptimizationMode;
     }
