@@ -9126,24 +9126,24 @@ static bool js_assets_Material_getEffectName(se::State& s) // NOLINT(readability
 }
 SE_BIND_FUNC_AS_PROP_GET(js_assets_Material_getEffectName)
 
-static bool js_assets_Material_getHashForJS(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_assets_Material_getHash(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Material>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_Material_getHashForJS : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_assets_Material_getHash : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        double result = cobj->getHashForJS();
+        unsigned int result = cobj->getHash();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_assets_Material_getHashForJS : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_assets_Material_getHash : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC_AS_PROP_GET(js_assets_Material_getHashForJS)
+SE_BIND_FUNC_AS_PROP_GET(js_assets_Material_getHash)
 
 static bool js_assets_Material_getParent(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -10094,7 +10094,7 @@ static bool js_assets_Material_setPropertyVec4Array(se::State& s) // NOLINT(read
 }
 SE_BIND_FUNC(js_assets_Material_setPropertyVec4Array)
 
-static bool js_assets_Material_getHashForMaterialForJS_static(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_assets_Material_getHashForMaterial_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -10102,17 +10102,17 @@ static bool js_assets_Material_getHashForMaterialForJS_static(se::State& s) // N
     if (argc == 1) {
         HolderType<cc::Material*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        SE_PRECONDITION2(ok, false, "js_assets_Material_getHashForMaterialForJS_static : Error processing arguments");
-        double result = cc::Material::getHashForMaterialForJS(arg0.value());
+        SE_PRECONDITION2(ok, false, "js_assets_Material_getHashForMaterial_static : Error processing arguments");
+        unsigned int result = cc::Material::getHashForMaterial(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_assets_Material_getHashForMaterialForJS_static : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_assets_Material_getHashForMaterial_static : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_assets_Material_getHashForMaterialForJS_static)
+SE_BIND_FUNC(js_assets_Material_getHashForMaterial_static)
 
 static bool js_assets_Material_get__effectAsset(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -10280,7 +10280,7 @@ bool js_register_assets_Material(se::Object* obj) // NOLINT(readability-identifi
     cls->defineProperty("effectAsset", _SE(js_assets_Material_getEffectAsset_asGetter), _SE(js_assets_Material_setEffectAsset_asSetter));
     cls->defineProperty("effectName", _SE(js_assets_Material_getEffectName_asGetter), nullptr);
     cls->defineProperty("technique", _SE(js_assets_Material_getTechniqueIndex_asGetter), nullptr);
-    cls->defineProperty("hash", _SE(js_assets_Material_getHashForJS_asGetter), nullptr);
+    cls->defineProperty("hash", _SE(js_assets_Material_getHash_asGetter), nullptr);
     cls->defineProperty("parent", _SE(js_assets_Material_getParent_asGetter), nullptr);
     cls->defineFunction("copy", _SE(js_assets_Material_copy));
     cls->defineFunction("fillInfo", _SE(js_assets_Material_fillInfo));
@@ -10313,7 +10313,7 @@ bool js_register_assets_Material(se::Object* obj) // NOLINT(readability-identifi
     cls->defineFunction("setPropertyVec3Array", _SE(js_assets_Material_setPropertyVec3Array));
     cls->defineFunction("setPropertyVec4", _SE(js_assets_Material_setPropertyVec4));
     cls->defineFunction("setPropertyVec4Array", _SE(js_assets_Material_setPropertyVec4Array));
-    cls->defineStaticFunction("getHashForMaterial", _SE(js_assets_Material_getHashForMaterialForJS_static));
+    cls->defineStaticFunction("getHashForMaterial", _SE(js_assets_Material_getHashForMaterial_static));
     cls->defineFinalizeFunction(_SE(js_cc_Material_finalize));
     cls->install();
     JSBClassType::registerClass<cc::Material>(cls);
@@ -10385,24 +10385,24 @@ static bool js_assets_TextureBase_getGFXTexture(se::State& s) // NOLINT(readabil
 }
 SE_BIND_FUNC(js_assets_TextureBase_getGFXTexture)
 
-static bool js_assets_TextureBase_getHashForJS(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_assets_TextureBase_getHash(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_getHashForJS : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_getHash : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        double result = cobj->getHashForJS();
+        unsigned int result = cobj->getHash();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_getHashForJS : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_getHash : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_assets_TextureBase_getHashForJS)
+SE_BIND_FUNC(js_assets_TextureBase_getHash)
 
 static bool js_assets_TextureBase_getHeight(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -10967,7 +10967,7 @@ bool js_register_assets_TextureBase(se::Object* obj) // NOLINT(readability-ident
     cls->defineFunction("getAnisotropy", _SE(js_assets_TextureBase_getAnisotropy));
     cls->defineFunction("getGFXSampler", _SE(js_assets_TextureBase_getGFXSampler));
     cls->defineFunction("getGFXTexture", _SE(js_assets_TextureBase_getGFXTexture));
-    cls->defineFunction("getHash", _SE(js_assets_TextureBase_getHashForJS));
+    cls->defineFunction("getHash", _SE(js_assets_TextureBase_getHash));
     cls->defineFunction("getId", _SE(js_assets_TextureBase_getId));
     cls->defineFunction("getPixelFormat", _SE(js_assets_TextureBase_getPixelFormat));
     cls->defineFunction("getSamplerInfo", _SE(js_assets_TextureBase_getSamplerInfo));
@@ -18380,24 +18380,24 @@ static bool js_assets_Mesh_getData(se::State& s) // NOLINT(readability-identifie
 }
 SE_BIND_FUNC_AS_PROP_GET(js_assets_Mesh_getData)
 
-static bool js_assets_Mesh_getHashForJS(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_assets_Mesh_getHash(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Mesh>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_Mesh_getHashForJS : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_assets_Mesh_getHash : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        double result = cobj->getHashForJS();
+        unsigned int result = cobj->getHash();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_assets_Mesh_getHashForJS : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_assets_Mesh_getHash : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC_AS_PROP_GET(js_assets_Mesh_getHashForJS)
+SE_BIND_FUNC_AS_PROP_GET(js_assets_Mesh_getHash)
 
 static bool js_assets_Mesh_getJointBufferIndices(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -18687,7 +18687,7 @@ static bool js_assets_Mesh_setHash(se::State& s) // NOLINT(readability-identifie
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<uint64_t, false> arg0 = {};
+        HolderType<unsigned int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_assets_Mesh_setHash : Error processing arguments");
         cobj->setHash(arg0.value());
@@ -18811,7 +18811,7 @@ bool js_register_assets_Mesh(se::Object* obj) // NOLINT(readability-identifier-n
     cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
 #endif
     cls->defineProperty("morphRendering", _SE(js_assets_Mesh_get_morphRendering), _SE(js_assets_Mesh_set_morphRendering));
-    cls->defineProperty({"_hash", "hash"}, _SE(js_assets_Mesh_getHashForJS_asGetter), _SE(js_assets_Mesh_setHash_asSetter));
+    cls->defineProperty({"_hash", "hash"}, _SE(js_assets_Mesh_getHash_asGetter), _SE(js_assets_Mesh_setHash_asSetter));
     cls->defineProperty({"data", "_data"}, _SE(js_assets_Mesh_getData_asGetter), _SE(js_assets_Mesh_setData_asSetter));
     cls->defineProperty("jointBufferIndices", _SE(js_assets_Mesh_getJointBufferIndices_asGetter), nullptr);
     cls->defineProperty("maxPosition", _SE(js_assets_Mesh_getMaxPosition_asGetter), nullptr);
@@ -18866,25 +18866,25 @@ static bool js_assets_Skeleton_getBindposes(se::State& s) // NOLINT(readability-
 }
 SE_BIND_FUNC(js_assets_Skeleton_getBindposes)
 
-static bool js_assets_Skeleton_getHashForJS(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_assets_Skeleton_getHash(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Skeleton>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_Skeleton_getHashForJS : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_assets_Skeleton_getHash : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        double result = cobj->getHashForJS();
+        unsigned int result = cobj->getHash();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_assets_Skeleton_getHashForJS : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_assets_Skeleton_getHash : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC_AS_PROP_GET(js_assets_Skeleton_getHashForJS)
-SE_BIND_FUNC(js_assets_Skeleton_getHashForJS)
+SE_BIND_FUNC_AS_PROP_GET(js_assets_Skeleton_getHash)
+SE_BIND_FUNC(js_assets_Skeleton_getHash)
 
 static bool js_assets_Skeleton_getInverseBindposes(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -18952,7 +18952,7 @@ static bool js_assets_Skeleton_setHash(se::State& s) // NOLINT(readability-ident
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<uint64_t, false> arg0 = {};
+        HolderType<unsigned int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_assets_Skeleton_setHash : Error processing arguments");
         cobj->setHash(arg0.value());
@@ -19008,9 +19008,9 @@ bool js_register_assets_Skeleton(se::Object* obj) // NOLINT(readability-identifi
     cls->defineStaticProperty("isJSBClass", _SE(js_assets_getter_return_true), nullptr);
 #endif
     cls->defineProperty({"_joints", "joints"}, _SE(js_assets_Skeleton_getJoints_asGetter), _SE(js_assets_Skeleton_setJoints_asSetter));
-    cls->defineProperty({"_hash", "hash"}, _SE(js_assets_Skeleton_getHashForJS_asGetter), _SE(js_assets_Skeleton_setHash_asSetter));
+    cls->defineProperty({"_hash", "hash"}, _SE(js_assets_Skeleton_getHash_asGetter), _SE(js_assets_Skeleton_setHash_asSetter));
     cls->defineFunction("_getBindposes", _SE(js_assets_Skeleton_getBindposes));
-    cls->defineFunction("getHash", _SE(js_assets_Skeleton_getHashForJS));
+    cls->defineFunction("getHash", _SE(js_assets_Skeleton_getHash));
     cls->defineFunction("getInverseBindposes", _SE(js_assets_Skeleton_getInverseBindposes));
     cls->defineFunction("getJoints", _SE(js_assets_Skeleton_getJoints));
     cls->defineFunction("_setBindposes", _SE(js_assets_Skeleton_setBindposes));
