@@ -40,6 +40,11 @@ namespace cc {
 namespace render {
 
 class NativeLayoutGraphBuilder;
+class NativeRasterPassBuilder;
+class NativeComputePassBuilder;
+class NativeMovePassBuilder;
+class NativeCopyPassBuilder;
+class NativeSceneTransversal;
 class NativePipeline;
 
 } // namespace render
