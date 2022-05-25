@@ -1263,7 +1263,7 @@ addVertex(Component0&& c0, Component1&& c1, ValueT&& val, LayoutGraph& g, Layout
     // if no matching overloaded function is found, Type is not supported by PolymorphicGraph
     addVertexImpl(std::forward<ValueT>(val), g, vert);
 
-    // AddressableGraph
+    // ReferenceGraph
     addPathImpl(u, v, g);
 
     return v;
@@ -1315,7 +1315,7 @@ addVertex(Tag tag, Component0&& c0, Component1&& c1, ValueT&& val, LayoutGraph& 
     // if no matching overloaded function is found, Type is not supported by PolymorphicGraph
     addVertexImpl(tag, std::forward<ValueT>(val), g, vert);
 
-    // AddressableGraph
+    // ReferenceGraph
     addPathImpl(u, v, g);
 
     return v;
@@ -1965,7 +1965,7 @@ addVertex(Component0&& c0, Component1&& c1, Component2&& c2, ValueT&& val, Layou
     // if no matching overloaded function is found, Type is not supported by PolymorphicGraph
     addVertexImpl(std::forward<ValueT>(val), g, vert);
 
-    // AddressableGraph
+    // ReferenceGraph
     addPathImpl(u, v, g);
 
     return v;
@@ -2023,7 +2023,7 @@ addVertex(Tag tag, Component0&& c0, Component1&& c1, Component2&& c2, ValueT&& v
     // if no matching overloaded function is found, Type is not supported by PolymorphicGraph
     addVertexImpl(tag, std::forward<ValueT>(val), g, vert);
 
-    // AddressableGraph
+    // ReferenceGraph
     addPathImpl(u, v, g);
 
     return v;
