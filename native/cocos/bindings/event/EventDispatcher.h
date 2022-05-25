@@ -221,12 +221,12 @@ public:
     // TODO(mingo): support caps lock?
 };
 union EventParameterType {
-	void *  ptrVal;
-	int32_t longVal;
-    int     intVal;
+    void *ptrVal;
+    int32_t longVal;
+    int intVal;
     int16_t shortVal;
-    char    charVal;
-    bool    boolVal;
+    char charVal;
+    bool boolVal;
 };
 
 class CustomEvent : public OSEvent {

@@ -27,7 +27,7 @@
 
 #include <cstdint>
 #include "base/std/container/string.h"
-#include "cocos/base/Optional.h"
+#include "base/std/optional.h"
 #include "core/TypedArray.h"
 namespace cc {
 
@@ -37,13 +37,13 @@ using MeshWeightsType = ccstd::vector<float>;
  * @en Array views for index buffer
  * @zh 允许存储索引的数组视图
  */
-using IBArray = cc::variant<Uint8Array, Uint16Array, Uint32Array>;
+using IBArray = ccstd::variant<Uint8Array, Uint16Array, Uint32Array>;
 
 template <typename T>
 T getIBArrayValue(const IBArray &arr, uint32_t idx) {
 #define IBARRAY_GET_VALUE(type)               \
     do {                                      \
-        auto *p = cc::get_if<type>(&arr);     \
+        auto *p = ccstd::get_if<type>(&arr);  \
         if (p != nullptr) {                   \
             return static_cast<T>((*p)[idx]); \
         }                                     \

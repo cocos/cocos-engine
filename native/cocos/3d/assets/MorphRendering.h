@@ -54,16 +54,16 @@ public:
      * @param weights
      */
     virtual void setWeights(index_t subMeshIndex, const MeshWeightsType &weights) = 0;
-    
+
     /**
      * Adapts pipeline state to do the rendering.
      * @param subMeshIndex
      * @param pipelineState
      */
     virtual void adaptPipelineState(index_t subMeshIndex, gfx::DescriptorSet *descriptorSet) = 0;
-    
+
     virtual ccstd::vector<scene::IMacroPatch> requiredPatches(index_t subMeshIndex) = 0;
-    
+
     /**
      * Destroy the rendering instance.
      */

@@ -25,8 +25,8 @@ THE SOFTWARE.
 
 #pragma once
 
-#include "base/Any.h"
 #include "base/Log.h"
+#include "base/std/any.h"
 #include "base/std/container/string.h"
 #include "core/builtin/DebugInfos.h"
 
@@ -95,7 +95,7 @@ enum class DebugMode {
  */
 
 template <typename... Args>
-void log(cc::any message, Args... optionalParams);
+void log(ccstd::any message, Args... optionalParams);
 
 /**
  * @en
@@ -111,7 +111,7 @@ void log(cc::any message, Args... optionalParams);
  * This gives you additional control over the format of the output.
  */
 template <typename... Args>
-void warn(cc::any message, Args... optionalParams);
+void warn(ccstd::any message, Args... optionalParams);
 
 /**
  * @en
@@ -127,7 +127,7 @@ void warn(cc::any message, Args... optionalParams);
  * This gives you additional control over the format of the output.
  */
 template <typename... Args>
-void error(cc::any message, Args... optionalParams);
+void error(ccstd::any message, Args... optionalParams);
 
 /**
  * @en
@@ -141,7 +141,7 @@ void error(cc::any message, Args... optionalParams);
  */
 
 template <typename... Args>
-void _assert(cc::any value, ccstd::string message, Args... optionalParams); // NOLINT //assert is a reserved word
+void _assert(ccstd::any value, ccstd::string message, Args... optionalParams); // NOLINT //assert is a reserved word
 
 /**
  * @en Outputs a message at the "debug" log level.
@@ -183,13 +183,13 @@ T unpackParams(T value) {
     return value;
 }
 
-void printLog(DebugMode mode, const ccstd::string &fmt, cc::any *arr, int paramsLength);
+void printLog(DebugMode mode, const ccstd::string &fmt, ccstd::any *arr, int paramsLength);
 
 template <typename... Args>
 void logID(uint32_t id, Args... optionalParams) {
     ccstd::string msg = getTypedFormatter(DebugMode::VERBOSE, id);
     int size = sizeof...(optionalParams);
-    cc::any arr[] = {0, unpackParams(optionalParams)...};
+    ccstd::any arr[] = {0, unpackParams(optionalParams)...};
     printLog(DebugMode::VERBOSE, msg, arr, size);
 }
 
@@ -197,7 +197,7 @@ template <typename... Args>
 void warnID(uint32_t id, Args... optionalParams) {
     ccstd::string msg = getTypedFormatter(DebugMode::WARN, id);
     int size = sizeof...(optionalParams);
-    cc::any arr[] = {0, unpackParams(optionalParams)...};
+    ccstd::any arr[] = {0, unpackParams(optionalParams)...};
     printLog(DebugMode::WARN, msg, arr, size);
 }
 
@@ -205,7 +205,7 @@ template <typename... Args>
 void errorID(uint32_t id, Args... optionalParams) {
     ccstd::string msg = getTypedFormatter(DebugMode::ERROR_MODE, id);
     int size = sizeof...(optionalParams);
-    cc::any arr[] = {0, unpackParams(optionalParams)...};
+    ccstd::any arr[] = {0, unpackParams(optionalParams)...};
     printLog(DebugMode::ERROR_MODE, msg, arr, size);
 }
 
@@ -216,7 +216,7 @@ void assertID(bool condition, uint32_t id, Args... optionalParams) {
     }
     ccstd::string msg = getTypedFormatter(DebugMode::INFO, id);
     int size = sizeof...(optionalParams);
-    cc::any arr[] = {0, unpackParams(optionalParams)...};
+    ccstd::any arr[] = {0, unpackParams(optionalParams)...};
     printLog(DebugMode::INFO, msg, arr, size);
     CC_ASSERT(false);
 }

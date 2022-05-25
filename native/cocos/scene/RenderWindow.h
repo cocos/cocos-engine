@@ -27,7 +27,7 @@
 
 #include "base/Macros.h"
 #include "base/RefVector.h"
-#include "cocos/base/Optional.h"
+#include "base/std/optional.h"
 #include "renderer/gfx-base/GFXDef-common.h"
 
 namespace cc {
@@ -35,7 +35,7 @@ namespace scene {
 class Camera;
 
 struct IRenderWindowInfo {
-    cc::optional<ccstd::string> title;
+    ccstd::optional<ccstd::string> title;
     uint32_t width{0};
     uint32_t height{0};
     gfx::RenderPassInfo renderPassInfo;

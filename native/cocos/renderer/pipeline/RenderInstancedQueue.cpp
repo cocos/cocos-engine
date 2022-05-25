@@ -31,7 +31,6 @@
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXRenderPass.h"
 
-
 namespace cc {
 namespace pipeline {
 
