@@ -144,19 +144,10 @@ add_edge( // NOLINT
 }
 
 inline void remove_edge(ResourceGraph::vertex_descriptor u, ResourceGraph::vertex_descriptor v, ResourceGraph& g) noexcept { // NOLINT
-    // remove out-edges
-    auto& outEdgeList = g.getOutEdgeList(u);
-    // eraseFromIncidenceList
-    impl::sequenceEraseIf(outEdgeList, [v](const auto& e) {
-        return e.get_target() == v;
-    });
-
-    // remove reciprocal (bidirectional) in-edges
-    auto& inEdgeList = g.getInEdgeList(v);
-    // eraseFromIncidenceList
-    impl::sequenceEraseIf(inEdgeList, [u](const auto& e) {
-        return e.get_target() == u;
-    });
+    auto& s = g.vertices[u];
+    auto& t = g.vertices[v];
+    s.outEdges.erase(std::remove(s.outEdges.begin(), s.outEdges.end(), ResourceGraph::OutEdge(v)), s.outEdges.end());
+    t.inEdges.erase(std::remove(t.inEdges.begin(), t.inEdges.end(), ResourceGraph::InEdge(u)), t.inEdges.end());
 }
 
 inline void remove_edge(ResourceGraph::out_edge_iterator outIter, ResourceGraph& g) noexcept { // NOLINT
@@ -556,19 +547,10 @@ add_edge( // NOLINT
 }
 
 inline void remove_edge(SubpassGraph::vertex_descriptor u, SubpassGraph::vertex_descriptor v, SubpassGraph& g) noexcept { // NOLINT
-    // remove out-edges
-    auto& outEdgeList = g.getOutEdgeList(u);
-    // eraseFromIncidenceList
-    impl::sequenceEraseIf(outEdgeList, [v](const auto& e) {
-        return e.get_target() == v;
-    });
-
-    // remove reciprocal (bidirectional) in-edges
-    auto& inEdgeList = g.getInEdgeList(v);
-    // eraseFromIncidenceList
-    impl::sequenceEraseIf(inEdgeList, [u](const auto& e) {
-        return e.get_target() == u;
-    });
+    auto& s = g.vertices[u];
+    auto& t = g.vertices[v];
+    s.outEdges.erase(std::remove(s.outEdges.begin(), s.outEdges.end(), SubpassGraph::OutEdge(v)), s.outEdges.end());
+    t.inEdges.erase(std::remove(t.inEdges.begin(), t.inEdges.end(), SubpassGraph::InEdge(u)), t.inEdges.end());
 }
 
 inline void remove_edge(SubpassGraph::out_edge_iterator outIter, SubpassGraph& g) noexcept { // NOLINT
@@ -771,19 +753,10 @@ add_edge( // NOLINT
 }
 
 inline void remove_edge(RenderGraph::vertex_descriptor u, RenderGraph::vertex_descriptor v, RenderGraph& g) noexcept { // NOLINT
-    // remove out-edges
-    auto& outEdgeList = g.getOutEdgeList(u);
-    // eraseFromIncidenceList
-    impl::sequenceEraseIf(outEdgeList, [v](const auto& e) {
-        return e.get_target() == v;
-    });
-
-    // remove reciprocal (bidirectional) in-edges
-    auto& inEdgeList = g.getInEdgeList(v);
-    // eraseFromIncidenceList
-    impl::sequenceEraseIf(inEdgeList, [u](const auto& e) {
-        return e.get_target() == u;
-    });
+    auto& s = g.vertices[u];
+    auto& t = g.vertices[v];
+    s.outEdges.erase(std::remove(s.outEdges.begin(), s.outEdges.end(), RenderGraph::OutEdge(v)), s.outEdges.end());
+    t.inEdges.erase(std::remove(t.inEdges.begin(), t.inEdges.end(), RenderGraph::InEdge(u)), t.inEdges.end());
 }
 
 inline void remove_edge(RenderGraph::out_edge_iterator outIter, RenderGraph& g) noexcept { // NOLINT

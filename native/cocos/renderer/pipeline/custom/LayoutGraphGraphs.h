@@ -144,19 +144,10 @@ add_edge( // NOLINT
 }
 
 inline void remove_edge(LayoutGraph::vertex_descriptor u, LayoutGraph::vertex_descriptor v, LayoutGraph& g) noexcept { // NOLINT
-    // remove out-edges
-    auto& outEdgeList = g.getOutEdgeList(u);
-    // eraseFromIncidenceList
-    impl::sequenceEraseIf(outEdgeList, [v](const auto& e) {
-        return e.get_target() == v;
-    });
-
-    // remove reciprocal (bidirectional) in-edges
-    auto& inEdgeList = g.getInEdgeList(v);
-    // eraseFromIncidenceList
-    impl::sequenceEraseIf(inEdgeList, [u](const auto& e) {
-        return e.get_target() == u;
-    });
+    auto& s = g.vertices[u];
+    auto& t = g.vertices[v];
+    s.outEdges.erase(std::remove(s.outEdges.begin(), s.outEdges.end(), LayoutGraph::OutEdge(v)), s.outEdges.end());
+    t.inEdges.erase(std::remove(t.inEdges.begin(), t.inEdges.end(), LayoutGraph::InEdge(u)), t.inEdges.end());
 }
 
 inline void remove_edge(LayoutGraph::out_edge_iterator outIter, LayoutGraph& g) noexcept { // NOLINT
@@ -368,19 +359,10 @@ add_edge( // NOLINT
 }
 
 inline void remove_edge(LayoutGraphData::vertex_descriptor u, LayoutGraphData::vertex_descriptor v, LayoutGraphData& g) noexcept { // NOLINT
-    // remove out-edges
-    auto& outEdgeList = g.getOutEdgeList(u);
-    // eraseFromIncidenceList
-    impl::sequenceEraseIf(outEdgeList, [v](const auto& e) {
-        return e.get_target() == v;
-    });
-
-    // remove reciprocal (bidirectional) in-edges
-    auto& inEdgeList = g.getInEdgeList(v);
-    // eraseFromIncidenceList
-    impl::sequenceEraseIf(inEdgeList, [u](const auto& e) {
-        return e.get_target() == u;
-    });
+    auto& s = g.vertices[u];
+    auto& t = g.vertices[v];
+    s.outEdges.erase(std::remove(s.outEdges.begin(), s.outEdges.end(), LayoutGraphData::OutEdge(v)), s.outEdges.end());
+    t.inEdges.erase(std::remove(t.inEdges.begin(), t.inEdges.end(), LayoutGraphData::InEdge(u)), t.inEdges.end());
 }
 
 inline void remove_edge(LayoutGraphData::out_edge_iterator outIter, LayoutGraphData& g) noexcept { // NOLINT

@@ -144,19 +144,10 @@ add_edge( // NOLINT
 }
 
 inline void remove_edge(ResourceAccessGraph::vertex_descriptor u, ResourceAccessGraph::vertex_descriptor v, ResourceAccessGraph& g) noexcept { // NOLINT
-    // remove out-edges
-    auto& outEdgeList = g.getOutEdgeList(u);
-    // eraseFromIncidenceList
-    impl::sequenceEraseIf(outEdgeList, [v](const auto& e) {
-        return e.get_target() == v;
-    });
-
-    // remove reciprocal (bidirectional) in-edges
-    auto& inEdgeList = g.getInEdgeList(v);
-    // eraseFromIncidenceList
-    impl::sequenceEraseIf(inEdgeList, [u](const auto& e) {
-        return e.get_target() == u;
-    });
+    auto& s = g.vertices[u];
+    auto& t = g.vertices[v];
+    s.outEdges.erase(std::remove(s.outEdges.begin(), s.outEdges.end(), ResourceAccessGraph::OutEdge(v)), s.outEdges.end());
+    t.inEdges.erase(std::remove(t.inEdges.begin(), t.inEdges.end(), ResourceAccessGraph::InEdge(u)), t.inEdges.end());
 }
 
 inline void remove_edge(ResourceAccessGraph::out_edge_iterator outIter, ResourceAccessGraph& g) noexcept { // NOLINT

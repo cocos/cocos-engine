@@ -140,22 +140,19 @@ add_edge( // NOLINT
 }
 
 inline void remove_edge(RenderDependencyGraph::vertex_descriptor u, RenderDependencyGraph::vertex_descriptor v, RenderDependencyGraph& g) noexcept { // NOLINT
-    auto& outEdgeList = g.getOutEdgeList(u);
+    auto& s = g.vertices[u];
+    auto& t = g.vertices[v];
 
-    impl::removeDirectedAllEdgeProperties(g, outEdgeList, v);
+    impl::removeDirectedAllEdgeProperties(g, s.outEdges, v);
 
-    // remove out-edges
-    // eraseFromIncidenceList
-    impl::sequenceEraseIf(outEdgeList, [v](const auto& e) {
-        return e.get_target() == v;
-    });
-
-    // remove reciprocal (bidirectional) in-edges
-    auto& inEdgeList = g.getInEdgeList(v);
-    // eraseFromIncidenceList
-    impl::sequenceEraseIf(inEdgeList, [u](const auto& e) {
-        return e.get_target() == u;
-    });
+    s.outEdges.erase(std::remove_if(s.outEdges.begin(), s.outEdges.end(),
+        [v](const RenderDependencyGraph::OutEdge& oe) {
+            return oe.target == v;
+        }), s.outEdges.end());
+    t.inEdges.erase(std::remove_if(t.inEdges.begin(), t.inEdges.end(),
+        [u](const RenderDependencyGraph::InEdge& ie) {
+            return ie.target == u;
+        }), t.inEdges.end());
 }
 
 inline void remove_edge(RenderDependencyGraph::out_edge_iterator outIter, RenderDependencyGraph& g) noexcept { // NOLINT
@@ -441,19 +438,10 @@ add_edge( // NOLINT
 }
 
 inline void remove_edge(RenderValueGraph::vertex_descriptor u, RenderValueGraph::vertex_descriptor v, RenderValueGraph& g) noexcept { // NOLINT
-    // remove out-edges
-    auto& outEdgeList = g.getOutEdgeList(u);
-    // eraseFromIncidenceList
-    impl::sequenceEraseIf(outEdgeList, [v](const auto& e) {
-        return e.get_target() == v;
-    });
-
-    // remove reciprocal (bidirectional) in-edges
-    auto& inEdgeList = g.getInEdgeList(v);
-    // eraseFromIncidenceList
-    impl::sequenceEraseIf(inEdgeList, [u](const auto& e) {
-        return e.get_target() == u;
-    });
+    auto& s = g.vertices[u];
+    auto& t = g.vertices[v];
+    s.outEdges.erase(std::remove(s.outEdges.begin(), s.outEdges.end(), RenderValueGraph::OutEdge(v)), s.outEdges.end());
+    t.inEdges.erase(std::remove(t.inEdges.begin(), t.inEdges.end(), RenderValueGraph::InEdge(u)), t.inEdges.end());
 }
 
 inline void remove_edge(RenderValueGraph::out_edge_iterator outIter, RenderValueGraph& g) noexcept { // NOLINT
