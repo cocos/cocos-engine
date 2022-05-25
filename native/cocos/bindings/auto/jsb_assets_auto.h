@@ -392,7 +392,7 @@ SE_DECLARE_FUNC(js_assets_Material_setPropertyVec3);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyVec3Array);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyVec4);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyVec4Array);
-SE_DECLARE_FUNC(js_assets_Material_getHashForMaterialForJS);
+SE_DECLARE_FUNC(js_assets_Material_getHashForMaterial);
 SE_DECLARE_FUNC(js_assets_Material_Material);
 
 extern se::Object *__jsb_cc_TextureBase_proto; // NOLINT
@@ -403,7 +403,7 @@ bool js_register_cc_TextureBase(se::Object *obj); // NOLINT
 SE_DECLARE_FUNC(js_assets_TextureBase_getAnisotropy);
 SE_DECLARE_FUNC(js_assets_TextureBase_getGFXSampler);
 SE_DECLARE_FUNC(js_assets_TextureBase_getGFXTexture);
-SE_DECLARE_FUNC(js_assets_TextureBase_getHashForJS);
+SE_DECLARE_FUNC(js_assets_TextureBase_getHash);
 SE_DECLARE_FUNC(js_assets_TextureBase_getId);
 SE_DECLARE_FUNC(js_assets_TextureBase_getPixelFormat);
 SE_DECLARE_FUNC(js_assets_TextureBase_getSamplerInfo);
