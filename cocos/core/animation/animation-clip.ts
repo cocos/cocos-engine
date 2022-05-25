@@ -49,6 +49,7 @@ import './exotic-animation/exotic-animation';
 import { array } from '../utils/js';
 import type { AnimationMask } from './marionette/animation-mask';
 import { getGlobalAnimationManager } from './global-animation-manager';
+import { DEBUG } from 'internal:constants';
 
 export declare namespace AnimationClip {
     export interface IEvent {
@@ -338,7 +339,17 @@ export class AnimationClip extends Asset {
                 this.enableTrsBlending ? context.pose : undefined,
                 false,
             );
-            // TODO: warning
+            if (DEBUG && !trackTarget) {
+                // If we got a null track target here, we should already have warn logged,
+                // To elaborate on error details, we warn here as well.
+                // Note: if in the future this log appears alone,
+                // it must be a BUG which break promise by above statement.
+                warnID(
+                    3937,
+                    this.name,
+                    (context.target instanceof Node) ? context.target.name : context.target,
+                );
+            }
             return trackTarget ?? undefined;
         };
 
