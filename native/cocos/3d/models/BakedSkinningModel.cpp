@@ -61,7 +61,7 @@ void BakedSkinningModel::destroy() {
     _jointMedium.boundsInfo.clear();
 
     if (_jointMedium.buffer != nullptr) {
-        CC_SAFE_DESTROY(_jointMedium.buffer);
+        CC_SAFE_DESTROY_NULL(_jointMedium.buffer);
     }
     if (_jointMedium.texture.has_value()) {
         CC_SAFE_DELETE(_jointMedium.texture.value());
@@ -226,6 +226,11 @@ void BakedSkinningModel::syncDataForJS(const ccstd::vector<ccstd::optional<geome
 
     _jointMedium.animInfo.curFrame = &animInfoData[0];
     _jointMedium.animInfo.frameDataBytes = animInfoData.byteLength();
+
+    if (_jointMedium.texture.has_value()) {
+        delete _jointMedium.texture.value();
+        _jointMedium.texture = ccstd::nullopt;
+    }
     IJointTextureHandle *textureInfo = IJointTextureHandle::createJoinTextureHandle();
     textureInfo->handle.texture = tex;
     _jointMedium.texture = textureInfo;

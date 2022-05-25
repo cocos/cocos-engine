@@ -926,13 +926,27 @@ bool ScriptEngine::saveByteCodeToFile(const ccstd::string &path, const ccstd::st
                                                 .ToLocalChecked();
     // create CachedData
     v8::ScriptCompiler::CachedData *cd = v8::ScriptCompiler::CreateCodeCache(v8Script);
-    // save to file
-    cc::Data writeData;
-    writeData.copy(cd->data, cd->length);
-    success = fu->writeDataToFile(writeData, pathBc);
-    if (!success) {
-        SE_LOGE("ScriptEngine::generateByteCode write %s\n", pathBc.c_str());
+
+    if (cd != nullptr) {
+        // save to file
+        cc::Data writeData;
+        writeData.copy(cd->data, cd->length);
+        success = fu->writeDataToFile(writeData, pathBc);
+        if (!success) {
+            SE_LOGE("ScriptEngine::generateByteCode write %s\n", pathBc.c_str());
+        }
+
+        // TODO: v8 on windows is built with dynamic library (dll),
+        // Invoking `delete` for the memory allocated in v8.dll will cause crash.
+        // Need to modify v8 source code and add v8::ScriptCompiler::DestroyCodeCache(v8::ScriptCompiler::CachedData *cd).
+#if CC_PLATFORM != CC_PLATFORM_WINDOWS
+        delete cd;
+#endif
     }
+    else {
+        success = false;
+    }
+
     return success;
 }
 
