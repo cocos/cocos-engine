@@ -68,12 +68,7 @@ exports.methods = {
     },
     appendChildByDisplayOrder(parent, newChild, displayOrder = 0) {
         const children = Array.from(parent.children);
-        const child = children.find((child) => {
-            if (child.dump && child.displayOrder > displayOrder) {
-                return child;
-            }
-            return null;
-        });
+        const child = children.find(child => child.dump && child.displayOrder > displayOrder);
         if (child) {
             child.before(newChild);
         } else {
@@ -119,30 +114,35 @@ async function update(dump) {
             $prop.setAttribute('type', 'dump');
             $panel.$propList[id] = $prop;
 
-            $prop.displayOrder = info.displayOrder === undefined ? index : Number(info.displayOrder);
+            const _displayOrder = info.group?.displayOrder || info.displayOrder;
+            $prop.displayOrder = _displayOrder === undefined ? index : Number(_displayOrder);
 
             if (info.group && dump.groups) {
-                const key = info.group.id || 'default';
-                const name = info.group.name;
-                if (!$panel.$groups[key] && dump.groups[key]) {
-                    if (dump.groups[key].style === 'tab') {
-                        $panel.$groups[key] = $panel.createTabGroup(dump.groups[key]);
+                const { id = 'default', name } = info.group;
+                if (!$panel.$groups[id] && dump.groups[id]) {
+                    if (dump.groups[id].style === 'tab') {
+                        $panel.$groups[id] = $panel.createTabGroup(dump.groups[id]);
                     }
                 }
-                if ($panel.$groups[key]) {
-                    if (!$panel.$groups[key].isConnected) {
-                        $panel.appendChildByDisplayOrder($section, $panel.$groups[key], dump.groups[key].displayOrder);
+                if ($panel.$groups[id]) {
+                    if (!$panel.$groups[id].isConnected) {
+                        $panel.appendChildByDisplayOrder($section, $panel.$groups[id], dump.groups[id].displayOrder);
                     }
-                    if (dump.groups[key].style === 'tab') {
-                        $panel.appendToTabGroup($panel.$groups[key], name);
+                    if (dump.groups[id].style === 'tab') {
+                        $panel.appendToTabGroup($panel.$groups[id], name);
                     }
                 }
-                $panel.appendChildByDisplayOrder($panel.$groups[key].tabs[name], $prop, $prop.displayOrder);
+                $panel.appendChildByDisplayOrder($panel.$groups[id].tabs[name], $prop, $prop.displayOrder);
             } else {
                 $panel.appendChildByDisplayOrder($section, $prop, $prop.displayOrder);
             }
         } else if (!$prop.isConnected || !$prop.parentElement) {
-            $panel.appendChildByDisplayOrder($section, $prop, $prop.displayOrder);
+            if (info.group && dump.groups) {
+                const { id = 'default', name } = info.group;
+                $panel.appendChildByDisplayOrder($panel.$groups[id].tabs[name], $prop, $prop.displayOrder);
+            } else {
+                $panel.appendChildByDisplayOrder($section, $prop, $prop.displayOrder);
+            }
         }
         $prop.render(info);
     });

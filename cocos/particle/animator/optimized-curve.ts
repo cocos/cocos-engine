@@ -23,13 +23,8 @@
  THE SOFTWARE.
  */
 
-
-
-
 import { repeat } from '../../core/math';
 import { AnimationCurve, evalOptCurve, OptimizedKey } from '../../core/geometry/curve';
-
-
 
 const CURVE_MODE_CONSTANT = 0;
 const CURVE_MODE_RANDOM_CONSTANT = 1;

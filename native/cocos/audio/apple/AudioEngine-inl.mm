@@ -71,8 +71,6 @@ static ALenum alSourceAddNotificationExt(ALuint sid, ALuint notificationID, alSo
 
 @implementation AudioEngineSessionHandler
 
-    // only enable it on iOS. Disable it on tvOS
-    #if !defined(CC_TARGET_OS_TVOS)
 void AudioEngineInterruptionListenerCallback(void *user_data, UInt32 interruption_state) {
     if (kAudioSessionBeginInterruption == interruption_state) {
         alcMakeContextCurrent(nullptr);
@@ -83,7 +81,6 @@ void AudioEngineInterruptionListenerCallback(void *user_data, UInt32 interruptio
         alcMakeContextCurrent(s_ALContext);
     }
 }
-    #endif
 
 - (id)init {
     if (self = [super init]) {
@@ -92,13 +89,9 @@ void AudioEngineInterruptionListenerCallback(void *user_data, UInt32 interruptio
             [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleInterruption:) name:UIApplicationDidBecomeActiveNotification object:nil];
             [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleInterruption:) name:UIApplicationWillResignActiveNotification object:nil];
         }
-        // only enable it on iOS. Disable it on tvOS
-        // AudioSessionInitialize removed from tvOS
-    #if !defined(CC_TARGET_OS_TVOS)
         else {
             AudioSessionInitialize(NULL, NULL, AudioEngineInterruptionListenerCallback, self);
         }
-    #endif
 
         BOOL success = [[AVAudioSession sharedInstance]
             setCategory:AVAudioSessionCategoryPlayback

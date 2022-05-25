@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 import { legacyCC } from '../../core/global-exports';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 
@@ -101,7 +100,7 @@ export enum SystemEventType {
      * @en
      * The event type for mouse wheel events
      *
-     * @zh 手指开始触摸事件
+     * @zh 当滚动鼠标滚轮或操作其它类似输入设备时会触发滚轮事件。
      */
     MOUSE_WHEEL = 'mouse-wheel',
 

@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-
-
 import IdGenerator from './utils/id-generator';
 import { createMap } from './utils/js';
 import System from './components/system';

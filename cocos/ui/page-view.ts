@@ -350,7 +350,7 @@ export class PageView extends ScrollView {
      * @zh
      * 返回当前页面索引。
      *
-     * @returns 当前页面索引。
+     * @returns @en Current page index of this page view @zh 当前页面索引。
      */
     public getCurrentPageIndex () {
         return this._curPageIdx;
@@ -362,7 +362,7 @@ export class PageView extends ScrollView {
      *
      * @zh
      * 设置当前页面索引。
-     * @param index 索引。
+     * @param index @en The page index to scroll to @zh 需要滚动到的页面索引
      */
     public setCurrentPageIndex (index: number) {
         this.scrollToPage(index, 1);
@@ -375,7 +375,7 @@ export class PageView extends ScrollView {
      * @zh
      * 返回视图中的所有页面。
      *
-     * @returns 输=视图所有页面。
+     * @returns @en return all pages of this page view @zh 返回当前视图所有页面
      */
     public getPages () {
         return this._pages;
@@ -388,7 +388,7 @@ export class PageView extends ScrollView {
      * @zh
      * 在当前页面视图的尾部插入一个新视图。
      *
-     * @param page 新视图。
+     * @param page @en New page to add to this page view @zh 新加入的视图
      */
     public addPage (page: Node) {
         if (!page || this._pages.indexOf(page) !== -1 || !this.content) {
@@ -410,8 +410,8 @@ export class PageView extends ScrollView {
      * @zh
      * 将页面插入指定位置中。
      *
-     * @param page 新视图。
-     * @param index 指定位置。
+     * @param page @en New page to insert to this page view @zh 新插入的视图
+     * @param index @en The index of new page to be inserted @zh 新插入视图的索引
      */
     public insertPage (page: Node, index: number) {
         if (index < 0 || !page || this._pages.indexOf(page) !== -1 || !this.content) {
@@ -438,7 +438,7 @@ export class PageView extends ScrollView {
      * @zh
      * 移除指定页面。
      *
-     * @param page 指定页面。
+     * @param page @en The page to be removed @zh 将被移除的页面
      */
     public removePage (page: Node) {
         if (!page || !this.content) { return; }
@@ -457,7 +457,7 @@ export class PageView extends ScrollView {
      * @zh
      * 移除指定下标的页面。
      *
-     * @param index 页面下标。
+     * @param index @en The index of the page to be removed @zh 将被移除界面的页面下标
      */
     public removePageAtIndex (index: number) {
         const pageList = this._pages;
@@ -493,8 +493,8 @@ export class PageView extends ScrollView {
      * @zh
      * 滚动到指定页面
      *
-     * @param idx index of page.
-     * @param timeInSecond scrolling time.
+     * @param idx @en The index of page to be scroll to @zh 希望滚动到的页面下标
+     * @param timeInSecond @en How long time to scroll to the page, in seconds @zh 滚动到指定页面所需时间，单位：秒
      */
     public scrollToPage (idx: number, timeInSecond = 0.3) {
         if (idx < 0 || idx >= this._pages.length) {
@@ -772,8 +772,8 @@ export class PageView extends ScrollView {
  * @zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event page-turning
- * @param {Event.EventCustom} event
- * @param {PageView} pageView - The PageView component.
+ * @param event
+ * @param pageView - The PageView component.
  */
 
 legacyCC.PageView = PageView;

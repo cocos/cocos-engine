@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { GFXObject, ObjectType, ShaderInfo, ShaderStage, UniformBlock, UniformSampler, Attribute } from './define';
 
 /**

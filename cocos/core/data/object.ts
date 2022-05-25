@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { SUPPORT_JIT, EDITOR, TEST } from 'internal:constants';
 import * as js from '../utils/js';
 import { CCClass } from './class';

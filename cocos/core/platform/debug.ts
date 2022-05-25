@@ -23,9 +23,7 @@
  THE SOFTWARE.
 */
 
-
 /* eslint-disable no-console */
-
 import { EDITOR, JSB, DEV, DEBUG } from 'internal:constants';
 import debugInfos from '../../../DebugInfos';
 import { legacyCC } from '../global-exports';

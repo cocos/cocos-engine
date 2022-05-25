@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { Enum } from '../../core';
 
 export enum ERigidBodyType {

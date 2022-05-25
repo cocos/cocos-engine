@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import * as distance from './distance';
 
 import './deprecated';

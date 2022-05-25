@@ -24,8 +24,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { ccclass, type, serializable } from 'cc.decorator';
 import { Asset } from '../core/assets/asset';
 import { CCString, Size, TextAsset } from '../core';

@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 declare const gfx: any;
 
 declare type RecursivePartial<T> = {
@@ -550,7 +548,6 @@ function watchArrayElementsField<S, T> (self: S, list: T[], eleField: string, ca
         });
     }
 }
-
 
 export class BlendState {
     private targets: BlendTarget[];

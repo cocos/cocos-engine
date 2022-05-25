@@ -23,10 +23,8 @@
  THE SOFTWARE.
  */
 
-
-
-import { CCClass } from '../class';
 import { DEV } from 'internal:constants';
+import { CCClass } from '../class';
 import { makeEditorClassDecoratorFn, makeSmartEditorClassDecorator, emptySmartClassDecorator } from './utils';
 
 /**

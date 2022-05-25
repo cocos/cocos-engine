@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { Pass } from '../renderer/core/pass';
 import { Model } from '../renderer/scene/model';
 import { SubModel } from '../renderer/scene/submodel';

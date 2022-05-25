@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { CCClass } from '../data/class';
 import { Mat3 } from './mat3.jsb';
 import { IQuatLike, IVec3Like, FloatArray, IQuat, IVec3 } from './type-define';

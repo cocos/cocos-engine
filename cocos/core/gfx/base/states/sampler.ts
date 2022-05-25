@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { GFXObject, ObjectType, SamplerInfo } from '../define';
 
 /**

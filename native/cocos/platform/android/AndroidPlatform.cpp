@@ -82,7 +82,9 @@ void AndroidPlatform::waitWindowInitialized() {
 int32_t AndroidPlatform::loop() {
     while (_jniNativeGlue->isRunning()) {
         pollEvent();
-        runTask();
+        if (_jniNativeGlue->isAnimating()) {
+            runTask();
+        }
     }
     return 0;
 }

@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import {
     API, Feature, MemoryStatus,
     CommandBufferInfo, BufferInfo, BufferViewInfo, TextureInfo, TextureViewInfo, SamplerInfo, DescriptorSetInfo,
