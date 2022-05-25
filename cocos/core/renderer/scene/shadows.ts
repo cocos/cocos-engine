@@ -176,15 +176,15 @@ export const CSMPerformanceOptimizationMode = Enum({
     NONE: 1,
 
     /**
-     * @zh 2 个层级
-     * @en level 2
+     * @zh 剔除层与层之间重复物体
+     * @en Eliminate duplicate objects between layers
      * @readonly
      */
     RemoveDuplicates: 2,
 
     /**
-      * @zh 3 个层级
-      * @en level 3
+      * @zh 取消稳抖
+      * @en Disable rotaiton fix
       * @readonly
       */
     DisableRotaitonFix: 3,

@@ -335,23 +335,25 @@ void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, ccstd
         } break;
         case scene::LightType::SPOT: {
             const auto *spotLight = static_cast<const scene::SpotLight *>(light);
-            const auto &matShadowCamera = spotLight->getNode()->getWorldMatrix();
-            const auto matShadowView = matShadowCamera.getInversed();
-            memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_OFFSET, matShadowView.m, sizeof(matShadowView));
+            if (shadowInfo->isEnabled() && spotLight && spotLight->isShadowEnabled()) {
+                const auto &matShadowCamera = spotLight->getNode()->getWorldMatrix();
+                const auto matShadowView = matShadowCamera.getInversed();
+                memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_OFFSET, matShadowView.m, sizeof(matShadowView));
 
-            Mat4::createPerspective(spotLight->getSpotAngle(), 1.0F, 0.001F, spotLight->getRange(), &matShadowViewProj);
+                Mat4::createPerspective(spotLight->getSpotAngle(), 1.0F, 0.001F, spotLight->getRange(), &matShadowViewProj);
 
-            matShadowViewProj.multiply(matShadowView);
-            memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
+                matShadowViewProj.multiply(matShadowView);
+                memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
 
-            const float shadowNFLSInfos[4] = {0.01F, spotLight->getRange(), linear, 0.0F};
-            memcpy(shadowUBO.data() + UBOShadow::SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET, &shadowNFLSInfos, sizeof(shadowNFLSInfos));
+                const float shadowNFLSInfos[4] = {0.01F, spotLight->getRange(), linear, 0.0F};
+                memcpy(shadowUBO.data() + UBOShadow::SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET, &shadowNFLSInfos, sizeof(shadowNFLSInfos));
 
-            const float shadowLPNNInfos[4] = {1.0F, packing, spotLight->getShadowNormalBias(), 0.0F};
-            memcpy(shadowUBO.data() + UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET, &shadowLPNNInfos, sizeof(shadowLPNNInfos));
+                const float shadowLPNNInfos[4] = {1.0F, packing, spotLight->getShadowNormalBias(), 0.0F};
+                memcpy(shadowUBO.data() + UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET, &shadowLPNNInfos, sizeof(shadowLPNNInfos));
 
-            const float shadowWHPBInfos[4] = {shadowInfo->getSize().x, shadowInfo->getSize().y, spotLight->getShadowPcf(), spotLight->getShadowBias()};
-            memcpy(shadowUBO.data() + UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET, &shadowWHPBInfos, sizeof(shadowWHPBInfos));
+                const float shadowWHPBInfos[4] = {shadowInfo->getSize().x, shadowInfo->getSize().y, spotLight->getShadowPcf(), spotLight->getShadowBias()};
+                memcpy(shadowUBO.data() + UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET, &shadowWHPBInfos, sizeof(shadowWHPBInfos));
+            }
         } break;
         case scene::LightType::SPHERE: break;
         case scene::LightType::UNKNOWN: break;

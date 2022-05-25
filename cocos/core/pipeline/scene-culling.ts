@@ -198,14 +198,12 @@ export function shadowCulling (camera: Camera, sceneData: PipelineSceneData, lay
                         // eslint-disable-next-line no-lonely-if
                         const accurate = intersect.aabbFrustum(model.worldBounds, dirLightFrustum);
                         if (accurate) {
+                            dirShadowObjects.push(csmLayerObject);
                             if (layer.level < mainLight.shadowCSMLevel) {
-                                dirShadowObjects.push(csmLayerObject);
                                 if (mainLight.shadowCSMPerformanceOptimizationMode === CSMPerformanceOptimizationMode.RemoveDuplicates
                                     && intersect.aabbFrustumCompletelyInside(model.worldBounds, dirLightFrustum)) {
                                     csmLayerObjects.fastRemove(i);
                                 }
-                            } else {
-                                dirShadowObjects.push(csmLayerObject);
                             }
                         }
                     }

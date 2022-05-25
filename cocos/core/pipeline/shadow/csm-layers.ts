@@ -167,7 +167,8 @@ export class ShadowTransformInfo {
                 _maxLayerFarPlane = this._castLightViewBoundingBox.halfExtents.z;
                 _maxLayerPosz = this._castLightViewBoundingBox.center.z;
             } else {
-                this._castLightViewBoundingBox.halfExtents.z = Math.abs(this._castLightViewBoundingBox.center.z - _maxLayerPosz) + _maxLayerFarPlane;
+                const alignFarPlaneDist = Math.abs(this._castLightViewBoundingBox.center.z - _maxLayerPosz) + _maxLayerFarPlane;
+                this._castLightViewBoundingBox.halfExtents.z = Math.max(this._castLightViewBoundingBox.center.z, alignFarPlaneDist);
             }
         }
 

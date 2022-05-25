@@ -67,6 +67,11 @@ bool ShadowFlow::initialize(const RenderFlowInfo &info) {
 
 void ShadowFlow::activate(RenderPipeline *pipeline) {
     RenderFlow::activate(pipeline);
+
+    // isFloat = true: SHADOWMAP_RGBA8, isFloat = false: SHADOWMAP_FLOAT.
+    const bool isFloat = !supportsR32FloatTexture(pipeline->getDevice());
+    pipeline->setValue("CC_SHADOWMAP_FORMAT", isFloat);
+    pipeline->onGlobalPipelineStateChanged();
 }
 
 void ShadowFlow::render(scene::Camera *camera) {

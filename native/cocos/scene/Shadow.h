@@ -214,7 +214,7 @@ public:
     float _distance{0.F};
     Color _shadowColor{0, 0, 0, 76};
     uint32_t _maxReceived{4};
-    Vec2 _size{512.F, 512.F};
+    Vec2 _size{1024.F, 1024.F};
 
     Shadows *_resource{nullptr};
 };
@@ -327,18 +327,6 @@ public:
     inline void setMaxReceived(uint32_t val) { _maxReceived = val; }
     inline uint32_t getMaxReceived() const { return _maxReceived; }
 
-    inline float getShadowCameraFar() const { return _shadowCameraFar; }
-    inline void setShadowCameraFar(float shadowDistance) { _shadowCameraFar = shadowDistance; }
-
-    inline Mat4 getMatShadowView() const { return _matShadowView; }
-    inline void setMatShadowView(const Mat4 &matShadowView) { _matShadowView = matShadowView; }
-
-    inline Mat4 getMatShadowProj() const { return _matShadowProj; }
-    inline void setMatShadowProj(const Mat4 &matShadowProj) { _matShadowProj = matShadowProj; }
-
-    inline Mat4 getMatShadowViewProj() const { return _matShadowViewProj; }
-    inline void setMatShadowViewProj(const Mat4 &matShadowViewProj) { _matShadowViewProj = matShadowViewProj; }
-
 private:
     void updatePlanarInfo();
     void createInstanceMaterial();
@@ -355,12 +343,6 @@ private:
      * @zh 阴影接收的最大灯光数量。
      */
     uint32_t _maxReceived{4};
-
-    // local set
-    float _shadowCameraFar{0.0F};
-    Mat4 _matShadowView;
-    Mat4 _matShadowProj;
-    Mat4 _matShadowViewProj;
 
     // public properties of shadow
     Vec3 _normal{0.F, 1.F, 0.F};

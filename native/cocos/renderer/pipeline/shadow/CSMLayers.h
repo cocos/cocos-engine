@@ -35,8 +35,10 @@ class PipelineSceneData;
 
 class ShadowTransformInfo {
 public:
-    ShadowTransformInfo();
+    ShadowTransformInfo(uint level);
     ~ShadowTransformInfo();
+
+    inline uint getLevel() const { return _level; }
 
     inline RenderObjectList &getShadowObjects() { return _shadowObjects; }
     inline void setShadowObjects(RenderObjectList &&ro) { _shadowObjects = std::forward<RenderObjectList>(ro); }
@@ -72,6 +74,9 @@ public:
 private:
     RenderObjectList _shadowObjects;
 
+    // Level is a vector, Indicates the location.range: [0 ~ 3]
+    uint _level;
+
     float _shadowCameraFar{0.0F};
 
     Mat4 _matShadowView;
@@ -83,14 +88,16 @@ private:
     geometry::Frustum _splitFrustum;
     geometry::Frustum _lightViewFrustum;
     geometry::AABB _castLightViewBoundingBox;
+
+    // local set
+    float _maxLayerPosz{0.0F};
+    float _maxLayerFarPlane{0.0F};
 };
 
 class CSMLayerInfo : public ShadowTransformInfo {
 public:
     explicit CSMLayerInfo(uint level);
     ~CSMLayerInfo() = default;
-
-    inline uint getLevel() const { return _level; }
 
     inline float getSplitCameraNear() const { return _splitCameraNear; }
     inline void setSplitCameraNear(float splitCameraNear) { _splitCameraNear = splitCameraNear; }
@@ -107,8 +114,6 @@ public:
 private:
     void calculateAtlas(uint level);
 
-    // Level is a vector, Indicates the location.
-    uint _level;
     float _splitCameraNear;
     float _splitCameraFar;
 
@@ -128,6 +133,11 @@ public:
     inline void addCastShadowObject(RenderObject &&obj) { _castShadowObjects.emplace_back(obj); }
     inline void clearCastShadowObjects() { _castShadowObjects.clear(); }
 
+    inline RenderObjectList &getCSMLayerObjects() { return _csmLayerObjects; }
+    inline void setCSMLayerObjects(RenderObjectList &&ro) { _csmLayerObjects = std::forward<RenderObjectList>(ro); }
+    inline void addCSMLayerObject(RenderObject obj) { _csmLayerObjects.emplace_back(obj); }
+    inline void clearCSMLayerObjects() { _csmLayerObjects.clear(); }
+
     inline const ccstd::vector<CSMLayerInfo *> &getLayers() const { return _layers; }
 
     inline ShadowTransformInfo *getSpecialLayer() const { return _specialLayer; }
@@ -140,6 +150,7 @@ private:
     void calculateCSM(const scene::Camera *camera, const scene::DirectionalLight *dirLight, const scene::Shadows *shadowInfo);
 
     RenderObjectList _castShadowObjects;
+    RenderObjectList _csmLayerObjects;
 
     // LevelCount is a scalar, Indicates the number.
     uint _levelCount;

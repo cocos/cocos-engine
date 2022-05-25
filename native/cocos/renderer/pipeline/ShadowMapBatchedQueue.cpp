@@ -62,7 +62,6 @@ void ShadowMapBatchedQueue::gatherLightPasses(const scene::Camera *camera, const
     const scene::Shadows *shadowInfo = sceneData->getShadows();
     const CSMLayers *csmLayers = sceneData->getCSMLayers();
     if (light && shadowInfo->isEnabled() && shadowInfo->getType() == scene::ShadowType::SHADOW_MAP) {
-        const RenderObjectList &castShadowObjects = csmLayers->getCastShadowObjects();
         switch (light->getType()) {
             case scene::LightType::DIRECTIONAL: {
                 const auto *dirLight = static_cast<const scene::DirectionalLight *>(light);
@@ -85,10 +84,11 @@ void ShadowMapBatchedQueue::gatherLightPasses(const scene::Camera *camera, const
             } break;
             case scene::LightType::SPOT: {
                 const auto *spotLight = static_cast<const scene::SpotLight *>(light);
+                const RenderObjectList &castShadowObjects = csmLayers->getCastShadowObjects();
                 if (spotLight->isShadowEnabled()) {
                     const Mat4 matShadowView = light->getNode()->getWorldMatrix().getInversed();
                     Mat4 matShadowProj;
-                    Mat4::createPerspective(spotLight->getSpotAngle(), spotLight->getAspect(), 0.001F, spotLight->getRange(), &matShadowProj);
+                    Mat4::createPerspective(spotLight->getSpotAngle(), 1.0F, 0.001F, spotLight->getRange(), &matShadowProj);
                     const Mat4 matShadowViewProj = matShadowProj * matShadowView;
                     geometry::AABB ab;
                     for (const auto ro : castShadowObjects) {

@@ -31,6 +31,7 @@
 #include "SceneCulling.h"
 #include "core/geometry/AABB.h"
 #include "core/geometry/Frustum.h"
+#include "core/geometry/Intersect.h"
 #include "core/geometry/Sphere.h"
 #include "core/scene-graph/Node.h"
 #include "gfx-base/GFXDevice.h"
@@ -200,21 +201,30 @@ void updateDirFrustum(const geometry::Sphere *cameraBoundingSphere, const Quater
 
  // Todo 如果要接 ocTree,需要去掉 sceneCulling 中 CastShadowObjects 的收集,让 layer.validFrustum 直接从场景八叉树中获取
 void shadowCulling(RenderPipeline *pipeline, const scene::Camera *camera, ShadowTransformInfo *layer) {
-    const PipelineSceneData *sceneData = pipeline->getPipelineSceneData();
-    const CSMLayers *csmLayers = sceneData->getCSMLayers();
+    const auto *sceneData = pipeline->getPipelineSceneData();
+    auto *csmLayers = sceneData->getCSMLayers();
+    const auto *const scene = camera->getScene();
+    const auto *mainLight = scene->getMainLight();
 
     layer->clearShadowObjects();
-    for (const RenderObject &renderObject : csmLayers->getCastShadowObjects()) {
-        const scene::Model *model = renderObject.model;
+    for (const auto it = csmLayers->getCSMLayerObjects().begin(); it != csmLayers->getCSMLayerObjects().end();) {
+        const auto *model = it->model;
         // filter model by view visibility
         if (model->isEnabled()) {
             const uint32_t visibility = camera->getVisibility();
-            const Node *const node = model->getNode();
+            const auto *node = model->getNode();
             if ((model->getNode() && ((visibility & node->getLayer()) == node->getLayer())) ||
                 (visibility & static_cast<uint32_t>(model->getVisFlags()))) {
                 // frustum culling
-                if (model->getWorldBounds()->aabbFrustum(layer->getValidFrustum())) {
-                    layer->addShadowObject(renderObject);
+                const bool accurate = model->getWorldBounds()->aabbFrustum(layer->getValidFrustum());
+                if (accurate) {
+                    layer->addShadowObject(genRenderObject(it->model, camera));
+                    if (layer->getLevel() < static_cast<uint>(mainLight->getShadowCSMLevel())) {
+                        if (static_cast<uint>(mainLight->getShadowCSMPerformanceOptimizationMode()) == 2 &&
+                            aabbFrustumCompletelyInside(*model->getWorldBounds(), layer->getValidFrustum())) {
+                            csmLayers->getCSMLayerObjects().erase(it);
+                        }
+                    }
                 }
             }
         }
@@ -239,6 +249,7 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
 
     sceneData->clearRenderObjects();
     csmLayers->clearCastShadowObjects();
+    csmLayers->clearCSMLayerObjects();
 
     if (skyBox != nullptr && skyBox->isEnabled() && skyBox->getModel() && (static_cast<uint32_t>(camera->getClearFlag()) & skyboxFlag)) {
         sceneData->addRenderObject(genRenderObject(skyBox->getModel(), camera));
@@ -251,6 +262,7 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
             if (model->isEnabled()) {
                 if (model->isCastShadow()) {
                     csmLayers->addCastShadowObject(genRenderObject(model, camera));
+                    csmLayers->addCSMLayerObject(genRenderObject(model, camera));
                 }
 
                 const auto visibility = camera->getVisibility();
@@ -283,6 +295,7 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
                 // cast shadow render Object
                 if (model->isCastShadow()) {
                     csmLayers->addCastShadowObject(genRenderObject(model, camera));
+                    csmLayers->addCSMLayerObject(genRenderObject(model, camera));
                 }
 
                 if ((model->getNode() && ((visibility & node->getLayer()) == node->getLayer())) ||

@@ -29,7 +29,8 @@
 namespace cc {
 namespace pipeline {
 
-ShadowTransformInfo::ShadowTransformInfo() {
+ShadowTransformInfo::ShadowTransformInfo(uint level) {
+    _level = level;
     _validFrustum.setType(geometry::ShapeEnum::SHAPE_FRUSTUM_ACCURATE);
     _splitFrustum.setType(geometry::ShapeEnum::SHAPE_FRUSTUM_ACCURATE);
     _lightViewFrustum.setType(geometry::ShapeEnum::SHAPE_FRUSTUM_ACCURATE);
@@ -60,11 +61,21 @@ void ShadowTransformInfo::createMatrix(const geometry::Frustum &splitFrustum, co
     _castLightViewBoundingBox.merge(_lightViewFrustum);
     float orthoSizeWidth;
     float orthoSizeHeight;
-    if (dirLight->isShadowCSMPerformanceMode()) {
+    if (static_cast<uint>(dirLight->getShadowCSMPerformanceOptimizationMode()) == 3U) {
         orthoSizeWidth = _castLightViewBoundingBox.halfExtents.x;
         orthoSizeHeight = _castLightViewBoundingBox.halfExtents.y;
     } else {
         orthoSizeWidth = orthoSizeHeight = _lightViewFrustum.vertices[0].distance(_lightViewFrustum.vertices[6]);
+    }
+
+    if (static_cast<uint>(dirLight->getShadowCSMLevel()) > 1U && static_cast<uint>(dirLight->getShadowCSMPerformanceOptimizationMode()) == 2U) {
+        if (_level >= static_cast<uint>(dirLight->getShadowCSMLevel() - 1.0F)) {
+            _maxLayerFarPlane = _castLightViewBoundingBox.halfExtents.z;
+            _maxLayerPosz = _castLightViewBoundingBox.center.z;
+        } else {
+            const float alignFarPlaneDist = fabsf(_castLightViewBoundingBox.center.z - _maxLayerPosz) + _maxLayerFarPlane;
+            _castLightViewBoundingBox.halfExtents.z = fmaxf(_castLightViewBoundingBox.center.z, alignFarPlaneDist);
+        }
     }
 
     const float r = _castLightViewBoundingBox.getHalfExtents().z;
@@ -110,8 +121,7 @@ void ShadowTransformInfo::createMatrix(const geometry::Frustum &splitFrustum, co
     _validFrustum.createOrtho(orthoSizeWidth, orthoSizeHeight, 0.1F, _shadowCameraFar, matShadowTrans);
 }
 
-CSMLayerInfo::CSMLayerInfo(uint level) {
-    _level = level;
+CSMLayerInfo::CSMLayerInfo(uint level) : ShadowTransformInfo(level) {
     _splitCameraNear = 0.0F;
     _splitCameraFar = 0.0F;
     _matShadowAtlas.setZero();
@@ -131,7 +141,7 @@ void CSMLayerInfo::calculateAtlas(uint level) {
 
 CSMLayers::CSMLayers() {
     _levelCount = 0U;
-    _specialLayer = new ShadowTransformInfo();
+    _specialLayer = new ShadowTransformInfo(1U);
     _shadowDistance = 0.0F;
 }
 
@@ -238,15 +248,16 @@ void CSMLayers::splitFrustumLevels(scene::DirectionalLight *dirLight) {
 }
 
 void CSMLayers::calculateCSM(const scene::Camera *camera, const scene::DirectionalLight *dirLight, const scene::Shadows *shadowInfo) {
-    const uint level = static_cast<uint>(dirLight->getShadowCSMLevel());
-    const float shadowMapWidth = level > 1U ? shadowInfo->getSize().x * 0.5F : shadowInfo->getSize().x;
+    const int level = static_cast<int>(dirLight->getShadowCSMLevel());
+    const float shadowMapWidth = level > 1 ? shadowInfo->getSize().x * 0.5F : shadowInfo->getSize().x;
 
     if (shadowMapWidth < 0.0F) {
         return;
     }
 
     const Mat4 mat4Trans = getCameraWorldMatrix(camera);
-    for (CSMLayerInfo *layer : _layers) {
+    for (int i = level; i >=0; --i){
+        auto *layer = _layers[i];
         const float nearClamp = layer->getSplitCameraNear();
         const float farClamp = layer->getSplitCameraFar();
         geometry::Frustum splitFrustum;
