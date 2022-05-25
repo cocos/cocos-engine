@@ -207,7 +207,7 @@ inline void clear_vertex(ResourceGraph::vertex_descriptor u, ResourceGraph& g) n
 
 inline void remove_vertex_value_impl(const ResourceGraph::VertexHandle& h, ResourceGraph& g) noexcept { // NOLINT
     using vertex_descriptor = ResourceGraph::vertex_descriptor;
-    cc::visit(
+    ccstd::visit(
         overload(
             [&](const impl::ValueHandle<ManagedTag, vertex_descriptor>& h) {
                 g.resources.erase(g.resources.begin() + std::ptrdiff_t(h.value));
@@ -1324,7 +1324,7 @@ get(T ResourceStates::*memberPointer, ResourceGraph& g) noexcept {
 inline ResourceGraph::vertices_size_type
 id(ResourceGraph::vertex_descriptor u, const ResourceGraph& g) noexcept {
     using vertex_descriptor = ResourceGraph::vertex_descriptor;
-    return cc::visit(
+    return ccstd::visit(
         overload(
             [](const impl::ValueHandle<ManagedTag, vertex_descriptor>& h) {
                 return h.value;
@@ -1347,7 +1347,7 @@ id(ResourceGraph::vertex_descriptor u, const ResourceGraph& g) noexcept {
 inline ResourceGraph::VertexTag
 tag(ResourceGraph::vertex_descriptor u, const ResourceGraph& g) noexcept {
     using vertex_descriptor = ResourceGraph::vertex_descriptor;
-    return cc::visit(
+    return ccstd::visit(
         overload(
             [](const impl::ValueHandle<ManagedTag, vertex_descriptor>&) {
                 return ResourceGraph::VertexTag{ManagedTag{}};
@@ -1370,7 +1370,7 @@ tag(ResourceGraph::vertex_descriptor u, const ResourceGraph& g) noexcept {
 inline ResourceGraph::VertexValue
 value(ResourceGraph::vertex_descriptor u, ResourceGraph& g) noexcept {
     using vertex_descriptor = ResourceGraph::vertex_descriptor;
-    return cc::visit(
+    return ccstd::visit(
         overload(
             [&](const impl::ValueHandle<ManagedTag, vertex_descriptor>& h) {
                 return ResourceGraph::VertexValue{&g.resources[h.value]};
@@ -1393,7 +1393,7 @@ value(ResourceGraph::vertex_descriptor u, ResourceGraph& g) noexcept {
 inline ResourceGraph::VertexConstValue
 value(ResourceGraph::vertex_descriptor u, const ResourceGraph& g) noexcept {
     using vertex_descriptor = ResourceGraph::vertex_descriptor;
-    return cc::visit(
+    return ccstd::visit(
         overload(
             [&](const impl::ValueHandle<ManagedTag, vertex_descriptor>& h) {
                 return ResourceGraph::VertexConstValue{&g.resources[h.value]};
@@ -2130,7 +2130,7 @@ get(RenderGraph::ValidTag /*tag*/, RenderGraph& g) noexcept {
 inline RenderGraph::vertices_size_type
 id(RenderGraph::vertex_descriptor u, const RenderGraph& g) noexcept {
     using vertex_descriptor = RenderGraph::vertex_descriptor;
-    return cc::visit(
+    return ccstd::visit(
         overload(
             [](const impl::ValueHandle<RasterTag, vertex_descriptor>& h) {
                 return h.value;
@@ -2168,7 +2168,7 @@ id(RenderGraph::vertex_descriptor u, const RenderGraph& g) noexcept {
 inline RenderGraph::VertexTag
 tag(RenderGraph::vertex_descriptor u, const RenderGraph& g) noexcept {
     using vertex_descriptor = RenderGraph::vertex_descriptor;
-    return cc::visit(
+    return ccstd::visit(
         overload(
             [](const impl::ValueHandle<RasterTag, vertex_descriptor>&) {
                 return RenderGraph::VertexTag{RasterTag{}};
@@ -2206,7 +2206,7 @@ tag(RenderGraph::vertex_descriptor u, const RenderGraph& g) noexcept {
 inline RenderGraph::VertexValue
 value(RenderGraph::vertex_descriptor u, RenderGraph& g) noexcept {
     using vertex_descriptor = RenderGraph::vertex_descriptor;
-    return cc::visit(
+    return ccstd::visit(
         overload(
             [&](const impl::ValueHandle<RasterTag, vertex_descriptor>& h) {
                 return RenderGraph::VertexValue{&g.rasterPasses[h.value]};
@@ -2244,7 +2244,7 @@ value(RenderGraph::vertex_descriptor u, RenderGraph& g) noexcept {
 inline RenderGraph::VertexConstValue
 value(RenderGraph::vertex_descriptor u, const RenderGraph& g) noexcept {
     using vertex_descriptor = RenderGraph::vertex_descriptor;
-    return cc::visit(
+    return ccstd::visit(
         overload(
             [&](const impl::ValueHandle<RasterTag, vertex_descriptor>& h) {
                 return RenderGraph::VertexConstValue{&g.rasterPasses[h.value]};

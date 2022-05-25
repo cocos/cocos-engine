@@ -1,7 +1,3 @@
-/**
- * @packageDocumentation
- */
-
 import { EDITOR } from 'internal:constants';
 import { Filter } from '../../../core/assets/asset-enum';
 import { legacyCC } from '../../../core/global-exports';

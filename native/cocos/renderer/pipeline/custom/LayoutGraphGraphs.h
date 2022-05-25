@@ -716,7 +716,7 @@ get(T DescriptorDB::*memberPointer, LayoutGraph& g) noexcept {
 inline LayoutGraph::vertices_size_type
 id(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept {
     using vertex_descriptor = LayoutGraph::vertex_descriptor;
-    return cc::visit(
+    return ccstd::visit(
         overload(
             [](const impl::ValueHandle<RenderStageTag, vertex_descriptor>& h) {
                 return h.value;
@@ -730,7 +730,7 @@ id(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept {
 inline LayoutGraph::VertexTag
 tag(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept {
     using vertex_descriptor = LayoutGraph::vertex_descriptor;
-    return cc::visit(
+    return ccstd::visit(
         overload(
             [](const impl::ValueHandle<RenderStageTag, vertex_descriptor>&) {
                 return LayoutGraph::VertexTag{RenderStageTag{}};
@@ -744,7 +744,7 @@ tag(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept {
 inline LayoutGraph::VertexValue
 value(LayoutGraph::vertex_descriptor u, LayoutGraph& g) noexcept {
     using vertex_descriptor = LayoutGraph::vertex_descriptor;
-    return cc::visit(
+    return ccstd::visit(
         overload(
             [&](const impl::ValueHandle<RenderStageTag, vertex_descriptor>& h) {
                 return LayoutGraph::VertexValue{&g.stages[h.value]};
@@ -758,7 +758,7 @@ value(LayoutGraph::vertex_descriptor u, LayoutGraph& g) noexcept {
 inline LayoutGraph::VertexConstValue
 value(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept {
     using vertex_descriptor = LayoutGraph::vertex_descriptor;
-    return cc::visit(
+    return ccstd::visit(
         overload(
             [&](const impl::ValueHandle<RenderStageTag, vertex_descriptor>& h) {
                 return LayoutGraph::VertexConstValue{&g.stages[h.value]};
@@ -1200,7 +1200,7 @@ inline void clear_vertex(LayoutGraph::vertex_descriptor u, LayoutGraph& g) noexc
 
 inline void remove_vertex_value_impl(const LayoutGraph::VertexHandle& h, LayoutGraph& g) noexcept { // NOLINT
     using vertex_descriptor = LayoutGraph::vertex_descriptor;
-    cc::visit(
+    ccstd::visit(
         overload(
             [&](const impl::ValueHandle<RenderStageTag, vertex_descriptor>& h) {
                 g.stages.erase(g.stages.begin() + std::ptrdiff_t(h.value));
@@ -1416,7 +1416,7 @@ get(T PipelineLayoutData::*memberPointer, LayoutGraphData& g) noexcept {
 inline LayoutGraphData::vertices_size_type
 id(LayoutGraphData::vertex_descriptor u, const LayoutGraphData& g) noexcept {
     using vertex_descriptor = LayoutGraphData::vertex_descriptor;
-    return cc::visit(
+    return ccstd::visit(
         overload(
             [](const impl::ValueHandle<RenderStageTag, vertex_descriptor>& h) {
                 return h.value;
@@ -1430,7 +1430,7 @@ id(LayoutGraphData::vertex_descriptor u, const LayoutGraphData& g) noexcept {
 inline LayoutGraphData::VertexTag
 tag(LayoutGraphData::vertex_descriptor u, const LayoutGraphData& g) noexcept {
     using vertex_descriptor = LayoutGraphData::vertex_descriptor;
-    return cc::visit(
+    return ccstd::visit(
         overload(
             [](const impl::ValueHandle<RenderStageTag, vertex_descriptor>&) {
                 return LayoutGraphData::VertexTag{RenderStageTag{}};
@@ -1444,7 +1444,7 @@ tag(LayoutGraphData::vertex_descriptor u, const LayoutGraphData& g) noexcept {
 inline LayoutGraphData::VertexValue
 value(LayoutGraphData::vertex_descriptor u, LayoutGraphData& g) noexcept {
     using vertex_descriptor = LayoutGraphData::vertex_descriptor;
-    return cc::visit(
+    return ccstd::visit(
         overload(
             [&](const impl::ValueHandle<RenderStageTag, vertex_descriptor>& h) {
                 return LayoutGraphData::VertexValue{&g.stages[h.value]};
@@ -1458,7 +1458,7 @@ value(LayoutGraphData::vertex_descriptor u, LayoutGraphData& g) noexcept {
 inline LayoutGraphData::VertexConstValue
 value(LayoutGraphData::vertex_descriptor u, const LayoutGraphData& g) noexcept {
     using vertex_descriptor = LayoutGraphData::vertex_descriptor;
-    return cc::visit(
+    return ccstd::visit(
         overload(
             [&](const impl::ValueHandle<RenderStageTag, vertex_descriptor>& h) {
                 return LayoutGraphData::VertexConstValue{&g.stages[h.value]};
@@ -1900,7 +1900,7 @@ inline void clear_vertex(LayoutGraphData::vertex_descriptor u, LayoutGraphData& 
 
 inline void remove_vertex_value_impl(const LayoutGraphData::VertexHandle& h, LayoutGraphData& g) noexcept { // NOLINT
     using vertex_descriptor = LayoutGraphData::vertex_descriptor;
-    cc::visit(
+    ccstd::visit(
         overload(
             [&](const impl::ValueHandle<RenderStageTag, vertex_descriptor>& h) {
                 g.stages.erase(g.stages.begin() + std::ptrdiff_t(h.value));

@@ -27,7 +27,7 @@
 
 #include "base/Macros.h"
 #include "base/TypeDef.h"
-#include "base/Variant.h"
+#include "base/std/variant.h"
 #include "core/ArrayBuffer.h"
 
 namespace cc {
@@ -73,7 +73,7 @@ public:
     using UInt16Reader = uint16_t (DataView::*)(uint32_t) const;
     using Int8Reader = int8_t (DataView::*)(uint32_t) const;
     using UInt8Reader = uint8_t (DataView::*)(uint32_t) const;
-    using ReaderVariant = cc::variant<Int32Reader, UInt32Reader, Int16Reader, UInt16Reader, Int8Reader, UInt8Reader>;
+    using ReaderVariant = ccstd::variant<Int32Reader, UInt32Reader, Int16Reader, UInt16Reader, Int8Reader, UInt8Reader>;
     static ccstd::unordered_map<ccstd::string, ReaderVariant> intReaderMap;
     int32_t readInt(ReaderVariant &readerVariant, uint32_t offset);
 

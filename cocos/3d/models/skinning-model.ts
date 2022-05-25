@@ -80,8 +80,6 @@ const ab_1 = new AABB();
  * 实时计算动画的蒙皮模型。
  */
 export class SkinningModel extends MorphModel {
-    public uploadAnimation = null;
-
     private _buffers: Buffer[] = [];
     private _dataArray: Float32Array[] = [];
     private _joints: IJointInfo[] = [];
@@ -102,6 +100,20 @@ export class SkinningModel extends MorphModel {
         super.destroy();
     }
 
+    /**
+     * @en Abstract function for [[BakedSkinningModel]], empty implementation.
+     * @zh 由 [[BakedSkinningModel]] 继承的空函数。
+     */
+    public uploadAnimation () {}
+
+    /**
+     * @en Bind the skeleton with its skinning root node and the mesh data.
+     * @zh 在模型中绑定一个骨骼，需要提供骨骼的蒙皮根节点和蒙皮网格数据。
+     * @param skeleton @en The skeleton to be bound @zh 要绑定的骨骼
+     * @param skinningRoot @en The skinning root of the skeleton @zh 骨骼的蒙皮根节点
+     * @param mesh @en The mesh @zh 蒙皮网格
+     * @returns void
+     */
     public bindSkeleton (skeleton: Skeleton | null = null, skinningRoot: Node | null = null, mesh: Mesh | null = null) {
         for (let i = 0; i < this._joints.length; i++) {
             deleteTransform(this._joints[i].target);
@@ -126,6 +138,11 @@ export class SkinningModel extends MorphModel {
         }
     }
 
+    /**
+     * @en Update world transform and bounding boxes for the model
+     * @zh 更新模型的世界矩阵和包围盒
+     * @param stamp @en The update time stamp @zh 更新的时间戳
+     */
     public updateTransform (stamp: number) {
         const root = this.transform;
         // @ts-expect-error TS2445
@@ -153,6 +170,12 @@ export class SkinningModel extends MorphModel {
         }
     }
 
+    /**
+     * @en Update uniform buffer objects for rendering.
+     * @zh 更新用于渲染的 UBO
+     * @param stamp @en The update time stamp @zh 更新的时间戳
+     * @returns @en successful or not @zh 更新是否成功
+     */
     public updateUBOs (stamp: number) {
         super.updateUBOs(stamp);
         for (let i = 0; i < this._joints.length; i++) {
@@ -168,6 +191,13 @@ export class SkinningModel extends MorphModel {
         return true;
     }
 
+    /**
+     * @en Initialize sub model with the sub mesh data and the material
+     * @zh 用子网格数据和材质初始化一个子模型
+     * @param idx @en The index of the sub model to be initialized @zh 需要初始化的子模型序号
+     * @param subMeshData @en The sub mesh data @zh 子网格数据
+     * @param mat @en The material @zh 子模型材质
+     */
     public initSubModel (idx: number, subMeshData: RenderingSubMesh, mat: Material) {
         const original = subMeshData.vertexBuffers;
         const iaInfo = subMeshData.iaInfo;
@@ -176,6 +206,7 @@ export class SkinningModel extends MorphModel {
         iaInfo.vertexBuffers = original;
     }
 
+    // override
     public getMacroPatches (subModelIndex: number): IMacroPatch[] | null {
         const superMacroPatches = super.getMacroPatches(subModelIndex);
 

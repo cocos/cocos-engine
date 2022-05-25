@@ -70,7 +70,7 @@ void PassInstance::overridePipelineStates(const IPassInfo &original, const PassO
     onStateChange();
 }
 
-bool PassInstance::tryCompile(const cc::optional<MacroRecord> &defineOverrides) {
+bool PassInstance::tryCompile(const ccstd::optional<MacroRecord> &defineOverrides) {
     if (defineOverrides.has_value()) {
         if (!overrideMacros(_defines, defineOverrides.value())) return false;
     }

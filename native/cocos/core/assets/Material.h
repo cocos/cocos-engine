@@ -28,8 +28,8 @@
 #include "base/Ptr.h"
 #include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
-#include "cocos/base/Optional.h"
-#include "cocos/base/Variant.h"
+#include "base/std/optional.h"
+#include "base/std/variant.h"
 #include "core/assets/EffectAsset.h"
 
 namespace cc {
@@ -57,25 +57,25 @@ struct IMaterialInfo {
      * @zh
      * 这个材质将使用的 EffectAsset，通过 effect 名指定，和 `effectAsset` 至少要指定一个。
      */
-    cc::optional<ccstd::string> effectName;
+    ccstd::optional<ccstd::string> effectName;
     /**
      * @en
      * The index of the technique to use.
      * @zh
      * 这个材质将使用第几个 technique，默认为 0。
      */
-    cc::optional<uint32_t> technique;
+    ccstd::optional<uint32_t> technique;
 
-    using DefinesType = cc::variant<MacroRecord, ccstd::vector<MacroRecord>>;
+    using DefinesType = ccstd::variant<MacroRecord, ccstd::vector<MacroRecord>>;
     /**
      * @en
      * The shader macro definitions. Default to 0 or the specified value in [[EffectAsset]].
      * @zh
      * 这个材质定义的预处理宏，默认全为 0，或 [[EffectAsset]] 中的指定值。
      */
-    cc::optional<DefinesType> defines;
+    ccstd::optional<DefinesType> defines;
 
-    using PassOverridesType = cc::variant<PassOverrides, ccstd::vector<PassOverrides>>;
+    using PassOverridesType = ccstd::variant<PassOverrides, ccstd::vector<PassOverrides>>;
     /**
      * @en
      * The override values on top of the pipeline states specified in [[EffectAsset]].
@@ -83,7 +83,7 @@ struct IMaterialInfo {
      * 这个材质的自定义管线状态，将覆盖 effect 中的属性。<br>
      * 注意在可能的情况下请尽量少的自定义管线状态，以减小对渲染效率的影响。
      */
-    cc::optional<PassOverridesType> states;
+    ccstd::optional<PassOverridesType> states;
 };
 
 class Material : public Asset {
@@ -94,10 +94,7 @@ public:
      * @zh 获取一个材质的哈希值
      * @param material
      */
-    static uint64_t getHashForMaterial(Material *material);
-    inline static double getHashForMaterialForJS(Material *material) {
-        return static_cast<double>(getHashForMaterial(material));
-    }
+    static ccstd::hash_t getHashForMaterial(Material *material);
 
     Material();
     ~Material() override;
@@ -110,7 +107,7 @@ public:
     void initialize(const IMaterialInfo &info);
     void reset(const IMaterialInfo &info);
 
-    void initDefault(const cc::optional<ccstd::string> &uuid) override;
+    void initDefault(const ccstd::optional<ccstd::string> &uuid) override;
     bool validate() const override;
 
     /**
@@ -243,7 +240,7 @@ public:
 protected:
     std::shared_ptr<ccstd::vector<IntrusivePtr<scene::Pass>>> _passes;
 
-    uint64_t _hash{0};
+    ccstd::hash_t _hash{0U};
 
 public:
     /**
@@ -290,12 +287,8 @@ public:
      * @en The hash value of this material.
      * @zh 材质的 hash。
      */
-    inline uint64_t getHash() const {
+    inline ccstd::hash_t getHash() const {
         return _hash;
-    }
-
-    inline double getHashForJS() const {
-        return static_cast<double>(getHash());
     }
 
     /**
@@ -321,7 +314,7 @@ protected:
 
     template <typename T1, typename T2>
     void prepareInfo(const T1 &patch, ccstd::vector<T2> &cur) {
-        auto *pOneElement = cc::get_if<T2>(&patch);
+        auto *pOneElement = ccstd::get_if<T2>(&patch);
         if (pOneElement != nullptr) {
             size_t len = _effectAsset != nullptr ? _effectAsset->_techniques[_techIdx].passes.size() : 1;
 
@@ -337,7 +330,7 @@ protected:
                 cur[i] = patchArray[i];
             }
         } else {
-            auto *pPatchArray = cc::get_if<ccstd::vector<T2>>(&patch);
+            auto *pPatchArray = ccstd::get_if<ccstd::vector<T2>>(&patch);
             if (pPatchArray != nullptr) {
                 const auto &patchArray = *pPatchArray;
                 size_t len = patchArray.size();

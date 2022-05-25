@@ -213,7 +213,7 @@ Mesh::ICreateInfo MeshUtils::createMeshInfo(const IGeometry &geometry, const ICr
         bufferBlob.addBuffer(indexBuffer);
     }
 
-    cc::optional<Vec3> minPosition = geometry.minPos;
+    ccstd::optional<Vec3> minPosition = geometry.minPos;
     if (!minPosition.has_value() && options.calculateBounds.has_value() && options.calculateBounds.value()) {
         minPosition = Vec3(std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity());
         for (uint32_t iVertex = 0; iVertex < vertCount; ++iVertex) {
@@ -221,7 +221,7 @@ Mesh::ICreateInfo MeshUtils::createMeshInfo(const IGeometry &geometry, const ICr
         }
     }
 
-    cc::optional<Vec3> maxPosition = geometry.maxPos;
+    ccstd::optional<Vec3> maxPosition = geometry.maxPos;
     if (!maxPosition.has_value() && options.calculateBounds.has_value() && options.calculateBounds.value()) {
         maxPosition = Vec3(-std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity());
         for (uint32_t iVertex = 0; iVertex < vertCount; ++iVertex) {

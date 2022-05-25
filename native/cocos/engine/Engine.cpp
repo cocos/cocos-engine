@@ -126,7 +126,7 @@ Engine::~Engine() {
     // Profiler depends on DebugRenderer, should delete it after deleting Profiler,
     // and delete DebugRenderer after RenderPipeline::destroy which destroy DebugRenderer.
     delete _debugRenderer;
-    
+
     //TODO(): Delete some global objects.
 
     FreeTypeFontFace::destroyFreeType();
@@ -369,6 +369,8 @@ bool Engine::dispatchWindowEvent(const WindowEvent &ev) {
     } else if (ev.type == WindowEvent::Type::SIZE_CHANGED ||
                ev.type == WindowEvent::Type::RESIZED) {
         cc::EventDispatcher::dispatchResizeEvent(ev.width, ev.height);
+        auto *w = CC_GET_PLATFORM_INTERFACE(ISystemWindow);
+        w->setViewSize(ev.width, ev.height);
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::HIDDEN ||
                ev.type == WindowEvent::Type::MINIMIZED) {

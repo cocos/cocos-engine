@@ -42,7 +42,7 @@ void RenderBatchedQueue::clear() {
 }
 
 void RenderBatchedQueue::uploadBuffers(gfx::CommandBuffer *cmdBuffer) {
-    for (auto *batchedBuffer : _queues) {
+    for (const auto *batchedBuffer : _queues) {
         const auto &batches = batchedBuffer->getBatches();
         for (const auto &batch : batches) {
             if (!batch.mergeCount) continue;
@@ -57,8 +57,8 @@ void RenderBatchedQueue::uploadBuffers(gfx::CommandBuffer *cmdBuffer) {
     }
 }
 
-void RenderBatchedQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) {
-    for (auto *batchedBuffer : _queues) {
+void RenderBatchedQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer, gfx::DescriptorSet *ds, uint offset) {
+    for (const auto *batchedBuffer : _queues) {
         bool boundPSO = false;
         const auto &batches = batchedBuffer->getBatches();
         for (const auto &batch : batches) {
@@ -69,7 +69,7 @@ void RenderBatchedQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::Rend
                 cmdBuffer->bindDescriptorSet(materialSet, batch.pass->getDescriptorSet());
                 boundPSO = true;
             }
-
+            if (ds) cmdBuffer->bindDescriptorSet(globalSet, ds, 1, &offset);
             cmdBuffer->bindDescriptorSet(localSet, batch.descriptorSet, batchedBuffer->getDynamicOffset());
             cmdBuffer->bindInputAssembler(batch.ia);
             cmdBuffer->draw(batch.ia);

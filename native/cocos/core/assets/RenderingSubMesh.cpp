@@ -85,7 +85,7 @@ const IGeometricInfo &RenderingSubMesh::getGeometricInfo() {
     auto index = static_cast<index_t>(_subMeshIdx.value());
 
     const auto &positionsVar = _mesh->readAttribute(index, gfx::ATTR_NAME_POSITION);
-    const auto *pPositions = cc::get_if<Float32Array>(&positionsVar);
+    const auto *pPositions = ccstd::get_if<Float32Array>(&positionsVar);
     if (pPositions != nullptr) {
         const auto &positions = *pPositions;
         const auto &indicesVar = _mesh->readIndices(index);
@@ -257,7 +257,7 @@ const gfx::BufferList &RenderingSubMesh::getJointMappedBuffers() {
 
             mapBuffer(
                 dataView, [&](const DataVariant &cur, uint32_t /*idx*/, const DataView & /*view*/) -> DataVariant {
-                    auto iter = std::find(idxMap.begin(), idxMap.end(), cc::get<0>(cur));
+                    auto iter = std::find(idxMap.begin(), idxMap.end(), ccstd::get<0>(cur));
                     if (iter != idxMap.end()) {
                         return static_cast<int32_t>(iter - idxMap.begin());
                     }

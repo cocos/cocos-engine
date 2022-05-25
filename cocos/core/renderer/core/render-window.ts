@@ -54,8 +54,8 @@ const orientationMap: Record<Orientation, SurfaceTransform> = {
 export class RenderWindow {
     /**
      * @en Get window width. Pre-rotated (i.e. rotationally invariant, always in identity/portrait mode) if possible.
-     * If you want to get oriented size instead, you should use [[Camera.width]] which corresponds to the current screen rotation.
-     * @zh 获取窗口宽度。如果支持交换链预变换，返回值将始终处于单位旋转（竖屏）坐标系下。如果需要获取旋转后的尺寸，请使用 [[Camera.width]]。
+     * If you want to get oriented size instead, you should use [[renderer.scene.Camera.width]] which corresponds to the current screen rotation.
+     * @zh 获取窗口宽度。如果支持交换链预变换，返回值将始终处于单位旋转（竖屏）坐标系下。如果需要获取旋转后的尺寸，请使用 [[renderer.scene.Camera.width]]。
      */
     get width (): number {
         return this._width;
@@ -63,8 +63,8 @@ export class RenderWindow {
 
     /**
      * @en Get window height. Pre-rotated (i.e. rotationally invariant, always in identity/portrait mode) if possible.
-     * If you want to get oriented size instead, you should use [[Camera.width]] which corresponds to the current screen rotation.
-     * @zh 获取窗口高度。如果支持交换链预变换，返回值将始终处于单位旋转（竖屏）坐标系下。如果需要获取旋转后的尺寸，请使用 [[Camera.height]]。
+     * If you want to get oriented size instead, you should use [[renderer.scene.Camera.width]] which corresponds to the current screen rotation.
+     * @zh 获取窗口高度。如果支持交换链预变换，返回值将始终处于单位旋转（竖屏）坐标系下。如果需要获取旋转后的尺寸，请使用 [[renderer.scene.Camera.height]]。
      */
     get height (): number {
         return this._height;

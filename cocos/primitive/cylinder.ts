@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module 3d/primitive
- */
-
 import { Vec3 } from '../core/math';
 import { IGeometry, IGeometryOptions } from './define';
 
@@ -38,10 +33,10 @@ import { IGeometry, IGeometryOptions } from './define';
  * 圆柱参数选项。
  */
 export interface ICylinderOptions extends IGeometryOptions {
-  radialSegments: number;
-  heightSegments: number;
-  capped: boolean;
-  arc: number;
+    radialSegments: number;
+    heightSegments: number;
+    capped: boolean;
+    arc: number;
 }
 
 const temp1 = new Vec3(0, 0, 0);
@@ -53,9 +48,10 @@ const temp2 = new Vec3(0, 0, 0);
  * but may be repositioned through the `center` option.
  * @zh
  * 生成一个圆柱。
- * @param radiusTop 顶部半径。
- * @param radiusBottom 底部半径。
- * @param opts 圆柱参数选项。
+ * @param radiusTop @en Radius of top plane. @zh 顶部半径。
+ * @param radiusBottom @en Radius of bottom plane.  @zh 底部半径。
+ * @param height @en The cylinder height.  @zh 圆柱的高
+ * @param opts @en Options of cylinder.  @zh 圆柱参数选项。
  */
 export default function cylinder (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts: RecursivePartial<ICylinderOptions> = {}): IGeometry {
     const halfHeight = height * 0.5;

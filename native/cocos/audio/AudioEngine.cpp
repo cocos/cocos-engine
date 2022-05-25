@@ -246,6 +246,7 @@ int AudioEngine::play2d(const ccstd::string &filePath, bool loop, float volume, 
             audioRef.volume = volume;
             audioRef.loop = loop;
             audioRef.filePath = &it->first;
+            audioRef.state = AudioState::PLAYING;
 
             if (profileHelper) {
                 profileHelper->lastPlayTime = std::chrono::high_resolution_clock::now();

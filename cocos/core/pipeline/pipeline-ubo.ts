@@ -75,6 +75,7 @@ export class PipelineUBO {
         const mainLight = scene.mainLight;
         const sceneData = pipeline.pipelineSceneData;
         const ambient = sceneData.ambient;
+        const skybox = sceneData.skybox;
         const fog = sceneData.fog;
         const shadowInfo = sceneData.shadows;
         const cv = bufferView;
@@ -129,7 +130,7 @@ export class PipelineUBO {
         cv[UBOCamera.AMBIENT_GROUND_OFFSET + 0] = ambient.groundAlbedo.x;
         cv[UBOCamera.AMBIENT_GROUND_OFFSET + 1] = ambient.groundAlbedo.y;
         cv[UBOCamera.AMBIENT_GROUND_OFFSET + 2] = ambient.groundAlbedo.z;
-        cv[UBOCamera.AMBIENT_GROUND_OFFSET + 3] = ambient.mipmapCount;
+        cv[UBOCamera.AMBIENT_GROUND_OFFSET + 3] = skybox.envmap ? skybox.envmap?.mipmapLevel : 1.0;
 
         Mat4.toArray(cv, camera.matView, UBOCamera.MAT_VIEW_OFFSET);
         Mat4.toArray(cv, camera.node.worldMatrix, UBOCamera.MAT_VIEW_INV_OFFSET);
@@ -174,7 +175,7 @@ export class PipelineUBO {
         const sv = bufferView;
 
         if (shadowInfo.enabled) {
-            if (mainLight && shadowInfo.type === ShadowType.ShadowMap) {
+            if (mainLight && mainLight.shadowEnabled && shadowInfo.type === ShadowType.ShadowMap) {
                 let near = 0.1;
                 let far = 0;
                 const matShadowView = shadowInfo.matShadowView;
@@ -278,7 +279,7 @@ export class PipelineUBO {
             Mat4.invert(_matShadowView, (light as any).node.getWorldMatrix());
             Mat4.toArray(sv, _matShadowView, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
 
-            Mat4.perspective(_matShadowProj, (light as any).angle, (light as any).aspect, 0.001, (light as any).range);
+            Mat4.perspective(_matShadowProj, (light as any).angle, 1.0, 0.001, (light as any).range);
 
             Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
             Mat4.toArray(sv, _matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);

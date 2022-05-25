@@ -30,7 +30,7 @@
 #include "base/Ptr.h"
 #include "base/RefCounted.h"
 #include "base/std/container/string.h"
-#include "cocos/base/Optional.h"
+#include "base/std/optional.h"
 #include "cocos/math/Utils.h"
 #include "core/geometry/Frustum.h"
 #include "core/geometry/Ray.h"
@@ -118,10 +118,10 @@ struct ICameraInfo {
     ccstd::string name;
     Node *node{nullptr};
     CameraProjection projection;
-    cc::optional<uint32_t> targetDisplay;
+    ccstd::optional<uint32_t> targetDisplay;
     RenderWindow *window{nullptr};
     uint32_t priority{0};
-    cc::optional<ccstd::string> pipeline;
+    ccstd::optional<ccstd::string> pipeline;
 };
 
 class Camera : public RefCounted {

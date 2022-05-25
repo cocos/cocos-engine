@@ -23,10 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
 import { Device, BufferUsageBit, MemoryUsageBit, Attribute, Buffer, BufferInfo, InputAssembler, InputAssemblerInfo } from '../../core/gfx';
 import { getComponentPerVertex } from './vertex-format';
 import { getError, warnID } from '../../core/platform/debug';
@@ -137,7 +133,7 @@ export class MeshBuffer {
     }
 
     public checkCapacity (vertexCount: number, indexCount: number) {
-        const maxVertex = this.vertexOffset + vertexCount;
+        const maxVertex = (this.vertexOffset + vertexCount) * this._floatsPerVertex;
         const maxIndex = this.indexOffset + indexCount;
         if (maxVertex > this._initVDataCount || maxIndex > this._initIDataCount) {
             return false;

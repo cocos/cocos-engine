@@ -63,7 +63,7 @@ private:
     ccstd::vector<const scene::Light *> _validLights;
     ccstd::vector<gfx::Texture *> _usedTextures;
 
-    static ccstd::unordered_map<size_t, cc::gfx::RenderPass *> renderPassHashMap;
+    static ccstd::unordered_map<ccstd::hash_t, cc::gfx::RenderPass *> renderPassHashMap;
 };
 } // namespace pipeline
 } // namespace cc
