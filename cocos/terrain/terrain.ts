@@ -691,8 +691,8 @@ export class TerrainBlock {
     }
 
     /**
-     * @en 地形块的可见性
-     * @zh block visible
+     * @zh 地形块的可见性
+     * @en The visibility of the block
      */
     set visible (val) {
         if (this._renderable._model !== null) {

@@ -51,7 +51,7 @@ const temp2 = new Vec3(0, 0, 0);
  * @param radiusTop @en Radius of top plane. @zh 顶部半径。
  * @param radiusBottom @en Radius of bottom plane.  @zh 底部半径。
  * @param height @en The cylinder height.  @zh 圆柱的高
- * @param opts @en Options of cylinder.  @zh 圆柱参数选项。
+ * @param opts @en The optional creation parameters of the cylinder.  @zh 圆柱参数选项。
  */
 export default function cylinder (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts: RecursivePartial<ICylinderOptions> = {}): IGeometry {
     const halfHeight = height * 0.5;
