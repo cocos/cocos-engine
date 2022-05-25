@@ -159,8 +159,8 @@ inline void remove_edge(ResourceAccessGraph::vertex_descriptor u, ResourceAccess
     });
 }
 
-inline void remove_edge(ResourceAccessGraph::out_edge_iterator iter, ResourceAccessGraph& g) noexcept { // NOLINT
-    auto e = *iter;
+inline void remove_edge(ResourceAccessGraph::out_edge_iterator outIter, ResourceAccessGraph& g) noexcept { // NOLINT
+    auto e = *outIter;
     const auto u = source(e, g);
     const auto v = target(e, g);
     auto& s = g.vertices[u];
@@ -168,7 +168,7 @@ inline void remove_edge(ResourceAccessGraph::out_edge_iterator iter, ResourceAcc
     auto inIter = std::find(t.inEdges.begin(), t.inEdges.end(), ResourceAccessGraph::InEdge(u));
     CC_EXPECTS(inIter != t.inEdges.end());
     t.inEdges.erase(inIter);
-    s.outEdges.erase(iter.base());
+    s.outEdges.erase(outIter.base());
 }
 
 inline void remove_edge(ResourceAccessGraph::edge_descriptor e, ResourceAccessGraph& g) noexcept { // NOLINT

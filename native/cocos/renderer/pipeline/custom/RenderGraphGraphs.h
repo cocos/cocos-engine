@@ -159,8 +159,8 @@ inline void remove_edge(ResourceGraph::vertex_descriptor u, ResourceGraph::verte
     });
 }
 
-inline void remove_edge(ResourceGraph::out_edge_iterator iter, ResourceGraph& g) noexcept { // NOLINT
-    auto e = *iter;
+inline void remove_edge(ResourceGraph::out_edge_iterator outIter, ResourceGraph& g) noexcept { // NOLINT
+    auto e = *outIter;
     const auto u = source(e, g);
     const auto v = target(e, g);
     auto& s = g.vertices[u];
@@ -168,7 +168,7 @@ inline void remove_edge(ResourceGraph::out_edge_iterator iter, ResourceGraph& g)
     auto inIter = std::find(t.inEdges.begin(), t.inEdges.end(), ResourceGraph::InEdge(u));
     CC_EXPECTS(inIter != t.inEdges.end());
     t.inEdges.erase(inIter);
-    s.outEdges.erase(iter.base());
+    s.outEdges.erase(outIter.base());
 }
 
 inline void remove_edge(ResourceGraph::edge_descriptor e, ResourceGraph& g) noexcept { // NOLINT
@@ -571,8 +571,8 @@ inline void remove_edge(SubpassGraph::vertex_descriptor u, SubpassGraph::vertex_
     });
 }
 
-inline void remove_edge(SubpassGraph::out_edge_iterator iter, SubpassGraph& g) noexcept { // NOLINT
-    auto e = *iter;
+inline void remove_edge(SubpassGraph::out_edge_iterator outIter, SubpassGraph& g) noexcept { // NOLINT
+    auto e = *outIter;
     const auto u = source(e, g);
     const auto v = target(e, g);
     auto& s = g.vertices[u];
@@ -580,7 +580,7 @@ inline void remove_edge(SubpassGraph::out_edge_iterator iter, SubpassGraph& g) n
     auto inIter = std::find(t.inEdges.begin(), t.inEdges.end(), SubpassGraph::InEdge(u));
     CC_EXPECTS(inIter != t.inEdges.end());
     t.inEdges.erase(inIter);
-    s.outEdges.erase(iter.base());
+    s.outEdges.erase(outIter.base());
 }
 
 inline void remove_edge(SubpassGraph::edge_descriptor e, SubpassGraph& g) noexcept { // NOLINT
@@ -786,8 +786,8 @@ inline void remove_edge(RenderGraph::vertex_descriptor u, RenderGraph::vertex_de
     });
 }
 
-inline void remove_edge(RenderGraph::out_edge_iterator iter, RenderGraph& g) noexcept { // NOLINT
-    auto e = *iter;
+inline void remove_edge(RenderGraph::out_edge_iterator outIter, RenderGraph& g) noexcept { // NOLINT
+    auto e = *outIter;
     const auto u = source(e, g);
     const auto v = target(e, g);
     auto& s = g.vertices[u];
@@ -795,7 +795,7 @@ inline void remove_edge(RenderGraph::out_edge_iterator iter, RenderGraph& g) noe
     auto inIter = std::find(t.inEdges.begin(), t.inEdges.end(), RenderGraph::InEdge(u));
     CC_EXPECTS(inIter != t.inEdges.end());
     t.inEdges.erase(inIter);
-    s.outEdges.erase(iter.base());
+    s.outEdges.erase(outIter.base());
 }
 
 inline void remove_edge(RenderGraph::edge_descriptor e, RenderGraph& g) noexcept { // NOLINT

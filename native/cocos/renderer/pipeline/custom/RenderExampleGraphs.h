@@ -158,19 +158,19 @@ inline void remove_edge(RenderDependencyGraph::vertex_descriptor u, RenderDepend
     });
 }
 
-inline void remove_edge(RenderDependencyGraph::out_edge_iterator iter, RenderDependencyGraph& g) noexcept { // NOLINT
-    auto e = *iter;
+inline void remove_edge(RenderDependencyGraph::out_edge_iterator outIter, RenderDependencyGraph& g) noexcept { // NOLINT
+    auto e = *outIter;
     const auto u = source(e, g);
     const auto v = target(e, g);
     auto& s = g.vertices[u];
     auto& t = g.vertices[v];
-    auto edgeIter = iter.base()->get_iter();
+    auto edgeIter = outIter.base()->get_iter();
     RenderDependencyGraph::InEdge ie(u, edgeIter);
     auto inIter = std::find(t.inEdges.begin(), t.inEdges.end(), ie);
     CC_EXPECTS(inIter != t.inEdges.end());
     t.inEdges.erase(inIter);
     g.edges.erase(edgeIter);
-    s.outEdges.erase(iter.base());
+    s.outEdges.erase(outIter.base());
 }
 
 inline void remove_edge(RenderDependencyGraph::edge_descriptor e, RenderDependencyGraph& g) noexcept { // NOLINT
@@ -456,8 +456,8 @@ inline void remove_edge(RenderValueGraph::vertex_descriptor u, RenderValueGraph:
     });
 }
 
-inline void remove_edge(RenderValueGraph::out_edge_iterator iter, RenderValueGraph& g) noexcept { // NOLINT
-    auto e = *iter;
+inline void remove_edge(RenderValueGraph::out_edge_iterator outIter, RenderValueGraph& g) noexcept { // NOLINT
+    auto e = *outIter;
     const auto u = source(e, g);
     const auto v = target(e, g);
     auto& s = g.vertices[u];
@@ -465,7 +465,7 @@ inline void remove_edge(RenderValueGraph::out_edge_iterator iter, RenderValueGra
     auto inIter = std::find(t.inEdges.begin(), t.inEdges.end(), RenderValueGraph::InEdge(u));
     CC_EXPECTS(inIter != t.inEdges.end());
     t.inEdges.erase(inIter);
-    s.outEdges.erase(iter.base());
+    s.outEdges.erase(outIter.base());
 }
 
 inline void remove_edge(RenderValueGraph::edge_descriptor e, RenderValueGraph& g) noexcept { // NOLINT

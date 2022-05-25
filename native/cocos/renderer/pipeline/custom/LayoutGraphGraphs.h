@@ -159,8 +159,8 @@ inline void remove_edge(LayoutGraph::vertex_descriptor u, LayoutGraph::vertex_de
     });
 }
 
-inline void remove_edge(LayoutGraph::out_edge_iterator iter, LayoutGraph& g) noexcept { // NOLINT
-    auto e = *iter;
+inline void remove_edge(LayoutGraph::out_edge_iterator outIter, LayoutGraph& g) noexcept { // NOLINT
+    auto e = *outIter;
     const auto u = source(e, g);
     const auto v = target(e, g);
     auto& s = g.vertices[u];
@@ -168,7 +168,7 @@ inline void remove_edge(LayoutGraph::out_edge_iterator iter, LayoutGraph& g) noe
     auto inIter = std::find(t.inEdges.begin(), t.inEdges.end(), LayoutGraph::InEdge(u));
     CC_EXPECTS(inIter != t.inEdges.end());
     t.inEdges.erase(inIter);
-    s.outEdges.erase(iter.base());
+    s.outEdges.erase(outIter.base());
 }
 
 inline void remove_edge(LayoutGraph::edge_descriptor e, LayoutGraph& g) noexcept { // NOLINT
@@ -383,8 +383,8 @@ inline void remove_edge(LayoutGraphData::vertex_descriptor u, LayoutGraphData::v
     });
 }
 
-inline void remove_edge(LayoutGraphData::out_edge_iterator iter, LayoutGraphData& g) noexcept { // NOLINT
-    auto e = *iter;
+inline void remove_edge(LayoutGraphData::out_edge_iterator outIter, LayoutGraphData& g) noexcept { // NOLINT
+    auto e = *outIter;
     const auto u = source(e, g);
     const auto v = target(e, g);
     auto& s = g.vertices[u];
@@ -392,7 +392,7 @@ inline void remove_edge(LayoutGraphData::out_edge_iterator iter, LayoutGraphData
     auto inIter = std::find(t.inEdges.begin(), t.inEdges.end(), LayoutGraphData::InEdge(u));
     CC_EXPECTS(inIter != t.inEdges.end());
     t.inEdges.erase(inIter);
-    s.outEdges.erase(iter.base());
+    s.outEdges.erase(outIter.base());
 }
 
 inline void remove_edge(LayoutGraphData::edge_descriptor e, LayoutGraphData& g) noexcept { // NOLINT
