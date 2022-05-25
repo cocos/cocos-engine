@@ -207,8 +207,8 @@ void shadowCulling(RenderPipeline *pipeline, const scene::Camera *camera, Shadow
     const auto *mainLight = scene->getMainLight();
 
     layer->clearShadowObjects();
-    for (const auto it = csmLayers->getCSMLayerObjects().begin(); it != csmLayers->getCSMLayerObjects().end();) {
-        const auto *model = it->model;
+    for (size_t i = 0; i < csmLayers->getCSMLayerObjects().size(); ++i) {
+        const auto *model = csmLayers->getCSMLayerObjects()[i].model;
         // filter model by view visibility
         if (model->isEnabled()) {
             const uint32_t visibility = camera->getVisibility();
@@ -218,11 +218,12 @@ void shadowCulling(RenderPipeline *pipeline, const scene::Camera *camera, Shadow
                 // frustum culling
                 const bool accurate = model->getWorldBounds()->aabbFrustum(layer->getValidFrustum());
                 if (accurate) {
-                    layer->addShadowObject(genRenderObject(it->model, camera));
+                    layer->addShadowObject(csmLayers->getCSMLayerObjects()[i]);
                     if (layer->getLevel() < static_cast<uint>(mainLight->getShadowCSMLevel())) {
                         if (static_cast<uint>(mainLight->getShadowCSMPerformanceOptimizationMode()) == 2 &&
                             aabbFrustumCompletelyInside(*model->getWorldBounds(), layer->getValidFrustum())) {
-                            csmLayers->getCSMLayerObjects().erase(it);
+                            csmLayers->getCSMLayerObjects().erase(csmLayers->getCSMLayerObjects().begin() + static_cast<uint32_t>(i));
+                            i--;
                         }
                     }
                 }

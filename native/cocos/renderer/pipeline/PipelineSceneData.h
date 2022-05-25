@@ -29,6 +29,7 @@
 #include "base/RefCounted.h"
 #include "core/assets/Material.h"
 #include "core/geometry/Sphere.h"
+#include "shadow/CSMLayers.h"
 
 namespace cc {
 
@@ -45,7 +46,6 @@ class Octree;
 class Light;
 } // namespace scene
 namespace pipeline {
-class CSMLayers;
 
 class CC_DLL PipelineSceneData : public RefCounted {
 public:

@@ -37,6 +37,7 @@ ShadowTransformInfo::ShadowTransformInfo(uint level) {
 }
 
 ShadowTransformInfo::~ShadowTransformInfo() {
+    //delete &_validFrustum;
     _shadowObjects.clear();
 }
 
@@ -256,7 +257,7 @@ void CSMLayers::calculateCSM(const scene::Camera *camera, const scene::Direction
     }
 
     const Mat4 mat4Trans = getCameraWorldMatrix(camera);
-    for (int i = level; i >=0; --i){
+    for (int i = level - 1; i >=0; --i){
         auto *layer = _layers[i];
         const float nearClamp = layer->getSplitCameraNear();
         const float farClamp = layer->getSplitCameraFar();

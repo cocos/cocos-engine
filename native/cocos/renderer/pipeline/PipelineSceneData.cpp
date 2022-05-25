@@ -36,7 +36,6 @@
 #include "scene/Pass.h"
 #include "scene/Shadow.h"
 #include "scene/Skybox.h"
-#include "shadow/CSMLayers.h"
 
 namespace cc {
 namespace pipeline {
