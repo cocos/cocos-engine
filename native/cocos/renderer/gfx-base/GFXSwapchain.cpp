@@ -37,7 +37,9 @@ Swapchain::Swapchain()
 Swapchain::~Swapchain() = default;
 
 void Swapchain::initialize(const SwapchainInfo &info) {
+#if !defined(CC_SERVER_MODE)
     CCASSERT(info.windowHandle, "Invalid window handle");
+#endif
 
     _windowHandle = info.windowHandle;
     _vsyncMode    = info.vsyncMode;

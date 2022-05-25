@@ -39,7 +39,7 @@ namespace {
 } // namespace
 
 namespace cc {
-SystemWindow::SystemWindow() {
+SystemWindow::SystemWindow(IEventDispatch* delegate) {
 }
 
 SystemWindow::~SystemWindow() {
@@ -54,6 +54,18 @@ void SystemWindow::setCursorEnabled(bool value) {
 
 void SystemWindow::copyTextToClipboard(const std::string &text) {
     //TODO
+}
+
+int SystemWindow::init() {
+    return 0;
+}
+
+void SystemWindow::pollEvent(bool* quit) {
+    return;
+}
+
+void SystemWindow::swapWindow() {
+    return;
 }
 
 SystemWindow::Size SystemWindow::getViewSize() const {
