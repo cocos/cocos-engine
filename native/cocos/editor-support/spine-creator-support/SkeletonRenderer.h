@@ -159,7 +159,6 @@ protected:
     float _timeScale = 1;
     bool _paused = false;
 
-    bool _batch = true;
     bool _useAttach = false;
     bool _debugMesh = false;
     bool _debugSlots = false;
