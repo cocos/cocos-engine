@@ -187,7 +187,7 @@ ResourceAllocator<DeviceResourceType, gfx::FramebufferInfo, DeviceResourceCreato
 
 template <typename DeviceResourceType, typename DeviceResourceCreatorType>
 DeviceResourceType *ResourceAllocator<DeviceResourceType, gfx::FramebufferInfo, DeviceResourceCreatorType>::alloc(const gfx::FramebufferInfo &desc) noexcept {
-    ccstd::hash_t hash = gfx::Hasher<gfx::FramebufferInfo>::hashValue(desc);
+    ccstd::hash_t hash = gfx::Hasher<gfx::FramebufferInfo>()(desc);
     DeviceResourcePool &pool{_pool[hash]};
 
     DeviceResourceType *resource{nullptr};

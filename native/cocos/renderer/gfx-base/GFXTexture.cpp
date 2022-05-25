@@ -39,11 +39,11 @@ Texture::Texture()
 Texture::~Texture() = default;
 
 ccstd::hash_t Texture::computeHash(const TextureInfo &info) {
-    return Hasher<TextureInfo>::hashValue(info);
+    return Hasher<TextureInfo>()(info);
 }
 
 ccstd::hash_t Texture::computeHash(const TextureViewInfo &info) {
-    return Hasher<TextureViewInfo>::hashValue(info);
+    return Hasher<TextureViewInfo>()(info);
 }
 
 ccstd::hash_t Texture::computeHash(const Texture *texture) {

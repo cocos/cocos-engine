@@ -35,7 +35,7 @@ Sampler::Sampler(const SamplerInfo &info)
 }
 
 ccstd::hash_t Sampler::computeHash(const SamplerInfo &info) {
-    return Hasher<SamplerInfo>::hashValue(info);
+    return Hasher<SamplerInfo>()(info);
 }
 
 SamplerInfo Sampler::unpackFromHash(ccstd::hash_t hash) {

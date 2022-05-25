@@ -36,7 +36,7 @@ Buffer::Buffer()
 Buffer::~Buffer() = default;
 
 ccstd::hash_t Buffer::computeHash(const BufferInfo &info) {
-    return Hasher<BufferInfo>::hashValue(info);
+    return Hasher<BufferInfo>()(info);
 }
 
 void Buffer::initialize(const BufferInfo &info) {

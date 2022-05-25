@@ -314,14 +314,9 @@ const Vec4 Vec4::UNIT_Z = Vec4(0.0F, 0.0F, 1.0F, 0.0F);
 const Vec4 Vec4::UNIT_W = Vec4(0.0F, 0.0F, 0.0F, 1.0F);
 
 template <>
-ccstd::hash_t Hasher<Vec4>::hashValue(const Vec4 &v) {
+ccstd::hash_t Hasher<Vec4>::operator()(const Vec4 &v) const {
     return ccstd::hash_range(reinterpret_cast<const uint64_t *>(&v.x),
                              reinterpret_cast<const uint64_t *>(&v.x + 4));
-}
-
-template <>
-size_t Hasher<Vec4>::operator()(const Vec4 &v) const {
-    return static_cast<size_t>(hashValue(v));
 }
 
 NS_CC_MATH_END

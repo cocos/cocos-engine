@@ -38,7 +38,7 @@ TextureBarrier::TextureBarrier(const TextureBarrierInfo &info)
 }
 
 ccstd::hash_t TextureBarrier::computeHash(const TextureBarrierInfo &info) {
-    return Hasher<TextureBarrierInfo>::hashValue(info);
+    return Hasher<TextureBarrierInfo>()(info);
 }
 
 } // namespace gfx

@@ -55,7 +55,7 @@ ccstd::hash_t RenderPass::computeHash() {
 }
 
 ccstd::hash_t RenderPass::computeHash(const RenderPassInfo &info) {
-    return Hasher<RenderPassInfo>::hashValue(info);
+    return Hasher<RenderPassInfo>()(info);
 }
 
 void RenderPass::initialize(const RenderPassInfo &info) {

@@ -38,7 +38,7 @@ GeneralBarrier::GeneralBarrier(const GeneralBarrierInfo &info)
 }
 
 ccstd::hash_t GeneralBarrier::computeHash(const GeneralBarrierInfo &info) {
-    return Hasher<GeneralBarrierInfo>::hashValue(info);
+    return Hasher<GeneralBarrierInfo>()(info);
 }
 
 } // namespace gfx
