@@ -45,7 +45,7 @@ interface ITorusOptions extends IGeometryOptions {
  * 生成一个环面。
  * @param radius @zh 环面半径。@en The radius fo torus
  * @param tube @zh 管形大小。@en The radius of tube
- * @param opts @zh 参数选项。@en Optional params
+ * @param opts @zh 参数选项。@en The optional creation parameters of the torus
  */
 export default function torus (radius = 0.4, tube = 0.1, opts: RecursivePartial<ITorusOptions> = {}) {
     const radialSegments = opts.radialSegments || 32;
