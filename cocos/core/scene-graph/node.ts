@@ -525,7 +525,9 @@ export class Node extends BaseNode implements CustomSerializable {
                 serializationOutput.writeProperty('_objFlags', this._objFlags);
                 serializationOutput.writeProperty('_parent', this._parent);
                 serializationOutput.writeProperty('_prefab', this._prefab);
-                serializationOutput.writeProperty('_id', this._id);
+                if (context.customArguments.keepNodeUuid) {
+                    serializationOutput.writeProperty('_id', this._id);
+                }
                 // TODO: editorExtrasTag may be a symbol in the future
                 serializationOutput.writeProperty(editorExtrasTag, this[editorExtrasTag]);
             } else {
