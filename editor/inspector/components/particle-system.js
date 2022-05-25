@@ -185,7 +185,7 @@ const excludeList = [
     'velocityOvertimeModule', 'forceOvertimeModule', 'sizeOvertimeModule',
     'rotationOvertimeModule', 'colorOverLifetimeModule', 'textureAnimationModule',
     'trailModule', 'renderer', 'renderCulling', 'limitVelocityOvertimeModule', 'cullingMode',
-    'aabbHalfX', 'aabbHalfY', 'aabbHalfZ',
+    'aabbHalfX', 'aabbHalfY', 'aabbHalfZ', 'noiseModule',
     'noiseSpeedX', 'noiseSpeedY', 'noiseSpeedZ', 'noiseFrequency', 'strengthX', 'strengthY', 'strengthZ', 'octaves', 'octaveMultiplier', 'octaveScale',
     'remapX',
     'remapY',
@@ -679,7 +679,8 @@ exports.ready = function() {
         }
     }
 };
-exports.update = function(dump) {
+exports.update = function (dump, b) {
+    console.log(dump, b);
     this.dump = dump;
     for (const key in uiElements) {
         const element = uiElements[key];
