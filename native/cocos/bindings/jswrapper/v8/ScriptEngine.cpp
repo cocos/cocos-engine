@@ -968,7 +968,13 @@ bool ScriptEngine::runByteCodeFile(const ccstd::string &pathBc, Value *ret /* = 
         v8::Local<v8::UnboundScript> dummyFunction = v8::ScriptCompiler::CompileUnboundScript(_isolate, &dummySource, v8::ScriptCompiler::kEagerCompile).ToLocalChecked();
         v8::ScriptCompiler::CachedData *dummyData = v8::ScriptCompiler::CreateCodeCache(dummyFunction);
         memcpy(p + 4, dummyData->data + 12, 4);
-        // delete dummyData; //NOTE: managed by v8
+
+        // TODO: v8 on windows is built with dynamic library (dll),
+        // Invoking `delete` for the memory allocated in v8.dll will cause crash.
+        // Need to modify v8 source code and add v8::ScriptCompiler::DestroyCodeCache(v8::ScriptCompiler::CachedData *cd).
+#if CC_PLATFORM != CC_PLATFORM_WINDOWS
+        delete dummyData;
+#endif
     }
 
     // setup ScriptOrigin
