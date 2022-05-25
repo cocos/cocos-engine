@@ -164,6 +164,7 @@ inline void remove_edge(ResourceGraph::edge_descriptor e, ResourceGraph& g) noex
     auto& outEdgeList = g.getOutEdgeList(source(e, g));
     impl::removeIncidenceEdge(e, outEdgeList);
     auto& inEdgeList = g.getInEdgeList(target(e, g));
+    std::swap(e.source, e.target);
     impl::removeIncidenceEdge(e, inEdgeList);
 }
 
@@ -171,7 +172,9 @@ inline void remove_edge(ResourceGraph::out_edge_iterator iter, ResourceGraph& g)
     auto  e           = *iter;
     auto& outEdgeList = g.getOutEdgeList(source(e, g));
     auto& inEdgeList  = g.getInEdgeList(target(e, g));
-    impl::removeIncidenceEdge(e, inEdgeList);
+    auto e1 = e;
+    std::swap(e1.source, e1.target);
+    impl::removeIncidenceEdge(e1, inEdgeList);
     outEdgeList.erase(iter.base());
 }
 
@@ -183,6 +186,7 @@ inline void remove_out_edge_if(ResourceGraph::vertex_descriptor u, Predicate&& p
         if (pred(*outIter)) {
             auto& inEdgeList = g.getInEdgeList(target(*outIter, g));
             auto  e          = *outIter;
+            std::swap(e.source, e.target);
             impl::removeIncidenceEdge(e, inEdgeList);
         }
     }
@@ -620,6 +624,7 @@ inline void remove_edge(SubpassGraph::edge_descriptor e, SubpassGraph& g) noexce
     auto& outEdgeList = g.getOutEdgeList(source(e, g));
     impl::removeIncidenceEdge(e, outEdgeList);
     auto& inEdgeList = g.getInEdgeList(target(e, g));
+    std::swap(e.source, e.target);
     impl::removeIncidenceEdge(e, inEdgeList);
 }
 
@@ -627,7 +632,9 @@ inline void remove_edge(SubpassGraph::out_edge_iterator iter, SubpassGraph& g) n
     auto  e           = *iter;
     auto& outEdgeList = g.getOutEdgeList(source(e, g));
     auto& inEdgeList  = g.getInEdgeList(target(e, g));
-    impl::removeIncidenceEdge(e, inEdgeList);
+    auto e1 = e;
+    std::swap(e1.source, e1.target);
+    impl::removeIncidenceEdge(e1, inEdgeList);
     outEdgeList.erase(iter.base());
 }
 
@@ -639,6 +646,7 @@ inline void remove_out_edge_if(SubpassGraph::vertex_descriptor u, Predicate&& pr
         if (pred(*outIter)) {
             auto& inEdgeList = g.getInEdgeList(target(*outIter, g));
             auto  e          = *outIter;
+            std::swap(e.source, e.target);
             impl::removeIncidenceEdge(e, inEdgeList);
         }
     }
@@ -879,6 +887,7 @@ inline void remove_edge(RenderGraph::edge_descriptor e, RenderGraph& g) noexcept
     auto& outEdgeList = g.getOutEdgeList(source(e, g));
     impl::removeIncidenceEdge(e, outEdgeList);
     auto& inEdgeList = g.getInEdgeList(target(e, g));
+    std::swap(e.source, e.target);
     impl::removeIncidenceEdge(e, inEdgeList);
 }
 
@@ -886,7 +895,9 @@ inline void remove_edge(RenderGraph::out_edge_iterator iter, RenderGraph& g) noe
     auto  e           = *iter;
     auto& outEdgeList = g.getOutEdgeList(source(e, g));
     auto& inEdgeList  = g.getInEdgeList(target(e, g));
-    impl::removeIncidenceEdge(e, inEdgeList);
+    auto e1 = e;
+    std::swap(e1.source, e1.target);
+    impl::removeIncidenceEdge(e1, inEdgeList);
     outEdgeList.erase(iter.base());
 }
 
@@ -898,6 +909,7 @@ inline void remove_out_edge_if(RenderGraph::vertex_descriptor u, Predicate&& pre
         if (pred(*outIter)) {
             auto& inEdgeList = g.getInEdgeList(target(*outIter, g));
             auto  e          = *outIter;
+            std::swap(e.source, e.target);
             impl::removeIncidenceEdge(e, inEdgeList);
         }
     }

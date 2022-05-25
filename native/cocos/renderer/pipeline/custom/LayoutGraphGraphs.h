@@ -164,6 +164,7 @@ inline void remove_edge(LayoutGraph::edge_descriptor e, LayoutGraph& g) noexcept
     auto& outEdgeList = g.getOutEdgeList(source(e, g));
     impl::removeIncidenceEdge(e, outEdgeList);
     auto& inEdgeList = g.getInEdgeList(target(e, g));
+    std::swap(e.source, e.target);
     impl::removeIncidenceEdge(e, inEdgeList);
 }
 
@@ -171,7 +172,9 @@ inline void remove_edge(LayoutGraph::out_edge_iterator iter, LayoutGraph& g) noe
     auto  e           = *iter;
     auto& outEdgeList = g.getOutEdgeList(source(e, g));
     auto& inEdgeList  = g.getInEdgeList(target(e, g));
-    impl::removeIncidenceEdge(e, inEdgeList);
+    auto e1 = e;
+    std::swap(e1.source, e1.target);
+    impl::removeIncidenceEdge(e1, inEdgeList);
     outEdgeList.erase(iter.base());
 }
 
@@ -183,6 +186,7 @@ inline void remove_out_edge_if(LayoutGraph::vertex_descriptor u, Predicate&& pre
         if (pred(*outIter)) {
             auto& inEdgeList = g.getInEdgeList(target(*outIter, g));
             auto  e          = *outIter;
+            std::swap(e.source, e.target);
             impl::removeIncidenceEdge(e, inEdgeList);
         }
     }
@@ -432,6 +436,7 @@ inline void remove_edge(LayoutGraphData::edge_descriptor e, LayoutGraphData& g) 
     auto& outEdgeList = g.getOutEdgeList(source(e, g));
     impl::removeIncidenceEdge(e, outEdgeList);
     auto& inEdgeList = g.getInEdgeList(target(e, g));
+    std::swap(e.source, e.target);
     impl::removeIncidenceEdge(e, inEdgeList);
 }
 
@@ -439,7 +444,9 @@ inline void remove_edge(LayoutGraphData::out_edge_iterator iter, LayoutGraphData
     auto  e           = *iter;
     auto& outEdgeList = g.getOutEdgeList(source(e, g));
     auto& inEdgeList  = g.getInEdgeList(target(e, g));
-    impl::removeIncidenceEdge(e, inEdgeList);
+    auto e1 = e;
+    std::swap(e1.source, e1.target);
+    impl::removeIncidenceEdge(e1, inEdgeList);
     outEdgeList.erase(iter.base());
 }
 
@@ -451,6 +458,7 @@ inline void remove_out_edge_if(LayoutGraphData::vertex_descriptor u, Predicate&&
         if (pred(*outIter)) {
             auto& inEdgeList = g.getInEdgeList(target(*outIter, g));
             auto  e          = *outIter;
+            std::swap(e.source, e.target);
             impl::removeIncidenceEdge(e, inEdgeList);
         }
     }

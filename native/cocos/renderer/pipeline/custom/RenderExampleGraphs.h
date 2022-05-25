@@ -172,7 +172,9 @@ inline void remove_edge(RenderDependencyGraph::out_edge_iterator iter, RenderDep
     auto  e           = *iter;
     auto& outEdgeList = g.getOutEdgeList(source(e, g));
     auto& inEdgeList  = g.getInEdgeList(target(e, g));
-    impl::removeIncidenceEdge(e, inEdgeList);
+    auto e1 = e;
+    std::swap(e1.source, e1.target);
+    impl::removeIncidenceEdge(e1, inEdgeList);
     g.edges.erase(iter.base()->get_iter());
     outEdgeList.erase(iter.base());
 }
@@ -186,6 +188,7 @@ inline void remove_out_edge_if(RenderDependencyGraph::vertex_descriptor u, Predi
         if (pred(*outIter)) {
             auto& inEdgeList = g.getInEdgeList(target(*outIter, g));
             auto  e          = *outIter;
+            std::swap(e.source, e.target);
             impl::removeIncidenceEdge(e, inEdgeList);
             garbage.emplace_back((*outIter.base()).get_iter());
         }
@@ -512,6 +515,7 @@ inline void remove_edge(RenderValueGraph::edge_descriptor e, RenderValueGraph& g
     auto& outEdgeList = g.getOutEdgeList(source(e, g));
     impl::removeIncidenceEdge(e, outEdgeList);
     auto& inEdgeList = g.getInEdgeList(target(e, g));
+    std::swap(e.source, e.target);
     impl::removeIncidenceEdge(e, inEdgeList);
 }
 
@@ -519,7 +523,9 @@ inline void remove_edge(RenderValueGraph::out_edge_iterator iter, RenderValueGra
     auto  e           = *iter;
     auto& outEdgeList = g.getOutEdgeList(source(e, g));
     auto& inEdgeList  = g.getInEdgeList(target(e, g));
-    impl::removeIncidenceEdge(e, inEdgeList);
+    auto e1 = e;
+    std::swap(e1.source, e1.target);
+    impl::removeIncidenceEdge(e1, inEdgeList);
     outEdgeList.erase(iter.base());
 }
 
@@ -531,6 +537,7 @@ inline void remove_out_edge_if(RenderValueGraph::vertex_descriptor u, Predicate&
         if (pred(*outIter)) {
             auto& inEdgeList = g.getInEdgeList(target(*outIter, g));
             auto  e          = *outIter;
+            std::swap(e.source, e.target);
             impl::removeIncidenceEdge(e, inEdgeList);
         }
     }

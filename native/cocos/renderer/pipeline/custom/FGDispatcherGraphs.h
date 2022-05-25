@@ -164,6 +164,7 @@ inline void remove_edge(ResourceAccessGraph::edge_descriptor e, ResourceAccessGr
     auto& outEdgeList = g.getOutEdgeList(source(e, g));
     impl::removeIncidenceEdge(e, outEdgeList);
     auto& inEdgeList = g.getInEdgeList(target(e, g));
+    std::swap(e.source, e.target);
     impl::removeIncidenceEdge(e, inEdgeList);
 }
 
@@ -171,7 +172,9 @@ inline void remove_edge(ResourceAccessGraph::out_edge_iterator iter, ResourceAcc
     auto  e           = *iter;
     auto& outEdgeList = g.getOutEdgeList(source(e, g));
     auto& inEdgeList  = g.getInEdgeList(target(e, g));
-    impl::removeIncidenceEdge(e, inEdgeList);
+    auto e1 = e;
+    std::swap(e1.source, e1.target);
+    impl::removeIncidenceEdge(e1, inEdgeList);
     outEdgeList.erase(iter.base());
 }
 
@@ -183,6 +186,7 @@ inline void remove_out_edge_if(ResourceAccessGraph::vertex_descriptor u, Predica
         if (pred(*outIter)) {
             auto& inEdgeList = g.getInEdgeList(target(*outIter, g));
             auto  e          = *outIter;
+            std::swap(e.source, e.target);
             impl::removeIncidenceEdge(e, inEdgeList);
         }
     }
