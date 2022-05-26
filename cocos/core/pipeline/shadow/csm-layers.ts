@@ -311,16 +311,16 @@ export class CSMLayers {
         if (dirLight.shadowFixedArea) {
             this._updateFixedArea(dirLight);
         } else {
-            let isRecalculate = false;
+            const oldLayerSize = this._layers.length;
+            const isResized = oldLayerSize < levelCount;
             for (let i = 0; i < levelCount; i++) {
                 if (!this._layers[i] || this._layers[i].shadowCameraFar === undefined) {
                     this._layers[i] = new CSMLayerInfo(i);
-                    isRecalculate = true;
                 }
             }
 
             if (dirLight.shadowCSMValueDirty || this._levelCount !== levelCount
-                || isRecalculate || this._shadowDistance !== shadowDistance) {
+                || isResized || this._shadowDistance !== shadowDistance) {
                 this._splitFrustumLevels(dirLight);
                 this._levelCount = levelCount;
                 this._shadowDistance = shadowDistance;
