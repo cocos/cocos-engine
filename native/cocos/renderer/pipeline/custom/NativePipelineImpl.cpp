@@ -124,6 +124,185 @@ void NativeLayoutGraphBuilder::reserveDescriptorBlock(
     layout.capacity += block.capacity;
 }
 
+void NativeRasterPassBuilder::addRasterView(const ccstd::string &name, const RasterView &view) {
+
+}
+
+void NativeRasterPassBuilder::addComputeView(const ccstd::string &name, const ComputeView &view) {
+
+}
+
+RasterQueueBuilder *NativeRasterPassBuilder::addQueue(QueueHint hint,
+    const ccstd::string &layoutName, const ccstd::string &name) { // NOLINT(bugprone-easily-swappable-parameters)
+    std::ignore = hint;
+    std::ignore = name;
+    std::ignore = layoutName;
+    return nullptr;
+}
+
+RasterQueueBuilder *NativeRasterPassBuilder::addQueue(QueueHint hint,
+    const ccstd::string &layoutName) {
+    std::ignore = hint;
+    std::ignore = layoutName;
+    return nullptr;
+}
+
+RasterQueueBuilder *NativeRasterPassBuilder::addQueue(QueueHint hint) {
+    std::ignore = hint;
+    return nullptr;
+}
+
+void NativeRasterPassBuilder::addFullscreenQuad(
+    const ccstd::string &shader, const ccstd::string &layoutName, const ccstd::string &name) { // NOLINT(bugprone-easily-swappable-parameters)
+
+}
+
+void NativeRasterPassBuilder::addFullscreenQuad(
+    const ccstd::string &shader, const ccstd::string &layoutName) { // NOLINT(bugprone-easily-swappable-parameters)
+
+}
+
+void NativeRasterPassBuilder::addFullscreenQuad(const ccstd::string &shader) {
+
+}
+
+void NativeRasterPassBuilder::setMat4(const ccstd::string &name, const cc::Mat4 &mat) {
+
+}
+
+void NativeRasterPassBuilder::setQuaternion(const ccstd::string &name, const cc::Quaternion &quat) {
+
+}
+
+void NativeRasterPassBuilder::setColor(const ccstd::string &name, const gfx::Color &color) {
+
+}
+
+void NativeRasterPassBuilder::setVec4(const ccstd::string &name, const cc::Vec4 &vec) {
+
+}
+
+void NativeRasterPassBuilder::setVec2(const ccstd::string &name, const cc::Vec2 &vec) {
+
+}
+
+void NativeRasterPassBuilder::setFloat(const ccstd::string &name, float v) {
+
+}
+
+void NativeRasterPassBuilder::setBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
+
+}
+
+void NativeRasterPassBuilder::setTexture(const ccstd::string &name, gfx::Texture *texture) {
+
+}
+
+void NativeRasterPassBuilder::setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
+
+}
+
+void NativeRasterPassBuilder::setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) {
+
+}
+
+void NativeRasterPassBuilder::setSampler(const ccstd::string &name, gfx::Sampler *sampler) {
+
+}
+
+void NativeComputePassBuilder::addComputeView(const ccstd::string& name, const ComputeView& view) {
+
+}
+
+ComputeQueueBuilder *NativeComputePassBuilder::addQueue(
+    const ccstd::string& layoutName, const ccstd::string& name) { // NOLINT(bugprone-easily-swappable-parameters)
+    std::ignore = layoutName;
+    std::ignore = name;
+
+    return nullptr;
+}
+
+ComputeQueueBuilder *NativeComputePassBuilder::addQueue(const ccstd::string& layoutName) {
+    std::ignore = layoutName;
+    
+    return nullptr;
+}
+
+ComputeQueueBuilder *NativeComputePassBuilder::addQueue() {
+
+    return nullptr;
+}
+
+void NativeComputePassBuilder::addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ,
+    const ccstd::string& layoutName, const ccstd::string& name) { // NOLINT(bugprone-easily-swappable-parameters)
+
+}
+
+void NativeComputePassBuilder::addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string& layoutName) {
+
+}
+
+void NativeComputePassBuilder::addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) {
+
+}
+
+void NativeComputePassBuilder::setMat4(const ccstd::string& name, const cc::Mat4& mat) {
+
+}
+
+void NativeComputePassBuilder::setQuaternion(const ccstd::string& name, const cc::Quaternion& quat) {
+    
+}
+
+void NativeComputePassBuilder::setColor(const ccstd::string& name, const gfx::Color& color) {
+
+}
+
+void NativeComputePassBuilder::setVec4(const ccstd::string& name, const cc::Vec4& vec) {
+
+}
+
+void NativeComputePassBuilder::setVec2(const ccstd::string& name, const cc::Vec2& vec) {
+
+}
+
+void NativeComputePassBuilder::setFloat(const ccstd::string& name, float v) {
+
+}
+
+void NativeComputePassBuilder::setBuffer(const ccstd::string& name, gfx::Buffer* buffer) {
+
+}
+
+void NativeComputePassBuilder::setTexture(const ccstd::string& name, gfx::Texture* texture) {
+
+}
+
+void NativeComputePassBuilder::setReadWriteBuffer(const ccstd::string& name, gfx::Buffer* buffer) {
+
+}
+
+void NativeComputePassBuilder::setReadWriteTexture(const ccstd::string& name, gfx::Texture* texture) {
+
+}
+
+void NativeComputePassBuilder::setSampler(const ccstd::string& name, gfx::Sampler* sampler) {
+
+}
+
+void NativeMovePassBuilder::addPair(const MovePair& pair) {
+
+}
+
+void NativeCopyPassBuilder::addPair(const CopyPair& pair) {
+
+}
+
+SceneTask* NativeSceneTransversal::transverse(SceneVisitor *visitor) const {
+    std::ignore = visitor;
+    return nullptr;
+}
+
 namespace {
 
 gfx::DescriptorType getGfxType(DescriptorTypeOrder type) {
