@@ -10,8 +10,11 @@ export class RenderEntity {
     public stencilStage:Stage = Stage.DISABLED;
 
     //节点树渲染index
-    static static_renderIndex:number;
-    renderIndex = 0;
+    static static_entityIndex = 0;
+    protected _entityId = 0;
+    public get entityId () {
+        return this._entityId;
+    }
 
     //前置渲染数据
     public dataArr: AdvanceRenderData[] = [];
@@ -28,6 +31,7 @@ export class RenderEntity {
     protected declare _nativeObj: NativeRenderEntity;
 
     constructor () {
+        this._entityId = RenderEntity.static_entityIndex++;
         if (JSB) {
             if (!this._nativeObj) {
                 this._nativeObj = new NativeRenderEntity();
@@ -40,24 +44,28 @@ export class RenderEntity {
     }
 
     public setBufferId (bufferId) {
+        this.bufferId = bufferId;
         if (JSB) {
             this._nativeObj.bufferId = bufferId;
         }
     }
 
     public setVertexOffset (vertexOffset) {
+        this.vertexOffset = vertexOffset;
         if (JSB) {
             this._nativeObj.vertexOffset = vertexOffset;
         }
     }
 
     public setIndexOffset (indexOffset) {
+        this.indexOffset = indexOffset;
         if (JSB) {
             this._nativeObj.indexOffset = indexOffset;
         }
     }
 
     public setVB (vbBuffer: ArrayBufferLike) {
+        // TODO: how to set vb in framework
         if (JSB) {
             this._nativeObj.vbBuffer = vbBuffer;
         }

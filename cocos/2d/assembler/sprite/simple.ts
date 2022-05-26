@@ -28,7 +28,7 @@
  * @module ui-assembler
  */
 
-import { Vec3 } from '../../../core/math';
+import { Vec3, Vec2, Color } from '../../../core/math';
 import { IAssembler } from '../../renderer/base';
 import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
@@ -37,6 +37,8 @@ import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 import { StaticVBChunk } from '../../renderer/static-vb-accessor';
 import { RenderEntity } from '../../renderer/render-entity';
 import { NativeRenderEntity } from '../../../core/renderer/2d/native-2d';
+import { AdvanceRenderData } from '../../renderer/AdvanceRenderData';
+import { Batcher2D } from '../../renderer/batcher-2d';
 
 const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
@@ -84,6 +86,28 @@ export const simple: IAssembler = {
         // test code: fill renderEntities
         //renderEntity = new RenderEntity();
         //renderEntity.init();
+        this.UpdateAdvanceRenderDataArr(sprite);
+
+        renderData?.renderEntity.nativeObj.ItIsDebugFuncInRenderEntity();
+    },
+
+    UpdateAdvanceRenderDataArr (sprite:Sprite) {
+        const renderData :RenderData = sprite.renderData!;
+        const entity = renderData.renderEntity;
+        const dataArr :AdvanceRenderData[] = entity.dataArr;
+
+        if (dataArr.length !== renderData.data.length) {
+            console.error('Vertex count doesn\'t match.');
+            return;
+        }
+
+        for (let i = 0; i < dataArr.length; i++) {
+            const curData:AdvanceRenderData = dataArr[i];
+            const temp:IRenderData = renderData.data[i];
+            curData.pos = new Vec3(temp.x, temp.y, temp.z);
+            curData.uv = new Vec2(temp.u, temp.v);
+            curData.color = new Color(temp.color);
+        }
     },
 
     updateWorldVerts (sprite: Sprite, chunk: StaticVBChunk) {

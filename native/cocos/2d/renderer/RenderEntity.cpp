@@ -1,6 +1,7 @@
 #include <2d/renderer/RenderEntity.h>
 #include <cocos/base/TypeDef.h>
 #include "RenderEntity.h"
+#include <iostream>
 
 namespace cc {
 RenderEntity::RenderEntity() : RenderEntity(0, 0, 0) {
@@ -42,5 +43,8 @@ void RenderEntity::setIDataBuffer(uint16_t* iDataBuffer) {
 void RenderEntity::setAdvanceRenderDataArr(std::vector<AdvanceRenderData*>&& arr) {
     this->_dataArr = std::move(arr);
 }
-}
 
+void RenderEntity::ItIsDebugFuncInRenderEntity() {
+    std::cout << "It is debug func in RenderEntity.";
+}
+}

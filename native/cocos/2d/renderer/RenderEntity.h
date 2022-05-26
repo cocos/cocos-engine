@@ -27,6 +27,9 @@ public:
     inline std::vector<AdvanceRenderData*> getDataArr() { return this->_dataArr; }
     void setAdvanceRenderDataArr(std::vector<AdvanceRenderData*>&& arr);
 
+    // for debug
+    void ItIsDebugFuncInRenderEntity();
+
 private:
     // updateVertex,uv等用到的数据
     std::vector<AdvanceRenderData*> _dataArr{};

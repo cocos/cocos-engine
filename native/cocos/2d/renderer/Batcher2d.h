@@ -12,6 +12,8 @@ public:
 
     void updateRenderEntities(std::vector<RenderEntity*>&& renderEntities);
 
+    // for debug
+    void ItIsDebugFuncInBatcher2d();
 private:
     std::vector<RenderEntity*> _renderEntities{};
 };

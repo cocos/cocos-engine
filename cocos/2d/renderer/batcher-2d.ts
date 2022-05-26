@@ -232,6 +232,11 @@ export class Batcher2D implements IBatcher {
             this._opacityDirty = 0;
             this._pOpacity = 1;
             this.walk(screen.node);
+
+            // test code
+            this.updateRenderEntities();// transport entities to native
+            this.nativeObj.ItIsDebugFuncInBatcher2d();
+
             this.autoMergeBatches(this._currComponent!);
             this.resetRenderStates();
 
@@ -738,8 +743,8 @@ export class Batcher2D implements IBatcher {
     // render entity dictionary
     private entityDic :Map<number, RenderEntity> =new Map();
     public addRenderEntity (entity:RenderEntity) {
-        if (!this.entityDic.has(entity.renderIndex)) {
-            this.entityDic.set(entity.renderIndex, entity);
+        if (!this.entityDic.has(entity.entityId)) {
+            this.entityDic.set(entity.entityId, entity);
         }
     }
 

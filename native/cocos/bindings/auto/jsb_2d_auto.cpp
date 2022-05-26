@@ -477,6 +477,21 @@ bool js_register_2d_AdvanceRenderData(se::Object* obj) // NOLINT(readability-ide
 se::Object* __jsb_cc_RenderEntity_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_RenderEntity_class = nullptr;  // NOLINT
 
+static bool js_2d_RenderEntity_ItIsDebugFuncInRenderEntity(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
+    SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_ItIsDebugFuncInRenderEntity : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->ItIsDebugFuncInRenderEntity();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_2d_RenderEntity_ItIsDebugFuncInRenderEntity)
+
 static bool js_2d_RenderEntity_getBufferId(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
@@ -797,6 +812,7 @@ bool js_register_2d_RenderEntity(se::Object* obj) // NOLINT(readability-identifi
     cls->defineProperty("vbBuffer", _SE(js_2d_RenderEntity_getVbBuffer_asGetter), _SE(js_2d_RenderEntity_setVbBuffer_asSetter));
     cls->defineProperty("vDataBuffer", _SE(js_2d_RenderEntity_getVDataBuffer_asGetter), _SE(js_2d_RenderEntity_setVDataBuffer_asSetter));
     cls->defineProperty("iDataBuffer", _SE(js_2d_RenderEntity_getIDataBuffer_asGetter), _SE(js_2d_RenderEntity_setIDataBuffer_asSetter));
+    cls->defineFunction("ItIsDebugFuncInRenderEntity", _SE(js_2d_RenderEntity_ItIsDebugFuncInRenderEntity));
     cls->defineFunction("getDataArr", _SE(js_2d_RenderEntity_getDataArr));
     cls->defineFunction("setAdvanceRenderDataArr", _SE(js_2d_RenderEntity_setAdvanceRenderDataArr));
     cls->defineFinalizeFunction(_SE(js_cc_RenderEntity_finalize));
@@ -812,6 +828,21 @@ bool js_register_2d_RenderEntity(se::Object* obj) // NOLINT(readability-identifi
 }
 se::Object* __jsb_cc_Batcher2d_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_Batcher2d_class = nullptr;  // NOLINT
+
+static bool js_2d_Batcher2d_ItIsDebugFuncInBatcher2d(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Batcher2d>(s);
+    SE_PRECONDITION2(cobj, false, "js_2d_Batcher2d_ItIsDebugFuncInBatcher2d : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->ItIsDebugFuncInBatcher2d();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_2d_Batcher2d_ItIsDebugFuncInBatcher2d)
 
 static bool js_2d_Batcher2d_updateRenderEntities(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -855,6 +886,7 @@ bool js_register_2d_Batcher2d(se::Object* obj) // NOLINT(readability-identifier-
 #if CC_DEBUG
     cls->defineStaticProperty("isJSBClass", _SE(js_2d_getter_return_true), nullptr);
 #endif
+    cls->defineFunction("ItIsDebugFuncInBatcher2d", _SE(js_2d_Batcher2d_ItIsDebugFuncInBatcher2d));
     cls->defineFunction("updateRenderEntities", _SE(js_2d_Batcher2d_updateRenderEntities));
     cls->defineFinalizeFunction(_SE(js_cc_Batcher2d_finalize));
     cls->install();

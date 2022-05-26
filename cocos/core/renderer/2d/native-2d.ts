@@ -20,10 +20,13 @@ export class NativeRenderEntity {
     set iDataBuffer (iDataBuffer:ArrayBufferLike) {}
 
     setAdvanceRenderDataArr (dataArr: NativeAdvanceRenderData[]) {}
+
+    ItIsDebugFuncInRenderEntity () {}
 }
 
 export class NativeBatcher2d {
     updateRenderEntities (renderEntities: NativeRenderEntity[]) {}
+    ItIsDebugFuncInBatcher2d () {}
 }
 
 export class NativeAdvanceRenderData {

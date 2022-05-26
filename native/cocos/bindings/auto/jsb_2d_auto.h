@@ -28,6 +28,7 @@ extern se::Class * __jsb_cc_RenderEntity_class; // NOLINT
 
 bool js_register_cc_RenderEntity(se::Object *obj); // NOLINT
 
+SE_DECLARE_FUNC(js_2d_RenderEntity_ItIsDebugFuncInRenderEntity);
 SE_DECLARE_FUNC(js_2d_RenderEntity_getDataArr);
 SE_DECLARE_FUNC(js_2d_RenderEntity_setAdvanceRenderDataArr);
 SE_DECLARE_FUNC(js_2d_RenderEntity_RenderEntity);
@@ -37,6 +38,7 @@ extern se::Class * __jsb_cc_Batcher2d_class; // NOLINT
 
 bool js_register_cc_Batcher2d(se::Object *obj); // NOLINT
 
+SE_DECLARE_FUNC(js_2d_Batcher2d_ItIsDebugFuncInBatcher2d);
 SE_DECLARE_FUNC(js_2d_Batcher2d_updateRenderEntities);
 SE_DECLARE_FUNC(js_2d_Batcher2d_Batcher2d);
 // clang-format on

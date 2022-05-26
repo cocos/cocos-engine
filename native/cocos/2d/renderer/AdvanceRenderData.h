@@ -2,13 +2,14 @@
 #include <cocos/base/TypeDef.h>
 #include <math/Vec2.h>
 #include <math/Vec3.h>
+#include <math/Vec4.h>
 #include <math/Color.h>
 
 namespace cc {
 struct Render2dLayout {
     cc::Vec3 position;
     cc::Vec2 uv;
-    cc::Color color;
+    cc::Vec4 color;// use Vec4 instead of Color because of bytes alignment
 };
 
 class AdvanceRenderData {
@@ -26,15 +27,15 @@ public:
         const uint8_t colorA);
     ~AdvanceRenderData();
 
-    inline float_t getX() const { return this->_x; }
-    inline float_t getY() const { return this->_y; }
-    inline float_t getZ() const { return this->_z; }
-    inline float_t getU() const { return this->_u; }
-    inline float_t getV() const { return this->_v; }
-    inline int8_t getColorR() const { return this->_colorR; }
-    inline int8_t getColorG() const { return this->_colorG; }
-    inline int8_t getColorB() const { return this->_colorB; }
-    inline int8_t getColorA() const { return this->_colorA; }
+    inline float_t getX() const { return this->_render2dLayout->position.x; }
+    inline float_t getY() const { return this->_render2dLayout->position.y; }
+    inline float_t getZ() const { return this->_render2dLayout->position.z; }
+    inline float_t getU() const { return this->_render2dLayout->uv.x; }
+    inline float_t getV() const { return this->_render2dLayout->uv.y; }
+    inline int8_t getColorR() const { return this->_render2dLayout->color.x; }
+    inline int8_t getColorG() const { return this->_render2dLayout->color.y; }
+    inline int8_t getColorB() const { return this->_render2dLayout->color.z; }
+    inline int8_t getColorA() const { return this->_render2dLayout->color.w; }
 
     void setX(float_t x);
     void setY(float_t y);
@@ -49,16 +50,16 @@ public:
     void ParseRender2dData(uint8_t* arr);
 
 private:
-    float_t _x;
-    float_t _y;
-    float_t _z;
-    float_t _u;
-    float_t _v;
+    //float_t _x;
+    //float_t _y;
+    //float_t _z;
+    //float_t _u;
+    //float_t _v;
 
-    int8_t _colorR;
-    int8_t _colorG;
-    int8_t _colorB;
-    int8_t _colorA;
+    //int8_t _colorR;
+    //int8_t _colorG;
+    //int8_t _colorB;
+    //int8_t _colorA;
 
     // use this
     Render2dLayout* _render2dLayout{nullptr};

@@ -184,11 +184,17 @@ export class RenderData extends BaseRenderData {
 
     public constructor (vertexFormat = vfmtPosUvColor, accessor?: StaticVBAccessor) {
         super(vertexFormat);
+        const batcher = director.root!.batcher2D;
         if (!accessor) {
-            const batcher = director.root!.batcher2D;
             accessor = batcher.switchBufferAccessor(this._vertexFormat);
         }
         this._accessor = accessor;
+
+        // Instantiate RenderEntity and put it into Batcher2d
+        if (!this._renderEntity) {
+            this._renderEntity = new RenderEntity();
+            batcher.addRenderEntity(this._renderEntity);
+        }
     }
 
     public resize (vertexCount: number, indexCount: number) {
@@ -209,7 +215,7 @@ export class RenderData extends BaseRenderData {
 
     protected updateRenderEntity () {
         if (!this._renderEntity) {
-            this._renderEntity = new RenderEntity();
+            return;
         }
         this._renderEntity.setBufferId(this.chunk.bufferId);
         this._renderEntity.setVertexOffset(this.chunk.vertexOffset);
@@ -222,7 +228,7 @@ export class RenderData extends BaseRenderData {
     // Initial advance render data for native
     protected fillAdvanceRenderData () {
         if (!this._renderEntity) {
-            this._renderEntity = new RenderEntity();
+            return;
         }
         for (let i = 0; i < this.dataLength; i++) {
             const advanceData = new AdvanceRenderData();
