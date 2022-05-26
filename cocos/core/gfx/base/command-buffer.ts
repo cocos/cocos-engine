@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module gfx
- */
-
 import { Buffer } from './buffer';
 import { DescriptorSet } from './descriptor-set';
 import { Framebuffer } from './framebuffer';

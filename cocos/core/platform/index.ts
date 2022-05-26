@@ -24,7 +24,6 @@
  THE SOFTWARE.
 */
 
-
 import './deprecated';
 
 export * from './sys';

@@ -73,6 +73,10 @@ void printRawfiles(ResourceManager *mgr, const ccstd::string &path) {
 }
 } // namespace
 
+FileUtils *createFileUtils() {
+    return ccnew FileUtilsOHOS();
+}
+
 bool FileUtilsOHOS::initResourceManager(ResourceManager *mgr, const ccstd::string &assetPath, const ccstd::string &moduleName) {
     CC_ASSERT(mgr);
     ohosResourceMgr = mgr;
@@ -95,16 +99,8 @@ ResourceManager *FileUtilsOHOS::getResourceManager() {
     return ohosResourceMgr;
 }
 
-FileUtils *FileUtils::getInstance() {
-    if (FileUtils::sharedFileUtils == nullptr) {
-        FileUtils::sharedFileUtils = ccnew FileUtilsOHOS();
-        if (!FileUtils::sharedFileUtils->init()) {
-            delete FileUtils::sharedFileUtils;
-            FileUtils::sharedFileUtils = nullptr;
-            CC_LOG_DEBUG("ERROR: Could not init CCFileUtilsAndroid");
-        }
-    }
-    return FileUtils::sharedFileUtils;
+FileUtilsOHOS::FileUtilsOHOS() {
+    init();
 }
 
 bool FileUtilsOHOS::init() {

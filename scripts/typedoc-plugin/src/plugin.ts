@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { Application, Converter, Context, Reflection, Comment, CommentTag, SerializerComponent, ReflectionKind, SignatureReflection, ProjectReflection, ContainerReflection, DeclarationReflection, ParameterReflection } from 'typedoc';
+import { Application, Converter, Context, Reflection, Comment, CommentTag, SerializerComponent, ReflectionKind, SignatureReflection, ProjectReflection, ContainerReflection, DeclarationReflection, ParameterReflection, ReferenceReflection } from 'typedoc';
 import ts from 'typescript';
 import fs from 'fs-extra';
 import ps from 'path';
@@ -265,6 +265,15 @@ export function load (app: Application) {
             if (!text) {
                 return '';
             }
+            const getLocation = () => {
+                if (reflection.sources) {
+                    return reflection.sources[0].fileName;
+                } else if (node) {
+                    return node.getText();
+                } else {
+                    return `<unknown-location>`;
+                }
+            };
             const matches = text.matchAll(/\[\[`?([\w.]+)`?(?:\s*\|(.*))?\]\]/g);
             const replaces: Array<{ index: number; length: number; reflection: Reflection; linkText?: string; }> = [];
             for (const match of matches) {
@@ -273,7 +282,7 @@ export function load (app: Application) {
                 const endsWithQuote = full.endsWith('`]]');
                 if (startsWithQuote !== endsWithQuote) {
                     _context.logger.error(`Syntax error: ${full},`
-                        + `referenced in ${!node ? '<unknown-location>' : node.getText()}`);
+                        + `referenced in ${getLocation()}`);
                     continue;
                 }
                 const path = match[1];
@@ -283,7 +292,7 @@ export function load (app: Application) {
                 }
                 const printUnableResolve = (iSegment: number) => {
                     _context.logger.error(`Failed to resolve ${segments[iSegment]} in ${match[0]} `
-                        + `referenced in ${!node ? '<unknown-location>' : node.getText()}`);
+                        + `referenced in ${getLocation()}`);
                 };
                 let targetReflection = resolveUnqualifiedReflection(segments[0]);
                 if (!targetReflection) {
@@ -292,20 +301,43 @@ export function load (app: Application) {
                 }
                 if (segments.length > 1) {
                     for (let iSegment = 1; iSegment < segments.length; ++iSegment) {
-                        if (!(targetReflection instanceof ContainerReflection)) {
-                            _context.logger.error(`${segments.slice(0, iSegment).join('.')} in ${match[0]} `
-                                + `is not a container, referenced in ${!node ? '<unknown-location>' : node.getText()}`);
-                            targetReflection = null;
-                            break;
-                        }
+                        const currentReflections = getAllRelatedReflections(targetReflection);
+                        targetReflection = null;
+                        let hasAtLeastOneContainer = false;
                         const segment = segments[iSegment];
-                        if (!targetReflection.children) {
-                            targetReflection = null;
-                        } else {
-                            targetReflection = targetReflection.children.find((child) => child.name === segment) ?? null;
+                        for (const currentReflection of currentReflections) {
+                            let realReflection = currentReflection;
+                            if (realReflection instanceof ReferenceReflection) {
+                                realReflection = realReflection.getTargetReflectionDeep();
+                            }
+                            if ((realReflection.kind === ReflectionKind.Variable ||
+                                realReflection.kind === ReflectionKind.Property) &&
+                                realReflection instanceof DeclarationReflection &&
+                                realReflection.type &&
+                                realReflection.type.type === 'reference' &&
+                                realReflection.type.reflection) {
+                                // [[game.init]] -> [[Game.init]]
+                                realReflection = realReflection.type.reflection;
+                            }
+                            if (!(realReflection instanceof ContainerReflection)) {
+                                continue;
+                            }
+                            hasAtLeastOneContainer = true;
+                            if (!realReflection.children) {
+                                continue;
+                            }
+                            targetReflection = realReflection.children.find((child) => child.name === segment) ?? null;
+                            if (targetReflection) {
+                                break;
+                            }
                         }
                         if (!targetReflection) {
-                            printUnableResolve(iSegment);
+                            if (!hasAtLeastOneContainer) {
+                                _context.logger.error(`${segments.slice(0, iSegment).join('.')} in ${match[0]} `
+                                    + `is not a container, referenced in ${getLocation()}`);
+                            } else {
+                                printUnableResolve(iSegment);
+                            }
                             break;
                         }
                     }
@@ -342,31 +374,78 @@ export function load (app: Application) {
         function resolveUnqualifiedReflection (name: string) {
             let targetReflection: Reflection | null = null;
 
-            if (containerSearchReflection && containerSearchReflection instanceof ContainerReflection && containerSearchReflection.children) {
-                const child = containerSearchReflection.children.find((child) => child.name === name);
-                if (child) {
-                    targetReflection = child;
+            if (containerSearchReflection) {
+                for (const reflection of getAllRelatedReflections(containerSearchReflection)) {
+                    if (reflection instanceof ContainerReflection && reflection.children) {
+                        const child = reflection.children.find((child) => child.name === name);
+                        if (child) {
+                            targetReflection = child;
+                        }
+                    }
                 }
             }
 
             if (!targetReflection) {
-                const searchIn = (reflection: Reflection) => {
-                    if ((reflection.kind === ReflectionKind.Namespace
-                        || reflection.kind === ReflectionKind.Module
-                        || reflection.kind === ReflectionKind.Project) && reflection instanceof ContainerReflection && reflection.children) {
-                        for (const child of reflection.children) {
-                            if (child.name === name) {
-                                return child;
+                let parent: Reflection | null = reflection.parent ?? null;
+                while (parent) {
+                    if (parent instanceof ContainerReflection &&
+                        parent.children &&
+                        ((parent.kind === ReflectionKind.Namespace
+                            || parent.kind === ReflectionKind.Module
+                            || parent.kind === ReflectionKind.Project))) {
+                        for (const childReflection of parent.children) {
+                            if (childReflection.name === name) {
+                                targetReflection = childReflection;
+                                break;
                             }
-                            searchIn(child);
                         }
                     }
-                    return null;
-                };
-                targetReflection = searchIn(reflection.project);
+                    parent = parent.parent ?? null;
+                }
             }
 
             return targetReflection;
+        }
+
+        function getAllRelatedReflections(reflection: Reflection) {
+            const relatedReflections: Reflection[] = (reflection.parent && reflection.parent instanceof ContainerReflection && reflection.parent.children)
+                ? reflection.parent.children.filter(({ name }) => reflection.name === name)
+                : [reflection];
+            for (const reflection of relatedReflections) {
+                let currentReflection = reflection;
+                if (currentReflection.kind !== ReflectionKind.Class) {
+                    continue;
+                }
+                while (true) {
+                    if (!(currentReflection instanceof DeclarationReflection) || currentReflection.kind !== ReflectionKind.Class) {
+                        break;
+                    }
+                    const extendedType = currentReflection.extendedTypes?.[0];
+                    if (!extendedType) {
+                        break;
+                    }
+                    if (extendedType.type !== 'reference') {
+                        break;
+                    }
+                    // @ts-ignore
+                    const extendedReflection: Reflection = extendedType.reflection;
+                    if (!extendedReflection) {
+                        break;
+                    }
+                    if (extendedReflection.parent && extendedReflection.parent instanceof ContainerReflection &&
+                        extendedReflection.parent.children) {
+                        const ns = extendedReflection.parent.children.find((r) => {
+                            return r.name === extendedReflection.name && r.kind === ReflectionKind.Namespace;
+                        });
+                        if (ns) {
+                            relatedReflections.push(ns);
+                        }
+                    }
+                    currentReflection = extendedReflection;
+                }
+                break;
+            }
+            return relatedReflections;
         }
     }
 }

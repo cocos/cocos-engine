@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module material
- */
-
 import { EDITOR } from 'internal:constants';
 import { Root } from '../../root';
 import { TextureBase } from '../../assets/texture-base';
@@ -147,8 +142,8 @@ export class Pass {
     }
 
     /**
-     * @en Get pass hash value by [[Pass]] hash information.
-     * @zh 根据 [[Pass]] 的哈希信息获取哈希值。
+     * @en Get pass hash value by [[renderer.Pass]] hash information.
+     * @zh 根据 [[renderer.Pass]] 的哈希信息获取哈希值。
      *
      * @param hPass Handle of the pass info used to compute hash value.
      */
@@ -302,8 +297,8 @@ export class Pass {
     }
 
     /**
-     * @en Bind a GFX [[Texture]] the the given uniform binding
-     * @zh 绑定实际 GFX [[Texture]] 到指定 binding。
+     * @en Bind a GFX [[gfx.Texture]] the the given uniform binding
+     * @zh 绑定实际 GFX [[gfx.Texture]] 到指定 binding。
      * @param binding The binding for target uniform of texture type
      * @param value Target texture
      */
@@ -312,8 +307,8 @@ export class Pass {
     }
 
     /**
-     * @en Bind a GFX [[Sampler]] the the given uniform binding
-     * @zh 绑定实际 GFX [[Sampler]] 到指定 binding。
+     * @en Bind a GFX [[gfx.Sampler]] the the given uniform binding
+     * @zh 绑定实际 GFX [[gfx.Sampler]] 到指定 binding。
      * @param binding The binding for target uniform of sampler type
      * @param value Target sampler
      */

@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
-
 import { legacyCC } from '../global-exports';
 import { mapBuffer } from '../../3d/misc/buffer';
 import {
@@ -84,12 +79,24 @@ export interface IFlatBuffer {
 }
 
 /**
- * @en Sub mesh for rendering which contains all geometry data, it can be used to create [[InputAssembler]].
- * @zh 包含所有顶点数据的渲染子网格，可以用来创建 [[InputAssembler]]。
+ * @en Sub mesh for rendering which contains all geometry data, it can be used to create [[gfx.InputAssembler]].
+ * @zh 包含所有顶点数据的渲染子网格，可以用来创建 [[gfx.InputAssembler]]。
  */
 export class RenderingSubMesh {
+    /**
+     * @en
+     * mesh object where this sub mesh locates
+     * @zh
+     * 子网格所处的网格模型对象
+     */
     public mesh?: Mesh;
 
+    /**
+     * @en
+     * sub mesh's index in mesh
+     * @zh
+     * 子网格在网格模型中的索引
+     */
     public subMeshIdx?: number;
 
     private _flatBuffers: IFlatBuffer[] = [];
@@ -116,6 +123,17 @@ export class RenderingSubMesh {
 
     private _drawInfo?: DrawInfo | null = null;
 
+    /**
+     * @en
+     * sub mesh's constructor
+     * @zh
+     * 子网格构造函数
+     * @param vertexBuffers @en vertex buffers @zh 顶点缓冲区数组
+     * @param attributes @en vertex attributes @zh 顶点属性数组
+     * @param primitiveMode @en primitive mode @zh 图元类型
+     * @param indexBuffer @en index buffer @zh 索引缓冲区
+     * @param indirectBuffer @en indirect buffer @zh 间接缓冲区
+     */
     constructor (
         vertexBuffers: Buffer[], attributes: Attribute[], primitiveMode: PrimitiveMode,
         indexBuffer: Buffer | null = null, indirectBuffer: Buffer | null = null,
@@ -214,17 +232,13 @@ export class RenderingSubMesh {
     public invalidateGeometricInfo () { this._geometricInfo = undefined; }
 
     /**
-     * @en set the draw range
-     * @zh 设置渲染范围
+     * @en the draw range
+     * @zh 渲染范围
      */
     set drawInfo (info: DrawInfo | null | undefined) {
         this._drawInfo = info;
     }
 
-    /**
-     * @en get the draw range
-     * @zh 获取渲染范围
-     */
     get drawInfo (): DrawInfo | null | undefined {
         return this._drawInfo;
     }
@@ -235,6 +249,10 @@ export class RenderingSubMesh {
      */
     get flatBuffers () { return this._flatBuffers; }
 
+    /**
+     * @en generate flatted vertex buffers
+     * @zh 生成扁平化的顶点缓冲区。
+     */
     public genFlatBuffers () {
         if (this._flatBuffers.length || !this.mesh || this.subMeshIdx === undefined) { return; }
 
@@ -323,8 +341,16 @@ export class RenderingSubMesh {
         return buffers;
     }
 
+    /**
+     * @en The input assembler info
+     * @zh 输入汇集器信息
+     */
     get iaInfo () { return this._iaInfo; }
 
+    /**
+     * @en destroy sub mesh
+     * @zh 销毁子网格
+     */
     public destroy () {
         for (let i = 0; i < this.vertexBuffers.length; i++) {
             this.vertexBuffers[i].destroy();
@@ -352,7 +378,9 @@ export class RenderingSubMesh {
      * This is useful if you want to simulate `gl_VertexId` in WebGL context prior to 2.0.
      * Once you call this function, the vertex attribute is permanently added.
      * Subsequent calls to this function take no effect.
-     * @param device Device used to create related rendering resources.
+     * @zh 添加一个 'a_vertexId' 顶点属性， 用于在 WebGL 2.0 之前的平台模拟 `gl_VertexId`，
+     * 一旦你调用此函数， 顶点属性永久被添加， 后续调用无效果。
+     * @param device @en Device used to create related rendering resources @zh 用于创建相关渲染资源的设备对象
      */
     public enableVertexIdChannel (device: Device) {
         if (this._vertexIdChannel) {

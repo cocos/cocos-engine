@@ -410,7 +410,7 @@ static tinyxml2::XMLElement *generateElementForObject(const Value &value, tinyxm
         return node;
     }
 
-    //object is bool
+    // object is bool
     if (value.getType() == Value::Type::BOOLEAN) {
         tinyxml2::XMLElement *node = doc->NewElement(value.asString().c_str());
         return node;
@@ -478,8 +478,11 @@ bool FileUtils::writeToFile(const ValueMap &dict, const ccstd::string &fullPath)
 // Implement FileUtils
 FileUtils *FileUtils::sharedFileUtils = nullptr;
 
+FileUtils *FileUtils::getInstance() {
+    return FileUtils::sharedFileUtils;
+}
+
 void FileUtils::destroyInstance() {
-    CC_SAFE_DELETE(FileUtils::sharedFileUtils);
 }
 
 void FileUtils::setDelegate(FileUtils *delegate) {
@@ -487,9 +490,13 @@ void FileUtils::setDelegate(FileUtils *delegate) {
     FileUtils::sharedFileUtils = delegate;
 }
 
-FileUtils::FileUtils() = default;
+FileUtils::FileUtils() {
+    FileUtils::sharedFileUtils = this;
+}
 
-FileUtils::~FileUtils() = default;
+FileUtils::~FileUtils() {
+    FileUtils::sharedFileUtils = nullptr;
+}
 
 bool FileUtils::writeStringToFile(const ccstd::string &dataStr, const ccstd::string &fullPath) {
     Data data;
@@ -527,6 +534,8 @@ bool FileUtils::writeDataToFile(const Data &data, const ccstd::string &fullPath)
 }
 
 bool FileUtils::init() {
+    addSearchPath("Resources", true);
+    addSearchPath("data", true);
     _searchPathArray.push_back(_defaultResRootPath);
     return true;
 }
@@ -733,7 +742,7 @@ void FileUtils::setSearchPaths(const ccstd::vector<ccstd::string> &searchPaths) 
     }
 
     if (!existDefaultRootPath) {
-        //CC_LOG_DEBUG("Default root path doesn't exist, adding it.");
+        // CC_LOG_DEBUG("Default root path doesn't exist, adding it.");
         _searchPathArray.push_back(_defaultResRootPath);
     }
 }
@@ -1052,21 +1061,15 @@ int unlinkCb(const char *fpath, const struct stat * /*sb*/, int /*typeflag*/, st
 } // namespace
 
 bool FileUtils::removeDirectory(const ccstd::string &path) {
-    #if !defined(CC_TARGET_OS_TVOS)
-
-        #if (CC_PLATFORM != CC_PLATFORM_ANDROID)
+    #if (CC_PLATFORM != CC_PLATFORM_ANDROID)
     return nftw(path.c_str(), unlinkCb, 64, FTW_DEPTH | FTW_PHYS) != -1;
-        #else
+    #else
     ccstd::string command = "rm -r ";
     // Path may include space.
     command += "\"" + path + "\"";
 
     return (system(command.c_str()) >= 0);
-        #endif // (CC_PLATFORM != CC_PLATFORM_ANDROID)
-
-    #else
-    return false;
-    #endif // !defined(CC_TARGET_OS_TVOS)
+    #endif // (CC_PLATFORM != CC_PLATFORM_ANDROID)
 }
 
 bool FileUtils::removeFile(const ccstd::string &path) {
@@ -1118,7 +1121,7 @@ long FileUtils::getFileSize(const ccstd::string &filepath) { //NOLINT(google-run
         // Failed
         return -1;
     }
-    return static_cast<long>(info.st_size); //NOLINT(google-runtime-int)
+    return static_cast<long>(info.st_size); // NOLINT(google-runtime-int)
 }
 #endif
 

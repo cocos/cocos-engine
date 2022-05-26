@@ -140,7 +140,7 @@ export class StateMachine extends EditorExtendable {
 
     /**
      * // TODO: HACK
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @internal
      */
     public __callOnAfterDeserializeRecursive () {
         this[onAfterDeserializedTag]();
@@ -631,7 +631,16 @@ class TriggerVariable implements BasicVariableDescription<VariableType.TRIGGER> 
     private _flags = TRIGGER_VARIABLE_DEFAULT_FLAGS;
 }
 
+/**
+ * @en
+ * An opacity type which denotes what the animation graph seems like outside the engine.
+ * @zh
+ * 一个非透明的类型，它是动画图在引擎外部的表示。
+ */
 export interface AnimationGraphRunTime {
+    /**
+     * @internal
+     */
     readonly __brand: 'AnimationGraph';
 }
 

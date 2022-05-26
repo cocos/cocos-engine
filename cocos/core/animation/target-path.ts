@@ -23,32 +23,53 @@
  THE SOFTWARE.
  */
 
-
-
 import { ccclass, serializable } from 'cc.decorator';
 import { Node } from '../scene-graph/node';
 import { warn, warnID } from '../platform/debug';
 
+/**
+ * @deprecated Since V3.3, use [[TrackPath]] instead.
+ */
 export type PropertyPath = string | number;
 
+/**
+ * @deprecated Since V3.3, use [[TrackPath]] instead.
+ */
 export interface ICustomTargetPath {
     /**
+     * @en
+     * Gets next target from current target.
      * If errors are encountered, `null` should be returned.
+     * @zh
+     * 从当前目标中获取下一个目标。
+     * 若错误发生，应返回 `null`。
      * @param target
      */
     get(target: any): any;
 }
 
+/**
+ * @deprecated Since V3.3, use [[TrackPath]] instead.
+ */
 export type TargetPath = PropertyPath | ICustomTargetPath;
 
+/**
+ * @deprecated Since V3.3, use [[TrackPath]] instead.
+ */
 export function isPropertyPath (path: TargetPath): path is PropertyPath {
     return typeof path === 'string' || typeof path === 'number';
 }
 
+/**
+ * @deprecated Since V3.3, use [[TrackPath]] instead.
+ */
 export function isCustomPath<T extends ICustomTargetPath> (path: TargetPath, constructor: Constructor<T>): path is T {
     return path instanceof constructor;
 }
 
+/**
+ * @deprecated Since V3.3, use [[TrackPath]] instead.
+ */
 @ccclass('cc.animation.HierarchyPath')
 export class HierarchyPath implements ICustomTargetPath {
     @serializable
@@ -72,6 +93,9 @@ export class HierarchyPath implements ICustomTargetPath {
     }
 }
 
+/**
+ * @deprecated Since V3.3, use [[TrackPath]] instead.
+ */
 @ccclass('cc.animation.ComponentPath')
 export class ComponentPath implements ICustomTargetPath {
     @serializable

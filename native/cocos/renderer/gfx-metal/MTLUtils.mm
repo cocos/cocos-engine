@@ -389,7 +389,7 @@ gfx::Shader *createShader(CCMTLDevice *device, CCMTLRenderPass *renderPass) {
 }
 
 CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, RenderPass *curPass) {
-    size_t rpHash = curPass->getHash();
+    ccstd::hash_t rpHash = curPass->getHash();
     const auto iter = pipelineMap.find(rpHash);
     if (iter != pipelineMap.end()) {
         auto *ccMtlPiplineState = static_cast<CCMTLPipelineState *>(iter->second);

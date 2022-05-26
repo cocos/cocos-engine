@@ -62,8 +62,9 @@ Root::Root(gfx::Device *device)
 }
 
 Root::~Root() {
-    instance = nullptr;
+    destroy();
     CC_SAFE_DELETE(_eventProcessor);
+    instance = nullptr;
 }
 
 void Root::initialize(gfx::Swapchain *swapchain) {
@@ -210,7 +211,8 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
             return false;
         }
     } else {
-        _pipelineRuntime = std::make_unique<render::NativePipeline>();
+        _pipelineRuntime = std::make_unique<render::NativePipeline>(
+            boost::container::pmr::get_default_resource());
         if (!_pipelineRuntime->activate(_mainWindow->getSwapchain())) {
             _pipelineRuntime->destroy();
             _pipelineRuntime.reset();
@@ -259,6 +261,9 @@ void Root::frameMove(float deltaTime, int32_t totalFrames) {
     if (!cc::gfx::Device::getInstance()->isRendererAvailable()) {
         return;
     }
+
+    CCObject::deferredDestroy();
+
     _frameTime = deltaTime;
 
     ++_frameCount;

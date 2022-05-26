@@ -165,13 +165,13 @@ public:
      */
     bool destroy() override;
 
-    cc::any serialize(const cc::any &ctxForExporting) override;
-    void deserialize(const cc::any &serializedData, const cc::any &handle) override;
+    ccstd::any serialize(const ccstd::any &ctxForExporting) override;
+    void deserialize(const ccstd::any &serializedData, const ccstd::any &handle) override;
 
     gfx::TextureInfo getGfxTextureCreateInfo(gfx::TextureUsageBit usage, gfx::Format format, uint32_t levelCount, gfx::TextureFlagBit flags) override;
     gfx::TextureViewInfo getGfxTextureViewCreateInfo(gfx::Texture *texture, gfx::Format format, uint32_t baseLevel, uint32_t levelCount) override;
 
-    void initDefault(const cc::optional<ccstd::string> &uuid) override;
+    void initDefault(const ccstd::optional<ccstd::string> &uuid) override;
 
     bool validate() const override;
     //

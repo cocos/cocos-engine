@@ -24,11 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core/value-types
- */
-
 import { EDITOR, TEST, DEV } from 'internal:constants';
 import { value } from '../utils/js';
 import { legacyCC } from '../global-exports';
@@ -45,8 +40,10 @@ import { assertIsTrue } from '../data/utils/asserts';
  * 定义一个枚举类型。<br/>
  * 用户可以把枚举值设为任意的整数，如果设为 -1，系统将会分配为上一个枚举值 + 1。
  *
- * @param obj - a JavaScript literal object containing enum names and values, or a TypeScript enum type
- * @return the defined enum type
+ * @param obj
+ * @en A JavaScript literal object containing enum names and values, or a TypeScript enum type.
+ * @zh 包含枚举名和值的 JavaScript literal 对象，或者是一个 TypeScript enum 类型。
+ * @return @en The defined enum type. @zh 定义的枚举类型。
  */
 export function Enum<T> (obj: T): T {
     if ('__enums__' in obj) {
@@ -61,7 +58,7 @@ export function Enum<T> (obj: T): T {
  * Update the enum object properties.
  * @zh
  * 更新枚举对象的属性列表。
- * @param obj
+ * @param obj @en The enum object to update. @zh 需要更新的枚举对象。
  */
 Enum.update = <T> (obj: T): T => {
     let lastIndex = -1;
@@ -115,7 +112,7 @@ interface EnumExtras<EnumT> {
 
 /**
  * Determines if the object is an enum type.
- * @param enumType The object to judge.
+ * @param enumType @en The object to judge. @zh 需要判断的对象。
  */
 Enum.isEnum = <EnumT extends {}>(enumType: EnumT) => enumType && enumType.hasOwnProperty('__enums__');
 
@@ -125,7 +122,7 @@ function assertIsEnum <EnumT extends {}> (enumType: EnumT): asserts enumType is 
 
 /**
  * Get the enumerators from the enum type.
- * @param enumType An enum type.
+ * @param enumType @en An enum type. @zh 枚举类型。
  */
 Enum.getList = <EnumT extends {}>(enumType: EnumT): readonly Enum.Enumerator<EnumT>[] => {
     assertIsEnum(enumType);
@@ -139,7 +136,7 @@ Enum.getList = <EnumT extends {}>(enumType: EnumT): readonly Enum.Enumerator<Enu
 
 /**
  * Update the enumerators from the enum type.
- * @param enumType - the enum type defined from cc.Enum
+ * @param enumType @en The enum type defined from [[Enum]] @zh 从[[Enum]]定义的枚举类型。
  * @return {Object[]}
  */
 function updateList<EnumT extends {}> (enumType: EnumT): readonly Enum.Enumerator<EnumT>[] {
@@ -176,7 +173,9 @@ if (DEV) {
  * Formally, as a result of invocation on this function with enum type `enumType`:
  * - `Enum.isEnum(enumType)` returns `true`;
  * - `Enum.getList(enumType)` returns the enumerators of `enumType`.
- * @param enumType An enum type, eg, a kind of type with similar semantic defined by TypeScript.
+ * @param
+ * @en enumType An enum type, eg, a kind of type with similar semantic defined by TypeScript.
+ * @zh 枚举类型，例如 TypeScript 中定义的类型。
  */
 export function ccenum<EnumT extends {}> (enumType: EnumT) {
     if (!('__enums__' in enumType)) {

@@ -237,7 +237,7 @@ void Model::updateUBOs(uint32_t stamp) {
     int idx = _instMatWorldIdx;
     if (idx >= 0) {
         ccstd::vector<TypedArray> &attrs = getInstancedAttributeBlock()->views;
-        uploadMat4AsVec4x3(worldMatrix, cc::get<Float32Array>(attrs[idx]), cc::get<Float32Array>(attrs[idx + 1]), cc::get<Float32Array>(attrs[idx + 2]));
+        uploadMat4AsVec4x3(worldMatrix, ccstd::get<Float32Array>(attrs[idx]), ccstd::get<Float32Array>(attrs[idx + 1]), ccstd::get<Float32Array>(attrs[idx + 2]));
     } else if (_localBuffer) {
         mat4ToFloat32Array(worldMatrix, _localData, pipeline::UBOLocal::MAT_WORLD_OFFSET);
         Mat4::inverseTranspose(worldMatrix, &mat4);
@@ -271,7 +271,7 @@ void Model::updateWorldBoundUBOs() {
     }
 }
 
-void Model::createBoundingShape(const cc::optional<Vec3> &minPos, const cc::optional<Vec3> &maxPos) {
+void Model::createBoundingShape(const ccstd::optional<Vec3> &minPos, const ccstd::optional<Vec3> &maxPos) {
     if (!minPos.has_value() || !maxPos.has_value()) {
         return;
     }
@@ -500,7 +500,7 @@ void Model::updateWorldBoundDescriptors(index_t subModelIndex, gfx::DescriptorSe
     }
 }
 void Model::setInstancedAttributesViewData(index_t viewIdx, index_t arrIdx, float value) {
-    cc::get<Float32Array>(_instanceAttributeBlock.views[viewIdx])[arrIdx] = value;
+    ccstd::get<Float32Array>(_instanceAttributeBlock.views[viewIdx])[arrIdx] = value;
 }
 
 void Model::updateLocalShadowBias() {

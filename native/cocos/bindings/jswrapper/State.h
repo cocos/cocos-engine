@@ -68,25 +68,9 @@ public:
          *  @param[in]
          *  @return
          */
-    State();
-
-    /**
-         *  @brief
-         *  @param[in]
-         *  @return
-         */
     ~State();
 
-    explicit State(PrivateObjectBase *privateObject);
-    State(PrivateObjectBase *privateObject, const ValueArray &args);
-    State(Object *thisObject, PrivateObjectBase *privateObject);
-    State(Object *thisObject, PrivateObjectBase *privateObject, const ValueArray &args);
-
-    /**
-         *  @brief
-         *  @param[in]
-         *  @return
-         */
+    explicit State(Object *thisObject);
     State(Object *thisObject, const ValueArray &args);
 
 private:
@@ -96,7 +80,6 @@ private:
     State &operator=(const State &);
     State &operator=(State &&) noexcept;
 
-    PrivateObjectBase *_privateObject{nullptr};
     Object *_thisObject{nullptr};     //weak ref
     const ValueArray *_args{nullptr}; //weak ref
     Value _retVal;                    //weak ref

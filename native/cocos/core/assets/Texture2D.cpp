@@ -123,10 +123,6 @@ void Texture2D::updateMipmaps(uint32_t firstLevel, uint32_t count) {
     }
 }
 
-HTMLElement *Texture2D::getHtmlElementObj() { //NOLINT
-    return nullptr;                           //cjh TODO: remove this?
-}
-
 bool Texture2D::destroy() {
     _mipmaps.clear();
     return Super::destroy();
@@ -146,7 +142,7 @@ void Texture2D::releaseTexture() {
     destroy();
 }
 
-cc::any Texture2D::serialize(const cc::any & /*ctxForExporting*/) {
+ccstd::any Texture2D::serialize(const ccstd::any & /*ctxForExporting*/) {
     //    if (EDITOR || TEST) {
     //        return {
     //            base: super._serialize(ctxForExporting),
@@ -165,8 +161,8 @@ cc::any Texture2D::serialize(const cc::any & /*ctxForExporting*/) {
     return nullptr;
 }
 
-void Texture2D::deserialize(const cc::any &serializedData, const cc::any &handle) {
-    const auto *data = cc::any_cast<ITexture2DSerializeData>(&serializedData);
+void Texture2D::deserialize(const ccstd::any &serializedData, const ccstd::any &handle) {
+    const auto *data = ccstd::any_cast<ITexture2DSerializeData>(&serializedData);
     if (data == nullptr) {
         CC_LOG_WARNING("serializedData is not ITexture2DSerializeData");
         return;
@@ -207,10 +203,10 @@ gfx::TextureViewInfo Texture2D::getGfxTextureViewCreateInfo(gfx::Texture *textur
     return texViewInfo;
 }
 
-void Texture2D::initDefault(const cc::optional<ccstd::string> &uuid) {
+void Texture2D::initDefault(const ccstd::optional<ccstd::string> &uuid) {
     Super::initDefault(uuid);
     auto *imageAsset = ccnew ImageAsset();
-    imageAsset->initDefault(cc::nullopt);
+    imageAsset->initDefault(ccstd::nullopt);
     setImage(imageAsset);
 }
 

@@ -1,7 +1,3 @@
-/**
- * @packageDocumentation
- */
-
 import { PixelFormat } from '../../../core/assets/asset-enum';
 import { ImageAsset } from '../../../core/assets/image-asset';
 import { Texture2D } from '../../../core/assets/texture-2d';

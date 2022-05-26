@@ -156,7 +156,7 @@ exports.listeners = {
     },
 };
 
-exports.template = `
+exports.template = /* html*/`
 <ui-drag-area class="container">
     <section class="prefab" hidden missing>
         <ui-label value="Prefab"></ui-label>
@@ -220,7 +220,7 @@ exports.template = `
     <section class="section-missing"></section>
 
     <footer class="footer">
-        <ui-button>
+        <ui-button class="add-component">
             <ui-label value="i18n:ENGINE.components.add_component"></ui-label>
         </ui-button>
     </footer>
@@ -273,7 +273,7 @@ exports.$ = {
     sectionAsset: '.section-asset',
 
     footer: '.footer',
-    componentAdd: '.footer > ui-button',
+    componentAdd: '.footer .add-component',
 };
 
 const Elements = {
@@ -572,40 +572,40 @@ const Elements = {
             const panel = this;
 
             if (!panel.dump || !panel.dump.isScene) {
+                panel.$.componentAdd.style.display = 'block';
                 return;
             }
+            panel.$.componentAdd.style.display = 'none';
 
             panel.$this.setAttribute('sub-type', 'scene');
             panel.$.container.removeAttribute('droppable');
 
             panel.$.sceneRelease.render(panel.dump.autoReleaseAssets);
 
-            panel.dump._globals.ambient.displayName = panel.dump._globals.ambient.displayName || 'Ambient';
-            panel.dump._globals.ambient.help =
-                panel.dump._globals.ambient.help || Editor.Utils.Url.getDocUrl('concepts/scene/ambient.html');
+            // 由于场景属性对象不是继承于 Component 所以没有修饰器，displayName, help 数据在这里配置
+            panel.dump._globals.ambient.displayName = 'Ambient';
+            panel.dump._globals.ambient.help = panel.getHelpUrl({ help: 'i18n:cc.Ambient' });
             panel.$.sceneAmbient.render(panel.dump._globals.ambient);
 
-            panel.dump._globals.fog.displayName = panel.dump._globals.fog.displayName || 'Fog';
-            panel.dump._globals.fog.help = panel.dump._globals.fog.help || Editor.Utils.Url.getDocUrl('concepts/scene/skybox.html');
+            panel.dump._globals.fog.displayName = 'Fog';
+            panel.dump._globals.fog.help = panel.getHelpUrl({ help: 'i18n:cc.Fog' });
             panel.$.sceneFog.render(panel.dump._globals.fog);
 
-            panel.dump._globals.shadows.displayName = panel.dump._globals.shadows.displayName || 'Shadows';
-            panel.dump._globals.shadows.help =
-                panel.dump._globals.shadows.help || Editor.Utils.Url.getDocUrl('concepts/scene/light/shadow.html');
+            panel.dump._globals.shadows.displayName = 'Shadows';
+            panel.dump._globals.shadows.help = panel.getHelpUrl({ help: 'i18n:cc.Shadow' });
             panel.$.sceneShadows.render(panel.dump._globals.shadows);
 
-            panel.dump._globals.skybox.displayName = panel.dump._globals.skybox.displayName || 'Skybox';
-            panel.dump._globals.skybox.help = panel.dump._globals.skybox.help || Editor.Utils.Url.getDocUrl('concepts/scene/skybox.html');
+            panel.dump._globals.skybox.displayName = 'Skybox';
+            panel.dump._globals.skybox.help = panel.getHelpUrl({ help: 'i18n:cc.Skybox' });
             panel.$.sceneSkybox.render(panel.dump._globals.skybox);
 
-            panel.dump._globals.octree.help =
-                panel.dump._globals.octree.help || Editor.Utils.Url.getDocUrl('advanced-topics/native-scene-culling.html');
-            panel.dump._globals.octree.displayName = panel.dump._globals.octree.displayName || 'Octree Scene Culling';
+            panel.dump._globals.octree.displayName = 'Octree Scene Culling';
+            panel.dump._globals.octree.help = panel.getHelpUrl({ help: 'i18n:cc.OctreeCulling' });
             panel.$.sceneOctree.render(panel.dump._globals.octree);
 
             // TODO：这个 if 暂时配合引擎调整使用，测试调通后可以去掉
             if (panel.dump._globals.postProcess) {
-                panel.dump._globals.postProcess.displayName = panel.dump._globals.postProcess.displayName || 'Post Process';
+                panel.dump._globals.postProcess.displayName = 'Post Process';
                 panel.$.postProcess.render(panel.dump._globals.postProcess);
             }
 

@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module material
- */
-
 import { ccclass, serializable, editable, editorOnly } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Root } from '../root';
@@ -252,8 +247,8 @@ export class EffectAsset extends Asset {
     public hideInEditor = false;
 
     /**
-     * @en The loaded callback which should be invoked by the [[Loader]], will automatically register the effect.
-     * @zh 通过 [[Loader]] 加载完成时的回调，将自动注册 effect 资源。
+     * @en The loaded callback which should be invoked by the [[CCLoader]], will automatically register the effect.
+     * @zh 通过 [[CCLoader]] 加载完成时的回调，将自动注册 effect 资源。
      */
     public onLoaded () {
         programLib.register(this);

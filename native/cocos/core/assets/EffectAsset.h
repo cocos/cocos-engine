@@ -28,7 +28,7 @@
 #include <tuple>
 #include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
-#include "cocos/base/Optional.h"
+#include "base/std/optional.h"
 
 #include "base/Value.h"
 #include "core/Types.h"
@@ -42,33 +42,33 @@ namespace cc {
 
 using IPropertyHandleInfo = std::tuple<ccstd::string, uint32_t, gfx::Type>;
 
-using IPropertyValue = cc::optional<cc::variant<ccstd::vector<float>, ccstd::string>>;
+using IPropertyValue = ccstd::optional<ccstd::variant<ccstd::vector<float>, ccstd::string>>;
 
 struct IPropertyInfo {
-    int32_t type;                                 // auto-extracted from shader
-    cc::optional<IPropertyHandleInfo> handleInfo; // auto-generated from 'target'
-    cc::optional<uint64_t> samplerHash;           // auto-generated from 'sampler'
-    IPropertyValue value;                         // default value
-    cc::optional<bool> linear;                    // whether to convert the input to linear space first before applying
+    int32_t type;                                    // auto-extracted from shader
+    ccstd::optional<IPropertyHandleInfo> handleInfo; // auto-generated from 'target'
+    ccstd::optional<ccstd::hash_t> samplerHash;      // auto-generated from 'sampler'
+    IPropertyValue value;                            // default value
+    ccstd::optional<bool> linear;                    // whether to convert the input to linear space first before applying
 };
 
 struct IPassInfoFull;
 
 struct RasterizerStateInfo {
-    cc::optional<bool> isDiscard;
-    cc::optional<bool> isFrontFaceCCW;
-    cc::optional<bool> depthBiasEnabled;
-    cc::optional<bool> isDepthClip;
-    cc::optional<bool> isMultisample;
+    ccstd::optional<bool> isDiscard;
+    ccstd::optional<bool> isFrontFaceCCW;
+    ccstd::optional<bool> depthBiasEnabled;
+    ccstd::optional<bool> isDepthClip;
+    ccstd::optional<bool> isMultisample;
 
-    cc::optional<gfx::PolygonMode> polygonMode;
-    cc::optional<gfx::ShadeModel> shadeModel;
-    cc::optional<gfx::CullMode> cullMode;
+    ccstd::optional<gfx::PolygonMode> polygonMode;
+    ccstd::optional<gfx::ShadeModel> shadeModel;
+    ccstd::optional<gfx::CullMode> cullMode;
 
-    cc::optional<float> depthBias;
-    cc::optional<float> depthBiasClamp;
-    cc::optional<float> depthBiasSlop;
-    cc::optional<float> lineWidth;
+    ccstd::optional<float> depthBias;
+    ccstd::optional<float> depthBiasClamp;
+    ccstd::optional<float> depthBiasSlop;
+    ccstd::optional<float> lineWidth;
 
     void fromGFXRasterizerState(const gfx::RasterizerState &rs) {
         isDiscard = rs.isDiscard;
@@ -128,27 +128,27 @@ struct RasterizerStateInfo {
 };
 
 struct DepthStencilStateInfo {
-    cc::optional<bool> depthTest;
-    cc::optional<bool> depthWrite;
-    cc::optional<bool> stencilTestFront;
-    cc::optional<bool> stencilTestBack;
+    ccstd::optional<bool> depthTest;
+    ccstd::optional<bool> depthWrite;
+    ccstd::optional<bool> stencilTestFront;
+    ccstd::optional<bool> stencilTestBack;
 
-    cc::optional<gfx::ComparisonFunc> depthFunc;
-    cc::optional<gfx::ComparisonFunc> stencilFuncFront;
-    cc::optional<uint> stencilReadMaskFront;
-    cc::optional<uint> stencilWriteMaskFront;
-    cc::optional<gfx::StencilOp> stencilFailOpFront;
-    cc::optional<gfx::StencilOp> stencilZFailOpFront;
-    cc::optional<gfx::StencilOp> stencilPassOpFront;
-    cc::optional<uint> stencilRefFront;
+    ccstd::optional<gfx::ComparisonFunc> depthFunc;
+    ccstd::optional<gfx::ComparisonFunc> stencilFuncFront;
+    ccstd::optional<uint> stencilReadMaskFront;
+    ccstd::optional<uint> stencilWriteMaskFront;
+    ccstd::optional<gfx::StencilOp> stencilFailOpFront;
+    ccstd::optional<gfx::StencilOp> stencilZFailOpFront;
+    ccstd::optional<gfx::StencilOp> stencilPassOpFront;
+    ccstd::optional<uint> stencilRefFront;
 
-    cc::optional<gfx::ComparisonFunc> stencilFuncBack;
-    cc::optional<uint> stencilReadMaskBack;
-    cc::optional<uint> stencilWriteMaskBack;
-    cc::optional<gfx::StencilOp> stencilFailOpBack;
-    cc::optional<gfx::StencilOp> stencilZFailOpBack;
-    cc::optional<gfx::StencilOp> stencilPassOpBack;
-    cc::optional<uint> stencilRefBack;
+    ccstd::optional<gfx::ComparisonFunc> stencilFuncBack;
+    ccstd::optional<uint> stencilReadMaskBack;
+    ccstd::optional<uint> stencilWriteMaskBack;
+    ccstd::optional<gfx::StencilOp> stencilFailOpBack;
+    ccstd::optional<gfx::StencilOp> stencilZFailOpBack;
+    ccstd::optional<gfx::StencilOp> stencilPassOpBack;
+    ccstd::optional<uint> stencilRefBack;
 
     void fromGFXDepthStencilState(const gfx::DepthStencilState &ds) {
         depthTest = ds.depthTest;
@@ -236,14 +236,14 @@ struct DepthStencilStateInfo {
 };
 
 struct BlendTargetInfo {
-    cc::optional<bool> blend;
-    cc::optional<gfx::BlendFactor> blendSrc;
-    cc::optional<gfx::BlendFactor> blendDst;
-    cc::optional<gfx::BlendOp> blendEq;
-    cc::optional<gfx::BlendFactor> blendSrcAlpha;
-    cc::optional<gfx::BlendFactor> blendDstAlpha;
-    cc::optional<gfx::BlendOp> blendAlphaEq;
-    cc::optional<gfx::ColorMask> blendColorMask;
+    ccstd::optional<bool> blend;
+    ccstd::optional<gfx::BlendFactor> blendSrc;
+    ccstd::optional<gfx::BlendFactor> blendDst;
+    ccstd::optional<gfx::BlendOp> blendEq;
+    ccstd::optional<gfx::BlendFactor> blendSrcAlpha;
+    ccstd::optional<gfx::BlendFactor> blendDstAlpha;
+    ccstd::optional<gfx::BlendOp> blendAlphaEq;
+    ccstd::optional<gfx::ColorMask> blendColorMask;
 
     void fromGFXBlendTarget(const gfx::BlendTarget &target) {
         blend = target.blend;
@@ -287,10 +287,10 @@ struct BlendTargetInfo {
 using BlendTargetInfoList = ccstd::vector<BlendTargetInfo>;
 
 struct BlendStateInfo {
-    cc::optional<bool> isA2C;
-    cc::optional<bool> isIndepend;
-    cc::optional<gfx::Color> blendColor;
-    cc::optional<BlendTargetInfoList> targets;
+    ccstd::optional<bool> isA2C;
+    ccstd::optional<bool> isIndepend;
+    ccstd::optional<gfx::Color> blendColor;
+    ccstd::optional<BlendTargetInfoList> targets;
 
     void fromGFXBlendState(const gfx::BlendState &bs) {
         isA2C = bs.isA2C;
@@ -331,14 +331,14 @@ struct BlendStateInfo {
 
 // Pass instance itself are compliant to IPassStates too
 struct IPassStates {
-    cc::optional<int32_t> priority;
-    cc::optional<gfx::PrimitiveMode> primitive;
-    cc::optional<pipeline::RenderPassStage> stage;
-    cc::optional<RasterizerStateInfo> rasterizerState;
-    cc::optional<DepthStencilStateInfo> depthStencilState;
-    cc::optional<BlendStateInfo> blendState;
-    cc::optional<gfx::DynamicStateFlags> dynamicStates;
-    cc::optional<ccstd::string> phase;
+    ccstd::optional<int32_t> priority;
+    ccstd::optional<gfx::PrimitiveMode> primitive;
+    ccstd::optional<pipeline::RenderPassStage> stage;
+    ccstd::optional<RasterizerStateInfo> rasterizerState;
+    ccstd::optional<DepthStencilStateInfo> depthStencilState;
+    ccstd::optional<BlendStateInfo> blendState;
+    ccstd::optional<gfx::DynamicStateFlags> dynamicStates;
+    ccstd::optional<ccstd::string> phase;
 
     IPassStates() = default;
     explicit IPassStates(const IPassInfoFull &o);
@@ -351,26 +351,26 @@ using PassPropertyInfoMap = ccstd::unordered_map<ccstd::string, IPropertyInfo>;
 
 struct IPassInfoFull final { //cjh } : public IPassInfo {
     // IPassStates
-    cc::optional<int32_t> priority;
-    cc::optional<gfx::PrimitiveMode> primitive;
-    cc::optional<pipeline::RenderPassStage> stage;
-    cc::optional<RasterizerStateInfo> rasterizerState;
-    cc::optional<DepthStencilStateInfo> depthStencilState;
-    cc::optional<BlendStateInfo> blendState;
-    cc::optional<gfx::DynamicStateFlags> dynamicStates;
-    cc::optional<ccstd::string> phase;
+    ccstd::optional<int32_t> priority;
+    ccstd::optional<gfx::PrimitiveMode> primitive;
+    ccstd::optional<pipeline::RenderPassStage> stage;
+    ccstd::optional<RasterizerStateInfo> rasterizerState;
+    ccstd::optional<DepthStencilStateInfo> depthStencilState;
+    ccstd::optional<BlendStateInfo> blendState;
+    ccstd::optional<gfx::DynamicStateFlags> dynamicStates;
+    ccstd::optional<ccstd::string> phase;
     // IPassInfo
     ccstd::string program; // auto-generated from 'vert' and 'frag'
-    cc::optional<MacroRecord> embeddedMacros;
+    ccstd::optional<MacroRecord> embeddedMacros;
     index_t propertyIndex{CC_INVALID_INDEX};
-    cc::optional<ccstd::string> switch_;
-    cc::optional<PassPropertyInfoMap> properties;
+    ccstd::optional<ccstd::string> switch_;
+    ccstd::optional<PassPropertyInfoMap> properties;
 
     // IPassInfoFull
     // generated part
     index_t passIndex{0};
     MacroRecord defines;
-    cc::optional<PassOverrides> stateOverrides;
+    ccstd::optional<PassOverrides> stateOverrides;
 
     IPassInfoFull() = default;
     explicit IPassInfoFull(const IPassStates &o) {
@@ -393,7 +393,7 @@ using IPassInfo = IPassInfoFull;
 
 struct ITechniqueInfo {
     ccstd::vector<IPassInfoFull> passes;
-    cc::optional<ccstd::string> name;
+    ccstd::optional<ccstd::string> name;
 };
 
 struct IBlockInfo {
@@ -466,9 +466,9 @@ struct IAttributeInfo {
 struct IDefineInfo {
     ccstd::string name;
     ccstd::string type;
-    cc::optional<ccstd::vector<int32_t>> range; //cjh number is float?  ?: number[];
-    cc::optional<ccstd::vector<ccstd::string>> options;
-    cc::optional<ccstd::string> defaultVal;
+    ccstd::optional<ccstd::vector<int32_t>> range; //cjh number is float?  ?: number[];
+    ccstd::optional<ccstd::vector<ccstd::string>> options;
+    ccstd::optional<ccstd::string> defaultVal;
 };
 
 struct IBuiltin {
@@ -498,7 +498,7 @@ struct IShaderSource {
 
 struct IShaderInfo {
     ccstd::string name;
-    uint64_t hash{0xFFFFFFFFFFFFFFFFULL}; //cjh hash is 64 bit?
+    ccstd::hash_t hash{0xFFFFFFFFU};
     IShaderSource glsl4;
     IShaderSource glsl3;
     IShaderSource glsl1;
@@ -521,7 +521,7 @@ struct IShaderInfo {
     }
 };
 
-using IPreCompileInfoValueType = cc::variant<ccstd::vector<bool>, ccstd::vector<int32_t>, ccstd::vector<ccstd::string>>;
+using IPreCompileInfoValueType = ccstd::variant<ccstd::vector<bool>, ccstd::vector<int32_t>, ccstd::vector<ccstd::string>>;
 using IPreCompileInfo = ccstd::unordered_map<ccstd::string, IPreCompileInfoValueType>;
 
 class EffectAsset final : public Asset {
@@ -576,7 +576,7 @@ public:
      */
     void onLoaded() override;
     bool destroy() override;
-    void initDefault(const cc::optional<ccstd::string> &uuid) override;
+    void initDefault(const ccstd::optional<ccstd::string> &uuid) override;
     bool validate() const override;
 
 protected:

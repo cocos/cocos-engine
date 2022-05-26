@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { Buffer } from './base/buffer';
 import { CommandBuffer } from './base/command-buffer';
 import { Device } from './base/device';

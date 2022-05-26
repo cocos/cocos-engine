@@ -38,6 +38,12 @@ namespace cc {
 
 namespace render {
 
+inline const char* getName(const NativeLayoutGraphBuilder& /*v*/) noexcept { return "NativeLayoutGraphBuilder"; }
+inline const char* getName(const NativeRasterPassBuilder& /*v*/) noexcept { return "NativeRasterPassBuilder"; }
+inline const char* getName(const NativeComputePassBuilder& /*v*/) noexcept { return "NativeComputePassBuilder"; }
+inline const char* getName(const NativeMovePassBuilder& /*v*/) noexcept { return "NativeMovePassBuilder"; }
+inline const char* getName(const NativeCopyPassBuilder& /*v*/) noexcept { return "NativeCopyPassBuilder"; }
+inline const char* getName(const NativeSceneTransversal& /*v*/) noexcept { return "NativeSceneTransversal"; }
 inline const char* getName(const NativePipeline& /*v*/) noexcept { return "NativePipeline"; }
 
 } // namespace render

@@ -107,6 +107,7 @@ export class MountedComponentsInfo {
 
 /**
  * Prefab实例类
+ * @internal
  */
 @ccclass('cc.PrefabInstance')
 export class PrefabInstance {

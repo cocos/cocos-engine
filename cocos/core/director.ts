@@ -27,11 +27,6 @@
 
 /* spell-checker:words COORD, Quesada, INITED, Renerer */
 
-/**
- * @packageDocumentation
- * @module core
- */
-
 import { DEBUG, EDITOR, BUILD, TEST } from 'internal:constants';
 import { SceneAsset } from './assets';
 import System from './components/system';
@@ -172,29 +167,29 @@ export class Director extends EventTarget {
     public static readonly EVENT_BEFORE_COMMIT = 'director_before_commit';
 
     /**
-     * The event which will be triggered before the physics process.<br/>
-     * 物理过程之前所触发的事件。
+     * @en The event which will be triggered before the physics process.<br/>
+     * @zh 物理过程之前所触发的事件。
      * @event Director.EVENT_BEFORE_PHYSICS
      */
     public static readonly EVENT_BEFORE_PHYSICS = 'director_before_physics';
 
     /**
-     * The event which will be triggered after the physics process.<br/>
-     * 物理过程之后所触发的事件。
+     * @en The event which will be triggered after the physics process.<br/>
+     * @zh 物理过程之后所触发的事件。
      * @event Director.EVENT_AFTER_PHYSICS
      */
     public static readonly EVENT_AFTER_PHYSICS = 'director_after_physics';
 
     /**
-     * The event which will be triggered at the frame begin.<br/>
-     * 一帧开始时所触发的事件。
+     * @en The event which will be triggered at the frame begin.<br/>
+     * @zh 一帧开始时所触发的事件。
      * @event Director.EVENT_BEGIN_FRAME
      */
     public static readonly EVENT_BEGIN_FRAME = 'director_begin_frame';
 
     /**
-     * The event which will be triggered at the frame end.<br/>
-     * 一帧结束之后所触发的事件。
+     * @en The event which will be triggered at the frame end.<br/>
+     * @zh 一帧结束之后所触发的事件。
      * @event Director.EVENT_END_FRAME
      */
     public static readonly EVENT_END_FRAME = 'director_end_frame';
@@ -484,8 +479,8 @@ export class Director extends EventTarget {
      * @zh 预加载场景资源，你可以在任何时候调用这个方法。
      * 调用完后，你仍然需要通过 `director.loadScene` 来启动场景，因为这个方法不会执行场景加载操作。<br>
      * 就算预加载还没完成，你也可以直接调用 `director.loadScene`，加载完成后场景就会启动。
-     * @param sceneName 场景名称。
-     * @param onLoaded 加载回调。
+     * @param sceneName @en The name of the scene to load @zh 场景名称。
+     * @param onLoaded @en Callback to execute once the scene is loaded @zh 加载回调。
      */
     public preloadScene (sceneName: string, onLoaded?: Director.OnSceneLoaded): void;
 
@@ -498,9 +493,9 @@ export class Director extends EventTarget {
      * @zh 预加载场景，你可以在任何时候调用这个方法。
      * 调用完后，你仍然需要通过 `director.loadScene` 来启动场景，因为这个方法不会执行场景加载操作。<br>
      * 就算预加载还没完成，你也可以直接调用 `director.loadScene`，加载完成后场景就会启动。
-     * @param sceneName 场景名称。
-     * @param onProgress 加载进度回调。
-     * @param onLoaded 加载回调。
+     * @param sceneName @en The name of scene to load @zh 场景名称。
+     * @param onProgress @en Callback to execute when the load progression change.  @zh 加载进度回调。
+     * @param onLoaded @en Callback to execute once the scene is loaded @zh 加载回调。
      */
     public preloadScene (sceneName: string, onProgress: Director.OnLoadSceneProgress, onLoaded: Director.OnSceneLoaded): void;
 
@@ -766,6 +761,7 @@ export declare namespace Director {
 legacyCC.Director = Director;
 
 /**
- * 导演类。
+ * @en Director of the game, used to control game update loop and scene management
+ * @zh 游戏的导演，用于控制游戏更新循环与场景管理。
  */
 export const director: Director = Director.instance = legacyCC.director = new Director();

@@ -51,10 +51,6 @@ JSB_REGISTER_OBJECT_TYPE(cc::Material);
 JSB_REGISTER_OBJECT_TYPE(cc::TextureBase);
 JSB_REGISTER_OBJECT_TYPE(cc::IRenderTextureCreateInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::RenderTexture);
-JSB_REGISTER_OBJECT_TYPE(cc::IMeshBufferView);
-JSB_REGISTER_OBJECT_TYPE(cc::MorphTarget);
-JSB_REGISTER_OBJECT_TYPE(cc::SubMeshMorph);
-JSB_REGISTER_OBJECT_TYPE(cc::Morph);
 JSB_REGISTER_OBJECT_TYPE(cc::IGeometricInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::IFlatBuffer);
 JSB_REGISTER_OBJECT_TYPE(cc::RenderingSubMesh);
@@ -69,8 +65,12 @@ JSB_REGISTER_OBJECT_TYPE(cc::ITextureCubeSerializeMipmapData);
 JSB_REGISTER_OBJECT_TYPE(cc::ITextureCubeSerializeData);
 JSB_REGISTER_OBJECT_TYPE(cc::TextureCube);
 JSB_REGISTER_OBJECT_TYPE(cc::BuiltinResMgr);
-JSB_REGISTER_OBJECT_TYPE(cc::MorphRendering);
+JSB_REGISTER_OBJECT_TYPE(cc::IMeshBufferView);
+JSB_REGISTER_OBJECT_TYPE(cc::MorphTarget);
+JSB_REGISTER_OBJECT_TYPE(cc::SubMeshMorph);
+JSB_REGISTER_OBJECT_TYPE(cc::Morph);
 JSB_REGISTER_OBJECT_TYPE(cc::MorphRenderingInstance);
+JSB_REGISTER_OBJECT_TYPE(cc::MorphRendering);
 JSB_REGISTER_OBJECT_TYPE(cc::StdMorphRendering);
 JSB_REGISTER_OBJECT_TYPE(cc::CustomAttribute);
 JSB_REGISTER_OBJECT_TYPE(cc::IGeometry);
@@ -392,7 +392,7 @@ SE_DECLARE_FUNC(js_assets_Material_setPropertyVec3);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyVec3Array);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyVec4);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyVec4Array);
-SE_DECLARE_FUNC(js_assets_Material_getHashForMaterialForJS);
+SE_DECLARE_FUNC(js_assets_Material_getHashForMaterial);
 SE_DECLARE_FUNC(js_assets_Material_Material);
 
 extern se::Object *__jsb_cc_TextureBase_proto; // NOLINT
@@ -403,7 +403,7 @@ bool js_register_cc_TextureBase(se::Object *obj); // NOLINT
 SE_DECLARE_FUNC(js_assets_TextureBase_getAnisotropy);
 SE_DECLARE_FUNC(js_assets_TextureBase_getGFXSampler);
 SE_DECLARE_FUNC(js_assets_TextureBase_getGFXTexture);
-SE_DECLARE_FUNC(js_assets_TextureBase_getHashForJS);
+SE_DECLARE_FUNC(js_assets_TextureBase_getHash);
 SE_DECLARE_FUNC(js_assets_TextureBase_getId);
 SE_DECLARE_FUNC(js_assets_TextureBase_getPixelFormat);
 SE_DECLARE_FUNC(js_assets_TextureBase_getSamplerInfo);
@@ -433,38 +433,6 @@ SE_DECLARE_FUNC(js_assets_RenderTexture_reset);
 SE_DECLARE_FUNC(js_assets_RenderTexture_resize);
 SE_DECLARE_FUNC(js_assets_RenderTexture_RenderTexture);
 
-extern se::Object *__jsb_cc_IMeshBufferView_proto; // NOLINT
-extern se::Class * __jsb_cc_IMeshBufferView_class; // NOLINT
-
-bool js_register_cc_IMeshBufferView(se::Object *obj); // NOLINT
-
-template <>
-bool sevalue_to_native(const se::Value &, cc::IMeshBufferView *, se::Object *ctx); //NOLINT
-
-extern se::Object *__jsb_cc_MorphTarget_proto; // NOLINT
-extern se::Class * __jsb_cc_MorphTarget_class; // NOLINT
-
-bool js_register_cc_MorphTarget(se::Object *obj); // NOLINT
-
-template <>
-bool sevalue_to_native(const se::Value &, cc::MorphTarget *, se::Object *ctx); //NOLINT
-
-extern se::Object *__jsb_cc_SubMeshMorph_proto; // NOLINT
-extern se::Class * __jsb_cc_SubMeshMorph_class; // NOLINT
-
-bool js_register_cc_SubMeshMorph(se::Object *obj); // NOLINT
-
-template <>
-bool sevalue_to_native(const se::Value &, cc::SubMeshMorph *, se::Object *ctx); //NOLINT
-
-extern se::Object *__jsb_cc_Morph_proto; // NOLINT
-extern se::Class * __jsb_cc_Morph_class; // NOLINT
-
-bool js_register_cc_Morph(se::Object *obj); // NOLINT
-
-template <>
-bool sevalue_to_native(const se::Value &, cc::Morph *, se::Object *ctx); //NOLINT
-
 extern se::Object *__jsb_cc_IGeometricInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_IGeometricInfo_class; // NOLINT
 
@@ -486,6 +454,7 @@ extern se::Class * __jsb_cc_RenderingSubMesh_class; // NOLINT
 
 bool js_register_cc_RenderingSubMesh(se::Object *obj); // NOLINT
 
+SE_DECLARE_FUNC(js_assets_RenderingSubMesh_destroy);
 SE_DECLARE_FUNC(js_assets_RenderingSubMesh_enableVertexIdChannel);
 SE_DECLARE_FUNC(js_assets_RenderingSubMesh_genFlatBuffers);
 SE_DECLARE_FUNC(js_assets_RenderingSubMesh_getAttributes);
@@ -551,7 +520,6 @@ SE_DECLARE_FUNC(js_assets_Texture2D_create);
 SE_DECLARE_FUNC(js_assets_Texture2D_description);
 SE_DECLARE_FUNC(js_assets_Texture2D_getGfxTextureCreateInfo);
 SE_DECLARE_FUNC(js_assets_Texture2D_getGfxTextureViewCreateInfo);
-SE_DECLARE_FUNC(js_assets_Texture2D_getHtmlElementObj);
 SE_DECLARE_FUNC(js_assets_Texture2D_getImage);
 SE_DECLARE_FUNC(js_assets_Texture2D_getMipmaps);
 SE_DECLARE_FUNC(js_assets_Texture2D_getMipmapsUuids);
@@ -614,15 +582,41 @@ SE_DECLARE_FUNC(js_assets_BuiltinResMgr_addAsset);
 SE_DECLARE_FUNC(js_assets_BuiltinResMgr_getAsset);
 SE_DECLARE_FUNC(js_assets_BuiltinResMgr_initBuiltinRes);
 SE_DECLARE_FUNC(js_assets_BuiltinResMgr_isInitialized);
-SE_DECLARE_FUNC(js_assets_BuiltinResMgr_destroyInstance);
+SE_DECLARE_FUNC(js_assets_BuiltinResMgr_tryCompileAllPasses);
 SE_DECLARE_FUNC(js_assets_BuiltinResMgr_getInstance);
+SE_DECLARE_FUNC(js_assets_BuiltinResMgr_BuiltinResMgr);
 
-extern se::Object *__jsb_cc_MorphRendering_proto; // NOLINT
-extern se::Class * __jsb_cc_MorphRendering_class; // NOLINT
+extern se::Object *__jsb_cc_IMeshBufferView_proto; // NOLINT
+extern se::Class * __jsb_cc_IMeshBufferView_class; // NOLINT
 
-bool js_register_cc_MorphRendering(se::Object *obj); // NOLINT
+bool js_register_cc_IMeshBufferView(se::Object *obj); // NOLINT
 
-SE_DECLARE_FUNC(js_assets_MorphRendering_createInstance);
+template <>
+bool sevalue_to_native(const se::Value &, cc::IMeshBufferView *, se::Object *ctx); //NOLINT
+
+extern se::Object *__jsb_cc_MorphTarget_proto; // NOLINT
+extern se::Class * __jsb_cc_MorphTarget_class; // NOLINT
+
+bool js_register_cc_MorphTarget(se::Object *obj); // NOLINT
+
+template <>
+bool sevalue_to_native(const se::Value &, cc::MorphTarget *, se::Object *ctx); //NOLINT
+
+extern se::Object *__jsb_cc_SubMeshMorph_proto; // NOLINT
+extern se::Class * __jsb_cc_SubMeshMorph_class; // NOLINT
+
+bool js_register_cc_SubMeshMorph(se::Object *obj); // NOLINT
+
+template <>
+bool sevalue_to_native(const se::Value &, cc::SubMeshMorph *, se::Object *ctx); //NOLINT
+
+extern se::Object *__jsb_cc_Morph_proto; // NOLINT
+extern se::Class * __jsb_cc_Morph_class; // NOLINT
+
+bool js_register_cc_Morph(se::Object *obj); // NOLINT
+
+template <>
+bool sevalue_to_native(const se::Value &, cc::Morph *, se::Object *ctx); //NOLINT
 
 extern se::Object *__jsb_cc_MorphRenderingInstance_proto; // NOLINT
 extern se::Class * __jsb_cc_MorphRenderingInstance_class; // NOLINT
@@ -633,6 +627,13 @@ SE_DECLARE_FUNC(js_assets_MorphRenderingInstance_adaptPipelineState);
 SE_DECLARE_FUNC(js_assets_MorphRenderingInstance_destroy);
 SE_DECLARE_FUNC(js_assets_MorphRenderingInstance_requiredPatches);
 SE_DECLARE_FUNC(js_assets_MorphRenderingInstance_setWeights);
+
+extern se::Object *__jsb_cc_MorphRendering_proto; // NOLINT
+extern se::Class * __jsb_cc_MorphRendering_class; // NOLINT
+
+bool js_register_cc_MorphRendering(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_assets_MorphRendering_createInstance);
 
 extern se::Object *__jsb_cc_StdMorphRendering_proto; // NOLINT
 extern se::Class * __jsb_cc_StdMorphRendering_class; // NOLINT

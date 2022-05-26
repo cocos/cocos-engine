@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 import { replaceProperty, removeProperty } from '../utils/x-deprecated';
 import { legacyCC } from '../global-exports';
 

@@ -24,19 +24,41 @@
 ****************************************************************************/
 
 #include <memory>
+#include <sstream>
+#include <stdexcept>
+#include <tuple>
+#include <utility>
+#include "LayoutGraphGraphs.h"
 #include "NativePipelineTypes.h"
+#include "base/Macros.h"
+#include "base/Ptr.h"
+#include "boost/container/pmr/global_resource.hpp"
+#include "boost/container/pmr/unsynchronized_pool_resource.hpp"
+#include "boost/utility/string_view_fwd.hpp"
 #include "cocos/base/StringUtil.h"
 #include "cocos/renderer/gfx-base/GFXDescriptorSetLayout.h"
 #include "cocos/renderer/pipeline/Enum.h"
 #include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
 #include "cocos/renderer/pipeline/PipelineSceneData.h"
 #include "cocos/renderer/pipeline/RenderPipeline.h"
+#include "cocos/renderer/pipeline/custom/DebugUtils.h"
 #include "cocos/renderer/pipeline/custom/GslUtils.h"
+#include "cocos/renderer/pipeline/custom/LayoutGraphGraphs.h"
+#include "cocos/renderer/pipeline/custom/LayoutGraphNames.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
+#include "cocos/renderer/pipeline/custom/RenderGraphGraphs.h"
 #include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/RenderWindow.h"
+#include "gfx-base/GFXDef-common.h"
 #include "gfx-base/GFXDevice.h"
+#include "gfx-base/GFXSwapchain.h"
+#include "pipeline/custom/LayoutGraphFwd.h"
+#include "pipeline/custom/LayoutGraphTypes.h"
+#include "pipeline/custom/NativePipelineFwd.h"
+#include "pipeline/custom/Range.h"
+#include "pipeline/custom/RenderGraphTypes.h"
+#include "pipeline/custom/RenderInterfaceTypes.h"
 #include "profiler/DebugRenderer.h"
 #include "test/test.h"
 
@@ -44,27 +66,343 @@ namespace cc {
 
 namespace render {
 
-NativePipeline::NativePipeline() noexcept
-: device(gfx::Device::getInstance()), globalDSManager(std::make_unique<pipeline::GlobalDSManager>()), pipelineSceneData(ccnew pipeline::PipelineSceneData()) // NOLINT
-{
+uint32_t NativeLayoutGraphBuilder::addRenderStage(const ccstd::string &name) {
+    return add_vertex(*data, RenderStageTag{}, name.c_str());
+}
+
+uint32_t NativeLayoutGraphBuilder::addRenderPhase(const ccstd::string &name, uint32_t parentID) {
+    return add_vertex(*data, RenderPhaseTag{}, name.c_str(), parentID);
+}
+
+void NativeLayoutGraphBuilder::addDescriptorBlock(
+    uint32_t nodeID,
+    const DescriptorBlockIndex &index, const DescriptorBlock &block) {
+    auto &g = *data;
+    auto &ppl = get(LayoutGraphData::Layout, g, nodeID);
+
+    CC_ASSERT(block.capacity);
+    auto &layout = ppl.descriptorSets[index.updateFrequency].descriptorSetLayoutData;
+
+    // add block
+    layout.descriptorBlocks.emplace_back(
+        index.descriptorType, index.visibility, block.capacity);
+
+    auto &dstBlock = layout.descriptorBlocks.back();
+    dstBlock.offset = layout.capacity;
+    dstBlock.capacity = block.capacity;
+    for (const auto &pairD : block.descriptors) {
+        const auto &name = pairD.first;
+        const auto &d = pairD.second;
+        auto iter = g.attributeIndex.find(boost::string_view(name));
+        if (iter == g.attributeIndex.end()) {
+            throw std::out_of_range("attribute not found");
+        }
+        const auto &nameID = iter->second;
+        dstBlock.descriptors.emplace_back(nameID, d.count);
+    }
+    // update layout
+    layout.capacity += block.capacity;
+}
+
+void NativeLayoutGraphBuilder::reserveDescriptorBlock(
+    uint32_t nodeID,
+    const DescriptorBlockIndex &index, const DescriptorBlock &block) {
+    auto &g = *data;
+    auto &ppl = get(LayoutGraphData::Layout, g, nodeID);
+
+    CC_ASSERT(block.capacity);
+    auto &layout = ppl.descriptorSets[index.updateFrequency].descriptorSetLayoutData;
+
+    // add block
+    layout.descriptorBlocks.emplace_back(
+        index.descriptorType, index.visibility, block.capacity);
+
+    auto &dstBlock = layout.descriptorBlocks.back();
+    dstBlock.offset = layout.capacity;
+    dstBlock.capacity = block.capacity;
+
+    // update layout
+    layout.capacity += block.capacity;
+}
+
+namespace {
+
+gfx::DescriptorType getGfxType(DescriptorTypeOrder type) {
+    switch (type) {
+        case DescriptorTypeOrder::UNIFORM_BUFFER:
+            return gfx::DescriptorType::UNIFORM_BUFFER;
+        case DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER:
+            return gfx::DescriptorType::DYNAMIC_UNIFORM_BUFFER;
+        case DescriptorTypeOrder::SAMPLER_TEXTURE:
+            return gfx::DescriptorType::SAMPLER_TEXTURE;
+        case DescriptorTypeOrder::SAMPLER:
+            return gfx::DescriptorType::SAMPLER;
+        case DescriptorTypeOrder::TEXTURE:
+            return gfx::DescriptorType::TEXTURE;
+        case DescriptorTypeOrder::STORAGE_BUFFER:
+            return gfx::DescriptorType::STORAGE_BUFFER;
+        case DescriptorTypeOrder::DYNAMIC_STORAGE_BUFFER:
+            return gfx::DescriptorType::DYNAMIC_STORAGE_BUFFER;
+        case DescriptorTypeOrder::STORAGE_IMAGE:
+            return gfx::DescriptorType::STORAGE_IMAGE;
+        case DescriptorTypeOrder::INPUT_ATTACHMENT:
+            return gfx::DescriptorType::INPUT_ATTACHMENT;
+    }
+    throw std::invalid_argument("DescriptorType not found");
+}
+
+IntrusivePtr<gfx::DescriptorSetLayout> createDescriptorSetLayout(
+    gfx::Device *device, const DescriptorSetLayoutData &layoutData) {
+    gfx::DescriptorSetLayoutInfo info;
+
+    for (const auto &block : layoutData.descriptorBlocks) {
+        uint32_t slot = block.offset;
+        for (const auto &d : block.descriptors) {
+            gfx::DescriptorSetLayoutBinding binding;
+            binding.binding = slot;
+            binding.descriptorType = getGfxType(block.type);
+            binding.count = d.count;
+            binding.stageFlags = block.visibility;
+            binding.immutableSamplers = {};
+            info.bindings.emplace_back(std::move(binding));
+            slot += d.count;
+        }
+    }
+
+    return {device->createDescriptorSetLayout(info)};
+}
+
+} // namespace
+
+int NativeLayoutGraphBuilder::compile() {
+    auto &g = *data;
+    // create descriptor sets
+    for (const auto v : makeRange(vertices(g))) {
+        auto &ppl = get(LayoutGraphData::Layout, g, v);
+        for (auto &levelPair : ppl.descriptorSets) {
+            auto &level = levelPair.second;
+            const auto &layoutData = level.descriptorSetLayoutData;
+            level.descriptorSetLayout = createDescriptorSetLayout(device, layoutData);
+            level.descriptorSet = device->createDescriptorSet(
+                gfx::DescriptorSetInfo{level.descriptorSetLayout.get()});
+        }
+    }
+
+    return 0;
+}
+
+namespace {
+
+std::string getName(gfx::ShaderStageFlagBit stage) {
+    std::ostringstream oss;
+    int count = 0;
+    if (hasFlag(stage, gfx::ShaderStageFlagBit::VERTEX)) {
+        if (count++) {
+            oss << " | ";
+        }
+        oss << "Vertex";
+    }
+    if (hasFlag(stage, gfx::ShaderStageFlagBit::CONTROL)) {
+        if (count++) {
+            oss << " | ";
+        }
+        oss << "Control";
+    }
+    if (hasFlag(stage, gfx::ShaderStageFlagBit::EVALUATION)) {
+        if (count++) {
+            oss << " | ";
+        }
+        oss << "Evaluation";
+    }
+    if (hasFlag(stage, gfx::ShaderStageFlagBit::GEOMETRY)) {
+        if (count++) {
+            oss << " | ";
+        }
+        oss << "Geometry";
+    }
+    if (hasFlag(stage, gfx::ShaderStageFlagBit::FRAGMENT)) {
+        if (count++) {
+            oss << " | ";
+        }
+        oss << "Fragment";
+    }
+    if (hasFlag(stage, gfx::ShaderStageFlagBit::COMPUTE)) {
+        if (count++) {
+            oss << " | ";
+        }
+        oss << "Compute";
+    }
+    if (hasFlag(stage, gfx::ShaderStageFlagBit::ALL)) {
+        if (count++) {
+            oss << " | ";
+        }
+        oss << "All";
+    }
+    return oss.str();
+}
+
+} // namespace
+
+std::string NativeLayoutGraphBuilder::print() const {
+    std::ostringstream oss;
+    boost::container::pmr::unsynchronized_pool_resource pool(
+        boost::container::pmr::get_default_resource());
+    ccstd::pmr::string space(&pool);
+
+    auto &g = *data;
+    for (const auto v : makeRange(vertices(g))) {
+        if (parent(v, g) != LayoutGraphData::null_vertex()) {
+            continue;
+        }
+        const auto &name = get(LayoutGraphData::Name, g, v);
+        const auto &freq = get(LayoutGraphData::Update, g, v);
+        OSS << "\"" << name << "\": ";
+
+        visit(
+            [&](auto tag) {
+                oss << getName(tag);
+            },
+            tag(v, g));
+
+        oss << "<" << getName(freq) << "> {\n";
+        INDENT_BEG();
+        const auto &info = get(LayoutGraphData::Layout, g, v);
+        for (const auto &set : info.descriptorSets) {
+            OSS << "Set<" << getName(set.first) << "> {\n";
+            {
+                INDENT();
+                for (const auto &block : set.second.descriptorSetLayoutData.descriptorBlocks) {
+                    OSS << "Block<" << getName(block.type) << ", " << getName(block.visibility) << "> {\n";
+                    {
+                        INDENT();
+                        OSS << "capacity: " << block.capacity << ",\n";
+                        OSS << "count: " << block.descriptors.size() << ",\n";
+                        if (!block.descriptors.empty()) {
+                            OSS << "Descriptors{ ";
+                            int count = 0;
+                            for (const auto &d : block.descriptors) {
+                                if (count++) {
+                                    oss << ", ";
+                                }
+                                const auto &name = g.valueNames.at(d.descriptorID.value);
+                                oss << "\"" << name;
+                                if (d.count != 1) {
+                                    oss << "[" << d.count << "]";
+                                }
+                                oss << "\"";
+                            }
+                            oss << " }\n";
+                        }
+                    }
+                    OSS << "}\n";
+                }
+            }
+            OSS << "}\n";
+        }
+    }
+
+    return oss.str();
+}
+
+NativePipeline::NativePipeline(const allocator_type &alloc) noexcept
+: device(gfx::Device::getInstance()),
+  globalDSManager(std::make_unique<pipeline::GlobalDSManager>()),
+  layoutGraphs(alloc),
+  pipelineSceneData(ccnew pipeline::PipelineSceneData()), // NOLINT
+  resourceGraph(alloc),
+  renderGraph(alloc) {
 }
 
 // NOLINTNEXTLINE
 uint32_t NativePipeline::addRenderTexture(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) {
-    return 0;
+    ResourceDesc desc{};
+    desc.dimension = ResourceDimension::TEXTURE2D;
+    desc.width = width;
+    desc.height = height;
+    desc.depthOrArraySize = 1;
+    desc.mipLevels = 1;
+    desc.format = format;
+    desc.sampleCount = gfx::SampleCount::ONE;
+    desc.textureFlags = gfx::TextureFlagBit::NONE;
+    desc.flags = ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT | ResourceFlags::SAMPLED;
+
+    CC_EXPECTS(renderWindow);
+
+    if (!renderWindow->getSwapchain()) {
+        CC_ASSERT(renderWindow->getFramebuffer()->getColorTextures().size() == 1);
+        CC_ASSERT(renderWindow->getFramebuffer()->getColorTextures().at(0));
+        return addVertex(
+            FramebufferTag{},
+            std::forward_as_tuple(name.c_str()),
+            std::forward_as_tuple(desc),
+            std::forward_as_tuple(ResourceTraits{ResourceResidency::EXTERNAL}),
+            std::forward_as_tuple(),
+            std::forward_as_tuple(IntrusivePtr<gfx::Framebuffer>(renderWindow->getFramebuffer())),
+            resourceGraph);
+    }
+
+    CC_ASSERT(renderWindow->getFramebuffer()->getColorTextures().size() == 1);
+    CC_ASSERT(renderWindow->getFramebuffer()->getColorTextures().at(0));
+    return addVertex(
+        SwapchainTag{},
+        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(desc),
+        std::forward_as_tuple(ResourceTraits{ResourceResidency::BACKBUFFER}),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(RenderSwapchain{renderWindow->getSwapchain()}),
+        resourceGraph);
 }
 
 // NOLINTNEXTLINE
 uint32_t NativePipeline::addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) {
-    return 0;
+    ResourceDesc desc{};
+    desc.dimension = ResourceDimension::TEXTURE2D;
+    desc.width = width;
+    desc.height = height;
+    desc.depthOrArraySize = 1;
+    desc.mipLevels = 1;
+    desc.format = format;
+    desc.sampleCount = gfx::SampleCount::ONE;
+    desc.textureFlags = gfx::TextureFlagBit::NONE;
+    desc.flags = ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT | ResourceFlags::SAMPLED;
+
+    return addVertex(
+        ManagedTag{},
+        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(desc),
+        std::forward_as_tuple(ResourceTraits{residency}),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        resourceGraph);
 }
 
 // NOLINTNEXTLINE
 uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) {
-    return 0;
+    ResourceDesc desc{};
+    desc.dimension = ResourceDimension::TEXTURE2D;
+    desc.width = width;
+    desc.height = height;
+    desc.depthOrArraySize = 1;
+    desc.mipLevels = 1;
+    desc.format = format;
+    desc.sampleCount = gfx::SampleCount::ONE;
+    desc.textureFlags = gfx::TextureFlagBit::NONE;
+    desc.flags = ResourceFlags::DEPTH_STENCIL_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT | ResourceFlags::SAMPLED;
+
+    CC_EXPECTS(residency == ResourceResidency::MANAGED && residency == ResourceResidency::MEMORYLESS);
+
+    return addVertex(
+        ManagedTag{},
+        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(desc),
+        std::forward_as_tuple(ResourceTraits{residency}),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        resourceGraph);
 }
 
 void NativePipeline::beginFrame() {
+    renderGraph = RenderGraph(get_allocator());
 }
 
 void NativePipeline::endFrame() {
@@ -72,41 +410,112 @@ void NativePipeline::endFrame() {
 
 // NOLINTNEXTLINE
 RasterPassBuilder *NativePipeline::addRasterPass(uint32_t width, uint32_t height, const ccstd::string &layoutName, const ccstd::string &name) {
-    return nullptr;
+    RasterPass pass(renderGraph.get_allocator());
+    pass.width = width;
+    pass.height = height;
+
+    auto passID = addVertex(RasterTag{},
+                            std::forward_as_tuple(name.c_str()),
+                            std::forward_as_tuple(layoutName.c_str()),
+                            std::forward_as_tuple(),
+                            std::forward_as_tuple(true),
+                            std::forward_as_tuple(std::move(pass)),
+                            renderGraph);
+
+    return new NativeRasterPassBuilder(&renderGraph, passID);
 }
 
 // NOLINTNEXTLINE
 RasterPassBuilder *NativePipeline::addRasterPass(uint32_t width, uint32_t height, const ccstd::string &layoutName) {
-    return nullptr;
+    RasterPass pass(renderGraph.get_allocator());
+    pass.width = width;
+    pass.height = height;
+
+    auto passID = addVertex(RasterTag{},
+                            std::forward_as_tuple("Raster"),
+                            std::forward_as_tuple(layoutName.c_str()),
+                            std::forward_as_tuple(),
+                            std::forward_as_tuple(true),
+                            std::forward_as_tuple(std::move(pass)),
+                            renderGraph);
+
+    return new NativeRasterPassBuilder(&renderGraph, passID);
 }
 
 // NOLINTNEXTLINE
 ComputePassBuilder *NativePipeline::addComputePass(const ccstd::string &layoutName, const ccstd::string &name) {
-    return nullptr;
+    auto passID = addVertex(ComputeTag{},
+                            std::forward_as_tuple(name.c_str()),
+                            std::forward_as_tuple(layoutName.c_str()),
+                            std::forward_as_tuple(),
+                            std::forward_as_tuple(true),
+                            std::forward_as_tuple(),
+                            renderGraph);
+
+    return new NativeComputePassBuilder(&renderGraph, passID);
 }
 
 // NOLINTNEXTLINE
 ComputePassBuilder *NativePipeline::addComputePass(const ccstd::string &layoutName) {
-    return nullptr;
+    auto passID = addVertex(RasterTag{},
+                            std::forward_as_tuple("Compute"),
+                            std::forward_as_tuple(layoutName.c_str()),
+                            std::forward_as_tuple(),
+                            std::forward_as_tuple(true),
+                            std::forward_as_tuple(),
+                            renderGraph);
+
+    return new NativeComputePassBuilder(&renderGraph, passID);
 }
 
 // NOLINTNEXTLINE
 MovePassBuilder *NativePipeline::addMovePass(const ccstd::string &name) {
-    return nullptr;
+    auto passID = addVertex(MoveTag{},
+                            std::forward_as_tuple(name.c_str()),
+                            std::forward_as_tuple(),
+                            std::forward_as_tuple(),
+                            std::forward_as_tuple(true),
+                            std::forward_as_tuple(),
+                            renderGraph);
+
+    return new NativeMovePassBuilder(&renderGraph, passID);
 }
 
 // NOLINTNEXTLINE
 CopyPassBuilder *NativePipeline::addCopyPass(const ccstd::string &name) {
-    return nullptr;
+    auto passID = addVertex(CopyTag{},
+                            std::forward_as_tuple(name.c_str()),
+                            std::forward_as_tuple(),
+                            std::forward_as_tuple(),
+                            std::forward_as_tuple(true),
+                            std::forward_as_tuple(),
+                            renderGraph);
+
+    return new NativeCopyPassBuilder(&renderGraph, passID);
 }
 
 // NOLINTNEXTLINE
 void NativePipeline::presentAll() {
+    auto passID = addVertex(PresentTag{},
+                            std::forward_as_tuple("Present"),
+                            std::forward_as_tuple(),
+                            std::forward_as_tuple(),
+                            std::forward_as_tuple(true),
+                            std::forward_as_tuple(),
+                            renderGraph);
 }
 
 // NOLINTNEXTLINE
 SceneTransversal *NativePipeline::createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) {
-    return nullptr;
+    return new NativeSceneTransversal(camera, scene);
+}
+
+LayoutGraphBuilder *NativePipeline::createLayoutGraph(const ccstd::string &name) {
+    auto res = layoutGraphs.emplace(std::piecewise_construct,
+                                    std::forward_as_tuple(name.c_str()),
+                                    std::forward_as_tuple());
+    CC_ASSERT(res.second);
+    return ccnew NativeLayoutGraphBuilder(device, &res.first->second);
 }
 
 namespace {

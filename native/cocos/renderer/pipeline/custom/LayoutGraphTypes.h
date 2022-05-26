@@ -35,9 +35,13 @@
 #include <boost/graph/properties.hpp>
 #include <boost/range/irange.hpp>
 #include "base/std/container/map.h"
+#include "cocos/base/Ptr.h"
 #include "cocos/base/std/container/string.h"
 #include "cocos/base/std/container/vector.h"
+#include "cocos/base/std/hash/hash.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
+#include "cocos/renderer/gfx-base/GFXDescriptorSet.h"
+#include "cocos/renderer/gfx-base/GFXDescriptorSetLayout.h"
 #include "cocos/renderer/pipeline/custom/GraphTypes.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphFwd.h"
 #include "cocos/renderer/pipeline/custom/Map.h"
@@ -48,32 +52,20 @@ namespace cc {
 
 namespace render {
 
-enum class DescriptorIndex {
-    UNIFORM_BLOCK,
+enum class DescriptorTypeOrder {
+    UNIFORM_BUFFER,
+    DYNAMIC_UNIFORM_BUFFER,
     SAMPLER_TEXTURE,
     SAMPLER,
     TEXTURE,
     STORAGE_BUFFER,
-    STORAGE_TEXTURE,
-    SUBPASS_INPUT,
+    DYNAMIC_STORAGE_BUFFER,
+    STORAGE_IMAGE,
+    INPUT_ATTACHMENT,
 };
 
 struct UniformBlockDB {
-    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
-    allocator_type get_allocator() const noexcept { // NOLINT
-        return {values.get_allocator().resource()};
-    }
-
-    UniformBlockDB(const allocator_type& alloc) noexcept; // NOLINT
-    UniformBlockDB(UniformBlockDB&& rhs, const allocator_type& alloc);
-    UniformBlockDB(UniformBlockDB const& rhs, const allocator_type& alloc);
-
-    UniformBlockDB(UniformBlockDB&& rhs) noexcept = default;
-    UniformBlockDB(UniformBlockDB const& rhs)     = delete;
-    UniformBlockDB& operator=(UniformBlockDB&& rhs) = default;
-    UniformBlockDB& operator=(UniformBlockDB const& rhs) = default;
-
-    PmrTransparentMap<ccstd::pmr::string, gfx::Uniform> values;
+    ccstd::map<ccstd::string, gfx::Uniform> values;
 };
 
 struct Descriptor {
@@ -86,31 +78,15 @@ struct Descriptor {
 };
 
 struct DescriptorBlock {
-    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
-    allocator_type get_allocator() const noexcept { // NOLINT
-        return {descriptors.get_allocator().resource()};
-    }
-
-    DescriptorBlock(const allocator_type& alloc) noexcept; // NOLINT
-    DescriptorBlock(DescriptorBlock&& rhs, const allocator_type& alloc);
-    DescriptorBlock(DescriptorBlock const& rhs, const allocator_type& alloc);
-
-    DescriptorBlock(DescriptorBlock&& rhs) noexcept = default;
-    DescriptorBlock(DescriptorBlock const& rhs)     = delete;
-    DescriptorBlock& operator=(DescriptorBlock&& rhs) = default;
-    DescriptorBlock& operator=(DescriptorBlock const& rhs) = default;
-
-    PmrTransparentMap<ccstd::pmr::string, Descriptor>     descriptors;
-    PmrTransparentMap<ccstd::pmr::string, UniformBlockDB> uniformBlocks;
-    PmrTransparentMap<gfx::Type, Descriptor>              merged;
-    uint32_t                                              capacity{0};
-    uint32_t                                              start{0};
-    uint32_t                                              count{0};
+    ccstd::map<ccstd::string, Descriptor>     descriptors;
+    ccstd::map<ccstd::string, UniformBlockDB> uniformBlocks;
+    uint32_t                                  capacity{0};
+    uint32_t                                  count{0};
 };
 
 struct DescriptorBlockIndex {
     DescriptorBlockIndex() = default;
-    DescriptorBlockIndex(UpdateFrequency updateFrequencyIn, ParameterType parameterTypeIn, DescriptorIndex descriptorTypeIn, gfx::ShaderStageFlagBit visibilityIn) noexcept
+    DescriptorBlockIndex(UpdateFrequency updateFrequencyIn, ParameterType parameterTypeIn, DescriptorTypeOrder descriptorTypeIn, gfx::ShaderStageFlagBit visibilityIn) noexcept
     : updateFrequency(updateFrequencyIn),
       parameterType(parameterTypeIn),
       descriptorType(descriptorTypeIn),
@@ -118,32 +94,13 @@ struct DescriptorBlockIndex {
 
     UpdateFrequency         updateFrequency{UpdateFrequency::PER_INSTANCE};
     ParameterType           parameterType{ParameterType::CONSTANTS};
-    DescriptorIndex         descriptorType{DescriptorIndex::UNIFORM_BLOCK};
+    DescriptorTypeOrder     descriptorType{DescriptorTypeOrder::UNIFORM_BUFFER};
     gfx::ShaderStageFlagBit visibility{gfx::ShaderStageFlagBit::NONE};
 };
 
 inline bool operator<(const DescriptorBlockIndex& lhs, const DescriptorBlockIndex& rhs) noexcept {
     return std::forward_as_tuple(lhs.updateFrequency, lhs.parameterType, lhs.descriptorType, lhs.visibility) <
            std::forward_as_tuple(rhs.updateFrequency, rhs.parameterType, rhs.descriptorType, rhs.visibility);
-}
-
-struct DescriptorBlockIndexDx {
-    DescriptorBlockIndexDx() = default;
-    DescriptorBlockIndexDx(UpdateFrequency updateFrequencyIn, ParameterType parameterTypeIn, gfx::ShaderStageFlagBit visibilityIn, DescriptorIndex descriptorTypeIn) noexcept
-    : updateFrequency(updateFrequencyIn),
-      parameterType(parameterTypeIn),
-      visibility(visibilityIn),
-      descriptorType(descriptorTypeIn) {}
-
-    UpdateFrequency         updateFrequency{UpdateFrequency::PER_INSTANCE};
-    ParameterType           parameterType{ParameterType::CONSTANTS};
-    gfx::ShaderStageFlagBit visibility{gfx::ShaderStageFlagBit::NONE};
-    DescriptorIndex         descriptorType{DescriptorIndex::UNIFORM_BLOCK};
-};
-
-inline bool operator<(const DescriptorBlockIndexDx& lhs, const DescriptorBlockIndexDx& rhs) noexcept {
-    return std::forward_as_tuple(lhs.updateFrequency, lhs.parameterType, lhs.visibility, lhs.descriptorType) <
-           std::forward_as_tuple(rhs.updateFrequency, rhs.parameterType, rhs.visibility, rhs.descriptorType);
 }
 
 struct DescriptorDB {
@@ -385,15 +342,29 @@ struct UniformBlockData {
     ccstd::pmr::vector<UniformData> uniforms;
 };
 
+struct NameLocalID {
+    uint32_t value{0xFFFFFFFF};
+};
+
+inline bool operator==(const NameLocalID& lhs, const NameLocalID& rhs) noexcept {
+    return std::forward_as_tuple(lhs.value) ==
+           std::forward_as_tuple(rhs.value);
+}
+
+inline bool operator!=(const NameLocalID& lhs, const NameLocalID& rhs) noexcept {
+    return !(lhs == rhs);
+}
+
 struct DescriptorData {
     DescriptorData() = default;
-    DescriptorData(DescriptorID descriptorIDIn, gfx::Type typeIn) noexcept
+    DescriptorData(NameLocalID descriptorIDIn) noexcept // NOLINT
+    : descriptorID(descriptorIDIn) {}
+    DescriptorData(NameLocalID descriptorIDIn, uint32_t countIn) noexcept
     : descriptorID(descriptorIDIn),
-      type(typeIn) {}
+      count(countIn) {}
 
-    DescriptorID descriptorID{0xFFFFFFFF};
-    gfx::Type    type{gfx::Type::UNKNOWN};
-    uint32_t     count{1};
+    NameLocalID descriptorID;
+    uint32_t    count{1};
 };
 
 struct DescriptorBlockData {
@@ -403,7 +374,7 @@ struct DescriptorBlockData {
     }
 
     DescriptorBlockData(const allocator_type& alloc) noexcept; // NOLINT
-    DescriptorBlockData(DescriptorIndex typeIn, uint32_t capacityIn, const allocator_type& alloc) noexcept;
+    DescriptorBlockData(DescriptorTypeOrder typeIn, gfx::ShaderStageFlagBit visibilityIn, uint32_t capacityIn, const allocator_type& alloc) noexcept;
     DescriptorBlockData(DescriptorBlockData&& rhs, const allocator_type& alloc);
     DescriptorBlockData(DescriptorBlockData const& rhs, const allocator_type& alloc);
 
@@ -412,49 +383,52 @@ struct DescriptorBlockData {
     DescriptorBlockData& operator=(DescriptorBlockData&& rhs) = default;
     DescriptorBlockData& operator=(DescriptorBlockData const& rhs) = default;
 
-    DescriptorIndex                        type{DescriptorIndex::UNIFORM_BLOCK};
-    uint32_t                               capacity{0};
-    ccstd::pmr::vector<DescriptorData>     descriptors;
-    PmrFlatMap<uint32_t, UniformBlockData> uniformBlocks;
+    DescriptorTypeOrder                type{DescriptorTypeOrder::UNIFORM_BUFFER};
+    gfx::ShaderStageFlagBit            visibility{gfx::ShaderStageFlagBit::NONE};
+    uint32_t                           offset{0};
+    uint32_t                           capacity{0};
+    ccstd::pmr::vector<DescriptorData> descriptors;
 };
 
-struct DescriptorTableData {
+struct DescriptorSetLayoutData {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
         return {descriptorBlocks.get_allocator().resource()};
     }
 
-    DescriptorTableData(const allocator_type& alloc) noexcept; // NOLINT
-    DescriptorTableData(uint32_t tableIDIn, uint32_t capacityIn, const allocator_type& alloc) noexcept;
-    DescriptorTableData(DescriptorTableData&& rhs, const allocator_type& alloc);
-    DescriptorTableData(DescriptorTableData const& rhs, const allocator_type& alloc);
+    DescriptorSetLayoutData(const allocator_type& alloc) noexcept; // NOLINT
+    DescriptorSetLayoutData(uint32_t slotIn, uint32_t capacityIn, const allocator_type& alloc) noexcept;
+    DescriptorSetLayoutData(DescriptorSetLayoutData&& rhs, const allocator_type& alloc);
 
-    DescriptorTableData(DescriptorTableData&& rhs) noexcept = default;
-    DescriptorTableData(DescriptorTableData const& rhs)     = delete;
-    DescriptorTableData& operator=(DescriptorTableData&& rhs) = default;
-    DescriptorTableData& operator=(DescriptorTableData const& rhs) = default;
+    DescriptorSetLayoutData(DescriptorSetLayoutData&& rhs) noexcept = default;
+    DescriptorSetLayoutData(DescriptorSetLayoutData const& rhs)     = delete;
+    DescriptorSetLayoutData& operator=(DescriptorSetLayoutData&& rhs) = default;
+    DescriptorSetLayoutData& operator=(DescriptorSetLayoutData const& rhs) = delete;
 
-    uint32_t                                tableID{0xFFFFFFFF};
-    uint32_t                                capacity{0};
-    ccstd::pmr::vector<DescriptorBlockData> descriptorBlocks;
+    uint32_t                                                 slot{0xFFFFFFFF};
+    uint32_t                                                 capacity{0};
+    ccstd::pmr::vector<DescriptorBlockData>                  descriptorBlocks;
+    ccstd::pmr::unordered_map<NameLocalID, UniformBlockData> uniformBlocks;
 };
 
 struct DescriptorSetData {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {tables.get_allocator().resource()};
+        return {descriptorSetLayoutData.get_allocator().resource()};
     }
 
     DescriptorSetData(const allocator_type& alloc) noexcept; // NOLINT
+    DescriptorSetData(DescriptorSetLayoutData descriptorSetLayoutDataIn, IntrusivePtr<gfx::DescriptorSetLayout> descriptorSetLayoutIn, IntrusivePtr<gfx::DescriptorSet> descriptorSetIn, const allocator_type& alloc) noexcept;
     DescriptorSetData(DescriptorSetData&& rhs, const allocator_type& alloc);
-    DescriptorSetData(DescriptorSetData const& rhs, const allocator_type& alloc);
 
     DescriptorSetData(DescriptorSetData&& rhs) noexcept = default;
     DescriptorSetData(DescriptorSetData const& rhs)     = delete;
     DescriptorSetData& operator=(DescriptorSetData&& rhs) = default;
-    DescriptorSetData& operator=(DescriptorSetData const& rhs) = default;
+    DescriptorSetData& operator=(DescriptorSetData const& rhs) = delete;
 
-    PmrFlatMap<gfx::ShaderStageFlagBit, DescriptorTableData> tables;
+    DescriptorSetLayoutData                descriptorSetLayoutData;
+    IntrusivePtr<gfx::DescriptorSetLayout> descriptorSetLayout;
+    IntrusivePtr<gfx::DescriptorSet>       descriptorSet;
 };
 
 struct PipelineLayoutData {
@@ -465,14 +439,13 @@ struct PipelineLayoutData {
 
     PipelineLayoutData(const allocator_type& alloc) noexcept; // NOLINT
     PipelineLayoutData(PipelineLayoutData&& rhs, const allocator_type& alloc);
-    PipelineLayoutData(PipelineLayoutData const& rhs, const allocator_type& alloc);
 
     PipelineLayoutData(PipelineLayoutData&& rhs) noexcept = default;
     PipelineLayoutData(PipelineLayoutData const& rhs)     = delete;
     PipelineLayoutData& operator=(PipelineLayoutData&& rhs) = default;
-    PipelineLayoutData& operator=(PipelineLayoutData const& rhs) = default;
+    PipelineLayoutData& operator=(PipelineLayoutData const& rhs) = delete;
 
-    PmrFlatMap<UpdateFrequency, DescriptorSetData> descriptorSets;
+    ccstd::pmr::map<UpdateFrequency, DescriptorSetData> descriptorSets;
 };
 
 struct ShaderProgramData {
@@ -483,14 +456,30 @@ struct ShaderProgramData {
 
     ShaderProgramData(const allocator_type& alloc) noexcept; // NOLINT
     ShaderProgramData(ShaderProgramData&& rhs, const allocator_type& alloc);
-    ShaderProgramData(ShaderProgramData const& rhs, const allocator_type& alloc);
 
     ShaderProgramData(ShaderProgramData&& rhs) noexcept = default;
     ShaderProgramData(ShaderProgramData const& rhs)     = delete;
     ShaderProgramData& operator=(ShaderProgramData&& rhs) = default;
-    ShaderProgramData& operator=(ShaderProgramData const& rhs) = default;
+    ShaderProgramData& operator=(ShaderProgramData const& rhs) = delete;
 
     PipelineLayoutData layout;
+};
+
+struct RenderStageData {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {descriptorVisibility.get_allocator().resource()};
+    }
+
+    RenderStageData(const allocator_type& alloc) noexcept; // NOLINT
+    RenderStageData(RenderStageData&& rhs, const allocator_type& alloc);
+
+    RenderStageData(RenderStageData&& rhs) noexcept = default;
+    RenderStageData(RenderStageData const& rhs)     = delete;
+    RenderStageData& operator=(RenderStageData&& rhs) = default;
+    RenderStageData& operator=(RenderStageData const& rhs) = delete;
+
+    ccstd::pmr::unordered_map<NameLocalID, gfx::ShaderStageFlagBit> descriptorVisibility;
 };
 
 struct RenderPhaseData {
@@ -501,12 +490,11 @@ struct RenderPhaseData {
 
     RenderPhaseData(const allocator_type& alloc) noexcept; // NOLINT
     RenderPhaseData(RenderPhaseData&& rhs, const allocator_type& alloc);
-    RenderPhaseData(RenderPhaseData const& rhs, const allocator_type& alloc);
 
     RenderPhaseData(RenderPhaseData&& rhs) noexcept = default;
     RenderPhaseData(RenderPhaseData const& rhs)     = delete;
     RenderPhaseData& operator=(RenderPhaseData&& rhs) = default;
-    RenderPhaseData& operator=(RenderPhaseData const& rhs) = default;
+    RenderPhaseData& operator=(RenderPhaseData const& rhs) = delete;
 
     ccstd::pmr::string                              rootSignature;
     ccstd::pmr::vector<ShaderProgramData>           shaderPrograms;
@@ -525,12 +513,11 @@ struct LayoutGraphData {
 
     LayoutGraphData(const allocator_type& alloc) noexcept; // NOLINT
     LayoutGraphData(LayoutGraphData&& rhs, const allocator_type& alloc);
-    LayoutGraphData(LayoutGraphData const& rhs, const allocator_type& alloc);
 
     LayoutGraphData(LayoutGraphData&& rhs) noexcept = default;
     LayoutGraphData(LayoutGraphData const& rhs)     = delete;
     LayoutGraphData& operator=(LayoutGraphData&& rhs) = default;
-    LayoutGraphData& operator=(LayoutGraphData const& rhs) = default;
+    LayoutGraphData& operator=(LayoutGraphData const& rhs) = delete;
 
     // Graph
     using directed_category      = boost::bidirectional_tag;
@@ -634,8 +621,8 @@ struct LayoutGraphData {
 
     // PolymorphicGraph
     using VertexTag         = boost::variant2::variant<RenderStageTag, RenderPhaseTag>;
-    using VertexValue       = boost::variant2::variant<uint32_t*, RenderPhaseData*>;
-    using VertexConstValue = boost::variant2::variant<const uint32_t*, const RenderPhaseData*>;
+    using VertexValue       = boost::variant2::variant<RenderStageData*, RenderPhaseData*>;
+    using VertexConstValue = boost::variant2::variant<const RenderStageData*, const RenderPhaseData*>;
     using VertexHandle      = boost::variant2::variant<
         impl::ValueHandle<RenderStageTag, vertex_descriptor>,
         impl::ValueHandle<RenderPhaseTag, vertex_descriptor>>;
@@ -678,8 +665,12 @@ struct LayoutGraphData {
     ccstd::pmr::vector<UpdateFrequency>    updateFrequencies;
     ccstd::pmr::vector<PipelineLayoutData> layouts;
     // PolymorphicGraph
-    ccstd::pmr::vector<uint32_t>        stages;
+    ccstd::pmr::vector<RenderStageData> stages;
     ccstd::pmr::vector<RenderPhaseData> phases;
+    // Members
+    ccstd::pmr::vector<ccstd::pmr::string>      valueNames;
+    PmrFlatMap<ccstd::pmr::string, NameLocalID> attributeIndex;
+    PmrFlatMap<ccstd::pmr::string, NameLocalID> constantIndex;
     // Path
     PmrTransparentMap<ccstd::pmr::string, vertex_descriptor> pathIndex;
 };
@@ -687,5 +678,15 @@ struct LayoutGraphData {
 } // namespace render
 
 } // namespace cc
+
+namespace std {
+
+inline size_t hash<cc::render::NameLocalID>::operator()(const cc::render::NameLocalID& v) const noexcept {
+    ccstd::hash_t seed = 0;
+    ccstd::hash_combine(seed, v.value);
+    return static_cast<size_t>(seed);
+}
+
+} // namespace std
 
 // clang-format on

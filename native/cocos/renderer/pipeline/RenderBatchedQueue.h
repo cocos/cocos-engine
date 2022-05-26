@@ -29,6 +29,13 @@
 #include "gfx-base/GFXDef.h"
 
 namespace cc {
+namespace gfx {
+class Device;
+class RenderPass;
+class CommandBuffer;
+class DescriptorSet;
+} // namespace gfx
+
 namespace pipeline {
 
 class BatchedBuffer;
@@ -40,9 +47,9 @@ public:
 
     void clear();
     void uploadBuffers(gfx::CommandBuffer *cmdBuff);
-    void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *);
+    void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *, gfx::DescriptorSet *ds = nullptr, uint offset = 0);
     void add(BatchedBuffer *batchedBuffer);
-    bool empty() { return _queues.empty(); }
+    bool empty() const { return _queues.empty(); }
 
 private:
     ccstd::unordered_set<BatchedBuffer *> _queues;

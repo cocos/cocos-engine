@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module asset
- */
-
 import { ccclass } from 'cc.decorator';
 import { DEV } from 'internal:constants';
 import { TextureFlagBit, TextureUsageBit, API, Texture, TextureInfo, TextureViewInfo, Device, BufferTextureCopy } from '../gfx';
@@ -196,8 +191,11 @@ export class SimpleTexture extends TextureBase {
     }
 
     /**
+     * @en
      * Set mipmap level of this texture.
      * The value is passes as presumed info to `this._getGfxTextureCreateInfo()`.
+     * @zh
+     * 设置此贴图的 mipmap 层级
      * @param value The mipmap level.
      */
     protected _setMipmapLevel (value: number) {

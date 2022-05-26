@@ -24,11 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
 import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, displayOrder, serializable, visible, displayName } from 'cc.decorator';
 import { Component } from '../core/components/component';
 import { Rect, Size, Vec2, Vec3 } from '../core/math';
