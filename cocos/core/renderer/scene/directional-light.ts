@@ -56,7 +56,7 @@ export class DirectionalLight extends Light {
     protected _shadowCSMValueDirty = false;
     protected _shadowCSMLambda = 0.75;
     protected _shadowCSMDebugMode = false;
-    protected _shadowCSMPerformanceOptimizationMode = CSMPerformanceOptimizationMode.DisableRotaitonFix;
+    protected _shadowCSMPerformanceOptimizationMode = CSMPerformanceOptimizationMode.DisableRotationFix;
 
     // fixed area properties
     protected _shadowFixedArea = false;

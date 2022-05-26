@@ -37,7 +37,7 @@
 #include "scene/RenderScene.h"
 #include "scene/Shadow.h"
 #include "scene/SpotLight.h"
-#include "shadow/CSMLayers.h"
+#include "renderer/pipeline/shadow/CSMLayers.h"
 
 namespace cc {
 
@@ -199,7 +199,7 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, ccstd::arr
 
     if (shadowInfo->isEnabled() && mainLight && mainLight->isShadowEnabled()) {
         if (shadowInfo->getType() == scene::ShadowType::SHADOW_MAP) {
-            if (mainLight->isShadowFixedArea() || mainLight->getShadowCSMLevel() < 2.0F) {
+            if (mainLight->isShadowFixedArea() || mainLight->getShadowCSMLevel() == scene::CSMLevel::level_1) {
                 const Mat4 &matShadowView = csmLayers->getSpecialLayer()->getMatShadowView();
                 const Mat4 &matShadowProj = csmLayers->getSpecialLayer()->getMatShadowProj();
                 const Mat4 &matShadowViewProj = csmLayers->getSpecialLayer()->getMatShadowViewProj();
@@ -251,10 +251,10 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, ccstd::arr
                 const float shadowNFLSInfos[4] = {0.0F, 0.0F, linear, 1.0F - mainLight->getShadowSaturation()};
                 memcpy(sv.data() + UBOShadow::SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET, &shadowNFLSInfos, sizeof(shadowNFLSInfos));
 
-                const float shadowLPNNInfos[4] = {0.0F, packing, mainLight->getShadowNormalBias(), mainLight->getShadowCSMLevel()};
+                const float shadowLPNNInfos[4] = {0.0F, packing, mainLight->getShadowNormalBias(), static_cast<float>(mainLight->getShadowCSMLevel())};
                 memcpy(sv.data() + UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET, &shadowLPNNInfos, sizeof(shadowLPNNInfos));
             }
-            const float shadowWHPBInfos[4] = {shadowInfo->getSize().x, shadowInfo->getSize().y, mainLight->getShadowPcf(), mainLight->getShadowBias()};
+            const float shadowWHPBInfos[4] = {shadowInfo->getSize().x, shadowInfo->getSize().y, static_cast<float>(mainLight->getShadowPcf()), mainLight->getShadowBias()};
             memcpy(sv.data() + UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET, &shadowWHPBInfos, sizeof(shadowWHPBInfos));
         } else if (mainLight && shadowInfo->getType() == scene::ShadowType::PLANAR) {
             updateDirLight(shadowInfo, mainLight, shadowBufferView);
@@ -281,13 +281,13 @@ void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, ccstd
             const auto *mainLight = static_cast<const scene::DirectionalLight *>(light);
             if (shadowInfo->isEnabled() && mainLight && mainLight->isShadowEnabled()) {
                 if (shadowInfo->getType() == scene::ShadowType::SHADOW_MAP) {
-                    float levelCount;
-                    float nearClamp;
-                    float farClamp;
+                    float levelCount = 0.0F;
+                    float nearClamp = 0.1F;
+                    float farClamp = 0.0F;
                     Mat4 matShadowView;
                     Mat4 matShadowProj;
                     Mat4 matShadowViewProj;
-                    if (mainLight->isShadowFixedArea() || mainLight->getShadowCSMLevel() < 2.0F) {
+                    if (mainLight->isShadowFixedArea() || mainLight->getShadowCSMLevel() == scene::CSMLevel::level_1) {
                         matShadowView = csmLayers->getSpecialLayer()->getMatShadowView();
                         matShadowProj = csmLayers->getSpecialLayer()->getMatShadowProj();
                         matShadowViewProj = csmLayers->getSpecialLayer()->getMatShadowViewProj();
@@ -304,7 +304,7 @@ void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, ccstd
                         memcpy(shadowUBO.data() + UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET, &shadowLPNNInfos, sizeof(shadowLPNNInfos));
                     } else {
                         const CSMLayerInfo *layer = csmLayers->getLayers()[level];
-                        levelCount = mainLight->getShadowCSMLevel();
+                        levelCount = static_cast<float>(mainLight->getShadowCSMLevel());
                         nearClamp = layer->getSplitCameraNear();
                         farClamp = layer->getSplitCameraFar();
                         matShadowView = layer->getMatShadowView();
@@ -328,7 +328,7 @@ void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, ccstd
                     const float shadowLPNNInfos[4] = {0.0F, packing, mainLight->getShadowNormalBias(), levelCount};
                     memcpy(shadowUBO.data() + UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET, &shadowLPNNInfos, sizeof(shadowLPNNInfos));
 
-                    const float shadowWHPBInfos[4] = {shadowInfo->getSize().x, shadowInfo->getSize().y, mainLight->getShadowPcf(), mainLight->getShadowBias()};
+                    const float shadowWHPBInfos[4] = {shadowInfo->getSize().x, shadowInfo->getSize().y, static_cast<float>(mainLight->getShadowPcf()), mainLight->getShadowBias()};
                     memcpy(shadowUBO.data() + UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET, &shadowWHPBInfos, sizeof(shadowWHPBInfos));
                 }
             }
@@ -371,16 +371,16 @@ uint8_t PipelineUBO::getCombineSignY() {
 
 float PipelineUBO::getPCFRadius(const scene::Shadows* shadowInfo, const scene::DirectionalLight* dirLight) {
     const float shadowMapSize = shadowInfo->getSize().x;
-    if (dirLight->getShadowPcf() > 2.9F) {          // PCFType.SOFT_4X
+    if (dirLight->getShadowPcf() == scene::PCFType::SOFT_4X) {  // PCFType.SOFT_4X
         return 3.0F / (shadowMapSize * 0.5F);
     }
-    if (dirLight->getShadowPcf() > 1.9F) {          // PCFType.SOFT_2X
+    if (dirLight->getShadowPcf() == scene::PCFType::SOFT_2X) {  // PCFType.SOFT_2X
         return 2.0F / (shadowMapSize * 0.5F);
     }
-    if (dirLight->getShadowPcf() > 0.9F) {          // PCFType.SOFT
+    if (dirLight->getShadowPcf() == scene::PCFType::SOFT) {     // PCFType.SOFT
         return 1.0F / (shadowMapSize * 0.5F);
     }
-    return 0.0F;                                    // PCFType.HARD
+    return 0.0F;                                                // PCFType.HARD
 }
 
 void PipelineUBO::initCombineSignY() {

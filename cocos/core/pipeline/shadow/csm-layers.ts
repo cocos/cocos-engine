@@ -154,7 +154,7 @@ export class ShadowTransformInfo {
         this._castLightViewBoundingBox.mergeFrustum(this._lightViewFrustum);
         let orthoSizeWidth;
         let orthoSizeHeight;
-        if (dirLight.shadowCSMPerformanceOptimizationMode === CSMPerformanceOptimizationMode.DisableRotaitonFix) {
+        if (dirLight.shadowCSMPerformanceOptimizationMode === CSMPerformanceOptimizationMode.DisableRotationFix) {
             orthoSizeWidth = this._castLightViewBoundingBox.halfExtents.x * 2.0;
             orthoSizeHeight = this._castLightViewBoundingBox.halfExtents.y * 2.0;
         } else {

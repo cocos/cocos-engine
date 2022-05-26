@@ -128,7 +128,7 @@ export const PCFType = Enum({
 });
 
 /**
- * @zh 级联阴影贴图层级。
+ * @zh 联级阴影贴图层级。
  * @en The CSM shadow level
  * @enum Shadows.CSMLevel
  */
@@ -163,7 +163,7 @@ export const CSMLevel = Enum({
 });
 
 /**
- * @zh 级联阴影性能优化模式。
+ * @zh 联级阴影性能优化模式。
  * @en The CSM performance optimization mode
  * @enum Shadows.CSMPerformanceOptimizationMode
  */
@@ -184,10 +184,10 @@ export const CSMPerformanceOptimizationMode = Enum({
 
     /**
       * @zh 取消稳抖
-      * @en Disable rotaiton fix
+      * @en Disable rotation fix
       * @readonly
       */
-    DisableRotaitonFix: 3,
+    DisableRotationFix: 3,
 });
 
 const SHADOW_TYPE_NONE = ShadowType.ShadowMap + 1;

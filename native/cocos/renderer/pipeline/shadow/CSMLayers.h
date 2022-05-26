@@ -35,8 +35,8 @@ class PipelineSceneData;
 
 class ShadowTransformInfo {
 public:
-    ShadowTransformInfo(uint level);
-    ~ShadowTransformInfo();
+    explicit ShadowTransformInfo(uint level);
+    ~ShadowTransformInfo() = default;
 
     inline uint getLevel() const { return _level; }
 
@@ -48,16 +48,17 @@ public:
     inline float getShadowCameraFar() const { return _shadowCameraFar; }
     inline void setShadowCameraFar(float shadowCameraFar) { _shadowCameraFar = shadowCameraFar; }
 
-    inline Mat4 getMatShadowView() const { return _matShadowView; }
+    inline const Mat4 &getMatShadowView() const { return _matShadowView; }
     inline void setMatShadowView(const Mat4 &matShadowView) { _matShadowView = matShadowView; }
 
-    inline Mat4 getMatShadowProj() const { return _matShadowProj; }
+    inline const Mat4 &getMatShadowProj() const { return _matShadowProj; }
     inline void setMatShadowProj(const Mat4 &matShadowProj) { _matShadowProj = matShadowProj; }
 
-    inline Mat4 getMatShadowViewProj() const { return _matShadowViewProj; }
+    inline const Mat4 &getMatShadowViewProj() const { return _matShadowViewProj; }
     inline void setMatShadowViewProj(const Mat4 &matShadowViewProj) { _matShadowViewProj = matShadowViewProj; }
 
     inline geometry::Frustum getValidFrustum() const { return _validFrustum; }
+    inline geometry::Frustum *getValidFrustumPtr() { return &_validFrustum; }
     inline void setValidFrustum(const geometry::Frustum &validFrustum) { _validFrustum = validFrustum; }
 
     inline geometry::Frustum getSplitFrustum() const { return _splitFrustum; }
@@ -75,7 +76,7 @@ private:
     RenderObjectList _shadowObjects;
 
     // Level is a vector, Indicates the location.range: [0 ~ 3]
-    uint _level;
+    uint _level{1U};
 
     float _shadowCameraFar{0.0F};
 
@@ -105,17 +106,17 @@ public:
     inline float getSplitCameraFar() const { return _splitCameraFar; }
     inline void setSplitCameraFar(float splitCameraFar) { _splitCameraFar = splitCameraFar; }
 
-    inline Mat4 getMatShadowAtlas() const { return _matShadowAtlas; }
+    inline const Mat4 &getMatShadowAtlas() const { return _matShadowAtlas; }
     inline void setMatShadowAtlas(const Mat4 &matShadowAtlas) { _matShadowAtlas = matShadowAtlas; }
 
-    inline Mat4 getMatShadowViewProjAtlas() const { return _matShadowViewProjAtlas; }
+    inline const Mat4 &getMatShadowViewProjAtlas() const { return _matShadowViewProjAtlas; }
     inline void setMatShadowViewProjAtlas(const Mat4 &matShadowViewProjAtlas) { _matShadowViewProjAtlas = matShadowViewProjAtlas; }
 
 private:
     void calculateAtlas(uint level);
 
-    float _splitCameraNear;
-    float _splitCameraFar;
+    float _splitCameraNear{0.0F};
+    float _splitCameraFar{0.0F};
 
     Mat4 _matShadowAtlas;
     Mat4 _matShadowViewProjAtlas;
@@ -153,11 +154,11 @@ private:
     RenderObjectList _csmLayerObjects;
 
     // LevelCount is a scalar, Indicates the number.
-    uint _levelCount;
+    uint _levelCount{0U};
     // The ShadowTransformInfo object for 'fixed area shadow' || 'maximum clipping info' || 'CSM layers = 1'.
     ShadowTransformInfo *_specialLayer{nullptr};
     ccstd::vector<CSMLayerInfo *> _layers;
-    float _shadowDistance;
+    float _shadowDistance{0.0F};
 };
 } // namespace pipeline
 } // namespace cc

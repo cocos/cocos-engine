@@ -199,7 +199,7 @@ void updateDirFrustum(const geometry::Sphere *cameraBoundingSphere, const Quater
     dirLightFrustum->createOrtho(radius, radius, -range, radius, matWorldTrans);
 }
 
- // Todo 如果要接 ocTree,需要去掉 sceneCulling 中 CastShadowObjects 的收集,让 layer.validFrustum 直接从场景八叉树中获取
+ // Todo If you want to optimize the cutting efficiency, you can get it from the octree
 void shadowCulling(RenderPipeline *pipeline, const scene::Camera *camera, ShadowTransformInfo *layer) {
     const auto *sceneData = pipeline->getPipelineSceneData();
     auto *csmLayers = sceneData->getCSMLayers();

@@ -75,9 +75,8 @@ void ShadowMapBatchedQueue::gatherLightPasses(const scene::Camera *camera, const
                         }
                         shadowCulling(_pipeline, camera, layer);
                         const RenderObjectList &dirShadowObjects = layer->getShadowObjects();
-                        for (const RenderObject ro : dirShadowObjects) {
-                            const auto *model = ro.model;
-                            add(model);
+                        for (const auto &ro : dirShadowObjects) {
+                            add(ro.model);
                         }
                     }
                 }
@@ -91,7 +90,7 @@ void ShadowMapBatchedQueue::gatherLightPasses(const scene::Camera *camera, const
                     Mat4::createPerspective(spotLight->getSpotAngle(), 1.0F, 0.001F, spotLight->getRange(), &matShadowProj);
                     const Mat4 matShadowViewProj = matShadowProj * matShadowView;
                     geometry::AABB ab;
-                    for (const auto ro : castShadowObjects) {
+                    for (const auto &ro : castShadowObjects) {
                         const auto *model = ro.model;
                         if (!model->isEnabled() || !model->isCastShadow() || !model->getNode()) {
                             continue;
@@ -186,7 +185,6 @@ void ShadowMapBatchedQueue::destroy() {
 int ShadowMapBatchedQueue::getShadowPassIndex(const scene::Model *model) const {
     for (const auto &subModel : model->getSubModels()) {
         int i = 0;
-        if (subModel == nullptr) { continue; }
         for (const auto &pass : subModel->getPasses()) {
             if (pass->getPhase() == _phaseID) {
                 return i;

@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "base/std/container/array.h"
 #include "core/assets/Material.h"
 #include "core/geometry/Sphere.h"
 #include "math/Color.h"
@@ -116,18 +115,90 @@ enum class PCFType {
     HARD = 0,
 
     /**
-     * @zh 软阴影
-     * @en soft shadow
+     * @zh x4 次采样
+     * @en x4 times
      * @readonly
      */
     SOFT = 1,
 
     /**
-     * @zh 软阴影
-     * @en soft shadow
+     * @zh x9 次采样
+     * @en x9 times
      * @readonly
      */
-    SOFT_2X = 2
+    SOFT_2X = 2,
+
+    /**
+     * @zh x16 次采样
+     * @en x16 times
+     * @readonly
+     */
+    SOFT_4X = 3
+};
+
+/**
+ * @zh 联级阴影贴图层级。
+ * @en The CSM shadow level
+ * @static
+ * @enum Shadows.CSMLevel
+ */
+enum class CSMLevel {
+    /**
+     * @zh 1 个层级
+     * @en level 1
+     * @readonly
+     */
+    level_1 = 1,
+
+    /**
+     * @zh 2 个层级
+     * @en level 2
+     * @readonly
+     */
+    level_2 = 2,
+
+    /**
+     * @zh 3 个层级
+     * @en level 3
+     * @readonly
+     */
+    level_3 = 3,
+
+    /**
+     * @zh 4 个层级
+     * @en level 4
+     * @readonly
+     */
+    level_4 = 4
+};
+
+/**
+ * @zh 联级阴影性能优化模式。
+ * @en The CSM performance optimization mode
+ * @static
+ * @enum Shadows.CSMPerformanceOptimizationMode
+ */
+enum class CSMPerformanceOptimizationMode {
+    /**
+     * @zh 没有性能优化
+     * @en has no performance optimization
+     * @readonly
+     */
+    NONE = 1,
+
+    /**
+     * @zh 剔除层与层之间重复物体
+     * @en Eliminate duplicate objects between layers
+     * @readonly
+     */
+    RemoveDuplicates = 2,
+
+    /**
+     * @zh 取消稳抖
+     * @en Disable rotation fix
+     * @readonly
+     */
+    DisableRotationFix = 3
 };
 
 class Shadows;

@@ -20,7 +20,7 @@
 ****************************************************************************/
 
 #include "CSMLayers.h"
-#include "../gfx-base/GFXDevice.h"
+#include "gfx-base/GFXDevice.h"
 #include "math/Quaternion.h"
 #include "pipeline/PipelineSceneData.h"
 #include "pipeline/RenderPipeline.h"
@@ -36,15 +36,13 @@ ShadowTransformInfo::ShadowTransformInfo(uint level) {
     _lightViewFrustum.setType(geometry::ShapeEnum::SHAPE_FRUSTUM_ACCURATE);
 }
 
-ShadowTransformInfo::~ShadowTransformInfo() {
-    //delete &_validFrustum;
-    _shadowObjects.clear();
-}
-
 void ShadowTransformInfo::createMatrix(const geometry::Frustum &splitFrustum, const scene::DirectionalLight *dirLight, float shadowMapWidth, bool isOnlyCulling) {
     const float invisibleOcclusionRange = dirLight->getShadowInvisibleOcclusionRange();
     const gfx::Device *device = gfx::Device::getInstance();
-    _lightViewFrustum = *geometry::Frustum::clone(splitFrustum);
+    geometry::Frustum::copy(&_lightViewFrustum, splitFrustum);
+    for (size_t i = 0; i < _lightViewFrustum.planes.size(); ++i) { // NOLINT(modernize-loop-convert)
+        _lightViewFrustum.planes[i]->addRef();
+    }
     const float projectionSinY = device->getCapabilities().clipSpaceSignY;
     const float clipSpaceMinZ = device->getCapabilities().clipSpaceMinZ;
 
@@ -62,15 +60,16 @@ void ShadowTransformInfo::createMatrix(const geometry::Frustum &splitFrustum, co
     _castLightViewBoundingBox.merge(_lightViewFrustum);
     float orthoSizeWidth;
     float orthoSizeHeight;
-    if (static_cast<uint>(dirLight->getShadowCSMPerformanceOptimizationMode()) == 3U) {
+    if (dirLight->getShadowCSMPerformanceOptimizationMode() == scene::CSMPerformanceOptimizationMode::DisableRotationFix) {
         orthoSizeWidth = _castLightViewBoundingBox.halfExtents.x;
         orthoSizeHeight = _castLightViewBoundingBox.halfExtents.y;
     } else {
         orthoSizeWidth = orthoSizeHeight = _lightViewFrustum.vertices[0].distance(_lightViewFrustum.vertices[6]);
     }
 
-    if (static_cast<uint>(dirLight->getShadowCSMLevel()) > 1U && static_cast<uint>(dirLight->getShadowCSMPerformanceOptimizationMode()) == 2U) {
-        if (_level >= static_cast<uint>(dirLight->getShadowCSMLevel() - 1.0F)) {
+    if (dirLight->getShadowCSMLevel() != scene::CSMLevel::level_1 && dirLight->getShadowCSMPerformanceOptimizationMode() ==
+        scene::CSMPerformanceOptimizationMode::RemoveDuplicates) {
+        if (_level >= static_cast<uint>(dirLight->getShadowCSMLevel()) - 1U) {
             _maxLayerFarPlane = _castLightViewBoundingBox.halfExtents.z;
             _maxLayerPosz = _castLightViewBoundingBox.center.z;
         } else {
@@ -123,8 +122,6 @@ void ShadowTransformInfo::createMatrix(const geometry::Frustum &splitFrustum, co
 }
 
 CSMLayerInfo::CSMLayerInfo(uint level) : ShadowTransformInfo(level) {
-    _splitCameraNear = 0.0F;
-    _splitCameraFar = 0.0F;
     _matShadowAtlas.setZero();
     _matShadowViewProjAtlas.setZero();
     calculateAtlas(level);
@@ -141,25 +138,15 @@ void CSMLayerInfo::calculateAtlas(uint level) {
 }
 
 CSMLayers::CSMLayers() {
-    _levelCount = 0U;
-    _specialLayer = new ShadowTransformInfo(1U);
-    _shadowDistance = 0.0F;
+    _specialLayer = ccnew ShadowTransformInfo(1U);
 }
 
 CSMLayers::~CSMLayers() {
-    if (_specialLayer) {
-        delete _specialLayer;
-        _specialLayer = nullptr;
-    }
+    CC_SAFE_DELETE(_specialLayer);
 
     for (const auto *shadowCSMLayer : _layers) {
-        if (shadowCSMLayer) {
-            delete shadowCSMLayer;
-            shadowCSMLayer = nullptr;
-        }
+        CC_SAFE_DELETE(shadowCSMLayer);
     }
-
-    _layers.clear();
 }
 
 void CSMLayers::update(const PipelineSceneData *sceneData, const scene::Camera *camera) {
@@ -185,7 +172,7 @@ void CSMLayers::update(const PipelineSceneData *sceneData, const scene::Camera *
         bool isRecalculate = false;
         for (uint i = 0; i < levelCount; ++i) {
             if (_layers.size() <= i) {
-                _layers.emplace_back(new CSMLayerInfo(i));
+                _layers.emplace_back(ccnew CSMLayerInfo(i));
                 isRecalculate = true;
             }
         }
@@ -243,7 +230,7 @@ void CSMLayers::splitFrustumLevels(scene::DirectionalLight *dirLight) {
         _layers[i - 1]->setSplitCameraFar(nextFar);
     }
     // numbers of level - 1
-    _layers.at(level - 1)->setSplitCameraFar(fd);
+    _layers[level - 1]->setSplitCameraFar(fd);
 
     dirLight->setShadowCSMValueDirty(false);
 }
@@ -252,7 +239,7 @@ void CSMLayers::calculateCSM(const scene::Camera *camera, const scene::Direction
     const int level = static_cast<int>(dirLight->getShadowCSMLevel());
     const float shadowMapWidth = level > 1 ? shadowInfo->getSize().x * 0.5F : shadowInfo->getSize().x;
 
-    if (shadowMapWidth < 0.0F) {
+    if (static_cast<int>(shadowMapWidth) <= 0) {
         return;
     }
 
@@ -265,6 +252,9 @@ void CSMLayers::calculateCSM(const scene::Camera *camera, const scene::Direction
         splitFrustum.setType(geometry::ShapeEnum::SHAPE_FRUSTUM_ACCURATE);
         splitFrustum.split(nearClamp, farClamp, camera->getAspect(), camera->getFov(), mat4Trans);
         layer->setSplitFrustum(splitFrustum);
+        for (size_t i = 0; i < splitFrustum.planes.size(); ++i) { // NOLINT(modernize-loop-convert)
+            splitFrustum.planes[i]->addRef();
+        }
         layer->createMatrix(layer->getSplitFrustum(), dirLight, shadowMapWidth, false);
         Mat4 matShadowViewProjAtlas;
         Mat4::multiply(layer->getMatShadowAtlas(), layer->getMatShadowViewProj(), &matShadowViewProjAtlas);
@@ -276,7 +266,10 @@ void CSMLayers::calculateCSM(const scene::Camera *camera, const scene::Direction
         _specialLayer->setMatShadowView(_layers[0]->getMatShadowView().clone());
         _specialLayer->setMatShadowProj(_layers[0]->getMatShadowProj().clone());
         _specialLayer->setMatShadowViewProj(_layers[0]->getMatShadowViewProj().clone());
-        _specialLayer->setValidFrustum(*geometry::Frustum::clone(_layers[0]->getValidFrustum()));
+        geometry::Frustum::copy(_specialLayer->getValidFrustumPtr(), _layers[0]->getValidFrustum());
+        for (size_t i = 0; i < _specialLayer->getValidFrustum().planes.size(); ++i) { // NOLINT(modernize-loop-convert)
+            _specialLayer->getValidFrustum().planes[i]->addRef();
+        }
     } else {
         _specialLayer->getSplitFrustum().split(0.1F, dirLight->getShadowDistance(), camera->getAspect(), camera->getFov(), mat4Trans);
         _specialLayer->createMatrix(_specialLayer->getSplitFrustum(), dirLight, shadowMapWidth, true);

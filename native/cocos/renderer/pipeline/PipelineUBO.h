@@ -66,14 +66,14 @@ private:
     void initCombineSignY();
 
     RenderPipeline *_pipeline = nullptr;
-    gfx::Device    *_device   = nullptr;
+    gfx::Device *_device = nullptr;
 
     ccstd::array<float, UBOGlobal::COUNT> _globalUBO;
     ccstd::array<float, UBOShadow::COUNT> _shadowUBO;
-    ccstd::array<float, UBOCSM::COUNT>    _csmUBO;
+    ccstd::array<float, UBOCSM::COUNT> _csmUBO;
 
     ccstd::vector<gfx::Buffer *> _ubos;
-    ccstd::vector<float>         _cameraUBOs;
+    ccstd::vector<float> _cameraUBOs;
 
     gfx::Buffer *_cameraBuffer{nullptr};
     uint _currentCameraUBOOffset{0};

@@ -28,8 +28,7 @@
 #include "Define.h"
 #include "base/RefCounted.h"
 #include "core/assets/Material.h"
-#include "core/geometry/Sphere.h"
-#include "shadow/CSMLayers.h"
+#include "renderer/pipeline/shadow/CSMLayers.h"
 
 namespace cc {
 
