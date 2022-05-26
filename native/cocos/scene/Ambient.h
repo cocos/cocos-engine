@@ -169,8 +169,8 @@ public:
 
     void activate(Ambient *resource);
 
-    //cjh JSB need to bind the property, so need to make it public
-    //private:
+
+private:
     // @serializable
     // @formerlySerializedAs('_skyColor'));
     Vec4 _skyColorHDR{0.2F, 0.5F, 0.8F, 1.F};
@@ -181,6 +181,8 @@ public:
     // @formerlySerializedAs('_groundAlbedo')
     Vec4 _groundAlbedoHDR{0.2F, 0.2F, 0.2F, 1.F};
 
+public:
+    //cjh JSB need to bind the property, so need to make it public
     // @serializable
     Vec4 _skyColorLDR{0.2F, 0.5F, 0.8F, 1.F};
 
@@ -189,6 +191,7 @@ public:
     // @serializable
     Vec4 _groundAlbedoLDR{0.2F, 0.2F, 0.2F, 1.F};
 
+private:
     Ambient *_resource{nullptr};
 };
 
