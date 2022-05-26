@@ -662,7 +662,7 @@ export class ParticleSystem extends RenderableComponent {
 
     // noise module
     @type(NoiseModule)
-    _noiseModule: NoiseModule | null = null;
+    private _noiseModule: NoiseModule | null = null;
 
     @type(NoiseModule)
     @displayOrder(24)
