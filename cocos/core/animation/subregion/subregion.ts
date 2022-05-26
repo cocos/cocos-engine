@@ -1,9 +1,10 @@
 import { ccclass, serializable } from 'cc.decorator';
+import { EditorExtendable } from '../../data/editor-extendable';
 import type { Node } from '../../scene-graph';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}Subregion`)
-export class Subregion {
+export class Subregion extends EditorExtendable {
     /**
      * @en
      * Begin time, in seconds.
