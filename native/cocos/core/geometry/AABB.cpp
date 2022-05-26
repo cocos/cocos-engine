@@ -127,7 +127,7 @@ bool AABB::aabbFrustum(const Frustum &frustum) const {
     return std::all_of(planes.begin(),
                        planes.end(),
                        // frustum plane normal points to the inside
-                       [self](const Plane *plane) { return self->aabbPlane(*plane) != -1; });
+                       [self](const Plane plane) { return self->aabbPlane(plane) != -1; });
 }
 
 void AABB::getBoundary(cc::Vec3 *minPos, cc::Vec3 *maxPos) const {

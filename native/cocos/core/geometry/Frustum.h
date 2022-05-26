@@ -116,7 +116,7 @@ public:
     static Frustum *copy(Frustum *out, const Frustum &f) {
         out->setType(f.getType());
         for (size_t i = 0; i < 6; ++i) { // NOLINT(modernize-loop-convert)
-            Plane::copy(out->planes[i], *(f.planes[i]));
+            Plane::copy(&out->planes[i], f.planes[i]);
         }
         out->vertices = f.vertices;
         return out;
@@ -134,17 +134,9 @@ public:
 
     Frustum() {
         setType(ShapeEnum::SHAPE_FRUSTUM);
-        for (size_t i = 0; i < planes.size(); ++i) { // NOLINT(modernize-loop-convert)
-            planes[i] = ccnew Plane();
-            planes[i]->addRef();
-        }
     }
 
-    ~Frustum() override {
-        for (auto *plane : planes) {
-            plane->release();
-        }
-    }
+    ~Frustum() override = default;
 
     /**
      * @en
@@ -156,7 +148,7 @@ public:
     void transform(const Mat4 &);
 
     ccstd::array<Vec3, 8> vertices;
-    ccstd::array<Plane *, 6> planes;
+    ccstd::array<Plane, 6> planes;
     void createOrtho(float width, float height, float near, float far, const Mat4 &transform);
     void split(float start, float end, float aspect, float fov, const Mat4 &transform);
     void updatePlanes();
