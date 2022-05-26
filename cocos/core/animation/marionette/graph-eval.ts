@@ -5,7 +5,7 @@ import {
 } from './animation-graph';
 import { assertIsTrue, assertIsNonNullable } from '../../data/utils/asserts';
 import { MotionEval, MotionEvalContext } from './motion';
-import type { Node } from '../../scene-graph/node';
+import { Node } from '../../scene-graph/node';
 import { createEval } from './create-eval';
 import { Value, VarInstance, TriggerResetMode } from './variable';
 import { BindContext, bindOr, validateVariableExistence, validateVariableType, VariableType } from './parametric';
@@ -315,7 +315,7 @@ class LayerEval {
         if (currentNode.kind === NodeKind.animation) {
             return currentNode.getFromPortStatus();
         } else if (currentNode.kind === NodeKind.transitionSnapshot) {
-            return currentNode.last.getFromPortStatus();
+            return currentNode.first.getFromPortStatus();
         } else {
             return null;
         }
@@ -326,7 +326,7 @@ class LayerEval {
         if (currentNode.kind === NodeKind.animation) {
             return currentNode.getClipStatuses(this._fromWeight);
         } else if (currentNode.kind === NodeKind.transitionSnapshot) {
-            return currentNode.last.getClipStatuses(this._fromWeight);
+            return currentNode.first.getClipStatuses(this._fromWeight);
         } else {
             return emptyClipStatusesIterable;
         }
@@ -344,7 +344,12 @@ class LayerEval {
                 normalizedDuration,
             } = currentTransitionPath[0];
             const durationInSeconds = transitionStatus.duration = normalizedDuration
-                ? duration * (this._currentNode.kind === NodeKind.animation ? this._currentNode.duration : 0.0)
+                ? duration * (this._currentNode.kind === NodeKind.animation
+                    ? this._currentNode.duration
+                    : this._currentNode.kind === NodeKind.transitionSnapshot
+                        ? this._currentNode.first.duration
+                        : 0.0
+                )
                 : duration;
             transitionStatus.time = this._transitionProgress * durationInSeconds;
             return true;
@@ -986,7 +991,7 @@ class LayerEval {
             const durationSeconds = fromNode.kind === NodeKind.empty
                 ? transitionDuration
                 : normalizedDuration
-                    ? transitionDuration * (fromNode.kind === NodeKind.animation ? fromNode.duration : fromNode.last.duration)
+                    ? transitionDuration * (fromNode.kind === NodeKind.animation ? fromNode.duration : fromNode.first.duration)
                     : transitionDuration;
             const progressSeconds = transitionProgress * durationSeconds;
             const remain = durationSeconds - progressSeconds;
@@ -1055,9 +1060,6 @@ class LayerEval {
         }
         this._fromUpdated = this._toUpdated;
         this._toUpdated = false;
-        if (toNode.kind === NodeKind.animation) {
-            toNode.finishTransition();
-        }
         this._dropCurrentTransition();
         this._currentNode = toNode;
         if (fromNode.kind === NodeKind.transitionSnapshot) {
@@ -1066,6 +1068,13 @@ class LayerEval {
     }
 
     private _dropCurrentTransition () {
+        const {
+            _currentTransitionToNode: currentTransitionToNode,
+        } = this;
+        assertIsNonNullable(currentTransitionToNode);
+        if (currentTransitionToNode.kind === NodeKind.animation) {
+            currentTransitionToNode.finishTransition();
+        }
         this._currentTransitionToNode = null;
         this._currentTransitionPath.length = 0;
         // Make sure we won't suffer from precision problem
@@ -1152,22 +1161,30 @@ class LayerEval {
         const {
             _currentNode: currentNode,
         } = this;
+        assertIsTrue(currentNode.kind === NodeKind.animation || currentNode.kind === NodeKind.transitionSnapshot);
+        // If we're interrupting motion->*,
+        // we update the motion then do the first enqueue to transition snapshot.
         if (currentNode.kind === NodeKind.animation) {
             currentNode.updateFromPort(transitionRequires);
             this._fromUpdated = true;
+
+            const { _transitionSnapshot: transitionSnapshot } = this;
+            assertIsTrue(transitionSnapshot.empty);
+            transitionSnapshot.enqueue(currentNode, 1.0);
         }
-        this._takeCurrentTransitionSnapshot();
+        this._takeCurrentTransitionSnapshot(from);
         this._dropCurrentTransition();
+        // Install the snapshot as "current"
         this._currentNode = this._transitionSnapshot;
         const ranIntoNonMotionState = this._switchTo(transition);
         return ranIntoNonMotionState;
     }
 
-    private _takeCurrentTransitionSnapshot () {
+    private _takeCurrentTransitionSnapshot (transitionFrom: MotionStateEval) {
         const {
             _currentTransitionPath: currentTransitionPath,
-            _currentNode: currentNode,
             _currentTransitionToNode: currentTransitionToNode,
+            _transitionSnapshot: transitionSnapshot,
         } = this;
 
         assertIsTrue(currentTransitionPath.length !== 0);
@@ -1180,8 +1197,7 @@ class LayerEval {
             normalizedDuration,
         } = currentTransition;
 
-        const fromNode = this._currentNode;
-        assertIsTrue(fromNode.kind === NodeKind.animation);
+        const fromNode = transitionFrom;
         let ratio = 0.0;
         if (transitionDuration <= 0) {
             ratio = 1.0;
@@ -1195,7 +1211,7 @@ class LayerEval {
             assertIsTrue(ratio >= 0.0 && ratio <= 1.0);
         }
 
-        this._transitionSnapshot.enqueue(fromNode, currentTransitionToNode, ratio);
+        transitionSnapshot.enqueue(currentTransitionToNode, ratio);
     }
 
     private _resetTriggersOnTransition (transition: TransitionEval) {
@@ -1469,6 +1485,10 @@ export class MotionStateEval extends StateEval {
     }
 
     public updateToPort (deltaTime: number) {
+        if (DEBUG) {
+            // See `this.finishTransition()`
+            assertIsTrue(!Number.isNaN(this._toPort.progress));
+        }
         this._toPort.progress = calcProgressUpdate(
             this._toPort.progress,
             this.duration,
@@ -1494,6 +1514,10 @@ export class MotionStateEval extends StateEval {
     }
 
     public getToPortStatus (): Readonly<MotionStateStatus> {
+        if (DEBUG) {
+            // See `this.finishTransition()`
+            assertIsTrue(!Number.isNaN(this._toPort.progress));
+        }
         const { statusCache: stateStatus } = this._toPort;
         if (DEBUG) {
             stateStatus.__DEBUG_ID__ = this.name;
@@ -1508,6 +1532,16 @@ export class MotionStateEval extends StateEval {
 
     public finishTransition () {
         this._fromPort.progress = this._toPort.progress;
+        if (DEBUG) {
+            // Well, this statement exists for debugging purpose.
+            // Once the transition was finished, this method is called to
+            // switch this motion from "target" to "source".
+            // After, this motion can no longer be used as "target"
+            // unless `this.resetToPort()` is called.
+            // Let's set progress of this motion's "to port" to NaN,
+            // to catch such a violation.
+            this._toPort.progress = Number.NaN;
+        }
     }
 
     public sampleFromPort (weight: number) {
@@ -1515,6 +1549,10 @@ export class MotionStateEval extends StateEval {
     }
 
     public sampleToPort (weight: number) {
+        if (DEBUG) {
+            // See `this.finishTransition()`
+            assertIsTrue(!Number.isNaN(this._toPort.progress));
+        }
         this._source?.sample(this._toPort.progress, weight);
     }
 
@@ -1594,17 +1632,26 @@ class TransitionSnapshotEval extends StateEval {
         super({ name: `[[TransitionSnapshotEval]]` });
     }
 
-    get last () {
+    get empty () {
+        return this._queue.length === 0;
+    }
+
+    get first () {
         const { _queue: queue } = this;
         assertIsTrue(queue.length > 0);
-        return queue[queue.length - 1].motion;
+        return queue[0].motion;
     }
 
     public sample (weight: number) {
         const { _queue: queue } = this;
         const nQueue = queue.length;
         for (let iQueuedMotions = 0; iQueuedMotions < nQueue; ++iQueuedMotions) {
-            queue[iQueuedMotions].motion.sampleToPort(weight);
+            const {
+                motion,
+                weight: snapshotWeight,
+            } = queue[iQueuedMotions];
+            // Here implies: motions added to snapshot should have been switched from "target" to "source".
+            motion.sampleFromPort(snapshotWeight * weight);
         }
     }
 
@@ -1612,12 +1659,14 @@ class TransitionSnapshotEval extends StateEval {
         this._queue.length = 0;
     }
 
-    public enqueue (from: MotionStateEval, to: MotionStateEval, ratio: number) {
+    public enqueue (state: MotionStateEval, weight: number) {
         const { _queue: queue } = this;
-        if (queue.length === 0) {
-            queue.push(new QueuedMotion(from, ratio));
-            queue.push(new QueuedMotion(to, 1.0 - ratio));
+        const nQueue = queue.length;
+        const complementWeight = 1.0 - weight;
+        for (let iQueuedMotions = 0; iQueuedMotions < nQueue; ++iQueuedMotions) {
+            queue[iQueuedMotions].weight *= complementWeight;
         }
+        queue.push(new QueuedMotion(state, weight));
     }
 
     private _queue: QueuedMotion[] = [];
