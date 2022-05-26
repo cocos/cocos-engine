@@ -1,5 +1,3 @@
-/* eslint-disable max-len */
-/* eslint-disable @typescript-eslint/restrict-plus-operands */
 import { Vec2, Vec3 } from '../core/math';
 
 export class ParticleNoise {
@@ -25,7 +23,7 @@ export class ParticleNoise {
     }
 
     public noise (x: number, y: number, z: number, min = 0, max = 1): number {
-        const p = new Array(512);
+        const p: number[] = new Array(512);
         for (let i = 0; i < 256; i++) { p[256 + i] = p[i] = this.permutation[i]; }
 
         const X = Math.floor(x) & 255; // FIND UNIT CUBE THAT
@@ -144,8 +142,11 @@ export class ParticleNoise {
         this.accSpeed.set(this.noiseSpeed.x * this.dt, this.noiseSpeed.y * this.dt, this.noiseSpeed.z * this.dt);
 
         const axisOffset = 1000.0;
+        // eslint-disable-next-line max-len
         const sampX = this.getNoise(this.point.z + this.accSpeed.x, this.point.y, this.point.x, this.dt, this.accSpeed, this.noiseFrequency, this.octaves);
+        // eslint-disable-next-line max-len
         const sampY = this.getNoise(this.point.x + axisOffset, this.point.z + this.accSpeed.y, this.point.y, this.dt, this.accSpeed, this.noiseFrequency, this.octaves);
+        // eslint-disable-next-line max-len
         const sampZ = this.getNoise(this.point.y, this.point.x + axisOffset, this.point.z + this.accSpeed.z, this.dt, this.accSpeed, this.noiseFrequency, this.octaves);
 
         this.result.set(sampX * this.noiseAmplitude.x, sampY * this.noiseAmplitude.y, sampZ * this.noiseAmplitude.z);
