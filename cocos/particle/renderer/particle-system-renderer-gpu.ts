@@ -548,6 +548,6 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     }
 
     public getNoisePreview (out: number[], width: number, height: number) {
-        
+
     }
 }
