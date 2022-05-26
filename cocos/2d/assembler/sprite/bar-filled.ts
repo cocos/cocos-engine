@@ -219,7 +219,8 @@ export const barFilled: IAssembler = {
         let offset = 0;
         for (let i = 0; i < 4; i++) {
             const local = dataList[i];
-            Vec3.transformMat4(vec3_temp, local, matrix);
+            Vec3.set(vec3_temp, local.x, local.y, 0);
+            Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
             offset = i * stride;
             vData[offset] = vec3_temp.x;
             vData[offset + 1] = vec3_temp.y;
