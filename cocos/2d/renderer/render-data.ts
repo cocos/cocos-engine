@@ -38,6 +38,9 @@ import { assertIsTrue } from '../../core/data/utils/asserts';
 import { RenderEntity } from './render-entity';
 import { AdvanceRenderData } from './AdvanceRenderData';
 
+/**
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ */
 export interface IRenderData {
     x: number;
     y: number;
@@ -60,6 +63,9 @@ const _dataPool = new Pool(() => ({
 
 let _pool: RecyclePool<RenderData> = null!;
 
+/**
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ */
 export class BaseRenderData {
     public material: Material | null = null;
     get vertexCount () {
@@ -104,6 +110,9 @@ export class BaseRenderData {
     }
 }
 
+/**
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ */
 export class RenderData extends BaseRenderData {
     public static add (vertexFormat = vfmtPosUvColor, accessor?: StaticVBAccessor) {
         if (!_pool) {
@@ -351,6 +360,9 @@ export class RenderData extends BaseRenderData {
     }
 }
 
+/**
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ */
 export class MeshRenderData extends BaseRenderData {
     public static add (vertexFormat = vfmtPosUvColor) {
         const rd = _meshDataPool.add();

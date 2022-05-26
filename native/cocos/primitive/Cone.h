@@ -37,6 +37,6 @@ namespace cc {
  */
 using IConeOptions = ICylinderOptions;
 
-IGeometry cone(float radius = 0.5F, float height = 1.0F, const cc::optional<IConeOptions> &opts = cc::nullopt);
+IGeometry cone(float radius = 0.5F, float height = 1.0F, const ccstd::optional<IConeOptions> &opts = ccstd::nullopt);
 
 } // namespace cc

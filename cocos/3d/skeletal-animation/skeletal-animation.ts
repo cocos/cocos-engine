@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module animation
- */
-
 import {
     ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type, serializable, editable,
 } from 'cc.decorator';
@@ -46,6 +41,10 @@ import type { AnimationState } from '../../core/animation/animation-state';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { getGlobalAnimationManager } from '../../core/animation/global-animation-manager';
 
+/**
+ * @en The socket to synchronize transform from skeletal joint to target node.
+ * @zh 骨骼动画的挂点，用于将骨骼树的挂点节点变化矩阵同步到目标节点上
+ */
 @ccclass('cc.SkeletalAnimation.Socket')
 export class Socket {
     /**
@@ -217,6 +216,11 @@ export class SkeletalAnimation extends Animation {
         }
     }
 
+    /**
+     * @en Query all socket paths
+     * @zh 获取所有挂点的骨骼路径
+     * @returns @en All socket paths @zh 所有挂点的骨骼路径
+     */
     public querySockets () {
         const animPaths = (this._defaultClip && Object.keys(SkelAnimDataHub.getOrExtract(this._defaultClip).joints).sort()
             .reduce((acc, cur) => (cur.startsWith(acc[acc.length - 1]) ? acc : (acc.push(cur), acc)), [] as string[])) || [];
@@ -232,6 +236,10 @@ export class SkeletalAnimation extends Animation {
         return out;
     }
 
+    /**
+     * @en Rebuild animations to synchronize immediately all sockets to their target node.
+     * @zh 重建动画并立即同步所有挂点的转换矩阵到它们的目标节点上。
+     */
     public rebuildSocketAnimations () {
         for (const socket of this._sockets) {
             const joint = this.node.getChildByPath(socket.path);
@@ -250,6 +258,14 @@ export class SkeletalAnimation extends Animation {
         }
     }
 
+    /**
+     * @en Create or get the target node from a socket.
+     * If a socket haven't been created for the corresponding path, this function will register a new socket.
+     * @zh 创建或获取一个挂点的同步目标节点。
+     * 如果对应路径还没有创建挂点，这个函数会创建一个新的挂点。
+     * @param path @en Path of the target joint. @zh 此挂点的骨骼路径。
+     * @returns @en The target node of the socket. @zh 挂点的目标节点
+     */
     public createSocket (path: string) {
         const socket = this._sockets.find((s) => s.path === path);
         if (socket) { return socket.target; }
@@ -286,7 +302,7 @@ export class SkeletalAnimation extends Animation {
      * @internal This method only friends to skinned mesh renderer.
      */
     public notifySkinnedMeshRemoved (skinnedMeshRenderer: SkinnedMeshRenderer) {
-        assertIsTrue(skinnedMeshRenderer.associatedAnimation === this);
+        assertIsTrue(skinnedMeshRenderer.associatedAnimation === this || skinnedMeshRenderer.associatedAnimation === null);
         skinnedMeshRenderer.setUseBakedAnimation(false);
         skinnedMeshRenderer.associatedAnimation = null;
         this._users.delete(skinnedMeshRenderer);

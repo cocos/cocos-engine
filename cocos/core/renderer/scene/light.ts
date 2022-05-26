@@ -55,6 +55,10 @@ export function ColorTemperatureToRGB (rgb: Vec3, kelvin: number) {
     rgb.z =  0.0556434 * X + -0.2040259 +  1.0572252 * Z;
 }
 
+/**
+ * @en The light type enumeration.
+ * @zh 光源类型枚举。
+ */
 export enum LightType {
     DIRECTIONAL,
     SPHERE,
@@ -64,7 +68,15 @@ export enum LightType {
 
 export const nt2lm = (size: number) => 4 * Math.PI * Math.PI * size * size;
 
+/**
+ * @en The abstract light class of the render scene
+ * @zh 渲染场景中的光源基类
+ */
 export class Light {
+    /**
+     * @en Whether it's a baked light source, baked light will be ignored in real time lighting pass
+     * @zh 是否是烘焙光源，烘焙光源会在实时光照计算中被忽略
+     */
     get baked () {
         return this._baked;
     }
@@ -73,6 +85,10 @@ export class Light {
         this._baked = val;
     }
 
+    /**
+     * @en The color of the light
+     * @zh 光源的颜色
+     */
     set color (color: Vec3) {
         this._color.set(color);
     }
@@ -81,6 +97,10 @@ export class Light {
         return this._color;
     }
 
+    /**
+     * @en Whether to use color temperature
+     * @zh 是否使用光源的色温
+     */
     set useColorTemperature (enable: boolean) {
         this._useColorTemperature = enable;
     }
@@ -89,6 +109,10 @@ export class Light {
         return this._useColorTemperature;
     }
 
+    /**
+     * @en The color temperature of the light
+     * @zh 光源的色温
+     */
     set colorTemperature (val: number) {
         this._colorTemp = val;
         ColorTemperatureToRGB(this._colorTempRGB, this._colorTemp);
@@ -98,6 +122,10 @@ export class Light {
         return this._colorTemp;
     }
 
+    /**
+     * @en The float RGB value of the color temperature, each channel is from 0 to 1
+     * @zh 色温的浮点数颜色值，每个通道都是从 0 到 1
+     */
     get colorTemperatureRGB (): Vec3 {
         return this._colorTempRGB;
     }
@@ -109,14 +137,26 @@ export class Light {
         }
     }
 
+    /**
+     * @en The node which owns the light source
+     * @zh 光源归属的节点
+     */
     get node () {
         return this._node;
     }
 
+    /**
+     * @en The type of the light source, e.g. directional light, spot light, etc
+     * @zh 光源的类型，比如方向光、聚光灯等
+     */
     get type () : LightType {
         return this._type;
     }
 
+    /**
+     * @en The name of the light source
+     * @zh 光源的名字
+     */
     get name () {
         return this._name;
     }
@@ -125,6 +165,10 @@ export class Light {
         this._name = n;
     }
 
+    /**
+     * @en The render scene which owns the current light
+     * @zh 光源所属的渲染场景
+     */
     get scene () {
         return this._scene;
     }
@@ -152,10 +196,19 @@ export class Light {
         this.colorTemperature = 6550.0;
     }
 
+    /**
+     * @en Attach the light to a render scene
+     * @zh 将光源挂载到渲染场景上
+     * @param scene @en The render scene @zh 渲染场景
+     */
     public attachToScene (scene: RenderScene) {
         this._scene = scene;
     }
 
+    /**
+     * @en Detach the light from the render scene
+     * @zh 将光源从渲染场景上移除
+     */
     public detachFromScene () {
         this._scene = null;
     }

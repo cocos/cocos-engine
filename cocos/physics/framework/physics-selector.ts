@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 /* eslint-disable import/no-mutable-exports */
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable @typescript-eslint/no-unsafe-return */

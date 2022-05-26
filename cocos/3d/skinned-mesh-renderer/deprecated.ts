@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module component
- */
-
 import { SkinnedMeshRenderer } from './skinned-mesh-renderer';
 import { SkinnedMeshBatchRenderer, SkinnedMeshUnit } from './skinned-mesh-batch-renderer';
 import { js } from '../../core/utils/js';

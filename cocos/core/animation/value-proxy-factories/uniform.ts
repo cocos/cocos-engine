@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { ccclass, float, serializable } from 'cc.decorator';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Material } from '../../assets/material';

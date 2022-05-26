@@ -25,9 +25,9 @@
 
 #pragma once
 
+#include "3d/assets/Morph.h"
 #include "3d/assets/MorphRendering.h"
-#include "3d/assets/Types.h"
-#include "cocos/base/Optional.h"
+#include "base/std/optional.h"
 #include "core/assets/Asset.h"
 #include "core/geometry/AABB.h"
 #include "math/Mat4.h"
@@ -56,7 +56,7 @@ public:
      * 交错排列是指在实际数据的缓冲区中，每个顶点的所有属性总是依次排列，并总是出现在下一个顶点的所有属性之前。
      */
     struct IVertexBundle {
-        cc::optional<uint8_t> _padding; // NOTE: avoid jsb cache map
+        ccstd::optional<uint8_t> _padding; // NOTE: avoid jsb cache map
         /**
          * @en The actual value for all vertex attributes.
          * You must use DataView to access the data.
@@ -94,14 +94,14 @@ public:
          * @en The index data of the sub mesh
          * @zh 此子网格使用的索引数据。
          */
-        cc::optional<IBufferView> indexView;
+        ccstd::optional<IBufferView> indexView;
 
         /**
          * @en The joint map index in [[IStruct.jointMaps]]. Could be absent
          * @zh 此子网格使用的关节索引映射表在 [[IStruct.jointMaps]] 中的索引。
          * 如未定义或指向的映射表不存在，则默认 VB 内所有关节索引数据直接对应骨骼资源数据。
          */
-        cc::optional<uint32_t> jointMapIndex;
+        ccstd::optional<uint32_t> jointMapIndex;
     };
 
     struct IDynamicInfo {
@@ -159,32 +159,32 @@ public:
          * @en The minimum position of all vertices in the mesh
          * @zh （各分量都）小于等于此网格任何顶点位置的最大位置。
          */
-        cc::optional<Vec3> minPosition;
+        ccstd::optional<Vec3> minPosition;
 
         /**
          * @en The maximum position of all vertices in the mesh
          * @zh （各分量都）大于等于此网格任何顶点位置的最小位置。
          */
-        cc::optional<Vec3> maxPosition;
+        ccstd::optional<Vec3> maxPosition;
 
         /**
          * @en The joint index map list.
          * @zh 此网格使用的关节索引映射关系列表，数组长度应为子模型中实际使用到的所有关节，
          * 每个元素都对应一个原骨骼资源里的索引，按子模型 VB 内的实际索引排列。
          */
-        cc::optional<ccstd::vector<ccstd::vector<index_t>>> jointMaps;
+        ccstd::optional<ccstd::vector<ccstd::vector<index_t>>> jointMaps;
 
         /**
          * @en The morph information of the mesh
          * @zh 网格的形变数据
          */
-        cc::optional<Morph> morph;
+        ccstd::optional<Morph> morph;
 
         /**
          * @en The specific data of the dynamic mesh
          * @zh 动态网格特有数据
          */
-        cc::optional<IDynamicStruct> dynamic;
+        ccstd::optional<IDynamicStruct> dynamic;
     };
 
     struct ICreateInfo {
@@ -204,8 +204,8 @@ public:
     Mesh() = default;
     ~Mesh() override;
 
-    cc::any getNativeAsset() const override;
-    void setNativeAsset(const cc::any &obj) override;
+    ccstd::any getNativeAsset() const override;
+    void setNativeAsset(const ccstd::any &obj) override;
 
     void setAssetData(cc::ArrayBuffer *data) {
         _data = Uint8Array(data);
@@ -259,17 +259,13 @@ public:
      * @en The hash of the mesh
      * @zh 此网格的哈希值。
      */
-    uint64_t getHash();
-
-    inline double getHashForJS() {
-        return static_cast<double>(getHash());
-    }
+    ccstd::hash_t getHash();
 
     /**
      * @en Set the hash of the mesh
      * @zh 设置此网格的哈希值。
      */
-    void setHash(uint64_t hash) { _hash = hash; }
+    void setHash(ccstd::hash_t hash) { _hash = hash; }
 
     using JointBufferIndicesType = ccstd::vector<index_t>;
     /**
@@ -422,7 +418,7 @@ private:
 
     gfx::BufferList createVertexBuffers(gfx::Device *gfxDevice, ArrayBuffer *data);
 
-    void initDefault(const cc::optional<ccstd::string> &uuid) override;
+    void initDefault(const ccstd::optional<ccstd::string> &uuid) override;
     bool validate() const override;
 
     static TypedArray createTypedArrayWithGFXFormat(gfx::Format format, uint32_t count);
@@ -432,7 +428,7 @@ public:
 
 private:
     IStruct _struct;
-    uint64_t _hash{0};
+    ccstd::hash_t _hash{0U};
     Uint8Array _data;
 
     bool _initialized{false};

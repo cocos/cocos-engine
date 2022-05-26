@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { Mat4, Quat, Vec3 } from '../../core/math';
 import { IVec3Like, IQuatLike } from '../../core/math/type-define';
 

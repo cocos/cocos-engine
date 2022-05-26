@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import CANNON from '@cocos/cannon';
 import { CannonShape } from './cannon-shape';
 import { TerrainCollider } from '../../framework';

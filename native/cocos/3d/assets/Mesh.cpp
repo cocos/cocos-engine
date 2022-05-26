@@ -27,7 +27,7 @@
 #include "3d/assets/Morph.h"
 #include "3d/assets/Skeleton.h"
 #include "3d/misc/BufferBlob.h"
-#include "boost/container_hash/hash.hpp"
+#include "base/std/hash/hash.h"
 #include "core/DataView.h"
 #include "core/assets/RenderingSubMesh.h"
 #include "core/platform/Debug.h"
@@ -119,9 +119,9 @@ DataWritterCallback getWriter(DataView &dataView, gfx::Format format) {
     switch (info.type) {
         case gfx::FormatType::UNORM: {
             switch (stride) {
-                case 1: return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setUint8(offset, cc::get<uint8_t>(value)); };
-                case 2: return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setUint16(offset, cc::get<uint16_t>(value)); };
-                case 4: return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setUint32(offset, cc::get<uint32_t>(value)); };
+                case 1: return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setUint8(offset, ccstd::get<uint8_t>(value)); };
+                case 2: return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setUint16(offset, ccstd::get<uint16_t>(value)); };
+                case 4: return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setUint32(offset, ccstd::get<uint32_t>(value)); };
                 default:
                     break;
             }
@@ -129,9 +129,9 @@ DataWritterCallback getWriter(DataView &dataView, gfx::Format format) {
         }
         case gfx::FormatType::SNORM: {
             switch (stride) {
-                case 1: return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setInt8(offset, cc::get<int8_t>(value)); };
-                case 2: return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setInt16(offset, cc::get<int8_t>(value)); };
-                case 4: return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setInt32(offset, cc::get<int8_t>(value)); };
+                case 1: return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setInt8(offset, ccstd::get<int8_t>(value)); };
+                case 2: return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setInt16(offset, ccstd::get<int8_t>(value)); };
+                case 4: return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setInt32(offset, ccstd::get<int8_t>(value)); };
                 default:
                     break;
             }
@@ -139,9 +139,9 @@ DataWritterCallback getWriter(DataView &dataView, gfx::Format format) {
         }
         case gfx::FormatType::INT: {
             switch (stride) {
-                case 1: return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setInt8(offset, cc::get<int8_t>(value)); };
-                case 2: return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setInt16(offset, cc::get<int16_t>(value)); };
-                case 4: return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setInt32(offset, cc::get<int32_t>(value)); };
+                case 1: return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setInt8(offset, ccstd::get<int8_t>(value)); };
+                case 2: return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setInt16(offset, ccstd::get<int16_t>(value)); };
+                case 4: return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setInt32(offset, ccstd::get<int32_t>(value)); };
                 default:
                     break;
             }
@@ -149,16 +149,16 @@ DataWritterCallback getWriter(DataView &dataView, gfx::Format format) {
         }
         case gfx::FormatType::UINT: {
             switch (stride) {
-                case 1: return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setUint8(offset, cc::get<uint8_t>(value)); };
-                case 2: return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setUint16(offset, cc::get<uint16_t>(value)); };
-                case 4: return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setUint32(offset, cc::get<uint32_t>(value)); };
+                case 1: return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setUint8(offset, ccstd::get<uint8_t>(value)); };
+                case 2: return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setUint16(offset, ccstd::get<uint16_t>(value)); };
+                case 4: return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setUint32(offset, ccstd::get<uint32_t>(value)); };
                 default:
                     break;
             }
             break;
         }
         case gfx::FormatType::FLOAT: {
-            return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setFloat32(offset, cc::get<float>(value)); };
+            return [&](uint32_t offset, const TypedArrayElementType &value) { dataView.setFloat32(offset, ccstd::get<float>(value)); };
         }
         default:
             break;
@@ -171,12 +171,12 @@ DataWritterCallback getWriter(DataView &dataView, gfx::Format format) {
 
 Mesh::~Mesh() = default;
 
-cc::any Mesh::getNativeAsset() const {
+ccstd::any Mesh::getNativeAsset() const {
     return _data; //cjh FIXME: need copy? could be _data pointer?
 }
 
-void Mesh::setNativeAsset(const cc::any &obj) {
-    auto *p = cc::any_cast<ArrayBuffer *>(obj);
+void Mesh::setNativeAsset(const ccstd::any &obj) {
+    auto *p = ccstd::any_cast<ArrayBuffer *>(obj);
     if (p != nullptr) {
         _data = Uint8Array(p);
     }
@@ -194,11 +194,11 @@ const Vec3 &Mesh::getMaxPosition() const {
     return _struct.maxPosition.has_value() ? _struct.maxPosition.value() : Vec3::ZERO;
 }
 
-uint64_t Mesh::getHash() {
-    if (_hash == 0) {
-        std::size_t seed = 666;
-        boost::hash_range(seed, _data.buffer()->getData(), _data.buffer()->getData() + _data.length());
-        _hash = static_cast<uint64_t>(seed);
+ccstd::hash_t Mesh::getHash() {
+    if (_hash == 0U) {
+        ccstd::hash_t seed = 666;
+        ccstd::hash_range(seed, _data.buffer()->getData(), _data.buffer()->getData() + _data.length());
+        _hash = seed;
     }
 
     return _hash;
@@ -659,23 +659,23 @@ bool Mesh::merge(Mesh *mesh, const Mat4 *worldMatrix /* = nullptr */, bool valid
             if (idxStride == prim.indexView.value().stride) {
                 switch (idxStride) {
                     case 2:
-                        cc::get<Uint16Array>(ibView).set(cc::get<Uint16Array>(srcIBView));
+                        ccstd::get<Uint16Array>(ibView).set(ccstd::get<Uint16Array>(srcIBView));
                         break;
                     case 1:
-                        cc::get<Uint8Array>(ibView).set(cc::get<Uint8Array>(srcIBView));
+                        ccstd::get<Uint8Array>(ibView).set(ccstd::get<Uint8Array>(srcIBView));
                         break;
                     default:
-                        cc::get<Uint32Array>(ibView).set(cc::get<Uint32Array>(srcIBView));
+                        ccstd::get<Uint32Array>(ibView).set(ccstd::get<Uint32Array>(srcIBView));
                         break;
                 }
             } else {
                 for (uint32_t n = 0; n < prim.indexView.value().count; ++n) {
                     if (idxStride == 2) {
-                        cc::get<Uint16Array>(ibView)[n] = static_cast<uint16_t>(getTypedArrayValue<uint32_t>(srcIBView, n));
+                        ccstd::get<Uint16Array>(ibView)[n] = static_cast<uint16_t>(getTypedArrayValue<uint32_t>(srcIBView, n));
                     } else if (idxStride == 1) {
-                        cc::get<Uint8Array>(ibView)[n] = static_cast<uint8_t>(getTypedArrayValue<uint32_t>(srcIBView, n));
+                        ccstd::get<Uint8Array>(ibView)[n] = static_cast<uint8_t>(getTypedArrayValue<uint32_t>(srcIBView, n));
                     } else {
-                        cc::get<Uint32Array>(ibView)[n] = getTypedArrayValue<uint32_t>(srcIBView, n);
+                        ccstd::get<Uint32Array>(ibView)[n] = getTypedArrayValue<uint32_t>(srcIBView, n);
                     }
                 }
             }
@@ -692,13 +692,13 @@ bool Mesh::merge(Mesh *mesh, const Mat4 *worldMatrix /* = nullptr */, bool valid
             }
             for (uint32_t n = 0; n < dstPrim.indexView.value().count; ++n) {
                 if (idxStride == 2) {
-                    cc::get<Uint16Array>(ibView)[prim.indexView->count + n] =
+                    ccstd::get<Uint16Array>(ibView)[prim.indexView->count + n] =
                         vertBatchCount + static_cast<uint16_t>(getTypedArrayValue<uint32_t>(dstIBView, n));
                 } else if (idxStride == 1) {
-                    cc::get<Uint8Array>(ibView)[prim.indexView->count + n] =
+                    ccstd::get<Uint8Array>(ibView)[prim.indexView->count + n] =
                         vertBatchCount + static_cast<uint8_t>(getTypedArrayValue<uint32_t>(dstIBView, n));
                 } else {
-                    cc::get<Uint32Array>(ibView)[prim.indexView->count + n] =
+                    ccstd::get<Uint32Array>(ibView)[prim.indexView->count + n] =
                         vertBatchCount + getTypedArrayValue<uint32_t>(dstIBView, n);
                 }
             }
@@ -1069,7 +1069,7 @@ gfx::BufferList Mesh::createVertexBuffers(gfx::Device *gfxDevice, ArrayBuffer *d
     return buffers;
 }
 
-void Mesh::initDefault(const cc::optional<ccstd::string> &uuid) {
+void Mesh::initDefault(const ccstd::optional<ccstd::string> &uuid) {
     Super::initDefault(uuid);
     reset({});
 }

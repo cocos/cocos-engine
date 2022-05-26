@@ -411,12 +411,9 @@ void BuiltinResMgr::initMaterials() {
     spineTwoColorMtl->initialize(spineTwoColorInfo);
     resources[spineTwoColorMtl->getUuid()] = spineTwoColorMtl;
     _materialsToBeCompiled.emplace_back(spineTwoColorMtl);
-    //
-    //cjh TODO:    game.on(Game.EVENT_GAME_INITED, () => {
-    tryCompileAllPasses();
-    //    });
 }
 
+//NOTE: tryCompileAllPasses will be invoked from builtin-res-mgr.jsb.ts
 void BuiltinResMgr::tryCompileAllPasses() {
     for (auto &mat : _materialsToBeCompiled) {
         auto &passes = *mat->getPasses();

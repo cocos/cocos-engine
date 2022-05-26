@@ -1,8 +1,8 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
- 
+ Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
+
  http://www.cocos.com
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
@@ -10,10 +10,10 @@
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
- 
+
  The software or tools in this License Agreement are licensed, not sold.
  Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,32 +22,21 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
 #pragma once
 
-#ifdef USE_CXX_17
+#include "cocos/cocos.h"
 
-    #include <optional>
-
-namespace cc {
-
-using std::nullopt;
-using std::nullopt_t;
-using std::optional;
-
-}; // namespace cc
-#else
-    #include "base/std/container/string.h"
-    #include "boost/none.hpp"
-    #include "boost/optional.hpp"
-
-namespace cc {
-
-using boost::optional;
-using nullopt_t = boost::none_t;
-
-const nullopt_t nullopt((boost::none_t::init_tag())); // NOLINT // use std style
-
-}; // namespace cc
-
-#endif
+/**
+ @brief    The cocos2d Application.
+ 
+ The reason for implement as private inheritance is to hide some interface call by Director.
+ */
+class Game : public cc::BaseGame {
+public:
+    Game();
+    int init() override;
+    //bool init() override;
+    void onPause() override;
+    void onResume() override;
+    void onClose() override;
+};

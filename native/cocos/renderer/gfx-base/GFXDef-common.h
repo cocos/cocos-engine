@@ -31,6 +31,12 @@
 #include "base/std/container/vector.h"
 #include "math/Math.h"
 
+#ifdef Status
+// Fix linux compile errors 
+// In /usr/include/X11/Xlib.h Status defined as int
+#undef Status
+#endif
+
 /**
  * Some general guide lines:
  * Always use explicit numeric types rather than `int`, `long`, etc. for a stable memory layout
@@ -98,6 +104,10 @@ using TextureList = ccstd::vector<Texture *>;
 using SamplerList = ccstd::vector<Sampler *>;
 using DescriptorSetLayoutList = ccstd::vector<DescriptorSetLayout *>;
 
+/**
+ * @en Graphics object type
+ * @zh 图形API对象的类型
+ */
 enum class ObjectType : uint32_t {
     UNKNOWN,
     SWAPCHAIN,
@@ -155,7 +165,6 @@ enum class Feature : uint32_t {
     INSTANCED_ARRAYS,
     MULTIPLE_RENDER_TARGETS,
     BLEND_MINMAX,
-    MEMORY_ALIASING,
     COMPUTE_SHADER,
     // This flag indicates whether the device can benefit from subpass-style usages.
     // Specifically, this only differs on the GLES backends: the Framebuffer Fetch
@@ -915,7 +924,8 @@ struct Color {
 };
 using ColorList = ccstd::vector<Color>;
 
-/**
+struct BindingMappingInfo {
+ /**
  * For non-vulkan backends, to maintain compatibility and maximize
  * descriptor cache-locality, descriptor-set-based binding numbers need
  * to be mapped to backend-specific bindings based on maximum limit
@@ -930,7 +940,6 @@ using ColorList = ccstd::vector<Color>;
  * The last set index is treated as the 'flexible set', whose capacity is dynamically
  * assigned based on the total available descriptor slots on the runtime device.
  */
-struct BindingMappingInfo {
     IndexList maxBlockCounts{0};
     IndexList maxSamplerTextureCounts{0};
     IndexList maxSamplerCounts{0};

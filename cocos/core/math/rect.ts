@@ -24,11 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core/math
- */
-
 import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { Mat4 } from './mat4';
@@ -447,7 +442,16 @@ export class Rect extends ValueType {
     }
 
     /**
+     * @en
+     * Applies a matrix transformation to the current rectangle and outputs the result to the four vertices.
+     * @zh
      * 应用矩阵变换到当前矩形，并将结果输出到四个顶点上。
+     *
+     * @param mat The mat4 to apply
+     * @param out_lb The left bottom point
+     * @param out_lt The left top point
+     * @param out_rb The right bottom point
+     * @param out_rt The right top point
      */
     public transformMat4ToPoints (mat: Mat4, out_lb: Vec2, out_lt: Vec2, out_rt: Vec2, out_rb: Vec2) {
         const ol = this.x;

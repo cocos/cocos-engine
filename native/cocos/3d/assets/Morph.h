@@ -28,56 +28,74 @@
 #include "3d/assets/Types.h"
 #include "base/RefCounted.h"
 #include "base/TypeDef.h"
-#include "scene/Define.h"
 
 namespace cc {
 
-class Mesh;
-class MorphRendering;
-class MorphRenderingInstance;
-
-namespace gfx {
-class Device;
-class DescriptorSet;
-} // namespace gfx
-
-MorphRendering *createMorphRendering(Mesh *mesh, gfx::Device *gfxDevice);
-
-/**
- * Class which control rendering of a morph resource.
- */
-class MorphRendering : public RefCounted {
-public:
-    ~MorphRendering() override = default;
-    virtual MorphRenderingInstance *createInstance() = 0;
+struct IMeshBufferView {
+    uint32_t offset{0};
+    uint32_t length{0};
+    uint32_t count{0};
+    uint32_t stride{0};
 };
 
 /**
- * This rendering instance of a morph resource.
+ * @en Morph target contains all displacements data of each vertex attribute like position and normal.
+ * @zh 形变目标数据包含网格顶点属性在形变下的变化值，可能包含位移、法线等属性
  */
-class MorphRenderingInstance : public RefCounted {
-public:
-    ~MorphRenderingInstance() override = default;
+struct MorphTarget {
     /**
-     * Sets weights of targets of specified sub mesh.
-     * @param subMeshIndex
-     * @param weights
+     * Displacement of each target attribute.
      */
-    virtual void setWeights(index_t subMeshIndex, const MeshWeightsType &weights) = 0;
+    ccstd::vector<IMeshBufferView> displacements;
+};
+
+/**
+ * @en Sub mesh morph data describes all morph targets for one sub mesh,
+ * including attributes in each morph target, morph targets data and weights corresponding each targets.
+ * @zh 子网格形变数据描述一个子网格下所有的形变目标数据，包含顶点形变属性，形变目标数据和对应每个形变目标的权重。
+ */
+struct SubMeshMorph {
+    /**
+     * Attributes to morph.
+     */
+    ccstd::vector<ccstd::string> attributes;
 
     /**
-     * Adapts pipeline state to do the rendering.
-     * @param subMeshIndex
-     * @param pipelineState
+     * Targets.
      */
-    virtual void adaptPipelineState(index_t subMeshIndex, gfx::DescriptorSet *descriptorSet) = 0;
-
-    virtual ccstd::vector<scene::IMacroPatch> requiredPatches(index_t subMeshIndex) = 0;
+    ccstd::vector<MorphTarget> targets;
 
     /**
-     * Destroy the rendering instance.
+     * Initial weights of each target.
      */
-    virtual void destroy() = 0;
+    ccstd::optional<MeshWeightsType> weights;
+};
+
+/**
+ * @en Mesh morph data structure to describe the sub meshes data of all sub meshes,
+ * it also contains all sub mesh morphs, global weights configuration and target names.
+ * Normally the global weights configuration should be identical to the sub mesh morph weights,
+ * but if not, the global weights in morph is less prioritized.
+ * @zh 网格的形变数据结构，包含所有子网格形变数据，全局的权重配置和所有形变目标名称。
+ * 一般来说，全局权重配置和子网格形变数据中保持一致，但如果有差异，以子网格形变数据中的权重配置为准。
+ */
+
+struct Morph {
+    /**
+     * Morph data of each sub-mesh.
+     */
+    ccstd::vector<ccstd::optional<SubMeshMorph>> subMeshMorphs;
+
+    /**
+     * Common initial weights of each sub-mesh.
+     */
+    ccstd::optional<MeshWeightsType> weights;
+
+    /**
+     * Name of each target of each sub-mesh morph.
+     * This field is only meaningful if every sub-mesh has the same number of targets.
+     */
+    ccstd::optional<ccstd::vector<ccstd::string>> targetNames;
 };
 
 } // namespace cc

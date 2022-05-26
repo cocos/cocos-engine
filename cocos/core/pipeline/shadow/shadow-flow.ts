@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module pipeline.forward
- */
-
 import { ccclass } from 'cc.decorator';
 import { PIPELINE_FLOW_SHADOW, supportsR32FloatTexture } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';

@@ -12815,25 +12815,6 @@ static bool js_scene_SpotLight_getAngle(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FUNC_AS_PROP_GET(js_scene_SpotLight_getAngle)
 
-static bool js_scene_SpotLight_getAspect(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_getAspect : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        float result = cobj->getAspect();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SpotLight_getAspect : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC_AS_PROP_GET(js_scene_SpotLight_getAspect)
-
 static bool js_scene_SpotLight_getDirection(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
@@ -13081,25 +13062,6 @@ static bool js_scene_SpotLight_isShadowEnabled(se::State& s) // NOLINT(readabili
 }
 SE_BIND_FUNC_AS_PROP_GET(js_scene_SpotLight_isShadowEnabled)
 
-static bool js_scene_SpotLight_setAspect(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_setAspect : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<float, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_SpotLight_setAspect : Error processing arguments");
-        cobj->setAspect(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC_AS_PROP_SET(js_scene_SpotLight_setAspect)
-
 static bool js_scene_SpotLight_setFrustum(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
@@ -13341,7 +13303,6 @@ bool js_register_scene_SpotLight(se::Object* obj) // NOLINT(readability-identifi
     cls->defineProperty("direction", _SE(js_scene_SpotLight_getDirection_asGetter), nullptr);
     cls->defineProperty("spotAngle", _SE(js_scene_SpotLight_getSpotAngle_asGetter), _SE(js_scene_SpotLight_setSpotAngle_asSetter));
     cls->defineProperty("angle", _SE(js_scene_SpotLight_getAngle_asGetter), nullptr);
-    cls->defineProperty("aspect", _SE(js_scene_SpotLight_getAspect_asGetter), _SE(js_scene_SpotLight_setAspect_asSetter));
     cls->defineProperty("aabb", _SE(js_scene_SpotLight_getAABB_asGetter), nullptr);
     cls->defineProperty("frustum", _SE(js_scene_SpotLight_getFrustum_asGetter), _SE(js_scene_SpotLight_setFrustum_asSetter));
     cls->defineProperty("shadowEnabled", _SE(js_scene_SpotLight_isShadowEnabled_asGetter), _SE(js_scene_SpotLight_setShadowEnabled_asSetter));
@@ -13905,7 +13866,7 @@ static bool js_scene_Pass_getHash(se::State& s) // NOLINT(readability-identifier
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        uint64_t result = cobj->getHash();
+        unsigned int result = cobj->getHash();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_scene_Pass_getHash : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -13914,26 +13875,7 @@ static bool js_scene_Pass_getHash(se::State& s) // NOLINT(readability-identifier
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_scene_Pass_getHash)
-
-static bool js_scene_Pass_getHashForJS(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Pass_getHashForJS : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        double result = cobj->getHashForJS();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Pass_getHashForJS : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC_AS_PROP_GET(js_scene_Pass_getHashForJS)
+SE_BIND_FUNC_AS_PROP_GET(js_scene_Pass_getHash)
 
 static bool js_scene_Pass_getInstancedBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -14321,7 +14263,7 @@ static bool js_scene_Pass_initPassFromTarget(se::State& s) // NOLINT(readability
         HolderType<cc::scene::Pass*, false> arg0 = {};
         HolderType<cc::gfx::DepthStencilState, true> arg1 = {};
         HolderType<cc::gfx::BlendState, true> arg2 = {};
-        HolderType<uint64_t, false> arg3 = {};
+        HolderType<unsigned int, false> arg3 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
@@ -14674,7 +14616,7 @@ static bool js_scene_Pass_getPassHash_static(se::State& s) // NOLINT(readability
         HolderType<cc::scene::Pass*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
         SE_PRECONDITION2(ok, false, "js_scene_Pass_getPassHash_static : Error processing arguments");
-        uint64_t result = cc::scene::Pass::getPassHash(arg0.value());
+        unsigned int result = cc::scene::Pass::getPassHash(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_scene_Pass_getPassHash_static : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -14769,7 +14711,7 @@ bool js_register_scene_Pass(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineProperty("dynamicStates", _SE(js_scene_Pass_getDynamicStates_asGetter), nullptr);
     cls->defineProperty("batchingScheme", _SE(js_scene_Pass_getBatchingScheme_asGetter), nullptr);
     cls->defineProperty("descriptorSet", _SE(js_scene_Pass_getDescriptorSet_asGetter), nullptr);
-    cls->defineProperty("hash", _SE(js_scene_Pass_getHashForJS_asGetter), nullptr);
+    cls->defineProperty("hash", _SE(js_scene_Pass_getHash_asGetter), nullptr);
     cls->defineProperty("pipelineLayout", _SE(js_scene_Pass_getPipelineLayout_asGetter), nullptr);
     cls->defineFunction("beginChangeStatesSilently", _SE(js_scene_Pass_beginChangeStatesSilently));
     cls->defineFunction("bindSampler", _SE(js_scene_Pass_bindSampler));
@@ -14779,7 +14721,6 @@ bool js_register_scene_Pass(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineFunction("getBatchedBuffer", _SE(js_scene_Pass_getBatchedBuffer));
     cls->defineFunction("getBinding", _SE(js_scene_Pass_getBinding));
     cls->defineFunction("getHandle", _SE(js_scene_Pass_getHandle));
-    cls->defineFunction("getHash", _SE(js_scene_Pass_getHash));
     cls->defineFunction("getInstancedBuffer", _SE(js_scene_Pass_getInstancedBuffer));
     cls->defineFunction("getPassInfoFull", _SE(js_scene_Pass_getPassInfoFull));
     cls->defineFunction("getRootBlock", _SE(js_scene_Pass_getRootBlock));
@@ -15547,7 +15488,7 @@ static bool js_scene_Camera_getAspect(se::State& s) // NOLINT(readability-identi
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC_AS_PROP_GET(js_scene_Camera_getAspect)
+SE_BIND_FUNC(js_scene_Camera_getAspect)
 
 static bool js_scene_Camera_getClearColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -16935,7 +16876,6 @@ bool js_register_scene_Camera(se::Object* obj) // NOLINT(readability-identifier-
     cls->defineProperty("apertureValue", _SE(js_scene_Camera_getApertureValue_asGetter), nullptr);
     cls->defineProperty("width", _SE(js_scene_Camera_getWidth_asGetter), nullptr);
     cls->defineProperty("height", _SE(js_scene_Camera_getHeight_asGetter), nullptr);
-    cls->defineProperty("aspect", _SE(js_scene_Camera_getAspect_asGetter), nullptr);
     cls->defineProperty("matView", _SE(js_scene_Camera_getMatView_asGetter), nullptr);
     cls->defineProperty("matProj", _SE(js_scene_Camera_getMatProj_asGetter), nullptr);
     cls->defineProperty("matProjInv", _SE(js_scene_Camera_getMatProjInv_asGetter), nullptr);
@@ -16972,6 +16912,7 @@ bool js_register_scene_Camera(se::Object* obj) // NOLINT(readability-identifier-
     cls->defineFunction("destroy", _SE(js_scene_Camera_destroy));
     cls->defineFunction("detachCamera", _SE(js_scene_Camera_detachCamera));
     cls->defineFunction("detachFromScene", _SE(js_scene_Camera_detachFromScene));
+    cls->defineFunction("getAspect", _SE(js_scene_Camera_getAspect));
     cls->defineFunction("initialize", _SE(js_scene_Camera_initialize));
     cls->defineFunction("resize", _SE(js_scene_Camera_resize));
     cls->defineFunction("setFixedSize", _SE(js_scene_Camera_setFixedSize));

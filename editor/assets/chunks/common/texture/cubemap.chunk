@@ -1,0 +1,48 @@
+#pragma extension([GL_OES_standard_derivatives, __VERSION__ < 110])
+  vec3 EnvReflectionWithMipFiltering(vec3 R, float roughness, float mipCount, float denoiseIntensity) {
+    #if CC_USE_IBL
+      // simulate GGX convolution
+      #if !CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING //#todo: && !CC_IBL_CONVOLUTED
+        roughness = pow(roughness, 0.5);
+      #endif
+
+      //#todo: add GL400 calcmip
+    	float mip = roughness * mipCount;
+    	float delta = (dot(dFdx(R), dFdy(R))) * 1000.0;
+    	float mipBias = mix(0.0, 5.0, clamp(delta, 0.0, 1.0));
+
+    	vec4 biased = fragTextureLod(cc_environment, R, mip + mipBias);
+     	vec4 filtered = texture(cc_environment, R);
+
+      #if CC_USE_IBL == IBL_RGBE
+      	biased.rgb = unpackRGBE(biased);
+      	filtered.rgb = unpackRGBE(filtered);
+      #else
+      	biased.rgb = SRGBToLinear(biased.rgb);
+      	filtered.rgb = SRGBToLinear(filtered.rgb);
+      #endif
+      	
+      return mix(biased.rgb, filtered.rgb, denoiseIntensity);
+    #else
+      return vec3(0.0, 0.0, 0.0);
+    #endif
+  }
+
+  vec3 EnvReflection(vec3 R, float roughness, float mipCount) {
+    #if CC_USE_IBL
+      // simulate GGX convolution
+      #if !CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING //#todo: && !CC_IBL_CONVOLUTED
+        roughness = pow(roughness, 0.5);
+      #endif
+      
+      vec4 envmap = fragTextureLod(cc_environment, R, roughness * mipCount);
+    
+      #if CC_USE_IBL == IBL_RGBE
+        return unpackRGBE(envmap);
+      #else
+        return SRGBToLinear(envmap.rgb);
+      #endif
+    #else
+      return vec3(0.0, 0.0, 0.0);
+    #endif
+  }

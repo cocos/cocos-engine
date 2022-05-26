@@ -120,15 +120,16 @@ export const simple: IAssembler = {
 
         const stride = renderData.floatStride;
 
-        for (let i  = 0; i < dataList.length; i++) {
+        const vec3_temp = vec3_temps[0];
+        let offset = 0;
+        for (let i = 0; i < dataList.length; i++) {
             const curData = dataList[i];
-            const vec3_temp = vec3_temps[0];
             Vec3.set(vec3_temp, curData.x, curData.y, 0);
             Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
-
-            let offset = i * stride;
+            offset = i * stride;
             vData[offset++] = vec3_temp.x;
             vData[offset++] = vec3_temp.y;
+            vData[offset++] = vec3_temp.z;
         }
     },
 

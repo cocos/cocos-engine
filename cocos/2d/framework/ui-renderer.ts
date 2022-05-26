@@ -101,10 +101,10 @@ export enum InstanceMaterialType {
 
 /**
  * @en Base class for UI components which supports rendering features.
- * This component will setup [[NodeUIProperties.uiComp]] in its owner [[Node]]
+ * This component will setup NodeUIProperties.uiComp in its owner [[Node]]
  *
  * @zh 所有支持渲染的 UI 组件的基类。
- * 这个组件会设置 [[Node]] 上的 [[NodeUIProperties.uiComp]]。
+ * 这个组件会设置 [[Node]] 上的 NodeUIProperties.uiComp。
  */
 @ccclass('cc.UIRenderer')
 @requireComponent(UITransform)
@@ -114,7 +114,7 @@ export class UIRenderer extends Renderer {
     /**
      * @en The blend factor enums
      * @zh 混合模式枚举类型
-     * @see [[BlendFactor]]
+     * @see [[gfx.BlendFactor]]
      */
     public static BlendState = BlendFactor;
     /**

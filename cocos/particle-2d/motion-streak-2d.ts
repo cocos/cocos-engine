@@ -24,11 +24,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module particle2d
- */
-
 import { ccclass, executeInEditMode, serializable, playOnFocus, menu, help, editable, type } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { UIRenderer } from '../2d/framework';

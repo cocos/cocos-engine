@@ -17,6 +17,11 @@ vec3 oct_to_float32x3(vec2 e) {
   return normalize(v);
 }
 
+float getCameraDepthRH(float ndcDepth, mat4 matProj)
+{
+    return -matProj[3][2] / (ndcDepth + matProj[2][2]);
+}
+
 vec4 screen2WS(vec3 coord) {
   vec3 ndc = vec3(
 	  2.0 * (coord.x - cc_viewPort.x) / cc_viewPort.z - 1.0,
@@ -26,7 +31,8 @@ vec4 screen2WS(vec3 coord) {
     #else
     2.0 * coord.z - 1.0);
     #endif
-  vec4 world = ((cc_matViewProjInv) * (vec4(ndc, 1.0)));
-  world      = world / world.w;
+
+  float w = -getCameraDepthRH(ndc.z, cc_matProj);
+  vec4 world = (cc_matViewProjInv * vec4(ndc * w, w));
   return world;
 }

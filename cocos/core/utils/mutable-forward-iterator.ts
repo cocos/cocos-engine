@@ -25,11 +25,6 @@
 */
 
 /**
- * @packageDocumentation
- * @module core
- */
-
-/**
  * @example
  * ```
  * import { js } from 'cc';

@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module physics
- */
-
 import { Vec3 } from '../../core/math';
 import { Collider } from '../../../exports/physics-framework';
 import { IVec3Like } from '../../core/math/type-define';

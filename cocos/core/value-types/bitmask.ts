@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core/value-types
- */
-
 import { EDITOR, TEST } from 'internal:constants';
 import { value } from '../utils/js';
 import { legacyCC } from '../global-exports';
@@ -38,8 +33,10 @@ import { errorID } from '../platform/debug';
  * Define an BitMask type.
  * @zh
  * 定义一个位掩码类型。
- * @param obj A JavaScript literal object containing BitMask names and values
- * @return The defined BitMask type
+ * @param obj
+ * @en A JavaScript literal object containing BitMask names and values.
+ * @zh 包含 BitMask 名称和值的 JavaScript 文字对象。
+ * @return @en The defined BitMask type @zh 定义的位掩码类型。
  */
 export function BitMask<T> (obj: T): T {
     if ('__bitmask__' in obj) {

@@ -24,14 +24,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-/**
- * @packageDocumentation
- * @module core
- */
 
-import { ConfigOrientation, IScreenOptions, screenAdapter } from 'pal/screen-adapter';
+import { IScreenOptions, screenAdapter } from 'pal/screen-adapter';
 import { legacyCC } from '../global-exports';
-import { Size, Vec2 } from '../math';
+import { Size } from '../math';
 import { warnID } from './debug';
 
 /**

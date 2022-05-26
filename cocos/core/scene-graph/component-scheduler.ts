@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module scene-graph
- */
-
 import { EDITOR, SUPPORT_JIT, DEV, TEST } from 'internal:constants';
 import { CCObject } from '../data/object';
 import { MutableForwardIterator } from '../utils/array';

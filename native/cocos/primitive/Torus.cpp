@@ -26,7 +26,7 @@
 #include "primitive/Torus.h"
 
 namespace cc {
-IGeometry torus(float radius, float tube, const cc::optional<ITorusOptions> &opts) {
+IGeometry torus(float radius, float tube, const ccstd::optional<ITorusOptions> &opts) {
     const uint32_t radialSegments = opts.has_value() ? opts->radialSegments : 32;
     const uint32_t tubularSegments = opts.has_value() ? opts->tubularSegments : 32;
     const float arc = opts.has_value() ? opts->arc : math::PI_2;

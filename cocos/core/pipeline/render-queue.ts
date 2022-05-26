@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module pipeline
- */
-
 import { RecyclePool } from '../memop';
 import { CachedArray } from '../memop/cached-array';
 import { IRenderObject, IRenderPass, IRenderQueueDesc, SetIndex } from './define';
