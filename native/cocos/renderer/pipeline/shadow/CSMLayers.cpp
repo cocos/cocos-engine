@@ -118,8 +118,8 @@ void ShadowTransformInfo::createMatrix(const geometry::Frustum &splitFrustum, co
     _validFrustum.createOrtho(orthoSizeWidth, orthoSizeHeight, 0.1F, _shadowCameraFar, matShadowTrans);
 }
 
-void ShadowTransformInfo::specialLayerCopyValidFrustum(const geometry::Frustum &ValidFrustum) {
-    geometry::Frustum::copy(&_validFrustum, ValidFrustum);
+void ShadowTransformInfo::specialLayerCopyValidFrustum(const geometry::Frustum &validFrustum) {
+    geometry::Frustum::copy(&_validFrustum, validFrustum);
 }
 
 void ShadowTransformInfo::specialLayerCreateOrtho(float width, float height, float nearClamp, float farClamp, const Mat4 &transform) {

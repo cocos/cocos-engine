@@ -71,7 +71,7 @@ public:
 
     void createMatrix(const geometry::Frustum &splitFrustum, const scene::DirectionalLight *dirLight, float shadowMapWidth, bool isOnlyCulling);
 
-    void specialLayerCopyValidFrustum(const geometry::Frustum &ValidFrustum);
+    void specialLayerCopyValidFrustum(const geometry::Frustum &validFrustum);
 
     void specialLayerCreateOrtho(float width, float height, float nearClamp, float farClamp, const Mat4 &transform);
 
