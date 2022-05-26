@@ -682,11 +682,11 @@ public:
     index_t _siblingIndex{0};
     // For deserialization
     ccstd::string _id;
-    ccstd::vector<IntrusivePtr<Node>> _children;
     Node *_parent{nullptr};
     bool _active{true};
 
 private:
+    ccstd::vector<IntrusivePtr<Node>> _children;
     // local transform
     cc::Vec3 _localPosition{Vec3::ZERO};
     cc::Quaternion _localRotation{Quaternion::identity()};
