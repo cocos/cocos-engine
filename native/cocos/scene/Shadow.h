@@ -191,14 +191,14 @@ enum class CSMPerformanceOptimizationMode {
      * @en Eliminate duplicate objects between layers
      * @readonly
      */
-    RemoveDuplicates = 2,
+    REMOVE_DUPLICATES = 2,
 
     /**
      * @zh 取消稳抖
      * @en Disable rotation fix
      * @readonly
      */
-    DisableRotationFix = 3
+    DISABLE_ROTATION_FIX = 3
 };
 
 class Shadows;

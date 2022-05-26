@@ -101,7 +101,7 @@ private:
     float _shadowCSMLambda{0.75};
     bool _isShadowCSMValueDirty{false};
     bool _isShadowCSMDebugMode{false};
-    CSMPerformanceOptimizationMode _shadowCSMPerformanceOptimizationMode{CSMPerformanceOptimizationMode::RemoveDuplicates};
+    CSMPerformanceOptimizationMode _shadowCSMPerformanceOptimizationMode{CSMPerformanceOptimizationMode::REMOVE_DUPLICATES};
     bool _shadowFixedArea{false};
     float _shadowNear{0.1F};
     float _shadowFar{10.0F};

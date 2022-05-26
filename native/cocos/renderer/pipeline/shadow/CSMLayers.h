@@ -21,9 +21,9 @@
 
 #pragma once
 
-#include "../base/TypeDef.h"
-#include "../math/Mat4.h"
-#include "../../../core/geometry/Frustum.h"
+#include "base/TypeDef.h"
+#include "math/Mat4.h"
+#include "core/geometry/Frustum.h"
 #include "pipeline/Define.h"
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
@@ -57,20 +57,25 @@ public:
     inline const Mat4 &getMatShadowViewProj() const { return _matShadowViewProj; }
     inline void setMatShadowViewProj(const Mat4 &matShadowViewProj) { _matShadowViewProj = matShadowViewProj; }
 
-    inline geometry::Frustum getValidFrustum() const { return _validFrustum; }
-    inline geometry::Frustum *getValidFrustumPtr() { return &_validFrustum; }
+    inline const geometry::Frustum &getValidFrustum() const { return _validFrustum; }
     inline void setValidFrustum(const geometry::Frustum &validFrustum) { _validFrustum = validFrustum; }
 
-    inline geometry::Frustum getSplitFrustum() const { return _splitFrustum; }
+    inline const geometry::Frustum &getSplitFrustum() const { return _splitFrustum; }
     inline void setSplitFrustum(const geometry::Frustum &splitFrustum) { _splitFrustum = splitFrustum; }
 
-    inline geometry::Frustum getLightViewFrustum() const { return _lightViewFrustum; }
+    inline const geometry::Frustum &getLightViewFrustum() const { return _lightViewFrustum; }
     inline void setLightViewFrustum(const geometry::Frustum &lightViewFrustum) { _lightViewFrustum = lightViewFrustum; }
 
-    inline geometry::AABB getCastLightViewBoundingBox() const { return _castLightViewBoundingBox; }
+    inline const geometry::AABB &getCastLightViewBoundingBox() const { return _castLightViewBoundingBox; }
     inline void setCastLightViewBoundingBox(const geometry::AABB &castLightViewBoundingBox) { _castLightViewBoundingBox = castLightViewBoundingBox; }
 
     void createMatrix(const geometry::Frustum &splitFrustum, const scene::DirectionalLight *dirLight, float shadowMapWidth, bool isOnlyCulling);
+
+    void specialLayerCopyValidFrustum(const geometry::Frustum &ValidFrustum);
+
+    void specialLayerCreateOrtho(float width, float height, float nearClamp, float farClamp, const Mat4 &transform);
+
+    void specialLayerSplitFrustum(float start, float end, float aspect, float fov, const Mat4 &transform);
 
 private:
     RenderObjectList _shadowObjects;
