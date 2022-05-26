@@ -1046,20 +1046,18 @@ bool sevalue_to_native(const se::Value &from, cc::ArrayBuffer *to, se::Object * 
 }
 bool sevalue_to_native(const se::Value &from, cc::ArrayBuffer **to, se::Object * /*ctx*/) {
     CC_ASSERT(from.isObject());
-    auto* obj = from.toObject();
+    auto *obj = from.toObject();
     CC_ASSERT((obj->isArrayBuffer() || obj->isTypedArray()));
 
-    auto* ab = ccnew cc::ArrayBuffer();
+    auto *ab = ccnew cc::ArrayBuffer();
     ab->addRef();
     if (obj->isArrayBuffer()) {
         ab->setJSArrayBuffer(obj);
-    }
-    else if (obj->isTypedArray()) {
+    } else if (obj->isTypedArray()) {
         se::Value bufferVal;
         obj->getProperty("buffer", &bufferVal);
         ab->setJSArrayBuffer(bufferVal.toObject());
-    }
-    else {
+    } else {
         ab->release();
         return false;
     }

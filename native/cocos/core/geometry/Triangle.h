@@ -44,7 +44,7 @@ public:
      * @return {Triangle} 克隆出的新对象。
      */
 
-    static Triangle * clone(const Triangle &t);
+    static Triangle *clone(const Triangle &t);
 
     /**
      * @en
@@ -56,7 +56,7 @@ public:
      * @return {Triangle} out 接受操作的 triangle。
      */
 
-    static Triangle * copy(Triangle *out, const Triangle &t);
+    static Triangle *copy(Triangle *out, const Triangle &t);
 
     /**
      * @en
@@ -69,9 +69,9 @@ public:
      * @param {Vec3} c c 点。
      * @return {Triangle} out 接受操作的 triangle。
      */
-    static Triangle * fromPoints(Triangle *out, const Vec3 &a,
-                           const Vec3 &b,
-                           const Vec3 &c);
+    static Triangle *fromPoints(Triangle *out, const Vec3 &a,
+                                const Vec3 &b,
+                                const Vec3 &c);
 
     /**
      * @en
@@ -91,10 +91,10 @@ public:
      * @return {Triangle}
      * @function
      */
-    static Triangle * set(Triangle *out,
-                    float ax, float ay, float az,
-                    float bx, float by, float bz,
-                    float cx, float cy, float cz);
+    static Triangle *set(Triangle *out,
+                         float ax, float ay, float az,
+                         float bx, float by, float bz,
+                         float cx, float cy, float cz);
 
     /**
      * @en
