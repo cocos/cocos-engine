@@ -5650,7 +5650,7 @@ var spine;
                         for (var ii = 0; ii < skinMap.bones.length; ii++) {
                             var bone = skeletonData.findBone(skinMap.bones[ii]);
                             if (bone == null)
-                                throw new Error("Skin bone not found: " + skinMap.bones[i]);
+                                throw new Error("Skin bone not found: " + skinMap.bones[ii]);
                             skin.bones.push(bone);
                         }
                     }
@@ -5658,7 +5658,7 @@ var spine;
                         for (var ii = 0; ii < skinMap.ik.length; ii++) {
                             var constraint = skeletonData.findIkConstraint(skinMap.ik[ii]);
                             if (constraint == null)
-                                throw new Error("Skin IK constraint not found: " + skinMap.ik[i]);
+                                throw new Error("Skin IK constraint not found: " + skinMap.ik[ii]);
                             skin.constraints.push(constraint);
                         }
                     }
@@ -5666,7 +5666,7 @@ var spine;
                         for (var ii = 0; ii < skinMap.transform.length; ii++) {
                             var constraint = skeletonData.findTransformConstraint(skinMap.transform[ii]);
                             if (constraint == null)
-                                throw new Error("Skin transform constraint not found: " + skinMap.transform[i]);
+                                throw new Error("Skin transform constraint not found: " + skinMap.transform[ii]);
                             skin.constraints.push(constraint);
                         }
                     }
@@ -5674,7 +5674,7 @@ var spine;
                         for (var ii = 0; ii < skinMap.path.length; ii++) {
                             var constraint = skeletonData.findPathConstraint(skinMap.path[ii]);
                             if (constraint == null)
-                                throw new Error("Skin path constraint not found: " + skinMap.path[i]);
+                                throw new Error("Skin path constraint not found: " + skinMap.path[ii]);
                             skin.constraints.push(constraint);
                         }
                     }
