@@ -454,12 +454,24 @@ inline bool nativevalue_to_se(long from, se::Value &to, se::Object * /*ctx*/) { 
     to.setDouble(static_cast<double>(from));
     return true;
 }
+
 #endif
 
 inline bool nativevalue_to_se(const ccstd::string &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     to.setString(from);
     return true;
 }
+
+inline bool nativevalue_to_se(const char *from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
+    to.setString(from);
+    return true;
+}
+
+inline bool nativevalue_to_se(char *from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
+    to.setString(from);
+    return true;
+}
+
 // template <>
 // bool nativevalue_to_se(const cc::Color &from, se::Value &to, se::Object *ctx); // NOLINT(readability-identifier-naming)
 

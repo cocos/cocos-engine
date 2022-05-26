@@ -459,6 +459,10 @@ void JointTexturePool::releaseSkeleton(Skeleton *skeleton) {
 //     return animInfos;
 // }
 
+JointAnimationInfo::JointAnimationInfo(gfx::Device *device)
+: _device(device) {
+}
+
 IAnimInfo JointAnimationInfo::getData(const ccstd::string &nodeID) {
     if (_pool.find(nodeID) != _pool.end()) {
         return _pool[nodeID];

@@ -38,7 +38,7 @@ class PassInstance final : public scene::Pass {
 public:
     using Super = scene::Pass;
 
-    PassInstance(Pass *parent, MaterialInstance *owner);
+    PassInstance(scene::Pass *parent, MaterialInstance *owner);
     ~PassInstance() override;
     /**
      * @en The parent pass
