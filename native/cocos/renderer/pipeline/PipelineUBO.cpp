@@ -199,7 +199,7 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, ccstd::arr
 
     if (shadowInfo->isEnabled() && mainLight && mainLight->isShadowEnabled()) {
         if (shadowInfo->getType() == scene::ShadowType::SHADOW_MAP) {
-            if (mainLight->isShadowFixedArea() || mainLight->getShadowCSMLevel() == scene::CSMLevel::level_1) {
+            if (mainLight->isShadowFixedArea() || mainLight->getShadowCSMLevel() == scene::CSMLevel::LEVEL_1) {
                 const Mat4 &matShadowView = csmLayers->getSpecialLayer()->getMatShadowView();
                 const Mat4 &matShadowProj = csmLayers->getSpecialLayer()->getMatShadowProj();
                 const Mat4 &matShadowViewProj = csmLayers->getSpecialLayer()->getMatShadowViewProj();
@@ -287,7 +287,7 @@ void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, ccstd
                     Mat4 matShadowView;
                     Mat4 matShadowProj;
                     Mat4 matShadowViewProj;
-                    if (mainLight->isShadowFixedArea() || mainLight->getShadowCSMLevel() == scene::CSMLevel::level_1) {
+                    if (mainLight->isShadowFixedArea() || mainLight->getShadowCSMLevel() == scene::CSMLevel::LEVEL_1) {
                         matShadowView = csmLayers->getSpecialLayer()->getMatShadowView();
                         matShadowProj = csmLayers->getSpecialLayer()->getMatShadowProj();
                         matShadowViewProj = csmLayers->getSpecialLayer()->getMatShadowViewProj();

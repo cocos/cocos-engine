@@ -42,7 +42,7 @@ public:
 
     inline RenderObjectList &getShadowObjects() { return _shadowObjects; }
     inline void setShadowObjects(RenderObjectList &&ro) { _shadowObjects = std::forward<RenderObjectList>(ro); }
-    inline void addShadowObject(RenderObject obj) { _shadowObjects.emplace_back(obj); }
+    inline void addShadowObject(RenderObject &&obj) { _shadowObjects.emplace_back(obj); }
     inline void clearShadowObjects() { _shadowObjects.clear(); }
 
     inline float getShadowCameraFar() const { return _shadowCameraFar; }
@@ -136,7 +136,7 @@ public:
 
     inline RenderObjectList &getCSMLayerObjects() { return _csmLayerObjects; }
     inline void setCSMLayerObjects(RenderObjectList &&ro) { _csmLayerObjects = std::forward<RenderObjectList>(ro); }
-    inline void addCSMLayerObject(RenderObject obj) { _csmLayerObjects.emplace_back(obj); }
+    inline void addCSMLayerObject(RenderObject &&obj) { _csmLayerObjects.emplace_back(obj); }
     inline void clearCSMLayerObjects() { _csmLayerObjects.clear(); }
 
     inline const ccstd::vector<CSMLayerInfo *> &getLayers() const { return _layers; }

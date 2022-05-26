@@ -97,7 +97,7 @@ private:
     float _shadowSaturation{0.75F};
     float _shadowDistance{50.0F};
     float _shadowInvisibleOcclusionRange{200.0F};
-    CSMLevel _shadowCSMLevel{CSMLevel::level_3};
+    CSMLevel _shadowCSMLevel{CSMLevel::LEVEL_3};
     float _shadowCSMLambda{0.75};
     bool _isShadowCSMValueDirty{false};
     bool _isShadowCSMDebugMode{false};

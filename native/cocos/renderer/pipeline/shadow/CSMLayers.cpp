@@ -67,7 +67,7 @@ void ShadowTransformInfo::createMatrix(const geometry::Frustum &splitFrustum, co
         orthoSizeWidth = orthoSizeHeight = _lightViewFrustum.vertices[0].distance(_lightViewFrustum.vertices[6]);
     }
 
-    if (dirLight->getShadowCSMLevel() != scene::CSMLevel::level_1 && dirLight->getShadowCSMPerformanceOptimizationMode() ==
+    if (dirLight->getShadowCSMLevel() != scene::CSMLevel::LEVEL_1 && dirLight->getShadowCSMPerformanceOptimizationMode() ==
         scene::CSMPerformanceOptimizationMode::RemoveDuplicates) {
         if (_level >= static_cast<uint>(dirLight->getShadowCSMLevel()) - 1U) {
             _maxLayerFarPlane = _castLightViewBoundingBox.halfExtents.z;
@@ -252,8 +252,8 @@ void CSMLayers::calculateCSM(const scene::Camera *camera, const scene::Direction
         splitFrustum.setType(geometry::ShapeEnum::SHAPE_FRUSTUM_ACCURATE);
         splitFrustum.split(nearClamp, farClamp, camera->getAspect(), camera->getFov(), mat4Trans);
         layer->setSplitFrustum(splitFrustum);
-        for (size_t i = 0; i < splitFrustum.planes.size(); ++i) { // NOLINT(modernize-loop-convert)
-            splitFrustum.planes[i]->addRef();
+        for (size_t j = 0; j < splitFrustum.planes.size(); ++j) { // NOLINT(modernize-loop-convert)
+            splitFrustum.planes[j]->addRef();
         }
         layer->createMatrix(layer->getSplitFrustum(), dirLight, shadowMapWidth, false);
         Mat4 matShadowViewProjAtlas;
