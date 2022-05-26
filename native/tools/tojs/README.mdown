@@ -4,8 +4,8 @@ How to Use bindings-generator
 On Windows:
 ------------
 
-* Make sure you have installed an `android-ndk` higher than `android-ndk-r16` but lower than `android-ndk-r22`.
-* Download python3.9.11 (64bit) from (<https://www.python.org/ftp/python/3.9.11/python-3.9.11-amd64.exe> ).(Or higher than python3.6)
+* Make sure you have installed `android-ndk-r22`.
+* Download and install python3.6+ (64bit) from (<https://www.python.org/downloads/> ).(higher than python3.6)
 * Add the installed path of python (e.g. C:\Python310) to windows environment variable named 'PATH'.
 * Execute the following command from the command processor to install **PyYAML** and **Cheetah**:
 
