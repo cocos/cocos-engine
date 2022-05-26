@@ -124,7 +124,7 @@ void testData(const ViewInfo &rasterData, const ResourceInfo &rescInfo, const La
 
     FrameGraphDispatcher fgDispatcher(rescGraph, renderGraph, layoutGraphData, layoutGraphData.resource(), layoutGraphData.resource());
     // fgDispatcher.buildBarriers();
-    fgDispatcher.passReorder();
+    fgDispatcher.passReorder(0.7, 0.3);
 
     // fill resource graph
 }
