@@ -1837,6 +1837,10 @@ We don't currently support conversion of \`CubicSplineQuatValue\`.
 
 Instancing/Batching enabled for non-baked skinning model '%s', this may result in unexpected rendering artifacts. Consider turning it off in the material if you do not intend to do this.
 
+### 3938
+
+'%s' is not found from '%s'. It's specified as the root node to play animation clip '%s'.
+
 ### 4000
 
 <!-- DEPRECATED -->

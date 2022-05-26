@@ -1,4 +1,5 @@
 import { ccclass, serializable } from 'cc.decorator';
+import { errorID } from '../../platform/debug';
 import type { Node } from '../../scene-graph/node';
 import { AnimationClip } from '../animation-clip';
 import { AnimationState } from '../animation-state';
@@ -15,6 +16,15 @@ import { InstantiatedSubRegionPlayer, SubRegionPlayer } from './subregion';
 export class AnimationClipSubRegionPlayer extends SubRegionPlayer {
     /**
      * @en
+     * Path to the node onto which the animation clip would be played, relative from animation context root.
+     * @zh
+     * 要播放动画剪辑的节点的路径，相对于动画上下文的根节点。
+     */
+    @serializable
+    public path = '';
+
+    /**
+     * @en
      * The animation clip to play.
      * @zh
      * 要播放的动画剪辑。
@@ -23,13 +33,18 @@ export class AnimationClipSubRegionPlayer extends SubRegionPlayer {
     public clip: AnimationClip | null = null;
 
     public instantiate (root: Node) {
-        const { clip } = this;
+        const { clip, path } = this;
         if (!clip) {
+            return null;
+        }
+        const clipRoot = root.getChildByPath(path);
+        if (!clipRoot) {
+            errorID(3938, path, root.getPathInHierarchy(), clip.name);
             return null;
         }
         const state = new AnimationState(clip);
         state.initialize(
-            root,
+            clipRoot,
         );
         return new InstantiatedAnimationClipSubRegionPlayer(state);
     }
