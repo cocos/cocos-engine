@@ -60,7 +60,6 @@ private:
     ccstd::vector<gfx::Shader *> _shaders;
     RenderInstancedQueue *_instancedQueue = nullptr;
     RenderBatchedQueue *_batchedQueue = nullptr;
-    gfx::Buffer *_buffer = nullptr;
     uint _phaseID = 0;
 };
 

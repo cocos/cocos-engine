@@ -347,7 +347,7 @@ export class PipelineUBO {
                 Mat4.invert(_matShadowView, (light as any).node.getWorldMatrix());
                 Mat4.toArray(sv, _matShadowView, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
 
-            Mat4.perspective(_matShadowProj, (light as any).angle, 1.0, 0.001, (light as any).range);
+                Mat4.perspective(_matShadowProj, (light as any).angle, 1.0, 0.001, (light as any).range);
 
                 Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
                 Mat4.toArray(sv, _matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
@@ -482,7 +482,6 @@ export class PipelineUBO {
         globalDS.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
         globalDS.update();
         globalDS.getBuffer(UBOShadow.BINDING).update(this._shadowUBO);
-        globalDS.getBuffer(UBOCSM.BINDING).update(this._csmUBO);
     }
 
     public updateShadowUBORange (offset: number, data: Mat4 | Color) {

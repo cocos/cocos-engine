@@ -48,7 +48,6 @@ namespace pipeline {
 ShadowMapBatchedQueue::ShadowMapBatchedQueue(RenderPipeline *pipeline)
 : _phaseID(getPhaseID("shadow-caster")) {
     _pipeline = pipeline;
-    _buffer = pipeline->getDescriptorSet()->getBuffer(UBOShadow::BINDING);
     _instancedQueue = ccnew RenderInstancedQueue;
     _batchedQueue = ccnew RenderBatchedQueue;
 }
@@ -178,8 +177,6 @@ void ShadowMapBatchedQueue::destroy() {
     CC_SAFE_DELETE(_batchedQueue)
 
     CC_SAFE_DELETE(_instancedQueue)
-
-    _buffer = nullptr;
 }
 
 int ShadowMapBatchedQueue::getShadowPassIndex(const scene::Model *model) const {
