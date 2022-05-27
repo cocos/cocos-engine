@@ -169,7 +169,6 @@ public:
 
     void activate(Ambient *resource);
 
-public:
     //cjh JSB need to bind the property, so need to make it public
     // @serializable
     // @formerlySerializedAs('_skyColor'));
