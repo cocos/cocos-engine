@@ -147,19 +147,50 @@ void NativeRasterPassBuilder::addComputeView(const ccstd::string &name, const Co
 }
 
 void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, const ccstd::string &name) {
+    SceneData scene(renderGraph->get_allocator());
+    scene.camera = camera;
+    auto sceneID = addVertex(
+        SceneTag{},
+        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(std::move(scene)),
+        *renderGraph, queueID);
+    CC_ENSURES(sceneID != RenderGraph::null_vertex());
 }
 
 void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera) {
+    RasterQueueBuilder::addSceneOfCamera(camera, "Scene");
 }
 
 void NativeRasterQueueBuilder::addScene(const ccstd::string &name) {
+    auto sceneID = addVertex(
+        SceneTag{},
+        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        *renderGraph, queueID);
+    CC_ENSURES(sceneID != RenderGraph::null_vertex());
 }
 
 void NativeRasterQueueBuilder::addFullscreenQuad(
     const ccstd::string &shader, const ccstd::string &name) { // NOLINT(bugprone-easily-swappable-parameters)
+    auto drawID = addVertex(
+        BlitTag{},
+        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(shader.c_str()),
+        *renderGraph, queueID);
+    CC_ENSURES(drawID != RenderGraph::null_vertex());
 }
 
 void NativeRasterQueueBuilder::addFullscreenQuad(const ccstd::string &shader) {
+    addFullscreenQuad(shader, "FullscreenQuad");
 }
 
 void NativeRasterQueueBuilder::setMat4(const ccstd::string &name, const cc::Mat4 &mat) {
@@ -195,8 +226,9 @@ void NativeRasterQueueBuilder::setReadWriteTexture(const ccstd::string &name, gf
 void NativeRasterQueueBuilder::setSampler(const ccstd::string &name, gfx::Sampler *sampler) {
 }
 
-RasterQueueBuilder *NativeRasterPassBuilder::addQueue(QueueHint hint,
-                                                      const ccstd::string &layoutName, const ccstd::string &name) { // NOLINT(bugprone-easily-swappable-parameters)
+RasterQueueBuilder *NativeRasterPassBuilder::addQueue(
+    QueueHint hint,
+    const ccstd::string &layoutName, const ccstd::string &name) { // NOLINT(bugprone-easily-swappable-parameters)
     auto queueID = addVertex(
         QueueTag{},
         std::forward_as_tuple(name.c_str()),
@@ -204,27 +236,17 @@ RasterQueueBuilder *NativeRasterPassBuilder::addQueue(QueueHint hint,
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(hint),
-        *renderGraph);
+        *renderGraph, passID);
 
     auto queueLayoutID = locate(layoutID, layoutName, *layoutGraph);
 
     return new NativeRasterQueueBuilder(renderGraph, queueID, layoutGraph, queueLayoutID);
 }
 
-RasterQueueBuilder *NativeRasterPassBuilder::addQueue(QueueHint hint,
-                                                      const ccstd::string &layoutName) {
-    auto queueID = addVertex(
-        QueueTag{},
-        std::forward_as_tuple("Queue"),
-        std::forward_as_tuple(layoutName.c_str()),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(hint),
-        *renderGraph);
-
-    auto queueLayoutID = locate(layoutID, layoutName, *layoutGraph);
-
-    return new NativeRasterQueueBuilder(renderGraph, queueID, layoutGraph, queueLayoutID);
+RasterQueueBuilder *NativeRasterPassBuilder::addQueue(
+    QueueHint hint,
+    const ccstd::string &layoutName) {
+    return addQueue(hint, layoutName, "Queue");
 }
 
 RasterQueueBuilder *NativeRasterPassBuilder::addQueue(QueueHint hint) {
@@ -242,7 +264,7 @@ void NativeRasterPassBuilder::addFullscreenQuad(
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(QueueHint::RENDER_TRANSPARENT),
-        *renderGraph);
+        *renderGraph, passID);
 
     addVertex(
         BlitTag{},
@@ -251,7 +273,7 @@ void NativeRasterPassBuilder::addFullscreenQuad(
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(shader.c_str()),
-        *renderGraph);
+        *renderGraph, queueID);
 }
 
 void NativeRasterPassBuilder::addFullscreenQuad(
