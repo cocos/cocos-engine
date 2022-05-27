@@ -25,7 +25,7 @@
 */
 
 import { EDITOR, NATIVE } from 'internal:constants';
-import { TouchInputSource, MouseInputSource, KeyboardInputSource, AccelerometerInputSource, GamepadInputSource } from 'pal/input';
+import { TouchInputSource, MouseInputSource, KeyboardInputSource, AccelerometerInputSource, GamepadInputDevice } from 'pal/input';
 import { touchManager } from '../../pal/input/touch-manager';
 import { sys } from '../core/platform/sys';
 import { EventTarget } from '../core/event/event-target';
@@ -129,7 +129,6 @@ export class Input {
     private _mouseInput = new MouseInputSource();
     private _keyboardInput = new KeyboardInputSource();
     private _accelerometerInput = new AccelerometerInputSource();
-    private _gamepadInput = new GamepadInputSource();
 
     private _eventTouchList: EventTouch[] = [];
     private _eventMouseList: EventMouse[] = [];
@@ -146,6 +145,7 @@ export class Input {
         this._registerEvent();
         this._inputEventDispatcher = new InputEventDispatcher(this._eventTarget);
         this._registerEventDispatcher(this._inputEventDispatcher);
+        GamepadInputDevice._init();
     }
 
     /**
@@ -307,8 +307,8 @@ export class Input {
 
         if (sys.hasFeature(sys.Feature.EVENT_GAMEPAD)) {
             const eventGamepadList = this._eventGamepadList;
-            this._gamepadInput.on(InputEventType.GAMEPAD_CHANGE, (event) => { this._dispatchOrPushEvent(event, eventGamepadList); });
-            this._gamepadInput.on(InputEventType.GAMEPAD_INPUT, (event) => { this._dispatchOrPushEvent(event, eventGamepadList); });
+            GamepadInputDevice._on(InputEventType.GAMEPAD_CHANGE, (event) => { this._dispatchOrPushEvent(event, eventGamepadList); });
+            GamepadInputDevice._on(InputEventType.GAMEPAD_INPUT, (event) => { this._dispatchOrPushEvent(event, eventGamepadList); });
         }
     }
 

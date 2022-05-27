@@ -1,4 +1,8 @@
 declare module 'pal/input' {
+    type InputSourceButton = import('pal/input/input-source').InputSourceButton;
+    type InputSourceStick = import('pal/input/input-source').InputSourceStick;
+    type InputSourceDpad = import('pal/input/input-source').InputSourceDpad;
+
     type TouchCallback = (res: import('cocos/input/types').EventTouch) => void;
     /**
      * Class designed for touch input.
@@ -37,8 +41,39 @@ declare module 'pal/input' {
     /**
      * Class designed for gamepad input
      */
-    export class GamepadInputSource {
-        public on (eventType: import('cocos/input/types/event-enum').InputEventType, cb: GamepadCallback, target?: any);
+    export class GamepadInputDevice {
+        /**
+         * @engineInternal
+         */
+        public static _init ();
+        /**
+         * @engineInternal
+         */
+        public static _on (eventType: import('cocos/input/types/event-enum').InputEventType, cb: GamepadCallback, target?: any);
+
+        public static all: GamepadInputDevice[];
+        public get deviceId (): number;
+        public get connected (): boolean;
+        public buttonNorth: InputSourceButton;
+        public buttonEast: InputSourceButton;
+        public buttonWest: InputSourceButton;
+        public buttonSouth: InputSourceButton;
+
+        public buttonL1: InputSourceButton;
+        public buttonL2: InputSourceButton;
+        public buttonL3: InputSourceButton;
+        public buttonR1: InputSourceButton;
+        public buttonR2: InputSourceButton;
+        public buttonR3: InputSourceButton;
+
+        public buttonTouchPad: InputSourceButton;
+        public buttonHome: InputSourceButton;
+        public buttonShare: InputSourceButton;
+        public buttonOptions: InputSourceButton;
+
+        public dpad: InputSourceDpad;
+        public leftStick: InputSourceStick;
+        public rightStick: InputSourceStick;
     }
 
     type AccelerometerCallback = (res: import('cocos/input/types').EventAcceleration) => void;

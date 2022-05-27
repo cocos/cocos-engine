@@ -29,7 +29,7 @@
  * @module event
  */
 
-import { Gamepad } from '../gamepad';
+import { GamepadInputDevice as Gamepad } from 'pal/input';
 import { Event } from './event';
 
 /**
@@ -39,10 +39,10 @@ import { Event } from './event';
   * 手柄事件。
   */
 export class EventGamepad extends Event {
-    public gamepads: Gamepad[] = [];
+    public gamepad: Gamepad;
 
-    constructor (type: string, gamepads: Gamepad[]) {
+    constructor (type: string, gamepad: Gamepad) {
         super(type, false);
-        this.gamepads = gamepads;
+        this.gamepad = gamepad;
     }
 }
