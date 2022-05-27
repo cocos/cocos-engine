@@ -41,6 +41,7 @@
 #include "boost/graph/hawick_circuits.hpp"
 #include "gfx-base/GFXDef-common.h"
 #include "gfx-base/GFXDef.h"
+#include "pipeline/custom/GslUtils.h"
 #include "pipeline/custom/RenderCommonFwd.h"
 #include "pipeline/custom/RenderGraphTypes.h"
 #include  <boost/graph/adjacency_list.hpp>
@@ -904,6 +905,7 @@ void FrameGraphDispatcher::passReorder(float memsavePercent, float parelellPerce
                       });
 
             const auto vert = candidates.back();
+            candidates.pop_back();
             vertQ.push(vert);
             if(!candidateBuffer.empty()) {
                 candidates.insert(candidates.end(), candidateBuffer.begin(), candidateBuffer.end());
@@ -917,30 +919,11 @@ void FrameGraphDispatcher::passReorder(float memsavePercent, float parelellPerce
                 }
             }
 
-            //remove vertex
-            {
-                remove_edge_if([&](EmptyGraph::edge_descriptor e) {
-                    return source(e, relationGraph) == vert || target(e, relationGraph) == vert;
-                    }, relationGraph);
-
-                /*auto deprecatedEdges = out_edges(vert, relationGraph);
-                for (auto iter = deprecatedEdges.first; iter < deprecatedEdges.second;) {
-                    auto targetVert = target(*iter, relationGraph);
-                    auto targetInEdges = in_edges(targetVert, relationGraph);
-                    for(auto e : makeRange(targetInEdges)) {
-                        if(source(e, relationGraph) == vert) {
-                            remove_edge(e, relationGraph);
-                            break;
-                        }
-                    }
-                    deprecatedEdges = out_edges(vert, relationGraph);
-                    iter = deprecatedEdges.first;
-                    remove_edge(*iter, relationGraph);
-                    deprecatedEdges = out_edges(vert, relationGraph);
-                    iter = deprecatedEdges.first;
-                }*/
-                //remove_vertex(vert, relationGraph);
-                candidates.pop_back();
+            auto deprecatedEdges = out_edges(vert, relationGraph);
+            for (auto iter = deprecatedEdges.first; iter < deprecatedEdges.second;) {
+                remove_edge(*iter, relationGraph);
+                deprecatedEdges = out_edges(vert, relationGraph);
+                iter = deprecatedEdges.first;
             }
             
             if(candidates.empty()) {
@@ -1040,7 +1023,7 @@ AccessVertex dependencyCheck(RAG &rag, AccessTable &accessRecord, AccessVertex c
     return lastVertID;
 }
 
-gfx::ShaderStageFlagBit getVisibilityByDescName(const LGD &lgd, uint32_t passID, const PmrString &/*slotName*/) {
+gfx::ShaderStageFlagBit getVisibilityByDescName(const LGD &lgd, uint32_t passID, const PmrString &slotName) {
     auto vis = gfx::ShaderStageFlagBit::NONE;
 
     const auto &layout = get(LGD::Layout, lgd, passID);
@@ -1049,27 +1032,17 @@ gfx::ShaderStageFlagBit getVisibilityByDescName(const LGD &lgd, uint32_t passID,
     auto compare = [](const PmrString &name, const uint32_t slot) {
         return boost::lexical_cast<uint32_t>(name) == slot;
     };
-/*
-    for (const auto &pair : layout.descriptorSets) {
-        const auto &descriptorSetData = pair.second;
-        const auto &tables = descriptorSetData.tables;
-        for (const auto &attrPair : tables) {
-            const auto descriptorBlocks = attrPair.second.descriptorBlocks;
-            for (const auto &block : descriptorBlocks) {
-                for (const auto &descriptor : block.descriptors) {
-                    uint32_t descirptorID = descriptor.descriptorID;
-                    if (compare(slotName, descirptorID)) {
-                        found = true;
-                        return attrPair.first;
-                    }
-                }
-            }
-        }
+
+    auto iter = lgd.attributeIndex.find(slotName);
+    if(iter == lgd.attributeIndex.end()) {
+        iter = lgd.constantIndex.find(slotName);
+        CC_EXPECTS(iter != lgd.constantIndex.end());
     }
-*/
-    // UNREACHABLE
-    CC_ENSURES(found);
-    return vis;
+    auto nameID = iter->second; 
+    
+    auto visIter = lgd.stages[passID].descriptorVisibility.find(nameID);
+    CC_EXPECTS(visIter != lgd.stages[passID].descriptorVisibility.end());
+    return visIter->second;
 };
 
 void processRasterPass(RAG &rag, EmptyGraph& relationGraph, const LGD &lgd, const ResourceGraph &rescGraph, AccessTable &accessRecord, uint32_t passID, const RasterPass &pass) {

@@ -25,12 +25,14 @@
 #include <algorithm>
 #include <memory>
 #include <string>
+#include <utility>
 #include <variant>
 #include "../FGDispatcherTypes.h"
 #include "../LayoutGraphGraphs.h"
 #include "../NativePipelineTypes.h"
 #include "../RenderGraphGraphs.h"
 #include "../RenderGraphTypes.h"
+#include "gfx-base/GFXDef-common.h"
 
 namespace cc {
 
@@ -42,7 +44,8 @@ using std::pair;
 using std::vector;
 using ViewInfo     = vector<pair<PassType, vector<vector<vector<string>>>>>;
 using ResourceInfo = vector<pair<string, gfx::DescriptorType>>;
-using LayoutInfo   = vector<vector<pair<UpdateFrequency, vector<pair<gfx::ShaderStageFlagBit, vector<pair<DescriptorIndex, vector<string>>>>>>>>;
+using LayoutUnit   = std::tuple<string, uint32_t, gfx::ShaderStageFlagBit>;
+using LayoutInfo   = vector<vector<LayoutUnit>>;
 
 void testData(const ViewInfo &rasterData, const ResourceInfo &rescInfo, const LayoutInfo &layoutInfo, RenderGraph &renderGraph, ResourceGraph &rescGraph, LayoutGraphData &layoutGraphData) {
     for (const auto &resc : rescInfo) {
@@ -51,38 +54,24 @@ void testData(const ViewInfo &rasterData, const ResourceInfo &rescInfo, const La
     }
 
     const auto &mem_resource = layoutGraphData.get_allocator();
+    auto& stages = layoutGraphData.stages;
+    stages.resize(layoutInfo.size());
 
     for (size_t i = 0; i < layoutInfo.size(); ++i) {
-        const ccstd::string name        = "pass" + std::to_string(i);
-        auto                layoutVtxID = add_vertex(layoutGraphData, RenderStageTag{}, name.c_str());
-        auto &              layouts     = get(LayoutGraphData::Layout, layoutGraphData, layoutVtxID);
+        const ccstd::string passName        = "pass" + std::to_string(i);
+        auto                layoutVtxID = add_vertex(layoutGraphData, RenderStageTag{}, passName.c_str());     
 
         for (size_t j = 0; j < layoutInfo[i].size(); ++j) {
-            const auto &    freqPair = layoutInfo[i][j];
-            UpdateFrequency freq     = freqPair.first;
-
-            DescriptorSetData descSetData(mem_resource);
-
-            const auto &dsData = freqPair.second;
-            for (size_t k = 0; k < dsData.size(); ++k) {
-                gfx::ShaderStageFlagBit shaderStage = dsData[k].first;
-                DescriptorTableData     dsTableData(mem_resource);
-
-                for (size_t l = 0; l < dsData[k].second.size(); ++l) {
-                    DescriptorBlockData blockData(mem_resource);
-                    const auto &        dsTypePair = dsData[k].second[l];
-                    DescriptorIndex     index      = dsTypePair.first;
-                    for (size_t m = 0; m < dsTypePair.second.size(); ++m) {
-                        const string & resName = dsTypePair.second[m];
-                        DescriptorData ds;
-                        ds.descriptorID = rescGraph.valueIndex[resName];
-                        blockData.descriptors.emplace_back(ds);
-                    }
-                    dsTableData.descriptorBlocks.emplace_back(blockData);
+            const auto& renderStageInfo = layoutInfo[i];
+            for (const auto& layoutUnit : renderStageInfo) {
+                const auto& rescName = std::get<0>(layoutUnit);
+                const auto& nameID = std::get<1>(layoutUnit);
+                const auto& shaderStage = std::get<2>(layoutUnit);
+                if(layoutGraphData.attributeIndex.find(rescName) == layoutGraphData.attributeIndex.end()) {
+                    layoutGraphData.attributeIndex.emplace(std::make_pair<string, NameLocalID>(rescName.c_str(), NameLocalID{nameID}));
                 }
-                descSetData.tables.emplace(shaderStage, dsTableData);
+                stages[i].descriptorVisibility.emplace(NameLocalID{nameID}, shaderStage);
             }
-            layouts.descriptorSets.emplace(freq, descSetData);
         }
     }
 
@@ -170,48 +159,26 @@ void testCase1() {
         }};
 
     using ShaderStageMap  = map<string, gfx::ShaderStageFlagBit>;
+
     LayoutInfo layoutInfo = {
-        {{UpdateFrequency::PER_PASS,
-            {{
-                {gfx::ShaderStageFlagBit::VERTEX, {
-                    {
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"0", "2"},
-                    },
-                }},
-                {gfx::ShaderStageFlagBit::FRAGMENT, {
-                    {DescriptorIndex::TEXTURE, {"1"}},
-                }},
-            }}}},
-        {{UpdateFrequency::PER_PASS, {
-            {
-                {gfx::ShaderStageFlagBit::VERTEX, {{
-                    DescriptorIndex::SAMPLER_TEXTURE,
-                    {"0", "2"},
-                },
-                    {
-                        DescriptorIndex::TEXTURE,
-                        {"4"},
-                    }}},
-                {gfx::ShaderStageFlagBit::FRAGMENT, {
-                    {
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"1", "3"},
-                    },
-                }},
-            },
-        }}},
-        {{UpdateFrequency::PER_BATCH, {
-            {
-                {gfx::ShaderStageFlagBit::VERTEX, {
-                    {
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"3", "5"},
-                    },
-                }},
-            },
-        }}},
+        {
+            {"0", 0, gfx::ShaderStageFlagBit::VERTEX},
+            {"1", 1, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"2", 2, gfx::ShaderStageFlagBit::VERTEX},
+        },
+        {
+            {"0", 0, gfx::ShaderStageFlagBit::VERTEX},
+            {"1", 1, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"2", 2, gfx::ShaderStageFlagBit::VERTEX},
+            {"3", 3, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"4", 4, gfx::ShaderStageFlagBit::VERTEX},
+        },
+        {
+            {"3", 3, gfx::ShaderStageFlagBit::VERTEX},
+            {"5", 5, gfx::ShaderStageFlagBit::VERTEX},
+        }
     };
+
 
     testData(data, resources, layoutInfo, renderGraph, rescGraph, layoutGraph);
     // for(const auto* camera : cameras) {}
@@ -294,139 +261,48 @@ void testCase2() {
 
     };
 
+
     LayoutInfo layoutInfo = {
         {
-            {
-                UpdateFrequency::PER_BATCH,
-                {{
-                    {gfx::ShaderStageFlagBit::FRAGMENT, {{
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"0", "1"},
-                    }}},
-                }},
-            },
+            {"0", 0, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"1", 1, gfx::ShaderStageFlagBit::FRAGMENT},
         },
         {
-            {
-                UpdateFrequency::PER_PASS,
-                {{
-                    {gfx::ShaderStageFlagBit::VERTEX, {{
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"0"},
-                    }}},
-                    {gfx::ShaderStageFlagBit::FRAGMENT, {{
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"2", "3"},
-                    }}},
-                }},
-            },
-
-        },
-        {{
-            UpdateFrequency::PER_PASS,
-            {{
-                {gfx::ShaderStageFlagBit::FRAGMENT, {
-                    {
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"4", "5"},
-                    },
-                    {
-                        DescriptorIndex::TEXTURE,
-                        {"1"},
-                    },
-                }},
-            }},
-        }
-
-        },
-        {{
-            UpdateFrequency::PER_PASS,
-            {{
-                {gfx::ShaderStageFlagBit::FRAGMENT, {
-                    {
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"3", "5", "6"},
-                    },
-                }},
-            }},
-        }
-
-        },
-        {{
-            UpdateFrequency::PER_PASS,
-            {{
-                {gfx::ShaderStageFlagBit::FRAGMENT, {
-                    {
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"2"},
-                    },
-                }},
-            }},
-        },
-            {
-                UpdateFrequency::PER_QUEUE,
-                {{
-                    {
-                        gfx::ShaderStageFlagBit::VERTEX,
-                        {
-                            {
-                                DescriptorIndex::SAMPLER_TEXTURE,
-                                {"4"},
-                            },
-                        },
-                    },
-                    {gfx::ShaderStageFlagBit::FRAGMENT, {{
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"6"},
-                    },
-                        {
-                            DescriptorIndex::TEXTURE,
-                            {"7"},
-                        }}},
-                }},
-            }},
-        {
-            {
-                UpdateFrequency::PER_PASS,
-                {{
-                    {gfx::ShaderStageFlagBit::FRAGMENT, {
-                        {
-                            DescriptorIndex::SAMPLER_TEXTURE,
-                            {"8"},
-                        },
-                    }},
-                }},
-            },
+            {"0", 0, gfx::ShaderStageFlagBit::VERTEX},
+            {"2", 2, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"3", 3, gfx::ShaderStageFlagBit::FRAGMENT},
         },
         {
-            {
-                UpdateFrequency::PER_PASS,
-                {{
-                    {gfx::ShaderStageFlagBit::FRAGMENT, {
-                        {
-                            DescriptorIndex::SAMPLER_TEXTURE,
-                            {"0", "8", "9"},
-                        },
-                    }},
-                }},
-            },
+            {"4", 4, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"5", 5, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"1", 1, gfx::ShaderStageFlagBit::FRAGMENT},
         },
         {
-            {
-                UpdateFrequency::PER_PASS,
-                {{
-                    {gfx::ShaderStageFlagBit::FRAGMENT, {
-                        {
-                            DescriptorIndex::SAMPLER_TEXTURE,
-                            {"7", "9", "10"},
-                        },
-                    }},
-                }},
-            },
-        }
-
+            {"3", 3, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"5", 5, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"6", 6, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+        {
+            {"2", 2, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"4", 4, gfx::ShaderStageFlagBit::VERTEX},
+            {"6", 6, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"7", 7, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+        {
+            {"8", 8, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+        {
+            {"0", 0, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"8", 8, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"9", 9, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+        {
+            {"7", 7, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"9", 9, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"10", 10, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
     };
-
+ 
     testData(data, resources, layoutInfo, renderGraph, rescGraph, layoutGraph);
     // for(const auto* camera : cameras) {}
 }
@@ -571,169 +447,85 @@ void testCase3() {
     };
 
     using ShaderStageMap  = map<string, gfx::ShaderStageFlagBit>;
+    
     LayoutInfo layoutInfo = {
-        {{UpdateFrequency::PER_PASS,
-            {{
-                {gfx::ShaderStageFlagBit::FRAGMENT, {
-                    {
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"0"},
-                    },
-                }},
-            }}}},
-        {{UpdateFrequency::PER_PASS,
-            {{
-                {gfx::ShaderStageFlagBit::FRAGMENT, {
-                    {
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"0", "1"},
-                    },
-                }},
-            }}}},
-        {{UpdateFrequency::PER_PASS,
-            {{
-                {gfx::ShaderStageFlagBit::FRAGMENT, {
-                    {
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"1", "2"},
-                    },
-                }},
-            }}}},
-        {{UpdateFrequency::PER_PASS,
-            {{
-                {gfx::ShaderStageFlagBit::FRAGMENT, {
-                    {
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"2", "3"},
-                    },
-                }},
-            }}}},
-        {{UpdateFrequency::PER_PASS,
-            {{
-                {gfx::ShaderStageFlagBit::FRAGMENT, {
-                    {
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"3", "4"},
-                    },
-                }},
-            }}}},
-        {{UpdateFrequency::PER_PASS,
-            {{
-                {gfx::ShaderStageFlagBit::FRAGMENT, {
-                    {
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"4", "5"},
-                    },
-                }},
-            }}}},
-        {{UpdateFrequency::PER_PASS,
-            {{
-                {gfx::ShaderStageFlagBit::FRAGMENT, {
-                    {
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"5", "6"},
-                    },
-                }},
-            }}}},
-        {{UpdateFrequency::PER_PASS,
-            {{
-                {gfx::ShaderStageFlagBit::FRAGMENT, {
-                    {
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"3", "7"},
-                    },
-                }},
-            }}}},
-        {{UpdateFrequency::PER_PASS,
-            {{
-                {gfx::ShaderStageFlagBit::FRAGMENT, {
-                    {
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"7", "8"},
-                    },
-                }},
-            }}}},
-        {{UpdateFrequency::PER_PASS,
-            {{
-                {gfx::ShaderStageFlagBit::FRAGMENT, {
-                    {
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"1", "9"},
-                    },
-                }},
-            }}}},
-        {{UpdateFrequency::PER_PASS,
-            {{
-                {gfx::ShaderStageFlagBit::FRAGMENT, {
-                    {
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"1", "14"},
-                    },
-                }},
-            }}}},
-        {{UpdateFrequency::PER_PASS,
-            {{
-                {gfx::ShaderStageFlagBit::FRAGMENT, {
-                    {
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"14", "15"},
-                    },
-                }},
-            }}}},
-        {{UpdateFrequency::PER_PASS,
-            {{
-                {gfx::ShaderStageFlagBit::FRAGMENT, {
-                    {
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"15", "9", "10"},
-                    },
-                }},
-            }}}},
-        {{UpdateFrequency::PER_PASS, {{
-                {gfx::ShaderStageFlagBit::FRAGMENT, {
-                    {
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"1", "16"},
-                    },
-                }},
-            }}}},
-        {{UpdateFrequency::PER_PASS, {{
-                                         {gfx::ShaderStageFlagBit::FRAGMENT, {
-                                                                                 {
-                                                                                     DescriptorIndex::SAMPLER_TEXTURE,
-                                                                                     {"16", "17"},
-                                                                                 },
-                                                                             }},
-                                     }}}},
-        {{UpdateFrequency::PER_PASS,
-            {{
-                {gfx::ShaderStageFlagBit::FRAGMENT, {
-                    {
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"8", "10", "17", "11"},
-                    },
-                }},
-            }}}},
-        {{UpdateFrequency::PER_PASS,
-            {{
-                {gfx::ShaderStageFlagBit::FRAGMENT, {
-                    {
-DescriptorIndex::SAMPLER_TEXTURE,
-                        {"6", "11", "12"},
-                    },
-                }},
-            }}}},
-        {{UpdateFrequency::PER_PASS,
-            {{
-                {gfx::ShaderStageFlagBit::FRAGMENT, {
-                    {
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"12", "13"},
-                    },
-                }},
-            }}}},
+        {
+            {"0", 0, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+        {
+            {"0", 0, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"1", 1, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+        {
+            {"1", 1, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"2", 2, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+        {
+            {"2", 2, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"3", 3, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+        {
+            {"3", 3, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"4", 4, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+        {
+            {"4", 4, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"5", 5, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+        {
+            {"5", 5, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"6", 6, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+        {
+            {"3", 3, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"7", 7, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+        {
+            {"7", 7, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"8", 8, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+        {
+            {"1", 1, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"9", 9, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+        {
+            {"1", 1, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"14", 14, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+        {
+            {"14", 14, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"15", 15, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+        {
+            {"15", 15, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"9", 9, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"10", 10, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+        {
+            {"1", 1, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"16", 16, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+        {
+            {"16", 16, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"17", 17, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+        {
+            {"8", 8, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"10", 10, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"17", 17, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"11", 11, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+         {
+            {"6", 6, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"11", 11, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"12", 12, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+        {
+            {"12", 12, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"13", 13, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
     };
-
+ 
     testData(data, resources, layoutInfo, renderGraph, rescGraph, layoutGraph);
     // for(const auto* camera : cameras) {}
 }
@@ -824,90 +616,47 @@ void testCase4() {
     };
 
     using ShaderStageMap  = map<string, gfx::ShaderStageFlagBit>;
-    LayoutInfo layoutInfo = {
-        {{UpdateFrequency::PER_PASS,
-            {{
-                {gfx::ShaderStageFlagBit::FRAGMENT, {
-                    {
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"0"},
-                    },
-                }},
-            }}}},
-        {{UpdateFrequency::PER_PASS,
-            {{
-                {gfx::ShaderStageFlagBit::FRAGMENT, {
-                    {
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"0", "1"},
-                    },
-                }},
-            }}}},
-        {{UpdateFrequency::PER_PASS,
-            {{
-                {gfx::ShaderStageFlagBit::FRAGMENT, {
-                    {
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"1", "2"},
-                    },
-                }},
-            }}}},
-        {{UpdateFrequency::PER_PASS,
-            {{
-                {gfx::ShaderStageFlagBit::FRAGMENT, {
-                    {
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"2", "3"},
-                    },
-                }},
-            }}}},
-        {{UpdateFrequency::PER_PASS,
-            {{
-                {gfx::ShaderStageFlagBit::FRAGMENT, {
-                    {
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"1", "4"},
-                    },
-                }},
-            }}}},
-        {{UpdateFrequency::PER_PASS,
-            {{
-                {gfx::ShaderStageFlagBit::FRAGMENT, {
-                    {
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"4", "5"},
-                    },
-                }},
-            }}}},
-        {{UpdateFrequency::PER_PASS,
-            {{
-                {gfx::ShaderStageFlagBit::FRAGMENT, {
-                    {
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"1", "6"},
-                    },
-                }},
-            }}}},
-        {{UpdateFrequency::PER_PASS,
-            {{
-                {gfx::ShaderStageFlagBit::FRAGMENT, {
-                    {
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"6", "7"},
-                    },
-                }},
-            }}}},
-        {{UpdateFrequency::PER_PASS,
-            {{
-                {gfx::ShaderStageFlagBit::FRAGMENT, {
-                    {
-                        DescriptorIndex::SAMPLER_TEXTURE,
-                        {"3", "5", "7", "8"},
-                    },
-                }},
-            }}}}
-    };
 
+    LayoutInfo layoutInfo = {
+        {
+            {"0", 0, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+        {
+            {"0", 0, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"1", 1, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+        {
+            {"1", 1, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"2", 2, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+        {
+            {"2", 2, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"3", 3, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+        {
+            {"1", 1, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"4", 4, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+        {
+            {"4", 4, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"5", 5, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+        {
+            {"1", 1, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"6", 6, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+        {
+            {"6", 6, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"7", 7, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+        {
+            {"3", 3, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"5", 5, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"7", 7, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"8", 8, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+    };
+ 
     testData(data, resources, layoutInfo, renderGraph, rescGraph, layoutGraph);
     // for(const auto* camera : cameras) {}
 }
