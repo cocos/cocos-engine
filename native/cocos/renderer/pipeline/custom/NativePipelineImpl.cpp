@@ -161,7 +161,7 @@ void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, const ccs
 }
 
 void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera) {
-    RasterQueueBuilder::addSceneOfCamera(camera, "Scene");
+    addSceneOfCamera(camera, "Scene");
 }
 
 void NativeRasterQueueBuilder::addScene(const ccstd::string &name) {
