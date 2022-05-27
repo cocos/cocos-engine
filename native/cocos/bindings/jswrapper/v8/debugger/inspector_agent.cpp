@@ -100,7 +100,8 @@ static int StartDebugSignalHandler() {
         // follow the pthreads specification to the letter rather than in spirit:
         // https://lists.freebsd.org/pipermail/freebsd-current/2014-March/048885.html
         #ifndef __FreeBSD__
-    CHECK_EQ(0, pthread_attr_setstacksize(&attr, PTHREAD_STACK_MIN));
+    auto ret = pthread_attr_setstacksize(&attr, PTHREAD_STACK_MIN);
+    //CHECK_EQ(0, ret);
         #endif // __FreeBSD__
     CHECK_EQ(0, pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED));
     sigset_t sigmask;
