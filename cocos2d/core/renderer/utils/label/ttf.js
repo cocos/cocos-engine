@@ -118,6 +118,8 @@ export default class TTFAssembler extends Assembler2D {
 
         comp._vertsDirty = false;
 
+        comp.node.emit('render-data-updated');
+
         _context = null;
         _canvas = null;
         _texture = null;
