@@ -40,6 +40,7 @@ namespace cc {
 namespace render {
 
 class NativeLayoutGraphBuilder;
+class NativeRasterQueueBuilder;
 class NativeRasterPassBuilder;
 class NativeComputePassBuilder;
 class NativeMovePassBuilder;

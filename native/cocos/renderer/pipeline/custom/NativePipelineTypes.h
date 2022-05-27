@@ -62,6 +62,36 @@ public:
     LayoutGraphData* data{nullptr};
 };
 
+class NativeRasterQueueBuilder final : public RasterQueueBuilder {
+public:
+    NativeRasterQueueBuilder() = default;
+    NativeRasterQueueBuilder(RenderGraph* renderGraphIn, uint32_t queueIDIn) noexcept
+    : renderGraph(renderGraphIn),
+      queueID(queueIDIn) {}
+
+    void addSceneOfCamera(scene::Camera* camera, const ccstd::string& name) override;
+    void addSceneOfCamera(scene::Camera* camera) override;
+    void addScene(const ccstd::string& name) override;
+    void addFullscreenQuad(const ccstd::string& shader, const ccstd::string& name) override;
+    void addFullscreenQuad(const ccstd::string& shader) override;
+
+    void setMat4(const ccstd::string& name, const cc::Mat4& mat) override;
+    void setQuaternion(const ccstd::string& name, const cc::Quaternion& quat) override;
+    void setColor(const ccstd::string& name, const gfx::Color& color) override;
+    void setVec4(const ccstd::string& name, const cc::Vec4& vec) override;
+    void setVec2(const ccstd::string& name, const cc::Vec2& vec) override;
+    void setFloat(const ccstd::string& name, float v) override;
+
+    void setBuffer(const ccstd::string& name, gfx::Buffer* buffer) override;
+    void setTexture(const ccstd::string& name, gfx::Texture* texture) override;
+    void setReadWriteBuffer(const ccstd::string& name, gfx::Buffer* buffer) override;
+    void setReadWriteTexture(const ccstd::string& name, gfx::Texture* texture) override;
+    void setSampler(const ccstd::string& name, gfx::Sampler* sampler) override;
+
+    RenderGraph* renderGraph{nullptr};
+    uint32_t     queueID{RenderGraph::null_vertex()};
+};
+
 class NativeRasterPassBuilder final : public RasterPassBuilder {
 public:
     NativeRasterPassBuilder() = default;

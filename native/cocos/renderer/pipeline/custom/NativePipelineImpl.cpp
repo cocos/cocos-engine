@@ -125,19 +125,103 @@ void NativeLayoutGraphBuilder::reserveDescriptorBlock(
 }
 
 void NativeRasterPassBuilder::addRasterView(const ccstd::string &name, const RasterView &view) {
-
+    auto& pass = get(RasterTag{}, passID, *renderGraph);
+    pass.rasterViews.emplace(
+        std::piecewise_construct,
+        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(view));
 }
 
 void NativeRasterPassBuilder::addComputeView(const ccstd::string &name, const ComputeView &view) {
+    auto& pass = get(RasterTag{}, passID, *renderGraph);
+    auto iter = pass.computeViews.find(name.c_str());
+    if (iter == pass.computeViews.end()) {
+        bool added = false;
+        std::tie(iter, added) = pass.computeViews.emplace(
+            std::piecewise_construct,
+            std::forward_as_tuple(name.c_str()),
+            std::forward_as_tuple());
+        CC_ENSURES(added);
+    }
+    iter->second.emplace_back(view);
+}
+
+void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera* camera, const ccstd::string& name) {
+
+}
+
+void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera* camera) {
+    
+}
+
+void NativeRasterQueueBuilder::addScene(const ccstd::string& name) {
+
+}
+
+void NativeRasterQueueBuilder::addFullscreenQuad(
+    const ccstd::string& shader, const ccstd::string& name) { // NOLINT(bugprone-easily-swappable-parameters)
+
+}
+
+void NativeRasterQueueBuilder::addFullscreenQuad(const ccstd::string& shader) {
+
+}
+
+void NativeRasterQueueBuilder::setMat4(const ccstd::string& name, const cc::Mat4& mat) {
+
+}
+
+void NativeRasterQueueBuilder::setQuaternion(const ccstd::string& name, const cc::Quaternion& quat) {
+
+}
+
+void NativeRasterQueueBuilder::setColor(const ccstd::string& name, const gfx::Color& color) {
+
+}
+
+void NativeRasterQueueBuilder::setVec4(const ccstd::string& name, const cc::Vec4& vec) {
+
+}
+
+void NativeRasterQueueBuilder::setVec2(const ccstd::string& name, const cc::Vec2& vec) {
+
+}
+
+void NativeRasterQueueBuilder::setFloat(const ccstd::string& name, float v) {
+
+}
+
+void NativeRasterQueueBuilder::setBuffer(const ccstd::string& name, gfx::Buffer* buffer) {
+
+}
+
+void NativeRasterQueueBuilder::setTexture(const ccstd::string& name, gfx::Texture* texture) {
+
+}
+
+void NativeRasterQueueBuilder::setReadWriteBuffer(const ccstd::string& name, gfx::Buffer* buffer) {
+
+}
+
+void NativeRasterQueueBuilder::setReadWriteTexture(const ccstd::string& name, gfx::Texture* texture) {
+
+}
+
+void NativeRasterQueueBuilder::setSampler(const ccstd::string& name, gfx::Sampler* sampler) {
 
 }
 
 RasterQueueBuilder *NativeRasterPassBuilder::addQueue(QueueHint hint,
     const ccstd::string &layoutName, const ccstd::string &name) { // NOLINT(bugprone-easily-swappable-parameters)
-    std::ignore = hint;
-    std::ignore = name;
-    std::ignore = layoutName;
-    return nullptr;
+    auto queueID = addVertex(QueueTag{},
+        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(layoutName.c_str()),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(hint),
+        *renderGraph);
+
+    return new NativeRasterQueueBuilder(renderGraph, queueID);
 }
 
 RasterQueueBuilder *NativeRasterPassBuilder::addQueue(QueueHint hint,
