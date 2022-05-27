@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { ccclass, serializable, editable } from 'cc.decorator';
 import { CCClass } from '../../core/data/class';
 import { Color, lerp, repeat } from '../../core/math';

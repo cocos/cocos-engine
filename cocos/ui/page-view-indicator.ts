@@ -24,11 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
 import { ccclass, help, executionOrder, menu, tooltip, type, serializable } from 'cc.decorator';
 import { SpriteFrame } from '../2d/assets';
 import { Component } from '../core/components';
@@ -106,7 +101,7 @@ export class PageViewIndicator extends Component {
      * @zh
      * 页面标记摆放方向
      *
-     * @param direction 摆放方向
+     * @param direction @en The direction of the PageViewIndicator @zh 页面标记的摆放方向
      */
     @type(Direction)
     @tooltip('i18n:pageview_indicator.direction')
@@ -174,7 +169,7 @@ export class PageViewIndicator extends Component {
      * @zh
      * 设置页面视图
      *
-     * @param target 页面视图对象
+     * @param target @en The page view which is attached with this indicator  @zh 当前标记对象附着到的页面视图对象
      */
     public setPageView (target: PageView) {
         this._pageView = target;

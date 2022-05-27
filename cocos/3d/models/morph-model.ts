@@ -24,27 +24,47 @@
  */
 
 import { Model } from '../../core/renderer/scene/model';
-import { MorphRenderingInstance } from '../assets/morph';
+import { MorphRenderingInstance } from '../assets/morph-rendering';
 import { Material } from '../../core/assets/material';
 import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
 import { DescriptorSet } from '../../core/gfx';
 import { IMacroPatch } from '../../core/renderer';
 
+/**
+ * @en
+ * The model that support morph target rendering.
+ * @zh
+ * 支持渲染蒙皮形变的模型。
+ */
 export class MorphModel extends Model {
     private _morphRenderingInstance: MorphRenderingInstance | null = null;
     private _usedMaterials = new Set<Material>();
 
+    /**
+     * @en Acquire the material's macro patches for the given sub model.
+     * @zh 获取指定子模型的材质宏组合。
+     * @param subModelIndex @en The index for the requested sub model. @zh 子模型的序号。
+     * @returns @en The macro patches. @zh 材质宏组合
+     */
     public getMacroPatches (subModelIndex: number) : IMacroPatch[] | null {
         const superMacroPatches = super.getMacroPatches(subModelIndex);
         if (this._morphRenderingInstance) {
             const morphInstanceMacroPatches = this._morphRenderingInstance.requiredPatches(subModelIndex);
             if (morphInstanceMacroPatches) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 return morphInstanceMacroPatches.concat(superMacroPatches ?? []);
             }
         }
         return superMacroPatches;
     }
 
+    /**
+     * @en Initialize a sub model with the sub mesh data and the material.
+     * @zh 用子网格数据和材质初始化一个子模型。
+     * @param idx @en The index of the sub model @zh 子模型的序号
+     * @param subMeshData @en The sub mesh data to be set @zh 需要设置的子网格
+     * @param mat sub material
+     */
     public initSubModel (subModelIndex: number, subMeshData: RenderingSubMesh, material: Material) {
         return super.initSubModel(
             subModelIndex,
@@ -58,8 +78,23 @@ export class MorphModel extends Model {
         this._morphRenderingInstance = null;
     }
 
+    /**
+     * @en Sets the material for a given sub model.
+     * @zh 给指定的子模型设置材质。
+     * @param subModelIndex @en The index of the sub model @zh 子模型的序号
+     * @param material @en The material to be set @zh 需要设置的材质
+     * @returns void
+     */
     public setSubModelMaterial (subModelIndex: number, material: Material) {
         return super.setSubModelMaterial(subModelIndex, this._launderMaterial(material));
+    }
+
+    /**
+     * Sets morph rendering instance for the model, it's managed by the MeshRenderer
+     * @internal
+     */
+    public setMorphRendering (morphRendering: MorphRenderingInstance) {
+        this._morphRenderingInstance = morphRendering;
     }
 
     protected _updateLocalDescriptors (submodelIdx: number, descriptorSet: DescriptorSet) {
@@ -80,9 +115,5 @@ export class MorphModel extends Model {
         //     this._usedMaterials.add(material);
         //     return material;
         // }
-    }
-
-    public setMorphRendering (morphRendering: MorphRenderingInstance) {
-        this._morphRenderingInstance = morphRendering;
     }
 }

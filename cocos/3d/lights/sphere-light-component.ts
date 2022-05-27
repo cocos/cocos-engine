@@ -22,10 +22,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-/**
- * @packageDocumentation
- * @module component/light
- */
 
 import { ccclass, help, executeInEditMode, menu, tooltip, type, displayOrder, serializable, formerlySerializedAs } from 'cc.decorator';
 import { scene } from '../../core/renderer';
@@ -34,6 +30,10 @@ import { legacyCC } from '../../core/global-exports';
 import { Camera } from '../../core/renderer/scene';
 import { Root } from '../../core/root';
 
+/**
+ * @en The sphere light component, multiple sphere lights can be added to one scene.
+ * @zh 球面光源组件，场景中可以添加多个球面光源。
+ */
 @ccclass('cc.SphereLight')
 @help('i18n:cc.SphereLight')
 @menu('Light/SphereLight')
@@ -45,7 +45,7 @@ export class SphereLight extends Light {
     @formerlySerializedAs('_luminance')
     protected _luminanceHDR = 1700 / scene.nt2lm(0.15);
     @serializable
-    protected _luminanceLDR = 1.0;
+    protected _luminanceLDR = 1700 / scene.nt2lm(0.15) * Camera.standardExposureValue * Camera.standardLightMeterScale;
     @serializable
     protected _term = PhotometricTerm.LUMINOUS_FLUX;
     @serializable
@@ -159,11 +159,6 @@ export class SphereLight extends Light {
         super._createLight();
         this.size = this._size;
         this.range = this._range;
-        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
-            this._luminanceLDR = this._luminanceHDR * Camera.standardExposureValue * Camera.standardLightMeterScale;
-        } else {
-            this._luminanceHDR = this._luminanceLDR / Camera.standardExposureValue / Camera.standardLightMeterScale;
-        }
 
         if (this._light) {
             this._light.luminanceHDR = this._luminanceHDR;

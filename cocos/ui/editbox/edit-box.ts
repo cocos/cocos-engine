@@ -24,11 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
 import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { EDITOR, JSB, MINIGAME, RUNTIME_BASED } from 'internal:constants';
 import { UITransform } from '../../2d/framework';

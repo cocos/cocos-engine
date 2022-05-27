@@ -1,7 +1,7 @@
-/****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -21,12 +21,14 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-****************************************************************************/
+ */
 
-#include <iostream>
+import { removeProperty } from '../core/utils/x-deprecated';
+import { Skeleton } from './skeleton';
 
-#include "platform/BasePlatform.h"
-
-int main(int argc, char** argv) {
-    CC_STARTUP(argc, (const char**)argv, Game);
-}
+removeProperty(Skeleton.prototype, 'Skeleton', [
+    {
+        name: 'enableBatch',
+        suggest: 'Not support batch render mode',
+    },
+]);

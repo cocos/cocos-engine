@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module decorator
- */
-
 import { DEV, EDITOR, TEST } from 'internal:constants';
 import { CCString, CCInteger, CCFloat, CCBoolean } from '../utils/attribute';
 import { IExposedAttributes } from '../utils/attribute-defines';
@@ -58,7 +53,7 @@ export function property (options?: IPropertyOptions): LegacyPropertyDecorator;
  * @en Declare as a CCClass property with the property type
  * @zh 标注属性为 cc 属性。<br/>
  * 等价于`@property({type})`。
- * @param type A {{ccclass}} type or a {{ValueType}}
+ * @param type A [[ccclass]] type or a [[ValueType]]
  */
 export function property (type: PropertyType): LegacyPropertyDecorator;
 

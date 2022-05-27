@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { IVec3Like, Vec3, Quat } from '../../core';
 import { IContactEquation, ICollisionEvent, Collider } from '../framework';
 import { getContactNormal, getContactPosition } from './physx-adapter';

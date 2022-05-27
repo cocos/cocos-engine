@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { Pass } from '../renderer';
 import { IInstancedAttributeBlock, SubModel } from '../renderer/scene';
 import { UNIFORM_LIGHTMAP_TEXTURE_BINDING } from './define';

@@ -29,11 +29,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module particle2d
- */
-
 import { getError, logID } from '../core/platform/debug';
 
 interface IFile {

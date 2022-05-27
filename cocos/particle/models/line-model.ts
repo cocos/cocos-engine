@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
 import { DRAW_INFO_SIZE, Buffer, IndirectBuffer, Attribute, BufferInfo, DrawInfo,
     AttributeName, BufferUsageBit, Format, FormatInfos, MemoryUsageBit, PrimitiveMode } from '../../core/gfx';

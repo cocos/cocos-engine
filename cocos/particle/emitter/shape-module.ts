@@ -26,11 +26,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module particle
- */
-
 import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializable, visible, range } from 'cc.decorator';
 import { Mat4, Quat, Vec2, Vec3, clamp, pingPong, random, randomRange, repeat, toDegree, toRadian, pseudoRandomRange, pseudoRandom } from '../../core/math';
 

@@ -574,7 +574,6 @@ class _Deserializer {
                 if (DEBUG) {
                     error(`Deserialize ${klass.name} failed, ${(e as { stack: string; }).stack}`);
                 }
-                this._reportMissingClass(type);
                 const obj = createObject(MissingScript);
                 this._deserializeInto(value, obj, MissingScript);
                 return obj;
@@ -666,14 +665,10 @@ class _Deserializer {
                         object: Record<string, unknown>,
                         deserialized: Record<string, unknown>,
                         constructor: AnyFunction) {
-                        try {
-                            if (!JSON.parse(JSON.stringify(deserialized._$erialized))) {
-                                error(`Unable to load previously serialized data. ${JSON.stringify(deserialized)}`);
-                            }
-                        } catch (e) {
-                            error(`Error when checking MissingScript 7, ${e}`);
-                        }
                         rawDeserialize(deserializer, object, deserialized, constructor);
+                        if (!object._$erialized) {
+                            error(`Unable to stash previously serialized data. ${JSON.stringify(deserialized)}`);
+                        }
                     };
                 }
             } catch (e) {

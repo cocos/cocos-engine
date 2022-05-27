@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 /*
  Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
@@ -24,15 +23,8 @@
  THE SOFTWARE.
  */
 
-// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
-
-/**
- * @packageDocumentation
- * @module particle
- */
-
 // eslint-disable-next-line max-len
-import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, inspector, boolean, visible } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, inspector, boolean, visible, slide, rangeStep } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { RenderableComponent } from '../core/components/renderable-component';
 import { Material } from '../core/assets/material';
@@ -50,17 +42,18 @@ import TextureAnimationModule from './animator/texture-animation';
 import VelocityOvertimeModule from './animator/velocity-overtime';
 import Burst from './burst';
 import ShapeModule from './emitter/shape-module';
-import { CullingMode, RenderMode, Space } from './enum';
+import { CullingMode, Space } from './enum';
 import { particleEmitZAxis } from './particle-general-function';
 import ParticleSystemRenderer from './renderer/particle-system-renderer-data';
 import TrailModule from './renderer/trail';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
-import { Particle, PARTICLE_MODULE_PROPERTY } from './particle';
+import { PARTICLE_MODULE_PROPERTY } from './particle';
 import { legacyCC } from '../core/global-exports';
 import { TransformBit } from '../core/scene-graph/node-enum';
 import { AABB, intersect } from '../core/geometry';
 import { Camera } from '../core/renderer/scene';
 import { ParticleCuller } from './particle-culler';
+import NoiseModule from './animator/noise-module';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
@@ -680,6 +673,27 @@ export class ParticleSystem extends RenderableComponent {
         this._textureAnimationModule = val;
     }
 
+    // noise module
+    @type(NoiseModule)
+    private _noiseModule: NoiseModule | null = null;
+
+    @type(NoiseModule)
+    @displayOrder(24)
+    public get noiseModule () {
+        if (EDITOR) {
+            if (!this._noiseModule) {
+                this._noiseModule = new NoiseModule();
+                this._noiseModule.bindTarget(this.processor);
+            }
+        }
+        return this._noiseModule;
+    }
+
+    public set noiseModule (val) {
+        if (!val) return;
+        this._noiseModule = val;
+    }
+
     // trail module
     @type(TrailModule)
     _trailModule: TrailModule | null = null;
@@ -741,6 +755,8 @@ export class ParticleSystem extends RenderableComponent {
     private _randomTable: number[];
     private _currentParticle: number;
 
+    private _needAttach: boolean;
+
     @serializable
     private _prewarm = false;
 
@@ -772,6 +788,7 @@ export class ParticleSystem extends RenderableComponent {
         this._isStopped = true;
         this._isEmitting = false;
         this._needRefresh = true;
+        this._needAttach = false;
 
         this._time = 0.0;  // playback position in seconds.
         this._emitRateTimeCounter = 0.0;
@@ -882,7 +899,8 @@ export class ParticleSystem extends RenderableComponent {
     // }
 
     /**
-     * 播放粒子效果。
+     * @en play particle system
+     * @zh 播放粒子效果。
      */
     public play () {
         if (this._isPaused) {
@@ -915,7 +933,8 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     /**
-     * 暂停播放粒子效果。
+     * @en pause particle system
+     * @zh 暂停播放粒子效果。
      */
     public pause () {
         if (this._isStopped) {
@@ -930,7 +949,8 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     /**
-     * 停止播放粒子。
+     * @en stop particle system
+     * @zh 停止播放粒子。
      */
     public stop () {
         if (this._isPlaying || this._isPaused) {
@@ -957,9 +977,9 @@ export class ParticleSystem extends RenderableComponent {
         }
     }
 
-    // remove all particles from current particle system.
     /**
-     * 将所有粒子从粒子系统中清除。
+     * @en remove all particles from current particle system.
+     * @zh 将所有粒子从粒子系统中清除。
      */
     public clear () {
         if (this.enabledInHierarchy) {
@@ -1169,6 +1189,22 @@ export class ParticleSystem extends RenderableComponent {
         if (this._trailModule && this._trailModule.enable) {
             this._trailModule.updateRenderData();
         }
+
+        if (this._needAttach) { // Check whether this particle model should be reattached
+            if (this.getParticleCount() > 0) {
+                if (!this._isCulled) {
+                    if (!this.processor.getModel()?.scene) {
+                        this.processor.attachToScene();
+                    }
+                    if (this._trailModule && this._trailModule.enable) {
+                        if (!this._trailModule.getModel()?.scene) {
+                            this._trailModule._attachToScene();
+                        }
+                    }
+                    this._needAttach = false;
+                }
+            }
+        }
     }
 
     protected beforeRender () {
@@ -1176,6 +1212,18 @@ export class ParticleSystem extends RenderableComponent {
         this.processor.beforeRender();
         if (this._trailModule && this._trailModule.enable) {
             this._trailModule.beforeRender();
+        }
+
+        if (this.getParticleCount() <= 0) {
+            if (this.processor.getModel()?.scene) {
+                this.processor.detachFromScene();
+                if (this._trailModule && this._trailModule.enable) {
+                    this._trailModule._detachFromScene();
+                }
+                this._needAttach = false;
+            }
+        } else if (!this.processor.getModel()?.scene) {
+            this._needAttach = true;
         }
     }
 
@@ -1415,5 +1463,13 @@ export class ParticleSystem extends RenderableComponent {
     public _onBeforeSerialize (props) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this.dataCulling ? props.filter((p) => !PARTICLE_MODULE_PROPERTY.includes(p) || (this[p] && this[p].enable)) : props;
+    }
+
+    public getNoisePreview (width: number, height: number): number[] {
+        const out: number[] = [];
+        if (this.processor) {
+            this.processor.getNoisePreview(out, width, height);
+        }
+        return out;
     }
 }

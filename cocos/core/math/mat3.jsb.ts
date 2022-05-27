@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core/math
- */
-
 import { CCClass } from '../data/class';
 import { Quat } from './quat.jsb';
 import { IMat3Like, FloatArray, IMat3, IMat4, IQuat, IVec2, IVec3 } from './type-define';

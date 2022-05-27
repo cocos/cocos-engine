@@ -7,6 +7,12 @@ import { maskIfEmpty } from './utils';
 
 const CHANNEL_NAMES: ReadonlyArray<string> = ['Red', 'Green', 'Blue', 'Alpha'];
 
+/**
+ * @en
+ * A color track animates a color attribute of target.
+ * @zh
+ * 颜色轨道描述目标上某个颜色属性的动画。
+ */
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}ColorTrack`)
 export class ColorTrack extends Track {
     constructor () {
@@ -19,6 +25,12 @@ export class ColorTrack extends Track {
         }
     }
 
+    /**
+     * @en The four channel of the track.
+     * @zh 返回此轨道的四条通道。
+     * @returns An readonly four length array in which
+     * the element at n denotes the channel of n-th(in order of RGBA) color component(in form of integer within 0-255).
+     */
     public channels () {
         return this._channels;
     }

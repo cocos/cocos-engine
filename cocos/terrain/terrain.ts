@@ -23,10 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module terrain
- */
 import { ccclass, disallowMultiple, executeInEditMode, help, visible, type, serializable, editable, disallowAnimation } from 'cc.decorator';
 import { JSB } from 'internal:constants';
 import { builtinResMgr } from '../core/builtin';
@@ -397,7 +393,7 @@ export class TerrainBlock {
         ];
 
         this._renderable._meshData = new RenderingSubMesh([vertexBuffer], gfxAttributes,
-            PrimitiveMode.TRIANGLE_LIST, this._terrain._getSharedIndexBuffer());
+            PrimitiveMode.TRIANGLE_LIST, this._terrain._getSharedIndexBuffer(), null, false);
         this._renderable._model = (legacyCC.director.root as Root).createModel(scene.Model);
         this._renderable._model.createBoundingShape(this._bbMin, this._bbMax);
         this._renderable._model.node = this._renderable._model.transform = this._node;
@@ -695,8 +691,8 @@ export class TerrainBlock {
     }
 
     /**
-     * @en 地形块的可见性
-     * @zh block visible
+     * @zh 地形块的可见性
+     * @en The visibility of the block
      */
     set visible (val) {
         if (this._renderable._model !== null) {
@@ -792,7 +788,7 @@ export class TerrainBlock {
     public _getMaterialDefines (nlayers: number): MacroRecord {
         return {
             LAYERS: nlayers + 1,
-            USE_LIGHTMAP: this.lightmap !== null ? 1 : 0,
+            CC_USE_LIGHTMAP: this.lightmap !== null ? 1 : 0,
             USE_NORMALMAP: this._terrain.useNormalMap ? 1 : 0,
             USE_PBR: this._terrain.usePBR ? 1 : 0,
             // CC_RECEIVE_SHADOW: this._terrain.receiveShadow ? 1 : 0,
@@ -2209,7 +2205,7 @@ export class Terrain extends Component {
         }
 
         const terrainAsset = this.__asset;
-        if (this._buitinAsset != terrainAsset) {
+        if (this._buitinAsset !== terrainAsset) {
             this._buitinAsset = terrainAsset;
         }
 

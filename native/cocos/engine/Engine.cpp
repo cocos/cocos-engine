@@ -252,6 +252,7 @@ int32_t Engine::restartVM() {
     _scheduler->unscheduleAll();
 
     scriptEngine->cleanup();
+    cc::gfx::DeviceManager::destroy();
     cc::EventDispatcher::destroy();
     // remove all listening events
     offAll();
@@ -317,6 +318,8 @@ bool Engine::dispatchWindowEvent(const WindowEvent& ev) {
     } else if (ev.type == WindowEvent::Type::SIZE_CHANGED ||
                ev.type == WindowEvent::Type::RESIZED) {
         cc::EventDispatcher::dispatchResizeEvent(ev.width, ev.height);
+        auto* w = CC_GET_PLATFORM_INTERFACE(ISystemWindow);
+        w->setViewSize(ev.width, ev.height);
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::HIDDEN ||
                ev.type == WindowEvent::Type::MINIMIZED) {

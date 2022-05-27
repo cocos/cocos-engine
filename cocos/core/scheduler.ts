@@ -24,11 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core
- */
-
 import IdGenerator from './utils/id-generator';
 import { createMap } from './utils/js';
 import System from './components/system';

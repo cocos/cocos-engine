@@ -71,8 +71,6 @@ static ALenum alSourceAddNotificationExt(ALuint sid, ALuint notificationID, alSo
 
 @implementation AudioEngineSessionHandler
 
-    // only enable it on iOS. Disable it on tvOS
-    #if !defined(CC_TARGET_OS_TVOS)
 void AudioEngineInterruptionListenerCallback(void *user_data, UInt32 interruption_state) {
     if (kAudioSessionBeginInterruption == interruption_state) {
         alcMakeContextCurrent(nullptr);
@@ -83,7 +81,6 @@ void AudioEngineInterruptionListenerCallback(void *user_data, UInt32 interruptio
         alcMakeContextCurrent(s_ALContext);
     }
 }
-    #endif
 
 - (id)init {
     if (self = [super init]) {
@@ -92,16 +89,12 @@ void AudioEngineInterruptionListenerCallback(void *user_data, UInt32 interruptio
             [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleInterruption:) name:UIApplicationDidBecomeActiveNotification object:nil];
             [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleInterruption:) name:UIApplicationWillResignActiveNotification object:nil];
         }
-        // only enable it on iOS. Disable it on tvOS
-        // AudioSessionInitialize removed from tvOS
-    #if !defined(CC_TARGET_OS_TVOS)
         else {
             AudioSessionInitialize(NULL, NULL, AudioEngineInterruptionListenerCallback, self);
         }
-    #endif
 
         BOOL success = [[AVAudioSession sharedInstance]
-            setCategory:AVAudioSessionCategoryAmbient
+            setCategory:AVAudioSessionCategoryPlayback
                   error:nil];
         if (!success)
             ALOGE("Fail to set audio session.");
@@ -151,7 +144,7 @@ void AudioEngineInterruptionListenerCallback(void *user_data, UInt32 interruptio
             resumeOnBecomingActive = false;
             ALOGD("UIApplicationDidBecomeActiveNotification, alcMakeContextCurrent(s_ALContext)");
             NSError *error = nil;
-            BOOL success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient error:&error];
+            BOOL success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:&error];
             if (!success) {
                 ALOGE("Fail to set audio session.");
                 return;
@@ -390,14 +383,10 @@ void AudioEngineImpl::play2dImpl(AudioCache *cache, int audioID) {
     if (!*cache->_isDestroyed && cache->_state == AudioCache::State::READY) {
         _threadMutex.lock();
         auto playerIt = _audioPlayers.find(audioID);
-        if (playerIt != _audioPlayers.end() && playerIt->second->play2d()) {
-            if (auto sche = _scheduler.lock()) {
-                sche->performFunctionInCocosThread([audioID]() {
-                    if (AudioEngine::sAudioIDInfoMap.find(audioID) != AudioEngine::sAudioIDInfoMap.end()) {
-                        AudioEngine::sAudioIDInfoMap[audioID].state = AudioEngine::AudioState::PLAYING;
-                    }
-                });
-            }
+        if (playerIt != _audioPlayers.end()) {
+            // Trust it, or assert it out.
+            bool res = playerIt->second->play2d();
+            CCASSERT(res, "AudioPlay failed");
         }
         _threadMutex.unlock();
     } else {

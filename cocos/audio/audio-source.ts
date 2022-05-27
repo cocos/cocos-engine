@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module component/audio
- */
-
 import { AudioPlayer } from 'pal/audio';
 import { ccclass, help, menu, tooltip, type, range, serializable } from 'cc.decorator';
 import { AudioState } from '../../pal/audio/type';
@@ -377,7 +372,7 @@ export class AudioSource extends Component {
      * 获取以秒为单位的音频总时长。
      */
     get duration () {
-        return this._clip?.getDuration() ?? (this._player ? this._player.currentTime : 0);
+        return this._clip?.getDuration() ?? (this._player ? this._player.duration : 0);
     }
 
     /**

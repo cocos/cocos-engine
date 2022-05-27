@@ -275,14 +275,6 @@ const cacheManager = require('./jsb-cache-manager');
         }
     };
 
-    const _updateBatch = skeleton._updateBatch;
-    skeleton._updateBatch = function () {
-        _updateBatch.call(this);
-        if (this._nativeSkeleton) {
-            this._nativeSkeleton.setBatchEnabled(this.enableBatch);
-        }
-    };
-
     skeleton.setSkeletonData = function (skeletonData) {
         if (skeletonData.width != null && skeletonData.height != null) {
             const uiTrans = this.node._uiProps.uiTransformComp;
