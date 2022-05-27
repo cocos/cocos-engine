@@ -65,9 +65,11 @@ public:
 class NativeRasterQueueBuilder final : public RasterQueueBuilder {
 public:
     NativeRasterQueueBuilder() = default;
-    NativeRasterQueueBuilder(RenderGraph* renderGraphIn, uint32_t queueIDIn) noexcept
+    NativeRasterQueueBuilder(RenderGraph* renderGraphIn, uint32_t queueIDIn, const LayoutGraphData* layoutGraphIn, uint32_t layoutIDIn) noexcept // NOLINT
     : renderGraph(renderGraphIn),
-      queueID(queueIDIn) {}
+      layoutGraph(layoutGraphIn),
+      queueID(queueIDIn),
+      layoutID(layoutIDIn) {}
 
     void addSceneOfCamera(scene::Camera* camera, const ccstd::string& name) override;
     void addSceneOfCamera(scene::Camera* camera) override;
@@ -88,16 +90,20 @@ public:
     void setReadWriteTexture(const ccstd::string& name, gfx::Texture* texture) override;
     void setSampler(const ccstd::string& name, gfx::Sampler* sampler) override;
 
-    RenderGraph* renderGraph{nullptr};
-    uint32_t     queueID{RenderGraph::null_vertex()};
+    RenderGraph*           renderGraph{nullptr};
+    const LayoutGraphData* layoutGraph{nullptr};
+    uint32_t               queueID{RenderGraph::null_vertex()};
+    uint32_t               layoutID{LayoutGraphData::null_vertex()};
 };
 
 class NativeRasterPassBuilder final : public RasterPassBuilder {
 public:
     NativeRasterPassBuilder() = default;
-    NativeRasterPassBuilder(RenderGraph* renderGraphIn, uint32_t passIDIn) noexcept
+    NativeRasterPassBuilder(RenderGraph* renderGraphIn, uint32_t passIDIn, const LayoutGraphData* layoutGraphIn, uint32_t layoutIDIn) noexcept // NOLINT
     : renderGraph(renderGraphIn),
-      passID(passIDIn) {}
+      layoutGraph(layoutGraphIn),
+      passID(passIDIn),
+      layoutID(layoutIDIn) {}
 
     void                addRasterView(const ccstd::string& name, const RasterView& view) override;
     void                addComputeView(const ccstd::string& name, const ComputeView& view) override;
@@ -121,16 +127,20 @@ public:
     void setReadWriteTexture(const ccstd::string& name, gfx::Texture* texture) override;
     void setSampler(const ccstd::string& name, gfx::Sampler* sampler) override;
 
-    RenderGraph* renderGraph{nullptr};
-    uint32_t     passID{RenderGraph::null_vertex()};
+    RenderGraph*           renderGraph{nullptr};
+    const LayoutGraphData* layoutGraph{nullptr};
+    uint32_t               passID{RenderGraph::null_vertex()};
+    uint32_t               layoutID{LayoutGraphData::null_vertex()};
 };
 
 class NativeComputePassBuilder final : public ComputePassBuilder {
 public:
     NativeComputePassBuilder() = default;
-    NativeComputePassBuilder(RenderGraph* renderGraphIn, uint32_t passIDIn) noexcept
+    NativeComputePassBuilder(RenderGraph* renderGraphIn, uint32_t passIDIn, const LayoutGraphData* layoutGraphIn, uint32_t layoutIDIn) noexcept // NOLINT
     : renderGraph(renderGraphIn),
-      passID(passIDIn) {}
+      layoutGraph(layoutGraphIn),
+      passID(passIDIn),
+      layoutID(layoutIDIn) {}
 
     void addComputeView(const ccstd::string& name, const ComputeView& view) override;
 
@@ -155,8 +165,10 @@ public:
     void setReadWriteTexture(const ccstd::string& name, gfx::Texture* texture) override;
     void setSampler(const ccstd::string& name, gfx::Sampler* sampler) override;
 
-    RenderGraph* renderGraph{nullptr};
-    uint32_t     passID{RenderGraph::null_vertex()};
+    RenderGraph*           renderGraph{nullptr};
+    const LayoutGraphData* layoutGraph{nullptr};
+    uint32_t               passID{RenderGraph::null_vertex()};
+    uint32_t               layoutID{LayoutGraphData::null_vertex()};
 };
 
 class NativeMovePassBuilder final : public MovePassBuilder {
@@ -253,6 +265,7 @@ public:
     scene::Model*                                          profiler{nullptr};
     PmrTransparentMap<ccstd::pmr::string, LayoutGraphData> layoutGraphs;
     IntrusivePtr<pipeline::PipelineSceneData>              pipelineSceneData;
+    const LayoutGraphData*                                 layoutGraph{nullptr};
     framegraph::FrameGraph                                 frameGraph;
     ResourceGraph                                          resourceGraph;
     RenderGraph                                            renderGraph;
