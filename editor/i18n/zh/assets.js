@@ -43,6 +43,7 @@ module.exports = {
             mipFilterTip: 'Mip Filter',
             wrapModeSTip: 'Wrap Mode S',
             wrapModeTTip: 'Wrap Mode T',
+            bakeReflectionConvolution: 'Bake Reflection Convolution',
             faceSize: {
                 name: 'Face Size',
                 title:
