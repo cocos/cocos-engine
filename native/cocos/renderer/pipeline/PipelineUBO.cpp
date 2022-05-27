@@ -519,7 +519,6 @@ void PipelineUBO::updateShadowUBOLight(gfx::DescriptorSet *globalDS, const scene
     updateShadowUBOLightView(_pipeline, &_shadowUBO, light, level);
     globalDS->update();
     cmdBuffer->updateBuffer(globalDS->getBuffer(UBOShadow::BINDING), _shadowUBO.data(), UBOShadow::SIZE);
-    cmdBuffer->updateBuffer(globalDS->getBuffer(UBOCSM::BINDING), _csmUBO.data(), UBOCSM::SIZE);
 }
 
 void PipelineUBO::updateShadowUBORange(uint offset, const Mat4 *data) {

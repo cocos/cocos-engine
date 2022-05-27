@@ -88,8 +88,14 @@ void ShadowStage::render(scene::Camera *camera) {
                 _renderArea.width = static_cast<uint>(shadowMapSize.x);
                 _renderArea.height = static_cast<uint>(shadowMapSize.y);
             } else {
+                const gfx::Device *device = gfx::Device::getInstance();
+                const float clipSpaceSignY = device->getCapabilities().clipSpaceSignY;
                 _renderArea.x = static_cast<int>(static_cast<float>(_level % 2) * 0.5F * shadowMapSize.x);
-                _renderArea.y = static_cast<int>((1 - floorf(static_cast<float>(_level) / 2)) * 0.5F * shadowMapSize.y);
+                if (clipSpaceSignY > 0.0F) {
+                    _renderArea.y = static_cast<int>((1 - floorf(static_cast<float>(_level) / 2)) * 0.5F * shadowMapSize.y);
+                } else {
+                    _renderArea.y = static_cast<int>((floorf(static_cast<float>(_level) / 2)) * 0.5F * shadowMapSize.y);
+                }
                 _renderArea.width = static_cast<int>(0.5F * shadowMapSize.x);
                 _renderArea.height = static_cast<int>(0.5F * shadowMapSize.y);
             }
