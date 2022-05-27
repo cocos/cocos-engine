@@ -161,7 +161,7 @@ export class RenderData extends BaseRenderData {
             data.length = length;
         }
 
-        this.fillAdvanceRenderData();
+        this.syncRender2dBuffer();
     }
 
     get data () {
@@ -219,10 +219,10 @@ export class RenderData extends BaseRenderData {
         this.updateHash();
 
         // for sync vData and iData address to native
-        this.updateRenderEntity();
+        this.setRenderEntityAttributes();
     }
 
-    protected updateRenderEntity () {
+    protected setRenderEntityAttributes () {
         if (!this._renderEntity) {
             return;
         }
@@ -235,15 +235,17 @@ export class RenderData extends BaseRenderData {
     }
 
     // Initial advance render data for native
-    protected fillAdvanceRenderData () {
+    protected syncRender2dBuffer () {
         if (!this._renderEntity) {
             return;
         }
-        for (let i = 0; i < this.dataLength; i++) {
-            const advanceData = new AdvanceRenderData();
-            this.renderEntity.addAdvanceRenderData(advanceData);
-        }
-        this.renderEntity.setAdvanceRenderDataArrToNative();
+        // for (let i = 0; i < this.dataLength; i++) {
+        //     const advanceData = new AdvanceRenderData();
+        //     this.renderEntity.addAdvanceRenderData(advanceData);
+        // }
+        // this.renderEntity.setAdvanceRenderDataArrToNative();
+        this.renderEntity.initRender2dBuffer(this.dataLength, this.floatStride);
+        this.renderEntity.setRender2dBufferToNative();
     }
 
     public resizeAndCopy (vertexCount: number, indexCount: number) {

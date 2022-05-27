@@ -10,7 +10,7 @@ public:
     Batcher2d();
     ~Batcher2d();
 
-    void updateRenderEntities(std::vector<RenderEntity*>&& renderEntities);
+    void syncRenderEntitiesToNative(std::vector<RenderEntity*>&& renderEntities);
 
     // for debug
     void ItIsDebugFuncInBatcher2d();

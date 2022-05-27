@@ -51,7 +51,7 @@ import { UIMeshRenderer } from '../components/ui-mesh-renderer';
 import { RenderEntity } from './render-entity';
 import { NativeAdvanceRenderData, NativeBatcher2d, NativeRenderEntity } from '../../core/renderer/2d/native-2d';
 import { AdvanceRenderData } from './AdvanceRenderData';
-import { mapBuffer } from '../../3d/misc';
+import { mapBuffer, readBuffer } from '../../3d/misc';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
@@ -125,25 +125,6 @@ export class Batcher2D implements IBatcher {
 
         if (JSB) {
             this._nativeObj = new NativeBatcher2d();
-
-            // // test code
-            // const tempArray:NativeRenderEntity[] = [];
-            // for (let i = 0; i < 3; i++) {
-            //     //这里频繁触发了jsb的调用，需要思考下如何优化
-            //     const tempEntity = new RenderEntity();
-            //     tempEntity.setBufferId(i);
-
-            //     const tempAdvanceRenderData1 = new AdvanceRenderData();
-            //     tempAdvanceRenderData1.pos = new Vec3(1, 2, 3);
-            //     tempEntity.addAdvanceRenderData(tempAdvanceRenderData1);
-            //     const tempAdvanceRenderData2 = new AdvanceRenderData();
-            //     tempAdvanceRenderData2.pos = new Vec3(4, 5, 6);
-            //     tempEntity.addAdvanceRenderData(tempAdvanceRenderData2);
-            //     tempEntity.setAdvanceRenderDataArrToNative();
-
-            //     tempArray.push(tempEntity.nativeObj);
-            // }
-            // this._nativeObj.updateRenderEntities(tempArray);
         }
     }
 
@@ -236,7 +217,7 @@ export class Batcher2D implements IBatcher {
             this.walk(screen.node);
 
             // test code
-            this.updateRenderEntities();// transport entities to native
+            this.syncRenderEntitiesToNative();// transport entities to native
             this.nativeObj.ItIsDebugFuncInBatcher2d();
 
             this.autoMergeBatches(this._currComponent!);
@@ -700,7 +681,7 @@ export class Batcher2D implements IBatcher {
         if (render && render.enabledInHierarchy) {
             //render.updateAssembler(this);
             render.GatherRenderEntities(this);// for collecting data
-            render.doRender(this);// for rendering
+            render.fillBuffers(this);// for rendering
         }
 
         // Update cascaded opacity to vertex buffer
@@ -747,26 +728,30 @@ export class Batcher2D implements IBatcher {
     }
 
     // render entity dictionary
-    private entityDic :Map<number, RenderEntity> =new Map();
+    private entityArr : RenderEntity[] =[];
     public addRenderEntity (entity:RenderEntity) {
-        if (!this.entityDic.has(entity.entityId)) {
-            this.entityDic.set(entity.entityId, entity);
+        const repeatIndex =  this.entityArr.findIndex((x) => x.entityId === entity.entityId);
+        if (repeatIndex >= 0 && repeatIndex < this.entityArr.length) {
+            this.entityArr[repeatIndex] = entity;
+        } else {
+            this.entityArr.push(entity);
         }
     }
 
     public removeRenderEntity (entityId:number) {
-        if (this.entityDic.has(entityId)) {
-            this.entityDic.delete(entityId);
+        const removeIndex =  this.entityArr.findIndex((x) => x.entityId === entity.entityId);
+        if (removeIndex >= 0 && removeIndex < this.entityArr.length) {
+            delete this.entityArr[removeIndex];
         }
     }
 
-    public updateRenderEntities () {
+    public syncRenderEntitiesToNative () {
         if (JSB) {
             const nativeEntityArr:NativeRenderEntity[] = [];
-            this.entityDic.forEach((value, key) => {
-                nativeEntityArr.push(value.nativeObj);
+            this.entityArr.forEach((x) => {
+                nativeEntityArr.push(x.nativeObj);
             });
-            this._nativeObj.updateRenderEntities(nativeEntityArr);
+            this._nativeObj.syncRenderEntitiesToNative(nativeEntityArr);
         }
     }
 }

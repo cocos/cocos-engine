@@ -19,13 +19,14 @@ export class NativeRenderEntity {
     get iDataBuffer ():ArrayBufferLike { return new ArrayBuffer(0); }
     set iDataBuffer (iDataBuffer:ArrayBufferLike) {}
 
-    setAdvanceRenderDataArr (dataArr: NativeAdvanceRenderData[]) {}
-
+    //setAdvanceRenderDataArr (dataArr: NativeAdvanceRenderData[]) {}
+    setRender2dBufferToNative (data:TypedArray, stride:number, size:number) {}
+    setRender2dBufferToNativeNew (data:TypedArray) {}
     ItIsDebugFuncInRenderEntity () {}
 }
 
 export class NativeBatcher2d {
-    updateRenderEntities (renderEntities: NativeRenderEntity[]) {}
+    syncRenderEntitiesToNative (renderEntities: NativeRenderEntity[]) {}
     ItIsDebugFuncInBatcher2d () {}
 }
 

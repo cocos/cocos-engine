@@ -1,17 +1,8 @@
 #pragma once
 #include <cocos/base/TypeDef.h>
-#include <math/Vec2.h>
-#include <math/Vec3.h>
-#include <math/Vec4.h>
-#include <math/Color.h>
+#include <2d/renderer/RenderEntity.h>
 
 namespace cc {
-struct Render2dLayout {
-    cc::Vec3 position;
-    cc::Vec2 uv;
-    cc::Vec4 color;// use Vec4 instead of Color because of bytes alignment
-};
-
 class AdvanceRenderData {
 public:
     AdvanceRenderData();

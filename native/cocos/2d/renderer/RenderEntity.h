@@ -1,9 +1,18 @@
 #pragma once
 #include <cocos/base/TypeDef.h>
-#include <cocos/2d/renderer/AdvanceRenderData.h>
 #include <vector>
+#include <math/Vec2.h>
+#include <math/Vec3.h>
+#include <math/Vec4.h>
+#include <math/Color.h>
 
 namespace cc {
+struct Render2dLayout {
+    cc::Vec3 position;
+    cc::Vec2 uv;
+    cc::Vec4 color; // use Vec4 instead of Color because of bytes alignment
+};
+
 class RenderEntity {
 public:
     RenderEntity();
@@ -24,15 +33,21 @@ public:
     inline uint16_t* getIDataBuffer() const { return this->_iDataBuffer; }
     void setIDataBuffer(uint16_t* iDataBuffer);
 
-    inline std::vector<AdvanceRenderData*> getDataArr() { return this->_dataArr; }
-    void setAdvanceRenderDataArr(std::vector<AdvanceRenderData*>&& arr);
+    //inline std::vector<AdvanceRenderData*> getDataArr() { return this->_dataArr; }
+    //void setAdvanceRenderDataArr(std::vector<AdvanceRenderData*>&& arr);
+
+    void setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size);
+    void setRender2dBufferToNativeNew(float_t* buffer);
 
     // for debug
     void ItIsDebugFuncInRenderEntity();
 
 private:
-    // updateVertex,uv等用到的数据
-    std::vector<AdvanceRenderData*> _dataArr{};
+    // deprecated
+    //std::vector<AdvanceRenderData*> _dataArr{};
+
+    // use this
+    std::vector< Render2dLayout*> _render2dLayoutArr{};
 
     // updateWorld 数据计算用到
     index_t _bufferId{0};

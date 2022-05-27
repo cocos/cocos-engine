@@ -1,6 +1,5 @@
 #include <2d/renderer/RenderEntity.h>
 #include <cocos/base/TypeDef.h>
-#include "RenderEntity.h"
 #include <iostream>
 
 namespace cc {
@@ -40,8 +39,20 @@ void RenderEntity::setIDataBuffer(uint16_t* iDataBuffer) {
     this->_iDataBuffer = iDataBuffer;
 }
 
-void RenderEntity::setAdvanceRenderDataArr(std::vector<AdvanceRenderData*>&& arr) {
-    this->_dataArr = std::move(arr);
+//void RenderEntity::setAdvanceRenderDataArr(std::vector<AdvanceRenderData*>&& arr) {
+//    this->_dataArr = std::move(arr);
+//}
+
+void RenderEntity::setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size) {
+    index_t vertexCount = size / stride;
+    for (index_t i = 0; i < size; i += stride) {
+        Render2dLayout* layout = reinterpret_cast<Render2dLayout*>(buffer + i * sizeof(float_t));
+        this->_render2dLayoutArr.push_back(layout);
+    }
+}
+
+void RenderEntity::setRender2dBufferToNativeNew(float_t* buffer) {
+    Render2dLayout* layout = reinterpret_cast<Render2dLayout*>(buffer);
 }
 
 void RenderEntity::ItIsDebugFuncInRenderEntity() {

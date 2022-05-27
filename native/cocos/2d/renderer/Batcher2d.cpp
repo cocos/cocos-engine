@@ -9,7 +9,7 @@ Batcher2d::Batcher2d() {
 Batcher2d::~Batcher2d() {
 }
 
-void Batcher2d::updateRenderEntities(std::vector<RenderEntity*>&& renderEntities) {
+void Batcher2d::syncRenderEntitiesToNative(std::vector<RenderEntity*>&& renderEntities) {
     this->_renderEntities = std::move(renderEntities);
 }
 void Batcher2d::ItIsDebugFuncInBatcher2d() {

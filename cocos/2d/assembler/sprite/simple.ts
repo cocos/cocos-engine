@@ -83,31 +83,22 @@ export const simple: IAssembler = {
             renderData.updateRenderData(sprite, frame);
         }
 
-        // test code: fill renderEntities
-        //renderEntity = new RenderEntity();
-        //renderEntity.init();
-        this.UpdateAdvanceRenderDataArr(sprite);
-
+        this.copyRenderDataToBuffer(sprite);
         renderData?.renderEntity.nativeObj.ItIsDebugFuncInRenderEntity();
     },
 
-    UpdateAdvanceRenderDataArr (sprite:Sprite) {
+    copyRenderDataToBuffer (sprite:Sprite) {
         const renderData :RenderData = sprite.renderData!;
         const entity = renderData.renderEntity;
-        const dataArr :AdvanceRenderData[] = entity.dataArr;
+        const sharedBuffer = entity.render2dBuffer;
 
-        if (dataArr.length !== renderData.data.length) {
+        if (sharedBuffer.length < renderData.floatStride * renderData.data.length) {
             console.error('Vertex count doesn\'t match.');
             return;
         }
 
-        for (let i = 0; i < dataArr.length; i++) {
-            const curData:AdvanceRenderData = dataArr[i];
-            const temp:IRenderData = renderData.data[i];
-            curData.pos = new Vec3(temp.x, temp.y, temp.z);
-            curData.uv = new Vec2(temp.u, temp.v);
-            curData.color = new Color(temp.color);
-        }
+        // 考虑dirty，但本方法消耗不大
+        entity.fillRender2dBuffer(renderData.data);
     },
 
     updateWorldVerts (sprite: Sprite, chunk: StaticVBChunk) {

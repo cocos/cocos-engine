@@ -366,7 +366,7 @@ export class UIRenderer extends Renderer {
     }
 
     // test code: to replace after part updateAssembler
-    public doRender (render: IBatcher) {
+    public fillBuffers (render: IBatcher) {
         if (this._renderFlag) {
             this._render(render);
         }
