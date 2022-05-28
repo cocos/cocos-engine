@@ -27,7 +27,7 @@
 
 #include <sstream>
 
-#include "boost/container_hash/hash.hpp"
+#include "base/std/hash/hash.h"
 #include "core/Root.h"
 #include "core/assets/TextureBase.h"
 #include "core/builtin/BuiltinResMgr.h"
@@ -107,7 +107,7 @@ void Pass::fillPipelineInfo(Pass *pass, const IPassInfoFull &info) {
 }
 
 /* static */
-uint64_t Pass::getPassHash(Pass *pass) {
+ccstd::hash_t Pass::getPassHash(Pass *pass) {
     const ccstd::string &shaderKey = ProgramLib::getInstance()->getKey(pass->getProgram(), pass->getDefines());
     std::stringstream res;
     res << shaderKey << "," << static_cast<uint32_t>(pass->_primitive) << "," << static_cast<uint32_t>(pass->_dynamicStates);
@@ -116,9 +116,9 @@ uint64_t Pass::getPassHash(Pass *pass) {
     res << serializeRasterizerState(pass->_rs);
 
     ccstd::string str{res.str()};
-    std::size_t seed = 666;
-    boost::hash_range(seed, str.begin(), str.end());
-    return static_cast<uint32_t>(seed);
+    ccstd::hash_t seed = 666;
+    ccstd::hash_range(seed, str.begin(), str.end());
+    return seed;
 }
 
 Pass::Pass() : Pass(Root::getInstance()) {}
@@ -303,8 +303,8 @@ void Pass::resetUniform(const ccstd::string &name) {
 
     if (givenDefaultOpt.has_value()) {
         const auto &value = givenDefaultOpt.value();
-        if (cc::holds_alternative<ccstd::vector<float>>(value)) {
-            const auto &floatArr = cc::get<ccstd::vector<float>>(value);
+        if (ccstd::holds_alternative<ccstd::vector<float>>(value)) {
+            const auto &floatArr = ccstd::get<ccstd::vector<float>>(value);
             auto iter = type2writer.find(type);
             if (iter != type2writer.end()) {
                 CC_ASSERT(floatArr.size() == 2);
@@ -329,7 +329,7 @@ void Pass::resetTexture(const ccstd::string &name, index_t index /* = CC_INVALID
     if (iter != _properties.end()) {
         if (iter->second.value.has_value()) {
             info = &iter->second;
-            ccstd::string *pStrVal = cc::get_if<ccstd::string>(&iter->second.value.value());
+            ccstd::string *pStrVal = ccstd::get_if<ccstd::string>(&iter->second.value.value());
             if (pStrVal != nullptr) {
                 texName = (*pStrVal) + "-texture";
             }
@@ -342,9 +342,9 @@ void Pass::resetTexture(const ccstd::string &name, index_t index /* = CC_INVALID
 
     auto *textureBase = BuiltinResMgr::getInstance()->get<TextureBase>(texName);
     gfx::Texture *texture = textureBase != nullptr ? textureBase->getGFXTexture() : nullptr;
-    cc::optional<gfx::SamplerInfo> samplerInfo;
+    ccstd::optional<gfx::SamplerInfo> samplerInfo;
     if (info != nullptr && info->samplerHash.has_value()) {
-        samplerInfo = gfx::Sampler::unpackFromHash(static_cast<size_t>(info->samplerHash.value()));
+        samplerInfo = gfx::Sampler::unpackFromHash(info->samplerHash.value());
     } else if (textureBase != nullptr) {
         samplerInfo = textureBase->getSamplerInfo();
     }
@@ -365,7 +365,7 @@ void Pass::resetUBOs() {
             const auto &block = _blocks[u.binding];
             const auto &info = _properties[cur.name];
             const auto &givenDefault = info.value;
-            const auto &value = (givenDefault.has_value() ? cc::get<ccstd::vector<float>>(givenDefault.value()) : getDefaultFloatArrayFromType(cur.type));
+            const auto &value = (givenDefault.has_value() ? ccstd::get<ccstd::vector<float>>(givenDefault.value()) : getDefaultFloatArrayFromType(cur.type));
             const uint32_t size = (gfx::getTypeSize(cur.type) >> 2) * cur.count;
             for (size_t k = 0; (k + value.size()) <= size; k += value.size()) {
                 std::copy(value.begin(), value.end(), block.data + ofs + k);
@@ -596,7 +596,7 @@ void Pass::syncBatchingScheme() {
     }
 }
 
-void Pass::initPassFromTarget(Pass *target, const gfx::DepthStencilState &dss, const gfx::BlendState &bs, uint64_t hashFactor) {
+void Pass::initPassFromTarget(Pass *target, const gfx::DepthStencilState &dss, const gfx::BlendState &bs, ccstd::hash_t hashFactor) {
     _priority = target->_priority;
     _stage = target->_stage;
     _phase = target->_phase;

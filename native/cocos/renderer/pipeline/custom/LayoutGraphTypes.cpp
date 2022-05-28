@@ -151,6 +151,11 @@ DescriptorSetLayoutData::DescriptorSetLayoutData(DescriptorSetLayoutData&& rhs, 
 DescriptorSetData::DescriptorSetData(const allocator_type& alloc) noexcept
 : descriptorSetLayoutData(alloc) {}
 
+DescriptorSetData::DescriptorSetData(DescriptorSetLayoutData descriptorSetLayoutDataIn, IntrusivePtr<gfx::DescriptorSetLayout> descriptorSetLayoutIn, IntrusivePtr<gfx::DescriptorSet> descriptorSetIn, const allocator_type& alloc) noexcept
+: descriptorSetLayoutData(std::move(descriptorSetLayoutDataIn), alloc),
+  descriptorSetLayout(std::move(descriptorSetLayoutIn)),
+  descriptorSet(std::move(descriptorSetIn)) {}
+
 DescriptorSetData::DescriptorSetData(DescriptorSetData&& rhs, const allocator_type& alloc)
 : descriptorSetLayoutData(std::move(rhs.descriptorSetLayoutData), alloc),
   descriptorSetLayout(std::move(rhs.descriptorSetLayout)),

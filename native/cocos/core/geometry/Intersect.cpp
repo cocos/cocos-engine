@@ -211,7 +211,7 @@ float rayCapsule(const Ray &ray, const Capsule &capsule) {
 }
 
 namespace {
-void fillResult(float *minDis, ERaycastMode m, float d, float i0, float i1, float i2, cc::optional<ccstd::vector<IRaySubMeshResult>> &r) {
+void fillResult(float *minDis, ERaycastMode m, float d, float i0, float i1, float i2, ccstd::optional<ccstd::vector<IRaySubMeshResult>> &r) {
     if (m == ERaycastMode::CLOSEST) {
         if (*minDis > d || *minDis == 0.0F) {
             *minDis = d;
@@ -234,8 +234,8 @@ void fillResult(float *minDis, ERaycastMode m, float d, float i0, float i1, floa
 
 float narrowphase(float *minDis, const Float32Array &vb, const IBArray &ib, gfx::PrimitiveMode pm, const Ray &ray, IRaySubMeshOptions *opt) {
     Triangle tri;
-    auto ibSize = cc::visit([](auto &arr) { return arr.length(); }, ib);
-    return cc::visit([&](auto &ib) {
+    auto ibSize = ccstd::visit([](auto &arr) { return arr.length(); }, ib);
+    return ccstd::visit([&](auto &ib) {
         if (pm == gfx::PrimitiveMode::TRIANGLE_LIST) {
             auto cnt = ibSize;
             for (auto j = 0; j < cnt; j += 3) {
@@ -283,7 +283,7 @@ float narrowphase(float *minDis, const Float32Array &vb, const IBArray &ib, gfx:
         }
         return *minDis;
     },
-                     ib);
+                        ib);
 }
 } // namespace
 

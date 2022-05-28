@@ -31,11 +31,11 @@
 #include "base/Macros.h"
 #include "bindings/jswrapper/SeApi.h"
 #include "core/builtin/BuiltinResMgr.h"
+#include "platform/BasePlatform.h"
+#include "platform/FileUtils.h"
 #include "renderer/GFXDeviceManager.h"
 #include "renderer/core/ProgramLib.h"
 #include "renderer/pipeline/RenderPipeline.h"
-#include "platform/BasePlatform.h"
-#include "platform/FileUtils.h"
 
 #if CC_USE_AUDIO
     #include "cocos/audio/include/AudioEngine.h"
@@ -56,13 +56,11 @@
 #include "application/ApplicationManager.h"
 #include "application/BaseApplication.h"
 #include "base/Scheduler.h"
-#include "network/HttpClient.h"
-#include "core/Root.h"
 #include "core/assets/FreeTypeFont.h"
+#include "network/HttpClient.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "profiler/DebugRenderer.h"
 #include "profiler/Profiler.h"
-#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 
 namespace {
 
@@ -99,19 +97,39 @@ Engine::Engine() {
     _fs = createFileUtils();
     // May create gfx device in render subsystem in future.
     _gfxDevice = gfx::DeviceManager::create();
-    _scriptEngine = ccnew se::ScriptEngine();
-    EventDispatcher::init();
+    _programLib = ccnew ProgramLib();
+    _builtinResMgr = ccnew BuiltinResMgr;
 
     _debugRenderer = ccnew DebugRenderer();
 #if CC_USE_PROFILER
     _profiler = ccnew Profiler();
 #endif
+
+    _scriptEngine = ccnew se::ScriptEngine();
+    EventDispatcher::init();
 }
 
 Engine::~Engine() {
 #if CC_USE_AUDIO
     AudioEngine::end();
 #endif
+
+    EventDispatcher::destroy();
+
+    // Should delete it before deleting DeviceManager as ScriptEngine will check gpu resource usage,
+    // and ScriptEngine will hold gfx objects.
+    delete _scriptEngine;
+
+#if CC_USE_PROFILER
+    delete _profiler;
+#endif
+    // Profiler depends on DebugRenderer, should delete it after deleting Profiler,
+    // and delete DebugRenderer after RenderPipeline::destroy which destroy DebugRenderer.
+    delete _debugRenderer;
+
+    //TODO(): Delete some global objects.
+
+    FreeTypeFontFace::destroyFreeType();
 
 #if CC_USE_DRAGONBONES
     dragonBones::ArmatureCacheMgr::destroyInstance();
@@ -121,40 +139,20 @@ Engine::~Engine() {
     spine::SkeletonCacheMgr::destroyInstance();
 #endif
 
-    EventDispatcher::destroy();
-    network::HttpClient::destroyInstance();
-    Root::getInstance()->destroy();
-
-#if CC_USE_PROFILER
-    delete _profiler;
-#endif
-    // Profiler depends on DebugRenderer, should delete it after deleting Profiler.
-    delete _debugRenderer;
-
-    FreeTypeFontFace::destroyFreeType();
-    
-    // Should delete it before deleting DeviceManager as ScriptEngine will check gpu resource usage,
-    // and ScriptEngine will hold gfx objects.
-    delete _scriptEngine;
-
 #if CC_USE_MIDDLEWARE
     cc::middleware::MiddlewareManager::destroyInstance();
 #endif
-    ProgramLib::destroyInstance();
-    BuiltinResMgr::destroyInstance();
 
     CCObject::deferredDestroy();
-    
+
+    delete _builtinResMgr;
+    delete _programLib;
     CC_SAFE_DESTROY_AND_DELETE(_gfxDevice);
     delete _fs;
+    _scheduler.reset();
 }
 
 int32_t Engine::init() {
-    _scheduler->removeAllFunctionsToBePerformedInCocosThread();
-    _scheduler->unscheduleAll();
-
-    se::ScriptEngine::getInstance()->cleanup();
-
     BasePlatform *platform = BasePlatform::getPlatform();
     platform->setHandleEventCallback(
         std::bind(&Engine::handleEvent, this, std::placeholders::_1)); // NOLINT(modernize-avoid-bind)
@@ -281,8 +279,6 @@ void Engine::tick() {
 int32_t Engine::restartVM() {
     cc::EventDispatcher::dispatchRestartVM();
 
-    Root::getInstance()->getPipeline()->destroy();
-
     cc::DeferredReleasePool::clear();
 #if CC_USE_AUDIO
     cc::AudioEngine::stopAll();
@@ -296,15 +292,22 @@ int32_t Engine::restartVM() {
     _scheduler->unscheduleAll();
 
     _scriptEngine->cleanup();
-    CC_SAFE_DESTROY_AND_DELETE(_gfxDevice);
     cc::EventDispatcher::destroy();
-    ProgramLib::destroyInstance();
-    BuiltinResMgr::destroyInstance();
     CCObject::deferredDestroy();
+
+    delete _programLib;
+    delete _builtinResMgr;
+    CC_SAFE_DESTROY_AND_DELETE(_gfxDevice);
 
     // remove all listening events
     offAll();
     // start
+    _gfxDevice = gfx::DeviceManager::create();
+    // Should re-create ProgramLib as shaders may change after restart. For example,
+    // program update resources and do restart.
+    _programLib = ccnew ProgramLib;
+    // Should reinitialize builtin resources as _programLib will be re-created.
+    _builtinResMgr = ccnew BuiltinResMgr;
     cc::EventDispatcher::init();
     CC_CURRENT_APPLICATION()->init();
 
@@ -366,6 +369,8 @@ bool Engine::dispatchWindowEvent(const WindowEvent &ev) {
     } else if (ev.type == WindowEvent::Type::SIZE_CHANGED ||
                ev.type == WindowEvent::Type::RESIZED) {
         cc::EventDispatcher::dispatchResizeEvent(ev.width, ev.height);
+        auto *w = CC_GET_PLATFORM_INTERFACE(ISystemWindow);
+        w->setViewSize(ev.width, ev.height);
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::HIDDEN ||
                ev.type == WindowEvent::Type::MINIMIZED) {

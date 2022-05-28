@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module geometry
- */
-
 import { EPSILON, Mat3, Vec3, Mat4 } from '../math';
 import { AABB } from './aabb';
 import { Capsule } from './capsule';
@@ -1432,11 +1427,12 @@ const intersect = {
     capsuleWithCapsule,
 
     /**
-     * @zh
-     * g1 和 g2 的相交性检测，可填入基础几何中的形状。
-     * @param g1 几何1
-     * @param g2 几何2
-     * @param outPt 可选，相交点。（注：仅部分形状的检测带有这个返回值）
+     * @en Check intersection between two geometries, it accept all basic geometry types in [[geometry]] module.
+     * @zh 两个几何体的相交性检测，可填入 [[geometry]] 模块中的基础几何形状。
+     * @param g1 @en The first geometry. @zh 第一个几何体。
+     * @param g2 @en The second geometry. @zh 第二个几何体。
+     * @param outPt @en A 3d point to store the intersection point result, only part of the geometries support this.
+     *              @zh 可选，用于保存相交点的输出对象。（注：仅部分形状的检测带有这个返回值）
      */
     resolve (g1: any, g2: any, outPt = null) {
         const type1 = g1._type; const type2 = g2._type;

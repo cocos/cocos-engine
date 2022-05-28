@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, serializable, disallowMultiple } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Component } from '../../core/components';
@@ -367,8 +362,10 @@ export class UITransform extends Component {
      * 默认的锚点是（0.5，0.5），因此它开始于节点的中心位置。<br>
      * 注意：Creator 中的锚点仅用于定位所在的节点，子节点的定位不受影响。
      *
-     * @param point - 节点锚点或节点 x 轴锚。
-     * @param y - 节点 y 轴锚。
+     * @param point @en Node anchor point or node x-axis anchor.
+     *              @zh 节点锚点或节点 x 轴锚。
+     * @param y @en The y-axis anchor of the node.
+     *          @zh 节点 y 轴锚。
      * @example
      * ```ts
      * import { Vec2 } from 'cc';
@@ -401,7 +398,8 @@ export class UITransform extends Component {
     }
 
     /**
-     * Hit test with point in UI Space.
+     * @zh UI 空间中的点击测试。
+     * @en Hit test with point in UI Space.
      *
      * @param uiPoint point in UI Space.
      * @deprecated since v3.5.0, please use `uiTransform.hitTest(screenPoint: Vec2)` instead.
@@ -447,13 +445,13 @@ export class UITransform extends Component {
         return false;
     }
 
-    
     /**
-     * Hit test with point in Screen Space.
+     * @zh 屏幕空间中的点击测试。
+     * @en Hit test with point in Screen Space.
      *
      * @param screenPoint point in Screen Space.
      */
-     public hitTest (screenPoint: Vec2) {
+    public hitTest (screenPoint: Vec2) {
         const w = this._contentSize.width;
         const h = this._contentSize.height;
         const v3WorldPt = _vec3a;
@@ -529,9 +527,12 @@ export class UITransform extends Component {
      * 将一个 UI 节点世界坐标系下点转换到另一个 UI 节点 (局部) 空间坐标系，这个坐标系以锚点为原点。
      * 非 UI 节点转换到 UI 节点(局部) 空间坐标系，请走 Camera 的 `convertToUINode`。
      *
-     * @param worldPoint - 世界坐标点。
-     * @param out - 转换后坐标。
-     * @returns - 返回与目标节点的相对位置。
+     * @param worldPoint @en Point in world space.
+     *                   @zh 世界坐标点。
+     * @param out @en Point in local space.
+     *            @zh 转换后坐标。
+     * @returns @en Return the relative position to the target node.
+     *          @zh 返回与目标节点的相对位置。
      * @example
      * ```ts
      * const newVec3 = uiTransform.convertToNodeSpaceAR(cc.v3(100, 100, 0));
@@ -554,9 +555,12 @@ export class UITransform extends Component {
      * @zh
      * 将距当前节点坐标系下的一个点转换到世界坐标系。
      *
-     * @param nodePoint - 节点坐标。
-     * @param out - 转换后坐标。
-     * @returns - 返回 UI 世界坐标系。
+     * @param nodePoint @en Point in local space.
+     *                  @zh 节点坐标。
+     * @param out @en Point in world space.
+     *            @zh 转换后坐标。
+     * @returns @en Returns the coordinates in the UI world coordinate system.
+     *          @zh 返回 UI 世界坐标系。
      * @example
      * ```ts
      * const newVec3 = uiTransform.convertToWorldSpaceAR(3(100, 100, 0));
@@ -629,7 +633,8 @@ export class UITransform extends Component {
      * @zh
      * 返回包含当前包围盒及其子节点包围盒的最小包围盒。
      *
-     * @param parentMat - 父节点矩阵。
+     * @param parentMat @en The parent node matrix.
+     *                  @zh 父节点矩阵。
      * @returns
      */
     public getBoundingBoxTo (parentMat: Mat4) {

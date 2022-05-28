@@ -19,11 +19,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module scene-graph
- */
-
 import { ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep, editable, serializable, rangeMin, tooltip, formerlySerializedAs, displayName } from 'cc.decorator';
 import { BAIDU } from 'internal:constants';
 import { TextureCube } from '../assets/texture-cube';
@@ -38,6 +33,7 @@ import { Node } from './node';
 import { legacyCC } from '../global-exports';
 import { Root } from '../root';
 import { warnID } from '../platform/debug';
+import { Material } from '../assets/material';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
@@ -239,6 +235,9 @@ export class SkyboxInfo {
     protected _enabled = false;
     @serializable
     protected _useHDR = true;
+    @serializable
+    @type(Material)
+    protected _editableMaterial: Material | null = null;
 
     protected _resource: Skybox | null = null;
 
@@ -430,12 +429,30 @@ export class SkyboxInfo {
         }
     }
 
+    /**
+     * @en Use custom skybox material
+     * @zh 使用自定义的天空盒材质
+     */
+    @editable
+    @type(Material)
+    @tooltip('i18n:skybox.material')
+    set skyboxMaterial(val: Material | null) {
+        this._editableMaterial = val;
+        if (this._resource) {
+            this._resource.setSkyboxMaterial(this._editableMaterial);
+        }
+    }
+    get skyboxMaterial() {
+        return this._editableMaterial;
+    }
+
     public activate (resource: Skybox) {
         this.envLightingType = this._envLightingType;
         this._resource = resource;
         this._resource.initialize(this);
         this._resource.setEnvMaps(this._envmapHDR, this._envmapLDR);
         this._resource.setDiffuseMaps(this._diffuseMapHDR, this._diffuseMapLDR);
+        this._resource.setSkyboxMaterial(this._editableMaterial);
         this._resource.activate(); // update global DS first
     }
 }

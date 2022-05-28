@@ -521,7 +521,6 @@ SE_DECLARE_FUNC(js_scene_Pass_endChangeStatesSilently);
 SE_DECLARE_FUNC(js_scene_Pass_getBatchedBuffer);
 SE_DECLARE_FUNC(js_scene_Pass_getBinding);
 SE_DECLARE_FUNC(js_scene_Pass_getHandle);
-SE_DECLARE_FUNC(js_scene_Pass_getHash);
 SE_DECLARE_FUNC(js_scene_Pass_getInstancedBuffer);
 SE_DECLARE_FUNC(js_scene_Pass_getPassInfoFull);
 SE_DECLARE_FUNC(js_scene_Pass_getRootBlock);
@@ -573,6 +572,7 @@ SE_DECLARE_FUNC(js_scene_Camera_changeTargetWindow);
 SE_DECLARE_FUNC(js_scene_Camera_destroy);
 SE_DECLARE_FUNC(js_scene_Camera_detachCamera);
 SE_DECLARE_FUNC(js_scene_Camera_detachFromScene);
+SE_DECLARE_FUNC(js_scene_Camera_getAspect);
 SE_DECLARE_FUNC(js_scene_Camera_initialize);
 SE_DECLARE_FUNC(js_scene_Camera_resize);
 SE_DECLARE_FUNC(js_scene_Camera_setFixedSize);
@@ -664,7 +664,6 @@ SE_DECLARE_FUNC(js_scene_ProgramLib_getTemplate);
 SE_DECLARE_FUNC(js_scene_ProgramLib_getTemplateInfo);
 SE_DECLARE_FUNC(js_scene_ProgramLib_hasProgram);
 SE_DECLARE_FUNC(js_scene_ProgramLib_registerEffect);
-SE_DECLARE_FUNC(js_scene_ProgramLib_destroyInstance);
 SE_DECLARE_FUNC(js_scene_ProgramLib_getInstance);
 
 extern se::Object *__jsb_cc_scene_OctreeInfo_proto; // NOLINT

@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { ccclass, type, serializable, editable, formerlySerializedAs } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { lerp } from '../../core/math';

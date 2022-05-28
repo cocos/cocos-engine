@@ -38,6 +38,7 @@
 #include "cocos/base/Ptr.h"
 #include "cocos/base/std/container/string.h"
 #include "cocos/base/std/container/vector.h"
+#include "cocos/base/std/hash/hash.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/gfx-base/GFXDescriptorSet.h"
 #include "cocos/renderer/gfx-base/GFXDescriptorSetLayout.h"
@@ -417,6 +418,7 @@ struct DescriptorSetData {
     }
 
     DescriptorSetData(const allocator_type& alloc) noexcept; // NOLINT
+    DescriptorSetData(DescriptorSetLayoutData descriptorSetLayoutDataIn, IntrusivePtr<gfx::DescriptorSetLayout> descriptorSetLayoutIn, IntrusivePtr<gfx::DescriptorSet> descriptorSetIn, const allocator_type& alloc) noexcept;
     DescriptorSetData(DescriptorSetData&& rhs, const allocator_type& alloc);
 
     DescriptorSetData(DescriptorSetData&& rhs) noexcept = default;
@@ -680,9 +682,9 @@ struct LayoutGraphData {
 namespace std {
 
 inline size_t hash<cc::render::NameLocalID>::operator()(const cc::render::NameLocalID& v) const noexcept {
-    size_t seed = 0;
-    boost::hash_combine(seed, v.value);
-    return seed;
+    ccstd::hash_t seed = 0;
+    ccstd::hash_combine(seed, v.value);
+    return static_cast<size_t>(seed);
 }
 
 } // namespace std

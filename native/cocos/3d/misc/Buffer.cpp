@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "3d/misc/Buffer.h"
-#include "cocos/base/Variant.h"
+#include "base/std/variant.h"
 
 namespace cc {
 
@@ -53,15 +53,15 @@ ccstd::string getDataViewType(const gfx::FormatInfo &info) {
 
 } // namespace
 
-using DataVariant = cc::variant<int32_t, float>;
+using DataVariant = ccstd::variant<int32_t, float>;
 using MapBufferCallback = std::function<DataVariant(const DataVariant &cur, uint32_t idx, const DataView &view)>;
 
 DataView mapBuffer(DataView &target,
                    const MapBufferCallback &callback,
-                   cc::optional<gfx::Format> aFormat,
-                   cc::optional<uint32_t> aOffset,
-                   cc::optional<uint32_t> aLength,
-                   cc::optional<uint32_t> aStride,
+                   ccstd::optional<gfx::Format> aFormat,
+                   ccstd::optional<uint32_t> aOffset,
+                   ccstd::optional<uint32_t> aLength,
+                   ccstd::optional<uint32_t> aStride,
                    DataView *out) {
     gfx::Format format = aFormat.has_value() ? aFormat.value() : gfx::Format::R32F;
     uint32_t offset = aOffset.has_value() ? aOffset.value() : 0;
@@ -102,11 +102,11 @@ DataView mapBuffer(DataView &target,
             const uint32_t y = x + componentBytesLength * iComponent;
             if (isFloat) {
                 float cur = target.getFloat32(y);
-                out->setFloat32(y, cc::get<1>(callback(cur, iComponent, target)));
+                out->setFloat32(y, ccstd::get<1>(callback(cur, iComponent, target)));
             } else {
                 int32_t cur = target.readInt(intReader, y);
                 // iComponent is usually more useful than y
-                (target.*intWritter)(y, cc::get<0>(callback(cur, iComponent, target)));
+                (target.*intWritter)(y, ccstd::get<0>(callback(cur, iComponent, target)));
             }
         }
     }

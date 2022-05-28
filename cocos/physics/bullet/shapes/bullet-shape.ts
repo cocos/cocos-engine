@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { Vec3 } from '../../../core/math';
 import { Collider, PhysicsMaterial, PhysicsSystem } from '../../../../exports/physics-framework';
 import { BulletWorld } from '../bullet-world';

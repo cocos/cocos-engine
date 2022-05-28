@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module event
- */
-
 import { EventTarget } from './event-target';
 
 export function applyMixins (derivedCtor: any, baseCtors: any[]) {

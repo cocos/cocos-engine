@@ -34,14 +34,14 @@ class CC_DLL GeneralBarrier : public GFXObject {
 public:
     explicit GeneralBarrier(const GeneralBarrierInfo &info);
 
-    static size_t computeHash(const GeneralBarrierInfo &info);
+    static ccstd::hash_t computeHash(const GeneralBarrierInfo &info);
 
     inline const GeneralBarrierInfo &getInfo() const { return _info; }
-    inline const size_t &getHash() const { return _hash; }
+    inline const ccstd::hash_t &getHash() const { return _hash; }
 
 protected:
     GeneralBarrierInfo _info;
-    size_t _hash{0U};
+    ccstd::hash_t _hash{0U};
 };
 
 } // namespace gfx

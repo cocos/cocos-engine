@@ -2,13 +2,13 @@ import { assertIsNonNullable, assertIsTrue } from './utils/asserts';
 
 /**
  * Tag to define the custom serialization method.
- * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ * @internal
  */
 export const serializeTag = Symbol('[[Serialize]]');
 
 /**
  * Tag to define the custom deserialization method.
- * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ * @internal
  */
 export const deserializeTag = Symbol('[[Deserialize]]');
 

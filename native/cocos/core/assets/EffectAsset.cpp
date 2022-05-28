@@ -23,10 +23,10 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "cocos.h"
-#include "engine/BaseEngine.h"
 #include "core/assets/EffectAsset.h"
+#include "cocos.h"
 #include "core/Root.h"
+#include "engine/BaseEngine.h"
 #include "renderer/core/ProgramLib.h"
 
 namespace cc {
@@ -152,7 +152,7 @@ bool EffectAsset::destroy() {
     return Super::destroy();
 }
 
-void EffectAsset::initDefault(const cc::optional<ccstd::string> &uuid) {
+void EffectAsset::initDefault(const ccstd::optional<ccstd::string> &uuid) {
     Super::initDefault(uuid);
     const auto *effect = EffectAsset::get("unlit");
     _name = "unlit";
@@ -240,19 +240,19 @@ ccstd::vector<MacroRecord> EffectAsset::doCombine(const ccstd::vector<MacroRecor
 
 ccstd::vector<MacroRecord> EffectAsset::generateRecords(const ccstd::string &key, const IPreCompileInfoValueType &infoValue) {
     ccstd::vector<MacroRecord> ret;
-    if (const auto *boolValues = cc::get_if<ccstd::vector<bool>>(&infoValue)) {
+    if (const auto *boolValues = ccstd::get_if<ccstd::vector<bool>>(&infoValue)) {
         for (const bool value : *boolValues) {
             MacroRecord record;
             record[key] = value;
             ret.emplace_back(record);
         }
-    } else if (const auto *intValues = cc::get_if<ccstd::vector<int32_t>>(&infoValue)) {
+    } else if (const auto *intValues = ccstd::get_if<ccstd::vector<int32_t>>(&infoValue)) {
         for (const int32_t value : *intValues) {
             MacroRecord record;
             record[key] = value;
             ret.emplace_back(record);
         }
-    } else if (const auto *stringValues = cc::get_if<ccstd::vector<ccstd::string>>(&infoValue)) {
+    } else if (const auto *stringValues = ccstd::get_if<ccstd::vector<ccstd::string>>(&infoValue)) {
         for (const ccstd::string &value : *stringValues) {
             MacroRecord record;
             record[key] = value;
@@ -270,19 +270,19 @@ ccstd::vector<MacroRecord> EffectAsset::insertInfoValue(const ccstd::vector<Macr
                                                         const IPreCompileInfoValueType &infoValue) {
     ccstd::vector<MacroRecord> ret;
     for (const auto &record : records) {
-        if (const auto *boolValues = cc::get_if<ccstd::vector<bool>>(&infoValue)) {
+        if (const auto *boolValues = ccstd::get_if<ccstd::vector<bool>>(&infoValue)) {
             for (const bool value : *boolValues) {
                 MacroRecord tmpRecord = record;
                 tmpRecord[key] = value;
                 ret.emplace_back(tmpRecord);
             }
-        } else if (const auto *intValues = cc::get_if<ccstd::vector<int32_t>>(&infoValue)) {
+        } else if (const auto *intValues = ccstd::get_if<ccstd::vector<int32_t>>(&infoValue)) {
             for (const int32_t value : *intValues) {
                 MacroRecord tmpRecord = record;
                 tmpRecord[key] = value;
                 ret.emplace_back(tmpRecord);
             }
-        } else if (const auto *stringValues = cc::get_if<ccstd::vector<ccstd::string>>(&infoValue)) {
+        } else if (const auto *stringValues = ccstd::get_if<ccstd::vector<ccstd::string>>(&infoValue)) {
             for (const ccstd::string &value : *stringValues) {
                 MacroRecord tmpRecord = record;
                 tmpRecord[key] = value;

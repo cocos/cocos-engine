@@ -629,9 +629,14 @@ export class DescriptorSetLayoutData {
 }
 
 export class DescriptorSetData {
-    readonly descriptorSetLayoutData: DescriptorSetLayoutData = new DescriptorSetLayoutData();
-    readonly descriptorSetLayout: DescriptorSetLayout[] = [];
-    readonly descriptorSet: DescriptorSet[] = [];
+    constructor (descriptorSetLayoutData: DescriptorSetLayoutData, descriptorSetLayout: DescriptorSetLayout, descriptorSet: DescriptorSet) {
+        this.descriptorSetLayoutData = descriptorSetLayoutData;
+        this.descriptorSetLayout = descriptorSetLayout;
+        this.descriptorSet = descriptorSet;
+    }
+    readonly descriptorSetLayoutData: DescriptorSetLayoutData;
+    readonly descriptorSetLayout: DescriptorSetLayout;
+    readonly descriptorSet: DescriptorSet;
 }
 
 export class PipelineLayoutData {

@@ -167,30 +167,60 @@ export class AnimationGraphEval {
     private _hasAutoTrigger = false;
 }
 
+/**
+ * @en
+ * Runtime status of a transition.
+ * @zh
+ * 过渡的运行状态。
+ */
 export interface TransitionStatus {
     /**
+     * @en
      * The duration of the transition.
+     * @zh
+     * 过渡的周期。
      */
     duration: number;
 
     /**
+     * @en
      * The progress of the transition.
+     * @zh
+     * 过渡的进度。
      */
     time: number;
 }
 
+/**
+ * @en
+ * Runtime clip status of a motion state.
+ * @zh
+ * 动作状态中包含的剪辑的运行状态。
+ */
 export interface ClipStatus {
     /**
+     * @en
      * The clip object.
+     * @zh
+     * 剪辑对象。
      */
     clip: AnimationClip;
 
     /**
+     * @en
      * The clip's weight.
+     * @zh
+     * 剪辑的权重。
      */
     weight: number;
 }
 
+/**
+ * @en
+ * Runtime status of a motion state.
+ * @zh
+ * 动作状态的运行状态。
+ */
 export interface MotionStateStatus {
     /**
      * For testing.
@@ -200,7 +230,10 @@ export interface MotionStateStatus {
     __DEBUG_ID__?: string;
 
     /**
+     * @en
      * The normalized time of the state.
+     * @zh
+     * 状态的规范化进度。
      */
     progress: number;
 }
@@ -1071,7 +1104,7 @@ enum NodeKind {
 
 export class StateEval {
     /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @internal
      */
     public declare __DEBUG_ID__?: string;
 
