@@ -53,7 +53,7 @@ void Simple::fillBuffers(RenderEntity* entity) {
     uint16_t* ib = entity->getIDataBuffer();
 
     MeshBufferAttr* attr = this->_batcher->getMeshBufferAttr(entity->getBufferId());
-    uint8_t indexOffset = 0;
+    index_t indexOffset = 0;
     if (attr != nullptr) {
         //因为目前的indexOffset还在ts层修改过，所以下面的赋值可能是错误的
         //后续indexOffset全部放在c++修改与维护
