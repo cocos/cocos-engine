@@ -1,4 +1,5 @@
 import { RenderEntity } from '../../../2d/renderer/render-entity';
+import { Node } from '../../scene-graph';
 
 export class NativeRenderEntity {
     get bufferId ():number { return 0; }
@@ -19,14 +20,19 @@ export class NativeRenderEntity {
     get iDataBuffer ():ArrayBufferLike { return new ArrayBuffer(0); }
     set iDataBuffer (iDataBuffer:ArrayBufferLike) {}
 
+    get node ():Node { return new Node(); }
+    set node (node:Node) {}
+
+    get vertDirty ():boolean { return false; }
+    set vertDirty (val:boolean) {}
+
     //setAdvanceRenderDataArr (dataArr: NativeAdvanceRenderData[]) {}
     setRender2dBufferToNative (data:TypedArray, stride:number, size:number) {}
-    setRender2dBufferToNativeNew (data:TypedArray) {}
-    ItIsDebugFuncInRenderEntity () {}
 }
 
 export class NativeBatcher2d {
     syncRenderEntitiesToNative (renderEntities: NativeRenderEntity[]) {}
+    syncMeshBufferAttrToNative (data:TypedArray, stride:number, size:number) {}
     ItIsDebugFuncInBatcher2d () {}
 }
 

@@ -1,9 +1,11 @@
+import { b2Controller } from '@cocos/box2d/src/box2d';
 import { BaseRenderData, IRenderData } from './render-data';
 import { Stage } from './stencil-manager';
 import { JSB } from '../../core/default-constants';
 import { NativeAdvanceRenderData, NativeRenderEntity } from '../../core/renderer/2d/native-2d';
 import { AdvanceRenderData } from './AdvanceRenderData';
 import { NULL_HANDLE, Render2dHandle, Render2dPool } from '../../core/renderer';
+import { Node } from '../../core';
 
 export class RenderEntity {
     public renderData: BaseRenderData=null!;
@@ -21,12 +23,14 @@ export class RenderEntity {
     public nativeDataArr:NativeAdvanceRenderData[] = [];
 
     //具体的渲染数据
-    public bufferId: number | undefined;
-    public vertexOffset: number | undefined;
-    public indexOffset: number | undefined;
-    public vb: Float32Array | undefined;
-    public vData: Float32Array | undefined;//要考虑是否每个组件都需要存这个指针
-    public iData: Uint16Array | undefined;
+    protected _bufferId: number | undefined;
+    protected _vertexOffset: number | undefined;
+    protected _indexOffset: number | undefined;
+    protected _vb: Float32Array | undefined;
+    protected _vData: Float32Array | undefined;
+    protected _iData: Uint16Array | undefined;
+    protected _node: Node | undefined;
+    protected _vertDirty: boolean | undefined;
 
     protected declare _nativeObj: NativeRenderEntity;
 
@@ -54,21 +58,21 @@ export class RenderEntity {
     }
 
     public setBufferId (bufferId) {
-        this.bufferId = bufferId;
+        this._bufferId = bufferId;
         if (JSB) {
             this._nativeObj.bufferId = bufferId;
         }
     }
 
     public setVertexOffset (vertexOffset) {
-        this.vertexOffset = vertexOffset;
+        this._vertexOffset = vertexOffset;
         if (JSB) {
             this._nativeObj.vertexOffset = vertexOffset;
         }
     }
 
     public setIndexOffset (indexOffset) {
-        this.indexOffset = indexOffset;
+        this._indexOffset = indexOffset;
         if (JSB) {
             this._nativeObj.indexOffset = indexOffset;
         }
@@ -90,6 +94,20 @@ export class RenderEntity {
     public setIData (iDataBuffer:ArrayBufferLike) {
         if (JSB) {
             this._nativeObj.iDataBuffer = iDataBuffer;
+        }
+    }
+
+    public setNode (node: Node) {
+        this._node = node;
+        if (JSB) {
+            this._nativeObj.node = node;
+        }
+    }
+
+    public setVertDirty (val:boolean) {
+        this._vertDirty = val;
+        if (JSB) {
+            this._nativeObj.vertDirty = val;
         }
     }
 

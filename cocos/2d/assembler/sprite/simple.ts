@@ -39,6 +39,7 @@ import { RenderEntity } from '../../renderer/render-entity';
 import { NativeRenderEntity } from '../../../core/renderer/2d/native-2d';
 import { AdvanceRenderData } from '../../renderer/AdvanceRenderData';
 import { Batcher2D } from '../../renderer/batcher-2d';
+import { director } from '../../../core';
 
 const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
@@ -52,6 +53,7 @@ for (let i = 0; i < 4; i++) {
 export const simple: IAssembler = {
     createData (sprite: Sprite) {
         const renderData = sprite.requestRenderData();
+        renderData.assignEntityAttrs(sprite);
         renderData.dataLength = 4;
         renderData.resize(4, 6);
         renderData.vertexRow = 2;
@@ -84,7 +86,7 @@ export const simple: IAssembler = {
         }
 
         this.copyRenderDataToBuffer(sprite);
-        renderData?.renderEntity.nativeObj.ItIsDebugFuncInRenderEntity();
+        //renderData?.renderEntity.nativeObj.ItIsDebugFuncInRenderEntity();
     },
 
     copyRenderDataToBuffer (sprite:Sprite) {
@@ -128,6 +130,9 @@ export const simple: IAssembler = {
         if (sprite === null) {
             return;
         }
+
+        const batcher = director.root!.batcher2D;
+
         const renderData = sprite.renderData!;
         const chunk = renderData.chunk;
         if (sprite.node.hasChangedFlags || renderData.vertDirty) {
@@ -165,9 +170,12 @@ export const simple: IAssembler = {
 
                 // IndexOffset should add 6 when vertices of a rect are visited.
                 meshBuffer.indexOffset += 6;
+
+                batcher.updateAttrBuffer(renderData.chunk);
             }
         }
 
+        batcher.nativeObj.ItIsDebugFuncInBatcher2d();
         // slow version
         // renderer.switchBufferAccessor().appendIndices(chunk);
     },

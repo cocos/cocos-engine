@@ -4,6 +4,7 @@
 #include <type_traits>
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
+#include "cocos/bindings/auto/jsb_scene_auto.h"
 #include "cocos/2d/renderer/RenderEntity.h"
 #include "cocos/2d/renderer/Batcher2d.h"
 #include "cocos/2d/renderer/AdvanceRenderData.h"
@@ -22,7 +23,6 @@ bool js_register_cc_RenderEntity(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_2d_RenderEntity_ItIsDebugFuncInRenderEntity);
 SE_DECLARE_FUNC(js_2d_RenderEntity_setRender2dBufferToNative);
-SE_DECLARE_FUNC(js_2d_RenderEntity_setRender2dBufferToNativeNew);
 SE_DECLARE_FUNC(js_2d_RenderEntity_RenderEntity);
 
 extern se::Object *__jsb_cc_Batcher2d_proto; // NOLINT
@@ -31,6 +31,7 @@ extern se::Class * __jsb_cc_Batcher2d_class; // NOLINT
 bool js_register_cc_Batcher2d(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_2d_Batcher2d_ItIsDebugFuncInBatcher2d);
+SE_DECLARE_FUNC(js_2d_Batcher2d_syncMeshBufferAttrToNative);
 SE_DECLARE_FUNC(js_2d_Batcher2d_syncRenderEntitiesToNative);
 SE_DECLARE_FUNC(js_2d_Batcher2d_Batcher2d);
 

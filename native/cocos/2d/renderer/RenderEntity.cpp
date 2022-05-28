@@ -10,6 +10,8 @@ RenderEntity::RenderEntity(const index_t bufferId, const index_t vertexOffset, c
     this->_bufferId = bufferId;
     this->_vertexOffset = vertexOffset;
     this->_indexOffset = indexOffset;
+    this->_stride = 0;
+    this->_size = 0;
 }
 
 RenderEntity::~RenderEntity() {
@@ -39,20 +41,49 @@ void RenderEntity::setIDataBuffer(uint16_t* iDataBuffer) {
     this->_iDataBuffer = iDataBuffer;
 }
 
+void RenderEntity::setNode(Node* node) {
+    this->_node = node;
+}
+
+void RenderEntity::setVertDirty(bool val) {
+    this->_vertDirty = val;
+}
+
 //void RenderEntity::setAdvanceRenderDataArr(std::vector<AdvanceRenderData*>&& arr) {
 //    this->_dataArr = std::move(arr);
 //}
 
 void RenderEntity::setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size) {
-    index_t vertexCount = size / stride;
-    for (index_t i = 0; i < size; i += stride) {
-        Render2dLayout* layout = reinterpret_cast<Render2dLayout*>(buffer + i * sizeof(float_t));
-        this->_render2dLayoutArr.push_back(layout);
+    this->_stride = stride;
+    this->_size = size;
+    this->_sharedBuffer = buffer;
+    parseLayout();
+}
+
+std::vector<Render2dLayout*> RenderEntity::getRenderDataArr() {
+    return this->_render2dLayoutArr;
+}
+
+void RenderEntity::parseLayout() {
+    index_t vertexCount = this->_size / this->_stride;
+    this->_render2dLayoutArr.clear();
+    for (index_t i = 0; i < this->_size; i += this->_stride) {
+        Render2dLayout* temp = reinterpret_cast<Render2dLayout*>(this->_sharedBuffer + i * sizeof(float_t));
+        this->_render2dLayoutArr.push_back(temp);
     }
 }
 
-void RenderEntity::setRender2dBufferToNativeNew(float_t* buffer) {
-    Render2dLayout* layout = reinterpret_cast<Render2dLayout*>(buffer);
+void RenderEntity::refreshLayout() {
+    index_t vertexCount = this->_size / this->_stride;
+    //这里涉及到dirty，可以考虑
+    for (index_t i = 0; i < this->_size; i += this->_stride) {
+        //可以考虑直接用偏移，而不用reinterpret_cast
+        Render2dLayout* temp = reinterpret_cast<Render2dLayout*>(this->_sharedBuffer + i * sizeof(float_t));
+        Render2dLayout* thisLayout = this->_render2dLayoutArr[i];
+        thisLayout->position.set(temp->position);
+        thisLayout->uv.set(temp->uv);
+        thisLayout->color.set(temp->color);
+    }
 }
 
 void RenderEntity::ItIsDebugFuncInRenderEntity() {

@@ -42,7 +42,7 @@ import { SpriteFrame } from '../assets';
 import { TextureBase } from '../../core/assets/texture-base';
 import { Mat4, Vec3 } from '../../core/math';
 import { IBatcher } from './i-batcher';
-import { StaticVBAccessor } from './static-vb-accessor';
+import { StaticVBAccessor, StaticVBChunk } from './static-vb-accessor';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { getAttributeStride, vfmtPosUvColor } from './vertex-format';
 import { updateOpacity } from '../assembler/utils';
@@ -52,6 +52,8 @@ import { RenderEntity } from './render-entity';
 import { NativeAdvanceRenderData, NativeBatcher2d, NativeRenderEntity } from '../../core/renderer/2d/native-2d';
 import { AdvanceRenderData } from './AdvanceRenderData';
 import { mapBuffer, readBuffer } from '../../3d/misc';
+import { MeshBuffer } from './mesh-buffer';
+import { propertyDefine } from '../../core/utils/misc';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
@@ -125,6 +127,8 @@ export class Batcher2D implements IBatcher {
 
         if (JSB) {
             this._nativeObj = new NativeBatcher2d();
+
+            this.initAttrBuffer();
         }
     }
 
@@ -217,9 +221,10 @@ export class Batcher2D implements IBatcher {
             this.walk(screen.node);
 
             // test code
-            this.syncRenderEntitiesToNative();// transport entities to native
-            this.nativeObj.ItIsDebugFuncInBatcher2d();
-
+            if (JSB) {
+                this.syncRenderEntitiesToNative();// transport entities to native
+                this._nativeObj.ItIsDebugFuncInBatcher2d();
+            }
             this.autoMergeBatches(this._currComponent!);
             this.resetRenderStates();
 
@@ -739,7 +744,7 @@ export class Batcher2D implements IBatcher {
     }
 
     public removeRenderEntity (entityId:number) {
-        const removeIndex =  this.entityArr.findIndex((x) => x.entityId === entity.entityId);
+        const removeIndex =  this.entityArr.findIndex((x) => x.entityId === entityId);
         if (removeIndex >= 0 && removeIndex < this.entityArr.length) {
             delete this.entityArr[removeIndex];
         }
@@ -754,6 +759,88 @@ export class Batcher2D implements IBatcher {
             this._nativeObj.syncRenderEntitiesToNative(nativeEntityArr);
         }
     }
+
+    // sync some attribute of MeshBuffer
+    protected _meshBufferAttrArr:MeshBufferAttr[] = [];
+    protected declare _AttrBuffer: Uint32Array;
+    protected _needToSyncAttr = true;
+    //protected _meshBufferAttrBuffer!:Array<number>;
+    protected _attrStride = 2;//后期需要改为结构体的长度
+    protected _attrCapacity = 4;
+
+    public initAttrBuffer () {
+        this._AttrBuffer = new Uint32Array(this._attrCapacity * this._attrStride);
+    }
+
+    public updateAttrBuffer (chunk: StaticVBChunk) {
+        const index = this._meshBufferAttrArr.findIndex((x) => x.bufferId === chunk.bufferId);
+        if (index >= 0 && index < this._meshBufferAttrArr.length) {
+            this._meshBufferAttrArr[index].setAttr(chunk.bufferId, chunk.meshBuffer.indexOffset);
+            this.syncAttrToSharedBuffer();
+        } else {
+            const temp: MeshBufferAttr = new MeshBufferAttr();
+            temp.setAttr(chunk.bufferId, chunk.meshBuffer.indexOffset);
+            this._meshBufferAttrArr.push(temp);
+
+            if (this._attrCapacity < this._meshBufferAttrArr.length) {
+                this.resizeAttrBufferAndSync();
+            } else {
+                this._needToSyncAttr = true;
+            }
+        }
+    }
+
+    public resizeAttrBufferAndSync () {
+        this._attrCapacity *= 2;
+        //const cloneArr = this._AttrBuffer
+        this._AttrBuffer = new Uint32Array(this._attrCapacity * this._attrStride);
+        this._needToSyncAttr = true;
+        this.syncMeshBufferAttrToNative();
+    }
+
+    public syncAttrToSharedBuffer () {
+        const length = this._attrStride * this._meshBufferAttrArr.length;
+        //this._AttrBuffer = new Uint32Array(length);
+        if (this._AttrBuffer.length < length) {
+            return false;
+        }
+        for (let i = 0; i < this._meshBufferAttrArr.length; i++) {
+            const temp  = this._meshBufferAttrArr[i];
+            this._AttrBuffer[i * this._attrStride] = temp.bufferId;
+            this._AttrBuffer[i * this._attrStride + 1] = temp.indexOffset;
+        }
+        return true;
+    }
+
+    public syncMeshBufferAttrToNative () {
+        if (JSB) {
+            if (this._needToSyncAttr) {
+                const success = this.syncAttrToSharedBuffer();
+                if (success) {
+                    const length = this._attrStride * this._meshBufferAttrArr.length;
+                    this._nativeObj.syncMeshBufferAttrToNative(this._AttrBuffer, this._attrStride, length);
+                }
+                this._needToSyncAttr = false;
+            }
+        }
+    }
+}
+
+class MeshBufferAttr {
+    bufferId = 0;
+    indexOffset = 0;
+
+    public setAttr (bufferId:number, indexOffset:number) {
+        this.bufferId = bufferId;
+        this.indexOffset = indexOffset;
+    }
+
+    // public toArray () {
+    //     const arr:number[]  = [];
+    //     arr.push(this.bufferId);
+    //     arr.push(this.indexOffset);
+    //     return arr;
+    // }
 }
 
 class LocalDescriptorSet  {

@@ -87,7 +87,7 @@ export class BaseRenderData {
     public chunk: StaticVBChunk = null!;
 
     // entity for native
-    protected _renderEntity:RenderEntity = null!;
+    protected _renderEntity: RenderEntity = null!;
     public get renderEntity () {
         return this._renderEntity;
     }
@@ -168,8 +168,19 @@ export class RenderData extends BaseRenderData {
         return this._data;
     }
 
+    get vertDirty () {
+        return this._vertDirty;
+    }
+
+    set vertDirty (val: boolean) {
+        this._vertDirty = val;
+        if (this._renderEntity) {
+            this._renderEntity.setVertDirty(val);
+        }
+    }
+
     public indices: Uint16Array | null = null;
-    public vertDirty = true;
+    public _vertDirty = true;
 
     public frame;
     public layer = 0;
@@ -220,6 +231,10 @@ export class RenderData extends BaseRenderData {
 
         // for sync vData and iData address to native
         this.setRenderEntityAttributes();
+        // sync some attributes which belong to mesh buffer
+        const batcher = director.root!.batcher2D;
+        batcher.updateAttrBuffer(this.chunk);
+        batcher.syncMeshBufferAttrToNative();
     }
 
     protected setRenderEntityAttributes () {
@@ -232,6 +247,13 @@ export class RenderData extends BaseRenderData {
         this._renderEntity.setVB(this.chunk.vb.buffer);
         this._renderEntity.setVData(this.chunk.meshBuffer.vData.buffer);
         this._renderEntity.setIData(this.chunk.meshBuffer.iData.buffer);
+    }
+
+    public assignEntityAttrs (comp: UIRenderer) {
+        if (!this._renderEntity || !comp) {
+            return;
+        }
+        this._renderEntity.setNode(comp.node);
     }
 
     // Initial advance render data for native

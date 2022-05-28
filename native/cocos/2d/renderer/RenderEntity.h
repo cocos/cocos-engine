@@ -5,6 +5,7 @@
 #include <math/Vec3.h>
 #include <math/Vec4.h>
 #include <math/Color.h>
+#include <cocos/core/scene-graph/Node.h>
 
 namespace cc {
 struct Render2dLayout {
@@ -33,29 +34,48 @@ public:
     inline uint16_t* getIDataBuffer() const { return this->_iDataBuffer; }
     void setIDataBuffer(uint16_t* iDataBuffer);
 
+    inline Node* getNode() const { return this->_node; }
+    void setNode(Node* node);
+
+    inline bool getVertDirty() const { return this->_vertDirty; }
+    void setVertDirty(bool val);
+
     //inline std::vector<AdvanceRenderData*> getDataArr() { return this->_dataArr; }
     //void setAdvanceRenderDataArr(std::vector<AdvanceRenderData*>&& arr);
 
     void setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size);
-    void setRender2dBufferToNativeNew(float_t* buffer);
 
     // for debug
     void ItIsDebugFuncInRenderEntity();
 
-private:
-    // deprecated
-    //std::vector<AdvanceRenderData*> _dataArr{};
+public:
+    //这里每次获取时都应该对buffer做一次解析
+    std::vector<Render2dLayout*> getRenderDataArr();
+    void parseLayout();
+    void refreshLayout();
+    inline uint8_t getStride() { return this->_stride; }
+    inline uint32_t getSize() { return this->_size; }
 
+private:
     // use this
-    std::vector< Render2dLayout*> _render2dLayoutArr{};
+    std::vector<Render2dLayout*> _render2dLayoutArr{};
+    uint8_t* _sharedBuffer{nullptr};
+    uint8_t _stride{0};
+    uint32_t _size{0};
 
     // updateWorld 数据计算用到
     index_t _bufferId{0};
     index_t _vertexOffset{0};
+
+    // 这个要使用batcher2d里的字段，它不跟这entity走
     index_t _indexOffset{0};
 
     float_t* _vbBuffer{nullptr};
     float_t* _vDataBuffer{nullptr};
     uint16_t* _iDataBuffer{nullptr};
+
+    Node* _node{nullptr};
+
+    bool _vertDirty{false};
 };
 }
