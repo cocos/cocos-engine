@@ -586,6 +586,11 @@ export class ArmatureDisplay extends UIRenderer {
         return inst;
     }
 
+    protected updateMaterial () {
+        super.updateMaterial();
+        this._cleanMaterialCache();
+    }
+
     protected _render (batcher: Batcher2D) {
         if (this._renderData && this._drawList) {
             const rd = this._renderData;
@@ -1308,6 +1313,13 @@ export class ArmatureDisplay extends UIRenderer {
                 }
             }
         }
+    }
+
+    private _cleanMaterialCache () {
+        for (const val in this._materialCache) {
+            this._materialCache[val].destroy();
+        }
+        this._materialCache = {};
     }
 }
 
