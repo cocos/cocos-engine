@@ -12,11 +12,11 @@ CCEffect %{
         mainTexture:          { value: grey, target: albedoMap, editor: { displayName: BaseColorMap } }
         baseWeightMap:        { value: grey }
         albedoScale:          { value: 1.0, editor: { displayName: BaseWeight } }
-        roughness:            { value: 1.0 }
+        roughness:            { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         roughnessMap:         { value: grey }
-        metallic:             { value: 1.0 }
+        metallic:             { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         metallicMap:          { value: grey }
-        occlusion:            { value: 1.0 }
+        occlusion:            { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         occlusionMap:         { value: white }
         emissiveScale:        { value: 1.0, editor: { displayName: Emissive } }
         emissiveScaleMap:     { value: grey, editor: { displayName: EmissiveMap } }
