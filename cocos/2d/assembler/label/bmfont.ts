@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui-assembler
- */
-
 import { SpriteFrame } from '../../assets/sprite-frame';
 import * as js from '../../../core/utils/js';
 import { Color, Rect } from '../../../core/math';

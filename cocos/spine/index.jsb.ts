@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module spine
- */
-
 import { ccenum } from '../core';
 import { legacyCC } from '../core/global-exports';
 

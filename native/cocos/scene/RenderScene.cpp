@@ -103,6 +103,7 @@ void RenderScene::addCamera(Camera *camera) {
 void RenderScene::removeCamera(Camera *camera) {
     auto iter = std::find(_cameras.begin(), _cameras.end(), camera);
     if (iter != _cameras.end()) {
+        (*iter)->detachFromScene();
         _cameras.erase(iter);
     }
 }

@@ -270,6 +270,10 @@ void Skybox::activate() {
             skyboxMaterial->release();
             skyboxMaterial = nullptr;
         });
+        EventDispatcher::addCustomEventListener(EVENT_RESTART_VM, [](const CustomEvent & /*unused*/) {
+            skyboxMaterial->release();
+            skyboxMaterial = nullptr;
+        });
     }
 
     if (_enabled) {

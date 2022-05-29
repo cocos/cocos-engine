@@ -26,6 +26,7 @@
 #pragma once
 
 #include "platform/UniversalPlatform.h"
+#include "base/Timer.h"
 
 struct android_app;
 
@@ -58,9 +59,16 @@ public:
 
     int32_t getHeight() const;
 
-    void setAndroidApp(android_app *app);
+    void onDestory() override;
+
+    inline void setAndroidApp(android_app *app) {
+        _app = app;
+    }
 
 private:
+    bool _isLowFrequencyLoopEnabled{false};
+    utils::Timer _lowFrequencyTimer;
+    int _loopTimeOut{-1};
     GameInputProxy *_inputProxy{nullptr};
     android_app *_app{nullptr};
 

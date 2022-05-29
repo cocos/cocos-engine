@@ -1,0 +1,32 @@
+// params must be normalized
+vec3 CalculateBinormal(vec3 normal, vec3 tangent, float mirrorNormal)
+{
+    return cross(normal.xyz, tangent) * mirrorNormal;
+}
+
+
+// param1 is normal from normalmap
+// return value is un-normalized
+vec3 CalculateNormalFromTangentSpace(vec3 normalFromTangentSpace, float normalStrength, vec3 normal, vec3 tangent, float mirrorNormal)
+{
+    vec3 binormal = CalculateBinormal(normal, tangent, mirrorNormal);
+    return (normalFromTangentSpace.x * normalStrength) * normalize(tangent) +
+           (normalFromTangentSpace.y * normalStrength) * normalize(binormal) +
+            normalFromTangentSpace.z * normalize(normal);
+}
+
+
+// rotationAngle: 0-1 stand for 0-180 rotation
+void RotateTangentAndBinormal(inout vec3 tangent, inout vec3 binormal, vec3 normal, float rotationAngle)
+{
+    rotationAngle = clamp(rotationAngle, 0.0, 1.0 - EPSILON_LOWP); // 1.0 is invalid value that equals to 90 rotation (coef=0, angle>0.5)
+    float coef = fract(rotationAngle * 2.0);
+    bool isNegative = rotationAngle <= 0.5;
+
+    // spherical interpolating is more accuracy and linear transitions but expensive, use simple pow fix instead
+    coef = pow(coef, isNegative ? 0.75 : 1.25);
+    vec3 binormalNew = isNegative ? mix(binormal, -tangent, coef) : mix(-tangent, -binormal, coef);
+    vec3 tangentNew = isNegative ? mix(tangent, binormal, coef) : mix(binormal, -tangent, coef);
+    tangent = normalize(tangentNew);
+    binormal = normalize(binormalNew);
+}

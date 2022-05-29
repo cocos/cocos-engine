@@ -46,7 +46,7 @@ TextureBase::TextureBase() {
     _gfxDevice = getGFXDevice();
     std::size_t seed = 666;
     boost::hash_range(seed, _id.begin(), _id.end());
-    _textureHash = static_cast<uint32_t>(seed);
+    _textureHash = static_cast<uint64_t>(seed);
 }
 
 TextureBase::~TextureBase() = default;

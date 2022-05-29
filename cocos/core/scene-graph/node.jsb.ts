@@ -38,6 +38,8 @@ import { NodeEventProcessor } from './node-event-processor';
 import { Layers } from './layers';
 import { SerializationContext, SerializationOutput, serializeTag } from '../data';
 import { EDITOR } from '../default-constants';
+import { _tempFloatArray } from './utils.jsb';
+
 import {
     applyMountedChildren,
     applyMountedComponents, applyPropertyOverrides,
@@ -47,7 +49,7 @@ import {
 } from '../utils/prefab/utils';
 import { getClassByName, isChildClassOf } from '../utils/js-typed';
 import { syncNodeValues } from "../utils/jsb-utils";
-import { BaseNode } from "./base-node.jsb";
+import { BaseNode } from "./base-node";
 
 declare const jsb: any;
 
@@ -84,13 +86,13 @@ NodeCls.TransformDirtyBit = TransformBit;
  */
 NodeCls.TransformBit = TransformBit;
 
+const TRANSFORMBIT_TRS = TransformBit.TRS;
+
 const nodeProto: any = jsb.Node.prototype;
 export const TRANSFORM_ON = 1 << 0;
 const Destroying = CCObject.Flags.Destroying;
 
-// For optimize getPosition, getRotation, getScale
-export const _tempFloatArray = new Float32Array(jsb.createExternalArrayBuffer(20 * 4));
-//
+
 
 Node._setTempFloatArray(_tempFloatArray.buffer);
 
@@ -413,6 +415,47 @@ nodeProto._onChildAdded = function (child) {
 
 nodeProto._onNodeDestroyed = function () {
     this.emit(NodeEventType.NODE_DESTROYED, this);
+    // destroy children
+    const children = this._children;
+    for (let i = 0; i < children.length; ++i) {
+        // destroy immediate so its _onPreDestroy can be called
+        children[i]._destroyImmediate();
+    }
+};
+
+const oldPreDestroy = nodeProto._onPreDestroy;
+nodeProto._onPreDestroy = function _onPreDestroy () {
+    const ret = oldPreDestroy.call(this);
+
+    // emit node destroy event (this should before event processor destroy)
+    this.emit(NodeEventType.NODE_DESTROYED, this);
+
+    // Destroy node event processor
+    this._eventProcessor.destroy();
+
+    // destroy children
+    const children = this._children;
+    for (let i = 0; i < children.length; ++i) {
+        // destroy immediate so its _onPreDestroy can be called
+        children[i]._destroyImmediate();
+    }
+
+    // destroy self components
+    const comps = this._components;
+    for (let i = 0; i < comps.length; ++i) {
+        // destroy immediate so its _onPreDestroy can be called
+        // TO DO
+        comps[i]._destroyImmediate();
+    }
+
+    return ret;
+};
+
+nodeProto.destroyAllChildren = function destroyAllChildren () {
+    const children = this._children;
+    for (let i = 0, len = children.length; i < len; ++i) {
+        children[i].destroy();
+    }
 };
 
 nodeProto._onSiblingOrderChanged = function () {
@@ -1079,13 +1122,15 @@ nodeProto._onActiveNode = function (shouldActiveNow: boolean) {
 };
 
 nodeProto._onBatchCreated = function (dontSyncChildPrefab: boolean) {
-    this.hasChangedFlags = TransformBit.TRS;
-    this._dirtyFlags |= TransformBit.TRS;
+    this.hasChangedFlags = TRANSFORMBIT_TRS;
+    this._dirtyFlags |= TRANSFORMBIT_TRS;
     const children = this._children;
     const len = children.length;
+    let child;
     for (let i = 0; i < len; ++i) {
-        children[i]._siblingIndex = i;
-        children[i]._onBatchCreated(dontSyncChildPrefab);
+        child = children[i];
+        child._siblingIndex = i;
+        child._onBatchCreated(dontSyncChildPrefab);
     }
 
     // Sync node _lpos, _lrot, _lscale to native

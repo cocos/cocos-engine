@@ -124,8 +124,9 @@ void jsToSeValue(v8::Isolate *isolate, v8::Local<v8::Value> jsval, Value *v) {
     } else if (jsval->IsObject()) {
         v8::MaybeLocal<v8::Object> jsObj = jsval->ToObject(isolate->GetCurrentContext());
         if (!jsObj.IsEmpty()) {
-            PrivateObjectBase *privateObject = static_cast<PrivateObjectBase *>(internal::getPrivate(isolate, jsObj.ToLocalChecked(), 0));
-            void *nativePtr = privateObject ? privateObject->getRaw() : nullptr;
+            auto *seObj = internal::getPrivate(isolate, jsObj.ToLocalChecked());
+            PrivateObjectBase *privateObject = seObj != nullptr ? seObj->getPrivateObject() : nullptr;
+            void *nativePtr = privateObject != nullptr ? privateObject->getRaw() : nullptr;
             Object *obj = nullptr;
             if (nativePtr != nullptr) {
                 obj = Object::getObjectWithPtr(nativePtr);
@@ -178,41 +179,26 @@ bool hasPrivate(v8::Isolate * /*isolate*/, v8::Local<v8::Value> value) {
     return obj->InternalFieldCount() > 0;
 }
 
-void setPrivate(v8::Isolate *isolate, ObjectWrap &wrap, PrivateObjectBase *data, Object *thizObj, PrivateData **outInternalData) {
+void setPrivate(v8::Isolate *isolate, ObjectWrap &wrap, Object *thizObj) {
     v8::Local<v8::Object> obj = wrap.handle(isolate);
     int c = obj->InternalFieldCount();
-    CC_ASSERT(c > 1);
-    if (c > 1) {
-        wrap.wrap(data, 0);
-        wrap.wrap(thizObj, 1);
-        //                SE_LOGD("setPrivate1: %p\n", data);
-        if (outInternalData != nullptr) {
-            *outInternalData = nullptr;
-        }
+    CC_ASSERT(c > 0);
+    if (c > 0) {
+        wrap.wrap(thizObj, 0);
     }
 }
 
-void *getPrivate(v8::Isolate *isolate, v8::Local<v8::Value> value, uint32_t index /* = 0*/) {
+Object *getPrivate(v8::Isolate *isolate, v8::Local<v8::Value> value) {
     v8::Local<v8::Context> context = isolate->GetCurrentContext();
     v8::MaybeLocal<v8::Object> obj = value->ToObject(context);
     if (obj.IsEmpty()) {
         return nullptr;
     }
 
-    CC_ASSERT(index >= 0 && index < 2);
-    if (index > 1) {
-        return nullptr;
-    }
-
     v8::Local<v8::Object> objChecked = obj.ToLocalChecked();
     int c = objChecked->InternalFieldCount();
-    if (c > 1) {
-        void *nativeObj = nullptr;
-        if (index >= 0 && index < 2) {
-            nativeObj = ObjectWrap::unwrap(objChecked, index);
-        }
-        //                SE_LOGD("getPrivate1: %p\n", nativeObj);
-        return nativeObj;
+    if (c > 0) {
+        return static_cast<Object *>(ObjectWrap::unwrap(objChecked, 0));
     }
 
     return nullptr;
@@ -221,9 +207,8 @@ void *getPrivate(v8::Isolate *isolate, v8::Local<v8::Value> value, uint32_t inde
 void clearPrivate(v8::Isolate *isolate, ObjectWrap &wrap) {
     v8::Local<v8::Object> obj = wrap.handle(isolate);
     int c = obj->InternalFieldCount();
-    if (c > 1) {
+    if (c > 0) {
         wrap.wrap(nullptr, 0);
-        wrap.wrap(nullptr, 1);
     }
 }
 

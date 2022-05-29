@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module pipeline
- */
-
 import { SubModel } from '../renderer/scene/submodel';
 import { SetIndex } from './define';
 import { Device, RenderPass, Shader, CommandBuffer, DescriptorSet } from '../gfx';
@@ -109,7 +104,7 @@ export class RenderShadowMapBatchedQueue {
                 break;
             case LightType.SPOT:
                 Mat4.invert(_matShadowView, light.node!.getWorldMatrix());
-                Mat4.perspective(_matShadowProj, (light as any).angle, (light as any).aspect, 0.001, (light as any).range);
+                Mat4.perspective(_matShadowProj, (light as any).angle, 1.0, 0.001, (light as any).range);
                 Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
                 for (let i = 0; i < castShadowObjects.length; i++) {
                     const ro = castShadowObjects[i];

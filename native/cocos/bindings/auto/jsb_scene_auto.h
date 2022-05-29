@@ -110,6 +110,8 @@ SE_DECLARE_FUNC(js_scene_Node_isChildOf);
 SE_DECLARE_FUNC(js_scene_Node_lookAt);
 SE_DECLARE_FUNC(js_scene_Node_off);
 SE_DECLARE_FUNC(js_scene_Node_onPostActivated);
+SE_DECLARE_FUNC(js_scene_Node_onPreDestroy);
+SE_DECLARE_FUNC(js_scene_Node_onPreDestroyBase);
 SE_DECLARE_FUNC(js_scene_Node_pauseSystemEvents);
 SE_DECLARE_FUNC(js_scene_Node_removeAllChildren);
 SE_DECLARE_FUNC(js_scene_Node_removeChild);
@@ -662,7 +664,6 @@ SE_DECLARE_FUNC(js_scene_ProgramLib_getTemplate);
 SE_DECLARE_FUNC(js_scene_ProgramLib_getTemplateInfo);
 SE_DECLARE_FUNC(js_scene_ProgramLib_hasProgram);
 SE_DECLARE_FUNC(js_scene_ProgramLib_registerEffect);
-SE_DECLARE_FUNC(js_scene_ProgramLib_destroyInstance);
 SE_DECLARE_FUNC(js_scene_ProgramLib_getInstance);
 
 extern se::Object *__jsb_cc_scene_OctreeInfo_proto; // NOLINT

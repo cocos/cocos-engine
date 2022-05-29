@@ -28,8 +28,6 @@
 
 namespace cc {
 
-MorphRendering *createMorphRendering(Mesh *mesh, gfx::Device *gfxDevice) {
-    return ccnew StdMorphRendering(mesh, gfxDevice);
-}
+
 
 } // namespace cc

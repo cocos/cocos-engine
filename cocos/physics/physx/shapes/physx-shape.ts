@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { IVec3Like, Quat, Vec3 } from '../../../core';
 import { AABB, Sphere } from '../../../core/geometry';

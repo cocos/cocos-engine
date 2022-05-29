@@ -25,37 +25,27 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef __CC_FILEUTILS_WIN32_H__
-#define __CC_FILEUTILS_WIN32_H__
+#pragma once
 
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
-
-    #include "base/Macros.h"
-    #include "base/std/container/string.h"
-    #include "platform/FileUtils.h"
+#include "base/Macros.h"
+#include "base/std/container/string.h"
+#include "platform/FileUtils.h"
 
 namespace cc {
 
-/**
- * @addtogroup platform
- * @{
- */
-
 //! @brief  Helper class to handle file operations
 class CC_DLL FileUtilsWin32 : public FileUtils {
-    friend class FileUtils;
-    FileUtilsWin32();
-
 public:
+    FileUtilsWin32();
     /* override functions */
     bool init();
-    virtual ccstd::string getWritablePath() const override;
-    virtual bool isAbsolutePath(const ccstd::string &strPath) const override;
-    virtual ccstd::string getSuitableFOpen(const ccstd::string &filenameUtf8) const override;
-    virtual long getFileSize(const ccstd::string &filepath);
+    ccstd::string getWritablePath() const override;
+    bool isAbsolutePath(const ccstd::string &strPath) const override;
+    ccstd::string getSuitableFOpen(const ccstd::string &filenameUtf8) const override;
+    long getFileSize(const ccstd::string &filepath);
 
 protected:
-    virtual bool isFileExistInternal(const ccstd::string &strFilePath) const override;
+    bool isFileExistInternal(const ccstd::string &strFilePath) const override;
 
     /**
     *  Renames a file under the given directory.
@@ -65,7 +55,7 @@ protected:
     *  @param name     The new name of the file.
     *  @return True if the file have been renamed successfully, false if not.
     */
-    virtual bool renameFile(const ccstd::string &path, const ccstd::string &oldname, const ccstd::string &name) override;
+    bool renameFile(const ccstd::string &path, const ccstd::string &oldname, const ccstd::string &name) override;
 
     /**
     *  Renames a file under the given directory.
@@ -74,14 +64,14 @@ protected:
     *  @param newfullpath  The new path + name of the file.
     *  @return True if the file have been renamed successfully, false if not.
     */
-    virtual bool renameFile(const ccstd::string &oldfullpath, const ccstd::string &newfullpath) override;
+    bool renameFile(const ccstd::string &oldfullpath, const ccstd::string &newfullpath) override;
 
     /**
     *  Checks whether a directory exists without considering search paths and resolution orders.
     *  @param dirPath The directory (with absolute path) to look up for
     *  @return Returns true if the directory found at the given absolute path, otherwise returns false
     */
-    virtual bool isDirectoryExistInternal(const ccstd::string &dirPath) const override;
+    bool isDirectoryExistInternal(const ccstd::string &dirPath) const override;
 
     /**
     *  Removes a file.
@@ -89,7 +79,7 @@ protected:
     *  @param filepath The full path of the file, it must be an absolute path.
     *  @return True if the file have been removed successfully, false if not.
     */
-    virtual bool removeFile(const ccstd::string &filepath) override;
+    bool removeFile(const ccstd::string &filepath) override;
 
     /**
     *  Creates a directory.
@@ -97,7 +87,7 @@ protected:
     *  @param dirPath The path of the directory, it must be an absolute path.
     *  @return True if the directory have been created successfully, false if not.
     */
-    virtual bool createDirectory(const ccstd::string &dirPath) override;
+    bool createDirectory(const ccstd::string &dirPath) override;
 
     /**
     *  Removes a directory.
@@ -105,9 +95,9 @@ protected:
     *  @param dirPath  The full path of the directory, it must be an absolute path.
     *  @return True if the directory have been removed successfully, false if not.
     */
-    virtual bool removeDirectory(const ccstd::string &dirPath) override;
+    bool removeDirectory(const ccstd::string &dirPath) override;
 
-    virtual FileUtils::Status getContents(const ccstd::string &filename, ResizableBuffer *buffer) override;
+    FileUtils::Status getContents(const ccstd::string &filename, ResizableBuffer *buffer) override;
 
     /**
      *  Gets full path for filename, resolution directory and search path.
@@ -116,7 +106,7 @@ protected:
      *  @param searchPath The search path.
      *  @return The full path of the file. It will return an empty string if the full path of the file doesn't exist.
      */
-    virtual ccstd::string getPathForFilename(const ccstd::string &filename, const ccstd::string &searchPath) const override;
+    ccstd::string getPathForFilename(const ccstd::string &filename, const ccstd::string &searchPath) const override;
 
     /**
      *  Gets full path for the directory and the filename.
@@ -128,14 +118,7 @@ protected:
      *  @param filename  The name of the file.
      *  @return The full path of the file, if the file can't be found, it will return an empty string.
      */
-    virtual ccstd::string getFullPathForDirectoryAndFilename(const ccstd::string &directory, const ccstd::string &filename) const override;
+    ccstd::string getFullPathForDirectoryAndFilename(const ccstd::string &directory, const ccstd::string &filename) const override;
 };
 
-// end of platform group
-/// @}
-
 } // namespace cc
-
-#endif // CC_PLATFORM == CC_PLATFORM_WINDOWS
-
-#endif // __CC_FILEUTILS_WIN32_H__

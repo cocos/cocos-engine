@@ -28,7 +28,6 @@
  * @packageDocumentation
  * @hidden
  */
-
 import { Mesh } from '../../3d/assets/mesh';
 import { AttributeName, BufferUsageBit, FormatInfos, MemoryUsageBit, PrimitiveMode,
     Attribute, DRAW_INFO_SIZE, Buffer, IndirectBuffer, BufferInfo, DrawInfo, Feature } from '../../core/gfx';
@@ -44,6 +43,13 @@ const _uvs = [
     1, 0, // bottom-right
     0, 1, // top-left
     1, 1, // top-right
+];
+
+const _uvs_ins = [
+    0, 0, 0, // bottom-left
+    1, 0, 0, // bottom-right
+    0, 1, 0, // top-left
+    1, 1, 0, // top-right
 ];
 
 export default class ParticleBatchModel extends scene.Model {
@@ -295,8 +301,8 @@ export default class ParticleBatchModel extends scene.Model {
             }
         } else {
             const vbFloatArray = new Float32Array(vBuffer);
-            for (let i = 0; i < _uvs.length; ++i) {
-                vbFloatArray[i] = _uvs[i];
+            for (let i = 0; i < _uvs_ins.length; ++i) {
+                vbFloatArray[i] = _uvs_ins[i];
             }
         }
         vertexBuffer.update(vBuffer);
@@ -613,9 +619,14 @@ export default class ParticleBatchModel extends scene.Model {
     public doDestroy () {
         this._vBuffer = null;
         this._vdataF32 = null;
+        this._vdataUint32 = null;
 
         this._insBuffers = [];
         this._insIndices = null;
+
+        this._vertAttrs = null;
+        this._material = null;
+        this._mesh = null;
         this.destroySubMeshData();
     }
 

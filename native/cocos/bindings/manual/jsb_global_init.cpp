@@ -197,6 +197,9 @@ void jsb_init_file_operation_delegate() { //NOLINT
         CC_ASSERT(delegate.isValid());
 
         se::ScriptEngine::getInstance()->setFileOperationDelegate(delegate);
+    } else {
+        // Games may be restarted in the same process and run in different threads. Android may restart from recent task list.
+        se::ScriptEngine::getInstance()->setFileOperationDelegate(delegate);
     }
 }
 

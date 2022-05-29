@@ -25,16 +25,30 @@
 
 #pragma once
 
+#include "base/Config.h"
 #include "base/TypeDef.h"
-#include "math/Vec2.h"
-
 #include "bindings/event/EventDispatcher.h"
 #include "engine/BaseEngine.h"
+#include "math/Vec2.h"
 
 #include <map>
 #include <memory>
 
+namespace se {
+class ScriptEngine;
+}
+
 namespace cc {
+
+namespace gfx {
+class Device;
+}
+
+class FileUtils;
+class DebugRenderer;
+class Profiler;
+class BuiltinResMgr;
+class ProgramLib;
 
 #define NANOSECONDS_PER_SECOND 1000000000
 #define NANOSECONDS_60FPS      16666667L
@@ -87,7 +101,7 @@ public:
      @param evtype:event type.
      @param cb:event callback.
      */
-    void addEventCallback(OSEventType evtype, const EventCb& cb) override;
+    void addEventCallback(OSEventType evtype, const EventCb &cb) override;
     /**
      @brief Remove Event Listening.
      @param evtype:event type.
@@ -98,13 +112,13 @@ public:
      @param ev:Abstract event.
      @return whether it's been handled.
      */
-    bool handleEvent(const OSEvent& ev);
+    bool handleEvent(const OSEvent &ev);
     /**
      @brief Touch event handling callback.
      @param ev:Touch event.
      @return whether it's been handled.
      */
-    bool handleTouchEvent(const TouchEvent& ev);
+    bool handleTouchEvent(const TouchEvent &ev);
     /**
      @brief Get engine scheduler.
      */
@@ -114,9 +128,9 @@ public:
 
 private:
     void tick();
-    bool dispatchWindowEvent(const WindowEvent& ev);
-    bool dispatchDeviceEvent(const DeviceEvent& ev);
-    bool dispatchEventToApp(OSEventType type, const OSEvent& ev);
+    bool dispatchWindowEvent(const WindowEvent &ev);
+    bool dispatchDeviceEvent(const DeviceEvent &ev);
+    bool dispatchEventToApp(OSEventType type, const OSEvent &ev);
     int32_t restartVM();
 
     bool _close{false};
@@ -128,6 +142,20 @@ private:
     cc::Vec2 _viewLogicalSize{0, 0};
     bool _needRestart{false};
     bool _inited{false};
+
+    // Some global objects.
+    FileUtils *_fs{nullptr};
+#if CC_USE_PROFILER
+    Profiler *_profiler{nullptr};
+#endif
+    DebugRenderer *_debugRenderer{nullptr};
+    se::ScriptEngine *_scriptEngine{nullptr};
+    // Should move to renderer system in future.
+    gfx::Device *_gfxDevice{nullptr};
+
+    // Should move them into material system in future.
+    BuiltinResMgr *_builtinResMgr{nullptr};
+    ProgramLib *_programLib{nullptr};
 
     std::map<OSEventType, EventCb> _eventCallbacks;
     CC_DISALLOW_COPY_MOVE_ASSIGN(Engine);

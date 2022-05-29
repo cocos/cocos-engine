@@ -22,10 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-/**
- * @packageDocumentation
- * @module asset-manager
- */
+
 import { warnID } from '../platform/debug';
 import { CompleteCallbackNoData } from './shared';
 import Task from './task';
@@ -87,17 +84,17 @@ export class Pipeline {
      * the first is a `Task` flowed in pipeline, the second is complete callback
      *
      * @example
-     * var pipeline = new Pipeline('download', [
+     * const pipeline = new Pipeline('download', [
      * (task, done) => {
-     *      var url = task.input;
-     *      cc.assetManager.downloader.downloadFile(url, null, null, (err, result) => {
+     *      const url = task.input;
+     *      assetManager.downloader.downloadFile(url, null, null, (err, result) => {
      *          task.output = result;
      *          done(err);
      *      });
      * },
      * (task, done) => {
-     *      var text = task.input;
-     *      var json = JSON.stringify(text);
+     *      const text = task.input;
+     *      const json = JSON.stringify(text);
      *      task.output = json;
      *      done();
      * }

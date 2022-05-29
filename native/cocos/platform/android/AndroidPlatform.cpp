@@ -27,8 +27,14 @@
 
 #include "base/Log.h"
 #include "base/memory/Memory.h"
-#include "platform/android/AndroidPlatform.h"
+#include "bindings/event/CustomEventTypes.h"
+#include "game-activity/native_app_glue/android_native_app_glue.h"
+#include "java/jni/JniHelper.h"
+#include "modules/Screen.h"
+#include "modules/System.h"
 #include "platform/BasePlatform.h"
+#include "platform/android/AndroidPlatform.h"
+#include "platform/android/FileUtils-android.h"
 #include "platform/java/jni/JniImp.h"
 #include "platform/java/jni/glue/JniNativeGlue.h"
 #include "platform/java/modules/Accelerometer.h"
@@ -36,11 +42,6 @@
 #include "platform/java/modules/Network.h"
 #include "platform/java/modules/SystemWindow.h"
 #include "platform/java/modules/Vibrator.h"
-#include "cocos/bindings/event/CustomEventTypes.h"
-#include "modules/Screen.h"
-#include "modules/System.h"
-#include "java/jni/JniHelper.h"
-#include "game-activity/native_app_glue/android_native_app_glue.h"
 
 #include "bindings/event/EventDispatcher.h"
 
@@ -61,6 +62,14 @@
     }
 
 #define INPUT_ACTION_COUNT 6
+
+//Interval time per frame, in milliseconds
+#define LOW_FREQUENCY_TIME_INTERVAL 50
+
+//Maximum runtime of game threads while in the background, in seconds
+#define LOW_FREQUENCY_EXPIRED_DURATION_SECONDS 60
+
+#define CC_ENABLE_SUSPEND_GAME_THREAD true
 
 extern int cocos_main(int argc, const char **argv); // NOLINT(readability-identifier-naming)
 
@@ -270,9 +279,11 @@ public:
                 _hasWindow = true;
                 // We have a window!
                 CC_LOG_DEBUG("AndroidPlatform: APP_CMD_INIT_WINDOW");
-                if (!_running) {
-                    _running = true;
-                    _androidPlatform->run(0, nullptr);
+                if (!_launched) {
+                    _launched = true;
+                    if (cocos_main(0, nullptr) != 0) {
+                        CC_LOG_ERROR("AndroidPlatform: Launch game failed!");
+                    }
                 } else {
                     cc::CustomEvent event;
                     event.name = EVENT_RECREATE_WINDOW;
@@ -292,25 +303,28 @@ public:
                 break;
             }
             case APP_CMD_GAINED_FOCUS:
-                CC_LOG_DEBUG("AndroidPlatform: APP_CMD_GAINED_FOCUS");
+                CC_LOG_INFO("AndroidPlatform: APP_CMD_GAINED_FOCUS");
                 break;
             case APP_CMD_LOST_FOCUS:
-                CC_LOG_DEBUG("AndroidPlatform: APP_CMD_LOST_FOCUS");
+                CC_LOG_INFO("AndroidPlatform: APP_CMD_LOST_FOCUS");
                 break;
             case APP_CMD_PAUSE:
-                CC_LOG_DEBUG("AndroidPlatform: APP_CMD_PAUSE");
+                CC_LOG_INFO("AndroidPlatform: APP_CMD_PAUSE");
                 break;
             case APP_CMD_RESUME: {
-                CC_LOG_DEBUG("AndroidPlatform: APP_CMD_RESUME");
+                CC_LOG_INFO("AndroidPlatform: APP_CMD_RESUME");
                 break;
             }
             case APP_CMD_DESTROY: {
+                CC_LOG_INFO("AndroidPlatform: APP_CMD_DESTROY");
                 WindowEvent ev;
                 ev.type = WindowEvent::Type::CLOSE;
                 _androidPlatform->dispatchEvent(ev);
+                _androidPlatform->onDestory();
                 break;
             }
             case APP_CMD_STOP: {
+                CC_LOG_INFO("AndroidPlatform: APP_CMD_STOP");
                 _isVisible = false;
                 Paddleboat_onStop(_jniEnv);
                 WindowEvent ev;
@@ -319,6 +333,7 @@ public:
                 break;
             }
             case APP_CMD_START: {
+                CC_LOG_INFO("AndroidPlatform: APP_CMD_START");
                 _isVisible = true;
                 Paddleboat_onStart(_jniEnv);
                 WindowEvent ev;
@@ -326,8 +341,17 @@ public:
                 _androidPlatform->dispatchEvent(ev);
                 break;
             }
-            case APP_CMD_WINDOW_RESIZED:
+            case APP_CMD_WINDOW_RESIZED: {
+                CC_LOG_INFO("AndroidPlatform: APP_CMD_WINDOW_RESIZED");
+                cc::WindowEvent ev;
+                ev.type = cc::WindowEvent::Type::SIZE_CHANGED;
+                ev.width = ANativeWindow_getWidth(_androidPlatform->_app->window);
+                ev.height = ANativeWindow_getHeight(_androidPlatform->_app->window);
+                _androidPlatform->dispatchEvent(ev);
+                break;
+            }
             case APP_CMD_CONFIG_CHANGED:
+                CC_LOG_INFO("AndroidPlatform: APP_CMD_CONFIG_CHANGED");
                 // Window was resized or some other configuration changed.
                 // Note: we don't handle this event because we check the surface dimensions
                 // every frame, so that's how we know it was resized. If you are NOT doing that,
@@ -336,7 +360,7 @@ public:
             case APP_CMD_LOW_MEMORY: {
                 // system told us we have low memory. So if we are not visible, let's
                 // cooperate by deallocating all of our graphic resources.
-                CC_LOG_DEBUG("AndroidPlatform: APP_CMD_LOW_MEMORY");
+                CC_LOG_INFO("AndroidPlatform: APP_CMD_LOW_MEMORY");
                 DeviceEvent ev;
                 ev.type = DeviceEvent::Type::DEVICE_MEMORY;
                 _androidPlatform->dispatchEvent(ev);
@@ -346,7 +370,7 @@ public:
                 CC_LOG_DEBUG("AndroidPlatform: APP_CMD_CONTENT_RECT_CHANGED");
                 break;
             case APP_CMD_WINDOW_REDRAW_NEEDED:
-                CC_LOG_DEBUG("AndroidPlatform: APP_CMD_WINDOW_REDRAW_NEEDED");
+                CC_LOG_INFO("AndroidPlatform: APP_CMD_WINDOW_REDRAW_NEEDED");
                 break;
             case APP_CMD_WINDOW_INSETS_CHANGED:
                 CC_LOG_DEBUG("AndroidPlatform: APP_CMD_WINDOW_INSETS_CHANGED");
@@ -357,9 +381,17 @@ public:
                 //            }
                 break;
             default:
-                CC_LOG_DEBUG("AndroidPlatform: (unknown command).");
+                CC_LOG_INFO("AndroidPlatform: (unknown command).");
                 break;
         }
+        if (_eventCallback) {
+            _eventCallback(cmd);
+        }
+    }
+
+    using AppEventCallback = std::function<void(int32_t)>;
+    void registerAppEventCallback(AppEventCallback callback) {
+        _eventCallback = std::move(callback);
     }
 
     bool isAnimating() const {
@@ -367,10 +399,11 @@ public:
     }
 
 private:
+    AppEventCallback _eventCallback{nullptr};
     AndroidPlatform *_androidPlatform{nullptr};
     JNIEnv *_jniEnv{nullptr};         // JNI environment
     int32_t _gameControllerIndex{-1}; // Most recently connected game controller index
-    bool _running{false};
+    bool _launched{false};
     bool _isVisible{false};
     bool _hasWindow{false};
 };
@@ -409,12 +442,26 @@ void gameControllerStatusCallback(const int32_t controllerIndex,
     }
 }
 
-AndroidPlatform::~AndroidPlatform() {
-    CC_SAFE_DELETE(_inputProxy)
-}
+AndroidPlatform::~AndroidPlatform() = default;
 
 int AndroidPlatform::init() {
-    _inputProxy = new GameInputProxy(this);
+    cc::FileUtilsAndroid::setassetmanager(_app->activity->assetManager);
+    _inputProxy = ccnew GameInputProxy(this);
+    _inputProxy->registerAppEventCallback([this](int32_t cmd) {
+        if (APP_CMD_START == cmd || APP_CMD_INIT_WINDOW == cmd) {
+            if (_inputProxy->isAnimating()) {
+                _isLowFrequencyLoopEnabled = false;
+                _loopTimeOut = 0;
+            }
+        } else if(APP_CMD_STOP == cmd) {
+            _lowFrequencyTimer.reset();
+            _loopTimeOut = LOW_FREQUENCY_TIME_INTERVAL;
+            _isLowFrequencyLoopEnabled = true;
+        }
+    });
+    _app->userData = _inputProxy;
+    _app->onAppCmd = handleCmdProxy;
+
     registerInterface(std::make_shared<Accelerometer>());
     registerInterface(std::make_shared<Battery>());
     registerInterface(std::make_shared<Network>());
@@ -426,14 +473,18 @@ int AndroidPlatform::init() {
     return 0;
 }
 
+void AndroidPlatform::onDestory() {
+    UniversalPlatform::onDestory();
+    unregisterAllInterfaces();
+    CC_SAFE_DELETE(_inputProxy)
+}
+
 int AndroidPlatform::getSdkVersion() const {
     return AConfiguration_getSdkVersion(_app->config);
 }
 
-int32_t AndroidPlatform::run(int argc, const char **argv) {
-    if (cocos_main(argc, argv) != 0) {
-        return -1;
-    }
+int32_t AndroidPlatform::run(int  /*argc*/, const char **/*argv*/) {
+    loop();
     return 0;
 }
 
@@ -442,33 +493,40 @@ uintptr_t AndroidPlatform::getWindowHandler() const {
 }
 
 int32_t AndroidPlatform::loop() {
-    _app->userData = _inputProxy;
-    _app->onAppCmd = handleCmdProxy;
 
     while (true) {
         int events;
         struct android_poll_source *source;
 
-        // If not animating, block until we get an event; if animating, don't block.
-        while ((ALooper_pollAll(_inputProxy->isAnimating() ? 0 : -1, nullptr, &events,
+        // suspend thread while _loopTimeOut set to -1
+        while ((ALooper_pollAll(_loopTimeOut, nullptr, &events,
                                 reinterpret_cast<void **>(&source))) >= 0) {
             // process event
             if (source != nullptr) {
                 source->process(_app, source);
             }
 
-            // are we exiting?
+            // Exit the game loop when the Activity is destroyed
             if (_app->destroyRequested) {
                 return 0;
             }
         }
         _inputProxy->handleInput();
-        runTask();
-
-        flushTasksOnGameThreadJNI();
-        if (_inputProxy->isAnimating()) {
+        if (_inputProxy->isAnimating() ) {
+            runTask();
             flushTasksOnGameThreadAtForegroundJNI();
         }
+        flushTasksOnGameThreadJNI();
+
+#if CC_ENABLE_SUSPEND_GAME_THREAD
+        if (_isLowFrequencyLoopEnabled) {
+            //Suspend a game thread after it has been running in the background for a specified amount of time
+            if (_lowFrequencyTimer.getSeconds() > LOW_FREQUENCY_EXPIRED_DURATION_SECONDS) {
+                _isLowFrequencyLoopEnabled = false;
+                _loopTimeOut = -1;
+            }
+        }
+#endif
     }
 }
 
@@ -490,10 +548,6 @@ int32_t AndroidPlatform::getWidth() const {
 
 int32_t AndroidPlatform::getHeight() const {
     return ANativeWindow_getHeight(_app->window);
-}
-
-void AndroidPlatform::setAndroidApp(android_app *app) {
-    _app = app;
 }
 
 } // namespace cc
