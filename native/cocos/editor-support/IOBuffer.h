@@ -45,6 +45,7 @@ public:
     explicit IOBuffer(std::size_t defaultSize) {
         _bufferSize = defaultSize;
         _buffer = new uint8_t[_bufferSize];
+        memset(_buffer, 0, _bufferSize);
     }
 
     IOBuffer() = default;
