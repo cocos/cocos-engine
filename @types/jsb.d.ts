@@ -632,7 +632,7 @@ declare namespace jsb {
          *@param fullpath The full path to the file you want to save a string
          *@return bool
          */
-        export function writeDataToFile(buffer: ArrayBuffer, fullpath: string):bool;
+        export function writeDataToFile(buffer: ArrayBuffer, fullpath: string):boolean;
     }
 
     /**
