@@ -635,8 +635,8 @@ export class DescriptorSetData {
         this.descriptorSet = descriptorSet;
     }
     readonly descriptorSetLayoutData: DescriptorSetLayoutData;
-    readonly descriptorSetLayout: DescriptorSetLayout;
-    readonly descriptorSet: DescriptorSet;
+    /*object*/ descriptorSetLayout: DescriptorSetLayout;
+    /*object*/ descriptorSet: DescriptorSet;
 }
 
 export class PipelineLayoutData {
