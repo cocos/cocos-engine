@@ -136,7 +136,7 @@ struct IAnimInfo {
 
 class JointAnimationInfo : public RefCounted {
 public:
-    JointAnimationInfo();
+    JointAnimationInfo() = default;
     explicit JointAnimationInfo(gfx::Device *device);
     ~JointAnimationInfo() override = default;
 

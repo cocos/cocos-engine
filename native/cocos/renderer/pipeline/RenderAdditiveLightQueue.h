@@ -62,6 +62,7 @@ public:
 private:
     static bool cullSphereLight(const scene::SphereLight *light, const scene::Model *model);
     static bool cullSpotLight(const scene::SpotLight *light, const scene::Model *model);
+    static bool isInstancedOrBatched(const scene::Model *model);
 
     void clear();
     void addRenderQueue(const scene::Pass *pass, const scene::SubModel *subModel, const scene::Model *model, uint lightPassIdx);

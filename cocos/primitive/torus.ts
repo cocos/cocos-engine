@@ -29,6 +29,8 @@ import { IGeometryOptions } from './define';
 /**
  * @zh
  * 环面参数选项。
+ * @en
+ * The options about torus
  */
 interface ITorusOptions extends IGeometryOptions {
     radialSegments: number;
@@ -38,12 +40,12 @@ interface ITorusOptions extends IGeometryOptions {
 
 /**
  * @en
- * Generate a torus with raidus 0.4, tube 0.1 and centered at origin.
+ * Generate a torus with radius 0.4, tube 0.1 and centered at origin.
  * @zh
  * 生成一个环面。
- * @param radius 环面半径。
- * @param tube 管形大小。
- * @param opts 参数选项。
+ * @param radius @zh 环面半径。@en The radius fo torus
+ * @param tube @zh 管形大小。@en The radius of tube
+ * @param opts @zh 参数选项。@en The optional creation parameters of the torus
  */
 export default function torus (radius = 0.4, tube = 0.1, opts: RecursivePartial<ITorusOptions> = {}) {
     const radialSegments = opts.radialSegments || 32;

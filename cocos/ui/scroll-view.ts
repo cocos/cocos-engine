@@ -442,8 +442,9 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 视图内容将在规定时间内滚动到视图底部。
      *
-     * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到底部边界。
-     * @param attenuated - 滚动加速是否衰减，默认为 true。
+     * @param timeInSecond
+     * @en The rolling time(in seconds). If time is up, the content will slide to the bottom border. @zh 滚动时间（s）。 如果超时，内容将立即跳到底部边界。
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
      * @example
      * ```ts
      * // Scroll to the bottom of the view.
@@ -471,8 +472,9 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 视图内容将在规定时间内滚动到视图顶部。
      *
-     * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到顶部边界。
-     * @param attenuated - 滚动加速是否衰减，默认为 true。
+     * @param timeInSecond
+     * @en The rolling time(in seconds). If time is up, the content will slide to the bottom border. @zh 滚动时间（s）。 如果超时，内容将立即跳到底部边界。
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
      * @example
      * ```ts
      * // Scroll to the top of the view.
@@ -500,8 +502,9 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 视图内容将在规定时间内滚动到视图左边。
      *
-     * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到左边边界。
-     * @param attenuated - 滚动加速是否衰减，默认为 true。
+     * @param timeInSecond
+     * @en The rolling time(in seconds). If time is up, the content will slide to the bottom border. @zh 滚动时间（s）。 如果超时，内容将立即跳到底部边界。
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
      * @example
      * ```ts
      * // Scroll to the left of the view.
@@ -529,8 +532,9 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 视图内容将在规定时间内滚动到视图右边。
      *
-     * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到右边边界。
-     * @param attenuated - 滚动加速是否衰减，默认为 true。
+     * @param timeInSecond
+     * @en The rolling time(in seconds). If time is up, the content will slide to the bottom border. @zh 滚动时间（s）。 如果超时，内容将立即跳到底部边界。
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
      * @example
      * ```ts
      * // Scroll to the right of the view.
@@ -558,8 +562,9 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 视图内容将在规定时间内滚动到视图左上角。
      *
-     * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到左上边边界。
-     * @param attenuated - 滚动加速是否衰减，默认为 true。
+     * @param timeInSecond
+     * @en The rolling time(in seconds). If time is up, the content will slide to the bottom border. @zh 滚动时间（s）。 如果超时，内容将立即跳到底部边界。
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
      * @example
      * ```ts
      * // Scroll to the upper left corner of the view.
@@ -587,8 +592,9 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 视图内容将在规定时间内滚动到视图右上角。
      *
-     * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到右上边界。
-     * @param attenuated - 滚动加速是否衰减，默认为 true。
+     * @param timeInSecond
+     * @en The rolling time(in seconds). If time is up, the content will slide to the bottom border. @zh 滚动时间（s）。 如果超时，内容将立即跳到底部边界。
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
      * @example
      * ```ts
      * // Scroll to the top right corner of the view.
@@ -616,8 +622,9 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 视图内容将在规定时间内滚动到视图左下角。
      *
-     * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到左下边界。
-     * @param attenuated - 滚动加速是否衰减，默认为 true。
+     * @param timeInSecond
+     * @en The rolling time(in seconds). If time is up, the content will slide to the bottom border. @zh 滚动时间（s）。 如果超时，内容将立即跳到底部边界。
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
      * @example
      * ```ts
      * // Scroll to the lower left corner of the view.
@@ -645,8 +652,9 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 视图内容将在规定时间内滚动到视图右下角。
      *
-     * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到右边下边界。
-     * @param attenuated - 滚动加速是否衰减，默认为 true。
+     * @param timeInSecond
+     * @en The rolling time(in seconds). If time is up, the content will slide to the bottom border. @zh 滚动时间（s）。 如果超时，内容将立即跳到底部边界。
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
      * @example
      * ```ts
      * // Scroll to the lower right corner of the view.
@@ -669,14 +677,17 @@ export class ScrollView extends ViewGroup {
 
     /**
      * @en
-     * Scroll with an offset related to the ScrollView's top left origin, if timeInSecond is omitted, then it will jump to the specific offset immediately.
+     * Scroll with an offset related to the ScrollView's top left origin, if timeInSecond is omitted,
+     * then it will jump to the specific offset immediately.
      *
      * @zh
      * 视图内容在规定时间内将滚动到 ScrollView 相对左上角原点的偏移位置, 如果 timeInSecond 参数不传，则立即滚动到指定偏移位置。
      *
-     * @param offset - 滚动视图后，视图内容（content）相对于视图窗口（viewport）的位置。
-     * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到指定偏移量处。
-     * @param attenuated - 滚动加速是否衰减，默认为 true。
+     * @param offset
+     * @en After scrolling the view, the position of the view content relative to the view window. @zh 滚动视图后，视图内容（content）相对于视图窗口（viewport）的位置。
+     * @param timeInSecond
+     * @en Scroll time (s). If it times out, the content immediately jumps to the specified offset. @zh 滚动时间（s）。 如果超时，内容将立即跳到指定偏移量处。
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
      * @example
      * ```ts
      * // Scroll to middle position in 0.1 second in x-axis
@@ -711,7 +722,7 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 获取滚动视图相对于视图窗口左上角原点的位置。
      *
-     * @return - 当前滚动偏移量。
+     * @return @en Current rolling offset @zh 当前滚动偏移量
      */
     public getScrollOffset () {
         const topDelta = this._getContentTopBoundary() - this._topBoundary;
@@ -727,7 +738,7 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 获取滚动视图最大可以滚动的偏移量。
      *
-     * @return - 最大可滚动偏移量。
+     * @return @en Maximum scrollable offset @zh 最大可滚动偏移量
      */
     public getMaxScrollOffset () {
         if (!this._content || !this.view) {
@@ -749,9 +760,11 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 视图内容在规定时间内将滚动到 ScrollView 水平方向的百分比位置上。
      *
-     * @param percent - 0 - 之间的百分比。
-     * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到指定水平百分比位置。
-     * @param attenuated - 滚动加速是否衰减，默认为 true。
+     * @param percent
+     * @en Scroll to the destination which is located at the percent interpolation from left border to the right border @zh 滚动到从左到右指定百分比插值的位置
+     * @param timeInSecond
+     * @en Scroll time (s). If it times out, the content immediately jumps to the specified offset. @zh 滚动时间（s）。 如果超时，内容将立即跳到指定偏移量处。
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
      * @example
      * ```ts
      * // Scroll to middle position.
@@ -779,9 +792,12 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 视图内容在规定时间内进行垂直方向和水平方向的滚动，并且滚动到指定百分比位置上。
      *
-     * @param anchor - 在 new Vec2(0,0) and new Vec2(1,1) 上取差值的一个点。
-     * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到指定水平或垂直百分比位置。
-     * @param attenuated - 滚动加速是否衰减，默认为 true。
+     * @param anchor
+     * @en Scroll to the destination which is located at the anchor interpolation from left/top border to the right/bottom border
+     * @zh 滚动到从左/上到右/下指定锚点对应分量插值的位置
+     * @param timeInSecond
+     * @en Scroll time (s). If it times out, the content immediately jumps to the specified offset. @zh 滚动时间（s）。 如果超时，内容将立即跳到指定偏移量处。
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
      * @example
      * ```ts
      * // Vertical scroll to the bottom of the view.
@@ -812,9 +828,11 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 视图内容在规定时间内滚动到 ScrollView 垂直方向的百分比位置上。
      *
-     * @param percent - 0 - 1 之间的百分比。
-     * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到指定垂直百分比位置。
-     * @param attenuated - 滚动加速是否衰减，默认为 true。
+     * @param percent
+     * @en Scroll to the destination which is located at the percent interpolation from top border to the bottom border @zh 滚动到从上到下指定百分比插值的位置
+     * @param timeInSecond
+     * @en Scroll time (s). If it times out, the content immediately jumps to the specified offset. @zh 滚动时间（s）。 如果超时，内容将立即跳到指定偏移量处。
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
      * @example
      * ```ts
      * scrollView.scrollToPercentVertical(0.5, 0.1);
@@ -853,7 +871,7 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 设置当前视图内容的坐标点。
      *
-     * @param position - current content position.
+     * @param position @en Current content position @zh 希望设置内容框体的位置
      * @deprecated Since 3.1.0, setContentPosition is deprecated, please use scrollToOffset instead.
      */
     public setContentPosition (position: Vec3) {

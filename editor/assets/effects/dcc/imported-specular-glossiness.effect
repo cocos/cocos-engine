@@ -295,7 +295,7 @@ bool GetMetallicAlbedoFromDiffuseSpecularWithoutColor(out float metallic, out ve
     #if USE_ALBEDO_MAP
       vec4 texColor = texture(albedoMap, TEXTURE_UV);
       texColor.rgb = SRGBToLinear(texColor.rgb);
-      baseColor *= texColor;
+      baseColor = texColor;
       diffuseScale = 1.0;
     #endif
     baseColor.rgb *= diffuseScale;

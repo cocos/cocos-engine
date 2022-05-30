@@ -115,8 +115,9 @@ public:
 
     Scene *getScene() const;
 
-    void walk(const std::function<void(Node *)> &preFunc);
-    void walk(const std::function<void(Node *)> &preFunc, const std::function<void(Node *)> &postFunc);
+    using WalkCallback = std::function<void(Node *)>;
+    void walk(const WalkCallback &preFunc);
+    void walk(const WalkCallback &preFunc, const WalkCallback &postFunc);
 
     template <typename Target, typename... Args>
     void on(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target, bool useCapture = false);
