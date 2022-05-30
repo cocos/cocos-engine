@@ -4574,6 +4574,10 @@ static bool js_dragonbones_Animation_stop(se::State& s) // NOLINT(readability-id
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cobj->stop();
+        return true;
+    }
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
