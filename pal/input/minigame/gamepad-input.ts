@@ -6,26 +6,23 @@ import { InputSourceButton, InputSourceDpad, InputSourceStick } from '../input-s
 export class GamepadInputDevice {
     public static all: GamepadInputDevice[] = [];
 
-    public buttonNorth!: InputSourceButton;
-    public buttonEast!: InputSourceButton;
-    public buttonWest!: InputSourceButton;
-    public buttonSouth!: InputSourceButton;
-
-    public buttonL1!: InputSourceButton;
-    public buttonL2!: InputSourceButton;
-    public buttonL3!: InputSourceButton;
-    public buttonR1!: InputSourceButton;
-    public buttonR2!: InputSourceButton;
-    public buttonR3!: InputSourceButton;
-
-    // public buttonTouchPad!: InputSourceButton;
-    // public buttonHome!: InputSourceButton;
-    public buttonShare!: InputSourceButton;
-    public buttonOptions!: InputSourceButton;
-
-    public dpad!: InputSourceDpad;
-    public leftStick!: InputSourceStick;
-    public rightStick!: InputSourceStick;
+    public get buttonNorth () { return this._buttonNorth; }
+    public get buttonEast () { return this._buttonEast; }
+    public get buttonWest () { return this._buttonWest; }
+    public get buttonSouth () { return this._buttonSouth; }
+    public get buttonL1 () { return this._buttonL1; }
+    public get buttonL2 () { return this._buttonL2; }
+    public get buttonL3 () { return this._buttonL3; }
+    public get buttonR1 () { return this._buttonR1; }
+    public get buttonR2 () { return this._buttonR2; }
+    public get buttonR3 () { return this._buttonR3; }
+    // public get buttonTouchPad () { return this._buttonTouchPad; }
+    // public get buttonHome () { return this._buttonHome; }
+    public get buttonShare () { return this._buttonShare; }
+    public get buttonOptions () { return this._buttonOptions; }
+    public get dpad () { return this._dpad; }
+    public get leftStick () { return this._leftStick; }
+    public get rightStick () { return this._rightStick; }
 
     public get deviceId () {
         return this._deviceId;
@@ -35,6 +32,24 @@ export class GamepadInputDevice {
     }
 
     private static _eventTarget: EventTarget = new EventTarget();
+
+    private _buttonNorth!: InputSourceButton;
+    private _buttonEast!: InputSourceButton;
+    private _buttonWest!: InputSourceButton;
+    private _buttonSouth!: InputSourceButton;
+    private _buttonL1!: InputSourceButton;
+    private _buttonL2!: InputSourceButton;
+    private _buttonL3!: InputSourceButton;
+    private _buttonR1!: InputSourceButton;
+    private _buttonR2!: InputSourceButton;
+    private _buttonR3!: InputSourceButton;
+    // private buttonTouchPad!: InputSourceButton;
+    // private buttonHome!: InputSourceButton;
+    private _buttonShare!: InputSourceButton;
+    private _buttonOptions!: InputSourceButton;
+    private _dpad!: InputSourceDpad;
+    private _leftStick!: InputSourceStick;
+    private _rightStick!: InputSourceStick;
 
     private _deviceId = -1;
     private _connected = false;
@@ -59,37 +74,37 @@ export class GamepadInputDevice {
     }
 
     private _initInputSource () {
-        this.buttonNorth = new InputSourceButton();
-        this.buttonNorth.getValue = () => 0;
-        this.buttonEast = new InputSourceButton();
-        this.buttonEast.getValue = () => 0;
-        this.buttonWest = new InputSourceButton();
-        this.buttonWest.getValue = () => 0;
-        this.buttonSouth = new InputSourceButton();
-        this.buttonSouth.getValue = () => 0;
+        this._buttonNorth = new InputSourceButton();
+        this._buttonNorth.getValue = () => 0;
+        this._buttonEast = new InputSourceButton();
+        this._buttonEast.getValue = () => 0;
+        this._buttonWest = new InputSourceButton();
+        this._buttonWest.getValue = () => 0;
+        this._buttonSouth = new InputSourceButton();
+        this._buttonSouth.getValue = () => 0;
 
-        this.buttonL1 = new InputSourceButton();
-        this.buttonL1.getValue = () => 0;
-        this.buttonL2 = new InputSourceButton();
-        this.buttonL2.getValue = () => 0;
-        this.buttonL3 = new InputSourceButton();
-        this.buttonL3.getValue = () => 0;
-        this.buttonR1 = new InputSourceButton();
-        this.buttonR1.getValue = () => 0;
-        this.buttonR2 = new InputSourceButton();
-        this.buttonR2.getValue = () => 0;
-        this.buttonR3 = new InputSourceButton();
-        this.buttonR3.getValue = () => 0;
+        this._buttonL1 = new InputSourceButton();
+        this._buttonL1.getValue = () => 0;
+        this._buttonL2 = new InputSourceButton();
+        this._buttonL2.getValue = () => 0;
+        this._buttonL3 = new InputSourceButton();
+        this._buttonL3.getValue = () => 0;
+        this._buttonR1 = new InputSourceButton();
+        this._buttonR1.getValue = () => 0;
+        this._buttonR2 = new InputSourceButton();
+        this._buttonR2.getValue = () => 0;
+        this._buttonR3 = new InputSourceButton();
+        this._buttonR3.getValue = () => 0;
 
-        // this.buttonTouchPad = new InputSourceButton();
-        // this.buttonTouchPad.getValue = () => 0;
-        // this.buttonHome = new InputSourceButton();
-        // this.buttonHome.getValue = () => 0;
+        // this._buttonTouchPad = new InputSourceButton();
+        // this._buttonTouchPad.getValue = () => 0;
+        // this._buttonHome = new InputSourceButton();
+        // this._buttonHome.getValue = () => 0;
 
-        this.buttonShare = new InputSourceButton();
-        this.buttonShare.getValue = () => 0;
-        this.buttonOptions = new InputSourceButton();
-        this.buttonOptions.getValue = () => 0;
+        this._buttonShare = new InputSourceButton();
+        this._buttonShare.getValue = () => 0;
+        this._buttonOptions = new InputSourceButton();
+        this._buttonOptions.getValue = () => 0;
 
         const dpadUp = new InputSourceButton();
         dpadUp.getValue = () => 0;
@@ -99,7 +114,7 @@ export class GamepadInputDevice {
         dpadLeft.getValue = () => 0;
         const dpadRight = new InputSourceButton();
         dpadRight.getValue = () => 0;
-        this.dpad = new InputSourceDpad({ up: dpadUp, down: dpadDown, left: dpadLeft, right: dpadRight });
+        this._dpad = new InputSourceDpad({ up: dpadUp, down: dpadDown, left: dpadLeft, right: dpadRight });
 
         const leftStickUp = new InputSourceButton();
         leftStickUp.getValue = () => 0;
@@ -109,7 +124,7 @@ export class GamepadInputDevice {
         leftStickLeft.getValue = () => 0;
         const leftStickRight = new InputSourceButton();
         leftStickRight.getValue = () => 0;
-        this.leftStick = new InputSourceStick({ up: leftStickUp, down: leftStickDown, left: leftStickLeft, right: leftStickRight });
+        this._leftStick = new InputSourceStick({ up: leftStickUp, down: leftStickDown, left: leftStickLeft, right: leftStickRight });
 
         const rightStickUp = new InputSourceButton();
         rightStickUp.getValue = () => 0;
@@ -119,6 +134,6 @@ export class GamepadInputDevice {
         rightStickLeft.getValue = () => 0;
         const rightStickRight = new InputSourceButton();
         rightStickRight.getValue = () => 0;
-        this.rightStick = new InputSourceStick({ up: rightStickUp, down: rightStickDown, left: rightStickLeft, right: rightStickRight });
+        this._rightStick = new InputSourceStick({ up: rightStickUp, down: rightStickDown, left: rightStickLeft, right: rightStickRight });
     }
 }

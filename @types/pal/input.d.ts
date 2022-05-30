@@ -66,83 +66,83 @@ declare module 'pal/input' {
          * @en  The control button in the north direction which is generally the button Y
          * @zh 处于北向的控制按键，一般是按键 Y
          */
-        public buttonNorth: InputSourceButton;
+        public get buttonNorth (): InputSourceButton;
         /**
          * @en  The control button in the east direction which is generally the button B
          * @zh 处于东向的控制按键，一般是按键 B
          */
-        public buttonEast: InputSourceButton;
+        public get buttonEast (): InputSourceButton;
         /**
          * @en  The control button in the west direction which is generally the button X
          * @zh 处于西向的控制按键，一般是按键 X
          */
-        public buttonWest: InputSourceButton;
+        public get buttonWest (): InputSourceButton;
         /**
          * @en  The control button in the south direction which is generally the button A
          * @zh 处于南向的控制按键，一般是按键 A
          */
-        public buttonSouth: InputSourceButton;
+        public get buttonSouth (): InputSourceButton;
 
         /**
          * @en The button L1
          * @zh 按键 L1
          */
-        public buttonL1: InputSourceButton;
+        public get buttonL1 (): InputSourceButton;
         /**
          * @en The button L2
          * @zh 按键 L2
          */
-        public buttonL2: InputSourceButton;
+        public get buttonL2 (): InputSourceButton;
         /**
          * @en The button L3
          * @zh 按键 L3
          */
-        public buttonL3: InputSourceButton;
+        public get buttonL3 (): InputSourceButton;
         /**
          * @en The button R1
          * @zh 按键 R1
          */
-        public buttonR1: InputSourceButton;
+        public get buttonR1 (): InputSourceButton;
         /**
          * @en The button R2
          * @zh 按键 R2
          */
-        public buttonR2: InputSourceButton;
+        public get buttonR2 (): InputSourceButton;
         /**
          * @en The button R3
          * @zh 按键 R3
          */
-        public buttonR3: InputSourceButton;
+        public get buttonR3 (): InputSourceButton;
 
-        // public buttonTouchPad: InputSourceButton;
-        // public buttonHome: InputSourceButton;
+        // public get buttonTouchPad (): InputSourceButton;
+        // public get buttonHome (): InputSourceButton;
 
         /**
          * @en The button Share
          * @zh 分享按键
          */
-        public buttonShare: InputSourceButton;
+        public get buttonShare (): InputSourceButton;
         /**
          * @en The button Options
          * @zh 选项按键
          */
-        public buttonOptions: InputSourceButton;
+        public get buttonOptions (): InputSourceButton;
 
         /**
          * @en The dpad buttons
          * @zh 方向按键
          */
-        public dpad: InputSourceDpad;
+        public get dpad (): InputSourceDpad;
         /**
          * @en The left stick
          * @zh 左摇杆
          */
-        public leftStick: InputSourceStick;
+        public get leftStick (): InputSourceStick;
         /**
          * @en The right stick
          * @zh 右摇杆
          */
-        public rightStick: InputSourceStick;
+        public get rightStick (): InputSourceStick;
     }
 
     type AccelerometerCallback = (res: import('cocos/input/types').EventAcceleration) => void;
