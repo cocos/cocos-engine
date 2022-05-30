@@ -8606,7 +8606,7 @@ static bool js_assets_ImageAsset_getUrl(se::State& s) // NOLINT(readability-iden
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        std::string result = cobj->getUrl();
+        const std::string& result = cobj->getUrl();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_assets_ImageAsset_getUrl : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -12173,7 +12173,7 @@ static bool js_assets_RenderingSubMesh_setSubMeshIdx(se::State& s) // NOLINT(rea
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<unsigned int, false> arg0 = {};
+        HolderType<boost::optional<unsigned int>, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_assets_RenderingSubMesh_setSubMeshIdx : Error processing arguments");
         cobj->setSubMeshIdx(arg0.value());
@@ -18328,7 +18328,7 @@ static bool js_assets_Mesh_getAssetData(se::State& s) // NOLINT(readability-iden
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cc::TypedArrayTemp<unsigned char>& result = cobj->getAssetData();
+        cc::ArrayBuffer* result = cobj->getAssetData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_assets_Mesh_getAssetData : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());

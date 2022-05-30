@@ -96,7 +96,7 @@ public:
      * @zh 此图像资源的原始图像源的 URL。当原始图像元不是 HTML 文件时可能为空。
      * @deprecated Please use [[nativeUrl]]
      */
-    ccstd::string getUrl() const;
+    const ccstd::string &getUrl() const;
 
     // Functions for TS.
     inline void setWidth(uint32_t width) { _width = width; }
