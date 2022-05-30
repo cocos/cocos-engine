@@ -1918,7 +1918,7 @@ elseif(APPLE)
                     cocos/platform/apple/JsbBridgeWrapper.h
                     cocos/platform/apple/JsbBridgeWrapper.mm
     )
-elseif(WINDOWS OR NX_WINDOWS OR NX)
+elseif(WINDOWS)
     cocos_source_files(
         NO_WERROR    cocos/bindings/manual/jsb_platfrom_win32.cpp
     )
