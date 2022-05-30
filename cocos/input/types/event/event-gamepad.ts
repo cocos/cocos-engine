@@ -39,6 +39,10 @@ import { Event } from './event';
   * 手柄事件。
   */
 export class EventGamepad extends Event {
+    /**
+     * @en The gamepad device which trigger the current gamepad event
+     * @zh 触发当前手柄事件的手柄设备
+     */
     public gamepad: Gamepad;
 
     constructor (type: string, gamepad: Gamepad) {
