@@ -597,6 +597,13 @@ declare namespace jsb {
          */
         export function createDirectory (dirPath:string):string;
         /**
+         *  List all files recursively in a directory.
+         *
+         *  @param dirPath The path of the directory, it could be a relative or an absolute path.
+         *  @return File paths in a string vector
+         */
+        export function listFilesRecursively (dirPath:string, files:Array<string>):void;
+        /**
          *  Gets the writable path.
          *  @return  The path that can be write/read a file in
          */
