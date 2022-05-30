@@ -14,7 +14,7 @@ function getParams() {
         return currentInfo.cocosParams;
     }
     currentInfo.cocosParams = fs.readJsonSync(ps.join(getCurrentProject(), CocosConfig));
-    if (! currentInfo.cocosParams) {
+    if (!currentInfo.cocosParams) {
         throw new Error(`can not get cocosParams in ${CocosConfig}`);
     }
     return currentInfo.cocosParams;
@@ -29,7 +29,7 @@ function getCurrentProjectFromArgs() {
     if (!fs.existsSync(projectPath)) {
         throw Error(`Project path ${projectPath} is not exist!`);
     }
-    currentInfo.projectPath = projectPath
+    currentInfo.projectPath = projectPath;
     return projectPath;
 }
 

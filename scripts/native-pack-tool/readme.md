@@ -49,7 +49,7 @@ nativePackToolMg.register('windows', new WindowsPackTool());
 
 (4) 构建插件是直接加载的入口脚本，所有如果有其他闭源插件想要做平台插件注册，直接在 `hooks` 脚本的 `load` 钩子里加载 `nativePackToolMg` 后执行注册逻辑即可。
 
-(5) 所有原生平台的打包参数，都要在构建阶段整理，写入到 `cocos.compile.json`，关于 `nativePackToolMg` 的调用方式，可以参考 `scripts/task` 内的写法。
+(5) 所有原生平台的打包参数，都要在构建阶段整理，写入到 `cocos.compile.config.json`，关于 `nativePackToolMg` 的调用方式，可以参考 `scripts/task` 内的写法。
 
 3. 调试打包工具
 
