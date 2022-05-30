@@ -35,7 +35,7 @@ import { MountedComponentsInfo, TargetInfo } from '.';
 import { editorExtrasTag } from '../../data';
 import { ValueType } from '../../value-types';
 
-export function createNodeWithPrefab (node: Node) {
+export function createNodeWithPrefab(node: Node) {
     // @ts-expect-error: private member access
     const prefabInfo = node._prefab;
     if (!prefabInfo) {
@@ -60,7 +60,7 @@ export function createNodeWithPrefab (node: Node) {
     }
 
     // save root's preserved props to avoid overwritten by prefab
-    const _objFlags =  node._objFlags;
+    const _objFlags = node._objFlags;
     // @ts-expect-error: private member access
     const _parent = node._parent;
     // @ts-expect-error: private member access
@@ -105,7 +105,7 @@ export function createNodeWithPrefab (node: Node) {
 }
 
 // TODO: more efficient id->Node/Component map
-export function generateTargetMap (node: Node, targetMap: any, isRoot: boolean) {
+export function generateTargetMap(node: Node, targetMap: any, isRoot: boolean) {
     if (!targetMap) {
         return;
     }
@@ -143,12 +143,12 @@ export function generateTargetMap (node: Node, targetMap: any, isRoot: boolean) 
     }
 }
 
-export function getTarget (localID: string[], targetMap: any) {
+export function getTarget(localID: string[], targetMap: any) {
     if (!localID) {
         return null;
     }
 
-    let target: Component|Node|null = null;
+    let target: Component | Node | null = null;
     let targetIter: any = targetMap;
     for (let i = 0; i < localID.length; i++) {
         if (!targetIter) {
@@ -162,7 +162,7 @@ export function getTarget (localID: string[], targetMap: any) {
     return target;
 }
 
-export function applyMountedChildren (node: Node, mountedChildren: MountedChildrenInfo[], targetMap: Record<string, any | Node | Component>) {
+export function applyMountedChildren(node: Node, mountedChildren: MountedChildrenInfo[], targetMap: Record<string, any | Node | Component>) {
     if (!mountedChildren) {
         return;
     }
@@ -214,7 +214,7 @@ export function applyMountedChildren (node: Node, mountedChildren: MountedChildr
     }
 }
 
-export function applyMountedComponents (node: Node, mountedComponents: MountedComponentsInfo[], targetMap: Record<string, any | Node | Component>) {
+export function applyMountedComponents(node: Node, mountedComponents: MountedComponentsInfo[], targetMap: Record<string, any | Node | Component>) {
     if (!mountedComponents) {
         return;
     }
@@ -250,7 +250,7 @@ export function applyMountedComponents (node: Node, mountedComponents: MountedCo
     }
 }
 
-export function applyRemovedComponents (node: Node, removedComponents: TargetInfo[], targetMap: Record<string, any | Node | Component>) {
+export function applyRemovedComponents(node: Node, removedComponents: TargetInfo[], targetMap: Record<string, any | Node | Component>) {
     if (!removedComponents) {
         return;
     }
@@ -272,7 +272,7 @@ export function applyRemovedComponents (node: Node, removedComponents: TargetInf
     }
 }
 
-export function applyPropertyOverrides (node: Node, propertyOverrides: PropertyOverrideInfo[], targetMap: Record<string, any | Node | Component>) {
+export function applyPropertyOverrides(node: Node, propertyOverrides: PropertyOverrideInfo[], targetMap: Record<string, any | Node | Component>) {
     if (propertyOverrides.length <= 0) {
         return;
     }
@@ -330,14 +330,14 @@ export function applyPropertyOverrides (node: Node, propertyOverrides: PropertyO
     }
 }
 
-export function applyTargetOverrides (node: BaseNode) {
+export function applyTargetOverrides(node: BaseNode) {
     // @ts-expect-error private member access
     const targetOverrides = node._prefab?.targetOverrides;
     if (targetOverrides) {
-        for (let i = 0;  i < targetOverrides.length; i++) {
+        for (let i = 0; i < targetOverrides.length; i++) {
             const targetOverride = targetOverrides[i];
 
-            let source: Node|Component|null = targetOverride.source;
+            let source: Node | Component | null = targetOverride.source;
             const sourceInfo = targetOverride.sourceInfo;
             if (sourceInfo) {
                 // @ts-expect-error private member access
@@ -352,7 +352,7 @@ export function applyTargetOverrides (node: BaseNode) {
                 continue;
             }
 
-            let target: Node|Component|null = null;
+            let target: Node | Component | null = null;
             const targetInfo = targetOverride.targetInfo;
             if (!targetInfo) {
                 continue;
@@ -395,17 +395,17 @@ export function applyTargetOverrides (node: BaseNode) {
     }
 }
 
-export function expandPrefabInstanceNode (node: Node, recursively = false) {
+export function expandPrefabInstanceNode(node: Node, recursively = false) {
     // @ts-expect-error private member access
     const prefabInfo = node._prefab;
     const prefabInstance = prefabInfo?.instance;
-    if (prefabInstance) {
+    if (prefabInstance && !prefabInstance.expanded) {
         createNodeWithPrefab(node);
 
         const targetMap: Record<string, any | Node | Component> = {};
         prefabInstance.targetMap = targetMap;
         generateTargetMap(node, targetMap, true);
-
+        prefabInstance.expanded = true;
         applyMountedChildren(node, prefabInstance.mountedChildren, targetMap);
         applyRemovedComponents(node, prefabInstance.removedComponents, targetMap);
         applyMountedComponents(node, prefabInstance.mountedComponents, targetMap);
@@ -421,7 +421,7 @@ export function expandPrefabInstanceNode (node: Node, recursively = false) {
     }
 }
 
-export function expandNestedPrefabInstanceNode (node: BaseNode) {
+export function expandNestedPrefabInstanceNode(node: BaseNode) {
     // @ts-expect-error private member access
     const prefabInfo = node._prefab;
 
