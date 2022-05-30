@@ -82,14 +82,14 @@ export class DrawBatch2D {
         return this._shaders;
     }
 
-    public bufferBatch: MeshBuffer | null = null;
-    public camera: Camera | null = null;
-    public renderScene: RenderScene | null = null;
-    public model: Model | null = null;
+    // public bufferBatch: MeshBuffer | null = null; // use less
+    // public camera: Camera | null = null; // use less
+    // public renderScene: RenderScene | null = null; // use less for now
+    public model: Model | null = null; // for uimodel
     public texture: Texture | null = null;
     public sampler: Sampler | null = null;
     public useLocalData: Node | null = null;
-    public isStatic = false;
+    public isStatic = false; // use less,remove when remove Static batch
     public textureHash = 0;
     public samplerHash = 0;
     private _passes: Pass[] = [];
@@ -115,10 +115,10 @@ export class DrawBatch2D {
     }
 
     public clear () {
-        this.bufferBatch = null;
+        // this.bufferBatch = null;
         this._inputAssembler = null;
         this._descriptorSet = null;
-        this.camera = null;
+        // this.camera = null;
         this.texture = null;
         this.sampler = null;
         this.textureHash = 0;
@@ -127,7 +127,7 @@ export class DrawBatch2D {
         this.isStatic = false;
         this.useLocalData = null;
         this.visFlags = UI_VIS_FLAG;
-        this.renderScene = null;
+        // this.renderScene = null;
     }
 
     // object version
