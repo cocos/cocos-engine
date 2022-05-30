@@ -483,6 +483,8 @@ struct RasterPass {
     PmrTransparentMap<ccstd::pmr::string, RasterView>                      rasterViews;
     PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> computeViews;
     SubpassGraph                                                           subpassGraph;
+    uint32_t                                                               width{0};
+    uint32_t                                                               height{0};
 };
 
 struct ComputePass {
@@ -728,10 +730,10 @@ struct RenderData {
     RenderData& operator=(RenderData&& rhs) = default;
     RenderData& operator=(RenderData const& rhs) = delete;
 
-    PmrUnorderedMap<uint32_t, ccstd::pmr::vector<uint8_t>>   constants;
-    PmrUnorderedMap<uint32_t, std::unique_ptr<gfx::Buffer>>  buffers;
-    PmrUnorderedMap<uint32_t, std::unique_ptr<gfx::Texture>> textures;
-    PmrUnorderedMap<uint32_t, std::unique_ptr<gfx::Sampler>> samplers;
+    PmrUnorderedMap<uint32_t, ccstd::pmr::vector<uint8_t>> constants;
+    PmrUnorderedMap<uint32_t, IntrusivePtr<gfx::Buffer>>   buffers;
+    PmrUnorderedMap<uint32_t, IntrusivePtr<gfx::Texture>>  textures;
+    PmrUnorderedMap<uint32_t, ObserverPtr<gfx::Sampler>>   samplers;
 };
 
 struct RenderGraph {
