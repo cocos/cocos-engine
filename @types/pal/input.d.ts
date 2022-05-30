@@ -66,8 +66,8 @@ declare module 'pal/input' {
         public buttonR2: InputSourceButton;
         public buttonR3: InputSourceButton;
 
-        public buttonTouchPad: InputSourceButton;
-        public buttonHome: InputSourceButton;
+        // public buttonTouchPad: InputSourceButton;
+        // public buttonHome: InputSourceButton;
         public buttonShare: InputSourceButton;
         public buttonOptions: InputSourceButton;
 

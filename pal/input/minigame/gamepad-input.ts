@@ -18,8 +18,8 @@ export class GamepadInputDevice {
     public buttonR2!: InputSourceButton;
     public buttonR3!: InputSourceButton;
 
-    public buttonTouchPad!: InputSourceButton;
-    public buttonHome!: InputSourceButton;
+    // public buttonTouchPad!: InputSourceButton;
+    // public buttonHome!: InputSourceButton;
     public buttonShare!: InputSourceButton;
     public buttonOptions!: InputSourceButton;
 
@@ -81,10 +81,10 @@ export class GamepadInputDevice {
         this.buttonR3 = new InputSourceButton();
         this.buttonR3.getValue = () => 0;
 
-        this.buttonTouchPad = new InputSourceButton();
-        this.buttonTouchPad.getValue = () => 0;
-        this.buttonHome = new InputSourceButton();
-        this.buttonHome.getValue = () => 0;
+        // this.buttonTouchPad = new InputSourceButton();
+        // this.buttonTouchPad.getValue = () => 0;
+        // this.buttonHome = new InputSourceButton();
+        // this.buttonHome.getValue = () => 0;
 
         this.buttonShare = new InputSourceButton();
         this.buttonShare.getValue = () => 0;

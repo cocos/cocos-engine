@@ -51,8 +51,8 @@ export class GamepadInputDevice {
     public buttonR2!: InputSourceButton;
     public buttonR3!: InputSourceButton;
 
-    public buttonTouchPad!: InputSourceButton;
-    public buttonHome!: InputSourceButton;
+    // public buttonTouchPad!: InputSourceButton;
+    // public buttonHome!: InputSourceButton;
     public buttonShare!: InputSourceButton;
     public buttonOptions!: InputSourceButton;
 
@@ -280,18 +280,18 @@ export class GamepadInputDevice {
             return 0;
         };
 
-        this.buttonTouchPad = new InputSourceButton();
-        this.buttonTouchPad.getValue = () => {
-            const webGamepad = GamepadInputDevice._getWebGamepad(this.deviceId);
-            if (webGamepad) { return webGamepad.buttons[BUTTON_TOUCH_PAD].value; }
-            return 0;
-        };
-        this.buttonHome = new InputSourceButton();
-        this.buttonHome.getValue = () => {
-            const webGamepad = GamepadInputDevice._getWebGamepad(this.deviceId);
-            if (webGamepad) { return webGamepad.buttons[BUTTON_HOME].value; }
-            return 0;
-        };
+        // this.buttonTouchPad = new InputSourceButton();
+        // this.buttonTouchPad.getValue = () => {
+        //     const webGamepad = GamepadInputDevice._getWebGamepad(this.deviceId);
+        //     if (webGamepad) { return webGamepad.buttons[BUTTON_TOUCH_PAD].value; }
+        //     return 0;
+        // };
+        // this.buttonHome = new InputSourceButton();
+        // this.buttonHome.getValue = () => {
+        //     const webGamepad = GamepadInputDevice._getWebGamepad(this.deviceId);
+        //     if (webGamepad) { return webGamepad.buttons[BUTTON_HOME].value; }
+        //     return 0;
+        // };
         this.buttonShare = new InputSourceButton();
         this.buttonShare.getValue = () => {
             const webGamepad = GamepadInputDevice._getWebGamepad(this.deviceId);
