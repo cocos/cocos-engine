@@ -133,6 +133,38 @@ public:
     uint32_t               layoutID{LayoutGraphData::null_vertex()};
 };
 
+class NativeComputeQueueBuilder final : public ComputeQueueBuilder {
+public:
+    NativeComputeQueueBuilder() = default;
+    NativeComputeQueueBuilder(RenderGraph* renderGraphIn, uint32_t queueIDIn, const LayoutGraphData* layoutGraphIn, uint32_t layoutIDIn) noexcept // NOLINT
+    : renderGraph(renderGraphIn),
+      layoutGraph(layoutGraphIn),
+      queueID(queueIDIn),
+      layoutID(layoutIDIn) {}
+
+    void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string& layoutName, const ccstd::string& name) override;
+    void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string& layoutName) override;
+    void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) override;
+
+    void setMat4(const ccstd::string& name, const cc::Mat4& mat) override;
+    void setQuaternion(const ccstd::string& name, const cc::Quaternion& quat) override;
+    void setColor(const ccstd::string& name, const gfx::Color& color) override;
+    void setVec4(const ccstd::string& name, const cc::Vec4& vec) override;
+    void setVec2(const ccstd::string& name, const cc::Vec2& vec) override;
+    void setFloat(const ccstd::string& name, float v) override;
+
+    void setBuffer(const ccstd::string& name, gfx::Buffer* buffer) override;
+    void setTexture(const ccstd::string& name, gfx::Texture* texture) override;
+    void setReadWriteBuffer(const ccstd::string& name, gfx::Buffer* buffer) override;
+    void setReadWriteTexture(const ccstd::string& name, gfx::Texture* texture) override;
+    void setSampler(const ccstd::string& name, gfx::Sampler* sampler) override;
+
+    RenderGraph*           renderGraph{nullptr};
+    const LayoutGraphData* layoutGraph{nullptr};
+    uint32_t               queueID{RenderGraph::null_vertex()};
+    uint32_t               layoutID{LayoutGraphData::null_vertex()};
+};
+
 class NativeComputePassBuilder final : public ComputePassBuilder {
 public:
     NativeComputePassBuilder() = default;

@@ -249,10 +249,23 @@ RasterQueueBuilder *NativeRasterPassBuilder::addQueue(
     return addQueue(hint, layoutName, "Queue");
 }
 
+namespace {
+
+const ccstd::pmr::string &getFirstChildLayoutName(
+    const LayoutGraphData &lg,
+    LayoutGraphData::vertex_descriptor parentID) {
+    auto childNodes = children(parentID, lg);
+    CC_EXPECTS(childNodes.first->target != LayoutGraphData::null_vertex());
+    auto queueLayoutID = childNodes.first->target;
+    const auto &layoutName = get(LayoutGraphData::Name, lg, queueLayoutID);
+    return layoutName;
+}
+
+} // namespace
+
 RasterQueueBuilder *NativeRasterPassBuilder::addQueue(QueueHint hint) {
-    CC_EXPECTS(false); // not implemented yet
-    std::ignore = hint;
-    return nullptr;
+    const auto &layoutName = getFirstChildLayoutName(*layoutGraph, passID);
+    return addQueue(hint, layoutName.c_str(), "Queue"); // NOLINT(readability-redundant-string-cstr)
 }
 
 void NativeRasterPassBuilder::addFullscreenQuad(
@@ -282,8 +295,8 @@ void NativeRasterPassBuilder::addFullscreenQuad(
 }
 
 void NativeRasterPassBuilder::addFullscreenQuad(const ccstd::string &shader) {
-    CC_EXPECTS(false); // not implemented yet
-    std::ignore = shader;
+    const auto &layoutName = getFirstChildLayoutName(*layoutGraph, passID);
+    return addFullscreenQuad(shader, layoutName.c_str()); // NOLINT(readability-redundant-string-cstr)
 }
 
 void NativeRasterPassBuilder::setMat4(const ccstd::string &name, const cc::Mat4 &mat) {
@@ -321,38 +334,134 @@ void NativeRasterPassBuilder::setReadWriteTexture(const ccstd::string &name, gfx
 void NativeRasterPassBuilder::setSampler(const ccstd::string &name, gfx::Sampler *sampler) {
 }
 
+// NativeComputeQueue
+void NativeComputeQueueBuilder::addDispatch(const ccstd::string &shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string &layoutName, const ccstd::string &name) { // NOLINT(bugprone-easily-swappable-parameters)
+}
+
+void NativeComputeQueueBuilder::addDispatch(const ccstd::string &shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string &layoutName) {
+}
+
+void NativeComputeQueueBuilder::addDispatch(const ccstd::string &shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) {
+}
+
+void NativeComputeQueueBuilder::setMat4(const ccstd::string &name, const cc::Mat4 &mat) {
+}
+
+void NativeComputeQueueBuilder::setQuaternion(const ccstd::string &name, const cc::Quaternion &quat) {
+}
+
+void NativeComputeQueueBuilder::setColor(const ccstd::string &name, const gfx::Color &color) {
+}
+
+void NativeComputeQueueBuilder::setVec4(const ccstd::string &name, const cc::Vec4 &vec) {
+}
+
+void NativeComputeQueueBuilder::setVec2(const ccstd::string &name, const cc::Vec2 &vec) {
+}
+
+void NativeComputeQueueBuilder::setFloat(const ccstd::string &name, float v) {
+}
+
+void NativeComputeQueueBuilder::setBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
+}
+
+void NativeComputeQueueBuilder::setTexture(const ccstd::string &name, gfx::Texture *texture) {
+}
+
+void NativeComputeQueueBuilder::setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
+}
+
+void NativeComputeQueueBuilder::setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) {
+}
+
+void NativeComputeQueueBuilder::setSampler(const ccstd::string &name, gfx::Sampler *sampler) {
+}
+
 void NativeComputePassBuilder::addComputeView(const ccstd::string &name, const ComputeView &view) {
+    auto &pass = get(ComputeTag{}, passID, *renderGraph);
+    auto iter = pass.computeViews.find(name.c_str());
+    if (iter == pass.computeViews.end()) {
+        bool added = false;
+        std::tie(iter, added) = pass.computeViews.emplace(
+            std::piecewise_construct,
+            std::forward_as_tuple(name.c_str()),
+            std::forward_as_tuple());
+        CC_ENSURES(added);
+    }
+    iter->second.emplace_back(view);
 }
 
 ComputeQueueBuilder *NativeComputePassBuilder::addQueue(
     const ccstd::string &layoutName, const ccstd::string &name) { // NOLINT(bugprone-easily-swappable-parameters)
-    std::ignore = layoutName;
-    std::ignore = name;
 
-    return nullptr;
+    auto queueID = addVertex(
+        QueueTag{},
+        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(layoutName.c_str()),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(QueueHint::NONE),
+        *renderGraph, passID);
+
+    auto queueLayoutID = locate(layoutID, layoutName, *layoutGraph);
+
+    return new NativeComputeQueueBuilder(renderGraph, queueID, layoutGraph, queueLayoutID);
 }
 
 ComputeQueueBuilder *NativeComputePassBuilder::addQueue(const ccstd::string &layoutName) {
-    std::ignore = layoutName;
+    auto queueID = addVertex(
+        QueueTag{},
+        std::forward_as_tuple("Compute"),
+        std::forward_as_tuple(layoutName.c_str()),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        *renderGraph, passID);
 
-    return nullptr;
+    auto queueLayoutID = locate(layoutID, layoutName, *layoutGraph);
+
+    return new NativeComputeQueueBuilder(renderGraph, queueID, layoutGraph, queueLayoutID);
 }
 
 ComputeQueueBuilder *NativeComputePassBuilder::addQueue() {
-    return nullptr;
+    const auto &layoutName = getFirstChildLayoutName(*layoutGraph, passID);
+    return addQueue(layoutName.c_str()); // NOLINT
 }
 
 void NativeComputePassBuilder::addDispatch(
     const ccstd::string &shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ,
     const ccstd::string &layoutName, const ccstd::string &name) { // NOLINT(bugprone-easily-swappable-parameters)
+    auto queueID = addVertex(
+        QueueTag{},
+        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(layoutName.c_str()),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        *renderGraph, passID);
+
+    addVertex(
+        DispatchTag{},
+        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(shader.c_str(), threadGroupCountX, threadGroupCountY, threadGroupCountZ),
+        *renderGraph, queueID);
 }
 
 void NativeComputePassBuilder::addDispatch(
     const ccstd::string &shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string &layoutName) {
+    addDispatch(shader, threadGroupCountX, threadGroupCountY, threadGroupCountZ, layoutName, "Dispatch");
 }
 
 void NativeComputePassBuilder::addDispatch(
     const ccstd::string &shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) {
+    const auto &layoutName = getFirstChildLayoutName(*layoutGraph, passID);
+
+    addDispatch(
+        shader, threadGroupCountX, threadGroupCountY, threadGroupCountZ,
+        layoutName.c_str()); // NOLINT(readability-redundant-string-cstr)
 }
 
 void NativeComputePassBuilder::setMat4(const ccstd::string &name, const cc::Mat4 &mat) {
