@@ -42,32 +42,32 @@ using ccstd::pmr::string;
 using std::map;
 using std::pair;
 using std::vector;
-using ViewInfo     = vector<pair<PassType, vector<vector<vector<string>>>>>;
+using ViewInfo = vector<pair<PassType, vector<vector<vector<string>>>>>;
 using ResourceInfo = vector<pair<string, gfx::DescriptorType>>;
-using LayoutUnit   = std::tuple<string, uint32_t, gfx::ShaderStageFlagBit>;
-using LayoutInfo   = vector<vector<LayoutUnit>>;
+using LayoutUnit = std::tuple<string, uint32_t, gfx::ShaderStageFlagBit>;
+using LayoutInfo = vector<vector<LayoutUnit>>;
 
 void testData(const ViewInfo &rasterData, const ResourceInfo &rescInfo, const LayoutInfo &layoutInfo, RenderGraph &renderGraph, ResourceGraph &rescGraph, LayoutGraphData &layoutGraphData) {
     for (const auto &resc : rescInfo) {
-        string name         = std::get<0>(resc);
-        auto   rescVertexID = add_vertex(rescGraph, ManagedTag{}, name.c_str());
+        string name = std::get<0>(resc);
+        auto rescVertexID = add_vertex(rescGraph, ManagedTag{}, name.c_str());
     }
 
     const auto &mem_resource = layoutGraphData.get_allocator();
-    auto& stages = layoutGraphData.stages;
+    auto &stages = layoutGraphData.stages;
     stages.resize(layoutInfo.size());
 
     for (size_t i = 0; i < layoutInfo.size(); ++i) {
-        const ccstd::string passName        = "pass" + std::to_string(i);
-        auto                layoutVtxID = add_vertex(layoutGraphData, RenderStageTag{}, passName.c_str());     
+        const ccstd::string passName = "pass" + std::to_string(i);
+        auto layoutVtxID = add_vertex(layoutGraphData, RenderStageTag{}, passName.c_str());
 
         for (size_t j = 0; j < layoutInfo[i].size(); ++j) {
-            const auto& renderStageInfo = layoutInfo[i];
-            for (const auto& layoutUnit : renderStageInfo) {
-                const auto& rescName = std::get<0>(layoutUnit);
-                const auto& nameID = std::get<1>(layoutUnit);
-                const auto& shaderStage = std::get<2>(layoutUnit);
-                if(layoutGraphData.attributeIndex.find(rescName) == layoutGraphData.attributeIndex.end()) {
+            const auto &renderStageInfo = layoutInfo[i];
+            for (const auto &layoutUnit : renderStageInfo) {
+                const auto &rescName = std::get<0>(layoutUnit);
+                const auto &nameID = std::get<1>(layoutUnit);
+                const auto &shaderStage = std::get<2>(layoutUnit);
+                if (layoutGraphData.attributeIndex.find(rescName) == layoutGraphData.attributeIndex.end()) {
                     layoutGraphData.attributeIndex.emplace(std::make_pair<string, NameLocalID>(rescName.c_str(), NameLocalID{nameID}));
                 }
                 stages[i].descriptorVisibility.emplace(NameLocalID{nameID}, shaderStage);
@@ -83,26 +83,26 @@ void testData(const ViewInfo &rasterData, const ResourceInfo &rescInfo, const La
                 // const string name = pass.first;
                 const auto &subpasses = pass.second;
                 for (size_t j = 0; j < subpasses.size(); ++j) {
-                    const ccstd::string name     = "pass" + std::to_string(passCount++);
-                    const auto          vertexID = add_vertex(renderGraph, RasterTag{}, name.c_str());
+                    const ccstd::string name = "pass" + std::to_string(passCount++);
+                    const auto vertexID = add_vertex(renderGraph, RasterTag{}, name.c_str());
                     assert(subpasses[j].size() == 2); // inputs and outputs
                     const auto &attachments = subpasses[j];
-                    auto &      raster      = get(RasterTag{}, vertexID, renderGraph);
-                    bool        isOutput    = false;
+                    auto &raster = get(RasterTag{}, vertexID, renderGraph);
+                    bool isOutput = false;
 
                     for (size_t k = 0; k < attachments.size(); ++k) {
                         for (size_t l = 0; l < attachments[k].size(); ++l) {
                             const auto &inputsOrOutputs = attachments[k];
-                            const auto &viewName        = inputsOrOutputs[l];
+                            const auto &viewName = inputsOrOutputs[l];
                             raster.rasterViews.emplace(viewName.c_str(), RasterView{
-                                                           viewName.c_str(),
-                                                           isOutput ? AccessType::WRITE : AccessType::READ,
-                                                           AttachmentType::RENDER_TARGET,
-                                                           gfx::LoadOp::CLEAR,
-                                                           gfx::StoreOp::STORE,
-                                                           gfx::ClearFlagBit::ALL,
-                                                           gfx::Color({1.0, 0.0, 0.0, 1.0}),
-                                                       });
+                                                                             viewName.c_str(),
+                                                                             isOutput ? AccessType::WRITE : AccessType::READ,
+                                                                             AttachmentType::RENDER_TARGET,
+                                                                             gfx::LoadOp::CLEAR,
+                                                                             gfx::StoreOp::STORE,
+                                                                             gfx::ClearFlagBit::ALL,
+                                                                             gfx::Color({1.0, 0.0, 0.0, 1.0}),
+                                                                         });
                         }
                         isOutput = true;
                     }
@@ -114,16 +114,15 @@ void testData(const ViewInfo &rasterData, const ResourceInfo &rescInfo, const La
     FrameGraphDispatcher fgDispatcher(rescGraph, renderGraph, layoutGraphData, layoutGraphData.resource(), layoutGraphData.resource());
     fgDispatcher.enableMemoryAliasing(true);
     fgDispatcher.enablePassReorder(true);
-    fgDispatcher.setParalellWeight(0.3);
-    // fgDispatcher.buildBarriers();
+    fgDispatcher.setParalellWeight(0.4);
     fgDispatcher.run();
 }
 
 void testCase1() {
     boost::container::pmr::memory_resource *resource = boost::container::pmr::get_default_resource();
-    RenderGraph                             renderGraph(resource);
-    ResourceGraph                           rescGraph(resource);
-    LayoutGraphData                         layoutGraph(resource);
+    RenderGraph renderGraph(resource);
+    ResourceGraph rescGraph(resource);
+    LayoutGraphData layoutGraph(resource);
 
     ResourceInfo resources = {
         {"0", gfx::DESCRIPTOR_TEXTURE_TYPE},
@@ -166,7 +165,7 @@ void testCase1() {
         },
     };
 
-    using ShaderStageMap  = map<string, gfx::ShaderStageFlagBit>;
+    using ShaderStageMap = map<string, gfx::ShaderStageFlagBit>;
 
     LayoutInfo layoutInfo = {
         {
@@ -187,9 +186,7 @@ void testCase1() {
         },
         {
             {"5", 5, gfx::ShaderStageFlagBit::COMPUTE},
-        }
-    };
-
+        }};
 
     testData(data, resources, layoutInfo, renderGraph, rescGraph, layoutGraph);
     // for(const auto* camera : cameras) {}
@@ -197,9 +194,9 @@ void testCase1() {
 
 void testCase2() {
     boost::container::pmr::memory_resource *resource = boost::container::pmr::get_default_resource();
-    RenderGraph                             renderGraph(resource);
-    ResourceGraph                           rescGraph(resource);
-    LayoutGraphData                         layoutGraph(resource);
+    RenderGraph renderGraph(resource);
+    ResourceGraph rescGraph(resource);
+    LayoutGraphData layoutGraph(resource);
 
     ResourceInfo resources = {
         {"0", gfx::DESCRIPTOR_TEXTURE_TYPE},
@@ -277,7 +274,6 @@ void testCase2() {
         },
     };
 
-
     LayoutInfo layoutInfo = {
         {
             {"0", 0, gfx::ShaderStageFlagBit::FRAGMENT},
@@ -321,16 +317,16 @@ void testCase2() {
             {"10", 10, gfx::ShaderStageFlagBit::FRAGMENT},
         },
     };
- 
+
     testData(data, resources, layoutInfo, renderGraph, rescGraph, layoutGraph);
     // for(const auto* camera : cameras) {}
 }
 
 void testCase3() {
     boost::container::pmr::memory_resource *resource = boost::container::pmr::get_default_resource();
-    RenderGraph                             renderGraph(resource);
-    ResourceGraph                           rescGraph(resource);
-    LayoutGraphData                         layoutGraph(resource);
+    RenderGraph renderGraph(resource);
+    ResourceGraph rescGraph(resource);
+    LayoutGraphData layoutGraph(resource);
 
     ResourceInfo resources = {
         {"0", gfx::DESCRIPTOR_TEXTURE_TYPE},
@@ -471,8 +467,8 @@ void testCase3() {
         },
     };
 
-    using ShaderStageMap  = map<string, gfx::ShaderStageFlagBit>;
-    
+    using ShaderStageMap = map<string, gfx::ShaderStageFlagBit>;
+
     LayoutInfo layoutInfo = {
         {
             {"0", 0, gfx::ShaderStageFlagBit::FRAGMENT},
@@ -540,7 +536,7 @@ void testCase3() {
             {"17", 17, gfx::ShaderStageFlagBit::FRAGMENT},
             {"11", 11, gfx::ShaderStageFlagBit::FRAGMENT},
         },
-         {
+        {
             {"6", 6, gfx::ShaderStageFlagBit::FRAGMENT},
             {"11", 11, gfx::ShaderStageFlagBit::FRAGMENT},
             {"12", 12, gfx::ShaderStageFlagBit::FRAGMENT},
@@ -553,16 +549,16 @@ void testCase3() {
             {"13", 13, gfx::ShaderStageFlagBit::FRAGMENT},
         },
     };
- 
+
     testData(data, resources, layoutInfo, renderGraph, rescGraph, layoutGraph);
     // for(const auto* camera : cameras) {}
 }
 
 void testCase4() {
     boost::container::pmr::memory_resource *resource = boost::container::pmr::get_default_resource();
-    RenderGraph                             renderGraph(resource);
-    ResourceGraph                           rescGraph(resource);
-    LayoutGraphData                         layoutGraph(resource);
+    RenderGraph renderGraph(resource);
+    ResourceGraph rescGraph(resource);
+    LayoutGraphData layoutGraph(resource);
 
     ResourceInfo resources = {
         {"0", gfx::DESCRIPTOR_TEXTURE_TYPE},
@@ -646,10 +642,9 @@ void testCase4() {
             {
                 {{"8"}, {}},
             },
-        } 
-    };
+        }};
 
-    using ShaderStageMap  = map<string, gfx::ShaderStageFlagBit>;
+    using ShaderStageMap = map<string, gfx::ShaderStageFlagBit>;
 
     LayoutInfo layoutInfo = {
         {
@@ -693,12 +688,10 @@ void testCase4() {
             {"8", 8, gfx::ShaderStageFlagBit::FRAGMENT},
         },
     };
- 
+
     testData(data, resources, layoutInfo, renderGraph, rescGraph, layoutGraph);
     // for(const auto* camera : cameras) {}
 }
-
-
 
 } // namespace render
 } // namespace cc
