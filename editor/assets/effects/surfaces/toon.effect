@@ -378,7 +378,6 @@ CCProgram silhouette-edge-vs %{
   #include <surfaces/effect-macros/silhouette-edge>
   #include <surfaces/includes/common-vs>
   #include <surface-vertex-silhouette-edge>
-  #include <surfaces/includes/silhouette-edge-vs>
   #include <shading-entries/main-functions/misc/silhouette-edge-vs>
 }%
 

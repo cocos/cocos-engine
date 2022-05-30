@@ -317,7 +317,7 @@ module.exports = {
             smartMaterialEnabled: {
                 name: '材质智能转换',
                 title: '将 DCC 材质转化为引擎材质, 并匹对 DCC 材质的光照模型',
-                warn: '偏好设置里的实验室功能 "材质智能转换" 已关闭，请启用此项功能来修改模型级别设置。',
+                warn: '项目设置里的模型配置 "材质智能转换" 已关闭，请启用此项功能来修改模型级别设置。',
             },
         },
         textureCube: {

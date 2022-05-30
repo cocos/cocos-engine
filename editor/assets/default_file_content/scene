@@ -273,19 +273,19 @@
     },
     "_firstSetCSM": false,
     "_fixedArea": false,
-    "_pcf": 0,
+    "_pcf": 1,
     "_bias": 0.00001,
     "_normalBias": 0,
     "_near": 0.1,
     "_far": 10,
-    "_shadowDistance": 100,
+    "_shadowDistance": 10,
     "_invisibleOcclusionRange": 200,
     "_orthoSize": 5,
     "_maxReceived": 4,
     "_size": {
       "__type__": "cc.Vec2",
-      "x": 512,
-      "y": 512
+      "x": 1024,
+      "y": 1024
     },
     "_saturation": 0.75
   },
