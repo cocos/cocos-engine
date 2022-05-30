@@ -86,13 +86,13 @@ export class InputSourceAxis3D extends InputSource<Vec3> {
  */
 export class CompositeInputSourceAxis1D extends InputSourceAxis1D {
     /**
-     * @en Get the input signal value of positive 1D axis, ranged from 0 to 1
-     * @zh 获取 1D 轴的正向的输入信号值，取值范围从 0 到 1
+     * @en The input source object of positive 1D axis
+     * @zh 1D 轴的正向的输入源对象
      */
     public positive: InputSourceButton;
     /**
-     * @en Get the input signal value of negative 1D axis, ranged from 0 to 1
-     * @zh 获取 1D 轴的负向的输入信号值，取值范围从 0 到 1
+     * @en The input source object of negative 1D axis
+     * @zh 1D 轴的负向的输入源对象
      */
     public negative: InputSourceButton;
     constructor (options: {positive: InputSourceButton, negative: InputSourceButton}) {
@@ -120,34 +120,34 @@ export class CompositeInputSourceAxis1D extends InputSourceAxis1D {
  */
 export class CompositeInputSourceAxis2D extends InputSourceAxis2D {
     /**
-     * @en Get the input signal value of up direction of 2D axis, ranged from 0 to 1
-     * @zh 获取 2D 轴的向上的输入信号值，取值范围从 0 到 1
+     * @en The input source object of up direction of 2D axis
+     * @zh 2D 轴的向上的输入源对象
      */
     public up: InputSourceButton;
     /**
-     * @en Get the input signal value of down direction of 2D axis, ranged from 0 to 1
-     * @zh 获取 2D 轴的向下的输入信号值，取值范围从 0 到 1
+     * @en The input source object of down direction of 2D axis
+     * @zh 2D 轴的向下的输入源对象
      */
     public down: InputSourceButton;
     /**
-     * @en Get the input signal value of left direction of 2D axis, ranged from 0 to 1
-     * @zh 获取 2D 轴的向左的输入信号值，取值范围从 0 到 1
+     * @en The input source object of left direction of 2D axis
+     * @zh 2D 轴的向左的输入源对象
      */
     public left: InputSourceButton;
     /**
-     * @en Get the input signal value of right direction of 2D axis, ranged from 0 to 1
-     * @zh 获取 2D 轴的向右的输入信号值，取值范围从 0 到 1
+     * @en The input source object of right direction of 2D axis
+     * @zh 2D 轴的向右的输入源对象
      */
     public right: InputSourceButton;
 
     /**
-     * @en Get the input signal value on the x axis of 2D axis, ranged from -1 to 1
-     * @zh 获取 2D 轴在 x 轴上的输入信号值，取值范围从 -1 到 1
+     * @en The composite input source object on the x axis of 2D axis
+     * @zh 2D 轴在 x 轴上的组合输入源对象
      */
     public xAxis: CompositeInputSourceAxis1D;
     /**
-     * @en Get the input signal value on the y axis of 2D axis, ranged from -1 to 1
-     * @zh 获取 2D 轴在 y 轴上的输入信号值，取值范围从 -1 到 1
+     * @en The composite input source object on the y axis of 2D axis
+     * @zh 2D 轴在 y 轴上的组合输入源对象
      */
     public yAxis: CompositeInputSourceAxis1D;
     constructor (options: {up: InputSourceButton, down: InputSourceButton, left: InputSourceButton, right: InputSourceButton}) {
@@ -174,49 +174,49 @@ export class CompositeInputSourceAxis2D extends InputSourceAxis2D {
  */
 export class CompositeInputSourceAxis3D extends InputSourceAxis3D {
     /**
-     * @en Get the input signal value of up direction of 3D axis, ranged from 0 to 1
-     * @zh 获取 3D 轴的向上的输入信号值，取值范围从 0 到 1
+     * @en The input source object of up direction of 3D axis
+     * @zh 3D 轴的向上的输入源对象
      */
     public up: InputSourceButton;
     /**
-     * @en Get the input signal value of down direction of 3D axis, ranged from 0 to 1
-     * @zh 获取 3D 轴的向下的输入信号值，取值范围从 0 到 1
+     * @en The input source object of down direction of 3D axis
+     * @zh 3D 轴的向下的输入源对象
      */
     public down: InputSourceButton;
     /**
-     * @en Get the input signal value of left direction of 3D axis, ranged from 0 to 1
-     * @zh 获取 3D 轴的向左的输入信号值，取值范围从 0 到 1
+     * @en The input source object of left direction of 3D axis
+     * @zh 3D 轴的向左的输入源对象
      */
     public left: InputSourceButton;
     /**
-     * @en Get the input signal value of right direction of 3D axis, ranged from 0 to 1
-     * @zh 获取 3D 轴的向右的输入信号值，取值范围从 0 到 1
+     * @en The input source object of right direction of 3D axis
+     * @zh 3D 轴的向右的输入源对象
      */
     public right: InputSourceButton;
     /**
-     * @en Get the input signal value of forward direction of 3D axis, ranged from 0 to 1
-     * @zh 获取 3D 轴的向前的输入信号值，取值范围从 0 到 1
+     * @en The input source object of forward direction of 3D axis
+     * @zh 3D 轴的向前的输入源对象
      */
     public forward: InputSourceButton;
     /**
-     * @en Get the input signal value of backward direction of 3D axis, ranged from 0 to 1
-     * @zh 获取 3D 轴的向后的输入信号值，取值范围从 0 到 1
+     * @en The input source object of backward direction of 3D axis
+     * @zh 3D 轴的向后的输入源对象
      */
     public backward: InputSourceButton;
 
     /**
-     * @en Get the input signal value on the x axis of 3D axis, ranged from -1 to 1
-     * @zh 获取 3D 轴在 x 轴上的输入信号值，取值范围从 -1 到 1
+     * @en The composite input source object on the x axis of 3D axis
+     * @zh 3D 轴在 x 轴上的组合输入源对象
      */
     public xAxis: CompositeInputSourceAxis1D;
     /**
-     * @en Get the input signal value on the y axis of 3D axis, ranged from -1 to 1
-     * @zh 获取 3D 轴在 y 轴上的输入信号值，取值范围从 -1 到 1
+     * @en The composite input source object on the y axis of 3D axis
+     * @zh 3D 轴在 y 轴上的组合输入源对象
      */
     public yAxis: CompositeInputSourceAxis1D;
     /**
-     * @en Get the input signal value on the z axis of 3D axis, ranged from -1 to 1
-     * @zh 获取 3D 轴在 z 轴上的输入信号值，取值范围从 -1 到 1
+     * @en The composite input source object on the z axis of 3D axis
+     * @zh 3D 轴在 z 轴上的组合输入源对象
      */
     public zAxis: CompositeInputSourceAxis1D;
     constructor (options: {up: InputSourceButton, down: InputSourceButton, left: InputSourceButton,
