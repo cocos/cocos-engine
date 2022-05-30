@@ -1,8 +1,8 @@
 /****************************************************************************
  Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
- 
+
  http://www.cocos.com
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
@@ -10,10 +10,10 @@
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
- 
+
  The software or tools in this License Agreement are licensed, not sold.
  Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -50,7 +50,7 @@ class CallbacksInvoker;
 
 class Root final {
 public:
-    static Root *getInstance(); //cjh todo: put Root Managerment to Director class.
+    static Root *getInstance(); // cjh todo: put Root Managerment to Director class.
     explicit Root(gfx::Device *device);
     ~Root();
 
@@ -131,7 +131,7 @@ public:
 
     template <typename T, typename = std::enable_if_t<std::is_base_of<scene::Model, T>::value>>
     T *createModel() {
-        //cjh TODO: need use model pool?
+        // cjh TODO: need use model pool?
         T *model = ccnew T();
         model->initialize();
         return model;
@@ -141,7 +141,7 @@ public:
 
     template <typename T, typename = std::enable_if_t<std::is_base_of<scene::Light, T>::value>>
     T *createLight() {
-        //TODO(xwx): need use model pool?
+        // TODO(xwx): need use model pool?
         T *light = ccnew T();
         light->initialize();
         return light;
@@ -267,7 +267,7 @@ private:
     uint32_t _fps{0};
     uint32_t _fixedFPS{0};
     bool _useDeferredPipeline{false};
-    bool _usesCustomPipeline{true};
+    bool _usesCustomPipeline{false};
     CallbacksInvoker *_eventProcessor{nullptr};
 
     // Cache ccstd::vector to avoid allocate every frame in frameMove
