@@ -36,6 +36,10 @@ const AXIS_RIGHT_STICK_Y = 3;
 const EPSILON = 0.01;
 type WebGamepad = Gamepad;
 
+interface IAxisValue {
+    negative: number;
+    positive: number;
+}
 export class GamepadInputDevice {
     public static all: GamepadInputDevice[] = [];
 
@@ -217,6 +221,17 @@ export class GamepadInputDevice {
         return undefined;
     }
 
+    private _axisToButtons (axisValue: number): IAxisValue {
+        const value = Math.abs(axisValue);
+        if (axisValue > 0) {
+            return { negative: 0, positive: value };
+        } else if (axisValue < 0) {
+            return { negative: value, positive: 0 };
+        } else {
+            return { negative: 0, positive: 0 };
+        }
+    }
+
     private _initInputSource () {
         this.buttonNorth = new InputSourceButton();
         this.buttonNorth.getValue = () => {
@@ -335,8 +350,7 @@ export class GamepadInputDevice {
         leftStickUp.getValue = () => {
             const webGamepad = GamepadInputDevice._getWebGamepad(this.deviceId);
             if (webGamepad) {
-                const value = webGamepad.axes[AXIS_LEFT_STICK_Y] * -1;
-                return value < 0 ? 0 : value;
+                return this._axisToButtons(webGamepad.axes[AXIS_LEFT_STICK_Y]).negative;
             }
             return 0;
         };
@@ -344,8 +358,7 @@ export class GamepadInputDevice {
         leftStickDown.getValue = () => {
             const webGamepad = GamepadInputDevice._getWebGamepad(this.deviceId);
             if (webGamepad) {
-                const value = webGamepad.axes[AXIS_LEFT_STICK_Y];
-                return value < 0 ? 0 : value;
+                return this._axisToButtons(webGamepad.axes[AXIS_LEFT_STICK_Y]).positive;
             }
             return 0;
         };
@@ -353,8 +366,7 @@ export class GamepadInputDevice {
         leftStickLeft.getValue = () => {
             const webGamepad = GamepadInputDevice._getWebGamepad(this.deviceId);
             if (webGamepad) {
-                const value = webGamepad.axes[AXIS_LEFT_STICK_X] * -1;
-                return value < 0 ? 0 : value;
+                return this._axisToButtons(webGamepad.axes[AXIS_LEFT_STICK_X]).negative;
             }
             return 0;
         };
@@ -362,8 +374,7 @@ export class GamepadInputDevice {
         leftStickRight.getValue = () => {
             const webGamepad = GamepadInputDevice._getWebGamepad(this.deviceId);
             if (webGamepad) {
-                const value = webGamepad.axes[AXIS_LEFT_STICK_X];
-                return value < 0 ? 0 : value;
+                return this._axisToButtons(webGamepad.axes[AXIS_LEFT_STICK_X]).positive;
             }
             return 0;
         };
@@ -373,8 +384,7 @@ export class GamepadInputDevice {
         rightStickUp.getValue = () => {
             const webGamepad = GamepadInputDevice._getWebGamepad(this.deviceId);
             if (webGamepad) {
-                const value = webGamepad.axes[AXIS_RIGHT_STICK_Y] * -1;
-                return value < 0 ? 0 : value;
+                return this._axisToButtons(webGamepad.axes[AXIS_RIGHT_STICK_Y]).negative;
             }
             return 0;
         };
@@ -382,8 +392,7 @@ export class GamepadInputDevice {
         rightStickDown.getValue = () => {
             const webGamepad = GamepadInputDevice._getWebGamepad(this.deviceId);
             if (webGamepad) {
-                const value = webGamepad.axes[AXIS_RIGHT_STICK_Y];
-                return value < 0 ? 0 : value;
+                return this._axisToButtons(webGamepad.axes[AXIS_RIGHT_STICK_Y]).positive;
             }
             return 0;
         };
@@ -391,8 +400,7 @@ export class GamepadInputDevice {
         rightStickLeft.getValue = () => {
             const webGamepad = GamepadInputDevice._getWebGamepad(this.deviceId);
             if (webGamepad) {
-                const value = webGamepad.axes[AXIS_RIGHT_STICK_X] * -1;
-                return value < 0 ? 0 : value;
+                return this._axisToButtons(webGamepad.axes[AXIS_RIGHT_STICK_X]).negative;
             }
             return 0;
         };
@@ -400,8 +408,7 @@ export class GamepadInputDevice {
         rightStickRight.getValue = () => {
             const webGamepad = GamepadInputDevice._getWebGamepad(this.deviceId);
             if (webGamepad) {
-                const value = webGamepad.axes[AXIS_RIGHT_STICK_X];
-                return value < 0 ? 0 : value;
+                return this._axisToButtons(webGamepad.axes[AXIS_RIGHT_STICK_X]).positive;
             }
             return 0;
         };

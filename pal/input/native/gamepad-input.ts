@@ -53,6 +53,11 @@ const _nativeButtonMap = {
     10: Button.BUTTON_R3,
 };
 
+interface IAxisValue {
+    negative: number;
+    positive: number;
+}
+
 export class GamepadInputDevice {
     public static all: GamepadInputDevice[] = [];
 
@@ -180,6 +185,17 @@ export class GamepadInputDevice {
         }
     }
 
+    private _axisToButtons (axisValue: number): IAxisValue {
+        const value = Math.abs(axisValue);
+        if (axisValue > 0) {
+            return { negative: 0, positive: value };
+        } else if (axisValue < 0) {
+            return { negative: value, positive: 0 };
+        } else {
+            return { negative: 0, positive: 0 };
+        }
+    }
+
     private _updateNativeButtonState (info: jsb.ControllerInfo) {
         const { buttonInfoList, axisInfoList } = info;
         for (let i = 0; i < buttonInfoList.length; ++i) {
@@ -189,50 +205,49 @@ export class GamepadInputDevice {
         }
         for (let i = 0; i < axisInfoList.length; ++i) {
             const axisInfo = axisInfoList[i];
-            const value = axisInfo.value;
-            let targetButton: Button | undefined;
-            const resetButtons: Button[] = [];
-            switch (axisInfo.code) {
+            const { code, value } = axisInfo;
+            let negativeButton: Button | undefined;
+            let positiveButton: Button | undefined;
+            let axisValue: IAxisValue | undefined;
+            switch (code) {
             case 1:
-                if (value > 0) { targetButton = Button.DPAD_RIGHT; resetButtons.push(Button.DPAD_LEFT); }
-                else if (value < 0) { targetButton = Button.DPAD_LEFT; resetButtons.push(Button.DPAD_RIGHT); }
-                else { resetButtons.push(Button.DPAD_RIGHT, Button.DPAD_LEFT); }
+                negativeButton = Button.DPAD_LEFT;
+                positiveButton = Button.DPAD_RIGHT;
+                axisValue = this._axisToButtons(value);
                 break;
             case 2:
-                if (value > 0) { targetButton = Button.DPAD_UP; resetButtons.push(Button.DPAD_DOWN); }
-                else if (value < 0) { targetButton = Button.DPAD_DOWN; resetButtons.push(Button.DPAD_UP); }
-                else { resetButtons.push(Button.DPAD_UP, Button.DPAD_DOWN); }
+                negativeButton = Button.DPAD_DOWN;
+                positiveButton = Button.DPAD_UP;
+                axisValue = this._axisToButtons(value);
                 break;
             case 3:
-                if (value > 0) { targetButton = Button.LEFT_STICK_RIGHT; resetButtons.push(Button.LEFT_STICK_LEFT); }
-                else if (value < 0) { targetButton = Button.LEFT_STICK_LEFT; resetButtons.push(Button.LEFT_STICK_RIGHT); }
-                else { resetButtons.push(Button.LEFT_STICK_RIGHT, Button.LEFT_STICK_LEFT); }
+                negativeButton = Button.LEFT_STICK_LEFT;
+                positiveButton = Button.LEFT_STICK_RIGHT;
+                axisValue = this._axisToButtons(value);
                 break;
             case 4:
-                if (value > 0) { targetButton = Button.LEFT_STICK_UP; resetButtons.push(Button.LEFT_STICK_DOWN); }
-                else if (value < 0) { targetButton = Button.LEFT_STICK_DOWN; resetButtons.push(Button.LEFT_STICK_UP); }
-                else { resetButtons.push(Button.LEFT_STICK_UP, Button.LEFT_STICK_DOWN); }
+                negativeButton = Button.LEFT_STICK_DOWN;
+                positiveButton = Button.LEFT_STICK_UP;
+                axisValue = this._axisToButtons(value);
                 break;
             case 5:
-                if (value > 0) { targetButton = Button.RIGHT_STICK_RIGHT; resetButtons.push(Button.RIGHT_STICK_LEFT); }
-                else if (value < 0) { targetButton = Button.RIGHT_STICK_LEFT; resetButtons.push(Button.RIGHT_STICK_RIGHT); }
-                else { resetButtons.push(Button.RIGHT_STICK_RIGHT, Button.RIGHT_STICK_LEFT); }
+                negativeButton = Button.RIGHT_STICK_LEFT;
+                positiveButton = Button.RIGHT_STICK_RIGHT;
+                axisValue = this._axisToButtons(value);
                 break;
             case 6:
-                if (value > 0) { targetButton = Button.RIGHT_STICK_UP; resetButtons.push(Button.RIGHT_STICK_DOWN); }
-                else if (value < 0) { targetButton = Button.RIGHT_STICK_DOWN; resetButtons.push(Button.RIGHT_STICK_UP); }
-                else { resetButtons.push(Button.RIGHT_STICK_UP, Button.RIGHT_STICK_DOWN); }
+                negativeButton = Button.RIGHT_STICK_DOWN;
+                positiveButton = Button.RIGHT_STICK_UP;
+                axisValue = this._axisToButtons(value);
                 break;
-            case 7: targetButton = Button.BUTTON_L2; break;
-            case 8: targetButton = Button.BUTTON_R2; break;
-            default: break;
+            default:
+                if (code === 7) { this._nativeButtonState[Button.BUTTON_L2] = value; }
+                else if (code === 8) { this._nativeButtonState[Button.BUTTON_R2] = value; }
+                break;
             }
-            if (targetButton) {
-                this._nativeButtonState[targetButton] = Math.abs(value);
-            }
-            for (let i = 0; i < resetButtons.length; ++i) {
-                const resetButton = resetButtons[i];
-                this._nativeButtonState[resetButton] = 0;
+            if (negativeButton && positiveButton && axisValue) {
+                this._nativeButtonState[negativeButton] = axisValue.negative;
+                this._nativeButtonState[positiveButton] = axisValue.positive;
             }
         }
     }
