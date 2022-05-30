@@ -112,10 +112,11 @@ void testData(const ViewInfo &rasterData, const ResourceInfo &rescInfo, const La
     }
 
     FrameGraphDispatcher fgDispatcher(rescGraph, renderGraph, layoutGraphData, layoutGraphData.resource(), layoutGraphData.resource());
+    fgDispatcher.enableMemoryAliasing(true);
+    fgDispatcher.enablePassReorder(true);
+    fgDispatcher.setParalellWeight(0.3);
     // fgDispatcher.buildBarriers();
-    fgDispatcher.passReorder(0.7, 0.3);
-
-    // fill resource graph
+    fgDispatcher.run();
 }
 
 void testCase1() {
@@ -156,7 +157,14 @@ void testCase1() {
             {
                 {{"3"}, {"5"}},
             },
-        }};
+        },
+        {
+            PassType::PRESENT,
+            {
+                {{"5"}, {}},
+            },
+        },
+    };
 
     using ShaderStageMap  = map<string, gfx::ShaderStageFlagBit>;
 
@@ -176,6 +184,9 @@ void testCase1() {
         {
             {"3", 3, gfx::ShaderStageFlagBit::VERTEX},
             {"5", 5, gfx::ShaderStageFlagBit::VERTEX},
+        },
+        {
+            {"5", 5, gfx::ShaderStageFlagBit::COMPUTE},
         }
     };
 
@@ -258,7 +269,12 @@ void testCase2() {
                 {{"7", "9"}, {"10"}},
             },
         },
-
+        {
+            PassType::PRESENT,
+            {
+                {{"10"}, {}},
+            },
+        },
     };
 
 
@@ -299,6 +315,9 @@ void testCase2() {
         {
             {"7", 7, gfx::ShaderStageFlagBit::FRAGMENT},
             {"9", 9, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"10", 10, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+        {
             {"10", 10, gfx::ShaderStageFlagBit::FRAGMENT},
         },
     };
@@ -444,6 +463,12 @@ void testCase3() {
                 {{"12"}, {"13"}},
             },
         },
+        {
+            PassType::PRESENT,
+            {
+                {{"13"}, {}},
+            },
+        },
     };
 
     using ShaderStageMap  = map<string, gfx::ShaderStageFlagBit>;
@@ -522,6 +547,9 @@ void testCase3() {
         },
         {
             {"12", 12, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"13", 13, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+        {
             {"13", 13, gfx::ShaderStageFlagBit::FRAGMENT},
         },
     };
@@ -612,6 +640,12 @@ void testCase4() {
             {
                 {{"7", "5", "3"}, {"8"}},
             },
+        },
+        {
+            PassType::PRESENT,
+            {
+                {{"8"}, {}},
+            },
         } 
     };
 
@@ -653,6 +687,9 @@ void testCase4() {
             {"3", 3, gfx::ShaderStageFlagBit::FRAGMENT},
             {"5", 5, gfx::ShaderStageFlagBit::FRAGMENT},
             {"7", 7, gfx::ShaderStageFlagBit::FRAGMENT},
+            {"8", 8, gfx::ShaderStageFlagBit::FRAGMENT},
+        },
+        {
             {"8", 8, gfx::ShaderStageFlagBit::FRAGMENT},
         },
     };

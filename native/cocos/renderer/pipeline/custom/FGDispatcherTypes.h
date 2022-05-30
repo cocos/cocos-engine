@@ -206,6 +206,7 @@ struct ResourceAccessGraph {
     ccstd::pmr::vector<ccstd::pmr::string>              resourceNames;
     PmrUnorderedStringMap<ccstd::pmr::string, uint32_t> resourceIndex;
     RenderGraph::vertex_descriptor                      presentPassID{0xFFFFFFFF};
+    ccstd::pmr::vector<RenderGraph::vertex_descriptor>  externalPasses;
 };
 
 struct EmptyGraph {
@@ -318,8 +319,16 @@ struct FrameGraphDispatcher {
     FrameGraphDispatcher& operator=(FrameGraphDispatcher&& rhs) = delete;
     FrameGraphDispatcher& operator=(FrameGraphDispatcher const& rhs) = delete;
 
-    void buildBarriers();
-    void passReorder(float memsavePercent, float parelellPercent);
+    void enablePassReorder(bool enable);
+
+    // how much paralell-execution weights during pass reorder,
+    // eg:0.3 means 30% of effort aim to paralellize execution, other 70% aim to decrease memory using.
+    // 0 by default 
+    void setParalellWeight(float paralellExecWeight);
+
+    void enableMemoryAliasing(bool enable);
+
+    void run();
 
     ResourceGraph&                                     resourceGraph;
     RenderGraph&                                       graph;
@@ -327,6 +336,11 @@ struct FrameGraphDispatcher {
     boost::container::pmr::memory_resource*            scratch{nullptr};
     PmrFlatMap<ccstd::pmr::string, ResourceTransition> externalResMap;
     EmptyGraph                                         relationGraph;
+    bool                                               _enablePassReorder{false};
+    bool                                               _enableAutoBarrier{true};
+    bool                                               _enableMemoryAliasing{false};
+    bool                                               _accessGraphBuilt{false};
+    float                                              _paralellExecWeight{0.0F};
 };
 
 } // namespace render

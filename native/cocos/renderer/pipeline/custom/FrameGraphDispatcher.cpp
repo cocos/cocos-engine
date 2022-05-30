@@ -41,6 +41,7 @@
 #include "boost/graph/hawick_circuits.hpp"
 #include "gfx-base/GFXDef-common.h"
 #include "gfx-base/GFXDef.h"
+#include "math/Vec2.h"
 #include "pipeline/custom/GslUtils.h"
 #include "pipeline/custom/RenderCommonFwd.h"
 #include "pipeline/custom/RenderGraphTypes.h"
@@ -50,9 +51,38 @@
 namespace cc {
 
 namespace render {
-#pragma region predefine
-using PmrString = ccstd::pmr::string;
 
+void passReorder(FrameGraphDispatcher &fgDispatcher, ResourceAccessGraph &rag);
+void memoryAliasing(FrameGraphDispatcher &fgDispatcher, ResourceAccessGraph &rag);
+void buildBarriers(FrameGraphDispatcher &fgDispatcher, ResourceAccessGraph &rag);
+
+void FrameGraphDispatcher::run() {
+    ResourceAccessGraph rag(this->scratch);
+    if(_enablePassReorder) {
+        passReorder(*this,  rag);
+    }
+    if(_enableMemoryAliasing) {
+        memoryAliasing(*this, rag);
+    }
+    buildBarriers(*this, rag);
+}
+
+void FrameGraphDispatcher::enablePassReorder(bool enable) {
+    _enablePassReorder = enable;
+}
+
+void FrameGraphDispatcher::enableMemoryAliasing(bool enable) {
+    _enableMemoryAliasing = enable;
+}
+
+void FrameGraphDispatcher::setParalellWeight(float paralellExecWeight) {
+    _paralellExecWeight = clampf(paralellExecWeight, 0.0F, 1.0F);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////INTERNAL⚡IMPLEMENTATION/////////////////////////////////////////////////////////////////////////////////////////////
+
+//---------------------------------------------------------------predefine------------------------------------------------------------------
+using PmrString = ccstd::pmr::string;
 using RAG = ResourceAccessGraph;
 using LGD = LayoutGraphData;
 using BarrierMap = FlatMap<ResourceAccessGraph::vertex_descriptor, BarrierNode>;
@@ -120,15 +150,12 @@ bool tryAddEdge(uint32_t srcVertex, uint32_t dstVertex, Graph &graph);
 inline EmptyGraph::vertex_descriptor add_vertex(EmptyGraph& g) {
     return addVertex(g);
 }
-#pragma endregion predefine
 
-#pragma region graphProcess
 // status of resource access
 void buildAccessGraph(const RenderGraph &renderGraph, const LayoutGraphData &lgd, const ResourceGraph &rescGragh, ResourceAccessGraph &rag, EmptyGraph& relationGraph) {
     // what we need:
     //  - pass dependency
     //  - pass attachment access
-
     AccessTable accessRecord;
 
     size_t numPasses = 1;
@@ -169,8 +196,16 @@ void buildAccessGraph(const RenderGraph &renderGraph, const LayoutGraphData &lgd
                     // do nothing
                 });
     }
+
+    // make leaf node closed walk for pass reorder
+    for(auto pass : rag.externalPasses) {
+        if(out_degree(pass, rag) == 0) {
+            add_edge(pass, rag.presentPassID, rag);
+        }
+    }
 }
 
+#pragma region BUILD_BARRIERS
 struct BarrierVisitor : public boost::bfs_visitor<> {
     using Vertex = ResourceAccessGraph::vertex_descriptor;
     using Edge = ResourceAccessGraph::edge_descriptor;
@@ -207,6 +242,12 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
                               [](const AccessStatus &lhs, const AccessStatus &rhs) {
                                   return lhs.vertID < rhs.vertID;
                               });
+
+        if(commonResources.empty()) {
+            // this edge is a logic edge added during pass reorder,
+            // no real dependency between this two vertices.
+            return;
+        }
 
         if (barrierMap.find(from) == barrierMap.end()) {
             barrierMap.emplace(from, BarrierNode{});
@@ -441,17 +482,25 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
 
     BarrierMap &barrierMap;
     const ResourceGraph &resourceGraph;
-
     ExternalResMap &externalMap;     // last frame to curr frame status transition
     ResourceNames &externalResNames; // first meet in this frame
+
 };
 
-void FrameGraphDispatcher::buildBarriers() {
+void buildBarriers(FrameGraphDispatcher& fgDispather, ResourceAccessGraph& rag) {
     {
+        auto* scratch = fgDispather.scratch;
+        const auto& graph = fgDispather.graph;
+        const auto& layoutGraph = fgDispather.layoutGraph;
+        const auto& resourceGraph = fgDispather.resourceGraph;
+        auto& relationGraph = fgDispather.relationGraph;
+        auto& externalResMap = fgDispather.externalResMap;
+
         // record resource current in-access and out-access for every single node
-        ResourceAccessGraph rag(scratch);
-        // a mutable global resource access look-up table
-        buildAccessGraph(graph, layoutGraph, resourceGraph, rag, relationGraph);
+        if(!fgDispather._accessGraphBuilt) {
+            buildAccessGraph(graph, layoutGraph, resourceGraph, rag, relationGraph);
+            fgDispather._accessGraphBuilt = true;
+        }
 
         // found pass id in this map ? barriers you should commit when run into this pass
         // : or no extra barrier needed.
@@ -472,26 +521,9 @@ void FrameGraphDispatcher::buildBarriers() {
         }
     }
 }
+#pragma endregion BUILD_BARRIERS
 
-enum ReorderPolicy{
-    PARELLEL_EXCUTION,
-    MEMORY_SAVING
-};
-
-struct CrossEdgeVisitor : boost::dfs_visitor<> {
-    using Vertex = ResourceAccessGraph::vertex_descriptor;
-    using Edge = ResourceAccessGraph::edge_descriptor;
-    using Graph = ResourceAccessGraph;
-
-    CrossEdgeVisitor(std::vector<Edge>& crossEdges) : edges(crossEdges) {}
-
-    void forward_or_cross_edge(Edge e, const Graph& graph) {
-        edges.emplace_back(e);
-    }
-
-private: 
-    std::vector<Edge>& edges;
-};
+#pragma region PASS_REORDER
 
 struct PassVisitor : boost::dfs_visitor<> {
     using Vertex = ResourceAccessGraph::vertex_descriptor;
@@ -500,7 +532,7 @@ struct PassVisitor : boost::dfs_visitor<> {
     using InEdgeRange = std::pair<ResourceAccessGraph::in_edge_iterator, ResourceAccessGraph::in_edge_iterator>;
     using OutEdgeRange = std::pair<ResourceAccessGraph::out_edge_iterator, ResourceAccessGraph::out_edge_iterator>;
 
-    PassVisitor(const Graph &_rag, EmptyGraph &_tc, CloseCircuits &_circuits, const std::vector<Edge> &_edges) : rag(_rag), relationGraph(_tc), circuits(_circuits), edges(_edges) {}
+    PassVisitor(const Graph &_rag, EmptyGraph &_tc, CloseCircuits &_circuits) : rag(_rag), relationGraph(_tc), circuits(_circuits) {}
 
     void start_vertex(Vertex u, const Graph& g) {}
 
@@ -595,7 +627,6 @@ private:
     const RAG& rag;
     EmptyGraph& relationGraph;
     CloseCircuits& circuits;
-    const std::vector<Edge>& edges;
 };
 
 auto evaluateHeaviness(const RAG& rag, const ResourceGraph& rescGraph, EmptyVert vert, bool backward){
@@ -637,8 +668,6 @@ auto evaluateHeaviness(const RAG& rag, const ResourceGraph& rescGraph, EmptyVert
     }
     return std::tie(forceAdjacent, score);
 };
-
-
 
 void evaluateAndTryMerge(const RAG& rag, const ResourceGraph& rescGraph,EmptyGraph& relationGraph, const EmptyGraph& relationGraph_tc, const EmptyVerts& lhsVerts, const EmptyVerts& rhsVerts) {
     assert(lhsVerts.size() >= 2);
@@ -828,10 +857,37 @@ bool reduce(const RAG &rag, const ResourceGraph& rescGraph, EmptyGraph &relation
     return true;
 }
 
-void FrameGraphDispatcher::passReorder(float memsavePercent, float parelellPercent) {
-    assert(fabs(memsavePercent + parelellPercent - 1.0f) < std::numeric_limits<float>::epsilon()); 
-    ResourceAccessGraph rag(scratch);
-    buildAccessGraph(graph, layoutGraph, resourceGraph, rag, relationGraph);
+template<typename RelationGraph, typename TargetGraph>
+void applyRelation(RelationGraph& relationGraph, const TargetGraph& targetGraph) {
+    CC_EXPECTS(relationGraph.vertices.size() == targetGraph.vertices.size());
+
+    // remove all edges
+    for (auto vert : targetGraph.vertices) {
+        clear_in_edges(vert, targetGraph);
+        clear_out_edges(vert, targetGraph);
+    }
+    
+    for(auto vert : relationGraph.vertices) {
+        auto inEdges = in_edges(vert, relationGraph);
+        for(auto e : makeRange(inEdges)) {
+            auto srcVert = source(e, relationGraph);
+            // auto checkEdge = edge(srcVert, vert, targetGraph);
+            add_edge(srcVert, vert, targetGraph);
+        }
+    }
+}
+
+void passReorder(FrameGraphDispatcher& fgDispather, ResourceAccessGraph &rag) {
+    auto* scratch = fgDispather.scratch;
+    const auto& graph = fgDispather.graph;
+    const auto& layoutGraph = fgDispather.layoutGraph;
+    const auto& resourceGraph = fgDispather.resourceGraph;
+    auto& relationGraph = fgDispather.relationGraph;
+
+    if(!fgDispather._accessGraphBuilt) {
+        buildAccessGraph(graph, layoutGraph, resourceGraph, rag, relationGraph);
+        fgDispather._accessGraphBuilt = true;
+    }
     
     {
         // determine do mem saving how many times
@@ -840,8 +896,7 @@ void FrameGraphDispatcher::passReorder(float memsavePercent, float parelellPerce
 
         CloseCircuits circuits;
         std::vector<RAG::edge_descriptor> crossEdges;
-        CrossEdgeVisitor edgeVistor(crossEdges);
-        PassVisitor visitor(rag, relationGraph_tc, circuits, crossEdges);
+        PassVisitor visitor(rag, relationGraph_tc, circuits);
         auto colors = rag.colors(scratch);
         boost::depth_first_search(rag, visitor, get(colors, rag));
 
@@ -849,6 +904,7 @@ void FrameGraphDispatcher::passReorder(float memsavePercent, float parelellPerce
         uint32_t count = 0;
         uint32_t total = circuits.size();
 
+        float memsavePercent = 1.0F - fgDispather._paralellExecWeight;
         for(auto iter = circuits.begin(); iter != circuits.end(), percent < memsavePercent;) {
             bool reduced = reduce(rag, resourceGraph, relationGraph, relationGraph_tc, (*iter));
             if(reduced) {
@@ -933,10 +989,29 @@ void FrameGraphDispatcher::passReorder(float memsavePercent, float parelellPerce
 
             coloredVerts++;
         }
+    
+        // sort graph by the order in queue
+        for(const auto& vert : makeRange(vertices(rag))) {
+            clear_in_edges(vert, rag);
+            clear_out_edges(vert, rag);
+        }
+
+        auto vert = vertQ.front();
+        vertQ.pop();
+        while(!vertQ.empty()) {
+            auto nextVert = vertQ.front();
+            vertQ.pop();
+            add_edge(vert, nextVert, rag);
+            vert = nextVert;
+        }
     }
 }
 
-#pragma endregion graphProcess
+#pragma endregion PASS_REORDER
+
+void memoryAliasing(FrameGraphDispatcher& fgDispatcher, ResourceAccessGraph& rag) {
+
+}
 
 #pragma region assisstantFuncDefinition
 template <typename Graph>
@@ -1010,6 +1085,7 @@ AccessVertex dependencyCheck(RAG &rag, AccessTable &accessRecord, AccessVertex c
             }
             trans.currStatus = {curVertID, visibility, access, passType, Range{}};
             lastVertID = trans.lastStatus.vertID;
+            rag.externalPasses.emplace_back(curVertID);
         } else {
             bool needTransition = (trans.currStatus.access != access) || (trans.currStatus.passType != passType) || (trans.currStatus.visibility != visibility);
             if (needTransition) {
