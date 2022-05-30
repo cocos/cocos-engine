@@ -9,33 +9,30 @@ import { InputSourceButton, InputSourceDpad, InputSourceStick } from '../input-s
 import { fastRemoveAt } from '../../../cocos/core/utils/array';
 
 enum Button {
-    BUTTON_SOUTH = 'BUTTON_SOUTH',
-    BUTTON_EAST = 'BUTTON_EAST',
-    BUTTON_WEST = 'BUTTON_WEST',
-    BUTTON_NORTH = 'BUTTON_NORTH',
-    NS_MINUS = 'NS_MINUS',
-    NS_PLUS = 'NS_PLUS',
-
-    BUTTON_L1 = 'BUTTON_L1',
-    BUTTON_L2 = 'BUTTON_L2',
-    BUTTON_L3 = 'BUTTON_L3',
-    BUTTON_R1 = 'BUTTON_R1',
-    BUTTON_R2 = 'BUTTON_R2',
-    BUTTON_R3 = 'BUTTON_R3',
-
-    DPAD_UP = 'DPAD_UP',
-    DPAD_DOWN = 'DPAD_DOWN',
-    DPAD_LEFT = 'DPAD_LEFT',
-    DPAD_RIGHT = 'DPAD_RIGHT',
-
-    LEFT_STICK_UP = 'LEFT_STICK_UP',
-    LEFT_STICK_DOWN = 'LEFT_STICK_DOWN',
-    LEFT_STICK_LEFT = 'LEFT_STICK_LEFT',
-    LEFT_STICK_RIGHT = 'LEFT_STICK_RIGHT',
-    RIGHT_STICK_UP = 'RIGHT_STICK_UP',
-    RIGHT_STICK_DOWN = 'RIGHT_STICK_DOWN',
-    RIGHT_STICK_LEFT = 'RIGHT_STICK_LEFT',
-    RIGHT_STICK_RIGHT = 'RIGHT_STICK_RIGHT',
+    BUTTON_SOUTH,
+    BUTTON_EAST,
+    BUTTON_WEST,
+    BUTTON_NORTH,
+    NS_MINUS,
+    NS_PLUS,
+    BUTTON_L1,
+    BUTTON_L2,
+    BUTTON_L3,
+    BUTTON_R1,
+    BUTTON_R2,
+    BUTTON_R3,
+    DPAD_UP,
+    DPAD_DOWN,
+    DPAD_LEFT,
+    DPAD_RIGHT,
+    LEFT_STICK_UP,
+    LEFT_STICK_DOWN,
+    LEFT_STICK_LEFT,
+    LEFT_STICK_RIGHT,
+    RIGHT_STICK_UP,
+    RIGHT_STICK_DOWN,
+    RIGHT_STICK_LEFT,
+    RIGHT_STICK_RIGHT,
 }
 
 type NativeButtonState = Record<Button, number>
@@ -108,12 +105,35 @@ export class GamepadInputDevice {
 
     private _deviceId = -1;
     private _connected = false;
-    // @ts-expect-error init latter
-    private _nativeButtonState: NativeButtonState = {};
+    private _nativeButtonState: NativeButtonState = {
+        [Button.BUTTON_SOUTH]: 0,
+        [Button.BUTTON_EAST]: 0,
+        [Button.BUTTON_WEST]: 0,
+        [Button.BUTTON_NORTH]: 0,
+        [Button.NS_MINUS]: 0,
+        [Button.NS_PLUS]: 0,
+        [Button.BUTTON_L1]: 0,
+        [Button.BUTTON_L2]: 0,
+        [Button.BUTTON_L3]: 0,
+        [Button.BUTTON_R1]: 0,
+        [Button.BUTTON_R2]: 0,
+        [Button.BUTTON_R3]: 0,
+        [Button.DPAD_UP]: 0,
+        [Button.DPAD_DOWN]: 0,
+        [Button.DPAD_LEFT]: 0,
+        [Button.DPAD_RIGHT]: 0,
+        [Button.LEFT_STICK_UP]: 0,
+        [Button.LEFT_STICK_DOWN]: 0,
+        [Button.LEFT_STICK_LEFT]: 0,
+        [Button.LEFT_STICK_RIGHT]: 0,
+        [Button.RIGHT_STICK_UP]: 0,
+        [Button.RIGHT_STICK_DOWN]: 0,
+        [Button.RIGHT_STICK_LEFT]: 0,
+        [Button.RIGHT_STICK_RIGHT]: 0,
+    };
 
     constructor (deviceId: number) {
         this._deviceId = deviceId;
-        this._initNativeButtonState();
         this._initInputSource();
     }
 
@@ -190,14 +210,6 @@ export class GamepadInputDevice {
                 }
             }
         };
-    }
-
-    private _initNativeButtonState () {
-        const keys = Object.keys(Button);
-        for (let i = 0; i < keys.length; ++i) {
-            const key = keys[i];
-            this._nativeButtonState[key] = 0;
-        }
     }
 
     private _axisToButtons (axisValue: number): IAxisValue {
