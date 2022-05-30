@@ -472,6 +472,7 @@ exports.update = async function(assetList, metaList) {
     if (this.dirtyData.uuid !== this.asset.uuid) {
         this.dirtyData.uuid = this.asset.uuid;
         this.dirtyData.origin = '';
+        this.dirtyData.realtime = '';
         this.cacheData = {};
         this.requestInitCache = true;
     }
