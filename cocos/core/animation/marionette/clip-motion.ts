@@ -81,7 +81,9 @@ class ClipMotionEval implements MotionEval {
         if (weight === 0.0) {
             return;
         }
-        pushWeight(this._state.name, weight);
+        if (GRAPH_DEBUG_ENABLED) {
+            pushWeight(this._state.name, weight);
+        }
         const time = this._state.duration * progress;
         this._state.time = time;
         this._state.weight = weight;

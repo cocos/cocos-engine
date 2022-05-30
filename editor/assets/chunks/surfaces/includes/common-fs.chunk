@@ -37,16 +37,17 @@
 #include <gamma>
 #include <common/math/number>
 #include <common/math/coordinates>
-#include <common/mesh/material>
 #include <octahedron-transform>
+#include <common/mesh/material>
 #include <common/texture/cubemap>
 
 // Functional
-#include <cc-shadow-map-base>
-#include <cc-fog-base>
+#include <builtin/internal-functions/shadow-map>
+#include <builtin/internal-functions/fog>
 
 #if CC_SURFACES_USE_LIGHT_MAP && !CC_SURFACES_USE_BATCHING && !CC_FORWARD_ADD
-  #include <common/lighting/lightmap>
+  #include <builtin/uniforms/cc-light-map>
+  #include <common/lighting/light-map>
 #endif
 
 

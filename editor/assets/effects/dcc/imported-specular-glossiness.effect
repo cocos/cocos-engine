@@ -7,25 +7,25 @@ CCEffect %{
     - vert: standard-vs
       frag: standard-fs
       properties: &props
-        mainTexture:          { value: grey, target: albedoMap, editor: { displayName: DiffuseMap }}
-        mainColor:            { value: [1.0,1.0,1.0,1.0], target: diffuseColor, linear: true, editor: { displayName: DiffuseColor, type: color }}   
+        mainTexture:          { value: grey, target: albedoMap, editor: { displayName: DiffuseMap } }
+        mainColor:            { value: [1.0, 1.0, 1.0, 1.0], target: diffuseColor, linear: true, editor: { displayName: DiffuseColor, type: color } }   
         albedoScale:          { value: 1.0, target: diffuseFactor, editor: { displayName: diffuseFactor } }
-        alphaThreshold:       { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
+        alphaThreshold:       { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
         emissive:             { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
         emissiveMap:          { value: grey }
         shininessExponentMap: { value: grey, editor: { parent: '!HAS_EXPORTED_GLOSSINESS' } }
         shininessExponent:    { value: 100.0, editor: { parent: '!HAS_EXPORTED_GLOSSINESS' } }
-        specularColor:        { value: [0.0,0.0,0.0,0.0], linear: true, editor: { displayName: SpecularColor, type: color }} 
+        specularColor:        { value: [0.0, 0.0, 0.0, 0.0], linear: true, editor: { displayName: SpecularColor, type: color } } 
         specularMap:          { value: grey, editor: { parent: '!HAS_EXPORTED_METALLIC' } }
         specularFactor:       { value: 1.0, editor: { parent: '!HAS_EXPORTED_METALLIC' } }
-        transparencyMap:      { value: grey, editor: { displayName: TransparencyMap} } 
-        transparencyFactor:   { value: 0.0 }
+        transparencyMap:      { value: grey, editor: { displayName: TransparencyMap } } 
+        transparencyFactor:   { value: 0.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         tilingOffset:         { value: [1.0, 1.0, 0.0, 0.0] }
         normalStrength:       { value: 1.0, target: normalScale, editor: { displayName: bumpFactor, parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
         normalMap:            { value: normal }
-        glossiness:           { value: 0.0, editor: { parent: HAS_EXPORTED_GLOSSINESS, slide: true, range: [0, 1.0], step: 0.001 }}   
-        metallic:             { value: 0.0, editor: { parent: HAS_EXPORTED_METALLIC, slide: true, range: [0, 1.0], step: 0.001 }}
-        metallicMap:          { value: grey, editor: {parent: HAS_EXPORTED_METALLIC } }
+        glossiness:           { value: 0.0, editor: { parent: HAS_EXPORTED_GLOSSINESS, slide: true, range: [0, 1.0], step: 0.001 } }
+        metallic:             { value: 0.0, editor: { parent: HAS_EXPORTED_METALLIC, slide: true, range: [0, 1.0], step: 0.001 } }
+        metallicMap:          { value: grey, editor: { parent: HAS_EXPORTED_METALLIC } }
     - &forward-add
       vert: standard-vs
       frag: standard-fs
@@ -295,7 +295,7 @@ bool GetMetallicAlbedoFromDiffuseSpecularWithoutColor(out float metallic, out ve
     #if USE_ALBEDO_MAP
       vec4 texColor = texture(albedoMap, TEXTURE_UV);
       texColor.rgb = SRGBToLinear(texColor.rgb);
-      baseColor *= texColor;
+      baseColor = texColor;
       diffuseScale = 1.0;
     #endif
     baseColor.rgb *= diffuseScale;
