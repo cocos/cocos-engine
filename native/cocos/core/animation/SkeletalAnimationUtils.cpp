@@ -29,8 +29,8 @@
 namespace cc {
 
 namespace {
-ccstd::vector<IJointTransform *> stack; //cjh TODO: how to release ?
-ccstd::unordered_map<ccstd::string, IJointTransform *> pool;
+ccstd::vector<IntrusivePtr<IJointTransform>> stack;
+ccstd::unordered_map<ccstd::string, IntrusivePtr<IJointTransform>> pool;
 } // namespace
 
 Mat4 getWorldMatrix(IJointTransform *transform, int32_t stamp) {
@@ -74,13 +74,9 @@ IJointTransform *getTransform(Node *node, Node *root) {
             break;
         }
         // TODO(): object reuse
-        joint = pool[id] = ccnew IJointTransform{
-            node,
-            Mat4(),
-            Mat4(),
-            -1,
-            nullptr};
-
+        joint = ccnew IJointTransform;
+        joint->node = node;
+        pool[id] = joint;
         stack.resize(i + 1);
         stack[i++] = joint;
         node = node->getParent();
@@ -106,7 +102,6 @@ void deleteTransform(Node *node) {
     while (transform != nullptr) {
         iter = pool.find(transform->node->getUuid());
         if (iter != pool.end()) {
-            //            delete iter->second;
             pool.erase(iter);
         }
         transform = transform->parent;

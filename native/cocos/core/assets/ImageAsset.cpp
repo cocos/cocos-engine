@@ -84,7 +84,7 @@ bool ImageAsset::isCompressed() const {
     return (_format >= PixelFormat::RGB_ETC1 && _format <= PixelFormat::RGBA_ASTC_12X12) || (_format >= PixelFormat::RGB_A_PVRTC_2BPPV1 && _format <= PixelFormat::RGBA_ETC1);
 }
 
-ccstd::string ImageAsset::getUrl() const {
+const ccstd::string &ImageAsset::getUrl() const {
     return _url;
 }
 

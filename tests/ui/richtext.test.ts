@@ -35,12 +35,37 @@ test('parse-richtext', () => {
     expect(htmlAttrArray[0].style.imageHeight).toStrictEqual(89);
     expect(htmlAttrArray[0].style.imageAlign).toStrictEqual('top');
     expect(htmlAttrArray[1].text).toStrictEqual('   前面有三个空格，这是一段文本');
-
-    attribute = "<img src='1 23'/>";
+    
+    attribute = "<img src=   '12 3' width  =  80 height= 89 align  =top click='onClick' />文本中有两组单引号，但是图片名仅包含在第一组单引号内";
+    htmlAttrArray = htmlTextParser.parse(attribute);
+    expect(htmlAttrArray.length).toStrictEqual(2);
+    expect(htmlAttrArray[0].style.src).toStrictEqual('12 3');
+    expect(htmlAttrArray[0].style.imageWidth).toStrictEqual(80);
+    expect(htmlAttrArray[0].style.imageHeight).toStrictEqual(89);
+    expect(htmlAttrArray[0].style.imageAlign).toStrictEqual('top');
+    expect(htmlAttrArray[0].style.event.click).toStrictEqual('onClick');
+    expect(htmlAttrArray[1].text).toStrictEqual('文本中有两组单引号，但是图片名仅包含在第一组单引号内');
+    
+    attribute = "<img src=\"12 3\" width  =  80 height= 89 align  =top click='onClick' />文本中有一组单引号和一组双引号，但是图片名仅包含在前面这组双引号内";
+    htmlAttrArray = htmlTextParser.parse(attribute);
+    expect(htmlAttrArray.length).toStrictEqual(2);
+    expect(htmlAttrArray[0].style.src).toStrictEqual('12 3');
+    expect(htmlAttrArray[0].style.imageWidth).toStrictEqual(80);
+    expect(htmlAttrArray[0].style.imageHeight).toStrictEqual(89);
+    expect(htmlAttrArray[0].style.imageAlign).toStrictEqual('top');
+    expect(htmlAttrArray[0].style.event.click).toStrictEqual('onClick');
+    expect(htmlAttrArray[1].text).toStrictEqual('文本中有一组单引号和一组双引号，但是图片名仅包含在前面这组双引号内');
+    
+    attribute = "<img src =  '1 23'/>";
     htmlAttrArray = htmlTextParser.parse(attribute);
     expect(htmlAttrArray.length).toStrictEqual(1);
     expect(htmlAttrArray[0].style.src).toStrictEqual('1 23');
 
+    attribute = "<img src = click = 'onclick' />文本中没有图片名，无法生成style对象";
+    htmlAttrArray = htmlTextParser.parse(attribute);
+    expect(htmlAttrArray.length).toStrictEqual(1);
+    expect(htmlAttrArray[0].text).toStrictEqual('文本中没有图片名，无法生成style对象');
+    
     // following tests are exceptional writing
 
     attribute = "<img ='1 23'/>"; // 'src' missing 

@@ -183,19 +183,24 @@ export class HtmlTextParser {
                     // skip the invalid tags at first
                     attribute = attribute.substring(attribute.indexOf(header[0]));
                     tagName = attribute.substr(0, header[0].length);
-                    // remove space and = character
-                    remainingArgument = attribute.substring(tagName.length).trim();
-
-                    rightQuot = this.getRightQuotationIndex(remainingArgument);
-
-                    nextSpace = remainingArgument.indexOf(' ', rightQuot + 1 >= remainingArgument.length ? -1 : rightQuot + 1);
-
-                    tagValue = (nextSpace > -1) ? remainingArgument.substr(0, nextSpace) : remainingArgument;
+                    const originTagNameLength = tagName.length;
                     tagName = tagName.replace(/[^a-zA-Z]/g, '').trim();
                     tagName = tagName.toLowerCase();
 
+                    // remove space and = character
+                    remainingArgument = attribute.substring(originTagNameLength).trim();
+                    if (tagName === 'src') {
+                        rightQuot = this.getRightQuotationIndex(remainingArgument);
+                    } else {
+                        rightQuot = -1;
+                    }
+                    nextSpace = remainingArgument.indexOf(' ', rightQuot + 1 >= remainingArgument.length ? -1 : rightQuot + 1);
+                    tagValue = (nextSpace > -1) ? remainingArgument.substr(0, nextSpace) : remainingArgument;
                     attribute = remainingArgument.substring(nextSpace).trim();
-                    if (tagValue.endsWith('/')) tagValue = tagValue.slice(0, -1);
+
+                    if (tagValue.endsWith('/')) {
+                        tagValue = tagValue.slice(0, -1);
+                    }
                     if (tagName === 'src') {
                         switch (tagValue.charCodeAt(0)) {
                         case 34: // "
@@ -312,15 +317,21 @@ export class HtmlTextParser {
         return obj;
     }
 
+    // find the right part of the first pair of following quotations.
     private getRightQuotationIndex (remainingArgument: string) {
         let leftQuot = -1;
         let rightQuot = -1;
         // Skip a pair of quotations for avoiding spaces in image name are detected.
-        leftQuot = remainingArgument.indexOf('\'');
-        if (leftQuot > -1) {
+        const leftSingleQuot = remainingArgument.indexOf('\'');
+        const leftDoubleQuot = remainingArgument.indexOf('"');
+
+        const useSingleQuot = leftSingleQuot  > -1 && (leftSingleQuot < leftDoubleQuot || leftDoubleQuot === -1);
+        const useDoubleQuot = leftDoubleQuot > -1 && (leftDoubleQuot < leftSingleQuot || leftSingleQuot === -1);
+        if (useSingleQuot) {
+            leftQuot = leftSingleQuot;
             rightQuot = remainingArgument.indexOf('\'', leftQuot + 1 >= remainingArgument.length ? -1 : leftQuot + 1);
-        } else {
-            leftQuot = remainingArgument.indexOf('"');
+        } else if (useDoubleQuot) {
+            leftQuot = leftDoubleQuot;
             rightQuot = remainingArgument.indexOf('"', leftQuot + 1 >= remainingArgument.length ? -1 : leftQuot + 1);
         }
 

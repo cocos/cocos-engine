@@ -44,7 +44,7 @@ public:
      * @return {Triangle} 克隆出的新对象。
      */
 
-    static auto clone(const Triangle &t) -> Triangle *;
+    static Triangle *clone(const Triangle &t);
 
     /**
      * @en
@@ -56,7 +56,7 @@ public:
      * @return {Triangle} out 接受操作的 triangle。
      */
 
-    static auto copy(Triangle *out, const Triangle &t) -> Triangle *;
+    static Triangle *copy(Triangle *out, const Triangle &t);
 
     /**
      * @en
@@ -69,9 +69,9 @@ public:
      * @param {Vec3} c c 点。
      * @return {Triangle} out 接受操作的 triangle。
      */
-    static auto fromPoints(Triangle *out, const Vec3 &a,
-                           const Vec3 &b,
-                           const Vec3 &c) -> Triangle *;
+    static Triangle *fromPoints(Triangle *out, const Vec3 &a,
+                                const Vec3 &b,
+                                const Vec3 &c);
 
     /**
      * @en
@@ -91,10 +91,10 @@ public:
      * @return {Triangle}
      * @function
      */
-    static auto set(Triangle *out,
-                    float ax, float ay, float az,
-                    float bx, float by, float bz,
-                    float cx, float cy, float cz) -> Triangle *;
+    static Triangle *set(Triangle *out,
+                         float ax, float ay, float az,
+                         float bx, float by, float bz,
+                         float cx, float cy, float cz);
 
     /**
      * @en

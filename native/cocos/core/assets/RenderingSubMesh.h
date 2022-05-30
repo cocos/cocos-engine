@@ -100,6 +100,13 @@ public:
                      gfx::PrimitiveMode primitiveMode,
                      gfx::Buffer *indexBuffer,
                      gfx::Buffer *indirectBuffer);
+    
+    RenderingSubMesh(const gfx::BufferList &vertexBuffers,
+                     const gfx::AttributeList &attributes,
+                     gfx::PrimitiveMode primitiveMode,
+                     gfx::Buffer *indexBuffer,
+                     gfx::Buffer *indirectBuffer,
+                     bool isOwnerOfIndexBuffer);
 
     ~RenderingSubMesh() override;
 
@@ -180,11 +187,13 @@ public:
     inline void setMesh(Mesh *mesh) { _mesh = mesh; }
     inline Mesh *getMesh() const { return _mesh; }
 
-    inline void setSubMeshIdx(uint32_t idx) { _subMeshIdx = idx; }
+    inline void setSubMeshIdx(const ccstd::optional<uint32_t> &idx) { _subMeshIdx = idx; }
     inline const ccstd::optional<uint32_t> &getSubMeshIdx() const { return _subMeshIdx; }
 
 private:
     gfx::Buffer *allocVertexIdBuffer(gfx::Device *device);
+    
+    bool _isOwnerOfIndexBuffer{true};
 
     // Mesh will includes RenderingSubMesh, so use Mesh* here.
     Mesh *_mesh{nullptr};

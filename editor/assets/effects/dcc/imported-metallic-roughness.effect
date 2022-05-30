@@ -22,7 +22,7 @@ CCEffect %{
         emissiveScaleMap:     { value: grey, editor: { displayName: EmissiveMap } }
         emissive:             { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { displayName: EmissiveColor, type: color} }
         emissiveMap:          { value: grey, editor: { displayName: EmissiveColorMap } }
-        alphaSource:          { value: 0.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        alphaSource:          { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         alphaSourceMap:       { value: grey, editor: { parent: USE_OPACITY_MAP } }
         alphaThreshold:       { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
         normalStrength:       { value: 1.0, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
@@ -270,7 +270,7 @@ CCProgram standard-fs %{
     #if USE_ALBEDO_MAP
       vec4 texColor = texture(albedoMap, TEXTURE_UV);
       texColor.rgb = SRGBToLinear(texColor.rgb);
-      baseColor *= texColor;
+      baseColor = texColor;
     #endif
 
     #if USE_WEIGHT_MAP
@@ -301,7 +301,8 @@ CCProgram standard-fs %{
            roughnessValue = roughnessColor.ROUGHNESS_CHANNEL;
        #endif
     #endif
-    s.roughness = roughnessValue;
+    //fit specular ior=1.5
+    s.roughness = max(0.02, roughnessValue);
 
 
     float occlusionValue = occlusion;

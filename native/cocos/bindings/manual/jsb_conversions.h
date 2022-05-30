@@ -881,6 +881,30 @@ inline bool sevalue_to_native(const se::Value &from, std::function<R(Args...)> *
     return true;
 }
 
+template <typename... Args>
+inline bool sevalue_to_native(const se::Value &from, std::function<void(Args...)> *func, se::Object *self) { // NOLINT(readability-identifier-naming)
+    if (from.isObject() && from.toObject()->isFunction()) {
+        se::Object *callback = from.toObject();
+        self->attachObject(callback);
+        *func = [callback, self](Args... inargs) {
+            se::AutoHandleScope hs;
+            bool ok = true;
+            se::ValueArray args;
+            int idx = 0;
+            args.resize(sizeof...(Args));
+            nativevalue_to_se_args_v(args, inargs...);
+            se::Value rval;
+            bool succeed = callback->call(args, self, &rval);
+            if (!succeed) {
+                se::ScriptEngine::getInstance()->clearException();
+            }
+        };
+    } else {
+        return false;
+    }
+    return true;
+}
+
 //////////////////////// ccstd::variant
 
 template <typename... Args>

@@ -179,6 +179,26 @@ bool RenderAdditiveLightQueue::cullSpotLight(const scene::SpotLight *light, cons
     return model->getWorldBounds() && (!model->getWorldBounds()->aabbAabb(light->getAABB()) || !model->getWorldBounds()->aabbFrustum(light->getFrustum()));
 }
 
+bool RenderAdditiveLightQueue::isInstancedOrBatched(const scene::Model* model) {
+    const auto &      subModels     = model->getSubModels();
+    const auto        subModelCount = subModels.size();
+    for (uint subModelIdx = 0; subModelIdx < subModelCount; ++subModelIdx) {
+        const auto &subModel  = subModels[subModelIdx];
+        const auto &passes    = subModel->getPasses();
+        const auto  passCount = passes.size();
+        for (uint passIdx = 0; passIdx < passCount; ++passIdx) {
+            const auto &pass = passes[passIdx];
+            if (pass->getBatchingScheme() == scene::BatchingSchemes::INSTANCING) {
+                return true;
+            }
+            if (pass->getBatchingScheme() == scene::BatchingSchemes::VB_MERGING) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 void RenderAdditiveLightQueue::addRenderQueue(const scene::Pass *pass, const scene::SubModel *subModel, const scene::Model *model, uint lightPassIdx) {
     const auto batchingScheme = pass->getBatchingScheme();
     if (batchingScheme == scene::BatchingSchemes::INSTANCING) { // instancing
@@ -274,7 +294,10 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
             case scene::LightType::SPOT: {
                 _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 3] = 1.0F;
                 _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = spotLight->getSpotAngle();
-                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = (spotLight->isShadowEnabled() && shadowInfo->getType() == scene::ShadowType::SHADOW_MAP) ? 1.0F : 0.0F;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = (shadowInfo->isEnabled() &&
+                                                                                                 spotLight->isShadowEnabled() &&
+                                                                                                 shadowInfo->getType() == scene::ShadowType::SHADOW_MAP) ? 1.0F
+                                                                                                                                                         : 0.0F;
 
                 index = offset + UBOForwardLight::LIGHT_DIR_OFFSET;
                 const auto &direction = spotLight->getDirection();
@@ -409,14 +432,19 @@ bool RenderAdditiveLightQueue::getLightPassIndex(const scene::Model *model, ccst
 
 void RenderAdditiveLightQueue::lightCulling(const scene::Model *model) {
     bool isCulled = false;
+    const auto isNeedCulling = !isInstancedOrBatched(model);
     for (size_t i = 0; i < _validPunctualLights.size(); i++) {
         const auto *const light = _validPunctualLights[i];
         switch (light->getType()) {
             case scene::LightType::SPHERE:
-                isCulled = cullSphereLight(static_cast<const scene::SphereLight *>(light), model);
+                if (isNeedCulling) {
+                    isCulled = cullSphereLight(static_cast<const scene::SphereLight *>(light), model);
+                }
                 break;
             case scene::LightType::SPOT:
-                isCulled = cullSpotLight(static_cast<const scene::SpotLight *>(light), model);
+                if (isNeedCulling) {
+                    isCulled = cullSpotLight(static_cast<const scene::SpotLight *>(light), model);
+                }
                 break;
             default:
                 isCulled = false;

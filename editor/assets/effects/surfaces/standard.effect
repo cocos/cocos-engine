@@ -269,7 +269,7 @@ CCProgram standard-vs %{
   #include <macro-remapping>
   #include <surfaces/effect-macros/common-macros>
 
-  // 2. common include with corresponding shader stage
+  // 2. common include with corresponding shader stage, include before surface functions
   #include <surfaces/includes/common-vs>
 
   // 3. user surface functions that can use user (effect) parameters (ubo Constants)
@@ -307,7 +307,7 @@ CCProgram standard-fs %{
   #include <macro-remapping>
   #include <surfaces/effect-macros/common-macros>
 
-  // 2. common include with corresponding shader stage
+  // 2. common include with corresponding shader stage, include before surface functions
   #include <surfaces/includes/common-fs>
 
   // 3. user surface functions that can use user (effect) parameters (ubo Constants)
