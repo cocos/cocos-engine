@@ -33,8 +33,6 @@
 #include "NativePipelineTypes.h"
 #include "base/Macros.h"
 #include "base/Ptr.h"
-#include "boost/container/pmr/global_resource.hpp"
-#include "boost/container/pmr/unsynchronized_pool_resource.hpp"
 #include "boost/utility/string_view_fwd.hpp"
 #include "cocos/base/StringUtil.h"
 #include "cocos/renderer/gfx-base/GFXDescriptorSetLayout.h"
@@ -46,6 +44,7 @@
 #include "cocos/renderer/pipeline/custom/GslUtils.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphGraphs.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphNames.h"
+#include "cocos/renderer/pipeline/custom/Pmr.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphGraphs.h"
 #include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
@@ -68,65 +67,6 @@
 namespace cc {
 
 namespace render {
-
-uint32_t NativeLayoutGraphBuilder::addRenderStage(const ccstd::string &name) {
-    return add_vertex(*data, RenderStageTag{}, name.c_str());
-}
-
-uint32_t NativeLayoutGraphBuilder::addRenderPhase(const ccstd::string &name, uint32_t parentID) {
-    return add_vertex(*data, RenderPhaseTag{}, name.c_str(), parentID);
-}
-
-void NativeLayoutGraphBuilder::addDescriptorBlock(
-    uint32_t nodeID,
-    const DescriptorBlockIndex &index, const DescriptorBlock &block) {
-    auto &g = *data;
-    auto &ppl = get(LayoutGraphData::Layout, g, nodeID);
-
-    CC_ASSERT(block.capacity);
-    auto &layout = ppl.descriptorSets[index.updateFrequency].descriptorSetLayoutData;
-
-    // add block
-    layout.descriptorBlocks.emplace_back(
-        index.descriptorType, index.visibility, block.capacity);
-
-    auto &dstBlock = layout.descriptorBlocks.back();
-    dstBlock.offset = layout.capacity;
-    dstBlock.capacity = block.capacity;
-    for (const auto &pairD : block.descriptors) {
-        const auto &name = pairD.first;
-        const auto &d = pairD.second;
-        auto iter = g.attributeIndex.find(boost::string_view(name));
-        if (iter == g.attributeIndex.end()) {
-            throw std::out_of_range("attribute not found");
-        }
-        const auto &nameID = iter->second;
-        dstBlock.descriptors.emplace_back(nameID, d.count);
-    }
-    // update layout
-    layout.capacity += block.capacity;
-}
-
-void NativeLayoutGraphBuilder::reserveDescriptorBlock(
-    uint32_t nodeID,
-    const DescriptorBlockIndex &index, const DescriptorBlock &block) {
-    auto &g = *data;
-    auto &ppl = get(LayoutGraphData::Layout, g, nodeID);
-
-    CC_ASSERT(block.capacity);
-    auto &layout = ppl.descriptorSets[index.updateFrequency].descriptorSetLayoutData;
-
-    // add block
-    layout.descriptorBlocks.emplace_back(
-        index.descriptorType, index.visibility, block.capacity);
-
-    auto &dstBlock = layout.descriptorBlocks.back();
-    dstBlock.offset = layout.capacity;
-    dstBlock.capacity = block.capacity;
-
-    // update layout
-    layout.capacity += block.capacity;
-}
 
 void NativeRasterPassBuilder::addRasterView(const ccstd::string &name, const RasterView &view) {
     auto &pass = get(RasterTag{}, passID, *renderGraph);
@@ -697,185 +637,6 @@ void NativeCopyPassBuilder::addPair(const CopyPair &pair) {
 SceneTask *NativeSceneTransversal::transverse(SceneVisitor *visitor) const {
     std::ignore = visitor;
     return nullptr;
-}
-
-namespace {
-
-gfx::DescriptorType getGfxType(DescriptorTypeOrder type) {
-    switch (type) {
-        case DescriptorTypeOrder::UNIFORM_BUFFER:
-            return gfx::DescriptorType::UNIFORM_BUFFER;
-        case DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER:
-            return gfx::DescriptorType::DYNAMIC_UNIFORM_BUFFER;
-        case DescriptorTypeOrder::SAMPLER_TEXTURE:
-            return gfx::DescriptorType::SAMPLER_TEXTURE;
-        case DescriptorTypeOrder::SAMPLER:
-            return gfx::DescriptorType::SAMPLER;
-        case DescriptorTypeOrder::TEXTURE:
-            return gfx::DescriptorType::TEXTURE;
-        case DescriptorTypeOrder::STORAGE_BUFFER:
-            return gfx::DescriptorType::STORAGE_BUFFER;
-        case DescriptorTypeOrder::DYNAMIC_STORAGE_BUFFER:
-            return gfx::DescriptorType::DYNAMIC_STORAGE_BUFFER;
-        case DescriptorTypeOrder::STORAGE_IMAGE:
-            return gfx::DescriptorType::STORAGE_IMAGE;
-        case DescriptorTypeOrder::INPUT_ATTACHMENT:
-            return gfx::DescriptorType::INPUT_ATTACHMENT;
-    }
-    throw std::invalid_argument("DescriptorType not found");
-}
-
-IntrusivePtr<gfx::DescriptorSetLayout> createDescriptorSetLayout(
-    gfx::Device *device, const DescriptorSetLayoutData &layoutData) {
-    gfx::DescriptorSetLayoutInfo info;
-
-    for (const auto &block : layoutData.descriptorBlocks) {
-        uint32_t slot = block.offset;
-        for (const auto &d : block.descriptors) {
-            gfx::DescriptorSetLayoutBinding binding;
-            binding.binding = slot;
-            binding.descriptorType = getGfxType(block.type);
-            binding.count = d.count;
-            binding.stageFlags = block.visibility;
-            binding.immutableSamplers = {};
-            info.bindings.emplace_back(std::move(binding));
-            slot += d.count;
-        }
-    }
-
-    return {device->createDescriptorSetLayout(info)};
-}
-
-} // namespace
-
-int NativeLayoutGraphBuilder::compile() {
-    auto &g = *data;
-    // create descriptor sets
-    for (const auto v : makeRange(vertices(g))) {
-        auto &ppl = get(LayoutGraphData::Layout, g, v);
-        for (auto &levelPair : ppl.descriptorSets) {
-            auto &level = levelPair.second;
-            const auto &layoutData = level.descriptorSetLayoutData;
-            level.descriptorSetLayout = createDescriptorSetLayout(device, layoutData);
-            level.descriptorSet = device->createDescriptorSet(
-                gfx::DescriptorSetInfo{level.descriptorSetLayout.get()});
-        }
-    }
-
-    return 0;
-}
-
-namespace {
-
-ccstd::string getName(gfx::ShaderStageFlagBit stage) {
-    std::ostringstream oss;
-    int count = 0;
-    if (hasFlag(stage, gfx::ShaderStageFlagBit::VERTEX)) {
-        if (count++) {
-            oss << " | ";
-        }
-        oss << "Vertex";
-    }
-    if (hasFlag(stage, gfx::ShaderStageFlagBit::CONTROL)) {
-        if (count++) {
-            oss << " | ";
-        }
-        oss << "Control";
-    }
-    if (hasFlag(stage, gfx::ShaderStageFlagBit::EVALUATION)) {
-        if (count++) {
-            oss << " | ";
-        }
-        oss << "Evaluation";
-    }
-    if (hasFlag(stage, gfx::ShaderStageFlagBit::GEOMETRY)) {
-        if (count++) {
-            oss << " | ";
-        }
-        oss << "Geometry";
-    }
-    if (hasFlag(stage, gfx::ShaderStageFlagBit::FRAGMENT)) {
-        if (count++) {
-            oss << " | ";
-        }
-        oss << "Fragment";
-    }
-    if (hasFlag(stage, gfx::ShaderStageFlagBit::COMPUTE)) {
-        if (count++) {
-            oss << " | ";
-        }
-        oss << "Compute";
-    }
-    if (hasFlag(stage, gfx::ShaderStageFlagBit::ALL)) {
-        if (count++) {
-            oss << " | ";
-        }
-        oss << "All";
-    }
-    return oss.str();
-}
-
-} // namespace
-
-ccstd::string NativeLayoutGraphBuilder::print() const {
-    std::ostringstream oss;
-    boost::container::pmr::unsynchronized_pool_resource pool(
-        boost::container::pmr::get_default_resource());
-    ccstd::pmr::string space(&pool);
-
-    auto &g = *data;
-    for (const auto v : makeRange(vertices(g))) {
-        if (parent(v, g) != LayoutGraphData::null_vertex()) {
-            continue;
-        }
-        const auto &name = get(LayoutGraphData::Name, g, v);
-        const auto &freq = get(LayoutGraphData::Update, g, v);
-        OSS << "\"" << name << "\": ";
-
-        visit(
-            [&](auto tag) {
-                oss << getName(tag);
-            },
-            tag(v, g));
-
-        oss << "<" << getName(freq) << "> {\n";
-        INDENT_BEG();
-        const auto &info = get(LayoutGraphData::Layout, g, v);
-        for (const auto &set : info.descriptorSets) {
-            OSS << "Set<" << getName(set.first) << "> {\n";
-            {
-                INDENT();
-                for (const auto &block : set.second.descriptorSetLayoutData.descriptorBlocks) {
-                    OSS << "Block<" << getName(block.type) << ", " << getName(block.visibility) << "> {\n";
-                    {
-                        INDENT();
-                        OSS << "capacity: " << block.capacity << ",\n";
-                        OSS << "count: " << block.descriptors.size() << ",\n";
-                        if (!block.descriptors.empty()) {
-                            OSS << "Descriptors{ ";
-                            int count = 0;
-                            for (const auto &d : block.descriptors) {
-                                if (count++) {
-                                    oss << ", ";
-                                }
-                                const auto &name = g.valueNames.at(d.descriptorID.value);
-                                oss << "\"" << name;
-                                if (d.count != 1) {
-                                    oss << "[" << d.count << "]";
-                                }
-                                oss << "\"";
-                            }
-                            oss << " }\n";
-                        }
-                    }
-                    OSS << "}\n";
-                }
-            }
-            OSS << "}\n";
-        }
-    }
-
-    return oss.str();
 }
 
 NativePipeline::NativePipeline(const allocator_type &alloc) noexcept
