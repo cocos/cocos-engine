@@ -893,6 +893,7 @@ struct TextureBlit {
 using TextureBlitList = ccstd::vector<TextureBlit>;
 
 struct BufferTextureCopy {
+    uint32_t buffOffset{0};
     uint32_t buffStride{0};
     uint32_t buffTexHeight{0};
     Offset texOffset;
