@@ -1166,22 +1166,6 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/RenderCommonReflection.h
                  cocos/renderer/pipeline/custom/RenderCommonTypes.cpp
                  cocos/renderer/pipeline/custom/RenderCommonTypes.h
-                 cocos/renderer/pipeline/custom/RenderCompilerFwd.h
-                 cocos/renderer/pipeline/custom/RenderCompilerGraphs.h
-                 cocos/renderer/pipeline/custom/RenderCompilerImpl.cpp
-                 cocos/renderer/pipeline/custom/RenderCompilerNames.h
-                 cocos/renderer/pipeline/custom/RenderCompilerReflection.cpp
-                 cocos/renderer/pipeline/custom/RenderCompilerReflection.h
-                 cocos/renderer/pipeline/custom/RenderCompilerTypes.cpp
-                 cocos/renderer/pipeline/custom/RenderCompilerTypes.h
-                 cocos/renderer/pipeline/custom/RenderExampleFwd.h
-                 cocos/renderer/pipeline/custom/RenderExampleGraphs.h
-                 cocos/renderer/pipeline/custom/RenderExampleImpl.cpp
-                 cocos/renderer/pipeline/custom/RenderExampleNames.h
-                 cocos/renderer/pipeline/custom/RenderExampleReflection.cpp
-                 cocos/renderer/pipeline/custom/RenderExampleReflection.h
-                 cocos/renderer/pipeline/custom/RenderExampleTypes.cpp
-                 cocos/renderer/pipeline/custom/RenderExampleTypes.h
                  cocos/renderer/pipeline/custom/RenderGraphFwd.h
                  cocos/renderer/pipeline/custom/RenderGraphGraphs.h
                  cocos/renderer/pipeline/custom/RenderGraphJsb.cpp

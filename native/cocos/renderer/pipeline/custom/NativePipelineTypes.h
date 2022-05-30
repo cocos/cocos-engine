@@ -36,7 +36,6 @@
 #include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
 #include "cocos/renderer/pipeline/custom/Map.h"
 #include "cocos/renderer/pipeline/custom/NativePipelineFwd.h"
-#include "cocos/renderer/pipeline/custom/RenderCompilerTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderInterfaceTypes.h"
 
 namespace cc {
