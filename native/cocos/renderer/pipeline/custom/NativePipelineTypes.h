@@ -56,7 +56,7 @@ public:
     void reserveDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlock& block) override;
     int compile() override;
 
-    std::string print() const override;
+    ccstd::string print() const override;
 
     gfx::Device*     device{nullptr};
     LayoutGraphData* data{nullptr};

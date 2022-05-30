@@ -766,7 +766,7 @@ int NativeLayoutGraphBuilder::compile() {
 
 namespace {
 
-std::string getName(gfx::ShaderStageFlagBit stage) {
+ccstd::string getName(gfx::ShaderStageFlagBit stage) {
     std::ostringstream oss;
     int count = 0;
     if (hasFlag(stage, gfx::ShaderStageFlagBit::VERTEX)) {
@@ -816,7 +816,7 @@ std::string getName(gfx::ShaderStageFlagBit stage) {
 
 } // namespace
 
-std::string NativeLayoutGraphBuilder::print() const {
+ccstd::string NativeLayoutGraphBuilder::print() const {
     std::ostringstream oss;
     boost::container::pmr::unsynchronized_pool_resource pool(
         boost::container::pmr::get_default_resource());
@@ -1092,7 +1092,7 @@ namespace {
 
 void generateConstantMacros(
     gfx::Device *device,
-    std::string &constantMacros, bool clusterEnabled) {
+    ccstd::string &constantMacros, bool clusterEnabled) {
     constantMacros = StringUtil::format(
         R"(
 #define CC_DEVICE_SUPPORT_FLOAT_TEXTURE %d
