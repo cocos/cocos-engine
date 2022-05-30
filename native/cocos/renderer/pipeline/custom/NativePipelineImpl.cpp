@@ -367,6 +367,7 @@ const ccstd::pmr::string &getFirstChildLayoutName(
     LayoutGraphData::vertex_descriptor parentID) {
     auto childNodes = children(parentID, lg);
     CC_EXPECTS(childNodes.first->target != LayoutGraphData::null_vertex());
+    CC_EXPECTS(std::distance(childNodes.first, childNodes.second) == 1);
     auto queueLayoutID = childNodes.first->target;
     const auto &layoutName = get(LayoutGraphData::Name, lg, queueLayoutID);
     return layoutName;
