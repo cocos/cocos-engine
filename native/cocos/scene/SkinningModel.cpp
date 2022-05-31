@@ -147,7 +147,7 @@ void SkinningModel::setRealTimeJointTextures(std::vector<gfx::Texture *> texture
     _realTimeJointTexture = new RealTimeJointTexture();
     uint32_t length = 4 * RealTimeJointTexture::WIDTH * RealTimeJointTexture::HEIGHT;
     size_t count = _dataArray.size();
-    for (int i = 0; i < count; i++) {
+    for (size_t i = 0; i < count; i++) {
        delete[] _dataArray[i];
        _dataArray[i] = new float[length];
     }
