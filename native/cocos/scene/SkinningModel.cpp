@@ -164,9 +164,9 @@ void SkinningModel::updateRealTimeJointTextureBuffer()
     for (gfx::Texture* texture: _realTimeJointTexture->textures) {
         auto *buffer = _realTimeJointTexture->buffer;
         auto *src    = _dataArray[bIdx];
-        int  count  = width;
-        int index0 = 0, index1 = 0;
-        for (int i = 0; i < count; i++) {
+        uint32_t count = width;
+        uint32_t index0 = 0, index1 = 0;
+        for (uint32_t i = 0; i < count; i++) {
             index0 = 4 * i;
             buffer[index0++] = src[index1++];
             buffer[index0++] = src[index1++];
