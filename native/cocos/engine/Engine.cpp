@@ -349,14 +349,15 @@ Engine::SchedulerPtr Engine::getScheduler() const {
 }
 
 bool Engine::dispatchDeviceEvent(const DeviceEvent &ev) { // NOLINT(readability-convert-member-functions-to-static)
+    bool isHandled = false;
     if (ev.type == DeviceEvent::Type::MEMORY) {
         cc::EventDispatcher::dispatchMemoryWarningEvent();
-        return true;
+        isHandled = true;
     } else if (ev.type == DeviceEvent::Type::ORIENTATION) {
         cc::EventDispatcher::dispatchOrientationChangeEvent(ev.args[0].intVal);
-        return true;
+        isHandled = true;
     }
-    return false;
+    return isHandled;
 }
 
 bool Engine::dispatchWindowEvent(const WindowEvent &ev) {
