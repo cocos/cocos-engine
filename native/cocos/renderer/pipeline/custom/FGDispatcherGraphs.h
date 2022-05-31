@@ -274,6 +274,173 @@ addVertex(std::piecewise_construct_t /*tag*/, Component0&& c0, Component1&& c1, 
     return v;
 }
 
+// IncidenceGraph
+inline EmptyGraph::vertex_descriptor
+source(const EmptyGraph::edge_descriptor& e, const EmptyGraph& /*g*/) noexcept {
+    return e.source;
+}
+
+inline EmptyGraph::vertex_descriptor
+target(const EmptyGraph::edge_descriptor& e, const EmptyGraph& /*g*/) noexcept {
+    return e.target;
+}
+
+inline std::pair<EmptyGraph::out_edge_iterator, EmptyGraph::out_edge_iterator>
+out_edges(EmptyGraph::vertex_descriptor u, const EmptyGraph& g) noexcept { // NOLINT
+    return std::make_pair(
+        EmptyGraph::out_edge_iterator(const_cast<EmptyGraph&>(g).getOutEdgeList(u).begin(), u),
+        EmptyGraph::out_edge_iterator(const_cast<EmptyGraph&>(g).getOutEdgeList(u).end(), u));
+}
+
+inline EmptyGraph::degree_size_type
+out_degree(EmptyGraph::vertex_descriptor u, const EmptyGraph& g) noexcept { // NOLINT
+    return gsl::narrow_cast<EmptyGraph::degree_size_type>(g.getOutEdgeList(u).size());
+}
+
+inline std::pair<EmptyGraph::edge_descriptor, bool>
+edge(EmptyGraph::vertex_descriptor u, EmptyGraph::vertex_descriptor v, const EmptyGraph& g) noexcept {
+    const auto& outEdgeList = g.getOutEdgeList(u);
+    auto  iter        = std::find(outEdgeList.begin(), outEdgeList.end(), EmptyGraph::OutEdge(v));
+    bool  hasEdge     = (iter != outEdgeList.end());
+    return {EmptyGraph::edge_descriptor(u, v), hasEdge};
+}
+
+// BidirectionalGraph(Directed)
+inline std::pair<EmptyGraph::in_edge_iterator, EmptyGraph::in_edge_iterator>
+in_edges(EmptyGraph::vertex_descriptor u, const EmptyGraph& g) noexcept { // NOLINT
+    return std::make_pair(
+        EmptyGraph::in_edge_iterator(const_cast<EmptyGraph&>(g).getInEdgeList(u).begin(), u),
+        EmptyGraph::in_edge_iterator(const_cast<EmptyGraph&>(g).getInEdgeList(u).end(), u));
+}
+
+inline EmptyGraph::degree_size_type
+in_degree(EmptyGraph::vertex_descriptor u, const EmptyGraph& g) noexcept { // NOLINT
+    return gsl::narrow_cast<EmptyGraph::degree_size_type>(g.getInEdgeList(u).size());
+}
+
+inline EmptyGraph::degree_size_type
+degree(EmptyGraph::vertex_descriptor u, const EmptyGraph& g) noexcept {
+    return in_degree(u, g) + out_degree(u, g);
+}
+
+// AdjacencyGraph
+inline std::pair<EmptyGraph::adjacency_iterator, EmptyGraph::adjacency_iterator>
+adjacent_vertices(EmptyGraph::vertex_descriptor u, const EmptyGraph& g) noexcept { // NOLINT
+    auto edges = out_edges(u, g);
+    return std::make_pair(EmptyGraph::adjacency_iterator(edges.first, &g), EmptyGraph::adjacency_iterator(edges.second, &g));
+}
+
+// VertexListGraph
+inline std::pair<EmptyGraph::vertex_iterator, EmptyGraph::vertex_iterator>
+vertices(const EmptyGraph& g) noexcept {
+    return std::make_pair(const_cast<EmptyGraph&>(g).getVertexList().begin(), const_cast<EmptyGraph&>(g).getVertexList().end());
+}
+
+inline EmptyGraph::vertices_size_type
+num_vertices(const EmptyGraph& g) noexcept { // NOLINT
+    return gsl::narrow_cast<EmptyGraph::vertices_size_type>(g.getVertexList().size());
+}
+
+// EdgeListGraph
+inline std::pair<EmptyGraph::edge_iterator, EmptyGraph::edge_iterator>
+edges(const EmptyGraph& g0) noexcept {
+    auto& g = const_cast<EmptyGraph&>(g0);
+    return std::make_pair(
+        EmptyGraph::edge_iterator(g.getVertexList().begin(), g.getVertexList().begin(), g.getVertexList().end(), g),
+        EmptyGraph::edge_iterator(g.getVertexList().begin(), g.getVertexList().end(), g.getVertexList().end(), g));
+}
+
+inline EmptyGraph::edges_size_type
+num_edges(const EmptyGraph& g) noexcept { // NOLINT
+    EmptyGraph::edges_size_type numEdges = 0;
+
+    auto range = vertices(g);
+    for (auto iter = range.first; iter != range.second; ++iter) {
+        numEdges += out_degree(*iter, g);
+    }
+    return numEdges;
+}
+
+// MutableGraph(Edge)
+inline std::pair<EmptyGraph::edge_descriptor, bool>
+add_edge( // NOLINT
+    EmptyGraph::vertex_descriptor u,
+    EmptyGraph::vertex_descriptor v, EmptyGraph& g) {
+    auto& outEdgeList = g.getOutEdgeList(u);
+    outEdgeList.emplace_back(v);
+
+    auto& inEdgeList = g.getInEdgeList(v);
+    inEdgeList.emplace_back(u);
+
+    return std::make_pair(EmptyGraph::edge_descriptor(u, v), true);
+}
+
+inline void remove_edge(EmptyGraph::vertex_descriptor u, EmptyGraph::vertex_descriptor v, EmptyGraph& g) noexcept { // NOLINT
+    auto& s = g.vertices[u];
+    auto& t = g.vertices[v];
+    s.outEdges.erase(std::remove(s.outEdges.begin(), s.outEdges.end(), EmptyGraph::OutEdge(v)), s.outEdges.end());
+    t.inEdges.erase(std::remove(t.inEdges.begin(), t.inEdges.end(), EmptyGraph::InEdge(u)), t.inEdges.end());
+}
+
+inline void remove_edge(EmptyGraph::out_edge_iterator outIter, EmptyGraph& g) noexcept { // NOLINT
+    auto e = *outIter;
+    const auto u = source(e, g);
+    const auto v = target(e, g);
+    auto& s = g.vertices[u];
+    auto& t = g.vertices[v];
+    auto inIter = std::find(t.inEdges.begin(), t.inEdges.end(), EmptyGraph::InEdge(u));
+    CC_EXPECTS(inIter != t.inEdges.end());
+    t.inEdges.erase(inIter);
+    s.outEdges.erase(outIter.base());
+}
+
+inline void remove_edge(EmptyGraph::edge_descriptor e, EmptyGraph& g) noexcept { // NOLINT
+    const auto u = source(e, g);
+    const auto v = target(e, g);
+    auto& s = g.vertices[u];
+    auto outIter = std::find(s.outEdges.begin(), s.outEdges.end(), EmptyGraph::OutEdge(v));
+    CC_EXPECTS(outIter != s.outEdges.end());
+    remove_edge(EmptyGraph::out_edge_iterator(outIter, u), g);
+}
+
+// MutableGraph(Vertex)
+inline void clear_out_edges(EmptyGraph::vertex_descriptor u, EmptyGraph& g) noexcept { // NOLINT
+    // Bidirectional (OutEdges)
+    auto& outEdgeList = g.getOutEdgeList(u);
+    auto  outEnd      = outEdgeList.end();
+    for (auto iter = outEdgeList.begin(); iter != outEnd; ++iter) {
+        auto& inEdgeList = g.getInEdgeList((*iter).get_target());
+        // eraseFromIncidenceList
+        impl::sequenceEraseIf(inEdgeList, [u](const auto& e) {
+            return e.get_target() == u;
+        });
+    }
+    outEdgeList.clear();
+}
+
+inline void clear_in_edges(EmptyGraph::vertex_descriptor u, EmptyGraph& g) noexcept { // NOLINT
+    // Bidirectional (InEdges)
+    auto& inEdgeList = g.getInEdgeList(u);
+    auto  inEnd      = inEdgeList.end();
+    for (auto iter = inEdgeList.begin(); iter != inEnd; ++iter) {
+        auto& outEdgeList = g.getOutEdgeList((*iter).get_target());
+        // eraseFromIncidenceList
+        impl::sequenceEraseIf(outEdgeList, [u](const auto& e) {
+            return e.get_target() == u;
+        });
+    }
+    inEdgeList.clear();
+}
+
+inline void clear_vertex(EmptyGraph::vertex_descriptor u, EmptyGraph& g) noexcept { // NOLINT
+    clear_out_edges(u, g);
+    clear_in_edges(u, g);
+}
+
+inline void remove_vertex(EmptyGraph::vertex_descriptor u, EmptyGraph& g) noexcept { // NOLINT
+    impl::removeVectorVertex(const_cast<EmptyGraph&>(g), u, EmptyGraph::directed_category{});
+}
+
 } // namespace render
 
 } // namespace cc
@@ -338,6 +505,13 @@ struct property_map<cc::render::ResourceAccessGraph, T cc::render::ResourceAcces
         T,
         T&,
         T cc::render::ResourceAccessNode::*>;
+};
+
+// Vertex Index
+template <>
+struct property_map<cc::render::EmptyGraph, vertex_index_t> {
+    using const_type = identity_property_map;
+    using type       = identity_property_map;
 };
 
 } // namespace boost
@@ -469,6 +643,32 @@ add_vertex(ResourceAccessGraph& g, const RenderGraph::vertex_descriptor& key) { 
         std::forward_as_tuple(key), // passID
         std::forward_as_tuple(), // access
         g);
+}
+
+// Vertex Index
+inline boost::property_map<EmptyGraph, boost::vertex_index_t>::const_type
+get(boost::vertex_index_t /*tag*/, const EmptyGraph& /*g*/) noexcept {
+    return {};
+}
+
+inline boost::property_map<EmptyGraph, boost::vertex_index_t>::type
+get(boost::vertex_index_t /*tag*/, EmptyGraph& /*g*/) noexcept {
+    return {};
+}
+
+inline impl::ColorMap<EmptyGraph::vertex_descriptor>
+get(ccstd::pmr::vector<boost::default_color_type>& colors, const EmptyGraph& /*g*/) noexcept {
+    return {colors};
+}
+
+// MutableGraph(Vertex)
+inline EmptyGraph::vertex_descriptor
+addVertex(EmptyGraph& g) {
+    auto v = gsl::narrow_cast<EmptyGraph::vertex_descriptor>(g.vertices.size());
+
+    g.vertices.emplace_back();
+
+    return v;
 }
 
 } // namespace render
