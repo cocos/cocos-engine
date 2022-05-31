@@ -10,7 +10,9 @@ Re: #
 
 This pull request:
 
-* [ ] needs automatic test cases check // Manual trigger with `@cocos-robot run test cases` afterward
+* [ ] needs automatic test cases check.
+
+  > Manual trigger with `@cocos-robot run test cases` afterward.
 
 -------
 
