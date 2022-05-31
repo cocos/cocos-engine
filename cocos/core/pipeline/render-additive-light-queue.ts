@@ -89,6 +89,24 @@ function getLightPassIndices (subModels: SubModel[], lightPassIndices: number[])
     return hasValidLightPass;
 }
 
+function isInstancedOrBatched (model: Model) {
+    const subModels = model.subModels;
+    for (let m = 0; m < subModels.length; ++m) {
+        const passes = subModels[m].passes;
+        for (let p = 0; p < passes.length; ++p) {
+            const pass = passes[p];
+            const batchingScheme = pass.batchingScheme;
+            if (batchingScheme === BatchingSchemes.INSTANCING) {
+                return true;
+            }
+            if (batchingScheme === BatchingSchemes.VB_MERGING) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 /**
  * @zh 叠加光照队列。
  */
@@ -235,15 +253,16 @@ export class RenderAdditiveLightQueue {
 
     // light culling
     protected _lightCulling (model:Model, validPunctualLights: Light[]) {
+        let isCulled = false;
+        const isNeedCulling = !isInstancedOrBatched(model);
         for (let l = 0; l < validPunctualLights.length; l++) {
             const light = validPunctualLights[l];
-            let isCulled = false;
             switch (light.type) {
             case LightType.SPHERE:
-                isCulled = cullSphereLight(light as SphereLight, model);
+                if (isNeedCulling) { isCulled = cullSphereLight(light as SphereLight, model); }
                 break;
             case LightType.SPOT:
-                isCulled = cullSpotLight(light as SpotLight, model);
+                if (isNeedCulling) { isCulled = cullSpotLight(light as SpotLight, model); }
                 break;
             default:
             }
@@ -454,7 +473,7 @@ export class RenderAdditiveLightQueue {
                 _vec4Array[0] = (light as SpotLight).size;
                 _vec4Array[1] = (light as SpotLight).range;
                 _vec4Array[2] = (light as SpotLight).spotAngle;
-                _vec4Array[3] = ((light as SpotLight).shadowEnabled && shadowInfo.type === ShadowType.ShadowMap) ? 1 : 0;
+                _vec4Array[3] = (shadowInfo.enabled && (light as SpotLight).shadowEnabled && shadowInfo.type === ShadowType.ShadowMap) ? 1 : 0;
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
 
                 Vec3.toArray(_vec4Array, (light as SpotLight).direction);

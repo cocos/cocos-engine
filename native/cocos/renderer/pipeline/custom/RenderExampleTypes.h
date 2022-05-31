@@ -36,7 +36,7 @@
 #include <boost/range/irange.hpp>
 #include "cocos/base/std/container/string.h"
 #include "cocos/base/std/container/vector.h"
-#include "base/std/hash/hash.h"
+#include "cocos/base/std/hash/hash.h"
 #include "cocos/renderer/pipeline/custom/GraphTypes.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/Map.h"

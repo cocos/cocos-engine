@@ -795,7 +795,6 @@ const cacheManager = require('./jsb-cache-manager');
     };
 
     const _tempAttachMat4 = cc.mat4();
-    const _identityTrans = new cc.Node();
     let _tempVfmt; let _tempBufferIndex; let _tempIndicesOffset; let _tempIndicesCount;
 
     skeleton._render = function (ui) {
@@ -877,7 +876,7 @@ const cacheManager = require('./jsb-cache-manager');
             _tempIndicesCount = renderInfo[renderInfoOffset + materialIdx++];
 
             const renderData = middleware.RenderInfoLookup[_tempVfmt][_tempBufferIndex];
-            ui.commitComp(this, renderData, realTexture, this._assembler, _identityTrans);
+            ui.commitComp(this, renderData, realTexture, this._assembler, this.node);
             renderData.updateRange(renderData.vertexStart, renderData.vertexCount, _tempIndicesOffset, _tempIndicesCount);
             this.material = mat;
         }

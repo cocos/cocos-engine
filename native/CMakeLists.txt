@@ -1156,9 +1156,6 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/NativePipelineFwd.h
                  cocos/renderer/pipeline/custom/NativePipelineGraphs.h
                  cocos/renderer/pipeline/custom/NativePipelineImpl.cpp
-                 cocos/renderer/pipeline/custom/NativePipelineNames.h
-                 cocos/renderer/pipeline/custom/NativePipelineReflection.cpp
-                 cocos/renderer/pipeline/custom/NativePipelineReflection.h
                  cocos/renderer/pipeline/custom/NativePipelineTypes.cpp
                  cocos/renderer/pipeline/custom/NativePipelineTypes.h
                  cocos/renderer/pipeline/custom/RenderCommonFwd.h
@@ -2338,7 +2335,7 @@ elseif(OHOS)
     )
 elseif(APPLE)
     cocos_source_files(
-                    cocos/bindings/manual/jsb_platfrom_apple.mm
+                    cocos/bindings/manual/jsb_platform_apple.mm
                     cocos/bindings/manual/JavaScriptObjCBridge.h
                     cocos/bindings/manual/JavaScriptObjCBridge.mm
                     cocos/platform/apple/JsbBridge.h
@@ -2348,11 +2345,11 @@ elseif(APPLE)
     )
 elseif(WIN32)
     cocos_source_files(
-        NO_WERROR    cocos/bindings/manual/jsb_platfrom_win32.cpp
+        NO_WERROR    cocos/bindings/manual/jsb_platform_win32.cpp
     )
 elseif(LINUX)
     cocos_source_files(
-        NO_WERROR    cocos/bindings/manual/jsb_platfrom_linux.cpp
+        NO_WERROR    cocos/bindings/manual/jsb_platform_linux.cpp
     )
 endif()
 

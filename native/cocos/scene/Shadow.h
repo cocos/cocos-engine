@@ -330,13 +330,13 @@ public:
     inline float getShadowCameraFar() const { return _shadowCameraFar; }
     inline void setShadowCameraFar(float shadowDistance) { _shadowCameraFar = shadowDistance; }
 
-    inline Mat4 getMatShadowView() const { return _matShadowView; }
+    inline const Mat4 &getMatShadowView() const { return _matShadowView; }
     inline void setMatShadowView(const Mat4 &matShadowView) { _matShadowView = matShadowView; }
 
-    inline Mat4 getMatShadowProj() const { return _matShadowProj; }
+    inline const Mat4 &getMatShadowProj() const { return _matShadowProj; }
     inline void setMatShadowProj(const Mat4 &matShadowProj) { _matShadowProj = matShadowProj; }
 
-    inline Mat4 getMatShadowViewProj() const { return _matShadowViewProj; }
+    inline const Mat4 &getMatShadowViewProj() const { return _matShadowViewProj; }
     inline void setMatShadowViewProj(const Mat4 &matShadowViewProj) { _matShadowViewProj = matShadowViewProj; }
 
 private:

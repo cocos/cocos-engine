@@ -281,6 +281,7 @@ void FreeTypeFontFace::updateTexture(uint32_t page, uint32_t x, uint32_t y, uint
     gfx::BufferDataList buffers{buffer};
     gfx::BufferTextureCopyList regions = {{0U,
                                            0U,
+                                           0U,
                                            {static_cast<int32_t>(x), static_cast<int32_t>(y), 0U},
                                            {width, height, 1U},
                                            {0U, 0U, 1U}}};

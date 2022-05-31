@@ -38,26 +38,36 @@ namespace cc {
 RenderingSubMesh::RenderingSubMesh(const gfx::BufferList &vertexBuffers,
                                    const gfx::AttributeList &attributes,
                                    gfx::PrimitiveMode primitiveMode)
-: RenderingSubMesh(vertexBuffers, attributes, primitiveMode, nullptr, nullptr) {
+: RenderingSubMesh(vertexBuffers, attributes, primitiveMode, nullptr, nullptr, true) {
 }
 
 RenderingSubMesh::RenderingSubMesh(const gfx::BufferList &vertexBuffers,
                                    const gfx::AttributeList &attributes,
                                    gfx::PrimitiveMode primitiveMode,
                                    gfx::Buffer *indexBuffer)
-: RenderingSubMesh(vertexBuffers, attributes, primitiveMode, indexBuffer, nullptr) {
+: RenderingSubMesh(vertexBuffers, attributes, primitiveMode, indexBuffer, nullptr, true) {
 }
 
 RenderingSubMesh::RenderingSubMesh(const gfx::BufferList &vertexBuffers,
                                    const gfx::AttributeList &attributes,
                                    gfx::PrimitiveMode primitiveMode,
-                                   gfx::Buffer *indexBuffer /* = nullptr*/,
-                                   gfx::Buffer *indirectBuffer /* = nullptr*/)
+                                   gfx::Buffer *indexBuffer,
+                                   gfx::Buffer *indirectBuffer)
+: RenderingSubMesh(vertexBuffers, attributes, primitiveMode, indexBuffer, indirectBuffer, true) {
+}
+
+RenderingSubMesh::RenderingSubMesh(const gfx::BufferList &vertexBuffers,
+                                   const gfx::AttributeList &attributes,
+                                   gfx::PrimitiveMode primitiveMode,
+                                   gfx::Buffer *indexBuffer,
+                                   gfx::Buffer *indirectBuffer,
+                                   bool isOwnerOfIndexBuffer)
 : _vertexBuffers(vertexBuffers),
   _attributes(attributes),
   _primitiveMode(primitiveMode),
   _indexBuffer(indexBuffer),
-  _indirectBuffer(indirectBuffer) {
+  _indirectBuffer(indirectBuffer),
+  _isOwnerOfIndexBuffer(isOwnerOfIndexBuffer) {
     _iaInfo.attributes = attributes;
     _iaInfo.vertexBuffers = vertexBuffers;
     _iaInfo.indexBuffer = indexBuffer;
@@ -203,7 +213,10 @@ bool RenderingSubMesh::destroy() {
     }
     _vertexBuffers.clear();
 
-    CC_SAFE_DESTROY_NULL(_indexBuffer);
+    if (_indexBuffer && _isOwnerOfIndexBuffer) {
+        _indexBuffer->destroy();
+        _indexBuffer = nullptr;
+    }
 
     if (!_jointMappedBuffers.empty() && !_jointMappedBufferIndices.empty()) {
         for (uint32_t index : _jointMappedBufferIndices) {
