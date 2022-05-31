@@ -376,6 +376,8 @@ export class AnimationState extends Playable {
         if (!(EDITOR && !legacyCC.GAME_VIEW)) {
             this._clipEventEval = clip.createEventEvaluator(this._targetNode);
         }
+
+        this._clipEval?.notifyHostSpeedChanged(this._speed);
     }
 
     public destroy () {

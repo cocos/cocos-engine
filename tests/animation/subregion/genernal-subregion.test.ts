@@ -1,4 +1,6 @@
 import { Node } from "../../../cocos/core";
+import { addSubRegionTag, AnimationClip } from "../../../cocos/core/animation/animation-clip";
+import { AnimationState } from "../../../cocos/core/animation/animation-state";
 import {  Subregion, SubRegionPlayer, InstantiatedSubRegionPlayer } from "../../../cocos/core/animation/subregion/subregion";
 import { AnimationClipHostSubRegionMock } from "./util";
 
@@ -228,6 +230,29 @@ describe('General subregion test', () => {
 
             subregionPlayerMock.zeroCheck();
         });
+
+        test('Broadcasting of animation state\'s speed', () => {
+            const clip = new AnimationClip();
+            clip.speed = 0.6;
+            const subregion = new Subregion();
+            subregion.reconciledSpeed = true;
+            const playerMock = subregion.player = new SubregionPlayerMock();
+            clip[addSubRegionTag](subregion);
+
+            const animationState = new AnimationState(clip);
+            const node = new Node();
+            expect(playerMock.setSpeedMock).not.toBeCalled();
+
+            animationState.initialize(node);
+            expect(playerMock.setSpeedMock).toBeCalledTimes(1);
+            expect(playerMock.setSpeedMock.mock.calls[0][0]).toBe(0.6);
+            playerMock.setSpeedMock.mockClear();
+
+            animationState.speed = 0.8;
+            expect(playerMock.setSpeedMock).toBeCalledTimes(1);
+            expect(playerMock.setSpeedMock.mock.calls[0][0]).toBe(0.8);
+            playerMock.setSpeedMock.mockClear();
+        });
     });
 });
 
@@ -295,8 +320,7 @@ class InstantiatedSubregionPlayerMock extends InstantiatedSubRegionPlayer {
         private _stopMock: jest.Mock,
         private _setSpeedMock: jest.Mock,
     ) {
-        super();
-        this._randomAccess = randomAccess;
+        super(randomAccess);
     }
 
     public destroy(...args: Parameters<InstantiatedSubRegionPlayer['destroy']>): void {
