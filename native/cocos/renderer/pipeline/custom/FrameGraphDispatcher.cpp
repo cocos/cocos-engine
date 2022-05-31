@@ -642,16 +642,14 @@ auto evaluateHeaviness(const RAG &rag, const ResourceGraph &rescGraph, EmptyVert
             continue;
         }
 
-        auto desc2 = desc;
-        desc2.width = 960;
         switch (desc.dimension) {
             case ResourceDimension::BUFFER:
-                eval = desc2.width;
+                eval = desc.width;
                 break;
             case ResourceDimension::TEXTURE1D:
             case ResourceDimension::TEXTURE2D:
             case ResourceDimension::TEXTURE3D:
-                eval = gfx::formatSize(desc2.format, desc2.width, desc2.height, desc2.depthOrArraySize);
+                eval = gfx::formatSize(desc.format, desc.width, desc.height, desc.depthOrArraySize);
                 break;
         }
 
@@ -898,7 +896,7 @@ void passReorder(FrameGraphDispatcher &fgDispatcher, ResourceAccessGraph &rag) {
 
         float percent = 0.0F;
         uint32_t count = 0;
-        uint32_t total = circuits.size();
+        auto total = circuits.size();
 
         float memsavePercent = 1.0F - fgDispatcher._paralellExecWeight;
         for (auto iter = circuits.begin(); (iter != circuits.end()) && (percent < memsavePercent);) {
@@ -919,9 +917,9 @@ void passReorder(FrameGraphDispatcher &fgDispatcher, ResourceAccessGraph &rag) {
         EmptyVerts candidates;
 
         for (size_t i = 0; i < relationGraph.vertices.size(); ++i) {
-            if (in_degree(i, relationGraph) == 0) {
+            if (static_cast<uint32_t>(in_degree(i, relationGraph)) == 0) {
                 if (std::find(candidates.begin(), candidates.end(), i) == candidates.end()) {
-                    candidates.push_back(i);
+                    candidates.push_back(static_cast<uint32_t>(i));
                 }
             }
         }
