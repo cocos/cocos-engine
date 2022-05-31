@@ -66,8 +66,8 @@ public:
         }
     }
 
-    static const int WIDTH = 256;
-    static const int HEIGHT = 3;
+    static const uint32_t WIDTH = 256;
+    static const uint32_t HEIGHT = 3;
     std::vector<gfx::Texture *> textures;
     float *buffer = nullptr;
 };

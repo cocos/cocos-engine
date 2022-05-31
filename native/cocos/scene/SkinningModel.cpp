@@ -106,9 +106,9 @@ SkinningModel::~SkinningModel() {
 
 void SkinningModel::setBuffers(std::vector<gfx::Buffer*> buffers) {
     _buffers = std::move(buffers);
-    int count = _buffers.size();
+    size_t count = _buffers.size();
     _dataArray.resize(_buffers.size());
-    for (int i = 0; i < count; i++) {
+    for (size_t i = 0; i < count; i++) {
         _dataArray[i]= new float[pipeline::UBOSkinning::count];
     }
 }
@@ -145,7 +145,7 @@ void SkinningModel::setRealTimeJointTextures(std::vector<gfx::Texture *> texture
     if (textures.empty()) return;
     _realTimeTextureMode = true;
     _realTimeJointTexture = new RealTimeJointTexture();
-    int length = 4 * RealTimeJointTexture::WIDTH * RealTimeJointTexture::HEIGHT;
+    uint32_t length = 4 * RealTimeJointTexture::WIDTH * RealTimeJointTexture::HEIGHT;
     size_t count = _dataArray.size();
     for (int i = 0; i < count; i++) {
        delete[] _dataArray[i];
@@ -159,8 +159,8 @@ void SkinningModel::setRealTimeJointTextures(std::vector<gfx::Texture *> texture
 void SkinningModel::updateRealTimeJointTextureBuffer()
 {
     uint32_t bIdx = 0;
-    int width = RealTimeJointTexture::WIDTH;
-    int height = RealTimeJointTexture::HEIGHT;
+    uint32_t width = RealTimeJointTexture::WIDTH;
+    uint32_t height = RealTimeJointTexture::HEIGHT;
     for (gfx::Texture* texture: _realTimeJointTexture->textures) {
         auto *buffer = _realTimeJointTexture->buffer;
         auto *src    = _dataArray[bIdx];
