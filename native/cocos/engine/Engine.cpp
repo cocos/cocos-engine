@@ -341,7 +341,7 @@ bool Engine::handleEvent(const OSEvent &ev) {
 
 bool Engine::handleTouchEvent(const TouchEvent &ev) { // NOLINT(readability-convert-member-functions-to-static)
     cc::EventDispatcher::dispatchTouchEvent(ev);
-    return true;
+    return dispatchEventToApp(OSEventType::TOUCH_OSEVENT, ev);
 }
 
 Engine::SchedulerPtr Engine::getScheduler() const {
@@ -349,8 +349,11 @@ Engine::SchedulerPtr Engine::getScheduler() const {
 }
 
 bool Engine::dispatchDeviceEvent(const DeviceEvent &ev) { // NOLINT(readability-convert-member-functions-to-static)
-    if (ev.type == DeviceEvent::Type::DEVICE_MEMORY) {
+    if (ev.type == DeviceEvent::Type::MEMORY) {
         cc::EventDispatcher::dispatchMemoryWarningEvent();
+        return true;
+    } else if (ev.type == DeviceEvent::Type::ORIENTATION) {
+        cc::EventDispatcher::dispatchOrientationChangeEvent(ev.args[0].intVal);
         return true;
     }
     return false;
