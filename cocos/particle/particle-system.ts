@@ -24,7 +24,7 @@
  */
 
 // eslint-disable-next-line max-len
-import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, inspector, boolean, visible } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, inspector, boolean, visible, slide, rangeStep } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { RenderableComponent } from '../core/components/renderable-component';
 import { Material } from '../core/assets/material';
@@ -53,6 +53,7 @@ import { TransformBit } from '../core/scene-graph/node-enum';
 import { AABB, intersect } from '../core/geometry';
 import { Camera } from '../core/renderer/scene';
 import { ParticleCuller } from './particle-culler';
+import NoiseModule from './animator/noise-module';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
@@ -649,6 +650,27 @@ export class ParticleSystem extends RenderableComponent {
     public set textureAnimationModule (val) {
         if (!val) return;
         this._textureAnimationModule = val;
+    }
+
+    // noise module
+    @type(NoiseModule)
+    private _noiseModule: NoiseModule | null = null;
+
+    @type(NoiseModule)
+    @displayOrder(24)
+    public get noiseModule () {
+        if (EDITOR) {
+            if (!this._noiseModule) {
+                this._noiseModule = new NoiseModule();
+                this._noiseModule.bindTarget(this.processor);
+            }
+        }
+        return this._noiseModule;
+    }
+
+    public set noiseModule (val) {
+        if (!val) return;
+        this._noiseModule = val;
     }
 
     // trail module
@@ -1397,5 +1419,13 @@ export class ParticleSystem extends RenderableComponent {
     public _onBeforeSerialize (props) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this.dataCulling ? props.filter((p) => !PARTICLE_MODULE_PROPERTY.includes(p) || (this[p] && this[p].enable)) : props;
+    }
+
+    public getNoisePreview (width: number, height: number): number[] {
+        const out: number[] = [];
+        if (this.processor) {
+            this.processor.getNoisePreview(out, width, height);
+        }
+        return out;
     }
 }
