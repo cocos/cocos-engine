@@ -47,7 +47,7 @@ class RenderFlow;
 // and the JOINT_UNIFORM_CAPACITY macro in cc-skinning shader header.
 class CC_DLL SkinningJointCapacity {
 public:
-    static uint JOINT_UNIFORM_CAPACITY;
+    static uint jointUniformCapacity;
 };
 
 constexpr float SHADOW_CAMERA_MAX_FAR    = 2000.0F;
@@ -335,13 +335,13 @@ struct CC_DLL UBOSkinningAnimation {
 
 class CC_DLL UBOSkinning {
 public:
-    static uint                                  COUNT;
-    static uint                                  SIZE;
+    static uint                                  count;
+    static uint                                  size;
     static constexpr uint                        BINDING            = static_cast<uint>(ModelLocalBindings::UBO_SKINNING_TEXTURE);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
-    static gfx::UniformBlock                     LAYOUT;
+    static gfx::UniformBlock                     layout;
     static const String                          NAME;
-    static void InitLayout (uint capacity);
+    static void initLayout (uint capacity);
 };
 
 struct CC_DLL UBOMorph {

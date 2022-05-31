@@ -63,8 +63,8 @@ void GlobalDSManager::activate(gfx::Device *device, RenderPipeline *pipeline) {
 
     uint maxJoints = (_device->getCapabilities().maxVertexUniformVectors - 38) / 3;
     maxJoints = maxJoints < 256 ? maxJoints : 256;
-    SkinningJointCapacity::JOINT_UNIFORM_CAPACITY = maxJoints;
-    UBOSkinning::InitLayout(maxJoints);
+    SkinningJointCapacity::jointUniformCapacity = maxJoints;
+    UBOSkinning::initLayout(maxJoints);
 
     setDescriptorSetLayout();
     if (_descriptorSetLayout) {
@@ -197,7 +197,7 @@ void GlobalDSManager::setDescriptorSetLayout() {
     localDescriptorSetLayout.bindings[UBOSkinningTexture::BINDING]   = UBOSkinningTexture::DESCRIPTOR;
     localDescriptorSetLayout.blocks[UBOSkinningAnimation::NAME]      = UBOSkinningAnimation::LAYOUT;
     localDescriptorSetLayout.bindings[UBOSkinningAnimation::BINDING] = UBOSkinningAnimation::DESCRIPTOR;
-    localDescriptorSetLayout.blocks[UBOSkinning::NAME]               = UBOSkinning::LAYOUT;
+    localDescriptorSetLayout.blocks[UBOSkinning::NAME]               = UBOSkinning::layout;
     localDescriptorSetLayout.bindings[UBOSkinning::BINDING]          = UBOSkinning::DESCRIPTOR;
     localDescriptorSetLayout.blocks[UBOMorph::NAME]                  = UBOMorph::LAYOUT;
     localDescriptorSetLayout.bindings[UBOMorph::BINDING]             = UBOMorph::DESCRIPTOR;

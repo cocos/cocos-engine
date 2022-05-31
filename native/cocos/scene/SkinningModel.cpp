@@ -93,7 +93,7 @@ void SkinningModel::uploadJointData(uint32_t base, const Mat4& mat, float* dst) 
 }
 
 SkinningModel::~SkinningModel() {
-    int count = _dataArray.size();
+    size_t count = _dataArray.size();
     for (int i = 0; i < count; i++) {
         if (_dataArray[i]) delete[] _dataArray[i];
     }
@@ -109,7 +109,7 @@ void SkinningModel::setBuffers(std::vector<gfx::Buffer*> buffers) {
     int count = _buffers.size();
     _dataArray.resize(_buffers.size());
     for (int i = 0; i < count; i++) {
-        _dataArray[i]= new float[pipeline::UBOSkinning::COUNT];
+        _dataArray[i]= new float[pipeline::UBOSkinning::count];
     }
 }
 
@@ -142,11 +142,11 @@ void SkinningModel::updateTransform(uint32_t stamp) {
 }
 
 void SkinningModel::setRealTimeJointTextures(std::vector<gfx::Texture *> textures) {
-    if (textures.size() < 1) return;
+    if (textures.empty()) return;
     _realTimeTextureMode = true;
     _realTimeJointTexture = new RealTimeJointTexture();
     int length = 4 * RealTimeJointTexture::WIDTH * RealTimeJointTexture::HEIGHT;
-    int count = _dataArray.size();
+    size_t count = _dataArray.size();
     for (int i = 0; i < count; i++) {
        delete[] _dataArray[i];
        _dataArray[i] = new float[length];
@@ -159,12 +159,12 @@ void SkinningModel::setRealTimeJointTextures(std::vector<gfx::Texture *> texture
 void SkinningModel::updateRealTimeJointTextureBuffer()
 {
     uint32_t bIdx = 0;
-    const int TEXTURE_WIDTH = RealTimeJointTexture::WIDTH;
-    const int TEXTURE_HEIGHT = RealTimeJointTexture::HEIGHT;
+    int width = RealTimeJointTexture::WIDTH;
+    int height = RealTimeJointTexture::HEIGHT;
     for (gfx::Texture* texture: _realTimeJointTexture->textures) {
-        auto buffer = _realTimeJointTexture->buffer;
-        auto src    = _dataArray[bIdx];
-        int  count  = TEXTURE_WIDTH;
+        auto *buffer = _realTimeJointTexture->buffer;
+        auto *src    = _dataArray[bIdx];
+        int  count  = width;
         int index0 = 0, index1 = 0;
         for (int i = 0; i < count; i++) {
             index0 = 4 * i;
@@ -172,12 +172,12 @@ void SkinningModel::updateRealTimeJointTextureBuffer()
             buffer[index0++] = src[index1++];
             buffer[index0++] = src[index1++];
             buffer[index0++] = src[index1++];
-            index0 = 4 * (i + TEXTURE_WIDTH);
+            index0 = 4 * (i + width);
             buffer[index0++] = src[index1++];
             buffer[index0++] = src[index1++];
             buffer[index0++] = src[index1++];
             buffer[index0++] = src[index1++];
-            index0 = 4 * (i + 2 * TEXTURE_WIDTH);
+            index0 = 4 * (i + 2 * width);
             buffer[index0++] = src[index1++];
             buffer[index0++] = src[index1++];
             buffer[index0++] = src[index1++];
@@ -185,10 +185,10 @@ void SkinningModel::updateRealTimeJointTextureBuffer()
         }
         cc::gfx::TextureSubresLayers layer;
         cc::gfx::Offset texOffset;
-        cc::gfx::Extent extent = {TEXTURE_WIDTH, TEXTURE_HEIGHT, 1};
+        cc::gfx::Extent extent = {width, height, 1};
         cc::gfx::BufferTextureCopy region = {
-           TEXTURE_WIDTH,
-           TEXTURE_HEIGHT,
+           width,
+           height,
            texOffset,
            extent,
            layer

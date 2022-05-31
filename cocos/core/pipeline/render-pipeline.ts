@@ -49,7 +49,6 @@ import { OS } from '../../../pal/system-info/enum-type';
 import { macro } from '../platform/macro';
 import { UBOSkinning } from './define';
 
-
 /**
  * @en Render pipeline information descriptor
  * @zh 渲染管线描述信息。

@@ -252,9 +252,9 @@ const gfx::UniformBlock UBOSkinningAnimation::LAYOUT = {
     1,
 };
 
-uint SkinningJointCapacity::JOINT_UNIFORM_CAPACITY = 0;
-uint UBOSkinning::COUNT = 0;
-uint UBOSkinning::SIZE = 0;
+uint SkinningJointCapacity::jointUniformCapacity = 0;
+uint UBOSkinning::count = 0;
+uint UBOSkinning::size = 0;
 
 const String                          UBOSkinning::NAME       = "CCSkinning";
 const gfx::DescriptorSetLayoutBinding UBOSkinning::DESCRIPTOR = {
@@ -264,24 +264,24 @@ const gfx::DescriptorSetLayoutBinding UBOSkinning::DESCRIPTOR = {
     gfx::ShaderStageFlagBit::VERTEX,
     {},
 };
-gfx::UniformBlock UBOSkinning::LAYOUT = {
+gfx::UniformBlock UBOSkinning::layout = {
     localSet,
     UBOSkinning::BINDING,
     UBOSkinning::NAME,
     {
-        {"cc_joints", gfx::Type::FLOAT4, SkinningJointCapacity::JOINT_UNIFORM_CAPACITY * 3},
+        {"cc_joints", gfx::Type::FLOAT4, SkinningJointCapacity::jointUniformCapacity * 3},
     },
     1,
 };
-void UBOSkinning::InitLayout (uint capacity) {
-    UBOSkinning::COUNT = capacity * 12;
-    UBOSkinning::SIZE = UBOSkinning::COUNT * 4;
-    UBOSkinning::LAYOUT = {
+void UBOSkinning::initLayout (uint capacity) {
+    UBOSkinning::count = capacity * 12;
+    UBOSkinning::size = UBOSkinning::count * 4;
+    UBOSkinning::layout = {
         localSet,
         UBOSkinning::BINDING,
         UBOSkinning::NAME,
         {
-            {"cc_joints", gfx::Type::FLOAT4, SkinningJointCapacity::JOINT_UNIFORM_CAPACITY * 3},
+            {"cc_joints", gfx::Type::FLOAT4, SkinningJointCapacity::jointUniformCapacity * 3},
         },
         1,
     };

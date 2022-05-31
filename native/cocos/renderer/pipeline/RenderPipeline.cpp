@@ -298,7 +298,7 @@ void RenderPipeline::generateConstantMacros() {
         _device->getCapabilities().maxVertexUniformVectors,
         _device->getCapabilities().maxFragmentUniformVectors,
         _device->hasFeature(gfx::Feature::INPUT_ATTACHMENT_BENEFIT),
-        SkinningJointCapacity::JOINT_UNIFORM_CAPACITY);
+        SkinningJointCapacity::jointUniformCapacity);
 }
 
 RenderStage *RenderPipeline::getRenderstageByName(const String &name) const {
