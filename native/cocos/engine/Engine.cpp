@@ -297,12 +297,9 @@ int32_t Engine::restartVM() {
 
     delete _programLib;
     delete _builtinResMgr;
-    CC_SAFE_DESTROY_AND_DELETE(_gfxDevice);
 
     // remove all listening events
     offAll();
-    // start
-    _gfxDevice = gfx::DeviceManager::create();
     // Should re-create ProgramLib as shaders may change after restart. For example,
     // program update resources and do restart.
     _programLib = ccnew ProgramLib;
@@ -311,7 +308,6 @@ int32_t Engine::restartVM() {
     cc::EventDispatcher::init();
     CC_CURRENT_APPLICATION()->init();
 
-    cc::gfx::DeviceManager::addSurfaceEventListener();
     return 0;
 }
 
