@@ -586,7 +586,8 @@ bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackV
                 if (loadSucceed) {
                     se::HandleObject retObj(se::Object::createPlainObject());
                     auto *obj = se::Object::createObjectWithClass(__jsb_cc_JSBNativeDataHolder_class);
-                    obj->setPrivateData(ccnew cc::JSBNativeDataHolder(imgInfo->data));
+                    auto *nativeObj = JSB_MAKE_PRIVATE_OBJECT(cc::JSBNativeDataHolder, imgInfo->data);
+                    obj->setPrivateObject(nativeObj);
                     retObj->setProperty("data", se::Value(obj));
                     retObj->setProperty("width", se::Value(imgInfo->width));
                     retObj->setProperty("height", se::Value(imgInfo->height));
@@ -661,7 +662,7 @@ static bool js_destroyImage(se::State &s) { // NOLINT
         cc::JSBNativeDataHolder *dataHolder = nullptr;
         ok &= sevalue_to_native(args[0], &dataHolder);
         SE_PRECONDITION2(ok, false, "js_destroyImage : Error processing arguments");
-        dataHolder->destroy();
+//        dataHolder->destroy();
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
