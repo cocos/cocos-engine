@@ -31,6 +31,7 @@
 #include "base/ZipUtils.h"
 #include "base/base64.h"
 #include "bindings/auto/jsb_cocos_auto.h"
+#include "core/data/JSBNativeDataHolder.h"
 #include "gfx-base/GFXDef.h"
 #include "jsb_conversions.h"
 #include "network/Downloader.h"
