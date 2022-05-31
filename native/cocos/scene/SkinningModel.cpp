@@ -94,7 +94,7 @@ void SkinningModel::uploadJointData(uint32_t base, const Mat4& mat, float* dst) 
 
 SkinningModel::~SkinningModel() {
     size_t count = _dataArray.size();
-    for (int i = 0; i < count; i++) {
+    for (size_t i = 0; i < count; i++) {
         if (_dataArray[i]) delete[] _dataArray[i];
     }
     _dataArray.clear();
