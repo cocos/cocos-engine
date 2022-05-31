@@ -5,7 +5,7 @@ const { setDisabled, setReadonly, setHidden, loopSetAssetDumpDataReadonly } = re
 const { join, sep, normalize } = require('path');
 
 exports.style = `
-ui-button.location { flex: none; margin-left: 6px; }
+ui-button.location { flex: none; margin-left: 4px; }
 `;
 
 exports.template = /* html */ `
