@@ -199,9 +199,6 @@ bool js_register_cc_scene_Fog(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_scene_Fog_activate);
 SE_DECLARE_FUNC(js_scene_Fog_initialize);
-SE_DECLARE_FUNC(js_scene_Fog_isAccurate);
-SE_DECLARE_FUNC(js_scene_Fog_setAccurate);
-SE_DECLARE_FUNC(js_scene_Fog_setfogRange);
 SE_DECLARE_FUNC(js_scene_Fog_Fog);
 
 extern se::Object *__jsb_cc_scene_FogInfo_proto; // NOLINT
@@ -226,9 +223,7 @@ extern se::Class * __jsb_cc_scene_ShadowsInfo_class; // NOLINT
 bool js_register_cc_scene_ShadowsInfo(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_scene_ShadowsInfo_activate);
-SE_DECLARE_FUNC(js_scene_ShadowsInfo_getShadowMapSize);
 SE_DECLARE_FUNC(js_scene_ShadowsInfo_setPlaneFromNode);
-SE_DECLARE_FUNC(js_scene_ShadowsInfo_setShadowMapSize);
 SE_DECLARE_FUNC(js_scene_ShadowsInfo_ShadowsInfo);
 
 extern se::Object *__jsb_cc_scene_Shadows_proto; // NOLINT
@@ -238,24 +233,11 @@ bool js_register_cc_scene_Shadows(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_scene_Shadows_activate);
 SE_DECLARE_FUNC(js_scene_Shadows_destroy);
-SE_DECLARE_FUNC(js_scene_Shadows_getInstancingMaterial);
-SE_DECLARE_FUNC(js_scene_Shadows_getMatLight);
-SE_DECLARE_FUNC(js_scene_Shadows_getMatShadowProj);
-SE_DECLARE_FUNC(js_scene_Shadows_getMatShadowView);
-SE_DECLARE_FUNC(js_scene_Shadows_getMatShadowViewProj);
-SE_DECLARE_FUNC(js_scene_Shadows_getMaterial);
 SE_DECLARE_FUNC(js_scene_Shadows_getPlanarInstanceShader);
 SE_DECLARE_FUNC(js_scene_Shadows_getPlanarShader);
-SE_DECLARE_FUNC(js_scene_Shadows_getShadowCameraFar);
 SE_DECLARE_FUNC(js_scene_Shadows_getShadowColor4f);
 SE_DECLARE_FUNC(js_scene_Shadows_getShadowMapSize);
 SE_DECLARE_FUNC(js_scene_Shadows_initialize);
-SE_DECLARE_FUNC(js_scene_Shadows_isShadowMapDirty);
-SE_DECLARE_FUNC(js_scene_Shadows_setMatShadowProj);
-SE_DECLARE_FUNC(js_scene_Shadows_setMatShadowView);
-SE_DECLARE_FUNC(js_scene_Shadows_setMatShadowViewProj);
-SE_DECLARE_FUNC(js_scene_Shadows_setShadowCameraFar);
-SE_DECLARE_FUNC(js_scene_Shadows_setShadowMapDirty);
 SE_DECLARE_FUNC(js_scene_Shadows_setShadowMapSize);
 SE_DECLARE_FUNC(js_scene_Shadows_Shadows);
 
@@ -443,8 +425,6 @@ extern se::Class * __jsb_cc_scene_SkyboxInfo_class; // NOLINT
 bool js_register_cc_scene_SkyboxInfo(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_scene_SkyboxInfo_activate);
-SE_DECLARE_FUNC(js_scene_SkyboxInfo_getDiffuseMap);
-SE_DECLARE_FUNC(js_scene_SkyboxInfo_setDiffuseMap);
 SE_DECLARE_FUNC(js_scene_SkyboxInfo_SkyboxInfo);
 
 extern se::Object *__jsb_cc_scene_Skybox_proto; // NOLINT
@@ -453,15 +433,9 @@ extern se::Class * __jsb_cc_scene_Skybox_class; // NOLINT
 bool js_register_cc_scene_Skybox(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_scene_Skybox_activate);
-SE_DECLARE_FUNC(js_scene_Skybox_getDiffuseMap);
 SE_DECLARE_FUNC(js_scene_Skybox_initialize);
-SE_DECLARE_FUNC(js_scene_Skybox_isUseDiffuseMap);
-SE_DECLARE_FUNC(js_scene_Skybox_isUseHDR);
-SE_DECLARE_FUNC(js_scene_Skybox_setDiffuseMap);
 SE_DECLARE_FUNC(js_scene_Skybox_setDiffuseMaps);
 SE_DECLARE_FUNC(js_scene_Skybox_setEnvMaps);
-SE_DECLARE_FUNC(js_scene_Skybox_setUseDiffuseMap);
-SE_DECLARE_FUNC(js_scene_Skybox_setUseHDR);
 SE_DECLARE_FUNC(js_scene_Skybox_Skybox);
 
 extern se::Object *__jsb_cc_scene_Ambient_proto; // NOLINT
@@ -477,13 +451,6 @@ extern se::Class * __jsb_cc_scene_AmbientInfo_class; // NOLINT
 
 bool js_register_cc_scene_AmbientInfo(se::Object *obj); // NOLINT
 
-SE_DECLARE_FUNC(js_scene_AmbientInfo_getGroundAlbedoLDR);
-SE_DECLARE_FUNC(js_scene_AmbientInfo_getGroundLightingColor);
-SE_DECLARE_FUNC(js_scene_AmbientInfo_getSkyColorLDR);
-SE_DECLARE_FUNC(js_scene_AmbientInfo_getSkyIllumLDR);
-SE_DECLARE_FUNC(js_scene_AmbientInfo_getSkyLightingColor);
-SE_DECLARE_FUNC(js_scene_AmbientInfo_setGroundLightingColor);
-SE_DECLARE_FUNC(js_scene_AmbientInfo_setSkyLightingColor);
 SE_DECLARE_FUNC(js_scene_AmbientInfo_AmbientInfo);
 
 extern se::Object *__jsb_cc_scene_DirectionalLight_proto; // NOLINT
