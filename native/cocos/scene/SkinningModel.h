@@ -61,9 +61,7 @@ public:
 
     ~RealTimeJointTexture() {
         textures.clear();
-        if (buffer) {
-            delete buffer;
-        }
+        delete buffer;
     }
 
     static const uint32_t WIDTH = 256;
@@ -104,8 +102,8 @@ public:
                 gfx::Address::CLAMP,
                 gfx::Address::CLAMP,
             };
-            auto device = cc::gfx::Device::getInstance();
-            auto sampler = device->getSampler(info);
+            auto *device = cc::gfx::Device::getInstance();
+            auto *sampler = device->getSampler(info);
             descriptorset->bindTexture(pipeline::REALTIMEJOINTTEXTURE::BINDING, texture);
             descriptorset->bindSampler(pipeline::REALTIMEJOINTTEXTURE::BINDING, sampler);
         }

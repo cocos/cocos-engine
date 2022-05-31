@@ -165,7 +165,8 @@ void SkinningModel::updateRealTimeJointTextureBuffer()
         auto *buffer = _realTimeJointTexture->buffer;
         auto *src    = _dataArray[bIdx];
         uint32_t count = width;
-        uint32_t index0 = 0, index1 = 0;
+        uint32_t index0 = 0;
+        uint32_t index1 = 0;
         for (uint32_t i = 0; i < count; i++) {
             index0 = 4 * i;
             buffer[index0++] = src[index1++];
@@ -193,8 +194,8 @@ void SkinningModel::updateRealTimeJointTextureBuffer()
            extent,
            layer
         };
-        auto device = cc::gfx::Device::getInstance();
-        device->copyBuffersToTexture((const uint8_t *const *)&buffer, texture, &region, 1);
+        auto *device = cc::gfx::Device::getInstance();
+        device->copyBuffersToTexture(reinterpret_cast<const uint8_t *const *>(&buffer), texture, &region, 1);
         bIdx++;
     }
 }
