@@ -44,9 +44,14 @@ static bool js_assets_ImageAsset_setData(se::State &s) // NOLINT(readability-ide
     if (argc == 1) {
         uint8_t *data{nullptr};
         if (args[0].isObject()) {
-            args[0].toObject()->getTypedArrayData(&data, nullptr);
+            if (args[0].toObject()->isTypedArray()) {
+                args[0].toObject()->getTypedArrayData(&data, nullptr);
+            } else {
+                auto *dataHolder = static_cast<cc::JSBNativeDataHolder *>(args[0].toObject()->getPrivateData());
+                data = dataHolder->getData();
+            }
         } else {
-            data = reinterpret_cast<uint8_t *>(args[0].asPtr());
+            CC_ASSERT(false);
         }
         cobj->setData(data);
         return true;

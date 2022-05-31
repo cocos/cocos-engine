@@ -30,6 +30,7 @@
 #include "base/ThreadPool.h"
 #include "base/ZipUtils.h"
 #include "base/base64.h"
+#include "bindings/auto/jsb_cocos_auto.h"
 #include "gfx-base/GFXDef.h"
 #include "jsb_conversions.h"
 #include "network/Downloader.h"
@@ -47,7 +48,7 @@
 #include <regex>
 #include <sstream>
 
-using namespace cc; //NOLINT
+using namespace cc; // NOLINT
 
 static LegacyThreadPool *gThreadPool = nullptr;
 
@@ -75,13 +76,13 @@ static cc::network::Downloader *localDownloader() {
             memcpy(imageData, data.data(), imageBytes);
 
             (callback->second)("", imageData, static_cast<uint>(imageBytes));
-            //initImageFunc("", imageData, imageBytes);
+            // initImageFunc("", imageData, imageBytes);
             gLocalDownloaderHandlers.erase(callback);
         };
         gLocalDownloader->onTaskError = [=](const cc::network::DownloadTask &task,
-                                            int errorCode,                   //NOLINT
-                                            int errorCodeInternal,           //NOLINT
-                                            const ccstd::string &errorStr) { //NOLINT
+                                            int errorCode,                   // NOLINT
+                                            int errorCodeInternal,           // NOLINT
+                                            const ccstd::string &errorStr) { // NOLINT
             SE_REPORT_ERROR("Getting image from (%s) failed!", task.requestURL.c_str());
             gLocalDownloaderHandlers.erase(task.identifier);
         };
@@ -97,7 +98,7 @@ static void localDownloaderCreateTask(const ccstd::string &url, const std::funct
     gLocalDownloaderHandlers.emplace(std::make_pair(task->identifier, callback));
 }
 
-bool jsb_set_extend_property(const char *ns, const char *clsName) { //NOLINT
+bool jsb_set_extend_property(const char *ns, const char *clsName) { // NOLINT
     se::Object *globalObj = se::ScriptEngine::getInstance()->getGlobalObject();
     se::Value nsVal;
     if (globalObj->getProperty(ns, &nsVal) && nsVal.isObject()) {
@@ -122,7 +123,7 @@ namespace {
 
 ccstd::unordered_map<ccstd::string, se::Value> gModuleCache;
 
-static bool require(se::State &s) { //NOLINT
+static bool require(se::State &s) { // NOLINT
     const auto &args = s.args();
     int argc = static_cast<int>(args.size());
     CC_ASSERT(argc >= 1);
@@ -132,7 +133,7 @@ static bool require(se::State &s) { //NOLINT
 }
 SE_BIND_FUNC(require)
 
-static bool doModuleRequire(const ccstd::string &path, se::Value *ret, const ccstd::string &prevScriptFileDir) { //NOLINT
+static bool doModuleRequire(const ccstd::string &path, se::Value *ret, const ccstd::string &prevScriptFileDir) { // NOLINT
     se::AutoHandleScope hs;
     CC_ASSERT(!path.empty());
 
@@ -236,7 +237,7 @@ static bool doModuleRequire(const ccstd::string &path, se::Value *ret, const ccs
     return false;
 }
 
-static bool moduleRequire(se::State &s) { //NOLINT
+static bool moduleRequire(se::State &s) { // NOLINT
     const auto &args = s.args();
     int argc = static_cast<int>(args.size());
     CC_ASSERT(argc >= 2);
@@ -248,22 +249,22 @@ static bool moduleRequire(se::State &s) { //NOLINT
 SE_BIND_FUNC(moduleRequire)
 } // namespace
 
-bool jsb_run_script(const ccstd::string &filePath, se::Value *rval /* = nullptr */) { //NOLINT
+bool jsb_run_script(const ccstd::string &filePath, se::Value *rval /* = nullptr */) { // NOLINT
     se::AutoHandleScope hs;
     return se::ScriptEngine::getInstance()->runScript(filePath, rval);
 }
 
-bool jsb_run_script_module(const ccstd::string &filePath, se::Value *rval /* = nullptr */) { //NOLINT
+bool jsb_run_script_module(const ccstd::string &filePath, se::Value *rval /* = nullptr */) { // NOLINT
     return doModuleRequire(filePath, rval, "");
 }
 
-static bool jsc_garbageCollect(se::State &s) { //NOLINT
+static bool jsc_garbageCollect(se::State &s) { // NOLINT
     se::ScriptEngine::getInstance()->garbageCollect();
     return true;
 }
 SE_BIND_FUNC(jsc_garbageCollect)
 
-static bool jsc_dumpNativePtrToSeObjectMap(se::State &s) { //NOLINT
+static bool jsc_dumpNativePtrToSeObjectMap(se::State &s) { // NOLINT
     CC_LOG_DEBUG(">>> total: %d, Dump (native -> jsobj) map begin", (int)se::NativePtrToObjectMap::size());
 
     struct NamePtrStruct {
@@ -304,14 +305,14 @@ static bool jsc_dumpNativePtrToSeObjectMap(se::State &s) { //NOLINT
 }
 SE_BIND_FUNC(jsc_dumpNativePtrToSeObjectMap)
 
-static bool jsc_dumpRoot(se::State &s) { //NOLINT
+static bool jsc_dumpRoot(se::State &s) { // NOLINT
     CC_ASSERT(false);
     return true;
 }
 SE_BIND_FUNC(jsc_dumpRoot)
 
-static bool JSBCore_platform(se::State &s) { //NOLINT
-    //Application::Platform platform = CC_CURRENT_ENGINE()->getPlatform();
+static bool JSBCore_platform(se::State &s) { // NOLINT
+    // Application::Platform platform = CC_CURRENT_ENGINE()->getPlatform();
     cc::BasePlatform::OSType type =
         cc::BasePlatform::getPlatform()->getOSType();
     s.rval().setInt32(static_cast<int32_t>(type));
@@ -319,7 +320,7 @@ static bool JSBCore_platform(se::State &s) { //NOLINT
 }
 SE_BIND_FUNC(JSBCore_platform)
 
-static bool JSBCore_os(se::State &s) { //NOLINT
+static bool JSBCore_os(se::State &s) { // NOLINT
     se::Value os;
 
     // osx, ios, android, windows, linux, etc..
@@ -344,7 +345,7 @@ static bool JSBCore_os(se::State &s) { //NOLINT
 }
 SE_BIND_FUNC(JSBCore_os)
 
-static bool JSBCore_getCurrentLanguage(se::State &s) { //NOLINT
+static bool JSBCore_getCurrentLanguage(se::State &s) { // NOLINT
     ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
     CC_ASSERT(systemIntf != nullptr);
     ccstd::string languageStr = systemIntf->getCurrentLanguageToString();
@@ -353,7 +354,7 @@ static bool JSBCore_getCurrentLanguage(se::State &s) { //NOLINT
 }
 SE_BIND_FUNC(JSBCore_getCurrentLanguage)
 
-static bool JSBCore_getCurrentLanguageCode(se::State &s) { //NOLINT
+static bool JSBCore_getCurrentLanguageCode(se::State &s) { // NOLINT
     ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
     CC_ASSERT(systemIntf != nullptr);
     ccstd::string language = systemIntf->getCurrentLanguageCode();
@@ -362,7 +363,7 @@ static bool JSBCore_getCurrentLanguageCode(se::State &s) { //NOLINT
 }
 SE_BIND_FUNC(JSBCore_getCurrentLanguageCode)
 
-static bool JSB_getOSVersion(se::State &s) { //NOLINT
+static bool JSB_getOSVersion(se::State &s) { // NOLINT
     ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
     CC_ASSERT(systemIntf != nullptr);
     ccstd::string systemVersion = systemIntf->getSystemVersion();
@@ -371,8 +372,8 @@ static bool JSB_getOSVersion(se::State &s) { //NOLINT
 }
 SE_BIND_FUNC(JSB_getOSVersion)
 
-static bool JSB_core_restartVM(se::State &s) { //NOLINT
-    //REFINE: release AudioEngine, waiting HttpClient & WebSocket threads to exit.
+static bool JSB_core_restartVM(se::State &s) { // NOLINT
+    // REFINE: release AudioEngine, waiting HttpClient & WebSocket threads to exit.
     CC_CURRENT_APPLICATION()->restart();
     return true;
 }
@@ -384,7 +385,7 @@ static bool JSB_closeWindow(se::State &s) {
 }
 SE_BIND_FUNC(JSB_closeWindow)
 
-static bool JSB_isObjectValid(se::State &s) { //NOLINT
+static bool JSB_isObjectValid(se::State &s) { // NOLINT
     const auto &args = s.args();
     int argc = static_cast<int>(args.size());
     if (argc == 1) {
@@ -399,7 +400,7 @@ static bool JSB_isObjectValid(se::State &s) { //NOLINT
 }
 SE_BIND_FUNC(JSB_isObjectValid)
 
-static bool JSB_setCursorEnabled(se::State &s) { //NOLINT
+static bool JSB_setCursorEnabled(se::State &s) { // NOLINT
     const auto &args = s.args();
     int argc = static_cast<int>(args.size());
     SE_PRECONDITION2(argc == 1, false, "Invalid number of arguments");
@@ -415,7 +416,7 @@ static bool JSB_setCursorEnabled(se::State &s) { //NOLINT
 }
 SE_BIND_FUNC(JSB_setCursorEnabled)
 
-static bool JSB_saveByteCode(se::State &s) { //NOLINT
+static bool JSB_saveByteCode(se::State &s) { // NOLINT
     const auto &args = s.args();
     int argc = static_cast<int>(args.size());
     SE_PRECONDITION2(argc == 2, false, "Invalid number of arguments");
@@ -431,7 +432,7 @@ static bool JSB_saveByteCode(se::State &s) { //NOLINT
 }
 SE_BIND_FUNC(JSB_saveByteCode)
 
-static bool getOrCreatePlainObject_r(const char *name, se::Object *parent, se::Object **outObj) { //NOLINT
+static bool getOrCreatePlainObject_r(const char *name, se::Object *parent, se::Object **outObj) { // NOLINT
     CC_ASSERT(parent != nullptr);
     CC_ASSERT(outObj != nullptr);
     se::Value tmp;
@@ -447,7 +448,7 @@ static bool getOrCreatePlainObject_r(const char *name, se::Object *parent, se::O
     return true;
 }
 
-static bool js_performance_now(se::State &s) { //NOLINT
+static bool js_performance_now(se::State &s) { // NOLINT
     auto now = std::chrono::steady_clock::now();
     auto micro = std::chrono::duration_cast<std::chrono::microseconds>(now - se::ScriptEngine::getInstance()->getStartTime()).count();
     s.rval().setDouble(static_cast<double>(micro) * 0.001);
@@ -545,7 +546,7 @@ struct ImageInfo *createImageInfo(Image *img) {
 }
 } // namespace
 
-bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackVal) { //NOLINT(readability-identifier-naming)
+bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackVal) { // NOLINT(readability-identifier-naming)
     if (path.empty()) {
         se::ValueArray seArgs;
         callbackVal.toObject()->call(seArgs, nullptr);
@@ -583,8 +584,9 @@ bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackV
 
                 if (loadSucceed) {
                     se::HandleObject retObj(se::Object::createPlainObject());
-                    dataVal.setUint64(reinterpret_cast<uintptr_t>(imgInfo->data));
-                    retObj->setProperty("data", dataVal);
+                    auto *obj = se::Object::createObjectWithClass(__jsb_cc_JSBNativeDataHolder_class);
+                    obj->setPrivateData(ccnew cc::JSBNativeDataHolder(imgInfo->data));
+                    retObj->setProperty("data", se::Value(obj));
                     retObj->setProperty("width", se::Value(imgInfo->width));
                     retObj->setProperty("height", se::Value(imgInfo->height));
 
@@ -630,7 +632,7 @@ bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackV
     return true;
 }
 
-static bool js_loadImage(se::State &s) { //NOLINT
+static bool js_loadImage(se::State &s) { // NOLINT
     const auto &args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -650,14 +652,15 @@ static bool js_loadImage(se::State &s) { //NOLINT
 }
 SE_BIND_FUNC(js_loadImage)
 
-static bool js_destroyImage(se::State &s) { //NOLINT
+static bool js_destroyImage(se::State &s) { // NOLINT
     const auto &args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        auto *data = reinterpret_cast<char *>(args[0].asPtr());
+        cc::JSBNativeDataHolder *dataHolder = nullptr;
+        ok &= sevalue_to_native(args[0], &dataHolder);
         SE_PRECONDITION2(ok, false, "js_destroyImage : Error processing arguments");
-        free(data);
+        dataHolder->destroy();
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -665,7 +668,7 @@ static bool js_destroyImage(se::State &s) { //NOLINT
 }
 SE_BIND_FUNC(js_destroyImage)
 
-static bool JSB_openURL(se::State &s) { //NOLINT
+static bool JSB_openURL(se::State &s) { // NOLINT
     const auto &args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -684,7 +687,7 @@ static bool JSB_openURL(se::State &s) { //NOLINT
 }
 SE_BIND_FUNC(JSB_openURL)
 
-static bool JSB_copyTextToClipboard(se::State &s) { //NOLINT
+static bool JSB_copyTextToClipboard(se::State &s) { // NOLINT
     const auto &args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -703,7 +706,7 @@ static bool JSB_copyTextToClipboard(se::State &s) { //NOLINT
 }
 SE_BIND_FUNC(JSB_copyTextToClipboard)
 
-static bool JSB_setPreferredFramesPerSecond(se::State &s) { //NOLINT
+static bool JSB_setPreferredFramesPerSecond(se::State &s) { // NOLINT
     const auto &args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -722,7 +725,7 @@ static bool JSB_setPreferredFramesPerSecond(se::State &s) { //NOLINT
 SE_BIND_FUNC(JSB_setPreferredFramesPerSecond)
 
 #if CC_USE_EDITBOX
-static bool JSB_showInputBox(se::State &s) { //NOLINT
+static bool JSB_showInputBox(se::State &s) { // NOLINT
     const auto &args = s.args();
     size_t argc = args.size();
     if (argc == 1) {
@@ -855,7 +858,7 @@ static bool JSB_showInputBox(se::State &s) { //NOLINT
 }
 SE_BIND_FUNC(JSB_showInputBox);
 
-static bool JSB_hideInputBox(se::State &s) { //NOLINT
+static bool JSB_hideInputBox(se::State &s) { // NOLINT
     EditBox::hide();
     return true;
 }
@@ -895,7 +898,7 @@ static bool jsb_createExternalArrayBuffer(se::State &s) {
 }
 SE_BIND_FUNC(jsb_createExternalArrayBuffer)
 
-static bool JSB_zipUtils_inflateMemory(se::State &s) { //NOLINT
+static bool JSB_zipUtils_inflateMemory(se::State &s) { // NOLINT
     const auto &args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -952,7 +955,7 @@ static bool JSB_zipUtils_inflateMemory(se::State &s) { //NOLINT
 }
 SE_BIND_FUNC(JSB_zipUtils_inflateMemory)
 
-static bool JSB_zipUtils_inflateGZipFile(se::State &s) { //NOLINT
+static bool JSB_zipUtils_inflateGZipFile(se::State &s) { // NOLINT
     const auto &args = s.args();
     size_t argc = args.size();
     if (argc == 1) {
@@ -974,7 +977,7 @@ static bool JSB_zipUtils_inflateGZipFile(se::State &s) { //NOLINT
 }
 SE_BIND_FUNC(JSB_zipUtils_inflateGZipFile)
 
-static bool JSB_zipUtils_isGZipFile(se::State &s) { //NOLINT
+static bool JSB_zipUtils_isGZipFile(se::State &s) { // NOLINT
     const auto &args = s.args();
     size_t argc = args.size();
     if (argc == 1) {
@@ -989,7 +992,7 @@ static bool JSB_zipUtils_isGZipFile(se::State &s) { //NOLINT
 }
 SE_BIND_FUNC(JSB_zipUtils_isGZipFile)
 
-static bool JSB_zipUtils_isGZipBuffer(se::State &s) { //NOLINT
+static bool JSB_zipUtils_isGZipBuffer(se::State &s) { // NOLINT
     const auto &args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1024,7 +1027,7 @@ static bool JSB_zipUtils_isGZipBuffer(se::State &s) { //NOLINT
 }
 SE_BIND_FUNC(JSB_zipUtils_isGZipBuffer)
 
-static bool JSB_zipUtils_inflateCCZFile(se::State &s) { //NOLINT
+static bool JSB_zipUtils_inflateCCZFile(se::State &s) { // NOLINT
     const auto &args = s.args();
     size_t argc = args.size();
     if (argc == 1) {
@@ -1046,7 +1049,7 @@ static bool JSB_zipUtils_inflateCCZFile(se::State &s) { //NOLINT
 }
 SE_BIND_FUNC(JSB_zipUtils_inflateCCZFile)
 
-static bool JSB_zipUtils_inflateCCZBuffer(se::State &s) { //NOLINT
+static bool JSB_zipUtils_inflateCCZBuffer(se::State &s) { // NOLINT
     const auto &args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1088,7 +1091,7 @@ static bool JSB_zipUtils_inflateCCZBuffer(se::State &s) { //NOLINT
 }
 SE_BIND_FUNC(JSB_zipUtils_inflateCCZBuffer)
 
-static bool JSB_zipUtils_isCCZFile(se::State &s) { //NOLINT
+static bool JSB_zipUtils_isCCZFile(se::State &s) { // NOLINT
     const auto &args = s.args();
     size_t argc = args.size();
     if (argc == 1) {
@@ -1104,7 +1107,7 @@ static bool JSB_zipUtils_isCCZFile(se::State &s) { //NOLINT
 }
 SE_BIND_FUNC(JSB_zipUtils_isCCZFile)
 
-static bool JSB_zipUtils_isCCZBuffer(se::State &s) { //NOLINT
+static bool JSB_zipUtils_isCCZBuffer(se::State &s) { // NOLINT
     const auto &args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1139,7 +1142,7 @@ static bool JSB_zipUtils_isCCZBuffer(se::State &s) { //NOLINT
 }
 SE_BIND_FUNC(JSB_zipUtils_isCCZBuffer)
 
-static bool JSB_zipUtils_setPvrEncryptionKeyPart(se::State &s) { //NOLINT
+static bool JSB_zipUtils_setPvrEncryptionKeyPart(se::State &s) { // NOLINT
     const auto &args = s.args();
     size_t argc = args.size();
     if (argc == 2) {
@@ -1154,7 +1157,7 @@ static bool JSB_zipUtils_setPvrEncryptionKeyPart(se::State &s) { //NOLINT
 }
 SE_BIND_FUNC(JSB_zipUtils_setPvrEncryptionKeyPart)
 
-static bool JSB_zipUtils_setPvrEncryptionKey(se::State &s) { //NOLINT
+static bool JSB_zipUtils_setPvrEncryptionKey(se::State &s) { // NOLINT
     const auto &args = s.args();
     size_t argc = args.size();
     if (argc == 4) {
@@ -1237,7 +1240,7 @@ static bool js_TextDecoder_constructor(se::State &s) // NOLINT(readability-ident
     s.thisObject()->setProperty("encoding", se::Value{"utf-8"});
     s.thisObject()->setProperty("fatal", se::Value{false});
     s.thisObject()->setProperty("ignoreBOM", se::Value{false});
-    s.thisObject()->setPrivateObject(nullptr); //FIXME: Don't need this line if https://github.com/cocos/3d-tasks/issues/11365 is done.
+    s.thisObject()->setPrivateObject(nullptr); // FIXME: Don't need this line if https://github.com/cocos/3d-tasks/issues/11365 is done.
     return true;
 }
 SE_BIND_CTOR(js_TextDecoder_constructor, __jsb_TextDecoder_class, js_TextDecoder_finalize)
@@ -1290,7 +1293,7 @@ static bool jsb_register_TextDecoder(se::Object *globalObj) {
     return true;
 }
 
-bool jsb_register_global_variables(se::Object *global) { //NOLINT
+bool jsb_register_global_variables(se::Object *global) { // NOLINT
     gThreadPool = LegacyThreadPool::newFixedThreadPool(3);
 
     global->defineFunction("require", _SE(require));
