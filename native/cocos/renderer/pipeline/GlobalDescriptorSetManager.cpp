@@ -61,6 +61,11 @@ void GlobalDSManager::activate(gfx::Device *device, RenderPipeline *pipeline) {
         gfx::Address::CLAMP,
     });
 
+    uint maxJoints = (_device->getCapabilities().maxVertexUniformVectors - 38) / 3;
+    maxJoints = maxJoints < 256 ? maxJoints : 256;
+    SkinningJointCapacity::JOINT_UNIFORM_CAPACITY = maxJoints;
+    UBOSkinning::InitLayout(maxJoints);
+
     setDescriptorSetLayout();
     if (_descriptorSetLayout) {
         _descriptorSetLayout->destroy();
@@ -200,6 +205,8 @@ void GlobalDSManager::setDescriptorSetLayout() {
     localDescriptorSetLayout.bindings[UBOUILocal::BINDING]           = UBOUILocal::DESCRIPTOR;
     localDescriptorSetLayout.samplers[JOINTTEXTURE::NAME]            = JOINTTEXTURE::LAYOUT;
     localDescriptorSetLayout.bindings[JOINTTEXTURE::BINDING]         = JOINTTEXTURE::DESCRIPTOR;
+    localDescriptorSetLayout.samplers[REALTIMEJOINTTEXTURE::NAME]    = REALTIMEJOINTTEXTURE::LAYOUT;
+    localDescriptorSetLayout.bindings[REALTIMEJOINTTEXTURE::BINDING] = REALTIMEJOINTTEXTURE::DESCRIPTOR;
     localDescriptorSetLayout.samplers[POSITIONMORPH::NAME]           = POSITIONMORPH::LAYOUT;
     localDescriptorSetLayout.bindings[POSITIONMORPH::BINDING]        = POSITIONMORPH::DESCRIPTOR;
     localDescriptorSetLayout.samplers[NORMALMORPH::NAME]             = NORMALMORPH::LAYOUT;

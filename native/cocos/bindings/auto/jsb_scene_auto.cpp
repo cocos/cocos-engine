@@ -7560,6 +7560,25 @@ static bool js_scene_SkinningModel_setNeedUpdate(se::State& s) // NOLINT(readabi
 }
 SE_BIND_FUNC(js_scene_SkinningModel_setNeedUpdate)
 
+static bool js_scene_SkinningModel_setRealTimeJointTextures(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::SkinningModel>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_SkinningModel_setRealTimeJointTextures : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<std::vector<cc::gfx::Texture *>, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_SkinningModel_setRealTimeJointTextures : Error processing arguments");
+        cobj->setRealTimeJointTextures(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_scene_SkinningModel_setRealTimeJointTextures)
+
 static bool js_scene_SkinningModel_updateLocalDescriptors(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkinningModel>(s);
@@ -7614,6 +7633,7 @@ bool js_register_scene_SkinningModel(se::Object* obj) // NOLINT(readability-iden
     cls->defineFunction("setBuffers", _SE(js_scene_SkinningModel_setBuffers));
     cls->defineFunction("setIndicesAndJoints", _SE(js_scene_SkinningModel_setIndicesAndJoints));
     cls->defineFunction("setNeedUpdate", _SE(js_scene_SkinningModel_setNeedUpdate));
+    cls->defineFunction("setRealTimeJointTextures", _SE(js_scene_SkinningModel_setRealTimeJointTextures));
     cls->defineFunction("updateLocalDescriptors", _SE(js_scene_SkinningModel_updateLocalDescriptors));
     cls->defineFinalizeFunction(_SE(js_cc_scene_SkinningModel_finalize));
     cls->install();
@@ -9520,37 +9540,37 @@ bool register_all_scene(se::Object* obj)
     }
     se::Object* ns = nsVal.toObject();
 
-    js_register_scene_BaseNode(ns);
-    js_register_scene_Scene(ns);
-    js_register_scene_Node(ns);
+    js_register_scene_RenderScene(ns);
+    js_register_scene_Camera(ns);
     js_register_scene_Light(ns);
     js_register_scene_DirectionalLight(ns);
-    js_register_scene_Plane(ns);
+    js_register_scene_Fog(ns);
+    js_register_scene_BaseNode(ns);
+    js_register_scene_Node(ns);
     js_register_scene_Frustum(ns);
-    js_register_scene_AABB(ns);
-    js_register_scene_SpotLight(ns);
+    js_register_scene_DrawBatch2D(ns);
     js_register_scene_SphereLight(ns);
     js_register_scene_Model(ns);
-    js_register_scene_Fog(ns);
-    js_register_scene_Shadow(ns);
-    js_register_scene_Skybox(ns);
-    js_register_scene_Ambient(ns);
-    js_register_scene_OctreeInfo(ns);
-    js_register_scene_PipelineSharedSceneData(ns);
-    js_register_scene_Root(ns);
-    js_register_scene_SubModel(ns);
-    js_register_scene_Pass(ns);
-    js_register_scene_BakedAnimInfo(ns);
-    js_register_scene_BakedJointInfo(ns);
     js_register_scene_BakedSkinningModel(ns);
-    js_register_scene_DrawBatch2D(ns);
+    js_register_scene_Plane(ns);
     js_register_scene_JointTransform(ns);
-    js_register_scene_JointInfo(ns);
-    js_register_scene_SkinningModel(ns);
-    js_register_scene_RenderScene(ns);
     js_register_scene_RenderWindow(ns);
-    js_register_scene_Camera(ns);
+    js_register_scene_Shadow(ns);
+    js_register_scene_SubModel(ns);
+    js_register_scene_BakedJointInfo(ns);
+    js_register_scene_AABB(ns);
+    js_register_scene_Ambient(ns);
+    js_register_scene_SkinningModel(ns);
+    js_register_scene_OctreeInfo(ns);
+    js_register_scene_JointInfo(ns);
+    js_register_scene_Root(ns);
+    js_register_scene_Scene(ns);
     js_register_scene_Sphere(ns);
+    js_register_scene_BakedAnimInfo(ns);
+    js_register_scene_Pass(ns);
+    js_register_scene_Skybox(ns);
+    js_register_scene_PipelineSharedSceneData(ns);
+    js_register_scene_SpotLight(ns);
     return true;
 }
 

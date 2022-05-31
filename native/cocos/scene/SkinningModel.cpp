@@ -69,15 +69,19 @@ void SkinningModel::updateUBOs(uint32_t stamp) {
     for (const JointInfo& jointInfo : _joints) {
         Mat4::multiply(jointInfo.transform.world, jointInfo.bindpose, &mat4);
         for (uint32_t buffer : jointInfo.buffers) {
-            uploadJointData(jointInfo.indices[bIdx] * 12, mat4, _dataArray[buffer]->data());
+            uploadJointData(jointInfo.indices[bIdx] * 12, mat4, _dataArray[buffer]);
             bIdx++;
         }
         bIdx = 0;
     }
-    bIdx = 0;
-    for (gfx::Buffer* buffer : _buffers) {
-        buffer->update(_dataArray[bIdx]->data(), buffer->getSize());
-        bIdx++;
+    if (_realTimeTextureMode) {
+        updateRealTimeJointTextureBuffer();
+    } else {
+        bIdx = 0;
+        for (gfx::Buffer* buffer : _buffers) {
+            buffer->update(_dataArray[bIdx], buffer->getSize());
+            bIdx++;
+        }
     }
 }
 
@@ -89,16 +93,23 @@ void SkinningModel::uploadJointData(uint32_t base, const Mat4& mat, float* dst) 
 }
 
 SkinningModel::~SkinningModel() {
-    for (auto* curr : _dataArray) {
-        delete curr;
+    int count = _dataArray.size();
+    for (int i = 0; i < count; i++) {
+        if (_dataArray[i]) delete[] _dataArray[i];
+    }
+    _dataArray.clear();
+    if (_realTimeJointTexture) {
+        delete _realTimeJointTexture;
+        _realTimeJointTexture = nullptr;
     }
 }
 
 void SkinningModel::setBuffers(std::vector<gfx::Buffer*> buffers) {
     _buffers = std::move(buffers);
-    for (auto* buffer : _buffers) {
-        auto* data = new std::array<float, pipeline::UBOSkinning::COUNT>();
-        _dataArray.push_back(data);
+    int count = _buffers.size();
+    _dataArray.resize(_buffers.size());
+    for (int i = 0; i < count; i++) {
+        _dataArray[i]= new float[pipeline::UBOSkinning::COUNT];
     }
 }
 
@@ -129,5 +140,64 @@ void SkinningModel::updateTransform(uint32_t stamp) {
         _scene->updateOctree(this);
     }
 }
+
+void SkinningModel::setRealTimeJointTextures(std::vector<gfx::Texture *> textures) {
+    if (textures.size() < 1) return;
+    _realTimeTextureMode = true;
+    _realTimeJointTexture = new RealTimeJointTexture();
+    int length = 4 * RealTimeJointTexture::WIDTH * RealTimeJointTexture::HEIGHT;
+    int count = _dataArray.size();
+    for (int i = 0; i < count; i++) {
+       delete[] _dataArray[i];
+       _dataArray[i] = new float[length];
+    }
+
+    _realTimeJointTexture->textures = std::move(textures);
+    _realTimeJointTexture->buffer = new float[length];
+}
+
+void SkinningModel::updateRealTimeJointTextureBuffer()
+{
+    uint32_t bIdx = 0;
+    const int TEXTURE_WIDTH = RealTimeJointTexture::WIDTH;
+    const int TEXTURE_HEIGHT = RealTimeJointTexture::HEIGHT;
+    for (gfx::Texture* texture: _realTimeJointTexture->textures) {
+        auto buffer = _realTimeJointTexture->buffer;
+        auto src    = _dataArray[bIdx];
+        int  count  = TEXTURE_WIDTH;
+        int index0 = 0, index1 = 0;
+        for (int i = 0; i < count; i++) {
+            index0 = 4 * i;
+            buffer[index0++] = src[index1++];
+            buffer[index0++] = src[index1++];
+            buffer[index0++] = src[index1++];
+            buffer[index0++] = src[index1++];
+            index0 = 4 * (i + TEXTURE_WIDTH);
+            buffer[index0++] = src[index1++];
+            buffer[index0++] = src[index1++];
+            buffer[index0++] = src[index1++];
+            buffer[index0++] = src[index1++];
+            index0 = 4 * (i + 2 * TEXTURE_WIDTH);
+            buffer[index0++] = src[index1++];
+            buffer[index0++] = src[index1++];
+            buffer[index0++] = src[index1++];
+            buffer[index0++] = src[index1++];
+        }
+        cc::gfx::TextureSubresLayers layer;
+        cc::gfx::Offset texOffset;
+        cc::gfx::Extent extent = {TEXTURE_WIDTH, TEXTURE_HEIGHT, 1};
+        cc::gfx::BufferTextureCopy region = {
+           TEXTURE_WIDTH,
+           TEXTURE_HEIGHT,
+           texOffset,
+           extent,
+           layer
+        };
+        auto device = cc::gfx::Device::getInstance();
+        device->copyBuffersToTexture((const uint8_t *const *)&buffer, texture, &region, 1);
+        bIdx++;
+    }
+}
+
 } // namespace scene
 } // namespace cc

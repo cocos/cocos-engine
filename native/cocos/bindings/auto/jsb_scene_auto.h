@@ -461,6 +461,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::scene::SkinningModel);
 SE_DECLARE_FUNC(js_scene_SkinningModel_setBuffers);
 SE_DECLARE_FUNC(js_scene_SkinningModel_setIndicesAndJoints);
 SE_DECLARE_FUNC(js_scene_SkinningModel_setNeedUpdate);
+SE_DECLARE_FUNC(js_scene_SkinningModel_setRealTimeJointTextures);
 SE_DECLARE_FUNC(js_scene_SkinningModel_updateLocalDescriptors);
 SE_DECLARE_FUNC(js_scene_SkinningModel_SkinningModel);
 

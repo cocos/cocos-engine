@@ -37,7 +37,7 @@ import { macro } from './platform/macro';
 import type { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
 import { legacyCC, VERSION } from './global-exports';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
-import { bindingMappingInfo } from './pipeline/define';
+import { bindingMappingInfo, localDescriptorSetLayout_ResizeMaxJoints } from './pipeline/define';
 import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from './pipeline';
 import { Node } from './scene-graph/node';
@@ -966,6 +966,11 @@ export class Game extends EventTarget {
         swapchainInfo.width = windowSize.width;
         swapchainInfo.height = windowSize.height;
         this._swapchain = this._gfxDevice.createSwapchain(swapchainInfo);
+
+        //set max joints after device initialize.
+        let maxJoints = Math.floor((this._gfxDevice.capabilities.maxVertexUniformVectors - 38) / 3);
+        maxJoints = maxJoints < 256 ? maxJoints : 256;
+        localDescriptorSetLayout_ResizeMaxJoints(maxJoints);
 
         this.canvas!.oncontextmenu = () => false;
     }

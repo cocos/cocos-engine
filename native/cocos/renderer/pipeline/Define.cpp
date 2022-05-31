@@ -252,6 +252,10 @@ const gfx::UniformBlock UBOSkinningAnimation::LAYOUT = {
     1,
 };
 
+uint SkinningJointCapacity::JOINT_UNIFORM_CAPACITY = 0;
+uint UBOSkinning::COUNT = 0;
+uint UBOSkinning::SIZE = 0;
+
 const String                          UBOSkinning::NAME       = "CCSkinning";
 const gfx::DescriptorSetLayoutBinding UBOSkinning::DESCRIPTOR = {
     UBOSkinning::BINDING,
@@ -260,15 +264,28 @@ const gfx::DescriptorSetLayoutBinding UBOSkinning::DESCRIPTOR = {
     gfx::ShaderStageFlagBit::VERTEX,
     {},
 };
-const gfx::UniformBlock UBOSkinning::LAYOUT = {
+gfx::UniformBlock UBOSkinning::LAYOUT = {
     localSet,
     UBOSkinning::BINDING,
     UBOSkinning::NAME,
     {
-        {"cc_joints", gfx::Type::FLOAT4, JOINT_UNIFORM_CAPACITY * 3},
+        {"cc_joints", gfx::Type::FLOAT4, SkinningJointCapacity::JOINT_UNIFORM_CAPACITY * 3},
     },
     1,
 };
+void UBOSkinning::InitLayout (uint capacity) {
+    UBOSkinning::COUNT = capacity * 12;
+    UBOSkinning::SIZE = UBOSkinning::COUNT * 4;
+    UBOSkinning::LAYOUT = {
+        localSet,
+        UBOSkinning::BINDING,
+        UBOSkinning::NAME,
+        {
+            {"cc_joints", gfx::Type::FLOAT4, SkinningJointCapacity::JOINT_UNIFORM_CAPACITY * 3},
+        },
+        1,
+    };
+}
 
 const uint                            UBOMorph::COUNT_BASE_4_BYTES = static_cast<uint>(4 * std::ceil(UBOMorph::MAX_MORPH_TARGET_COUNT / 4) + 4);
 const uint                            UBOMorph::SIZE               = UBOMorph::COUNT_BASE_4_BYTES * 4;
@@ -384,6 +401,22 @@ const gfx::UniformSamplerTexture JOINTTEXTURE::LAYOUT = {
     localSet,
     JOINTTEXTURE::BINDING,
     JOINTTEXTURE::NAME,
+    gfx::Type::SAMPLER2D,
+    1,
+};
+
+const String REALTIMEJOINTTEXTURE::NAME       = "cc_realTimeJoint";
+const gfx::DescriptorSetLayoutBinding REALTIMEJOINTTEXTURE::DESCRIPTOR = {
+    REALTIMEJOINTTEXTURE::BINDING,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
+    1,
+    gfx::ShaderStageFlagBit::VERTEX,
+    {},
+};
+const gfx::UniformSamplerTexture REALTIMEJOINTTEXTURE::LAYOUT = {
+    localSet,
+    REALTIMEJOINTTEXTURE::BINDING,
+    REALTIMEJOINTTEXTURE::NAME,
     gfx::Type::SAMPLER2D,
     1,
 };
