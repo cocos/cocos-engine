@@ -917,7 +917,7 @@ void passReorder(FrameGraphDispatcher &fgDispatcher, ResourceAccessGraph &rag) {
         EmptyVerts candidates;
 
         for (size_t i = 0; i < relationGraph.vertices.size(); ++i) {
-            if (static_cast<uint32_t>(in_degree(i, relationGraph)) == 0) {
+            if (in_degree(static_cast<uint32_t>(i), relationGraph) == 0) {
                 if (std::find(candidates.begin(), candidates.end(), i) == candidates.end()) {
                     candidates.push_back(static_cast<uint32_t>(i));
                 }
