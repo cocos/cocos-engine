@@ -4,6 +4,6 @@
         "type": "github",
         "owner": "cocos",
         "name": "cocos-engine-external",
-        "checkout": "v3d-gfx-118"
+        "checkout": "v3d-gfx-119"
     }
 }
