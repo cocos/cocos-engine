@@ -63,6 +63,7 @@ export const NativeSkinningModel: Constructor<{
     setBuffers(bufs: Buffer[]):void;
     updateLocalDescriptors(submodelIdx: number, descriptorSet: DescriptorSet);
     updateLightingmap(val: Vec4, sampler: Sampler, texture: Texture): void;
+    setRealTimeJointTextures(textures: Texture[]):void;
 }> = null!;
 export type NativeSkinningModel = InstanceType<typeof NativeSkinningModel>;
 
