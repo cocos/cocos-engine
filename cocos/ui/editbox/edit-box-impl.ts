@@ -465,7 +465,8 @@ export class EditBoxImpl extends EditBoxImplBase {
             // elem.placeholder = delegate.placeholder;
 
             this._updateTextLabel(delegate.textLabel);
-            this._updatePlaceholderLabel(delegate.placeholderLabel);
+            // we don't show placeholder any more when editBox is editing
+            // this._updatePlaceholderLabel(delegate.placeholderLabel);
         }
     }
 
