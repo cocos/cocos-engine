@@ -219,7 +219,7 @@ export class Animation extends Eventify(Component) {
     /**
      * @en
      * Smoothly switch to play specified animation state.
-     * @zn
+     * @zh
      * 平滑地切换到指定动画状态。
      * @param name The name of the animation to switch to
      * @param duration The duration of the cross fade, default value is 0.3s

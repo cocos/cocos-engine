@@ -236,7 +236,7 @@ void Model::updateUBOs(uint32_t stamp) {
     Mat4 mat4;
     int idx = _instMatWorldIdx;
     if (idx >= 0) {
-        ccstd::vector<TypedArray> &attrs = getInstancedAttributeBlock()->views;
+        ccstd::vector<TypedArray> &attrs = getInstancedAttributeBlock().views;
         uploadMat4AsVec4x3(worldMatrix, ccstd::get<Float32Array>(attrs[idx]), ccstd::get<Float32Array>(attrs[idx + 1]), ccstd::get<Float32Array>(attrs[idx + 2]));
     } else if (_localBuffer) {
         mat4ToFloat32Array(worldMatrix, _localData, pipeline::UBOLocal::MAT_WORLD_OFFSET);

@@ -442,10 +442,16 @@ bool sevals_variadic_to_ccvaluevector(const se::ValueArray &args, cc::ValueVecto
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool seval_to_Data(const se::Value &v, cc::Data *ret) {
     CC_ASSERT(ret != nullptr);
-    SE_PRECONDITION2(v.isObject() && v.toObject()->isTypedArray(), false, "Convert parameter to Data failed!");
+    SE_PRECONDITION2(v.isObject() && (v.toObject()->isTypedArray() || v.toObject()->isArrayBuffer()), false, "Convert parameter to Data failed!");
     uint8_t *ptr = nullptr;
     size_t length = 0;
-    bool ok = v.toObject()->getTypedArrayData(&ptr, &length);
+    se::Object *buffer = v.toObject();
+    bool ok = false;
+    if (buffer->isTypedArray()) {
+        ok = buffer->getTypedArrayData(&ptr, &length);
+    } else {
+        ok = buffer->getArrayBufferData(&ptr, &length);
+    }
     if (ok) {
         ret->copy(ptr, static_cast<int32_t>(length));
     } else {
