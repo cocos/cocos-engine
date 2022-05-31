@@ -767,8 +767,8 @@ bool sevalue_to_native(const se::Value &from, cc::scene::ShadowsInfo *to, se::Ob
     se::Value tmp;
     set_member_field<cc::scene::ShadowType>(obj, to, "type", &cc::scene::ShadowsInfo::setType, tmp);
     set_member_field<bool>(obj, to, "enabled", &cc::scene::ShadowsInfo::setEnabled, tmp);
-    set_member_field<cc::Vec3>(obj, to, "normal", &cc::scene::ShadowsInfo::setNormal, tmp);
-    set_member_field<float>(obj, to, "distance", &cc::scene::ShadowsInfo::setDistance, tmp);
+    set_member_field<cc::Vec3>(obj, to, "planeDirection", &cc::scene::ShadowsInfo::setPlaneDirection, tmp);
+    set_member_field<float>(obj, to, "planeHeight", &cc::scene::ShadowsInfo::setPlaneHeight, tmp);
     set_member_field<cc::Color>(obj, to, "shadowColor", &cc::scene::ShadowsInfo::setShadowColor, tmp);
     set_member_field<float>(obj, to, "maxReceived", &cc::scene::ShadowsInfo::setMaxReceived, tmp);
     set_member_field<float>(obj, to, "size", &cc::scene::ShadowsInfo::setShadowMapSize, tmp);
