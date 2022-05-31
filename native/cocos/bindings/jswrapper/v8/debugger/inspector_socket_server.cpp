@@ -1,5 +1,5 @@
 #include "inspector_socket_server.h"
-
+#include "events/epoll.h"
 #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
     #include "node.h"
@@ -653,6 +653,22 @@ int ServerSocket::Listen(InspectorSocketServer *inspector_server,
     uv_tcp_t *    server        = &server_socket->tcp_socket_;
     CHECK_EQ(0, uv_tcp_init(loop, server));
     int err = uv_tcp_bind(server, addr, 0);
+
+    #if (CC_PLATFORM == CC_PLATFORM_NX)
+    int fd;
+    if (uv_fileno((uv_handle_t *)server, &fd) >= 0) {
+        struct sockaddr_in    sa;
+        socklen_t          saLen        = sizeof(sa);
+
+        int port = 0;
+
+        if (getsockname(fd, (struct sockaddr *)&sa, &saLen) >= 0) {
+            port = ntohs(sa.sin_port);
+        }
+
+        printListenSocketAddr(fd);
+    }
+        #endif
     if (err == 0) {
         err = uv_listen(reinterpret_cast<uv_stream_t *>(server), 1,
                         ServerSocket::SocketConnectedCallback);
