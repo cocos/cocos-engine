@@ -29,9 +29,9 @@ import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
 import { Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
 import { AABB } from '../../core/geometry';
-import { BufferUsageBit, MemoryUsageBit, DescriptorSet, Buffer, BufferInfo, Attribute } from '../../core/gfx';
+import { BufferUsageBit, MemoryUsageBit, DescriptorSet, Buffer, BufferInfo, Attribute, FormatFeatureBit, Format, Texture } from '../../core/gfx';
 import { Mat4, Vec3 } from '../../core/math';
-import { UBOSkinning } from '../../core/pipeline/define';
+import { UBOSkinning, UNIFORM_REALTIME_JOINT_TEXTURE_BINDING } from '../../core/pipeline/define';
 import { Node } from '../../core/scene-graph/node';
 import { ModelType } from '../../core/renderer/scene/model';
 import { uploadJointData } from '../skeletal-animation/skeletal-animation-utils';
@@ -39,9 +39,16 @@ import { MorphModel } from './morph-model';
 import { deleteTransform, getTransform, getWorldMatrix, IJointTransform } from '../../core/animation/skeletal-animation-utils';
 import { BatchingSchemes, IMacroPatch, Pass, NativeJointInfo, NativeJointTransform, NativeSkinningModel  } from '../../core/renderer';
 import { warnID } from '../../core/platform/debug';
+import { ImageAsset, Texture2D, director } from '../../core';
+import { PixelFormat } from '../../core/assets/asset-enum';
 
-const myPatches: IMacroPatch[] = [
+const uniformPatches: IMacroPatch[] = [
     { name: 'CC_USE_SKINNING', value: true },
+    { name: 'CC_USE_REAL_TIME_JOINT_TEXTURE', value: false },
+];
+const texturePatches: IMacroPatch[] = [
+    { name: 'CC_USE_SKINNING', value: true },
+    { name: 'CC_USE_REAL_TIME_JOINT_TEXTURE', value: true },
 ];
 
 function getRelevantBuffers (outIndices: number[], outBuffers: number[], jointMaps: number[][], targetJoint: number) {
@@ -74,6 +81,14 @@ const v3_2 = new Vec3();
 const m4_1 = new Mat4();
 const ab_1 = new AABB();
 
+class RealTimeJointTexture {
+    public static readonly WIDTH = 256;
+    public static readonly HEIGHT = 3;
+    public _format = PixelFormat.RGBA32F; // default use float texture
+    public _textures: Texture2D[] = [];
+    public _buffers: Float32Array[] = [];
+}
+
 /**
  * @en
  * The skinning model that is using real-time pose calculation.
@@ -85,6 +100,8 @@ export class SkinningModel extends MorphModel {
     private _dataArray: Float32Array[] = [];
     private _joints: IJointInfo[] = [];
     private _bufferIndices: number[] | null = null;
+    private _realTimeJointTexture = new RealTimeJointTexture();
+    private _realTimeTextureModel = false;
     constructor () {
         super();
         this.type = ModelType.SKINNING;
@@ -130,9 +147,10 @@ export class SkinningModel extends MorphModel {
         this.transform = skinningRoot;
         const boneSpaceBounds = mesh.getBoneSpaceBounds(skeleton);
         const jointMaps = mesh.struct.jointMaps;
-        this._ensureEnoughBuffers(jointMaps && jointMaps.length || 1);
+        this._ensureEnoughBuffers(jointMaps && jointMaps.length || 1, skeleton.joints.length);
         this._bufferIndices = mesh.jointBufferIndices;
         const nativeJoints: NativeJointInfo[] = [];
+        this._initRealTimeJointTexture(skeleton.joints.length);
         for (let index = 0; index < skeleton.joints.length; index++) {
             const bound = boneSpaceBounds[index];
             const target = skinningRoot.getChildByPath(skeleton.joints[index]);
@@ -212,8 +230,12 @@ export class SkinningModel extends MorphModel {
                 uploadJointData(this._dataArray[buffers[b]], indices[b] * 12, m4_1, i === 0);
             }
         }
-        for (let b = 0; b < this._buffers.length; b++) {
-            this._buffers[b].update(this._dataArray[b]);
+        if (this._realTimeTextureModel === false) {
+            for (let b = 0; b < this._buffers.length; b++) {
+                this._buffers[b].update(this._dataArray[b]);
+            }
+        } else {
+            this._updateRealTimeJointTextureBuffer();
         }
         return true;
     }
@@ -236,6 +258,10 @@ export class SkinningModel extends MorphModel {
     // override
     public getMacroPatches (subModelIndex: number): IMacroPatch[] | null {
         const superMacroPatches = super.getMacroPatches(subModelIndex);
+        let myPatches = uniformPatches;
+        if (this._realTimeTextureModel) {
+            myPatches = texturePatches;
+        }
         if (superMacroPatches) {
             return myPatches.concat(superMacroPatches);
         }
@@ -251,8 +277,10 @@ export class SkinningModel extends MorphModel {
             (this._nativeObj! as NativeSkinningModel).updateLocalDescriptors(submodelIdx, descriptorSet);
             return;
         }
-        const buffer = this._buffers[this._bufferIndices![submodelIdx]];
+        const idx = this._bufferIndices![submodelIdx];
+        const buffer = this._buffers[idx];
         if (buffer) { descriptorSet.bindBuffer(UBOSkinning.BINDING, buffer); }
+        this._bindRealTimeJointTexture(idx, descriptorSet);
     }
 
     protected _updateInstancedAttributes (attributes: Attribute[], pass: Pass) {
@@ -263,7 +291,7 @@ export class SkinningModel extends MorphModel {
         super._updateInstancedAttributes(attributes, pass);
     }
 
-    private _ensureEnoughBuffers (count: number) {
+    private _ensureEnoughBuffers (count: number, jointCount : number) {
         for (let i = 0; i < count; i++) {
             if (!this._buffers[i]) {
                 this._buffers[i] = this._device.createBuffer(new BufferInfo(
@@ -274,11 +302,103 @@ export class SkinningModel extends MorphModel {
                 ));
             }
             if (!this._dataArray[i]) {
-                this._dataArray[i] = new Float32Array(UBOSkinning.COUNT);
+                let maxJoints = UBOSkinning.JOINT_UNIFORM_CAPACITY;
+                if (jointCount > UBOSkinning.JOINT_UNIFORM_CAPACITY) {
+                    maxJoints = RealTimeJointTexture.WIDTH;
+                }
+                this._dataArray[i] = new Float32Array(12 * maxJoints);
             }
         }
         if (JSB) {
             (this._nativeObj! as NativeSkinningModel).setBuffers(this._buffers);
+        }
+    }
+    private _initRealTimeJointTexture (jointCount: number) {
+        if (UBOSkinning.JOINT_UNIFORM_CAPACITY < jointCount) {
+            this._realTimeTextureModel = true;
+        }
+        if (!this._realTimeTextureModel) return;
+
+        const gfxDevice = director.root!.device;
+        let width = RealTimeJointTexture.WIDTH;
+        const height = RealTimeJointTexture.HEIGHT;
+        const hasFeatureFloatTexture = gfxDevice.getFormatFeatures(Format.RGBA32F) & FormatFeatureBit.SAMPLED_TEXTURE;
+        if (hasFeatureFloatTexture === 0) {
+            this._realTimeJointTexture._format = PixelFormat.RGBA8888;
+            width = 4 * RealTimeJointTexture.WIDTH;
+        }
+
+        const textures = this._realTimeJointTexture._textures;
+        const buffers = this._realTimeJointTexture._buffers;
+        const pixelFormat = this._realTimeJointTexture._format;
+        for (let i = 0; i < this._dataArray.length; i++) {
+            buffers[i] = new Float32Array(4 * RealTimeJointTexture.HEIGHT * RealTimeJointTexture.WIDTH);
+            const arrayBuffer = buffers[i];
+            const updateView =  pixelFormat === PixelFormat.RGBA32F ? arrayBuffer : new Uint8Array(arrayBuffer.buffer);
+            const image = new ImageAsset({
+                width,
+                height,
+                _data: updateView,
+                _compressed: false,
+                format: pixelFormat,
+            });
+            const texture = new Texture2D();
+            texture.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
+            texture.setMipFilter(Texture2D.Filter.NONE);
+            texture.setWrapMode(Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE);
+            texture.image = image;
+            textures[i] = texture;
+        }
+        if (JSB) {
+            const gfxTextures: Texture[] = [];
+            for (let i = 0; i < textures.length; i++) {
+                gfxTextures.push(textures[i].getGFXTexture()!);
+            }
+            (this._nativeObj! as NativeSkinningModel).setRealTimeJointTextures(gfxTextures);
+        }
+    }
+
+    private _bindRealTimeJointTexture (idx: number, descriptorSet: DescriptorSet) {
+        if (!this._realTimeTextureModel) return;
+        const jointTexture = this._realTimeJointTexture._textures[idx];
+        if (jointTexture) {
+            const gfxTexture = jointTexture.getGFXTexture();
+            const sampler = jointTexture.getGFXSampler();
+            descriptorSet.bindTexture(UNIFORM_REALTIME_JOINT_TEXTURE_BINDING, gfxTexture!);
+            descriptorSet.bindSampler(UNIFORM_REALTIME_JOINT_TEXTURE_BINDING, sampler);
+        }
+    }
+
+    private _updateRealTimeJointTextureBuffer () {
+        if (!this._realTimeTextureModel) return;
+        const textures = this._realTimeJointTexture._textures;
+        const buffers = this._realTimeJointTexture._buffers;
+        for (let idx = 0; idx < textures.length; idx++) {
+            const arrayBuffer = buffers[idx];
+            const src = this._dataArray[idx];
+            const count = src.length / 12; // mat3x4
+            let idxSrc = 0;
+            let idxDst = 0;
+            for (let i = 0; i < count; i++) {
+                idxDst = 4 * i;
+                arrayBuffer[idxDst++] = src[idxSrc++];
+                arrayBuffer[idxDst++] = src[idxSrc++];
+                arrayBuffer[idxDst++] = src[idxSrc++];
+                arrayBuffer[idxDst++] = src[idxSrc++];
+                idxDst = 4 * (i + RealTimeJointTexture.WIDTH);
+                arrayBuffer[idxDst++] = src[idxSrc++];
+                arrayBuffer[idxDst++] = src[idxSrc++];
+                arrayBuffer[idxDst++] = src[idxSrc++];
+                arrayBuffer[idxDst++] = src[idxSrc++];
+                idxDst = 4 * (i + 2 * RealTimeJointTexture.WIDTH);
+                arrayBuffer[idxDst++] = src[idxSrc++];
+                arrayBuffer[idxDst++] = src[idxSrc++];
+                arrayBuffer[idxDst++] = src[idxSrc++];
+                arrayBuffer[idxDst++] = src[idxSrc++];
+            }
+            const pixelFormat = this._realTimeJointTexture._format;
+            const updateView = pixelFormat === PixelFormat.RGBA32F ? arrayBuffer : new Uint8Array(arrayBuffer.buffer);
+            textures[idx].uploadData(updateView);
         }
     }
 }

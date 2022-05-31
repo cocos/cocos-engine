@@ -32,6 +32,7 @@
 #include "renderer/gfx-base/GFXDescriptorSet.h"
 #include "renderer/pipeline/Define.h"
 #include "scene/Model.h"
+#include "../renderer/gfx-validator/DeviceValidator.h"
 namespace cc {
 namespace scene {
 
@@ -52,6 +53,23 @@ struct JointInfo {
     std::vector<uint32_t>       indices;
 };
 
+class RealTimeJointTexture {
+public:
+    RealTimeJointTexture() {
+        textures.clear();
+    }
+
+    ~RealTimeJointTexture() {
+        textures.clear();
+        delete buffer;
+    }
+
+    static const uint32_t WIDTH = 256;
+    static const uint32_t HEIGHT = 3;
+    std::vector<gfx::Texture *> textures;
+    float *buffer = nullptr;
+};
+
 class SkinningModel : public Model {
 public:
     SkinningModel()                      = default;
@@ -67,9 +85,27 @@ public:
         _joints        = std::move(joints);
     }
     inline void updateLocalDescriptors(uint32_t submodelIdx, gfx::DescriptorSet *descriptorset) {
-        gfx::Buffer *buffer = _buffers[_bufferIndices[submodelIdx]];
+        uint32_t idx = _bufferIndices[submodelIdx];
+        gfx::Buffer *buffer = _buffers[idx];
         if (buffer) {
             descriptorset->bindBuffer(pipeline::UBOSkinning::BINDING, buffer);
+        }
+        if (!_realTimeTextureMode) return;
+        if (_realTimeJointTexture->textures.size() < idx + 1) return;
+        gfx::Texture *texture = _realTimeJointTexture->textures[idx];
+        if (texture) {
+            gfx::SamplerInfo info{
+                gfx::Filter::POINT,
+                gfx::Filter::POINT,
+                gfx::Filter::NONE,
+                gfx::Address::CLAMP,
+                gfx::Address::CLAMP,
+                gfx::Address::CLAMP,
+            };
+            auto *device = cc::gfx::Device::getInstance();
+            auto *sampler = device->getSampler(info);
+            descriptorset->bindTexture(pipeline::REALTIMEJOINTTEXTURE::BINDING, texture);
+            descriptorset->bindSampler(pipeline::REALTIMEJOINTTEXTURE::BINDING, sampler);
         }
     }
     inline void setNeedUpdate(bool needUpdate) {
@@ -77,6 +113,7 @@ public:
     }
     void updateTransform(uint32_t stamp) override;
     void updateUBOs(uint32_t stamp) override;
+    void setRealTimeJointTextures(std::vector<gfx::Texture *> textures);
 
 protected:
     ModelType _type{ModelType::SKINNING};
@@ -84,13 +121,16 @@ protected:
 private:
     static void                                                    uploadJointData(uint32_t base, const Mat4 &mat, float *dst);
     void                                                           updateWorldMatrix(JointInfo *info, uint32_t stamp);
+    void                                                           updateRealTimeJointTextureBuffer();
     bool                                                           _needUpdate{false};
     Mat4                                                           _worldMatrix;
     std::vector<uint32_t>                                          _bufferIndices;
     std::vector<gfx::Buffer *>                                     _buffers;
     std::vector<JointInfo>                                         _joints;
-    std::vector<std::array<float, pipeline::UBOSkinning::COUNT> *> _dataArray;
+    std::vector<float *>                                           _dataArray;
     static std::vector<JointTransform *>                           transStacks;
+    bool                                                           _realTimeTextureMode = false;
+    RealTimeJointTexture                                           *_realTimeJointTexture;
 };
 
 } // namespace scene
