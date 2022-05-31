@@ -249,7 +249,7 @@ void Engine::tick() {
         CC_PROFILE(EngineTick);
 
         if (_needRestart) {
-            restartVM();
+            doRestart();
             _needRestart = false;
         }
 
