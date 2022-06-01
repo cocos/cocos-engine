@@ -43,11 +43,11 @@ class Downloader;
 
 class CC_DLL DownloadTask final {
 public:
-    const static int ERROR_NO_ERROR = 0;
-    const static int ERROR_INVALID_PARAMS = -1;
-    const static int ERROR_FILE_OP_FAILED = -2;
-    const static int ERROR_IMPL_INTERNAL = -3;
-    const static int ERROR_ABORT = -4;
+    static const int ERROR_NO_ERROR = 0;
+    static const int ERROR_INVALID_PARAMS = -1;
+    static const int ERROR_FILE_OP_FAILED = -2;
+    static const int ERROR_IMPL_INTERNAL = -3;
+    static const int ERROR_ABORT = -4;
 
     ccstd::string identifier;
     ccstd::string requestURL;
