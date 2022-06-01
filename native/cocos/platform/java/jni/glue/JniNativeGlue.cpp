@@ -266,7 +266,7 @@ void JniNativeGlue::engineHandleCmd(JniCommand cmd) {
         } break;
         case JniCommand::JNI_CMD_LOW_MEMORY: {
             DeviceEvent ev;
-            ev.type = DeviceEvent::Type::DEVICE_MEMORY;
+            ev.type = DeviceEvent::Type::MEMORY;
             dispatchEvent(ev);
             break;
         }
