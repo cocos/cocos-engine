@@ -223,7 +223,7 @@ Frustum::Frustum(const Frustum &rhs) {
 Frustum::Frustum(Frustum &&rhs) {
     setType(ShapeEnum::SHAPE_FRUSTUM);
     planes = rhs.planes;
-    for (size_t i = 0; i < planes.size(); ++i) {
+    for (size_t i = 0; i < planes.size(); ++i) { // NOLINT(modernize-loop-convert)
         planes[i]->addRef();
     }
 }
@@ -244,7 +244,7 @@ Frustum &Frustum::operator=(Frustum &&rhs) {
     releasePlanes();
 
     planes = rhs.planes;
-    for (size_t i = 0; i < planes.size(); ++i) {
+    for (size_t i = 0; i < planes.size(); ++i) { // NOLINT(modernize-loop-convert)
         planes[i]->addRef();
     }
 
