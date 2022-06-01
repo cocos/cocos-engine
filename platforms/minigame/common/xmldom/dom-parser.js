@@ -249,4 +249,6 @@ var XMLReader = require('./sax').XMLReader;
 var DOMImplementation = exports.DOMImplementation = require('./dom').DOMImplementation;
 exports.XMLSerializer = require('./dom').XMLSerializer ;
 exports.DOMParser = DOMParser;
+
+window.DOMParser = DOMParser;
 //}

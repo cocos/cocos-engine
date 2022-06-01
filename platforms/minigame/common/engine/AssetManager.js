@@ -1,4 +1,4 @@
-const cacheManager = require('../cache-manager');
+const cacheManager = require('./cache-manager');
 const { fs, downloadFile, readText, readArrayBuffer, readJson, loadSubpackage, getUserDataPath, exists } = window.fsUtils;
 
 const REGEX = /^https?:\/\/.*/;
