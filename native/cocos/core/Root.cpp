@@ -211,7 +211,8 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
             return false;
         }
     } else {
-        _pipelineRuntime = std::make_unique<render::NativePipeline>();
+        _pipelineRuntime = std::make_unique<render::NativePipeline>(
+            boost::container::pmr::get_default_resource());
         if (!_pipelineRuntime->activate(_mainWindow->getSwapchain())) {
             _pipelineRuntime->destroy();
             _pipelineRuntime.reset();

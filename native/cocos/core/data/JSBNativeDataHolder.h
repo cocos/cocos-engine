@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,25 +23,32 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-/**
- * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
- * The following section is auto-generated.
- * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
- */
-// clang-format off
 #pragma once
-#include "cocos/renderer/pipeline/custom/NativePipelineTypes.h"
-#include "cocos/renderer/pipeline/custom/RenderCompilerNames.h"
-#include "cocos/renderer/pipeline/custom/RenderInterfaceNames.h"
+
+#include <cstdint>
+#include "base/Utils.h"
 
 namespace cc {
+class JSBNativeDataHolder final {
+public:
+    JSBNativeDataHolder() = default;
+    explicit JSBNativeDataHolder(uint8_t* data) : _data(data) {};
 
-namespace render {
+    ~JSBNativeDataHolder() {
+        if (_data != nullptr) {
+            free(_data); // Remove data in destructor
+        }
+    }
 
-inline const char* getName(const NativePipeline& /*v*/) noexcept { return "NativePipeline"; }
+    inline void setData(uint8_t* data) { _data = data; }
+    inline uint8_t* getData() const { return _data; }
 
-} // namespace render
+    inline void destroy() { // Also support to invoke destroy method to free memory before garbage collection
+        free(_data);
+        _data = nullptr;
+    }
 
+private:
+    uint8_t* _data{nullptr};
+};
 } // namespace cc
-
-// clang-format on

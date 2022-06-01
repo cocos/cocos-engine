@@ -44,6 +44,22 @@ inline bool nativevalue_to_se( // NOLINT(readability-identifier-naming)
     return true;
 }
 
+template <typename Value>
+inline bool nativevalue_to_se( // NOLINT(readability-identifier-naming)
+    const cc::PmrTransparentMap<ccstd::string, Value> &from,
+    se::Value &to, se::Object *ctx) {
+    se::Object *ret = se::Object::createPlainObject();
+    se::Value value;
+    bool ok = true;
+    for (auto &it : from) {
+        ok &= nativevalue_to_se(it.second, value, ctx);
+        cc_tmp_set_property(ret, it.first, value);
+    }
+    to.setObject(ret);
+    ret->decRef();
+    return true;
+}
+
 inline bool nativevalue_to_se( // NOLINT(readability-identifier-naming)
     const ccstd::pmr::string &from, se::Value &to, se::Object * /*ctx*/) {
     to.setString(from.c_str());
@@ -85,6 +101,22 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<T, allocator> *to, s
 
     SE_LOGE("[warn] failed to convert to ccstd::vector\n");
     return false;
+}
+
+template <typename Value>
+bool sevalue_to_native(const se::Value &from, cc::PmrTransparentMap<ccstd::string, Value> *to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
+    se::Object *jsmap = from.toObject();
+    ccstd::vector<ccstd::string> allKeys;
+    jsmap->getAllKeys(&allKeys);
+    bool ret = true;
+    se::Value property;
+    for (auto &it : allKeys) {
+        if (jsmap->getProperty(it.c_str(), &property)) {
+            auto &output = (*to)[it];
+            ret &= sevalue_to_native(property, &output, jsmap);
+        }
+    }
+    return true;
 }
 
 inline bool sevalue_to_native(const se::Value &from, ccstd::pmr::string *to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)

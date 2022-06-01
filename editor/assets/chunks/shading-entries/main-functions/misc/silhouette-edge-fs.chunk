@@ -8,13 +8,15 @@ void main () {
 
   // Color output
 #if CC_USE_HDR
-  #if !CC_SURFACES_DEBUG_VIEW_COMPOSITE_MODE || (CC_SURFACES_DEBUG_VIEW_COMPOSITE_MODE & CC_SURFACES_DEBUG_VIEW_COMPOSITE_TONE_MAPPING)
-    color.rgb = ACESToneMap(color.rgb);
+  #if CC_SURFACES_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
+      if (cc_debug_view_composite_enable_tone_mapping > 0.0)
   #endif
+  color.rgb = ACESToneMap(color.rgb);
 #endif
-#if !CC_SURFACES_DEBUG_VIEW_COMPOSITE_MODE || (CC_SURFACES_DEBUG_VIEW_COMPOSITE_MODE & CC_SURFACES_DEBUG_VIEW_COMPOSITE_GAMMA_CORRECTION)
+#if CC_SURFACES_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
+  if (cc_debug_view_composite_enable_gamma_correction > 0.0)
+#endif
   color.rgb = LinearToSRGB(color.rgb);
-#endif
 
   fragColorX = color;
 }

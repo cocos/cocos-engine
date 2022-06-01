@@ -234,8 +234,8 @@ public:
      * @en The normal of the plane which receives shadow
      * @zh 阴影接收平面的法线
      */
-    void setNormal(const Vec3 &val);
-    inline const Vec3 &getNormal() const {
+    void setPlaneDirection(const Vec3 &val);
+    inline const Vec3 &getPlaneDirection() const {
         return _normal;
     }
 
@@ -243,8 +243,8 @@ public:
      * @en The distance from coordinate origin to the receiving plane.
      * @zh 阴影接收平面与原点的距离
      */
-    void setDistance(float val);
-    inline float getDistance() const {
+    void setPlaneHeight(float val);
+    inline float getPlaneHeight() const {
         return _distance;
     }
 

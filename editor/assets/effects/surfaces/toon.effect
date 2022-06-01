@@ -228,7 +228,11 @@ CCProgram surface-fragment %{
   #define CC_SURFACES_FRAGMENT_MODIFY_TOON_SPECULAR
   vec4 SurfacesFragmentModifyToonSpecular()
   {
-      return vec4(1.0, 1.0, 1.0, 0.3);
+    vec4 specularParam = specular;
+    #if USE_SPECULAR_MAP
+      specularParam.rgb *= SRGBToLinear(texture(specularMap, FSInput_texcoord).rgb);
+    #endif
+    return specularParam;
   }
 }%
 
@@ -378,7 +382,6 @@ CCProgram silhouette-edge-vs %{
   #include <surfaces/effect-macros/silhouette-edge>
   #include <surfaces/includes/common-vs>
   #include <surface-vertex-silhouette-edge>
-  #include <surfaces/includes/silhouette-edge-vs>
   #include <shading-entries/main-functions/misc/silhouette-edge-vs>
 }%
 

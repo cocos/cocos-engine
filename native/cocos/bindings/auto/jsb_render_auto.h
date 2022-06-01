@@ -20,6 +20,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::render::CopyPassBuilder);
 JSB_REGISTER_OBJECT_TYPE(cc::render::SceneVisitor);
 JSB_REGISTER_OBJECT_TYPE(cc::render::SceneTask);
 JSB_REGISTER_OBJECT_TYPE(cc::render::SceneTransversal);
+JSB_REGISTER_OBJECT_TYPE(cc::render::LayoutGraphBuilder);
 JSB_REGISTER_OBJECT_TYPE(cc::render::Pipeline);
 JSB_REGISTER_OBJECT_TYPE(cc::render::Factory);
 
@@ -134,6 +135,18 @@ bool js_register_cc_render_SceneTransversal(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_render_SceneTransversal_transverse);
 
+extern se::Object *__jsb_cc_render_LayoutGraphBuilder_proto; // NOLINT
+extern se::Class * __jsb_cc_render_LayoutGraphBuilder_class; // NOLINT
+
+bool js_register_cc_render_LayoutGraphBuilder(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_render_LayoutGraphBuilder_addDescriptorBlock);
+SE_DECLARE_FUNC(js_render_LayoutGraphBuilder_addRenderPhase);
+SE_DECLARE_FUNC(js_render_LayoutGraphBuilder_addRenderStage);
+SE_DECLARE_FUNC(js_render_LayoutGraphBuilder_compile);
+SE_DECLARE_FUNC(js_render_LayoutGraphBuilder_print);
+SE_DECLARE_FUNC(js_render_LayoutGraphBuilder_reserveDescriptorBlock);
+
 extern se::Object *__jsb_cc_render_Pipeline_proto; // NOLINT
 extern se::Class * __jsb_cc_render_Pipeline_class; // NOLINT
 
@@ -147,6 +160,7 @@ SE_DECLARE_FUNC(js_render_Pipeline_addRasterPass);
 SE_DECLARE_FUNC(js_render_Pipeline_addRenderTarget);
 SE_DECLARE_FUNC(js_render_Pipeline_addRenderTexture);
 SE_DECLARE_FUNC(js_render_Pipeline_beginFrame);
+SE_DECLARE_FUNC(js_render_Pipeline_createLayoutGraph);
 SE_DECLARE_FUNC(js_render_Pipeline_createSceneTransversal);
 SE_DECLARE_FUNC(js_render_Pipeline_endFrame);
 SE_DECLARE_FUNC(js_render_Pipeline_presentAll);

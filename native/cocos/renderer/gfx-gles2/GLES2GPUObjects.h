@@ -21,12 +21,12 @@
 
 #pragma once
 
+#include <algorithm>
 #include "GLES2Std.h"
 #include "GLES2Wrangler.h"
 #include "base/std/container/unordered_map.h"
 #include "gfx-base/GFXDef.h"
 #include "gfx-gles-common/GLESCommandPool.h"
-#include <algorithm>
 
 namespace cc {
 namespace gfx {

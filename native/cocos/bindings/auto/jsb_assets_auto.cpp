@@ -8606,7 +8606,7 @@ static bool js_assets_ImageAsset_getUrl(se::State& s) // NOLINT(readability-iden
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        std::string result = cobj->getUrl();
+        const std::string& result = cobj->getUrl();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_assets_ImageAsset_getUrl : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -12173,7 +12173,7 @@ static bool js_assets_RenderingSubMesh_setSubMeshIdx(se::State& s) // NOLINT(rea
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<unsigned int, false> arg0 = {};
+        HolderType<boost::optional<unsigned int>, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_assets_RenderingSubMesh_setSubMeshIdx : Error processing arguments");
         cobj->setSubMeshIdx(arg0.value());
@@ -12244,6 +12244,31 @@ static bool js_assets_RenderingSubMesh_constructor(se::State& s) // NOLINT(reada
             ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
             if (!ok) { ok = true; break; }
             auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::RenderingSubMesh, arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value());
+            s.thisObject()->setPrivateObject(ptr);
+            return true;
+        }
+    } while(false);
+    do {
+        if (argc == 6) {
+            HolderType<std::vector<cc::gfx::Buffer *>, true> arg0 = {};
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            HolderType<std::vector<cc::gfx::Attribute>, true> arg1 = {};
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            HolderType<cc::gfx::PrimitiveMode, false> arg2 = {};
+            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+            if (!ok) { ok = true; break; }
+            HolderType<cc::gfx::Buffer*, false> arg3 = {};
+            ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+            if (!ok) { ok = true; break; }
+            HolderType<cc::gfx::Buffer*, false> arg4 = {};
+            ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+            if (!ok) { ok = true; break; }
+            HolderType<bool, false> arg5 = {};
+            ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+            if (!ok) { ok = true; break; }
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::RenderingSubMesh, arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
             s.thisObject()->setPrivateObject(ptr);
             return true;
         }
@@ -18328,7 +18353,7 @@ static bool js_assets_Mesh_getAssetData(se::State& s) // NOLINT(readability-iden
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cc::TypedArrayTemp<unsigned char>& result = cobj->getAssetData();
+        cc::ArrayBuffer* result = cobj->getAssetData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_assets_Mesh_getAssetData : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());

@@ -207,11 +207,12 @@ public:
     ccstd::any getNativeAsset() const override;
     void setNativeAsset(const ccstd::any &obj) override;
 
-    void setAssetData(cc::ArrayBuffer *data) {
+    void setAssetData(ArrayBuffer *data) {
         _data = Uint8Array(data);
     }
-    const Uint8Array &getAssetData() {
-        return _data;
+
+    ArrayBuffer *getAssetData() const {
+        return _data.buffer();
     }
 
     /**
