@@ -14,6 +14,7 @@
 #include "cocos/math/Quaternion.h"
 #include "cocos/math/Color.h"
 #include "cocos/core/data/Object.h"
+#include "cocos/core/data/JSBNativeDataHolder.h"
 
 bool register_all_engine(se::Object *obj);                   // NOLINT
 
@@ -28,6 +29,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::Device);
 JSB_REGISTER_OBJECT_TYPE(cc::SAXParser);
 JSB_REGISTER_OBJECT_TYPE(cc::Color);
 JSB_REGISTER_OBJECT_TYPE(cc::CCObject);
+JSB_REGISTER_OBJECT_TYPE(cc::JSBNativeDataHolder);
 
 
 extern se::Object *__jsb_cc_FileUtils_proto; // NOLINT
@@ -175,4 +177,12 @@ SE_DECLARE_FUNC(js_engine_CCObject_destroyImmediate);
 SE_DECLARE_FUNC(js_engine_CCObject_toString);
 SE_DECLARE_FUNC(js_engine_CCObject_deferredDestroy);
 SE_DECLARE_FUNC(js_engine_CCObject_CCObject);
+
+extern se::Object *__jsb_cc_JSBNativeDataHolder_proto; // NOLINT
+extern se::Class * __jsb_cc_JSBNativeDataHolder_class; // NOLINT
+
+bool js_register_cc_JSBNativeDataHolder(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_engine_JSBNativeDataHolder_destroy);
+SE_DECLARE_FUNC(js_engine_JSBNativeDataHolder_JSBNativeDataHolder);
 // clang-format on
