@@ -37,7 +37,7 @@
 namespace cc {
 namespace scene {
 class Camera;
-struct DrawBatch2D;
+class DrawBatch2D;
 } // namespace scene
 namespace gfx {
 class SwapChain;

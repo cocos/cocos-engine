@@ -24,6 +24,9 @@
 ****************************************************************************/
 
 #include "DrawBatch2D.h"
+#include "core/Root.h"
+#include "core/assets/Material.h"
+#include "scene/Pass.h"
 
 namespace cc {
 namespace scene {
@@ -36,30 +39,30 @@ namespace scene {
 
     }
 
-    DrawBatch2D::clear() {
+    void DrawBatch2D::clear() {
     }
 
-    DrawBatch2D::fillPass(Material *mat, gfx::DepthStencilState *depthStencilState, ccstd::hash_t dsHash = 0, gfx::BlendState *blendState, ccstd::hash_t bsHash = 0, ccstd::vector<IMacroPatch> *patches = nullptr) {
+    void DrawBatch2D::fillPass(Material *mat, gfx::DepthStencilState *depthStencilState, ccstd::hash_t dsHash, gfx::BlendState *blendState, ccstd::hash_t bsHash, ccstd::vector<IMacroPatch> *patches) {
         auto &passes = *mat->getPasses();
         if (passes.empty()) return;
         uint32_t hashFactor = 0;
-        shaders.clear();
+        _shaders.clear();
         if (_passes.size() < passes.size()) {
             uint32_t num = passes.size() - _passes.size();
             for (uint32_t i = 0; i < num; ++i) {
-                _passes.push_back(new Pass(Root.getInstance()));
+                _passes.push_back(*new Pass());
             }
         }
 
         for (uint32_t i = 0; i < passes.size(); ++i) {
             Pass *pass = passes[i];
-            Pass *passInUse = _passes[i];
+            Pass *passInUse = &_passes[i];
             pass->update();
             // 可能有负值问题
             // if (bsHash == -1) {bsHash = 0;}
             hashFactor = (dsHash << 16) | bsHash;
-            passInUse->initPassFromTarget(pass, depthStencilState, blendState, hashFactor);
-            shaders.push_back(passInUse->getShaderVariant(patches));
+            passInUse->initPassFromTarget(pass, *depthStencilState, *blendState, hashFactor);
+            _shaders.push_back(passInUse->getShaderVariant(*patches));
         }
     }
 

@@ -43,7 +43,7 @@ namespace scene {
 class Model;
 class Camera;
 class Octree;
-struct DrawBatch2D;
+class DrawBatch2D;
 class DirectionalLight;
 class SphereLight;
 class SpotLight;

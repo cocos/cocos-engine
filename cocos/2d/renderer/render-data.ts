@@ -415,6 +415,9 @@ export class RenderData extends BaseRenderData {
         if (this.hashDirty) {
             this.updateHash();
         }
+
+        // Need update RenderEntity
+        // Need Add DSNative
     }
 
     public updateSizeNPivot (width: number, height: number, pivotX: number, pivotY: number) {

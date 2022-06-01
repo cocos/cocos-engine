@@ -102,7 +102,7 @@ export class DrawBatch2D {
     constructor () {
         if (JSB) {
             // @ts-expect-error jsb related codes
-            this._nativeObj = new jsb.DrawBatch2D();
+            this._nativeObj = new jsb.DrawBatch2D(); // use less
             this._nativeObj.visFlags = this._visFlags;
         }
     }

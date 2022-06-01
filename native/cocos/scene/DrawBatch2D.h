@@ -27,11 +27,18 @@
 
 #include "renderer/gfx-base/GFXDef-common.h"
 #include "core/scene-graph/Layers.h"
+#include "base/RefCounted.h"
+#include "core/scene-graph/Node.h"
+#include "scene/Define.h"
 
 namespace cc {
+
+class Material;
+
 namespace scene {
 
 class Pass;
+class Model;
 
 class DrawBatch2D : public RefCounted {
 public:
