@@ -42,6 +42,8 @@ public:
 
     virtual ~WebViewImpl();
 
+    void destroy();
+
     void setJavascriptInterfaceScheme(const ccstd::string &scheme);
 
     void loadData(const cc::Data &data, const ccstd::string &mimeType,

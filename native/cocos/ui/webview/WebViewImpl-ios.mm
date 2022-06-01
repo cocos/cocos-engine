@@ -312,8 +312,15 @@ WebViewImpl::WebViewImpl(WebView *webView)
 }
 
 WebViewImpl::~WebViewImpl() {
-    [_uiWebViewWrapper release];
-    _uiWebViewWrapper = nullptr;
+   destroy();
+}
+
+WebViewImpl::destroy() {
+    if (_uiWebViewWrapper != nil)
+    {
+        [_uiWebViewWrapper release];
+        _uiWebViewWrapper = nil;
+    }
 }
 
 void WebViewImpl::setJavascriptInterfaceScheme(const ccstd::string &scheme) {

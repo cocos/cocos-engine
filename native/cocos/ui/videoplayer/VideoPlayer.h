@@ -66,6 +66,12 @@ public:
     };
 
     VideoPlayer();
+    ~VideoPlayer();
+
+    /**
+     * Destroy VideoPlayer, remove it from parent
+     */
+    void destroy();
 
     /**
      * A callback which will be called after specific VideoPlayer event happens.
@@ -151,7 +157,6 @@ public:
     virtual void setFrame(float x, float y, float width, float height);
 
 protected:
-    ~VideoPlayer() override;
 
     enum class Source {
         FILENAME = 0,
