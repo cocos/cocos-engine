@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
- 
+
  http://www.cocos.com
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -45,6 +45,7 @@ class Device;
 } // namespace gfx
 namespace render {
 class PipelineRuntime;
+class Pipeline;
 } // namespace render
 class CallbacksInvoker;
 
@@ -196,6 +197,12 @@ public:
      * 渲染管线
      */
     inline render::PipelineRuntime *getPipeline() const { return _pipelineRuntime.get(); }
+
+    /**
+     * @zh
+     * 自定义渲染管线
+     */
+    render::Pipeline *getCustomPipeline() const;
 
     /**
      * @zh

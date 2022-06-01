@@ -34,9 +34,7 @@
 #include "cocos/base/std/container/string.h"
 #include "cocos/renderer/frame-graph/FrameGraph.h"
 #include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
-#include "cocos/renderer/pipeline/custom/Map.h"
 #include "cocos/renderer/pipeline/custom/NativePipelineFwd.h"
-#include "cocos/renderer/pipeline/custom/RenderCompilerTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderInterfaceTypes.h"
 
 namespace cc {
@@ -50,6 +48,7 @@ public:
     : device(deviceIn),
       data(dataIn) {}
 
+    void clear() override;
     uint32_t addRenderStage(const ccstd::string& name) override;
     uint32_t addRenderPhase(const ccstd::string& name, uint32_t parentID) override;
     void addDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlock& block) override;
@@ -246,7 +245,7 @@ class NativePipeline final : public Pipeline {
 public:
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {layoutGraphs.get_allocator().resource()};
+        return {layoutGraph.get_allocator().resource()};
     }
 
     NativePipeline(const allocator_type& alloc) noexcept; // NOLINT
@@ -265,7 +264,7 @@ public:
     void                presentAll() override;
 
     SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) override;
-    LayoutGraphBuilder *createLayoutGraph(const ccstd::string& name) override;
+    LayoutGraphBuilder *getLayoutGraphBuilder() override;
 
     bool activate(gfx::Swapchain * swapchain) override;
     bool destroy() noexcept override;
@@ -289,18 +288,17 @@ public:
 
     bool isOcclusionQueryEnabled() const override;
 
-    gfx::Device*                                           device{nullptr};
-    gfx::Swapchain*                                        swapchain{nullptr};
-    MacroRecord                                            macros;
-    ccstd::string                                          constantMacros;
-    std::unique_ptr<pipeline::GlobalDSManager>             globalDSManager;
-    scene::Model*                                          profiler{nullptr};
-    PmrTransparentMap<ccstd::pmr::string, LayoutGraphData> layoutGraphs;
-    IntrusivePtr<pipeline::PipelineSceneData>              pipelineSceneData;
-    const LayoutGraphData*                                 layoutGraph{nullptr};
-    framegraph::FrameGraph                                 frameGraph;
-    ResourceGraph                                          resourceGraph;
-    RenderGraph                                            renderGraph;
+    gfx::Device*                               device{nullptr};
+    gfx::Swapchain*                            swapchain{nullptr};
+    MacroRecord                                macros;
+    ccstd::string                              constantMacros;
+    std::unique_ptr<pipeline::GlobalDSManager> globalDSManager;
+    scene::Model*                              profiler{nullptr};
+    IntrusivePtr<pipeline::PipelineSceneData>  pipelineSceneData;
+    LayoutGraphData                            layoutGraph;
+    framegraph::FrameGraph                     frameGraph;
+    ResourceGraph                              resourceGraph;
+    RenderGraph                                renderGraph;
 };
 
 } // namespace render
