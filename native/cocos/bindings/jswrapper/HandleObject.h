@@ -79,6 +79,10 @@ public:
         return _obj;
     }
 
+    inline operator Object*() const {
+        return _obj;
+    }
+
     /**
      *  @brief Gets the se::Object attached.
      *  @return The se::Object attached.

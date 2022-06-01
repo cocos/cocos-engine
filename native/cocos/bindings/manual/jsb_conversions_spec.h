@@ -379,16 +379,14 @@ bool DownloadTask_to_seval(const cc::network::DownloadTask &v, se::Value *ret); 
 bool nativevalue_to_se(const cc::ArrayBuffer &arrayBuffer, se::Value &to, se::Object * /*ctx*/); // NOLINT(readability-identifier-naming) // NOLINT
 
 inline bool nativevalue_to_se(const ccstd::vector<int8_t> &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-    se::Object *array = se::Object::createTypedArray(se::Object::TypedArrayType::INT8, from.data(), from.size());
+    se::HandleObject array{se::Object::createTypedArray(se::Object::TypedArrayType::INT8, from.data(), from.size())};
     to.setObject(array);
-    array->decRef();
     return true;
 }
 
 inline bool nativevalue_to_se(const ccstd::vector<uint8_t> &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-    se::Object *array = se::Object::createTypedArray(se::Object::TypedArrayType::UINT8, from.data(), from.size());
+    se::HandleObject array{se::Object::createTypedArray(se::Object::TypedArrayType::UINT8, from.data(), from.size())};
     to.setObject(array);
-    array->decRef();
     return true;
 }
 
