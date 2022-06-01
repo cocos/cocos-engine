@@ -654,14 +654,14 @@ export class DescriptorSetLayoutData {
 }
 
 export class DescriptorSetData {
-    constructor (descriptorSetLayoutData: DescriptorSetLayoutData, descriptorSetLayout: DescriptorSetLayout, descriptorSet: DescriptorSet) {
+    constructor (descriptorSetLayoutData: DescriptorSetLayoutData, descriptorSetLayout: DescriptorSetLayout | null, descriptorSet: DescriptorSet | null) {
         this.descriptorSetLayoutData = descriptorSetLayoutData;
         this.descriptorSetLayout = descriptorSetLayout;
         this.descriptorSet = descriptorSet;
     }
     readonly descriptorSetLayoutData: DescriptorSetLayoutData;
-    /*object*/ descriptorSetLayout: DescriptorSetLayout;
-    /*object*/ descriptorSet: DescriptorSet;
+    /*object*/ descriptorSetLayout: DescriptorSetLayout | null;
+    /*object*/ descriptorSet: DescriptorSet | null;
 }
 
 export class PipelineLayoutData {
