@@ -211,5 +211,59 @@ void Frustum::updatePlanes() {
     planes[5]->define(vertices[7], vertices[5], vertices[6]);
 }
 
+Frustum::Frustum() {
+    init();
+}
+
+Frustum::Frustum(const Frustum &rhs) {
+    init();
+    *this = rhs;
+}
+
+Frustum::Frustum(Frustum &&rhs) {
+    setType(ShapeEnum::SHAPE_FRUSTUM);
+    planes = rhs.planes;
+    for (size_t i = 0; i < planes.size(); ++i) {
+        planes[i]->addRef();
+    }
+}
+
+Frustum::~Frustum() {
+    releasePlanes();
+}
+
+Frustum &Frustum::operator=(const Frustum &rhs) {
+    for (size_t i = 0; i < planes.size(); ++i) { // NOLINT(modernize-loop-convert)
+        Plane::copy(planes[i], *planes[i]);
+    }
+
+    return *this;
+}
+
+Frustum &Frustum::operator=(Frustum &&rhs) {
+    releasePlanes();
+
+    planes = rhs.planes;
+    for (size_t i = 0; i < planes.size(); ++i) {
+        planes[i]->addRef();
+    }
+
+    return *this;
+}
+
+void Frustum::init() {
+    setType(ShapeEnum::SHAPE_FRUSTUM);
+    for (size_t i = 0; i < planes.size(); ++i) { // NOLINT(modernize-loop-convert)
+        planes[i] = ccnew Plane();
+        planes[i]->addRef();
+    }
+}
+
+void Frustum::releasePlanes() {
+    for (auto *plane : planes) {
+        plane->release();
+    }
+}
+
 } // namespace geometry
 } // namespace cc

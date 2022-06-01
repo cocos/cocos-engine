@@ -122,57 +122,14 @@ public:
         return out;
     }
 
-    /**
-     * @en
-     * Set whether to use accurate intersection testing function on this frustum.
-     * @zh
-     * 设置是否在此截锥体上使用精确的相交测试函数。
-     */
-    void setAccurate(bool accurate) {
-        setType(accurate ? ShapeEnum::SHAPE_FRUSTUM_ACCURATE : ShapeEnum::SHAPE_FRUSTUM);
-    }
-
-    Frustum() {
-        setType(ShapeEnum::SHAPE_FRUSTUM);
-        for (size_t i = 0; i < planes.size(); ++i) { // NOLINT(modernize-loop-convert)
-            planes[i] = ccnew Plane();
-            planes[i]->addRef();
-        }
-    }
-
-    Frustum(const Frustum &rhs) {
-        *this = rhs;
-    }
-
-    Frustum(Frustum &&rhs) {
-        *this = std::move(rhs);
-    }
-
-    ~Frustum() override {
-        for (auto *plane : planes) {
-            plane->release();
-        }
-    }
+    Frustum();
+    Frustum(const Frustum &rhs);
+    Frustum(Frustum &&rhs);
+    ~Frustum() override;
 
     // Can remove these operator override functions if not using Plane* in planes array.
-    Frustum &operator=(const Frustum &rhs) {
-        setType(rhs.getType());
-        for (size_t i = 0; i < planes.size(); ++i) { // NOLINT(modernize-loop-convert)
-            planes[i] = ccnew Plane();
-            planes[i]->addRef();
-            Plane::copy(planes[i], *(rhs.planes[i]));
-        }
-        return *this;
-    }
-
-    Frustum &operator=(Frustum &&rhs) {
-        setType(rhs.getType());
-        for (size_t i = 0; i < planes.size(); ++i) { // NOLINT(modernize-loop-convert)
-            planes[i] = rhs.planes[i];
-            planes[i]->addRef();
-        }
-        return *this;
-    }
+    Frustum &operator=(const Frustum &rhs);
+    Frustum &operator=(Frustum &&rhs);
 
     /**
      * @en
@@ -189,6 +146,20 @@ public:
     void split(float start, float end, float aspect, float fov, const Mat4 &transform);
     void updatePlanes();
     void update(const Mat4 &m, const Mat4 &inv);
+
+    /**
+     * @en
+     * Set whether to use accurate intersection testing function on this frustum.
+     * @zh
+     * 设置是否在此截锥体上使用精确的相交测试函数。
+     */
+    inline void setAccurate(bool accurate) {
+        setType(accurate ? ShapeEnum::SHAPE_FRUSTUM_ACCURATE : ShapeEnum::SHAPE_FRUSTUM);
+    }
+    
+private:
+    void init();
+    void releasePlanes();
 };
 
 } // namespace geometry
