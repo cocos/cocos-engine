@@ -180,7 +180,7 @@ void WebViewImpl::destroy() {
     }
 }
 
-void WebViewImpl::loadData(const Data &data, const ccstd::string &mimeType, // NOLINT
+void WebViewImpl::loadData(const Data &data, const ccstd::string &mimeType,               // NOLINT
                            const ccstd::string &encoding, const ccstd::string &baseURL) { // NOLINT
     ccstd::string dataString(reinterpret_cast<char *>(data.getBytes()),
                              static_cast<unsigned int>(data.getSize()));
