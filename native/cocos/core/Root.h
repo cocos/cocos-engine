@@ -274,7 +274,7 @@ private:
     uint32_t _fps{0};
     uint32_t _fixedFPS{0};
     bool _useDeferredPipeline{false};
-    bool _usesCustomPipeline{true};
+    bool _usesCustomPipeline{false};
     CallbacksInvoker *_eventProcessor{nullptr};
 
     // Cache ccstd::vector to avoid allocate every frame in frameMove
