@@ -36,6 +36,16 @@ const textureCubeProto: any = jsb.TextureCube.prototype;
 interface ITextureCubeSerializeData {
     base: string;
     rgbe: boolean;
+    mipmapMode: number;
+    mipmapAtlas:  {
+        front: string;
+        back: string;
+        left: string;
+        right: string;
+        top: string;
+        bottom: string;
+    };
+    mipmapLayout: [];
     mipmaps: {
         front: string;
         back: string;
@@ -54,7 +64,10 @@ enum FaceIndex {
     front = 4,
     back = 5,
 }
-
+enum MipmapBakeMode {  
+    None = 0,
+    BakeReflectionConvolution = 1,
+}
 textureCubeProto.createNode = null!;
 
 export type TextureCube = jsb.TextureCube;
@@ -81,6 +94,22 @@ const _descriptor2$7 = _applyDecoratedDescriptor(_class2$d.prototype, '_mipmaps'
     writable: true,
     initializer: function initializer () {
         return [];
+    },
+});
+const _descriptor3$b = _applyDecoratedDescriptor(_class2$d.prototype, '_mipmapMode', [serializable], {
+    configurable: true,
+    enumerable: true,
+    writable: true,
+    initializer: function initializer () {
+        return false;
+    },
+});
+const _descriptor4$b = _applyDecoratedDescriptor(_class2$d.prototype, '_mipmapAtlas', [serializable], {
+    configurable: true,
+    enumerable: true,
+    writable: true,
+    initializer: function initializer () {
+        return false;
     },
 });
 
@@ -131,6 +160,70 @@ Object.defineProperty(textureCubeProto, 'mipmaps', {
         }
     }
 });
+Object.defineProperty(textureCubeProto, 'mipmapMode', {
+    get () {
+        return this._mipmapMode;
+    },
+    set (value) {
+        this._mipmapMode = value;
+    }
+});
+
+
+Object.defineProperty(textureCubeProto, 'mipmapAtlas', {
+    get () {
+        return this._mipmapAtlas;
+    },
+    set (value) {
+        this._mipmapAtlas = value;
+        if (!this._mipmapAtlas) {
+            this.reset({
+                width: 0,
+                height: 0,
+                mipmapLevel: 0,
+            });
+            return;
+        }
+        const imageAtlasAsset: jsb.ImageAsset = this._mipmapAtlas.atlas.front;
+        if (!imageAtlasAsset.data) {
+            return;
+        }
+        const faceAtlas = this._mipmapAtlas.atlas;
+        const layout = this._mipmapAtlas.layout;
+        const mip0Layout = layout[0];
+
+        const ctx = Object.assign(document.createElement('canvas'), {
+            width: imageAtlasAsset.width,
+            height: imageAtlasAsset.height,
+        }).getContext('2d');
+
+        this.reset({
+            width: mip0Layout.width,
+            height: mip0Layout.height,
+            format: imageAtlasAsset.format,
+            mipmapLevel: layout.length,
+        });
+
+        for (let j = 0; j < layout.length; j++) {
+            const layoutInfo = layout[j];
+            _forEachFace(faceAtlas, (face, faceIndex) => {
+                ctx!.clearRect(0, 0, imageAtlasAsset.width, imageAtlasAsset.height);
+                const drawImg = face.data as HTMLImageElement;
+                ctx!.drawImage(drawImg, 0, 0);
+                const rawData = ctx!.getImageData(layoutInfo.left, layoutInfo.top, layoutInfo.width, layoutInfo.height);
+
+                const bufferAsset = new jsb.ImageAsset({
+                    _data: rawData.data,
+                    _compressed: face.isCompressed,
+                    width: rawData.width,
+                    height: rawData.height,
+                    format: face.format,
+                });
+                this._assignImage(bufferAsset, layoutInfo.level, faceIndex);
+            });
+        }
+    }
+});
 
 Object.defineProperty(textureCubeProto, 'image', {
     get () {
@@ -143,31 +236,66 @@ Object.defineProperty(textureCubeProto, 'image', {
 
 const oldOnLoaded = textureCubeProto.onLoaded;
 textureCubeProto.onLoaded = function () {
-    this.setMipmapsForJS(this._mipmaps);
+    if (this.mipmapMode === MipmapBakeMode.BakeReflectionConvolution) {
+        this.setMipmapAtlasForJS(this._mipmapAtlas);
+    } else {
+        this.setMipmapsForJS(this._mipmaps);
+    }
     oldOnLoaded.apply(this);
 }
 
 textureCubeProto._serialize = function (ctxForExporting: any): Record<string, unknown> | null {
     if (EDITOR || TEST) {
-        return {
-            base: jsb.TextureBase.prototype._serialize(ctxForExporting),
-            rgbe: this.isRGBE,
-            mipmaps: this._mipmaps.map((mipmap) => ((ctxForExporting && ctxForExporting._compressUuid) ? {
-                front: EditorExtends.UuidUtils.compressUuid(mipmap.front._uuid, true),
-                back: EditorExtends.UuidUtils.compressUuid(mipmap.back._uuid, true),
-                left: EditorExtends.UuidUtils.compressUuid(mipmap.left._uuid, true),
-                right: EditorExtends.UuidUtils.compressUuid(mipmap.right._uuid, true),
-                top: EditorExtends.UuidUtils.compressUuid(mipmap.top._uuid, true),
-                bottom: EditorExtends.UuidUtils.compressUuid(mipmap.bottom._uuid, true),
-            } : {
-                front: mipmap.front._uuid,
-                back: mipmap.back._uuid,
-                left: mipmap.left._uuid,
-                right: mipmap.right._uuid,
-                top: mipmap.top._uuid,
-                bottom: mipmap.bottom._uuid,
-            })),
-        };
+        if (this.mipmapMode === MipmapBakeMode.BakeReflectionConvolution) {
+            const atlas = this._mipmapAtlas!.atlas;
+            let uuids = {};
+            if (ctxForExporting && ctxForExporting._compressUuid) {
+                uuids = {
+                    front: EditorExtends.UuidUtils.compressUuid(atlas.front._uuid, true),
+                    back: EditorExtends.UuidUtils.compressUuid(atlas.back._uuid, true),
+                    left: EditorExtends.UuidUtils.compressUuid(atlas.left._uuid, true),
+                    right: EditorExtends.UuidUtils.compressUuid(atlas.right._uuid, true),
+                    top: EditorExtends.UuidUtils.compressUuid(atlas.top._uuid, true),
+                    bottom: EditorExtends.UuidUtils.compressUuid(atlas.bottom._uuid, true),
+                };
+            } else {
+                uuids = {
+                    front: atlas.front._uuid,
+                    back: atlas.back._uuid,
+                    left: atlas.left._uuid,
+                    right: atlas.right._uuid,
+                    top: atlas.top._uuid,
+                    bottom: atlas.bottom._uuid,
+                };
+            }
+            return {
+                base: jsb.TextureBase.prototype._serialize(ctxForExporting),
+                rgbe: this.isRGBE,
+                mipmapMode: this.mipmapMode,
+                mipmapAtlas: uuids,
+                mipmapLayout: this._mipmapAtlas!.layout,
+            };
+        } else {
+            return {
+                base: jsb.TextureBase.prototype._serialize(ctxForExporting),
+                rgbe: this.isRGBE,
+                mipmaps: this._mipmaps.map((mipmap) => ((ctxForExporting && ctxForExporting._compressUuid) ? {
+                    front: EditorExtends.UuidUtils.compressUuid(mipmap.front._uuid, true),
+                    back: EditorExtends.UuidUtils.compressUuid(mipmap.back._uuid, true),
+                    left: EditorExtends.UuidUtils.compressUuid(mipmap.left._uuid, true),
+                    right: EditorExtends.UuidUtils.compressUuid(mipmap.right._uuid, true),
+                    top: EditorExtends.UuidUtils.compressUuid(mipmap.top._uuid, true),
+                    bottom: EditorExtends.UuidUtils.compressUuid(mipmap.bottom._uuid, true),
+                } : {
+                    front: mipmap.front._uuid,
+                    back: mipmap.back._uuid,
+                    left: mipmap.left._uuid,
+                    right: mipmap.right._uuid,
+                    top: mipmap.top._uuid,
+                    bottom: mipmap.bottom._uuid,
+                })),
+            };
+        }
     }
     return null;
 }
@@ -176,10 +304,15 @@ textureCubeProto._deserialize = function (serializedData: ITextureCubeSerializeD
     const data = serializedData;
     jsb.TextureBase.prototype._deserialize.call(this, data.base, handle);
     this.isRGBE = data.rgbe;
-    this._mipmaps = new Array(data.mipmaps.length);
-    for (let i = 0; i < data.mipmaps.length; ++i) {
-        // Prevent resource load failed
-        this._mipmaps[i] = {
+    this.mipmapMode = data.mipmapMode;
+    if (this.mipmapMode === MipmapBakeMode.BakeReflectionConvolution) {
+        const mipmapAtlas = data.mipmapAtlas;
+        const mipmapLayout = data.mipmapLayout;
+        this._mipmapAtlas = {
+            atlas: {},
+            layout: mipmapLayout,
+        };
+        this._mipmapAtlas.atlas = {
             front: new jsb.ImageAsset(),
             back: new jsb.ImageAsset(),
             left: new jsb.ImageAsset(),
@@ -187,14 +320,36 @@ textureCubeProto._deserialize = function (serializedData: ITextureCubeSerializeD
             top: new jsb.ImageAsset(),
             bottom: new jsb.ImageAsset(),
         };
-        const mipmap = data.mipmaps[i];
-        const imageAssetClassId = js._getClassId(jsb.ImageAsset);
-        handle.result.push(this._mipmaps[i], `front`, mipmap.front, imageAssetClassId);
-        handle.result.push(this._mipmaps[i], `back`, mipmap.back, imageAssetClassId);
-        handle.result.push(this._mipmaps[i], `left`, mipmap.left, imageAssetClassId);
-        handle.result.push(this._mipmaps[i], `right`, mipmap.right, imageAssetClassId);
-        handle.result.push(this._mipmaps[i], `top`, mipmap.top, imageAssetClassId);
-        handle.result.push(this._mipmaps[i], `bottom`, mipmap.bottom, imageAssetClassId);
+        if (mipmapAtlas) {
+            const imageAssetClassId = js._getClassId(jsb.ImageAsset);
+            handle.result.push(this._mipmapAtlas.atlas, `front`, mipmapAtlas.front, imageAssetClassId);
+            handle.result.push(this._mipmapAtlas.atlas, `back`, mipmapAtlas.back, imageAssetClassId);
+            handle.result.push(this._mipmapAtlas.atlas, `left`, mipmapAtlas.left, imageAssetClassId);
+            handle.result.push(this._mipmapAtlas.atlas, `right`, mipmapAtlas.right, imageAssetClassId);
+            handle.result.push(this._mipmapAtlas.atlas, `top`, mipmapAtlas.top, imageAssetClassId);
+            handle.result.push(this._mipmapAtlas.atlas, `bottom`, mipmapAtlas.bottom, imageAssetClassId);   
+        }
+    }else{
+        this._mipmaps = new Array(data.mipmaps.length);
+        for (let i = 0; i < data.mipmaps.length; ++i) {
+            // Prevent resource load failed
+            this._mipmaps[i] = {
+                front: new jsb.ImageAsset(),
+                back: new jsb.ImageAsset(),
+                left: new jsb.ImageAsset(),
+                right: new jsb.ImageAsset(),
+                top: new jsb.ImageAsset(),
+                bottom: new jsb.ImageAsset(),
+            };
+            const mipmap = data.mipmaps[i];
+            const imageAssetClassId = js._getClassId(jsb.ImageAsset);
+            handle.result.push(this._mipmaps[i], `front`, mipmap.front, imageAssetClassId);
+            handle.result.push(this._mipmaps[i], `back`, mipmap.back, imageAssetClassId);
+            handle.result.push(this._mipmaps[i], `left`, mipmap.left, imageAssetClassId);
+            handle.result.push(this._mipmaps[i], `right`, mipmap.right, imageAssetClassId);
+            handle.result.push(this._mipmaps[i], `top`, mipmap.top, imageAssetClassId);
+            handle.result.push(this._mipmaps[i], `bottom`, mipmap.bottom, imageAssetClassId);
+        }
     }
 }
 

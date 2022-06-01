@@ -116,6 +116,8 @@ public:
      */
     void setMipRange(uint32_t baseLevel, uint32_t maxLevel);
 
+    virtual bool useOfflineMipmaps();
+
 protected:
     SimpleTexture();
     void textureReady();

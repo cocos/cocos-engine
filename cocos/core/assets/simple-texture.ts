@@ -261,6 +261,10 @@ export class SimpleTexture extends TextureBase {
         this._gfxTextureView = this._createTextureView(device);
     }
 
+    public useOfflineMipmaps (): boolean {
+        return false;
+    }
+
     protected _createTexture (device: Device) {
         if (this._width === 0 || this._height === 0) { return; }
         let flags = TextureFlagBit.NONE;
@@ -269,6 +273,9 @@ export class SimpleTexture extends TextureBase {
             flags = TextureFlagBit.GEN_MIPMAP;
         }
 
+        if (this.useOfflineMipmaps()) {
+            flags = TextureFlagBit.NONE;
+        }
         const textureCreateInfo = this._getGfxTextureCreateInfo({
             usage: TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
             format: this._getGFXFormat(),

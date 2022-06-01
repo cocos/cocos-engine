@@ -58,10 +58,50 @@ struct ITextureCubeSerializeMipmapData {
     ccstd::string bottom;
 };
 
+/**
+ * @en The MipmapAtlas region interface
+ * @zh MipmapAtlas的region接口。
+ */
+struct IMipmapAtlasLayout {
+    uint32_t left;
+    uint32_t top;
+    uint32_t width;
+    uint32_t height;
+    uint32_t level;
+};
+/**
+ * @en The texture cube MipmapAtlas interface
+ * @zh 立方体贴图的 MipmapAtlas 接口。
+ */
+struct ITextureCubeMipmapAtlas {
+    ITextureCubeMipmap atlas;
+    ccstd::vector<IMipmapAtlasLayout> layout;
+};
+
+enum class MipmapBakeMode {
+    /**
+     * @zh
+     * 使用自动生成的mipmap
+     * @en
+     * Using the automatically generated mipmap
+     * @readonly
+     */
+    None = 0,
+    /**
+    * @zh
+    * 使用反射卷积图填充mipmap
+    * @en
+    * Update mipmap with reflective convolutional map
+    * @readonly
+    */
+    BakeReflectionConvolution = 1
+};
 struct ITextureCubeSerializeData {
     ccstd::string base;
     bool rgbe{false};
+    MipmapBakeMode mipmapMode{MipmapBakeMode::None};
     ccstd::vector<ITextureCubeSerializeMipmapData> mipmaps;
+    ITextureCubeMipmapAtlas mipmapAtlas;
 };
 
 /**
@@ -121,9 +161,17 @@ public:
         return _mipmaps;
     }
 
+    const ITextureCubeMipmapAtlas &getMipmapAtlas() const {
+        return _mipmapAtlas;
+    }
+
     void setMipmaps(const ccstd::vector<ITextureCubeMipmap> &value);
 
     void setMipmapsForJS(const ccstd::vector<ITextureCubeMipmap> &value);
+
+    void setMipmapAtlasForJS(const ITextureCubeMipmapAtlas &value);
+
+    void setmipmapAtlas(const ITextureCubeMipmapAtlas &value);
 
     /**
      * @en Level 0 mipmap image.
@@ -157,6 +205,7 @@ public:
 
     // Override functions
     void updateMipmaps(uint32_t firstLevel, uint32_t count) override;
+    bool useOfflineMipmaps() override;
 
     void initialize();
     void onLoaded() override;
@@ -181,6 +230,12 @@ public:
 
     /*@serializable*/
     ccstd::vector<ITextureCubeMipmap> _mipmaps;
+
+    /*@serializable*/
+    MipmapBakeMode _mipmapMode{ MipmapBakeMode::None };
+
+    /*@serializable*/
+    ITextureCubeMipmapAtlas _mipmapAtlas;
 
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(TextureCube);
