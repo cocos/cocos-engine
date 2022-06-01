@@ -124,12 +124,12 @@ public:
 
     Frustum();
     Frustum(const Frustum &rhs);
-    Frustum(Frustum &&rhs) noexcept;
+    Frustum(Frustum &&rhs) = delete;
     ~Frustum() override;
 
     // Can remove these operator override functions if not using Plane* in planes array.
     Frustum &operator=(const Frustum &rhs);
-    Frustum &operator=(Frustum &&rhs) noexcept;
+    Frustum &operator=(Frustum &&rhs) = delete;
 
     /**
      * @en
@@ -140,8 +140,6 @@ public:
      */
     void transform(const Mat4 &);
 
-    ccstd::array<Vec3, 8> vertices;
-    ccstd::array<Plane *, 6> planes;
     void createOrtho(float width, float height, float near, float far, const Mat4 &transform);
     void split(float start, float end, float aspect, float fov, const Mat4 &transform);
     void updatePlanes();
@@ -156,10 +154,12 @@ public:
     inline void setAccurate(bool accurate) {
         setType(accurate ? ShapeEnum::SHAPE_FRUSTUM_ACCURATE : ShapeEnum::SHAPE_FRUSTUM);
     }
-    
+
+    ccstd::array<Vec3, 8> vertices;
+    ccstd::array<Plane *, 6> planes;
+
 private:
     void init();
-    void releasePlanes();
 };
 
 } // namespace geometry

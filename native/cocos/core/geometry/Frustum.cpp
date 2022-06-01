@@ -215,37 +215,26 @@ Frustum::Frustum() {
     init();
 }
 
-Frustum::Frustum(const Frustum &rhs): ShapeBase(rhs) {
+Frustum::Frustum(const Frustum &rhs) : ShapeBase(rhs) {
     init();
     *this = rhs;
 }
 
-Frustum::Frustum(Frustum &&rhs) noexcept {
-    setType(ShapeEnum::SHAPE_FRUSTUM);
-    planes = rhs.planes;
-    for (size_t i = 0; i < planes.size(); ++i) { // NOLINT(modernize-loop-convert)
-        planes[i]->addRef();
-    }
-}
-
 Frustum::~Frustum() {
-    releasePlanes();
+    for (auto *plane : planes) {
+        plane->release();
+    }
 }
 
 Frustum &Frustum::operator=(const Frustum &rhs) {
-    for (size_t i = 0; i < planes.size(); ++i) { // NOLINT(modernize-loop-convert)
-        Plane::copy(planes[i], *rhs.planes[i]);
+    if (this == &rhs) {
+        return *this;
     }
 
-    return *this;
-}
+    vertices = rhs.vertices;
 
-Frustum &Frustum::operator=(Frustum &&rhs) noexcept {
-    releasePlanes();
-
-    planes = rhs.planes;
     for (size_t i = 0; i < planes.size(); ++i) { // NOLINT(modernize-loop-convert)
-        planes[i]->addRef();
+        Plane::copy(planes[i], *rhs.planes[i]);
     }
 
     return *this;
@@ -256,12 +245,6 @@ void Frustum::init() {
     for (size_t i = 0; i < planes.size(); ++i) { // NOLINT(modernize-loop-convert)
         planes[i] = ccnew Plane();
         planes[i]->addRef();
-    }
-}
-
-void Frustum::releasePlanes() {
-    for (auto *plane : planes) {
-        plane->release();
     }
 }
 
