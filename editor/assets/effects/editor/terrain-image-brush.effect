@@ -63,8 +63,20 @@ CCProgram terrain-brush-fs %{
   vec4 frag () {
     float Radius = BrushParams.x;
     float Falloff = BrushParams.y;
+    float Rotation = BrushParams.z;
     float DeltaU = BrushPos.x - wposition.x;
     float DeltaV = BrushPos.z - wposition.z;
+
+    if (Rotation != 0.0) {
+      float sine = sin(Rotation);
+      float cosine = cos(Rotation);
+      float _11 = cosine, _21 = sine;
+      float _12 = -sine, _22 = cosine;
+      float tmpx = DeltaU * _11 + DeltaV * _21;
+      float tmpz = DeltaU * _12 + DeltaV * _22;
+      DeltaU = tmpx;
+      DeltaV = tmpz;
+    }
 
     float k = 0.0;
     if (abs(DeltaU) < Radius && abs(DeltaV) < Radius) {

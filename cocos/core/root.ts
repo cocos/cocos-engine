@@ -128,6 +128,14 @@ export class Root {
 
     /**
      * @zh
+     * 自定义渲染管线
+     */
+    public get customPipeline (): Pipeline {
+        return this._customPipeline!;
+    }
+
+    /**
+     * @zh
      * 渲染管线事件
      */
     public get pipelineEvent (): IPipelineEvent {

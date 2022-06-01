@@ -31,10 +31,15 @@
 #include "cocos/renderer/pipeline/custom/GslUtils.h"
 #include "cocos/renderer/pipeline/custom/Pmr.h"
 #include "cocos/renderer/pipeline/custom/Range.h"
+#include "pipeline/custom/LayoutGraphTypes.h"
 
 namespace cc {
 
 namespace render {
+
+void NativeLayoutGraphBuilder::clear() {
+    *data = LayoutGraphData(data->get_allocator());
+}
 
 uint32_t NativeLayoutGraphBuilder::addRenderStage(const ccstd::string &name) {
     return add_vertex(*data, RenderStageTag{}, name.c_str());

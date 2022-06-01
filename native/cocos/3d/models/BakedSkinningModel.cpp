@@ -120,7 +120,7 @@ void BakedSkinningModel::updateUBOs(uint32_t stamp) {
     //    float curFrame = info.data[0];
     //    uint32_t curFrameDataBytes = info.data.byteLength();
     if (idx >= 0) {
-        auto &views = getInstancedAttributeBlock()->views[idx];
+        auto &views = getInstancedAttributeBlock().views[idx];
         setTypedArrayValue(views, 0, *curFrame);
     } else if (*info.dirtyForJSB != 0) {
         info.buffer->update(curFrame, frameDataBytes);
@@ -188,7 +188,7 @@ void BakedSkinningModel::updateInstancedJointTextureInfo() {
     const IAnimInfo &animInfo = _jointMedium.animInfo;
     index_t idx = _instAnimInfoIdx;
     if (idx >= 0) {
-        auto &view = getInstancedAttributeBlock()->views[idx];
+        auto &view = getInstancedAttributeBlock().views[idx];
         setTypedArrayValue(view, 0, *animInfo.curFrame); //NOTE: curFrame is only used in JSB.
         setTypedArrayValue(view, 1, jointTextureInfo[1]);
         setTypedArrayValue(view, 2, jointTextureInfo[2]);

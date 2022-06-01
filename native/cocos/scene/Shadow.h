@@ -163,8 +163,8 @@ public:
      * @en The normal of the plane which receives shadow
      * @zh 阴影接收平面的法线
      */
-    void setNormal(const Vec3 &val);
-    inline const Vec3 &getNormal() const {
+    void setPlaneDirection(const Vec3 &val);
+    inline const Vec3 &getPlaneDirection() const {
         return _normal;
     }
 
@@ -172,8 +172,8 @@ public:
      * @en The distance from coordinate origin to the receiving plane.
      * @zh 阴影接收平面与原点的距离
      */
-    void setDistance(float val);
-    inline float getDistance() const {
+    void setPlaneHeight(float val);
+    inline float getPlaneHeight() const {
         return _distance;
     }
 
@@ -330,13 +330,13 @@ public:
     inline float getShadowCameraFar() const { return _shadowCameraFar; }
     inline void setShadowCameraFar(float shadowDistance) { _shadowCameraFar = shadowDistance; }
 
-    inline Mat4 getMatShadowView() const { return _matShadowView; }
+    inline const Mat4 &getMatShadowView() const { return _matShadowView; }
     inline void setMatShadowView(const Mat4 &matShadowView) { _matShadowView = matShadowView; }
 
-    inline Mat4 getMatShadowProj() const { return _matShadowProj; }
+    inline const Mat4 &getMatShadowProj() const { return _matShadowProj; }
     inline void setMatShadowProj(const Mat4 &matShadowProj) { _matShadowProj = matShadowProj; }
 
-    inline Mat4 getMatShadowViewProj() const { return _matShadowViewProj; }
+    inline const Mat4 &getMatShadowViewProj() const { return _matShadowViewProj; }
     inline void setMatShadowViewProj(const Mat4 &matShadowViewProj) { _matShadowViewProj = matShadowViewProj; }
 
 private:

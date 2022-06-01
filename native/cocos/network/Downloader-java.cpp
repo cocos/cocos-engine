@@ -230,7 +230,7 @@ void DownloaderJava::onFinishImpl(int taskId, int errCode, const char *errStr, c
     ccstd::string str = (errStr ? errStr : "");
     _taskMap.erase(iter);
     onTaskFinish(*coTask->task,
-                 errStr ? DownloadTask::ERROR_IMPL_INTERNAL : DownloadTask::ERROR_NO_ERROR,
+                 (errStr || (errCode != 0))? DownloadTask::ERROR_IMPL_INTERNAL : DownloadTask::ERROR_NO_ERROR,
                  errCode,
                  str,
                  data);
