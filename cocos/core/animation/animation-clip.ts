@@ -49,7 +49,7 @@ import './exotic-animation/exotic-animation';
 import { array } from '../utils/js';
 import type { AnimationMask } from './marionette/animation-mask';
 import { getGlobalAnimationManager } from './global-animation-manager';
-import { InstantiatedSubRegionPlayer, Subregion } from './subregion/subregion';
+import { EmbeddedPlayableState, EmbeddedPlayer } from './embedded-player/embedded-player';
 
 export declare namespace AnimationClip {
     export interface IEvent {
@@ -83,11 +83,11 @@ interface SkeletonAnimationBakeInfo {
 
 export const exoticAnimationTag = Symbol('ExoticAnimation');
 
-export const subRegionsCountTag = Symbol('[[SubregionsCount]]');
-export const getSubregionsTag = Symbol('[[GetSubregions]]');
-export const addSubRegionTag = Symbol('[[AddSubRegion]]');
-export const removeSubRegionTag = Symbol('[[RemoveSubRegion]]');
-export const clearSubRegionsTag = Symbol('[[ClearSubregions]]');
+export const embeddedPlayerCountTag = Symbol('[[EmbeddedPlayerCount]]');
+export const getEmbeddedPlayersTag = Symbol('[[GetEmbeddedPlayers]]');
+export const addEmbeddedPlayerTag = Symbol('[[AddEmbeddedPlayer]]');
+export const removeEmbeddedPlayerTag = Symbol('[[RemoveEmbeddedPlayer]]');
+export const clearEmbeddedPlayersTag = Symbol('[[ClearEmbeddedPlayers]]');
 
 /**
  * @zh 动画剪辑表示一段使用动画编辑器编辑的关键帧动画或是外部美术工具生产的骨骼动画。
@@ -579,39 +579,39 @@ export class AnimationClip extends Asset {
     /**
      * @internal
      */
-    get [subRegionsCountTag] () {
-        return this._subregions.length;
+    get [embeddedPlayerCountTag] () {
+        return this._embeddedPlayers.length;
     }
 
     /**
      * @internal
      */
-    public [getSubregionsTag] (): Iterable<Subregion> {
-        return this._subregions;
+    public [getEmbeddedPlayersTag] (): Iterable<EmbeddedPlayer> {
+        return this._embeddedPlayers;
     }
 
     /**
      * @internal
      */
-    public [addSubRegionTag] (subregion: Subregion) {
-        this._subregions.push(subregion);
+    public [addEmbeddedPlayerTag] (embeddedPlayer: EmbeddedPlayer) {
+        this._embeddedPlayers.push(embeddedPlayer);
     }
 
     /**
      * @internal
      */
-    public [removeSubRegionTag] (subregion: Subregion) {
-        const iSubRegion = this._subregions.indexOf(subregion);
-        if (iSubRegion >= 0) {
-            this._subregions.splice(iSubRegion, 1);
+    public [removeEmbeddedPlayerTag] (embeddedPlayer: EmbeddedPlayer) {
+        const iEmbeddedPlayer = this._embeddedPlayers.indexOf(embeddedPlayer);
+        if (iEmbeddedPlayer >= 0) {
+            this._embeddedPlayers.splice(iEmbeddedPlayer, 1);
         }
     }
 
     /**
      * @internal
      */
-    public [clearSubRegionsTag] () {
-        this._subregions.length = 0;
+    public [clearEmbeddedPlayersTag] () {
+        this._embeddedPlayers.length = 0;
     }
 
     @serializable
@@ -636,7 +636,7 @@ export class AnimationClip extends Asset {
     private _events: AnimationClip.IEvent[] = [];
 
     @serializable
-    private _subregions: Subregion[] = [];
+    private _embeddedPlayers: EmbeddedPlayer[] = [];
 
     private _runtimeEvents: {
         ratios: number[];
@@ -690,11 +690,11 @@ export class AnimationClip extends Asset {
             exoticAnimationEvaluator = this._exoticAnimation.createEvaluator(binder);
         }
 
-        let subregionEvaluation: SubregionEvaluation | undefined;
+        let embeddedPlayerEvaluation: EmbeddedPlayerEvaluation | undefined;
         if (target instanceof Node) { // Note: when this method is called from bake(), target is undefined.
-            const { _subregions: subregions } = this;
-            if (this._subregions.length !== 0) {
-                subregionEvaluation = new SubregionEvaluation(subregions, target);
+            const { _embeddedPlayers: embeddedPlayers } = this;
+            if (this._embeddedPlayers.length !== 0) {
+                embeddedPlayerEvaluation = new EmbeddedPlayerEvaluation(embeddedPlayers, target);
             }
         }
 
@@ -702,7 +702,7 @@ export class AnimationClip extends Asset {
             trackEvalStatues,
             exoticAnimationEvaluator,
             rootMotionEvaluation,
-            subregionEvaluation,
+            embeddedPlayerEvaluation,
         );
 
         return evaluation;
@@ -903,12 +903,12 @@ interface RootMotionOptions {
 
 type ExoticAnimationEvaluator = ReturnType<ExoticAnimation['createEvaluator']>;
 
-class SubregionEvaluation {
-    constructor (subregions: ReadonlyArray<Subregion>, rootNode: Node) {
-        this._subregions = subregions;
-        this._subregionEvaluationInfos = subregions.map(
-            (subregion): SubregionEvaluation['_subregionEvaluationInfos'][0] => {
-                const { player } = subregion;
+class EmbeddedPlayerEvaluation {
+    constructor (embeddedPlayers: ReadonlyArray<EmbeddedPlayer>, rootNode: Node) {
+        this._embeddedPlayers = embeddedPlayers;
+        this._embeddedPlayerEvaluationInfos = embeddedPlayers.map(
+            (embeddedPlayer): EmbeddedPlayerEvaluation['_embeddedPlayerEvaluationInfos'][0] => {
+                const { playable: player } = embeddedPlayer;
                 if (!player) {
                     return null;
                 }
@@ -927,44 +927,44 @@ class SubregionEvaluation {
 
     public evaluate (time: number) {
         const {
-            _subregions: subregions,
-            _subregionEvaluationInfos: subregionEvaluationInfos,
+            _embeddedPlayers: embeddedPlayers,
+            _embeddedPlayerEvaluationInfos: embeddedPlayerEvaluationInfos,
         } = this;
-        const nSubregions = subregions.length;
-        for (let iSubRegion = 0; iSubRegion < nSubregions; ++iSubRegion) {
-            const subregionEvaluationInfo = subregionEvaluationInfos[iSubRegion];
-            if (!subregionEvaluationInfo) {
+        const nEmbeddedPlayers = embeddedPlayers.length;
+        for (let iEmbeddedPlayer = 0; iEmbeddedPlayer < nEmbeddedPlayers; ++iEmbeddedPlayer) {
+            const embeddedPlayerEvaluationInfo = embeddedPlayerEvaluationInfos[iEmbeddedPlayer];
+            if (!embeddedPlayerEvaluationInfo) {
                 continue;
             }
-            const { entered, instantiatedPlayer } = subregionEvaluationInfo;
-            const { begin, end } = subregions[iSubRegion];
-            const withinSubregion = time >= begin && time <= end;
-            if (withinSubregion) {
+            const { entered, instantiatedPlayer } = embeddedPlayerEvaluationInfo;
+            const { begin, end } = embeddedPlayers[iEmbeddedPlayer];
+            const withinEmbeddedPlayer = time >= begin && time <= end;
+            if (withinEmbeddedPlayer) {
                 if (!entered) {
                     instantiatedPlayer.play(time - begin);
-                    subregionEvaluationInfo.entered = true;
+                    embeddedPlayerEvaluationInfo.entered = true;
                 }
             } else if (entered) {
                 instantiatedPlayer.stop();
-                subregionEvaluationInfo.entered = false;
+                embeddedPlayerEvaluationInfo.entered = false;
             }
         }
     }
 
     public notifyHostSpeedChanged (speed: number) {
-        // Transmit the speed to subregions that want a reconciled speed.
+        // Transmit the speed to embedded players that want a reconciled speed.
         const {
-            _subregions: subregions,
-            _subregionEvaluationInfos: subregionEvaluationInfos,
+            _embeddedPlayers: embeddedPlayers,
+            _embeddedPlayerEvaluationInfos: embeddedPlayerEvaluationInfos,
         } = this;
-        const nSubregions = subregions.length;
-        for (let iSubRegion = 0; iSubRegion < nSubregions; ++iSubRegion) {
-            const subregionEvaluationInfo = subregionEvaluationInfos[iSubRegion];
-            if (!subregionEvaluationInfo) {
+        const nEmbeddedPlayers = embeddedPlayers.length;
+        for (let iEmbeddedPlayer = 0; iEmbeddedPlayer < nEmbeddedPlayers; ++iEmbeddedPlayer) {
+            const embeddedPlayerEvaluationInfo = embeddedPlayerEvaluationInfos[iEmbeddedPlayer];
+            if (!embeddedPlayerEvaluationInfo) {
                 continue;
             }
-            const { instantiatedPlayer } = subregionEvaluationInfo;
-            const { reconciledSpeed } = subregions[iSubRegion];
+            const { instantiatedPlayer } = embeddedPlayerEvaluationInfo;
+            const { reconciledSpeed } = embeddedPlayers[iEmbeddedPlayer];
             if (reconciledSpeed) {
                 instantiatedPlayer.setSpeed(speed);
             }
@@ -973,26 +973,26 @@ class SubregionEvaluation {
 
     public notifyHostPlay (time: number) {
         // Host has switched to "playing", this can be happened when:
-        // - Previous state is "stopped": we must have stopped all subregions.
-        // - Is pausing: we need to resume all subregions.
+        // - Previous state is "stopped": we must have stopped all embedded players.
+        // - Is pausing: we need to resume all embedded players.
         const {
-            _subregions: subregions,
-            _subregionEvaluationInfos: subregionEvaluationInfos,
+            _embeddedPlayers: embeddedPlayers,
+            _embeddedPlayerEvaluationInfos: embeddedPlayerEvaluationInfos,
         } = this;
-        const nSubregions = subregions.length;
-        for (let iSubRegion = 0; iSubRegion < nSubregions; ++iSubRegion) {
-            const subregionEvaluationInfo = subregionEvaluationInfos[iSubRegion];
-            if (!subregionEvaluationInfo) {
+        const nEmbeddedPlayers = embeddedPlayers.length;
+        for (let iEmbeddedPlayer = 0; iEmbeddedPlayer < nEmbeddedPlayers; ++iEmbeddedPlayer) {
+            const embeddedPlayerEvaluationInfo = embeddedPlayerEvaluationInfos[iEmbeddedPlayer];
+            if (!embeddedPlayerEvaluationInfo) {
                 continue;
             }
-            const { begin, end } = subregions[iSubRegion];
-            const { instantiatedPlayer, entered } = subregionEvaluationInfo;
+            const { begin, end } = embeddedPlayers[iEmbeddedPlayer];
+            const { instantiatedPlayer, entered } = embeddedPlayerEvaluationInfo;
             if (entered) {
-                const { hostPauseTime } = subregionEvaluationInfo;
-                // We can resume the subregion
+                const { hostPauseTime } = embeddedPlayerEvaluationInfo;
+                // We can resume the embedded player
                 // only if the pause/play happened at the same time
-                // or the subregion supports random access.
-                // Otherwise we have to say goodbye to that subregion.
+                // or the embedded player supports random access.
+                // Otherwise we have to say goodbye to that embedded player.
                 if (instantiatedPlayer.randomAccess || approx(hostPauseTime, time, 1e-5)) {
                     const startTime = clamp(time, begin, end);
                     instantiatedPlayer.play(startTime - begin);
@@ -1004,50 +1004,50 @@ class SubregionEvaluation {
     }
 
     public notifyHostPause (time: number) {
-        // Host is paused, simply transmit this to subregions.
+        // Host is paused, simply transmit this to embedded players.
         const {
-            _subregions: subregions,
-            _subregionEvaluationInfos: subregionEvaluationInfos,
+            _embeddedPlayers: embeddedPlayers,
+            _embeddedPlayerEvaluationInfos: embeddedPlayerEvaluationInfos,
         } = this;
-        const nSubregions = subregions.length;
-        for (let iSubRegion = 0; iSubRegion < nSubregions; ++iSubRegion) {
-            const subregionEvaluationInfo = subregionEvaluationInfos[iSubRegion];
-            if (!subregionEvaluationInfo) {
+        const nEmbeddedPlayers = embeddedPlayers.length;
+        for (let iEmbeddedPlayer = 0; iEmbeddedPlayer < nEmbeddedPlayers; ++iEmbeddedPlayer) {
+            const embeddedPlayerEvaluationInfo = embeddedPlayerEvaluationInfos[iEmbeddedPlayer];
+            if (!embeddedPlayerEvaluationInfo) {
                 continue;
             }
-            const { instantiatedPlayer, entered } = subregionEvaluationInfo;
+            const { instantiatedPlayer, entered } = embeddedPlayerEvaluationInfo;
             if (entered) {
                 instantiatedPlayer.pause();
-                subregionEvaluationInfo.hostPauseTime = time;
+                embeddedPlayerEvaluationInfo.hostPauseTime = time;
             }
         }
     }
 
     public notifyHostStop () {
-        // Now that host is stopped, we stop all subregions' playing
+        // Now that host is stopped, we stop all embedded players' playing
         // regardless of their progresses.
         const {
-            _subregions: subregions,
-            _subregionEvaluationInfos: subregionEvaluationInfos,
+            _embeddedPlayers: embeddedPlayers,
+            _embeddedPlayerEvaluationInfos: embeddedPlayerEvaluationInfos,
         } = this;
-        const nSubregions = subregions.length;
-        for (let iSubRegion = 0; iSubRegion < nSubregions; ++iSubRegion) {
-            const subregionEvaluationInfo = subregionEvaluationInfos[iSubRegion];
-            if (!subregionEvaluationInfo) {
+        const nEmbeddedPlayers = embeddedPlayers.length;
+        for (let iEmbeddedPlayer = 0; iEmbeddedPlayer < nEmbeddedPlayers; ++iEmbeddedPlayer) {
+            const embeddedPlayerEvaluationInfo = embeddedPlayerEvaluationInfos[iEmbeddedPlayer];
+            if (!embeddedPlayerEvaluationInfo) {
                 continue;
             }
-            const { instantiatedPlayer, entered } = subregionEvaluationInfo;
+            const { instantiatedPlayer, entered } = embeddedPlayerEvaluationInfo;
             if (entered) {
-                subregionEvaluationInfo.entered = false;
+                embeddedPlayerEvaluationInfo.entered = false;
                 instantiatedPlayer.stop();
             }
         }
     }
 
-    private declare _subregions: ReadonlyArray<Subregion>;
+    private declare _embeddedPlayers: ReadonlyArray<EmbeddedPlayer>;
 
-    private declare _subregionEvaluationInfos: Array<null | {
-        instantiatedPlayer: InstantiatedSubRegionPlayer;
+    private declare _embeddedPlayerEvaluationInfos: Array<null | {
+        instantiatedPlayer: EmbeddedPlayableState;
         entered: boolean;
         hostPauseTime: number;
     }>;
@@ -1058,12 +1058,12 @@ class AnimationClipEvaluation {
         trackEvalStatuses: TrackEvalStatus[],
         exoticAnimationEvaluator: ExoticAnimationEvaluator | undefined,
         rootMotionEvaluation: RootMotionEvaluation | undefined,
-        subregionEvaluation: SubregionEvaluation | undefined,
+        embeddedPlayerEvaluation: EmbeddedPlayerEvaluation | undefined,
     ) {
         this._trackEvalStatues = trackEvalStatuses;
         this._exoticAnimationEvaluator = exoticAnimationEvaluator;
         this._rootMotionEvaluation = rootMotionEvaluation;
-        this._subregionEvaluation = subregionEvaluation;
+        this._embeddedPlayerEvaluation = embeddedPlayerEvaluation;
     }
 
     /**
@@ -1074,7 +1074,7 @@ class AnimationClipEvaluation {
         const {
             _trackEvalStatues: trackEvalStatuses,
             _exoticAnimationEvaluator: exoticAnimationEvaluator,
-            _subregionEvaluation: subregionEvaluation,
+            _embeddedPlayerEvaluation: embeddedPlayerEvaluation,
         } = this;
 
         const nTrackEvalStatuses = trackEvalStatuses.length;
@@ -1088,13 +1088,13 @@ class AnimationClipEvaluation {
             exoticAnimationEvaluator.evaluate(time);
         }
 
-        if (subregionEvaluation) {
-            subregionEvaluation.evaluate(time);
+        if (embeddedPlayerEvaluation) {
+            embeddedPlayerEvaluation.evaluate(time);
         }
     }
 
     public notifyHostSpeedChanged (value: number) {
-        this._subregionEvaluation?.notifyHostSpeedChanged(value);
+        this._embeddedPlayerEvaluation?.notifyHostSpeedChanged(value);
     }
 
     /**
@@ -1102,21 +1102,21 @@ class AnimationClipEvaluation {
      * @param time The time where host ran into playing state.
      */
     public notifyHostPlay (time: number) {
-        this._subregionEvaluation?.notifyHostPlay(time);
+        this._embeddedPlayerEvaluation?.notifyHostPlay(time);
     }
 
     /**
      * Notifies that the host has ran into **pause** state.
      */
     public notifyHostPause (time: number) {
-        this._subregionEvaluation?.notifyHostPause(time);
+        this._embeddedPlayerEvaluation?.notifyHostPause(time);
     }
 
     /**
      * Notifies that the host has ran into **stopped** state.
      */
     public notifyHostStop () {
-        this._subregionEvaluation?.notifyHostStop();
+        this._embeddedPlayerEvaluation?.notifyHostStop();
     }
 
     /**
@@ -1134,7 +1134,7 @@ class AnimationClipEvaluation {
     private _exoticAnimationEvaluator: ExoticAnimationEvaluator | undefined;
     private _trackEvalStatues:TrackEvalStatus[] = [];
     private _rootMotionEvaluation: RootMotionEvaluation | undefined = undefined;
-    private _subregionEvaluation: SubregionEvaluation | undefined = undefined;
+    private _embeddedPlayerEvaluation: EmbeddedPlayerEvaluation | undefined = undefined;
 }
 
 class BoneTransform {

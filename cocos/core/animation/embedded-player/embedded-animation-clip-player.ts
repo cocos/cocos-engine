@@ -4,16 +4,16 @@ import type { Node } from '../../scene-graph/node';
 import { AnimationClip } from '../animation-clip';
 import { AnimationState } from '../animation-state';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
-import { InstantiatedSubRegionPlayer, SubRegionPlayer } from './subregion';
+import { EmbeddedPlayableState, EmbeddedPlayable } from './embedded-player';
 
 /**
  * @en
- * The animation clip subregion player. The players play animation clip on a subregion.
+ * The embedded animation clip playable. The playable play animation clip on a embedded player.
  * @zh
  * 动画剪辑子区域播放器。此播放器在子区域上播放动画剪辑。
  */
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationClipSubRegionPlayer`)
-export class AnimationClipSubRegionPlayer extends SubRegionPlayer {
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}EmbeddedAnimationClipPlayable`)
+export class EmbeddedAnimationClipPlayable extends EmbeddedPlayable {
     /**
      * @en
      * Path to the node onto which the animation clip would be played, relative from animation context root.
@@ -46,11 +46,11 @@ export class AnimationClipSubRegionPlayer extends SubRegionPlayer {
         state.initialize(
             clipRoot,
         );
-        return new InstantiatedAnimationClipSubRegionPlayer(state);
+        return new EmbeddedAnimationClipPlayableState(state);
     }
 }
 
-class InstantiatedAnimationClipSubRegionPlayer extends InstantiatedSubRegionPlayer {
+class EmbeddedAnimationClipPlayableState extends EmbeddedPlayableState {
     constructor (animationState: AnimationState) {
         super(true);
         this._animationState = animationState;

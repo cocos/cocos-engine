@@ -1,11 +1,11 @@
 import { Node } from "../../../cocos/core";
-import { addSubRegionTag, AnimationClip } from "../../../cocos/core/animation/animation-clip";
-import { InstantiatedSubRegionPlayer } from "../../../cocos/core/animation/subregion/subregion";
-import { Subregion } from "../../../editor/exports/subregion";
+import { addEmbeddedPlayerTag, AnimationClip } from "../../../cocos/core/animation/animation-clip";
+import { EmbeddedPlayableState } from "../../../cocos/core/animation/embedded-player/embedded-player";
+import { EmbeddedPlayer } from "../../../editor/exports/embedded-player";
 
-export class SubRegionHostMock {
-    constructor(root: Node, private _subregion: Subregion, _hostDuration: number) {
-        const instantiatedPlayer = this._subregion.player.instantiate(root);
+export class EmbeddedPlayerHostMock {
+    constructor(root: Node, private _embeddedPlayer: EmbeddedPlayer, _hostDuration: number) {
+        const instantiatedPlayer = this._embeddedPlayer.playable.instantiate(root);
         this._instantiatedPlayer = instantiatedPlayer;
     }
 
@@ -29,14 +29,14 @@ export class SubRegionHostMock {
         this._instantiatedPlayer.setSpeed(speed);
     }
 
-    private _instantiatedPlayer: InstantiatedSubRegionPlayer | null;
+    private _instantiatedPlayer: EmbeddedPlayableState | null;
 }
 
-export class AnimationClipHostSubRegionMock {
-    constructor(_root: Node, subregion: Subregion, hostDuration: number) {
+export class AnimationClipHostEmbeddedPlayerMock {
+    constructor(_root: Node, embeddedPlayer: EmbeddedPlayer, hostDuration: number) {
         const animationClip = new AnimationClip();
         animationClip.duration = hostDuration;
-        animationClip[addSubRegionTag](subregion);
+        animationClip[addEmbeddedPlayerTag](embeddedPlayer);
         const evaluator = animationClip.createEvaluator({ target: _root });
         this._animationEvaluator = evaluator;
     }

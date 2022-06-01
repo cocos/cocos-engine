@@ -3,16 +3,16 @@ import { ParticleSystem } from '../../../particle';
 import { warn } from '../../platform/debug';
 import type { Node } from '../../scene-graph/node';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
-import { InstantiatedSubRegionPlayer, SubRegionPlayer } from './subregion';
+import { EmbeddedPlayableState, EmbeddedPlayable } from './embedded-player';
 
 /**
  * @en
- * The particle system subregion player. The players play particle system on a subregion.
+ * The embedded particle system playable. The players play particle system on a embedded player.
  * @zh
  * 粒子系统子区域播放器。此播放器在子区域上播放粒子系统。
  */
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}ParticleSystemSubRegionPlayer`)
-export class ParticleSystemSubRegionPlayer extends SubRegionPlayer {
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}EmbeddedParticleSystemPlayable`)
+export class EmbeddedParticleSystemPlayable extends EmbeddedPlayable {
     /**
      * @en
      * Path to the node where particle system inhabits, relative from animation context root.
@@ -33,11 +33,11 @@ export class ParticleSystemSubRegionPlayer extends SubRegionPlayer {
             warn(`${this.path} does not includes a particle system component.`);
             return null;
         }
-        return new InstantiatedParticleSystemSubRegion(particleSystem);
+        return new EmbeddedParticleSystemPlayableState(particleSystem);
     }
 }
 
-class InstantiatedParticleSystemSubRegion extends InstantiatedSubRegionPlayer {
+class EmbeddedParticleSystemPlayableState extends EmbeddedPlayableState {
     constructor (particleSystem: ParticleSystem) {
         super(false);
         this._particleSystem = particleSystem;
