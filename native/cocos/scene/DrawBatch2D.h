@@ -25,10 +25,10 @@
 
 #pragma once
 
-#include "renderer/gfx-base/GFXDef-common.h"
-#include "core/scene-graph/Layers.h"
 #include "base/RefCounted.h"
+#include "core/scene-graph/Layers.h"
 #include "core/scene-graph/Node.h"
+#include "renderer/gfx-base/GFXDef-common.h"
 #include "scene/Define.h"
 
 namespace cc {
@@ -46,19 +46,19 @@ public:
     ~DrawBatch2D();
 
     void clear();
-    void fillPass(Material *mat, gfx::DepthStencilState *depthStencilState, ccstd::hash_t dsHash, gfx::BlendState *blendState, ccstd::hash_t bsHash, ccstd::vector<IMacroPatch> *patches = nullptr);
+    void fillPass(Material *mat, const gfx::DepthStencilState *depthStencilState, ccstd::hash_t dsHash, const gfx::BlendState *blendState, ccstd::hash_t bsHash, ccstd::vector<IMacroPatch> *patches = nullptr);
 
     inline void setInputAssembler(gfx::InputAssembler *ia) { _inputAssembler = ia; }
     inline void setDescriptorSet(gfx::DescriptorSet *descriptorSet) { _descriptorSet = descriptorSet; }
     inline void setVisFlags(uint32_t flags) { _visFlags = flags; }
     inline void setUseLocalFlag(Node *node) { _useLocalData = node; }
     inline void setModel(Model *model) { _model = model; }
-    
+
     inline gfx::InputAssembler *getInputAssembler() const { return _inputAssembler; }
     inline gfx::DescriptorSet *getDescriptorSet() const { return _descriptorSet; }
     inline uint32_t getVisFlags() const { return _visFlags; }
-    inline ccstd::vector<gfx::Shader *> getShaders() const { return _shaders; }
-    inline ccstd::vector<Pass>* getPasses() { return &_passes; }
+    inline const ccstd::vector<gfx::Shader *> &getShaders() const { return _shaders; }
+    inline const ccstd::vector<IntrusivePtr<Pass>> &getPasses() const { return _passes; }
     inline Node *getUseLocalFlag() const { return _useLocalData; }
     inline Model *getModel() const { return _model; }
 
@@ -66,13 +66,13 @@ protected:
     gfx::InputAssembler *_inputAssembler{nullptr}; // IntrusivePtr ?
     gfx::DescriptorSet *_descriptorSet{nullptr};
     uint32_t _visFlags{0};
-    ccstd::vector<Pass> _passes;
+    ccstd::vector<IntrusivePtr<scene::Pass>> _passes;
     ccstd::vector<gfx::Shader *> _shaders;
 
     gfx::Texture *_texture{nullptr}; // Or use DS?
     gfx::Sampler *_sampler{nullptr}; // Or use DS?
-    uint32_t textureHash{0}; // May don`t need
-    uint32_t samplerHash{0}; // May don`t need
+    uint32_t textureHash{0};         // May don`t need
+    uint32_t samplerHash{0};         // May don`t need
 
     Node *_useLocalData{nullptr}; // May don`t need
     Model *_model{nullptr};

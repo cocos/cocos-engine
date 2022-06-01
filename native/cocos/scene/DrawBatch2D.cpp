@@ -36,39 +36,34 @@ namespace scene {
     }
 
     DrawBatch2D::~DrawBatch2D() {
-
     }
 
     void DrawBatch2D::clear() {
     }
 
-    void DrawBatch2D::fillPass(Material *mat, gfx::DepthStencilState *depthStencilState, ccstd::hash_t dsHash, gfx::BlendState *blendState, ccstd::hash_t bsHash, ccstd::vector<IMacroPatch> *patches) {
-        auto &passes = *mat->getPasses();
-        if (passes.empty()) return;
+    void DrawBatch2D::fillPass(Material *mat, const gfx::DepthStencilState *depthStencilState, ccstd::hash_t dsHash, const gfx::BlendState *blendState, ccstd::hash_t bsHash, ccstd::vector<IMacroPatch> *patches) {
+        const auto &passes = mat->getPasses();
+        if (passes->empty()) return;
         uint32_t hashFactor = 0;
         _shaders.clear();
-        if (_passes.size() < passes.size()) {
-            uint32_t num = passes.size() - _passes.size();
+        if (_passes.size() < passes->size()) {
+            uint32_t num = passes->size() - _passes.size();
             for (uint32_t i = 0; i < num; ++i) {
-                _passes.push_back(*new Pass());
+                _passes.emplace_back(ccnew scene::Pass(Root::getInstance()));
             }
         }
         
-        for (uint32_t i = 0; i < passes.size(); ++i) {
-            Pass *pass = passes[i];
-            Pass *passInUse = &_passes[i];
+        for (uint32_t i = 0; i < passes->size(); ++i) {
+            auto& pass = passes->at(i);
+            auto& passInUse = _passes[i];
             pass->update();
-            if (depthStencilState == nullptr) {
-                depthStencilState = pass->getDepthStencilState();
-            }
-            if (blendState == nullptr) {
-                depthStencilState = pass->getBlendState();
-            }
+            if (!depthStencilState) depthStencilState = pass->getDepthStencilState();
+            if (!blendState) blendState = pass->getBlendState();
             // 可能有负值问题
             // if (bsHash == -1) {bsHash = 0;}
             hashFactor = (dsHash << 16) | bsHash;
             passInUse->initPassFromTarget(pass, *depthStencilState, *blendState, hashFactor);
-            _shaders.push_back(passInUse->getShaderVariant(*patches));
+            _shaders.push_back(patches ? passInUse->getShaderVariant(*patches) : passInUse->getShaderVariant());
         }
     }
 

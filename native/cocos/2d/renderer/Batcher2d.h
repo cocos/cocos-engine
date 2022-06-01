@@ -54,9 +54,9 @@ private:
     uint32_t* _attrBuffer{nullptr};
 
 private:
-    //drawbatches
-    std::vector<scene::DrawBatch2D*> _batches{};
-    memop::Pool<scene::DrawBatch2D*> _drawBatchPool;
+    // draw batches
+    ccstd::vector<scene::DrawBatch2D*> _batches{};
+    memop::Pool<scene::DrawBatch2D> _drawBatchPool;
 
     gfx::Device* _device{nullptr};
 
