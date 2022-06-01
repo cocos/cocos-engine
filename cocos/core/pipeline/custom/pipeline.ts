@@ -145,6 +145,7 @@ export abstract class SceneTransversal {
 }
 
 export abstract class LayoutGraphBuilder {
+    public abstract clear(): void;
     public abstract addRenderStage(name: string): number;
     public abstract addRenderPhase(name: string, parentID: number): number;
     public abstract addDescriptorBlock(nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlock): void;
@@ -167,7 +168,7 @@ export abstract class Pipeline extends PipelineRuntime {
     public abstract addCopyPass(name: string): CopyPassBuilder;
     public abstract presentAll(): void;
     public abstract createSceneTransversal(camera: Camera, scene: RenderScene): SceneTransversal;
-    public abstract createLayoutGraph(name: string): LayoutGraphBuilder;
+    public abstract get layoutGraphBuilder(): LayoutGraphBuilder;
 }
 
 export class Factory {

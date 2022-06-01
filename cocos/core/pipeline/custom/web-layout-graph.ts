@@ -121,6 +121,10 @@ export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
         return this._device.createDescriptorSetLayout(info);
     }
 
+    public clear (): void {
+        // this._data.clear();
+    }
+
     public addRenderStage (name: string): number {
         return this.add_vertex<LayoutGraphDataValue.RenderStage>(this._data, LayoutGraphDataValue.RenderStage, new RenderStageData(), name);
     }

@@ -47,7 +47,6 @@ import { log2 } from './math/bits';
 import { garbageCollectionManager } from './data/garbage-collection';
 import { screen } from './platform/screen';
 import { builtinResMgr } from './builtin/builtin-res-mgr';
-import { warmup } from './pipeline/custom/warmup';
 
 interface ISceneInfo {
     url: string;
@@ -1038,11 +1037,6 @@ export class Game extends EventTarget {
     private _setRenderPipeline (rppl?: RenderPipeline) {
         if (!legacyCC.director.root.setRenderPipeline(rppl)) {
             this._setRenderPipeline();
-        }
-        const root = legacyCC.director.root;
-        if (root.usesCustomPipeline()) {
-            const pipeline = root.customPipeline;
-            warmup(pipeline);
         }
         this._rendererInitialized = true;
         this._safeEmit(Game.EVENT_RENDERER_INITED);
