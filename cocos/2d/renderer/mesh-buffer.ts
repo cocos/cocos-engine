@@ -28,6 +28,8 @@ import { getComponentPerVertex } from './vertex-format';
 import { getError, warnID } from '../../core/platform/debug';
 import { sys } from '../../core';
 import { assertIsTrue } from '../../core/data/utils/asserts';
+import { JSB } from '../../core/default-constants';
+import { NativeUIMeshBuffer } from '../../core/renderer/2d/native-2d';
 
 interface IIARef {
     ia: InputAssembler;
@@ -35,15 +37,72 @@ interface IIARef {
     indexBuffer: Buffer;
 }
 
+export enum MeshBufferSharedBufferView{
+    byteOffset,
+    vertexOffset,
+    indexOffset,
+    count = 3
+}
+
 export class MeshBuffer {
     get attributes () { return this._attributes; }
     get vertexFormatBytes () { return this._vertexFormatBytes; }
 
-    public byteOffset = 0;
-    public vertexOffset = 0;
-    public indexOffset = 0;
-    public vData: Float32Array = null!;
-    public iData: Uint16Array = null!;
+    protected _byteOffset = 0;
+    get byteOffset () {
+        return this._byteOffset;
+    }
+    set byteOffset (val:number) {
+        this._byteOffset = val;
+        if (JSB) {
+            this._sharedBuffer[MeshBufferSharedBufferView.byteOffset] = val;
+        }
+    }
+
+    protected _vertexOffset = 0;
+    get vertexOffset () {
+        return this._vertexOffset;
+    }
+    set vertexOffset (val:number) {
+        this._vertexOffset = val;
+        if (JSB) {
+            this._sharedBuffer[MeshBufferSharedBufferView.vertexOffset] = val;
+        }
+    }
+
+    protected _indexOffset = 0;
+    get indexOffset () {
+        return this._indexOffset;
+    }
+    set indexOffset (val:number) {
+        this._indexOffset = val;
+        if (JSB) {
+            this._sharedBuffer[MeshBufferSharedBufferView.indexOffset] = val;
+        }
+    }
+
+    protected _vData: Float32Array = null!;
+    get vData () {
+        return this._vData;
+    }
+    set vData (val:Float32Array) {
+        this._vData = val;
+        //还得看是否需要共享.buffer
+        if (JSB) {
+            this._nativeObj.vData = val;
+        }
+    }
+
+    protected _iData: Uint16Array = null!;
+    get iData () {
+        return this._iData;
+    }
+    set iData (val:Uint16Array) {
+        this._iData = val;
+        if (JSB) {
+            this._nativeObj.iData = val;
+        }
+    }
 
     private _dirty = false;
     private _vertexFormatBytes = 0;
@@ -57,6 +116,39 @@ export class MeshBuffer {
     private _iaInfo: InputAssemblerInfo = null!;
     private _nextFreeIAHandle = 0;
 
+    //nativeObj
+    protected declare _nativeObj:NativeUIMeshBuffer;
+    get nativeObj () {
+        return this._nativeObj;
+    }
+
+    //sharedBuffer
+    protected declare _sharedBuffer: Uint32Array;
+    get sharedBuffer () {
+        return this._sharedBuffer;
+    }
+
+    public initSharedBuffer () {
+        if (JSB) {
+            this._sharedBuffer = new Uint32Array(MeshBufferSharedBufferView.count);
+        }
+    }
+
+    public syncSharedBufferToNative () {
+        if (JSB) {
+            this._nativeObj.syncSharedBufferToNative(this._sharedBuffer);
+        }
+    }
+
+    constructor () {
+        if (JSB) {
+            this._nativeObj = new NativeUIMeshBuffer();
+        }
+        this.initSharedBuffer();
+        this.syncSharedBufferToNative();
+    }
+
+    //attribute暂时没传
     public initialize (device: Device, attrs: Attribute[], vFloatCount: number, iCount: number) {
         this._initVDataCount = vFloatCount;
         this._initIDataCount = iCount;
@@ -111,6 +203,7 @@ export class MeshBuffer {
         return false;
     }
 
+    //有返回值暂时没写
     public requireFreeIA (device: Device) {
         if (this._iaPool.length <= this._nextFreeIAHandle) {
             this._iaPool.push(this.createNewIA(device));
@@ -119,6 +212,7 @@ export class MeshBuffer {
         return ia;
     }
 
+    //参数暂时没传
     public recycleIA (ia: InputAssembler) {
         const pool = this._iaPool;
         for (let i = 0; i < this._nextFreeIAHandle; ++i) {
@@ -179,6 +273,7 @@ export class MeshBuffer {
         this._dirty = false;
     }
 
+    //有返回值，暂时没原生化
     private createNewIA (device: Device): IIARef {
         let ia;
         let vertexBuffers;

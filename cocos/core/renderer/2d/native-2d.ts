@@ -1,6 +1,6 @@
 import { RenderEntity } from '../../../2d/renderer/render-entity';
 import { Material } from '../../assets';
-import { Sampler, SamplerInfo, Texture } from '../../gfx';
+import { Attribute, Device, Sampler, SamplerInfo, Texture } from '../../gfx';
 import { EmptyTexture } from '../../gfx/empty/empty-texture';
 import { Node } from '../../scene-graph';
 
@@ -55,6 +55,23 @@ export class NativeRenderEntity {
 
     //setAdvanceRenderDataArr (dataArr: NativeAdvanceRenderData[]) {}
     setRender2dBufferToNative (data:TypedArray, stride:number, size:number) {}
+}
+
+export class NativeUIMeshBuffer {
+    get vData () { return new Float32Array(); }
+    set vData (val:Float32Array) {}
+
+    get iData () { return new Uint16Array(); }
+    set iData (val:Uint16Array) {}
+
+    syncSharedBufferToNative (data:TypedArray) {}
+
+    initialize (device:Device, vFloatCount: number, iCount: number) {}
+    reset () {}
+    destroy () {}
+    setDirty () {}
+    recycleIA () {}
+    uploadBuffers () {}
 }
 
 export class NativeBatcher2d {
