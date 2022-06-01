@@ -89,26 +89,27 @@ CCProgram shared-ubos %{
 }%
 
 CCProgram macro-remapping %{
-  // ui displayed macros not used in this effect file
+  // ui displayed macros
   #pragma define-meta HAS_SECOND_UV
   #pragma define-meta USE_TWOSIDE
   #pragma define-meta USE_REFLECTION_DENOISE
   #pragma define-meta IS_ANISOTROPY
+  #pragma define-meta USE_VERTEX_COLOR
 
   #define CC_SURFACES_USE_SECOND_UV HAS_SECOND_UV
   #define CC_SURFACES_USE_TWO_SIDED USE_TWOSIDE
   #define CC_SURFACES_USE_REFLECTION_DENOISE USE_REFLECTION_DENOISE
   #define CC_SURFACES_LIGHTING_ANISOTROPIC IS_ANISOTROPY
+  #define CC_SURFACES_USE_VERTEX_COLOR USE_VERTEX_COLOR
 
   // if disabled, simulate convoluted IBL without convolution
   #pragma define-meta USE_COMPATIBLE_LIGHTING
   #define CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING USE_COMPATIBLE_LIGHTING
 
-  // ui displayed macros used in this effect file
-  #define CC_SURFACES_USE_VERTEX_COLOR USE_VERTEX_COLOR
+  // depend on UI macros
 #if IS_ANISOTROPY || USE_NORMAL_MAP
   #define CC_SURFACES_USE_TANGENT_SPACE 1
-#endif  
+#endif
 
   // functionality for each effect
   #define CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT 31
@@ -137,7 +138,7 @@ CCProgram surface-vertex %{
   void SurfacesVertexModifyUV(inout SurfacesStandardVertexIntermediate In)
   {
     In.texCoord = In.texCoord * tilingOffset.xy + tilingOffset.zw;
-  #if CC_SURFACES_USE_SECOND_UV && !CC_SURFACES_USE_LIGHT_MAP
+  #if USE_SECOND_UV && !CC_USE_LIGHTMAP
     In.texCoord1 = In.texCoord1 * tilingOffset.xy + tilingOffset.zw;
   #endif
   }
