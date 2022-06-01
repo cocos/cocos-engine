@@ -62,10 +62,17 @@ void Batcher2d::fillBuffersAndMergeBatches() {
         int32_t dataHash = entity->getDataHash();
         if (this->_currHash != dataHash || dataHash == 0
             || this->_currMaterial != entity->getMaterial()
-            /* || stencilmanager */) {
+            /* || stencilmanager 这个暂时只有mask才考虑，后续补充*/) {
             generateBatch(entity);
             if (!entity->getIsMeshBuffer()) {
-                //updateBuffer：切换accessor，设置indexStart
+                //修改当前currbufferid和currindexStart（用当前的meshbuffer的indexOffset赋值）
+                if (this->_currBID != entity->getBufferId()) {
+                    MeshBufferAttr* attr = getMeshBufferAttr(entity->getBufferId() );
+                    if (attr) {
+                        this->_currBID = entity->getBufferId();
+                        this->_indexStart = attr->indexOffset;
+                    }
+                }
             }
 
             this->_currHash = dataHash;
@@ -92,7 +99,7 @@ void Batcher2d::fillBuffersAndMergeBatches() {
 void Batcher2d::generateBatch(RenderEntity* entity) {
     //这里主要负责的是ts.automergebatches
     //边循环，边判断当前entity是否能合批
-    //
+    
 }
 
 bool Batcher2d::initialize() {
