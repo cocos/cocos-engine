@@ -140,10 +140,38 @@ public:
         }
     }
 
+    Frustum(const Frustum &rhs) {
+        *this = rhs;
+    }
+
+    Frustum(Frustum &&rhs) {
+        *this = std::move(rhs);
+    }
+
     ~Frustum() override {
         for (auto *plane : planes) {
             plane->release();
         }
+    }
+
+    // Can remove these operator override functions if not using Plane* in planes array.
+    Frustum &operator=(const Frustum &rhs) {
+        setType(rhs.getType());
+        for (size_t i = 0; i < planes.size(); ++i) { // NOLINT(modernize-loop-convert)
+            planes[i] = ccnew Plane();
+            planes[i]->addRef();
+            Plane::copy(planes[i], *(rhs.planes[i]));
+        }
+        return *this;
+    }
+
+    Frustum &operator=(Frustum &&rhs) {
+        setType(rhs.getType());
+        for (size_t i = 0; i < planes.size(); ++i) { // NOLINT(modernize-loop-convert)
+            planes[i] = rhs.planes[i];
+            planes[i]->addRef();
+        }
+        return *this;
     }
 
     /**
