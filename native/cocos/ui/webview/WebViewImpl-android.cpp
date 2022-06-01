@@ -87,7 +87,7 @@ JNIEXPORT void JNICALL
 Java_com_cocos_lib_CocosWebViewHelper_didFinishLoading(JNIEnv *env, jclass, jint index, //NOLINT
                                                        jstring jurl) {
     // LOGD("didFinishLoading");
-    const auto * charUrl = env->GetStringUTFChars(jurl, nullptr);
+    const auto *charUrl = env->GetStringUTFChars(jurl, nullptr);
     ccstd::string url = charUrl;
     env->ReleaseStringUTFChars(jurl, charUrl);
     cc::WebViewImpl::didFinishLoading(index, url);
@@ -102,7 +102,7 @@ JNIEXPORT void JNICALL
 Java_com_cocos_lib_CocosWebViewHelper_didFailLoading(JNIEnv *env, jclass, jint index, //NOLINT
                                                      jstring jurl) {
     // LOGD("didFailLoading");
-    const auto * charUrl = env->GetStringUTFChars(jurl, nullptr);
+    const auto *charUrl = env->GetStringUTFChars(jurl, nullptr);
     ccstd::string url = charUrl;
     env->ReleaseStringUTFChars(jurl, charUrl);
     cc::WebViewImpl::didFailLoading(index, url);
@@ -117,7 +117,7 @@ JNIEXPORT void JNICALL
 Java_com_cocos_lib_CocosWebViewHelper_onJsCallback(JNIEnv *env, jclass, jint index, //NOLINT
                                                    jstring jmessage) {
     // LOGD("jsCallback");
-    const auto * charMessage = env->GetStringUTFChars(jmessage, nullptr);
+    const auto *charMessage = env->GetStringUTFChars(jmessage, nullptr);
     ccstd::string message = charMessage;
     env->ReleaseStringUTFChars(jmessage, charMessage);
     cc::WebViewImpl::onJsCallback(index, message);
