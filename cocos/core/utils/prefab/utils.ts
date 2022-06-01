@@ -401,18 +401,23 @@ export function expandPrefabInstanceNode(node: Node, recursively = false) {
     const prefabInstance = prefabInfo?.instance;
     if (prefabInstance && !prefabInstance.expanded) {
         createNodeWithPrefab(node);
-
+        // nested prefab should expand before parent(property override order)
+        if (recursively) {
+            if (node && node.children) {
+                node.children.forEach((child) => {
+                    expandPrefabInstanceNode(child, true);
+                });
+            }
+        }
         const targetMap: Record<string, any | Node | Component> = {};
         prefabInstance.targetMap = targetMap;
         generateTargetMap(node, targetMap, true);
-        prefabInstance.expanded = true;
         applyMountedChildren(node, prefabInstance.mountedChildren, targetMap);
         applyRemovedComponents(node, prefabInstance.removedComponents, targetMap);
         applyMountedComponents(node, prefabInstance.mountedComponents, targetMap);
         applyPropertyOverrides(node, prefabInstance.propertyOverrides, targetMap);
-    }
-
-    if (recursively) {
+        prefabInstance.expanded = true;
+    } else if (recursively) {
         if (node && node.children) {
             node.children.forEach((child) => {
                 expandPrefabInstanceNode(child, true);

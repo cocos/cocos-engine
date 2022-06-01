@@ -141,8 +141,12 @@ export class PrefabInstance {
 
     public targetMap: Record<string, any | Node | Component> = {};
 
-    // make sure prefab instance expand only once
+    /**
+     * make sure prefab instance expand only once
+     * @internal
+     */
     public expanded = false;
+
     // eslint-disable-next-line consistent-return
     public findPropertyOverride(localID: string[], propPath: string[]) {
         if (EDITOR) {
