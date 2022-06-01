@@ -491,28 +491,19 @@ ScriptEngine::ScriptEngine()
     ScriptEngine::instance = this;
 }
 
-#if CC_PLATFORM == CC_PLATFORM_ANDROID
-/**
- * v8::V8::Initialize() can only be called once for a process.
- * After calling onDestroy on Android platform, the process will be maintained for a period of time.
- * So gSharedV8 variable should not be released and it will be re-used when ScriptEngine is constructed next time.
- */
 ScriptEngine::~ScriptEngine() { //NOLINT(bugprone-exception-escape)
     cleanup();
+    /**
+     * v8::V8::Initialize() can only be called once for a process.
+     * Engine::restart() will delete ScriptEngine and re-create it.
+     * So gSharedV8 variable should not be released and it will be re-used.
+     */
+//    if (gSharedV8) {
+//        delete gSharedV8;
+//        gSharedV8 = nullptr;
+//    }
     ScriptEngine::instance = nullptr;
 }
-#else
-ScriptEngine::~ScriptEngine() {
-    cleanup();
-#if !CC_EDITOR
-    if (gSharedV8) {
-        delete gSharedV8;
-        gSharedV8 = nullptr;
-    }
-#endif
-    ScriptEngine::instance = nullptr;
-}
-#endif
 
 bool ScriptEngine::postInit() {
     v8::HandleScope hs(_isolate);
