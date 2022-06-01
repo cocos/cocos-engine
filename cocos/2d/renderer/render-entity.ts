@@ -5,7 +5,8 @@ import { JSB } from '../../core/default-constants';
 import { NativeAdvanceRenderData, NativeRenderEntity } from '../../core/renderer/2d/native-2d';
 import { AdvanceRenderData } from './AdvanceRenderData';
 import { NULL_HANDLE, Render2dHandle, Render2dPool } from '../../core/renderer';
-import { Node } from '../../core';
+import { Material, Node } from '../../core';
+import { Sampler, Texture } from '../../core/gfx';
 
 export class RenderEntity {
     public renderData: BaseRenderData=null!;
@@ -31,6 +32,15 @@ export class RenderEntity {
     protected _iData: Uint16Array | undefined;
     protected _node: Node | undefined;
     protected _vertDirty: boolean | undefined;
+
+    protected _dataHash :number |undefined;
+    protected _stencilStage :number |undefined;
+    protected _isMeshBuffer :boolean |undefined;
+    protected _material : Material|undefined;
+    protected _texture: Texture | undefined;
+    protected _textureHash :number |undefined;
+    protected _sampler :Sampler |undefined;
+    protected _blendHash :number |undefined;
 
     protected declare _nativeObj: NativeRenderEntity;
 
@@ -98,17 +108,93 @@ export class RenderEntity {
     }
 
     public setNode (node: Node) {
-        this._node = node;
         if (JSB) {
-            this._nativeObj.node = node;
+            if (this._node !== node) {
+                this._nativeObj.node = node;
+            }
         }
+        this._node = node;
     }
 
     public setVertDirty (val:boolean) {
-        this._vertDirty = val;
         if (JSB) {
-            this._nativeObj.vertDirty = val;
+            if (this._vertDirty !== val) {
+                this._nativeObj.vertDirty = val;
+            }
         }
+        this._vertDirty = val;
+    }
+
+    public setDataHash (dataHash:number) {
+        if (JSB) {
+            if (this._dataHash !== dataHash) {
+                this._nativeObj.dataHash = dataHash;
+            }
+        }
+        this._dataHash = dataHash;
+    }
+
+    public setStencilStage (stencilStage:number) {
+        if (JSB) {
+            if (this._stencilStage !== stencilStage) {
+                this._nativeObj.stencilStage = stencilStage;
+            }
+        }
+        this._stencilStage = stencilStage;
+    }
+
+    public setIsMeshBuffer (isMeshBuffer:boolean) {
+        if (JSB) {
+            if (this._isMeshBuffer !== isMeshBuffer) {
+                this._nativeObj.isMeshBuffer = isMeshBuffer;
+            }
+        }
+        this._isMeshBuffer = isMeshBuffer;
+    }
+
+    public setMaterial (material:Material) {
+        if (JSB) {
+            if (this._material !== material) {
+                this._nativeObj.material = material;
+            }
+        }
+        this._material = material;
+    }
+
+    public setTexture (texture:Texture) {
+        if (JSB) {
+            if (this._texture !== texture) {
+                this._nativeObj.texture = texture;
+            }
+        }
+        this._texture = texture;
+    }
+
+    public setTextureHash (textureHash:number) {
+        if (JSB) {
+            if (this._textureHash !== textureHash) {
+                this._nativeObj.textureHash = textureHash;
+            }
+        }
+        this._textureHash = textureHash;
+    }
+
+    public setSampler (sampler:Sampler) {
+        if (JSB) {
+            if (this._sampler !== sampler) {
+                this._nativeObj.sampler = sampler;
+            }
+        }
+        this._sampler = sampler;
+    }
+
+    public setBlendHash (blendHash:number) {
+        if (JSB) {
+            if (this._blendHash !== blendHash) {
+                this._nativeObj.blendHash = blendHash;
+            }
+        }
+        this._blendHash = blendHash;
     }
 
     //初始化sharedBuffer

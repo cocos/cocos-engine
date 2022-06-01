@@ -40,6 +40,7 @@ import { NativeRenderEntity } from '../../../core/renderer/2d/native-2d';
 import { AdvanceRenderData } from '../../renderer/AdvanceRenderData';
 import { Batcher2D } from '../../renderer/batcher-2d';
 import { director } from '../../../core';
+import { JSB } from '../../../core/default-constants';
 
 const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
@@ -53,7 +54,7 @@ for (let i = 0; i < 4; i++) {
 export const simple: IAssembler = {
     createData (sprite: Sprite) {
         const renderData = sprite.requestRenderData();
-        renderData.assignEntityAttrs(sprite);
+        renderData.assignExtraEntityAttrs(sprite);
         renderData.dataLength = 4;
         renderData.resize(4, 6);
         renderData.vertexRow = 2;
@@ -171,11 +172,14 @@ export const simple: IAssembler = {
                 // IndexOffset should add 6 when vertices of a rect are visited.
                 meshBuffer.indexOffset += 6;
 
-                batcher.updateAttrBuffer(renderData.chunk);
+                if (JSB) {
+                    batcher.updateAttrBuffer(renderData.chunk);
+                }
             }
         }
-
-        batcher.nativeObj.ItIsDebugFuncInBatcher2d();
+        if (JSB) {
+            batcher.nativeObj.ItIsDebugFuncInBatcher2d();
+        }
         // slow version
         // renderer.switchBufferAccessor().appendIndices(chunk);
     },

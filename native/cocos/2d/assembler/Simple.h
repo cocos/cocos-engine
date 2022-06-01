@@ -1,12 +1,11 @@
 #pragma once
 #include <cocos/base/TypeDef.h>
 #include <cocos/2d/renderer/RenderEntity.h>
-#include <cocos/2d/renderer/Batcher2d.h>
 
 namespace cc {
+class Batcher2d;
 class Simple
 {
-
 public:
     Simple(/* args */);
     Simple(Batcher2d* batcher);

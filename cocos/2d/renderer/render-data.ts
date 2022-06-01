@@ -37,6 +37,7 @@ import { Buffer, BufferInfo, BufferUsageBit, Device, InputAssembler, InputAssemb
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { RenderEntity } from './render-entity';
 import { AdvanceRenderData } from './AdvanceRenderData';
+import { StencilManager } from './stencil-manager';
 
 /**
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
@@ -67,7 +68,6 @@ let _pool: RecyclePool<RenderData> = null!;
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
 export class BaseRenderData {
-    public material: Material | null = null;
     get vertexCount () {
         return this._vc;
     }
@@ -92,7 +92,28 @@ export class BaseRenderData {
         return this._renderEntity;
     }
 
-    public dataHash = 0;
+    protected _material: Material | null = null;
+    get material () {
+        return this._material!;
+    }
+    set material (val: Material | null) {
+        this._material = val;
+        if (this._renderEntity) {
+            this._renderEntity.setMaterial(val!);
+        }
+    }
+
+    protected _dataHash = 0;
+    get dataHash () {
+        return this._dataHash;
+    }
+    set dataHash (val:number) {
+        this._dataHash = val;
+        if (this._renderEntity) {
+            this._renderEntity.setDataHash(val);
+        }
+    }
+
     public isMeshBuffer = false;
 
     protected _vc = 0;
@@ -107,6 +128,23 @@ export class BaseRenderData {
 
     public isValid () {
         return this._ic > 0 && this.chunk.vertexAccessor;
+    }
+
+    protected setRenderEntityAttributes () {
+        if (!this._renderEntity) {
+            return;
+        }
+        this._renderEntity.setBufferId(this.chunk.bufferId);
+        this._renderEntity.setVertexOffset(this.chunk.vertexOffset);
+        this._renderEntity.setIndexOffset(this.chunk.meshBuffer.indexOffset);
+        this._renderEntity.setVB(this.chunk.vb.buffer);
+        this._renderEntity.setVData(this.chunk.meshBuffer.vData.buffer);
+        this._renderEntity.setIData(this.chunk.meshBuffer.iData.buffer);
+
+        this._renderEntity.setDataHash(this.dataHash);
+        this._renderEntity.setStencilStage(StencilManager.sharedManager!.stage);//这里存疑，应该每一帧都传一次
+        this._renderEntity.setIsMeshBuffer(this.isMeshBuffer);
+        this._renderEntity.setMaterial(this.material!);
     }
 }
 
@@ -168,10 +206,10 @@ export class RenderData extends BaseRenderData {
         return this._data;
     }
 
+    public _vertDirty = true;
     get vertDirty () {
         return this._vertDirty;
     }
-
     set vertDirty (val: boolean) {
         this._vertDirty = val;
         if (this._renderEntity) {
@@ -179,13 +217,33 @@ export class RenderData extends BaseRenderData {
         }
     }
 
+    protected _textureHash = 0;
+    get textureHash () {
+        return this._textureHash;
+    }
+    set textureHash (val:number) {
+        this._textureHash = val;
+        if (this._renderEntity) {
+            this._renderEntity.setTexture(this.frame.getGFXTexture());
+            this._renderEntity.setTextureHash(val);
+        }
+    }
+
+    protected _blendHash = -1;
+    get blendHash () {
+        return this._blendHash;
+    }
+    set blendHash (val:number) {
+        this._blendHash = val;
+        if (this._renderEntity) {
+            this._renderEntity.setBlendHash(val);
+        }
+    }
+
     public indices: Uint16Array | null = null;
-    public _vertDirty = true;
 
     public frame;
     public layer = 0;
-    public blendHash = -1;
-    public textureHash = 0;
 
     public nodeDirty = true;
     public passDirty = true;
@@ -241,15 +299,14 @@ export class RenderData extends BaseRenderData {
         if (!this._renderEntity) {
             return;
         }
-        this._renderEntity.setBufferId(this.chunk.bufferId);
-        this._renderEntity.setVertexOffset(this.chunk.vertexOffset);
-        this._renderEntity.setIndexOffset(this.chunk.meshBuffer.indexOffset);
-        this._renderEntity.setVB(this.chunk.vb.buffer);
-        this._renderEntity.setVData(this.chunk.meshBuffer.vData.buffer);
-        this._renderEntity.setIData(this.chunk.meshBuffer.iData.buffer);
+        super.setRenderEntityAttributes();
+        this._renderEntity.setTexture(this.frame?.getGFXTexture());
+        this._renderEntity.setTextureHash(this.textureHash);
+        this._renderEntity.setSampler(this.frame?.getGFXSampler());
+        this._renderEntity.setBlendHash(this.blendHash);
     }
 
-    public assignEntityAttrs (comp: UIRenderer) {
+    public assignExtraEntityAttrs (comp: UIRenderer) {
         if (!this._renderEntity || !comp) {
             return;
         }
@@ -300,7 +357,7 @@ export class RenderData extends BaseRenderData {
     }
 
     public updatePass (comp: UIRenderer) {
-        this.material = comp.getRenderMaterial(0);
+        this.material = comp.getRenderMaterial(0)!;
         this.blendHash = comp.blendHash;
         this.passDirty = false;
         this.hashDirty = true;
@@ -322,7 +379,7 @@ export class RenderData extends BaseRenderData {
 
     public updateRenderData (comp: UIRenderer, frame: SpriteFrame | TextureBase) {
         if (this.passDirty) {
-            this.material = comp.getRenderMaterial(0);
+            this.material = comp.getRenderMaterial(0)!;
             this.blendHash = comp.blendHash;
             this.passDirty = false;
             this.hashDirty = true;

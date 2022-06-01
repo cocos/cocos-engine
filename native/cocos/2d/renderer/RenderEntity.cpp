@@ -49,6 +49,38 @@ void RenderEntity::setVertDirty(bool val) {
     this->_vertDirty = val;
 }
 
+void RenderEntity::setDataHash(int32_t dataHash) {
+    this->_dataHash = dataHash;
+}
+
+void RenderEntity::setStencilStage(index_t stencilStage) {
+    this->_stencilStage = stencilStage;
+}
+
+void RenderEntity::setIsMeshBuffer(bool isMeshBuffer) {
+    this->_isMeshBuffer = isMeshBuffer;
+}
+
+void RenderEntity::setMaterial(Material* material) {
+    this->_material = material;
+}
+
+void RenderEntity::setTexture(gfx::Texture* texture) {
+    this->_texture = texture;
+}
+
+void RenderEntity::setTextureHash(index_t textureHash) {
+    this->_textureHash = textureHash;
+}
+
+void RenderEntity::setSampler(gfx::Sampler* sampler) {
+    this->_sampler = sampler;
+}
+
+void RenderEntity::setBlendHash(index_t blendHash) {
+    this->_blendHash = blendHash;
+}
+
 //void RenderEntity::setAdvanceRenderDataArr(std::vector<AdvanceRenderData*>&& arr) {
 //    this->_dataArr = std::move(arr);
 //}
@@ -89,4 +121,4 @@ void RenderEntity::refreshLayout() {
 void RenderEntity::ItIsDebugFuncInRenderEntity() {
     std::cout << "It is debug func in RenderEntity.";
 }
-}
+} // namespace cc

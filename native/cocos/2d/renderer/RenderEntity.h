@@ -6,6 +6,8 @@
 #include <math/Vec4.h>
 #include <math/Color.h>
 #include <cocos/core/scene-graph/Node.h>
+#include <cocos/core/assets/Material.h>
+#include <cocos/renderer/gfx-base/states/GFXSampler.h>
 
 namespace cc {
 struct Render2dLayout {
@@ -33,12 +35,26 @@ public:
     void setVDataBuffer(float_t* vDataBuffer);
     inline uint16_t* getIDataBuffer() const { return this->_iDataBuffer; }
     void setIDataBuffer(uint16_t* iDataBuffer);
-
     inline Node* getNode() const { return this->_node; }
     void setNode(Node* node);
-
     inline bool getVertDirty() const { return this->_vertDirty; }
     void setVertDirty(bool val);
+    inline int32_t getDataHash() const { return this->_dataHash; }
+    void setDataHash(int32_t dataHash);
+    inline index_t getStencilStage() const { return this->_stencilStage; }
+    void setStencilStage(index_t stencilStage);
+    inline bool getIsMeshBuffer() const { return this->_isMeshBuffer; }
+    void setIsMeshBuffer(bool isMeshBuffer);
+    inline Material* getMaterial() const { return this->_material; }
+    void setMaterial(Material* material);
+    inline gfx::Texture* getTexture() const { return this->_texture; }
+    void setTexture(gfx::Texture* texture);
+    inline index_t getTextureHash() const { return this->_textureHash; }
+    void setTextureHash(index_t textureHash);
+    inline gfx::Sampler* getSampler() const { return this->_sampler; }
+    void setSampler(gfx::Sampler* sampler);
+    inline index_t getBlendHash() const { return this->_blendHash; }
+    void setBlendHash(index_t blendHash);
 
     //inline std::vector<AdvanceRenderData*> getDataArr() { return this->_dataArr; }
     //void setAdvanceRenderDataArr(std::vector<AdvanceRenderData*>&& arr);
@@ -77,5 +93,16 @@ private:
     Node* _node{nullptr};
 
     bool _vertDirty{false};
+
+private: // for merging batches
+    int32_t _dataHash{0};
+    index_t _stencilStage{0};
+    bool _isMeshBuffer{false};
+    Material* _material{nullptr};
+    gfx::Texture* _texture{nullptr};
+    index_t _textureHash{0};
+    gfx::Sampler* _sampler{nullptr};
+
+    index_t _blendHash{0};
 };
 }

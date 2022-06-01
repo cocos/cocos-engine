@@ -1,6 +1,7 @@
 #include "Simple.h"
 #include <2d/assembler/Simple.h>
 #include <cocos/base/TypeDef.h>
+#include <cocos/2d/renderer/Batcher2d.h>
 
 namespace cc {
 Simple::Simple(/* args */) {
@@ -44,7 +45,10 @@ void Simple::updateWorldVerts(RenderEntity* entity) {
 
 void Simple::fillBuffers(RenderEntity* entity) {
     Node* node = entity->getNode();
-    if (node->getChangedFlags() || entity->getVertDirty()) {
+    if (node == nullptr) {
+        return;
+    }
+    if ( node->getChangedFlags() || entity->getVertDirty()) {
         this->updateWorldVerts(entity);
         entity->setVertDirty(false);
     }

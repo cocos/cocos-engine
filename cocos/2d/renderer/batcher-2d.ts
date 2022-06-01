@@ -223,31 +223,38 @@ export class Batcher2D implements IBatcher {
             // test code
             if (JSB) {
                 this.syncRenderEntitiesToNative();// transport entities to native
-                this._nativeObj.ItIsDebugFuncInBatcher2d();
+                this._nativeObj.update();
             }
-            this.autoMergeBatches(this._currComponent!);
-            this.resetRenderStates();
+            //else (下面是web的逻辑，等native写好，本行else注释就得打开)
+            {
+                this.autoMergeBatches(this._currComponent!);
+                this.resetRenderStates();
 
-            let batchPriority = 0;
-            if (this._batches.length > offset) {
-                for (; offset < this._batches.length; ++offset) {
-                    const batch = this._batches.array[offset];
+                let batchPriority = 0;
+                if (this._batches.length > offset) {
+                    for (; offset < this._batches.length; ++offset) {
+                        const batch = this._batches.array[offset];
 
-                    if (batch.model) {
-                        const subModels = batch.model.subModels;
-                        for (let j = 0; j < subModels.length; j++) {
-                            subModels[j].priority = batchPriority++;
+                        if (batch.model) {
+                            const subModels = batch.model.subModels;
+                            for (let j = 0; j < subModels.length; j++) {
+                                subModels[j].priority = batchPriority++;
+                            }
+                        } else {
+                            batch.descriptorSet = this._descriptorSetCache.getDescriptorSet(batch);
                         }
-                    } else {
-                        batch.descriptorSet = this._descriptorSetCache.getDescriptorSet(batch);
+                        scene.addBatch(batch);
                     }
-                    scene.addBatch(batch);
                 }
             }
         }
     }
 
     public uploadBuffers () {
+        if (JSB) {
+            this._nativeObj.uploadBuffers();
+        }
+        //else (下面是web的逻辑，等native写好，本行else注释就得打开)
         if (this._batches.length > 0) {
             this._meshDataArray.forEach((rd) => {
                 rd.uploadBuffers();
@@ -263,6 +270,11 @@ export class Batcher2D implements IBatcher {
     }
 
     public reset () {
+        if (JSB) {
+            this._nativeObj.reset();
+        }
+        //else (下面是web的逻辑，等native写好，本行else注释就得打开)
+
         // Reset batches
         for (let i = 0; i < this._batches.length; ++i) {
             const batch = this._batches.array[i];
