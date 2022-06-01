@@ -215,12 +215,12 @@ Frustum::Frustum() {
     init();
 }
 
-Frustum::Frustum(const Frustum &rhs) {
+Frustum::Frustum(const Frustum &rhs): ShapeBase(rhs) {
     init();
     *this = rhs;
 }
 
-Frustum::Frustum(Frustum &&rhs) {
+Frustum::Frustum(Frustum &&rhs) noexcept {
     setType(ShapeEnum::SHAPE_FRUSTUM);
     planes = rhs.planes;
     for (size_t i = 0; i < planes.size(); ++i) { // NOLINT(modernize-loop-convert)
@@ -234,13 +234,13 @@ Frustum::~Frustum() {
 
 Frustum &Frustum::operator=(const Frustum &rhs) {
     for (size_t i = 0; i < planes.size(); ++i) { // NOLINT(modernize-loop-convert)
-        Plane::copy(planes[i], *planes[i]);
+        Plane::copy(planes[i], *rhs.planes[i]);
     }
 
     return *this;
 }
 
-Frustum &Frustum::operator=(Frustum &&rhs) {
+Frustum &Frustum::operator=(Frustum &&rhs) noexcept {
     releasePlanes();
 
     planes = rhs.planes;

@@ -124,12 +124,12 @@ public:
 
     Frustum();
     Frustum(const Frustum &rhs);
-    Frustum(Frustum &&rhs);
+    Frustum(Frustum &&rhs) noexcept;
     ~Frustum() override;
 
     // Can remove these operator override functions if not using Plane* in planes array.
     Frustum &operator=(const Frustum &rhs);
-    Frustum &operator=(Frustum &&rhs);
+    Frustum &operator=(Frustum &&rhs) noexcept;
 
     /**
      * @en
