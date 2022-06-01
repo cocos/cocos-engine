@@ -1038,6 +1038,7 @@ export class Game extends EventTarget {
         if (!legacyCC.director.root.setRenderPipeline(rppl)) {
             this._setRenderPipeline();
         }
+
         this._rendererInitialized = true;
         this._safeEmit(Game.EVENT_RENDERER_INITED);
     }
