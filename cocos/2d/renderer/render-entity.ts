@@ -199,36 +199,42 @@ export class RenderEntity {
 
     //初始化sharedBuffer
     public initRender2dBuffer (vertexCount:number, stride:number) {
-        this._stride = stride;
-        this._vertexCount = vertexCount;
-        this._render2dBuffer = new Float32Array(vertexCount * stride);
+        if (JSB) {
+            this._stride = stride;
+            this._vertexCount = vertexCount;
+            this._render2dBuffer = new Float32Array(vertexCount * stride);
+        }
     }
 
     //填充所有顶点
     public fillRender2dBuffer (vertexDataArr:IRenderData[]) {
-        const fillLength = Math.min(this._vertexCount, vertexDataArr.length);
-        let bufferOffset = 0;
-        for (let i = 0; i < fillLength; i++) {
-            this.updateVertexBuffer(bufferOffset, vertexDataArr[i]);
-            bufferOffset += this._stride;
+        if (JSB) {
+            const fillLength = Math.min(this._vertexCount, vertexDataArr.length);
+            let bufferOffset = 0;
+            for (let i = 0; i < fillLength; i++) {
+                this.updateVertexBuffer(bufferOffset, vertexDataArr[i]);
+                bufferOffset += this._stride;
+            }
         }
     }
 
     //更新某个顶点buffer
     public updateVertexBuffer (bufferOffset:number, vertexData:IRenderData) {
-        if (bufferOffset >= this.render2dBuffer.length) {
-            return;
+        if (JSB) {
+            if (bufferOffset >= this.render2dBuffer.length) {
+                return;
+            }
+            const temp:IRenderData = vertexData;
+            this._render2dBuffer[bufferOffset++] = temp.x;
+            this._render2dBuffer[bufferOffset++] = temp.y;
+            this._render2dBuffer[bufferOffset++] = temp.z;
+            this._render2dBuffer[bufferOffset++] = temp.u;
+            this._render2dBuffer[bufferOffset++] = temp.v;
+            this._render2dBuffer[bufferOffset++] = temp.color.r;
+            this._render2dBuffer[bufferOffset++] = temp.color.g;
+            this._render2dBuffer[bufferOffset++] = temp.color.b;
+            this._render2dBuffer[bufferOffset++] = temp.color.a;
         }
-        const temp:IRenderData = vertexData;
-        this._render2dBuffer[bufferOffset++] = temp.x;
-        this._render2dBuffer[bufferOffset++] = temp.y;
-        this._render2dBuffer[bufferOffset++] = temp.z;
-        this._render2dBuffer[bufferOffset++] = temp.u;
-        this._render2dBuffer[bufferOffset++] = temp.v;
-        this._render2dBuffer[bufferOffset++] = temp.color.r;
-        this._render2dBuffer[bufferOffset++] = temp.color.g;
-        this._render2dBuffer[bufferOffset++] = temp.color.b;
-        this._render2dBuffer[bufferOffset++] = temp.color.a;
     }
 
     //同步到native
@@ -239,22 +245,7 @@ export class RenderEntity {
         }
     }
 
-    // //不能这样传，这样的话会导致频繁调用JSB
-    // //改用3.4的node的那个typedarray的写法
-    // //传递给native
-    // //1.这里每个组件收集完之后要设置给对应的nativeObj
-    // //2.然后再由batcher2d把所有的RenderEntity的nativeObj传给c++
-    // public setAdvanceRenderDataArrToNative () {
-    //     if (JSB) {
-    //         const len = this.dataArr.length;
-    //         const nativeDataArr: NativeAdvanceRenderData[] = [];
-    //         for (let i = 0; i < len; i++) {
-    //             nativeDataArr.push(this.dataArr[i].nativeObj);
-    //         }
-    //         this._nativeObj.setAdvanceRenderDataArr(nativeDataArr);
-    //     }
-    // }
-
+    //AdvanceRenderData 已经废弃
     //加一个顶点数据
     public addAdvanceRenderData (data: AdvanceRenderData) {
         this.dataArr.push(data);

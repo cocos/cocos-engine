@@ -62,7 +62,7 @@ void Batcher2d::fillBuffersAndMergeBatches() {
         int32_t dataHash = entity->getDataHash();
         if (this->_currHash != dataHash || dataHash == 0
             || this->_currMaterial != entity->getMaterial()
-            /* || stencilmanager 这个暂时只有mask才考虑，后续补充*/) {
+            /* || stencilmanager */) {//这个暂时只有mask才考虑，后续补充
             generateBatch(entity);
             if (!entity->getIsMeshBuffer()) {
                 //修改当前currbufferid和currindexStart（用当前的meshbuffer的indexOffset赋值）
@@ -92,7 +92,10 @@ void Batcher2d::fillBuffersAndMergeBatches() {
             }
         }
 
-        this->_simple->fillBuffers(entity);
+
+        //暂时不修改vb和ib，验证下目前native的行为
+        //最后调通时再把这里打开
+        //this->_simple->fillBuffers(entity);
     }
 }
 
@@ -145,5 +148,4 @@ void Batcher2d::ItIsDebugFuncInBatcher2d() {
     //    }
     //}
 }
-
 } // namespace cc

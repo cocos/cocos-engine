@@ -23,6 +23,7 @@
  THE SOFTWARE.
 */
 
+import { JSB } from 'internal:constants';
 import { director } from '../../core/director';
 import { Material } from '../../core/assets/material';
 import { TextureBase } from '../../core/assets/texture-base';
@@ -130,21 +131,34 @@ export class BaseRenderData {
         return this._ic > 0 && this.chunk.vertexAccessor;
     }
 
-    protected setRenderEntityAttributes () {
-        if (!this._renderEntity) {
-            return;
+    protected initRenderEntity () {
+        if (JSB) {
+        // Instantiate RenderEntity and put it into Batcher2d
+            if (!this._renderEntity) {
+                const batcher = director.root!.batcher2D;
+                this._renderEntity = new RenderEntity();
+                batcher.addRenderEntity(this._renderEntity);
+            }
         }
-        this._renderEntity.setBufferId(this.chunk.bufferId);
-        this._renderEntity.setVertexOffset(this.chunk.vertexOffset);
-        this._renderEntity.setIndexOffset(this.chunk.meshBuffer.indexOffset);
-        this._renderEntity.setVB(this.chunk.vb.buffer);
-        this._renderEntity.setVData(this.chunk.meshBuffer.vData.buffer);
-        this._renderEntity.setIData(this.chunk.meshBuffer.iData.buffer);
+    }
 
-        this._renderEntity.setDataHash(this.dataHash);
-        this._renderEntity.setStencilStage(StencilManager.sharedManager!.stage);//这里存疑，应该每一帧都传一次
-        this._renderEntity.setIsMeshBuffer(this.isMeshBuffer);
-        this._renderEntity.setMaterial(this.material!);
+    protected setRenderEntityAttributes () {
+        if (JSB) {
+            if (!this._renderEntity) {
+                return;
+            }
+            this._renderEntity.setBufferId(this.chunk.bufferId);
+            this._renderEntity.setVertexOffset(this.chunk.vertexOffset);
+            this._renderEntity.setIndexOffset(this.chunk.meshBuffer.indexOffset);
+            this._renderEntity.setVB(this.chunk.vb.buffer);
+            this._renderEntity.setVData(this.chunk.meshBuffer.vData.buffer);
+            this._renderEntity.setIData(this.chunk.meshBuffer.iData.buffer);
+
+            this._renderEntity.setDataHash(this.dataHash);
+            this._renderEntity.setStencilStage(StencilManager.sharedManager!.stage);//这里存疑，应该每一帧都传一次
+            this._renderEntity.setIsMeshBuffer(this.isMeshBuffer);
+            this._renderEntity.setMaterial(this.material!);
+        }
     }
 }
 
@@ -268,11 +282,7 @@ export class RenderData extends BaseRenderData {
         }
         this._accessor = accessor;
 
-        // Instantiate RenderEntity and put it into Batcher2d
-        if (!this._renderEntity) {
-            this._renderEntity = new RenderEntity();
-            batcher.addRenderEntity(this._renderEntity);
-        }
+        this.initRenderEntity();
     }
 
     public resize (vertexCount: number, indexCount: number) {
@@ -287,44 +297,47 @@ export class RenderData extends BaseRenderData {
         this.chunk = this._accessor.allocateChunk(vertexCount, indexCount)!;
         this.updateHash();
 
+        if (JSB) {
         // for sync vData and iData address to native
-        this.setRenderEntityAttributes();
-        // sync some attributes which belong to mesh buffer
-        const batcher = director.root!.batcher2D;
-        batcher.updateAttrBuffer(this.chunk);
-        batcher.syncMeshBufferAttrToNative();
+            this.setRenderEntityAttributes();
+            // sync some attributes which belong to mesh buffer
+            const batcher = director.root!.batcher2D;
+            batcher.updateAttrBuffer(this.chunk);
+            batcher.syncMeshBufferAttrToNative();
+        }
     }
 
     protected setRenderEntityAttributes () {
-        if (!this._renderEntity) {
-            return;
+        if (JSB) {
+            if (!this._renderEntity) {
+                return;
+            }
+            super.setRenderEntityAttributes();
+            this._renderEntity.setTexture(this.frame?.getGFXTexture());
+            this._renderEntity.setTextureHash(this.textureHash);
+            this._renderEntity.setSampler(this.frame?.getGFXSampler());
+            this._renderEntity.setBlendHash(this.blendHash);
         }
-        super.setRenderEntityAttributes();
-        this._renderEntity.setTexture(this.frame?.getGFXTexture());
-        this._renderEntity.setTextureHash(this.textureHash);
-        this._renderEntity.setSampler(this.frame?.getGFXSampler());
-        this._renderEntity.setBlendHash(this.blendHash);
     }
 
     public assignExtraEntityAttrs (comp: UIRenderer) {
-        if (!this._renderEntity || !comp) {
-            return;
+        if (JSB) {
+            if (!this._renderEntity || !comp) {
+                return;
+            }
+            this._renderEntity.setNode(comp.node);
         }
-        this._renderEntity.setNode(comp.node);
     }
 
     // Initial advance render data for native
     protected syncRender2dBuffer () {
-        if (!this._renderEntity) {
-            return;
+        if (JSB) {
+            if (!this._renderEntity) {
+                return;
+            }
+            this.renderEntity.initRender2dBuffer(this.dataLength, this.floatStride);
+            this.renderEntity.setRender2dBufferToNative();
         }
-        // for (let i = 0; i < this.dataLength; i++) {
-        //     const advanceData = new AdvanceRenderData();
-        //     this.renderEntity.addAdvanceRenderData(advanceData);
-        // }
-        // this.renderEntity.setAdvanceRenderDataArrToNative();
-        this.renderEntity.initRender2dBuffer(this.dataLength, this.floatStride);
-        this.renderEntity.setRender2dBufferToNative();
     }
 
     public resizeAndCopy (vertexCount: number, indexCount: number) {

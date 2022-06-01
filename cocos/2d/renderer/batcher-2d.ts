@@ -775,45 +775,47 @@ export class Batcher2D implements IBatcher {
     // sync some attribute of MeshBuffer
     protected _meshBufferAttrArr:MeshBufferAttr[] = [];
     protected declare _AttrBuffer: Uint32Array;
-    protected _needToSyncAttr = true;
+    protected _needToSyncToNative = true;
     //protected _meshBufferAttrBuffer!:Array<number>;
     protected _attrStride = 2;//后期需要改为结构体的长度
     protected _attrCapacity = 4;
 
     public initAttrBuffer () {
-        this._AttrBuffer = new Uint32Array(this._attrCapacity * this._attrStride);
+        if (JSB) {
+            this._AttrBuffer = new Uint32Array(this._attrCapacity * this._attrStride);
+        }
     }
 
     public updateAttrBuffer (chunk: StaticVBChunk) {
-        const index = this._meshBufferAttrArr.findIndex((x) => x.bufferId === chunk.bufferId);
-        if (index >= 0 && index < this._meshBufferAttrArr.length) {
-            this._meshBufferAttrArr[index].setAttr(chunk.bufferId, chunk.meshBuffer.indexOffset);
-            this.syncAttrToSharedBuffer();
-        } else {
-            const temp: MeshBufferAttr = new MeshBufferAttr();
-            temp.setAttr(chunk.bufferId, chunk.meshBuffer.indexOffset);
-            this._meshBufferAttrArr.push(temp);
-
-            if (this._attrCapacity < this._meshBufferAttrArr.length) {
-                this.resizeAttrBufferAndSync();
+        if (JSB) {
+            const index = this._meshBufferAttrArr.findIndex((x) => x.bufferId === chunk.bufferId);
+            if (index >= 0 && index < this._meshBufferAttrArr.length) {
+                this._meshBufferAttrArr[index].setAttr(chunk.bufferId, chunk.meshBuffer.indexOffset);
+                this.refreshAttrInSharedBuffer();
             } else {
-                this._needToSyncAttr = true;
+                const temp: MeshBufferAttr = new MeshBufferAttr();
+                temp.setAttr(chunk.bufferId, chunk.meshBuffer.indexOffset);
+                this._meshBufferAttrArr.push(temp);
+
+                if (this._attrCapacity < this._meshBufferAttrArr.length) {
+                    this.resizeAttrBufferAndSync();
+                } else {
+                    this._needToSyncToNative = true;
+                }
             }
         }
     }
 
     public resizeAttrBufferAndSync () {
         this._attrCapacity *= 2;
-        //const cloneArr = this._AttrBuffer
         this._AttrBuffer = new Uint32Array(this._attrCapacity * this._attrStride);
-        this._needToSyncAttr = true;
+        this._needToSyncToNative = true;
         this.syncMeshBufferAttrToNative();
     }
 
-    public syncAttrToSharedBuffer () {
+    public refreshAttrInSharedBuffer () {
         const length = this._attrStride * this._meshBufferAttrArr.length;
-        //this._AttrBuffer = new Uint32Array(length);
-        if (this._AttrBuffer.length < length) {
+        if (!this._AttrBuffer || this._AttrBuffer.length < length) {
             return false;
         }
         for (let i = 0; i < this._meshBufferAttrArr.length; i++) {
@@ -826,13 +828,13 @@ export class Batcher2D implements IBatcher {
 
     public syncMeshBufferAttrToNative () {
         if (JSB) {
-            if (this._needToSyncAttr) {
-                const success = this.syncAttrToSharedBuffer();
+            if (this._needToSyncToNative) {
+                const success = this.refreshAttrInSharedBuffer();
                 if (success) {
                     const length = this._attrStride * this._meshBufferAttrArr.length;
                     this._nativeObj.syncMeshBufferAttrToNative(this._AttrBuffer, this._attrStride, length);
                 }
-                this._needToSyncAttr = false;
+                this._needToSyncToNative = false;
             }
         }
     }

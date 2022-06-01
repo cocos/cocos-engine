@@ -86,22 +86,23 @@ export const simple: IAssembler = {
             renderData.updateRenderData(sprite, frame);
         }
 
-        this.copyRenderDataToBuffer(sprite);
-        //renderData?.renderEntity.nativeObj.ItIsDebugFuncInRenderEntity();
+        this.copyRenderDataToSharedBuffer(sprite);
     },
 
-    copyRenderDataToBuffer (sprite:Sprite) {
-        const renderData :RenderData = sprite.renderData!;
-        const entity = renderData.renderEntity;
-        const sharedBuffer = entity.render2dBuffer;
+    copyRenderDataToSharedBuffer (sprite:Sprite) {
+        if (JSB) {
+            const renderData :RenderData = sprite.renderData!;
+            const entity = renderData.renderEntity;
+            const sharedBuffer = entity.render2dBuffer;
 
-        if (sharedBuffer.length < renderData.floatStride * renderData.data.length) {
-            console.error('Vertex count doesn\'t match.');
-            return;
+            if (sharedBuffer.length < renderData.floatStride * renderData.data.length) {
+                console.error('Vertex count doesn\'t match.');
+                return;
+            }
+
+            // 考虑dirty，但本方法消耗不大
+            entity.fillRender2dBuffer(renderData.data);
         }
-
-        // 考虑dirty，但本方法消耗不大
-        entity.fillRender2dBuffer(renderData.data);
     },
 
     updateWorldVerts (sprite: Sprite, chunk: StaticVBChunk) {
