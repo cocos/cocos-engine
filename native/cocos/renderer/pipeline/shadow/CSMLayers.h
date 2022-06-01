@@ -77,6 +77,8 @@ public:
 
     void specialLayerSplitFrustum(float start, float end, float aspect, float fov, const Mat4 &transform);
 
+    void splitFrustum(float start, float end, float aspect, float fov, const Mat4 &transform);
+
 private:
     RenderObjectList _shadowObjects;
 

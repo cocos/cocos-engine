@@ -130,6 +130,10 @@ void ShadowTransformInfo::specialLayerSplitFrustum(float start, float end, float
     _splitFrustum.split(start, end, aspect, fov, transform);
 }
 
+void ShadowTransformInfo::splitFrustum(float start, float end, float aspect, float fov, const Mat4& transform) {
+    _splitFrustum.split(start, end, aspect, fov, transform);
+}
+
 CSMLayerInfo::CSMLayerInfo(uint level) : ShadowTransformInfo(level) {
     _matShadowAtlas.setZero();
     _matShadowViewProjAtlas.setZero();
@@ -258,10 +262,7 @@ void CSMLayers::calculateCSM(const scene::Camera *camera, const scene::Direction
         auto *layer = _layers[i];
         const float nearClamp = layer->getSplitCameraNear();
         const float farClamp = layer->getSplitCameraFar();
-        geometry::Frustum splitFrustum;
-        splitFrustum.setType(geometry::ShapeEnum::SHAPE_FRUSTUM_ACCURATE);
-        splitFrustum.split(nearClamp, farClamp, camera->getAspect(), camera->getFov(), mat4Trans);
-        layer->setSplitFrustum(splitFrustum);
+        layer->splitFrustum(nearClamp, farClamp, camera->getAspect(), camera->getFov(), mat4Trans);
         layer->createMatrix(layer->getSplitFrustum(), dirLight, shadowMapWidth, false);
         Mat4 matShadowViewProjAtlas;
         Mat4::multiply(layer->getMatShadowAtlas(), layer->getMatShadowViewProj(), &matShadowViewProjAtlas);
