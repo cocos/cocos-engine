@@ -50,7 +50,7 @@ namespace cc {
  * It's mean VideoPlayer displays a video file above all graphical elements of cocos2d-x.
  * @js NA
  */
-class VideoPlayer {
+class VideoPlayer final {
 public:
     /**
      * Videoplayer play event type.
