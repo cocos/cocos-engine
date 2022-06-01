@@ -99,7 +99,6 @@ public:
         return (_obj == nullptr);
     }
 
-public:
     HandleObject(const HandleObject &) = delete;
     void operator=(const HandleObject &) = delete;
     HandleObject(HandleObject &&) = delete;
