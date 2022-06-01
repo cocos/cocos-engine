@@ -59,10 +59,7 @@ WebView *WebView::create() {
 }
 
 void WebView::destroy() {
-    if (_impl != nullptr) {
-        _impl->destroy();
-        _impl = nullptr;
-    }
+    CC_SAFE_DESTROY(_impl);
 }
 
 void WebView::setJavascriptInterfaceScheme(const ccstd::string &scheme) {
