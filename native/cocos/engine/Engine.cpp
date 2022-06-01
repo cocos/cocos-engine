@@ -92,8 +92,7 @@ bool setCanvasCallback(se::Object * /*global*/) {
 
 namespace cc {
 
-Engine::Engine() {
-}
+Engine::Engine() = default;
 
 Engine::~Engine() {
     destroy();
@@ -106,12 +105,12 @@ int32_t Engine::init() {
     _gfxDevice = gfx::DeviceManager::create();
     _programLib = ccnew ProgramLib();
     _builtinResMgr = ccnew BuiltinResMgr;
-    
+
     _debugRenderer = ccnew DebugRenderer();
 #if CC_USE_PROFILER
     _profiler = ccnew Profiler();
 #endif
-    
+
     _scriptEngine = ccnew se::ScriptEngine();
     EventDispatcher::init();
 
@@ -137,44 +136,44 @@ void Engine::destroy() {
 #if CC_USE_AUDIO
     AudioEngine::end();
 #endif
-    
+
     EventDispatcher::destroy();
-    
+
     // Should delete it before deleting DeviceManager as ScriptEngine will check gpu resource usage,
     // and ScriptEngine will hold gfx objects.
     delete _scriptEngine;
-    
+
 #if CC_USE_PROFILER
     delete _profiler;
 #endif
     // Profiler depends on DebugRenderer, should delete it after deleting Profiler,
     // and delete DebugRenderer after RenderPipeline::destroy which destroy DebugRenderer.
     delete _debugRenderer;
-    
+
     //TODO(): Delete some global objects.
-    
+
     FreeTypeFontFace::destroyFreeType();
-    
+
 #if CC_USE_DRAGONBONES
     dragonBones::ArmatureCacheMgr::destroyInstance();
 #endif
-    
+
 #if CC_USE_SPINE
     spine::SkeletonCacheMgr::destroyInstance();
 #endif
-    
+
 #if CC_USE_MIDDLEWARE
     cc::middleware::MiddlewareManager::destroyInstance();
 #endif
-    
+
     CCObject::deferredDestroy();
-    
+
     delete _builtinResMgr;
     delete _programLib;
     CC_SAFE_DESTROY_AND_DELETE(_gfxDevice);
     delete _fs;
     _scheduler.reset();
-    
+
     _inited = false;
 }
 

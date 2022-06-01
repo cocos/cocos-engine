@@ -491,9 +491,8 @@ ScriptEngine::ScriptEngine()
     ScriptEngine::instance = this;
 }
 
-ScriptEngine::~ScriptEngine() {
+ScriptEngine::~ScriptEngine() { //NOLINT(bugprone-exception-escape)
     cleanup();
-#if !CC_EDITOR
     /**
      * v8::V8::Initialize() can only be called once for a process.
      * Engine::restart() will delete ScriptEngine and re-create it.
@@ -503,7 +502,6 @@ ScriptEngine::~ScriptEngine() {
 //        delete gSharedV8;
 //        gSharedV8 = nullptr;
 //    }
-#endif
     ScriptEngine::instance = nullptr;
 }
 
