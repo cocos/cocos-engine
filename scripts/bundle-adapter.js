@@ -13,9 +13,11 @@ const engineRoot = ps.join(__dirname, '..');
 
 (async function bundleAdapter () {
     try {
+        console.time('Bundle Adapter');
         await bundleJsbAdapter();
         await bundleMinigameAdapter();
         await bundleRuntimeAdapter();
+        console.timeEnd('Bundle Adapter');
         process.exit(0);
     } catch (e) {
         console.error(e);
