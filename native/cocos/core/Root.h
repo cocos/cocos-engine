@@ -45,6 +45,7 @@ class Device;
 } // namespace gfx
 namespace render {
 class PipelineRuntime;
+class Pipeline;
 } // namespace render
 class CallbacksInvoker;
 
@@ -199,6 +200,12 @@ public:
 
     /**
      * @zh
+     * 自定义渲染管线
+     */
+    render::Pipeline *getCustomPipeline() const;
+
+    /**
+     * @zh
      * UI实例
      * 引擎内部使用，用户无需调用此接口
      */
@@ -267,7 +274,7 @@ private:
     uint32_t _fps{0};
     uint32_t _fixedFPS{0};
     bool _useDeferredPipeline{false};
-    bool _usesCustomPipeline{false};
+    bool _usesCustomPipeline{true};
     CallbacksInvoker *_eventProcessor{nullptr};
 
     // Cache ccstd::vector to avoid allocate every frame in frameMove

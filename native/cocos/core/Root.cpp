@@ -95,6 +95,10 @@ void Root::initialize(gfx::Swapchain *swapchain) {
     // return Promise.resolve(builtinResMgr.initBuiltinRes(this._device));
 }
 
+render::Pipeline *Root::getCustomPipeline() const {
+    return dynamic_cast<render::Pipeline *>(_pipelineRuntime.get());
+}
+
 void Root::destroy() {
     destroyScenes();
 
