@@ -157,7 +157,6 @@ public:
     virtual void setFrame(float x, float y, float width, float height);
 
 protected:
-
     enum class Source {
         FILENAME = 0,
         URL
