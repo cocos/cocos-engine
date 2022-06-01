@@ -14,7 +14,7 @@ void main()  {
   vec2 shadowBias = vec2(0.0);
   vec3 colDebugCSMLayer = vec3(1.0);
   #if CC_RECEIVE_SHADOW
-    shadowPos = FSInput_shadowPos;
+    shadowPos = cc_matLightViewProj * vec4(surfaceData.worldPos, 1.0);
     shadowBias = vec2(cc_shadowWHPBInfo.w, cc_shadowLPNNInfo.z);
     #if CC_SURFACES_USE_INSTANCING
       shadowBias = FSInput_shadowBias;
