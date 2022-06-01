@@ -10,7 +10,7 @@
   "module": "index.js",
   "scripts": {
     "server": "http-server . -p 8002 -o playground/index.html",
-    "postinstall": "gulp build-debug-infos && gulp build-declarations && npm run fetch-ral && npm run install:typedoc-plugin",
+    "postinstall": "gulp build-debug-infos && gulp build-declarations && npm run bundle-adapter && npm run fetch-ral && npm run install:typedoc-plugin",
     "build": "gulp build",
     "build:dev": "gulp build-h5-source",
     "build:min": "gulp build-h5-minified",
@@ -20,6 +20,7 @@
     "checkout-engine-version": "node ./scripts/checkout-engine-version.js",
     "varify-engine-version": "node ./scripts/varify-engine-version.js",
     "fetch-ral": "node ./scripts/fetch-ral.js",
+    "bundle-adapter": "node ./scripts/bundle-adapter.js",
     "clear": "node ./scripts/clear.js",
     "clear-platform": "node ./native/utils/clear-platform.js",
     "update:native-external": "node ./native/utils/update-external.js",
@@ -74,10 +75,17 @@
     "yargs": "^12.0.5"
   },
   "dependencies": {
+    "@babel/plugin-proposal-export-default-from": "^7.17.12",
     "@cocos/box2d": "1.0.1",
     "@cocos/bullet": "1.0.2",
     "@cocos/cannon": "1.2.8",
     "@cocos/dragonbones-js": "^1.0.1",
-    "@cocos/physx": "1.0.7"
+    "@cocos/physx": "1.0.7",
+    "babelify": "^10.0.0",
+    "browserify": "^17.0.0",
+    "gulp-rename": "^2.0.0",
+    "gulp-uglify": "^3.0.2",
+    "vinyl-buffer": "^1.0.1",
+    "vinyl-source-stream": "^2.0.0"
   }
 }
