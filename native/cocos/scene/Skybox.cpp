@@ -204,9 +204,8 @@ bool Skybox::isUseConvolutionMap() const {
     auto *envmap = getEnvmap();
     if (envmap) {
         return envmap->useOfflineMipmaps();
-    } else {
-        return false;
     }
+    return false;
 }
 
 TextureCube *Skybox::getDiffuseMap() const {
@@ -252,7 +251,7 @@ void Skybox::setDiffuseMaps(TextureCube *diffuseMapHDR, TextureCube *diffuseMapL
     updatePipeline();
 }
 
-void Skybox::setSkyboxMaterial(cc::Material *skyboxMat) {
+void Skybox::setSkyboxMaterial(Material *skyboxMat) {
     _editableMaterial = skyboxMat;
 }
 
@@ -271,7 +270,7 @@ void Skybox::activate() {
 
     bool isUseConvolutionMap = envmap != nullptr ? envmap->useOfflineMipmaps() : _default->useOfflineMipmaps();
     if (!skyboxMaterial) {
-        auto *mat = _editableMaterial ? _editableMaterial : ccnew Material();
+        auto *mat = _editableMaterial ? _editableMaterial.get() : ccnew Material();
         MacroRecord defines{{"USE_RGBE_CUBEMAP", isRGBE}, {"USE_CONVOLUTION_MAP", isUseConvolutionMap}};
         IMaterialInfo matInfo;
         matInfo.effectName = ccstd::string{"skybox"};

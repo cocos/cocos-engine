@@ -270,11 +270,9 @@ export class SimpleTexture extends TextureBase {
         let flags = TextureFlagBit.NONE;
         if (this._mipFilter !== Filter.NONE && canGenerateMipmap(device, this._width, this._height)) {
             this._mipmapLevel = getMipLevel(this._width, this._height);
-            flags = TextureFlagBit.GEN_MIPMAP;
-        }
-
-        if (this.useOfflineMipmaps()) {
-            flags = TextureFlagBit.NONE;
+            if (!this.useOfflineMipmaps()) {
+                flags = TextureFlagBit.GEN_MIPMAP;
+            }
         }
         const textureCreateInfo = this._getGfxTextureCreateInfo({
             usage: TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
@@ -293,7 +291,7 @@ export class SimpleTexture extends TextureBase {
         this._gfxTexture = texture;
     }
 
-    protected _createTextureView (device: Device) : Texture | null {
+    protected _createTextureView (device: Device): Texture | null {
         if (!this._gfxTexture) {
             return null;
         }

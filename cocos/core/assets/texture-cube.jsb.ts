@@ -37,7 +37,7 @@ interface ITextureCubeSerializeData {
     base: string;
     rgbe: boolean;
     mipmapMode: number;
-    mipmapAtlas:  {
+    mipmapAtlas: {
         front: string;
         back: string;
         left: string;
@@ -329,7 +329,7 @@ textureCubeProto._deserialize = function (serializedData: ITextureCubeSerializeD
             handle.result.push(this._mipmapAtlas.atlas, `top`, mipmapAtlas.top, imageAssetClassId);
             handle.result.push(this._mipmapAtlas.atlas, `bottom`, mipmapAtlas.bottom, imageAssetClassId);   
         }
-    }else{
+    } else {
         this._mipmaps = new Array(data.mipmaps.length);
         for (let i = 0; i < data.mipmaps.length; ++i) {
             // Prevent resource load failed

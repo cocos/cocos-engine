@@ -147,7 +147,7 @@ void TextureCube::setmipmapAtlas(const ITextureCubeMipmapAtlas &value) {
                 }
             }
             auto *tempAsset = ccnew ImageAsset();
-            auto arrayBuffer = ccnew ArrayBuffer(buffer, static_cast<uint32_t>(currentSize));
+            auto *arrayBuffer = ccnew ArrayBuffer(buffer, static_cast<uint32_t>(currentSize));
             IMemoryImageSource source{arrayBuffer, face->isCompressed(), layoutInfo.width, layoutInfo.height, face->getFormat()};
             tempAsset->setNativeAsset(source);
 
@@ -210,11 +210,11 @@ void TextureCube::updateMipmaps(uint32_t firstLevel, uint32_t count) {
 }
 
 bool TextureCube::useOfflineMipmaps() {
-    return _mipmapMode == MipmapBakeMode::BakeReflectionConvolution;
+    return _mipmapMode == MipmapBakeMode::BAKE_REFLECTION_CONVOLUTION;
 }
 
 void TextureCube::initialize() {
-    if (_mipmapMode == MipmapBakeMode::BakeReflectionConvolution) {
+    if (_mipmapMode == MipmapBakeMode::BAKE_REFLECTION_CONVOLUTION) {
         setmipmapAtlas(_mipmapAtlas);
     } else {
         setMipmaps(_mipmaps);
@@ -333,20 +333,19 @@ void TextureCube::initDefault(const ccstd::optional<ccstd::string> &uuid) {
 }
 
 bool TextureCube::validate() const {
-    if (_mipmapMode == MipmapBakeMode::BakeReflectionConvolution) {
+    if (_mipmapMode == MipmapBakeMode::BAKE_REFLECTION_CONVOLUTION) {
         if (_mipmapAtlas.layout.empty()) {
             return false;
         }
         return (_mipmapAtlas.atlas.top && _mipmapAtlas.atlas.bottom && _mipmapAtlas.atlas.front && _mipmapAtlas.atlas.back && _mipmapAtlas.atlas.left && _mipmapAtlas.atlas.right);
-    } else {
-        if (_mipmaps.empty()) {
-            return false;
-        }
-        return std::all_of(_mipmaps.begin(),
-                           _mipmaps.end(),
-                           [&](const ITextureCubeMipmap &mipmap) {
-                               return (mipmap.top && mipmap.bottom && mipmap.front && mipmap.back && mipmap.left && mipmap.right);
-                           });
     }
+    if (_mipmaps.empty()) {
+        return false;
+    }
+    return std::all_of(_mipmaps.begin(),
+                       _mipmaps.end(),
+                       [&](const ITextureCubeMipmap &mipmap) {
+                           return (mipmap.top && mipmap.bottom && mipmap.front && mipmap.back && mipmap.left && mipmap.right);
+                       });
 }
 } // namespace cc

@@ -494,7 +494,11 @@ export class TextureCube extends SimpleTexture {
 
     public validate () {
         if (this._mipmapMode === MipmapBakeMode.BakeReflectionConvolution) {
-            return this.mipmapAtlas !== null && this.mipmapAtlas.layout.length !== 0;
+            if (this.mipmapAtlas === null || this.mipmapAtlas.layout.length === 0) {
+                return false;
+            }
+            const atlas = this.mipmapAtlas.atlas;
+            return !!(atlas.top && atlas.bottom && atlas.front && atlas.back && atlas.left && atlas.right);
         } else {
             return this._mipmaps.length !== 0 && !this._mipmaps.find((x) => !(x.top && x.bottom && x.front && x.back && x.left && x.right));
         }

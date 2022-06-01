@@ -63,11 +63,11 @@ struct ITextureCubeSerializeMipmapData {
  * @zh MipmapAtlas的region接口。
  */
 struct IMipmapAtlasLayout {
-    uint32_t left;
-    uint32_t top;
-    uint32_t width;
-    uint32_t height;
-    uint32_t level;
+    uint32_t left{0};
+    uint32_t top{0};
+    uint32_t width{0};
+    uint32_t height{0};
+    uint32_t level{0};
 };
 /**
  * @en The texture cube MipmapAtlas interface
@@ -86,7 +86,7 @@ enum class MipmapBakeMode {
      * Using the automatically generated mipmap
      * @readonly
      */
-    None = 0,
+    NONE = 0,
     /**
     * @zh
     * 使用反射卷积图填充mipmap
@@ -94,12 +94,12 @@ enum class MipmapBakeMode {
     * Update mipmap with reflective convolutional map
     * @readonly
     */
-    BakeReflectionConvolution = 1
+    BAKE_REFLECTION_CONVOLUTION = 1
 };
 struct ITextureCubeSerializeData {
     ccstd::string base;
     bool rgbe{false};
-    MipmapBakeMode mipmapMode{MipmapBakeMode::None};
+    MipmapBakeMode mipmapMode{MipmapBakeMode::NONE };
     ccstd::vector<ITextureCubeSerializeMipmapData> mipmaps;
     ITextureCubeMipmapAtlas mipmapAtlas;
 };
@@ -161,7 +161,7 @@ public:
         return _mipmaps;
     }
 
-    const ITextureCubeMipmapAtlas &getMipmapAtlas() const {
+    inline const ITextureCubeMipmapAtlas &getMipmapAtlas() const {
         return _mipmapAtlas;
     }
 
@@ -232,7 +232,7 @@ public:
     ccstd::vector<ITextureCubeMipmap> _mipmaps;
 
     /*@serializable*/
-    MipmapBakeMode _mipmapMode{ MipmapBakeMode::None };
+    MipmapBakeMode _mipmapMode{ MipmapBakeMode::NONE };
 
     /*@serializable*/
     ITextureCubeMipmapAtlas _mipmapAtlas;

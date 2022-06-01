@@ -185,7 +185,7 @@ public:
     // @serializable
     bool _useHDR{true};
     EnvironmentLightingType _envLightingType{EnvironmentLightingType::HEMISPHERE_DIFFUSE};
-    cc::Material *_editableMaterial{nullptr};
+    IntrusivePtr<Material> _editableMaterial;
     Skybox *_resource{nullptr};
 };
 
@@ -273,7 +273,7 @@ public:
      */
     TextureCube *getDiffuseMap() const;
     void setDiffuseMap(TextureCube *val);
-    void setSkyboxMaterial(cc::Material* skyboxMat);
+    void setSkyboxMaterial(Material* skyboxMat);
 
 private:
     void updatePipeline() const;
@@ -291,7 +291,7 @@ private:
     bool _useIBL{false};
     bool _useHDR{true};
     bool _useDiffuseMap{false};
-    cc::Material *_editableMaterial{ nullptr };
+    IntrusivePtr<Material> _editableMaterial;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(Skybox);
 };
