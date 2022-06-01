@@ -460,24 +460,26 @@ export class UBOSkinning {
     public static readonly NAME = 'CCSkinning';
     public static readonly BINDING = ModelLocalBindings.UBO_SKINNING_TEXTURE;
     public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOSkinning.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.VERTEX);
-    private static _LAYOUT: UniformBlock;
-    static get LAYOUT () { return UBOSkinning._LAYOUT; }
+    public static readonly LAYOUT = new UniformBlock(SetIndex.LOCAL, UBOSkinning.BINDING, UBOSkinning.NAME, [
+        new Uniform('cc_joints', Type.FLOAT4, 1),
+    ], 1);
 
-    public static InitLayout (capacity: number) {
+    /**
+     * @internal This method only used init UBOSkinning configure.
+    */
+    public static initLayout (capacity: number) {
         UBOSkinning._JOINT_UNIFORM_CAPACITY = capacity;
         UBOSkinning._COUNT = capacity * 12;
         UBOSkinning._SIZE = UBOSkinning._COUNT * 4;
-        UBOSkinning._LAYOUT = new UniformBlock(SetIndex.LOCAL, UBOSkinning.BINDING, UBOSkinning.NAME, [
-            new Uniform('cc_joints', Type.FLOAT4, capacity * 3),
-        ], 1);
+        UBOSkinning.LAYOUT.members[0].count = capacity * 3;
     }
 }
 
 /**
- * @internal This method only used in Game._initDevice to init localDescriptorSetLayout.layouts[UBOSkinning.NAME]
+ * @internal This method only used to init localDescriptorSetLayout.layouts[UBOSkinning.NAME]
 */
 export function localDescriptorSetLayout_ResizeMaxJoints (maxCount: number) {
-    UBOSkinning.InitLayout(maxCount);
+    UBOSkinning.initLayout(maxCount);
     localDescriptorSetLayout.layouts[UBOSkinning.NAME] = UBOSkinning.LAYOUT;
     localDescriptorSetLayout.bindings[UBOSkinning.BINDING] = UBOSkinning.DESCRIPTOR;
 }

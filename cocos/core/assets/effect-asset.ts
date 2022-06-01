@@ -28,7 +28,7 @@ import { EDITOR } from 'internal:constants';
 import { Root } from '../root';
 import { BlendState, DepthStencilState, RasterizerState,
     DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type, Uniform, MemoryAccess, Format } from '../gfx';
-import { RenderPassStage } from '../pipeline/define';
+import { RenderPassStage, localDescriptorSetLayout_ResizeMaxJoints } from '../pipeline/define';
 import { MacroRecord } from '../renderer/core/pass-utils';
 import { programLib } from '../renderer/core/program-lib';
 import { Asset } from './asset';
@@ -251,6 +251,7 @@ export class EffectAsset extends Asset {
      * @zh 通过 [[CCLoader]] 加载完成时的回调，将自动注册 effect 资源。
      */
     public onLoaded () {
+        this.modifyDescriptorSetLayout();
         programLib.register(this);
         EffectAsset.register(this);
         if (!EDITOR) { legacyCC.game.once(legacyCC.Game.EVENT_ENGINE_INITED, this._precompile, this); }
@@ -293,6 +294,14 @@ export class EffectAsset extends Asset {
 
     public validate () {
         return this.techniques.length > 0 && this.shaders.length > 0;
+    }
+
+    private modifyDescriptorSetLayout () {
+        //set max joints after device initialize.
+        const root = legacyCC.director.root as Root;
+        let maxJoints = Math.floor((root.device.capabilities.maxVertexUniformVectors - 38) / 3);
+        maxJoints = maxJoints < 256 ? maxJoints : 256;
+        localDescriptorSetLayout_ResizeMaxJoints(maxJoints);
     }
 }
 

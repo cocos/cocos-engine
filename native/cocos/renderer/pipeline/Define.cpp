@@ -269,22 +269,14 @@ gfx::UniformBlock UBOSkinning::layout = {
     UBOSkinning::BINDING,
     UBOSkinning::NAME,
     {
-        {"cc_joints", gfx::Type::FLOAT4, SkinningJointCapacity::jointUniformCapacity * 3},
+        {"cc_joints", gfx::Type::FLOAT4, 0},
     },
     1,
 };
 void UBOSkinning::initLayout (uint capacity) {
     UBOSkinning::count = capacity * 12;
     UBOSkinning::size = UBOSkinning::count * 4;
-    UBOSkinning::layout = {
-        localSet,
-        UBOSkinning::BINDING,
-        UBOSkinning::NAME,
-        {
-            {"cc_joints", gfx::Type::FLOAT4, SkinningJointCapacity::jointUniformCapacity * 3},
-        },
-        1,
-    };
+    UBOSkinning::layout.members[0].count = capacity * 3;
 }
 
 const uint                            UBOMorph::COUNT_BASE_4_BYTES = static_cast<uint>(4 * std::ceil(UBOMorph::MAX_MORPH_TARGET_COUNT / 4) + 4);
