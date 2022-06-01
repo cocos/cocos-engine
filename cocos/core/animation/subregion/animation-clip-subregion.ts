@@ -12,7 +12,7 @@ import { InstantiatedSubRegionPlayer, SubRegionPlayer } from './subregion';
  * @zh
  * 动画剪辑子区域播放器。此播放器在子区域上播放动画剪辑。
  */
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}/AnimationClipSubRegionPlayer`)
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationClipSubRegionPlayer`)
 export class AnimationClipSubRegionPlayer extends SubRegionPlayer {
     /**
      * @en

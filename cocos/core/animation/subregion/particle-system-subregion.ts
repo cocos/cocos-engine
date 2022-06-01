@@ -11,7 +11,7 @@ import { InstantiatedSubRegionPlayer, SubRegionPlayer } from './subregion';
  * @zh
  * 粒子系统子区域播放器。此播放器在子区域上播放粒子系统。
  */
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}/ParticleSystemSubRegionPlayer`)
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}ParticleSystemSubRegionPlayer`)
 export class ParticleSystemSubRegionPlayer extends SubRegionPlayer {
     /**
      * @en

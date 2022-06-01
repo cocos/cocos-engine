@@ -691,9 +691,11 @@ export class AnimationClip extends Asset {
         }
 
         let subregionEvaluation: SubregionEvaluation | undefined;
-        const { _subregions: subregions } = this;
-        if (this._subregions.length !== 0) {
-            subregionEvaluation = new SubregionEvaluation(subregions, target as Node);
+        if (target instanceof Node) { // Note: when this method is called from bake(), target is undefined.
+            const { _subregions: subregions } = this;
+            if (this._subregions.length !== 0) {
+                subregionEvaluation = new SubregionEvaluation(subregions, target);
+            }
         }
 
         const evaluation = new AnimationClipEvaluation(
