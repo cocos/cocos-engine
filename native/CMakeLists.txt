@@ -1801,6 +1801,7 @@ cocos_source_files(
 
     cocos/core/data/Object.cpp
     cocos/core/data/Object.h
+    cocos/core/data/JSBNativeDataHolder.h
     cocos/core/data/deserializer/EffectAssetDeserializer.cpp
     cocos/core/data/deserializer/EffectAssetDeserializer.h
     # cocos/core/data/deserializer/MeshDeserializer.cpp

@@ -4245,25 +4245,6 @@ static bool js_scene_ShadowsInfo_activate(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_FUNC(js_scene_ShadowsInfo_activate)
 
-static bool js_scene_ShadowsInfo_getDistance(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_getDistance : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        float result = cobj->getDistance();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_getDistance : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC_AS_PROP_GET(js_scene_ShadowsInfo_getDistance)
-
 static bool js_scene_ShadowsInfo_getMaxReceived(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
@@ -4283,24 +4264,43 @@ static bool js_scene_ShadowsInfo_getMaxReceived(se::State& s) // NOLINT(readabil
 }
 SE_BIND_FUNC_AS_PROP_GET(js_scene_ShadowsInfo_getMaxReceived)
 
-static bool js_scene_ShadowsInfo_getNormal(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_scene_ShadowsInfo_getPlaneDirection(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_getNormal : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_getPlaneDirection : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cc::Vec3& result = cobj->getNormal();
+        const cc::Vec3& result = cobj->getPlaneDirection();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_getNormal : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_getPlaneDirection : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC_AS_PROP_GET(js_scene_ShadowsInfo_getNormal)
+SE_BIND_FUNC_AS_PROP_GET(js_scene_ShadowsInfo_getPlaneDirection)
+
+static bool js_scene_ShadowsInfo_getPlaneHeight(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_getPlaneHeight : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        float result = cobj->getPlaneHeight();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_getPlaneHeight : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_scene_ShadowsInfo_getPlaneHeight)
 
 static bool js_scene_ShadowsInfo_getShadowColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -4397,25 +4397,6 @@ static bool js_scene_ShadowsInfo_isEnabled(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_FUNC_AS_PROP_GET(js_scene_ShadowsInfo_isEnabled)
 
-static bool js_scene_ShadowsInfo_setDistance(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_setDistance : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<float, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_setDistance : Error processing arguments");
-        cobj->setDistance(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC_AS_PROP_SET(js_scene_ShadowsInfo_setDistance)
-
 static bool js_scene_ShadowsInfo_setEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
@@ -4454,24 +4435,24 @@ static bool js_scene_ShadowsInfo_setMaxReceived(se::State& s) // NOLINT(readabil
 }
 SE_BIND_FUNC_AS_PROP_SET(js_scene_ShadowsInfo_setMaxReceived)
 
-static bool js_scene_ShadowsInfo_setNormal(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_scene_ShadowsInfo_setPlaneDirection(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_setNormal : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_setPlaneDirection : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<cc::Vec3, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_setNormal : Error processing arguments");
-        cobj->setNormal(arg0.value());
+        SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_setPlaneDirection : Error processing arguments");
+        cobj->setPlaneDirection(arg0.value());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC_AS_PROP_SET(js_scene_ShadowsInfo_setNormal)
+SE_BIND_FUNC_AS_PROP_SET(js_scene_ShadowsInfo_setPlaneDirection)
 
 static bool js_scene_ShadowsInfo_setPlaneFromNode(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -4491,6 +4472,25 @@ static bool js_scene_ShadowsInfo_setPlaneFromNode(se::State& s) // NOLINT(readab
     return false;
 }
 SE_BIND_FUNC(js_scene_ShadowsInfo_setPlaneFromNode)
+
+static bool js_scene_ShadowsInfo_setPlaneHeight(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_setPlaneHeight : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<float, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_setPlaneHeight : Error processing arguments");
+        cobj->setPlaneHeight(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_scene_ShadowsInfo_setPlaneHeight)
 
 static bool js_scene_ShadowsInfo_setShadowColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -4770,8 +4770,8 @@ bool js_register_scene_ShadowsInfo(se::Object* obj) // NOLINT(readability-identi
     cls->defineProperty("_size", _SE(js_scene_ShadowsInfo_get__size), _SE(js_scene_ShadowsInfo_set__size));
     cls->defineProperty("enabled", _SE(js_scene_ShadowsInfo_isEnabled_asGetter), _SE(js_scene_ShadowsInfo_setEnabled_asSetter));
     cls->defineProperty("type", _SE(js_scene_ShadowsInfo_getType_asGetter), _SE(js_scene_ShadowsInfo_setType_asSetter));
-    cls->defineProperty("normal", _SE(js_scene_ShadowsInfo_getNormal_asGetter), _SE(js_scene_ShadowsInfo_setNormal_asSetter));
-    cls->defineProperty("distance", _SE(js_scene_ShadowsInfo_getDistance_asGetter), _SE(js_scene_ShadowsInfo_setDistance_asSetter));
+    cls->defineProperty("planeDirection", _SE(js_scene_ShadowsInfo_getPlaneDirection_asGetter), _SE(js_scene_ShadowsInfo_setPlaneDirection_asSetter));
+    cls->defineProperty("planeHeight", _SE(js_scene_ShadowsInfo_getPlaneHeight_asGetter), _SE(js_scene_ShadowsInfo_setPlaneHeight_asSetter));
     cls->defineProperty("shadowColor", _SE(js_scene_ShadowsInfo_getShadowColor_asGetter), _SE(js_scene_ShadowsInfo_setShadowColor_asSetter));
     cls->defineProperty("maxReceived", _SE(js_scene_ShadowsInfo_getMaxReceived_asGetter), _SE(js_scene_ShadowsInfo_setMaxReceived_asSetter));
     cls->defineProperty("size", _SE(js_scene_ShadowsInfo_getSize_asGetter), nullptr);
