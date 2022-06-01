@@ -1,7 +1,7 @@
 #pragma once
-#include <cocos/renderer/gfx-base/GFXDevice.h>
 #include <cocos/base/TypeDef.h>
 #include <vector>
+#include <renderer/gfx-base/GFXDef-common.h>
 
 namespace cc {
 struct MeshBufferLayout {
@@ -12,7 +12,7 @@ struct MeshBufferLayout {
 
 class UIMeshBuffer {
 public:
-    UIMeshBuffer(/* args */);
+    UIMeshBuffer();
     ~UIMeshBuffer();
 
     inline float_t* getVData() { return this->_vData; }
@@ -20,12 +20,16 @@ public:
     inline uint16_t* getIData() { return this->_iData; }
     void setIData(uint16_t* iData);
 
-    void initialize(gfx::Device* device, index_t vFloatCount, index_t iCount);
+    void initialize(gfx::Device* device, gfx::AttributeList* attrs, index_t vFloatCount, index_t iCount);
+
     void reset();
     void destroy();
     void setDirty();
-    void recycleIA();
+    void recycleIA(gfx::InputAssembler* ia);
     void uploadBuffers();
+
+    gfx::InputAssembler* requireFreeIA(gfx::Device* device);
+    gfx::InputAssembler* createNewIA(gfx::Device* device);
 
 public:
     void syncSharedBufferToNative(index_t* buffer);
@@ -37,6 +41,15 @@ private:
 
     MeshBufferLayout* _meshBufferLayout{nullptr};
     index_t* _sharedBuffer{nullptr};
-};
-}
+    bool _dirty{false};
+    index_t _vertexFormatBytes{0};
+    uint32_t _floatsPerVertex{0};
+    index_t _initVDataCount{0};
+    index_t _initIDataCount{0};
+    gfx::AttributeList _attributes{};
 
+    std::vector<gfx::InputAssembler*> _iaPool{};
+    gfx::InputAssemblerInfo _iaInfo;
+    index_t _nextFreeIAHandle{0};
+};
+} // namespace cc

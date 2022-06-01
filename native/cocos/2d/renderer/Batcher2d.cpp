@@ -5,6 +5,13 @@
 #include <cocos/core/Root.h>
 
 namespace cc {
+
+gfx::AttributeList vfmtPosUvColor = {
+    gfx::Attribute{gfx::ATTR_NAME_POSITION, gfx::Format::RGB32F},
+    gfx::Attribute{gfx::ATTR_NAME_TEX_COORD, gfx::Format::RG32F},
+    gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA32F},
+};
+
 Batcher2d::Batcher2d() {
     this->_simple = new Simple(this);
 }
@@ -12,6 +19,8 @@ Batcher2d::Batcher2d() {
 Batcher2d::Batcher2d(Root* root) {
     this->_root = root;
     this->_simple = new Simple(this);
+    // todo need new pool
+    // this->_drawBatchPool =
 }
 
 Batcher2d::~Batcher2d() {
@@ -102,6 +111,25 @@ void Batcher2d::fillBuffersAndMergeBatches() {
 void Batcher2d::generateBatch(RenderEntity* entity) {
     //这里主要负责的是ts.automergebatches
     //边循环，边判断当前entity是否能合批
+    if (this->_currMaterial == nullptr) return;
+    //if (entity->getIsMeshBuffer()) {
+    //    // Todo MeshBuffer RenderData
+    //} else {
+        auto ia = this->_currMeshBuffer->requireFreeIA(this->_device);
+        ia->setFirstIndex();// count
+        ia->setIndexCount();// count
+        // need move index offset
+    if (ia == nullptr) return;
+    // Todo blendState & stencil State
+    auto curdrawBatch = this->_drawBatchPool.alloc();
+    curdrawBatch->setVisFlags(this->_currLayer);
+    curdrawBatch->setInputAssembler(ia);
+    curdrawBatch->setUseLocalFlag(nullptr); // todo usLocal
+    curdrawBatch->fillPass(_currMaterial, nullptr, 0, nullptr, 0);
+
+    curdrawBatch->setDescriptorSet(); //todo DS
+
+    this->_batches.push_back(*curdrawBatch);
     
 }
 

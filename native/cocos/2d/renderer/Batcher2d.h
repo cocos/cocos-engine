@@ -7,6 +7,7 @@
 #include <cocos/core/assets/Material.h>
 #include <cocos/renderer/gfx-base/GFXTexture.h>
 #include <cocos/renderer/gfx-base/states/GFXSampler.h>
+#include <2d/renderer/UIMeshBuffer.h>
 
 namespace cc {
 struct MeshBufferAttr {
@@ -69,6 +70,8 @@ private:
     index_t _currTextureHash{0};
     gfx::Sampler* _currSampler{nullptr};
     index_t _currSamplerHash{0};
+
+    UIMeshBuffer* _currMeshBuffer{nullptr};
 
 private:
     Simple* _simple;

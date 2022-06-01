@@ -53,11 +53,17 @@ namespace scene {
                 _passes.push_back(*new Pass());
             }
         }
-
+        
         for (uint32_t i = 0; i < passes.size(); ++i) {
             Pass *pass = passes[i];
             Pass *passInUse = &_passes[i];
             pass->update();
+            if (depthStencilState == nullptr) {
+                depthStencilState = pass->getDepthStencilState();
+            }
+            if (blendState == nullptr) {
+                depthStencilState = pass->getBlendState();
+            }
             // 可能有负值问题
             // if (bsHash == -1) {bsHash = 0;}
             hashFactor = (dsHash << 16) | bsHash;
