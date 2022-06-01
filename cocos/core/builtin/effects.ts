@@ -1342,7 +1342,8 @@ export const effects = [
           { "name": "CC_USE_MORPH", "type": "boolean" },
           { "name": "CC_USE_IBL", "type": "number", "range": [0, 2] },
           { "name": "CC_USE_HDR", "type": "boolean" },
-          { "name": "USE_RGBE_CUBEMAP", "type": "boolean" }
+          { "name": "USE_RGBE_CUBEMAP", "type": "boolean" },
+          { "name": "USE_CONVOLUTION_MAP", "type": "boolean" }
         ],
         "attributes": [
           { "name": "a_position", "defines": [], "format": 32, "location": 0 },

@@ -78,7 +78,7 @@ void SkyboxInfo::setEnvLightingType(EnvironmentLightingType val) {
         if (EnvironmentLightingType::HEMISPHERE_DIFFUSE == val) {
             setUseIBL(false);
             setApplyDiffuseMap(false);
-        } else if (EnvironmentLightingType::DIFFUSEMAP_WITH_REFLECTION == val) {
+        } else if (EnvironmentLightingType::AUTOGEN_HEMISPHERE_DIFFUSE_WITH_REFLECTION == val) {
             setUseIBL(true);
             setApplyDiffuseMap(false);
         } else if (EnvironmentLightingType::DIFFUSEMAP_WITH_REFLECTION == val) {
@@ -176,6 +176,7 @@ void SkyboxInfo::activate(Skybox *resource) {
         _resource->initialize(*this);
         _resource->setEnvMaps(_envmapHDR, _envmapLDR);
         _resource->setDiffuseMaps(_diffuseMapHDR, _diffuseMapLDR);
+        _resource->setSkyboxMaterial(_editableMaterial);
         _resource->activate(); // update global DS first
     }
 }
@@ -197,6 +198,15 @@ void Skybox::setEnvmap(TextureCube *val) {
 bool Skybox::isRGBE() const {
     auto *envmap = getEnvmap();
     return envmap != nullptr ? envmap->isRGBE : false;
+}
+
+bool Skybox::isUseConvolutionMap() const {
+    auto *envmap = getEnvmap();
+    if (envmap) {
+        return envmap->useOfflineMipmaps();
+    } else {
+        return false;
+    }
 }
 
 TextureCube *Skybox::getDiffuseMap() const {
@@ -242,6 +252,10 @@ void Skybox::setDiffuseMaps(TextureCube *diffuseMapHDR, TextureCube *diffuseMapL
     updatePipeline();
 }
 
+void Skybox::setSkyboxMaterial(cc::Material *skyboxMat) {
+    _editableMaterial = skyboxMat;
+}
+
 void Skybox::activate() {
     auto *pipeline = Root::getInstance()->getPipeline();
     _globalDSManager = pipeline->getGlobalDSManager();
@@ -255,9 +269,10 @@ void Skybox::activate() {
     auto *envmap = getEnvmap();
     bool isRGBE = envmap != nullptr ? envmap->isRGBE : _default->isRGBE;
 
+    bool isUseConvolutionMap = envmap != nullptr ? envmap->useOfflineMipmaps() : _default->useOfflineMipmaps();
     if (!skyboxMaterial) {
-        auto *mat = ccnew Material();
-        MacroRecord defines{{"USE_RGBE_CUBEMAP", isRGBE}};
+        auto *mat = _editableMaterial ? _editableMaterial : ccnew Material();
+        MacroRecord defines{{"USE_RGBE_CUBEMAP", isRGBE}, {"USE_CONVOLUTION_MAP", isUseConvolutionMap}};
         IMaterialInfo matInfo;
         matInfo.effectName = ccstd::string{"skybox"};
         matInfo.defines = IMaterialInfo::DefinesType{defines};
@@ -305,7 +320,7 @@ void Skybox::activate() {
 
 void Skybox::updatePipeline() const {
     if (isEnabled() && skyboxMaterial != nullptr) {
-        skyboxMaterial->recompileShaders({{"USE_RGBE_CUBEMAP", isRGBE()}});
+        skyboxMaterial->recompileShaders({{"USE_RGBE_CUBEMAP", isRGBE()}, {"USE_CONVOLUTION_MAP", isUseConvolutionMap()}});
     }
 
     if (_model != nullptr && skyboxMaterial != nullptr) {

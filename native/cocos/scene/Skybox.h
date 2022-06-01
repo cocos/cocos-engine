@@ -185,6 +185,7 @@ public:
     // @serializable
     bool _useHDR{true};
     EnvironmentLightingType _envLightingType{EnvironmentLightingType::HEMISPHERE_DIFFUSE};
+    cc::Material *_editableMaterial{nullptr};
     Skybox *_resource{nullptr};
 };
 
@@ -261,11 +262,18 @@ public:
     bool isRGBE() const;
 
     /**
+     * @en Whether to use reflective convolutional maps to update the mipmap
+     * @zh 是否使用反射卷积图来更新mipmaps
+     */
+    bool isUseConvolutionMap() const;
+
+    /**
      * @en The texture cube used diffuse convolution map
      * @zh 使用的漫反射卷积图
      */
     TextureCube *getDiffuseMap() const;
     void setDiffuseMap(TextureCube *val);
+    void setSkyboxMaterial(cc::Material* skyboxMat);
 
 private:
     void updatePipeline() const;
@@ -283,6 +291,7 @@ private:
     bool _useIBL{false};
     bool _useHDR{true};
     bool _useDiffuseMap{false};
+    cc::Material *_editableMaterial{ nullptr };
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(Skybox);
 };
