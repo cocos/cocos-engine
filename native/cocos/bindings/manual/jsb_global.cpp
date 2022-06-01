@@ -581,7 +581,6 @@ bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackV
             CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([=]() {
                 se::AutoHandleScope hs;
                 se::ValueArray seArgs;
-                se::Value dataVal;
 
                 if (loadSucceed) {
                     se::HandleObject retObj(se::Object::createPlainObject());
@@ -662,7 +661,7 @@ static bool js_destroyImage(se::State &s) { // NOLINT
         cc::JSBNativeDataHolder *dataHolder = nullptr;
         ok &= sevalue_to_native(args[0], &dataHolder);
         SE_PRECONDITION2(ok, false, "js_destroyImage : Error processing arguments");
-//        dataHolder->destroy();
+        dataHolder->destroy();
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
