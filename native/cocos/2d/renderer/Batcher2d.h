@@ -56,7 +56,7 @@ private:
 private:
     //drawbatches
     std::vector<scene::DrawBatch2D*> _batches{};
-    //memop::Pool<scene::DrawBatch2D*> _drawBatchPool;
+    memop::Pool<scene::DrawBatch2D*> _drawBatchPool;
 
     gfx::Device* _device{nullptr};
 
