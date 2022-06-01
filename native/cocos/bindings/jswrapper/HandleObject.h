@@ -79,7 +79,7 @@ public:
         return _obj;
     }
 
-    inline explicit operator Object*() const {
+    inline explicit operator Object *() const {
         return _obj;
     }
 
