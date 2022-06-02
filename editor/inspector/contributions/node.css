@@ -134,12 +134,23 @@
 
 .component .component-header {
     flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.component .component-header .name-bar {
+    display: flex;
+    flex: 1;
+}
+
+.component .component-header .name-bar .component-name {
+    flex: 1;
 }
 
 .component .component-header > .menu,
 .component .component-header > .link {
     padding: 0 5px;
-    float: right;
     transition: color 0.15s;
 }
 

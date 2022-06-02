@@ -740,18 +740,29 @@ const Elements = {
                 sectionBody.__sections__ = [];
 
                 componentList.forEach((component, i) => {
+                    const additional = JSON.stringify([{
+                        type: component.type,
+                        value: component.value.uuid.value,
+                    }]);
+
                     const $section = document.createElement('ui-section');
                     $section.setAttribute('expand', '');
                     $section.setAttribute('class', 'component');
                     $section.setAttribute('cache-expand', `${component.path}:${component.type}`);
                     $section.innerHTML = `
                     <header class="component-header" slot="header">
-                        <ui-checkbox class="active"></ui-checkbox>
-                        <span class="name">${component.type}${component.mountedRoot ? '+' : ''}</span>
-                        <ui-icon class="menu" value="setting" tooltip="i18n:ENGINE.menu.component"></ui-icon>
-                        <ui-link class="link" tooltip="i18n:ENGINE.menu.help_url">
-                            <ui-icon value="help"></ui-icon>
-                        </ui-link>
+                        <div class="name-bar">
+                            <ui-checkbox class="active"></ui-checkbox>
+                            <ui-drag-item additional='${additional}' class="component-name">
+                                <span class="name">${component.type}${component.mountedRoot ? '+' : ''}</span>
+                            </ui-drag-item>
+                        </div>
+                        <div>
+                            <ui-icon class="menu" value="setting" tooltip="i18n:ENGINE.menu.component"></ui-icon>
+                            <ui-link class="link" tooltip="i18n:ENGINE.menu.help_url">
+                                <ui-icon value="help"></ui-icon>
+                            </ui-link>
+                        </div>
                     </header>
                     `;
 
