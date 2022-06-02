@@ -10,6 +10,6 @@ export { EmbeddedPlayer } from '../../cocos/core/animation/embedded-player/embed
 
 export type { EmbeddedPlayable } from '../../cocos/core/animation/embedded-player/embedded-player';
 
-export { ParticleSystemSubRegionPlayer } from '../../cocos/core/animation/embedded-player/particle-system-subregion';
+export { EmbeddedParticleSystemPlayable } from '../../cocos/core/animation/embedded-player/embedded-particle-system-player';
 
-export { AnimationClipSubRegionPlayer } from '../../cocos/core/animation/embedded-player/animation-clip-subregion';
+export { EmbeddedAnimationClipPlayable } from '../../cocos/core/animation/embedded-player/embedded-animation-clip-player';
