@@ -181,6 +181,11 @@ bool Batcher2d::initialize() {
 void Batcher2d::update() {
     ItIsDebugFuncInBatcher2d();
     fillBuffersAndMergeBatches();
+    for (const auto scene : Root::getInstance()->getScenes()) {
+        for (const auto batch : _batches) {
+            scene->addBatch(batch);
+        }
+    }
 }
 
 void Batcher2d::uploadBuffers() {
