@@ -11,13 +11,15 @@ void main()  {
   
   // Shadow factor
   highp vec4 shadowPos = vec4(0.0);
-  vec2 shadowBias = cc_localShadowBias.xy;
+  vec2 shadowBias = vec2(0.0);
   vec3 colDebugCSMLayer = vec3(1.0);
   #if CC_RECEIVE_SHADOW
     shadowPos = cc_matLightViewProj * vec4(surfaceData.worldPos, 1.0);
-    shadowBias += vec2(cc_shadowWHPBInfo.w, cc_shadowLPNNInfo.z);
+    shadowBias = vec2(cc_shadowWHPBInfo.w, cc_shadowLPNNInfo.z);
     #if USE_INSTANCING
       shadowBias = FSInput_shadowBias;
+    #elif !USE_BATCHING
+      shadowBias += cc_localShadowBias.xy;
     #endif
     #if !CC_FORWARD_ADD
       //#uniformStyle
