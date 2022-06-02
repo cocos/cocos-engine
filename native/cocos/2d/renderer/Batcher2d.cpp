@@ -1,8 +1,10 @@
 #include <2d/renderer/Batcher2d.h>
-#include <cocos/base/TypeDef.h>
-#include <iostream>
 #include <cocos/2d/assembler/Simple.h>
+#include <cocos/base/TypeDef.h>
 #include <cocos/core/Root.h>
+#include <renderer/pipeline/Define.h>
+#include <scene/Pass.h>
+#include <iostream>
 
 namespace cc {
 
@@ -12,7 +14,7 @@ gfx::AttributeList vfmtPosUvColor = {
     gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA32F},
 };
 
-Batcher2d::Batcher2d(): Batcher2d(nullptr) {
+Batcher2d::Batcher2d() : Batcher2d(nullptr) {
     _simple = new Simple(this);
 }
 
@@ -29,7 +31,8 @@ void Batcher2d::syncRenderEntitiesToNative(std::vector<RenderEntity*>&& renderEn
     _renderEntities = std::move(renderEntities);
 }
 
-void Batcher2d::syncMeshBufferAttrToNative(uint32_t* buffer, uint8_t stride, uint32_t size) {    _attrSize = size;
+void Batcher2d::syncMeshBufferAttrToNative(uint32_t* buffer, uint8_t stride, uint32_t size) {
+    _attrSize = size;
     _attrStride = stride;
     _attrBuffer = buffer;
     parseAttr();
@@ -39,7 +42,7 @@ void Batcher2d::parseAttr() {
     index_t group = _attrSize / _attrStride;
     _meshBufferAttrArr.clear();
     for (index_t i = 0; i < _attrSize; i += _attrStride) {
-        MeshBufferAttr* temp = reinterpret_cast<MeshBufferAttr*>(_attrBuffer+i);
+        MeshBufferAttr* temp = reinterpret_cast<MeshBufferAttr*>(_attrBuffer + i);
         _meshBufferAttrArr.push_back(temp);
     }
 }
@@ -67,14 +70,13 @@ void Batcher2d::fillBuffersAndMergeBatches() {
 
         //判断是否能合批，不能合批则需要generateBatch
         int32_t dataHash = entity->getDataHash();
-        if (_currHash != dataHash || dataHash == 0
-            || _currMaterial != entity->getMaterial()
-            /* || stencilmanager */) {//这个暂时只有mask才考虑，后续补充
+        if (_currHash != dataHash || dataHash == 0 || _currMaterial != entity->getMaterial()
+            /* || stencilmanager */) { //这个暂时只有mask才考虑，后续补充
             generateBatch(entity);
             if (!entity->getIsMeshBuffer()) {
                 //修改当前currbufferid和currindexStart（用当前的meshbuffer的indexOffset赋值）
                 if (_currBID != entity->getBufferId()) {
-                    MeshBufferAttr* attr = getMeshBufferAttr(entity->getBufferId() );
+                    MeshBufferAttr* attr = getMeshBufferAttr(entity->getBufferId());
                     if (attr) {
                         _currBID = entity->getBufferId();
                         _indexStart = attr->indexOffset;
@@ -98,7 +100,6 @@ void Batcher2d::fillBuffersAndMergeBatches() {
             }
         }
 
-
         //暂时不修改vb和ib，验证下目前native的行为
         //最后调通时再把这里打开
         //_simple->fillBuffers(entity);
@@ -112,23 +113,42 @@ void Batcher2d::generateBatch(RenderEntity* entity) {
     //if (entity->getIsMeshBuffer()) {
     //    // Todo MeshBuffer RenderData
     //} else {
-        auto* ia = _currMeshBuffer->requireFreeIA(_device);
-        ia->setFirstIndex(); // count
-        ia->setIndexCount(); // count
-        // need move index offset
+    auto* ia = _currMeshBuffer->requireFreeIA(_device);
+    ia->setFirstIndex(); // count
+    ia->setIndexCount(); // count
+    // need move index offset
     //}
     if (ia == nullptr) return;
     // Todo blendState & stencil State
-    auto *curdrawBatch = _drawBatchPool.alloc();
+    auto* curdrawBatch = _drawBatchPool.alloc();
     curdrawBatch->setVisFlags(_currLayer);
     curdrawBatch->setInputAssembler(ia);
     curdrawBatch->setUseLocalFlag(nullptr); // todo usLocal
     curdrawBatch->fillPass(_currMaterial, nullptr, 0, nullptr, 0);
+    auto& _pass = curdrawBatch->getPasses().at(0);
 
-    curdrawBatch->setDescriptorSet(); //todo DS
-
+    curdrawBatch->setDescriptorSet(getDescriptorSet(_currTexture, _currSampler, _pass->getLocalSetLayout()));
     _batches.push_back(curdrawBatch);
-    
+}
+
+gfx::DescriptorSet* Batcher2d::getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, gfx::DescriptorSetLayout* _dsLayout) {
+    ccstd::hash_t hash = 2;
+    ccstd::hash_combine(hash, texture->getHash());
+    ccstd::hash_combine(hash, sampler->getHash());
+    auto iter = _descriptorSetCache.find(hash);
+    if (iter != _descriptorSetCache.end()) {
+        return &iter->second;
+    }
+    _dsInfo.layout = _dsLayout;
+    auto ds = _device->createDescriptorSet(_dsInfo);
+
+    ds->bindTexture(static_cast<uint>(pipeline::ModelLocalBindings::SAMPLER_SPRITE), texture);
+    ds->bindSampler(static_cast<uint>(pipeline::ModelLocalBindings::SAMPLER_SPRITE), sampler);
+    ds->update();
+
+    _descriptorSetCache.emplace(hash, ds);
+
+    return ds;
 }
 
 bool Batcher2d::initialize() {
@@ -142,7 +162,6 @@ void Batcher2d::update() {
 
 void Batcher2d::uploadBuffers() {
     ItIsDebugFuncInBatcher2d();
-
 }
 
 void Batcher2d::reset() {
@@ -161,7 +180,6 @@ void Batcher2d::reset() {
 
 void Batcher2d::ItIsDebugFuncInBatcher2d() {
     std::cout << "It is debug func in Batcher2d.";
-
 
     //暂时不能修改indexOffset，目前ts中有修改，不能另外再修改了
     //// test code

@@ -1,18 +1,22 @@
 #pragma once
-#include <cocos/2d/renderer/RenderEntity.h>
+#include <2d/renderer/UIMeshBuffer.h>
 #include <cocos/2d/assembler/Simple.h>
+#include <cocos/2d/renderer/RenderEntity.h>
 #include <cocos/base/TypeDef.h>
-#include <vector>
-#include <cocos/scene/DrawBatch2D.h>
 #include <cocos/core/assets/Material.h>
 #include <cocos/renderer/gfx-base/GFXTexture.h>
 #include <cocos/renderer/gfx-base/states/GFXSampler.h>
-#include <2d/renderer/UIMeshBuffer.h>
+#include <cocos/scene/DrawBatch2D.h>
+#include <vector>
 
 namespace cc {
 struct MeshBufferAttr {
     index_t bufferId;
     index_t indexOffset;
+};
+struct DescriptorSetCache {
+    ccstd::unordered_map<uint64_t, gfx::DescriptorSet> _descriptorSetCache;
+    ccstd::unordered_map<uint64_t, uint64_t> _dsCacheHashByTexture;
 };
 class Root;
 class Batcher2d {
@@ -36,11 +40,10 @@ public:
     void parseAttr();
     MeshBufferAttr* getMeshBufferAttr(index_t bufferId);
 
-
 public:
     inline std::vector<scene::DrawBatch2D*> getBatches() { return this->_batches; }
 
-    void fillBuffersAndMergeBatches();//填充数据并生成批次队列
+    void fillBuffersAndMergeBatches();        //填充数据并生成批次队列
     void generateBatch(RenderEntity* entity); //生成batch合并批次
 
 private:
@@ -74,7 +77,11 @@ private:
     UIMeshBuffer* _currMeshBuffer{nullptr};
 
 private:
-    Simple* _simple;
+    ccstd::unordered_map<uint64_t, gfx::DescriptorSet> _descriptorSetCache;
+    gfx::DescriptorSetInfo _dsInfo;
+    gfx::DescriptorSet* getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, gfx::DescriptorSetLayout* _dsLayout);
 
+private:
+    Simple* _simple;
 };
 } // namespace cc
