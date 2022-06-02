@@ -42,7 +42,8 @@ export enum MeshBufferSharedBufferView{
     vertexOffset,
     indexOffset,
     dirty,
-    count = 4
+    floatsPerVertex,
+    count = 5
 }
 
 export class MeshBuffer {
@@ -93,6 +94,17 @@ export class MeshBuffer {
         }
     }
 
+    protected _floatsPerVertex = 0;
+    get floatsPerVertex () {
+        return this._floatsPerVertex;
+    }
+    set floatsPerVertex (val:number) {
+        this._floatsPerVertex = val;
+        if (JSB) {
+            this._sharedBuffer[MeshBufferSharedBufferView.floatsPerVertex] = val ? 1 : 0;
+        }
+    }
+
     protected _vData: Float32Array = null!;
     get vData () {
         return this._vData;
@@ -117,7 +129,6 @@ export class MeshBuffer {
     }
 
     private _vertexFormatBytes = 0;
-    private _floatsPerVertex = 0;
     private _initVDataCount = 0;
     private _initIDataCount = 0;
     private _attributes: Attribute[] = null!;
@@ -164,7 +175,10 @@ export class MeshBuffer {
         this._initVDataCount = vFloatCount;
         this._initIDataCount = iCount;
         this._attributes = attrs;
-        this._floatsPerVertex = getComponentPerVertex(attrs);
+
+        //sync to native
+        this.floatsPerVertex = getComponentPerVertex(attrs);
+
         assertIsTrue(this._initVDataCount / this._floatsPerVertex < 65536, getError(9005));
 
         if (!this.vData || !this.iData) {

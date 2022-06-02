@@ -40,6 +40,7 @@ public:
     //MeshBufferAttr* getMeshBufferAttr(index_t bufferId);
 
     UIMeshBuffer* getMeshBuffer(index_t bufferId);
+    gfx::Device* getDevice();
 
     void updateDescriptorSet();
 
@@ -48,6 +49,7 @@ public:
 
     void fillBuffersAndMergeBatches();        //填充数据并生成批次队列
     void generateBatch(RenderEntity* entity); //生成batch合并批次
+    void resetRenderStates();
 
 private:
     Root* _root{nullptr};
@@ -64,8 +66,9 @@ private:
     ccstd::vector<scene::DrawBatch2D*> _batches{};
     memop::Pool<scene::DrawBatch2D> _drawBatchPool;
 
-    gfx::Device* _device{nullptr};
+    gfx::Device* _device{nullptr};//use getDevice()
 
+    RenderEntity* _currEntity{nullptr};
     index_t _currBID{-1};
     index_t _indexStart{0};
     uint32_t _currHash{0};

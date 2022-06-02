@@ -35,6 +35,7 @@ bool js_register_cc_UIMeshBuffer(se::Object *obj); // NOLINT
 SE_DECLARE_FUNC(js_2d_UIMeshBuffer_destroy);
 SE_DECLARE_FUNC(js_2d_UIMeshBuffer_getByteOffset);
 SE_DECLARE_FUNC(js_2d_UIMeshBuffer_getDirty);
+SE_DECLARE_FUNC(js_2d_UIMeshBuffer_getFloatsPerVertex);
 SE_DECLARE_FUNC(js_2d_UIMeshBuffer_getIndexOffset);
 SE_DECLARE_FUNC(js_2d_UIMeshBuffer_getVertexOffset);
 SE_DECLARE_FUNC(js_2d_UIMeshBuffer_initialize);
@@ -42,6 +43,7 @@ SE_DECLARE_FUNC(js_2d_UIMeshBuffer_parseLayout);
 SE_DECLARE_FUNC(js_2d_UIMeshBuffer_reset);
 SE_DECLARE_FUNC(js_2d_UIMeshBuffer_setByteOffset);
 SE_DECLARE_FUNC(js_2d_UIMeshBuffer_setDirty);
+SE_DECLARE_FUNC(js_2d_UIMeshBuffer_setFloatsPerVertex);
 SE_DECLARE_FUNC(js_2d_UIMeshBuffer_setIndexOffset);
 SE_DECLARE_FUNC(js_2d_UIMeshBuffer_setVertexOffset);
 SE_DECLARE_FUNC(js_2d_UIMeshBuffer_syncSharedBufferToNative);
@@ -56,9 +58,11 @@ bool js_register_cc_Batcher2d(se::Object *obj); // NOLINT
 SE_DECLARE_FUNC(js_2d_Batcher2d_ItIsDebugFuncInBatcher2d);
 SE_DECLARE_FUNC(js_2d_Batcher2d_fillBuffersAndMergeBatches);
 SE_DECLARE_FUNC(js_2d_Batcher2d_generateBatch);
+SE_DECLARE_FUNC(js_2d_Batcher2d_getDevice);
 SE_DECLARE_FUNC(js_2d_Batcher2d_getMeshBuffer);
 SE_DECLARE_FUNC(js_2d_Batcher2d_initialize);
 SE_DECLARE_FUNC(js_2d_Batcher2d_reset);
+SE_DECLARE_FUNC(js_2d_Batcher2d_resetRenderStates);
 SE_DECLARE_FUNC(js_2d_Batcher2d_syncMeshBuffersToNative);
 SE_DECLARE_FUNC(js_2d_Batcher2d_syncRenderEntitiesToNative);
 SE_DECLARE_FUNC(js_2d_Batcher2d_update);

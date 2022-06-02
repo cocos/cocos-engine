@@ -9,6 +9,7 @@ struct MeshBufferLayout {
     index_t vertexOffset;
     index_t indexOffset;
     index_t dirtyMark;
+    index_t floatsPerVertex;
 };
 
 class UIMeshBuffer {
@@ -44,6 +45,8 @@ public:
     void setIndexOffset(index_t indexOffset);
     inline bool getDirty() { return _meshBufferLayout->dirtyMark != 0; }
     void setDirty(bool dirty);
+    inline index_t getFloatsPerVertex() { return _meshBufferLayout->floatsPerVertex; }
+    void setFloatsPerVertex(index_t floatsPerVertex);
 
 private:
     float_t* _vData{nullptr};
@@ -53,7 +56,7 @@ private:
     index_t* _sharedBuffer{nullptr};
     bool _dirty{false};
     uint32_t _vertexFormatBytes{0};
-    uint32_t _floatsPerVertex{0};
+    //uint32_t _floatsPerVertex{0};//from ts, put it into layout
     index_t _initVDataCount{0};
     index_t _initIDataCount{0};
     std::vector<gfx::Attribute*> _attributes{};

@@ -7,20 +7,16 @@
 #include <iostream>
 
 namespace cc {
-
-gfx::AttributeList vfmtPosUvColor = {
-    gfx::Attribute{gfx::ATTR_NAME_POSITION, gfx::Format::RGB32F},
-    gfx::Attribute{gfx::ATTR_NAME_TEX_COORD, gfx::Format::RG32F},
-    gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA32F},
-};
-
+//batcher2d是从ts调JSB过来的的，所以不会走构造
 Batcher2d::Batcher2d() : Batcher2d(nullptr) {
     _simple = new Simple(this);
+    _device = Root::getInstance()->getDevice();
 }
 
 Batcher2d::Batcher2d(Root* root) : _drawBatchPool([]() { return ccnew scene::DrawBatch2D(); }, 10U) {
     _root = root;
     _simple = new Simple(this);
+    _device = Root::getInstance()->getDevice();
 }
 
 Batcher2d::~Batcher2d() {
@@ -68,10 +64,18 @@ UIMeshBuffer* Batcher2d::getMeshBuffer(index_t bufferId) {
     return this->_meshBuffers[bufferId];
 }
 
+gfx::Device* Batcher2d::getDevice() {
+    if (_device == nullptr) {
+        _device = Root::getInstance()->getDevice();
+    }
+    return _device;
+}
+
 void Batcher2d::updateDescriptorSet() {
     //for this._descriptorSetCache.update()
 }
 
+//对标ts的walk
 void Batcher2d::fillBuffersAndMergeBatches() {
     //这里负责的是ts._render填充逻辑
     //这里不需要加assembler判断，因为ts的fillBuffers做了分层优化
@@ -104,6 +108,7 @@ void Batcher2d::fillBuffersAndMergeBatches() {
             _currMaterial = entity->getMaterial();
             // stencil stage
             _currLayer = entity->getNode()->getLayer();
+            _currEntity = entity;
 
             //if(frame)
             _currTexture = entity->getTexture();
@@ -122,6 +127,7 @@ void Batcher2d::fillBuffersAndMergeBatches() {
     }
 }
 
+//如果不传参数，说明是最后一个组件结束，直接合批
 void Batcher2d::generateBatch(RenderEntity* entity) {
     //这里主要负责的是ts.automergebatches
     //边循环，边判断当前entity是否能合批
@@ -136,7 +142,7 @@ void Batcher2d::generateBatch(RenderEntity* entity) {
         return; //第一个组件，currBID==-1，此时当然也不需要合批
     }
 
-    auto* ia = currMeshBuffer->requireFreeIA(_device);
+    auto* ia = currMeshBuffer->requireFreeIA(getDevice());
     uint32_t indexCount = currMeshBuffer->getIndexOffset() - _indexStart;
     if (ia == nullptr) {
         return;
@@ -148,6 +154,8 @@ void Batcher2d::generateBatch(RenderEntity* entity) {
     //}
 
     this->_currBID = -1;
+
+    //stencilstage
 
     // Todo blendState & stencil State
     auto* curdrawBatch = _drawBatchPool.alloc();
@@ -161,6 +169,15 @@ void Batcher2d::generateBatch(RenderEntity* entity) {
     _batches.push_back(curdrawBatch);
 }
 
+void Batcher2d::resetRenderStates() {
+    _currMaterial = new Material();
+    _currTexture = nullptr;
+    _currTextureHash = 0;
+    _currSampler = nullptr;
+    _currSamplerHash = 0;
+    _currLayer = 0;
+}
+
 gfx::DescriptorSet* Batcher2d::getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, gfx::DescriptorSetLayout* _dsLayout) {
     ccstd::hash_t hash = 2;
     ccstd::hash_combine(hash, texture->getHash());
@@ -170,7 +187,7 @@ gfx::DescriptorSet* Batcher2d::getDescriptorSet(gfx::Texture* texture, gfx::Samp
         return iter->second;
     }
     _dsInfo.layout = _dsLayout;
-    auto ds = _device->createDescriptorSet(_dsInfo);
+    auto ds = getDevice()->createDescriptorSet(_dsInfo);
 
     ds->bindTexture(static_cast<uint>(pipeline::ModelLocalBindings::SAMPLER_SPRITE), texture);
     ds->bindSampler(static_cast<uint>(pipeline::ModelLocalBindings::SAMPLER_SPRITE), sampler);
@@ -186,8 +203,10 @@ bool Batcher2d::initialize() {
 }
 
 void Batcher2d::update() {
-    ItIsDebugFuncInBatcher2d();
     fillBuffersAndMergeBatches();
+    generateBatch(_currEntity);
+    resetRenderStates();
+
     for (const auto scene : Root::getInstance()->getScenes()) {
         for (const auto batch : _batches) {
             scene->addBatch(batch);
@@ -211,7 +230,13 @@ void Batcher2d::uploadBuffers() {
 }
 
 void Batcher2d::reset() {
-    //reset batches
+    for (index_t i = 0; i < _batches.size(); i++) {
+        scene::DrawBatch2D* batch = _batches[i];
+        batch->clear();
+        this->_drawBatchPool.free(batch);
+    }
+
+    //meshDataArray
 
     _currBID = -1;
     _indexStart = 0;
@@ -222,6 +247,8 @@ void Batcher2d::reset() {
     _currSampler = nullptr;
 
     _batches.clear();
+
+    //stencilManager
 }
 
 void Batcher2d::ItIsDebugFuncInBatcher2d() {

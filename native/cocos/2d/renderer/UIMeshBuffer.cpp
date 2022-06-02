@@ -1,8 +1,18 @@
 #include <2d/renderer/UIMeshBuffer.h>
 #include <gfx-base/GFXDevice.h>
+#include <vector>
 
 namespace cc {
 UIMeshBuffer::UIMeshBuffer(/* args */) {
+    gfx::AttributeList vfmtPosUvColor = {
+        gfx::Attribute{gfx::ATTR_NAME_POSITION, gfx::Format::RGB32F},
+        gfx::Attribute{gfx::ATTR_NAME_TEX_COORD, gfx::Format::RG32F},
+        gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA32F},
+    };
+
+    for (index_t i = 0; i < vfmtPosUvColor.size(); i++) {
+        _attributes.push_back(&vfmtPosUvColor[i]);
+    }
 }
 
 UIMeshBuffer::~UIMeshBuffer() {
@@ -107,7 +117,7 @@ void UIMeshBuffer::recycleIA(gfx::InputAssembler* ia) {
 
 gfx::InputAssembler* UIMeshBuffer::createNewIA(gfx::Device* device) {
     if (_iaPool.empty()) {
-        uint32_t vbStride = _vertexFormatBytes = _floatsPerVertex * sizeof(float); //??
+        uint32_t vbStride = _vertexFormatBytes = getFloatsPerVertex() * sizeof(float); //??
         uint32_t ibStride = sizeof(uint16_t);                                      //??
 
         auto* vertexBuffer = device->createBuffer({
@@ -163,5 +173,9 @@ void UIMeshBuffer::setIndexOffset(index_t indexOffset) {
 
 void UIMeshBuffer::setDirty(bool dirty) {
     _meshBufferLayout->dirtyMark = dirty ? 1 : 0;
+}
+
+void UIMeshBuffer::setFloatsPerVertex(index_t floatsPerVertex) {
+    _meshBufferLayout->floatsPerVertex = floatsPerVertex;
 }
 } // namespace cc
