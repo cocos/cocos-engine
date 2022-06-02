@@ -1,8 +1,9 @@
 import { legacyCC } from '../../global-exports';
 import { EffectAsset } from '../../assets';
 import { WebDescriptorHierarchy } from './web-descriptor-hierarchy';
-import { WebLayoutGraphBuilder } from './web-layout-graph';
 import { DescriptorBlock, DescriptorBlockIndex, DescriptorDB, LayoutGraph, LayoutGraphValue } from './layout-graph';
+import { Pipeline } from './pipeline';
+import { PipelineCallback } from './type-erased';
 
 export function rebuildLayoutGraph (): void {
     const root = legacyCC.director.root;
@@ -12,10 +13,11 @@ export function rebuildLayoutGraph (): void {
     if (EffectAsset.isLayoutValid()) {
         return;
     }
-    const ppl = root.customPipeline;
+    const ppl: Pipeline = root.customPipeline;
     const effects = EffectAsset.getAll();
     const lg = new WebDescriptorHierarchy();
     const lgData = ppl.layoutGraphBuilder;
+    lgData.clear();
 
     const defaultStage: number = lg.addGlobal('default', true, true, true, true, true, true, true);
 
@@ -48,3 +50,5 @@ export function rebuildLayoutGraph (): void {
 
     EffectAsset.setLayoutValid();
 }
+
+PipelineCallback.beforeDraw = rebuildLayoutGraph;
