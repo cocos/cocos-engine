@@ -15,12 +15,12 @@ public:
     UIMeshBuffer();
     ~UIMeshBuffer();
 
-    inline float* getVData() { return _vData; }
-    void setVData(float* vData);
+    inline float_t* getVData() { return _vData; }
+    void setVData(float_t* vData);
     inline uint16_t* getIData() { return _iData; }
     void setIData(uint16_t* iData);
 
-    void initialize(gfx::Device* device, gfx::AttributeList* attrs, index_t vFloatCount, index_t iCount);
+    void initialize(gfx::Device* device, std::vector<gfx::Attribute*>&& attrs, index_t vFloatCount, index_t iCount);
 
     void reset();
     void destroy();
@@ -36,7 +36,7 @@ public:
     void parseLayout();
 
 private:
-    float* _vData{nullptr};
+    float_t* _vData{nullptr};
     uint16_t* _iData{nullptr};
 
     MeshBufferLayout* _meshBufferLayout{nullptr};
@@ -46,7 +46,7 @@ private:
     uint32_t _floatsPerVertex{0};
     index_t _initVDataCount{0};
     index_t _initIDataCount{0};
-    gfx::AttributeList _attributes{};
+    std::vector<gfx::Attribute*> _attributes{};
 
     ccstd::vector<gfx::InputAssembler*> _iaPool{};
     gfx::InputAssemblerInfo _iaInfo;

@@ -49,7 +49,7 @@ import { updateOpacity } from '../assembler/utils';
 import { BaseRenderData, MeshRenderData, RenderData } from './render-data';
 import { UIMeshRenderer } from '../components/ui-mesh-renderer';
 import { RenderEntity } from './render-entity';
-import { NativeAdvanceRenderData, NativeBatcher2d, NativeRenderEntity } from '../../core/renderer/2d/native-2d';
+import { NativeAdvanceRenderData, NativeBatcher2d, NativeRenderEntity, NativeUIMeshBuffer } from '../../core/renderer/2d/native-2d';
 import { AdvanceRenderData } from './AdvanceRenderData';
 import { mapBuffer, readBuffer } from '../../3d/misc';
 import { MeshBuffer } from './mesh-buffer';
@@ -742,6 +742,17 @@ export class Batcher2D implements IBatcher {
     // TODO: Not a good way to do the job
     private _releaseDescriptorSetCache (textureHash: number) {
         this._descriptorSetCache.releaseDescriptorSetCache(textureHash);
+    }
+
+    //sync mesh buffer to naive
+    public syncMeshBuffersToNative (buffers: MeshBuffer[]) {
+        if (JSB) {
+            const nativeBuffers:NativeUIMeshBuffer[] = [];
+            buffers.forEach((x) => {
+                nativeBuffers.push(x.nativeObj);
+            });
+            this._nativeObj.syncMeshBuffersToNative(nativeBuffers, buffers.length);
+        }
     }
 
     // render entity dictionary

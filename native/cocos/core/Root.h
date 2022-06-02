@@ -33,6 +33,7 @@
 #include "scene/RenderScene.h"
 #include "scene/RenderWindow.h"
 #include "scene/SphereLight.h"
+#include "scene/DrawBatch2D.h"
 
 namespace cc {
 namespace scene {

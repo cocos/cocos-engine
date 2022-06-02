@@ -27,6 +27,11 @@ Batcher2d::~Batcher2d() {
     CC_SAFE_DELETE(_simple);
 }
 
+void Batcher2d::syncMeshBuffersToNative(std::vector<UIMeshBuffer*>&& buffers, uint32_t length) {
+    _meshBuffers = std::move(buffers);
+    _meshBuffersLength = length;
+}
+
 void Batcher2d::syncRenderEntitiesToNative(std::vector<RenderEntity*>&& renderEntities) {
     _renderEntities = std::move(renderEntities);
 }
@@ -54,6 +59,13 @@ MeshBufferAttr* Batcher2d::getMeshBufferAttr(index_t bufferId) {
         }
     }
     return nullptr;
+}
+
+UIMeshBuffer* Batcher2d::getMeshBuffer(index_t bufferId) {
+    if (bufferId < this->_meshBuffers.size() || this->_meshBuffers[bufferId] == nullptr) {
+        return nullptr;
+    }
+    return this->_meshBuffers[bufferId];
 }
 
 void Batcher2d::fillBuffersAndMergeBatches() {
@@ -109,16 +121,21 @@ void Batcher2d::fillBuffersAndMergeBatches() {
 void Batcher2d::generateBatch(RenderEntity* entity) {
     //这里主要负责的是ts.automergebatches
     //边循环，边判断当前entity是否能合批
-    if (_currMaterial == nullptr) return;
+    if (_currMaterial == nullptr) {
+        return;
+    }
     //if (entity->getIsMeshBuffer()) {
     //    // Todo MeshBuffer RenderData
     //} else {
-    auto* ia = _currMeshBuffer->requireFreeIA(_device);
-    ia->setFirstIndex(); // count
-    ia->setIndexCount(); // count
+    UIMeshBuffer* currMeshBuffer = getMeshBuffer(this->_currBID);
+    auto* ia = currMeshBuffer == nullptr ? nullptr : currMeshBuffer->requireFreeIA(_device);
+    //ia->setFirstIndex(); // count
+    //ia->setIndexCount(); // count
     // need move index offset
     //}
-    if (ia == nullptr) return;
+    if (ia == nullptr) {
+        return;
+    }
     // Todo blendState & stencil State
     auto* curdrawBatch = _drawBatchPool.alloc();
     curdrawBatch->setVisFlags(_currLayer);

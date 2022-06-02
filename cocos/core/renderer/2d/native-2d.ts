@@ -75,6 +75,7 @@ export class NativeUIMeshBuffer {
 }
 
 export class NativeBatcher2d {
+    syncMeshBuffersToNative (buffers: NativeUIMeshBuffer[], length:number) {}
     syncRenderEntitiesToNative (renderEntities: NativeRenderEntity[]) {}
     syncMeshBufferAttrToNative (data:TypedArray, stride:number, size:number) {}
     ItIsDebugFuncInBatcher2d () {}
