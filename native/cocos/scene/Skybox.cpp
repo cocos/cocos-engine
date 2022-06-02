@@ -271,7 +271,7 @@ void Skybox::activate() {
     bool isUseConvolutionMap = envmap != nullptr ? envmap->useOfflineMipmaps() : _default->useOfflineMipmaps();
     if (!skyboxMaterial) {
         auto *mat = _editableMaterial ? _editableMaterial.get() : ccnew Material();
-        MacroRecord defines{{"USE_RGBE_CUBEMAP", isRGBE}, {"USE_CONVOLUTION_MAP", isUseConvolutionMap}};
+        MacroRecord defines{{"USE_RGBE_CUBEMAP", isRGBE}, {"CC_IBL_CONVOLUTED", isUseConvolutionMap}};
         IMaterialInfo matInfo;
         matInfo.effectName = ccstd::string{"skybox"};
         matInfo.defines = IMaterialInfo::DefinesType{defines};
@@ -319,7 +319,7 @@ void Skybox::activate() {
 
 void Skybox::updatePipeline() const {
     if (isEnabled() && skyboxMaterial != nullptr) {
-        skyboxMaterial->recompileShaders({{"USE_RGBE_CUBEMAP", isRGBE()}, {"USE_CONVOLUTION_MAP", isUseConvolutionMap()}});
+        skyboxMaterial->recompileShaders({{"USE_RGBE_CUBEMAP", isRGBE()}, {"CC_IBL_CONVOLUTED", isUseConvolutionMap()}});
     }
 
     if (_model != nullptr && skyboxMaterial != nullptr) {

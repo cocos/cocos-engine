@@ -313,7 +313,7 @@ legacyCC.SkyboxInfo = SkyboxInfo;
         enumerable: true,
         writable: true,
         initializer: function initializer () {
-            return true;
+            return null;
         }
     });
 

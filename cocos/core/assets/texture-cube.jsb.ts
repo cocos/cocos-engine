@@ -65,8 +65,8 @@ enum FaceIndex {
     back = 5,
 }
 enum MipmapBakeMode {  
-    None = 0,
-    BakeReflectionConvolution = 1,
+    NONE = 0,
+    BAKE_REFLECTION_CONVOLUTION = 1,
 }
 textureCubeProto.createNode = null!;
 
@@ -101,7 +101,7 @@ const _descriptor3$b = _applyDecoratedDescriptor(_class2$d.prototype, '_mipmapMo
     enumerable: true,
     writable: true,
     initializer: function initializer () {
-        return false;
+        return MipmapBakeMode.NONE;
     },
 });
 const _descriptor4$b = _applyDecoratedDescriptor(_class2$d.prototype, '_mipmapAtlas', [serializable], {
@@ -109,13 +109,14 @@ const _descriptor4$b = _applyDecoratedDescriptor(_class2$d.prototype, '_mipmapAt
     enumerable: true,
     writable: true,
     initializer: function initializer () {
-        return false;
+        return null;
     },
 });
 
 textureCubeProto._ctor = function () {
     jsb.SimpleTexture.prototype._ctor.apply(this, arguments);
     this._mipmaps = null;
+    this._mipmapAtlas = null;
     // for deserialization
     // _initializerDefineProperty(_this, 'isRGBE', _descriptor$b, _assertThisInitialized(_this));
     // _initializerDefineProperty(_this, '_mipmaps', _descriptor2$7, _assertThisInitialized(_this));
@@ -160,15 +161,6 @@ Object.defineProperty(textureCubeProto, 'mipmaps', {
         }
     }
 });
-Object.defineProperty(textureCubeProto, 'mipmapMode', {
-    get () {
-        return this._mipmapMode;
-    },
-    set (value) {
-        this._mipmapMode = value;
-    }
-});
-
 
 Object.defineProperty(textureCubeProto, 'mipmapAtlas', {
     get () {
@@ -236,7 +228,7 @@ Object.defineProperty(textureCubeProto, 'image', {
 
 const oldOnLoaded = textureCubeProto.onLoaded;
 textureCubeProto.onLoaded = function () {
-    if (this.mipmapMode === MipmapBakeMode.BakeReflectionConvolution) {
+    if (this._mipmapMode === MipmapBakeMode.BAKE_REFLECTION_CONVOLUTION) {
         this.setMipmapAtlasForJS(this._mipmapAtlas);
     } else {
         this.setMipmapsForJS(this._mipmaps);
@@ -246,7 +238,7 @@ textureCubeProto.onLoaded = function () {
 
 textureCubeProto._serialize = function (ctxForExporting: any): Record<string, unknown> | null {
     if (EDITOR || TEST) {
-        if (this.mipmapMode === MipmapBakeMode.BakeReflectionConvolution) {
+        if (this._mipmapMode === MipmapBakeMode.BAKE_REFLECTION_CONVOLUTION) {
             const atlas = this._mipmapAtlas!.atlas;
             let uuids = {};
             if (ctxForExporting && ctxForExporting._compressUuid) {
@@ -271,7 +263,7 @@ textureCubeProto._serialize = function (ctxForExporting: any): Record<string, un
             return {
                 base: jsb.TextureBase.prototype._serialize(ctxForExporting),
                 rgbe: this.isRGBE,
-                mipmapMode: this.mipmapMode,
+                mipmapMode: this._mipmapMode,
                 mipmapAtlas: uuids,
                 mipmapLayout: this._mipmapAtlas!.layout,
             };
@@ -304,8 +296,8 @@ textureCubeProto._deserialize = function (serializedData: ITextureCubeSerializeD
     const data = serializedData;
     jsb.TextureBase.prototype._deserialize.call(this, data.base, handle);
     this.isRGBE = data.rgbe;
-    this.mipmapMode = data.mipmapMode;
-    if (this.mipmapMode === MipmapBakeMode.BakeReflectionConvolution) {
+    this._mipmapMode = parseInt(data.mipmapMode);
+    if (this._mipmapMode === MipmapBakeMode.BAKE_REFLECTION_CONVOLUTION) {
         const mipmapAtlas = data.mipmapAtlas;
         const mipmapLayout = data.mipmapLayout;
         this._mipmapAtlas = {

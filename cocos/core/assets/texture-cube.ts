@@ -86,7 +86,7 @@ export enum MipmapBakeMode {
      * Using the automatically generated mipmap
      * @readonly
      */
-    None = 0,
+    NONE = 0,
     /**
      * @zh
      * 使用反射卷积图填充mipmap
@@ -94,7 +94,7 @@ export enum MipmapBakeMode {
      * Update mipmap with reflective convolutional map
      * @readonly
      */
-    BakeReflectionConvolution = 1,
+    BAKE_REFLECTION_CONVOLUTION = 1,
 }
 
 /**
@@ -114,7 +114,7 @@ export class TextureCube extends SimpleTexture {
     _mipmapAtlas: ITextureCubeMipmapAtlas | null = null;
 
     @serializable
-    _mipmapMode = MipmapBakeMode.None;
+    _mipmapMode = MipmapBakeMode.NONE;
 
     /**
      * @en All levels of mipmap images, be noted, automatically generated mipmaps are not included.
@@ -209,15 +209,8 @@ export class TextureCube extends SimpleTexture {
         return this._mipmapAtlas;
     }
 
-    set mipmapMode (value) {
-        this._mipmapMode = value;
-    }
-    get mipmapMode () {
-        return this._mipmapMode;
-    }
-
     public useOfflineMipmaps (): boolean {
-        return this._mipmapMode === MipmapBakeMode.BakeReflectionConvolution;
+        return this._mipmapMode === MipmapBakeMode.BAKE_REFLECTION_CONVOLUTION;
     }
 
     /**
@@ -282,7 +275,7 @@ export class TextureCube extends SimpleTexture {
     public _mipmaps: ITextureCubeMipmap[] = [];
 
     public onLoaded () {
-        if (this._mipmapMode === MipmapBakeMode.BakeReflectionConvolution) {
+        if (this._mipmapMode === MipmapBakeMode.BAKE_REFLECTION_CONVOLUTION) {
             this.mipmapAtlas = this._mipmapAtlas;
         } else {
             this.mipmaps = this._mipmaps;
@@ -351,7 +344,7 @@ export class TextureCube extends SimpleTexture {
      */
     public _serialize (ctxForExporting: any): Record<string, unknown> | null {
         if (EDITOR || TEST) {
-            if (this._mipmapMode === MipmapBakeMode.BakeReflectionConvolution) {
+            if (this._mipmapMode === MipmapBakeMode.BAKE_REFLECTION_CONVOLUTION) {
                 const atlas = this._mipmapAtlas!.atlas;
                 let uuids = {};
                 if (ctxForExporting && ctxForExporting._compressUuid) {
@@ -413,7 +406,7 @@ export class TextureCube extends SimpleTexture {
         super._deserialize(data.base, handle);
         this.isRGBE = data.rgbe;
         this._mipmapMode = data.mipmapMode;
-        if (this._mipmapMode === MipmapBakeMode.BakeReflectionConvolution) {
+        if (this._mipmapMode === MipmapBakeMode.BAKE_REFLECTION_CONVOLUTION) {
             const mipmapAtlas = data.mipmapAtlas;
             const mipmapLayout = data.mipmapLayout;
             this._mipmapAtlas = {
@@ -493,7 +486,7 @@ export class TextureCube extends SimpleTexture {
     }
 
     public validate () {
-        if (this._mipmapMode === MipmapBakeMode.BakeReflectionConvolution) {
+        if (this._mipmapMode === MipmapBakeMode.BAKE_REFLECTION_CONVOLUTION) {
             if (this.mipmapAtlas === null || this.mipmapAtlas.layout.length === 0) {
                 return false;
             }

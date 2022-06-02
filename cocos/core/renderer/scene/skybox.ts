@@ -203,7 +203,7 @@ export class Skybox {
     public setSkyboxMaterial (skyboxMat: Material | null) {
         if (skyboxMat) {
             this._editableMaterial = new MaterialInstance({ parent: skyboxMat });
-            this._editableMaterial.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE, USE_CONVOLUTION_MAP: this.isUseConvolutionMap });
+            this._editableMaterial.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE, CC_IBL_CONVOLUTED: this.isUseConvolutionMap });
         } else {
             this._editableMaterial = null;
         }
@@ -221,7 +221,6 @@ export class Skybox {
     protected _useHDR = true;
     protected _useDiffuseMap = false;
     protected _editableMaterial: MaterialInstance | null = null;
-
 
     public initialize (skyboxInfo: SkyboxInfo) {
         this._enabled = skyboxInfo.enabled;
@@ -278,7 +277,7 @@ export class Skybox {
 
         if (!skybox_material) {
             const mat = new Material();
-            mat.initialize({ effectName: 'skybox', defines: { USE_RGBE_CUBEMAP: isRGBE, USE_CONVOLUTION_MAP: isUseConvolutionMap } });
+            mat.initialize({ effectName: 'skybox', defines: { USE_RGBE_CUBEMAP: isRGBE, CC_IBL_CONVOLUTED: isUseConvolutionMap } });
             skybox_material = new MaterialInstance({ parent: mat });
         }
 
@@ -325,9 +324,9 @@ export class Skybox {
 
         if (this.enabled) {
             if (this._editableMaterial) {
-                this._editableMaterial.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE, USE_CONVOLUTION_MAP: this.isUseConvolutionMap });
+                this._editableMaterial.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE, CC_IBL_CONVOLUTED: this.isUseConvolutionMap });
             } else if (skybox_material) {
-                skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE, USE_CONVOLUTION_MAP: this.isUseConvolutionMap });
+                skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE, CC_IBL_CONVOLUTED: this.isUseConvolutionMap });
             }
         }
 
