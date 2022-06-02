@@ -165,18 +165,15 @@ export declare namespace EffectAsset {
     }
 }
 
-function rebuildLayoutGraph (effects: Record<string, EffectAsset>) {
+function rebuildLayoutGraph (effects: Array<EffectAsset>) {
     const root = (legacyCC.director.root as Root);
     if (!root.usesCustomPipeline) {
         return;
     }
     const descH = new WebDescriptorHierarchy();
-
-    for (const name in effects) {
-        const effect = effects[name];
+    for (const effect of effects) {
         descH.addEffect(effect);
     }
-
     const lg = descH.layoutGraph;
     const lgData = root.customPipeline.layoutGraphBuilder;
     lgData.clear();
@@ -288,8 +285,21 @@ export class EffectAsset extends Asset {
      * @zh 通过 [[CCLoader]] 加载完成时的回调，将自动注册 effect 资源。
      */
     public onLoaded () {
-        programLib.register(this);
-        EffectAsset.register(this);
+        const root = (legacyCC.director.root as Root);
+        if (!root.usesCustomPipeline) {
+            programLib.register(this);
+            EffectAsset.register(this);
+        } else {
+            const effects = new Array<EffectAsset>();
+            const prevEffects = EffectAsset.getAll();
+            for (const name in prevEffects) {
+                const effect = prevEffects[name];
+                effects.push(effect);
+            }
+            effects.push(this);
+            rebuildLayoutGraph(effects); // rebuild layout and update bindings
+            EffectAsset.register(this);
+        }
         if (!EDITOR) { legacyCC.game.once(legacyCC.Game.EVENT_ENGINE_INITED, this._precompile, this); }
     }
 
