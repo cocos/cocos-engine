@@ -79,7 +79,7 @@ public:
         return _obj;
     }
 
-    inline explicit operator Object *() const {
+    inline operator Object *() const { // NOLINT
         return _obj;
     }
 
