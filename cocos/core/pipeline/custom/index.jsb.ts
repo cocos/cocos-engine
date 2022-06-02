@@ -30,12 +30,8 @@
 
 declare const render: any;
 
-import { DescriptorHierarchy, Pipeline } from './pipeline';
+import { Pipeline } from './pipeline';
 
 export function createCustomPipeline (): Pipeline {
     return render.Factory.createPipeline();
-}
-
-export function createDescriptorHierarchy (): DescriptorHierarchy {
-    return render.Factory.createDescriptorHierarchy();
 }
