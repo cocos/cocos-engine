@@ -35,6 +35,13 @@ public:
     void syncSharedBufferToNative(index_t* buffer);
     void parseLayout();
 
+    inline index_t getByteOffset() { return _meshBufferLayout->byteOffset; }
+    void setByteOffset(index_t byteOffset);
+    inline index_t getVertexOffset() { return _meshBufferLayout->vertexOffset; }
+    void setVertexOffset(index_t vertexOffset);
+    inline index_t getIndexOffset() { return _meshBufferLayout->indexOffset; }
+    void setIndexOffset(index_t indexOffset);
+
 private:
     float_t* _vData{nullptr};
     uint16_t* _iData{nullptr};

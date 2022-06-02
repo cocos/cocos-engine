@@ -15,10 +15,7 @@ struct MeshBufferAttr {
     index_t bufferId;
     index_t indexOffset;
 };
-struct DescriptorSetCache {
-    ccstd::unordered_map<uint64_t, gfx::DescriptorSet> _descriptorSetCache;
-    ccstd::unordered_map<uint64_t, uint64_t> _dsCacheHashByTexture;
-};
+
 class Root;
 class Batcher2d {
 public:
@@ -28,7 +25,7 @@ public:
 
     void syncMeshBuffersToNative(std::vector<UIMeshBuffer*>&& buffers, uint32_t length);
     void syncRenderEntitiesToNative(std::vector<RenderEntity*>&& renderEntities);
-    void syncMeshBufferAttrToNative(uint32_t* buffer, uint8_t stride, uint32_t size);
+    //void syncMeshBufferAttrToNative(uint32_t* buffer, uint8_t stride, uint32_t size);
 
     // for debug
     void ItIsDebugFuncInBatcher2d();
@@ -39,11 +36,13 @@ public:
     void reset();
 
 public:
-    void parseAttr();
-    MeshBufferAttr* getMeshBufferAttr(index_t bufferId);
+    //void parseAttr();
+    //MeshBufferAttr* getMeshBufferAttr(index_t bufferId);
 
     UIMeshBuffer* getMeshBuffer(index_t bufferId);
-  
+
+    void updateDescriptorSet();
+
 public:
     inline std::vector<scene::DrawBatch2D*> getBatches() { return this->_batches; }
 
@@ -55,10 +54,10 @@ private:
 
     std::vector<RenderEntity*> _renderEntities{};
 
-    std::vector<MeshBufferAttr*> _meshBufferAttrArr{};
-    uint8_t _attrStride{0};
-    uint32_t _attrSize{0};
-    uint32_t* _attrBuffer{nullptr};
+    //std::vector<MeshBufferAttr*> _meshBufferAttrArr{};
+    //uint8_t _attrStride{0};
+    //uint32_t _attrSize{0};
+    //uint32_t* _attrBuffer{nullptr};
 
 private:
     // draw batches
@@ -79,6 +78,7 @@ private:
     index_t _currSamplerHash{0};
 
 private:
+    //TODO:destroy
     ccstd::unordered_map<uint64_t, gfx::DescriptorSet> _descriptorSetCache;
     gfx::DescriptorSetInfo _dsInfo;
     gfx::DescriptorSet* getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, gfx::DescriptorSetLayout* _dsLayout);

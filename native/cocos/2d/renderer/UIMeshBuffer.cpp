@@ -7,9 +7,11 @@ UIMeshBuffer::UIMeshBuffer(/* args */) {
 
 UIMeshBuffer::~UIMeshBuffer() {
 }
+
 void UIMeshBuffer::setVData(float_t* vData) {
     _vData = vData;
 }
+
 void UIMeshBuffer::setIData(uint16_t* iData) {
     _iData = iData;
 }
@@ -113,7 +115,20 @@ void UIMeshBuffer::syncSharedBufferToNative(index_t* buffer) {
     _sharedBuffer = buffer;
     parseLayout();
 }
+
 void UIMeshBuffer::parseLayout() {
     _meshBufferLayout = reinterpret_cast<MeshBufferLayout*>(_sharedBuffer);
+}
+
+void UIMeshBuffer::setByteOffset(index_t byteOffset) {
+    _meshBufferLayout->byteOffset = byteOffset;
+}
+
+void UIMeshBuffer::setVertexOffset(index_t vertexOffset) {
+    _meshBufferLayout->vertexOffset = vertexOffset;
+}
+
+void UIMeshBuffer::setIndexOffset(index_t indexOffset) {
+    _meshBufferLayout->indexOffset = indexOffset;
 }
 } // namespace cc

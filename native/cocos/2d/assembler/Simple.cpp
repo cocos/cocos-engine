@@ -56,12 +56,12 @@ void Simple::fillBuffers(RenderEntity* entity) {
     uint8_t vertexOffset = entity->getVertexOffset();
     uint16_t* ib = entity->getIDataBuffer();
 
-    MeshBufferAttr* attr = this->_batcher->getMeshBufferAttr(entity->getBufferId());
+    UIMeshBuffer* buffer = _batcher->getMeshBuffer(entity->getBufferId());
     index_t indexOffset = 0;
-    if (attr != nullptr) {
+    if (buffer != nullptr) {
         //因为目前的indexOffset还在ts层修改过，所以下面的赋值可能是错误的
         //后续indexOffset全部放在c++修改与维护
-        indexOffset = attr->indexOffset;
+        indexOffset = buffer->getIndexOffset();
     }
 
     for (int curRow = 0; curRow < this->_vertexRow - 1; curRow++) {
@@ -85,8 +85,8 @@ void Simple::fillBuffers(RenderEntity* entity) {
             // set index offset back
             // 这句有问题，得存在一个固定的meshbuffer.indexoffset
             // 上面拿到uint8_t indexOffset = entity->getIndexOffset();也得从一个固定的地方拿
-            if (attr != nullptr) {
-                attr->indexOffset = indexOffset;
+            if (buffer != nullptr) {
+                buffer->setIndexOffset(indexOffset);
             }
         }
     }

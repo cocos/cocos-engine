@@ -36,36 +36,40 @@ void Batcher2d::syncRenderEntitiesToNative(std::vector<RenderEntity*>&& renderEn
     _renderEntities = std::move(renderEntities);
 }
 
-void Batcher2d::syncMeshBufferAttrToNative(uint32_t* buffer, uint8_t stride, uint32_t size) {
-    _attrSize = size;
-    _attrStride = stride;
-    _attrBuffer = buffer;
-    parseAttr();
-}
+//void Batcher2d::syncMeshBufferAttrToNative(uint32_t* buffer, uint8_t stride, uint32_t size) {
+//    _attrSize = size;
+//    _attrStride = stride;
+//    _attrBuffer = buffer;
+//    parseAttr();
+//}
 
-void Batcher2d::parseAttr() {
-    index_t group = _attrSize / _attrStride;
-    _meshBufferAttrArr.clear();
-    for (index_t i = 0; i < _attrSize; i += _attrStride) {
-        MeshBufferAttr* temp = reinterpret_cast<MeshBufferAttr*>(_attrBuffer + i);
-        _meshBufferAttrArr.push_back(temp);
-    }
-}
+//void Batcher2d::parseAttr() {
+//    index_t group = _attrSize / _attrStride;
+//    _meshBufferAttrArr.clear();
+//    for (index_t i = 0; i < _attrSize; i += _attrStride) {
+//        MeshBufferAttr* temp = reinterpret_cast<MeshBufferAttr*>(_attrBuffer + i);
+//        _meshBufferAttrArr.push_back(temp);
+//    }
+//}
 
-MeshBufferAttr* Batcher2d::getMeshBufferAttr(index_t bufferId) {
-    for (index_t i = 0; i < _meshBufferAttrArr.size(); i++) {
-        if (_meshBufferAttrArr[i]->bufferId == bufferId) {
-            return _meshBufferAttrArr[i];
-        }
-    }
-    return nullptr;
-}
+//MeshBufferAttr* Batcher2d::getMeshBufferAttr(index_t bufferId) {
+//    for (index_t i = 0; i < _meshBufferAttrArr.size(); i++) {
+//        if (_meshBufferAttrArr[i]->bufferId == bufferId) {
+//            return _meshBufferAttrArr[i];
+//        }
+//    }
+//    return nullptr;
+//}
 
 UIMeshBuffer* Batcher2d::getMeshBuffer(index_t bufferId) {
     if (bufferId < this->_meshBuffers.size() || this->_meshBuffers[bufferId] == nullptr) {
         return nullptr;
     }
     return this->_meshBuffers[bufferId];
+}
+
+void Batcher2d::updateDescriptorSet() {
+    //for this._descriptorSetCache.update()
 }
 
 void Batcher2d::fillBuffersAndMergeBatches() {
@@ -88,10 +92,10 @@ void Batcher2d::fillBuffersAndMergeBatches() {
             if (!entity->getIsMeshBuffer()) {
                 //修改当前currbufferid和currindexStart（用当前的meshbuffer的indexOffset赋值）
                 if (_currBID != entity->getBufferId()) {
-                    MeshBufferAttr* attr = getMeshBufferAttr(entity->getBufferId());
-                    if (attr) {
+                    UIMeshBuffer* buffer = getMeshBuffer(entity->getBufferId());
+                    if (buffer!=nullptr) {
                         _currBID = entity->getBufferId();
-                        _indexStart = attr->indexOffset;
+                        _indexStart = buffer->getIndexOffset();
                     }
                 }
             }
@@ -178,7 +182,18 @@ void Batcher2d::update() {
 }
 
 void Batcher2d::uploadBuffers() {
-    ItIsDebugFuncInBatcher2d();
+    if (_batches.size() > 0) {
+        //_meshDataArray.forEach(),uploadBuffers
+
+        //当前只考虑一个accessor
+        for (index_t i = 0; i < _meshBuffers.size(); i++) {
+            UIMeshBuffer* buffer = _meshBuffers[i];
+            buffer->uploadBuffers();
+            buffer->reset();
+        }
+
+        updateDescriptorSet();
+    }
 }
 
 void Batcher2d::reset() {
@@ -197,16 +212,5 @@ void Batcher2d::reset() {
 
 void Batcher2d::ItIsDebugFuncInBatcher2d() {
     std::cout << "It is debug func in Batcher2d.";
-
-    //暂时不能修改indexOffset，目前ts中有修改，不能另外再修改了
-    //// test code
-    //Simple* simple = new Simple(this);
-    //for (int i = 0; i < _renderEntities.size(); i++) {
-    //    RenderEntity* temp = _renderEntities[i];
-    //    //暂时先用顶点数量判断是否为有效数据
-    //    if (temp->getRenderDataArr().size() > 0) {
-    //        simple->fillBuffers(temp);
-    //    }
-    //}
 }
 } // namespace cc
