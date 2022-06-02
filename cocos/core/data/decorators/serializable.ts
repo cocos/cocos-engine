@@ -73,13 +73,13 @@ function setImplicitSerializable (propertyStash: PropertyStash) {
  * For example:
  * ```ts
  * import { _decorator } from 'cc';
- * \@_decorator.ccclass
- * \@_decorator.uniquelyReferenced
+ * @_decorator.ccclass
+ * @_decorator.uniquelyReferenced
  * class Foo { }
  *
- * \@_decorator.ccclass
+ * @_decorator.ccclass
  * class Bar {
- *   \@_decorator.property
+ *   @_decorator.property
  *   public foo = new Foo();
  * }
  *
@@ -96,13 +96,13 @@ function setImplicitSerializable (propertyStash: PropertyStash) {
  * 例如：
  * ```ts
  * import { _decorator } from 'cc';
- * \@_decorator.ccclass
- * \@_decorator.uniquelyReferenced
+ * @_decorator.ccclass
+ * @_decorator.uniquelyReferenced
  * class Foo { }
  *
- * \@_decorator.ccclass
+ * @_decorator.ccclass
  * class Bar {
- *   \@_decorator.property
+ *   @_decorator.property
  *   public foo = new Foo();
  * }
  *
