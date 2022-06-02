@@ -260,6 +260,17 @@ export class ResourceGraph implements impl.BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // MutableGraph
+    clear (): void {
+        // UuidGraph
+        this._valueIndex.clear();
+        // ComponentGraph
+        this._names.length = 0;
+        this._descs.length = 0;
+        this._traits.length = 0;
+        this._states.length = 0;
+        // Graph Vertices
+        this._vertices.length = 0;
+    }
     addVertex<T extends ResourceGraphValue> (
         id: ResourceGraphValue,
         object: ResourceGraphValueType[T],
@@ -795,6 +806,13 @@ export class SubpassGraph implements impl.BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // MutableGraph
+    clear (): void {
+        // ComponentGraph
+        this._names.length = 0;
+        this._subpasses.length = 0;
+        // Graph Vertices
+        this._vertices.length = 0;
+    }
     addVertex (
         name: string,
         subpass: RasterSubpass,
@@ -1095,7 +1113,7 @@ export class RenderData {
     readonly constants: Map<number, Uint8Array> = new Map<number, Uint8Array>();
     readonly buffers: Map<number, Buffer> = new Map<number, Buffer>();
     readonly textures: Map<number, Texture> = new Map<number, Texture>();
-    readonly samplers: Map<number, Sampler> = new Map<number, Sampler>();
+    readonly samplers: Map<number, Sampler | null> = new Map<number, Sampler | null>();
 }
 
 //=================================================================
@@ -1310,6 +1328,17 @@ export class RenderGraph implements impl.BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // MutableGraph
+    clear (): void {
+        // Members
+        this.index.clear();
+        // ComponentGraph
+        this._names.length = 0;
+        this._layoutNodes.length = 0;
+        this._data.length = 0;
+        this._valid.length = 0;
+        // Graph Vertices
+        this._vertices.length = 0;
+    }
     addVertex<T extends RenderGraphValue> (
         id: RenderGraphValue,
         object: RenderGraphValueType[T],

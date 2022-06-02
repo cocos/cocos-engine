@@ -122,29 +122,14 @@ public:
         return out;
     }
 
-    /**
-     * @en
-     * Set whether to use accurate intersection testing function on this frustum.
-     * @zh
-     * 设置是否在此截锥体上使用精确的相交测试函数。
-     */
-    void setAccurate(bool accurate) {
-        setType(accurate ? ShapeEnum::SHAPE_FRUSTUM_ACCURATE : ShapeEnum::SHAPE_FRUSTUM);
-    }
+    Frustum();
+    Frustum(const Frustum &rhs);
+    Frustum(Frustum &&rhs) = delete;
+    ~Frustum() override;
 
-    Frustum() {
-        setType(ShapeEnum::SHAPE_FRUSTUM);
-        for (size_t i = 0; i < planes.size(); ++i) { // NOLINT(modernize-loop-convert)
-            planes[i] = ccnew Plane();
-            planes[i]->addRef();
-        }
-    }
-
-    ~Frustum() override {
-        for (auto *plane : planes) {
-            plane->release();
-        }
-    }
+    // Can remove these operator override functions if not using Plane* in planes array.
+    Frustum &operator=(const Frustum &rhs);
+    Frustum &operator=(Frustum &&rhs) = delete;
 
     /**
      * @en
@@ -155,12 +140,26 @@ public:
      */
     void transform(const Mat4 &);
 
-    ccstd::array<Vec3, 8> vertices;
-    ccstd::array<Plane *, 6> planes;
     void createOrtho(float width, float height, float near, float far, const Mat4 &transform);
     void split(float start, float end, float aspect, float fov, const Mat4 &transform);
     void updatePlanes();
     void update(const Mat4 &m, const Mat4 &inv);
+
+    /**
+     * @en
+     * Set whether to use accurate intersection testing function on this frustum.
+     * @zh
+     * 设置是否在此截锥体上使用精确的相交测试函数。
+     */
+    inline void setAccurate(bool accurate) {
+        setType(accurate ? ShapeEnum::SHAPE_FRUSTUM_ACCURATE : ShapeEnum::SHAPE_FRUSTUM);
+    }
+
+    ccstd::array<Vec3, 8> vertices;
+    ccstd::array<Plane *, 6> planes;
+
+private:
+    void init();
 };
 
 } // namespace geometry

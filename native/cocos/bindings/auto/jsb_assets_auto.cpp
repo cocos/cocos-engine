@@ -8191,6 +8191,23 @@ static bool js_assets_EffectAsset_getAll_static(se::State& s) // NOLINT(readabil
 }
 SE_BIND_FUNC(js_assets_EffectAsset_getAll_static)
 
+static bool js_assets_EffectAsset_isLayoutValid_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cc::EffectAsset::isLayoutValid();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_EffectAsset_isLayoutValid_static : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_assets_EffectAsset_isLayoutValid_static)
+
 static bool js_assets_EffectAsset_registerAsset_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
@@ -8236,6 +8253,19 @@ static bool js_assets_EffectAsset_remove_static(se::State& s) // NOLINT(readabil
 }
 SE_BIND_FUNC(js_assets_EffectAsset_remove_static)
 
+static bool js_assets_EffectAsset_setLayoutValid_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cc::EffectAsset::setLayoutValid();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_assets_EffectAsset_setLayoutValid_static)
+
 SE_DECLARE_FINALIZE_FUNC(js_cc_EffectAsset_finalize)
 
 static bool js_assets_EffectAsset_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
@@ -8264,8 +8294,10 @@ bool js_register_assets_EffectAsset(se::Object* obj) // NOLINT(readability-ident
     cls->defineProperty("combinations", _SE(js_assets_EffectAsset_getCombinations_asGetter), _SE(js_assets_EffectAsset_setCombinations_asSetter));
     cls->defineStaticFunction("get", _SE(js_assets_EffectAsset_get_static));
     cls->defineStaticFunction("getAll", _SE(js_assets_EffectAsset_getAll_static));
+    cls->defineStaticFunction("isLayoutValid", _SE(js_assets_EffectAsset_isLayoutValid_static));
     cls->defineStaticFunction("register", _SE(js_assets_EffectAsset_registerAsset_static));
     cls->defineStaticFunction("remove", _SE(js_assets_EffectAsset_remove_static));
+    cls->defineStaticFunction("setLayoutValid", _SE(js_assets_EffectAsset_setLayoutValid_static));
     cls->defineFinalizeFunction(_SE(js_cc_EffectAsset_finalize));
     cls->install();
     JSBClassType::registerClass<cc::EffectAsset>(cls);

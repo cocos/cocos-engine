@@ -30,7 +30,6 @@
  */
 // clang-format off
 #pragma once
-#include "cocos/core/assets/EffectAsset.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
@@ -44,8 +43,6 @@ class Quaternion;
 class Vec4;
 class Vec3;
 class Vec2;
-
-class EffectAsset;
 
 namespace pipeline {
 
@@ -102,21 +99,6 @@ public:
 };
 
 inline PipelineRuntime::~PipelineRuntime() noexcept = default;
-
-class DescriptorHierarchy {
-public:
-    DescriptorHierarchy() noexcept = default;
-    DescriptorHierarchy(DescriptorHierarchy&& rhs)      = delete;
-    DescriptorHierarchy(DescriptorHierarchy const& rhs) = delete;
-    DescriptorHierarchy& operator=(DescriptorHierarchy&& rhs) = delete;
-    DescriptorHierarchy& operator=(DescriptorHierarchy const& rhs) = delete;
-
-    virtual ~DescriptorHierarchy() noexcept = 0;
-
-    virtual void addEffect(EffectAsset* asset) = 0;
-};
-
-inline DescriptorHierarchy::~DescriptorHierarchy() noexcept = default;
 
 class Setter {
 public:
@@ -345,7 +327,6 @@ inline Pipeline::~Pipeline() noexcept = default;
 class Factory {
 public:
     static Pipeline            *createPipeline();
-    static DescriptorHierarchy *createDescriptorHierarchy();
 };
 
 } // namespace render

@@ -29,7 +29,6 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import { EffectAsset } from '../../assets';
 import { Camera } from '../../renderer/scene/camera';
 import { Buffer, Color, DescriptorSet, DescriptorSetLayout, DrawInfo, Format, InputAssembler, PipelineState, Rect, Sampler, Swapchain, Texture, Viewport } from '../../gfx';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
@@ -58,10 +57,6 @@ export abstract class PipelineRuntime {
     public abstract onGlobalPipelineStateChanged(): void;
 
     public abstract get macros(): MacroRecord;
-}
-
-export abstract class DescriptorHierarchy {
-    public abstract addEffect(asset: EffectAsset): void;
 }
 
 export abstract class Setter {

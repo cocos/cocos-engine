@@ -323,8 +323,10 @@ bool js_register_cc_EffectAsset(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_assets_EffectAsset_get);
 SE_DECLARE_FUNC(js_assets_EffectAsset_getAll);
+SE_DECLARE_FUNC(js_assets_EffectAsset_isLayoutValid);
 SE_DECLARE_FUNC(js_assets_EffectAsset_registerAsset);
 SE_DECLARE_FUNC(js_assets_EffectAsset_remove);
+SE_DECLARE_FUNC(js_assets_EffectAsset_setLayoutValid);
 SE_DECLARE_FUNC(js_assets_EffectAsset_EffectAsset);
 
 extern se::Object *__jsb_cc_IMemoryImageSource_proto; // NOLINT

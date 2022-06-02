@@ -211,5 +211,42 @@ void Frustum::updatePlanes() {
     planes[5]->define(vertices[7], vertices[5], vertices[6]);
 }
 
+Frustum::Frustum() {
+    init();
+}
+
+Frustum::Frustum(const Frustum &rhs) : ShapeBase(rhs) {
+    init();
+    *this = rhs;
+}
+
+Frustum::~Frustum() {
+    for (auto *plane : planes) {
+        plane->release();
+    }
+}
+
+Frustum &Frustum::operator=(const Frustum &rhs) {
+    if (this == &rhs) {
+        return *this;
+    }
+
+    vertices = rhs.vertices;
+
+    for (size_t i = 0; i < planes.size(); ++i) { // NOLINT(modernize-loop-convert)
+        Plane::copy(planes[i], *rhs.planes[i]);
+    }
+
+    return *this;
+}
+
+void Frustum::init() {
+    setType(ShapeEnum::SHAPE_FRUSTUM);
+    for (size_t i = 0; i < planes.size(); ++i) { // NOLINT(modernize-loop-convert)
+        planes[i] = ccnew Plane();
+        planes[i]->addRef();
+    }
+}
+
 } // namespace geometry
 } // namespace cc

@@ -9,7 +9,6 @@
 bool register_all_render(se::Object *obj);                   // NOLINT
 
 JSB_REGISTER_OBJECT_TYPE(cc::render::PipelineRuntime);
-JSB_REGISTER_OBJECT_TYPE(cc::render::DescriptorHierarchy);
 JSB_REGISTER_OBJECT_TYPE(cc::render::Setter);
 JSB_REGISTER_OBJECT_TYPE(cc::render::RasterQueueBuilder);
 JSB_REGISTER_OBJECT_TYPE(cc::render::RasterPassBuilder);
@@ -34,13 +33,6 @@ SE_DECLARE_FUNC(js_render_PipelineRuntime_activate);
 SE_DECLARE_FUNC(js_render_PipelineRuntime_destroy);
 SE_DECLARE_FUNC(js_render_PipelineRuntime_onGlobalPipelineStateChanged);
 SE_DECLARE_FUNC(js_render_PipelineRuntime_render);
-
-extern se::Object *__jsb_cc_render_DescriptorHierarchy_proto; // NOLINT
-extern se::Class * __jsb_cc_render_DescriptorHierarchy_class; // NOLINT
-
-bool js_register_cc_render_DescriptorHierarchy(se::Object *obj); // NOLINT
-
-SE_DECLARE_FUNC(js_render_DescriptorHierarchy_addEffect);
 
 extern se::Object *__jsb_cc_render_Setter_proto; // NOLINT
 extern se::Class * __jsb_cc_render_Setter_class; // NOLINT
@@ -170,6 +162,5 @@ extern se::Class * __jsb_cc_render_Factory_class; // NOLINT
 
 bool js_register_cc_render_Factory(se::Object *obj); // NOLINT
 
-SE_DECLARE_FUNC(js_render_Factory_createDescriptorHierarchy);
 SE_DECLARE_FUNC(js_render_Factory_createPipeline);
 // clang-format on
