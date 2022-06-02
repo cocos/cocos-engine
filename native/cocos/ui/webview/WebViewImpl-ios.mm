@@ -315,7 +315,7 @@ WebViewImpl::~WebViewImpl() {
    destroy();
 }
 
-WebViewImpl::destroy() {
+void WebViewImpl::destroy() {
     if (_uiWebViewWrapper != nil) {
         [_uiWebViewWrapper release];
         _uiWebViewWrapper = nil;
@@ -462,7 +462,7 @@ void WebViewImpl::setBackgroundTransparent(bool isTransparent) {
     if (_uiWebViewWrapper == nil) {
         return;
     }
-    
+
     [_uiWebViewWrapper setBackgroundTransparent:isTransparent];
 }
 } //namespace cc
