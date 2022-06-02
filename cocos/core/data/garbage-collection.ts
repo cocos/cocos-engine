@@ -41,7 +41,7 @@ class GarbageCollectionManager {
                     if (property === targetSymbol) {
                         return target;
                     }
-                    let val = Reflect.get(target, property, receiver);
+                    let val = target[property];
                     if (typeof val === 'function' && property !== 'constructor') {
                         const original = val;
                         val = function newFunc () {
@@ -50,6 +50,10 @@ class GarbageCollectionManager {
                         };
                     }
                     return val as unknown;
+                },
+                set (target, prop, value, receiver) {
+                    target[prop] = value;
+                    return true;
                 },
             });
             // @ts-expect-error use WeakRef in Editor
