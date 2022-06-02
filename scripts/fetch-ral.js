@@ -3,6 +3,7 @@ const fs = require('fs');
 const fsExt = require('fs-extra');
 const { exec } = require('child_process');
 const del = require('del');
+const chalk = require('chalk').default;
 
 const distDir = join(__dirname, '../bin/adapter/runtime');
 
@@ -78,9 +79,17 @@ function runCommand (cmd, cwd) {
         console.log(`Running command: '${cmd}' in '${repositoryPath}'\n`);
         const ls = exec(cmd, {
             cwd,
-        });
-        ls.stderr.on('data', err => {
-            console.error(err)
+        }, (err, stdout, stderr) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            if (stdout) {
+                console.log(stdout);
+            }
+            if (stderr) {
+                console.error(stderr);
+            }
         });
         ls.stdout.on('close', resolve);
     })
@@ -161,7 +170,7 @@ async function removeDir (dirPath) {
         console.timeEnd('Fetch RAL');
         process.exit(0);
     } catch (err) {
-        console.error('Fetch ral failed', err);
+        console.error(chalk.red('Fetch ral failed'), err);
         process.exit(1);
     }
 })();
