@@ -62,7 +62,7 @@ struct ITextureCubeSerializeMipmapData {
  * @en The MipmapAtlas region interface
  * @zh MipmapAtlas的region接口。
  */
-struct IMipmapAtlasLayout {
+struct MipmapAtlasLayoutInfo {
     uint32_t left{0};
     uint32_t top{0};
     uint32_t width{0};
@@ -73,9 +73,9 @@ struct IMipmapAtlasLayout {
  * @en The texture cube MipmapAtlas interface
  * @zh 立方体贴图的 MipmapAtlas 接口。
  */
-struct ITextureCubeMipmapAtlas {
+struct TextureCubeMipmapAtlasInfo {
     ITextureCubeMipmap atlas;
-    ccstd::vector<IMipmapAtlasLayout> layout;
+    ccstd::vector<MipmapAtlasLayoutInfo> layout;
 };
 
 enum class MipmapBakeMode {
@@ -96,12 +96,12 @@ enum class MipmapBakeMode {
     */
     BAKE_REFLECTION_CONVOLUTION = 1
 };
-struct ITextureCubeSerializeData {
+struct TextureCubeSerializeData {
     ccstd::string base;
     bool rgbe{false};
     MipmapBakeMode mipmapMode{MipmapBakeMode::NONE };
     ccstd::vector<ITextureCubeSerializeMipmapData> mipmaps;
-    ITextureCubeMipmapAtlas mipmapAtlas;
+    TextureCubeMipmapAtlasInfo mipmapAtlas;
 };
 
 /**
@@ -161,7 +161,7 @@ public:
         return _mipmaps;
     }
 
-    inline const ITextureCubeMipmapAtlas &getMipmapAtlas() const {
+    inline const TextureCubeMipmapAtlasInfo &getMipmapAtlas() const {
         return _mipmapAtlas;
     }
 
@@ -169,9 +169,9 @@ public:
 
     void setMipmapsForJS(const ccstd::vector<ITextureCubeMipmap> &value);
 
-    void setMipmapAtlasForJS(const ITextureCubeMipmapAtlas &value);
+    void setMipmapAtlasForJS(const TextureCubeMipmapAtlasInfo &value);
 
-    void setmipmapAtlas(const ITextureCubeMipmapAtlas &value);
+    void setmipmapAtlas(const TextureCubeMipmapAtlasInfo &value);
 
     /**
      * @en Level 0 mipmap image.
@@ -235,7 +235,7 @@ public:
     MipmapBakeMode _mipmapMode{ MipmapBakeMode::NONE };
 
     /*@serializable*/
-    ITextureCubeMipmapAtlas _mipmapAtlas;
+    TextureCubeMipmapAtlasInfo _mipmapAtlas;
 
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(TextureCube);

@@ -103,16 +103,16 @@ void TextureCube::setMipmaps(const ccstd::vector<ITextureCubeMipmap> &value) {
     }
 }
 
-void TextureCube::setmipmapAtlas(const ITextureCubeMipmapAtlas &value) {
+void TextureCube::setmipmapAtlas(const TextureCubeMipmapAtlasInfo &value) {
     _mipmapAtlas = value;
     ITextureCubeMipmap atlas = _mipmapAtlas.atlas;
-    ccstd::vector<IMipmapAtlasLayout> layouts = _mipmapAtlas.layout;
+    ccstd::vector<MipmapAtlasLayoutInfo> layouts = _mipmapAtlas.layout;
     if (_mipmapAtlas.layout.empty()) {
         return;
     }
     setMipmapLevel(static_cast<uint32_t>(layouts.size()));
 
-    IMipmapAtlasLayout lv0Layout = layouts[0];
+    MipmapAtlasLayoutInfo lv0Layout = layouts[0];
     ImageAsset *imageAsset = atlas.front;
 
     reset({lv0Layout.width,
@@ -125,7 +125,7 @@ void TextureCube::setmipmapAtlas(const ITextureCubeMipmapAtlas &value) {
     const uint32_t pixelSize = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(imageAsset->getFormat())].size;
 
     for (size_t level = 0; level < layouts.size(); level++) {
-        IMipmapAtlasLayout layoutInfo = layouts[level];
+        MipmapAtlasLayoutInfo layoutInfo = layouts[level];
         uint32_t currentSize = layoutInfo.width * layoutInfo.height * pixelSize;
 
         //Upload 6 sides by level
@@ -164,7 +164,7 @@ void TextureCube::setMipmapsForJS(const ccstd::vector<ITextureCubeMipmap> &value
     _mipmaps = value;
 }
 
-void TextureCube::setMipmapAtlasForJS(const ITextureCubeMipmapAtlas &value) {
+void TextureCube::setMipmapAtlasForJS(const TextureCubeMipmapAtlasInfo &value) {
     _mipmapAtlas = value;
 }
 
@@ -257,7 +257,7 @@ ccstd::any TextureCube::serialize(const ccstd::any & /*ctxForExporting*/) {
 }
 
 void TextureCube::deserialize(const ccstd::any &serializedData, const ccstd::any &handle) {
-    const auto *data = ccstd::any_cast<ITextureCubeSerializeData>(&serializedData);
+    const auto *data = ccstd::any_cast<TextureCubeSerializeData>(&serializedData);
     if (data == nullptr) {
         return;
     }
