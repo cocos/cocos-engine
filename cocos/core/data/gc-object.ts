@@ -19,33 +19,28 @@
  THE SOFTWARE.
 */
 import { EDITOR } from 'internal:constants';
-import { ccclass } from './decorators';
 import { garbageCollectionManager } from './garbage-collection';
-import { CCObject } from './object';
 
-@ccclass('cc.GCObject')
-export class GCObject extends CCObject {
+export class GCObject {
+    private static _id = 1;
     /**
      * @internal
      */
     public declare _finalizationToken: any;
+    private _objectId = GCObject._id++;
 
-    constructor (...arg: ConstructorParameters<typeof CCObject>) {
-        super(...arg);
+    constructor () {
         return garbageCollectionManager.registerGCObject(this);
     }
 
     public equals (gcObject: GCObject | null) {
         if (!gcObject) { return false; }
         if (EDITOR) {
-            return gcObject._finalizationToken === this._finalizationToken;
+            return gcObject._objectId === this._objectId;
         } else {
             return gcObject === this;
         }
     }
 
-    public destroy () {
-        garbageCollectionManager.unregisterGCObject(this);
-        return super.destroy();
-    }
+    public destroy () {}
 }

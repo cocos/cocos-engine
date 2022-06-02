@@ -27,14 +27,33 @@ declare class FinalizationRegistry {
     unregister (token: any);
 }
 
+const targetSymbol = Symbol('[[target]]');
+
 class GarbageCollectionManager {
     private _finalizationRegistry: FinalizationRegistry | null = EDITOR ? new FinalizationRegistry(this.finalizationRegistryCallback.bind(this)) : null;
+    private _gcObjects: WeakMap<any, GCObject> = new WeakMap();
 
     public registerGCObject (gcObject: GCObject): GCObject {
         if (EDITOR) {
-            gcObject._finalizationToken = {};
-            const proxy = new Proxy(gcObject, {});
-            this._finalizationRegistry!.register(proxy, gcObject, gcObject._finalizationToken);
+            const token = {};
+            const proxy = new Proxy(gcObject, {
+                get (target, property, receiver) {
+                    if (property === targetSymbol) {
+                        return target;
+                    }
+                    let val = Reflect.get(target, property, receiver);
+                    if (typeof val === 'function' && property !== 'constructor') {
+                        const original = val;
+                        val = function () {
+                            return original.apply((this as GCObject)[targetSymbol], arguments);
+                        };
+                    }
+                    return val;
+                },
+            });
+            gcObject._finalizationToken = new WeakRef(token);
+            this._gcObjects.set(token, gcObject);
+            this._finalizationRegistry!.register(proxy, token, token);
             return proxy;
         } else {
             return gcObject;
@@ -43,17 +62,23 @@ class GarbageCollectionManager {
 
     public unregisterGCObject (gcObject: GCObject) {
         if (EDITOR) {
-            this._finalizationRegistry!.unregister(gcObject._finalizationToken);
+            const token = gcObject._finalizationToken.deref();
+            if (token) {
+                this._finalizationRegistry!.unregister(token);
+            }
         }
     }
 
     public init () {
     }
 
-    private finalizationRegistryCallback (gcObject: GCObject) {
-        if (gcObject.isValid) {
+    private finalizationRegistryCallback (token: any) {
+        const gcObject = this._gcObjects.get(token);
+        if (gcObject) {
+            this._gcObjects.delete(token);
             gcObject.destroy();
         }
+        this._finalizationRegistry!.unregister(token);
     }
 
     public destroy () {
