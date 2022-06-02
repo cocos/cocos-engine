@@ -643,8 +643,8 @@ export class WebPipeline extends Pipeline {
     createSceneTransversal (camera: Camera, scene: RenderScene): SceneTransversal {
         return new WebSceneTransversal(camera, this.pipelineSceneData);
     }
-    public createLayoutGraph (name: string): LayoutGraphBuilder {
-        return new WebLayoutGraphBuilder();
+    get layoutGraphBuilder (): LayoutGraphBuilder {
+        return new WebLayoutGraphBuilder(this._device, this._layoutGraph);
     }
     get renderGraph () {
         return this._renderGraph;
@@ -652,7 +652,9 @@ export class WebPipeline extends Pipeline {
     get resourceGraph () {
         return this._resourceGraph;
     }
-    get layoutGraph () { return this._layoutGraph; }
+    get layoutGraph () {
+        return this._layoutGraph;
+    }
     protected _updateRasterPassConstants (pass: Setter, width: number, height: number) {
         const shadingWidth = width;
         const shadingHeight = height;

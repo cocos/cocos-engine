@@ -1283,7 +1283,7 @@ typename std::enable_if<!std::is_convertible<T, ccstd::string>::value, void>::ty
 
 template <typename K, typename V>
 inline bool nativevalue_to_se(const ccstd::unordered_map<K, V> &from, se::Value &to, se::Object *ctx) { // NOLINT
-    se::Object *ret = se::Object::createPlainObject();
+    se::HandleObject ret{se::Object::createPlainObject()};
     se::Value value;
     bool ok = true;
     for (auto &it : from) {
@@ -1291,44 +1291,39 @@ inline bool nativevalue_to_se(const ccstd::unordered_map<K, V> &from, se::Value 
         cc_tmp_set_property(ret, it.first, value);
     }
     to.setObject(ret);
-    ret->decRef();
     return true;
 }
 
 template <typename T, size_t N>
 inline bool nativevalue_to_se(const ccstd::array<T, N> &from, se::Value &to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
-    se::Object *array = se::Object::createArrayObject(N);
+    se::HandleObject array{se::Object::createArrayObject(N)};
     se::Value tmp;
     for (size_t i = 0; i < N; i++) {
         nativevalue_to_se(from[i], tmp, ctx);
         array->setArrayElement(static_cast<uint32_t>(i), tmp);
     }
     to.setObject(array);
-    array->decRef();
     return true;
 }
 
 template <size_t N>
 inline bool nativevalue_to_se(const ccstd::array<uint8_t, N> &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-    se::Object *array = se::Object::createTypedArray(se::Object::TypedArrayType::UINT8, from.data(), N);
+    se::HandleObject array{se::Object::createTypedArray(se::Object::TypedArrayType::UINT8, from.data(), N)};
     to.setObject(array);
-    array->decRef();
     return true;
 }
 
 template <size_t N>
 inline bool nativevalue_to_se(const ccstd::array<uint16_t, N> &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-    se::Object *array = se::Object::createTypedArray(se::Object::TypedArrayType::INT16, from.data(), N * sizeof(uint16_t));
+    se::HandleObject array{se::Object::createTypedArray(se::Object::TypedArrayType::INT16, from.data(), N * sizeof(uint16_t))};
     to.setObject(array);
-    array->decRef();
     return true;
 }
 
 template <size_t N>
 inline bool nativevalue_to_se(const ccstd::array<float, N> &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-    se::Object *array = se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, from.data(), N * sizeof(float));
+    se::HandleObject array{se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, from.data(), N * sizeof(float))};
     to.setObject(array);
-    array->decRef();
     return true;
 }
 
@@ -1503,7 +1498,7 @@ template <typename... ARGS>
 bool nativevalue_to_se(const std::tuple<ARGS...> &from, se::Value &to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
     bool ok = true;
     se::Value tmp;
-    se::Object *array = se::Object::createArrayObject(sizeof...(ARGS));
+    se::HandleObject array{se::Object::createArrayObject(sizeof...(ARGS))};
     se_for_each_tuple(
         from, [&](auto i, auto &param) {
             ok &= nativevalue_to_se(param, tmp, ctx);

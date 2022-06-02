@@ -415,7 +415,6 @@ SE_DECLARE_FUNC(js_scene_Root_onGlobalPipelineStateChanged);
 SE_DECLARE_FUNC(js_scene_Root_resetCumulativeTime);
 SE_DECLARE_FUNC(js_scene_Root_resize);
 SE_DECLARE_FUNC(js_scene_Root_setRenderPipeline);
-SE_DECLARE_FUNC(js_scene_Root_usesCustomPipeline);
 SE_DECLARE_FUNC(js_scene_Root_getInstance);
 SE_DECLARE_FUNC(js_scene_Root_Root);
 
