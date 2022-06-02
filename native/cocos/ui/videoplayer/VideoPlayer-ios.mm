@@ -298,8 +298,13 @@ VideoPlayer::VideoPlayer()
 }
 
 VideoPlayer::~VideoPlayer() {
-    if (_videoView) {
-        [((UIVideoViewWrapperIos *)_videoView) dealloc];
+    destroy();
+}
+
+void VideoPlayer::destroy() {
+    if (_videoView != nil) {
+        [((UIVideoViewWrapperIos *)_videoView) release];
+        _videoView = nil;
     }
 }
 
