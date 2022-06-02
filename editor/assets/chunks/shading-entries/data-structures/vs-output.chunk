@@ -1,7 +1,7 @@
 #if __VERSION__ < 300
-    #define CC_SURFACES_VARING_MODIFIER varying
+    #pragma define CC_SURFACES_VARING_MODIFIER varying
 #else
-    #define CC_SURFACES_VARING_MODIFIER out
+    #pragma define CC_SURFACES_VARING_MODIFIER out
 #endif
 
 #include <shading-entries/data-structures/vs-fs>
