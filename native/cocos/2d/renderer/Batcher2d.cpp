@@ -62,7 +62,7 @@ void Batcher2d::syncRenderEntitiesToNative(std::vector<RenderEntity*>&& renderEn
 //}
 
 UIMeshBuffer* Batcher2d::getMeshBuffer(index_t bufferId) {
-    if (bufferId < this->_meshBuffers.size() || this->_meshBuffers[bufferId] == nullptr) {
+    if (bufferId >= this->_meshBuffers.size() || this->_meshBuffers[bufferId] == nullptr) {
         return nullptr;
     }
     return this->_meshBuffers[bufferId];

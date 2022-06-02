@@ -172,10 +172,6 @@ export const simple: IAssembler = {
 
                 // IndexOffset should add 6 when vertices of a rect are visited.
                 meshBuffer.indexOffset += 6;
-
-                if (JSB) {
-                    batcher.updateAttrBuffer(renderData.chunk);
-                }
             }
         }
         if (JSB) {
