@@ -44,13 +44,15 @@ class GarbageCollectionManager {
                     let val = Reflect.get(target, property, receiver);
                     if (typeof val === 'function' && property !== 'constructor') {
                         const original = val;
-                        val = function () {
-                            return original.apply((this as GCObject)[targetSymbol], arguments);
+                        val = function newFunc () {
+                            // @ts-expect-error this is referenced to proxy
+                            return original.apply(this[targetSymbol], arguments) as unknown;
                         };
                     }
-                    return val;
+                    return val as unknown;
                 },
             });
+            // @ts-expect-error use WeakRef in Editor
             gcObject._finalizationToken = new WeakRef(token);
             this._gcObjects.set(token, gcObject);
             this._finalizationRegistry!.register(proxy, token, token);
