@@ -33,8 +33,6 @@ import { MacroRecord } from '../renderer/core/pass-utils';
 import { programLib } from '../renderer/core/program-lib';
 import { Asset } from './asset';
 import { legacyCC } from '../global-exports';
-import { WebDescriptorHierarchy } from '../pipeline/custom/web-descriptor-hierarchy';
-import { DescriptorBlock, DescriptorBlockIndex, LayoutGraphValue } from '../pipeline/custom/layout-graph';
 
 export declare namespace EffectAsset {
     export interface IPropertyInfo {
@@ -165,38 +163,6 @@ export declare namespace EffectAsset {
     }
 }
 
-function rebuildLayoutGraph (effects: Array<EffectAsset>) {
-    const root = (legacyCC.director.root as Root);
-    if (!root.usesCustomPipeline) {
-        return;
-    }
-    const descH = new WebDescriptorHierarchy();
-    for (const effect of effects) {
-        descH.addEffect(effect);
-    }
-    const lg = descH.layoutGraph;
-    const lgData = root.customPipeline.layoutGraphBuilder;
-    lgData.clear();
-    for (const v of descH.layoutGraph.vertices()) {
-        const name = lg.getName(v);
-        if (lg.holds(LayoutGraphValue.RenderStage, v)) {
-            lgData.addRenderStage(name);
-        } else if (lg.holds(LayoutGraphValue.RenderPhase, v)) {
-            const u = lg.getParent(v);
-            lgData.addRenderPhase(name, u);
-        }
-    }
-    for (const v of lg.vertices()) {
-        const db = lg.getDescriptors(v);
-        for (const e of db.blocks) {
-            const key: string = e[0];
-            const block: DescriptorBlock = e[1];
-            const index: DescriptorBlockIndex = JSON.parse(key);
-            lgData.addDescriptorBlock(v, index, block);
-        }
-    }
-}
-
 /**
  * @en Effect asset is the base template for instantiating material, all effects should be unique globally.
  * All effects are managed in a static map of EffectAsset.
@@ -285,21 +251,8 @@ export class EffectAsset extends Asset {
      * @zh 通过 [[CCLoader]] 加载完成时的回调，将自动注册 effect 资源。
      */
     public onLoaded () {
-        const root = (legacyCC.director.root as Root);
-        if (!root.usesCustomPipeline) {
-            programLib.register(this);
-            EffectAsset.register(this);
-        } else {
-            const effects = new Array<EffectAsset>();
-            const prevEffects = EffectAsset.getAll();
-            for (const name in prevEffects) {
-                const effect = prevEffects[name];
-                effects.push(effect);
-            }
-            effects.push(this);
-            rebuildLayoutGraph(effects); // rebuild layout and update bindings
-            EffectAsset.register(this);
-        }
+        programLib.register(this);
+        EffectAsset.register(this);
         if (!EDITOR) { legacyCC.game.once(legacyCC.Game.EVENT_ENGINE_INITED, this._precompile, this); }
     }
 

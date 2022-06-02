@@ -283,46 +283,6 @@ bool js_register_render_PipelineRuntime(se::Object* obj) // NOLINT(readability-i
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_render_DescriptorHierarchy_proto = nullptr; // NOLINT
-se::Class* __jsb_cc_render_DescriptorHierarchy_class = nullptr;  // NOLINT
-
-static bool js_render_DescriptorHierarchy_addEffect(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::render::DescriptorHierarchy>(s);
-    SE_PRECONDITION2(cobj, false, "js_render_DescriptorHierarchy_addEffect : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::EffectAsset*, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_render_DescriptorHierarchy_addEffect : Error processing arguments");
-        cobj->addEffect(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_render_DescriptorHierarchy_addEffect)
-
-bool js_register_render_DescriptorHierarchy(se::Object* obj) // NOLINT(readability-identifier-naming)
-{
-    auto* cls = se::Class::create("DescriptorHierarchy", obj, nullptr, nullptr);
-
-#if CC_DEBUG
-    cls->defineStaticProperty("isJSBClass", _SE(js_render_getter_return_true), nullptr);
-#endif
-    cls->defineFunction("addEffect", _SE(js_render_DescriptorHierarchy_addEffect));
-    cls->install();
-    JSBClassType::registerClass<cc::render::DescriptorHierarchy>(cls);
-
-    __jsb_cc_render_DescriptorHierarchy_proto = cls->getProto();
-    __jsb_cc_render_DescriptorHierarchy_class = cls;
-
-
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
 se::Object* __jsb_cc_render_Setter_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_render_Setter_class = nullptr;  // NOLINT
 
@@ -2043,23 +2003,6 @@ bool js_register_render_Pipeline(se::Object* obj) // NOLINT(readability-identifi
 se::Object* __jsb_cc_render_Factory_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_render_Factory_class = nullptr;  // NOLINT
 
-static bool js_render_Factory_createDescriptorHierarchy_static(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::render::DescriptorHierarchy* result = cc::render::Factory::createDescriptorHierarchy();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_render_Factory_createDescriptorHierarchy_static : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_render_Factory_createDescriptorHierarchy_static)
-
 static bool js_render_Factory_createPipeline_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
@@ -2089,7 +2032,6 @@ bool js_register_render_Factory(se::Object* obj) // NOLINT(readability-identifie
 #if CC_DEBUG
     cls->defineStaticProperty("isJSBClass", _SE(js_render_getter_return_true), nullptr);
 #endif
-    cls->defineStaticFunction("createDescriptorHierarchy", _SE(js_render_Factory_createDescriptorHierarchy_static));
     cls->defineStaticFunction("createPipeline", _SE(js_render_Factory_createPipeline_static));
     cls->defineFinalizeFunction(_SE(js_cc_render_Factory_finalize));
     cls->install();
@@ -2118,7 +2060,6 @@ bool register_all_render(se::Object* obj)    // NOLINT
     js_register_render_ComputePassBuilder(ns);
     js_register_render_ComputeQueueBuilder(ns);
     js_register_render_CopyPassBuilder(ns);
-    js_register_render_DescriptorHierarchy(ns);
     js_register_render_Factory(ns);
     js_register_render_LayoutGraphBuilder(ns);
     js_register_render_MovePassBuilder(ns);

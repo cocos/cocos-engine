@@ -25,15 +25,13 @@
 ****************************************************************************/
 
 import { EffectAsset } from '../../assets';
-import { DescriptorHierarchy } from './pipeline';
 import { Descriptor, DescriptorBlock, DescriptorBlockIndex, DescriptorDB, DescriptorTypeOrder, LayoutGraph, LayoutGraphValue, RenderPhase, UniformBlockDB } from './layout-graph';
 import { ShaderStageFlagBit, Type, Uniform } from '../../gfx';
 import { ParameterType, UpdateFrequency } from './types';
 import { JOINT_UNIFORM_CAPACITY, UBOForwardLight, UBOLocalBatched, UBOMorph } from '../define';
 
-export class WebDescriptorHierarchy extends DescriptorHierarchy {
+export class WebDescriptorHierarchy {
     constructor () {
-        super();
         this._layoutGraph = new LayoutGraph();
     }
 
