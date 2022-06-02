@@ -141,9 +141,12 @@ void MessageQueue::terminateConsumerThread() noexcept {
     kick();
     event.wait();
 
-    if (_consumerThread->joinable()) {
-        _consumerThread->join();
+    if (_consumerThread != nullptr) {
+        if (_consumerThread->joinable()) {
+            _consumerThread->join();
+        }
     }
+    CC_SAFE_DELETE(_consumerThread);
 }
 
 void MessageQueue::finishWriting() noexcept {
