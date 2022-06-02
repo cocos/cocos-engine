@@ -740,6 +740,10 @@ const Elements = {
                 sectionBody.__sections__ = [];
 
                 componentList.forEach((component, i) => {
+                    const additional = JSON.stringify([{
+                        type: component.type,
+                        value: component.value.uuid.value,
+                    }]);
                     const $section = document.createElement('ui-section');
                     $section.setAttribute('expand', '');
                     $section.setAttribute('class', 'component');
@@ -747,7 +751,9 @@ const Elements = {
                     $section.innerHTML = `
                     <header class="component-header" slot="header">
                         <ui-checkbox class="active"></ui-checkbox>
-                        <span class="name">${component.type}${component.mountedRoot ? '+' : ''}</span>
+                        <ui-drag-item additional='${additional}'>
+                            <span class="name">${component.type}${component.mountedRoot ? '+' : ''}</span>
+                        </ui-drag-item>
                         <ui-icon class="menu" value="setting" tooltip="i18n:ENGINE.menu.component"></ui-icon>
                         <ui-link class="link" tooltip="i18n:ENGINE.menu.help_url">
                             <ui-icon value="help"></ui-icon>

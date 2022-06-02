@@ -134,6 +134,11 @@
 
 .component .component-header {
     flex: 1;
+    display: flex;
+}
+
+.component .component-header ui-drag-item {
+    flex: 1;
 }
 
 .component .component-header > .menu,
