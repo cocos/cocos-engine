@@ -262,7 +262,7 @@ export class RenderWindow {
 
     /**
      * @en Detach a camera from the render window
-     * @zh 移除渲染相机
+     * @zh 移除场景中的渲染相机
      * @param camera @en The camera to detach @zh 要移除的相机
      */
     public detachCamera (camera: Camera) {
