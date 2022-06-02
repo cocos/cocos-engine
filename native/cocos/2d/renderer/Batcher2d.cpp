@@ -85,7 +85,7 @@ void Batcher2d::fillBuffersAndMergeBatches() {
         }
 
         //判断是否能合批，不能合批则需要generateBatch
-        int32_t dataHash = entity->getDataHash();
+        uint32_t dataHash = entity->getDataHash();
         if (_currHash != dataHash || dataHash == 0 || _currMaterial != entity->getMaterial()
             /* || stencilmanager */) { //这个暂时只有mask才考虑，后续补充
             generateBatch(entity);
@@ -93,7 +93,7 @@ void Batcher2d::fillBuffersAndMergeBatches() {
                 //修改当前currbufferid和currindexStart（用当前的meshbuffer的indexOffset赋值）
                 if (_currBID != entity->getBufferId()) {
                     UIMeshBuffer* buffer = getMeshBuffer(entity->getBufferId());
-                    if (buffer!=nullptr) {
+                    if (buffer != nullptr) {
                         _currBID = entity->getBufferId();
                         _indexStart = buffer->getIndexOffset();
                     }
@@ -132,16 +132,23 @@ void Batcher2d::generateBatch(RenderEntity* entity) {
     //    // Todo MeshBuffer RenderData
     //} else {
     UIMeshBuffer* currMeshBuffer = getMeshBuffer(this->_currBID);
-    auto* ia = currMeshBuffer == nullptr ? nullptr : currMeshBuffer->requireFreeIA(_device);
+    if (currMeshBuffer == nullptr) {
+        return; //第一个组件，currBID==-1，此时当然也不需要合批
+    }
+
+    auto* ia = currMeshBuffer->requireFreeIA(_device);
     uint32_t indexCount = currMeshBuffer->getIndexOffset() - _indexStart;
-    ia->setFirstIndex(_indexStart);
-    ia->setIndexCount(indexCount);
-    _indexStart = currMeshBuffer->getIndexOffset();
-    // need move index offset
-    //}
     if (ia == nullptr) {
         return;
     }
+
+    ia->setFirstIndex(_indexStart);
+    ia->setIndexCount(indexCount);
+    _indexStart = currMeshBuffer->getIndexOffset();
+    //}
+
+    this->_currBID = -1;
+
     // Todo blendState & stencil State
     auto* curdrawBatch = _drawBatchPool.alloc();
     curdrawBatch->setVisFlags(_currLayer);
@@ -205,7 +212,7 @@ void Batcher2d::reset() {
     _indexStart = 0;
     _currHash = 0;
     _currLayer = 0;
-    //_currMaterial = new Material();//会报错
+    _currMaterial = new Material();
     _currTexture = nullptr;
     _currSampler = nullptr;
 

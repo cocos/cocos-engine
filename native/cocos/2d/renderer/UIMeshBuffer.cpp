@@ -17,16 +17,17 @@ void UIMeshBuffer::setIData(uint16_t* iData) {
 }
 
 void UIMeshBuffer::initialize(gfx::Device* device, std::vector<gfx::Attribute*>&& attrs, index_t vFloatCount, index_t iCount) {
-    _initVDataCount = vFloatCount;
-    _initIDataCount = iCount;
-    _attributes = std::move(attrs);
-    if (!_vData || !_iData) {
-        _vData = new float[_initVDataCount];
-        _iData = new uint16_t[_initIDataCount];
-        _needDeleteVData = true;
-    } else {
-        _needDeleteVData = false;
-    }
+    //_initVDataCount = vFloatCount;
+    //_initIDataCount = iCount;
+    //_attributes = std::move(attrs);
+    //if (!_vData || !_iData) {
+    //    _vData = new float[_initVDataCount];
+    //    _iData = new uint16_t[_initIDataCount];
+    //    _needDeleteVData = true;
+    //} else {
+    //    _needDeleteVData = false;
+    //}
+
     _iaPool.push_back(createNewIA(device));
 }
 
@@ -70,6 +71,34 @@ gfx::InputAssembler* UIMeshBuffer::requireFreeIA(gfx::Device* device) {
 }
 
 void UIMeshBuffer::uploadBuffers() {
+    if (_meshBufferLayout == nullptr || getByteOffset() == 0 || !getDirty() || this->_iaPool.size() == 0) {
+        return;
+    }
+
+    // copy from ts, to be considered
+    //const iOS14 = sys.__isWebIOS14OrIPadOS14Env;
+    //const submitCount = iOS14 ? this._nextFreeIAHandle : 1;
+
+    index_t indexCount = this->getIndexOffset();
+    index_t byteCount = this->getByteOffset();
+    index_t dataCount = byteCount >> 2;
+
+    gfx::InputAssembler* ia = this->_iaPool[0];
+    gfx::BufferList vBuffers = ia->getVertexBuffers();
+    if (vBuffers.size() > 0) {
+        gfx::Buffer* vBuffer = vBuffers[0];
+        if (byteCount > vBuffer->getSize()) {
+            vBuffer->resize(byteCount);
+        }
+        vBuffer->update(_vData);
+    }
+    gfx::Buffer* iBuffer = ia->getIndexBuffer();
+    if (indexCount * 2 > iBuffer->getSize()) {
+        iBuffer->resize(indexCount * 2);
+    }
+    iBuffer->update(_iData);
+
+    setDirty(false);
 }
 
 // use less
@@ -130,5 +159,9 @@ void UIMeshBuffer::setVertexOffset(index_t vertexOffset) {
 
 void UIMeshBuffer::setIndexOffset(index_t indexOffset) {
     _meshBufferLayout->indexOffset = indexOffset;
+}
+
+void UIMeshBuffer::setDirty(bool dirty) {
+    _meshBufferLayout->dirtyMark = dirty ? 1 : 0;
 }
 } // namespace cc

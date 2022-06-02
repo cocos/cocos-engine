@@ -68,7 +68,7 @@ private:
 
     index_t _currBID{-1};
     index_t _indexStart{0};
-    int32_t _currHash{0};
+    uint32_t _currHash{0};
     index_t _currLayer{0};
 
     Material* _currMaterial{nullptr};

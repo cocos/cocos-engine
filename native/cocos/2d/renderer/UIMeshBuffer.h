@@ -8,6 +8,7 @@ struct MeshBufferLayout {
     index_t byteOffset;
     index_t vertexOffset;
     index_t indexOffset;
+    index_t dirtyMark;
 };
 
 class UIMeshBuffer {
@@ -20,8 +21,8 @@ public:
     inline uint16_t* getIData() { return _iData; }
     void setIData(uint16_t* iData);
 
+public:
     void initialize(gfx::Device* device, std::vector<gfx::Attribute*>&& attrs, index_t vFloatCount, index_t iCount);
-
     void reset();
     void destroy();
     void setDirty();
@@ -41,6 +42,8 @@ public:
     void setVertexOffset(index_t vertexOffset);
     inline index_t getIndexOffset() { return _meshBufferLayout->indexOffset; }
     void setIndexOffset(index_t indexOffset);
+    inline bool getDirty() { return _meshBufferLayout->dirtyMark != 0; }
+    void setDirty(bool dirty);
 
 private:
     float_t* _vData{nullptr};

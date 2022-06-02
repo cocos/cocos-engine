@@ -49,7 +49,7 @@ void RenderEntity::setVertDirty(bool val) {
     this->_vertDirty = val;
 }
 
-void RenderEntity::setDataHash(int32_t dataHash) {
+void RenderEntity::setDataHash(uint32_t dataHash) {
     this->_dataHash = dataHash;
 }
 

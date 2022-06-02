@@ -41,7 +41,8 @@ export enum MeshBufferSharedBufferView{
     byteOffset,
     vertexOffset,
     indexOffset,
-    count = 3
+    dirty,
+    count = 4
 }
 
 export class MeshBuffer {
@@ -81,6 +82,17 @@ export class MeshBuffer {
         }
     }
 
+    protected _dirty = false;
+    get dirty () {
+        return this._dirty;
+    }
+    set dirty (val:boolean) {
+        this._dirty = val;
+        if (JSB) {
+            this._sharedBuffer[MeshBufferSharedBufferView.dirty] = val ? 1 : 0;
+        }
+    }
+
     protected _vData: Float32Array = null!;
     get vData () {
         return this._vData;
@@ -104,7 +116,6 @@ export class MeshBuffer {
         }
     }
 
-    private _dirty = false;
     private _vertexFormatBytes = 0;
     private _floatsPerVertex = 0;
     private _initVDataCount = 0;
@@ -166,7 +177,7 @@ export class MeshBuffer {
 
     public reset () {
         this._nextFreeIAHandle = 0;
-        this._dirty = false;
+        this.dirty = false;
     }
 
     public destroy () {
@@ -191,7 +202,7 @@ export class MeshBuffer {
     }
 
     public setDirty () {
-        this._dirty = true;
+        this.dirty = true;
     }
 
     /**
@@ -270,7 +281,7 @@ export class MeshBuffer {
             }
             iaRef.indexBuffer.update(indicesData);
         }
-        this._dirty = false;
+        this.dirty = false;
     }
 
     //有返回值，暂时没原生化

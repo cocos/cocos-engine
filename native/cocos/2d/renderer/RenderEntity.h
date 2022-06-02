@@ -39,8 +39,8 @@ public:
     void setNode(Node* node);
     inline bool getVertDirty() const { return this->_vertDirty; }
     void setVertDirty(bool val);
-    inline int32_t getDataHash() const { return this->_dataHash; }
-    void setDataHash(int32_t dataHash);
+    inline uint32_t getDataHash() const { return this->_dataHash; }
+    void setDataHash(uint32_t dataHash);
     inline index_t getStencilStage() const { return this->_stencilStage; }
     void setStencilStage(index_t stencilStage);
     inline bool getIsMeshBuffer() const { return this->_isMeshBuffer; }
@@ -95,7 +95,7 @@ private:
     bool _vertDirty{false};
 
 private: // for merging batches
-    int32_t _dataHash{0};
+    uint32_t _dataHash{0};
     index_t _stencilStage{0};
     bool _isMeshBuffer{false};
     Material* _material{nullptr};

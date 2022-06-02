@@ -34,12 +34,16 @@ bool js_register_cc_UIMeshBuffer(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_2d_UIMeshBuffer_destroy);
 SE_DECLARE_FUNC(js_2d_UIMeshBuffer_getByteOffset);
+SE_DECLARE_FUNC(js_2d_UIMeshBuffer_getDirty);
 SE_DECLARE_FUNC(js_2d_UIMeshBuffer_getIndexOffset);
 SE_DECLARE_FUNC(js_2d_UIMeshBuffer_getVertexOffset);
 SE_DECLARE_FUNC(js_2d_UIMeshBuffer_initialize);
 SE_DECLARE_FUNC(js_2d_UIMeshBuffer_parseLayout);
 SE_DECLARE_FUNC(js_2d_UIMeshBuffer_reset);
+SE_DECLARE_FUNC(js_2d_UIMeshBuffer_setByteOffset);
 SE_DECLARE_FUNC(js_2d_UIMeshBuffer_setDirty);
+SE_DECLARE_FUNC(js_2d_UIMeshBuffer_setIndexOffset);
+SE_DECLARE_FUNC(js_2d_UIMeshBuffer_setVertexOffset);
 SE_DECLARE_FUNC(js_2d_UIMeshBuffer_syncSharedBufferToNative);
 SE_DECLARE_FUNC(js_2d_UIMeshBuffer_uploadBuffers);
 SE_DECLARE_FUNC(js_2d_UIMeshBuffer_UIMeshBuffer);
