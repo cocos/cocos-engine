@@ -1225,6 +1225,7 @@ cocos_source_files(
                  cocos/scene/DirectionalLight.h
                  cocos/scene/DirectionalLight.cpp
                  cocos/scene/DrawBatch2D.h
+                 cocos/scene/DrawBatch2D.cpp
                  cocos/scene/Fog.h
                  cocos/scene/Fog.cpp
                  cocos/scene/Light.h

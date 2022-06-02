@@ -43,7 +43,7 @@ namespace scene {
 class Model;
 class Camera;
 class Octree;
-struct DrawBatch2D;
+class DrawBatch2D;
 class DirectionalLight;
 class SphereLight;
 class SpotLight;
@@ -106,9 +106,7 @@ public:
     inline const ccstd::vector<IntrusivePtr<Model>> &getModels() const { return _models; }
     inline Octree *getOctree() const { return _octree; }
     void updateOctree(Model *model);
-    // FIXME: remove getDrawBatch2Ds
     inline const ccstd::vector<DrawBatch2D *> &getBatches() const { return _batches; }
-    inline const ccstd::vector<DrawBatch2D *> &getDrawBatch2Ds() const { return _batches; }
 
 private:
     ccstd::string _name;

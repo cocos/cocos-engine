@@ -7,6 +7,7 @@
 #include <cocos/core/assets/Material.h>
 #include <cocos/renderer/gfx-base/GFXTexture.h>
 #include <cocos/renderer/gfx-base/states/GFXSampler.h>
+#include <2d/renderer/UIMeshBuffer.h>
 
 namespace cc {
 struct MeshBufferAttr {
@@ -53,9 +54,9 @@ private:
     uint32_t* _attrBuffer{nullptr};
 
 private:
-    //drawbatches
-    std::vector<scene::DrawBatch2D*> _batches{};
-    //memop::Pool<scene::DrawBatch2D*> _drawBatchPool;
+    // draw batches
+    ccstd::vector<scene::DrawBatch2D*> _batches{};
+    memop::Pool<scene::DrawBatch2D> _drawBatchPool;
 
     gfx::Device* _device{nullptr};
 
@@ -69,6 +70,8 @@ private:
     index_t _currTextureHash{0};
     gfx::Sampler* _currSampler{nullptr};
     index_t _currSamplerHash{0};
+
+    UIMeshBuffer* _currMeshBuffer{nullptr};
 
 private:
     Simple* _simple;
