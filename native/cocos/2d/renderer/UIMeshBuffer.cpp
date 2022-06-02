@@ -7,17 +7,17 @@ UIMeshBuffer::UIMeshBuffer(/* args */) {
 
 UIMeshBuffer::~UIMeshBuffer() {
 }
-void UIMeshBuffer::setVData(float* vData) {
+void UIMeshBuffer::setVData(float_t* vData) {
     _vData = vData;
 }
 void UIMeshBuffer::setIData(uint16_t* iData) {
     _iData = iData;
 }
 
-void UIMeshBuffer::initialize(gfx::Device* device, gfx::AttributeList* attrs, index_t vFloatCount, index_t iCount) {
+void UIMeshBuffer::initialize(gfx::Device* device, std::vector<gfx::Attribute*>&& attrs, index_t vFloatCount, index_t iCount) {
     _initVDataCount = vFloatCount;
     _initIDataCount = iCount;
-    _attributes = *attrs;
+    _attributes = std::move(attrs);
     if (!_vData || !_iData) {
         _vData = new float[_initVDataCount];
         _iData = new uint16_t[_initIDataCount];
@@ -91,7 +91,13 @@ gfx::InputAssembler* UIMeshBuffer::createNewIA(gfx::Device* device) {
             ibStride * 3,
             ibStride,
         });
-        _iaInfo.attributes = _attributes;
+
+        std::vector<gfx::Attribute> temp;
+        for (int i = 0; i < _attributes.size(); i++) {
+            temp.push_back(*_attributes[i]);
+        }
+        _iaInfo.attributes = temp;
+
         _iaInfo.vertexBuffers.emplace_back(vertexBuffer);
         _iaInfo.indexBuffer = indexBuffer;
 

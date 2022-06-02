@@ -7,7 +7,7 @@
 #include <cocos/core/assets/Material.h>
 #include <cocos/renderer/gfx-base/GFXTexture.h>
 #include <cocos/renderer/gfx-base/states/GFXSampler.h>
-#include <2d/renderer/UIMeshBuffer.h>
+#include <cocos/2d/renderer/UIMeshBuffer.h>
 
 namespace cc {
 struct MeshBufferAttr {
@@ -21,6 +21,7 @@ public:
     explicit Batcher2d(Root* root);
     ~Batcher2d();
 
+    void syncMeshBuffersToNative(std::vector<UIMeshBuffer*>&& buffers, uint32_t length);
     void syncRenderEntitiesToNative(std::vector<RenderEntity*>&& renderEntities);
     void syncMeshBufferAttrToNative(uint32_t* buffer, uint8_t stride, uint32_t size);
 
@@ -36,6 +37,7 @@ public:
     void parseAttr();
     MeshBufferAttr* getMeshBufferAttr(index_t bufferId);
 
+    UIMeshBuffer* getMeshBuffer(index_t bufferId);
 
 public:
     inline std::vector<scene::DrawBatch2D*> getBatches() { return this->_batches; }
@@ -71,10 +73,11 @@ private:
     gfx::Sampler* _currSampler{nullptr};
     index_t _currSamplerHash{0};
 
-    UIMeshBuffer* _currMeshBuffer{nullptr};
-
 private:
     Simple* _simple;
 
+    UIMeshBuffer* _currMeshBuffer{nullptr};
+    std::vector<UIMeshBuffer*> _meshBuffers{nullptr};
+    index_t _meshBuffersLength{0};//可能暂时用不到
 };
 } // namespace cc

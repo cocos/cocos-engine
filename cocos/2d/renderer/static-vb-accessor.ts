@@ -30,6 +30,7 @@ import { assertID, errorID } from '../../core/platform/debug';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { Pool } from '../../core/memop/pool';
 import { macro } from '../../core/platform/macro';
+import { director } from '../../core';
 
 interface IFreeEntry {
     offset: number;
@@ -273,6 +274,13 @@ export class StaticVBAccessor extends BufferAccessor {
         entry.length = buffer.vData.byteLength;
         const freeList = [entry];
         this._freeLists.push(freeList);
+
+        //sync to native
+        // temporarily batcher transports buffers
+        // It is better to put accessor to native
+        const batcher = director.root!.batcher2D;
+        batcher.syncMeshBuffersToNative(this._buffers);
+
         return this._buffers.length - 1;
     }
 }

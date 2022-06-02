@@ -304,6 +304,9 @@ export class RenderData extends BaseRenderData {
             const batcher = director.root!.batcher2D;
             batcher.updateAttrBuffer(this.chunk);
             batcher.syncMeshBufferAttrToNative();
+
+            //调试mesh buffer是否传过去
+            batcher.nativeObj.ItIsDebugFuncInBatcher2d();
         }
     }
 
