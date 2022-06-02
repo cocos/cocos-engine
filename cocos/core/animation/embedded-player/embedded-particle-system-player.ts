@@ -1,7 +1,8 @@
 import { ccclass, serializable } from 'cc.decorator';
-import { ParticleSystem } from '../../../particle';
+import type { ParticleSystem } from '../../../particle';
 import { warn } from '../../platform/debug';
 import type { Node } from '../../scene-graph/node';
+import { getClassByName } from '../../utils/js-typed';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { EmbeddedPlayableState, EmbeddedPlayable } from './embedded-player';
 
@@ -28,7 +29,13 @@ export class EmbeddedParticleSystemPlayable extends EmbeddedPlayable {
             warn(`Hierarchy path ${this.path} does not exists.`);
             return null;
         }
-        const particleSystem = node.getComponent(ParticleSystem);
+        // TODO: we shouldn't wanna know the name of `ParticleSystem` indeed.
+        const ParticleSystemConstructor = getClassByName(`cc.ParticleSystem`) as Constructor<ParticleSystem> | undefined;
+        if (!ParticleSystemConstructor) {
+            warn(`Particle system is required for embedded particle system player.`);
+            return null;
+        }
+        const particleSystem = node.getComponent(ParticleSystemConstructor);
         if (!particleSystem) {
             warn(`${this.path} does not includes a particle system component.`);
             return null;
