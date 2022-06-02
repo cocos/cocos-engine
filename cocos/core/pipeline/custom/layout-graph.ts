@@ -262,6 +262,13 @@ export class LayoutGraph implements impl.BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // MutableGraph
+    clear (): void {
+        // ComponentGraph
+        this._names.length = 0;
+        this._descriptors.length = 0;
+        // Graph Vertices
+        this._vertices.length = 0;
+    }
     addVertex<T extends LayoutGraphValue> (
         id: LayoutGraphValue,
         object: LayoutGraphValueType[T],
@@ -847,6 +854,18 @@ export class LayoutGraphData implements impl.BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // MutableGraph
+    clear (): void {
+        // Members
+        this.valueNames.length = 0;
+        this.attributeIndex.clear();
+        this.constantIndex.clear();
+        // ComponentGraph
+        this._names.length = 0;
+        this._updateFrequencies.length = 0;
+        this._layouts.length = 0;
+        // Graph Vertices
+        this._vertices.length = 0;
+    }
     addVertex<T extends LayoutGraphDataValue> (
         id: LayoutGraphDataValue,
         object: LayoutGraphDataValueType[T],
