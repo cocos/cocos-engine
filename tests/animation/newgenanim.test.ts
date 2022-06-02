@@ -25,9 +25,8 @@ import 'jest-extended';
 import { assertIsTrue } from '../../cocos/core/data/utils/asserts';
 import { AnimationClip } from '../../cocos/core/animation/animation-clip';
 import { TriggerResetMode } from '../../cocos/core/animation/marionette/variable';
-import { getGlobalAnimationManager } from '../../cocos/core/animation/global-animation-manager';
 
-describe('Marionette', () => {
+describe('NewGen Anim', () => {
     test('Defaults', () => {
         const graph = new AnimationGraph();
         expect(graph.layers).toHaveLength(0);
@@ -2267,74 +2266,6 @@ describe('Marionette', () => {
             ['t0', VariableType.TRIGGER, false],
             ['t1', VariableType.TRIGGER, true],
         ]);
-    });
-
-    class FrameEventHelper {
-        constructor() {
-            const mock = jest.spyOn(getGlobalAnimationManager(), 'pushDelayEvent');
-            mock.mockImplementationOnce((...args: [fn: (...args: any[]) => void, thisArg: any, args: any[]]) => {
-                this._delayEvents.push(args);
-            });
-            this._mock = mock;
-        }
-
-        public unload() {
-            this._mock.mockRestore();
-        }
-
-        public apply() {
-            const { _delayEvents: delayEvents } = this;
-            for (const [fn, thisArg, args] of delayEvents) {
-                fn.call(thisArg, ...args);
-            }
-            delayEvents.length = 0;
-        }
-
-        private _mock: jest.SpyInstance;
-        private _delayEvents: Array<[fn: (...args: any[]) => void, thisArg: any, args: any[]]> = [];
-    }
-
-    test('Animation clip frame events', () => {
-        class TestComponent extends Component {
-            public handleEvent = jest.fn();
-        }
-
-        const node = new Node();
-        const component = node.addComponent(TestComponent) as TestComponent;
-
-        const animationGraph = new AnimationGraph();
-        const mainLayer = animationGraph.addLayer();
-        const motionState = mainLayer.stateMachine.addMotion();
-        const clipMotion = motionState.motion = new ClipMotion();
-        const animationClip = clipMotion.clip = new AnimationClip();
-        animationClip.duration = 1.8;
-        animationClip.events = [{
-            frame: 0.3,
-            func: 'handleEvent',
-            params: ['2'],
-        }];
-        mainLayer.stateMachine.connect(mainLayer.stateMachine.entryState, motionState);
-
-        const { graphEval } = createAnimationGraphEval2(animationGraph, node);
-        const graphUpdater = new GraphUpdater(graphEval);
-
-        const frameEventHelper = new FrameEventHelper();
-
-        graphUpdater.goto(0.1);
-        frameEventHelper.apply();
-        expect(component.handleEvent).not.toBeCalled();
-
-        graphUpdater.goto(0.32);
-        frameEventHelper.apply();
-        expect(component.handleEvent).toBeCalledTimes(1);
-        expect(component.handleEvent.mock.calls[0][0]).toBe('2');
-        component.handleEvent.mockClear();
-
-        graphUpdater.goto(0.37);
-        frameEventHelper.apply();
-        expect(component.handleEvent).not.toBeCalled();
-
-        frameEventHelper.unload();
     });
 });
 
