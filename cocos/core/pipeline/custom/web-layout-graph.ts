@@ -124,7 +124,7 @@ export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
     }
 
     public clear (): void {
-        // this._data.clear();
+        this._data.clear();
     }
 
     public addRenderStage (name: string): number {
