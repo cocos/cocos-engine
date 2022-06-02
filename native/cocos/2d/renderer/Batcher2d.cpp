@@ -133,8 +133,10 @@ void Batcher2d::generateBatch(RenderEntity* entity) {
     //} else {
     UIMeshBuffer* currMeshBuffer = getMeshBuffer(this->_currBID);
     auto* ia = currMeshBuffer == nullptr ? nullptr : currMeshBuffer->requireFreeIA(_device);
-    //ia->setFirstIndex(); // count
-    //ia->setIndexCount(); // count
+    uint32_t indexCount = currMeshBuffer->getIndexOffset() - _indexStart;
+    ia->setFirstIndex(_indexStart);
+    ia->setIndexCount(indexCount);
+    _indexStart = currMeshBuffer->getIndexOffset();
     // need move index offset
     //}
     if (ia == nullptr) {
