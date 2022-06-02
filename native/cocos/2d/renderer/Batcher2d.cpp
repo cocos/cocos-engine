@@ -2,6 +2,8 @@
 #include <cocos/2d/assembler/Simple.h>
 #include <cocos/base/TypeDef.h>
 #include <cocos/core/Root.h>
+#include <renderer/pipeline/Define.h>
+#include <scene/Pass.h>
 #include <iostream>
 
 namespace cc {
@@ -140,10 +142,30 @@ void Batcher2d::generateBatch(RenderEntity* entity) {
     curdrawBatch->setInputAssembler(ia);
     curdrawBatch->setUseLocalFlag(nullptr); // todo usLocal
     curdrawBatch->fillPass(_currMaterial, nullptr, 0, nullptr, 0);
+    auto& _pass = curdrawBatch->getPasses().at(0);
 
-    //curdrawBatch->setDescriptorSet(); //todo DS
-
+    curdrawBatch->setDescriptorSet(getDescriptorSet(_currTexture, _currSampler, _pass->getLocalSetLayout()));
     _batches.push_back(curdrawBatch);
+}
+
+gfx::DescriptorSet* Batcher2d::getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, gfx::DescriptorSetLayout* _dsLayout) {
+    ccstd::hash_t hash = 2;
+    ccstd::hash_combine(hash, texture->getHash());
+    ccstd::hash_combine(hash, sampler->getHash());
+    auto iter = _descriptorSetCache.find(hash);
+    if (iter != _descriptorSetCache.end()) {
+        return &iter->second;
+    }
+    _dsInfo.layout = _dsLayout;
+    auto ds = _device->createDescriptorSet(_dsInfo);
+
+    ds->bindTexture(static_cast<uint>(pipeline::ModelLocalBindings::SAMPLER_SPRITE), texture);
+    ds->bindSampler(static_cast<uint>(pipeline::ModelLocalBindings::SAMPLER_SPRITE), sampler);
+    ds->update();
+
+    _descriptorSetCache.emplace(hash, ds);
+
+    return ds;
 }
 
 bool Batcher2d::initialize() {
