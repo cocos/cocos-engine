@@ -2267,6 +2267,29 @@ describe('NewGen Anim', () => {
             ['t1', VariableType.TRIGGER, true],
         ]);
     });
+
+    test.only(`Bugfix #11349: precision problem`, () => {
+        const animationGraph = new AnimationGraph();
+        const stateMachine = animationGraph.addLayer().stateMachine;
+        const motionA = stateMachine.addMotion();
+        motionA.motion = createEmptyClipMotion(1.0);
+        const motionB = stateMachine.addMotion();
+        motionB.motion = createEmptyClipMotion(1.0);
+        const AB = stateMachine.connect(motionA, motionB);
+        AB.exitCondition = 0.0;
+        AB.exitConditionEnabled = true;
+        AB.duration = 0.3;
+        stateMachine.connect(stateMachine.entryState, motionA);
+
+        const graphEval = createAnimationGraphEval(animationGraph, new Node());
+        const graphUpdater = new GraphUpdater(graphEval);
+
+        // 0.016632000000000063 = 0.05544000000000021 * 0.3
+        graphUpdater.goto(0.016632000000000063);
+        expect(graphEval.getCurrentTransition(0).time).toBe(0.016632000000000063);
+        // It caused an assertion failure message before.
+        expect(() => graphUpdater.step(0.30002800000000024)).not.toThrow();
+    });
 });
 
 function createEmptyClipMotion (duration: number, name = '') {
