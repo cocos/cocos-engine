@@ -56,22 +56,11 @@ class GarbageCollectionManager {
                     return true;
                 },
             });
-            // @ts-expect-error use WeakRef in Editor
-            gcObject._finalizationToken = new WeakRef(token);
             this._gcObjects.set(token, gcObject);
             this._finalizationRegistry!.register(proxy, token, token);
             return proxy;
         } else {
             return gcObject;
-        }
-    }
-
-    public unregisterGCObject (gcObject: GCObject) {
-        if (EDITOR) {
-            const token = gcObject._finalizationToken.deref();
-            if (token) {
-                this._finalizationRegistry!.unregister(token);
-            }
         }
     }
 

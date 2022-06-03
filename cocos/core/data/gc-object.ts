@@ -18,28 +18,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { EDITOR } from 'internal:constants';
 import { garbageCollectionManager } from './garbage-collection';
 
 export class GCObject {
-    private static _id = 1;
-    /**
-     * @internal
-     */
-    public declare _finalizationToken: any;
-    private _objectId = GCObject._id++;
-
     constructor () {
         return garbageCollectionManager.registerGCObject(this);
-    }
-
-    public equals (gcObject: GCObject | null) {
-        if (!gcObject) { return false; }
-        if (EDITOR) {
-            return gcObject._objectId === this._objectId;
-        } else {
-            return gcObject === this;
-        }
     }
 
     public destroy () {}
