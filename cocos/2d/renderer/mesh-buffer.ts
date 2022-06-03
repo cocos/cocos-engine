@@ -101,7 +101,7 @@ export class MeshBuffer {
     set floatsPerVertex (val:number) {
         this._floatsPerVertex = val;
         if (JSB) {
-            this._sharedBuffer[MeshBufferSharedBufferView.floatsPerVertex] = val ? 1 : 0;
+            this._sharedBuffer[MeshBufferSharedBufferView.floatsPerVertex] = val;
         }
     }
 
