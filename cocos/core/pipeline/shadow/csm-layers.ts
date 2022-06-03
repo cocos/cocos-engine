@@ -297,6 +297,12 @@ export class CSMLayers {
         return this._specialLayer;
     }
 
+    public constructor () {
+        for (let i = 0; i < CSMLevel.level_4; i++) {
+            this._layers[i] = new CSMLayerInfo(i);
+        }
+    }
+
     public update (sceneData: PipelineSceneData, camera: Camera) {
         const scene = camera.scene!;
         const dirLight = scene.mainLight;
@@ -311,16 +317,8 @@ export class CSMLayers {
         if (dirLight.shadowFixedArea) {
             this._updateFixedArea(dirLight);
         } else {
-            const oldLayerSize = this._layers.length;
-            const isResized = oldLayerSize < levelCount;
-            for (let i = 0; i < levelCount; i++) {
-                if (!this._layers[i] || this._layers[i].shadowCameraFar === undefined) {
-                    this._layers[i] = new CSMLayerInfo(i);
-                }
-            }
-
             if (dirLight.shadowCSMValueDirty || this._levelCount !== levelCount
-                || isResized || this._shadowDistance !== shadowDistance) {
+                || this._shadowDistance !== shadowDistance) {
                 this._splitFrustumLevels(dirLight);
                 this._levelCount = levelCount;
                 this._shadowDistance = shadowDistance;

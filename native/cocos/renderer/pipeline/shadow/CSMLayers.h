@@ -58,16 +58,12 @@ public:
     inline void setMatShadowViewProj(const Mat4 &matShadowViewProj) { _matShadowViewProj = matShadowViewProj; }
 
     inline const geometry::Frustum &getValidFrustum() const { return _validFrustum; }
-    inline void setValidFrustum(const geometry::Frustum &validFrustum) { _validFrustum = validFrustum; }
 
     inline const geometry::Frustum &getSplitFrustum() const { return _splitFrustum; }
-    inline void setSplitFrustum(const geometry::Frustum &splitFrustum) { _splitFrustum = splitFrustum; }
 
     inline const geometry::Frustum &getLightViewFrustum() const { return _lightViewFrustum; }
-    inline void setLightViewFrustum(const geometry::Frustum &lightViewFrustum) { _lightViewFrustum = lightViewFrustum; }
 
     inline const geometry::AABB &getCastLightViewBoundingBox() const { return _castLightViewBoundingBox; }
-    inline void setCastLightViewBoundingBox(const geometry::AABB &castLightViewBoundingBox) { _castLightViewBoundingBox = castLightViewBoundingBox; }
 
     void createMatrix(const geometry::Frustum &splitFrustum, const scene::DirectionalLight *dirLight, float shadowMapWidth, bool isOnlyCulling);
 
@@ -146,7 +142,7 @@ public:
     inline void addCSMLayerObject(RenderObject &&obj) { _csmLayerObjects.emplace_back(obj); }
     inline void clearCSMLayerObjects() { _csmLayerObjects.clear(); }
 
-    inline const ccstd::vector<CSMLayerInfo *> &getLayers() const { return _layers; }
+    inline const ccstd::array<CSMLayerInfo *, 4> &getLayers() const { return _layers; }
 
     inline ShadowTransformInfo *getSpecialLayer() const { return _specialLayer; }
 
@@ -164,7 +160,7 @@ private:
     uint _levelCount{0U};
     // The ShadowTransformInfo object for 'fixed area shadow' || 'maximum clipping info' || 'CSM layers = 1'.
     ShadowTransformInfo *_specialLayer{nullptr};
-    ccstd::vector<CSMLayerInfo *> _layers;
+    ccstd::array<CSMLayerInfo *, 4> _layers;
     float _shadowDistance{0.0F};
 };
 } // namespace pipeline

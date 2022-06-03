@@ -152,7 +152,10 @@ void CSMLayerInfo::calculateAtlas(uint level) {
 
 CSMLayers::CSMLayers() {
     _specialLayer = ccnew ShadowTransformInfo(1U);
-    _layers.reserve(static_cast<size_t>(scene::CSMLevel::LEVEL_4));
+
+    for (uint i = 0; i < static_cast<uint>(scene::CSMLevel::LEVEL_4); ++i) {
+            _layers[i] = ccnew CSMLayerInfo(i);
+    }
 }
 
 CSMLayers::~CSMLayers() {
@@ -184,15 +187,8 @@ void CSMLayers::update(const PipelineSceneData *sceneData, const scene::Camera *
     if (dirLight->isShadowFixedArea()) {
         updateFixedArea(dirLight);
     } else {
-        size_t oldLayerSize = _layers.size();
-        const bool isResized = oldLayerSize < levelCount;
-        while (oldLayerSize < levelCount) {
-            _layers.emplace_back(ccnew CSMLayerInfo(static_cast<uint>(oldLayerSize)));
-            ++oldLayerSize;
-        }
-
         if (dirLight->isShadowCSMValueDirty() || _levelCount != levelCount ||
-            isResized || std::abs(_shadowDistance - shadowDistance) > 1.0F) {
+            std::abs(_shadowDistance - shadowDistance) > 1.0F) {
             splitFrustumLevels(dirLight);
             _levelCount = levelCount;
             _shadowDistance = shadowDistance;
@@ -253,7 +249,7 @@ void CSMLayers::calculateCSM(const scene::Camera *camera, const scene::Direction
     const auto level = dirLight->getShadowCSMLevel();
     const float shadowMapWidth = level !=  scene::CSMLevel::LEVEL_1 ? shadowInfo->getSize().x * 0.5F : shadowInfo->getSize().x;
 
-    if (static_cast<int>(shadowMapWidth) <= 0) {
+    if (shadowMapWidth < 0.999F) {
         return;
     }
 
