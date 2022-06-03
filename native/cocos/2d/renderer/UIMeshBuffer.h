@@ -59,7 +59,11 @@ private:
     //uint32_t _floatsPerVertex{0};//from ts, put it into layout
     index_t _initVDataCount{0};
     index_t _initIDataCount{0};
-    std::vector<gfx::Attribute*> _attributes{};
+    std::vector<gfx::Attribute> _attributes{
+        gfx::Attribute{gfx::ATTR_NAME_POSITION, gfx::Format::RGB32F},
+        gfx::Attribute{gfx::ATTR_NAME_TEX_COORD, gfx::Format::RG32F},
+        gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA32F},
+    };
 
     ccstd::vector<gfx::InputAssembler*> _iaPool{};
     gfx::InputAssemblerInfo _iaInfo;

@@ -4,15 +4,6 @@
 
 namespace cc {
 UIMeshBuffer::UIMeshBuffer(/* args */) {
-    gfx::AttributeList vfmtPosUvColor = {
-        gfx::Attribute{gfx::ATTR_NAME_POSITION, gfx::Format::RGB32F},
-        gfx::Attribute{gfx::ATTR_NAME_TEX_COORD, gfx::Format::RG32F},
-        gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA32F},
-    };
-
-    for (index_t i = 0; i < vfmtPosUvColor.size(); i++) {
-        _attributes.push_back(&vfmtPosUvColor[i]);
-    }
 }
 
 UIMeshBuffer::~UIMeshBuffer() {
@@ -117,8 +108,8 @@ void UIMeshBuffer::recycleIA(gfx::InputAssembler* ia) {
 
 gfx::InputAssembler* UIMeshBuffer::createNewIA(gfx::Device* device) {
     if (_iaPool.empty()) {
-        uint32_t vbStride = _vertexFormatBytes = getFloatsPerVertex() * sizeof(float); //??
-        uint32_t ibStride = sizeof(uint16_t);                                      //??
+        uint32_t vbStride = _vertexFormatBytes = getFloatsPerVertex() * sizeof(float);
+        uint32_t ibStride = sizeof(uint16_t);
 
         auto* vertexBuffer = device->createBuffer({
             gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
@@ -133,12 +124,7 @@ gfx::InputAssembler* UIMeshBuffer::createNewIA(gfx::Device* device) {
             ibStride,
         });
 
-        std::vector<gfx::Attribute> temp;
-        for (int i = 0; i < _attributes.size(); i++) {
-            temp.push_back(*_attributes[i]);
-        }
-        _iaInfo.attributes = temp;
-
+        _iaInfo.attributes = _attributes;
         _iaInfo.vertexBuffers.emplace_back(vertexBuffer);
         _iaInfo.indexBuffer = indexBuffer;
 

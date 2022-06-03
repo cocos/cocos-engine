@@ -99,7 +99,7 @@ void Batcher2d::fillBuffersAndMergeBatches() {
                     UIMeshBuffer* buffer = getMeshBuffer(entity->getBufferId());
                     if (buffer != nullptr) {
                         _currBID = entity->getBufferId();
-                        _indexStart = buffer->getIndexOffset();
+                        // _indexStart = buffer->getIndexOffset();
                     }
                 }
             }
