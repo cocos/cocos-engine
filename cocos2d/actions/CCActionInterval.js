@@ -151,7 +151,7 @@ cc.ActionInterval = cc.Class({
         if (this._firstTick) {
             this._firstTick = false;
             this._elapsed = 0;
-        } else if (this.paused){
+        } else if (this.paused) {
             return
         } else {
             this._elapsed += dt;
