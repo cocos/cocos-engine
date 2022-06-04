@@ -63,6 +63,9 @@ cc.ActionInterval = cc.Class({
         this._repeatMethod = false;//Compatible with repeat class, Discard after can be deleted
         this._speedMethod = false;//Compatible with repeat class, Discard after can be deleted
         d !== undefined && cc.ActionInterval.prototype.initWithDuration.call(this, d);
+
+        // for pause the action
+        this.paused = false;
     },
 
     /*
@@ -148,8 +151,11 @@ cc.ActionInterval = cc.Class({
         if (this._firstTick) {
             this._firstTick = false;
             this._elapsed = 0;
-        } else
+        } else if (this.paused){
+            return
+        }else {
             this._elapsed += dt;
+        }
 
         //this.update((1 > (this._elapsed / this._duration)) ? this._elapsed / this._duration : 1);
         //this.update(Math.max(0, Math.min(1, this._elapsed / Math.max(this._duration, cc.macro.FLT_EPSILON))));
@@ -168,7 +174,6 @@ cc.ActionInterval = cc.Class({
             //this._innerAction.step(0);
             //this._innerAction.step(diff);
             this.step(this._elapsed - this._duration);
-
         }
     },
 
@@ -735,7 +740,7 @@ cc.repeatForever = function (action) {
 };
 
 
-/* 
+/*
  * Spawn a new action immediately
  * @class Spawn
  * @extends ActionInterval
@@ -1070,7 +1075,7 @@ cc.MoveBy = cc.Class({
         this._startPosition = cc.v2(0, 0);
         this._previousPosition = cc.v2(0, 0);
 
-        deltaPos !== undefined && cc.MoveBy.prototype.initWithDuration.call(this, duration, deltaPos, deltaY);	
+        deltaPos !== undefined && cc.MoveBy.prototype.initWithDuration.call(this, duration, deltaPos, deltaY);
     },
 
     /*
