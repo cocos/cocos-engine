@@ -64,7 +64,7 @@ cc.ActionInterval = cc.Class({
         this._speedMethod = false;//Compatible with repeat class, Discard after can be deleted
         d !== undefined && cc.ActionInterval.prototype.initWithDuration.call(this, d);
 
-        // for pause the action
+        // for pausing the action
         this.paused = false;
     },
 
@@ -153,7 +153,7 @@ cc.ActionInterval = cc.Class({
             this._elapsed = 0;
         } else if (this.paused){
             return
-        }else {
+        } else {
             this._elapsed += dt;
         }
 
