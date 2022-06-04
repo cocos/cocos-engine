@@ -218,7 +218,7 @@ Tween.stopAllByTarget = function (target) {
  * Insert an action or tween to this sequence
  * !#zh
  * 插入一个 action 或者 tween 到队列中
- * @method then 
+ * @method then
  * @param {Action|Tween} other
  * @return {Tween}
  * @typescript then(other: Action|Tween<T>): Tween<T>
@@ -294,10 +294,42 @@ Tween.prototype.start = function () {
 Tween.prototype.stop = function () {
     if (this._finalAction) {
         cc.director.getActionManager().removeAction(this._finalAction);
+        this._finalAction = null;
     }
     return this;
 };
 
+/**
+ * !#en
+ * Pause this tween
+ * !#zh
+ * 暂停当前 tween
+ * @method pause
+ * @return {Tween}
+ * @typescript pause(): Tween<T>
+ */
+Tween.prototype.pause = function () {
+    if (this._finalAction) {
+        this._finalAction.paused = true
+    }
+    return this;
+}
+
+/**
+ * !#en
+ * Resume this tween
+ * !#zh
+ * 从暂停状态恢复当前 tween
+ * @method resume
+ * @return {Tween}
+ * @typescript resume(): Tween<T>
+ */
+Tween.prototype.resume = function () {
+    if (this._finalAction) {
+        this._finalAction.paused = false
+    }
+    return this;
+}
 
 /**
  * !#en Sets tween tag
@@ -414,7 +446,7 @@ Object.assign(Tween.prototype, {
      */
     flipX () {
         return this.call(() => { this._target.scaleX *= -1; }, this);
-        
+
     },
     /**
      * !#en Flips target's scaleY
@@ -703,4 +735,4 @@ cc.tween = function (target) {
 };
 
 cc.Tween = Tween;
-  
+
