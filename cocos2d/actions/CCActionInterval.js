@@ -85,7 +85,10 @@ cc.ActionInterval = cc.Class({
         // prevent division by 0
         // This comparison could be in step:, but it might decrease the performance
         // by 3% in heavy based action games.
+
+        // _elapsed = -1 means it's the first tick
         this._elapsed = -1;
+
         return true;
     },
 
