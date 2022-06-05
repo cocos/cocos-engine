@@ -55,7 +55,6 @@ cc.ActionInterval = cc.Class({
     ctor:function (d) {
         this.MAX_VALUE = 2;
         this._elapsed = 0;
-        this._firstTick = false;
         this._easeList = null;
         this._speed = 1;
         this._timesForRepeat = 1;
@@ -86,8 +85,7 @@ cc.ActionInterval = cc.Class({
         // prevent division by 0
         // This comparison could be in step:, but it might decrease the performance
         // by 3% in heavy based action games.
-        this._elapsed = 0;
-        this._firstTick = true;
+        this._elapsed = -1;
         return true;
     },
 
@@ -148,8 +146,8 @@ cc.ActionInterval = cc.Class({
     },
 
     step:function (dt) {
-        if (this._firstTick) {
-            this._firstTick = false;
+        // _elapsed = -1 means it's the first tick
+        if (this._elapsed === -1) {
             this._elapsed = 0;
         } else if (this.paused) {
             return
@@ -179,8 +177,8 @@ cc.ActionInterval = cc.Class({
 
     startWithTarget:function (target) {
         cc.Action.prototype.startWithTarget.call(this, target);
-        this._elapsed = 0;
-        this._firstTick = true;
+        // _elapsed = -1 means it's the first tick
+        this._elapsed = -1;
     },
 
     reverse:function () {
