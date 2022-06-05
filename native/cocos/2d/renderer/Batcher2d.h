@@ -82,8 +82,8 @@ private:
 
 private:
     //TODO:destroy
-    ccstd::unordered_map<ccstd::hash_t, gfx::DescriptorSet*> _descriptorSetCache;
-    gfx::DescriptorSetInfo _dsInfo;
+    ccstd::unordered_map<ccstd::hash_t, gfx::DescriptorSet*> _descriptorSetCache{};
+    gfx::DescriptorSetInfo _dsInfo{};
     gfx::DescriptorSet* getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, gfx::DescriptorSetLayout* _dsLayout);
 
 private:

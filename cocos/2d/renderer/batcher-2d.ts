@@ -224,9 +224,7 @@ export class Batcher2D implements IBatcher {
             if (JSB) {
                 this.syncRenderEntitiesToNative();// transport entities to native
                 this._nativeObj.update();
-            }
-            //else (下面是web的逻辑，等native写好，本行else注释就得打开)
-            {
+            } else {
                 this.autoMergeBatches(this._currComponent!);
                 this.resetRenderStates();
 

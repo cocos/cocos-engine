@@ -66,7 +66,7 @@ export class NativeUIMeshBuffer {
 
     syncSharedBufferToNative (data:TypedArray) {}
 
-    initialize (device:Device, vFloatCount: number, iCount: number) {}
+    initialize (device:Device,  attrs: Attribute[], vFloatCount: number, iCount: number) {}
     reset () {}
     destroy () {}
     setDirty () {}

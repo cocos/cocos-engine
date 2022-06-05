@@ -419,8 +419,11 @@ export class RenderData extends BaseRenderData {
             this.updateHash();
         }
 
-        // Need update RenderEntity
-        // Need Add DSNative
+        // Hack Do not update pre frame
+        if (JSB) {
+            // for sync vData and iData address to native
+            this.setRenderEntityAttributes();
+        }
     }
 
     public updateSizeNPivot (width: number, height: number, pivotX: number, pivotY: number) {
