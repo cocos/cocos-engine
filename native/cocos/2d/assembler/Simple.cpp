@@ -7,6 +7,7 @@ namespace cc {
 Simple::Simple(/* args */) {
     this->_vertexRow = 2;
     this->_vertexCol = 2;
+    this->_batcher = nullptr;
 }
 
 Simple::Simple(Batcher2d* batcher) {
@@ -83,8 +84,6 @@ void Simple::fillBuffers(RenderEntity* entity) {
             ib[indexOffset++] = vId + this->_vertexCol;
 
             // set index offset back
-            // 这句有问题，得存在一个固定的meshbuffer.indexoffset
-            // 上面拿到uint8_t indexOffset = entity->getIndexOffset();也得从一个固定的地方拿
             if (buffer != nullptr) {
                 buffer->setIndexOffset(indexOffset);
             }

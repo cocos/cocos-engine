@@ -251,9 +251,7 @@ export class Batcher2D implements IBatcher {
     public uploadBuffers () {
         if (JSB) {
             this._nativeObj.uploadBuffers();
-        }
-        //else (下面是web的逻辑，等native写好，本行else注释就得打开)
-        if (this._batches.length > 0) {
+        } else if (this._batches.length > 0) {
             this._meshDataArray.forEach((rd) => {
                 rd.uploadBuffers();
             });
@@ -270,41 +268,40 @@ export class Batcher2D implements IBatcher {
     public reset () {
         if (JSB) {
             this._nativeObj.reset();
-        }
-        //else (下面是web的逻辑，等native写好，本行else注释就得打开)
+        } else { // (下面是web的逻辑，等native写好，本行else注释就得打开)}
+            // Reset batches
+            for (let i = 0; i < this._batches.length; ++i) {
+                const batch = this._batches.array[i];
+                if (batch.isStatic) {
+                    continue;
+                }
 
-        // Reset batches
-        for (let i = 0; i < this._batches.length; ++i) {
-            const batch = this._batches.array[i];
-            if (batch.isStatic) {
-                continue;
+                batch.clear();
+                this._drawBatchPool.free(batch);
             }
+            // Reset buffer accessors
+            this._bufferAccessors.forEach((accessor: StaticVBAccessor) => {
+                accessor.reset();
+            });
+            this._meshDataArray.forEach((rd) => {
+                rd.freeIAPool();
+            });
+            this._meshDataArray.length = 0;
+            this._staticVBBuffer = null;
 
-            batch.clear();
-            this._drawBatchPool.free(batch);
+            this._currBID = -1;
+            this._indexStart = 0;
+            this._currHash = 0;
+            this._currLayer = 0;
+            this._currRenderData = null;
+            this._currMaterial = this._emptyMaterial;
+            this._currTexture = null;
+            this._currSampler = null;
+            this._currComponent = null;
+            this._currTransform = null;
+            this._batches.clear();
+            StencilManager.sharedManager!.reset();
         }
-        // Reset buffer accessors
-        this._bufferAccessors.forEach((accessor: StaticVBAccessor) => {
-            accessor.reset();
-        });
-        this._meshDataArray.forEach((rd) => {
-            rd.freeIAPool();
-        });
-        this._meshDataArray.length = 0;
-        this._staticVBBuffer = null;
-
-        this._currBID = -1;
-        this._indexStart = 0;
-        this._currHash = 0;
-        this._currLayer = 0;
-        this._currRenderData = null;
-        this._currMaterial = this._emptyMaterial;
-        this._currTexture = null;
-        this._currSampler = null;
-        this._currComponent = null;
-        this._currTransform = null;
-        this._batches.clear();
-        StencilManager.sharedManager!.reset();
     }
 
     /**
@@ -696,7 +693,10 @@ export class Batcher2D implements IBatcher {
         if (render && render.enabledInHierarchy) {
             //render.updateAssembler(this);
             render.GatherRenderEntities(this);// for collecting data
-            render.fillBuffers(this);// for rendering
+            if (!JSB) {
+                //这句的功能挪到native了
+                render.fillBuffers(this);// for rendering
+            }
         }
 
         // Update cascaded opacity to vertex buffer

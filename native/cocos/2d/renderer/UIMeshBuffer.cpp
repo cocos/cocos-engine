@@ -7,6 +7,7 @@ UIMeshBuffer::UIMeshBuffer(/* args */) {
 }
 
 UIMeshBuffer::~UIMeshBuffer() {
+    destroy();
 }
 
 void UIMeshBuffer::setVData(float_t* vData) {
@@ -28,7 +29,15 @@ void UIMeshBuffer::initialize(gfx::Device* device, std::vector<gfx::Attribute*>&
     //} else {
     //    _needDeleteVData = false;
     //}
+    //
 
+    // 估计要拆到sharedbuffer里传过来
+    //if (attrs.size() > 0) {
+    //    _attributes.clear();
+    //}
+    //for (index_t i = 0; i < attrs.size(); i++) {
+    //    _attributes.push_back(*attrs[i]);
+    //}
     _iaPool.push_back(createNewIA(device));
 }
 
@@ -53,7 +62,8 @@ void UIMeshBuffer::destroy() {
     _iData = nullptr;
     // Destroy InputAssemblers
     for each (auto ia in _iaPool) {
-        delete ia;
+        ia->destroy();
+        delete ia;//关闭时还会崩溃
     }
     _iaPool.clear();
 }

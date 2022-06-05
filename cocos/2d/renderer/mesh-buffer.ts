@@ -170,7 +170,6 @@ export class MeshBuffer {
         this.syncSharedBufferToNative();
     }
 
-    //attribute暂时没传
     public initialize (device: Device, attrs: Attribute[], vFloatCount: number, iCount: number) {
         this._initVDataCount = vFloatCount;
         this._initIDataCount = iCount;

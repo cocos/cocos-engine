@@ -21,11 +21,17 @@ Batcher2d::Batcher2d(Root* root) : _drawBatchPool([]() { return ccnew scene::Dra
 
 Batcher2d::~Batcher2d() {
     CC_SAFE_DELETE(_simple);
+
+    _drawBatchPool.destroy();
+
+    for (auto iter = _descriptorSetCache.begin(); iter != _descriptorSetCache.end(); iter++) {
+        iter->second->destroy();
+    }
+    _descriptorSetCache.clear();
 }
 
 void Batcher2d::syncMeshBuffersToNative(std::vector<UIMeshBuffer*>&& buffers, uint32_t length) {
     _meshBuffers = std::move(buffers);
-    _meshBuffersLength = length;
 }
 
 void Batcher2d::syncRenderEntitiesToNative(std::vector<RenderEntity*>&& renderEntities) {
@@ -123,7 +129,7 @@ void Batcher2d::fillBuffersAndMergeBatches() {
 
         //暂时不修改vb和ib，验证下目前native的行为
         //最后调通时再把这里打开
-        //_simple->fillBuffers(entity);
+        _simple->fillBuffers(entity);
     }
 }
 
@@ -160,6 +166,7 @@ void Batcher2d::generateBatch(RenderEntity* entity) {
     // Todo blendState & stencil State
     auto* curdrawBatch = _drawBatchPool.alloc();
     curdrawBatch->setVisFlags(_currLayer);
+    //curdrawBatch
     curdrawBatch->setInputAssembler(ia);
     curdrawBatch->setUseLocalFlag(nullptr); // todo usLocal
     curdrawBatch->fillPass(_currMaterial, nullptr, 0, nullptr, 0);
