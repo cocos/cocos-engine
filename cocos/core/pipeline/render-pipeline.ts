@@ -408,7 +408,6 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
             this._flows[i].activate(this);
         }
 
-        legacyCC.debugView.activate();
         return true;
     }
 
