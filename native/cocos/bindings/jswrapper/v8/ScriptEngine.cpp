@@ -735,7 +735,7 @@ bool ScriptEngine::start() {
     }
     se::AutoHandleScope hs;
 
-    //
+    // Check the cache of debuggerInfo. Enable debugger if it's valid.
     if (debuggerInfo.isValid()) {
         enableDebugger(debuggerInfo.serverAddr, debuggerInfo.port, debuggerInfo.isWait);
         debuggerInfo.reset();
