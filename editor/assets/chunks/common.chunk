@@ -26,6 +26,7 @@
 
 // common function
 #pragma define saturate(a) clamp(a, 0.0, 1.0)
+#pragma define equalf(data1, data2) (abs(float(data1) - float(data2)) < EPSILON)
 
 // runtime constants
 #pragma define-meta CC_DEVICE_SUPPORT_FLOAT_TEXTURE default(1)
