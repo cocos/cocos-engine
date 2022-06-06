@@ -89,6 +89,7 @@ public:
     }
     virtual uintptr_t getWindowHandler() const = 0;
     virtual Size getViewSize() const = 0;
+    virtual void setViewSize(uint32_t width, uint32_t height) {}
     /**
      @brief enable/disable(lock) the cursor, default is enabled
      */

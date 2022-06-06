@@ -25,7 +25,7 @@
 
 #pragma once
 #include "base/std/container/unordered_map.h"
-#include "cocos/base/Optional.h"
+#include "base/std/optional.h"
 
 #include "3d/assets/Skeleton.h"
 #include "core/TypedArray.h"
@@ -42,8 +42,8 @@ class Mesh;
 
 // _chunkIdxMap[key] = skeleton ^ clips[i]
 struct IChunkContent {
-    uint64_t skeleton{0};
-    ccstd::vector<uint64_t> clips;
+    uint32_t skeleton{0U};
+    ccstd::vector<uint32_t> clips;
 };
 
 struct ICustomJointTextureLayout {
@@ -52,22 +52,22 @@ struct ICustomJointTextureLayout {
 };
 
 struct IInternalJointAnimInfo {
-    cc::optional<Mat4> downstream;               // downstream default pose, if present
-    cc::optional<ccstd::vector<Mat4>> curveData; // the nearest animation curve, if present
-    index_t bindposeIdx{0};                      // index of the actual bindpose to use
-    cc::optional<Mat4> bindposeCorrection;       // correction factor from the original bindpose
+    ccstd::optional<Mat4> downstream;               // downstream default pose, if present
+    ccstd::optional<ccstd::vector<Mat4>> curveData; // the nearest animation curve, if present
+    index_t bindposeIdx{0};                         // index of the actual bindpose to use
+    ccstd::optional<Mat4> bindposeCorrection;       // correction factor from the original bindpose
 };
 
 class IJointTextureHandle {
 public:
     uint32_t pixelOffset{0};
     uint32_t refCount{0};
-    uint64_t clipHash{0};
-    uint64_t skeletonHash{0};
+    ccstd::hash_t clipHash{0U};
+    ccstd::hash_t skeletonHash{0U};
     bool readyToBeDeleted{false};
     ITextureBufferHandle handle;
     ccstd::unordered_map<uint32_t, ccstd::vector<geometry::AABB>> bounds;
-    cc::optional<ccstd::vector<IInternalJointAnimInfo>> animInfos;
+    ccstd::optional<ccstd::vector<IInternalJointAnimInfo>> animInfos;
 
     static IJointTextureHandle *createJoinTextureHandle() {
         return ccnew IJointTextureHandle();
@@ -95,7 +95,7 @@ public:
      * @zh
      * 获取默认姿势的骨骼贴图。
      */
-    cc::optional<IJointTextureHandle *> getDefaultPoseTexture(Skeleton *skeleton, Mesh *mesh, Node *skinningRoot);
+    ccstd::optional<IJointTextureHandle *> getDefaultPoseTexture(Skeleton *skeleton, Mesh *mesh, Node *skinningRoot);
 
     /**
      * @en
@@ -103,7 +103,7 @@ public:
      * @zh
      * 获取指定动画片段的骨骼贴图。
      */
-    // cc::optional<IJointTextureHandle> getSequencePoseTexture(Skeleton *skeleton, AnimationClip *clip, Mesh *mesh, Node *skinningRoot);
+    // ccstd::optional<IJointTextureHandle> getSequencePoseTexture(Skeleton *skeleton, AnimationClip *clip, Mesh *mesh, Node *skinningRoot);
 
     void releaseHandle(IJointTextureHandle *handle);
 
@@ -116,11 +116,11 @@ private:
 
     gfx::Device *_device{nullptr};
     IntrusivePtr<TextureBufferPool> _pool;
-    ccstd::unordered_map<uint64_t, IJointTextureHandle *> _textureBuffers;
+    ccstd::unordered_map<ccstd::hash_t, IJointTextureHandle *> _textureBuffers;
     uint32_t _formatSize{0};
     uint32_t _pixelsPerJoint{0};
     IntrusivePtr<TextureBufferPool> _customPool;
-    ccstd::unordered_map<uint64_t, index_t> _chunkIdxMap; // hash -> chunkIdx
+    ccstd::unordered_map<ccstd::hash_t, index_t> _chunkIdxMap; // hash -> chunkIdx
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(JointTexturePool);
 };
@@ -136,7 +136,7 @@ struct IAnimInfo {
 
 class JointAnimationInfo : public RefCounted {
 public:
-    JointAnimationInfo();
+    JointAnimationInfo() = default;
     explicit JointAnimationInfo(gfx::Device *device);
     ~JointAnimationInfo() override = default;
 

@@ -171,7 +171,7 @@ private:
     ResourceAllocator() noexcept = default;
     ~ResourceAllocator() = default;
 
-    std::unordered_map<size_t, DeviceResourcePool> _pool{};
+    std::unordered_map<ccstd::hash_t, DeviceResourcePool> _pool{};
     std::unordered_map<DeviceResourceType *, int64_t> _ages{};
     uint64_t _age{0};
 };
@@ -187,7 +187,7 @@ ResourceAllocator<DeviceResourceType, gfx::FramebufferInfo, DeviceResourceCreato
 
 template <typename DeviceResourceType, typename DeviceResourceCreatorType>
 DeviceResourceType *ResourceAllocator<DeviceResourceType, gfx::FramebufferInfo, DeviceResourceCreatorType>::alloc(const gfx::FramebufferInfo &desc) noexcept {
-    size_t hash = gfx::Hasher<gfx::FramebufferInfo>()(desc);
+    ccstd::hash_t hash = gfx::Hasher<gfx::FramebufferInfo>()(desc);
     DeviceResourcePool &pool{_pool[hash]};
 
     DeviceResourceType *resource{nullptr};

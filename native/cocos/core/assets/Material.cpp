@@ -37,12 +37,12 @@
 namespace cc {
 
 /* static */
-uint64_t Material::getHashForMaterial(Material *material) {
+ccstd::hash_t Material::getHashForMaterial(Material *material) {
     if (material == nullptr) {
         return 0;
     }
 
-    uint64_t hash = 0;
+    ccstd::hash_t hash = 0U;
     const auto &passes = *material->_passes;
     for (const auto &pass : passes) {
         hash ^= pass->getHash();
@@ -231,20 +231,20 @@ const MaterialPropertyVariant *Material::getProperty(const ccstd::string &name, 
 }
 
 void Material::fillInfo(const IMaterialInfo &info) {
-    if (info.technique != cc::nullopt) {
+    if (info.technique != ccstd::nullopt) {
         _techIdx = info.technique.value();
     }
 
     if (info.effectAsset != nullptr) {
         _effectAsset = info.effectAsset;
-    } else if (info.effectName != cc::nullopt) {
+    } else if (info.effectName != ccstd::nullopt) {
         _effectAsset = EffectAsset::get(info.effectName.value());
     }
 
-    if (info.defines != cc::nullopt) {
+    if (info.defines != ccstd::nullopt) {
         prepareInfo(info.defines.value(), _defines);
     }
-    if (info.states != cc::nullopt) {
+    if (info.states != ccstd::nullopt) {
         prepareInfo(info.states.value(), _states);
     }
 }
@@ -364,18 +364,18 @@ bool Material::uploadProperty(scene::Pass *pass, const ccstd::string &name, cons
     const auto type = scene::Pass::getTypeFromHandle(handle);
     if (type < gfx::Type::SAMPLER1D) {
         if (val.index() == MATERIAL_PROPERTY_INDEX_LIST) {
-            pass->setUniformArray(handle, cc::get<MaterialPropertyList>(val));
+            pass->setUniformArray(handle, ccstd::get<MaterialPropertyList>(val));
         } else if (val.index() == MATERIAL_PROPERTY_INDEX_SINGLE) {
             const auto &passProps = pass->getProperties();
             auto iter = passProps.find(name);
             if (iter != passProps.end() && iter->second.linear.has_value()) {
-                CC_ASSERT(cc::holds_alternative<MaterialProperty>(val));
-                const auto &prop = cc::get<MaterialProperty>(val);
+                CC_ASSERT(ccstd::holds_alternative<MaterialProperty>(val));
+                const auto &prop = ccstd::get<MaterialProperty>(val);
                 Vec4 srgb;
-                if (cc::holds_alternative<cc::Color>(prop)) {
-                    srgb = cc::get<cc::Color>(prop).toVec4();
-                } else if (cc::holds_alternative<Vec4>(prop)) {
-                    srgb = cc::get<Vec4>(prop);
+                if (ccstd::holds_alternative<cc::Color>(prop)) {
+                    srgb = ccstd::get<cc::Color>(prop).toVec4();
+                } else if (ccstd::holds_alternative<Vec4>(prop)) {
+                    srgb = ccstd::get<Vec4>(prop);
                 } else {
                     CC_ASSERT(false);
                 }
@@ -385,18 +385,18 @@ bool Material::uploadProperty(scene::Pass *pass, const ccstd::string &name, cons
                 linear.w = srgb.w;
                 pass->setUniform(handle, linear);
             } else {
-                pass->setUniform(handle, cc::get<MaterialProperty>(val));
+                pass->setUniform(handle, ccstd::get<MaterialProperty>(val));
             }
         } else {
             pass->resetUniform(name);
         }
     } else if (val.index() == MATERIAL_PROPERTY_INDEX_LIST) {
-        const auto &textureArray = cc::get<MaterialPropertyList>(val);
+        const auto &textureArray = ccstd::get<MaterialPropertyList>(val);
         for (size_t i = 0; i < textureArray.size(); i++) {
             bindTexture(pass, handle, textureArray[i], static_cast<index_t>(i));
         }
     } else if (val.index() == MATERIAL_PROPERTY_INDEX_SINGLE) {
-        bindTexture(pass, handle, cc::get<MaterialProperty>(val));
+        bindTexture(pass, handle, ccstd::get<MaterialProperty>(val));
     } else {
         pass->resetTexture(name);
     }
@@ -409,9 +409,9 @@ void Material::bindTexture(scene::Pass *pass, uint32_t handle, const MaterialPro
     }
 
     const uint32_t binding = scene::Pass::getBindingFromHandle(handle);
-    if (const auto *pTexture = cc::get_if<IntrusivePtr<gfx::Texture>>(&val)) {
+    if (const auto *pTexture = ccstd::get_if<IntrusivePtr<gfx::Texture>>(&val)) {
         pass->bindTexture(binding, const_cast<gfx::Texture *>(pTexture->get()), index);
-    } else if (const auto *pTextureBase = cc::get_if<IntrusivePtr<TextureBase>>(&val)) {
+    } else if (const auto *pTextureBase = ccstd::get_if<IntrusivePtr<TextureBase>>(&val)) {
         auto *textureBase = pTextureBase->get();
         gfx::Texture *texture = nullptr;
         if (textureBase != nullptr) {
@@ -432,7 +432,7 @@ void Material::bindTexture(scene::Pass *pass, uint32_t handle, const MaterialPro
     }
 }
 
-void Material::initDefault(const cc::optional<ccstd::string> &uuid) {
+void Material::initDefault(const ccstd::optional<ccstd::string> &uuid) {
     Super::initDefault(uuid);
     MacroRecord defines{{"USE_COLOR", true}};
     IMaterialInfo info;

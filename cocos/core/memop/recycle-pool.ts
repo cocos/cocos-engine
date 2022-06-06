@@ -26,11 +26,6 @@
 import { ScalableContainer } from './scalable-container';
 
 /**
- * @packageDocumentation
- * @module memop
- */
-
-/**
  * @en Recyclable object pool. It's designed to be entirely reused each time.
  * There is no put and get method, each time you get the [[data]], you can use all elements as new.
  * You shouldn't simultaneously use the same RecyclePool in more than two overlapped logic.

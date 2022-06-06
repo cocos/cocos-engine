@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module core
- */
-
 import { builtinResMgr } from './builtin';
 import { Pool } from './memop';
 import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from './pipeline';
@@ -129,6 +124,14 @@ export class Root {
      */
     public get pipeline (): PipelineRuntime {
         return this._pipeline!;
+    }
+
+    /**
+     * @zh
+     * 自定义渲染管线
+     */
+    public get customPipeline (): Pipeline {
+        return this._customPipeline!;
     }
 
     /**

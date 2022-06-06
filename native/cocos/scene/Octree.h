@@ -86,6 +86,7 @@ public:
     Vec3 _maxPos{DEFAULT_WORLD_MAX_POS};
     uint32_t _depth{DEFAULT_OCTREE_DEPTH};
 
+private:
     Octree *_resource{nullptr};
 };
 

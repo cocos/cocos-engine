@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
 import { ccclass, help, menu, executionOrder, visible, override } from 'cc.decorator';
 import { UIRenderer } from '../framework/ui-renderer';
 import { IBatcher } from '../renderer/i-batcher';

@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module component/camera
- */
-
 import { EDITOR } from 'internal:constants';
 import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable, visible } from 'cc.decorator';
 import { RenderTexture } from '../assets/render-texture';
@@ -85,12 +80,40 @@ export declare namespace Camera {
 @menu('Rendering/Camera')
 @executeInEditMode
 export class Camera extends Component {
+    /**
+     * @en The projection type enumeration of the camera.
+     * @zh 相机的投影类型枚举。
+     */
     public static ProjectionType = ProjectionType;
+    /**
+     * @en The axis type of the fov
+     * @zh FOV 的轴向枚举
+     */
     public static FOVAxis = FOVAxis;
+    /**
+     * @en The clear flag enumeration of the camera.
+     * @zh 相机的清除标志位枚举。
+     */
     public static ClearFlag = ClearFlag;
+    /**
+     * @en The aperture value's enumeration of the camera.
+     * @zh 相机的光圈值枚举。
+     */
     public static Aperture = Aperture;
+    /**
+     * @en The shutter value's enumeration of the camera.
+     * @zh 相机的快门值枚举。
+     */
     public static Shutter = Shutter;
+    /**
+     * @en The ISO value's enumeration of the camera.
+     * @zh 相机的感光度值枚举。
+     */
     public static ISO = ISO;
+    /**
+     * @en The event for target texture changing.
+     * @zh 目标贴图修改的事件。
+     */
     public static TARGET_TEXTURE_CHANGE = 'tex-change';
 
     @serializable
@@ -134,6 +157,10 @@ export class Camera extends Component {
     protected _inEditorMode = false;
     protected _flows: string[] | undefined = undefined;
 
+    /**
+     * @en The render camera representation.
+     * @zh 渲染场景中的相机对象。
+     */
     get camera () {
         return this._camera!;
     }
@@ -447,6 +474,9 @@ export class Camera extends Component {
         if (this._camera) { this._camera.screenScale = val; }
     }
 
+    /**
+     * @internal
+     */
     get inEditorMode () {
         return this._inEditorMode;
     }

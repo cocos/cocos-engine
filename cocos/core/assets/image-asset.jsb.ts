@@ -130,6 +130,18 @@ imageAssetProto.reset = function (data: ImageSource) {
     this._syncDataToNative();
 };
 
+const superDestroy = jsb.Asset.prototype.destroy;
+imageAssetProto.destroy = function () {
+    if(this.data && this.data instanceof HTMLImageElement) {
+        this.data.src = '';
+        this._setRawAsset('');
+        this.data.destroy();
+    } else if (isImageBitmap(this.data)) {
+        this.data.close && this.data.close();
+    }
+    return superDestroy.call(this);
+};
+
 Object.defineProperty(imageAssetProto, 'width', {
     configurable: true,
     enumerable: true,
@@ -153,7 +165,7 @@ imageAssetProto._syncDataToNative = function () {
 
     this.setWidth(this._width);
     this.setHeight(this._height);
-    this.setUrl(this.nativeUrl);
+    this.url = this.nativeUrl;
 
     if (data instanceof HTMLCanvasElement) {
         this.setData(data._data.data);

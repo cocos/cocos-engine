@@ -1,7 +1,7 @@
 import { _decorator, Component, Node, RenderPipeline } from "cc";
 const { ccclass, property } = _decorator;
 
-@ccclass("UnderscoreCaseClassName")
+@ccclass("<%UnderscoreCaseClassName%>")
 export class <%UnderscoreCaseClassName%> extends RenderPipeline {
 
     destroy() {

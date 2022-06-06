@@ -148,7 +148,8 @@ export class Batcher2D implements IBatcher {
      * @zh
      * 添加屏幕组件管理。
      *
-     * @param comp - 屏幕组件。
+     * @param comp @en The render root of 2d.
+     *             @zh 2d 渲染入口组件。
      */
     public addScreen (comp: RenderRoot2D) {
         this._screens.push(comp);
@@ -159,7 +160,8 @@ export class Batcher2D implements IBatcher {
      * @zh
      * Removes the Canvas from the list.
      *
-     * @param comp - 被移除的屏幕。
+     * @param comp @en The target to removed.
+     *             @zh 被移除的屏幕。
      */
     public removeScreen (comp: RenderRoot2D) {
         const idx = this._screens.indexOf(comp);
@@ -273,8 +275,9 @@ export class Batcher2D implements IBatcher {
     }
 
     /**
-     * Switch the mesh buffer for corresponding vertex layout if necessary.
-     * @param attributes use [[VertexFormat.vfmtPosUvColor]] by default
+     * @zh 如果有必要，为相应的顶点布局切换网格缓冲区。
+     * @en Switch the mesh buffer for corresponding vertex layout if necessary.
+     * @param attributes use VertexFormat.vfmtPosUvColor by default
      */
     public switchBufferAccessor (attributes: Attribute[] = vfmtPosUvColor) {
         const strideBytes = attributes === vfmtPosUvColor ? 36 /* 9x4 */ : getAttributeStride(attributes);
@@ -368,12 +371,12 @@ export class Batcher2D implements IBatcher {
 
     /**
      * @en
-     * Render component data submission process for individual [[InputAssembler]]
+     * Render component data submission process for individual [[gfx.InputAssembler]]
      * @zh
-     * 渲染组件中针对独立 [[InputAssembler]] 的提交流程
+     * 渲染组件中针对独立 [[gfx.InputAssembler]] 的提交流程
      * 例如：Spine 和 DragonBones 等包含动态数据和材质的组件在内部管理 IA 并提交批次
      * @param comp - The committed renderable component
-     * @param ia - The committed [[InputAssembler]]
+     * @param ia - The committed [[gfx.InputAssembler]]
      * @param tex - The texture used
      * @param mat - The material used
      * @param [transform] - The related node transform if the render data is based on node's local coordinates
@@ -489,7 +492,8 @@ export class Batcher2D implements IBatcher {
      *
      * @zh
      * 提交独立渲染数据.
-     * @param comp 静态组件
+     * @param comp @en The UIStaticBatch component.
+     *             @zh 静态组件
      */
     public commitStaticBatch (comp: UIStaticBatch) {
         this._batches.concat(comp.drawBatchList);
@@ -577,8 +581,10 @@ export class Batcher2D implements IBatcher {
      * @zh
      * 强行修改当前批次数据并合并。
      *
-     * @param material - 当前批次的材质。
-     * @param sprite - 当前批次的精灵帧。
+     * @param material @en The material of the current batch.
+     *                 @zh 当前批次的材质。
+     * @param sprite @en Sprite frame of current batch.
+     *               @zh 当前批次的精灵帧。
      */
     public forceMergeBatches (material: Material, frame: TextureBase | SpriteFrame | null, renderComp: UIRenderer) {
         this._currMaterial = material;

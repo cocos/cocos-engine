@@ -25,18 +25,20 @@
 
 #pragma once
 
+#include "base/Ptr.h"
+#include "base/RefCounted.h"
 #include "math/Mat4.h"
 
 namespace cc {
 
 class Node;
 
-struct IJointTransform {
+struct IJointTransform : RefCounted {
     Node *node{nullptr};
     Mat4 local;
     Mat4 world;
     int stamp{-1};
-    struct IJointTransform *parent{nullptr};
+    IntrusivePtr<IJointTransform> parent;
 };
 
 Mat4 getWorldMatrix(IJointTransform *transform, int32_t stamp);

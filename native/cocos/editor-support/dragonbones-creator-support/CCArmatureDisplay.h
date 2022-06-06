@@ -183,7 +183,6 @@ private:
     int _debugSlotsLen = 0;
     int _materialLen = 0;
 
-    bool _batch = true;
     bool _useAttach = false;
     bool _premultipliedAlpha = false;
 

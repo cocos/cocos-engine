@@ -82,7 +82,7 @@ public:
     void updateWorldBound();
     void updateWorldBoundsForJSSkinningModel(const Vec3 &min, const Vec3 &max);
     void updateWorldBoundsForJSBakedSkinningModel(geometry::AABB *aabb);
-    void createBoundingShape(const cc::optional<Vec3> &minPos, const cc::optional<Vec3> &maxPos);
+    void createBoundingShape(const ccstd::optional<Vec3> &minPos, const ccstd::optional<Vec3> &maxPos);
     virtual void initSubModel(index_t idx, RenderingSubMesh *subMeshData, Material *mat);
     void setSubModelMesh(index_t idx, RenderingSubMesh *subMesh) const;
     virtual void setSubModelMaterial(index_t idx, Material *mat);
@@ -140,7 +140,7 @@ public:
     inline bool isInstancingEnabled() const { return _instMatWorldIdx >= 0; };
     inline int32_t getInstMatWorldIdx() const { return _instMatWorldIdx; }
     inline const ccstd::vector<gfx::Attribute> &getInstanceAttributes() const { return _instanceAttributeBlock.attributes; }
-    inline InstancedAttributeBlock *getInstancedAttributeBlock() { return &_instanceAttributeBlock; }
+    inline InstancedAttributeBlock &getInstancedAttributeBlock() { return _instanceAttributeBlock; }
     inline const uint8_t *getInstancedBuffer() const { return _instanceAttributeBlock.buffer.buffer()->getData(); }
     inline uint32_t getInstancedBufferSize() const { return _instanceAttributeBlock.buffer.length(); }
     inline gfx::Buffer *getLocalBuffer() const { return _localBuffer.get(); }

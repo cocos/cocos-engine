@@ -277,10 +277,15 @@ void CCMTLPipelineState::setMTLFunctionsAndFormats(MTLRenderPipelineDescriptor *
     if (!subpasses.empty()) {
         for (size_t passIndex = 0; passIndex < subpasses.size(); ++passIndex) {
             const SubpassInfo &subpass = subpasses[passIndex];
+            depthStencilTexIndex = subpass.depthStencil;
             for (size_t i = 0; i < subpass.inputs.size(); ++i) {
                 uint32_t input = subpass.inputs[i];
                 if (inputs.find(input) == inputs.end()) {
                     inputs.insert(input);
+                    if(input >= colorAttachments.size()) {
+                        depthStencilTexIndex = input;
+                        continue;
+                    }
                     mtlPixelFormat = mu::toMTLPixelFormat(colorAttachments[input].format);
                     descriptor.colorAttachments[input].pixelFormat = mtlPixelFormat;
                 }
@@ -288,10 +293,13 @@ void CCMTLPipelineState::setMTLFunctionsAndFormats(MTLRenderPipelineDescriptor *
 
             for (size_t i = 0; i < subpass.colors.size(); ++i) {
                 uint32_t output = subpass.colors[i];
+                if(output >= colorAttachments.size()) {
+                    depthStencilTexIndex = output;
+                    continue;
+                }
                 mtlPixelFormat = mu::toMTLPixelFormat(colorAttachments[output].format);
                 descriptor.colorAttachments[output].pixelFormat = mtlPixelFormat;
             }
-            depthStencilTexIndex = subpass.depthStencil;
         }
         const uint32_t curIndex = static_cast<CCMTLRenderPass *>(_renderPass)->getCurrentSubpassIndex();
         const SubpassInfo &curSubpass = subpasses[curIndex];

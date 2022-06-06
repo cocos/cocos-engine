@@ -95,6 +95,10 @@ void Root::initialize(gfx::Swapchain *swapchain) {
     // return Promise.resolve(builtinResMgr.initBuiltinRes(this._device));
 }
 
+render::Pipeline *Root::getCustomPipeline() const {
+    return dynamic_cast<render::Pipeline *>(_pipelineRuntime.get());
+}
+
 void Root::destroy() {
     destroyScenes();
 
@@ -211,7 +215,8 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
             return false;
         }
     } else {
-        _pipelineRuntime = std::make_unique<render::NativePipeline>();
+        _pipelineRuntime = std::make_unique<render::NativePipeline>(
+            boost::container::pmr::get_default_resource());
         if (!_pipelineRuntime->activate(_mainWindow->getSwapchain())) {
             _pipelineRuntime->destroy();
             _pipelineRuntime.reset();

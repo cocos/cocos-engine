@@ -127,11 +127,12 @@ public:
     bool isInited() const override { return _inited; }
 
 private:
+    void destroy();
     void tick();
     bool dispatchWindowEvent(const WindowEvent &ev);
     bool dispatchDeviceEvent(const DeviceEvent &ev);
     bool dispatchEventToApp(OSEventType type, const OSEvent &ev);
-    int32_t restartVM();
+    void doRestart();
 
     bool _close{false};
     bool _pause{false};

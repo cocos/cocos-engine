@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 export * from './target-path';
 export * from './value-proxy';
 export { UniformProxyFactory } from './value-proxy-factories/uniform';

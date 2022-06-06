@@ -1,0 +1,35 @@
+// Surface
+#include <shading-entries/data-structures/vs-input>
+#include <shading-entries/data-structures/vs-output>
+#include <shading-entries/data-structures/vs-intermediate>
+
+// UBO
+#include <cc-global>
+#include <builtin/uniforms/cc-local-batched>
+
+#if CC_USE_MORPH
+  #include <builtin/uniforms/cc-morph>
+#endif
+#if CC_USE_SKINNING
+  #include <builtin/uniforms/cc-skinning-uniforms>
+#endif
+
+// Functional
+#include <common>
+#include <builtin/internal-functions/world-transform>
+
+#if CC_USE_MORPH
+  #include <builtin/internal-functions/morph-animation>
+  //#include <morph>
+#endif
+
+#if CC_USE_SKINNING
+  #include <builtin/internal-functions/skinning-animation-lbs>
+  //#include <cc-skinning>
+#endif
+
+#if !CC_USE_ACCURATE_FOG
+  #include <cc-fog-base>
+#endif
+
+#include <cc-shadow>

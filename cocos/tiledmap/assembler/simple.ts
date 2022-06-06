@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui-assembler
- */
-
 import { Mat4, Size, Vec3 } from '../../core/math';
 import { IAssembler } from '../../2d/renderer/base';
 import { MeshRenderData } from '../../2d/renderer/render-data';

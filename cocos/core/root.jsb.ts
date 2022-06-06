@@ -164,7 +164,7 @@ rootProto.frameMove = function (deltaTime: number) {
 
 const oldSetPipeline = rootProto.setRenderPipeline;
 rootProto.setRenderPipeline = function (pipeline) {
-    if (this.usesCustomPipeline()) {
+    if (this.usesCustomPipeline) {
         return oldSetPipeline.call(this, null);
     } else {
         if (!pipeline) {

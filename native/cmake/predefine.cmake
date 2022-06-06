@@ -216,6 +216,7 @@ endfunction()
 
 find_program(NODE_EXECUTABLE NAMES node)
 find_program(TSC_EXECUTABLE NAMES tsc)
+find_program(CCACHE_EXECUTABLE NAMES ccache)
 
 ## predefined configurations for game applications
 include(${CMAKE_CURRENT_LIST_DIR}/../../templates/cmake/common.cmake)

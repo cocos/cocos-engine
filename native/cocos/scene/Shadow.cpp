@@ -62,17 +62,17 @@ void ShadowsInfo::setShadowColor(const Color &val) {
     }
 }
 
-void ShadowsInfo::setNormal(const Vec3 &val) {
+void ShadowsInfo::setPlaneDirection(const Vec3 &val) {
     _normal = val;
     if (_resource != nullptr) {
         _resource->setNormal(val);
     }
 }
 
-void ShadowsInfo::setDistance(float val) {
+void ShadowsInfo::setPlaneHeight(float val) {
     _distance = val;
     if (_resource != nullptr) {
-        _resource->setDistance(val);
+        _resource->setDistance(-val);
     }
 }
 
@@ -110,8 +110,8 @@ const float Shadows::COEFFICIENT_OF_EXPANSION{2.0F * std::sqrt(3.0F)};
 void Shadows::initialize(const ShadowsInfo &shadowsInfo) {
     setEnabled(shadowsInfo.isEnabled());
     setType(shadowsInfo.getType());
-    setNormal(shadowsInfo.getNormal());
-    setDistance(shadowsInfo.getDistance());
+    setNormal(shadowsInfo.getPlaneDirection());
+    setDistance(shadowsInfo.getPlaneHeight());
     setMaxReceived(shadowsInfo.getMaxReceived());
     setSize(shadowsInfo.getSize());
     setShadowColor(shadowsInfo.getShadowColor());

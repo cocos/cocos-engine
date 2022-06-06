@@ -24,7 +24,6 @@
 ****************************************************************************/
 #include <string>
 #include "CocosApplication.h"
-#include "renderer/pipeline/GlobalDescriptorSetManager.h"
 
 namespace cc {
 class BaseGame : public CocosApplication {
@@ -45,45 +44,12 @@ public:
     };
 
     BaseGame() = default;
-    int init() override {
-        cc::pipeline::GlobalDSManager::setDescriptorSetLayout();
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX || CC_PLATFORM == CC_PLATFORM_MAC_OSX
-        // override default value
-        //_windowInfo.x      = _windowInfo.x == -1 ? 0 : _windowInfo.x;
-        //_windowInfo.y      = _windowInfo.y == -1 ? 0 : _windowInfo.y;
-        _windowInfo.width = _windowInfo.width == -1 ? 800 : _windowInfo.width;
-        _windowInfo.height = _windowInfo.height == -1 ? 600 : _windowInfo.height;
-        _windowInfo.flags = _windowInfo.flags == -1 ? cc::ISystemWindow::CC_WINDOW_SHOWN |
-                                                          cc::ISystemWindow::CC_WINDOW_RESIZABLE |
-                                                          cc::ISystemWindow::CC_WINDOW_INPUT_FOCUS
-                                                    : _windowInfo.flags;
-        if (_windowInfo.x == -1 || _windowInfo.y == -1) {
-            createWindow(_windowInfo.title.c_str(), _windowInfo.width, _windowInfo.height, _windowInfo.flags);
-        } else {
-            createWindow(_windowInfo.title.c_str(),
-                         _windowInfo.x, _windowInfo.y, _windowInfo.width, _windowInfo.height, _windowInfo.flags);
-        }
-#endif
-
-        if (_debuggerInfo.enabled) {
-            setDebugIpAndPort(_debuggerInfo.address, _debuggerInfo.port, _debuggerInfo.pauseOnStart);
-        }
-
-        int ret = cc::CocosApplication::init();
-        if (ret != 0) {
-            return ret;
-        }
-
-        setXXTeaKey(_xxteaKey);
-
-        runScript("jsb-adapter/jsb-builtin.js");
-        runScript("main.js");
-        return 0;
-    }
+    int init() override;
 
 protected:
     std::string _xxteaKey;
     DebuggerInfo _debuggerInfo;
     WindowInfo _windowInfo;
+    std::once_flag _windowCreateFlag;
 };
 } // namespace cc

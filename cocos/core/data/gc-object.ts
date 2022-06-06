@@ -26,7 +26,7 @@ import { CCObject } from './object';
 @ccclass('cc.GCObject')
 export class GCObject extends CCObject {
     /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @internal
      */
     public declare _finalizationToken: any;
 

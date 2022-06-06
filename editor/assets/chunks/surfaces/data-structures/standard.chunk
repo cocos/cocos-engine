@@ -1,0 +1,21 @@
+struct SurfacesMaterialData
+{
+  HIGHP_VALUE_STRUCT_DEFINE(vec3, worldPos);
+
+  vec4 baseColor;
+  vec3 worldNormal;
+  vec3 emissive;
+
+  float specularIntensity;
+  float roughness;
+  float metallic;
+  float ao;
+
+  // for advanced PBR
+  vec3 worldTangent, worldBinormal;
+#if CC_SURFACES_LIGHTING_ANISOTROPIC
+  float anisotropyShape;
+#endif
+  // float transmittanceFactor;
+  // float sssCurvature;
+};

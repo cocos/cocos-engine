@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { DEV, EDITOR, SUPPORT_JIT, TEST } from 'internal:constants';
 import { errorID, warnID, error } from '../platform/debug';
 import * as js from '../utils/js';
@@ -439,6 +437,17 @@ CCClass.fastDefine = function (className, constructor, serializableFields) {
 
 CCClass.Attr = attributeUtils;
 CCClass.attr = attributeUtils.attr;
+
+/**
+ * Returns if the class is a cc-class or is fast defined.
+ * @param constructor The constructor of the class.
+ * @returns Judge result.
+ */
+// eslint-disable-next-line @typescript-eslint/ban-types
+export function isCCClassOrFastDefined<T> (constructor: Constructor<T>) {
+    // eslint-disable-next-line no-prototype-builtins, @typescript-eslint/no-unsafe-return
+    return  constructor?.hasOwnProperty?.('__values__');
+}
 
 /**
  * Return all super classes.

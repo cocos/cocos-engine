@@ -44,32 +44,32 @@ int32_t getBitCount(int32_t cnt) {
 }
 
 bool recordAsBool(const MacroRecord::mapped_type &v) {
-    if (cc::holds_alternative<bool>(v)) {
-        return cc::get<bool>(v);
+    if (ccstd::holds_alternative<bool>(v)) {
+        return ccstd::get<bool>(v);
     }
-    if (cc::holds_alternative<ccstd::string>(v)) {
-        return cc::get<ccstd::string>(v) == "true";
+    if (ccstd::holds_alternative<ccstd::string>(v)) {
+        return ccstd::get<ccstd::string>(v) == "true";
     }
-    if (cc::holds_alternative<int32_t>(v)) {
-        return cc::get<int32_t>(v);
+    if (ccstd::holds_alternative<int32_t>(v)) {
+        return ccstd::get<int32_t>(v);
     }
     return false;
 }
 
 ccstd::string recordAsString(const MacroRecord::mapped_type &v) {
-    if (cc::holds_alternative<bool>(v)) {
-        return cc::get<bool>(v) ? "1" : "0";
+    if (ccstd::holds_alternative<bool>(v)) {
+        return ccstd::get<bool>(v) ? "1" : "0";
     }
-    if (cc::holds_alternative<ccstd::string>(v)) {
-        return cc::get<ccstd::string>(v);
+    if (ccstd::holds_alternative<ccstd::string>(v)) {
+        return ccstd::get<ccstd::string>(v);
     }
-    if (cc::holds_alternative<int32_t>(v)) {
-        return std::to_string(cc::get<int32_t>(v));
+    if (ccstd::holds_alternative<int32_t>(v)) {
+        return std::to_string(ccstd::get<int32_t>(v));
     }
     return "";
 }
 
-ccstd::string mapDefine(const IDefineInfo &info, const cc::optional<MacroRecord::mapped_type> &def) {
+ccstd::string mapDefine(const IDefineInfo &info, const ccstd::optional<MacroRecord::mapped_type> &def) {
     if (info.type == "boolean") {
         return def.has_value() ? (recordAsBool(def.value()) ? "1" : "0") : "0";
     }
@@ -88,8 +88,8 @@ ccstd::vector<IMacroInfo> prepareDefines(const MacroRecord &records, const ccstd
     for (const auto &tmp : defList) {
         const auto &name = tmp.name;
         auto it = records.find(name);
-        auto value = mapDefine(tmp, it == records.end() ? cc::nullopt : cc::optional<MacroValue>(it->second));
-        bool isDefault = it == records.end() || (cc::holds_alternative<ccstd::string>(it->second) && cc::get<ccstd::string>(it->second) == "0");
+        auto value = mapDefine(tmp, it == records.end() ? ccstd::nullopt : ccstd::optional<MacroValue>(it->second));
+        bool isDefault = it == records.end() || (ccstd::holds_alternative<ccstd::string>(it->second) && ccstd::get<ccstd::string>(it->second) == "0");
         macros.emplace_back();
         auto &info = macros.back();
         info.name = name;
@@ -278,10 +278,10 @@ ProgramLib::ProgramLib() {
 ProgramLib::~ProgramLib() {
     ProgramLib::instance = nullptr;
 #if CC_DEBUG
-    for (const auto& cache : _cache) {
+    for (const auto &cache : _cache) {
         if (cache.second->getRefCount() > 1) {
-            CC_LOG_WARNING("ProgramLib cache: %s ref_count is %d and may leak", cache.second->getName().c_str(), cache.second->getRefCount() );
-         }
+            CC_LOG_WARNING("ProgramLib cache: %s ref_count is %d and may leak", cache.second->getName().c_str(), cache.second->getRefCount());
+        }
     }
 #endif
 }
@@ -328,11 +328,11 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
             auto &range = def.range.value();
             cnt = getBitCount(range[1] - range[0] + 1); // inclusive on both ends
             def.map = [=](const MacroValue &value) -> int32_t {
-                if (cc::holds_alternative<int32_t>(value)) {
-                    return cc::get<int32_t>(value) - range[0];
+                if (ccstd::holds_alternative<int32_t>(value)) {
+                    return ccstd::get<int32_t>(value) - range[0];
                 }
-                if (cc::holds_alternative<bool>(value)) {
-                    return (cc::get<bool>(value) ? 1 : 0) - range[0];
+                if (ccstd::holds_alternative<bool>(value)) {
+                    return (ccstd::get<bool>(value) ? 1 : 0) - range[0];
                 }
                 CC_ASSERT(false); // We only support macro with int32_t type now.
                 return 0;
@@ -340,7 +340,7 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
         } else if (def.type == "string") {
             cnt = getBitCount(static_cast<int32_t>(def.options.value().size()));
             def.map = [=](const MacroValue &value) -> int32_t {
-                const auto *pValue = cc::get_if<ccstd::string>(&value);
+                const auto *pValue = ccstd::get_if<ccstd::string>(&value);
                 if (pValue != nullptr) {
                     auto idx = static_cast<int32_t>(std::find(def.options.value().begin(), def.options.value().end(), *pValue) - def.options.value().begin());
                     return std::max(0, idx);
@@ -349,15 +349,15 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
             };
         } else if (def.type == "boolean") {
             def.map = [](const MacroValue &value) -> int32_t {
-                const auto *pBool = cc::get_if<bool>(&value);
+                const auto *pBool = ccstd::get_if<bool>(&value);
                 if (pBool != nullptr) {
                     return *pBool ? 1 : 0;
                 }
-                const auto *pInt = cc::get_if<int32_t>(&value);
+                const auto *pInt = ccstd::get_if<int32_t>(&value);
                 if (pInt != nullptr) {
                     return *pInt ? 1 : 0;
                 }
-                const auto *pString = cc::get_if<ccstd::string>(&value);
+                const auto *pString = ccstd::get_if<ccstd::string>(&value);
                 if (pString != nullptr) {
                     return *pString != "0" || !(*pString).empty() ? 1 : 0;
                 }

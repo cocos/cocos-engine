@@ -37,38 +37,38 @@ void Primitive::onLoaded() {
     reset(MeshUtils::createMeshInfo(createGeometry(type)));
 }
 
-IGeometry createGeometry(PrimitiveType type, const cc::optional<PrimitiveOptions> &options) {
+IGeometry createGeometry(PrimitiveType type, const ccstd::optional<PrimitiveOptions> &options) {
     switch (type) {
         case PrimitiveType::BOX: {
-            return options.has_value() ? box(cc::get<IBoxOptions>(options.value())) : box();
+            return options.has_value() ? box(ccstd::get<IBoxOptions>(options.value())) : box();
             break;
         }
         case PrimitiveType::SPHERE: {
-            return options.has_value() ? sphere(0.5F, cc::get<ISphereOptions>(options.value())) : sphere();
+            return options.has_value() ? sphere(0.5F, ccstd::get<ISphereOptions>(options.value())) : sphere();
             break;
         }
         case PrimitiveType::CYLINDER: {
-            return options.has_value() ? cylinder(0.5F, 0.5F, 2, cc::get<4>(options.value())) : cylinder();
+            return options.has_value() ? cylinder(0.5F, 0.5F, 2, ccstd::get<4>(options.value())) : cylinder();
             break;
         }
         case PrimitiveType::CONE: {
-            return options.has_value() ? cone(0.5F, 1.0F, cc::get<5>(options.value())) : cone();
+            return options.has_value() ? cone(0.5F, 1.0F, ccstd::get<5>(options.value())) : cone();
             break;
         }
         case PrimitiveType::CAPSULE: {
-            return options.has_value() ? capsule(0.5F, 0.5F, 2, cc::get<ICapsuleOptions>(options.value())) : capsule();
+            return options.has_value() ? capsule(0.5F, 0.5F, 2, ccstd::get<ICapsuleOptions>(options.value())) : capsule();
             break;
         }
         case PrimitiveType::TORUS: {
-            return options.has_value() ? torus(0.4F, 0.1F, cc::get<ITorusOptions>(options.value())) : torus();
+            return options.has_value() ? torus(0.4F, 0.1F, ccstd::get<ITorusOptions>(options.value())) : torus();
             break;
         }
         case PrimitiveType::PLANE: {
-            return options.has_value() ? quad(cc::get<IGeometryOptions>(options.value())) : plane();
+            return options.has_value() ? quad(ccstd::get<IGeometryOptions>(options.value())) : plane();
             break;
         }
         case PrimitiveType::QUAD: {
-            return options.has_value() ? quad(cc::get<IGeometryOptions>(options.value())) : quad();
+            return options.has_value() ? quad(ccstd::get<IGeometryOptions>(options.value())) : quad();
             break;
         }
         default:
