@@ -88,7 +88,7 @@ export class RenderEntity {
         }
     }
 
-    public setVB (vbBuffer: ArrayBufferLike) {
+    public setVB (vbBuffer: Float32Array) {
         // TODO: how to set vb in framework
         if (JSB) {
             this._nativeObj.vbBuffer = vbBuffer;
