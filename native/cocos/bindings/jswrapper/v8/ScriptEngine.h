@@ -85,7 +85,7 @@ public:
      */
     CC_DEPRECATED(3.6.0)
     static void destroyInstance();
-    
+
     ScriptEngine();
     ~ScriptEngine();
 
