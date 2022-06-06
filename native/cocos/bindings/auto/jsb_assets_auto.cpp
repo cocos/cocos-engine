@@ -12248,6 +12248,31 @@ static bool js_assets_RenderingSubMesh_constructor(se::State& s) // NOLINT(reada
             return true;
         }
     } while(false);
+    do {
+        if (argc == 6) {
+            HolderType<std::vector<cc::gfx::Buffer *>, true> arg0 = {};
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            HolderType<std::vector<cc::gfx::Attribute>, true> arg1 = {};
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            HolderType<cc::gfx::PrimitiveMode, false> arg2 = {};
+            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+            if (!ok) { ok = true; break; }
+            HolderType<cc::gfx::Buffer*, false> arg3 = {};
+            ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+            if (!ok) { ok = true; break; }
+            HolderType<cc::gfx::Buffer*, false> arg4 = {};
+            ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+            if (!ok) { ok = true; break; }
+            HolderType<bool, false> arg5 = {};
+            ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+            if (!ok) { ok = true; break; }
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::RenderingSubMesh, arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
+            s.thisObject()->setPrivateObject(ptr);
+            return true;
+        }
+    } while(false);
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }

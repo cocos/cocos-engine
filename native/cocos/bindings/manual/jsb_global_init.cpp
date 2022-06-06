@@ -211,6 +211,17 @@ bool jsb_enable_debugger(const ccstd::string &debuggerServerAddr, uint32_t port,
     port = static_cast<uint32_t>(selectPort(static_cast<int>(port)));
 
     auto *se = se::ScriptEngine::getInstance();
-    se->enableDebugger(debuggerServerAddr, port, isWaitForConnect);
+    if (se != nullptr) {
+        se->enableDebugger(debuggerServerAddr, port, isWaitForConnect);
+    } else {
+        // NOTE: jsb_enable_debugger may be invoked before se::ScriptEngine is initialized,
+        // So cache the debugger information in global and use it in se::ScriptEngine::start.
+        // This strategy keeps the compatibility of se::ScriptEngine::enableDebugger.
+        se::ScriptEngine::DebuggerInfo debuggerInfo;
+        debuggerInfo.serverAddr = debuggerServerAddr;
+        debuggerInfo.port = port;
+        debuggerInfo.isWait = isWaitForConnect;
+        se::ScriptEngine::_setDebuggerInfo(debuggerInfo);
+    }
     return true;
 }

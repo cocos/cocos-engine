@@ -5,31 +5,21 @@
 
 // UBO
 #include <cc-global>
-#include <builtin/uniforms/cc-local-batched>
+#include <cc-shadow>
 
-#if CC_USE_MORPH
-  #include <builtin/uniforms/cc-morph>
-#endif
-#if CC_USE_SKINNING
-  #include <builtin/uniforms/cc-skinning-uniforms>
-#endif
+#include <common>
 
 // Functional
-#include <common>
 #include <builtin/internal-functions/world-transform>
 
 #if CC_USE_MORPH
   #include <builtin/internal-functions/morph-animation>
-  //#include <morph>
 #endif
 
 #if CC_USE_SKINNING
   #include <builtin/internal-functions/skinning-animation-lbs>
-  //#include <cc-skinning>
 #endif
 
 #if !CC_USE_ACCURATE_FOG
-  #include <cc-fog-base>
+  #include <builtin/internal-functions/fog>
 #endif
-
-#include <cc-shadow>

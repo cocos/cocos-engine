@@ -32,6 +32,7 @@
 #pragma once
 #include "cocos/core/assets/EffectAsset.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
+#include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
 
@@ -294,6 +295,28 @@ public:
 
 inline SceneTransversal::~SceneTransversal() noexcept = default;
 
+class LayoutGraphBuilder {
+public:
+    LayoutGraphBuilder() noexcept = default;
+    LayoutGraphBuilder(LayoutGraphBuilder&& rhs)      = delete;
+    LayoutGraphBuilder(LayoutGraphBuilder const& rhs) = delete;
+    LayoutGraphBuilder& operator=(LayoutGraphBuilder&& rhs) = delete;
+    LayoutGraphBuilder& operator=(LayoutGraphBuilder const& rhs) = delete;
+
+    virtual ~LayoutGraphBuilder() noexcept = 0;
+
+    virtual void clear() = 0;
+    virtual uint32_t addRenderStage(const ccstd::string& name) = 0;
+    virtual uint32_t addRenderPhase(const ccstd::string& name, uint32_t parentID) = 0;
+    virtual void addDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlock& block) = 0;
+    virtual void reserveDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlock& block) = 0;
+    virtual int compile() = 0;
+
+    virtual ccstd::string print() const = 0;
+};
+
+inline LayoutGraphBuilder::~LayoutGraphBuilder() noexcept = default;
+
 class Pipeline : public PipelineRuntime {
 public:
     Pipeline() noexcept = default;
@@ -314,6 +337,7 @@ public:
     virtual void                presentAll() = 0;
 
     virtual SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) = 0;
+    virtual LayoutGraphBuilder *getLayoutGraphBuilder() = 0;
 };
 
 inline Pipeline::~Pipeline() noexcept = default;

@@ -144,84 +144,31 @@ add_edge( // NOLINT
 }
 
 inline void remove_edge(LayoutGraph::vertex_descriptor u, LayoutGraph::vertex_descriptor v, LayoutGraph& g) noexcept { // NOLINT
-    // remove out-edges
-    auto& outEdgeList = g.getOutEdgeList(u);
-    // eraseFromIncidenceList
-    impl::sequenceEraseIf(outEdgeList, [v](const auto& e) {
-        return e.get_target() == v;
-    });
+    auto& s = g.vertices[u];
+    auto& t = g.vertices[v];
+    s.outEdges.erase(std::remove(s.outEdges.begin(), s.outEdges.end(), LayoutGraph::OutEdge(v)), s.outEdges.end());
+    t.inEdges.erase(std::remove(t.inEdges.begin(), t.inEdges.end(), LayoutGraph::InEdge(u)), t.inEdges.end());
+}
 
-    // remove reciprocal (bidirectional) in-edges
-    auto& inEdgeList = g.getInEdgeList(v);
-    // eraseFromIncidenceList
-    impl::sequenceEraseIf(inEdgeList, [u](const auto& e) {
-        return e.get_target() == u;
-    });
+inline void remove_edge(LayoutGraph::out_edge_iterator outIter, LayoutGraph& g) noexcept { // NOLINT
+    auto e = *outIter;
+    const auto u = source(e, g);
+    const auto v = target(e, g);
+    auto& s = g.vertices[u];
+    auto& t = g.vertices[v];
+    auto inIter = std::find(t.inEdges.begin(), t.inEdges.end(), LayoutGraph::InEdge(u));
+    CC_EXPECTS(inIter != t.inEdges.end());
+    t.inEdges.erase(inIter);
+    s.outEdges.erase(outIter.base());
 }
 
 inline void remove_edge(LayoutGraph::edge_descriptor e, LayoutGraph& g) noexcept { // NOLINT
-    // remove_edge need rewrite
-    auto& outEdgeList = g.getOutEdgeList(source(e, g));
-    impl::removeIncidenceEdge(e, outEdgeList);
-    auto& inEdgeList = g.getInEdgeList(target(e, g));
-    impl::removeIncidenceEdge(e, inEdgeList);
-}
-
-inline void remove_edge(LayoutGraph::out_edge_iterator iter, LayoutGraph& g) noexcept { // NOLINT
-    auto  e           = *iter;
-    auto& outEdgeList = g.getOutEdgeList(source(e, g));
-    auto& inEdgeList  = g.getInEdgeList(target(e, g));
-    impl::removeIncidenceEdge(e, inEdgeList);
-    outEdgeList.erase(iter.base());
-}
-
-template <class Predicate>
-inline void remove_out_edge_if(LayoutGraph::vertex_descriptor u, Predicate&& pred, LayoutGraph& g) noexcept { // NOLINT
-    for (auto pair = out_edges(u, g); pair.first != pair.second; ++pair.first) {
-        auto& outIter = pair.first;
-        auto& outEnd = pair.second;
-        if (pred(*outIter)) {
-            auto& inEdgeList = g.getInEdgeList(target(*outIter, g));
-            auto  e          = *outIter;
-            impl::removeIncidenceEdge(e, inEdgeList);
-        }
-    }
-    auto pair = out_edges(u, g);
-    auto& first = pair.first;
-    auto& last = pair.second;
-    auto& outEdgeList  = g.getOutEdgeList(u);
-    impl::sequenceRemoveIncidenceEdgeIf(first, last, outEdgeList, std::forward<Predicate>(pred));
-}
-
-template <class Predicate>
-inline void remove_in_edge_if(LayoutGraph::vertex_descriptor v, Predicate&& pred, LayoutGraph& g) noexcept { // NOLINT
-    for (auto pair = in_edges(v, g); pair.first != pair.second; ++pair.first) {
-        auto& inIter = pair.first;
-        auto& inEnd = pair.second;
-        if (pred(*inIter)) {
-            auto& outEdgeList = g.getOutEdgeList(source(*inIter, g));
-            auto  e           = *inIter;
-            impl::removeIncidenceEdge(e, outEdgeList);
-        }
-    }
-    auto pair = in_edges(v, g);
-    auto& first = pair.first;
-    auto& last = pair.second;
-    auto& inEdgeList   = g.getInEdgeList(v);
-    impl::sequenceRemoveIncidenceEdgeIf(first, last, inEdgeList, std::forward<Predicate>(pred));
-}
-
-template <class Predicate>
-inline void remove_edge_if(Predicate&& pred, LayoutGraph& g) noexcept { // NOLINT
-    auto pair = edges(g);
-    auto& ei = pair.first;
-    auto& eiEnd = pair.second;
-    for (auto next = ei; ei != eiEnd; ei = next) {
-        ++next;
-        if (pred(*ei)) {
-            remove_edge(*ei, g);
-        }
-    }
+    const auto u = source(e, g);
+    const auto v = target(e, g);
+    auto& s = g.vertices[u];
+    auto outIter = std::find(s.outEdges.begin(), s.outEdges.end(), LayoutGraph::OutEdge(v));
+    CC_EXPECTS(outIter != s.outEdges.end());
+    remove_edge(LayoutGraph::out_edge_iterator(outIter, u), g);
 }
 
 // AddressableGraph
@@ -412,84 +359,31 @@ add_edge( // NOLINT
 }
 
 inline void remove_edge(LayoutGraphData::vertex_descriptor u, LayoutGraphData::vertex_descriptor v, LayoutGraphData& g) noexcept { // NOLINT
-    // remove out-edges
-    auto& outEdgeList = g.getOutEdgeList(u);
-    // eraseFromIncidenceList
-    impl::sequenceEraseIf(outEdgeList, [v](const auto& e) {
-        return e.get_target() == v;
-    });
+    auto& s = g.vertices[u];
+    auto& t = g.vertices[v];
+    s.outEdges.erase(std::remove(s.outEdges.begin(), s.outEdges.end(), LayoutGraphData::OutEdge(v)), s.outEdges.end());
+    t.inEdges.erase(std::remove(t.inEdges.begin(), t.inEdges.end(), LayoutGraphData::InEdge(u)), t.inEdges.end());
+}
 
-    // remove reciprocal (bidirectional) in-edges
-    auto& inEdgeList = g.getInEdgeList(v);
-    // eraseFromIncidenceList
-    impl::sequenceEraseIf(inEdgeList, [u](const auto& e) {
-        return e.get_target() == u;
-    });
+inline void remove_edge(LayoutGraphData::out_edge_iterator outIter, LayoutGraphData& g) noexcept { // NOLINT
+    auto e = *outIter;
+    const auto u = source(e, g);
+    const auto v = target(e, g);
+    auto& s = g.vertices[u];
+    auto& t = g.vertices[v];
+    auto inIter = std::find(t.inEdges.begin(), t.inEdges.end(), LayoutGraphData::InEdge(u));
+    CC_EXPECTS(inIter != t.inEdges.end());
+    t.inEdges.erase(inIter);
+    s.outEdges.erase(outIter.base());
 }
 
 inline void remove_edge(LayoutGraphData::edge_descriptor e, LayoutGraphData& g) noexcept { // NOLINT
-    // remove_edge need rewrite
-    auto& outEdgeList = g.getOutEdgeList(source(e, g));
-    impl::removeIncidenceEdge(e, outEdgeList);
-    auto& inEdgeList = g.getInEdgeList(target(e, g));
-    impl::removeIncidenceEdge(e, inEdgeList);
-}
-
-inline void remove_edge(LayoutGraphData::out_edge_iterator iter, LayoutGraphData& g) noexcept { // NOLINT
-    auto  e           = *iter;
-    auto& outEdgeList = g.getOutEdgeList(source(e, g));
-    auto& inEdgeList  = g.getInEdgeList(target(e, g));
-    impl::removeIncidenceEdge(e, inEdgeList);
-    outEdgeList.erase(iter.base());
-}
-
-template <class Predicate>
-inline void remove_out_edge_if(LayoutGraphData::vertex_descriptor u, Predicate&& pred, LayoutGraphData& g) noexcept { // NOLINT
-    for (auto pair = out_edges(u, g); pair.first != pair.second; ++pair.first) {
-        auto& outIter = pair.first;
-        auto& outEnd = pair.second;
-        if (pred(*outIter)) {
-            auto& inEdgeList = g.getInEdgeList(target(*outIter, g));
-            auto  e          = *outIter;
-            impl::removeIncidenceEdge(e, inEdgeList);
-        }
-    }
-    auto pair = out_edges(u, g);
-    auto& first = pair.first;
-    auto& last = pair.second;
-    auto& outEdgeList  = g.getOutEdgeList(u);
-    impl::sequenceRemoveIncidenceEdgeIf(first, last, outEdgeList, std::forward<Predicate>(pred));
-}
-
-template <class Predicate>
-inline void remove_in_edge_if(LayoutGraphData::vertex_descriptor v, Predicate&& pred, LayoutGraphData& g) noexcept { // NOLINT
-    for (auto pair = in_edges(v, g); pair.first != pair.second; ++pair.first) {
-        auto& inIter = pair.first;
-        auto& inEnd = pair.second;
-        if (pred(*inIter)) {
-            auto& outEdgeList = g.getOutEdgeList(source(*inIter, g));
-            auto  e           = *inIter;
-            impl::removeIncidenceEdge(e, outEdgeList);
-        }
-    }
-    auto pair = in_edges(v, g);
-    auto& first = pair.first;
-    auto& last = pair.second;
-    auto& inEdgeList   = g.getInEdgeList(v);
-    impl::sequenceRemoveIncidenceEdgeIf(first, last, inEdgeList, std::forward<Predicate>(pred));
-}
-
-template <class Predicate>
-inline void remove_edge_if(Predicate&& pred, LayoutGraphData& g) noexcept { // NOLINT
-    auto pair = edges(g);
-    auto& ei = pair.first;
-    auto& eiEnd = pair.second;
-    for (auto next = ei; ei != eiEnd; ei = next) {
-        ++next;
-        if (pred(*ei)) {
-            remove_edge(*ei, g);
-        }
-    }
+    const auto u = source(e, g);
+    const auto v = target(e, g);
+    auto& s = g.vertices[u];
+    auto outIter = std::find(s.outEdges.begin(), s.outEdges.end(), LayoutGraphData::OutEdge(v));
+    CC_EXPECTS(outIter != s.outEdges.end());
+    remove_edge(LayoutGraphData::out_edge_iterator(outIter, u), g);
 }
 
 // AddressableGraph
@@ -1369,7 +1263,7 @@ addVertex(Component0&& c0, Component1&& c1, ValueT&& val, LayoutGraph& g, Layout
     // if no matching overloaded function is found, Type is not supported by PolymorphicGraph
     addVertexImpl(std::forward<ValueT>(val), g, vert);
 
-    // AddressableGraph
+    // ReferenceGraph
     addPathImpl(u, v, g);
 
     return v;
@@ -1421,7 +1315,7 @@ addVertex(Tag tag, Component0&& c0, Component1&& c1, ValueT&& val, LayoutGraph& 
     // if no matching overloaded function is found, Type is not supported by PolymorphicGraph
     addVertexImpl(tag, std::forward<ValueT>(val), g, vert);
 
-    // AddressableGraph
+    // ReferenceGraph
     addPathImpl(u, v, g);
 
     return v;
@@ -1601,7 +1495,7 @@ holds_alternative(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g
 
 template <>
 inline bool
-holds_alternative<uint32_t>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) noexcept { // NOLINT
+holds_alternative<RenderStageData>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
         impl::ValueHandle<RenderStageTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
@@ -1620,8 +1514,8 @@ inline ValueT&
 get(LayoutGraphData::vertex_descriptor /*v*/, LayoutGraphData& /*g*/);
 
 template <>
-inline uint32_t&
-get<uint32_t>(LayoutGraphData::vertex_descriptor v, LayoutGraphData& g) {
+inline RenderStageData&
+get<RenderStageData>(LayoutGraphData::vertex_descriptor v, LayoutGraphData& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<RenderStageTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
@@ -1642,8 +1536,8 @@ inline const ValueT&
 get(LayoutGraphData::vertex_descriptor /*v*/, const LayoutGraphData& /*g*/);
 
 template <>
-inline const uint32_t&
-get<uint32_t>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) {
+inline const RenderStageData&
+get<RenderStageData>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<RenderStageTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
@@ -1659,7 +1553,7 @@ get<RenderPhaseData>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData
     return g.phases[handle.value];
 }
 
-inline uint32_t&
+inline RenderStageData&
 get(RenderStageTag /*tag*/, LayoutGraphData::vertex_descriptor v, LayoutGraphData& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<RenderStageTag, LayoutGraphData::vertex_descriptor>>(
@@ -1675,7 +1569,7 @@ get(RenderPhaseTag /*tag*/, LayoutGraphData::vertex_descriptor v, LayoutGraphDat
     return g.phases[handle.value];
 }
 
-inline const uint32_t&
+inline const RenderStageData&
 get(RenderStageTag /*tag*/, LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<RenderStageTag, LayoutGraphData::vertex_descriptor>>(
@@ -1696,9 +1590,9 @@ inline ValueT*
 get_if(LayoutGraphData::vertex_descriptor v, LayoutGraphData* pGraph) noexcept; // NOLINT
 
 template <>
-inline uint32_t*
-get_if<uint32_t>(LayoutGraphData::vertex_descriptor v, LayoutGraphData* pGraph) noexcept { // NOLINT
-    uint32_t* ptr = nullptr;
+inline RenderStageData*
+get_if<RenderStageData>(LayoutGraphData::vertex_descriptor v, LayoutGraphData* pGraph) noexcept { // NOLINT
+    RenderStageData* ptr = nullptr;
     if (!pGraph) {
         return ptr;
     }
@@ -1734,9 +1628,9 @@ inline const ValueT*
 get_if(LayoutGraphData::vertex_descriptor v, const LayoutGraphData* pGraph) noexcept; // NOLINT
 
 template <>
-inline const uint32_t*
-get_if<uint32_t>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData* pGraph) noexcept { // NOLINT
-    const uint32_t* ptr = nullptr;
+inline const RenderStageData*
+get_if<RenderStageData>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData* pGraph) noexcept { // NOLINT
+    const RenderStageData* ptr = nullptr;
     if (!pGraph) {
         return ptr;
     }
@@ -2041,7 +1935,7 @@ inline void remove_vertex(LayoutGraphData::vertex_descriptor u, LayoutGraphData&
 template <class ValueT>
 void addVertexImpl( // NOLINT
     ValueT &&val, LayoutGraphData &g, LayoutGraphData::Vertex &vert, // NOLINT
-    std::enable_if_t<std::is_same<std::decay_t<ValueT>, uint32_t>::value>* dummy = nullptr) { // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, RenderStageData>::value>* dummy = nullptr) { // NOLINT
     vert.handle = impl::ValueHandle<RenderStageTag, LayoutGraphData::vertex_descriptor>{
         gsl::narrow_cast<LayoutGraphData::vertex_descriptor>(g.stages.size())};
     g.stages.emplace_back(std::forward<ValueT>(val));
@@ -2071,7 +1965,7 @@ addVertex(Component0&& c0, Component1&& c1, Component2&& c2, ValueT&& val, Layou
     // if no matching overloaded function is found, Type is not supported by PolymorphicGraph
     addVertexImpl(std::forward<ValueT>(val), g, vert);
 
-    // AddressableGraph
+    // ReferenceGraph
     addPathImpl(u, v, g);
 
     return v;
@@ -2129,7 +2023,7 @@ addVertex(Tag tag, Component0&& c0, Component1&& c1, Component2&& c2, ValueT&& v
     // if no matching overloaded function is found, Type is not supported by PolymorphicGraph
     addVertexImpl(tag, std::forward<ValueT>(val), g, vert);
 
-    // AddressableGraph
+    // ReferenceGraph
     addPathImpl(u, v, g);
 
     return v;

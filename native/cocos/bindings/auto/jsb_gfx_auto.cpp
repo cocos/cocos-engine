@@ -2882,6 +2882,33 @@ static bool js_gfx_BufferTextureCopy_copy(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_FUNC(js_gfx_BufferTextureCopy_copy)
 
+static bool js_gfx_BufferTextureCopy_get_buffOffset(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::BufferTextureCopy>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_BufferTextureCopy_get_buffOffset : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->buffOffset, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->buffOffset, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_BufferTextureCopy_get_buffOffset)
+
+static bool js_gfx_BufferTextureCopy_set_buffOffset(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::BufferTextureCopy>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_BufferTextureCopy_set_buffOffset : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->buffOffset, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_BufferTextureCopy_set_buffOffset : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_BufferTextureCopy_set_buffOffset)
+
 static bool js_gfx_BufferTextureCopy_get_buffStride(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::gfx::BufferTextureCopy>(s);
@@ -3030,6 +3057,10 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::BufferTextureCopy * to, s
     }
     se::Value field;
     bool ok = true;
+    json->getProperty("buffOffset", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->buffOffset), ctx);
+    }
     json->getProperty("buffStride", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->buffStride), ctx);
@@ -3086,19 +3117,22 @@ static bool js_gfx_BufferTextureCopy_constructor(se::State& s) // NOLINT(readabi
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::BufferTextureCopy);
     auto cobj = ptr->get<cc::gfx::BufferTextureCopy>();
     if (argc > 0 && !args[0].isUndefined()) {
-        ok &= sevalue_to_native(args[0], &(cobj->buffStride), nullptr);
+        ok &= sevalue_to_native(args[0], &(cobj->buffOffset), nullptr);
     }
     if (argc > 1 && !args[1].isUndefined()) {
-        ok &= sevalue_to_native(args[1], &(cobj->buffTexHeight), nullptr);
+        ok &= sevalue_to_native(args[1], &(cobj->buffStride), nullptr);
     }
     if (argc > 2 && !args[2].isUndefined()) {
-        ok &= sevalue_to_native(args[2], &(cobj->texOffset), nullptr);
+        ok &= sevalue_to_native(args[2], &(cobj->buffTexHeight), nullptr);
     }
     if (argc > 3 && !args[3].isUndefined()) {
-        ok &= sevalue_to_native(args[3], &(cobj->texExtent), nullptr);
+        ok &= sevalue_to_native(args[3], &(cobj->texOffset), nullptr);
     }
     if (argc > 4 && !args[4].isUndefined()) {
-        ok &= sevalue_to_native(args[4], &(cobj->texSubres), nullptr);
+        ok &= sevalue_to_native(args[4], &(cobj->texExtent), nullptr);
+    }
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(cobj->texSubres), nullptr);
     }
 
     if(!ok) {
@@ -3124,6 +3158,7 @@ bool js_register_gfx_BufferTextureCopy(se::Object* obj) // NOLINT(readability-id
 #if CC_DEBUG
     cls->defineStaticProperty("isJSBClass", _SE(js_gfx_getter_return_true), nullptr);
 #endif
+    cls->defineProperty("buffOffset", _SE(js_gfx_BufferTextureCopy_get_buffOffset), _SE(js_gfx_BufferTextureCopy_set_buffOffset));
     cls->defineProperty("buffStride", _SE(js_gfx_BufferTextureCopy_get_buffStride), _SE(js_gfx_BufferTextureCopy_set_buffStride));
     cls->defineProperty("buffTexHeight", _SE(js_gfx_BufferTextureCopy_get_buffTexHeight), _SE(js_gfx_BufferTextureCopy_set_buffTexHeight));
     cls->defineProperty("texOffset", _SE(js_gfx_BufferTextureCopy_get_texOffset), _SE(js_gfx_BufferTextureCopy_set_texOffset));

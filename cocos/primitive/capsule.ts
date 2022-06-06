@@ -46,9 +46,9 @@ const temp2 = new Vec3(0, 0, 0);
  * but may be repositioned through the `center` option.
  * @zh
  * 生成一个胶囊体。
- * @param radiusTop 顶部半径。
- * @param radiusBottom 底部半径。
- * @param opts 胶囊体参数选项。
+ * @param radiusTop @zh 顶部半径。 @en The radius of top sphere
+ * @param radiusBottom @zh 底部半径。@en The radius of bottom sphere
+ * @param opts @zh 胶囊体参数选项。@en The optional creation parameters of the capsule
  */
 export default function capsule (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts: RecursivePartial<ICapsuteOptions> = {}) {
     const torsoHeight = height - radiusTop - radiusBottom;

@@ -199,13 +199,17 @@ RasterPass::RasterPass(RasterPass&& rhs, const allocator_type& alloc)
 : isValid(rhs.isValid),
   rasterViews(std::move(rhs.rasterViews), alloc),
   computeViews(std::move(rhs.computeViews), alloc),
-  subpassGraph(std::move(rhs.subpassGraph), alloc) {}
+  subpassGraph(std::move(rhs.subpassGraph), alloc),
+  width(rhs.width),
+  height(rhs.height) {}
 
 RasterPass::RasterPass(RasterPass const& rhs, const allocator_type& alloc)
 : isValid(rhs.isValid),
   rasterViews(rhs.rasterViews, alloc),
   computeViews(rhs.computeViews, alloc),
-  subpassGraph(rhs.subpassGraph, alloc) {}
+  subpassGraph(rhs.subpassGraph, alloc),
+  width(rhs.width),
+  height(rhs.height) {}
 
 ComputePass::ComputePass(const allocator_type& alloc) noexcept
 : computeViews(alloc) {}

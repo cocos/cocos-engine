@@ -164,7 +164,7 @@ export class Toggle extends Button {
      * @zh
      * 设置 isChecked 而不调用 checkEvents 回调。
      *
-     * @param value - 是否被按下
+     * @param value @en Whether this toggle is pressed @zh 是否被按下
      */
     public setIsCheckedWithoutNotify (value: boolean) {
         this._set(value, false);
@@ -207,8 +207,8 @@ export class Toggle extends Button {
  * @zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event toggle
- * @param {Event.EventCustom} event
- * @param {Toggle} toggle - The Toggle component.
+ * @param event @en The event when toggle is pressed up or down @zh 切换键被按下或抬起时发送的事件
+ * @param toggle @en The Toggle component @zh 切换键组件
  */
 
 legacyCC.Toggle = Toggle;
