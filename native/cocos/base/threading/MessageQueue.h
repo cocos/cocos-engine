@@ -179,6 +179,7 @@ private:
     bool _immediateMode{true};
     bool _workerAttached{false};
     bool _freeChunksByUser{true}; // recycled chunks will be stashed until explicit free instruction
+    std::thread *_consumerThread{nullptr};
 
     friend class MemoryChunkSwitchMessage;
 };
