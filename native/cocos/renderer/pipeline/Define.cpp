@@ -162,7 +162,7 @@ const gfx::DescriptorSetLayoutBinding UBOLocal::DESCRIPTOR = {
     UBOLocal::BINDING,
     gfx::DescriptorType::UNIFORM_BUFFER,
     1,
-    gfx::ShaderStageFlagBit::VERTEX | gfx::ShaderStageFlagBit::FRAGMENT | gfx::ShaderStageFlagBit::COMPUTE,
+    gfx::ShaderStageFlagBit::VERTEX | gfx::ShaderStageFlagBit::COMPUTE,
     {},
 };
 const gfx::UniformBlock UBOLocal::LAYOUT = {
@@ -183,7 +183,7 @@ const gfx::DescriptorSetLayoutBinding UBOWorldBound::DESCRIPTOR = {
     UBOWorldBound::BINDING,
     gfx::DescriptorType::UNIFORM_BUFFER,
     1,
-    gfx::ShaderStageFlagBit::VERTEX | gfx::ShaderStageFlagBit::FRAGMENT | gfx::ShaderStageFlagBit::COMPUTE,
+    gfx::ShaderStageFlagBit::VERTEX | gfx::ShaderStageFlagBit::COMPUTE,
     {},
 };
 const gfx::UniformBlock UBOWorldBound::LAYOUT = {
