@@ -348,6 +348,14 @@ public:
     v8::Local<v8::Context> _getContext() const;                   // NOLINT(readability-identifier-naming)
     void _setGarbageCollecting(bool isGarbageCollecting);         // NOLINT(readability-identifier-naming)
 
+    struct DebuggerInfo {
+        ccstd::string serverAddr;
+        uint32_t port{0};
+        bool isWait{false};
+        inline bool isValid() const { return !serverAddr.empty() && port != 0; }
+        inline void reset() { serverAddr.clear(); port = 0; isWait = false; }
+    };
+    static void _setDebuggerInfo(const DebuggerInfo& info); // NOLINT(readability-identifier-naming)
     //
 private:
     static void privateDataFinalize(PrivateObjectBase *privateObj);
@@ -375,6 +383,8 @@ private:
     void pushPromiseExeception(const v8::Local<v8::Promise> &promise, const char *event, const char *stackTrace);
     
     static ScriptEngine *instance;
+
+    static DebuggerInfo debuggerInfo;
 
     ccstd::vector<std::tuple<std::unique_ptr<v8::Persistent<v8::Promise>>, ccstd::vector<PromiseExceptionMsg>>> _promiseArray;
 

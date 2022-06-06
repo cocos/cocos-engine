@@ -234,6 +234,7 @@ ScriptEngineV8Context *gSharedV8 = nullptr;
 } // namespace
 
 ScriptEngine* ScriptEngine::instance = nullptr;
+ScriptEngine::DebuggerInfo ScriptEngine::debuggerInfo;
 
 void ScriptEngine::callExceptionCallback(const char *location, const char *message, const char *stack) {
     if (_nativeExceptionCallback) {
@@ -733,6 +734,13 @@ bool ScriptEngine::start() {
         return false;
     }
     se::AutoHandleScope hs;
+
+    // 
+    if (debuggerInfo.isValid()) {
+        enableDebugger(debuggerInfo.serverAddr, debuggerInfo.port, debuggerInfo.isWait);
+        debuggerInfo.reset();
+    }
+
     // debugger
     if (isDebuggerEnabled()) {
     #if SE_ENABLE_INSPECTOR && !CC_EDITOR
@@ -774,6 +782,11 @@ bool ScriptEngine::isGarbageCollecting() const {
 
 void ScriptEngine::_setGarbageCollecting(bool isGarbageCollecting) { //NOLINT(readability-identifier-naming)
     _isGarbageCollecting = isGarbageCollecting;
+}
+
+/* static */
+void ScriptEngine::_setDebuggerInfo(const DebuggerInfo& info) {
+    debuggerInfo = info;
 }
 
 bool ScriptEngine::isValid() const {
