@@ -1,6 +1,7 @@
 import { spawn } from 'child_process';
 import * as fs from 'fs-extra';
 import * as ps from 'path';
+import { resolve } from 'path';
 import { CocosParams } from '../base/default';
 import { cchelper, toolHelper, Paths } from "../utils";
 import { MacOSPackTool } from "./mac-os";
@@ -34,7 +35,7 @@ export class MacPackTool extends MacOSPackTool {
 
         await toolHelper.runCmake(cmakeArgs);
 
-        this.skipUpdateXcodeProject();
+        await this.skipUpdateXcodeProject();
         return true;
     }
 
@@ -52,23 +53,33 @@ export class MacPackTool extends MacOSPackTool {
     }
 
     private macOpen(app: string) {
-        console.log(`open ${app}`);
-        const cp = spawn(`open`, [app], {
-            shell: true,
-            env: process.env,
-        });
-        cp.stdout.on('data', (data) => {
-            console.log(`[open app] ${data}`);
-        });
-        cp.stderr.on(`data`, (data) => {
-            console.error(`[open app error] ${data}`);
-        });
-        cp.on('close', (code, sig) => {
-            console.log(`${app} exit with ${code}, sig: ${sig}`);
+        return new Promise<void>((resolve, reject) => {
+            console.log(`open ${app}`);
+            const cp = spawn(`open`, [app], {
+                shell: true,
+                env: process.env,
+            });
+            cp.stdout.on('data', (data) => {
+                console.log(`[open app] ${data}`);
+            });
+            cp.stderr.on(`data`, (data) => {
+                console.error(`[open app error] ${data}`);
+            });
+            cp.on('close', (code, sig) => {
+                console.log(`${app} exit with ${code}, sig: ${sig}`);
+                resolve();
+            });
+            cp.on('exit', (code, sig) => {
+                resolve();
+            });
+            cp.on('error', (err) => {
+                console.log(`${app} exit with error: ${err.message}`);
+                reject(err);
+            });
         });
     }
 
-    private macRun(projectName?: string) {
+    private async macRun(projectName?: string) {
         const debugDir = ps.join(
             this.paths.nativePrjDir,
             this.params.debug ? 'Debug' : 'Release');
@@ -79,14 +90,14 @@ export class MacPackTool extends MacOSPackTool {
         if (projectName) {
             appPath = ps.join(debugDir, `${projectName}-desktop.app`);
             if (fs.existsSync(appPath)) {
-                this.macOpen(appPath);
+                await this.macOpen(appPath);
                 return;
             }
         }
 
         const appList = fs.readdirSync(debugDir).filter((x) => x.endsWith('.app'));
         if (appList.length === 1) {
-            this.macOpen(ps.join(debugDir, appList[0]));
+            await this.macOpen(ps.join(debugDir, appList[0]));
             return;
         }
         throw new Error(`found ${appList.length} apps, failed to open.`);
