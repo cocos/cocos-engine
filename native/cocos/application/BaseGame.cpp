@@ -50,14 +50,14 @@ int BaseGame::init() {
     });
 
 #endif
-    
-    int ret = cc::CocosApplication::init();
-    if (ret != 0) {
-        return ret;
-    }
 
     if (_debuggerInfo.enabled) {
         setDebugIpAndPort(_debuggerInfo.address, _debuggerInfo.port, _debuggerInfo.pauseOnStart);
+    }
+
+    int ret = cc::CocosApplication::init();
+    if (ret != 0) {
+        return ret;
     }
 
     setXXTeaKey(_xxteaKey);
