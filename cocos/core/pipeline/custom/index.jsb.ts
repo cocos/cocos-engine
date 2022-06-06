@@ -32,7 +32,15 @@ declare const render: any;
 
 import { Pipeline } from './pipeline';
 import { rebuildLayoutGraph } from './effect';
+import { legacyCC } from '../../global-exports';
 
 export function createCustomPipeline (): Pipeline {
     return render.Factory.createPipeline();
+}
+
+export function registerRebuildLayoutGraph() {
+    const director = legacyCC.director;
+    if (director.root.usesCustomPipeline) {
+        director.on(legacyCC.Director.EVENT_BEFORE_DRAW, rebuildLayoutGraph);
+    }
 }

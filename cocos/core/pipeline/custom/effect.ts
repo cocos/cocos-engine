@@ -3,7 +3,6 @@ import { EffectAsset } from '../../assets';
 import { WebDescriptorHierarchy } from './web-descriptor-hierarchy';
 import { DescriptorBlock, DescriptorBlockIndex, DescriptorDB, LayoutGraph, LayoutGraphValue } from './layout-graph';
 import { Pipeline } from './pipeline';
-import { PipelineCallback } from './type-erased';
 
 export function rebuildLayoutGraph (): void {
     const root = legacyCC.director.root;
@@ -13,6 +12,7 @@ export function rebuildLayoutGraph (): void {
     if (EffectAsset.isLayoutValid()) {
         return;
     }
+    console.log('rebuildLayoutGraph begin');
     const ppl: Pipeline = root.customPipeline;
     const effects = EffectAsset.getAll();
     const lg = new WebDescriptorHierarchy();
@@ -53,6 +53,5 @@ export function rebuildLayoutGraph (): void {
     console.log(lgData.print());
 
     EffectAsset.setLayoutValid();
+    console.log('rebuildLayoutGraph end');
 }
-
-PipelineCallback.beforeDraw = rebuildLayoutGraph;

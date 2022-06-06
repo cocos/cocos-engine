@@ -195,7 +195,7 @@ RasterPassBuilder *NativePipeline::addRasterPass(
     auto passLayoutID = locate(LayoutGraphData::null_vertex(), layoutName, layoutGraph);
     CC_EXPECTS(passLayoutID);
 
-    return new NativeRasterPassBuilder(&renderGraph, passID, &layoutGraph, passLayoutID);
+    return ccnew NativeRasterPassBuilder(&renderGraph, passID, &layoutGraph, passLayoutID);
 }
 
 // NOLINTNEXTLINE
@@ -216,7 +216,7 @@ ComputePassBuilder *NativePipeline::addComputePass(const ccstd::string &layoutNa
 
     auto passLayoutID = locate(LayoutGraphData::null_vertex(), layoutName, layoutGraph);
 
-    return new NativeComputePassBuilder(&renderGraph, passID, &layoutGraph, passLayoutID);
+    return ccnew NativeComputePassBuilder(&renderGraph, passID, &layoutGraph, passLayoutID);
 }
 
 // NOLINTNEXTLINE
@@ -235,7 +235,7 @@ MovePassBuilder *NativePipeline::addMovePass(const ccstd::string &name) {
         std::forward_as_tuple(),
         renderGraph);
 
-    return new NativeMovePassBuilder(&renderGraph, passID);
+    return ccnew NativeMovePassBuilder(&renderGraph, passID);
 }
 
 // NOLINTNEXTLINE
@@ -249,7 +249,7 @@ CopyPassBuilder *NativePipeline::addCopyPass(const ccstd::string &name) {
         std::forward_as_tuple(),
         renderGraph);
 
-    return new NativeCopyPassBuilder(&renderGraph, passID);
+    return ccnew NativeCopyPassBuilder(&renderGraph, passID);
 }
 
 // NOLINTNEXTLINE
@@ -266,7 +266,7 @@ void NativePipeline::presentAll() {
 
 // NOLINTNEXTLINE
 SceneTransversal *NativePipeline::createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) {
-    return new NativeSceneTransversal(camera, scene);
+    return ccnew NativeSceneTransversal(camera, scene);
 }
 
 LayoutGraphBuilder *NativePipeline::getLayoutGraphBuilder() {

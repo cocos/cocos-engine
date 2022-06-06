@@ -40,7 +40,6 @@ import { IPhysicsConfig } from '../physics/framework/physics-config';
 import { bindingMappingInfo } from './pipeline/define';
 import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from './pipeline/render-pipeline';
-import { PipelineCallback } from './pipeline/custom/type-erased';
 import { Node } from './scene-graph/node';
 import { BrowserType } from '../../pal/system-info/enum-type';
 import { Layers } from './scene-graph';
@@ -753,9 +752,6 @@ export class Game extends EventTarget {
         this._initDevice();
         const director = legacyCC.director;
         return Promise.resolve(director._init()).then(() => {
-            if (director.root.usesCustomPipeline) {
-                director.on(legacyCC.Director.EVENT_BEFORE_DRAW, PipelineCallback.beforeDraw);
-            }
             legacyCC.view.init();
             // Log engine version
             debug.log(`Cocos Creator v${VERSION}`);
