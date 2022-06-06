@@ -60,35 +60,53 @@ export abstract class EmbeddedPlayableState {
     }
 
     /**
-     * 可以随意调整此播放器到任何时间。
+     * @zh
+     * 是否可以随意调整此播放器到任何时间。
+     * @en
+     * Indicates if this player can be adjusted to any time.
      */
     public get randomAccess () {
         return this._randomAccess;
     }
 
     /**
+     * @zh
      * 销毁此播放器。
+     * @zh
+     * Destroys this player state.
      */
     public abstract destroy (): void;
 
     /**
-     * 在开始播放此子区域时触发。
+     * @zh
+     * 该方法在此播放器开始播放时触发。
+     * @en
+     * This method is called when this player gets to play.
      * @param time Current time on the embedded player, relative to embedded player's start。
      */
     public abstract play(time: number): void;
 
     /**
-     * 在暂停此子区域的播放时触发。
+     * @zh
+     * 该方法在此播放器暂停播放时触发。
+     * @en
+     * This method is called when this player pauses.
      */
     public abstract pause(): void;
 
     /**
-     * 在结束播放此子区域时触发，或所在动画本身停止播放时触发。
+     * @zh
+     * 该方法在此播放器结束播放时触发，或在宿主动画剪辑本身停止播放时触发。
+     * @en
+     * This method is called when this player ends its playback, and is called when the host animation clip is stopped.
      */
     public abstract stop(): void;
 
     /**
-     * 如果子区域的 [[`EmbeddedPlayer.reconciledSpeed`]] 为 `true`，则在宿主的播放速度改变时触发。
+     * @zh
+     * 如果 [[`EmbeddedPlayer.reconciledSpeed`]] 为 `true`，则在宿主的播放速度改变时触发。
+     * @en
+     * If [[`EmbeddedPlayer.reconciledSpeed`]] is `true`, is called when the host changes its speed.
      * @param speed The speed.
      */
     public abstract setSpeed(speed: number): void;
