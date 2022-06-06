@@ -353,9 +353,13 @@ public:
         uint32_t port{0};
         bool isWait{false};
         inline bool isValid() const { return !serverAddr.empty() && port != 0; }
-        inline void reset() { serverAddr.clear(); port = 0; isWait = false; }
+        inline void reset() {
+            serverAddr.clear();
+            port = 0;
+            isWait = false;
+        }
     };
-    static void _setDebuggerInfo(const DebuggerInfo& info); // NOLINT(readability-identifier-naming)
+    static void _setDebuggerInfo(const DebuggerInfo &info); // NOLINT(readability-identifier-naming)
     //
 private:
     static void privateDataFinalize(PrivateObjectBase *privateObj);
@@ -381,7 +385,7 @@ private:
     };
     // Push promise and exception msg to _promiseArray
     void pushPromiseExeception(const v8::Local<v8::Promise> &promise, const char *event, const char *stackTrace);
-    
+
     static ScriptEngine *instance;
 
     static DebuggerInfo debuggerInfo;
