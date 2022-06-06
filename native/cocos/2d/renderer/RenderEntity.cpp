@@ -1,9 +1,17 @@
 #include <2d/renderer/RenderEntity.h>
 #include <cocos/base/TypeDef.h>
+#include<2d/renderer/Batcher2d.h>
 #include <iostream>
 
 namespace cc {
 RenderEntity::RenderEntity() : RenderEntity(0, 0, 0) {
+}
+
+RenderEntity::RenderEntity(Batcher2d* batcher) {
+    this->_batcher = batcher;
+    if (batcher != nullptr) {
+        batcher->addNewRenderEntity(this);
+    }
 }
 
 RenderEntity::RenderEntity(const index_t bufferId, const index_t vertexOffset, const index_t indexOffset) {
@@ -12,6 +20,7 @@ RenderEntity::RenderEntity(const index_t bufferId, const index_t vertexOffset, c
     this->_indexOffset = indexOffset;
     this->_stride = 0;
     this->_size = 0;
+    this->_batcher = nullptr;
 }
 
 RenderEntity::~RenderEntity() {

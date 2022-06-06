@@ -28,6 +28,8 @@ public:
     void uploadBuffers();
     void reset();
 
+    void addNewRenderEntity(RenderEntity* entity);
+
 public:
     UIMeshBuffer* getMeshBuffer(index_t bufferId);
     gfx::Device* getDevice();
@@ -45,6 +47,7 @@ private:
     Root* _root{nullptr};
 
     std::vector<RenderEntity*> _renderEntities{};
+    std::vector<RenderEntity*> _newRenderEntities{};
 
 private:
     ccstd::vector<scene::DrawBatch2D*> _batches{};

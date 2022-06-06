@@ -16,10 +16,12 @@ struct Render2dLayout {
     cc::Vec4 color; // use Vec4 instead of Color because of bytes alignment
 };
 
+class Batcher2d;
 class RenderEntity {
 public:
     RenderEntity();
-    explicit RenderEntity(const index_t bufferId, const index_t vertexOffset, const index_t indexOffset);
+    explicit RenderEntity(Batcher2d* batcher);
+    RenderEntity(const index_t bufferId, const index_t vertexOffset, const index_t indexOffset);
     ~RenderEntity();
 
     inline index_t getBufferId() const { return this->_bufferId; }
@@ -71,6 +73,9 @@ public:
     void refreshLayout();
     inline uint8_t getStride() { return this->_stride; }
     inline uint32_t getSize() { return this->_size; }
+
+private:
+    Batcher2d* _batcher;
 
 private:
     // use this

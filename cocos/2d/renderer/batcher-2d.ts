@@ -222,7 +222,7 @@ export class Batcher2D implements IBatcher {
 
             // test code
             if (JSB) {
-                this.syncRenderEntitiesToNative();// transport entities to native
+                //this.syncRenderEntitiesToNative();// transport entities to native
                 this._nativeObj.update();
             } else {
                 this.autoMergeBatches(this._currComponent!);
@@ -753,33 +753,33 @@ export class Batcher2D implements IBatcher {
         }
     }
 
-    // render entity dictionary
-    private entityArr : RenderEntity[] =[];
-    public addRenderEntity (entity:RenderEntity) {
-        const repeatIndex =  this.entityArr.findIndex((x) => x.entityId === entity.entityId);
-        if (repeatIndex >= 0 && repeatIndex < this.entityArr.length) {
-            this.entityArr[repeatIndex] = entity;
-        } else {
-            this.entityArr.push(entity);
-        }
-    }
+    // // render entity dictionary
+    // private entityArr : RenderEntity[] =[];
+    // public addRenderEntity (entity:RenderEntity) {
+    //     const repeatIndex =  this.entityArr.findIndex((x) => x.entityId === entity.entityId);
+    //     if (repeatIndex >= 0 && repeatIndex < this.entityArr.length) {
+    //         this.entityArr[repeatIndex] = entity;
+    //     } else {
+    //         this.entityArr.push(entity);
+    //     }
+    // }
 
-    public removeRenderEntity (entityId:number) {
-        const removeIndex =  this.entityArr.findIndex((x) => x.entityId === entityId);
-        if (removeIndex >= 0 && removeIndex < this.entityArr.length) {
-            delete this.entityArr[removeIndex];
-        }
-    }
+    // public removeRenderEntity (entityId:number) {
+    //     const removeIndex =  this.entityArr.findIndex((x) => x.entityId === entityId);
+    //     if (removeIndex >= 0 && removeIndex < this.entityArr.length) {
+    //         delete this.entityArr[removeIndex];
+    //     }
+    // }
 
-    public syncRenderEntitiesToNative () {
-        if (JSB) {
-            const nativeEntityArr:NativeRenderEntity[] = [];
-            this.entityArr.forEach((x) => {
-                nativeEntityArr.push(x.nativeObj);
-            });
-            this._nativeObj.syncRenderEntitiesToNative(nativeEntityArr);
-        }
-    }
+    // public syncRenderEntitiesToNative () {
+    //     if (JSB) {
+    //         const nativeEntityArr:NativeRenderEntity[] = [];
+    //         this.entityArr.forEach((x) => {
+    //             nativeEntityArr.push(x.nativeObj);
+    //         });
+    //         this._nativeObj.syncRenderEntitiesToNative(nativeEntityArr);
+    //     }
+    // }
 
     // // sync some attribute of MeshBuffer
     // protected _meshBufferAttrArr:MeshBufferAttr[] = [];

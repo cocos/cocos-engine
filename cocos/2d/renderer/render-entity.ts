@@ -7,6 +7,7 @@ import { AdvanceRenderData } from './AdvanceRenderData';
 import { NULL_HANDLE, Render2dHandle, Render2dPool } from '../../core/renderer';
 import { Material, Node } from '../../core';
 import { Sampler, Texture } from '../../core/gfx';
+import { Batcher2D } from './batcher-2d';
 
 export class RenderEntity {
     public renderData: BaseRenderData=null!;
@@ -50,11 +51,11 @@ export class RenderEntity {
     protected _vertexCount = 0;
     protected _stride = 0;
 
-    constructor () {
+    constructor (batcher:Batcher2D) {
         this._entityId = RenderEntity.static_entityIndex++;
         if (JSB) {
             if (!this._nativeObj) {
-                this._nativeObj = new NativeRenderEntity();
+                this._nativeObj = new NativeRenderEntity(batcher.nativeObj);
             }
         }
     }

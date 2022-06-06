@@ -136,8 +136,8 @@ export class BaseRenderData {
         // Instantiate RenderEntity and put it into Batcher2d
             if (!this._renderEntity) {
                 const batcher = director.root!.batcher2D;
-                this._renderEntity = new RenderEntity();
-                batcher.addRenderEntity(this._renderEntity);
+                this._renderEntity = new RenderEntity(batcher);
+                //batcher.addRenderEntity(this._renderEntity);
             }
         }
     }

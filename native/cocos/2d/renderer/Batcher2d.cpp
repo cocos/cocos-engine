@@ -86,8 +86,8 @@ void Batcher2d::fillBuffersAndMergeBatches() {
     //这里负责的是ts._render填充逻辑
     //这里不需要加assembler判断，因为ts的fillBuffers做了分层优化
     //，有多少顶点就传多少数据到RenderEntity
-    for (index_t i = 0; i < _renderEntities.size(); i++) {
-        RenderEntity* entity = _renderEntities[i];
+    for (index_t i = 0; i < _newRenderEntities.size(); i++) {
+        RenderEntity* entity = _newRenderEntities[i];
 
         Node* node = entity->getNode();
         if (node == nullptr) {
@@ -264,6 +264,10 @@ void Batcher2d::reset() {
     _batches.clear();
 
     //stencilManager
+}
+
+void Batcher2d::addNewRenderEntity(RenderEntity* entity) {
+    _newRenderEntities.push_back(entity);
 }
 
 void Batcher2d::ItIsDebugFuncInBatcher2d() {

@@ -681,6 +681,23 @@ static bool js_2d_RenderEntity_constructor(se::State& s) // NOLINT(readability-i
     const auto& args = s.args();
     size_t argc = args.size();
     do {
+        if (argc == 1) {
+            HolderType<cc::Batcher2d*, false> arg0 = {};
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::RenderEntity, arg0.value());
+            s.thisObject()->setPrivateObject(ptr);
+            return true;
+        }
+    } while(false);
+    do {
+        if (argc == 0) {
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::RenderEntity);
+            s.thisObject()->setPrivateObject(ptr);
+            return true;
+        }
+    } while(false);
+    do {
         if (argc == 3) {
             HolderType<int, false> arg0 = {};
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -692,13 +709,6 @@ static bool js_2d_RenderEntity_constructor(se::State& s) // NOLINT(readability-i
             ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
             if (!ok) { ok = true; break; }
             auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::RenderEntity, arg0.value(), arg1.value(), arg2.value());
-            s.thisObject()->setPrivateObject(ptr);
-            return true;
-        }
-    } while(false);
-    do {
-        if (argc == 0) {
-            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::RenderEntity);
             s.thisObject()->setPrivateObject(ptr);
             return true;
         }
@@ -1204,6 +1214,25 @@ static bool js_2d_Batcher2d_ItIsDebugFuncInBatcher2d(se::State& s) // NOLINT(rea
 }
 SE_BIND_FUNC(js_2d_Batcher2d_ItIsDebugFuncInBatcher2d)
 
+static bool js_2d_Batcher2d_addNewRenderEntity(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Batcher2d>(s);
+    SE_PRECONDITION2(cobj, false, "js_2d_Batcher2d_addNewRenderEntity : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::RenderEntity*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_2d_Batcher2d_addNewRenderEntity : Error processing arguments");
+        cobj->addNewRenderEntity(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_2d_Batcher2d_addNewRenderEntity)
+
 static bool js_2d_Batcher2d_fillBuffersAndMergeBatches(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Batcher2d>(s);
@@ -1456,6 +1485,7 @@ bool js_register_2d_Batcher2d(se::Object* obj) // NOLINT(readability-identifier-
     cls->defineStaticProperty("isJSBClass", _SE(js_2d_getter_return_true), nullptr);
 #endif
     cls->defineFunction("ItIsDebugFuncInBatcher2d", _SE(js_2d_Batcher2d_ItIsDebugFuncInBatcher2d));
+    cls->defineFunction("addNewRenderEntity", _SE(js_2d_Batcher2d_addNewRenderEntity));
     cls->defineFunction("fillBuffersAndMergeBatches", _SE(js_2d_Batcher2d_fillBuffersAndMergeBatches));
     cls->defineFunction("generateBatch", _SE(js_2d_Batcher2d_generateBatch));
     cls->defineFunction("getDevice", _SE(js_2d_Batcher2d_getDevice));

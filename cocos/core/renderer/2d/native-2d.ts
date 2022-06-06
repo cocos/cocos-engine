@@ -5,6 +5,8 @@ import { EmptyTexture } from '../../gfx/empty/empty-texture';
 import { Node } from '../../scene-graph';
 
 export class NativeRenderEntity {
+    constructor (batcher: NativeBatcher2d) {}
+
     get bufferId ():number { return 0; }
     set bufferId (bufferId:number) {}
 
