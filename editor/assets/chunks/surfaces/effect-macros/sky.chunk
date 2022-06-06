@@ -2,9 +2,6 @@
 
 #pragma define USE_INSTANCING 0
 #pragma define USE_BATCHING 0
-// use #define to rename a macro without editor flag
-#define CC_SURFACES_USE_INSTANCING USE_INSTANCING
-#define CC_SURFACES_USE_BATCHING USE_BATCHING
 
 // Disable unused functionality and varying data
 #define CC_SURFACES_USE_TANGENT_SPACE 0
