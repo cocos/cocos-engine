@@ -24,6 +24,7 @@
  */
 
 import { ccclass, serializable } from 'cc.decorator';
+import { DEBUG } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import { error, errorID, getError, warn, warnID } from '../platform/debug';
@@ -49,7 +50,6 @@ import './exotic-animation/exotic-animation';
 import { array } from '../utils/js';
 import type { AnimationMask } from './marionette/animation-mask';
 import { getGlobalAnimationManager } from './global-animation-manager';
-import { DEBUG } from 'internal:constants';
 
 export declare namespace AnimationClip {
     export interface IEvent {
