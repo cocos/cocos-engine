@@ -851,13 +851,40 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<T> *to, se::Object *
 }
 
 ///////////////////// function
+///
+
+template <typename... Args>
+bool nativevalue_to_se_args_v(se::ValueArray &array, Args &...args); // NOLINT(readability-identifier-naming)
+
+template <typename R>
+inline bool sevalue_to_native(const se::Value &from, std::function<R()> *func, se::Object *self) { // NOLINT(readability-identifier-naming)
+    if (from.isObject() && from.toObject()->isFunction()) {
+        CC_ASSERT(from.toObject()->isRooted());
+        *func = [from, self]() {
+            se::AutoHandleScope hs;
+            bool ok = true;
+            se::ValueArray args;
+            se::Value rval;
+            bool succeed = from.toObject()->call(se::EmptyValueArray, self, &rval);
+            if (!succeed) {
+                se::ScriptEngine::getInstance()->clearException();
+            }
+
+            R rawRet{};
+            sevalue_to_native(rval, &rawRet, self);
+            return rawRet;
+        };
+    } else {
+        return false;
+    }
+    return true;
+}
 
 template <typename R, typename... Args>
 inline bool sevalue_to_native(const se::Value &from, std::function<R(Args...)> *func, se::Object *self) { // NOLINT(readability-identifier-naming)
     if (from.isObject() && from.toObject()->isFunction()) {
-        se::Object *callback = from.toObject();
-        self->attachObject(callback);
-        *func = [callback, self](Args... inargs) {
+        CC_ASSERT(from.toObject()->isRooted());
+        *func = [from, self](Args... inargs) {
             se::AutoHandleScope hs;
             bool ok = true;
             se::ValueArray args;
@@ -865,7 +892,7 @@ inline bool sevalue_to_native(const se::Value &from, std::function<R(Args...)> *
             args.resize(sizeof...(Args));
             nativevalue_to_se_args_v(args, inargs...);
             se::Value rval;
-            bool succeed = callback->call(args, self, &rval);
+            bool succeed = from.toObject()->call(args, self, &rval);
             if (!succeed) {
                 se::ScriptEngine::getInstance()->clearException();
             }
@@ -881,12 +908,30 @@ inline bool sevalue_to_native(const se::Value &from, std::function<R(Args...)> *
     return true;
 }
 
+inline bool sevalue_to_native(const se::Value &from, std::function<void()> *func, se::Object *self) { // NOLINT(readability-identifier-naming)
+    if (from.isObject() && from.toObject()->isFunction()) {
+        CC_ASSERT(from.toObject()->isRooted());
+        *func = [from, self]() {
+            se::AutoHandleScope hs;
+            bool ok = true;
+            se::ValueArray args;
+            se::Value rval;
+            bool succeed = from.toObject()->call(se::EmptyValueArray, self, &rval);
+            if (!succeed) {
+                se::ScriptEngine::getInstance()->clearException();
+            }
+        };
+    } else {
+        return false;
+    }
+    return true;
+}
+
 template <typename... Args>
 inline bool sevalue_to_native(const se::Value &from, std::function<void(Args...)> *func, se::Object *self) { // NOLINT(readability-identifier-naming)
     if (from.isObject() && from.toObject()->isFunction()) {
-        se::Object *callback = from.toObject();
-        self->attachObject(callback);
-        *func = [callback, self](Args... inargs) {
+        CC_ASSERT(from.toObject()->isRooted());
+        *func = [from, self](Args... inargs) {
             se::AutoHandleScope hs;
             bool ok = true;
             se::ValueArray args;
@@ -894,7 +939,7 @@ inline bool sevalue_to_native(const se::Value &from, std::function<void(Args...)
             args.resize(sizeof...(Args));
             nativevalue_to_se_args_v(args, inargs...);
             se::Value rval;
-            bool succeed = callback->call(args, self, &rval);
+            bool succeed = from.toObject()->call(args, self, &rval);
             if (!succeed) {
                 se::ScriptEngine::getInstance()->clearException();
             }
@@ -1146,6 +1191,24 @@ bool nativevalue_to_se(const ccstd::variant<ARGS...> &from, se::Value &to, se::O
 
 template <typename... ARGS>
 bool nativevalue_to_se(const ccstd::variant<ARGS...> *from, se::Value &to, se::Object *ctx) { // NOLINT
+    return nativevalue_to_se(*from, to, ctx);
+}
+
+template <typename... ARGS>
+bool nativevalue_to_se(ccstd::variant<ARGS...> *from, se::Value &to, se::Object *ctx) { // NOLINT
+    return nativevalue_to_se(*from, to, ctx);
+}
+
+template <typename T>
+inline bool nativevalue_to_se(const ccstd::vector<T> &from, se::Value &to, se::Object *ctx); // NOLINT
+
+template <typename T>
+inline bool nativevalue_to_se(const ccstd::vector<T> *from, se::Value &to, se::Object *ctx) {
+    return nativevalue_to_se(*from, to, ctx);
+}
+
+template <typename T>
+inline bool nativevalue_to_se(ccstd::vector<T> *const from, se::Value &to, se::Object *ctx) {
     return nativevalue_to_se(*from, to, ctx);
 }
 

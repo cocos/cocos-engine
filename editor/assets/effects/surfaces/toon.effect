@@ -97,6 +97,7 @@ CCProgram shared-ubos %{
   };}%
 
 CCProgram macro-remapping %{
+  #pragma define-meta USE_NORMAL_MAP
   #define CC_SURFACES_USE_TANGENT_SPACE USE_NORMAL_MAP
 }%
 
@@ -105,9 +106,6 @@ CCProgram surface-vertex %{
   void SurfacesVertexModifyUV(inout SurfacesStandardVertexIntermediate In)
   {
     In.texCoord = In.texCoord * tilingOffset.xy + tilingOffset.zw;
-  #if CC_SURFACES_USE_SECOND_UV && !CC_SURFACES_USE_LIGHT_MAP
-    In.texCoord1 = In.texCoord1 * tilingOffset.xy + tilingOffset.zw;
-  #endif
   }
 }%
 
