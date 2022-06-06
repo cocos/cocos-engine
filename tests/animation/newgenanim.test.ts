@@ -1250,7 +1250,7 @@ describe('NewGen Anim', () => {
             });
         });
 
-        test(`Transition offset`, () => {
+        test(`Transition destination start`, () => {
             const animationGraph = new AnimationGraph();
             const layer = animationGraph.addLayer();
             const graph = layer.stateMachine;
