@@ -646,13 +646,15 @@ const uiElements = {
                 name: 'getNoisePreview',
                 args: [100, 100],
             });
+            if (data.length === 0) { return; }
+
             data = data.reduce((result, item) => {
                 const value = item * 255;
                 const rgba = [value, value, value, 255];
                 result.push(...rgba);
                 return result;
             }, []);
-            if (data.length === 0) { return; }
+
             const imageData = new ImageData(new Uint8ClampedArray(data), 100, 100);
             const context = this.$.noisePreview.getContext('2d');
             context.putImageData(imageData, 0, 0);
