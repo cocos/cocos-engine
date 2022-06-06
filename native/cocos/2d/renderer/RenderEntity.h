@@ -58,7 +58,7 @@ public:
     inline index_t getBlendHash() const { return this->_blendHash; }
     void setBlendHash(index_t blendHash);
 
-    //inline std::vector<AdvanceRenderData*> getDataArr() { return this->_dataArr; }
+    //inline ccstd::vector<AdvanceRenderData*> getDataArr() { return this->_dataArr; }
     //void setAdvanceRenderDataArr(std::vector<AdvanceRenderData*>&& arr);
 
     void setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size);
@@ -68,7 +68,7 @@ public:
 
 public:
     //这里每次获取时都应该对buffer做一次解析
-    std::vector<Render2dLayout*>& getRenderDataArr();
+    ccstd::vector<Render2dLayout*>& getRenderDataArr();
     void parseLayout();
     void refreshLayout();
     inline uint8_t getStride() { return this->_stride; }
@@ -79,7 +79,7 @@ private:
 
 private:
     // use this
-    std::vector<Render2dLayout*> _render2dLayoutArr{};
+    ccstd::vector<Render2dLayout*> _render2dLayoutArr{};
     uint8_t* _sharedBuffer{nullptr};
     uint8_t _stride{0};
     uint32_t _size{0};

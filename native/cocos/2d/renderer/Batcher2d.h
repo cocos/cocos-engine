@@ -37,7 +37,7 @@ public:
     void updateDescriptorSet();
 
 public:
-    inline std::vector<scene::DrawBatch2D*> getBatches() { return this->_batches; }
+    inline ccstd::vector<scene::DrawBatch2D*> getBatches() { return this->_batches; }
 
     void fillBuffersAndMergeBatches();
     void generateBatch(RenderEntity* entity);
@@ -46,8 +46,8 @@ public:
 private:
     Root* _root{nullptr};
 
-    std::vector<RenderEntity*> _renderEntities{};
-    std::vector<RenderEntity*> _newRenderEntities{};
+    ccstd::vector<RenderEntity*> _renderEntities{};
+    ccstd::vector<RenderEntity*> _newRenderEntities{};
 
 private:
     ccstd::vector<scene::DrawBatch2D*> _batches{};
@@ -76,6 +76,6 @@ private:
 private:
     Simple* _simple;
 
-    std::vector<UIMeshBuffer*> _meshBuffers{nullptr};
+    ccstd::vector<UIMeshBuffer*> _meshBuffers{nullptr};
 };
 } // namespace cc

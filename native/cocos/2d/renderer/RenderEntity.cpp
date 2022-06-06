@@ -101,7 +101,7 @@ void RenderEntity::setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, ui
     parseLayout();
 }
 
-std::vector<Render2dLayout*>& RenderEntity::getRenderDataArr() {
+ccstd::vector<Render2dLayout*>& RenderEntity::getRenderDataArr() {
     return this->_render2dLayoutArr;
 }
 

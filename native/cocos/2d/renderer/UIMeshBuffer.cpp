@@ -18,7 +18,7 @@ void UIMeshBuffer::setIData(uint16_t* iData) {
     _iData = iData;
 }
 
-void UIMeshBuffer::initialize(gfx::Device* device, std::vector<gfx::Attribute*>&& attrs, index_t vFloatCount, index_t iCount) {
+void UIMeshBuffer::initialize(gfx::Device* device, ccstd::vector<gfx::Attribute*>&& attrs, index_t vFloatCount, index_t iCount) {
     //_initVDataCount = vFloatCount;
     //_initIDataCount = iCount;
     //_attributes = std::move(attrs);

@@ -24,7 +24,7 @@ void Simple::updateWorldVerts(RenderEntity* entity) {
         return;
     }
 
-    std::vector<Render2dLayout*>& dataList = entity->getRenderDataArr();
+    ccstd::vector<Render2dLayout*>& dataList = entity->getRenderDataArr();
     Node* node = entity->getNode();
     const Mat4& matrix = node->getWorldMatrix();
     uint8_t stride = entity->getStride();
@@ -34,8 +34,7 @@ void Simple::updateWorldVerts(RenderEntity* entity) {
     uint8_t offset = 0;
     for (int i = 0; i < dataList.size(); i++) {
         Render2dLayout* curLayout = dataList[i];
-        temp.set(curLayout->position);
-        temp.transformMat4(temp, matrix);
+        temp.transformMat4(curLayout->position, matrix);
 
         offset = i * stride;
         vbBuffer[offset++] = temp.x;
