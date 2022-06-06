@@ -587,10 +587,34 @@ export const enum AttachmentType {
     DEPTH_STENCIL,
 }
 
+export function getAttachmentTypeName (e: AttachmentType): string {
+    switch (e) {
+    case AttachmentType.RENDER_TARGET:
+        return 'RENDER_TARGET';
+    case AttachmentType.DEPTH_STENCIL:
+        return 'DEPTH_STENCIL';
+    default:
+        return '';
+    }
+}
+
 export const enum AccessType {
     READ,
     READ_WRITE,
     WRITE,
+}
+
+export function getAccessTypeName (e: AccessType): string {
+    switch (e) {
+    case AccessType.READ:
+        return 'READ';
+    case AccessType.READ_WRITE:
+        return 'READ_WRITE';
+    case AccessType.WRITE:
+        return 'WRITE';
+    default:
+        return '';
+    }
 }
 
 export class RasterView {
@@ -623,6 +647,17 @@ export class RasterView {
 export const enum ClearValueType {
     FLOAT_TYPE,
     INT_TYPE,
+}
+
+export function getClearValueTypeName (e: ClearValueType): string {
+    switch (e) {
+    case ClearValueType.FLOAT_TYPE:
+        return 'FLOAT_TYPE';
+    case ClearValueType.INT_TYPE:
+        return 'INT_TYPE';
+    default:
+        return '';
+    }
 }
 
 export class ComputeView {
@@ -924,6 +959,8 @@ export class RasterPass {
     readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
     readonly subpassGraph: SubpassGraph = new SubpassGraph();
+    width = 0;
+    height = 0;
 }
 
 export class ComputePass {

@@ -24,6 +24,7 @@
  */
 
 import { ccclass, serializable } from 'cc.decorator';
+import { DEBUG } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import { error, errorID, getError, warn, warnID } from '../platform/debug';
@@ -338,7 +339,17 @@ export class AnimationClip extends Asset {
                 this.enableTrsBlending ? context.pose : undefined,
                 false,
             );
-            // TODO: warning
+            if (DEBUG && !trackTarget) {
+                // If we got a null track target here, we should already have warn logged,
+                // To elaborate on error details, we warn here as well.
+                // Note: if in the future this log appears alone,
+                // it must be a BUG which break promise by above statement.
+                warnID(
+                    3937,
+                    this.name,
+                    (context.target instanceof Node) ? context.target.name : context.target,
+                );
+            }
             return trackTarget ?? undefined;
         };
 

@@ -28,6 +28,7 @@
 #include "bindings/jswrapper/SeApi.h"
 #include "bindings/manual/jsb_conversions.h"
 #include "bindings/manual/jsb_global.h"
+#include "core/data/JSBNativeDataHolder.h"
 
 #include <fstream>
 #include <sstream>
@@ -163,11 +164,17 @@ bool js_gfx_Device_copyTexImagesToTexture(se::State &s) { // NOLINT(readability-
             for (uint32_t i = 0; i < length; ++i) {
                 if (dataObj->getArrayElement(i, &value)) {
                     if (value.isObject()) {
-                        uint8_t *address = nullptr;
-                        value.toObject()->getTypedArrayData(&address, &dataLength);
-                        arg0[i] = address;
+                        if (value.toObject()->isTypedArray()) {
+                            uint8_t *address = nullptr;
+                            value.toObject()->getTypedArrayData(&address, &dataLength);
+                            arg0[i] = address;
+                        } else {
+                            auto *dataHolder = static_cast<cc::JSBNativeDataHolder *>(value.toObject()->getPrivateData());
+                            uint8_t* data = dataHolder->getData();
+                            arg0[i] = data;
+                        }
                     } else {
-                        arg0[i] = reinterpret_cast<uint8_t *>(value.asPtr()); // NOLINT(performance-no-int-to-ptr) script engine bad API design
+                        CC_ASSERT(false);
                     }
                 }
             }

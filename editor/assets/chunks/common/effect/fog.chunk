@@ -1,28 +1,28 @@
 // fog related calculations
 
-//pos, cc_cameraPos, cc_fogBase.x, cc_fogBase.y
+//pos, cc_cameraPos.xyz, cc_fogBase.x, cc_fogBase.y
 float LinearFog(vec4 pos, vec3 cameraPos, float fogStart, float fogEnd) {
     vec4 wPos = pos;
-    float cam_dis = distance(cameraPos, wPos);
+    float cam_dis = distance(cameraPos, wPos.xyz);
     return clamp((fogEnd - cam_dis) / (fogEnd - fogStart), 0., 1.);
 }
 
-//pos, cc_cameraPos, cc_fogBase.x, cc_fogBase.z, cc_fogAdd.z
+//pos, cc_cameraPos.xyz, cc_fogBase.x, cc_fogBase.z, cc_fogAdd.z
 float ExpFog(vec4 pos, vec3 cameraPos, float fogStart, float fogDensity, float fogAtten) {
     vec4 wPos = pos;
-    float cam_dis = max(distance(cameraPos, wPos) - fogStart, 0.0) / fogAtten * 4.;
+    float cam_dis = max(distance(cameraPos, wPos.xyz) - fogStart, 0.0) / fogAtten * 4.;
     float f = exp(-cam_dis * fogDensity);
     return f;
 }
 
 float ExpSquaredFog(vec4 pos, vec3 cameraPos, float fogStart, float fogDensity, float fogAtten) {
     vec4 wPos = pos;
-    float cam_dis = max(distance(cameraPos, wPos) - fogStart, 0.0) / fogAtten * 4.;
+    float cam_dis = max(distance(cameraPos, wPos.xyz) - fogStart, 0.0) / fogAtten * 4.;
     float f = exp(-cam_dis * cam_dis * fogDensity * fogDensity);
     return f;
 }
 
-//pos, cc_cameraPos, cc_fogAdd.x, cc_fogAdd.y, cc_fogAdd.z
+//pos, cc_cameraPos.xyz, cc_fogAdd.x, cc_fogAdd.y, cc_fogAdd.z
 float LayeredFog(vec4 pos, vec3 cameraPos, float fogTop, float fogRange, float fogAtten) {
     vec4 wPos = pos;
     vec3 camWorldProj = cameraPos.xyz;

@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include <stddef.h>
+#include <cstddef>
 
 namespace se {
 
@@ -64,7 +64,7 @@ public:
      *  @brief The constructor of HandleObject
      *  @param[in] obj The se::Object to attach.
      */
-    HandleObject(Object *obj);
+    explicit HandleObject(Object *obj);
 
     /**
      *  @brief The destructor of HandleObject
@@ -76,6 +76,10 @@ public:
      *  @return The se::Object attached.
      */
     inline Object *operator->() const {
+        return _obj;
+    }
+
+    inline operator Object *() const { // NOLINT
         return _obj;
     }
 
@@ -95,7 +99,6 @@ public:
         return (_obj == nullptr);
     }
 
-private:
     HandleObject(const HandleObject &) = delete;
     void operator=(const HandleObject &) = delete;
     HandleObject(HandleObject &&) = delete;
@@ -104,6 +107,7 @@ private:
     void *operator new(size_t size) = delete;
     void operator delete(void *, size_t) = delete;
 
+private:
     Object *_obj;
     friend class Object;
 };

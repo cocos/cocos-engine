@@ -26,7 +26,7 @@
 
 import { EffectAsset } from '../../assets';
 import { DescriptorHierarchy } from './pipeline';
-import { Descriptor, DescriptorBlock, DescriptorBlockIndex, DescriptorDB, DescriptorIndex, LayoutGraph, LayoutGraphValue, RenderPhase, UniformBlockDB } from './layout-graph';
+import { Descriptor, DescriptorBlock, DescriptorBlockIndex, DescriptorDB, DescriptorTypeOrder, LayoutGraph, LayoutGraphValue, RenderPhase, UniformBlockDB } from './layout-graph';
 import { ShaderStageFlagBit, Type, Uniform } from '../../gfx';
 import { ParameterType, UpdateFrequency } from './types';
 import { JOINT_UNIFORM_CAPACITY, UBOForwardLight, UBOLocalBatched, UBOMorph } from '../define';
@@ -37,7 +37,7 @@ export class WebDescriptorHierarchy extends DescriptorHierarchy {
         this._layoutGraph = new LayoutGraph();
     }
 
-    private getLayoutBlock (freq: UpdateFrequency, paraType: ParameterType, descType: DescriptorIndex, vis: ShaderStageFlagBit, descriptorDB: DescriptorDB): DescriptorBlock {
+    private getLayoutBlock (freq: UpdateFrequency, paraType: ParameterType, descType: DescriptorTypeOrder, vis: ShaderStageFlagBit, descriptorDB: DescriptorDB): DescriptorBlock {
         const blockIndex: DescriptorBlockIndex = new DescriptorBlockIndex(freq, paraType, descType, vis);
         const key = JSON.stringify(blockIndex);
         if (descriptorDB.blocks.get(key) === undefined) {
@@ -99,13 +99,14 @@ export class WebDescriptorHierarchy extends DescriptorHierarchy {
                 if (count > 0) {
                     const mergedDescriptor: Descriptor = new Descriptor(type);
                     mergedDescriptor.count = count;
-                    block.merged.set(type, mergedDescriptor);
+                    // block.merged.set(type, mergedDescriptor);
                 }
             }
         }
     }
 
     private mergeDBs (descriptorDBs: DescriptorDB[], target: DescriptorDB) {
+        /*
         for (let i = 0; i < descriptorDBs.length; ++i) {
             const db: DescriptorDB = descriptorDBs[i];
             for (const e of db.blocks) {
@@ -132,6 +133,7 @@ export class WebDescriptorHierarchy extends DescriptorHierarchy {
                 }
             }
         }
+        */
     }
 
     private sort (descriptorDB: DescriptorDB) {
@@ -163,7 +165,7 @@ export class WebDescriptorHierarchy extends DescriptorHierarchy {
             for (let k = 0; k < shader.blocks.length; ++k) {
                 const blockInfo: EffectAsset.IBlockInfo = shader.blocks[k];
                 const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_INSTANCE,
-                    ParameterType.TABLE, DescriptorIndex.UNIFORM_BLOCK, blockInfo.stageFlags, queueDB);
+                    ParameterType.TABLE, DescriptorTypeOrder.UNIFORM_BUFFER, blockInfo.stageFlags, queueDB);
                 const uniformDB: UniformBlockDB = this.getUniformBlock(blockInfo.name, targetBlock);
                 for (let kk = 0; kk < blockInfo.members.length; ++kk) {
                     const uniform: Uniform = blockInfo.members[kk];
@@ -174,58 +176,60 @@ export class WebDescriptorHierarchy extends DescriptorHierarchy {
             for (let k = 0; k < shader.buffers.length; ++k) {
                 const bufferInfo: EffectAsset.IBufferInfo = shader.buffers[k];
                 const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_QUEUE,
-                    ParameterType.TABLE, DescriptorIndex.STORAGE_BUFFER, bufferInfo.stageFlags, queueDB);
+                    ParameterType.TABLE, DescriptorTypeOrder.STORAGE_BUFFER, bufferInfo.stageFlags, queueDB);
                 this.setDescriptor(targetBlock, bufferInfo.name, Type.UNKNOWN);
             }
 
             for (let k = 0; k < shader.images.length; ++k) {
                 const imageInfo: EffectAsset.IImageInfo = shader.images[k];
                 const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_QUEUE,
-                    ParameterType.TABLE, DescriptorIndex.STORAGE_TEXTURE, imageInfo.stageFlags, queueDB);
+                    ParameterType.TABLE, DescriptorTypeOrder.STORAGE_IMAGE, imageInfo.stageFlags, queueDB);
                 this.setDescriptor(targetBlock, imageInfo.name, imageInfo.type);
             }
 
             for (let k = 0; k < shader.samplerTextures.length; ++k) {
                 const samplerTexInfo: EffectAsset.ISamplerTextureInfo = shader.samplerTextures[k];
                 const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_BATCH,
-                    ParameterType.TABLE, DescriptorIndex.SAMPLER_TEXTURE, samplerTexInfo.stageFlags, queueDB);
+                    ParameterType.TABLE, DescriptorTypeOrder.SAMPLER_TEXTURE, samplerTexInfo.stageFlags, queueDB);
                 this.setDescriptor(targetBlock, samplerTexInfo.name, samplerTexInfo.type);
             }
 
             for (let k = 0; k < shader.samplers.length; ++k) {
                 const samplerInfo: EffectAsset.ISamplerInfo = shader.samplers[k];
                 const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_QUEUE,
-                    ParameterType.TABLE, DescriptorIndex.SAMPLER, samplerInfo.stageFlags, queueDB);
+                    ParameterType.TABLE, DescriptorTypeOrder.SAMPLER, samplerInfo.stageFlags, queueDB);
                 this.setDescriptor(targetBlock, samplerInfo.name, Type.SAMPLER);
             }
 
             for (let k = 0; k < shader.textures.length; ++k) {
                 const texInfo: EffectAsset.ITextureInfo = shader.textures[k];
                 const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_QUEUE,
-                    ParameterType.TABLE, DescriptorIndex.TEXTURE, texInfo.stageFlags, queueDB);
+                    ParameterType.TABLE, DescriptorTypeOrder.TEXTURE, texInfo.stageFlags, queueDB);
                 this.setDescriptor(targetBlock, texInfo.name, texInfo.type);
             }
 
             for (let k = 0; k < shader.subpassInputs.length; ++k) {
                 const subpassInfo: EffectAsset.IInputAttachmentInfo = shader.subpassInputs[k];
                 const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_QUEUE,
-                    ParameterType.TABLE, DescriptorIndex.SUBPASS_INPUT, subpassInfo.stageFlags, queueDB);
+                    ParameterType.TABLE, DescriptorTypeOrder.INPUT_ATTACHMENT, subpassInfo.stageFlags, queueDB);
                 this.setDescriptor(targetBlock, subpassInfo.name, Type.SUBPASS_INPUT);
             }
 
             // Add queue layout from define.ts
             const localUniformTarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_INSTANCE,
-                ParameterType.TABLE, DescriptorIndex.UNIFORM_BLOCK, ShaderStageFlagBit.VERTEX, queueDB);
+                ParameterType.TABLE, DescriptorTypeOrder.UNIFORM_BUFFER, ShaderStageFlagBit.VERTEX, queueDB);
             const localLightTarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_QUEUE,
-                ParameterType.TABLE, DescriptorIndex.UNIFORM_BLOCK, ShaderStageFlagBit.FRAGMENT, queueDB);
+                ParameterType.TABLE, DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER, ShaderStageFlagBit.FRAGMENT, queueDB);
+            const localUITarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_INSTANCE,
+                ParameterType.TABLE, DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER, ShaderStageFlagBit.VERTEX, queueDB);
             const localModelTarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_INSTANCE,
-                ParameterType.TABLE, DescriptorIndex.UNIFORM_BLOCK, ShaderStageFlagBit.VERTEX | ShaderStageFlagBit.COMPUTE, queueDB);
+                ParameterType.TABLE, DescriptorTypeOrder.UNIFORM_BUFFER, ShaderStageFlagBit.VERTEX | ShaderStageFlagBit.COMPUTE, queueDB);
             const localSamplerVertTarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_BATCH,
-                ParameterType.TABLE, DescriptorIndex.SAMPLER_TEXTURE, ShaderStageFlagBit.VERTEX, queueDB);
+                ParameterType.TABLE, DescriptorTypeOrder.SAMPLER_TEXTURE, ShaderStageFlagBit.VERTEX, queueDB);
             const localSamplerFragTarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_BATCH,
-                ParameterType.TABLE, DescriptorIndex.SAMPLER_TEXTURE, ShaderStageFlagBit.FRAGMENT, queueDB);
+                ParameterType.TABLE, DescriptorTypeOrder.SAMPLER_TEXTURE, ShaderStageFlagBit.FRAGMENT, queueDB);
             const localSamplerCompTarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_BATCH,
-                ParameterType.TABLE, DescriptorIndex.SAMPLER_TEXTURE, ShaderStageFlagBit.COMPUTE, queueDB);
+                ParameterType.TABLE, DescriptorTypeOrder.SAMPLER_TEXTURE, ShaderStageFlagBit.COMPUTE, queueDB);
 
             for (let k = 0; k < shader.builtins.locals.blocks.length; ++k) {
                 const blockName: string = shader.builtins.locals.blocks[k].name;
@@ -243,7 +247,7 @@ export class WebDescriptorHierarchy extends DescriptorHierarchy {
                     const skinningDB: UniformBlockDB = this.getUniformBlock('CCSkinning', localUniformTarget);
                     this.setUniform(skinningDB, 'cc_joints', Type.FLOAT4, JOINT_UNIFORM_CAPACITY * 3);
                 } else if (blockName === 'CCUILocal') {
-                    const uiDB: UniformBlockDB = this.getUniformBlock('CCUILocal', localUniformTarget);
+                    const uiDB: UniformBlockDB = this.getUniformBlock('CCUILocal', localUITarget);
                     this.setUniform(uiDB, 'cc_local_data', Type.FLOAT4, 1);
                 } else if (blockName === 'CCForwardLight') {
                     const lightDB: UniformBlockDB = this.getUniformBlock('CCForwardLight', localLightTarget);
@@ -328,9 +332,9 @@ export class WebDescriptorHierarchy extends DescriptorHierarchy {
         const passDB: DescriptorDB = new DescriptorDB();
         // Add pass layout from define.ts
         const globalUniformTarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_PASS,
-            ParameterType.TABLE, DescriptorIndex.UNIFORM_BLOCK, ShaderStageFlagBit.ALL, passDB);
+            ParameterType.TABLE, DescriptorTypeOrder.UNIFORM_BUFFER, ShaderStageFlagBit.ALL, passDB);
         const globalSamplerTexTarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_PASS,
-            ParameterType.TABLE, DescriptorIndex.SAMPLER_TEXTURE, ShaderStageFlagBit.FRAGMENT, passDB);
+            ParameterType.TABLE, DescriptorTypeOrder.SAMPLER_TEXTURE, ShaderStageFlagBit.FRAGMENT, passDB);
 
         if (hasCCGlobal) {
             const globalDB: UniformBlockDB = this.getUniformBlock('CCGlobal', globalUniformTarget);

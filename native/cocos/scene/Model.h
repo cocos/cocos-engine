@@ -140,7 +140,7 @@ public:
     inline bool isInstancingEnabled() const { return _instMatWorldIdx >= 0; };
     inline int32_t getInstMatWorldIdx() const { return _instMatWorldIdx; }
     inline const ccstd::vector<gfx::Attribute> &getInstanceAttributes() const { return _instanceAttributeBlock.attributes; }
-    inline InstancedAttributeBlock *getInstancedAttributeBlock() { return &_instanceAttributeBlock; }
+    inline InstancedAttributeBlock &getInstancedAttributeBlock() { return _instanceAttributeBlock; }
     inline const uint8_t *getInstancedBuffer() const { return _instanceAttributeBlock.buffer.buffer()->getData(); }
     inline uint32_t getInstancedBufferSize() const { return _instanceAttributeBlock.buffer.length(); }
     inline gfx::Buffer *getLocalBuffer() const { return _localBuffer.get(); }

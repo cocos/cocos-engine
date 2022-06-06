@@ -85,7 +85,6 @@ public:
     void removeSpotLights();
 
     void addModel(Model *);
-    void removeModel(index_t idx);
     void removeModel(Model *model);
     void removeModels();
 

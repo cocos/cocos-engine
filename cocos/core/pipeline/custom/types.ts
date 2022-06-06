@@ -37,6 +37,23 @@ export const enum UpdateFrequency {
     COUNT,
 }
 
+export function getUpdateFrequencyName (e: UpdateFrequency): string {
+    switch (e) {
+    case UpdateFrequency.PER_INSTANCE:
+        return 'PER_INSTANCE';
+    case UpdateFrequency.PER_BATCH:
+        return 'PER_BATCH';
+    case UpdateFrequency.PER_QUEUE:
+        return 'PER_QUEUE';
+    case UpdateFrequency.PER_PASS:
+        return 'PER_PASS';
+    case UpdateFrequency.COUNT:
+        return 'COUNT';
+    default:
+        return '';
+    }
+}
+
 export const enum ParameterType {
     CONSTANTS,
     CBV,
@@ -44,6 +61,25 @@ export const enum ParameterType {
     SRV,
     TABLE,
     SSV,
+}
+
+export function getParameterTypeName (e: ParameterType): string {
+    switch (e) {
+    case ParameterType.CONSTANTS:
+        return 'CONSTANTS';
+    case ParameterType.CBV:
+        return 'CBV';
+    case ParameterType.UAV:
+        return 'UAV';
+    case ParameterType.SRV:
+        return 'SRV';
+    case ParameterType.TABLE:
+        return 'TABLE';
+    case ParameterType.SSV:
+        return 'SSV';
+    default:
+        return '';
+    }
 }
 
 export const enum ResourceResidency {
@@ -54,6 +90,23 @@ export const enum ResourceResidency {
     BACKBUFFER,
 }
 
+export function getResourceResidencyName (e: ResourceResidency): string {
+    switch (e) {
+    case ResourceResidency.MANAGED:
+        return 'MANAGED';
+    case ResourceResidency.MEMORYLESS:
+        return 'MEMORYLESS';
+    case ResourceResidency.PERSISTENT:
+        return 'PERSISTENT';
+    case ResourceResidency.EXTERNAL:
+        return 'EXTERNAL';
+    case ResourceResidency.BACKBUFFER:
+        return 'BACKBUFFER';
+    default:
+        return '';
+    }
+}
+
 export const enum QueueHint {
     NONE,
     RENDER_OPAQUE,
@@ -61,11 +114,41 @@ export const enum QueueHint {
     RENDER_TRANSPARENT,
 }
 
+export function getQueueHintName (e: QueueHint): string {
+    switch (e) {
+    case QueueHint.NONE:
+        return 'NONE';
+    case QueueHint.RENDER_OPAQUE:
+        return 'RENDER_OPAQUE';
+    case QueueHint.RENDER_CUTOUT:
+        return 'RENDER_CUTOUT';
+    case QueueHint.RENDER_TRANSPARENT:
+        return 'RENDER_TRANSPARENT';
+    default:
+        return '';
+    }
+}
+
 export const enum ResourceDimension {
     BUFFER,
     TEXTURE1D,
     TEXTURE2D,
     TEXTURE3D,
+}
+
+export function getResourceDimensionName (e: ResourceDimension): string {
+    switch (e) {
+    case ResourceDimension.BUFFER:
+        return 'BUFFER';
+    case ResourceDimension.TEXTURE1D:
+        return 'TEXTURE1D';
+    case ResourceDimension.TEXTURE2D:
+        return 'TEXTURE2D';
+    case ResourceDimension.TEXTURE3D:
+        return 'TEXTURE3D';
+    default:
+        return '';
+    }
 }
 
 export const enum ResourceFlags {
@@ -82,4 +165,15 @@ export const enum ResourceFlags {
 export const enum TaskType {
     SYNC,
     ASYNC,
+}
+
+export function getTaskTypeName (e: TaskType): string {
+    switch (e) {
+    case TaskType.SYNC:
+        return 'SYNC';
+    case TaskType.ASYNC:
+        return 'ASYNC';
+    default:
+        return '';
+    }
 }

@@ -100,7 +100,7 @@ renderTextureProto.readPixels = function readPixels (x: number, y: number, width
     x = x || 0;
     y = y || 0;
     width = width || this.width;
-    height = width || this.height;
+    height = height || this.height;
 
 
     let tmpBuffer = oldReadPixels.call(this, x, y, width, height);
