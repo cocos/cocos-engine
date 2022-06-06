@@ -83,6 +83,9 @@ export const simple: IAssembler = {
             if (renderData.vertDirty) {
                 this.updateVertexData(sprite);
             }
+            if (JSB && sprite.node.hasChangedFlags) {
+                this.updateVertexData(sprite);
+            }
             renderData.updateRenderData(sprite, frame);
         }
 

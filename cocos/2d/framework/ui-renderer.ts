@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR, JSB } from 'internal:constants';
 import { ccclass, executeInEditMode, requireComponent, disallowMultiple, tooltip,
     type, displayOrder, serializable, override, visible, displayName, disallowAnimation } from 'cc.decorator';
 import { Color } from '../../core/math';
@@ -362,6 +362,9 @@ export class UIRenderer extends Renderer {
         if (this._renderDataFlag) {
             this._assembler!.updateRenderData(this, render);
             this._renderDataFlag = false;
+        }
+        if (JSB  && this.node.hasChangedFlags) {
+            this._assembler!.updateRenderData(this, render);
         }
     }
 
