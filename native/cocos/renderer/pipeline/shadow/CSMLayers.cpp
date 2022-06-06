@@ -154,7 +154,7 @@ CSMLayers::CSMLayers() {
     _specialLayer = ccnew ShadowTransformInfo(1U);
 
     for (uint i = 0; i < static_cast<uint>(scene::CSMLevel::LEVEL_4); ++i) {
-            _layers[i] = ccnew CSMLayerInfo(i);
+        _layers[i] = ccnew CSMLayerInfo(i);
     }
 }
 
