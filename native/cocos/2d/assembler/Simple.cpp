@@ -24,7 +24,7 @@ void Simple::updateWorldVerts(RenderEntity* entity) {
         return;
     }
 
-    std::vector<Render2dLayout*> dataList = entity->getRenderDataArr();
+    std::vector<Render2dLayout*>& dataList = entity->getRenderDataArr();
     Node* node = entity->getNode();
     const Mat4& matrix = node->getWorldMatrix();
     uint8_t stride = entity->getStride();

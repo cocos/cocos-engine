@@ -68,7 +68,7 @@ public:
 
 public:
     //这里每次获取时都应该对buffer做一次解析
-    std::vector<Render2dLayout*> getRenderDataArr();
+    std::vector<Render2dLayout*>& getRenderDataArr();
     void parseLayout();
     void refreshLayout();
     inline uint8_t getStride() { return this->_stride; }
