@@ -30,6 +30,7 @@
 
 import { Pipeline } from './pipeline';
 import { WebPipeline } from './web-pipeline';
+import { rebuildLayoutGraph } from './effect';
 
 export function createCustomPipeline (): Pipeline {
     return new WebPipeline();

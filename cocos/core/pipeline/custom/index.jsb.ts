@@ -31,6 +31,7 @@
 declare const render: any;
 
 import { Pipeline } from './pipeline';
+import { rebuildLayoutGraph } from './effect';
 
 export function createCustomPipeline (): Pipeline {
     return render.Factory.createPipeline();
