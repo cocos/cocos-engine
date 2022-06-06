@@ -145,13 +145,12 @@ gfx::InputAssembler* UIMeshBuffer::createNewIA(gfx::Device* device) {
         _iaInfo.attributes = _attributes;
         _iaInfo.vertexBuffers.emplace_back(vertexBuffer);
         _iaInfo.indexBuffer = indexBuffer;
-
-        auto* ia = device->createInputAssembler(_iaInfo);
-        _iaPool.emplace_back(ia);
-
-        return ia;
     }
-    return _iaPool.back();
+    auto* ia = device->createInputAssembler(_iaInfo);
+    _iaPool.emplace_back(ia);
+
+    return ia;
+    // return _iaPool.back();
 }
 
 void UIMeshBuffer::syncSharedBufferToNative(index_t* buffer) {
