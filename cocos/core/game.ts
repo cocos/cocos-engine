@@ -748,7 +748,7 @@ export class Game extends EventTarget {
     private _initEngine () {
         this._initDevice();
         //set max joints after device initialize.
-        this._modifyDescriptorSetLayout();
+        this._resizeMaxJointForDS();
         const director = legacyCC.director;
         return Promise.resolve(director._init()).then(() => {
             legacyCC.view.init();
@@ -1054,7 +1054,7 @@ export class Game extends EventTarget {
         }
     }
 
-    private _modifyDescriptorSetLayout () {
+    private _resizeMaxJointForDS () {
         let maxJoints = Math.floor((this._gfxDevice!.capabilities.maxVertexUniformVectors - 38) / 3);
         maxJoints = maxJoints < 256 ? maxJoints : 256;
         localDescriptorSetLayout_ResizeMaxJoints(maxJoints);
