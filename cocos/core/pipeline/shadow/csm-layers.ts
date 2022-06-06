@@ -107,31 +107,42 @@ export class ShadowTransformInfo {
         this._matShadowViewProj = val;
     }
 
-    get validFrustum () {
+    get validFrustum (): Readonly<Frustum> {
         return this._validFrustum;
     }
 
-    get splitFrustum () {
+    get splitFrustum (): Readonly<Frustum> {
         return this._splitFrustum;
     }
 
-    get lightViewFrustum () {
+    get lightViewFrustum (): Readonly<Frustum> {
         return this._lightViewFrustum;
     }
 
-    get castLightViewBoundingBox () {
+    get castLightViewBoundingBox (): Readonly<AABB> {
         return this._castLightViewBoundingBox;
+    }
+
+    public copyToValidFrustum (validFrustum: Readonly<Frustum>) {
+        Frustum.copy(this._validFrustum, validFrustum);
+    }
+
+    public calculateValidFrustumOrtho (width: number, height: number, near: number, far: number, transform: Mat4) {
+        Frustum.createOrtho(this._validFrustum, width, height, near,  far, transform);
+    }
+
+    public calculateSplitFrustum (camera: Camera, m: Mat4, start: number, end: number) {
+        Frustum.split(this._splitFrustum, camera, m, start, end);
     }
 
     public destroy () {
         this._shadowObjects.length = 0;
     }
 
-    public createMatrix (splitFrustum: Frustum, dirLight: DirectionalLight,
-        shadowMapWidth: number, onlyForCulling: boolean) {
+    public createMatrix (dirLight: DirectionalLight, shadowMapWidth: number, onlyForCulling: boolean) {
         const device = legacyCC.director.root.device;
         const invisibleOcclusionRange = dirLight.shadowInvisibleOcclusionRange;
-        Frustum.copy(this._lightViewFrustum, splitFrustum);
+        Frustum.copy(this._lightViewFrustum, this._splitFrustum);
 
         // view matrix with range back
         Mat4.fromRT(_matShadowTrans, dirLight.node!.rotation, _focus);
@@ -341,7 +352,7 @@ export class CSMLayers {
         this._specialLayer.matShadowProj = _matShadowProj;
         this._specialLayer.matShadowViewProj = _matShadowViewProj;
 
-        Frustum.createOrtho(this._specialLayer.validFrustum, x * 2.0, y * 2.0, near,  far, _matShadowTrans);
+        this._specialLayer.calculateValidFrustumOrtho(x * 2.0, y * 2.0, near,  far, _matShadowTrans);
     }
 
     private _splitFrustumLevels (dirLight: DirectionalLight) {
@@ -378,8 +389,8 @@ export class CSMLayers {
             const csmLayer = this._layers[i];
             const near = csmLayer.splitCameraNear;
             const far = csmLayer.splitCameraFar;
-            Frustum.split(csmLayer.splitFrustum, camera, _mat4Trans, near, far);
-            csmLayer.createMatrix(csmLayer.splitFrustum, dirLight, shadowMapWidth, false);
+            csmLayer.calculateSplitFrustum(camera, _mat4Trans, near, far);
+            csmLayer.createMatrix(dirLight, shadowMapWidth, false);
 
             Mat4.multiply(csmLayer.matShadowViewProjAtlas, csmLayer.matShadowAtlas, csmLayer.matShadowViewProj);
         }
@@ -389,10 +400,10 @@ export class CSMLayers {
             Mat4.copy(this._specialLayer.matShadowView, this._layers[0].matShadowView);
             Mat4.copy(this._specialLayer.matShadowProj, this._layers[0].matShadowProj);
             Mat4.copy(this._specialLayer.matShadowViewProj, this._layers[0].matShadowViewProj);
-            Frustum.copy(this._specialLayer.validFrustum, this._layers[0].validFrustum);
+            this._specialLayer.copyToValidFrustum(this._layers[0].validFrustum);
         } else {
-            Frustum.split(this._specialLayer.splitFrustum, camera, _mat4Trans, 0.1, dirLight.shadowDistance);
-            this._specialLayer.createMatrix(this._specialLayer.splitFrustum, dirLight, shadowMapWidth, true);
+            this._specialLayer.calculateSplitFrustum(camera, _mat4Trans, 0.1, dirLight.shadowDistance);
+            this._specialLayer.createMatrix(dirLight, shadowMapWidth, true);
         }
     }
 

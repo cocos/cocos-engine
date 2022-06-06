@@ -196,8 +196,8 @@ export class Frustum {
      * @param f @en The frustum to copy from @zh 用于克隆的截锥体
      * @return @en The out object @zh 传入的 out 对象
      */
-    public static copy (out: Frustum, f: Frustum): Frustum {
-        out._type = f._type;
+    public static copy (out: Frustum, f: Readonly<Frustum>): Frustum {
+        out._type = f.type;
         for (let i = 0; i < 6; ++i) {
             Plane.copy(out.planes[i], f.planes[i]);
         }

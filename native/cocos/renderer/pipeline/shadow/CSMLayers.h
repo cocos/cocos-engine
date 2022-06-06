@@ -67,13 +67,11 @@ public:
 
     void createMatrix(const geometry::Frustum &splitFrustum, const scene::DirectionalLight *dirLight, float shadowMapWidth, bool isOnlyCulling);
 
-    void specialLayerCopyValidFrustum(const geometry::Frustum &validFrustum);
+    void copyToValidFrustum(const geometry::Frustum &validFrustum);
 
-    void specialLayerCreateOrtho(float width, float height, float nearClamp, float farClamp, const Mat4 &transform);
+    void calculateValidFrustumOrtho(float width, float height, float nearClamp, float farClamp, const Mat4 &transform);
 
-    void specialLayerSplitFrustum(float start, float end, float aspect, float fov, const Mat4 &transform);
-
-    void splitFrustum(float start, float end, float aspect, float fov, const Mat4 &transform);
+    void calculateSplitFrustum(float start, float end, float aspect, float fov, const Mat4 &transform);
 
 private:
     RenderObjectList _shadowObjects;
@@ -160,7 +158,7 @@ private:
     uint _levelCount{0U};
     // The ShadowTransformInfo object for 'fixed area shadow' || 'maximum clipping info' || 'CSM layers = 1'.
     ShadowTransformInfo *_specialLayer{nullptr};
-    ccstd::array<CSMLayerInfo *, 4> _layers;
+    ccstd::array<CSMLayerInfo *, 4> _layers{};
     float _shadowDistance{0.0F};
 };
 } // namespace pipeline
