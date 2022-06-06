@@ -31,9 +31,7 @@
 #endif
 
 #if CC_RECEIVE_SHADOW
-  #if USE_INSTANCING
-    #define VSOutput_shadowBias v_shadowBias
-  #endif
+  #define VSOutput_shadowBias v_shadowBias
 #endif
 
 #if !CC_USE_ACCURATE_FOG

@@ -45,9 +45,7 @@ void CCSurfacesVertexOutput(in SurfacesStandardVertexIntermediate In)
 #endif
 
 #if CC_RECEIVE_SHADOW
-  #if USE_INSTANCING
-    VSOutput_shadowBias = In.shadowBias;
-  #endif
+  VSOutput_shadowBias = In.shadowBias;
 #endif
 
 #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
@@ -118,7 +116,7 @@ void CCSurfacesVertexTransferShadow(inout SurfacesStandardVertexIntermediate In)
   #if CC_RECEIVE_SHADOW
     In.shadowBias = vec2(cc_shadowWHPBInfo.w, cc_shadowLPNNInfo.z);
     #if USE_INSTANCING
-      In.shadowBias = vec2(a_localShadowBias.x + cc_shadowWHPBInfo.w, a_localShadowBias.y + cc_shadowLPNNInfo.z);
+      In.shadowBias += a_localShadowBias.xy;
     #elif !USE_BATCHING
       In.shadowBias += cc_localShadowBias.xy;
     #endif
