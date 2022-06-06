@@ -26,7 +26,7 @@
 #pragma once
 
 #include "base/RefCounted.h"
-#include "core/scene-graph/Layers.h"
+//#include "core/scene-graph/Layers.h"
 #include "core/scene-graph/Node.h"
 #include "renderer/gfx-base/GFXDef-common.h"
 #include "scene/Define.h"
