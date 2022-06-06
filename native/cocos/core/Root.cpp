@@ -102,7 +102,7 @@ render::Pipeline *Root::getCustomPipeline() const {
 void Root::destroy() {
     destroyScenes();
 
-    if (_usesCustomPipeline) {
+    if (_usesCustomPipeline && _pipelineRuntime) {
         _pipelineRuntime->destroy();
     }
     _pipelineRuntime.reset();

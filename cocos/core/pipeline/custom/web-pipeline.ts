@@ -27,7 +27,7 @@
 import { systemInfo } from 'pal/system-info';
 import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, StoreOp, LoadOp, ClearFlagBit, DescriptorSet } from '../../gfx/index';
 import { Mat4, Quat, Vec2, Vec4 } from '../../math';
-import { QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, TaskType } from './types';
+import { QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, UpdateFrequency } from './types';
 import { AccessType, AttachmentType, Blit, ComputePass, ComputeView, CopyPair, CopyPass, Dispatch, ManagedResource, MovePair, MovePass, PresentPass, RasterPass, RasterView, RenderData, RenderGraph, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, LayoutGraphBuilder, MovePassBuilder, Pipeline, RasterPassBuilder, RasterQueueBuilder, SceneTask, SceneTransversal, SceneVisitor, Setter } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
@@ -645,6 +645,13 @@ export class WebPipeline extends Pipeline {
     }
     get layoutGraphBuilder (): LayoutGraphBuilder {
         return new WebLayoutGraphBuilder(this._device, this._layoutGraph);
+    }
+    public getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout {
+        const lg = this._layoutGraph;
+        const phaseID = lg.shaderLayoutIndex.get(shaderName)!;
+        const pplLayout = lg.getLayout(phaseID);
+        const setLayout = pplLayout.descriptorSets.get(freq)!;
+        return setLayout.descriptorSetLayout!;
     }
     get renderGraph () {
         return this._renderGraph;

@@ -51,6 +51,7 @@ public:
     void clear() override;
     uint32_t addRenderStage(const ccstd::string& name) override;
     uint32_t addRenderPhase(const ccstd::string& name, uint32_t parentID) override;
+    void addShader(const ccstd::string& name, uint32_t parentPhaseID) override;
     void addDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlock& block) override;
     void reserveDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlock& block) override;
     int compile() override;
@@ -265,6 +266,7 @@ public:
 
     SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) override;
     LayoutGraphBuilder *getLayoutGraphBuilder() override;
+    gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string& shaderName, UpdateFrequency freq) override;
 
     bool activate(gfx::Swapchain * swapchain) override;
     bool destroy() noexcept override;

@@ -36,6 +36,10 @@ export function rebuildLayoutGraph (): void {
         }
         if (graph.id(v) === LayoutGraphValue.RenderPhase) {
             vid = lgData.addRenderPhase(graph.getName(v), graph.getParent(v));
+            const phase = graph.getRenderPhase(vid);
+            for (const shaderName of phase.shaders) {
+                lgData.addShader(shaderName, vid);
+            }
         }
 
         db.blocks.forEach((value, key) => {

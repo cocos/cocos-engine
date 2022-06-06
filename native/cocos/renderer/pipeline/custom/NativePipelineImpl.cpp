@@ -273,6 +273,16 @@ LayoutGraphBuilder *NativePipeline::getLayoutGraphBuilder() {
     return ccnew NativeLayoutGraphBuilder(device, &layoutGraph);
 }
 
+gfx::DescriptorSetLayout *NativePipeline::getDescriptorSetLayout(const ccstd::string& shaderName, UpdateFrequency freq) {
+    auto iter = layoutGraph.shaderLayoutIndex.find(boost::string_view(shaderName));
+    if (iter != layoutGraph.shaderLayoutIndex.end()) {
+        const auto& layouts = get(LayoutGraphData::Layout, layoutGraph, iter->second).descriptorSets;
+        return layouts.at(freq).descriptorSetLayout.get();
+    }
+    CC_EXPECTS(false);
+    return nullptr;
+}
+
 namespace {
 
 void generateConstantMacros(
