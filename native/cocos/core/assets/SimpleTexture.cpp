@@ -136,7 +136,7 @@ void SimpleTexture::createTexture(gfx::Device *device) {
     auto flags = gfx::TextureFlagBit::NONE;
     if (_mipFilter != Filter::NONE && canGenerateMipmap(_width, _height)) {
         _mipmapLevel = getMipLevel(_width, _height);
-        if (!useOfflineMipmaps()) {
+        if (!isUseOfflineMipmaps()) {
             flags = gfx::TextureFlagBit::GEN_MIPMAP;
         }
     }
@@ -213,7 +213,7 @@ void SimpleTexture::setMipRange(uint32_t baseLevel, uint32_t maxLevel) {
     _gfxTextureView = textureView;
 }
 
-bool SimpleTexture::useOfflineMipmaps() {
+bool SimpleTexture::isUseOfflineMipmaps() {
     return false;
 }
 

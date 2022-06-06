@@ -203,7 +203,7 @@ bool Skybox::isRGBE() const {
 bool Skybox::isUseConvolutionMap() const {
     auto *envmap = getEnvmap();
     if (envmap) {
-        return envmap->useOfflineMipmaps();
+        return envmap->isUseOfflineMipmaps();
     }
     return false;
 }
@@ -268,7 +268,7 @@ void Skybox::activate() {
     auto *envmap = getEnvmap();
     bool isRGBE = envmap != nullptr ? envmap->isRGBE : _default->isRGBE;
 
-    bool isUseConvolutionMap = envmap != nullptr ? envmap->useOfflineMipmaps() : _default->useOfflineMipmaps();
+    bool isUseConvolutionMap = envmap != nullptr ? envmap->isUseOfflineMipmaps() : _default->isUseOfflineMipmaps();
     if (!skyboxMaterial) {
         auto *mat = _editableMaterial ? _editableMaterial.get() : ccnew Material();
         MacroRecord defines{{"USE_RGBE_CUBEMAP", isRGBE}, {"CC_IBL_CONVOLUTED", isUseConvolutionMap}};

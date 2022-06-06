@@ -151,7 +151,7 @@ export class Skybox {
      */
     get isUseConvolutionMap (): boolean {
         if (this.envmap) {
-            return this.envmap.useOfflineMipmaps();
+            return this.envmap.isUseOfflineMipmaps();
         } else {
             return false;
         }
@@ -269,10 +269,10 @@ export class Skybox {
             this._model._initWorldBoundDescriptors = () => {};
         }
         let isRGBE = this._default.isRGBE;
-        let isUseConvolutionMap = this._default.useOfflineMipmaps();
+        let isUseConvolutionMap = this._default.isUseOfflineMipmaps();
         if (this.envmap) {
             isRGBE = this.envmap.isRGBE;
-            isUseConvolutionMap = this.envmap.useOfflineMipmaps();
+            isUseConvolutionMap = this.envmap.isUseOfflineMipmaps();
         }
 
         if (!skybox_material) {

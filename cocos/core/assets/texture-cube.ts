@@ -209,7 +209,7 @@ export class TextureCube extends SimpleTexture {
         return this._mipmapAtlas;
     }
 
-    public useOfflineMipmaps (): boolean {
+    public isUseOfflineMipmaps (): boolean {
         return this._mipmapMode === MipmapBakeMode.BAKE_REFLECTION_CONVOLUTION;
     }
 

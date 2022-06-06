@@ -205,7 +205,7 @@ public:
 
     // Override functions
     void updateMipmaps(uint32_t firstLevel, uint32_t count) override;
-    bool useOfflineMipmaps() override;
+    bool isUseOfflineMipmaps() override;
 
     void initialize();
     void onLoaded() override;

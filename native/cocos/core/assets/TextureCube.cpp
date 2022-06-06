@@ -104,16 +104,16 @@ void TextureCube::setMipmaps(const ccstd::vector<ITextureCubeMipmap> &value) {
 }
 
 void TextureCube::setmipmapAtlas(const TextureCubeMipmapAtlasInfo &value) {
-    _mipmapAtlas = value;
-    ITextureCubeMipmap atlas = _mipmapAtlas.atlas;
-    ccstd::vector<MipmapAtlasLayoutInfo> layouts = _mipmapAtlas.layout;
-    if (_mipmapAtlas.layout.empty()) {
+    if (value.layout.empty()) {
         return;
     }
+    _mipmapAtlas = value;
+    const ITextureCubeMipmap &atlas = _mipmapAtlas.atlas;
+    const ccstd::vector<MipmapAtlasLayoutInfo> &layouts = _mipmapAtlas.layout;
     setMipmapLevel(static_cast<uint32_t>(layouts.size()));
 
-    MipmapAtlasLayoutInfo lv0Layout = layouts[0];
-    ImageAsset *imageAsset = atlas.front;
+    const MipmapAtlasLayoutInfo &lv0Layout = layouts[0];
+    const ImageAsset *imageAsset = atlas.front;
 
     reset({lv0Layout.width,
            lv0Layout.height,
@@ -125,7 +125,7 @@ void TextureCube::setmipmapAtlas(const TextureCubeMipmapAtlasInfo &value) {
     const uint32_t pixelSize = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(imageAsset->getFormat())].size;
 
     for (size_t level = 0; level < layouts.size(); level++) {
-        MipmapAtlasLayoutInfo layoutInfo = layouts[level];
+        const MipmapAtlasLayoutInfo &layoutInfo = layouts[level];
         uint32_t currentSize = layoutInfo.width * layoutInfo.height * pixelSize;
 
         //Upload 6 sides by level
@@ -147,6 +147,7 @@ void TextureCube::setmipmapAtlas(const TextureCubeMipmapAtlasInfo &value) {
                 }
             }
             auto *tempAsset = ccnew ImageAsset();
+            tempAsset->addRef();
             auto *arrayBuffer = ccnew ArrayBuffer(buffer, static_cast<uint32_t>(currentSize));
             IMemoryImageSource source{arrayBuffer, face->isCompressed(), layoutInfo.width, layoutInfo.height, face->getFormat()};
             tempAsset->setNativeAsset(source);
@@ -156,6 +157,8 @@ void TextureCube::setmipmapAtlas(const TextureCubeMipmapAtlasInfo &value) {
                 delete[] buffer;
                 buffer = nullptr;
             }
+            tempAsset->release();
+            tempAsset = nullptr;
         });
     }
 }
@@ -209,7 +212,7 @@ void TextureCube::updateMipmaps(uint32_t firstLevel, uint32_t count) {
     }
 }
 
-bool TextureCube::useOfflineMipmaps() {
+bool TextureCube::isUseOfflineMipmaps() {
     return _mipmapMode == MipmapBakeMode::BAKE_REFLECTION_CONVOLUTION;
 }
 
