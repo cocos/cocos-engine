@@ -38,7 +38,7 @@ void UIMeshBuffer::initialize(gfx::Device* device, std::vector<gfx::Attribute*>&
     //for (index_t i = 0; i < attrs.size(); i++) {
     //    _attributes.push_back(*attrs[i]);
     //}
-    _iaPool.push_back(createNewIA(device));
+    // _iaPool.push_back(createNewIA(device));
 }
 
 void UIMeshBuffer::reset() {
@@ -82,7 +82,7 @@ void UIMeshBuffer::setDirty() {
 
 gfx::InputAssembler* UIMeshBuffer::requireFreeIA(gfx::Device* device) {
     if (_nextFreeIAHandle >= _iaPool.size()) {
-        _iaPool.push_back(createNewIA(device));
+        createNewIA(device);
     }
     auto ia = _iaPool[_nextFreeIAHandle];
     _nextFreeIAHandle++;
@@ -147,7 +147,7 @@ gfx::InputAssembler* UIMeshBuffer::createNewIA(gfx::Device* device) {
         _iaInfo.indexBuffer = indexBuffer;
 
         auto* ia = device->createInputAssembler(_iaInfo);
-        _iaPool.push_back(ia);
+        _iaPool.emplace_back(ia);
 
         return ia;
     }

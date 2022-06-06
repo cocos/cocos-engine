@@ -69,11 +69,6 @@ protected:
     ccstd::vector<IntrusivePtr<scene::Pass>> _passes;
     ccstd::vector<gfx::Shader *> _shaders;
 
-    gfx::Texture *_texture{nullptr}; // Or use DS?
-    gfx::Sampler *_sampler{nullptr}; // Or use DS?
-    uint32_t textureHash{0};         // May don`t need
-    uint32_t samplerHash{0};         // May don`t need
-
     Node *_useLocalData{nullptr}; // May don`t need
     Model *_model{nullptr};
 };
