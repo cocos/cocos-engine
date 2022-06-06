@@ -107,10 +107,10 @@ void Object::cleanup() {
     Object *obj = nullptr;
     Class *cls = nullptr;
 
-    const auto &nativePtrToObjectMap = NativePtrToObjectMap::instance();
-    for (const auto &e : nativePtrToObjectMap) {
-        nativeObj = e.first;
-        obj = e.second;
+    auto iter = NativePtrToObjectMap::begin();
+    while (iter != NativePtrToObjectMap::end()) {
+        nativeObj = iter->first;
+        obj = iter->second;
 
         if (obj->_finalizeCb != nullptr) {
             obj->_finalizeCb(obj);
@@ -123,9 +123,10 @@ void Object::cleanup() {
         }
 
         obj->decRef();
+        iter = NativePtrToObjectMap::erase(iter);
     }
 
-    NativePtrToObjectMap::clear();
+    SE_ASSERT(NativePtrToObjectMap::size() == 0, "NativePtrToObjectMap should be empty!");
 
     if (__objectMap) {
         ccstd::vector<Object *> toReleaseObjects;
