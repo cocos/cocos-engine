@@ -306,7 +306,7 @@ export class RenderData extends BaseRenderData {
             //batcher.syncMeshBufferAttrToNative();
 
             //调试mesh buffer是否传过去
-            batcher.nativeObj.ItIsDebugFuncInBatcher2d();
+            //batcher.nativeObj.ItIsDebugFuncInBatcher2d();
         }
     }
 

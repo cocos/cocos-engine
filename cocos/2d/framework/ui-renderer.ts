@@ -363,9 +363,9 @@ export class UIRenderer extends Renderer {
             this._assembler!.updateRenderData(this, render);
             this._renderDataFlag = false;
         }
-        if (JSB  && this.node.hasChangedFlags) {
-            this._assembler!.updateRenderData(this, render);
-        }
+        // if (JSB  && this.node.hasChangedFlags) {
+        //     this._assembler!.updateRenderData(this, render);
+        // }
     }
 
     // test code: to replace after part updateAssembler

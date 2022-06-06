@@ -83,9 +83,9 @@ export const simple: IAssembler = {
             if (renderData.vertDirty) {
                 this.updateVertexData(sprite);
             }
-            if (JSB && sprite.node.hasChangedFlags) {
-                this.updateVertexData(sprite);
-            }
+            // if (JSB && sprite.node.hasChangedFlags) {
+            //     this.updateVertexData(sprite);
+            // }
             renderData.updateRenderData(sprite, frame);
         }
 
@@ -136,8 +136,6 @@ export const simple: IAssembler = {
             return;
         }
 
-        const batcher = director.root!.batcher2D;
-
         const renderData = sprite.renderData!;
         const chunk = renderData.chunk;
         if (sprite.node.hasChangedFlags || renderData.vertDirty) {
@@ -176,9 +174,6 @@ export const simple: IAssembler = {
                 // IndexOffset should add 6 when vertices of a rect are visited.
                 meshBuffer.indexOffset += 6;
             }
-        }
-        if (JSB) {
-            batcher.nativeObj.ItIsDebugFuncInBatcher2d();
         }
         // slow version
         // renderer.switchBufferAccessor().appendIndices(chunk);
