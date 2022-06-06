@@ -42,8 +42,16 @@ void UIMeshBuffer::initialize(gfx::Device* device, std::vector<gfx::Attribute*>&
 }
 
 void UIMeshBuffer::reset() {
+    setIndexOffset(0);
     _nextFreeIAHandle = 0;
     _dirty = false;
+}
+
+void UIMeshBuffer::resetIA() {
+    for (auto* ia : _iaPool) {
+        ia->setFirstIndex(0);
+        ia->setIndexCount(0);
+    }
 }
 
 void UIMeshBuffer::destroy() {
@@ -63,7 +71,7 @@ void UIMeshBuffer::destroy() {
     // Destroy InputAssemblers
     for each (auto ia in _iaPool) {
         ia->destroy();
-        delete ia;//关闭时还会崩溃
+        delete ia; //关闭时还会崩溃
     }
     _iaPool.clear();
 }

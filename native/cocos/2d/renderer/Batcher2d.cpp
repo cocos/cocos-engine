@@ -244,6 +244,12 @@ void Batcher2d::reset() {
     }
 
     //meshDataArray
+    for (index_t i = 0; i < _meshBuffers.size(); i++) {
+        UIMeshBuffer* buffer = _meshBuffers[i];
+        if (buffer) {
+            buffer->resetIA();
+        }
+    }
 
     _currBID = -1;
     _indexStart = 0;

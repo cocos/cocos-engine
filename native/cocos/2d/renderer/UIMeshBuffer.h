@@ -25,6 +25,7 @@ public:
 public:
     void initialize(gfx::Device* device, std::vector<gfx::Attribute*>&& attrs, index_t vFloatCount, index_t iCount);
     void reset();
+    void resetIA();
     void destroy();
     void setDirty();
     void recycleIA(gfx::InputAssembler* ia);
