@@ -849,7 +849,7 @@ const aabbPlane = function (aabb: AABB, plane: Plane): number {
  * @param frustum @zh 锥台 @en The frustum to test
  * @return @zh 0 或非 0 @en 0 or not 0, 0 indicates there is no intersection
  */
-const aabbFrustum = function (aabb: AABB, frustum: Frustum): number {
+const aabbFrustum = function (aabb: AABB, frustum: Readonly<Frustum>): number {
     for (let i = 0; i < frustum.planes.length; i++) {
         // frustum plane normal points to the inside
         if (aabbPlane(aabb, frustum.planes[i]) === -1) {
@@ -868,7 +868,7 @@ const aabbFrustum = function (aabb: AABB, frustum: Frustum): number {
  * @param {Frustum} frustum 锥台
  * @return {number} aabb completely inside the frustum = 1, otherwise = 0
  */
-const aabbFrustumCompletelyInside = function (aabb: AABB, frustum: Frustum): number {
+const aabbFrustumCompletelyInside = function (aabb: AABB, frustum: Readonly<Frustum>): number {
     for (let i = 0; i < frustum.planes.length; i++) {
         // frustum plane normal points to the inside
         if (aabbPlane(aabb, frustum.planes[i]) !== 0) {
