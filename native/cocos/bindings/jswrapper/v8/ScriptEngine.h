@@ -83,7 +83,7 @@ public:
     /**
      *  @brief Destroys the instance of script engine.
      */
-    CC_DEPRECATED(v3.6.0)
+    CC_DEPRECATED(3.6.0)
     static void destroyInstance();
     
     ScriptEngine();
