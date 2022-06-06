@@ -110,27 +110,17 @@ export class ShadowTransformInfo {
     get validFrustum () {
         return this._validFrustum;
     }
-    set validFrustum (val) {
-        this._validFrustum = val;
-    }
 
     get splitFrustum () {
         return this._splitFrustum;
     }
-    set splitFrustum (val) {
-        this._splitFrustum = val;
-    }
+
     get lightViewFrustum () {
         return this._lightViewFrustum;
     }
-    set lightViewFrustum (val) {
-        this._lightViewFrustum = val;
-    }
+
     get castLightViewBoundingBox () {
         return this._castLightViewBoundingBox;
-    }
-    set castLightViewBoundingBox (val) {
-        this._castLightViewBoundingBox = val;
     }
 
     public destroy () {
