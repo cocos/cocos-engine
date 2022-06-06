@@ -39,8 +39,8 @@ void Simple::updateWorldVerts(RenderEntity* entity) {
 
         offset = i * stride;
         vbBuffer[offset++] = temp.x;
-        vbBuffer[offset++] = temp.x;
-        vbBuffer[offset++] = temp.x;
+        vbBuffer[offset++] = temp.y;
+        vbBuffer[offset++] = temp.z;
     }
 }
 
