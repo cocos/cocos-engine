@@ -37,6 +37,7 @@ import { DirectionalLight, SpotLight } from '../renderer/scene';
 import { RenderWindow } from '../renderer/core/render-window';
 import { builtinResMgr } from '../builtin/builtin-res-mgr';
 import { Texture2D } from '../assets';
+import { DebugView, DebugViewCompositeType } from './debug-view';
 
 const _matShadowView = new Mat4();
 const _matShadowProj = new Mat4();
@@ -66,6 +67,15 @@ export class PipelineUBO {
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 1] = shadingHeight;
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 2] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET];
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 3] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET + 1];
+
+        const debugView = legacyCC.debugView;
+
+        fv[UBOGlobal.DEBUG_VIEW_SINGLE_MODE_OFFSET] = debugView.singleMode as number;
+        fv[UBOGlobal.DEBUG_VIEW_LIGHTING_ENABLE_WITH_ALBEDO_OFFSET] = debugView.lightingWithAlbedo ? 1.0 : 0.0;
+        fv[UBOGlobal.DEBUG_VIEW_MISC_ENABLE_CSM_LAYER_COLORATION_OFFSET] = debugView.csmLayerColoration ? 1.0 : 0.0;
+        for (let i = DebugViewCompositeType.DIRECT_DIFFUSE as number; i < DebugViewCompositeType.MAX_BIT_COUNT; i++) {
+            fv[UBOGlobal.DEBUG_VIEW_COMPOSITE_ENABLE_DIRECT_DIFFUSE_OFFSET + i] = debugView.isCompositeModeEnabled(i) ? 1.0 : 0.0;
+        }
     }
 
     public static updateCameraUBOView (pipeline: RenderPipeline, bufferView: Float32Array,
