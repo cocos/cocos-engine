@@ -90,7 +90,9 @@ gfx::InputAssembler* UIMeshBuffer::requireFreeIA(gfx::Device* device) {
 }
 
 void UIMeshBuffer::uploadBuffers() {
-    if (_meshBufferLayout == nullptr || getByteOffset() == 0 || !getDirty() || this->_iaPool.size() == 0) {
+    index_t byteOffset = getByteOffset();
+    bool dirty = getDirty();
+    if (_meshBufferLayout == nullptr || byteOffset == 0 || !dirty || this->_iaPool.size() == 0) {
         return;
     }
 

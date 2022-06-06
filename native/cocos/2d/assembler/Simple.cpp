@@ -54,7 +54,7 @@ void Simple::fillBuffers(RenderEntity* entity) {
         entity->setVertDirty(false);
     }
 
-    uint8_t vertexOffset = entity->getVertexOffset();
+    index_t vertexOffset = entity->getVertexOffset();
     uint16_t* ib = entity->getIDataBuffer();
 
     UIMeshBuffer* buffer = _batcher->getMeshBuffer(entity->getBufferId());
@@ -67,7 +67,7 @@ void Simple::fillBuffers(RenderEntity* entity) {
 
     for (int curRow = 0; curRow < this->_vertexRow - 1; curRow++) {
         for (int curCol = 0; curCol < this->_vertexCol - 1; curCol++) {
-            uint8_t vId = vertexOffset + curRow * this->_vertexCol + curCol;
+            index_t vId = vertexOffset + curRow * this->_vertexCol + curCol;
 
             // left bottom
             ib[indexOffset++] = vId;

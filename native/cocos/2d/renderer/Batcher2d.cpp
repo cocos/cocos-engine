@@ -148,6 +148,8 @@ void Batcher2d::generateBatch(RenderEntity* entity) {
         return; //第一个组件，currBID==-1，此时当然也不需要合批
     }
 
+    currMeshBuffer->setDirty(true);
+
     auto* ia = currMeshBuffer->requireFreeIA(getDevice());
     uint32_t indexCount = currMeshBuffer->getIndexOffset() - _indexStart;
     if (ia == nullptr) {
