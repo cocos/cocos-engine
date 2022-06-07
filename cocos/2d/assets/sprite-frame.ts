@@ -36,7 +36,7 @@ import { Texture2D } from '../../core/assets/texture-2d';
 import { errorID, warnID } from '../../core/platform/debug';
 import { dynamicAtlasManager } from '../utils/dynamic-atlas/atlas-manager';
 import { js } from '../../core/utils/js';
-import { Mesh } from '../../3d';
+import { Mesh } from '../../3d/assets/mesh';
 import { createMesh } from '../../3d/misc';
 import { Attribute, AttributeName, Format, PrimitiveMode } from '../../core/gfx';
 
