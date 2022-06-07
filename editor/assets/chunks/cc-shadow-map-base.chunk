@@ -3,7 +3,9 @@
 #include <common>
 #include <cc-global>
 #include <cc-shadow>
-#include <cc-csm>
+#if CC_RECEIVE_SHADOW
+  #include <cc-csm>
+#endif
 #include <packing>
 #include <cc-local>
 
@@ -13,6 +15,17 @@
 #pragma define SHADOWMAP_FORMAT_RGBA8 1
 #pragma define SHADOWMAP_FORMAT_FLOAT 0
 
+float CCGetLinearDepthFromViewSpace(vec3 viewPos) {
+  float dist = length(viewPos);
+  return (dist - cc_shadowNFLSInfo.x) / (cc_shadowNFLSInfo.y - cc_shadowNFLSInfo.x);
+}
+
+float CCGetLinearDepth(vec3 worldPos) {
+  vec4 viewStartPos = cc_matLightView * vec4(worldPos.xyz, 1.0);
+  return CCGetLinearDepthFromViewSpace(viewStartPos.xyz);
+}
+
+#if CC_RECEIVE_SHADOW
 int CCGetCSMLevel(out vec4 csmPos, vec3 worldPos) {
   for (int i = 0; i < NUMCASCADES; i++) {
     vec4 shadowPos = cc_matShadowViewProj_levels[i] * vec4(worldPos.xyz, 1.0);
@@ -28,17 +41,6 @@ int CCGetCSMLevel(out vec4 csmPos, vec3 worldPos) {
   return -1;
 }
 
-float CCGetLinearDepthFromViewSpace(vec3 viewPos) {
-  float dist = length(viewPos);
-  return (dist - cc_shadowNFLSInfo.x) / (cc_shadowNFLSInfo.y - cc_shadowNFLSInfo.x);
-}
-
-float CCGetLinearDepth(vec3 worldPos) {
-  vec4 viewStartPos = cc_matLightView * vec4(worldPos.xyz, 1.0);
-  return CCGetLinearDepthFromViewSpace(viewStartPos.xyz);
-}
-
-#if CC_RECEIVE_SHADOW
   #pragma builtin(global)
   layout(set = 0, binding = 4) uniform highp sampler2D cc_shadowMap;
 
