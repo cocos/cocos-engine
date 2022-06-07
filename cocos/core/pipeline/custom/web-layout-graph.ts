@@ -135,6 +135,10 @@ export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
         return this.add_vertex<LayoutGraphDataValue.RenderPhase>(this._data, LayoutGraphDataValue.RenderPhase, new RenderPhaseData(), name, parentID);
     }
 
+    public addShader (name: string, parentPhaseID: number): void {
+        this._data.shaderLayoutIndex.set(name, parentPhaseID);
+    }
+
     public addDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlock): void {
         const g: LayoutGraphData = this._data;
         const ppl: PipelineLayoutData = g.getLayout(nodeID);

@@ -1,6 +1,12 @@
 #include <cc-global>
 #include <common/effect/fog>
 
+#pragma define-meta CC_USE_FOG range([0, 4])
+#pragma define CC_FOG_LINEAR 0
+#pragma define CC_FOG_EXP 1
+#pragma define CC_FOG_EXP_SQUARED 2
+#pragma define CC_FOG_LAYERED 3
+
 // Fog helper functions
 void CC_TRANSFER_FOG_BASE(vec4 pos, out float factor)
 {

@@ -36,7 +36,7 @@ import { DescriptorBlock, DescriptorBlockIndex } from './layout-graph';
 import { Mat4, Quat, Vec2, Vec4 } from '../../math';
 import { MacroRecord } from '../../renderer/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { QueueHint, ResourceResidency, TaskType } from './types';
+import { QueueHint, ResourceResidency, TaskType, UpdateFrequency } from './types';
 import { ComputeView, CopyPair, MovePair, RasterView } from './render-graph';
 import { RenderScene } from '../../renderer/core/render-scene';
 import { RenderWindow } from '../../renderer/core/render-window';
@@ -143,6 +143,7 @@ export abstract class LayoutGraphBuilder {
     public abstract clear(): void;
     public abstract addRenderStage(name: string): number;
     public abstract addRenderPhase(name: string, parentID: number): number;
+    public abstract addShader(name: string, parentPhaseID: number): void;
     public abstract addDescriptorBlock(nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlock): void;
     public abstract reserveDescriptorBlock(nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlock): void;
     public abstract compile(): number;
@@ -164,6 +165,7 @@ export abstract class Pipeline extends PipelineRuntime {
     public abstract presentAll(): void;
     public abstract createSceneTransversal(camera: Camera, scene: RenderScene): SceneTransversal;
     public abstract get layoutGraphBuilder(): LayoutGraphBuilder;
+    public abstract getDescriptorSetLayout(shaderName: string, freq: UpdateFrequency): DescriptorSetLayout;
 }
 
 export class Factory {

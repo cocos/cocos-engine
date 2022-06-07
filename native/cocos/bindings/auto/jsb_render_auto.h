@@ -135,6 +135,7 @@ bool js_register_cc_render_LayoutGraphBuilder(se::Object *obj); // NOLINT
 SE_DECLARE_FUNC(js_render_LayoutGraphBuilder_addDescriptorBlock);
 SE_DECLARE_FUNC(js_render_LayoutGraphBuilder_addRenderPhase);
 SE_DECLARE_FUNC(js_render_LayoutGraphBuilder_addRenderStage);
+SE_DECLARE_FUNC(js_render_LayoutGraphBuilder_addShader);
 SE_DECLARE_FUNC(js_render_LayoutGraphBuilder_clear);
 SE_DECLARE_FUNC(js_render_LayoutGraphBuilder_compile);
 SE_DECLARE_FUNC(js_render_LayoutGraphBuilder_print);
@@ -155,6 +156,7 @@ SE_DECLARE_FUNC(js_render_Pipeline_addRenderTexture);
 SE_DECLARE_FUNC(js_render_Pipeline_beginFrame);
 SE_DECLARE_FUNC(js_render_Pipeline_createSceneTransversal);
 SE_DECLARE_FUNC(js_render_Pipeline_endFrame);
+SE_DECLARE_FUNC(js_render_Pipeline_getDescriptorSetLayout);
 SE_DECLARE_FUNC(js_render_Pipeline_presentAll);
 
 extern se::Object *__jsb_cc_render_Factory_proto; // NOLINT

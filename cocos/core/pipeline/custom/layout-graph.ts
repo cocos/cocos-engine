@@ -859,6 +859,7 @@ export class LayoutGraphData implements impl.BidirectionalGraph
         this.valueNames.length = 0;
         this.attributeIndex.clear();
         this.constantIndex.clear();
+        this.shaderLayoutIndex.clear();
         // ComponentGraph
         this._names.length = 0;
         this._updateFrequencies.length = 0;
@@ -1222,4 +1223,5 @@ export class LayoutGraphData implements impl.BidirectionalGraph
     readonly valueNames: string[] = [];
     readonly attributeIndex: Map<string, number> = new Map<string, number>();
     readonly constantIndex: Map<string, number> = new Map<string, number>();
+    readonly shaderLayoutIndex: Map<string, number> = new Map<string, number>();
 }

@@ -210,6 +210,7 @@ ccstd::unordered_map<int, ccstd::string> debugInfos = {
 { 3934, "Misconfigured legacy curve: the first keyframe value is number but others aren't." },
 { 3935, "We don't currently support conversion of `CubicSplineQuatValue`." },
 { 3936, "Instancing/Batching enabled for non-baked skinning model '%s', this may result in unexpected rendering artifacts. Consider turning it off in the material if you do not intend to do this." },
+{ 3937, "Previous error occurred when instantiating animation clip %s on node %s." },
 { 4003, "Label font size can't be shirnked less than 0!" },
 { 4004, "force notify all fonts loaded!" },
 { 4011, "Property spriteFrame of Font '%s' is invalid. Using system font instead." },
