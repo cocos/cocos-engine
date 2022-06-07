@@ -1089,7 +1089,8 @@ class LayerEval {
             _currentTransitionToNode: currentTransitionToNode,
         } = this;
 
-        if (currentNode.kind !== NodeKind.animation) {
+        if (currentNode.kind !== NodeKind.animation
+            && currentNode.kind !== NodeKind.transitionSnapshot) {
             return null;
         }
 
@@ -1105,9 +1106,9 @@ class LayerEval {
             return null;
         }
 
-        const motion0: MotionStateEval =                    interruption === TransitionInterruption.CURRENT_STATE
+        const motion0: MotionStateEval                = interruption === TransitionInterruption.CURRENT_STATE
                 || interruption === TransitionInterruption.CURRENT_STATE_THEN_NEXT_STATE
-            ?                currentNode
+            ? getInterruptionSourceMotion(currentNode)
             : currentTransitionToNode;
 
         let minDeltaTimeRequired = Infinity;
@@ -1130,7 +1131,7 @@ class LayerEval {
             }
         }
 
-        const motion1 = interruption === TransitionInterruption.NEXT_STATE_THEN_CURRENT_STATE ? currentNode
+        const motion1 = interruption === TransitionInterruption.NEXT_STATE_THEN_CURRENT_STATE ? getInterruptionSourceMotion(currentNode)
             : interruption === TransitionInterruption.CURRENT_STATE_THEN_NEXT_STATE ? currentTransitionToNode
                 : null;
         if (motion1) {
@@ -1153,8 +1154,11 @@ class LayerEval {
         return null;
     }
 
+    /**
+     * A thing to note is `transitionSource` may not be `this._currentNode`.
+     */
     private _interrupt ({
-        from,
+        from: transitionSource,
         transition,
         requires: transitionRequires,
     }: InterruptingTransitionMatch) {
@@ -1172,7 +1176,7 @@ class LayerEval {
             assertIsTrue(transitionSnapshot.empty);
             transitionSnapshot.enqueue(currentNode, 1.0);
         }
-        this._takeCurrentTransitionSnapshot(from);
+        this._takeCurrentTransitionSnapshot(transitionSource);
         this._dropCurrentTransition();
         // Install the snapshot as "current"
         this._currentNode = this._transitionSnapshot;
@@ -1180,7 +1184,10 @@ class LayerEval {
         return ranIntoNonMotionState;
     }
 
-    private _takeCurrentTransitionSnapshot (transitionFrom: MotionStateEval) {
+    /**
+     * A thing to note is `transitionSource` may not be `this._currentNode`.
+     */
+    private _takeCurrentTransitionSnapshot (transitionSource: MotionStateEval) {
         const {
             _currentTransitionPath: currentTransitionPath,
             _currentTransitionToNode: currentTransitionToNode,
@@ -1197,7 +1204,7 @@ class LayerEval {
             normalizedDuration,
         } = currentTransition;
 
-        const fromNode = transitionFrom;
+        const fromNode = transitionSource;
         let ratio = 0.0;
         if (transitionDuration <= 0) {
             ratio = 1.0;
@@ -1259,6 +1266,33 @@ class LayerEval {
             break;
         }
     }
+}
+
+/**
+ * Gets the motion of current motion state or transition snapshot
+ * whose outgoing transitions, called "interruption source", will be inspected to
+ * detect the interrupting transition.
+ */
+function getInterruptionSourceMotion (state: MotionStateEval | TransitionSnapshotEval) {
+    // If current state is a motion state, then it's the result.
+    // Otherwise the current state is a transition snapshot --
+    // we support nested interruptions, eg,
+    // _A->B_ was interrupted by _B->C_,
+    // then _(A->B)->C_ can be interrupted further by _C->D_.
+    // In such cases, we need to decide which transition could interrupt _(A->B)->C_.
+    // Outgoing transitions from destination motion are always inspected.
+    // And as the code following suggested, we order that:
+    // outgoing transitions from **the first** motion of "current transition snapshot"
+    // are also inspected. No other transitions are considered.
+    // This means for instance, in above example,
+    // _(A->B)->C_ can and can only be further interrupted by:
+    // - _A->D_, since it's outgoing from _A_;
+    // - _C->D_, since it's outgoing from _D_.
+    // However it can not be interrupted by _B->C_.
+    //
+    // > Tip: The term "nested interruption" was taken from here:
+    // > https://stackoverflow.com/a/24128928
+    return state.kind === NodeKind.animation ? state : state.first;
 }
 
 function createStateStatusCache (): MotionStateStatus {
