@@ -112,7 +112,7 @@ public:
      *
      * @param pass Handle of the pass info used to compute hash value.
      */
-    static uint64_t getPassHash(Pass *pass);
+    static ccstd::hash_t getPassHash(Pass *pass);
 
     Pass();
     explicit Pass(Root *root);
@@ -248,7 +248,7 @@ public:
      * @zh 尝试编译 shader 并获取相关资源引用。
      */
     virtual bool tryCompile();
-    virtual bool tryCompile(const cc::optional<MacroRecord> & /*defineOverrides*/) { return Pass::tryCompile(); }
+    virtual bool tryCompile(const ccstd::optional<MacroRecord> & /*defineOverrides*/) { return Pass::tryCompile(); }
 
     /**
      * @en Gets the shader variant of the current pass and given macro patches
@@ -292,12 +292,11 @@ public:
     inline gfx::DynamicStateFlagBit getDynamicStates() const { return _dynamicStates; }
     inline BatchingSchemes getBatchingScheme() const { return _batchingScheme; }
     inline gfx::DescriptorSet *getDescriptorSet() const { return _descriptorSet; }
-    inline uint64_t getHash() const { return _hash; }
-    inline double getHashForJS() const { return static_cast<double>(getHash()); }
+    inline ccstd::hash_t getHash() const { return _hash; }
     inline gfx::PipelineLayout *getPipelineLayout() const { return _pipelineLayout; }
 
     // Only for UI
-    void initPassFromTarget(Pass *target, const gfx::DepthStencilState &dss, const gfx::BlendState &bs, uint64_t hashFactor);
+    void initPassFromTarget(Pass *target, const gfx::DepthStencilState &dss, const gfx::BlendState &bs, ccstd::hash_t hashFactor);
 
     //  internal use
     /**
@@ -342,7 +341,7 @@ protected:
     Record<int32_t, IntrusivePtr<pipeline::InstancedBuffer>> _instancedBuffers;
     Record<int32_t, IntrusivePtr<pipeline::BatchedBuffer>> _batchedBuffers;
 
-    uint64_t _hash{0};
+    ccstd::hash_t _hash{0U};
     // external references
     Root *_root{nullptr};
     gfx::Device *_device{nullptr};

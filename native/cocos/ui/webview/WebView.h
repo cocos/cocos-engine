@@ -48,12 +48,17 @@ class WebViewImpl;
  * It's mean WebView displays web pages above all graphical elements of cocos2d-x.
  * @js NA
  */
-class WebView : public RefCounted {
+class WebView final {
 public:
     /**
          * Allocates and initializes a WebView.
          */
     static WebView *create();
+
+    /**
+     * Destroy webview, remove it from its parent
+     */
+    void destroy();
 
     /**
          * Set javascript interface scheme.
@@ -232,7 +237,7 @@ protected:
     /**
          * Default destructor.
          */
-    ~WebView() override;
+    ~WebView();
 
 private:
     WebViewImpl *_impl;

@@ -65,12 +65,12 @@ void PassInstance::overridePipelineStates(const IPassInfo &original, const PassO
     _rs.reset();
     _depthStencilState.reset();
 
-    Pass::fillPipelineInfo(this, original);
-    Pass::fillPipelineInfo(this, IPassInfoFull(override));
+    scene::Pass::fillPipelineInfo(this, original);
+    scene::Pass::fillPipelineInfo(this, IPassInfoFull(override));
     onStateChange();
 }
 
-bool PassInstance::tryCompile(const cc::optional<MacroRecord> &defineOverrides) {
+bool PassInstance::tryCompile(const ccstd::optional<MacroRecord> &defineOverrides) {
     if (defineOverrides.has_value()) {
         if (!overrideMacros(_defines, defineOverrides.value())) return false;
     }
@@ -94,7 +94,7 @@ void PassInstance::syncBatchingScheme() {
 }
 
 void PassInstance::onStateChange() {
-    _hash = Pass::getPassHash(this);
+    _hash = scene::Pass::getPassHash(this);
     _owner->onPassStateChange(_dontNotify);
 }
 

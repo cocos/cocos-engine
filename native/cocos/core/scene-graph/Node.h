@@ -27,7 +27,7 @@
 
 #include "base/Ptr.h"
 #include "base/TypeDef.h"
-#include "cocos/base/Any.h"
+#include "base/std/any.h"
 //#include "core/components/Component.h"
 //#include "core/event/Event.h"
 #include "core/event/EventTypesToJS.h"
@@ -115,8 +115,9 @@ public:
 
     Scene *getScene() const;
 
-    void walk(const std::function<void(Node *)> &preFunc);
-    void walk(const std::function<void(Node *)> &preFunc, const std::function<void(Node *)> &postFunc);
+    using WalkCallback = std::function<void(Node *)>;
+    void walk(const WalkCallback &preFunc);
+    void walk(const WalkCallback &preFunc, const WalkCallback &postFunc);
 
     template <typename Target, typename... Args>
     void on(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target, bool useCapture = false);
@@ -681,11 +682,11 @@ public:
     index_t _siblingIndex{0};
     // For deserialization
     ccstd::string _id;
-    ccstd::vector<IntrusivePtr<Node>> _children;
     Node *_parent{nullptr};
     bool _active{true};
 
 private:
+    ccstd::vector<IntrusivePtr<Node>> _children;
     // local transform
     cc::Vec3 _localPosition{Vec3::ZERO};
     cc::Quaternion _localRotation{Quaternion::identity()};

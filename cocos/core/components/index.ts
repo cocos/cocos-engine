@@ -24,7 +24,6 @@
 */
 
 import './component-event-handler.schema';
-
 export { default as System } from './system';
 export { default as MissingScript } from './missing-script';
 export { EventHandler } from './component-event-handler';

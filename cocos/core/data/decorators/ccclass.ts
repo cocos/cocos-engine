@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module decorator
- */
-
 import { DEV } from 'internal:constants';
 import { js } from '../../utils/js';
 import { CCClass } from '../class';

@@ -23,16 +23,11 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module gfx
- */
-
 declare const gfx: any;
 
 import { legacyCC } from '../global-exports';
 import * as defines from './base/define';
-import * as pso from './pipeline-state.jsb';
+import * as pso from './base/pipeline-state';
 
 export * from './base/descriptor-set';
 export * from './base/buffer';
@@ -44,6 +39,7 @@ export * from './base/framebuffer';
 export * from './base/input-assembler';
 export * from './base/descriptor-set-layout';
 export * from './base/pipeline-layout';
+export * from './base/pipeline-state';
 export * from './base/queue';
 export * from './base/render-pass';
 export * from './base/shader';
@@ -71,12 +67,12 @@ polyfillCC.Queue = gfx.Queue;
 legacyCC.gfx = polyfillCC;
 
 // TODO: remove these after state info refactor
-export const BlendTarget = pso.BlendTarget;
-export const BlendState = pso.BlendState;
-export const RasterizerState = pso.RasterizerState;
-export const DepthStencilState = pso.DepthStencilState;
-export const PipelineState = pso.PipelineState;
-export const PipelineStateInfo = pso.PipelineStateInfo;
+// export const BlendTarget = pso.BlendTarget;
+// export const BlendState = pso.BlendState;
+// export const RasterizerState = pso.RasterizerState;
+// export const DepthStencilState = pso.DepthStencilState;
+// export const PipelineState = pso.PipelineState;
+// export const PipelineStateInfo = pso.PipelineStateInfo;
 
 polyfillCC.BlendTarget = pso.BlendTarget;
 polyfillCC.BlendState = pso.BlendState;

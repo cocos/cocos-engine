@@ -19,11 +19,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module scene-graph
- */
-
 import { ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep, editable, serializable, rangeMin, tooltip, formerlySerializedAs, displayName } from 'cc.decorator';
 import { BAIDU } from 'internal:constants';
 import { TextureCube } from '../assets/texture-cube';
@@ -700,7 +695,7 @@ export class ShadowsInfo {
     @serializable
     protected _maxReceived = 4;
     @serializable
-    protected _size = new Vec2(512, 512);
+    protected _size = new Vec2(1024, 1024);
 
     protected _resource: Shadows | null = null;
 

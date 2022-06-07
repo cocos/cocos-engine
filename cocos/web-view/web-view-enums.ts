@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module component/web-view
- */
-
 export enum EventType {
     /**
      * @en None

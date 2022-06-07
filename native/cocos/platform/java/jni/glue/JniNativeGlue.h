@@ -119,6 +119,8 @@ public:
     int32_t getWidth() const;
     int32_t getHeight() const;
 
+    bool isAnimating() const { return _animating; }
+
 private:
     void preExecCmd(JniCommand cmd);
     void engineHandleCmd(JniCommand cmd);

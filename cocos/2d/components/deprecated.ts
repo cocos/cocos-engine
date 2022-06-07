@@ -23,10 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module ui
- */
 import { Mask } from './mask';
 import { Label } from './label';
 import { LabelOutline } from './label-outline';

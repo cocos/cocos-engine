@@ -21,7 +21,7 @@ macro(cc_windows_before_target target_name)
     if(${CMAKE_SIZEOF_VOID_P} STREQUAL "4")
         message(FATAL_ERROR "Win32 architecture is no more supported!!!")
     endif()
-    set(CC_UI_RESOURCES
+    list(APPEND CC_UI_RESOURCES
         ${CC_PROJECT_DIR}/game.rc
     )
     list(APPEND CC_PROJ_SOURCES
@@ -30,7 +30,7 @@ macro(cc_windows_before_target target_name)
         ${CC_UI_RESOURCES}
     )
     cc_include_resources(${RES_DIR}/data CC_ASSET_FILES)
-    set(CC_ALL_SOURCES ${CC_PROJ_SOURCES} ${CC_COMMON_SOURCES} ${CC_ASSET_FILES})
+    list(APPEND CC_ALL_SOURCES ${CC_PROJ_SOURCES} ${CC_COMMON_SOURCES} ${CC_ASSET_FILES})
     cc_common_before_target(${target_name})
 endmacro()
 

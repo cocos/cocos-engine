@@ -82,6 +82,10 @@ builtinResMgrProto.initBuiltinRes = function (device: Device): Promise<void> {
 
     return Promise.resolve().then(() => {
         oldInitBuiltinRes.call(this, device);
+
+        legacyCC.game.on(legacyCC.Game.EVENT_GAME_INITED, () => {
+            this.tryCompileAllPasses();
+        });
     }).then(() => this._preloadAssets());
 };
 

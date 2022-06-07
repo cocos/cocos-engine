@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 export interface ITerrainAsset {
     _uuid: string;
     tileSize: number;

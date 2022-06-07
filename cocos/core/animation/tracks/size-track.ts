@@ -7,6 +7,12 @@ import { maskIfEmpty } from './utils';
 
 const CHANNEL_NAMES: ReadonlyArray<string> = ['Width', 'Height'];
 
+/**
+ * @en
+ * A size track animates a size attribute of target.
+ * @zh
+ * 尺寸轨道描述目标上某个尺寸属性的动画。
+ */
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}SizeTrack`)
 export class SizeTrack extends Track {
     constructor () {
@@ -19,6 +25,12 @@ export class SizeTrack extends Track {
         }
     }
 
+    /**
+     * @en The width channel and the height channel of the track.
+     * @zh 返回此轨道的宽度通道和高度通道。
+     * @returns An readonly array in which
+     * the first element is the width channel and the second element is the height channel.
+     */
     public channels () {
         return this._channels;
     }

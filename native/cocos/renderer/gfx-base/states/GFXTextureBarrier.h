@@ -34,14 +34,14 @@ class CC_DLL TextureBarrier : public GFXObject {
 public:
     explicit TextureBarrier(const TextureBarrierInfo &info);
 
-    static size_t computeHash(const TextureBarrierInfo &info);
+    static ccstd::hash_t computeHash(const TextureBarrierInfo &info);
 
     inline const TextureBarrierInfo &getInfo() const { return _info; }
-    inline const size_t &getHash() const { return _hash; }
+    inline const ccstd::hash_t &getHash() const { return _hash; }
 
 protected:
     TextureBarrierInfo _info;
-    size_t _hash{0U};
+    ccstd::hash_t _hash{0U};
 };
 
 } // namespace gfx

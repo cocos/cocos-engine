@@ -23,13 +23,8 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module pipeline
- */
-
 import { InstancedBuffer } from './instanced-buffer';
-import { Device, RenderPass, PipelineState, CommandBuffer } from '../gfx';
+import { Device, RenderPass, PipelineState, CommandBuffer, DescriptorSet } from '../gfx';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { SetIndex } from './define';
 
@@ -70,7 +65,7 @@ export class RenderInstancedQueue {
      * @zh 记录命令缓冲。
      * @param cmdBuff The command buffer to store the result
      */
-    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
+    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer, descriptorSet: DescriptorSet | null = null) {
         const it = this.queue.values(); let res = it.next();
         while (!res.done) {
             const { instances, pass, hasPendingModels } = res.value;
@@ -86,6 +81,7 @@ export class RenderInstancedQueue {
                         cmdBuff.bindPipelineState(pso);
                         lastPSO = pso;
                     }
+                    if (descriptorSet) cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, descriptorSet);
                     cmdBuff.bindDescriptorSet(SetIndex.LOCAL, instance.descriptorSet, res.value.dynamicOffsets);
                     cmdBuff.bindInputAssembler(instance.ia);
                     cmdBuff.draw(instance.ia);

@@ -25,11 +25,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core
- */
-
 import { legacyCC } from '../global-exports';
 
 const SUPPORT_TEXTURE_FORMATS = ['.astc', '.pkm', '.pvr', '.webp', '.jpg', '.jpeg', '.bmp', '.png'];
@@ -845,7 +840,16 @@ const KEY = {
      */
     dpadCenter: 1005,
 };
-
+/**
+ * @en
+ * Predefined constants, see [[Macro]] for detailed contents.
+ * @zh
+ * 预定义常量，具体内容参考 [[Macro]] 文档。
+ */
+/**
+ * @en Interface declaration for predefined constants, for usage you should be importing [[macro]] directly.
+ * @zh 预定义常量的接口声明，实际使用应该直接导入 [[macro]]。
+ */
 interface Macro {
     /**
      * @en
@@ -1068,9 +1072,9 @@ interface Macro {
 
 /**
  * @en
- * Predefined constants
+ * Predefined constants, see [[Macro]] for detailed contents.
  * @zh
- * 预定义常量。
+ * 预定义常量，具体内容参考 [[Macro]] 文档。
  */
 const macro: Macro = {
     SUPPORT_TEXTURE_FORMATS,

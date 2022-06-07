@@ -92,67 +92,27 @@ bool setCanvasCallback(se::Object * /*global*/) {
 
 namespace cc {
 
-Engine::Engine() {
+Engine::Engine() = default;
+
+Engine::~Engine() {
+    destroy();
+}
+
+int32_t Engine::init() {
     _scheduler = std::make_shared<Scheduler>();
     _fs = createFileUtils();
-    _programLib = ccnew ProgramLib();
-    _builtinResMgr = ccnew BuiltinResMgr;
     // May create gfx device in render subsystem in future.
     _gfxDevice = gfx::DeviceManager::create();
-    _scriptEngine = ccnew se::ScriptEngine();
-    EventDispatcher::init();
+    _programLib = ccnew ProgramLib();
+    _builtinResMgr = ccnew BuiltinResMgr;
 
     _debugRenderer = ccnew DebugRenderer();
 #if CC_USE_PROFILER
     _profiler = ccnew Profiler();
 #endif
-}
 
-Engine::~Engine() {
-#if CC_USE_AUDIO
-    AudioEngine::end();
-#endif
-
-#if CC_USE_DRAGONBONES
-    dragonBones::ArmatureCacheMgr::destroyInstance();
-#endif
-
-#if CC_USE_SPINE
-    spine::SkeletonCacheMgr::destroyInstance();
-#endif
-
-    EventDispatcher::destroy();
-    network::HttpClient::destroyInstance();
-
-    // Should delete it before deleting DeviceManager as ScriptEngine will check gpu resource usage,
-    // and ScriptEngine will hold gfx objects.
-    delete _scriptEngine;
-
-#if CC_USE_PROFILER
-    delete _profiler;
-#endif
-    // Profiler depends on DebugRenderer, should delete it after deleting Profiler,
-    // and delete DebugRenderer after RenderPipeline::destroy which destroy DebugRenderer.
-    delete _debugRenderer;
-
-    FreeTypeFontFace::destroyFreeType();
-
-#if CC_USE_MIDDLEWARE
-    cc::middleware::MiddlewareManager::destroyInstance();
-#endif
-
-    CCObject::deferredDestroy();
-    delete _builtinResMgr;
-    delete _programLib;
-    CC_SAFE_DESTROY_AND_DELETE(_gfxDevice);
-    delete _fs;
-}
-
-int32_t Engine::init() {
-    _scheduler->removeAllFunctionsToBePerformedInCocosThread();
-    _scheduler->unscheduleAll();
-
-    se::ScriptEngine::getInstance()->cleanup();
+    _scriptEngine = ccnew se::ScriptEngine();
+    EventDispatcher::init();
 
     BasePlatform *platform = BasePlatform::getPlatform();
     platform->setHandleEventCallback(
@@ -165,6 +125,56 @@ int32_t Engine::init() {
     emit(static_cast<int>(ON_START));
     _inited = true;
     return 0;
+}
+
+void Engine::destroy() {
+    cc::DeferredReleasePool::clear();
+    _scheduler->removeAllFunctionsToBePerformedInCocosThread();
+    _scheduler->unscheduleAll();
+    CCObject::deferredDestroy();
+
+#if CC_USE_AUDIO
+    AudioEngine::end();
+#endif
+
+    EventDispatcher::destroy();
+
+    // Should delete it before deleting DeviceManager as ScriptEngine will check gpu resource usage,
+    // and ScriptEngine will hold gfx objects.
+    delete _scriptEngine;
+
+#if CC_USE_PROFILER
+    delete _profiler;
+#endif
+    // Profiler depends on DebugRenderer, should delete it after deleting Profiler,
+    // and delete DebugRenderer after RenderPipeline::destroy which destroy DebugRenderer.
+    delete _debugRenderer;
+
+    //TODO(): Delete some global objects.
+
+    FreeTypeFontFace::destroyFreeType();
+
+#if CC_USE_DRAGONBONES
+    dragonBones::ArmatureCacheMgr::destroyInstance();
+#endif
+
+#if CC_USE_SPINE
+    spine::SkeletonCacheMgr::destroyInstance();
+#endif
+
+#if CC_USE_MIDDLEWARE
+    cc::middleware::MiddlewareManager::destroyInstance();
+#endif
+
+    CCObject::deferredDestroy();
+
+    delete _builtinResMgr;
+    delete _programLib;
+    CC_SAFE_DESTROY_AND_DELETE(_gfxDevice);
+    delete _fs;
+    _scheduler.reset();
+
+    _inited = false;
 }
 
 int32_t Engine::run() {
@@ -238,7 +248,7 @@ void Engine::tick() {
         CC_PROFILE(EngineTick);
 
         if (_needRestart) {
-            restartVM();
+            doRestart();
             _needRestart = false;
         }
 
@@ -277,44 +287,10 @@ void Engine::tick() {
     CC_PROFILER_END_FRAME;
 }
 
-int32_t Engine::restartVM() {
+void Engine::doRestart() {
     cc::EventDispatcher::dispatchRestartVM();
-
-    cc::DeferredReleasePool::clear();
-#if CC_USE_AUDIO
-    cc::AudioEngine::stopAll();
-#endif
-    //#if CC_USE_SOCKET
-    //    cc::network::WebSocket::closeAllConnections();
-    //#endif
-    cc::network::HttpClient::destroyInstance();
-
-    _scheduler->removeAllFunctionsToBePerformedInCocosThread();
-    _scheduler->unscheduleAll();
-
-    _scriptEngine->cleanup();
-    CC_SAFE_DESTROY_AND_DELETE(_gfxDevice);
-    cc::EventDispatcher::destroy();
-
-    // Should re-create ProgramLib as shaders may change after restart. For example,
-    // program update resources and do restart.
-    delete _programLib;
-    _programLib = ccnew ProgramLib;
-
-    // Should reinitialize builtin resources as _programLib will be re-created.
-    delete _builtinResMgr;
-    _builtinResMgr = ccnew BuiltinResMgr;
-
-    CCObject::deferredDestroy();
-
-    // remove all listening events
-    offAll();
-    // start
-    cc::EventDispatcher::init();
+    destroy();
     CC_CURRENT_APPLICATION()->init();
-
-    cc::gfx::DeviceManager::addSurfaceEventListener();
-    return 0;
 }
 
 bool Engine::handleEvent(const OSEvent &ev) {
@@ -343,7 +319,7 @@ bool Engine::handleEvent(const OSEvent &ev) {
 
 bool Engine::handleTouchEvent(const TouchEvent &ev) { // NOLINT(readability-convert-member-functions-to-static)
     cc::EventDispatcher::dispatchTouchEvent(ev);
-    return true;
+    return dispatchEventToApp(OSEventType::TOUCH_OSEVENT, ev);
 }
 
 Engine::SchedulerPtr Engine::getScheduler() const {
@@ -351,11 +327,15 @@ Engine::SchedulerPtr Engine::getScheduler() const {
 }
 
 bool Engine::dispatchDeviceEvent(const DeviceEvent &ev) { // NOLINT(readability-convert-member-functions-to-static)
-    if (ev.type == DeviceEvent::Type::DEVICE_MEMORY) {
+    bool isHandled = false;
+    if (ev.type == DeviceEvent::Type::MEMORY) {
         cc::EventDispatcher::dispatchMemoryWarningEvent();
-        return true;
+        isHandled = true;
+    } else if (ev.type == DeviceEvent::Type::ORIENTATION) {
+        cc::EventDispatcher::dispatchOrientationChangeEvent(ev.args[0].intVal);
+        isHandled = true;
     }
-    return false;
+    return isHandled;
 }
 
 bool Engine::dispatchWindowEvent(const WindowEvent &ev) {
@@ -371,6 +351,8 @@ bool Engine::dispatchWindowEvent(const WindowEvent &ev) {
     } else if (ev.type == WindowEvent::Type::SIZE_CHANGED ||
                ev.type == WindowEvent::Type::RESIZED) {
         cc::EventDispatcher::dispatchResizeEvent(ev.width, ev.height);
+        auto *w = CC_GET_PLATFORM_INTERFACE(ISystemWindow);
+        w->setViewSize(ev.width, ev.height);
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::HIDDEN ||
                ev.type == WindowEvent::Type::MINIMIZED) {

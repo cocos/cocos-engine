@@ -115,10 +115,10 @@ export enum NodeEventType {
 
     /**
      * @en
-     * The event type for position, rotation, scale changed.Use the type parameter as [[Node.TransformBit]] to check which part is changed
+     * The event type for position, rotation, scale changed.Use the type parameter as `Node.TransformBit` to check which part is changed
      *
      * @zh
-     * 节点改变位置、旋转或缩放事件。如果具体需要判断是哪一个事件，可通过判断回调的第一个参数类型是 [[Node.TransformBit]] 中的哪一个来获取
+     * 节点改变位置、旋转或缩放事件。如果具体需要判断是哪一个事件，可通过判断回调的第一个参数类型是 `Node.TransformBit` 中的哪一个来获取
      * @example
      * ```
      * this.node.on(Node.EventType.TRANSFORM_CHANGED, (type)=>{
@@ -222,4 +222,20 @@ export enum NodeEventType {
      * 注意：此节点激活时，此事件仅从最顶部的节点发出。
      */
     ACTIVE_IN_HIERARCHY_CHANGED = 'active-in-hierarchy-changed',
+
+    /**
+     * @en
+     * The event occur when node add a new component.
+     * @zh
+     * 当节点上增加组件时触发的事件
+     */
+    COMPONENT_ADDED = 'component-added',
+
+    /**
+     * @en
+     * The event occur when node remove a component.
+     * @zh
+     * 当节点上移除组件时触发的事件
+     */
+    COMPONENT_REMOVED = 'component-removed',
 }

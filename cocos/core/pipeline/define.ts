@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module pipeline
- */
-
 import { Pass } from '../renderer/core/pass';
 import { Model } from '../renderer/scene/model';
 import { SubModel } from '../renderer/scene/submodel';
@@ -118,6 +113,7 @@ export enum PipelineGlobalBindings {
     UBO_GLOBAL,
     UBO_CAMERA,
     UBO_SHADOW,
+    UBO_CSM,
 
     SAMPLER_SHADOWMAP,
     SAMPLER_ENVIRONMENT, // don't put this as the first sampler binding due to Mac GL driver issues: cubemap at texture unit 0 causes rendering issues
@@ -249,8 +245,8 @@ globalDescriptorSetLayout.layouts[UBOCamera.NAME] = UBOCamera.LAYOUT;
 globalDescriptorSetLayout.bindings[UBOCamera.BINDING] = UBOCamera.DESCRIPTOR;
 
 /**
- * @en The uniform buffer object for shadow
- * @zh 阴影 UBO。
+ * @en The uniform buffer object for 'cast shadow(fixed || csm)' && 'dir fixed area shadow' && 'spot shadow' && 'sphere shadow' && 'planar shadow'
+ * @zh 这个 UBO 仅仅只给 'cast shadow(fixed || csm)' && 'dir fixed area shadow' && 'spot shadow' && 'sphere shadow' && 'planar shadow' 使用
  */
 export class UBOShadow {
     public static readonly MAT_LIGHT_PLANE_PROJ_OFFSET = 0;
@@ -286,11 +282,43 @@ export class UBOShadow {
 globalDescriptorSetLayout.layouts[UBOShadow.NAME] = UBOShadow.LAYOUT;
 globalDescriptorSetLayout.bindings[UBOShadow.BINDING] = UBOShadow.DESCRIPTOR;
 
+/**
+ * @en The uniform buffer object only for dir csm shadow(level: 1 ~ 4)
+ * @zh 阴影 UBO。
+ */
+export class UBOCSM {
+    public static readonly CSM_LEVEL_COUNT = 4;
+    public static readonly MAT_SHADOW_VIEW_LEVELS_OFFSET = 0;
+    public static readonly MAT_SHADOW_VIEW_PROJ_LEVELS_OFFSET = UBOCSM.MAT_SHADOW_VIEW_LEVELS_OFFSET + 16 * UBOCSM.CSM_LEVEL_COUNT;
+    public static readonly MAT_SHADOW_VIEW_PROJ_ATLAS_LEVELS_OFFSET = UBOCSM.MAT_SHADOW_VIEW_PROJ_LEVELS_OFFSET + 16 * UBOCSM.CSM_LEVEL_COUNT;
+    public static readonly SHADOW_PROJ_DEPTH_INFO_LEVELS_OFFSET = UBOCSM.MAT_SHADOW_VIEW_PROJ_ATLAS_LEVELS_OFFSET + 16 * UBOCSM.CSM_LEVEL_COUNT;
+    public static readonly SHADOW_PROJ_INFO_LEVELS_OFFSET = UBOCSM.SHADOW_PROJ_DEPTH_INFO_LEVELS_OFFSET + 4 * UBOCSM.CSM_LEVEL_COUNT;
+    public static readonly SHADOW_SPLITS_OFFSET = UBOCSM.SHADOW_PROJ_INFO_LEVELS_OFFSET + 4 * UBOCSM.CSM_LEVEL_COUNT;
+    public static readonly CSM_INFO_OFFSET = UBOCSM.SHADOW_SPLITS_OFFSET + 4;
+    public static readonly COUNT: number = UBOCSM.CSM_INFO_OFFSET + 4;
+    public static readonly SIZE = UBOCSM.COUNT * 4;
+
+    public static readonly NAME = 'CCCSM';
+    public static readonly BINDING = PipelineGlobalBindings.UBO_CSM;
+    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOCSM.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.ALL);
+    public static readonly LAYOUT = new UniformBlock(SetIndex.GLOBAL, UBOCSM.BINDING, UBOCSM.NAME, [
+        new Uniform('cc_matShadowView_levels', Type.MAT4, UBOCSM.CSM_LEVEL_COUNT),
+        new Uniform('cc_matShadowViewProj_levels', Type.MAT4, UBOCSM.CSM_LEVEL_COUNT),
+        new Uniform('cc_matShadowViewProjAtlas_levels', Type.MAT4, UBOCSM.CSM_LEVEL_COUNT),
+        new Uniform('cc_shadowProjDepthInfo_levels', Type.FLOAT4, UBOCSM.CSM_LEVEL_COUNT),
+        new Uniform('cc_shadowProjInfo_levels', Type.FLOAT4, UBOCSM.CSM_LEVEL_COUNT),
+        new Uniform('cc_shadowSplits', Type.FLOAT4, 1),
+        new Uniform('cc_csmInfo', Type.FLOAT4, 1),
+    ], 1);
+}
+globalDescriptorSetLayout.layouts[UBOCSM.NAME] = UBOCSM.LAYOUT;
+globalDescriptorSetLayout.bindings[UBOCSM.BINDING] = UBOCSM.DESCRIPTOR;
+
 /* eslint-disable max-len */
 
 /**
  * @en The sampler for Main light shadow map
- * @zn 主光源阴影纹理采样器
+ * @zh 主光源阴影纹理采样器
  */
 const UNIFORM_SHADOWMAP_NAME = 'cc_shadowMap';
 export const UNIFORM_SHADOWMAP_BINDING = PipelineGlobalBindings.SAMPLER_SHADOWMAP;
@@ -315,7 +343,7 @@ globalDescriptorSetLayout.bindings[UNIFORM_DIFFUSEMAP_BINDING] = UNIFORM_DIFFUSE
 
 /**
  * @en The sampler for spot light shadow map
- * @zn 聚光灯阴影纹理采样器
+ * @zh 聚光灯阴影纹理采样器
  */
 const UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_NAME = 'cc_spotLightingMap';
 export const UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING = PipelineGlobalBindings.SAMPLER_SPOT_LIGHTING_MAP;

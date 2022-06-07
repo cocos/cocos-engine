@@ -193,14 +193,6 @@ void RenderScene::addModel(Model *model) {
     }
 }
 
-void RenderScene::removeModel(index_t idx) {
-    if (idx >= static_cast<index_t>(_models.size())) {
-        CC_LOG_WARNING("Try to remove invalid model.");
-        return;
-    }
-    _models.erase(_models.begin() + idx);
-}
-
 void RenderScene::removeModel(Model *model) {
     auto iter = std::find(_models.begin(), _models.end(), model);
     if (iter != _models.end()) {

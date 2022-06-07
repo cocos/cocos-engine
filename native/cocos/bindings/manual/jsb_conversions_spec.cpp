@@ -442,10 +442,16 @@ bool sevals_variadic_to_ccvaluevector(const se::ValueArray &args, cc::ValueVecto
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool seval_to_Data(const se::Value &v, cc::Data *ret) {
     CC_ASSERT(ret != nullptr);
-    SE_PRECONDITION2(v.isObject() && v.toObject()->isTypedArray(), false, "Convert parameter to Data failed!");
+    SE_PRECONDITION2(v.isObject() && (v.toObject()->isTypedArray() || v.toObject()->isArrayBuffer()), false, "Convert parameter to Data failed!");
     uint8_t *ptr = nullptr;
     size_t length = 0;
-    bool ok = v.toObject()->getTypedArrayData(&ptr, &length);
+    se::Object *buffer = v.toObject();
+    bool ok = false;
+    if (buffer->isTypedArray()) {
+        ok = buffer->getTypedArrayData(&ptr, &length);
+    } else {
+        ok = buffer->getArrayBufferData(&ptr, &length);
+    }
     if (ok) {
         ret->copy(ptr, static_cast<int32_t>(length));
     } else {
@@ -761,8 +767,8 @@ bool sevalue_to_native(const se::Value &from, cc::scene::ShadowsInfo *to, se::Ob
     se::Value tmp;
     set_member_field<cc::scene::ShadowType>(obj, to, "type", &cc::scene::ShadowsInfo::setType, tmp);
     set_member_field<bool>(obj, to, "enabled", &cc::scene::ShadowsInfo::setEnabled, tmp);
-    set_member_field<cc::Vec3>(obj, to, "normal", &cc::scene::ShadowsInfo::setNormal, tmp);
-    set_member_field<float>(obj, to, "distance", &cc::scene::ShadowsInfo::setDistance, tmp);
+    set_member_field<cc::Vec3>(obj, to, "planeDirection", &cc::scene::ShadowsInfo::setPlaneDirection, tmp);
+    set_member_field<float>(obj, to, "planeHeight", &cc::scene::ShadowsInfo::setPlaneHeight, tmp);
     set_member_field<cc::Color>(obj, to, "shadowColor", &cc::scene::ShadowsInfo::setShadowColor, tmp);
     set_member_field<float>(obj, to, "maxReceived", &cc::scene::ShadowsInfo::setMaxReceived, tmp);
     set_member_field<float>(obj, to, "size", &cc::scene::ShadowsInfo::setShadowMapSize, tmp);
@@ -785,7 +791,7 @@ bool sevalue_to_native(const se::Value &from, cc::scene::SkyboxInfo *to, se::Obj
     return true;
 }
 
-// cc::variant<int32_t, bool, ccstd::string>;
+// ccstd::variant<int32_t, bool, ccstd::string>;
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &from, cc::MacroValue *to, se::Object * /*ctx*/) {
     if (from.isBoolean()) {
@@ -841,7 +847,7 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<cc::MacroRecord> *to
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &from, cc::MaterialProperty *to, se::Object *ctx) {
     if (from.isNullOrUndefined()) {
-        *to = cc::monostate();
+        *to = ccstd::monostate();
         return true;
     }
 
@@ -994,7 +1000,7 @@ bool sevalue_to_native(const se::Value &from, cc::IPreCompileInfoValueType *to, 
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-bool sevalue_to_native(const se::Value &from, cc::variant<ccstd::vector<float>, ccstd::string> *to, se::Object * /*ctx*/) {
+bool sevalue_to_native(const se::Value &from, ccstd::variant<ccstd::vector<float>, ccstd::string> *to, se::Object * /*ctx*/) {
     if (from.isObject() && from.toObject()->isArray()) {
         uint32_t len = 0;
         bool ok = from.toObject()->getArrayLength(&len);
@@ -1019,7 +1025,7 @@ bool sevalue_to_native(const se::Value &from, cc::variant<ccstd::vector<float>, 
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-bool sevalue_to_native(const se::Value &from, cc::variant<cc::monostate, cc::MaterialProperty, cc::MaterialPropertyList> *to, se::Object *ctx) {
+bool sevalue_to_native(const se::Value &from, ccstd::variant<ccstd::monostate, cc::MaterialProperty, cc::MaterialPropertyList> *to, se::Object *ctx) {
     bool ok = false;
     if (from.isObject() && from.toObject()->isArray()) {
         cc::MaterialPropertyList propertyList{};
@@ -1046,9 +1052,23 @@ bool sevalue_to_native(const se::Value &from, cc::ArrayBuffer *to, se::Object * 
 }
 bool sevalue_to_native(const se::Value &from, cc::ArrayBuffer **to, se::Object * /*ctx*/) {
     CC_ASSERT(from.isObject());
-    *to = ccnew cc::ArrayBuffer();
-    (*to)->addRef();
-    (*to)->setJSArrayBuffer(from.toObject());
+    auto *obj = from.toObject();
+    CC_ASSERT((obj->isArrayBuffer() || obj->isTypedArray()));
+
+    auto *ab = ccnew cc::ArrayBuffer();
+    ab->addRef();
+    if (obj->isArrayBuffer()) {
+        ab->setJSArrayBuffer(obj);
+    } else if (obj->isTypedArray()) {
+        se::Value bufferVal;
+        obj->getProperty("buffer", &bufferVal);
+        ab->setJSArrayBuffer(bufferVal.toObject());
+    } else {
+        ab->release();
+        return false;
+    }
+
+    *to = ab;
     cc::DeferredReleasePool::add(*to);
     return true;
 }
@@ -1152,21 +1172,21 @@ bool sevalue_to_native(const se::Value &from, cc::TypedArray *to, se::Object * /
         }
     }
 
-    cc::visit(make_overloaded(
-                  [&](auto &typedArray) {
-                      typedArray.setJSTypedArray(from.toObject());
-                  },
-                  [](cc::monostate /*unused*/) {}),
-              *to);
+    ccstd::visit(make_overloaded(
+                     [&](auto &typedArray) {
+                         typedArray.setJSTypedArray(from.toObject());
+                     },
+                     [](ccstd::monostate /*unused*/) {}),
+                 *to);
     return true;
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &from, cc::IBArray *to, se::Object * /*ctx*/) {
-    cc::visit([&](auto &typedArray) {
+    ccstd::visit([&](auto &typedArray) {
         typedArray.setJSTypedArray(from.toObject());
     },
-              *to);
+                 *to);
 
     return true;
 }

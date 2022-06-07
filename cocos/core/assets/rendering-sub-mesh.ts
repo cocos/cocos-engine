@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
-
 import { legacyCC } from '../global-exports';
 import { mapBuffer } from '../../3d/misc/buffer';
 import {
@@ -84,10 +79,8 @@ export interface IFlatBuffer {
 }
 
 /**
- * @en A representation of a sub mesh
- * Sub mesh for rendering which contains all geometry data, it can be used to create [[InputAssembler]].
- * @zh 代表一个子网格资源
- * 包含所有顶点数据的渲染子网格，可以用来创建 [[InputAssembler]]。
+ * @en Sub mesh for rendering which contains all geometry data, it can be used to create [[gfx.InputAssembler]].
+ * @zh 包含所有顶点数据的渲染子网格，可以用来创建 [[gfx.InputAssembler]]。
  */
 export class RenderingSubMesh {
     /**
@@ -128,6 +121,8 @@ export class RenderingSubMesh {
 
     private _iaInfo: InputAssemblerInfo;
 
+    private _isOwnerOfIndexBuffer = true;
+
     private _drawInfo?: DrawInfo | null = null;
 
     /**
@@ -144,6 +139,7 @@ export class RenderingSubMesh {
     constructor (
         vertexBuffers: Buffer[], attributes: Attribute[], primitiveMode: PrimitiveMode,
         indexBuffer: Buffer | null = null, indirectBuffer: Buffer | null = null,
+        isOwnerOfIndexBuffer = true,
     ) {
         this._attributes = attributes;
         this._vertexBuffers = vertexBuffers;
@@ -151,6 +147,7 @@ export class RenderingSubMesh {
         this._indirectBuffer = indirectBuffer;
         this._primitiveMode = primitiveMode;
         this._iaInfo = new InputAssemblerInfo(attributes, vertexBuffers, indexBuffer, indirectBuffer);
+        this._isOwnerOfIndexBuffer = isOwnerOfIndexBuffer;
     }
 
     /**
@@ -364,7 +361,9 @@ export class RenderingSubMesh {
         }
         this.vertexBuffers.length = 0;
         if (this._indexBuffer) {
-            this._indexBuffer.destroy();
+            if (this._isOwnerOfIndexBuffer) {
+                this._indexBuffer.destroy();
+            }
             this._indexBuffer = null;
         }
         if (this._jointMappedBuffers && this._jointMappedBufferIndices) {

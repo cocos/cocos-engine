@@ -362,7 +362,7 @@ public:
                 // cooperate by deallocating all of our graphic resources.
                 CC_LOG_INFO("AndroidPlatform: APP_CMD_LOW_MEMORY");
                 DeviceEvent ev;
-                ev.type = DeviceEvent::Type::DEVICE_MEMORY;
+                ev.type = DeviceEvent::Type::MEMORY;
                 _androidPlatform->dispatchEvent(ev);
                 break;
             }
