@@ -68,7 +68,7 @@ export class DirectionalLight extends Light {
     @serializable
     protected _shadowInvisibleOcclusionRange = 200;
     @serializable
-    protected _shadowCascadeLevel = CSMLevel.level_3;
+    protected _csmLevel = CSMLevel.level_3;
     @serializable
     protected _csmLayerLambda = 0.75;
     @serializable
@@ -267,13 +267,13 @@ export class DirectionalLight extends Light {
     @tooltip('CSM Level')
     @slide
     @type(CSMLevel)
-    get shadowCascadeLevel () {
-        return this._shadowCascadeLevel;
+    get csmLevel () {
+        return this._csmLevel;
     }
-    set shadowCascadeLevel (val) {
-        this._shadowCascadeLevel = val;
+    set csmLevel (val) {
+        this._csmLevel = val;
         if (this._light) {
-            this._light.shadowCascadeLevel = this._shadowCascadeLevel;
+            this._light.csmLevel = this._csmLevel;
             this._light.shadowCSMValueDirty = true;
         }
     }
@@ -426,7 +426,7 @@ export class DirectionalLight extends Light {
             this._light.shadowNear = this._shadowNear;
             this._light.shadowFar = this._shadowFar;
             this._light.shadowOrthoSize = this._shadowOrthoSize;
-            this._light.shadowCascadeLevel = this._shadowCascadeLevel;
+            this._light.csmLevel = this._csmLevel;
             this._light.csmLayerLambda = this._csmLayerLambda;
             this._light.csmOptimizationMode = this._csmOptimizationMode;
         }

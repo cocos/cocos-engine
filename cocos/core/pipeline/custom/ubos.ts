@@ -195,7 +195,7 @@ export class PipelineUBO {
 
         if (shadowInfo.enabled && mainLight && mainLight.shadowEnabled) {
             if (shadowInfo.type === ShadowType.ShadowMap) {
-                if (mainLight.shadowFixedArea || mainLight.shadowCascadeLevel === CSMLevel.level_1) {
+                if (mainLight.shadowFixedArea || mainLight.csmLevel === CSMLevel.level_1) {
                     const matShadowView = csmLayers.specialLayer.matShadowView;
                     const matShadowProj = csmLayers.specialLayer.matShadowProj;
                     const matShadowViewProj = csmLayers.specialLayer.matShadowViewProj;
@@ -222,7 +222,7 @@ export class PipelineUBO {
                     _vec4ShadowInfo.set(0, packing, mainLight.shadowNormalBias, 0);
                     Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET);
                 } else {
-                    for (let i = 0; i < mainLight.shadowCascadeLevel; i++) {
+                    for (let i = 0; i < mainLight.csmLevel; i++) {
                         cv[UBOCSM.SHADOW_SPLITS_OFFSET + i] = csmLayers.layers[i].splitCameraFar / mainLight.shadowDistance;
 
                         const matShadowView = csmLayers.layers[i].matShadowView;
@@ -254,7 +254,7 @@ export class PipelineUBO {
                     _vec4ShadowInfo.set(0, 0, linear, 1.0 - mainLight.shadowSaturation);
                     Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET);
 
-                    _vec4ShadowInfo.set(0.0, packing, mainLight.shadowNormalBias, mainLight.shadowCascadeLevel);
+                    _vec4ShadowInfo.set(0.0, packing, mainLight.shadowNormalBias, mainLight.csmLevel);
                     Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET);
                 }
                 _vec4ShadowInfo.set(shadowInfo.size.x, shadowInfo.size.y, mainLight.shadowPcf, mainLight.shadowBias);
@@ -287,7 +287,7 @@ export class PipelineUBO {
                     let matShadowProj;
                     let matShadowViewProj;
                     let levelCount = 0;
-                    if (mainLight.shadowFixedArea || mainLight.shadowCascadeLevel === CSMLevel.level_1) {
+                    if (mainLight.shadowFixedArea || mainLight.csmLevel === CSMLevel.level_1) {
                         matShadowView = csmLayers.specialLayer.matShadowView;
                         matShadowProj = csmLayers.specialLayer.matShadowProj;
                         matShadowViewProj = csmLayers.specialLayer.matShadowViewProj;
@@ -310,7 +310,7 @@ export class PipelineUBO {
 
                         near = layer.splitCameraNear;
                         far = layer.splitCameraFar;
-                        levelCount = mainLight.shadowCascadeLevel;
+                        levelCount = mainLight.csmLevel;
                     }
 
                     Mat4.toArray(sv, matShadowView, UBOShadow.MAT_LIGHT_VIEW_OFFSET);

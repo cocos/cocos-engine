@@ -106,7 +106,7 @@ void ShadowFlow::render(scene::Camera *camera) {
         if (mainLight->isShadowFixedArea()) {
             renderStage(globalDS, camera, mainLight, shadowFrameBuffer);
         } else {
-            for (uint i = 0; i < static_cast<uint>(mainLight->getShadowCascadeLevel()); ++i) {
+            for (uint i = 0; i < static_cast<uint>(mainLight->getCsmLevel()); ++i) {
                 renderStage(globalDS, camera, mainLight, shadowFrameBuffer, i);
             }
         }

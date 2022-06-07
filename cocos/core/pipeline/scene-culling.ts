@@ -199,7 +199,7 @@ export function shadowCulling (camera: Camera, sceneData: PipelineSceneData, lay
                         const accurate = intersect.aabbFrustum(model.worldBounds, dirLightFrustum);
                         if (accurate) {
                             dirShadowObjects.push(csmLayerObject);
-                            if (layer.level < mainLight.shadowCascadeLevel) {
+                            if (layer.level < mainLight.csmLevel) {
                                 if (mainLight.csmOptimizationMode === CSMOptimizationMode.RemoveDuplicates
                                     && intersect.aabbFrustumCompletelyInside(model.worldBounds, dirLightFrustum)) {
                                     csmLayerObjects.fastRemove(i);

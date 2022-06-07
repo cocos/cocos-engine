@@ -48,7 +48,7 @@ public:
     inline void setShadowSaturation(float saturation) { _shadowSaturation = saturation; }
     inline void setShadowDistance(float distance) { _shadowDistance = distance; }
     inline void setShadowInvisibleOcclusionRange(float invisibleOcclusionRange) { _shadowInvisibleOcclusionRange = invisibleOcclusionRange; }
-    inline void setShadowCascadeLevel(CSMLevel csmLevel) { _shadowCascadeLevel = csmLevel; }
+    inline void setCsmLevel(CSMLevel csmLevel) { _csmLevel = csmLevel; }
     inline void setCsmLayerLambda(float lambda) { _csmLayerLambda = lambda; }
     inline void setShadowCSMValueDirty(bool isShadowCSMValueDirty) { _isShadowCSMValueDirty = isShadowCSMValueDirty; }
     inline void setCsmOptimizationMode(CSMOptimizationMode csmOptimizationMode) { _csmOptimizationMode = csmOptimizationMode; }
@@ -64,7 +64,7 @@ public:
     inline float getShadowSaturation() const { return _shadowSaturation; }
     inline float getShadowDistance() const { return _shadowDistance; }
     inline float getShadowInvisibleOcclusionRange() const { return _shadowInvisibleOcclusionRange; }
-    inline CSMLevel getShadowCascadeLevel() const { return _shadowCascadeLevel; }
+    inline CSMLevel getCsmLevel() const { return _csmLevel; }
     inline float getCsmLayerLambda() const { return _csmLayerLambda; }
     inline bool isShadowCSMValueDirty() const { return _isShadowCSMValueDirty; }
     inline CSMOptimizationMode getCsmOptimizationMode() const { return _csmOptimizationMode; }
@@ -95,7 +95,7 @@ private:
     float _shadowSaturation{0.75F};
     float _shadowDistance{50.0F};
     float _shadowInvisibleOcclusionRange{200.0F};
-    CSMLevel _shadowCascadeLevel{CSMLevel::LEVEL_3};
+    CSMLevel _csmLevel{CSMLevel::LEVEL_3};
     float _csmLayerLambda{0.75};
     bool _isShadowCSMValueDirty{false};
     CSMOptimizationMode _csmOptimizationMode{CSMOptimizationMode::REMOVE_DUPLICATES};

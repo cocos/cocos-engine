@@ -199,7 +199,7 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, ccstd::arr
 
     if (shadowInfo->isEnabled() && mainLight && mainLight->isShadowEnabled()) {
         if (shadowInfo->getType() == scene::ShadowType::SHADOW_MAP) {
-            if (mainLight->isShadowFixedArea() || mainLight->getShadowCascadeLevel() == scene::CSMLevel::LEVEL_1) {
+            if (mainLight->isShadowFixedArea() || mainLight->getCsmLevel() == scene::CSMLevel::LEVEL_1) {
                 const Mat4 &matShadowView = csmLayers->getSpecialLayer()->getMatShadowView();
                 const Mat4 &matShadowProj = csmLayers->getSpecialLayer()->getMatShadowProj();
                 const Mat4 &matShadowViewProj = csmLayers->getSpecialLayer()->getMatShadowViewProj();
@@ -223,7 +223,7 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, ccstd::arr
                 const float shadowLPNNInfos[4] = {0.0F, packing, mainLight->getShadowNormalBias(), 0.0F};
                 memcpy(sv.data() + UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET, &shadowLPNNInfos, sizeof(shadowLPNNInfos));
             } else {
-                for (uint i = 0; i < static_cast<uint>(mainLight->getShadowCascadeLevel()); ++i) {
+                for (uint i = 0; i < static_cast<uint>(mainLight->getCsmLevel()); ++i) {
                     cv[UBOCSM::SHADOW_SPLITS_OFFSET + i] = csmLayers->getLayers()[i]->getSplitCameraFar() / mainLight->getShadowDistance();
 
                     const Mat4 &matShadowView = csmLayers->getLayers()[i]->getMatShadowView();
@@ -251,7 +251,7 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, ccstd::arr
                 const float shadowNFLSInfos[4] = {0.0F, 0.0F, linear, 1.0F - mainLight->getShadowSaturation()};
                 memcpy(sv.data() + UBOShadow::SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET, &shadowNFLSInfos, sizeof(shadowNFLSInfos));
 
-                const float shadowLPNNInfos[4] = {0.0F, packing, mainLight->getShadowNormalBias(), static_cast<float>(mainLight->getShadowCascadeLevel())};
+                const float shadowLPNNInfos[4] = {0.0F, packing, mainLight->getShadowNormalBias(), static_cast<float>(mainLight->getCsmLevel())};
                 memcpy(sv.data() + UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET, &shadowLPNNInfos, sizeof(shadowLPNNInfos));
             }
             const float shadowWHPBInfos[4] = {shadowInfo->getSize().x, shadowInfo->getSize().y, static_cast<float>(mainLight->getShadowPcf()), mainLight->getShadowBias()};
@@ -287,7 +287,7 @@ void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, ccstd
                     Mat4 matShadowView;
                     Mat4 matShadowProj;
                     Mat4 matShadowViewProj;
-                    if (mainLight->isShadowFixedArea() || mainLight->getShadowCascadeLevel() == scene::CSMLevel::LEVEL_1) {
+                    if (mainLight->isShadowFixedArea() || mainLight->getCsmLevel() == scene::CSMLevel::LEVEL_1) {
                         matShadowView = csmLayers->getSpecialLayer()->getMatShadowView();
                         matShadowProj = csmLayers->getSpecialLayer()->getMatShadowProj();
                         matShadowViewProj = csmLayers->getSpecialLayer()->getMatShadowViewProj();
@@ -304,7 +304,7 @@ void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, ccstd
                         memcpy(shadowUBO.data() + UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET, &shadowLPNNInfos, sizeof(shadowLPNNInfos));
                     } else {
                         const CSMLayerInfo *layer = csmLayers->getLayers()[level];
-                        levelCount = static_cast<float>(mainLight->getShadowCascadeLevel());
+                        levelCount = static_cast<float>(mainLight->getCsmLevel());
                         nearClamp = layer->getSplitCameraNear();
                         farClamp = layer->getSplitCameraFar();
                         matShadowView = layer->getMatShadowView();

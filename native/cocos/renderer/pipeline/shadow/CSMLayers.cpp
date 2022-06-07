@@ -64,9 +64,9 @@ void ShadowTransformInfo::createMatrix(const geometry::Frustum &splitFrustum, co
         orthoSizeWidth = orthoSizeHeight = _lightViewFrustum.vertices[0].distance(_lightViewFrustum.vertices[6]);
     }
 
-    if (dirLight->getShadowCascadeLevel() != scene::CSMLevel::LEVEL_1 && dirLight->getCsmOptimizationMode() ==
+    if (dirLight->getCsmLevel() != scene::CSMLevel::LEVEL_1 && dirLight->getCsmOptimizationMode() ==
         scene::CSMOptimizationMode::REMOVE_DUPLICATES) {
-        if (_level >= static_cast<uint>(dirLight->getShadowCascadeLevel()) - 1U) {
+        if (_level >= static_cast<uint>(dirLight->getCsmLevel()) - 1U) {
             _maxLayerFarPlane = _castLightViewBoundingBox.halfExtents.z;
             _maxLayerPosz = _castLightViewBoundingBox.center.z;
         } else {
@@ -172,7 +172,7 @@ void CSMLayers::update(const PipelineSceneData *sceneData, const scene::Camera *
 
     CC_ASSERT(dirLight);
 
-    const uint levelCount = static_cast<uint>(dirLight->getShadowCascadeLevel());
+    const uint levelCount = static_cast<uint>(dirLight->getCsmLevel());
     CC_ASSERT(levelCount <= static_cast<uint>(scene::CSMLevel::LEVEL_4));
     const float shadowDistance = dirLight->getShadowDistance();
 
@@ -223,7 +223,7 @@ void CSMLayers::splitFrustumLevels(scene::DirectionalLight *dirLight) {
     constexpr float nd = 0.1F;
     const float fd = dirLight->getShadowDistance();
     const float ratio = fd / nd;
-    const uint level = static_cast<uint>(dirLight->getShadowCascadeLevel());
+    const uint level = static_cast<uint>(dirLight->getCsmLevel());
     const float lambda = dirLight->getCsmLayerLambda();
     _layers.at(0)->setSplitCameraNear(nd);
     for (uint i = 1; i < level; ++i) {
@@ -242,7 +242,7 @@ void CSMLayers::splitFrustumLevels(scene::DirectionalLight *dirLight) {
 }
 
 void CSMLayers::calculateCSM(const scene::Camera *camera, const scene::DirectionalLight *dirLight, const scene::Shadows *shadowInfo) {
-    const auto level = dirLight->getShadowCascadeLevel();
+    const auto level = dirLight->getCsmLevel();
     const float shadowMapWidth = level !=  scene::CSMLevel::LEVEL_1 ? shadowInfo->getSize().x * 0.5F : shadowInfo->getSize().x;
 
     if (shadowMapWidth < 0.999F) {
