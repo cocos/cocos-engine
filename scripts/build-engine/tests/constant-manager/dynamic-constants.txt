@@ -1,0 +1,69 @@
+function tryDefineGlobal (name, value) {
+    const _global = typeof window === 'undefined' ? global : window;
+    if (typeof _global[name] === 'undefined') {
+        return (_global[name] = value);
+    } else {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return _global[name];
+    }
+}
+function defined (name) {
+    const _global = typeof window === 'undefined' ? global : window;
+    return typeof _global[name] === 'object';
+}
+
+export const TEST = tryDefineGlobal('CC_TEST', defined('tap') || defined('QUnit'));
+export const EDITOR = tryDefineGlobal('CC_EDITOR', defined('Editor') && defined('process') && ('electron' in process.versions));
+export const PREVIEW = tryDefineGlobal('CC_PREVIEW', !EDITOR);
+export const JSB = tryDefineGlobal('CC_JSB', defined('jsb'));
+export const NATIVE = JSB;
+export const HTML5 = !(EDITOR && NATIVE);
+export const DEV = tryDefineGlobal('CC_DEV', true);
+
+export const WECHAT = true;
+tryDefineGlobal('CC_WECHAT', true);
+
+export const BAIDU = false;
+tryDefineGlobal('CC_BAIDU', false);
+
+export const XIAOMI = false;
+tryDefineGlobal('CC_XIAOMI', false);
+
+export const ALIPAY = false;
+tryDefineGlobal('CC_ALIPAY', false);
+
+export const BYTEDANCE = false;
+tryDefineGlobal('CC_BYTEDANCE', false);
+
+export const OPPO = false;
+tryDefineGlobal('CC_OPPO', false);
+
+export const VIVO = false;
+tryDefineGlobal('CC_VIVO', false);
+
+export const HUAWEI = false;
+tryDefineGlobal('CC_HUAWEI', false);
+
+export const COCOSPLAY = false;
+tryDefineGlobal('CC_COCOSPLAY', false);
+
+export const QTT = false;
+tryDefineGlobal('CC_QTT', false);
+
+export const LINKSURE = false;
+tryDefineGlobal('CC_LINKSURE', false);
+
+export const BUILD = true;
+tryDefineGlobal('CC_BUILD', true);
+
+export const DEBUG = true;
+tryDefineGlobal('CC_DEBUG', true);
+
+export const SERVER_MODE = false;
+
+export const MINIGAME = true;
+tryDefineGlobal('CC_MINIGAME', true);
+
+export const RUNTIME_BASED = false;
+tryDefineGlobal('CC_RUNTIME_BASED', false);
+

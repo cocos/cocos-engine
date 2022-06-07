@@ -1,0 +1,78 @@
+function tryDefineGlobal (name, value) {
+    const _global = typeof window === 'undefined' ? global : window;
+    if (typeof _global[name] === 'undefined') {
+        return (_global[name] = value);
+    } else {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return _global[name];
+    }
+}
+export const HTML5 = false;
+
+export const NATIVE = false;
+
+export const WECHAT = true;
+tryDefineGlobal('CC_WECHAT', true);
+
+export const BAIDU = false;
+tryDefineGlobal('CC_BAIDU', false);
+
+export const XIAOMI = false;
+tryDefineGlobal('CC_XIAOMI', false);
+
+export const ALIPAY = false;
+tryDefineGlobal('CC_ALIPAY', false);
+
+export const BYTEDANCE = false;
+tryDefineGlobal('CC_BYTEDANCE', false);
+
+export const OPPO = false;
+tryDefineGlobal('CC_OPPO', false);
+
+export const VIVO = false;
+tryDefineGlobal('CC_VIVO', false);
+
+export const HUAWEI = false;
+tryDefineGlobal('CC_HUAWEI', false);
+
+export const COCOSPLAY = false;
+tryDefineGlobal('CC_COCOSPLAY', false);
+
+export const QTT = false;
+tryDefineGlobal('CC_QTT', false);
+
+export const LINKSURE = false;
+tryDefineGlobal('CC_LINKSURE', false);
+
+export const EDITOR = false;
+tryDefineGlobal('CC_EDITOR', false);
+
+export const PREVIEW = false;
+tryDefineGlobal('CC_PREVIEW', false);
+
+export const BUILD = true;
+tryDefineGlobal('CC_BUILD', true);
+
+export const TEST = false;
+tryDefineGlobal('CC_TEST', false);
+
+export const DEBUG = true;
+tryDefineGlobal('CC_DEBUG', true);
+
+export const SERVER_MODE = false;
+
+export const DEV = false;
+tryDefineGlobal('CC_DEV', false);
+
+export const MINIGAME = true;
+tryDefineGlobal('CC_MINIGAME', true);
+
+export const RUNTIME_BASED = false;
+tryDefineGlobal('CC_RUNTIME_BASED', false);
+
+export const SUPPORT_JIT = false;
+tryDefineGlobal('CC_SUPPORT_JIT', false);
+
+export const JSB = false;
+tryDefineGlobal('CC_JSB', false);
+
