@@ -501,6 +501,8 @@ std::pair<uint32_t, uint32_t> formatAlignment(Format format) {
         case Format::ETC2_SRGB8_A1:
         case Format::EAC_RG11:
         case Format::EAC_RG11SN:
+            return std::make_pair(4, 4);
+
         case Format::PVRTC_RGB2:
         case Format::PVRTC_RGBA2:
         case Format::PVRTC2_2BPP:
