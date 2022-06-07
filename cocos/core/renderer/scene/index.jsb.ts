@@ -233,9 +233,9 @@ export const CSMLevel = Enum({
 /**
  * @zh 级联阴影性能优化模式。
  * @en The CSM performance optimization mode
- * @enum Shadows.CSMPerformanceOptimizationMode
+ * @enum Shadows.CSMOptimizationMode
  */
- export const CSMPerformanceOptimizationMode = Enum({
+ export const CSMOptimizationMode = Enum({
     /**
      * @zh 没有性能优化
      * @en has no performance optimization
