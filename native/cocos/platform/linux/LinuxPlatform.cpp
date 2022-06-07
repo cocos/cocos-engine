@@ -33,10 +33,16 @@
 #include "modules/Accelerometer.h"
 #include "modules/Battery.h"
 #include "modules/Network.h"
-#include "modules/Screen.h"
 #include "modules/System.h"
-#include "modules/SystemWindow.h"
 #include "modules/Vibrator.h"
+
+#if defined(CC_SERVER_MODE)
+    #include "platform/empty/modules/Screen.h"
+    #include "platform/empty/modules/SystemWindow.h"
+#else
+    #include "modules/Screen.h"
+    #include "modules/SystemWindow.h"
+#endif
 
 namespace {
 

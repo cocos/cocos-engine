@@ -222,4 +222,20 @@ export enum NodeEventType {
      * 注意：此节点激活时，此事件仅从最顶部的节点发出。
      */
     ACTIVE_IN_HIERARCHY_CHANGED = 'active-in-hierarchy-changed',
+
+    /**
+     * @en
+     * The event occur when node add a new component.
+     * @zh
+     * 当节点上增加组件时触发的事件
+     */
+    COMPONENT_ADDED = 'component-added',
+
+    /**
+     * @en
+     * The event occur when node remove a component.
+     * @zh
+     * 当节点上移除组件时触发的事件
+     */
+    COMPONENT_REMOVED = 'component-removed',
 }
