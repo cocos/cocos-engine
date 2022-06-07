@@ -78,23 +78,34 @@ struct TextureCubeMipmapAtlasInfo {
     ccstd::vector<MipmapAtlasLayoutInfo> layout;
 };
 
+/**
+ * @en The way to fill mipmaps.
+ * @zh 填充mipmaps的方式。
+ */
 enum class MipmapMode {
+    /**
+     * @zh
+     * 不使用mipmaps
+     * @en
+     * Not using mipmaps
+     * @readonly
+     */
     NONE = 0,
     /**
      * @zh
-     * 使用自动生成的mipmap
+     * 使用自动生成的mipmaps
      * @en
-     * Using the automatically generated mipmap
+     * Using the automatically generated mipmaps
      * @readonly
      */
     AUTO = 1,
     /**
-    * @zh
-    * 使用反射卷积图填充mipmap
-    * @en
-    * Update mipmap with reflective convolutional map
-    * @readonly
-    */
+     * @zh
+     * 使用卷积图填充mipmaps
+     * @en
+     * Filling mipmaps with convolutional maps.
+     * @readonly
+     */
     BAKED_CONVOLUTION_MAP = 2
 };
 struct TextureCubeSerializeData {
@@ -172,6 +183,12 @@ public:
 
     void setMipmapAtlasForJS(const TextureCubeMipmapAtlasInfo &value);
 
+    /**
+     * @en Fill mipmaps with convolutional maps.
+     * @zh 使用卷积图填充mipmaps。
+     * @param value All mipmaps of each face of the cube map are stored in the form of atlas.
+     * and the value contains the atlas of the 6 faces and the layout information of each mipmap layer.
+     */
     void setmipmapAtlas(const TextureCubeMipmapAtlasInfo &value);
 
     /**
@@ -206,6 +223,11 @@ public:
 
     // Override functions
     void updateMipmaps(uint32_t firstLevel, uint32_t count) override;
+
+    /**
+     * @en Whether mipmaps are baked convolutional maps.
+     * @zh mipmaps是否为烘焙出来的卷积图。
+     */
     bool isUsingOfflineMipmaps() override;
 
     void initialize();

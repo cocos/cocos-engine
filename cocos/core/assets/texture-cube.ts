@@ -78,21 +78,32 @@ enum FaceIndex {
     front = 4,
     back = 5,
 }
+/**
+ * @en The way to fill mipmaps.
+ * @zh 填充mipmaps的方式。
+ */
 export enum MipmapMode {
+    /**
+     * @zh
+     * 不使用mipmaps
+     * @en
+     * Not using mipmaps
+     * @readonly
+     */
     NONE = 0,
     /**
      * @zh
-     * 使用自动生成的mipmap
+     * 使用自动生成的mipmaps
      * @en
-     * Using the automatically generated mipmap
+     * Using the automatically generated mipmaps
      * @readonly
      */
     AUTO = 1,
     /**
      * @zh
-     * 使用反射卷积图填充mipmap
+     * 使用卷积图填充mipmaps
      * @en
-     * Update mipmap with reflective convolutional map
+     * Filling mipmaps with convolutional maps
      * @readonly
      */
     BAKED_CONVOLUTION_MAP = 2,
@@ -156,6 +167,12 @@ export class TextureCube extends SimpleTexture {
         }
     }
 
+    /**
+     * @en Fill mipmaps with convolutional maps.
+     * @zh 使用卷积图填充mipmaps。
+     * @param value All mipmaps of each face of the cube map are stored in the form of atlas.
+     * and the value contains the atlas of the 6 faces and the layout information of each mipmap layer.
+     */
     set mipmapAtlas (value: ITextureCubeMipmapAtlas | null) {
         this._mipmapAtlas = value;
         if (!this._mipmapAtlas) {
@@ -210,6 +227,10 @@ export class TextureCube extends SimpleTexture {
         return this._mipmapAtlas;
     }
 
+    /**
+     * @en Whether mipmaps are baked convolutional maps.
+     * @zh mipmaps是否为烘焙出来的卷积图。
+     */
     public isUsingOfflineMipmaps (): boolean {
         return this._mipmapMode === MipmapMode.BAKED_CONVOLUTION_MAP;
     }

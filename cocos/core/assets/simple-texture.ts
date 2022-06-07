@@ -261,6 +261,10 @@ export class SimpleTexture extends TextureBase {
         this._gfxTextureView = this._createTextureView(device);
     }
 
+    /**
+     * @en Whether mipmaps are baked convolutional maps.
+     * @zh mipmaps是否为烘焙出来的卷积图。
+     */
     public isUsingOfflineMipmaps (): boolean {
         return false;
     }
