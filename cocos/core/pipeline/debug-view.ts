@@ -108,23 +108,23 @@ export const enum DebugViewCompositeType {
 }
 
 /**
- * @en Rendering Debug View Control
- * @zh 渲染调试控制
+ * @en Rendering debug view control class
+ * @zh 渲染调试控制类
  */
 export class DebugView {
     /**
-     * @en Whether enabled with specified composite debug mode
-     * @zh 获取指定的组合调试模式是否开启
-     * @param Specified composite type
+     * @en Whether enabled with specified composite debug mode.
+     * @zh 获取指定的组合调试模式是否开启。
+     * @param Specified composite type.
      */
     public isCompositeModeEnabled (val : number) : boolean {
         const mode = this._compositeModeValue & (1 << val);
         return mode !== 0;
     }
     /**
-     * @en Toggle specified composite debug mode
-     * @zh 开关指定的组合调试模式
-     * @param Specified composite type, enable or disable
+     * @en Toggle specified composite debug mode.
+     * @zh 开关指定的组合调试模式。
+     * @param Specified composite type, enable or disable.
      */
     public enableCompositeMode (val: DebugViewCompositeType, enable: boolean) {
         this._enableCompositeMode(val, enable);
@@ -132,8 +132,8 @@ export class DebugView {
     }
 
     /**
-     * @en Toggle all composite debug mode
-     * @zh 开关所有的组合调试模式
+     * @en Toggle all composite debug mode.
+     * @zh 开关所有的组合调试模式。
      */
     public enableAllCompositeMode (enable: boolean) {
         this._enableAllCompositeMode(enable);
@@ -141,8 +141,8 @@ export class DebugView {
     }
 
     /**
-     * @en Toggle single debug mode
-     * @zh 设置单项调试模式
+     * @en Toggle single debug mode.
+     * @zh 设置单项调试模式。
      */
     public get singleMode () : DebugViewSingleType {
         return this._singleMode;
@@ -153,8 +153,8 @@ export class DebugView {
     }
 
     /**
-     * @en Toggle normal / pure lighting mode
-     * @zh 切换正常光照和仅光照模式
+     * @en Toggle normal / pure lighting mode.
+     * @zh 切换正常光照和仅光照模式。
      */
     public get lightingWithAlbedo () : boolean {
         return this._lightingWithAlbedo;
@@ -165,8 +165,8 @@ export class DebugView {
     }
 
     /**
-     * @en Toggle CSM layer coloration mode
-     * @zh 切换层叠阴影贴图染色调试模式
+     * @en Toggle CSM layer coloration mode.
+     * @zh 切换层叠阴影贴图染色调试模式。
      */
     public get csmLayerColoration () : boolean {
         return this._csmLayerColoration;
@@ -177,8 +177,8 @@ export class DebugView {
     }
 
     /**
-     * @en Get debug view on / off state
-     * @zh 当前是否开启了调试模式
+     * @en Get debug view on / off state.
+     * @zh 查询当前是否开启了调试模式。
      */
     public isDebugViewEnabled () {
         return this._getDebugViewType() !== DebugViewType.NONE;
