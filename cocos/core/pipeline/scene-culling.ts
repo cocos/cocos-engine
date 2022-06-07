@@ -30,10 +30,10 @@ import { Vec3, Mat4, Color } from '../math';
 import { RenderPipeline } from './render-pipeline';
 import { Pool } from '../memop';
 import { IRenderObject, UBOShadow } from './define';
-import { ShadowType, Shadows, CSMLevel, CSMPerformanceOptimizationMode } from '../renderer/scene/shadows';
+import { ShadowType, Shadows, CSMLevel, CSMOptimizationMode } from '../renderer/scene/shadows';
 import { SphereLight, DirectionalLight } from '../renderer/scene';
 import { PipelineSceneData } from './pipeline-scene-data';
-import { ShadowTransformInfo } from './shadow/csm-layers';
+import { ShadowLayerVolume } from './shadow/csm-layers';
 
 const _tempVec3 = new Vec3();
 const _sphere = Sphere.create(0, 0, 0, 1);
@@ -175,7 +175,7 @@ export function validPunctualLightsCulling (pipeline: RenderPipeline, camera: Ca
         }
     }
 }
-export function shadowCulling (camera: Camera, sceneData: PipelineSceneData, layer: ShadowTransformInfo) {
+export function shadowCulling (camera: Camera, sceneData: PipelineSceneData, layer: ShadowLayerVolume) {
     const scene = camera.scene!;
     const mainLight = scene.mainLight!;
     const csmLayers = sceneData.csmLayers;
@@ -199,8 +199,8 @@ export function shadowCulling (camera: Camera, sceneData: PipelineSceneData, lay
                         const accurate = intersect.aabbFrustum(model.worldBounds, dirLightFrustum);
                         if (accurate) {
                             dirShadowObjects.push(csmLayerObject);
-                            if (layer.level < mainLight.shadowCSMLevel) {
-                                if (mainLight.shadowCSMPerformanceOptimizationMode === CSMPerformanceOptimizationMode.RemoveDuplicates
+                            if (layer.level < mainLight.shadowCascadeLevel) {
+                                if (mainLight.csmOptimizationMode === CSMOptimizationMode.RemoveDuplicates
                                     && intersect.aabbFrustumCompletelyInside(model.worldBounds, dirLightFrustum)) {
                                     csmLayerObjects.fastRemove(i);
                                 }

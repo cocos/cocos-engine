@@ -219,8 +219,8 @@ void shadowCulling(RenderPipeline *pipeline, const scene::Camera *camera, Shadow
                 const bool accurate = model->getWorldBounds()->aabbFrustum(layer->getValidFrustum());
                 if (accurate) {
                     layer->addShadowObject(genRenderObject(model, camera));
-                    if (layer->getLevel() < static_cast<uint>(mainLight->getShadowCSMLevel())) {
-                        if (static_cast<uint>(mainLight->getShadowCSMPerformanceOptimizationMode()) == 2 &&
+                    if (layer->getLevel() < static_cast<uint>(mainLight->getShadowCascadeLevel())) {
+                        if (static_cast<uint>(mainLight->getCsmOptimizationMode()) == 2 &&
                             aabbFrustumCompletelyInside(*model->getWorldBounds(), layer->getValidFrustum())) {
                             csmLayers->getCSMLayerObjects().erase(csmLayers->getCSMLayerObjects().begin() + static_cast<uint32_t>(i));
                             i--;

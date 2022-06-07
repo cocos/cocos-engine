@@ -48,11 +48,11 @@ public:
     inline void setShadowSaturation(float saturation) { _shadowSaturation = saturation; }
     inline void setShadowDistance(float distance) { _shadowDistance = distance; }
     inline void setShadowInvisibleOcclusionRange(float invisibleOcclusionRange) { _shadowInvisibleOcclusionRange = invisibleOcclusionRange; }
-    inline void setShadowCSMLevel(CSMLevel csmLevel) { _shadowCSMLevel = csmLevel; }
-    inline void setShadowCSMLambda(float lambda) { _shadowCSMLambda = lambda; }
+    inline void setShadowCascadeLevel(CSMLevel csmLevel) { _shadowCascadeLevel = csmLevel; }
+    inline void setCsmLayerLambda(float lambda) { _csmLayerLambda = lambda; }
     inline void setShadowCSMValueDirty(bool isShadowCSMValueDirty) { _isShadowCSMValueDirty = isShadowCSMValueDirty; }
-    inline void setShadowCSMDebugMode(bool isShadowCSMDebugMode) { _isShadowCSMDebugMode = isShadowCSMDebugMode; }
-    inline void setShadowCSMPerformanceOptimizationMode(CSMPerformanceOptimizationMode shadowCSMPerformanceOptimizationMode) { _shadowCSMPerformanceOptimizationMode = shadowCSMPerformanceOptimizationMode; }
+    inline void setCsmDebugMode(bool isCsmDebugMode) { _isCsmDebugMode = isCsmDebugMode; }
+    inline void setCsmOptimizationMode(CSMOptimizationMode csmOptimizationMode) { _csmOptimizationMode = csmOptimizationMode; }
     inline void setShadowFixedArea(bool fixedArea) { _shadowFixedArea = fixedArea; }
     inline void setShadowNear(float nearValue) { _shadowNear = nearValue; }
     inline void setShadowFar(float farValue) { _shadowFar = farValue; }
@@ -65,11 +65,11 @@ public:
     inline float getShadowSaturation() const { return _shadowSaturation; }
     inline float getShadowDistance() const { return _shadowDistance; }
     inline float getShadowInvisibleOcclusionRange() const { return _shadowInvisibleOcclusionRange; }
-    inline CSMLevel getShadowCSMLevel() const { return _shadowCSMLevel; }
-    inline float getShadowCSMLambda() const { return _shadowCSMLambda; }
+    inline CSMLevel getShadowCascadeLevel() const { return _shadowCascadeLevel; }
+    inline float getCsmLayerLambda() const { return _csmLayerLambda; }
     inline bool isShadowCSMValueDirty() const { return _isShadowCSMValueDirty; }
-    inline bool isShadowCSMDebugMode() const { return _isShadowCSMDebugMode; }
-    inline CSMPerformanceOptimizationMode getShadowCSMPerformanceOptimizationMode() const { return _shadowCSMPerformanceOptimizationMode; }
+    inline bool isCsmDebugMode() const { return _isCsmDebugMode; }
+    inline CSMOptimizationMode getCsmOptimizationMode() const { return _csmOptimizationMode; }
     inline bool isShadowFixedArea() const { return _shadowFixedArea; }
     inline float getShadowNear() const { return _shadowNear; }
     inline float getShadowFar() const { return _shadowFar; }
@@ -97,11 +97,11 @@ private:
     float _shadowSaturation{0.75F};
     float _shadowDistance{50.0F};
     float _shadowInvisibleOcclusionRange{200.0F};
-    CSMLevel _shadowCSMLevel{CSMLevel::LEVEL_3};
-    float _shadowCSMLambda{0.75};
+    CSMLevel _shadowCascadeLevel{CSMLevel::LEVEL_3};
+    float _csmLayerLambda{0.75};
     bool _isShadowCSMValueDirty{false};
-    bool _isShadowCSMDebugMode{false};
-    CSMPerformanceOptimizationMode _shadowCSMPerformanceOptimizationMode{CSMPerformanceOptimizationMode::REMOVE_DUPLICATES};
+    bool _isCsmDebugMode{false};
+    CSMOptimizationMode _csmOptimizationMode{CSMOptimizationMode::REMOVE_DUPLICATES};
     bool _shadowFixedArea{false};
     float _shadowNear{0.1F};
     float _shadowFar{10.0F};

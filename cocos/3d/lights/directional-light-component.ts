@@ -28,7 +28,7 @@ import { ccclass, range, slide, type, editable, visible, help, executeInEditMode
 import { Light } from './light-component';
 import { scene } from '../../core/renderer';
 import { legacyCC } from '../../core/global-exports';
-import { Camera, PCFType, Shadows, ShadowType, CSMLevel, CSMPerformanceOptimizationMode } from '../../core/renderer/scene';
+import { Camera, PCFType, Shadows, ShadowType, CSMLevel, CSMOptimizationMode } from '../../core/renderer/scene';
 import { Root } from '../../core/root';
 import { property } from '../../core/data/class-decorator';
 import { CCBoolean, CCFloat } from '../../core/data/utils/attribute';
@@ -68,11 +68,11 @@ export class DirectionalLight extends Light {
     @serializable
     protected _shadowInvisibleOcclusionRange = 200;
     @serializable
-    protected _shadowCSMLevel = CSMLevel.level_3;
+    protected _shadowCascadeLevel = CSMLevel.level_3;
     @serializable
-    protected _shadowCSMLambda = 0.75;
+    protected _csmLayerLambda = 0.75;
     @serializable
-    protected _shadowCSMPerformanceOptimizationMode = CSMPerformanceOptimizationMode.RemoveDuplicates;
+    protected _csmOptimizationMode = CSMOptimizationMode.RemoveDuplicates;
 
     // fixed area properties
     @serializable
@@ -268,13 +268,13 @@ export class DirectionalLight extends Light {
     @tooltip('CSM Level')
     @slide
     @type(CSMLevel)
-    get shadowCSMLevel () {
-        return this._shadowCSMLevel;
+    get shadowCascadeLevel () {
+        return this._shadowCascadeLevel;
     }
-    set shadowCSMLevel (val) {
-        this._shadowCSMLevel = val;
+    set shadowCascadeLevel (val) {
+        this._shadowCascadeLevel = val;
         if (this._light) {
-            this._light.shadowCSMLevel = this._shadowCSMLevel;
+            this._light.shadowCascadeLevel = this._shadowCascadeLevel;
             this._light.shadowCSMValueDirty = true;
         }
     }
@@ -293,13 +293,13 @@ export class DirectionalLight extends Light {
     @range([0.0, 1.0, 0.01])
     @slide
     @type(CCFloat)
-    get shadowCSMLambda () {
-        return this._shadowCSMLambda;
+    get csmLayerLambda () {
+        return this._csmLayerLambda;
     }
-    set shadowCSMLambda (val) {
-        this._shadowCSMLambda = val;
+    set csmLayerLambda (val) {
+        this._csmLayerLambda = val;
         if (this._light) {
-            this._light.shadowCSMLambda = this._shadowCSMLambda;
+            this._light.csmLayerLambda = this._csmLayerLambda;
             this._light.shadowCSMValueDirty = true;
         }
     }
@@ -314,14 +314,14 @@ export class DirectionalLight extends Light {
     @editable
     @tooltip('CSM Performance Optimization Mode')
     @slide
-    @type(CSMPerformanceOptimizationMode)
-    get shadowCSMPerformanceOptimizationMode () {
-        return this._shadowCSMPerformanceOptimizationMode;
+    @type(CSMOptimizationMode)
+    get csmOptimizationMode () {
+        return this._csmOptimizationMode;
     }
-    set shadowCSMPerformanceOptimizationMode (val) {
-        this._shadowCSMPerformanceOptimizationMode = val;
+    set csmOptimizationMode (val) {
+        this._csmOptimizationMode = val;
         if (this._light) {
-            this._light.shadowCSMPerformanceOptimizationMode = this._shadowCSMPerformanceOptimizationMode;
+            this._light.csmOptimizationMode = this._csmOptimizationMode;
         }
     }
 
@@ -344,7 +344,7 @@ export class DirectionalLight extends Light {
     set shadowCSMDebugMode (val) {
         this._shadowCSMDebugMode = val;
         if (this._light) {
-            this._light.shadowCSMDebugMode = this._shadowCSMDebugMode;
+            this._light.csmDebugMode = this._shadowCSMDebugMode;
         }
     }
 
@@ -450,10 +450,10 @@ export class DirectionalLight extends Light {
             this._light.shadowNear = this._shadowNear;
             this._light.shadowFar = this._shadowFar;
             this._light.shadowOrthoSize = this._shadowOrthoSize;
-            this._light.shadowCSMLevel = this._shadowCSMLevel;
-            this._light.shadowCSMLambda = this._shadowCSMLambda;
-            this._light.shadowCSMDebugMode = this._shadowCSMDebugMode;
-            this._light.shadowCSMPerformanceOptimizationMode = this._shadowCSMPerformanceOptimizationMode;
+            this._light.shadowCascadeLevel = this._shadowCascadeLevel;
+            this._light.csmLayerLambda = this._csmLayerLambda;
+            this._light.csmDebugMode = this._shadowCSMDebugMode;
+            this._light.csmOptimizationMode = this._csmOptimizationMode;
         }
     }
 }

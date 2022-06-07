@@ -119,7 +119,7 @@ export class ShadowFlow extends RenderFlow {
             if (mainLight.shadowFixedArea) {
                 this._renderStage(camera, mainLight, shadowFrameBuffer!, globalDS);
             } else {
-                for (let i = 0; i < mainLight.shadowCSMLevel; i++) {
+                for (let i = 0; i < mainLight.shadowCascadeLevel; i++) {
                     this._renderStage(camera, mainLight, shadowFrameBuffer!, globalDS, i);
                 }
             }

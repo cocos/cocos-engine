@@ -32,7 +32,7 @@ import { IRenderObject, IRenderPass } from '../define';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { SceneTask, SceneTransversal, SceneVisitor } from './pipeline';
 import { TaskType } from './types';
-import { ShadowTransformInfo } from '../shadow/csm-layers';
+import { ShadowLayerVolume } from '../shadow/csm-layers';
 
 export class RenderObject implements IRenderObject {
     public model: Model;
@@ -61,7 +61,7 @@ export class WebSceneTask extends SceneTask {
         return TaskType.SYNC;
     }
 
-    public static shadowCulling (camera: Camera, sceneData: PipelineSceneData, layer: ShadowTransformInfo) {
+    public static shadowCulling (camera: Camera, sceneData: PipelineSceneData, layer: ShadowLayerVolume) {
         const csmLayers = sceneData.csmLayers;
         const castShadowObjects = csmLayers.castShadowObjects;
         const dirLightFrustum = layer.validFrustum;

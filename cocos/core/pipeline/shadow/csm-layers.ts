@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
  https://www.cocos.com/
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -19,7 +19,7 @@
  THE SOFTWARE.
  */
 
-import { DirectionalLight, Camera, Shadows, CSMLevel, CSMPerformanceOptimizationMode } from '../../renderer/scene';
+import { DirectionalLight, Camera, Shadows, CSMLevel, CSMOptimizationMode } from '../../renderer/scene';
 import { Mat4, Vec3, Vec2, Quat } from '../../math';
 import { Frustum, AABB } from '../../geometry';
 import { IRenderObject } from '../define';
@@ -48,7 +48,7 @@ const _scale = new Vec3();
 let _maxLayerPosz = 0.0;
 let _maxLayerFarPlane = 0.0;
 
-export class ShadowTransformInfo {
+export class ShadowLayerVolume {
     protected _shadowObjects: IRenderObject[] = [];
 
     protected _shadowCameraFar = 0;
@@ -155,16 +155,16 @@ export class ShadowTransformInfo {
         this._castLightViewBoundingBox.mergeFrustum(this._lightViewFrustum);
         let orthoSizeWidth;
         let orthoSizeHeight;
-        if (dirLight.shadowCSMPerformanceOptimizationMode === CSMPerformanceOptimizationMode.DisableRotationFix) {
+        if (dirLight.csmOptimizationMode === CSMOptimizationMode.DisableRotationFix) {
             orthoSizeWidth = this._castLightViewBoundingBox.halfExtents.x * 2.0;
             orthoSizeHeight = this._castLightViewBoundingBox.halfExtents.y * 2.0;
         } else {
             orthoSizeWidth = orthoSizeHeight = Vec3.distance(this._lightViewFrustum.vertices[0], this._lightViewFrustum.vertices[6]);
         }
 
-        if (dirLight.shadowCSMLevel > 1 && dirLight.shadowCSMPerformanceOptimizationMode
-            === CSMPerformanceOptimizationMode.RemoveDuplicates) {
-            if (this._level >= dirLight.shadowCSMLevel - 1) {
+        if (dirLight.shadowCascadeLevel > 1 && dirLight.csmOptimizationMode
+            === CSMOptimizationMode.RemoveDuplicates) {
+            if (this._level >= dirLight.shadowCascadeLevel - 1) {
                 _maxLayerFarPlane = this._castLightViewBoundingBox.halfExtents.z;
                 _maxLayerPosz = this._castLightViewBoundingBox.center.z;
             } else {
@@ -213,7 +213,7 @@ export class ShadowTransformInfo {
             0.1,  this._shadowCameraFar, _matShadowTrans);
     }
 }
-export class CSMLayerInfo extends ShadowTransformInfo {
+export class CSMShadowLayer extends ShadowLayerVolume {
     protected _splitCameraNear = 0;
     protected _splitCameraFar = 0;
 
@@ -275,11 +275,11 @@ export class CSMLayers {
     protected _castShadowObjects: IRenderObject[] = [];
     protected _csmLayerObjects = new CachedArray<IRenderObject>(64);
 
-    protected _layers: CSMLayerInfo[] = [];
+    protected _layers: CSMShadowLayer[] = [];
     // LevelCount is a scalar, Indicates the number.
     protected _levelCount = 0;
     // The ShadowTransformInfo object for 'fixed area shadow' || 'maximum clipping info' || 'CSM layers = 1'.
-    protected _specialLayer: ShadowTransformInfo = new ShadowTransformInfo(1);
+    protected _specialLayer: ShadowLayerVolume = new ShadowLayerVolume(1);
     protected _shadowDistance = 0;
 
     get castShadowObjects () {
@@ -300,7 +300,7 @@ export class CSMLayers {
 
     public constructor () {
         for (let i = 0; i < CSMLevel.level_4; i++) {
-            this._layers[i] = new CSMLayerInfo(i);
+            this._layers[i] = new CSMShadowLayer(i);
         }
     }
 
@@ -310,7 +310,7 @@ export class CSMLayers {
         if (dirLight === null) { return; }
 
         const shadowInfo = sceneData.shadows;
-        const levelCount = dirLight.shadowCSMLevel;
+        const levelCount = dirLight.shadowCascadeLevel;
         const shadowDistance = dirLight.shadowDistance;
 
         if (!shadowInfo.enabled || !dirLight.shadowEnabled) { return; }
@@ -359,8 +359,8 @@ export class CSMLayers {
         const nd = 0.1;
         const fd = dirLight.shadowDistance;
         const ratio = fd / nd;
-        const level = dirLight.shadowCSMLevel;
-        const lambda = dirLight.shadowCSMLambda;
+        const level = dirLight.shadowCascadeLevel;
+        const lambda = dirLight.csmLayerLambda;
         this._layers[0].splitCameraNear = nd;
         for (let i = 1; i < level; i++) {
             // i ÷ numbers of level
@@ -379,7 +379,7 @@ export class CSMLayers {
     }
 
     private _calculateCSM (camera: Camera, dirLight: DirectionalLight, shadowInfo: Shadows) {
-        const level = dirLight.shadowCSMLevel;
+        const level = dirLight.shadowCascadeLevel;
         const shadowMapWidth = level > 1 ? shadowInfo.size.x * 0.5 : shadowInfo.size.x;
 
         if (shadowMapWidth < 0.0) { return; }

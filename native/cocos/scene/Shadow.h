@@ -176,9 +176,9 @@ enum class CSMLevel {
  * @zh 联级阴影性能优化模式。
  * @en The CSM performance optimization mode
  * @static
- * @enum Shadows.CSMPerformanceOptimizationMode
+ * @enum Shadows.CSMOptimizationMode
  */
-enum class CSMPerformanceOptimizationMode {
+enum class CSMOptimizationMode {
     /**
      * @zh 没有性能优化
      * @en has no performance optimization
