@@ -447,6 +447,7 @@ class ProgramLib {
             if (director.root.usesCustomPipeline) {
                 const root = legacyCC.director.root;
                 const ppl: Pipeline = root.customPipeline;
+                insertBuiltinBindings(tmpl, tmplInfo, globalDescriptorSetLayout, 'globals');
                 tmplInfo.setLayouts[SetIndex.GLOBAL] = ppl.getDescriptorSetLayout(name, UpdateFrequency.PER_PASS);
                 tmplInfo.setLayouts[SetIndex.LOCAL] = ppl.getDescriptorSetLayout(name, UpdateFrequency.PER_INSTANCE);
                 tmplInfo.setLayouts[SetIndex.MATERIAL] = ppl.getDescriptorSetLayout(name, UpdateFrequency.PER_BATCH);
