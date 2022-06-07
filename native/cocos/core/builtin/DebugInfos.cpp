@@ -403,7 +403,7 @@ ccstd::unordered_map<int, ccstd::string> debugInfos = {
 { 9002, "Failed to request any buffer from a mesh buffer without accessor" },
 { 9003, "The internal state of LinearBufferAccessor have severe issue and irreversible, please check the reason" },
 { 9004, "Failed to allocate chunk in StaticVBAccessor, the requested buffer might be too large: %d bytes" },
-{ 9005, "BATCHER2D_MEM_INCREMENT is too large, the Max value for BATCHER2D_MEM_INCREMENT is 2303KB (smaller than 65536 * 9 * 4 / 1024 = 2304KB)" },
+{ 9005, "BATCHER2D_MEM_INCREMENT is too large, the Max value for BATCHER2D_MEM_INCREMENT is 2303KB (smaller than 65536 *9* 4 / 1024 = 2304KB)" },
 { 9006, "QuadRenderData is removed, please use MeshRenderData instead." },
 { 9100, "texture size exceeds current device limits %d/%d" },
 { 9201, "Cannot access game frame or container." },
@@ -444,6 +444,7 @@ ccstd::unordered_map<int, ccstd::string> debugInfos = {
 { 15000, "Can not find corresponding diffuse map for environment lighting, use hemisphere diffuse instead, change environment lighting type to regenerate diffuse map" },
 { 15001, "Can not find environment map, disable IBL lighting" },
 { 15002, "Diffuse map resource is missing, please change environment lighting type to regenerate resource" },
+{ 15003, "The shadow visible distance is so small that CSM stratification is not effective, Please change the value of shadowDistance so that it is 10 times greater than 0.1" },
 
 };
 }//namespace cc
