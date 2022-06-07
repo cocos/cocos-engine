@@ -46,7 +46,7 @@ exports.template = /* html*/`
             <ui-prop type="dump" key="aabbHalfY" disableflag="!renderCulling"></ui-prop>
             <ui-prop type="dump" key="aabbHalfZ" disableflag="!renderCulling"></ui-prop>
             <ui-prop empty="true" disableflag="!renderCulling">
-                <ui-label slot="label">Show Bounds</ui-label>
+                <ui-label slot="label" value="Show Bounds"></ui-label>
                 <ui-checkbox slot="content" id="showBounds"></ui-checkbox>
             </ui-prop>
             <ui-button id="resetBounds">Regenerate bounding box</ui-button>
@@ -54,10 +54,10 @@ exports.template = /* html*/`
         <ui-section class="config" key="noiseModule.value.enable" autoExpand cache-expand="particle-system-useNoise">
             <ui-prop slot="header" class="header" empty="true" key="noiseModule.value.enable">
                 <ui-checkbox></ui-checkbox>
-                <ui-label>NoiseModule</ui-label>
+                <ui-label value="Noise Module"></ui-label>
             </ui-prop>
             <ui-prop>
-                <ui-label slot="label">Noise Preview</ui-label>
+                <ui-label slot="label" value="Noise Preview"></ui-label>
                 <div slot="content" style="display: flex;flex-direction: row-reverse;padding: 5px;">
                      <canvas id="noisePreview" width="100" height="100"></canvas>
                 </div>
@@ -646,12 +646,15 @@ const uiElements = {
                 name: 'getNoisePreview',
                 args: [100, 100],
             });
+            if (data.length === 0) { return; }
+
             data = data.reduce((result, item) => {
                 const value = item * 255;
                 const rgba = [value, value, value, 255];
                 result.push(...rgba);
                 return result;
             }, []);
+
             const imageData = new ImageData(new Uint8ClampedArray(data), 100, 100);
             const context = this.$.noisePreview.getContext('2d');
             context.putImageData(imageData, 0, 0);
