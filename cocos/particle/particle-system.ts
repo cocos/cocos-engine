@@ -889,6 +889,14 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     /**
+     * @zh 停止发射粒子
+     * @en Stop emitting particle
+     */
+    public stopEmitting () {
+        this._isEmitting = false;
+    }
+
+    /**
      * @en stop particle system
      * @zh 停止播放粒子。
      */
@@ -901,6 +909,9 @@ export class ParticleSystem extends RenderableComponent {
         }
         if (this._isPaused) {
             this._isPaused = false;
+        }
+        if (this._isEmitting) {
+            this._isEmitting = false;
         }
 
         this._time = 0.0;
@@ -1280,13 +1291,14 @@ export class ParticleSystem extends RenderableComponent {
                 // this._emitRateDistanceCounter = 0.0;
                 if (!this.loop) {
                     this._isEmitting = false;
-                    return;
                 }
             }
 
+            if (!this._isEmitting) return;
+
             // emit by rateOverTime
             this._emitRateTimeCounter += this.rateOverTime.evaluate(this._time / this.duration, 1)! * dt;
-            if (this._emitRateTimeCounter > 1 && this._isEmitting) {
+            if (this._emitRateTimeCounter > 1) {
                 const emitNum = Math.floor(this._emitRateTimeCounter);
                 this._emitRateTimeCounter -= emitNum;
                 this.emit(emitNum, dt);
@@ -1298,7 +1310,7 @@ export class ParticleSystem extends RenderableComponent {
             Vec3.copy(this._oldWPos, this._curWPos);
             this._emitRateDistanceCounter += distance * this.rateOverDistance.evaluate(this._time / this.duration, 1)!;
 
-            if (this._emitRateDistanceCounter > 1 && this._isEmitting) {
+            if (this._emitRateDistanceCounter > 1) {
                 const emitNum = Math.floor(this._emitRateDistanceCounter);
                 this._emitRateDistanceCounter -= emitNum;
                 this.emit(emitNum, dt);
