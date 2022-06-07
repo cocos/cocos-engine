@@ -236,8 +236,10 @@ export abstract class NativePackTool {
         await this.copyPlatformTemplate();
         await this.generateCMakeConfig();
 
-        const templatTasks = await fs.readJSON(ps.join(this.paths.nativeTemplateDirInCocos, PackageNewConfig));
-        await this.excuteTemplateTask(templatTasks);
+        const templatTaskMap: Record<string, CocosProjectTasks> = await fs.readJSON(ps.join(this.paths.nativeTemplateDirInCocos, PackageNewConfig));
+        for (const templatTask of Object.values(templatTaskMap)) {
+            await this.excuteTemplateTask(templatTask);
+        }
         return true;
     };
     make?():  Promise<boolean>;
