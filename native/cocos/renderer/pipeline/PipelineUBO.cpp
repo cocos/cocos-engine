@@ -243,7 +243,7 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, ccstd::arr
                     memcpy(cv.data() + UBOCSM::SHADOW_PROJ_INFO_LEVELS_OFFSET + 4 * i, &shadowProjInfos, sizeof(shadowProjInfos));
                 }
 
-                cv[UBOCSM::CSM_INFO_OFFSET + 0] = mainLight->isCsmDebugMode() ? 1.0F : 0.0F;
+                cv[UBOCSM::CSM_INFO_OFFSET + 0] = 0.0F;
                 cv[UBOCSM::CSM_INFO_OFFSET + 1] = getPCFRadius(shadowInfo, mainLight);
                 cv[UBOCSM::CSM_INFO_OFFSET + 2] = 0.0F;
                 cv[UBOCSM::CSM_INFO_OFFSET + 3] = 0.0F;

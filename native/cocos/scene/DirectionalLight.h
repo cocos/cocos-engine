@@ -51,7 +51,6 @@ public:
     inline void setShadowCascadeLevel(CSMLevel csmLevel) { _shadowCascadeLevel = csmLevel; }
     inline void setCsmLayerLambda(float lambda) { _csmLayerLambda = lambda; }
     inline void setShadowCSMValueDirty(bool isShadowCSMValueDirty) { _isShadowCSMValueDirty = isShadowCSMValueDirty; }
-    inline void setCsmDebugMode(bool isCsmDebugMode) { _isCsmDebugMode = isCsmDebugMode; }
     inline void setCsmOptimizationMode(CSMOptimizationMode csmOptimizationMode) { _csmOptimizationMode = csmOptimizationMode; }
     inline void setShadowFixedArea(bool fixedArea) { _shadowFixedArea = fixedArea; }
     inline void setShadowNear(float nearValue) { _shadowNear = nearValue; }
@@ -68,7 +67,6 @@ public:
     inline CSMLevel getShadowCascadeLevel() const { return _shadowCascadeLevel; }
     inline float getCsmLayerLambda() const { return _csmLayerLambda; }
     inline bool isShadowCSMValueDirty() const { return _isShadowCSMValueDirty; }
-    inline bool isCsmDebugMode() const { return _isCsmDebugMode; }
     inline CSMOptimizationMode getCsmOptimizationMode() const { return _csmOptimizationMode; }
     inline bool isShadowFixedArea() const { return _shadowFixedArea; }
     inline float getShadowNear() const { return _shadowNear; }
@@ -100,7 +98,6 @@ private:
     CSMLevel _shadowCascadeLevel{CSMLevel::LEVEL_3};
     float _csmLayerLambda{0.75};
     bool _isShadowCSMValueDirty{false};
-    bool _isCsmDebugMode{false};
     CSMOptimizationMode _csmOptimizationMode{CSMOptimizationMode::REMOVE_DUPLICATES};
     bool _shadowFixedArea{false};
     float _shadowNear{0.1F};

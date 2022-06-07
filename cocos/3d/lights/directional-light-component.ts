@@ -86,7 +86,6 @@ export class DirectionalLight extends Light {
 
     protected _type = scene.LightType.DIRECTIONAL;
     protected _light: scene.DirectionalLight | null = null;
-    protected _csmDebugMode = false;
 
     /**
      * @en The light source intensity.
@@ -326,29 +325,6 @@ export class DirectionalLight extends Light {
     }
 
     /**
-     * @en get or set shadow CSM level ratio
-     * @zh 获取或者设置阴影层级系数
-     */
-    @visible(function (this: DirectionalLight) {
-        return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type
-                    === ShadowType.ShadowMap && this._shadowFixedArea === false;
-    })
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 14 } })
-    @editable
-    @tooltip('enabled CSM debug mode')
-    @slide
-    @type(CCBoolean)
-    get csmDebugMode () {
-        return this._csmDebugMode;
-    }
-    set csmDebugMode (val) {
-        this._csmDebugMode = val;
-        if (this._light) {
-            this._light.csmDebugMode = this._csmDebugMode;
-        }
-    }
-
-    /**
      * @en Whether to use fixed area shadow in real time shadow.
      * @zh 实时阴影计算中是否使用固定区域阴影。
      */
@@ -452,7 +428,6 @@ export class DirectionalLight extends Light {
             this._light.shadowOrthoSize = this._shadowOrthoSize;
             this._light.shadowCascadeLevel = this._shadowCascadeLevel;
             this._light.csmLayerLambda = this._csmLayerLambda;
-            this._light.csmDebugMode = this._csmDebugMode;
             this._light.csmOptimizationMode = this._csmOptimizationMode;
         }
     }

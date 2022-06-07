@@ -246,7 +246,7 @@ export class PipelineUBO {
                         cv[UBOCSM.SHADOW_PROJ_INFO_LEVELS_OFFSET + 3 + 4 * i] = 1.0 / matShadowProj.m05;
                     }
 
-                    cv[UBOCSM.CSM_INFO_OFFSET + 0] = mainLight.csmDebugMode ? 1 : 0;
+                    cv[UBOCSM.CSM_INFO_OFFSET + 0] = 0;
                     cv[UBOCSM.CSM_INFO_OFFSET + 1] = this.getPCFRadius(shadowInfo, mainLight);
                     cv[UBOCSM.CSM_INFO_OFFSET + 2] = 0;
                     cv[UBOCSM.CSM_INFO_OFFSET + 3] = 0;

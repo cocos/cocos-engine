@@ -55,7 +55,6 @@ export class DirectionalLight extends Light {
     protected _shadowCascadeLevel = CSMLevel.level_3;
     protected _shadowCSMValueDirty = false;
     protected _csmLayerLambda = 0.75;
-    protected _csmDebugMode = false;
     protected _csmOptimizationMode = CSMOptimizationMode.DisableRotationFix;
 
     // fixed area properties
@@ -234,17 +233,6 @@ export class DirectionalLight extends Light {
     }
     set csmOptimizationMode (val) {
         this._csmOptimizationMode = val;
-    }
-
-    /**
-     * @en get or set shadow CSM level ratio
-     * @zh 获取或者设置级联阴影层数系数
-     */
-    get csmDebugMode () {
-        return this._csmDebugMode;
-    }
-    set csmDebugMode (val) {
-        this._csmDebugMode = val;
     }
 
     /**
