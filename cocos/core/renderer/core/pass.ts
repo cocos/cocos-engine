@@ -675,7 +675,7 @@ export class Pass {
         if (director.root.usesCustomPipeline) {
             const root = legacyCC.director.root;
             const ppl: Pipeline = root.customPipeline;
-            return ppl.getDescriptorSetLayout(this._programName, UpdateFrequency.PER_BATCH);
+            return ppl.getDescriptorSetLayout(this._programName, UpdateFrequency.PER_INSTANCE);
         } else {
             return programLib.getDescriptorSetLayout(this._device, this._programName, true);
         }

@@ -25,7 +25,7 @@
 
 import { EffectAsset } from '../../assets/effect-asset';
 import { SetIndex, IDescriptorSetLayoutInfo, globalDescriptorSetLayout, localDescriptorSetLayout } from '../../pipeline/define';
-import { PipelineRuntime } from '../../pipeline/custom/pipeline';
+import { Pipeline, PipelineRuntime } from '../../pipeline/custom/pipeline';
 import { genHandle, MacroRecord } from './pass-utils';
 import { legacyCC } from '../../global-exports';
 import { PipelineLayoutInfo, Device, Attribute, UniformBlock, ShaderInfo,
@@ -34,6 +34,7 @@ import { PipelineLayoutInfo, Device, Attribute, UniformBlock, ShaderInfo,
     DescriptorType, GetTypeSize, ShaderStageFlagBit, API, UniformSamplerTexture, PipelineLayout,
     Shader, UniformStorageBuffer, UniformStorageImage, UniformSampler, UniformTexture, UniformInputAttachment } from '../../gfx';
 import { debug } from '../../platform/debug';
+import { UpdateFrequency } from '../../pipeline/custom/types';
 
 const _dsLayoutInfo = new DescriptorSetLayoutInfo();
 
@@ -442,9 +443,18 @@ class ProgramLib {
         const tmpl = this._templates[name];
         const tmplInfo = this._templateInfos[tmpl.hash];
         if (!tmplInfo.pipelineLayout) {
-            this.getDescriptorSetLayout(device, name); // ensure set layouts have been created
-            insertBuiltinBindings(tmpl, tmplInfo, globalDescriptorSetLayout, 'globals');
-            tmplInfo.setLayouts[SetIndex.GLOBAL] = pipeline.descriptorSetLayout;
+            const director = legacyCC.director;
+            if (director.root.usesCustomPipeline) {
+                const root = legacyCC.director.root;
+                const ppl: Pipeline = root.customPipeline;
+                tmplInfo.setLayouts[SetIndex.GLOBAL] = ppl.getDescriptorSetLayout(name, UpdateFrequency.PER_PASS);
+                tmplInfo.setLayouts[SetIndex.LOCAL] = ppl.getDescriptorSetLayout(name, UpdateFrequency.PER_INSTANCE);
+                tmplInfo.setLayouts[SetIndex.MATERIAL] = ppl.getDescriptorSetLayout(name, UpdateFrequency.PER_BATCH);
+            } else {
+                this.getDescriptorSetLayout(device, name); // ensure set layouts have been created
+                insertBuiltinBindings(tmpl, tmplInfo, globalDescriptorSetLayout, 'globals');
+                tmplInfo.setLayouts[SetIndex.GLOBAL] = pipeline.descriptorSetLayout;
+            }
             tmplInfo.pipelineLayout = device.createPipelineLayout(new PipelineLayoutInfo(tmplInfo.setLayouts));
         }
 
