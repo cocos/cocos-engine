@@ -2267,6 +2267,20 @@ describe('NewGen Anim', () => {
             ['t1', VariableType.TRIGGER, true],
         ]);
     });
+
+    test('Layer weight get/set', () => {
+        const animationGraph = new AnimationGraph();
+        const layer0 = animationGraph.addLayer();
+        const layer1 = animationGraph.addLayer();
+        layer1.weight = 0.4;
+        const { newGenAnim: animationController } = createAnimationGraphEval2(animationGraph, new Node());
+        expect(animationController.getLayerWeight(0)).toBe(1.0);
+        expect(animationController.getLayerWeight(1)).toBe(0.4);
+        animationController.setLayerWeight(0, 0.2);
+        animationController.setLayerWeight(1, 0.3);
+        expect(animationController.getLayerWeight(0)).toBe(0.2);
+        expect(animationController.getLayerWeight(1)).toBe(0.3);
+    });
 });
 
 function createEmptyClipMotion (duration: number, name = '') {
