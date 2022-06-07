@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "base/std/container/array.h"
 #include "core/assets/Material.h"
 #include "core/geometry/Sphere.h"
 #include "math/Color.h"
@@ -116,18 +115,90 @@ enum class PCFType {
     HARD = 0,
 
     /**
-     * @zh 软阴影
-     * @en soft shadow
+     * @zh x4 次采样
+     * @en x4 times
      * @readonly
      */
     SOFT = 1,
 
     /**
-     * @zh 软阴影
-     * @en soft shadow
+     * @zh x9 次采样
+     * @en x9 times
      * @readonly
      */
-    SOFT_2X = 2
+    SOFT_2X = 2,
+
+    /**
+     * @zh x16 次采样
+     * @en x16 times
+     * @readonly
+     */
+    SOFT_4X = 3
+};
+
+/**
+ * @zh 联级阴影贴图层级。
+ * @en The CSM shadow level
+ * @static
+ * @enum Shadows.CSMLevel
+ */
+enum class CSMLevel {
+    /**
+     * @zh 1 个层级
+     * @en level 1
+     * @readonly
+     */
+    LEVEL_1 = 1,
+
+    /**
+     * @zh 2 个层级
+     * @en level 2
+     * @readonly
+     */
+    LEVEL_2 = 2,
+
+    /**
+     * @zh 3 个层级
+     * @en level 3
+     * @readonly
+     */
+    LEVEL_3 = 3,
+
+    /**
+     * @zh 4 个层级
+     * @en level 4
+     * @readonly
+     */
+    LEVEL_4 = 4
+};
+
+/**
+ * @zh 联级阴影性能优化模式。
+ * @en The CSM performance optimization mode
+ * @static
+ * @enum Shadows.CSMOptimizationMode
+ */
+enum class CSMOptimizationMode {
+    /**
+     * @zh 没有性能优化
+     * @en has no performance optimization
+     * @readonly
+     */
+    NONE = 1,
+
+    /**
+     * @zh 剔除层与层之间重复物体
+     * @en Eliminate duplicate objects between layers
+     * @readonly
+     */
+    REMOVE_DUPLICATES = 2,
+
+    /**
+     * @zh 取消稳抖
+     * @en Disable rotation fix
+     * @readonly
+     */
+    DISABLE_ROTATION_FIX = 3
 };
 
 class Shadows;
@@ -214,7 +285,7 @@ public:
     float _distance{0.F};
     Color _shadowColor{0, 0, 0, 76};
     uint32_t _maxReceived{4};
-    Vec2 _size{512.F, 512.F};
+    Vec2 _size{1024.F, 1024.F};
 
     Shadows *_resource{nullptr};
 };
@@ -327,18 +398,6 @@ public:
     inline void setMaxReceived(uint32_t val) { _maxReceived = val; }
     inline uint32_t getMaxReceived() const { return _maxReceived; }
 
-    inline float getShadowCameraFar() const { return _shadowCameraFar; }
-    inline void setShadowCameraFar(float shadowDistance) { _shadowCameraFar = shadowDistance; }
-
-    inline const Mat4 &getMatShadowView() const { return _matShadowView; }
-    inline void setMatShadowView(const Mat4 &matShadowView) { _matShadowView = matShadowView; }
-
-    inline const Mat4 &getMatShadowProj() const { return _matShadowProj; }
-    inline void setMatShadowProj(const Mat4 &matShadowProj) { _matShadowProj = matShadowProj; }
-
-    inline const Mat4 &getMatShadowViewProj() const { return _matShadowViewProj; }
-    inline void setMatShadowViewProj(const Mat4 &matShadowViewProj) { _matShadowViewProj = matShadowViewProj; }
-
 private:
     void updatePlanarInfo();
     void createInstanceMaterial();
@@ -355,12 +414,6 @@ private:
      * @zh 阴影接收的最大灯光数量。
      */
     uint32_t _maxReceived{4};
-
-    // local set
-    float _shadowCameraFar{0.0F};
-    Mat4 _matShadowView;
-    Mat4 _matShadowProj;
-    Mat4 _matShadowViewProj;
 
     // public properties of shadow
     Vec3 _normal{0.F, 1.F, 0.F};
