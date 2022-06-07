@@ -20,10 +20,10 @@
 */
 
 import {
-    ccclass, displayName,
+    displayName,
     editable,
     formerlySerializedAs,
-    help, range,
+    range,
     readOnly,
     serializable,
     tooltip,
@@ -37,10 +37,12 @@ import {
     _initializerDefineProperty,
 } from '../data/utils/decorator-jsb-utils';
 import { legacyCC } from '../global-exports';
-import { Color, Vec2, Vec3 } from '../math';
 import { CCFloat, CCInteger } from '../data';
 import { TextureCube } from '../assets/texture-cube';
 import { Enum } from '../value-types';
+import { ccclass, displayOrder, rangeMin, rangeStep, slide } from '../data/decorators';
+import { EnvironmentLightingType } from '../renderer/scene';
+import { Material } from '../assets';
 
 /**
  * @zh
@@ -144,445 +146,32 @@ export const ShadowType = Enum({
     ShadowMap: 1,
 });
 
-/**
- * @en Environment lighting information in the Scene
- * @zh 场景的环境光照相关信息
- */
 // @ts-ignore
 export const AmbientInfo = jsb.AmbientInfo;
 legacyCC.AmbientInfo = AmbientInfo;
 
-(function () {
-    const ambientInfoProto: any = AmbientInfo.prototype;
-    const ambientInfoDecorator = ccclass('cc.AmbientInfo');
-    const _class2$w = AmbientInfo;
-    const _descriptor$q = _applyDecoratedDescriptor(_class2$w.prototype, '_skyColor', [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return new Color(51, 128, 204, 1.0);
-        },
-    });
-
-    const _descriptor2$j = _applyDecoratedDescriptor(_class2$w.prototype, '_skyIllum', [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return 20000.0; // cjh FIXME: Ambient.SKY_ILLUM;
-        },
-    });
-
-    const _descriptor3$d = _applyDecoratedDescriptor(_class2$w.prototype, '_groundAlbedo', [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return new Color(51, 51, 51, 255);
-        },
-    });
-
-    const _dec2$j = type(CCFloat);
-
-    _applyDecoratedDescriptor(_class2$w.prototype, 'skyColor', [editable], Object.getOwnPropertyDescriptor(_class2$w.prototype, 'skyColor'), _class2$w.prototype);
-    _applyDecoratedDescriptor(_class2$w.prototype, 'skyIllum', [editable, _dec2$j], Object.getOwnPropertyDescriptor(_class2$w.prototype, 'skyIllum'), _class2$w.prototype);
-    _applyDecoratedDescriptor(_class2$w.prototype, 'groundAlbedo', [editable], Object.getOwnPropertyDescriptor(_class2$w.prototype, 'groundAlbedo'), _class2$w.prototype);
-
-    ambientInfoProto._ctor = function () {
-        // _initializerDefineProperty(this, "_skyColor", _descriptor$q, this);
-        // _initializerDefineProperty(this, "_skyIllum", _descriptor2$j, this);
-        // _initializerDefineProperty(this, "_groundAlbedo", _descriptor3$d, this);
-    };
-
-    ambientInfoDecorator(AmbientInfo);
-
-})();
-
-/**
- * @en Skybox related information
- * @zh 天空盒相关信息
- */
 // @ts-ignore
 export const SkyboxInfo = jsb.SkyboxInfo;
 legacyCC.SkyboxInfo = SkyboxInfo;
 
-(function () {
-    const skyboxInfoProto: any = SkyboxInfo.prototype;
-    const skyboxInfoDecorator = ccclass('cc.SkyboxInfo');
-    const _dec16$1 = type(TextureCube);
-    const _dec14$1 = type(TextureCube);
-    const _dec17$1 = type(TextureCube);
-    const _dec18$1 = type(TextureCube);
-    const _dec15$1 = formerlySerializedAs('_envmap');
-    const _dec19$1 = visible();
-    const _dec20$1 = tooltip();
-    const _dec21$1 = tooltip();
-    const _dec22$1 = tooltip();
-    const _dec23$1 = tooltip();
-    const _dec24$1 = type(TextureCube);
-    const _dec25$1 = tooltip();
-    const _dec26$1 = visible();
-    const _dec27$1 = type(TextureCube);
-
-    const _class5$2 = SkyboxInfo;
-
-    const _descriptor7$2 = _applyDecoratedDescriptor(_class5$2.prototype, "_applyDiffuseMap", [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return false;
-        }
-    });
-
-    const _descriptor8$1 = _applyDecoratedDescriptor(_class5$2.prototype, "_envmap", [serializable, _dec14$1, _dec15$1], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return null;
-        }
-    });
-
-    const _descriptor8$2 = _applyDecoratedDescriptor(_class5$2.prototype, "_envmapHDR", [serializable, _dec14$1, _dec15$1], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return null;
-        }
-    });
-
-    const _descriptor9$1 = _applyDecoratedDescriptor(_class5$2.prototype, "_envmapLDR", [serializable, _dec16$1], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return null;
-        }
-    });
-
-    const _descriptor10$1 = _applyDecoratedDescriptor(_class5$2.prototype, "_diffuseMapHDR", [serializable, _dec17$1], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return null;
-        }
-    });
-
-    const _descriptor11$1 = _applyDecoratedDescriptor(_class5$2.prototype, "_diffuseMapLDR", [serializable, _dec18$1], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return null;
-        }
-    });
-
-    const _descriptor12$1 = _applyDecoratedDescriptor(_class5$2.prototype, "_enabled", [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return false;
-        }
-    });
-
-    const _descriptor13$1 = _applyDecoratedDescriptor(_class5$2.prototype, "_useIBL", [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return false;
-        }
-    });
-
-    const _descriptor14$1 = _applyDecoratedDescriptor(_class5$2.prototype, "_useHDR", [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return true;
-        }
-    });
-
-    _applyDecoratedDescriptor(_class5$2.prototype, "applyDiffuseMap", [_dec19$1, editable, _dec20$1], Object.getOwnPropertyDescriptor(_class5$2.prototype, "applyDiffuseMap"), _class5$2.prototype);
-    _applyDecoratedDescriptor(_class5$2.prototype, "enabled", [editable, _dec21$1], Object.getOwnPropertyDescriptor(_class5$2.prototype, "enabled"), _class5$2.prototype);
-    _applyDecoratedDescriptor(_class5$2.prototype, "useIBL", [editable, _dec22$1], Object.getOwnPropertyDescriptor(_class5$2.prototype, "useIBL"), _class5$2.prototype);
-    _applyDecoratedDescriptor(_class5$2.prototype, "useHDR", [editable, _dec23$1], Object.getOwnPropertyDescriptor(_class5$2.prototype, "useHDR"), _class5$2.prototype);
-    _applyDecoratedDescriptor(_class5$2.prototype, "envmap", [editable, _dec24$1, _dec25$1], Object.getOwnPropertyDescriptor(_class5$2.prototype, "envmap"), _class5$2.prototype);
-    _applyDecoratedDescriptor(_class5$2.prototype, "diffuseMap", [_dec26$1, editable, readOnly, _dec27$1], Object.getOwnPropertyDescriptor(_class5$2.prototype, "diffuseMap"), _class5$2.prototype);
-
-
-    skyboxInfoProto._ctor = function () {
-        // _initializerDefineProperty(this, "_envmap", _descriptor4$b, this);
-        // _initializerDefineProperty(this, "_isRGBE", _descriptor5$8, this);
-        // _initializerDefineProperty(this, "_enabled", _descriptor6$3, this);
-        // _initializerDefineProperty(this, "_useIBL", _descriptor7$3, this);
-    };
-
-    skyboxInfoDecorator(SkyboxInfo);
-
-})();
-
-/**
- * @zh 全局雾相关信息
- * @en Global fog info
- */
 // @ts-ignore
 export const FogInfo = jsb.FogInfo;
 legacyCC.FogInfo = FogInfo;
 
-(function () {
-    const fogInfoProto: any = FogInfo.prototype;
-    const fogInfoDecorator = ccclass('cc.FogInfo');
-    const _class8$1 = FogInfo;
-
-    _applyDecoratedDescriptor(_class8$1.prototype, '_type', [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return FogType.LINEAR;
-        },
-    });
-    _applyDecoratedDescriptor(_class8$1.prototype, '_fogColor', [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return new Color('#C8C8C8');
-        },
-    });
-    _applyDecoratedDescriptor(_class8$1.prototype, '_enabled', [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return false;
-        },
-    });
-
-    _applyDecoratedDescriptor(_class8$1.prototype, '_fogDensity', [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return 0.3;
-        },
-    });
-    _applyDecoratedDescriptor(_class8$1.prototype, '_fogStart', [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return 0.5;
-        },
-    });
-    _applyDecoratedDescriptor(_class8$1.prototype, '_fogEnd', [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return 300;
-        },
-    });
-    _applyDecoratedDescriptor(_class8$1.prototype, '_fogAtten', [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return 5;
-        },
-    });
-    _applyDecoratedDescriptor(_class8$1.prototype, '_fogTop', [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return 1.5;
-        },
-    });
-    _applyDecoratedDescriptor(_class8$1.prototype, '_fogRange', [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return 1.2;
-        },
-    });
-
-    // , _dec8$1 = visible(), _dec9$1 = type(CCFloat), _dec10$1 = range(), _dec11$1 = rangeStep(), _dec12$1 = displayOrder(), _dec13$1 = visible(), _dec14$1 = type(CCFloat), _dec15$1 = rangeStep(), _dec16$1 = displayOrder(), _dec17$1 = visible(), _dec18$1 = type(CCFloat), _dec19$1 = rangeStep(), _dec20$1 = displayOrder(), _dec21$1 = visible(), _dec22$1 = type(CCFloat), _dec23$1 = rangeMin(), _dec24$1 = rangeStep(), _dec25$1 = displayOrder(), _dec26$1 = visible(), _dec27$1 = type(CCFloat), _dec28$1 = rangeStep(), _dec29$1 = displayOrder(), _dec30$1 = visible(), _dec31$1 = type(CCFloat), _dec32 = rangeStep(), _dec33 = displayOrder()
-
-    // _applyDecoratedDescriptor(_class8$1.prototype, "enabled", [editable], Object.getOwnPropertyDescriptor(_class8$1.prototype, "enabled"), _class8$1.prototype);
-    // _applyDecoratedDescriptor(_class8$1.prototype, "fogColor", [editable], Object.getOwnPropertyDescriptor(_class8$1.prototype, "fogColor"), _class8$1.prototype);
-    // _applyDecoratedDescriptor(_class8$1.prototype, "type", [editable, _dec7$1], Object.getOwnPropertyDescriptor(_class8$1.prototype, "type"), _class8$1.prototype);
-    // _applyDecoratedDescriptor(_class8$1.prototype, "fogDensity", [_dec8$1, _dec9$1, _dec10$1, _dec11$1, slide, _dec12$1], Object.getOwnPropertyDescriptor(_class8$1.prototype, "fogDensity"), _class8$1.prototype);
-    // _applyDecoratedDescriptor(_class8$1.prototype, "fogStart", [_dec13$1, _dec14$1, _dec15$1, _dec16$1], Object.getOwnPropertyDescriptor(_class8$1.prototype, "fogStart"), _class8$1.prototype);
-    // _applyDecoratedDescriptor(_class8$1.prototype, "fogEnd", [_dec17$1, _dec18$1, _dec19$1, _dec20$1], Object.getOwnPropertyDescriptor(_class8$1.prototype, "fogEnd"), _class8$1.prototype);
-    // _applyDecoratedDescriptor(_class8$1.prototype, "fogAtten", [_dec21$1, _dec22$1, _dec23$1, _dec24$1, _dec25$1], Object.getOwnPropertyDescriptor(_class8$1.prototype, "fogAtten"), _class8$1.prototype);
-    // _applyDecoratedDescriptor(_class8$1.prototype, "fogTop", [_dec26$1, _dec27$1, _dec28$1, _dec29$1], Object.getOwnPropertyDescriptor(_class8$1.prototype, "fogTop"), _class8$1.prototype), _applyDecoratedDescriptor(_class8$1.prototype, "fogRange", [_dec30$1, _dec31$1, _dec32, _dec33], Object.getOwnPropertyDescriptor(_class8$1.prototype, "fogRange"), _class8$1.prototype)), _class8$1)) || _class7$1);
-
-    fogInfoDecorator(FogInfo);
-})();
-
-/**
- * @en Scene level planar shadow related information
- * @zh 平面阴影相关信息
- */
 // @ts-ignore
 export const ShadowsInfo = jsb.ShadowsInfo;
 legacyCC.ShadowsInfo = ShadowsInfo;
 
-(function () {
-    const shadowInfoDecorator = ccclass('cc.ShadowsInfo');
-
-    const _class11$1 = ShadowsInfo;
-    const _descriptor17$1 = _applyDecoratedDescriptor(_class11$1.prototype, '_type', [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return ShadowType.Planar;
-        },
-    });
-    const _descriptor18$1 = _applyDecoratedDescriptor(_class11$1.prototype, '_enabled', [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return false;
-        },
-    });
-
-    const _descriptor19$1 = _applyDecoratedDescriptor(_class11$1.prototype, '_normal', [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return new Vec3(0, 1, 0);
-        },
-    });
-
-    const _descriptor20$1 = _applyDecoratedDescriptor(_class11$1.prototype, '_distance', [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return 0;
-        },
-    });
-
-    const _descriptor21$1 = _applyDecoratedDescriptor(_class11$1.prototype, '_shadowColor', [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return new Color(0, 0, 0, 76);
-        },
-    });
-
-    const _descriptor29$1 = _applyDecoratedDescriptor(_class11$1.prototype, '_maxReceived', [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return 4;
-        },
-    });
-
-    const _descriptor30$11 = _applyDecoratedDescriptor(_class11$1.prototype, '_size', [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return new Vec2(512, 512);
-        },
-    });
-
-    shadowInfoDecorator(ShadowsInfo);
-
-})();
-
-// OctreeInfo
 // @ts-ignore
 export const OctreeInfo = jsb.OctreeInfo;
 legacyCC.OctreeInfo = OctreeInfo;
 
-(function () {
-    const octreeInfoDecorator = ccclass('cc.OctreeInfo');
-    const _class14$1 = OctreeInfo;
-    var DEFAULT_WORLD_MIN_POS = new Vec3(-1024.0, -1024.0, -1024.0);
-    var DEFAULT_WORLD_MAX_POS = new Vec3(1024.0, 1024.0, 1024.0);
-    var DEFAULT_OCTREE_DEPTH = 8;
-
-    const _dec116 = help();
-    const _dec117 = tooltip();
-    const _dec118 = tooltip();
-    const _dec119 = displayName();
-    const _dec120 = tooltip();
-    const _dec121 = displayName();
-    const _dec122 = range();
-    const _dec123 = type(CCInteger);
-    const _dec124 = tooltip();
-
-    const _descriptor43 = _applyDecoratedDescriptor(_class14$1.prototype, "_enabled", [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return false;
-        }
-    });
-
-    const _descriptor44 = _applyDecoratedDescriptor(_class14$1.prototype, "_minPos", [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return new Vec3(DEFAULT_WORLD_MIN_POS);
-        }
-    });
-
-    const _descriptor45 = _applyDecoratedDescriptor(_class14$1.prototype, "_maxPos", [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return new Vec3(DEFAULT_WORLD_MAX_POS);
-        }
-    });
-
-    const _descriptor46 = _applyDecoratedDescriptor(_class14$1.prototype, "_depth", [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return DEFAULT_OCTREE_DEPTH;
-        }
-    });
-
-    _applyDecoratedDescriptor(_class14$1.prototype, "enabled", [editable, _dec117], Object.getOwnPropertyDescriptor(_class14$1.prototype, "enabled"), _class14$1.prototype);
-    _applyDecoratedDescriptor(_class14$1.prototype, "minPos", [editable, _dec118, _dec119], Object.getOwnPropertyDescriptor(_class14$1.prototype, "minPos"), _class14$1.prototype);
-    _applyDecoratedDescriptor(_class14$1.prototype, "maxPos", [editable, _dec120, _dec121], Object.getOwnPropertyDescriptor(_class14$1.prototype, "maxPos"), _class14$1.prototype);
-    _applyDecoratedDescriptor(_class14$1.prototype, "depth", [editable, _dec122, _dec123, _dec124], Object.getOwnPropertyDescriptor(_class14$1.prototype, "depth"), _class14$1.prototype);
-
-    octreeInfoDecorator(OctreeInfo);
-})();
-
-/**
- * @en All scene related global parameters, it affects all content in the corresponding scene
- * @zh 各类场景级别的渲染参数，将影响全场景的所有物体
- */
 // @ts-ignore
 export const SceneGlobals = jsb.SceneGlobals;
 legacyCC.SceneGlobals = SceneGlobals;
 
 (function () {
     const sceneGlobalsProto: any = SceneGlobals.prototype;
-    const sceneGlobalsDecorator = ccclass('cc.SceneGlobals');
 
     sceneGlobalsProto._ctor = function () {
         this._ambientRef = null;
@@ -663,42 +252,175 @@ legacyCC.SceneGlobals = SceneGlobals;
             this.setOctreeInfo(v);
         },
     });
-
-    const _class14$1 = SceneGlobals;
-    const _descriptor32$1 = _applyDecoratedDescriptor(_class14$1.prototype, 'ambient', [serializable, editable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return new AmbientInfo();
-        },
-    });
-    const _descriptor33$1 = _applyDecoratedDescriptor(_class14$1.prototype, 'shadows', [serializable, editable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return new ShadowsInfo();
-        },
-    });
-    const _descriptor34$1 = _applyDecoratedDescriptor(_class14$1.prototype, '_skybox', [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return new SkyboxInfo();
-        },
-    });
-    const _descriptor35$1 = _applyDecoratedDescriptor(_class14$1.prototype, 'fog', [editable, serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return new FogInfo();
-        },
-    });
-
-    // _applyDecoratedDescriptor(_class14$1.prototype, "skybox", [editable, _dec62], Object.getOwnPropertyDescriptor(_class14$1.prototype, "skybox"), _class14$1.prototype);
-
-    sceneGlobalsDecorator(SceneGlobals);
 })();
+
+// handle meta data, it is generated automatically
+
+const SceneGlobalsProto = SceneGlobals.prototype;
+editable(SceneGlobalsProto, 'ambient');
+serializable(SceneGlobalsProto, 'ambient');
+editable(SceneGlobalsProto, 'shadows');
+serializable(SceneGlobalsProto, 'shadows');
+serializable(SceneGlobalsProto, '_skybox');
+serializable(SceneGlobalsProto, 'fog');
+editable(SceneGlobalsProto, 'fog');
+type(SkyboxInfo)(SceneGlobalsProto, 'skybox');
+editable(SceneGlobalsProto, 'skybox');
+serializable(SceneGlobalsProto, 'octree');
+editable(SceneGlobalsProto, 'octree');
+ccclass('cc.SceneGlobals')(SceneGlobals);
+
+const OctreeInfoProto = OctreeInfo.prototype;
+serializable(OctreeInfoProto, '_enabled');
+serializable(OctreeInfoProto, '_minPos');
+serializable(OctreeInfoProto, '_maxPos');
+serializable(OctreeInfoProto, '_depth');
+tooltip('i18n:octree_culling.enabled')(OctreeInfoProto, 'enabled');
+editable(OctreeInfoProto, 'enabled');
+displayName('World MinPos')(OctreeInfoProto, 'minPos');
+tooltip('i18n:octree_culling.minPos')(OctreeInfoProto, 'minPos');
+editable(OctreeInfoProto, 'minPos');
+displayName('World MaxPos')(OctreeInfoProto, 'maxPos');
+tooltip('i18n:octree_culling.maxPos')(OctreeInfoProto, 'maxPos');
+editable(OctreeInfoProto, 'maxPos');
+tooltip('i18n:octree_culling.depth')(OctreeInfoProto, 'depth');
+type(CCInteger)(OctreeInfoProto, 'depth');
+slide(OctreeInfoProto, 'depth');
+range([4, 12, 1])(OctreeInfoProto, 'depth');
+editable(OctreeInfoProto, 'depth');
+ccclass('cc.OctreeInfo')(OctreeInfo);
+
+const ShadowsInfoProto = ShadowsInfo.prototype;
+serializable(ShadowsInfoProto, '_enabled');
+serializable(ShadowsInfoProto, '_type');
+serializable(ShadowsInfoProto, '_normal');
+serializable(ShadowsInfoProto, '_distance');
+serializable(ShadowsInfoProto, '_shadowColor');
+serializable(ShadowsInfoProto, '_maxReceived');
+serializable(ShadowsInfoProto, '_size');
+tooltip('i18n:shadow.enabled')(ShadowsInfoProto, 'enabled');
+editable(ShadowsInfoProto, 'enabled');
+type(ShadowType)(ShadowsInfoProto, 'type');
+editable(ShadowsInfoProto, 'type');
+visible(function (this) { /* Need to copy source code */ })(ShadowsInfoProto, 'shadowColor');
+tooltip('i18n:shadow.planeDirection')(ShadowsInfoProto, 'planeDirection');
+visible(function (this) { /* Need to copy source code */ })(ShadowsInfoProto, 'planeDirection');
+tooltip('i18n:shadow.planeHeight')(ShadowsInfoProto, 'planeHeight');
+visible(function (this) { /* Need to copy source code */ })(ShadowsInfoProto, 'planeHeight');
+type(CCFloat)(ShadowsInfoProto, 'planeHeight');
+editable(ShadowsInfoProto, 'planeHeight');
+visible(function (this) { /* Need to copy source code */ })(ShadowsInfoProto, 'maxReceived');
+tooltip('i18n:shadow.maxReceived')(ShadowsInfoProto, 'maxReceived');
+type(CCInteger)(ShadowsInfoProto, 'maxReceived');
+visible(function (this) { /* Need to copy source code */ })(ShadowsInfoProto, 'shadowMapSize');
+tooltip('i18n:shadow.shadowMapSize')(ShadowsInfoProto, 'shadowMapSize');
+type(ShadowSize)(ShadowsInfoProto, 'shadowMapSize');
+ccclass('cc.ShadowsInfo')(ShadowsInfo);
+
+const FogInfoProto = FogInfo.prototype;
+serializable(FogInfoProto, '_type');
+serializable(FogInfoProto, '_fogColor');
+serializable(FogInfoProto, '_enabled');
+serializable(FogInfoProto, '_fogDensity');
+serializable(FogInfoProto, '_fogStart');
+serializable(FogInfoProto, '_fogEnd');
+serializable(FogInfoProto, '_fogAtten');
+serializable(FogInfoProto, '_fogTop');
+serializable(FogInfoProto, '_fogRange');
+serializable(FogInfoProto, '_accurate');
+displayOrder(0)(FogInfoProto, 'enabled');
+tooltip('i18n:fog.enabled')(FogInfoProto, 'enabled');
+editable(FogInfoProto, 'enabled');
+displayOrder(0)(FogInfoProto, 'accurate');
+tooltip('i18n:fog.accurate')(FogInfoProto, 'accurate');
+editable(FogInfoProto, 'accurate');
+tooltip('i18n:fog.fogColor')(FogInfoProto, 'fogColor');
+editable(FogInfoProto, 'fogColor');
+tooltip('i18n:fog.type')(FogInfoProto, 'type');
+displayOrder(1)(FogInfoProto, 'type');
+type(FogType)(FogInfoProto, 'type');
+editable(FogInfoProto, 'type');
+tooltip('i18n:fog.fogDensity')(FogInfoProto, 'fogDensity');
+slide(FogInfoProto, 'fogDensity');
+rangeStep(0.01)(FogInfoProto, 'fogDensity');
+range([0, 1])(FogInfoProto, 'fogDensity');
+type(CCFloat)(FogInfoProto, 'fogDensity');
+visible(function (this) { /* Need to copy source code */ })(FogInfoProto, 'fogDensity');
+tooltip('i18n:fog.fogStart')(FogInfoProto, 'fogStart');
+rangeStep(0.01)(FogInfoProto, 'fogStart');
+type(CCFloat)(FogInfoProto, 'fogStart');
+visible(function (this) { /* Need to copy source code */ })(FogInfoProto, 'fogStart');
+tooltip('i18n:fog.fogEnd')(FogInfoProto, 'fogEnd');
+rangeStep(0.01)(FogInfoProto, 'fogEnd');
+type(CCFloat)(FogInfoProto, 'fogEnd');
+visible(function (this) { /* Need to copy source code */ })(FogInfoProto, 'fogEnd');
+tooltip('i18n:fog.fogAtten')(FogInfoProto, 'fogAtten');
+rangeStep(0.01)(FogInfoProto, 'fogAtten');
+rangeMin(0.01)(FogInfoProto, 'fogAtten');
+type(CCFloat)(FogInfoProto, 'fogAtten');
+visible(function (this) { /* Need to copy source code */ })(FogInfoProto, 'fogAtten');
+tooltip('i18n:fog.fogTop')(FogInfoProto, 'fogTop');
+rangeStep(0.01)(FogInfoProto, 'fogTop');
+type(CCFloat)(FogInfoProto, 'fogTop');
+visible(function (this) { /* Need to copy source code */ })(FogInfoProto, 'fogTop');
+tooltip('i18n:fog.fogRange')(FogInfoProto, 'fogRange');
+rangeStep(0.01)(FogInfoProto, 'fogRange');
+type(CCFloat)(FogInfoProto, 'fogRange');
+visible(function (this) { /* Need to copy source code */ })(FogInfoProto, 'fogRange');
+ccclass('cc.FogInfo')(FogInfo);
+
+const SkyboxInfoProto = SkyboxInfo.prototype;
+serializable(SkyboxInfoProto, '_envLightingType');
+formerlySerializedAs('_envmap')(SkyboxInfoProto, '_envmapHDR');
+type(TextureCube)(SkyboxInfoProto, '_envmapHDR');
+serializable(SkyboxInfoProto, '_envmapHDR');
+type(TextureCube)(SkyboxInfoProto, '_envmapLDR');
+serializable(SkyboxInfoProto, '_envmapLDR');
+type(TextureCube)(SkyboxInfoProto, '_diffuseMapHDR');
+serializable(SkyboxInfoProto, '_diffuseMapHDR');
+type(TextureCube)(SkyboxInfoProto, '_diffuseMapLDR');
+serializable(SkyboxInfoProto, '_diffuseMapLDR');
+serializable(SkyboxInfoProto, '_enabled');
+serializable(SkyboxInfoProto, '_useHDR');
+type(Material)(SkyboxInfoProto, '_editableMaterial');
+serializable(SkyboxInfoProto, '_editableMaterial');
+tooltip('i18n:skybox.enabled')(SkyboxInfoProto, 'enabled');
+editable(SkyboxInfoProto, 'enabled');
+tooltip('i18n:skybox.EnvironmentLightingType')(SkyboxInfoProto, 'envLightingType');
+type(EnvironmentLightingType)(SkyboxInfoProto, 'envLightingType');
+editable(SkyboxInfoProto, 'envLightingType');
+tooltip('i18n:skybox.useHDR')(SkyboxInfoProto, 'useHDR');
+editable(SkyboxInfoProto, 'useHDR');
+tooltip('i18n:skybox.envmap')(SkyboxInfoProto, 'envmap');
+type(TextureCube)(SkyboxInfoProto, 'envmap');
+editable(SkyboxInfoProto, 'envmap');
+displayOrder(100)(SkyboxInfoProto, 'diffuseMap');
+type(TextureCube)(SkyboxInfoProto, 'diffuseMap');
+readOnly(SkyboxInfoProto, 'diffuseMap');
+editable(SkyboxInfoProto, 'diffuseMap');
+visible(function (this) { /* Need to copy source code */ })(SkyboxInfoProto, 'diffuseMap');
+tooltip('i18n:skybox.material')(SkyboxInfoProto, 'skyboxMaterial');
+type(Material)(SkyboxInfoProto, 'skyboxMaterial');
+editable(SkyboxInfoProto, 'skyboxMaterial');
+ccclass('cc.SkyboxInfo')(SkyboxInfo);
+
+const AmbientInfoProto = AmbientInfo.prototype;
+formerlySerializedAs('_skyColor')(AmbientInfoProto, '_skyColorHDR');
+serializable(AmbientInfoProto, '_skyColorHDR');
+formerlySerializedAs('_skyIllum')(AmbientInfoProto, '_skyIllumHDR');
+serializable(AmbientInfoProto, '_skyIllumHDR');
+formerlySerializedAs('_groundAlbedo')(AmbientInfoProto, '_groundAlbedoHDR');
+serializable(AmbientInfoProto, '_groundAlbedoHDR');
+serializable(AmbientInfoProto, '_skyColorLDR');
+serializable(AmbientInfoProto, '_skyIllumLDR');
+serializable(AmbientInfoProto, '_groundAlbedoLDR');
+tooltip('i18n:ambient.skyLightingColor')(AmbientInfoProto, 'skyLightingColor');
+editable(AmbientInfoProto, 'skyLightingColor');
+visible(() => { /* Need to copy source code */ })(AmbientInfoProto, 'skyLightingColor');
+tooltip('i18n:ambient.skyIllum')(AmbientInfoProto, 'skyIllum');
+type(CCFloat)(AmbientInfoProto, 'skyIllum');
+editable(AmbientInfoProto, 'skyIllum');
+tooltip('i18n:ambient.groundLightingColor')(AmbientInfoProto, 'groundLightingColor');
+editable(AmbientInfoProto, 'groundLightingColor');
+visible(() => { /* Need to copy source code */ })(AmbientInfoProto, 'groundLightingColor');
+ccclass('cc.AmbientInfo')(AmbientInfo);
