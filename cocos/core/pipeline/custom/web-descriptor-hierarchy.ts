@@ -145,14 +145,6 @@ export class WebDescriptorHierarchy {
     public addEffect (asset: EffectAsset, parent: number): void {
         const sz = asset.shaders.length;
 
-        let hasCCGlobal = false;
-        let hasCCCamera = false;
-        let hasCCShadow = false;
-        let hasShadowmap = false;
-        let hasEnv = false;
-        let hasDiffuse = false;
-        let hasSpot = false;
-
         const dbsToMerge: DescriptorDB[] = [];
 
         for (let i = 0; i !== sz; ++i) {
@@ -297,34 +289,6 @@ export class WebDescriptorHierarchy {
             const phase: RenderPhase = new RenderPhase();
             phase.shaders.add(shader.name);
             this._layoutGraph.addVertex<LayoutGraphValue.RenderPhase>(LayoutGraphValue.RenderPhase, phase, shader.name, queueDB, parent);
-
-            if (shader.builtins.globals.blocks) {
-                for (let k = 0; k < shader.builtins.globals.blocks.length; ++k) {
-                    const blockName = shader.builtins.globals.blocks[k].name;
-                    if (blockName === 'CCGlobal') {
-                        hasCCGlobal = true;
-                    } else if (blockName === 'CCCamera') {
-                        hasCCCamera = true;
-                    } else if (blockName === 'CCShadow') {
-                        hasCCShadow = true;
-                    }
-                }
-            }
-
-            if (shader.builtins.globals.samplerTextures) {
-                for (let k = 0; k < shader.builtins.globals.samplerTextures.length; ++k) {
-                    const samplerName = shader.builtins.globals.samplerTextures[k].name;
-                    if (samplerName === 'cc_shadowMap') {
-                        hasShadowmap = true;
-                    } else if (samplerName === 'cc_environment') {
-                        hasEnv = true;
-                    } else if (samplerName === 'cc_diffuseMap') {
-                        hasDiffuse = true;
-                    } else if (samplerName === 'cc_spotLightingMap') {
-                        hasSpot = true;
-                    }
-                }
-            }
 
             this.merge(queueDB);
             this.sort(queueDB);
