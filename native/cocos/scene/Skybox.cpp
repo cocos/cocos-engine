@@ -200,10 +200,10 @@ bool Skybox::isRGBE() const {
     return envmap != nullptr ? envmap->isRGBE : false;
 }
 
-bool Skybox::isUseConvolutionMap() const {
+bool Skybox::isUsingConvolutionMap() const {
     auto *envmap = getEnvmap();
     if (envmap) {
-        return envmap->isUseOfflineMipmaps();
+        return envmap->isUsingOfflineMipmaps();
     }
     return false;
 }
@@ -268,7 +268,7 @@ void Skybox::activate() {
     auto *envmap = getEnvmap();
     bool isRGBE = envmap != nullptr ? envmap->isRGBE : _default->isRGBE;
 
-    bool isUseConvolutionMap = envmap != nullptr ? envmap->isUseOfflineMipmaps() : _default->isUseOfflineMipmaps();
+    bool isUseConvolutionMap = envmap != nullptr ? envmap->isUsingOfflineMipmaps() : _default->isUsingOfflineMipmaps();
     if (!skyboxMaterial) {
         auto *mat = _editableMaterial ? _editableMaterial.get() : ccnew Material();
         MacroRecord defines{{"USE_RGBE_CUBEMAP", isRGBE}, {"CC_IBL_CONVOLUTED", isUseConvolutionMap}};
@@ -319,7 +319,7 @@ void Skybox::activate() {
 
 void Skybox::updatePipeline() const {
     if (isEnabled() && skyboxMaterial != nullptr) {
-        skyboxMaterial->recompileShaders({{"USE_RGBE_CUBEMAP", isRGBE()}, {"CC_IBL_CONVOLUTED", isUseConvolutionMap()}});
+        skyboxMaterial->recompileShaders({{"USE_RGBE_CUBEMAP", isRGBE()}, {"CC_IBL_CONVOLUTED", isUsingConvolutionMap()}});
     }
 
     if (_model != nullptr && skyboxMaterial != nullptr) {
@@ -343,6 +343,9 @@ void Skybox::updatePipeline() const {
             pipeline->setValue("CC_USE_IBL", useIBLValue);
             valueChanged = true;
         }
+    } else {
+        pipeline->setValue("CC_USE_IBL", useIBLValue);
+        valueChanged = true;
     }
 
     auto iterDiffuseMap = pipeline->getMacros().find("CC_USE_DIFFUSEMAP");
@@ -353,6 +356,9 @@ void Skybox::updatePipeline() const {
             pipeline->setValue("CC_USE_DIFFUSEMAP", useDiffuseMapValue);
             valueChanged = true;
         }
+    } else {
+        pipeline->setValue("CC_USE_DIFFUSEMAP", useDiffuseMapValue);
+        valueChanged = true;
     }
 
     auto iterUseHDR = pipeline->getMacros().find("CC_USE_HDR");
@@ -363,6 +369,9 @@ void Skybox::updatePipeline() const {
             pipeline->setValue("CC_USE_HDR", useHDRValue);
             valueChanged = true;
         }
+    } else {
+        pipeline->setValue("CC_USE_HDR", useHDRValue);
+        valueChanged = true;
     }
 
     if (valueChanged) {

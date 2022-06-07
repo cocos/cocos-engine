@@ -78,7 +78,8 @@ struct TextureCubeMipmapAtlasInfo {
     ccstd::vector<MipmapAtlasLayoutInfo> layout;
 };
 
-enum class MipmapBakeMode {
+enum class MipmapMode {
+    NONE = 0,
     /**
      * @zh
      * 使用自动生成的mipmap
@@ -86,7 +87,7 @@ enum class MipmapBakeMode {
      * Using the automatically generated mipmap
      * @readonly
      */
-    NONE = 0,
+    AUTO = 1,
     /**
     * @zh
     * 使用反射卷积图填充mipmap
@@ -94,12 +95,12 @@ enum class MipmapBakeMode {
     * Update mipmap with reflective convolutional map
     * @readonly
     */
-    BAKE_REFLECTION_CONVOLUTION = 1
+    BAKED_CONVOLUTION_MAP = 2
 };
 struct TextureCubeSerializeData {
     ccstd::string base;
     bool rgbe{false};
-    MipmapBakeMode mipmapMode{MipmapBakeMode::NONE };
+    MipmapMode mipmapMode{ MipmapMode::NONE };
     ccstd::vector<ITextureCubeSerializeMipmapData> mipmaps;
     TextureCubeMipmapAtlasInfo mipmapAtlas;
 };
@@ -205,7 +206,7 @@ public:
 
     // Override functions
     void updateMipmaps(uint32_t firstLevel, uint32_t count) override;
-    bool isUseOfflineMipmaps() override;
+    bool isUsingOfflineMipmaps() override;
 
     void initialize();
     void onLoaded() override;
@@ -232,7 +233,7 @@ public:
     ccstd::vector<ITextureCubeMipmap> _mipmaps;
 
     /*@serializable*/
-    MipmapBakeMode _mipmapMode{ MipmapBakeMode::NONE };
+    MipmapMode _mipmapMode{ MipmapMode::NONE };
 
     /*@serializable*/
     TextureCubeMipmapAtlasInfo _mipmapAtlas;

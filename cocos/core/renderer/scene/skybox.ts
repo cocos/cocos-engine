@@ -149,9 +149,9 @@ export class Skybox {
      * @en Whether to use reflective convolutional maps to update the mipmap
      * @zh 是否使用反射卷积图来更新mipmaps
      */
-    get isUseConvolutionMap (): boolean {
+    get useConvolutionMap (): boolean {
         if (this.envmap) {
-            return this.envmap.isUseOfflineMipmaps();
+            return this.envmap.isUsingOfflineMipmaps();
         } else {
             return false;
         }
@@ -203,7 +203,7 @@ export class Skybox {
     public setSkyboxMaterial (skyboxMat: Material | null) {
         if (skyboxMat) {
             this._editableMaterial = new MaterialInstance({ parent: skyboxMat });
-            this._editableMaterial.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE, CC_IBL_CONVOLUTED: this.isUseConvolutionMap });
+            this._editableMaterial.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE, CC_IBL_CONVOLUTED: this.useConvolutionMap });
         } else {
             this._editableMaterial = null;
         }
@@ -269,10 +269,10 @@ export class Skybox {
             this._model._initWorldBoundDescriptors = () => {};
         }
         let isRGBE = this._default.isRGBE;
-        let isUseConvolutionMap = this._default.isUseOfflineMipmaps();
+        let isUseConvolutionMap = this._default.isUsingOfflineMipmaps();
         if (this.envmap) {
             isRGBE = this.envmap.isRGBE;
-            isUseConvolutionMap = this.envmap.isUseOfflineMipmaps();
+            isUseConvolutionMap = this.envmap.isUsingOfflineMipmaps();
         }
 
         if (!skybox_material) {
@@ -324,9 +324,9 @@ export class Skybox {
 
         if (this.enabled) {
             if (this._editableMaterial) {
-                this._editableMaterial.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE, CC_IBL_CONVOLUTED: this.isUseConvolutionMap });
+                this._editableMaterial.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE, CC_IBL_CONVOLUTED: this.useConvolutionMap });
             } else if (skybox_material) {
-                skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE, CC_IBL_CONVOLUTED: this.isUseConvolutionMap });
+                skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE, CC_IBL_CONVOLUTED: this.useConvolutionMap });
             }
         }
 

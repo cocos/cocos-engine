@@ -261,7 +261,7 @@ export class SimpleTexture extends TextureBase {
         this._gfxTextureView = this._createTextureView(device);
     }
 
-    public isUseOfflineMipmaps (): boolean {
+    public isUsingOfflineMipmaps (): boolean {
         return false;
     }
 
@@ -270,7 +270,7 @@ export class SimpleTexture extends TextureBase {
         let flags = TextureFlagBit.NONE;
         if (this._mipFilter !== Filter.NONE && canGenerateMipmap(device, this._width, this._height)) {
             this._mipmapLevel = getMipLevel(this._width, this._height);
-            if (!this.isUseOfflineMipmaps()) {
+            if (!this.isUsingOfflineMipmaps()) {
                 flags = TextureFlagBit.GEN_MIPMAP;
             }
         }

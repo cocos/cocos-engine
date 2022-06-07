@@ -64,9 +64,10 @@ enum FaceIndex {
     front = 4,
     back = 5,
 }
-enum MipmapBakeMode {  
+enum MipmapMode {
     NONE = 0,
-    BAKE_REFLECTION_CONVOLUTION = 1,
+    AUTO = 1,
+    BAKED_CONVOLUTION_MAP = 2,
 }
 textureCubeProto.createNode = null!;
 
@@ -101,7 +102,7 @@ const _descriptor3$b = _applyDecoratedDescriptor(_class2$d.prototype, '_mipmapMo
     enumerable: true,
     writable: true,
     initializer: function initializer () {
-        return MipmapBakeMode.NONE;
+        return MipmapMode.AUTO;
     },
 });
 const _descriptor4$b = _applyDecoratedDescriptor(_class2$d.prototype, '_mipmapAtlas', [serializable], {
@@ -162,60 +163,6 @@ Object.defineProperty(textureCubeProto, 'mipmaps', {
     }
 });
 
-Object.defineProperty(textureCubeProto, 'mipmapAtlas', {
-    get () {
-        return this._mipmapAtlas;
-    },
-    set (value) {
-        this._mipmapAtlas = value;
-        if (!this._mipmapAtlas) {
-            this.reset({
-                width: 0,
-                height: 0,
-                mipmapLevel: 0,
-            });
-            return;
-        }
-        const imageAtlasAsset: jsb.ImageAsset = this._mipmapAtlas.atlas.front;
-        if (!imageAtlasAsset.data) {
-            return;
-        }
-        const faceAtlas = this._mipmapAtlas.atlas;
-        const layout = this._mipmapAtlas.layout;
-        const mip0Layout = layout[0];
-
-        const ctx = Object.assign(document.createElement('canvas'), {
-            width: imageAtlasAsset.width,
-            height: imageAtlasAsset.height,
-        }).getContext('2d');
-
-        this.reset({
-            width: mip0Layout.width,
-            height: mip0Layout.height,
-            format: imageAtlasAsset.format,
-            mipmapLevel: layout.length,
-        });
-
-        for (let j = 0; j < layout.length; j++) {
-            const layoutInfo = layout[j];
-            _forEachFace(faceAtlas, (face, faceIndex) => {
-                ctx!.clearRect(0, 0, imageAtlasAsset.width, imageAtlasAsset.height);
-                const drawImg = face.data as HTMLImageElement;
-                ctx!.drawImage(drawImg, 0, 0);
-                const rawData = ctx!.getImageData(layoutInfo.left, layoutInfo.top, layoutInfo.width, layoutInfo.height);
-
-                const bufferAsset = new jsb.ImageAsset({
-                    _data: rawData.data,
-                    _compressed: face.isCompressed,
-                    width: rawData.width,
-                    height: rawData.height,
-                    format: face.format,
-                });
-                this._assignImage(bufferAsset, layoutInfo.level, faceIndex);
-            });
-        }
-    }
-});
 
 Object.defineProperty(textureCubeProto, 'image', {
     get () {
@@ -228,7 +175,7 @@ Object.defineProperty(textureCubeProto, 'image', {
 
 const oldOnLoaded = textureCubeProto.onLoaded;
 textureCubeProto.onLoaded = function () {
-    if (this._mipmapMode === MipmapBakeMode.BAKE_REFLECTION_CONVOLUTION) {
+    if (this._mipmapMode === MipmapMode.BAKED_CONVOLUTION_MAP) {
         this.setMipmapAtlasForJS(this._mipmapAtlas);
     } else {
         this.setMipmapsForJS(this._mipmaps);
@@ -238,7 +185,7 @@ textureCubeProto.onLoaded = function () {
 
 textureCubeProto._serialize = function (ctxForExporting: any): Record<string, unknown> | null {
     if (EDITOR || TEST) {
-        if (this._mipmapMode === MipmapBakeMode.BAKE_REFLECTION_CONVOLUTION) {
+        if (this._mipmapMode === MipmapMode.BAKED_CONVOLUTION_MAP) {
             const atlas = this._mipmapAtlas!.atlas;
             let uuids = {};
             if (ctxForExporting && ctxForExporting._compressUuid) {
@@ -297,7 +244,7 @@ textureCubeProto._deserialize = function (serializedData: ITextureCubeSerializeD
     jsb.TextureBase.prototype._deserialize.call(this, data.base, handle);
     this.isRGBE = data.rgbe;
     this._mipmapMode = parseInt(data.mipmapMode);
-    if (this._mipmapMode === MipmapBakeMode.BAKE_REFLECTION_CONVOLUTION) {
+    if (this._mipmapMode === MipmapMode.BAKED_CONVOLUTION_MAP) {
         const mipmapAtlas = data.mipmapAtlas;
         const mipmapLayout = data.mipmapLayout;
         this._mipmapAtlas = {

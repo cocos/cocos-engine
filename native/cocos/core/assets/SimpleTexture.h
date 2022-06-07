@@ -116,7 +116,7 @@ public:
      */
     void setMipRange(uint32_t baseLevel, uint32_t maxLevel);
 
-    virtual bool isUseOfflineMipmaps();
+    virtual bool isUsingOfflineMipmaps();
 
 protected:
     SimpleTexture();

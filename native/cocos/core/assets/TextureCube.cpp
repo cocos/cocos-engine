@@ -130,7 +130,7 @@ void TextureCube::setmipmapAtlas(const TextureCubeMipmapAtlasInfo &value) {
 
         //Upload 6 sides by level
         forEachFace(atlas, [this, currentSize, lv0Layout, layoutInfo, level, pixelSize](ImageAsset *face, TextureCube::FaceIndex faceIndex) {
-            auto *buffer = new uint8_t[currentSize];
+            auto *buffer = ccnew uint8_t[currentSize];
             memset(buffer, 0, currentSize);
             const uint8_t *data = face->getData();
             //Splitting Atlas
@@ -153,10 +153,7 @@ void TextureCube::setmipmapAtlas(const TextureCubeMipmapAtlasInfo &value) {
             tempAsset->setNativeAsset(source);
 
             assignImage(tempAsset, static_cast<uint32_t>(level), static_cast<uint32_t>(faceIndex));
-            if (buffer) {
-                delete[] buffer;
-                buffer = nullptr;
-            }
+            CC_SAFE_DELETE(buffer);
             tempAsset->release();
             tempAsset = nullptr;
         });
@@ -212,12 +209,12 @@ void TextureCube::updateMipmaps(uint32_t firstLevel, uint32_t count) {
     }
 }
 
-bool TextureCube::isUseOfflineMipmaps() {
-    return _mipmapMode == MipmapBakeMode::BAKE_REFLECTION_CONVOLUTION;
+bool TextureCube::isUsingOfflineMipmaps() {
+    return _mipmapMode == MipmapMode::BAKED_CONVOLUTION_MAP;
 }
 
 void TextureCube::initialize() {
-    if (_mipmapMode == MipmapBakeMode::BAKE_REFLECTION_CONVOLUTION) {
+    if (_mipmapMode == MipmapMode::BAKED_CONVOLUTION_MAP) {
         setmipmapAtlas(_mipmapAtlas);
     } else {
         setMipmaps(_mipmaps);
@@ -336,7 +333,7 @@ void TextureCube::initDefault(const ccstd::optional<ccstd::string> &uuid) {
 }
 
 bool TextureCube::validate() const {
-    if (_mipmapMode == MipmapBakeMode::BAKE_REFLECTION_CONVOLUTION) {
+    if (_mipmapMode == MipmapMode::BAKED_CONVOLUTION_MAP) {
         if (_mipmapAtlas.layout.empty()) {
             return false;
         }

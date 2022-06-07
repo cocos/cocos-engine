@@ -265,7 +265,7 @@ public:
      * @en Whether to use reflective convolutional maps to update the mipmap
      * @zh 是否使用反射卷积图来更新mipmaps
      */
-    bool isUseConvolutionMap() const;
+    bool isUsingConvolutionMap() const;
 
     /**
      * @en The texture cube used diffuse convolution map
