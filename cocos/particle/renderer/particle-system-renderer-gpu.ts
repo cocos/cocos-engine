@@ -207,7 +207,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         this._particleNum++;
     }
 
-    public getDefaultMaterial(): Material | null {
+    public getDefaultMaterial (): Material | null {
         return this._defaultMat;
     }
 
@@ -545,5 +545,9 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         if (this._model) {
             this._model.updateMaterial(mat!);
         }
+    }
+
+    public getNoisePreview (out: number[], width: number, height: number) {
+
     }
 }
