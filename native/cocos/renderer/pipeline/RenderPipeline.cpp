@@ -25,6 +25,7 @@
 
 #include "RenderPipeline.h"
 #include "BatchedBuffer.h"
+#include "GeometryRenderer.h"
 #include "GlobalDescriptorSetManager.h"
 #include "InstancedBuffer.h"
 #include "PipelineSceneData.h"
@@ -122,6 +123,20 @@ void RenderPipeline::destroyQuadInputAssembler() {
     }
     _quadVB.clear();
     _quadIA.clear();
+}
+
+void RenderPipeline::updateGeometryRenderer(const ccstd::vector<scene::Camera *> &cameras) {
+    if (_geometryRenderer) {
+        return ;
+    }
+    
+    // Query the first camera rendering to swapchain.
+    for (const auto *camera : cameras) {
+        if (camera && camera->getWindow() && camera->getWindow()->getSwapchain() ) {
+            _geometryRenderer = camera->getGeometryRenderer();
+            return;
+        }
+    }
 }
 
 bool RenderPipeline::destroy() {
