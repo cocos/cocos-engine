@@ -25,6 +25,7 @@ bool js_register_cc_RenderEntity(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_2d_RenderEntity_ItIsDebugFuncInRenderEntity);
 SE_DECLARE_FUNC(js_2d_RenderEntity_setRender2dBufferToNative);
+SE_DECLARE_FUNC(js_2d_RenderEntity_syncSharedBufferToNative);
 SE_DECLARE_FUNC(js_2d_RenderEntity_RenderEntity);
 
 extern se::Object *__jsb_cc_UIMeshBuffer_proto; // NOLINT

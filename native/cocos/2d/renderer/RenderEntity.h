@@ -16,6 +16,10 @@ struct Render2dLayout {
     cc::Vec4 color; // use Vec4 instead of Color because of bytes alignment
 };
 
+struct EntityAttrLayout {
+    index_t sortingOrder;
+};
+
 class Batcher2d;
 class RenderEntity {
 public:
@@ -67,6 +71,13 @@ public:
     void ItIsDebugFuncInRenderEntity();
 
 public:
+    inline index_t getSortingOrder() const { return _entityAttrLayout->sortingOrder; }
+    void setSortingOrder(index_t sortingOrder);
+
+    void syncSharedBufferToNative(index_t* buffer);
+    void parseAttrLayout();
+
+public:
     //这里每次获取时都应该对buffer做一次解析
     ccstd::vector<Render2dLayout*>& getRenderDataArr();
     void parseLayout();
@@ -84,6 +95,10 @@ private:
     uint8_t _stride{0};
     uint32_t _size{0};
 
+    EntityAttrLayout* _entityAttrLayout{nullptr};
+    index_t* _attrSharedBuffer{nullptr};
+
+private:
     // updateWorld 数据计算用到
     index_t _bufferId{0};
     index_t _vertexOffset{0};

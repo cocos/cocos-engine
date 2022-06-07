@@ -673,6 +673,25 @@ static bool js_2d_RenderEntity_setVertexOffset(se::State& s) // NOLINT(readabili
 }
 SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderEntity_setVertexOffset)
 
+static bool js_2d_RenderEntity_syncSharedBufferToNative(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
+    SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_syncSharedBufferToNative : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<int*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_2d_RenderEntity_syncSharedBufferToNative : Error processing arguments");
+        cobj->syncSharedBufferToNative(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_2d_RenderEntity_syncSharedBufferToNative)
+
 SE_DECLARE_FINALIZE_FUNC(js_cc_RenderEntity_finalize)
 
 static bool js_2d_RenderEntity_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor_overloaded.c
@@ -749,6 +768,7 @@ bool js_register_2d_RenderEntity(se::Object* obj) // NOLINT(readability-identifi
     cls->defineProperty("blendHash", _SE(js_2d_RenderEntity_getBlendHash_asGetter), _SE(js_2d_RenderEntity_setBlendHash_asSetter));
     cls->defineFunction("ItIsDebugFuncInRenderEntity", _SE(js_2d_RenderEntity_ItIsDebugFuncInRenderEntity));
     cls->defineFunction("setRender2dBufferToNative", _SE(js_2d_RenderEntity_setRender2dBufferToNative));
+    cls->defineFunction("syncSharedBufferToNative", _SE(js_2d_RenderEntity_syncSharedBufferToNative));
     cls->defineFinalizeFunction(_SE(js_cc_RenderEntity_finalize));
     cls->install();
     JSBClassType::registerClass<cc::RenderEntity>(cls);

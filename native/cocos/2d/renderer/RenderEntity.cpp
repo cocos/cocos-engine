@@ -105,6 +105,19 @@ ccstd::vector<Render2dLayout*>& RenderEntity::getRenderDataArr() {
     return this->_render2dLayoutArr;
 }
 
+void RenderEntity::setSortingOrder(index_t sortingOrder) {
+    this->_entityAttrLayout->sortingOrder = sortingOrder;
+}
+
+void RenderEntity::syncSharedBufferToNative(index_t* buffer) {
+    _attrSharedBuffer = buffer;
+    parseAttrLayout();
+}
+
+void RenderEntity::parseAttrLayout() {
+    _entityAttrLayout = reinterpret_cast<EntityAttrLayout*>(_attrSharedBuffer);
+}
+
 void RenderEntity::parseLayout() {
     index_t vertexCount = this->_size / this->_stride;
     this->_render2dLayoutArr.clear();

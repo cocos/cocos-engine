@@ -120,6 +120,12 @@ export class Batcher2D implements IBatcher {
 
     private _meshDataArray :MeshRenderData[] = [];
 
+    // 当前组件的渲染顺序
+    private _currCompSortingOrder = 0;
+    get currCompSortingOrder () {
+        return this._currCompSortingOrder;
+    }
+
     constructor (private _root: Root) {
         this.device = _root.device;
         this._batches = new CachedArray(64);
@@ -697,6 +703,8 @@ export class Batcher2D implements IBatcher {
                 //这句的功能挪到native了
                 render.fillBuffers(this);// for rendering
             }
+
+            render.updateSortingOrder(this._currCompSortingOrder);
         }
 
         // Update cascaded opacity to vertex buffer
@@ -708,6 +716,9 @@ export class Batcher2D implements IBatcher {
                 buffer.setDirty();
             }
         }
+
+        // 每walk一个组件便自增
+        this._currCompSortingOrder++;
 
         if (children.length > 0 && !node._static) {
             for (let i = 0; i < children.length; ++i) {

@@ -32,10 +32,10 @@ export class NativeRenderEntity {
     set vertDirty (val:boolean) {}
 
     get dataHash ():number { return 0; }
-    set  dataHash (dataHash:number) {}
+    set dataHash (dataHash:number) {}
 
-    get  stencilStage (): number { return 0; }
-    set  stencilStage (stencilStage:number) {}
+    get stencilStage (): number { return 0; }
+    set stencilStage (stencilStage:number) {}
 
     get isMeshBuffer ():boolean { return false; }
     set isMeshBuffer (isMeshBuffer:boolean) {}
@@ -57,6 +57,7 @@ export class NativeRenderEntity {
 
     //setAdvanceRenderDataArr (dataArr: NativeAdvanceRenderData[]) {}
     setRender2dBufferToNative (data:TypedArray, stride:number, size:number) {}
+    syncSharedBufferToNative (data:TypedArray) {}
 }
 
 export class NativeUIMeshBuffer {

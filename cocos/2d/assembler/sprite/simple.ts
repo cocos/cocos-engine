@@ -64,16 +64,6 @@ export const simple: IAssembler = {
     updateRenderData (sprite: Sprite) {
         const frame = sprite.spriteFrame;
 
-        // TODO: Material API design and export from editor could affect the material activation process
-        // need to update the logic here
-        // if (frame) {
-        //     if (!frame._original && dynamicAtlasManager) {
-        //         dynamicAtlasManager.insertSpriteFrame(frame);
-        //     }
-        //     if (sprite._material._texture !== frame._texture) {
-        //         sprite._activateMaterial();
-        //     }
-        // }
         dynamicAtlasManager.packToDynamicAtlas(sprite, frame);
         this.updateUVs(sprite);
 
@@ -82,28 +72,7 @@ export const simple: IAssembler = {
             if (renderData.vertDirty) {
                 this.updateVertexData(sprite);
             }
-            // if (JSB && sprite.node.hasChangedFlags) {
-            //     this.updateVertexData(sprite);
-            // }
             renderData.updateRenderData(sprite, frame);
-        }
-
-        this.copyRenderDataToSharedBuffer(sprite);
-    },
-
-    copyRenderDataToSharedBuffer (sprite:Sprite) {
-        if (JSB) {
-            const renderData :RenderData = sprite.renderData!;
-            const entity = renderData.renderEntity;
-            const sharedBuffer = entity.render2dBuffer;
-
-            if (sharedBuffer.length < renderData.floatStride * renderData.data.length) {
-                console.error('Vertex count doesn\'t match.');
-                return;
-            }
-
-            // 考虑dirty，但本方法消耗不大
-            entity.fillRender2dBuffer(renderData.data);
         }
     },
 

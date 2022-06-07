@@ -9,15 +9,25 @@ import { Material, Node } from '../../core';
 import { Sampler, Texture } from '../../core/gfx';
 import { Batcher2D } from './batcher-2d';
 
+export enum RenderEntitySharedBufferView{
+    sortingOrder,
+    count = 1
+}
+
 export class RenderEntity {
     public renderData: BaseRenderData=null!;
     public stencilStage:Stage = Stage.DISABLED;
 
-    //节点树渲染index
-    static static_entityIndex = 0;
-    protected _entityId = 0;
-    public get entityId () {
-        return this._entityId;
+    //节点树渲染顺序
+    protected _sortingOrder = 0;
+    get sortingOrder () {
+        return this._sortingOrder;
+    }
+    set sortingOrder (val:number) {
+        this._sortingOrder = val;
+        if (JSB) {
+            this._sharedBuffer[RenderEntitySharedBufferView.sortingOrder] = val;
+        }
     }
 
     //前置渲染数据
@@ -48,16 +58,21 @@ export class RenderEntity {
     // 顶点数据存储的共享内存 set dataLength 时就可以确定这个buffer的长度
     protected declare _render2dBuffer: Float32Array;
 
+    // 除顶点数据外的共享内存，可以存储渲染顺序
+    protected declare _sharedBuffer: Int32Array;
+
     protected _vertexCount = 0;
     protected _stride = 0;
 
     constructor (batcher:Batcher2D) {
-        this._entityId = RenderEntity.static_entityIndex++;
         if (JSB) {
             if (!this._nativeObj) {
                 this._nativeObj = new NativeRenderEntity(batcher.nativeObj);
             }
         }
+
+        this.initSharedBuffer();
+        this.syncSharedBufferToNative();
     }
 
     get nativeObj () {
@@ -250,6 +265,18 @@ export class RenderEntity {
         if (JSB) {
             //this._nativeObj.setRender2dBufferToNativeNew(this._render2dBuffer);
             this._nativeObj.setRender2dBufferToNative(this._render2dBuffer, this._stride, this._vertexCount * this._stride);
+        }
+    }
+
+    private initSharedBuffer () {
+        if (JSB) {
+            this._sharedBuffer = new Int32Array(RenderEntitySharedBufferView.count);
+        }
+    }
+
+    public syncSharedBufferToNative () {
+        if (JSB) {
+            this._nativeObj.syncSharedBufferToNative(this._sharedBuffer);
         }
     }
 

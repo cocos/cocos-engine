@@ -41,6 +41,7 @@ import { Stage } from '../renderer/stencil-manager';
 import { legacyCC } from '../../core/global-exports';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 import { Renderer } from '../../core/components/renderer';
+import { Batcher2D } from '../renderer/batcher-2d';
 
 // hack
 ccenum(BlendFactor);
@@ -372,6 +373,12 @@ export class UIRenderer extends Renderer {
     public fillBuffers (render: IBatcher) {
         if (this._renderFlag) {
             this._render(render);
+        }
+    }
+
+    public updateSortingOrder (sortingOrder:number) {
+        if (this._renderData) {
+            this._renderData.updateRenderEntitySortingOrder(sortingOrder);
         }
     }
 

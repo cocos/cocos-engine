@@ -81,8 +81,15 @@ void Batcher2d::updateDescriptorSet() {
     //for this._descriptorSetCache.update()
 }
 
+bool compareEntitySortingOrder(const RenderEntity* entity1, const RenderEntity* entity2) {
+    return entity1->getSortingOrder() < entity2->getSortingOrder();
+}
+
 //对标ts的walk
 void Batcher2d::fillBuffersAndMergeBatches() {
+    //对sortingOrder进行排序
+    std::sort(_newRenderEntities.begin(), _newRenderEntities.end(), compareEntitySortingOrder);
+
     //这里负责的是ts._render填充逻辑
     //这里不需要加assembler判断，因为ts的fillBuffers做了分层优化
     //，有多少顶点就传多少数据到RenderEntity

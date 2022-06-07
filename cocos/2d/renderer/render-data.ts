@@ -423,6 +423,29 @@ export class RenderData extends BaseRenderData {
         if (JSB) {
             // for sync vData and iData address to native
             this.setRenderEntityAttributes();
+            // sync shared buffer to native
+            this.copyRenderDataToSharedBuffer();
+        }
+    }
+
+    public updateRenderEntitySortingOrder (sortingOrder:number) {
+        if (this._renderEntity) {
+            this._renderEntity.sortingOrder = sortingOrder;
+        }
+    }
+
+    copyRenderDataToSharedBuffer () {
+        if (JSB) {
+            const entity = this._renderEntity;
+            const sharedBuffer = entity.render2dBuffer;
+
+            if (sharedBuffer.length < this.floatStride * this._data.length) {
+                console.error('Vertex count doesn\'t match.');
+                return;
+            }
+
+            // 同步顶点数据共享内存
+            entity.fillRender2dBuffer(this._data);
         }
     }
 
