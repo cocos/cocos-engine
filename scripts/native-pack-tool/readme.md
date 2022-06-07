@@ -38,7 +38,7 @@ npm run pack [projectPath] init,make,run
 
 (1) 需要编写对应平台的打包代码类，可以参考现有平台例如 `WindowsPackTool` 之类的写法，可以自行选择要继承于默认的类还是已有的平台类。
 
-(2) 在代码入口 `source/index` 里注册新的平台以及打包工具类
+(2) 在代码入口 `source/index` 里注册新的平台以及打包工具类。
 
 ```ts
 import { WindowsPackTool } from './platforms/windows';
@@ -47,7 +47,7 @@ nativePackToolMg.register('windows', new WindowsPackTool());
 
 (3) 保障新的类里，`create, make, run` 的逻辑都正常，直接使用命令行测试即可。
 
-(4) 构建插件是直接加载的入口脚本，所有如果有其他闭源插件想要做平台插件注册，直接在 `hooks` 脚本的 `load` 钩子里加载 `nativePackToolMg` 后执行注册逻辑即可。
+(4) 构建的内置平台是直接调用的命令行执行的生成、编译逻辑，所有如果有其他闭源插件想要添加新平台的定制打包逻辑，可以在 `hooks` 脚本的 `load` 或者 `beforeBuild` 之类的钩子里加载 `nativePackToolMg` 后执行注册逻辑即可，通过命令行和直接加载脚本的差异主要在于脚本加载有缓存，通过这种方式可能会取到被多个不同插件加工过的原生平台打包逻辑。
 
 (5) 所有原生平台的打包参数，都要在构建阶段整理，写入到 `cocos.compile.config.json`，关于 `nativePackToolMg` 的调用方式，可以参考 `scripts/task` 内的写法。
 
