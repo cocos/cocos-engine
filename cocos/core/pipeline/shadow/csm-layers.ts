@@ -273,7 +273,7 @@ export class CSMShadowLayer extends ShadowLayerVolume {
  */
 export class CSMLayers {
     protected _castShadowObjects: IRenderObject[] = [];
-    protected _csmLayerObjects = new CachedArray<IRenderObject>(64);
+    protected _layerObjects = new CachedArray<IRenderObject>(64);
 
     protected _layers: CSMShadowLayer[] = [];
     // LevelCount is a scalar, Indicates the number.
@@ -286,8 +286,8 @@ export class CSMLayers {
         return this._castShadowObjects;
     }
 
-    get csmLayerObjects () {
-        return this._csmLayerObjects;
+    get layerObjects () {
+        return this._layerObjects;
     }
 
     get layers () {

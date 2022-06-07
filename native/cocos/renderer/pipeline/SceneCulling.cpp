@@ -207,8 +207,8 @@ void shadowCulling(RenderPipeline *pipeline, const scene::Camera *camera, Shadow
     const auto *mainLight = scene->getMainLight();
 
     layer->clearShadowObjects();
-    for (size_t i = 0; i < csmLayers->getCSMLayerObjects().size(); ++i) {
-        const auto *model = csmLayers->getCSMLayerObjects()[i].model;
+    for (size_t i = 0; i < csmLayers->getLayerObjects().size(); ++i) {
+        const auto *model = csmLayers->getLayerObjects()[i].model;
         // filter model by view visibility
         if (model->isEnabled()) {
             const uint32_t visibility = camera->getVisibility();
@@ -222,7 +222,7 @@ void shadowCulling(RenderPipeline *pipeline, const scene::Camera *camera, Shadow
                     if (layer->getLevel() < static_cast<uint>(mainLight->getShadowCascadeLevel())) {
                         if (static_cast<uint>(mainLight->getCsmOptimizationMode()) == 2 &&
                             aabbFrustumCompletelyInside(*model->getWorldBounds(), layer->getValidFrustum())) {
-                            csmLayers->getCSMLayerObjects().erase(csmLayers->getCSMLayerObjects().begin() + static_cast<uint32_t>(i));
+                            csmLayers->getLayerObjects().erase(csmLayers->getLayerObjects().begin() + static_cast<uint32_t>(i));
                             i--;
                         }
                     }
@@ -250,7 +250,7 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
 
     sceneData->clearRenderObjects();
     csmLayers->clearCastShadowObjects();
-    csmLayers->clearCSMLayerObjects();
+    csmLayers->clearLayerObjects();
 
     if (skyBox != nullptr && skyBox->isEnabled() && skyBox->getModel() && (static_cast<uint32_t>(camera->getClearFlag()) & skyboxFlag)) {
         sceneData->addRenderObject(genRenderObject(skyBox->getModel(), camera));
@@ -263,7 +263,7 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
             if (model->isEnabled()) {
                 if (model->isCastShadow()) {
                     csmLayers->addCastShadowObject(genRenderObject(model, camera));
-                    csmLayers->addCSMLayerObject(genRenderObject(model, camera));
+                    csmLayers->addLayerObject(genRenderObject(model, camera));
                 }
 
                 const auto visibility = camera->getVisibility();
@@ -296,7 +296,7 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
                 // cast shadow render Object
                 if (model->isCastShadow()) {
                     csmLayers->addCastShadowObject(genRenderObject(model, camera));
-                    csmLayers->addCSMLayerObject(genRenderObject(model, camera));
+                    csmLayers->addLayerObject(genRenderObject(model, camera));
                 }
 
                 if ((model->getNode() && ((visibility & node->getLayer()) == node->getLayer())) ||

@@ -135,10 +135,10 @@ public:
     inline void addCastShadowObject(RenderObject &&obj) { _castShadowObjects.emplace_back(obj); }
     inline void clearCastShadowObjects() { _castShadowObjects.clear(); }
 
-    inline RenderObjectList &getCSMLayerObjects() { return _csmLayerObjects; }
-    inline void setCSMLayerObjects(RenderObjectList &&ro) { _csmLayerObjects = std::forward<RenderObjectList>(ro); }
-    inline void addCSMLayerObject(RenderObject &&obj) { _csmLayerObjects.emplace_back(obj); }
-    inline void clearCSMLayerObjects() { _csmLayerObjects.clear(); }
+    inline RenderObjectList &getLayerObjects() { return _layerObjects; }
+    inline void setLayerObjects(RenderObjectList &&ro) { _layerObjects = std::forward<RenderObjectList>(ro); }
+    inline void addLayerObject(RenderObject &&obj) { _layerObjects.emplace_back(obj); }
+    inline void clearLayerObjects() { _layerObjects.clear(); }
 
     inline const ccstd::array<CSMLayerInfo *, 4> &getLayers() const { return _layers; }
 
@@ -152,7 +152,7 @@ private:
     void calculateCSM(const scene::Camera *camera, const scene::DirectionalLight *dirLight, const scene::Shadows *shadowInfo);
 
     RenderObjectList _castShadowObjects;
-    RenderObjectList _csmLayerObjects;
+    RenderObjectList _layerObjects;
 
     // LevelCount is a scalar, Indicates the number.
     uint _levelCount{0U};

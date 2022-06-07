@@ -179,7 +179,7 @@ export function shadowCulling (camera: Camera, sceneData: PipelineSceneData, lay
     const scene = camera.scene!;
     const mainLight = scene.mainLight!;
     const csmLayers = sceneData.csmLayers;
-    const csmLayerObjects = csmLayers.csmLayerObjects;
+    const csmLayerObjects = csmLayers.layerObjects;
     const dirLightFrustum = layer.validFrustum;
     const dirShadowObjects = layer.shadowObjects;
     dirShadowObjects.length = 0;
@@ -226,7 +226,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
 
     const castShadowObjects = csmLayers.castShadowObjects;
     castShadowObjects.length = 0;
-    const csmLayerObjects = csmLayers.csmLayerObjects;
+    const csmLayerObjects = csmLayers.layerObjects;
     csmLayerObjects.clear();
 
     if (shadows.enabled) {

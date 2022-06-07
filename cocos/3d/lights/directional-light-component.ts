@@ -86,7 +86,7 @@ export class DirectionalLight extends Light {
 
     protected _type = scene.LightType.DIRECTIONAL;
     protected _light: scene.DirectionalLight | null = null;
-    protected _shadowCSMDebugMode = false;
+    protected _csmDebugMode = false;
 
     /**
      * @en The light source intensity.
@@ -338,13 +338,13 @@ export class DirectionalLight extends Light {
     @tooltip('enabled CSM debug mode')
     @slide
     @type(CCBoolean)
-    get shadowCSMDebugMode () {
-        return this._shadowCSMDebugMode;
+    get csmDebugMode () {
+        return this._csmDebugMode;
     }
-    set shadowCSMDebugMode (val) {
-        this._shadowCSMDebugMode = val;
+    set csmDebugMode (val) {
+        this._csmDebugMode = val;
         if (this._light) {
-            this._light.csmDebugMode = this._shadowCSMDebugMode;
+            this._light.csmDebugMode = this._csmDebugMode;
         }
     }
 
@@ -452,7 +452,7 @@ export class DirectionalLight extends Light {
             this._light.shadowOrthoSize = this._shadowOrthoSize;
             this._light.shadowCascadeLevel = this._shadowCascadeLevel;
             this._light.csmLayerLambda = this._csmLayerLambda;
-            this._light.csmDebugMode = this._shadowCSMDebugMode;
+            this._light.csmDebugMode = this._csmDebugMode;
             this._light.csmOptimizationMode = this._csmOptimizationMode;
         }
     }
