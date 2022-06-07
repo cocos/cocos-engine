@@ -213,6 +213,8 @@ export class Batcher2D implements IBatcher {
     }
 
     public update () {
+        this._currCompSortingOrder = 0;
+
         const screens = this._screens;
         let offset = 0;
         for (let i = 0; i < screens.length; ++i) {
