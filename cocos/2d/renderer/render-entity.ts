@@ -68,6 +68,14 @@ export class RenderEntity {
         return this._render2dBuffer;
     }
 
+    public clear () {
+        //vb,vData,iData这些应该是由accessor负责销毁
+        this._bufferId = 0;
+        this._vertexOffset = 0;
+        this._indexOffset = 0;
+        this._vertDirty = false;
+    }
+
     public setBufferId (bufferId) {
         this._bufferId = bufferId;
         if (JSB) {
@@ -90,7 +98,6 @@ export class RenderEntity {
     }
 
     public setVB (vbBuffer: Float32Array) {
-        // TODO: how to set vb in framework
         if (JSB) {
             this._nativeObj.vbBuffer = vbBuffer;
         }

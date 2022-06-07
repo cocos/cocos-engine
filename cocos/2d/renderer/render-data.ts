@@ -301,7 +301,7 @@ export class RenderData extends BaseRenderData {
         // for sync vData and iData address to native
             this.setRenderEntityAttributes();
             // sync some attributes which belong to mesh buffer
-            const batcher = director.root!.batcher2D;
+            // const batcher = director.root!.batcher2D;
             //batcher.updateAttrBuffer(this.chunk);
             //batcher.syncMeshBufferAttrToNative();
 
@@ -460,6 +460,8 @@ export class RenderData extends BaseRenderData {
         this.frame = null;
         this.textureHash = 0;
         this.dataHash = 0;
+
+        this._renderEntity.clear();
     }
 }
 
