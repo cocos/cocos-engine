@@ -165,7 +165,7 @@ export abstract class Pipeline extends PipelineRuntime {
     public abstract presentAll(): void;
     public abstract createSceneTransversal(camera: Camera, scene: RenderScene): SceneTransversal;
     public abstract get layoutGraphBuilder(): LayoutGraphBuilder;
-    public abstract getDescriptorSetLayout(shaderName: string, freq: UpdateFrequency): DescriptorSetLayout;
+    public abstract getDescriptorSetLayout(shaderName: string, freq: UpdateFrequency): DescriptorSetLayout | null;
 }
 
 export class Factory {
