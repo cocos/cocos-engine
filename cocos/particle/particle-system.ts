@@ -911,8 +911,8 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     /**
-     * @zh 停止发射粒子
-     * @en Stop emitting particle
+     * @zh 停止发射粒子。
+     * @en Stop emitting particles.
      */
     public stopEmitting () {
         this._isEmitting = false;
