@@ -146,8 +146,8 @@ export class Skybox {
     }
 
     /**
-     * @en Whether to use reflective convolutional maps to update the mipmap
-     * @zh 是否使用反射卷积图来更新mipmaps
+     * @en Whether to use offline baked convolutional maps
+     * @zh 是否使用离线烘焙的卷积图？
      */
     get useConvolutionMap (): boolean {
         if (this.envmap) {
