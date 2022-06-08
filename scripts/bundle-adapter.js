@@ -25,6 +25,12 @@ const engineRoot = ps.join(__dirname, '..');
     }
 })();
 
+function getPlatformsFromPath (path) {
+    let platforms = fs.readdirSync(path);
+    platforms = platforms.filter(p => !p.startsWith('.'));
+    return platforms;
+}
+
 async function bundleNativeAdapter () {
     console.log(chalk.green('\nBundling native adapter'));
     // bundle engine-adapter.js
@@ -40,7 +46,7 @@ async function bundleNativeAdapter () {
 
 async function bundleMinigameAdapter () {
     const platformsPath = ps.join(engineRoot, 'platforms/minigame/platforms');
-    const platforms = fs.readdirSync(platformsPath);
+    const platforms = getPlatformsFromPath(platformsPath);
     console.log(chalk.green(`\nBundling minigame platform adapters, including: ${platforms}`));
 
     for (let platform of platforms) {
@@ -62,7 +68,7 @@ async function bundleMinigameAdapter () {
 
 async function bundleRuntimeAdapter () {
     const platformsPath = ps.join(engineRoot, 'platforms/runtime/platforms');
-    const platforms = fs.readdirSync(platformsPath);
+    const platforms = getPlatformsFromPath(platformsPath);
     console.log(chalk.green(`\nBundling runtime platform adapters, including: ${platforms}`));
     for (let platform of platforms) {
         console.log(`handle platform: ${chalk.green(platform)}`);
