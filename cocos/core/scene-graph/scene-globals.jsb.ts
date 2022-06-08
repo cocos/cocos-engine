@@ -42,7 +42,7 @@ import { TextureCube } from '../assets/texture-cube';
 import { Enum } from '../value-types';
 import { ccclass, displayOrder, rangeMin, rangeStep, slide } from '../data/decorators';
 import { EnvironmentLightingType } from '../renderer/scene';
-import { Material } from '../assets';
+import { Material } from '../assets/material';
 
 /**
  * @zh

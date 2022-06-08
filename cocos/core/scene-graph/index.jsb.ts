@@ -1,5 +1,4 @@
 import './node-event-processor';
-import './deprecated';
 
 export * from './node';
 export * from './scene';
