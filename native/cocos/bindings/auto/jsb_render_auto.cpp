@@ -108,6 +108,25 @@ static bool js_render_PipelineRuntime_getDescriptorSetLayout(se::State& s) // NO
 }
 SE_BIND_FUNC_AS_PROP_GET(js_render_PipelineRuntime_getDescriptorSetLayout)
 
+static bool js_render_PipelineRuntime_getGeometryRenderer(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_PipelineRuntime_getGeometryRenderer : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::pipeline::GeometryRenderer* result = cobj->getGeometryRenderer();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_render_PipelineRuntime_getGeometryRenderer : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_render_PipelineRuntime_getGeometryRenderer)
+
 static bool js_render_PipelineRuntime_getGlobalDSManager(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
@@ -268,6 +287,7 @@ bool js_register_render_PipelineRuntime(se::Object* obj) // NOLINT(readability-i
     cls->defineProperty("pipelineSceneData", _SE(js_render_PipelineRuntime_getPipelineSceneData_asGetter), nullptr);
     cls->defineProperty("constantMacros", _SE(js_render_PipelineRuntime_getConstantMacros_asGetter), nullptr);
     cls->defineProperty("profiler", _SE(js_render_PipelineRuntime_getProfiler_asGetter), _SE(js_render_PipelineRuntime_setProfiler_asSetter));
+    cls->defineProperty("geometryRenderer", _SE(js_render_PipelineRuntime_getGeometryRenderer_asGetter), nullptr);
     cls->defineProperty("shadingScale", _SE(js_render_PipelineRuntime_getShadingScale_asGetter), _SE(js_render_PipelineRuntime_setShadingScale_asSetter));
     cls->defineFunction("activate", _SE(js_render_PipelineRuntime_activate));
     cls->defineFunction("destroy", _SE(js_render_PipelineRuntime_destroy));

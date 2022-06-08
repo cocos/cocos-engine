@@ -734,6 +734,25 @@ static bool js_pipeline_RenderPipeline_getDevice(se::State& s) // NOLINT(readabi
 }
 SE_BIND_FUNC(js_pipeline_RenderPipeline_getDevice)
 
+static bool js_pipeline_RenderPipeline_getGeometryRenderer(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipeline_getGeometryRenderer : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::pipeline::GeometryRenderer* result = cobj->getGeometryRenderer();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_RenderPipeline_getGeometryRenderer : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_pipeline_RenderPipeline_getGeometryRenderer)
+
 static bool js_pipeline_RenderPipeline_getGlobalDSManager(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
@@ -1331,6 +1350,7 @@ bool js_register_pipeline_RenderPipeline(se::Object* obj) // NOLINT(readability-
     cls->defineProperty("clusterEnabled", nullptr, _SE(js_pipeline_RenderPipeline_setClusterEnabled_asSetter));
     cls->defineProperty("bloomEnabled", nullptr, _SE(js_pipeline_RenderPipeline_setBloomEnabled_asSetter));
     cls->defineProperty("pipelineSceneData", _SE(js_pipeline_RenderPipeline_getPipelineSceneData_asGetter), nullptr);
+    cls->defineProperty("geometryRenderer", _SE(js_pipeline_RenderPipeline_getGeometryRenderer_asGetter), nullptr);
     cls->defineProperty("profiler", _SE(js_pipeline_RenderPipeline_getProfiler_asGetter), _SE(js_pipeline_RenderPipeline_setProfiler_asSetter));
     cls->defineProperty("shadingScale", _SE(js_pipeline_RenderPipeline_getShadingScale_asGetter), _SE(js_pipeline_RenderPipeline_setShadingScale_asSetter));
     cls->defineFunction("activate", _SE(js_pipeline_RenderPipeline_activate));
