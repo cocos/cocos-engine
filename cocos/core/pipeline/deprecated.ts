@@ -24,8 +24,7 @@
  */
 
 import { markAsWarning } from '../utils';
-import { RenderPipeline } from './render-pipeline'; 
-
+import { RenderPipeline } from './render-pipeline';
 
 // deprecate RenderPipeline API
 markAsWarning(RenderPipeline.prototype, 'RenderPipeline.prototype', [

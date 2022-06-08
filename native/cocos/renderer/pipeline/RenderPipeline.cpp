@@ -145,6 +145,7 @@ bool RenderPipeline::destroy() {
     }
     _flows.clear();
 
+    _geometryRenderer = nullptr;
     _descriptorSet = nullptr;
     CC_SAFE_DESTROY_AND_DELETE(_globalDSManager);
     CC_SAFE_DESTROY_AND_DELETE(_pipelineUBO);

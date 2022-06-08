@@ -678,7 +678,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
 
     protected updateGeometryRenderer (cameras: Camera[]) {
         if (this._geometryRenderer) {
-            return ;
+            return;
         }
 
         // Query the first camera rendering to swapchain.
