@@ -71,6 +71,8 @@ exports.methods = {
         this.material = record.material;
         this.cacheData = record.cacheData;
 
+        await this.updateEffect();
+
         await this.updateInterface();
 
         await this.change({ snapshot: false });
