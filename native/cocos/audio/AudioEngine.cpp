@@ -25,6 +25,7 @@
 ****************************************************************************/
 
 #include "audio/include/AudioEngine.h"
+#include <stdint.h>
 #include <condition_variable>
 #include <mutex>
 #include <thread>
@@ -590,4 +591,20 @@ void AudioEngine::setEnabled(bool isEnabled) {
 
 bool AudioEngine::isEnabled() {
     return sIsEnabled;
+}
+
+uint32_t AudioEngine::getSampleRate(uint32_t audioID) {
+    auto it = sAudioIDInfoMap.find(audioID);
+    if (it != sAudioIDInfoMap.end()) {
+        return sAudioEngineImpl->getSampleRate(audioID);
+    }
+    return 0;
+}
+float* AudioEngine::getBuffer(uint32_t audioID) {
+    auto it = sAudioIDInfoMap.find(audioID);
+    if (it != sAudioIDInfoMap.end()) {
+        return sAudioEngineImpl->getBuffer(audioID);
+    }
+
+    return nullptr;
 }

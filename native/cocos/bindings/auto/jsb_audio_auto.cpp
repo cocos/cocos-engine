@@ -158,6 +158,43 @@ static bool js_audio_AudioEngine_end_static(se::State& s) // NOLINT(readability-
 }
 SE_BIND_FUNC(js_audio_AudioEngine_end_static)
 
+static bool js_audio_AudioEngine_getBuffer_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    do {
+        if (argc == 2) {
+            HolderType<unsigned int, false> arg0 = {};
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            HolderType<unsigned int, false> arg1 = {};
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            float* result = cc::AudioEngine::getBuffer(arg0.value(), arg1.value());
+            ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+            SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getBuffer_static : Error processing arguments");
+            SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+            return true;
+        }
+    } while (false);
+    do {
+        if (argc == 1) {
+            HolderType<unsigned int, false> arg0 = {};
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            float* result = cc::AudioEngine::getBuffer(arg0.value());
+            ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+            SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getBuffer_static : Error processing arguments");
+            SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+            return true;
+        }
+    } while (false);
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_audio_AudioEngine_getBuffer_static)
+
 static bool js_audio_AudioEngine_getCurrentTime_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
@@ -302,6 +339,26 @@ static bool js_audio_AudioEngine_getProfile_static(se::State& s) // NOLINT(reada
     return false;
 }
 SE_BIND_FUNC(js_audio_AudioEngine_getProfile_static)
+
+static bool js_audio_AudioEngine_getSampleRate_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<unsigned int, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getSampleRate_static : Error processing arguments");
+        unsigned int result = cc::AudioEngine::getSampleRate(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getSampleRate_static : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_audio_AudioEngine_getSampleRate_static)
 
 static bool js_audio_AudioEngine_getState_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -810,6 +867,7 @@ bool js_register_audio_AudioEngine(se::Object* obj) // NOLINT(readability-identi
     cls->defineStaticProperty("isJSBClass", _SE(js_audio_getter_return_true), nullptr);
 #endif
     cls->defineStaticFunction("end", _SE(js_audio_AudioEngine_end_static));
+    cls->defineStaticFunction("getBuffer", _SE(js_audio_AudioEngine_getBuffer_static));
     cls->defineStaticFunction("getCurrentTime", _SE(js_audio_AudioEngine_getCurrentTime_static));
     cls->defineStaticFunction("getDefaultProfile", _SE(js_audio_AudioEngine_getDefaultProfile_static));
     cls->defineStaticFunction("getDuration", _SE(js_audio_AudioEngine_getDuration_static));
@@ -817,6 +875,7 @@ bool js_register_audio_AudioEngine(se::Object* obj) // NOLINT(readability-identi
     cls->defineStaticFunction("getMaxAudioInstance", _SE(js_audio_AudioEngine_getMaxAudioInstance_static));
     cls->defineStaticFunction("getPlayingAudioCount", _SE(js_audio_AudioEngine_getPlayingAudioCount_static));
     cls->defineStaticFunction("getProfile", _SE(js_audio_AudioEngine_getProfile_static));
+    cls->defineStaticFunction("getSampleRate", _SE(js_audio_AudioEngine_getSampleRate_static));
     cls->defineStaticFunction("getState", _SE(js_audio_AudioEngine_getState_static));
     cls->defineStaticFunction("getVolume", _SE(js_audio_AudioEngine_getVolume_static));
     cls->defineStaticFunction("isEnabled", _SE(js_audio_AudioEngine_isEnabled_static));

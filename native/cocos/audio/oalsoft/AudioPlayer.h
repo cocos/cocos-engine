@@ -58,7 +58,8 @@ public:
     bool setTime(float time);
     float getTime() { return _currTime; }
     bool setLoop(bool loop);
-
+    uint32_t getSampleRate();
+    float* getBuffer();
 protected:
     void setCache(AudioCache *cache);
     void rotateBufferThread(int offsetFrame);

@@ -24,6 +24,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <stdint.h>
+#include "core/TypedArray.h"
 #define LOG_TAG "AudioPlayer"
 
 #include <cstdlib>
@@ -313,4 +315,19 @@ bool AudioPlayer::setTime(float time) {
         return true;
     }
     return false;
+}
+
+uint32_t AudioPlayer::getSampleRate() {
+    return _audioCache->_sampleRate;
+}
+
+float* AudioPlayer::getBuffer() {
+    //TODO: cut and return for size larger than 
+    uint32_t pcmDataSize = sizeof(_audioCache->_pcmData);
+    
+    Float32Array pcmData[pcmDataSize];
+    for (uint32_t i = 0; i < pcmDataSize; i++) {
+        pcmData[i] = (float)(_audioCache->_pcmData[i]);
+    }
+    return pcmData;
 }

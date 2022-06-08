@@ -24,6 +24,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <stdint.h>
+#include "audio/android/AudioEngine-inl.h"
 #define LOG_TAG "AudioEngine-OALSOFT"
 
 #include "audio/oalsoft/AudioEngine-soft.h"
@@ -531,4 +533,18 @@ void AudioEngineImpl::uncacheAll() {
 
 bool AudioEngineImpl::checkAudioIdValid(int audioID) {
     return _audioPlayers.find(audioID) != _audioPlayers.end();
+}
+
+uint32_t AudioEngineImpl::getSampleRate(uint32_t audioID) {
+    if (!checkAudioIdValid(audioID)) {
+        return 0;
+    }
+    return _audioPlayers[audioID]->getSampleRate();
+}
+
+float* AudioEngineImpl::getBuffer(uint32_t audioID) {
+    if (!checkAudioIdValid(audioID)) {
+        return nullptr;
+    }
+    return _audioPlayers[audioID]->getBuffer(audioID);
 }

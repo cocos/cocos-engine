@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <stdint.h>
 #include "audio/oalsoft/AudioCache.h"
 #include "audio/oalsoft/AudioPlayer.h"
 #include "base/std/container/unordered_map.h"
@@ -60,6 +61,8 @@ public:
     void uncacheAll();
     AudioCache *preload(const ccstd::string &filePath, const std::function<void(bool)> &callback);
     void update(float dt);
+    uint32_t getSampleRate(uint32_t audioID);
+    float* getBuffer(uint32_t audioID);
 
 private:
     bool checkAudioIdValid(int audioID);

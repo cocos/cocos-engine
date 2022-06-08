@@ -315,6 +315,30 @@ public:
      */
     static bool isEnabled();
 
+    /**
+     * @brief Get the Sample Rate object
+     * 
+     * @param audioID
+     * @return SampleRate of audio source
+     */
+    static uint32_t getSampleRate(uint32_t audioID);
+
+    /**
+     * @brief Get the Buffer object
+     * 
+     * @param audioID 
+     * @return float* PCM datas behave as float array
+     */
+    static float* getBuffer(uint32_t audioID);
+    /**
+     * @brief Get the Buffer object
+     * 
+     * @param audioID 
+     * @param channelID Specifiy from which channel would you like to get the buffer
+     * @return float* Buffer datas behave as float array
+     */
+    static float* getBuffer(uint32_t audioID, uint32_t channelID);
+    
 protected:
     static void addTask(const std::function<void()> &task);
     static void remove(int audioID);
