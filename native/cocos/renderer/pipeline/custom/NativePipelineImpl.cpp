@@ -277,7 +277,11 @@ gfx::DescriptorSetLayout *NativePipeline::getDescriptorSetLayout(const ccstd::st
     auto iter = layoutGraph.shaderLayoutIndex.find(boost::string_view(shaderName));
     if (iter != layoutGraph.shaderLayoutIndex.end()) {
         const auto& layouts = get(LayoutGraphData::Layout, layoutGraph, iter->second).descriptorSets;
-        return layouts.at(freq).descriptorSetLayout.get();
+        auto iter2 = layouts.find(freq);
+        if (iter2 != layouts.end()) {
+            return iter2->second.descriptorSetLayout.get();
+        }
+        return nullptr;
     }
     CC_EXPECTS(false);
     return nullptr;
