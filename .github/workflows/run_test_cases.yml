@@ -64,12 +64,15 @@ jobs:
       - name: Checkout engine
         uses: actions/checkout@v3
         with:
+          fetch-depth: 0
           ref: ${{ steps.parse_pr.outputs.pr_base_ref }}
 
       - name: Checkout rebase
         run: |
+          git fetch origin
           git reset --hard   
           git checkout origin/${{ steps.parse_pr.outputs.pr_base_ref }}
+          git pull origin ${{ steps.parse_pr.outputs.pr_base_ref }} --allow-unrelated-histories
           git branch -D ${{ steps.parse_pr.outputs.pr_base_ref }}
           git branch ${{ steps.parse_pr.outputs.pr_base_ref }}
           git fetch origin pull/${{ steps.get_pr.outputs.pr_number }}/head:pull-${{ steps.get_pr.outputs.pr_number }}
@@ -81,7 +84,7 @@ jobs:
           npm install --registry https://registry.npm.taobao.org
 
       - name: Run test cases
-        timeout-minutes: 90
+        timeout-minutes: 120
         id: run_test_cases
         run: |
           cd ..
@@ -152,12 +155,15 @@ jobs:
       - name: Checkout engine
         uses: actions/checkout@v3
         with:
+          fetch-depth: 0          
           ref: ${{ steps.parse_pr.outputs.pr_base_ref }}
 
       - name: Checkout rebase
         run: |
+          git fetch origin
           git reset --hard   
           git checkout origin/${{ steps.parse_pr.outputs.pr_base_ref }}
+          git pull origin ${{ steps.parse_pr.outputs.pr_base_ref }} --allow-unrelated-histories
           git branch -D ${{ steps.parse_pr.outputs.pr_base_ref }}
           git branch ${{ steps.parse_pr.outputs.pr_base_ref }}
           git fetch origin pull/${{ steps.get_pr.outputs.pr_number }}/head:pull-${{ steps.get_pr.outputs.pr_number }}
@@ -169,7 +175,7 @@ jobs:
           npm install --registry https://registry.npm.taobao.org
 
       - name: Run test cases
-        timeout-minutes: 60
+        timeout-minutes: 90
         id: run_test_cases
         run: |
           cd ..
