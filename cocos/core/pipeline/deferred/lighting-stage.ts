@@ -199,7 +199,10 @@ export class LightingStage extends RenderStage {
         const deferredLitsBufView = device.createBuffer(new BufferViewInfo(this._deferredLitsBufs, 0, totalSize));
         this._lightBufferData = new Float32Array(totalSize / Float32Array.BYTES_PER_ELEMENT);
 
-        this._descriptorSet = device.createDescriptorSet(new DescriptorSetInfo(pass.localSetLayout));
+        const ly = pass.localSetLayout;
+        if (ly) {
+            this._descriptorSet = device.createDescriptorSet(new DescriptorSetInfo(ly));
+        }
         this._descriptorSet.bindBuffer(UBOForwardLight.BINDING, deferredLitsBufView);
 
         const _localUBO = device.createBuffer(new BufferInfo(

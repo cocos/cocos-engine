@@ -83,7 +83,10 @@ export class SubModel {
         // DS layout might change too
         if (this._descriptorSet) {
             this._descriptorSet.destroy();
-            _dsInfo.layout = passes[0].localSetLayout;
+            const ly = passes[0].localSetLayout;
+            if (ly) {
+                _dsInfo.layout = ly;
+            }
             this._descriptorSet = this._device!.createDescriptorSet(_dsInfo);
         }
     }
@@ -187,7 +190,10 @@ export class SubModel {
     public initialize (subMesh: RenderingSubMesh, passes: Pass[], patches: IMacroPatch[] | null = null): void {
         const root = legacyCC.director.root as Root;
         this._device = root.device;
-        _dsInfo.layout = passes[0].localSetLayout;
+        const ly =  passes[0].localSetLayout;
+        if (ly) {
+            _dsInfo.layout = ly;
+        }
 
         this._inputAssembler = this._device.createInputAssembler(subMesh.iaInfo);
         this._descriptorSet = this._device.createDescriptorSet(_dsInfo);
@@ -195,7 +201,10 @@ export class SubModel {
         const pipeline = (legacyCC.director.root as Root).pipeline;
         const occlusionPass = pipeline.pipelineSceneData.getOcclusionQueryPass()!;
         const occlusionDSInfo = new DescriptorSetInfo(null!);
-        occlusionDSInfo.layout = occlusionPass.localSetLayout;
+        const oly = occlusionPass.localSetLayout;
+        if (oly) {
+            occlusionDSInfo.layout = oly;
+        } 
         this._worldBoundDescriptorSet = this._device.createDescriptorSet(occlusionDSInfo);
         this._subMesh = subMesh;
         this._patches = patches;

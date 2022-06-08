@@ -565,7 +565,10 @@ export class Pass {
         if (director.root.usesCustomPipeline) {
             const root = legacyCC.director.root;
             const ppl: Pipeline = root.customPipeline;
-            _dsInfo.layout = ppl.getDescriptorSetLayout(info.program, UpdateFrequency.PER_BATCH);
+            const ds = ppl.getDescriptorSetLayout(info.program, UpdateFrequency.PER_BATCH);
+            if (ds) {
+                _dsInfo.layout = ds;
+            } 
         } else {
             _dsInfo.layout = programLib.getDescriptorSetLayout(this._device, info.program);
         }
@@ -670,7 +673,7 @@ export class Pass {
     get root (): Root { return this._root; }
     get device (): Device { return this._device; }
     get shaderInfo (): IProgramInfo { return this._shaderInfo; }
-    get localSetLayout (): DescriptorSetLayout {
+    get localSetLayout (): DescriptorSetLayout | null {
         const director = legacyCC.director;
         if (director.root.usesCustomPipeline) {
             const root = legacyCC.director.root;

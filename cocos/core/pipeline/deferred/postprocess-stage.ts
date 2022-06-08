@@ -135,7 +135,10 @@ export class PostProcessStage extends RenderStage {
         const renderObjects = pipeline.pipelineSceneData.renderObjects;
         if (pso != null && renderObjects.length > 0) {
             if (!this._stageDesc) {
-                this._stageDesc = device.createDescriptorSet(new DescriptorSetInfo(pass.localSetLayout));
+                const ly = pass.localSetLayout;
+                if (ly) {
+                    this._stageDesc = device.createDescriptorSet(new DescriptorSetInfo(ly));
+                }
                 this._localUBO = device.createBuffer(new BufferInfo(
                     BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
                     MemoryUsageBit.DEVICE,
