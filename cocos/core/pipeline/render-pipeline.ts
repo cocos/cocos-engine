@@ -42,6 +42,7 @@ import { GlobalDSManager } from './global-descriptor-set-manager';
 import { GeometryRenderer } from './geometry-renderer';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { PipelineUBO } from './pipeline-ubo';
+import { DebugView } from './debug-view';
 import { RenderFlow } from './render-flow';
 import { IPipelineEvent, PipelineEventProcessor, PipelineEventType } from './pipeline-event';
 import { decideProfilerCamera } from './pipeline-funcs';
@@ -210,6 +211,10 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         return this._pipelineUBO;
     }
 
+    get debugView () {
+        return this._debugView;
+    }
+
     get pipelineSceneData () {
         return this._pipelineSceneData;
     }
@@ -250,6 +255,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
     protected _descriptorSet!: DescriptorSet;
     protected _commandBuffers: CommandBuffer[] = [];
     protected _pipelineUBO = new PipelineUBO();
+    protected _debugView = new DebugView();
     protected _macros: MacroRecord = {};
     protected _constantMacros = '';
     protected _profiler: Model | null = null;
