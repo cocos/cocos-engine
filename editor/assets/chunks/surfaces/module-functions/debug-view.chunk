@@ -89,37 +89,70 @@ void CCSurfacesDebugDisplayInvalidNumber(inout vec4 color)
 
   // Lighting related
 #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_SINGLE
-  void CCSurfacesDebugViewLightingResult(out vec4 color, in LightingResult lightingResult)
+  bool CCSurfacesDebugViewLightingResult(out vec4 color, in LightingResult lightingResult)
   {
+      bool isDebugMatched = false;
     if (IS_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_DIFFUSE))
-      color.rgb = lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting;
+    {
+        color.rgb = lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting;
+        isDebugMatched = true;
+    }
     
     if (IS_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_SPECULAR))
-      color.rgb = lightingResult.directSpecular * lightingResult.specularColorWithLighting;
+    {
+        color.rgb = lightingResult.directSpecular * lightingResult.specularColorWithLighting;
+        isDebugMatched = true;
+    }
     
     if (IS_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_ALL))
-      color.rgb = lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting + lightingResult.directSpecular * lightingResult.specularColorWithLighting;
+    {
+        color.rgb = lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting + lightingResult.directSpecular * lightingResult.specularColorWithLighting;
+        isDebugMatched = true;
+    }
     
     if (IS_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_ENV_DIFFUSE))
-      color.rgb = lightingResult.environmentDiffuse * lightingResult.diffuseColorWithLighting;
+    {
+        color.rgb = lightingResult.environmentDiffuse * lightingResult.diffuseColorWithLighting;
+        isDebugMatched = true;
+    }
     
     if (IS_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_ENV_SPECULAR))
-      color.rgb = lightingResult.environmentSpecular * lightingResult.specularColorWithLighting;
+    {
+        color.rgb = lightingResult.environmentSpecular * lightingResult.specularColorWithLighting;
+        isDebugMatched = true;
+    }
     
     if (IS_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_ENV_ALL))
-      color.rgb = lightingResult.environmentDiffuse * lightingResult.diffuseColorWithLighting + lightingResult.environmentSpecular * lightingResult.specularColorWithLighting;
+    {
+        color.rgb = lightingResult.environmentDiffuse * lightingResult.diffuseColorWithLighting + lightingResult.environmentSpecular * lightingResult.specularColorWithLighting;
+        isDebugMatched = true;
+    }
     
     if (IS_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_LIGHT_MAP))
-      color.rgb = lightingResult.lightmapColor;
+    {
+        color.rgb = lightingResult.lightmapColor;
+        isDebugMatched = true;
+    }
     
     if (IS_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_EMISSIVE))
-      color.rgb = lightingResult.emissive;
+    {
+        color.rgb = lightingResult.emissive;
+        isDebugMatched = true;
+    }
     
     if (IS_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_AO))
-      color.rgb = vec3(lightingResult.ao);
+    {
+        color.rgb = vec3(lightingResult.ao);
+        isDebugMatched = true;
+    }
     
     if (IS_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_SHADOW))
-      color.rgb = vec3(lightingResult.shadow);
+    {
+        color.rgb = vec3(lightingResult.shadow);
+        isDebugMatched = true;
+    }
+
+    return isDebugMatched;
   }
 #endif
 
