@@ -186,17 +186,22 @@ exports.template = /* html*/`
         <ui-prop class="release" type="dump"></ui-prop>
         <ui-prop class="ambient" type="dump"></ui-prop>
         <ui-section class="skybox" expand>
-            <span slot="header">Skybox</span>
+            <div slot="header" style="width: 100%;">
+                <span>Skybox</span>
+                <ui-link tooltip="i18n:scene.menu.help_url" style="float: right; margin-right: 1px;">
+                    <ui-icon value="help"></ui-icon>
+                </ui-link>
+            </div>
             <div class="block-before"></div>
             <div class="block-reflection" hidden>
                 <ui-prop>
                     <span slot="label">Reflection Convolution</span>
                     <div slot="content">
                         <ui-loading style="position: relative;top: 4px;"></ui-loading>
-                        <ui-button style="display: none;">
+                        <ui-button num="1" style="display: none;">
                             <span>Bake</span>
                         </ui-button>
-                        <ui-button style="display: none;">
+                        <ui-button num="0" style="display: none;">
                             <span>Remove</span>
                         </ui-button>
                     </div>
@@ -585,7 +590,16 @@ const Elements = {
         },
     },
     scene: {
-        ready() {},
+        ready() {
+            const panel = this;
+
+            const $help = panel.$.sceneSkybox.querySelector('ui-link');
+            $help.value = panel.getHelpUrl({ help: 'i18n:cc.Skybox' });
+            $help.addEventListener('click', (event) => {
+                event.stopPropagation();
+                event.preventDefault();
+            });
+        },
         update() {
             const panel = this;
 
@@ -642,11 +656,12 @@ const Elements = {
                 const $skyboxBakeButtonList = panel.$.sceneSkybox.querySelectorAll('ui-button');
                 let envmapAssetMeta = null;
                 // eslint-disable-next-line no-inner-declarations
-                function switchBake(num) {
+                function switchBake(event) {
                     if (!envmapAssetMeta) {
                         return;
                     }
-                    envmapAssetMeta.userData.mipBakeMode = num;
+                    const num = event.target.getAttribute('num');
+                    envmapAssetMeta.userData.mipBakeMode = parseInt(num);
                     Editor.Message.send('asset-db', 'save-asset-meta', panel.dump._globals.skybox.value['envmap'].value.uuid, JSON.stringify(envmapAssetMeta));
                     $skyboxBakeLoading.style.display = '';
                     $skyboxBakeButtonList[0].style.display = 'none';
@@ -671,12 +686,10 @@ const Elements = {
                             }
                         });
                 }
-                $skyboxBakeButtonList[0].addEventListener('confirm', () => {
-                    switchBake(1);
-                });
-                $skyboxBakeButtonList[1].addEventListener('confirm', () => {
-                    switchBake(0);
-                });
+                $skyboxBakeButtonList[0].removeEventListener('confirm', switchBake);
+                $skyboxBakeButtonList[1].removeEventListener('confirm', switchBake);
+                $skyboxBakeButtonList[0].addEventListener('confirm', switchBake);
+                $skyboxBakeButtonList[1].addEventListener('confirm', switchBake);
                 initBake();
             }
 
