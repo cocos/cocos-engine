@@ -29,7 +29,7 @@
 #include "InstancedBuffer.h"
 #include "PipelineSceneData.h"
 #include "PipelineStateManager.h"
-#include "PipelineUBO.h"
+#include "SceneCulling.h"
 #include "RenderBatchedQueue.h"
 #include "RenderInstancedQueue.h"
 #include "forward/ForwardPipeline.h"
@@ -39,6 +39,8 @@
 #include "scene/Camera.h"
 #include "scene/Shadow.h"
 #include "scene/SpotLight.h"
+#include "scene/DirectionalLight.h"
+#include "shadow/CSMLayers.h"
 
 namespace cc {
 namespace pipeline {
@@ -46,46 +48,57 @@ namespace pipeline {
 ShadowMapBatchedQueue::ShadowMapBatchedQueue(RenderPipeline *pipeline)
 : _phaseID(getPhaseID("shadow-caster")) {
     _pipeline = pipeline;
-    _buffer = pipeline->getDescriptorSet()->getBuffer(UBOShadow::BINDING);
     _instancedQueue = ccnew RenderInstancedQueue;
     _batchedQueue = ccnew RenderBatchedQueue;
 }
 
 ShadowMapBatchedQueue::~ShadowMapBatchedQueue() = default;
 
-void ShadowMapBatchedQueue::gatherLightPasses(const scene::Camera *camera, const scene::Light *light, gfx::CommandBuffer *cmdBuffer) {
+void ShadowMapBatchedQueue::gatherLightPasses(const scene::Camera *camera, const scene::Light *light, gfx::CommandBuffer *cmdBuffer, uint level) {
     clear();
 
     const PipelineSceneData *sceneData = _pipeline->getPipelineSceneData();
     const scene::Shadows *shadowInfo = sceneData->getShadows();
+    const CSMLayers *csmLayers = sceneData->getCSMLayers();
     if (light && shadowInfo->isEnabled() && shadowInfo->getType() == scene::ShadowType::SHADOW_MAP) {
-        const RenderObjectList &dirShadowObjects = sceneData->getDirShadowObjects();
-        const RenderObjectList &castShadowObjects = sceneData->isCastShadowObjects();
         switch (light->getType()) {
             case scene::LightType::DIRECTIONAL: {
-                for (const auto ro : dirShadowObjects) {
-                    const auto *model = ro.model;
-                    add(model);
+                const auto *dirLight = static_cast<const scene::DirectionalLight *>(light);
+                if (shadowInfo->isEnabled() && shadowInfo->getType() == scene::ShadowType::SHADOW_MAP) {
+                    if (dirLight->isShadowEnabled()) {
+                        ShadowTransformInfo *layer;
+                        if (dirLight->isShadowFixedArea()) {
+                            layer = csmLayers->getSpecialLayer();
+                        } else {
+                            layer = csmLayers->getLayers()[level];
+                        }
+                        shadowCulling(_pipeline, camera, layer);
+                        const RenderObjectList &dirShadowObjects = layer->getShadowObjects();
+                        for (const auto &ro : dirShadowObjects) {
+                            add(ro.model);
+                        }
+                    }
                 }
             } break;
-
             case scene::LightType::SPOT: {
                 const auto *spotLight = static_cast<const scene::SpotLight *>(light);
-                const Mat4 matShadowView = light->getNode()->getWorldMatrix().getInversed();
-                Mat4 matShadowProj;
-                Mat4::createPerspective(spotLight->getSpotAngle(), 1.0F, 0.001F, spotLight->getRange(), &matShadowProj);
-                const Mat4 matShadowViewProj = matShadowProj * matShadowView;
-                geometry::AABB ab;
-                for (const auto ro : castShadowObjects) {
-                    const auto *model = ro.model;
-                    if (!model->isEnabled() || !model->isCastShadow() || !model->getNode()) {
-                        continue;
-                    }
-
-                    if (model->getWorldBounds()) {
-                        model->getWorldBounds()->transform(matShadowViewProj, &ab);
-                        if (ab.aabbFrustum(camera->getFrustum())) {
-                            add(model);
+                const RenderObjectList &castShadowObjects = csmLayers->getCastShadowObjects();
+                if (spotLight->isShadowEnabled()) {
+                    const Mat4 matShadowView = light->getNode()->getWorldMatrix().getInversed();
+                    Mat4 matShadowProj;
+                    Mat4::createPerspective(spotLight->getSpotAngle(), 1.0F, 0.001F, spotLight->getRange(), &matShadowProj);
+                    const Mat4 matShadowViewProj = matShadowProj * matShadowView;
+                    geometry::AABB ab;
+                    for (const auto &ro : castShadowObjects) {
+                        const auto *model = ro.model;
+                        if (!model->isEnabled() || !model->isCastShadow() || !model->getNode()) {
+                            continue;
+                        }
+                        if (model->getWorldBounds()) {
+                            model->getWorldBounds()->transform(matShadowViewProj, &ab);
+                            if (ab.aabbFrustum(camera->getFrustum())) {
+                                add(model);
+                            }
                         }
                     }
                 }
@@ -164,8 +177,6 @@ void ShadowMapBatchedQueue::destroy() {
     CC_SAFE_DELETE(_batchedQueue)
 
     CC_SAFE_DELETE(_instancedQueue)
-
-    _buffer = nullptr;
 }
 
 int ShadowMapBatchedQueue::getShadowPassIndex(const scene::Model *model) const {

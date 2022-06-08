@@ -218,6 +218,7 @@ enum class CC_DLL PipelineGlobalBindings {
     UBO_GLOBAL,
     UBO_CAMERA,
     UBO_SHADOW,
+    UBO_CSM,
 
     SAMPLER_SHADOWMAP,
     SAMPLER_ENVIRONMENT,
@@ -460,6 +461,23 @@ struct CC_DLL UBOShadow {
     static constexpr uint COUNT = UBOShadow::PLANAR_NORMAL_DISTANCE_INFO_OFFSET + 4;
     static constexpr uint SIZE = UBOShadow::COUNT * 4;
     static constexpr uint BINDING = static_cast<uint>(PipelineGlobalBindings::UBO_SHADOW);
+    static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
+    static const gfx::UniformBlock LAYOUT;
+    static const ccstd::string NAME;
+};
+
+struct CC_DLL UBOCSM {
+    static constexpr uint CSM_LEVEL_COUNT = 4;
+    static constexpr uint MAT_SHADOW_VIEW_LEVELS_OFFSET = 0;
+    static constexpr uint MAT_SHADOW_VIEW_PROJ_LEVELS_OFFSET = UBOCSM::MAT_SHADOW_VIEW_LEVELS_OFFSET + 16 * UBOCSM::CSM_LEVEL_COUNT;
+    static constexpr uint MAT_SHADOW_VIEW_PROJ_ATLAS_LEVELS_OFFSET = UBOCSM::MAT_SHADOW_VIEW_PROJ_LEVELS_OFFSET + 16 * UBOCSM::CSM_LEVEL_COUNT;
+    static constexpr uint SHADOW_PROJ_DEPTH_INFO_LEVELS_OFFSET = UBOCSM::MAT_SHADOW_VIEW_PROJ_ATLAS_LEVELS_OFFSET + 16 * UBOCSM::CSM_LEVEL_COUNT;
+    static constexpr uint SHADOW_PROJ_INFO_LEVELS_OFFSET = UBOCSM::SHADOW_PROJ_DEPTH_INFO_LEVELS_OFFSET + 4 * UBOCSM::CSM_LEVEL_COUNT;
+    static constexpr uint SHADOW_SPLITS_OFFSET = UBOCSM::SHADOW_PROJ_INFO_LEVELS_OFFSET + 4 * UBOCSM::CSM_LEVEL_COUNT;
+    static constexpr uint CSM_INFO_OFFSET = UBOCSM::SHADOW_SPLITS_OFFSET + 4;
+    static constexpr uint COUNT = UBOCSM::CSM_INFO_OFFSET + 4;
+    static constexpr uint SIZE = UBOCSM::COUNT * 4;
+    static constexpr uint BINDING = static_cast<uint>(PipelineGlobalBindings::UBO_CSM);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
     static const gfx::UniformBlock LAYOUT;
     static const ccstd::string NAME;

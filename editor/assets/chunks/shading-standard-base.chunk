@@ -117,7 +117,11 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   float shadow = 1.0;
   #if CC_RECEIVE_SHADOW
     if (NL > 0.0 && cc_mainLitDir.w > 0.0) {
-      shadow = CCShadowFactorBase(shadowPos, N, s.shadowBias);
+      if (cc_shadowLPNNInfo.w > 0.0) {
+        shadow = CCCSMFactorBase(position, N, s.shadowBias);
+      } else {
+        shadow = CCShadowFactorBase(shadowPos, N, s.shadowBias);
+      }
     }
   #endif
 
@@ -163,7 +167,6 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   #endif
 
   finalColor += ambDiff.rgb * cc_ambientSky.w * diffuse * s.occlusion;
-  
 
   finalColor += s.emissive;
 

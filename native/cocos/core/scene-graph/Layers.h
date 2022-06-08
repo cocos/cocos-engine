@@ -27,6 +27,7 @@
 
 #include "base/Macros.h"
 #include "base/TypeDef.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 

@@ -425,8 +425,10 @@ bool js_register_cc_scene_Skybox(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_scene_Skybox_activate);
 SE_DECLARE_FUNC(js_scene_Skybox_initialize);
+SE_DECLARE_FUNC(js_scene_Skybox_isUsingConvolutionMap);
 SE_DECLARE_FUNC(js_scene_Skybox_setDiffuseMaps);
 SE_DECLARE_FUNC(js_scene_Skybox_setEnvMaps);
+SE_DECLARE_FUNC(js_scene_Skybox_setSkyboxMaterial);
 SE_DECLARE_FUNC(js_scene_Skybox_Skybox);
 
 extern se::Object *__jsb_cc_scene_Ambient_proto; // NOLINT
@@ -449,6 +451,8 @@ extern se::Class * __jsb_cc_scene_DirectionalLight_class; // NOLINT
 
 bool js_register_cc_scene_DirectionalLight(se::Object *obj); // NOLINT
 
+SE_DECLARE_FUNC(js_scene_DirectionalLight_isShadowCSMValueDirty);
+SE_DECLARE_FUNC(js_scene_DirectionalLight_setShadowCSMValueDirty);
 SE_DECLARE_FUNC(js_scene_DirectionalLight_DirectionalLight);
 
 extern se::Object *__jsb_cc_scene_SpotLight_proto; // NOLINT

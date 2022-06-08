@@ -23,15 +23,16 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-import { AABB, Frustum, intersect, Sphere } from '../../geometry';
+import { intersect, Sphere } from '../../geometry';
 import { legacyCC } from '../../global-exports';
-import { Mat4, Vec2, Vec3 } from '../../math';
+import { Mat4, Vec3, Color } from '../../math';
 import { RenderScene } from '../../renderer';
-import { Camera, DirectionalLight, Model, Shadows, ShadowType, SKYBOX_FLAG, SubModel } from '../../renderer/scene';
+import { Camera, SphereLight, DirectionalLight, Model, Shadows, ShadowType, SKYBOX_FLAG, SubModel } from '../../renderer/scene';
 import { IRenderObject, IRenderPass } from '../define';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { SceneTask, SceneTransversal, SceneVisitor } from './pipeline';
 import { TaskType } from './types';
+import { ShadowLayerVolume } from '../shadow/csm-layers';
 
 export class RenderObject implements IRenderObject {
     public model: Model;
@@ -58,6 +59,32 @@ export class WebSceneTask extends SceneTask {
     }
     get taskType (): TaskType {
         return TaskType.SYNC;
+    }
+
+    public static shadowCulling (camera: Camera, sceneData: PipelineSceneData, layer: ShadowLayerVolume) {
+        const csmLayers = sceneData.csmLayers;
+        const castShadowObjects = csmLayers.castShadowObjects;
+        const dirLightFrustum = layer.validFrustum;
+        const dirShadowObjects = layer.shadowObjects;
+        dirShadowObjects.length = 0;
+        const visibility = camera.visibility;
+        for (let i = 0; i < castShadowObjects.length; i++) {
+            const castShadowObject = castShadowObjects[i];
+            const model = castShadowObject.model;
+            // filter model by view visibility
+            if (model.enabled) {
+                if (model.node && ((visibility & model.node.layer) === model.node.layer)) {
+                    // shadow render Object
+                    if (dirShadowObjects != null && model.castShadow && model.worldBounds) {
+                        // frustum culling
+                        // eslint-disable-next-line no-lonely-if
+                        if (intersect.aabbFrustum(model.worldBounds, dirLightFrustum)) {
+                            dirShadowObjects.push(castShadowObject);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     protected _updateDirLight (light: DirectionalLight) {
@@ -87,134 +114,6 @@ export class WebSceneTask extends SceneTask {
         m.m15 = 1;
     }
 
-    protected _getCameraWorldMatrix (out: Mat4, camera: Camera) {
-        if (!camera.node) { return; }
-
-        const cameraNode = camera.node;
-        const position = cameraNode.getWorldPosition();
-        const rotation = cameraNode.getWorldRotation();
-
-        Mat4.fromRT(out, rotation, position);
-        out.m08 *= -1.0;
-        out.m09 *= -1.0;
-        out.m10 *= -1.0;
-    }
-
-    protected _quantizeDirLightShadowCamera (out: Frustum, dirLight: DirectionalLight,
-        camera: Camera, shadowInfo: Shadows) {
-        const device = legacyCC.director.root.device;
-        const _dirLightFrustum = new Frustum();
-        const _matShadowTrans = new Mat4();
-        const _matShadowView = new Mat4();
-        const _matShadowViewInv = new Mat4();
-        const _matShadowProj = new Mat4();
-        const _matShadowViewProj = new Mat4();
-        const _matShadowViewProjArbitaryPos = new Mat4();
-        const _matShadowViewProjArbitaryPosInv = new Mat4();
-        const _mat4_trans = new Mat4();
-        const _validFrustum = new Frustum();
-        _validFrustum.accurate = true;
-        let _lightViewFrustum = new Frustum();
-        _lightViewFrustum.accurate = true;
-        const _castLightViewBounds = new AABB();
-        const _shadowPos = new Vec3();
-        const _cameraBoundingSphere = new Sphere();
-        const _projPos = new Vec3();
-        const _texelSize = new Vec2();
-        const _projSnap = new Vec3();
-        const _snap = new Vec3();
-        const _focus = new Vec3(0, 0, 0);
-        if (dirLight.shadowFixedArea) {
-            const x = dirLight.shadowOrthoSize;
-            const y = dirLight.shadowOrthoSize;
-            const near = dirLight.shadowNear;
-            const far = dirLight.shadowFar;
-            Mat4.fromRT(_matShadowTrans, dirLight.node!.getWorldRotation(), dirLight.node!.getWorldPosition());
-            Mat4.invert(_matShadowView, _matShadowTrans);
-            Mat4.ortho(_matShadowProj, -x, x, -y, y, near, far,
-                device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
-            Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
-            Mat4.invert(_matShadowViewInv, _matShadowView);
-            shadowInfo.matShadowView = _matShadowView;
-            shadowInfo.matShadowProj = _matShadowProj;
-            shadowInfo.matShadowViewProj = _matShadowViewProj;
-
-            Frustum.createOrtho(out, x * 2.0, y * 2.0, near,  far, _matShadowViewInv);
-        } else {
-            const invisibleOcclusionRange = dirLight.shadowInvisibleOcclusionRange;
-            const shadowMapWidth = shadowInfo.size.x;
-
-            // Raw data
-            this._getCameraWorldMatrix(_mat4_trans, camera);
-            Frustum.split(_validFrustum, camera, _mat4_trans, 0.1, dirLight.shadowDistance);
-            _lightViewFrustum = Frustum.clone(_validFrustum);
-
-            // view matrix with range back
-            Mat4.fromRT(_matShadowTrans, dirLight.node!.rotation, _focus);
-            Mat4.invert(_matShadowView, _matShadowTrans);
-            Mat4.invert(_matShadowViewInv, _matShadowView);
-
-            const shadowViewArbitaryPos = _matShadowView.clone();
-            _lightViewFrustum.transform(_matShadowView);
-            // bounding box in light space
-            AABB.fromPoints(_castLightViewBounds, new Vec3(10000000, 10000000, 10000000), new Vec3(-10000000, -10000000, -10000000));
-            _castLightViewBounds.mergeFrustum(_lightViewFrustum);
-
-            const r = _castLightViewBounds.halfExtents.z * 2.0;
-            _shadowPos.set(_castLightViewBounds.center.x, _castLightViewBounds.center.y,
-                _castLightViewBounds.center.z + _castLightViewBounds.halfExtents.z + invisibleOcclusionRange);
-            Vec3.transformMat4(_shadowPos, _shadowPos, _matShadowViewInv);
-
-            Mat4.fromRT(_matShadowTrans, dirLight.node!.rotation, _shadowPos);
-            Mat4.invert(_matShadowView, _matShadowTrans);
-            Mat4.invert(_matShadowViewInv, _matShadowView);
-
-            // calculate projection matrix params
-            // min value may lead to some shadow leaks
-            const orthoSizeMin = Vec3.distance(_validFrustum.vertices[0], _validFrustum.vertices[6]);
-            // max value is accurate but poor usage for shadowmap
-            _cameraBoundingSphere.center.set(0, 0, 0);
-            _cameraBoundingSphere.radius = -1.0;
-            _cameraBoundingSphere.mergePoints(_validFrustum.vertices);
-            const orthoSizeMax = _cameraBoundingSphere.radius * 2.0;
-            // use lerp(min, accurate_max) to save shadowmap usage
-            const orthoSize = orthoSizeMin * 0.8 + orthoSizeMax * 0.2;
-            shadowInfo.shadowCameraFar = r + invisibleOcclusionRange;
-
-            // snap to whole texels
-            const halfOrthoSize = orthoSize * 0.5;
-            Mat4.ortho(_matShadowProj, -halfOrthoSize, halfOrthoSize, -halfOrthoSize, halfOrthoSize, 0.1,  shadowInfo.shadowCameraFar,
-                device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
-
-            if (shadowMapWidth > 0.0) {
-                Mat4.multiply(_matShadowViewProjArbitaryPos, _matShadowProj, shadowViewArbitaryPos);
-                Vec3.transformMat4(_projPos, _shadowPos, _matShadowViewProjArbitaryPos);
-                const invActualSize = 2.0 / shadowMapWidth;
-                _texelSize.set(invActualSize, invActualSize);
-                const modX = _projPos.x % _texelSize.x;
-                const modY = _projPos.y % _texelSize.y;
-                _projSnap.set(_projPos.x - modX, _projPos.y - modY, _projPos.z);
-                Mat4.invert(_matShadowViewProjArbitaryPosInv, _matShadowViewProjArbitaryPos);
-                Vec3.transformMat4(_snap, _projSnap, _matShadowViewProjArbitaryPosInv);
-
-                Mat4.fromRT(_matShadowTrans, dirLight.node!.rotation, _snap);
-                Mat4.invert(_matShadowView, _matShadowTrans);
-                Mat4.invert(_matShadowViewInv, _matShadowView);
-                Frustum.createOrtho(out, orthoSize, orthoSize, 0.1,  shadowInfo.shadowCameraFar, _matShadowViewInv);
-            } else {
-                for (let i = 0; i < 8; i++) {
-                    out.vertices[i].set(0.0, 0.0, 0.0);
-                }
-                out.updatePlanes();
-            }
-
-            Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
-            shadowInfo.matShadowView = _matShadowView;
-            shadowInfo.matShadowProj = _matShadowProj;
-            shadowInfo.matShadowViewProj = _matShadowViewProj;
-        }
-    }
-
     protected _getRenderObject (model: Model, camera: Camera) {
         let depth = 0;
         if (model.node) {
@@ -233,27 +132,18 @@ export class WebSceneTask extends SceneTask {
         const sceneData = this._sceneData;
         const shadows = sceneData.shadows;
         const skybox = sceneData.skybox;
+        const csmLayers = sceneData.csmLayers;
 
         const renderObjects = sceneData.renderObjects;
         renderObjects.length = 0;
 
-        const castShadowObjects = sceneData.castShadowObjects;
+        const castShadowObjects = csmLayers.castShadowObjects;
         castShadowObjects.length = 0;
-        let dirShadowObjects: IRenderObject[] | null = null;
+
         if (shadows.enabled) {
             if (shadows.type === ShadowType.ShadowMap) {
-                dirShadowObjects = sceneData.dirShadowObjects;
-                dirShadowObjects.length = 0;
-
-                // update dirLightFrustum
-                if (mainLight && mainLight.node) {
-                    this._quantizeDirLightShadowCamera(this._dirLightFrustum, mainLight, camera, shadows);
-                } else {
-                    for (let i = 0; i < 8; i++) {
-                        this._dirLightFrustum.vertices[i].set(0.0, 0.0, 0.0);
-                    }
-                    this._dirLightFrustum.updatePlanes();
-                }
+                // update lightFrustum
+                csmLayers.update(sceneData, camera);
             }
         }
 
@@ -281,14 +171,6 @@ export class WebSceneTask extends SceneTask {
 
                 if (model.node && ((visibility & model.node.layer) === model.node.layer)
                  || (visibility & model.visFlags)) {
-                // shadow render Object
-                    if (dirShadowObjects != null && model.castShadow && model.worldBounds) {
-                    // frustum culling
-                    // eslint-disable-next-line no-lonely-if
-                        if (intersect.aabbFrustum(model.worldBounds, this._dirLightFrustum)) {
-                            dirShadowObjects.push(this._getRenderObject(model, camera));
-                        }
-                    }
                     // frustum culling
                     if (model.worldBounds && !intersect.aabbFrustum(model.worldBounds, camera.frustum)) {
                         continue;
@@ -314,13 +196,11 @@ export class WebSceneTask extends SceneTask {
         return this._scene;
     }
     get visitor () { return this._visitor; }
-    get dirLightFrustum () { return this._dirLightFrustum; }
     get sceneData (): PipelineSceneData { return this._sceneData; }
     private _scene: RenderScene;
     private _camera: Camera;
     private _visitor: SceneVisitor;
     private _sceneData: PipelineSceneData;
-    private _dirLightFrustum = new Frustum();
 }
 
 export class WebSceneTransversal extends SceneTransversal {
