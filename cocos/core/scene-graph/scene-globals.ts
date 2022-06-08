@@ -130,15 +130,6 @@ export class AmbientInfo {
         return _col.set(_v4.x * 255, _v4.y * 255, _v4.z * 255, 255);
     }
 
-    set skyColor (val: Vec4) {
-        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
-            this._skyColorHDR.set(val);
-        } else {
-            this._skyColorLDR.set(val);
-        }
-        if (this._resource) { this._resource.skyColor.set(val); }
-    }
-
     /**
      * @en Sky illuminance
      * @zh 天空亮度
@@ -192,15 +183,6 @@ export class AmbientInfo {
         _v4.set(isHDR ? this._groundAlbedoHDR : this._groundAlbedoLDR);
         normalizeHDRColor(_v4);
         return _col.set(_v4.x * 255, _v4.y * 255, _v4.z * 255, 255);
-    }
-
-    set groundAlbedo (val: Vec4) {
-        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
-            this._groundAlbedoHDR.set(val);
-        } else {
-            this._groundAlbedoLDR.set(val);
-        }
-        if (this._resource) { this._resource.groundAlbedo.set(val); }
     }
 
     public activate (resource: Ambient) {
