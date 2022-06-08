@@ -248,6 +248,12 @@ function setDefaultValue<T> (
     propertyKey: PropertyKey,
     descriptor: BabelPropertyDecoratorDescriptor | undefined,
 ) {
+    // Default values are needed by editor, and now editor run with web version, so don't
+    // have to provide default values.
+    if (jsb) {
+        return;
+    }
+
     if (descriptor) {
         // In case of Babel, if an initializer is given for class field.
         // That initializer is passed to `descriptor.initializer`.
