@@ -116,7 +116,6 @@ function nativeCheckFontLoaded (start: number, font: string, callback: CompleteC
             if (now - start >= _timeout) {
                 reject();
             } else {
-                // @ts-expect-error see https://developer.mozilla.org/en-US/docs/Web/API/Document/fonts
                 document.fonts.load(`40px ${font}`).then((fonts) => {
                     if (fonts.length >= 1) {
                         resolve();
