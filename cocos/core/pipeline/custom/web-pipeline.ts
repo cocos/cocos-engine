@@ -375,7 +375,7 @@ export class WebPipeline extends Pipeline {
     public set profiler (profiler: Model | null) {
         this._profiler = profiler;
     }
-    public get geometryRenderer(): GeometryRenderer | null {
+    public get geometryRenderer (): GeometryRenderer | null {
         throw new Error('Method not implemented.');
     }
     public get shadingScale (): number {

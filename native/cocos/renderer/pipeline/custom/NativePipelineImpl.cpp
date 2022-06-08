@@ -482,6 +482,10 @@ void NativePipeline::setProfiler(scene::Model *profilerIn) {
     profiler = profilerIn;
 }
 
+pipeline::GeometryRenderer *NativePipeline::getGeometryRenderer() const {
+    return nullptr;
+}
+
 float NativePipeline::getShadingScale() const {
     return pipelineSceneData->getShadingScale();
 }

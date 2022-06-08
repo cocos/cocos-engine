@@ -279,7 +279,7 @@ public:
     const ccstd::string         &getConstantMacros() const override;
     scene::Model                *getProfiler() const override;
     void                         setProfiler(scene::Model *profiler) override;
-    pipeline::GeometryRenderer  *getGeometryRenderer() const override { return nullptr; }
+    pipeline::GeometryRenderer  *getGeometryRenderer() const override;
 
     float getShadingScale() const override;
     void  setShadingScale(float scale) override;
