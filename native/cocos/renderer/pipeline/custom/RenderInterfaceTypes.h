@@ -51,6 +51,7 @@ namespace pipeline {
 
 class GlobalDSManager;
 class PipelineSceneData;
+class GeometryRenderer;
 
 } // namespace pipeline
 
@@ -89,6 +90,7 @@ public:
     virtual const ccstd::string         &getConstantMacros() const = 0;
     virtual scene::Model                *getProfiler() const = 0;
     virtual void                         setProfiler(scene::Model *profiler) = 0;
+    virtual pipeline::GeometryRenderer  *getGeometryRenderer() const = 0;
 
     virtual float getShadingScale() const = 0;
     virtual void  setShadingScale(float scale) = 0;

@@ -436,13 +436,13 @@ export class SkyboxInfo {
     @editable
     @type(Material)
     @tooltip('i18n:skybox.material')
-    set skyboxMaterial(val: Material | null) {
+    set skyboxMaterial (val: Material | null) {
         this._editableMaterial = val;
         if (this._resource) {
             this._resource.setSkyboxMaterial(this._editableMaterial);
         }
     }
-    get skyboxMaterial() {
+    get skyboxMaterial () {
         return this._editableMaterial;
     }
 

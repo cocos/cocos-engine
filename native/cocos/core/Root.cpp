@@ -160,6 +160,9 @@ public:
     void setProfiler(scene::Model *profiler) override {
         pipeline->setProfiler(profiler);
     }
+    pipeline::GeometryRenderer  *getGeometryRenderer() const override {
+        return pipeline->getGeometryRenderer();
+    }
     float getShadingScale() const override {
         return pipeline->getShadingScale();
     }

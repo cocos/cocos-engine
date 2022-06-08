@@ -58,10 +58,62 @@ struct ITextureCubeSerializeMipmapData {
     ccstd::string bottom;
 };
 
-struct ITextureCubeSerializeData {
+/**
+ * @en The MipmapAtlas region interface
+ * @zh MipmapAtlas的region接口。
+ */
+struct MipmapAtlasLayoutInfo {
+    uint32_t left{0};
+    uint32_t top{0};
+    uint32_t width{0};
+    uint32_t height{0};
+    uint32_t level{0};
+};
+/**
+ * @en The texture cube MipmapAtlas interface
+ * @zh 立方体贴图的 MipmapAtlas 接口。
+ */
+struct TextureCubeMipmapAtlasInfo {
+    ITextureCubeMipmap atlas;
+    ccstd::vector<MipmapAtlasLayoutInfo> layout;
+};
+
+/**
+ * @en The way to fill mipmaps.
+ * @zh 填充mipmaps的方式。
+ */
+enum class MipmapMode {
+    /**
+     * @zh
+     * 不使用mipmaps
+     * @en
+     * Not using mipmaps
+     * @readonly
+     */
+    NONE = 0,
+    /**
+     * @zh
+     * 使用自动生成的mipmaps
+     * @en
+     * Using the automatically generated mipmaps
+     * @readonly
+     */
+    AUTO = 1,
+    /**
+     * @zh
+     * 使用卷积图填充mipmaps
+     * @en
+     * Filling mipmaps with convolutional maps.
+     * @readonly
+     */
+    BAKED_CONVOLUTION_MAP = 2
+};
+struct TextureCubeSerializeData {
     ccstd::string base;
     bool rgbe{false};
+    MipmapMode mipmapMode{ MipmapMode::NONE };
     ccstd::vector<ITextureCubeSerializeMipmapData> mipmaps;
+    TextureCubeMipmapAtlasInfo mipmapAtlas;
 };
 
 /**
@@ -121,9 +173,23 @@ public:
         return _mipmaps;
     }
 
+    inline const TextureCubeMipmapAtlasInfo &getMipmapAtlas() const {
+        return _mipmapAtlas;
+    }
+
     void setMipmaps(const ccstd::vector<ITextureCubeMipmap> &value);
 
     void setMipmapsForJS(const ccstd::vector<ITextureCubeMipmap> &value);
+
+    void setMipmapAtlasForJS(const TextureCubeMipmapAtlasInfo &value);
+
+    /**
+     * @en Fill mipmaps with convolutional maps.
+     * @zh 使用卷积图填充mipmaps。
+     * @param value All mipmaps of each face of the cube map are stored in the form of atlas.
+     * and the value contains the atlas of the 6 faces and the layout information of each mipmap layer.
+     */
+    void setmipmapAtlas(const TextureCubeMipmapAtlasInfo &value);
 
     /**
      * @en Level 0 mipmap image.
@@ -158,6 +224,12 @@ public:
     // Override functions
     void updateMipmaps(uint32_t firstLevel, uint32_t count) override;
 
+    /**
+     * @en Whether mipmaps are baked convolutional maps.
+     * @zh mipmaps是否为烘焙出来的卷积图。
+     */
+    bool isUsingOfflineMipmaps() override;
+
     void initialize();
     void onLoaded() override;
     /**
@@ -181,6 +253,12 @@ public:
 
     /*@serializable*/
     ccstd::vector<ITextureCubeMipmap> _mipmaps;
+
+    /*@serializable*/
+    MipmapMode _mipmapMode{ MipmapMode::NONE };
+
+    /*@serializable*/
+    TextureCubeMipmapAtlasInfo _mipmapAtlas;
 
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(TextureCube);

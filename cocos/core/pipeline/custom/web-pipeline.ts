@@ -49,6 +49,7 @@ import { PipelineUBO } from './ubos';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Texture2D } from '../../assets/texture-2d';
 import { WebLayoutGraphBuilder } from './web-layout-graph';
+import { GeometryRenderer } from '..';
 
 export class WebSetter {
     constructor (data: RenderData) {
@@ -373,6 +374,9 @@ export class WebPipeline extends Pipeline {
     }
     public set profiler (profiler: Model | null) {
         this._profiler = profiler;
+    }
+    public get geometryRenderer(): GeometryRenderer | null {
+        throw new Error('Method not implemented.');
     }
     public get shadingScale (): number {
         return this._pipelineSceneData.shadingScale;
