@@ -63,7 +63,7 @@ const _dataPool = new Pool(() => ({
     color: Color.WHITE.clone(),
 }), 128);
 
-let _pool: RecyclePool<RenderData> = null!;
+const _pool: RecyclePool<RenderData> = null!;
 
 /**
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
@@ -167,10 +167,11 @@ export class BaseRenderData {
  */
 export class RenderData extends BaseRenderData {
     public static add (vertexFormat = vfmtPosUvColor, accessor?: StaticVBAccessor) {
-        if (!_pool) {
-            _pool = new RecyclePool(() => new RenderData(), 32);
-        }
-        const rd = _pool.add();
+        // if (!_pool) {
+        //     _pool = new RecyclePool(() => new RenderData(), 32);
+        // }
+        // const rd = _pool.add();
+        const rd = new RenderData();
         rd._floatStride = vertexFormat === vfmtPosUvColor ? DEFAULT_STRIDE : (getAttributeStride(vertexFormat) >> 2);
         rd._vertexFormat = vertexFormat;
         if (!accessor) {
