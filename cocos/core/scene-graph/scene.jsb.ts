@@ -139,6 +139,7 @@ sceneProto._activate = function (active: boolean) {
     }
 };
 
+// handle meta data, it is generated automatically
 const SceneProto = Scene.prototype;
 editable(SceneProto, 'globals');
 editable(SceneProto, 'autoReleaseAssets');
