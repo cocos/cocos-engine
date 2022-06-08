@@ -32,7 +32,7 @@
 #include "gfx-validator/DeviceValidator.h"
 
 //#undef CC_USE_NVN
-//#undef CC_USE_VULKAN
+#undef CC_USE_VULKAN
 //#undef CC_USE_METAL
 //#undef CC_USE_GLES3
 //#undef CC_USE_GLES2
@@ -133,7 +133,7 @@ private:
         EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [device](const CustomEvent &e) -> void {
             device->destroySurface(e.args->ptrVal);
         });
-        
+
         EventDispatcher::addCustomEventListener(EVENT_RECREATE_WINDOW, [device](const CustomEvent &e) -> void {
             device->createSurface(e.args->ptrVal);
         });

@@ -1104,7 +1104,7 @@ const macro: Macro = {
     MAX_LABEL_CANVAS_POOL_SIZE: 20,
     ENABLE_WEBGL_HIGHP_STRUCT_VALUES: false,
     BATCHER2D_MEM_INCREMENT: 144,
-    ENABLE_CANVAS_DEPTH_STENCIL: false,
+    ENABLE_CANVAS_DEPTH_STENCIL: true,
 };
 
 legacyCC.macro = macro;

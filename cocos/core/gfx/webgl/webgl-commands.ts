@@ -35,8 +35,10 @@ import {
 import {
     BufferUsageBit, ClearFlagBit, ClearFlags, ColorMask, CullMode, Format, BufferTextureCopy, Color, Rect,
     FormatInfos, FormatSize, LoadOp, MemoryUsageBit, ShaderStageFlagBit, UniformSamplerTexture,
-    TextureFlagBit, TextureType, Type, FormatInfo, DynamicStateFlagBit, BufferSource, DrawInfo, IndirectBuffer, DynamicStates,
+    TextureFlagBit, TextureType, Type, FormatInfo, DynamicStateFlagBit, BufferSource, DrawInfo,
+    IndirectBuffer, DynamicStates, Filter, TextureBlit,
 } from '../base/define';
+import { macro } from '../../platform/macro';
 
 export function GFXFormatToWebGLType (format: Format, gl: WebGLRenderingContext): GLenum {
     switch (format) {
@@ -820,7 +822,6 @@ export function WebGLCmdFuncCreateTexture (device: WebGLDevice, gpuTexture: IWeb
     switch (gpuTexture.type) {
     case TextureType.TEX2D: {
         gpuTexture.glTarget = gl.TEXTURE_2D;
-        if (gpuTexture.isSwapchainTexture) break;
 
         const maxSize = Math.max(w, h);
         if (maxSize > device.capabilities.maxTextureSize) {
@@ -981,6 +982,7 @@ export function WebGLCmdFuncDestroyTexture (device: WebGLDevice, gpuTexture: IWe
 
 export function WebGLCmdFuncResizeTexture (device: WebGLDevice, gpuTexture: IWebGLGPUTexture) {
     if (!gpuTexture.size) return;
+    if (gpuTexture.isMemoryLess) return;
 
     const { gl } = device;
 
@@ -1078,12 +1080,27 @@ export function WebGLCmdFuncResizeTexture (device: WebGLDevice, gpuTexture: IWeb
 }
 
 export function WebGLCmdFuncCreateFramebuffer (device: WebGLDevice, gpuFramebuffer: IWebGLGPUFramebuffer) {
+    let directOnscreen = true;
     for (let i = 0; i < gpuFramebuffer.gpuColorTextures.length; ++i) {
         const tex = gpuFramebuffer.gpuColorTextures[i];
         if (tex.isSwapchainTexture) {
             gpuFramebuffer.isOffscreen = false;
-            return;
         }
+        if (!tex.isMemoryLess) {
+            directOnscreen = false;
+        }
+    }
+    if (gpuFramebuffer.gpuDepthStencilTexture) {
+        const tex = gpuFramebuffer.gpuDepthStencilTexture;
+        if (tex.isSwapchainTexture) {
+            gpuFramebuffer.isOffscreen = false;
+        }
+        if (!tex.isMemoryLess) {
+            directOnscreen = false;
+        }
+    }
+    if (directOnscreen) {
+        return;
     }
 
     const { gl } = device;
@@ -1601,11 +1618,13 @@ export function WebGLCmdFuncDestroyInputAssembler (device: WebGLDevice, gpuInput
 interface IWebGLStateCache {
     gpuPipelineState: IWebGLGPUPipelineState | null;
     gpuInputAssembler: IWebGLGPUInputAssembler | null;
+    gpuFramebuffer: IWebGLGPUFramebuffer | null;
     glPrimitive: number;
 }
 const gfxStateCache: IWebGLStateCache = {
     gpuPipelineState: null,
     gpuInputAssembler: null,
+    gpuFramebuffer: null,
     glPrimitive: 0,
 };
 
@@ -1631,6 +1650,10 @@ export function WebGLCmdFuncBeginRenderPass (
     }
 
     if (gpuFramebuffer && gpuRenderPass) {
+        if (gfxStateCache.gpuFramebuffer !== gpuFramebuffer) {
+            gfxStateCache.gpuFramebuffer = gpuFramebuffer;
+        }
+
         if (cache.glFramebuffer !== gpuFramebuffer.glFramebuffer) {
             gl.bindFramebuffer(gl.FRAMEBUFFER, gpuFramebuffer.glFramebuffer);
             cache.glFramebuffer = gpuFramebuffer.glFramebuffer;
@@ -1779,6 +1802,38 @@ export function WebGLCmdFuncBeginRenderPass (
             }
         }
     } // if (gpuFramebuffer)
+}
+
+export function WebGLCmdFuncEndRenderPass (
+    device: WebGLDevice,
+) {
+    const { gl } = device;
+    const gpuFramebuffer = gfxStateCache.gpuFramebuffer;
+    if (!gpuFramebuffer) {
+        return;
+    }
+    const glFramebuffer = gpuFramebuffer.glFramebuffer;
+
+    const attachmentCount = gpuFramebuffer.gpuColorTextures.length;
+
+    for (let i = 0; i < attachmentCount; ++i) {
+        const colorTexture = gpuFramebuffer.gpuColorTextures[i];
+
+        const srcRect = new Rect(0, 0, gpuFramebuffer.width, gpuFramebuffer.height);
+        const dstRect = new Rect(0, 0, gpuFramebuffer.width, gpuFramebuffer.height);
+
+        if (colorTexture.isSwapchainTexture && !colorTexture.isMemoryLess) {
+            if (device.stateCache.glFramebuffer !== glFramebuffer) {
+                gl.bindFramebuffer(gl.FRAMEBUFFER, glFramebuffer);
+                device.stateCache.glFramebuffer = glFramebuffer;
+            }
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+            WebGLCmdFuncBlitTextureToMSAA(device, colorTexture, colorTexture, srcRect, dstRect, Filter.POINT);
+
+            gl.bindFramebuffer(gl.FRAMEBUFFER, glFramebuffer);
+        }
+    }
 }
 
 export function WebGLCmdFuncBindStates (
@@ -2819,4 +2874,21 @@ export function WebGLCmdFuncCopyTextureToBuffers (
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     cache.glFramebuffer = null;
     gl.deleteFramebuffer(framebuffer);
+}
+
+function WebGLCmdFuncBlitTextureToMSAA (
+    device: WebGLDevice,
+    src: IWebGLGPUTexture,
+    dst: IWebGLGPUTexture,
+    srcRect: Readonly<Rect>,
+    dstRect: Readonly<Rect>,
+    filter: Filter,
+) {
+    const region = new TextureBlit();
+    region.srcExtent.width = src.width;
+    region.srcExtent.height = src.height;
+    region.dstExtent.width = dst.width;
+    region.dstExtent.height = dst.height;
+
+    device.blitManager.draw(src, dst, [region], Filter.POINT);
 }

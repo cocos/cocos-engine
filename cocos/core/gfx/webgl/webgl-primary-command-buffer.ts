@@ -33,7 +33,8 @@ import { WebGLBuffer } from './webgl-buffer';
 import { WebGLCommandBuffer } from './webgl-command-buffer';
 import {
     WebGLCmdFuncBeginRenderPass, WebGLCmdFuncBindStates, WebGLCmdFuncCopyBuffersToTexture,
-    WebGLCmdFuncDraw, WebGLCmdFuncExecuteCmds, WebGLCmdFuncUpdateBuffer } from './webgl-commands';
+    WebGLCmdFuncDraw, WebGLCmdFuncEndRenderPass, WebGLCmdFuncExecuteCmds, WebGLCmdFuncUpdateBuffer,
+} from './webgl-commands';
 import { WebGLFramebuffer } from './webgl-framebuffer';
 import { WebGLTexture } from './webgl-texture';
 import { RenderPass } from '../base/render-pass';
@@ -56,6 +57,11 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
             renderArea, clearColors, clearDepth, clearStencil,
         );
         this._isInRenderPass = true;
+    }
+
+    public endRenderPass () {
+        WebGLCmdFuncEndRenderPass(WebGLDeviceManager.instance);
+        this._isInRenderPass = false;
     }
 
     public draw (infoOrAssembler: DrawInfo | InputAssembler) {

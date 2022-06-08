@@ -350,7 +350,10 @@ export class IWebGL2BlitManager {
     }
 
     public initialize () {
+        const device = WebGL2DeviceManager.instance;
         const { gl } = WebGL2DeviceManager.instance;
+        const samplerOffset = device.bindingMappingInfo.maxBlockCounts[0];
+
         this._gpuShader = {
             name: 'Blit Pass',
             blocks: [
@@ -361,7 +364,7 @@ export class IWebGL2BlitManager {
                     ],
                     1),
             ],
-            samplerTextures: [new UniformSamplerTexture(0, 3, 'textureSrc', Type.SAMPLER2D, 1)],
+            samplerTextures: [new UniformSamplerTexture(0, samplerOffset, 'textureSrc', Type.SAMPLER2D, 1)],
             subpassInputs: [],
             gpuStages: [
                 {
@@ -411,12 +414,17 @@ export class IWebGL2BlitManager {
         this._gpuDescriptorSetLayout = {
             bindings: [
                 new DescriptorSetLayoutBinding(0, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.VERTEX),
-                new DescriptorSetLayoutBinding(3, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT),
+                new DescriptorSetLayoutBinding(samplerOffset,
+                    DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT),
             ],
             dynamicBindings: [],
-            descriptorIndices: [0, 0, 0, 1],
-            descriptorCount: 4,
+            descriptorIndices: [],
+            descriptorCount: 1 + samplerOffset,
         };
+        for (let i = 0; i < samplerOffset; i++) {
+            this._gpuDescriptorSetLayout.descriptorIndices[i] = 0;
+        }
+        this._gpuDescriptorSetLayout.descriptorIndices.push(1);
 
         this._gpuPipelineLayout = {
             gpuSetLayouts: [this._gpuDescriptorSetLayout],
@@ -622,8 +630,6 @@ export class IWebGL2BlitManager {
             this._uniformBuffer[5] = region.dstExtent.height / dstHeight;
             this._uniformBuffer[6] = region.dstOffset.x / dstWidth;
             this._uniformBuffer[7] = region.dstOffset.y / dstHeight;
-
-            // ensureScissorRect(device->stateCache(), region.dstOffset.x, region.dstOffset.y, region.dstExtent.width, region.dstExtent.height);
 
             WebGL2CmdFuncUpdateBuffer(device, this._gpuUniformBuffer, this._uniformBuffer, 0,
                 this._uniformBuffer.length * Float32Array.BYTES_PER_ELEMENT);

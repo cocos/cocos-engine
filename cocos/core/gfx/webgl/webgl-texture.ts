@@ -28,6 +28,7 @@ import { Texture } from '../base/texture';
 import { WebGLCmdFuncCreateTexture, WebGLCmdFuncDestroyTexture, WebGLCmdFuncResizeTexture } from './webgl-commands';
 import { WebGLDeviceManager } from './webgl-define';
 import { IWebGLGPUTexture } from './webgl-gpu-objects';
+import { macro } from '../../platform';
 
 export class WebGLTexture extends Texture {
     get gpuTexture (): IWebGLGPUTexture {
@@ -84,11 +85,13 @@ export class WebGLTexture extends Texture {
                 glMagFilter: 0,
 
                 isSwapchainTexture: isSwapchainTexture || false,
+                isMemoryLess: (isSwapchainTexture || false) && macro.ENABLE_CANVAS_DEPTH_STENCIL,
             };
 
-            WebGLCmdFuncCreateTexture(WebGLDeviceManager.instance, this._gpuTexture);
-
-            WebGLDeviceManager.instance.memoryStatus.textureSize += this._size;
+            if (!this._gpuTexture.isMemoryLess) {
+                WebGLCmdFuncCreateTexture(WebGLDeviceManager.instance, this._gpuTexture);
+                WebGLDeviceManager.instance.memoryStatus.textureSize += this._size;
+            }
 
             this._viewInfo.texture = this;
             this._viewInfo.type = info.type;
@@ -106,8 +109,10 @@ export class WebGLTexture extends Texture {
 
     public destroy () {
         if (!this._isTextureView && this._gpuTexture) {
-            WebGLCmdFuncDestroyTexture(WebGLDeviceManager.instance, this._gpuTexture);
-            WebGLDeviceManager.instance.memoryStatus.textureSize -= this._size;
+            if (!this._gpuTexture.isMemoryLess) {
+                WebGLCmdFuncDestroyTexture(WebGLDeviceManager.instance, this._gpuTexture);
+                WebGLDeviceManager.instance.memoryStatus.textureSize -= this._size;
+            }
             this._gpuTexture = null;
         }
     }
@@ -134,9 +139,11 @@ export class WebGLTexture extends Texture {
             this._gpuTexture.width = width;
             this._gpuTexture.height = height;
             this._gpuTexture.size = this._size;
-            WebGLCmdFuncResizeTexture(WebGLDeviceManager.instance, this._gpuTexture);
-            WebGLDeviceManager.instance.memoryStatus.textureSize -= oldSize;
-            WebGLDeviceManager.instance.memoryStatus.textureSize += this._size;
+            if (!this._gpuTexture.isMemoryLess) {
+                WebGLCmdFuncResizeTexture(WebGLDeviceManager.instance, this._gpuTexture);
+                WebGLDeviceManager.instance.memoryStatus.textureSize -= oldSize;
+                WebGLDeviceManager.instance.memoryStatus.textureSize += this._size;
+            }
         }
     }
 
