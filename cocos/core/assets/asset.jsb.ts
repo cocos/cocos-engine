@@ -125,6 +125,7 @@ export const Asset = jsb.Asset;
 
 legacyCC.Asset = jsb.Asset;
 
+// handle meta data, it is generated automatically
 const AssetProto = Asset.prototype;
 serializable(AssetProto, '_native');
 property(AssetProto, '_nativeAsset');

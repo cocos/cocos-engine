@@ -42,6 +42,7 @@ effectAssetProto._ctor = function () {
     this.hideInEditor = false;
 };
 
+// handle meta data, it is generated automatically
 const EffectAssetProto = EffectAsset.prototype;
 editable(EffectAssetProto, 'techniques');
 serializable(EffectAssetProto, 'techniques');
