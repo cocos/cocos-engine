@@ -308,6 +308,15 @@ legacyCC.SkyboxInfo = SkyboxInfo;
         }
     });
 
+    const _descriptor15$1 = _applyDecoratedDescriptor(_class5$2.prototype, "_editableMaterial", [serializable], {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        initializer: function initializer () {
+            return null;
+        }
+    });
+
     _applyDecoratedDescriptor(_class5$2.prototype, "applyDiffuseMap", [_dec19$1, editable, _dec20$1], Object.getOwnPropertyDescriptor(_class5$2.prototype, "applyDiffuseMap"), _class5$2.prototype);
     _applyDecoratedDescriptor(_class5$2.prototype, "enabled", [editable, _dec21$1], Object.getOwnPropertyDescriptor(_class5$2.prototype, "enabled"), _class5$2.prototype);
     _applyDecoratedDescriptor(_class5$2.prototype, "useIBL", [editable, _dec22$1], Object.getOwnPropertyDescriptor(_class5$2.prototype, "useIBL"), _class5$2.prototype);

@@ -91,6 +91,8 @@ bool ForwardPipeline::activate(gfx::Swapchain *swapchain) {
 
 void ForwardPipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
     CC_PROFILE(ForwardPipelineRender);
+    updateGeometryRenderer(cameras); // for capability
+    
     auto *device = gfx::Device::getInstance();
     const bool enableOcclusionQuery = isOcclusionQueryEnabled();
     if (enableOcclusionQuery) {

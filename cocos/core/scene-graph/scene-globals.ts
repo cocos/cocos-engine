@@ -436,13 +436,13 @@ export class SkyboxInfo {
     @editable
     @type(Material)
     @tooltip('i18n:skybox.material')
-    set skyboxMaterial(val: Material | null) {
+    set skyboxMaterial (val: Material | null) {
         this._editableMaterial = val;
         if (this._resource) {
             this._resource.setSkyboxMaterial(this._editableMaterial);
         }
     }
-    get skyboxMaterial() {
+    get skyboxMaterial () {
         return this._editableMaterial;
     }
 
@@ -695,7 +695,7 @@ export class ShadowsInfo {
     @serializable
     protected _maxReceived = 4;
     @serializable
-    protected _size = new Vec2(512, 512);
+    protected _size = new Vec2(1024, 1024);
 
     protected _resource: Shadows | null = null;
 

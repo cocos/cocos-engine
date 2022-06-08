@@ -24,9 +24,7 @@
 ****************************************************************************/
 
 #include "platform/BasePlatform.h"
-#if defined(CC_SERVER_MODE)
-    #include "platform/empty/EmptyPlatform.h"
-#elif (CC_PLATFORM == CC_PLATFORM_WINDOWS)
+#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     #include "platform/win32/WindowsPlatform.h"
 #elif (CC_PLATFORM == CC_PLATFORM_ANDROID)
     #include "platform/android/AndroidPlatform.h"
@@ -56,9 +54,7 @@ BasePlatform::~BasePlatform() {
 }
 
 BasePlatform* BasePlatform::createDefaultPlatform() {
-#if defined(CC_SERVER_MODE)
-    static EmptyPlatform platform;
-#elif (CC_PLATFORM == CC_PLATFORM_WINDOWS)
+#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     static WindowsPlatform platform;
 #elif (CC_PLATFORM == CC_PLATFORM_ANDROID)
     static AndroidPlatform platform;

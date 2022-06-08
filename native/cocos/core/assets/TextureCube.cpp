@@ -103,8 +103,69 @@ void TextureCube::setMipmaps(const ccstd::vector<ITextureCubeMipmap> &value) {
     }
 }
 
+void TextureCube::setmipmapAtlas(const TextureCubeMipmapAtlasInfo &value) {
+    if (value.layout.empty()) {
+        return;
+    }
+    _mipmapAtlas = value;
+    const ITextureCubeMipmap &atlas = _mipmapAtlas.atlas;
+    const ccstd::vector<MipmapAtlasLayoutInfo> &layouts = _mipmapAtlas.layout;
+    setMipmapLevel(static_cast<uint32_t>(layouts.size()));
+
+    const MipmapAtlasLayoutInfo &lv0Layout = layouts[0];
+    const ImageAsset *imageAsset = atlas.front;
+
+    reset({lv0Layout.width,
+           lv0Layout.height,
+           imageAsset->getFormat(),
+           static_cast<uint32_t>(layouts.size()),
+           _baseLevel,
+           _maxLevel});
+
+    const uint32_t pixelSize = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(imageAsset->getFormat())].size;
+
+    for (size_t level = 0; level < layouts.size(); level++) {
+        const MipmapAtlasLayoutInfo &layoutInfo = layouts[level];
+        uint32_t currentSize = layoutInfo.width * layoutInfo.height * pixelSize;
+
+        //Upload 6 sides by level
+        forEachFace(atlas, [this, currentSize, lv0Layout, layoutInfo, level, pixelSize](ImageAsset *face, TextureCube::FaceIndex faceIndex) {
+            auto *buffer = ccnew uint8_t[currentSize];
+            memset(buffer, 0, currentSize);
+            const uint8_t *data = face->getData();
+            //Splitting Atlas
+            if (level == 0) {
+                memcpy(buffer, data, currentSize);
+            } else {
+                uint32_t bufferOffset = 0;
+                uint32_t dateOffset = lv0Layout.width * lv0Layout.height * pixelSize;
+                uint32_t leftOffset = layoutInfo.left * pixelSize;
+                for (size_t j = 0; j < layoutInfo.height; j++) {
+                    memcpy(buffer + bufferOffset, data + dateOffset + leftOffset, layoutInfo.width * pixelSize);
+                    bufferOffset += layoutInfo.width * pixelSize;
+                    dateOffset += lv0Layout.width * pixelSize;
+                }
+            }
+            auto *tempAsset = ccnew ImageAsset();
+            tempAsset->addRef();
+            auto *arrayBuffer = ccnew ArrayBuffer(buffer, static_cast<uint32_t>(currentSize));
+            IMemoryImageSource source{arrayBuffer, face->isCompressed(), layoutInfo.width, layoutInfo.height, face->getFormat()};
+            tempAsset->setNativeAsset(source);
+
+            assignImage(tempAsset, static_cast<uint32_t>(level), static_cast<uint32_t>(faceIndex));
+            CC_SAFE_DELETE_ARRAY(buffer);
+            tempAsset->release();
+            tempAsset = nullptr;
+        });
+    }
+}
+
 void TextureCube::setMipmapsForJS(const ccstd::vector<ITextureCubeMipmap> &value) {
     _mipmaps = value;
+}
+
+void TextureCube::setMipmapAtlasForJS(const TextureCubeMipmapAtlasInfo &value) {
+    _mipmapAtlas = value;
 }
 
 void TextureCube::setImage(const ITextureCubeMipmap &value) {
@@ -128,6 +189,7 @@ void TextureCube::reset(const ITextureCubeCreateInfo &info) {
 
 void TextureCube::releaseTexture() {
     _mipmaps.clear();
+    _mipmapAtlas.layout.clear();
 }
 
 void TextureCube::updateMipmaps(uint32_t firstLevel, uint32_t count) {
@@ -147,8 +209,16 @@ void TextureCube::updateMipmaps(uint32_t firstLevel, uint32_t count) {
     }
 }
 
+bool TextureCube::isUsingOfflineMipmaps() {
+    return _mipmapMode == MipmapMode::BAKED_CONVOLUTION_MAP;
+}
+
 void TextureCube::initialize() {
-    setMipmaps(_mipmaps);
+    if (_mipmapMode == MipmapMode::BAKED_CONVOLUTION_MAP) {
+        setmipmapAtlas(_mipmapAtlas);
+    } else {
+        setMipmaps(_mipmaps);
+    }
 }
 
 void TextureCube::onLoaded() {
@@ -157,6 +227,7 @@ void TextureCube::onLoaded() {
 
 bool TextureCube::destroy() {
     _mipmaps.clear();
+    _mipmapAtlas.layout.clear();
     return Super::destroy();
 }
 
@@ -186,12 +257,13 @@ ccstd::any TextureCube::serialize(const ccstd::any & /*ctxForExporting*/) {
 }
 
 void TextureCube::deserialize(const ccstd::any &serializedData, const ccstd::any &handle) {
-    const auto *data = ccstd::any_cast<ITextureCubeSerializeData>(&serializedData);
+    const auto *data = ccstd::any_cast<TextureCubeSerializeData>(&serializedData);
     if (data == nullptr) {
         return;
     }
     Super::deserialize(data->base, handle);
     isRGBE = data->rgbe;
+    _mipmapMode = data->mipmapMode;
 
     _mipmaps.resize(data->mipmaps.size());
     for (size_t i = 0; i < data->mipmaps.size(); ++i) {
@@ -261,15 +333,19 @@ void TextureCube::initDefault(const ccstd::optional<ccstd::string> &uuid) {
 }
 
 bool TextureCube::validate() const {
+    if (_mipmapMode == MipmapMode::BAKED_CONVOLUTION_MAP) {
+        if (_mipmapAtlas.layout.empty()) {
+            return false;
+        }
+        return (_mipmapAtlas.atlas.top && _mipmapAtlas.atlas.bottom && _mipmapAtlas.atlas.front && _mipmapAtlas.atlas.back && _mipmapAtlas.atlas.left && _mipmapAtlas.atlas.right);
+    }
     if (_mipmaps.empty()) {
         return false;
     }
-
     return std::all_of(_mipmaps.begin(),
                        _mipmaps.end(),
                        [&](const ITextureCubeMipmap &mipmap) {
                            return (mipmap.top && mipmap.bottom && mipmap.front && mipmap.back && mipmap.left && mipmap.right);
                        });
 }
-
 } // namespace cc
