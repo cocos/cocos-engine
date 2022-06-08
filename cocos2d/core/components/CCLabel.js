@@ -359,6 +359,25 @@ let Label = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.label.wrap',
         },
 
+        /**
+         * !#en The font opacity of label.
+         * !#zh 文本透明度，用于镂空字体。
+         * @property {Number} opacity
+         */
+        _opacity: 255,
+        opacity: {
+            range: [0, 255],
+            get() {
+                return this._opacity;
+            },
+            set(value) {
+                this._opacity = value;
+                this.setVertsDirty();
+            },
+            animatable: true,
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.font_opacity',
+        },
+
         // 这个保存了旧项目的 file 数据
         _N$file: null,
 

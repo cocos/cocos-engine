@@ -56,6 +56,8 @@ let _overflow = Overflow.NONE;
 let _isWrapText = false;
 let _premultiply = false;
 
+let _opacity = 255;
+
 // outline
 let _outlineComp = null;
 let _outlineColor = cc.Color.WHITE;
@@ -175,6 +177,7 @@ export default class TTFAssembler extends Assembler2D {
         _hAlign = comp.horizontalAlign;
         _vAlign = comp.verticalAlign;
         _color = comp.node.color;
+        _opacity = comp.opacity;
         _enableBold = comp.enableBold;
         _enableItalic = comp.enableItalic;
         _enableUnderline = comp.enableUnderline;
@@ -247,7 +250,7 @@ export default class TTFAssembler extends Assembler2D {
 
     _setupOutline () {
         _context.strokeStyle = `rgba(${_outlineColor.r}, ${_outlineColor.g}, ${_outlineColor.b}, ${_outlineColor.a / 255})`;
-        _context.lineWidth = _outlineComp.width * 2;
+        _context.lineWidth = _outlineComp.width;
     }
 
     _setupShadow () {
@@ -315,9 +318,9 @@ export default class TTFAssembler extends Assembler2D {
             let _fillColor = _outlineComp ? _outlineColor : _color;
             _context.fillStyle = `rgba(${_fillColor.r}, ${_fillColor.g}, ${_fillColor.b}, ${_invisibleAlpha})`;
             _context.fillRect(0, 0, _canvas.width, _canvas.height);
-            _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, 1)`;
+            _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_opacity / 255.0})`;
         } else {
-            _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_color.a / 255.0})`;
+            _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${(_color.a * _opacity) / (255.0 * 255.0)})`;
         }
 
         let startPosition = this._calculateFillTextStartPosition();
