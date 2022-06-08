@@ -27,7 +27,7 @@
 import { systemInfo } from 'pal/system-info';
 import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, StoreOp, LoadOp, ClearFlagBit, DescriptorSet } from '../../gfx/index';
 import { Mat4, Quat, Vec2, Vec4 } from '../../math';
-import { QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, UpdateFrequency } from './types';
+import { QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { AccessType, AttachmentType, Blit, ComputePass, ComputeView, CopyPair, CopyPass, Dispatch, ManagedResource, MovePair, MovePass, PresentPass, RasterPass, RasterView, RenderData, RenderGraph, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, LayoutGraphBuilder, MovePassBuilder, Pipeline, RasterPassBuilder, RasterQueueBuilder, SceneTask, SceneTransversal, SceneVisitor, Setter } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
@@ -133,8 +133,8 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
         this._queue = queue;
         this._pipeline = pipeline;
     }
-    addSceneOfCamera (camera: Camera, name = 'Camera'): void {
-        const sceneData = new SceneData(name);
+    addSceneOfCamera (camera: Camera, sceneFlags: SceneFlags, name = 'Camera'): void {
+        const sceneData = new SceneData(name, sceneFlags);
         sceneData.camera = camera;
         this._renderGraph.addVertex<RenderGraphValue.Scene>(
             RenderGraphValue.Scene, sceneData, name, '', new RenderData(), false, this._vertID,
@@ -142,8 +142,8 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
         setCameraValues(this, camera, this._pipeline,
             camera.scene ? camera.scene : legacyCC.director.getScene().renderScene);
     }
-    addScene (sceneName: string): void {
-        const sceneData = new SceneData(sceneName);
+    addScene (sceneName: string, sceneFlags: SceneFlags): void {
+        const sceneData = new SceneData(sceneName, sceneFlags);
         this._renderGraph.addVertex<RenderGraphValue.Scene>(
             RenderGraphValue.Scene, sceneData, sceneName, '', new RenderData(), false, this._vertID,
         );
@@ -501,7 +501,8 @@ export class WebPipeline extends Pipeline {
                 ClearFlagBit.COLOR,
                 new Color(0, 0, 0, 0)));
             const queue = pass.addQueue(QueueHint.RENDER_OPAQUE);
-            queue.addScene(`${passName}_shadowScene`);
+            queue.addScene(`${passName}_shadowScene`,
+                SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT | SceneFlags.SHADOW_CASTER);
             // setCameraValues(queue, camera, light, shadows);
         }
     }
@@ -600,10 +601,10 @@ export class WebPipeline extends Pipeline {
                 forwardPass.addRasterView(forwardPassDSName, passDSView);
                 forwardPass
                     .addQueue(QueueHint.RENDER_OPAQUE)
-                    .addSceneOfCamera(camera);
+                    .addSceneOfCamera(camera, SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT);
                 forwardPass
                     .addQueue(QueueHint.RENDER_TRANSPARENT)
-                    .addSceneOfCamera(camera);
+                    .addSceneOfCamera(camera, SceneFlags.TRANSPARENT_OBJECT);
             }
         }
         this.compile();

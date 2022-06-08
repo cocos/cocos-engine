@@ -32,7 +32,7 @@
 import * as impl from './graph';
 import { Camera } from '../../renderer/scene/camera';
 import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, LoadOp, SampleCount, Sampler, StoreOp, Swapchain, Texture, TextureFlagBit } from '../../gfx';
-import { QueueHint, ResourceDimension, ResourceFlags, ResourceResidency } from './types';
+import { QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags } from './types';
 
 export class ResourceDesc {
     dimension: ResourceDimension = ResourceDimension.BUFFER;
@@ -1068,11 +1068,13 @@ export class RenderQueue {
 }
 
 export class SceneData {
-    constructor (name = '') {
+    constructor (name = '', flags: SceneFlags = SceneFlags.NONE) {
         this.name = name;
+        this.flags = flags;
     }
     name: string;
     camera: Camera | null = null;
+    flags: SceneFlags;
     readonly scenes: string[] = [];
 }
 

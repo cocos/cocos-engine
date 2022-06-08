@@ -633,7 +633,7 @@ struct SceneData {
     }
 
     SceneData(const allocator_type& alloc) noexcept; // NOLINT
-    SceneData(ccstd::pmr::string nameIn, const allocator_type& alloc) noexcept;
+    SceneData(ccstd::pmr::string nameIn, SceneFlags flagsIn, const allocator_type& alloc) noexcept;
     SceneData(SceneData&& rhs, const allocator_type& alloc);
     SceneData(SceneData const& rhs, const allocator_type& alloc);
 
@@ -644,6 +644,7 @@ struct SceneData {
 
     ccstd::pmr::string                     name;
     scene::Camera*                         camera{nullptr};
+    SceneFlags                             flags{SceneFlags::NONE};
     ccstd::pmr::vector<ccstd::pmr::string> scenes;
 };
 
