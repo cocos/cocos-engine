@@ -271,7 +271,7 @@ void Skybox::activate() {
     bool isUseConvolutionMap = envmap != nullptr ? envmap->isUsingOfflineMipmaps() : _default->isUsingOfflineMipmaps();
     if (!skyboxMaterial) {
         auto *mat = _editableMaterial ? _editableMaterial.get() : ccnew Material();
-        MacroRecord defines{{"USE_RGBE_CUBEMAP", isRGBE}, {"CC_IBL_CONVOLUTED", isUseConvolutionMap}};
+        MacroRecord defines{{"USE_RGBE_CUBEMAP", isRGBE}};
         IMaterialInfo matInfo;
         matInfo.effectName = ccstd::string{"skybox"};
         matInfo.defines = IMaterialInfo::DefinesType{defines};
@@ -319,7 +319,7 @@ void Skybox::activate() {
 
 void Skybox::updatePipeline() const {
     if (isEnabled() && skyboxMaterial != nullptr) {
-        skyboxMaterial->recompileShaders({{"USE_RGBE_CUBEMAP", isRGBE()}, {"CC_IBL_CONVOLUTED", isUsingConvolutionMap()}});
+        skyboxMaterial->recompileShaders({{"USE_RGBE_CUBEMAP", isRGBE()}});
     }
 
     if (_model != nullptr && skyboxMaterial != nullptr) {
@@ -333,6 +333,7 @@ void Skybox::updatePipeline() const {
     const int32_t useIBLValue = isUseIBL() ? (useRGBE ? 2 : 1) : 0;
     const int32_t useDiffuseMapValue = (isUseIBL() && isUseDiffuseMap() && getDiffuseMap() != nullptr) ? (useRGBE ? 2 : 1) : 0;
     const bool useHDRValue = isUseHDR();
+    const bool useConvMapValue = isUsingConvolutionMap();
 
     bool valueChanged = false;
     auto iter = pipeline->getMacros().find("CC_USE_IBL");
@@ -371,6 +372,19 @@ void Skybox::updatePipeline() const {
         }
     } else {
         pipeline->setValue("CC_USE_HDR", useHDRValue);
+        valueChanged = true;
+    }
+
+    auto iterUseConvMap = pipeline->getMacros().find("CC_IBL_CONVOLUTED");
+    if (iterUseConvMap != pipeline->getMacros().end()) {
+        const MacroValue &macroConvMap = iterUseConvMap->second;
+        const bool *macroConvMaptr = ccstd::get_if<bool>(&macroConvMap);
+        if (macroConvMaptr != nullptr && (*macroConvMaptr != useConvMapValue)) {
+            pipeline->setValue("CC_IBL_CONVOLUTED", useConvMapValue);
+            valueChanged = true;
+        }
+    } else {
+        pipeline->setValue("CC_IBL_CONVOLUTED", useConvMapValue);
         valueChanged = true;
     }
 
