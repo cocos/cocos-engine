@@ -1,4 +1,4 @@
-const cacheManager = require('../cache-manager');
+const cacheManager = require('./cache-manager');
 const { fs, downloadFile, readText, readArrayBuffer, readJson, loadSubpackage, getUserDataPath, exists } = window.fsUtils;
 
 const REGEX = /^https?:\/\/.*/;
@@ -235,7 +235,7 @@ function downloadBundle (nameOrUrl, options, onComplete) {
                 js = `assets/${bundleName}/index.${suffix}js`;
             }
         }
-        require('../../../' + js);
+        require('./' + js);
         options.__cacheBundleRoot__ = bundleName;
         var config = `${url}/config.${suffix}json`;
         downloadJson(config, options, function (err, data) {
