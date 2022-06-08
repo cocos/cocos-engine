@@ -146,6 +146,18 @@ export class Skybox {
     }
 
     /**
+     * @en Whether to use offline baked convolutional maps
+     * @zh 是否使用离线烘焙的卷积图？
+     */
+    get useConvolutionMap (): boolean {
+        if (this.envmap) {
+            return this.envmap.isUsingOfflineMipmaps();
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * @en The texture cube used for the skybox
      * @zh 使用的立方体贴图
      */
@@ -210,7 +222,6 @@ export class Skybox {
     protected _useDiffuseMap = false;
     protected _editableMaterial: MaterialInstance | null = null;
 
-
     public initialize (skyboxInfo: SkyboxInfo) {
         this._enabled = skyboxInfo.enabled;
         this._useIBL = skyboxInfo.useIBL;
@@ -258,8 +269,10 @@ export class Skybox {
             this._model._initWorldBoundDescriptors = () => {};
         }
         let isRGBE = this._default.isRGBE;
+        let isUseConvolutionMap = this._default.isUsingOfflineMipmaps();
         if (this.envmap) {
             isRGBE = this.envmap.isRGBE;
+            isUseConvolutionMap = this.envmap.isUsingOfflineMipmaps();
         }
 
         if (!skybox_material) {
@@ -298,13 +311,16 @@ export class Skybox {
         const useIBLValue = this.useIBL ? (this.isRGBE ? 2 : 1) : 0;
         const useDiffuseMapValue = (this.useIBL && this.useDiffuseMap && this.diffuseMap) ? (this.isRGBE ? 2 : 1) : 0;
         const useHDRValue = this.useHDR;
+        const useConvMapValue = this.useConvolutionMap;
 
         if (pipeline.macros.CC_USE_IBL !== useIBLValue
             || pipeline.macros.CC_USE_DIFFUSEMAP !== useDiffuseMapValue
-            || pipeline.macros.CC_USE_HDR !== useHDRValue) {
+            || pipeline.macros.CC_USE_HDR !== useHDRValue
+            || pipeline.macros.CC_IBL_CONVOLUTED !== useConvMapValue) {
             pipeline.macros.CC_USE_IBL = useIBLValue;
             pipeline.macros.CC_USE_DIFFUSEMAP = useDiffuseMapValue;
             pipeline.macros.CC_USE_HDR = useHDRValue;
+            pipeline.macros.CC_IBL_CONVOLUTED = useConvMapValue;
 
             root.onGlobalPipelineStateChanged();
         }
