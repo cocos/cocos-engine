@@ -166,7 +166,7 @@ export class DebugView {
 
     /**
      * @en Toggle CSM layer coloration mode.
-     * @zh 切换层叠阴影贴图染色调试模式。
+     * @zh 切换级联阴影染色调试模式。
      */
     public get csmLayerColoration () : boolean {
         return this._csmLayerColoration;
@@ -247,5 +247,3 @@ export class DebugView {
     public destroy () {
     }
 }
-
-legacyCC.debugView = new DebugView();
