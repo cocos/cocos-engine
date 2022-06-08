@@ -1113,6 +1113,22 @@ cc.Director.EVENT_BEFORE_PHYSICS = 'director_before_physics';
  */
 cc.Director.EVENT_AFTER_PHYSICS = 'director_after_physics';
 
+
+/**
+ * !#en refresh all widgets of node (all scene)
+ * !#zh 刷新指定节点下的所有 widget组件. 未指定节点, 则使用当前 scene .
+ * @method refreshWidget
+ * @param {number} node - the node. if not pass it, will use scene.
+ * @example
+ *   cc.director.refreshWidget()
+ *   cc.director.refreshWidget(node)
+ */
+cc.Director.prototype.refreshWidget = function(node) {
+    node = node || this.getScene();
+    cc._widgetManager.refreshWidgetOnResized(node);
+}
+
+
 /**
  * @module cc
  */
