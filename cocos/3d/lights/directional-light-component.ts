@@ -28,7 +28,7 @@ import { ccclass, range, slide, type, editable, visible, help, executeInEditMode
 import { Light } from './light-component';
 import { scene } from '../../core/renderer';
 import { legacyCC } from '../../core/global-exports';
-import { Camera, PCFType, Shadows, ShadowType, CSMOptimizationMode, CSMLevelEditorVisible } from '../../core/renderer/scene';
+import { Camera, PCFType, Shadows, ShadowType, CSMOptimizationMode, VisibleLevel } from '../../core/renderer/scene';
 import { Root } from '../../core/root';
 import { property } from '../../core/data/class-decorator';
 import { CCBoolean, CCFloat } from '../../core/data/utils/attribute';
@@ -68,7 +68,7 @@ export class DirectionalLight extends Light {
     @serializable
     protected _shadowInvisibleOcclusionRange = 200;
     @serializable
-    protected _csmLevel = CSMLevelEditorVisible.level_4;
+    protected _csmLevel = VisibleLevel.csm;
     @serializable
     protected _csmLayerLambda = 0.75;
     @serializable
@@ -226,7 +226,7 @@ export class DirectionalLight extends Light {
         if (this._shadowDistance / 0.1 < 10.0) { warnID(15003, this._shadowDistance); }
         if (this._light) {
             this._light.shadowDistance = this._shadowDistance;
-            this._light.shadowCSMValueDirty = true;
+            this._light.csmValueDirty = true;
         }
     }
 
@@ -266,7 +266,7 @@ export class DirectionalLight extends Light {
     @editable
     @tooltip('CSM Level')
     @slide
-    @type(CSMLevelEditorVisible)
+    @type(VisibleLevel)
     get csmLevel () {
         return this._csmLevel;
     }
@@ -274,7 +274,7 @@ export class DirectionalLight extends Light {
         this._csmLevel = val;
         if (this._light) {
             this._light.csmLevel = this._csmLevel;
-            this._light.shadowCSMValueDirty = true;
+            this._light.csmValueDirty = true;
         }
     }
 
@@ -296,13 +296,13 @@ export class DirectionalLight extends Light {
         this._csmLayerLambda = val;
         if (this._light) {
             this._light.csmLayerLambda = this._csmLayerLambda;
-            this._light.shadowCSMValueDirty = true;
+            this._light.csmValueDirty = true;
         }
     }
 
     /**
      * @en get or set shadow CSM performance optimization mode
-     * @zh 获取或者设置联级阴影性能优化模式
+     * @zh 获取或者设置级联阴影性能优化模式
      * @internal
      */
     @visible(false)

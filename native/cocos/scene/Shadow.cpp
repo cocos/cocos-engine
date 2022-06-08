@@ -113,7 +113,7 @@ void Shadows::initialize(const ShadowsInfo &shadowsInfo) {
     setNormal(shadowsInfo.getPlaneDirection());
     setDistance(shadowsInfo.getPlaneHeight());
     setMaxReceived(shadowsInfo.getMaxReceived());
-    setSize(shadowsInfo.getSize());
+    setSize(Vec2(shadowsInfo.getShadowMapSize(), shadowsInfo.getShadowMapSize()));
     setShadowColor(shadowsInfo.getShadowColor());
     _shadowMapDirty = false;
 }

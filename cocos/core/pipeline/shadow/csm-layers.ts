@@ -318,7 +318,7 @@ export class CSMLayers {
         if (dirLight.shadowFixedArea) {
             this._updateFixedArea(dirLight);
         } else {
-            if (dirLight.shadowCSMValueDirty || this._levelCount !== levelCount
+            if (dirLight.csmValueDirty || this._levelCount !== levelCount
                 || this._shadowDistance !== shadowDistance) {
                 this._splitFrustumLevels(dirLight);
                 this._levelCount = levelCount;
@@ -375,7 +375,7 @@ export class CSMLayers {
         // numbers of level - 1
         this._layers[level - 1].splitCameraFar = fd;
 
-        dirLight.shadowCSMValueDirty = false;
+        dirLight.csmValueDirty = false;
     }
 
     private _calculateCSM (camera: Camera, dirLight: DirectionalLight, shadowInfo: Shadows) {

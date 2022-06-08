@@ -137,7 +137,7 @@ enum class PCFType {
 };
 
 /**
- * @zh 联级阴影贴图层级。
+ * @zh 级联阴影贴图层级。
  * @en The CSM shadow level
  * @static
  * @enum Shadows.CSMLevel
@@ -173,7 +173,7 @@ enum class CSMLevel {
 };
 
 /**
- * @zh 联级阴影性能优化模式。
+ * @zh 级联阴影性能优化模式。
  * @en The CSM performance optimization mode
  * @static
  * @enum Shadows.CSMOptimizationMode
@@ -264,10 +264,6 @@ public:
     void setShadowMapSize(float value);
     inline float getShadowMapSize() const {
         return _size.x;
-    }
-
-    inline const Vec2 &getSize() const {
-        return _size;
     }
 
     /**

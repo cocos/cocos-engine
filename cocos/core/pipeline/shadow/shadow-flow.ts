@@ -38,7 +38,6 @@ import { RenderPipeline } from '..';
 import { ShadowType } from '../../renderer/scene/shadows';
 import { Light, LightType } from '../../renderer/scene/light';
 import { Camera } from '../../renderer/scene';
-import { legacyCC } from '../../global-exports';
 
 const _validLights: Light[] = [];
 
