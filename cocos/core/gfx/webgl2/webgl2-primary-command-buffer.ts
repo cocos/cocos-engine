@@ -33,7 +33,7 @@ import { WebGL2Buffer } from './webgl2-buffer';
 import { WebGL2CommandBuffer } from './webgl2-command-buffer';
 import {
     WebGL2CmdFuncBeginRenderPass, WebGL2CmdFuncBindStates, WebGL2CmdFuncCopyBuffersToTexture,
-    WebGL2CmdFuncDraw, WebGL2CmdFuncExecuteCmds, WebGL2CmdFuncUpdateBuffer } from './webgl2-commands';
+    WebGL2CmdFuncDraw, WebGL2CmdFuncEndRenderPass, WebGL2CmdFuncExecuteCmds, WebGL2CmdFuncUpdateBuffer } from './webgl2-commands';
 import { WebGL2Framebuffer } from './webgl2-framebuffer';
 import { WebGL2Texture } from './webgl2-texture';
 import { RenderPass } from '../base/render-pass';
@@ -56,6 +56,11 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
             renderArea, clearColors, clearDepth, clearStencil,
         );
         this._isInRenderPass = true;
+    }
+
+    public endRenderPass () {
+        WebGL2CmdFuncEndRenderPass(WebGL2DeviceManager.instance);
+        this._isInRenderPass = false;
     }
 
     public draw (infoOrAssembler: Readonly<DrawInfo> | Readonly<InputAssembler>) {

@@ -1405,34 +1405,47 @@ static void doCreateFramebufferInstance(GLES2Device *device, GLES2GPUFramebuffer
                                         uint32_t depthStencil, GLES2GPUFramebuffer::Framebuffer *outFBO,
                                         const uint32_t *resolves = nullptr, uint32_t depthStencilResolve = INVALID_BINDING) {
     GLES2GPUSwapchain *swapchain{getSwapchainIfExists(gpuFBO->gpuColorTextures, colors.data(), colors.size())};
+    if (swapchain) {
+        outFBO->framebuffer.initialize(swapchain);
 
-    if (!swapchain) {
-        const GLES2GPUTexture *depthStencilTexture = nullptr;
-        if (depthStencil != INVALID_BINDING) {
-            depthStencilTexture = depthStencil < gpuFBO->gpuColorTextures.size()
-                                      ? gpuFBO->gpuColorTextures[depthStencil]
-                                      : gpuFBO->gpuDepthStencilTexture;
-        }
-        const GLES2GPUTexture *depthStencilResolveTexture = nullptr;
-        if (depthStencilResolve != INVALID_BINDING) {
-            depthStencilResolveTexture = depthStencilResolve < gpuFBO->gpuColorTextures.size()
-                                             ? gpuFBO->gpuColorTextures[depthStencilResolve]
-                                             : gpuFBO->gpuDepthStencilTexture;
-        }
-
-        outFBO->framebuffer.initialize(doCreateFramebuffer(device, gpuFBO->gpuColorTextures, colors.data(), colors.size(),
-                                                           depthStencilTexture, resolves, depthStencilResolveTexture, &outFBO->resolveMask));
-        if (outFBO->resolveMask) {
-            size_t resolveCount = outFBO->resolveMask & GL_COLOR_BUFFER_BIT ? colors.size() : 0U;
-            GLES2GPUSwapchain *resolveSwapchain{getSwapchainIfExists(gpuFBO->gpuColorTextures, resolves, resolveCount)};
-            if (!resolveSwapchain) {
-                outFBO->resolveFramebuffer.initialize(doCreateFramebuffer(device, gpuFBO->gpuColorTextures, resolves, resolveCount, depthStencilResolveTexture));
-            } else {
-                outFBO->resolveFramebuffer.initialize(resolveSwapchain);
+        bool directOnscreen = true;
+        for (auto *colorImg : gpuFBO->gpuColorTextures) {
+            if (!colorImg->memoryless) {
+                directOnscreen = false;
+                break;
             }
         }
-    } else {
-        outFBO->framebuffer.initialize(swapchain);
+        if (!gpuFBO->gpuDepthStencilTexture->memoryless) {
+            directOnscreen = false;
+        }
+        if (directOnscreen) {
+            return;
+        }
+    }
+
+    const GLES2GPUTexture *depthStencilTexture = nullptr;
+    if (depthStencil != INVALID_BINDING) {
+        depthStencilTexture = depthStencil < gpuFBO->gpuColorTextures.size()
+                                  ? gpuFBO->gpuColorTextures[depthStencil]
+                                  : gpuFBO->gpuDepthStencilTexture;
+    }
+    const GLES2GPUTexture *depthStencilResolveTexture = nullptr;
+    if (depthStencilResolve != INVALID_BINDING) {
+        depthStencilResolveTexture = depthStencilResolve < gpuFBO->gpuColorTextures.size()
+                                         ? gpuFBO->gpuColorTextures[depthStencilResolve]
+                                         : gpuFBO->gpuDepthStencilTexture;
+    }
+
+    outFBO->framebuffer.initialize(doCreateFramebuffer(device, gpuFBO->gpuColorTextures, colors.data(), colors.size(),
+                                                       depthStencilTexture, resolves, depthStencilResolveTexture, &outFBO->resolveMask));
+    if (outFBO->resolveMask) {
+        size_t resolveCount = outFBO->resolveMask & GL_COLOR_BUFFER_BIT ? colors.size() : 0U;
+        GLES2GPUSwapchain *resolveSwapchain{getSwapchainIfExists(gpuFBO->gpuColorTextures, resolves, resolveCount)};
+        if (!resolveSwapchain) {
+            outFBO->resolveFramebuffer.initialize(doCreateFramebuffer(device, gpuFBO->gpuColorTextures, resolves, resolveCount, depthStencilResolveTexture));
+        } else {
+            outFBO->resolveFramebuffer.initialize(resolveSwapchain);
+        }
     }
 }
 
@@ -1476,15 +1489,17 @@ void cmdFuncGLES2CreateFramebuffer(GLES2Device *device, GLES2GPUFramebuffer *gpu
 void GLES2GPUFramebuffer::GLFramebuffer::destroy(GLES2GPUStateCache *cache, GLES2GPUFramebufferCacheMap *framebufferCacheMap) {
     if (swapchain) {
         swapchain = nullptr;
-    } else {
-        if (cache->glFramebuffer == _glFramebuffer) {
-            GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-            cache->glFramebuffer = 0;
+        if (_glFramebuffer == swapchain->glFramebuffer) {
+            return;
         }
-        GL_CHECK(glDeleteFramebuffers(1, &_glFramebuffer));
-        framebufferCacheMap->unregisterExternal(_glFramebuffer);
-        _glFramebuffer = 0U;
     }
+    if (cache->glFramebuffer == _glFramebuffer) {
+        GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+        cache->glFramebuffer = 0;
+    }
+    GL_CHECK(glDeleteFramebuffers(1, &_glFramebuffer));
+    framebufferCacheMap->unregisterExternal(_glFramebuffer);
+    _glFramebuffer = 0U;
 }
 
 void cmdFuncGLES2DestroyFramebuffer(GLES2Device *device, GLES2GPUFramebuffer *gpuFBO) {
@@ -1793,6 +1808,29 @@ void cmdFuncGLES2EndRenderPass(GLES2Device *device) {
         }
 
         skipDiscard = true; // framebuffer was already stored
+    }
+
+    for (auto *colorImg : gpuFramebuffer->gpuColorTextures) {
+        if (colorImg->swapchain && !colorImg->memoryless) {
+            TextureBlit region;
+            auto *blitSrc = colorImg;
+            auto *blitDst = blitSrc;
+            region.srcExtent.width = region.dstExtent.width = blitSrc->width;
+            region.srcExtent.height = region.dstExtent.height = blitSrc->height;
+            cmdFuncGLES2BlitTexture(device, blitSrc, blitDst, &region, 1, Filter::POINT);
+        }
+    }
+
+    if (device->stateCache()->glFramebuffer != glFramebuffer) {
+        GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, glFramebuffer));
+        device->stateCache()->glFramebuffer = glFramebuffer;
+    }
+
+    if (instance.resolveMask) {
+        if (cache->glFramebuffer != glResolveFramebuffer) {
+            GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, glResolveFramebuffer));
+            cache->glFramebuffer = glResolveFramebuffer;
+        }
     }
 
     uint32_t glAttachmentIndex = 0U;

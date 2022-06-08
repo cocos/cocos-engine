@@ -143,6 +143,19 @@ void GLES3Texture::doInit(const SwapchainTextureInfo & /*info*/) {
     _gpuTexture->memoryless = true;
     _gpuTexture->swapchain = static_cast<GLES3Swapchain *>(_swapchain)->gpuSwapchain();
     _gpuTextureView = ccnew GLES3GPUTextureView;
+
+    bool enableDepth{true};
+
+    if (enableDepth) {
+        _gpuTexture->memoryless = false;
+        cmdFuncGLES3CreateTexture(GLES3Device::getInstance(), _gpuTexture);
+    }
+
+    if (!_gpuTexture->memoryless) {
+        GLES3Device::getInstance()->getMemoryStatus().textureSize += _size;
+        CC_PROFILE_MEMORY_INC(Texture, _size);
+    }
+
     createTextureView();
 }
 

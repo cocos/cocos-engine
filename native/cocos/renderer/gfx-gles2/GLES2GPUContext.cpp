@@ -112,13 +112,14 @@ bool GLES2GPUContext::initialize(GLES2GPUStateCache *stateCache, GLES2GPUConstan
 
     bool msaaEnabled{false};
     bool qualityPreferred{false};
+    bool enableDepth{true};
 
     EGLint redSize{8};
     EGLint greenSize{8};
     EGLint blueSize{8};
     EGLint alphaSize{8};
-    EGLint depthSize{24};
-    EGLint stencilSize{8};
+    EGLint depthSize{enableDepth ? 24 : 0};
+    EGLint stencilSize{enableDepth ? 8 : 0};
     EGLint sampleBufferSize{msaaEnabled ? EGL_DONT_CARE : 0};
     EGLint sampleSize{msaaEnabled ? EGL_DONT_CARE : 0};
 
@@ -297,7 +298,7 @@ void GLES2GPUContext::makeCurrent(const GLES2GPUSwapchain *drawSwapchain, const 
 void GLES2GPUContext::present(const GLES2GPUSwapchain *swapchain) {
 #if CC_SWAPPY_ENABLED
     if (swapchain->swappyEnabled) {
-        //fallback to normal eglswap if swappy_swap failed
+        // fallback to normal eglswap if swappy_swap failed
         if (SwappyGL_swap(eglDisplay, swapchain->eglSurface)) {
             return;
         }

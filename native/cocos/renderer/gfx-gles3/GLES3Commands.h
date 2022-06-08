@@ -305,6 +305,13 @@ void cmdFuncGLES3BlitTexture(GLES3Device *device,
                              uint32_t count,
                              Filter filter);
 
+void cmdFuncGLES3BlitTextureToMSAA(GLES3Device *device,
+                                   GLES3GPUTextureView *gpuTextureSrc,
+                                   GLES3GPUTextureView *gpuTextureDst,
+                                   const TextureBlit *regions,
+                                   uint32_t count,
+                                   Filter filter);
+
 void cmdFuncGLES3ExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage);
 
 void cmdFuncGLES3Dispatch(GLES3Device *device, const GLES3GPUDispatchInfo &info);

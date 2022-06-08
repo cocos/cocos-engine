@@ -112,13 +112,14 @@ bool GLES3GPUContext::initialize(GLES3GPUStateCache *stateCache, GLES3GPUConstan
 
     bool msaaEnabled{false};
     bool qualityPreferred{false};
+    bool enableDepth{true};
 
     EGLint redSize{8};
     EGLint greenSize{8};
     EGLint blueSize{8};
     EGLint alphaSize{8};
-    EGLint depthSize{24};
-    EGLint stencilSize{8};
+    EGLint depthSize{enableDepth ? 24 : 0};
+    EGLint stencilSize{enableDepth ? 8 : 0};
     EGLint sampleBufferSize{msaaEnabled ? EGL_DONT_CARE : 0};
     EGLint sampleSize{msaaEnabled ? EGL_DONT_CARE : 0};
 

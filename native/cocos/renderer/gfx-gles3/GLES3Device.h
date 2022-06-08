@@ -36,6 +36,7 @@ namespace gfx {
 class GLES3GPUContext;
 struct GLES3GPUSwapchain;
 class GLES3GPUStateCache;
+class GLES3GPUBlitManager;
 class GLES3GPUFramebufferHub;
 struct GLES3GPUConstantRegistry;
 class GLES3GPUFramebufferCacheMap;
@@ -75,6 +76,7 @@ public:
     inline GLES3GPUFramebufferHub *framebufferHub() const { return _gpuFramebufferHub; }
     inline GLES3GPUConstantRegistry *constantRegistry() const { return _gpuConstantRegistry; }
     inline GLES3GPUFramebufferCacheMap *framebufferCacheMap() const { return _gpuFramebufferCacheMap; }
+    inline GLES3GPUBlitManager *blitManager() const { return _gpuBlitManager; }
 
     inline bool checkExtension(const ccstd::string &extension) const {
         return std::any_of(_extensions.begin(), _extensions.end(), [&extension](auto &ext) {
@@ -121,6 +123,7 @@ protected:
 
     GLES3GPUContext *_gpuContext{nullptr};
     GLES3GPUStateCache *_gpuStateCache{nullptr};
+    GLES3GPUBlitManager *_gpuBlitManager{nullptr};
     GLES3GPUFramebufferHub *_gpuFramebufferHub{nullptr};
     GLES3GPUConstantRegistry *_gpuConstantRegistry{nullptr};
     GLES3GPUFramebufferCacheMap *_gpuFramebufferCacheMap{nullptr};

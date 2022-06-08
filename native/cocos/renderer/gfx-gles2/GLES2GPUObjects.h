@@ -285,15 +285,20 @@ public:
     };
 
     struct GLFramebuffer {
-        inline void initialize(GLES2GPUSwapchain *sc) { swapchain = sc; }
+        inline void initialize(GLES2GPUSwapchain *sc) {
+            swapchain = sc;
+            _glFramebuffer = swapchain->glFramebuffer;
+            _width = swapchain->gpuColorTexture->width;
+            _height = swapchain->gpuColorTexture->height;
+        }
         inline void initialize(const GLFramebufferInfo &info) {
             _glFramebuffer = info.glFramebuffer;
             _width = info.width;
             _height = info.height;
         }
-        inline GLuint getFramebuffer() const { return swapchain ? swapchain->glFramebuffer : _glFramebuffer; }
-        inline uint32_t getWidth() const { return swapchain ? swapchain->gpuColorTexture->width : _width; }
-        inline uint32_t getHeight() const { return swapchain ? swapchain->gpuColorTexture->height : _height; }
+        inline GLuint getFramebuffer() const { return _glFramebuffer; }
+        inline uint32_t getWidth() const { return _width; }
+        inline uint32_t getHeight() const { return _height; }
 
         void destroy(GLES2GPUStateCache *cache, GLES2GPUFramebufferCacheMap *framebufferCacheMap);
 

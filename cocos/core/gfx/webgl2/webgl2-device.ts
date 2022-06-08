@@ -64,7 +64,7 @@ import { TextureBarrier } from '../base/states/texture-barrier';
 import { debug } from '../../platform/debug';
 import { Swapchain } from '../base/swapchain';
 import { IWebGL2Extensions, WebGL2DeviceManager } from './webgl2-define';
-import { IWebGL2BindingMapping } from './webgl2-gpu-objects';
+import { IWebGL2BindingMapping, IWebGL2BlitManager } from './webgl2-gpu-objects';
 
 export class WebGL2Device extends Device {
     get gl () {
@@ -93,6 +93,10 @@ export class WebGL2Device extends Device {
 
     get bindingMappings () {
         return this._bindingMappings!;
+    }
+
+    get blitManager () {
+        return this._swapchain!.blitManager!;
     }
 
     private _swapchain: WebGL2Swapchain | null = null;

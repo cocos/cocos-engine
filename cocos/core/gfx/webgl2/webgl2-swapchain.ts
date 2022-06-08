@@ -34,6 +34,7 @@ import { Format, TextureInfo, TextureFlagBit, TextureType,
 import { Swapchain } from '../base/swapchain';
 import { IWebGL2Extensions, WebGL2DeviceManager } from './webgl2-define';
 import { OS } from '../../../../pal/system-info/enum-type';
+import { IWebGL2BlitManager } from './webgl2-gpu-objects';
 
 const eventWebGLContextLost = 'webglcontextlost';
 
@@ -124,8 +125,8 @@ export function getContext (canvas: HTMLCanvasElement): WebGL2RenderingContext |
         const webGLCtxAttribs: WebGLContextAttributes = {
             alpha: macro.ENABLE_TRANSPARENT_CANVAS,
             antialias: EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
-            depth: true,
-            stencil: true,
+            depth: macro.ENABLE_CANVAS_DEPTH_STENCIL,
+            stencil: macro.ENABLE_CANVAS_DEPTH_STENCIL,
             premultipliedAlpha: false,
             preserveDrawingBuffer: false,
             powerPreference: 'default',
@@ -145,6 +146,10 @@ export class WebGL2Swapchain extends Swapchain {
         return this._extensions as IWebGL2Extensions;
     }
 
+    get blitManager () {
+        return this._blitManager;
+    }
+
     public stateCache: WebGL2StateCache = new WebGL2StateCache();
     public nullTex2D: WebGL2Texture = null!;
     public nullTexCube: WebGL2Texture = null!;
@@ -152,6 +157,8 @@ export class WebGL2Swapchain extends Swapchain {
     private _canvas: HTMLCanvasElement | null = null;
     private _webGL2ContextLostHandler: ((event: Event) => void) | null = null;
     private _extensions: IWebGL2Extensions | null = null;
+
+    private _blitManager : IWebGL2BlitManager | null = null;
 
     public initialize (info: Readonly<SwapchainInfo>) {
         this._canvas = info.windowHandle;
@@ -232,6 +239,9 @@ export class WebGL2Swapchain extends Swapchain {
             [nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff],
             this.nullTexCube, [nullTexRegion],
         );
+
+        this._blitManager = new IWebGL2BlitManager();
+        this._blitManager.initialize();
     }
 
     public destroy (): void {
@@ -248,6 +258,11 @@ export class WebGL2Swapchain extends Swapchain {
         if (this.nullTexCube) {
             this.nullTexCube.destroy();
             this.nullTexCube = null!;
+        }
+
+        if (this._blitManager) {
+            this._blitManager.destroy();
+            this._blitManager = null;
         }
 
         this._extensions = null;

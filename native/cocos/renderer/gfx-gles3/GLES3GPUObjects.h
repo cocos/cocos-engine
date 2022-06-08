@@ -345,15 +345,20 @@ public:
         uint32_t height{UINT_MAX};
     };
     struct GLFramebuffer {
-        inline void initialize(GLES3GPUSwapchain *sc) { swapchain = sc; }
+        inline void initialize(GLES3GPUSwapchain *sc) {
+            swapchain = sc;
+            _glFramebuffer = swapchain->glFramebuffer;
+            _width = swapchain->gpuColorTexture->width;
+            _height = swapchain->gpuColorTexture->height;
+        }
         inline void initialize(const GLFramebufferInfo &info) {
             _glFramebuffer = info.glFramebuffer;
             _width = info.width;
             _height = info.height;
         }
-        inline GLuint getFramebuffer() const { return swapchain ? swapchain->glFramebuffer : _glFramebuffer; }
-        inline uint32_t getWidth() const { return swapchain ? swapchain->gpuColorTexture->width : _width; }
-        inline uint32_t getHeight() const { return swapchain ? swapchain->gpuColorTexture->height : _height; }
+        inline GLuint getFramebuffer() const { return _glFramebuffer; }
+        inline uint32_t getWidth() const { return _width; }
+        inline uint32_t getHeight() const { return _height; }
 
         void destroy(GLES3GPUStateCache *cache, GLES3GPUFramebufferCacheMap *framebufferCacheMap);
 
@@ -542,6 +547,28 @@ private:
     bool _initialized{false};
 };
 
+class GLES3GPUBlitManager final {
+public:
+    void initialize();
+    void destroy();
+    void draw(GLES3GPUTextureView *gpuTextureSrc, GLES3GPUTextureView *gpuTextureDst, const TextureBlit *regions, uint32_t count, Filter filter);
+
+private:
+    GLES3GPUShader _gpuShader;
+    GLES3GPUDescriptorSetLayout _gpuDescriptorSetLayout;
+    GLES3GPUPipelineLayout _gpuPipelineLayout;
+    GLES3GPUPipelineState _gpuPipelineState;
+
+    GLES3GPUBuffer _gpuVertexBuffer;
+    GLES3GPUInputAssembler _gpuInputAssembler;
+    GLES3GPUSampler _gpuPointSampler;
+    GLES3GPUSampler _gpuLinearSampler;
+    GLES3GPUBuffer _gpuUniformBuffer;
+    GLES3GPUDescriptorSet _gpuDescriptorSet;
+    DrawInfo _drawInfo;
+    float _uniformBuffer[8];
+};
+
 class GLES3GPUFramebufferCacheMap final {
 public:
     explicit GLES3GPUFramebufferCacheMap(GLES3GPUStateCache *cache) : _cache(cache) {}
@@ -582,7 +609,6 @@ public:
         auto &cacheMap = isTexture ? _textureMap : _renderbufferMap;
         uint32_t mipLevel = isTexture ? subres.mipLevel : 0;
 
-        if (gpuTexture->swapchain) return gpuTexture->swapchain->glFramebuffer;
         CC_ASSERT(gpuTexture->glTexture || gpuTexture->glRenderbuffer);
 
         if (cacheMap[glResource].empty()) cacheMap[glResource].resize(gpuTexture->mipLevel);

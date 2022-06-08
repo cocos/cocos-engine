@@ -1068,6 +1068,13 @@ interface Macro {
      * @default 144 KB
      */
     BATCHER2D_MEM_INCREMENT: number;
+
+    /**
+     * @zh 创建 Canvas 时是否要开启深度缓冲
+     * @en Whether to enable depth buffer when creating Canvas
+     * @default true
+     */
+    ENABLE_CANVAS_DEPTH_STENCIL: boolean;
 }
 
 /**
@@ -1097,6 +1104,7 @@ const macro: Macro = {
     MAX_LABEL_CANVAS_POOL_SIZE: 20,
     ENABLE_WEBGL_HIGHP_STRUCT_VALUES: false,
     BATCHER2D_MEM_INCREMENT: 144,
+    ENABLE_CANVAS_DEPTH_STENCIL: false,
 };
 
 legacyCC.macro = macro;

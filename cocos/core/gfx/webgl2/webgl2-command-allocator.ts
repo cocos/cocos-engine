@@ -26,6 +26,7 @@
 import { CachedArray } from '../../memop/cached-array';
 import {
     WebGL2CmdBeginRenderPass,
+    WebGL2CmdEndRenderPass,
     WebGL2CmdBindStates,
     WebGL2CmdCopyBufferToTexture,
     WebGL2CmdDraw,
@@ -105,6 +106,7 @@ export class WebGL2CommandPool<T extends WebGL2CmdObject> {
 
 export class WebGL2CommandAllocator {
     public beginRenderPassCmdPool: WebGL2CommandPool<WebGL2CmdBeginRenderPass>;
+    public endRenderPassCmdPool: WebGL2CommandPool<WebGL2CmdEndRenderPass>;
     public bindStatesCmdPool: WebGL2CommandPool<WebGL2CmdBindStates>;
     public drawCmdPool: WebGL2CommandPool<WebGL2CmdDraw>;
     public updateBufferCmdPool: WebGL2CommandPool<WebGL2CmdUpdateBuffer>;
@@ -112,6 +114,7 @@ export class WebGL2CommandAllocator {
 
     constructor () {
         this.beginRenderPassCmdPool = new WebGL2CommandPool(WebGL2CmdBeginRenderPass, 1);
+        this.endRenderPassCmdPool = new WebGL2CommandPool(WebGL2CmdEndRenderPass, 1);
         this.bindStatesCmdPool = new WebGL2CommandPool(WebGL2CmdBindStates, 1);
         this.drawCmdPool = new WebGL2CommandPool(WebGL2CmdDraw, 1);
         this.updateBufferCmdPool = new WebGL2CommandPool(WebGL2CmdUpdateBuffer, 1);
@@ -122,6 +125,11 @@ export class WebGL2CommandAllocator {
         if (cmdPackage.beginRenderPassCmds.length) {
             this.beginRenderPassCmdPool.freeCmds(cmdPackage.beginRenderPassCmds);
             cmdPackage.beginRenderPassCmds.clear();
+        }
+
+        if (cmdPackage.endRenderPassCmds.length) {
+            this.endRenderPassCmdPool.freeCmds(cmdPackage.endRenderPassCmds);
+            cmdPackage.endRenderPassCmds.clear();
         }
 
         if (cmdPackage.bindStatesCmds.length) {
@@ -149,6 +157,7 @@ export class WebGL2CommandAllocator {
 
     public releaseCmds () {
         this.beginRenderPassCmdPool.release();
+        this.endRenderPassCmdPool.release();
         this.bindStatesCmdPool.release();
         this.drawCmdPool.release();
         this.updateBufferCmdPool.release();

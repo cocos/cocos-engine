@@ -74,6 +74,7 @@ GLES3Device::~GLES3Device() {
 bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
     _gpuContext = ccnew GLES3GPUContext;
     _gpuStateCache = ccnew GLES3GPUStateCache;
+    _gpuBlitManager = ccnew GLES3GPUBlitManager;
     _gpuFramebufferHub = ccnew GLES3GPUFramebufferHub;
     _gpuConstantRegistry = ccnew GLES3GPUConstantRegistry;
     _gpuFramebufferCacheMap = ccnew GLES3GPUFramebufferCacheMap(_gpuStateCache);
@@ -216,6 +217,7 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
     _cmdBuff = createCommandBuffer(cmdBuffInfo);
 
     _gpuStateCache->initialize(_caps.maxTextureUnits, _caps.maxImageUnits, _caps.maxUniformBufferBindings, _caps.maxShaderStorageBufferBindings, _caps.maxVertexAttributes);
+    _gpuBlitManager->initialize();
 
     CC_LOG_INFO("GLES3 device initialized.");
     CC_LOG_INFO("RENDERER: %s", _renderer.c_str());
@@ -231,6 +233,7 @@ void GLES3Device::doDestroy() {
     CC_SAFE_DELETE(_gpuFramebufferCacheMap)
     CC_SAFE_DELETE(_gpuConstantRegistry)
     CC_SAFE_DELETE(_gpuFramebufferHub)
+    CC_SAFE_DELETE(_gpuBlitManager)
     CC_SAFE_DELETE(_gpuStateCache)
 
     CC_ASSERT(!_memoryStatus.bufferSize);  // Buffer memory leaked

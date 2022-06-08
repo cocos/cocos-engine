@@ -46,6 +46,7 @@ import {
     WebGL2CmdBindStates,
     WebGL2CmdCopyBufferToTexture,
     WebGL2CmdDraw,
+    WebGL2CmdEndRenderPass,
     WebGL2CmdPackage,
     WebGL2CmdUpdateBuffer,
 } from './webgl2-commands';
@@ -129,6 +130,10 @@ export class WebGL2CommandBuffer extends CommandBuffer {
     }
 
     public endRenderPass () {
+        const cmd = this._cmdAllocator.endRenderPassCmdPool.alloc(WebGL2CmdEndRenderPass);
+        this.cmdPackage.endRenderPassCmds.push(cmd);
+        this.cmdPackage.cmds.push(WebGL2Cmd.END_RENDER_PASS);
+
         this._isInRenderPass = false;
     }
 
@@ -373,6 +378,12 @@ export class WebGL2CommandBuffer extends CommandBuffer {
                 const cmd = webGL2CmdBuff.cmdPackage.beginRenderPassCmds.array[c];
                 ++cmd.refCount;
                 this.cmdPackage.beginRenderPassCmds.push(cmd);
+            }
+
+            for (let c = 0; c < webGL2CmdBuff.cmdPackage.endRenderPassCmds.length; ++c) {
+                const cmd = webGL2CmdBuff.cmdPackage.endRenderPassCmds.array[c];
+                ++cmd.refCount;
+                this.cmdPackage.endRenderPassCmds.push(cmd);
             }
 
             for (let c = 0; c < webGL2CmdBuff.cmdPackage.bindStatesCmds.length; ++c) {
