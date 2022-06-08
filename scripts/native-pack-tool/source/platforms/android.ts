@@ -46,11 +46,12 @@ export class AndroidPackTool extends NativePackTool {
     }
 
     async create() {
-        await super.create();
+        await this.copyCommonTemplate();
         await this.copyPlatformTemplate();
+        await this.generateCMakeConfig();
+        await this.excuteCocosTemplateTask();
 
         await this.setOrientation();
-
         await this.encrypteScripts();
         await this.updateAndroidGradleValues();
         await this.configAndroidInstant();
