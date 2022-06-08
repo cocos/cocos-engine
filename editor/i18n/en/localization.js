@@ -109,6 +109,7 @@ module.exports = {
             "horizontal_align": "Horizontal alignment",
             "vertical_align": "Vertical alignment",
             "font_size": "Font size, in points",
+            "font_opacity": 'The font opacity of label.',
             "font_family": "Font family name",
             "line_height": "Line height, in points",
             "overflow": "Text layout modes: \n 1. CLAMP: text nodes outside the bounding box will be truncated \n 2. SHRINK: automatically shrink text box according to the constraint node \n 3. RESIZE: Automatically updates the Node based on heightof the text.",

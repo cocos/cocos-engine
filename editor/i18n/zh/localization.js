@@ -112,6 +112,7 @@ module.exports = {
             'horizontal_align': '文字水平对齐模式',
             'vertical_align': '文字垂直对齐模式',
             'font_size': '文字尺寸，以 point 为单位',
+            "font_opacity": '文本透明度，用于镂空字体。',
             'font_family': '文字字体名字',
             'line_height': '文字行高，以 point 为单位',
             'overflow': '文字排版模式，包括以下三种：\n 1. CLAMP: 节点约束框之外的文字会被截断 \n 2. SHRINK: 自动根据节点约束框缩小文字\n 3. RESIZE: 根据文本内容自动更新节点的 height 属性.',
