@@ -47,7 +47,7 @@ const _vec4ShadowInfo = new Vec4();
 const _lightDir = new Vec4(0.0, 0.0, 1.0, 0.0);
 
 export class PipelineUBO {
-    public static updateGlobalUBOView (window: RenderWindow, bufferView: Float32Array) {
+    public static updateGlobalUBOView (window: RenderWindow, bufferView: Float32Array, debugView: DebugView) {
         const root = legacyCC.director.root;
         const fv = bufferView;
 
@@ -68,8 +68,6 @@ export class PipelineUBO {
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 1] = shadingHeight;
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 2] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET];
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 3] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET + 1];
-
-        const debugView = legacyCC.debugView;
 
         fv[UBOGlobal.DEBUG_VIEW_SINGLE_MODE_OFFSET] = debugView.singleMode as number;
         fv[UBOGlobal.DEBUG_VIEW_LIGHTING_ENABLE_WITH_ALBEDO_OFFSET] = debugView.lightingWithAlbedo ? 1.0 : 0.0;
@@ -373,7 +371,7 @@ export class PipelineUBO {
         const ds = this._pipeline.descriptorSet;
         const cmdBuffer = this._pipeline.commandBuffers;
         ds.update();
-        PipelineUBO.updateGlobalUBOView(window, this._globalUBO);
+        PipelineUBO.updateGlobalUBOView(window, this._globalUBO, this._pipeline.debugView);
         cmdBuffer[0].updateBuffer(ds.getBuffer(UBOGlobal.BINDING), this._globalUBO);
 
         globalDSManager.bindBuffer(UBOGlobal.BINDING, ds.getBuffer(UBOGlobal.BINDING));
