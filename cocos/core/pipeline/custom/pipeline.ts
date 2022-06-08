@@ -41,6 +41,7 @@ import { ComputeView, CopyPair, MovePair, RasterView } from './render-graph';
 import { RenderScene } from '../../renderer/core/render-scene';
 import { RenderWindow } from '../../renderer/core/render-window';
 import { Model } from '../../renderer/scene';
+import { GeometryRenderer } from '../geometry-renderer';
 
 export abstract class PipelineRuntime {
     public abstract activate(swapchain: Swapchain): boolean;
@@ -52,6 +53,7 @@ export abstract class PipelineRuntime {
     public abstract get constantMacros(): string;
     public abstract get profiler(): Model | null;
     public abstract set profiler(profiler: Model | null);
+    public abstract get geometryRenderer(): GeometryRenderer | null;
     public abstract get shadingScale(): number;
     public abstract set shadingScale(scale: number);
     public abstract onGlobalPipelineStateChanged(): void;

@@ -147,9 +147,11 @@ private:
             device = ccnew gfx::DeviceAgent(device);
         }
 
+#if !defined(CC_SERVER_MODE)
         if (CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION) {
             device = ccnew gfx::DeviceValidator(device);
         }
+#endif
 
         if (!device->initialize(info)) {
             CC_SAFE_DELETE(device);

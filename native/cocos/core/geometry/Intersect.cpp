@@ -611,6 +611,16 @@ int aabbFrustum(const AABB &aabb, const Frustum &frustum) {
     return 1;
 }
 
+int aabbFrustumCompletelyInside(const AABB& aabb, const Frustum& frustum) {
+    for (const auto &plane : frustum.planes) {
+        // frustum plane normal points to the inside
+        if (aabbPlane(aabb, *plane) == 0) {
+            return 0;
+        }
+    } // completely inside
+    return 1;
+}
+
 // https://cesium.com/blog/2017/02/02/tighter-frustum-culling-and-why-you-may-want-to-disregard-it/
 int aabbFrustumAccurate(const AABB &aabb, const Frustum &frustum) {
     ccstd::array<Vec3, 8> tmp;

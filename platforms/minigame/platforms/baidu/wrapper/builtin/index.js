@@ -70,3 +70,6 @@ if (!GameGlobal.__isAdapterInjected) {
     GameGlobal.__isAdapterInjected = true
     inject()
 }
+
+require('../../../../common/xmldom/dom-parser');
+require('../unify');

@@ -222,6 +222,7 @@ int aabbWithOBB(const AABB &aabb, const OBB &obb);
  * @param {Plane} plane 平面
  * @return {number} inside(back) = -1, outside(front) = 0, intersect = 1
  */
+
 int aabbPlane(const AABB &aabb, const Plane &plane);
 /**
  * @en
@@ -232,7 +233,18 @@ int aabbPlane(const AABB &aabb, const Plane &plane);
  * @param {Frustum} frustum 锥台
  * @return {number} 0 或 非0
  */
+
 int aabbFrustum(const AABB &aabb, const Frustum &frustum);
+/**
+ * @en
+ * aabb-frustum intersect detect, faster but false while frustum is completely inside the aabb.
+ * @zh
+ * 轴对齐包围盒和锥台的相交性检测。速度快，但是当锥台完全在aabb中时就会判断出错。
+ * @param {AABB} aabb 轴对齐包围盒
+ * @param {Frustum} frustum 锥台
+ * @return {number} aabb completely inside the frustum = 1, otherwise = 0
+ */
+int aabbFrustumCompletelyInside(const AABB &aabb, const Frustum &frustum);
 
 // https://cesium.com/blog/2017/02/02/tighter-frustum-culling-and-why-you-may-want-to-disregard-it/
 /**

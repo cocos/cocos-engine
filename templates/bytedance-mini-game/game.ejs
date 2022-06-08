@@ -39,11 +39,7 @@ loadCC();
 <% } %>
 
 function loadCC() {
-    require('./libs/wrapper/builtin/index');
-    window.DOMParser = require('./libs/common/xmldom/dom-parser').DOMParser;
-    window.__globalAdapter = {};
-    require('./libs/wrapper/unify');
-    require('./libs/wrapper/fs-utils');
+    require('./web-adapter');
 
     // Polyfills bundle.
     require("<%= polyfillsBundleFile %>");
@@ -100,9 +96,7 @@ function loadCC() {
 
     function onApplicationCreated(application) {
         return application.import('cc').then((cc) => {
-            require('./libs/common/engine/index.js');
-            require('./libs/wrapper/engine/index');
-            require('./libs/common/cache-manager.js');
+            require('./engine-adapter');
             // Adjust devicePixelRatio
             cc.view._maxPixelRatio = 4;
             // Release Image objects after uploaded gl texture
