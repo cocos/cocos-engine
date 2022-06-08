@@ -10722,6 +10722,33 @@ static bool js_scene_SkyboxInfo_set__envLightingType(se::State& s) // NOLINT(rea
 }
 SE_BIND_PROP_SET(js_scene_SkyboxInfo_set__envLightingType)
 
+static bool js_scene_SkyboxInfo_get__editableMaterial(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_get__editableMaterial : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->_editableMaterial, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->_editableMaterial, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_SkyboxInfo_get__editableMaterial)
+
+static bool js_scene_SkyboxInfo_set__editableMaterial(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_set__editableMaterial : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->_editableMaterial, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_scene_SkyboxInfo_set__editableMaterial : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_SkyboxInfo_set__editableMaterial)
+
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_SkyboxInfo_finalize)
 
 static bool js_scene_SkyboxInfo_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
@@ -10752,6 +10779,7 @@ bool js_register_scene_SkyboxInfo(se::Object* obj) // NOLINT(readability-identif
     cls->defineProperty("_enabled", _SE(js_scene_SkyboxInfo_get__enabled), _SE(js_scene_SkyboxInfo_set__enabled));
     cls->defineProperty("_useHDR", _SE(js_scene_SkyboxInfo_get__useHDR), _SE(js_scene_SkyboxInfo_set__useHDR));
     cls->defineProperty("_envLightingType", _SE(js_scene_SkyboxInfo_get__envLightingType), _SE(js_scene_SkyboxInfo_set__envLightingType));
+    cls->defineProperty("_editableMaterial", _SE(js_scene_SkyboxInfo_get__editableMaterial), _SE(js_scene_SkyboxInfo_set__editableMaterial));
     cls->defineProperty("_envmap", _SE(js_scene_SkyboxInfo_getEnvmapForJS_asGetter), _SE(js_scene_SkyboxInfo_setEnvmapForJS_asSetter));
     cls->defineProperty("applyDiffuseMap", _SE(js_scene_SkyboxInfo_isApplyDiffuseMap_asGetter), _SE(js_scene_SkyboxInfo_setApplyDiffuseMap_asSetter));
     cls->defineProperty("enabled", _SE(js_scene_SkyboxInfo_isEnabled_asGetter), _SE(js_scene_SkyboxInfo_setEnabled_asSetter));
@@ -10961,6 +10989,25 @@ static bool js_scene_Skybox_isUseIBL(se::State& s) // NOLINT(readability-identif
 }
 SE_BIND_FUNC_AS_PROP_GET(js_scene_Skybox_isUseIBL)
 
+static bool js_scene_Skybox_isUsingConvolutionMap(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Skybox_isUsingConvolutionMap : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->isUsingConvolutionMap();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_Skybox_isUsingConvolutionMap : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Skybox_isUsingConvolutionMap)
+
 static bool js_scene_Skybox_setDiffuseMap(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
@@ -11060,6 +11107,25 @@ static bool js_scene_Skybox_setEnvmap(se::State& s) // NOLINT(readability-identi
 }
 SE_BIND_FUNC_AS_PROP_SET(js_scene_Skybox_setEnvmap)
 
+static bool js_scene_Skybox_setSkyboxMaterial(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Skybox_setSkyboxMaterial : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::Material*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_Skybox_setSkyboxMaterial : Error processing arguments");
+        cobj->setSkyboxMaterial(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Skybox_setSkyboxMaterial)
+
 static bool js_scene_Skybox_setUseDiffuseMap(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
@@ -11150,8 +11216,10 @@ bool js_register_scene_Skybox(se::Object* obj) // NOLINT(readability-identifier-
     cls->defineProperty("diffuseMap", _SE(js_scene_Skybox_getDiffuseMap_asGetter), _SE(js_scene_Skybox_setDiffuseMap_asSetter));
     cls->defineFunction("activate", _SE(js_scene_Skybox_activate));
     cls->defineFunction("initialize", _SE(js_scene_Skybox_initialize));
+    cls->defineFunction("isUsingConvolutionMap", _SE(js_scene_Skybox_isUsingConvolutionMap));
     cls->defineFunction("setDiffuseMaps", _SE(js_scene_Skybox_setDiffuseMaps));
     cls->defineFunction("setEnvMaps", _SE(js_scene_Skybox_setEnvMaps));
+    cls->defineFunction("setSkyboxMaterial", _SE(js_scene_Skybox_setSkyboxMaterial));
     cls->defineFinalizeFunction(_SE(js_cc_scene_Skybox_finalize));
     cls->install();
     JSBClassType::registerClass<cc::scene::Skybox>(cls);

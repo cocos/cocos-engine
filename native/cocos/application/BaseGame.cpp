@@ -61,7 +61,7 @@ int BaseGame::init() {
     }
 
     setXXTeaKey(_xxteaKey);
-    runScript("jsb-adapter/jsb-builtin.js");
+    runScript("jsb-adapter/web-adapter.js");
     runScript("main.js");
     return 0;
 }
