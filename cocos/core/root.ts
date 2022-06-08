@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { JSB, SERVER_MODE } from 'internal:constants';
+import { JSB } from 'internal:constants';
 import { builtinResMgr } from './builtin';
 import { Pool } from './memop';
 import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from './pipeline';
@@ -41,6 +41,7 @@ import { Pipeline, PipelineRuntime } from './pipeline/custom/pipeline';
 import { createCustomPipeline } from './pipeline/custom';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { IPipelineEvent } from './pipeline/pipeline-event';
+import { SERVER_MODE } from './default-constants';
 
 /**
  * @zh
