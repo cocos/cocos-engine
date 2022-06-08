@@ -34,22 +34,12 @@ import { CCObject } from '../data/object';
 import { NodeUIProperties } from './node-ui-properties';
 import { NodeSpace, TransformBit } from './node-enum';
 import { Mat4, Quat, Vec3 } from '../math';
-import { NodeEventProcessor } from './node-event-processor';
 import { Layers } from './layers';
 import { SerializationContext, SerializationOutput, serializeTag } from '../data';
 import { EDITOR } from '../default-constants';
 import { _tempFloatArray } from './utils.jsb';
-
-import {
-    applyMountedChildren,
-    applyMountedComponents, applyPropertyOverrides,
-    applyRemovedComponents, applyTargetOverrides,
-    createNodeWithPrefab,
-    generateTargetMap,
-} from '../utils/prefab/utils';
 import { getClassByName, isChildClassOf } from '../utils/js-typed';
 import { syncNodeValues } from "../utils/jsb-utils";
-import { BaseNode } from "./base-node";
 import { property } from '../data/class-decorator';
 
 declare const jsb: any;
@@ -1001,7 +991,7 @@ Object.defineProperty(nodeProto, 'right', {
 Object.defineProperty(nodeProto, 'eventProcessor', {
     configurable: true,
     enumerable: true,
-    get (): NodeEventProcessor {
+    get () {
         return this._eventProcessor;
     },
 });
