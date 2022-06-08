@@ -80,6 +80,12 @@ export class AudioPlayerWeb implements OperationQueueable {
      */
     public _operationQueue: OperationInfo[] = [];
 
+    public getSampleRate (): number {
+        return this._audioBuffer.sampleRate;
+    }
+    public getBuffer (channelID: number): Float32Array {
+        return this._audioBuffer.getChannelData(channelID);
+    }
     constructor (audioBuffer: AudioBuffer, url: string) {
         this._audioBuffer = audioBuffer;
         this._audioTimer = new AudioTimer(audioBuffer);

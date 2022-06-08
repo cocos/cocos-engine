@@ -78,6 +78,15 @@ declare module 'pal/audio' {
         static readonly maxAudioChannel: number;
 
         /**
+         * Get Sameple rate of audio source
+         */
+        public getSampleRate(): number;
+
+        /**
+         * Get Buffer
+         */
+        public getBuffer(channelID: number): Float32Array;
+        /**
          * Readonly property to get the url of audio src.
          */
         get src (): string;

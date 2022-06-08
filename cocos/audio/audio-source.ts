@@ -341,7 +341,9 @@ export class AudioSource extends Component {
             }
         }).catch((e) => {});
     }
-
+    public getSampleRate() {
+        this._player
+    }
     /**
      * @en
      * Set current playback time, in seconds.
