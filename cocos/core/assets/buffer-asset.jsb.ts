@@ -23,21 +23,14 @@
  THE SOFTWARE.
 */
 import { ccclass, override } from 'cc.decorator';
-import {
-    _applyDecoratedDescriptor,
-    _assertThisInitialized,
-    _initializerDefineProperty,
-} from '../data/utils/decorator-jsb-utils';
 import { legacyCC } from '../global-exports';
 
 export type BufferAsset = jsb.BufferAsset;
 export const BufferAsset = jsb.BufferAsset;
 
-const clsDecorator = ccclass('cc.BufferAsset');
-
-const _class2$D = BufferAsset;
-//cjh FIXME: _applyDecoratedDescriptor(_class2$D.prototype, '_nativeAsset', [override], Object.getOwnPropertyDescriptor(_class2$D.prototype, '_nativeAsset'), _class2$D.prototype);
-
-clsDecorator(BufferAsset);
-
 legacyCC.BufferAsset = jsb.BufferAsset;
+
+// handle meta data, it is generated automatically
+const BufferAssetProto = BufferAsset.prototype;
+override(BufferAssetProto, '_nativeAsset');
+ccclass('cc.BufferAsset')(BufferAsset);
