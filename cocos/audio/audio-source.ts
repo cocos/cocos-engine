@@ -53,7 +53,7 @@ export class AudioSource extends Component {
     }
     public static AudioState = AudioState;
 
-    public static EventType = AudioSourceEventType;
+    // public static EventType = AudioSourceEventType;
 
     @type(AudioClip)
     protected _clip: AudioClip | null = null;
