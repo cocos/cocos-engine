@@ -2,14 +2,16 @@ import fsExt from 'fs-extra';
 import ps from 'path';
 import { IConstantConfig, IConstantInfo } from './config-interface';
 
-type FlagType = 'DEBUG' | 'SERVER_MODE';
+export type ModeType = 'EDITOR' | 'PREVIEW' | 'BUILD' | 'TEST';
+export type PlatformType = 'HTML5' | 'NATIVE' |
+        'WECHAT' | 'BAIDU' | 'XIAOMI' | 'ALIPAY' | 'BYTEDANCE' |
+        'OPPO' | 'VIVO' | 'HUAWEI' | 'COCOSPLAY' | 'QTT' | 'LINKSURE';
+export type FlagType = 'DEBUG' | 'SERVER_MODE';
 
-interface ConstantOptions {
-    mode: 'EDITOR' | 'PREVIEW' | 'BUILD' | 'TEST';
-    platform: 'HTML5' | 'NATIVE' |
-      'WECHAT' | 'BAIDU' | 'XIAOMI' | 'ALIPAY' | 'BYTEDANCE' |
-      'OPPO' | 'VIVO' | 'HUAWEI' | 'COCOSPLAY' | 'QTT' | 'LINKSURE';
-    flags: FlagType[];
+export interface ConstantOptions {
+    mode: ModeType;
+    platform: PlatformType;
+    flags: Record<FlagType, boolean>;
 }
 
 export class ConstantManager {
@@ -27,7 +29,7 @@ export class ConstantManager {
     }: ConstantOptions): string {
         const config = this._getConfig();
         // init helper
-        let result: string = '';
+        let result = '';
         if (this._hasCCGlobal(config)) {
             result += fsExt.readFileSync(ps.join(__dirname, '../../static/helper-global-exporter.txt'), 'utf8') + '\n';
         }
@@ -38,13 +40,20 @@ export class ConstantManager {
         // update value
         if (config[mode]) {
             config[mode].value = true;
+        } else {
+            throw new Error(`Unknown mode: ${mode}`);
         }
         if (config[platform]) {
             config[platform].value = true;
+        } else {
+            throw new Error(`Unknown platform: ${platform}`);
         }
-        for (const flag of flags) {
-            if (config[flag]) {
-                config[flag].value = true;
+        for (const key in flags) {
+            const value = flags[key as FlagType];
+            if (config[key]) {
+                config[key].value = value;
+            } else {
+                throw new Error(`Unknown flag: ${key}`);
             }
         }
 
@@ -73,6 +82,50 @@ export class ConstantManager {
         return result;
     }
 
+    public genBuildTimeConstants ({
+        mode,
+        platform,
+        flags,
+    }: ConstantOptions): Record<string, boolean> {
+        const config = this._getConfig();
+
+        // update value
+        if (config[mode]) {
+            config[mode].value = true;
+        } else {
+            throw new Error(`Unknown mode: ${mode}`);
+        }
+        if (config[platform]) {
+            config[platform].value = true;
+        } else {
+            throw new Error(`Unknown platform: ${platform}`);
+        }
+        for (const key in flags) {
+            const value = flags[key as FlagType];
+            if (config[key]) {
+                config[key].value = value;
+            } else {
+                throw new Error(`Unknown flag: ${key}`);
+            }
+        }
+
+        // eval value
+        for (const key in config) {
+            const info = config[key];
+            if (typeof info.value === 'string') {
+                info.value = this._evalExpression(info.value, config);
+            }
+        }
+
+        // generate json object
+        const jsonObj: Record<string, boolean> = {};
+        for (const key in config) {
+            const info = config[key];
+            jsonObj[key] = info.value as boolean;
+        }
+        return jsonObj;
+    }
+
     public exportStaticConstants ({
         mode,
         platform,
@@ -80,7 +133,7 @@ export class ConstantManager {
     }: ConstantOptions): string {
         const config = this._getConfig();
         // init helper
-        let result: string = '';
+        let result = '';
         if (this._hasCCGlobal(config)) {
             result += fsExt.readFileSync(ps.join(__dirname, '../../static/helper-global-exporter.txt'), 'utf8') + '\n';
         }
@@ -88,13 +141,20 @@ export class ConstantManager {
         // update value
         if (config[mode]) {
             config[mode].value = true;
+        } else {
+            throw new Error(`Unknown mode: ${mode}`);
         }
         if (config[platform]) {
             config[platform].value = true;
+        } else {
+            throw new Error(`Unknown platform: ${platform}`);
         }
-        for (const flag of flags) {
-            if (config[flag]) {
-                config[flag].value = true;
+        for (const key in flags) {
+            const value = flags[key as FlagType];
+            if (config[key]) {
+                config[key].value = value;
+            } else {
+                throw new Error(`Unknown flag: ${key}`);
             }
         }
 

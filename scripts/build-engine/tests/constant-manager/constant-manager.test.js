@@ -26,7 +26,7 @@ test('exportStaticConstants', () => {
     const result = handleEscape( cm.exportStaticConstants({
         mode: 'BUILD',
         platform: 'WECHAT',
-        flags: ['DEBUG'],
+        flags: { DEBUG: true, },
     }) );
     const targetContent = handleEscape( fs.readFileSync(ps.join(__dirname, 'static-constants.txt'), 'utf8') );
     expect(result).toBe(targetContent);
@@ -36,7 +36,7 @@ test('exportDynamicConstants', () => {
     const result = handleEscape( cm.exportDynamicConstants({
         mode: 'BUILD',
         platform: 'WECHAT',
-        flags: ['DEBUG'],
+        flags: { DEBUG: true, },
     }) );
     const targetContent = handleEscape( fs.readFileSync(ps.join(__dirname, 'dynamic-constants.txt'), 'utf8') );
     expect(result).toBe(targetContent);

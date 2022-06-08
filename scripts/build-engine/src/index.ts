@@ -15,7 +15,6 @@ import babelPluginTransformForOf from '@babel/plugin-transform-for-of';
 import * as rollup from 'rollup';
 // @ts-expect-error: No typing
 import rpProgress from 'rollup-plugin-progress';
-// @ts-expect-error: No typing
 import rpVirtual from '@rollup/plugin-virtual';
 import nodeResolve from 'resolve';
 import babelPluginDynamicImportVars from '@cocos/babel-plugin-dynamic-import-vars';
