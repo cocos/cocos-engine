@@ -79,14 +79,16 @@ void main()  {
       if (IS_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_DIFFUSE) || IS_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_SPECULAR) || IS_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_ALL))
     #endif
       {
-          CCSurfacesDebugViewLightingResult(debugColor, lightingResult);
-          // lighting needs color space conversion
-          #if CC_USE_HDR
-            if (cc_debug_view_composite_enable_tone_mapping > 0.0)
-                debugColor.rgb = ACESToneMap(debugColor.rgb);
-          #endif
-          if (cc_debug_view_composite_enable_gamma_correction > 0.0)
-              debugColor.rgb = LinearToSRGB(debugColor.rgb);
+          if (CCSurfacesDebugViewLightingResult(debugColor, lightingResult))
+          {
+            // lighting needs color space conversion          
+            #if CC_USE_HDR
+              if (cc_debug_view_composite_enable_tone_mapping > 0.0)
+                  debugColor.rgb = ACESToneMap(debugColor.rgb);
+            #endif
+            if (cc_debug_view_composite_enable_gamma_correction > 0.0)
+                debugColor.rgb = LinearToSRGB(debugColor.rgb);
+          }
       }
 
     fragColorX = debugColor;
