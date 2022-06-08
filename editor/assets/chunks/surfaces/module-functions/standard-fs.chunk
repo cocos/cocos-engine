@@ -156,13 +156,13 @@ void CCSurfacesDebugViewSurfaceData(out vec4 color, in SurfacesMaterialData surf
         color = vec4(scalar, scalar, scalar, 1.0);
     }
     if (IS_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_BASE_COLOR))
-        color = vec4(SRGBToLinear(surfaceData.baseColor.rgb), 1.0);
+        color = vec4(LinearToSRGB(surfaceData.baseColor.rgb), 1.0);
 
     if (IS_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIFFUSE_COLOR))
-        color = vec4(SRGBToLinear(CCSurfacesGetDiffuseColor(surfaceData)), 1.0);
+        color = vec4(LinearToSRGB(CCSurfacesGetDiffuseColor(surfaceData)), 1.0);
 
     if (IS_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_SPECULAR_COLOR))
-        color = vec4(SRGBToLinear(CCSurfacesGetSpecularColor(surfaceData)), 1.0);
+        color = vec4(LinearToSRGB(CCSurfacesGetSpecularColor(surfaceData)), 1.0);
 
     if (IS_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_ROUGHNESS)) {
         scalar = surfaceData.roughness;
