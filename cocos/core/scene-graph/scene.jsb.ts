@@ -20,11 +20,6 @@
 */
 
 import { ccclass, editable, serializable } from 'cc.decorator';
-import {
-    _applyDecoratedDescriptor,
-    _assertThisInitialized,
-    _initializerDefineProperty,
-} from '../data/utils/decorator-jsb-utils';
 import { legacyCC } from '../global-exports';
 import { Node } from './node';
 import { applyTargetOverrides, expandNestedPrefabInstanceNode } from "../utils/prefab/utils";
@@ -86,10 +81,6 @@ sceneProto._ctor = function () {
     this._renderSceneInternal = null;
     this._globalRef = null;
     this._prefabSyncedInLiveReload = false;
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    // const _this = this;
-    // _initializerDefineProperty(_this, "autoReleaseAssets", _descriptor$r, _assertThisInitialized(_this));
-    // _initializerDefineProperty(_this, "_globals", _descriptor2$k, _assertThisInitialized(_this));
 };
 
 sceneProto._onBatchCreated = function (dontSyncChildPrefab: boolean) {

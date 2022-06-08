@@ -38,6 +38,7 @@ textAssetProto._ctor = function () {
 
 legacyCC.TextAsset = jsb.TextAsset;
 
+// handle meta data, it is generated automatically
 const TextAssetProto = TextAsset.prototype;
 editable(TextAssetProto, 'text');
 serializable(TextAssetProto, 'text');

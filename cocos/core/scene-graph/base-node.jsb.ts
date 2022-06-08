@@ -24,7 +24,6 @@
  */
 
 import { legacyCC } from '../global-exports';
-import { _applyDecoratedDescriptor } from '../data/utils/decorator-jsb-utils';
 import { baseNodePolyfill } from './base-node-dev';
 const baseNodeProto: any = jsb.BaseNode.prototype;
 

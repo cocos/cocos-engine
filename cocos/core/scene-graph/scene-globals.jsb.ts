@@ -31,11 +31,6 @@ import {
     visible
 // @ts-ignore
 } from 'cc.decorator';
-import {
-    _applyDecoratedDescriptor,
-    _assertThisInitialized,
-    _initializerDefineProperty,
-} from '../data/utils/decorator-jsb-utils';
 import { legacyCC } from '../global-exports';
 import { CCFloat, CCInteger } from '../data';
 import { TextureCube } from '../assets/texture-cube';

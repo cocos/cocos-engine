@@ -257,6 +257,7 @@ imageAssetProto._deserialize = function (data: any) {
 
 legacyCC.ImageAsset = jsb.ImageAsset;
 
+// handle meta data, it is generated automatically
 const ImageAssetProto = ImageAsset.prototype;
 override(ImageAssetProto, '_nativeAsset');
 ccclass('cc.ImageAsset')(ImageAsset);

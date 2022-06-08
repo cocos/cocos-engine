@@ -19,13 +19,7 @@
  THE SOFTWARE.
 */
 
-import { ccclass, editable, serializable, type } from 'cc.decorator';
-import {
-    _applyDecoratedDescriptor,
-    _assertThisInitialized,
-    _initializerDefineProperty,
-} from '../data/utils/decorator-jsb-utils';
-
+import { ccclass, editable, serializable, type } from 'cc.decorator'
 import { legacyCC } from '../global-exports';
 import { errorID, getError } from '../platform/debug';
 import { Component } from '../components/component';
