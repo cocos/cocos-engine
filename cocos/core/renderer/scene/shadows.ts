@@ -163,6 +163,27 @@ export const CSMLevel = Enum({
 });
 
 /**
+ * @zh 联级阴影贴图层级。
+ * @en The CSM shadow level for editor
+ * @enum Shadows.CSMLevelEditorVisible
+ */
+export const CSMLevelEditorVisible = Enum({
+    /**
+     * @zh 1 个层级
+     * @en level 1
+     * @readonly
+     */
+    level_1: CSMLevel.level_1,
+
+    /**
+     * @zh 4 个层级
+     * @en level 4
+     * @readonly
+     */
+    level_4: CSMLevel.level_4,
+});
+
+/**
  * @zh 联级阴影性能优化模式。
  * @en The CSM performance optimization mode
  * @enum Shadows.CSMOptimizationMode
@@ -372,7 +393,7 @@ export class Shadows {
         this.distance = shadowsInfo.planeHeight;
         this.shadowColor = shadowsInfo.shadowColor;
         this.maxReceived = shadowsInfo.maxReceived;
-        this.size = shadowsInfo.size;
+        this.size.set(shadowsInfo.shadowMapSize, shadowsInfo.shadowMapSize);
     }
 
     public activate () {

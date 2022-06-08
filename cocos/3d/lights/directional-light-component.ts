@@ -28,7 +28,7 @@ import { ccclass, range, slide, type, editable, visible, help, executeInEditMode
 import { Light } from './light-component';
 import { scene } from '../../core/renderer';
 import { legacyCC } from '../../core/global-exports';
-import { Camera, PCFType, Shadows, ShadowType, CSMLevel, CSMOptimizationMode } from '../../core/renderer/scene';
+import { Camera, PCFType, Shadows, ShadowType, CSMOptimizationMode, CSMLevelEditorVisible } from '../../core/renderer/scene';
 import { Root } from '../../core/root';
 import { property } from '../../core/data/class-decorator';
 import { CCBoolean, CCFloat } from '../../core/data/utils/attribute';
@@ -68,7 +68,7 @@ export class DirectionalLight extends Light {
     @serializable
     protected _shadowInvisibleOcclusionRange = 200;
     @serializable
-    protected _csmLevel = CSMLevel.level_3;
+    protected _csmLevel = CSMLevelEditorVisible.level_4;
     @serializable
     protected _csmLayerLambda = 0.75;
     @serializable
@@ -266,7 +266,7 @@ export class DirectionalLight extends Light {
     @editable
     @tooltip('CSM Level')
     @slide
-    @type(CSMLevel)
+    @type(CSMLevelEditorVisible)
     get csmLevel () {
         return this._csmLevel;
     }
@@ -282,10 +282,7 @@ export class DirectionalLight extends Light {
      * @en get or set shadow CSM level ratio
      * @zh 获取或者设置阴影层级系数
      */
-    @visible(function (this: DirectionalLight) {
-        return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type
-                === ShadowType.ShadowMap && this._shadowFixedArea === false;
-    })
+    @visible(false)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 12 } })
     @editable
     @tooltip('CSM Level ratio')
