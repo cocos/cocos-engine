@@ -359,7 +359,6 @@ let Label = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.label.wrap',
         },
 
-        _canSetNodeColor: true,
         /**
          * !#en The font opacity of label.
          * !#zh 文本透明度，用于镂空字体。
