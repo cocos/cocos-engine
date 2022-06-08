@@ -14,7 +14,7 @@ const engineRoot = ps.join(__dirname, '..');
 (async function bundleAdapter () {
     try {
         console.time('Bundle Adapter');
-        await bundleJsbAdapter();
+        await bundleNativeAdapter();
         await bundleMinigameAdapter();
         await bundleRuntimeAdapter();
         console.timeEnd('Bundle Adapter');
@@ -25,17 +25,17 @@ const engineRoot = ps.join(__dirname, '..');
     }
 })();
 
-async function bundleJsbAdapter () {
-    console.log(chalk.green('\nBundling jsb adapter'));
-    // bundle jsb-engine.js
-    const jsbEngineEntry = normalizePath(ps.join(engineRoot, 'platforms/native/engine/index.js'));
-    const jsbEngineOutput = normalizePath(ps.join(engineRoot, 'bin/adapter/native/jsb-engine.js'));
-    await bundle(jsbEngineEntry, jsbEngineOutput);
+async function bundleNativeAdapter () {
+    console.log(chalk.green('\nBundling native adapter'));
+    // bundle engine-adapter.js
+    const engineAdapterEntry = normalizePath(ps.join(engineRoot, 'platforms/native/engine/index.js'));
+    const engineAdapterOutput = normalizePath(ps.join(engineRoot, 'bin/adapter/native/engine-adapter.js'));
+    await bundle(engineAdapterEntry, engineAdapterOutput);
 
-    // bundle jsb-engine.js
-    const jsbBuiltinEntry = normalizePath(ps.join(engineRoot, 'platforms/native/builtin/index.js'));
-    const jsbBuiltinOutput = normalizePath(ps.join(engineRoot, 'bin/adapter/native/jsb-builtin.js'));
-    await bundle(jsbBuiltinEntry, jsbBuiltinOutput);
+    // bundle web-adapter.js
+    const webAdapterEntry = normalizePath(ps.join(engineRoot, 'platforms/native/builtin/index.js'));
+    const webAdapterOutput = normalizePath(ps.join(engineRoot, 'bin/adapter/native/web-adapter.js'));
+    await bundle(webAdapterEntry, webAdapterOutput);
 }
 
 async function bundleMinigameAdapter () {
@@ -50,12 +50,12 @@ async function bundleMinigameAdapter () {
         const engineOutput = normalizePath(ps.join(engineRoot, `bin/adapter/minigame/${platform}/engine-adapter.js`));
         await bundle(engineEntry, engineOutput);
 
-        // bundle builtin.js
+        // bundle web-adapter.js
         let builtinEntry = normalizePath(ps.join(engineRoot, `platforms/minigame/platforms/${platform}/wrapper/builtin/index.js`));
         if (platform === 'alipay' || platform === 'xiaomi') {
             builtinEntry = normalizePath(ps.join(engineRoot, `platforms/minigame/platforms/${platform}/wrapper/builtin.js`));
         }
-        const builtinOutput = normalizePath(ps.join(engineRoot, `bin/adapter/minigame/${platform}/builtin.js`));
+        const builtinOutput = normalizePath(ps.join(engineRoot, `bin/adapter/minigame/${platform}/web-adapter.js`));
         await bundle(builtinEntry, builtinOutput);
     }
 }
@@ -76,39 +76,6 @@ async function bundleRuntimeAdapter () {
 
 function normalizePath (path) {
     return path.replace(/\\/g, '/');
-}
-
-/**
- * Traverse and compare the modification time of source code and target file
- * @param {string} dir 
- * @param {string} targetFileMtime 
- */
-function checkFileStat (dir, targetFileMtime) {
-    let files = fs.readdirSync(dir);
-    return files.some (file => {
-        let filePath = ps.join(dir, file);
-        let stat = fs.statSync(filePath);
-        if (stat.isDirectory()) {
-            return checkFileStat(filePath, targetFileMtime);
-        }
-        else if (stat.mtime.getTime() > targetFileMtime) {
-            return true;
-        }
-    });
-}
-
-/**
- * Check whether the source code is updated
- * @param {string} src 
- * @param {string} dst 
- */
-function hasChanged (src, dst) {
-    if (!fs.existsSync(dst)) {
-        return true;
-    }
-    let stat = fs.statSync(dst);
-    let dir = ps.dirname(src);
-    return checkFileStat(dir, stat.mtime.getTime());
 }
 
 /**
@@ -142,11 +109,6 @@ function createBundleTask (src, dst) {
 async function bundle (entry, output) {
     await new Promise((resolve) => {
         console.log(`Generate bundle: ${chalk.green(ps.basename(output))}`);
-        // if (!hasChanged(entry, output)) {
-        //     console.log(chalk.yellow('Use bundle cache, skip bundling'));
-        //     resolve();
-        //     return;
-        // }
         createBundleTask(entry, output).on('end', resolve);
     });
 }
