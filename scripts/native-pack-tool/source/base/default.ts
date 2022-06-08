@@ -54,7 +54,7 @@ export interface ICMakeConfig {
     USE_SERVER_MODE: string;
 }
 
-export type InternaleNativePlatform = 'mac' | 'android' | 'windows' | 'ios';
+export type InternaleNativePlatform = 'mac' | 'android' | 'windows' | 'ios' | 'ohos';
 
 export interface INativePlatformOptions {
     extends?: InternaleNativePlatform, //传入继承的平台，将会继承已有平台注册的一些代码
