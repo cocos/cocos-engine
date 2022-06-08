@@ -303,9 +303,11 @@ public:
                 break;
             }
             case APP_CMD_GAINED_FOCUS:
+                _hasFocus = true;
                 CC_LOG_INFO("AndroidPlatform: APP_CMD_GAINED_FOCUS");
                 break;
             case APP_CMD_LOST_FOCUS:
+                _hasFocus = false;
                 CC_LOG_INFO("AndroidPlatform: APP_CMD_LOST_FOCUS");
                 break;
             case APP_CMD_PAUSE:
@@ -398,6 +400,10 @@ public:
         return _isVisible && _hasWindow;
     }
 
+    bool isForeground() const {
+        return _hasFocus;
+    }
+
 private:
     AppEventCallback _eventCallback{nullptr};
     AndroidPlatform *_androidPlatform{nullptr};
@@ -406,6 +412,7 @@ private:
     bool _launched{false};
     bool _isVisible{false};
     bool _hasWindow{false};
+    bool _hasFocus{false};
 };
 
 static void handleCmdProxy(struct android_app *app, int32_t cmd) {
@@ -512,9 +519,11 @@ int32_t AndroidPlatform::loop() {
             }
         }
         _inputProxy->handleInput();
-        if (_inputProxy->isAnimating() ) {
+        if (_inputProxy->isAnimating()) {
             runTask();
-            flushTasksOnGameThreadAtForegroundJNI();
+            if (_inputProxy->isForeground()) {
+                flushTasksOnGameThreadAtForegroundJNI();
+            }
         }
         flushTasksOnGameThreadJNI();
 
