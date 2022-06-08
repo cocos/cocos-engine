@@ -154,6 +154,7 @@ legacyCC.AmbientInfo = AmbientInfo;
 export const SkyboxInfo = jsb.SkyboxInfo;
 legacyCC.SkyboxInfo = SkyboxInfo;
 
+
 // @ts-ignore
 export const FogInfo = jsb.FogInfo;
 legacyCC.FogInfo = FogInfo;

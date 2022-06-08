@@ -1212,30 +1212,31 @@ inline bool nativevalue_to_se(ccstd::vector<T> *const from, se::Value &to, se::O
     return nativevalue_to_se(*from, to, ctx);
 }
 
-#if HAS_CONSTEXPR
-
-template <typename T>
-inline bool nativevalue_to_se(const T &from, se::Value &to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
-    if CC_CONSTEXPR (std::is_enum<T>::value) {
-        to.setInt32(static_cast<int32_t>(from));
-        return true;
-    } else if CC_CONSTEXPR (std::is_pointer<T>::value) {
-        return native_ptr_to_seval(from, &to);
-    } else if CC_CONSTEXPR (is_jsb_object_v<T>) {
-        return native_ptr_to_seval(from, &to);
-    } else if CC_CONSTEXPR (std::is_same<T, int64_t>::value || std::is_same<T, uint64_t>::value) {
-        to.setInt64(static_cast<int64_t>(from));
-        return true;
-    } else if CC_CONSTEXPR (std::is_arithmetic<T>::value) {
-        to.setDouble(static_cast<double>(from));
-        return true;
-    } else {
-        static_assert(!std::is_const<T>::value, "Only non-const value accepted here");
-        return nativevalue_to_se<typename std::conditional_t<std::is_const<T>::value, T, typename std::add_const<T>::type>>(from, to, ctx);
-    }
-}
-
-#else
+//TODO(): just comment it to make compiler work. Should use CONSTEXPR version.
+//#if HAS_CONSTEXPR
+//
+//template <typename T>
+//inline bool nativevalue_to_se(const T &from, se::Value &to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
+//    if CC_CONSTEXPR (std::is_enum<T>::value) {
+//        to.setInt32(static_cast<int32_t>(from));
+//        return true;
+//    } else if CC_CONSTEXPR (std::is_pointer<T>::value) {
+//        return native_ptr_to_seval(from, &to);
+//    } else if CC_CONSTEXPR (is_jsb_object_v<T>) {
+//        return native_ptr_to_seval(from, &to);
+//    } else if CC_CONSTEXPR (std::is_same<T, int64_t>::value || std::is_same<T, uint64_t>::value) {
+//        to.setInt64(static_cast<int64_t>(from));
+//        return true;
+//    } else if CC_CONSTEXPR (std::is_arithmetic<T>::value) {
+//        to.setDouble(static_cast<double>(from));
+//        return true;
+//    } else {
+//        static_assert(!std::is_const<T>::value, "Only non-const value accepted here");
+//        return nativevalue_to_se<typename std::conditional_t<std::is_const<T>::value, T, typename std::add_const<T>::type>>(from, to, ctx);
+//    }
+//}
+//
+//#else
 
 template <typename T>
 inline typename std::enable_if<std::is_enum<T>::value, bool>::type
@@ -1263,7 +1264,7 @@ nativevalue_to_se(const T &from, se::Value &to, se::Object *ctx) {
     return true;
 }
 
-#endif // HAS_CONSTEXPR
+//#endif // HAS_CONSTEXPR
 
 //////////////////////////////// forward declaration: nativevalue_to_se ////////////////////////////////
 
