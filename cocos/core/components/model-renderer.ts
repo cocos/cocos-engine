@@ -36,12 +36,9 @@ import { Renderer } from './renderer';
  */
 @ccclass('cc.ModelRenderer')
 export class ModelRenderer extends Renderer {
-    @serializable
-    protected _visFlags = Layers.Enum.NONE;
-
     /**
-     * @zh 组件所属层，影响该组件下的所有 model 的 visFlags
-     * @en The layer of the current component, which affects all the visFlags of the models belonging to this component.
+     * @en The visibility which will be applied to the committed models.
+     * @zh 应用于所有提交渲染的 Model 的可见性
      */
     get visibility () {
         return this._visFlags;
@@ -52,6 +49,8 @@ export class ModelRenderer extends Renderer {
         this._onVisibilityChange(val);
     }
 
+    @serializable
+    protected _visFlags = Layers.Enum.NONE;
     protected _models: scene.Model[] = [];
 
     /**

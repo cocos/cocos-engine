@@ -47,7 +47,6 @@ export declare namespace sys {
 /**
  * @en A set of system related variables
  * @zh 一系列系统相关环境变量
- * @main
  */
 export const sys = {
     Feature,
