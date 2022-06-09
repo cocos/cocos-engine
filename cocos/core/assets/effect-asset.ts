@@ -186,7 +186,7 @@ export class EffectAsset extends Asset {
      */
     public static remove (asset: EffectAsset | string) {
         if (typeof asset !== 'string') {
-            if (EffectAsset._effects[asset.name] && EffectAsset._effects[asset.name].equals(asset)) {
+            if (EffectAsset._effects[asset.name] && EffectAsset._effects[asset.name] === asset) {
                 delete EffectAsset._effects[asset.name];
             }
         } else {

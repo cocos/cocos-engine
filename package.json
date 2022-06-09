@@ -74,20 +74,20 @@
     "typescript": "^4.3.5",
     "vconsole": "^3.3.0",
     "which": "^2.0.2",
-    "yargs": "^12.0.5"
-  },
-  "dependencies": {
+    "yargs": "^12.0.5",
     "@babel/plugin-proposal-export-default-from": "^7.17.12",
-    "@cocos/box2d": "1.0.1",
-    "@cocos/bullet": "1.0.2",
-    "@cocos/cannon": "1.2.8",
-    "@cocos/dragonbones-js": "^1.0.1",
-    "@cocos/physx": "1.0.7",
     "babelify": "^10.0.0",
     "browserify": "^17.0.0",
     "gulp-rename": "^2.0.0",
     "gulp-uglify": "^3.0.2",
     "vinyl-buffer": "^1.0.1",
     "vinyl-source-stream": "^2.0.0"
+  },
+  "dependencies": {
+    "@cocos/box2d": "1.0.1",
+    "@cocos/bullet": "1.0.2",
+    "@cocos/cannon": "1.2.8",
+    "@cocos/dragonbones-js": "^1.0.1",
+    "@cocos/physx": "1.0.7"
   }
 }

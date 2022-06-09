@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "boost/variant2/variant.hpp"
 #include "boost/mp11/algorithm.hpp"
+#include "cocos/base/std/variant.h"
 
 #include <type_traits>
 #include <utility>

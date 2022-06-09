@@ -30,7 +30,7 @@ import { doValidateMethodWithProps_DEV } from '../utils/preprocess-class';
 import { CACHE_KEY, makeSmartClassDecorator } from './utils';
 
 /**
- * @en Declare a standard class as a CCClass, please refer to the [document](https://docs.cocos.com/creator3d/manual/zh/scripting/ccclass.html)
+ * @en Declare a standard class as a CCClass, please refer to the [document](https://docs.cocos.com/creator3d/manual/en/scripting/ccclass.html)
  * @zh 将标准写法的类声明为 CC 类，具体用法请参阅[类型定义](https://docs.cocos.com/creator3d/manual/zh/scripting/ccclass.html)。
  * @param name - The class name used for serialization.
  * @example
