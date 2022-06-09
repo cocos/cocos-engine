@@ -3,11 +3,11 @@ import { ConstantManager } from '../../src/constant-manager';
 const cm = new ConstantManager(__dirname);
 
 test('generateInternalConstants', () => {
-    expect(cm.generateInternalConstants()).toMatchSnapshot();
+    expect(cm.genInternalConstants()).toMatchSnapshot();
 });
 
 test('generateCCEnv', () => {
-    expect(cm.generateCCEnv()).toMatchSnapshot();
+    expect(cm.genCCEnv()).toMatchSnapshot();
 });
 
 test('exportStaticConstants', () => {

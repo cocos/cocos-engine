@@ -182,21 +182,21 @@ export class ConstantManager {
     //#endregion export string
 
     //#region declaration
-    public generateInternalConstants (): string {
+    public genInternalConstants (): string {
         const config = this._getConfig();
 
         let result = `declare module 'internal:constants'{\n`;
 
         for (const name in config) {
             const info = config[name];
-            result += this._generateConstantDeclaration(name, info);
+            result += this._genConstantDeclaration(name, info);
         }
         result += '}\n';
 
         return result;
     }
 
-    public generateCCEnv (): string {
+    public genCCEnv (): string {
         const config = this._getConfig();
 
         let result = `declare module 'cc/env'{\n`;
@@ -206,14 +206,14 @@ export class ConstantManager {
             if (info.internal) {
                 continue;
             }
-            result += this._generateConstantDeclaration(name, info);
+            result += this._genConstantDeclaration(name, info);
         }
         result += '}\n';
 
         return result;
     }
     
-    private _generateConstantDeclaration (name: string, info: IConstantInfo): string {
+    private _genConstantDeclaration (name: string, info: IConstantInfo): string {
         let result = '\t/**\n';
         let comments = info.comment.split('\n');
         for (const comment of comments) {
