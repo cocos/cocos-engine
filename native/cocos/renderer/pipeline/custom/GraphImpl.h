@@ -500,8 +500,8 @@ inline void reindexVectorHandle(Container &container, HandleDescriptor u) {
 
     using handle_type = ValueHandle<Tag, HandleDescriptor>;
     for (auto &vert : container) {
-        if (boost::variant2::holds_alternative<handle_type>(vert.handle)) {
-            auto &v = boost::variant2::get<handle_type>(vert.handle).value;
+        if (ccstd::holds_alternative<handle_type>(vert.handle)) {
+            auto &v = ccstd::get<handle_type>(vert.handle).value;
             if (v > u) {
                 --v;
             }
