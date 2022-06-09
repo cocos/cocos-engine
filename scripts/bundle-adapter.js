@@ -36,12 +36,12 @@ async function bundleNativeAdapter () {
     // bundle engine-adapter.js
     const engineAdapterEntry = normalizePath(ps.join(engineRoot, 'platforms/native/engine/index.js'));
     const engineAdapterOutput = normalizePath(ps.join(engineRoot, 'bin/adapter/native/engine-adapter.js'));
-    await bundle(engineAdapterEntry, engineAdapterOutput);
+    await bundle(engineAdapterEntry, engineAdapterOutput, 'chrome 80');
 
     // bundle web-adapter.js
     const webAdapterEntry = normalizePath(ps.join(engineRoot, 'platforms/native/builtin/index.js'));
     const webAdapterOutput = normalizePath(ps.join(engineRoot, 'bin/adapter/native/web-adapter.js'));
-    await bundle(webAdapterEntry, webAdapterOutput);
+    await bundle(webAdapterEntry, webAdapterOutput, 'chrome 80');
 }
 
 async function bundleMinigameAdapter () {
@@ -88,14 +88,16 @@ function normalizePath (path) {
  * Create bundle task
  * @param {string} src 
  * @param {string} dst 
- * @param {boolean} uglify 
+ * @param {string} targets
  */
-function createBundleTask (src, dst) {
+function createBundleTask (src, dst, targets) {
     let targetFileName = ps.basename(dst);
     let targetFileNameMin = ps.basename(targetFileName, '.js') + '.min.js';
     dst = ps.dirname(dst);
     let bundler =  browserify(src);
-    return bundler.transform(babelify, {presets: [require('@babel/preset-env')],
+    let task = bundler.transform(babelify, {presets: [
+            [require('@babel/preset-env'), targets ? { targets } : undefined],
+        ],
         plugins: [
             require('@babel/plugin-proposal-class-properties'),
             require('@babel/plugin-proposal-export-default-from')
@@ -104,17 +106,24 @@ function createBundleTask (src, dst) {
         .pipe(source(targetFileName))
         .pipe(buffer())
         .pipe(gulp.dest(dst))
-        .pipe(rename(targetFileNameMin)).pipe(uglify()).pipe(gulp.dest(dst));
+        .pipe(rename(targetFileNameMin));
+    // TODO: es6 module should use uglify-es
+    if (!targets) {
+        task = task.pipe(uglify());
+    }
+    task = task.pipe(gulp.dest(dst));
+    return task;
 }
 
 /**
  * Build adapters
  * @param {string} entry 
  * @param {string} output 
+ * @param {string} targets
  */
-async function bundle (entry, output) {
+async function bundle (entry, output, targets = '') {
     await new Promise((resolve) => {
         console.log(`Generate bundle: ${chalk.green(ps.basename(output))}`);
-        createBundleTask(entry, output).on('end', resolve);
+        createBundleTask(entry, output, targets).on('end', resolve);
     });
 }
