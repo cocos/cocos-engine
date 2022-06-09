@@ -28,7 +28,7 @@ import { ccclass, range, slide, type, editable, visible, help, executeInEditMode
 import { Light } from './light-component';
 import { scene } from '../../core/renderer';
 import { legacyCC } from '../../core/global-exports';
-import { Camera, PCFType, Shadows, ShadowType, CSMOptimizationMode, VisibleLevel } from '../../core/renderer/scene';
+import { Camera, PCFType, Shadows, ShadowType, CSMOptimizationMode, CSMLevel } from '../../core/renderer/scene';
 import { Root } from '../../core/root';
 import { property } from '../../core/data/class-decorator';
 import { CCBoolean, CCFloat } from '../../core/data/utils/attribute';
@@ -68,7 +68,7 @@ export class DirectionalLight extends Light {
     @serializable
     protected _shadowInvisibleOcclusionRange = 200;
     @serializable
-    protected _csmLevel = VisibleLevel.CSM;
+    protected _csmLevel = CSMLevel.level_4;
     @serializable
     protected _csmLayerLambda = 0.75;
     @serializable
@@ -258,15 +258,12 @@ export class DirectionalLight extends Light {
      * @en get or set shadow CSM level
      * @zh 获取或者设置阴影层级
      */
-    @visible(function (this: DirectionalLight) {
-        return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type
-            === ShadowType.ShadowMap && this._shadowFixedArea === false;
-    })
+    @visible(false)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 11 } })
     @editable
     @tooltip('CSM Level')
     @slide
-    @type(VisibleLevel)
+    @type(CSMLevel)
     get csmLevel () {
         return this._csmLevel;
     }
@@ -279,11 +276,35 @@ export class DirectionalLight extends Light {
     }
 
     /**
+     * @en enable csm
+     * @zh 开启或关闭 csm 模式
+     */
+    @visible(function (this: DirectionalLight) {
+        return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type
+            === ShadowType.ShadowMap && this._shadowFixedArea === false;
+    })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 12 } })
+    @editable
+    @tooltip('enable CSM')
+    @slide
+    @type(CCBoolean)
+    get enableCSM () {
+        return this._csmLevel > CSMLevel.level_1;
+    }
+    set enableCSM (val) {
+        this._csmLevel = val ? CSMLevel.level_4 : CSMLevel.level_1;
+        if (this._light) {
+            this._light.csmLevel = this._csmLevel;
+            this._light.csmNeedUpdate = true;
+        }
+    }
+
+    /**
      * @en get or set shadow CSM level ratio
      * @zh 获取或者设置阴影层级系数
      */
     @visible(false)
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 12 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 13 } })
     @editable
     @tooltip('CSM Level ratio')
     @range([0.0, 1.0, 0.01])
@@ -306,7 +327,7 @@ export class DirectionalLight extends Light {
      * @internal
      */
     @visible(false)
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 13 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 14 } })
     @editable
     @tooltip('CSM Performance Optimization Mode')
     @slide

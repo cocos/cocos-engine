@@ -163,27 +163,6 @@ export const CSMLevel = Enum({
 });
 
 /**
- * @zh 级联阴影贴图层级。
- * @en The CSM mode for editor
- * @enum Shadows.VisibleLevel
- */
-export const VisibleLevel = Enum({
-    /**
-     * @zh 1 个层级
-     * @en level 1
-     * @readonly
-     */
-    NONE: CSMLevel.level_1,
-
-    /**
-     * @zh 4 个层级
-     * @en level 4
-     * @readonly
-     */
-    CSM: CSMLevel.level_4,
-});
-
-/**
  * @zh 级联阴影性能优化模式。
  * @en The CSM performance optimization mode
  * @enum Shadows.CSMOptimizationMode
