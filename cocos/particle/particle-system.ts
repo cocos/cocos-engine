@@ -24,7 +24,7 @@
  */
 
 // eslint-disable-next-line max-len
-import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, inspector, boolean, visible, slide, rangeStep } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { RenderableComponent } from '../core/components/renderable-component';
 import { Material } from '../core/assets/material';
@@ -123,6 +123,7 @@ export class ParticleSystem extends RenderableComponent {
     @range([0, 1])
     @displayOrder(10)
     @tooltip('i18n:particle_system.startSizeY')
+    @visible(function (this: ParticleSystem): boolean { return this.startSize3D; })
     public startSizeY = new CurveRange();
 
     /**
@@ -133,6 +134,7 @@ export class ParticleSystem extends RenderableComponent {
     @range([0, 1])
     @displayOrder(10)
     @tooltip('i18n:particle_system.startSizeZ')
+    @visible(function (this: ParticleSystem): boolean { return this.startSize3D; })
     public startSizeZ = new CurveRange();
 
     /**
@@ -159,6 +161,7 @@ export class ParticleSystem extends RenderableComponent {
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationX')
+    @visible(function (this: ParticleSystem): boolean { return this.startRotation3D; })
     public startRotationX = new CurveRange();
 
     /**
@@ -170,6 +173,7 @@ export class ParticleSystem extends RenderableComponent {
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationY')
+    @visible(function (this: ParticleSystem): boolean { return this.startRotation3D; })
     public startRotationY = new CurveRange();
 
     /**
@@ -181,6 +185,7 @@ export class ParticleSystem extends RenderableComponent {
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationZ')
+    @visible(function (this: ParticleSystem): boolean { return this.startRotation3D; })
     public startRotationZ = new CurveRange();
 
     /**
