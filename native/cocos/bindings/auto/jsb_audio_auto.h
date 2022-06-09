@@ -25,7 +25,6 @@ extern se::Class * __jsb_cc_AudioEngine_class; // NOLINT
 bool js_register_cc_AudioEngine(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_audio_AudioEngine_end);
-SE_DECLARE_FUNC(js_audio_AudioEngine_getBuffer);
 SE_DECLARE_FUNC(js_audio_AudioEngine_getCurrentTime);
 SE_DECLARE_FUNC(js_audio_AudioEngine_getDefaultProfile);
 SE_DECLARE_FUNC(js_audio_AudioEngine_getDuration);
@@ -33,7 +32,6 @@ SE_DECLARE_FUNC(js_audio_AudioEngine_getDurationFromFile);
 SE_DECLARE_FUNC(js_audio_AudioEngine_getMaxAudioInstance);
 SE_DECLARE_FUNC(js_audio_AudioEngine_getPlayingAudioCount);
 SE_DECLARE_FUNC(js_audio_AudioEngine_getProfile);
-SE_DECLARE_FUNC(js_audio_AudioEngine_getSampleRate);
 SE_DECLARE_FUNC(js_audio_AudioEngine_getState);
 SE_DECLARE_FUNC(js_audio_AudioEngine_getVolume);
 SE_DECLARE_FUNC(js_audio_AudioEngine_isEnabled);

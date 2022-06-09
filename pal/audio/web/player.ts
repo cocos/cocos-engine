@@ -38,7 +38,12 @@ export class AudioPlayer {
     constructor (player: AbstractAudioPlayer) {
         this._player = player;
     }
-
+    get SampleRate () {
+        return this._player.sampleRate;
+    }
+    public getPCMBuffer (channelID:number) {
+        return this._player.getPCMBuffer(channelID);
+    }
     static load (url: string, opts?: AudioLoadOptions): Promise<AudioPlayer> {
         return new Promise((resolve) => {
             if (opts?.audioLoadMode === AudioType.DOM_AUDIO || !AudioContextAgent.support) {

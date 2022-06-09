@@ -25,6 +25,8 @@
 ****************************************************************************/
 
 #include "audio/oalsoft/AudioDecoderMp3.h"
+#include <malloc.h>
+#include <stdint.h>
 #include "audio/oalsoft/AudioMacros.h"
 #include "platform/FileUtils.h"
 

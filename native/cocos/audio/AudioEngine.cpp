@@ -593,18 +593,11 @@ bool AudioEngine::isEnabled() {
     return sIsEnabled;
 }
 
-uint32_t AudioEngine::getSampleRate(uint32_t audioID) {
-    auto it = sAudioIDInfoMap.find(audioID);
-    if (it != sAudioIDInfoMap.end()) {
-        return sAudioEngineImpl->getSampleRate(audioID);
-    }
-    return 0;
+uint32_t AudioEngine::getSampleRate(const char* url) {
+    return sAudioEngineImpl->getSampleRate(url);
 }
-float* AudioEngine::getPCMBuffer(uint32_t audioID, uint32_t channelID) {
-    auto it = sAudioIDInfoMap.find(audioID);
-    if (it != sAudioIDInfoMap.end()) {
-        return sAudioEngineImpl->getPCMBuffer(audioID, channelID);
-    }
-
-    return nullptr;
+std::vector<float> AudioEngine::getPCMBuffer(const char* url, uint32_t channelID) {
+    std::vector<float> pcmData;
+    sAudioEngineImpl->getPCMBuffer(url, channelID, pcmData);
+    return pcmData;
 }

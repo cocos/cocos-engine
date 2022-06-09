@@ -42,7 +42,8 @@ AudioDecoder::AudioDecoder()
   _totalFrames(0),
   _bytesPerFrame(0),
   _sampleRate(0),
-  _channelCount(0) {
+  _channelCount(0),
+  _bytesPerChannel(0) {
 }
 
 AudioDecoder::~AudioDecoder() {

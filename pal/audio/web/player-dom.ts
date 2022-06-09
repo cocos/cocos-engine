@@ -4,6 +4,7 @@ import { EventTarget } from '../../../cocos/core/event';
 import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 import { BrowserType, OS } from '../../system-info/enum-type';
+import { EmptyPipelineState } from '../../../cocos/core/gfx/empty/empty-pipeline-state';
 
 function ensurePlaying (domAudio: HTMLAudioElement): Promise<void> {
     return new Promise((resolve) => {
@@ -195,6 +196,16 @@ export class AudioPlayerDOM implements OperationQueueable {
     }
     get currentTime (): number {
         return this._domAudio.currentTime;
+    }
+
+    //TODO: what should we use for dom？
+    get sampleRate (): number {
+        return 0;
+    }
+
+    public getPCMBuffer (channelID: number): Float32Array {
+        const arr = new Float32Array();
+        return arr;
     }
 
     @enqueueOperation

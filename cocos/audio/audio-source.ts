@@ -344,7 +344,7 @@ export class AudioSource extends Component {
     get sampleRate () {
         return this._player?.sampleRate;
     }
-    public getPCMbuffer (channelID: number) {
+    public getPCMbuffer (channelID: number): Float32Array | undefined {
         return this._player?.getPCMBuffer(channelID);
     }
     /**

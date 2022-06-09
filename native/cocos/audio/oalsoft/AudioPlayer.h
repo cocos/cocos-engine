@@ -59,8 +59,6 @@ public:
     bool setTime(float time);
     float getTime() { return _currTime; }
     bool setLoop(bool loop);
-    uint32_t getSampleRate();
-    float* getPCMBuffer(uint32_t channelID);
 protected:
     void setCache(AudioCache *cache);
     void rotateBufferThread(int offsetFrame);

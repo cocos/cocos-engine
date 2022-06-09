@@ -25,7 +25,12 @@
 ****************************************************************************/
 
 #include <stdint.h>
+#include <cstring>
+#include <vector>
 #include "audio/android/AudioEngine-inl.h"
+#include "audio/oalsoft/AudioDecoder.h"
+#include "base/Log.h"
+#include "base/Utils.h"
 #define LOG_TAG "AudioEngine-OALSOFT"
 
 #include "audio/oalsoft/AudioEngine-soft.h"
@@ -535,16 +540,59 @@ bool AudioEngineImpl::checkAudioIdValid(int audioID) {
     return _audioPlayers.find(audioID) != _audioPlayers.end();
 }
 
-uint32_t AudioEngineImpl::getSampleRate(uint32_t audioID) {
-    if (!checkAudioIdValid(audioID)) {
-        return 0;
+uint32_t AudioEngineImpl::getSampleRate(const char* url) {
+    AudioDecoder* decoder = AudioDecoderManager.createDecoder(url);
+    if (decoder == nullptr) {
+        CC_LOG_DEBUG("decode failed, the file formate might not support");
+        return;
     }
-    return _audioPlayers[audioID]->getSampleRate();
+    const uint32_t sampleRate;
+    do {
+        if (!decoder->open(_fileFullPath.c_str())) {
+            CC_LOG_ERROR("File open failed");
+            break;
+        }
+        sampleRate = decoder->getSampleRate();
+
+    } while(false)
+
+
+    AudioDecoderManager::destroyDecoder(decoder);
+    return sampleRate;
 }
 
-float* AudioEngineImpl::getPCMBuffer(uint32_t audioID, uint32_t channelID) {
-    if (!checkAudioIdValid(audioID)) {
-        return nullptr;
+void AudioEngineImpl::getPCMBuffer(uint32_t audioID, uint32_t channelID, std::vector<float>& pcmData) {
+    AudioDecoder* decoder = AudioDecoderManager.createDecoder(url);
+    if (decoder == nullptr) {
+        CC_LOG_DEBUG("decode failed, the file formate might not support");
+        return;
     }
-    return _audioPlayers[audioID]->getPCMBuffer(audioID, channelID);
+    do {
+        if (!decoder->open(_fileFullPath.c_str())) {
+            CC_LOG_ERROR("File open failed");
+            break;
+        }
+        const uint32_t bytesPerChannels = decoder->getBytesPerChannel();
+        const uint32_t bytesPerFrame = decoder->getBytesPerFrame();
+        const uint32_t bytesPerChannel = decoder->getBytesPerChannel();
+        const uint32_t channelCount = decoder->getChannelCount();
+        if (channelID >= channelCount) {
+            CC_LOG_ERROR("channelID invalid, total channel count is %d but %d is required", channelCount, channelID);
+            break;
+        }
+        char *tmpBuf = static_cast<char *>(malloc(bytesPerFrame));
+        char *tmpBufPerChannel = static_cast<char *>(malloc(bytesPerChannels));
+        do {
+            framesRead = decoder->read(1, tmpBuf); //read one by one to easy divide
+            if (framesRead > 0) {
+                int startByte = channelID * bytesPerChannels;
+                for(int j = 0 ; j < bytesPerChannels ; j++) {
+                    tmpBufPerChannel[j] = tmpBuf[startByte + j];
+                }
+                
+                pcmData.emplace_back(utils::atof(tmpBufPerChannel));
+            }
+        } while (framesRead > 0);
+    } while(false)
+    AudioDecoderManager::destroyDecoder(decoder);
 }

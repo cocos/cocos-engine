@@ -322,7 +322,7 @@ public:
      * @param audioID
      * @return SampleRate of audio source
      */
-    static uint32_t getSampleRate(uint32_t audioID);
+    static uint32_t getSampleRate(const char* url);
 
     /**
      * @brief Get the Buffer object
@@ -330,15 +330,7 @@ public:
      * @param audioID 
      * @return float* PCM datas behave as float array
      */
-    static float* getPCMBuffer(uint32_t audioID, uint32_t channelID);
-    /**
-     * @brief Get the Buffer object
-     * 
-     * @param audioID 
-     * @param channelID Specifiy from which channel would you like to get the buffer
-     * @return float* Buffer datas behave as float array
-     */
-    static float* getBuffer(uint32_t audioID, uint32_t channelID);
+    static std::vector<float> getPCMBuffer(const char* url, uint32_t channelID);
     
 protected:
     static void addTask(const std::function<void()> &task);
