@@ -41,3 +41,37 @@ test('exportDynamicConstants', () => {
     const targetContent = handleEscape( fs.readFileSync(ps.join(__dirname, 'dynamic-constants.txt'), 'utf8') );
     expect(result).toBe(targetContent);
 });
+
+test('genBuildTimeConstants', () => {
+    const result = cm.genBuildTimeConstants({
+        mode: 'TEST',
+        platform: 'NATIVE',
+        flags: { DEBUG: false, SERVER_MODE: true },
+    });
+    expect(result).toStrictEqual({
+        HTML5: false,
+        NATIVE: true,
+        WECHAT: false,
+        BAIDU: false,
+        XIAOMI: false,
+        ALIPAY: false,
+        BYTEDANCE: false,
+        OPPO: false,
+        VIVO: false,
+        HUAWEI: false,
+        COCOSPLAY: false,
+        QTT: false,
+        LINKSURE: false,
+        EDITOR: false,
+        PREVIEW: false,
+        BUILD: false,
+        TEST: true,
+        DEBUG: false,
+        SERVER_MODE: true,
+        DEV: true,
+        MINIGAME: false,
+        RUNTIME_BASED: false,
+        SUPPORT_JIT: true,
+        JSB: true
+      });
+});
