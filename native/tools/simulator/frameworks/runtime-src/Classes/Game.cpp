@@ -87,7 +87,7 @@ int Game::init() {
 
     setXXTeaKey("");
 
-    runScript("jsb-adapter/jsb-builtin.js");
+    runScript("jsb-adapter/web-adapter.js");
     runScript("main.js");
 
     // Runtime end

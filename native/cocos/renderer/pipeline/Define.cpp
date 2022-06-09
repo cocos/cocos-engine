@@ -173,6 +173,30 @@ const gfx::UniformBlock UBOShadow::LAYOUT = {
     1,
 };
 
+const ccstd::string UBOCSM::NAME = "CCCSM";
+const gfx::DescriptorSetLayoutBinding UBOCSM::DESCRIPTOR = {
+    UBOCSM::BINDING,
+    gfx::DescriptorType::UNIFORM_BUFFER,
+    1,
+    gfx::ShaderStageFlagBit::ALL,
+    {},
+};
+const gfx::UniformBlock UBOCSM::LAYOUT = {
+    globalSet,
+    UBOCSM::BINDING,
+    UBOCSM::NAME,
+    {
+        {"cc_matShadowView_levels", gfx::Type::MAT4, UBOCSM::CSM_LEVEL_COUNT},
+        {"cc_matShadowViewProj_levels", gfx::Type::MAT4, UBOCSM::CSM_LEVEL_COUNT},
+        {"cc_matShadowViewProjAtlas_levels", gfx::Type::MAT4, UBOCSM::CSM_LEVEL_COUNT},
+        {"cc_shadowProjDepthInfo_levels", gfx::Type::FLOAT4, UBOCSM::CSM_LEVEL_COUNT},
+        {"cc_shadowProjInfo_levels", gfx::Type::FLOAT4, UBOCSM::CSM_LEVEL_COUNT},
+        {"cc_shadowSplits", gfx::Type::FLOAT4, 1},
+        {"cc_csmInfo", gfx::Type::FLOAT4, 1},
+    },
+    1,
+};
+
 const ccstd::string UBOLocal::NAME = "CCLocal";
 const gfx::DescriptorSetLayoutBinding UBOLocal::DESCRIPTOR = {
     UBOLocal::BINDING,

@@ -25,7 +25,7 @@
 
 import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, serializable } from 'cc.decorator';
-import { TextureType, TextureInfo, TextureViewInfo } from '../gfx';
+import { TextureType, TextureInfo, TextureViewInfo, BufferTextureCopy } from '../gfx';
 import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } from './simple-texture';
 import { ITexture2DCreateInfo, Texture2D } from './texture-2d';
@@ -33,6 +33,25 @@ import { legacyCC } from '../global-exports';
 import { js } from '../utils/js';
 
 export type ITextureCubeCreateInfo = ITexture2DCreateInfo;
+/**
+ * @en The MipmapAtlas region interface
+ * @zh MipmapAtlas的region接口。
+ */
+interface IMipmapAtlasLayout {
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+    level: number;
+}
+/**
+ * @en The texture cube MipmapAtlas interface
+ * @zh 立方体贴图的 MipmapAtlas 接口。
+ */
+interface ITextureCubeMipmapAtlas {
+    atlas: ITextureCubeMipmap;
+    layout: IMipmapAtlasLayout[];
+}
 
 /**
  * @en The texture cube mipmap interface
@@ -59,6 +78,36 @@ enum FaceIndex {
     front = 4,
     back = 5,
 }
+/**
+ * @en The way to fill mipmaps.
+ * @zh 填充mipmaps的方式。
+ */
+export enum MipmapMode {
+    /**
+     * @zh
+     * 不使用mipmaps
+     * @en
+     * Not using mipmaps
+     * @readonly
+     */
+    NONE = 0,
+    /**
+     * @zh
+     * 使用自动生成的mipmaps
+     * @en
+     * Using the automatically generated mipmaps
+     * @readonly
+     */
+    AUTO = 1,
+    /**
+     * @zh
+     * 使用卷积图填充mipmaps
+     * @en
+     * Filling mipmaps with convolutional maps
+     * @readonly
+     */
+    BAKED_CONVOLUTION_MAP = 2,
+}
 
 /**
  * @en The texture cube asset.
@@ -72,6 +121,12 @@ export class TextureCube extends SimpleTexture {
 
     @serializable
     isRGBE = false;
+
+    @serializable
+    _mipmapAtlas: ITextureCubeMipmapAtlas | null = null;
+
+    @serializable
+    _mipmapMode = MipmapMode.NONE;
 
     /**
      * @en All levels of mipmap images, be noted, automatically generated mipmaps are not included.
@@ -110,6 +165,74 @@ export class TextureCube extends SimpleTexture {
                 maxLevel: this._maxLevel,
             });
         }
+    }
+
+    /**
+     * @en Fill mipmaps with convolutional maps.
+     * @zh 使用卷积图填充mipmaps。
+     * @param value All mipmaps of each face of the cube map are stored in the form of atlas
+     * and the value contains the atlas of the 6 faces and the layout information of each mipmap layer.
+     */
+    set mipmapAtlas (value: ITextureCubeMipmapAtlas | null) {
+        this._mipmapAtlas = value;
+        if (!this._mipmapAtlas) {
+            this.reset({
+                width: 0,
+                height: 0,
+                mipmapLevel: 0,
+            });
+            return;
+        }
+        const imageAtlasAsset: ImageAsset = this._mipmapAtlas.atlas.front;
+        if (!imageAtlasAsset.data) {
+            return;
+        }
+        const faceAtlas = this._mipmapAtlas.atlas;
+        const layout = this._mipmapAtlas.layout;
+        const mip0Layout = layout[0];
+
+        const ctx = Object.assign(document.createElement('canvas'), {
+            width: imageAtlasAsset.width,
+            height: imageAtlasAsset.height,
+        }).getContext('2d');
+
+        this.reset({
+            width: mip0Layout.width,
+            height: mip0Layout.height,
+            format: imageAtlasAsset.format,
+            mipmapLevel: layout.length,
+        });
+
+        for (let j = 0; j < layout.length; j++) {
+            const layoutInfo = layout[j];
+            _forEachFace(faceAtlas, (face, faceIndex) => {
+                ctx!.clearRect(0, 0, imageAtlasAsset.width, imageAtlasAsset.height);
+                const drawImg = face.data as HTMLImageElement;
+                ctx!.drawImage(drawImg, 0, 0);
+                const rawData = ctx!.getImageData(layoutInfo.left, layoutInfo.top, layoutInfo.width, layoutInfo.height);
+
+                const bufferAsset = new ImageAsset({
+                    _data: rawData.data,
+                    _compressed: face.isCompressed,
+                    width: rawData.width,
+                    height: rawData.height,
+                    format: face.format,
+                });
+                this._assignImage(bufferAsset, layoutInfo.level, faceIndex);
+            });
+        }
+    }
+
+    get mipmapAtlas () {
+        return this._mipmapAtlas;
+    }
+
+    /**
+     * @en Whether mipmaps are baked convolutional maps.
+     * @zh mipmaps是否为烘焙出来的卷积图。
+     */
+    public isUsingOfflineMipmaps (): boolean {
+        return this._mipmapMode === MipmapMode.BAKED_CONVOLUTION_MAP;
     }
 
     /**
@@ -174,7 +297,11 @@ export class TextureCube extends SimpleTexture {
     public _mipmaps: ITextureCubeMipmap[] = [];
 
     public onLoaded () {
-        this.mipmaps = this._mipmaps;
+        if (this._mipmapMode === MipmapMode.BAKED_CONVOLUTION_MAP) {
+            this.mipmapAtlas = this._mipmapAtlas;
+        } else {
+            this.mipmaps = this._mipmaps;
+        }
     }
 
     /**
@@ -220,6 +347,7 @@ export class TextureCube extends SimpleTexture {
      */
     public destroy () {
         this._mipmaps = [];
+        this._mipmapAtlas = null;
         return super.destroy();
     }
 
@@ -230,6 +358,7 @@ export class TextureCube extends SimpleTexture {
      */
     public releaseTexture () {
         this.mipmaps = [];
+        this._mipmapAtlas = null;
     }
 
     /**
@@ -237,25 +366,56 @@ export class TextureCube extends SimpleTexture {
      */
     public _serialize (ctxForExporting: any): Record<string, unknown> | null {
         if (EDITOR || TEST) {
-            return {
-                base: super._serialize(ctxForExporting),
-                rgbe: this.isRGBE,
-                mipmaps: this._mipmaps.map((mipmap) => ((ctxForExporting && ctxForExporting._compressUuid) ? {
-                    front: EditorExtends.UuidUtils.compressUuid(mipmap.front._uuid, true),
-                    back: EditorExtends.UuidUtils.compressUuid(mipmap.back._uuid, true),
-                    left: EditorExtends.UuidUtils.compressUuid(mipmap.left._uuid, true),
-                    right: EditorExtends.UuidUtils.compressUuid(mipmap.right._uuid, true),
-                    top: EditorExtends.UuidUtils.compressUuid(mipmap.top._uuid, true),
-                    bottom: EditorExtends.UuidUtils.compressUuid(mipmap.bottom._uuid, true),
-                } : {
-                    front: mipmap.front._uuid,
-                    back: mipmap.back._uuid,
-                    left: mipmap.left._uuid,
-                    right: mipmap.right._uuid,
-                    top: mipmap.top._uuid,
-                    bottom: mipmap.bottom._uuid,
-                })),
-            };
+            if (this._mipmapMode === MipmapMode.BAKED_CONVOLUTION_MAP) {
+                const atlas = this._mipmapAtlas!.atlas;
+                let uuids = {};
+                if (ctxForExporting && ctxForExporting._compressUuid) {
+                    uuids = {
+                        front: EditorExtends.UuidUtils.compressUuid(atlas.front._uuid, true),
+                        back: EditorExtends.UuidUtils.compressUuid(atlas.back._uuid, true),
+                        left: EditorExtends.UuidUtils.compressUuid(atlas.left._uuid, true),
+                        right: EditorExtends.UuidUtils.compressUuid(atlas.right._uuid, true),
+                        top: EditorExtends.UuidUtils.compressUuid(atlas.top._uuid, true),
+                        bottom: EditorExtends.UuidUtils.compressUuid(atlas.bottom._uuid, true),
+                    };
+                } else {
+                    uuids = {
+                        front: atlas.front._uuid,
+                        back: atlas.back._uuid,
+                        left: atlas.left._uuid,
+                        right: atlas.right._uuid,
+                        top: atlas.top._uuid,
+                        bottom: atlas.bottom._uuid,
+                    };
+                }
+                return {
+                    base: super._serialize(ctxForExporting),
+                    rgbe: this.isRGBE,
+                    mipmapMode: this._mipmapMode,
+                    mipmapAtlas: uuids,
+                    mipmapLayout: this._mipmapAtlas!.layout,
+                };
+            } else {
+                return {
+                    base: super._serialize(ctxForExporting),
+                    rgbe: this.isRGBE,
+                    mipmaps: this._mipmaps.map((mipmap) => ((ctxForExporting && ctxForExporting._compressUuid) ? {
+                        front: EditorExtends.UuidUtils.compressUuid(mipmap.front._uuid, true),
+                        back: EditorExtends.UuidUtils.compressUuid(mipmap.back._uuid, true),
+                        left: EditorExtends.UuidUtils.compressUuid(mipmap.left._uuid, true),
+                        right: EditorExtends.UuidUtils.compressUuid(mipmap.right._uuid, true),
+                        top: EditorExtends.UuidUtils.compressUuid(mipmap.top._uuid, true),
+                        bottom: EditorExtends.UuidUtils.compressUuid(mipmap.bottom._uuid, true),
+                    } : {
+                        front: mipmap.front._uuid,
+                        back: mipmap.back._uuid,
+                        left: mipmap.left._uuid,
+                        right: mipmap.right._uuid,
+                        top: mipmap.top._uuid,
+                        bottom: mipmap.bottom._uuid,
+                    })),
+                };
+            }
         }
         return null;
     }
@@ -267,10 +427,15 @@ export class TextureCube extends SimpleTexture {
         const data = serializedData;
         super._deserialize(data.base, handle);
         this.isRGBE = data.rgbe;
-        this._mipmaps = new Array(data.mipmaps.length);
-        for (let i = 0; i < data.mipmaps.length; ++i) {
-            // Prevent resource load failed
-            this._mipmaps[i] = {
+        this._mipmapMode = data.mipmapMode;
+        if (this._mipmapMode === MipmapMode.BAKED_CONVOLUTION_MAP) {
+            const mipmapAtlas = data.mipmapAtlas;
+            const mipmapLayout = data.mipmapLayout;
+            this._mipmapAtlas = {
+                atlas: {} as ITextureCubeMipmap,
+                layout: mipmapLayout,
+            };
+            this._mipmapAtlas.atlas = {
                 front: new ImageAsset(),
                 back: new ImageAsset(),
                 left: new ImageAsset(),
@@ -278,14 +443,34 @@ export class TextureCube extends SimpleTexture {
                 top: new ImageAsset(),
                 bottom: new ImageAsset(),
             };
-            const mipmap = data.mipmaps[i];
             const imageAssetClassId = js._getClassId(ImageAsset);
-            handle.result.push(this._mipmaps[i], `front`, mipmap.front, imageAssetClassId);
-            handle.result.push(this._mipmaps[i], `back`, mipmap.back, imageAssetClassId);
-            handle.result.push(this._mipmaps[i], `left`, mipmap.left, imageAssetClassId);
-            handle.result.push(this._mipmaps[i], `right`, mipmap.right, imageAssetClassId);
-            handle.result.push(this._mipmaps[i], `top`, mipmap.top, imageAssetClassId);
-            handle.result.push(this._mipmaps[i], `bottom`, mipmap.bottom, imageAssetClassId);
+            handle.result.push(this._mipmapAtlas.atlas, `front`, mipmapAtlas.front, imageAssetClassId);
+            handle.result.push(this._mipmapAtlas.atlas, `back`, mipmapAtlas.back, imageAssetClassId);
+            handle.result.push(this._mipmapAtlas.atlas, `left`, mipmapAtlas.left, imageAssetClassId);
+            handle.result.push(this._mipmapAtlas.atlas, `right`, mipmapAtlas.right, imageAssetClassId);
+            handle.result.push(this._mipmapAtlas.atlas, `top`, mipmapAtlas.top, imageAssetClassId);
+            handle.result.push(this._mipmapAtlas.atlas, `bottom`, mipmapAtlas.bottom, imageAssetClassId);
+        } else {
+            this._mipmaps = new Array(data.mipmaps.length);
+            for (let i = 0; i < data.mipmaps.length; ++i) {
+                // Prevent resource load failed
+                this._mipmaps[i] = {
+                    front: new ImageAsset(),
+                    back: new ImageAsset(),
+                    left: new ImageAsset(),
+                    right: new ImageAsset(),
+                    top: new ImageAsset(),
+                    bottom: new ImageAsset(),
+                };
+                const mipmap = data.mipmaps[i];
+                const imageAssetClassId = js._getClassId(ImageAsset);
+                handle.result.push(this._mipmaps[i], `front`, mipmap.front, imageAssetClassId);
+                handle.result.push(this._mipmaps[i], `back`, mipmap.back, imageAssetClassId);
+                handle.result.push(this._mipmaps[i], `left`, mipmap.left, imageAssetClassId);
+                handle.result.push(this._mipmaps[i], `right`, mipmap.right, imageAssetClassId);
+                handle.result.push(this._mipmaps[i], `top`, mipmap.top, imageAssetClassId);
+                handle.result.push(this._mipmaps[i], `bottom`, mipmap.bottom, imageAssetClassId);
+            }
         }
     }
 
@@ -323,7 +508,15 @@ export class TextureCube extends SimpleTexture {
     }
 
     public validate () {
-        return this._mipmaps.length !== 0 && !this._mipmaps.find((x) => !(x.top && x.bottom && x.front && x.back && x.left && x.right));
+        if (this._mipmapMode === MipmapMode.BAKED_CONVOLUTION_MAP) {
+            if (this.mipmapAtlas === null || this.mipmapAtlas.layout.length === 0) {
+                return false;
+            }
+            const atlas = this.mipmapAtlas.atlas;
+            return !!(atlas.top && atlas.bottom && atlas.front && atlas.back && atlas.left && atlas.right);
+        } else {
+            return this._mipmaps.length !== 0 && !this._mipmaps.find((x) => !(x.top && x.bottom && x.front && x.back && x.left && x.right));
+        }
     }
 }
 
@@ -332,6 +525,16 @@ legacyCC.TextureCube = TextureCube;
 interface ITextureCubeSerializeData {
     base: string;
     rgbe: boolean;
+    mipmapMode: number;
+    mipmapAtlas: {
+        front: string;
+        back: string;
+        left: string;
+        right: string;
+        top: string;
+        bottom: string;
+    };
+    mipmapLayout: [];
     mipmaps: {
         front: string;
         back: string;

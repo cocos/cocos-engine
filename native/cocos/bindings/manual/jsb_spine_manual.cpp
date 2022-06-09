@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "jsb_spine_manual.h"
-#include "platform/FileUtils.h"
 #include "base/Data.h"
 #include "base/memory/Memory.h"
 #include "bindings/auto/jsb_spine_auto.h"
@@ -35,6 +34,7 @@
 #include "editor-support/spine-creator-support/spine-cocos2dx.h"
 #include "editor-support/spine/spine.h"
 #include "middleware-adapter.h"
+#include "platform/FileUtils.h"
 #include "spine-creator-support/SkeletonDataMgr.h"
 #include "spine-creator-support/SkeletonRenderer.h"
 #include "spine-creator-support/spine-cocos2dx.h"
@@ -240,7 +240,7 @@ bool register_all_spine_manual(se::Object *obj) {
             // Otherwise, it may trigger 'assertion' in se::Object::setPrivateData later
             // since native obj is already released and the new native object may be assigned with
             // the same address.
-            iter->second->setClearMappingInFinalizer(false);
+            seObj->setClearMappingInFinalizer(false);
             se::NativePtrToObjectMap::erase(iter);
         }
     });

@@ -30,7 +30,7 @@ struct ToonSurface {
   vec4 CCToonShading (ToonSurface s) {
     vec3 position;
     HIGHP_VALUE_FROM_STRUCT_DEFINED(position, s.position);
-    
+
     vec3 V = normalize(cc_cameraPos.xyz - position);
     vec3 N = normalize(s.normal);
     float specularWeight = 1.0 - pow(s.specular.a, 5.0);
@@ -102,7 +102,11 @@ struct ToonSurface {
     float shadow = 1.0;
     #if CC_RECEIVE_SHADOW
     if(s.shadowCover < NL && cc_mainLitDir.w > 0.0) {
+      if (cc_shadowLPNNInfo.w > 0.0) {
+        shadow = CCCSMFactorBase(position, N, s.shadowBias);
+      } else {
         shadow = CCShadowFactorBase(CC_SHADOW_POSITION, N, s.shadowBias);
+      }
     }
     #endif
 

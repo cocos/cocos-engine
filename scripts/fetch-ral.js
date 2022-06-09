@@ -1,7 +1,16 @@
 const ps = require('path');
 const fs = require('fs');
+const fsExt = require('fs-extra');
 const { exec } = require('child_process');
 const del = require('del');
+const chalk = require('chalk').default;
+
+const distDir = join(__dirname, '../bin/adapter/runtime');
+
+function forceCopyFileSync (src, dst) {
+    const content = fs.readFileSync(src, 'utf8');
+    fsExt.outputFileSync(dst, content, {encoding: 'utf8'});
+}
 
 function join (...paths) {
     const result = ps.join(...paths);
@@ -25,7 +34,6 @@ function matchCommit () {
 
 function checkFile () {
     console.log('Checking ral file...\n');
-    const distDir = join(__dirname, '../platforms/runtime');
 
     if (!fs.existsSync(targetCommitFile)) {
         console.error('Cannot access to target commit file.');
@@ -40,7 +48,7 @@ function checkFile () {
     // check web adapter
     const webAdapters = ['web-adapter.js', 'web-adapter.min.js'];
     for (const webAdapter of webAdapters) {
-        const dst = join(distDir, 'common', webAdapter);
+        const dst = join(distDir, webAdapter);
         if (!fs.existsSync(dst)) {
             return false;
         }
@@ -51,7 +59,7 @@ function checkFile () {
     const rals = ['ral.js', 'ral.min.js'];
     for (const platformName of platformNames) {
         for (const ral of rals) {
-            const dst = join(distDir, 'platforms', platformName, ral);
+            const dst = join(distDir, platformName, ral);
             if (!fs.existsSync(dst)) {
                 return false;
             }
@@ -71,49 +79,55 @@ function runCommand (cmd, cwd) {
         console.log(`Running command: '${cmd}' in '${repositoryPath}'\n`);
         const ls = exec(cmd, {
             cwd,
-        });
-        ls.stderr.on('data', err => {
-            console.error(err)
+        }, (err, stdout, stderr) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            if (stdout) {
+                console.log(stdout);
+            }
+            if (stderr) {
+                console.error(stderr);
+            }
         });
         ls.stdout.on('close', resolve);
     })
 }
 
 function copyRal () {
-    const distDir = join(__dirname, '../platforms/runtime');
     console.log(`Copy files from '${repositoryPath}' to '${distDir}'\n`);
 
     // copy web-adapter
     ['web-adapter.js', 'web-adapter.min.js'].forEach(fileName => {
         const src = join(repositoryPath, 'dist/common', fileName);
-        const dst = join(distDir, 'common', fileName);
-        fs.copyFileSync(src, dst);
+        const dst = join(distDir, fileName);
+        forceCopyFileSync(src, dst);
     });
     // copy ral
     ['cocos-play', 'huawei-quick-game', 'link-sure', 'oppo-mini-game', 'qtt', 'vivo-mini-game'].forEach(platformName => {
         ['ral.js', 'ral.min.js'].forEach(fileName => {
             const src = join(repositoryPath, 'dist/platforms', platformName, fileName);
-            const dst = join(distDir, 'platforms', platformName, fileName);
-            fs.copyFileSync(src, dst);
+            const dst = join(distDir, platformName, fileName);
+            forceCopyFileSync(src, dst);
         });
     });
 }
 
 async function cleanOldRal () {
     console.log('Cleaning old runtime adapter...\n');
-    const distDir = join(__dirname, '../platforms/runtime');
     const delPatterns = [];
     // del local commit
     delPatterns.push(localCommitFile);
     // del web adapter
     ['web-adapter.js', 'web-adapter.min.js'].forEach(fileName => {
-        const dst = join(distDir, 'common', fileName);
+        const dst = join(distDir, fileName);
         delPatterns.push(dst);
     });
     // del ral
     ['cocos-play', 'huawei-quick-game', 'link-sure', 'oppo-mini-game', 'qtt', 'vivo-mini-game'].forEach(platformName => {
         ['ral.js', 'ral.min.js'].forEach(fileName => {
-            const dst = join(distDir, 'platforms', platformName, fileName);
+            const dst = join(distDir, platformName, fileName);
             delPatterns.push(dst);
         });
     });
@@ -156,7 +170,7 @@ async function removeDir (dirPath) {
         console.timeEnd('Fetch RAL');
         process.exit(0);
     } catch (err) {
-        console.error('Fetch ral failed', err);
+        console.error(chalk.red('Fetch ral failed'), err);
         process.exit(1);
     }
 })();

@@ -50,6 +50,7 @@ class PipelineUBO;
 class PipelineSceneData;
 class GlobalDSManager;
 class RenderStage;
+class GeometryRenderer;
 struct CC_DLL RenderPipelineInfo {
     uint tag = 0;
     RenderFlowList flows;
@@ -126,6 +127,8 @@ public:
 
     inline bool isBloomEnabled() const { return _bloomEnabled; }
     inline void setBloomEnabled(bool enable) { _bloomEnabled = enable; }
+    
+    inline GeometryRenderer *getGeometryRenderer() const { return _geometryRenderer; }
 
     inline void setDebugViewConfig(const DebugViewConfig &config) { _debugViewConfig = config;}
 
@@ -134,6 +137,8 @@ protected:
 
     void generateConstantMacros();
     void destroyQuadInputAssembler();
+    
+    void updateGeometryRenderer(const ccstd::vector<scene::Camera *> &cameras);
 
     static void framegraphGC();
 
@@ -152,6 +157,7 @@ protected:
     DebugViewConfig _debugViewConfig;
     scene::Model *_profiler{nullptr};
     IntrusivePtr<PipelineSceneData> _pipelineSceneData;
+    GeometryRenderer *_geometryRenderer{nullptr};
 
     // has not initBuiltinRes,
     // create temporary default Texture to binding sampler2d

@@ -215,7 +215,7 @@ void RuntimeEngine::start() {
     }
 
     setupRuntime();
-    //startScript("jsb-adapter/jsb-builtin.js");
+    //startScript("jsb-adapter/web-adapter.js");
     //startScript("");
 }
 

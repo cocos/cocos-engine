@@ -24,7 +24,7 @@ System.import('<%= applicationJs %>').then(({ createApplication }) => {
     });
 }).then((application) => {
     return application.import('cc').then((cc) => {
-        require('jsb-adapter/jsb-engine.js');
+        require('jsb-adapter/engine-adapter.js');
         cc.macro.CLEANUP_IMAGE_CACHE = false;
     }).then(() => {
         return application.start({
