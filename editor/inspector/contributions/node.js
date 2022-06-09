@@ -2,11 +2,12 @@
 const fs = require('fs');
 const path = require('path');
 const utils = require('./utils');
+module.paths.push(path.join(Editor.App.path, 'node_modules'));
+const { debounce } = require('throttle-debounce');
 
 exports.listeners = {
-    async 'change-dump'(event) {
+    'change-dump': debounce(500, async (event) => {
         const panel = this;
-
         const target = event.target;
         if (!target) {
             return;
@@ -92,7 +93,7 @@ exports.listeners = {
         } catch (error) {
             console.error(error);
         }
-    },
+    }),
     'confirm-dump'() {
         const panel = this;
 
