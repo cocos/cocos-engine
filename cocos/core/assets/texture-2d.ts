@@ -144,7 +144,15 @@ export class Texture2D extends SimpleTexture {
     public _mipmaps: ImageAsset[] = [];
 
     public initialize () {
-        this.mipmaps = this._mipmaps;
+        const mip0 = this._mipmaps[0];
+        // Only assign validated mipmaps
+        if (mip0.validate()) {
+            this.mipmaps = this._mipmaps;
+        } else {
+            // Normally prebuilt mipmaps are only generated for compressed texture format
+            // For png or jpg files, we should use GPU to generate mipmaps directly
+            this.mipmaps = [];
+        }
     }
 
     public onLoaded () {

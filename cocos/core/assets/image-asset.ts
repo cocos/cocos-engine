@@ -25,8 +25,8 @@
 
 // @ts-check
 import { ccclass, override } from 'cc.decorator';
-import { EDITOR, MINIGAME, ALIPAY, XIAOMI, JSB, TEST, BAIDU } from 'internal:constants';
-import { Device, Feature, Format, FormatFeatureBit } from '../gfx';
+import { EDITOR, ALIPAY, XIAOMI, JSB, TEST, BAIDU } from 'internal:constants';
+import { Device, Format, FormatFeatureBit } from '../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
 import { legacyCC } from '../global-exports';
