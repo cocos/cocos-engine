@@ -48,6 +48,7 @@ namespace pipeline {
 
 class GlobalDSManager;
 class PipelineSceneData;
+class GeometryRenderer;
 
 } // namespace pipeline
 
@@ -86,6 +87,7 @@ public:
     virtual const ccstd::string         &getConstantMacros() const = 0;
     virtual scene::Model                *getProfiler() const = 0;
     virtual void                         setProfiler(scene::Model *profiler) = 0;
+    virtual pipeline::GeometryRenderer  *getGeometryRenderer() const = 0;
 
     virtual float getShadingScale() const = 0;
     virtual void  setShadingScale(float scale) = 0;
@@ -132,9 +134,9 @@ public:
 
     ~RasterQueueBuilder() noexcept override = 0;
 
-    virtual void addSceneOfCamera(scene::Camera* camera, const ccstd::string& name) = 0;
-    virtual void addSceneOfCamera(scene::Camera* camera) = 0;
-    virtual void addScene(const ccstd::string& name) = 0;
+    virtual void addSceneOfCamera(scene::Camera* camera, SceneFlags sceneFlags, const ccstd::string& name) = 0;
+    virtual void addSceneOfCamera(scene::Camera* camera, SceneFlags sceneFlags) = 0;
+    virtual void addScene(const ccstd::string& name, SceneFlags sceneFlags) = 0;
     virtual void addFullscreenQuad(const ccstd::string& shader, const ccstd::string& name) = 0;
     virtual void addFullscreenQuad(const ccstd::string& shader) = 0;
 };

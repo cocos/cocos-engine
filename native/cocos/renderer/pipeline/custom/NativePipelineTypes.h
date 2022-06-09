@@ -71,9 +71,9 @@ public:
       queueID(queueIDIn),
       layoutID(layoutIDIn) {}
 
-    void addSceneOfCamera(scene::Camera* camera, const ccstd::string& name) override;
-    void addSceneOfCamera(scene::Camera* camera) override;
-    void addScene(const ccstd::string& name) override;
+    void addSceneOfCamera(scene::Camera* camera, SceneFlags sceneFlags, const ccstd::string& name) override;
+    void addSceneOfCamera(scene::Camera* camera, SceneFlags sceneFlags) override;
+    void addScene(const ccstd::string& name, SceneFlags sceneFlags) override;
     void addFullscreenQuad(const ccstd::string& shader, const ccstd::string& name) override;
     void addFullscreenQuad(const ccstd::string& shader) override;
 
@@ -279,6 +279,7 @@ public:
     const ccstd::string         &getConstantMacros() const override;
     scene::Model                *getProfiler() const override;
     void                         setProfiler(scene::Model *profiler) override;
+    pipeline::GeometryRenderer  *getGeometryRenderer() const override;
 
     float getShadingScale() const override;
     void  setShadingScale(float scale) override;

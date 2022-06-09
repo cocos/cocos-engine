@@ -108,6 +108,25 @@ static bool js_render_PipelineRuntime_getDescriptorSetLayout(se::State& s) // NO
 }
 SE_BIND_FUNC_AS_PROP_GET(js_render_PipelineRuntime_getDescriptorSetLayout)
 
+static bool js_render_PipelineRuntime_getGeometryRenderer(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_PipelineRuntime_getGeometryRenderer : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::pipeline::GeometryRenderer* result = cobj->getGeometryRenderer();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_render_PipelineRuntime_getGeometryRenderer : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_render_PipelineRuntime_getGeometryRenderer)
+
 static bool js_render_PipelineRuntime_getGlobalDSManager(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
@@ -268,6 +287,7 @@ bool js_register_render_PipelineRuntime(se::Object* obj) // NOLINT(readability-i
     cls->defineProperty("pipelineSceneData", _SE(js_render_PipelineRuntime_getPipelineSceneData_asGetter), nullptr);
     cls->defineProperty("constantMacros", _SE(js_render_PipelineRuntime_getConstantMacros_asGetter), nullptr);
     cls->defineProperty("profiler", _SE(js_render_PipelineRuntime_getProfiler_asGetter), _SE(js_render_PipelineRuntime_setProfiler_asSetter));
+    cls->defineProperty("geometryRenderer", _SE(js_render_PipelineRuntime_getGeometryRenderer_asGetter), nullptr);
     cls->defineProperty("shadingScale", _SE(js_render_PipelineRuntime_getShadingScale_asGetter), _SE(js_render_PipelineRuntime_setShadingScale_asSetter));
     cls->defineFunction("activate", _SE(js_render_PipelineRuntime_activate));
     cls->defineFunction("destroy", _SE(js_render_PipelineRuntime_destroy));
@@ -592,14 +612,16 @@ static bool js_render_RasterQueueBuilder_addScene(se::State& s) // NOLINT(readab
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 1) {
+    if (argc == 2) {
         HolderType<std::string, true> arg0 = {};
+        HolderType<cc::render::SceneFlags, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_render_RasterQueueBuilder_addScene : Error processing arguments");
-        cobj->addScene(arg0.value());
+        cobj->addScene(arg0.value(), arg1.value());
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
     return false;
 }
 SE_BIND_FUNC(js_render_RasterQueueBuilder_addScene)
@@ -612,26 +634,32 @@ static bool js_render_RasterQueueBuilder_addSceneOfCamera(se::State& s) // NOLIN
     const auto& args = s.args();
     size_t argc = args.size();
     do {
-        if (argc == 1) {
-            HolderType<cc::scene::Camera*, false> arg0 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->addSceneOfCamera(arg0.value());
-            return true;
-        }
-    } while(false);
-
-    do {
         if (argc == 2) {
             HolderType<cc::scene::Camera*, false> arg0 = {};
-            HolderType<std::string, true> arg1 = {};
+            HolderType<cc::render::SceneFlags, false> arg1 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
             if (!ok) { ok = true; break; }
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
             if (!ok) { ok = true; break; }
             cobj->addSceneOfCamera(arg0.value(), arg1.value());
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 3) {
+            HolderType<cc::scene::Camera*, false> arg0 = {};
+            HolderType<cc::render::SceneFlags, false> arg1 = {};
+            HolderType<std::string, true> arg2 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->addSceneOfCamera(arg0.value(), arg1.value(), arg2.value());
             return true;
         }
     } while(false);
