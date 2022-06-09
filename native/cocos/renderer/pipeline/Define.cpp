@@ -534,7 +534,7 @@ static ccstd::unordered_map<ccstd::string, uint32_t> phases; //cjh how to clear 
 static uint32_t phaseNum = 0;
 
 uint getPhaseID(const ccstd::string &phaseName) {
-    auto iter = phases.find(phaseName);
+    const auto iter = phases.find(phaseName);
     if (iter == phases.end()) {
         phases.emplace(phaseName, 1 << phaseNum);
         ++phaseNum;

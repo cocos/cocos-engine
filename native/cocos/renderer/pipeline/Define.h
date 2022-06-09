@@ -207,6 +207,7 @@ inline RenderQueueSortFunc convertQueueSortFunc(const RenderQueueSortMode &mode)
             break;
         case RenderQueueSortMode::FRONT_TO_BACK:
             sortFunc = opaqueCompareFn;
+            break;
         default:
             break;
     }

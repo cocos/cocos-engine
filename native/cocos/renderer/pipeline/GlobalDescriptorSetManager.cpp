@@ -75,7 +75,7 @@ void GlobalDSManager::bindBuffer(uint32_t binding, gfx::Buffer *buffer) {
         _globalDescriptorSet->bindBuffer(binding, buffer);
     }
 
-    for (auto &pair : _descriptorSetMap) {
+    for (const auto &pair : _descriptorSetMap) {
         if (pair.second) pair.second->bindBuffer(binding, buffer);
     }
 }
@@ -85,7 +85,7 @@ void GlobalDSManager::bindSampler(uint32_t binding, gfx::Sampler *sampler) {
         _globalDescriptorSet->bindSampler(binding, sampler);
     }
 
-    for (auto &pair : _descriptorSetMap) {
+    for (const auto &pair : _descriptorSetMap) {
         if (pair.second) pair.second->bindSampler(binding, sampler);
     }
 }
@@ -95,7 +95,7 @@ void GlobalDSManager::bindTexture(uint32_t binding, gfx::Texture *texture) {
         _globalDescriptorSet->bindTexture(binding, texture);
     }
 
-    for (auto &pair : _descriptorSetMap) {
+    for (const auto &pair : _descriptorSetMap) {
         if (pair.second) pair.second->bindTexture(binding, texture);
     }
 }
@@ -105,7 +105,7 @@ void GlobalDSManager::update() {
         _globalDescriptorSet->update();
     }
 
-    for (auto &pair : _descriptorSetMap) {
+    for (const auto &pair : _descriptorSetMap) {
         if (pair.second) pair.second->update();
     }
 }

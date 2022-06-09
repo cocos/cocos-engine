@@ -63,7 +63,7 @@ public:
 
 private:
     static float getPCFRadius(const scene::Shadows *shadowInfo, const scene::DirectionalLight *dirLight);
-    void initCombineSignY();
+    void initCombineSignY() const;
 
     RenderPipeline *_pipeline = nullptr;
     gfx::Device *_device = nullptr;

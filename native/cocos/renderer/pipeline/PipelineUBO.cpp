@@ -226,20 +226,20 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, ccstd::arr
                     sv[UBOShadow::CSM_SPLITS_INFO_OFFSET + i] = csmLayers->getLayers()[i]->getSplitCameraFar() / mainLight->getShadowDistance();
 
                     const Mat4 &matShadowView = csmLayers->getLayers()[i]->getMatShadowView();
-                    memcpy(sv.data() + UBOShadow::MAT_CSM_VIEW_LEVELS_OFFSET + 16 * i, matShadowView.m, sizeof(matShadowView));
+                    memcpy(sv.data() + UBOShadow::MAT_CSM_VIEW_LEVELS_OFFSET + i * 16, matShadowView.m, sizeof(matShadowView));
 
                     const Mat4 &matShadowViewProj = csmLayers->getLayers()[i]->getMatShadowViewProj();
-                    memcpy(sv.data() + UBOShadow::MAT_CSM_VIEW_PROJ_LEVELS_OFFSET + 16 * i, matShadowViewProj.m, sizeof(matShadowViewProj));
+                    memcpy(sv.data() + UBOShadow::MAT_CSM_VIEW_PROJ_LEVELS_OFFSET + i * 16, matShadowViewProj.m, sizeof(matShadowViewProj));
 
                     const Mat4 &matShadowViewProjAtlas = csmLayers->getLayers()[i]->getMatShadowViewProjAtlas();
-                    memcpy(sv.data() + UBOShadow::MAT_CSM_VIEW_PROJ_ATLAS_LEVELS_OFFSET + 16 * i, matShadowViewProjAtlas.m, sizeof(matShadowViewProjAtlas));
+                    memcpy(sv.data() + UBOShadow::MAT_CSM_VIEW_PROJ_ATLAS_LEVELS_OFFSET + i * 16, matShadowViewProjAtlas.m, sizeof(matShadowViewProjAtlas));
 
                     const Mat4 &matShadowProj = csmLayers->getLayers()[i]->getMatShadowProj();
                     const float shadowProjDepthInfos[4] = {matShadowProj.m[10], matShadowProj.m[14], matShadowProj.m[11], matShadowProj.m[15]};
-                    memcpy(sv.data() + UBOShadow::CSM_PROJ_DEPTH_INFO_LEVELS_OFFSET + 4 * i, &shadowProjDepthInfos, sizeof(shadowProjDepthInfos));
+                    memcpy(sv.data() + UBOShadow::CSM_PROJ_DEPTH_INFO_LEVELS_OFFSET + i * 4, &shadowProjDepthInfos, sizeof(shadowProjDepthInfos));
 
                     const float shadowProjInfos[4] = {matShadowProj.m[00], matShadowProj.m[05], 1.0F / matShadowProj.m[00], 1.0F / matShadowProj.m[05]};
-                    memcpy(sv.data() + UBOShadow::CSM_PROJ_INFO_LEVELS_OFFSET + 4 * i, &shadowProjInfos, sizeof(shadowProjInfos));
+                    memcpy(sv.data() + UBOShadow::CSM_PROJ_INFO_LEVELS_OFFSET + i * 4, &shadowProjInfos, sizeof(shadowProjInfos));
                 }
 
                 sv[UBOShadow::CSM_INFO_OFFSET + 0] = 0.0F;
@@ -382,7 +382,7 @@ float PipelineUBO::getPCFRadius(const scene::Shadows* shadowInfo, const scene::D
     return 0.0F;                                                // PCFType.HARD
 }
 
-void PipelineUBO::initCombineSignY() {
+void PipelineUBO::initCombineSignY() const {
     const float screenSpaceSignY = _device->getCapabilities().screenSpaceSignY * 0.5F + 0.5F;
     const float clipSpaceSignY = _device->getCapabilities().clipSpaceSignY * 0.5F + 0.5F;
     combineSignY = static_cast<uint8_t>(screenSpaceSignY) << 1 | static_cast<uint8_t>(clipSpaceSignY);

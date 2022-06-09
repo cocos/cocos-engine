@@ -56,7 +56,7 @@ private:
 
     void resizeShadowMap();
 
-    void initShadowFrameBuffer(RenderPipeline *pipeline, const scene::Light *light);
+    void initShadowFrameBuffer(const RenderPipeline* pipeline, const scene::Light* light);
 
     static RenderFlowInfo initInfo;
 
