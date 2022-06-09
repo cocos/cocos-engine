@@ -317,6 +317,7 @@ export class Input {
         this._eventTouchList.length = 0;
         this._eventKeyboardList.length = 0;
         this._eventAccelerationList.length = 0;
+        this._eventGamepadList.length = 0;
     }
 
     private _dispatchOrPushEvent (event: Event, eventList: Event[]) {
