@@ -29,6 +29,7 @@ import { filePathToModuleRequest } from './utils';
 import { assetRef as rpAssetRef, pathToAssetRefURL } from './rollup-plugins/asset-ref';
 import { codeAsset } from './rollup-plugins/code-asset';
 
+export { StatsQuery };
 export { ModuleOption, enumerateModuleOptionReps, parseModuleOption };
 
 function equalPathIgnoreDriverLetterCase (lhs: string, rhs: string) {
