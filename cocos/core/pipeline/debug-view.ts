@@ -29,8 +29,9 @@ import { Root } from '../root';
 import { GlobalDSManager } from './global-descriptor-set-manager';
 import { Device } from '../gfx';
 import { Enum } from '../value-types';
+import { director } from '..';
 
-const enum DebugViewType {
+const enum RenderingDebugViewType {
     NONE,
     SINGLE,
     COMPOSITE_AND_MISC,
@@ -113,8 +114,8 @@ export const enum DebugViewCompositeType {
  */
 export class DebugView {
     /**
-     * @en Whether enabled with specified composite debug mode.
-     * @zh 获取指定的组合调试模式是否开启。
+     * @en Whether enabled with specified rendering composite debug mode.
+     * @zh 获取指定的渲染组合调试模式是否开启。
      * @param Specified composite type.
      */
     public isCompositeModeEnabled (val : number) : boolean {
@@ -122,8 +123,8 @@ export class DebugView {
         return mode !== 0;
     }
     /**
-     * @en Toggle specified composite debug mode.
-     * @zh 开关指定的组合调试模式。
+     * @en Toggle specified rendering composite debug mode.
+     * @zh 开关指定的渲染组合调试模式。
      * @param Specified composite type, enable or disable.
      */
     public enableCompositeMode (val: DebugViewCompositeType, enable: boolean) {
@@ -132,8 +133,8 @@ export class DebugView {
     }
 
     /**
-     * @en Toggle all composite debug mode.
-     * @zh 开关所有的组合调试模式。
+     * @en Toggle all rendering composite debug mode.
+     * @zh 开关所有的渲染组合调试模式。
      */
     public enableAllCompositeMode (enable: boolean) {
         this._enableAllCompositeMode(enable);
@@ -141,8 +142,8 @@ export class DebugView {
     }
 
     /**
-     * @en Toggle single debug mode.
-     * @zh 设置单项调试模式。
+     * @en Toggle rendering single debug mode.
+     * @zh 设置渲染单项调试模式。
      */
     public get singleMode () : DebugViewSingleType {
         return this._singleMode;
@@ -177,23 +178,28 @@ export class DebugView {
     }
 
     /**
-     * @en Get debug view on / off state.
-     * @zh 查询当前是否开启了调试模式。
+     * @en Get rendering debug view on / off state.
+     * @zh 查询当前是否开启了渲染调试模式。
      */
-    public isDebugViewEnabled () {
-        return this._getDebugViewType() !== DebugViewType.NONE;
+    public isRenderingDebugViewEnabled () {
+        return this._getRenderingDebugViewType() !== RenderingDebugViewType.NONE;
     }
 
     protected _singleMode = DebugViewSingleType.NONE;
     protected _compositeModeValue = 0;
     protected _lightingWithAlbedo = true;
     protected _csmLayerColoration = false;
+    protected _nativeConfig: any = null;
 
     /**
      * @internal
      */
     constructor () {
         this.activate();
+        if (JSB && this._nativeConfig === null) {
+            // @ts-expect-error jsb object access
+            this._nativeConfig = new nr.DebugViewConfig();
+        }
     }
 
     private _enableCompositeMode (val: DebugViewCompositeType, enable: boolean) {
@@ -201,6 +207,10 @@ export class DebugView {
             this._compositeModeValue |= (1 << val);
         } else {
             this._compositeModeValue &= (~(1 << val));
+        }
+
+        if (JSB && this._nativeConfig) {
+            this._nativeConfig.compositeModeValue = this._compositeModeValue;
         }
     }
 
@@ -210,19 +220,19 @@ export class DebugView {
         }
     }
 
-    private _getDebugViewType () : DebugViewType {
+    private _getRenderingDebugViewType () : RenderingDebugViewType {
         if (this._singleMode !== DebugViewSingleType.NONE) {
-            return DebugViewType.SINGLE;
+            return RenderingDebugViewType.SINGLE;
         } else if (this._lightingWithAlbedo !== true || this._csmLayerColoration !== false) {
-            return DebugViewType.COMPOSITE_AND_MISC;
+            return RenderingDebugViewType.COMPOSITE_AND_MISC;
         } else {
             for (let i = 0; i < DebugViewCompositeType.MAX_BIT_COUNT; i++) {
                 if (!this.isCompositeModeEnabled(i)) {
-                    return DebugViewType.COMPOSITE_AND_MISC;
+                    return RenderingDebugViewType.COMPOSITE_AND_MISC;
                 }
             }
         }
-        return DebugViewType.NONE;
+        return RenderingDebugViewType.NONE;
     }
 
     public activate () {
@@ -230,13 +240,20 @@ export class DebugView {
         this._enableAllCompositeMode(true);
         this._lightingWithAlbedo = true;
         this._csmLayerColoration = false;
+
+        if (JSB && this._nativeConfig) {
+            this._nativeConfig.singleMode = this._singleMode;
+            this._nativeConfig.compositeModeValue = this._compositeModeValue;
+            this._nativeConfig.lightingWithAlbedo = this._lightingWithAlbedo;
+            this._nativeConfig.csmLayerColoration = this._csmLayerColoration;
+        }
     }
 
     protected _updatePipeline () {
         const root = legacyCC.director.root as Root;
         const pipeline = root.pipeline;
 
-        const useDebugView = this._getDebugViewType();
+        const useDebugView = this._getRenderingDebugViewType();
 
         if (pipeline.macros.CC_USE_DEBUG_VIEW !== useDebugView) {
             pipeline.macros.CC_USE_DEBUG_VIEW = useDebugView;

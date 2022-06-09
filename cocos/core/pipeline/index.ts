@@ -53,6 +53,8 @@ export { PipelineStateManager } from './pipeline-state-manager';
 
 export { PipelineEventProcessor, PipelineEventType } from './pipeline-event';
 
+export { DebugView, DebugViewSingleType, DebugViewCompositeType } from './debug-view';
+
 export function createDefaultPipeline () {
     const rppl = new ForwardPipeline();
     rppl.initialize({ flows: [] });
