@@ -27,7 +27,11 @@ export class IOSPackTool extends MacOSPackTool {
     params!: CocosParams<IOSParams>;
 
     async create() {
-        await super.create();
+        await this.copyCommonTemplate();
+        await this.copyPlatformTemplate();
+        await this.generateCMakeConfig();
+        await this.excuteCocosTemplateTask();
+
         await this.setOrientation();
 
         await this.encrypteScripts();
