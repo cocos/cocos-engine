@@ -299,7 +299,7 @@ export class CSMLayers {
     }
 
     public constructor () {
-        for (let i = 0; i < CSMLevel.level_4; i++) {
+        for (let i = 0; i < CSMLevel.LEVEL_4; i++) {
             this._layers[i] = new CSMShadowLayer(i);
         }
     }
@@ -395,7 +395,7 @@ export class CSMLayers {
             Mat4.multiply(csmLayer.matShadowViewProjAtlas, csmLayer.matShadowAtlas, csmLayer.matShadowViewProj);
         }
 
-        if (level === CSMLevel.level_1) {
+        if (level === CSMLevel.LEVEL_1) {
             this._specialLayer.shadowCameraFar = this._layers[0].shadowCameraFar;
             Mat4.copy(this._specialLayer.matShadowView, this._layers[0].matShadowView);
             Mat4.copy(this._specialLayer.matShadowProj, this._layers[0].matShadowProj);

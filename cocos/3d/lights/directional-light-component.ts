@@ -68,7 +68,7 @@ export class DirectionalLight extends Light {
     @serializable
     protected _shadowInvisibleOcclusionRange = 200;
     @serializable
-    protected _csmLevel = CSMLevel.level_4;
+    protected _csmLevel = CSMLevel.LEVEL_4;
     @serializable
     protected _csmLayerLambda = 0.75;
     @serializable
@@ -289,10 +289,10 @@ export class DirectionalLight extends Light {
     @slide
     @type(CCBoolean)
     get enableCSM () {
-        return this._csmLevel > CSMLevel.level_1;
+        return this._csmLevel > CSMLevel.LEVEL_1;
     }
     set enableCSM (val) {
-        this._csmLevel = val ? CSMLevel.level_4 : CSMLevel.level_1;
+        this._csmLevel = val ? CSMLevel.LEVEL_4 : CSMLevel.LEVEL_1;
         if (this._light) {
             this._light.csmLevel = this._csmLevel;
             this._light.csmNeedUpdate = true;

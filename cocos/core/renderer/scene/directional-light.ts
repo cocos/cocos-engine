@@ -52,7 +52,7 @@ export class DirectionalLight extends Light {
     protected _shadowSaturation = 1.0;
     protected _shadowDistance = 50;
     protected _shadowInvisibleOcclusionRange = 200;
-    protected _csmLevel = CSMLevel.level_4;
+    protected _csmLevel = CSMLevel.LEVEL_4;
     protected _csmNeedUpdate = false;
     protected _csmLayerLambda = 0.75;
     protected _csmOptimizationMode = CSMOptimizationMode.DisableRotationFix;

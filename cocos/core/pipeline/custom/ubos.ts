@@ -192,7 +192,7 @@ export class PipelineUBO {
 
         if (shadowInfo.enabled && mainLight && mainLight.shadowEnabled) {
             if (shadowInfo.type === ShadowType.ShadowMap) {
-                if (mainLight.shadowFixedArea || mainLight.csmLevel === CSMLevel.level_1) {
+                if (mainLight.shadowFixedArea || mainLight.csmLevel === CSMLevel.LEVEL_1) {
                     const matShadowView = csmLayers.specialLayer.matShadowView;
                     const matShadowProj = csmLayers.specialLayer.matShadowProj;
                     const matShadowViewProj = csmLayers.specialLayer.matShadowViewProj;
@@ -284,7 +284,7 @@ export class PipelineUBO {
                     let matShadowProj;
                     let matShadowViewProj;
                     let levelCount = 0;
-                    if (mainLight.shadowFixedArea || mainLight.csmLevel === CSMLevel.level_1) {
+                    if (mainLight.shadowFixedArea || mainLight.csmLevel === CSMLevel.LEVEL_1) {
                         matShadowView = csmLayers.specialLayer.matShadowView;
                         matShadowProj = csmLayers.specialLayer.matShadowProj;
                         matShadowViewProj = csmLayers.specialLayer.matShadowViewProj;
