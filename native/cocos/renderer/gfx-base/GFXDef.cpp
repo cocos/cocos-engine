@@ -619,5 +619,16 @@ uint32_t formatSurfaceSize(Format format, uint32_t width, uint32_t height, uint3
     return size;
 }
 
+unsigned long gcd(unsigned long a, unsigned long b) {
+    if(b == 0) {
+        return a;
+    }
+    return gcd(b, a % b);
+};
+
+unsigned long lcm(uint32_t a, uint32_t b) {
+    return (a / gcd(a, b)) * b;
+};
+
 } // namespace gfx
 } // namespace cc

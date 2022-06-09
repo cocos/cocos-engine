@@ -135,6 +135,12 @@ uint32_t formatSize(Format format, uint32_t width, uint32_t height, uint32_t dep
 
 uint32_t formatSurfaceSize(Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t mips);
 
+#if __cplusplus > 201703L
+using std::lcm;
+#else
+unsigned long lcm(uint32_t a, uint32_t b);
+#endif
+
 /**
  * @en Get the memory size of the specified type.
  * @zh 得到 GFX 数据类型的大小。
