@@ -437,7 +437,8 @@ export class PipelineUBO {
         const ds = this._pipeline.descriptorSet;
         const cmdBuffer = this._pipeline.commandBuffers;
         ds.update();
-        PipelineUBO.updateGlobalUBOView(window, this._globalUBO, this._pipeline.debugView);
+        const root = legacyCC.director.root as Root;
+        PipelineUBO.updateGlobalUBOView(window, this._globalUBO, root.debugView);
         cmdBuffer[0].updateBuffer(ds.getBuffer(UBOGlobal.BINDING), this._globalUBO);
 
         globalDSManager.bindBuffer(UBOGlobal.BINDING, ds.getBuffer(UBOGlobal.BINDING));

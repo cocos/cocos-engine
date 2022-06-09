@@ -56,12 +56,6 @@ struct CC_DLL RenderPipelineInfo {
     RenderFlowList flows;
 };
 
-struct CC_DLL DebugViewConfig {
-    uint8_t singleMode;
-    uint32_t compositeModeValue;
-    bool lightingWithAlbedo;
-    bool csmLayerColoration;
-};
 
 class CC_DLL RenderPipeline : public Asset {
 public:
@@ -130,8 +124,6 @@ public:
     
     inline GeometryRenderer *getGeometryRenderer() const { return _geometryRenderer; }
 
-    inline void setDebugViewConfig(const DebugViewConfig &config) { _debugViewConfig = config;}
-
 protected:
     static RenderPipeline *instance;
 
@@ -154,7 +146,6 @@ protected:
     GlobalDSManager *_globalDSManager{nullptr};
     gfx::DescriptorSet *_descriptorSet{nullptr};
     PipelineUBO *_pipelineUBO{nullptr};
-    DebugViewConfig _debugViewConfig;
     scene::Model *_profiler{nullptr};
     IntrusivePtr<PipelineSceneData> _pipelineSceneData;
     GeometryRenderer *_geometryRenderer{nullptr};
