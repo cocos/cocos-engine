@@ -121,10 +121,10 @@ export class PrimitiveType<T> {
  *
  * // in class definition:
  *
- * \@_decorator.property({type: CCInteger})
+ * @_decorator.property({type: CCInteger})
  * count = 0;
  *
- * \@_decorator.property({type: [CCInteger]})
+ * @_decorator.property({type: [CCInteger]})
  * array = [];
  * ```
  */
@@ -143,10 +143,10 @@ legacyCC.CCInteger = CCInteger;
  *
  * // in class definition:
  *
- * \@_decorator.property({type: CCFloat})
+ * @_decorator.property({type: CCFloat})
  * x = 0;
  *
- * \@_decorator.property({type: [CCFloat]})
+ * @_decorator.property({type: [CCFloat]})
  * array = [];
  * ```
  */
@@ -171,10 +171,10 @@ if (EDITOR) {
  * ```ts
  * import { CCBoolean, _decorator } from "cc";
  * // in class definition
- * \@_decorator.property({type: CCBoolean})
+ * @_decorator.property({type: CCBoolean})
  * isTrue = false;
  *
- * \@_decorator.property({type: [CCBoolean]})
+ * @_decorator.property({type: [CCBoolean]})
  * array = [];
  * ```
  */
@@ -193,10 +193,10 @@ legacyCC.CCBoolean = CCBoolean;
  *
  * // in class definition
  *
- * \@_decorator.property({type: CCString})
+ * @_decorator.property({type: CCString})
  * name = '';
  *
- * \@_decorator.property({type: [CCString]})
+ * @_decorator.property({type: [CCString]})
  * array = [];
  * ```
  */
