@@ -77,13 +77,13 @@ void PipelineUBO::updateGlobalUBOView(const scene::Camera *camera, ccstd::array<
     uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 2] = 1.0F / uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET];
     uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 3] = 1.0F / uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 1];
 
-    // const debugView = legacyCC.debugView;
-    float zero = 0.0f, one = 0.0f;
-    uboGlobalView[UBOGlobal::DEBUG_VIEW_SINGLE_MODE_OFFSET] = zero;
-    uboGlobalView[UBOGlobal::DEBUG_VIEW_LIGHTING_ENABLE_WITH_ALBEDO_OFFSET] = one;
-    uboGlobalView[UBOGlobal::DEBUG_VIEW_MISC_ENABLE_CSM_LAYER_COLORATION_OFFSET] = zero;
-    for (int i = 0; i < UBOGlobal::COUNT - UBOGlobal::DEBUG_VIEW_COMPOSITE_ENABLE_DIRECT_DIFFUSE_OFFSET; i++) {
-        uboGlobalView[UBOGlobal::DEBUG_VIEW_COMPOSITE_ENABLE_DIRECT_DIFFUSE_OFFSET + i] = one;
+    auto debugViewConfig = root->getDebugViewConfig();
+    uboGlobalView[UBOGlobal::DEBUG_VIEW_MODE_OFFSET] = debugViewConfig.singleMode;
+    uboGlobalView[UBOGlobal::DEBUG_VIEW_MODE_OFFSET + 1] = debugViewConfig.lightingWithAlbedo;
+    uboGlobalView[UBOGlobal::DEBUG_VIEW_MODE_OFFSET + 2] = debugViewConfig.csmLayerColoration;
+    for (int i = 0; i < 12; i++) {
+        uint32_t mode = debugViewConfig.compositeModeValue & (1 << i);
+        uboGlobalView[UBOGlobal::DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET + i] = mode ? 1.0 : 0.0;
     }
 }
 
