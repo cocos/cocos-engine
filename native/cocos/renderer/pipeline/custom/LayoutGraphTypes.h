@@ -262,10 +262,10 @@ struct LayoutGraph {
     }
 
     // PolymorphicGraph
-    using VertexTag         = boost::variant2::variant<RenderStageTag, RenderPhaseTag>;
-    using VertexValue       = boost::variant2::variant<uint32_t*, RenderPhase*>;
-    using VertexConstValue = boost::variant2::variant<const uint32_t*, const RenderPhase*>;
-    using VertexHandle      = boost::variant2::variant<
+    using VertexTag         = ccstd::variant<RenderStageTag, RenderPhaseTag>;
+    using VertexValue       = ccstd::variant<uint32_t*, RenderPhase*>;
+    using VertexConstValue = ccstd::variant<const uint32_t*, const RenderPhase*>;
+    using VertexHandle      = ccstd::variant<
         impl::ValueHandle<RenderStageTag, vertex_descriptor>,
         impl::ValueHandle<RenderPhaseTag, vertex_descriptor>>;
 
@@ -620,10 +620,10 @@ struct LayoutGraphData {
     }
 
     // PolymorphicGraph
-    using VertexTag         = boost::variant2::variant<RenderStageTag, RenderPhaseTag>;
-    using VertexValue       = boost::variant2::variant<RenderStageData*, RenderPhaseData*>;
-    using VertexConstValue = boost::variant2::variant<const RenderStageData*, const RenderPhaseData*>;
-    using VertexHandle      = boost::variant2::variant<
+    using VertexTag         = ccstd::variant<RenderStageTag, RenderPhaseTag>;
+    using VertexValue       = ccstd::variant<RenderStageData*, RenderPhaseData*>;
+    using VertexConstValue = ccstd::variant<const RenderStageData*, const RenderPhaseData*>;
+    using VertexHandle      = ccstd::variant<
         impl::ValueHandle<RenderStageTag, vertex_descriptor>,
         impl::ValueHandle<RenderPhaseTag, vertex_descriptor>>;
 
