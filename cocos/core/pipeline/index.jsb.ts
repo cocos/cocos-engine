@@ -26,10 +26,9 @@
 declare const nr: any;
 
 import { getPhaseID } from './pass-phase';
-import { setClassName } from '../../core/utils/js';
-import { PipelineEventType } from './pipeline-event';
+import { js, setClassName } from '../../core/utils/js';
 import * as pipeline from './define';
-export { pipeline };
+import { DebugView } from './debug-view';
 
 nr.getPhaseID = getPhaseID;
 
@@ -49,19 +48,30 @@ export const LightingStage = nr.LightingStage;
 export const PostProcessStage = nr.PostProcessStage;
 export const GbufferStage = nr.GbufferStage;
 export const BloomStage = nr.BloomStage;
+
+export { pipeline };
 export { GeometryRenderer } from './geometry-renderer';
 export { PipelineEventType } from './pipeline-event';
+export { DebugView };
 
 let getOrCreatePipelineState = nr.PipelineStateManager.getOrCreatePipelineState;
 nr.PipelineStateManager.getOrCreatePipelineState = function(device, pass, shader, renderPass, ia) {
     return getOrCreatePipelineState(pass, shader, renderPass, ia); //cjh TODO: remove hacking. c++ API doesn't access device argument.
 };
 
+// RenderPipeline
+const renderPipelineProto = RenderPipeline.prototype;
+js.get(renderPipelineProto, 'debugView', function () {
+    return this._debugView;
+})
+
 // ForwardPipeline
 const forwardPipelineProto = ForwardPipeline.prototype;
 forwardPipelineProto._ctor = function() {
     this._tag = 0;
     this._flows = [];
+    this._debugView = new DebugView();
+    this.setDebugViewConfig(this._debugView._nativeConfig);
 };
 
 forwardPipelineProto.init = function () {
@@ -163,6 +173,8 @@ deferredPipelineProto._ctor = function() {
     this._flows = [];
     this.renderTextures = [];
     this.materials = [];
+    this._debugView = new DebugView();
+    this.setDebugViewConfig(this._debugView._nativeConfig);
 }
 
 const oldDeferredOnLoaded = deferredPipelineProto.onLoaded;
