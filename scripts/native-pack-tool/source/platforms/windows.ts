@@ -14,7 +14,11 @@ export class WindowsPackTool extends NativePackTool {
     params!: CocosParams<IWindowsParam>;
 
     async create() {
-        await super.create();
+        await this.copyCommonTemplate();
+        await this.copyPlatformTemplate();
+        await this.generateCMakeConfig();
+        await this.excuteCocosTemplateTask();
+
         await this.encrypteScripts();
         await this.generate();
         return true;
