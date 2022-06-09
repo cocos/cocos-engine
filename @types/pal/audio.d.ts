@@ -80,12 +80,12 @@ declare module 'pal/audio' {
         /**
          * Get Sameple rate of audio source
          */
-        public getSampleRate(): number;
+        get sampleRate(): number;
 
         /**
          * Get Buffer
          */
-        public getBuffer(channelID: number): Float32Array;
+        public getPCMBuffer(channelID: number): Float32Array;
         /**
          * Readonly property to get the url of audio src.
          */

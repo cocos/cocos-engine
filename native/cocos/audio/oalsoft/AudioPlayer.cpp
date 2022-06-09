@@ -25,6 +25,9 @@
 ****************************************************************************/
 
 #include <stdint.h>
+#include <sys/types.h>
+#include <cstddef>
+#include <vector>
 #include "core/TypedArray.h"
 #define LOG_TAG "AudioPlayer"
 
@@ -321,12 +324,19 @@ uint32_t AudioPlayer::getSampleRate() {
     return _audioCache->_sampleRate;
 }
 
-float* AudioPlayer::getBuffer() {
+float* AudioPlayer::getPCMBuffer(uint32_t channelID) {
     //TODO: cut and return for size larger than 
+    Float32Array pcmData[];std::vector<class _Tp>
+
+    if(channelID > _audioCache->getChannelCount()) {
+        CC_LOG_ERROR("Trying to get PCM data from an invalid channel %d", channelID);
+        return nullptr_t;
+    }
+
     uint32_t pcmDataSize = sizeof(_audioCache->_pcmData);
     
-    Float32Array pcmData[pcmDataSize];
-    for (uint32_t i = 0; i < pcmDataSize; i++) {
+   
+    for (uint32_t i = channelID * _audioCache->_; i < pcmDataSize; i += _audioCache->getChannelCount() * ) {
         pcmData[i] = (float)(_audioCache->_pcmData[i]);
     }
     return pcmData;

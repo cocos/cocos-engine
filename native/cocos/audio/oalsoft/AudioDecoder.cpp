@@ -25,6 +25,7 @@
 ****************************************************************************/
 
 #include "audio/oalsoft/AudioDecoder.h"
+#include <stdint.h>
 #include <string.h>
 #include "audio/oalsoft/AudioMacros.h"
 #include "platform/FileUtils.h"
@@ -80,6 +81,10 @@ uint32_t AudioDecoder::getSampleRate() const {
 
 uint32_t AudioDecoder::getChannelCount() const {
     return _channelCount;
+}
+
+uint32_t AudioDecoder::getBytesPerChannel() const {
+    return _bytesPerChannel;
 }
 
 } // namespace cc

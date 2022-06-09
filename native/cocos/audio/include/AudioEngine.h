@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <stdint.h>
 #include <chrono>
 #include <functional>
 #include "audio/include/Export.h"
@@ -329,7 +330,7 @@ public:
      * @param audioID 
      * @return float* PCM datas behave as float array
      */
-    static float* getBuffer(uint32_t audioID);
+    static float* getPCMBuffer(uint32_t audioID, uint32_t channelID);
     /**
      * @brief Get the Buffer object
      * 

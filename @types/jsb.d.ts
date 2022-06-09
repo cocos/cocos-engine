@@ -93,9 +93,7 @@ declare namespace jsb {
 
     export namespace AudioEngine {
         export function preload (url: string, cb: (isSuccess: boolean) => void);
-        export function getSampleRate (audioId: number) : number;
-        export function getBuffer (audioId: number) : Float32Array;
-        export function getBuffer (audioId: number, channelId: number): Float32Array;
+
         export function play2d (url: string, loop: boolean, volume: number): number;
         export function pause (id: number);
         export function pauseAll ();
@@ -120,6 +118,9 @@ declare namespace jsb {
         export function uncacheAll ();
         export function setErrorCallback (id: number, cb: (err: any) => void);
         export function setFinishCallback (id: number, cb: () => void);
+
+        export function getSampleRate (url: string) : number;
+        export function getPCMBuffer (url: string, channelId: number): Float32Array;
     }
 
     export namespace reflection{

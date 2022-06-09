@@ -62,7 +62,7 @@ public:
     AudioCache *preload(const ccstd::string &filePath, const std::function<void(bool)> &callback);
     void update(float dt);
     uint32_t getSampleRate(uint32_t audioID);
-    float* getBuffer(uint32_t audioID);
+    float* getPCMBuffer(uint32_t audioID, uint32_t channelID);
 
 private:
     bool checkAudioIdValid(int audioID);

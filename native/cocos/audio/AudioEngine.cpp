@@ -600,10 +600,10 @@ uint32_t AudioEngine::getSampleRate(uint32_t audioID) {
     }
     return 0;
 }
-float* AudioEngine::getBuffer(uint32_t audioID) {
+float* AudioEngine::getPCMBuffer(uint32_t audioID, uint32_t channelID) {
     auto it = sAudioIDInfoMap.find(audioID);
     if (it != sAudioIDInfoMap.end()) {
-        return sAudioEngineImpl->getBuffer(audioID);
+        return sAudioEngineImpl->getPCMBuffer(audioID, channelID);
     }
 
     return nullptr;

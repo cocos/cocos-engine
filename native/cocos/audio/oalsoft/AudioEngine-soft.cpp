@@ -542,9 +542,9 @@ uint32_t AudioEngineImpl::getSampleRate(uint32_t audioID) {
     return _audioPlayers[audioID]->getSampleRate();
 }
 
-float* AudioEngineImpl::getBuffer(uint32_t audioID) {
+float* AudioEngineImpl::getPCMBuffer(uint32_t audioID, uint32_t channelID) {
     if (!checkAudioIdValid(audioID)) {
         return nullptr;
     }
-    return _audioPlayers[audioID]->getBuffer(audioID);
+    return _audioPlayers[audioID]->getPCMBuffer(audioID, channelID);
 }

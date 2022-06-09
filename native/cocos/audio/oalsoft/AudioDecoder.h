@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <stdint.h>
 #include <cstdint>
 
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
@@ -110,6 +111,8 @@ public:
      */
     virtual uint32_t getChannelCount() const;
 
+    virtual uint32_t getBytesPerChannel() const;
+
 protected:
     AudioDecoder();
     virtual ~AudioDecoder();
@@ -119,6 +122,7 @@ protected:
     uint32_t _bytesPerFrame;
     uint32_t _sampleRate;
     uint32_t _channelCount;
+    uint32_t _bytesPerChannel;
 
     void *_fsHooks = nullptr;
 

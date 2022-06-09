@@ -287,6 +287,14 @@ export class AudioPlayerWeb implements OperationQueueable {
         return this._audioTimer.currentTime;
     }
 
+    get sampleRate (): number {
+        return this._audioBuffer.sampleRate;
+    }
+
+    public getPCMBuffer (channelID: number): Float32Array {
+        return this._audioBuffer.getChannelData(channelID);
+    }
+
     @enqueueOperation
     seek (time: number): Promise<void> {
         return new Promise((resolve) => {

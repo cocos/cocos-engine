@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <stdint.h>
 #include <condition_variable>
 #include <functional>
 #include <mutex>
@@ -59,7 +60,7 @@ public:
     float getTime() { return _currTime; }
     bool setLoop(bool loop);
     uint32_t getSampleRate();
-    float* getBuffer();
+    float* getPCMBuffer(uint32_t channelID);
 protected:
     void setCache(AudioCache *cache);
     void rotateBufferThread(int offsetFrame);

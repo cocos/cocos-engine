@@ -341,8 +341,11 @@ export class AudioSource extends Component {
             }
         }).catch((e) => {});
     }
-    public getSampleRate() {
-        this._player
+    get sampleRate () {
+        return this._player?.sampleRate;
+    }
+    public getPCMbuffer (channelID: number) {
+        return this._player?.getPCMBuffer(channelID);
     }
     /**
      * @en
