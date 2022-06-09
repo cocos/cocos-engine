@@ -59,9 +59,9 @@ export type InternaleNativePlatform = 'mac' | 'android' | 'windows' | 'ios' | 'o
 export interface INativePlatformOptions {
     extends?: InternaleNativePlatform, //传入继承的平台，将会继承已有平台注册的一些代码
     overwrite?: InternaleNativePlatform, //传入继承但如果有同名的方法等会复写平台，将会继承已有平台注册的一些代码
-    create?: () => Promise<void>;
-    compile?: () => Promise<void>;
-    run?: () => Promise<void>;
+    create?: () => Promise<boolean>;
+    compile?: () => Promise<boolean>;
+    run?: () => Promise<boolean>;
     init?: (params: CocosParams<Object>) => void;
 }
 
@@ -231,17 +231,17 @@ export abstract class NativePackTool {
         console.debug('Encrypte scriptes success');
     }
 
-    async create(): Promise<boolean> {
-        await this.copyCommonTemplate();
-        await this.copyPlatformTemplate();
-        await this.generateCMakeConfig();
-
+    /**
+     * 解析、执行 cocos-template.json 模板任务
+     */
+    protected async excuteCocosTemplateTask() {
         const templatTaskMap: Record<string, CocosProjectTasks> = await fs.readJSON(ps.join(this.paths.nativeTemplateDirInCocos, PackageNewConfig));
         for (const templatTask of Object.values(templatTaskMap)) {
             await this.excuteTemplateTask(templatTask);
         }
-        return true;
-    };
+    }
+
+    create?():  Promise<boolean>;
     make?():  Promise<boolean>;
     run?():  Promise<boolean>;
 }

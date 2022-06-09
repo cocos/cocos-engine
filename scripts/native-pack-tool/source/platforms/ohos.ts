@@ -24,7 +24,10 @@ export class OHOSPackTool extends NativePackTool {
     params!: CocosParams<OHOSParam>;
 
     async create() {
-        await super.create();
+        await this.copyCommonTemplate();
+        await this.copyPlatformTemplate();
+        await this.generateCMakeConfig();
+        await this.excuteCocosTemplateTask();
 
         const ohosProjDir = this.paths.platformTemplateDirInPrj;
         const cocosXRoot = ps.normalize(Paths.nativeRoot);
