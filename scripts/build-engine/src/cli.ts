@@ -2,12 +2,13 @@ import * as fs from 'fs-extra';
 import * as ps from 'path';
 import yargs from 'yargs';
 import { getBuildModeConstantNames, getPlatformConstantNames, setupBuildTimeConstants } from './build-time-constants';
-import { ConstantManager, ModeType, PlatformType } from './constant-manager';
+import { ModeType, PlatformType } from './constant-manager';
 import {
     build,
     enumerateModuleOptionReps,
     parseModuleOption,
 } from './index';
+import { StatsQuery } from './stats-query';
 
 async function main () {
     yargs.parserConfiguration({
@@ -115,8 +116,8 @@ async function main () {
     const sourceMap = yargs.argv.sourcemap === 'inline' ? 'inline' : !!yargs.argv.sourcemap;
     const engineRoot = yargs.argv.engine as string;
 
-    const CM = new ConstantManager(engineRoot);
-    const buildTimeConstants = CM.genBuildTimeConstants({
+    const statsQuery = await StatsQuery.create(engineRoot);
+    const buildTimeConstants = statsQuery.constantManager.genBuildTimeConstants({
         mode: yargs.argv.buildMode as ModeType,
         platform: yargs.argv.platform as PlatformType,
         flags,

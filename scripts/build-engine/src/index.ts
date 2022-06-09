@@ -30,7 +30,6 @@ import { assetRef as rpAssetRef, pathToAssetRefURL } from './rollup-plugins/asse
 import { codeAsset } from './rollup-plugins/code-asset';
 
 export { ModuleOption, enumerateModuleOptionReps, parseModuleOption };
-export { ConstantManager } from './constant-manager';
 
 function equalPathIgnoreDriverLetterCase (lhs: string, rhs: string) {
     if (lhs.length !== rhs.length) {

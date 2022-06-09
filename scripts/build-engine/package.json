@@ -47,7 +47,8 @@
     "@types/resolve": "^1.17.1",
     "@types/semver": "^7.3.4",
     "@types/yargs": "^15.0.4",
-    "jest": "^28.1.1"
+    "jest": "^28.1.1",
+    "ts-jest": "^28.0.4"
   },
   "peerDependencies": {
     "typescript": "^3.7.2"
@@ -56,7 +57,7 @@
     "build": "npx tsc",
     "clear": "node ./scripts/clear.mjs",
     "prepublishOnly": "npm run clear & npm run build",
-    "test": "npx tsc && jest"
+    "test": "jest"
   },
   "author": "",
   "license": "MIT",

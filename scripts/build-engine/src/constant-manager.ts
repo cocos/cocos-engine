@@ -1,6 +1,6 @@
 import fsExt from 'fs-extra';
 import ps from 'path';
-import { IConstantConfig, IConstantInfo } from './config-interface';
+import { Config, IConstantConfig, IConstantInfo } from './config-interface';
 
 export type ModeType = 'EDITOR' | 'PREVIEW' | 'BUILD' | 'TEST';
 export type PlatformType = 'HTML5' | 'NATIVE' |
@@ -11,7 +11,7 @@ export type FlagType = 'DEBUG' | 'SERVER_MODE';
 export interface ConstantOptions {
     mode: ModeType;
     platform: PlatformType;
-    flags: Record<FlagType, boolean>;
+    flags: Partial<Record<FlagType, boolean>>;
 }
 
 export class ConstantManager {
@@ -31,10 +31,10 @@ export class ConstantManager {
         // init helper
         let result = '';
         if (this._hasCCGlobal(config)) {
-            result += fsExt.readFileSync(ps.join(__dirname, '../../static/helper-global-exporter.txt'), 'utf8') + '\n';
+            result += fsExt.readFileSync(ps.join(__dirname, '../static/helper-global-exporter.txt'), 'utf8') + '\n';
         }
         if (this._hasDynamic(config)) {
-            result += fsExt.readFileSync(ps.join(__dirname, '../../static/helper-dynamic-constants.txt'), 'utf8') + '\n';
+            result += fsExt.readFileSync(ps.join(__dirname, '../static/helper-dynamic-constants.txt'), 'utf8') + '\n';
         }
         
         // update value
@@ -49,7 +49,7 @@ export class ConstantManager {
             throw new Error(`Unknown platform: ${platform}`);
         }
         for (const key in flags) {
-            const value = flags[key as FlagType];
+            const value = flags[key as FlagType] as boolean;
             if (config[key]) {
                 config[key].value = value;
             } else {
@@ -101,7 +101,7 @@ export class ConstantManager {
             throw new Error(`Unknown platform: ${platform}`);
         }
         for (const key in flags) {
-            const value = flags[key as FlagType];
+            const value = flags[key as FlagType] as boolean;
             if (config[key]) {
                 config[key].value = value;
             } else {
@@ -135,7 +135,7 @@ export class ConstantManager {
         // init helper
         let result = '';
         if (this._hasCCGlobal(config)) {
-            result += fsExt.readFileSync(ps.join(__dirname, '../../static/helper-global-exporter.txt'), 'utf8') + '\n';
+            result += fsExt.readFileSync(ps.join(__dirname, '../static/helper-global-exporter.txt'), 'utf8') + '\n';
         }
 
         // update value
@@ -150,7 +150,7 @@ export class ConstantManager {
             throw new Error(`Unknown platform: ${platform}`);
         }
         for (const key in flags) {
-            const value = flags[key as FlagType];
+            const value = flags[key as FlagType] as boolean;
             if (config[key]) {
                 config[key].value = value;
             } else {
@@ -227,8 +227,8 @@ export class ConstantManager {
 
     //#region utils
     private _getConfig (): IConstantConfig {
-        const config =  fsExt.readJsonSync(ps.join(this._engineRoot, './cc.constant.json').replace(/\\/g, '/')) as IConstantConfig;
-        delete config['$schema'];
+        const engineConfig =  fsExt.readJsonSync(ps.join(this._engineRoot, './cc.config.json').replace(/\\/g, '/')) as Config;
+        const config = engineConfig.constants;
         return config;
     }
 
