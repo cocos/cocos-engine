@@ -230,7 +230,7 @@ public:
      * 渲染调试数据
      */
     inline void setDebugViewConfig(const DebugViewConfig &config) { _debugViewConfig = config; }
-
+    inline const DebugViewConfig &getDebugViewConfig() const { return _debugViewConfig; }
 
     /**
      * @zh

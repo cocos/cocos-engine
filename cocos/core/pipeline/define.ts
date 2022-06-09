@@ -174,23 +174,12 @@ export class UBOGlobal {
     public static readonly SCREEN_SIZE_OFFSET = UBOGlobal.TIME_OFFSET + 4;
     public static readonly NATIVE_SIZE_OFFSET = UBOGlobal.SCREEN_SIZE_OFFSET + 4;
 
-    public static readonly DEBUG_VIEW_SINGLE_MODE_OFFSET = UBOGlobal.NATIVE_SIZE_OFFSET + 4;
-    public static readonly DEBUG_VIEW_LIGHTING_ENABLE_WITH_ALBEDO_OFFSET = UBOGlobal.DEBUG_VIEW_SINGLE_MODE_OFFSET + 1;
-    public static readonly DEBUG_VIEW_MISC_ENABLE_CSM_LAYER_COLORATION_OFFSET = UBOGlobal.DEBUG_VIEW_LIGHTING_ENABLE_WITH_ALBEDO_OFFSET + 1;
-    public static readonly DEBUG_VIEW_COMPOSITE_ENABLE_DIRECT_DIFFUSE_OFFSET = UBOGlobal.DEBUG_VIEW_MISC_ENABLE_CSM_LAYER_COLORATION_OFFSET + 1;
-    public static readonly DEBUG_VIEW_COMPOSITE_ENABLE_DIRECT_SPECULAR_OFFSET = UBOGlobal.DEBUG_VIEW_COMPOSITE_ENABLE_DIRECT_DIFFUSE_OFFSET + 1;
-    public static readonly DEBUG_VIEW_COMPOSITE_ENABLE_ENV_DIFFUSE_OFFSET = UBOGlobal.DEBUG_VIEW_COMPOSITE_ENABLE_DIRECT_SPECULAR_OFFSET + 1;
-    public static readonly DEBUG_VIEW_COMPOSITE_ENABLE_ENV_SPECULAR_OFFSET = UBOGlobal.DEBUG_VIEW_COMPOSITE_ENABLE_ENV_DIFFUSE_OFFSET + 1;
-    public static readonly DEBUG_VIEW_COMPOSITE_ENABLE_EMISSIVE_OFFSET = UBOGlobal.DEBUG_VIEW_COMPOSITE_ENABLE_ENV_SPECULAR_OFFSET + 1;
-    public static readonly DEBUG_VIEW_COMPOSITE_ENABLE_LIGHT_MAP_OFFSET = UBOGlobal.DEBUG_VIEW_COMPOSITE_ENABLE_EMISSIVE_OFFSET + 1;
-    public static readonly DEBUG_VIEW_COMPOSITE_ENABLE_SHADOW_OFFSET = UBOGlobal.DEBUG_VIEW_COMPOSITE_ENABLE_LIGHT_MAP_OFFSET + 1;
-    public static readonly DEBUG_VIEW_COMPOSITE_ENABLE_AO_OFFSET = UBOGlobal.DEBUG_VIEW_COMPOSITE_ENABLE_SHADOW_OFFSET + 1;
-    public static readonly DEBUG_VIEW_COMPOSITE_ENABLE_NORMAL_MAP_OFFSET = UBOGlobal.DEBUG_VIEW_COMPOSITE_ENABLE_AO_OFFSET + 1;
-    public static readonly DEBUG_VIEW_COMPOSITE_ENABLE_FOG_OFFSET = UBOGlobal.DEBUG_VIEW_COMPOSITE_ENABLE_NORMAL_MAP_OFFSET + 1;
-    public static readonly DEBUG_VIEW_COMPOSITE_ENABLE_TONE_MAPPING_OFFSET = UBOGlobal.DEBUG_VIEW_COMPOSITE_ENABLE_FOG_OFFSET + 1;
-    public static readonly DEBUG_VIEW_COMPOSITE_ENABLE_GAMMA_CORRECTION_OFFSET = UBOGlobal.DEBUG_VIEW_COMPOSITE_ENABLE_TONE_MAPPING_OFFSET + 1;
+    public static readonly DEBUG_VIEW_MODE_OFFSET = UBOGlobal.NATIVE_SIZE_OFFSET + 4;
+    public static readonly DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET = UBOGlobal.DEBUG_VIEW_MODE_OFFSET + 4;
+    public static readonly DEBUG_VIEW_COMPOSITE_PACK_2_OFFSET = UBOGlobal.DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET + 4;
+    public static readonly DEBUG_VIEW_COMPOSITE_PACK_3_OFFSET = UBOGlobal.DEBUG_VIEW_COMPOSITE_PACK_2_OFFSET + 4;
 
-    public static readonly COUNT = UBOGlobal.DEBUG_VIEW_COMPOSITE_ENABLE_GAMMA_CORRECTION_OFFSET + 1;
+    public static readonly COUNT = UBOGlobal.DEBUG_VIEW_COMPOSITE_PACK_3_OFFSET + 4;
     public static readonly SIZE = UBOGlobal.COUNT * 4;
 
     public static readonly NAME = 'CCGlobal';
@@ -201,21 +190,10 @@ export class UBOGlobal {
         new Uniform('cc_screenSize', Type.FLOAT4, 1),
         new Uniform('cc_nativeSize', Type.FLOAT4, 1),
 
-        new Uniform('cc_debug_view_single_mode', Type.FLOAT, 1),
-        new Uniform('cc_debug_view_lighting_enable_with_albedo', Type.FLOAT, 1),
-        new Uniform('cc_debug_view_misc_enable_csm_layer_coloration', Type.FLOAT, 1),
-        new Uniform('cc_debug_view_composite_enable_direct_diffuse', Type.FLOAT, 1),
-        new Uniform('cc_debug_view_composite_enable_direct_specular', Type.FLOAT, 1),
-        new Uniform('cc_debug_view_composite_enable_env_diffuse', Type.FLOAT, 1),
-        new Uniform('cc_debug_view_composite_enable_env_specular', Type.FLOAT, 1),
-        new Uniform('cc_debug_view_composite_enable_emissive', Type.FLOAT, 1),
-        new Uniform('cc_debug_view_composite_enable_light_map', Type.FLOAT, 1),
-        new Uniform('cc_debug_view_composite_enable_shadow', Type.FLOAT, 1),
-        new Uniform('cc_debug_view_composite_enable_ao', Type.FLOAT, 1),
-        new Uniform('cc_debug_view_composite_enable_normal_map', Type.FLOAT, 1),
-        new Uniform('cc_debug_view_composite_enable_fog', Type.FLOAT, 1),
-        new Uniform('cc_debug_view_composite_enable_tone_mapping', Type.FLOAT, 1),
-        new Uniform('cc_debug_view_composite_enable_gamma_correction', Type.FLOAT, 1),
+        new Uniform('cc_debug_view_mode', Type.FLOAT, 4),
+        new Uniform('cc_debug_view_composite_pack_1', Type.FLOAT, 4),
+        new Uniform('cc_debug_view_composite_pack_2', Type.FLOAT, 4),
+        new Uniform('cc_debug_view_composite_pack_3', Type.FLOAT, 4),
     ], 1);
 }
 globalDescriptorSetLayout.layouts[UBOGlobal.NAME] = UBOGlobal.LAYOUT;

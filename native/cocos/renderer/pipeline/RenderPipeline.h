@@ -56,7 +56,6 @@ struct CC_DLL RenderPipelineInfo {
     RenderFlowList flows;
 };
 
-
 class CC_DLL RenderPipeline : public Asset {
 public:
     using Super = Asset;
