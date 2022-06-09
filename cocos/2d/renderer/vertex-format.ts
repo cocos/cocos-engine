@@ -26,21 +26,55 @@
 import { AttributeName, Format, FormatInfos, Attribute } from '../../core/gfx';
 import { legacyCC } from '../../core/global-exports';
 
+/**
+ * @en Vertex format with vector 3 position attribute
+ * @zh 包含三维位置属性的顶点格式
+ */
 export const vfmt = [
     new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
 ];
 
+/**
+ * @en Vertex format with the following layout
+ * 1. Vector 3 position attribute (Float32)
+ * 2. Vector 4 color attribute (Float32)
+ * @zh 包含以下数据的顶点格式
+ * 1. 三维位置属性（Float32）
+ * 2. RGBA 颜色属性（Float32）
+ */
 export const vfmtPosColor = [
     new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
     new Attribute(AttributeName.ATTR_COLOR, Format.RGBA32F),
 ];
 
+/**
+ * @en Vertex format with the following layout
+ * 1. Vector 3 position attribute (Float32)
+ * 2. Vector 2 uv attribute (Float32)
+ * 3. Vector 4 color attribute (Float32)
+ * @zh 包含以下数据的顶点格式
+ * 1. 三维位置属性（Float32）
+ * 2. 二维贴图 UV 属性（Float32）
+ * 3. RGBA 颜色属性（Float32）
+ */
 export const vfmtPosUvColor = [
     new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
     new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F),
     new Attribute(AttributeName.ATTR_COLOR, Format.RGBA32F),
 ];
 
+/**
+ * @en Vertex format with the following layout
+ * 1. Vector 3 position attribute (Float32)
+ * 2. Vector 2 uv attribute (Float32)
+ * 3. First vector 4 color attribute (Float32)
+ * 4. Second vector 4 color attribute (Float32)
+ * @zh 包含以下数据的顶点格式
+ * 1. 三维位置属性（Float32）
+ * 2. 二维贴图 UV 属性（Float32）
+ * 3. 第一套 RGBA 颜色属性（Float32）
+ * 3. 第二套 RGBA 颜色属性（Float32）
+ */
 export const vfmtPosUvTwoColor = [
     new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
     new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F),
@@ -48,6 +82,12 @@ export const vfmtPosUvTwoColor = [
     new Attribute(AttributeName.ATTR_COLOR2, Format.RGBA32F),
 ];
 
+/**
+ * @en Get total components count for all attributes per vertex.
+ * @zh 获取每个顶点上所有属性的分量数总和
+ * @param attrs All attributes of the vertex format
+ * @returns Total components count
+ */
 export function getComponentPerVertex (attrs: Attribute[]) {
     let count = 0;
     for (let i = 0; i < attrs.length; i++) {
@@ -59,6 +99,12 @@ export function getComponentPerVertex (attrs: Attribute[]) {
     return count;
 }
 
+/**
+ * @en Get total stride for all attributes per vertex.
+ * @zh 获取每个顶点上所有属性的总步进
+ * @param attrs All attributes of the vertex format
+ * @returns Total stride
+ */
 export function getAttributeStride (attrs: Attribute[]) {
     let count = 0;
     for (let i = 0; i < attrs.length; i++) {

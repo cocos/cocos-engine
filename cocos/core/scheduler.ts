@@ -133,7 +133,6 @@ class HashUpdateEntry {
 /**
  * @en Hash Element used for "selectors with interval"
  * @zh “用于间隔选择”的哈希元素
- * @class HashTimerEntry
  * @param timers
  * @param target  hash key (retained)
  * @param timerIndex
@@ -327,8 +326,6 @@ class CallbackTimer {
  *     - update 定时器：每一帧都会触发。您可以自定义优先级。<br>
  *     - 自定义定时器：自定义定时器可以每一帧或者自定义的时间间隔触发。<br>
  * 如果希望每帧都触发，应该使用 update 定时器，使用 update 定时器更快，而且消耗更少的内存。
- *
- * @class Scheduler
  */
 export class Scheduler extends System {
     public static ID = 'scheduler';
@@ -345,9 +342,9 @@ export class Scheduler extends System {
     private _arrayForTimers: any;
 
     /**
-     * @en This method should be called for any target which needs to schedule tasks, and this method should be called before any scheduler API usage.<bg>
+     * @en This method should be called for any target which needs to schedule tasks, and this method should be called before any scheduler API usage.
      * This method will add a `id` property if it doesn't exist.
-     * @zh 任何需要用 Scheduler 管理任务的对象主体都应该调用这个方法，并且应该在调用任何 Scheduler API 之前调用这个方法。<bg>
+     * @zh 任何需要用 Scheduler 管理任务的对象主体都应该调用这个方法，并且应该在调用任何 Scheduler API 之前调用这个方法。
      * 这个方法会给对象添加一个 `id` 属性，如果这个属性不存在的话。
      * @param target
      */
