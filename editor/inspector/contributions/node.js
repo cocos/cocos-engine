@@ -2,12 +2,11 @@
 const fs = require('fs');
 const path = require('path');
 const utils = require('./utils');
-module.paths.push(path.join(Editor.App.path, 'node_modules'));
-const { debounce } = require('throttle-debounce');
 
 exports.listeners = {
-    'change-dump': debounce(500, async (event) => {
+    async 'change-dump'(event) {
         const panel = this;
+
         const target = event.target;
         if (!target) {
             return;
@@ -93,7 +92,7 @@ exports.listeners = {
         } catch (error) {
             console.error(error);
         }
-    }),
+    },
     'confirm-dump'() {
         const panel = this;
 
@@ -573,7 +572,7 @@ const Elements = {
             const panel = this;
 
             if (!panel.dump || !panel.dump.isScene) {
-                panel.$.componentAdd.style.display = 'block';
+                panel.$.componentAdd.style.display = 'inline-block';
                 return;
             }
             panel.$.componentAdd.style.display = 'none';
@@ -933,7 +932,7 @@ const Elements = {
                     sectionMissing.appendChild($section);
                 }
                 $section.innerHTML = `
-                <span class="name">${panel.dump.removedComponents[i].name}</span>
+                <span class="name"><span>${panel.dump.removedComponents[i].name}</span> [removed]</span>
                 <ui-icon value="reset" index="${i}" tooltip="i18n:ENGINE.prefab.reset"></ui-icon>
                 <ui-icon value="save-o" index="${i}" tooltip="i18n:ENGINE.prefab.save"></ui-icon>
                 `;

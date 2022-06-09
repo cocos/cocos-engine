@@ -88,6 +88,11 @@
 
 .section-missing .name {
     flex: 1;
+    color: var(--color-normal-contrast-emphasis);
+}
+
+.section-missing .name span {
+    text-decoration: line-through;
 }
 
 .section-missing > section > ui-icon {
