@@ -191,9 +191,10 @@ export default class NoiseModule extends ParticleModuleBase {
     private _remapZ = 0;
 
     @type(Number)
-    @range([1, 10])
+    @range([1, 4])
     @rangeStep(1)
     @displayOrder(16)
+    @slide
     get octaves () {
         return this._octaves;
     }
@@ -203,6 +204,8 @@ export default class NoiseModule extends ParticleModuleBase {
     @serializable
     private _octaves = 1;
 
+    // eslint-disable-next-line func-names
+    @visible(function (this: NoiseModule) { return this._octaves > 1; })
     @type(Number)
     @range([0, 1])
     @rangeStep(0.1)
@@ -216,6 +219,8 @@ export default class NoiseModule extends ParticleModuleBase {
     @serializable
     private _octaveMultiplier = 1;
 
+    // eslint-disable-next-line func-names
+    @visible(function (this: NoiseModule) { return this._octaves > 1; })
     @type(Number)
     @range([1, 4])
     @rangeStep(0.1)
