@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { DEV, EDITOR, TEST } from 'internal:constants';
+import { DEV, EDITOR, JSB, TEST } from 'internal:constants';
 import { CCString, CCInteger, CCFloat, CCBoolean } from '../utils/attribute';
 import { IExposedAttributes } from '../utils/attribute-defines';
 import { LegacyPropertyDecorator, getSubDict, getClassCache, BabelPropertyDecoratorDescriptor } from './utils';
@@ -250,7 +250,7 @@ function setDefaultValue<T> (
 ) {
     // Default values are needed by editor, and now editor run with web version, so don't
     // have to provide default values.
-    if (jsb) {
+    if (JSB) {
         return;
     }
 
