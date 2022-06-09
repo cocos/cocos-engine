@@ -91,7 +91,7 @@ void ShadowsInfo::setShadowMapSize(float value) {
     }
 }
 
-void ShadowsInfo::setPlaneFromNode(Node *node) {
+void ShadowsInfo::setPlaneFromNode(const Node* node) {
     const auto &qt = node->getWorldRotation();
     _normal = Vec3::UNIT_Y;
     _normal.transformQuat(qt);

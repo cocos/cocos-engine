@@ -96,7 +96,7 @@ private:
     float _shadowDistance{50.0F};
     float _shadowInvisibleOcclusionRange{200.0F};
     CSMLevel _csmLevel{CSMLevel::LEVEL_3};
-    float _csmLayerLambda{0.75};
+    float _csmLayerLambda{0.75F};
     bool _isCSMNeedUpdate{false};
     CSMOptimizationMode _csmOptimizationMode{CSMOptimizationMode::REMOVE_DUPLICATES};
     bool _shadowFixedArea{false};

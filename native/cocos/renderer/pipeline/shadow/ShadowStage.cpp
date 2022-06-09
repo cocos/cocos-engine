@@ -140,7 +140,7 @@ void ShadowStage::destroy() {
     RenderStage::destroy();
 }
 
-void ShadowStage::clearFramebuffer(scene::Camera *camera) {
+void ShadowStage::clearFramebuffer(const scene::Camera* camera) {
     if (!_light || !_framebuffer) {
         return;
     }
