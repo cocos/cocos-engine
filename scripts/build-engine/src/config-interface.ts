@@ -83,10 +83,11 @@ export interface IConstantInfo {
      * Whether exported to global as a `CC_XXXX` constant.
      * eg. WECHAT is exported to global.CC_WECHAT
      * NOTE: this is a feature of compatibility with Cocos 2.x engine.
+     * Default is false.
      * 
      * @default false
      */
-    readonly ccGlobal?: boolean,
+    ccGlobal?: boolean,
     /**
      * Whether exported to developer.
      * If true, it's only exported to engine.
@@ -96,10 +97,11 @@ export interface IConstantInfo {
      * Some constant can't specify the value in the Editor, Preview or Test environment,
      * so we need to dynamically judge them in runtime.
      * These values are specified in a helper called `helper-dynamic-constants.ts`.
+     * Default is false.
      * 
      * @default false
      */
-    readonly dynamic?: boolean
+    dynamic?: boolean
 }
 
 export interface IConstantConfig {

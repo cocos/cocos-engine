@@ -229,6 +229,17 @@ export class ConstantManager {
     private _getConfig (): IConstantConfig {
         const engineConfig =  fsExt.readJsonSync(ps.join(this._engineRoot, './cc.config.json').replace(/\\/g, '/')) as Config;
         const config = engineConfig.constants;
+
+        // init default value
+        for (const key in config) {
+            const info = config[key];
+            if (typeof info.ccGlobal === 'undefined') {
+                info.ccGlobal = false;
+            }
+            if (typeof info.dynamic === 'undefined') {
+                info.dynamic = false;
+            }
+        }
         return config;
     }
 

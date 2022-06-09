@@ -169,14 +169,12 @@
         "HTML5": {
             "comment": "Running in Web platform",
             "value": false,
-            "ccGlobal": false,
             "internal": false,
             "dynamic": true
         },
         "NATIVE": {
             "comment": "Running in native platform (mobile app, desktop app, or simulator).",
             "value": false,
-            "ccGlobal": false,
             "internal": false,
             "dynamic": true
         },
@@ -184,78 +182,67 @@
             "comment": "Running in the Wechat's mini game.",
             "value": false,
             "ccGlobal": true,
-            "internal": false,
-            "dynamic": false
+            "internal": false
         },
         "BAIDU": {
             "comment": "Running in the baidu's mini game.",
             "value": false,
             "ccGlobal": true,
-            "internal": false,
-            "dynamic": false
+            "internal": false
         },
         "XIAOMI": {
             "comment": "Running in the xiaomi's quick game.",
             "value": false,
             "ccGlobal": true,
-            "internal": false,
-            "dynamic": false
+            "internal": false
         },
         "ALIPAY": {
             "comment": "Running in the alipay's mini game.",
             "value": false,
             "ccGlobal": true,
-            "internal": false,
-            "dynamic": false
+            "internal": false
         },
         "BYTEDANCE": {
             "comment": "Running in the ByteDance's quick game.",
             "value": false,
             "ccGlobal": true,
-            "internal": false,
-            "dynamic": false
+            "internal": false
         },
         "OPPO": {
             "comment": "Running in the oppo's mini game.",
             "value": false,
             "ccGlobal": true,
-            "internal": false,
-            "dynamic": false
+            "internal": false
         },
         "VIVO": {
             "comment": "Running in the vivo's mini game.",
             "value": false,
             "ccGlobal": true,
-            "internal": false,
-            "dynamic": false
+            "internal": false
         },
         "HUAWEI": {
             "comment": "Running in the huawei's quick game.",
             "value": false,
             "ccGlobal": true,
-            "internal": false,
-            "dynamic": false
+            "internal": false
         },
         "COCOSPLAY": {
             "comment": "Running in the cocosplay.",
             "value": false,
             "ccGlobal": true,
-            "internal": false,
-            "dynamic": false
+            "internal": false
         },
         "QTT": {
             "comment": "Running in the qtt's quick game.",
             "value": false,
             "ccGlobal": true,
-            "internal": false,
-            "dynamic": false
+            "internal": false
         },
         "LINKSURE": {
             "comment": "Running in the linksure's quick game.",
             "value": false,
             "ccGlobal": true,
-            "internal": false,
-            "dynamic": false
+            "internal": false
         },
 
         "EDITOR": {
@@ -276,8 +263,7 @@
             "comment": "Running in published project.",
             "value": false,
             "ccGlobal": true,
-            "internal": false,
-            "dynamic": false
+            "internal": false
         },
         "TEST": {
             "comment": "Running in the engine's unit test.",
@@ -292,15 +278,12 @@
             "comment": "Running debug mode.",
             "value": true,
             "ccGlobal": true,
-            "internal": false,
-            "dynamic": false
+            "internal": false
         },
         "SERVER_MODE": {
             "comment": "Running in the server mode.",
             "value": false,
-            "ccGlobal": false,
-            "internal": false,
-            "dynamic": false
+            "internal": false
         },
 
 
@@ -315,15 +298,13 @@
             "comment": "Running in mini game.",
             "value": "$WECHAT || $BAIDU || $XIAOMI || $ALIPAY || $BYTEDANCE",
             "ccGlobal": true,
-            "internal": false,
-            "dynamic": false
+            "internal": false
         },
         "RUNTIME_BASED": {
             "comment": "Running in runtime based environment.",
             "value": "$OPPO || $VIVO || $HUAWEI || $COCOSPLAY || $QTT || $LINKSURE",
             "ccGlobal": true,
-            "internal": false,
-            "dynamic": false
+            "internal": false
         },
         "SUPPORT_JIT": {
             "comment": "Support JIT.",

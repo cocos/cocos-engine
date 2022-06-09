@@ -95,7 +95,7 @@
       "properties": {
         "ccGlobal": {
           "default": false,
-          "description": "Whether exported to global as a `CC_XXXX` constant. eg. WECHAT is exported to global.CC_WECHAT NOTE: this is a feature of compatibility with Cocos 2.x engine.",
+          "description": "Whether exported to global as a `CC_XXXX` constant. eg. WECHAT is exported to global.CC_WECHAT NOTE: this is a feature of compatibility with Cocos 2.x engine. Default is false.",
           "type": "boolean"
         },
         "comment": {
@@ -104,7 +104,7 @@
         },
         "dynamic": {
           "default": false,
-          "description": "Some constant can't specify the value in the Editor, Preview or Test environment, so we need to dynamically judge them in runtime. These values are specified in a helper called `helper-dynamic-constants.ts`.",
+          "description": "Some constant can't specify the value in the Editor, Preview or Test environment, so we need to dynamically judge them in runtime. These values are specified in a helper called `helper-dynamic-constants.ts`. Default is false.",
           "type": "boolean"
         },
         "internal": {
