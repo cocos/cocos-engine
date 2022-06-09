@@ -138,28 +138,28 @@ export const CSMLevel = Enum({
      * @en level 1
      * @readonly
      */
-    level_1: 1,
+    LEVEL_1: 1,
 
     /**
      * @zh 2 个层级
      * @en level 2
      * @readonly
      */
-    level_2: 2,
+    LEVEL_2: 2,
 
     /**
      * @zh 3 个层级
      * @en level 3
      * @readonly
      */
-    level_3: 3,
+    LEVEL_3: 3,
 
     /**
      * @zh 4 个层级
      * @en level 4
      * @readonly
      */
-    level_4: 4,
+    LEVEL_4: 4,
 });
 
 /**
