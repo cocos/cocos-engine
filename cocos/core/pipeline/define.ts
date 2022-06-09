@@ -260,13 +260,13 @@ export class UBOShadow {
     public static readonly SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET = UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 4;
     public static readonly SHADOW_COLOR_OFFSET = UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 4;
     public static readonly PLANAR_NORMAL_DISTANCE_INFO_OFFSET = UBOShadow.SHADOW_COLOR_OFFSET + 4;
-    public static readonly MAT_SHADOW_VIEW_LEVELS_OFFSET = UBOShadow.PLANAR_NORMAL_DISTANCE_INFO_OFFSET + 4;
-    public static readonly MAT_SHADOW_VIEW_PROJ_LEVELS_OFFSET = UBOShadow.MAT_SHADOW_VIEW_LEVELS_OFFSET + 16 * UBOShadow.CSM_LEVEL_COUNT;
-    public static readonly MAT_SHADOW_VIEW_PROJ_ATLAS_LEVELS_OFFSET = UBOShadow.MAT_SHADOW_VIEW_PROJ_LEVELS_OFFSET + 16 * UBOShadow.CSM_LEVEL_COUNT;
-    public static readonly SHADOW_PROJ_DEPTH_INFO_LEVELS_OFFSET = UBOShadow.MAT_SHADOW_VIEW_PROJ_ATLAS_LEVELS_OFFSET + 16 * UBOShadow.CSM_LEVEL_COUNT;
-    public static readonly SHADOW_PROJ_INFO_LEVELS_OFFSET = UBOShadow.SHADOW_PROJ_DEPTH_INFO_LEVELS_OFFSET + 4 * UBOShadow.CSM_LEVEL_COUNT;
-    public static readonly SHADOW_SPLITS_OFFSET = UBOShadow.SHADOW_PROJ_INFO_LEVELS_OFFSET + 4 * UBOShadow.CSM_LEVEL_COUNT;
-    public static readonly CSM_INFO_OFFSET = UBOShadow.SHADOW_SPLITS_OFFSET + 4;
+    public static readonly MAT_CSM_VIEW_OFFSET = UBOShadow.PLANAR_NORMAL_DISTANCE_INFO_OFFSET + 4;
+    public static readonly MAT_CSM_VIEW_PROJ_OFFSET = UBOShadow.MAT_CSM_VIEW_OFFSET + 16 * UBOShadow.CSM_LEVEL_COUNT;
+    public static readonly MAT_CSM_VIEW_PROJ_ATLAS_OFFSET = UBOShadow.MAT_CSM_VIEW_PROJ_OFFSET + 16 * UBOShadow.CSM_LEVEL_COUNT;
+    public static readonly CSM_PROJ_DEPTH_INFO_OFFSET = UBOShadow.MAT_CSM_VIEW_PROJ_ATLAS_OFFSET + 16 * UBOShadow.CSM_LEVEL_COUNT;
+    public static readonly CSM_PROJ_INFO_OFFSET = UBOShadow.CSM_PROJ_DEPTH_INFO_OFFSET + 4 * UBOShadow.CSM_LEVEL_COUNT;
+    public static readonly CSM_SPLITS_INFO_OFFSET = UBOShadow.CSM_PROJ_INFO_OFFSET + 4 * UBOShadow.CSM_LEVEL_COUNT;
+    public static readonly CSM_INFO_OFFSET = UBOShadow.CSM_SPLITS_INFO_OFFSET + 4;
     public static readonly COUNT: number = UBOShadow.CSM_INFO_OFFSET + 4;
     public static readonly SIZE = UBOShadow.COUNT * 4;
     public static readonly NAME = 'CCShadow';
@@ -284,12 +284,12 @@ export class UBOShadow {
         new Uniform('cc_shadowLPNNInfo', Type.FLOAT4, 1),
         new Uniform('cc_shadowColor', Type.FLOAT4, 1),
         new Uniform('cc_planarNDInfo', Type.FLOAT4, 1),
-        new Uniform('cc_matShadowView_levels', Type.MAT4, UBOShadow.CSM_LEVEL_COUNT),
-        new Uniform('cc_matShadowViewProj_levels', Type.MAT4, UBOShadow.CSM_LEVEL_COUNT),
-        new Uniform('cc_matShadowViewProjAtlas_levels', Type.MAT4, UBOShadow.CSM_LEVEL_COUNT),
-        new Uniform('cc_shadowProjDepthInfo_levels', Type.FLOAT4, UBOShadow.CSM_LEVEL_COUNT),
-        new Uniform('cc_shadowProjInfo_levels', Type.FLOAT4, UBOShadow.CSM_LEVEL_COUNT),
-        new Uniform('cc_shadowSplits', Type.FLOAT4, 1),
+        new Uniform('cc_matCSMView', Type.MAT4, UBOShadow.CSM_LEVEL_COUNT),
+        new Uniform('cc_matCSMViewProj', Type.MAT4, UBOShadow.CSM_LEVEL_COUNT),
+        new Uniform('cc_matCSMViewProjAtlas', Type.MAT4, UBOShadow.CSM_LEVEL_COUNT),
+        new Uniform('cc_csmProjDepthInfo', Type.FLOAT4, UBOShadow.CSM_LEVEL_COUNT),
+        new Uniform('cc_csmProjInfo', Type.FLOAT4, UBOShadow.CSM_LEVEL_COUNT),
+        new Uniform('cc_csmSplitsInfo', Type.FLOAT4, 1),
         new Uniform('cc_csmInfo', Type.FLOAT4, 1),
     ], 1);
 }

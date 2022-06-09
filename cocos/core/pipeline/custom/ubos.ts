@@ -220,27 +220,27 @@ export class PipelineUBO {
                     Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET);
                 } else {
                     for (let i = 0; i < mainLight.csmLevel; i++) {
-                        sv[UBOShadow.SHADOW_SPLITS_OFFSET + i] = csmLayers.layers[i].splitCameraFar / mainLight.shadowDistance;
+                        sv[UBOShadow.CSM_SPLITS_INFO_OFFSET + i] = csmLayers.layers[i].splitCameraFar / mainLight.shadowDistance;
 
                         const matShadowView = csmLayers.layers[i].matShadowView;
-                        Mat4.toArray(sv, matShadowView, UBOShadow.MAT_SHADOW_VIEW_LEVELS_OFFSET + 16 * i);
+                        Mat4.toArray(sv, matShadowView, UBOShadow.MAT_CSM_VIEW_OFFSET + 16 * i);
 
                         const matShadowViewProj = csmLayers.layers[i].matShadowViewProj;
-                        Mat4.toArray(sv, matShadowViewProj, UBOShadow.MAT_SHADOW_VIEW_PROJ_LEVELS_OFFSET + 16 * i);
+                        Mat4.toArray(sv, matShadowViewProj, UBOShadow.MAT_CSM_VIEW_PROJ_OFFSET + 16 * i);
 
                         const matShadowViewProjAtlas = csmLayers.layers[i].matShadowViewProjAtlas;
-                        Mat4.toArray(sv, matShadowViewProjAtlas, UBOShadow.MAT_SHADOW_VIEW_PROJ_ATLAS_LEVELS_OFFSET + 16 * i);
+                        Mat4.toArray(sv, matShadowViewProjAtlas, UBOShadow.MAT_CSM_VIEW_PROJ_ATLAS_OFFSET + 16 * i);
 
                         const matShadowProj = csmLayers.layers[i].matShadowProj;
-                        sv[UBOShadow.SHADOW_PROJ_DEPTH_INFO_LEVELS_OFFSET + 0 + 4 * i] = matShadowProj.m10;
-                        sv[UBOShadow.SHADOW_PROJ_DEPTH_INFO_LEVELS_OFFSET + 1 + 4 * i] = matShadowProj.m14;
-                        sv[UBOShadow.SHADOW_PROJ_DEPTH_INFO_LEVELS_OFFSET + 2 + 4 * i] = matShadowProj.m11;
-                        sv[UBOShadow.SHADOW_PROJ_DEPTH_INFO_LEVELS_OFFSET + 3 + 4 * i] = matShadowProj.m15;
+                        sv[UBOShadow.CSM_PROJ_DEPTH_INFO_OFFSET + 0 + 4 * i] = matShadowProj.m10;
+                        sv[UBOShadow.CSM_PROJ_DEPTH_INFO_OFFSET + 1 + 4 * i] = matShadowProj.m14;
+                        sv[UBOShadow.CSM_PROJ_DEPTH_INFO_OFFSET + 2 + 4 * i] = matShadowProj.m11;
+                        sv[UBOShadow.CSM_PROJ_DEPTH_INFO_OFFSET + 3 + 4 * i] = matShadowProj.m15;
 
-                        sv[UBOShadow.SHADOW_PROJ_INFO_LEVELS_OFFSET + 0 + 4 * i] = matShadowProj.m00;
-                        sv[UBOShadow.SHADOW_PROJ_INFO_LEVELS_OFFSET + 1 + 4 * i] = matShadowProj.m05;
-                        sv[UBOShadow.SHADOW_PROJ_INFO_LEVELS_OFFSET + 2 + 4 * i] = 1.0 / matShadowProj.m00;
-                        sv[UBOShadow.SHADOW_PROJ_INFO_LEVELS_OFFSET + 3 + 4 * i] = 1.0 / matShadowProj.m05;
+                        sv[UBOShadow.CSM_PROJ_INFO_OFFSET + 0 + 4 * i] = matShadowProj.m00;
+                        sv[UBOShadow.CSM_PROJ_INFO_OFFSET + 1 + 4 * i] = matShadowProj.m05;
+                        sv[UBOShadow.CSM_PROJ_INFO_OFFSET + 2 + 4 * i] = 1.0 / matShadowProj.m00;
+                        sv[UBOShadow.CSM_PROJ_INFO_OFFSET + 3 + 4 * i] = 1.0 / matShadowProj.m05;
                     }
 
                     sv[UBOShadow.CSM_INFO_OFFSET + 0] = 0;
