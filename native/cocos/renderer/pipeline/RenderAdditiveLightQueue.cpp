@@ -71,10 +71,13 @@ RenderAdditiveLightQueue ::~RenderAdditiveLightQueue() {
 }
 
 void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, scene::Camera *camera, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) {
-    _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuffer);
-    _batchedQueue->recordCommandBuffer(device, renderPass, cmdBuffer);
+    const uint offset = _pipeline->getPipelineUBO()->getCurrentCameraUBOOffset();
+    for (const auto light : _lightIndices) {
+        auto *     globalDescriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(light);
+        _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuffer, globalDescriptorSet, offset);
+        _batchedQueue->recordCommandBuffer(device, renderPass, cmdBuffer, globalDescriptorSet, offset);
+    }
     const bool enableOcclusionQuery = _pipeline->getOcclusionQueryEnabled();
-    const auto offset               = _pipeline->getPipelineUBO()->getCurrentCameraUBOOffset();
 
     for (const auto &lightPass : _lightPasses) {
         const auto *const subModel = lightPass.subModel;
@@ -165,6 +168,26 @@ bool RenderAdditiveLightQueue::cullSphereLight(const scene::SphereLight *light, 
 
 bool RenderAdditiveLightQueue::cullSpotLight(const scene::SpotLight *light, const scene::Model *model) {
     return model->getWorldBounds() && (!model->getWorldBounds()->aabbAabb(light->getAABB()) || !model->getWorldBounds()->aabbFrustum(light->getFrustum()));
+}
+
+bool RenderAdditiveLightQueue::isInstancedOrBatched(const scene::Model* model) {
+    const auto &      subModels     = model->getSubModels();
+    const auto        subModelCount = subModels.size();
+    for (uint subModelIdx = 0; subModelIdx < subModelCount; ++subModelIdx) {
+        const auto &subModel  = subModels[subModelIdx];
+        const auto &passes    = subModel->getPasses();
+        const auto  passCount = passes.size();
+        for (uint passIdx = 0; passIdx < passCount; ++passIdx) {
+            const auto &pass = passes[passIdx];
+            if (pass->getBatchingScheme() == scene::BatchingSchemes::INSTANCING) {
+                return true;
+            }
+            if (pass->getBatchingScheme() == scene::BatchingSchemes::VB_MERGING) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 void RenderAdditiveLightQueue::addRenderQueue(const scene::Pass *pass, const scene::SubModel *subModel, const scene::Model *model, uint lightPassIdx) {
@@ -263,7 +286,8 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
             case scene::LightType::SPOT: {
                 _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 3]              = 1.0F;
                 _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = spotLight->getSpotAngle();
-                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = (spotLight->getShadowEnabled() && shadowInfo->shadowType == scene::ShadowType::SHADOWMAP) ? 1.0F : 0.0F;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = (shadowInfo->enabled && spotLight->getShadowEnabled() &&
+                    shadowInfo->shadowType == scene::ShadowType::SHADOWMAP) ? 1.0F : 0.0F;
 
                 index                     = offset + UBOForwardLight::LIGHT_DIR_OFFSET;
                 const auto &direction     = spotLight->getDirection();
@@ -325,7 +349,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
                 const auto  matShadowView   = matShadowCamera.getInversed();
 
                 cc::Mat4 matShadowProj;
-                cc::Mat4::createPerspective(spotLight->getSpotAngle(), spotLight->getAspect(), 0.001F, spotLight->getRange(), &matShadowProj);
+                cc::Mat4::createPerspective(spotLight->getSpotAngle(), 1.0F, 0.001F, spotLight->getRange(), &matShadowProj);
                 cc::Mat4 matShadowViewProj = matShadowProj;
                 cc::Mat4 matShadowInvProj  = matShadowProj;
                 matShadowInvProj.inverse();
@@ -397,14 +421,19 @@ bool RenderAdditiveLightQueue::getLightPassIndex(const scene::Model *model, vect
 
 void RenderAdditiveLightQueue::lightCulling(const scene::Model *model) {
     bool isCulled = false;
+    const auto isNeedCulling = !isInstancedOrBatched(model);
     for (size_t i = 0; i < _validPunctualLights.size(); i++) {
         const auto *const light = _validPunctualLights[i];
         switch (light->getType()) {
             case scene::LightType::SPHERE:
-                isCulled = cullSphereLight(static_cast<const scene::SphereLight *>(light), model);
+                if (isNeedCulling) {
+                    isCulled = cullSphereLight(static_cast<const scene::SphereLight *>(light), model);
+                }
                 break;
             case scene::LightType::SPOT:
-                isCulled = cullSpotLight(static_cast<const scene::SpotLight *>(light), model);
+                if (isNeedCulling) {
+                    isCulled = cullSpotLight(static_cast<const scene::SpotLight *>(light), model);
+                }
                 break;
             default:
                 isCulled = false;

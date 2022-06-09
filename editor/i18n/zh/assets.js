@@ -87,8 +87,8 @@ module.exports = {
         image: {
             type: 'Type',
             typeTip: 'Type',
-            bakeOfflineMipmaps: 'Bake Offline Mipmaps',
-            bakeOfflineMipmapsTip: 'Bake Offline Mipmaps',
+            // bakeOfflineMipmaps: 'Bake Offline Mipmaps',
+            // bakeOfflineMipmapsTip: 'Bake Offline Mipmaps',
             flipVertical: 'Flip Vertical',
             flipVerticalTip: 'Flip Vertical',
             fixAlphaTransparencyArtifacts: 'Fix Alpha Transparency Artifacts',
@@ -312,7 +312,12 @@ module.exports = {
             },
             preferLocalTimeSpan: {
                 name: '优先使用文件时间范围',
-                title: '在导出 FBX 动画时，是否优先使用 FBX 文件中记录的动画时间范围。若不使用该时间范围或此范围不可能用，则会粗略地计算动画时间范围。有些 FBX 生产工具中可能并未导出该信息。',
+                title: '在导出 FBX 动画时，是否优先使用 FBX 文件中记录的动画时间范围。<br>若不使用该时间范围或此范围不可能用，则会粗略地计算动画时间范围。有些 FBX 生产工具中可能并未导出该信息。',
+            },
+            smartMaterialEnabled: {
+                name: '材质智能转换',
+                title: '将 DCC 材质转化为引擎材质, 并匹对 DCC 材质的光照模型',
+                warn: '项目设置里的模型配置 "材质智能转换" 已关闭，请启用此项功能来修改模型级别设置。',
             },
         },
         textureCube: {
@@ -343,7 +348,7 @@ module.exports = {
             clearAllNodes: '清空',
             clearAllNodesWarn: '确定清空所有遮罩数据吗？',
             illegalFbx: '导入骨骼失败：此 fbx 文件不含有 prefab 子资源。',
-            nodeEnableTip: '是否启用这个节点<br>按住 Alt + 点击，可以切换自身和子孙节点的状态',
+            nodeEnableTip: '是否启用该节点及其子孙节点<br>按住 Alt + 点击，只切换自身的状态。',
         },
         multipleWarning: '不支持此类型资源的多选编辑',
         check_is_saved: {

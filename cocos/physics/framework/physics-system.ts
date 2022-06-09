@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module physics
- */
-
 import { EDITOR } from 'internal:constants';
 import { Vec3 } from '../../core/math';
 import { IRaycastOptions } from '../spec/i-physics-world';
@@ -408,11 +403,12 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * Collision detect all collider, and record all the detected results, through PhysicsSystem.Instance.RaycastResults access to the results.
      * @zh
      * 检测所有的碰撞盒，并记录所有被检测到的结果，通过 PhysicsSystem.instance.raycastResults 访问结果。
-     * @param worldRay 世界空间下的一条射线
-     * @param mask 掩码，默认为 0xffffffff
-     * @param maxDistance 最大检测距离，默认为 10000000，目前请勿传入 Infinity 或 Number.MAX_VALUE
-     * @param queryTrigger 是否检测触发器
-     * @return boolean 表示是否有检测到碰撞盒
+     * @param worldRay @zh 世界空间下的一条射线 @en A ray in world space
+     * @param mask @zh 掩码，默认为 0xffffffff @en Mask, default value is 0xffffffff
+     * @param maxDistance @zh 最大检测距离，默认为 10000000，目前请勿传入 Infinity 或 Number.MAX_VALUE
+     *                    @en Maximum detection distance, default value is 10000000, do not pass Infinity or Number.MAX_VALUE for now
+     * @param queryTrigger @zh 是否检测触发器 @en Whether to detect triggers
+     * @return {boolean} @zh 表示是否有检测到碰撞 @en Indicates whether a collision has been detected
      */
     raycast (worldRay: Ray, mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
         if (!this.physicsWorld) return false;
@@ -430,11 +426,12 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * by PhysicsSystem.Instance.RaycastClosestResult access to the results.
      * @zh
      * 检测所有的碰撞盒，并记录与射线距离最短的检测结果，通过 PhysicsSystem.instance.raycastClosestResult 访问结果。
-     * @param worldRay 世界空间下的一条射线
-     * @param mask 掩码，默认为 0xffffffff
-     * @param maxDistance 最大检测距离，默认为 10000000，目前请勿传入 Infinity 或 Number.MAX_VALUE
-     * @param queryTrigger 是否检测触发器
-     * @return boolean 表示是否有检测到碰撞盒
+     * @param worldRay @zh 世界空间下的一条射线 @en A ray in world space
+     * @param mask @zh 掩码，默认为 0xffffffff @en Mask, default value is 0xffffffff
+     * @param maxDistance @zh 最大检测距离，默认为 10000000，目前请勿传入 Infinity 或 Number.MAX_VALUE
+     *                    @en Maximum detection distance, default value is 10000000, do not pass Infinity or Number.MAX_VALUE for now
+     * @param queryTrigger @zh 是否检测触发器 @en Whether to detect triggers
+     * @return {boolean} @zh 表示是否有检测到碰撞 @en Indicates whether a collision has been detected
      */
     raycastClosest (worldRay: Ray, mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
         if (!this.physicsWorld) return false;

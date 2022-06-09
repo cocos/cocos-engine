@@ -45,7 +45,10 @@ class RenderFlow;
 // Skinning models with number of bones more than this capacity will be automatically switched to texture skinning.
 // But still, you can tweak this for your own need by changing the number below
 // and the JOINT_UNIFORM_CAPACITY macro in cc-skinning shader header.
-constexpr int JOINT_UNIFORM_CAPACITY = 30;
+class CC_DLL SkinningJointCapacity {
+public:
+    static uint jointUniformCapacity;
+};
 
 constexpr float SHADOW_CAMERA_MAX_FAR    = 2000.0F;
 const float     COEFFICIENT_OF_EXPANSION = 2.0F * sqrtf(3.0F);
@@ -330,14 +333,15 @@ struct CC_DLL UBOSkinningAnimation {
     static const String                          NAME;
 };
 
-struct CC_DLL UBOSkinning {
-    static constexpr uint                        JOINTS_OFFSET = 0;
-    static constexpr uint                        COUNT         = UBOSkinning::JOINTS_OFFSET + JOINT_UNIFORM_CAPACITY * 12;
-    static constexpr uint                        SIZE          = UBOSkinning::COUNT * 4;
-    static constexpr uint                        BINDING       = static_cast<uint>(ModelLocalBindings::UBO_SKINNING_TEXTURE);
+class CC_DLL UBOSkinning {
+public:
+    static uint                                  count;
+    static uint                                  size;
+    static constexpr uint                        BINDING            = static_cast<uint>(ModelLocalBindings::UBO_SKINNING_TEXTURE);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
-    static const gfx::UniformBlock               LAYOUT;
+    static gfx::UniformBlock                     layout;
     static const String                          NAME;
+    static void initLayout (uint capacity);
 };
 
 struct CC_DLL UBOMorph {
@@ -522,6 +526,13 @@ struct CC_DLL DIFFUSEMAP : public Object {
 };
 
 struct CC_DLL JOINTTEXTURE : public Object {
+    static constexpr uint                        BINDING = static_cast<uint>(ModelLocalBindings::SAMPLER_JOINTS);
+    static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
+    static const gfx::UniformSamplerTexture      LAYOUT;
+    static const String                          NAME;
+};
+
+struct CC_DLL REALTIMEJOINTTEXTURE : public Object {
     static constexpr uint                        BINDING = static_cast<uint>(ModelLocalBindings::SAMPLER_JOINTS);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
     static const gfx::UniformSamplerTexture      LAYOUT;

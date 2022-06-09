@@ -180,7 +180,6 @@ SE_DECLARE_FUNC(js_scene_SpotLight_getShadowNormalBias);
 SE_DECLARE_FUNC(js_scene_SpotLight_getShadowPcf);
 SE_DECLARE_FUNC(js_scene_SpotLight_setAABB);
 SE_DECLARE_FUNC(js_scene_SpotLight_setAngle);
-SE_DECLARE_FUNC(js_scene_SpotLight_setAspect);
 SE_DECLARE_FUNC(js_scene_SpotLight_setDirection);
 SE_DECLARE_FUNC(js_scene_SpotLight_setFrustum);
 SE_DECLARE_FUNC(js_scene_SpotLight_setLuminanceHDR);
@@ -462,6 +461,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::scene::SkinningModel);
 SE_DECLARE_FUNC(js_scene_SkinningModel_setBuffers);
 SE_DECLARE_FUNC(js_scene_SkinningModel_setIndicesAndJoints);
 SE_DECLARE_FUNC(js_scene_SkinningModel_setNeedUpdate);
+SE_DECLARE_FUNC(js_scene_SkinningModel_setRealTimeJointTextures);
 SE_DECLARE_FUNC(js_scene_SkinningModel_updateLocalDescriptors);
 SE_DECLARE_FUNC(js_scene_SkinningModel_SkinningModel);
 

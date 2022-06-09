@@ -1837,6 +1837,10 @@ We don't currently support conversion of \`CubicSplineQuatValue\`.
 
 Instancing/Batching enabled for non-baked skinning model '%s', this may result in unexpected rendering artifacts. Consider turning it off in the material if you do not intend to do this.
 
+### 3938
+
+'%s' is not found from '%s'. It's specified as the root node to play animation clip '%s'.
+
 ### 4000
 
 <!-- DEPRECATED -->
@@ -3226,3 +3230,17 @@ Pool.destroy no longer take a function as parameter, Please specify destruct fun
 ### 14200
 
 Can not keep world transform due to the zero scaling of parent node
+
+<!-- Rendering algorithm reserved: 15000 - 16000 -->
+
+### 15000
+
+Can not find corresponding diffuse map for environment lighting, use hemisphere diffuse instead, change environment lighting type to regenerate diffuse map
+
+### 15001
+
+Can not find environment map, disable IBL lighting
+
+### 15002
+
+Diffuse map resource is missing, please change environment lighting type to regenerate resource

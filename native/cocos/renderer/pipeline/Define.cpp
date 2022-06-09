@@ -252,6 +252,10 @@ const gfx::UniformBlock UBOSkinningAnimation::LAYOUT = {
     1,
 };
 
+uint SkinningJointCapacity::jointUniformCapacity = 0;
+uint UBOSkinning::count = 0;
+uint UBOSkinning::size = 0;
+
 const String                          UBOSkinning::NAME       = "CCSkinning";
 const gfx::DescriptorSetLayoutBinding UBOSkinning::DESCRIPTOR = {
     UBOSkinning::BINDING,
@@ -260,15 +264,20 @@ const gfx::DescriptorSetLayoutBinding UBOSkinning::DESCRIPTOR = {
     gfx::ShaderStageFlagBit::VERTEX,
     {},
 };
-const gfx::UniformBlock UBOSkinning::LAYOUT = {
+gfx::UniformBlock UBOSkinning::layout = {
     localSet,
     UBOSkinning::BINDING,
     UBOSkinning::NAME,
     {
-        {"cc_joints", gfx::Type::FLOAT4, JOINT_UNIFORM_CAPACITY * 3},
+        {"cc_joints", gfx::Type::FLOAT4, 0},
     },
     1,
 };
+void UBOSkinning::initLayout (uint capacity) {
+    UBOSkinning::count = capacity * 12;
+    UBOSkinning::size = UBOSkinning::count * 4;
+    UBOSkinning::layout.members[0].count = capacity * 3;
+}
 
 const uint                            UBOMorph::COUNT_BASE_4_BYTES = static_cast<uint>(4 * std::ceil(UBOMorph::MAX_MORPH_TARGET_COUNT / 4) + 4);
 const uint                            UBOMorph::SIZE               = UBOMorph::COUNT_BASE_4_BYTES * 4;
@@ -384,6 +393,22 @@ const gfx::UniformSamplerTexture JOINTTEXTURE::LAYOUT = {
     localSet,
     JOINTTEXTURE::BINDING,
     JOINTTEXTURE::NAME,
+    gfx::Type::SAMPLER2D,
+    1,
+};
+
+const String REALTIMEJOINTTEXTURE::NAME       = "cc_realTimeJoint";
+const gfx::DescriptorSetLayoutBinding REALTIMEJOINTTEXTURE::DESCRIPTOR = {
+    REALTIMEJOINTTEXTURE::BINDING,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
+    1,
+    gfx::ShaderStageFlagBit::VERTEX,
+    {},
+};
+const gfx::UniformSamplerTexture REALTIMEJOINTTEXTURE::LAYOUT = {
+    localSet,
+    REALTIMEJOINTTEXTURE::BINDING,
+    REALTIMEJOINTTEXTURE::NAME,
     gfx::Type::SAMPLER2D,
     1,
 };

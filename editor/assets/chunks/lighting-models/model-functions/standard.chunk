@@ -1,0 +1,117 @@
+#include <common/lighting/brdf>
+#include <common/lighting/functions>
+
+bool CCSurfacesLightingEnableShadow(in float NoL)
+{
+  return NoL > 0.0;
+}
+
+float CCSurfacesLightingCalculateDistanceAttenuation(in LightingIntermediateData lightingData, in vec4 lightSizeRangeAngle)
+{
+  return CalculateDistanceAttenuation(lightingData.distToLightSqr, lightSizeRangeAngle.x, lightSizeRangeAngle.y);
+}
+
+float CCSurfacesLightingCalculateAngleAttenuation(in LightingIntermediateData lightingData, in vec4 lightSizeRangeAngle, in vec3 spotLightDir)
+{
+  return CalculateAngleAttenuation(spotLightDir, lightingData.L, lightSizeRangeAngle.z);
+}
+
+void CCSurfacesLightingCalculateDirect(out vec3 lightingDiffuse, out vec3 lightingSpecular, in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity)
+{
+    vec3 irradiance = vec3(lightingData.NoLSat) * lightSourceColorAndIntensity.rgb * lightSourceColorAndIntensity.w;
+    
+    lightingDiffuse = irradiance * DiffuseCoefficient_EnergyConservation;
+
+    float roughness = lightingData.specularParam;
+#if CC_SURFACES_LIGHTING_ANISOTROPIC
+    float rT, rB;
+    GetAnisotropicRoughness(roughness, lightingData.anisotropyShape, rT, rB);
+    float calcSpec = D_GGXAniso(rT, rB, lightingData.NoHSat, lightingData.H, lightingData.T, lightingData.B);
+#else
+  #if CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING
+    float calcSpec = (roughness * 0.25 + 0.25) * D_GGXMobile(roughness, lightingData.NoHSat);
+  #else
+    float calcSpec = D_GGX(roughness, lightingData.NoHSat);
+  #endif
+#endif
+    lightingSpecular = irradiance * calcSpec;
+}
+
+
+#if CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT
+  vec3 EnvAnisotropicReflection(vec3 R, float roughness, float mipCount, float anisotropyShape, vec3 V, vec3 N, vec3 T, vec3 B) {
+      R = normalize(R);
+      float integratedBRDF = 0.0;
+      vec3 envSpec = vec3(0.0);
+      // One direction sample count
+      const int SAMPLE_STEP_COUNT = CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT;
+      float sampleAngleRange = PI * abs(anisotropyShape);
+      vec3 anisoDirection = anisotropyShape < 0.0 ? T : B;
+      vec3 ROnNormalPlane = normalize(R - anisoDirection * dot(R, anisoDirection));
+      //ROnTangentPlane = R; //for example: cross-style
+      vec3 stepOffset = normalize(ROnNormalPlane - N) * (sampleAngleRange / float(SAMPLE_STEP_COUNT * 2));
+
+      for (int i = -SAMPLE_STEP_COUNT; i <= SAMPLE_STEP_COUNT; ++i)
+      {
+          float rT, rB;
+          GetAnisotropicRoughness(roughness, anisotropyShape, rT, rB);
+          float coef = pow(abs(float(i)) / float(SAMPLE_STEP_COUNT), 1.3) * float(SAMPLE_STEP_COUNT);
+          vec3 H = normalize(N + stepOffset * sign(float(i)) * coef);
+          vec3 L = reflect(-V, H);
+          float NoHSat = saturate(dot(N, H));
+          float calcSpec = D_GGXAniso(rT, rB, NoHSat, H, T, B);
+
+          envSpec += calcSpec * EnvReflection(L, roughness, mipCount);
+          integratedBRDF += calcSpec;
+      }
+      envSpec /= integratedBRDF;
+      return envSpec;
+  }
+#endif
+
+
+void CCSurfacesLightingCalculateEnvironment(inout LightingResult lightingResult, in LightingIntermediateData lightingData)
+{
+  float roughness = lightingData.specularParam;
+  float fAmb = 0.5 - lightingData.N.y * 0.5;
+  vec3 ambDiff = mix(cc_ambientSky.rgb, cc_ambientGround.rgb, fAmb);
+  vec3 envSpec = vec3(0.0);
+
+  #if CC_USE_IBL
+    #if CC_USE_DIFFUSEMAP
+      // Diffuse irradiance
+      vec4 diffuseMap = texture(cc_diffuseMap, lightingData.N);
+      #if CC_USE_DIFFUSEMAP == IBL_RGBE
+        ambDiff = unpackRGBE(diffuseMap);
+      #else
+        ambDiff = SRGBToLinear(diffuseMap.rgb);
+      #endif
+    #endif
+
+    #if CC_SURFACES_LIGHTING_ANISOTROPIC && !CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT
+      vec3 R = GetAnisotropicReflect(roughness, lightingData.anisotropyShape, lightingData.V, lightingData.N, lightingData.T, lightingData.B);
+    #else
+      vec3 R = reflect(-lightingData.V, lightingData.N);
+    #endif
+
+    #if CC_SURFACES_LIGHTING_ANISOTROPIC && CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT
+      envSpec = EnvAnisotropicReflection(R, roughness, cc_ambientGround.w, lightingData.anisotropyShape, lightingData.V, lightingData.N, lightingData.T, lightingData.B);
+    #else
+      #if CC_SURFACES_USE_REFLECTION_DENOISE
+        envSpec = EnvReflectionWithMipFiltering(normalize(R), roughness, cc_ambientGround.w, 0.6);
+      #else
+        envSpec = EnvReflection(R, roughness, cc_ambientGround.w);
+      #endif
+    #endif
+  #endif
+
+  lightingResult.environmentDiffuse = ambDiff.rgb * cc_ambientSky.w;
+  lightingResult.environmentSpecular = envSpec * cc_ambientSky.w;
+}
+
+void CCSurfacesLightingCalculateTransmittence(inout LightingResult lightingResult, in LightingIntermediateData lightingData, vec3 shadowPos)
+{
+    vec3 irradiance = vec3(lightingData.NoLSat);// * lightSourceColorAndIntensity.rgb * lightSourceColorAndIntensity.w;
+    
+    vec3 transmittence = irradiance * DiffuseCoefficient_EnergyConservation;
+}

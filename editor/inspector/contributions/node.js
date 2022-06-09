@@ -154,9 +154,71 @@ exports.listeners = {
             console.error(error);
         }
     },
+    'preview-dump'(event) {
+        const panel = this;
+
+        const target = event.target;
+        if (!target) {
+            return;
+        }
+
+        const dump = event.target.dump;
+        if (!dump || panel.isDialoging) {
+            return;
+        }
+
+        const { method, value: assetUuid } = event.detail;
+        if (method === 'confirm') {
+            clearTimeout(panel.previewTimeId);
+
+            try {
+                panel.previewTimeId = setTimeout(() => {
+                    for (let i = 0; i < panel.uuidList.length; i++) {
+                        const uuid = panel.uuidList[i];
+                        const { path, type } = dump;
+                        let value = dump.value;
+
+                        if (dump.values) {
+                            value = dump.values[i];
+                        }
+
+                        // 预览新的值
+                        value.uuid = assetUuid;
+
+                        Editor.Message.send('scene', 'preview-set-property', {
+                            uuid,
+                            path,
+                            dump: {
+                                type,
+                                value,
+                            },
+                        });
+                    }
+                }, 500);
+            } catch (error) {
+                console.error(error);
+            }
+        } else if (method === 'cancel') {
+            clearTimeout(panel.previewTimeId);
+
+            try {
+                for (let i = 0; i < panel.uuidList.length; i++) {
+                    const uuid = panel.uuidList[i];
+                    const { path } = dump;
+
+                    Editor.Message.send('scene', 'cancel-preview-set-property', {
+                        uuid,
+                        path,
+                    });
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    },
 };
 
-exports.template = `
+exports.template = /* html*/`
 <ui-drag-area class="container">
     <section class="prefab" hidden missing>
         <ui-label value="Prefab"></ui-label>
@@ -580,32 +642,30 @@ const Elements = {
 
             panel.$.sceneRelease.render(panel.dump.autoReleaseAssets);
 
-            panel.dump._globals.ambient.displayName = panel.dump._globals.ambient.displayName || 'Ambient';
-            panel.dump._globals.ambient.help =
-                panel.dump._globals.ambient.help || Editor.Utils.Url.getDocUrl('concepts/scene/ambient.html');
+            // 由于场景属性对象不是继承于 Component 所以没有修饰器，displayName, help 数据在这里配置
+            panel.dump._globals.ambient.displayName = 'Ambient';
+            panel.dump._globals.ambient.help = panel.getHelpUrl({ help: 'i18n:cc.Ambient' });
             panel.$.sceneAmbient.render(panel.dump._globals.ambient);
 
-            panel.dump._globals.fog.displayName = panel.dump._globals.fog.displayName || 'Fog';
-            panel.dump._globals.fog.help = panel.dump._globals.fog.help || Editor.Utils.Url.getDocUrl('concepts/scene/skybox.html');
+            panel.dump._globals.fog.displayName = 'Fog';
+            panel.dump._globals.fog.help = panel.getHelpUrl({ help: 'i18n:cc.Fog' });
             panel.$.sceneFog.render(panel.dump._globals.fog);
 
-            panel.dump._globals.shadows.displayName = panel.dump._globals.shadows.displayName || 'Shadows';
-            panel.dump._globals.shadows.help =
-                panel.dump._globals.shadows.help || Editor.Utils.Url.getDocUrl('concepts/scene/light/shadow.html');
+            panel.dump._globals.shadows.displayName = 'Shadows';
+            panel.dump._globals.shadows.help = panel.getHelpUrl({ help: 'i18n:cc.Shadow' });
             panel.$.sceneShadows.render(panel.dump._globals.shadows);
 
-            panel.dump._globals.skybox.displayName = panel.dump._globals.skybox.displayName || 'Skybox';
-            panel.dump._globals.skybox.help = panel.dump._globals.skybox.help || Editor.Utils.Url.getDocUrl('concepts/scene/skybox.html');
+            panel.dump._globals.skybox.displayName = 'Skybox';
+            panel.dump._globals.skybox.help = panel.getHelpUrl({ help: 'i18n:cc.Skybox' });
             panel.$.sceneSkybox.render(panel.dump._globals.skybox);
 
-            panel.dump._globals.octree.help =
-                panel.dump._globals.octree.help || Editor.Utils.Url.getDocUrl('advanced-topics/native-scene-culling.html');
-            panel.dump._globals.octree.displayName = panel.dump._globals.octree.displayName || 'Octree Scene Culling';
+            panel.dump._globals.octree.displayName = 'Octree Scene Culling';
+            panel.dump._globals.octree.help = panel.getHelpUrl({ help: 'i18n:cc.OctreeCulling' });
             panel.$.sceneOctree.render(panel.dump._globals.octree);
 
             // TODO：这个 if 暂时配合引擎调整使用，测试调通后可以去掉
             if (panel.dump._globals.postProcess) {
-                panel.dump._globals.postProcess.displayName = panel.dump._globals.postProcess.displayName || 'Post Process';
+                panel.dump._globals.postProcess.displayName = 'Post Process';
                 panel.$.postProcess.render(panel.dump._globals.postProcess);
             }
 
@@ -839,6 +899,10 @@ const Elements = {
                             exports.listeners['create-dump'].call(panel, event);
                         });
 
+                        $panel.shadowRoot.addEventListener('preview-dump', (event) => {
+                            exports.listeners['preview-dump'].call(panel, event);
+                        });
+
                         $section.appendChild($panel);
                         $section.__panels__.push($panel);
                         $panel.dump = component;
@@ -1041,7 +1105,7 @@ const Elements = {
 
                     materialPanel.addEventListener('focus', () => {
                         const children = Array.from(materialPanel.parentElement.children);
-                        children.forEach(child => {
+                        children.forEach((child) => {
                             if (child === materialPanel) {
                                 child.setAttribute('focused', '');
                             } else {
@@ -1487,8 +1551,8 @@ exports.update = async function update(uuidList, renderMap, dropConfig, typeMana
     const panel = this;
 
     const enginePath = path.join('editor', 'inspector', 'components');
-    Object.values(renderMap).forEach(config => {
-        Object.values(config).forEach(renders => {
+    Object.values(renderMap).forEach((config) => {
+        Object.values(config).forEach((renders) => {
             renders.sort((a, b) => {
                 return b.indexOf(enginePath) - a.indexOf(enginePath);
             });

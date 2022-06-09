@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { EDITOR, TEST, PREVIEW, BUILD, DEBUG, JSB, DEV } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { ValueType } from '../value-types';
@@ -536,20 +534,32 @@ interface ICustomClass {
  */
 export class Details {
     /**
-     * the obj list whose field needs to load asset by uuid
+     * @en
+     * the object list whose field needs to load asset by uuid
+     * @zh
+     * 对象列表，其中每个对象有属性需要通过 uuid 进行资源加载
      */
     uuidObjList: IFileData[File.DependObjs] | null = null;
     /**
+     * @en
      * the corresponding field name which referenced to the asset
+     * @zh
+     * 引用着资源的字段名称
      */
     uuidPropList: IFileData[File.DependKeys] | null = null;
     /**
+     * @en
      * list of the depends assets' uuid
+     * @zh
+     * 依赖资源的 uuid 列表
      */
     uuidList: IFileData[File.DependUuidIndices] | null = null;
 
     /**
+     * @en
      * list of the depends assets' type
+     * @zh
+     * 依赖的资源类型列表
      */
     uuidTypeList: string[] = [];
 

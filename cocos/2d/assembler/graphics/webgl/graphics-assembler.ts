@@ -22,12 +22,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-
-/**
- * @packageDocumentation
- * @module ui-assembler
- */
-
 import { Color, Vec3 } from '../../../../core/math';
 import { IAssembler } from '../../../renderer/base';
 import { MeshRenderData } from '../../../renderer/render-data';

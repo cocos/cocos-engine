@@ -60,6 +60,7 @@ export interface IParticleSystemRenderer {
     updateTrailMaterial (): void;
     getDefaultTrailMaterial (): any;
     beforeRender (): void;
+    getNoisePreview (out: number[], width: number, height: number): void;
 }
 
 export abstract class ParticleSystemRendererBase implements IParticleSystemRenderer {
@@ -155,4 +156,5 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
     public abstract updateRenderData (): void;
     public abstract enableModule (name: string, val: boolean, pm: IParticleModule): void;
     public abstract beforeRender (): void;
+    public abstract getNoisePreview (out: number[], width: number, height: number): void;
 }

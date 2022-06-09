@@ -23,10 +23,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-/**
- * @packageDocumentation
- * @module core
- */
 
 import { EDITOR, HTML5, JSB, PREVIEW, RUNTIME_BASED, TEST } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
@@ -41,7 +37,7 @@ import { macro } from './platform/macro';
 import type { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
 import { legacyCC, VERSION } from './global-exports';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
-import { bindingMappingInfo } from './pipeline/define';
+import { bindingMappingInfo, localDescriptorSetLayout_ResizeMaxJoints } from './pipeline/define';
 import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from './pipeline';
 import { Node } from './scene-graph/node';
@@ -134,37 +130,56 @@ export interface IGameConfig {
     scenes?: ISceneInfo[];
 
     /**
+     * @internal
      * For internal use.
      */
     jsList?: string[];
 
     /**
+     * @en
      * Render pipeline resources
+     * @zh
+     * Render pipeline 资源
      */
     renderPipeline?: string;
 
     /**
+     * @en
      * Asset Manager initialization options
+     * @zh
+     * 资源管理器初始化设置
      */
     assetOptions?: IAssetManagerOptions;
 
     /**
+     * @en
      * GPU instancing options
+     * @zh
+     * GPU instancing 选项
      */
     customJointTextureLayouts?: ICustomJointTextureLayout[];
 
     /**
+     * @en
      * Physics system config
+     * @zh
+     * 物理系统设置
      */
     physics?: IPhysicsConfig;
 
     /**
+     * @en
      * User layers config
+     * @zh
+     * 用户层级设置
      */
     layers?: LayerItem[];
 
     /**
+     * @en
      * The adapter stores various platform-related objects.
+     * @zh
+     * 平台相关选项
      */
     adapter?: {
         canvas: HTMLCanvasElement,
@@ -174,13 +189,19 @@ export interface IGameConfig {
     };
 
     /**
+     * @en
      * The orientation from the builder configuration.
      * Available value can be 'auto', 'landscape', 'portrait'.
+     * @zh
+     * 屏幕旋转方向，可选 “自动”，“横屏”，“竖屏”
      */
     orientation?: ConfigOrientation;
     /**
+     * @en
      * Determine whether the game frame exact fits the screen.
      * Now it only works on Web platform.
+     * @zh
+     * 是否让游戏外框对齐到屏幕上，目前只在 web 平台生效
      */
     exactFitScreen: boolean,
 }
@@ -726,6 +747,8 @@ export class Game extends EventTarget {
 
     private _initEngine () {
         this._initDevice();
+        //set max joints after device initialize.
+        this._resizeMaxJointForDS();
         const director = legacyCC.director;
         return Promise.resolve(director._init()).then(() => {
             legacyCC.view.init();
@@ -1029,6 +1052,12 @@ export class Game extends EventTarget {
         } else {
             this.emit(event);
         }
+    }
+
+    private _resizeMaxJointForDS () {
+        let maxJoints = Math.floor((this._gfxDevice!.capabilities.maxVertexUniformVectors - 38) / 3);
+        maxJoints = maxJoints < 256 ? maxJoints : 256;
+        localDescriptorSetLayout_ResizeMaxJoints(maxJoints);
     }
 }
 

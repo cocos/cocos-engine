@@ -3194,6 +3194,25 @@ bool js_register_pipeline_PostProcessStage(se::Object* obj) // NOLINT(readabilit
 se::Object* __jsb_cc_pipeline_GeometryRenderer_proto = nullptr;
 se::Class* __jsb_cc_pipeline_GeometryRenderer_class = nullptr;
 
+static bool js_pipeline_GeometryRenderer_empty(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GeometryRenderer>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GeometryRenderer_empty : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->empty();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_empty : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GeometryRenderer_empty)
+
 SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_GeometryRenderer_finalize)
 
 static bool js_pipeline_GeometryRenderer_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
@@ -3224,6 +3243,7 @@ bool js_register_pipeline_GeometryRenderer(se::Object* obj) // NOLINT(readabilit
 {
     auto* cls = se::Class::create("GeometryRenderer", obj, nullptr, _SE(js_pipeline_GeometryRenderer_constructor));
 
+    cls->defineFunction("empty", _SE(js_pipeline_GeometryRenderer_empty));
     cls->defineFinalizeFunction(_SE(js_cc_pipeline_GeometryRenderer_finalize));
     cls->install();
     JSBClassType::registerClass<cc::pipeline::GeometryRenderer>(cls);

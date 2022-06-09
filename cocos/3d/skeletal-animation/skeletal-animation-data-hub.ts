@@ -23,10 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module animation
- */
 import { DataPoolManager } from './data-pool-manager';
 import type { AnimationClip } from '../../core/animation/animation-clip';
 import { legacyCC } from '../../core/global-exports';
@@ -35,7 +31,11 @@ import { BAKE_SKELETON_CURVE_SYMBOL } from '../../core/animation/internal-symbol
 type BakeData = ReturnType<AnimationClip[typeof BAKE_SKELETON_CURVE_SYMBOL]>;
 
 /**
+ * @en
+ * The data conversion tool for skeleton animation
+ * @zh
  * 骨骼动画数据转换中心。
+ * @internal
  */
 export class SkelAnimDataHub {
     public static getOrExtract (clip: AnimationClip): BakeData {

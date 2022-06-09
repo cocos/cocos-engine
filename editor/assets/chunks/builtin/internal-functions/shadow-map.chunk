@@ -1,0 +1,13 @@
+#include <common>
+#include <cc-global>
+#include <cc-shadow>
+#include <packing>
+#include <cc-local>
+
+
+
+#include <cc-shadow-map-base>
+#if CC_RECEIVE_SHADOW
+  //#include <builtin/uniforms/cc-shadow-map>
+  //#include <common/shadow/shadow>
+#endif

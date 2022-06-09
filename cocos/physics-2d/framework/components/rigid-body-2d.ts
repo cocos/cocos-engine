@@ -1,7 +1,4 @@
-/**
- * @packageDocumentation
- * @module physics2d
- */
+
 
 import { EDITOR } from 'internal:constants';
 import { IRigidBody2D } from '../../spec/i-rigid-body';

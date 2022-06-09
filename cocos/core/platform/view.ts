@@ -25,11 +25,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core
- */
-
 import '../data/class';
 import { EDITOR, MINIGAME, JSB, RUNTIME_BASED } from 'internal:constants';
 import { screenAdapter } from 'pal/screen-adapter';
@@ -51,14 +46,14 @@ import { game } from '../game';
  *  - Provide interaction with the window, like resize event on web, retina display support, etc...<br/>
  *  - Manage the scale and translation of canvas related to the frame on Web<br/>
  * <br/>
- * With {{view}} as its singleton initialized by the engine, you don't need to call any constructor or create functions,<br/>
+ * With [[view]] as its singleton initialized by the engine, you don't need to call any constructor or create functions,<br/>
  * the standard way to use it is by calling:<br/>
  *  - view.methodName(); <br/>
  * @zh View 代表游戏窗口视图，它的核心功能包括：
  *  - 对所有 UI Canvas 进行设计分辨率适配。
  *  - 提供窗口视图的交互，比如监听 resize 事件，控制 retina 屏幕适配，等等。
  *  - 控制 Canvas 节点相对于外层 DOM 节点的缩放和偏移。
- * 引擎会自动初始化它的单例对象 {{view}}，所以你不需要实例化任何 View，只需要直接使用 `view.methodName();`
+ * 引擎会自动初始化它的单例对象 [[view]]，所以你不需要实例化任何 View，只需要直接使用 `view.methodName();`
  */
 
 const localWinSize = new Size();
@@ -381,7 +376,7 @@ export class View extends EventTarget {
     /**
      * @en Returns the current resolution policy
      * @zh 返回当前分辨率方案
-     * @see {{ResolutionPolicy}}
+     * @see [[ResolutionPolicy]]
      */
     public getResolutionPolicy (): ResolutionPolicy {
         return this._resolutionPolicy;
@@ -413,7 +408,7 @@ export class View extends EventTarget {
     /**
      * @en Sets the current resolution policy
      * @zh 设置当前分辨率模式
-     * @see {{ResolutionPolicy}}
+     * @see [[ResolutionPolicy]]
      */
     public setResolutionPolicy (resolutionPolicy: ResolutionPolicy|number) {
         this._updateResolutionPolicy(resolutionPolicy);
@@ -883,41 +878,60 @@ class ContentStrategy {
 })();
 
 /**
- * ResolutionPolicy class is the root strategy class of scale strategy,
- * its main task is to maintain the compatibility with Cocos2d-x</p>
+ * @en ResolutionPolicy class is the root strategy class of scale strategy,
+ * its main task is to maintain the compatibility with Cocos2d-x.
+ *
+ * @zh ResolutionPolicy 类是适配策略的根策略类，它的主要任务是保持与 Cocos2d-x 的兼容性。
  */
 export class ResolutionPolicy {
     /**
-     * The entire application is visible in the specified area without trying to preserve the original aspect ratio.<br/>
+     * @en The entire application is visible in the specified area without trying to preserve the original aspect ratio.
      * Distortion can occur, and the application may appear stretched or compressed.
+     *
+     * @zh 整个应用程序在指定区域可见，无需尝试保留原始纵横比，
+     * 可能会发生变形，出现画面拉伸或压缩。
      */
     public static EXACT_FIT = 0;
     /**
-     * The entire application fills the specified area, without distortion but possibly with some cropping,<br/>
+     * @en The entire application fills the specified area, without distortion but possibly with some cropping,
      * while maintaining the original aspect ratio of the application.
+     *
+     * @zh 整个应用程序填充指定区域，没有变形，但可能有一些裁剪，
+     * 同时保持画面的原始纵横比。
      */
     public static NO_BORDER = 1;
     /**
-     * The entire application is visible in the specified area without distortion while maintaining the original<br/>
+     * @en The entire application is visible in the specified area without distortion while maintaining the original
      * aspect ratio of the application. Borders can appear on two sides of the application.
+     *
+     * @zh 整个应用程序在指定区域可见，没有变形，同时保持原始纵横比，
+     * 边框可能出现在画面的旁侧。
      */
     public static SHOW_ALL = 2;
     /**
-     * The application takes the height of the design resolution size and modifies the width of the internal<br/>
-     * canvas so that it fits the aspect ratio of the device<br/>
-     * no distortion will occur however you must make sure your application works on different<br/>
+     * @en The application takes the height of the design resolution size and modifies the width of the internal
+     * canvas so that it fits the aspect ratio of the device
+     * no distortion will occur however you must make sure your application works on different
      * aspect ratios
+     *
+     * @zh 该应用程序采用设计分辨率大小的高度并修改内部画布的宽度，使其适合设备的纵横比，不会发生变形，
+     * 但是您必须确保您的应用程序在不同的纵横比的设备下工作。
      */
     public static FIXED_HEIGHT = 3;
     /**
-     * The application takes the width of the design resolution size and modifies the height of the internal<br/>
-     * canvas so that it fits the aspect ratio of the device<br/>
-     * no distortion will occur however you must make sure your application works on different<br/>
+     * @en The application takes the width of the design resolution size and modifies the height of the internal
+     * canvas so that it fits the aspect ratio of the device
+     * no distortion will occur however you must make sure your application works on different
      * aspect ratios
+     *
+     * @zh 该应用程序采用设计分辨率大小的宽度并修改内部画布的高度，使其适合设备的纵横比，不会发生变形
+     * 但是您必须确保您的应用程序在不同的纵横比的设备下工作。
      */
     public static FIXED_WIDTH = 4;
     /**
-     * Unknown policy
+     * @en Unknown policy
+     *
+     * @zh 未知的策略
      */
     public static UNKNOWN = 5;
     public static ContainerStrategy: typeof ContainerStrategy = ContainerStrategy;

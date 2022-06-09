@@ -4,7 +4,7 @@
         "en": "Profiler"
     },
     "description": {
-        "zh": "性能监控",
-        "en": "Profiler"
+        "zh": "用于查看游戏运行时性能信息",
+        "en": "Used to observe game runtime performance information"
     }
 }

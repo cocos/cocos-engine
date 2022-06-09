@@ -63,6 +63,7 @@ export const NativeSkinningModel: Constructor<{
     setBuffers(bufs: Buffer[]):void;
     updateLocalDescriptors(submodelIdx: number, descriptorSet: DescriptorSet);
     updateLightingmap(val: Vec4, sampler: Sampler, texture: Texture): void;
+    setRealTimeJointTextures(textures: Texture[]):void;
 }> = null!;
 export type NativeSkinningModel = InstanceType<typeof NativeSkinningModel>;
 
@@ -150,7 +151,6 @@ export const NativeSpotLight: Constructor<{
     setPosition (pos: Vec3): void;
     setSize (size: number): void;
     setRange (range: number): void;
-    setAspect (aspect: number): void;
     setAngle (angle: number): void;
     setLuminanceHDR (lum: number): void;
     setLuminanceLDR(lum: number): void;
