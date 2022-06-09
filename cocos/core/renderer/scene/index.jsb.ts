@@ -241,14 +241,14 @@ export const CSMLevel = Enum({
      * @en level 1
      * @readonly
      */
-    none: CSMLevel.level_1,
+    NONE: CSMLevel.level_1,
 
     /**
      * @zh 4 个层级
      * @en level 4
      * @readonly
      */
-    csm: CSMLevel.level_4,
+    CSM: CSMLevel.level_4,
 });
 /**
  * @zh 级联阴影性能优化模式。

@@ -50,7 +50,7 @@ public:
     inline void setShadowInvisibleOcclusionRange(float invisibleOcclusionRange) { _shadowInvisibleOcclusionRange = invisibleOcclusionRange; }
     inline void setCSMLevel(CSMLevel csmLevel) { _csmLevel = csmLevel; }
     inline void setCSMLayerLambda(float lambda) { _csmLayerLambda = lambda; }
-    inline void setCSMValueDirty(bool isShadowCSMValueDirty) { _isCSMValueDirty = isShadowCSMValueDirty; }
+    inline void setCSMNeedUpdate(bool isCSMNeedUpdate) { _isCSMNeedUpdate = isCSMNeedUpdate; }
     inline void setCSMOptimizationMode(CSMOptimizationMode csmOptimizationMode) { _csmOptimizationMode = csmOptimizationMode; }
     inline void setShadowFixedArea(bool fixedArea) { _shadowFixedArea = fixedArea; }
     inline void setShadowNear(float nearValue) { _shadowNear = nearValue; }
@@ -66,7 +66,7 @@ public:
     inline float getShadowInvisibleOcclusionRange() const { return _shadowInvisibleOcclusionRange; }
     inline CSMLevel getCSMLevel() const { return _csmLevel; }
     inline float getCSMLayerLambda() const { return _csmLayerLambda; }
-    inline bool isCSMValueDirty() const { return _isCSMValueDirty; }
+    inline bool isCSMNeedUpdate() const { return _isCSMNeedUpdate; }
     inline CSMOptimizationMode getCSMOptimizationMode() const { return _csmOptimizationMode; }
     inline bool isShadowFixedArea() const { return _shadowFixedArea; }
     inline float getShadowNear() const { return _shadowNear; }
@@ -97,7 +97,7 @@ private:
     float _shadowInvisibleOcclusionRange{200.0F};
     CSMLevel _csmLevel{CSMLevel::LEVEL_3};
     float _csmLayerLambda{0.75};
-    bool _isCSMValueDirty{false};
+    bool _isCSMNeedUpdate{false};
     CSMOptimizationMode _csmOptimizationMode{CSMOptimizationMode::REMOVE_DUPLICATES};
     bool _shadowFixedArea{false};
     float _shadowNear{0.1F};

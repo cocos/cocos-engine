@@ -68,7 +68,7 @@ export class DirectionalLight extends Light {
     @serializable
     protected _shadowInvisibleOcclusionRange = 200;
     @serializable
-    protected _csmLevel = VisibleLevel.csm;
+    protected _csmLevel = VisibleLevel.CSM;
     @serializable
     protected _csmLayerLambda = 0.75;
     @serializable
@@ -226,7 +226,7 @@ export class DirectionalLight extends Light {
         if (this._shadowDistance / 0.1 < 10.0) { warnID(15003, this._shadowDistance); }
         if (this._light) {
             this._light.shadowDistance = this._shadowDistance;
-            this._light.csmValueDirty = true;
+            this._light.csmNeedUpdate = true;
         }
     }
 
@@ -274,7 +274,7 @@ export class DirectionalLight extends Light {
         this._csmLevel = val;
         if (this._light) {
             this._light.csmLevel = this._csmLevel;
-            this._light.csmValueDirty = true;
+            this._light.csmNeedUpdate = true;
         }
     }
 
@@ -296,7 +296,7 @@ export class DirectionalLight extends Light {
         this._csmLayerLambda = val;
         if (this._light) {
             this._light.csmLayerLambda = this._csmLayerLambda;
-            this._light.csmValueDirty = true;
+            this._light.csmNeedUpdate = true;
         }
     }
 

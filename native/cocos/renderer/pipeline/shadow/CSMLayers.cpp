@@ -183,7 +183,7 @@ void CSMLayers::update(const PipelineSceneData *sceneData, const scene::Camera *
     if (dirLight->isShadowFixedArea()) {
         updateFixedArea(dirLight);
     } else {
-        if (dirLight->isCSMValueDirty() || _levelCount != levelCount ||
+        if (dirLight->isCSMNeedUpdate() || _levelCount != levelCount ||
             std::abs(_shadowDistance - shadowDistance) > 1.0F) {
             splitFrustumLevels(dirLight);
             _levelCount = levelCount;
@@ -238,7 +238,7 @@ void CSMLayers::splitFrustumLevels(scene::DirectionalLight *dirLight) {
     // numbers of level - 1
     _layers[level - 1]->setSplitCameraFar(fd);
 
-    dirLight->setCSMValueDirty(false);
+    dirLight->setCSMNeedUpdate(false);
 }
 
 void CSMLayers::calculateCSM(const scene::Camera *camera, const scene::DirectionalLight *dirLight, const scene::Shadows *shadowInfo) {
