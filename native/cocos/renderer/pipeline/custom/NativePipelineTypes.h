@@ -71,7 +71,8 @@ public:
       queueID(queueIDIn),
       layoutID(layoutIDIn) {}
 
-    void addSceneOfCamera(scene::Camera* camera, scene::Light* light, SceneFlags sceneFlags, const ccstd::string& name = "Camera") override;
+    void addSceneOfCamera(scene::Camera* camera, scene::Light* light, SceneFlags sceneFlags, const ccstd::string& name) override;
+    void addSceneOfCamera(scene::Camera* camera, scene::Light* light, SceneFlags sceneFlags) override;
     void addScene(const ccstd::string& name, SceneFlags sceneFlags) override;
     void addFullscreenQuad(const ccstd::string& shader, const ccstd::string& name) override;
     void addFullscreenQuad(const ccstd::string& shader) override;

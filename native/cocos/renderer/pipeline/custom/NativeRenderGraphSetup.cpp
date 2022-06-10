@@ -46,6 +46,10 @@ void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, scene::Li
     CC_ENSURES(sceneID != RenderGraph::null_vertex());
 }
 
+void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, scene::Light* light, SceneFlags sceneFlags) {
+    addSceneOfCamera(camera, light, sceneFlags);
+}
+
 void NativeRasterQueueBuilder::addScene(const ccstd::string &name, SceneFlags sceneFlags) {
     SceneData scene(renderGraph->get_allocator());
     scene.name = name;
