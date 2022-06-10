@@ -42,6 +42,7 @@ import { legacyCC } from '../../core/global-exports';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 import { Renderer } from '../../core/components/renderer';
 import { Batcher2D } from '../renderer/batcher-2d';
+import { RenderEntity } from '../renderer/render-entity';
 
 // hack
 ccenum(BlendFactor);
@@ -377,9 +378,9 @@ export class UIRenderer extends Renderer {
         }
     }
 
-    public updateSortingOrder (sortingOrder:number) {
+    public updateEntityIndices () {
         if (this._renderData) {
-            this._renderData.updateRenderEntitySortingOrder(sortingOrder);
+            this._renderData.updateRenderEntityIndex();
         }
     }
 

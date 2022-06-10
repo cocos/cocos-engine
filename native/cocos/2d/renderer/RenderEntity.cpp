@@ -9,9 +9,6 @@ RenderEntity::RenderEntity() : RenderEntity(0, 0, 0) {
 
 RenderEntity::RenderEntity(Batcher2d* batcher) {
     this->_batcher = batcher;
-    if (batcher != nullptr) {
-        batcher->addNewRenderEntity(this);
-    }
 }
 
 RenderEntity::RenderEntity(const index_t bufferId, const index_t vertexOffset, const index_t indexOffset) {
@@ -105,13 +102,22 @@ void RenderEntity::setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, ui
 //    return this->_render2dLayoutArr;
 //}
 
-void RenderEntity::setSortingOrder(index_t sortingOrder) {
-    this->_entityAttrLayout->sortingOrder = sortingOrder;
+void RenderEntity::setCurrIndex(index_t currIndex) {
+    _entityAttrLayout->currIndex = currIndex;
+}
+
+void RenderEntity::setNextIndex(index_t nextIndex) {
+    _entityAttrLayout->nextIndex = nextIndex;
 }
 
 void RenderEntity::syncSharedBufferToNative(index_t* buffer) {
     _attrSharedBuffer = buffer;
     parseAttrLayout();
+
+    //解析后加入batcher管理
+    if (_batcher != nullptr) {
+        _batcher->addNewRenderEntity(this);
+    }
 }
 
 void RenderEntity::parseAttrLayout() {

@@ -126,6 +126,14 @@ export class Batcher2D implements IBatcher {
         return this._currCompSortingOrder;
     }
 
+    private _currRenderEntity: RenderEntity | null= null;
+    get currRenderEntity () {
+        return this._currRenderEntity!;
+    }
+    set currRenderEntity (newEntity:RenderEntity) {
+        this._currRenderEntity = newEntity;
+    }
+
     constructor (private _root: Root) {
         this.device = _root.device;
         this._batches = new CachedArray(64);
@@ -226,7 +234,10 @@ export class Batcher2D implements IBatcher {
             // Reset state and walk
             this._opacityDirty = 0;
             this._pOpacity = 1;
+
+            this._currRenderEntity = null;
             this.walk(screen.node);
+            this._currRenderEntity!.nextIndex = -1;
 
             // test code
             if (JSB) {
@@ -706,7 +717,12 @@ export class Batcher2D implements IBatcher {
                 render.fillBuffers(this);// for rendering
             }
 
-            render.updateSortingOrder(this._currCompSortingOrder);
+            if (!this._currRenderEntity) {
+                this._currRenderEntity = render.renderData!.renderEntity;
+                this._nativeObj.currFrameHeadIndex = this._currRenderEntity.currIndex;
+            } else {
+                render.updateEntityIndices();
+            }
         }
 
         // Update cascaded opacity to vertex buffer

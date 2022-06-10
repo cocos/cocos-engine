@@ -39,6 +39,7 @@ import { assertIsTrue } from '../../core/data/utils/asserts';
 import { RenderEntity } from './render-entity';
 import { AdvanceRenderData } from './AdvanceRenderData';
 import { StencilManager } from './stencil-manager';
+import { Batcher2D } from './batcher-2d';
 
 /**
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
@@ -122,6 +123,14 @@ export class BaseRenderData {
     protected _floatStride = 0;
     protected _vertexFormat = vfmtPosUvColor;
 
+    protected _batcher: Batcher2D | null = null;
+    get batcher () {
+        if (!this._batcher) {
+            this._batcher = director.root!.batcher2D;
+        }
+        return this._batcher;
+    }
+
     constructor (vertexFormat = vfmtPosUvColor) {
         this._floatStride = vertexFormat === vfmtPosUvColor ? DEFAULT_STRIDE : (getAttributeStride(vertexFormat) >> 2);
         this._vertexFormat = vertexFormat;
@@ -135,8 +144,7 @@ export class BaseRenderData {
         if (JSB) {
         // Instantiate RenderEntity and put it into Batcher2d
             if (!this._renderEntity) {
-                const batcher = director.root!.batcher2D;
-                this._renderEntity = new RenderEntity(batcher);
+                this._renderEntity = new RenderEntity(this.batcher);
                 //batcher.addRenderEntity(this._renderEntity);
             }
         }
@@ -277,9 +285,8 @@ export class RenderData extends BaseRenderData {
 
     public constructor (vertexFormat = vfmtPosUvColor, accessor?: StaticVBAccessor) {
         super(vertexFormat);
-        const batcher = director.root!.batcher2D;
         if (!accessor) {
-            accessor = batcher.switchBufferAccessor(this._vertexFormat);
+            accessor = this.batcher.switchBufferAccessor(this._vertexFormat);
         }
         this._accessor = accessor;
 
@@ -299,15 +306,8 @@ export class RenderData extends BaseRenderData {
         this.updateHash();
 
         if (JSB) {
-        // for sync vData and iData address to native
+            // for sync vData and iData address to native
             this.setRenderEntityAttributes();
-            // sync some attributes which belong to mesh buffer
-            // const batcher = director.root!.batcher2D;
-            //batcher.updateAttrBuffer(this.chunk);
-            //batcher.syncMeshBufferAttrToNative();
-
-            //调试mesh buffer是否传过去
-            //batcher.nativeObj.ItIsDebugFuncInBatcher2d();
         }
     }
 
@@ -429,9 +429,10 @@ export class RenderData extends BaseRenderData {
         }
     }
 
-    public updateRenderEntitySortingOrder (sortingOrder:number) {
+    public updateRenderEntityIndex () {
         if (this._renderEntity) {
-            this._renderEntity.sortingOrder = sortingOrder;
+            this.batcher.currRenderEntity!.nextIndex = this._renderEntity.currIndex;
+            this.batcher.currRenderEntity = this._renderEntity;
         }
     }
 

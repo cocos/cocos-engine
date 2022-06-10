@@ -8,10 +8,12 @@ import { NULL_HANDLE, Render2dHandle, Render2dPool } from '../../core/renderer';
 import { Material, Node } from '../../core';
 import { Sampler, Texture } from '../../core/gfx';
 import { Batcher2D } from './batcher-2d';
+import IDGenerator from '../../core/utils/id-generator';
 
 export enum RenderEntitySharedBufferView{
-    sortingOrder,
-    count = 1
+    currIndex,
+    nextIndex,
+    count,
 }
 
 export class RenderEntity {
@@ -19,14 +21,29 @@ export class RenderEntity {
     public stencilStage:Stage = Stage.DISABLED;
 
     //节点树渲染顺序
-    protected _sortingOrder = 0;
-    get sortingOrder () {
-        return this._sortingOrder;
+    //protected _currIndex = 0;
+    get currIndex () {
+        if(JSB) {
+            return this._sharedBuffer[RenderEntitySharedBufferView.currIndex];
+        }
+        return 0; 
     }
-    set sortingOrder (val:number) {
-        this._sortingOrder = val;
+    set currIndex (val:number) {
         if (JSB) {
-            this._sharedBuffer[RenderEntitySharedBufferView.sortingOrder] = val;
+            this._sharedBuffer[RenderEntitySharedBufferView.currIndex] = val;
+        }
+    }
+
+    //protected _nextIndex=0;
+    get nextIndex() {
+        if(JSB) {
+            return this._sharedBuffer[RenderEntitySharedBufferView.nextIndex];
+        }
+        return 0;
+    }
+    set nextIndex(val:number) {
+        if(JSB) {
+            this._sharedBuffer[RenderEntitySharedBufferView.nextIndex] = val;
         }
     }
 

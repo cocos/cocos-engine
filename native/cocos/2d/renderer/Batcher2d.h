@@ -30,6 +30,9 @@ public:
 
     void addNewRenderEntity(RenderEntity* entity);
 
+    inline index_t getCurrFrameHeadIndex() { return _currFrameHeadIndex; }
+    void setCurrFrameHeadIndex(index_t headIndex);
+
 public:
     UIMeshBuffer* getMeshBuffer(index_t bufferId);
     gfx::Device* getDevice();
@@ -48,6 +51,7 @@ private:
 
     ccstd::vector<RenderEntity*> _renderEntities{};
     ccstd::vector<RenderEntity*> _newRenderEntities{};
+    index_t _currFrameHeadIndex{-1};
 
 private:
     ccstd::vector<scene::DrawBatch2D*> _batches{};

@@ -17,7 +17,8 @@ struct Render2dLayout {
 };
 
 struct EntityAttrLayout {
-    index_t sortingOrder;
+    index_t currIndex;
+    index_t nextIndex;
 };
 
 class Batcher2d;
@@ -71,15 +72,17 @@ public:
     void ItIsDebugFuncInRenderEntity();
 
 public:
-    inline index_t getSortingOrder() const { return _entityAttrLayout->sortingOrder; }
-    void setSortingOrder(index_t sortingOrder);
+    inline index_t getCurrIndex() const { return _entityAttrLayout->currIndex; }
+    void setCurrIndex(index_t currIndex);
+    inline index_t getNextIndex() const { return _entityAttrLayout->nextIndex; }
+    void setNextIndex(index_t nextIndex);
 
     void syncSharedBufferToNative(index_t* buffer);
     void parseAttrLayout();
 
 public:
     //这里每次获取时都应该对buffer做一次解析
-    ccstd::vector<Render2dLayout*>& getRenderDataArr();
+    //ccstd::vector<Render2dLayout*>& getRenderDataArr();
     inline Render2dLayout* getRender2dLayout(index_t dataOffset) {
         return reinterpret_cast<Render2dLayout*>(this->_sharedBuffer + dataOffset * sizeof(float_t));;
     }
