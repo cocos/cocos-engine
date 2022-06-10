@@ -42,9 +42,6 @@ import { RenderPassStage, RenderPriority } from '../../pipeline/define';
 import { errorID } from '../../platform/debug';
 import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { BatchedBuffer } from '../../pipeline/batched-buffer';
-import { legacyCC } from '../../global-exports';
-import { UpdateFrequency } from '../../pipeline/custom/types';
-import { Pipeline } from '../../pipeline/custom/pipeline';
 
 export interface IPassInfoFull extends EffectAsset.IPassInfo {
     // generated part
