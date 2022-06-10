@@ -53,13 +53,13 @@ Object.defineProperty(rootProto, 'pipelineEvent', {
     }
 });
 
-/*Object.defineProperty(rootProto, 'debugView', {
+Object.defineProperty(rootProto, 'debugView', {
     configurable: true,
     enumerable: true,
     get () {
         return this._debugView;
     }
-});*/
+});
 
 class DummyPipelineEvent {
     on (type: any, callback: any, target?: any, once?: boolean) {}
@@ -78,8 +78,6 @@ rootProto._ctor = function (device: Device) {
     this._lightPools = new Map();
     this._batcher = null;
     this._pipelineEvent = new DummyPipelineEvent();
-    // this._debugView = new DebugView();
-    // this.setDebugViewConfig(this._debugView._nativeConfig);
     this._debugView = new DebugView();
     this.setDebugViewConfig(this._debugView._nativeConfig);
     this._registerListeners();

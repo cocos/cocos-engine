@@ -199,6 +199,7 @@ export class DebugView {
         if (JSB && this._nativeConfig === null) {
             // @ts-expect-error jsb object access
             this._nativeConfig = new jsb.DebugViewConfig();
+            this._nativeConfig.compositeModeBitCount = DebugViewCompositeType.MAX_BIT_COUNT;
         }
     }
 

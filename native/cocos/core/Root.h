@@ -52,6 +52,7 @@ class CallbacksInvoker;
 
 struct CC_DLL DebugViewConfig {
     uint8_t singleMode;
+    uint8_t compositeModeBitCount;
     uint32_t compositeModeValue;
     bool lightingWithAlbedo;
     bool csmLayerColoration;
