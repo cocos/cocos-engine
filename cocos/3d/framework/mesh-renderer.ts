@@ -507,6 +507,9 @@ export class MeshRenderer extends ModelRenderer {
             if (this._mesh) {
                 this._model.createBoundingShape(this._mesh.struct.minPosition, this._mesh.struct.maxPosition);
             }
+            // Initialize lighting map before model initializing
+            // because the lighting map will influence the model's shader
+            this._model.initLightingmap(this.lightmapSettings.texture, this.lightmapSettings.uvParam);
             this._updateModelParams();
             this._onUpdateLightingmap();
             this._onUpdateLocalShadowBias();
