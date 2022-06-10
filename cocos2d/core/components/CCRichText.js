@@ -129,9 +129,9 @@ let RichText = cc.Class({
     },
 
     editor: CC_EDITOR && {
-        // menu: 'i18n:MAIN_MENU.component.renderers/RichText',
-        // help: 'i18n:COMPONENT.help_url.richtext',
-        // inspector: 'packages://inspector/inspectors/comps/richtext.js',
+        menu: 'i18n:MAIN_MENU.component.renderers/RichText',
+        help: 'i18n:COMPONENT.help_url.richtext',
+        inspector: 'packages://inspector/inspectors/comps/richtext.js',
         executeInEditMode: true
     },
 
