@@ -39,6 +39,10 @@ void RenderEntity::setVbBuffer(float_t* vbBuffer) {
     this->_vbBuffer = vbBuffer;
 }
 
+void RenderEntity::setIbBuffer(uint16_t* ibBuffer) {
+    this->_ibBuffer = ibBuffer;
+}
+
 void RenderEntity::setVDataBuffer(float_t* vDataBuffer) {
     this->_vDataBuffer = vDataBuffer;
 }

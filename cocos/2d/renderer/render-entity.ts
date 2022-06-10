@@ -56,6 +56,7 @@ export class RenderEntity {
     protected _vertexOffset: number | undefined;
     protected _indexOffset: number | undefined;
     protected _vb: Float32Array | undefined;
+    protected _ib: Uint16Array | undefined;
     protected _vData: Float32Array | undefined;
     protected _iData: Uint16Array | undefined;
     protected _node: Node | undefined;
@@ -132,6 +133,12 @@ export class RenderEntity {
     public setVB (vbBuffer: Float32Array) {
         if (JSB) {
             this._nativeObj.vbBuffer = vbBuffer;
+        }
+    }
+
+    public setIB (ibBuffer: Uint16Array) {
+        if (JSB) {
+            this._nativeObj.ibBuffer = ibBuffer;
         }
     }
 

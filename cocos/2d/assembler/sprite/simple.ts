@@ -46,6 +46,8 @@ for (let i = 0; i < 4; i++) {
     vec3_temps.push(new Vec3());
 }
 
+const QUAD_INDICES = Uint16Array.from([0, 1, 2, 1, 3, 2]);
+
 /**
  * simple 组装器
  * 可通过 `UI.simple` 获取该组装器。
@@ -57,6 +59,7 @@ export const simple: IAssembler = {
         renderData.resize(4, 6);
         renderData.vertexRow = 2;
         renderData.vertexCol = 2;
+        renderData.chunk.setIndexBuffer(QUAD_INDICES);
         return renderData;
     },
 

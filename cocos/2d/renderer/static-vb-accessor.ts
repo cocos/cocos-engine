@@ -31,6 +31,7 @@ import { assertIsTrue } from '../../core/data/utils/asserts';
 import { Pool } from '../../core/memop/pool';
 import { macro } from '../../core/platform/macro';
 import { director } from '../../core';
+import { JSB } from '../../core/default-constants';
 
 interface IFreeEntry {
     offset: number;
@@ -46,6 +47,12 @@ const _entryPool = new Pool<IFreeEntry>(() => ({
  * @internal
  */
 export class StaticVBChunk {
+    // JSB
+    public get ib (): Readonly<Uint16Array> {
+        return this._ib;
+    }
+    private _ib: Uint16Array;
+
     constructor (
         public vertexAccessor: StaticVBAccessor,
         public bufferId: number,
@@ -54,7 +61,19 @@ export class StaticVBChunk {
         public vb: Float32Array,
         public indexCount: number,
     ) {
+        this._ib = new Uint16Array(indexCount); // JSB
         assertIsTrue(meshBuffer === vertexAccessor.getMeshBuffer(bufferId));
+    }
+
+    setIndexBuffer (indices: ArrayLike<number>) {
+        if (JSB) {
+            // 放到原生
+            assertIsTrue(indices.length === this.ib.length);
+            for (let i = 0; i < indices.length; ++i) {
+                const vid = indices[i];
+                this._ib[i] = this.vertexOffset + vid;
+            }
+        }
     }
 }
 

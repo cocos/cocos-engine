@@ -159,6 +159,7 @@ export class BaseRenderData {
             this._renderEntity.setVertexOffset(this.chunk.vertexOffset);
             this._renderEntity.setIndexOffset(this.chunk.meshBuffer.indexOffset);
             this._renderEntity.setVB(this.chunk.vb);
+            this._renderEntity.setIB(this.chunk.ib);
             this._renderEntity.setVData(this.chunk.meshBuffer.vData.buffer);
             this._renderEntity.setIData(this.chunk.meshBuffer.iData.buffer);
 
