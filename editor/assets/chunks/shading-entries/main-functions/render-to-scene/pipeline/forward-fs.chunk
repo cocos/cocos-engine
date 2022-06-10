@@ -41,7 +41,7 @@ void main()  {
       
   // Fog factor
   #if !CC_FORWARD_ADD
-    float fogFactor = 0.0;
+    float fogFactor = 1.0;
     #if !CC_USE_ACCURATE_FOG
       fogFactor = FSInput_fogFactor;
     #else
@@ -50,7 +50,7 @@ void main()  {
 
     #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC && CC_SURFACES_ENABLE_DEBUG_VIEW
       if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_FOG) {
-          fogFactor = 0.0;
+          fogFactor = 1.0;
       }
     #endif
   #endif

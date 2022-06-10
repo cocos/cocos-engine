@@ -257,7 +257,7 @@ export class Root {
     private _modelPools = new Map<Constructor<Model>, Pool<Model>>();
     private _cameraPool: Pool<Camera> | null = null;
     private _lightPools = new Map<Constructor<Light>, Pool<Light>>();
-    private _debugView: DebugView | null = null;
+    private _debugView = new DebugView();
     private _fpsTime = 0;
     private _frameCount = 0;
     private _fps = 0;
@@ -306,8 +306,6 @@ export class Root {
             swapchain,
         });
         this._curWindow = this._mainWindow;
-
-        this._debugView = new DebugView();
     }
 
     /**
@@ -328,10 +326,7 @@ export class Root {
             this._batcher = null;
         }
 
-        if (this._debugView) {
-            this._debugView.destroy();
-            this._debugView = null;
-        }
+        this._debugView.destroy();
 
         this._curWindow = null;
         this._mainWindow = null;
