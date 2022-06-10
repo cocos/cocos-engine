@@ -10,11 +10,11 @@
   "module": "index.js",
   "scripts": {
     "server": "http-server . -p 8002 -o playground/index.html",
-    "postinstall": "gulp build-debug-infos && npm run build-const && gulp build-declarations && npm run bundle-adapter && npm run fetch-ral && npm run install:typedoc-plugin && npm run install:native-pack-tool",
+    "postinstall": "gulp build-debug-infos && npm run build-declaration && npm run bundle-adapter && npm run fetch-ral && npm run install:typedoc-plugin && npm run install:native-pack-tool",
     "build": "gulp build",
     "build:dev": "gulp build-h5-source",
     "build:min": "gulp build-h5-minified",
-    "build-declaration": "gulp build-declarations",
+    "build-declaration": "npm run build-const && gulp build-declarations",
     "build-api-json": "gulp build-api-json -i index.ts -o ./3d-api-docs/tempJson",
     "build-api": "npm run build-api-json && gulp build-3d-api -i index.ts -o ./3d-api-docs -j ./3d-api-docs/tempJson",
     "checkout-engine-version": "node ./scripts/checkout-engine-version.js",
