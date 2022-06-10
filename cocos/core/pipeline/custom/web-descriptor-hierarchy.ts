@@ -165,14 +165,14 @@ export class WebDescriptorHierarchy {
 
             for (let k = 0; k < shader.buffers.length; ++k) {
                 const bufferInfo: EffectAsset.IBufferInfo = shader.buffers[k];
-                const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_QUEUE,
+                const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_BATCH,
                     ParameterType.TABLE, DescriptorTypeOrder.STORAGE_BUFFER, bufferInfo.stageFlags, queueDB);
                 this.setDescriptor(targetBlock, bufferInfo.name, Type.UNKNOWN);
             }
 
             for (let k = 0; k < shader.images.length; ++k) {
                 const imageInfo: EffectAsset.IImageInfo = shader.images[k];
-                const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_QUEUE,
+                const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_BATCH,
                     ParameterType.TABLE, DescriptorTypeOrder.STORAGE_IMAGE, imageInfo.stageFlags, queueDB);
                 this.setDescriptor(targetBlock, imageInfo.name, imageInfo.type);
             }
@@ -186,14 +186,14 @@ export class WebDescriptorHierarchy {
 
             for (let k = 0; k < shader.samplers.length; ++k) {
                 const samplerInfo: EffectAsset.ISamplerInfo = shader.samplers[k];
-                const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_QUEUE,
+                const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_BATCH,
                     ParameterType.TABLE, DescriptorTypeOrder.SAMPLER, samplerInfo.stageFlags, queueDB);
                 this.setDescriptor(targetBlock, samplerInfo.name, Type.SAMPLER);
             }
 
             for (let k = 0; k < shader.textures.length; ++k) {
                 const texInfo: EffectAsset.ITextureInfo = shader.textures[k];
-                const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_QUEUE,
+                const targetBlock: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_BATCH,
                     ParameterType.TABLE, DescriptorTypeOrder.TEXTURE, texInfo.stageFlags, queueDB);
                 this.setDescriptor(targetBlock, texInfo.name, texInfo.type);
             }
@@ -208,7 +208,7 @@ export class WebDescriptorHierarchy {
             // Add queue layout from define.ts
             const localUniformTarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_INSTANCE,
                 ParameterType.TABLE, DescriptorTypeOrder.UNIFORM_BUFFER, ShaderStageFlagBit.VERTEX, queueDB);
-            const localLightTarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_QUEUE,
+            const localLightTarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_BATCH,
                 ParameterType.TABLE, DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER, ShaderStageFlagBit.FRAGMENT, queueDB);
             const localUITarget: DescriptorBlock = this.getLayoutBlock(UpdateFrequency.PER_INSTANCE,
                 ParameterType.TABLE, DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER, ShaderStageFlagBit.VERTEX, queueDB);

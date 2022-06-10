@@ -568,7 +568,7 @@ export class Pass {
             const ds = ppl.getDescriptorSetLayout(info.program, UpdateFrequency.PER_BATCH);
             if (ds) {
                 _dsInfo.layout = ds;
-            } 
+            }
         } else {
             _dsInfo.layout = programLib.getDescriptorSetLayout(this._device, info.program);
         }
