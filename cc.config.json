@@ -203,19 +203,19 @@
             "internal": false
         },
         "BYTEDANCE": {
-            "comment": "Running in the ByteDance's quick game.",
+            "comment": "Running in the ByteDance's mini game.",
             "value": false,
             "ccGlobal": true,
             "internal": false
         },
         "OPPO": {
-            "comment": "Running in the oppo's mini game.",
+            "comment": "Running in the oppo's quick game.",
             "value": false,
             "ccGlobal": true,
             "internal": false
         },
         "VIVO": {
-            "comment": "Running in the vivo's mini game.",
+            "comment": "Running in the vivo's quick game.",
             "value": false,
             "ccGlobal": true,
             "internal": false
