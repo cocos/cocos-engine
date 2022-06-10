@@ -435,8 +435,8 @@ export class Pass {
         const samplerInfo = info && info.samplerHash !== undefined
             ? Sampler.unpackFromHash(info.samplerHash) : textureBase && textureBase.getSamplerInfo();
         const sampler = this._device.getSampler(samplerInfo);
-        this._descriptorSet.bindSampler(binding, sampler, index);
-        this._descriptorSet.bindTexture(binding, texture, index);
+        this._descriptorSet.bindSampler(binding, sampler, index || 0);
+        this._descriptorSet.bindTexture(binding, texture, index || 0);
     }
 
     /**

@@ -148,7 +148,14 @@ matProto.setProperty = function (name: string, val: MaterialPropertyFull | Mater
         wrapSetProperty(this.setPropertyTextureBase, this, name, val, passIdx);
     } else if (val instanceof Texture) {
         wrapSetProperty(this.setPropertyGFXTexture, this, name, val, passIdx);
-    } else {
+    } else if (val === null) {
+        if (passIdx) {
+            this.setPropertyNull(name, passIdx);
+        } else {
+            this.setPropertyNull(name);
+        }
+    }
+     else {
         legacyCC.error(`Material.setProperty Unknown type: ${val}`);
     }
 };
