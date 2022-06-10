@@ -316,7 +316,11 @@ void Pass::resetUniform(const ccstd::string &name) {
     _rootBufferDirty = true;
 }
 
-void Pass::resetTexture(const ccstd::string &name, index_t index /* = CC_INVALID_INDEX */) {
+void Pass::resetTexture(const ccstd::string &name) {
+    resetTexture(name, 0);
+}
+
+void Pass::resetTexture(const ccstd::string &name, index_t index) {
     const uint32_t handle = getHandle(name);
     if (0 == handle) {
         return;
