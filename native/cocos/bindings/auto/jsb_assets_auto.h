@@ -384,6 +384,7 @@ SE_DECLARE_FUNC(js_assets_Material_setPropertyMat3);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyMat3Array);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyMat4);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyMat4Array);
+SE_DECLARE_FUNC(js_assets_Material_setPropertyNull);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyQuaternion);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyQuaternionArray);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyTextureBase);
