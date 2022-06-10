@@ -53,7 +53,6 @@ for (let i = 0; i < 4; i++) {
 export const simple: IAssembler = {
     createData (sprite: Sprite) {
         const renderData = sprite.requestRenderData();
-        renderData.assignExtraEntityAttrs(sprite);
         renderData.dataLength = 4;
         renderData.resize(4, 6);
         renderData.vertexRow = 2;

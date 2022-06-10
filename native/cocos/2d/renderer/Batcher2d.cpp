@@ -96,10 +96,10 @@ void Batcher2d::fillBuffersAndMergeBatches() {
     for (index_t i = 0; i < _newRenderEntities.size(); i++) {
         RenderEntity* entity = _newRenderEntities[i];
 
-        Node* node = entity->getNode();
-        if (node == nullptr) {
-            continue;
-        }
+        //Node* node = entity->getNode();
+        //if (node == nullptr) {
+        //    continue;
+        //}
 
         //判断是否能合批，不能合批则需要generateBatch
         uint32_t dataHash = entity->getDataHash();
@@ -196,8 +196,12 @@ void Batcher2d::resetRenderStates() {
 
 gfx::DescriptorSet* Batcher2d::getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, gfx::DescriptorSetLayout* _dsLayout) {
     ccstd::hash_t hash = 2;
-    ccstd::hash_combine(hash, texture->getHash());
-    ccstd::hash_combine(hash, sampler->getHash());
+    if (texture != nullptr) {
+        ccstd::hash_combine(hash, texture->getHash());
+    }
+    if (sampler != nullptr) {
+        ccstd::hash_combine(hash, sampler->getHash());
+    }
     auto iter = _descriptorSetCache.find(hash);
     if (iter != _descriptorSetCache.end()) {
         return iter->second;
