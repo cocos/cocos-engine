@@ -23,6 +23,7 @@
  THE SOFTWARE.
  */
 
+import { ccclass } from '../data/decorators';
 import { legacyCC } from '../global-exports';
 import { baseNodePolyfill } from './base-node-dev';
 const baseNodeProto: any = jsb.BaseNode.prototype;
@@ -34,3 +35,4 @@ export const BaseNode = jsb.BaseNode;
 
 baseNodePolyfill(BaseNode);
 legacyCC._BaseNode = BaseNode;
+ccclass('cc.BaseNode')(BaseNode);

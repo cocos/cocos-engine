@@ -35,6 +35,7 @@ import { _tempFloatArray } from './utils.jsb';
 import { getClassByName, isChildClassOf } from '../utils/js-typed';
 import { syncNodeValues } from "../utils/jsb-utils";
 import { property } from '../data/class-decorator';
+import './base-node';
 
 declare const jsb: any;
 
