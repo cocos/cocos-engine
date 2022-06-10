@@ -628,36 +628,49 @@ SE_BIND_FUNC(js_render_RasterQueueBuilder_addScene)
 
 static bool js_render_RasterQueueBuilder_addSceneOfCamera(se::State& s) // NOLINT(readability-identifier-naming)
 {
+    CC_UNUSED bool ok = true;
     auto* cobj = SE_THIS_OBJECT<cc::render::RasterQueueBuilder>(s);
-    SE_PRECONDITION2(cobj, false, "js_render_RasterQueueBuilder_addSceneOfCamera : Invalid Native Object");
+    SE_PRECONDITION2( cobj, false, "js_render_RasterQueueBuilder_addSceneOfCamera : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 3) {
-        HolderType<cc::scene::Camera*, false> arg0 = {};
-        HolderType<cc::scene::Light*, false> arg1 = {};
-        HolderType<cc::render::SceneFlags, false> arg2 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_render_RasterQueueBuilder_addSceneOfCamera : Error processing arguments");
-        cobj->addSceneOfCamera(arg0.value(), arg1.value(), arg2.value());
-        return true;
-    }
-    if (argc == 4) {
-        HolderType<cc::scene::Camera*, false> arg0 = {};
-        HolderType<cc::scene::Light*, false> arg1 = {};
-        HolderType<cc::render::SceneFlags, false> arg2 = {};
-        HolderType<std::string, true> arg3 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_render_RasterQueueBuilder_addSceneOfCamera : Error processing arguments");
-        cobj->addSceneOfCamera(arg0.value(), arg1.value(), arg2.value(), arg3.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
+    do {
+        if (argc == 3) {
+            HolderType<cc::scene::Camera*, false> arg0 = {};
+            HolderType<cc::scene::Light*, false> arg1 = {};
+            HolderType<cc::render::SceneFlags, false> arg2 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->addSceneOfCamera(arg0.value(), arg1.value(), arg2.value());
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 4) {
+            HolderType<cc::scene::Camera*, false> arg0 = {};
+            HolderType<cc::scene::Light*, false> arg1 = {};
+            HolderType<cc::render::SceneFlags, false> arg2 = {};
+            HolderType<std::string, true> arg3 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->addSceneOfCamera(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+            return true;
+        }
+    } while(false);
+
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
 SE_BIND_FUNC(js_render_RasterQueueBuilder_addSceneOfCamera)
