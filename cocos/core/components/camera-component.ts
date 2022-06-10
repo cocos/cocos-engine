@@ -517,18 +517,40 @@ export class Camera extends Component {
         }
     }
 
+    /**
+     * @en Convert a screen space (left-top origin) point to a ray.
+     * @zh 将一个屏幕空间（左上角为原点）坐标转换为射线。
+     * @param x The x axis position on screen.
+     * @param y The y axis position on screen.
+     * @param out The output ray object.
+     * @returns Return the output ray object.
+     */
     public screenPointToRay (x: number, y: number, out?: Ray) {
         if (!out) { out = Ray.create(); }
         if (this._camera) { this._camera.screenPointToRay(out, x, y); }
         return out;
     }
 
+    /**
+     * @en Convert a world position to a screen space (left-top origin) position.
+     * @zh 将一个世界空间坐标转换为屏幕空间（左上角为原点）坐标。
+     * @param worldPos The position in world space coordinates
+     * @param out The output position in screen space coordinates.
+     * @returns Return the output position object.
+     */
     public worldToScreen (worldPos: Vec3 | Readonly<Vec3>, out?: Vec3) {
         if (!out) { out = new Vec3(); }
         if (this._camera) { this._camera.worldToScreen(out, worldPos); }
         return out;
     }
 
+    /**
+     * @en Convert a screen space (left-top origin) position to a world space position.
+     * @zh 将一个屏幕空间（左上角为原点）转换为世界空间坐标。
+     * @param screenPos The position in screen space coordinates
+     * @param out The output position in world space coordinates
+     * @returns Return the output position object.
+     */
     public screenToWorld (screenPos: Vec3, out?: Vec3) {
         if (!out) { out = this.node.getWorldPosition(); }
         if (this._camera) { this._camera.screenToWorld(out, screenPos); }
@@ -536,12 +558,12 @@ export class Camera extends Component {
     }
 
     /**
-     * @en 3D node to UI local node coordinates. The converted value is the offset under the UI node.
-     *
-     * @zh 3D 节点转 UI 本地节点坐标。转换后的值是该 UI 节点下的偏移。
-     * @param wpos 3D 节点世界坐标
-     * @param uiNode UI 节点
-     * @param out 返回在当前传入的 UI 节点下的偏移量
+     * @en Convert a 3D world position to the local coordinates system of the given UI node.
+     * The converted position will be related to the given UI node under local space.
+     * @zh 将一个 3D 空间世界坐标转换到指定的 UI 本地节点坐标系下。转换后的位置是指定 UI 节点坐标系下的局部偏移。
+     * @param wpos @en The world position to convert @zh 需要转换的世界坐标
+     * @param uiNode @en The UI node coordinates in which the world position will be convert to @zh 用于同步位置的 UI 节点
+     * @param out @en Return the corresponding position of the given world position in the UI node's local coordinates @zh 返回传入的世界坐标在 UI 节点本地坐标系下的局部坐标
      *
      * @example
      * ```ts

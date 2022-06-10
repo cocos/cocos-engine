@@ -20,7 +20,10 @@ export class MacOSPackTool extends NativePackTool {
     params!: CocosParams<MacOSParams>;
 
     async create() {
-        await super.create();
+        await this.copyCommonTemplate();
+        await this.copyPlatformTemplate();
+        await this.generateCMakeConfig();
+        await this.excuteCocosTemplateTask();
         await this.generate();
         return true;
     }

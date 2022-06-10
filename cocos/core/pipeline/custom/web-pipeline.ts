@@ -133,9 +133,10 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
         this._queue = queue;
         this._pipeline = pipeline;
     }
-    addSceneOfCamera (camera: Camera, sceneFlags: SceneFlags, name = 'Camera'): void {
+    addSceneOfCamera (camera: Camera, light: Light | null, sceneFlags: SceneFlags, name = 'Camera'): void {
         const sceneData = new SceneData(name, sceneFlags);
         sceneData.camera = camera;
+        sceneData.light = light;
         this._renderGraph.addVertex<RenderGraphValue.Scene>(
             RenderGraphValue.Scene, sceneData, name, '', new RenderData(), false, this._vertID,
         );
@@ -601,10 +602,10 @@ export class WebPipeline extends Pipeline {
                 forwardPass.addRasterView(forwardPassDSName, passDSView);
                 forwardPass
                     .addQueue(QueueHint.RENDER_OPAQUE)
-                    .addSceneOfCamera(camera, SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT);
+                    .addSceneOfCamera(camera, null, SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT);
                 forwardPass
                     .addQueue(QueueHint.RENDER_TRANSPARENT)
-                    .addSceneOfCamera(camera, SceneFlags.TRANSPARENT_OBJECT);
+                    .addSceneOfCamera(camera, null, SceneFlags.TRANSPARENT_OBJECT);
             }
         }
         this.compile();

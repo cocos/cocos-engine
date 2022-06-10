@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "boost/variant2/variant.hpp"
 #include "boost/mp11/algorithm.hpp"
+#include "cocos/base/std/variant.h"
 
 #include <type_traits>
 #include <utility>
@@ -61,7 +61,7 @@ Overloaded<Ts...> overload(Ts... ts) {
 template <typename V>
 auto variantFromIndex(size_t index) -> V { // NOLINT
     return boost::mp11::mp_with_index<boost::mp11::mp_size<V>>(index,
-                                                               [](auto i) { return V(boost::variant2::in_place_index<i>); });
+                                                               [](auto i) { return V(ccstd::in_place_index<i>); });
 }
 
 } // namespace cc

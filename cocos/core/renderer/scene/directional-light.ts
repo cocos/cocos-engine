@@ -52,8 +52,8 @@ export class DirectionalLight extends Light {
     protected _shadowSaturation = 1.0;
     protected _shadowDistance = 50;
     protected _shadowInvisibleOcclusionRange = 200;
-    protected _csmLevel = CSMLevel.level_3;
-    protected _shadowCSMValueDirty = false;
+    protected _csmLevel = CSMLevel.LEVEL_4;
+    protected _csmNeedUpdate = false;
     protected _csmLayerLambda = 0.75;
     protected _csmOptimizationMode = CSMOptimizationMode.DisableRotationFix;
 
@@ -206,11 +206,15 @@ export class DirectionalLight extends Light {
         this._csmLevel = val;
     }
 
-    get shadowCSMValueDirty () {
-        return this._shadowCSMValueDirty;
+    /**
+     * @en is CSM need update
+     * @zh 获取或者设置级联阴影是否需要更新
+     */
+    get csmNeedUpdate () {
+        return this._csmNeedUpdate;
     }
-    set shadowCSMValueDirty (val) {
-        this._shadowCSMValueDirty = val;
+    set csmNeedUpdate (val) {
+        this._csmNeedUpdate = val;
     }
 
     /**

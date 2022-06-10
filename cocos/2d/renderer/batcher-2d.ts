@@ -837,10 +837,7 @@ class DescriptorSetCache {
             if (this._descriptorSetCache.has(hash)) {
                 return this._descriptorSetCache.get(hash)!;
             } else {
-                const ly = batch.passes[0].localSetLayout;
-                if (ly) {
-                    _dsInfo.layout = ly;
-                }
+                _dsInfo.layout = batch.passes[0].localSetLayout;
                 const descriptorSet = root.device.createDescriptorSet(_dsInfo) as DescriptorSet;
                 const binding = ModelLocalBindings.SAMPLER_SPRITE;
                 descriptorSet.bindTexture(binding, batch.texture!);

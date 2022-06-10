@@ -40,35 +40,39 @@ export enum NodeSpace {
  */
 export enum TransformBit {
     /**
-     * @zh
-     * 无改变
+     * @en No change
+     * @zh 无改变
      */
     NONE = 0,
     /**
-     * @zh
-     * 节点位置改变
+     * @en Translation changed
+     * @zh 节点位置改变
      */
     POSITION = (1 << 0),
     /**
-     * @zh
-     * 节点旋转
+     * @en Rotation changed
+     * @zh 节点旋转
      */
     ROTATION = (1 << 1),
     /**
-     * @zh
-     * 节点缩放
+     * @en Scale changed
+     * @zh 节点缩放
      */
     SCALE = (1 << 2),
     /**
-     * @zh
-     * 节点旋转及缩放
+     * @en Rotation or scale changed
+     * @zh 节点旋转及缩放
      */
     RS = TransformBit.ROTATION | TransformBit.SCALE,
     /**
-     * @zh
-     * 节点平移，旋转及缩放
+     * @en Translation, rotation or scale changed
+     * @zh 节点平移，旋转及缩放
      */
     TRS = TransformBit.POSITION | TransformBit.ROTATION | TransformBit.SCALE,
+    /**
+     * @en Invert mask of [[TRS]]
+     * @zh [[TRS]] 的反向掩码
+     */
     TRS_MASK = ~TransformBit.TRS,
 }
 

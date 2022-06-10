@@ -55,18 +55,18 @@ void ShadowTransformInfo::createMatrix(const geometry::Frustum &splitFrustum, co
                             Vec3(-100000.0F, -100000.0F, -100000.0F),
                             &_castLightViewBoundingBox);
     _castLightViewBoundingBox.merge(_lightViewFrustum);
-    float orthoSizeWidth;
-    float orthoSizeHeight;
-    if (dirLight->getCsmOptimizationMode() == scene::CSMOptimizationMode::DISABLE_ROTATION_FIX) {
+    float orthoSizeWidth = 0.0F;
+    float orthoSizeHeight = 0.0F;
+    if (dirLight->getCSMOptimizationMode() == scene::CSMOptimizationMode::DISABLE_ROTATION_FIX) {
         orthoSizeWidth = _castLightViewBoundingBox.halfExtents.x;
         orthoSizeHeight = _castLightViewBoundingBox.halfExtents.y;
     } else {
         orthoSizeWidth = orthoSizeHeight = _lightViewFrustum.vertices[0].distance(_lightViewFrustum.vertices[6]);
     }
 
-    if (dirLight->getCsmLevel() != scene::CSMLevel::LEVEL_1 && dirLight->getCsmOptimizationMode() ==
+    if (dirLight->getCSMLevel() != scene::CSMLevel::LEVEL_1 && dirLight->getCSMOptimizationMode() ==
         scene::CSMOptimizationMode::REMOVE_DUPLICATES) {
-        if (_level >= static_cast<uint>(dirLight->getCsmLevel()) - 1U) {
+        if (_level >= static_cast<uint>(dirLight->getCSMLevel()) - 1U) {
             _maxLayerFarPlane = _castLightViewBoundingBox.halfExtents.z;
             _maxLayerPosz = _castLightViewBoundingBox.center.z;
         } else {
@@ -172,7 +172,7 @@ void CSMLayers::update(const PipelineSceneData *sceneData, const scene::Camera *
 
     CC_ASSERT(dirLight);
 
-    const uint levelCount = static_cast<uint>(dirLight->getCsmLevel());
+    const uint levelCount = static_cast<uint>(dirLight->getCSMLevel());
     CC_ASSERT(levelCount <= static_cast<uint>(scene::CSMLevel::LEVEL_4));
     const float shadowDistance = dirLight->getShadowDistance();
 
@@ -183,7 +183,7 @@ void CSMLayers::update(const PipelineSceneData *sceneData, const scene::Camera *
     if (dirLight->isShadowFixedArea()) {
         updateFixedArea(dirLight);
     } else {
-        if (dirLight->isShadowCSMValueDirty() || _levelCount != levelCount ||
+        if (dirLight->isCSMNeedUpdate() || _levelCount != levelCount ||
             std::abs(_shadowDistance - shadowDistance) > 1.0F) {
             splitFrustumLevels(dirLight);
             _levelCount = levelCount;
@@ -223,8 +223,8 @@ void CSMLayers::splitFrustumLevels(scene::DirectionalLight *dirLight) {
     constexpr float nd = 0.1F;
     const float fd = dirLight->getShadowDistance();
     const float ratio = fd / nd;
-    const uint level = static_cast<uint>(dirLight->getCsmLevel());
-    const float lambda = dirLight->getCsmLayerLambda();
+    const uint level = static_cast<uint>(dirLight->getCSMLevel());
+    const float lambda = dirLight->getCSMLayerLambda();
     _layers.at(0)->setSplitCameraNear(nd);
     for (uint i = 1; i < level; ++i) {
         // i ÷ numbers of level
@@ -238,11 +238,11 @@ void CSMLayers::splitFrustumLevels(scene::DirectionalLight *dirLight) {
     // numbers of level - 1
     _layers[level - 1]->setSplitCameraFar(fd);
 
-    dirLight->setShadowCSMValueDirty(false);
+    dirLight->setCSMNeedUpdate(false);
 }
 
 void CSMLayers::calculateCSM(const scene::Camera *camera, const scene::DirectionalLight *dirLight, const scene::Shadows *shadowInfo) {
-    const auto level = dirLight->getCsmLevel();
+    const auto level = dirLight->getCSMLevel();
     const float shadowMapWidth = level !=  scene::CSMLevel::LEVEL_1 ? shadowInfo->getSize().x * 0.5F : shadowInfo->getSize().x;
 
     if (shadowMapWidth < 0.999F) {

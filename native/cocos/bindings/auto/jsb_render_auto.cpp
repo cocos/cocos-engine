@@ -634,24 +634,10 @@ static bool js_render_RasterQueueBuilder_addSceneOfCamera(se::State& s) // NOLIN
     const auto& args = s.args();
     size_t argc = args.size();
     do {
-        if (argc == 2) {
-            HolderType<cc::scene::Camera*, false> arg0 = {};
-            HolderType<cc::render::SceneFlags, false> arg1 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->addSceneOfCamera(arg0.value(), arg1.value());
-            return true;
-        }
-    } while(false);
-
-    do {
         if (argc == 3) {
             HolderType<cc::scene::Camera*, false> arg0 = {};
-            HolderType<cc::render::SceneFlags, false> arg1 = {};
-            HolderType<std::string, true> arg2 = {};
+            HolderType<cc::scene::Light*, false> arg1 = {};
+            HolderType<cc::render::SceneFlags, false> arg2 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
             if (!ok) { ok = true; break; }
@@ -660,6 +646,26 @@ static bool js_render_RasterQueueBuilder_addSceneOfCamera(se::State& s) // NOLIN
             ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
             if (!ok) { ok = true; break; }
             cobj->addSceneOfCamera(arg0.value(), arg1.value(), arg2.value());
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 4) {
+            HolderType<cc::scene::Camera*, false> arg0 = {};
+            HolderType<cc::scene::Light*, false> arg1 = {};
+            HolderType<cc::render::SceneFlags, false> arg2 = {};
+            HolderType<std::string, true> arg3 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->addSceneOfCamera(arg0.value(), arg1.value(), arg2.value(), arg3.value());
             return true;
         }
     } while(false);
