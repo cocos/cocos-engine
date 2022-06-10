@@ -1,6 +1,6 @@
+#include <2d/renderer/Batcher2d.h>
 #include <2d/renderer/RenderEntity.h>
 #include <cocos/base/TypeDef.h>
-#include<2d/renderer/Batcher2d.h>
 #include <iostream>
 
 namespace cc {
@@ -98,12 +98,12 @@ void RenderEntity::setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, ui
     this->_stride = stride;
     this->_size = size;
     this->_sharedBuffer = buffer;
-    parseLayout();
+    //parseLayout();
 }
 
-ccstd::vector<Render2dLayout*>& RenderEntity::getRenderDataArr() {
-    return this->_render2dLayoutArr;
-}
+//ccstd::vector<Render2dLayout*>& RenderEntity::getRenderDataArr() {
+//    return this->_render2dLayoutArr;
+//}
 
 void RenderEntity::setSortingOrder(index_t sortingOrder) {
     this->_entityAttrLayout->sortingOrder = sortingOrder;
@@ -118,27 +118,27 @@ void RenderEntity::parseAttrLayout() {
     _entityAttrLayout = reinterpret_cast<EntityAttrLayout*>(_attrSharedBuffer);
 }
 
-void RenderEntity::parseLayout() {
-    index_t vertexCount = this->_size / this->_stride;
-    this->_render2dLayoutArr.clear();
-    for (index_t i = 0; i < this->_size; i += this->_stride) {
-        Render2dLayout* temp = reinterpret_cast<Render2dLayout*>(this->_sharedBuffer + i * sizeof(float_t));
-        this->_render2dLayoutArr.push_back(temp);
-    }
-}
+//void RenderEntity::parseLayout() {
+//    index_t vertexCount = this->_size / this->_stride;
+//    this->_render2dLayoutArr.clear();
+//    for (index_t i = 0; i < this->_size; i += this->_stride) {
+//        Render2dLayout* temp = reinterpret_cast<Render2dLayout*>(this->_sharedBuffer + i * sizeof(float_t));
+//        this->_render2dLayoutArr.push_back(temp);
+//    }
+//}
 
-void RenderEntity::refreshLayout() {
-    index_t vertexCount = this->_size / this->_stride;
-    //这里涉及到dirty，可以考虑
-    for (index_t i = 0; i < this->_size; i += this->_stride) {
-        //可以考虑直接用偏移，而不用reinterpret_cast
-        Render2dLayout* temp = reinterpret_cast<Render2dLayout*>(this->_sharedBuffer + i * sizeof(float_t));
-        Render2dLayout* thisLayout = this->_render2dLayoutArr[i];
-        thisLayout->position.set(temp->position);
-        thisLayout->uv.set(temp->uv);
-        thisLayout->color.set(temp->color);
-    }
-}
+//void RenderEntity::refreshLayout() {
+//    index_t vertexCount = this->_size / this->_stride;
+//    //这里涉及到dirty，可以考虑
+//    for (index_t i = 0; i < this->_size; i += this->_stride) {
+//        //可以考虑直接用偏移，而不用reinterpret_cast
+//        Render2dLayout* temp = reinterpret_cast<Render2dLayout*>(this->_sharedBuffer + i * sizeof(float_t));
+//        Render2dLayout* thisLayout = this->_render2dLayoutArr[i];
+//        thisLayout->position.set(temp->position);
+//        thisLayout->uv.set(temp->uv);
+//        thisLayout->color.set(temp->color);
+//    }
+//}
 
 void RenderEntity::ItIsDebugFuncInRenderEntity() {
     std::cout << "It is debug func in RenderEntity.";

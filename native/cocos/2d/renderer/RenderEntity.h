@@ -80,8 +80,12 @@ public:
 public:
     //这里每次获取时都应该对buffer做一次解析
     ccstd::vector<Render2dLayout*>& getRenderDataArr();
-    void parseLayout();
-    void refreshLayout();
+    inline Render2dLayout* getRender2dLayout(index_t dataOffset) {
+        return reinterpret_cast<Render2dLayout*>(this->_sharedBuffer + dataOffset * sizeof(float_t));;
+    }
+
+    //void parseLayout();
+    //void refreshLayout();
     inline uint8_t getStride() { return this->_stride; }
     inline uint32_t getSize() { return this->_size; }
 
@@ -90,7 +94,7 @@ private:
 
 private:
     // use this
-    ccstd::vector<Render2dLayout*> _render2dLayoutArr{};
+    //ccstd::vector<Render2dLayout*> _render2dLayoutArr{};
     uint8_t* _sharedBuffer{nullptr};
     uint8_t _stride{0};
     uint32_t _size{0};
