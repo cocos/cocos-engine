@@ -66,25 +66,30 @@ void Simple::fillBuffers(RenderEntity* entity) {
         indexOffset = buffer->getIndexOffset();
     }
 
-    for (int curRow = 0; curRow < this->_vertexRow - 1; curRow++) {
-        for (int curCol = 0; curCol < this->_vertexCol - 1; curCol++) {
-            index_t vId = vertexOffset + curRow * this->_vertexCol + curCol;
+    uint16_t* indexb = entity->getIbBuffer();
+    
+    memcpy(&ib[indexOffset], indexb, 6 * sizeof(uint16_t));
+    indexOffset += (_vertexRow - 1) * (_vertexCol - 1) * 6; // Magic Number
 
-            // left bottom
-            ib[indexOffset++] = vId;
-            // right bottom
-            ib[indexOffset++] = vId + 1;
-            // left top
-            ib[indexOffset++] = vId + this->_vertexCol;
+    //for (int curRow = 0; curRow < this->_vertexRow - 1; curRow++) {
+    //    for (int curCol = 0; curCol < this->_vertexCol - 1; curCol++) {
+    //        index_t vId = vertexOffset + curRow * this->_vertexCol + curCol;
 
-            // right bottom
-            ib[indexOffset++] = vId + 1;
-            // right top
-            ib[indexOffset++] = vId + 1 + this->_vertexCol;
-            // left top
-            ib[indexOffset++] = vId + this->_vertexCol;
-        }
-    }
+    //        // left bottom
+    //        ib[indexOffset++] = vId;
+    //        // right bottom
+    //        ib[indexOffset++] = vId + 1;
+    //        // left top
+    //        ib[indexOffset++] = vId + this->_vertexCol;
+
+    //        // right bottom
+    //        ib[indexOffset++] = vId + 1;
+    //        // right top
+    //        ib[indexOffset++] = vId + 1 + this->_vertexCol;
+    //        // left top
+    //        ib[indexOffset++] = vId + this->_vertexCol;
+    //    }
+    //}
 
     // set index offset back
     if (buffer != nullptr) {

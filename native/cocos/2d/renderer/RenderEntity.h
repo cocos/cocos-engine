@@ -37,6 +37,8 @@ public:
 
     inline float_t* getVbBuffer() const { return this->_vbBuffer; }
     void setVbBuffer(float_t* vbBuffer);
+    inline uint16_t* getIbBuffer() const { return this->_ibBuffer; }
+    void setIbBuffer(uint16_t* ibBuffer);
     inline float_t* getVDataBuffer() const { return this->_vDataBuffer; }
     void setVDataBuffer(float_t* vDataBuffer);
     inline uint16_t* getIDataBuffer() const { return this->_iDataBuffer; }
@@ -111,6 +113,7 @@ private:
     index_t _indexOffset{0};
 
     float_t* _vbBuffer{nullptr};
+    uint16_t* _ibBuffer{nullptr};
     float_t* _vDataBuffer{nullptr};
     uint16_t* _iDataBuffer{nullptr};
 
