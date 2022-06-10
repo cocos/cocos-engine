@@ -396,7 +396,7 @@ void ScriptEngine::onPromiseRejectCallback(v8::PromiseRejectMessage msg) {
             v8::MaybeLocal<v8::String> json = v8::JSON::Stringify(isolate->GetCurrentContext(), value);
             if (!json.IsEmpty()) {
                 v8::String::Utf8Value jsonStr(isolate, json.ToLocalChecked());
-                auto strp = *jsonStr;
+                auto *strp = *jsonStr;
                 if (strp) {
                     ss << " obj: " << strp << std::endl;
                 } else {
@@ -415,7 +415,7 @@ void ScriptEngine::onPromiseRejectCallback(v8::PromiseRejectMessage msg) {
                                                              ->ToString(isolate->GetCurrentContext())
                                                              .ToLocalChecked();
                         v8::String::Utf8Value attrUtf8(isolate, attrName);
-                        auto strp = *attrUtf8;
+                        auto *strp = *attrUtf8;
                         ss << " obj.property " << strp << std::endl;
                     }
                     ss << " obj: JSON.parse failed!" << std::endl;
@@ -423,7 +423,7 @@ void ScriptEngine::onPromiseRejectCallback(v8::PromiseRejectMessage msg) {
             }
         }
         v8::String::Utf8Value valuePromiseConstructor(isolate, promiseName);
-        auto strp = *valuePromiseConstructor;
+        auto *strp = *valuePromiseConstructor;
         if (strp) {
             ss << "PromiseConstructor " << strp;
         }
