@@ -615,6 +615,7 @@ float CCShadowFactorBase(vec4 shadowPos, vec3 N, vec2 shadowBias)
 {
   float realtimeShadow = 1.0;
   vec4 pos = ApplyShadowDepthBias_FaceNormal(shadowPos, N, shadowBias.y, cc_matLightView, cc_shadowProjInfo.xy);
+  pos = ApplyShadowDepthBias_Orthographic(pos, shadowBias.x, cc_shadowProjDepthInfo.xy);
 
   float pcf = cc_shadowWHPBInfo.z;
   if (pcf > 2.9) {
