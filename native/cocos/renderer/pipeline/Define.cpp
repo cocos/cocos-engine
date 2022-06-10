@@ -522,11 +522,11 @@ uint nextPow2(uint val) {
     return val;
 }
 
-bool supportsR16HalfFloatTexture(gfx::Device *device) {
+bool supportsR16HalfFloatTexture(const gfx::Device* device) {
     return hasAllFlags(device->getFormatFeatures(gfx::Format::R16F), gfx::FormatFeature::RENDER_TARGET | gfx::FormatFeature::SAMPLED_TEXTURE);
 }
 
-bool supportsR32FloatTexture(gfx::Device *device) {
+bool supportsR32FloatTexture(const gfx::Device* device) {
     return hasAllFlags(device->getFormatFeatures(gfx::Format::R32F), gfx::FormatFeature::RENDER_TARGET | gfx::FormatFeature::SAMPLED_TEXTURE);
 }
 

@@ -25,12 +25,9 @@
 
 #pragma once
 
-#include <cmath>
 #include <functional>
-#include "base/Object.h"
 #include "base/TypeDef.h"
 #include "base/Value.h"
-#include "base/std/container/vector.h"
 #include "renderer/gfx-base/GFXDef.h"
 
 namespace cc {
@@ -57,7 +54,7 @@ constexpr float SHADOW_CAMERA_MAX_FAR = 2000.0F;
 const float COEFFICIENT_OF_EXPANSION = 2.0F * sqrtf(3.0F);
 
 struct CC_DLL RenderObject {
-    float depth = 0;
+    float depth = 0.0F;
     const scene::Model *model = nullptr;
 };
 using RenderObjectList = ccstd::vector<struct RenderObject>;
@@ -69,7 +66,7 @@ struct CC_DLL RenderTargetInfo {
 
 struct CC_DLL RenderPass {
     uint hash = 0;
-    float depth = 0;
+    float depth = 0.0F;
     uint shaderID = 0;
     uint passIndex = 0;
     const scene::SubModel *subModel = nullptr;
@@ -504,9 +501,9 @@ const uint CAMERA_DEFAULT_MASK = ~static_cast<uint>(LayerList::UI_2D) & ~static_
 
 uint nextPow2(uint val);
 
-bool supportsR16HalfFloatTexture(gfx::Device *device);
+bool supportsR16HalfFloatTexture(const gfx::Device* device);
 
-bool supportsR32FloatTexture(gfx::Device *device);
+bool supportsR32FloatTexture(const gfx::Device* device);
 
 extern CC_DLL uint skyboxFlag;
 
