@@ -31,13 +31,6 @@
 
 namespace cc {
 namespace pipeline {
-
-#define INIT_GLOBAL_DESCSET_LAYOUT(info)                                      \
-    do {                                                                      \
-        globalDescriptorSetLayout.samplers[info::NAME] = info::LAYOUT;        \
-        globalDescriptorSetLayout.bindings[info::BINDING] = info::DESCRIPTOR; \
-    } while (0)
-
 void GlobalDSManager::activate(gfx::Device *device) {
     _device = device;
 
@@ -60,13 +53,9 @@ void GlobalDSManager::activate(gfx::Device *device) {
     });
 
     setDescriptorSetLayout();
-    CC_SAFE_DESTROY_NULL(_descriptorSetLayout);
+    CC_SAFE_DESTROY_NULL(_descriptorSetLayout)
     _descriptorSetLayout = device->createDescriptorSetLayout({globalDescriptorSetLayout.bindings});
-
-    if (_globalDescriptorSet) {
-        _globalDescriptorSet->destroy();
-        delete _globalDescriptorSet;
-    }
+    CC_SAFE_DESTROY_NULL(_globalDescriptorSet)
     _globalDescriptorSet = device->createDescriptorSet({_descriptorSetLayout});
 }
 
@@ -145,15 +134,15 @@ gfx::DescriptorSet *GlobalDSManager::getOrCreateDescriptorSet(uint32_t idx) {
 
 void GlobalDSManager::destroy() {
     for (auto *shadowUBO : _shadowUBOs) {
-        CC_SAFE_DELETE(shadowUBO);
+        CC_SAFE_DELETE(shadowUBO)
     }
     for (auto &pair : _descriptorSetMap) {
-        CC_SAFE_DELETE(pair.second);
+        CC_SAFE_DELETE(pair.second)
     }
     _descriptorSetMap.clear();
 
-    CC_SAFE_DESTROY_NULL(_descriptorSetLayout);
-    CC_SAFE_DELETE(_globalDescriptorSet);
+    CC_SAFE_DESTROY_NULL(_descriptorSetLayout)
+    CC_SAFE_DELETE(_globalDescriptorSet)
 }
 
 void GlobalDSManager::setDescriptorSetLayout() {

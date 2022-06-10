@@ -117,8 +117,8 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, float *out
         }
     } else {
         const Vec4 lightDir(0.0F, 0.0F, 1.0F, 0.0F);
-        TO_VEC4(output, lightDir, UBOCamera::MAIN_LIT_DIR_OFFSET);
-        TO_VEC4(output, Vec4::ZERO, UBOCamera::MAIN_LIT_COLOR_OFFSET);
+        TO_VEC4(output, lightDir, UBOCamera::MAIN_LIT_DIR_OFFSET)
+        TO_VEC4(output, Vec4::ZERO, UBOCamera::MAIN_LIT_COLOR_OFFSET)
     }
 
     if (ambient != nullptr) {
@@ -148,7 +148,7 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, float *out
 
     memcpy(output + UBOCamera::MAT_VIEW_OFFSET, camera->getMatView().m, sizeof(cc::Mat4));
     memcpy(output + UBOCamera::MAT_VIEW_INV_OFFSET, camera->getNode()->getWorldMatrix().m, sizeof(cc::Mat4));
-    TO_VEC3(output, camera->getPosition(), UBOCamera::CAMERA_POS_OFFSET);
+    TO_VEC3(output, camera->getPosition(), UBOCamera::CAMERA_POS_OFFSET)
 
     memcpy(output + UBOCamera::MAT_PROJ_OFFSET, camera->getMatProj().m, sizeof(cc::Mat4));
     memcpy(output + UBOCamera::MAT_PROJ_INV_OFFSET, camera->getMatProjInv().m, sizeof(cc::Mat4));
