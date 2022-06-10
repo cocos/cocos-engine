@@ -51,6 +51,7 @@ namespace pipeline {
 
 class GlobalDSManager;
 class PipelineSceneData;
+class GeometryRenderer;
 
 } // namespace pipeline
 
@@ -89,6 +90,7 @@ public:
     virtual const ccstd::string         &getConstantMacros() const = 0;
     virtual scene::Model                *getProfiler() const = 0;
     virtual void                         setProfiler(scene::Model *profiler) = 0;
+    virtual pipeline::GeometryRenderer  *getGeometryRenderer() const = 0;
 
     virtual float getShadingScale() const = 0;
     virtual void  setShadingScale(float scale) = 0;
@@ -305,6 +307,7 @@ public:
 
     virtual ~LayoutGraphBuilder() noexcept = 0;
 
+    virtual void clear() = 0;
     virtual uint32_t addRenderStage(const ccstd::string& name) = 0;
     virtual uint32_t addRenderPhase(const ccstd::string& name, uint32_t parentID) = 0;
     virtual void addDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlock& block) = 0;
@@ -336,7 +339,7 @@ public:
     virtual void                presentAll() = 0;
 
     virtual SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) = 0;
-    virtual LayoutGraphBuilder *createLayoutGraph(const ccstd::string& name) = 0;
+    virtual LayoutGraphBuilder *getLayoutGraphBuilder() = 0;
 };
 
 inline Pipeline::~Pipeline() noexcept = default;

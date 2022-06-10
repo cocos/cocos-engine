@@ -26,6 +26,7 @@
 #pragma once
 #include "base/std/container/string.h"
 #include "base/std/container/vector.h"
+#include "base/std/container/map.h"
 #include "bindings/manual/jsb_conversions.h"
 #include "renderer/pipeline/custom/Map.h"
 
@@ -44,9 +45,9 @@ inline bool nativevalue_to_se( // NOLINT(readability-identifier-naming)
     return true;
 }
 
-template <typename Value>
+template <typename Value, typename Less, typename Allocator>
 inline bool nativevalue_to_se( // NOLINT(readability-identifier-naming)
-    const cc::PmrTransparentMap<ccstd::string, Value> &from,
+    const ccstd::map<ccstd::string, Value, Less, Allocator> &from,
     se::Value &to, se::Object *ctx) {
     se::Object *ret = se::Object::createPlainObject();
     se::Value value;
@@ -103,8 +104,8 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<T, allocator> *to, s
     return false;
 }
 
-template <typename Value>
-bool sevalue_to_native(const se::Value &from, cc::PmrTransparentMap<ccstd::string, Value> *to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
+template <typename Value, typename Less, typename Allocator>
+bool sevalue_to_native(const se::Value &from, ccstd::map<ccstd::string, Value, Less, Allocator> *to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     se::Object *jsmap = from.toObject();
     ccstd::vector<ccstd::string> allKeys;
     jsmap->getAllKeys(&allKeys);

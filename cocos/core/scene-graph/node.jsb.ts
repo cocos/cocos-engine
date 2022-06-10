@@ -202,6 +202,7 @@ nodeProto.addComponent = function (typeOrClassName) {
             EditorExtends.Component.add(component._id, component);
         }
     }
+    this.emit(NodeEventType.COMPONENT_ADDED, component);
     if (this._activeInHierarchy) {
         legacyCC.director._nodeActivator.activateComp(component);
     }
@@ -334,6 +335,7 @@ nodeProto._removeComponent = function (component: Component) {
             if (EDITOR && EditorExtends.Component) {
                 EditorExtends.Component.remove(component._id);
             }
+            this.emit(NodeEventType.COMPONENT_REMOVED, component);
         } else if (component.node !== this) {
             errorID(3815);
         }
@@ -1115,6 +1117,37 @@ nodeProto[serializeTag] = function (serializationOutput: SerializationOutput, co
     if (!EDITOR) {
         serializationOutput.writeThis();
     }
+
+    // Detects if this node is mounted node of `PrefabInstance`
+        // TODO: optimize
+        const isMountedChild = () => !!(this[editorExtrasTag] as any)?.mountedRoot;
+        // Returns if this node is under `PrefabInstance`
+        // eslint-disable-next-line arrow-body-style
+        const isSyncPrefab = () => {
+            // 1. Under `PrefabInstance`, but not mounted
+            // 2. If the mounted node is a `PrefabInstance`, it's also a "sync prefab".
+            return this._prefab?.root?._prefab?.instance && (this?._prefab?.instance || !isMountedChild());
+        };
+        const canDiscardByPrefabRoot = () => !(context.customArguments[(reserveContentsForAllSyncablePrefabTag) as any]
+            || !isSyncPrefab() || context.root === this);
+        if (canDiscardByPrefabRoot()) {
+            // discard props disallow to synchronize
+            const isRoot = this._prefab?.root === this;
+            if (isRoot) {
+                serializationOutput.writeProperty('_objFlags', this._objFlags);
+                serializationOutput.writeProperty('_parent', this._parent);
+                serializationOutput.writeProperty('_prefab', this._prefab);
+                if (context.customArguments.keepNodeUuid) {
+                    serializationOutput.writeProperty('_id', this._id);
+                }
+                // TODO: editorExtrasTag may be a symbol in the future
+                serializationOutput.writeProperty(editorExtrasTag, this[editorExtrasTag]);
+            } else {
+                // should not serialize child node of synchronizable prefab
+            }
+        } else {
+            serializationOutput.writeThis();
+        }
 };
 
 nodeProto._onActiveNode = function (shouldActiveNow: boolean) {

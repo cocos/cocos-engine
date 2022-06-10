@@ -233,7 +233,8 @@ ScriptEngineV8Context *gSharedV8 = nullptr;
     #endif // CC_EDITOR
 } // namespace
 
-ScriptEngine* ScriptEngine::instance = nullptr;
+ScriptEngine *ScriptEngine::instance = nullptr;
+ScriptEngine::DebuggerInfo ScriptEngine::debuggerInfo;
 
 void ScriptEngine::callExceptionCallback(const char *location, const char *message, const char *stack) {
     if (_nativeExceptionCallback) {
@@ -487,32 +488,23 @@ ScriptEngine::ScriptEngine()
         gSharedV8 = ccnew ScriptEngineV8Context();
     }
     #endif
-    
+
     ScriptEngine::instance = this;
 }
 
-#if CC_PLATFORM == CC_PLATFORM_ANDROID
-/**
- * v8::V8::Initialize() can only be called once for a process.
- * After calling onDestroy on Android platform, the process will be maintained for a period of time.
- * So gSharedV8 variable should not be released and it will be re-used when ScriptEngine is constructed next time.
- */
 ScriptEngine::~ScriptEngine() { //NOLINT(bugprone-exception-escape)
     cleanup();
+    /**
+     * v8::V8::Initialize() can only be called once for a process.
+     * Engine::restart() will delete ScriptEngine and re-create it.
+     * So gSharedV8 variable should not be released and it will be re-used.
+     */
+    //    if (gSharedV8) {
+    //        delete gSharedV8;
+    //        gSharedV8 = nullptr;
+    //    }
     ScriptEngine::instance = nullptr;
 }
-#else
-ScriptEngine::~ScriptEngine() {
-    cleanup();
-#if !CC_EDITOR
-    if (gSharedV8) {
-        delete gSharedV8;
-        gSharedV8 = nullptr;
-    }
-#endif
-    ScriptEngine::instance = nullptr;
-}
-#endif
 
 bool ScriptEngine::postInit() {
     v8::HandleScope hs(_isolate);
@@ -742,6 +734,13 @@ bool ScriptEngine::start() {
         return false;
     }
     se::AutoHandleScope hs;
+
+    // Check the cache of debuggerInfo. Enable debugger if it's valid.
+    if (debuggerInfo.isValid()) {
+        enableDebugger(debuggerInfo.serverAddr, debuggerInfo.port, debuggerInfo.isWait);
+        debuggerInfo.reset();
+    }
+
     // debugger
     if (isDebuggerEnabled()) {
     #if SE_ENABLE_INSPECTOR && !CC_EDITOR
@@ -783,6 +782,11 @@ bool ScriptEngine::isGarbageCollecting() const {
 
 void ScriptEngine::_setGarbageCollecting(bool isGarbageCollecting) { //NOLINT(readability-identifier-naming)
     _isGarbageCollecting = isGarbageCollecting;
+}
+
+/* static */
+void ScriptEngine::_setDebuggerInfo(const DebuggerInfo &info) {
+    debuggerInfo = info;
 }
 
 bool ScriptEngine::isValid() const {
@@ -939,11 +943,10 @@ bool ScriptEngine::saveByteCodeToFile(const ccstd::string &path, const ccstd::st
         // TODO(PatriceJiang): v8 on windows is built with dynamic library (dll),
         // Invoking `delete` for the memory allocated in v8.dll will cause crash.
         // Need to modify v8 source code and add v8::ScriptCompiler::DestroyCodeCache(v8::ScriptCompiler::CachedData *cd).
-#if CC_PLATFORM != CC_PLATFORM_WINDOWS
+    #if CC_PLATFORM != CC_PLATFORM_WINDOWS
         delete cd;
-#endif
-    }
-    else {
+    #endif
+    } else {
         success = false;
     }
 
@@ -972,9 +975,9 @@ bool ScriptEngine::runByteCodeFile(const ccstd::string &pathBc, Value *ret /* = 
         // TODO(PatriceJiang): v8 on windows is built with dynamic library (dll),
         // Invoking `delete` for the memory allocated in v8.dll will cause crash.
         // Need to modify v8 source code and add v8::ScriptCompiler::DestroyCodeCache(v8::ScriptCompiler::CachedData *cd).
-#if CC_PLATFORM != CC_PLATFORM_WINDOWS
+    #if CC_PLATFORM != CC_PLATFORM_WINDOWS
         delete dummyData;
-#endif
+    #endif
     }
 
     // setup ScriptOrigin

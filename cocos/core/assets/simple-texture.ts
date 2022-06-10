@@ -261,14 +261,23 @@ export class SimpleTexture extends TextureBase {
         this._gfxTextureView = this._createTextureView(device);
     }
 
+    /**
+     * @en Whether mipmaps are baked convolutional maps.
+     * @zh mipmaps是否为烘焙出来的卷积图。
+     */
+    public isUsingOfflineMipmaps (): boolean {
+        return false;
+    }
+
     protected _createTexture (device: Device) {
         if (this._width === 0 || this._height === 0) { return; }
         let flags = TextureFlagBit.NONE;
         if (this._mipFilter !== Filter.NONE && canGenerateMipmap(device, this._width, this._height)) {
             this._mipmapLevel = getMipLevel(this._width, this._height);
-            flags = TextureFlagBit.GEN_MIPMAP;
+            if (!this.isUsingOfflineMipmaps()) {
+                flags = TextureFlagBit.GEN_MIPMAP;
+            }
         }
-
         const textureCreateInfo = this._getGfxTextureCreateInfo({
             usage: TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
             format: this._getGFXFormat(),
@@ -286,7 +295,7 @@ export class SimpleTexture extends TextureBase {
         this._gfxTexture = texture;
     }
 
-    protected _createTextureView (device: Device) : Texture | null {
+    protected _createTextureView (device: Device): Texture | null {
         if (!this._gfxTexture) {
             return null;
         }

@@ -101,6 +101,7 @@ bool Camera::initialize(const ICameraInfo &info) {
 }
 
 void Camera::destroy() {
+    detachFromScene();
     if (_window) {
         _window->detachCamera(this);
         _window = nullptr;

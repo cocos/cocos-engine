@@ -36,11 +36,13 @@ namespace cc {
 
 class WebView;
 
-class WebViewImpl {
+class WebViewImpl final {
 public:
     explicit WebViewImpl(WebView *webView);
 
-    virtual ~WebViewImpl();
+    ~WebViewImpl();
+
+    void destroy();
 
     void setJavascriptInterfaceScheme(const ccstd::string &scheme);
 
@@ -69,9 +71,9 @@ public:
 
     void setScalesPageToFit(bool scalesPageToFit);
 
-    virtual void setVisible(bool visible);
+    void setVisible(bool visible);
 
-    virtual void setFrame(float x, float y, float width, float height);
+    void setFrame(float x, float y, float width, float height);
 
     void setBounces(bool bounces);
 

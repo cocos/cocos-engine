@@ -49,6 +49,7 @@ import { PipelineUBO } from './ubos';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Texture2D } from '../../assets/texture-2d';
 import { WebLayoutGraphBuilder } from './web-layout-graph';
+import { GeometryRenderer } from '..';
 
 export class WebSetter {
     constructor (data: RenderData) {
@@ -374,6 +375,9 @@ export class WebPipeline extends Pipeline {
     public set profiler (profiler: Model | null) {
         this._profiler = profiler;
     }
+    public get geometryRenderer(): GeometryRenderer | null {
+        throw new Error('Method not implemented.');
+    }
     public get shadingScale (): number {
         return this._pipelineSceneData.shadingScale;
     }
@@ -509,7 +513,7 @@ export class WebPipeline extends Pipeline {
         if (!shadows.enabled || shadows.type !== ShadowType.ShadowMap) {
             return;
         }
-        const castShadowObjects = pplScene.castShadowObjects;
+        const castShadowObjects = pplScene.csmLayers.castShadowObjects;
         const validPunctualLights = pplScene.validPunctualLights;
 
         // force clean up
@@ -643,8 +647,8 @@ export class WebPipeline extends Pipeline {
     createSceneTransversal (camera: Camera, scene: RenderScene): SceneTransversal {
         return new WebSceneTransversal(camera, this.pipelineSceneData);
     }
-    public createLayoutGraph (name: string): LayoutGraphBuilder {
-        return new WebLayoutGraphBuilder();
+    get layoutGraphBuilder (): LayoutGraphBuilder {
+        return new WebLayoutGraphBuilder(this._device, this._layoutGraph);
     }
     get renderGraph () {
         return this._renderGraph;
@@ -652,7 +656,9 @@ export class WebPipeline extends Pipeline {
     get resourceGraph () {
         return this._resourceGraph;
     }
-    get layoutGraph () { return this._layoutGraph; }
+    get layoutGraph () {
+        return this._layoutGraph;
+    }
     protected _updateRasterPassConstants (pass: Setter, width: number, height: number) {
         const shadingWidth = width;
         const shadingHeight = height;

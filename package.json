@@ -10,7 +10,7 @@
   "module": "index.js",
   "scripts": {
     "server": "http-server . -p 8002 -o playground/index.html",
-    "postinstall": "gulp build-debug-infos && gulp build-declarations && npm run fetch-ral && npm run install:typedoc-plugin",
+    "postinstall": "gulp build-debug-infos && gulp build-declarations && npm run bundle-adapter && npm run fetch-ral && npm run install:typedoc-plugin && npm run install:native-pack-tool",
     "build": "gulp build",
     "build:dev": "gulp build-h5-source",
     "build:min": "gulp build-h5-minified",
@@ -20,11 +20,13 @@
     "checkout-engine-version": "node ./scripts/checkout-engine-version.js",
     "varify-engine-version": "node ./scripts/varify-engine-version.js",
     "fetch-ral": "node ./scripts/fetch-ral.js",
+    "bundle-adapter": "node ./scripts/bundle-adapter.js",
     "clear": "node ./scripts/clear.js",
     "clear-platform": "node ./native/utils/clear-platform.js",
     "update:native-external": "node ./native/utils/update-external.js",
     "test": "gulp test",
-    "install:typedoc-plugin": "cd ./scripts/typedoc-plugin && npm install --only=production"
+    "install:typedoc-plugin": "cd ./scripts/typedoc-plugin && npm install --only=production",
+    "install:native-pack-tool": "cd ./scripts/native-pack-tool && npm install && npm run build"
   },
   "repository": {
     "type": "git",
@@ -59,6 +61,7 @@
     "jest": "^26.6.3",
     "jest-extended": "^1.1.0",
     "jest-matcher-deep-close-to": "^2.0.1",
+    "jsdom": "^19.0.0",
     "path": "^0.12.7",
     "pngjs": "^6.0.0",
     "spectorjs": "^0.9.15",
@@ -71,7 +74,14 @@
     "typescript": "^4.3.5",
     "vconsole": "^3.3.0",
     "which": "^2.0.2",
-    "yargs": "^12.0.5"
+    "yargs": "^12.0.5",
+    "@babel/plugin-proposal-export-default-from": "^7.17.12",
+    "babelify": "^10.0.0",
+    "browserify": "^17.0.0",
+    "gulp-rename": "^2.0.0",
+    "gulp-uglify": "^3.0.2",
+    "vinyl-buffer": "^1.0.1",
+    "vinyl-source-stream": "^2.0.0"
   },
   "dependencies": {
     "@cocos/box2d": "1.0.1",

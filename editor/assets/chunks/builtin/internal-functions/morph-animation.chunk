@@ -1,3 +1,5 @@
+#include <common> // decode32
+#include <builtin/uniforms/cc-morph>
 
 /**
  * Fetch n-th pixel from texture, row by row.

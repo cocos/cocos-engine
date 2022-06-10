@@ -106,12 +106,12 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # set c++ standard
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 if("$ENV{COCOS_ENGINE_DEV}" EQUAL "1")
-    set(WERROR_FLAGS "-Werror -Werror=return-type") # -Wshorten-64-to-32 -Werror=return-type
+    set(WERROR_FLAGS "-Werror -Werror=return-type -Wno-deprecated-declarations") # -Wshorten-64-to-32 -Werror=return-type
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
         set(WERROR_FLAGS "/WX")
     endif()

@@ -368,12 +368,6 @@ cocos_source_files(
 )
 
 ############ main
-if(USE_SERVER_MODE)
-    cocos_source_files(
-        cocos/main/EmptyMain.cpp
-    )
-endif()
-
 if(NOT USE_SERVER_MODE AND (WINDOWS OR LINUX))
 cocos_source_files(
     cocos/platform/SDLHelper.h
@@ -389,12 +383,7 @@ cocos_source_files(
     cocos/platform/UniversalPlatform.cpp
     cocos/platform/UniversalPlatform.h
 )
-if(USE_SERVER_MODE)
-    cocos_source_files(
-        cocos/platform/empty/EmptyPlatform.cpp
-        cocos/platform/empty/EmptyPlatform.h
-    )
-elseif(WINDOWS)
+if(WINDOWS)
     cocos_source_files(
         cocos/platform/win32/WindowsPlatform.cpp
         cocos/platform/win32/WindowsPlatform.h
@@ -489,40 +478,34 @@ endif()
 
 ############ platform : Interface implementation of windows
 
-if(USE_SERVER_MODE)
-    cocos_source_files(
-        cocos/platform/empty/modules/Accelerometer.cpp
-        cocos/platform/empty/modules/Accelerometer.h
-        cocos/platform/empty/modules/Battery.cpp
-        cocos/platform/empty/modules/Battery.h
-        cocos/platform/empty/modules/Screen.cpp
-        cocos/platform/empty/modules/Screen.h
-        cocos/platform/empty/modules/Network.cpp
-        cocos/platform/empty/modules/Network.h
-        cocos/platform/empty/modules/Vibrator.cpp
-        cocos/platform/empty/modules/Vibrator.h
-        cocos/platform/empty/modules/System.cpp
-        cocos/platform/empty/modules/System.h
-        cocos/platform/empty/modules/SystemWindow.cpp
-        cocos/platform/empty/modules/SystemWindow.h
-    )
-elseif(WINDOWS)
+if(WINDOWS)
     cocos_source_files(
         cocos/platform/win32/modules/Accelerometer.cpp
         cocos/platform/win32/modules/Accelerometer.h
         cocos/platform/win32/modules/Battery.cpp
         cocos/platform/win32/modules/Battery.h
-        cocos/platform/win32/modules/Screen.cpp
-        cocos/platform/win32/modules/Screen.h
         cocos/platform/win32/modules/Network.cpp
         cocos/platform/win32/modules/Network.h
         cocos/platform/win32/modules/Vibrator.cpp
         cocos/platform/win32/modules/Vibrator.h
         cocos/platform/win32/modules/System.cpp
         cocos/platform/win32/modules/System.h
-        cocos/platform/win32/modules/SystemWindow.cpp
-        cocos/platform/win32/modules/SystemWindow.h
     )
+    if(USE_SERVER_MODE)
+        cocos_source_files(
+            cocos/platform/empty/modules/Screen.cpp
+            cocos/platform/empty/modules/Screen.h
+            cocos/platform/empty/modules/SystemWindow.cpp
+            cocos/platform/empty/modules/SystemWindow.h
+        )
+    else()
+        cocos_source_files(
+            cocos/platform/win32/modules/Screen.cpp
+            cocos/platform/win32/modules/Screen.h
+            cocos/platform/win32/modules/SystemWindow.cpp
+            cocos/platform/win32/modules/SystemWindow.h
+        )
+    endif()
 elseif(ANDROID OR OHOS)
     cocos_source_files(
         cocos/platform/java/modules/Accelerometer.cpp
@@ -541,9 +524,8 @@ elseif(ANDROID OR OHOS)
         cocos/platform/java/modules/SystemWindow.h
     )
 endif()
-if (USE_SERVER_MODE)
-#nothing
-elseif(ANDROID)
+
+if(ANDROID)
     cocos_source_files(
         cocos/platform/android/modules/Screen.cpp
         cocos/platform/android/modules/Screen.h
@@ -563,17 +545,28 @@ elseif(MACOSX)
                             cocos/platform/mac/modules/Accelerometer.h
                             cocos/platform/mac/modules/Battery.mm
                             cocos/platform/mac/modules/Battery.h
-    NO_WERROR   NO_UBUILD   cocos/platform/mac/modules/Screen.mm
-                            cocos/platform/mac/modules/Screen.h
                             cocos/platform/mac/modules/Network.mm
                             cocos/platform/mac/modules/Network.h
                             cocos/platform/mac/modules/Vibrator.mm
                             cocos/platform/mac/modules/Vibrator.h
                             cocos/platform/mac/modules/System.mm
                             cocos/platform/mac/modules/System.h
-                            cocos/platform/mac/modules/SystemWindow.mm
-                            cocos/platform/mac/modules/SystemWindow.h
    )
+   if(USE_SERVER_MODE)
+        cocos_source_files(
+            cocos/platform/empty/modules/Screen.cpp
+            cocos/platform/empty/modules/Screen.h
+            cocos/platform/empty/modules/SystemWindow.cpp
+            cocos/platform/empty/modules/SystemWindow.h
+        )
+    else()
+        cocos_source_files(
+    NO_WERROR   NO_UBUILD        cocos/platform/mac/modules/Screen.mm
+                                 cocos/platform/mac/modules/Screen.h
+                                 cocos/platform/mac/modules/SystemWindow.mm
+                                 cocos/platform/mac/modules/SystemWindow.h
+        )
+    endif()
 elseif(IOS)
    cocos_source_files(
     NO_WERROR   NO_UBUILD   cocos/platform/ios/modules/Accelerometer.mm
@@ -597,17 +590,28 @@ elseif(LINUX)
         cocos/platform/linux/modules/Accelerometer.h
         cocos/platform/linux/modules/Battery.cpp
         cocos/platform/linux/modules/Battery.h
-        cocos/platform/linux/modules/Screen.cpp
-        cocos/platform/linux/modules/Screen.h
         cocos/platform/linux/modules/Network.cpp
         cocos/platform/linux/modules/Network.h
         cocos/platform/linux/modules/Vibrator.cpp
         cocos/platform/linux/modules/Vibrator.h
         cocos/platform/linux/modules/System.cpp
         cocos/platform/linux/modules/System.h
-        cocos/platform/linux/modules/SystemWindow.cpp
-        cocos/platform/linux/modules/SystemWindow.h
     )
+    if(USE_SERVER_MODE)
+        cocos_source_files(
+            cocos/platform/empty/modules/Screen.cpp
+            cocos/platform/empty/modules/Screen.h
+            cocos/platform/empty/modules/SystemWindow.cpp
+            cocos/platform/empty/modules/SystemWindow.h
+        )
+    else()
+        cocos_source_files(
+            cocos/platform/linux/modules/Screen.cpp
+            cocos/platform/linux/modules/Screen.h
+            cocos/platform/linux/modules/SystemWindow.cpp
+            cocos/platform/linux/modules/SystemWindow.h
+        )
+    endif()
 endif()
 
 ############ module log
@@ -1129,6 +1133,8 @@ cocos_source_files(
                  cocos/renderer/pipeline/shadow/ShadowFlow.h
                  cocos/renderer/pipeline/shadow/ShadowStage.cpp
                  cocos/renderer/pipeline/shadow/ShadowStage.h
+                 cocos/renderer/pipeline/shadow/CSMLayers.cpp
+                 cocos/renderer/pipeline/shadow/CSMLayers.h
                  cocos/renderer/pipeline/Enum.h
                  cocos/renderer/pipeline/deferred/BloomStage.cpp
                  cocos/renderer/pipeline/deferred/BloomStage.h
@@ -1141,6 +1147,7 @@ cocos_source_files(
                  cocos/renderer/pipeline/helper/Utils.h
                  cocos/renderer/pipeline/helper/Utils.cpp
                  cocos/renderer/pipeline/custom/FrameGraphDispatcher.cpp
+                 cocos/renderer/pipeline/custom/test/test.h
                  cocos/renderer/pipeline/custom/FGDispatcherGraphs.h
                  cocos/renderer/pipeline/custom/FGDispatcherTypes.cpp
                  cocos/renderer/pipeline/custom/FGDispatcherTypes.h
@@ -1153,11 +1160,13 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/LayoutGraphReflection.h
                  cocos/renderer/pipeline/custom/LayoutGraphTypes.cpp
                  cocos/renderer/pipeline/custom/LayoutGraphTypes.h
+                 cocos/renderer/pipeline/custom/NativeLayoutGraphImpl.cpp
                  cocos/renderer/pipeline/custom/NativePipelineFwd.h
                  cocos/renderer/pipeline/custom/NativePipelineGraphs.h
                  cocos/renderer/pipeline/custom/NativePipelineImpl.cpp
                  cocos/renderer/pipeline/custom/NativePipelineTypes.cpp
                  cocos/renderer/pipeline/custom/NativePipelineTypes.h
+                 cocos/renderer/pipeline/custom/NativeRenderGraphSetup.cpp
                  cocos/renderer/pipeline/custom/RenderCommonFwd.h
                  cocos/renderer/pipeline/custom/RenderCommonJsb.cpp
                  cocos/renderer/pipeline/custom/RenderCommonJsb.h
@@ -1166,22 +1175,6 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/RenderCommonReflection.h
                  cocos/renderer/pipeline/custom/RenderCommonTypes.cpp
                  cocos/renderer/pipeline/custom/RenderCommonTypes.h
-                 cocos/renderer/pipeline/custom/RenderCompilerFwd.h
-                 cocos/renderer/pipeline/custom/RenderCompilerGraphs.h
-                 cocos/renderer/pipeline/custom/RenderCompilerImpl.cpp
-                 cocos/renderer/pipeline/custom/RenderCompilerNames.h
-                 cocos/renderer/pipeline/custom/RenderCompilerReflection.cpp
-                 cocos/renderer/pipeline/custom/RenderCompilerReflection.h
-                 cocos/renderer/pipeline/custom/RenderCompilerTypes.cpp
-                 cocos/renderer/pipeline/custom/RenderCompilerTypes.h
-                 cocos/renderer/pipeline/custom/RenderExampleFwd.h
-                 cocos/renderer/pipeline/custom/RenderExampleGraphs.h
-                 cocos/renderer/pipeline/custom/RenderExampleImpl.cpp
-                 cocos/renderer/pipeline/custom/RenderExampleNames.h
-                 cocos/renderer/pipeline/custom/RenderExampleReflection.cpp
-                 cocos/renderer/pipeline/custom/RenderExampleReflection.h
-                 cocos/renderer/pipeline/custom/RenderExampleTypes.cpp
-                 cocos/renderer/pipeline/custom/RenderExampleTypes.h
                  cocos/renderer/pipeline/custom/RenderGraphFwd.h
                  cocos/renderer/pipeline/custom/RenderGraphGraphs.h
                  cocos/renderer/pipeline/custom/RenderGraphJsb.cpp
@@ -1814,6 +1807,7 @@ cocos_source_files(
 
     cocos/core/data/Object.cpp
     cocos/core/data/Object.h
+    cocos/core/data/JSBNativeDataHolder.h
     cocos/core/data/deserializer/EffectAssetDeserializer.cpp
     cocos/core/data/deserializer/EffectAssetDeserializer.h
     # cocos/core/data/deserializer/MeshDeserializer.cpp
@@ -2335,7 +2329,7 @@ elseif(OHOS)
     )
 elseif(APPLE)
     cocos_source_files(
-                    cocos/bindings/manual/jsb_platfrom_apple.mm
+                    cocos/bindings/manual/jsb_platform_apple.mm
                     cocos/bindings/manual/JavaScriptObjCBridge.h
                     cocos/bindings/manual/JavaScriptObjCBridge.mm
                     cocos/platform/apple/JsbBridge.h
@@ -2345,11 +2339,11 @@ elseif(APPLE)
     )
 elseif(WIN32)
     cocos_source_files(
-        NO_WERROR    cocos/bindings/manual/jsb_platfrom_win32.cpp
+        NO_WERROR    cocos/bindings/manual/jsb_platform_win32.cpp
     )
 elseif(LINUX)
     cocos_source_files(
-        NO_WERROR    cocos/bindings/manual/jsb_platfrom_linux.cpp
+        NO_WERROR    cocos/bindings/manual/jsb_platform_linux.cpp
     )
 endif()
 

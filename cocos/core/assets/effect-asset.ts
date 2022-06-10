@@ -33,6 +33,8 @@ import { MacroRecord } from '../renderer/core/pass-utils';
 import { programLib } from '../renderer/core/program-lib';
 import { Asset } from './asset';
 import { legacyCC } from '../global-exports';
+import { WebDescriptorHierarchy } from '../pipeline/custom/web-descriptor-hierarchy';
+import { DescriptorBlock, DescriptorBlockIndex, LayoutGraphValue } from '../pipeline/custom/layout-graph';
 
 export declare namespace EffectAsset {
     export interface IPropertyInfo {
@@ -163,6 +165,41 @@ export declare namespace EffectAsset {
     }
 }
 
+function rebuildLayoutGraph (effects: Record<string, EffectAsset>) {
+    const root = (legacyCC.director.root as Root);
+    if (!root.usesCustomPipeline) {
+        return;
+    }
+    const descH = new WebDescriptorHierarchy();
+
+    for (const name in effects) {
+        const effect = effects[name];
+        descH.addEffect(effect);
+    }
+
+    const lg = descH.layoutGraph;
+    const lgData = root.customPipeline.layoutGraphBuilder;
+    lgData.clear();
+    for (const v of descH.layoutGraph.vertices()) {
+        const name = lg.getName(v);
+        if (lg.holds(LayoutGraphValue.RenderStage, v)) {
+            lgData.addRenderStage(name);
+        } else if (lg.holds(LayoutGraphValue.RenderPhase, v)) {
+            const u = lg.getParent(v);
+            lgData.addRenderPhase(name, u);
+        }
+    }
+    for (const v of lg.vertices()) {
+        const db = lg.getDescriptors(v);
+        for (const e of db.blocks) {
+            const key: string = e[0];
+            const block: DescriptorBlock = e[1];
+            const index: DescriptorBlockIndex = JSON.parse(key);
+            lgData.addDescriptorBlock(v, index, block);
+        }
+    }
+}
+
 /**
  * @en Effect asset is the base template for instantiating material, all effects should be unique globally.
  * All effects are managed in a static map of EffectAsset.
@@ -183,7 +220,7 @@ export class EffectAsset extends Asset {
      */
     public static remove (asset: EffectAsset | string) {
         if (typeof asset !== 'string') {
-            if (EffectAsset._effects[asset.name] && EffectAsset._effects[asset.name].equals(asset)) {
+            if (EffectAsset._effects[asset.name] && EffectAsset._effects[asset.name] === asset) {
                 delete EffectAsset._effects[asset.name];
             }
         } else {

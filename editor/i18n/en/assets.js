@@ -43,6 +43,7 @@ module.exports = {
             mipFilterTip: 'Mip Filter',
             wrapModeSTip: 'Wrap Mode S',
             wrapModeTTip: 'Wrap Mode T',
+            bakeReflectionConvolution: 'Bake Reflection Convolution',
             faceSize: {
                 name: 'Face Size',
                 title: 'Size of each cube face. If not specified, or specified as 0, the default size, which is the nearest power of two to (image.width)/4, is used.',

@@ -42,6 +42,7 @@ import { ComputeView, CopyPair, MovePair, RasterView } from './render-graph';
 import { RenderScene } from '../../renderer/core/render-scene';
 import { RenderWindow } from '../../renderer/core/render-window';
 import { Model } from '../../renderer/scene';
+import { GeometryRenderer } from '../geometry-renderer';
 
 export abstract class PipelineRuntime {
     public abstract activate(swapchain: Swapchain): boolean;
@@ -53,6 +54,7 @@ export abstract class PipelineRuntime {
     public abstract get constantMacros(): string;
     public abstract get profiler(): Model | null;
     public abstract set profiler(profiler: Model | null);
+    public abstract get geometryRenderer(): GeometryRenderer | null;
     public abstract get shadingScale(): number;
     public abstract set shadingScale(scale: number);
     public abstract onGlobalPipelineStateChanged(): void;
@@ -145,6 +147,7 @@ export abstract class SceneTransversal {
 }
 
 export abstract class LayoutGraphBuilder {
+    public abstract clear(): void;
     public abstract addRenderStage(name: string): number;
     public abstract addRenderPhase(name: string, parentID: number): number;
     public abstract addDescriptorBlock(nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlock): void;
@@ -167,7 +170,7 @@ export abstract class Pipeline extends PipelineRuntime {
     public abstract addCopyPass(name: string): CopyPassBuilder;
     public abstract presentAll(): void;
     public abstract createSceneTransversal(camera: Camera, scene: RenderScene): SceneTransversal;
-    public abstract createLayoutGraph(name: string): LayoutGraphBuilder;
+    public abstract get layoutGraphBuilder(): LayoutGraphBuilder;
 }
 
 export class Factory {

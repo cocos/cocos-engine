@@ -996,6 +996,7 @@ export class BaseNode extends CCObject implements ISchedulable {
                 EditorExtends.Component.add(component._id, component);
             }
         }
+        this.emit(NodeEventType.COMPONENT_ADDED, component);
         if (this._activeInHierarchy) {
             legacyCC.director._nodeActivator.activateComp(component);
         }
@@ -1249,6 +1250,7 @@ export class BaseNode extends CCObject implements ISchedulable {
                 if (EDITOR && EditorExtends.Component) {
                     EditorExtends.Component.remove(component._id);
                 }
+                this.emit(NodeEventType.COMPONENT_REMOVED, component);
             } else if (component.node !== (this as unknown as BaseNode)) {
                 errorID(3815);
             }
