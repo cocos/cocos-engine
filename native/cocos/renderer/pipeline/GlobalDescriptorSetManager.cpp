@@ -60,48 +60,56 @@ void GlobalDSManager::activate(gfx::Device *device) {
 }
 
 void GlobalDSManager::bindBuffer(uint32_t binding, gfx::Buffer *buffer) {
-    if (_globalDescriptorSet) {
+    if (_globalDescriptorSet != nullptr) {
         _globalDescriptorSet->bindBuffer(binding, buffer);
     }
 
     for (const auto &pair : _descriptorSetMap) {
-        if (pair.second) pair.second->bindBuffer(binding, buffer);
+        if (pair.second != nullptr) {
+            pair.second->bindBuffer(binding, buffer);
+        }
     }
 }
 
 void GlobalDSManager::bindSampler(uint32_t binding, gfx::Sampler *sampler) {
-    if (_globalDescriptorSet) {
+    if (_globalDescriptorSet != nullptr) {
         _globalDescriptorSet->bindSampler(binding, sampler);
     }
 
     for (const auto &pair : _descriptorSetMap) {
-        if (pair.second) pair.second->bindSampler(binding, sampler);
+        if (pair.second != nullptr) {
+            pair.second->bindSampler(binding, sampler);
+        }
     }
 }
 
 void GlobalDSManager::bindTexture(uint32_t binding, gfx::Texture *texture) {
-    if (_globalDescriptorSet) {
+    if (_globalDescriptorSet != nullptr) {
         _globalDescriptorSet->bindTexture(binding, texture);
     }
 
     for (const auto &pair : _descriptorSetMap) {
-        if (pair.second) pair.second->bindTexture(binding, texture);
+        if (pair.second != nullptr) {
+            pair.second->bindTexture(binding, texture);
+        }
     }
 }
 
 void GlobalDSManager::update() {
-    if (_globalDescriptorSet) {
+    if (_globalDescriptorSet != nullptr) {
         _globalDescriptorSet->update();
     }
 
     for (const auto &pair : _descriptorSetMap) {
-        if (pair.second) pair.second->update();
+        if (pair.second != nullptr) {
+            pair.second->update();
+        }
     }
 }
 
 gfx::DescriptorSet *GlobalDSManager::getOrCreateDescriptorSet(uint32_t idx) {
     // The global descriptorSet is managed by the pipeline and binds the buffer
-    if (_descriptorSetMap.count(idx) <= 0 || !_descriptorSetMap.at(idx)) {
+    if (_descriptorSetMap.count(idx) <= 0 || (_descriptorSetMap.at(idx) == nullptr)) {
         auto *descriptorSet = _device->createDescriptorSet({_descriptorSetLayout});
         _descriptorSetMap.emplace(idx, descriptorSet);
 
@@ -109,11 +117,17 @@ gfx::DescriptorSet *GlobalDSManager::getOrCreateDescriptorSet(uint32_t idx) {
         const auto end = static_cast<uint>(PipelineGlobalBindings::COUNT);
         for (uint i = begin; i < end; ++i) {
             auto *const buffer = _globalDescriptorSet->getBuffer(i);
-            if (buffer) descriptorSet->bindBuffer(i, buffer);
+            if (buffer != nullptr) {
+                descriptorSet->bindBuffer(i, buffer);
+            }
             auto *const sampler = _globalDescriptorSet->getSampler(i);
-            if (sampler) descriptorSet->bindSampler(i, sampler);
+            if (sampler != nullptr) {
+                descriptorSet->bindSampler(i, sampler);
+            }
             auto *const texture = _globalDescriptorSet->getTexture(i);
-            if (texture) descriptorSet->bindTexture(i, texture);
+            if (texture != nullptr) {
+                descriptorSet->bindTexture(i, texture);
+            }
         }
 
         auto *shadowUBO = _device->createBuffer({
