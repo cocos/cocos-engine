@@ -2697,7 +2697,7 @@ describe('NewGen Anim', () => {
             );
         });
 
-        describe.only('Nested interruption', () => {
+        describe('Nested interruption', () => {
             const motionConstants: Record<'A' | 'B' | 'C' | 'D', {
                 duration: number;
                 from: number;
@@ -2920,6 +2920,76 @@ describe('NewGen Anim', () => {
                     0.38 / transitionConstants[firstInterruption].duration,
                 ));
             });
+        });
+
+        test('Interruption chain contains motion more than once(AB x BA)', () => {
+            const M0_MOTION_CLIP_DURATION = 0.8;
+            const M0_MOTION_CLIP_FROM = 0.1;
+            const M0_MOTION_CLIP_TO = 0.2;
+            const M1_MOTION_CLIP_DURATION = 0.9;
+            const M1_MOTION_CLIP_FROM = 0.3;
+            const M1_MOTION_CLIP_TO = 0.4;
+            const ORIGINAL_TRANSITION_DURATION = 0.2;
+            const INTERRUPTING_TRANSITION_DURATION = 0.3;
+
+            const animationGraph = new AnimationGraph();
+            const { stateMachine } = animationGraph.addLayer();
+            const m0 = stateMachine.addMotion();
+            m0.name = 'm0';
+            const m0Motion = m0.motion = createClipMotionPositionXLinear(
+                M0_MOTION_CLIP_DURATION, M0_MOTION_CLIP_FROM, M0_MOTION_CLIP_TO);
+            const m1 = stateMachine.addMotion();
+            m1.name = 'm1';
+            m1.motion = createClipMotionPositionXLinear(
+                M1_MOTION_CLIP_DURATION, M1_MOTION_CLIP_FROM, M1_MOTION_CLIP_TO);
+
+            stateMachine.connect(stateMachine.entryState, m0);
+
+            const t0 = stateMachine.connect(m0, m1);
+            t0.duration = ORIGINAL_TRANSITION_DURATION;
+            t0.interruptionSource = TransitionInterruption.NEXT_STATE;
+            t0.exitConditionEnabled = false;
+            const [t0Condition] = t0.conditions = [new TriggerCondition()];
+            t0Condition.trigger = 't0';
+            animationGraph.addTrigger('t0');
+
+            const t1 = stateMachine.connect(m1, m0);
+            t1.duration = INTERRUPTING_TRANSITION_DURATION;
+            t1.exitConditionEnabled = false;
+            const [t1Condition] = t1.conditions = [new TriggerCondition()];
+            t1Condition.trigger = 't1';
+            animationGraph.addTrigger('t1');
+
+            const node = new Node();
+            const graphEval = createAnimationGraphEval(animationGraph, node);
+            const graphUpdater = new GraphUpdater(graphEval);
+            
+            graphUpdater.goto(0.1);
+            
+            graphEval.setValue('t0', true);
+            graphUpdater.goto(0.24);
+
+            graphEval.setValue('t1', true);
+            graphUpdater.step(0.17);
+            expect(node.position.x).toBeCloseTo(
+                lerp(
+                    lerp(
+                        lerp(
+                            M0_MOTION_CLIP_FROM,
+                            M0_MOTION_CLIP_TO,
+                            0.24 / M0_MOTION_CLIP_DURATION,
+                        ),
+                        lerp(
+                            M1_MOTION_CLIP_FROM,
+                            M1_MOTION_CLIP_TO,
+                            (0.24 - 0.1) / M1_MOTION_CLIP_DURATION,
+                        ),
+                        (0.24 - 0.1) / ORIGINAL_TRANSITION_DURATION,
+                    ),
+                    lerp(M0_MOTION_CLIP_FROM, M0_MOTION_CLIP_TO, 0.17 / M0_MOTION_CLIP_DURATION),
+                    0.17 / INTERRUPTING_TRANSITION_DURATION,
+                ),
+            );
         });
     });
 });
