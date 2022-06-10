@@ -660,9 +660,7 @@ export class Pass {
     get root (): Root { return this._root; }
     get device (): Device { return this._device; }
     get shaderInfo (): IProgramInfo { return this._shaderInfo; }
-    get localSetLayout (): DescriptorSetLayout {
-        return programLib.getDescriptorSetLayout(this._device, this._programName, true);
-    }
+    get localSetLayout (): DescriptorSetLayout { return programLib.getDescriptorSetLayout(this._device, this._programName, true); }
     get program (): string { return this._programName; }
     get properties (): Record<string, EffectAsset.IPropertyInfo> { return this._properties; }
     get defines (): Record<string, string | number | boolean> { return this._defines; }
