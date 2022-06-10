@@ -198,7 +198,7 @@ export class DebugView {
         this.activate();
         if (JSB && this._nativeConfig === null) {
             // @ts-expect-error jsb object access
-            this._nativeConfig = new nr.DebugViewConfig();
+            this._nativeConfig = new jsb.DebugViewConfig();
         }
     }
 
