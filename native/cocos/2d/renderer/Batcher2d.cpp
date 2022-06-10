@@ -96,10 +96,10 @@ void Batcher2d::fillBuffersAndMergeBatches() {
     for (index_t i = 0; i < _newRenderEntities.size(); i++) {
         RenderEntity* entity = _newRenderEntities[i];
 
-        Node* node = entity->getNode();
-        if (node == nullptr) {
-            continue;
-        }
+        //Node* node = entity->getNode();
+        //if (node == nullptr) {
+        //    continue;
+        //}
 
         //判断是否能合批，不能合批则需要generateBatch
         uint32_t dataHash = entity->getDataHash();

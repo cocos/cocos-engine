@@ -19,6 +19,9 @@ export class NativeRenderEntity {
     get vbBuffer ():ArrayBufferLike { return new ArrayBuffer(0); }
     set vbBuffer (vbBuffer:ArrayBufferLike) {}
 
+    get ibBuffer ():ArrayBufferLike { return new ArrayBuffer(0); }
+    set ibBuffer (ibBuffer:ArrayBufferLike) {}
+
     get vDataBuffer ():ArrayBufferLike { return new ArrayBuffer(0); }
     set vDataBuffer (vDataBuffer:ArrayBufferLike) {}
 

@@ -118,6 +118,25 @@ static bool js_2d_RenderEntity_getIDataBuffer(se::State& s) // NOLINT(readabilit
 }
 SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderEntity_getIDataBuffer)
 
+static bool js_2d_RenderEntity_getIbBuffer(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
+    SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_getIbBuffer : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned short* result = cobj->getIbBuffer();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_2d_RenderEntity_getIbBuffer : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderEntity_getIbBuffer)
+
 static bool js_2d_RenderEntity_getIndexOffset(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
@@ -421,6 +440,25 @@ static bool js_2d_RenderEntity_setIDataBuffer(se::State& s) // NOLINT(readabilit
     return false;
 }
 SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderEntity_setIDataBuffer)
+
+static bool js_2d_RenderEntity_setIbBuffer(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
+    SE_PRECONDITION2(cobj, false, "js_2d_RenderEntity_setIbBuffer : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<unsigned short*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_2d_RenderEntity_setIbBuffer : Error processing arguments");
+        cobj->setIbBuffer(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderEntity_setIbBuffer)
 
 static bool js_2d_RenderEntity_setIndexOffset(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -754,6 +792,7 @@ bool js_register_2d_RenderEntity(se::Object* obj) // NOLINT(readability-identifi
     cls->defineProperty("vertexOffset", _SE(js_2d_RenderEntity_getVertexOffset_asGetter), _SE(js_2d_RenderEntity_setVertexOffset_asSetter));
     cls->defineProperty("indexOffset", _SE(js_2d_RenderEntity_getIndexOffset_asGetter), _SE(js_2d_RenderEntity_setIndexOffset_asSetter));
     cls->defineProperty("vbBuffer", _SE(js_2d_RenderEntity_getVbBuffer_asGetter), _SE(js_2d_RenderEntity_setVbBuffer_asSetter));
+    cls->defineProperty("ibBuffer", _SE(js_2d_RenderEntity_getIbBuffer_asGetter), _SE(js_2d_RenderEntity_setIbBuffer_asSetter));
     cls->defineProperty("vDataBuffer", _SE(js_2d_RenderEntity_getVDataBuffer_asGetter), _SE(js_2d_RenderEntity_setVDataBuffer_asSetter));
     cls->defineProperty("iDataBuffer", _SE(js_2d_RenderEntity_getIDataBuffer_asGetter), _SE(js_2d_RenderEntity_setIDataBuffer_asSetter));
     cls->defineProperty("node", _SE(js_2d_RenderEntity_getNode_asGetter), _SE(js_2d_RenderEntity_setNode_asSetter));
