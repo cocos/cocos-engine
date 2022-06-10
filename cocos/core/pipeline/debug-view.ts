@@ -26,8 +26,6 @@
 import { JSB } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { Root } from '../root';
-import { GlobalDSManager } from './global-descriptor-set-manager';
-import { Device } from '../gfx';
 import { Enum } from '../value-types';
 import { director } from '..';
 
