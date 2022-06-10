@@ -36,6 +36,7 @@ jobs:
         run: |
           git checkout .
           git clean -xfd
+          npm cache clean --force
           ls -la
 
       - name: merge HEAD branch
