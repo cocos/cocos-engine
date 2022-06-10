@@ -8,21 +8,10 @@ layout(set = 0, binding = 0) uniform CCGlobal {
   mediump vec4 cc_screenSize; // xy: screen size, zw: inverse screen size
   mediump vec4 cc_nativeSize; // xy: shading size, zw: inverse shading size
 
-  mediump float cc_debug_view_single_mode; // debug view single debug mode
-  mediump float cc_debug_view_lighting_enable_with_albedo;
-  mediump float cc_debug_view_misc_enable_csm_layer_coloration; // misc debug view options
-  mediump float cc_debug_view_composite_enable_direct_diffuse;
-  mediump float cc_debug_view_composite_enable_direct_specular;
-  mediump float cc_debug_view_composite_enable_env_diffuse;
-  mediump float cc_debug_view_composite_enable_env_specular;
-  mediump float cc_debug_view_composite_enable_emissive;
-  mediump float cc_debug_view_composite_enable_light_map;
-  mediump float cc_debug_view_composite_enable_shadow;
-  mediump float cc_debug_view_composite_enable_ao;
-  mediump float cc_debug_view_composite_enable_normal_map;
-  mediump float cc_debug_view_composite_enable_fog;
-  mediump float cc_debug_view_composite_enable_tone_mapping;
-  mediump float cc_debug_view_composite_enable_gamma_correction;  
+  mediump vec4 cc_debug_view_mode; // x: single mode, y: lighting with albedo, z: csm layer coloration w: unused
+  mediump vec4 cc_debug_view_composite_pack_1; // x: dir diffuse, y: dir specular, z: env diffuse, w: env specular
+  mediump vec4 cc_debug_view_composite_pack_2; // x: emissive, y: lightmap, z: shadow, w: ao
+  mediump vec4 cc_debug_view_composite_pack_3; // x: normalmap, y: fog, z: tonemapping, w: gamma correction
 };
 
 #pragma builtin(global)

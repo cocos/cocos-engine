@@ -24,12 +24,12 @@ void CCSurfacesFragmentGetMaterialData(inout SurfacesMaterialData surfaceData)
 
 
 #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
-  if (cc_debug_view_composite_enable_normal_map <= 0.0)
+  if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_NORMAL_MAP)
     surfaceData.worldNormal = FSInput_worldNormal;
 #endif
 
 #if CC_USE_DEBUG_VIEW
-  if (cc_debug_view_lighting_enable_with_albedo <= 0.0) {
+  if (!IS_DEBUG_VIEW_LIGHTING_ENABLE_WITH_ALBEDO) {
       float brightBase = dot(GRAY_VECTOR, surfaceData.baseColor.rgb);
       float brightShade1 = dot(GRAY_VECTOR, surfaceData.shade1.rgb);
       float brightShade2 = dot(GRAY_VECTOR, surfaceData.shade2.rgb);
@@ -131,31 +131,31 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
 void CCSurfacesDebugViewSurfaceData(out vec4 color, in SurfacesMaterialData surfaceData)
 {
     float scalar;
-    if (IS_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_FRAGMENT_NORMAL))
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_FRAGMENT_NORMAL))
         color = vec4(surfaceData.worldNormal * 0.5 + vec3(0.5), 1.0);
 
-    if (IS_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_FRAGMENT_TANGENT))
-        color = vec4(0.5, 0.5, 0.5, 1.0);
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_FRAGMENT_TANGENT))
+        color = vec4(0.0, 0.0, 0.0, 1.0);
 
-    if (IS_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_FRAGMENT_BINORMAL))
-        color = vec4(0.5, 0.5, 0.5, 1.0);
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_FRAGMENT_BINORMAL))
+        color = vec4(0.0, 0.0, 0.0, 1.0);
 
-    if (IS_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_TRANSPARENCY))
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_TRANSPARENCY))
     {
         scalar = surfaceData.baseColor.a;
         color = vec4(scalar, scalar, scalar, 1.0);
     }
 
-    if (IS_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_BASE_COLOR))
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_BASE_COLOR))
         color = vec4(LinearToSRGB(surfaceData.baseColor.rgb), 1.0);
 
-    if (IS_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIFFUSE_COLOR))
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIFFUSE_COLOR))
         color = vec4(LinearToSRGB(CCSurfacesGetDiffuseColor(surfaceData)), 1.0);
 
-    if (IS_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_SPECULAR_COLOR))
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_SPECULAR_COLOR))
         color = vec4(LinearToSRGB(CCSurfacesGetSpecularColor(surfaceData)), 1.0);
 
-    if (IS_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_SPECULAR_INTENSITY))
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_SPECULAR_INTENSITY))
     {
         scalar = surfaceData.specular.a;
         color = vec4(scalar, scalar, scalar, 1.0);

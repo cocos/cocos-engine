@@ -9,19 +9,19 @@ void main()  {
   SurfacesMaterialData surfaceData;
   CCSurfacesFragmentGetMaterialData(surfaceData);
   
-  // Shadow factor
-  highp vec4 shadowPos = vec4(0.0);
+  // Shadow parameters
   vec2 shadowBias = vec2(0.0);
   vec3 colDebugCSMLayer = vec3(1.0);
   #if CC_RECEIVE_SHADOW
-    shadowPos = cc_matLightViewProj * vec4(surfaceData.worldPos, 1.0);
     shadowBias = FSInput_shadowBias;
     #if !CC_FORWARD_ADD
       #if CC_USE_DEBUG_VIEW && CC_SURFACES_ENABLE_DEBUG_VIEW
-        if (cc_debug_view_misc_enable_csm_layer_coloration > 0.0)
+        if (IS_DEBUG_VIEW_MISC_ENABLE_CSM_LAYER_COLORATION)
         {
             vec4 csmPos;
-            int csmLayer = 0;//#todo: CCGetCSMLevel(csmPos, surfaceData.worldPos);
+            vec2 shadowProjDepthInfo, shadowProjInfo;
+            mat4 matShadowView;
+            int csmLayer = CCGetCSMLevel(csmPos, shadowProjDepthInfo, shadowProjInfo, matShadowView, surfaceData.worldPos);
             bool OutOfRange = csmLayer < 0;
             if (OutOfRange)
                 colDebugCSMLayer = vec3(1.0);
@@ -49,7 +49,7 @@ void main()  {
     #endif
 
     #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC && CC_SURFACES_ENABLE_DEBUG_VIEW
-      if (cc_debug_view_composite_enable_fog <= 0.0) {
+      if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_FOG) {
           fogFactor = 0.0;
       }
     #endif
@@ -58,7 +58,7 @@ void main()  {
 
   // Lighting
   LightingResult lightingResult;
-  CCSurfacesLighting(lightingResult, surfaceData, shadowPos, shadowBias);
+  CCSurfacesLighting(lightingResult, surfaceData, shadowBias);
 
 
   // Debug view
@@ -67,7 +67,7 @@ void main()  {
     #if !CC_FORWARD_ADD
       CCSurfacesDebugViewMeshData(debugColor);
       CCSurfacesDebugViewSurfaceData(debugColor, surfaceData);
-      if (IS_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_FOG))
+      if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_FOG))
       {
         fogFactor = 1.0 - fogFactor;
         debugColor = vec4(fogFactor, fogFactor, fogFactor, 1.0);
@@ -76,17 +76,17 @@ void main()  {
 
     // only base pass or direct lighting is enabled in add pass
     #if CC_FORWARD_ADD
-      if (IS_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_DIFFUSE) || IS_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_SPECULAR) || IS_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_ALL))
+      if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_DIFFUSE) || IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_SPECULAR) || IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_ALL))
     #endif
       {
           if (CCSurfacesDebugViewLightingResult(debugColor, lightingResult))
           {
             // lighting needs color space conversion          
             #if CC_USE_HDR
-              if (cc_debug_view_composite_enable_tone_mapping > 0.0)
+              if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_TONE_MAPPING)
                   debugColor.rgb = ACESToneMap(debugColor.rgb);
             #endif
-            if (cc_debug_view_composite_enable_gamma_correction > 0.0)
+            if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_GAMMA_CORRECTION)
                 debugColor.rgb = LinearToSRGB(debugColor.rgb);
           }
       }
@@ -95,9 +95,6 @@ void main()  {
     return;
 
   #elif CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC && CC_SURFACES_ENABLE_DEBUG_VIEW
-    #if CC_FORWARD_ADD
-      if(cc_debug_view_composite_enable_direct_diffuse > 0.0 || cc_debug_view_composite_enable_direct_specular > 0.0)
-    #endif
     CCSurfacesDebugViewCompositeLightingResult(lightingResult);
   #endif
 
@@ -111,7 +108,7 @@ void main()  {
 
   // CSM Debug
   #if CC_USE_DEBUG_VIEW && CC_SURFACES_ENABLE_DEBUG_VIEW
-    if (cc_debug_view_misc_enable_csm_layer_coloration > 0.0) {
+    if (IS_DEBUG_VIEW_MISC_ENABLE_CSM_LAYER_COLORATION) {
         color.rgb *= colDebugCSMLayer.rgb;
     }
   #endif
@@ -120,12 +117,12 @@ void main()  {
     // Color output
   #if CC_USE_HDR
     #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC && CC_SURFACES_ENABLE_DEBUG_VIEW
-      if (cc_debug_view_composite_enable_tone_mapping > 0.0)
+      if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_TONE_MAPPING)
     #endif
       color.rgb = ACESToneMap(color.rgb);
   #endif
   #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC && CC_SURFACES_ENABLE_DEBUG_VIEW
-    if (cc_debug_view_composite_enable_gamma_correction > 0.0)
+    if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_GAMMA_CORRECTION)
   #endif
   color.rgb = LinearToSRGB(color.rgb);
 
