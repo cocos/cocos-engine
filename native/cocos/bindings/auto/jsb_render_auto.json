@@ -142,6 +142,31 @@
                 }
             },
             {
+                "name": "geometryRenderer",
+                "names": [
+                    "geometryRenderer"
+                ],
+                "type": {
+                    "name": "GeometryRenderer*",
+                    "script_ns": "nr.GeometryRenderer",
+                    "whole_name": "cc::pipeline::GeometryRenderer*",
+                    "namespace_name": "cc::pipeline::",
+                    "namespaced_class_name": "cc::pipeline::GeometryRenderer*",
+                    "is_const": false,
+                    "is_pointer": true,
+                    "is_reference": false,
+                    "is_rreference": false,
+                    "is_object": true,
+                    "is_struct": false,
+                    "is_function": false,
+                    "is_enum": false,
+                    "is_numeric": false,
+                    "enum_declare_type": "",
+                    "param_types": [],
+                    "ret_type": null
+                }
+            },
+            {
                 "name": "shadingScale",
                 "names": [
                     "shadingScale"
