@@ -30,7 +30,7 @@ void NativeRasterPassBuilder::addComputeView(const ccstd::string &name, const Co
     iter->second.emplace_back(view);
 }
 
-void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, scene::Light* light, SceneFlags sceneFlags, const ccstd::string &name) {
+void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, scene::Light* /*light*/, SceneFlags sceneFlags, const ccstd::string &name) {
     SceneData scene(renderGraph->get_allocator());
     scene.name = name;
     scene.flags = sceneFlags;
@@ -47,7 +47,7 @@ void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, scene::Li
 }
 
 void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, scene::Light* light, SceneFlags sceneFlags) {
-    addSceneOfCamera(camera, light, sceneFlags);
+    addSceneOfCamera(camera, light, sceneFlags, "Camera");
 }
 
 void NativeRasterQueueBuilder::addScene(const ccstd::string &name, SceneFlags sceneFlags) {
