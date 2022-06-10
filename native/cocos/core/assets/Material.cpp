@@ -162,7 +162,7 @@ void Material::setProperty(const ccstd::string &name, const MaterialPropertyVari
 
 void Material::setPropertyNull(const ccstd::string &name, index_t passIdx) {
     MaterialPropertyVariant val;
-    setProperty(name, val);
+    setProperty(name, val, passIdx);
 }
 
 #define CC_MATERIAL_SETPROPERTY_IMPL(funcNameSuffix, type)                                                                     \
