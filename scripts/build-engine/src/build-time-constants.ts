@@ -1,6 +1,9 @@
 
 export type IBuildTimeConstantValue = string | number | boolean;
 
+/**
+ * @deprecated since 4.3.5, use `BuildTimeConstants` instead.
+ */
 export type IBuildTimeConstants = Record<string, IBuildTimeConstantValue>;
 
 /**
