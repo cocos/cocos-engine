@@ -117,6 +117,7 @@ let RichText = cc.Class({
         this._labelSegments = [];
         this._labelSegmentsCache = [];
         this._linesWidth = [];
+        this._children = [];
 
         if (CC_EDITOR) {
             this._userDefinedFont = null;
@@ -128,9 +129,9 @@ let RichText = cc.Class({
     },
 
     editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.renderers/RichText',
-        help: 'i18n:COMPONENT.help_url.richtext',
-        inspector: 'packages://inspector/inspectors/comps/richtext.js',
+        // menu: 'i18n:MAIN_MENU.component.renderers/RichText',
+        // help: 'i18n:COMPONENT.help_url.richtext',
+        // inspector: 'packages://inspector/inspectors/comps/richtext.js',
         executeInEditMode: true
     },
 
@@ -347,7 +348,23 @@ let RichText = cc.Class({
                     this.handleTouchEvent ? this._addEventListeners() : this._removeEventListeners();
                 }
             }
-        }
+        },
+
+        /**
+         * container
+         * @property {cc.Node} container
+         */
+        container: {
+            default: null,
+            type: cc.Node,
+            animatable: false,
+            notify: function (oldValue) {
+                if (this.container === oldValue) return;
+
+                this._layoutDirty = true;
+                this._updateRichTextStatus();
+            }
+        },
     },
 
     statics: {
@@ -371,7 +388,7 @@ let RichText = cc.Class({
     },
 
     _onColorChanged (parentColor) {
-        let children = this.node.children;
+        let children = this._children;
         children.forEach(function (childNode) {
             childNode.color = parentColor;
         });
@@ -464,23 +481,18 @@ let RichText = cc.Class({
     },
 
     _resetState () {
-        let children = this.node.children;
+        let children = this._children;
         for (let i = children.length - 1; i >= 0; i--) {
             let child = children[i];
             if (child.name === RichTextChildName || child.name === RichTextChildImageName) {
-                if (child.parent === this.node) {
                     child.parent = null;
-                }
-                else {
-                    // In case child.parent !== this.node, child cannot be removed from children
-                    children.splice(i, 1);
-                }
                 if (child.name === RichTextChildName) {
                     pool.put(child);
                 }
             }
         }
 
+        this._children = [];
         this._labelSegments.length = 0;
         this._labelSegmentsCache.length = 0;
         this._linesWidth.length = 0;
@@ -503,8 +515,9 @@ let RichText = cc.Class({
     },
 
     _activateChildren (active) {
-        for (let i = this.node.children.length - 1; i >= 0; i--) {
-            let child = this.node.children[i];
+        let children = this._children;
+        for (let i = children.length - 1; i >= 0; i--) {
+            let child = children[i];
             if (child.name === RichTextChildName || child.name === RichTextChildImageName) {
                 child.active = active;
             }
@@ -526,6 +539,7 @@ let RichText = cc.Class({
         this._applyTextAttribute(labelSegment, stringToken, !!CC_EDITOR);
 
         this.node.addChild(labelSegment);
+        this._children.push(labelSegment);
         this._labelSegments.push(labelSegment);
 
         return labelSegment;
@@ -652,7 +666,17 @@ let RichText = cc.Class({
         if (spriteFrame) {
             let spriteNode = new cc.PrivateNode(RichTextChildImageName);
             spriteNode._objFlags |= cc.Object.Flags.DontSave;
-            let spriteComponent = spriteNode.addComponent(cc.Sprite);
+            let spriteComponent = null;
+            let newNode = null;
+            if (this.container) {
+                newNode = cc.instantiate(spriteNode);
+                this.container.addChild(newNode);
+                this._children.push(newNode);
+                spriteComponent = newNode.addComponent(cc.Sprite);
+            } else {
+                spriteComponent = spriteNode.addComponent(cc.Sprite);
+            }
+
             switch (richTextElement.style.imageAlign)
             {
                 case 'top':
@@ -669,8 +693,19 @@ let RichText = cc.Class({
             spriteComponent.type = cc.Sprite.Type.SLICED;
             spriteComponent.sizeMode = cc.Sprite.SizeMode.CUSTOM;
             this.node.addChild(spriteNode);
-            this._labelSegments.push(spriteNode);
+            this._children.push(spriteNode);
+            newNode ? this._labelSegments.push(newNode) : this._labelSegments.push(spriteNode);
 
+            spriteNode.on(cc.Node.EventType.SIZE_CHANGED, () => {
+                if (!newNode) return;
+            });
+            spriteNode.on(cc.Node.EventType.POSITION_CHANGED, () => {
+                if (!newNode) return;
+                let spritePos = spriteNode.getPosition();
+                let worldPos = this.node.convertToWorldSpaceAR(cc.v2(spritePos.x, spritePos.y));
+                let newPos = this.container.convertToNodeSpaceAR(cc.v2(worldPos.x, worldPos.y));
+                newNode.setPosition(newPos.x, newPos.y);
+            });
             let spriteRect = spriteFrame.getRect();
             let scaleFactor = 1;
             let spriteWidth = spriteRect.width;
@@ -721,6 +756,14 @@ let RichText = cc.Class({
             }
             else {
                 spriteNode._clickHandler = null;
+            }
+
+            if (newNode) {
+                newNode._objFlags = spriteNode._objFlags;
+                newNode._imageOffset = spriteNode._imageOffset;
+                newNode._lineCount = spriteNode._lineCount;
+                newNode.setAnchorPoint(spriteNode.getAnchorPoint());
+                newNode.setContentSize(spriteNode.getContentSize());
             }
         }
         else {
