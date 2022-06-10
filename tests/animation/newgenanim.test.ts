@@ -111,7 +111,7 @@ describe('NewGen Anim', () => {
                     graph.addBoolean(name);
                     break;
             }
-            const variable = graph.getVariable(name);
+            const variable = assertivelyGetGraphVariable(graph, name);
             expect(variable.type).toBe(type);
             expect(variable.value).toBe(defaultValue);
             variable.value = nonDefaultValue;
@@ -129,14 +129,14 @@ describe('NewGen Anim', () => {
                     graph.addBoolean(name2, nonDefaultValue);
                     break;
             }
-            const variable2 = graph.getVariable(name2);
+            const variable2 = assertivelyGetGraphVariable(graph, name2);
             expect(variable2.type).toBe(type);
             expect(variable2.value).toBe(nonDefaultValue);
         }
 
         {
             graph.addTrigger('t');
-            const trigger = graph.getVariable('t');
+            const trigger = assertivelyGetGraphVariable(graph, 't');
             expect(trigger.type).toBe(VariableType.TRIGGER);
             expect(trigger.value).toBe(false);
             assertIsTrue(trigger.type === VariableType.TRIGGER);
@@ -147,14 +147,14 @@ describe('NewGen Anim', () => {
             expect(trigger.resetMode).toBe(TriggerResetMode.NEXT_FRAME_OR_AFTER_CONSUMED);
 
             graph.addTrigger('t-with-default-specified', true);
-            const triggerWithDefault = graph.getVariable('t-with-default-specified');
+            const triggerWithDefault = assertivelyGetGraphVariable(graph, 't-with-default-specified');
             expect(triggerWithDefault.type).toBe(VariableType.TRIGGER);
             expect(triggerWithDefault.value).toBe(true);
             assertIsTrue(triggerWithDefault.type === VariableType.TRIGGER);
             expect(triggerWithDefault.resetMode).toBe(TriggerResetMode.AFTER_CONSUMED);
 
             graph.addTrigger('t-with-default-and-reset-mode-specified', true, TriggerResetMode.NEXT_FRAME_OR_AFTER_CONSUMED);
-            const triggerWithDefaultAndResetModeSpecified = graph.getVariable('t-with-default-and-reset-mode-specified');
+            const triggerWithDefaultAndResetModeSpecified = assertivelyGetGraphVariable(graph, 't-with-default-and-reset-mode-specified');
             expect(triggerWithDefaultAndResetModeSpecified.type).toBe(VariableType.TRIGGER);
             expect(triggerWithDefaultAndResetModeSpecified.value).toBe(true);
             assertIsTrue(triggerWithDefaultAndResetModeSpecified.type === VariableType.TRIGGER);
@@ -166,7 +166,7 @@ describe('NewGen Anim', () => {
 
         // addVariable() replace existing variable.
         graph.addFloat('b', 2.0);
-        const bVar = graph.getVariable('b');
+        const bVar = assertivelyGetGraphVariable(graph, 'b');
         expect(bVar.type).toBe(VariableType.FLOAT);
         expect(bVar.value).toBe(2.0);
     })
@@ -174,7 +174,7 @@ describe('NewGen Anim', () => {
     test('Bugfix cocos/3d-tasks#11980: alter reset mode of trigger variable', () => {
         const animationGraph = new AnimationGraph();
         animationGraph.addTrigger('t');
-        const t = animationGraph.getVariable('t');
+        const t = assertivelyGetGraphVariable(animationGraph, 't');
         expect(t.type).toBe(VariableType.TRIGGER);
         assertIsTrue(t.type === VariableType.TRIGGER);
         expect(t.value).toBe(false);
@@ -2133,7 +2133,7 @@ describe('NewGen Anim', () => {
         ]);
         recorder.clear();
 
-        const animState2_1CurrentProgress = graphEval.getCurrentStateStatus(0).progress;
+        const animState2_1CurrentProgress = graphEval.getCurrentStateStatus(0)!.progress;
         // Another edge case: delta time is so big, the motion is directly passed.
         graphEval.update(
             (1.0 * 0.7 - animState2_1CurrentProgress * 1.0) + // AnimState2_1 reaches its exit condition
@@ -2172,7 +2172,7 @@ describe('NewGen Anim', () => {
         recorder.clear();
 
         // Test state machine start events
-        const animState2_3CurrentProgress = graphEval.getCurrentStateStatus(0).progress;
+        const animState2_3CurrentProgress = graphEval.getCurrentStateStatus(0)!.progress;
         graphEval.update(
             (1.0 * 0.7 - animState2_3CurrentProgress * 1.0) + // AnimState2_3 reaches its exit condition
             + 0.1 // To avoid precision problem, also step the [AnimState2_3 -> SubSMAnimState] for a little while
@@ -2219,7 +2219,7 @@ describe('NewGen Anim', () => {
         recorder.clear();
 
         // Test state machine exit events
-        const subSMAnimStateCurrentProgress = graphEval.getCurrentStateStatus(0).progress;
+        const subSMAnimStateCurrentProgress = graphEval.getCurrentStateStatus(0)!.progress;
         graphEval.update(
             (1.0 * 0.7 - subSMAnimStateCurrentProgress * 1.0) + // SubSMAnimState reaches its exit condition
             0.3 + // Submerges the [SubSMAnimState -> Exit -> AnimState3]
@@ -2278,7 +2278,7 @@ describe('NewGen Anim', () => {
                 default:
                     expect(invocation.args).toHaveLength(2);
                     if (status) {
-                        expectMotionStateStatus(invocation.args[1], status);
+                        expectMotionStateStatus(invocation.args[1]!, status);
                     }
                     break;
             }
@@ -2576,6 +2576,7 @@ describe('NewGen Anim', () => {
         test.each([
             ['Interrupted by transition from current state', 'interrupted-by-source'],
             ['Interrupted by transition from destination state', 'interrupted-by-destination'],
+            ['Interrupted by transition from "any" state', 'interrupted-by-any'],
         ] as const)(`%s`, (_title, kind) => {
             const M0_MOTION_CLIP_DURATION = 0.8;
             const M0_MOTION_CLIP_FROM = 0.1;
@@ -2616,9 +2617,13 @@ describe('NewGen Anim', () => {
             t0.exitConditionEnabled = true;
             t0.exitCondition = ORIGINAL_TRANSITION_EXIT_CONDITION;
             const t1 = stateMachine.connect(
-                kind === 'interrupted-by-source' ? m0 : m1, 
+                kind === 'interrupted-by-source'
+                    ? m0
+                    : kind === 'interrupted-by-destination'
+                        ? m1
+                        : stateMachine.anyState, 
                 m2,
-            );
+            ) as AnimationTransition;
             // Using relative duration is intentional.
             // If not, we can not tell the correctness
             // from "interrupted by source" and "interrupted by destination":
@@ -2627,9 +2632,12 @@ describe('NewGen Anim', () => {
             if (kind === 'interrupted-by-source') {
                 t1.duration = INTERRUPTING_TRANSITION_DURATION / M0_MOTION_CLIP_DURATION;
                 t1.relativeDuration = true;
-            } else {
+            } else if (kind === 'interrupted-by-destination') {
                 t1.duration = INTERRUPTING_TRANSITION_DURATION;
                 t1.relativeDuration = false; // TODO!!: use relative duration too
+            } else {
+                t1.duration = INTERRUPTING_TRANSITION_DURATION;
+                t1.relativeDuration = false;
             }
             t1.exitConditionEnabled = false;
             const [t1Condition] = t1.conditions = [new TriggerCondition()];
@@ -2665,7 +2673,7 @@ describe('NewGen Anim', () => {
                     __DEBUG_ID__: m0.name,
                 },
                 current: {
-                    clip: m0Motion.clip,
+                    clip: m0Motion.clip!,
                     weight: 1.0 - INTERRUPTION_REMAIN / INTERRUPTING_TRANSITION_DURATION,
                 },
                 transition: {
@@ -2994,17 +3002,25 @@ describe('NewGen Anim', () => {
     });
 });
 
-function createEmptyClipMotion (duration: number, name = '') {
+function assertivelyGetGraphVariable(graph: AnimationGraph, name: string) {
+    const value = graph.getVariable(name);
+    expect(value).not.toBeUndefined();
+    return value!;
+}
+
+type NonNullableClipMotion = Omit<ClipMotion, 'clip'> & { 'clip': NonNullable<ClipMotion['clip']> };
+
+function createEmptyClipMotion (duration: number, name = ''): NonNullableClipMotion  {
     const clip = new AnimationClip();
     clip.name = name;
     clip.enableTrsBlending = true;
     clip.duration = duration;
     const clipMotion = new ClipMotion();
     clipMotion.clip = clip;
-    return clipMotion;
+    return clipMotion as NonNullableClipMotion;
 }
 
-function createClipMotionPositionX(duration: number, value: number, name = '') {
+function createClipMotionPositionX(duration: number, value: number, name = ''): NonNullableClipMotion {
     const clip = new AnimationClip();
     clip.name = name;
     clip.enableTrsBlending = true;
@@ -3016,10 +3032,10 @@ function createClipMotionPositionX(duration: number, value: number, name = '') {
     clip.addTrack(track);
     const clipMotion = new ClipMotion();
     clipMotion.clip = clip;
-    return clipMotion;
+    return clipMotion as NonNullableClipMotion;
 }
 
-function createClipMotionPositionXLinear(duration: number, from: number, to: number, name = '') {
+function createClipMotionPositionXLinear(duration: number, from: number, to: number, name = ''): NonNullableClipMotion {
     const clip = new AnimationClip();
     clip.name = name;
     clip.enableTrsBlending = true;
@@ -3034,7 +3050,7 @@ function createClipMotionPositionXLinear(duration: number, from: number, to: num
     clip.addTrack(track);
     const clipMotion = new ClipMotion();
     clipMotion.clip = clip;
-    return clipMotion;
+    return clipMotion as NonNullableClipMotion;
 }
 
 type MayBeArray<T> = T | T[];
@@ -3080,10 +3096,10 @@ function expectAnimationGraphEvalStatusAtLayer (graphEval: AnimationGraphEval, l
     } else {
         expect(currentTransition).not.toBeNull();
         if (typeof status.transition.time === 'number') {
-            expect(currentTransition.time).toBeCloseTo(status.transition.time, 5);
+            expect(currentTransition!.time).toBeCloseTo(status.transition.time, 5);
         }
         if (typeof status.transition.duration === 'number') {
-            expect(currentTransition.duration).toBeCloseTo(status.transition.duration, 5);
+            expect(currentTransition!.duration).toBeCloseTo(status.transition.duration, 5);
         }
         if (status.transition.nextNode) {
             expectMotionStateStatus(graphEval.getNextStateStatus(layerIndex), status.transition.nextNode);
@@ -3103,10 +3119,10 @@ function expectMotionStateStatus (motionStateStatus: Readonly<MotionStateStatus>
     } else {
         expect(motionStateStatus).not.toBeNull();
         if (typeof expected.__DEBUG_ID__ !== 'undefined') {
-            expect(motionStateStatus.__DEBUG_ID__).toBe(expected.__DEBUG_ID__);
+            expect(motionStateStatus!.__DEBUG_ID__).toBe(expected.__DEBUG_ID__);
         }
         if (typeof expected.progress !== 'undefined') {
-            expect(motionStateStatus.progress).toBeCloseTo(expected.progress, 5);
+            expect(motionStateStatus!.progress).toBeCloseTo(expected.progress, 5);
         }
     }
 }

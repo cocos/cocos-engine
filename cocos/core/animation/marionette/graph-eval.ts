@@ -706,71 +706,80 @@ class LayerEval {
      * @param deltaTime
      * @returns
      */
-    private _matchCurrentNodeTransition (deltaTime: Readonly<number>) {
+    private _matchCurrentNodeTransition (deltaTime: Readonly<number>): TransitionMatch | null {
         const currentNode = this._currentNode;
 
-        let minDeltaTimeRequired = Infinity;
-        let transitionRequiringMinDeltaTime: TransitionEval | null = null;
+        const transitionMatch = transitionMatchCache.reset();
 
-        const match0 = this._matchTransition(
+        this._matchTransition(
             currentNode,
             currentNode,
             deltaTime,
             null,
-            transitionMatchCacheRegular,
+            transitionMatch,
         );
-        if (match0) {
-            ({
-                requires: minDeltaTimeRequired,
-                transition: transitionRequiringMinDeltaTime,
-            } = match0);
+        if (transitionMatch.hasMinimalCost()) {
+            return transitionMatch;
         }
 
         if (currentNode.kind === NodeKind.animation) {
-            for (let ancestor: StateMachineInfo | null = currentNode.stateMachine;
-                ancestor !== null;
-                ancestor = ancestor.parent) {
-                const anyMatch = this._matchTransition(
-                    ancestor.any,
-                    currentNode,
-                    deltaTime,
-                    null,
-                    transitionMatchCacheAny,
-                );
-                if (anyMatch && anyMatch.requires < minDeltaTimeRequired) {
-                    ({
-                        requires: minDeltaTimeRequired,
-                        transition: transitionRequiringMinDeltaTime,
-                    } = anyMatch);
-                }
+            this._matchAnyScoped(
+                currentNode,
+                deltaTime,
+                transitionMatch,
+            );
+            if (transitionMatch.hasMinimalCost()) {
+                return transitionMatch;
             }
         }
 
-        const result = transitionMatchCache;
-
-        if (transitionRequiringMinDeltaTime) {
-            return result.set(transitionRequiringMinDeltaTime, minDeltaTimeRequired);
+        if (transitionMatch.isValid()) {
+            return transitionMatch;
         }
 
         return null;
     }
 
     /**
+     * Notes the real node is used:
+     * - to determinate the starting state machine from where the any states are matched;
+     * - so we can solve transitions' relative durations.
+     */
+    private _matchAnyScoped (realNode: MotionStateEval, deltaTime: number, result: TransitionMatchCache) {
+        let transitionMatchUpdated = false;
+        for (let ancestor: StateMachineInfo | null = realNode.stateMachine;
+            ancestor !== null;
+            ancestor = ancestor.parent) {
+            const updated = this._matchTransition(
+                ancestor.any,
+                realNode,
+                deltaTime,
+                null,
+                result,
+            );
+            if (updated) {
+                transitionMatchUpdated = true;
+            }
+            if (result.hasMinimalCost()) {
+                break;
+            }
+        }
+        return transitionMatchUpdated;
+    }
+
+    /**
      * Searches for a transition which should be performed
-     * if specified node update for no more than `deltaTime`.
-     * @param node
-     * @param realNode
-     * @param deltaTime
-     * @returns
+     * if specified node updates for no more than `deltaTime` and less than `result.requires`.
+     * We solve the relative durations of transitions based on duration of `realNode`.
+     * @returns True if a transition match is updated into the `result`.
      */
     private _matchTransition (
         node: NodeEval, realNode: NodeEval, deltaTime: Readonly<number>, except: TransitionEval | null, result: TransitionMatchCache,
-    ): TransitionMatch | null {
+    ) {
         assertIsTrue(node === realNode || node.kind === NodeKind.any);
         const { outgoingTransitions } = node;
         const nTransitions = outgoingTransitions.length;
-        let minDeltaTimeRequired = Infinity;
-        let transitionRequiringMinDeltaTime: TransitionEval | null = null;
+        let resultUpdated = false;
         for (let iTransition = 0; iTransition < nTransitions; ++iTransition) {
             const transition = outgoingTransitions[iTransition];
             if (transition === except) {
@@ -784,7 +793,9 @@ class LayerEval {
             if (nConditions === 0) {
                 if (node.kind === NodeKind.entry || node.kind === NodeKind.exit) {
                     // These kinds of transition is definitely chosen.
-                    return result.set(transition, 0.0);
+                    result.set(transition, 0.0);
+                    resultUpdated = true;
+                    break;
                 }
                 if (!transition.exitConditionEnabled) {
                     // Invalid transition, ignored.
@@ -797,7 +808,8 @@ class LayerEval {
             if (realNode.kind === NodeKind.animation && transition.exitConditionEnabled) {
                 const exitTime = realNode.duration * transition.exitCondition;
                 deltaTimeRequired = Math.max(exitTime - realNode.fromPortTime, 0.0);
-                if (deltaTimeRequired > deltaTime) {
+                // Note: the >= is reasonable in compare to >: we select the first-minimal requires.
+                if (deltaTimeRequired > deltaTime || deltaTimeRequired >= result.requires) {
                     continue;
                 }
             }
@@ -816,18 +828,16 @@ class LayerEval {
 
             if (deltaTimeRequired === 0.0) {
                 // Exit condition is disabled or the exit condition is just 0.0.
-                return result.set(transition, 0.0);
+                result.set(transition, 0.0);
+                resultUpdated = true;
+                break;
             }
 
-            if (deltaTimeRequired < minDeltaTimeRequired) {
-                minDeltaTimeRequired = deltaTimeRequired;
-                transitionRequiringMinDeltaTime = transition;
-            }
+            assertIsTrue(deltaTimeRequired <= result.requires);
+            result.set(transition, deltaTimeRequired);
+            resultUpdated = true;
         }
-        if (transitionRequiringMinDeltaTime) {
-            return result.set(transitionRequiringMinDeltaTime, minDeltaTimeRequired);
-        }
-        return null;
+        return resultUpdated;
     }
 
     /**
@@ -894,14 +904,15 @@ class LayerEval {
         const lastTransition = currentTransitionPath[lenCurrentTransitionPath - 1];
         let tailNode = lastTransition.to;
         for (; tailNode.kind !== NodeKind.animation && tailNode.kind !== NodeKind.empty;) {
-            const transitionMatch = this._matchTransition(
+            const transitionMatch = transitionMatchCache.reset();
+            this._matchTransition(
                 tailNode,
                 tailNode,
                 0.0,
                 null,
-                transitionMatchCache,
+                transitionMatch,
             );
-            if (!transitionMatch) {
+            if (!transitionMatch.transition) {
                 break;
             }
             const transition = transitionMatch.transition;
@@ -1106,56 +1117,77 @@ class LayerEval {
             return null;
         }
 
+        const transitionMatch = transitionMatchCache.reset();
+        let transitionMatchSource: MotionStateEval | null = null;
+
+        // We have to decide what to be used as unit 1
+        // to interpret the relative transition duration.
+        const anyTransitionMeasureBaseState = currentNode.kind === NodeKind.animation
+            ? currentNode
+            : currentNode.first;
+        let transitionMatchUpdated = this._matchAnyScoped(
+            anyTransitionMeasureBaseState,
+            remainTimePiece,
+            transitionMatch,
+        );
+        if (transitionMatchUpdated) {
+            transitionMatchSource = anyTransitionMeasureBaseState; // TODO: shall be any?
+        }
+        if (transitionMatch.hasMinimalCost()) {
+            // TODO
+        }
+
         const motion0: MotionStateEval                = interruption === TransitionInterruption.CURRENT_STATE
                 || interruption === TransitionInterruption.CURRENT_STATE_THEN_NEXT_STATE
             ? getInterruptionSourceMotion(currentNode)
             : currentTransitionToNode;
-
-        let minDeltaTimeRequired = Infinity;
-        let transitionRequiringMinDeltaTime: TransitionEval | null = null;
-
-        {
-            const match = this._matchTransition(
-                motion0,
-                motion0,
-                remainTimePiece,
-                currentTransition,
-                transitionMatchCacheRegular,
-            );
-            if (match) {
-                ({
-                    requires: minDeltaTimeRequired,
-                    transition: transitionRequiringMinDeltaTime,
-                } = match);
-                return result.set(motion0, transitionRequiringMinDeltaTime, minDeltaTimeRequired);
-            }
+        transitionMatchUpdated = this._matchTransition(
+            motion0,
+            motion0,
+            remainTimePiece,
+            currentTransition,
+            transitionMatch,
+        );
+        if (transitionMatchUpdated) {
+            transitionMatchSource = motion0;
+        }
+        if (transitionMatch.hasMinimalCost()) {
+            // TODO
         }
 
         const motion1 = interruption === TransitionInterruption.NEXT_STATE_THEN_CURRENT_STATE ? getInterruptionSourceMotion(currentNode)
             : interruption === TransitionInterruption.CURRENT_STATE_THEN_NEXT_STATE ? currentTransitionToNode
                 : null;
         if (motion1) {
-            const match = this._matchTransition(
+            transitionMatchUpdated = this._matchTransition(
                 motion1,
                 motion1,
                 remainTimePiece,
                 currentTransition,
-                transitionMatchCacheRegular,
+                transitionMatch,
             );
-            if (match) {
-                ({
-                    requires: minDeltaTimeRequired,
-                    transition: transitionRequiringMinDeltaTime,
-                } = match);
-                return result.set(motion1, transitionRequiringMinDeltaTime, minDeltaTimeRequired);
+            if (transitionMatchUpdated) {
+                transitionMatchSource = motion1;
             }
+            if (transitionMatch.hasMinimalCost()) {
+                // TODO
+            }
+        }
+
+        if (transitionMatchCache.transition) {
+            assertIsNonNullable(transitionMatchSource);
+            return result.set(
+                transitionMatchSource,
+                transitionMatchCache.transition,
+                transitionMatchCache.requires,
+            );
         }
 
         return null;
     }
 
     /**
-     * A thing to note is `transitionSource` may not be `this._currentNode`.
+     * Important: `transitionSource` may not be `this._currentNode`.
      */
     private _interrupt ({
         from: transitionSource,
@@ -1301,8 +1333,8 @@ function createStateStatusCache (): MotionStateStatus {
     };
 }
 
-const emptyClipStatusesIterator: Iterator<ClipStatus> = Object.freeze({
-    next () {
+const emptyClipStatusesIterator: Readonly<Iterator<ClipStatus>> = Object.freeze({
+    next (..._args: [] | [undefined]): IteratorResult<ClipStatus> {
         return {
             done: true,
             value: undefined,
@@ -1335,20 +1367,30 @@ interface InterruptingTransitionMatch extends TransitionMatch {
 class TransitionMatchCache {
     public transition: TransitionMatch['transition'] | null = null;
 
-    public requires = 0.0;
+    public requires = Infinity;
+
+    public hasMinimalCost (): this is TransitionMatch {
+        return this.requires === 0;
+    }
+
+    public isValid (): this is TransitionMatch {
+        return this.transition !== null;
+    }
 
     public set (transition: TransitionMatch['transition'], requires: number) {
         this.transition = transition;
         this.requires = requires;
-        return this as TransitionMatch;
+        return this;
+    }
+
+    public reset () {
+        this.requires = Infinity;
+        this.transition = null;
+        return this;
     }
 }
 
 const transitionMatchCache = new TransitionMatchCache();
-
-const transitionMatchCacheRegular = new TransitionMatchCache();
-
-const transitionMatchCacheAny = new TransitionMatchCache();
 
 class InterruptingTransitionMatchCache {
     public transition: TransitionMatch['transition'] | null = null;
