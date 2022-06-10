@@ -1,7 +1,7 @@
 #include "Simple.h"
 #include <2d/assembler/Simple.h>
-#include <cocos/base/TypeDef.h>
 #include <cocos/2d/renderer/Batcher2d.h>
+#include <cocos/base/TypeDef.h>
 
 namespace cc {
 Simple::Simple(/* args */) {
@@ -24,19 +24,21 @@ void Simple::updateWorldVerts(RenderEntity* entity) {
         return;
     }
 
-    ccstd::vector<Render2dLayout*>& dataList = entity->getRenderDataArr();
+    //ccstd::vector<Render2dLayout*>& dataList = entity->getRenderDataArr();
     Node* node = entity->getNode();
     const Mat4& matrix = node->getWorldMatrix();
     uint8_t stride = entity->getStride();
+    uint32_t size = entity->getSize();
     float_t* vbBuffer = entity->getVbBuffer();
 
     Vec3 temp;
     uint8_t offset = 0;
-    for (int i = 0; i < dataList.size(); i++) {
-        Render2dLayout* curLayout = dataList[i];
+    for (int i = 0; i < size; i += stride) {
+        //Render2dLayout* curLayout = dataList[i];
+        Render2dLayout* curLayout = entity->getRender2dLayout(i);
         temp.transformMat4(curLayout->position, matrix);
 
-        offset = i * stride;
+        offset = i;
         vbBuffer[offset++] = temp.x;
         vbBuffer[offset++] = temp.y;
         vbBuffer[offset++] = temp.z;
@@ -48,7 +50,7 @@ void Simple::fillBuffers(RenderEntity* entity) {
     if (node == nullptr) {
         return;
     }
-    if ( node->getChangedFlags() || entity->getVertDirty()) {
+    if (node->getChangedFlags() || entity->getVertDirty()) {
         this->updateWorldVerts(entity);
         entity->setVertDirty(false);
     }

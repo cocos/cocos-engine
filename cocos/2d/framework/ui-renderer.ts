@@ -325,6 +325,7 @@ export class UIRenderer extends Renderer {
     public requestRenderData () {
         const data = RenderData.add();
         this._renderData = data;
+        this._renderData.assignExtraEntityAttrs(this);
         return data;
     }
 
