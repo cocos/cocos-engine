@@ -33,6 +33,7 @@ import * as impl from './graph';
 import { Camera } from '../../renderer/scene/camera';
 import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, LoadOp, SampleCount, Sampler, StoreOp, Swapchain, Texture, TextureFlagBit } from '../../gfx';
 import { QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags } from './types';
+import { Light } from '../../renderer/scene';
 
 export class ResourceDesc {
     dimension: ResourceDimension = ResourceDimension.BUFFER;
@@ -1074,6 +1075,7 @@ export class SceneData {
     }
     name: string;
     camera: Camera | null = null;
+    light: Light | null = null;
     flags: SceneFlags;
     readonly scenes: string[] = [];
 }

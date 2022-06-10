@@ -136,6 +136,7 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
     addSceneOfCamera (camera: Camera, light: Light | null, sceneFlags: SceneFlags, name = 'Camera'): void {
         const sceneData = new SceneData(name, sceneFlags);
         sceneData.camera = camera;
+        sceneData.light = light;
         this._renderGraph.addVertex<RenderGraphValue.Scene>(
             RenderGraphValue.Scene, sceneData, name, '', new RenderData(), false, this._vertID,
         );

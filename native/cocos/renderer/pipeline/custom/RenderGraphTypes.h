@@ -644,6 +644,7 @@ struct SceneData {
 
     ccstd::pmr::string                     name;
     scene::Camera*                         camera{nullptr};
+    scene::Light*                          light{nullptr};
     SceneFlags                             flags{SceneFlags::NONE};
     ccstd::pmr::vector<ccstd::pmr::string> scenes;
 };

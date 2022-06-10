@@ -330,12 +330,14 @@ SceneData::SceneData(ccstd::pmr::string nameIn, SceneFlags flagsIn, const alloca
 SceneData::SceneData(SceneData&& rhs, const allocator_type& alloc)
 : name(std::move(rhs.name), alloc),
   camera(rhs.camera),
+  light(rhs.light),
   flags(rhs.flags),
   scenes(std::move(rhs.scenes), alloc) {}
 
 SceneData::SceneData(SceneData const& rhs, const allocator_type& alloc)
 : name(rhs.name, alloc),
   camera(rhs.camera),
+  light(rhs.light),
   flags(rhs.flags),
   scenes(rhs.scenes, alloc) {}
 
