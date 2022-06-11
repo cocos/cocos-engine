@@ -44,6 +44,7 @@ import { js } from './utils';
 import { legacyCC } from './global-exports';
 import { errorID, error, assertID, warnID } from './platform/debug';
 import { containerManager } from './memop/container-manager';
+import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
 
 // ----------------------------------------------------------------------------------------------------------------------
 
@@ -710,6 +711,8 @@ export class Director extends EventTarget {
                     this._systems[i].postUpdate(dt);
                 }
             }
+
+            uiRendererManager.updateAllDirtyRenderers();
 
             this.emit(Director.EVENT_BEFORE_DRAW);
             this._root!.frameMove(dt);

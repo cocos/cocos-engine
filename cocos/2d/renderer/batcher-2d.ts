@@ -236,8 +236,8 @@ export class Batcher2D implements IBatcher {
             this._pOpacity = 1;
 
             this._currRenderEntity = null;
-            this.walk(screen.node);
-            this._currRenderEntity!.nextIndex = -1;
+            //this.walk(screen.node);
+            //this._currRenderEntity!.nextIndex = -1;
 
             // test code
             if (JSB) {
@@ -711,7 +711,7 @@ export class Batcher2D implements IBatcher {
         // Render assembler update logic
         if (render && render.enabledInHierarchy) {
             //render.updateAssembler(this);
-            render.GatherRenderEntities(this);// for collecting data
+            render.updateRenderData();// for collecting data
             if (!JSB) {
                 //这句的功能挪到native了
                 render.fillBuffers(this);// for rendering

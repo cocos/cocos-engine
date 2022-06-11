@@ -87,25 +87,15 @@ bool compareEntitySortingOrder(const RenderEntity* entity1, const RenderEntity* 
 
 //对标ts的walk
 void Batcher2d::fillBuffersAndMergeBatches() {
-    //对sortingOrder进行排序
-    //用链表方式优化
-    //std::sort(_newRenderEntities.begin(), _newRenderEntities.end(), compareEntitySortingOrder);
 
     index_t size = _newRenderEntities.size();
-    if (_currFrameHeadIndex < 0 || _currFrameHeadIndex >= size) {
-        return;
-    }
 
     //这里负责的是ts._render填充逻辑
     //这里不需要加assembler判断，因为ts的fillBuffers做了分层优化
     //，有多少顶点就传多少数据到RenderEntity
-    for (index_t i = _currFrameHeadIndex; i < size;) {
+    for (index_t i = 0; i < size; i++) {
         RenderEntity* entity = _newRenderEntities[i];
 
-        //Node* node = entity->getNode();
-        //if (node == nullptr) {
-        //    continue;
-        //}
 
         //判断是否能合批，不能合批则需要generateBatch
         uint32_t dataHash = entity->getDataHash();
@@ -143,11 +133,6 @@ void Batcher2d::fillBuffersAndMergeBatches() {
         //暂时不修改vb和ib，验证下目前native的行为
         //最后调通时再把这里打开
         _simple->fillBuffers(entity);
-
-        i = entity->getNextIndex();
-        if (i < 0) {
-            return;
-        }
     }
 }
 
