@@ -26,11 +26,11 @@
 #include "ShadowFlow.h"
 
 #include "CSMLayers.h"
-#include "../Define.h"
-#include "../GlobalDescriptorSetManager.h"
-#include "../PipelineSceneData.h"
-#include "../RenderPipeline.h"
-#include "../SceneCulling.h"
+#include "pipeline//Define.h"
+#include "pipeline/GlobalDescriptorSetManager.h"
+#include "pipeline/PipelineSceneData.h"
+#include "pipeline/RenderPipeline.h"
+#include "pipeline/SceneCulling.h"
 #include "ShadowStage.h"
 #include "gfx-base/GFXDevice.h"
 #include "profiler/Profiler.h"
@@ -106,7 +106,7 @@ void ShadowFlow::render(scene::Camera *camera) {
         if (mainLight->isShadowFixedArea()) {
             renderStage(globalDS, camera, mainLight, shadowFrameBuffer);
         } else {
-            for (uint i = 0; i < static_cast<uint>(mainLight->getCsmLevel()); ++i) {
+            for (uint i = 0; i < static_cast<uint>(mainLight->getCSMLevel()); ++i) {
                 renderStage(globalDS, camera, mainLight, shadowFrameBuffer, i);
             }
         }
@@ -233,7 +233,7 @@ void ShadowFlow::resizeShadowMap() {
     shadowInfo->setShadowMapDirty(false);
 }
 
-void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const scene::Light *light) {
+void ShadowFlow::initShadowFrameBuffer(const RenderPipeline* pipeline, const scene::Light* light) {
     auto *device = gfx::Device::getInstance();
     const auto *sceneData = _pipeline->getPipelineSceneData();
     const auto *shadowInfo = sceneData->getShadows();
@@ -271,7 +271,7 @@ void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const scene::Li
     rpInfo.depthStencilAttachment = depthStencilAttachment;
 
     ccstd::hash_t rpHash = cc::gfx::RenderPass::computeHash(rpInfo);
-    auto iter = renderPassHashMap.find(rpHash);
+    const auto iter = renderPassHashMap.find(rpHash);
     if (iter != renderPassHashMap.end()) {
         _renderPass = iter->second;
     } else {

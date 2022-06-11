@@ -28,9 +28,16 @@ jobs:
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
-
+      - uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r21e
+          add-to-path: false
       - name: Generate bindings
         shell: bash
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+
         run: |
           python -V
           cd ./native/tools/tojs
@@ -70,6 +77,8 @@ jobs:
 
       - name: Generate Compile database
         shell: bash
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
         run: |
           cd native
           ./utils/generate_compile_commands_android.sh

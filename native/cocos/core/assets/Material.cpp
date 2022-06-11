@@ -160,6 +160,11 @@ void Material::setProperty(const ccstd::string &name, const MaterialPropertyVari
     }
 }
 
+void Material::setPropertyNull(const ccstd::string &name, index_t passIdx) {
+    MaterialPropertyVariant val;
+    setProperty(name, val, passIdx);
+}
+
 #define CC_MATERIAL_SETPROPERTY_IMPL(funcNameSuffix, type)                                                                     \
     void Material::setProperty##funcNameSuffix(const ccstd::string &name, type val, index_t passIdx /* = CC_INVALID_INDEX*/) { \
         setProperty(name, val, passIdx);                                                                                       \

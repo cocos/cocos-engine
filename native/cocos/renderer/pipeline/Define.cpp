@@ -153,29 +153,12 @@ const gfx::UniformBlock UBOShadow::LAYOUT = {
         {"cc_shadowLPNNInfo", gfx::Type::FLOAT4, 1},
         {"cc_shadowColor", gfx::Type::FLOAT4, 1},
         {"cc_planarNDInfo", gfx::Type::FLOAT4, 1},
-    },
-    1,
-};
-
-const ccstd::string UBOCSM::NAME = "CCCSM";
-const gfx::DescriptorSetLayoutBinding UBOCSM::DESCRIPTOR = {
-    UBOCSM::BINDING,
-    gfx::DescriptorType::UNIFORM_BUFFER,
-    1,
-    gfx::ShaderStageFlagBit::ALL,
-    {},
-};
-const gfx::UniformBlock UBOCSM::LAYOUT = {
-    globalSet,
-    UBOCSM::BINDING,
-    UBOCSM::NAME,
-    {
-        {"cc_matShadowView_levels", gfx::Type::MAT4, UBOCSM::CSM_LEVEL_COUNT},
-        {"cc_matShadowViewProj_levels", gfx::Type::MAT4, UBOCSM::CSM_LEVEL_COUNT},
-        {"cc_matShadowViewProjAtlas_levels", gfx::Type::MAT4, UBOCSM::CSM_LEVEL_COUNT},
-        {"cc_shadowProjDepthInfo_levels", gfx::Type::FLOAT4, UBOCSM::CSM_LEVEL_COUNT},
-        {"cc_shadowProjInfo_levels", gfx::Type::FLOAT4, UBOCSM::CSM_LEVEL_COUNT},
-        {"cc_shadowSplits", gfx::Type::FLOAT4, 1},
+        {"cc_matCSMView", gfx::Type::MAT4, UBOShadow::CSM_LEVEL_COUNT},
+        {"cc_matCSMViewProj", gfx::Type::MAT4, UBOShadow::CSM_LEVEL_COUNT},
+        {"cc_matCSMViewProjAtlas", gfx::Type::MAT4, UBOShadow::CSM_LEVEL_COUNT},
+        {"cc_csmProjDepthInfo", gfx::Type::FLOAT4, UBOShadow::CSM_LEVEL_COUNT},
+        {"cc_csmProjInfo", gfx::Type::FLOAT4, UBOShadow::CSM_LEVEL_COUNT},
+        {"cc_csmSplitsInfo", gfx::Type::FLOAT4, 1},
         {"cc_csmInfo", gfx::Type::FLOAT4, 1},
     },
     1,
@@ -539,11 +522,11 @@ uint nextPow2(uint val) {
     return val;
 }
 
-bool supportsR16HalfFloatTexture(gfx::Device *device) {
+bool supportsR16HalfFloatTexture(const gfx::Device* device) {
     return hasAllFlags(device->getFormatFeatures(gfx::Format::R16F), gfx::FormatFeature::RENDER_TARGET | gfx::FormatFeature::SAMPLED_TEXTURE);
 }
 
-bool supportsR32FloatTexture(gfx::Device *device) {
+bool supportsR32FloatTexture(const gfx::Device* device) {
     return hasAllFlags(device->getFormatFeatures(gfx::Format::R32F), gfx::FormatFeature::RENDER_TARGET | gfx::FormatFeature::SAMPLED_TEXTURE);
 }
 
@@ -551,7 +534,7 @@ static ccstd::unordered_map<ccstd::string, uint32_t> phases; //cjh how to clear 
 static uint32_t phaseNum = 0;
 
 uint getPhaseID(const ccstd::string &phaseName) {
-    auto iter = phases.find(phaseName);
+    const auto iter = phases.find(phaseName);
     if (iter == phases.end()) {
         phases.emplace(phaseName, 1 << phaseNum);
         ++phaseNum;

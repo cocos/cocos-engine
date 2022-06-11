@@ -299,7 +299,7 @@ export class CSMLayers {
     }
 
     public constructor () {
-        for (let i = 0; i < CSMLevel.level_4; i++) {
+        for (let i = 0; i < CSMLevel.LEVEL_4; i++) {
             this._layers[i] = new CSMShadowLayer(i);
         }
     }
@@ -318,7 +318,7 @@ export class CSMLayers {
         if (dirLight.shadowFixedArea) {
             this._updateFixedArea(dirLight);
         } else {
-            if (dirLight.shadowCSMValueDirty || this._levelCount !== levelCount
+            if (dirLight.csmNeedUpdate || this._levelCount !== levelCount
                 || this._shadowDistance !== shadowDistance) {
                 this._splitFrustumLevels(dirLight);
                 this._levelCount = levelCount;
@@ -375,7 +375,7 @@ export class CSMLayers {
         // numbers of level - 1
         this._layers[level - 1].splitCameraFar = fd;
 
-        dirLight.shadowCSMValueDirty = false;
+        dirLight.csmNeedUpdate = false;
     }
 
     private _calculateCSM (camera: Camera, dirLight: DirectionalLight, shadowInfo: Shadows) {
@@ -395,7 +395,7 @@ export class CSMLayers {
             Mat4.multiply(csmLayer.matShadowViewProjAtlas, csmLayer.matShadowAtlas, csmLayer.matShadowViewProj);
         }
 
-        if (level === CSMLevel.level_1) {
+        if (level === CSMLevel.LEVEL_1) {
             this._specialLayer.shadowCameraFar = this._layers[0].shadowCameraFar;
             Mat4.copy(this._specialLayer.matShadowView, this._layers[0].matShadowView);
             Mat4.copy(this._specialLayer.matShadowProj, this._layers[0].matShadowProj);
