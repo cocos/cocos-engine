@@ -220,6 +220,64 @@ export class Batcher2D implements IBatcher {
         return null;
     }
 
+    nodeTempArr:Node[] = [];
+
+    collectNode (node: Node) {
+        let index = 1;
+        let children;
+        let curr: Node = node;
+        let parent: Node| null = null;
+        const stack: Node[] = [];
+        stack.length = 0;
+        stack[0] = node;
+        let i = 0;
+        let afterChildren = false;
+        while (index) {
+            index--;
+            curr = stack[index];
+            if (afterChildren) {
+                if (parent === node.parent) break;
+                afterChildren = false;
+            } else {
+                this.nodeTempArr.push(curr);
+                if (curr.children.length > 0) {
+                    parent = curr;
+                    children = curr.children;
+                    i = 0;
+                    stack[index] = children[i];
+                    index++;
+                } else {
+                    stack[index] = curr;
+                    index++;
+                    afterChildren = true;
+                }
+                continue;
+            }
+
+            if (children) {
+                i++;
+                if (children[i]) {
+                    stack[index] = children[i];
+                    index++;
+                } else if (parent) {
+                    stack[index] = parent;
+                    index++;
+                    afterChildren = true;
+                    if (parent.parent) {
+                        children = parent.parent.children;
+                        i = children.indexOf(parent);
+                        parent = parent.parent;
+                    } else {
+                        // At root
+                        parent = null;
+                        children = null;
+                    }
+                }
+            }
+        }
+        stack.length = 0;
+    }
+
     public update () {
         this._currCompSortingOrder = 0;
 
@@ -236,11 +294,79 @@ export class Batcher2D implements IBatcher {
             this._pOpacity = 1;
 
             this._currRenderEntity = null;
-            this.walk(screen.node);
-            this._currRenderEntity!.nextIndex = -1;
+
+            this.nodeTempArr.length = 0;
+            this.collectNode(screen.node);
+            // this.walk(screen.node);
+            for (let index = 0; index < this.nodeTempArr.length; index++) {
+                const node = this.nodeTempArr[index];
+                if (!node.activeInHierarchy) {
+                    continue;
+                }
+                const uiProps = node._uiProps;
+                const render = uiProps.uiComp as UIRenderer;
+
+                // Save opacity
+                const parentOpacity = this._pOpacity;
+                let opacity = parentOpacity;
+                // TODO Always cascade ui property's local opacity before remove it
+                const selfOpacity = render && render.color ? render.color.a / 255 : 1;
+                this._pOpacity = opacity *= selfOpacity * uiProps.localOpacity;
+                // TODO Set opacity to ui property's opacity before remove it
+                // @ts-expect-error temporary force set, will be removed with ui property's opacity
+                uiProps._opacity = opacity;
+                if (uiProps.colorDirty) {
+                    // Cascade color dirty state
+                    this._opacityDirty++;
+                }
+
+                // Render assembler update logic
+                if (render && render.enabledInHierarchy) {
+                    //render.updateAssembler(this);
+                    render.GatherRenderEntities(this);// for collecting data
+                    if (!JSB) {
+                        //这句的功能挪到native了
+                        render.fillBuffers(this);// for rendering
+                    }
+                    if (JSB) {
+                        //// NNNNNNNN
+                        if (!this._currRenderEntity) {
+                            this._currRenderEntity = render.renderData!.renderEntity;
+                            this._nativeObj.currFrameHeadIndex = this._currRenderEntity.currIndex;
+                        } else {
+                            render.updateEntityIndices();
+                        }
+                    }
+                }
+
+                // Update cascaded opacity to vertex buffer
+                if (this._opacityDirty && render && !render.useVertexOpacity && render.renderData && render.renderData.vertexCount > 0) {
+                    // HARD COUPLING
+                    updateOpacity(render.renderData, opacity);
+                    const buffer = render.renderData.getMeshBuffer();
+                    if (buffer) {
+                        buffer.setDirty();
+                    }
+                }
+
+                if (uiProps.colorDirty) {
+                    // Reduce cascaded color dirty state
+                    this._opacityDirty--;
+                    // Reset color dirty
+                    uiProps.colorDirty = false;
+                }
+                // Restore opacity
+                this._pOpacity = parentOpacity;
+                // Post render assembler update logic
+                // ATTENTION: Will also reset colorDirty inside postUpdateAssembler
+                if (render && render.enabledInHierarchy) {
+                    render.postUpdateAssembler(this);
+                }
+            }
 
             // test code
             if (JSB) {
+                this._currRenderEntity!.nextIndex = -1;
                 //this.syncRenderEntitiesToNative();// transport entities to native
                 this._nativeObj.update();
             } else {
@@ -716,12 +842,14 @@ export class Batcher2D implements IBatcher {
                 //这句的功能挪到native了
                 render.fillBuffers(this);// for rendering
             }
-
-            if (!this._currRenderEntity) {
-                this._currRenderEntity = render.renderData!.renderEntity;
-                this._nativeObj.currFrameHeadIndex = this._currRenderEntity.currIndex;
-            } else {
-                render.updateEntityIndices();
+            if (JSB) {
+            //// NNNNNNNN
+                if (!this._currRenderEntity) {
+                    this._currRenderEntity = render.renderData!.renderEntity;
+                    this._nativeObj.currFrameHeadIndex = this._currRenderEntity.currIndex;
+                } else {
+                    render.updateEntityIndices();
+                }
             }
         }
 
@@ -734,9 +862,6 @@ export class Batcher2D implements IBatcher {
                 buffer.setDirty();
             }
         }
-
-        // 每walk一个组件便自增
-        this._currCompSortingOrder++;
 
         if (children.length > 0 && !node._static) {
             for (let i = 0; i < children.length; ++i) {
