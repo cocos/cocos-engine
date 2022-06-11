@@ -120,11 +120,11 @@ export class Batcher2D implements IBatcher {
 
     private _meshDataArray :MeshRenderData[] = [];
 
-    // 当前组件的渲染顺序
-    private _currCompSortingOrder = 0;
-    get currCompSortingOrder () {
-        return this._currCompSortingOrder;
-    }
+    // // 当前组件的渲染顺序
+    // private _currCompSortingOrder = 0;
+    // get currCompSortingOrder () {
+    //     return this._currCompSortingOrder;
+    // }
 
     private _currRenderEntity: RenderEntity | null= null;
     get currRenderEntity () {
@@ -697,9 +697,16 @@ export class Batcher2D implements IBatcher {
         // Save opacity
         const parentOpacity = this._pOpacity;
         let opacity = parentOpacity;
-        // TODO Always cascade ui property's local opacity before remove it
-        const selfOpacity = render && render.color ? render.color.a / 255 : 1;
-        this._pOpacity = opacity *= selfOpacity * uiProps.localOpacity;
+        let selfOpacity = 1;
+
+        if (render) {
+            // TODO Always cascade ui property's local opacity before remove it
+            const color = render.color;
+            selfOpacity = color.a / 255;
+        }
+        opacity *= selfOpacity * uiProps.localOpacity;
+        this._pOpacity = opacity;
+
         // TODO Set opacity to ui property's opacity before remove it
         // @ts-expect-error temporary force set, will be removed with ui property's opacity
         uiProps._opacity = opacity;
@@ -736,7 +743,7 @@ export class Batcher2D implements IBatcher {
         }
 
         // 每walk一个组件便自增
-        this._currCompSortingOrder++;
+        //this._currCompSortingOrder++;
 
         if (children.length > 0 && !node._static) {
             for (let i = 0; i < children.length; ++i) {
