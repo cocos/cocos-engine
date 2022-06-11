@@ -490,9 +490,7 @@ export class Root {
 
             legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_COMMIT);
             cameraList.sort((a: Camera, b: Camera) => a.priority - b.priority);
-            if (!SERVER_MODE) {
-                this._pipeline.render(cameraList);
-            }
+            this._pipeline.render(cameraList);
             this._device.present();
         }
 

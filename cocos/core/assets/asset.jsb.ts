@@ -128,5 +128,6 @@ legacyCC.Asset = jsb.Asset;
 // handle meta data, it is generated automatically
 const AssetProto = Asset.prototype;
 serializable(AssetProto, '_native');
-property(AssetProto, '_nativeAsset');
+const _nativeAssetDescriptor = Object.getOwnPropertyDescriptor(AssetProto, '_nativeAsset');
+property(AssetProto, '_nativeAsset', _nativeAssetDescriptor);
 ccclass('cc.Asset')(Asset);

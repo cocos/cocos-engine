@@ -32,5 +32,6 @@ legacyCC.BufferAsset = jsb.BufferAsset;
 
 // handle meta data, it is generated automatically
 const BufferAssetProto = BufferAsset.prototype;
-override(BufferAssetProto, '_nativeAsset');
+const _nativeAssetDescriptor = Object.getOwnPropertyDescriptor(BufferAssetProto, '_nativeAsset');
+override(BufferAssetProto, '_nativeAsset', _nativeAssetDescriptor);
 ccclass('cc.BufferAsset')(BufferAsset);

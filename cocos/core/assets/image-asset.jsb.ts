@@ -259,5 +259,6 @@ legacyCC.ImageAsset = jsb.ImageAsset;
 
 // handle meta data, it is generated automatically
 const ImageAssetProto = ImageAsset.prototype;
-override(ImageAssetProto, '_nativeAsset');
+const _nativeAssetDescriptor = Object.getOwnPropertyDescriptor(ImageAssetProto, '_nativeAsset');
+override(ImageAssetProto, '_nativeAsset', _nativeAssetDescriptor);
 ccclass('cc.ImageAsset')(ImageAsset);

@@ -1289,12 +1289,18 @@ nodeProto.getWorldRT = function (out?: Mat4) {
 
 // handle meta data, it is generated automatically
 const NodeProto = Node.prototype;
-property(NodeProto, '_persistNode');
-editable(NodeProto, 'name');
-editable(NodeProto, 'children');
-editable(NodeProto, 'active');
-editable(NodeProto, 'activeInHierarchy');
-editable(NodeProto, 'parent');
+const _persistNodeDescriptor = Object.getOwnPropertyDescriptor(NodeProto, '_persistNode');
+property(NodeProto, '_persistNode', _persistNodeDescriptor);
+const nameDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'name');
+editable(NodeProto, 'name', nameDescriptor);
+const childrenDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'children');
+editable(NodeProto, 'children', childrenDescriptor);
+const activeDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'active');
+editable(NodeProto, 'active', activeDescriptor);
+const activeInHierarchyDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'activeInHierarchy');
+editable(NodeProto, 'activeInHierarchy', activeInHierarchyDescriptor);
+const parentDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'parent');
+editable(NodeProto, 'parent', parentDescriptor);
 serializable(NodeProto, '_parent');
 serializable(NodeProto, '_children');
 serializable(NodeProto, '_active');
@@ -1305,7 +1311,10 @@ serializable(NodeProto, '_lrot');
 serializable(NodeProto, '_lscale');
 serializable(NodeProto, '_layer');
 serializable(NodeProto, '_euler');
-type(Vec3)(NodeProto, 'eulerAngles');
-editable(NodeProto, 'angle');
-editable(NodeProto, 'layer');
+const eulerAnglesDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'eulerAngles');
+type(Vec3)(NodeProto, 'eulerAngles', eulerAnglesDescriptor);
+const angleDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'angle');
+editable(NodeProto, 'angle', angleDescriptor);
+const layerDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'layer');
+editable(NodeProto, 'layer', layerDescriptor);
 ccclass('cc.Node')(Node);
