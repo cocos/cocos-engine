@@ -1,7 +1,7 @@
 import { minigame } from 'pal/minigame';
 import { systemInfo } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
-import { AudioEvent, AudioState, AudioType } from '../type';
+import { AudioArrayBuffer, AudioEvent, AudioState, AudioType } from '../type';
 import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 
@@ -212,6 +212,18 @@ export class AudioPlayerMinigame implements OperationQueueable {
         // on Baidu: currentTime returns without numbers on decimal places
         // on WeChat iOS: we can't reset currentTime to 0 when stop audio
         return this._innerAudioContext.currentTime;
+    }
+
+    get sampleRate (): number {
+        return 0;
+    }
+
+    get bitDepth (): number {
+        return 1;
+    }
+
+    getPCMBuffer (channelIndex: number): AudioArrayBuffer | undefined {
+        return undefined;
     }
 
     @enqueueOperation

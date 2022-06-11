@@ -1,5 +1,5 @@
 import { systemInfo } from 'pal/system-info';
-import { AudioType, AudioState, AudioEvent } from '../type';
+import { AudioType, AudioState, AudioEvent, AudioArrayBuffer } from '../type';
 import { EventTarget } from '../../../cocos/core/event';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp, clamp01 } from '../../../cocos/core';
@@ -9,6 +9,32 @@ import { Platform } from '../../system-info/enum-type';
 const urlCount: Record<string, number> = {};
 const audioEngine = jsb.AudioEngine;
 const INVALID_AUDIO_ID = -1;
+
+enum AudioBufferFormat {
+    UNKNOWN = 0,
+    SIGNED_8,
+    UNSIGNED_8,
+    SIGNED_16,
+    UNSIGNED_16,
+    // SIGNED_24,
+    // UNSIGNED_24,
+    SIGNED_32,
+    UNSIGNED_32,
+    FLOAT_32,
+    FLOAT_64
+}
+
+const bufferConstructorMap: Record<number, Constructor<AudioArrayBuffer> | undefined> = {
+    [AudioBufferFormat.UNKNOWN]: undefined,
+    [AudioBufferFormat.SIGNED_8]: Int8Array,
+    [AudioBufferFormat.UNSIGNED_8]: Uint8Array,
+    [AudioBufferFormat.SIGNED_16]: Int16Array,
+    [AudioBufferFormat.UNSIGNED_16]: Uint16Array,
+    [AudioBufferFormat.SIGNED_32]: Int32Array,
+    [AudioBufferFormat.UNSIGNED_32]: Uint32Array,
+    [AudioBufferFormat.FLOAT_32]: Float32Array,
+    [AudioBufferFormat.FLOAT_64]: Float64Array,
+};
 
 export class OneShotAudio {
     private _id: number = INVALID_AUDIO_ID;
@@ -53,6 +79,7 @@ export class AudioPlayer implements OperationQueueable {
     private _url: string;
     private _id: number = INVALID_AUDIO_ID;
     private _state: AudioState = AudioState.INIT;
+    private _pcmHeader: jsb.PCMHeader;
 
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
@@ -73,6 +100,7 @@ export class AudioPlayer implements OperationQueueable {
 
     constructor (url: string) {
         this._url = url;
+        this._pcmHeader = audioEngine.getPCMHeader(url);
 
         // event
         systemInfo.on('hide', this._onHide, this);
@@ -183,6 +211,25 @@ export class AudioPlayer implements OperationQueueable {
             return this._cachedState.currentTime;
         }
         return audioEngine.getCurrentTime(this._id);
+    }
+
+    get sampleRate (): number {
+        return this._pcmHeader.sampleRate;
+    }
+
+    get bitDepth (): number {
+        const pcmHeader = this._pcmHeader;
+        return pcmHeader.bytesPerFrame / pcmHeader.channelCount;
+    }
+
+    public getPCMBuffer (channelIndex: number): AudioArrayBuffer | undefined {
+        const arrayBuffer = audioEngine.getOriginalPCMBuffer(this._url, channelIndex);
+        const pcmHeader = this._pcmHeader;
+        const BufferConstructor = bufferConstructorMap[pcmHeader.audioFormat];
+        if (!arrayBuffer || !BufferConstructor) {
+            return undefined;
+        }
+        return new BufferConstructor(arrayBuffer);
     }
 
     @enqueueOperation

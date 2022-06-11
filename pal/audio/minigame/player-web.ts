@@ -5,7 +5,7 @@ import { EventTarget } from '../../../cocos/core/event';
 import { audioBufferManager } from '../audio-buffer-manager';
 import AudioTimer from '../audio-timer';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
-import { AudioEvent, AudioState, AudioType } from '../type';
+import { AudioArrayBuffer, AudioEvent, AudioState, AudioType } from '../type';
 
 declare const fsUtils: any;
 const audioContext = minigame.tt?.getAudioContext?.();
@@ -195,6 +195,18 @@ export class AudioPlayerWeb implements OperationQueueable {
     }
     get currentTime (): number {
         return this._audioTimer.currentTime;
+    }
+
+    get sampleRate (): number {
+        return this._audioBuffer.sampleRate;
+    }
+
+    get bitDepth (): number {
+        return 1;
+    }
+
+    public getPCMBuffer (channelIndex: number): AudioArrayBuffer | undefined {
+        return this._audioBuffer.getChannelData(channelIndex);
     }
 
     @enqueueOperation

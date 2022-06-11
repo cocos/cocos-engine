@@ -25,12 +25,14 @@
 
 import { AudioPlayer } from 'pal/audio';
 import { ccclass, help, menu, tooltip, type, range, serializable } from 'cc.decorator';
-import { AudioState } from '../../pal/audio/type';
+import { AudioArrayBuffer, AudioState } from '../../pal/audio/type';
 import { Component } from '../core/components/component';
 import { clamp } from '../core/math';
 import { AudioClip } from './audio-clip';
 import { audioManager } from './audio-manager';
 import { Node } from '../core';
+
+const _LOADED_EVENT = 'audiosource-loaded';
 
 enum AudioSourceEventType {
     STARTED = 'started',
@@ -138,6 +140,7 @@ export class AudioSource extends Component {
                 audioManager.addPlaying(player);
             });
             this._syncStates();
+            this.node.emit(_LOADED_EVENT);
         }).catch((e) => {});
     }
 
@@ -222,6 +225,80 @@ export class AudioSource extends Component {
         this.stop();
         this._player?.destroy();
         this._player = null;
+    }
+    /**
+     * @en
+     * Get PCM buffer from specified channel.
+     * Currently it is only available in Native platform and Web Audio (including Web and ByteDance platforms).
+     *
+     * @zh
+     * 通过指定的通道获取音频的 PCM buffer。
+     * 目前仅在原生平台和 Web Audio（包括 Web 和 字节平台）中可用。
+     *
+     * @param channelIndex The channel index. 0 is left channel, 1 is right channel.
+     * @returns A Promise to get the buffer after audio is loaded.
+     */
+    public getPCMBuffer (channelIndex: number): Promise<AudioArrayBuffer | undefined> {
+        return new Promise((resolve) => {
+            if (channelIndex !== 0 && channelIndex !== 1) {
+                console.warn('Only support channel index 0 or 1 to get buffer');
+                resolve(undefined);
+                return;
+            }
+            if (this._player) {
+                resolve(this._player.getPCMBuffer(channelIndex));
+            } else {
+                this.node.once(_LOADED_EVENT, () => {
+                    resolve(this._player!.getPCMBuffer(channelIndex));
+                });
+            }
+        });
+    }
+
+    /**
+     * @en
+     * Get the bit depth of the audio, currently it is only available in Native platform.
+     * In some platform which not support accessing bit depth, this getter will return 1.
+     *
+     * @zh
+     * 获取音频的位深，目前仅在原生平台支持。
+     * 在一些不支持获取位深的平台，返回 1。
+     *
+     * @returns A Promise to get the bit depth after audio is loaded.
+     */
+    public getBitDepth (): Promise<number> {
+        return new Promise((resolve) => {
+            if (this._player) {
+                resolve(this._player.bitDepth);
+            } else {
+                this.node.once(_LOADED_EVENT, () => {
+                    resolve(this._player!.bitDepth);
+                });
+            }
+        });
+    }
+
+    /**
+     * @en
+     * Get the sample rate of audio.
+     * Currently it is only available in Native platform and Web Audio (including Web and ByteDance platforms).
+     *
+     * @zh
+     * 获取音频的采样率。
+     * 目前仅在原生平台和 Web Audio（包括 Web 和 字节平台）中可用。
+     *
+     * @returns A Promise to get the sample rate after audio is loaded.
+     */
+    public getSampleRate (): Promise<number> {
+        return new Promise((resolve) => {
+            if (this._player) {
+                resolve(this._player.sampleRate);
+            } else {
+                this.node.once(_LOADED_EVENT, () => {
+                    resolve(this._player!.sampleRate);
+                });
+            }
+        });
     }
 
     private _getRootNode (): Node | null | undefined {

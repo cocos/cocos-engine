@@ -1,5 +1,5 @@
 import { systemInfo } from 'pal/system-info';
-import { AudioEvent, AudioState, AudioType } from '../type';
+import { AudioArrayBuffer, AudioEvent, AudioState, AudioType } from '../type';
 import { EventTarget } from '../../../cocos/core/event';
 import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
@@ -195,6 +195,18 @@ export class AudioPlayerDOM implements OperationQueueable {
     }
     get currentTime (): number {
         return this._domAudio.currentTime;
+    }
+
+    get sampleRate (): number {
+        return 0;
+    }
+
+    get bitDepth (): number {
+        return 1;
+    }
+
+    public getPCMBuffer (channelIndex: number): AudioArrayBuffer | undefined {
+        return undefined;
     }
 
     @enqueueOperation

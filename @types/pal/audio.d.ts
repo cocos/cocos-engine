@@ -118,6 +118,23 @@ declare module 'pal/audio' {
         get currentTime (): number;
 
         /**
+         * Get the sample rate.
+         */
+        get sampleRate (): number;
+
+        /**
+         * Get the bit depth.
+         * In some platform which not support accessing bit depth, this getter will return 1.
+         */
+        get bitDepth (): number;
+
+        /**
+         * Get buffer from specified channel.
+         * @param channelIndex The channel index. 0 is left channel, 1 is right channel.
+         */
+        public getPCMBuffer (channelIndex: number): import('pal/audio/type').AudioArrayBuffer | undefined;
+
+        /**
          * Asynchronously seeks the player's playing time onto specified location.
          * @param time Desired playing time.
          */
