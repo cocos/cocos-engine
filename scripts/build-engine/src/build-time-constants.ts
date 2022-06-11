@@ -3,6 +3,9 @@ export type IBuildTimeConstantValue = string | number | boolean;
 
 export type IBuildTimeConstants = Record<string, IBuildTimeConstantValue>;
 
+/**
+ * @deprecated since v4.3.0, use `StatsQuery.prototype.constantManager` instead.
+ */
 export function setupBuildTimeConstants ({
     mode,
     platform,

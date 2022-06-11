@@ -225,11 +225,13 @@ public:
      */
     void resetUniform(const ccstd::string &name);
 
+    void resetTexture(const ccstd::string &name);
+
     /**
      * @en Resets the value of the given texture by name to the default value in [[EffectAsset]].
      * @zh 重置指定贴图为 [[EffectAsset]] 默认值。
      */
-    void resetTexture(const ccstd::string &name, index_t index = CC_INVALID_INDEX);
+    void resetTexture(const ccstd::string &name, index_t index);
 
     /**
      * @en Resets all uniform buffer objects to the default values in [[EffectAsset]]

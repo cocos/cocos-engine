@@ -776,7 +776,7 @@ holds(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) noexcept;
 template <>
 inline bool
 holds<RenderStageTag>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) noexcept {
-    return boost::variant2::holds_alternative<
+    return ccstd::holds_alternative<
         impl::ValueHandle<RenderStageTag, LayoutGraph::vertex_descriptor>>(
         g.vertices[v].handle);
 }
@@ -784,7 +784,7 @@ holds<RenderStageTag>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) no
 template <>
 inline bool
 holds<RenderPhaseTag>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) noexcept {
-    return boost::variant2::holds_alternative<
+    return ccstd::holds_alternative<
         impl::ValueHandle<RenderPhaseTag, LayoutGraph::vertex_descriptor>>(
         g.vertices[v].handle);
 }
@@ -796,7 +796,7 @@ holds_alternative(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) noexce
 template <>
 inline bool
 holds_alternative<uint32_t>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) noexcept { // NOLINT
-    return boost::variant2::holds_alternative<
+    return ccstd::holds_alternative<
         impl::ValueHandle<RenderStageTag, LayoutGraph::vertex_descriptor>>(
         g.vertices[v].handle);
 }
@@ -804,7 +804,7 @@ holds_alternative<uint32_t>(LayoutGraph::vertex_descriptor v, const LayoutGraph&
 template <>
 inline bool
 holds_alternative<RenderPhase>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) noexcept { // NOLINT
-    return boost::variant2::holds_alternative<
+    return ccstd::holds_alternative<
         impl::ValueHandle<RenderPhaseTag, LayoutGraph::vertex_descriptor>>(
         g.vertices[v].handle);
 }
@@ -816,7 +816,7 @@ get(LayoutGraph::vertex_descriptor /*v*/, LayoutGraph& /*g*/);
 template <>
 inline uint32_t&
 get<uint32_t>(LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
-    auto& handle = boost::variant2::get<
+    auto& handle = ccstd::get<
         impl::ValueHandle<RenderStageTag, LayoutGraph::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.stages[handle.value];
@@ -825,7 +825,7 @@ get<uint32_t>(LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
 template <>
 inline RenderPhase&
 get<RenderPhase>(LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
-    auto& handle = boost::variant2::get<
+    auto& handle = ccstd::get<
         impl::ValueHandle<RenderPhaseTag, LayoutGraph::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.phases[handle.value];
@@ -838,7 +838,7 @@ get(LayoutGraph::vertex_descriptor /*v*/, const LayoutGraph& /*g*/);
 template <>
 inline const uint32_t&
 get<uint32_t>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) {
-    const auto& handle = boost::variant2::get<
+    const auto& handle = ccstd::get<
         impl::ValueHandle<RenderStageTag, LayoutGraph::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.stages[handle.value];
@@ -847,7 +847,7 @@ get<uint32_t>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) {
 template <>
 inline const RenderPhase&
 get<RenderPhase>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) {
-    const auto& handle = boost::variant2::get<
+    const auto& handle = ccstd::get<
         impl::ValueHandle<RenderPhaseTag, LayoutGraph::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.phases[handle.value];
@@ -855,7 +855,7 @@ get<RenderPhase>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) {
 
 inline uint32_t&
 get(RenderStageTag /*tag*/, LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
-    auto& handle = boost::variant2::get<
+    auto& handle = ccstd::get<
         impl::ValueHandle<RenderStageTag, LayoutGraph::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.stages[handle.value];
@@ -863,7 +863,7 @@ get(RenderStageTag /*tag*/, LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
 
 inline RenderPhase&
 get(RenderPhaseTag /*tag*/, LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
-    auto& handle = boost::variant2::get<
+    auto& handle = ccstd::get<
         impl::ValueHandle<RenderPhaseTag, LayoutGraph::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.phases[handle.value];
@@ -871,7 +871,7 @@ get(RenderPhaseTag /*tag*/, LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
 
 inline const uint32_t&
 get(RenderStageTag /*tag*/, LayoutGraph::vertex_descriptor v, const LayoutGraph& g) {
-    const auto& handle = boost::variant2::get<
+    const auto& handle = ccstd::get<
         impl::ValueHandle<RenderStageTag, LayoutGraph::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.stages[handle.value];
@@ -879,7 +879,7 @@ get(RenderStageTag /*tag*/, LayoutGraph::vertex_descriptor v, const LayoutGraph&
 
 inline const RenderPhase&
 get(RenderPhaseTag /*tag*/, LayoutGraph::vertex_descriptor v, const LayoutGraph& g) {
-    const auto& handle = boost::variant2::get<
+    const auto& handle = ccstd::get<
         impl::ValueHandle<RenderPhaseTag, LayoutGraph::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.phases[handle.value];
@@ -897,7 +897,7 @@ get_if<uint32_t>(LayoutGraph::vertex_descriptor v, LayoutGraph* pGraph) noexcept
         return ptr;
     }
     auto& g       = *pGraph;
-    auto* pHandle = boost::variant2::get_if<
+    auto* pHandle = ccstd::get_if<
         impl::ValueHandle<RenderStageTag, LayoutGraph::vertex_descriptor>>(
         &g.vertices[v].handle);
     if (pHandle) {
@@ -914,7 +914,7 @@ get_if<RenderPhase>(LayoutGraph::vertex_descriptor v, LayoutGraph* pGraph) noexc
         return ptr;
     }
     auto& g       = *pGraph;
-    auto* pHandle = boost::variant2::get_if<
+    auto* pHandle = ccstd::get_if<
         impl::ValueHandle<RenderPhaseTag, LayoutGraph::vertex_descriptor>>(
         &g.vertices[v].handle);
     if (pHandle) {
@@ -935,7 +935,7 @@ get_if<uint32_t>(LayoutGraph::vertex_descriptor v, const LayoutGraph* pGraph) no
         return ptr;
     }
     const auto& g       = *pGraph;
-    const auto* pHandle = boost::variant2::get_if<
+    const auto* pHandle = ccstd::get_if<
         impl::ValueHandle<RenderStageTag, LayoutGraph::vertex_descriptor>>(
         &g.vertices[v].handle);
     if (pHandle) {
@@ -952,7 +952,7 @@ get_if<RenderPhase>(LayoutGraph::vertex_descriptor v, const LayoutGraph* pGraph)
         return ptr;
     }
     const auto& g       = *pGraph;
-    const auto* pHandle = boost::variant2::get_if<
+    const auto* pHandle = ccstd::get_if<
         impl::ValueHandle<RenderPhaseTag, LayoutGraph::vertex_descriptor>>(
         &g.vertices[v].handle);
     if (pHandle) {
@@ -1476,7 +1476,7 @@ holds(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) noexcept;
 template <>
 inline bool
 holds<RenderStageTag>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) noexcept {
-    return boost::variant2::holds_alternative<
+    return ccstd::holds_alternative<
         impl::ValueHandle<RenderStageTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
 }
@@ -1484,7 +1484,7 @@ holds<RenderStageTag>(LayoutGraphData::vertex_descriptor v, const LayoutGraphDat
 template <>
 inline bool
 holds<RenderPhaseTag>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) noexcept {
-    return boost::variant2::holds_alternative<
+    return ccstd::holds_alternative<
         impl::ValueHandle<RenderPhaseTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
 }
@@ -1496,7 +1496,7 @@ holds_alternative(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g
 template <>
 inline bool
 holds_alternative<RenderStageData>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) noexcept { // NOLINT
-    return boost::variant2::holds_alternative<
+    return ccstd::holds_alternative<
         impl::ValueHandle<RenderStageTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
 }
@@ -1504,7 +1504,7 @@ holds_alternative<RenderStageData>(LayoutGraphData::vertex_descriptor v, const L
 template <>
 inline bool
 holds_alternative<RenderPhaseData>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) noexcept { // NOLINT
-    return boost::variant2::holds_alternative<
+    return ccstd::holds_alternative<
         impl::ValueHandle<RenderPhaseTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
 }
@@ -1516,7 +1516,7 @@ get(LayoutGraphData::vertex_descriptor /*v*/, LayoutGraphData& /*g*/);
 template <>
 inline RenderStageData&
 get<RenderStageData>(LayoutGraphData::vertex_descriptor v, LayoutGraphData& g) {
-    auto& handle = boost::variant2::get<
+    auto& handle = ccstd::get<
         impl::ValueHandle<RenderStageTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.stages[handle.value];
@@ -1525,7 +1525,7 @@ get<RenderStageData>(LayoutGraphData::vertex_descriptor v, LayoutGraphData& g) {
 template <>
 inline RenderPhaseData&
 get<RenderPhaseData>(LayoutGraphData::vertex_descriptor v, LayoutGraphData& g) {
-    auto& handle = boost::variant2::get<
+    auto& handle = ccstd::get<
         impl::ValueHandle<RenderPhaseTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.phases[handle.value];
@@ -1538,7 +1538,7 @@ get(LayoutGraphData::vertex_descriptor /*v*/, const LayoutGraphData& /*g*/);
 template <>
 inline const RenderStageData&
 get<RenderStageData>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) {
-    const auto& handle = boost::variant2::get<
+    const auto& handle = ccstd::get<
         impl::ValueHandle<RenderStageTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.stages[handle.value];
@@ -1547,7 +1547,7 @@ get<RenderStageData>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData
 template <>
 inline const RenderPhaseData&
 get<RenderPhaseData>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) {
-    const auto& handle = boost::variant2::get<
+    const auto& handle = ccstd::get<
         impl::ValueHandle<RenderPhaseTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.phases[handle.value];
@@ -1555,7 +1555,7 @@ get<RenderPhaseData>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData
 
 inline RenderStageData&
 get(RenderStageTag /*tag*/, LayoutGraphData::vertex_descriptor v, LayoutGraphData& g) {
-    auto& handle = boost::variant2::get<
+    auto& handle = ccstd::get<
         impl::ValueHandle<RenderStageTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.stages[handle.value];
@@ -1563,7 +1563,7 @@ get(RenderStageTag /*tag*/, LayoutGraphData::vertex_descriptor v, LayoutGraphDat
 
 inline RenderPhaseData&
 get(RenderPhaseTag /*tag*/, LayoutGraphData::vertex_descriptor v, LayoutGraphData& g) {
-    auto& handle = boost::variant2::get<
+    auto& handle = ccstd::get<
         impl::ValueHandle<RenderPhaseTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.phases[handle.value];
@@ -1571,7 +1571,7 @@ get(RenderPhaseTag /*tag*/, LayoutGraphData::vertex_descriptor v, LayoutGraphDat
 
 inline const RenderStageData&
 get(RenderStageTag /*tag*/, LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) {
-    const auto& handle = boost::variant2::get<
+    const auto& handle = ccstd::get<
         impl::ValueHandle<RenderStageTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.stages[handle.value];
@@ -1579,7 +1579,7 @@ get(RenderStageTag /*tag*/, LayoutGraphData::vertex_descriptor v, const LayoutGr
 
 inline const RenderPhaseData&
 get(RenderPhaseTag /*tag*/, LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) {
-    const auto& handle = boost::variant2::get<
+    const auto& handle = ccstd::get<
         impl::ValueHandle<RenderPhaseTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.phases[handle.value];
@@ -1597,7 +1597,7 @@ get_if<RenderStageData>(LayoutGraphData::vertex_descriptor v, LayoutGraphData* p
         return ptr;
     }
     auto& g       = *pGraph;
-    auto* pHandle = boost::variant2::get_if<
+    auto* pHandle = ccstd::get_if<
         impl::ValueHandle<RenderStageTag, LayoutGraphData::vertex_descriptor>>(
         &g.vertices[v].handle);
     if (pHandle) {
@@ -1614,7 +1614,7 @@ get_if<RenderPhaseData>(LayoutGraphData::vertex_descriptor v, LayoutGraphData* p
         return ptr;
     }
     auto& g       = *pGraph;
-    auto* pHandle = boost::variant2::get_if<
+    auto* pHandle = ccstd::get_if<
         impl::ValueHandle<RenderPhaseTag, LayoutGraphData::vertex_descriptor>>(
         &g.vertices[v].handle);
     if (pHandle) {
@@ -1635,7 +1635,7 @@ get_if<RenderStageData>(LayoutGraphData::vertex_descriptor v, const LayoutGraphD
         return ptr;
     }
     const auto& g       = *pGraph;
-    const auto* pHandle = boost::variant2::get_if<
+    const auto* pHandle = ccstd::get_if<
         impl::ValueHandle<RenderStageTag, LayoutGraphData::vertex_descriptor>>(
         &g.vertices[v].handle);
     if (pHandle) {
@@ -1652,7 +1652,7 @@ get_if<RenderPhaseData>(LayoutGraphData::vertex_descriptor v, const LayoutGraphD
         return ptr;
     }
     const auto& g       = *pGraph;
-    const auto* pHandle = boost::variant2::get_if<
+    const auto* pHandle = ccstd::get_if<
         impl::ValueHandle<RenderPhaseTag, LayoutGraphData::vertex_descriptor>>(
         &g.vertices[v].handle);
     if (pHandle) {

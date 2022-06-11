@@ -128,7 +128,7 @@ export const PCFType = Enum({
 });
 
 /**
- * @zh 联级阴影贴图层级。
+ * @zh 级联阴影贴图层级。
  * @en The CSM shadow level
  * @enum Shadows.CSMLevel
  */
@@ -138,32 +138,32 @@ export const CSMLevel = Enum({
      * @en level 1
      * @readonly
      */
-    level_1: 1,
+    LEVEL_1: 1,
 
     /**
      * @zh 2 个层级
      * @en level 2
      * @readonly
      */
-    level_2: 2,
+    LEVEL_2: 2,
 
     /**
      * @zh 3 个层级
      * @en level 3
      * @readonly
      */
-    level_3: 3,
+    LEVEL_3: 3,
 
     /**
      * @zh 4 个层级
      * @en level 4
      * @readonly
      */
-    level_4: 4,
+    LEVEL_4: 4,
 });
 
 /**
- * @zh 联级阴影性能优化模式。
+ * @zh 级联阴影性能优化模式。
  * @en The CSM performance optimization mode
  * @enum Shadows.CSMOptimizationMode
  */
@@ -372,7 +372,7 @@ export class Shadows {
         this.distance = shadowsInfo.planeHeight;
         this.shadowColor = shadowsInfo.shadowColor;
         this.maxReceived = shadowsInfo.maxReceived;
-        this.size = shadowsInfo.size;
+        this.size.set(shadowsInfo.shadowMapSize, shadowsInfo.shadowMapSize);
     }
 
     public activate () {

@@ -30,7 +30,7 @@
  */
 // clang-format off
 #pragma once
-#include <boost/variant2/variant.hpp>
+#include "cocos/base/std/variant.h"
 
 namespace cc {
 

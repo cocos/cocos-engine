@@ -401,7 +401,8 @@ export function expandPrefabInstanceNode (node: Node, recursively = false) {
     const prefabInstance = prefabInfo?.instance;
     if (prefabInstance) {
         createNodeWithPrefab(node);
-        applyNodeAndComponentId(node, node.uuid);
+        // nested prefab children's id will be the same: 3dtask#12511
+        // applyNodeAndComponentId(node, node.uuid);
 
         const targetMap: Record<string, any | Node | Component> = {};
         prefabInstance.targetMap = targetMap;

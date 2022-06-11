@@ -572,7 +572,7 @@ const Elements = {
             const panel = this;
 
             if (!panel.dump || !panel.dump.isScene) {
-                panel.$.componentAdd.style.display = 'block';
+                panel.$.componentAdd.style.display = 'inline-block';
                 return;
             }
             panel.$.componentAdd.style.display = 'none';
@@ -932,7 +932,7 @@ const Elements = {
                     sectionMissing.appendChild($section);
                 }
                 $section.innerHTML = `
-                <span class="name">${panel.dump.removedComponents[i].name}</span>
+                <span class="name"><span>${panel.dump.removedComponents[i].name}</span> [removed]</span>
                 <ui-icon value="reset" index="${i}" tooltip="i18n:ENGINE.prefab.reset"></ui-icon>
                 <ui-icon value="save-o" index="${i}" tooltip="i18n:ENGINE.prefab.save"></ui-icon>
                 `;
