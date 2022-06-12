@@ -145,6 +145,32 @@ export class Input {
     }
 
     /**
+     * This should be a private method, but it's exposed for Editor Only.
+     */
+    public dispatchMouseDownEvent (nativeMouseEvent: any) { this._mouseInput.dispatchMouseDownEvent?.(nativeMouseEvent); }
+    /**
+     * This should be a private method, but it's exposed for Editor Only.
+     */
+    public dispatchMouseMoveEvent (nativeMouseEvent: any) { this._mouseInput.dispatchMouseMoveEvent?.(nativeMouseEvent); }
+    /**
+     * This should be a private method, but it's exposed for Editor Only.
+     */
+    public dispatchMouseUpEvent (nativeMouseEvent: any) { this._mouseInput.dispatchMouseUpEvent?.(nativeMouseEvent); }
+    /**
+     * This should be a private method, but it's exposed for Editor Only.
+     */
+    public dispatchMouseScrollEvent (nativeMouseEvent: any) { this._mouseInput.dispatchScrollEvent?.(nativeMouseEvent); }
+
+    /**
+     * This should be a private method, but it's exposed for Editor Only.
+     */
+    public dispatchKeyboardDownEvent (nativeKeyboardEvent: any) { this._keyboardInput.dispatchKeyboardDownEvent?.(nativeKeyboardEvent); }
+    /**
+     * This should be a private method, but it's exposed for Editor Only.
+     */
+    public dispatchKeyboardUpEvent (nativeKeyboardEvent: any) { this._keyboardInput.dispatchKeyboardUpEvent?.(nativeKeyboardEvent); }
+
+    /**
      * @en
      * Register a callback of a specific input event type.
      * @zh
