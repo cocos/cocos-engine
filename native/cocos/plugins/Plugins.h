@@ -14,8 +14,8 @@ extern "C" void cc_load_all_plugins(); //NOLINT
             load_func();                                       \
         }
 #else
-    #define CC_PLUGIN_ENTRY(name, load_func)                 \
+    #define CC_PLUGIN_ENTRY(name, load_func)                           \
         extern "C" CC_PLUGIN_DLL_EXPORT void cc_load_plugin_##name() { \
-            load_func();                                     \
+            load_func();                                               \
         }
 #endif

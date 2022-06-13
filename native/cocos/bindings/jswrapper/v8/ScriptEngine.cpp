@@ -361,6 +361,7 @@ void ScriptEngine::handlePromiseExceptions() {
         for (const auto &exceptions : exceptionVector) {
             getInstance()->callExceptionCallback("", exceptions.event.c_str(), exceptions.stackTrace.c_str());
         }
+        std::get<0>(exceptionsPair).get()->Reset();
     }
     _promiseArray.clear();
     _lastStackTrace.clear();

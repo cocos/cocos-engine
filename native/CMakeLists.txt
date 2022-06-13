@@ -102,7 +102,7 @@ endif()
 
 if(ANDROID)
     if(USE_CCACHE AND NOT CCACHE_EXECUTABLE)
-       message(FATAL_ERROR "ccache executable not found!")
+       message(AUTHOR_WARNING "ccache executable not found!")
     endif()
     if(CCACHE_EXECUTABLE AND USE_CCACHE)
         set(CMAKE_C_COMPILER_LAUNCHER   "${CCACHE_EXECUTABLE}")
@@ -933,9 +933,6 @@ elseif(LINUX)
         cocos/platform/linux/FileUtils-linux.h
     )
 endif()
-#### event bus
-cocos_source_files(
-)
 
 ##### renderer
 cocos_source_files(
