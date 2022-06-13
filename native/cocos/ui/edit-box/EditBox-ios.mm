@@ -329,9 +329,9 @@ static EditboxManager *instance = nil;
         if ((view = [barButtonItem valueForKey:@"view"])) {
             if ([view isKindOfClass:[UITextView class]] || [view isKindOfClass:[UITextField class]]) {
                 textViewBarButtonItem = barButtonItem;
-            } else if (view.bounds.size.width > 0) {
+            } else if ([view isKindOfClass:[UIButton class]]) {
                 // Docs say width can be negative for variable size items
-                totalItemsWidth += view.frame.size.width + ITEM_MARGIN_WIDTH;
+                totalItemsWidth += BUTTON_WIDTH + ITEM_MARGIN_WIDTH;
             }
         } else {
             totalItemsWidth += barButtonItem.width + ITEM_MARGIN_WIDTH;
@@ -451,6 +451,11 @@ static EditboxManager *instance = nil;
                                  viewRect.size.height - showInfo->y - showInfo->height,
                                  showInfo->width,
                                  showInfo->height)];
+        CGRect safeArea = getSafeAreaRect();
+        [[[ret inputOnView] inputAccessoryView] setFrame:CGRectMake(0,
+                                                                           0,
+                                                                           safeArea.size.width,
+                                                                    getTextInputHeight(g_isMultiline) + ITEM_MARGIN_HEIGHT)];
         [self setInputWidthOf:[[ret inputOnView] inputAccessoryView] ];
     } else {
         ret = [[InputBoxPair alloc] init];
@@ -478,6 +483,11 @@ static EditboxManager *instance = nil;
                                  viewRect.size.height - showInfo->y - showInfo->height,
                                  showInfo->width,
                                  showInfo->height)];
+        CGRect safeArea = getSafeAreaRect();
+        [[[ret inputOnView] inputAccessoryView] setFrame:CGRectMake(0,
+                                                                           0,
+                                                                    safeArea.size.width,
+                                                                    getTextInputHeight(g_isMultiline) + ITEM_MARGIN_HEIGHT)];
         [self setInputWidthOf:[[ret inputOnView] inputAccessoryView] ];
     } else {
         ret = [[InputBoxPair alloc] init];
