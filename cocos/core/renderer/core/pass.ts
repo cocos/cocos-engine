@@ -162,6 +162,11 @@ export class Pass {
     protected _buffers: Buffer[] = [];
     protected _descriptorSet: DescriptorSet = null!;
     protected _pipelineLayout: PipelineLayout = null!;
+    // transient resources
+    protected _textures: Map<string, Texture> = new Map<string, Texture>();
+    protected _samplers: Map<string, Sampler> = new Map<string, Sampler>();
+    protected _textureArrays: Map<string, Texture[]> = new Map<string, Texture[]>();
+    protected _samplerArrays: Map<string, Sampler[]> = new Map<string, Sampler[]>();
     // internal data
     protected _passIndex = 0;
     protected _propertyIndex = 0;
@@ -394,8 +399,14 @@ export class Pass {
         const binding = Pass.getBindingFromHandle(handle);
         assert(textures.length === samplers.length);
         for (let i = 0; i < textures.length; ++i) {
-            this.bindTexture(binding, textures[i], i);
-            this.bindSampler(binding, samplers[i], i);
+            const texture = textures[i];
+            if (texture) {
+                this.bindTexture(binding, textures[i], i);
+            }
+            const sampler = samplers[i];
+            if (sampler) {
+                this.bindSampler(binding, samplers[i], i);
+            }
         }
     }
 
