@@ -39,7 +39,7 @@ import { MacroRecord, MaterialProperty, customizeType, getBindingFromHandle, get
     getOffsetFromHandle, getTypeFromHandle, type2reader, type2writer, getCountFromHandle,
 } from './pass-utils';
 import { RenderPassStage, RenderPriority } from '../../pipeline/define';
-import { errorID } from '../../platform/debug';
+import { assert, errorID } from '../../platform/debug';
 import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { BatchedBuffer } from '../../pipeline/batched-buffer';
 
@@ -307,6 +307,32 @@ export class Pass {
     }
 
     /**
+     * @en Set a GFX [[gfx.Texture]] by name
+     * @zh 设置 GFX [[gfx.Texture]] 到指定名字。
+     * @param name The binding name for target uniform of texture type
+     * @param value Target texture
+     */
+    public setTexture (name: string, value: Texture): void {
+        const handle = this.getHandle(name);
+        const binding = Pass.getBindingFromHandle(handle);
+        this.bindTexture(binding, value);
+    }
+
+    /**
+     * @en Set a GFX [[gfx.Texture]] Array by name
+     * @zh 设置 GFX [[gfx.Texture]] 数组到指定名字。
+     * @param name The binding name for target uniform of texture type
+     * @param value Target texture array
+     */
+    public setTextureArray (name: string, textures: Array<Texture>): void {
+        const handle = this.getHandle(name);
+        const binding = Pass.getBindingFromHandle(handle);
+        for (let i = 0; i < textures.length; ++i) {
+            this.bindTexture(binding, textures[i], i);
+        }
+    }
+
+    /**
      * @en Bind a GFX [[gfx.Sampler]] the the given uniform binding
      * @zh 绑定实际 GFX [[gfx.Sampler]] 到指定 binding。
      * @param binding The binding for target uniform of sampler type
@@ -314,6 +340,63 @@ export class Pass {
      */
     public bindSampler (binding: number, value: Sampler, index?: number): void {
         this._descriptorSet.bindSampler(binding, value, index || 0);
+    }
+
+    /**
+     * @en Set a GFX [[gfx.Sampler]] by name
+     * @zh 设置 GFX [[gfx.Sampler]] 到指定名字。
+     * @param name The binding name for target uniform of sampler type
+     * @param value Target sampler
+     */
+    public setSampler (name: string, value: Sampler): void {
+        const handle = this.getHandle(name);
+        const binding = Pass.getBindingFromHandle(handle);
+        this.bindSampler(binding, value);
+    }
+
+    /**
+     * @en Set a GFX [[gfx.Sampler]] Array by name
+     * @zh 设置 GFX [[gfx.Sampler]] 数组到指定名字。
+     * @param name The binding name for target uniform of sampler type
+     * @param value Target sampler array
+     */
+    public setSamplerArray (name: string, samplers: Array<Sampler>): void {
+        const handle = this.getHandle(name);
+        const binding = Pass.getBindingFromHandle(handle);
+        for (let i = 0; i < samplers.length; ++i) {
+            this.bindSampler(binding, samplers[i], i);
+        }
+    }
+
+    /**
+     * @en Set GFX [[gfx.Texture]] and GFX [[gfx.Sampler]] by name
+     * @zh 设置 GFX [[gfx.Texture]] 和 GFX [[gfx.Sampler]] 到指定名字。
+     * @param name The binding name for target uniform of texture and sampler type
+     * @param texture Target texture
+     * @param sampler Target sampler
+     */
+    public setTextureAndSampler (name: string, texture: Texture, sampler: Sampler) {
+        const handle = this.getHandle(name);
+        const binding = Pass.getBindingFromHandle(handle);
+        this.bindTexture(binding, texture);
+        this.bindSampler(binding, sampler);
+    }
+
+    /**
+     * @en Set GFX [[gfx.Texture]] and GFX [[gfx.Sampler]] array by name
+     * @zh 设置 GFX [[gfx.Texture]] 和 GFX [[gfx.Sampler]] 数组到指定名字。
+     * @param name The binding name for target uniform of texture and sampler type
+     * @param texture Target texture array
+     * @param sampler Target sampler array
+     */
+    public setTextureAndSamplerArray (name: string, textures: Array<Texture>, samplers: Array<Sampler>) {
+        const handle = this.getHandle(name);
+        const binding = Pass.getBindingFromHandle(handle);
+        assert(textures.length === samplers.length);
+        for (let i = 0; i < textures.length; ++i) {
+            this.bindTexture(binding, textures[i], i);
+            this.bindSampler(binding, samplers[i], i);
+        }
     }
 
     /**
