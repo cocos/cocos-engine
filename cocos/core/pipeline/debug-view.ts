@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -112,6 +112,54 @@ export const enum DebugViewCompositeType {
  */
 export class DebugView {
     /**
+     * @en Toggle rendering single debug mode.
+     * @zh 设置渲染单项调试模式。
+     */
+    public get singleMode () : DebugViewSingleType {
+        return this._singleMode;
+    }
+    public set singleMode (val : DebugViewSingleType) {
+        this._singleMode = val;
+        this._updatePipeline();
+
+        if (JSB && this._nativeConfig) {
+            this._nativeConfig.singleMode = this._singleMode;
+        }
+    }
+
+    /**
+     * @en Toggle normal / pure lighting mode.
+     * @zh 切换正常光照和仅光照模式。
+     */
+    public get lightingWithAlbedo () : boolean {
+        return this._lightingWithAlbedo;
+    }
+    public set lightingWithAlbedo (val : boolean) {
+        this._lightingWithAlbedo = val;
+        this._updatePipeline();
+
+        if (JSB && this._nativeConfig) {
+            this._nativeConfig.lightingWithAlbedo = this._lightingWithAlbedo;
+        }
+    }
+
+    /**
+     * @en Toggle CSM layer coloration mode.
+     * @zh 切换级联阴影染色调试模式。
+     */
+    public get csmLayerColoration () : boolean {
+        return this._csmLayerColoration;
+    }
+    public set csmLayerColoration (val : boolean) {
+        this._csmLayerColoration = val;
+        this._updatePipeline();
+
+        if (JSB && this._nativeConfig) {
+            this._nativeConfig.csmLayerColoration = this._csmLayerColoration;
+        }
+    }
+
+    /**
      * @en Whether enabled with specified rendering composite debug mode.
      * @zh 获取指定的渲染组合调试模式是否开启。
      * @param Specified composite type.
@@ -140,47 +188,11 @@ export class DebugView {
     }
 
     /**
-     * @en Toggle rendering single debug mode.
-     * @zh 设置渲染单项调试模式。
-     */
-    public get singleMode () : DebugViewSingleType {
-        return this._singleMode;
-    }
-    public set singleMode (val : DebugViewSingleType) {
-        this._singleMode = val;
-        this._updatePipeline();
-    }
-
-    /**
-     * @en Toggle normal / pure lighting mode.
-     * @zh 切换正常光照和仅光照模式。
-     */
-    public get lightingWithAlbedo () : boolean {
-        return this._lightingWithAlbedo;
-    }
-    public set lightingWithAlbedo (val : boolean) {
-        this._lightingWithAlbedo = val;
-        this._updatePipeline();
-    }
-
-    /**
-     * @en Toggle CSM layer coloration mode.
-     * @zh 切换级联阴影染色调试模式。
-     */
-    public get csmLayerColoration () : boolean {
-        return this._csmLayerColoration;
-    }
-    public set csmLayerColoration (val : boolean) {
-        this._csmLayerColoration = val;
-        this._updatePipeline();
-    }
-
-    /**
      * @en Get rendering debug view on / off state.
      * @zh 查询当前是否开启了渲染调试模式。
      */
-    public isRenderingDebugViewEnabled () {
-        return this._getRenderingDebugViewType() !== RenderingDebugViewType.NONE;
+    public isEnabled () {
+        return this._getType() !== RenderingDebugViewType.NONE;
     }
 
     protected _singleMode = DebugViewSingleType.NONE;
@@ -215,11 +227,19 @@ export class DebugView {
 
     private _enableAllCompositeMode (enable: boolean) {
         for (let i = 0; i < DebugViewCompositeType.MAX_BIT_COUNT; i++) {
-            this._enableCompositeMode(i, enable);
+            if (enable) {
+                this._compositeModeValue |= (1 << i);
+            } else {
+                this._compositeModeValue &= (~(1 << i));
+            }
+
+            if (JSB && this._nativeConfig) {
+                this._nativeConfig.compositeModeValue = this._compositeModeValue;
+            }
         }
     }
 
-    private _getRenderingDebugViewType () : RenderingDebugViewType {
+    private _getType () : RenderingDebugViewType {
         if (this._singleMode !== DebugViewSingleType.NONE) {
             return RenderingDebugViewType.SINGLE;
         } else if (this._lightingWithAlbedo !== true || this._csmLayerColoration !== false) {
@@ -252,14 +272,11 @@ export class DebugView {
         const root = legacyCC.director.root as Root;
         const pipeline = root.pipeline;
 
-        const useDebugView = this._getRenderingDebugViewType();
+        const useDebugView = this._getType();
 
         if (pipeline.macros.CC_USE_DEBUG_VIEW !== useDebugView) {
             pipeline.macros.CC_USE_DEBUG_VIEW = useDebugView;
             root.onGlobalPipelineStateChanged();
         }
-    }
-
-    public destroy () {
     }
 }

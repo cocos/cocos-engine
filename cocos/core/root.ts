@@ -326,8 +326,6 @@ export class Root {
             this._batcher = null;
         }
 
-        this._debugView.destroy();
-
         this._curWindow = null;
         this._mainWindow = null;
         this.dataPoolManager.clear();
