@@ -47,27 +47,18 @@ void Simple::updateWorldVerts(RenderEntity* entity) {
 
 void Simple::fillBuffers(RenderEntity* entity) {
     Node* node = entity->getNode();
-    if (node == nullptr) {
-        return;
-    }
-    if (node->getChangedFlags() || entity->getVertDirty()) {
+    if (node->getChangedFlags()) {
         this->updateWorldVerts(entity);
-        entity->setVertDirty(false);
     }
 
     index_t vertexOffset = entity->getVertexOffset();
     uint16_t* ib = entity->getIDataBuffer();
 
-    UIMeshBuffer* buffer = _batcher->getMeshBuffer(entity->getBufferId());
-    index_t indexOffset = 0;
-    if (buffer != nullptr) {
-        //因为目前的indexOffset还在ts层修改过，所以下面的赋值可能是错误的
-        //后续indexOffset全部放在c++修改与维护
-        indexOffset = buffer->getIndexOffset();
-    }
+    UIMeshBuffer* buffer = entity->getMeshBuffer();
+    index_t indexOffset = buffer->getIndexOffset();
 
     uint16_t* indexb = entity->getIbBuffer();
-    
+
     memcpy(&ib[indexOffset], indexb, 6 * sizeof(uint16_t));
     indexOffset += (_vertexRow - 1) * (_vertexCol - 1) * 6; // Magic Number
 
@@ -92,8 +83,6 @@ void Simple::fillBuffers(RenderEntity* entity) {
     //}
 
     // set index offset back
-    if (buffer != nullptr) {
-        buffer->setIndexOffset(indexOffset);
-    }
+    buffer->setIndexOffset(indexOffset);
 }
 } // namespace cc

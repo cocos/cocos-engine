@@ -8,6 +8,7 @@
 #include <cocos/core/scene-graph/Node.h>
 #include <cocos/core/assets/Material.h>
 #include <cocos/renderer/gfx-base/states/GFXSampler.h>
+#include <cocos/2d/renderer/UIMeshBuffer.h>
 
 namespace cc {
 struct Render2dLayout {
@@ -28,14 +29,14 @@ public:
     explicit RenderEntity(Batcher2d* batcher);
     RenderEntity(const index_t bufferId, const index_t vertexOffset, const index_t indexOffset);
     ~RenderEntity();
-
+    
     inline index_t getBufferId() const { return this->_bufferId; }
     void setBufferId(index_t bufferId);
     inline index_t getVertexOffset() const { return this->_vertexOffset; }
     void setVertexOffset(index_t vertexOffset);
     inline index_t getIndexOffset() const { return this->_indexOffset; }
     void setIndexOffset(index_t indexOffset);
-
+    inline UIMeshBuffer* getMeshBuffer() const { return this->_meshBuffer; };
     inline float_t* getVbBuffer() const { return this->_vbBuffer; }
     void setVbBuffer(float_t* vbBuffer);
     inline uint16_t* getIbBuffer() const { return this->_ibBuffer; }
@@ -119,6 +120,7 @@ private:
     uint16_t* _ibBuffer{nullptr};
     float_t* _vDataBuffer{nullptr};
     uint16_t* _iDataBuffer{nullptr};
+    UIMeshBuffer* _meshBuffer{nullptr};
 
     Node* _node{nullptr};
 

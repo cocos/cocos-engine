@@ -25,6 +25,7 @@ RenderEntity::~RenderEntity() {
 
 void RenderEntity::setBufferId(index_t bufferId) {
     this->_bufferId = bufferId;
+    this->_meshBuffer = _batcher->getMeshBuffer(_bufferId);
 }
 
 void RenderEntity::setVertexOffset(index_t vertexOffset) {
@@ -57,6 +58,7 @@ void RenderEntity::setNode(Node* node) {
 
 void RenderEntity::setVertDirty(bool val) {
     this->_vertDirty = val;
+    _batcher->addVertDirtyRenderer(this);
 }
 
 void RenderEntity::setDataHash(uint32_t dataHash) {
