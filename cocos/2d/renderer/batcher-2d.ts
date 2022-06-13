@@ -221,7 +221,7 @@ export class Batcher2D implements IBatcher {
     }
 
     public update () {
-        this._currCompSortingOrder = 0;
+        // this._currCompSortingOrder = 0;
 
         const screens = this._screens;
         let offset = 0;
@@ -237,7 +237,6 @@ export class Batcher2D implements IBatcher {
 
             this._currRenderEntity = null;
             //this.walk(screen.node);
-            //this._currRenderEntity!.nextIndex = -1;
 
             // test code
             if (JSB) {
@@ -716,12 +715,13 @@ export class Batcher2D implements IBatcher {
                 //这句的功能挪到native了
                 render.fillBuffers(this);// for rendering
             }
-
-            if (!this._currRenderEntity) {
-                this._currRenderEntity = render.renderData!.renderEntity;
-                this._nativeObj.currFrameHeadIndex = this._currRenderEntity.currIndex;
-            } else {
-                render.updateEntityIndices();
+            if (JSB) {
+                if (!this._currRenderEntity) {
+                    this._currRenderEntity = render.renderData!.renderEntity;
+                    this._nativeObj.currFrameHeadIndex = this._currRenderEntity.currIndex;
+                } else {
+                    render.updateEntityIndices();
+                }
             }
         }
 
