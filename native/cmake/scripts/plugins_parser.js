@@ -4,7 +4,7 @@ const child_process = require('child_process');
 const { filter } = require('async');
 const version_parser = require('./plugin_support/plugin_cfg');
 
-const MAX_SEARCH_LEVEL = 5;
+const MAX_SEARCH_LEVEL = 7;
 const CC_PLUGIN_JSON_STR = 'cc_plugin.json';
 
 const node_path = process.argv.shift();

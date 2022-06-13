@@ -55,8 +55,7 @@ function(cc_gen_plugin_cmake_hook)
     message(STATUS "Try generating ${load_plugin_cmake}")
     file(REMOVE ${load_plugin_cmake})
     list(APPEND CC_PLUGIN_PATH 
-        # ${project_root_dir}/native/plugins 
-        ${project_root_dir}/native-usr/plugins #TODO: remove later 
+        ${project_root_dir}/native 
         ${project_root_dir}/extensions
         )
     set(plugin_args_info ${CMAKE_CURRENT_BINARY_DIR}/plugin_dirs.txt)
