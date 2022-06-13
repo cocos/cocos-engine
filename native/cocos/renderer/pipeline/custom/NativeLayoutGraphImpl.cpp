@@ -49,6 +49,11 @@ uint32_t NativeLayoutGraphBuilder::addRenderPhase(const ccstd::string &name, uin
     return add_vertex(*data, RenderPhaseTag{}, name.c_str(), parentID);
 }
 
+void NativeLayoutGraphBuilder::addShader(const ccstd::string& name, uint32_t parentPhaseID) {
+    auto res = data->shaderLayoutIndex.emplace(name.c_str(), parentPhaseID);
+    CC_ENSURES(res.second);
+}
+
 void NativeLayoutGraphBuilder::addDescriptorBlock(
     uint32_t nodeID,
     const DescriptorBlockIndex &index, const DescriptorBlock &block) {

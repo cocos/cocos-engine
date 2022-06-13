@@ -177,3 +177,12 @@ export function getTaskTypeName (e: TaskType): string {
         return '';
     }
 }
+
+export const enum SceneFlags {
+    NONE = 0,
+    OPAQUE_OBJECT = 0x1,
+    CUTOUT_OBJECT = 0x2,
+    TRANSPARENT_OBJECT = 0x4,
+    SHADOW_CASTER = 0x8,
+    ALL = 0xFFFFFFFF,
+}

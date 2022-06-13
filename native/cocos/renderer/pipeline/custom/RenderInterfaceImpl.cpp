@@ -35,10 +35,6 @@ Pipeline* Factory::createPipeline() {
     return ccnew NativePipeline(boost::container::pmr::get_default_resource());
 }
 
-DescriptorHierarchy* Factory::createDescriptorHierarchy() {
-    return nullptr;
-}
-
 } // namespace render
 
 } // namespace cc
