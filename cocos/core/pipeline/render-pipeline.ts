@@ -385,6 +385,18 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         }
     }
 
+    public setMacroString (name: string, value: string): void {
+        this._macros[name] = value;
+    }
+
+    public setMacroInt (name: string, value: number): void {
+        this._macros[name] = value;
+    }
+
+    public setMacroBool (name: string, value: boolean): void {
+        this._macros[name] = value;
+    }
+
     /**
      * @en Activate the render pipeline after loaded, it mainly activate the flows
      * @zh 当渲染管线资源加载完成后，启用管线，主要是启用管线内的 flow
