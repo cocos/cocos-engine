@@ -845,13 +845,6 @@ export class ShadowsInfo {
         return this._size.x;
     }
 
-    /**
-     * @internal
-     */
-    get size () : Readonly<Vec2> {
-        return this._size;
-    }
-
     @serializable
     protected _enabled = false;
     @serializable

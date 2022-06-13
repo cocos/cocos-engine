@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-import { JSB, SERVER_MODE } from 'internal:constants';
 import { builtinResMgr } from './builtin';
 import { Pool } from './memop';
 import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from './pipeline';
