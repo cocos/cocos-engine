@@ -33,6 +33,9 @@ SE_DECLARE_FUNC(js_render_PipelineRuntime_activate);
 SE_DECLARE_FUNC(js_render_PipelineRuntime_destroy);
 SE_DECLARE_FUNC(js_render_PipelineRuntime_onGlobalPipelineStateChanged);
 SE_DECLARE_FUNC(js_render_PipelineRuntime_render);
+SE_DECLARE_FUNC(js_render_PipelineRuntime_setMacroBool);
+SE_DECLARE_FUNC(js_render_PipelineRuntime_setMacroInt);
+SE_DECLARE_FUNC(js_render_PipelineRuntime_setMacroString);
 
 extern se::Object *__jsb_cc_render_Setter_proto; // NOLINT
 extern se::Class * __jsb_cc_render_Setter_class; // NOLINT
