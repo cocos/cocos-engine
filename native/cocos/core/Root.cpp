@@ -169,6 +169,15 @@ public:
     void setShadingScale(float scale) override {
         pipeline->setShadingScale(scale);
     }
+    void setMacroString(const ccstd::string& name, const ccstd::string& value) override {
+        pipeline->setValue(name, value);
+    }
+    void setMacroInt(const ccstd::string& name, int32_t value) override {
+        pipeline->setValue(name, value);
+    }
+    void setMacroBool(const ccstd::string& name, bool value) override {
+        pipeline->setValue(name, value);
+    }
     void onGlobalPipelineStateChanged() override {
         pipeline->onGlobalPipelineStateChanged();
     }
