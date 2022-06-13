@@ -314,8 +314,8 @@ void Mesh::initialize() {
                 const uint8_t *ib = buffer.buffer()->getData() + idxView.offset;
                 if (idxView.stride != dstStride) {
                     uint32_t ib16BitLength = idxView.length >> 1;
-                    uint16_t *ib16Bit = static_cast<uint16_t*>(CC_MALLOC(ib16BitLength));
-                    const uint32_t *ib32Bit = reinterpret_cast<const uint32_t*>(ib);
+                    auto *ib16Bit = static_cast<uint16_t*>(CC_MALLOC(ib16BitLength));
+                    const auto *ib32Bit = reinterpret_cast<const uint32_t*>(ib);
                     for (uint32_t j = 0, len = idxView.count; j < len; ++j) {
                         ib16Bit[j] = ib32Bit[j];
                     }
