@@ -8,14 +8,12 @@
 #include "cocos/2d/renderer/RenderEntity.h"
 #include "cocos/2d/renderer/UIMeshBuffer.h"
 #include "cocos/2d/renderer/Batcher2d.h"
-#include "cocos/2d/renderer/AdvanceRenderData.h"
 
 bool register_all_2d(se::Object *obj);                   // NOLINT
 
 JSB_REGISTER_OBJECT_TYPE(cc::RenderEntity);
 JSB_REGISTER_OBJECT_TYPE(cc::UIMeshBuffer);
 JSB_REGISTER_OBJECT_TYPE(cc::Batcher2d);
-JSB_REGISTER_OBJECT_TYPE(cc::AdvanceRenderData);
 
 
 extern se::Object *__jsb_cc_RenderEntity_proto; // NOLINT
@@ -76,12 +74,4 @@ SE_DECLARE_FUNC(js_2d_Batcher2d_update);
 SE_DECLARE_FUNC(js_2d_Batcher2d_updateDescriptorSet);
 SE_DECLARE_FUNC(js_2d_Batcher2d_uploadBuffers);
 SE_DECLARE_FUNC(js_2d_Batcher2d_Batcher2d);
-
-extern se::Object *__jsb_cc_AdvanceRenderData_proto; // NOLINT
-extern se::Class * __jsb_cc_AdvanceRenderData_class; // NOLINT
-
-bool js_register_cc_AdvanceRenderData(se::Object *obj); // NOLINT
-
-SE_DECLARE_FUNC(js_2d_AdvanceRenderData_ParseRender2dData);
-SE_DECLARE_FUNC(js_2d_AdvanceRenderData_AdvanceRenderData);
 // clang-format on

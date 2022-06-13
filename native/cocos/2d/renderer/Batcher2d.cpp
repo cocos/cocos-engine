@@ -96,7 +96,6 @@ void Batcher2d::fillBuffersAndMergeBatches() {
     for (index_t i = 0; i < size; i++) {
         RenderEntity* entity = _newRenderEntities[i];
 
-
         //判断是否能合批，不能合批则需要generateBatch
         uint32_t dataHash = entity->getDataHash();
         if (_currHash != dataHash || dataHash == 0 || _currMaterial != entity->getMaterial()

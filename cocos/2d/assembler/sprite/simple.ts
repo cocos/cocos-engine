@@ -36,7 +36,6 @@ import { Sprite } from '../../components';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 import { StaticVBChunk } from '../../renderer/static-vb-accessor';
 import { RenderEntity } from '../../renderer/render-entity';
-import { AdvanceRenderData } from '../../renderer/AdvanceRenderData';
 import { Batcher2D } from '../../renderer/batcher-2d';
 import { director } from '../../../core';
 import { JSB } from '../../../core/default-constants';

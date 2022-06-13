@@ -3,7 +3,6 @@ import { BaseRenderData, IRenderData } from './render-data';
 import { Stage } from './stencil-manager';
 import { JSB } from '../../core/default-constants';
 import { NativeAdvanceRenderData, NativeRenderEntity } from '../../core/renderer/2d/native-2d';
-import { AdvanceRenderData } from './AdvanceRenderData';
 import { NULL_HANDLE, Render2dHandle, Render2dPool } from '../../core/renderer';
 import { Material, Node } from '../../core';
 import { Sampler, Texture } from '../../core/gfx';
@@ -23,10 +22,10 @@ export class RenderEntity {
     //节点树渲染顺序
     //protected _currIndex = 0;
     get currIndex () {
-        if(JSB) {
+        if (JSB) {
             return this._sharedBuffer[RenderEntitySharedBufferView.currIndex];
         }
-        return 0; 
+        return 0;
     }
     set currIndex (val:number) {
         if (JSB) {
@@ -35,21 +34,17 @@ export class RenderEntity {
     }
 
     //protected _nextIndex=0;
-    get nextIndex() {
-        if(JSB) {
+    get nextIndex () {
+        if (JSB) {
             return this._sharedBuffer[RenderEntitySharedBufferView.nextIndex];
         }
         return 0;
     }
-    set nextIndex(val:number) {
-        if(JSB) {
+    set nextIndex (val:number) {
+        if (JSB) {
             this._sharedBuffer[RenderEntitySharedBufferView.nextIndex] = val;
         }
     }
-
-    //前置渲染数据
-    public dataArr: AdvanceRenderData[] = [];
-    public nativeDataArr:NativeAdvanceRenderData[] = [];
 
     //具体的渲染数据
     protected _bufferId: number | undefined;
@@ -302,19 +297,5 @@ export class RenderEntity {
         if (JSB) {
             this._nativeObj.syncSharedBufferToNative(this._sharedBuffer);
         }
-    }
-
-    //AdvanceRenderData 已经废弃
-    //加一个顶点数据
-    public addAdvanceRenderData (data: AdvanceRenderData) {
-        this.dataArr.push(data);
-        if (JSB) {
-            this.nativeDataArr.push(data.nativeObj);
-        }
-    }
-
-    //清理当前前置渲染数据
-    public clearAdvanceRenderDataArr () {
-        this.dataArr = [];
     }
 }

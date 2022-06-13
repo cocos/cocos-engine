@@ -50,7 +50,6 @@ import { BaseRenderData, MeshRenderData, RenderData } from './render-data';
 import { UIMeshRenderer } from '../components/ui-mesh-renderer';
 import { RenderEntity } from './render-entity';
 import { NativeAdvanceRenderData, NativeBatcher2d, NativeRenderEntity, NativeUIMeshBuffer } from '../../core/renderer/2d/native-2d';
-import { AdvanceRenderData } from './AdvanceRenderData';
 import { mapBuffer, readBuffer } from '../../3d/misc';
 import { MeshBuffer } from './mesh-buffer';
 import { propertyDefine } from '../../core/utils/misc';

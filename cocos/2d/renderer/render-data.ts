@@ -37,7 +37,6 @@ import { getAttributeStride, vfmtPosUvColor } from './vertex-format';
 import { Buffer, BufferInfo, BufferUsageBit, Device, InputAssembler, InputAssemblerInfo, MemoryUsageBit } from '../../core/gfx';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { RenderEntity } from './render-entity';
-import { AdvanceRenderData } from './AdvanceRenderData';
 import { StencilManager } from './stencil-manager';
 import { Batcher2D } from './batcher-2d';
 
