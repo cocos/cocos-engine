@@ -15,8 +15,11 @@ export class MouseInputSource {
     private _isPressed = false;
     private _preMousePos: Vec2 = new Vec2();
 
+    // @ts-expect-error maybe not initialized
     private _handleMouseDown: (event: MouseEvent) => void;
+    // @ts-expect-error maybe not initialized
     private _handleMouseMove: (event: MouseEvent) => void;
+    // @ts-expect-error maybe not initialized
     private _handleMouseUp: (event: MouseEvent) => void;
 
     constructor () {
