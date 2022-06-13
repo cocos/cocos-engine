@@ -8191,6 +8191,23 @@ static bool js_assets_EffectAsset_getAll_static(se::State& s) // NOLINT(readabil
 }
 SE_BIND_FUNC(js_assets_EffectAsset_getAll_static)
 
+static bool js_assets_EffectAsset_isLayoutValid_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cc::EffectAsset::isLayoutValid();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_EffectAsset_isLayoutValid_static : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_assets_EffectAsset_isLayoutValid_static)
+
 static bool js_assets_EffectAsset_registerAsset_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
@@ -8236,6 +8253,19 @@ static bool js_assets_EffectAsset_remove_static(se::State& s) // NOLINT(readabil
 }
 SE_BIND_FUNC(js_assets_EffectAsset_remove_static)
 
+static bool js_assets_EffectAsset_setLayoutValid_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cc::EffectAsset::setLayoutValid();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_assets_EffectAsset_setLayoutValid_static)
+
 SE_DECLARE_FINALIZE_FUNC(js_cc_EffectAsset_finalize)
 
 static bool js_assets_EffectAsset_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
@@ -8264,8 +8294,10 @@ bool js_register_assets_EffectAsset(se::Object* obj) // NOLINT(readability-ident
     cls->defineProperty("combinations", _SE(js_assets_EffectAsset_getCombinations_asGetter), _SE(js_assets_EffectAsset_setCombinations_asSetter));
     cls->defineStaticFunction("get", _SE(js_assets_EffectAsset_get_static));
     cls->defineStaticFunction("getAll", _SE(js_assets_EffectAsset_getAll_static));
+    cls->defineStaticFunction("isLayoutValid", _SE(js_assets_EffectAsset_isLayoutValid_static));
     cls->defineStaticFunction("register", _SE(js_assets_EffectAsset_registerAsset_static));
     cls->defineStaticFunction("remove", _SE(js_assets_EffectAsset_remove_static));
+    cls->defineStaticFunction("setLayoutValid", _SE(js_assets_EffectAsset_setLayoutValid_static));
     cls->defineFinalizeFunction(_SE(js_cc_EffectAsset_finalize));
     cls->install();
     JSBClassType::registerClass<cc::EffectAsset>(cls);
@@ -9774,6 +9806,34 @@ static bool js_assets_Material_setPropertyMat4Array(se::State& s) // NOLINT(read
 }
 SE_BIND_FUNC(js_assets_Material_setPropertyMat4Array)
 
+static bool js_assets_Material_setPropertyNull(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Material>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_Material_setPropertyNull : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<std::string, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_Material_setPropertyNull : Error processing arguments");
+        cobj->setPropertyNull(arg0.value());
+        return true;
+    }
+    if (argc == 2) {
+        HolderType<std::string, true> arg0 = {};
+        HolderType<int, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_Material_setPropertyNull : Error processing arguments");
+        cobj->setPropertyNull(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_assets_Material_setPropertyNull)
+
 static bool js_assets_Material_setPropertyQuaternion(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Material>(s);
@@ -10303,6 +10363,7 @@ bool js_register_assets_Material(se::Object* obj) // NOLINT(readability-identifi
     cls->defineFunction("setPropertyMat3Array", _SE(js_assets_Material_setPropertyMat3Array));
     cls->defineFunction("setPropertyMat4", _SE(js_assets_Material_setPropertyMat4));
     cls->defineFunction("setPropertyMat4Array", _SE(js_assets_Material_setPropertyMat4Array));
+    cls->defineFunction("setPropertyNull", _SE(js_assets_Material_setPropertyNull));
     cls->defineFunction("setPropertyQuaternion", _SE(js_assets_Material_setPropertyQuaternion));
     cls->defineFunction("setPropertyQuaternionArray", _SE(js_assets_Material_setPropertyQuaternionArray));
     cls->defineFunction("setPropertyTextureBase", _SE(js_assets_Material_setPropertyTextureBase));
