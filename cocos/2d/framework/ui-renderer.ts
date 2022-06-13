@@ -43,6 +43,7 @@ import { NodeEventType } from '../../core/scene-graph/node-event';
 import { Renderer } from '../../core/components/renderer';
 import { Batcher2D } from '../renderer/batcher-2d';
 import { RenderEntity } from '../renderer/render-entity';
+import { uiRendererManager } from './ui-renderer-manager';
 
 // hack
 ccenum(BlendFactor);
@@ -272,6 +273,7 @@ export class UIRenderer extends Renderer {
         this.updateMaterial();
         this._renderFlag = this._canRender();
         this._colorDirty();
+        uiRendererManager.markDirtyRenderer(this);
     }
 
     // For Redo, Undo
@@ -325,10 +327,7 @@ export class UIRenderer extends Renderer {
             if (renderData) {
                 renderData.vertDirty = true;
             }
-
-            this._renderDataFlag = enable;
-        } else {
-            this._renderDataFlag = enable;
+            uiRendererManager.markDirtyRenderer(this);
         }
     }
 
@@ -375,11 +374,8 @@ export class UIRenderer extends Renderer {
     }
 
     // test code: to replace prev part updateAssembler
-    public GatherRenderEntities (render: IBatcher) {
-        if (this._renderDataFlag) {
-            this._assembler!.updateRenderData(this, render);
-            this._renderDataFlag = false;
-        }
+    public updateRenderData () {
+        this._assembler!.updateRenderData(this);
         // if (JSB  && this.node.hasChangedFlags) {
         //     this._assembler!.updateRenderData(this, render);
         // }
