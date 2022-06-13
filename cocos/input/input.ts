@@ -146,35 +146,29 @@ export class Input {
 
     /**
      * This should be a private method, but it's exposed for Editor Only.
-     * @engineInternal
      */
-    public dispatchMouseDownEvent (nativeMouseEvent: any) { this._mouseInput.dispatchMouseDownEvent?.(nativeMouseEvent); }
+    private _dispatchMouseDownEvent (nativeMouseEvent: any) { this._mouseInput.dispatchMouseDownEvent?.(nativeMouseEvent); }
     /**
      * This should be a private method, but it's exposed for Editor Only.
-     * @engineInternal
      */
-    public dispatchMouseMoveEvent (nativeMouseEvent: any) { this._mouseInput.dispatchMouseMoveEvent?.(nativeMouseEvent); }
+    private _dispatchMouseMoveEvent (nativeMouseEvent: any) { this._mouseInput.dispatchMouseMoveEvent?.(nativeMouseEvent); }
     /**
      * This should be a private method, but it's exposed for Editor Only.
-     * @engineInternal
      */
-    public dispatchMouseUpEvent (nativeMouseEvent: any) { this._mouseInput.dispatchMouseUpEvent?.(nativeMouseEvent); }
+    private _dispatchMouseUpEvent (nativeMouseEvent: any) { this._mouseInput.dispatchMouseUpEvent?.(nativeMouseEvent); }
     /**
      * This should be a private method, but it's exposed for Editor Only.
-     * @engineInternal
      */
-    public dispatchMouseScrollEvent (nativeMouseEvent: any) { this._mouseInput.dispatchScrollEvent?.(nativeMouseEvent); }
+    private _dispatchMouseScrollEvent (nativeMouseEvent: any) { this._mouseInput.dispatchScrollEvent?.(nativeMouseEvent); }
 
     /**
      * This should be a private method, but it's exposed for Editor Only.
-     * @engineInternal
      */
-    public dispatchKeyboardDownEvent (nativeKeyboardEvent: any) { this._keyboardInput.dispatchKeyboardDownEvent?.(nativeKeyboardEvent); }
+    private _dispatchKeyboardDownEvent (nativeKeyboardEvent: any) { this._keyboardInput.dispatchKeyboardDownEvent?.(nativeKeyboardEvent); }
     /**
      * This should be a private method, but it's exposed for Editor Only.
-     * @engineInternal
      */
-    public dispatchKeyboardUpEvent (nativeKeyboardEvent: any) { this._keyboardInput.dispatchKeyboardUpEvent?.(nativeKeyboardEvent); }
+    private _dispatchKeyboardUpEvent (nativeKeyboardEvent: any) { this._keyboardInput.dispatchKeyboardUpEvent?.(nativeKeyboardEvent); }
 
     /**
      * @en
