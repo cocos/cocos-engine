@@ -260,6 +260,13 @@ public class CocosEditBoxActivity extends Activity {
                         ViewGroup.LayoutParams.MATCH_PARENT);
         RelativeLayout frameLayout = new RelativeLayout(this);
         frameLayout.setLayoutParams(frameLayoutParams);
+        frameLayout.setClickable(true);
+        frameLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CocosEditBoxActivity.this.hide();
+            }
+        });
         setContentView(frameLayout);
 
         this.addItems(frameLayout);
