@@ -35,14 +35,14 @@ const enum RenderingDebugViewType {
     COMPOSITE_AND_MISC,
 }
 
+/**
+ * @zh
+ * 渲染单项调试模式
+ * @en
+ * Rendering single debug mode
+ * @readonly
+ */
 export const enum DebugViewSingleType {
-    /**
-     * @zh
-     * 渲染单项调试模式
-     * @en
-     * Rendering single debug mode
-     * @readonly
-     */
     NONE,
     VERTEX_COLOR,
     VERTEX_NORMAL,
@@ -81,14 +81,14 @@ export const enum DebugViewSingleType {
     FOG,
 }
 
+/**
+ * @zh
+ * 渲染组合调试模式
+ * @en
+ * Rendering composite debug mode
+ * @readonly
+ */
 export const enum DebugViewCompositeType {
-    /**
-     * @zh
-     * 渲染组合调试模式
-     * @en
-     * Rendering composite debug mode
-     * @readonly
-     */
     DIRECT_DIFFUSE = 0,
     DIRECT_SPECULAR,
     ENV_DIFFUSE,
