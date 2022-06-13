@@ -37,8 +37,8 @@ export class MouseInputSource {
     }
 
     public dispatchMouseDownEvent (nativeMouseEvent: any) { this._handleMouseDown(nativeMouseEvent); }
-    public dispatchMouseUpEvent (nativeMouseEvent: any) { this._handleMouseMove(nativeMouseEvent); }
-    public dispatchMouseMoveEvent (nativeMouseEvent: any) { this._handleMouseUp(nativeMouseEvent); }
+    public dispatchMouseMoveEvent (nativeMouseEvent: any) { this._handleMouseMove(nativeMouseEvent); }
+    public dispatchMouseUpEvent (nativeMouseEvent: any) { this._handleMouseUp(nativeMouseEvent); }
     public dispatchScrollEvent (nativeMouseEvent: WheelEvent) { this._handleMouseWheel(nativeMouseEvent); }
 
     public on (eventType: InputEventType, callback: MouseCallback, target?: any) {
