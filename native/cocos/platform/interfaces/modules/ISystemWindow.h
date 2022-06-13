@@ -87,7 +87,10 @@ public:
                               int w, int h, int flags) {
         return true;
     }
+
+    virtual void setWindowHandle(void *nativeWindowHandle) {}
     virtual uintptr_t getWindowHandler() const = 0;
+
     virtual Size getViewSize() const = 0;
     virtual void setViewSize(uint32_t width, uint32_t height) {}
     /**

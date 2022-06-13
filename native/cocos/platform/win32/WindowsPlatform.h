@@ -30,6 +30,8 @@
 
 namespace cc {
 class SystemWindow;
+class SystemWindowManager;
+
 class CC_DLL WindowsPlatform : public UniversalPlatform {
 public:
     WindowsPlatform();
@@ -44,7 +46,10 @@ public:
 
     int32_t loop() override;
 
+    ISystemWindow *createNativeWindow() override;
+
 private:
+    std::shared_ptr<SystemWindowManager> _windowManager{nullptr};
     std::shared_ptr<SystemWindow> _window{nullptr};
     bool _quit{false};
 };

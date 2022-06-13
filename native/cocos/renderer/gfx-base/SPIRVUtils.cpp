@@ -56,6 +56,7 @@ glslang::EShTargetClientVersion getClientVersion(int vulkanMinorVersion) {
         case 0: return glslang::EShTargetVulkan_1_0;
         case 1: return glslang::EShTargetVulkan_1_1;
         case 2: return glslang::EShTargetVulkan_1_2;
+        case 3: return glslang::EShTargetVulkan_1_3;
         default: {
             CC_ASSERT(false);
             return glslang::EShTargetVulkan_1_0;
@@ -68,6 +69,7 @@ glslang::EShTargetLanguageVersion getTargetVersion(int vulkanMinorVersion) {
         case 0: return glslang::EShTargetSpv_1_0;
         case 1: return glslang::EShTargetSpv_1_3;
         case 2: return glslang::EShTargetSpv_1_5;
+        case 3: return glslang::EShTargetSpv_1_6;
         default: {
             CC_ASSERT(false);
             return glslang::EShTargetSpv_1_0;

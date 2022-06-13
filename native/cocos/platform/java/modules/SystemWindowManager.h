@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,55 +25,30 @@
 
 #pragma once
 
-#include "platform/UniversalPlatform.h"
-#include "base/Timer.h"
-
-struct android_app;
+#include <string>
+#include <memory>
+#include "base/std/container/unordered_map.h"
+#include "interfaces/modules/ISystemWindowManager.h"
 
 namespace cc {
-class GameInputProxy;
+class ISystemWindow;
 
-class CC_DLL AndroidPlatform : public UniversalPlatform {
+class SystemWindowManager : public ISystemWindowManager {
 public:
-    AndroidPlatform() = default;
-
-    ~AndroidPlatform() override;
-
-    int init() override;
-
-    void pollEvent() override;
-
-    int32_t run(int argc, const char **argv) override;
-
-    int getSdkVersion() const override;
-
-    int32_t loop() override;
-
-    void *getActivity();
-
-    static void *getEnv();
-
-    uintptr_t getWindowHandler() const;
-
-    int32_t getWidth() const;
-
-    int32_t getHeight() const;
-
-    void onDestory() override;
-
-    inline void setAndroidApp(android_app *app) {
-        _app = app;
+    static SystemWindowManager *getInstance() {
+        return _instance;
     }
 
-    ISystemWindow *createNativeWindow() override;
+    SystemWindowManager(IEventDispatch *delegate);
+
+    int init() override;
+    void poolEvent(bool *quit) override;
+    void swapWindows() override;
+    ISystemWindow *createWindow(const char *name) override;
+    const ccstd::unordered_map<std::string, std::shared_ptr<ISystemWindow>> &getWindows() override { return _windows; }
 
 private:
-    bool _isLowFrequencyLoopEnabled{false};
-    utils::Timer _lowFrequencyTimer;
-    int _loopTimeOut{-1};
-    GameInputProxy *_inputProxy{nullptr};
-    android_app *_app{nullptr};
-
-    friend class GameInputProxy;
+    static SystemWindowManager *_instance;
+    ccstd::unordered_map<std::string, std::shared_ptr<ISystemWindow>> _windows;
 };
-} // namespace cc
+}

@@ -31,30 +31,37 @@
 #include "platform/SDLHelper.h"
 #include "platform/win32/WindowsPlatform.h"
 #include "sdl2/SDL_clipboard.h"
+#include "platform/win32/modules/SystemWindowManager.h"
 
 namespace cc {
-SystemWindow::SystemWindow(IEventDispatch *delegate)
-: _sdl(std::make_unique<SDLHelper>(delegate)) {
+SystemWindow::SystemWindow(IEventDispatch *delegate) {
+//: _sdl(std::make_unique<SDLHelper>(delegate)) {
+    _sdl = SDLHelper::getInstance();
 }
 
 SystemWindow::~SystemWindow() {
 }
 
 int SystemWindow::init() {
-    return _sdl->init();
+    //return _sdl->init();
+    
+    return 0;
 }
 
 void SystemWindow::pollEvent(bool *quit) {
-    return _sdl->pollEvent(quit);
+    //return _sdl->pollEvent(quit);
 }
 
 void SystemWindow::swapWindow() {
-    _sdl->swapWindow();
+    _sdl->swapWindow(_window);
 }
 
 bool SystemWindow::createWindow(const char *title,
                                 int w, int h, int flags) {
-    _sdl->createWindow(title, w, h, flags);
+    if (!createWindow(title, 0, 0, w, h, flags)) {
+        return false;
+    }
+
     _width = w;
     _height = h;
     return true;
@@ -63,14 +70,18 @@ bool SystemWindow::createWindow(const char *title,
 bool SystemWindow::createWindow(const char *title,
                                 int x, int y, int w,
                                 int h, int flags) {
-    _sdl->createWindow(title, x, y, w, h, flags);
+    _window = _sdl->createWindow(title, x, y, w, h, flags);
+    if (!_window) {
+        return false;
+    }
+
     _width = w;
     _height = h;
     return true;
 }
 
 uintptr_t SystemWindow::getWindowHandler() const {
-    return _sdl->getWindowHandler();
+    return _sdl->getWindowHandler(_window);
 }
 
 void SystemWindow::setCursorEnabled(bool value) {

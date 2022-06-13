@@ -21418,6 +21418,9 @@ SE_BIND_FUNC(js_gfx_Device_createShader)
 
 static bool js_gfx_Device_createSwapchain(se::State& s) // NOLINT(readability-identifier-naming)
 {
+	// linwei: multi-windows hack
+    return true;
+
     auto* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
     SE_PRECONDITION2(cobj, false, "js_gfx_Device_createSwapchain : Invalid Native Object");
     const auto& args = s.args();

@@ -146,6 +146,7 @@ int windowFlagsToSDLWindowFlag(int flags) {
 namespace cc {
 SDLHelper::SDLHelper(IEventDispatch *delegate)
 : _delegate(delegate) {
+    _instance = this;
 }
 
 SDLHelper::~SDLHelper() {
@@ -215,7 +216,13 @@ void SDLHelper::dispatchWindowEvent(const SDL_WindowEvent &wevent) {
     }
 }
 
+SDLHelper *SDLHelper::_instance = nullptr;
+
 void SDLHelper::dispatchSDLEvent(const SDL_Event &sdlEvent, bool *quit) {
+    dispatchSDLEvent(_handle, sdlEvent, quit);
+}
+
+void SDLHelper::dispatchSDLEvent(SDL_Window *window, const SDL_Event &sdlEvent, bool *quit) {
     cc::TouchEvent touch;
     cc::MouseEvent mouse;
     cc::KeyboardEvent keyboard;
@@ -236,7 +243,7 @@ void SDLHelper::dispatchSDLEvent(const SDL_Event &sdlEvent, bool *quit) {
         case SDL_MOUSEBUTTONDOWN: {
             int width = 0;
             int height = 0;
-            SDL_GetWindowSize(_handle, &width, &height);
+            SDL_GetWindowSize(window, &width, &height);
             const SDL_MouseButtonEvent &event = sdlEvent.button;
             if (0 > event.x || event.x > width || 0 > event.y || event.y > height) {
                 break;
@@ -335,36 +342,37 @@ void SDLHelper::pollEvent(bool *quit) {
     }
 }
 
-bool SDLHelper::createWindow(const char *title,
+SDL_Window *SDLHelper::createWindow(const char *title,
                              int w, int h, int flags) {
-    if (_isWindowCreated) {
-        return true;
-    }
+    //if (_isWindowCreated) {
+    //    return true;
+    //}
     SDL_Rect screenRect;
     if (SDL_GetDisplayUsableBounds(0, &screenRect) != 0) {
-        return false;
+        return nullptr;
     }
     int x = screenRect.x;
     int y = screenRect.y + screenRect.h - h;
     return createWindow(title, x, y, w, h, flags);
 }
 
-bool SDLHelper::createWindow(const char *title,
+SDL_Window *SDLHelper::createWindow(const char *title,
                              int x, int y, int w,
                              int h, int flags) {
-    if (_isWindowCreated) {
-        return true;
-    }
+    //if (_isWindowCreated) {
+    //    return true;
+    //}
     // Create window
     int sdlFlags = windowFlagsToSDLWindowFlag(flags);
-    _handle = SDL_CreateWindow(title, x, y, w, h, sdlFlags);
-    if (_handle == nullptr) {
+    SDL_Window *handle = SDL_CreateWindow(title, x, y, w, h, sdlFlags);
+    if (handle == nullptr) {
         // Display error message
         CC_LOG_ERROR("Window could not be created! SDL_Error: %s\n", SDL_GetError());
-        return false;
+        return nullptr;
     }
-    _isWindowCreated = true;
-    return true;
+    //_isWindowCreated = true;
+    _handles.emplace_back(handle);
+    return handle;
 }
 
 void SDLHelper::setCursorEnabled(bool value) {
@@ -372,7 +380,12 @@ void SDLHelper::setCursorEnabled(bool value) {
 }
 
 void SDLHelper::swapWindow() {
-    SDL_GL_SwapWindow(_handle);
+    //SDL_GL_SwapWindow(_handle);
+    swapWindow(_handle);
+}
+
+void SDLHelper::swapWindow(SDL_Window *window) {
+    SDL_GL_SwapWindow(window);
 }
 
 #if (CC_PLATFORM == CC_PLATFORM_LINUX)
@@ -384,10 +397,10 @@ uintptr_t SDLHelper::getDisplay() const {
 }
 #endif
 
-uintptr_t SDLHelper::getWindowHandler() const {
+uintptr_t SDLHelper::getWindowHandler(SDL_Window *window) const {
     SDL_SysWMinfo wmInfo;
     SDL_VERSION(&wmInfo.version);
-    SDL_GetWindowWMInfo(_handle, &wmInfo);
+    SDL_GetWindowWMInfo(window, &wmInfo);
 
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
     return reinterpret_cast<uintptr_t>(wmInfo.info.win.window);

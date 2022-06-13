@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,56 +24,17 @@
 ****************************************************************************/
 
 #pragma once
-
-#include "platform/UniversalPlatform.h"
-#include "base/Timer.h"
-
-struct android_app;
+#include "interfaces/OSInterface.h"
 
 namespace cc {
-class GameInputProxy;
+class ISystemWindow;
 
-class CC_DLL AndroidPlatform : public UniversalPlatform {
+class ISystemWindowManager : public OSInterface {
 public:
-    AndroidPlatform() = default;
-
-    ~AndroidPlatform() override;
-
-    int init() override;
-
-    void pollEvent() override;
-
-    int32_t run(int argc, const char **argv) override;
-
-    int getSdkVersion() const override;
-
-    int32_t loop() override;
-
-    void *getActivity();
-
-    static void *getEnv();
-
-    uintptr_t getWindowHandler() const;
-
-    int32_t getWidth() const;
-
-    int32_t getHeight() const;
-
-    void onDestory() override;
-
-    inline void setAndroidApp(android_app *app) {
-        _app = app;
-    }
-
-    ISystemWindow *createNativeWindow() override;
-
-private:
-    bool _isLowFrequencyLoopEnabled{false};
-    utils::Timer _lowFrequencyTimer;
-    int _loopTimeOut{-1};
-    GameInputProxy *_inputProxy{nullptr};
-    android_app *_app{nullptr};
-
-    friend class GameInputProxy;
+    virtual int init() = 0;
+    virtual void poolEvent(bool *quit) = 0;
+    virtual void swapWindows() = 0;
+    virtual ISystemWindow *createWindow(const char *name) = 0;
+    virtual const ccstd::unordered_map<std::string, std::shared_ptr<ISystemWindow>> &getWindows() = 0;
 };
-} // namespace cc
+}

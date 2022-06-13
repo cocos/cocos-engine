@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -21,59 +21,42 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-****************************************************************************/
+ ****************************************************************************/
 
-#pragma once
-
-#include "platform/UniversalPlatform.h"
-#include "base/Timer.h"
-
-struct android_app;
+#include "SystemWindowManager.h"
+#include "BasePlatform.h"
+#include "platform/SDLHelper.h"
+#include "platform/win32/modules/SystemWindow.h"
 
 namespace cc {
-class GameInputProxy;
 
-class CC_DLL AndroidPlatform : public UniversalPlatform {
-public:
-    AndroidPlatform() = default;
+SystemWindowManager *SystemWindowManager::_instance = nullptr;
 
-    ~AndroidPlatform() override;
+ SystemWindowManager::SystemWindowManager(IEventDispatch *delegate)
+: _sdl(std::make_unique<SDLHelper>(delegate)) {
+    _instance = this;
+}
 
-    int init() override;
+int SystemWindowManager::init() {
+    return _sdl->init();
+}
 
-    void pollEvent() override;
+void SystemWindowManager::poolEvent(bool *quit) {
+    return _sdl->pollEvent(quit);
+}
 
-    int32_t run(int argc, const char **argv) override;
-
-    int getSdkVersion() const override;
-
-    int32_t loop() override;
-
-    void *getActivity();
-
-    static void *getEnv();
-
-    uintptr_t getWindowHandler() const;
-
-    int32_t getWidth() const;
-
-    int32_t getHeight() const;
-
-    void onDestory() override;
-
-    inline void setAndroidApp(android_app *app) {
-        _app = app;
+void SystemWindowManager::swapWindows() {
+    for (auto pair : _windows) {
+        SystemWindow *window = dynamic_cast<SystemWindow *>(pair.second.get());
+        if (window) {
+            window->swapWindow();
+        }
     }
+}
 
-    ISystemWindow *createNativeWindow() override;
-
-private:
-    bool _isLowFrequencyLoopEnabled{false};
-    utils::Timer _lowFrequencyTimer;
-    int _loopTimeOut{-1};
-    GameInputProxy *_inputProxy{nullptr};
-    android_app *_app{nullptr};
-
-    friend class GameInputProxy;
-};
+ISystemWindow *SystemWindowManager::createWindow(const char *name) {
+    auto window = BasePlatform::getPlatform()->createNativeWindow();
+    _windows.insert(std::make_pair(std::string(name), window));
+    return window;
+}
 } // namespace cc

@@ -29,8 +29,11 @@
 
 #include "platform/interfaces/modules/ISystemWindow.h"
 
+struct SDL_Window;
+
 namespace cc {
 class SDLHelper;
+
 class CC_DLL SystemWindow : public ISystemWindow {
 public:
     explicit SystemWindow(IEventDispatch* delegate);
@@ -60,7 +63,9 @@ public:
 private:
     int _width{0};
     int _height{0};
-    std::unique_ptr<SDLHelper> _sdl;
+    //std::unique_ptr<SDLHelper> _sdl;
+    SDLHelper* _sdl{nullptr};
+    SDL_Window* _window{nullptr};
 };
 
 } // namespace cc

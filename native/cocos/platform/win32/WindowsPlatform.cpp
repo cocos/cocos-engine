@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "platform/win32/WindowsPlatform.h"
+#include "platform/win32/modules/SystemWindowManager.h"
 
 #include <Windows.h>
 #include <shellapi.h>
@@ -36,6 +37,7 @@
 #include "modules/System.h"
 #include "modules/SystemWindow.h"
 #include "modules/Vibrator.h"
+#include "base/memory/Memory.h"
 
 namespace {
 /**
@@ -93,6 +95,8 @@ int32_t WindowsPlatform::init() {
     registerInterface(std::make_shared<System>());
     _window = std::make_shared<SystemWindow>(this);
     registerInterface(_window);
+    _windowManager = std::make_shared<SystemWindowManager>(this);
+    registerInterface(_windowManager);
     registerInterface(std::make_shared<Vibrator>());
 
 #ifdef USE_WIN32_CONSOLE
@@ -104,7 +108,8 @@ int32_t WindowsPlatform::init() {
 
     PVRFrameEnableControlWindow(false);
 
-    return _window->init();
+    //return _window->init();
+    return _windowManager->init();
 }
 
 int32_t WindowsPlatform::loop() {
@@ -137,13 +142,16 @@ int32_t WindowsPlatform::loop() {
     onResume();
     while (!_quit) {
         desiredInterval = (LONGLONG)(1.0 / getFps() * nFreq.QuadPart);
-        _window->pollEvent(&_quit);
+        //_window->pollEvent(&_quit);
+        _windowManager->poolEvent(&_quit);
+
         QueryPerformanceCounter(&nNow);
         actualInterval = nNow.QuadPart - nLast.QuadPart;
         if (actualInterval >= desiredInterval) {
             nLast.QuadPart = nNow.QuadPart;
             runTask();
-            _window->swapWindow();
+            //_window->swapWindow();
+            _windowManager->swapWindows();
         } else {
             // The precision of timer on Windows is set to highest (1ms) by 'timeBeginPeriod' from above code,
             // but it's still not precise enough. For example, if the precision of timer is 1ms,
@@ -161,6 +169,10 @@ int32_t WindowsPlatform::loop() {
 
     onDestory();
     return 0;
+}
+
+ISystemWindow *WindowsPlatform::createNativeWindow() {
+    return ccnew SystemWindow(this);
 }
 
 } // namespace cc
