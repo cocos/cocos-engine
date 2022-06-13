@@ -440,11 +440,7 @@ export class Label extends UIRenderer {
         this._isSystemFontUsed = !value;
 
         if (EDITOR) {
-            if (value) {
-                this._userDefinedFont = value;
-            } else {
-                this._userDefinedFont = null;
-            }
+            this._userDefinedFont = value;
         }
 
         // this._N$file = value;
