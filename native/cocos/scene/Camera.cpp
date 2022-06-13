@@ -190,6 +190,9 @@ void Camera::update(bool forceUpdate /*false*/) {
 
     // view-projection
     if (viewProjDirty) {
+        Mat4 scaleMat{};
+        scaleMat.scale(_node->getWorldScale());
+        Mat4::multiply(scaleMat, _matView, &_matView);
         Mat4::multiply(_matProj, _matView, &_matViewProj);
         _matViewProjInv = _matViewProj.getInversed();
         _frustum->update(_matViewProj, _matViewProjInv);
