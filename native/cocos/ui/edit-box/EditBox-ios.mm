@@ -54,7 +54,7 @@
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_global.h"
 #include "cocos/bindings/event/EventDispatcher.h"
-
+#include "cocos/bindings/event/CustomEventTypes.h""
 #import <UIKit/UIKit.h>
 
 #define ITEM_MARGIN_WIDTH               10
@@ -63,12 +63,12 @@
 #define TEXT_VIEW_MAX_LINE_SHOWN        1.5
 #define BUTTON_HEIGHT                   (TEXT_LINE_HEIGHT - ITEM_MARGIN_HEIGHT)
 #define BUTTON_WIDTH                    60
-
+//TODO: change the proccedure of showing inputbox, possibly become a property
 const bool INPUTBOX_HIDDEN = true; // Toggle if Inputbox is visible
 /*************************************************************************
  Inner class declarations.
  ************************************************************************/
-@interface Editbox_impl : NSObject
+@interface EditboxManager : NSObject
 + (instancetype)sharedInstance;
 - (void)        show:(const cc::EditBox::ShowInfo*)showInfo;
 - (void)        hide;
@@ -95,10 +95,9 @@ const bool INPUTBOX_HIDDEN = true; // Toggle if Inputbox is visible
  Global variables and functions relative to script engine.
  ************************************************************************/
 namespace {
-
-static int      g_maxLength = INT_MAX;
-static bool     g_isMultiline = true;
-se::Value       textInputCallback;
+static bool g_isMultiline{false};
+static int g_maxLength{INT_MAX};
+se::Value textInputCallback;
 
 void getTextInputCallback() {
     if (!textInputCallback.isUndefined())
@@ -115,7 +114,7 @@ void getTextInputCallback() {
     }
 }
 
-void callJSFunc(const std::string &type, const std::string &text) {
+void callJSFunc(const ccstd::string &type, const ccstd::string &text) {
     getTextInputCallback();
 
     se::AutoHandleScope scope;
@@ -129,15 +128,14 @@ void callJSFunc(const std::string &type, const std::string &text) {
  Global functions as tools to set values
  ************************************************************************/
 
-int getTextInputHeight() {
-    if (g_isMultiline)
+int getTextInputHeight(bool isMultiLine) {
+    if (isMultiLine)
         return TEXT_LINE_HEIGHT * TEXT_VIEW_MAX_LINE_SHOWN;
     else
         return TEXT_LINE_HEIGHT;
 }
 
-// TODO: Make type enum
-void setTextFieldKeyboardType(UITextField *textField, const std::string &inputType) {
+void setTextFieldKeyboardType(UITextField *textField, const ccstd::string &inputType) {
     if (0 == inputType.compare("password")) {
         textField.secureTextEntry = TRUE;
         textField.keyboardType = UIKeyboardTypeDefault;
@@ -154,8 +152,7 @@ void setTextFieldKeyboardType(UITextField *textField, const std::string &inputTy
     }
 }
 
-// TODO: Make type as enum
-void setTextFieldReturnType(UITextField *textField, const std::string &returnType) {
+void setTextFieldReturnType(UITextField *textField, const ccstd::string &returnType) {
     if (0 == returnType.compare("done"))
         textField.returnKeyType = UIReturnKeyDone;
     else if (0 == returnType.compare("next"))
@@ -168,7 +165,7 @@ void setTextFieldReturnType(UITextField *textField, const std::string &returnTyp
         textField.returnKeyType = UIReturnKeySend;
 }
 
-NSString *getConfirmButtonTitle(const std::string &returnType) {
+NSString *getConfirmButtonTitle(const ccstd::string &returnType) {
     NSString *titleKey = [NSString stringWithUTF8String:returnType.c_str()];
     return NSLocalizedString(titleKey, nil); // get i18n string to be the title
 }
@@ -194,12 +191,12 @@ CGRect getSafeAreaRect() {
     return viewRect;
 }
 
+//TODO: Get hash with different type of showInfo, for example different inputAccessoryView
 NSString *getHash(const cc::EditBox::ShowInfo* showInfo) {
-    //TODO: get hash with different type of showInfo, for example different inputAccessoryView
     return showInfo->isMultiline?@"textView":@"textField";
 }
 void onParentViewTouched(const cc::CustomEvent &touchEvent){
-    [[Editbox_impl sharedInstance] hide];
+    [[EditboxManager sharedInstance] hide];
 }
 } // namespace
 
@@ -277,13 +274,13 @@ static ButtonHandler*           btnHandler = nil;
 @implementation InputBoxPair
 @end
 
-@implementation Editbox_impl
+@implementation EditboxManager
 {
     //recently there'ill be only 2 elements
     NSMutableDictionary<NSString*, InputBoxPair*>*      textInputDictionnary;
     InputBoxPair*                                       curView;
 }
-static Editbox_impl *instance = nil;
+static EditboxManager *instance = nil;
 
 + (instancetype) sharedInstance {
     static dispatch_once_t pred = 0;
@@ -295,15 +292,27 @@ static Editbox_impl *instance = nil;
     return instance;
 }
 + (id)allocWithZone:(struct _NSZone*)zone {
-    return [Editbox_impl sharedInstance];
+    return [EditboxManager sharedInstance];
 }
 
 - (id)copyWithZone:(struct _NSZone*)zone {
-    return [Editbox_impl sharedInstance];
+    return [EditboxManager sharedInstance];
+}
+
+- (void)onOrientationChanged{
+    cc::EditBox::complete();
 }
 - (id)init {
     self          = [super init];
     textInputDictionnary = [NSMutableDictionary new];
+    
+    cc::EventDispatcher::addCustomEventListener(EVENT_RESIZE, [&](const cc::CustomEvent& event) -> void {
+            [[EditboxManager sharedInstance] onOrientationChanged];
+    });
+    cc::EventDispatcher::addCustomEventListener("onTouchStart", [&](const cc::CustomEvent& event) -> void {
+        cc::EditBox::complete();
+    });
+    
     return self;
 }
 - (void)dealloc {
@@ -333,7 +342,7 @@ static Editbox_impl *instance = nil;
         setFrame:CGRectMake(0,
                             0,
                             getSafeAreaRect().size.width - totalItemsWidth,
-                            getTextInputHeight())];
+                            getTextInputHeight(g_isMultiline))];
     return textViewBarButtonItem;
 }
 - (void) addInputAccessoryViewForTextView: (InputBoxPair*)inputbox
@@ -343,7 +352,7 @@ static Editbox_impl *instance = nil;
                           initWithFrame:CGRectMake(0,
                                                    0,
                                                    safeView.size.width,
-                                                   getTextInputHeight() + ITEM_MARGIN_HEIGHT)];
+                                                   getTextInputHeight(g_isMultiline) + ITEM_MARGIN_HEIGHT)];
     [toolbar setBackgroundColor:[UIColor darkGrayColor]];
     
     UITextView* textView = [[UITextView alloc] init];
@@ -442,6 +451,7 @@ static Editbox_impl *instance = nil;
                                  viewRect.size.height - showInfo->y - showInfo->height,
                                  showInfo->width,
                                  showInfo->height)];
+        [self setInputWidthOf:[[ret inputOnView] inputAccessoryView] ];
     } else {
         ret = [[InputBoxPair alloc] init];
         [ret setInputOnView:[[UITextView alloc]
@@ -468,6 +478,7 @@ static Editbox_impl *instance = nil;
                                  viewRect.size.height - showInfo->y - showInfo->height,
                                  showInfo->width,
                                  showInfo->height)];
+        [self setInputWidthOf:[[ret inputOnView] inputAccessoryView] ];
     } else {
         ret = [[InputBoxPair alloc] init];
         [ret setInputOnView:[[UITextField alloc]
@@ -485,12 +496,12 @@ static Editbox_impl *instance = nil;
     return ret;
 }
 
-
+//TODO: show inputbox with width modified.
 - (void) show: (const cc::EditBox::ShowInfo*)showInfo {
     g_maxLength = showInfo->maxLength;
     g_isMultiline = showInfo->isMultiline;
     
-    if (showInfo->isMultiline) {
+    if (g_isMultiline) {
         curView = [self createTextView:showInfo];
     } else {
         curView = [self createTextField:showInfo];
@@ -502,9 +513,9 @@ static Editbox_impl *instance = nil;
     [[curView inputOnView] becomeFirstResponder];
     [[curView inputOnToolbar] becomeFirstResponder];
 }
+// Change the focus point to the TextField or TextView on the toolbar.
 - (void) hide {
-    //TODO: I'm not so sure about what should be hide here.
-    [[curView inputOnView]becomeFirstResponder];
+    [[curView inputOnView] becomeFirstResponder];
     [[curView inputOnView] removeFromSuperview];
     [[curView inputOnToolbar] resignFirstResponder];
     [[curView inputOnView] resignFirstResponder];
@@ -523,7 +534,7 @@ static Editbox_impl *instance = nil;
 @end
 @implementation ButtonHandler
 - (IBAction)buttonTapped:(UIButton *)button {
-    const std::string text([[[Editbox_impl sharedInstance]getCurrentText] UTF8String]);
+    const ccstd::string text([[[EditboxManager sharedInstance]getCurrentText] UTF8String]);
     callJSFunc("confirm", text);
     cc::EditBox::complete();
 }
@@ -537,19 +548,19 @@ static Editbox_impl *instance = nil;
 namespace cc{
 bool EditBox::_isShown = false;
 void EditBox::show(const cc::EditBox::ShowInfo &showInfo) {
-    [[Editbox_impl sharedInstance] show:&showInfo];
+    [[EditboxManager sharedInstance] show:&showInfo];
     EditBox::_isShown = true;
 }
 
 void EditBox::hide() {
-    [[Editbox_impl sharedInstance] hide];
+    [[EditboxManager sharedInstance] hide];
     EditBox::_isShown = true;
 }
 
 bool EditBox::complete() {
     if(!EditBox::_isShown)
         return;
-    NSString *text = [[Editbox_impl sharedInstance] getCurrentText];
+    NSString *text = [[EditboxManager sharedInstance] getCurrentText];
     callJSFunc("complete", [text UTF8String]);
     EditBox::hide();
 

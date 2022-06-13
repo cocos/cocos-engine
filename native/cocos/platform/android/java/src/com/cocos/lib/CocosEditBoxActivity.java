@@ -264,7 +264,14 @@ public class CocosEditBoxActivity extends Activity {
 
         this.addItems(frameLayout);
 
-        Bundle extras = getIntent().getExtras();
+        Intent intent = getIntent();
+        Bundle extras = null;
+        if (null != intent) {
+            extras = intent.getExtras();
+        }
+        if(extras == null){
+            extras = new Bundle();
+        }
         show(extras.getString("defaultValue"),
                 extras.getInt("maxLength"),
                 extras.getBoolean("isMultiline"),
