@@ -159,6 +159,21 @@ export class DebugView {
         }
     }
 
+    protected _singleMode = DebugViewSingleType.NONE;
+    protected _compositeModeValue = 0;
+    protected _lightingWithAlbedo = true;
+    protected _csmLayerColoration = false;
+    protected _nativeConfig: any = null;
+
+    constructor () {
+        this._activate();
+        if (JSB && this._nativeConfig === null) {
+            // @ts-expect-error jsb object access
+            this._nativeConfig = new jsb.DebugViewConfig();
+            this._nativeConfig.compositeModeBitCount = DebugViewCompositeType.MAX_BIT_COUNT;
+        }
+    }
+
     /**
      * @en Whether enabled with specified rendering composite debug mode.
      * @zh 获取指定的渲染组合调试模式是否开启。
@@ -195,24 +210,9 @@ export class DebugView {
         return this._getType() !== RenderingDebugViewType.NONE;
     }
 
-    protected _singleMode = DebugViewSingleType.NONE;
-    protected _compositeModeValue = 0;
-    protected _lightingWithAlbedo = true;
-    protected _csmLayerColoration = false;
-    protected _nativeConfig: any = null;
-
     /**
      * @internal
      */
-    constructor () {
-        this._activate();
-        if (JSB && this._nativeConfig === null) {
-            // @ts-expect-error jsb object access
-            this._nativeConfig = new jsb.DebugViewConfig();
-            this._nativeConfig.compositeModeBitCount = DebugViewCompositeType.MAX_BIT_COUNT;
-        }
-    }
-
     protected _activate () {
         this._singleMode = DebugViewSingleType.NONE;
         this._enableAllCompositeMode(true);
