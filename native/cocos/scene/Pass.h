@@ -182,6 +182,8 @@ public:
      * @param value Target texture
      */
     void bindTexture(uint32_t binding, gfx::Texture *value, index_t index = CC_INVALID_INDEX);
+    void setTexture(const ccstd::string &name, gfx::Texture *value);
+    void setTextureArray(const ccstd::string &name, const ccstd::vector<gfx::Texture *> &value);
 
     /**
      * @en Bind a GFX [[Sampler]] the the given uniform binding
@@ -190,6 +192,14 @@ public:
      * @param value Target sampler
      */
     void bindSampler(uint32_t binding, gfx::Sampler *value, index_t index = CC_INVALID_INDEX);
+    void setSampler(const ccstd::string &name, gfx::Sampler *value);
+    void setSamplerArray(const ccstd::string &name, const ccstd::vector<gfx::Sampler *> &value);
+
+    void setTextureAndSampler(const ccstd::string &name, gfx::Texture *texture, gfx::Sampler *sampler);
+    void setTextureAndSamplerArray(
+        const ccstd::string &name,
+        const ccstd::vector<gfx::Texture *> &textures,
+        const ccstd::vector<gfx::Sampler *> &samplers);
 
     /**
      * @en Sets the dynamic pipeline state property at runtime
