@@ -25,7 +25,7 @@
 import { EDITOR } from 'internal:constants';
 import { Frustum, Ray } from '../../geometry';
 import { SurfaceTransform, ClearFlagBit, Device, Color, ClearFlags } from '../../gfx';
-import { lerp, Mat4, Rect, toRadian, Vec3, IVec4Like, Vec4 } from '../../math';
+import { lerp, Mat4, Rect, toRadian, Vec3, IVec4Like } from '../../math';
 import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
 import { Node } from '../../scene-graph';
 import { RenderScene } from '../core/render-scene';
@@ -709,6 +709,7 @@ export class Camera {
             this._node.getWorldPosition(this._position);
             viewProjDirty = true;
         }
+
         // projection matrix
         const swapchain = this.window?.swapchain;
         const orientation = swapchain && swapchain.surfaceTransform || SurfaceTransform.IDENTITY;
@@ -732,9 +733,8 @@ export class Camera {
 
         // view-projection
         if (viewProjDirty) {
-            const scaleMat = new Mat4().scale(this._node.worldScale);
             // Remove scale
-            this._matView = scaleMat.multiply(this._matView);
+            Mat4.multiply(this._matView, new Mat4().scale(this._node.worldScale), this._matView);
             Mat4.multiply(this._matViewProj, this._matProj, this._matView);
             Mat4.invert(this._matViewProjInv, this._matViewProj);
             this._frustum.update(this._matViewProj, this._matViewProjInv);
