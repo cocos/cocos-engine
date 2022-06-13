@@ -132,7 +132,8 @@ sceneProto._activate = function (active: boolean) {
 
 // handle meta data, it is generated automatically
 const SceneProto = Scene.prototype;
-editable(SceneProto, 'globals');
+const globalsDescriptor = Object.getOwnPropertyDescriptor(SceneProto, 'globals');
+editable(SceneProto, 'globals', globalsDescriptor);
 editable(SceneProto, 'autoReleaseAssets');
 serializable(SceneProto, 'autoReleaseAssets');
 serializable(SceneProto, '_globals');

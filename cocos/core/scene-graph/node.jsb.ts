@@ -35,6 +35,7 @@ import { _tempFloatArray } from './utils.jsb';
 import { getClassByName, isChildClassOf } from '../utils/js-typed';
 import { syncNodeValues } from "../utils/jsb-utils";
 import { property } from '../data/class-decorator';
+import './base-node';
 
 declare const jsb: any;
 
@@ -185,6 +186,7 @@ nodeProto.addComponent = function (typeOrClassName) {
             EditorExtends.Component.add(component._id, component);
         }
     }
+    this.emit(NodeEventType.COMPONENT_ADDED, component);
     if (this._activeInHierarchy) {
         legacyCC.director._nodeActivator.activateComp(component);
     }
@@ -317,6 +319,7 @@ nodeProto._removeComponent = function (component: Component) {
             if (EDITOR && EditorExtends.Component) {
                 EditorExtends.Component.remove(component._id);
             }
+            this.emit(NodeEventType.COMPONENT_REMOVED, component);
         } else if (component.node !== this) {
             errorID(3815);
         }
@@ -1073,6 +1076,37 @@ nodeProto[serializeTag] = function (serializationOutput: SerializationOutput, co
     if (!EDITOR) {
         serializationOutput.writeThis();
     }
+
+    // Detects if this node is mounted node of `PrefabInstance`
+        // TODO: optimize
+        const isMountedChild = () => !!(this[editorExtrasTag] as any)?.mountedRoot;
+        // Returns if this node is under `PrefabInstance`
+        // eslint-disable-next-line arrow-body-style
+        const isSyncPrefab = () => {
+            // 1. Under `PrefabInstance`, but not mounted
+            // 2. If the mounted node is a `PrefabInstance`, it's also a "sync prefab".
+            return this._prefab?.root?._prefab?.instance && (this?._prefab?.instance || !isMountedChild());
+        };
+        const canDiscardByPrefabRoot = () => !(context.customArguments[(reserveContentsForAllSyncablePrefabTag) as any]
+            || !isSyncPrefab() || context.root === this);
+        if (canDiscardByPrefabRoot()) {
+            // discard props disallow to synchronize
+            const isRoot = this._prefab?.root === this;
+            if (isRoot) {
+                serializationOutput.writeProperty('_objFlags', this._objFlags);
+                serializationOutput.writeProperty('_parent', this._parent);
+                serializationOutput.writeProperty('_prefab', this._prefab);
+                if (context.customArguments.keepNodeUuid) {
+                    serializationOutput.writeProperty('_id', this._id);
+                }
+                // TODO: editorExtrasTag may be a symbol in the future
+                serializationOutput.writeProperty(editorExtrasTag, this[editorExtrasTag]);
+            } else {
+                // should not serialize child node of synchronizable prefab
+            }
+        } else {
+            serializationOutput.writeThis();
+        }
 };
 
 nodeProto._onActiveNode = function (shouldActiveNow: boolean) {
@@ -1255,12 +1289,18 @@ nodeProto.getWorldRT = function (out?: Mat4) {
 
 // handle meta data, it is generated automatically
 const NodeProto = Node.prototype;
-property(NodeProto, '_persistNode');
-editable(NodeProto, 'name');
-editable(NodeProto, 'children');
-editable(NodeProto, 'active');
-editable(NodeProto, 'activeInHierarchy');
-editable(NodeProto, 'parent');
+const _persistNodeDescriptor = Object.getOwnPropertyDescriptor(NodeProto, '_persistNode');
+property(NodeProto, '_persistNode', _persistNodeDescriptor);
+const nameDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'name');
+editable(NodeProto, 'name', nameDescriptor);
+const childrenDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'children');
+editable(NodeProto, 'children', childrenDescriptor);
+const activeDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'active');
+editable(NodeProto, 'active', activeDescriptor);
+const activeInHierarchyDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'activeInHierarchy');
+editable(NodeProto, 'activeInHierarchy', activeInHierarchyDescriptor);
+const parentDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'parent');
+editable(NodeProto, 'parent', parentDescriptor);
 serializable(NodeProto, '_parent');
 serializable(NodeProto, '_children');
 serializable(NodeProto, '_active');
@@ -1271,7 +1311,10 @@ serializable(NodeProto, '_lrot');
 serializable(NodeProto, '_lscale');
 serializable(NodeProto, '_layer');
 serializable(NodeProto, '_euler');
-type(Vec3)(NodeProto, 'eulerAngles');
-editable(NodeProto, 'angle');
-editable(NodeProto, 'layer');
+const eulerAnglesDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'eulerAngles');
+type(Vec3)(NodeProto, 'eulerAngles', eulerAnglesDescriptor);
+const angleDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'angle');
+editable(NodeProto, 'angle', angleDescriptor);
+const layerDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'layer');
+editable(NodeProto, 'layer', layerDescriptor);
 ccclass('cc.Node')(Node);

@@ -23,10 +23,8 @@
  THE SOFTWARE.
  */
 
-import {
-    ccclass, type, serializable, override,
-} from 'cc.decorator';
-import { AudioPlayer, OneShotAudio } from 'pal/audio';
+import { ccclass, serializable, override } from 'cc.decorator';
+import { AudioPlayer } from 'pal/audio';
 import { Asset } from '../core/assets/asset';
 import { legacyCC } from '../core/global-exports';
 import { AudioState, AudioType } from '../../pal/audio/type';
@@ -40,9 +38,9 @@ export interface AudioMeta {
 
 /**
  * @en
- * The audio clip asset. <br>
+ * The audio clip asset.
  * @zh
- * 音频片段资源。<br>
+ * 音频片段资源。
  */
 @ccclass('cc.AudioClip')
 export class AudioClip extends Asset {
