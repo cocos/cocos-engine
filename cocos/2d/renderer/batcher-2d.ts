@@ -220,66 +220,8 @@ export class Batcher2D implements IBatcher {
         return null;
     }
 
-    nodeTempArr:Node[] = [];
-
-    collectNode (node: Node) {
-        let index = 1;
-        let children;
-        let curr: Node = node;
-        let parent: Node| null = null;
-        const stack: Node[] = [];
-        stack.length = 0;
-        stack[0] = node;
-        let i = 0;
-        let afterChildren = false;
-        while (index) {
-            index--;
-            curr = stack[index];
-            if (afterChildren) {
-                if (parent === node.parent) break;
-                afterChildren = false;
-            } else {
-                this.nodeTempArr.push(curr);
-                if (curr.children.length > 0) {
-                    parent = curr;
-                    children = curr.children;
-                    i = 0;
-                    stack[index] = children[i];
-                    index++;
-                } else {
-                    stack[index] = curr;
-                    index++;
-                    afterChildren = true;
-                }
-                continue;
-            }
-
-            if (children) {
-                i++;
-                if (children[i]) {
-                    stack[index] = children[i];
-                    index++;
-                } else if (parent) {
-                    stack[index] = parent;
-                    index++;
-                    afterChildren = true;
-                    if (parent.parent) {
-                        children = parent.parent.children;
-                        i = children.indexOf(parent);
-                        parent = parent.parent;
-                    } else {
-                        // At root
-                        parent = null;
-                        children = null;
-                    }
-                }
-            }
-        }
-        stack.length = 0;
-    }
-
     public update () {
-        this._currCompSortingOrder = 0;
+        // this._currCompSortingOrder = 0;
 
         const screens = this._screens;
         let offset = 0;
@@ -296,7 +238,6 @@ export class Batcher2D implements IBatcher {
             this._currRenderEntity = null;
 
             //this.walk(screen.node);
-            //this._currRenderEntity!.nextIndex = -1;
 
             // test code
             if (JSB) {
@@ -784,7 +725,6 @@ export class Batcher2D implements IBatcher {
                 render.fillBuffers(this);// for rendering
             }
             if (JSB) {
-            //// NNNNNNNN
                 if (!this._currRenderEntity) {
                     this._currRenderEntity = render.renderData!.renderEntity;
                     this._nativeObj.currFrameHeadIndex = this._currRenderEntity.currIndex;
