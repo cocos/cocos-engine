@@ -4,6 +4,7 @@ import { Batcher2D } from '../2d/renderer/batcher-2d';
 import legacyCC from '../../predefine';
 import { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
 import { Device } from './gfx';
+import { registerRebuildLayoutGraph } from './pipeline/custom/index.jsb';
 
 declare const nr: any;
 declare const jsb: any;
@@ -165,7 +166,9 @@ rootProto.frameMove = function (deltaTime: number) {
 const oldSetPipeline = rootProto.setRenderPipeline;
 rootProto.setRenderPipeline = function (pipeline) {
     if (this.usesCustomPipeline) {
-        return oldSetPipeline.call(this, null);
+        const ppl = oldSetPipeline.call(this, null);
+        registerRebuildLayoutGraph();
+        return ppl;
     } else {
         if (!pipeline) {
             // pipeline should not be created in C++, ._ctor need to be triggered

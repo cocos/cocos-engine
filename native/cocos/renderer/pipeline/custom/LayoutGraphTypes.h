@@ -671,6 +671,7 @@ struct LayoutGraphData {
     ccstd::pmr::vector<ccstd::pmr::string>      valueNames;
     PmrFlatMap<ccstd::pmr::string, NameLocalID> attributeIndex;
     PmrFlatMap<ccstd::pmr::string, NameLocalID> constantIndex;
+    PmrFlatMap<ccstd::pmr::string, uint32_t>    shaderLayoutIndex;
     // Path
     PmrTransparentMap<ccstd::pmr::string, vertex_descriptor> pathIndex;
 };
