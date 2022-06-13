@@ -733,6 +733,8 @@ export class Camera {
 
         // view-projection
         if (viewProjDirty) {
+            // Remove scale
+            Mat4.multiply(this._matView, new Mat4().scale(this._node.worldScale), this._matView);
             Mat4.multiply(this._matViewProj, this._matProj, this._matView);
             Mat4.invert(this._matViewProjInv, this._matViewProj);
             this._frustum.update(this._matViewProj, this._matViewProjInv);
