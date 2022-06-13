@@ -1,4 +1,4 @@
-exports.template = `
+exports.template = /* html */`
 <section class="asset-erp-texture-cube">
     <div class="content">
         <ui-prop>
@@ -8,7 +8,7 @@ exports.template = `
                     value="i18n:ENGINE.assets.erpTextureCube.anisotropy"
                 ></ui-label>
             </span>
-            <ui-num-input slot="content"    
+            <ui-num-input slot="content"
                 id="anisotropy"
             ></ui-num-input>
         </ui-prop>
@@ -19,7 +19,7 @@ exports.template = `
                     value="i18n:ENGINE.assets.erpTextureCube.faceSize.name"
                 ></ui-label>
             </span>
-            <ui-num-input slot="content"    
+            <ui-num-input slot="content"
                 id="faceSize"
             ></ui-num-input>
         </ui-prop>
@@ -96,6 +96,15 @@ exports.template = `
                 <option value="mirrored-repeat">mirrored-repeat</option>
             </ui-select>
         </ui-prop>
+        <ui-prop>
+            <span slot="label">
+                <ui-label
+                    tooltip="i18n:ENGINE.assets.erpTextureCube.bakeReflectionConvolution"
+                    value="i18n:ENGINE.assets.erpTextureCube.bakeReflectionConvolution"
+                ></ui-label>
+            </span>
+            <ui-checkbox id="mipBakeMode" slot="content" value="false"></ui-checkbox>
+        </ui-prop>
     </div>
 </section>
 `;
@@ -114,6 +123,7 @@ exports.$ = {
     mipfilter: '#mipfilter',
     wrapModeS: '#wrapModeS',
     wrapModeT: '#wrapModeT',
+    mipBakeMode: '#mipBakeMode',
 };
 
 exports.ready = function() {
@@ -209,6 +219,16 @@ const Elements = {
             this.updateReadonly(this.$.wrapModeT);
         },
     },
+    mipBakeMode: {
+        ready() {
+            this.$.mipBakeMode.addEventListener('change', this.dataChange.bind(this, 'mipBakeMode'));
+        },
+        update() {
+            this.$.mipBakeMode.value = this.meta.userData.mipBakeMode === 1 ? true : false;
+            this.updateInvalid(this.$.mipBakeMode, 'mipBakeMode');
+            this.updateReadonly(this.$.mipBakeMode);
+        },
+    },
 
 };
 
@@ -227,8 +247,12 @@ exports.methods = {
         }
     },
     dataChange(key, event) {
+        let value = event.target.value;
+        if (key === 'mipBakeMode') {
+            value = event.target.value ? 1 : 0;
+        }
         this.metaList.forEach((meta) => {
-            meta.userData[key] = event.target.value || undefined;
+            meta.userData[key] = value || undefined;
         });
 
         this.dispatch('change');

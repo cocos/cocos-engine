@@ -653,8 +653,19 @@ export class Model {
     }
 
     /**
-     * @en Update the light map
-     * @zh 更新光照贴图
+     * @en initialize the light map info
+     * @zh 初始化光照贴图信息
+     * @param texture light map
+     * @param uvParam uv coordinate
+     */
+    public initLightingmap (texture: Texture2D | null, uvParam: Vec4) {
+        this._lightmap = texture;
+        this._lightmapUVParam = uvParam;
+    }
+
+    /**
+     * @en Update the light map info
+     * @zh 更新光照贴图信息
      * @param texture light map
      * @param uvParam uv coordinate
      */

@@ -42,9 +42,6 @@ import { RenderPassStage, RenderPriority } from '../../pipeline/define';
 import { errorID } from '../../platform/debug';
 import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { BatchedBuffer } from '../../pipeline/batched-buffer';
-import { legacyCC } from '../../global-exports';
-import { UpdateFrequency } from '../../pipeline/custom/types';
-import { Pipeline } from '../../pipeline/custom/pipeline';
 
 export interface IPassInfoFull extends EffectAsset.IPassInfo {
     // generated part
@@ -438,8 +435,8 @@ export class Pass {
         const samplerInfo = info && info.samplerHash !== undefined
             ? Sampler.unpackFromHash(info.samplerHash) : textureBase && textureBase.getSamplerInfo();
         const sampler = this._device.getSampler(samplerInfo);
-        this._descriptorSet.bindSampler(binding, sampler, index);
-        this._descriptorSet.bindTexture(binding, texture, index);
+        this._descriptorSet.bindSampler(binding, sampler, index || 0);
+        this._descriptorSet.bindTexture(binding, texture, index || 0);
     }
 
     /**
@@ -561,17 +558,7 @@ export class Pass {
         if (info.stateOverrides) { Pass.fillPipelineInfo(this, info.stateOverrides); }
 
         // init descriptor set
-        const director = legacyCC.director;
-        if (director.root.usesCustomPipeline) {
-            const root = legacyCC.director.root;
-            const ppl: Pipeline = root.customPipeline;
-            const ds = ppl.getDescriptorSetLayout(info.program, UpdateFrequency.PER_BATCH);
-            if (ds) {
-                _dsInfo.layout = ds;
-            } 
-        } else {
-            _dsInfo.layout = programLib.getDescriptorSetLayout(this._device, info.program);
-        }
+        _dsInfo.layout = programLib.getDescriptorSetLayout(this._device, info.program);
         this._descriptorSet = this._device.createDescriptorSet(_dsInfo);
 
         // calculate total size required
@@ -673,16 +660,7 @@ export class Pass {
     get root (): Root { return this._root; }
     get device (): Device { return this._device; }
     get shaderInfo (): IProgramInfo { return this._shaderInfo; }
-    get localSetLayout (): DescriptorSetLayout | null {
-        const director = legacyCC.director;
-        if (director.root.usesCustomPipeline) {
-            const root = legacyCC.director.root;
-            const ppl: Pipeline = root.customPipeline;
-            return ppl.getDescriptorSetLayout(this._programName, UpdateFrequency.PER_INSTANCE);
-        } else {
-            return programLib.getDescriptorSetLayout(this._device, this._programName, true);
-        }
-    }
+    get localSetLayout (): DescriptorSetLayout { return programLib.getDescriptorSetLayout(this._device, this._programName, true); }
     get program (): string { return this._programName; }
     get properties (): Record<string, EffectAsset.IPropertyInfo> { return this._properties; }
     get defines (): Record<string, string | number | boolean> { return this._defines; }

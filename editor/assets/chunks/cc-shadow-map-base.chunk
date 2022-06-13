@@ -3,9 +3,6 @@
 #include <common>
 #include <cc-global>
 #include <cc-shadow>
-#if CC_RECEIVE_SHADOW
-  #include <cc-csm>
-#endif
 #include <packing>
 #include <cc-local>
 
@@ -26,35 +23,38 @@ float CCGetLinearDepth(vec3 worldPos) {
 }
 
 #if CC_RECEIVE_SHADOW
-int CCGetCSMLevel(out vec4 csmPos, vec3 worldPos) {
+int CCGetCSMLevel(out vec4 csmPos, out vec2 shadowProjDepthInfo, out vec2 shadowProjInfo, out mat4 matLightView, vec3 worldPos) {
   for (int i = 0; i < NUMCASCADES; i++) {
-    vec4 shadowPos = cc_matShadowViewProj_levels[i] * vec4(worldPos.xyz, 1.0);
+    vec4 shadowPos = cc_matCSMViewProj[i] * vec4(worldPos.xyz, 1.0);
     vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
     if (clipPos.x < (0.0 + cc_csmInfo.y) || clipPos.x > (1.0 - cc_csmInfo.y) ||
         clipPos.y < (0.0 + cc_csmInfo.y) || clipPos.y > (1.0 - cc_csmInfo.y) ||
         clipPos.z < 0.0 || clipPos.z > 1.0) {
       continue;
     }
-    csmPos = cc_matShadowViewProjAtlas_levels[i] * vec4(worldPos.xyz, 1.0);
+    csmPos = cc_matCSMViewProjAtlas[i] * vec4(worldPos.xyz, 1.0);
+    shadowProjDepthInfo = cc_csmProjDepthInfo[i].xy;
+    shadowProjInfo = cc_csmProjInfo[i].xy;
+    matLightView = cc_matCSMView[i];
     return i;
   }
   return -1;
 }
 
   #pragma builtin(global)
-  layout(set = 0, binding = 4) uniform highp sampler2D cc_shadowMap;
+  layout(set = 0, binding = 3) uniform highp sampler2D cc_shadowMap;
 
   #pragma builtin(global)
-  layout(set = 0, binding = 6) uniform highp sampler2D cc_spotLightingMap;
+  layout(set = 0, binding = 5) uniform highp sampler2D cc_spotLightingMap;
 
-  vec4 ApplyShadowDepthBias_FaceNormal(vec4 shadowPos, vec3 worldNormal, float normalBias)
+  vec4 ApplyShadowDepthBias_FaceNormal(vec4 shadowPos, vec3 worldNormal, float normalBias, mat4 matLightView, vec2 shadowProjInfo)
   {
     vec4 newShadowPos = shadowPos;
     if(normalBias > EPSILON_LOWP)
     {
-      vec4 viewNormal = cc_matLightView * vec4(worldNormal, 0.0);
+      vec4 viewNormal = matLightView * vec4(worldNormal, 0.0);
       if(viewNormal.z < 0.1)
-        newShadowPos.xy += viewNormal.xy * cc_shadowProjInfo.xy * normalBias * clamp(viewNormal.z, 0.001, 0.1);
+        newShadowPos.xy += viewNormal.xy * shadowProjInfo.xy * normalBias * clamp(viewNormal.z, 0.001, 0.1);
     }
     return newShadowPos;
   }
@@ -83,10 +83,10 @@ int CCGetCSMLevel(out vec4 csmPos, vec3 worldPos) {
     return clipSpacePos;
   }
 
-  vec4 ApplyShadowDepthBias_Orthographic(vec4 shadowPos, float viewspaceDepthBias)
+  vec4 ApplyShadowDepthBias_Orthographic(vec4 shadowPos, float viewspaceDepthBias, vec2 shadowProjDepthInfo)
   {
-    float coeffA = cc_shadowProjDepthInfo.x;
-    float coeffB = cc_shadowProjDepthInfo.y;
+    float coeffA = shadowProjDepthInfo.x;
+    float coeffB = shadowProjDepthInfo.y;
 
     // Recover the Z distance in view space:
     float viewSpacePos_z = (shadowPos.z - coeffB) / coeffA;
@@ -101,7 +101,7 @@ int CCGetCSMLevel(out vec4 csmPos, vec3 worldPos) {
   }
   
   float CCGetShadowFactorHard (vec4 shadowPos, float bias) {
-    vec4 clipPosNew = ApplyShadowDepthBias_Orthographic(shadowPos, bias);
+    vec4 clipPosNew = shadowPos;
     vec3 clipPos = clipPosNew.xyz / clipPosNew.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
@@ -121,7 +121,7 @@ int CCGetCSMLevel(out vec4 csmPos, vec3 worldPos) {
   }
 
   float CCGetShadowFactorSoft (vec4 shadowPos, float bias) {
-    vec4 clipPosNew = ApplyShadowDepthBias_Orthographic(shadowPos, bias);
+    vec4 clipPosNew = shadowPos;
     vec3 clipPos = clipPosNew.xyz / clipPosNew.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
@@ -155,7 +155,7 @@ int CCGetCSMLevel(out vec4 csmPos, vec3 worldPos) {
   }
 
   float CCGetShadowFactorSoft2X (vec4 shadowPos, float bias) {
-    vec4 clipPosNew = ApplyShadowDepthBias_Orthographic(shadowPos, bias);
+    vec4 clipPosNew = shadowPos;
     vec3 clipPos = clipPosNew.xyz / clipPosNew.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
@@ -217,7 +217,7 @@ int CCGetCSMLevel(out vec4 csmPos, vec3 worldPos) {
   }
 
   float CCGetShadowFactorSoft4X (vec4 shadowPos, float bias) {
-    vec4 clipPosNew = ApplyShadowDepthBias_Orthographic(shadowPos, bias);
+    vec4 clipPosNew = shadowPos;
     vec3 clipPos = clipPosNew.xyz / clipPosNew.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
@@ -470,8 +470,7 @@ int CCGetCSMLevel(out vec4 csmPos, vec3 worldPos) {
   }
 
   float CCGetSpotLightShadowFactorSoft4X (vec4 shadowPos, vec3 worldPos, float bias) {
-    vec4 clipPosNew = ApplyShadowDepthBias_Orthographic(shadowPos, bias);
-    vec3 clipPos = clipPosNew.xyz / clipPosNew.w * 0.5 + 0.5;
+    vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
         clipPos.z < 0.0 || clipPos.z > 1.0) { return 1.0; }
@@ -615,7 +614,8 @@ float CCSpotShadowFactorBase(vec4 shadowPos, vec3 worldPos, vec2 shadowBias)
 float CCShadowFactorBase(vec4 shadowPos, vec3 N, vec2 shadowBias)
 {
   float realtimeShadow = 1.0;
-  vec4 pos = ApplyShadowDepthBias_FaceNormal(shadowPos, N, shadowBias.y);
+  vec4 pos = ApplyShadowDepthBias_FaceNormal(shadowPos, N, shadowBias.y, cc_matLightView, cc_shadowProjInfo.xy);
+  pos = ApplyShadowDepthBias_Orthographic(pos, shadowBias.x, cc_shadowProjDepthInfo.xy);
 
   float pcf = cc_shadowWHPBInfo.z;
   if (pcf > 2.9) {
@@ -633,19 +633,25 @@ float CCShadowFactorBase(vec4 shadowPos, vec3 N, vec2 shadowBias)
 float CCCSMFactorBase(vec3 worldPos, vec3 N, vec2 shadowBias)
 {
   vec4 csmPos = vec4(1.0);
-  int level = CCGetCSMLevel(csmPos, worldPos);
+  vec2 shadowDepthProjInfo;
+  vec2 shadowProjInfo;
+  mat4 matLightView;
+  int level = CCGetCSMLevel(csmPos, shadowDepthProjInfo, shadowProjInfo, matLightView, worldPos);
   if (level < 0) { return 1.0; }
   float realtimeShadow = 1.0;
 
+  vec4 pos = ApplyShadowDepthBias_FaceNormal(csmPos, N, shadowBias.y, matLightView, shadowProjInfo);
+  pos = ApplyShadowDepthBias_Orthographic(pos, shadowBias.x, shadowDepthProjInfo);
+
   float pcf = cc_shadowWHPBInfo.z;
   if (pcf > 2.9) {
-    realtimeShadow = CCGetShadowFactorSoft4X(csmPos, shadowBias.x);
+    realtimeShadow = CCGetShadowFactorSoft4X(pos, shadowBias.x);
   } else if (pcf > 1.9) {
-    realtimeShadow = CCGetShadowFactorSoft2X(csmPos, shadowBias.x);
+    realtimeShadow = CCGetShadowFactorSoft2X(pos, shadowBias.x);
   } else if (pcf > 0.9) {
-    realtimeShadow = CCGetShadowFactorSoft(csmPos, shadowBias.x);
+    realtimeShadow = CCGetShadowFactorSoft(pos, shadowBias.x);
   }else { 
-    realtimeShadow = CCGetShadowFactorHard(csmPos, shadowBias.x);
+    realtimeShadow = CCGetShadowFactorHard(pos, shadowBias.x);
   }
   return mix(realtimeShadow, 1.0, cc_shadowNFLSInfo.w);
 }

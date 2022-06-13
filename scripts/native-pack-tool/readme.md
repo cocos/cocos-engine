@@ -17,18 +17,20 @@
 
 ```bash
 1. npm install
-2. tsc (需要全局安装 typescript)
+2. tsc (需要全局安装 typescript) 或 npm run build
 ```
 
 ## 支持的命令
 
 ```bash
-npm run pack [projectPath] create // 根据原始构建后的目录资源生成基础的原生资源工程
-npm run pack [projectPath] make // 编译/生成指定的原生工程
-npm run pack [projectPath] run // 运行已经编译好的原生导出软件
+npm run pack [projectBuildPath] create // 根据原始构建后的目录资源生成基础的原生资源工程
+npm run pack [projectBuildPath] make // 编译/生成指定的原生工程
+npm run pack [projectBuildPath] run // 运行已经编译好的原生导出软件
 
-npm run pack [projectPath] init,make,run
+npm run pack [projectBuildPath] init,make,run
 ```
+
+> [projectBuildPath] 指代 `build/[platform]` 路径
 
 ## 开发须知
 

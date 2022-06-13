@@ -41,7 +41,7 @@ import { QueueHint, ResourceResidency, SceneFlags, TaskType, UpdateFrequency } f
 import { ComputeView, CopyPair, MovePair, RasterView } from './render-graph';
 import { RenderScene } from '../../renderer/core/render-scene';
 import { RenderWindow } from '../../renderer/core/render-window';
-import { Model } from '../../renderer/scene';
+import { Light, Model } from '../../renderer/scene';
 
 export abstract class PipelineRuntime {
     public abstract activate(swapchain: Swapchain): boolean;
@@ -76,8 +76,8 @@ export abstract class Setter {
 }
 
 export abstract class RasterQueueBuilder extends Setter {
-    public abstract addSceneOfCamera(camera: Camera, sceneFlags: SceneFlags, name: string): void;
-    public abstract addSceneOfCamera(camera: Camera, sceneFlags: SceneFlags): void;
+    public abstract addSceneOfCamera(camera: Camera, light: Light | null, sceneFlags: SceneFlags, name: string): void;
+    public abstract addSceneOfCamera(camera: Camera, light: Light | null, sceneFlags: SceneFlags): void;
     public abstract addScene(name: string, sceneFlags: SceneFlags): void;
     public abstract addFullscreenQuad(shader: string, name: string): void;
     public abstract addFullscreenQuad(shader: string): void;
