@@ -385,6 +385,15 @@ export class WebPipeline extends Pipeline {
     public set shadingScale (scale: number) {
         this._pipelineSceneData.shadingScale = scale;
     }
+    public setMacroString (name: string, value: string): void {
+        this._macros[name] = value;
+    }
+    public setMacroInt (name: string, value: number): void {
+        this._macros[name] = value;
+    }
+    public setMacroBool (name: string, value: boolean): void {
+        this._macros[name] = value;
+    }
     public get device () {
         return this._device;
     }
