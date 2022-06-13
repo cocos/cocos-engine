@@ -7,6 +7,11 @@ layout(set = 0, binding = 0) uniform CCGlobal {
   highp   vec4 cc_time; // x: global time since started in seconds, y: delta time for current frame, z: total frames since started
   mediump vec4 cc_screenSize; // xy: screen size, zw: inverse screen size
   mediump vec4 cc_nativeSize; // xy: shading size, zw: inverse shading size
+
+  mediump vec4 cc_debug_view_mode; // x: single mode, y: lighting with albedo, z: csm layer coloration w: unused
+  mediump vec4 cc_debug_view_composite_pack_1; // x: dir diffuse, y: dir specular, z: env diffuse, w: env specular
+  mediump vec4 cc_debug_view_composite_pack_2; // x: emissive, y: lightmap, z: shadow, w: ao
+  mediump vec4 cc_debug_view_composite_pack_3; // x: normalmap, y: fog, z: tonemapping, w: gamma correction
 };
 
 #pragma builtin(global)

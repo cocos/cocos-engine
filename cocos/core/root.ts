@@ -26,6 +26,7 @@
 import { builtinResMgr } from './builtin';
 import { Pool } from './memop';
 import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from './pipeline';
+import { DebugView } from './pipeline/debug-view';
 import { Camera, Light, Model } from './renderer/scene';
 import type { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
 import { LightType } from './renderer/scene/light';
@@ -160,6 +161,14 @@ export class Root {
     }
 
     /**
+     * @en The debug view manager for rendering
+     * @zh 渲染调试管理器
+     */
+    public get debugView (): DebugView {
+        return this._debugView;
+    }
+
+    /**
      * @en The time cumulated in seconds since the game began running.
      * @zh 累计时间（秒）。
      */
@@ -248,6 +257,7 @@ export class Root {
     private _modelPools = new Map<Constructor<Model>, Pool<Model>>();
     private _cameraPool: Pool<Camera> | null = null;
     private _lightPools = new Map<Constructor<Light>, Pool<Light>>();
+    private _debugView = new DebugView();
     private _fpsTime = 0;
     private _frameCount = 0;
     private _fps = 0;
