@@ -205,11 +205,37 @@ export class DebugView {
      * @internal
      */
     constructor () {
-        this.activate();
+        this._activate();
         if (JSB && this._nativeConfig === null) {
             // @ts-expect-error jsb object access
             this._nativeConfig = new jsb.DebugViewConfig();
             this._nativeConfig.compositeModeBitCount = DebugViewCompositeType.MAX_BIT_COUNT;
+        }
+    }
+
+    protected _activate () {
+        this._singleMode = DebugViewSingleType.NONE;
+        this._enableAllCompositeMode(true);
+        this._lightingWithAlbedo = true;
+        this._csmLayerColoration = false;
+
+        if (JSB && this._nativeConfig) {
+            this._nativeConfig.singleMode = this._singleMode;
+            this._nativeConfig.compositeModeValue = this._compositeModeValue;
+            this._nativeConfig.lightingWithAlbedo = this._lightingWithAlbedo;
+            this._nativeConfig.csmLayerColoration = this._csmLayerColoration;
+        }
+    }
+
+    protected _updatePipeline () {
+        const root = legacyCC.director.root as Root;
+        const pipeline = root.pipeline;
+
+        const useDebugView = this._getType();
+
+        if (pipeline.macros.CC_USE_DEBUG_VIEW !== useDebugView) {
+            pipeline.macros.CC_USE_DEBUG_VIEW = useDebugView;
+            root.onGlobalPipelineStateChanged();
         }
     }
 
@@ -252,31 +278,5 @@ export class DebugView {
             }
         }
         return RenderingDebugViewType.NONE;
-    }
-
-    public activate () {
-        this._singleMode = DebugViewSingleType.NONE;
-        this._enableAllCompositeMode(true);
-        this._lightingWithAlbedo = true;
-        this._csmLayerColoration = false;
-
-        if (JSB && this._nativeConfig) {
-            this._nativeConfig.singleMode = this._singleMode;
-            this._nativeConfig.compositeModeValue = this._compositeModeValue;
-            this._nativeConfig.lightingWithAlbedo = this._lightingWithAlbedo;
-            this._nativeConfig.csmLayerColoration = this._csmLayerColoration;
-        }
-    }
-
-    protected _updatePipeline () {
-        const root = legacyCC.director.root as Root;
-        const pipeline = root.pipeline;
-
-        const useDebugView = this._getType();
-
-        if (pipeline.macros.CC_USE_DEBUG_VIEW !== useDebugView) {
-            pipeline.macros.CC_USE_DEBUG_VIEW = useDebugView;
-            root.onGlobalPipelineStateChanged();
-        }
     }
 }
