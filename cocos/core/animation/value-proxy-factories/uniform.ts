@@ -100,7 +100,6 @@ export class UniformProxyFactory implements IValueProxyFactory {
                 },
             };
         } else {
-            const binding = Pass.getBindingFromHandle(handle);
             const prop = pass.properties[this.uniformName];
             const texName = prop && prop.value ? `${prop.value as string}-texture` : getDefaultFromType(prop.type) as string;
             let dftTex = builtinResMgr.get<TextureBase>(texName);
@@ -113,9 +112,12 @@ export class UniformProxyFactory implements IValueProxyFactory {
                     if (!value) { value = dftTex; }
                     const texture = value.getGFXTexture();
                     if (!texture || !texture.width || !texture.height) { return; }
-                    pass.bindTexture(binding, texture);
                     if (value instanceof TextureBase) {
-                        pass.bindSampler(binding, legacyCC.game._gfxDevice.getSampler(value.getSamplerInfo()));
+                        pass.setTextureAndSampler(this.uniformName,
+                            texture,
+                            legacyCC.game._gfxDevice.getSampler(value.getSamplerInfo()));
+                    } else {
+                        pass.setTexture(this.uniformName, texture);
                     }
                 },
             };
