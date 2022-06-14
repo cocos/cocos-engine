@@ -28,6 +28,7 @@ cc_set_if_undefined(USE_PHYSICS_PHYSX        OFF)
 cc_set_if_undefined(USE_MODULES              OFF)
 cc_set_if_undefined(USE_SERVER_MODE          OFF)
 cc_set_if_undefined(USE_CCACHE               OFF)
+cc_set_if_undefined(USE_PLUGINS              ON)
 
 add_definitions()
 
@@ -2768,8 +2769,6 @@ endif()
 
 add_library(${ENGINE_NAME} ${COCOS_SOURCE_LIST})
 
-cc_platform_macros(${ENGINE_NAME})
-
 if(USE_MODULES)
     target_link_libraries(${ENGINE_NAME} PUBLIC
         ccmath
@@ -2785,7 +2784,6 @@ endif()
 if(ANDROID OR OHOS)
     cc_enable_werror("${CC_JNI_SRC_FILES}")
     add_library(cocos_jni STATIC ${CC_JNI_SRC_FILES})
-    cc_platform_macros(cocos_jni)
     target_include_directories(cocos_jni PUBLIC
         ${CWD}
         ${CWD}/cocos

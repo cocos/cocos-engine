@@ -80,20 +80,16 @@ endif()
 MESSAGE(STATUS "platform: ${CMAKE_SYSTEM_NAME}")
 
 # platform macros
-function(cc_platform_macros target)
-    target_compile_definitions(${target} PUBLIC
-        CC_PLATFORM_WINDOWS=${CC_PLATFORM_WINDOWS}
-        CC_PLATFORM_MAC_OSX=${CC_PLATFORM_MAC_OSX}
-        CC_PLATFORM_MAC_IOS=${CC_PLATFORM_MAC_IOS}
-        CC_PLATFORM_ANDROID=${CC_PLATFORM_ANDROID}
-        CC_PLATFORM_OHOS=${CC_PLATFORM_OHOS}
-        CC_PLATFORM_LINUX=${CC_PLATFORM_LINUX}
-        CC_PLATFORM_QNX=${CC_PLATFORM_QNX}
-        CC_PLATFORM_NX=${CC_PLATFORM_NX}
-        CC_PLATFORM_EMSCRIPTEN=${CC_PLATFORM_EMSCRIPTEN}
-        CC_PLATFORM=${CC_PLATFORM}
-    )
-endfunction()
+add_definitions(-DCC_PLATFORM_WINDOWS=${CC_PLATFORM_WINDOWS})
+add_definitions(-DCC_PLATFORM_MAC_OSX=${CC_PLATFORM_MAC_OSX})
+add_definitions(-DCC_PLATFORM_MAC_IOS=${CC_PLATFORM_MAC_IOS})
+add_definitions(-DCC_PLATFORM_ANDROID=${CC_PLATFORM_ANDROID})
+add_definitions(-DCC_PLATFORM_OHOS=${CC_PLATFORM_OHOS})
+add_definitions(-DCC_PLATFORM_LINUX=${CC_PLATFORM_LINUX})
+add_definitions(-DCC_PLATFORM_QNX=${CC_PLATFORM_QNX})
+add_definitions(-DCC_PLATFORM_NX=${CC_PLATFORM_NX})
+add_definitions(-DCC_PLATFORM_EMSCRIPTEN=${CC_PLATFORM_EMSCRIPTEN})
+add_definitions(-DCC_PLATFORM=${CC_PLATFORM})
 
 include_directories(${CMAKE_CURRENT_LIST_DIR}/../external/sources)
 
