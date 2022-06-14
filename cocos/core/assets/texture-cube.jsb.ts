@@ -258,4 +258,6 @@ legacyCC.TextureCube = jsb.TextureCube;
 const TextureCubeProto = TextureCube.prototype;
 serializable(TextureCubeProto, 'isRGBE');
 serializable(TextureCubeProto, '_mipmaps');
+serializable(TextureCubeProto, '_mipmapMode');
+serializable(TextureCubeProto, '_mipmapAtlas');
 ccclass('cc.TextureCube')(TextureCube);
