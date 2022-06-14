@@ -343,6 +343,11 @@ void Model::onGeometryChanged() {
     }
 }
 
+void Model::initLightingmap(Texture2D *texture, const Vec4 &uvParam) {
+    _lightmap = texture;
+    _lightmapUVParam = uvParam;
+}
+
 void Model::updateLightingmap(Texture2D *texture, const Vec4 &uvParam) {
     vec4ToFloat32Array(uvParam, _localData, pipeline::UBOLocal::LIGHTINGMAP_UVPARAM); //TODO(xwx): toArray not implemented in Math
     _localDataUpdated = true;
