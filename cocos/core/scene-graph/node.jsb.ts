@@ -19,6 +19,7 @@
  THE SOFTWARE.
 */
 
+import { EDITOR } from 'internal:constants';
 import { ccclass, editable, serializable, type } from 'cc.decorator';
 import {
     _applyDecoratedDescriptor,
@@ -37,7 +38,6 @@ import { Mat4, Quat, Vec3 } from '../math';
 import { NodeEventProcessor } from './node-event-processor';
 import { Layers } from './layers';
 import { SerializationContext, SerializationOutput, serializeTag } from '../data';
-import { EDITOR } from '../default-constants';
 import { _tempFloatArray } from './utils.jsb';
 
 import {

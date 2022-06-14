@@ -36,7 +36,6 @@ import { PerfCounter } from './perf-counter';
 import { legacyCC } from '../core/global-exports';
 import { Pass } from '../core/renderer';
 import { preTransforms } from '../core/math/mat4';
-import { JSB } from '../core/default-constants';
 import { Root } from '../core/root';
 import { PipelineRuntime } from '../core/pipeline/custom/pipeline';
 

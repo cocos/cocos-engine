@@ -407,7 +407,14 @@ struct CC_DLL UBOGlobal {
     static constexpr uint TIME_OFFSET = 0;
     static constexpr uint SCREEN_SIZE_OFFSET = UBOGlobal::TIME_OFFSET + 4;
     static constexpr uint NATIVE_SIZE_OFFSET = UBOGlobal::SCREEN_SIZE_OFFSET + 4;
-    static constexpr uint COUNT = UBOGlobal::NATIVE_SIZE_OFFSET + 4;
+
+    static constexpr uint DEBUG_VIEW_MODE_OFFSET = UBOGlobal::NATIVE_SIZE_OFFSET + 4;
+    static constexpr uint DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET = UBOGlobal::DEBUG_VIEW_MODE_OFFSET + 4;
+    static constexpr uint DEBUG_VIEW_COMPOSITE_PACK_2_OFFSET = UBOGlobal::DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET + 4;
+    static constexpr uint DEBUG_VIEW_COMPOSITE_PACK_3_OFFSET = UBOGlobal::DEBUG_VIEW_COMPOSITE_PACK_2_OFFSET + 4;
+    
+    static constexpr uint COUNT = UBOGlobal::DEBUG_VIEW_COMPOSITE_PACK_3_OFFSET + 4;
+
     static constexpr uint SIZE = UBOGlobal::COUNT * 4;
     static constexpr uint BINDING = static_cast<uint>(PipelineGlobalBindings::UBO_GLOBAL);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;

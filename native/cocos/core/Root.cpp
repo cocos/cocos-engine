@@ -331,7 +331,9 @@ void Root::frameMove(float deltaTime, int32_t totalFrames) {
         std::stable_sort(_cameraList.begin(), _cameraList.end(), [](const auto *a, const auto *b) {
             return a->getPriority() < b->getPriority();
         });
+#if !defined(CC_SERVER_MODE)
         _pipelineRuntime->render(_cameraList);
+#endif
         _device->present();
     }
 

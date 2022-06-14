@@ -166,6 +166,8 @@ public:
         static_assert(std::is_convertible<T, RefCounted *>::value, "Invalid Type for cc::Vector<T>!");
         //        CC_LOG_INFO("In the move constructor of Vector!");
         _data = std::move(other);
+        // NOTE: The reference count of T in ccstd::vector may be 0 so we need to retain all elements in ccstd::vector.
+        addRefForAllObjects();
     }
 
     /** Copy assignment operator. */
@@ -179,12 +181,42 @@ public:
         return *this;
     }
 
-    /** Copy assignment operator with std::move semantic. */
+    RefVector<T> &operator=(const ccstd::vector<T> &other) {
+        static_assert(std::is_convertible<T, RefCounted *>::value, "Invalid Type for cc::Vector<T>!");
+        if (&_data != &other) {
+            //        CC_LOG_INFO("In the copy assign operator!");
+            clear();
+            _data = other;
+            addRefForAllObjects();
+        }
+        return *this;
+    }
+
+    /** Move assignment operator with std::move semantic. */
     RefVector<T> &operator=(RefVector<T> &&other) noexcept {
         if (this != &other) {
             //            CC_LOG_INFO("In the move assignment operator!");
             clear();
             _data = std::move(other._data);
+        }
+        return *this;
+    }
+
+    RefVector<T> &operator=(ccstd::vector<T> &&other) noexcept {
+        if (&_data != &other) {
+            //            CC_LOG_INFO("In the move assignment operator!");
+            clear();
+            _data = std::move(other);
+            // NOTE: The reference count of T in ccstd::vector may be 0 so we need to retain all elements in ccstd::vector.
+            addRefForAllObjects();
+        }
+        return *this;
+    }
+
+    RefVector<T> &operator=(std::initializer_list<T> list) {
+        clear();
+        for (auto &element : list) {
+            pushBack(element);
         }
         return *this;
     }
