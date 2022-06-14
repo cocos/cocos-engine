@@ -192,7 +192,7 @@ CGRect getSafeAreaRect() {
 }
 
 //TODO: Get hash with different type of showInfo, for example different inputAccessoryView
-NSString *getHash(const cc::EditBox::ShowInfo* showInfo) {
+NSString* getTextInputType(const cc::EditBox::ShowInfo* showInfo) {
     return showInfo->isMultiline?@"textView":@"textField";
 }
 void onParentViewTouched(const cc::CustomEvent &touchEvent){
@@ -208,9 +208,10 @@ void onParentViewTouched(const cc::CustomEvent &touchEvent){
     UITextView* tViewOnToolbar;
 }
 - (id) initWithPairs:(UITextView*) inputOnView and:(UITextView*) inputOnToolbar {
-    self = [super init];
-    tViewOnView = inputOnView;
-    tViewOnToolbar = inputOnToolbar;
+    if (self = [super init]) {
+        tViewOnView = inputOnView;
+        tViewOnToolbar = inputOnToolbar;
+    }
     return self;
 }
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
@@ -235,9 +236,10 @@ void onParentViewTouched(const cc::CustomEvent &touchEvent){
 }
 
 - (id) initWithPairs:(UITextField*) inputOnView and:(UITextField*) inputOnToolbar {
-    self = [super init];
-    textFieldOnView = inputOnView;
-    textFieldOntoolbar = inputOnToolbar;
+    if (self = [super init]) {
+        textFieldOnView = inputOnView;
+        textFieldOntoolbar = inputOnToolbar;
+    }
     return self;
 }
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
@@ -303,22 +305,21 @@ static EditboxManager *instance = nil;
     cc::EditBox::complete();
 }
 - (id)init {
-    self          = [super init];
-    textInputDictionnary = [NSMutableDictionary new];
-    
-    cc::EventDispatcher::addCustomEventListener(EVENT_RESIZE, [&](const cc::CustomEvent& event) -> void {
-            [[EditboxManager sharedInstance] onOrientationChanged];
-    });
-    cc::EventDispatcher::addCustomEventListener("onTouchStart", [&](const cc::CustomEvent& event) -> void {
-        cc::EditBox::complete();
-    });
-    
+    if (self = [super init]) {
+        textInputDictionnary = [NSMutableDictionary new];
+        
+        cc::EventDispatcher::addCustomEventListener(EVENT_RESIZE, [&](const cc::CustomEvent& event) -> void {
+                [[EditboxManager sharedInstance] onOrientationChanged];
+        });
+        //"onTouchStart" is a sub event for TouchEvent, so we can only add listener for this sub event rather than TouchEvent itself.
+        cc::EventDispatcher::addCustomEventListener("onTouchStart", [&](const cc::CustomEvent& event) -> void {
+            cc::EditBox::complete();
+        });
+    }
     return self;
 }
 - (void)dealloc {
-    for (id textInput : textInputDictionnary) {
-        [textInput release];
-    }
+    [textInputDictionnary release];
     [super dealloc];
 }
 - (UIBarButtonItem*) setInputWidthOf: (UIToolbar*)toolbar{
@@ -444,7 +445,7 @@ static EditboxManager *instance = nil;
     CGRect viewRect = UIApplication.sharedApplication.delegate.window.rootViewController.view.frame;
     
     //TODO: object for key with real hash value
-    NSString* hash = getHash(showInfo);
+    NSString* hash = getTextInputType(showInfo);
     
     if ((ret = [textInputDictionnary objectForKey:hash])) {
         [[ret inputOnView] setFrame:CGRectMake(showInfo->x,
@@ -476,7 +477,7 @@ static EditboxManager *instance = nil;
     CGRect viewRect = UIApplication.sharedApplication.delegate.window.rootViewController.view.frame;
     
     //TODO: object for key with real hash value
-    NSString* hash = getHash(showInfo);
+    NSString* hash = getTextInputType(showInfo);
     
     if ((ret = [textInputDictionnary objectForKey:hash])) {
         [[ret inputOnView] setFrame:CGRectMake(showInfo->x,
@@ -569,7 +570,7 @@ void EditBox::hide() {
 
 bool EditBox::complete() {
     if(!EditBox::_isShown)
-        return;
+        return true;
     NSString *text = [[EditboxManager sharedInstance] getCurrentText];
     callJSFunc("complete", [text UTF8String]);
     EditBox::hide();

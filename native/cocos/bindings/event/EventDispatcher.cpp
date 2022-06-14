@@ -290,7 +290,6 @@ void EventDispatcher::dispatchOrientationChangeEvent(int orientation) {
         args.emplace_back(se::Value(jsOrientationEventObj));
         func.toObject()->call(args, nullptr);
     }
-    EventDispatcher::dispatchCustomEvent("orientation_changed", 0);
 }
 
 void EventDispatcher::dispatchEnterBackgroundEvent() {
