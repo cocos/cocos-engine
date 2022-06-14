@@ -172,6 +172,13 @@ inline bool sevalue_to_native(const se::Value &from, ccstd::string *to, se::Obje
     return true;
 }
 
+inline bool sevalue_to_native(const se::Value &from, std::string_view *to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
+    if (from.isString()) {
+        *to = from.toString();
+    }
+    return true;
+}
+
 ///// integers
 inline bool sevalue_to_native(const se::Value &from, bool *to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     *to = from.isNullOrUndefined() ? false : (from.isNumber() ? from.toDouble() != 0 : from.toBoolean());
@@ -324,7 +331,9 @@ inline bool sevalue_to_native(const se::Value &from, void **to, se::Object * /*c
 }
 
 inline bool sevalue_to_native(const se::Value &from, ccstd::string **to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-    **to = from.toString();
+    if (to != nullptr && *to != nullptr) {
+        **to = from.toString();
+    }
     return true;
 }
 
@@ -456,6 +465,11 @@ inline bool nativevalue_to_se(long from, se::Value &to, se::Object * /*ctx*/) { 
 #endif
 
 inline bool nativevalue_to_se(const ccstd::string &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
+    to.setString(from);
+    return true;
+}
+
+inline bool nativevalue_to_se(const std::string_view &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     to.setString(from);
     return true;
 }
