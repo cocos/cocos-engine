@@ -29,8 +29,8 @@
 namespace cc {
 
 namespace {
-ccstd::vector<IntrusivePtr<IJointTransform>> stack;
-ccstd::unordered_map<ccstd::string, IntrusivePtr<IJointTransform>> pool;
+ccstd::vector<IJointTransform *> stack;
+ccstd::unordered_map<ccstd::string, IJointTransform *> pool;
 } // namespace
 
 Mat4 getWorldMatrix(IJointTransform *transform, int32_t stamp) {
