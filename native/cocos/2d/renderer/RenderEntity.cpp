@@ -52,6 +52,14 @@ void RenderEntity::setIDataBuffer(uint16_t* iDataBuffer) {
     this->_iDataBuffer = iDataBuffer;
 }
 
+void RenderEntity::setVbCount(index_t vbCount) {
+    this->_vbCount = vbCount;
+}
+
+void RenderEntity::setIbCount(index_t ibCount) {
+    this->_ibCount = ibCount;
+}
+
 void RenderEntity::setNode(Node* node) {
     _node = node;
 

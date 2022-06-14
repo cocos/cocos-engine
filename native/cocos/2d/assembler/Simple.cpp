@@ -5,14 +5,10 @@
 
 namespace cc {
 Simple::Simple(/* args */) {
-    this->_vertexRow = 2;
-    this->_vertexCol = 2;
     this->_batcher = nullptr;
 }
 
 Simple::Simple(Batcher2d* batcher) {
-    this->_vertexRow = 2;
-    this->_vertexCol = 2;
     this->_batcher = batcher;
 }
 
@@ -28,7 +24,7 @@ void Simple::updateWorldVerts(RenderEntity* entity) {
     Node* node = entity->getNode();
     const Mat4& matrix = node->getWorldMatrix();
     uint8_t stride = entity->getStride();
-    uint32_t size = entity->getSize();
+    uint32_t size = entity->getVbCount() * stride;
     float_t* vbBuffer = entity->getVbBuffer();
 
     Vec3 temp;
@@ -58,9 +54,10 @@ void Simple::fillBuffers(RenderEntity* entity) {
     index_t indexOffset = buffer->getIndexOffset();
 
     uint16_t* indexb = entity->getIbBuffer();
+    index_t indexCount = entity->getIbCount();
 
-    memcpy(&ib[indexOffset], indexb, 6 * sizeof(uint16_t));
-    indexOffset += (_vertexRow - 1) * (_vertexCol - 1) * 6; // Magic Number
+    memcpy(&ib[indexOffset], indexb, indexCount * sizeof(uint16_t));
+    indexOffset += indexCount;
 
     // set index offset back
     buffer->setIndexOffset(indexOffset);

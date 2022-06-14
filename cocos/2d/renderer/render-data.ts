@@ -161,6 +161,8 @@ export class BaseRenderData {
             this._renderEntity.setIB(this.chunk.ib);
             this._renderEntity.setVData(this.chunk.meshBuffer.vData.buffer);
             this._renderEntity.setIData(this.chunk.meshBuffer.iData.buffer);
+            this._renderEntity.setVBCount(this._vc);
+            this._renderEntity.setIBCount(this._ic);
 
             this._renderEntity.setDataHash(this.dataHash);
             this._renderEntity.setStencilStage(StencilManager.sharedManager!.stage);//这里存疑，应该每一帧都传一次

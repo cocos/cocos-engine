@@ -56,6 +56,8 @@ export class RenderEntity {
     protected _iData: Uint16Array | undefined;
     protected _node: Node | undefined;
     protected _vertDirty: boolean | undefined;
+    protected _vbCount: number | undefined;
+    protected _ibCount: number | undefined;
 
     protected _dataHash :number |undefined;
     protected _stencilStage :number |undefined;
@@ -146,6 +148,18 @@ export class RenderEntity {
     public setIData (iDataBuffer:ArrayBufferLike) {
         if (JSB) {
             this._nativeObj.iDataBuffer = iDataBuffer;
+        }
+    }
+
+    public setVBCount (vbCount) {
+        if (JSB) {
+            this._nativeObj.vbCount = vbCount;
+        }
+    }
+
+    public setIBCount (ibCount) {
+        if (JSB) {
+            this._nativeObj.ibCount = ibCount;
         }
     }
 

@@ -45,6 +45,10 @@ public:
     void setVDataBuffer(float_t* vDataBuffer);
     inline uint16_t* getIDataBuffer() const { return this->_iDataBuffer; }
     void setIDataBuffer(uint16_t* iDataBuffer);
+    inline index_t getVbCount() const { return this->_vbCount; }
+    void setVbCount(index_t vbCount);
+    inline index_t getIbCount() const { return this->_ibCount; }
+    void setIbCount(index_t ibCount);
     inline Node* getNode() const { return this->_node; }
     void setNode(Node* node);
     inline bool getVertDirty() const { return this->_vertDirty; }
@@ -69,7 +73,7 @@ public:
     //inline ccstd::vector<AdvanceRenderData*> getDataArr() { return this->_dataArr; }
     //void setAdvanceRenderDataArr(std::vector<AdvanceRenderData*>&& arr);
 
-    void setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size);
+    void setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, uint32_t size); // size 为 冗余数据
 
     // for debug
     void ItIsDebugFuncInRenderEntity();
@@ -121,6 +125,9 @@ private:
     float_t* _vDataBuffer{nullptr};
     uint16_t* _iDataBuffer{nullptr};
     UIMeshBuffer* _meshBuffer{nullptr};
+
+    index_t _vbCount{0};
+    index_t _ibCount{0};
 
     Node* _node{nullptr};
 

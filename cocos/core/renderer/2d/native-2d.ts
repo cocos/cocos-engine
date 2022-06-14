@@ -28,6 +28,12 @@ export class NativeRenderEntity {
     get iDataBuffer ():ArrayBufferLike { return new ArrayBuffer(0); }
     set iDataBuffer (iDataBuffer:ArrayBufferLike) {}
 
+    get vbCount ():number { return 0; }
+    set vbCount (vbCount:number) {}
+
+    get ibCount ():number { return 0; }
+    set ibCount (ibCount:number) {}
+
     get node ():Node { return new Node(); }
     set node (node:Node) {}
 
