@@ -100,9 +100,8 @@ static int StartDebugSignalHandler() {
         // follow the pthreads specification to the letter rather than in spirit:
         // https://lists.freebsd.org/pipermail/freebsd-current/2014-March/048885.html
         #ifndef __FreeBSD__
-    auto ret = pthread_attr_setstacksize(&attr, PTHREAD_STACK_MIN);
     #if (CC_PLATFORM != CC_PLATFORM_NX) //this api return err on nx.
-    CHECK_EQ(0, ret);
+    CHECK_EQ(0, pthread_attr_setstacksize(&attr, PTHREAD_STACK_MIN));
     #endif
         #endif // __FreeBSD__
     CHECK_EQ(0, pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED));
@@ -117,7 +116,7 @@ static int StartDebugSignalHandler() {
     CHECK_EQ(0, pthread_sigmask(SIG_SETMASK, &sigmask, nullptr));
     CHECK_EQ(0, pthread_attr_destroy(&attr));
     if (err != 0) {
-        #if (CC_PLATFORM != CC_PLATFORM_NX) //this api return err on nx.
+        #if (CC_PLATFORM != CC_PLATFORM_NX) //getpid not support on nx.
         SE_LOGE("node[%d]: pthread_create: %s\n", getpid(), strerror(err));
         #endif
 
