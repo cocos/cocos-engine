@@ -34,6 +34,7 @@ import { LightType } from './renderer/scene/light';
 import { IRenderSceneInfo, RenderScene } from './renderer/core/render-scene';
 import { SphereLight } from './renderer/scene/sphere-light';
 import { SpotLight } from './renderer/scene/spot-light';
+import { DirectionalLight } from './renderer/scene/directional-light';
 import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
 import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature } from './gfx';
@@ -605,6 +606,11 @@ export class Root {
                     break;
                 case LightType.SPOT:
                     l.scene.removeSpotLight(l as SpotLight);
+                    p.free(l);
+                    l.destroy();
+                    break;
+                case LightType.DIRECTIONAL:
+                    l.scene.removeDirectionalLight(l as DirectionalLight);
                     p.free(l);
                     l.destroy();
                     break;
