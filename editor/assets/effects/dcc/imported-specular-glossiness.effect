@@ -321,7 +321,11 @@ bool GetMetallicAlbedoFromDiffuseSpecularWithoutColor(out float metallic, out ve
     //glossiness
     float inGlossiness = 0.0, inSpecularIntensity = specularColorAndFactor.w;
     #if HAS_EXPORTED_GLOSSINESS
-      inGlossiness = glossiness;
+      #if USE_SPECULAR_GLOSSINESS_MAP
+        inGlossiness = 1.0 - texture(specularGlossinessMap, TEXTURE_UV).a;
+      #else
+        inGlossiness = glossiness;
+      #endif
     #else
       #if USE_SHININESS_MAP
         #if SHININESS_MAP_CHANNEL
@@ -331,10 +335,6 @@ bool GetMetallicAlbedoFromDiffuseSpecularWithoutColor(out float metallic, out ve
         #endif
       #else
         inGlossiness = convertShininessExponent(shininessExponent);
-      #endif
-
-      #if USE_SPECULAR_GLOSSINESS_MAP
-        inGlossiness = 1.0 - texture(specularGlossinessMap, TEXTURE_UV).a;
       #endif
 
       inSpecularIntensity *= getSpecularIntensityFromRoughness(1.0 - inGlossiness);
