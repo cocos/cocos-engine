@@ -739,7 +739,7 @@ const Elements = {
 
                 sectionBody.__sections__ = [];
 
-                componentList.forEach((component, i) => {
+                componentList.forEach(async (component, i) => {
                     const $section = document.createElement('ui-section');
                     $section.setAttribute('expand', '');
                     $section.setAttribute('class', 'component');
@@ -844,6 +844,17 @@ const Elements = {
                         $panel.dump = component;
                         $panel.update(component);
                     });
+
+                    // 组件丢失的提示
+                    if (component.type === "cc.MissingScript") {
+                        const $missTip = document.createElement('div');
+                        $missTip.style.cssText = "border: 1px solid var(--color-normal-border); padding: 15px; border-radius: 4px;margin-top: 15px;";
+
+                        const assetData = await Editor.Message.request('asset-db', 'query-asset-data', component.value.__scriptAsset.value.uuid);
+
+                        $missTip.innerHTML = `${assetData ? assetData.url : ''} ${Editor.I18n.t('ENGINE.components.missScriptTip')}`;
+                        $section.appendChild($missTip);
+                    }
                 });
             }
 
