@@ -654,7 +654,7 @@ export class Model {
 
     /**
      * @internal
-     * If the model has lighting map 
+     * If the model has lighting map
      * initialize lighting map info before model initializing
      * because the lighting map will influence the shader
      */
