@@ -64,9 +64,7 @@ void Batcher2d::syncRenderEntitiesToNative(std::vector<RenderEntity*>&& renderEn
 //}
 
 UIMeshBuffer* Batcher2d::getMeshBuffer(index_t bufferId) {
-    if (bufferId >= this->_meshBuffers.size() || this->_meshBuffers[bufferId] == nullptr) {
-        return nullptr;
-    }
+    assert(this->_meshBuffers[bufferId]);
     return this->_meshBuffers[bufferId];
 }
 
@@ -89,26 +87,41 @@ bool compareEntitySortingOrder(const RenderEntity* entity1, const RenderEntity* 
 void Batcher2d::fillBuffersAndMergeBatches() {
 
     index_t size = _newRenderEntities.size();
+    if (size == 0) {
+        return;
+    }
+    RenderEntity* firstEntity = _newRenderEntities[0];
+    _currBID = firstEntity->getBufferId();
+    const UIMeshBuffer* buffer = firstEntity -> getMeshBuffer();
+    _indexStart = buffer->getIndexOffset();
+    _currHash = firstEntity->getDataHash();
+    _currMaterial = firstEntity->getMaterial();
+    _currLayer = firstEntity->getNode()->getLayer();
+    _currEntity = firstEntity;
+
+    //if(frame)
+    _currTexture = firstEntity->getTexture();
+    _currTextureHash = firstEntity->getTextureHash();
+    _currSampler = firstEntity->getSampler();
+    _simple->fillBuffers(firstEntity);
 
     //这里负责的是ts._render填充逻辑
     //这里不需要加assembler判断，因为ts的fillBuffers做了分层优化
     //，有多少顶点就传多少数据到RenderEntity
-    for (index_t i = 0; i < size; i++) {
+    for (index_t i = 1; i < size; i++) {
         RenderEntity* entity = _newRenderEntities[i];
 
         //判断是否能合批，不能合批则需要generateBatch
         uint32_t dataHash = entity->getDataHash();
         if (_currHash != dataHash || dataHash == 0 || _currMaterial != entity->getMaterial()
             /* || stencilmanager */) { //这个暂时只有mask才考虑，后续补充
-            generateBatch(entity);
+            generateBatch(_currEntity);
             if (!entity->getIsMeshBuffer()) {
                 //修改当前currbufferid和currindexStart（用当前的meshbuffer的indexOffset赋值）
                 if (_currBID != entity->getBufferId()) {
-                    UIMeshBuffer* buffer = getMeshBuffer(entity->getBufferId());
-                    if (buffer != nullptr) {
-                        _currBID = entity->getBufferId();
-                        _indexStart = buffer->getIndexOffset();
-                    }
+                    UIMeshBuffer* buffer = entity->getMeshBuffer();
+                    _currBID = entity->getBufferId();
+                    _indexStart = buffer->getIndexOffset();
                 }
             }
 
@@ -133,6 +146,7 @@ void Batcher2d::fillBuffersAndMergeBatches() {
         //最后调通时再把这里打开
         _simple->fillBuffers(entity);
     }
+    generateBatch(_currEntity);
 }
 
 //如果不传参数，说明是最后一个组件结束，直接合批
@@ -145,10 +159,7 @@ void Batcher2d::generateBatch(RenderEntity* entity) {
     //if (entity->getIsMeshBuffer()) {
     //    // Todo MeshBuffer RenderData
     //} else {
-    UIMeshBuffer* currMeshBuffer = getMeshBuffer(this->_currBID);
-    if (currMeshBuffer == nullptr) {
-        return; //第一个组件，currBID==-1，此时当然也不需要合批
-    }
+    UIMeshBuffer* currMeshBuffer = entity ->getMeshBuffer();
 
     currMeshBuffer->setDirty(true);
 
@@ -218,8 +229,8 @@ bool Batcher2d::initialize() {
 }
 
 void Batcher2d::update() {
+    updateVertDirtyRenderer();
     fillBuffersAndMergeBatches();
-    generateBatch(_currEntity);
     resetRenderStates();
 
     for (const auto scene : Root::getInstance()->getScenes()) {
@@ -227,6 +238,14 @@ void Batcher2d::update() {
             scene->addBatch(batch);
         }
     }
+}
+
+void Batcher2d::updateVertDirtyRenderer() {
+    size_t size = _vertDirtyRenderers.size();
+    for (uint32_t i = 0; i < size; i++) {
+        _simple->updateWorldVerts(_vertDirtyRenderers[i]);
+    }
+    _vertDirtyRenderers.clear();
 }
 
 void Batcher2d::uploadBuffers() {
@@ -275,6 +294,10 @@ void Batcher2d::reset() {
 void Batcher2d::addNewRenderEntity(RenderEntity* entity) {
     entity->setCurrIndex(_newRenderEntities.size());
     _newRenderEntities.push_back(entity);
+}
+
+void Batcher2d::addVertDirtyRenderer(RenderEntity *entity) {
+    _vertDirtyRenderers.push_back(entity);
 }
 
 void Batcher2d::setCurrFrameHeadIndex(index_t headIndex) {

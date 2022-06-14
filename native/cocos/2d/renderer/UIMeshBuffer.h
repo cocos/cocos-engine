@@ -42,10 +42,10 @@ public:
     void setByteOffset(index_t byteOffset);
     inline index_t getVertexOffset() { return _meshBufferLayout->vertexOffset; }
     void setVertexOffset(index_t vertexOffset);
-    inline index_t getIndexOffset() { return _meshBufferLayout->indexOffset; }
+    inline index_t getIndexOffset() const { return _meshBufferLayout->indexOffset; }
     void setIndexOffset(index_t indexOffset);
     inline bool getDirty() { return _meshBufferLayout->dirtyMark != 0; }
-    void setDirty(bool dirty);
+    void setDirty(bool dirty) const;
     inline index_t getFloatsPerVertex() { return _meshBufferLayout->floatsPerVertex; }
     void setFloatsPerVertex(index_t floatsPerVertex);
 

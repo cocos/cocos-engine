@@ -28,8 +28,10 @@ public:
     void update();
     void uploadBuffers();
     void reset();
+    void updateVertDirtyRenderer();
 
     void addNewRenderEntity(RenderEntity* entity);
+    void addVertDirtyRenderer(RenderEntity* entity);
 
     //inline index_t getCurrFrameHeadIndex() { return _currFrameHeadIndex; }
     //void setCurrFrameHeadIndex(index_t headIndex);
@@ -59,6 +61,7 @@ private:
 
 private:
     ccstd::vector<scene::DrawBatch2D*> _batches{};
+    ccstd::vector<RenderEntity*> _vertDirtyRenderers{};
     memop::Pool<scene::DrawBatch2D> _drawBatchPool;
 
     gfx::Device* _device{nullptr}; //use getDevice()

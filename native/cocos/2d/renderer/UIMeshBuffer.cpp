@@ -177,7 +177,7 @@ void UIMeshBuffer::setIndexOffset(index_t indexOffset) {
     _meshBufferLayout->indexOffset = indexOffset;
 }
 
-void UIMeshBuffer::setDirty(bool dirty) {
+void UIMeshBuffer::setDirty(bool dirty) const {
     _meshBufferLayout->dirtyMark = dirty ? 1 : 0;
 }
 
