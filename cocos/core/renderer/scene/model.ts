@@ -654,10 +654,9 @@ export class Model {
 
     /**
      * @internal
-     * @en initialize the light map info
-     * @zh 初始化光照贴图信息
-     * @param texture light map
-     * @param uvParam uv coordinate
+     * If the model has lighting map 
+     * initialize lighting map info before model initializing
+     * because the lighting map will influence the shader
      */
     public initLightingmap (texture: Texture2D | null, uvParam: Vec4) {
         this._lightmap = texture;
