@@ -596,21 +596,23 @@ export class Root {
     public destroyLight (l: Light) {
         const p = this._lightPools.get(l.constructor as Constructor<Light>);
         if (p) {
-            p.free(l);
             if (l.scene) {
                 switch (l.type) {
                 case LightType.SPHERE:
                     l.scene.removeSphereLight(l as SphereLight);
+                    p.free(l);
+                    l.destroy();
                     break;
                 case LightType.SPOT:
                     l.scene.removeSpotLight(l as SpotLight);
+                    p.free(l);
+                    l.destroy();
                     break;
                 default:
                     break;
                 }
             }
         }
-        l.destroy();
     }
 
     private _init (): void {
