@@ -95,8 +95,9 @@ void Batcher2d::fillBuffersAndMergeBatches() {
 }
 
 void Batcher2d::walk(Node* node) {
-    if (node->getUserData()) {
-        RenderEntity* entity = static_cast<RenderEntityUserData*>(node->getUserData()) -> getRenderEntity();
+    RenderEntityUserData* userData = static_cast<RenderEntityUserData*>(node->getUserData());
+    if (userData) {
+        RenderEntity* entity = userData->getRenderEntity();
 
         //判断是否为第一个
         if (_currBID == -1) {
@@ -148,7 +149,8 @@ void Batcher2d::walk(Node* node) {
     }
     //递归调用
     auto& children = node->getChildren();
-    for (index_t i = 0; i < children.size(); i++) {
+    const size_t size = children.size();
+    for (index_t i = 0; i < size; i++) {
         walk(children[i]);
     }
 }
