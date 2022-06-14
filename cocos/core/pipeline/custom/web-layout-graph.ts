@@ -1,7 +1,7 @@
 // eslint-disable-next-line max-len
 import { DescriptorSetInfo, DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, ShaderStageFlagBit } from '../../gfx';
 // eslint-disable-next-line max-len
-import { DescriptorBlock, DescriptorBlockIndex, LayoutGraphData, PipelineLayoutData, LayoutGraphDataValue, RenderStageData, RenderPhaseData, DescriptorTypeOrder, DescriptorSetLayoutData, DescriptorSetData, DescriptorBlockData, Descriptor, DescriptorData, getDescriptorTypeOrderName } from './layout-graph';
+import { DescriptorBlock, DescriptorBlockIndex, LayoutGraphData, PipelineLayoutData, LayoutGraphDataValue, RenderStageData, RenderPhaseData, DescriptorTypeOrder, DescriptorSetLayoutData, DescriptorSetData, DescriptorBlockData, Descriptor, DescriptorData, getDescriptorTypeOrderName, DescriptorBlockFlattened } from './layout-graph';
 import { LayoutGraphBuilder } from './pipeline';
 import { getUpdateFrequencyName, UpdateFrequency } from './types';
 
@@ -139,14 +139,14 @@ export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
         this._data.shaderLayoutIndex.set(name, parentPhaseID);
     }
 
-    public addDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlock): void {
+    public addDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlockFlattened): void {
         const g: LayoutGraphData = this._data;
         const ppl: PipelineLayoutData = g.getLayout(nodeID);
         if (block.capacity <= 0) {
             console.error('empty block');
             return;
         }
-
+        /*
         const layout: DescriptorSetLayoutData | undefined = ppl.descriptorSets.get(index.updateFrequency)?.descriptorSetLayoutData;
         if (layout !== undefined) {
             const dstBlock = new DescriptorBlockData(index.descriptorType, index.visibility, block.capacity);
@@ -173,9 +173,10 @@ export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
         } else {
             console.error('no layout');
         }
+*/
     }
 
-    public reserveDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlock): void {
+    public reserveDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlockFlattened): void {
         const g: LayoutGraphData = this._data;
         const ppl: PipelineLayoutData = g.getLayout(nodeID);
         if (block.capacity <= 0) {

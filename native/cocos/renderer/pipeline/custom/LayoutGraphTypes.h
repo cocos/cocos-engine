@@ -84,6 +84,15 @@ struct DescriptorBlock {
     uint32_t                                  count{0};
 };
 
+struct DescriptorBlockFlattened {
+    ccstd::vector<ccstd::string>  descriptorNames;
+    ccstd::vector<ccstd::string>  uniformBlockNames;
+    ccstd::vector<Descriptor>     descriptors;
+    ccstd::vector<UniformBlockDB> uniformBlocks;
+    uint32_t                      capacity{0};
+    uint32_t                      count{0};
+};
+
 struct DescriptorBlockIndex {
     DescriptorBlockIndex() = default;
     DescriptorBlockIndex(UpdateFrequency updateFrequencyIn, ParameterType parameterTypeIn, DescriptorTypeOrder descriptorTypeIn, gfx::ShaderStageFlagBit visibilityIn) noexcept

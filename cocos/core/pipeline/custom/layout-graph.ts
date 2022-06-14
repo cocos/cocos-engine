@@ -89,6 +89,15 @@ export class DescriptorBlock {
     count = 0;
 }
 
+export class DescriptorBlockFlattened {
+    readonly descriptorNames: string[] = [];
+    readonly uniformBlockNames: string[] = [];
+    readonly descriptors: Descriptor[] = [];
+    readonly uniformBlocks: UniformBlockDB[] = [];
+    capacity = 0;
+    count = 0;
+}
+
 export class DescriptorBlockIndex {
     constructor (updateFrequency: UpdateFrequency = UpdateFrequency.PER_INSTANCE, parameterType: ParameterType = ParameterType.CONSTANTS, descriptorType: DescriptorTypeOrder = DescriptorTypeOrder.UNIFORM_BUFFER, visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE) {
         this.updateFrequency = updateFrequency;

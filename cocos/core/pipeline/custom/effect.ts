@@ -45,7 +45,7 @@ export function rebuildLayoutGraph (): void {
         db.blocks.forEach((value, key) => {
             const index: DescriptorBlockIndex = JSON.parse(key) as DescriptorBlockIndex;
             const block: DescriptorBlock = value;
-            lgData.addDescriptorBlock(vid, index, block);
+            // lgData.addDescriptorBlock(vid, index, block);
         });
     }
 

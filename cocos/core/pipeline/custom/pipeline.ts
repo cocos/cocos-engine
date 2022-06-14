@@ -33,7 +33,7 @@ import { Camera } from '../../renderer/scene/camera';
 import { GeometryRenderer } from '../geometry-renderer';
 import { Buffer, Color, DescriptorSet, DescriptorSetLayout, DrawInfo, Format, InputAssembler, PipelineState, Rect, Sampler, Swapchain, Texture, Viewport } from '../../gfx';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
-import { DescriptorBlock, DescriptorBlockIndex } from './layout-graph';
+import { DescriptorBlockFlattened, DescriptorBlockIndex } from './layout-graph';
 import { Mat4, Quat, Vec2, Vec4 } from '../../math';
 import { MacroRecord } from '../../renderer/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
@@ -149,8 +149,8 @@ export abstract class LayoutGraphBuilder {
     public abstract addRenderStage(name: string): number;
     public abstract addRenderPhase(name: string, parentID: number): number;
     public abstract addShader(name: string, parentPhaseID: number): void;
-    public abstract addDescriptorBlock(nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlock): void;
-    public abstract reserveDescriptorBlock(nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlock): void;
+    public abstract addDescriptorBlock(nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlockFlattened): void;
+    public abstract reserveDescriptorBlock(nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlockFlattened): void;
     public abstract compile(): number;
     public abstract print(): string;
 }
