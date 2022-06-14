@@ -494,6 +494,18 @@ void NativePipeline::setShadingScale(float scale) {
     pipelineSceneData->setShadingScale(scale);
 }
 
+void NativePipeline::setMacroString(const ccstd::string& name, const ccstd::string& value) {
+    macros[name] = value;
+}
+
+void NativePipeline::setMacroInt(const ccstd::string& name, int32_t value) {
+    macros[name] = value;
+}
+
+void NativePipeline::setMacroBool(const ccstd::string& name, bool value) {
+    macros[name] = value;
+}
+
 void NativePipeline::onGlobalPipelineStateChanged() {
     pipelineSceneData->updatePipelineSceneData();
 }

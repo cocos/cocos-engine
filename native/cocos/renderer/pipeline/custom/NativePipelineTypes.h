@@ -284,6 +284,10 @@ public:
     float getShadingScale() const override;
     void  setShadingScale(float scale) override;
 
+    void setMacroString(const ccstd::string& name, const ccstd::string& value) override;
+    void setMacroInt(const ccstd::string& name, int32_t value) override;
+    void setMacroBool(const ccstd::string& name, bool value) override;
+
     void onGlobalPipelineStateChanged() override;
 
     void setValue(const ccstd::string& name, int32_t value) override;

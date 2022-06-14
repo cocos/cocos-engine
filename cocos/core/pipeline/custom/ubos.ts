@@ -37,6 +37,7 @@ import { DirectionalLight, SpotLight } from '../../renderer/scene';
 import { RenderWindow } from '../../renderer/core/render-window';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Texture2D } from '../../assets';
+import { DebugView, DebugViewCompositeType } from '../debug-view';
 
 const _matShadowView = new Mat4();
 const _matShadowProj = new Mat4();
@@ -45,7 +46,7 @@ const _vec4ShadowInfo = new Vec4();
 const _lightDir = new Vec4(0.0, 0.0, 1.0, 0.0);
 
 export class PipelineUBO {
-    public static updateGlobalUBOView (window: RenderWindow, bufferView: Float32Array) {
+    public static updateGlobalUBOView (window: RenderWindow, bufferView: Float32Array, debugView?: DebugView) {
         const root = legacyCC.director.root;
         const fv = bufferView;
 
@@ -66,6 +67,22 @@ export class PipelineUBO {
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 1] = shadingHeight;
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 2] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET];
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 3] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET + 1];
+
+        if (debugView) {
+            fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET] = debugView.singleMode as number;
+            fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET + 1] = debugView.lightingWithAlbedo ? 1.0 : 0.0;
+            fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET + 2] = debugView.csmLayerColoration ? 1.0 : 0.0;
+            for (let i = DebugViewCompositeType.DIRECT_DIFFUSE as number; i < DebugViewCompositeType.MAX_BIT_COUNT; i++) {
+                fv[UBOGlobal.DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET + i] = debugView.isCompositeModeEnabled(i) ? 1.0 : 0.0;
+            }
+        } else {
+            fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET] = 0.0;
+            fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET + 1] = 1.0;
+            fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET + 2] = 0.0;
+            for (let i = DebugViewCompositeType.DIRECT_DIFFUSE as number; i < DebugViewCompositeType.MAX_BIT_COUNT; i++) {
+                fv[UBOGlobal.DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET + i] = 1.0;
+            }
+        }
     }
 
     public static updateCameraUBOView (pipeline: WebPipeline, bufferView: Float32Array,
@@ -425,7 +442,8 @@ export class PipelineUBO {
         const ds = this._pipeline.globalDSManager.globalDescriptorSet;
         const cmdBuffer = this._pipeline.device.commandBuffer;
         ds.update();
-        PipelineUBO.updateGlobalUBOView(window, this._globalUBO);
+        const root = legacyCC.director.root;
+        PipelineUBO.updateGlobalUBOView(window, this._globalUBO, root.debugView);
         cmdBuffer.updateBuffer(ds.getBuffer(UBOGlobal.BINDING), this._globalUBO);
 
         globalDSManager.bindBuffer(UBOGlobal.BINDING, ds.getBuffer(UBOGlobal.BINDING));

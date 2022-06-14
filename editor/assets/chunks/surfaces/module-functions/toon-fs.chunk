@@ -23,13 +23,21 @@ void CCSurfacesFragmentGetMaterialData(inout SurfacesMaterialData surfaceData)
   SurfacesFragmentModifySharedData(surfaceData);
 
 
-#if CC_SURFACES_DEBUG_VIEW_COMPOSITE_MODE && !(CC_SURFACES_DEBUG_VIEW_COMPOSITE_MODE & CC_SURFACES_DEBUG_VIEW_COMPOSITE_NORMAL_MAP)
-  surfaceData.worldNormal = FSInput_worldNormal;
+#if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
+  if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_NORMAL_MAP)
+    surfaceData.worldNormal = FSInput_worldNormal;
 #endif
 
-#if (CC_SURFACES_DEBUG_VIEW_MODE || CC_SURFACES_DEBUG_VIEW_COMPOSITE_MODE) && !CC_SURFACES_DEBUG_VIEW_LIGHTING_WITH_ALBEDO
-  surfaceData.baseColor.rgb = vec3(1.0);
-  surfaceData.specular.rgb = vec3(1.0);
+#if CC_USE_DEBUG_VIEW
+  if (!IS_DEBUG_VIEW_LIGHTING_ENABLE_WITH_ALBEDO) {
+      float brightBase = dot(GRAY_VECTOR, surfaceData.baseColor.rgb);
+      float brightShade1 = dot(GRAY_VECTOR, surfaceData.shade1.rgb);
+      float brightShade2 = dot(GRAY_VECTOR, surfaceData.shade2.rgb);
+      surfaceData.baseColor.rgb = vec3(1.0);
+      surfaceData.shade1.rgb = vec3(brightShade1 / brightBase);
+      surfaceData.shade2.rgb = vec3(brightShade2 / brightBase);
+      surfaceData.specular.rgb = vec3(1.0);
+  }
 #endif
 }
 
@@ -119,37 +127,41 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
 
 
 // Debug view
+#if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_SINGLE
 void CCSurfacesDebugViewSurfaceData(out vec4 color, in SurfacesMaterialData surfaceData)
 {
-  float scalar;
-#if CC_SURFACES_DEBUG_VIEW_MODE == CC_SURFACES_DEBUG_VIEW_FRAGMENT_NORMAL
-  color = vec4(surfaceData.worldNormal * 0.5 + vec3(0.5), 1.0);
-#endif
-#if CC_SURFACES_DEBUG_VIEW_MODE == CC_SURFACES_DEBUG_VIEW_FRAGMENT_TANGENT
-  color = vec4(surfaceData.worldTangent * 0.5 + vec3(0.5), 1.0);
-#endif
-#if CC_SURFACES_DEBUG_VIEW_MODE == CC_SURFACES_DEBUG_VIEW_FRAGMENT_BINORMAL
-  vec3 binormal = CalculateBinormal(surfaceData.worldNormal.xyz, surfaceData.worldTangent.xyz, FSInput_mirrorNormal);
-  color = vec4(binormal * 0.5 + vec3(0.5), 1.0);
-#endif
-#if CC_SURFACES_DEBUG_VIEW_MODE == CC_SURFACES_DEBUG_VIEW_TRANSPARENCY
-  scalar = surfaceData.baseColor.a;
-  color = vec4(scalar, scalar, scalar, 1.0);
-#endif
-#if CC_SURFACES_DEBUG_VIEW_MODE == CC_SURFACES_DEBUG_VIEW_BASE_COLOR
-  color = vec4(SRGBToLinear(surfaceData.baseColor.rgb), 1.0);
-#endif
-#if CC_SURFACES_DEBUG_VIEW_MODE == CC_SURFACES_DEBUG_VIEW_DIFFUSE_COLOR
-  color = vec4(SRGBToLinear(CCSurfacesGetDiffuseColor(surfaceData)), 1.0);
-#endif
-#if CC_SURFACES_DEBUG_VIEW_MODE == CC_SURFACES_DEBUG_VIEW_SPECULAR_COLOR
-  color = vec4(SRGBToLinear(CCSurfacesGetSpecularColor(surfaceData)), 1.0);
-#endif
-#if CC_SURFACES_DEBUG_VIEW_MODE == CC_SURFACES_DEBUG_VIEW_SPECULAR_INTENSITY
-  scalar = surfaceData.specular.a;
-  color = vec4(scalar, scalar, scalar, 1.0);
-#endif
+    float scalar;
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_FRAGMENT_NORMAL))
+        color = vec4(surfaceData.worldNormal * 0.5 + vec3(0.5), 1.0);
+
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_FRAGMENT_TANGENT))
+        color = vec4(0.0, 0.0, 0.0, 1.0);
+
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_FRAGMENT_BINORMAL))
+        color = vec4(0.0, 0.0, 0.0, 1.0);
+
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_TRANSPARENCY))
+    {
+        scalar = surfaceData.baseColor.a;
+        color = vec4(scalar, scalar, scalar, 1.0);
+    }
+
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_BASE_COLOR))
+        color = vec4(LinearToSRGB(surfaceData.baseColor.rgb), 1.0);
+
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIFFUSE_COLOR))
+        color = vec4(LinearToSRGB(CCSurfacesGetDiffuseColor(surfaceData)), 1.0);
+
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_SPECULAR_COLOR))
+        color = vec4(LinearToSRGB(CCSurfacesGetSpecularColor(surfaceData)), 1.0);
+
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_SPECULAR_INTENSITY))
+    {
+        scalar = surfaceData.specular.a;
+        color = vec4(scalar, scalar, scalar, 1.0);
+    }
 }
+#endif
 
 // lighting flow module-function used by this material
 #include <lighting-models/lighting-flow/common-flow>
