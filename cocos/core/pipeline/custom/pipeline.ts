@@ -56,6 +56,9 @@ export abstract class PipelineRuntime {
     public abstract get geometryRenderer(): GeometryRenderer | null;
     public abstract get shadingScale(): number;
     public abstract set shadingScale(scale: number);
+    public abstract setMacroString(name: string, value: string): void;
+    public abstract setMacroInt(name: string, value: number): void;
+    public abstract setMacroBool(name: string, value: boolean): void;
     public abstract onGlobalPipelineStateChanged(): void;
 
     public abstract get macros(): MacroRecord;

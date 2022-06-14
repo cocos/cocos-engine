@@ -56,6 +56,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::scene::RenderScene);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::IRenderWindowInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::RenderWindow);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::SphereLight);
+JSB_REGISTER_OBJECT_TYPE(cc::DebugViewConfig);
 JSB_REGISTER_OBJECT_TYPE(cc::Root);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::SkyboxInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Skybox);
@@ -391,6 +392,14 @@ bool js_register_cc_scene_SphereLight(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_scene_SphereLight_SphereLight);
 
+extern se::Object *__jsb_cc_DebugViewConfig_proto; // NOLINT
+extern se::Class * __jsb_cc_DebugViewConfig_class; // NOLINT
+
+bool js_register_cc_DebugViewConfig(se::Object *obj); // NOLINT
+
+template <>
+bool sevalue_to_native(const se::Value &, cc::DebugViewConfig *, se::Object *ctx); //NOLINT
+
 extern se::Object *__jsb_cc_Root_proto; // NOLINT
 extern se::Class * __jsb_cc_Root_class; // NOLINT
 
@@ -409,11 +418,13 @@ SE_DECLARE_FUNC(js_scene_Root_destroyWindow);
 SE_DECLARE_FUNC(js_scene_Root_destroyWindows);
 SE_DECLARE_FUNC(js_scene_Root_frameMove);
 SE_DECLARE_FUNC(js_scene_Root_getBatcher2D);
+SE_DECLARE_FUNC(js_scene_Root_getDebugViewConfig);
 SE_DECLARE_FUNC(js_scene_Root_getEventProcessor);
 SE_DECLARE_FUNC(js_scene_Root_initialize);
 SE_DECLARE_FUNC(js_scene_Root_onGlobalPipelineStateChanged);
 SE_DECLARE_FUNC(js_scene_Root_resetCumulativeTime);
 SE_DECLARE_FUNC(js_scene_Root_resize);
+SE_DECLARE_FUNC(js_scene_Root_setDebugViewConfig);
 SE_DECLARE_FUNC(js_scene_Root_setRenderPipeline);
 SE_DECLARE_FUNC(js_scene_Root_getInstance);
 SE_DECLARE_FUNC(js_scene_Root_Root);
