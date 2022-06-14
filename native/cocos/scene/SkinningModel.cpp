@@ -109,7 +109,8 @@ void SkinningModel::setBuffers(std::vector<gfx::Buffer*> buffers) {
     size_t count = _buffers.size();
     _dataArray.resize(_buffers.size());
     for (size_t i = 0; i < count; i++) {
-        _dataArray[i]= new float[pipeline::UBOSkinning::count];
+        _dataArray[i] = new float[pipeline::UBOSkinning::count];
+        memset(_dataArray[i], 0, sizeof(float) * pipeline::UBOSkinning::count);
     }
 }
 
@@ -150,6 +151,7 @@ void SkinningModel::setRealTimeJointTextures(std::vector<gfx::Texture *> texture
     for (size_t i = 0; i < count; i++) {
        delete[] _dataArray[i];
        _dataArray[i] = new float[length];
+       memset(_dataArray[i], 0, sizeof(float) * length);
     }
 
     _realTimeJointTexture->textures = std::move(textures);
