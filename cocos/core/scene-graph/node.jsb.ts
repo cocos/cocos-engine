@@ -19,6 +19,7 @@
  THE SOFTWARE.
 */
 
+import { EDITOR } from 'internal:constants';
 import { ccclass, editable, serializable, type } from 'cc.decorator'
 import { legacyCC } from '../global-exports';
 import { errorID, getError } from '../platform/debug';
@@ -30,7 +31,6 @@ import { NodeSpace, TransformBit } from './node-enum';
 import { Mat4, Quat, Vec3 } from '../math';
 import { Layers } from './layers';
 import { SerializationContext, SerializationOutput, serializeTag } from '../data';
-import { EDITOR } from '../default-constants';
 import { _tempFloatArray } from './utils.jsb';
 import { getClassByName, isChildClassOf } from '../utils/js-typed';
 import { syncNodeValues } from "../utils/jsb-utils";

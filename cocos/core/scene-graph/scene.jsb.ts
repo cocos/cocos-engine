@@ -20,10 +20,10 @@
 */
 
 import { ccclass, editable, serializable } from 'cc.decorator';
+import { EDITOR, TEST } from "internal:constants";
 import { legacyCC } from '../global-exports';
 import { Node } from './node';
 import { applyTargetOverrides, expandNestedPrefabInstanceNode } from "../utils/prefab/utils";
-import { EDITOR, TEST } from "../default-constants";
 import { assert } from "../platform/debug";
 import { updateChildrenForDeserialize } from '../utils/jsb-utils';
 

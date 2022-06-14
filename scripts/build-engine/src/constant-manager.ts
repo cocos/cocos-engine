@@ -14,6 +14,8 @@ export interface ConstantOptions {
     flags: Partial<Record<FlagType, boolean>>;
 }
 
+export type BuildTimeConstants = Record<PlatformType | ModeType | FlagType, boolean>
+
 export class ConstantManager {
     private _engineRoot: string;
 
@@ -86,7 +88,7 @@ export class ConstantManager {
         mode,
         platform,
         flags,
-    }: ConstantOptions): Record<string, boolean> {
+    }: ConstantOptions): BuildTimeConstants {
         const config = this._getConfig();
 
         // update value
@@ -123,7 +125,7 @@ export class ConstantManager {
             const info = config[key];
             jsonObj[key] = info.value as boolean;
         }
-        return jsonObj;
+        return jsonObj as BuildTimeConstants;
     }
 
     public exportStaticConstants ({

@@ -23,6 +23,7 @@
  THE SOFTWARE.
 */
 
+import { JSB } from 'internal:constants';
 import { Mat4, Quat, Vec3 } from '../../core/math';
 import { IAnimInfo, JointAnimationInfo } from './skeletal-animation-utils';
 import { Node } from '../../core/scene-graph/node';
@@ -31,7 +32,6 @@ import { AnimationState } from '../../core/animation/animation-state';
 import { SkeletalAnimation, Socket } from './skeletal-animation';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { legacyCC } from '../../core/global-exports';
-import { JSB } from '../../core/default-constants';
 
 const m4_1 = new Mat4();
 const m4_2 = new Mat4();

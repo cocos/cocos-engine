@@ -15,14 +15,34 @@ export class MouseInputSource {
     private _isPressed = false;
     private _preMousePos: Vec2 = new Vec2();
 
+    // @ts-expect-error maybe not initialized
+    private _handleMouseDown: (event: MouseEvent) => void;
+    // @ts-expect-error maybe not initialized
+    private _handleMouseMove: (event: MouseEvent) => void;
+    // @ts-expect-error maybe not initialized
+    private _handleMouseUp: (event: MouseEvent) => void;
+
     constructor () {
         if (systemInfo.hasFeature(Feature.EVENT_MOUSE)) {
             this._canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
             if (!this._canvas && !TEST) {
                 console.warn('failed to access canvas');
             }
+
+            this._handleMouseDown = this._createCallback(InputEventType.MOUSE_DOWN);
+            this._handleMouseMove = this._createCallback(InputEventType.MOUSE_MOVE);
+            this._handleMouseUp = this._createCallback(InputEventType.MOUSE_UP);
             this._registerEvent();
         }
+    }
+
+    public dispatchMouseDownEvent (nativeMouseEvent: any) { this._handleMouseDown(nativeMouseEvent); }
+    public dispatchMouseMoveEvent (nativeMouseEvent: any) { this._handleMouseMove(nativeMouseEvent); }
+    public dispatchMouseUpEvent (nativeMouseEvent: any) { this._handleMouseUp(nativeMouseEvent); }
+    public dispatchScrollEvent (nativeMouseEvent: WheelEvent) { this._handleMouseWheel(nativeMouseEvent); }
+
+    public on (eventType: InputEventType, callback: MouseCallback, target?: any) {
+        this._eventTarget.on(eventType, callback, target);
     }
 
     private _getCanvasRect (): Rect {
@@ -49,15 +69,14 @@ export class MouseInputSource {
         window.addEventListener('mousedown', () => {
             this._isPressed = true;
         });
-        this._canvas?.addEventListener('mousedown', this._createCallback(InputEventType.MOUSE_DOWN));
+        this._canvas?.addEventListener('mousedown', this._handleMouseDown);
 
         // register mouse move event
-        this._canvas?.addEventListener('mousemove', this._createCallback(InputEventType.MOUSE_MOVE));
+        this._canvas?.addEventListener('mousemove', this._handleMouseMove);
 
         // register mouse up event
-        const handleMouseUp = this._createCallback(InputEventType.MOUSE_UP);
-        window.addEventListener('mouseup', handleMouseUp);
-        this._canvas?.addEventListener('mouseup', handleMouseUp);
+        window.addEventListener('mouseup', this._handleMouseUp);
+        this._canvas?.addEventListener('mouseup', this._handleMouseUp);
 
         // register wheel event
         this._canvas?.addEventListener('wheel', this._handleMouseWheel.bind(this));
@@ -139,9 +158,5 @@ export class MouseInputSource {
             mouseEvent.preventDefault();
         }
         this._eventTarget.emit(eventType, eventMouse);
-    }
-
-    public on (eventType: InputEventType, callback: MouseCallback, target?: any) {
-        this._eventTarget.on(eventType, callback, target);
     }
 }
