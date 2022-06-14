@@ -601,22 +601,18 @@ export class Root {
                 switch (l.type) {
                 case LightType.SPHERE:
                     l.scene.removeSphereLight(l as SphereLight);
-                    p.free(l);
-                    l.destroy();
                     break;
                 case LightType.SPOT:
                     l.scene.removeSpotLight(l as SpotLight);
-                    p.free(l);
-                    l.destroy();
                     break;
                 case LightType.DIRECTIONAL:
                     l.scene.removeDirectionalLight(l as DirectionalLight);
-                    p.free(l);
-                    l.destroy();
                     break;
                 default:
                     break;
                 }
+                p.free(l);
+                l.destroy();
             }
         }
     }
