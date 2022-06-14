@@ -653,6 +653,7 @@ export class Model {
     }
 
     /**
+     * @internal
      * @en initialize the light map info
      * @zh 初始化光照贴图信息
      * @param texture light map
