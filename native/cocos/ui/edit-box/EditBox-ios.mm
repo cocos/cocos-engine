@@ -289,8 +289,6 @@ static EditboxManager *instance = nil;
     dispatch_once(&pred, ^{
         instance = [[super allocWithZone:NULL] init];
     });
-    
-
     return instance;
 }
 + (id)allocWithZone:(struct _NSZone*)zone {
@@ -314,6 +312,9 @@ static EditboxManager *instance = nil;
         //"onTouchStart" is a sub event for TouchEvent, so we can only add listener for this sub event rather than TouchEvent itself.
         cc::EventDispatcher::addCustomEventListener("onTouchStart", [&](const cc::CustomEvent& event) -> void {
             cc::EditBox::complete();
+        });
+        cc::EventDispatcher::addCustomEventListener(EVENT_CLOSE, [&](const cc::CustomEvent& event) -> void {
+            [[EditboxManager sharedInstance] dealloc];
         });
     }
     return self;
