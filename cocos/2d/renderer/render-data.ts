@@ -431,7 +431,7 @@ export class RenderData extends BaseRenderData {
 
     public updateRenderEntityIndex () {
         if (this._renderEntity) {
-            this.batcher.currRenderEntity!.nextIndex = this._renderEntity.currIndex;
+            this.batcher.currRenderEntity.nextIndex = this._renderEntity.currIndex;
             this.batcher.currRenderEntity = this._renderEntity;
         }
     }

@@ -62,26 +62,6 @@ void Simple::fillBuffers(RenderEntity* entity) {
     memcpy(&ib[indexOffset], indexb, 6 * sizeof(uint16_t));
     indexOffset += (_vertexRow - 1) * (_vertexCol - 1) * 6; // Magic Number
 
-    //for (int curRow = 0; curRow < this->_vertexRow - 1; curRow++) {
-    //    for (int curCol = 0; curCol < this->_vertexCol - 1; curCol++) {
-    //        index_t vId = vertexOffset + curRow * this->_vertexCol + curCol;
-
-    //        // left bottom
-    //        ib[indexOffset++] = vId;
-    //        // right bottom
-    //        ib[indexOffset++] = vId + 1;
-    //        // left top
-    //        ib[indexOffset++] = vId + this->_vertexCol;
-
-    //        // right bottom
-    //        ib[indexOffset++] = vId + 1;
-    //        // right top
-    //        ib[indexOffset++] = vId + 1 + this->_vertexCol;
-    //        // left top
-    //        ib[indexOffset++] = vId + this->_vertexCol;
-    //    }
-    //}
-
     // set index offset back
     buffer->setIndexOffset(indexOffset);
 }

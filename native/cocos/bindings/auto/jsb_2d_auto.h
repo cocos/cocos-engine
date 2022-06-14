@@ -45,12 +45,8 @@ extern se::Class * __jsb_cc_RenderEntity_class; // NOLINT
 bool js_register_cc_RenderEntity(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_2d_RenderEntity_ItIsDebugFuncInRenderEntity);
-SE_DECLARE_FUNC(js_2d_RenderEntity_getCurrIndex);
 SE_DECLARE_FUNC(js_2d_RenderEntity_getMeshBuffer);
-SE_DECLARE_FUNC(js_2d_RenderEntity_getNextIndex);
 SE_DECLARE_FUNC(js_2d_RenderEntity_getRender2dLayout);
-SE_DECLARE_FUNC(js_2d_RenderEntity_setCurrIndex);
-SE_DECLARE_FUNC(js_2d_RenderEntity_setNextIndex);
 SE_DECLARE_FUNC(js_2d_RenderEntity_setRender2dBufferToNative);
 SE_DECLARE_FUNC(js_2d_RenderEntity_syncSharedBufferToNative);
 SE_DECLARE_FUNC(js_2d_RenderEntity_RenderEntity);
@@ -61,7 +57,6 @@ extern se::Class * __jsb_cc_Batcher2d_class; // NOLINT
 bool js_register_cc_Batcher2d(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_2d_Batcher2d_ItIsDebugFuncInBatcher2d);
-SE_DECLARE_FUNC(js_2d_Batcher2d_addNewRenderEntity);
 SE_DECLARE_FUNC(js_2d_Batcher2d_addVertDirtyRenderer);
 SE_DECLARE_FUNC(js_2d_Batcher2d_fillBuffersAndMergeBatches);
 SE_DECLARE_FUNC(js_2d_Batcher2d_generateBatch);
@@ -77,5 +72,6 @@ SE_DECLARE_FUNC(js_2d_Batcher2d_update);
 SE_DECLARE_FUNC(js_2d_Batcher2d_updateDescriptorSet);
 SE_DECLARE_FUNC(js_2d_Batcher2d_updateVertDirtyRenderer);
 SE_DECLARE_FUNC(js_2d_Batcher2d_uploadBuffers);
+SE_DECLARE_FUNC(js_2d_Batcher2d_walk);
 SE_DECLARE_FUNC(js_2d_Batcher2d_Batcher2d);
 // clang-format on

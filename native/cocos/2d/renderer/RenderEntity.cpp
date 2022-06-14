@@ -53,7 +53,7 @@ void RenderEntity::setIDataBuffer(uint16_t* iDataBuffer) {
 }
 
 void RenderEntity::setNode(Node* node) {
-    this->_node = node;
+    _node = node;
 
     _batcher->setNodeEntity(node->getUuid(), this);
 }
@@ -110,13 +110,13 @@ void RenderEntity::setRender2dBufferToNative(uint8_t* buffer, uint8_t stride, ui
 //    return this->_render2dLayoutArr;
 //}
 
-void RenderEntity::setCurrIndex(index_t currIndex) {
-    _entityAttrLayout->currIndex = currIndex;
-}
-
-void RenderEntity::setNextIndex(index_t nextIndex) {
-    _entityAttrLayout->nextIndex = nextIndex;
-}
+//void RenderEntity::setCurrIndex(index_t currIndex) {
+//    _entityAttrLayout->currIndex = currIndex;
+//}
+//
+//void RenderEntity::setNextIndex(index_t nextIndex) {
+//    _entityAttrLayout->nextIndex = nextIndex;
+//}
 
 void RenderEntity::syncSharedBufferToNative(index_t* buffer) {
     _attrSharedBuffer = buffer;
@@ -124,7 +124,8 @@ void RenderEntity::syncSharedBufferToNative(index_t* buffer) {
 
     //解析后加入batcher管理
     if (_batcher != nullptr) {
-        _batcher->addNewRenderEntity(this);
+        //_batcher->addNewRenderEntity(this);
+        
     }
 }
 

@@ -223,6 +223,10 @@ export class Batcher2D implements IBatcher {
         // this._currCompSortingOrder = 0;
 
         const screens = this._screens;
+        if (screens.length === 0) {
+            return;
+        }
+        this._nativeObj.rootNode = screens[0].node;
         this._nativeObj.update();
     }
 

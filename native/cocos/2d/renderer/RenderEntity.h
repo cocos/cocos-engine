@@ -75,10 +75,10 @@ public:
     void ItIsDebugFuncInRenderEntity();
 
 public:
-    inline index_t getCurrIndex() const { return _entityAttrLayout->currIndex; }
-    void setCurrIndex(index_t currIndex);
-    inline index_t getNextIndex() const { return _entityAttrLayout->nextIndex; }
-    void setNextIndex(index_t nextIndex);
+    //inline index_t getCurrIndex() const { return _entityAttrLayout->currIndex; }
+    //void setCurrIndex(index_t currIndex);
+    //inline index_t getNextIndex() const { return _entityAttrLayout->nextIndex; }
+    //void setNextIndex(index_t nextIndex);
 
     void syncSharedBufferToNative(index_t* buffer);
     void parseAttrLayout();

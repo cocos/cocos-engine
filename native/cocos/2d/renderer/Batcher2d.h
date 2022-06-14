@@ -10,6 +10,7 @@
 #include <cocos/scene/DrawBatch2D.h>
 #include <unordered_map>
 #include <vector>
+#include "base/Ptr.h"
 
 namespace cc {
 class Root;
@@ -30,10 +31,18 @@ public:
     void reset();
     void updateVertDirtyRenderer();
 
-    void addNewRenderEntity(RenderEntity* entity);
+    //void addNewRenderEntity(RenderEntity* entity);
     void addVertDirtyRenderer(RenderEntity* entity);
 
-    inline void setNodeEntity(ccstd::string id, RenderEntity* entity) { _nodeEntityMap[id] = entity; }
+    //inline RenderEntity* getFirstEntity() const { return _firstEntity; };
+    //void setFirstEntity(RenderEntity* entity);
+
+    inline Node* getRootNode() const { return _rootNode; }
+    void setRootNode(Node* node);
+
+    inline void setNodeEntity(ccstd::string id, RenderEntity* entity) {
+        _nodeEntityMap[id] = entity;
+    }
 
 public:
     UIMeshBuffer* getMeshBuffer(index_t bufferId);
@@ -45,14 +54,18 @@ public:
     inline ccstd::vector<scene::DrawBatch2D*> getBatches() { return this->_batches; }
 
     void fillBuffersAndMergeBatches();
+    void walk(Node* node);
     void generateBatch(RenderEntity* entity);
     void resetRenderStates();
 
 private:
     Root* _root{nullptr};
 
-    ccstd::vector<RenderEntity*> _renderEntities{};
-    ccstd::vector<RenderEntity*> _newRenderEntities{};
+    //ccstd::vector<RenderEntity*> _renderEntities{};
+    //ccstd::vector<RenderEntity*> _newRenderEntities{};
+    //RenderEntity* _firstEntity;
+    Node* _rootNode;
+    ccstd::unordered_map<ccstd::string, RenderEntity*>::iterator _mapEnd;
     ccstd::unordered_map<ccstd::string, RenderEntity*> _nodeEntityMap;
 
 private:

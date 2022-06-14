@@ -81,6 +81,10 @@ export class NativeUIMeshBuffer {
 }
 
 export class NativeBatcher2d {
+    set firstEntity (val:RenderEntity) {}
+
+    set rootNode (val:Node) {}
+
     syncMeshBuffersToNative (buffers: NativeUIMeshBuffer[], length:number) {}
     syncRenderEntitiesToNative (renderEntities: NativeRenderEntity[]) {}
     //syncMeshBufferAttrToNative (data:TypedArray, stride:number, size:number) {}

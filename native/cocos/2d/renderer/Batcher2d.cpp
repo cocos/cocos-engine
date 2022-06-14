@@ -35,7 +35,7 @@ void Batcher2d::syncMeshBuffersToNative(std::vector<UIMeshBuffer*>&& buffers, ui
 }
 
 void Batcher2d::syncRenderEntitiesToNative(std::vector<RenderEntity*>&& renderEntities) {
-    _renderEntities = std::move(renderEntities);
+    //_renderEntities = std::move(renderEntities);
 }
 
 //void Batcher2d::syncMeshBufferAttrToNative(uint32_t* buffer, uint8_t stride, uint32_t size) {
@@ -79,55 +79,36 @@ void Batcher2d::updateDescriptorSet() {
     //for this._descriptorSetCache.update()
 }
 
-bool compareEntitySortingOrder(const RenderEntity* entity1, const RenderEntity* entity2) {
-    return entity1->getCurrIndex() < entity2->getCurrIndex();
+void Batcher2d::setRootNode(Node* node) {
+    _rootNode = node;
 }
+
+//bool compareEntitySortingOrder(const RenderEntity* entity1, const RenderEntity* entity2) {
+//    return entity1->getCurrIndex() < entity2->getCurrIndex();
+//}
 
 //对标ts的walk
 void Batcher2d::fillBuffersAndMergeBatches() {
+    _mapEnd = _nodeEntityMap.end();
+    walk(_rootNode);
+    generateBatch(_currEntity);
+}
 
-    index_t size = _newRenderEntities.size();
-    if (size == 0) {
-        return;
-    }
-    RenderEntity* firstEntity = _newRenderEntities[0];
-    _currBID = firstEntity->getBufferId();
-    const UIMeshBuffer* buffer = firstEntity -> getMeshBuffer();
-    _indexStart = buffer->getIndexOffset();
-    _currHash = firstEntity->getDataHash();
-    _currMaterial = firstEntity->getMaterial();
-    _currLayer = firstEntity->getNode()->getLayer();
-    _currEntity = firstEntity;
+void Batcher2d::walk(Node* node) {
+    const ccstd::string& nodeId = node->getUuid();
+    ccstd::unordered_map<ccstd::string, RenderEntity*>::iterator iter = _nodeEntityMap.find(nodeId);
+    if (iter != _mapEnd) {
+        RenderEntity* entity = iter->second;
+        if (entity == nullptr) {
+            return;
+        }
 
-    //if(frame)
-    _currTexture = firstEntity->getTexture();
-    _currTextureHash = firstEntity->getTextureHash();
-    _currSampler = firstEntity->getSampler();
-    _simple->fillBuffers(firstEntity);
-
-    //这里负责的是ts._render填充逻辑
-    //这里不需要加assembler判断，因为ts的fillBuffers做了分层优化
-    //，有多少顶点就传多少数据到RenderEntity
-    for (index_t i = 1; i < size; i++) {
-        RenderEntity* entity = _newRenderEntities[i];
-
-        //判断是否能合批，不能合批则需要generateBatch
-        uint32_t dataHash = entity->getDataHash();
-        if (_currHash != dataHash || dataHash == 0 || _currMaterial != entity->getMaterial()
-            /* || stencilmanager */) { //这个暂时只有mask才考虑，后续补充
-            generateBatch(_currEntity);
-            if (!entity->getIsMeshBuffer()) {
-                //修改当前currbufferid和currindexStart（用当前的meshbuffer的indexOffset赋值）
-                if (_currBID != entity->getBufferId()) {
-                    UIMeshBuffer* buffer = entity->getMeshBuffer();
-                    _currBID = entity->getBufferId();
-                    _indexStart = buffer->getIndexOffset();
-                }
-            }
-
-            _currHash = dataHash;
+        //判断是否为第一个
+        if (_currBID == -1) {
+            _currBID = entity->getBufferId();
+            _indexStart = entity->getIndexOffset();
+            _currHash = entity->getDataHash();
             _currMaterial = entity->getMaterial();
-            // stencil stage
             _currLayer = entity->getNode()->getLayer();
             _currEntity = entity;
 
@@ -135,18 +116,46 @@ void Batcher2d::fillBuffersAndMergeBatches() {
             _currTexture = entity->getTexture();
             _currTextureHash = entity->getTextureHash();
             _currSampler = entity->getSampler();
-            if (_currSampler == nullptr) {
-                _currSamplerHash = 0;
-            } else {
-                _currSamplerHash = _currSampler->getHash();
+        } else {
+            //判断是否能合批，不能合批则需要generateBatch
+            uint32_t dataHash = entity->getDataHash();
+            if (_currHash != dataHash || dataHash == 0 || _currMaterial != entity->getMaterial()
+                /* || stencilmanager */) { //这个暂时只有mask才考虑，后续补充
+                generateBatch(_currEntity);
+                if (!entity->getIsMeshBuffer()) {
+                    //修改当前currbufferid和currindexStart（用当前的meshbuffer的indexOffset赋值）
+                    if (_currBID != entity->getBufferId()) {
+                        UIMeshBuffer* buffer = entity->getMeshBuffer();
+                        _currBID = entity->getBufferId();
+                        _indexStart = buffer->getIndexOffset();
+                    }
+                }
+
+                _currHash = dataHash;
+                _currMaterial = entity->getMaterial();
+                // stencil stage
+                _currLayer = entity->getNode()->getLayer();
+                _currEntity = entity;
+
+                //if(frame)
+                _currTexture = entity->getTexture();
+                _currTextureHash = entity->getTextureHash();
+                _currSampler = entity->getSampler();
+                if (_currSampler == nullptr) {
+                    _currSamplerHash = 0;
+                } else {
+                    _currSamplerHash = _currSampler->getHash();
+                }
             }
         }
 
-        //暂时不修改vb和ib，验证下目前native的行为
-        //最后调通时再把这里打开
         _simple->fillBuffers(entity);
     }
-    generateBatch(_currEntity);
+    //递归调用
+    const ccstd::vector<IntrusivePtr<Node>>& children = node->getChildren();
+    for (index_t i = 0; i < children.size(); i++) {
+        walk(children[i]);
+    }
 }
 
 //如果不传参数，说明是最后一个组件结束，直接合批
@@ -159,7 +168,7 @@ void Batcher2d::generateBatch(RenderEntity* entity) {
     //if (entity->getIsMeshBuffer()) {
     //    // Todo MeshBuffer RenderData
     //} else {
-    UIMeshBuffer* currMeshBuffer = entity ->getMeshBuffer();
+    UIMeshBuffer* currMeshBuffer = entity->getMeshBuffer();
 
     currMeshBuffer->setDirty(true);
 
@@ -291,12 +300,12 @@ void Batcher2d::reset() {
     //stencilManager
 }
 
-void Batcher2d::addNewRenderEntity(RenderEntity* entity) {
-    entity->setCurrIndex(_newRenderEntities.size());
-    _newRenderEntities.push_back(entity);
-}
+//void Batcher2d::addNewRenderEntity(RenderEntity* entity) {
+//    entity->setCurrIndex(_newRenderEntities.size());
+//    _newRenderEntities.push_back(entity);
+//}
 
-void Batcher2d::addVertDirtyRenderer(RenderEntity *entity) {
+void Batcher2d::addVertDirtyRenderer(RenderEntity* entity) {
     _vertDirtyRenderers.push_back(entity);
 }
 
