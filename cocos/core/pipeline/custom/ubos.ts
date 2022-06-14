@@ -46,8 +46,9 @@ const _vec4ShadowInfo = new Vec4();
 const _lightDir = new Vec4(0.0, 0.0, 1.0, 0.0);
 
 export class PipelineUBO {
-    public static updateGlobalUBOView (window: RenderWindow, bufferView: Float32Array, debugView?: DebugView) {
-        const root = legacyCC.director.root;
+    public static updateGlobalUBOView (window: RenderWindow, bufferView: Float32Array) {
+        const director = legacyCC.director;
+        const root = director.root;
         const fv = bufferView;
 
         const shadingWidth = Math.floor(window.width);
@@ -56,7 +57,7 @@ export class PipelineUBO {
         // update UBOGlobal
         fv[UBOGlobal.TIME_OFFSET] = root.cumulativeTime;
         fv[UBOGlobal.TIME_OFFSET + 1] = root.frameTime;
-        fv[UBOGlobal.TIME_OFFSET + 2] = legacyCC.director.getTotalFrames();
+        fv[UBOGlobal.TIME_OFFSET + 2] = director.getTotalFrames();
 
         fv[UBOGlobal.SCREEN_SIZE_OFFSET] = shadingWidth;
         fv[UBOGlobal.SCREEN_SIZE_OFFSET + 1] = shadingHeight;
@@ -68,6 +69,7 @@ export class PipelineUBO {
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 2] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET];
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 3] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET + 1];
 
+        const debugView = root.debugView;
         if (debugView) {
             fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET] = debugView.singleMode as number;
             fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET + 1] = debugView.lightingWithAlbedo ? 1.0 : 0.0;
@@ -442,8 +444,7 @@ export class PipelineUBO {
         const ds = this._pipeline.globalDSManager.globalDescriptorSet;
         const cmdBuffer = this._pipeline.device.commandBuffer;
         ds.update();
-        const root = legacyCC.director.root;
-        PipelineUBO.updateGlobalUBOView(window, this._globalUBO, root.debugView);
+        PipelineUBO.updateGlobalUBOView(window, this._globalUBO);
         cmdBuffer.updateBuffer(ds.getBuffer(UBOGlobal.BINDING), this._globalUBO);
 
         globalDSManager.bindBuffer(UBOGlobal.BINDING, ds.getBuffer(UBOGlobal.BINDING));

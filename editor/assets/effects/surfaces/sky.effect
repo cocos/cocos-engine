@@ -15,6 +15,15 @@ CCEffect %{
 }%
 
 
+CCProgram surface-vertex %{
+  #define CC_SURFACES_VERTEX_MODIFY_WORLD_POS
+  vec3 SurfacesVertexModifyWorldPos(in SurfacesStandardVertexIntermediate In)
+  {
+    // Apply uniform scaling for atmosphere effects
+    return In.worldPos;
+  }
+}%
+
 CCProgram surface-fragment %{
   #define CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
   vec4 SurfacesFragmentModifyBaseColorAndTransparency()
@@ -37,16 +46,16 @@ CCProgram sky-vs %{
 
   #include <surfaces/effect-macros/sky>
   #include <surfaces/includes/common-vs>
+  #include <surface-vertex>
   #include <shading-entries/main-functions/misc/sky-vs>
 }%
 
 
 CCProgram sky-fs %{
   precision highp float;
+
   #include <surfaces/effect-macros/sky>
   #include <surfaces/includes/common-fs>
-
   #include <surface-fragment>
-
   #include <shading-entries/main-functions/misc/sky-fs>
 }%
