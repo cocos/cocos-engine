@@ -30,7 +30,6 @@
  */
 // clang-format off
 #pragma once
-#include "cocos/core/assets/EffectAsset.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
@@ -44,8 +43,6 @@ class Quaternion;
 class Vec4;
 class Vec3;
 class Vec2;
-
-class EffectAsset;
 
 namespace pipeline {
 
@@ -95,6 +92,10 @@ public:
     virtual float getShadingScale() const = 0;
     virtual void  setShadingScale(float scale) = 0;
 
+    virtual void setMacroString(const ccstd::string& name, const ccstd::string& value) = 0;
+    virtual void setMacroInt(const ccstd::string& name, int32_t value) = 0;
+    virtual void setMacroBool(const ccstd::string& name, bool value) = 0;
+
     virtual void onGlobalPipelineStateChanged() = 0;
 
     virtual void setValue(const ccstd::string& name, int32_t value) = 0;
@@ -104,21 +105,6 @@ public:
 };
 
 inline PipelineRuntime::~PipelineRuntime() noexcept = default;
-
-class DescriptorHierarchy {
-public:
-    DescriptorHierarchy() noexcept = default;
-    DescriptorHierarchy(DescriptorHierarchy&& rhs)      = delete;
-    DescriptorHierarchy(DescriptorHierarchy const& rhs) = delete;
-    DescriptorHierarchy& operator=(DescriptorHierarchy&& rhs) = delete;
-    DescriptorHierarchy& operator=(DescriptorHierarchy const& rhs) = delete;
-
-    virtual ~DescriptorHierarchy() noexcept = 0;
-
-    virtual void addEffect(EffectAsset* asset) = 0;
-};
-
-inline DescriptorHierarchy::~DescriptorHierarchy() noexcept = default;
 
 class Setter {
 public:
@@ -152,9 +138,9 @@ public:
 
     ~RasterQueueBuilder() noexcept override = 0;
 
-    virtual void addSceneOfCamera(scene::Camera* camera, const ccstd::string& name) = 0;
-    virtual void addSceneOfCamera(scene::Camera* camera) = 0;
-    virtual void addScene(const ccstd::string& name) = 0;
+    virtual void addSceneOfCamera(scene::Camera* camera, scene::Light* light, SceneFlags sceneFlags, const ccstd::string& name) = 0;
+    virtual void addSceneOfCamera(scene::Camera* camera, scene::Light* light, SceneFlags sceneFlags) = 0;
+    virtual void addScene(const ccstd::string& name, SceneFlags sceneFlags) = 0;
     virtual void addFullscreenQuad(const ccstd::string& shader, const ccstd::string& name) = 0;
     virtual void addFullscreenQuad(const ccstd::string& shader) = 0;
 };
@@ -310,6 +296,7 @@ public:
     virtual void clear() = 0;
     virtual uint32_t addRenderStage(const ccstd::string& name) = 0;
     virtual uint32_t addRenderPhase(const ccstd::string& name, uint32_t parentID) = 0;
+    virtual void addShader(const ccstd::string& name, uint32_t parentPhaseID) = 0;
     virtual void addDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlock& block) = 0;
     virtual void reserveDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlock& block) = 0;
     virtual int compile() = 0;
@@ -340,6 +327,7 @@ public:
 
     virtual SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) = 0;
     virtual LayoutGraphBuilder *getLayoutGraphBuilder() = 0;
+    virtual gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string& shaderName, UpdateFrequency freq) = 0;
 };
 
 inline Pipeline::~Pipeline() noexcept = default;
@@ -347,7 +335,6 @@ inline Pipeline::~Pipeline() noexcept = default;
 class Factory {
 public:
     static Pipeline            *createPipeline();
-    static DescriptorHierarchy *createDescriptorHierarchy();
 };
 
 } // namespace render

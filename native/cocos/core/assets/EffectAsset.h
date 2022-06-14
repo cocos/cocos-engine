@@ -556,6 +556,9 @@ public:
      */
     static RegisteredEffectAssetMap &getAll() { return EffectAsset::effects; }
 
+    static bool isLayoutValid() { return layoutValid; }
+    static void setLayoutValid() { layoutValid = true; }
+
     inline void setTechniques(const ccstd::vector<ITechniqueInfo> &val) { _techniques = val; }
     inline void setShaders(const ccstd::vector<IShaderInfo> &val) { _shaders = val; }
     inline void setCombinations(const ccstd::vector<IPreCompileInfo> &val) { _combinations = val; }
@@ -616,6 +619,7 @@ public:
     //
 protected:
     static RegisteredEffectAssetMap effects; //cjh TODO: how to clear when game exits.
+    static bool layoutValid;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(EffectAsset);
 

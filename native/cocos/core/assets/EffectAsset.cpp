@@ -75,6 +75,7 @@ void IPassStates::overrides(const IPassInfoFull &o) {
 }
 
 EffectAsset::RegisteredEffectAssetMap EffectAsset::effects;
+bool EffectAsset::layoutValid = true;
 
 /* static */
 void EffectAsset::registerAsset(EffectAsset *asset) {
@@ -83,6 +84,7 @@ void EffectAsset::registerAsset(EffectAsset *asset) {
     }
 
     EffectAsset::effects.emplace(asset->getName(), asset);
+    layoutValid = false;
 }
 
 /* static */

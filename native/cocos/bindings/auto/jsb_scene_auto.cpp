@@ -9371,6 +9371,267 @@ bool js_register_scene_SphereLight(se::Object* obj) // NOLINT(readability-identi
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
+se::Object* __jsb_cc_DebugViewConfig_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_DebugViewConfig_class = nullptr;  // NOLINT
+
+static bool js_scene_DebugViewConfig_get_singleMode(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::DebugViewConfig>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_DebugViewConfig_get_singleMode : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->singleMode, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->singleMode, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_DebugViewConfig_get_singleMode)
+
+static bool js_scene_DebugViewConfig_set_singleMode(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::DebugViewConfig>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_DebugViewConfig_set_singleMode : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->singleMode, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_scene_DebugViewConfig_set_singleMode : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_DebugViewConfig_set_singleMode)
+
+static bool js_scene_DebugViewConfig_get_compositeModeBitCount(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::DebugViewConfig>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_DebugViewConfig_get_compositeModeBitCount : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->compositeModeBitCount, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->compositeModeBitCount, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_DebugViewConfig_get_compositeModeBitCount)
+
+static bool js_scene_DebugViewConfig_set_compositeModeBitCount(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::DebugViewConfig>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_DebugViewConfig_set_compositeModeBitCount : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->compositeModeBitCount, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_scene_DebugViewConfig_set_compositeModeBitCount : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_DebugViewConfig_set_compositeModeBitCount)
+
+static bool js_scene_DebugViewConfig_get_compositeModeValue(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::DebugViewConfig>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_DebugViewConfig_get_compositeModeValue : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->compositeModeValue, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->compositeModeValue, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_DebugViewConfig_get_compositeModeValue)
+
+static bool js_scene_DebugViewConfig_set_compositeModeValue(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::DebugViewConfig>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_DebugViewConfig_set_compositeModeValue : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->compositeModeValue, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_scene_DebugViewConfig_set_compositeModeValue : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_DebugViewConfig_set_compositeModeValue)
+
+static bool js_scene_DebugViewConfig_get_lightingWithAlbedo(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::DebugViewConfig>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_DebugViewConfig_get_lightingWithAlbedo : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->lightingWithAlbedo, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->lightingWithAlbedo, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_DebugViewConfig_get_lightingWithAlbedo)
+
+static bool js_scene_DebugViewConfig_set_lightingWithAlbedo(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::DebugViewConfig>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_DebugViewConfig_set_lightingWithAlbedo : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->lightingWithAlbedo, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_scene_DebugViewConfig_set_lightingWithAlbedo : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_DebugViewConfig_set_lightingWithAlbedo)
+
+static bool js_scene_DebugViewConfig_get_csmLayerColoration(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::DebugViewConfig>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_DebugViewConfig_get_csmLayerColoration : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->csmLayerColoration, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->csmLayerColoration, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_DebugViewConfig_get_csmLayerColoration)
+
+static bool js_scene_DebugViewConfig_set_csmLayerColoration(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::DebugViewConfig>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_DebugViewConfig_set_csmLayerColoration : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->csmLayerColoration, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_scene_DebugViewConfig_set_csmLayerColoration : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_DebugViewConfig_set_csmLayerColoration)
+
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::DebugViewConfig * to, se::Object *ctx)
+{
+    assert(from.isObject());
+    se::Object *json = from.toObject();
+    auto* data = reinterpret_cast<cc::DebugViewConfig*>(json->getPrivateData());
+    if (data) {
+        *to = *data;
+        return true;
+    }
+    se::Value field;
+    bool ok = true;
+    json->getProperty("singleMode", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->singleMode), ctx);
+    }
+    json->getProperty("compositeModeBitCount", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->compositeModeBitCount), ctx);
+    }
+    json->getProperty("compositeModeValue", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->compositeModeValue), ctx);
+    }
+    json->getProperty("lightingWithAlbedo", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->lightingWithAlbedo), ctx);
+    }
+    json->getProperty("csmLayerColoration", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->csmLayerColoration), ctx);
+    }
+    return ok;
+}
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_DebugViewConfig_finalize)
+
+static bool js_scene_DebugViewConfig_constructor(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+
+    if(argc == 0)
+    {
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::DebugViewConfig);
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+
+    if(argc == 1 && args[0].isObject())
+    {
+        se::Object *json = args[0].toObject();
+        se::Value field;
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::DebugViewConfig);
+        auto cobj = ptr->get<cc::DebugViewConfig>();
+        ok &= sevalue_to_native(args[0], cobj, s.thisObject());
+        if(!ok) {
+            delete ptr;
+            SE_REPORT_ERROR("argument convertion error");
+            return false;
+        }
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::DebugViewConfig);
+    auto cobj = ptr->get<cc::DebugViewConfig>();
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(cobj->singleMode), nullptr);
+    }
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(cobj->compositeModeBitCount), nullptr);
+    }
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(cobj->compositeModeValue), nullptr);
+    }
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(cobj->lightingWithAlbedo), nullptr);
+    }
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(cobj->csmLayerColoration), nullptr);
+    }
+
+    if(!ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_scene_DebugViewConfig_constructor, __jsb_cc_DebugViewConfig_class, js_cc_DebugViewConfig_finalize)
+
+static bool js_cc_DebugViewConfig_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_DebugViewConfig_finalize)
+
+bool js_register_scene_DebugViewConfig(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("DebugViewConfig", obj, nullptr, _SE(js_scene_DebugViewConfig_constructor));
+
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
+    cls->defineProperty("singleMode", _SE(js_scene_DebugViewConfig_get_singleMode), _SE(js_scene_DebugViewConfig_set_singleMode));
+    cls->defineProperty("compositeModeBitCount", _SE(js_scene_DebugViewConfig_get_compositeModeBitCount), _SE(js_scene_DebugViewConfig_set_compositeModeBitCount));
+    cls->defineProperty("compositeModeValue", _SE(js_scene_DebugViewConfig_get_compositeModeValue), _SE(js_scene_DebugViewConfig_set_compositeModeValue));
+    cls->defineProperty("lightingWithAlbedo", _SE(js_scene_DebugViewConfig_get_lightingWithAlbedo), _SE(js_scene_DebugViewConfig_set_lightingWithAlbedo));
+    cls->defineProperty("csmLayerColoration", _SE(js_scene_DebugViewConfig_get_csmLayerColoration), _SE(js_scene_DebugViewConfig_set_csmLayerColoration));
+    cls->defineFinalizeFunction(_SE(js_cc_DebugViewConfig_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::DebugViewConfig>(cls);
+
+    __jsb_cc_DebugViewConfig_proto = cls->getProto();
+    __jsb_cc_DebugViewConfig_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
 se::Object* __jsb_cc_Root_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_Root_class = nullptr;  // NOLINT
 
@@ -9673,6 +9934,25 @@ static bool js_scene_Root_getCustomPipeline(se::State& s) // NOLINT(readability-
     return false;
 }
 SE_BIND_FUNC_AS_PROP_GET(js_scene_Root_getCustomPipeline)
+
+static bool js_scene_Root_getDebugViewConfig(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Root_getDebugViewConfig : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const cc::DebugViewConfig& result = cobj->getDebugViewConfig();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_Root_getDebugViewConfig : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Root_getDebugViewConfig)
 
 static bool js_scene_Root_getDevice(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -9991,6 +10271,25 @@ static bool js_scene_Root_setCurWindow(se::State& s) // NOLINT(readability-ident
 }
 SE_BIND_FUNC_AS_PROP_SET(js_scene_Root_setCurWindow)
 
+static bool js_scene_Root_setDebugViewConfig(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Root_setDebugViewConfig : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::DebugViewConfig, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_Root_setDebugViewConfig : Error processing arguments");
+        cobj->setDebugViewConfig(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Root_setDebugViewConfig)
+
 static bool js_scene_Root_setDevice(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
@@ -10169,11 +10468,13 @@ bool js_register_scene_Root(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineFunction("destroyWindows", _SE(js_scene_Root_destroyWindows));
     cls->defineFunction("frameMove", _SE(js_scene_Root_frameMove));
     cls->defineFunction("getBatcher2D", _SE(js_scene_Root_getBatcher2D));
+    cls->defineFunction("getDebugViewConfig", _SE(js_scene_Root_getDebugViewConfig));
     cls->defineFunction("getEventProcessor", _SE(js_scene_Root_getEventProcessor));
     cls->defineFunction("_initialize", _SE(js_scene_Root_initialize));
     cls->defineFunction("onGlobalPipelineStateChanged", _SE(js_scene_Root_onGlobalPipelineStateChanged));
     cls->defineFunction("resetCumulativeTime", _SE(js_scene_Root_resetCumulativeTime));
     cls->defineFunction("resize", _SE(js_scene_Root_resize));
+    cls->defineFunction("setDebugViewConfig", _SE(js_scene_Root_setDebugViewConfig));
     cls->defineFunction("setRenderPipeline", _SE(js_scene_Root_setRenderPipeline));
     cls->defineStaticFunction("getInstance", _SE(js_scene_Root_getInstance_static));
     cls->defineFinalizeFunction(_SE(js_cc_Root_finalize));
@@ -18890,6 +19191,7 @@ bool register_all_scene(se::Object* obj)    // NOLINT
     js_register_scene_BakedSkinningModel(ns);
     js_register_scene_BaseNode(ns);
     js_register_scene_Camera(ns);
+    js_register_scene_DebugViewConfig(ns);
     js_register_scene_Light(ns);
     js_register_scene_DirectionalLight(ns);
     js_register_scene_DrawBatch2D(ns);

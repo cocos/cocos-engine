@@ -171,9 +171,15 @@ export const bindingMappingInfo = new BindingMappingInfo(
  */
 export class UBOGlobal {
     public static readonly TIME_OFFSET = 0;
-    public static readonly NATIVE_SIZE_OFFSET = UBOGlobal.TIME_OFFSET + 4;
-    public static readonly SCREEN_SIZE_OFFSET = UBOGlobal.NATIVE_SIZE_OFFSET + 4;
-    public static readonly COUNT = UBOGlobal.SCREEN_SIZE_OFFSET + 4;
+    public static readonly SCREEN_SIZE_OFFSET = UBOGlobal.TIME_OFFSET + 4;
+    public static readonly NATIVE_SIZE_OFFSET = UBOGlobal.SCREEN_SIZE_OFFSET + 4;
+
+    public static readonly DEBUG_VIEW_MODE_OFFSET = UBOGlobal.NATIVE_SIZE_OFFSET + 4;
+    public static readonly DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET = UBOGlobal.DEBUG_VIEW_MODE_OFFSET + 4;
+    public static readonly DEBUG_VIEW_COMPOSITE_PACK_2_OFFSET = UBOGlobal.DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET + 4;
+    public static readonly DEBUG_VIEW_COMPOSITE_PACK_3_OFFSET = UBOGlobal.DEBUG_VIEW_COMPOSITE_PACK_2_OFFSET + 4;
+
+    public static readonly COUNT = UBOGlobal.DEBUG_VIEW_COMPOSITE_PACK_3_OFFSET + 4;
     public static readonly SIZE = UBOGlobal.COUNT * 4;
 
     public static readonly NAME = 'CCGlobal';
@@ -183,6 +189,11 @@ export class UBOGlobal {
         new Uniform('cc_time', Type.FLOAT4, 1),
         new Uniform('cc_screenSize', Type.FLOAT4, 1),
         new Uniform('cc_nativeSize', Type.FLOAT4, 1),
+
+        new Uniform('cc_debug_view_mode', Type.FLOAT, 4),
+        new Uniform('cc_debug_view_composite_pack_1', Type.FLOAT, 4),
+        new Uniform('cc_debug_view_composite_pack_2', Type.FLOAT, 4),
+        new Uniform('cc_debug_view_composite_pack_3', Type.FLOAT, 4),
     ], 1);
 }
 globalDescriptorSetLayout.layouts[UBOGlobal.NAME] = UBOGlobal.LAYOUT;

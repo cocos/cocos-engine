@@ -199,6 +199,7 @@ LayoutGraphData::LayoutGraphData(const allocator_type& alloc) noexcept
   valueNames(alloc),
   attributeIndex(alloc),
   constantIndex(alloc),
+  shaderLayoutIndex(alloc),
   pathIndex(alloc) {}
 
 LayoutGraphData::LayoutGraphData(LayoutGraphData&& rhs, const allocator_type& alloc)
@@ -211,6 +212,7 @@ LayoutGraphData::LayoutGraphData(LayoutGraphData&& rhs, const allocator_type& al
   valueNames(std::move(rhs.valueNames), alloc),
   attributeIndex(std::move(rhs.attributeIndex), alloc),
   constantIndex(std::move(rhs.constantIndex), alloc),
+  shaderLayoutIndex(std::move(rhs.shaderLayoutIndex), alloc),
   pathIndex(std::move(rhs.pathIndex), alloc) {}
 
 // ContinuousContainer

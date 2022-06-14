@@ -262,6 +262,13 @@ export class LayoutGraph implements impl.BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // MutableGraph
+    clear (): void {
+        // ComponentGraph
+        this._names.length = 0;
+        this._descriptors.length = 0;
+        // Graph Vertices
+        this._vertices.length = 0;
+    }
     addVertex<T extends LayoutGraphValue> (
         id: LayoutGraphValue,
         object: LayoutGraphValueType[T],
@@ -654,14 +661,14 @@ export class DescriptorSetLayoutData {
 }
 
 export class DescriptorSetData {
-    constructor (descriptorSetLayoutData: DescriptorSetLayoutData, descriptorSetLayout: DescriptorSetLayout, descriptorSet: DescriptorSet) {
+    constructor (descriptorSetLayoutData: DescriptorSetLayoutData, descriptorSetLayout: DescriptorSetLayout | null, descriptorSet: DescriptorSet | null) {
         this.descriptorSetLayoutData = descriptorSetLayoutData;
         this.descriptorSetLayout = descriptorSetLayout;
         this.descriptorSet = descriptorSet;
     }
     readonly descriptorSetLayoutData: DescriptorSetLayoutData;
-    /*object*/ descriptorSetLayout: DescriptorSetLayout;
-    /*object*/ descriptorSet: DescriptorSet;
+    /*object*/ descriptorSetLayout: DescriptorSetLayout | null;
+    /*object*/ descriptorSet: DescriptorSet | null;
 }
 
 export class PipelineLayoutData {
@@ -847,6 +854,19 @@ export class LayoutGraphData implements impl.BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // MutableGraph
+    clear (): void {
+        // Members
+        this.valueNames.length = 0;
+        this.attributeIndex.clear();
+        this.constantIndex.clear();
+        this.shaderLayoutIndex.clear();
+        // ComponentGraph
+        this._names.length = 0;
+        this._updateFrequencies.length = 0;
+        this._layouts.length = 0;
+        // Graph Vertices
+        this._vertices.length = 0;
+    }
     addVertex<T extends LayoutGraphDataValue> (
         id: LayoutGraphDataValue,
         object: LayoutGraphDataValueType[T],
@@ -1203,4 +1223,5 @@ export class LayoutGraphData implements impl.BidirectionalGraph
     readonly valueNames: string[] = [];
     readonly attributeIndex: Map<string, number> = new Map<string, number>();
     readonly constantIndex: Map<string, number> = new Map<string, number>();
+    readonly shaderLayoutIndex: Map<string, number> = new Map<string, number>();
 }

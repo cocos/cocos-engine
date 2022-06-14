@@ -195,7 +195,7 @@ RasterPassBuilder *NativePipeline::addRasterPass(
     auto passLayoutID = locate(LayoutGraphData::null_vertex(), layoutName, layoutGraph);
     CC_EXPECTS(passLayoutID);
 
-    return new NativeRasterPassBuilder(&renderGraph, passID, &layoutGraph, passLayoutID);
+    return ccnew NativeRasterPassBuilder(&renderGraph, passID, &layoutGraph, passLayoutID);
 }
 
 // NOLINTNEXTLINE
@@ -216,7 +216,7 @@ ComputePassBuilder *NativePipeline::addComputePass(const ccstd::string &layoutNa
 
     auto passLayoutID = locate(LayoutGraphData::null_vertex(), layoutName, layoutGraph);
 
-    return new NativeComputePassBuilder(&renderGraph, passID, &layoutGraph, passLayoutID);
+    return ccnew NativeComputePassBuilder(&renderGraph, passID, &layoutGraph, passLayoutID);
 }
 
 // NOLINTNEXTLINE
@@ -235,7 +235,7 @@ MovePassBuilder *NativePipeline::addMovePass(const ccstd::string &name) {
         std::forward_as_tuple(),
         renderGraph);
 
-    return new NativeMovePassBuilder(&renderGraph, passID);
+    return ccnew NativeMovePassBuilder(&renderGraph, passID);
 }
 
 // NOLINTNEXTLINE
@@ -249,7 +249,7 @@ CopyPassBuilder *NativePipeline::addCopyPass(const ccstd::string &name) {
         std::forward_as_tuple(),
         renderGraph);
 
-    return new NativeCopyPassBuilder(&renderGraph, passID);
+    return ccnew NativeCopyPassBuilder(&renderGraph, passID);
 }
 
 // NOLINTNEXTLINE
@@ -266,11 +266,25 @@ void NativePipeline::presentAll() {
 
 // NOLINTNEXTLINE
 SceneTransversal *NativePipeline::createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) {
-    return new NativeSceneTransversal(camera, scene);
+    return ccnew NativeSceneTransversal(camera, scene);
 }
 
 LayoutGraphBuilder *NativePipeline::getLayoutGraphBuilder() {
     return ccnew NativeLayoutGraphBuilder(device, &layoutGraph);
+}
+
+gfx::DescriptorSetLayout *NativePipeline::getDescriptorSetLayout(const ccstd::string& shaderName, UpdateFrequency freq) {
+    auto iter = layoutGraph.shaderLayoutIndex.find(boost::string_view(shaderName));
+    if (iter != layoutGraph.shaderLayoutIndex.end()) {
+        const auto& layouts = get(LayoutGraphData::Layout, layoutGraph, iter->second).descriptorSets;
+        auto iter2 = layouts.find(freq);
+        if (iter2 != layouts.end()) {
+            return iter2->second.descriptorSetLayout.get();
+        }
+        return nullptr;
+    }
+    CC_EXPECTS(false);
+    return nullptr;
 }
 
 namespace {
@@ -468,12 +482,28 @@ void NativePipeline::setProfiler(scene::Model *profilerIn) {
     profiler = profilerIn;
 }
 
+pipeline::GeometryRenderer *NativePipeline::getGeometryRenderer() const {
+    return nullptr;
+}
+
 float NativePipeline::getShadingScale() const {
     return pipelineSceneData->getShadingScale();
 }
 
 void NativePipeline::setShadingScale(float scale) {
     pipelineSceneData->setShadingScale(scale);
+}
+
+void NativePipeline::setMacroString(const ccstd::string& name, const ccstd::string& value) {
+    macros[name] = value;
+}
+
+void NativePipeline::setMacroInt(const ccstd::string& name, int32_t value) {
+    macros[name] = value;
+}
+
+void NativePipeline::setMacroBool(const ccstd::string& name, bool value) {
+    macros[name] = value;
 }
 
 void NativePipeline::onGlobalPipelineStateChanged() {
