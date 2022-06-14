@@ -717,7 +717,6 @@ export class Batcher2D implements IBatcher {
             if (JSB) {
                 if (!this._currRenderEntity) {
                     this._currRenderEntity = render.renderData!.renderEntity;
-                    this._nativeObj.currFrameHeadIndex = this._currRenderEntity.currIndex;
                 } else {
                     render.updateEntityIndices();
                 }

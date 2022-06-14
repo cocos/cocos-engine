@@ -2,13 +2,14 @@
 #include <2d/renderer/UIMeshBuffer.h>
 #include <cocos/2d/assembler/Simple.h>
 #include <cocos/2d/renderer/RenderEntity.h>
+#include <cocos/2d/renderer/UIMeshBuffer.h>
 #include <cocos/base/TypeDef.h>
 #include <cocos/core/assets/Material.h>
 #include <cocos/renderer/gfx-base/GFXTexture.h>
 #include <cocos/renderer/gfx-base/states/GFXSampler.h>
 #include <cocos/scene/DrawBatch2D.h>
+#include <unordered_map>
 #include <vector>
-#include <cocos/2d/renderer/UIMeshBuffer.h>
 
 namespace cc {
 class Root;
@@ -30,8 +31,10 @@ public:
 
     void addNewRenderEntity(RenderEntity* entity);
 
-    inline index_t getCurrFrameHeadIndex() { return _currFrameHeadIndex; }
-    void setCurrFrameHeadIndex(index_t headIndex);
+    //inline index_t getCurrFrameHeadIndex() { return _currFrameHeadIndex; }
+    //void setCurrFrameHeadIndex(index_t headIndex);
+
+    inline void setNodeEntity(ccstd::string id, RenderEntity* entity) { _nodeEntityMap[id] = entity; }
 
 public:
     UIMeshBuffer* getMeshBuffer(index_t bufferId);
@@ -51,13 +54,14 @@ private:
 
     ccstd::vector<RenderEntity*> _renderEntities{};
     ccstd::vector<RenderEntity*> _newRenderEntities{};
+    ccstd::unordered_map<ccstd::string, RenderEntity*> _nodeEntityMap;
     index_t _currFrameHeadIndex{-1};
 
 private:
     ccstd::vector<scene::DrawBatch2D*> _batches{};
     memop::Pool<scene::DrawBatch2D> _drawBatchPool;
 
-    gfx::Device* _device{nullptr};//use getDevice()
+    gfx::Device* _device{nullptr}; //use getDevice()
 
     RenderEntity* _currEntity{nullptr};
     index_t _currBID{-1};

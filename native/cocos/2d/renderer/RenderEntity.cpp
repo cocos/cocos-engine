@@ -53,6 +53,8 @@ void RenderEntity::setIDataBuffer(uint16_t* iDataBuffer) {
 
 void RenderEntity::setNode(Node* node) {
     this->_node = node;
+
+    _batcher->setNodeEntity(node->getUuid(), this);
 }
 
 void RenderEntity::setVertDirty(bool val) {
