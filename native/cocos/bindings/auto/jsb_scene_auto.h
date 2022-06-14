@@ -290,6 +290,7 @@ SE_DECLARE_FUNC(js_scene_Model_getLocalData);
 SE_DECLARE_FUNC(js_scene_Model_getMacroPatches);
 SE_DECLARE_FUNC(js_scene_Model_getShadowBias);
 SE_DECLARE_FUNC(js_scene_Model_getShadowNormalBias);
+SE_DECLARE_FUNC(js_scene_Model_initLightingmap);
 SE_DECLARE_FUNC(js_scene_Model_initLocalDescriptors);
 SE_DECLARE_FUNC(js_scene_Model_initSubModel);
 SE_DECLARE_FUNC(js_scene_Model_initWorldBoundDescriptors);
