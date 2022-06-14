@@ -62,8 +62,9 @@ void RenderEntity::setIbCount(index_t ibCount) {
 
 void RenderEntity::setNode(Node* node) {
     _node = node;
-
-    _batcher->setNodeEntity(node->getUuid(), this);
+    RenderEntityUserData* userData = new RenderEntityUserData();
+    userData -> setRenderEntity(this);
+    node->setUserData(userData);
 }
 
 void RenderEntity::setVertDirty(bool val) {

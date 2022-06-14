@@ -95,13 +95,8 @@ void Batcher2d::fillBuffersAndMergeBatches() {
 }
 
 void Batcher2d::walk(Node* node) {
-    const ccstd::string& nodeId = node->getUuid();
-    ccstd::unordered_map<ccstd::string, RenderEntity*>::iterator iter = _nodeEntityMap.find(nodeId);
-    if (iter != _mapEnd) {
-        RenderEntity* entity = iter->second;
-        if (entity == nullptr) {
-            return;
-        }
+    if (node->getUserData()) {
+        RenderEntity* entity = static_cast<RenderEntityUserData*>(node->getUserData()) -> getRenderEntity();
 
         //判断是否为第一个
         if (_currBID == -1) {
@@ -152,7 +147,7 @@ void Batcher2d::walk(Node* node) {
         _simple->fillBuffers(entity);
     }
     //递归调用
-    const ccstd::vector<IntrusivePtr<Node>>& children = node->getChildren();
+    auto& children = node->getChildren();
     for (index_t i = 0; i < children.size(); i++) {
         walk(children[i]);
     }

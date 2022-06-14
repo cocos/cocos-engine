@@ -144,4 +144,14 @@ private: // for merging batches
 
     index_t _blendHash{0};
 };
+
+class RenderEntityUserData : public Node::UserData {
+public:
+    inline RenderEntity* getRenderEntity() const { return _renderEntity; }
+    inline void setRenderEntity(RenderEntity* renderEntity) { _renderEntity = renderEntity; }
+
+private:
+    RenderEntity* _renderEntity{nullptr};
+};
+
 }
