@@ -26,11 +26,11 @@
 
 #pragma once
 
+#include <string_view>
 #include "HandleObject.h"
 #include "base/Macros.h"
 #include "base/std/container/string.h"
 #include "base/std/container/vector.h"
-#include <string_view>
 
 namespace se {
 
@@ -307,7 +307,7 @@ public:
          *  @brief Sets se::Value to string value by string_view.
          *  @param[in] v The string_view
          */
-    void setString(const std::string_view& v);
+    void setString(const std::string_view &v);
 
     /**
          *  @brief Sets se::Value to se::Object value.
