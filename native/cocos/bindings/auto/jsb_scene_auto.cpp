@@ -6687,6 +6687,27 @@ static bool js_scene_Model_getWorldBounds(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_FUNC_AS_PROP_GET(js_scene_Model_getWorldBounds)
 
+static bool js_scene_Model_initLightingmap(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Model_initLightingmap : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<cc::Texture2D*, false> arg0 = {};
+        HolderType<cc::Vec4, true> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_Model_initLightingmap : Error processing arguments");
+        cobj->initLightingmap(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Model_initLightingmap)
+
 static bool js_scene_Model_initLocalDescriptors(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
@@ -7667,6 +7688,7 @@ bool js_register_scene_Model(se::Object* obj) // NOLINT(readability-identifier-n
     cls->defineFunction("getMacroPatches", _SE(js_scene_Model_getMacroPatches));
     cls->defineFunction("getShadowBias", _SE(js_scene_Model_getShadowBias));
     cls->defineFunction("getShadowNormalBias", _SE(js_scene_Model_getShadowNormalBias));
+    cls->defineFunction("initLightingmap", _SE(js_scene_Model_initLightingmap));
     cls->defineFunction("_initLocalDescriptors", _SE(js_scene_Model_initLocalDescriptors));
     cls->defineFunction("initSubModel", _SE(js_scene_Model_initSubModel));
     cls->defineFunction("initWorldBoundDescriptors", _SE(js_scene_Model_initWorldBoundDescriptors));
