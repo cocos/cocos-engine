@@ -1,5 +1,5 @@
 #include "inspector_socket_server.h"
-#include "events/epoll.h"
+#include "network/SocketApiNxImpl.h"
 #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
     #include "node.h"
@@ -657,8 +657,8 @@ int ServerSocket::Listen(InspectorSocketServer *inspector_server,
     #if (CC_PLATFORM == CC_PLATFORM_NX)
     int fd;
     if (uv_fileno((uv_handle_t *)server, &fd) >= 0) {
-        struct sockaddr_in    sa;
-        socklen_t          saLen        = sizeof(sa);
+        struct sockaddr_in sa;
+        socklen_t          saLen = sizeof(sa);
 
         int port = 0;
 
@@ -668,7 +668,7 @@ int ServerSocket::Listen(InspectorSocketServer *inspector_server,
 
         printListenSocketAddr(fd);
     }
-        #endif
+    #endif
     if (err == 0) {
         err = uv_listen(reinterpret_cast<uv_stream_t *>(server), 1,
                         ServerSocket::SocketConnectedCallback);

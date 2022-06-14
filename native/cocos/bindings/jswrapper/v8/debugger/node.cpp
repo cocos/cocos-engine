@@ -11,6 +11,10 @@
     #include <stdlib.h>
     #include <string.h>
 
+#if (CC_PLATFORM == CC_PLATFORM_NX)
+        #define __POSIX__
+#endif
+
     #ifdef __POSIX__
         #include <unistd.h>
     #endif
@@ -694,8 +698,8 @@ NO_RETURN void Assert(const char *const (*args)[4]) {
         snprintf(exepath, sizeof(exepath), "node");
 
     char pid[12] = {0};
-    #ifndef _WIN32
-    //snprintf(pid, sizeof(pid), "[%u]", getpid());
+    #if !defined(_WIN32) && (CC_PLATFORM_NX != CC_PLATFORM)
+    snprintf(pid, sizeof(pid), "[%u]", getpid());
     #endif
 
     SE_LOGE("%s%s: %s:%s:%s%s Assertion `%s' failed.\n",

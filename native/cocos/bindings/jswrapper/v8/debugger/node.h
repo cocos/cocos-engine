@@ -45,8 +45,7 @@ template <typename T, size_t N>
 char (&ArraySizeHelper(const T (&array)[N]))[N];
     #endif
 
-#define __POSIX__
-    #ifdef __POSIX__
+    #if defined(__POSIX__) || (CC_PLATFORM == CC_PLATFORM_NX)
 void RegisterSignalHandler(int signal,
                            void (*handler)(int signal),
                            bool reset_handler = false);

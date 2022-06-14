@@ -72,8 +72,8 @@ void StartIoThreadAsyncCallback(uv_async_t *handle) {
 void StartIoInterrupt(Isolate *isolate, void *agent) {
     static_cast<Agent *>(agent)->StartIoThread(false);
 }
-    #define __POSIX__
-    #ifdef __POSIX__
+
+    #if defined(__POSIX__) || (CC_PLATFORM == CC_PLATFORM_NX)
 
 static void StartIoThreadWakeup(int signo) {
     uv_sem_post(&start_io_thread_semaphore);
@@ -101,7 +101,9 @@ static int StartDebugSignalHandler() {
         // https://lists.freebsd.org/pipermail/freebsd-current/2014-March/048885.html
         #ifndef __FreeBSD__
     auto ret = pthread_attr_setstacksize(&attr, PTHREAD_STACK_MIN);
-    //CHECK_EQ(0, ret);
+    #if (CC_PLATFORM != CC_PLATFORM_NX) //this api return err on nx.
+    CHECK_EQ(0, ret);
+    #endif
         #endif // __FreeBSD__
     CHECK_EQ(0, pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED));
     sigset_t sigmask;
@@ -115,7 +117,9 @@ static int StartDebugSignalHandler() {
     CHECK_EQ(0, pthread_sigmask(SIG_SETMASK, &sigmask, nullptr));
     CHECK_EQ(0, pthread_attr_destroy(&attr));
     if (err != 0) {
-        //SE_LOGE("node[%d]: pthread_create: %s\n", getpid(), strerror(err));
+        #if (CC_PLATFORM != CC_PLATFORM_NX) //this api return err on nx.
+        SE_LOGE("node[%d]: pthread_create: %s\n", getpid(), strerror(err));
+        #endif
 
         // Leave SIGUSR1 blocked.  We don't install a signal handler,
         // receiving the signal would terminate the process.
