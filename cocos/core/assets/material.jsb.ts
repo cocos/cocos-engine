@@ -34,8 +34,7 @@ import { legacyCC } from '../global-exports';
 import { PassOverrides, MacroRecord, MaterialProperty } from '../renderer';
 
 import { Color, Mat3, Mat4, Quat, Vec2, Vec3, Vec4 } from '../math';
-import { setClassName } from '../utils/js-typed';
-import { _applyDecoratedDescriptor, _assertThisInitialized, _initializerDefineProperty } from '../data/utils/decorator-jsb-utils';
+import { _assertThisInitialized, _initializerDefineProperty } from '../data/utils/decorator-jsb-utils';
 import { ccclass, serializable, type } from '../data/decorators';
 
 /**
@@ -251,54 +250,6 @@ legacyCC.Material = Material;
 
 const materialProto: any = Material.prototype;
 
-const clsDecorator = ccclass('cc.Material');
-
-// Deserialization
-const _class2$f = Material;
-const _dec2$7 = type(EffectAsset);
-const _descriptor$d = _applyDecoratedDescriptor(_class2$f.prototype, '_effectAsset', [_dec2$7], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return null;
-    },
-});
-
-const _descriptor2$9 = _applyDecoratedDescriptor(_class2$f.prototype, '_techIdx', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return 0;
-    },
-});
-
-const _descriptor3$7 = _applyDecoratedDescriptor(_class2$f.prototype, '_defines', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return [];
-    },
-});
-const _descriptor4$6 = _applyDecoratedDescriptor(_class2$f.prototype, '_states', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return [];
-    },
-});
-const _descriptor5$4 = _applyDecoratedDescriptor(_class2$f.prototype, '_props', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return [];
-    },
-});
-
 materialProto._ctor = function () {
     jsb.Asset.prototype._ctor.apply(this, arguments);
     this._props = [];
@@ -338,4 +289,11 @@ Object.defineProperty(materialProto, 'passes', {
     },
 });
 
-clsDecorator(Material);
+// handle meta data, it is generated automatically
+const MaterialProto = Material.prototype;
+type(EffectAsset)(MaterialProto, '_effectAsset');
+serializable(MaterialProto, '_techIdx');
+serializable(MaterialProto, '_defines');
+serializable(MaterialProto, '_states');
+serializable(MaterialProto, '_props');
+ccclass('cc.Material')(Material);

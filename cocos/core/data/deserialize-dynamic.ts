@@ -144,10 +144,10 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
 
         // function undefined object(null) string boolean number
         const defaultValue = CCClass.getDefault(attrs[propName + POSTFIX_DEFAULT]);
-        if (fastMode) {
+        const userType = attrs[propName + POSTFIX_TYPE] as AnyFunction | undefined;
+        if (fastMode && (defaultValue !== undefined || userType)) {
             let isPrimitiveType;
-            const userType = attrs[propName + POSTFIX_TYPE] as AnyFunction | undefined;
-            if (defaultValue === undefined && userType) {
+            if (defaultValue === undefined) {
                 isPrimitiveType = userType instanceof Attr.PrimitiveType;
             } else {
                 const defaultType = typeof defaultValue;
@@ -216,10 +216,11 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
             }
             // function undefined object(null) string boolean number
             const defaultValue = CCClass.getDefault(attrs[propName + POSTFIX_DEFAULT]);
+            const userType = attrs[propName + POSTFIX_TYPE] as AnyFunction | undefined;
             let isPrimitiveType = false;
-            if (fastMode) {
+            if (fastMode && (defaultValue !== undefined || userType)) {
                 const userType = attrs[propName + POSTFIX_TYPE];
-                if (defaultValue === undefined && userType) {
+                if (defaultValue === undefined) {
                     isPrimitiveType = userType instanceof Attr.PrimitiveType;
                 } else {
                     const defaultType = typeof defaultValue;
