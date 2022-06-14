@@ -33,9 +33,6 @@ public:
     void addNewRenderEntity(RenderEntity* entity);
     void addVertDirtyRenderer(RenderEntity* entity);
 
-    //inline index_t getCurrFrameHeadIndex() { return _currFrameHeadIndex; }
-    //void setCurrFrameHeadIndex(index_t headIndex);
-
     inline void setNodeEntity(ccstd::string id, RenderEntity* entity) { _nodeEntityMap[id] = entity; }
 
 public:
@@ -57,7 +54,6 @@ private:
     ccstd::vector<RenderEntity*> _renderEntities{};
     ccstd::vector<RenderEntity*> _newRenderEntities{};
     ccstd::unordered_map<ccstd::string, RenderEntity*> _nodeEntityMap;
-    index_t _currFrameHeadIndex{-1};
 
 private:
     ccstd::vector<scene::DrawBatch2D*> _batches{};

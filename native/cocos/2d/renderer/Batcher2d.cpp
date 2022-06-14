@@ -300,10 +300,6 @@ void Batcher2d::addVertDirtyRenderer(RenderEntity *entity) {
     _vertDirtyRenderers.push_back(entity);
 }
 
-void Batcher2d::setCurrFrameHeadIndex(index_t headIndex) {
-    _currFrameHeadIndex = headIndex;
-}
-
 void Batcher2d::ItIsDebugFuncInBatcher2d() {
     std::cout << "It is debug func in Batcher2d.";
 }
