@@ -36,7 +36,6 @@ import { PerfCounter } from './perf-counter';
 import { legacyCC } from '../core/global-exports';
 import { Pass } from '../core/renderer';
 import { preTransforms } from '../core/math/mat4';
-import { JSB } from '../core/default-constants';
 import { Root } from '../core/root';
 import { PipelineRuntime } from '../core/pipeline/custom/pipeline';
 
@@ -349,10 +348,9 @@ export class Profiler {
         _material.initialize({ effectName: 'profiler' });
 
         const pass = this.pass = _material.passes[0];
-        const hTexture = pass.getBinding('mainTexture');
         const bDigits = pass.getBinding('digits');
         const bOffset = pass.getBinding('offset');
-        pass.bindTexture(hTexture, this._texture!);
+        pass.setTexture('mainTexture', this._texture!);
         this.digitsData = pass.blocks[bDigits];
         this.offsetData = pass.blocks[bOffset];
         this.offsetData[3] = -1; // ensure init on the first frame

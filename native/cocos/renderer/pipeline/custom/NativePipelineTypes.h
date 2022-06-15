@@ -52,8 +52,8 @@ public:
     uint32_t addRenderStage(const ccstd::string& name) override;
     uint32_t addRenderPhase(const ccstd::string& name, uint32_t parentID) override;
     void addShader(const ccstd::string& name, uint32_t parentPhaseID) override;
-    void addDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlock& block) override;
-    void reserveDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlock& block) override;
+    void addDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlockFlattened& block) override;
+    void reserveDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex& index, const DescriptorBlockFlattened& block) override;
     int compile() override;
 
     ccstd::string print() const override;
@@ -283,6 +283,10 @@ public:
 
     float getShadingScale() const override;
     void  setShadingScale(float scale) override;
+
+    void setMacroString(const ccstd::string& name, const ccstd::string& value) override;
+    void setMacroInt(const ccstd::string& name, int32_t value) override;
+    void setMacroBool(const ccstd::string& name, bool value) override;
 
     void onGlobalPipelineStateChanged() override;
 

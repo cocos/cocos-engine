@@ -49,6 +49,15 @@ class Pipeline;
 } // namespace render
 class CallbacksInvoker;
 
+
+struct CC_DLL DebugViewConfig {
+    uint8_t singleMode;
+    uint8_t compositeModeBitCount;
+    uint32_t compositeModeValue;
+    bool lightingWithAlbedo;
+    bool csmLayerColoration;
+};
+
 class Root final {
 public:
     static Root *getInstance(); //cjh todo: put Root Managerment to Director class.
@@ -219,6 +228,13 @@ public:
 
     /**
      * @zh
+     * 渲染调试数据
+     */
+    inline void setDebugViewConfig(const DebugViewConfig &config) { _debugViewConfig = config; }
+    inline const DebugViewConfig &getDebugViewConfig() const { return _debugViewConfig; }
+
+    /**
+     * @zh
      * 累计时间（秒）
      */
     inline float getCumulativeTime() const { return _cumulativeTime; }
@@ -267,6 +283,7 @@ private:
     scene::DrawBatch2D *_batcher2D{nullptr};
     //    IntrusivePtr<DataPoolManager>                  _dataPoolMgr;
     ccstd::vector<IntrusivePtr<scene::RenderScene>> _scenes;
+    DebugViewConfig _debugViewConfig;
     float _cumulativeTime{0.F};
     float _frameTime{0.F};
     float _fpsTime{0.F};

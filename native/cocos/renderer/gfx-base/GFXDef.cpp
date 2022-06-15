@@ -421,11 +421,11 @@ uint32_t formatSize(Format format, uint32_t width, uint32_t height, uint32_t dep
         case Format::PVRTC_RGB2:
         case Format::PVRTC_RGBA2:
         case Format::PVRTC2_2BPP:
-            return ceilDiv(std::max(width, 16U) * std::max(height, 8U), 4) * depth;
+            return ceilDiv(width, 8) * ceilDiv(height, 4) * 8 * depth;
         case Format::PVRTC_RGB4:
         case Format::PVRTC_RGBA4:
         case Format::PVRTC2_4BPP:
-            return ceilDiv(std::max(width, 16U) * std::max(height, 8U), 2) * depth;
+            return ceilDiv(width, 4) * ceilDiv(height, 4) * 8 * depth;
 
         case Format::ASTC_RGBA_4X4:
         case Format::ASTC_SRGBA_4X4:
@@ -501,15 +501,17 @@ std::pair<uint32_t, uint32_t> formatAlignment(Format format) {
         case Format::ETC2_SRGB8_A1:
         case Format::EAC_RG11:
         case Format::EAC_RG11SN:
+            return std::make_pair(4, 4);
+
         case Format::PVRTC_RGB2:
         case Format::PVRTC_RGBA2:
         case Format::PVRTC2_2BPP:
-            return std::make_pair(4, 4);
+            return std::make_pair(8, 4);
 
         case Format::PVRTC_RGB4:
         case Format::PVRTC_RGBA4:
         case Format::PVRTC2_4BPP:
-            return std::make_pair(2, 2);
+            return std::make_pair(4, 4);
 
         case Format::ASTC_RGBA_4X4:
         case Format::ASTC_SRGBA_4X4:

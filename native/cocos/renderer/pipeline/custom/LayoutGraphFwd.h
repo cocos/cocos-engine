@@ -44,6 +44,7 @@ enum class DescriptorTypeOrder;
 struct UniformBlockDB;
 struct Descriptor;
 struct DescriptorBlock;
+struct DescriptorBlockFlattened;
 struct DescriptorBlockIndex;
 struct DescriptorDB;
 struct RenderStageTag;

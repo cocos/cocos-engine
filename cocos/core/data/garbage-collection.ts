@@ -30,11 +30,11 @@ declare class FinalizationRegistry {
 const targetSymbol = Symbol('[[target]]');
 
 class GarbageCollectionManager {
-    private _finalizationRegistry: FinalizationRegistry | null = EDITOR ? new FinalizationRegistry(this.finalizationRegistryCallback.bind(this)) : null;
+    private _finalizationRegistry: FinalizationRegistry | null = EDITOR && FinalizationRegistry ? new FinalizationRegistry(this.finalizationRegistryCallback.bind(this)) : null;
     private _gcObjects: WeakMap<any, GCObject> = new WeakMap();
 
     public registerGCObject (gcObject: GCObject): GCObject {
-        if (EDITOR) {
+        if (EDITOR && this._finalizationRegistry) {
             const token = {};
             const proxy = new Proxy(gcObject, {
                 get (target, property, receiver) {
@@ -57,7 +57,7 @@ class GarbageCollectionManager {
                 },
             });
             this._gcObjects.set(token, gcObject);
-            this._finalizationRegistry!.register(proxy, token, token);
+            this._finalizationRegistry.register(proxy, token, token);
             return proxy;
         } else {
             return gcObject;

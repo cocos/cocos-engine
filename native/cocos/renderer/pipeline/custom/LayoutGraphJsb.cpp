@@ -59,9 +59,15 @@ bool nativevalue_to_se(const cc::render::Descriptor &from, se::Value &to, se::Ob
     return true;
 }
 
-bool nativevalue_to_se(const cc::render::DescriptorBlock &from, se::Value &to, se::Object *ctx) { // NOLINT
+bool nativevalue_to_se(const cc::render::DescriptorBlockFlattened &from, se::Value &to, se::Object *ctx) { // NOLINT
     se::HandleObject obj(se::Object::createPlainObject());
     se::Value        tmp;
+
+    nativevalue_to_se(from.descriptorNames, tmp, ctx);
+    obj->setProperty("descriptorNames", tmp);
+
+    nativevalue_to_se(from.uniformBlockNames, tmp, ctx);
+    obj->setProperty("uniformBlockNames", tmp);
 
     nativevalue_to_se(from.descriptors, tmp, ctx);
     obj->setProperty("descriptors", tmp);
@@ -132,12 +138,20 @@ bool sevalue_to_native<cc::render::Descriptor>(const se::Value &from, cc::render
 }
 
 template <>
-bool sevalue_to_native<cc::render::DescriptorBlock>(const se::Value &from, cc::render::DescriptorBlock *to, se::Object *ctx) { // NOLINT
-    SE_PRECONDITION2(from.isObject(), false, " Convert parameter to DescriptorBlock failed !");
+bool sevalue_to_native<cc::render::DescriptorBlockFlattened>(const se::Value &from, cc::render::DescriptorBlockFlattened *to, se::Object *ctx) { // NOLINT
+    SE_PRECONDITION2(from.isObject(), false, " Convert parameter to DescriptorBlockFlattened failed !");
 
     auto *obj = const_cast<se::Object *>(from.toObject());
     bool ok = true;
     se::Value field;
+    obj->getProperty("descriptorNames", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->descriptorNames), ctx);
+    }
+    obj->getProperty("uniformBlockNames", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->uniformBlockNames), ctx);
+    }
     obj->getProperty("descriptors", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->descriptors), ctx);

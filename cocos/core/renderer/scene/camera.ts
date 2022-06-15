@@ -706,6 +706,8 @@ export class Camera {
             this._forward.x = -this._matView.m02;
             this._forward.y = -this._matView.m06;
             this._forward.z = -this._matView.m10;
+            // Remove scale
+            Mat4.multiply(this._matView, new Mat4().scale(this._node.worldScale), this._matView);
             this._node.getWorldPosition(this._position);
             viewProjDirty = true;
         }

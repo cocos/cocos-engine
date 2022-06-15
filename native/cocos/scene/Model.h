@@ -89,6 +89,7 @@ public:
     void onGlobalPipelineStateChanged() const;
     void onMacroPatchesStateChanged();
     void onGeometryChanged();
+    void initLightingmap(Texture2D *texture, const Vec4 &uvParam);
     void updateLightingmap(Texture2D *texture, const Vec4 &uvParam);
     virtual ccstd::vector<IMacroPatch> getMacroPatches(index_t subModelIndex);
     virtual void updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, Pass *pass);

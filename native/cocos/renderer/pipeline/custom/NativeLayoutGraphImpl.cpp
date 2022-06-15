@@ -56,9 +56,21 @@ void NativeLayoutGraphBuilder::addShader(const ccstd::string& name, uint32_t par
 
 void NativeLayoutGraphBuilder::addDescriptorBlock(
     uint32_t nodeID,
-    const DescriptorBlockIndex &index, const DescriptorBlock &block) {
+    const DescriptorBlockIndex &index, const DescriptorBlockFlattened &b) {
     auto &g = *data;
     auto &ppl = get(LayoutGraphData::Layout, g, nodeID);
+
+    CC_EXPECTS(b.descriptorNames.size() == b.descriptors.size());
+    CC_EXPECTS(b.uniformBlockNames.size() == b.uniformBlocks.size());
+    DescriptorBlock block;
+    for (uint32_t i = 0; i != b.descriptorNames.size(); ++i) {
+        block.descriptors.emplace(b.descriptorNames[i], b.descriptors[i]);
+    }
+    for (uint32_t i = 0; i != b.uniformBlockNames.size(); ++i) {
+        block.uniformBlocks.emplace(b.uniformBlockNames[i], b.uniformBlocks[i]);
+    }
+    block.capacity = b.capacity;
+    block.count = b.count;
 
     CC_ASSERT(block.capacity);
     auto &layout = ppl.descriptorSets[index.updateFrequency].descriptorSetLayoutData;
@@ -135,7 +147,7 @@ IntrusivePtr<gfx::DescriptorSetLayout> createDescriptorSetLayout(
 
 void NativeLayoutGraphBuilder::reserveDescriptorBlock(
     uint32_t nodeID,
-    const DescriptorBlockIndex &index, const DescriptorBlock &block) {
+    const DescriptorBlockIndex &index, const DescriptorBlockFlattened &block) {
     auto &g = *data;
     auto &ppl = get(LayoutGraphData::Layout, g, nodeID);
 
