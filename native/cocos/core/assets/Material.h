@@ -311,7 +311,7 @@ public:
 protected:
     void update(bool keepProps = true);
     bool uploadProperty(scene::Pass *pass, const ccstd::string &name, const MaterialPropertyVariant &val);
-    void bindTexture(scene::Pass *pass, uint32_t handle, const MaterialProperty &val, index_t index = CC_INVALID_INDEX);
+    void bindTexture(scene::Pass *pass, uint32_t handle, const MaterialProperty &val, uint32_t index = 0);
 
     template <typename T1, typename T2>
     void prepareInfo(const T1 &patch, ccstd::vector<T2> &cur) {

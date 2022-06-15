@@ -408,7 +408,7 @@ bool Material::uploadProperty(scene::Pass *pass, const ccstd::string &name, cons
     return true;
 }
 
-void Material::bindTexture(scene::Pass *pass, uint32_t handle, const MaterialProperty &val, index_t index /* = CC_INVALID_INDEX*/) {
+void Material::bindTexture(scene::Pass *pass, uint32_t handle, const MaterialProperty &val, uint32_t index) {
     if (pass == nullptr) {
         return;
     }
