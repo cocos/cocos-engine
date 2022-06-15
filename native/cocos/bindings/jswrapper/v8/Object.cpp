@@ -504,22 +504,22 @@ bool Object::isTypedArray() const {
 Object::TypedArrayType Object::getTypedArrayType() const {
     v8::Local<v8::Value> value = const_cast<Object *>(this)->_obj.handle(__isolate);
     TypedArrayType ret = TypedArrayType::NONE;
-    if (value->IsInt8Array()) {
-        ret = TypedArrayType::INT8;
-    } else if (value->IsInt16Array()) {
-        ret = TypedArrayType::INT16;
-    } else if (value->IsInt32Array()) {
-        ret = TypedArrayType::INT32;
-    } else if (value->IsUint8Array()) {
-        ret = TypedArrayType::UINT8;
-    } else if (value->IsUint8ClampedArray()) {
-        ret = TypedArrayType::UINT8_CLAMPED;
-    } else if (value->IsUint16Array()) {
-        ret = TypedArrayType::UINT16;
+    if (value->IsFloat32Array()) {
+        ret = TypedArrayType::FLOAT32;
     } else if (value->IsUint32Array()) {
         ret = TypedArrayType::UINT32;
-    } else if (value->IsFloat32Array()) {
-        ret = TypedArrayType::FLOAT32;
+    } else if (value->IsUint16Array()) {
+        ret = TypedArrayType::UINT16;
+    } else if (value->IsUint8Array()) {
+        ret = TypedArrayType::UINT8;
+    } else if (value->IsInt32Array()) {
+        ret = TypedArrayType::INT32;
+    } else if (value->IsInt16Array()) {
+        ret = TypedArrayType::INT16;
+    } else if (value->IsInt8Array()) {
+        ret = TypedArrayType::INT8;
+    } else if (value->IsUint8ClampedArray()) {
+        ret = TypedArrayType::UINT8_CLAMPED;
     } else if (value->IsFloat64Array()) {
         ret = TypedArrayType::FLOAT64;
     }
