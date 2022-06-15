@@ -162,7 +162,7 @@ void setReturnValueTemplate(const Value &data, const T &argv) {
             // NOTICE: We will try to convert it to BigInt, when precision loss may happend.
             // But this will lead JS runtime exceptions such as
             //      "Uncaught TypeError: Cannot mix BigInt and other types, use explicit conversions"
-            CC_LOG_DEBUG("int64 value is out of range for double");
+            CC_LOG_WARNING("int64 value is out of range for double");
             assert(false); // should be fixed in debug mode.
             // This is a fallback workaround in release mode
             argv.GetReturnValue().Set(v8::BigInt::New(argv.GetIsolate(), data.toInt64()));
