@@ -110,6 +110,7 @@ void PrintDebuggerReadyMessage(const std::string &             host,
 
     std::vector<std::tuple<std::string, bool, std::string>> ipList;
 
+    #if (CC_PLATFORM != CC_PLATFORM_NX)
     {
         char                    buf[512];
         uv_interface_address_t *info  = nullptr;
@@ -133,6 +134,7 @@ void PrintDebuggerReadyMessage(const std::string &             host,
         }
         uv_free_interface_addresses(info, count);
     }
+    #endif
 
     for (const std::string &id : ids) {
         if (host != "0.0.0.0") {
@@ -484,14 +486,10 @@ bool InspectorSocketServer::Start() {
     PrintDebuggerReadyMessage(host_, server_sockets_[0]->port(),
                               delegate_->GetTargetIds(), out_);
     #else
-    auto nxHost = IpAddr();
-    auto ids    = delegate_->GetTargetIds();
-    for (const std::string &id : ids) {
-        SE_LOGD("Debugger listening..., visit [ devtools://devtools/bundled/js_app.html?v8only=true&ws=%s ] in chrome browser to debug!\n",
-                FormatWsAddress(nxHost, Port(), id, false).c_str());
-    }
-
+    PrintDebuggerReadyMessage(IpAddr(), server_sockets_[0]->port(),
+                              delegate_->GetTargetIds(), out_);
     #endif
+
     return true;
 }
 
