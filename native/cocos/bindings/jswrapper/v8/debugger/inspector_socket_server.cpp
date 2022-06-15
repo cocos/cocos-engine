@@ -307,6 +307,7 @@ public:
                  SocketClosedCallback);
     }
     int port() const { return port_; }
+    std::string ip() const { return ip_; }
 
 private:
     explicit ServerSocket(InspectorSocketServer *server)
@@ -325,10 +326,12 @@ private:
         delete FromTcpSocket(tcp_socket_);
     }
     int DetectPort();
+    int DetectIp();
 
     uv_tcp_t               tcp_socket_;
     InspectorSocketServer *server_;
     int                    port_;
+    std::string            ip_;
 };
 
 InspectorSocketServer::InspectorSocketServer(SocketServerDelegate *delegate,
@@ -475,8 +478,18 @@ bool InspectorSocketServer::Start() {
     }
     state_ = ServerState::kRunning;
     // getaddrinfo sorts the addresses, so the first port is most relevant.
+    #if (CC_PLATFORM != CC_PLATFORM_NX)
     PrintDebuggerReadyMessage(host_, server_sockets_[0]->port(),
                               delegate_->GetTargetIds(), out_);
+    #else
+    auto nxHost = IpAddr();
+    auto ids    = delegate_->GetTargetIds();
+    for (const std::string &id : ids) {
+        SE_LOGD("Debugger listening..., visit [ devtools://devtools/bundled/js_app.html?v8only=true&ws=%s ] in chrome browser to debug!\n",
+                FormatWsAddress(nxHost, Port(), id, false).c_str());
+    }
+
+    #endif
     return true;
 }
 
@@ -539,6 +552,13 @@ int InspectorSocketServer::Port() const {
         return server_sockets_[0]->port();
     }
     return port_;
+}
+
+std::string InspectorSocketServer::IpAddr() const {
+    if (!server_sockets_.empty()) {
+        return server_sockets_[0]->ip();
+    }
+    return "";
 }
 
 // InspectorSession tracking
@@ -646,6 +666,26 @@ int ServerSocket::DetectPort() {
     return err;
 }
 
+int ServerSocket::DetectIp() {
+    int err = -1;
+    #if (CC_PLATFORM == CC_PLATFORM_NX)
+        int       fd;
+        uv_tcp_t *server = &tcp_socket_;
+        if (uv_fileno((uv_handle_t *)server, &fd) >= 0) {
+            struct sockaddr_in sa;
+            socklen_t          saLen = sizeof(sa);
+
+            constexpr int maxIpLen = 20;
+            char          ipBuff[maxIpLen];
+            err = getListenSocketAddr(fd, ipBuff, sizeof(ipBuff));
+            if (err == 0) {
+                ip_ = ipBuff;
+            }
+        }
+    #endif
+    return err;
+}
+
 // static
 int ServerSocket::Listen(InspectorSocketServer *inspector_server,
                          sockaddr *addr, uv_loop_t *loop) {
@@ -654,27 +694,16 @@ int ServerSocket::Listen(InspectorSocketServer *inspector_server,
     CHECK_EQ(0, uv_tcp_init(loop, server));
     int err = uv_tcp_bind(server, addr, 0);
 
-    #if (CC_PLATFORM == CC_PLATFORM_NX)
-    int fd;
-    if (uv_fileno((uv_handle_t *)server, &fd) >= 0) {
-        struct sockaddr_in sa;
-        socklen_t          saLen = sizeof(sa);
 
-        int port = 0;
-
-        if (getsockname(fd, (struct sockaddr *)&sa, &saLen) >= 0) {
-            port = ntohs(sa.sin_port);
-        }
-
-        printListenSocketAddr(fd);
-    }
-    #endif
     if (err == 0) {
         err = uv_listen(reinterpret_cast<uv_stream_t *>(server), 1,
                         ServerSocket::SocketConnectedCallback);
     }
     if (err == 0) {
         err = server_socket->DetectPort();
+    }
+    if (err == 0) {
+        err = server_socket->DetectIp();
     }
     if (err == 0) {
         inspector_server->ServerSocketListening(server_socket);

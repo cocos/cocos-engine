@@ -58,6 +58,8 @@ public:
 
     int Port() const;
 
+    std::string IpAddr() const;
+
     // Server socket lifecycle. There may be multiple sockets
     void ServerSocketListening(ServerSocket *server_socket);
     void ServerSocketClosed(ServerSocket *server_socket);
