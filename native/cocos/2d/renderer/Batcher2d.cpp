@@ -95,9 +95,8 @@ void Batcher2d::fillBuffersAndMergeBatches() {
 }
 
 void Batcher2d::walk(Node* node) {
-    RenderEntityUserData* userData = static_cast<RenderEntityUserData*>(node->getUserData());
-    if (userData) {
-        RenderEntity* entity = userData->getRenderEntity();
+    RenderEntity* entity = static_cast<RenderEntity*>(node->getUserData());
+    if (entity) {
 
         //判断是否为第一个
         if (_currBID == -1) {

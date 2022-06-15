@@ -23,7 +23,7 @@ struct EntityAttrLayout {
 };
 
 class Batcher2d;
-class RenderEntity {
+class RenderEntity : public Node::UserData {
 public:
     RenderEntity();
     explicit RenderEntity(Batcher2d* batcher);
@@ -143,15 +143,6 @@ private: // for merging batches
     gfx::Sampler* _sampler{nullptr};
 
     index_t _blendHash{0};
-};
-
-class RenderEntityUserData : public Node::UserData {
-public:
-    inline RenderEntity* getRenderEntity() const { return _renderEntity; }
-    inline void setRenderEntity(RenderEntity* renderEntity) { _renderEntity = renderEntity; }
-
-private:
-    RenderEntity* _renderEntity{nullptr};
 };
 
 }
