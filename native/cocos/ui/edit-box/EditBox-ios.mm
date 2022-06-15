@@ -272,6 +272,7 @@ static ButtonHandler*           btnHandler = nil;
 @interface InputBoxPair : NSObject
 @property(readwrite) id inputOnView;
 @property(readwrite) id inputOnToolbar;
+@property(readwrite) id inputDelegate;
 @end
 @implementation InputBoxPair
 @end
@@ -364,6 +365,7 @@ static EditboxManager *instance = nil;
     textView.clipsToBounds = YES;
     textView.text = [NSString stringWithUTF8String:showInfo->defaultValue.c_str()];
     TextViewDelegate* delegate = [[TextViewDelegate alloc] initWithPairs:[inputbox inputOnView] and:textView];
+    inputbox.inputDelegate = delegate;
     textView.delegate = delegate;
     UIBarButtonItem *textViewItem = [[UIBarButtonItem alloc] initWithCustomView:textView];
     
@@ -391,6 +393,12 @@ static EditboxManager *instance = nil;
     ((UITextView*)[inputbox inputOnView]).inputAccessoryView = toolbar;
     
     [inputbox setInputOnToolbar:textViewBarButtonItem.customView];
+    //release for NON ARC ENV
+    [toolbar release];
+    [textView release];
+    [confirmBtn release];
+    [textViewItem release];
+    [confirm release];
     
 }
 - (void) addInputAccessoryViewForTextField: (InputBoxPair*)inputbox
@@ -410,6 +418,7 @@ static EditboxManager *instance = nil;
     textField.text = [NSString stringWithUTF8String:showInfo->defaultValue.c_str()];
     TextFieldDelegate* delegate = [[TextFieldDelegate alloc] initWithPairs:[inputbox inputOnView] and:textField];
     textField.delegate = delegate;
+    inputbox.inputDelegate = delegate;
     [textField addTarget:delegate action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
     UIBarButtonItem *textFieldItem = [[UIBarButtonItem alloc] initWithCustomView:textField];
     
@@ -438,6 +447,13 @@ static EditboxManager *instance = nil;
     UIBarButtonItem* textFieldBarButtonItem = [self setInputWidthOf:toolbar];
     ((UITextField*)[inputbox inputOnView]).inputAccessoryView = toolbar;
     [inputbox setInputOnToolbar:textFieldBarButtonItem.customView];
+    
+    //release for NON ARC ENV
+    [toolbar release];
+    [textField release];
+    [confirmBtn release];
+    [textFieldItem release];
+    [confirm release];
 }
 
 - (id) createTextView:    (const cc::EditBox::ShowInfo *)showInfo {
