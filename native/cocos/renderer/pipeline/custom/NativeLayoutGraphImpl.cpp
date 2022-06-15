@@ -231,7 +231,7 @@ ccstd::string getName(gfx::ShaderStageFlagBit stage) {
         }
         oss << "Compute";
     }
-    if (hasFlag(stage, gfx::ShaderStageFlagBit::ALL)) {
+    if (hasAllFlags(stage, gfx::ShaderStageFlagBit::ALL)) {
         if (count++) {
             oss << " | ";
         }
