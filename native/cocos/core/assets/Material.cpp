@@ -397,7 +397,9 @@ bool Material::uploadProperty(scene::Pass *pass, const ccstd::string &name, cons
         }
     } else if (val.index() == MATERIAL_PROPERTY_INDEX_LIST) {
         const auto &textureArray = ccstd::get<MaterialPropertyList>(val);
-        bindTextureArray(pass, name, textureArray);
+        if (!textureArray.empty()) {
+            bindTextureArray(pass, name, textureArray);
+        }
     } else if (val.index() == MATERIAL_PROPERTY_INDEX_SINGLE) {
         bindTexture(pass, name, ccstd::get<MaterialProperty>(val));
     } else {
