@@ -33,6 +33,7 @@
     #include "Object.h"
     #include "ScriptEngine.h"
     #include "base/Log.h"
+    #include "base/Macros.h"
 
 namespace se {
 
@@ -145,6 +146,19 @@ void jsToSeValue(v8::Isolate *isolate, v8::Local<v8::Value> jsval, Value *v) {
     }
 }
 
+template <int N>
+static void warnWithinTimesInReleaseMode(const char *msg) {
+    static int timesLimit = N;
+    #if CC_DEBUG
+    CC_LOG_DEBUG(msg);
+    #else
+    if (timesLimit > 0) {
+        CC_LOG_WARNING(msg);
+        timesLimit--;
+    }
+    #endif
+}
+
 template <typename T>
 void setReturnValueTemplate(const Value &data, const T &argv) {
     if (data.getType() == Value::Type::Undefined) {
@@ -156,18 +170,13 @@ void setReturnValueTemplate(const Value &data, const T &argv) {
     } else if (data.getType() == Value::Type::BigInt) {
         constexpr int64_t maxSafeInt = 9007199254740991LL;  // value refer to JS Number.MAX_SAFE_INTEGER
         constexpr int64_t minSafeInt = -9007199254740991LL; // value refer to JS Number.MIN_SAFE_INTEGER
-        if (data.toInt64() <= maxSafeInt && data.toInt64() >= minSafeInt) {
-            argv.GetReturnValue().Set(v8::Number::New(argv.GetIsolate(), static_cast<double>(data.toInt64())));
-        } else {
+        if (data.toInt64() > maxSafeInt || data.toInt64() < minSafeInt) {
             // NOTICE: We will try to convert it to BigInt, when precision loss may happend.
             // But this will lead JS runtime exceptions such as
             //      "Uncaught TypeError: Cannot mix BigInt and other types, use explicit conversions"
-            CC_LOG_WARNING("int64 value is out of range for double");
-            assert(false); // should be fixed in debug mode.
-            // This is a fallback workaround in release mode
-            argv.GetReturnValue().Set(v8::BigInt::New(argv.GetIsolate(), data.toInt64()));
+            warnWithinTimesInReleaseMode<100>("int64 value is out of range for double");
+            CC_ASSERT(false); // should be fixed in debug mode.
         }
-
         argv.GetReturnValue().Set(v8::Number::New(argv.GetIsolate(), static_cast<double>(data.toInt64())));
     } else if (data.getType() == Value::Type::String) {
         v8::MaybeLocal<v8::String> value = v8::String::NewFromUtf8(argv.GetIsolate(), data.toString().c_str(), v8::NewStringType::kNormal);
