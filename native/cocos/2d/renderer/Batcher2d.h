@@ -40,10 +40,6 @@ public:
     inline Node* getRootNode() const { return _rootNode; }
     void setRootNode(Node* node);
 
-    inline void setNodeEntity(ccstd::string id, RenderEntity* entity) {
-        _nodeEntityMap[id] = entity;
-    }
-
 public:
     UIMeshBuffer* getMeshBuffer(index_t bufferId);
     gfx::Device* getDevice();
@@ -65,8 +61,6 @@ private:
     //ccstd::vector<RenderEntity*> _newRenderEntities{};
     //RenderEntity* _firstEntity;
     Node* _rootNode;
-    ccstd::unordered_map<ccstd::string, RenderEntity*>::iterator _mapEnd;
-    ccstd::unordered_map<ccstd::string, RenderEntity*> _nodeEntityMap;
 
 private:
     ccstd::vector<scene::DrawBatch2D*> _batches{};

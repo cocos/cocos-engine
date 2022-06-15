@@ -5,6 +5,7 @@
 #include <renderer/pipeline/Define.h>
 #include <scene/Pass.h>
 #include <iostream>
+#include <deque>
 
 namespace cc {
 //batcher2d是从ts调JSB过来的的，所以不会走构造
@@ -89,29 +90,18 @@ void Batcher2d::setRootNode(Node* node) {
 
 //对标ts的walk
 void Batcher2d::fillBuffersAndMergeBatches() {
-    _mapEnd = _nodeEntityMap.end();
     walk(_rootNode);
     generateBatch(_currEntity);
 }
 
 void Batcher2d::walk(Node* node) {
-    RenderEntity* entity = static_cast<RenderEntity*>(node->getUserData());
-    if (entity) {
-
-        //判断是否为第一个
-        if (_currBID == -1) {
-            _currBID = entity->getBufferId();
-            _indexStart = entity->getIndexOffset();
-            _currHash = entity->getDataHash();
-            _currMaterial = entity->getMaterial();
-            _currLayer = entity->getNode()->getLayer();
-            _currEntity = entity;
-
-            //if(frame)
-            _currTexture = entity->getTexture();
-            _currTextureHash = entity->getTextureHash();
-            _currSampler = entity->getSampler();
-        } else {
+    static std::vector<Node*> nodeStack{1000000};
+    nodeStack[0] = node;
+    size_t length = 1;
+    while (length > 0) {
+        Node* curNode = nodeStack[--length];
+        RenderEntity* entity = static_cast<RenderEntity*>(curNode->getUserData());
+        if (entity) {
             //判断是否能合批，不能合批则需要generateBatch
             uint32_t dataHash = entity->getDataHash();
             if (_currHash != dataHash || dataHash == 0 || _currMaterial != entity->getMaterial()
@@ -142,23 +132,30 @@ void Batcher2d::walk(Node* node) {
                     _currSamplerHash = _currSampler->getHash();
                 }
             }
-        }
 
-        _simple->fillBuffers(entity);
+            //暂时不修改vb和ib，验证下目前native的行为
+            //最后调通时再把这里打开
+            if (node->getChangedFlags()) {
+                _simple->updateWorldVerts(entity);
+            }
+            _simple->fillBuffers(entity);
+        }
+        //递归调用
+        auto& children = curNode->getChildren();
+        for (index_t i = children.size() - 1; i >= 0; i--) {
+            assert(length < 1000000);
+            nodeStack[length++] = children[i];
+        }
     }
-    //递归调用
-    auto& children = node->getChildren();
-    const size_t size = children.size();
-    for (index_t i = 0; i < size; i++) {
-        walk(children[i]);
-    }
+    generateBatch(_currEntity);
+    
 }
 
 //如果不传参数，说明是最后一个组件结束，直接合批
 void Batcher2d::generateBatch(RenderEntity* entity) {
     //这里主要负责的是ts.automergebatches
     //边循环，边判断当前entity是否能合批
-    if (_currMaterial == nullptr) {
+    if (entity == nullptr) {
         return;
     }
     //if (entity->getIsMeshBuffer()) {
@@ -203,6 +200,7 @@ void Batcher2d::resetRenderStates() {
     _currSampler = nullptr;
     _currSamplerHash = 0;
     _currLayer = 0;
+    _currEntity = nullptr;
 }
 
 gfx::DescriptorSet* Batcher2d::getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, gfx::DescriptorSetLayout* _dsLayout) {
@@ -235,7 +233,8 @@ bool Batcher2d::initialize() {
 
 void Batcher2d::update() {
     updateVertDirtyRenderer();
-    fillBuffersAndMergeBatches();
+    //sortRenderEntities();
+    walk(_rootNode);
     resetRenderStates();
 
     for (const auto scene : Root::getInstance()->getScenes()) {
