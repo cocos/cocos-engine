@@ -13891,7 +13891,7 @@ static bool js_scene_Pass_bindSampler(se::State& s) // NOLINT(readability-identi
     if (argc == 3) {
         HolderType<unsigned int, false> arg0 = {};
         HolderType<cc::gfx::Sampler*, false> arg1 = {};
-        HolderType<int, false> arg2 = {};
+        HolderType<unsigned int, false> arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
@@ -13923,7 +13923,7 @@ static bool js_scene_Pass_bindTexture(se::State& s) // NOLINT(readability-identi
     if (argc == 3) {
         HolderType<unsigned int, false> arg0 = {};
         HolderType<cc::gfx::Texture*, false> arg1 = {};
-        HolderType<int, false> arg2 = {};
+        HolderType<unsigned int, false> arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
@@ -14705,7 +14705,7 @@ static bool js_scene_Pass_resetTexture(se::State& s) // NOLINT(readability-ident
     do {
         if (argc == 2) {
             HolderType<std::string, true> arg0 = {};
-            HolderType<int, false> arg1 = {};
+            HolderType<unsigned int, false> arg1 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
             if (!ok) { ok = true; break; }
