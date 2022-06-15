@@ -876,6 +876,7 @@ static bool js_Model_setInstancedAttribute(se::State &s) // NOLINT(readability-i
                     pData = stackData.data();
                 } else {
                     pData = static_cast<float *>(CC_MALLOC(len));
+                    needFree = true;
                 }
 
                 for (uint32_t i = 0; i < len; ++i) {
