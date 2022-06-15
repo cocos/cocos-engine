@@ -848,11 +848,11 @@ static bool js_scene_RenderScene_root_getter(se::State &s) { // NOLINT(readabili
 }
 SE_BIND_PROP_GET(js_scene_RenderScene_root_getter)
 
-static bool js_Model_setInstancedAttribute(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_Model_setInstancedAttribute(se::State &s) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
     SE_PRECONDITION2(cobj, false, "js_Model_setInstancedAttribute : Invalid Native Object");
-    const auto& args = s.args();
+    const auto &args = s.args();
     size_t argc = args.size();
     auto *thiz = s.thisObject();
     CC_UNUSED bool ok = true;
@@ -861,7 +861,7 @@ static bool js_Model_setInstancedAttribute(se::State& s) // NOLINT(readability-i
         ok &= sevalue_to_native(args[0], &name, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_Model_setInstancedAttribute : Error processing arguments");
 
-        auto& val = args[1];
+        auto &val = args[1];
         if (val.isObject()) {
             if (val.toObject()->isArray()) {
                 uint32_t len = 0;
@@ -875,7 +875,7 @@ static bool js_Model_setInstancedAttribute(se::State& s) // NOLINT(readability-i
                 if (len <= 32) {
                     pData = stackData.data();
                 } else {
-                    pData = static_cast<float*>(CC_MALLOC(len));
+                    pData = static_cast<float *>(CC_MALLOC(len));
                 }
 
                 for (uint32_t i = 0; i < len; ++i) {
@@ -893,15 +893,13 @@ static bool js_Model_setInstancedAttribute(se::State& s) // NOLINT(readability-i
             } else if (val.toObject()->isTypedArray()) {
                 se::Object::TypedArrayType type = val.toObject()->getTypedArrayType();
                 switch (type) {
-                    case se::Object::TypedArrayType::FLOAT32:
-                    {
+                    case se::Object::TypedArrayType::FLOAT32: {
                         uint8_t *data = nullptr;
                         size_t byteLength = 0;
                         if (val.toObject()->getTypedArrayData(&data, &byteLength) && data != nullptr && byteLength > 0) {
-                            cobj->setInstancedAttribute(name, reinterpret_cast<const float*>(data), byteLength);
+                            cobj->setInstancedAttribute(name, reinterpret_cast<const float *>(data), byteLength);
                         }
-                    }
-                        break;
+                    } break;
 
                     default:
                         // FIXME:
