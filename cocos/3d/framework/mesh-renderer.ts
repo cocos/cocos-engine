@@ -41,7 +41,7 @@ import { legacyCC } from '../../core/global-exports';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { CCFloat } from '../../core/data/utils/attribute';
 import { property } from '../../core/data/class-decorator';
-import { JSB } from '../../core/default-constants';
+import { JSB } from 'internal:constants';
 
 /**
  * @en Shadow projection mode.
