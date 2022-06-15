@@ -534,7 +534,7 @@ void Model::setInstancedAttribute(const ccstd::string &name, const float *value,
                 case gfx::FormatType::UFLOAT: {
                     CC_ASSERT(ccstd::holds_alternative<Float32Array>(views[i]));
                     auto &view = ccstd::get<Float32Array>(views[i]);
-                    float *dstData = reinterpret_cast<float *>(view.buffer()->getData() + view.byteOffset());
+                    auto *dstData = reinterpret_cast<float *>(view.buffer()->getData() + view.byteOffset());
                     CC_ASSERT(byteLength <= view.byteLength());
                     memcpy(dstData, value, byteLength);
                 } break;
