@@ -404,7 +404,7 @@ struct IBlockInfo {
 };
 
 struct ISamplerTextureInfo {
-    uint32_t binding{0};
+    uint32_t binding{UINT32_MAX};
     ccstd::string name;
     gfx::Type type{gfx::Type::UNKNOWN};
     uint32_t count{0};
