@@ -1,7 +1,0 @@
-#include "..\..\cocos\core\assets\AssetsModuleHeader.h"
-#include "..\..\cocos\core\builtin\BuiltinResMgr.h"
-#include "..\..\cocos\3d\assets\Mesh.h"
-#include "..\..\cocos\3d\assets\Morph.h"
-#include "..\..\cocos\3d\assets\MorphRendering.h"
-#include "..\..\cocos\3d\assets\Skeleton.h"
-#include "..\..\cocos\3d\misc\CreateMesh.h"

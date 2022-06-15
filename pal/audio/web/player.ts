@@ -41,8 +41,8 @@ export class AudioPlayer {
     get sampleRate () {
         return this._player.sampleRate;
     }
-    public getPCMBuffer (channelID:number) {
-        return this._player.getPCMBuffer(channelID);
+    public getBufferAtChannel (channelID:number) : Float32Array | undefined {
+        return this._player.getBufferAtChannel(channelID);
     }
     static load (url: string, opts?: AudioLoadOptions): Promise<AudioPlayer> {
         return new Promise((resolve) => {

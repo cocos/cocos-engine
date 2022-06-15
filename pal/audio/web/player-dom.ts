@@ -203,9 +203,8 @@ export class AudioPlayerDOM implements OperationQueueable {
         return 0;
     }
 
-    public getPCMBuffer (channelID: number): Float32Array {
-        const arr = new Float32Array();
-        return arr;
+    public getBufferAtChannel (channelID: number): Float32Array | undefined {
+        return undefined;
     }
 
     @enqueueOperation

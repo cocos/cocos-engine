@@ -291,7 +291,7 @@ export class AudioPlayerWeb implements OperationQueueable {
         return this._audioBuffer.sampleRate;
     }
 
-    public getPCMBuffer (channelID: number): Float32Array {
+    public getBufferAtChannel (channelID: number): Float32Array | undefined {
         return this._audioBuffer.getChannelData(channelID);
     }
 
