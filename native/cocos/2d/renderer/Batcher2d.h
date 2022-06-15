@@ -1,6 +1,5 @@
 #pragma once
 #include <2d/renderer/UIMeshBuffer.h>
-#include <cocos/2d/assembler/Simple.h>
 #include <cocos/2d/renderer/RenderEntity.h>
 #include <cocos/2d/renderer/UIMeshBuffer.h>
 #include <cocos/base/TypeDef.h>
@@ -94,7 +93,8 @@ private:
     gfx::DescriptorSet* getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, gfx::DescriptorSetLayout* _dsLayout);
 
 private:
-    Simple* _simple;
+    void updateWorldVerts(RenderEntity* entity);
+    void fillBuffers(RenderEntity* entity);
 
     ccstd::vector<UIMeshBuffer*> _meshBuffers{nullptr};
 };

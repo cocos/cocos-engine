@@ -1627,11 +1627,6 @@ endif()
 
 ##### 2d
 cocos_source_files(
-    cocos/2d/assembler/IAssembler.h
-    cocos/2d/assembler/IAssembler.cpp
-    cocos/2d/assembler/Simple.h    
-    cocos/2d/assembler/Simple.cpp
-
     cocos/2d/renderer/Batcher2d.h
     cocos/2d/renderer/Batcher2d.cpp
     cocos/2d/renderer/RenderEntity.h
