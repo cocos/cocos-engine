@@ -26,8 +26,10 @@
 
 #include "plugins/bus/EventBus.h"
 
-#if _WIN32
+#if _WIN32 && _MSC_VER
     #define CC_PLUGIN_DLL_EXPORT __declspec(dllexport)
+#else
+    #define CC_PLUGIN_DLL_EXPORT __attribute__((visibility("default")))
 #endif
 
 extern "C" void cc_load_all_plugins(); //NOLINT

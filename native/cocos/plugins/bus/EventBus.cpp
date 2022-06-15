@@ -32,7 +32,7 @@ namespace cc {
 namespace plugin {
 using ListenerEntry = ListEntry<Listener>;
 
-Listener::Listener(BusType type) : Listener(EventBus::accquire(type)) {}
+Listener::Listener(BusType type) : Listener(EventBus::acquire(type)) {}
 
 Listener::Listener(BusType type, const char *name) : Listener(type) {
 #if CC_DEBUG
@@ -48,7 +48,7 @@ Listener::~Listener() {
     _bus->removeListener(this);
 }
 
-EventBus *EventBus::accquire(BusType type) {
+EventBus *EventBus::acquire(BusType type) {
     static std::unordered_map<BusType, EventBus> cache;
     return &cache[type];
 }

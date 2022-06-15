@@ -164,7 +164,7 @@ private:
 
 class EventBus {
 public:
-    static EventBus *accquire(BusType type);
+    static EventBus *acquire(BusType type);
 
     EventBus();
 
@@ -302,7 +302,7 @@ void Listener::receive(C callback) {
 
 template <typename... ARGS>
 void send(cc::plugin::BusType bus, ARGS &&...args) {
-    cc::plugin::EventBus::accquire(bus)->send(std::forward<ARGS>(args)...);
+    cc::plugin::EventBus::acquire(bus)->send(std::forward<ARGS>(args)...);
 }
 
 }  // namespace plugin
