@@ -1,5 +1,7 @@
 #include "inspector_socket_server.h"
-#include "network/SocketApiNxImpl.h"
+#if (CC_PLATFORM == CC_PLATFORM_NX)
+    #include "network/SocketApiNxImpl.h"
+#endif
 #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
     #include "node.h"
