@@ -130,7 +130,7 @@ void InstancedBuffer::merge(const scene::Model *model, const scene::SubModel *su
         static_cast<uint>(stride),
     });
 
-    const auto& instancedAttributes = model->getInstanceAttributes();
+    const auto &instancedAttributes = model->getInstanceAttributes();
     auto vertexBuffers = sourceIA->getVertexBuffers();
     auto attributes = sourceIA->getAttributes();
     auto *indexBuffer = sourceIA->getIndexBuffer();
