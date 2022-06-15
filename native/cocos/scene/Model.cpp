@@ -427,6 +427,9 @@ void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attri
     attrs.buffer = Uint8Array(size);
     attrs.views.clear();
     attrs.attributes.clear();
+    attrs.views.reserve(attributes.size());
+    attrs.attributes.reserve(attributes.size());
+
     uint32_t offset = 0;
 
     for (const gfx::Attribute &attribute : attributes) {
