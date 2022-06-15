@@ -462,9 +462,9 @@ static EditboxManager *instance = nil;
     CGRect viewRect = UIApplication.sharedApplication.delegate.window.rootViewController.view.frame;
     
     //TODO: object for key with real hash value
-    NSString* hash = getTextInputType(showInfo);
+    NSString* inputType = getTextInputType(showInfo);
     
-    if ((ret = [textInputDictionnary objectForKey:hash])) {
+    if ((ret = [textInputDictionnary objectForKey:inputType])) {
         [[ret inputOnView] setFrame:CGRectMake(showInfo->x,
                                  viewRect.size.height - showInfo->y - showInfo->height,
                                  showInfo->width,
@@ -482,7 +482,7 @@ static EditboxManager *instance = nil;
                                         viewRect.size.height - showInfo->y - showInfo->height,
                                         showInfo->width,
                                         showInfo->height)]];
-        [textInputDictionnary setValue:ret forKey:hash];
+        [textInputDictionnary setValue:ret forKey:inputType];
         [self addInputAccessoryViewForTextView:ret with:showInfo];
     }
     ((UITextView*)[ret inputOnToolbar]).text = [NSString stringWithUTF8String:showInfo->defaultValue.c_str()];
@@ -494,9 +494,9 @@ static EditboxManager *instance = nil;
     CGRect viewRect = UIApplication.sharedApplication.delegate.window.rootViewController.view.frame;
     
     //TODO: object for key with real hash value
-    NSString* hash = getTextInputType(showInfo);
+    NSString* inputType = getTextInputType(showInfo);
     
-    if ((ret = [textInputDictionnary objectForKey:hash])) {
+    if ((ret = [textInputDictionnary objectForKey:inputType])) {
         [[ret inputOnView] setFrame:CGRectMake(showInfo->x,
                                  viewRect.size.height - showInfo->y - showInfo->height,
                                  showInfo->width,
@@ -514,7 +514,7 @@ static EditboxManager *instance = nil;
                                          viewRect.size.height - showInfo->y - showInfo->height,
                                          showInfo->width,
                                          showInfo->height)]];
-        [textInputDictionnary setValue:ret forKey:hash];
+        [textInputDictionnary setValue:ret forKey:inputType];
         [self addInputAccessoryViewForTextField:ret with:showInfo];
     }
     ((UITextField*)[ret inputOnToolbar]).text = [NSString stringWithUTF8String:showInfo->defaultValue.c_str()];
