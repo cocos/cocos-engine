@@ -116,7 +116,7 @@ export const ttfUtils =  {
             trans.setContentSize(_canvasSize);
 
             this.updateVertexData(comp);
-            this.updateUVs(comp);
+            this.updateUVs(comp); // Empty
 
             comp.markForUpdateRenderData(false);
 

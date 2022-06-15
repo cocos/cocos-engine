@@ -193,14 +193,14 @@ export class RenderData extends BaseRenderData {
     }
 
     public static remove (data: RenderData) {
-        const idx = _pool.data.indexOf(data);
-        if (idx === -1) {
-            return;
-        }
+        // const idx = _pool.data.indexOf(data);
+        // if (idx === -1) {
+        //     return;
+        // }
 
         data.clear();
         data._accessor = null!;
-        _pool.removeAt(idx);
+        // _pool.removeAt(idx);
     }
 
     get dataLength () {
@@ -487,8 +487,9 @@ export class RenderData extends BaseRenderData {
         this.frame = null;
         this.textureHash = 0;
         this.dataHash = 0;
-
-        this._renderEntity.clear();
+        if (JSB) {
+            this._renderEntity.clear();
+        }
     }
 }
 

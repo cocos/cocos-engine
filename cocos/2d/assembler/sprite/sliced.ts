@@ -96,7 +96,8 @@ export const sliced: IAssembler = {
         // }
         dynamicAtlasManager.packToDynamicAtlas(sprite, frame);
         // TODO update material and uv
-        this.updateUVs(sprite);
+        this.updateUVs(sprite); // dirty need
+        this.updateColor(sprite); // dirty need
 
         const renderData = sprite.renderData;
         if (renderData && frame) {
