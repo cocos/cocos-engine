@@ -215,14 +215,14 @@ export class Light {
     }
 
     public destroy () {
-        this._recycleLight();
+        this._recycle();
         this._name = null;
         this._node = null;
     }
 
     public update () {}
 
-    protected _recycleLight () {
+    protected _recycle () {
         legacyCC.director.root.lightPool(this).free();
     }
 }
