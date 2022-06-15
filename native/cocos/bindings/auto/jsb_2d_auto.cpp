@@ -6,6 +6,7 @@
 #include "2d/renderer/RenderEntity.h"
 #include "2d/renderer/UIMeshBuffer.h"
 #include "2d/renderer/Batcher2d.h"
+#include "cocos/bindings/auto/jsb_scene_auto.h"
 
 #ifndef JSB_ALLOC
 #define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
@@ -1393,6 +1394,25 @@ static bool js_2d_Batcher2d_ItIsDebugFuncInBatcher2d(se::State& s) // NOLINT(rea
 }
 SE_BIND_FUNC(js_2d_Batcher2d_ItIsDebugFuncInBatcher2d)
 
+static bool js_2d_Batcher2d_addRootNode(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Batcher2d>(s);
+    SE_PRECONDITION2(cobj, false, "js_2d_Batcher2d_addRootNode : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::Node*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_2d_Batcher2d_addRootNode : Error processing arguments");
+        cobj->addRootNode(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_2d_Batcher2d_addRootNode)
+
 static bool js_2d_Batcher2d_addVertDirtyRenderer(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Batcher2d>(s);
@@ -1486,25 +1506,6 @@ static bool js_2d_Batcher2d_getMeshBuffer(se::State& s) // NOLINT(readability-id
     return false;
 }
 SE_BIND_FUNC(js_2d_Batcher2d_getMeshBuffer)
-
-static bool js_2d_Batcher2d_getRootNode(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::Batcher2d>(s);
-    SE_PRECONDITION2(cobj, false, "js_2d_Batcher2d_getRootNode : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::Node* result = cobj->getRootNode();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_2d_Batcher2d_getRootNode : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC_AS_PROP_GET(js_2d_Batcher2d_getRootNode)
 
 static bool js_2d_Batcher2d_initialize(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1735,8 +1736,8 @@ bool js_register_2d_Batcher2d(se::Object* obj) // NOLINT(readability-identifier-
 #if CC_DEBUG
     cls->defineStaticProperty("isJSBClass", _SE(js_2d_getter_return_true), nullptr);
 #endif
-    cls->defineProperty("rootNode", _SE(js_2d_Batcher2d_getRootNode_asGetter), _SE(js_2d_Batcher2d_setRootNode_asSetter));
     cls->defineFunction("ItIsDebugFuncInBatcher2d", _SE(js_2d_Batcher2d_ItIsDebugFuncInBatcher2d));
+    cls->defineFunction("addRootNode", _SE(js_2d_Batcher2d_addRootNode));
     cls->defineFunction("addVertDirtyRenderer", _SE(js_2d_Batcher2d_addVertDirtyRenderer));
     cls->defineFunction("fillBuffersAndMergeBatches", _SE(js_2d_Batcher2d_fillBuffersAndMergeBatches));
     cls->defineFunction("generateBatch", _SE(js_2d_Batcher2d_generateBatch));

@@ -1,5 +1,4 @@
 #include <2d/renderer/Batcher2d.h>
-#include <cocos/2d/assembler/Simple.h>
 #include <cocos/base/TypeDef.h>
 #include <cocos/core/Root.h>
 #include <renderer/pipeline/Define.h>
@@ -10,18 +9,15 @@
 namespace cc {
 //batcher2d是从ts调JSB过来的的，所以不会走构造
 Batcher2d::Batcher2d() : Batcher2d(nullptr) {
-    _simple = new Simple(this);
     _device = Root::getInstance()->getDevice();
 }
 
 Batcher2d::Batcher2d(Root* root) : _drawBatchPool([]() { return ccnew scene::DrawBatch2D(); }, 10U) {
     _root = root;
-    _simple = new Simple(this);
     _device = Root::getInstance()->getDevice();
 }
 
 Batcher2d::~Batcher2d() {
-    CC_SAFE_DELETE(_simple);
 
     _drawBatchPool.destroy();
 
@@ -80,8 +76,8 @@ void Batcher2d::updateDescriptorSet() {
     //for this._descriptorSetCache.update()
 }
 
-void Batcher2d::setRootNode(Node* node) {
-    _rootNode = node;
+void Batcher2d::addRootNode(Node* node) {
+    _rootNodeArr.push_back(node);
 }
 
 //bool compareEntitySortingOrder(const RenderEntity* entity1, const RenderEntity* entity2) {
@@ -90,8 +86,11 @@ void Batcher2d::setRootNode(Node* node) {
 
 //对标ts的walk
 void Batcher2d::fillBuffersAndMergeBatches() {
-    walk(_rootNode);
-    generateBatch(_currEntity);
+    for (index_t i = 0; i < _rootNodeArr.size(); i++) {
+        walk(_rootNodeArr[i]);
+        generateBatch(_currEntity);
+    }
+    _rootNodeArr.clear();
 }
 
 void Batcher2d::walk(Node* node) {
@@ -136,9 +135,9 @@ void Batcher2d::walk(Node* node) {
             //暂时不修改vb和ib，验证下目前native的行为
             //最后调通时再把这里打开
             if (node->getChangedFlags()) {
-                _simple->updateWorldVerts(entity);
+                updateWorldVerts(entity);
             }
-            _simple->fillBuffers(entity);
+            fillBuffers(entity);
         }
         //递归调用
         auto& children = curNode->getChildren();
@@ -227,6 +226,34 @@ gfx::DescriptorSet* Batcher2d::getDescriptorSet(gfx::Texture* texture, gfx::Samp
     return ds;
 }
 
+// update vertex code
+
+void Batcher2d::updateWorldVerts(RenderEntity* entity) {
+    if (entity == nullptr) {
+        return;
+    }
+
+    // ccstd::vector<Render2dLayout*>& dataList = entity->getRenderDataArr();
+    Node* node = entity->getNode();
+    const Mat4& matrix = node->getWorldMatrix();
+    uint8_t stride = entity->getStride();
+    uint32_t size = entity->getVbCount() * stride;
+    float_t* vbBuffer = entity->getVbBuffer();
+
+    Vec3 temp;
+    uint8_t offset = 0;
+    for (int i = 0; i < size; i += stride) {
+        // Render2dLayout* curLayout = dataList[i];
+        Render2dLayout* curLayout = entity->getRender2dLayout(i);
+        temp.transformMat4(curLayout->position, matrix);
+
+        offset = i;
+        vbBuffer[offset++] = temp.x;
+        vbBuffer[offset++] = temp.y;
+        vbBuffer[offset++] = temp.z;
+    }
+}
+
 bool Batcher2d::initialize() {
     return true;
 }
@@ -247,7 +274,7 @@ void Batcher2d::update() {
 void Batcher2d::updateVertDirtyRenderer() {
     size_t size = _vertDirtyRenderers.size();
     for (uint32_t i = 0; i < size; i++) {
-        _simple->updateWorldVerts(_vertDirtyRenderers[i]);
+        updateWorldVerts(_vertDirtyRenderers[i]);
     }
     _vertDirtyRenderers.clear();
 }

@@ -224,7 +224,7 @@ export class Label extends UIRenderer {
         }
 
         this._string = value;
-        this.updateRenderData();
+        this.markForUpdateRenderData();
     }
 
     /**
@@ -246,7 +246,7 @@ export class Label extends UIRenderer {
         }
 
         this._horizontalAlign = value;
-        this.updateRenderData();
+        this.markForUpdateRenderData();
     }
 
     /**
@@ -268,7 +268,7 @@ export class Label extends UIRenderer {
         }
 
         this._verticalAlign = value;
-        this.updateRenderData();
+        this.markForUpdateRenderData();
     }
 
     /**
@@ -303,7 +303,7 @@ export class Label extends UIRenderer {
         }
 
         this._fontSize = value;
-        this.updateRenderData();
+        this.markForUpdateRenderData();
     }
 
     /**
@@ -325,7 +325,7 @@ export class Label extends UIRenderer {
         }
 
         this._fontFamily = value;
-        this.updateRenderData();
+        this.markForUpdateRenderData();
     }
 
     /**
@@ -346,7 +346,7 @@ export class Label extends UIRenderer {
         }
 
         this._lineHeight = value;
-        this.updateRenderData();
+        this.markForUpdateRenderData();
     }
 
     /**
@@ -370,7 +370,7 @@ export class Label extends UIRenderer {
         }
 
         this._spacingX = value;
-        this.updateRenderData();
+        this.markForUpdateRenderData();
     }
 
     /**
@@ -392,7 +392,7 @@ export class Label extends UIRenderer {
         }
 
         this._overflow = value;
-        this.updateRenderData();
+        this.markForUpdateRenderData();
     }
 
     /**
@@ -413,7 +413,7 @@ export class Label extends UIRenderer {
         }
 
         this._enableWrapText = value;
-        this.updateRenderData();
+        this.markForUpdateRenderData();
     }
 
     /**
@@ -490,7 +490,7 @@ export class Label extends UIRenderer {
             this.font = null;
         }
         this._flushAssembler();
-        this.updateRenderData();
+        this.markForUpdateRenderData();
     }
 
     /**
@@ -540,7 +540,7 @@ export class Label extends UIRenderer {
         }
 
         this._isBold = value;
-        this.updateRenderData();
+        this.markForUpdateRenderData();
     }
 
     /**
@@ -561,7 +561,7 @@ export class Label extends UIRenderer {
         }
 
         this._isItalic = value;
-        this.updateRenderData();
+        this.markForUpdateRenderData();
     }
 
     /**
@@ -582,7 +582,7 @@ export class Label extends UIRenderer {
         }
 
         this._isUnderline = value;
-        this.updateRenderData();
+        this.markForUpdateRenderData();
     }
 
     /**
@@ -599,7 +599,7 @@ export class Label extends UIRenderer {
     public set underlineHeight (value) {
         if (this._underlineHeight === value) return;
         this._underlineHeight = value;
-        this.updateRenderData();
+        this.markForUpdateRenderData();
     }
 
     get spriteFrame () {
@@ -729,17 +729,15 @@ export class Label extends UIRenderer {
     }
 
     public updateRenderData (force = false) {
-        this.markForUpdateRenderData();
-
         if (force) {
             this._flushAssembler();
             // Hack: Fixed the bug that richText wants to get the label length by _measureText,
             // _assembler.updateRenderData will update the content size immediately.
             if (this.renderData) this.renderData.vertDirty = true;
             this._applyFontTexture();
-            if (this._assembler) {
-                this._assembler.updateRenderData(this);
-            }
+        }
+        if (this._assembler) {
+            this._assembler.updateRenderData(this);
         }
     }
 
@@ -750,7 +748,7 @@ export class Label extends UIRenderer {
     // Cannot use the base class methods directly because BMFont and CHAR cannot be updated in assambler with just color.
     protected _updateColor () {
         super._updateColor();
-        this.updateRenderData(false);
+        this.markForUpdateRenderData();
     }
 
     protected _canRender () {
