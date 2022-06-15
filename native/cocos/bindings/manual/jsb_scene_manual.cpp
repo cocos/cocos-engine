@@ -861,7 +861,7 @@ static bool js_Model_setInstancedAttribute(se::State &s) // NOLINT(readability-i
         ok &= sevalue_to_native(args[0], &name, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_Model_setInstancedAttribute : Error processing arguments");
 
-        auto &val = args[1];
+        const auto &val = args[1];
         if (val.isObject()) {
             if (val.toObject()->isArray()) {
                 uint32_t len = 0;
@@ -891,7 +891,9 @@ static bool js_Model_setInstancedAttribute(se::State &s) // NOLINT(readability-i
                     CC_FREE(pData);
                 }
                 return true;
-            } else if (val.toObject()->isTypedArray()) {
+            }
+
+            if (val.toObject()->isTypedArray()) {
                 se::Object::TypedArrayType type = val.toObject()->getTypedArrayType();
                 switch (type) {
                     case se::Object::TypedArrayType::FLOAT32: {
