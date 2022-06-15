@@ -171,9 +171,7 @@ void setReturnValueTemplate(const Value &data, const T &argv) {
         constexpr int64_t maxSafeInt = 9007199254740991LL;  // value refer to JS Number.MAX_SAFE_INTEGER
         constexpr int64_t minSafeInt = -9007199254740991LL; // value refer to JS Number.MIN_SAFE_INTEGER
         if (data.toInt64() > maxSafeInt || data.toInt64() < minSafeInt) {
-            // NOTICE: We will try to convert it to BigInt, when precision loss may happend.
-            // But this will lead JS runtime exceptions such as
-            //      "Uncaught TypeError: Cannot mix BigInt and other types, use explicit conversions"
+            // NOTICE: Precision loss will happend here.
             warnWithinTimesInReleaseMode<100>("int64 value is out of range for double");
             CC_ASSERT(false); // should be fixed in debug mode.
         }
