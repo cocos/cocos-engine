@@ -223,6 +223,6 @@ export class Light {
     public update () {}
 
     protected _recycle () {
-        legacyCC.director.root.lightPool(this).free();
+        legacyCC.director.root.recycleLight(this);
     }
 }

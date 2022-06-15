@@ -234,14 +234,6 @@ export class Root {
     }
 
     /**
-     * @en get light pools
-     * @zh 获取 light 对象池
-     */
-    get lightPool() {
-        return this._lightPools;
-    }
-
-    /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _createSceneFun: (root: Root) => RenderScene = null!;
@@ -674,6 +666,18 @@ export class Root {
             }
         }
         l.destroy();
+    }
+
+    /**
+     * @en recycle the given light pool
+     * @zh 回收指定光源的对象池
+     * @param l @en The light to be recycle @zh 要回收的光源
+     */
+    public recycleLight(l: Light){
+        const p = this._lightPools.get(l.constructor as Constructor<Light>);
+        if (p) {
+            p.free(l);
+        }
     }
 }
 
