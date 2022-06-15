@@ -29,7 +29,11 @@ THE SOFTWARE.
 #include "base/Data.h"
 
 namespace cc {
-
+enum class AudioDataType {
+    SIGNED_16,
+    SIGNED_32,
+    FLOAT_32,
+};
 class AudioDecoder {
 public:
     AudioDecoder();
@@ -56,6 +60,7 @@ protected:
     int _sampleRate;
     Data _fileData;
     size_t _fileCurrPos;
+
 };
 
 } // namespace cc

@@ -73,6 +73,7 @@ bool AudioDecoderOgg::open(const char *path) {
         _channelCount = vi->channels;
         _bytesPerFrame = vi->channels * sizeof(int16_t);
         _bytesPerChannel = sizeof(int16_t);
+        _dataType = AudioDataType::SIGNED_16;
         _totalFrames = static_cast<uint32_t>(ov_pcm_total(&_vf, -1));
         _isOpened = true;
         return true;

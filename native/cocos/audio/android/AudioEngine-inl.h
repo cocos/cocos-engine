@@ -73,6 +73,9 @@ public:
 
     void setAudioFocusForAllPlayers(bool isFocus);
 
+    uint32_t getSampleRate(const char* url);
+    void getPCMBuffer(const char* url, uint32_t channelID, std::vector<float> &pcmData);    
+
 private:
     // engine interfaces
     SLObjectItf _engineObject;

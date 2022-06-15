@@ -108,10 +108,12 @@ bool AudioDecoderMp3::open(const char *path) {
 
         if (mp3Encoding == MPG123_ENC_SIGNED_16) {
             _bytesPerFrame = 2 * _channelCount;
-            _bytesPerFrame = 2;
+            _bytesPerChannel = 2;
+            _dataType = AudioDataType::SIGNED_16;
         } else if (mp3Encoding == MPG123_ENC_FLOAT_32) {
             _bytesPerFrame = 4 * _channelCount;
             _bytesPerChannel = 4;
+            _dataType = AudioDataType::FLOAT_32;
         } else {
             ALOGE("Bad encoding: 0x%x!\n", mp3Encoding);
             break;

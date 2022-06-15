@@ -43,7 +43,8 @@ AudioDecoder::AudioDecoder()
   _bytesPerFrame(0),
   _sampleRate(0),
   _channelCount(0),
-  _bytesPerChannel(0) {
+  _bytesPerChannel(0),
+  _dataType(AudioDataType::SIGNED_16) {
 }
 
 AudioDecoder::~AudioDecoder() {
@@ -87,5 +88,7 @@ uint32_t AudioDecoder::getChannelCount() const {
 uint32_t AudioDecoder::getBytesPerChannel() const {
     return _bytesPerChannel;
 }
-
+AudioDataType AudioDecoder::getDataType() const {
+    return _dataType;
+}
 } // namespace cc
