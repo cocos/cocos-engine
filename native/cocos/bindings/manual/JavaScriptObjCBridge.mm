@@ -408,7 +408,6 @@ se::Class *__jsb_ScriptNativeBridge_class = nullptr; // NOLINT
 static bool ScriptNativeBridge_finalize(se::State &s) { //NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<ScriptNativeBridge *>(s.nativeThisObject());
     CC_ASSERT(cobj == ScriptNativeBridge::bridgeCxxInstance);
-    delete cobj;
     ScriptNativeBridge::bridgeCxxInstance = nullptr;
     return true;
 }

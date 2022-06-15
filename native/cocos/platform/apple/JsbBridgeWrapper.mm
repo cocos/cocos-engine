@@ -26,6 +26,8 @@
 #include "base/std/container/string.h"
 #include "JsbBridge.h"
 #include "JsbBridgeWrapper.h"
+#include "cocos/bindings/event/EventDispatcher.h"
+#include "cocos/bindings/event/CustomEventTypes.h"
 
 @implementation JsbBridgeWrapper {
     JsbBridge* jb;
@@ -99,10 +101,14 @@ static ICallback cb = ^void(NSString* _event, NSString* _arg) {
     [jb sendToScript:eventName];
 }
 - (id)init {
-    self = [super init];
-    cbDictionnary = [NSMutableDictionary new];
-    jb = [JsbBridge sharedInstance];
-    [jb setCallback:cb];
+    if (self = [super init]) {
+        cbDictionnary = [NSMutableDictionary new];
+        jb = [JsbBridge sharedInstance];
+        [jb setCallback:cb];
+        cc::EventDispatcher::addCustomEventListener(EVENT_CLOSE, [&](const cc::CustomEvent& event){
+            [[JsbBridge sharedInstance] release];
+        });
+    }
     return self;
 }
 - (void)dealloc {
