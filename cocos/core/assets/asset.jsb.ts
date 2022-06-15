@@ -22,9 +22,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { ccclass, editable, serializable } from 'cc.decorator';
+import { ccclass, serializable } from 'cc.decorator';
 import {
-    _applyDecoratedDescriptor,
     _assertThisInitialized,
     _initializerDefineProperty,
 } from '../data/utils/decorator-jsb-utils';
@@ -124,20 +123,11 @@ assetProto.createNode = null!;
 export type Asset = jsb.Asset;
 export const Asset = jsb.Asset;
 
-const clsDecorator = ccclass('cc.Asset');
-
-const _class2$1 = Asset;
-const _descriptor$1 = _applyDecoratedDescriptor(_class2$1.prototype, '_native', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return '';
-    },
-});
-
-_applyDecoratedDescriptor(_class2$1.prototype, '_nativeAsset', [property], Object.getOwnPropertyDescriptor(_class2$1.prototype, '_nativeAsset'), _class2$1.prototype);
-
-clsDecorator(Asset);
-
 legacyCC.Asset = jsb.Asset;
+
+// handle meta data, it is generated automatically
+const AssetProto = Asset.prototype;
+serializable(AssetProto, '_native');
+const _nativeAssetDescriptor = Object.getOwnPropertyDescriptor(AssetProto, '_nativeAsset');
+property(AssetProto, '_nativeAsset', _nativeAssetDescriptor);
+ccclass('cc.Asset')(Asset);

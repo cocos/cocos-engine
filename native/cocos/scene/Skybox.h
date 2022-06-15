@@ -286,6 +286,7 @@ private:
     pipeline::GlobalDSManager *_globalDSManager{nullptr};
     IntrusivePtr<Model> _model;
     IntrusivePtr<Mesh> _mesh;
+    IntrusivePtr<Material> _material;
     IntrusivePtr<TextureCube> _default;
     bool _enabled{false};
     bool _useIBL{false};

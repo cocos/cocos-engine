@@ -5,6 +5,8 @@
  * API for jsb module
  * Author: haroel
  * Homepage: https://github.com/haroel/creatorexDTS
+ *
+ * @deprecated since v3.6.0, please import `native` from 'cc' module instead like `import { native } from 'cc';`.
  */
 declare namespace jsb {
 

@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR, JSB } from 'internal:constants';
 import { ccclass } from 'cc.decorator';
 import { BaseNode } from './base-node';
 import { replaceProperty, removeProperty } from '../utils/x-deprecated';
@@ -35,7 +35,6 @@ import { legacyCC } from '../global-exports';
 import { CCObject } from '../data/object';
 import { warnID } from '../platform/debug';
 import { SceneGlobals, ShadowsInfo } from './scene-globals';
-import { JSB } from '../default-constants';
 import { SystemEventType } from '../../input/types';
 import { SystemEvent } from '../../input';
 import { NodeUIProperties } from './node-ui-properties';

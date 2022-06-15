@@ -1,6 +1,6 @@
 {
   "name": "@cocos/build-engine",
-  "version": "4.3.4",
+  "version": "4.3.10",
   "description": "",
   "repository": {
     "type": "git",
@@ -9,7 +9,8 @@
   },
   "main": "dist/index.js",
   "files": [
-    "dist/"
+    "dist/",
+    "static/"
   ],
   "dependencies": {
     "@babel/core": "^7.13.10",
@@ -32,7 +33,7 @@
     "rollup-plugin-progress": "^1.1.1",
     "rollup-plugin-terser": "^7.0.2",
     "semver": "^7.3.2",
-    "tfig": "^3.2.4",
+    "tfig": "^3.2.5",
     "typescript": "^4.3.5",
     "yargs": "^15.1.0"
   },

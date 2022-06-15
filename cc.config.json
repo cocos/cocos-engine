@@ -2,7 +2,7 @@
     "$schema": "./cc.config.schema.json",
     
     "features": {
-        "base": { "modules": [ "base" ], "dependentAssets": ["0835f102-5471-47a3-9a76-01c07ac9cdb2", "b5475517-23b9-4873-bc1a-968d96616081", "0ed97c56-390e-4dd1-96b7-e7f2d93a98ed", "b23391b6-52eb-46a6-8da1-6244d9d315fb"] },
+        "base": { "modules": [ "base", "native" ], "dependentAssets": ["0835f102-5471-47a3-9a76-01c07ac9cdb2", "b5475517-23b9-4873-bc1a-968d96616081", "0ed97c56-390e-4dd1-96b7-e7f2d93a98ed", "b23391b6-52eb-46a6-8da1-6244d9d315fb"] },
         "gfx-webgl": { "modules": [ "gfx-webgl" ] },
         "gfx-webgl2": { "modules": [ "gfx-webgl2" ] },
         "3d": { "modules": [ "3d" ] },
@@ -40,6 +40,13 @@
         }
     },
     "moduleOverrides": [
+        {
+            "test": "true",
+            "isVirtualModule": true,
+            "overrides": {
+                "internal:native": "cocos/native-binding/impl.ts"
+            }
+        },
         {
             "test": "context.mode === 'BUILD'",
             "isVirtualModule": false,
@@ -203,19 +210,19 @@
             "internal": false
         },
         "BYTEDANCE": {
-            "comment": "Running in the ByteDance's quick game.",
+            "comment": "Running in the ByteDance's mini game.",
             "value": false,
             "ccGlobal": true,
             "internal": false
         },
         "OPPO": {
-            "comment": "Running in the oppo's mini game.",
+            "comment": "Running in the oppo's quick game.",
             "value": false,
             "ccGlobal": true,
             "internal": false
         },
         "VIVO": {
-            "comment": "Running in the vivo's mini game.",
+            "comment": "Running in the vivo's quick game.",
             "value": false,
             "ccGlobal": true,
             "internal": false
@@ -314,7 +321,7 @@
             "dynamic": true
         },
         "JSB": {
-            "comment": "Running in native platform (mobile app, desktop app, or simulator).",
+            "comment": "Running in environment where using JSB as the JavaScript interface binding scheme.",
             "value": "$NATIVE",
             "ccGlobal": true,
             "internal": false,

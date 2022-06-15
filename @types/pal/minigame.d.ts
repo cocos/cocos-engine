@@ -25,6 +25,8 @@ declare module 'pal/minigame' {
         triggerGC(): void;
         getBatteryInfoSync(): BatteryInfo;
 
+        exitMiniProgram? (): void;
+
         // render
         getSharedCanvas(): any;
         getOpenDataContext(): any;

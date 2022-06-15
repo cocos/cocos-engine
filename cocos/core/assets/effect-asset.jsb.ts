@@ -26,7 +26,6 @@
 import { ccclass, editable, editorOnly, serializable } from 'cc.decorator';
 import { legacyCC } from '../global-exports';
 import {
-    _applyDecoratedDescriptor,
     _assertThisInitialized,
     _initializerDefineProperty,
 } from '../data/utils/decorator-jsb-utils';
@@ -36,53 +35,21 @@ export const EffectAsset = jsb.EffectAsset;
 
 legacyCC.EffectAsset = EffectAsset;
 
-const clsDecorator = ccclass('cc.EffectAsset');
-
 const effectAssetProto: any = EffectAsset.prototype;
-
-const _descriptor_techniques = _applyDecoratedDescriptor(effectAssetProto, 'techniques', [serializable, editable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return [];
-    },
-});
-
-const _descriptor_shaders = _applyDecoratedDescriptor(effectAssetProto, 'shaders', [serializable, editable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return [];
-    },
-});
-
-const _descriptor_combinations = _applyDecoratedDescriptor(effectAssetProto, 'combinations', [serializable, editable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return [];
-    },
-});
-
-const _descriptor_hideInEditor = _applyDecoratedDescriptor(effectAssetProto, 'hideInEditor', [serializable, editorOnly], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return false;
-    },
-});
 
 effectAssetProto._ctor = function () {
     jsb.Asset.prototype._ctor.apply(this, arguments);
     this.hideInEditor = false;
-    // _initializerDefineProperty(this, 'techniques', _descriptor_techniques, _assertThisInitialized(this));
-    // _initializerDefineProperty(this, 'shaders', _descriptor_shaders, _assertThisInitialized(this));
-    // _initializerDefineProperty(this, 'combinations', _descriptor_combinations, _assertThisInitialized(this));
-    // _initializerDefineProperty(this, 'hideInEditor', _descriptor_hideInEditor, _assertThisInitialized(this));
 };
 
-clsDecorator(EffectAsset);
+// handle meta data, it is generated automatically
+const EffectAssetProto = EffectAsset.prototype;
+editable(EffectAssetProto, 'techniques');
+serializable(EffectAssetProto, 'techniques');
+editable(EffectAssetProto, 'shaders');
+serializable(EffectAssetProto, 'shaders');
+editable(EffectAssetProto, 'combinations');
+serializable(EffectAssetProto, 'combinations');
+editorOnly(EffectAssetProto, 'hideInEditor');
+serializable(EffectAssetProto, 'hideInEditor');
+ccclass('cc.EffectAsset')(EffectAsset);
