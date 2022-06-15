@@ -275,6 +275,12 @@ static ButtonHandler*           btnHandler = nil;
 @property(readwrite) id inputDelegate;
 @end
 @implementation InputBoxPair
+- (void)dealloc {
+    [super dealloc];
+    [_inputOnView release];
+    [_inputOnToolbar release];
+    [_inputDelegate release];
+}
 @end
 
 @implementation EditboxManager
