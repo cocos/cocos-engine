@@ -39,6 +39,7 @@
 #include "base/Utils.h"
 #include "base/memory/Memory.h"
 #include "platform/FileUtils.h"
+#include "AudioDecoder.h""
 
 using namespace cc;
 
@@ -668,4 +669,104 @@ void AudioEngineImpl::uncacheAll() {
 
 bool AudioEngineImpl::checkAudioIdValid(int audioID) {
     return _audioPlayers.find(audioID) != _audioPlayers.end();
+}
+
+uint32_t AudioEngineImpl::getSampleRate(const char *url){
+    uint32_t sampleRate = 0;
+    ccstd::string _fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
+        if (_fileFullPath == "") {
+            CC_LOG_DEBUG("file %s does not exist or failed to load", url);
+            return sampleRate;
+        }
+    AudioDecoder decoder;
+    do {
+        if (!decoder.open(_fileFullPath.c_str())) {
+            CC_LOG_ERROR("[Audio Decoder] File open failed %s", url);
+            break;
+        }
+        sampleRate = decoder.getSampleRate();
+    } while (false);
+
+    decoder.close();
+    
+    return sampleRate;
+}
+
+
+
+void AudioEngineImpl::getPCMBuffer(const char *url, uint32_t channelID, ccstd::vector<float> &pcmData) {
+    ccstd::string _fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
+    if (_fileFullPath == "") {
+        CC_LOG_DEBUG("file %s does not exist or failed to load", url);
+        return;
+    }
+    AudioDecoder decoder;
+
+    do {
+        if (!decoder.open(_fileFullPath.c_str())) {
+            CC_LOG_ERROR("[Audio Decoder] File open failed %s", url);
+            break;
+        }
+        const uint32_t bytesPerFrame = decoder.getBytesPerFrame();
+        const uint32_t bytesPerChannel = decoder.getBytesPerChannel();
+        const uint32_t channelCount = decoder.getChannelCount();
+        if (channelID >= channelCount) {
+            CC_LOG_ERROR("channelID invalid, total channel count is %d but %d is required", channelCount, channelID);
+            break;
+        }
+        uint32_t totalFrames = decoder.getTotalFrames();
+        uint32_t remainingFrames = totalFrames;
+        uint32_t framesRead = 0;
+        uint32_t framesToReadOnce = std::min(totalFrames, static_cast<uint32_t>(decoder.getSampleRate() * QUEUEBUFFER_TIME_STEP * QUEUEBUFFER_NUM));
+        
+        float redFac = 1.0f/(float)SHRT_MAX;
+        char *tmpBuf;
+        // For some part of type, we dont't actually know its type. 2 bytes => short, 4 bytes => float/int32.
+        char *tmpBufPerChannel;
+
+        tmpBufPerChannel = static_cast<char *>(malloc(bytesPerChannel + 1)); //NOLINT
+        tmpBufPerChannel[bytesPerChannel] = '\0';
+        pcmData.reserve(totalFrames);
+        tmpBuf = static_cast<char *>(malloc(framesToReadOnce * bytesPerFrame));
+        
+        while (remainingFrames > 0) {
+            framesToReadOnce = std::min(framesToReadOnce, remainingFrames);
+            framesRead = decoder.read(framesToReadOnce, tmpBuf);
+            for (int itr = 0; itr < framesToReadOnce; itr++) {
+                for (int j = 0; j < bytesPerChannel; j++) {
+                    // Read specified byte data
+                    tmpBufPerChannel[j] = tmpBuf[itr * bytesPerFrame + j * (channelID + 1)]; // NOLINT
+                }
+                //CC_LOG_DEBUG("res -- %f", res);
+                float res = (*reinterpret_cast<short*>(tmpBufPerChannel)) * redFac;
+                pcmData.emplace_back(res);
+            }
+            remainingFrames -= framesToReadOnce;
+            
+        };
+        
+        // Adjust total frames by setting position to the end of frames and try to read more data.
+        // This is a workaround for https://github.com/cocos2d/cocos2d-x/issues/16938
+        if (decoder.seek(totalFrames)) {
+            tmpBuf = static_cast<char *>(malloc(bytesPerFrame * framesToReadOnce));
+            do {
+                framesRead = decoder.read(framesToReadOnce, tmpBuf); //read one by one to easy divide
+                if (framesRead > 0) { // Adjust frames exist
+                    // transfer char data to float data
+                    for (int itr = 0; itr < framesRead; itr++) {
+                        for (int j = 0; j < bytesPerChannel; j++) {
+                            tmpBufPerChannel[j] = tmpBuf[itr * bytesPerFrame + j * (channelID + 1)];
+                        }
+                        float res = (*reinterpret_cast<short*>(tmpBufPerChannel)) * redFac;
+                        pcmData.emplace_back(res);
+                    }
+                }
+            } while (framesRead > 0);
+            
+        }
+        free(tmpBuf);
+        free(tmpBufPerChannel);
+        BREAK_IF_ERR_LOG(!decoder.seek(0), "AudioDecoder::seek(0) failed!");
+    } while (false);
+    decoder.close();
 }

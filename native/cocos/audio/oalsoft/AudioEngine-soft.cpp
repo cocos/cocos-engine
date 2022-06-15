@@ -555,7 +555,7 @@ uint32_t AudioEngineImpl::getSampleRate(const char* url) {
     }
     // Ready to decode
     do {
-        if (!decoder->open(url)) {
+        if (!decoder->open(_fileFullPath.c_str())) {
             CC_LOG_ERROR("[Audio Decoder] File open failed %s", url);
             break;
         }

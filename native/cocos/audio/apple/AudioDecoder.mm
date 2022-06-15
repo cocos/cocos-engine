@@ -34,7 +34,7 @@
 namespace cc {
 
 AudioDecoder::AudioDecoder()
-: _isOpened(false), _extRef(nullptr), _totalFrames(0), _bytesPerFrame(0), _sampleRate(0), _channelCount(0) {
+: _isOpened(false), _extRef(nullptr), _totalFrames(0), _bytesPerFrame(0), _sampleRate(0), _channelCount(0), _bytesPerChannel(0) {
     memset(&_outputFormat, 0, sizeof(_outputFormat));
 }
 
@@ -72,7 +72,7 @@ bool AudioDecoder::open(const char *path) {
         _outputFormat.mFramesPerPacket = 1;
         _outputFormat.mBitsPerChannel = 16;
         _outputFormat.mFormatFlags = kAudioFormatFlagsNativeEndian | kAudioFormatFlagIsPacked | kAudioFormatFlagIsSignedInteger;
-
+        _bytesPerChannel = 2;
         _sampleRate = _outputFormat.mSampleRate;
         _channelCount = _outputFormat.mChannelsPerFrame;
         _bytesPerFrame = 2 * _outputFormat.mChannelsPerFrame;
@@ -195,6 +195,10 @@ uint32_t AudioDecoder::getSampleRate() const {
 
 uint32_t AudioDecoder::getChannelCount() const {
     return _channelCount;
+}
+
+uint32_t AudioDecoder::getBytesPerChannel() const {
+    return _bytesPerChannel;
 }
 
 bool AudioDecoder::isOpened() const {

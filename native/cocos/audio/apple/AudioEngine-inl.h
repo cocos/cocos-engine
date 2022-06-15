@@ -60,7 +60,9 @@ public:
     void uncacheAll();
     AudioCache *preload(const ccstd::string &filePath, std::function<void(bool)> callback);
     void update(float dt);
-
+    
+    uint32_t getSampleRate(const char* url);
+    void getPCMBuffer(const char* url, uint32_t channelID, std::vector<float> &pcmData);
 private:
     bool checkAudioIdValid(int audioID);
     void play2dImpl(AudioCache *cache, int audioID);
