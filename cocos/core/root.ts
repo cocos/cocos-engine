@@ -650,7 +650,21 @@ export class Root {
      * @param l @en The light to be destroyed @zh 要销毁的光源
      */
     public destroyLight (l: Light) {
-        this.recycleLight(l);
+        if (l.scene) {
+            switch (l.type) {
+            case LightType.DIRECTIONAL:
+                l.scene.removeDirectionalLight(l as DirectionalLight);
+                break;
+            case LightType.SPHERE:
+                l.scene.removeSphereLight(l as SphereLight);
+                break;
+            case LightType.SPOT:
+                l.scene.removeSpotLight(l as SpotLight);
+                break;
+            default:
+                break;
+            }
+        }
         l.destroy();
     }
 
@@ -662,19 +676,17 @@ export class Root {
     public recycleLight (l: Light) {
         const p = this._lightPools.get(l.constructor as Constructor<Light>);
         if (p) {
+            p.free(l);
             if (l.scene) {
                 switch (l.type) {
                 case LightType.DIRECTIONAL:
                     l.scene.removeDirectionalLight(l as DirectionalLight);
-                    p.free(l);
                     break;
                 case LightType.SPHERE:
                     l.scene.removeSphereLight(l as SphereLight);
-                    p.free(l);
                     break;
                 case LightType.SPOT:
                     l.scene.removeSpotLight(l as SpotLight);
-                    p.free(l);
                     break;
                 default:
                     break;
