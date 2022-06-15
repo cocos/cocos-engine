@@ -694,29 +694,8 @@ bool Object::getArrayLength(uint32_t *length) const {
     CC_ASSERT(length != nullptr);
     auto *thiz = const_cast<Object *>(this);
 
-    v8::MaybeLocal<v8::String> lengthStr = ScriptEngine::getInstance()->_getStringPool().get(__isolate, "length");
-    if (lengthStr.IsEmpty()) {
-        *length = 0;
-        return false;
-    }
-    v8::Local<v8::Context> context = __isolate->GetCurrentContext();
-
-    v8::MaybeLocal<v8::Value> val = thiz->_obj.handle(__isolate)->Get(context, lengthStr.ToLocalChecked());
-    if (val.IsEmpty()) {
-        return false;
-    }
-
-    v8::MaybeLocal<v8::Object> obj = val.ToLocalChecked()->ToObject(context);
-    if (obj.IsEmpty()) {
-        return false;
-    }
-
-    v8::Maybe<uint32_t> mbLen = obj.ToLocalChecked()->Uint32Value(context);
-    if (mbLen.IsNothing()) {
-        return false;
-    }
-
-    *length = mbLen.FromJust();
+    v8::Local<v8::Array> v8Arr = v8::Local<v8::Array>::Cast(thiz->_obj.handle(__isolate));
+    *length = v8Arr->Length();
     return true;
 }
 
