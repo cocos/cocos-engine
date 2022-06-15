@@ -27,9 +27,14 @@
 #include <string>
 #include "renderer/pipeline/GlobalDescriptorSetManager.h"
 
+extern "C" void cc_load_all_plugins(); // NOLINT
+
 namespace cc {
 int BaseGame::init() {
     cc::pipeline::GlobalDSManager::setDescriptorSetLayout();
+
+    cc_load_all_plugins();
+
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX || CC_PLATFORM == CC_PLATFORM_MAC_OSX
     // override default value
     //_windowInfo.x      = _windowInfo.x == -1 ? 0 : _windowInfo.x;

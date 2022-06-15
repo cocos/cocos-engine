@@ -34,6 +34,7 @@
     #include "Object.h"
     #include "Utils.h"
     #include "base/std/container/unordered_map.h"
+    #include "plugins/bus/EventBus.h"
     #include "platform/FileUtils.h"
 
     #include <sstream>
@@ -554,6 +555,8 @@ bool ScriptEngine::postInit() {
     }
 
     _isValid = true;
+
+    cc::plugin::send(cc::plugin::BusType::SCRIPT_ENGINE, cc::plugin::ScriptEngineEvent::POST_INIT);
 
     for (const auto &hook : _afterInitHookArray) {
         hook();
