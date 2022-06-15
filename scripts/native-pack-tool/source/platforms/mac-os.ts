@@ -62,6 +62,10 @@ export class MacOSPackTool extends NativePackTool {
 
     async skipUpdateXcodeProject() {
         if (this.params.platformParams.skipUpdateXcodeProject) {
+            if(this.getXcodeMajorVerion() < 12) {
+                console.error(`SKIP UPDATE XCODE PROJECT is only supported with Xcode 12 or later`);
+                return;
+            }
             await this.xcodeDestroyZEROCHECK();
         }
     }

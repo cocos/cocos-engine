@@ -127,7 +127,7 @@ public class CocosWebSocket extends WebSocketListener {
         Log.d(_TAG, "connect ws url: '" + url + "' ,protocols: '" + protocols + "' ,ca_: '" + caFilePath + "'");
         Request.Builder requestBuilder = new Request.Builder().url(url);
         try {
-            requestBuilder = requestBuilder.url(url);
+            requestBuilder = requestBuilder.url(url.trim());
         } catch (NullPointerException | IllegalArgumentException e) {
             synchronized (_wsContext) {
                 nativeOnError("invalid url", _wsContext.identifier,
@@ -143,6 +143,10 @@ public class CocosWebSocket extends WebSocketListener {
                 requestBuilder.header(_header[index], _header[index + 1]);
             }
         }
+
+        String origin = url.replace("ws://", "http://").replace("wss://", "https://");
+        requestBuilder.addHeader("Origin", origin);
+
         Request request = requestBuilder.build();
 
         if(dispatcher == null) {

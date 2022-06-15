@@ -25,8 +25,6 @@
 
 #include "scene/Skybox.h"
 #include "3d/misc/CreateMesh.h"
-#include "cocos/bindings/event/CustomEventTypes.h"
-#include "cocos/bindings/event/EventDispatcher.h"
 #include "core/Root.h"
 #include "core/builtin/BuiltinResMgr.h"
 #include "core/platform/Debug.h"
@@ -41,9 +39,6 @@
 #include "scene/Ambient.h"
 #include "scene/Model.h"
 
-namespace {
-cc::Material *skyboxMaterial{nullptr};
-} // namespace
 namespace cc {
 namespace scene {
 
@@ -269,7 +264,7 @@ void Skybox::activate() {
     bool isRGBE = envmap != nullptr ? envmap->isRGBE : _default->isRGBE;
 
     bool isUseConvolutionMap = envmap != nullptr ? envmap->isUsingOfflineMipmaps() : _default->isUsingOfflineMipmaps();
-    if (!skyboxMaterial) {
+    if (!_material) {
         auto *mat = _editableMaterial ? _editableMaterial.get() : ccnew Material();
         MacroRecord defines{{"USE_RGBE_CUBEMAP", isRGBE}};
         IMaterialInfo matInfo;
@@ -278,16 +273,7 @@ void Skybox::activate() {
         mat->initialize({matInfo});
         IMaterialInstanceInfo matInstInfo;
         matInstInfo.parent = mat;
-        skyboxMaterial = ccnew MaterialInstance(matInstInfo);
-        skyboxMaterial->addRef();
-        EventDispatcher::addCustomEventListener(EVENT_CLOSE, [](const CustomEvent & /*unused*/) {
-            skyboxMaterial->release();
-            skyboxMaterial = nullptr;
-        });
-        EventDispatcher::addCustomEventListener(EVENT_RESTART_VM, [](const CustomEvent & /*unused*/) {
-            skyboxMaterial->release();
-            skyboxMaterial = nullptr;
-        });
+        _material = ccnew MaterialInstance(matInstInfo);
     }
 
     if (_enabled) {
@@ -302,7 +288,7 @@ void Skybox::activate() {
                     PrimitiveType::BOX,
                     PrimitiveOptions{options}));
         }
-        _model->initSubModel(0, _mesh->getRenderingSubMeshes()[0], skyboxMaterial);
+        _model->initSubModel(0, _mesh->getRenderingSubMeshes()[0], _material);
     }
 
     if (!getEnvmap()) {
@@ -318,12 +304,12 @@ void Skybox::activate() {
 }
 
 void Skybox::updatePipeline() const {
-    if (isEnabled() && skyboxMaterial != nullptr) {
-        skyboxMaterial->recompileShaders({{"USE_RGBE_CUBEMAP", isRGBE()}});
+    if (isEnabled() && _material != nullptr) {
+        _material->recompileShaders({{"USE_RGBE_CUBEMAP", isRGBE()}});
     }
 
-    if (_model != nullptr && skyboxMaterial != nullptr) {
-        _model->setSubModelMaterial(0, skyboxMaterial);
+    if (_model != nullptr && _material != nullptr) {
+        _model->setSubModelMaterial(0, _material);
     }
 
     Root *root = Root::getInstance();

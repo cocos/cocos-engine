@@ -24,7 +24,6 @@
 */
 import { ccclass, serializable } from 'cc.decorator';
 import {
-    _applyDecoratedDescriptor,
     _assertThisInitialized,
     _initializerDefineProperty,
 } from '../data/utils/decorator-jsb-utils';
@@ -78,49 +77,10 @@ TextureCube.Filter = Filter;
 TextureCube.PixelFormat = PixelFormat;
 TextureCube.WrapMode = WrapMode;
 
-const clsDecorator = ccclass('cc.TextureCube');
-
-const _class2$d = TextureCube;
-const _descriptor$b = _applyDecoratedDescriptor(_class2$d.prototype, 'isRGBE', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return false;
-    },
-});
-const _descriptor2$7 = _applyDecoratedDescriptor(_class2$d.prototype, '_mipmaps', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return [];
-    },
-});
-const _descriptor3$b = _applyDecoratedDescriptor(_class2$d.prototype, '_mipmapMode', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return MipmapMode.AUTO;
-    },
-});
-const _descriptor4$b = _applyDecoratedDescriptor(_class2$d.prototype, '_mipmapAtlas', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return null;
-    },
-});
-
 textureCubeProto._ctor = function () {
     jsb.SimpleTexture.prototype._ctor.apply(this, arguments);
     this._mipmaps = null;
     this._mipmapAtlas = null;
-    // for deserialization
-    // _initializerDefineProperty(_this, 'isRGBE', _descriptor$b, _assertThisInitialized(_this));
-    // _initializerDefineProperty(_this, '_mipmaps', _descriptor2$7, _assertThisInitialized(_this));
 };
 
 function _forEachFace (mipmap, callback: (face, faceIndex) => void) {
@@ -292,6 +252,12 @@ textureCubeProto._deserialize = function (serializedData: ITextureCubeSerializeD
     }
 }
 
-clsDecorator(TextureCube);
-
 legacyCC.TextureCube = jsb.TextureCube;
+
+// handle meta data, it is generated automatically
+const TextureCubeProto = TextureCube.prototype;
+serializable(TextureCubeProto, 'isRGBE');
+serializable(TextureCubeProto, '_mipmaps');
+serializable(TextureCubeProto, '_mipmapMode');
+serializable(TextureCubeProto, '_mipmapAtlas');
+ccclass('cc.TextureCube')(TextureCube);

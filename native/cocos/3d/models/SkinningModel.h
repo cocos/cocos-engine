@@ -43,7 +43,7 @@ struct JointInfo {
     geometry::AABB *bound{nullptr};
     Node *target{nullptr};
     Mat4 bindpose;
-    IJointTransform *transform{nullptr};
+    IntrusivePtr<IJointTransform> transform;
     ccstd::vector<index_t> buffers;
     ccstd::vector<index_t> indices;
 };

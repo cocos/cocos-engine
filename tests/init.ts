@@ -6,6 +6,15 @@ jest.mock(
 );
 
 jest.mock(
+    'internal:native',
+    () => ({
+        __esModule: true,
+        default: {}
+    }),
+    { virtual: true, },
+);
+
+jest.mock(
     'pal/audio',
     () => jest.requireActual('../pal/audio/web/player'),
     { virtual: true, },
