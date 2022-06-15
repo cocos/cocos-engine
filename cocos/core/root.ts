@@ -664,8 +664,8 @@ export class Root {
                 default:
                     break;
             }
+            l.destroy();
         }
-        l.destroy();
     }
 
     /**
