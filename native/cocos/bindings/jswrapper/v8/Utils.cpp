@@ -28,9 +28,11 @@
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
+    #include <cfloat>
     #include "Class.h"
     #include "Object.h"
     #include "ScriptEngine.h"
+    #include "base/Log.h"
 
 namespace se {
 
@@ -152,8 +154,20 @@ void setReturnValueTemplate(const Value &data, const T &argv) {
     } else if (data.getType() == Value::Type::Number) {
         argv.GetReturnValue().Set(v8::Number::New(argv.GetIsolate(), data.toDouble()));
     } else if (data.getType() == Value::Type::BigInt) {
-        // Notice: Most return value of type `size_t` should be treated as Number.
-        // argv.GetReturnValue().Set(v8::BigInt::New(argv.GetIsolate(), data.toInt64()));
+        constexpr int64_t maxSafeInt = 9007199254740991;  // value refer to JS Number.MAX_SAFE_INTEGER
+        constexpr int64_t minSafeInt = -9007199254740991; // value refer to JS Number.MIN_SAFE_INTEGER
+        if (data.toInt64() <= maxSafeInt && data.toInt64() >= minSafeInt) {
+            argv.GetReturnValue().Set(v8::Number::New(argv.GetIsolate(), static_cast<double>(data.toInt64())));
+        } else {
+            // NOTICE: We will try to convert it to BigInt, when precision loss may happend.
+            // But this will lead JS runtime exceptions such as
+            //      "Uncaught TypeError: Cannot mix BigInt and other types, use explicit conversions"
+            CC_LOG_DEBUG("int64 value is out of range for double");
+            assert(false); // should be fixed in debug mode.
+            // This is a fallback workaround in release mode
+            argv.GetReturnValue().Set(v8::BigInt::New(argv.GetIsolate(), data.toInt64()));
+        }
+
         argv.GetReturnValue().Set(v8::Number::New(argv.GetIsolate(), static_cast<double>(data.toInt64())));
     } else if (data.getType() == Value::Type::String) {
         v8::MaybeLocal<v8::String> value = v8::String::NewFromUtf8(argv.GetIsolate(), data.toString().c_str(), v8::NewStringType::kNormal);
