@@ -79,8 +79,8 @@ void Batcher2d::updateDescriptorSet() {
     //for this._descriptorSetCache.update()
 }
 
-void Batcher2d::setRootNode(Node* node) {
-    _rootNode = node;
+void Batcher2d::addRootNode(Node* node) {
+    _rootNodeArr.push_back(node);
 }
 
 //bool compareEntitySortingOrder(const RenderEntity* entity1, const RenderEntity* entity2) {
@@ -89,9 +89,11 @@ void Batcher2d::setRootNode(Node* node) {
 
 //对标ts的walk
 void Batcher2d::fillBuffersAndMergeBatches() {
-    _mapEnd = _nodeEntityMap.end();
-    walk(_rootNode);
-    generateBatch(_currEntity);
+    for (index_t i = 0; i < _rootNodeArr.size(); i++) {
+        walk(_rootNodeArr[i]);
+        generateBatch(_currEntity);
+    }
+    _rootNodeArr.clear();
 }
 
 void Batcher2d::walk(Node* node) {

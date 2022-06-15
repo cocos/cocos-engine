@@ -37,12 +37,12 @@ public:
     //inline RenderEntity* getFirstEntity() const { return _firstEntity; };
     //void setFirstEntity(RenderEntity* entity);
 
-    inline Node* getRootNode() const { return _rootNode; }
-    void setRootNode(Node* node);
+    //inline Node* getRootNode() const { return _rootNode; }
+    void addRootNode(Node* node);
 
-    inline void setNodeEntity(ccstd::string id, RenderEntity* entity) {
-        _nodeEntityMap[id] = entity;
-    }
+    //inline void setNodeEntity(ccstd::string id, RenderEntity* entity) {
+    //    _nodeEntityMap[id] = entity;
+    //}
 
 public:
     UIMeshBuffer* getMeshBuffer(index_t bufferId);
@@ -64,9 +64,9 @@ private:
     //ccstd::vector<RenderEntity*> _renderEntities{};
     //ccstd::vector<RenderEntity*> _newRenderEntities{};
     //RenderEntity* _firstEntity;
-    Node* _rootNode;
-    ccstd::unordered_map<ccstd::string, RenderEntity*>::iterator _mapEnd;
-    ccstd::unordered_map<ccstd::string, RenderEntity*> _nodeEntityMap;
+    ccstd::vector<Node*> _rootNodeArr{};
+    //ccstd::unordered_map<ccstd::string, RenderEntity*>::iterator _mapEnd;
+    //ccstd::unordered_map<ccstd::string, RenderEntity*> _nodeEntityMap;
 
 private:
     ccstd::vector<scene::DrawBatch2D*> _batches{};

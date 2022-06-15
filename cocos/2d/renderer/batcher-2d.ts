@@ -220,14 +220,47 @@ export class Batcher2D implements IBatcher {
     }
 
     public update () {
-        // this._currCompSortingOrder = 0;
-
         const screens = this._screens;
-        if (screens.length === 0) {
-            return;
+        if (JSB) {
+            for (let i = 0; i < screens.length; ++i) {
+                this._nativeObj.addRootNode(screens[i].node);
+            }
+            this._nativeObj.update();
+        } else {
+            let offset = 0;
+            for (let i = 0; i < screens.length; ++i) {
+                const screen = screens[i];
+                const scene = screen._getRenderScene();
+                if (!screen.enabledInHierarchy || !scene) {
+                    continue;
+                }
+                // Reset state and walk
+                this._opacityDirty = 0;
+                this._pOpacity = 1;
+
+                this.walk(screen.node);
+
+                this.autoMergeBatches(this._currComponent!);
+                this.resetRenderStates();
+
+                let batchPriority = 0;
+                if (this._batches.length > offset) {
+                    for (; offset < this._batches.length; ++offset) {
+                        const batch = this._batches.array[offset];
+
+                        if (batch.model) {
+                            const subModels = batch.model.subModels;
+                            for (let j = 0; j < subModels.length; j++) {
+                                subModels[j].priority = batchPriority++;
+                            }
+                        } else {
+                            batch.descriptorSet = this._descriptorSetCache.getDescriptorSet(batch);
+                        }
+                        scene.addBatch(batch);
+                    }
+                }
+            }
         }
-        this._nativeObj.rootNode = screens[0].node;
-        this._nativeObj.update();
     }
 
     public uploadBuffers () {
