@@ -215,7 +215,7 @@ inline bool sevalue_to_native(const se::Value &from, int64_t *to, se::Object * /
     return true;
 }
 
-#if CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS
 inline bool sevalue_to_native(const se::Value &from, unsigned long *to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     // on mac: unsiged long  === uintptr_t
     static_assert(sizeof(*to) == 8, "");
@@ -441,7 +441,7 @@ inline bool nativevalue_to_se(bool from, se::Value &to, se::Object * /*ctx*/) { 
     return true;
 }
 
-#if CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS
 inline bool nativevalue_to_se(unsigned long from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     static_assert(sizeof(from) == 8, "");
     to.setDouble(static_cast<double>(from));

@@ -248,7 +248,7 @@ void CCMTLBuffer::updateMTLBuffer(const void *buffer, uint /*offset*/, uint size
         CommandBuffer *cmdBuffer = CCMTLDevice::getInstance()->getCommandBuffer();
         cmdBuffer->begin();
         static_cast<CCMTLCommandBuffer *>(cmdBuffer)->updateBuffer(this, buffer, size);
-#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM == CC_PLATFORM_MACOS)
         if (_mtlResourceOptions == MTLResourceStorageModeManaged) {
             [_gpuBuffer->mtlBuffer didModifyRange:NSMakeRange(0, _size)]; // Synchronize the managed buffer.
         }

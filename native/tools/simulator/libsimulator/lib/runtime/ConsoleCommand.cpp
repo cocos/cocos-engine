@@ -224,7 +224,7 @@ void ConsoleCommand::onSendCommand(int fd, const std::string &args)
                 string platform="UNKNOW";
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
                 platform = "WIN32";
-#elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#elif (CC_PLATFORM == CC_PLATFORM_MACOS)
                 platform = "MAC";
 #elif (CC_PLATFORM == CC_PLATFORM_IOS)
                 platform = "IOS";

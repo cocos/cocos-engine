@@ -59,7 +59,7 @@
     #include "cocos/bindings/auto/jsb_audio_auto.h"
 #endif
 
-#if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS)
     #include "cocos/bindings/manual/JavaScriptObjCBridge.h"
 #endif
 
@@ -135,7 +135,7 @@ bool jsb_register_all_modules() {
     se->addRegisterCallback(register_all_scene_manual);
     se->addRegisterCallback(register_all_render);
 
-#if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS)
     se->addRegisterCallback(register_javascript_objc_bridge);
     se->addRegisterCallback(register_script_native_bridge);
 #endif

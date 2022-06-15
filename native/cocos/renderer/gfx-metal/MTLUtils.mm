@@ -603,7 +603,7 @@ MTLPixelFormat mu::toMTLPixelFormat(Format format) {
         case Format::RGB10A2UI: return MTLPixelFormatRGB10A2Uint;
         case Format::R11G11B10F: return MTLPixelFormatRG11B10Float;
         case Format::DEPTH: return MTLPixelFormatDepth32Float;
-#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM == CC_PLATFORM_MACOS)
         // FIXME: works fine on imac, but invalid pixel format on intel macbook.
         //case Format::DEPTH_STENCIL: return MTLPixelFormatDepth24Unorm_Stencil8;
         case Format::DEPTH_STENCIL: return MTLPixelFormatDepth32Float_Stencil8;
@@ -866,7 +866,7 @@ MTLSamplerAddressMode mu::toMTLSamplerAddressMode(Address mode) {
         case Address::MIRROR: return MTLSamplerAddressModeMirrorRepeat;
         case Address::CLAMP: return MTLSamplerAddressModeClampToEdge;
         case Address::BORDER: {
-#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM == CC_PLATFORM_MACOS)
             return MTLSamplerAddressModeClampToBorderColor;
 #endif
         }
@@ -876,7 +876,7 @@ MTLSamplerAddressMode mu::toMTLSamplerAddressMode(Address mode) {
 }
 
 int mu::toMTLSamplerBorderColor(const Color &color) {
-#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM == CC_PLATFORM_MACOS)
     float diff = color.x - 0.5f;
     if (math::IsEqualF(color.w, 0.f))
         return MTLSamplerBorderColorTransparentBlack;
@@ -946,7 +946,7 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
     // Set some options.
     spirv_cross::CompilerMSL::Options options;
     options.enable_decoration_binding = true;
-#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM == CC_PLATFORM_MACOS)
     options.platform = spirv_cross::CompilerMSL::Options::Platform::macOS;
 #elif (CC_PLATFORM == CC_PLATFORM_IOS)
     options.platform = spirv_cross::CompilerMSL::Options::Platform::iOS;
@@ -955,7 +955,7 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
     options.pad_fragment_output_components = true;
     if (isFramebufferFetchSupported()) {
         options.use_framebuffer_fetch_subpasses = true;
-#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM == CC_PLATFORM_MACOS)
         options.set_msl_version(2, 3, 0);
 #endif
     }
@@ -1517,7 +1517,7 @@ bool mu::isDepthStencilFormatSupported(id<MTLDevice> device, Format format, uint
     //                    return true;
     //            }
     //        case Format::D24S8:
-    //#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+    //#if (CC_PLATFORM == CC_PLATFORM_MACOS)
     //            return [device isDepth24Stencil8PixelFormatSupported];
     //#else
     //            return false;
@@ -1536,7 +1536,7 @@ bool mu::isIndirectDrawSupported(uint family) {
 }
 
 MTLPixelFormat mu::getSupportedDepthStencilFormat(id<MTLDevice> device, uint family, uint &depthBits) {
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
     return MTLPixelFormatDepth24Unorm_Stencil8;
 #else
     return MTLPixelFormatDepth32Float_Stencil8;

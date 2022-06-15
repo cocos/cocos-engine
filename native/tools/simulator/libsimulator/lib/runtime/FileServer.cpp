@@ -244,7 +244,7 @@ FileServer::FileServer() : _listenfd(-1),
 
     _writePath = cc::FileUtils::getInstance()->getWritablePath();
 
-#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM == CC_PLATFORM_MACOS)
     #include "Widget_mac.h"
     _writePath += getCurAppName();
     _writePath += "/";

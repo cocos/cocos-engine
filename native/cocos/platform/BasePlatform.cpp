@@ -30,7 +30,7 @@
     #include "platform/android/AndroidPlatform.h"
 #elif (CC_PLATFORM == CC_PLATFORM_OHOS)
     #include "platform/ohos/OhosPlatform.h"
-#elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#elif (CC_PLATFORM == CC_PLATFORM_MACOS)
     #include "platform/mac/MacPlatform.h"
 #elif (CC_PLATFORM == CC_PLATFORM_IOS)
     #include "platform/ios/IOSPlatform.h"
@@ -60,7 +60,7 @@ BasePlatform* BasePlatform::createDefaultPlatform() {
     static AndroidPlatform platform;
 #elif (CC_PLATFORM == CC_PLATFORM_OHOS)
     static OhosPlatform platform;
-#elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#elif (CC_PLATFORM == CC_PLATFORM_MACOS)
     static MacPlatform platform;
 #elif (CC_PLATFORM == CC_PLATFORM_IOS)
     static IOSPlatform platform;
