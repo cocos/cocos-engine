@@ -154,8 +154,8 @@ void setReturnValueTemplate(const Value &data, const T &argv) {
     } else if (data.getType() == Value::Type::Number) {
         argv.GetReturnValue().Set(v8::Number::New(argv.GetIsolate(), data.toDouble()));
     } else if (data.getType() == Value::Type::BigInt) {
-        constexpr int64_t maxSafeInt = 9007199254740991;  // value refer to JS Number.MAX_SAFE_INTEGER
-        constexpr int64_t minSafeInt = -9007199254740991; // value refer to JS Number.MIN_SAFE_INTEGER
+        constexpr int64_t maxSafeInt = 9007199254740991LL;  // value refer to JS Number.MAX_SAFE_INTEGER
+        constexpr int64_t minSafeInt = -9007199254740991LL; // value refer to JS Number.MIN_SAFE_INTEGER
         if (data.toInt64() <= maxSafeInt && data.toInt64() >= minSafeInt) {
             argv.GetReturnValue().Set(v8::Number::New(argv.GetIsolate(), static_cast<double>(data.toInt64())));
         } else {
