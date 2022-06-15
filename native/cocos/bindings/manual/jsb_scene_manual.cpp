@@ -868,11 +868,11 @@ static bool js_Model_setInstancedAttribute(se::State &s) // NOLINT(readability-i
                 val.toObject()->getArrayLength(&len);
 
                 se::Value dataVal;
-                ccstd::array<float, 32> stackData;
+                ccstd::array<float, 64> stackData;
                 float *pData = nullptr;
                 bool needFree = false;
 
-                if (len <= 32) {
+                if (len <= static_cast<uint32_t>(stackData.size())) {
                     pData = stackData.data();
                 } else {
                     pData = static_cast<float *>(CC_MALLOC(len));
