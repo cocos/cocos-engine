@@ -1,6 +1,6 @@
 {
     "$schema": "./cc.config.schema.json",
-    
+
     "features": {
         "base": { "modules": [ "base" ], "dependentAssets": ["0835f102-5471-47a3-9a76-01c07ac9cdb2", "b5475517-23b9-4873-bc1a-968d96616081", "0ed97c56-390e-4dd1-96b7-e7f2d93a98ed", "b23391b6-52eb-46a6-8da1-6244d9d315fb"] },
         "gfx-webgl": { "modules": [ "gfx-webgl" ] },
@@ -65,8 +65,8 @@
                 "cocos/core/renderer/core/render-scene.ts": "cocos/core/renderer/core/render-scene.jsb.ts",
                 "cocos/core/renderer/scene/submodel.ts": "cocos/core/renderer/scene/submodel.jsb.ts",
                 "cocos/core/renderer/scene/index.ts": "cocos/core/renderer/scene/index.jsb.ts",
+                "cocos/core/gfx/base/pipeline-state.ts": "cocos/core/gfx/base/pipeline-state.jsb.ts",
                 "cocos/core/gfx/index.ts": "cocos/core/gfx/index.jsb.ts",
-                "cocos/core/gfx/pipeline-state.ts": "cocos/core/gfx/pipeline-state.jsb.ts",
                 "cocos/spine/index.ts": "cocos/spine/index.jsb.ts",
                 "cocos/dragon-bones/index.ts": "cocos/dragon-bones/index.jsb.ts",
                 "cocos/physics/physx/instantiate.ts": "cocos/physics/physx/instantiate.jsb.ts",
