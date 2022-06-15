@@ -6,6 +6,7 @@
 #include "2d/renderer/RenderEntity.h"
 #include "2d/renderer/UIMeshBuffer.h"
 #include "2d/renderer/Batcher2d.h"
+#include "cocos/bindings/auto/jsb_scene_auto.h"
 
 #ifndef JSB_ALLOC
 #define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
@@ -1335,7 +1336,7 @@ SE_BIND_FINALIZE_FUNC(js_cc_RenderEntity_finalize)
 
 bool js_register_2d_RenderEntity(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
-    auto* cls = se::Class::create("RenderEntity", obj, __jsb_cc_Node_UserData_proto, _SE(js_2d_RenderEntity_constructor));
+    auto* cls = se::Class::create("RenderEntity", obj, nullptr, _SE(js_2d_RenderEntity_constructor));
 
 #if CC_DEBUG
     cls->defineStaticProperty("isJSBClass", _SE(js_2d_getter_return_true), nullptr);
