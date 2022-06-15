@@ -228,40 +228,13 @@ gfx::DescriptorSet* Batcher2d::getDescriptorSet(gfx::Texture* texture, gfx::Samp
 
 // update vertex code
 
-void Batcher2d::updateWorldVerts(RenderEntity* entity) {
-    if (entity == nullptr) {
-        return;
-    }
-
-    // ccstd::vector<Render2dLayout*>& dataList = entity->getRenderDataArr();
-    Node* node = entity->getNode();
-    const Mat4& matrix = node->getWorldMatrix();
-    uint8_t stride = entity->getStride();
-    uint32_t size = entity->getVbCount() * stride;
-    float_t* vbBuffer = entity->getVbBuffer();
-
-    Vec3 temp;
-    uint8_t offset = 0;
-    for (int i = 0; i < size; i += stride) {
-        // Render2dLayout* curLayout = dataList[i];
-        Render2dLayout* curLayout = entity->getRender2dLayout(i);
-        temp.transformMat4(curLayout->position, matrix);
-
-        offset = i;
-        vbBuffer[offset++] = temp.x;
-        vbBuffer[offset++] = temp.y;
-        vbBuffer[offset++] = temp.z;
-    }
-}
-
 bool Batcher2d::initialize() {
     return true;
 }
 
 void Batcher2d::update() {
     updateVertDirtyRenderer();
-    //sortRenderEntities();
-    walk(_rootNode);
+    fillBuffersAndMergeBatches();
     resetRenderStates();
 
     for (const auto scene : Root::getInstance()->getScenes()) {
