@@ -215,9 +215,9 @@ export class Light {
     }
 
     public destroy () {
-        this._recycle();
         this._name = null;
         this._node = null;
+        this._recycle();
     }
 
     public update () {}
