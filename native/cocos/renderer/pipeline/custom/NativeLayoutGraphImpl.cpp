@@ -87,7 +87,14 @@ void NativeLayoutGraphBuilder::addDescriptorBlock(
         const auto &d = pairD.second;
         auto iter = g.attributeIndex.find(boost::string_view(name));
         if (iter == g.attributeIndex.end()) {
-            throw std::out_of_range("attribute not found");
+            auto attrID = gsl::narrow_cast<uint32_t>(g.valueNames.size());
+            g.valueNames.emplace_back(name);
+            bool added = false;
+            std::tie(iter, added) = g.attributeIndex.emplace(
+                std::piecewise_construct,
+                std::forward_as_tuple(name),
+                std::forward_as_tuple(NameLocalID{attrID}));
+            CC_ENSURES(added);
         }
         const auto &nameID = iter->second;
         dstBlock.descriptors.emplace_back(nameID, d.count);
