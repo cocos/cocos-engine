@@ -1,0 +1,10 @@
+{
+    "title": {
+        "zh": "原生接口",
+        "en": "Native Interface"
+    },
+    "description": {
+        "zh": "该模块提供由原生绑定出来的 JavaScript 接口，包括文件，反射接口等",
+        "en": "This module provides JavaScript interface bound from native, including file, reflection interface etc."
+    }
+}
