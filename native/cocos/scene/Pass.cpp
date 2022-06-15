@@ -223,7 +223,7 @@ void Pass::setTextureArray(const ccstd::string &name, const ccstd::vector<gfx::T
     }
 }
 
-void Pass::bindSampler(uint32_t binding, gfx::Sampler *value, index_t index /* = CC_INVALID_INDEX */) {
+void Pass::bindSampler(uint32_t binding, gfx::Sampler *value, uint32_t index) {
     _descriptorSet->bindSampler(binding, value, index != CC_INVALID_INDEX ? index : 0);
 }
 
