@@ -674,9 +674,6 @@ int ServerSocket::DetectIp() {
         int       fd;
         uv_tcp_t *server = &tcp_socket_;
         if (uv_fileno((uv_handle_t *)server, &fd) >= 0) {
-            struct sockaddr_in sa;
-            socklen_t          saLen = sizeof(sa);
-
             constexpr int maxIpLen = 20;
             char          ipBuff[maxIpLen];
             err = getListenSocketAddr(fd, ipBuff, sizeof(ipBuff));
@@ -695,8 +692,6 @@ int ServerSocket::Listen(InspectorSocketServer *inspector_server,
     uv_tcp_t *    server        = &server_socket->tcp_socket_;
     CHECK_EQ(0, uv_tcp_init(loop, server));
     int err = uv_tcp_bind(server, addr, 0);
-
-
     if (err == 0) {
         err = uv_listen(reinterpret_cast<uv_stream_t *>(server), 1,
                         ServerSocket::SocketConnectedCallback);
