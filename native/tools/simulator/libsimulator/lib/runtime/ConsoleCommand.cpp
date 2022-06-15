@@ -226,7 +226,7 @@ void ConsoleCommand::onSendCommand(int fd, const std::string &args)
                 platform = "WIN32";
 #elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
                 platform = "MAC";
-#elif (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+#elif (CC_PLATFORM == CC_PLATFORM_IOS)
                 platform = "IOS";
 #elif (CC_PLATFORM == CC_PLATFORM_ANDROID)
                 platform = "ANDROID";
@@ -239,7 +239,7 @@ void ConsoleCommand::onSendCommand(int fd, const std::string &args)
                 dReplyParse.AddMember("code", 0, allocator);
             } else if(strcmp(strcmd.c_str(), "usewritablepath") == 0)
             {
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
                 // only iOS and Android need to open using write path by Code IDE
                 FileServer::getShareInstance()->setIsUsingWritePath(true);
                 

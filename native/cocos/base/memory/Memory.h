@@ -25,7 +25,7 @@
 
 #pragma once
 
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+#if (CC_PLATFORM == CC_PLATFORM_IOS)
     #include <Availability.h>
 #endif
 
@@ -125,7 +125,7 @@ public:
         (p)->addRef();     \
     }
 
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS) && (__IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_11_0)
+#if (CC_PLATFORM == CC_PLATFORM_IOS) && (__IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_11_0)
     #define ALIGNAS(x)
 #else
     #define ALIGNAS(x) alignas(x)

@@ -235,7 +235,7 @@ FileServer::FileServer() : _listenfd(-1),
                            _writeEndThread(false),
                            _responseRunning(false),
                            _responseEndThread(false) {
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
     // need to be opened by Code IDE
     _isUsingWritePath = false;
 #else

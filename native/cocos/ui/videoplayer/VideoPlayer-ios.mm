@@ -29,7 +29,7 @@
 using namespace cc;
 
 // No Available on tvOS
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_IOS
 
 //-------------------------------------------------------------------------------------
 

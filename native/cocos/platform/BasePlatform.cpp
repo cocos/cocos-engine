@@ -32,7 +32,7 @@
     #include "platform/ohos/OhosPlatform.h"
 #elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
     #include "platform/mac/MacPlatform.h"
-#elif (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+#elif (CC_PLATFORM == CC_PLATFORM_IOS)
     #include "platform/ios/IOSPlatform.h"
 #elif (CC_PLATFORM == CC_PLATFORM_LINUX)
     #include "platform/linux/LinuxPlatform.h"
@@ -62,7 +62,7 @@ BasePlatform* BasePlatform::createDefaultPlatform() {
     static OhosPlatform platform;
 #elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
     static MacPlatform platform;
-#elif (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+#elif (CC_PLATFORM == CC_PLATFORM_IOS)
     static IOSPlatform platform;
 #elif (CC_PLATFORM == CC_PLATFORM_LINUX)
     static LinuxPlatform platform;

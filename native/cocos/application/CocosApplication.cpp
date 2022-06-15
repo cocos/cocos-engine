@@ -77,7 +77,7 @@ int CocosApplication::init() {
 
     se->start();
 
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+#if (CC_PLATFORM == CC_PLATFORM_IOS)
     auto logicSize = _systemWidow->getViewSize();
     IScreen *screen = _engine->getInterface<IScreen>();
     float pixelRatio = screen->getDevicePixelRatio();
