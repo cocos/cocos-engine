@@ -31,6 +31,7 @@ import { Camera, Light, Model } from './renderer/scene';
 import type { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
 import { LightType } from './renderer/scene/light';
 import { IRenderSceneInfo, RenderScene } from './renderer/core/render-scene';
+import { DirectionalLight } from './renderer/scene/directional-light';
 import { SphereLight } from './renderer/scene/sphere-light';
 import { SpotLight } from './renderer/scene/spot-light';
 import { legacyCC } from './global-exports';
@@ -230,6 +231,14 @@ export class Root {
      */
     public get useDeferredPipeline () : boolean {
         return this._useDeferredPipeline;
+    }
+
+    /**
+     * @en get light pools
+     * @zh 获取 light 对象池
+     */
+    get lightPool() {
+        return this._lightPools;
     }
 
     /**
@@ -649,11 +658,11 @@ export class Root {
      * @param l @en The light to be destroyed @zh 要销毁的光源
      */
     public destroyLight (l: Light) {
-        const p = this._lightPools.get(l.constructor as Constructor<Light>);
-        if (p) {
-            p.free(l);
-            if (l.scene) {
-                switch (l.type) {
+        if (l.scene) {
+            switch (l.type) {
+                case LightType.DIRECTIONAL:
+                    l.scene.removeDirectionalLight(l as DirectionalLight);
+                    break;
                 case LightType.SPHERE:
                     l.scene.removeSphereLight(l as SphereLight);
                     break;
@@ -662,7 +671,6 @@ export class Root {
                     break;
                 default:
                     break;
-                }
             }
         }
         l.destroy();

@@ -27,6 +27,7 @@ import { Vec3 } from '../../math';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { RenderScene } from '../core/render-scene';
 import { Node } from '../../scene-graph';
+import { legacyCC } from '../../global-exports';
 
 // Color temperature (in Kelvin) to RGB
 export function ColorTemperatureToRGB (rgb: Vec3, kelvin: number) {
@@ -214,9 +215,14 @@ export class Light {
     }
 
     public destroy () {
+        this._recycleLight();
         this._name = null;
         this._node = null;
     }
 
     public update () {}
+
+    protected _recycleLight () {
+        legacyCC.director.root.lightPool(this).free();
+    }
 }
