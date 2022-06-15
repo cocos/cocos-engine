@@ -669,7 +669,7 @@ int ServerSocket::DetectPort() {
 }
 
 int ServerSocket::DetectIp() {
-    int err = -1;
+    int err = 0;
     #if (CC_PLATFORM == CC_PLATFORM_NX)
         int       fd;
         uv_tcp_t *server = &tcp_socket_;
