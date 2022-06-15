@@ -25,6 +25,7 @@
 
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, visible, type,
     formerlySerializedAs, serializable, editable, disallowAnimation } from 'cc.decorator';
+import { JSB } from 'internal:constants';
 import { Texture2D } from '../../core/assets';
 import { Material } from '../../core/assets/material';
 import { Mesh } from '../assets/mesh';
@@ -41,7 +42,6 @@ import { legacyCC } from '../../core/global-exports';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { CCFloat } from '../../core/data/utils/attribute';
 import { property } from '../../core/data/class-decorator';
-import { JSB } from 'internal:constants';
 
 /**
  * @en Shadow projection mode.
