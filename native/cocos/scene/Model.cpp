@@ -511,5 +511,40 @@ void Model::updateLocalShadowBias() {
     _localDataUpdated = true;
 }
 
+void Model::setInstancedAttribute(const ccstd::string& name, const float* value, uint32_t byteLength) {
+    const auto& attributes = getInstancedAttributeBlock().attributes;
+    auto& views = getInstancedAttributeBlock().views;
+
+    for (size_t i = 0, len = attributes.size(); i < len; ++i) {
+        const auto& attribute = attributes[i];
+        if (attribute.name == name) {
+            const auto& info = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attribute.format)];
+            switch (info.type) {
+                case gfx::FormatType::NONE:
+                case gfx::FormatType::UNORM:
+                case gfx::FormatType::SNORM:
+                case gfx::FormatType::UINT:
+                case gfx::FormatType::INT:
+                {
+                    CC_ASSERT(false); // NOLINT
+                }
+                    break;
+                case gfx::FormatType::FLOAT:
+                case gfx::FormatType::UFLOAT:
+                {
+                    CC_ASSERT(ccstd::holds_alternative<Float32Array>(views[i]));
+                    auto& view = ccstd::get<Float32Array>(views[i]);
+                    float *dstData = reinterpret_cast<float*>(view.buffer()->getData() + view.byteOffset());
+                    CC_ASSERT(byteLength <= view.byteLength());
+                    memcpy(dstData, value, byteLength);
+                }
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+}
+
 } // namespace scene
 } // namespace cc

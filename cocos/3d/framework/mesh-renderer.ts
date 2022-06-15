@@ -41,6 +41,7 @@ import { legacyCC } from '../../core/global-exports';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { CCFloat } from '../../core/data/utils/attribute';
 import { property } from '../../core/data/class-decorator';
+import { JSB } from '../../core/default-constants';
 
 /**
  * @en Shadow projection mode.
@@ -466,12 +467,19 @@ export class MeshRenderer extends ModelRenderer {
     }
 
     public setInstancedAttribute (name: string, value: ArrayLike<number>) {
-        if (!this.model) { return; }
-        const { attributes, views } = this.model.instancedAttributes;
-        for (let i = 0; i < attributes.length; i++) {
-            if (attributes[i].name === name) {
-                views[i].set(value);
-                break;
+        if (!this.model) {
+            return;
+        }
+
+        if (JSB) {
+            (this.model as any)._setInstancedAttribute(name, value);
+        } else {
+            const {attributes, views} = this.model.instancedAttributes;
+            for (let i = 0; i < attributes.length; i++) {
+                if (attributes[i].name === name) {
+                    views[i].set(value);
+                    break;
+                }
             }
         }
     }
