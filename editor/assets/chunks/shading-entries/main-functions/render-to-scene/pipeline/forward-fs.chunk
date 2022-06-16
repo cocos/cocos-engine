@@ -42,10 +42,12 @@ void main()  {
   // Fog factor
   #if !CC_FORWARD_ADD
     float fogFactor = 1.0;
-    #if !CC_USE_ACCURATE_FOG
-      fogFactor = FSInput_fogFactor;
-    #else
-      CC_TRANSFER_FOG_BASE(vec4(FSInput_worldPos, 1.0), fogFactor);
+    #if CC_USE_FOG != CC_FOG_NONE
+      #if !CC_USE_ACCURATE_FOG
+        fogFactor = FSInput_fogFactor;
+      #else
+        CC_TRANSFER_FOG_BASE(vec4(FSInput_worldPos, 1.0), fogFactor);
+      #endif
     #endif
 
     #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC && CC_SURFACES_ENABLE_DEBUG_VIEW

@@ -47,7 +47,7 @@ void main()
     In.worldNormal.xyz = normalize(In.position.xyz);
 
     // Other Data
-#if !CC_USE_ACCURATE_FOG
+#if CC_USE_FOG != CC_FOG_NONE && !CC_USE_ACCURATE_FOG
     In.fogFactor = 0.0;
 #endif
 
