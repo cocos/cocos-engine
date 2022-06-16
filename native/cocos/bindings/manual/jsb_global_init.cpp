@@ -81,9 +81,7 @@ static int selectPort(int port) {
         uv_interface_addresses(&info, &count);
         if (count == 0) {
             SE_LOGE("Failed to accquire interfaces, error: %s\n Re-select port after 37000", strerror(errno));
-            //  cat /proc/sys/net/ipv4/ip_local_port_range
-            //  37000   50000
-            startPort = 37000 + port % 1000;
+            startPort = 37000 + port;
         }
         if (info) {
             uv_free_interface_addresses(info, count);
