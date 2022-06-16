@@ -1,6 +1,6 @@
 // used for replacing cc-shadow-map-base.chunk
-#include <cc-shadow>
-#include <common>
+#include <builtin/uniforms/cc-shadow>
+#include <common/common-define>
 #include <common/math/coordinates>
 
 float CCGetLinearDepth(vec3 worldPos) {
@@ -9,10 +9,10 @@ float CCGetLinearDepth(vec3 worldPos) {
 }
 
 #if CC_RECEIVE_SHADOW
-  #include <cc-global>
+  #include <builtin/uniforms/cc-global>
   #include <builtin/uniforms/cc-shadow-map>
 
-  #include <packing>
+  #include <common/data/packing>
   #include <common/shadow/native-pcf>
   
 

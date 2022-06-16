@@ -4,8 +4,8 @@ CCEffect %{
   techniques:
   - passes:
     - switch: USE_OUTLINE_PASS
-      vert: outline-vs:vert
-      frag: outline-fs:frag
+      vert: legacy/main-functions/outline-vs:vert
+      frag: legacy/main-functions/outline-fs:frag
       rasterizerState:
         cullMode: front
       depthStencilState:
@@ -99,12 +99,12 @@ CCProgram shared-ubos %{
 
 CCProgram toon-vs %{
   precision highp float;
-  #include <input-standard>
-  #include <cc-global>
-  #include <decode-base>
-  #include <cc-local-batch>
+  #include <legacy/input-standard>
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/decode-base>
+  #include <legacy/local-batch>
   #include <shared-ubos>
-  #include <cc-shadow-map-vs>
+  #include <legacy/shadow-map-vs>
 
   out vec3 v_position;
   out vec2 v_uv;
@@ -147,11 +147,11 @@ CCProgram toon-vs %{
 
 CCProgram toon-fs %{
   precision highp float;
-  #include <cc-global>
-  #include <shading-toon>
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/shading-toon>
   #include <shared-ubos>
-  #include <output-standard>
-  #include <gamma>
+  #include <legacy/output-standard>
+  #include <common/color/gamma>
 
   in vec3 v_position;
   in vec2 v_uv;
@@ -262,11 +262,11 @@ CCProgram toon-fs %{
 
 CCProgram shadow-caster-vs %{
   precision highp float;
-  #include <input-standard>
-  #include <decode-base>
-  #include <cc-local-batch>
+  #include <legacy/input-standard>
+  #include <legacy/decode-base>
+  #include <legacy/local-batch>
   #include <shared-ubos>
-  #include <cc-shadow>
+  #include <builtin/uniforms/cc-shadow>
 
   out vec2 v_uv;
   out vec4 v_worldPos;
@@ -292,8 +292,8 @@ CCProgram shadow-caster-vs %{
 CCProgram shadow-caster-fs %{
   precision highp float;
   #include <shared-ubos>
-  #include <packing>
-  #include <cc-shadow-map-base>
+  #include <common/data/packing>
+  #include <legacy/shadow-map-base>
   
   in vec2 v_uv;
   in vec4 v_worldPos;

@@ -1,4 +1,4 @@
-#include <cc-global>
+#include <builtin/uniforms/cc-global>
 #include <common/effect/fog>
 
 #pragma define-meta CC_USE_FOG range([0, 4])
