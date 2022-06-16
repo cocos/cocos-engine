@@ -74,14 +74,15 @@ static int selectPort(int port) {
     int tryTimes = 200;
     int startPort = port;
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
-    if (startPort < 37000) {
+    constexpr int localPortMin = 37000; // query from /proc/sys/net/ipv4/ip_local_port_range
+    if (startPort < localPortMin) {
         uv_interface_address_t *info = nullptr;
         int count = 0;
 
         uv_interface_addresses(&info, &count);
         if (count == 0) {
             SE_LOGE("Failed to accquire interfaces, error: %s\n Re-select port after 37000", strerror(errno));
-            startPort = 37000 + port;
+            startPort = localPortMin + port;
         }
         if (info) {
             uv_free_interface_addresses(info, count);
