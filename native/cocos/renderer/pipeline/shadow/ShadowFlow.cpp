@@ -38,6 +38,7 @@
 #include "scene/DirectionalLight.h"
 #include "scene/RenderScene.h"
 #include "scene/Shadow.h"
+#include "scene/SpotLight.h"
 
 namespace cc {
 namespace pipeline {
@@ -96,7 +97,7 @@ void ShadowFlow::render(scene::Camera *camera) {
 
     const auto &shadowFramebufferMap = sceneData->getShadowFramebufferMap();
     const scene::DirectionalLight *mainLight = camera->getScene()->getMainLight();
-    if (mainLight) {
+    if (mainLight && mainLight->isShadowEnabled()) {
         gfx::DescriptorSet *globalDS = _pipeline->getDescriptorSet();
         if (!shadowFramebufferMap.count(mainLight)) {
             initShadowFrameBuffer(_pipeline, mainLight);
@@ -139,7 +140,10 @@ void ShadowFlow::lightCollecting() {
     const ccstd::vector<const scene::Light *> validPunctualLights = _pipeline->getPipelineSceneData()->getValidPunctualLights();
     for (const scene::Light *light : validPunctualLights) {
         if (light->getType() == scene::LightType::SPOT) {
-            _validLights.emplace_back(light);
+            const auto *spotLight = static_cast<const scene::SpotLight *>(light);
+            if (spotLight->isShadowEnabled()) {
+                _validLights.emplace_back(light);
+            }
         }
     }
 }
@@ -197,7 +201,7 @@ void ShadowFlow::resizeShadowMap() {
 
         auto renderTargets = framebuffer->getColorTextures();
         for (auto *renderTarget : renderTargets) {
-            auto iter = std::find(_usedTextures.begin(), _usedTextures.end(), renderTarget);
+            const auto iter = std::find(_usedTextures.begin(), _usedTextures.end(), renderTarget);
             _usedTextures.erase(iter);
             CC_SAFE_DESTROY_AND_DELETE(renderTarget);
         }
@@ -214,7 +218,7 @@ void ShadowFlow::resizeShadowMap() {
         }
 
         auto *depth = framebuffer->getDepthStencilTexture();
-        auto iter = std::find(_usedTextures.begin(), _usedTextures.end(), depth);
+        const auto iter = std::find(_usedTextures.begin(), _usedTextures.end(), depth);
         _usedTextures.erase(iter);
         CC_SAFE_DESTROY_AND_DELETE(depth);
         depth = device->createTexture({
