@@ -23,6 +23,7 @@
  THE SOFTWARE.
 */
 
+import { JSB } from 'internal:constants';
 import { BitmapFont, IConfig, FontLetterDefinition } from '../../assets/bitmap-font';
 import { SpriteFrame } from '../../assets/sprite-frame';
 import { isUnicodeCJK, isUnicodeSpace } from '../../utils/text-utils';
@@ -129,22 +130,24 @@ export const bmfontUtils = {
     },
 
     updateColor (label: Label) {
-        const renderData = label.renderData!;
-        const vData = renderData.chunk.vb;
-        const vertexCount = renderData.vertexCount;
-        const stride = renderData.floatStride;
-        let colorOffset = 5;
-        const color = label.color;
-        const colorR = color.r / 255;
-        const colorG = color.g / 255;
-        const colorB = color.b / 255;
-        const colorA = color.a / 255;
-        for (let i = 0; i < vertexCount; i++) {
-            vData[colorOffset] = colorR;
-            vData[colorOffset + 1] = colorG;
-            vData[colorOffset + 2] = colorB;
-            vData[colorOffset + 3] = colorA;
-            colorOffset += stride;
+        if (JSB) {
+            const renderData = label.renderData!;
+            const vData = renderData.chunk.vb;
+            const vertexCount = renderData.vertexCount;
+            const stride = renderData.floatStride;
+            let colorOffset = 5;
+            const color = label.color;
+            const colorR = color.r / 255;
+            const colorG = color.g / 255;
+            const colorB = color.b / 255;
+            const colorA = color.a / 255;
+            for (let i = 0; i < vertexCount; i++) {
+                vData[colorOffset] = colorR;
+                vData[colorOffset + 1] = colorG;
+                vData[colorOffset + 2] = colorB;
+                vData[colorOffset + 3] = colorA;
+                colorOffset += stride;
+            }
         }
     },
 
