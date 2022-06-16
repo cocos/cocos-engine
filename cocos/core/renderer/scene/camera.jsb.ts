@@ -25,8 +25,10 @@
 import { Ray } from '../../geometry';
 import { RenderWindow } from '../core/render-window';
 import { ClearFlagBit } from '../../gfx';
-import { _tempFloatArray } from '../../scene-graph/utils.jsb';
+import { _tempFloatArray, fillMat4WithTempFloatArray } from '../../scene-graph/utils.jsb';
 import { Mat4, Vec3 } from '../../math';
+
+declare const jsb: any;
 
 export enum CameraFOVAxis {
     VERTICAL,
@@ -118,6 +120,67 @@ Object.defineProperty(Camera, "standardLightMeterScale", {
     },
 });
 
+Object.defineProperty(cameraProto, 'matView', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        this.getMatView();
+        fillMat4WithTempFloatArray(this._matView);
+        return this._matView;
+    }
+});
+
+Object.defineProperty(cameraProto, 'matProj', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        this.getMatProj();
+        fillMat4WithTempFloatArray(this._matProj);
+        return this._matProj;
+    }
+});
+
+Object.defineProperty(cameraProto, 'matProjInv', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        this.getMatProjInv();
+        fillMat4WithTempFloatArray(this._matProjInv);
+        return this._matProjInv;
+    }
+});
+
+Object.defineProperty(cameraProto, 'matViewProj', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        this.getMatViewProj();
+        fillMat4WithTempFloatArray(this._matViewProj);
+        return this._matViewProj;
+    }
+});
+
+Object.defineProperty(cameraProto, 'matViewProjInv', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        this.getMatViewProjInv();
+        fillMat4WithTempFloatArray(this._matViewProjInv);
+        return this._matViewProjInv;
+    }
+});
+
+const oldInitialize = cameraProto.initialize;
+
+cameraProto.initialize = function initialize () {
+    oldInitialize.apply(this, arguments);
+    this._matView = new Mat4();
+    this._matProj = new Mat4();
+    this._matProjInv = new Mat4();
+    this._matViewProj = new Mat4();
+    this._matViewProjInv = new Mat4();
+};
+
 const oldScreenPointToRay = cameraProto.screenPointToRay;
 const oldScreenToWorld = cameraProto.screenToWorld;
 const oldWorldToScreen = cameraProto.worldToScreen;
@@ -181,12 +244,7 @@ cameraProto.worldMatrixToScreen = function worldMatrixToScreen (out: Mat4, world
     _tempFloatArray[17] = height;
 
     oldWorldMatrixToScreen.call(this);
-    Mat4.set(out,
-        _tempFloatArray[0], _tempFloatArray[1], _tempFloatArray[2], _tempFloatArray[3],
-        _tempFloatArray[4], _tempFloatArray[5], _tempFloatArray[6], _tempFloatArray[7],
-        _tempFloatArray[8], _tempFloatArray[9], _tempFloatArray[10], _tempFloatArray[11],
-        _tempFloatArray[12], _tempFloatArray[13], _tempFloatArray[14], _tempFloatArray[15]
-    );
+    fillMat4WithTempFloatArray(out);
     return out;
 };
 

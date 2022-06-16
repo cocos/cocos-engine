@@ -996,6 +996,25 @@ static bool js_assets_MaterialInstance_registerListeners(se::State &s) // NOLINT
 }
 SE_BIND_FUNC(js_assets_MaterialInstance_registerListeners) // NOLINT(readability-identifier-naming)
 
+#define BIND_CAMERA_MAT_GETTER(name) \
+static bool js_scene_Camera_getMat##name(se::State& s) \
+{ \
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s); \
+    SE_PRECONDITION2(cobj, false, "js_scene_Camera_getMat : Invalid Native Object"); \
+    const cc::Mat4& result = cobj->getMat##name(); \
+    memcpy(tempFloatArray, result.m, sizeof(result.m)); \
+    return true; \
+} \
+SE_BIND_FUNC(js_scene_Camera_getMat##name)
+
+BIND_CAMERA_MAT_GETTER(View)
+BIND_CAMERA_MAT_GETTER(Proj)
+BIND_CAMERA_MAT_GETTER(ProjInv)
+BIND_CAMERA_MAT_GETTER(ViewProj)
+BIND_CAMERA_MAT_GETTER(ViewProjInv)
+
+#undef BIND_CAMERA_MAT_GETTER
+
 bool register_all_scene_manual(se::Object *obj) // NOLINT(readability-identifier-naming)
 {
     // Get the ns
@@ -1027,6 +1046,13 @@ bool register_all_scene_manual(se::Object *obj) // NOLINT(readability-identifier
     __jsb_cc_scene_Camera_proto->defineFunction("screenToWorld", _SE(js_scene_Camera_screenToWorld));
     __jsb_cc_scene_Camera_proto->defineFunction("worldToScreen", _SE(js_scene_Camera_worldToScreen));
     __jsb_cc_scene_Camera_proto->defineFunction("worldMatrixToScreen", _SE(js_scene_Camera_worldMatrixToScreen));
+
+    __jsb_cc_scene_Camera_proto->defineFunction("getMatView", _SE(js_scene_Camera_getMatView));
+    __jsb_cc_scene_Camera_proto->defineFunction("getMatProj", _SE(js_scene_Camera_getMatProj));
+    __jsb_cc_scene_Camera_proto->defineFunction("getMatProjInv", _SE(js_scene_Camera_getMatProjInv));
+    __jsb_cc_scene_Camera_proto->defineFunction("getMatViewProj", _SE(js_scene_Camera_getMatViewProj));
+    __jsb_cc_scene_Camera_proto->defineFunction("getMatViewProjInv", _SE(js_scene_Camera_getMatViewProjInv));
+
 
     // Node TS wrapper will invoke this function to let native object listen some events.
     __jsb_cc_Node_proto->defineFunction("_registerListeners", _SE(js_scene_Node_registerListeners));
