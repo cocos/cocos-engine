@@ -96,7 +96,7 @@ void Batcher2d::walk(Node* node) {
                 }
             }
 
-            if (node->getChangedFlags()) {
+            if (curNode->getChangedFlags()) {
                 fillVertexBuffers(entity);
             }
             fillIndexBuffers(entity);

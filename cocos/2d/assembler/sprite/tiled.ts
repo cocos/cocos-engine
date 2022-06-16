@@ -116,8 +116,8 @@ export const tiled: IAssembler = {
             renderData.chunk.setIndexBuffer(QUAD_INDICES);
             // may can update color & uv here
             // need dirty
-            this.updateWorldUVData(sprite, renderData.chunk);
-            this.updataColorLate(sprite);
+            this.updateWorldUVData(sprite);
+            this.updateColorLate(sprite);
         }
 
         renderData.updateRenderData(sprite, frame);
@@ -160,7 +160,7 @@ export const tiled: IAssembler = {
         }
 
         // forColor
-        this.updataColorLate(sprite);
+        this.updateColorLate(sprite);
 
         // update indices
         const bid = chunk.bufferId;
@@ -181,11 +181,11 @@ export const tiled: IAssembler = {
         meshBuffer.setDirty();
     },
 
-    updateWorldUVData (sprite: Sprite, chunk: StaticVBChunk) {
+    updateWorldUVData (sprite: Sprite) {
         const renderData = sprite.renderData!;
         const stride = renderData.floatStride;
         const dataList: IRenderData[] = renderData.data;
-        const vData = chunk.vb;
+        const vData = renderData.chunk.vb;
         for (let i  = 0; i < dataList.length; i++) {
             const offset = i * stride;
             vData[offset + 3] = dataList[i].u;
@@ -677,7 +677,7 @@ export const tiled: IAssembler = {
     },
 
     // fill color here
-    updataColorLate (sprite: Sprite) {
+    updateColorLate (sprite: Sprite) {
         const renderData = sprite.renderData!;
         const vData = renderData.chunk.vb;
         const stride = renderData.floatStride;
