@@ -87,7 +87,7 @@ float CCGetLinearDepth(vec3 worldPos) {
   }
 
   //////////////////////////////////////////////////////////Directional Light Shadow
-  float CCGetShadowFactorHard (vec4 shadowPosWithDepthBias) {
+  float CCGetDirLightShadowFactorHard (vec4 shadowPosWithDepthBias) {
 	vec3 shadowNDCPos;
 	if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
 		return 1.0;
@@ -200,7 +200,7 @@ float CCGetLinearDepth(vec3 worldPos) {
     }else if (pcf > 0.9) {
       realtimeShadow = CCGetDirLightShadowFactorSoft(pos);
     }else { 
-      realtimeShadow = CCGetShadowFactorHard(pos); 
+      realtimeShadow = CCGetDirLightShadowFactorHard(pos); 
     }
     return mix(realtimeShadow, 1.0, cc_shadowNFLSInfo.w);
   }
@@ -244,7 +244,7 @@ float CCGetLinearDepth(vec3 worldPos) {
     } else if (pcf > 0.9) {
       realtimeShadow = CCGetDirLightShadowFactorSoft(pos);
     }else { 
-      realtimeShadow = CCGetShadowFactorHard(pos);
+      realtimeShadow = CCGetDirLightShadowFactorHard(pos);
     }
     return mix(realtimeShadow, 1.0, cc_shadowNFLSInfo.w);
   }
