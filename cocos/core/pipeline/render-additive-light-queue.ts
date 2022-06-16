@@ -115,7 +115,7 @@ export class RenderAdditiveLightQueue {
     private _device: Device;
     private _lightPasses: IAdditiveLightPass[] = [];
     private _lightInstancedPasses: number[] = [];
-    private _lightBatchedPasses: number[] = []; 
+    private _lightBatchedPasses: number[] = [];
     private _shadowUBO = new Float32Array(UBOShadow.COUNT);
     private _lightBufferCount = 16;
     private _lightBufferStride: number;

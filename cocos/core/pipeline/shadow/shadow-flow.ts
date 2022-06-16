@@ -96,7 +96,7 @@ export class ShadowFlow extends RenderFlow {
             const light = validPunctualLights[m];
             if (light.type === LightType.SPOT) {
                 const spotLight = light as SpotLight;
-                if (spotLight.shadowEnabled){
+                if (spotLight.shadowEnabled) {
                     _validLights.push(light);
                     n++;
                 }
