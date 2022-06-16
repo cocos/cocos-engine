@@ -900,7 +900,7 @@ static bool js_Model_setInstancedAttribute(se::State &s) // NOLINT(readability-i
                         uint8_t *data = nullptr;
                         size_t byteLength = 0;
                         if (val.toObject()->getTypedArrayData(&data, &byteLength) && data != nullptr && byteLength > 0) {
-                            cobj->setInstancedAttribute(name, reinterpret_cast<const float *>(data), byteLength);
+                            cobj->setInstancedAttribute(name, reinterpret_cast<const float *>(data), static_cast<uint32_t>(byteLength));
                         }
                     } break;
 
